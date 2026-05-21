@@ -8,6 +8,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   MagnifyingGlass,
   Export,
@@ -30,6 +31,9 @@ import {
   Globe,
   List,
   MapPin,
+  Clock,
+  CheckCircle,
+  Coins,
 } from '@phosphor-icons/react'
 
 import { DEMO_KPIS, DEMO_CALENDARIO, DEMO_MENSAL, DEMO_MODAL, DEMO_MELHOR_COTACAO, DEMO_INCOTERMS } from '../shared/demo-data'
@@ -165,97 +169,7 @@ const MAP_PINS: MapPin[] = [
   }
 ]
 
-// ─── KPI Card ───────────────────────────────────────────────────────────────
 
-function KpiCard({ icon, label, value, sub, badge, badgeColor, sparkData, sparkType = 'bar', destacado = false }: {
-  icon: React.ReactNode
-  label: string
-  value: string
-  sub: string
-  badge?: string
-  badgeColor?: string
-  sparkData?: number[]
-  sparkType?: 'line' | 'bar' | 'progress'
-  destacado?: boolean
-}) {
-  const maxSpark = sparkData ? Math.max(...sparkData) : 0
-  return (
-    <div className={`bfd-kpi ${destacado ? 'bfd-kpi--destacado' : ''}`}>
-      <div className="bfd-kpi__header">
-        <span className="bfd-kpi__icon" style={{ color: destacado ? '#60a5fa' : '#cbd5e1' }}>{icon}</span>
-        <span className="bfd-kpi__label" style={{ color: destacado ? '#ffffff' : '#94a3b8' }}>{label}</span>
-      </div>
-      <div className="bfd-kpi__row">
-        <span className="bfd-kpi__value" style={{ color: destacado ? '#ffffff' : '#ffffff' }}>{value}</span>
-        {badge && (
-          <span
-            className="bfd-kpi__badge"
-            style={{
-              color: destacado ? '#ffffff' : (badgeColor || '#60a5fa'),
-              background: destacado ? 'rgba(96,165,250,0.25)' : 'rgba(96,165,250,0.12)',
-            }}
-          >
-            {badge}
-          </span>
-        )}
-      </div>
-      
-      {sparkData && sparkType === 'bar' && (
-        <div className="bfd-kpi__spark">
-          {sparkData.map((d, i) => (
-            <div
-              key={i}
-              className="bfd-kpi__spark-bar"
-              style={{
-                height: `${(d / maxSpark) * 100}%`,
-                background: destacado ? '#60a5fa' : `rgba(99,91,255,${0.3 + (i / sparkData.length) * 0.7})`,
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {sparkData && sparkType === 'line' && (
-        <div className="bfd-kpi__spark-line">
-          {(() => {
-            const w = 140
-            const h = 32
-            const points = sparkData.map((d, i) => {
-              const x = (i / (sparkData.length - 1)) * w
-              const y = h - (d / maxSpark) * 22 - 5
-              return { x, y }
-            })
-            const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
-            const fillPath = `${linePath} L ${points[points.length - 1].x} ${h} L ${points[0].x} ${h} Z`
-            
-            return (
-              <svg width="100%" height="32" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                <defs>
-                  <linearGradient id="sparkline-grad-blue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.0" />
-                  </linearGradient>
-                </defs>
-                <path d={fillPath} fill="url(#sparkline-grad-blue)" />
-                <path d={linePath} fill="none" stroke="#60a5fa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            )
-          })()}
-        </div>
-      )}
-
-      {sparkType === 'progress' && (
-        <div className="bfd-kpi__progress-wrap">
-          <div className="bfd-kpi__progress-bg">
-            <div className="bfd-kpi__progress-fill" style={{ width: '80%' }} />
-          </div>
-        </div>
-      )}
-
-      <span className="bfd-kpi__sub" style={{ color: destacado ? '#ffffff' : '#cbd5e1' }}>{sub}</span>
-    </div>
-  )
-}
 
 // ─── Gráfico de Barras Mensal (SVG) ─────────────────────────────────────────
 
@@ -3132,7 +3046,7 @@ export default function VisaoGeral() {
         .bfd-incoterms__count { font-size: 0.85rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 600; }
 
         /* ── Bottom Grid ─────────────────────────────────────────── */
-        .bfd-bottom-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 1.25rem; }
+        .bfd-bottom-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
 
         /* ── Taxa ────────────────────────────────────────────────── */
         .bfd-taxa { display: flex; align-items: center; gap: 1.25rem; }
@@ -3200,57 +3114,76 @@ export default function VisaoGeral() {
 
       {/* KPIs Grid (5 columns now) */}
       <div className="bfd-kpi-grid">
-        <KpiCard
-          icon={<Timer weight="duotone" size={18} />}
-          label="Em andamento"
-          value={String(kpis.cotacoes_andamento)}
-          badge="+3 semana"
-          badgeColor="#60a5fa"
-          sparkData={andamentoSpark}
-          sparkType="line"
-          sub={`USD ${fmtMoeda(kpis.valor_andamento_usd)} em aberto`}
+        <CardBasicoGlobal
+          titulo="Em andamento"
+          icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
+          valor={String(kpis.cotacoes_andamento)}
+          tendencia={{ valor: '+3/sem', direcao: 'up' }}
+          subtexto={`USD ${fmtMoeda(kpis.valor_andamento_usd)} em aberto`}
+          variante="padrao"
         />
-        <KpiCard
-          icon={<TrendUp weight="duotone" size={18} />}
-          label="Aprovadas"
-          value={String(kpis.cotacoes_passadas)}
-          badge="+12% mes"
-          badgeColor="#60a5fa"
-          sparkData={DEMO_MENSAL.map(d => d.aprovadas)}
-          sparkType="bar"
-          destacado={true}
-          sub={`USD ${fmtMoeda(kpis.valor_aprovado_usd)} total`}
+        <CardBasicoGlobal
+          titulo="Aprovadas"
+          icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
+          valor={String(kpis.cotacoes_passadas)}
+          tendencia={{ valor: '+12%', direcao: 'up' }}
+          subtexto={`USD ${fmtMoeda(kpis.valor_aprovado_usd)} total`}
+          variante="padrao"
         />
-        <KpiCard
-          icon={<TrendUp weight="duotone" size={18} />}
-          label="Saving medio"
-          value={`${kpis.savings.media_saving_percentual}%`}
-          badge="+2.3pp"
-          badgeColor="#60a5fa"
-          sparkData={savingSpark}
-          sparkType="line"
-          sub={`USD ${fmtMoeda(kpis.savings.total_saving_usd)} acumulado`}
+        <CardBasicoGlobal
+          titulo="Saving Médio"
+          icone={<Coins weight="duotone" size={16} style={{ color: '#34d399' }} />}
+          valor={`${kpis.savings.media_saving_percentual}%`}
+          tendencia={{ valor: '+2.3pp', direcao: 'up' }}
+          subtexto={`USD ${fmtMoeda(kpis.savings.total_saving_usd)} acumulado`}
+          variante="padrao"
         />
-        <KpiCard
-          icon={<Timer weight="duotone" size={18} />}
-          label="Tempo medio resp."
-          value="2.4 di."
-          badge="-0.8d"
-          badgeColor="#60a5fa"
-          sparkType="progress"
-          sub="Meta: 3 dias"
+        <CardBasicoGlobal
+          titulo="Tempo Médio de Resposta"
+          icone={<Timer weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
+          valor="2.4 d"
+          tendencia={{ valor: '-0.8d', direcao: 'down' }}
+          subtexto="Meta: 3 dias"
+          variante="padrao"
         />
       </div>
 
-      {/* Row 2: Globe Map + Funil de Cotações */}
+      {/* Row 2: Globe Map + Right Column (Alertas on top, Funil de Cotações on bottom) */}
       <div className="bfd-globe-row">
         {/* Global World Map Overview Section */}
         <VisaoGeralMapa />
 
-        {/* Funil */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Funil de Cotações</span>
-          <FunilStatus />
+        {/* Right Column Stacking Alertas + Funil */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', minHeight: 0 }}>
+          {/* Alertas */}
+          <div className="bfd-card bfd-alertas" style={{ flex: 1, padding: '1.25rem 1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <span className="bfd-card__title" style={{ marginBottom: 0, fontSize: '1rem' }}>Alertas</span>
+              <div className="bfd-alertas__nav" style={{ margin: 0 }}>
+                <button><CaretLeft size={14} /></button>
+                <span>Hoje</span>
+                <button><CaretRight size={14} /></button>
+                <span style={{ marginLeft: 8 }}>Amanha</span>
+              </div>
+            </div>
+            <div className="bfd-alertas__pills" style={{ gap: '0.6rem' }}>
+              {alertas.map((a, i) => {
+                const pillColors: Record<string, string> = { red: '#f87171', orange: '#fbbf24', yellow: '#eab308', green: '#34d399' }
+                return (
+                  <div key={i} className="bfd-alertas__pill" style={{ padding: '0.45rem 0.8rem', fontSize: '0.8rem', gap: '0.45rem', borderRadius: '6px' }}>
+                    <span className="bfd-alertas__pill-count" style={{ color: pillColors[a.cor] || '#60a5fa', fontSize: '0.85rem' }}>{a.count}</span>
+                    <span>{a.label}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Funil */}
+          <div className="bfd-card" style={{ flex: 1, padding: '1.25rem 1.5rem' }}>
+            <span className="bfd-card__title" style={{ marginBottom: '1.05rem', fontSize: '1rem' }}>Funil de Cotações</span>
+            <FunilStatus />
+          </div>
         </div>
       </div>
 
@@ -3376,30 +3309,6 @@ export default function VisaoGeral() {
         <div className="bfd-card">
           <span className="bfd-card__title">Taxa de Aprovação</span>
           <TaxaAprovacao />
-        </div>
-
-        {/* Alertas */}
-        <div className="bfd-card bfd-alertas">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="bfd-card__title" style={{ marginBottom: 0 }}>Alertas</span>
-            <div className="bfd-alertas__nav">
-              <button><CaretLeft size={14} /></button>
-              <span>Hoje</span>
-              <button><CaretRight size={14} /></button>
-              <span style={{ marginLeft: 8 }}>Amanha</span>
-            </div>
-          </div>
-          <div className="bfd-alertas__pills">
-            {alertas.map((a, i) => {
-              const pillColors: Record<string, string> = { red: '#f87171', orange: '#fbbf24', yellow: '#eab308', green: '#34d399' }
-              return (
-                <div key={i} className="bfd-alertas__pill">
-                  <span className="bfd-alertas__pill-count" style={{ color: pillColors[a.cor] || '#60a5fa' }}>{a.count}</span>
-                  <span>{a.label}</span>
-                </div>
-              )
-            })}
-          </div>
         </div>
       </div>
 

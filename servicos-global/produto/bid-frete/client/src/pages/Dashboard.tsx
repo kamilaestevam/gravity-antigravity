@@ -410,8 +410,11 @@ export default function Dashboard() {
         /* ═══════════════════════════════════════════════════════ */
 
         .bf-dashboard {
-          padding: 0;
-          padding-top: 3.5rem; /* Compensa header transparente do shell (74px total com padding do shell-main 24px) */
+          padding: 0.5rem 2rem 1.5rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          min-height: 0;
         }
 
         /* ── KPI Row (grid + botao CTA ao lado) ── */

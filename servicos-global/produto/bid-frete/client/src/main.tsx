@@ -1,17 +1,9 @@
 /**
  * main.tsx — Entry Point do BID Frete
- * Skill: antigravity-criar-produto (Passo 6)
- *
- * Inicializa o React com StrictMode + BrowserRouter.
- * Não usa ClerkProvider diretamente — o Shell lida com autenticação via Configurador.
- */
-
-/**
- * main.tsx — Entry Point do BID Frete
- * Skill: antigravity-criar-produto (Passo 6)
  *
  * Inicializa o React com StrictMode + ClerkProvider + BrowserRouter.
  * ClerkProvider é obrigatório para o Shell (useMeSync depende de useAuth/useUser).
+ * basename espelha o prefixo de URL que o shell usa em produção.
  */
 
 import '@nucleo/Utilidades/localization/i18n'

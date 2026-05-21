@@ -40,6 +40,11 @@ export default defineConfig({
       allow: [monorepoRoot],
     },
     proxy: {
+      // /api/v1/me — proxy para configurador (SSOT de identidade)
+      '/api/v1/me': {
+        target: 'http://localhost:8005',
+        changeOrigin: true,
+      },
       '/api': {
         target: 'http://localhost:8023',
         changeOrigin: true,

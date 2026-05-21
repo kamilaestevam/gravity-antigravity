@@ -931,6 +931,7 @@ export default function NovaCotacao() {
 
         .nc-stepper-container [role="listitem"] {
           gap: 0.625rem !important;
+          overflow: visible !important;
         }
 
         /* Todos os círculos (Pendente/Base) */
@@ -948,18 +949,90 @@ export default function NovaCotacao() {
           box-shadow: none !important;
         }
 
-        /* Círculo Ativo com Brilho Neon Lilás/Roxo (Imagem 02) */
+        /* Círculo Ativo com Brilho Pulsante e Efeito Orbital 3D da Imagem 02 */
         .nc-stepper-container [role="listitem"][aria-current="step"] > div:first-child {
-          background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%) !important; /* Lindo gradiente roxo/violeta */
+          position: relative !important;
+          overflow: visible !important;
+          background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%) !important; /* Gradiente roxo/violeta de alta intensidade */
           border: 1.5px solid #a78bfa !important; /* Lilás brilhante */
           color: #ffffff !important;
           transform: scale(1.08);
-          /* Brilho radial neon super suave, expansivo e em camadas (Imagem 02) */
-          box-shadow: 
-            0 0 0 1px rgba(167, 139, 250, 0.35),
-            0 0 15px 4px rgba(139, 92, 246, 0.6), 
-            0 0 35px 12px rgba(139, 92, 246, 0.35), 
-            inset 0 0 8px rgba(255, 255, 255, 0.3) !important;
+          /* Animação pulsante no brilho principal */
+          animation: nc-stepper-pulse 3s ease-in-out infinite !important;
+        }
+
+        /* Anéis Orbitais Animados em 3D — Efeito Atômico da Imagem 02 */
+        .nc-stepper-container [role="listitem"][aria-current="step"] > div:first-child::before,
+        .nc-stepper-container [role="listitem"][aria-current="step"] > div:first-child::after {
+          content: "" !important;
+          position: absolute !important;
+          top: 50% !important;
+          left: 50% !important;
+          border-radius: 50% !important;
+          pointer-events: none !important;
+          transform-origin: center !important;
+          display: block !important;
+        }
+
+        /* Anel orbital 1 */
+        .nc-stepper-container [role="listitem"][aria-current="step"] > div:first-child::before {
+          width: 48px !important;
+          height: 24px !important;
+          border: 1px solid rgba(167, 139, 250, 0.7) !important;
+          box-shadow: 0 0 10px rgba(139, 92, 246, 0.5) !important;
+          animation: nc-orbit-1 4s linear infinite !important;
+        }
+
+        /* Anel orbital 2 (Direção oposta e tracejado) */
+        .nc-stepper-container [role="listitem"][aria-current="step"] > div:first-child::after {
+          width: 48px !important;
+          height: 24px !important;
+          border: 1px dashed rgba(192, 132, 252, 0.5) !important;
+          box-shadow: 0 0 8px rgba(192, 132, 252, 0.35) !important;
+          animation: nc-orbit-2 5s linear infinite !important;
+        }
+
+        /* Animações Keyframes para o Efeito Premium da Imagem 02 */
+        @keyframes nc-stepper-pulse {
+          0% {
+            box-shadow: 
+              0 0 0 1px rgba(167, 139, 250, 0.35),
+              0 0 15px 4px rgba(139, 92, 246, 0.6), 
+              0 0 35px 12px rgba(139, 92, 246, 0.35), 
+              inset 0 0 8px rgba(255, 255, 255, 0.3) !important;
+          }
+          50% {
+            box-shadow: 
+              0 0 0 2px rgba(167, 139, 250, 0.55),
+              0 0 22px 8px rgba(139, 92, 246, 0.8), 
+              0 0 45px 18px rgba(139, 92, 246, 0.45), 
+              inset 0 0 12px rgba(255, 255, 255, 0.5) !important;
+          }
+          100% {
+            box-shadow: 
+              0 0 0 1px rgba(167, 139, 250, 0.35),
+              0 0 15px 4px rgba(139, 92, 246, 0.6), 
+              0 0 35px 12px rgba(139, 92, 246, 0.35), 
+              inset 0 0 8px rgba(255, 255, 255, 0.3) !important;
+          }
+        }
+
+        @keyframes nc-orbit-1 {
+          0% {
+            transform: translate(-50%, -50%) rotateX(68deg) rotateY(18deg) rotateZ(0deg);
+          }
+          100% {
+            transform: translate(-50%, -50%) rotateX(68deg) rotateY(18deg) rotateZ(360deg);
+          }
+        }
+
+        @keyframes nc-orbit-2 {
+          0% {
+            transform: translate(-50%, -50%) rotateX(68deg) rotateY(-18deg) rotateZ(360deg);
+          }
+          100% {
+            transform: translate(-50%, -50%) rotateX(68deg) rotateY(-18deg) rotateZ(0deg);
+          }
         }
 
         /* Círculo Concluído (Feito) */

@@ -735,8 +735,8 @@ function VisaoGeralMapa() {
         canvas.height = h
       }
       
-      const isWide = w > 1024
-      const cx = isWide ? w * 0.63 : w / 2
+      const isWide = window.innerWidth > 1024
+      const cx = isWide ? w * 0.70 : w / 2
       const cy = h / 2
       const R = Math.min(w, h) * 0.42
       const pulseTime = Date.now() / 2400
@@ -1638,8 +1638,21 @@ export default function Dashboard() {
         .bfd-map-tooltip__supplier { font-size: 0.8rem; color: #cbd5e1; letter-spacing: 0.02em; }
         .bfd-map-tooltip__supplier strong { color: #ffffff; font-weight: 600; }
 
+        /* ── Globe Map + Câmbio Row ───────────────────────────────── */
+        .bfd-globe-row {
+          display: grid;
+          grid-template-columns: 2.2fr 1fr;
+          gap: 1.25rem;
+          margin-bottom: 1.25rem;
+        }
+        @media (max-width: 1200px) {
+          .bfd-globe-row {
+            grid-template-columns: 1fr;
+          }
+        }
+
         /* ── Charts Grid ─────────────────────────────────────────── */
-        .bfd-charts-grid { display: grid; grid-template-columns: 1.3fr 1fr 0.8fr; gap: 1.25rem; }
+        .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem; }
         .bfd-chart-svg { width: 100%; height: auto; }
         .bfd-chart__legend { display: flex; gap: 1.25rem; margin-top: auto; padding-top: 0.75rem; justify-content: center; }
         .bfd-chart__legend span { font-size: 0.85rem; color: #cbd5e1; letter-spacing: 0.02em; display: flex; align-items: center; gap: 8px; font-weight: 500; }
@@ -1768,6 +1781,7 @@ export default function Dashboard() {
 
         /* ── Responsive ──────────────────────────────────────────── */
         @media (max-width: 1200px) {
+          .bfd-globe-row { grid-template-columns: 1fr; }
           .bfd-kpi-grid { grid-template-columns: repeat(3, 1fr); }
           .bfd-charts-grid { grid-template-columns: 1fr; }
           .bfd-insights-grid { grid-template-columns: 1fr; }
@@ -1866,8 +1880,40 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Global World Map Overview Section */}
-      <VisaoGeralMapa />
+      {/* Row 2: Globe Map + Câmbio card */}
+      <div className="bfd-globe-row">
+        {/* Global World Map Overview Section */}
+        <VisaoGeralMapa />
+
+        {/* Câmbio */}
+        <div className="bfd-card" style={{ height: '100%', justifyContent: 'flex-start' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <span className="bfd-card__title" style={{ marginBottom: 0 }}>Câmbio do Dia</span>
+            <TrendUp size={16} weight="bold" style={{ color: '#cbd5e1' }} />
+          </div>
+          <div className="bfd-cambio" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+            {kpis.moedas.map(m => (
+              <div key={m.codigo} className="bfd-cambio__row" style={{ padding: '0.68rem 0' }}>
+                <span className="bfd-cambio__code" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', minWidth: '44px' }}>{m.codigo}</span>
+                <span className="bfd-cambio__val" style={{ fontSize: '0.85rem', color: '#cbd5e1', flex: 1, fontWeight: 600 }}>R$ {m.valor_brl.toFixed(2).replace('.', ',')}</span>
+                <span
+                  className="bfd-cambio__var"
+                  style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    padding: '0.2rem 0.5rem',
+                    borderRadius: '6px',
+                    color: m.variacao >= 0 ? '#52d69b' : '#f87171',
+                    background: m.variacao >= 0 ? 'rgba(82,214,155,0.1)' : 'rgba(248,113,113,0.1)',
+                  }}
+                >
+                  {m.variacao >= 0 ? '+' : ''}{m.variacao.toFixed(2).replace('.', ',')}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Charts Row */}
       <div className="bfd-charts-grid">
@@ -1889,31 +1935,6 @@ export default function Dashboard() {
         <div className="bfd-card">
           <span className="bfd-card__title">Distribuição por Modal</span>
           <GraficoDonutModal />
-        </div>
-
-        {/* Câmbio */}
-        <div className="bfd-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-            <span className="bfd-card__title" style={{ marginBottom: 0 }}>Câmbio do Dia</span>
-            <TrendUp size={16} weight="bold" style={{ color: '#cbd5e1' }} />
-          </div>
-          <div className="bfd-cambio">
-            {kpis.moedas.map(m => (
-              <div key={m.codigo} className="bfd-cambio__row">
-                <span className="bfd-cambio__code">{m.codigo}</span>
-                <span className="bfd-cambio__val">R$ {m.valor_brl.toFixed(2).replace('.', ',')}</span>
-                <span
-                  className="bfd-cambio__var"
-                  style={{
-                    color: m.variacao >= 0 ? '#52d69b' : '#f87171',
-                    background: m.variacao >= 0 ? 'rgba(82,214,155,0.1)' : 'rgba(248,113,113,0.1)',
-                  }}
-                >
-                  {m.variacao >= 0 ? '+' : ''}{m.variacao.toFixed(2).replace('.', ',')}%
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 

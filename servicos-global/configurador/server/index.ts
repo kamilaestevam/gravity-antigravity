@@ -68,6 +68,7 @@ app.set('trust proxy', true)
 if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
   app.use((req, res, next) => {
     const host = req.hostname
+    if (host === '127.0.0.1' || host === 'localhost') return next()
     const proto = req.headers['x-forwarded-proto'] ?? req.protocol
     if (proto === 'http' || host.startsWith('www.')) {
       const canonical = `https://usegravity.com.br${req.originalUrl}`

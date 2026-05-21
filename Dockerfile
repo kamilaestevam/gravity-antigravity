@@ -11,10 +11,19 @@ COPY . .
 # Install all dependencies including devDependencies (needed for build tools + tsx)
 RUN npm ci --include=dev
 
+# Build workspace packages required by sidecars
+RUN cd packages/resolver-organizacao && npx tsup && cd ../.. \
+    && cp -r packages/resolver-organizacao/dist node_modules/@gravity/resolver-organizacao/dist
+
 # Generate Prisma clients
 RUN npx prisma generate --schema=configurador/prisma/schema.prisma
 RUN npx prisma generate --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
 RUN npx prisma generate --schema=servicos-global/cadastros/prisma/schema.prisma
+RUN npx prisma generate --schema=servicos-global/produto/pedido/prisma/schema.prisma
+
+# Pedido uses default Prisma output (node_modules/.prisma/client) — copy to root
+RUN mkdir -p node_modules/.prisma \
+    && cp -r servicos-global/produto/pedido/node_modules/.prisma/client node_modules/.prisma/client
 
 # Vite embeds VITE_* env vars at build time — Railway passes them as build args
 ARG VITE_CLERK_PUBLISHABLE_KEY

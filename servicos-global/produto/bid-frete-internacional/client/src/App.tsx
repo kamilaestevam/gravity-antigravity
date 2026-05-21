@@ -244,7 +244,7 @@ export default function App() {
           <Route path="visao-geral"    element={<VisaoGeral />} />
           <Route path="dashboard"      element={<Dashboard />} />
           <Route path="cotacoes"       element={<Cotacoes />} />
-          <Route path="cotacoes/nova"  element={<Cotacoes />} />
+          <Route path="cotacoes/nova"  element={<NovaCotacao />} />
           <Route path="cotacoes/importar" element={<CotacoesImportar />} />
           <Route path="cotacoes/:id_cotacao" element={<DetalheCotacao />} />
           <Route path="cotacoes/:id_cotacao/comparativo" element={<Comparativo />} />

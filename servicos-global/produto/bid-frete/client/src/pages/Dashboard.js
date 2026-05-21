@@ -1433,7 +1433,7 @@ export default function Dashboard() {
           line-height: 1.4;
         }
         .bfd-map-card {
-          padding: 1.5rem 1.75rem;
+          padding: 1.5rem 1.75rem 3.5rem 1.75rem;
           display: flex;
           flex-direction: column;
           gap: 1.25rem;
@@ -1857,7 +1857,7 @@ export default function Dashboard() {
         }
         .bfd-map-controls {
           position: absolute;
-          bottom: 1.25rem;
+          bottom: -2.5rem;
           left: calc(50% - 120px);
           transform: translateX(-50%);
           display: flex;
@@ -1865,6 +1865,7 @@ export default function Dashboard() {
           z-index: 30;
           transition: left 0.3s ease, transform 0.3s ease;
         }
+
         .bfd-map-control-btn {
           width: 32px;
           height: 32px;

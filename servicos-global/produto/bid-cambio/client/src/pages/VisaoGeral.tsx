@@ -1129,16 +1129,16 @@ const TOP_DESTINOS = [
   { rank: 10, name: 'Rio Grande', code: 'BRRIG', flag: '🇧🇷', count: 3, pct: 1.5, pinId: null },
 ]
 
-const MODAIS_INFO = [
-  { modal_cotacao_bid_frete_internacional: 'MARITIMO', label: 'Marítimo', count: 120, pct: 60, cor: '#34d399' },
-  { modal_cotacao_bid_frete_internacional: 'AEREO', label: 'Aéreo', count: 70, pct: 35, cor: '#a78bfa' },
-  { modal_cotacao_bid_frete_internacional: 'RODOVIARIO', label: 'Rodoviário', count: 10, pct: 5, cor: '#fbbf24' },
+const MOEDAS_INFO = [
+  { moeda_operacao: 'USD', label: 'Dólar (USD)', count: 280, pct: 52, cor: '#06b6d4' },
+  { moeda_operacao: 'EUR', label: 'Euro (EUR)', count: 140, pct: 26, cor: '#a78bfa' },
+  { moeda_operacao: 'GBP', label: 'Libra (GBP)', count: 65, pct: 12, cor: '#fbbf24' },
 ]
 
 // ─── Visão Geral Global (Globo 3D Interativo Premium) ───────────────────────────
 
 function VisaoGeralMapa() {
-  const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modal_cotacao_bid_frete_internacional'>('origens')
+  const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'moeda_operacao'>('origens')
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
   const [selectedPinForModal, setSelectedPinForModal] = useState<number | null>(null)
   
@@ -1732,10 +1732,10 @@ function VisaoGeralMapa() {
         </div>
         <div className="bcc-map-legend">
           <span className="bcc-map-legend__item">
-            <Anchor size={15} weight="bold" style={{ color: '#34d399' }} /> Marítimo
+            <CurrencyDollar size={15} weight="bold" style={{ color: '#34d399' }} /> Compra
           </span>
           <span className="bcc-map-legend__item">
-            <AirplaneTilt size={15} weight="bold" style={{ color: '#a78bfa' }} /> Aéreo
+            <CurrencyEur size={15} weight="bold" style={{ color: '#a78bfa' }} /> Venda
           </span>
         </div>
       </div>
@@ -1782,10 +1782,10 @@ function VisaoGeralMapa() {
               <MapPin size={13} weight="bold" /> Destinos
             </button>
             <button 
-              className={`bcc-map-panel__tab tab-modal_cotacao_bid_frete_internacional ${activeTab === 'modal_cotacao_bid_frete_internacional' ? 'is-active' : ''}`}
-              onClick={(e) => { e.stopPropagation(); setActiveTab('modal_cotacao_bid_frete_internacional'); }}
+              className={`bcc-map-panel__tab tab-moeda_operacao ${activeTab === 'moeda_operacao' ? 'is-active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); setActiveTab('moeda_operacao'); }}
             >
-              <List size={13} weight="bold" /> Modais
+              <List size={13} weight="bold" /> Moedas
             </button>
           </div>
           
@@ -1899,60 +1899,58 @@ function VisaoGeralMapa() {
               )
             })}
             
-            {activeTab === 'modal_cotacao_bid_frete_internacional' && (
+            {activeTab === 'moeda_operacao' && (
               <div className="bcc-map-panel__modal-wrap">
-                {MODAIS_INFO.map(item => {
-                  const Icon = MODAL_ICONS[item.modal_cotacao_bid_frete_internacional] || <Anchor size={14} />
+                {MOEDAS_INFO.map(item => {
+                  const MoedaIcon = MOEDA_ICONS[item.moeda_operacao] || <Globe size={14} />
                   return (
-                    <div key={item.modal_cotacao_bid_frete_internacional} className="bcc-map-panel__modal-item" style={{ borderLeft: `3px solid ${item.cor}` }}>
+                    <div key={item.moeda_operacao} className="bcc-map-panel__modal-item" style={{ borderLeft: `3px solid ${item.cor}` }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
                         {/* Modern Radial Meter */}
                         <svg width="40" height="40" viewBox="0 0 40 40" style={{ overflow: 'visible', flexShrink: 0 }}>
                           <circle cx={20} cy={20} r={16} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
-                          <circle 
-                            cx={20} cy={20} r={16} 
-                            fill="none" 
-                            stroke={item.cor} 
-                            strokeWidth="3.5" 
-                            strokeDasharray={100.5} 
+                          <circle
+                            cx={20} cy={20} r={16}
+                            fill="none"
+                            stroke={item.cor}
+                            strokeWidth="3.5"
+                            strokeDasharray={100.5}
                             strokeDashoffset={100.5 - (item.pct / 100) * 100.5}
                             strokeLinecap="round"
-                            style={{ 
+                            style={{
                               filter: `drop-shadow(0 0 4px ${item.cor}60)`,
-                              transform: 'rotate(-90deg)', 
+                              transform: 'rotate(-90deg)',
                               transformOrigin: '20px 20px',
                               transition: 'stroke-dashoffset 0.8s ease-out'
                             }}
                           />
                           <g style={{ transform: 'translate(12px, 12px)', color: item.cor }}>
-                            {item.modal_cotacao_bid_frete_internacional === 'MARITIMO' && <Anchor weight="bold" size={16} />}
-                            {item.modal_cotacao_bid_frete_internacional === 'AEREO' && <AirplaneTilt weight="bold" size={16} />}
-                            {item.modal_cotacao_bid_frete_internacional === 'RODOVIARIO' && <Truck weight="bold" size={16} />}
+                            {MoedaIcon}
                           </g>
                         </svg>
 
-                        {/* Modal Info */}
+                        {/* Moeda Info */}
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                             <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>{item.label}</span>
-                            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: item.cor }}>{item.count} bids</span>
+                            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: item.cor }}>{item.count} ops</span>
                           </div>
-                          <span style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>Representa {item.pct}% das cotações</span>
+                          <span style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>Representa {item.pct}% das operações</span>
                         </div>
                       </div>
 
                       {/* Stats Breakdown */}
                       <div className="bcc-map-panel__modal-stats-grid">
                         <div className="bcc-map-panel__modal-stat-box">
-                          <span className="bcc-map-panel__modal-stat-lbl">Melhor Preço</span>
+                          <span className="bcc-map-panel__modal-stat-lbl">Melhor Taxa</span>
                           <span className="bcc-map-panel__modal-stat-num" style={{ color: '#ffffff' }}>
-                            USD {item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '8.400' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '7.200' : '5.100'}
+                            R$ {item.moeda_operacao === 'USD' ? '5,08' : item.moeda_operacao === 'EUR' ? '5,62' : '6,38'}
                           </span>
                         </div>
                         <div className="bcc-map-panel__modal-stat-box">
                           <span className="bcc-map-panel__modal-stat-lbl">Saving Médio</span>
                           <span className="bcc-map-panel__modal-stat-num" style={{ color: '#06b6d4' }}>
-                            {item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '+23.4%' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '+19.1%' : '+12.5%'}
+                            {item.moeda_operacao === 'USD' ? '+15.2%' : item.moeda_operacao === 'EUR' ? '+12.8%' : '+10.5%'}
                           </span>
                         </div>
                       </div>
@@ -2004,7 +2002,7 @@ function VisaoGeralMapa() {
           if (pin.opacity <= 0.05) return null
           
           const isHovered = hoveredPin === pin.id
-          const Icon = MODAL_ICONS[pin.mode] || <Anchor size={12} />
+          const Icon = MOEDA_ICONS[pin.mode] || <Globe size={12} />
           
           return (
             <div
@@ -2099,20 +2097,20 @@ function VisaoGeralMapa() {
           const connections = PORT_CONNECTIONS[selectedPinForModal] || []
           
           return (
-            <div className="bcc-modal_cotacao_bid_frete_internacional-overlay" onClick={() => setSelectedPinForModal(null)}>
-              <div className="bcc-modal_cotacao_bid_frete_internacional-card" onClick={e => e.stopPropagation()}>
-                <div className="bcc-modal_cotacao_bid_frete_internacional-header">
-                  <div className="bcc-modal_cotacao_bid_frete_internacional-title-group">
-                    <span className="bcc-modal_cotacao_bid_frete_internacional-flag-large">{pin.flag}</span>
+            <div className="bcc-moeda_operacao-overlay" onClick={() => setSelectedPinForModal(null)}>
+              <div className="bcc-moeda_operacao-card" onClick={e => e.stopPropagation()}>
+                <div className="bcc-moeda_operacao-header">
+                  <div className="bcc-moeda_operacao-title-group">
+                    <span className="bcc-moeda_operacao-flag-large">{pin.flag}</span>
                     <div>
-                      <h2 className="bcc-modal_cotacao_bid_frete_internacional-title">Rotas Ativas: {pin.label}</h2>
-                      <span className="bcc-modal_cotacao_bid_frete_internacional-subtitle">{pin.portCode} • {pin.country}</span>
+                      <h2 className="bcc-moeda_operacao-title">Rotas Ativas: {pin.label}</h2>
+                      <span className="bcc-moeda_operacao-subtitle">{pin.portCode} • {pin.country}</span>
                     </div>
                   </div>
-                  <button className="bcc-modal_cotacao_bid_frete_internacional-close-btn" onClick={() => setSelectedPinForModal(null)}>✕</button>
+                  <button className="bcc-moeda_operacao-close-btn" onClick={() => setSelectedPinForModal(null)}>✕</button>
                 </div>
                 
-                <div className="bcc-modal_cotacao_bid_frete_internacional-body">
+                <div className="bcc-moeda_operacao-body">
                   {connections.length === 0 ? (
                     <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
                       Nenhuma rota ativa cadastrada para este terminal.
@@ -2121,7 +2119,7 @@ function VisaoGeralMapa() {
                     connections.map((route, idx) => {
                       const isAir = route.mode === 'AEREO'
                       const modeColor = isAir ? '#a78bfa' : '#34d399'
-                      const modeIcon = isAir ? <AirplaneTilt size={14} weight="bold" /> : <Anchor size={14} weight="bold" />
+                      const modeIcon = isAir ? <CurrencyEur size={14} weight="bold" /> : <CurrencyDollar size={14} weight="bold" />
                       const badgeClass = isAir ? 'bcc-route-badge bcc-route-badge--aereo' : 'bcc-route-badge bcc-route-badge--maritimo'
                       const cardClass = isAir ? 'bcc-route-card bcc-route-card--aereo' : 'bcc-route-card bcc-route-card--maritimo'
                       
@@ -2227,8 +2225,8 @@ function VisaoGeralMapa() {
                   )}
                 </div>
                 
-                <div className="bcc-modal_cotacao_bid_frete_internacional-footer">
-                  <button className="bcc-modal_cotacao_bid_frete_internacional-close-action" onClick={() => setSelectedPinForModal(null)}>Fechar</button>
+                <div className="bcc-moeda_operacao-footer">
+                  <button className="bcc-moeda_operacao-close-action" onClick={() => setSelectedPinForModal(null)}>Fechar</button>
                 </div>
               </div>
             </div>
@@ -2434,7 +2432,7 @@ export default function VisaoGeral() {
           border-color: rgba(167, 139, 250, 0.25);
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(167, 139, 250, 0.1);
         }
-        .bcc-map-right-panel--modal_cotacao_bid_frete_internacional {
+        .bcc-map-right-panel--moeda_operacao {
           border-color: rgba(251, 191, 36, 0.25);
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(251, 191, 36, 0.1);
         }
@@ -2545,7 +2543,7 @@ export default function VisaoGeral() {
           border-color: rgba(167, 139, 250, 0.2);
           background: rgba(167, 139, 250, 0.08);
         }
-        .bcc-map-panel__tab.is-active.tab-modal_cotacao_bid_frete_internacional {
+        .bcc-map-panel__tab.is-active.tab-moeda_operacao {
           color: #fbbf24;
           border-color: rgba(251, 191, 36, 0.2);
           background: rgba(251, 191, 36, 0.08);
@@ -2909,7 +2907,7 @@ export default function VisaoGeral() {
         }
 
         /* ── Premium Modal overlay ───────────────────────────────── */
-        .bcc-modal_cotacao_bid_frete_internacional-overlay {
+        .bcc-moeda_operacao-overlay {
           position: fixed;
           inset: 0;
           background: rgba(8, 10, 18, 0.75);
@@ -2927,7 +2925,7 @@ export default function VisaoGeral() {
           to { opacity: 1; }
         }
         
-        .bcc-modal_cotacao_bid_frete_internacional-card {
+        .bcc-moeda_operacao-card {
           width: 100%;
           max-width: 620px;
           max-height: 90vh;
@@ -2947,37 +2945,37 @@ export default function VisaoGeral() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        .bcc-modal_cotacao_bid_frete_internacional-header {
+        .bcc-moeda_operacao-header {
           padding: 1.25rem 1.5rem;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-        .bcc-modal_cotacao_bid_frete_internacional-title-group {
+        .bcc-moeda_operacao-title-group {
           display: flex;
           align-items: center;
           gap: 0.75rem;
         }
-        .bcc-modal_cotacao_bid_frete_internacional-flag-large {
+        .bcc-moeda_operacao-flag-large {
           font-size: 2.2rem;
           line-height: 1;
         }
-        .bcc-modal_cotacao_bid_frete_internacional-title {
+        .bcc-moeda_operacao-title {
           font-size: 1.25rem;
           font-weight: 800;
           color: #ffffff;
           letter-spacing: -0.01em;
           margin: 0;
         }
-        .bcc-modal_cotacao_bid_frete_internacional-subtitle {
+        .bcc-moeda_operacao-subtitle {
           font-size: 0.82rem;
           color: #cbd5e1;
           margin-top: 0.15rem;
           display: block;
           font-weight: 500;
         }
-        .bcc-modal_cotacao_bid_frete_internacional-close-btn {
+        .bcc-moeda_operacao-close-btn {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.08);
           color: #94a3b8;
@@ -2990,14 +2988,14 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .bcc-modal_cotacao_bid_frete_internacional-close-btn:hover {
+        .bcc-moeda_operacao-close-btn:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
           color: #ffffff;
           transform: rotate(90deg);
         }
 
-        .bcc-modal_cotacao_bid_frete_internacional-body {
+        .bcc-moeda_operacao-body {
           padding: 1.5rem;
           overflow-y: auto;
           display: flex;
@@ -3108,14 +3106,14 @@ export default function VisaoGeral() {
           color: #ffffff;
         }
 
-        .bcc-modal_cotacao_bid_frete_internacional-footer {
+        .bcc-moeda_operacao-footer {
           padding: 1rem 1.5rem;
           border-top: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           justify-content: flex-end;
           background: rgba(11, 15, 28, 0.5);
         }
-        .bcc-modal_cotacao_bid_frete_internacional-close-action {
+        .bcc-moeda_operacao-close-action {
           padding: 0.5rem 1.25rem;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.1);
@@ -3126,7 +3124,7 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .bcc-modal_cotacao_bid_frete_internacional-close-action:hover {
+        .bcc-moeda_operacao-close-action:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
         }
@@ -3284,64 +3282,48 @@ export default function VisaoGeral() {
         }
       `}</style>
 
-      {/* Header */}
-      <div className="bcc-header">
-        <div className="bcc-header__left">
-          <h1>Dashboard BID Frete</h1>
-          <p>Visão geral das cotações de frete</p>
-        </div>
-        <div className="bcc-header__actions">
-          <BotaoGlobal
-            variante="primario"
-            icone={<MagnifyingGlass weight="bold" size={15} />}
-            onClick={() => navigate('/produto/bid-frete/cotacoes/nova')}
-          >
-            Buscar frete
-          </BotaoGlobal>
-        </div>
-      </div>
 
       {/* KPIs Grid (5 columns now) */}
       <div className="bcc-kpi-grid">
         <KpiCard
           icon={<Timer weight="duotone" size={18} />}
-          label="Em andamento"
-          value={String(kpis.cotacoes_andamento)}
-          badge="+3 semana"
+          label="Operações em aberto"
+          value={String(kpis.operacoes_abertas)}
+          badge="+5 semana"
           badgeColor="#06b6d4"
           sparkData={andamentoSpark}
           sparkType="line"
-          sub={`USD ${fmtMoeda(kpis.valor_andamento_usd)} em aberto`}
+          sub={`USD ${fmtMoeda(kpis.valor_aberto_usd)} em aberto`}
         />
         <KpiCard
           icon={<TrendUp weight="duotone" size={18} />}
-          label="Aprovadas"
-          value={String(kpis.cotacoes_passadas)}
+          label="Operações fechadas"
+          value={String(kpis.operacoes_fechadas)}
           badge="+12% mes"
           badgeColor="#06b6d4"
-          sparkData={DEMO_MENSAL_CAMBIO.map(d => d.aprovadas)}
+          sparkData={DEMO_MENSAL_CAMBIO.map(d => d.fechadas)}
           sparkType="bar"
           destacado={true}
-          sub={`USD ${fmtMoeda(kpis.valor_aprovado_usd)} total`}
+          sub={`USD ${fmtMoeda(kpis.valor_fechado_usd)} total`}
         />
         <KpiCard
           icon={<TrendUp weight="duotone" size={18} />}
           label="Saving medio"
-          value={`${kpis.savings.media_saving_percentual}%`}
+          value={`${kpis.saving.media_saving_percentual}%`}
           badge="+2.3pp"
           badgeColor="#06b6d4"
           sparkData={savingSpark}
           sparkType="line"
-          sub={`USD ${fmtMoeda(kpis.savings.total_saving_usd)} acumulado`}
+          sub={`USD ${fmtMoeda(kpis.saving.total_saving_usd)} acumulado`}
         />
         <KpiCard
           icon={<Timer weight="duotone" size={18} />}
           label="Tempo medio resp."
-          value="2.4 di."
-          badge="-0.8d"
+          value="1.8 di."
+          badge="-0.5d"
           badgeColor="#06b6d4"
           sparkType="progress"
-          sub="Meta: 3 dias"
+          sub="Meta: 2 dias"
         />
       </div>
 
@@ -3352,7 +3334,7 @@ export default function VisaoGeral() {
 
         {/* Funil */}
         <div className="bcc-card">
-          <span className="bcc-card__title">Funil de Cotações</span>
+          <span className="bcc-card__title">Funil de Operações</span>
           <FunilStatus />
         </div>
       </div>
@@ -3362,21 +3344,21 @@ export default function VisaoGeral() {
         {/* Barras mensal */}
         <div className="bcc-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-            <span className="bcc-card__title" style={{ marginBottom: 0 }}>Cotações por Mês</span>
+            <span className="bcc-card__title" style={{ marginBottom: 0 }}>Operações por Mês</span>
             <span className="bcc-chart__subtitle">Últimos 6 meses</span>
           </div>
-          <GraficoBarrasMensal />
+          <GraficoBarrasMensalCambio />
           <div className="bcc-chart__legend">
-            <span><span className="bcc-chart__legend-dot" style={{ background: '#06b6d4' }} /> Aprovadas</span>
+            <span><span className="bcc-chart__legend-dot" style={{ background: '#06b6d4' }} /> Fechadas</span>
             <span><span className="bcc-chart__legend-dot" style={{ background: '#8b5cf6' }} /> Em andamento</span>
-            <span><span className="bcc-chart__legend-dot" style={{ background: '#f87171' }} /> Recusadas</span>
+            <span><span className="bcc-chart__legend-dot" style={{ background: '#f87171' }} /> Canceladas</span>
           </div>
         </div>
 
-        {/* Donut modal_cotacao_bid_frete_internacional */}
+        {/* Donut moeda */}
         <div className="bcc-card">
-          <span className="bcc-card__title">Distribuição por Modal</span>
-          <GraficoDonutModal />
+          <span className="bcc-card__title">Distribuição por Moeda</span>
+          <GraficoDonutMoeda />
         </div>
 
         {/* Câmbio */}
@@ -3411,61 +3393,61 @@ export default function VisaoGeral() {
 
       {/* Insights Row */}
       <div className="bcc-insights-grid">
-        {/* Melhor cotação */}
+        {/* Melhor operação */}
         <div className="bcc-card">
-          <span className="bcc-card__title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Trophy weight="duotone" size={18} style={{ color: '#fbbf24' }} />Melhor Cotação do Mês</span>
+          <span className="bcc-card__title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Trophy weight="duotone" size={18} style={{ color: '#fbbf24' }} />Melhor Operação do Mês</span>
           <div className="bcc-best">
             <div className="bcc-best__route" style={{ margin: '0.35rem 0 0.75rem' }}>
               <div className="bcc-best__port">
-                <div className="bcc-best__port-flag">🇨🇳</div>
-                <div className="bcc-best__port-code">Shanghai (CNSHA)</div>
+                <div className="bcc-best__port-flag">🇺🇸</div>
+                <div className="bcc-best__port-code">{DEMO_MELHOR_OPERACAO.origem}</div>
               </div>
-              
+
               <div className="bcc-best__arrow" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', padding: '0 0.5rem' }}>
                 <span className="bcc-best__arrow-tt" style={{ fontSize: '0.68rem', color: '#94a3b8', letterSpacing: '0.02em', marginBottom: '4px', fontWeight: 500 }}>
-                  {DEMO_MELHOR_COTACAO.transit_time} dias
+                  {DEMO_MELHOR_OPERACAO.prazo}
                 </span>
                 <svg width="100%" height="20" viewBox="0 0 160 20" style={{ overflow: 'visible' }}>
                   <line x1="0" y1="10" x2="160" y2="10" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="4,4" />
                   <circle cx="80" cy="10" r="10" fill="rgba(6,182,212,0.15)" />
                   <circle cx="80" cy="10" r="3.5" fill="#06b6d4" />
                   <g transform="translate(73, 3)">
-                    <Anchor size={14} weight="bold" style={{ color: '#06b6d4' }} />
+                    <ArrowsLeftRight size={14} weight="bold" style={{ color: '#06b6d4' }} />
                   </g>
                 </svg>
               </div>
 
               <div className="bcc-best__port">
                 <div className="bcc-best__port-flag">🇧🇷</div>
-                <div className="bcc-best__port-code">Santos (BRSSZ)</div>
+                <div className="bcc-best__port-code">{DEMO_MELHOR_OPERACAO.destino}</div>
               </div>
             </div>
             <div className="bcc-best__saving">
               <span className="bcc-best__saving-badge">
-                <TrendUp size={12} /> {DEMO_MELHOR_COTACAO.saving_pct}% saving
+                <TrendUp size={12} /> {DEMO_MELHOR_OPERACAO.saving_pct}% saving
               </span>
-              <span className="bcc-best__saving-val">USD {fmtMoeda(DEMO_MELHOR_COTACAO.ganho_valor_cotacao_bid_frete_internacional)}</span>
+              <span className="bcc-best__saving-val">USD {fmtMoeda(DEMO_MELHOR_OPERACAO.valor_saving)}</span>
             </div>
             <div className="bcc-best__meta">
-              {DEMO_MELHOR_COTACAO.numero_cotacao_bid_frete_internacional} | {DEMO_MELHOR_COTACAO.fornecedor} | USD {fmtMoeda(DEMO_MELHOR_COTACAO.valor_aprovado_ganho_bid_frete_internacional)}
+              {DEMO_MELHOR_OPERACAO.referencia} | {DEMO_MELHOR_OPERACAO.corretora} | USD {fmtMoeda(DEMO_MELHOR_OPERACAO.valor_operacao)}
             </div>
           </div>
         </div>
 
-        {/* Top Incoterms */}
+        {/* Top Corretoras */}
         <div className="bcc-card">
-          <span className="bcc-card__title">Top Incoterms</span>
+          <span className="bcc-card__title">Top Corretoras</span>
           <div className="bcc-incoterms">
-            {DEMO_INCOTERMS.map(inc => (
-              <div key={inc.incoterm_cotacao_bid_frete_internacional} className="bcc-incoterms__row" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }}>
+            {DEMO_TOP_CORRETORAS.map(cor => (
+              <div key={cor.nome} className="bcc-incoterms__row" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                  <span className="bcc-incoterms__code">{inc.incoterm_cotacao_bid_frete_internacional}</span>
+                  <span className="bcc-incoterms__code">{cor.nome}</span>
                   <span className="bcc-incoterms__count" style={{ fontWeight: 600, color: '#ffffff', letterSpacing: '0.01em' }}>
-                    {inc.count} <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>({inc.pct}%)</span>
+                    {cor.count} <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>({cor.pct}%)</span>
                   </span>
                 </div>
                 <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.04)', borderRadius: '3px', overflow: 'hidden' }}>
-                  <div style={{ width: `${inc.pct}%`, height: '100%', background: 'linear-gradient(90deg, #06b6d4, #0891b2)', borderRadius: '3px' }} />
+                  <div style={{ width: `${cor.pct}%`, height: '100%', background: 'linear-gradient(90deg, #06b6d4, #0891b2)', borderRadius: '3px' }} />
                 </div>
               </div>
             ))}
@@ -3477,8 +3459,8 @@ export default function VisaoGeral() {
       <div className="bcc-bottom-grid">
         {/* Taxa aprovação */}
         <div className="bcc-card">
-          <span className="bcc-card__title">Taxa de Aprovação</span>
-          <TaxaAprovacao />
+          <span className="bcc-card__title">Taxa de Resposta</span>
+          <TaxaResposta />
         </div>
 
         {/* Alertas */}
@@ -3510,5 +3492,6 @@ export default function VisaoGeral() {
         ⚙ Dados demonstrativos — conecte o backend para dados reais
       </div>
     </div>
+    </PaginaGlobal>
   )
 }

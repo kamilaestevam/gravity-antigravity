@@ -203,6 +203,9 @@ function OptionButton({
       className={`nc-option-btn ${selected ? 'nc-option-btn--selected' : ''}`}
       onClick={onClick}
     >
+      <div className="nc-option-checkbox">
+        {selected && <span className="nc-option-checkmark">✓</span>}
+      </div>
       <span className="nc-option-icon">{icon}</span>
       <div className="nc-option-text">
         <span className="nc-option-label">{label}</span>
@@ -1402,74 +1405,103 @@ export default function NovaCotacao() {
         /* Botão de Opção Enriquecido */
         .nc-option-btn {
           display: flex;
-          align-items: flex-start;
-          gap: 1.125rem;
-          padding: 1.25rem 1.5rem;
-          background: var(--bg-base, rgba(15, 23, 42, 0.5));
-          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
+          align-items: center;
+          gap: 0.625rem;
+          padding: 0.625rem 0.75rem;
           border-radius: 8px;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.06);
           cursor: pointer;
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: all 0.15s ease;
           font-family: inherit;
           color: var(--text-secondary, #94a3b8);
           text-align: left;
           width: 100%;
+          user-select: none;
         }
         .nc-option-btn:hover {
-          border-color: rgba(99, 102, 241, 0.45);
-          background: var(--bg-hover, rgba(255, 255, 255, 0.04));
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(255, 255, 255, 0.12);
           color: var(--text-primary, #f8fafc);
-          transform: translateY(-2px);
         }
         .nc-option-btn--selected {
-          border-color: var(--accent, #6366f1);
+          background: rgba(99, 102, 241, 0.08);
+          border: 1px solid rgba(99, 102, 241, 0.27);
+          color: var(--accent, #6366f1);
+        }
+        .nc-option-btn--selected:hover {
           background: rgba(99, 102, 241, 0.12);
-          color: #fff;
-          box-shadow: 0 0 0 1px var(--accent, #6366f1), 0 4px 12px rgba(99, 102, 241, 0.2);
+          border-color: rgba(99, 102, 241, 0.44);
+        }
+
+        .nc-option-checkbox {
+          width: 18px;
+          height: 18px;
+          border-radius: 4px;
+          flex-shrink: 0;
+          background: transparent;
+          border: 2px solid rgba(255, 255, 255, 0.25);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.15s ease;
+        }
+        .nc-option-btn--selected .nc-option-checkbox {
+          background: rgba(99, 102, 241, 0.2);
+          border-color: var(--accent, #6366f1);
+        }
+        .nc-option-checkmark {
+          color: var(--accent, #6366f1);
+          font-size: 11px;
+          line-height: 1;
+          font-weight: 700;
         }
 
         .nc-option-icon {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 44px;
-          height: 44px;
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.03);
           color: var(--text-secondary, #94a3b8);
           flex-shrink: 0;
-          transition: all 0.2s;
+          transition: all 0.15s ease;
+        }
+        .nc-option-btn--selected .nc-option-icon {
+          color: var(--accent, #6366f1);
         }
         .nc-option-btn:hover .nc-option-icon {
           color: var(--accent, #6366f1);
-          background: rgba(99, 102, 241, 0.1);
-        }
-        .nc-option-btn--selected .nc-option-icon {
-          background: var(--accent, #6366f1);
-          color: #fff;
-          box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
         }
 
         .nc-option-text {
           display: flex;
           flex-direction: column;
-          gap: 0.35rem;
+          line-height: 1.3;
+          flex: 1;
+          min-width: 0;
         }
         .nc-option-label {
-          font-size: 0.9375rem;
+          font-size: 0.875rem;
           font-weight: 600;
+          color: var(--text-secondary, #94a3b8);
+          transition: all 0.15s ease;
+        }
+        .nc-option-btn--selected .nc-option-label {
+          color: var(--text-primary, #f8fafc);
+        }
+        .nc-option-btn:hover .nc-option-label {
           color: var(--text-primary, #f8fafc);
         }
         .nc-option-desc {
-          font-size: 0.875rem;
-          color: var(--text-secondary-light, #cbd5e1);
-          line-height: 1.45;
-        }
-        .nc-option-btn:hover .nc-option-desc {
-          color: var(--text-primary, #f8fafc);
+          font-size: 0.75rem;
+          color: var(--text-muted, #64748b);
+          opacity: 0.8;
+          transition: all 0.15s ease;
         }
         .nc-option-btn--selected .nc-option-desc {
-          color: rgba(255, 255, 255, 0.95);
+          color: var(--text-muted, #64748b);
+        }
+        .nc-option-btn:hover .nc-option-desc {
+          color: var(--text-secondary-light, #cbd5e1);
         }
 
         /* ── Dica Vazia Modalidade ── */

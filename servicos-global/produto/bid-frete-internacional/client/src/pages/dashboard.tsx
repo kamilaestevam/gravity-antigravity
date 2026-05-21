@@ -47,6 +47,7 @@ import {
   DotsThree, PencilSimple, Trash, X, Timer, TrendUp,
 } from '@phosphor-icons/react'
 import './dashboard.css'
+import { DashboardConstrutorConsulta } from '@nucleo/query-builder-global'
 
 import { useDashboardStore } from '../stores/dashboardStore'
 import { DASHBOARD_CATALOG, CATALOG_BY_KEY } from '../shared/dashboardCatalog'
@@ -1346,7 +1347,6 @@ export default function Dashboard() {
         } : undefined}
         compactStatus={compactStatus}
         onAddWidget={undefined}
-        onSuggestionsOpen={() => setSuggestionsOpen(true)}
       />
 
       {/* Seletor de Painéis */}

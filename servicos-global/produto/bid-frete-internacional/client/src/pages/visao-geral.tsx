@@ -2232,7 +2232,7 @@ export default function VisaoGeral() {
           line-height: 1.4;
         }
         .bfd-map-card {
-          padding: 1.5rem 1.75rem;
+          padding: 1.5rem 1.75rem 3.5rem 1.75rem;
           display: flex;
           flex-direction: column;
           gap: 1.25rem;
@@ -2259,18 +2259,18 @@ export default function VisaoGeral() {
         .bfd-map-legend-floating {
           position: absolute;
           left: 1.25rem;
-          top: 50%;
-          transform: translateY(-50%);
+          top: 2rem;
           display: flex;
-          align-items: center;
-          gap: 1.25rem;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.75rem;
           z-index: 30;
-          background: rgba(15, 23, 42, 0.65);
+          background: rgba(15, 23, 42, 0.75);
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
           border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 8px;
-          padding: 0.5rem 0.85rem;
+          padding: 0.85rem 1rem;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         .bfd-map-container {
@@ -2694,7 +2694,7 @@ export default function VisaoGeral() {
         }
         .bfd-map-controls {
           position: absolute;
-          bottom: 0.5rem;
+          bottom: -2.5rem;
           left: 50%;
           transform: translateX(-50%);
           display: flex;

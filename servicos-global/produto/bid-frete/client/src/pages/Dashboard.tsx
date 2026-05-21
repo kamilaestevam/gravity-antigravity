@@ -1562,6 +1562,9 @@ function VisaoGeralMapa() {
       })
       
       // 6. Project and Slipped-In Map Pins Overlay Coordinates
+      const offsetX = canvas.offsetLeft || 0
+      const offsetY = canvas.offsetTop || 0
+
       const tempPins = MAP_PINS.map(pin => {
         const p = getCartesian(pin.geoLat, pin.geoLng)
         
@@ -1580,8 +1583,8 @@ function VisaoGeralMapa() {
         
         return {
           ...pin,
-          px: sx,
-          py: sy,
+          px: sx + offsetX,
+          py: sy + offsetY,
           opacity: opacity,
         }
       })

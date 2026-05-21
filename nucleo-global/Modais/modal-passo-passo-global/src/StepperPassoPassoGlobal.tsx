@@ -63,6 +63,7 @@ const s = {
     gap: 0,
     padding: '1.5rem 0',
     overflowX: 'auto' as const,
+    fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
   },
   passo: {
     display: 'flex',
@@ -81,6 +82,7 @@ const s = {
     background: 'var(--bg-surface, #334155)',
     border: '2px solid var(--bg-elevated, #475569)',
     color: 'var(--text-muted, #64748b)',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     fontSize: '13px',
     fontWeight: 600,
     display: 'flex',
@@ -100,6 +102,7 @@ const s = {
     color: '#fff',
   } as React.CSSProperties,
   label: {
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     fontSize: '0.6875rem',
     fontWeight: 600,
     textAlign: 'center' as const,

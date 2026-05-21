@@ -555,6 +555,7 @@ const s = {
   dialog: {
     position: 'relative' as const,
     width: '100%',
+    fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
     background: 'var(--bg-base)',
     borderRadius: 'var(--radius-lg)',
     display: 'flex',
@@ -615,6 +616,7 @@ const s = {
     lineHeight: 1.2,
   },
   subtitulo: {
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     fontSize: '0.8125rem',
     color: 'var(--text-secondary, #94a3b8)',
     margin: 0,
@@ -688,6 +690,7 @@ const s = {
     background: 'rgba(255,255,255,0.03)',
     border: '1.5px solid rgba(255,255,255,0.1)',
     color: 'var(--text-muted)',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     fontSize: '0.875rem',
     fontWeight: 700,
     letterSpacing: '-0.01em',
@@ -712,6 +715,7 @@ const s = {
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease',
   } as React.CSSProperties,
   label: {
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     fontSize: '0.6875rem',
     fontWeight: 600,
     textAlign: 'center' as const,
@@ -758,6 +762,7 @@ const s = {
     gap: '0.75rem',
   },
   footerIndicador: {
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     fontSize: '0.6875rem',
     fontWeight: 500,
     color: 'var(--text-muted, #64748b)',

@@ -14,6 +14,7 @@ import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-g
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import {
   ChartPieSlice,
+  ChartBar,
   ListBullets,
   FileText,
   Buildings,
@@ -31,6 +32,7 @@ import type { NavItem } from '@nucleo/tela-produto-global'
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 
 // Páginas do Cliente (Importador/Exportador)
+const VisaoGeral = lazy(() => import('./pages/VisaoGeral'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Cotacoes = lazy(() => import('./pages/Cotacoes'))
 const NovaCotacao = lazy(() => import('./pages/NovaCotacao'))
@@ -60,6 +62,7 @@ const PRODUCT_COLOR = PRODUTO.color
 
 const iconMap: Record<string, React.ReactNode> = {
   'chart-pie-slice':         <ChartPieSlice         weight="duotone" size={20} />,
+  'chart-bar':               <ChartBar              weight="duotone" size={20} />,
   'file-text':               <FileText              weight="duotone" size={20} />,
   'list-bullets':            <ListBullets           weight="duotone" size={20} />,
   'buildings':               <Buildings             weight="duotone" size={20} />,
@@ -106,6 +109,7 @@ const ECOSYSTEM_NODES: EcosystemNode[] = [
 // ── Labels de rota para título de página ──────────────────────────────────────
 const ROUTE_LABELS: Record<string, string> = {
   'visao-geral':                        'Visão Geral',
+  'dashboard':                          'Dashboard',
   'cotacoes':                           'Cotações',
   'cotacoes/nova':                      'Nova Cotação',
   'cotacoes/importar':                  'Importar Cotações',
@@ -162,7 +166,7 @@ export default function App() {
   const productIdx  = segments.findIndex(s => s === PRODUCT_ID)
   const relSegments = productIdx >= 0 ? segments.slice(productIdx + 1) : segments
   const routeKey    = relSegments.join('/')
-  const pageLabel   = routeKey === 'configuracoes' ? '' : (ROUTE_LABELS[routeKey] ?? 'Visão Geral')
+  const pageLabel   = ROUTE_LABELS[routeKey] ?? 'Visão Geral'
 
   // Dados do usuário
   const initials = currentUser.name
@@ -238,7 +242,8 @@ export default function App() {
         <Routes>
           {/* Rotas do Cliente */}
           <Route path="/"              element={<Navigate to="visao-geral" replace />} />
-          <Route path="visao-geral"    element={<Dashboard />} />
+          <Route path="visao-geral"    element={<VisaoGeral />} />
+          <Route path="dashboard"      element={<Dashboard />} />
           <Route path="cotacoes"       element={<Cotacoes />} />
           <Route path="cotacoes/nova"  element={<Cotacoes />} />
           <Route path="cotacoes/importar" element={<CotacoesImportar />} />

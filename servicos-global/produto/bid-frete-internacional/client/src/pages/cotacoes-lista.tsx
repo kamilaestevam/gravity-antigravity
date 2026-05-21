@@ -151,8 +151,17 @@ export default function Cotacoes() {
 
   const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(() => {
     try {
-      const raw = localStorage.getItem('bid-frete:config:tabela_preferencias')
-      return raw ? JSON.parse(raw) : undefined
+      let raw = localStorage.getItem('bid-frete-internacional:config:tabela_preferencias')
+      if (!raw) {
+        raw = localStorage.getItem('bid-frete:config:tabela_preferencias')
+      }
+      if (!raw) return undefined
+      const parsed = JSON.parse(raw) as GTPreferencias
+      const hasIntlCore = parsed?.colunas_visiveis?.some(k => k === 'numero_cotacao_bid_frete_internacional')
+      if (!hasIntlCore) {
+        return undefined
+      }
+      return parsed
     } catch {
       return undefined
     }
@@ -161,7 +170,7 @@ export default function Cotacoes() {
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
     try {
-      localStorage.setItem('bid-frete:config:tabela_preferencias', JSON.stringify(prefs))
+      localStorage.setItem('bid-frete-internacional:config:tabela_preferencias', JSON.stringify(prefs))
     } catch { /* ignore */ }
   }, [])
 

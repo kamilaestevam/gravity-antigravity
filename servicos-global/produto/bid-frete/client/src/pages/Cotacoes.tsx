@@ -151,8 +151,17 @@ export default function Cotacoes() {
 
   const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(() => {
     try {
-      const raw = localStorage.getItem('bid-frete:config:tabela_preferencias')
-      return raw ? JSON.parse(raw) : undefined
+      let raw = localStorage.getItem('bid-frete-nacional:config:tabela_preferencias')
+      if (!raw) {
+        raw = localStorage.getItem('bid-frete:config:tabela_preferencias')
+      }
+      if (!raw) return undefined
+      const parsed = JSON.parse(raw) as GTPreferencias
+      const hasDomesticCore = parsed?.colunas_visiveis?.some(k => k === 'numero')
+      if (!hasDomesticCore) {
+        return undefined
+      }
+      return parsed
     } catch {
       return undefined
     }
@@ -161,7 +170,7 @@ export default function Cotacoes() {
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
     try {
-      localStorage.setItem('bid-frete:config:tabela_preferencias', JSON.stringify(prefs))
+      localStorage.setItem('bid-frete-nacional:config:tabela_preferencias', JSON.stringify(prefs))
     } catch { /* ignore */ }
   }, [])
 
@@ -305,8 +314,8 @@ export default function Cotacoes() {
     
     const colunasExport = colunasTabela.filter(c => {
       if (!c.key) return false
-      if (preferencias?.visivel) {
-        return preferencias.visivel.includes(c.key as string)
+      if (preferencias?.colunas_visiveis) {
+        return preferencias.colunas_visiveis.includes(c.key as string)
       }
       return COLUNAS_PADRAO_VISIVEIS.includes(c.key as string)
     })

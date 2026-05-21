@@ -2259,7 +2259,8 @@ export default function VisaoGeral() {
         .bfd-map-legend-floating {
           position: absolute;
           left: 1.25rem;
-          top: 2rem;
+          top: 50%;
+          transform: translateY(-50%);
           display: flex;
           flex-direction: column;
           align-items: flex-start;

@@ -536,6 +536,49 @@ body.light-theme .gl-planet-3 {
   box-shadow: 0 0 6px #4f46e5, 0 0 12px rgba(79, 70, 229, 0.3);
 }
 
+body.light-theme .gl-disc-glow {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(124, 58, 237, 0.15) 20%,
+    rgba(79, 70, 229, 0.3) 40%,
+    rgba(124, 58, 237, 0.4) 50%,
+    rgba(79, 70, 229, 0.3) 60%,
+    rgba(124, 58, 237, 0.15) 80%,
+    transparent 100%
+  );
+}
+
+body.light-theme .gl-planet-1::after {
+  background: linear-gradient(90deg, rgba(124, 58, 237, 0.6), transparent);
+}
+body.light-theme .gl-planet-2::after {
+  background: linear-gradient(90deg, rgba(124, 58, 237, 0.6), transparent);
+}
+body.light-theme .gl-planet-3::after {
+  background: linear-gradient(-90deg, rgba(79, 70, 229, 0.5), transparent);
+}
+
+body.light-theme .gl-planet::before {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body.light-theme .gl-orbit-1::before {
+  border-top-color: #7c3aed;
+  border-right-color: rgba(124, 58, 237, 0.3);
+  filter: drop-shadow(0 0 6px #7c3aed);
+}
+body.light-theme .gl-orbit-2::before {
+  border-right-color: #4f46e5;
+  border-bottom-color: rgba(79, 70, 229, 0.25);
+  filter: drop-shadow(0 0 5px #4f46e5);
+}
+body.light-theme .gl-orbit-3::before {
+  border-bottom-color: #7c3aed;
+  border-left-color: rgba(124, 58, 237, 0.2);
+  filter: drop-shadow(0 0 4px #7c3aed);
+}
+
 body.light-theme .gl-texto-principal {
   background: linear-gradient(
     105deg,

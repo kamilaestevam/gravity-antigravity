@@ -24,7 +24,7 @@ import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { podeAcessarArea, type AreaApp } from './route-policy'
 
 const Loading: React.FC = () => (
-  <div style={{ position: 'fixed', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#0f172a', zIndex: 50 }}>
+  <div style={{ position: 'fixed', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--bg-body)', zIndex: 50 }}>
     <GravityLoader texto="Carregando" tamanho="lg" />
   </div>
 )

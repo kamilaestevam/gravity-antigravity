@@ -11,15 +11,15 @@ import { historicoIntegration } from '../services/tenantIntegrations.js'
 export const cotacoesRouter = Router()
 
 const criarCotacaoSchema = z.object({
-  moeda: z.enum(['USD', 'EUR', 'GBP', 'CHF', 'CNY', 'JPY', 'BRL']),
-  valor: z.number().positive(),
-  tipo_operacao: z.enum(['IMPORTACAO', 'EXPORTACAO']),
-  modalidade: z.enum(['PRONTO', 'FUTURO']).default('PRONTO'),
-  liquidacao: z.enum(['D0', 'D1', 'D2']).default('D2'),
-  referencia_processo: z.string().optional(),
-  numero_pedido: z.string().optional(),
-  exportador: z.string().optional(),
-  data_expiracao: z.string().optional(),
+  moeda_cotacao_bid_cambio: z.enum(['USD', 'EUR', 'GBP', 'CHF', 'CNY', 'JPY', 'BRL']),
+  valor_cotacao_bid_cambio: z.number().positive(),
+  tipo_operacao_cotacao_bid_cambio: z.enum(['IMPORTACAO', 'EXPORTACAO']),
+  modalidade_cotacao_bid_cambio: z.enum(['PRONTO', 'FUTURO']).default('PRONTO'),
+  liquidacao_cotacao_bid_cambio: z.enum(['D0', 'D1', 'D2']).default('D2'),
+  referencia_processo_cotacao_bid_cambio: z.string().optional(),
+  numero_pedido_cotacao_bid_cambio: z.string().optional(),
+  exportador_cotacao_bid_cambio: z.string().optional(),
+  data_expiracao_cotacao_bid_cambio: z.string().optional(),
 })
 
 // --- POST /api/v1/bid-cambio/cotacoes ---
@@ -29,20 +29,20 @@ cotacoesRouter.post('/', async (req: Request, res: Response, next: NextFunction)
     const prisma = req.prisma!
     const userId = req.headers['x-id-usuario'] as string
 
-    const cotacao = await (prisma as any).cotacaoCambio.create({
+    const cotacao = await (prisma as any).bidCambioCotacao.create({
       data: {
         ...input,
-        user_id: userId,
-        status: 'RASCUNHO',
-        data_expiracao: input.data_expiracao ? new Date(input.data_expiracao) : null,
+        id_usuario: userId,
+        status_cotacao_bid_cambio: 'RASCUNHO',
+        data_expiracao_cotacao_bid_cambio: input.data_expiracao_cotacao_bid_cambio ? new Date(input.data_expiracao_cotacao_bid_cambio) : null,
       },
     })
 
     historicoIntegration.registrar(req.tenantId!, userId, {
       acao: 'CRIAR_COTACAO_CAMBIO',
-      entidade: 'CotacaoCambio',
-      entidade_id: cotacao.id,
-      detalhes: { moeda: input.moeda, valor: input.valor },
+      entidade: 'BidCambioCotacao',
+      entidade_id: cotacao.id_cotacao_bid_cambio,
+      detalhes: { moeda: input.moeda_cotacao_bid_cambio, valor: input.valor_cotacao_bid_cambio },
     })
 
     res.status(201).json(cotacao)
@@ -58,20 +58,20 @@ cotacoesRouter.get('/', async (req: Request, res: Response, next: NextFunction) 
     const status = req.query.status as string | undefined
 
     const where: Record<string, unknown> = {}
-    if (status) where.status = status
+    if (status) where.status_cotacao_bid_cambio = status
 
     const [cotacoes, total] = await Promise.all([
-      (prisma as any).cotacaoCambio.findMany({
+      (prisma as any).bidCambioCotacao.findMany({
         where,
-        orderBy: { created_at: 'desc' },
+        orderBy: { data_criacao_cotacao_bid_cambio: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
         include: {
-          bid_requests: { select: { id: true, status: true, corretora: { select: { nome_fantasia: true } } } },
+          bid_requests: { select: { id_disparo_cotacao_bid_cambio: true, status_disparo_cotacao_bid_cambio: true, corretora: { select: { nome_fantasia_corretora_bid_cambio: true } } } },
           _count: { select: { bid_responses: true } },
         },
       }),
-      (prisma as any).cotacaoCambio.count({ where }),
+      (prisma as any).bidCambioCotacao.count({ where }),
     ])
 
     res.json({
@@ -84,11 +84,11 @@ cotacoesRouter.get('/', async (req: Request, res: Response, next: NextFunction) 
 // --- GET /api/v1/bid-cambio/cotacoes/:id ---
 cotacoesRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const cotacao = await (req.prisma as any).cotacaoCambio.findFirst({
-      where: { id: req.params.id },
+    const cotacao = await (req.prisma as any).bidCambioCotacao.findFirst({
+      where: { id_cotacao_bid_cambio: req.params.id },
       include: {
         bid_requests: { include: { corretora: true } },
-        bid_responses: { include: { corretora: true }, orderBy: { taxa_oferecida: 'asc' } },
+        bid_responses: { include: { corretora: true }, orderBy: { taxa_oferecida_resposta_cotacao_bid_cambio: 'asc' } },
       },
     })
     if (!cotacao) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
@@ -98,30 +98,30 @@ cotacoesRouter.get('/:id', async (req: Request, res: Response, next: NextFunctio
 
 // --- PATCH /api/v1/bid-cambio/cotacoes/:id ---
 const atualizarCotacaoSchema = z.object({
-  moeda: z.enum(['USD', 'EUR', 'GBP', 'CHF', 'CNY', 'JPY', 'BRL']).optional(),
-  valor: z.number().positive().optional(),
-  tipo_operacao: z.enum(['IMPORTACAO', 'EXPORTACAO']).optional(),
-  modalidade: z.enum(['PRONTO', 'FUTURO']).optional(),
-  liquidacao: z.enum(['D0', 'D1', 'D2']).optional(),
-  referencia_processo: z.string().optional(),
-  numero_pedido: z.string().optional(),
-  exportador: z.string().optional(),
-  data_expiracao: z.string().optional(),
+  moeda_cotacao_bid_cambio: z.enum(['USD', 'EUR', 'GBP', 'CHF', 'CNY', 'JPY', 'BRL']).optional(),
+  valor_cotacao_bid_cambio: z.number().positive().optional(),
+  tipo_operacao_cotacao_bid_cambio: z.enum(['IMPORTACAO', 'EXPORTACAO']).optional(),
+  modalidade_cotacao_bid_cambio: z.enum(['PRONTO', 'FUTURO']).optional(),
+  liquidacao_cotacao_bid_cambio: z.enum(['D0', 'D1', 'D2']).optional(),
+  referencia_processo_cotacao_bid_cambio: z.string().optional(),
+  numero_pedido_cotacao_bid_cambio: z.string().optional(),
+  exportador_cotacao_bid_cambio: z.string().optional(),
+  data_expiracao_cotacao_bid_cambio: z.string().optional(),
 })
 
 cotacoesRouter.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const input = atualizarCotacaoSchema.parse(req.body)
-    const cotacao = await (req.prisma as any).cotacaoCambio.findFirst({
-      where: { id: req.params.id },
+    const cotacao = await (req.prisma as any).bidCambioCotacao.findFirst({
+      where: { id_cotacao_bid_cambio: req.params.id },
     })
     if (!cotacao) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
-    if (cotacao.status !== 'RASCUNHO') {
+    if (cotacao.status_cotacao_bid_cambio !== 'RASCUNHO') {
       throw new AppError('So cotacoes em RASCUNHO podem ser editadas', 400, 'INVALID_STATUS')
     }
 
-    const updated = await (req.prisma as any).cotacaoCambio.update({
-      where: { id: req.params.id },
+    const updated = await (req.prisma as any).bidCambioCotacao.update({
+      where: { id_cotacao_bid_cambio: req.params.id },
       data: input,
     })
     res.json(updated)
@@ -131,15 +131,15 @@ cotacoesRouter.patch('/:id', async (req: Request, res: Response, next: NextFunct
 // --- DELETE /api/v1/bid-cambio/cotacoes/:id ---
 cotacoesRouter.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const cotacao = await (req.prisma as any).cotacaoCambio.findFirst({
-      where: { id: req.params.id },
+    const cotacao = await (req.prisma as any).bidCambioCotacao.findFirst({
+      where: { id_cotacao_bid_cambio: req.params.id },
     })
     if (!cotacao) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
-    if (cotacao.status !== 'RASCUNHO') {
+    if (cotacao.status_cotacao_bid_cambio !== 'RASCUNHO') {
       throw new AppError('So cotacoes em RASCUNHO podem ser deletadas', 400, 'INVALID_STATUS')
     }
 
-    await (req.prisma as any).cotacaoCambio.delete({ where: { id: req.params.id } })
+    await (req.prisma as any).bidCambioCotacao.delete({ where: { id_cotacao_bid_cambio: req.params.id } })
     res.json({ deleted: true })
   } catch (err) { next(err) }
 })

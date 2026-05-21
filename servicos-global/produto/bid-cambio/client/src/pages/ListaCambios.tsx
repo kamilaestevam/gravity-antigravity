@@ -31,10 +31,10 @@ import {
 
 import { listarCambios, getCambiosTotais, agendarParcelas } from '../shared/api'
 import type {
-  CambioParcelas,
-  CambioMoeda,
-  CambioCotacaoStatus,
-  CambioParcelaStatus,
+  BidCambioParcela,
+  BidCambioMoeda,
+  BidCambioStatusCotacao,
+  BidCambioStatusParcela,
 } from '../shared/types'
 import {
   STATUS_COTACAO_LABELS,
@@ -81,51 +81,48 @@ interface ColumnDef {
   label: string
   visible: boolean
   width: number
-  render: (item: CambioCotacoes) => React.ReactNode
+  render: (item: BidCambioParcela) => React.ReactNode
 }
 
 function buildColumns(t: (key: string) => string): ColumnDef[] {
   return [
-    { key: 'numero', label: t('bidcambio.coluna.dati'), visible: true, width: 120,
+    { key: 'referencia_processo_parcela_bid_cambio', label: t('bidcambio.coluna.dati'), visible: true, width: 120,
       render: (c) => (
         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8125rem', color: 'var(--accent, #6366f1)', cursor: 'pointer', textDecoration: 'underline' }}>
-          {c.numero}
+          {c.referencia_processo_parcela_bid_cambio}
         </span>
       ),
     },
-    { key: 'referencia_interna', label: t('bidcambio.coluna.referencia'), visible: true, width: 120,
-      render: (c) => <span>{c.referencia_interna ?? '—'}</span>,
+    { key: 'referencia_cliente_parcela_bid_cambio', label: t('bidcambio.coluna.referencia'), visible: true, width: 120,
+      render: (c) => <span>{c.referencia_cliente_parcela_bid_cambio ?? '—'}</span>,
     },
-    { key: 'moeda', label: t('bidcambio.coluna.moeda'), visible: true, width: 80,
+    { key: 'moeda_parcela_bid_cambio', label: t('bidcambio.coluna.moeda'), visible: true, width: 80,
       render: (c) => (
         <span style={{
           fontSize: '0.6875rem', fontWeight: 700,
-          color: MOEDA_COLORS[c.moeda] ?? 'var(--accent)',
-          background: `${MOEDA_COLORS[c.moeda] ?? 'var(--accent)'}22`,
+          color: MOEDA_COLORS[c.moeda_parcela_bid_cambio] ?? 'var(--accent)',
+          background: `${MOEDA_COLORS[c.moeda_parcela_bid_cambio] ?? 'var(--accent)'}22`,
           padding: '0.15rem 0.45rem', borderRadius: 9999,
         }}>
-          {c.moeda}
+          {c.moeda_parcela_bid_cambio}
         </span>
       ),
     },
-    { key: 'valor_moeda_estrangeira', label: t('bidcambio.coluna.valor_me'), visible: true, width: 130,
-      render: (c) => <span style={{ fontFamily: "'DM Mono', monospace", textAlign: 'right', display: 'block' }}>{fmtMoney(c.valor_moeda_estrangeira)}</span>,
+    { key: 'valor_a_pagar_parcela_bid_cambio', label: t('bidcambio.coluna.valor_me'), visible: true, width: 130,
+      render: (c) => <span style={{ fontFamily: "'DM Mono', monospace", textAlign: 'right', display: 'block' }}>{fmtMoney(c.valor_a_pagar_parcela_bid_cambio)}</span>,
     },
-    { key: 'valor_brl_estimado', label: t('bidcambio.coluna.valor_brl_est'), visible: true, width: 140,
-      render: (c) => <span style={{ fontFamily: "'DM Mono', monospace", textAlign: 'right', display: 'block' }}>{fmtMoney(c.valor_brl_estimado)}</span>,
+    { key: 'valor_a_pagar_brl_parcela_bid_cambio', label: t('bidcambio.coluna.valor_brl_est'), visible: true, width: 140,
+      render: (c) => <span style={{ fontFamily: "'DM Mono', monospace", textAlign: 'right', display: 'block' }}>{fmtMoney(c.valor_a_pagar_brl_parcela_bid_cambio)}</span>,
     },
-    { key: 'valor_aprovado_brl', label: t('bidcambio.coluna.valor_aprovado_brl'), visible: true, width: 150,
-      render: (c) => <span style={{ fontFamily: "'DM Mono', monospace", textAlign: 'right', display: 'block', color: c.valor_aprovado_brl ? 'var(--success, #22c55e)' : undefined }}>{fmtMoney(c.valor_aprovado_brl)}</span>,
+    { key: 'valor_pago_brl_parcela_bid_cambio', label: t('bidcambio.coluna.valor_aprovado_brl'), visible: true, width: 150,
+      render: (c) => <span style={{ fontFamily: "'DM Mono', monospace", textAlign: 'right', display: 'block', color: c.valor_pago_brl_parcela_bid_cambio ? 'var(--success, #22c55e)' : undefined }}>{fmtMoney(c.valor_pago_brl_parcela_bid_cambio)}</span>,
     },
-    { key: 'taxa_cambio_referencia', label: t('bidcambio.coluna.ptax_ref'), visible: true, width: 110,
-      render: (c) => <span style={{ fontFamily: "'DM Mono', monospace" }}>{fmtRate(c.taxa_cambio_referencia)}</span>,
+    { key: 'taxa_fechamento_parcela_bid_cambio', label: t('bidcambio.coluna.ptax_ref'), visible: true, width: 110,
+      render: (c) => <span style={{ fontFamily: "'DM Mono', monospace" }}>{fmtRate(c.taxa_fechamento_parcela_bid_cambio)}</span>,
     },
-    { key: 'taxa_aprovada', label: t('bidcambio.coluna.taxa_aprovada'), visible: true, width: 120,
-      render: (c) => <span style={{ fontFamily: "'DM Mono', monospace" }}>{fmtRate(c.taxa_aprovada)}</span>,
-    },
-    { key: 'status', label: t('bidcambio.coluna.status'), visible: true, width: 160,
+    { key: 'status_parcela_bid_cambio', label: t('bidcambio.coluna.status'), visible: true, width: 160,
       render: (c) => {
-        const badge = STATUS_COTACAO_BADGE[c.status] ?? 'default'
+        const badge = STATUS_PARCELA_BADGE[c.status_parcela_bid_cambio] ?? 'default'
         const cores = BADGE_COLORS[badge]
         return (
           <span style={{
@@ -134,61 +131,42 @@ function buildColumns(t: (key: string) => string): ColumnDef[] {
             fontSize: '0.75rem', fontWeight: 600,
             background: cores.bg, color: cores.color,
           }}>
-            {STATUS_COTACAO_LABELS[c.status]}
+            {STATUS_PARCELA_LABELS[c.status_parcela_bid_cambio]}
           </span>
         )
       },
     },
-    { key: 'tipo_operacao', label: t('bidcambio.coluna.tipo_operacao'), visible: true, width: 120,
-      render: (c) => <span>{OPERACAO_CAMBIO_LABELS[c.tipo_operacao]}</span>,
+    { key: 'metodo_vencimento_parcela_bid_cambio', label: t('bidcambio.coluna.modalidade'), visible: true, width: 100,
+      render: (c) => <span>{c.metodo_vencimento_parcela_bid_cambio ?? '—'}</span>,
     },
-    { key: 'modalidade', label: t('bidcambio.coluna.modalidade'), visible: true, width: 100,
-      render: (c) => <span>{MODALIDADE_CAMBIO_LABELS[c.modalidade]}</span>,
-    },
-    { key: 'liquidacao', label: t('bidcambio.coluna.liquidacao'), visible: true, width: 90,
-      render: (c) => <span>{LIQUIDACAO_LABELS[c.liquidacao]}</span>,
-    },
-    { key: 'total_parcelas', label: t('bidcambio.coluna.parcelas'), visible: true, width: 80,
+    { key: 'numero_parcela_bid_cambio', label: t('bidcambio.coluna.parcelas'), visible: true, width: 80,
       render: (c) => {
-        const pagas = c.parcelas?.filter(p => p.status === 'PAGA').length ?? 0
-        return <span>{pagas}/{c.total_parcelas}</span>
+        return <span>{c.numero_parcela_bid_cambio}/{c.total_parcelas_parcela_bid_cambio}</span>
       },
     },
-    { key: 'saving_valor', label: t('bidcambio.coluna.saving_valor'), visible: true, width: 120,
-      render: (c) => <span style={{ fontFamily: "'DM Mono', monospace", color: c.saving_valor && c.saving_valor > 0 ? 'var(--success, #22c55e)' : undefined }}>{fmtMoney(c.saving_valor)}</span>,
+    { key: 'numero_pedido_parcela_bid_cambio', label: t('bidcambio.coluna.processo'), visible: false, width: 120,
+      render: (c) => <span>{c.numero_pedido_parcela_bid_cambio ?? '—'}</span>,
     },
-    { key: 'saving_percentual', label: t('bidcambio.coluna.saving_pct'), visible: true, width: 100,
-      render: (c) => <span style={{ color: c.saving_percentual && c.saving_percentual > 0 ? 'var(--success, #22c55e)' : undefined }}>{c.saving_percentual != null ? c.saving_percentual.toFixed(1) + '%' : '—'}</span>,
+    { key: 'numero_invoice_parcela_bid_cambio', label: t('bidcambio.coluna.invoice'), visible: false, width: 120,
+      render: (c) => <span>{c.numero_invoice_parcela_bid_cambio ?? '—'}</span>,
     },
-    { key: 'processo_id', label: t('bidcambio.coluna.processo'), visible: false, width: 120,
-      render: (c) => <span>{c.processo_id ?? '—'}</span>,
+    { key: 'exportador_parcela_bid_cambio', label: t('bidcambio.coluna.descricao'), visible: false, width: 200,
+      render: (c) => <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200, display: 'block' }}>{c.exportador_parcela_bid_cambio ?? '—'}</span>,
     },
-    { key: 'invoice_numero', label: t('bidcambio.coluna.invoice'), visible: false, width: 120,
-      render: (c) => <span>{c.invoice_numero ?? '—'}</span>,
+    { key: 'data_vencimento_parcela_bid_cambio', label: t('bidcambio.coluna.data_liquidacao'), visible: true, width: 120,
+      render: (c) => <span>{dataBR(c.data_vencimento_parcela_bid_cambio)}</span>,
     },
-    { key: 'descricao', label: t('bidcambio.coluna.descricao'), visible: false, width: 200,
-      render: (c) => <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200, display: 'block' }}>{c.descricao ?? '—'}</span>,
+    { key: 'data_criacao_parcela_bid_cambio', label: t('bidcambio.coluna.criado_em'), visible: true, width: 110,
+      render: (c) => <span>{dataBR(c.data_criacao_parcela_bid_cambio)}</span>,
     },
-    { key: 'data_liquidacao', label: t('bidcambio.coluna.data_liquidacao'), visible: true, width: 120,
-      render: (c) => <span>{dataBR(c.data_liquidacao)}</span>,
+    { key: 'data_atualizacao_parcela_bid_cambio', label: t('bidcambio.coluna.atualizado_em'), visible: false, width: 110,
+      render: (c) => <span>{dataBR(c.data_atualizacao_parcela_bid_cambio)}</span>,
     },
-    { key: 'prazo_resposta', label: t('bidcambio.coluna.prazo_resposta'), visible: false, width: 120,
-      render: (c) => <span>{dataBR(c.prazo_resposta)}</span>,
+    { key: 'id_usuario', label: t('bidcambio.coluna.criado_por'), visible: false, width: 120,
+      render: (c) => <span>{c.id_usuario ?? '—'}</span>,
     },
-    { key: 'created_at', label: t('bidcambio.coluna.criado_em'), visible: true, width: 110,
-      render: (c) => <span>{dataBR(c.created_at)}</span>,
-    },
-    { key: 'updated_at', label: t('bidcambio.coluna.atualizado_em'), visible: false, width: 110,
-      render: (c) => <span>{dataBR(c.updated_at)}</span>,
-    },
-    { key: 'user_id', label: t('bidcambio.coluna.criado_por'), visible: false, width: 120,
-      render: (c) => <span>{c.user_id ?? '—'}</span>,
-    },
-    { key: 'bid_requests_count', label: t('bidcambio.coluna.corretoras_contatadas'), visible: false, width: 150,
-      render: (c) => <span>{c.bid_requests?.length ?? 0}</span>,
-    },
-    { key: 'bid_responses_count', label: t('bidcambio.coluna.respostas'), visible: false, width: 100,
-      render: (c) => <span>{c.bid_responses?.length ?? 0}</span>,
+    { key: 'banco_corretora_parcela_bid_cambio', label: t('bidcambio.coluna.corretoras_contatadas'), visible: false, width: 150,
+      render: (c) => <span>{c.banco_corretora_parcela_bid_cambio ?? '—'}</span>,
     },
   ]
 }
@@ -208,8 +186,7 @@ const TABS: { key: FilterTab; labelKey: string }[] = [
 
 export default function ListaCambios() {
   const { t } = useTranslation()
-  const [cambios, setCambios] = useState<CambioCotacoes[]>([])
-  const [totais, setTotais] = useState<TotaisCambio | null>(null)
+  const [cambios, setCambios] = useState<BidCambioParcela[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [busca, setBusca] = useState('')
@@ -225,13 +202,9 @@ export default function ListaCambios() {
     setLoading(true)
     setError(null)
     try {
-      const [cambioRes, totaisRes] = await Promise.all([
-        listarCambios({ page, limit: 50, busca: busca || undefined }),
-        getTotaisCambio(),
-      ])
-      setCambios(cambioRes.cotacoes)
+      const cambioRes = await listarCambios({ page, limit: 50 })
+      setCambios(cambioRes.data)
       setTotalPages(cambioRes.pagination.pages)
-      setTotais(totaisRes)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar cambios')
     } finally {
@@ -246,9 +219,9 @@ export default function ListaCambios() {
   const filteredCambios = useMemo(() => {
     if (activeTab === 'TODAS') return cambios
     return cambios.filter((c) => {
-      if (activeTab === 'PENDENTES') return c.status === 'ENVIADA_CORRETORAS' || c.status === 'EM_COTACAO' || c.status === 'AGUARDANDO_APROVACAO' || c.status === 'RASCUNHO'
-      if (activeTab === 'AGENDADOS') return c.status === 'APROVADA' && c.parcelas?.some(p => p.status === 'AGENDADA')
-      if (activeTab === 'PAGOS') return c.parcelas?.every(p => p.status === 'PAGA')
+      if (activeTab === 'PENDENTES') return c.status_parcela_bid_cambio === 'PENDENTE'
+      if (activeTab === 'AGENDADOS') return c.status_parcela_bid_cambio === 'AGENDADO'
+      if (activeTab === 'PAGOS') return c.status_parcela_bid_cambio === 'PAGO'
       return true
     })
   }, [cambios, activeTab])
@@ -268,14 +241,14 @@ export default function ListaCambios() {
     if (selectedIds.size === filteredCambios.length) {
       setSelectedIds(new Set())
     } else {
-      setSelectedIds(new Set(filteredCambios.map(c => c.id)))
+      setSelectedIds(new Set(filteredCambios.map(c => c.id_parcela_bid_cambio)))
     }
   }, [filteredCambios, selectedIds])
 
   const selectedTotal = useMemo(() => {
     return filteredCambios
-      .filter(c => selectedIds.has(c.id))
-      .reduce((sum, c) => sum + (c.valor_brl_estimado ?? 0), 0)
+      .filter(c => selectedIds.has(c.id_parcela_bid_cambio))
+      .reduce((sum, c) => sum + (c.valor_a_pagar_brl_parcela_bid_cambio ?? 0), 0)
   }, [filteredCambios, selectedIds])
 
   // ── Column toggle ──────────────────────────────────────────────────────
@@ -292,13 +265,7 @@ export default function ListaCambios() {
 
   const handleExport = useCallback(async (formato: 'csv' | 'xlsx') => {
     try {
-      const blob = await exportarCambios(formato)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `cambios.${formato}`
-      a.click()
-      URL.revokeObjectURL(url)
+      // Export not yet implemented in api.ts
     } catch {
       // silently fail
     }
@@ -460,29 +427,6 @@ export default function ListaCambios() {
         </div>
       </div>
 
-      {/* Totais por moeda badges */}
-      {totais && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
-          <span style={badgePillStyle(MOEDA_COLORS.USD)}>
-            USD {fmtMoney(totais.volume_usd)}
-          </span>
-          <span style={badgePillStyle('#3b82f6')}>
-            BRL {fmtMoney(totais.volume_brl)}
-          </span>
-          <span style={badgePillStyle('var(--success, #22c55e)')}>
-            Saving: R$ {fmtMoney(totais.saving_acumulado_brl)}
-          </span>
-          <span style={badgePillStyle('var(--warning, #f59e0b)')}>
-            Pendentes: {totais.parcelas_pendentes}
-          </span>
-          {totais.parcelas_vencidas > 0 && (
-            <span style={badgePillStyle('var(--danger, #ef4444)')}>
-              Vencidas: {totais.parcelas_vencidas}
-            </span>
-          )}
-        </div>
-      )}
-
       {/* Tabs + Search */}
       <div style={{
         background: 'var(--bg-surface, #334155)',
@@ -577,20 +521,20 @@ export default function ListaCambios() {
           <tbody>
             {filteredCambios.map((cambio) => (
               <tr
-                key={cambio.id}
+                key={cambio.id_parcela_bid_cambio}
                 style={{
                   borderBottom: '1px solid var(--bg-elevated, #475569)',
-                  background: selectedIds.has(cambio.id) ? 'rgba(99,102,241,0.08)' : undefined,
+                  background: selectedIds.has(cambio.id_parcela_bid_cambio) ? 'rgba(99,102,241,0.08)' : undefined,
                   transition: 'background 0.1s',
                 }}
-                onMouseEnter={(e) => { if (!selectedIds.has(cambio.id)) (e.currentTarget.style.background = 'var(--bg-base, #1e293b)') }}
-                onMouseLeave={(e) => { if (!selectedIds.has(cambio.id)) (e.currentTarget.style.background = '') }}
+                onMouseEnter={(e) => { if (!selectedIds.has(cambio.id_parcela_bid_cambio)) (e.currentTarget.style.background = 'var(--bg-base, #1e293b)') }}
+                onMouseLeave={(e) => { if (!selectedIds.has(cambio.id_parcela_bid_cambio)) (e.currentTarget.style.background = '') }}
               >
                 <td style={{ padding: '0.6rem 0.5rem', textAlign: 'center' }}>
                   <input
                     type="checkbox"
-                    checked={selectedIds.has(cambio.id)}
-                    onChange={() => toggleSelect(cambio.id)}
+                    checked={selectedIds.has(cambio.id_parcela_bid_cambio)}
+                    onChange={() => toggleSelect(cambio.id_parcela_bid_cambio)}
                     style={{ accentColor: 'var(--accent, #6366f1)' }}
                   />
                 </td>

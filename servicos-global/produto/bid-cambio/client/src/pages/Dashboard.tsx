@@ -26,6 +26,8 @@ import {
   FloppyDisk,
   X,
 } from '@phosphor-icons/react'
+import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 
 import {
   DashboardGrid,
@@ -571,116 +573,105 @@ export default function Dashboard() {
   const widgets = activeConfig?.widgets ?? []
   const hasWidgets = widgets.length > 0
 
+  const toolbarActions = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', flexWrap: 'wrap' }}>
+      {connected && (
+        <span style={{
+          fontSize: '0.6875rem',
+          fontWeight: 600,
+          color: 'var(--success, #22c55e)',
+          background: 'rgba(34,197,94,0.12)',
+          padding: '0.2rem 0.5rem',
+          borderRadius: 9999,
+        }}>
+          LIVE
+        </span>
+      )}
+      {isSaving && (
+        <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>
+          Salvando layout...
+        </span>
+      )}
+
+      <button
+        onClick={() => { void carregarKpis(); void carregarConfig() }}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.5rem 1rem',
+          borderRadius: 9999,
+          fontSize: '0.8125rem',
+          fontWeight: 600,
+          border: '1px solid var(--bg-elevated, #475569)',
+          background: 'transparent',
+          color: 'var(--text-secondary, #94a3b8)',
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+        }}
+      >
+        <ArrowsClockwise size={14} />
+        {t('comum.atualizar')}
+      </button>
+
+      {hasWidgets && (
+        <button
+          onClick={handleToggleEdit}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.5rem 1rem',
+            borderRadius: 9999,
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+            border: editMode
+              ? '1px solid var(--accent, #6366f1)'
+              : '1px solid var(--bg-elevated, #475569)',
+            background: editMode ? 'rgba(99,102,241,0.15)' : 'transparent',
+            color: editMode ? 'var(--accent, #6366f1)' : 'var(--text-secondary, #94a3b8)',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          {editMode ? <Eye size={14} /> : <PencilSimple size={14} />}
+          {editMode ? 'Visualizar' : 'Editar Dashboard'}
+        </button>
+      )}
+
+      {activeConfig && (
+        <button
+          onClick={() => setShowQueryBuilder(true)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.5rem 1rem',
+            borderRadius: 9999,
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+            border: 'none',
+            background: 'var(--accent, #6366f1)',
+            color: '#fff',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          <Plus size={14} />
+          Adicionar Widget
+        </button>
+      )}
+    </div>
+  )
+
   return (
-    <div style={{
-      padding: '1.5rem',
-      fontFamily: "'Plus Jakarta Sans', sans-serif",
-      color: 'var(--text-primary, #f1f5f9)',
-    }}>
-      {/* ── Header ── */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: '1.5rem',
-        flexWrap: 'wrap',
-        gap: '0.75rem',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <ChartBar size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
-            {t('bidcambio.dashboard.titulo')}
-          </h1>
-          {connected && (
-            <span style={{
-              fontSize: '0.6875rem',
-              fontWeight: 600,
-              color: 'var(--success, #22c55e)',
-              background: 'rgba(34,197,94,0.12)',
-              padding: '0.2rem 0.5rem',
-              borderRadius: 9999,
-            }}>
-              LIVE
-            </span>
-          )}
-          {isSaving && (
-            <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>
-              Salvando layout...
-            </span>
-          )}
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-          <button
-            onClick={() => { void carregarKpis(); void carregarConfig() }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.5rem 1rem',
-              borderRadius: 9999,
-              fontSize: '0.8125rem',
-              fontWeight: 600,
-              border: '1px solid var(--bg-elevated, #475569)',
-              background: 'transparent',
-              color: 'var(--text-secondary, #94a3b8)',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-          >
-            <ArrowsClockwise size={14} />
-            {t('comum.atualizar')}
-          </button>
-
-          {hasWidgets && (
-            <button
-              onClick={handleToggleEdit}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.5rem 1rem',
-                borderRadius: 9999,
-                fontSize: '0.8125rem',
-                fontWeight: 600,
-                border: editMode
-                  ? '1px solid var(--accent, #6366f1)'
-                  : '1px solid var(--bg-elevated, #475569)',
-                background: editMode ? 'rgba(99,102,241,0.15)' : 'transparent',
-                color: editMode ? 'var(--accent, #6366f1)' : 'var(--text-secondary, #94a3b8)',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
-              {editMode ? <Eye size={14} /> : <PencilSimple size={14} />}
-              {editMode ? 'Visualizar' : 'Editar Dashboard'}
-            </button>
-          )}
-
-          {activeConfig && (
-            <button
-              onClick={() => setShowQueryBuilder(true)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.5rem 1rem',
-                borderRadius: 9999,
-                fontSize: '0.8125rem',
-                fontWeight: 600,
-                border: 'none',
-                background: 'var(--accent, #6366f1)',
-                color: '#fff',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
-              <Plus size={14} />
-              Adicionar Widget
-            </button>
-          )}
-        </div>
-      </div>
+    <PaginaGlobal>
+      <CabecalhoGlobal
+        titulo="Dashboard"
+        subtitulo="KPIs e widgets configuráveis"
+        icone={<ChartBar weight="duotone" size={24} />}
+        acoes={toolbarActions}
+      />
 
       {/* ── KPIs de Resumo (sempre visíveis no topo) ── */}
       <div style={{
@@ -830,6 +821,6 @@ export default function Dashboard() {
       )}
 
       <style>{`@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }`}</style>
-    </div>
+    </PaginaGlobal>
   )
 }

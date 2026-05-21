@@ -28,43 +28,43 @@ dashboardRouter.get('/', async (req: Request, res: Response, next: NextFunction)
       cotacoesAbertas,
     ] = await Promise.all([
       // Total de parcelas
-      (prisma as any).parcelaCambio.count(),
+      (prisma as any).bidCambioParcela.count(),
 
       // Parcelas pendentes
-      (prisma as any).parcelaCambio.count({ where: { status: 'PENDENTE' } }),
+      (prisma as any).bidCambioParcela.count({ where: { status_parcela_bid_cambio: 'PENDENTE' } }),
 
       // Parcelas agendadas
-      (prisma as any).parcelaCambio.count({ where: { status: 'AGENDADO' } }),
+      (prisma as any).bidCambioParcela.count({ where: { status_parcela_bid_cambio: 'AGENDADO' } }),
 
       // Parcelas pagas (mes atual)
-      (prisma as any).parcelaCambio.count({
+      (prisma as any).bidCambioParcela.count({
         where: {
-          status: 'PAGO',
-          data_pagamento: { gte: inicioMes, lte: fimMes },
+          status_parcela_bid_cambio: 'PAGO',
+          data_pagamento_parcela_bid_cambio: { gte: inicioMes, lte: fimMes },
         },
       }),
 
       // Valor em aberto (soma de pendentes + agendados)
-      (prisma as any).parcelaCambio.aggregate({
-        where: { status: { in: ['PENDENTE', 'AGENDADO'] } },
-        _sum: { valor_a_pagar: true, valor_a_pagar_brl: true },
+      (prisma as any).bidCambioParcela.aggregate({
+        where: { status_parcela_bid_cambio: { in: ['PENDENTE', 'AGENDADO'] } },
+        _sum: { valor_a_pagar_parcela_bid_cambio: true, valor_a_pagar_brl_parcela_bid_cambio: true },
       }),
 
       // Economia acumulada no mes
-      (prisma as any).cotacaoCambio.aggregate({
+      (prisma as any).bidCambioCotacao.aggregate({
         where: {
-          status: 'APROVADA',
-          updated_at: { gte: inicioMes, lte: fimMes },
+          status_cotacao_bid_cambio: 'APROVADA',
+          data_atualizacao_cotacao_bid_cambio: { gte: inicioMes, lte: fimMes },
         },
-        _sum: { economia_brl: true },
+        _sum: { economia_brl_cotacao_bid_cambio: true },
       }),
 
       // Corretoras ativas
-      (prisma as any).corretora.count({ where: { status: 'ATIVA' } }),
+      (prisma as any).bidCambioCorretora.count({ where: { status_corretora_bid_cambio: 'ATIVA' } }),
 
       // Cotacoes abertas (enviadas, aguardando respostas)
-      (prisma as any).cotacaoCambio.count({
-        where: { status: 'ENVIADA_CORRETORAS' },
+      (prisma as any).bidCambioCotacao.count({
+        where: { status_cotacao_bid_cambio: 'ENVIADA_CORRETORAS' },
       }),
     ])
 
@@ -76,9 +76,9 @@ dashboardRouter.get('/', async (req: Request, res: Response, next: NextFunction)
         pagas_mes: parcelasPagas,
       },
       financeiro: {
-        valor_em_aberto: valorEmAberto._sum?.valor_a_pagar ?? 0,
-        valor_em_aberto_brl: valorEmAberto._sum?.valor_a_pagar_brl ?? 0,
-        economia_acumulada_mes: economiaMes._sum?.economia_brl ?? 0,
+        valor_em_aberto: valorEmAberto._sum?.valor_a_pagar_parcela_bid_cambio ?? 0,
+        valor_em_aberto_brl: valorEmAberto._sum?.valor_a_pagar_brl_parcela_bid_cambio ?? 0,
+        economia_acumulada_mes: economiaMes._sum?.economia_brl_cotacao_bid_cambio ?? 0,
       },
       marketplace: {
         corretoras_ativas: corretorasAtivas,
@@ -105,49 +105,49 @@ dashboardRouter.get('/vencimentos', async (req: Request, res: Response, next: Ne
 
     const [vencimentos, vencidos, porMoeda] = await Promise.all([
       // Parcelas vencendo nos proximos N dias
-      (prisma as any).parcelaCambio.findMany({
+      (prisma as any).bidCambioParcela.findMany({
         where: {
-          status: { in: ['PENDENTE', 'AGENDADO'] },
-          data_vencimento: { gte: agora, lte: limite },
+          status_parcela_bid_cambio: { in: ['PENDENTE', 'AGENDADO'] },
+          data_vencimento_parcela_bid_cambio: { gte: agora, lte: limite },
         },
-        orderBy: { data_vencimento: 'asc' },
+        orderBy: { data_vencimento_parcela_bid_cambio: 'asc' },
         select: {
-          id: true,
-          referencia_processo: true,
-          moeda: true,
-          valor_a_pagar: true,
-          valor_a_pagar_brl: true,
-          data_vencimento: true,
-          status: true,
+          id_parcela_bid_cambio: true,
+          referencia_processo_parcela_bid_cambio: true,
+          moeda_parcela_bid_cambio: true,
+          valor_a_pagar_parcela_bid_cambio: true,
+          valor_a_pagar_brl_parcela_bid_cambio: true,
+          data_vencimento_parcela_bid_cambio: true,
+          status_parcela_bid_cambio: true,
         },
       }),
 
       // Parcelas ja vencidas (nao pagas)
-      (prisma as any).parcelaCambio.findMany({
+      (prisma as any).bidCambioParcela.findMany({
         where: {
-          status: { in: ['PENDENTE', 'AGENDADO'] },
-          data_vencimento: { lt: agora },
+          status_parcela_bid_cambio: { in: ['PENDENTE', 'AGENDADO'] },
+          data_vencimento_parcela_bid_cambio: { lt: agora },
         },
-        orderBy: { data_vencimento: 'asc' },
+        orderBy: { data_vencimento_parcela_bid_cambio: 'asc' },
         select: {
-          id: true,
-          referencia_processo: true,
-          moeda: true,
-          valor_a_pagar: true,
-          valor_a_pagar_brl: true,
-          data_vencimento: true,
-          status: true,
+          id_parcela_bid_cambio: true,
+          referencia_processo_parcela_bid_cambio: true,
+          moeda_parcela_bid_cambio: true,
+          valor_a_pagar_parcela_bid_cambio: true,
+          valor_a_pagar_brl_parcela_bid_cambio: true,
+          data_vencimento_parcela_bid_cambio: true,
+          status_parcela_bid_cambio: true,
         },
       }),
 
       // Agrupamento por moeda (proximos vencimentos)
-      (prisma as any).parcelaCambio.groupBy({
-        by: ['moeda'],
+      (prisma as any).bidCambioParcela.groupBy({
+        by: ['moeda_parcela_bid_cambio'],
         where: {
-          status: { in: ['PENDENTE', 'AGENDADO'] },
-          data_vencimento: { gte: agora, lte: limite },
+          status_parcela_bid_cambio: { in: ['PENDENTE', 'AGENDADO'] },
+          data_vencimento_parcela_bid_cambio: { gte: agora, lte: limite },
         },
-        _sum: { valor_a_pagar: true, valor_a_pagar_brl: true },
+        _sum: { valor_a_pagar_parcela_bid_cambio: true, valor_a_pagar_brl_parcela_bid_cambio: true },
         _count: true,
       }),
     ])

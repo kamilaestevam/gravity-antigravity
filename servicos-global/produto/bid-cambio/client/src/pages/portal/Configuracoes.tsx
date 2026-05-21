@@ -17,7 +17,7 @@ import {
   User,
   Globe,
 } from 'lucide-react'
-import type { CambioMoeda } from '../../shared/types'
+import type { BidCambioMoeda } from '../../shared/types'
 import { MOEDA_CAMBIO_LABELS } from '../../shared/types'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -30,13 +30,13 @@ interface ConfigData {
   telefone: string
   contato_nome: string
   contato_cargo: string
-  moedas_operadas: CambioMoeda[]
+  moedas_operadas: BidCambioMoeda[]
   portal_habilitado: boolean
 }
 
 type PageState = 'loading' | 'error' | 'empty' | 'filled' | 'disabled'
 
-const MOEDAS_DISPONIVEIS: CambioMoeda[] = ['USD', 'EUR', 'GBP', 'CHF', 'CNY', 'JPY']
+const MOEDAS_DISPONIVEIS: BidCambioMoeda[] = ['USD', 'EUR', 'GBP', 'CHF', 'CNY', 'JPY']
 
 // ─── Styles ─────────────────────────────────────────────────────────────────
 
@@ -302,7 +302,7 @@ export default function Configuracoes({ disabled = false }: ConfiguracoesProps) 
     setErro('')
   }
 
-  function toggleMoeda(moeda: CambioMoeda) {
+  function toggleMoeda(moeda: BidCambioMoeda) {
     setConfig((prev) => {
       const current = prev.moedas_operadas
       const next = current.includes(moeda)

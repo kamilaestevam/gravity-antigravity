@@ -47,55 +47,55 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
     for (const metric of metrics) {
       switch (metric) {
         case 'saving_total': {
-          const agg = await prisma.cambioGanho.aggregate({
-            _sum: { economia_brl: true },
-            where: { created_at: { gte: periodStart } },
+          const agg = await prisma.bidCambioGanho.aggregate({
+            _sum: { economia_brl_ganho_bid_cambio: true },
+            where: { data_criacao_ganho_bid_cambio: { gte: periodStart } },
           })
-          result.saving_total = Number(agg._sum.economia_brl ?? 0)
+          result.saving_total = Number(agg._sum.economia_brl_ganho_bid_cambio ?? 0)
           break
         }
         case 'valor_operado': {
-          const agg = await prisma.cambioParcelas.aggregate({
-            _sum: { valor_a_pagar_brl: true },
-            where: { created_at: { gte: periodStart } },
+          const agg = await prisma.bidCambioParcela.aggregate({
+            _sum: { valor_a_pagar_brl_parcela_bid_cambio: true },
+            where: { data_criacao_parcela_bid_cambio: { gte: periodStart } },
           })
-          result.valor_operado = Number(agg._sum.valor_a_pagar_brl ?? 0)
+          result.valor_operado = Number(agg._sum.valor_a_pagar_brl_parcela_bid_cambio ?? 0)
           break
         }
         case 'cotacoes_status': {
-          const items = await prisma.cambioCotacoes.groupBy({
-            by: ['status'],
+          const items = await prisma.bidCambioCotacao.groupBy({
+            by: ['status_cotacao_bid_cambio'],
             _count: true,
-            where: { created_at: { gte: periodStart } },
+            where: { data_criacao_cotacao_bid_cambio: { gte: periodStart } },
           })
-          result.cotacoes_status = Object.fromEntries(items.map(i => [i.status, i._count]))
+          result.cotacoes_status = Object.fromEntries(items.map(i => [i.status_cotacao_bid_cambio, i._count]))
           break
         }
         case 'taxa_resposta': {
-          const total = await prisma.cambioCotacoesPedidos.count({ where: { created_at: { gte: periodStart } } })
-          const respondidos = await prisma.cambioCotacoesPedidos.count({
-            where: { created_at: { gte: periodStart }, status: 'RESPONDIDO' },
+          const total = await prisma.bidCambioDisparoCotacao.count({ where: { data_criacao_disparo_cotacao_bid_cambio: { gte: periodStart } } })
+          const respondidos = await prisma.bidCambioDisparoCotacao.count({
+            where: { data_criacao_disparo_cotacao_bid_cambio: { gte: periodStart }, status_disparo_cotacao_bid_cambio: 'RESPONDIDO' },
           })
           result.taxa_resposta = total > 0 ? Math.round((respondidos / total) * 100 * 100) / 100 : 0
           break
         }
         case 'economia_percentual': {
-          const agg = await prisma.cambioGanho.aggregate({
-            _avg: { economia_percentual: true },
-            where: { created_at: { gte: periodStart } },
+          const agg = await prisma.bidCambioGanho.aggregate({
+            _avg: { economia_percentual_ganho_bid_cambio: true },
+            where: { data_criacao_ganho_bid_cambio: { gte: periodStart } },
           })
-          result.economia_percentual = Number(agg._avg.economia_percentual ?? 0)
+          result.economia_percentual = Number(agg._avg.economia_percentual_ganho_bid_cambio ?? 0)
           break
         }
         case 'volume_mensal': {
           const dozeAtras = new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1)
-          const items = await prisma.cambioCotacoes.findMany({
-            where: { created_at: { gte: dozeAtras } },
-            select: { created_at: true },
+          const items = await prisma.bidCambioCotacao.findMany({
+            where: { data_criacao_cotacao_bid_cambio: { gte: dozeAtras } },
+            select: { data_criacao_cotacao_bid_cambio: true },
           })
           const byMonth: Record<string, number> = {}
           for (const item of items) {
-            const month = item.created_at.toISOString().slice(0, 7)
+            const month = item.data_criacao_cotacao_bid_cambio.toISOString().slice(0, 7)
             byMonth[month] = (byMonth[month] ?? 0) + 1
           }
           result.volume_mensal = Object.entries(byMonth).map(([month, value]) => ({ month, value }))

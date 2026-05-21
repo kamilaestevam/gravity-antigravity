@@ -41,15 +41,15 @@ export const atividadesIntegration = {
     tipo?: 'TAREFA' | 'FOLLOW_UP' | 'OUTRO'
     prioridade?: 'BAIXA' | 'MEDIA' | 'ALTA' | 'URGENTE'
     data_venc?: string
-    user_id?: string
+    id_usuario?: string
   }) {
     try {
       await axios.post(`${ATIVIDADES_URL}/api/v1/atividades`, {
         ...data,
-        product_id: 'bid-cambio',
+        id_produto_gravity: 'bid-cambio',
         status: 'PENDENTE',
       }, {
-        headers: s2sHeaders(tenantId, data.user_id),
+        headers: s2sHeaders(tenantId, data.id_usuario),
         timeout: 10000,
       })
     } catch (err: unknown) {
@@ -68,7 +68,7 @@ export const atividadesIntegration = {
       tipo: 'FOLLOW_UP',
       prioridade: 'MEDIA',
       data_venc: parcela.data_agendamento,
-      user_id: userId,
+      id_usuario: userId,
     })
   },
 
@@ -82,7 +82,7 @@ export const atividadesIntegration = {
       descricao: `Cambio ${parcela.moeda} ${parcela.valor} fechado com sucesso.`,
       tipo: 'TAREFA',
       prioridade: 'BAIXA',
-      user_id: userId,
+      id_usuario: userId,
     })
   },
 
@@ -96,7 +96,7 @@ export const atividadesIntegration = {
       tipo: 'FOLLOW_UP',
       prioridade: 'ALTA',
       data_venc: data.data_vencimento,
-      user_id: userId,
+      id_usuario: userId,
     })
   },
 }
@@ -113,8 +113,8 @@ export const notificacoesIntegration = {
     try {
       await axios.post(`${NOTIFICACOES_URL}/api/v1/notificacoes`, {
         ...data,
-        product_id: 'bid-cambio',
-        user_id: userId,
+        id_produto_gravity: 'bid-cambio',
+        id_usuario: userId,
       }, {
         headers: s2sHeaders(tenantId, userId),
         timeout: 10000,
@@ -126,13 +126,13 @@ export const notificacoesIntegration = {
 
   async cotacaoRespondida(tenantId: string, userId: string, data: {
     corretora_nome: string
-    cotacao_id: string
+    id_cotacao_bid_cambio: string
   }) {
     await this.enviar(tenantId, userId, {
       titulo: `Nova proposta de cambio`,
       mensagem: `A corretora ${data.corretora_nome} respondeu sua cotacao.`,
       tipo: 'BID_RESPONSE',
-      link: `/bid-cambio/cotacoes/${data.cotacao_id}`,
+      link: `/bid-cambio/cotacoes/${data.id_cotacao_bid_cambio}`,
     })
   },
 
@@ -148,11 +148,11 @@ export const notificacoesIntegration = {
   },
 
   async cotacaoExpirada(tenantId: string, userId: string, data: {
-    cotacao_id: string
+    id_cotacao_bid_cambio: string
   }) {
     await this.enviar(tenantId, userId, {
       titulo: `Cotacao de cambio expirada`,
-      mensagem: `A cotacao ${data.cotacao_id} expirou sem aprovacao.`,
+      mensagem: `A cotacao ${data.id_cotacao_bid_cambio} expirou sem aprovacao.`,
       tipo: 'BID_EXPIRED',
     })
   },
@@ -170,8 +170,8 @@ export const historicoIntegration = {
     try {
       await axios.post(`${HISTORICO_URL}/api/v1/historico`, {
         ...data,
-        product_id: 'bid-cambio',
-        user_id: userId,
+        id_produto_gravity: 'bid-cambio',
+        id_usuario: userId,
       }, {
         headers: s2sHeaders(tenantId, userId),
         timeout: 10000,
@@ -194,7 +194,7 @@ export const emailIntegration = {
     try {
       await axios.post(`${EMAIL_URL}/api/v1/envios-email`, {
         ...data,
-        product_id: 'bid-cambio',
+        id_produto_gravity: 'bid-cambio',
       }, {
         headers: s2sHeaders(tenantId),
         timeout: 15000,

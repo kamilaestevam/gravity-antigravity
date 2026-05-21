@@ -21,7 +21,7 @@ import {
 } from 'lucide-react'
 
 import { getPreferencias, atualizarPreferencias } from '../shared/api'
-import type { CambioPreferenciaUsuario } from '../shared/types'
+import type { BidCambioPreferenciaUsuario } from '../shared/types'
 
 // ─── Toggle Switch ─────────────────────────────────────────────────────────
 
@@ -134,11 +134,11 @@ export default function Configuracoes() {
     try {
       const prefs = await getPreferencias()
       const loaded: LocalConfig = {
-        mostrarCambiosPagos: true,
-        alertarVencimentoEmail: prefs.alerta_vencimento_dias > 0,
-        alertarVencimentoDias: prefs.alerta_vencimento_dias || 3,
-        enviarEmailExportador: false,
-        enviarFimDeSemana: false,
+        mostrarCambiosPagos: prefs.mostrar_no_financeiro_preferencia_bid_cambio,
+        alertarVencimentoEmail: prefs.alerta_email_vencimento_preferencia_bid_cambio,
+        alertarVencimentoDias: prefs.dias_antecedencia_alerta_preferencia_bid_cambio ?? 3,
+        enviarEmailExportador: prefs.enviar_email_exportador_preferencia_bid_cambio,
+        enviarFimDeSemana: prefs.enviar_email_fim_de_semana_preferencia_bid_cambio,
       }
       setConfig(loaded)
       setOriginalConfig(loaded)
@@ -160,7 +160,11 @@ export default function Configuracoes() {
     setError(null)
     try {
       await atualizarPreferencias({
-        alerta_vencimento_dias: config.alertarVencimentoEmail ? config.alertarVencimentoDias : 0,
+        mostrar_no_financeiro_preferencia_bid_cambio: config.mostrarCambiosPagos,
+        alerta_email_vencimento_preferencia_bid_cambio: config.alertarVencimentoEmail,
+        dias_antecedencia_alerta_preferencia_bid_cambio: config.alertarVencimentoEmail ? config.alertarVencimentoDias : 0,
+        enviar_email_exportador_preferencia_bid_cambio: config.enviarEmailExportador,
+        enviar_email_fim_de_semana_preferencia_bid_cambio: config.enviarFimDeSemana,
       })
       setOriginalConfig(config)
       setSavedMsg(true)

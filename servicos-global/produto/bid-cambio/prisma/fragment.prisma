@@ -1,27 +1,34 @@
 // ============================================
-// BID Cambio — Fragment Prisma
+// BID Câmbio — Fragment Prisma (DDD Compliant)
 // Produto: bid-cambio | Porta: 8025
+// Refatoração DDD: 2026-05-21
 // ============================================
 
 // ---- ENUMS ----
 
-enum CambioTipoOperacao {
+enum BidCambioTipoOperacao {
   IMPORTACAO
   EXPORTACAO
+
+  @@map("CambioTipoOperacao")
 }
 
-enum CambioModalidade {
+enum BidCambioModalidade {
   PRONTO
   FUTURO
+
+  @@map("CambioModalidade")
 }
 
-enum CambioLiquidacao {
+enum BidCambioLiquidacao {
   D0
   D1
   D2
+
+  @@map("CambioLiquidacao")
 }
 
-enum CambioMoeda {
+enum BidCambioMoeda {
   USD
   EUR
   GBP
@@ -29,15 +36,19 @@ enum CambioMoeda {
   BRL
   CNY
   JPY
+
+  @@map("CambioMoeda")
 }
 
-enum CambioParcelaStatus {
+enum BidCambioStatusParcela {
   PENDENTE
   AGENDADO
   PAGO
+
+  @@map("CambioParcelaStatus")
 }
 
-enum CambioCotacaoStatus {
+enum BidCambioStatusCotacao {
   RASCUNHO
   ENVIADA_CORRETORAS
   EM_COTACAO
@@ -46,29 +57,34 @@ enum CambioCotacaoStatus {
   REPROVADA
   CANCELADA
   EXPIRADA
+
+  @@map("CambioCotacaoStatus")
 }
 
-enum CambioDisparoCanal {
+enum BidCambioCanalDisparo {
   EMAIL
   PORTAL
+
+  @@map("CambioDisparoCanal")
 }
 
 // COLISAO DDD onda DB-1: planilha mestre mapeia tanto StatusBidRequestCambio
 // quanto StatusBidResponseCambio para CambioStatusCotacoes. Os valores dos dois
 // enums sao 100% disjuntos (PENDENTE/ENVIADO/VISUALIZADO/RESPONDIDO/EXPIRADO/ERRO_ENVIO
 // vs RECEBIDA/EM_ANALISE/MELHOR_TAXA/MELHOR_SPREAD/MELHOR_AVALIACAO/APROVADA/REPROVADA),
-// portanto NAO ha como mergir. Renomeamos apenas StatusBidRequestCambio -> CambioStatusCotacoes
-// e mantemos StatusBidResponseCambio com nome legado ate que a planilha seja corrigida.
-enum CambioStatusCotacoes {
+// portanto NAO ha como mergir.
+enum BidCambioStatusDisparoCotacao {
   PENDENTE
   ENVIADO
   VISUALIZADO
   RESPONDIDO
   EXPIRADO
   ERRO_ENVIO
+
+  @@map("CambioStatusCotacoes")
 }
 
-enum StatusBidResponseCambio {
+enum BidCambioStatusRespostaCotacao {
   RECEBIDA
   EM_ANALISE
   MELHOR_TAXA
@@ -76,22 +92,28 @@ enum StatusBidResponseCambio {
   MELHOR_AVALIACAO
   APROVADA
   REPROVADA
+
+  @@map("StatusBidResponseCambio")
 }
 
-enum CambioCorretoraTipo {
+enum BidCambioTipoCorretora {
   CORRETORA_CAMBIO
   BANCO_COMERCIAL
   BANCO_CAMBIO
   FINTECH
+
+  @@map("CambioCorretoraTipo")
 }
 
-enum CambioCorretoraStatus {
+enum BidCambioStatusCorretora {
   ATIVA
   INATIVA
   BLOQUEADA
+
+  @@map("CambioCorretoraStatus")
 }
 
-enum CambioBaseVencimento {
+enum BidCambioBaseVencimento {
   DATA_EMBARQUE
   DATA_CHEGADA
   DATA_REGISTRO_DI
@@ -99,388 +121,392 @@ enum CambioBaseVencimento {
   DATA_ENTREGA
   PRONTIDAO_CARGA
   DATA_FIXA
+
+  @@map("CambioBaseVencimento")
 }
 
 // ---- MODELS ----
 
-/// Parcela de cambio vinculada a um pedido/processo
-model CambioParcelas {
-  id                      String          @id @default(cuid())
-  id_organizacao               String
-  product_id              String          @default("bid-cambio")
-  user_id                 String
+/// Parcela de câmbio vinculada a um pedido/processo
+model BidCambioParcela {
+  id_parcela_bid_cambio                   String                @id @default(cuid())
+  id_organizacao                          String
+  id_produto_gravity                      String                @default("bid-cambio")
+  id_usuario                              String
 
   // Dados do processo/pedido
-  referencia_processo     String?
-  numero_pedido           String?
-  exportador              String?
-  numero_di               String?
-  numero_invoice          String?
-  numero_bl               String?
-  numero_contrato_cambio  String?
-  numero_transmissao_di   String?
-  referencia_cliente      String?
+  referencia_processo_parcela_bid_cambio  String?
+  numero_pedido_parcela_bid_cambio        String?
+  exportador_parcela_bid_cambio           String?
+  numero_di_parcela_bid_cambio            String?
+  numero_invoice_parcela_bid_cambio       String?
+  numero_bl_parcela_bid_cambio            String?
+  numero_contrato_cambio_parcela_bid_cambio String?
+  numero_transmissao_di_parcela_bid_cambio  String?
+  referencia_cliente_parcela_bid_cambio   String?
+  numero_duimp_parcela_bid_cambio         String?
+  numero_due_parcela_bid_cambio           String?
 
   // Valores
-  moeda                   CambioMoeda     @default(USD)
-  cambio_total            Decimal         @db.Decimal(18, 4)
-  porcentagem_parcela     Decimal         @db.Decimal(5, 2)
-  valor_a_pagar           Decimal         @db.Decimal(18, 2)
-  valor_a_pagar_brl       Decimal         @db.Decimal(18, 2)
-  valor_pago              Decimal?        @db.Decimal(18, 2)
-  valor_pago_brl          Decimal?        @db.Decimal(18, 2)
+  moeda_parcela_bid_cambio                BidCambioMoeda        @default(USD)
+  cambio_total_parcela_bid_cambio         Decimal               @db.Decimal(18, 4)
+  porcentagem_parcela_bid_cambio          Decimal               @db.Decimal(5, 2)
+  valor_a_pagar_parcela_bid_cambio        Decimal               @db.Decimal(18, 2)
+  valor_a_pagar_brl_parcela_bid_cambio    Decimal               @db.Decimal(18, 2)
+  valor_pago_parcela_bid_cambio           Decimal?              @db.Decimal(18, 2)
+  valor_pago_brl_parcela_bid_cambio       Decimal?              @db.Decimal(18, 2)
 
   // Parcela
-  numero_parcela          Int
-  total_parcelas          Int
+  numero_parcela_bid_cambio               Int
+  total_parcelas_parcela_bid_cambio       Int
 
   // Status
-  status                  CambioParcelaStatus   @default(PENDENTE)
+  status_parcela_bid_cambio               BidCambioStatusParcela @default(PENDENTE)
 
   // Datas
-  data_vencimento             DateTime?
-  data_agendamento            DateTime?
-  data_pagamento              DateTime?
-  data_vencimento_original    DateTime?
+  data_vencimento_parcela_bid_cambio          DateTime?
+  data_agendamento_parcela_bid_cambio         DateTime?
+  data_pagamento_parcela_bid_cambio           DateTime?
+  data_vencimento_original_parcela_bid_cambio DateTime?
 
   // Metodo de vencimento
-  metodo_vencimento       CambioBaseVencimento?
-  prazo_dias              Int?
+  metodo_vencimento_parcela_bid_cambio    BidCambioBaseVencimento?
+  prazo_dias_parcela_bid_cambio           Int?
 
   // Datas do processo (para calculo de vencimento)
-  data_carga_pronta           DateTime?
-  data_esperada_prontidao     DateTime?
-  data_embarque_final         DateTime?
-  data_chegada_final          DateTime?
-  data_registro_di            DateTime?
-  data_desembaraco            DateTime?
-  data_entrega                DateTime?
-  data_abertura_pedido        DateTime?
+  data_carga_pronta_parcela_bid_cambio        DateTime?
+  data_esperada_prontidao_parcela_bid_cambio  DateTime?
+  data_embarque_final_parcela_bid_cambio      DateTime?
+  data_chegada_final_parcela_bid_cambio       DateTime?
+  data_registro_di_parcela_bid_cambio         DateTime?
+  data_desembaraco_parcela_bid_cambio         DateTime?
+  data_entrega_parcela_bid_cambio             DateTime?
+  data_abertura_pedido_parcela_bid_cambio     DateTime?
 
   // Pagamento
-  taxa_fechamento         Decimal?        @db.Decimal(10, 4)
-  banco_corretora         String?
-  condicao_pagamento      String?
+  taxa_fechamento_parcela_bid_cambio      Decimal?              @db.Decimal(10, 4)
+  banco_corretora_parcela_bid_cambio      String?
+  condicao_pagamento_parcela_bid_cambio   String?
 
   // Enderecos
-  endereco_desembaraco    String?
-  endereco_entrega        String?
+  endereco_desembaraco_parcela_bid_cambio String?
+  endereco_entrega_parcela_bid_cambio     String?
 
   // Vinculacao com cotacao (Pilar 2)
-  cotacao_cambio_id       String?
-  bid_response_id         String?
+  id_cotacao_bid_cambio                   String?
+  id_resposta_cotacao_bid_cambio          String?
 
   // Anexos
-  anexos                  CambioAnexo[]
+  anexos                                  BidCambioAnexo[]
 
-  created_at              DateTime        @default(now())
-  updated_at              DateTime        @updatedAt
+  data_criacao_parcela_bid_cambio         DateTime              @default(now())
+  data_atualizacao_parcela_bid_cambio     DateTime              @updatedAt
 
   @@index([id_organizacao])
-  @@index([id_organizacao, product_id])
-  @@index([id_organizacao, user_id])
-  @@index([id_organizacao, status])
-  @@index([id_organizacao, data_vencimento])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, status_parcela_bid_cambio])
+  @@index([id_organizacao, data_vencimento_parcela_bid_cambio])
   @@map("cambio_parcelas")
 }
 
 /// Anexo de comprovante de pagamento
-model CambioAnexo {
-  id              String          @id @default(cuid())
-  id_organizacao       String
-  parcela_id      String
-  parcela         CambioParcelas  @relation(fields: [parcela_id], references: [id])
-  nome_arquivo    String?
-  nome_original   String
-  url             String
-  categoria       String          @default("Contrato de Cambio")
-  tamanho_bytes   Int?
-  created_at      DateTime        @default(now())
+model BidCambioAnexo {
+  id_anexo_bid_cambio                     String                @id @default(cuid())
+  id_organizacao                          String
+  id_parcela_bid_cambio                   String
+  parcela                                 BidCambioParcela      @relation(fields: [id_parcela_bid_cambio], references: [id_parcela_bid_cambio])
+  nome_arquivo_anexo_bid_cambio           String?
+  nome_original_anexo_bid_cambio          String
+  url_anexo_bid_cambio                    String
+  categoria_anexo_bid_cambio              String                @default("Contrato de Cambio")
+  tamanho_bytes_anexo_bid_cambio          Int?
+  data_criacao_anexo_bid_cambio           DateTime              @default(now())
 
   @@index([id_organizacao])
-  @@index([id_organizacao, parcela_id])
+  @@index([id_organizacao, id_parcela_bid_cambio])
   @@map("cambio_anexos")
 }
 
-/// Forma de pagamento do cambio (config por pedido)
-model CambioFormaPagamento {
-  id                    String                          @id @default(cuid())
-  id_organizacao             String
-  product_id            String                          @default("bid-cambio")
-  user_id               String
-  referencia_processo   String?
-  numero_pedido         String?
-  descricao             String?
-  parcelas              CambioParcelasConfiguracoes[]
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
+/// Forma de pagamento do câmbio (config por pedido)
+model BidCambioFormaPagamento {
+  id_forma_pagamento_bid_cambio                       String                          @id @default(cuid())
+  id_organizacao                                      String
+  id_produto_gravity                                  String                          @default("bid-cambio")
+  id_usuario                                          String
+  referencia_processo_forma_pagamento_bid_cambio       String?
+  numero_pedido_forma_pagamento_bid_cambio             String?
+  descricao_forma_pagamento_bid_cambio                 String?
+  parcelas                                             BidCambioConfiguracaoParcela[]
+  data_criacao_forma_pagamento_bid_cambio              DateTime                        @default(now())
+  data_atualizacao_forma_pagamento_bid_cambio          DateTime                        @updatedAt
 
   @@index([id_organizacao])
-  @@index([id_organizacao, product_id])
-  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
   @@map("cambio_formas_pagamento")
 }
 
-/// Configuracao de cada parcela dentro da forma de pagamento
-model CambioParcelasConfiguracoes {
-  id                    String                  @id @default(cuid())
-  id_organizacao             String
-  forma_pagamento_id    String
-  forma_pagamento       CambioFormaPagamento    @relation(fields: [forma_pagamento_id], references: [id])
-  a_partir_de           CambioBaseVencimento
-  prazo_dias            Int
-  porcentagem           Decimal                 @db.Decimal(5, 2)
-  ordem                 Int
+/// Configuração de cada parcela dentro da forma de pagamento
+model BidCambioConfiguracaoParcela {
+  id_configuracao_parcela_bid_cambio                  String                          @id @default(cuid())
+  id_organizacao                                      String
+  id_forma_pagamento_bid_cambio                       String
+  forma_pagamento                                     BidCambioFormaPagamento          @relation(fields: [id_forma_pagamento_bid_cambio], references: [id_forma_pagamento_bid_cambio])
+  a_partir_de_configuracao_parcela_bid_cambio         BidCambioBaseVencimento
+  prazo_dias_configuracao_parcela_bid_cambio           Int
+  porcentagem_configuracao_parcela_bid_cambio          Decimal                         @db.Decimal(5, 2)
+  ordem_configuracao_parcela_bid_cambio                Int
 
   @@index([id_organizacao])
-  @@index([id_organizacao, forma_pagamento_id])
+  @@index([id_organizacao, id_forma_pagamento_bid_cambio])
   @@map("cambio_config_parcelas")
 }
 
-/// Cotacao de cambio (Pilar 2 — Marketplace)
-model CambioCotacoes {
-  id                    String                  @id @default(cuid())
-  id_organizacao             String
-  product_id            String                  @default("bid-cambio")
-  user_id               String
+/// Cotação de câmbio (Pilar 2 — Marketplace)
+model BidCambioCotacao {
+  id_cotacao_bid_cambio                               String                          @id @default(cuid())
+  id_organizacao                                      String
+  id_produto_gravity                                  String                          @default("bid-cambio")
+  id_usuario                                          String
 
-  moeda                 CambioMoeda             @default(USD)
-  valor                 Decimal                 @db.Decimal(18, 2)
-  tipo_operacao         CambioTipoOperacao      @default(IMPORTACAO)
-  modalidade            CambioModalidade        @default(PRONTO)
-  liquidacao            CambioLiquidacao        @default(D2)
+  moeda_cotacao_bid_cambio                            BidCambioMoeda                  @default(USD)
+  valor_cotacao_bid_cambio                            Decimal                         @db.Decimal(18, 2)
+  tipo_operacao_cotacao_bid_cambio                    BidCambioTipoOperacao           @default(IMPORTACAO)
+  modalidade_cotacao_bid_cambio                       BidCambioModalidade             @default(PRONTO)
+  liquidacao_cotacao_bid_cambio                       BidCambioLiquidacao             @default(D2)
 
-  referencia_processo   String?
-  numero_pedido         String?
-  exportador            String?
+  referencia_processo_cotacao_bid_cambio              String?
+  numero_pedido_cotacao_bid_cambio                    String?
+  exportador_cotacao_bid_cambio                       String?
 
-  status                CambioCotacaoStatus     @default(RASCUNHO)
+  status_cotacao_bid_cambio                           BidCambioStatusCotacao          @default(RASCUNHO)
 
-  ptax_referencia       Decimal?                @db.Decimal(10, 4)
-  ptax_data             DateTime?
-  data_expiracao        DateTime?
+  ptax_referencia_cotacao_bid_cambio                  Decimal?                        @db.Decimal(10, 4)
+  ptax_data_cotacao_bid_cambio                        DateTime?
+  data_expiracao_cotacao_bid_cambio                   DateTime?
 
-  economia_brl          Decimal?                @db.Decimal(18, 2)
-  economia_percentual   Decimal?                @db.Decimal(5, 2)
+  economia_brl_cotacao_bid_cambio                     Decimal?                        @db.Decimal(18, 2)
+  economia_percentual_cotacao_bid_cambio              Decimal?                        @db.Decimal(5, 2)
 
-  // Aprovacao
-  corretora_aprovada_id String?
-  taxa_aprovada         Decimal?                @db.Decimal(10, 4)
-  aprovado_por          String?
-  aprovado_em           DateTime?
-  observacao_aprovacao  String?
+  // Aprovação
+  id_corretora_aprovada_bid_cambio                    String?
+  taxa_aprovada_cotacao_bid_cambio                    Decimal?                        @db.Decimal(10, 4)
+  aprovado_por_cotacao_bid_cambio                     String?
+  aprovado_em_cotacao_bid_cambio                      DateTime?
+  observacao_aprovacao_cotacao_bid_cambio              String?
 
-  bid_requests          CambioCotacoesPedidos[]
-  bid_responses         CambioCotacoesRespostas[]
+  bid_requests                                        BidCambioDisparoCotacao[]
+  bid_responses                                       BidCambioRespostaCotacao[]
 
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
+  data_criacao_cotacao_bid_cambio                     DateTime                        @default(now())
+  data_atualizacao_cotacao_bid_cambio                 DateTime                        @updatedAt
 
   @@index([id_organizacao])
-  @@index([id_organizacao, product_id])
-  @@index([id_organizacao, user_id])
-  @@index([id_organizacao, status])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, status_cotacao_bid_cambio])
   @@map("cambio_cotacoes")
 }
 
-/// Disparo de cotacao para uma corretora
-model CambioCotacoesPedidos {
-  id                String                       @id @default(cuid())
-  id_organizacao         String
-  cotacao_id        String
-  cotacao           CambioCotacoes               @relation(fields: [cotacao_id], references: [id])
-  corretora_id      String
-  corretora         CambioCorretoras             @relation(fields: [corretora_id], references: [id])
+/// Disparo de cotação para uma corretora
+model BidCambioDisparoCotacao {
+  id_disparo_cotacao_bid_cambio                       String                          @id @default(cuid())
+  id_organizacao                                      String
+  id_cotacao_bid_cambio                               String
+  cotacao                                             BidCambioCotacao                @relation(fields: [id_cotacao_bid_cambio], references: [id_cotacao_bid_cambio])
+  id_corretora_bid_cambio                             String
+  corretora                                           BidCambioCorretora              @relation(fields: [id_corretora_bid_cambio], references: [id_corretora_bid_cambio])
 
-  canal             CambioDisparoCanal           @default(EMAIL)
-  status            CambioStatusCotacoes         @default(PENDENTE)
+  canal_disparo_cotacao_bid_cambio                    BidCambioCanalDisparo           @default(EMAIL)
+  status_disparo_cotacao_bid_cambio                   BidCambioStatusDisparoCotacao    @default(PENDENTE)
 
-  token_publico     String?                      @unique
-  token_expiracao   DateTime?
+  token_publico_disparo_cotacao_bid_cambio            String?                         @unique
+  token_expiracao_disparo_cotacao_bid_cambio           DateTime?
 
-  enviado_em        DateTime?
-  visualizado_em    DateTime?
-  respondido_em     DateTime?
+  enviado_em_disparo_cotacao_bid_cambio               DateTime?
+  visualizado_em_disparo_cotacao_bid_cambio            DateTime?
+  respondido_em_disparo_cotacao_bid_cambio             DateTime?
 
-  response          CambioCotacoesRespostas?
+  response                                            BidCambioRespostaCotacao?
 
-  created_at        DateTime                  @default(now())
-  updated_at        DateTime                  @updatedAt
+  data_criacao_disparo_cotacao_bid_cambio              DateTime                        @default(now())
+  data_atualizacao_disparo_cotacao_bid_cambio          DateTime                        @updatedAt
 
   @@index([id_organizacao])
-  @@index([id_organizacao, cotacao_id])
-  @@index([token_publico])
+  @@index([id_organizacao, id_cotacao_bid_cambio])
+  @@index([token_publico_disparo_cotacao_bid_cambio])
   @@map("cambio_bid_requests")
 }
 
-/// Resposta de uma corretora a uma cotacao
-model CambioCotacoesRespostas {
-  id                  String                    @id @default(cuid())
-  id_organizacao           String
-  cotacao_id          String
-  cotacao             CambioCotacoes            @relation(fields: [cotacao_id], references: [id])
-  corretora_id        String
-  corretora           CambioCorretoras          @relation(fields: [corretora_id], references: [id])
-  bid_request_id      String                    @unique
-  bid_request         CambioCotacoesPedidos     @relation(fields: [bid_request_id], references: [id])
+/// Resposta de uma corretora a uma cotação
+model BidCambioRespostaCotacao {
+  id_resposta_cotacao_bid_cambio                      String                          @id @default(cuid())
+  id_organizacao                                      String
+  id_cotacao_bid_cambio                               String
+  cotacao                                             BidCambioCotacao                @relation(fields: [id_cotacao_bid_cambio], references: [id_cotacao_bid_cambio])
+  id_corretora_bid_cambio                             String
+  corretora                                           BidCambioCorretora              @relation(fields: [id_corretora_bid_cambio], references: [id_corretora_bid_cambio])
+  id_disparo_cotacao_bid_cambio                       String                          @unique
+  bid_request                                         BidCambioDisparoCotacao         @relation(fields: [id_disparo_cotacao_bid_cambio], references: [id_disparo_cotacao_bid_cambio])
 
-  taxa_oferecida      Decimal                   @db.Decimal(10, 4)
-  spread              Decimal                   @db.Decimal(10, 4)
-  valor_total_brl     Decimal                   @db.Decimal(18, 2)
-  iof_percentual      Decimal                   @db.Decimal(5, 2)
-  iof_valor           Decimal                   @db.Decimal(18, 2)
-  liquidacao_proposta CambioLiquidacao
-  validade_minutos    Int
-  validade_ate        DateTime
-  condicoes           String?
+  taxa_oferecida_resposta_cotacao_bid_cambio          Decimal                         @db.Decimal(10, 4)
+  spread_resposta_cotacao_bid_cambio                  Decimal                         @db.Decimal(10, 4)
+  valor_total_brl_resposta_cotacao_bid_cambio         Decimal                         @db.Decimal(18, 2)
+  iof_percentual_resposta_cotacao_bid_cambio          Decimal                         @db.Decimal(5, 2)
+  iof_valor_resposta_cotacao_bid_cambio               Decimal                         @db.Decimal(18, 2)
+  liquidacao_proposta_resposta_cotacao_bid_cambio      BidCambioLiquidacao
+  validade_minutos_resposta_cotacao_bid_cambio         Int
+  validade_ate_resposta_cotacao_bid_cambio             DateTime
+  condicoes_resposta_cotacao_bid_cambio                String?
 
-  status              StatusBidResponseCambio   @default(RECEBIDA)
+  status_resposta_cotacao_bid_cambio                  BidCambioStatusRespostaCotacao   @default(RECEBIDA)
 
-  created_at          DateTime                  @default(now())
-  updated_at          DateTime                  @updatedAt
+  data_criacao_resposta_cotacao_bid_cambio            DateTime                        @default(now())
+  data_atualizacao_resposta_cotacao_bid_cambio        DateTime                        @updatedAt
 
   @@index([id_organizacao])
-  @@index([id_organizacao, cotacao_id])
-  @@index([id_organizacao, corretora_id])
+  @@index([id_organizacao, id_cotacao_bid_cambio])
+  @@index([id_organizacao, id_corretora_bid_cambio])
   @@map("cambio_bid_responses")
 }
 
-/// Cadastro de corretoras de cambio / bancos
-model CambioCorretoras {
-  id                  String                          @id @default(cuid())
-  id_organizacao           String
-  product_id          String                          @default("bid-cambio")
-  user_id             String
+/// Cadastro de corretoras de câmbio / bancos
+model BidCambioCorretora {
+  id_corretora_bid_cambio                             String                          @id @default(cuid())
+  id_organizacao                                      String
+  id_produto_gravity                                  String                          @default("bid-cambio")
+  id_usuario                                          String
 
-  razao_social        String
-  nome_fantasia       String?
-  cnpj                String?
-  tipo                CambioCorretoraTipo             @default(CORRETORA_CAMBIO)
-  status              CambioCorretoraStatus           @default(ATIVA)
+  razao_social_corretora_bid_cambio                   String
+  nome_fantasia_corretora_bid_cambio                  String?
+  cnpj_corretora_bid_cambio                           String?
+  tipo_corretora_bid_cambio                           BidCambioTipoCorretora          @default(CORRETORA_CAMBIO)
+  status_corretora_bid_cambio                         BidCambioStatusCorretora         @default(ATIVA)
 
-  email               String
-  telefone            String?
-  contato_nome        String?
-  contato_cargo       String?
+  email_corretora_bid_cambio                          String
+  telefone_corretora_bid_cambio                       String?
+  contato_nome_corretora_bid_cambio                   String?
+  contato_cargo_corretora_bid_cambio                  String?
 
-  portal_habilitado   Boolean                         @default(false)
-  moedas_operadas     String?
+  portal_habilitado_corretora_bid_cambio              Boolean                         @default(false)
+  moedas_operadas_corretora_bid_cambio                String?
 
-  bid_requests        CambioCotacoesPedidos[]
-  bid_responses       CambioCotacoesRespostas[]
-  avaliacoes          CambioCorretorasAvaliacoes[]
+  bid_requests                                        BidCambioDisparoCotacao[]
+  bid_responses                                       BidCambioRespostaCotacao[]
+  avaliacoes                                          BidCambioAvaliacaoCorretora[]
 
-  created_at          DateTime            @default(now())
-  updated_at          DateTime            @updatedAt
+  data_criacao_corretora_bid_cambio                   DateTime                        @default(now())
+  data_atualizacao_corretora_bid_cambio               DateTime                        @updatedAt
 
   @@index([id_organizacao])
-  @@index([id_organizacao, product_id])
-  @@index([id_organizacao, user_id])
-  @@index([id_organizacao, status])
-  @@index([email])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, status_corretora_bid_cambio])
+  @@index([email_corretora_bid_cambio])
   @@map("cambio_corretoras")
 }
 
-/// Avaliacao manual de corretora
-model CambioCorretorasAvaliacoes {
-  id                  String              @id @default(cuid())
-  id_organizacao           String
-  user_id             String
-  corretora_id        String
-  corretora           CambioCorretoras    @relation(fields: [corretora_id], references: [id])
-  cotacao_id          String?
+/// Avaliação manual de corretora
+model BidCambioAvaliacaoCorretora {
+  id_avaliacao_corretora_bid_cambio                   String                          @id @default(cuid())
+  id_organizacao                                      String
+  id_usuario                                          String
+  id_corretora_bid_cambio                             String
+  corretora                                           BidCambioCorretora              @relation(fields: [id_corretora_bid_cambio], references: [id_corretora_bid_cambio])
+  id_cotacao_bid_cambio                               String?
 
-  nota_taxa           Int
-  nota_agilidade      Int
-  nota_atendimento    Int
-  nota_confiabilidade Int
-  comentario          String?
+  nota_taxa_avaliacao_corretora_bid_cambio            Int
+  nota_agilidade_avaliacao_corretora_bid_cambio       Int
+  nota_atendimento_avaliacao_corretora_bid_cambio     Int
+  nota_confiabilidade_avaliacao_corretora_bid_cambio  Int
+  comentario_avaliacao_corretora_bid_cambio           String?
 
-  created_at          DateTime    @default(now())
+  data_criacao_avaliacao_corretora_bid_cambio         DateTime                        @default(now())
 
   @@index([id_organizacao])
-  @@index([id_organizacao, corretora_id])
+  @@index([id_organizacao, id_corretora_bid_cambio])
   @@map("cambio_avaliacoes")
 }
 
 /// Rating global de corretora (cross-tenant, por e-mail)
-model CambioCorretoraClassificao {
-  id                          String      @id @default(cuid())
-  corretora_email             String      @unique
+model BidCambioClassificacaoCorretora {
+  id_classificacao_corretora_bid_cambio               String                          @id @default(cuid())
+  email_corretora_classificacao_bid_cambio            String                          @unique
 
-  taxa_resposta               Decimal     @db.Decimal(5, 2)
-  taxa_aprovacao              Decimal     @db.Decimal(5, 2)
-  tempo_medio_resposta        Int
-  total_cotacoes              Int         @default(0)
-  total_aprovacoes            Int         @default(0)
+  taxa_resposta_classificacao_bid_cambio              Decimal                         @db.Decimal(5, 2)
+  taxa_aprovacao_classificacao_bid_cambio             Decimal                         @db.Decimal(5, 2)
+  tempo_medio_resposta_classificacao_bid_cambio       Int
+  total_cotacoes_classificacao_bid_cambio             Int                             @default(0)
+  total_aprovacoes_classificacao_bid_cambio           Int                             @default(0)
 
-  nota_media_taxa             Decimal     @db.Decimal(3, 2)
-  nota_media_agilidade        Decimal     @db.Decimal(3, 2)
-  nota_media_atendimento      Decimal     @db.Decimal(3, 2)
-  nota_media_confiabilidade   Decimal     @db.Decimal(3, 2)
-  total_avaliacoes            Int         @default(0)
+  nota_media_taxa_classificacao_bid_cambio            Decimal                         @db.Decimal(3, 2)
+  nota_media_agilidade_classificacao_bid_cambio       Decimal                         @db.Decimal(3, 2)
+  nota_media_atendimento_classificacao_bid_cambio     Decimal                         @db.Decimal(3, 2)
+  nota_media_confiabilidade_classificacao_bid_cambio  Decimal                         @db.Decimal(3, 2)
+  total_avaliacoes_classificacao_bid_cambio           Int                             @default(0)
 
-  score_global                Decimal     @db.Decimal(3, 2)
+  score_global_classificacao_bid_cambio               Decimal                         @db.Decimal(3, 2)
 
-  updated_at                  DateTime    @updatedAt
+  data_atualizacao_classificacao_bid_cambio           DateTime                        @updatedAt
 
   @@map("cambio_rating_corretora_global")
 }
 
-/// Saving por cotacao aprovada
-model CambioGanho {
-  id                    String      @id @default(cuid())
-  id_organizacao             String
-  cotacao_id            String
-  corretora_id          String
+/// Saving por cotação aprovada
+model BidCambioGanho {
+  id_ganho_bid_cambio                                 String                          @id @default(cuid())
+  id_organizacao                                      String
+  id_cotacao_bid_cambio                               String
+  id_corretora_bid_cambio                             String
 
-  valor_operacao        Decimal     @db.Decimal(18, 2)
-  moeda                 CambioMoeda
-  taxa_aprovada         Decimal     @db.Decimal(10, 4)
-  taxa_media_respostas  Decimal     @db.Decimal(10, 4)
-  ptax_referencia       Decimal     @db.Decimal(10, 4)
-  economia_brl          Decimal     @db.Decimal(18, 2)
-  economia_percentual   Decimal     @db.Decimal(5, 2)
+  valor_operacao_ganho_bid_cambio                     Decimal                         @db.Decimal(18, 2)
+  moeda_ganho_bid_cambio                              BidCambioMoeda
+  taxa_aprovada_ganho_bid_cambio                      Decimal                         @db.Decimal(10, 4)
+  taxa_media_respostas_ganho_bid_cambio               Decimal                         @db.Decimal(10, 4)
+  ptax_referencia_ganho_bid_cambio                    Decimal                         @db.Decimal(10, 4)
+  economia_brl_ganho_bid_cambio                       Decimal                         @db.Decimal(18, 2)
+  economia_percentual_ganho_bid_cambio                Decimal                         @db.Decimal(5, 2)
 
-  created_at            DateTime    @default(now())
+  data_criacao_ganho_bid_cambio                       DateTime                        @default(now())
 
   @@index([id_organizacao])
-  @@index([id_organizacao, cotacao_id])
+  @@index([id_organizacao, id_cotacao_bid_cambio])
   @@map("cambio_savings")
 }
 
-/// Preferencias de cambio do tenant
-model CambioPreferenciaUsuario {
-  id                              String      @id @default(cuid())
-  id_organizacao                       String      @unique
-  product_id                      String      @default("bid-cambio")
+/// Preferências de câmbio do tenant
+model BidCambioPreferenciaUsuario {
+  id_preferencia_usuario_bid_cambio                   String                          @id @default(cuid())
+  id_organizacao                                      String                          @unique
+  id_produto_gravity                                  String                          @default("bid-cambio")
 
-  mostrar_no_financeiro           Boolean     @default(false)
-  alerta_email_vencimento         Boolean     @default(false)
-  dias_antecedencia_alerta        Int?
-  enviar_email_exportador         Boolean     @default(false)
-  enviar_email_fim_de_semana      Boolean     @default(true)
+  mostrar_no_financeiro_preferencia_bid_cambio        Boolean                         @default(false)
+  alerta_email_vencimento_preferencia_bid_cambio      Boolean                         @default(false)
+  dias_antecedencia_alerta_preferencia_bid_cambio     Int?
+  enviar_email_exportador_preferencia_bid_cambio      Boolean                         @default(false)
+  enviar_email_fim_de_semana_preferencia_bid_cambio   Boolean                         @default(true)
 
-  updated_at                      DateTime    @updatedAt
+  data_atualizacao_preferencia_bid_cambio             DateTime                        @updatedAt
 
   @@index([id_organizacao])
   @@map("cambio_preferencias")
 }
 
-/// Preferencia de grid do usuario
-model CambioPreferenciaGrid {
-  id                    String      @id @default(cuid())
-  id_organizacao             String
-  user_id               String
+/// Preferência de grid do usuário
+model BidCambioPreferenciaGrid {
+  id_preferencia_grid_bid_cambio                      String                          @id @default(cuid())
+  id_organizacao                                      String
+  id_usuario                                          String
 
-  colunas_visiveis      String
-  ordem_colunas         String
-  filtros_salvos        String?
-  ordenacao             String?
+  colunas_visiveis_preferencia_grid_bid_cambio        String
+  ordem_colunas_preferencia_grid_bid_cambio           String
+  filtros_salvos_preferencia_grid_bid_cambio          String?
+  ordenacao_preferencia_grid_bid_cambio               String?
 
-  updated_at            DateTime    @updatedAt
+  data_atualizacao_preferencia_grid_bid_cambio        DateTime                        @updatedAt
 
-  @@unique([id_organizacao, user_id])
+  @@unique([id_organizacao, id_usuario])
   @@index([id_organizacao])
   @@map("cambio_preferencias_grid")
 }

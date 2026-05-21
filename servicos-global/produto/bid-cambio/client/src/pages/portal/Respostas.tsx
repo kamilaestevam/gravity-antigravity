@@ -19,8 +19,8 @@ import {
   Settings,
 } from 'lucide-react'
 import type {
-  CambioMoeda,
-  StatusBidResponseCambio,
+  BidCambioMoeda,
+  BidCambioStatusRespostaCotacao,
 } from '../../shared/types'
 import {
   MOEDA_CAMBIO_LABELS,
@@ -33,7 +33,7 @@ type RespostaStatus = 'RECEBIDA' | 'APROVADA' | 'REPROVADA' | 'EXPIRADA'
 interface RespostaHistorico {
   id: string
   comprador_label: string
-  moeda: CambioMoeda
+  moeda: BidCambioMoeda
   valor_moeda_estrangeira: number
   taxa_oferecida: number
   spread: number

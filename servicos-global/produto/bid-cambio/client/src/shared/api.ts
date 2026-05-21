@@ -4,19 +4,19 @@
  */
 
 import type {
-  CambioParcelas,
-  CambioCotacoes,
-  CambioCorretoras,
-  BidResponseCambio,
-  CambioPreferenciaUsuario,
-  CambioPreferenciaGrid,
-  CambioCorretorasAvaliacoes,
+  BidCambioParcela,
+  BidCambioCotacao,
+  BidCambioCorretora,
+  BidCambioRespostaCotacao,
+  BidCambioPreferenciaUsuario,
+  BidCambioPreferenciaGrid,
+  BidCambioAvaliacaoCorretora,
   Pagination,
   PaginatedResponse,
   DashboardKPIs,
-  CambioParcelaStatus,
-  CambioCotacaoStatus,
-  CambioMoeda,
+  BidCambioStatusParcela,
+  BidCambioStatusCotacao,
+  BidCambioMoeda,
 } from './types'
 
 // --- Config ---
@@ -62,19 +62,19 @@ export async function getDashboard() {
 export async function getDashboardVencimentos(dias = 30) {
   const res = await fetch(`${API_BASE}/bid-cambio/dashboard/vencimentos?dias=${dias}`, { headers: getHeaders() })
   return handleResponse<{
-    proximos_vencimentos: { data: CambioParcelas[]; total: number; dias_consulta: number }
-    vencidos: { data: CambioParcelas[]; total: number }
-    por_moeda: Array<{ moeda: CambioMoeda; _sum: { valor_a_pagar: number; valor_a_pagar_brl: number }; _count: number }>
+    proximos_vencimentos: { data: BidCambioParcela[]; total: number; dias_consulta: number }
+    vencidos: { data: BidCambioParcela[]; total: number }
+    por_moeda: Array<{ moeda_parcela_bid_cambio: BidCambioMoeda; _sum: { valor_a_pagar_parcela_bid_cambio: number; valor_a_pagar_brl_parcela_bid_cambio: number }; _count: number }>
   }>(res)
 }
 
 // --- Cambios (Pilar 1 — Parcelas) ---
 
 export interface CambiosListParams {
-  status?: CambioParcelaStatus
-  moeda?: string
-  data_vencimento_inicio?: string
-  data_vencimento_fim?: string
+  status?: BidCambioStatusParcela
+  moeda_parcela_bid_cambio?: string
+  data_vencimento_inicio_parcela_bid_cambio?: string
+  data_vencimento_fim_parcela_bid_cambio?: string
   page?: number
   limit?: number
 }
@@ -82,24 +82,24 @@ export interface CambiosListParams {
 export async function listarCambios(params: CambiosListParams = {}) {
   const query = new URLSearchParams()
   if (params.status) query.set('status', params.status)
-  if (params.moeda) query.set('moeda', params.moeda)
-  if (params.data_vencimento_inicio) query.set('data_vencimento_inicio', params.data_vencimento_inicio)
-  if (params.data_vencimento_fim) query.set('data_vencimento_fim', params.data_vencimento_fim)
+  if (params.moeda_parcela_bid_cambio) query.set('moeda_parcela_bid_cambio', params.moeda_parcela_bid_cambio)
+  if (params.data_vencimento_inicio_parcela_bid_cambio) query.set('data_vencimento_inicio_parcela_bid_cambio', params.data_vencimento_inicio_parcela_bid_cambio)
+  if (params.data_vencimento_fim_parcela_bid_cambio) query.set('data_vencimento_fim_parcela_bid_cambio', params.data_vencimento_fim_parcela_bid_cambio)
   if (params.page) query.set('page', String(params.page))
   if (params.limit) query.set('limit', String(params.limit))
   const res = await fetch(`${API_BASE}/bid-cambio/cambios?${query}`, { headers: getHeaders() })
-  return handleResponse<PaginatedResponse<CambioParcelas>>(res)
+  return handleResponse<PaginatedResponse<BidCambioParcela>>(res)
 }
 
 export async function getCambioDetalhe(id: string) {
   const res = await fetch(`${API_BASE}/bid-cambio/cambios/${id}`, { headers: getHeaders() })
-  return handleResponse<CambioParcelas>(res)
+  return handleResponse<BidCambioParcela>(res)
 }
 
 export async function getCambiosTotais(status?: string) {
   const query = status ? `?status=${status}` : ''
   const res = await fetch(`${API_BASE}/bid-cambio/cambios/totais${query}`, { headers: getHeaders() })
-  return handleResponse<Array<{ moeda: CambioMoeda; _sum: { valor_a_pagar: number; valor_a_pagar_brl: number }; _count: number }>>(res)
+  return handleResponse<Array<{ moeda_parcela_bid_cambio: BidCambioMoeda; _sum: { valor_a_pagar_parcela_bid_cambio: number; valor_a_pagar_brl_parcela_bid_cambio: number }; _count: number }>>(res)
 }
 
 export async function agendarParcelas(parcela_ids: string[], data_agendamento: string) {
@@ -112,11 +112,11 @@ export async function agendarParcelas(parcela_ids: string[], data_agendamento: s
 }
 
 export async function pagarParcela(input: {
-  parcela_id: string
-  valor_pago: number
-  taxa_fechamento: number
-  banco_corretora: string
-  numero_contrato?: string
+  id_parcela_bid_cambio: string
+  valor_pago_parcela_bid_cambio: number
+  taxa_fechamento_parcela_bid_cambio: number
+  banco_corretora_parcela_bid_cambio: string
+  numero_contrato_cambio_parcela_bid_cambio?: string
   anexos?: Array<{ nome_original: string; url: string; categoria?: string }>
 }) {
   const res = await fetch(`${API_BASE}/bid-cambio/cambios/pagar`, {
@@ -139,7 +139,7 @@ export async function retornarParaPendente(parcela_id: string) {
 // --- Cotacoes (Pilar 2 — Marketplace) ---
 
 export interface CotacoesListParams {
-  status?: CambioCotacaoStatus
+  status?: BidCambioStatusCotacao
   page?: number
   limit?: number
 }
@@ -150,31 +150,31 @@ export async function listarCotacoes(params: CotacoesListParams = {}) {
   if (params.page) query.set('page', String(params.page))
   if (params.limit) query.set('limit', String(params.limit))
   const res = await fetch(`${API_BASE}/bid-cambio/cotacoes?${query}`, { headers: getHeaders() })
-  return handleResponse<PaginatedResponse<CambioCotacoes>>(res)
+  return handleResponse<PaginatedResponse<BidCambioCotacao>>(res)
 }
 
 export async function criarCotacao(input: {
-  moeda: CambioMoeda
-  valor: number
-  tipo_operacao: string
-  modalidade?: string
-  liquidacao?: string
-  referencia_processo?: string
-  numero_pedido?: string
-  exportador?: string
-  data_expiracao?: string
+  moeda_cotacao_bid_cambio: BidCambioMoeda
+  valor_cotacao_bid_cambio: number
+  tipo_operacao_cotacao_bid_cambio: string
+  modalidade_cotacao_bid_cambio?: string
+  liquidacao_cotacao_bid_cambio?: string
+  referencia_processo_cotacao_bid_cambio?: string
+  numero_pedido_cotacao_bid_cambio?: string
+  exportador_cotacao_bid_cambio?: string
+  data_expiracao_cotacao_bid_cambio?: string
 }) {
   const res = await fetch(`${API_BASE}/bid-cambio/cotacoes`, {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify(input),
   })
-  return handleResponse<CambioCotacoes>(res)
+  return handleResponse<BidCambioCotacao>(res)
 }
 
 export async function getCotacaoDetalhe(id: string) {
   const res = await fetch(`${API_BASE}/bid-cambio/cotacoes/${id}`, { headers: getHeaders() })
-  return handleResponse<CambioCotacoes>(res)
+  return handleResponse<BidCambioCotacao>(res)
 }
 
 // --- Bids (Disparo) ---
@@ -208,7 +208,7 @@ export async function getComparativo(cotacaoId: string) {
   const res = await fetch(`${API_BASE}/bid-cambio/comparativo/${cotacaoId}`, { headers: getHeaders() })
   return handleResponse<{
     cotacao: unknown
-    ranking: Array<BidResponseCambio & { tags: string[] }>
+    ranking: Array<BidCambioRespostaCotacao & { tags: string[] }>
     total_respostas: number
     melhor_taxa: number | null
     pior_taxa: number | null
@@ -249,89 +249,89 @@ export async function listarCorretoras(params: CorretorasListParams = {}) {
   if (params.page) query.set('page', String(params.page))
   if (params.limit) query.set('limit', String(params.limit))
   const res = await fetch(`${API_BASE}/bid-cambio/corretoras?${query}`, { headers: getHeaders() })
-  return handleResponse<PaginatedResponse<CambioCorretoras>>(res)
+  return handleResponse<PaginatedResponse<BidCambioCorretora>>(res)
 }
 
 export async function getCorretoraDetalhe(id: string) {
   const res = await fetch(`${API_BASE}/bid-cambio/corretoras/${id}`, { headers: getHeaders() })
-  return handleResponse<CambioCorretoras>(res)
+  return handleResponse<BidCambioCorretora>(res)
 }
 
 export async function criarCorretora(input: {
-  razao_social: string
-  nome_fantasia?: string
-  cnpj?: string
-  tipo?: string
-  email: string
-  telefone?: string
-  contato_nome?: string
-  contato_cargo?: string
-  portal_habilitado?: boolean
-  moedas_operadas?: string
+  razao_social_corretora_bid_cambio: string
+  nome_fantasia_corretora_bid_cambio?: string
+  cnpj_corretora_bid_cambio?: string
+  tipo_corretora_bid_cambio?: string
+  email_corretora_bid_cambio: string
+  telefone_corretora_bid_cambio?: string
+  contato_nome_corretora_bid_cambio?: string
+  contato_cargo_corretora_bid_cambio?: string
+  portal_habilitado_corretora_bid_cambio?: boolean
+  moedas_operadas_corretora_bid_cambio?: string
 }) {
   const res = await fetch(`${API_BASE}/bid-cambio/corretoras`, {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify(input),
   })
-  return handleResponse<CambioCorretoras>(res)
+  return handleResponse<BidCambioCorretora>(res)
 }
 
 // --- Avaliacoes ---
 
 export async function criarAvaliacao(input: {
-  corretora_id: string
-  cotacao_id?: string
-  nota_taxa: number
-  nota_agilidade: number
-  nota_atendimento: number
-  nota_confiabilidade: number
-  comentario?: string
+  id_corretora_bid_cambio: string
+  id_cotacao_bid_cambio?: string
+  nota_taxa_avaliacao_corretora_bid_cambio: number
+  nota_agilidade_avaliacao_corretora_bid_cambio: number
+  nota_atendimento_avaliacao_corretora_bid_cambio: number
+  nota_confiabilidade_avaliacao_corretora_bid_cambio: number
+  comentario_avaliacao_corretora_bid_cambio?: string
 }) {
   const res = await fetch(`${API_BASE}/bid-cambio/avaliacoes`, {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify(input),
   })
-  return handleResponse<CambioCorretorasAvaliacoes>(res)
+  return handleResponse<BidCambioAvaliacaoCorretora>(res)
 }
 
 export async function getAvaliacoesCorretora(corretoraId: string) {
   const res = await fetch(`${API_BASE}/bid-cambio/avaliacoes/corretora/${corretoraId}`, { headers: getHeaders() })
-  return handleResponse<{ corretora: unknown; medias: Record<string, number | null>; avaliacoes: PaginatedResponse<CambioCorretorasAvaliacoes> }>(res)
+  return handleResponse<{ corretora: unknown; medias: Record<string, number | null>; avaliacoes: PaginatedResponse<BidCambioAvaliacaoCorretora> }>(res)
 }
 
 // --- Preferencias ---
 
 export async function getPreferencias() {
   const res = await fetch(`${API_BASE}/bid-cambio/preferencias`, { headers: getHeaders() })
-  return handleResponse<CambioPreferenciaUsuario>(res)
+  return handleResponse<BidCambioPreferenciaUsuario>(res)
 }
 
-export async function atualizarPreferencias(input: Partial<CambioPreferenciaUsuario>) {
+export async function atualizarPreferencias(input: Partial<BidCambioPreferenciaUsuario>) {
   const res = await fetch(`${API_BASE}/bid-cambio/preferencias`, {
     method: 'PUT',
     headers: getHeaders(),
     body: JSON.stringify(input),
   })
-  return handleResponse<CambioPreferenciaUsuario>(res)
+  return handleResponse<BidCambioPreferenciaUsuario>(res)
 }
 
 export async function getPreferenciasGrid(grid_id: string) {
   const res = await fetch(`${API_BASE}/bid-cambio/preferencias/grid?grid_id=${grid_id}`, { headers: getHeaders() })
-  return handleResponse<CambioPreferenciaGrid>(res)
+  return handleResponse<BidCambioPreferenciaGrid>(res)
 }
 
 export async function salvarPreferenciasGrid(input: {
   grid_id: string
-  colunas_visiveis?: string[]
-  ordenacao?: { campo: string; direcao: 'asc' | 'desc' }
-  filtros_salvos?: Record<string, unknown>
+  colunas_visiveis_preferencia_grid_bid_cambio?: string[]
+  ordenacao_preferencia_grid_bid_cambio?: { campo: string; direcao: 'asc' | 'desc' }
+  filtros_salvos_preferencia_grid_bid_cambio?: Record<string, unknown>
 }) {
   const res = await fetch(`${API_BASE}/bid-cambio/preferencias/grid`, {
     method: 'PUT',
     headers: getHeaders(),
     body: JSON.stringify(input),
   })
-  return handleResponse<CambioPreferenciaGrid>(res)
+  return handleResponse<BidCambioPreferenciaGrid>(res)
 }

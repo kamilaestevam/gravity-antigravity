@@ -22,7 +22,7 @@ import {
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
 import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 
-import type { CambioParcelas, CambioMoeda } from '../shared/types'
+import type { BidCambioParcela, BidCambioMoeda } from '../shared/types'
 import { STATUS_PARCELA_LABELS } from '../shared/types'
 
 // ─── Formatacao ────────────────────────────────────────────────────────────
@@ -41,8 +41,8 @@ const dataBR = (iso: string | null | undefined) =>
 interface ModalPagamentoCambioProps {
   open: boolean
   onClose: () => void
-  parcelas: CambioParcelas[]
-  moeda: CambioMoeda
+  parcelas: BidCambioParcela[]
+  moeda: BidCambioMoeda
   onSave: (data: PagamentoData) => Promise<void>
   disabled?: boolean
 }
@@ -84,16 +84,16 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
   // ── Computed ───────────────────────────────────────────────────────────
 
   const parcelasDisponiveis = useMemo(() =>
-    parcelas.filter(p => p.status === 'PENDENTE' || p.status === 'AGENDADA'),
+    parcelas.filter(p => p.status_parcela_bid_cambio === 'PENDENTE' || p.status_parcela_bid_cambio === 'AGENDADO'),
     [parcelas]
   )
 
   const totalSelecionado = useMemo(() => {
     return parcelasDisponiveis
-      .filter(p => selectedParcelas.has(p.id))
+      .filter(p => selectedParcelas.has(p.id_parcela_bid_cambio))
       .reduce((sum, p) => {
-        const editado = valoresEditados[p.id]
-        return sum + (editado != null ? Number(editado) || 0 : p.valor_moeda_estrangeira)
+        const editado = valoresEditados[p.id_parcela_bid_cambio]
+        return sum + (editado != null ? Number(editado) || 0 : p.valor_a_pagar_parcela_bid_cambio)
       }, 0)
   }, [parcelasDisponiveis, selectedParcelas, valoresEditados])
 
@@ -299,11 +299,11 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
                 {parcelasDisponiveis.map((p) => {
-                  const selected = selectedParcelas.has(p.id)
-                  const editedVal = valoresEditados[p.id]
+                  const selected = selectedParcelas.has(p.id_parcela_bid_cambio)
+                  const editedVal = valoresEditados[p.id_parcela_bid_cambio]
                   return (
                     <div
-                      key={p.id}
+                      key={p.id_parcela_bid_cambio}
                       style={{
                         display: 'flex', alignItems: 'center', gap: '0.75rem',
                         padding: '0.65rem 0.75rem', borderRadius: 8,
@@ -316,16 +316,16 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
                       <input
                         type="checkbox"
                         checked={selected}
-                        onChange={() => toggleParcela(p.id)}
+                        onChange={() => toggleParcela(p.id_parcela_bid_cambio)}
                         disabled={disabled}
                         style={{ accentColor: 'var(--accent, #6366f1)' }}
                       />
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
-                          {t('bidcambio.modal_pagamento.parcela_num', { num: p.numero_parcela })} — {t('bidcambio.modal_pagamento.vencimento')}: {dataBR(p.data_vencimento)}
+                          {t('bidcambio.modal_pagamento.parcela_num', { num: p.numero_parcela_bid_cambio })} — {t('bidcambio.modal_pagamento.vencimento')}: {dataBR(p.data_vencimento_parcela_bid_cambio)}
                         </div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>
-                          {STATUS_PARCELA_LABELS[p.status]} — {moeda} {fmtMoney(p.valor_moeda_estrangeira)}
+                          {STATUS_PARCELA_LABELS[p.status_parcela_bid_cambio]} — {moeda} {fmtMoney(p.valor_a_pagar_parcela_bid_cambio)}
                         </div>
                       </div>
                       {selected && (
@@ -333,11 +333,11 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
                           <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>{moeda}</span>
                           <input
                             type="number"
-                            value={editedVal ?? String(p.valor_moeda_estrangeira)}
-                            onChange={(e) => handleValorEdit(p.id, e.target.value, p.valor_moeda_estrangeira)}
+                            value={editedVal ?? String(p.valor_a_pagar_parcela_bid_cambio)}
+                            onChange={(e) => handleValorEdit(p.id_parcela_bid_cambio, e.target.value, p.valor_a_pagar_parcela_bid_cambio)}
                             step={0.01}
                             min={0}
-                            max={p.valor_moeda_estrangeira}
+                            max={p.valor_a_pagar_parcela_bid_cambio}
                             disabled={disabled}
                             style={{
                               width: 100, padding: '0.3rem 0.5rem', borderRadius: 6,

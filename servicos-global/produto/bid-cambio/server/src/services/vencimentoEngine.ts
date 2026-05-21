@@ -1,6 +1,6 @@
 /**
  * vencimentoEngine.ts — Motor de Calculo de Datas de Vencimento
- * Implementa os 7 metodos de calculo (CambioBaseVencimento enum).
+ * Implementa os 7 metodos de calculo (BidCambioBaseVencimento enum).
  *
  * RN-107: Usa "Data Carga Pronta"; se vazia, fallback para "Data Esperada da Prontidao"
  */
@@ -15,7 +15,7 @@ interface DatasProcesso {
   data_entrega?: Date | null
 }
 
-type CambioBaseVencimento =
+type BidCambioBaseVencimento =
   | 'DATA_EMBARQUE'
   | 'DATA_CHEGADA'
   | 'DATA_REGISTRO_DI'
@@ -29,7 +29,7 @@ type CambioBaseVencimento =
  * Retorna null se a data-base nao estiver disponivel ainda
  */
 export function calcularDataVencimento(
-  metodo: CambioBaseVencimento,
+  metodo: BidCambioBaseVencimento,
   prazoDias: number,
   datas: DatasProcesso,
   dataFixa?: Date | null,
@@ -74,20 +74,20 @@ export function calcularDataVencimento(
  */
 export function recalcularVencimentosParcelas(
   parcelas: Array<{
-    id: string
-    metodo_vencimento: CambioBaseVencimento | null
-    prazo_dias: number | null
-    status: string
+    id_parcela_bid_cambio: string
+    metodo_vencimento_parcela_bid_cambio: BidCambioBaseVencimento | null
+    prazo_dias_parcela_bid_cambio: number | null
+    status_parcela_bid_cambio: string
   }>,
   datas: DatasProcesso,
-): Array<{ id: string; data_vencimento: Date | null }> {
+): Array<{ id_parcela_bid_cambio: string; data_vencimento_parcela_bid_cambio: Date | null }> {
   return parcelas
-    .filter(p => p.status === 'PENDENTE' && p.metodo_vencimento && p.prazo_dias != null)
+    .filter(p => p.status_parcela_bid_cambio === 'PENDENTE' && p.metodo_vencimento_parcela_bid_cambio && p.prazo_dias_parcela_bid_cambio != null)
     .map(p => ({
-      id: p.id,
-      data_vencimento: calcularDataVencimento(
-        p.metodo_vencimento!,
-        p.prazo_dias!,
+      id_parcela_bid_cambio: p.id_parcela_bid_cambio,
+      data_vencimento_parcela_bid_cambio: calcularDataVencimento(
+        p.metodo_vencimento_parcela_bid_cambio!,
+        p.prazo_dias_parcela_bid_cambio!,
         datas,
       ),
     }))

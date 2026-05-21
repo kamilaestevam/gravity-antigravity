@@ -24,8 +24,8 @@ import {
 
 import { getComparativo, aprovarResposta } from '../shared/api'
 import type {
-  BidResponseCambio,
-  StatusBidResponseCambio,
+  BidCambioRespostaCotacao,
+  BidCambioStatusRespostaCotacao,
 } from '../shared/types'
 import {
   STATUS_BID_RESPONSE_LABELS,
@@ -81,7 +81,7 @@ interface ComparativoProps {
 
 export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
   const { t } = useTranslation()
-  const [respostas, setRespostas] = useState<BidResponseCambio[]>([])
+  const [respostas, setRespostas] = useState<BidCambioRespostaCotacao[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortKey>('taxa')
@@ -94,8 +94,8 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
     setLoading(true)
     setError(null)
     try {
-      const data = await getRanking(cotacaoId)
-      setRespostas(data)
+      const data = await getComparativo(cotacaoId)
+      setRespostas(data.ranking)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar ranking')
     } finally {
@@ -109,9 +109,9 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
 
   const sorted = useMemo(() => {
     const copy = [...respostas]
-    if (sortBy === 'taxa') copy.sort((a, b) => a.taxa_cambio - b.taxa_cambio)
-    else if (sortBy === 'spread') copy.sort((a, b) => a.spread - b.spread)
-    else copy.sort((a, b) => (b.score_rating ?? 0) - (a.score_rating ?? 0))
+    if (sortBy === 'taxa') copy.sort((a, b) => a.taxa_oferecida_resposta_cotacao_bid_cambio - b.taxa_oferecida_resposta_cotacao_bid_cambio)
+    else if (sortBy === 'spread') copy.sort((a, b) => a.spread_resposta_cotacao_bid_cambio - b.spread_resposta_cotacao_bid_cambio)
+    else copy.sort((a, b) => a.taxa_oferecida_resposta_cotacao_bid_cambio - b.taxa_oferecida_resposta_cotacao_bid_cambio)
     return copy
   }, [respostas, sortBy])
 
@@ -119,15 +119,11 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
     const map: Record<string, string[]> = {}
     if (respostas.length === 0) return map
 
-    const byTaxa = [...respostas].sort((a, b) => a.taxa_cambio - b.taxa_cambio)
-    const bySpread = [...respostas].sort((a, b) => a.spread - b.spread)
-    const byRating = [...respostas].sort((a, b) => (b.score_rating ?? 0) - (a.score_rating ?? 0))
+    const byTaxa = [...respostas].sort((a, b) => a.taxa_oferecida_resposta_cotacao_bid_cambio - b.taxa_oferecida_resposta_cotacao_bid_cambio)
+    const bySpread = [...respostas].sort((a, b) => a.spread_resposta_cotacao_bid_cambio - b.spread_resposta_cotacao_bid_cambio)
 
-    if (byTaxa[0]) { map[byTaxa[0].id] = [...(map[byTaxa[0].id] ?? []), 'MELHOR_TAXA'] }
-    if (bySpread[0]) { map[bySpread[0].id] = [...(map[bySpread[0].id] ?? []), 'MELHOR_SPREAD'] }
-    if (byRating[0] && (byRating[0].score_rating ?? 0) > 0) {
-      map[byRating[0].id] = [...(map[byRating[0].id] ?? []), 'MELHOR_AVALIACAO']
-    }
+    if (byTaxa[0]) { map[byTaxa[0].id_resposta_cotacao_bid_cambio] = [...(map[byTaxa[0].id_resposta_cotacao_bid_cambio] ?? []), 'MELHOR_TAXA'] }
+    if (bySpread[0]) { map[bySpread[0].id_resposta_cotacao_bid_cambio] = [...(map[bySpread[0].id_resposta_cotacao_bid_cambio] ?? []), 'MELHOR_SPREAD'] }
     return map
   }, [respostas])
 
@@ -300,14 +296,14 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
             </thead>
             <tbody>
               {sorted.map((resp, idx) => {
-                const respTags = tags[resp.id] ?? []
-                const respBadge = STATUS_BID_RESPONSE_BADGE[resp.status] ?? 'default'
+                const respTags = tags[resp.id_resposta_cotacao_bid_cambio] ?? []
+                const respBadge = STATUS_BID_RESPONSE_BADGE[resp.status_resposta_cotacao_bid_cambio] ?? 'default'
                 const respCores = BADGE_COLORS[respBadge]
                 const isFirst = idx === 0
 
                 return (
                   <tr
-                    key={resp.id}
+                    key={resp.id_resposta_cotacao_bid_cambio}
                     style={{
                       borderBottom: '1px solid var(--bg-elevated, #475569)',
                       background: isFirst ? 'rgba(34,197,94,0.05)' : undefined,
@@ -324,40 +320,37 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
 
                     {/* Corretora */}
                     <td style={{ padding: '0.75rem 0.5rem', fontWeight: 600 }}>
-                      {resp.corretora?.nome ?? '—'}
+                      {resp.corretora?.razao_social_corretora_bid_cambio ?? '—'}
                     </td>
 
                     {/* Taxa */}
                     <td style={{ padding: '0.75rem 0.5rem', fontFamily: "'DM Mono', monospace", fontWeight: 600 }}>
-                      {fmtRate(resp.taxa_cambio)}
+                      {fmtRate(resp.taxa_oferecida_resposta_cotacao_bid_cambio)}
                     </td>
 
                     {/* Spread */}
                     <td style={{ padding: '0.75rem 0.5rem', fontFamily: "'DM Mono', monospace" }}>
-                      {fmtRate(resp.spread)}
+                      {fmtRate(resp.spread_resposta_cotacao_bid_cambio)}
                     </td>
 
                     {/* Valor Total */}
                     <td style={{ padding: '0.75rem 0.5rem', fontFamily: "'DM Mono', monospace", fontWeight: 600 }}>
-                      R$ {fmtMoney(resp.valor_total_brl)}
+                      R$ {fmtMoney(resp.valor_total_brl_resposta_cotacao_bid_cambio)}
                     </td>
 
                     {/* IOF */}
                     <td style={{ padding: '0.75rem 0.5rem', fontFamily: "'DM Mono', monospace" }}>
-                      {resp.iof_percentual.toFixed(2)}% (R$ {fmtMoney(resp.iof_valor)})
+                      {resp.iof_percentual_resposta_cotacao_bid_cambio.toFixed(2)}% (R$ {fmtMoney(resp.iof_valor_resposta_cotacao_bid_cambio)})
                     </td>
 
                     {/* Validade */}
                     <td style={{ padding: '0.75rem 0.5rem', fontSize: '0.75rem' }}>
-                      {datetimeBR(resp.validade)}
+                      {datetimeBR(resp.validade_ate_resposta_cotacao_bid_cambio)}
                     </td>
 
                     {/* Rating */}
                     <td style={{ padding: '0.75rem 0.5rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <Star size={12} style={{ color: 'var(--warning, #f59e0b)' }} />
-                        <span style={{ fontWeight: 600 }}>{resp.score_rating?.toFixed(1) ?? '—'}</span>
-                      </div>
+                      <span style={{ color: 'var(--text-muted, #64748b)' }}>—</span>
                     </td>
 
                     {/* Tags */}
@@ -391,18 +384,18 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
                         fontSize: '0.6875rem', fontWeight: 600,
                         background: respCores.bg, color: respCores.color,
                       }}>
-                        {STATUS_BID_RESPONSE_LABELS[resp.status]}
+                        {STATUS_BID_RESPONSE_LABELS[resp.status_resposta_cotacao_bid_cambio]}
                       </span>
                     </td>
 
                     {/* Acoes */}
                     <td style={{ padding: '0.75rem 0.5rem' }}>
-                      {resp.status === 'PENDENTE' && (
+                      {resp.status_resposta_cotacao_bid_cambio === 'RECEBIDA' && (
                         <div style={{ display: 'flex', gap: '0.35rem' }}>
-                          {confirmAprovar === resp.id ? (
+                          {confirmAprovar === resp.id_resposta_cotacao_bid_cambio ? (
                             <>
                               <button
-                                onClick={() => handleAprovar(resp.id)}
+                                onClick={() => handleAprovar(resp.id_resposta_cotacao_bid_cambio)}
                                 disabled={submitting}
                                 style={{ ...btnPrimary, opacity: submitting ? 0.5 : 1 }}
                               >
@@ -415,10 +408,10 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
                             </>
                           ) : (
                             <>
-                              <button onClick={() => setConfirmAprovar(resp.id)} style={btnPrimary}>
+                              <button onClick={() => setConfirmAprovar(resp.id_resposta_cotacao_bid_cambio)} style={btnPrimary}>
                                 <Check size={10} /> {t('bidcambio.comparativo.aprovar')}
                               </button>
-                              <button onClick={() => setRejectId(resp.id)} style={{ ...btnDanger }}>
+                              <button onClick={() => setRejectId(resp.id_resposta_cotacao_bid_cambio)} style={{ ...btnDanger }}>
                                 <X size={10} /> {t('bidcambio.comparativo.rejeitar')}
                               </button>
                             </>

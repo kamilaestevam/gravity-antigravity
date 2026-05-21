@@ -23,9 +23,9 @@ import {
 
 import { listarCorretoras } from '../shared/api'
 import type {
-  CambioCorretoras,
-  CambioCorretoraTipo,
-  CambioCorretoraStatus,
+  BidCambioCorretora,
+  BidCambioTipoCorretora,
+  BidCambioStatusCorretora,
 } from '../shared/types'
 import {
   TIPO_CORRETORA_LABELS,
@@ -47,7 +47,7 @@ const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
 
 export default function Corretoras() {
   const { t } = useTranslation()
-  const [corretoras, setCorretoras] = useState<CambioCorretoras[]>([])
+  const [corretoras, setCorretoras] = useState<BidCambioCorretora[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [busca, setBusca] = useState('')
@@ -60,16 +60,15 @@ export default function Corretoras() {
     try {
       const res = await listarCorretoras({
         busca: busca || undefined,
-        tipo: filtroTipo || undefined,
         status: filtroStatus || undefined,
       })
-      setCorretoras(res.corretoras)
+      setCorretoras(res.data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar corretoras')
     } finally {
       setLoading(false)
     }
-  }, [busca, filtroTipo, filtroStatus])
+  }, [busca, filtroStatus])
 
   useEffect(() => { carregar() }, [carregar])
 
@@ -205,13 +204,13 @@ export default function Corretoras() {
         </div>
         <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} style={selectStyle}>
           <option value="">{t('comum.todos_tipos')}</option>
-          {(Object.entries(TIPO_CORRETORA_LABELS) as [CambioCorretoraTipo, string][]).map(([key, label]) => (
+          {(Object.entries(TIPO_CORRETORA_LABELS) as [BidCambioTipoCorretora, string][]).map(([key, label]) => (
             <option key={key} value={key}>{label}</option>
           ))}
         </select>
         <select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)} style={selectStyle}>
           <option value="">{t('comum.todos_status')}</option>
-          {(Object.entries(STATUS_CORRETORA_LABELS) as [CambioCorretoraStatus, string][]).map(([key, label]) => (
+          {(Object.entries(STATUS_CORRETORA_LABELS) as [BidCambioStatusCorretora, string][]).map(([key, label]) => (
             <option key={key} value={key}>{label}</option>
           ))}
         </select>
@@ -236,21 +235,22 @@ export default function Corretoras() {
             </thead>
             <tbody>
               {corretoras.map((c) => {
-                const statusBadge = STATUS_CORRETORA_BADGE[c.status] ?? 'default'
+                const statusBadge = STATUS_CORRETORA_BADGE[c.status_corretora_bid_cambio] ?? 'default'
                 const cores = BADGE_COLORS[statusBadge]
+                const moedasArr = c.moedas_operadas_corretora_bid_cambio?.split(',').map(m => m.trim()).filter(Boolean) ?? []
                 return (
                   <tr
-                    key={c.id}
+                    key={c.id_corretora_bid_cambio}
                     style={{ borderBottom: '1px solid var(--bg-elevated, #475569)' }}
                     onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-base, #1e293b)')}
                     onMouseLeave={(e) => (e.currentTarget.style.background = '')}
                   >
                     {/* Nome */}
                     <td style={{ padding: '0.75rem', fontWeight: 600 }}>
-                      <div>{c.nome}</div>
-                      {c.nome_fantasia && (
+                      <div>{c.razao_social_corretora_bid_cambio}</div>
+                      {c.nome_fantasia_corretora_bid_cambio && (
                         <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>
-                          {c.nome_fantasia}
+                          {c.nome_fantasia_corretora_bid_cambio}
                         </div>
                       )}
                     </td>
@@ -261,14 +261,14 @@ export default function Corretoras() {
                         fontSize: '0.6875rem', fontWeight: 600, color: 'var(--accent, #6366f1)',
                         background: 'rgba(99,102,241,0.15)', padding: '0.1rem 0.4rem', borderRadius: 9999,
                       }}>
-                        {TIPO_CORRETORA_LABELS[c.tipo]}
+                        {TIPO_CORRETORA_LABELS[c.tipo_corretora_bid_cambio]}
                       </span>
                     </td>
 
                     {/* Email */}
                     <td style={{ padding: '0.75rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--text-secondary, #94a3b8)' }}>
-                        <Mail size={12} /> {c.email}
+                        <Mail size={12} /> {c.email_corretora_bid_cambio}
                       </div>
                     </td>
 
@@ -280,26 +280,19 @@ export default function Corretoras() {
                         fontSize: '0.6875rem', fontWeight: 600,
                         background: cores.bg, color: cores.color,
                       }}>
-                        {STATUS_CORRETORA_LABELS[c.status]}
+                        {STATUS_CORRETORA_LABELS[c.status_corretora_bid_cambio]}
                       </span>
                     </td>
 
                     {/* Rating */}
                     <td style={{ padding: '0.75rem' }}>
-                      {c.rating_global != null ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          <Star size={12} style={{ color: 'var(--warning, #f59e0b)' }} />
-                          <span style={{ fontWeight: 600 }}>{c.rating_global.toFixed(1)}</span>
-                        </div>
-                      ) : (
-                        <span style={{ color: 'var(--text-muted, #64748b)' }}>—</span>
-                      )}
+                      <span style={{ color: 'var(--text-muted, #64748b)' }}>—</span>
                     </td>
 
                     {/* Moedas */}
                     <td style={{ padding: '0.75rem' }}>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem' }}>
-                        {c.moedas_atendidas.slice(0, 5).map((m) => (
+                        {moedasArr.slice(0, 5).map((m) => (
                           <span key={m} style={{
                             fontSize: '0.5625rem', fontWeight: 700, color: 'var(--accent, #6366f1)',
                             background: 'rgba(99,102,241,0.15)', padding: '0.05rem 0.3rem', borderRadius: 9999,
@@ -307,9 +300,9 @@ export default function Corretoras() {
                             {m}
                           </span>
                         ))}
-                        {c.moedas_atendidas.length > 5 && (
+                        {moedasArr.length > 5 && (
                           <span style={{ fontSize: '0.5625rem', color: 'var(--text-muted, #64748b)' }}>
-                            +{c.moedas_atendidas.length - 5}
+                            +{moedasArr.length - 5}
                           </span>
                         )}
                       </div>

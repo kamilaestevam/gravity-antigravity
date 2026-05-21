@@ -13,7 +13,7 @@ export const comparativoRouter = Router()
 // --- Schemas Zod ---
 
 const aprovarSchema = z.object({
-  bid_response_id: z.string(),
+  id_resposta_cotacao_bid_cambio: z.string(),
   observacao: z.string().optional(),
 })
 
@@ -24,9 +24,9 @@ const reprovarSchema = z.object({
 // --- Helpers ---
 
 type RespostaCambio = {
-  id: string
-  taxa_oferecida: number
-  spread: number
+  id_resposta_cotacao_bid_cambio: string
+  taxa_oferecida_resposta_cotacao_bid_cambio: number
+  spread_resposta_cotacao_bid_cambio: number
   corretora?: { rating?: number }
   [key: string]: unknown
 }
@@ -36,26 +36,26 @@ function calcularTags(respostas: RespostaCambio[]) {
 
   const sorted = [...respostas]
 
-  const melhorTaxa = sorted.sort((a, b) => a.taxa_oferecida - b.taxa_oferecida)[0]
-  const melhorSpread = sorted.sort((a, b) => a.spread - b.spread)[0]
+  const melhorTaxa = sorted.sort((a, b) => a.taxa_oferecida_resposta_cotacao_bid_cambio - b.taxa_oferecida_resposta_cotacao_bid_cambio)[0]
+  const melhorSpread = sorted.sort((a, b) => a.spread_resposta_cotacao_bid_cambio - b.spread_resposta_cotacao_bid_cambio)[0]
   const melhorAvaliacao = sorted.sort((a, b) => (b.corretora?.rating ?? 0) - (a.corretora?.rating ?? 0))[0]
 
   return respostas.map((r) => {
     const tags: string[] = []
-    if (r.id === melhorTaxa.id) tags.push('MELHOR_TAXA')
-    if (r.id === melhorSpread.id) tags.push('MELHOR_SPREAD')
-    if (melhorAvaliacao && r.id === melhorAvaliacao.id) tags.push('MELHOR_AVALIACAO')
+    if (r.id_resposta_cotacao_bid_cambio === melhorTaxa.id_resposta_cotacao_bid_cambio) tags.push('MELHOR_TAXA')
+    if (r.id_resposta_cotacao_bid_cambio === melhorSpread.id_resposta_cotacao_bid_cambio) tags.push('MELHOR_SPREAD')
+    if (melhorAvaliacao && r.id_resposta_cotacao_bid_cambio === melhorAvaliacao.id_resposta_cotacao_bid_cambio) tags.push('MELHOR_AVALIACAO')
     return { ...r, tags }
   })
 }
 
-function calcularEconomia(cotacao: { valor?: number }, respostaAprovada: { taxa_oferecida?: number; spread?: number }): number {
+function calcularEconomia(cotacao: { valor_cotacao_bid_cambio?: number }, respostaAprovada: { taxa_oferecida_resposta_cotacao_bid_cambio?: number; spread_resposta_cotacao_bid_cambio?: number }): number {
   // Economia = diferenca entre pior taxa e taxa aprovada * valor
   // Retorna economia em BRL
-  const valorBase = cotacao.valor ?? 0
-  const taxaAprovada = respostaAprovada.taxa_oferecida ?? 0
+  const valorBase = cotacao.valor_cotacao_bid_cambio ?? 0
+  const taxaAprovada = respostaAprovada.taxa_oferecida_resposta_cotacao_bid_cambio ?? 0
   // Estimativa simples: economia = valor * (spread medio mercado - spread aprovado)
-  return valorBase * (respostaAprovada.spread ?? 0) * 0.01
+  return valorBase * (respostaAprovada.spread_resposta_cotacao_bid_cambio ?? 0) * 0.01
 }
 
 // --- GET /api/v1/bid-cambio/comparativo/:cotacaoId ---
@@ -63,20 +63,20 @@ comparativoRouter.get('/:cotacaoId', async (req: Request, res: Response, next: N
   try {
     const prisma = req.prisma!
 
-    const cotacao = await (prisma as any).cotacaoCambio.findFirst({
-      where: { id: req.params.cotacaoId },
-      select: { id: true, moeda: true, valor: true, tipo_operacao: true, status: true },
+    const cotacao = await (prisma as any).bidCambioCotacao.findFirst({
+      where: { id_cotacao_bid_cambio: req.params.cotacaoId },
+      select: { id_cotacao_bid_cambio: true, moeda_cotacao_bid_cambio: true, valor_cotacao_bid_cambio: true, tipo_operacao_cotacao_bid_cambio: true, status_cotacao_bid_cambio: true },
     })
     if (!cotacao) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
 
-    const respostas = await (prisma as any).bidResponseCambio.findMany({
-      where: { cotacao_id: req.params.cotacaoId },
+    const respostas = await (prisma as any).bidCambioRespostaCotacao.findMany({
+      where: { id_cotacao_bid_cambio: req.params.cotacaoId },
       include: {
         corretora: {
-          select: { id: true, nome_fantasia: true, razao_social: true, tipo: true },
+          select: { id_corretora_bid_cambio: true, nome_fantasia_corretora_bid_cambio: true, razao_social_corretora_bid_cambio: true, tipo_corretora_bid_cambio: true },
         },
       },
-      orderBy: { taxa_oferecida: 'asc' },
+      orderBy: { taxa_oferecida_resposta_cotacao_bid_cambio: 'asc' },
     })
 
     const ranking = calcularTags(respostas)
@@ -85,8 +85,8 @@ comparativoRouter.get('/:cotacaoId', async (req: Request, res: Response, next: N
       cotacao,
       ranking,
       total_respostas: respostas.length,
-      melhor_taxa: respostas.length > 0 ? respostas[0].taxa_oferecida : null,
-      pior_taxa: respostas.length > 0 ? respostas[respostas.length - 1].taxa_oferecida : null,
+      melhor_taxa: respostas.length > 0 ? respostas[0].taxa_oferecida_resposta_cotacao_bid_cambio : null,
+      pior_taxa: respostas.length > 0 ? respostas[respostas.length - 1].taxa_oferecida_resposta_cotacao_bid_cambio : null,
     })
   } catch (err) { next(err) }
 })
@@ -99,16 +99,16 @@ comparativoRouter.post('/:cotacaoId/aprovar', async (req: Request, res: Response
     const tenantId = req.tenantId!
     const userId = req.headers['x-id-usuario'] as string
 
-    const cotacao = await (prisma as any).cotacaoCambio.findFirst({
-      where: { id: req.params.cotacaoId },
+    const cotacao = await (prisma as any).bidCambioCotacao.findFirst({
+      where: { id_cotacao_bid_cambio: req.params.cotacaoId },
     })
     if (!cotacao) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
-    if (cotacao.status === 'APROVADA') {
+    if (cotacao.status_cotacao_bid_cambio === 'APROVADA') {
       throw new AppError('Cotacao ja foi aprovada', 400, 'ALREADY_APPROVED')
     }
 
-    const respostaAprovada = await (prisma as any).bidResponseCambio.findFirst({
-      where: { id: input.bid_response_id, cotacao_id: req.params.cotacaoId },
+    const respostaAprovada = await (prisma as any).bidCambioRespostaCotacao.findFirst({
+      where: { id_resposta_cotacao_bid_cambio: input.id_resposta_cotacao_bid_cambio, id_cotacao_bid_cambio: req.params.cotacaoId },
       include: { corretora: true },
     })
     if (!respostaAprovada) {
@@ -116,69 +116,69 @@ comparativoRouter.post('/:cotacaoId/aprovar', async (req: Request, res: Response
     }
 
     // Marcar resposta aprovada
-    await (prisma as any).bidResponseCambio.update({
-      where: { id: input.bid_response_id },
-      data: { status: 'APROVADA' },
+    await (prisma as any).bidCambioRespostaCotacao.update({
+      where: { id_resposta_cotacao_bid_cambio: input.id_resposta_cotacao_bid_cambio },
+      data: { status_resposta_cotacao_bid_cambio: 'APROVADA' },
     })
 
     // Marcar todas as outras como REPROVADA
-    await (prisma as any).bidResponseCambio.updateMany({
+    await (prisma as any).bidCambioRespostaCotacao.updateMany({
       where: {
-        cotacao_id: req.params.cotacaoId,
-        id: { not: input.bid_response_id },
-        status: { not: 'REPROVADA' },
+        id_cotacao_bid_cambio: req.params.cotacaoId,
+        id_resposta_cotacao_bid_cambio: { not: input.id_resposta_cotacao_bid_cambio },
+        status_resposta_cotacao_bid_cambio: { not: 'REPROVADA' },
       },
-      data: { status: 'REPROVADA' },
+      data: { status_resposta_cotacao_bid_cambio: 'REPROVADA' },
     })
 
     // Calcular economia
-    const todasRespostas = await (prisma as any).bidResponseCambio.findMany({
-      where: { cotacao_id: req.params.cotacaoId },
-      orderBy: { taxa_oferecida: 'asc' },
+    const todasRespostas = await (prisma as any).bidCambioRespostaCotacao.findMany({
+      where: { id_cotacao_bid_cambio: req.params.cotacaoId },
+      orderBy: { taxa_oferecida_resposta_cotacao_bid_cambio: 'asc' },
     })
 
     const piorTaxa = todasRespostas.length > 1
-      ? todasRespostas[todasRespostas.length - 1].taxa_oferecida
-      : respostaAprovada.taxa_oferecida
+      ? todasRespostas[todasRespostas.length - 1].taxa_oferecida_resposta_cotacao_bid_cambio
+      : respostaAprovada.taxa_oferecida_resposta_cotacao_bid_cambio
 
-    const economiaBrl = (piorTaxa - respostaAprovada.taxa_oferecida) * cotacao.valor
+    const economiaBrl = (piorTaxa - respostaAprovada.taxa_oferecida_resposta_cotacao_bid_cambio) * cotacao.valor_cotacao_bid_cambio
 
     // Atualizar cotacao
-    await (prisma as any).cotacaoCambio.update({
-      where: { id: req.params.cotacaoId },
+    await (prisma as any).bidCambioCotacao.update({
+      where: { id_cotacao_bid_cambio: req.params.cotacaoId },
       data: {
-        status: 'APROVADA',
-        corretora_aprovada_id: respostaAprovada.corretora_id,
-        taxa_aprovada: respostaAprovada.taxa_oferecida,
-        economia_brl: economiaBrl > 0 ? economiaBrl : 0,
-        aprovado_por: userId,
-        aprovado_em: new Date(),
-        observacao_aprovacao: input.observacao ?? null,
+        status_cotacao_bid_cambio: 'APROVADA',
+        id_corretora_aprovada_bid_cambio: respostaAprovada.id_corretora_bid_cambio,
+        taxa_aprovada_cotacao_bid_cambio: respostaAprovada.taxa_oferecida_resposta_cotacao_bid_cambio,
+        economia_brl_cotacao_bid_cambio: economiaBrl > 0 ? economiaBrl : 0,
+        aprovado_por_cotacao_bid_cambio: userId,
+        aprovado_em_cotacao_bid_cambio: new Date(),
+        observacao_aprovacao_cotacao_bid_cambio: input.observacao ?? null,
       },
     })
 
     // Audit trail + notificacao
     historicoIntegration.registrar(tenantId, userId, {
       acao: 'APROVAR_COTACAO',
-      entidade: 'CotacaoCambio',
+      entidade: 'BidCambioCotacao',
       entidade_id: req.params.cotacaoId,
       detalhes: {
-        corretora: respostaAprovada.corretora?.nome_fantasia,
-        taxa: respostaAprovada.taxa_oferecida,
+        corretora: respostaAprovada.corretora?.nome_fantasia_corretora_bid_cambio,
+        taxa: respostaAprovada.taxa_oferecida_resposta_cotacao_bid_cambio,
         economia_brl: economiaBrl,
       },
     })
 
     notificacoesIntegration.cotacaoAprovada(tenantId, userId, {
-      corretora_nome: respostaAprovada.corretora?.nome_fantasia ?? 'Corretora',
+      corretora_nome: respostaAprovada.corretora?.nome_fantasia_corretora_bid_cambio ?? 'Corretora',
       economia_brl: economiaBrl.toFixed(2),
     })
 
     res.json({
-      cotacao_id: req.params.cotacaoId,
-      resposta_aprovada: input.bid_response_id,
-      corretora: respostaAprovada.corretora?.nome_fantasia,
-      taxa_aprovada: respostaAprovada.taxa_oferecida,
+      id_cotacao_bid_cambio: req.params.cotacaoId,
+      resposta_aprovada: input.id_resposta_cotacao_bid_cambio,
+      corretora: respostaAprovada.corretora?.nome_fantasia_corretora_bid_cambio,
+      taxa_aprovada: respostaAprovada.taxa_oferecida_resposta_cotacao_bid_cambio,
       economia_brl: economiaBrl > 0 ? economiaBrl : 0,
       total_reprovadas: todasRespostas.length - 1,
     })
@@ -193,41 +193,41 @@ comparativoRouter.post('/:cotacaoId/reprovar', async (req: Request, res: Respons
     const tenantId = req.tenantId!
     const userId = req.headers['x-id-usuario'] as string
 
-    const cotacao = await (prisma as any).cotacaoCambio.findFirst({
-      where: { id: req.params.cotacaoId },
+    const cotacao = await (prisma as any).bidCambioCotacao.findFirst({
+      where: { id_cotacao_bid_cambio: req.params.cotacaoId },
     })
     if (!cotacao) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
-    if (cotacao.status === 'APROVADA') {
+    if (cotacao.status_cotacao_bid_cambio === 'APROVADA') {
       throw new AppError('Cotacao ja aprovada nao pode ser reprovada', 400, 'ALREADY_APPROVED')
     }
 
     // Reprovar todas as respostas pendentes
-    await (prisma as any).bidResponseCambio.updateMany({
-      where: { cotacao_id: req.params.cotacaoId, status: { not: 'REPROVADA' } },
-      data: { status: 'REPROVADA' },
+    await (prisma as any).bidCambioRespostaCotacao.updateMany({
+      where: { id_cotacao_bid_cambio: req.params.cotacaoId, status_resposta_cotacao_bid_cambio: { not: 'REPROVADA' } },
+      data: { status_resposta_cotacao_bid_cambio: 'REPROVADA' },
     })
 
     // Atualizar cotacao
-    await (prisma as any).cotacaoCambio.update({
-      where: { id: req.params.cotacaoId },
+    await (prisma as any).bidCambioCotacao.update({
+      where: { id_cotacao_bid_cambio: req.params.cotacaoId },
       data: {
-        status: 'REPROVADA',
-        observacao_aprovacao: input.motivo,
-        aprovado_por: userId,
-        aprovado_em: new Date(),
+        status_cotacao_bid_cambio: 'REPROVADA',
+        observacao_aprovacao_cotacao_bid_cambio: input.motivo,
+        aprovado_por_cotacao_bid_cambio: userId,
+        aprovado_em_cotacao_bid_cambio: new Date(),
       },
     })
 
     historicoIntegration.registrar(tenantId, userId, {
       acao: 'REPROVAR_COTACAO',
-      entidade: 'CotacaoCambio',
+      entidade: 'BidCambioCotacao',
       entidade_id: req.params.cotacaoId,
       detalhes: { motivo: input.motivo },
     })
 
     res.json({
-      cotacao_id: req.params.cotacaoId,
-      status: 'REPROVADA',
+      id_cotacao_bid_cambio: req.params.cotacaoId,
+      status_cotacao_bid_cambio: 'REPROVADA',
       motivo: input.motivo,
     })
   } catch (err) { next(err) }

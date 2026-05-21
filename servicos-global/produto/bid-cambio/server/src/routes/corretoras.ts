@@ -13,22 +13,22 @@ export const corretorasRouter = Router()
 // --- Schemas Zod ---
 
 const criarCorretoraSchema = z.object({
-  razao_social: z.string().min(1, 'Razao social e obrigatoria'),
-  nome_fantasia: z.string().optional(),
-  cnpj: z.string().min(14).max(18).optional(),
-  tipo: z.enum(['CORRETORA_CAMBIO', 'BANCO_COMERCIAL', 'BANCO_CAMBIO', 'FINTECH']).default('CORRETORA_CAMBIO'),
-  email: z.string().email('Email invalido'),
-  telefone: z.string().optional(),
-  contato_nome: z.string().optional(),
-  contato_cargo: z.string().optional(),
-  portal_habilitado: z.boolean().default(false),
-  moedas_operadas: z.string().optional(),
+  razao_social_corretora_bid_cambio: z.string().min(1, 'Razao social e obrigatoria'),
+  nome_fantasia_corretora_bid_cambio: z.string().optional(),
+  cnpj_corretora_bid_cambio: z.string().min(14).max(18).optional(),
+  tipo_corretora_bid_cambio: z.enum(['CORRETORA_CAMBIO', 'BANCO_COMERCIAL', 'BANCO_CAMBIO', 'FINTECH']).default('CORRETORA_CAMBIO'),
+  email_corretora_bid_cambio: z.string().email('Email invalido'),
+  telefone_corretora_bid_cambio: z.string().optional(),
+  contato_nome_corretora_bid_cambio: z.string().optional(),
+  contato_cargo_corretora_bid_cambio: z.string().optional(),
+  portal_habilitado_corretora_bid_cambio: z.boolean().default(false),
+  moedas_operadas_corretora_bid_cambio: z.string().optional(),
 })
 
 const atualizarCorretoraSchema = criarCorretoraSchema.partial()
 
 const statusSchema = z.object({
-  status: z.enum(['ATIVA', 'INATIVA', 'BLOQUEADA']),
+  status_corretora_bid_cambio: z.enum(['ATIVA', 'INATIVA', 'BLOQUEADA']),
   motivo: z.string().optional(),
 })
 
@@ -41,26 +41,26 @@ corretorasRouter.post('/', async (req: Request, res: Response, next: NextFunctio
     const userId = req.headers['x-id-usuario'] as string
 
     // Verificar CNPJ duplicado
-    const existente = await (prisma as any).corretora.findFirst({
-      where: { cnpj: input.cnpj },
+    const existente = await (prisma as any).bidCambioCorretora.findFirst({
+      where: { cnpj_corretora_bid_cambio: input.cnpj_corretora_bid_cambio },
     })
     if (existente) {
       throw new AppError('Ja existe corretora com este CNPJ', 409, 'DUPLICATE_CNPJ')
     }
 
-    const corretora = await (prisma as any).corretora.create({
+    const corretora = await (prisma as any).bidCambioCorretora.create({
       data: {
         ...input,
-        user_id: userId,
-        status: 'ATIVA',
+        id_usuario: userId,
+        status_corretora_bid_cambio: 'ATIVA',
       },
     })
 
     historicoIntegration.registrar(tenantId, userId, {
       acao: 'CRIAR_CORRETORA',
-      entidade: 'CorretoraCambio',
-      entidade_id: corretora.id,
-      detalhes: { nome_fantasia: input.nome_fantasia, cnpj: input.cnpj },
+      entidade: 'BidCambioCorretora',
+      entidade_id: corretora.id_corretora_bid_cambio,
+      detalhes: { nome_fantasia_corretora_bid_cambio: input.nome_fantasia_corretora_bid_cambio, cnpj_corretora_bid_cambio: input.cnpj_corretora_bid_cambio },
     })
 
     res.status(201).json(corretora)
@@ -77,23 +77,23 @@ corretorasRouter.get('/', async (req: Request, res: Response, next: NextFunction
     const busca = req.query.busca as string | undefined
 
     const where: Record<string, unknown> = {}
-    if (status) where.status = status
+    if (status) where.status_corretora_bid_cambio = status
     if (busca) {
       where.OR = [
-        { nome_fantasia: { contains: busca, mode: 'insensitive' } },
-        { razao_social: { contains: busca, mode: 'insensitive' } },
-        { cnpj: { contains: busca } },
+        { nome_fantasia_corretora_bid_cambio: { contains: busca, mode: 'insensitive' } },
+        { razao_social_corretora_bid_cambio: { contains: busca, mode: 'insensitive' } },
+        { cnpj_corretora_bid_cambio: { contains: busca } },
       ]
     }
 
     const [corretoras, total] = await Promise.all([
-      (prisma as any).corretora.findMany({
+      (prisma as any).bidCambioCorretora.findMany({
         where,
-        orderBy: { nome_fantasia: 'asc' },
+        orderBy: { nome_fantasia_corretora_bid_cambio: 'asc' },
         skip: (page - 1) * limit,
         take: limit,
       }),
-      (prisma as any).corretora.count({ where }),
+      (prisma as any).bidCambioCorretora.count({ where }),
     ])
 
     res.json({
@@ -106,8 +106,8 @@ corretorasRouter.get('/', async (req: Request, res: Response, next: NextFunction
 // --- GET /api/v1/bid-cambio/corretoras/:id ---
 corretorasRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const corretora = await (req.prisma as any).corretora.findFirst({
-      where: { id: req.params.id },
+    const corretora = await (req.prisma as any).bidCambioCorretora.findFirst({
+      where: { id_corretora_bid_cambio: req.params.id },
     })
     if (!corretora) throw new AppError('Corretora nao encontrada', 404, 'NOT_FOUND')
     res.json(corretora)
@@ -122,29 +122,29 @@ corretorasRouter.put('/:id', async (req: Request, res: Response, next: NextFunct
     const tenantId = req.tenantId!
     const userId = req.headers['x-id-usuario'] as string
 
-    const existente = await (prisma as any).corretora.findFirst({
-      where: { id: req.params.id },
+    const existente = await (prisma as any).bidCambioCorretora.findFirst({
+      where: { id_corretora_bid_cambio: req.params.id },
     })
     if (!existente) throw new AppError('Corretora nao encontrada', 404, 'NOT_FOUND')
 
     // Se mudou CNPJ, verificar duplicata
-    if (input.cnpj && input.cnpj !== existente.cnpj) {
-      const duplicata = await (prisma as any).corretora.findFirst({
-        where: { cnpj: input.cnpj, id: { not: req.params.id } },
+    if (input.cnpj_corretora_bid_cambio && input.cnpj_corretora_bid_cambio !== existente.cnpj_corretora_bid_cambio) {
+      const duplicata = await (prisma as any).bidCambioCorretora.findFirst({
+        where: { cnpj_corretora_bid_cambio: input.cnpj_corretora_bid_cambio, id_corretora_bid_cambio: { not: req.params.id } },
       })
       if (duplicata) {
         throw new AppError('Ja existe outra corretora com este CNPJ', 409, 'DUPLICATE_CNPJ')
       }
     }
 
-    const corretora = await (prisma as any).corretora.update({
-      where: { id: req.params.id },
+    const corretora = await (prisma as any).bidCambioCorretora.update({
+      where: { id_corretora_bid_cambio: req.params.id },
       data: input,
     })
 
     historicoIntegration.registrar(tenantId, userId, {
       acao: 'ATUALIZAR_CORRETORA',
-      entidade: 'CorretoraCambio',
+      entidade: 'BidCambioCorretora',
       entidade_id: req.params.id,
       detalhes: { campos_alterados: Object.keys(input) },
     })
@@ -161,23 +161,23 @@ corretorasRouter.patch('/:id/status', async (req: Request, res: Response, next: 
     const tenantId = req.tenantId!
     const userId = req.headers['x-id-usuario'] as string
 
-    const existente = await (prisma as any).corretora.findFirst({
-      where: { id: req.params.id },
+    const existente = await (prisma as any).bidCambioCorretora.findFirst({
+      where: { id_corretora_bid_cambio: req.params.id },
     })
     if (!existente) throw new AppError('Corretora nao encontrada', 404, 'NOT_FOUND')
 
-    const corretora = await (prisma as any).corretora.update({
-      where: { id: req.params.id },
-      data: { status: input.status },
+    const corretora = await (prisma as any).bidCambioCorretora.update({
+      where: { id_corretora_bid_cambio: req.params.id },
+      data: { status_corretora_bid_cambio: input.status_corretora_bid_cambio },
     })
 
     historicoIntegration.registrar(tenantId, userId, {
       acao: 'ALTERAR_STATUS_CORRETORA',
-      entidade: 'CorretoraCambio',
+      entidade: 'BidCambioCorretora',
       entidade_id: req.params.id,
       detalhes: {
-        status_anterior: existente.status,
-        status_novo: input.status,
+        status_anterior: existente.status_corretora_bid_cambio,
+        status_novo: input.status_corretora_bid_cambio,
         motivo: input.motivo,
       },
     })

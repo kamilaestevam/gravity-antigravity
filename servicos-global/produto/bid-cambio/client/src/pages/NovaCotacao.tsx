@@ -21,12 +21,12 @@ import {
 
 import { criarCotacao, dispararBids, listarCorretoras } from '../shared/api'
 import type {
-  CambioCorretoras,
-  CambioTipoOperacao,
-  CambioModalidade,
-  CambioLiquidacao,
-  CambioMoeda,
-  CambioCotacoes,
+  BidCambioCorretora,
+  BidCambioTipoOperacao,
+  BidCambioModalidade,
+  BidCambioLiquidacao,
+  BidCambioMoeda,
+  BidCambioCotacao,
 } from '../shared/types'
 import {
   OPERACAO_CAMBIO_LABELS,
@@ -113,11 +113,11 @@ const gridRow3: React.CSSProperties = {
 export default function NovaCotacao() {
   const { t } = useTranslation()
   // ── Form state ──
-  const [moeda, setMoeda] = useState<CambioMoeda>('USD')
+  const [moeda, setMoeda] = useState<BidCambioMoeda>('USD')
   const [valor, setValor] = useState<string>('')
-  const [tipoOperacao, setTipoOperacao] = useState<CambioTipoOperacao>('IMPORTACAO')
-  const [modalidade, setModalidade] = useState<CambioModalidade>('PRONTO')
-  const [liquidacao, setLiquidacao] = useState<CambioLiquidacao>('D0')
+  const [tipoOperacao, setTipoOperacao] = useState<BidCambioTipoOperacao>('IMPORTACAO')
+  const [modalidade, setModalidade] = useState<BidCambioModalidade>('PRONTO')
+  const [liquidacao, setLiquidacao] = useState<BidCambioLiquidacao>('D0')
   const [referenciaProcesso, setReferenciaProcesso] = useState('')
   const [numeroPedido, setNumeroPedido] = useState('')
   const [exportador, setExportador] = useState('')
@@ -126,7 +126,7 @@ export default function NovaCotacao() {
   const [totalParcelas, setTotalParcelas] = useState(1)
 
   // ── Corretoras ──
-  const [corretoras, setCorretoras] = useState<CambioCorretoras[]>([])
+  const [corretoras, setCorretoras] = useState<BidCambioCorretora[]>([])
   const [loadingCorretoras, setLoadingCorretoras] = useState(true)
   const [selectedCorretoras, setSelectedCorretoras] = useState<Set<string>>(new Set())
 
@@ -134,15 +134,15 @@ export default function NovaCotacao() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  const [createdCotacao, setCreatedCotacao] = useState<CambioCotacoes | null>(null)
+  const [createdCotacao, setCreatedCotacao] = useState<BidCambioCotacao | null>(null)
   const [disabled, setDisabled] = useState(false)
 
   // ── Load corretoras ──
   const loadCorretoras = useCallback(async () => {
     setLoadingCorretoras(true)
     try {
-      const res = await listarCorretoras({ status: 'ATIVO' })
-      setCorretoras(res.corretoras)
+      const res = await listarCorretoras({ status: 'ATIVA' })
+      setCorretoras(res.data)
     } catch {
       setCorretoras([])
     } finally {
@@ -177,19 +177,18 @@ export default function NovaCotacao() {
     setSubmitting(true)
     try {
       const cotacao = await criarCotacao({
-        moeda,
-        valor_moeda_estrangeira: Number(valor),
-        tipo_operacao: tipoOperacao,
-        modalidade,
-        liquidacao,
-        processo_id: referenciaProcesso || undefined,
-        invoice_numero: numeroPedido || undefined,
-        descricao: descricao || undefined,
-        prazo_resposta: prazoResposta || undefined,
-        total_parcelas: totalParcelas,
+        moeda_cotacao_bid_cambio: moeda,
+        valor_cotacao_bid_cambio: Number(valor),
+        tipo_operacao_cotacao_bid_cambio: tipoOperacao,
+        modalidade_cotacao_bid_cambio: modalidade,
+        liquidacao_cotacao_bid_cambio: liquidacao,
+        referencia_processo_cotacao_bid_cambio: referenciaProcesso || undefined,
+        numero_pedido_cotacao_bid_cambio: numeroPedido || undefined,
+        exportador_cotacao_bid_cambio: exportador || undefined,
+        data_expiracao_cotacao_bid_cambio: prazoResposta || undefined,
       })
 
-      await dispararCotacao(cotacao.id, Array.from(selectedCorretoras), ['EMAIL'])
+      await dispararBids(cotacao.id_cotacao_bid_cambio, Array.from(selectedCorretoras))
 
       setCreatedCotacao(cotacao)
       setSuccess(true)
@@ -199,7 +198,7 @@ export default function NovaCotacao() {
     } finally {
       setSubmitting(false)
     }
-  }, [moeda, valor, tipoOperacao, modalidade, liquidacao, referenciaProcesso, numeroPedido, descricao, prazoResposta, totalParcelas, selectedCorretoras])
+  }, [moeda, valor, tipoOperacao, modalidade, liquidacao, referenciaProcesso, numeroPedido, exportador, descricao, prazoResposta, totalParcelas, selectedCorretoras])
 
   // ─── Success State ─────────────────────────────────────────────────────
 
@@ -212,7 +211,7 @@ export default function NovaCotacao() {
             {t('bidcambio.nova_cotacao.sucesso')}
           </h2>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 0.5rem' }}>
-            Numero: <strong style={{ color: 'var(--accent, #6366f1)', fontFamily: "'DM Mono', monospace" }}>{createdCotacao.numero}</strong>
+            ID: <strong style={{ color: 'var(--accent, #6366f1)', fontFamily: "'DM Mono', monospace" }}>{createdCotacao.id_cotacao_bid_cambio}</strong>
           </p>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 1.5rem' }}>
             {t('bidcambio.nova_cotacao.sucesso_corretoras', { count: selectedCorretoras.size })}
@@ -268,11 +267,11 @@ export default function NovaCotacao() {
             <label style={labelStyle}>{t('bidcambio.nova_cotacao.moeda')}</label>
             <select
               value={moeda}
-              onChange={(e) => setMoeda(e.target.value as CambioMoeda)}
+              onChange={(e) => setMoeda(e.target.value as BidCambioMoeda)}
               style={selectStyle}
               disabled={disabled}
             >
-              {(Object.entries(MOEDA_CAMBIO_LABELS) as [CambioMoeda, string][]).map(([key, label]) => (
+              {(Object.entries(MOEDA_CAMBIO_LABELS) as [BidCambioMoeda, string][]).map(([key, label]) => (
                 <option key={key} value={key}>{key} - {label}</option>
               ))}
             </select>
@@ -297,11 +296,11 @@ export default function NovaCotacao() {
             <label style={labelStyle}>{t('bidcambio.nova_cotacao.tipo_operacao')}</label>
             <select
               value={tipoOperacao}
-              onChange={(e) => setTipoOperacao(e.target.value as CambioTipoOperacao)}
+              onChange={(e) => setTipoOperacao(e.target.value as BidCambioTipoOperacao)}
               style={selectStyle}
               disabled={disabled}
             >
-              {(Object.entries(OPERACAO_CAMBIO_LABELS) as [CambioTipoOperacao, string][]).map(([key, label]) => (
+              {(Object.entries(OPERACAO_CAMBIO_LABELS) as [BidCambioTipoOperacao, string][]).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>
@@ -310,11 +309,11 @@ export default function NovaCotacao() {
             <label style={labelStyle}>{t('bidcambio.nova_cotacao.modalidade')}</label>
             <select
               value={modalidade}
-              onChange={(e) => setModalidade(e.target.value as CambioModalidade)}
+              onChange={(e) => setModalidade(e.target.value as BidCambioModalidade)}
               style={selectStyle}
               disabled={disabled}
             >
-              {(Object.entries(MODALIDADE_CAMBIO_LABELS) as [CambioModalidade, string][]).map(([key, label]) => (
+              {(Object.entries(MODALIDADE_CAMBIO_LABELS) as [BidCambioModalidade, string][]).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>
@@ -323,11 +322,11 @@ export default function NovaCotacao() {
             <label style={labelStyle}>{t('bidcambio.nova_cotacao.liquidacao')}</label>
             <select
               value={liquidacao}
-              onChange={(e) => setLiquidacao(e.target.value as CambioLiquidacao)}
+              onChange={(e) => setLiquidacao(e.target.value as BidCambioLiquidacao)}
               style={selectStyle}
               disabled={disabled}
             >
-              {(Object.entries(LIQUIDACAO_LABELS) as [CambioLiquidacao, string][]).map(([key, label]) => (
+              {(Object.entries(LIQUIDACAO_LABELS) as [BidCambioLiquidacao, string][]).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>
@@ -435,12 +434,12 @@ export default function NovaCotacao() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {corretoras.map((c) => (
               <label
-                key={c.id}
+                key={c.id_corretora_bid_cambio}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '0.75rem',
                   padding: '0.65rem 0.75rem', borderRadius: 8,
-                  background: selectedCorretoras.has(c.id) ? 'rgba(99,102,241,0.1)' : 'var(--bg-base, #1e293b)',
-                  border: `1px solid ${selectedCorretoras.has(c.id) ? 'var(--accent, #6366f1)' : 'var(--bg-elevated, #475569)'}`,
+                  background: selectedCorretoras.has(c.id_corretora_bid_cambio) ? 'rgba(99,102,241,0.1)' : 'var(--bg-base, #1e293b)',
+                  border: `1px solid ${selectedCorretoras.has(c.id_corretora_bid_cambio) ? 'var(--accent, #6366f1)' : 'var(--bg-elevated, #475569)'}`,
                   cursor: disabled ? 'not-allowed' : 'pointer',
                   opacity: disabled ? 0.5 : 1,
                   transition: 'all 0.15s',
@@ -448,28 +447,27 @@ export default function NovaCotacao() {
               >
                 <input
                   type="checkbox"
-                  checked={selectedCorretoras.has(c.id)}
-                  onChange={() => toggleCorretora(c.id)}
+                  checked={selectedCorretoras.has(c.id_corretora_bid_cambio)}
+                  onChange={() => toggleCorretora(c.id_corretora_bid_cambio)}
                   disabled={disabled}
                   style={{ accentColor: 'var(--accent, #6366f1)' }}
                 />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary, #f1f5f9)' }}>
-                    {c.nome}
+                    {c.razao_social_corretora_bid_cambio}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', display: 'flex', gap: '0.75rem' }}>
-                    <span>{c.tipo}</span>
-                    <span>{c.email}</span>
-                    {c.rating_global != null && <span>Rating: {c.rating_global.toFixed(1)}</span>}
+                    <span>{c.tipo_corretora_bid_cambio}</span>
+                    <span>{c.email_corretora_bid_cambio}</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                  {c.moedas_atendidas.slice(0, 4).map((m) => (
+                  {c.moedas_operadas_corretora_bid_cambio?.split(',').slice(0, 4).map((m) => (
                     <span key={m} style={{
                       fontSize: '0.625rem', fontWeight: 700, color: 'var(--accent, #6366f1)',
                       background: 'rgba(99,102,241,0.15)', padding: '0.05rem 0.35rem', borderRadius: 9999,
                     }}>
-                      {m}
+                      {m.trim()}
                     </span>
                   ))}
                 </div>

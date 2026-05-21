@@ -29,7 +29,7 @@ import {
 
 import { getCorretoraDetalhe } from '../shared/api'
 import type {
-  CambioCorretoras,
+  BidCambioCorretora,
 } from '../shared/types'
 import {
   TIPO_CORRETORA_LABELS,
@@ -97,7 +97,7 @@ interface DetalheCorretoraProps {
 
 export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorretoraProps) {
   const { t } = useTranslation()
-  const [corretora, setCorretora] = useState<CambioCorretoras | null>(null)
+  const [corretora, setCorretora] = useState<BidCambioCorretora | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -183,14 +183,14 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
 
   // ─── Filled ────────────────────────────────────────────────────────────
 
-  const statusBadge = STATUS_CORRETORA_BADGE[corretora.status] ?? 'default'
+  const statusBadge = STATUS_CORRETORA_BADGE[corretora.status_corretora_bid_cambio] ?? 'default'
   const statusCores = BADGE_COLORS[statusBadge]
 
-  // Simulated rating breakdown (real would come from API)
-  const ratingTaxa = corretora.rating_global != null ? Math.min(5, corretora.rating_global * 1.05) : null
-  const ratingAgilidade = corretora.rating_global != null ? Math.min(5, corretora.rating_global * 0.95) : null
-  const ratingAtendimento = corretora.rating_global != null ? Math.min(5, corretora.rating_global * 1.0) : null
-  const ratingConfiabilidade = corretora.rating_global != null ? Math.min(5, corretora.rating_global * 0.98) : null
+  // Rating breakdown — not available directly on BidCambioCorretora (comes from classificacao)
+  const ratingTaxa: number | null = null
+  const ratingAgilidade: number | null = null
+  const ratingAtendimento: number | null = null
+  const ratingConfiabilidade: number | null = null
 
   return (
     <div style={containerStyle}>
@@ -203,9 +203,9 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
         )}
         <Building2 size={22} style={{ color: 'var(--accent, #6366f1)' }} />
         <div>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{corretora.nome}</h1>
-          {corretora.nome_fantasia && (
-            <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{corretora.nome_fantasia}</span>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{corretora.razao_social_corretora_bid_cambio}</h1>
+          {corretora.nome_fantasia_corretora_bid_cambio && (
+            <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{corretora.nome_fantasia_corretora_bid_cambio}</span>
           )}
         </div>
         <span style={{
@@ -215,7 +215,7 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
           background: statusCores.bg, color: statusCores.color,
           marginLeft: '0.5rem',
         }}>
-          {STATUS_CORRETORA_LABELS[corretora.status]}
+          {STATUS_CORRETORA_LABELS[corretora.status_corretora_bid_cambio]}
         </span>
       </div>
 
@@ -234,41 +234,33 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
                 fontSize: '0.75rem', fontWeight: 600, color: 'var(--accent, #6366f1)',
                 background: 'rgba(99,102,241,0.15)', padding: '0.1rem 0.4rem', borderRadius: 9999,
               }}>
-                {TIPO_CORRETORA_LABELS[corretora.tipo]}
+                {TIPO_CORRETORA_LABELS[corretora.tipo_corretora_bid_cambio]}
               </span>
             </div>
-            {corretora.cnpj && (
+            {corretora.cnpj_corretora_bid_cambio && (
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>CNPJ</span>
-                <span style={{ fontSize: '0.875rem', fontWeight: 600, fontFamily: "'DM Mono', monospace" }}>{corretora.cnpj}</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 600, fontFamily: "'DM Mono', monospace" }}>{corretora.cnpj_corretora_bid_cambio}</span>
               </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{t('tabela.email')}</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.875rem' }}>
-                <Mail size={12} style={{ color: 'var(--text-muted)' }} /> {corretora.email}
+                <Mail size={12} style={{ color: 'var(--text-muted)' }} /> {corretora.email_corretora_bid_cambio}
               </div>
             </div>
-            {corretora.telefone && (
+            {corretora.telefone_corretora_bid_cambio && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{t('tabela.telefone')}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.875rem' }}>
-                  <Phone size={12} style={{ color: 'var(--text-muted)' }} /> {corretora.telefone}
-                </div>
-              </div>
-            )}
-            {corretora.website && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{t('tabela.website')}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.875rem' }}>
-                  <Globe size={12} style={{ color: 'var(--text-muted)' }} /> {corretora.website}
+                  <Phone size={12} style={{ color: 'var(--text-muted)' }} /> {corretora.telefone_corretora_bid_cambio}
                 </div>
               </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{t('bidcambio.detalhe_corretora.aceita_cotacao')}</span>
-              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: corretora.aceita_cotacao_aberta ? 'var(--success, #22c55e)' : 'var(--text-muted, #64748b)' }}>
-                {corretora.aceita_cotacao_aberta ? t('comum.sim') : t('comum.nao')}
+              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: corretora.portal_habilitado_corretora_bid_cambio ? 'var(--success, #22c55e)' : 'var(--text-muted, #64748b)' }}>
+                {corretora.portal_habilitado_corretora_bid_cambio ? t('comum.sim') : t('comum.nao')}
               </span>
             </div>
 
@@ -276,7 +268,7 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
             <div>
               <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: '0.35rem' }}>{t('bidcambio.detalhe_corretora.moedas_atendidas')}</span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                {corretora.moedas_atendidas.map((m) => (
+                {(corretora.moedas_operadas_corretora_bid_cambio?.split(',').map(m => m.trim()).filter(Boolean) ?? []).map((m) => (
                   <span key={m} style={{
                     fontSize: '0.625rem', fontWeight: 700, color: 'var(--accent, #6366f1)',
                     background: 'rgba(99,102,241,0.15)', padding: '0.1rem 0.4rem', borderRadius: 9999,
@@ -304,7 +296,7 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
           }}>
             <div style={{
               width: 56, height: 56, borderRadius: '50%',
-              background: `conic-gradient(var(--warning, #f59e0b) ${((corretora.rating_global ?? 0) / 5) * 360}deg, var(--bg-elevated, #475569) 0deg)`,
+              background: `conic-gradient(var(--warning, #f59e0b) 0deg, var(--bg-elevated, #475569) 0deg)`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <div style={{
@@ -313,7 +305,7 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: '1.125rem', fontWeight: 700,
               }}>
-                {corretora.rating_global?.toFixed(1) ?? '—'}
+                —
               </div>
             </div>
             <div>
@@ -321,7 +313,7 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
                 {t('bidcambio.detalhe_corretora.score_global')}
               </div>
               <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
-                {corretora.total_cotacoes} {t('bidcambio.detalhe_corretora.cotacoes')} | {t('bidcambio.detalhe_corretora.spread_medio')}: {corretora.spread_medio?.toFixed(4) ?? '—'}
+                — {t('bidcambio.detalhe_corretora.cotacoes')}
               </div>
             </div>
           </div>
@@ -340,19 +332,19 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
           }}>
             <div>
               <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', fontWeight: 600 }}>{t('bidcambio.detalhe_corretora.taxa_resposta')}</span>
-              <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>{corretora.taxa_resposta != null ? `${corretora.taxa_resposta.toFixed(0)}%` : '—'}</div>
+              <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>—</div>
             </div>
             <div>
               <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', fontWeight: 600 }}>{t('bidcambio.detalhe_corretora.taxa_aprovacao')}</span>
-              <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>{corretora.taxa_aprovacao != null ? `${corretora.taxa_aprovacao.toFixed(0)}%` : '—'}</div>
+              <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>—</div>
             </div>
             <div>
               <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', fontWeight: 600 }}>{t('bidcambio.detalhe_corretora.tempo_medio_resposta')}</span>
-              <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>{corretora.tempo_medio_resposta != null ? `${corretora.tempo_medio_resposta}h` : '—'}</div>
+              <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>—</div>
             </div>
             <div>
               <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', fontWeight: 600 }}>{t('bidcambio.detalhe_corretora.total_cotacoes')}</span>
-              <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>{corretora.total_cotacoes}</div>
+              <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>—</div>
             </div>
           </div>
         </div>

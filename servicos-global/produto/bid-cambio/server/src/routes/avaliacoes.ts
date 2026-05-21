@@ -13,13 +13,13 @@ export const avaliacoesRouter = Router()
 // --- Schemas Zod ---
 
 const criarAvaliacaoSchema = z.object({
-  corretora_id: z.string(),
-  cotacao_id: z.string().optional(),
-  nota_taxa: z.number().int().min(1).max(5),
-  nota_agilidade: z.number().int().min(1).max(5),
-  nota_atendimento: z.number().int().min(1).max(5),
-  nota_confiabilidade: z.number().int().min(1).max(5),
-  comentario: z.string().optional(),
+  id_corretora_bid_cambio: z.string(),
+  id_cotacao_bid_cambio: z.string().optional(),
+  nota_taxa_avaliacao_corretora_bid_cambio: z.number().int().min(1).max(5),
+  nota_agilidade_avaliacao_corretora_bid_cambio: z.number().int().min(1).max(5),
+  nota_atendimento_avaliacao_corretora_bid_cambio: z.number().int().min(1).max(5),
+  nota_confiabilidade_avaliacao_corretora_bid_cambio: z.number().int().min(1).max(5),
+  comentario_avaliacao_corretora_bid_cambio: z.string().optional(),
 })
 
 // --- POST /api/v1/bid-cambio/avaliacoes ---
@@ -31,32 +31,32 @@ avaliacoesRouter.post('/', async (req: Request, res: Response, next: NextFunctio
     const userId = req.headers['x-id-usuario'] as string
 
     // Verificar corretora existe
-    const corretora = await (prisma as any).corretora.findFirst({
-      where: { id: input.corretora_id },
+    const corretora = await (prisma as any).bidCambioCorretora.findFirst({
+      where: { id_corretora_bid_cambio: input.id_corretora_bid_cambio },
     })
     if (!corretora) throw new AppError('Corretora nao encontrada', 404, 'NOT_FOUND')
 
-    const avaliacao = await (prisma as any).avaliacaoCorretora.create({
+    const avaliacao = await (prisma as any).bidCambioAvaliacaoCorretora.create({
       data: {
-        corretora_id: input.corretora_id,
-        cotacao_id: input.cotacao_id ?? null,
-        user_id: userId,
-        nota_taxa: input.nota_taxa,
-        nota_agilidade: input.nota_agilidade,
-        nota_atendimento: input.nota_atendimento,
-        nota_confiabilidade: input.nota_confiabilidade,
-        comentario: input.comentario ?? null,
+        id_corretora_bid_cambio: input.id_corretora_bid_cambio,
+        id_cotacao_bid_cambio: input.id_cotacao_bid_cambio ?? null,
+        id_usuario: userId,
+        nota_taxa_avaliacao_corretora_bid_cambio: input.nota_taxa_avaliacao_corretora_bid_cambio,
+        nota_agilidade_avaliacao_corretora_bid_cambio: input.nota_agilidade_avaliacao_corretora_bid_cambio,
+        nota_atendimento_avaliacao_corretora_bid_cambio: input.nota_atendimento_avaliacao_corretora_bid_cambio,
+        nota_confiabilidade_avaliacao_corretora_bid_cambio: input.nota_confiabilidade_avaliacao_corretora_bid_cambio,
+        comentario_avaliacao_corretora_bid_cambio: input.comentario_avaliacao_corretora_bid_cambio ?? null,
       },
     })
 
-    const notaGeral = (input.nota_taxa + input.nota_agilidade + input.nota_atendimento + input.nota_confiabilidade) / 4
+    const notaGeral = (input.nota_taxa_avaliacao_corretora_bid_cambio + input.nota_agilidade_avaliacao_corretora_bid_cambio + input.nota_atendimento_avaliacao_corretora_bid_cambio + input.nota_confiabilidade_avaliacao_corretora_bid_cambio) / 4
 
     historicoIntegration.registrar(tenantId, userId, {
       acao: 'AVALIAR_CORRETORA',
-      entidade: 'AvaliacaoCorretora',
-      entidade_id: avaliacao.id,
+      entidade: 'BidCambioAvaliacaoCorretora',
+      entidade_id: avaliacao.id_avaliacao_corretora_bid_cambio,
       detalhes: {
-        corretora_id: input.corretora_id,
+        id_corretora_bid_cambio: input.id_corretora_bid_cambio,
         nota_geral: notaGeral,
       },
     })
@@ -72,29 +72,29 @@ avaliacoesRouter.get('/corretora/:id', async (req: Request, res: Response, next:
     const page = parseInt(req.query.page as string) || 1
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 100)
 
-    const corretora = await (prisma as any).corretora.findFirst({
-      where: { id: req.params.id },
-      select: { id: true, nome_fantasia: true, razao_social: true },
+    const corretora = await (prisma as any).bidCambioCorretora.findFirst({
+      where: { id_corretora_bid_cambio: req.params.id },
+      select: { id_corretora_bid_cambio: true, nome_fantasia_corretora_bid_cambio: true, razao_social_corretora_bid_cambio: true },
     })
     if (!corretora) throw new AppError('Corretora nao encontrada', 404, 'NOT_FOUND')
 
-    const where = { corretora_id: req.params.id }
+    const where = { id_corretora_bid_cambio: req.params.id }
 
     const [avaliacoes, total, agregado] = await Promise.all([
-      (prisma as any).avaliacaoCorretora.findMany({
+      (prisma as any).bidCambioAvaliacaoCorretora.findMany({
         where,
-        orderBy: { created_at: 'desc' },
+        orderBy: { data_criacao_avaliacao_corretora_bid_cambio: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),
-      (prisma as any).avaliacaoCorretora.count({ where }),
-      (prisma as any).avaliacaoCorretora.aggregate({
+      (prisma as any).bidCambioAvaliacaoCorretora.count({ where }),
+      (prisma as any).bidCambioAvaliacaoCorretora.aggregate({
         where,
         _avg: {
-          nota_taxa: true,
-          nota_agilidade: true,
-          nota_atendimento: true,
-          nota_confiabilidade: true,
+          nota_taxa_avaliacao_corretora_bid_cambio: true,
+          nota_agilidade_avaliacao_corretora_bid_cambio: true,
+          nota_atendimento_avaliacao_corretora_bid_cambio: true,
+          nota_confiabilidade_avaliacao_corretora_bid_cambio: true,
         },
       }),
     ])
@@ -102,11 +102,11 @@ avaliacoesRouter.get('/corretora/:id', async (req: Request, res: Response, next:
     res.json({
       corretora,
       medias: {
-        taxa: agregado._avg?.nota_taxa ?? null,
-        agilidade: agregado._avg?.nota_agilidade ?? null,
-        atendimento: agregado._avg?.nota_atendimento ?? null,
-        confiabilidade: agregado._avg?.nota_confiabilidade ?? null,
-        geral: agregado._avg ? ((agregado._avg.nota_taxa + agregado._avg.nota_agilidade + agregado._avg.nota_atendimento + agregado._avg.nota_confiabilidade) / 4) : null,
+        taxa: agregado._avg?.nota_taxa_avaliacao_corretora_bid_cambio ?? null,
+        agilidade: agregado._avg?.nota_agilidade_avaliacao_corretora_bid_cambio ?? null,
+        atendimento: agregado._avg?.nota_atendimento_avaliacao_corretora_bid_cambio ?? null,
+        confiabilidade: agregado._avg?.nota_confiabilidade_avaliacao_corretora_bid_cambio ?? null,
+        geral: agregado._avg ? ((agregado._avg.nota_taxa_avaliacao_corretora_bid_cambio + agregado._avg.nota_agilidade_avaliacao_corretora_bid_cambio + agregado._avg.nota_atendimento_avaliacao_corretora_bid_cambio + agregado._avg.nota_confiabilidade_avaliacao_corretora_bid_cambio) / 4) : null,
       },
       avaliacoes: {
         data: avaliacoes,
@@ -123,17 +123,17 @@ avaliacoesRouter.get('/ranking', async (req: Request, res: Response, next: NextF
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 100)
     const criterio = (req.query.criterio as string) || 'rating'
 
-    const corretoras = await (prisma as any).corretora.findMany({
-      where: { status: 'ATIVA' },
-      orderBy: { razao_social: 'asc' },
+    const corretoras = await (prisma as any).bidCambioCorretora.findMany({
+      where: { status_corretora_bid_cambio: 'ATIVA' },
+      orderBy: { razao_social_corretora_bid_cambio: 'asc' },
       take: limit,
       select: {
-        id: true,
-        razao_social: true,
-        nome_fantasia: true,
-        tipo: true,
-        email: true,
-        moedas_operadas: true,
+        id_corretora_bid_cambio: true,
+        razao_social_corretora_bid_cambio: true,
+        nome_fantasia_corretora_bid_cambio: true,
+        tipo_corretora_bid_cambio: true,
+        email_corretora_bid_cambio: true,
+        moedas_operadas_corretora_bid_cambio: true,
         _count: { select: { bid_responses: true, avaliacoes: true } },
       },
     })

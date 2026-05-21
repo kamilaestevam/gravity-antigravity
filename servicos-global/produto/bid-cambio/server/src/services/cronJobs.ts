@@ -17,6 +17,9 @@ const cronPrisma = new PrismaClient()
 /**
  * Job 1: Alertar parcelas de cambio que vencem nos proximos X dias
  * Respeita preferencia por tenant (dias de antecedencia, fim de semana)
+ *
+ * NOTE: Raw SQL uses PHYSICAL table/column names (preserved by @@map).
+ * Prisma model accessors and TypeScript field references use DDD names.
  */
 async function alertarVencimentosCambio() {
   const agora = new Date()
@@ -25,6 +28,7 @@ async function alertarVencimentosCambio() {
   // SAFETY: static SQL — no interpolation, no user input. $queryRawUnsafe used
   // because Prisma typed client doesn't cover this cross-tenant scan table.
   // OWASP A01: whitelist validada — SQL estático, sem interpolação de input
+  // NOTE: Physical column names (@@map) — do NOT rename
   const preferencias = await cronPrisma.$queryRawUnsafe(`
     SELECT * FROM cambio_preferencias
     WHERE alerta_email_vencimento = true
@@ -33,6 +37,7 @@ async function alertarVencimentosCambio() {
 
   for (const pref of preferencias) {
     // Verifica preferencia de fim de semana
+    // NOTE: Raw SQL returns physical column names
     if ((diaSemana === 0 || diaSemana === 6) && !pref.enviar_email_fim_de_semana) {
       continue
     }
@@ -50,6 +55,7 @@ async function alertarVencimentosCambio() {
 
     // SAFETY: all user-derived values passed as positional params ($1, $2, $3).
     // OWASP A01: whitelist validada — params posicionais, sem interpolação
+    // NOTE: Physical table/column names (@@map) — do NOT rename
     const parcelasVencendo = await tenantDb.$queryRawUnsafe(`
       SELECT * FROM cambio_parcelas
       WHERE id_organizacao = $1
@@ -60,6 +66,7 @@ async function alertarVencimentosCambio() {
     if (parcelasVencendo.length === 0) continue
 
     // Montar e enviar e-mail
+    // NOTE: Raw SQL returns physical column names (referencia_processo, user_id, etc.)
     const processos = parcelasVencendo.map((p: { referencia_processo?: string }) => p.referencia_processo).filter(Boolean)
 
     // Fire-and-forget: notificacao + atividade
@@ -76,12 +83,15 @@ async function alertarVencimentosCambio() {
 
 /**
  * Job 2: Expirar cotacoes de cambio que passaram da data limite
+ *
+ * NOTE: Raw SQL uses PHYSICAL table/column names (preserved by @@map).
  */
 async function expirarCotacoesVencidas() {
   const agora = new Date()
 
   // SAFETY: user-derived value (agora) passed as positional param $1.
   // OWASP A01: whitelist validada — params posicionais, sem interpolação
+  // NOTE: Physical table/column names (@@map) — do NOT rename
   const cotacoesVencidas = await cronPrisma.$queryRawUnsafe(`
     SELECT id, id_organizacao, user_id FROM cambio_cotacoes
     WHERE status IN ('ENVIADA_CORRETORAS', 'EM_COTACAO')
@@ -92,6 +102,7 @@ async function expirarCotacoesVencidas() {
     const tenantDb = withTenantIsolation(cronPrisma, cotacao.id_organizacao)
 
     // SAFETY: all values passed as positional params ($1, $2).
+    // NOTE: Physical table/column names (@@map) — do NOT rename
     await tenantDb.$executeRawUnsafe(`
       UPDATE cambio_cotacoes SET status = 'EXPIRADA', updated_at = NOW()
       WHERE id = $1 AND id_organizacao = $2
@@ -103,8 +114,9 @@ async function expirarCotacoesVencidas() {
       AND status IN ('PENDENTE', 'ENVIADO', 'VISUALIZADO')
     `, cotacao.id, cotacao.id_organizacao)
 
+    // NOTE: cotacao.user_id comes from raw SQL (physical column name)
     notificacoesIntegration.cotacaoExpirada(cotacao.id_organizacao, cotacao.user_id, {
-      cotacao_id: cotacao.id,
+      id_cotacao_bid_cambio: cotacao.id,
     })
   }
 

@@ -689,7 +689,7 @@ export function Usuarios() {
       renderCustom: (item) => {
         if (item.status_usuario !== 'CONVIDADO') return null
         return (
-          <TooltipGlobal descricao="Reenviar e-mail de convite para este usuário">
+          <TooltipGlobal descricao="Reenviar Convite">
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); void handleReenviarConvite(item) }}

@@ -5,6 +5,8 @@
 //
 // GET   /api/v1/usuarios                              → listar usuários da organização
 // POST  /api/v1/usuarios/convidar                     → convidar usuário (Master)
+// POST  /api/v1/usuarios/:id_usuario/reenviar-convite → reenviar convite pendente (Master/SAdmin)
+// DELETE /api/v1/usuarios/:id_usuario/convite          → cancelar convite pendente (Master/SAdmin)
 // POST  /api/v1/usuarios/:id_usuario/vinculos         → habilitar em workspace (Master)
 // PUT   /api/v1/usuarios/:id_usuario/workspaces       → substituir vínculos (Master)
 // PATCH /api/v1/usuarios/:id_usuario/patente          → alterar tipo_usuario (Master)
@@ -269,6 +271,92 @@ usersRouter.delete('/:id_usuario/convite', requireUserManagementRole, async (req
     }, req.auth.nome_usuario).catch(() => { /* fire-and-forget */ })
 
     res.status(204).end()
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * POST /api/v1/usuarios/:id_usuario/reenviar-convite
+ * Reenvia convite pendente: revoga o convite Clerk antigo, cria um novo,
+ * atualiza `id_clerk_usuario` no banco. Aceita apenas CONVIDADO.
+ *
+ * Mand. 04 — SAdmin cross-org permitido; Master limitado à própria org.
+ * Mand. 08 — falha alto se status não for CONVIDADO.
+ */
+usersRouter.post('/:id_usuario/reenviar-convite', requireUserManagementRole, async (req, res, next) => {
+  try {
+    // Busca com escopo de organização (MASTER/ADMIN intra-org; SAdmin global)
+    const alvo = req.auth.tipo_usuario === 'SUPER_ADMIN'
+      ? await prisma.usuario.findFirst({
+          where: { id_usuario: req.params.id_usuario },
+          select: { id_usuario: true, id_organizacao: true, email_usuario: true, id_clerk_usuario: true },
+        })
+      : await prisma.usuario.findFirst({
+          where: { id_usuario: req.params.id_usuario, id_organizacao: req.auth.id_organizacao },
+          select: { id_usuario: true, id_organizacao: true, email_usuario: true, id_clerk_usuario: true },
+        })
+
+    if (!alvo) {
+      throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+    }
+
+    // Só permite reenviar se ainda é convite pendente (Mand. 08 — falha alta)
+    if (!alvo.id_clerk_usuario.startsWith('pending_')) {
+      throw new AppError(
+        'Este usuário já aceitou o convite — não é possível reenviar.',
+        409,
+        'CONVITE_JA_ACEITO',
+      )
+    }
+
+    // 1. Revoga convite antigo no Clerk (fire-and-forget — pode ter expirado)
+    const invitationIdAntigo = alvo.id_clerk_usuario.replace(/^pending_/, '')
+    try {
+      await clerkClient.invitations.revokeInvitation(invitationIdAntigo)
+    } catch {
+      // Convite pode ter expirado/já revogado — não bloqueia reenvio
+    }
+
+    // 2. Cria novo convite no Clerk
+    const APP_BASE_URL = process.env.APP_BASE_URL ?? 'http://localhost:8000'
+    let novoConvite: { id: string }
+    try {
+      novoConvite = await clerkClient.invitations.createInvitation({
+        emailAddress: alvo.email_usuario,
+        redirectUrl: `${APP_BASE_URL}/cadastro/continuar`,
+      })
+    } catch (clerkErr) {
+      const errMsg = clerkErr instanceof Error ? clerkErr.message : String(clerkErr)
+      const errAny = clerkErr as { errors?: Array<{ code?: string; message?: string }> }
+      // eslint-disable-next-line no-console
+      console.error('[reenviar-convite] Falha Clerk createInvitation', {
+        email: alvo.email_usuario,
+        errCode: errAny?.errors?.[0]?.code,
+        errMsg,
+      })
+      throw new AppError(
+        `Falha ao reenviar convite via Clerk: ${errAny?.errors?.[0]?.message ?? errMsg}`,
+        502,
+        'CLERK_INVITATION_ERROR',
+      )
+    }
+
+    // 3. Atualiza id_clerk_usuario no banco com novo pending_id
+    await prisma.usuario.update({
+      where: { id_usuario: alvo.id_usuario },
+      data: { id_clerk_usuario: `pending_${novoConvite.id}` },
+    })
+
+    securityAudit.permissionChanged(alvo.id_organizacao, req.auth.id_usuario, {
+      id_usuario_alvo: alvo.id_usuario,
+      nome_permissao: 'convite_reenviado',
+      acao_permissao: 'RESENT',
+    }, req.auth.nome_usuario).catch(() => { /* fire-and-forget */ })
+
+    res.status(200).json({
+      message: 'Convite reenviado com sucesso',
+    })
   } catch (err) {
     next(err)
   }

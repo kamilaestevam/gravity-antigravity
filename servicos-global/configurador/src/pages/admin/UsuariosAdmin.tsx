@@ -569,7 +569,50 @@ export function UsuariosAdmin() {
     }
   }
 
+  async function handleReenviarConvite(u: UsuarioGlobalUI) {
+    if (u.status !== 'Convidado') return
+    try {
+      await usuariosApi.reenviarConvite(u.id_usuario)
+      addNotification({
+        type: 'success',
+        message: `Convite reenviado para ${u.email_usuario}.`,
+      })
+    } catch (err) {
+      addNotification({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Falha ao reenviar convite.',
+      })
+    }
+  }
+
   const ACOES: TabelaGlobalAcao<UsuarioGlobalUI>[] = [
+    {
+      id: 'resend-invite',
+      icone: <ArrowClockwise size={15} weight="bold" />,
+      tooltip: 'Reenviar Convite',
+      onClick: handleReenviarConvite,
+      renderCustom: (u) => {
+        if (u.status !== 'Convidado') return null
+        return (
+          <TooltipGlobal descricao="Reenviar Convite">
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); void handleReenviarConvite(u) }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                width: 28, height: 28, borderRadius: '50%',
+                background: 'transparent', border: '1px solid transparent',
+                color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+              }}
+              onMouseEnter={(ev) => { ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = '#818cf8' }}
+              onMouseLeave={(ev) => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+            >
+              <ArrowClockwise size={15} weight="bold" />
+            </button>
+          </TooltipGlobal>
+        )
+      },
+    },
     {
       id: 'permissions',
       icone: <Key size={15} weight="bold" aria-label={t('admin.usuarios-globais.acao_permissoes')} />,

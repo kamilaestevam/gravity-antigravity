@@ -1371,6 +1371,15 @@ export const usuariosApi = {
     await request<void>(`/v1/usuarios/${id_usuario}/convite`, { method: 'DELETE' })
   },
 
+  /**
+   * Reenvia convite pendente: revoga o convite Clerk antigo e cria um novo.
+   * Aceita apenas usuários em status CONVIDADO.
+   * 409 CONVITE_JA_ACEITO se o usuário já completou cadastro.
+   */
+  async reenviarConvite(id_usuario: string): Promise<{ message: string }> {
+    return request<{ message: string }>(`/v1/usuarios/${id_usuario}/reenviar-convite`, { method: 'POST' })
+  },
+
   async alterarTipoUsuario(
     id_usuario: string,
     // Regra condicional (decisão dono 2026-05-11): SUPER_ADMIN/ADMIN só são

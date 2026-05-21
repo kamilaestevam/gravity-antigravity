@@ -172,7 +172,18 @@ historicoGlobalAdminRouter.get(
       })
 
       res.json({ data: logsEnriquecidos, meta: { hasMore, nextCursor, limit: safeLimit } })
-    } catch (err) {
+    } catch (err: unknown) {
+      const isPrismaTableMissing =
+        err != null &&
+        typeof err === 'object' &&
+        'code' in err &&
+        (err as { code: string }).code === 'P2021'
+
+      if (isPrismaTableMissing) {
+        log.warn('Tabela historico_log ainda não existe no banco ORGANIZACAO — retornando lista vazia')
+        return res.json({ data: [], meta: { hasMore: false, nextCursor: null, limit: 50 } })
+      }
+
       log.error('Erro ao listar logs do historico-global-admin', {
         err,
         message: err instanceof Error ? err.message : String(err),

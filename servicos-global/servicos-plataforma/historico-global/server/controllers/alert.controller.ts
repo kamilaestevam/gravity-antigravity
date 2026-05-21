@@ -36,7 +36,15 @@ export async function listAlerts(req: Request, res: Response, next: NextFunction
     })
 
     res.json({ data: alerts })
-  } catch (error) {
+  } catch (error: unknown) {
+    const isTableMissing =
+      error != null &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as { code: string }).code === 'P2021'
+    if (isTableMissing) {
+      return res.json({ data: [] })
+    }
     next(error)
   }
 }

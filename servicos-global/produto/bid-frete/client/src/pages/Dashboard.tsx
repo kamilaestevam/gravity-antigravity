@@ -1393,22 +1393,70 @@ function VisaoGeralMapa() {
                   const size = (isRouteDirectSource ? 1.6 : 1.2) + trailRatio * (isRouteDirectSource ? 3.0 : 2.2)
                   const opacity = trailRatio * 0.95 // Head is bright, tail fades out
                   
-                  ctx.beginPath()
-                  ctx.arc(pulseSx, pulseSy, size, 0, Math.PI * 2)
-                  
                   if (k === 0) {
+                    ctx.save()
+                    ctx.translate(pulseSx, pulseSy)
+                    
+                    // Calculate vector angle for rotation pointing along trajectory
+                    const angle = Math.atan2(pNext.sy - pCurrent.sy, pNext.sx - pCurrent.sx)
+                    ctx.rotate(angle)
+                    
+                    if (isRouteDirectSource) {
+                      ctx.scale(1.35, 1.35)
+                    }
+                    
+                    ctx.beginPath()
+                    if (isMaritime) {
+                      // Draw sleek top-down cargo ship hull
+                      ctx.moveTo(8, 0)
+                      ctx.lineTo(4, 3)
+                      ctx.lineTo(-6, 3)
+                      ctx.lineTo(-7, 1.5)
+                      ctx.lineTo(-7, -1.5)
+                      ctx.lineTo(-6, -3)
+                      ctx.lineTo(4, -3)
+                      ctx.closePath()
+                    } else {
+                      // Draw sleek top-down airplane fuselage & wings
+                      ctx.moveTo(8, 0)
+                      ctx.lineTo(-4, 6)
+                      ctx.lineTo(-2, 2)
+                      ctx.lineTo(-8, 3)
+                      ctx.lineTo(-6, 0)
+                      ctx.lineTo(-8, -3)
+                      ctx.lineTo(-2, -2)
+                      ctx.lineTo(-4, -6)
+                      ctx.closePath()
+                    }
+                    
                     ctx.fillStyle = '#ffffff'
                     ctx.shadowBlur = isRouteDirectSource ? 16 : 12
-                    ctx.shadowColor = route.color === 'rgba(167, 139, 250, 0.8)' ? '#c084fc' : '#34d399'
+                    ctx.shadowColor = isMaritime ? '#34d399' : '#c084fc'
+                    ctx.fill()
+                    
+                    // Draw a tiny colorful inner core/cabin for maximum luxury detail
+                    ctx.beginPath()
+                    if (isMaritime) {
+                      ctx.rect(-2, -1.5, 3, 3)
+                      ctx.fillStyle = '#34d399' // green core for ship containers
+                    } else {
+                      ctx.arc(1, 0, 1.5, 0, Math.PI * 2)
+                      ctx.fillStyle = '#a78bfa' // purple core for plane cockpit
+                    }
+                    ctx.shadowBlur = 0
+                    ctx.fill()
+                    
+                    ctx.restore()
                   } else {
+                    ctx.beginPath()
+                    ctx.arc(pulseSx, pulseSy, size, 0, Math.PI * 2)
                     ctx.fillStyle = route.color.replace('0.8', (opacity * 0.85).toString())
                     ctx.shadowBlur = 0
+                    ctx.globalAlpha = opacity
+                    ctx.fill()
+                    ctx.shadowBlur = 0
+                    ctx.globalAlpha = 1.0 // Reset
                   }
-                  
-                  ctx.globalAlpha = opacity
-                  ctx.fill()
-                  ctx.shadowBlur = 0
-                  ctx.globalAlpha = 1.0 // Reset
                 }
               }
             }

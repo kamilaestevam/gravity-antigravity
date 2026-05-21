@@ -70,6 +70,13 @@ export function resolverOrganizacao(config: ConfigResolverOrganizacao): RequestH
     );
   }
 
+  // Captura a URL do banco AGORA, no boot, enquanto `process.env.DATABASE_URL`
+  // ainda aponta para o banco correto deste produto. No deploy monolito-sidecar
+  // o `DATABASE_URL` é mutado entre boots; em tempo de request já estaria
+  // restaurado para o banco de outro produto. A URL viaja no `ContextoOrganizacao`.
+  // Vide `internal-prisma.ts` (revisão 2026-05-21).
+  const urlBancoBoot = process.env.DATABASE_URL;
+
   const cache = new CacheOrganizacao({ ttlMs: config.cacheTtlMs });
 
   const configuradorClient = createConfiguradorClient({
@@ -119,8 +126,9 @@ export function resolverOrganizacao(config: ConfigResolverOrganizacao): RequestH
         cache.set(idUsuario, ctx);
       }
 
-      // Passo 8 — idCorrelacao único por request (sobrepõe o do cache)
-      ctx = { ...ctx, idCorrelacao };
+      // Passo 8 — idCorrelacao único por request (sobrepõe o do cache) +
+      // urlBanco capturada no boot (roteamento de banco no monolito-sidecar)
+      ctx = { ...ctx, idCorrelacao, urlBanco: urlBancoBoot };
 
       // Passo 7 — Defense-in-depth: revalida nomeSchema
       if (!isValidSchemaName(ctx.nomeSchema)) {

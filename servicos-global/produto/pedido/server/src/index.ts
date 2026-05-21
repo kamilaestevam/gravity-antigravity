@@ -133,12 +133,17 @@ const _resolverOrg = resolverOrganizacao({
   configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
   chaveInterna:        process.env.CHAVE_INTERNA_SERVICO!,
 })
+// URL do banco do Pedido capturada no boot — aqui `DATABASE_URL` ainda aponta
+// para `PEDIDO_DATABASE_URL` (o sidecar do Configurador a restaura depois).
+// O caminho JWT recebe `urlBanco` via middleware; o caminho S2S (sem JWT,
+// resolveOrganizacaoById) precisa anexá-la manualmente. Vide internal-prisma.ts.
+const _urlBancoPedido = process.env.DATABASE_URL
 app.use(async (req: Request, res: Response, next: NextFunction) => {
   const idOrg = req.headers['x-id-organizacao'] as string | undefined
   const hasJwt = !!req.headers['authorization']
   if (!hasJwt && idOrg) {
     try {
-      req.organizacao = await resolveOrganizacaoById(idOrg)
+      req.organizacao = { ...(await resolveOrganizacaoById(idOrg)), urlBanco: _urlBancoPedido }
       ;(req as Record<string, unknown>).externalApi = true
       return next()
     } catch (err) {

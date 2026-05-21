@@ -23,6 +23,9 @@ import {
   ArrowRight,
   CaretLeft,
   CaretRight,
+  Plus,
+  Minus,
+  ArrowCounterClockwise,
 } from '@phosphor-icons/react'
 
 import { DEMO_KPIS, DEMO_CALENDARIO, DEMO_MENSAL, DEMO_MODAL, DEMO_MELHOR_COTACAO, DEMO_INCOTERMS } from '../shared/demo-data'
@@ -255,7 +258,7 @@ function KpiCard({ icon, label, value, sub, badge, badgeColor, sparkData, sparkT
 function GraficoBarrasMensal() {
   const W = 520
   const H = 280
-  const pad = { top: 35, right: 15, bottom: 40, left: 15 }
+  const pad = { top: 35, right: 20, bottom: 40, left: 40 }
   const innerW = W - pad.left - pad.right
   const innerH = H - pad.top - pad.bottom
   const barW = innerW / DEMO_MENSAL.length
@@ -264,12 +267,70 @@ function GraficoBarrasMensal() {
   const maxMonthlyTotal = Math.max(...DEMO_MENSAL.map(d => d.aprovadas + d.andamento + d.recusadas))
   const maxVal = maxMonthlyTotal > 0 ? maxMonthlyTotal * 1.1 : 100
 
+  // Y-axis grid ticks (from 0 = top/max to 1 = bottom/zero)
+  const gridTicks = [0, 0.25, 0.5, 0.75, 1]
+
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="bfd-chart-svg" style={{ overflow: 'visible' }}>
+      <defs>
+        {/* Vibrant emerald/mint gradient */}
+        <linearGradient id="grad-aprov" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#34d399" />
+          <stop offset="100%" stopColor="#059669" />
+        </linearGradient>
+        
+        {/* Vibrant blue gradient */}
+        <linearGradient id="grad-and" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#60a5fa" />
+          <stop offset="100%" stopColor="#2563eb" />
+        </linearGradient>
+        
+        {/* Vibrant rose/red gradient */}
+        <linearGradient id="grad-rec" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#f87171" />
+          <stop offset="100%" stopColor="#dc2626" />
+        </linearGradient>
+
+        {/* Premium smooth drop shadow for columns */}
+        <filter id="col-shadow" x="-20%" y="-10%" width="140%" height="130%">
+          <feDropShadow dx="0" dy="4" stdDeviation="3" floodColor="#000000" floodOpacity="0.25" />
+        </filter>
+      </defs>
+
+      {/* Gridlines & Y-axis labels in background */}
+      {gridTicks.map((t, idx) => {
+        const y = pad.top + t * innerH
+        const val = Math.round((1 - t) * maxVal)
+        return (
+          <g key={idx} className="bfd-chart-gridline-group">
+            <line
+              x1={pad.left}
+              y1={y}
+              x2={W - pad.right}
+              y2={y}
+              stroke="rgba(255, 255, 255, 0.05)"
+              strokeWidth="1"
+              strokeDasharray={t === 1 ? undefined : "4, 4"}
+            />
+            <text
+              x={pad.left - 12}
+              y={y + 4}
+              textAnchor="end"
+              fill="#64748b"
+              fontSize="11"
+              fontWeight="600"
+              className="bfd-chart-grid-text"
+            >
+              {val}
+            </text>
+          </g>
+        )
+      })}
+
       {DEMO_MENSAL.map((d, i) => {
         const total = d.aprovadas + d.andamento + d.recusadas
-        const x = pad.left + i * barW + barW * 0.15
-        const w = barW * 0.7
+        const w = barW * 0.45
+        const x = pad.left + i * barW + (barW - w) / 2
         const fullH = (total / maxVal) * innerH
 
         const hAprov = (d.aprovadas / total) * fullH
@@ -292,8 +353,8 @@ function GraficoBarrasMensal() {
         const botPath = `M ${x} ${yBotSeg} L ${x + w} ${yBotSeg} L ${x + w} ${yBotSeg + hBotDraw - r} A ${r} ${r} 0 0 1 ${x + w - r} ${yBotSeg + hBotDraw} L ${x + r} ${yBotSeg + hBotDraw} A ${r} ${r} 0 0 1 ${x} ${yBotSeg + hBotDraw - r} Z`
 
         return (
-          <g key={i} className="bfd-chart-bar-group">
-            {/* Top Segment: Mint Green Capsule */}
+          <g key={i} className="bfd-chart-bar-group" filter="url(#col-shadow)">
+            {/* Top Segment: Mint/Emerald Gradient Capsule */}
             <rect
               x={x}
               y={yTopSeg}
@@ -301,22 +362,22 @@ function GraficoBarrasMensal() {
               height={hTopDraw}
               rx={6}
               ry={6}
-              fill="#34d399"
+              fill="url(#grad-aprov)"
             />
             
-            {/* Middle Segment: Slate Blue Rect */}
+            {/* Middle Segment: Blue Gradient Rect */}
             <rect
               x={x}
               y={yMidSeg}
               width={w}
               height={hMidDraw}
-              fill="#60a5fa"
+              fill="url(#grad-and)"
             />
             
-            {/* Bottom Segment: Rose Red Rounded Bottom */}
+            {/* Bottom Segment: Rose Red Gradient Rounded Bottom */}
             <path
               d={botPath}
-              fill="#f87171"
+              fill="url(#grad-rec)"
             />
             
             {/* Total value text above the bar */}
@@ -325,7 +386,7 @@ function GraficoBarrasMensal() {
               y={yTop - 10}
               textAnchor="middle"
               fill="#ffffff"
-              fontSize="16"
+              fontSize="14"
               fontWeight="700"
               className="bfd-chart-total-text"
             >
@@ -337,9 +398,9 @@ function GraficoBarrasMensal() {
               x={x + w / 2}
               y={H - 12}
               textAnchor="middle"
-              fill="#94a3b8"
-              fontSize="14"
-              fontWeight="500"
+              fill="#cbd5e1"
+              fontSize="12"
+              fontWeight="600"
               className="bfd-chart-month-text"
             >
               {d.mes}
@@ -951,6 +1012,25 @@ function VisaoGeralMapa() {
   const rotationRef = useRef({ x: 0.28, y: -1.25 }) // Starting rotation to show continents nicely
   const velocityRef = useRef({ x: 0, y: 0 })
   const isRotationPausedRef = useRef(false)
+  const zoomRef = useRef(1.0)
+
+  const handleZoomIn = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    zoomRef.current = Math.min(2.5, zoomRef.current + 0.15)
+  }
+
+  const handleZoomOut = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    zoomRef.current = Math.max(0.5, zoomRef.current - 0.15)
+  }
+
+  const handleReset = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    zoomRef.current = 1.0
+    rotationRef.current = { x: 0.28, y: -1.25 }
+    velocityRef.current = { x: 0, y: 0 }
+    isRotationPausedRef.current = false
+  }
   
   // Generate 5500 Fibonacci points on the sphere for ultra-high-definition realistic mapping
   const samples = 16000
@@ -1004,7 +1084,7 @@ function VisaoGeralMapa() {
       
       const cx = w / 2
       const cy = h / 2
-      const R = Math.min(w, h) * 0.42
+      const R = Math.min(w, h) * 0.42 * zoomRef.current
       const pulseTime = Date.now() / 2400
       
        // Physics: inertially decay dragging or add auto-rotation
@@ -1463,6 +1543,91 @@ function VisaoGeralMapa() {
         {/* The high-performance 3D Canvas */}
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
         
+        {/* Floating Zoom & Control Panel */}
+        <div className="bfd-map-controls" style={{
+          position: 'absolute',
+          bottom: '1rem',
+          right: '1rem',
+          display: 'flex',
+          gap: '0.5rem',
+          zIndex: 30
+        }}>
+          <button 
+            onClick={handleZoomIn} 
+            title="Aumentar Zoom" 
+            className="bfd-map-control-btn"
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: 'rgba(15, 23, 42, 0.75)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15, 23, 42, 0.75)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}
+          >
+            <Plus size={16} weight="bold" />
+          </button>
+          
+          <button 
+            onClick={handleZoomOut} 
+            title="Diminuir Zoom" 
+            className="bfd-map-control-btn"
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: 'rgba(15, 23, 42, 0.75)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15, 23, 42, 0.75)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}
+          >
+            <Minus size={16} weight="bold" />
+          </button>
+
+          <button 
+            onClick={handleReset} 
+            title="Restaurar Globo" 
+            className="bfd-map-control-btn"
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: 'rgba(15, 23, 42, 0.75)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15, 23, 42, 0.75)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}
+          >
+            <ArrowCounterClockwise size={16} weight="bold" />
+          </button>
+        </div>
+        
         {/* Dynamic HTML Overlay Pins */}
         {projectedPins.map(pin => {
           if (pin.opacity <= 0.05) return null
@@ -1585,7 +1750,7 @@ export default function Dashboard() {
           line-height: 1.6;
           margin: 0.45rem 0 0;
         }
-        .bfd-header__actions { display: flex; align-items: center; gap: 0.75rem; transform: translateY(80px); }
+        .bfd-header__actions { display: flex; align-items: center; gap: 0.75rem; transform: translateY(40px); }
         .bfd-header__icon-btn {
           width: 38px; height: 38px; border-radius: 8px; border: none; cursor: pointer;
           display: flex; align-items: center; justify-content: center;
@@ -1873,7 +2038,7 @@ export default function Dashboard() {
         /* ── Globe Map + Câmbio Row ───────────────────────────────── */
         .bfd-globe-row {
           display: grid;
-          grid-template-columns: 2.2fr 1fr;
+          grid-template-columns: 1.5fr 1fr;
           gap: 1.25rem;
           margin-bottom: 1.25rem;
         }

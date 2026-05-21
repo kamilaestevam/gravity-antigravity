@@ -125,6 +125,19 @@ export default function Cotacoes() {
       { replace: true }
     )
   }
+
+  useEffect(() => {
+    if (!searchParams.has('visao') && !isNovaCotacao) {
+      setSearchParams(
+        (prev) => {
+          prev.set('visao', 'lista')
+          return prev
+        },
+        { replace: true }
+      )
+    }
+  }, [searchParams, setSearchParams, isNovaCotacao])
+
   const [filtroTab, setFiltroTab] = useState('TODAS')
 
   const carregar = useCallback(async () => {

@@ -13,7 +13,8 @@ RUN npm ci --include=dev
 
 # Build workspace packages required by sidecars
 RUN cd packages/resolver-organizacao && npx tsup && cd ../.. \
-    && cp -r packages/resolver-organizacao/dist node_modules/@gravity/resolver-organizacao/dist
+    && mkdir -p node_modules/@gravity/resolver-organizacao/dist \
+    && cp -r packages/resolver-organizacao/dist/* node_modules/@gravity/resolver-organizacao/dist/
 
 # Generate Prisma clients
 RUN npx prisma generate --schema=configurador/prisma/schema.prisma

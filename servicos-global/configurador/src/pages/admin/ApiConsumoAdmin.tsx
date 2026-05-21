@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { z } from 'zod'
-import { ChartLineUp, ArrowClockwise } from '@phosphor-icons/react'
+import { Pulse, ArrowClockwise } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitAdminTabs } from './ApiCockpitAdminTabs'
@@ -48,29 +47,6 @@ const logRequisicaoApiResponseSchema = z.object({
 type LogRequisicaoApi = z.infer<typeof logRequisicaoApiSchema>
 type Paginacao = z.infer<typeof paginacaoSchema>
 
-const SELECT_STYLE: React.CSSProperties = {
-  width: '100%',
-  padding: '0.625rem 0.75rem',
-  borderRadius: '8px',
-  border: '1px solid var(--ws-accent-border, rgba(255,255,255,0.1))',
-  background: 'rgba(0,0,0,0.2)',
-  color: 'var(--text-primary, #fff)',
-  fontSize: '0.875rem',
-}
-
-const INPUT_STYLE: React.CSSProperties = { ...SELECT_STYLE }
-
-type FiltroResultado = 'TODOS' | 'SUCESSO' | 'ERRO_CLIENTE' | 'ERRO_SERVIDOR'
-
-function rangeHttpDoFiltro(filtro: FiltroResultado): { minimo?: string; maximo?: string } {
-  switch (filtro) {
-    case 'SUCESSO':       return { minimo: '200', maximo: '399' }
-    case 'ERRO_CLIENTE':  return { minimo: '400', maximo: '499' }
-    case 'ERRO_SERVIDOR': return { minimo: '500', maximo: '599' }
-    default:              return {}
-  }
-}
-
 export function ApiConsumoAdmin() {
   const [idOrganizacao, setIdOrganizacao] = useState<string>('')
   const [logs, setLogs] = useState<LogRequisicaoApi[]>([])
@@ -78,26 +54,17 @@ export function ApiConsumoAdmin() {
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
 
-  // Filtros
-  const [filtroResultado, setFiltroResultado] = useState<FiltroResultado>('TODOS')
-  const [filtroProduto, setFiltroProduto] = useState('')
   const [pagina, setPagina] = useState(1)
-  const [limite, setLimite] = useState(50)
+  const [limite] = useState(50)
 
   const carregar = useCallback(async () => {
     try {
       setLoading(true)
       setErro(null)
       const params = new URLSearchParams()
-      // Default global: sem id_organizacao → todas as orgs.
-      // Seletor opcional filtra por org especifica.
       if (idOrganizacao) params.set('id_organizacao', idOrganizacao)
       params.set('pagina', String(pagina))
       params.set('limite', String(limite))
-      if (filtroProduto.trim()) params.set('id_produto_gravity', filtroProduto.trim())
-      const range = rangeHttpDoFiltro(filtroResultado)
-      if (range.minimo) params.set('codigo_resposta_http_minimo', range.minimo)
-      if (range.maximo) params.set('codigo_resposta_http_maximo', range.maximo)
 
       const res = await requisicaoAutenticada(`/api/v1/api-cockpit/admin/log-requisicao-api?${params}`)
       if (!res.ok) throw new Error(`Falha ao carregar logs: ${res.status}`)
@@ -119,7 +86,7 @@ export function ApiConsumoAdmin() {
     } finally {
       setLoading(false)
     }
-  }, [idOrganizacao, pagina, limite, filtroProduto, filtroResultado])
+  }, [idOrganizacao, pagina, limite])
 
   useEffect(() => {
     void carregar()
@@ -206,7 +173,7 @@ export function ApiConsumoAdmin() {
     <PaginaGlobal
       cabecalho={
         <CabecalhoGlobal
-          icone={<ChartLineUp weight="duotone" size={24} />}
+          icone={<Pulse weight="duotone" size={24} />}
           titulo="API Cockpit"
           subtitulo={idOrganizacao
             ? 'Consumo da API filtrado por organização'
@@ -251,54 +218,6 @@ export function ApiConsumoAdmin() {
             {erro}
           </div>
         )}
-
-        {/* Filtros */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1rem',
-          padding: '1rem', borderRadius: '12px',
-          background: 'var(--ws-bg-card, rgba(30,41,59,0.5))',
-          border: '1px solid var(--border-color)',
-        }}>
-          <CampoGeralGlobal label="Resultado" htmlFor="filtro-resultado-admin">
-            <select
-              id="filtro-resultado-admin"
-              style={SELECT_STYLE}
-              value={filtroResultado}
-              onChange={(e) => { setPagina(1); setFiltroResultado(e.target.value as FiltroResultado) }}
-            >
-              <option value="TODOS">Todos</option>
-              <option value="SUCESSO">Sucesso (2xx/3xx)</option>
-              <option value="ERRO_CLIENTE">Erro de cliente (4xx)</option>
-              <option value="ERRO_SERVIDOR">Erro de servidor (5xx)</option>
-            </select>
-          </CampoGeralGlobal>
-
-          <CampoGeralGlobal label="ID do produto" htmlFor="filtro-produto-admin">
-            <input
-              id="filtro-produto-admin"
-              type="text"
-              style={INPUT_STYLE}
-              value={filtroProduto}
-              onChange={(e) => setFiltroProduto(e.target.value)}
-              onBlur={() => setPagina(1)}
-              placeholder="Ex: gravity-pedido"
-            />
-          </CampoGeralGlobal>
-
-          <CampoGeralGlobal label="Itens por página" htmlFor="filtro-limite-admin">
-            <select
-              id="filtro-limite-admin"
-              style={SELECT_STYLE}
-              value={limite}
-              onChange={(e) => { setPagina(1); setLimite(Number(e.target.value)) }}
-            >
-              <option value="25">25</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-            </select>
-          </CampoGeralGlobal>
-        </div>
 
         <TabelaGlobal
           id="admin-api-consumo"

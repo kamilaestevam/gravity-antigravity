@@ -470,7 +470,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       layout="lista"
       cabecalho={
         <CabecalhoGlobal
-          icone={<HardDrives weight="duotone" size={22} color="#6366f1" />}
+          icone={<Buildings weight="duotone" size={24} />}
           titulo="Organizações"
           subtitulo="Gerencie as organizações e seus workspaces e usuários."
         />

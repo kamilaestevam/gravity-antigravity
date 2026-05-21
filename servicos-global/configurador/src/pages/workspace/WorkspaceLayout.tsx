@@ -15,7 +15,7 @@ import {
   Users,
   CreditCard,
   Receipt,
-  PlugsConnected,
+  Pulse,
   CurrencyCircleDollar,
   ClockCounterClockwise,
   Sun,
@@ -52,7 +52,7 @@ export function WorkspaceLayout() {
     { to: '/workspace/empresas-e-parceiros', label: 'Empresas e Parceiros',          icon: <Buildings   weight="duotone" size={18} /> },
     { to: '/workspace/assinaturas',  label: t('workspace.layout.assinaturas'),     icon: <CreditCard  weight="duotone" size={18} /> },
     { to: '/workspace/financeiro',   label: t('workspace.layout.financeiro'),      icon: <Receipt     weight="duotone" size={18} /> },
-    { to: '/workspace/api-cockpit',  label: t('workspace.layout.api-cockpit'),     icon: <PlugsConnected weight="duotone" size={18} /> },
+    { to: '/workspace/api-cockpit',  label: t('workspace.layout.api-cockpit'),     icon: <Pulse weight="duotone" size={18} /> },
     { to: '/workspace/taxas-moeda',  label: t('workspace.layout.taxa-cambio'),       icon: <CurrencyCircleDollar weight="duotone" size={18} /> },
     { to: '/workspace/historico-organizacao', label: t('workspace.layout.historico-organizacao'), icon: <ClockCounterClockwise weight="duotone" size={18} /> },
   ]

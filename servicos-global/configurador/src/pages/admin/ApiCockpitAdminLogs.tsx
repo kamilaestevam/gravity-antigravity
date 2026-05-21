@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
-import { ListBullets, ArrowClockwise } from '@phosphor-icons/react'
+import { Pulse, ArrowClockwise } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
@@ -158,7 +158,7 @@ export function ApiCockpitAdminLogs() {
     <PaginaGlobal
       cabecalho={
         <CabecalhoGlobal
-          icone={<ListBullets weight="duotone" size={24} />}
+          icone={<Pulse weight="duotone" size={24} />}
           titulo={t('admin.api-cockpit.titulo')}
           subtitulo={t('admin.api-cockpit.subtitulo')}
         />

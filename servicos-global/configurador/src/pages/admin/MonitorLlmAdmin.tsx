@@ -5,6 +5,7 @@ import {
   Brain,
   Warning,
   Gear,
+  Pulse,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -233,7 +234,7 @@ export function MonitorLlmAdmin() {
     <PaginaGlobal
       cabecalho={
         <CabecalhoGlobal
-          icone={<Brain weight="duotone" size={24} />}
+          icone={<Pulse weight="duotone" size={24} />}
           titulo={t('admin.api-cockpit.titulo')}
           subtitulo={t('admin.monitor-llm.subtitulo')}
         />

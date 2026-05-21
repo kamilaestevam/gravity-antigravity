@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { z } from 'zod'
-import { Plus, Trash, Copy, Key, Info } from '@phosphor-icons/react'
+import { Plus, Trash, Copy, Key, Info, Pulse } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
@@ -255,7 +255,7 @@ export function ApiTokensAdmin() {
         <CabecalhoGlobal
           titulo="API Cockpit"
           subtitulo="Tokens de API por organização — visão administrativa com CRUD completo"
-          icone={<Key size={32} weight="duotone" />}
+          icone={<Pulse size={24} weight="duotone" />}
         />
       }
       stats={<ApiCockpitAdminKpis />}

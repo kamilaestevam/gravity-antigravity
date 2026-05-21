@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { z } from 'zod'
 import {
-  Plus, Trash, Copy, WebhooksLogo, PaperPlaneTilt, ClockCounterClockwise, Info,
+  Plus, Trash, Copy, WebhooksLogo, PaperPlaneTilt, ClockCounterClockwise, Info, Pulse,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -330,7 +330,7 @@ export function ApiWebhooksAdmin() {
         <CabecalhoGlobal
           titulo="API Cockpit"
           subtitulo="Webhooks por organização — visão administrativa com CRUD completo"
-          icone={<WebhooksLogo size={32} weight="duotone" />}
+          icone={<Pulse size={24} weight="duotone" />}
         />
       }
       stats={<ApiCockpitAdminKpis />}

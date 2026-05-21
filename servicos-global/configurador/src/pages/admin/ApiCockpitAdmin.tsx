@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import {
-  PlugsConnected,
+  Pulse,
   ArrowClockwise,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -231,7 +231,7 @@ export function ApiCockpitAdmin() {
     <PaginaGlobal
       cabecalho={
         <CabecalhoGlobal
-          icone={<PlugsConnected weight="duotone" size={24} />}
+          icone={<Pulse weight="duotone" size={24} />}
           titulo={t('admin.api-cockpit.titulo')}
           subtitulo={t('admin.api-cockpit.subtitulo')}
         />

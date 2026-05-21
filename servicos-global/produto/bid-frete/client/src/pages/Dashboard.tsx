@@ -1903,35 +1903,11 @@ function VisaoGeralMapa() {
         </div>
         
         {/* Floating Zoom & Control Panel */}
-        <div className="bfd-map-controls" style={{
-          position: 'absolute',
-          bottom: '1rem',
-          right: '1rem',
-          display: 'flex',
-          gap: '0.5rem',
-          zIndex: 30
-        }}>
+        <div className="bfd-map-controls">
           <button 
             onClick={handleZoomIn} 
             title="Aumentar Zoom" 
             className="bfd-map-control-btn"
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              background: 'rgba(15, 23, 42, 0.75)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              color: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15, 23, 42, 0.75)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}
           >
             <Plus size={16} weight="bold" />
           </button>
@@ -1940,23 +1916,6 @@ function VisaoGeralMapa() {
             onClick={handleZoomOut} 
             title="Diminuir Zoom" 
             className="bfd-map-control-btn"
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              background: 'rgba(15, 23, 42, 0.75)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              color: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15, 23, 42, 0.75)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}
           >
             <Minus size={16} weight="bold" />
           </button>
@@ -1965,23 +1924,6 @@ function VisaoGeralMapa() {
             onClick={handleReset} 
             title="Restaurar Globo" 
             className="bfd-map-control-btn"
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              background: 'rgba(15, 23, 42, 0.75)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              color: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15, 23, 42, 0.75)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}
           >
             <ArrowCounterClockwise size={16} weight="bold" />
           </button>
@@ -1990,23 +1932,6 @@ function VisaoGeralMapa() {
             onClick={toggleRotation} 
             title={isAutoRotating ? "Pausar Rotação" : "Iniciar Rotação"} 
             className="bfd-map-control-btn"
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              background: 'rgba(15, 23, 42, 0.75)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              color: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15, 23, 42, 0.75)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}
           >
             {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
           </button>
@@ -2793,6 +2718,41 @@ export default function Dashboard() {
         @media (max-width: 1023px) {
           .bfd-map-right-panel {
             display: none !important;
+          }
+        }
+        .bfd-map-controls {
+          position: absolute;
+          bottom: 1.25rem;
+          left: calc(50% - 120px);
+          transform: translateX(-50%);
+          display: flex;
+          gap: 0.5rem;
+          z-index: 30;
+          transition: left 0.3s ease, transform 0.3s ease;
+        }
+        .bfd-map-control-btn {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(15, 23, 42, 0.75);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          outline: none;
+        }
+        .bfd-map-control-btn:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+        @media (max-width: 1023px) {
+          .bfd-map-controls {
+            left: 50%;
           }
         }
         .bfd-map-bg {

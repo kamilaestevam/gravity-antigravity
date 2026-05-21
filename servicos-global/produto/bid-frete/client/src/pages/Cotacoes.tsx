@@ -376,54 +376,56 @@ export default function Cotacoes() {
       cabecalho={
         <CabecalhoGlobal
           icone={<FileText weight="duotone" size={22} />}
-          titulo={t('bidfrete.cotacoes.titulo')}
+          titulo={visao === 'kanban' ? 'Kanban' : t('bidfrete.cotacoes.titulo')}
         />
       }
     >
       {/* ── KPI cards ── */}
-      <div className="lp-stats-row">
-        <div className="lp-cards">
-          <CardBasicoGlobal
-            key="total_cotacoes"
-            titulo="Total de Cotações"
-            icone={<Package weight="duotone" size={16} style={{ color: 'var(--accent)' }} />}
-            valor={stats.total}
-            subtexto="Todas as cotações carregadas"
-          />
-          <CardBasicoGlobal
-            key="cotacoes_andamento"
-            titulo="Cotações em Andamento"
-            icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
-            valor={stats.emAndamento}
-            variante="aviso"
-            subtexto="Em cotação ou enviadas"
-          />
-          <CardBasicoGlobal
-            key="aguardando_aprovacao"
-            titulo="Aguardando Aprovação"
-            icone={<Warning weight="duotone" size={16} style={{ color: '#facc15' }} />}
-            valor={stats.aguardandoAprovacao}
-            variante="aviso"
-            subtexto="Necessitam de ação"
-          />
-          <CardBasicoGlobal
-            key="expiradas"
-            titulo="Expiradas"
-            icone={<Warning weight="duotone" size={16} style={{ color: '#f87171' }} />}
-            valor={stats.expiradas}
-            variante="erro"
-            subtexto="Prazo de resposta vencido"
-          />
-          <CardBasicoGlobal
-            key="saving_estimado"
-            titulo="Saving Estimado"
-            icone={<Coins weight="duotone" size={16} style={{ color: '#34d399' }} />}
-            valor={`USD ${fmtQuantidade(stats.savingTotal, 2)}`}
-            variante="sucesso"
-            subtexto="Soma do saving das cotações ativas"
-          />
+      {visao === 'lista' && (
+        <div className="lp-stats-row">
+          <div className="lp-cards">
+            <CardBasicoGlobal
+              key="total_cotacoes"
+              titulo="Total de Cotações"
+              icone={<Package weight="duotone" size={16} style={{ color: 'var(--accent)' }} />}
+              valor={stats.total}
+              subtexto="Todas as cotações carregadas"
+            />
+            <CardBasicoGlobal
+              key="cotacoes_andamento"
+              titulo="Cotações em Andamento"
+              icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
+              valor={stats.emAndamento}
+              variante="aviso"
+              subtexto="Em cotação ou enviadas"
+            />
+            <CardBasicoGlobal
+              key="aguardando_aprovacao"
+              titulo="Aguardando Aprovação"
+              icone={<Warning weight="duotone" size={16} style={{ color: '#facc15' }} />}
+              valor={stats.aguardandoAprovacao}
+              variante="aviso"
+              subtexto="Necessitam de ação"
+            />
+            <CardBasicoGlobal
+              key="expiradas"
+              titulo="Expiradas"
+              icone={<Warning weight="duotone" size={16} style={{ color: '#f87171' }} />}
+              valor={stats.expiradas}
+              variante="erro"
+              subtexto="Prazo de resposta vencido"
+            />
+            <CardBasicoGlobal
+              key="saving_estimado"
+              titulo="Saving Estimado"
+              icone={<Coins weight="duotone" size={16} style={{ color: '#34d399' }} />}
+              valor={`USD ${fmtQuantidade(stats.savingTotal, 2)}`}
+              variante="sucesso"
+              subtexto="Soma do saving das cotações ativas"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Conteúdo da Visão */}
       {visao === 'lista' ? (

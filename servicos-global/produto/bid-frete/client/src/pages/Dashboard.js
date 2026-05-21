@@ -1269,70 +1269,7 @@ function VisaoGeralMapa() {
                                                                             transformOrigin: '20px 20px',
                                                                             transition: 'stroke-dashoffset 0.8s ease-out'
                                                                         } }), _jsxs("g", { style: { transform: 'translate(12px, 12px)', color: item.cor }, children: [item.modal === 'MARITIMO' && _jsx(Anchor, { weight: "bold", size: 16 }), item.modal === 'AEREO' && _jsx(AirplaneTilt, { weight: "bold", size: 16 }), item.modal === 'RODOVIARIO' && _jsx(Truck, { weight: "bold", size: 16 })] })] }), _jsxs("div", { style: { flex: 1, display: 'flex', flexDirection: 'column', gap: '1px' }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }, children: [_jsx("span", { style: { fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }, children: item.label }), _jsxs("span", { style: { fontSize: '0.82rem', fontWeight: 700, color: item.cor }, children: [item.count, " bids"] })] }), _jsxs("span", { style: { fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }, children: ["Representa ", item.pct, "% das cota\u00E7\u00F5es"] })] })] }), _jsxs("div", { className: "bfd-map-panel__modal-stats-grid", children: [_jsxs("div", { className: "bfd-map-panel__modal-stat-box", children: [_jsx("span", { className: "bfd-map-panel__modal-stat-lbl", children: "Melhor Pre\u00E7o" }), _jsxs("span", { className: "bfd-map-panel__modal-stat-num", style: { color: '#ffffff' }, children: ["USD ", item.modal === 'AEREO' ? '8.400' : item.modal === 'MARITIMO' ? '7.200' : '5.100'] })] }), _jsxs("div", { className: "bfd-map-panel__modal-stat-box", children: [_jsx("span", { className: "bfd-map-panel__modal-stat-lbl", children: "Saving M\u00E9dio" }), _jsx("span", { className: "bfd-map-panel__modal-stat-num", style: { color: '#60a5fa' }, children: item.modal === 'AEREO' ? '+23.4%' : item.modal === 'MARITIMO' ? '+19.1%' : '+12.5%' })] })] })] }, item.modal));
-                                        }) }))] })] }), _jsxs("div", { className: "bfd-map-controls", style: {
-                            position: 'absolute',
-                            bottom: '1rem',
-                            right: '1rem',
-                            display: 'flex',
-                            gap: '0.5rem',
-                            zIndex: 30
-                        }, children: [_jsx("button", { onClick: handleZoomIn, title: "Aumentar Zoom", className: "bfd-map-control-btn", style: {
-                                    width: '32px',
-                                    height: '32px',
-                                    borderRadius: '8px',
-                                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                                    background: 'rgba(15, 23, 42, 0.75)',
-                                    backdropFilter: 'blur(8px)',
-                                    WebkitBackdropFilter: 'blur(8px)',
-                                    color: '#ffffff',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease',
-                                }, onMouseEnter: (e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }, onMouseLeave: (e) => { e.currentTarget.style.background = 'rgba(15, 23, 42, 0.75)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }, children: _jsx(Plus, { size: 16, weight: "bold" }) }), _jsx("button", { onClick: handleZoomOut, title: "Diminuir Zoom", className: "bfd-map-control-btn", style: {
-                                    width: '32px',
-                                    height: '32px',
-                                    borderRadius: '8px',
-                                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                                    background: 'rgba(15, 23, 42, 0.75)',
-                                    backdropFilter: 'blur(8px)',
-                                    WebkitBackdropFilter: 'blur(8px)',
-                                    color: '#ffffff',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease',
-                                }, onMouseEnter: (e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }, onMouseLeave: (e) => { e.currentTarget.style.background = 'rgba(15, 23, 42, 0.75)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }, children: _jsx(Minus, { size: 16, weight: "bold" }) }), _jsx("button", { onClick: handleReset, title: "Restaurar Globo", className: "bfd-map-control-btn", style: {
-                                    width: '32px',
-                                    height: '32px',
-                                    borderRadius: '8px',
-                                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                                    background: 'rgba(15, 23, 42, 0.75)',
-                                    backdropFilter: 'blur(8px)',
-                                    WebkitBackdropFilter: 'blur(8px)',
-                                    color: '#ffffff',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease',
-                                }, onMouseEnter: (e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }, onMouseLeave: (e) => { e.currentTarget.style.background = 'rgba(15, 23, 42, 0.75)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }, children: _jsx(ArrowCounterClockwise, { size: 16, weight: "bold" }) }), _jsx("button", { onClick: toggleRotation, title: isAutoRotating ? "Pausar Rotação" : "Iniciar Rotação", className: "bfd-map-control-btn", style: {
-                                    width: '32px',
-                                    height: '32px',
-                                    borderRadius: '8px',
-                                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                                    background: 'rgba(15, 23, 42, 0.75)',
-                                    backdropFilter: 'blur(8px)',
-                                    WebkitBackdropFilter: 'blur(8px)',
-                                    color: '#ffffff',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease',
-                                }, onMouseEnter: (e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }, onMouseLeave: (e) => { e.currentTarget.style.background = 'rgba(15, 23, 42, 0.75)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }, children: isAutoRotating ? _jsx(Pause, { size: 16, weight: "bold" }) : _jsx(Play, { size: 16, weight: "bold" }) })] }), projectedPins.map(pin => {
+                                        }) }))] })] }), _jsxs("div", { className: "bfd-map-controls", children: [_jsx("button", { onClick: handleZoomIn, title: "Aumentar Zoom", className: "bfd-map-control-btn", children: _jsx(Plus, { size: 16, weight: "bold" }) }), _jsx("button", { onClick: handleZoomOut, title: "Diminuir Zoom", className: "bfd-map-control-btn", children: _jsx(Minus, { size: 16, weight: "bold" }) }), _jsx("button", { onClick: handleReset, title: "Restaurar Globo", className: "bfd-map-control-btn", children: _jsx(ArrowCounterClockwise, { size: 16, weight: "bold" }) }), _jsx("button", { onClick: toggleRotation, title: isAutoRotating ? "Pausar Rotação" : "Iniciar Rotação", className: "bfd-map-control-btn", children: isAutoRotating ? _jsx(Pause, { size: 16, weight: "bold" }) : _jsx(Play, { size: 16, weight: "bold" }) })] }), projectedPins.map(pin => {
                         if (pin.opacity <= 0.05)
                             return null;
                         const isHovered = hoveredPin === pin.id;
@@ -1916,6 +1853,41 @@ export default function Dashboard() {
         @media (max-width: 1023px) {
           .bfd-map-right-panel {
             display: none !important;
+          }
+        }
+        .bfd-map-controls {
+          position: absolute;
+          bottom: 1.25rem;
+          left: calc(50% - 120px);
+          transform: translateX(-50%);
+          display: flex;
+          gap: 0.5rem;
+          z-index: 30;
+          transition: left 0.3s ease, transform 0.3s ease;
+        }
+        .bfd-map-control-btn {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(15, 23, 42, 0.75);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          outline: none;
+        }
+        .bfd-map-control-btn:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+        @media (max-width: 1023px) {
+          .bfd-map-controls {
+            left: 50%;
           }
         }
         .bfd-map-bg {

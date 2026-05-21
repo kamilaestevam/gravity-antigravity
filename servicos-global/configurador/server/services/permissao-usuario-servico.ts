@@ -75,11 +75,11 @@ function validarEditarImplicaVer(permissoes: string[]): { valido: true } | { val
   return { valido: true }
 }
 
-const CUID_V1_V2 = /^[a-z][a-z0-9]{22,24}$/
+const CUID_OR_UUID = /^([a-z][a-z0-9]{22,24}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/
 
 export const setPermissoesUsuarioInputSchema = z.object({
-  id_workspace: z.string().regex(CUID_V1_V2, 'CUID v1/v2 inválido'),
-  id_produto_gravity: z.string().regex(CUID_V1_V2, 'CUID v1/v2 inválido'),
+  id_workspace: z.string().regex(CUID_OR_UUID, 'CUID v1/v2 ou UUID v4 inválido'),
+  id_produto_gravity: z.string().regex(CUID_OR_UUID, 'CUID v1/v2 ou UUID v4 inválido'),
   permissoes: z.array(permissaoStringSchema)
     .refine(arr => new Set(arr).size === arr.length, 'Permissões duplicadas não são permitidas')
     .refine(

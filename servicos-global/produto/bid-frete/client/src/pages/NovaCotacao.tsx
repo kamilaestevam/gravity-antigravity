@@ -927,10 +927,10 @@ export default function NovaCotacao() {
           width: 40px;
           height: 40px;
           border-radius: 10px;
-          background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(99, 102, 241, 0.25) 100%);
-          border: 1px solid rgba(139, 92, 246, 0.35);
-          color: #c084fc;
-          box-shadow: 0 0 10px rgba(139, 92, 246, 0.15);
+          background: linear-gradient(135deg, rgba(79, 70, 229, 0.25) 0%, rgba(124, 58, 237, 0.25) 50%, rgba(99, 102, 241, 0.25) 100%);
+          border: 1px solid rgba(99, 102, 241, 0.45);
+          color: #a5b4fc;
+          box-shadow: 0 0 10px rgba(99, 102, 241, 0.25);
         }
 
         .nc-modal-title {
@@ -960,7 +960,7 @@ export default function NovaCotacao() {
         }
 
         .nc-modal-header-step-name {
-          color: #c084fc;
+          color: #a5b4fc;
         }
 
         .nc-modal-close {
@@ -1048,6 +1048,7 @@ export default function NovaCotacao() {
           color: #fff !important;
           font-size: 1rem !important;
           font-weight: 800 !important;
+          box-shadow: 0 0 8px rgba(99, 102, 241, 0.5), 0 0 20px rgba(99, 102, 241, 0.3), 0 0 40px rgba(99, 102, 241, 0.15), inset 0 0 12px rgba(99, 102, 241, 0.1) !important;
           animation: mpg-neon-pulse 2s ease-in-out infinite;
         }
 
@@ -1078,6 +1079,7 @@ export default function NovaCotacao() {
         .mpg-label-ativo {
           color: #a5b4fc !important;
           text-shadow: 0 0 8px rgba(99, 102, 241, 0.5) !important;
+          font-weight: 700 !important;
         }
 
         .mpg-label-feito {
@@ -1126,10 +1128,18 @@ export default function NovaCotacao() {
         /* Keyframes for animations */
         @keyframes mpg-neon-pulse {
           0%, 100% {
-            box-shadow: 0 0 8px rgba(99,102,241,0.5), 0 0 20px rgba(99,102,241,0.3), 0 0 40px rgba(99,102,241,0.15), inset 0 0 12px rgba(99,102,241,0.1);
+            box-shadow: 
+              0 0 0 1px rgba(129, 140, 248, 0.4),
+              0 0 15px 4px rgba(99, 102, 241, 0.6), 
+              0 0 35px 12px rgba(99, 102, 241, 0.35),
+              inset 0 0 8px rgba(255, 255, 255, 0.35) !important;
           }
           50% {
-            box-shadow: 0 0 12px rgba(99,102,241,0.7), 0 0 30px rgba(99,102,241,0.4), 0 0 60px rgba(99,102,241,0.2), inset 0 0 16px rgba(99,102,241,0.15);
+            box-shadow: 
+              0 0 0 2px rgba(129, 140, 248, 0.6),
+              0 0 22px 8px rgba(99, 102, 241, 0.85), 
+              0 0 45px 18px rgba(99, 102, 241, 0.5),
+              inset 0 0 12px rgba(255, 255, 255, 0.5) !important;
           }
         }
 
@@ -1178,10 +1188,12 @@ export default function NovaCotacao() {
           width: 100%; height: 100%;
           transform: translate(-50%,-50%);
           border-radius: 50%;
-          border: 1px solid rgba(129,140,248,0.2);
+          border: 1px solid rgba(129, 140, 248, 0.2) !important;
+          box-shadow: none !important;
         }
         .mpg-orbita-ring--2 .mpg-orbita-anel {
-          border-color: rgba(167,139,250,0.15);
+          border: 1px dashed rgba(167, 139, 250, 0.15) !important;
+          box-shadow: none !important;
         }
         .mpg-orbita-eletron {
           position: absolute;

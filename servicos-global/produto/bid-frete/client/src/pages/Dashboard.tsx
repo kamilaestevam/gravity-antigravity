@@ -775,10 +775,10 @@ function VisaoGeralMapa() {
       // 1. Draw Deep Space Background Glow Behind Globe (Premium Volumetric Aura)
       const bgGlow = ctx.createRadialGradient(cx, cy, R * 0.4, cx, cy, R * 1.35)
       bgGlow.addColorStop(0, 'rgba(8, 12, 24, 0.95)') // Rich deep midnight blue core for high contrast contrast
-      bgGlow.addColorStop(0.65, 'rgba(16, 28, 48, 0.80)') // Slate blue core shading
-      bgGlow.addColorStop(0.88, 'rgba(82, 214, 155, 0.12)') // Vibrant emerald glow on the globe's horizon
-      bgGlow.addColorStop(1.10, 'rgba(167, 139, 250, 0.05)') // Delicate outer violet corona
-      bgGlow.addColorStop(1.35, 'rgba(0, 0, 0, 0)') // Fades out completely to let the card bg take over
+      bgGlow.addColorStop(0.5, 'rgba(16, 28, 48, 0.80)') // Slate blue core shading
+      bgGlow.addColorStop(0.8, 'rgba(82, 214, 155, 0.12)') // Vibrant emerald glow on the globe's horizon
+      bgGlow.addColorStop(0.92, 'rgba(167, 139, 250, 0.05)') // Delicate outer violet corona
+      bgGlow.addColorStop(1.0, 'rgba(0, 0, 0, 0)') // Fades out completely to let the card bg take over
       ctx.fillStyle = bgGlow
       ctx.beginPath()
       ctx.arc(cx, cy, R * 1.35, 0, Math.PI * 2)

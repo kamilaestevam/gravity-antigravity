@@ -2258,7 +2258,7 @@ export default function VisaoGeral() {
         }
         .bfd-map-legend-floating {
           position: absolute;
-          left: 1.25rem;
+          left: 0;
           top: 50%;
           transform: translateY(-50%);
           display: flex;

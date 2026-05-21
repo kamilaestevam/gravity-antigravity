@@ -157,11 +157,23 @@ export default function Cotacoes() {
       }
       if (!raw) return undefined
       const parsed = JSON.parse(raw) as GTPreferencias
-      const hasIntlCore = parsed?.colunas_visiveis?.some(k => k === 'numero_cotacao_bid_frete_internacional')
-      if (!hasIntlCore) {
+      if (!parsed || !Array.isArray(parsed.colunas_visiveis)) {
         return undefined
       }
-      return parsed
+
+      // Validar contra as colunas realmente disponíveis no produto internacional
+      const colunasDisponiveis = buildColunasCotacoes(() => '').map(c => c.key).filter((k): k is string => typeof k === 'string')
+      const colunasValidas = parsed.colunas_visiveis.filter(k => colunasDisponiveis.includes(k))
+
+      const hasIntlCore = colunasValidas.includes('numero_cotacao_bid_frete_internacional')
+      if (!hasIntlCore || colunasValidas.length < 3) {
+        return undefined
+      }
+
+      return {
+        ...parsed,
+        colunas_visiveis: colunasValidas,
+      }
     } catch {
       return undefined
     }

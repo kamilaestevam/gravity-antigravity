@@ -13,14 +13,9 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import {
-  MagnifyingGlass,
-  Export,
-  DownloadSimple,
   TrendUp,
-  TrendDown,
   Timer,
   Trophy,
-  ArrowRight,
   ArrowsLeftRight,
   CaretLeft,
   CaretRight,
@@ -36,7 +31,6 @@ import {
   CurrencyDollar,
   CurrencyEur,
   CurrencyGbp,
-  Buildings,
 } from '@phosphor-icons/react'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────

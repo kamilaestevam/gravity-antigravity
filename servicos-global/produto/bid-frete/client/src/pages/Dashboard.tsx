@@ -772,14 +772,16 @@ function VisaoGeralMapa() {
       // Clear
       ctx.clearRect(0, 0, w, h)
       
-      // 1. Draw Deep Space Background Glow Behind Globe
-      const bgGlow = ctx.createRadialGradient(cx, cy, R * 0.8, cx, cy, R * 1.3)
-      bgGlow.addColorStop(0, 'rgba(16, 28, 48, 0.45)')
-      bgGlow.addColorStop(0.5, 'rgba(82, 214, 155, 0.03)')
-      bgGlow.addColorStop(1, 'rgba(0, 0, 0, 0)')
+      // 1. Draw Deep Space Background Glow Behind Globe (Premium Volumetric Aura)
+      const bgGlow = ctx.createRadialGradient(cx, cy, R * 0.4, cx, cy, R * 1.35)
+      bgGlow.addColorStop(0, 'rgba(8, 12, 24, 0.95)') // Rich deep midnight blue core for high contrast contrast
+      bgGlow.addColorStop(0.65, 'rgba(16, 28, 48, 0.80)') // Slate blue core shading
+      bgGlow.addColorStop(0.88, 'rgba(82, 214, 155, 0.12)') // Vibrant emerald glow on the globe's horizon
+      bgGlow.addColorStop(1.10, 'rgba(167, 139, 250, 0.05)') // Delicate outer violet corona
+      bgGlow.addColorStop(1.35, 'rgba(0, 0, 0, 0)') // Fades out completely to let the card bg take over
       ctx.fillStyle = bgGlow
       ctx.beginPath()
-      ctx.arc(cx, cy, R * 1.3, 0, Math.PI * 2)
+      ctx.arc(cx, cy, R * 1.35, 0, Math.PI * 2)
       ctx.fill()
       
       // 2. Draw 3D Grid Meridian & Parallels (back layer)

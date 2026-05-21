@@ -685,14 +685,7 @@ export default function NovaCotacao() {
   // ─── Sucesso ──────────────────────────────────────────────────────────
   if (sucesso) {
     return (
-      <PaginaGlobal
-        cabecalho={
-          <CabecalhoGlobal
-            icone={<CheckCircle weight="duotone" size={22} />}
-            titulo={t('bidfrete.nova_cotacao.titulo')}
-          />
-        }
-      >
+      <PaginaGlobal className="nc-page">
         <div className="nc-sucesso nc-fade-in">
           <div className="nc-sucesso-badge">
             <CheckCircle weight="duotone" size={72} style={{ color: 'var(--success, #10b981)' }} />
@@ -710,21 +703,20 @@ export default function NovaCotacao() {
 
   // ─── Render principal ──────────────────────────────────────────────────
   return (
-    <PaginaGlobal
-      className="nc-page"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Truck weight="duotone" size={22} />}
-          titulo={t('bidfrete.nova_cotacao.titulo')}
-          subtitulo={`Etapa ${step} de 7 — ${STEPS[step - 1].label}`}
-          acoes={
-            <button className="nc-btn nc-btn--secondary nc-btn-cancelar" onClick={() => navigate('/cotacoes')}>
-              <ArrowLeft weight="bold" size={14} /> {t('comum.cancelar')}
-            </button>
-          }
-        />
-      }
-    >
+    <PaginaGlobal className="nc-page">
+      <div className="nc-subheader">
+        <div className="nc-subheader-left">
+          <span className="nc-subheader-step">Etapa {step} de 7</span>
+          <span className="nc-subheader-separator">•</span>
+          <span className="nc-subheader-name">{STEPS[step - 1].label}</span>
+        </div>
+        <div className="nc-subheader-right">
+          <button className="nc-btn nc-btn--secondary nc-btn-cancelar" onClick={() => navigate('/cotacoes')}>
+            <ArrowLeft weight="bold" size={14} /> {t('comum.cancelar')}
+          </button>
+        </div>
+      </div>
+
       <div className="nc-stepper-container">
         <StepperPassoPassoGlobal passos={STEPS} passoAtual={step} />
       </div>
@@ -767,30 +759,78 @@ export default function NovaCotacao() {
 
       <style>{`
         .nc-page {
-          padding: 2rem 2.5rem 3.5rem 2.5rem;
-          background: var(--bg-base, #0b0f19);
+          padding: 0.5rem 2rem 1.5rem;
+          background: transparent;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          min-height: 0;
+          flex: 1;
+        }
+
+        /* ── Subheader ── */
+        .nc-subheader {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.25rem 0;
+          margin-bottom: 0.25rem;
+        }
+
+        .nc-subheader-left {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .nc-subheader-step {
+          font-size: 0.875rem;
+          font-weight: 700;
+          color: var(--text-secondary, #94a3b8);
+        }
+
+        .nc-subheader-separator {
+          color: var(--border-subtle, rgba(255, 255, 255, 0.08));
+          font-weight: bold;
+        }
+
+        .nc-subheader-name {
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: var(--text-primary, #f8fafc);
+        }
+
+        .nc-subheader-right {
+          display: flex;
+          align-items: center;
+        }
+
+        .nc-btn-cancelar {
+          padding: 0.4rem 1rem;
+          font-size: 0.8125rem;
+          border-radius: 6px;
         }
 
         .nc-stepper-container {
-          margin-bottom: 2.5rem;
+          margin-bottom: 1.5rem;
           padding: 0;
         }
 
         /* ── Form Card Glassmorphism ── */
         .nc-form-card {
-          background: rgba(21, 29, 48, 0.45);
+          background: rgba(15, 23, 42, 0.45);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 16px;
-          padding: 3rem;
+          padding: 2.5rem 3rem;
           min-height: 420px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .nc-form-card:hover {
-          border-color: rgba(99, 102, 241, 0.2);
-          box-shadow: 0 12px 48px rgba(0, 0, 0, 0.45), 0 0 1px rgba(99, 102, 241, 0.3);
+          border-color: rgba(99, 102, 241, 0.35);
+          box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45), 0 0 1px rgba(99, 102, 241, 0.2);
         }
 
         /* Animação Suave entre Passos */
@@ -849,9 +889,9 @@ export default function NovaCotacao() {
           align-items: flex-start;
           gap: 1.125rem;
           padding: 1.25rem 1.5rem;
-          background: rgba(15, 23, 42, 0.5);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 12px;
+          background: var(--bg-base, rgba(15, 23, 42, 0.5));
+          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
+          border-radius: 8px;
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
           font-family: inherit;
@@ -861,7 +901,7 @@ export default function NovaCotacao() {
         }
         .nc-option-btn:hover {
           border-color: rgba(99, 102, 241, 0.45);
-          background: rgba(99, 102, 241, 0.04);
+          background: var(--bg-hover, rgba(255, 255, 255, 0.04));
           color: var(--text-primary, #f8fafc);
           transform: translateY(-2px);
         }
@@ -878,7 +918,7 @@ export default function NovaCotacao() {
           justify-content: center;
           width: 44px;
           height: 44px;
-          border-radius: 10px;
+          border-radius: 8px;
           background: rgba(255, 255, 255, 0.03);
           color: var(--text-secondary, #94a3b8);
           flex-shrink: 0;
@@ -924,7 +964,7 @@ export default function NovaCotacao() {
           background: rgba(255, 255, 255, 0.02);
           border: 1px dashed rgba(255, 255, 255, 0.08);
           padding: 1.25rem 1.5rem;
-          border-radius: 12px;
+          border-radius: 8px;
           color: var(--text-secondary, #94a3b8);
           font-size: 0.875rem;
           grid-column: span 2;
@@ -956,12 +996,12 @@ export default function NovaCotacao() {
         }
 
         .nc-input {
-          padding: 0.75rem 1rem;
-          background: rgba(15, 23, 42, 0.4);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
+          padding: 0.625rem 0.875rem;
+          background: var(--bg-base, rgba(15, 23, 42, 0.4));
+          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+          border-radius: 8px;
           color: var(--text-primary, #f8fafc);
-          font-size: 0.9375rem;
+          font-size: 0.875rem;
           font-family: inherit;
           outline: none;
           transition: all 0.2s;
@@ -969,7 +1009,7 @@ export default function NovaCotacao() {
         }
         .nc-input:focus {
           border-color: var(--accent, #6366f1);
-          background: rgba(15, 23, 42, 0.65);
+          background: var(--bg-surface-raised, rgba(15, 23, 42, 0.65));
           box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
         }
         .nc-input::placeholder { 
@@ -1010,10 +1050,10 @@ export default function NovaCotacao() {
 
         /* ── Origem e Destino Refinados ── */
         .nc-location-visual-card {
-          background: rgba(15, 23, 42, 0.3);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 16px;
-          padding: 1.75rem 2rem;
+          background: var(--bg-base, rgba(15, 23, 42, 0.3));
+          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.05));
+          border-radius: 12px;
+          padding: 1.5rem 1.75rem;
           margin-top: 0.75rem;
         }
         .nc-location-visual-card--origin {
@@ -1028,7 +1068,7 @@ export default function NovaCotacao() {
           align-items: center;
           gap: 1.125rem;
           margin-bottom: 1.5rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.05));
           padding-bottom: 1rem;
         }
 
@@ -1102,8 +1142,8 @@ export default function NovaCotacao() {
 
         .nc-incoterm-btn {
           padding: 0.625rem 1.25rem;
-          background: rgba(15, 23, 42, 0.45);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: var(--bg-base, rgba(15, 23, 42, 0.45));
+          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
           border-radius: 30px;
           color: var(--text-secondary, #94a3b8);
           font-size: 0.8125rem;
@@ -1129,8 +1169,8 @@ export default function NovaCotacao() {
         .nc-incoterm-helper-card {
           background: rgba(99, 102, 241, 0.04);
           border: 1px solid rgba(99, 102, 241, 0.25);
-          border-radius: 14px;
-          padding: 1.5rem 1.75rem;
+          border-radius: 10px;
+          padding: 1.25rem 1.5rem;
           margin: 1.75rem 0;
         }
         .nc-helper-header {
@@ -1169,10 +1209,10 @@ export default function NovaCotacao() {
           display: flex;
           align-items: flex-start;
           gap: 1.25rem;
-          padding: 1.5rem 1.75rem;
-          background: rgba(15, 23, 42, 0.4);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 12px;
+          padding: 1.25rem 1.5rem;
+          background: var(--bg-base, rgba(15, 23, 42, 0.4));
+          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
+          border-radius: 8px;
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
           text-align: left;
@@ -1180,7 +1220,7 @@ export default function NovaCotacao() {
         }
         .nc-vis-card:hover {
           border-color: rgba(99, 102, 241, 0.4);
-          background: rgba(99, 102, 241, 0.04);
+          background: var(--bg-hover, rgba(99, 102, 241, 0.04));
           transform: translateY(-2px);
         }
         .nc-vis-card--selected {
@@ -1223,10 +1263,10 @@ export default function NovaCotacao() {
 
         /* Custom Alternator Switch Component */
         .nc-switch-row {
-          background: rgba(15, 23, 42, 0.25);
-          border: 1px solid rgba(255, 255, 255, 0.04);
-          padding: 1.25rem 1.75rem;
-          border-radius: 14px;
+          background: var(--bg-base, rgba(15, 23, 42, 0.25));
+          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.04));
+          padding: 1rem 1.5rem;
+          border-radius: 10px;
           margin-top: 2rem;
         }
         .nc-switch-label {
@@ -1300,11 +1340,11 @@ export default function NovaCotacao() {
         }
 
         .nc-receipt-card {
-          background: rgba(15, 23, 42, 0.45);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 16px;
-          padding: 2rem 2.25rem;
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+          background: var(--bg-surface, rgba(15, 23, 42, 0.45));
+          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+          border-radius: 12px;
+          padding: 1.75rem 2rem;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
           position: relative;
           overflow: hidden;
         }

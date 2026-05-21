@@ -626,9 +626,10 @@ function VisaoGeralMapa() {
   const dragStartRef = useRef({ x: 0, y: 0 })
   const rotationRef = useRef({ x: 0.28, y: -1.25 }) // Starting rotation to show continents nicely
   const velocityRef = useRef({ x: 0, y: 0 })
+  const isRotationPausedRef = useRef(false)
   
-  // Generate 1400 Fibonacci points on the sphere as dynamic fallback
-  const samples = 1400
+  // Generate 2200 Fibonacci points on the sphere as dynamic fallback
+  const samples = 2200
   const fibonacciPoints = useMemo(() => {
     const pts: { x: number; y: number; z: number }[] = []
     const phi = Math.PI * (3 - Math.sqrt(5))
@@ -654,47 +655,54 @@ function VisaoGeralMapa() {
   
   useEffect(() => {
     const img = new Image()
+    img.crossOrigin = 'anonymous' // Enable CORS to prevent tainted canvas errors in local dev or production
     img.src = darkWorldMap
     img.onload = () => {
-      const scanW = 180
-      const scanH = 90
-      const offscreen = document.createElement('canvas')
-      offscreen.width = scanW
-      offscreen.height = scanH
-      const octx = offscreen.getContext('2d')
-      if (!octx) return
-      
-      octx.imageSmoothingEnabled = true
-      octx.drawImage(img, 0, 0, scanW, scanH)
-      const imgData = octx.getImageData(0, 0, scanW, scanH)
-      const data = imgData.data
-      
-      const pts: { x: number; y: number; z: number }[] = []
-      
-      for (let y = 0; y < scanH; y++) {
-        for (let x = 0; x < scanW; x++) {
-          const idx = (y * scanW + x) * 4
-          const r = data[idx]
-          const g = data[idx + 1]
-          const b = data[idx + 2]
-          const val = (r + g + b) / 3
-          
-          if (val > 50) {
-            const lng = (x / scanW) * 360 - 180
-            const lat = 90 - (y / scanH) * 180
+      try {
+        const scanW = 240
+        const scanH = 120
+        const offscreen = document.createElement('canvas')
+        offscreen.width = scanW
+        offscreen.height = scanH
+        const octx = offscreen.getContext('2d')
+        if (!octx) return
+        
+        octx.imageSmoothingEnabled = true
+        octx.drawImage(img, 0, 0, scanW, scanH)
+        const imgData = octx.getImageData(0, 0, scanW, scanH)
+        const data = imgData.data
+        
+        const pts: { x: number; y: number; z: number }[] = []
+        
+        for (let y = 0; y < scanH; y++) {
+          for (let x = 0; x < scanW; x++) {
+            const idx = (y * scanW + x) * 4
+            const r = data[idx]
+            const g = data[idx + 1]
+            const b = data[idx + 2]
+            const val = (r + g + b) / 3
             
-            const radLat = (lat * Math.PI) / 180
-            const radLng = (lng * Math.PI) / 180
-            
-            pts.push({
-              x: Math.cos(radLat) * Math.sin(radLng),
-              y: Math.sin(radLat),
-              z: Math.cos(radLat) * Math.cos(radLng),
-            })
+            if (val > 50) {
+              const lng = (x / scanW) * 360 - 180
+              const lat = 90 - (y / scanH) * 180
+              
+              const radLat = (lat * Math.PI) / 180
+              const radLng = (lng * Math.PI) / 180
+              
+              pts.push({
+                x: Math.cos(radLat) * Math.sin(radLng),
+                y: Math.sin(radLat),
+                z: Math.cos(radLat) * Math.cos(radLng),
+              })
+            }
           }
         }
+        if (pts.length > 0) {
+          setWorldPoints(pts)
+        }
+      } catch (err) {
+        console.warn("Real world map scanning error, using ultra-high-fidelity procedural fallback:", err)
       }
-      setWorldPoints(pts)
     }
   }, [])
 
@@ -732,10 +740,12 @@ function VisaoGeralMapa() {
       const R = Math.min(w, h) * 0.42
       const pulseTime = Date.now() / 2400
       
-      // Physics: inertially decay dragging or add auto-rotation
+       // Physics: inertially decay dragging or add auto-rotation
       if (!isDraggingRef.current) {
-        rotationRef.current.y += 0.0012 // slow auto-rotate Y
-        rotationRef.current.x += (0.28 - rotationRef.current.x) * 0.03 // gently spring-tilt X to 0.28 rad
+        if (!isRotationPausedRef.current) {
+          rotationRef.current.y += 0.0012 // slow auto-rotate Y
+          rotationRef.current.x += (0.28 - rotationRef.current.x) * 0.03 // gently spring-tilt X to 0.28 rad
+        }
         
         // Decay any leftover flick velocity
         rotationRef.current.y += velocityRef.current.y
@@ -838,14 +848,14 @@ function VisaoGeralMapa() {
         
         // Depth check: z2 > 0 is back, z2 <= 0 is front
         if (rz2 > 0) {
-          // Subtle dots for the back hemisphere
-          ctx.fillStyle = 'rgba(82, 214, 155, 0.08)'
-          ctx.fillRect(sx - 0.4, sy - 0.4, 0.8, 0.8)
+          // Slightly more visible dots for the back hemisphere to give structural context
+          ctx.fillStyle = 'rgba(82, 214, 155, 0.12)'
+          ctx.fillRect(sx - 0.5, sy - 0.5, 1.0, 1.0)
         } else {
-          // Bright neon dots for the front hemisphere
+          // Bright, highly defined neon dots for the front hemisphere (sharper countries)
           const normalizedDepth = Math.max(0, Math.min(1, (rz2 + 1) / 1)) // 1 at front, 0 at edge
-          ctx.fillStyle = `rgba(82, 214, 155, ${0.15 + normalizedDepth * 0.55})`
-          const size = 1.1 + normalizedDepth * 0.7
+          ctx.fillStyle = `rgba(82, 214, 155, ${0.30 + normalizedDepth * 0.60})`
+          const size = 1.1 + normalizedDepth * 0.9 // optimized for higher density scan
           ctx.beginPath()
           ctx.arc(sx, sy, size, 0, Math.PI * 2)
           ctx.fill()
@@ -932,7 +942,7 @@ function VisaoGeralMapa() {
         const isBack = avgDepth > 0.05
         ctx.strokeStyle = route.color
         ctx.lineWidth = isBack ? 0.75 : 1.5
-        ctx.globalAlpha = isBack ? 0.08 : 0.45
+        ctx.globalAlpha = isBack ? 0.08 : 0.25 // subtle background route line
         
         ctx.beginPath()
         ctx.moveTo(pathPoints[0].sx, pathPoints[0].sy)
@@ -942,53 +952,100 @@ function VisaoGeralMapa() {
         ctx.stroke()
         ctx.globalAlpha = 1.0 // Reset
         
-        // Draw cargo moving pulse with beautiful fading neon trails (comet effect)
+        // Draw animated marching-ants dashed line on top for clear flow direction
         if (!isBack) {
-          const tPulse = (pulseTime + routeIdx * 0.22) % 1.0
-          const rawIdx = tPulse * segmentsCount
+          ctx.strokeStyle = route.color
+          ctx.lineWidth = 2.0
+          ctx.setLineDash([5, 8])
+          // Negative offset moves the dash pattern from start to end (fromId -> toId)
+          ctx.lineDashOffset = -(Date.now() / 32) % 100
           
-          // Draw trail
-          const trailLength = 6
-          for (let k = trailLength - 1; k >= 0; k--) {
-            const currentRawIdx = rawIdx - k * 0.7
-            if (currentRawIdx < 0) continue
+          ctx.beginPath()
+          ctx.moveTo(pathPoints[0].sx, pathPoints[0].sy)
+          for (let j = 1; j < pathPoints.length; j++) {
+            ctx.lineTo(pathPoints[j].sx, pathPoints[j].sy)
+          }
+          ctx.stroke()
+          ctx.setLineDash([]) // Reset
+        }
+
+        // Draw elegant glowing directional chevrons directly along the curve
+        if (!isBack) {
+          const chevronIndices = [Math.floor(segmentsCount * 0.3), Math.floor(segmentsCount * 0.7)]
+          chevronIndices.forEach(idx => {
+            const p1 = pathPoints[idx]
+            const p2 = pathPoints[idx + 1]
+            if (p1 && p2 && p1.rz2 <= 0.15) {
+              const angle = Math.atan2(p2.sy - p1.sy, p2.sx - p1.sx)
+              ctx.save()
+              ctx.translate(p1.sx, p1.sy)
+              ctx.rotate(angle)
+              ctx.strokeStyle = route.color === 'rgba(167, 139, 250, 0.8)' ? '#c084fc' : '#34d399'
+              ctx.lineWidth = 2
+              ctx.lineCap = 'round'
+              ctx.lineJoin = 'round'
+              ctx.shadowBlur = 8
+              ctx.shadowColor = ctx.strokeStyle
+              ctx.beginPath()
+              ctx.moveTo(-5, -4)
+              ctx.lineTo(1, 0)
+              ctx.lineTo(-5, 4)
+              ctx.stroke()
+              ctx.restore()
+            }
+          })
+        }
+        
+        // Draw cargo moving pulses with beautiful fading neon trails (comet effect)
+        if (!isBack) {
+          // Draw 2 staggered pulses per route so direction is immediately obvious
+          [0.0, 0.5].forEach((offset) => {
+            const tPulse = (pulseTime + routeIdx * 0.22 + offset) % 1.0
+            const rawIdx = tPulse * segmentsCount
             
-            const idx = Math.floor(currentRawIdx)
-            const nextIdx = Math.min(segmentsCount, idx + 1)
-            const interp = currentRawIdx - idx
-            
-            const pCurrent = pathPoints[idx]
-            const pNext = pathPoints[nextIdx]
-            
-            if (pCurrent && pNext) {
-              const pulseSx = pCurrent.sx * (1 - interp) + pNext.sx * interp
-              const pulseSy = pCurrent.sy * (1 - interp) + pNext.sy * interp
-              const pulseDepth = pCurrent.rz2 * (1 - interp) + pNext.rz2 * interp
+            // Draw trail
+            const trailLength = 8 // longer trail for speed feel
+            for (let k = trailLength - 1; k >= 0; k--) {
+              const currentRawIdx = rawIdx - k * 0.6
+              if (currentRawIdx < 0) continue
               
-              if (pulseDepth <= 0.15) {
-                const trailRatio = 1 - k / trailLength // 1 for head, 0 for tail end
-                const size = 1.0 + trailRatio * 1.5 // Head is 2.5px, tail goes down to 1px
-                const opacity = trailRatio * 0.9 // Head is bright, tail fades out
+              const idx = Math.floor(currentRawIdx)
+              const nextIdx = Math.min(segmentsCount, idx + 1)
+              const interp = currentRawIdx - idx
+              
+              const pCurrent = pathPoints[idx]
+              const pNext = pathPoints[nextIdx]
+              
+              if (pCurrent && pNext) {
+                const pulseSx = pCurrent.sx * (1 - interp) + pNext.sx * interp
+                const pulseSy = pCurrent.sy * (1 - interp) + pNext.sy * interp
+                const pulseDepth = pCurrent.rz2 * (1 - interp) + pNext.rz2 * interp
                 
-                ctx.beginPath()
-                ctx.arc(pulseSx, pulseSy, size, 0, Math.PI * 2)
-                
-                if (k === 0) {
-                  ctx.fillStyle = '#ffffff'
-                  ctx.shadowBlur = 10
-                  ctx.shadowColor = route.color === 'rgba(167, 139, 250, 0.8)' ? '#c084fc' : '#34d399'
-                } else {
-                  ctx.fillStyle = route.color.replace('0.8', (opacity * 0.85).toString())
+                if (pulseDepth <= 0.15) {
+                  const trailRatio = 1 - k / trailLength // 1 for head, 0 for tail end
+                  const size = 1.2 + trailRatio * 2.2 // Head is 3.4px, tail goes down to 1.2px
+                  const opacity = trailRatio * 0.95 // Head is bright, tail fades out
+                  
+                  ctx.beginPath()
+                  ctx.arc(pulseSx, pulseSy, size, 0, Math.PI * 2)
+                  
+                  if (k === 0) {
+                    ctx.fillStyle = '#ffffff'
+                    ctx.shadowBlur = 12
+                    ctx.shadowColor = route.color === 'rgba(167, 139, 250, 0.8)' ? '#c084fc' : '#34d399'
+                  } else {
+                    ctx.fillStyle = route.color.replace('0.8', (opacity * 0.85).toString())
+                    ctx.shadowBlur = 0
+                  }
+                  
+                  ctx.globalAlpha = opacity
+                  ctx.fill()
                   ctx.shadowBlur = 0
+                  ctx.globalAlpha = 1.0 // Reset
                 }
-                
-                ctx.globalAlpha = opacity
-                ctx.fill()
-                ctx.shadowBlur = 0
-                ctx.globalAlpha = 1.0 // Reset
               }
             }
-          }
+          })
         }
       })
       
@@ -1040,6 +1097,7 @@ function VisaoGeralMapa() {
   // Drag physics mouse handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     isDraggingRef.current = true
+    isRotationPausedRef.current = false
     dragStartRef.current = { x: e.clientX, y: e.clientY }
     velocityRef.current = { x: 0, y: 0 }
   }
@@ -1067,6 +1125,7 @@ function VisaoGeralMapa() {
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 0) return
     isDraggingRef.current = true
+    isRotationPausedRef.current = false
     dragStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
     velocityRef.current = { x: 0, y: 0 }
   }
@@ -1135,7 +1194,14 @@ function VisaoGeralMapa() {
                 pointerEvents: pin.opacity < 0.65 ? 'none' : 'auto'
               }}
               onMouseEnter={() => setHoveredPin(pin.id)}
-              onMouseLeave={() => setHoveredPin(null)}
+              onMouseLeave={() => {
+                setHoveredPin(null)
+                isRotationPausedRef.current = false
+              }}
+              onClick={(e) => {
+                e.stopPropagation() // Avoid triggering map drag
+                isRotationPausedRef.current = true
+              }}
             >
               {/* Outer pulsing ring */}
               <div className="bfd-map-pin__glow" style={{ borderColor: pin.mode === 'AEREO' ? '#a78bfa' : '#52d69b' }} />

@@ -167,9 +167,6 @@ export default function Cotacoes() {
 
       const hasIntlCore = colunasValidas.includes('numero_cotacao_bid_frete_internacional')
       if (!hasIntlCore || colunasValidas.length < 3) {
-        // Auto-healing: limpa do local storage se for inválido para forçar recriação com colunas padrão
-        localStorage.removeItem('bid-frete-internacional:config:tabela_preferencias')
-        localStorage.removeItem('bid-frete:config:tabela_preferencias')
         return undefined
       }
 
@@ -183,9 +180,6 @@ export default function Cotacoes() {
   })
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
-    if (!prefs || !Array.isArray(prefs.colunas_visiveis) || prefs.colunas_visiveis.length < 3) {
-      return
-    }
     setPreferencias(prefs)
     try {
       localStorage.setItem('bid-frete-internacional:config:tabela_preferencias', JSON.stringify(prefs))
@@ -414,7 +408,6 @@ export default function Cotacoes() {
             <CardBasicoGlobal
               key="total_cotacoes"
               titulo="Total de Cotações"
-              className="lp-kpi-card--blue"
               icone={<Package weight="duotone" size={16} style={{ color: 'var(--accent)' }} />}
               valor={stats.total}
               subtexto="Todas as cotações carregadas"
@@ -442,7 +435,6 @@ export default function Cotacoes() {
             <CardBasicoGlobal
               key="cotacoes_andamento"
               titulo="Cotações em Andamento"
-              className="lp-kpi-card--orange"
               icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
               valor={stats.emAndamento}
               variante="aviso"
@@ -471,7 +463,6 @@ export default function Cotacoes() {
             <CardBasicoGlobal
               key="aguardando_aprovacao"
               titulo="Aguardando Aprovação"
-              className="lp-kpi-card--yellow"
               icone={<Warning weight="duotone" size={16} style={{ color: '#facc15' }} />}
               valor={stats.aguardandoAprovacao}
               variante="aviso"
@@ -500,7 +491,6 @@ export default function Cotacoes() {
             <CardBasicoGlobal
               key="expiradas"
               titulo="Expiradas"
-              className="lp-kpi-card--red"
               icone={<Warning weight="duotone" size={16} style={{ color: '#f87171' }} />}
               valor={stats.expiradas}
               variante="perigo"
@@ -529,7 +519,6 @@ export default function Cotacoes() {
             <CardBasicoGlobal
               key="saving_estimado"
               titulo="Saving Estimado"
-              className="lp-kpi-card--green"
               icone={<Coins weight="duotone" size={16} style={{ color: '#34d399' }} />}
               valor={`USD ${fmtQuantidade(stats.savingTotal, 2)}`}
               variante="sucesso"
@@ -646,58 +635,6 @@ export default function Cotacoes() {
           gap: 1rem;
           flex: 1;
           min-width: 0;
-        }
-
-        /* Premium KPI Cards Left Border & Glow Accents */
-        .lp-cards .gt-card, .lp-cards .bfd-card, .lp-cards .gt-basic-card {
-          position: relative;
-          background: rgba(255, 255, 255, 0.04) !important;
-          backdrop-filter: blur(12px) !important;
-          border: 1px solid rgba(255, 255, 255, 0.06) !important;
-          border-radius: 12px !important;
-          box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15) !important;
-          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-
-        .lp-cards .gt-card:hover, .lp-cards .bfd-card:hover, .lp-cards .gt-basic-card:hover {
-          transform: translateY(-2px) !important;
-          background: rgba(255, 255, 255, 0.06) !important;
-          border-color: rgba(255, 255, 255, 0.12) !important;
-        }
-
-        .lp-kpi-card--blue {
-          border-left: 3px solid #60a5fa !important;
-        }
-        .lp-kpi-card--blue:hover {
-          box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15), 0 0 12px rgba(96, 165, 250, 0.15) !important;
-        }
-
-        .lp-kpi-card--orange {
-          border-left: 3px solid #fb923c !important;
-        }
-        .lp-kpi-card--orange:hover {
-          box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15), 0 0 12px rgba(251, 146, 60, 0.15) !important;
-        }
-
-        .lp-kpi-card--yellow {
-          border-left: 3px solid #facc15 !important;
-        }
-        .lp-kpi-card--yellow:hover {
-          box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15), 0 0 12px rgba(250, 204, 21, 0.15) !important;
-        }
-
-        .lp-kpi-card--red {
-          border-left: 3px solid #f87171 !important;
-        }
-        .lp-kpi-card--red:hover {
-          box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15), 0 0 12px rgba(248, 113, 113, 0.15) !important;
-        }
-
-        .lp-kpi-card--green {
-          border-left: 3px solid #34d399 !important;
-        }
-        .lp-kpi-card--green:hover {
-          box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15), 0 0 12px rgba(52, 211, 153, 0.15) !important;
         }
 
         /* ── Dropdown "Novo" ── */

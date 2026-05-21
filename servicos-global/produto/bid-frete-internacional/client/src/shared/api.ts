@@ -19,28 +19,13 @@ import type {
   Moeda,
   StatusCotacao,
 } from './types'
-import { useShellStore } from '@gravity/shell'
 
 const API_BASE = '/api/v1'
 
-const headers = () => {
-  let userId = ''
-  let orgId = ''
-  try {
-    const state = useShellStore.getState()
-    userId = state.currentUser?.id ?? ''
-    orgId = state.idWorkspaceAtivo ?? state.currentUser?.idOrganizacao ?? ''
-  } catch (err) {
-    console.error('[BidFrete] Erro ao obter dados do useShellStore:', err)
-  }
-
-  return {
-    'Content-Type': 'application/json',
-    'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
-    'x-id-usuario': userId,
-    'x-id-organizacao': orgId,
-  }
-}
+const headers = () => ({
+  'Content-Type': 'application/json',
+  'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
+})
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {

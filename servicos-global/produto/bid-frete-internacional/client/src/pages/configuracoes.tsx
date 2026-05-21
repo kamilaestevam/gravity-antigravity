@@ -36,7 +36,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { SwitchGlobal } from '@nucleo/switch-global'
 import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
-import './Configuracoes.css'
+import './configuracoes.css'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
 
@@ -61,7 +61,7 @@ interface ColunaUsuario {
   nome: string
   tipo: TipoColunaUsuario
   escopo: EscopoColunaUsuario
-  visibilidade: VisibilidadeColunaUsuario
+  visibilidade_cotacao_bid_frete_internacional: VisibilidadeColunaUsuario
   obrigatorio: boolean
   valor_padrao: string
   descricao: string
@@ -137,7 +137,7 @@ interface NovaColuna {
   nome: string
   tipo: TipoColunaUsuario
   escopo: EscopoColunaUsuario
-  visibilidade: VisibilidadeColunaUsuario
+  visibilidade_cotacao_bid_frete_internacional: VisibilidadeColunaUsuario
   obrigatorio: boolean
   valor_padrao: string
   descricao: string
@@ -153,9 +153,9 @@ type SaldoToken =
 
 const CARDS_CATALOGO: CardDefinicao[] = [
   { id: 'total_cotacoes', campoBase: 'id', tipoAgg: 'Contagem', origem: 'Cotação', labelKey: 'bidfrete.config.cards.total_cotacoes', descKey: 'bidfrete.config.cards.total_cotacoes_desc', descricao: 'Total de cotações de frete iniciadas no período' },
-  { id: 'valor_total_frete', campoBase: 'valor_total', tipoAgg: 'Soma', origem: 'Cotação', labelKey: 'bidfrete.config.cards.valor_total_frete', descKey: 'bidfrete.config.cards.valor_total_frete_desc', descricao: 'Valor acumulado das propostas de frete aprovadas' },
+  { id: 'valor_total_frete', campoBase: 'valor_total_proposta_bid_frete_internacional', tipoAgg: 'Soma', origem: 'Cotação', labelKey: 'bidfrete.config.cards.valor_total_frete', descKey: 'bidfrete.config.cards.valor_total_frete_desc', descricao: 'Valor acumulado das propostas de frete aprovadas' },
   { id: 'propostas_recebidas', campoBase: 'id', tipoAgg: 'Contagem', origem: 'Proposta', labelKey: 'bidfrete.config.cards.propostas_recebidas', descKey: 'bidfrete.config.cards.propostas_recebidas_desc', descricao: 'Quantidade total de respostas recebidas de fornecedores' },
-  { id: 'saving_total', campoBase: 'saving_valor', tipoAgg: 'Soma', origem: 'Cotação', labelKey: 'bidfrete.config.cards.saving_total', descKey: 'bidfrete.config.cards.saving_total_desc', descricao: 'Economia gerada comparando a proposta vencedora com o teto' },
+  { id: 'saving_total', campoBase: 'ganho_valor_cotacao_bid_frete_internacional', tipoAgg: 'Soma', origem: 'Cotação', labelKey: 'bidfrete.config.cards.saving_total', descKey: 'bidfrete.config.cards.saving_total_desc', descricao: 'Economia gerada comparando a proposta vencedora com o teto' },
   { id: 'tempo_medio_resposta', campoBase: 'tempo_medio_resposta', tipoAgg: 'Média', origem: 'Proposta', labelKey: 'bidfrete.config.cards.tempo_medio_resposta', descKey: 'bidfrete.config.cards.tempo_medio_resposta_desc', descricao: 'Tempo médio de resposta dos armadores e agentes de carga' },
   { id: 'cotacoes_expiradas', campoBase: 'id', tipoAgg: 'Contagem', origem: 'Cotação', labelKey: 'bidfrete.config.cards.cotacoes_expiradas', descKey: 'bidfrete.config.cards.cotacoes_expiradas_desc', descricao: 'Cotações de frete expiradas sem aprovação' },
 ]
@@ -219,11 +219,11 @@ const SIDEBAR_ITEMS = [
 ]
 
 const COLUNAS_NUMERICAS_NATIVAS = [
-  { campo: 'valor_frete',         label: 'Valor do Frete',         categoria: 'Frete', padrao: 2 },
-  { campo: 'taxas_origem',        label: 'Taxas de Origem',        categoria: 'Frete', padrao: 2 },
-  { campo: 'taxas_destino',       label: 'Taxas de Destino',       categoria: 'Frete', padrao: 2 },
-  { campo: 'peso_kg',             label: 'Peso da Mercadoria (KG)',categoria: 'Mercadoria', padrao: 2 },
-  { campo: 'cubagem_m3',          label: 'Cubagem (M3)',           categoria: 'Mercadoria', padrao: 3 },
+  { campo: 'valor_frete_proposta_bid_frete_internacional',         label: 'Valor do Frete',         categoria: 'Frete', padrao: 2 },
+  { campo: 'taxas_origem_proposta_bid_frete_internacional',        label: 'Taxas de Origem',        categoria: 'Frete', padrao: 2 },
+  { campo: 'taxas_destino_proposta_bid_frete_internacional',       label: 'Taxas de Destino',       categoria: 'Frete', padrao: 2 },
+  { campo: 'peso_kg_cotacao_bid_frete_internacional',             label: 'Peso da Mercadoria (KG)',categoria: 'Mercadoria', padrao: 2 },
+  { campo: 'cubagem_m3_cotacao_bid_frete_internacional',          label: 'Cubagem (M3)',           categoria: 'Mercadoria', padrao: 3 },
 ]
 
 const TIPOS_COLUNA = [
@@ -239,9 +239,9 @@ const TIPOS_COLUNA = [
 ]
 
 const FORMULA_FIELDS = [
-  { chave: 'valor_frete', label: 'Valor do Frete' },
-  { chave: 'taxas_origem', label: 'Taxas Origem' },
-  { chave: 'taxas_destino', label: 'Taxas Destino' },
+  { chave: 'valor_frete_proposta_bid_frete_internacional', label: 'Valor do Frete' },
+  { chave: 'taxas_origem_proposta_bid_frete_internacional', label: 'Taxas Origem' },
+  { chave: 'taxas_destino_proposta_bid_frete_internacional', label: 'Taxas Destino' },
 ]
 
 // ─── Sub-Components (Sortable and Helpers) ───────────────────────────────────────
@@ -700,7 +700,7 @@ function ModalNovoCardUsuario({
           </div>
           <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem', color: '#94a3b8' }}>
             Fórmula Simplificada
-            <input type="text" placeholder="Ex: valor_frete * 1.05" value={formula} onChange={e => setFormula(e.target.value)} style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#f1f5f9' }} />
+            <input type="text" placeholder="Ex: valor_frete_proposta_bid_frete_internacional * 1.05" value={formula} onChange={e => setFormula(e.target.value)} style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#f1f5f9' }} />
           </label>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1rem' }}>
             <button type="button" onClick={onFechar} style={{ padding: '6px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#f1f5f9', cursor: 'pointer' }}>Cancelar</button>
@@ -718,14 +718,14 @@ function ModalNovaColunaUsuario({
   onFechar, onSalvo
 }: {
   onFechar: () => void
-  onSalvo: (col: { nome: string; tipo: TipoColunaUsuario; escopo: EscopoColunaUsuario; visibilidade: VisibilidadeColunaUsuario }) => void
+  onSalvo: (col: { nome: string; tipo: TipoColunaUsuario; escopo: EscopoColunaUsuario; visibilidade_cotacao_bid_frete_internacional: VisibilidadeColunaUsuario }) => void
 }) {
   const [nome, setNome] = useState('')
   const [tipo, setTipo] = useState<TipoColunaUsuario>('texto')
 
   const handleSalvar = () => {
     if (!nome.trim()) return
-    onSalvo({ nome, tipo, escopo: 'ambos', visibilidade: 'todos' })
+    onSalvo({ nome, tipo, escopo: 'ambos', visibilidade_cotacao_bid_frete_internacional: 'todos' })
   }
 
   return (
@@ -820,23 +820,23 @@ export default function Configuracoes() {
   })
 
   const [casasDecimais, setCasasDecimais, , saveCasas, resetCasas, casasDirty] = useConfigState<Record<string, number>>('casas-decimais', {
-    valor_frete: 2,
-    taxas_origem: 2,
-    taxas_destino: 2,
-    peso_kg: 2,
-    cubagem_m3: 3,
+    valor_frete_proposta_bid_frete_internacional: 2,
+    taxas_origem_proposta_bid_frete_internacional: 2,
+    taxas_destino_proposta_bid_frete_internacional: 2,
+    peso_kg_cotacao_bid_frete_internacional: 2,
+    cubagem_m3_cotacao_bid_frete_internacional: 3,
   })
 
   const [formatoData, setFormatoData, , saveFormatoData, resetFormatoData, formatoDataDirty] = useConfigState<string>('formato-data', 'DD/MM/AAAA')
 
   const [colunasPersonalizadas, setColunasPersonalizadas, , saveColunas, resetColunas, colunasDirty] = useConfigState<ColunaUsuario[]>('colunas-personalizadas', [
-    { id: 'col_margem', chave: 'margem', nome: 'Margem Comercial', tipo: 'numero', escopo: 'pedido', visibilidade: 'todos', obrigatorio: false, valor_padrao: '', descricao: 'Margem do frete', opcoes: [], formula_expressao: '', ativo: true }
+    { id: 'col_margem', chave: 'margem', nome: 'Margem Comercial', tipo: 'numero', escopo: 'pedido', visibilidade_cotacao_bid_frete_internacional: 'todos', obrigatorio: false, valor_padrao: '', descricao: 'Margem do frete', opcoes: [], formula_expressao: '', ativo: true }
   ])
 
   const [saldoTokens, setSaldoTokens, , saveSaldoFormula, resetSaldoFormula, saldoDirty] = useConfigState<SaldoToken[]>('campos-calculados', [
-    { tipo: 'campo', chave: 'valor_frete', label: 'Valor do Frete' },
+    { tipo: 'campo', chave: 'valor_frete_proposta_bid_frete_internacional', label: 'Valor do Frete' },
     { tipo: 'op', valor: '+' },
-    { tipo: 'campo', chave: 'taxas_origem', label: 'Taxas Origem' }
+    { tipo: 'campo', chave: 'taxas_origem_proposta_bid_frete_internacional', label: 'Taxas Origem' }
   ])
 
   const [statusList, setStatusList, , saveStatus, resetStatus, statusDirty] = useConfigState<PedidoStatusConfig[]>('status', [
@@ -879,7 +879,7 @@ export default function Configuracoes() {
   })
 
   const [templatesPdf, setTemplatesPdf, , saveTemplates, resetTemplates, templatesDirty] = useConfigState<TemplateLocal[]>('templates-pdf', [
-    { id: 'tpl_resumo', nome: 'Resumo do Bid de Frete', documento_tipo: 'pdf', codigo_fonte: '<h1>Bid de Frete {{numero}}</h1>', created_at: new Date().toISOString() }
+    { id: 'tpl_resumo', nome: 'Resumo do Bid de Frete', documento_tipo: 'pdf', codigo_fonte: '<h1>Bid de Frete {{numero_cotacao_bid_frete_internacional}}</h1>', created_at: new Date().toISOString() }
   ])
 
   const [regrasConfig, setRegrasConfig, , saveRegras, resetRegras, regrasDirty] = useConfigState<RegrasConfig>('regras', {
@@ -1210,7 +1210,7 @@ export default function Configuracoes() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>Itens por Página</p>
-                  <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Selecione a quantidade de registros exibidos em listas de cotação.</p>
+                  <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Selecione a quantidade_cotacao_bid_frete_internacional de registros exibidos em listas de cotação.</p>
                 </div>
                 <select
                   value={tabelaConfig.linhasPorPagina}
@@ -1756,17 +1756,17 @@ export default function Configuracoes() {
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {Object.entries(taxasCambio).map(([moeda, valor]) => (
-                <div key={moeda} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              {Object.entries(taxasCambio).map(([moeda_ganho_bid_frete_internacional, valor]) => (
+                <div key={moeda_ganho_bid_frete_internacional} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <CurrencyCircleDollar size={20} style={{ color: '#10b981' }} />
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{moeda} / BRL</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{moeda_ganho_bid_frete_internacional} / BRL</span>
                   </div>
                   <input
                     type="number"
                     step="0.01"
                     value={valor}
-                    onChange={e => setTaxasCambio(prev => ({ ...prev, [moeda]: Number(e.target.value) }))}
+                    onChange={e => setTaxasCambio(prev => ({ ...prev, [moeda_ganho_bid_frete_internacional]: Number(e.target.value) }))}
                     style={{ width: '100px', padding: '6px 12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', textAlign: 'center' }}
                   />
                 </div>
@@ -1886,7 +1886,7 @@ export default function Configuracoes() {
             const newId = `card_${Date.now()}`
             CARDS_CATALOGO.push({
               id: newId,
-              campoBase: 'valor_total',
+              campoBase: 'valor_total_proposta_bid_frete_internacional',
               tipoAgg: 'Soma',
               origem: 'Cotação',
               labelKey: card.nome,
@@ -1910,7 +1910,7 @@ export default function Configuracoes() {
               nome: col.nome,
               tipo: col.tipo,
               escopo: col.escopo,
-              visibilidade: col.visibilidade,
+              visibilidade_cotacao_bid_frete_internacional: col.visibilidade_cotacao_bid_frete_internacional,
               obrigatorio: false,
               valor_padrao: '',
               descricao: 'Nova coluna personalizada',

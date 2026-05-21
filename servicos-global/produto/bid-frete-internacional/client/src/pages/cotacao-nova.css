@@ -1,0 +1,208 @@
+/* NovaCotacao.css — Layout do wizard Nova Cotação */
+
+.ncot-form-card {
+  background: var(--bg-surface, #334155);
+  border-radius: var(--radius-lg, 12px);
+  padding: 2rem;
+  min-height: 300px;
+}
+
+.ncot-step-content {
+  max-width: 700px;
+}
+
+.ncot-section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+  margin-bottom: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.ncot-section-title:first-child {
+  margin-top: 0;
+}
+
+/* ── Option Buttons (Modal, Operação, Visibilidade) ── */
+
+.ncot-options-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ncot-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--bg-base, #1e293b);
+  border: 2px solid var(--bg-elevated, #475569);
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  color: var(--text-secondary, #94a3b8);
+  min-width: 160px;
+}
+
+.ncot-option-btn:hover {
+  border-color: var(--accent, #6366f1);
+  color: var(--text-primary, #f1f5f9);
+}
+
+.ncot-option-btn--selected {
+  border-color: var(--accent, #6366f1);
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--accent, #6366f1);
+}
+
+.ncot-option-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md, 8px);
+  background: var(--bg-elevated, #475569);
+  flex-shrink: 0;
+}
+
+.ncot-option-btn--selected .ncot-option-icon {
+  background: rgba(99, 102, 241, 0.2);
+}
+
+.ncot-option-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* ── Fields Grid ── */
+
+.ncot-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+/* ── Input ── */
+
+.ncot-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-base, #1e293b);
+  border: 1px solid var(--bg-elevated, #475569);
+  border-radius: var(--radius-md, 8px);
+  color: var(--text-primary, #f1f5f9);
+  font-size: 0.875rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.ncot-input:focus {
+  border-color: var(--accent, #6366f1);
+  box-shadow: var(--focus-ring, 0 0 0 2px rgba(99, 102, 241, 0.4));
+}
+
+.ncot-input::placeholder {
+  color: var(--text-muted, #64748b);
+}
+
+/* ── Incoterm Chips ── */
+
+.ncot-incoterm-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ncot-incoterm-btn {
+  padding: 0.5rem 1rem;
+  background: var(--bg-base, #1e293b);
+  border: 2px solid var(--bg-elevated, #475569);
+  border-radius: var(--radius-pill, 9999px);
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ncot-incoterm-btn:hover {
+  border-color: var(--accent, #6366f1);
+  color: var(--text-primary, #f1f5f9);
+}
+
+.ncot-incoterm-btn--selected {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: var(--accent, #6366f1);
+  color: var(--accent, #6366f1);
+}
+
+/* ── Hint ── */
+
+.ncot-hint {
+  font-size: 0.8125rem;
+  color: var(--text-muted, #64748b);
+  font-style: italic;
+}
+
+/* ── Summary ── */
+
+.ncot-summary {
+  background: var(--bg-base, #1e293b);
+  border-radius: var(--radius-md, 8px);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ncot-summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--bg-elevated, #475569);
+}
+
+.ncot-summary-row:last-child {
+  border-bottom: none;
+}
+
+.ncot-summary-label {
+  font-size: 0.8125rem;
+  color: var(--text-muted, #64748b);
+}
+
+.ncot-summary-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+}
+
+/* ── Footer ── */
+
+.ncot-footer {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem 0;
+  gap: 0.75rem;
+}
+
+.ncot-footer-spacer {
+  flex: 1;
+}
+
+/* ── Success ── */
+
+.ncot-sucesso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  gap: 0.75rem;
+}

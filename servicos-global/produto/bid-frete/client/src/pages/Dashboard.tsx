@@ -1435,7 +1435,7 @@ export default function Dashboard() {
 
         .bfd-map-container {
           position: relative; height: 380px; border-radius: 12px; overflow: visible;
-          border: 1px solid rgba(255, 255, 255, 0.06); background: #0b0e14;
+          background: transparent;
         }
         .bfd-map-left-panel {
           position: absolute;

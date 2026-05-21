@@ -6,7 +6,7 @@
  * persistência de colunas, edição inline e precisão numérica reativa.
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
@@ -16,6 +16,7 @@ import CotacoesKanban from './CotacoesKanban'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
 import type { GTPreferencias, GTColuna } from '@nucleo/tabela-virtual-global'
 import {
@@ -28,6 +29,11 @@ import {
   ArrowCounterClockwise,
   Warning,
   Package,
+  Plus,
+  CaretDown,
+  Clock,
+  Coins,
+  DownloadSimple,
 } from '@phosphor-icons/react'
 
 import { getCotacoes } from '../shared/api'
@@ -222,7 +228,145 @@ export default function Cotacoes() {
     },
   ], [navigate])
 
+  // ─── Dropdown + Novo e Exportar Toolbar ───
 
+  const novoDropdownRef = useRef<HTMLDivElement>(null)
+  const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (novoDropdownRef.current && !novoDropdownRef.current.contains(event.target as Node)) {
+        setNovoDropdownAberto(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const acoesBarra = useMemo(() => (
+    <div ref={novoDropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
+      <BotaoGlobal
+        variante="primario"
+        tamanho="pequeno"
+        icone={<Plus size={14} weight="bold" />}
+        onClick={() => setNovoDropdownAberto(prev => !prev)}
+      >
+        Novo <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
+      </BotaoGlobal>
+
+      {novoDropdownAberto && (
+        <div className="lp-dropdown-menu" style={{
+          position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 300,
+          background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+          borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+          minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
+        }}>
+          <button
+            type="button"
+            className="lp-dropdown-btn"
+            onClick={() => {
+              navigate('/cotacoes/nova')
+              setNovoDropdownAberto(false)
+            }}
+          >
+            <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
+              <Truck size={16} weight="duotone" />
+            </span>
+            <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Buscar Frete</span>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>Criar cotação manual</span>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="lp-dropdown-btn"
+            onClick={() => {
+              navigate('/cotacoes/importar')
+              setNovoDropdownAberto(false)
+            }}
+          >
+            <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
+              <Upload size={16} weight="duotone" />
+            </span>
+            <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Importar de Planilha</span>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>Subir planilha de dados</span>
+            </span>
+          </button>
+        </div>
+      )}
+    </div>
+  ), [novoDropdownAberto, navigate])
+
+  const exportarCSVCotacoes = useCallback((formato: 'excel' | 'csv') => {
+    const sep = formato === 'excel' ? ';' : ','
+    const escape = (v: string) => `"${v.replace(/"/g, '""')}"`
+    
+    const colunasExport = colunasTabela.filter(c => {
+      if (!c.key) return false
+      if (preferencias?.visivel) {
+        return preferencias.visivel.includes(c.key as string)
+      }
+      return COLUNAS_PADRAO_VISIVEIS.includes(c.key as string)
+    })
+
+    const cabecalho = colunasExport.map(c => escape(c.label)).join(sep)
+    
+    const linhas = cotacoesFiltradas.map(row => {
+      return colunasExport.map(c => {
+        const val = row[c.key as keyof Cotacao]
+        if (val == null) return escape('')
+        if (c.key === 'created_at' || c.key === 'prazo_resposta') {
+          return escape(fmtData(val as string))
+        }
+        if (c.key === 'saving_valor' || c.key === 'valor_alvo') {
+          return escape(val != null ? String(val) : '')
+        }
+        return escape(String(val))
+      }).join(sep)
+    })
+
+    const conteudo = [cabecalho, ...linhas].join('\n')
+    const blob = new Blob(['\uFEFF' + conteudo], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `cotacoes_${formato === 'excel' ? 'excel' : 'csv'}_${new Date().toISOString().slice(0,10)}.csv`
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(url), 5000)
+  }, [cotacoesFiltradas, colunasTabela, preferencias])
+
+  const acoesExportacao = useMemo(() => [
+    {
+      label: 'Excel (.xlsx)',
+      icone: <DownloadSimple size={15} weight="duotone" />,
+      onClick: () => exportarCSVCotacoes('excel'),
+    },
+    {
+      label: 'CSV',
+      icone: <DownloadSimple size={15} weight="duotone" />,
+      onClick: () => exportarCSVCotacoes('csv'),
+    },
+  ], [exportarCSVCotacoes])
+
+  // ─── KPI Metrics ───
+
+  const stats = useMemo(() => {
+    const total = cotacoes.length
+    const emAndamento = cotacoes.filter(c => c.status === 'EM_COTACAO' || c.status === 'ENVIADA_FORNECEDORES').length
+    const aguardandoAprovacao = cotacoes.filter(c => c.status === 'AGUARDANDO_APROVACAO').length
+    const expiradas = cotacoes.filter(c => c.status === 'EXPIRADA').length
+    const savingTotal = cotacoesFiltradas.reduce((acc, c) => acc + (c.saving_valor ?? 0), 0)
+    
+    return {
+      total,
+      emAndamento,
+      aguardandoAprovacao,
+      expiradas,
+      savingTotal
+    }
+  }, [cotacoes, cotacoesFiltradas])
 
   // ─── Render ───
 
@@ -236,6 +380,51 @@ export default function Cotacoes() {
         />
       }
     >
+      {/* ── KPI cards ── */}
+      <div className="lp-stats-row">
+        <div className="lp-cards">
+          <CardBasicoGlobal
+            key="total_cotacoes"
+            titulo="Total de Cotações"
+            icone={<Package weight="duotone" size={16} style={{ color: 'var(--accent)' }} />}
+            valor={stats.total}
+            subtexto="Todas as cotações carregadas"
+          />
+          <CardBasicoGlobal
+            key="cotacoes_andamento"
+            titulo="Cotações em Andamento"
+            icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
+            valor={stats.emAndamento}
+            variante="aviso"
+            subtexto="Em cotação ou enviadas"
+          />
+          <CardBasicoGlobal
+            key="aguardando_aprovacao"
+            titulo="Aguardando Aprovação"
+            icone={<Warning weight="duotone" size={16} style={{ color: '#facc15' }} />}
+            valor={stats.aguardandoAprovacao}
+            variante="aviso"
+            subtexto="Necessitam de ação"
+          />
+          <CardBasicoGlobal
+            key="expiradas"
+            titulo="Expiradas"
+            icone={<Warning weight="duotone" size={16} style={{ color: '#f87171' }} />}
+            valor={stats.expiradas}
+            variante="erro"
+            subtexto="Prazo de resposta vencido"
+          />
+          <CardBasicoGlobal
+            key="saving_estimado"
+            titulo="Saving Estimado"
+            icone={<Coins weight="duotone" size={16} style={{ color: '#34d399' }} />}
+            valor={`USD ${fmtQuantidade(stats.savingTotal, 2)}`}
+            variante="sucesso"
+            subtexto="Soma do saving das cotações ativas"
+          />
+        </div>
+      </div>
+
       {/* Conteúdo da Visão */}
       {visao === 'lista' ? (
         <div className="bf-table-section">
@@ -255,6 +444,8 @@ export default function Cotacoes() {
             onMudarAba={setFiltroTab}
             
             acoes={acoes}
+            acoesExportacao={acoesExportacao}
+            acoesBarra={acoesBarra}
             
             onBuscar={setBusca}
             modoLocalizar={true}
@@ -296,6 +487,53 @@ export default function Cotacoes() {
           flex: 1;
           min-height: 0;
           height: 100%;
+        }
+
+        /* ── KPI Cards / Row ── */
+        .lp-stats-row {
+          display: flex;
+          align-items: flex-end;
+          gap: 1rem;
+          padding: 0.5rem 0 1.5rem;
+        }
+
+        .lp-cards {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+          gap: 1rem;
+          flex: 1;
+          min-width: 0;
+        }
+
+        /* ── Dropdown "Novo" ── */
+        .lp-dropdown-menu {
+          animation: gtv-fade-in 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .lp-dropdown-btn {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          padding: 0.5rem 0.625rem;
+          border: none;
+          border-radius: 0.375rem;
+          background: transparent;
+          color: var(--text-primary);
+          font-size: 0.8125rem;
+          cursor: pointer;
+          width: 100%;
+          font-family: inherit;
+          text-align: left;
+          transition: background 0.15s ease;
+        }
+
+        .lp-dropdown-btn:hover {
+          background: var(--bg-hover, rgba(255,255,255,0.06));
+        }
+
+        @keyframes gtv-fade-in {
+          from { opacity: 0; transform: translateY(-4px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
         /* ── Toggle lista/kanban ── */

@@ -23,7 +23,7 @@
  * contador atomico Redis (INCRBY) — TODO para evolucao futura.
  *
  * Validacao do schema name (anti-SQL-injection) replica o padrao do SDK:
- *   /^tenant_c[a-z0-9]{24}$/
+ *   /^tenant_[a-z][a-z0-9]{22,24}$/
  *
  * Sem ioredis disponivel (REDIS_URL ausente) o service degrada para
  * leitura direta no DB — log de aviso por chamada para nao mascarar bug.
@@ -53,7 +53,7 @@ export interface ResultadoAvaliacaoLimite {
 // Constantes / utilidades
 // ---------------------------------------------------------------------------
 
-const SCHEMA_NAME_REGEX = /^tenant_c[a-z0-9]{24}$/
+const SCHEMA_NAME_REGEX = /^tenant_[a-z][a-z0-9]{22,24}$/
 
 const TTL_GLOBAL_SEC    = 300
 const TTL_ORG_SEC       = 60

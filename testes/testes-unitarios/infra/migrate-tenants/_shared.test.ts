@@ -18,26 +18,28 @@ const mockRead = vi.mocked(readFileSync)
 
 describe('buildSchemaName', () => {
   // CUID v1 válido: começa com 'c', seguido de exatamente 24 chars [a-z0-9] = 25 chars total
-  const VALID_ID = 'c' + 'a'.repeat(24)
+  const VALID_CUID_V1 = 'c' + 'a'.repeat(24)
+  // CUID v2 válido: começa com qualquer letra, 24 chars total [a-z0-9]
+  const VALID_CUID_V2 = 'y' + '95indq8sfe7fmx5kl02h8y'
 
-  it('retorna "tenant_<id>" para CUID válido', () => {
-    expect(buildSchemaName(VALID_ID)).toBe(`tenant_${VALID_ID}`)
+  it('retorna "tenant_<id>" para CUID v1 válido', () => {
+    expect(buildSchemaName(VALID_CUID_V1)).toBe(`tenant_${VALID_CUID_V1}`)
+  })
+
+  it('retorna "tenant_<id>" para CUID v2 válido', () => {
+    expect(buildSchemaName(VALID_CUID_V2)).toBe(`tenant_${VALID_CUID_V2}`)
   })
 
   it('lança erro para string vazia', () => {
     expect(() => buildSchemaName('')).toThrow('ID de tenant inválido')
   })
 
-  it('lança erro para ID muito curto (< 25 chars)', () => {
-    expect(() => buildSchemaName('c' + 'a'.repeat(23))).toThrow('ID de tenant inválido')
+  it('lança erro para ID muito curto (< 23 chars)', () => {
+    expect(() => buildSchemaName('c' + 'a'.repeat(21))).toThrow('ID de tenant inválido')
   })
 
   it('lança erro para ID muito longo (> 25 chars)', () => {
     expect(() => buildSchemaName('c' + 'a'.repeat(25))).toThrow('ID de tenant inválido')
-  })
-
-  it('lança erro para ID que não começa com "c"', () => {
-    expect(() => buildSchemaName('d' + 'a'.repeat(24))).toThrow('ID de tenant inválido')
   })
 
   it('lança erro para ID com letra maiúscula', () => {

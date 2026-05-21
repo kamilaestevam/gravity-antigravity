@@ -26,7 +26,7 @@ import { listarOrganizacoes } from '../services/configurador-client.js'
 
 export const adminRouter = Router()
 
-const SCHEMA_NAME_REGEX = /^tenant_c[a-z0-9]{24}$/
+const SCHEMA_NAME_REGEX = /^tenant_[a-z][a-z0-9]{22,24}$/
 
 interface UsoOrgResultado {
   modelo:       string | null

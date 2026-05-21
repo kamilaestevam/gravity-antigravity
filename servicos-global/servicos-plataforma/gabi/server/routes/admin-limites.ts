@@ -23,9 +23,9 @@ import { invalidarCacheLimites } from '../services/limiteMonetarioService.js'
 
 export const adminLimitesRouter = Router()
 
-const SCHEMA_NAME_REGEX = /^tenant_c[a-z0-9]{24}$/
+const SCHEMA_NAME_REGEX = /^tenant_[a-z][a-z0-9]{22,24}$/
 
-const ID_ORGANIZACAO_REGEX = /^c[a-z0-9]{24}$/  // CUID
+const ID_ORGANIZACAO_REGEX = /^[a-z][a-z0-9]{22,24}$/  // CUID v1 ou v2
 
 // ---------------------------------------------------------------------------
 // Schemas Zod (contrato bilateral — Mandamento 09)
@@ -64,7 +64,7 @@ const atualizarLimiteSchema = z.object({
   ativo:               z.boolean().optional(),
 })
 
-const idLimiteSchema   = z.string().regex(/^c[a-z0-9]{24}$/, 'id_limite deve ser um CUID')
+const idLimiteSchema   = z.string().regex(/^[a-z][a-z0-9]{22,24}$/, 'id_limite deve ser um CUID')
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -110,7 +110,7 @@ function paraResposta(l: LimiteLido) {
 // ---------------------------------------------------------------------------
 // SAFETY NOTE (applies to all routes below):
 // - SET LOCAL search_path uses schemaName which is validated by SCHEMA_NAME_REGEX
-//   (/^tenant_c[a-z0-9]{24}$/) via schemaNameDe() — prevents SQL injection.
+//   (/^tenant_[a-z][a-z0-9]{22,24}$/) via schemaNameDe() — prevents SQL injection.
 // - All data values are passed as positional parameters ($1, $2, ...) — never
 //   interpolated into SQL strings.
 // - Dynamic SET clauses in PUT use counter-based $N placeholders, not string concat.

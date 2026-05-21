@@ -20,7 +20,7 @@ const __dir = dirname(fileURLToPath(import.meta.url))
 dotenv.config({ path: resolve(__dir, '../.env') })
 dotenv.config({ path: resolve(__dir, '../../.env') })
 
-const SCHEMA_NAME_REGEX = /^tenant_c[a-z0-9]{24}$/
+const SCHEMA_NAME_REGEX = /^tenant_[a-z][a-z0-9]{22,24}$/
 
 const TABELAS = [
   'gabi_log_uso',

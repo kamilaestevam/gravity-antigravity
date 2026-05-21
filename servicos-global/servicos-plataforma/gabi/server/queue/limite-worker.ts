@@ -22,7 +22,7 @@
 import prisma from '../lib/prisma.js'
 import { listarOrganizacoes, listarLimitesGlobais } from '../services/configurador-client.js'
 
-const SCHEMA_NAME_REGEX = /^tenant_c[a-z0-9]{24}$/
+const SCHEMA_NAME_REGEX = /^tenant_[a-z][a-z0-9]{22,24}$/
 
 function getInternalKey(): string {
   return process.env.CHAVE_INTERNA_SERVICO ?? ''
@@ -143,7 +143,7 @@ interface LimiteOrgRow {
 
 // SAFETY NOTE (applies to all raw queries in this file):
 // - SET LOCAL search_path uses schemaName validated by SCHEMA_NAME_REGEX
-//   (/^tenant_c[a-z0-9]{24}$/) — prevents SQL injection.
+//   (/^tenant_[a-z][a-z0-9]{22,24}$/) — prevents SQL injection.
 // - All data values are passed as positional parameters ($1, $2, ...).
 // OWASP A01: whitelist validada — schema name via regex, dados via params posicionais
 async function avaliarOrg(idOrganizacao: string): Promise<void> {

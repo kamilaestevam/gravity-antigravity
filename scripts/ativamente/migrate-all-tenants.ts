@@ -91,8 +91,8 @@ function parseArgs(): {
 // Schema name (espelha packages/tenant-resolver/src/schema-name.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
-const CUID_REGEX   = /^c[a-z0-9]{24}$/
-const SCHEMA_REGEX = /^tenant_c[a-z0-9]{24}$/
+const CUID_REGEX   = /^[a-z][a-z0-9]{22,24}$/
+const SCHEMA_REGEX = /^tenant_[a-z][a-z0-9]{22,24}$/
 
 function toSchemaName(tenantId: string): string {
   if (!CUID_REGEX.test(tenantId)) {

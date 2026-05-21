@@ -3,12 +3,13 @@
  *
  * Implementa SPEC §"Validação de nomeSchema" e ADR-002 §3.
  *
- * Padrão de ID: CUID v1 gerado pelo Prisma (@default(cuid())).
- * Formato: 'c' + 24 chars [a-z0-9], total 25 chars. Ex: cmngiwl0n00011097dok8jcmo
+ * Padrão de ID: CUID gerado pelo Prisma (@default(cuid())).
+ *   - CUID v1 (Prisma ≤4): 'c' + 24 chars [a-z0-9], total 25 chars.
+ *   - CUID v2 (Prisma 5+): [a-z] + 23 chars [a-z0-9], total 24 chars.
  *
  * Defesa contra SQL injection: `_internalPrisma.$executeRawUnsafe` recebe
- * o nome do schema gerado aqui. O regex `^tenant_c[a-z0-9]{24}$` REJEITA
- * qualquer entrada que não seja exatamente um CUID válido com prefixo `tenant_`.
+ * o nome do schema gerado aqui. O regex REJEITA qualquer entrada que não
+ * seja exatamente um CUID válido (v1 ou v2) com prefixo `tenant_`.
  *
  * NOTA: o prefixo físico `tenant_` no nome do schema PostgreSQL é mantido
  * como blindagem da arquitetura schema-per-organização (decisão do Tech Lead).
@@ -20,16 +21,16 @@
 
 import { AppError } from './errors.js';
 
-/** Regex canônico de schema válido. CUID com prefixo tenant_ (blindagem física). */
-export const SCHEMA_NAME_REGEX = /^tenant_c[a-z0-9]{24}$/;
+/** Regex canônico de schema válido. CUID (v1 ou v2) com prefixo tenant_ (blindagem física). */
+export const SCHEMA_NAME_REGEX = /^tenant_[a-z][a-z0-9]{22,24}$/;
 
-/** CUID v1: começa com 'c', 25 chars, lowercase alphanumeric. */
-const CUID_REGEX = /^c[a-z0-9]{24}$/;
+/** CUID v1 (25 chars) ou v2 (24 chars): começa com letra minúscula, lowercase alphanumeric. */
+const CUID_REGEX = /^[a-z][a-z0-9]{22,24}$/;
 
 /**
  * Constrói o nomeSchema a partir do idOrganizacao (CUID).
  *
- * - Aceita apenas CUIDs válidos (padrão Prisma @default(cuid())).
+ * - Aceita CUID v1 (25 chars) e v2 (24 chars) — padrão Prisma @default(cuid()).
  * - Rejeita SUIDs não-CUID, IDs manuais e qualquer formato fora do padrão.
  *
  * @throws AppError(400, 'INVALID_ORGANIZACAO_ID') se a entrada não for CUID válido.
@@ -40,7 +41,6 @@ export function buildSchemaName(idOrganizacao: string): string {
   }
 
   if (!CUID_REGEX.test(idOrganizacao)) {
-    console.error('[buildSchemaName] REJEITADO — idOrganizacao recebido:', JSON.stringify(idOrganizacao), 'length:', idOrganizacao.length, 'chars:', [...idOrganizacao].map(c => c.charCodeAt(0)))
     throw new AppError('idOrganizacao não é um CUID válido', 400, 'INVALID_ORGANIZACAO_ID');
   }
 

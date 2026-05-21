@@ -62,8 +62,8 @@ export function resolveEnvs(): { configuradorUrl: string; sharedUrl: string } {
 }
 
 // ── Schema name ───────────────────────────────────────────────────────────────
-/** Mesmo regex do SDK — defesa contra SQL injection. */
-const SCHEMA_NAME_REGEX = /^tenant_c[a-z0-9]{24}$/
+/** Mesmo regex do SDK — defesa contra SQL injection. Aceita CUID v1 (25 chars) e v2 (24 chars). */
+const SCHEMA_NAME_REGEX = /^tenant_[a-z][a-z0-9]{22,24}$/
 
 export function buildSchemaName(tenantId: string): string {
   const name = `tenant_${tenantId}`

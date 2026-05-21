@@ -210,8 +210,8 @@ export function ModalLimitesMonitorLlm({ aberto, aoFechar }: Props) {
   }
 
   const validarForm = (): string | null => {
-    if (form.escopo !== 'GLOBAL' && !/^c[a-z0-9]{24}$/.test(form.id_organizacao.trim())) {
-      return 'id_organizacao deve ser um CUID valido (c + 24 chars)'
+    if (form.escopo !== 'GLOBAL' && !/^[a-z][a-z0-9]{22,24}$/.test(form.id_organizacao.trim())) {
+      return 'id_organizacao deve ser um CUID valido'
     }
     if (!form.todos_modelos && form.modelo.trim().length === 0) {
       return 'modelo obrigatorio quando "todos os modelos" desmarcado'

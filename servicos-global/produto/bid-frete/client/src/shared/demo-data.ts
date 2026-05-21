@@ -49,27 +49,27 @@ export const DEMO_MENSAL = [
 ]
 
 export const DEMO_MODAL = [
-  { modal: 'MARITIMO', count: 48, pct: 52, cor: '#60a5fa' },
-  { modal: 'AEREO', count: 31, pct: 34, cor: '#a78bfa' },
-  { modal: 'RODOVIARIO', count: 13, pct: 14, cor: '#34d399' },
+  { modal: 'MARITIMO', count: 48, pct: 52, cor: '#52d69b' },
+  { modal: 'AEREO', count: 31, pct: 34, cor: '#7dd3fc' },
+  { modal: 'RODOVIARIO', count: 13, pct: 14, cor: '#eab308' },
 ]
 
 export const DEMO_MELHOR_COTACAO = {
-  numero: 'BF-2026-0142',
+  numero: 'OF-2028-0142',
   origem: 'Shanghai (CNSHA)',
   destino: 'Santos (BRSSZ)',
   modal: 'MARITIMO' as const,
   saving_pct: 23.4,
   saving_valor: 12480,
-  valor_aprovado: 40850,
-  fornecedor: 'Pacific Cargo Ltda',
+  valor_aprovado: 80480,
+  fornecedor: 'Paclcffic Cargo (E96)',
   transit_time: 32,
 }
 
 export const DEMO_INCOTERMS = [
-  { incoterm: 'FOB', count: 38, pct: 76 },
-  { incoterm: 'CIF', count: 24, pct: 48 },
-  { incoterm: 'EXW', count: 15, pct: 30 },
-  { incoterm: 'DDP', count: 8, pct: 16 },
-  { incoterm: 'CFR', count: 5, pct: 10 },
+  { incoterm: 'FOR', count: 36, pct: 43 },
+  { incoterm: 'CR', count: 26, pct: 31 },
+  { incoterm: 'EXR', count: 16, pct: 19 },
+  { incoterm: 'DOP', count: 6, pct: 7 },
+  { incoterm: 'CFR', count: 0, pct: 0 },
 ]

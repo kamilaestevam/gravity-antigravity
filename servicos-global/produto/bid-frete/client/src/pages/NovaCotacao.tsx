@@ -722,22 +722,32 @@ export default function NovaCotacao() {
   return (
     <div className="nc-modal-overlay" onClick={handleOverlayClick}>
       <div className="nc-modal-container nc-fade-in" onClick={e => e.stopPropagation()}>
-        <button className="nc-modal-close" onClick={() => navigate('/cotacoes')} aria-label="Fechar">
-          <X weight="bold" size={20} />
-        </button>
-
-        <div className="nc-subheader">
-          <div className="nc-subheader-left">
-            <span className="nc-subheader-step">Etapa {step} de 7</span>
-            <span className="nc-subheader-separator">•</span>
-            <span className="nc-subheader-name">{STEPS[step - 1].label}</span>
+        
+        {/* Header do Modal — Alinhado com a Imagem 02 */}
+        <div className="nc-modal-header">
+          <div className="nc-modal-header-left">
+            <div className="nc-modal-header-icon-wrap">
+              <Truck weight="duotone" size={22} />
+            </div>
+            <div>
+              <h2 className="nc-modal-title">Nova Cotação</h2>
+              <p className="nc-modal-subtitle">Preencha as informações para buscar as melhores opções de frete</p>
+            </div>
           </div>
+          <div className="nc-modal-header-step-badge">
+            Etapa {step} de 7 • <span className="nc-modal-header-step-name">{STEPS[step - 1].label}</span>
+          </div>
+          <button className="nc-modal-close" onClick={() => navigate('/cotacoes')} aria-label="Fechar">
+            <X weight="bold" size={20} />
+          </button>
         </div>
 
+        {/* Linha do Stepper com customizações visuais intensas da Imagem 02 */}
         <div className="nc-stepper-container">
           <StepperPassoPassoGlobal passos={STEPS} passoAtual={step} />
         </div>
 
+        {/* Corpo do modal com scroll individual */}
         <div className="nc-modal-body">
           {/* Usar a chave no passo atual força a montagem do container disparando a animação .nc-fade-in */}
           <div className="nc-step-wrapper nc-fade-in" key={step}>
@@ -745,18 +755,31 @@ export default function NovaCotacao() {
           </div>
         </div>
 
-        {/* Footer de navegação */}
+        {/* Footer do Modal — Separador por borda + Botão "Cancelar" na esquerda na etapa 1 */}
         <div className="nc-footer">
-          <button
-            className="nc-btn nc-btn--secondary nc-btn--navigation"
-            disabled={step === 1}
-            onClick={() => setStep(s => s - 1)}
-          >
-            <ArrowLeft weight="bold" size={14} /> {t('comum.anterior')}
-          </button>
+          {step === 1 ? (
+            <button
+              type="button"
+              className="nc-btn nc-btn--secondary nc-btn-cancelar"
+              onClick={() => navigate('/cotacoes')}
+            >
+              Cancelar
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="nc-btn nc-btn--secondary nc-btn--navigation"
+              onClick={() => setStep(s => s - 1)}
+            >
+              <ArrowLeft weight="bold" size={14} /> {t('comum.anterior')}
+            </button>
+          )}
+          
           <div className="nc-footer-spacer" />
+          
           {step < 7 ? (
             <button
+              type="button"
               className="nc-btn nc-btn--primary nc-btn--navigation"
               disabled={!canNext()}
               onClick={() => setStep(s => s + 1)}
@@ -765,6 +788,7 @@ export default function NovaCotacao() {
             </button>
           ) : (
             <button
+              type="button"
               className="nc-btn nc-btn--primary nc-btn--navigation nc-btn--cta"
               disabled={salvando}
               onClick={handleSubmit}
@@ -792,21 +816,224 @@ export default function NovaCotacao() {
         }
 
         .nc-modal-container {
-          background: rgba(15, 23, 42, 0.65);
+          background: rgba(15, 23, 42, 0.75);
           backdrop-filter: blur(24px);
           -webkit-backdrop-filter: blur(24px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.10);
+          border-radius: 16px;
           width: 100%;
           max-width: 920px;
-          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
           position: relative;
-          padding: 2.5rem 3rem;
+          padding: 0; /* Full-bleed layout para cabeçalho e rodapé */
           display: flex;
           flex-direction: column;
-          gap: 1rem;
+          gap: 0; /* Remove gap genérico */
           animation: nc-modal-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           max-height: 90vh;
+          overflow: hidden; /* Mantém as bordas arredondadas nos cantos */
+        }
+
+        /* ── Cabeçalho do Modal — Inspirado na Imagem 02 ── */
+        .nc-modal-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 1.25rem 2.5rem;
+          background: rgba(10, 15, 30, 0.45);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          position: relative;
+        }
+
+        .nc-modal-header-left {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .nc-modal-header-icon-wrap {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(99, 102, 241, 0.25) 100%);
+          border: 1px solid rgba(139, 92, 246, 0.35);
+          color: #c084fc;
+          box-shadow: 0 0 10px rgba(139, 92, 246, 0.15);
+        }
+
+        .nc-modal-title {
+          font-size: 1.15rem;
+          font-weight: 600;
+          color: #ffffff;
+          margin: 0;
+          letter-spacing: -0.01em;
+        }
+
+        .nc-modal-subtitle {
+          font-size: 0.8125rem;
+          color: rgba(255, 255, 255, 0.55);
+          margin: 0.15rem 0 0 0;
+          font-weight: 400;
+        }
+
+        .nc-modal-header-step-badge {
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.45);
+          background: rgba(255, 255, 255, 0.03);
+          padding: 0.4rem 0.875rem;
+          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          margin-right: 2rem; /* Espaço para o X close */
+        }
+
+        .nc-modal-header-step-name {
+          color: #c084fc;
+        }
+
+        .nc-modal-close {
+          position: absolute;
+          top: 50%;
+          right: 1.5rem;
+          transform: translateY(-50%);
+          background: transparent;
+          border: none;
+          color: rgba(255, 255, 255, 0.45);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+        }
+        .nc-modal-close:hover {
+          background: rgba(255, 255, 255, 0.08);
+          color: #ffffff;
+        }
+
+        .nc-stepper-container {
+          padding: 1.5rem 2.5rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          background: rgba(10, 15, 30, 0.25);
+        }
+
+        /* ── Custom Stepper Overrides para o Efeito de Brilho da Imagem 02 ── */
+        .nc-stepper-container [role="list"] {
+          padding: 0.5rem 0 !important;
+          background: transparent !important;
+          border: none !important;
+        }
+
+        .nc-stepper-container [role="listitem"] {
+          gap: 0.625rem !important;
+        }
+
+        /* Todos os círculos (Pendente/Base) */
+        .nc-stepper-container [role="listitem"] > div:first-child {
+          width: 32px !important;
+          height: 32px !important;
+          min-width: 32px !important;
+          border-radius: 50% !important;
+          background: rgba(30, 41, 59, 0.3) !important;
+          border: 1px solid rgba(255, 255, 255, 0.12) !important;
+          color: rgba(255, 255, 255, 0.35) !important;
+          font-size: 0.8125rem !important;
+          font-weight: 700 !important;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+          box-shadow: none !important;
+        }
+
+        /* Círculo Ativo com Brilho Neon Lilás/Roxo (Imagem 02) */
+        .nc-stepper-container [role="listitem"][aria-current="step"] > div:first-child {
+          background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%) !important; /* Lindo gradiente roxo/violeta */
+          border: 1.5px solid #a78bfa !important; /* Lilás brilhante */
+          color: #ffffff !important;
+          transform: scale(1.08);
+          /* Brilho radial neon super suave, expansivo e em camadas (Imagem 02) */
+          box-shadow: 
+            0 0 0 1px rgba(167, 139, 250, 0.35),
+            0 0 15px 4px rgba(139, 92, 246, 0.6), 
+            0 0 35px 12px rgba(139, 92, 246, 0.35), 
+            inset 0 0 8px rgba(255, 255, 255, 0.3) !important;
+        }
+
+        /* Círculo Concluído (Feito) */
+        .nc-stepper-container [role="listitem"] > div:first-child[style*="#22c55e"],
+        .nc-stepper-container [role="listitem"] > div:first-child[style*="var(--success"],
+        .nc-stepper-container [role="listitem"] > div:first-child[style*="rgb(34, 197, 94)"] {
+          background: rgba(16, 185, 129, 0.15) !important;
+          border: 1.5px solid #10b981 !important;
+          color: #10b981 !important;
+          box-shadow: 0 0 8px rgba(16, 185, 129, 0.2) !important;
+          transform: scale(1) !important;
+        }
+
+        /* Legendas de Passo */
+        .nc-stepper-container [role="listitem"] > span {
+          font-size: 0.72rem !important;
+          font-weight: 600 !important;
+          color: rgba(255, 255, 255, 0.3) !important;
+          transition: all 0.3s !important;
+        }
+
+        /* Legenda Ativa (Lilás como o Configurar da Imagem 02) */
+        .nc-stepper-container [role="listitem"][aria-current="step"] > span {
+          color: #a78bfa !important;
+          font-weight: 700 !important;
+        }
+
+        /* Legenda Concluída */
+        .nc-stepper-container [role="listitem"] > span[style*="#22c55e"],
+        .nc-stepper-container [role="listitem"] > span[style*="var(--success"],
+        .nc-stepper-container [role="listitem"] > span[style*="rgb(34, 197, 94)"] {
+          color: #10b981 !important;
+        }
+
+        /* Conectores cinzas padrão */
+        .nc-stepper-container div[aria-hidden="true"] {
+          background: rgba(255, 255, 255, 0.08) !important;
+          height: 1px !important;
+          margin-top: -1.25rem !important;
+          opacity: 0.7;
+        }
+
+        /* Conector concluído (Verde) */
+        .nc-stepper-container div[aria-hidden="true"][style*="#22c55e"],
+        .nc-stepper-container div[aria-hidden="true"][style*="var(--success"],
+        .nc-stepper-container div[aria-hidden="true"][style*="rgb(34, 197, 94)"] {
+          background: #10b981 !important;
+          height: 1.5px !important;
+          opacity: 1 !important;
+        }
+
+        .nc-modal-body {
+          flex: 1;
+          overflow-y: auto;
+          padding: 2rem 2.5rem;
+          margin-bottom: 0;
+          /* Suavizar a barra de rolagem */
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+        }
+        .nc-modal-body::-webkit-scrollbar {
+          width: 6px;
+        }
+        .nc-modal-body::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.15);
+          border-radius: 3px;
+        }
+
+        .nc-footer {
+          display: flex;
+          align-items: center;
+          padding: 1.25rem 2.5rem;
+          background: rgba(10, 15, 30, 0.45);
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         @keyframes nc-modal-in {
@@ -901,10 +1128,7 @@ export default function NovaCotacao() {
           border-radius: 6px;
         }
 
-        .nc-stepper-container {
-          margin-bottom: 1.5rem;
-          padding: 0;
-        }
+        /* Removido duplicado .nc-stepper-container */
 
         /* Animação Suave entre Passos */
         @keyframes nc-fade-in-up {

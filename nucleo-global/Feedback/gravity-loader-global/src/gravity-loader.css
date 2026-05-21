@@ -11,326 +11,467 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.25rem;
   width: 100%;
   flex: 1;
   min-height: 200px;
   user-select: none;
+  animation: gl-fadein 0.8s ease-out both;
 }
 
 .gl-container--sm { min-height: 120px; }
 .gl-container--lg { min-height: 320px; }
 
+@keyframes gl-fadein {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
 /* ─── Cena 3D ────────────────────────────────────────────────────────────── */
 .gl-cena {
   position: relative;
-  width: 140px;
-  height: 140px;
-  perspective: 600px;
+  width: 340px;
+  height: 340px;
+  perspective: 900px;
   transform-style: preserve-3d;
 }
 
-.gl-container--sm .gl-cena { width: 90px; height: 90px; }
-.gl-container--lg .gl-cena { width: 180px; height: 180px; }
+.gl-container--sm .gl-cena { width: 200px; height: 200px; }
+.gl-container--lg .gl-cena { width: 420px; height: 420px; }
 
-/* ─── Núcleo central ─────────────────────────────────────────────────────── */
-.gl-nucleo {
+/* ─── Constelacao de fundo ───────────────────────────────────────────────── */
+.gl-constellation {
+  position: absolute;
+  inset: -40px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.07;
+}
+
+.gl-constellation line {
+  stroke: #818cf8;
+  stroke-width: 0.5;
+}
+
+.gl-constellation circle {
+  fill: #818cf8;
+  opacity: 0.5;
+}
+
+/* ─── Estrelas cintilantes ───────────────────────────────────────────────── */
+.gl-star {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  animation: gl-twinkle var(--dur, 3s) ease-in-out infinite alternate;
+  animation-delay: var(--delay, 0s);
+  pointer-events: none;
+}
+
+@keyframes gl-twinkle {
+  0%   { opacity: 0.1; transform: scale(0.6); }
+  100% { opacity: 0.6; transform: scale(1.3); }
+}
+
+/* ─── Nucleo central ─────────────────────────────────────────────────────── */
+.gl-nucleo-wrap {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 5;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.gl-nucleo-svg {
-  width: 32px;
-  height: 32px;
-  color: var(--accent, #818cf8);
-  animation: gl-nucleo-pulse 2.5s ease-in-out infinite;
-  filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.4));
+/* Aura externa — blur grande */
+.gl-aura-outer {
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(129, 140, 248, 0.2) 0%,
+    rgba(167, 139, 250, 0.1) 40%,
+    transparent 70%
+  );
+  animation: gl-aura-breathe 3s ease-in-out infinite;
+  filter: blur(10px);
 }
 
-.gl-container--sm .gl-nucleo-svg { width: 22px; height: 22px; }
-.gl-container--lg .gl-nucleo-svg { width: 42px; height: 42px; }
+.gl-container--sm .gl-aura-outer { width: 70px; height: 70px; }
+.gl-container--lg .gl-aura-outer { width: 140px; height: 140px; }
 
-@keyframes gl-nucleo-pulse {
+@keyframes gl-aura-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50%      { transform: scale(1.5); opacity: 1; }
+}
+
+/* Aura interna — blur medio */
+.gl-aura-inner {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.35) 0%,
+    rgba(129, 140, 248, 0.15) 50%,
+    transparent 70%
+  );
+  animation: gl-aura-breathe 3s ease-in-out infinite 0.5s;
+  filter: blur(5px);
+}
+
+.gl-container--sm .gl-aura-inner { width: 46px; height: 46px; }
+.gl-container--lg .gl-aura-inner { width: 92px; height: 92px; }
+
+/* Logo hexagono */
+.gl-logo-svg {
+  width: 44px;
+  height: 44px;
+  color: #818cf8;
+  opacity: 0.7;
+  filter: drop-shadow(0 0 12px rgba(129, 140, 248, 0.35));
+  animation: gl-logo-pulse 2.5s ease-in-out infinite;
+  position: relative;
+  z-index: 2;
+}
+
+.gl-container--sm .gl-logo-svg { width: 28px; height: 28px; }
+.gl-container--lg .gl-logo-svg { width: 56px; height: 56px; }
+
+@keyframes gl-logo-pulse {
   0%, 100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.4));
+    filter: drop-shadow(0 0 12px rgba(129, 140, 248, 0.5));
   }
   50% {
-    transform: scale(1.08);
-    filter: drop-shadow(0 0 16px rgba(129, 140, 248, 0.6));
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 22px rgba(167, 139, 250, 0.7));
   }
 }
 
-/* Glow atrás do núcleo */
-.gl-nucleo-glow {
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(129, 140, 248, 0.2) 0%, transparent 70%);
-  animation: gl-glow-breathe 3s ease-in-out infinite;
-  pointer-events: none;
-}
-
-.gl-container--sm .gl-nucleo-glow { width: 34px; height: 34px; }
-.gl-container--lg .gl-nucleo-glow { width: 66px; height: 66px; }
-
-@keyframes gl-glow-breathe {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.3); }
-}
-
-/* ─── Órbitas ────────────────────────────────────────────────────────────── */
-.gl-orbita {
+/* ─── Orbitas ────────────────────────────────────────────────────────────── */
+.gl-orbit-tilt {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   transform-style: preserve-3d;
 }
 
-/* Anel visual (elipse tracejada) */
-.gl-anel {
+.gl-orbit {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 90%;
-  height: 90%;
-  transform: translate(-50%, -50%);
   border-radius: 50%;
-  border: 1px solid rgba(129, 140, 248, 0.15);
+  transform-style: preserve-3d;
 }
 
-/* Órbita 1 — quase horizontal, levemente inclinado para dar profundidade */
-.gl-orbita--1 {
-  transform: rotateX(70deg) rotateZ(0deg);
-  animation: gl-orbita-drift-1 20s linear infinite;
-}
-
-.gl-orbita--1 .gl-anel {
-  border-color: rgba(129, 140, 248, 0.18);
-}
-
-/* Órbita 2 — plano inclinado 60° */
-.gl-orbita--2 {
-  transform: rotateX(70deg) rotateZ(60deg);
-  animation: gl-orbita-drift-2 24s linear infinite;
-}
-
-.gl-orbita--2 .gl-anel {
-  border-color: rgba(167, 139, 250, 0.15);
-}
-
-/* Órbita 3 — plano inclinado -60° */
-.gl-orbita--3 {
-  transform: rotateX(70deg) rotateZ(-60deg);
-  animation: gl-orbita-drift-3 28s linear infinite;
-}
-
-.gl-orbita--3 .gl-anel {
-  border-color: rgba(99, 102, 241, 0.12);
-}
-
-/* Drift sutil nos planos das órbitas */
-@keyframes gl-orbita-drift-1 {
-  0%   { transform: rotateX(70deg) rotateZ(0deg); }
-  100% { transform: rotateX(70deg) rotateZ(360deg); }
-}
-
-@keyframes gl-orbita-drift-2 {
-  0%   { transform: rotateX(70deg) rotateZ(60deg); }
-  100% { transform: rotateX(70deg) rotateZ(420deg); }
-}
-
-@keyframes gl-orbita-drift-3 {
-  0%   { transform: rotateX(70deg) rotateZ(-60deg); }
-  100% { transform: rotateX(70deg) rotateZ(300deg); }
-}
-
-/* ─── Elétrons ───────────────────────────────────────────────────────────── */
-.gl-eletron {
+.gl-orbit-ring {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 90%;
-  height: 90%;
-  transform: translate(-50%, -50%);
+  inset: 0;
   border-radius: 50%;
-  pointer-events: none;
+  border: 1px solid rgba(129, 140, 248, 0.1);
 }
 
-/* Pseudo-element = bolinha orbitando */
-.gl-eletron::after {
+/* Neon trail via pseudo-element */
+.gl-orbit::before {
   content: '';
   position: absolute;
-  width: 6px;
-  height: 6px;
+  inset: 0;
   border-radius: 50%;
-  top: -3px;
-  left: 50%;
+  border: 2px solid transparent;
+}
+
+/* Tilt dos planos orbitais */
+.gl-tilt-1 { transform: rotateX(72deg) rotateY(12deg); }
+.gl-tilt-2 { transform: rotateX(68deg) rotateY(-18deg); }
+.gl-tilt-3 { transform: rotateX(74deg) rotateY(6deg); }
+.gl-tilt-4 { transform: rotateX(76deg) rotateY(-8deg); }
+
+/* Orbita 1 — interna, rapida */
+.gl-orbit-1 {
+  width: 160px;
+  height: 160px;
+  animation: gl-spin-cw 3.5s linear infinite;
+}
+.gl-orbit-1 .gl-orbit-ring {
+  border-color: rgba(103, 232, 249, 0.15);
+  border-width: 1.5px;
+}
+.gl-orbit-1::before {
+  border-top-color: #67e8f9;
+  border-right-color: rgba(103, 232, 249, 0.3);
+  filter: drop-shadow(0 0 6px #67e8f9);
+}
+
+.gl-container--sm .gl-orbit-1 { width: 96px; height: 96px; }
+.gl-container--lg .gl-orbit-1 { width: 200px; height: 200px; }
+
+/* Orbita 2 — media */
+.gl-orbit-2 {
+  width: 220px;
+  height: 220px;
+  animation: gl-spin-ccw 5s linear infinite;
+}
+.gl-orbit-2 .gl-orbit-ring {
+  border-color: rgba(129, 140, 248, 0.12);
+}
+.gl-orbit-2::before {
+  border-right-color: #818cf8;
+  border-bottom-color: rgba(129, 140, 248, 0.25);
+  filter: drop-shadow(0 0 5px #818cf8);
+}
+
+.gl-container--sm .gl-orbit-2 { width: 132px; height: 132px; }
+.gl-container--lg .gl-orbit-2 { width: 275px; height: 275px; }
+
+/* Orbita 3 — grande */
+.gl-orbit-3 {
+  width: 290px;
+  height: 290px;
+  animation: gl-spin-cw 7s linear infinite;
+}
+.gl-orbit-3 .gl-orbit-ring {
+  border-color: rgba(167, 139, 250, 0.08);
+}
+.gl-orbit-3::before {
+  border-bottom-color: #a78bfa;
+  border-left-color: rgba(167, 139, 250, 0.2);
+  filter: drop-shadow(0 0 4px #a78bfa);
+}
+
+.gl-container--sm .gl-orbit-3 { width: 174px; height: 174px; }
+.gl-container--lg .gl-orbit-3 { width: 360px; height: 360px; }
+
+/* Orbita 4 — externa, lenta */
+.gl-orbit-4 {
+  width: 340px;
+  height: 340px;
+  animation: gl-spin-ccw 10s linear infinite;
+}
+.gl-orbit-4 .gl-orbit-ring {
+  border-color: rgba(99, 102, 241, 0.05);
+}
+.gl-orbit-4::before {
+  border-left-color: rgba(255, 255, 255, 0.15);
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.2));
+}
+
+.gl-container--sm .gl-orbit-4 { width: 200px; height: 200px; }
+.gl-container--lg .gl-orbit-4 { width: 420px; height: 420px; }
+
+@keyframes gl-spin-cw {
+  from { transform: rotateZ(0deg); }
+  to   { transform: rotateZ(360deg); }
+}
+
+@keyframes gl-spin-ccw {
+  from { transform: rotateZ(360deg); }
+  to   { transform: rotateZ(0deg); }
+}
+
+/* ─── Planetas ───────────────────────────────────────────────────────────── */
+.gl-planet {
+  position: absolute;
+  border-radius: 50%;
   transform: translateX(-50%);
 }
 
-.gl-container--sm .gl-eletron::after { width: 4px; height: 4px; top: -2px; }
-.gl-container--lg .gl-eletron::after { width: 8px; height: 8px; top: -4px; }
-
-.gl-eletron--1 {
-  animation: gl-eletron-spin 3s linear infinite;
-}
-.gl-eletron--1::after {
-  background: #818cf8;
-  box-shadow: 0 0 10px 2px rgba(129, 140, 248, 0.6), 0 0 20px 4px rgba(129, 140, 248, 0.2);
-}
-
-.gl-eletron--2 {
-  animation: gl-eletron-spin 4s linear infinite reverse;
-}
-.gl-eletron--2::after {
-  background: #a78bfa;
-  box-shadow: 0 0 10px 2px rgba(167, 139, 250, 0.6), 0 0 20px 4px rgba(167, 139, 250, 0.2);
-}
-
-.gl-eletron--3 {
-  animation: gl-eletron-spin 5s linear infinite;
-}
-.gl-eletron--3::after {
-  background: #6366f1;
-  box-shadow: 0 0 10px 2px rgba(99, 102, 241, 0.6), 0 0 20px 4px rgba(99, 102, 241, 0.2);
-}
-
-@keyframes gl-eletron-spin {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to   { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-/* ─── Partículas ambientais ──────────────────────────────────────────────── */
-.gl-particula {
+/* Brilho especular nos planetas */
+.gl-planet::before {
+  content: '';
   position: absolute;
-  width: 2px;
-  height: 2px;
+  top: 15%;
+  left: 20%;
+  width: 35%;
+  height: 30%;
   border-radius: 50%;
-  background: rgba(129, 140, 248, 0.5);
+  background: rgba(255, 255, 255, 0.4);
+  filter: blur(1px);
+}
+
+/* Cauda de cometa */
+.gl-planet::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
   pointer-events: none;
 }
 
-.gl-particula--1 {
-  top: 15%;
-  left: 20%;
-  animation: gl-float 4s ease-in-out infinite;
-  animation-delay: 0s;
+/* Planeta 1 — cyan, orbita interna */
+.gl-planet-1 {
+  width: 10px;
+  height: 10px;
+  top: -5px;
+  left: 50%;
+  background: radial-gradient(circle at 35% 35%, #a5f3fc, #67e8f9, #0e7490);
+  box-shadow: 0 0 8px #67e8f9, 0 0 16px rgba(103, 232, 249, 0.4);
 }
-.gl-particula--2 {
-  top: 75%;
-  left: 80%;
-  animation: gl-float 5s ease-in-out infinite;
-  animation-delay: -1.2s;
-}
-.gl-particula--3 {
-  top: 25%;
-  left: 78%;
-  animation: gl-float 3.5s ease-in-out infinite;
-  animation-delay: -0.8s;
-  width: 3px;
-  height: 3px;
-  background: rgba(167, 139, 250, 0.4);
-}
-.gl-particula--4 {
-  top: 80%;
-  left: 15%;
-  animation: gl-float 4.5s ease-in-out infinite;
-  animation-delay: -2s;
-}
-.gl-particula--5 {
-  top: 10%;
-  left: 55%;
-  animation: gl-float 6s ease-in-out infinite;
-  animation-delay: -3s;
-  width: 1.5px;
-  height: 1.5px;
-  background: rgba(99, 102, 241, 0.6);
-}
-.gl-particula--6 {
-  top: 60%;
-  left: 30%;
-  animation: gl-float 5.5s ease-in-out infinite;
-  animation-delay: -1.5s;
-  width: 1.5px;
-  height: 1.5px;
+.gl-planet-1::after {
+  width: 22px;
+  height: 6px;
+  top: 2px;
+  right: 10px;
+  background: linear-gradient(90deg, rgba(103, 232, 249, 0.6), transparent);
+  filter: blur(2px);
 }
 
-@keyframes gl-float {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0.4;
-  }
-  25% {
-    transform: translate(6px, -8px) scale(1.4);
-    opacity: 0.8;
-  }
-  50% {
-    transform: translate(-4px, -12px) scale(1);
-    opacity: 0.3;
-  }
-  75% {
-    transform: translate(8px, -4px) scale(1.2);
-    opacity: 0.6;
-  }
+.gl-container--sm .gl-planet-1 { width: 6px; height: 6px; top: -3px; }
+.gl-container--lg .gl-planet-1 { width: 13px; height: 13px; top: -6px; }
+
+/* Planeta 2 — violeta, orbita media */
+.gl-planet-2 {
+  width: 14px;
+  height: 14px;
+  top: 50%;
+  right: -7px;
+  left: auto;
+  transform: translateY(-50%);
+  background: radial-gradient(circle at 35% 35%, #ddd6fe, #a78bfa, #5b21b6);
+  box-shadow: 0 0 10px #a78bfa, 0 0 20px rgba(167, 139, 250, 0.4);
+}
+.gl-planet-2::after {
+  width: 30px;
+  height: 8px;
+  top: 3px;
+  right: 14px;
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.6), transparent);
+  filter: blur(3px);
+}
+
+.gl-container--sm .gl-planet-2 { width: 9px; height: 9px; right: -4px; }
+.gl-container--lg .gl-planet-2 { width: 18px; height: 18px; right: -9px; }
+
+/* Planeta 3 — indigo, orbita grande */
+.gl-planet-3 {
+  width: 8px;
+  height: 8px;
+  bottom: -4px;
+  left: 50%;
+  background: radial-gradient(circle at 35% 35%, #c7d2fe, #818cf8, #4338ca);
+  box-shadow: 0 0 6px #818cf8, 0 0 12px rgba(129, 140, 248, 0.3);
+}
+.gl-planet-3::after {
+  width: 18px;
+  height: 5px;
+  top: 1px;
+  left: 8px;
+  background: linear-gradient(-90deg, rgba(129, 140, 248, 0.5), transparent);
+  filter: blur(2px);
+}
+
+.gl-container--sm .gl-planet-3 { width: 5px; height: 5px; bottom: -2px; }
+.gl-container--lg .gl-planet-3 { width: 10px; height: 10px; bottom: -5px; }
+
+/* Planeta 4 — cinza claro, orbita externa */
+.gl-planet-4 {
+  width: 6px;
+  height: 6px;
+  top: -3px;
+  left: 30%;
+  background: radial-gradient(circle at 35% 35%, #fff, #94a3b8, #475569);
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  opacity: 0.7;
+}
+
+.gl-container--sm .gl-planet-4 { width: 4px; height: 4px; top: -2px; }
+.gl-container--lg .gl-planet-4 { width: 8px; height: 8px; top: -4px; }
+
+/* Planeta 5 — cinza escuro, orbita externa */
+.gl-planet-5 {
+  width: 5px;
+  height: 5px;
+  top: 50%;
+  left: -3px;
+  transform: translateY(-50%);
+  background: radial-gradient(circle at 40% 40%, #d4d4d8, #71717a, #3f3f46);
+  box-shadow: 0 0 4px rgba(161, 161, 170, 0.4);
+  opacity: 0.6;
+}
+
+.gl-container--sm .gl-planet-5 { width: 3px; height: 3px; left: -1px; }
+.gl-container--lg .gl-planet-5 { width: 7px; height: 7px; left: -3px; }
+
+/* ─── Disco de brilho horizontal ─────────────────────────────────────────── */
+.gl-disc-glow {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 260px;
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(103, 232, 249, 0.12) 20%,
+    rgba(129, 140, 248, 0.25) 40%,
+    rgba(167, 139, 250, 0.35) 50%,
+    rgba(129, 140, 248, 0.25) 60%,
+    rgba(103, 232, 249, 0.12) 80%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  filter: blur(3px);
+  animation: gl-disc-pulse 3s ease-in-out infinite;
+  z-index: 5;
+}
+
+.gl-container--sm .gl-disc-glow { width: 160px; height: 3px; }
+.gl-container--lg .gl-disc-glow { width: 340px; height: 6px; }
+
+@keyframes gl-disc-pulse {
+  0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scaleX(1); }
+  50%      { opacity: 1;   transform: translate(-50%, -50%) scaleX(1.08); }
 }
 
 /* ─── Texto com shimmer gradiente ────────────────────────────────────────── */
-/* position: absolute impede que o texto desloque o centro vertical da órbita,
-   evitando "pulo" visual durante transições Suspense → loader de dados */
 .gl-texto {
-  position: absolute;
-  top: calc(50% + 48px);
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
+  margin-top: -30px;
+  text-align: center;
+  padding-left: 24px;
+  animation: gl-fadein 1s ease-out 0.3s both;
+}
+
+.gl-container--sm .gl-texto { margin-top: -18px; padding-left: 16px; }
+.gl-container--lg .gl-texto { margin-top: -38px; padding-left: 30px; }
+
+.gl-texto-principal {
   display: inline-flex;
   align-items: baseline;
-  justify-content: center;
-  padding-left: 1.2em;
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
   background: linear-gradient(
     105deg,
-    rgba(148, 163, 184, 0.6) 0%,
+    rgba(148, 163, 184, 0.5) 0%,
     rgba(129, 140, 248, 0.9) 25%,
     rgba(167, 139, 250, 1) 50%,
     rgba(129, 140, 248, 0.9) 75%,
-    rgba(148, 163, 184, 0.6) 100%
+    rgba(148, 163, 184, 0.5) 100%
   );
   background-size: 250% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gl-texto-shimmer 3s ease-in-out infinite;
+  animation: gl-shimmer 3s ease-in-out infinite;
 }
 
-.gl-container--sm .gl-texto { top: calc(50% + 30px); font-size: 0.75rem; letter-spacing: 0.06em; }
-.gl-container--lg .gl-texto { top: calc(50% + 60px); font-size: 1rem; letter-spacing: 0.1em; }
+.gl-container--sm .gl-texto-principal { font-size: 0.7rem; letter-spacing: 0.18em; }
+.gl-container--lg .gl-texto-principal { font-size: 1rem; letter-spacing: 0.3em; }
 
-@keyframes gl-texto-shimmer {
+@keyframes gl-shimmer {
   0%   { background-position: 200% center; }
   100% { background-position: -200% center; }
 }
 
-/* Palavra "Carregando" */
-.gl-texto-inner {
-  -webkit-text-fill-color: transparent;
-}
-
-/* Dots — inline-flex, compensados por padding-left no container
-   para manter o centro visual alinhado com a animação orbital */
+/* Dots animados */
 .gl-dots {
   display: inline-flex;
   width: 1.2em;
@@ -358,37 +499,42 @@
 }
 
 /* ─── Light theme ────────────────────────────────────────────────────────── */
-body.light-theme .gl-nucleo-svg {
-  color: var(--accent, #4f46e5);
-  filter: drop-shadow(0 0 8px rgba(79, 70, 229, 0.3));
+body.light-theme .gl-logo-svg {
+  color: #4f46e5;
+  filter: drop-shadow(0 0 10px rgba(79, 70, 229, 0.3));
 }
 
-body.light-theme .gl-nucleo-glow {
-  background: radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%);
+body.light-theme .gl-aura-outer {
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, rgba(124, 58, 237, 0.08) 40%, transparent 70%);
 }
 
-body.light-theme .gl-orbita--1 .gl-anel { border-color: rgba(79, 70, 229, 0.15); }
-body.light-theme .gl-orbita--2 .gl-anel { border-color: rgba(124, 58, 237, 0.12); }
-body.light-theme .gl-orbita--3 .gl-anel { border-color: rgba(67, 56, 202, 0.1); }
-
-body.light-theme .gl-eletron--1::after {
-  background: #4f46e5;
-  box-shadow: 0 0 8px 2px rgba(79, 70, 229, 0.5);
-}
-body.light-theme .gl-eletron--2::after {
-  background: #7c3aed;
-  box-shadow: 0 0 8px 2px rgba(124, 58, 237, 0.5);
-}
-body.light-theme .gl-eletron--3::after {
-  background: #4338ca;
-  box-shadow: 0 0 8px 2px rgba(67, 56, 202, 0.5);
+body.light-theme .gl-aura-inner {
+  background: radial-gradient(circle, rgba(67, 56, 202, 0.25) 0%, rgba(79, 70, 229, 0.1) 50%, transparent 70%);
 }
 
-body.light-theme .gl-particula {
-  background: rgba(79, 70, 229, 0.4);
+body.light-theme .gl-constellation line { stroke: #4f46e5; }
+body.light-theme .gl-constellation circle { fill: #4f46e5; }
+body.light-theme .gl-star { background: rgba(79, 70, 229, 0.4); }
+
+body.light-theme .gl-orbit-1 .gl-orbit-ring { border-color: rgba(6, 182, 212, 0.15); }
+body.light-theme .gl-orbit-2 .gl-orbit-ring { border-color: rgba(79, 70, 229, 0.12); }
+body.light-theme .gl-orbit-3 .gl-orbit-ring { border-color: rgba(124, 58, 237, 0.08); }
+body.light-theme .gl-orbit-4 .gl-orbit-ring { border-color: rgba(67, 56, 202, 0.05); }
+
+body.light-theme .gl-planet-1 {
+  background: radial-gradient(circle at 35% 35%, #a5f3fc, #06b6d4, #0e7490);
+  box-shadow: 0 0 8px #06b6d4, 0 0 16px rgba(6, 182, 212, 0.4);
+}
+body.light-theme .gl-planet-2 {
+  background: radial-gradient(circle at 35% 35%, #ddd6fe, #7c3aed, #5b21b6);
+  box-shadow: 0 0 10px #7c3aed, 0 0 20px rgba(124, 58, 237, 0.4);
+}
+body.light-theme .gl-planet-3 {
+  background: radial-gradient(circle at 35% 35%, #c7d2fe, #4f46e5, #3730a3);
+  box-shadow: 0 0 6px #4f46e5, 0 0 12px rgba(79, 70, 229, 0.3);
 }
 
-body.light-theme .gl-texto {
+body.light-theme .gl-texto-principal {
   background: linear-gradient(
     105deg,
     rgba(71, 85, 105, 0.5) 0%,
@@ -404,23 +550,26 @@ body.light-theme .gl-texto {
 
 /* ─── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .gl-nucleo-svg,
-  .gl-nucleo-glow,
-  .gl-orbita,
-  .gl-eletron,
-  .gl-eletron--1,
-  .gl-eletron--2,
-  .gl-eletron--3,
-  .gl-particula,
+  .gl-container,
+  .gl-logo-svg,
+  .gl-aura-outer,
+  .gl-aura-inner,
+  .gl-orbit-1,
+  .gl-orbit-2,
+  .gl-orbit-3,
+  .gl-orbit-4,
+  .gl-star,
+  .gl-disc-glow,
   .gl-texto,
+  .gl-texto-principal,
   .gl-dot {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
 
-  .gl-eletron--1::after,
-  .gl-eletron--2::after,
-  .gl-eletron--3::after {
+  .gl-planet-1,
+  .gl-planet-2,
+  .gl-planet-3 {
     box-shadow: none;
   }
 }

@@ -2,6 +2,7 @@ import { memo } from 'react'
 import './gravity-loader.css'
 
 export interface GravityLoaderProps {
+  /** @deprecated texto removido do loader orbital — prop mantida para retrocompatibilidade */
   texto?: string
   tamanho?: 'sm' | 'md' | 'lg'
 }
@@ -19,14 +20,13 @@ const ESTRELAS = [
 ] as const
 
 export const GravityLoader = memo(function GravityLoader({
-  texto,
   tamanho = 'md',
 }: GravityLoaderProps) {
   return (
     <div
       className={`gl-container gl-container--${tamanho}`}
       aria-busy="true"
-      aria-label={texto ?? 'Carregando...'}
+      aria-label="Carregando..."
     >
       <div className="gl-cena">
         {/* Constelacao de fundo */}
@@ -115,18 +115,6 @@ export const GravityLoader = memo(function GravityLoader({
         </div>
       </div>
 
-      {texto && (
-        <span className="gl-texto" aria-hidden="true">
-          <span className="gl-texto-principal">
-            <span>{texto}</span>
-            <span className="gl-dots">
-              <span className="gl-dot gl-dot--1">.</span>
-              <span className="gl-dot gl-dot--2">.</span>
-              <span className="gl-dot gl-dot--3">.</span>
-            </span>
-          </span>
-        </span>
-      )}
     </div>
   )
 })

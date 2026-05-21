@@ -26,6 +26,8 @@ import {
   Plus,
   Minus,
   ArrowCounterClockwise,
+  Play,
+  Pause,
 } from '@phosphor-icons/react'
 
 import { DEMO_KPIS, DEMO_CALENDARIO, DEMO_MENSAL, DEMO_MODAL, DEMO_MELHOR_COTACAO, DEMO_INCOTERMS } from '../shared/demo-data'
@@ -1014,6 +1016,20 @@ function VisaoGeralMapa() {
   const isRotationPausedRef = useRef(false)
   const zoomRef = useRef(1.0)
 
+  // React state and ref for play/pause control of auto-rotation
+  const [isAutoRotating, setIsAutoRotating] = useState(true)
+  const isAutoRotatingRef = useRef(true)
+
+  useEffect(() => {
+    isAutoRotatingRef.current = isAutoRotating
+    isRotationPausedRef.current = !isAutoRotating
+  }, [isAutoRotating])
+
+  const toggleRotation = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsAutoRotating(prev => !prev)
+  }
+
   const handleZoomIn = (e: React.MouseEvent) => {
     e.stopPropagation()
     zoomRef.current = Math.min(2.5, zoomRef.current + 0.15)
@@ -1029,7 +1045,7 @@ function VisaoGeralMapa() {
     zoomRef.current = 1.0
     rotationRef.current = { x: 0.28, y: -1.25 }
     velocityRef.current = { x: 0, y: 0 }
-    isRotationPausedRef.current = false
+    isRotationPausedRef.current = !isAutoRotatingRef.current
   }
   
   // Generate 5500 Fibonacci points on the sphere for ultra-high-definition realistic mapping
@@ -1323,7 +1339,7 @@ function VisaoGeralMapa() {
           ctx.setLineDash([5, 8])
           // Negative offset moves the dash pattern from start to end (fromId -> toId)
           const isMaritime = route.color === 'rgba(82, 214, 155, 0.8)'
-          ctx.lineDashOffset = -(Date.now() / (isMaritime ? 160 : 32)) % 100
+          ctx.lineDashOffset = -(Date.now() / (isMaritime ? 320 : 32)) % 100
           
           ctx.beginPath()
           ctx.moveTo(pathPoints[0].sx, pathPoints[0].sy)
@@ -1366,7 +1382,7 @@ function VisaoGeralMapa() {
           // Draw 2 staggered pulses per route so direction is immediately obvious
           [0.0, 0.5].forEach((offset) => {
             const isMaritime = route.color === 'rgba(82, 214, 155, 0.8)'
-            const routePulseTime = Date.now() / (isMaritime ? 12000 : 2400)
+            const routePulseTime = Date.now() / (isMaritime ? 24000 : 2400)
             const tPulse = (routePulseTime + routeIdx * 0.22 + offset) % 1.0
             const rawIdx = tPulse * segmentsCount
             
@@ -1512,7 +1528,7 @@ function VisaoGeralMapa() {
   // Drag physics mouse handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     isDraggingRef.current = true
-    isRotationPausedRef.current = false
+    isRotationPausedRef.current = true
     dragStartRef.current = { x: e.clientX, y: e.clientY }
     velocityRef.current = { x: 0, y: 0 }
   }
@@ -1534,13 +1550,14 @@ function VisaoGeralMapa() {
   
   const handleMouseUpOrLeave = () => {
     isDraggingRef.current = false
+    isRotationPausedRef.current = !isAutoRotatingRef.current
   }
   
   // Mobile Touch handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 0) return
     isDraggingRef.current = true
-    isRotationPausedRef.current = false
+    isRotationPausedRef.current = true
     dragStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
     velocityRef.current = { x: 0, y: 0 }
   }
@@ -1674,6 +1691,31 @@ function VisaoGeralMapa() {
           >
             <ArrowCounterClockwise size={16} weight="bold" />
           </button>
+
+          <button 
+            onClick={toggleRotation} 
+            title={isAutoRotating ? "Pausar Rotação" : "Iniciar Rotação"} 
+            className="bfd-map-control-btn"
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: 'rgba(15, 23, 42, 0.75)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15, 23, 42, 0.75)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}
+          >
+            {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
+          </button>
         </div>
         
         {/* Dynamic HTML Overlay Pins */}
@@ -1798,7 +1840,7 @@ export default function Dashboard() {
           line-height: 1.6;
           margin: 0.45rem 0 0;
         }
-        .bfd-header__actions { display: flex; align-items: center; gap: 0.75rem; transform: translateY(40px); }
+        .bfd-header__actions { display: flex; align-items: center; gap: 0.75rem; transform: translateY(28px); }
         .bfd-header__icon-btn {
           width: 38px; height: 38px; border-radius: 8px; border: none; cursor: pointer;
           display: flex; align-items: center; justify-content: center;

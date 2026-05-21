@@ -34,10 +34,12 @@ export const permissoesVerificarInternalRouter = Router()
 
 permissoesVerificarInternalRouter.use(requireInternalKey)
 
+const CUID_V1_V2 = /^[a-z][a-z0-9]{22,24}$/
+
 const BodySchema = z.object({
   id_organizacao: z.string().min(1),
-  id_usuario:     z.string().cuid(),
-  id_workspace:   z.string().cuid(),
+  id_usuario:     z.string().regex(CUID_V1_V2, 'CUID v1/v2 inválido'),
+  id_workspace:   z.string().regex(CUID_V1_V2, 'CUID v1/v2 inválido'),
   slug_produto:   z.string().regex(/^[a-z][a-z0-9-]*$/, 'slug inválido (lowercase, hifens)'),
   secao:          z.enum(SECOES_PRODUTO),
   acao:           z.enum(ACOES_PRODUTO),

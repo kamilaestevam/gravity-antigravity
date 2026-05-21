@@ -17,20 +17,21 @@ import {
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
-import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
+import '../../../../nucleo-global/Login/login-global/src/login-global.css'
 import './auth.css'
+
+interface RequisitoSenha { chave: string; ok: boolean; mensagem: string }
 
 function avaliarSenha(senha: string): {
   forca: 0 | 1 | 2 | 3 | 4
-  requisitos: RequisitoSalvar[]
+  requisitos: RequisitoSenha[]
 } {
   const tem8 = senha.length >= 8
   const temMaiuscula = /[A-Z]/.test(senha)
   const temMinuscula = /[a-z]/.test(senha)
   const temNumero = /\d/.test(senha)
   const temEspecial = /[^A-Za-z0-9]/.test(senha)
-  const requisitos: RequisitoSalvar[] = [
+  const requisitos: RequisitoSenha[] = [
     { chave: 'min8',        ok: tem8,           mensagem: 'No mínimo 8 caracteres' },
     { chave: 'maiuscula',   ok: temMaiuscula,   mensagem: 'Pelo menos 1 letra maiúscula' },
     { chave: 'minuscula',   ok: temMinuscula,   mensagem: 'Pelo menos 1 letra minúscula' },
@@ -81,7 +82,7 @@ export function RecuperarSenhaRedefinirPage() {
   const senhasConferem = senha.length > 0 && senha === confirmacao
   const codigoValido = /^\d{6}$/.test(codigo)
 
-  const requisitos: RequisitoSalvar[] = [
+  const requisitos: RequisitoSenha[] = [
     { chave: 'codigo', ok: codigoValido, mensagem: 'Código de 6 dígitos preenchido' },
     ...requisitosSenha,
     { chave: 'confirma', ok: senhasConferem, mensagem: 'A confirmação de senha confere' },
@@ -232,97 +233,95 @@ export function RecuperarSenhaRedefinirPage() {
 
         <form onSubmit={handleRedefinir} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {/* Código de 6 dígitos */}
-          <CampoGeralGlobal label={t('recuperar.redefinir.label_codigo', 'Código de 6 dígitos')} obrigatorio>
-            <div className="ws-input-icon-wrap">
-              <Hash size={16} />
+          <div className="signup-field">
+            <label htmlFor="redefinir-codigo">{t('recuperar.redefinir.label_codigo', 'Código de 6 dígitos')}</label>
+            <div className="signup-input-wrapper">
               <input
+                id="redefinir-codigo"
                 value={codigo}
                 inputMode="numeric"
                 maxLength={6}
                 placeholder="000000"
                 onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ''))}
-                style={{ width: '100%' }}
                 disabled={enviando}
                 autoFocus
                 autoComplete="one-time-code"
               />
             </div>
-          </CampoGeralGlobal>
+          </div>
 
           {/* Nova senha */}
-          <CampoGeralGlobal label={t('recuperar.redefinir.label_nova_senha', 'Nova senha')} obrigatorio>
-            <div className="ws-input-icon-wrap" style={{ position: 'relative' }}>
-              <Lock size={16} />
+          <div className="signup-field">
+            <label htmlFor="redefinir-senha">{t('recuperar.redefinir.label_nova_senha', 'Nova senha')}</label>
+            <div className="signup-input-wrapper signup-input-wrapper--senha">
               <input
+                id="redefinir-senha"
                 value={senha}
                 type={verSenha ? 'text' : 'password'}
                 placeholder="Mínimo 8 caracteres"
                 onChange={(e) => setSenha(e.target.value)}
-                style={{ width: '100%', paddingRight: '2.5rem' }}
                 disabled={enviando}
                 autoComplete="new-password"
               />
               <button
                 type="button"
-                aria-label={verSenha ? 'Ocultar senha' : 'Mostrar senha'}
+                className="signup-input-toggle"
                 onClick={() => setVerSenha((v) => !v)}
-                style={{
-                  position: 'absolute', right: '0.625rem', top: 0, bottom: 0,
-                  background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer',
-                  padding: '0 0.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
+                aria-label={verSenha ? 'Ocultar senha' : 'Mostrar senha'}
+                tabIndex={-1}
               >
                 {verSenha ? <EyeSlash size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {senha.length > 0 && (
-              <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-                <div style={{ flex: 1, height: '4px', borderRadius: '9999px', background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+              <div className="signup-forca">
+                <div className="signup-forca-track">
                   <div
-                    style={{
-                      width: `${forca * 25}%`,
-                      height: '100%',
-                      background: CORES_FORCA[forca],
-                      transition: 'width 0.2s, background 0.2s',
-                    }}
+                    className="signup-forca-fill"
+                    style={{ width: `${forca * 25}%`, background: CORES_FORCA[forca] }}
                   />
                 </div>
-                <span style={{ fontSize: '0.6875rem', color: CORES_FORCA[forca], fontWeight: 600, minWidth: '70px', textAlign: 'right' }}>
+                <span className="signup-forca-label" style={{ color: CORES_FORCA[forca] }}>
                   {LABEL_FORCA[forca]}
                 </span>
               </div>
             )}
-          </CampoGeralGlobal>
+          </div>
 
           {/* Confirmação */}
-          <CampoGeralGlobal label={t('recuperar.redefinir.label_confirmar', 'Confirmar nova senha')} obrigatorio>
-            <div className="ws-input-icon-wrap" style={{ position: 'relative' }}>
-              <Lock size={16} />
+          <div className="signup-field">
+            <label htmlFor="redefinir-confirmacao">{t('recuperar.redefinir.label_confirmar', 'Confirmar nova senha')}</label>
+            <div className="signup-input-wrapper signup-input-wrapper--senha">
               <input
+                id="redefinir-confirmacao"
                 value={confirmacao}
                 type={verConfirmacao ? 'text' : 'password'}
                 placeholder="Digite a senha novamente"
                 onChange={(e) => setConfirmacao(e.target.value)}
-                style={{ width: '100%', paddingRight: '2.5rem' }}
                 disabled={enviando}
                 autoComplete="new-password"
               />
               <button
                 type="button"
-                aria-label={verConfirmacao ? 'Ocultar senha' : 'Mostrar senha'}
+                className="signup-input-toggle"
                 onClick={() => setVerConfirmacao((v) => !v)}
-                style={{
-                  position: 'absolute', right: '0.625rem', top: 0, bottom: 0,
-                  background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer',
-                  padding: '0 0.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
+                aria-label={verConfirmacao ? 'Ocultar senha' : 'Mostrar senha'}
+                tabIndex={-1}
               >
                 {verConfirmacao ? <EyeSlash size={16} /> : <Eye size={16} />}
               </button>
             </div>
-          </CampoGeralGlobal>
+          </div>
 
-          <BannerRequisitosGlobal requisitos={requisitos} />
+          {/* Checklist de requisitos */}
+          <div className="signup-requisitos">
+            {requisitos.map((r) => (
+              <div key={r.chave} className={`signup-requisito ${r.ok ? 'signup-requisito--ok' : 'signup-requisito--pendente'}`}>
+                {r.ok ? <CheckCircle size={14} weight="fill" /> : <span className="signup-requisito-bullet">○</span>}
+                <span>{r.mensagem}</span>
+              </div>
+            ))}
+          </div>
 
           {erro && (
             <div

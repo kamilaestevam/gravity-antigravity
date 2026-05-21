@@ -2,18 +2,22 @@
  * Cotacoes.tsx — Lista + Kanban de Cotações (T2/T3)
  * Skill: antigravity-design-system, antigravity-componentes
  *
- * Baseado nos prints: modelo 1.png (lista), modelo 3/4.png (kanban)
- * Toggle lista/kanban, filtros por aba, TabelaGlobal, cards kanban
+ * Migrado para TabelaVirtualGlobal para suportar ordenação manual,
+ * persistência de colunas, edição inline e precisão numérica reativa.
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
+import { useShellStore } from '@gravity/shell'
 
 const NovaCotacao = React.lazy(() => import('./NovaCotacao'))
-import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
+import CotacoesKanban from './CotacoesKanban'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { BotaoGlobal } from '@nucleo/botao-global'
+import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
+import type { GTPreferencias, GTColuna } from '@nucleo/tabela-virtual-global'
 import {
   FileText,
   Truck,
@@ -21,97 +25,79 @@ import {
   ListBullets,
   Kanban,
   Upload,
-  FunnelSimple,
-  MagnifyingGlass,
-  Anchor,
-  AirplaneTilt,
-  Van,
+  ArrowCounterClockwise,
+  Warning,
+  Package,
 } from '@phosphor-icons/react'
 
 import { getCotacoes } from '../shared/api'
 import type { Cotacao, StatusCotacao } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, MODALIDADE_LABELS } from '../shared/types'
+import {
+  buildColunasCotacoes,
+  fmtData,
+  fmtQuantidade,
+  getCasas,
+  RenderBadgeStatus,
+  RenderModalIcon,
+} from '../components/lista/ColunasCotacoes'
 
-// ─── Badge de status ─────────────────────────────────────────────────────────
+// ─── Tabs de filtro ───
 
-const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
-  info:    { bg: 'rgba(59,130,246,0.15)',  color: 'var(--accent, #6366f1)' },
-  warning: { bg: 'rgba(245,158,11,0.15)',  color: 'var(--warning, #f59e0b)' },
-  success: { bg: 'rgba(34,197,94,0.15)',   color: 'var(--success, #22c55e)' },
-  danger:  { bg: 'rgba(239,68,68,0.15)',   color: 'var(--danger, #ef4444)' },
-  default: { bg: 'rgba(100,116,139,0.15)', color: 'var(--text-muted, #64748b)' },
-}
-
-function BadgeStatus({ status }: { status: StatusCotacao }) {
-  const variante = STATUS_BADGE[status]
-  const cores = BADGE_COLORS[variante]
-  return (
-    <span style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      padding: '0.2rem 0.6rem',
-      borderRadius: 'var(--radius-pill, 9999px)',
-      fontSize: '0.75rem',
-      fontWeight: 600,
-      background: cores.bg,
-      color: cores.color,
-    }}>
-      {STATUS_LABELS[status]}
-    </span>
-  )
-}
-
-// ─── Modal icon ──────────────────────────────────────────────────────────────
-
-function ModalIcon({ modal }: { modal: string }) {
-  const size = 14
-  if (modal === 'MARITIMO') return <Anchor weight="duotone" size={size} />
-  if (modal === 'AEREO') return <AirplaneTilt weight="duotone" size={size} />
-  return <Van weight="duotone" size={size} />
-}
-
-// ─── Tabs de filtro ──────────────────────────────────────────────────────────
-
-const TABS: { key: string; label: string }[] = [
-  { key: 'TODAS', label: 'Todas as cotações' },
-  { key: 'DATA_LIMITE', label: 'Data limite para resposta' },
-  { key: 'PROXIMO_VENCIMENTO', label: 'Próximos ao vencimento' },
-  { key: 'FALTA_INFORMACAO', label: 'Falta de informação para cotação' },
+const abas = [
+  { valor: 'TODAS', label: 'Todas as cotações' },
+  { valor: 'DATA_LIMITE', label: 'Data limite para resposta' },
+  { valor: 'PROXIMO_VENCIMENTO', label: 'Próximos ao vencimento' },
+  { valor: 'FALTA_INFORMACAO', label: 'Falta de informação' },
 ]
 
-// ─── Kanban Columns ──────────────────────────────────────────────────────────
+// ─── Campos Editáveis Inline ───
 
-interface KanbanColConfig {
-  status: StatusCotacao
-  label: string
-  headerColor: string
-  headerBg: string
-}
-
-const KANBAN_COLS: KanbanColConfig[] = [
-  { status: 'ENVIADA_FORNECEDORES',  label: 'Enviada ao fornecedor', headerColor: '#3b82f6', headerBg: 'rgba(59,130,246,0.15)' },
-  { status: 'AGUARDANDO_APROVACAO',  label: 'Aprovação pendente',    headerColor: '#f59e0b', headerBg: 'rgba(245,158,11,0.15)' },
-  { status: 'FALTA_INFORMACAO',      label: 'Falta de informação',   headerColor: '#f97316', headerBg: 'rgba(249,115,22,0.15)' },
-  { status: 'EM_COTACAO',            label: 'Baixo limite de resposta', headerColor: '#ef4444', headerBg: 'rgba(239,68,68,0.15)' },
-  { status: 'EXPIRADA',              label: 'Fora de prazo',         headerColor: '#ef4444', headerBg: 'rgba(239,68,68,0.15)' },
-  { status: 'APROVADA',              label: 'Encerradas',            headerColor: '#22c55e', headerBg: 'rgba(34,197,94,0.15)' },
+const CAMPOS_EDITAVEIS = [
+  'referencia_interna',
+  'prazo_resposta',
+  'origem_nome',
+  'destino_nome',
+  'modal',
+  'modalidade',
+  'peso_kg',
+  'cubagem_m3',
+  'quantidade',
+  'incoterm',
+  'valor_alvo',
 ]
 
-// ─── Formatação ──────────────────────────────────────────────────────────────
+// ─── Sequência de colunas padrão ───
 
-const dataBR = (iso: string) =>
-  new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+const COLUNAS_PADRAO_VISIVEIS = [
+  'numero',
+  'referencia_interna',
+  'status',
+  'created_at',
+  'modal',
+  'origem_nome',
+  'destino_nome',
+  'peso_kg',
+  'cubagem_m3',
+  'incoterm',
+  'valor_alvo',
+  'saving_valor',
+  'saving_percentual',
+]
 
-// ─── Componente Principal ────────────────────────────────────────────────────
+
 
 export default function Cotacoes() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
+  const addNotification = useShellStore(s => s.addNotification)
+
   const isNovaCotacao = location.pathname.endsWith('/nova')
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
   const [carregando, setCarregando] = useState(true)
+  const [busca, setBusca] = useState('')
 
   const visaoParam = searchParams.get('visao')
   const visao = visaoParam === 'kanban' ? 'kanban' : 'lista'
@@ -140,6 +126,7 @@ export default function Cotacoes() {
 
   const [filtroTab, setFiltroTab] = useState('TODAS')
 
+  // Carregar dados de cotações
   const carregar = useCallback(async () => {
     setCarregando(true)
     try {
@@ -154,169 +141,90 @@ export default function Cotacoes() {
 
   useEffect(() => { carregar() }, [carregar])
 
-  // ─── Colunas TabelaGlobal ──────────────────────────────────────────────
+  // ─── Tabela Virtual: Preferências, Colunas e Edição ───
 
-  const colunas: TabelaGlobalColuna<Cotacao>[] = [
-    {
-      key: 'numero',
-      label: 'Processo (DATI)',
-      tipo: 'texto',
-      largura: 140,
-      render: (val: string) => (
-        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem', color: 'var(--accent, #6366f1)' }}>
-          {val}
-        </span>
-      ),
-    },
-    {
-      key: 'referencia_interna',
-      label: 'Referência',
-      tipo: 'texto',
-      largura: 110,
-      render: (val: string | null) => val ?? '—',
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      tipo: 'texto',
-      largura: 170,
-      render: (val: StatusCotacao) => <BadgeStatus status={val} />,
-    },
-    {
-      key: 'created_at',
-      label: 'Data da cotação',
-      tipo: 'periodo',
-      largura: 120,
-      render: (val: string) => dataBR(val),
-    },
-    {
-      key: 'user_id',
-      label: 'Quem gerou',
-      tipo: 'texto',
-      largura: 100,
-      render: () => 'DATI',
-    },
-    {
-      key: 'prazo_resposta',
-      label: 'Respondido em',
-      tipo: 'periodo',
-      largura: 120,
-      render: (val: string | null) => val ? dataBR(val) : '—',
-    },
-    {
-      key: 'origem_nome',
-      label: 'Origem',
-      tipo: 'texto',
-      largura: 140,
-    },
-    {
-      key: 'destino_nome',
-      label: 'Destino',
-      tipo: 'texto',
-      largura: 120,
-    },
-    {
-      key: 'modal',
-      label: 'Modal',
-      tipo: 'texto',
-      largura: 100,
-      render: (val: string) => MODAL_LABELS[val as keyof typeof MODAL_LABELS] ?? val,
-    },
-    {
-      key: 'modalidade',
-      label: 'Modalidade',
-      tipo: 'texto',
-      largura: 90,
-      render: (val: string) => MODALIDADE_LABELS[val as keyof typeof MODALIDADE_LABELS] ?? val,
-    },
-    {
-      key: 'peso_kg',
-      label: 'Peso (Kg)',
-      tipo: 'numero',
-      largura: 100,
-      align: 'right',
-      render: (val: number | null) => val != null ? val.toLocaleString('pt-BR') : '—',
-    },
-  ]
+  const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(() => {
+    try {
+      const raw = localStorage.getItem('bid-frete:config:tabela_preferencias')
+      return raw ? JSON.parse(raw) : undefined
+    } catch {
+      return undefined
+    }
+  })
 
-  const acoes: TabelaGlobalAcao<Cotacao>[] = [
+  const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
+    setPreferencias(prefs)
+    try {
+      localStorage.setItem('bid-frete:config:tabela_preferencias', JSON.stringify(prefs))
+    } catch { /* ignore */ }
+  }, [])
+
+  const colunasTabela = useMemo(() => buildColunasCotacoes(t), [t])
+
+  const handleEditar = useCallback(async (id: string, campo: string, valor: unknown) => {
+    let updatedCotacao: Cotacao | undefined
+    setCotacoes(prev => prev.map(c => {
+      if (c.id === id) {
+        updatedCotacao = { ...c, [campo as keyof Cotacao]: valor } as Cotacao
+        return updatedCotacao
+      }
+      return c
+    }))
+    const current = cotacoes.find(c => c.id === id)
+    if (!current) throw new Error('Cotação não encontrada')
+    const updated = { ...current, [campo as keyof Cotacao]: valor } as Cotacao
+    return updated
+  }, [cotacoes])
+
+  const handleReordenarCotacoes = useCallback((ids: string[]) => {
+    const mapa = new Map(cotacoes.map(c => [c.id, c]))
+    const reordenados = ids.map(id => mapa.get(id)).filter((c): c is Cotacao => c != null)
+    const restantes = cotacoes.filter(c => !ids.includes(c.id))
+    setCotacoes([...reordenados, ...restantes])
+  }, [cotacoes])
+
+  // ─── Filtragem Reativa (Busca + Abas) ───
+
+  const cotacoesFiltradas = useMemo(() => {
+    let result = cotacoes
+
+    // Filtro por abas
+    if (filtroTab === 'DATA_LIMITE') {
+      result = result.filter(c => c.status === 'AGUARDANDO_APROVACAO')
+    } else if (filtroTab === 'PROXIMO_VENCIMENTO') {
+      result = result.filter(c => c.status === 'EM_COTACAO')
+    } else if (filtroTab === 'FALTA_INFORMACAO') {
+      result = result.filter(c => c.status === 'FALTA_INFORMACAO')
+    }
+
+    // Filtro por busca
+    if (busca.trim()) {
+      const term = busca.toLowerCase()
+      result = result.filter(c =>
+        c.numero.toLowerCase().includes(term) ||
+        (c.referencia_interna ?? '').toLowerCase().includes(term) ||
+        c.origem_nome.toLowerCase().includes(term) ||
+        c.destino_nome.toLowerCase().includes(term)
+      )
+    }
+
+    return result
+  }, [cotacoes, filtroTab, busca])
+
+  // ─── Ações de Linha ───
+
+  const acoes = useMemo(() => [
     {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: 'Ver detalhes',
       onClick: (item: Cotacao) => navigate(`/cotacoes/${item.id}`),
     },
-  ]
+  ], [navigate])
 
-  // ─── Kanban Card ──────────────────────────────────────────────────────
 
-  function KanbanCard({ cotacao }: { cotacao: Cotacao }) {
-    return (
-      <div
-        className="bf-kanban-card"
-        onClick={() => navigate(`/cotacoes/${cotacao.id}`)}
-      >
-        <div className="bf-kanban-card-header">
-          <span className="bf-kanban-card-numero">{cotacao.numero}</span>
-          <BadgeStatus status={cotacao.status} />
-        </div>
-        <div className="bf-kanban-card-route">
-          <ModalIcon modal={cotacao.modal} />
-          <span>{cotacao.origem_nome}</span>
-          <span style={{ color: 'var(--text-muted)' }}>→</span>
-          <span>{cotacao.destino_nome}</span>
-        </div>
-        <div className="bf-kanban-card-meta">
-          <span>{MODAL_LABELS[cotacao.modal] ?? cotacao.modal}</span>
-          <span>{MODALIDADE_LABELS[cotacao.modalidade] ?? cotacao.modalidade}</span>
-          {cotacao.peso_kg && <span>{cotacao.peso_kg.toLocaleString('pt-BR')} Kg</span>}
-        </div>
-        {cotacao.referencia_interna && (
-          <div className="bf-kanban-card-ref">
-            Ref: {cotacao.referencia_interna}
-          </div>
-        )}
-        <div className="bf-kanban-card-footer">
-          <span>{dataBR(cotacao.created_at)}</span>
-          {cotacao.bid_responses && cotacao.bid_responses.length > 0 && (
-            <span style={{ color: 'var(--success)' }}>
-              {cotacao.bid_responses.length} {t('bidfrete.cotacoes.respostas')}
-            </span>
-          )}
-        </div>
-      </div>
-    )
-  }
 
-  // ─── Kanban Board ─────────────────────────────────────────────────────
-
-  function KanbanBoard() {
-    return (
-      <div className="bf-kanban-board">
-        {KANBAN_COLS.map(col => {
-          const cards = cotacoes.filter(c => c.status === col.status)
-          return (
-            <div key={col.status} className="bf-kanban-col">
-              <div className="bf-kanban-col-header" style={{ background: col.headerBg, color: col.headerColor }}>
-                <span className="bf-kanban-col-dot" style={{ background: col.headerColor }} />
-                {col.label}
-                <span className="bf-kanban-col-count">{cards.length}</span>
-              </div>
-              <div className="bf-kanban-col-body">
-                {cards.length === 0 ? (
-                  <div className="bf-kanban-empty">{t('bidfrete.cotacoes.vazio')}</div>
-                ) : (
-                  cards.map(c => <KanbanCard key={c.id} cotacao={c} />)
-                )}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    )
-  }
-
-  // ─── Render ───────────────────────────────────────────────────────────
+  // ─── Render ───
 
   return (
     <PaginaGlobal
@@ -325,122 +233,69 @@ export default function Cotacoes() {
         <CabecalhoGlobal
           icone={<FileText weight="duotone" size={22} />}
           titulo={t('bidfrete.cotacoes.titulo')}
-          acoes={
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <button
-                className={`bf-toggle-btn ${visao === 'lista' ? 'bf-toggle-btn--ativo' : ''}`}
-                onClick={() => setVisao('lista')}
-                title={t('bidfrete.cotacoes.vista_lista')}
-              >
-                <ListBullets weight="duotone" size={18} />
-              </button>
-              <button
-                className={`bf-toggle-btn ${visao === 'kanban' ? 'bf-toggle-btn--ativo' : ''}`}
-                onClick={() => setVisao('kanban')}
-                title={t('bidfrete.cotacoes.vista_kanban')}
-              >
-                <Kanban weight="duotone" size={18} />
-              </button>
-              <div style={{ width: 1, height: 24, background: 'var(--bg-elevated)', margin: '0 0.25rem' }} />
-              <button className="btn btn-secondary" onClick={() => navigate('/cotacoes/importar')}>
-                <Upload weight="bold" size={14} />
-                {t('comum.importar')}
-              </button>
-              <button className="btn btn-primary" onClick={() => navigate('/cotacoes/nova')}>
-                <Truck weight="bold" size={16} />
-                {t('bidfrete.cotacoes.buscar_frete')}
-              </button>
-            </div>
-          }
         />
       }
     >
-      {/* Tabs de filtro */}
-      <div className="bf-cotacoes-tabs">
-        {TABS.map(tab => (
-          <button
-            key={tab.key}
-            className={`bf-tab ${filtroTab === tab.key ? 'bf-tab--ativo' : ''}`}
-            onClick={() => setFiltroTab(tab.key)}
-          >
-            {tab.label}
-            <span className="bf-tab-count">
-              {tab.key === 'TODAS' ? cotacoes.length :
-               tab.key === 'FALTA_INFORMACAO' ? cotacoes.filter(c => c.status === 'FALTA_INFORMACAO').length :
-               tab.key === 'PROXIMO_VENCIMENTO' ? cotacoes.filter(c => c.status === 'EM_COTACAO').length :
-               cotacoes.filter(c => c.status === 'AGUARDANDO_APROVACAO').length}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      {/* Conteúdo */}
+      {/* Conteúdo da Visão */}
       {visao === 'lista' ? (
         <div className="bf-table-section">
-          <TabelaGlobal
-            dados={cotacoes}
-            colunas={colunas}
+          <TabelaVirtualGlobal<Cotacao, any>
+            dados={cotacoesFiltradas}
+            colunas={colunasTabela}
+            itemId={(item) => item.id}
+            
+            itensPorPagina={50}
+            totalItens={cotacoesFiltradas.length}
+            paginaAtual={1}
+            onMudarPagina={() => {}}
+            labelPai={['cotação', 'cotações']}
+            
+            abas={abas}
+            abaAtiva={filtroTab}
+            onMudarAba={setFiltroTab}
+            
             acoes={acoes}
-            idKey="id"
+            
+            onBuscar={setBusca}
+            modoLocalizar={true}
+            placeholderBusca="Buscar por processo, referência, origem ou destino..."
+            
+            camposEditaveis={CAMPOS_EDITAVEIS}
+            onEditar={handleEditar}
+            onSalvoComSucesso={() => addNotification({ type: 'success', message: 'Campo atualizado com sucesso.' })}
+            onErroAoSalvar={(msg) => addNotification({ type: 'error', message: msg })}
+            
+            arrastavelPai={true}
+            onReordenarPai={handleReordenarCotacoes}
+            
+            preferencias={preferencias}
+            onSalvarPreferencias={handleSalvarPreferencias}
+            colunasPadrao={COLUNAS_PADRAO_VISIVEIS}
+            
             carregando={carregando}
-            mensagemVazio={t('bidfrete.cotacoes.vazio')}
-            tooltipBusca={t('bidfrete.dashboard.buscar')}
-            aoClicarLinha={(item: Cotacao) => navigate(`/cotacoes/${item.id}`)}
+            emptyIcon={<Package size={40} weight="duotone" style={{ color: 'var(--text-muted)' }} />}
+            emptyTitle={t('bidfrete.cotacoes.vazio')}
+            emptyDescription="Nenhuma cotação encontrada com os filtros selecionados."
+            
+            ariaLabel="Lista de Cotações"
           />
         </div>
       ) : (
-        <KanbanBoard />
+        <CotacoesKanban
+          cotacoes={cotacoesFiltradas}
+          carregando={carregando}
+          onRefresh={carregar}
+        />
       )}
 
       <style>{`
-        .bf-cotacoes { padding: 0; }
-
-        /* ── Tabs ── */
-        .bf-cotacoes-tabs {
+        .bf-cotacoes {
+          padding: 0;
           display: flex;
-          gap: 0.25rem;
-          padding: 0 0 0;
-          border-bottom: 1px solid var(--bg-elevated, #475569);
-          margin-bottom: 1rem;
-          background: var(--bg-surface, #334155);
-          border-radius: var(--radius-lg, 12px) var(--radius-lg, 12px) 0 0;
-          padding: 0.75rem 1.25rem 0;
-        }
-
-        .bf-tab {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem 0.875rem;
-          font-size: 0.8125rem;
-          font-weight: 500;
-          color: var(--text-secondary, #94a3b8);
-          background: none;
-          border: none;
-          border-bottom: 2px solid transparent;
-          cursor: pointer;
-          transition: all 0.15s;
-          font-family: inherit;
-          white-space: nowrap;
-        }
-        .bf-tab:hover { color: var(--text-primary, #f1f5f9); }
-        .bf-tab--ativo {
-          color: var(--accent, #6366f1);
-          border-bottom-color: var(--accent, #6366f1);
-        }
-        .bf-tab-count {
-          font-size: 0.6875rem;
-          font-weight: 700;
-          background: var(--bg-elevated, #475569);
-          color: var(--text-secondary, #94a3b8);
-          padding: 0.1rem 0.45rem;
-          border-radius: var(--radius-pill, 9999px);
-          min-width: 1.25rem;
-          text-align: center;
-        }
-        .bf-tab--ativo .bf-tab-count {
-          background: rgba(99,102,241,0.2);
-          color: var(--accent, #6366f1);
+          flex-direction: column;
+          flex: 1;
+          min-height: 0;
+          height: 100%;
         }
 
         /* ── Toggle lista/kanban ── */
@@ -469,8 +324,13 @@ export default function Cotacoes() {
         /* ── Table section ── */
         .bf-table-section {
           background: var(--bg-surface, #334155);
-          border-radius: 0 0 var(--radius-lg, 12px) var(--radius-lg, 12px);
+          border-radius: var(--radius-lg, 12px);
           overflow: hidden;
+          flex: 1;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
         }
 
         /* ── Kanban Board ── */

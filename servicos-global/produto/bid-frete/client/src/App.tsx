@@ -77,7 +77,7 @@ const iconMap: Record<string, React.ReactNode> = {
 
 function mapNavItem(item: NavigationItem): NavItem {
   if (item.sectionDivider) {
-    return { label: item.label, sectionDivider: true as const }
+    return { label: item.label, sectionDivider: true as const, icon: null as any }
   }
   return {
     id:           item.id,
@@ -146,7 +146,7 @@ export default function App() {
   const workspacesStore  = useShellStore(s => s.workspaces)
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
 
-  const { history, visitedIds, addEntry } = useLocalizadorHistory(PRODUCT_ID)
+  const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
   // Registra navegação no localizador
   useEffect(() => {
@@ -216,7 +216,6 @@ export default function App() {
         currentPageLabel: pageLabel,
         history,
         nodes: ECOSYSTEM_NODES,
-        visitedNodeIds: visitedIds,
         onNavigate: (node: EcosystemNode) => {
           if (node.type === 'hub')               window.location.href = '/hub'
           else if (node.type === 'configurador') window.location.href = '/configurador'

@@ -184,7 +184,7 @@ function KpiCard({ icon, label, value, sub, badge, badgeColor, sparkData, sparkT
   return (
     <div className={`bfd-kpi ${destacado ? 'bfd-kpi--destacado' : ''}`}>
       <div className="bfd-kpi__header">
-        <span className="bfd-kpi__icon" style={{ color: destacado ? '#52d69b' : '#cbd5e1' }}>{icon}</span>
+        <span className="bfd-kpi__icon" style={{ color: destacado ? '#60a5fa' : '#cbd5e1' }}>{icon}</span>
         <span className="bfd-kpi__label" style={{ color: destacado ? '#ffffff' : '#94a3b8' }}>{label}</span>
       </div>
       <div className="bfd-kpi__row">
@@ -193,8 +193,8 @@ function KpiCard({ icon, label, value, sub, badge, badgeColor, sparkData, sparkT
           <span
             className="bfd-kpi__badge"
             style={{
-              color: destacado ? '#ffffff' : (badgeColor || '#34d399'),
-              background: destacado ? 'rgba(82,214,155,0.25)' : 'rgba(52,211,153,0.12)',
+              color: destacado ? '#ffffff' : (badgeColor || '#60a5fa'),
+              background: destacado ? 'rgba(96,165,250,0.25)' : 'rgba(96,165,250,0.12)',
             }}
           >
             {badge}
@@ -210,7 +210,7 @@ function KpiCard({ icon, label, value, sub, badge, badgeColor, sparkData, sparkT
               className="bfd-kpi__spark-bar"
               style={{
                 height: `${(d / maxSpark) * 100}%`,
-                background: destacado ? '#52d69b' : `rgba(99,91,255,${0.3 + (i / sparkData.length) * 0.7})`,
+                background: destacado ? '#60a5fa' : `rgba(99,91,255,${0.3 + (i / sparkData.length) * 0.7})`,
               }}
             />
           ))}
@@ -233,13 +233,13 @@ function KpiCard({ icon, label, value, sub, badge, badgeColor, sparkData, sparkT
             return (
               <svg width="100%" height="32" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ overflow: 'visible' }}>
                 <defs>
-                  <linearGradient id="sparkline-grad-green" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#52d69b" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#52d69b" stopOpacity="0.0" />
+                  <linearGradient id="sparkline-grad-blue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.0" />
                   </linearGradient>
                 </defs>
-                <path d={fillPath} fill="url(#sparkline-grad-green)" />
-                <path d={linePath} fill="none" stroke="#52d69b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d={fillPath} fill="url(#sparkline-grad-blue)" />
+                <path d={linePath} fill="none" stroke="#60a5fa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             )
           })()}
@@ -279,16 +279,16 @@ function GraficoBarrasMensal() {
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="bfd-chart-svg" style={{ overflow: 'visible' }}>
       <defs>
-        {/* Vibrant emerald/mint gradient */}
+        {/* Vibrant blue gradient (Aprovadas) */}
         <linearGradient id="grad-aprov" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#34d399" />
-          <stop offset="100%" stopColor="#059669" />
-        </linearGradient>
-        
-        {/* Vibrant blue gradient */}
-        <linearGradient id="grad-and" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#60a5fa" />
           <stop offset="100%" stopColor="#2563eb" />
+        </linearGradient>
+        
+        {/* Vibrant lavender/violet gradient (Em andamento) */}
+        <linearGradient id="grad-and" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#c084fc" />
+          <stop offset="100%" stopColor="#7c3aed" />
         </linearGradient>
         
         {/* Vibrant rose/red gradient */}
@@ -479,10 +479,10 @@ function GraficoDonutModal() {
 function FunilStatus() {
   const localFunil = [
     { label: 'Draft', count: 5, color: '#94a3b8' },
-    { label: 'Resurit ae fornecedor', count: 8, color: '#60a5fa' },
+    { label: 'Resurit ae fornecedor', count: 8, color: '#8b5cf6' },
     { label: 'Aprovacao', count: 12, color: '#818cf8' },
     { label: 'Aprovacao pendente', count: 7, color: '#fbbf24' },
-    { label: 'Recvede', count: 42, color: '#34d399' },
+    { label: 'Recvede', count: 42, color: '#60a5fa' },
     { label: 'Aprovada', count: 6, color: '#f87171' },
     { label: 'Esploda', count: 3, color: '#64748b' },
   ]
@@ -523,7 +523,7 @@ function TaxaAprovacao() {
   const circ = 2 * Math.PI * r
 
   const segments = [
-    { pct: percentual_em_tempo, cor: '#34d399', label: `Em tempo: ${percentual_em_tempo}%` },
+    { pct: percentual_em_tempo, cor: '#60a5fa', label: `Em tempo: ${percentual_em_tempo}%` },
     { pct: percentual_atraso, cor: '#fbbf24', label: `Atrasadas: ${percentual_atraso}%` },
     { pct: nao_respondidas, cor: '#f87171', label: `Sem resposta: ${nao_respondidas}%` },
   ]
@@ -981,20 +981,21 @@ interface ArcRoute {
   toId: number
   color: string
   heightFactor?: number // Custom height factor to avoid overlapping curves
+  mode: 'MARITIMO' | 'AEREO'
 }
 
 const GLOBE_ROUTES: ArcRoute[] = [
   // 70% China (Shanghai) -> Guarulhos (São Paulo)
-  { fromId: 1, toId: 2, color: 'rgba(82, 214, 155, 0.8)', heightFactor: 0.14 }, // Maritime route (green, slow)
-  { fromId: 1, toId: 2, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.22 }, // Air route (purple, fast)
+  { fromId: 1, toId: 2, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.14, mode: 'MARITIMO' }, // Maritime route (emerald green, slow)
+  { fromId: 1, toId: 2, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.22, mode: 'AEREO' }, // Air route (purple, fast)
 
   // 20% USA (Miami) -> Itajaí
-  { fromId: 4, toId: 3, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.20 }, // Air route (purple, fast)
-  { fromId: 4, toId: 3, color: 'rgba(82, 214, 155, 0.8)', heightFactor: 0.13 }, // Maritime route (green, slow)
+  { fromId: 4, toId: 3, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.20, mode: 'AEREO' }, // Air route (purple, fast)
+  { fromId: 4, toId: 3, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.13, mode: 'MARITIMO' }, // Maritime route (emerald green, slow)
 
   // 10% Argentina (Buenos Aires) -> Recife
-  { fromId: 5, toId: 6, color: 'rgba(82, 214, 155, 0.8)', heightFactor: 0.15 }, // Maritime route (green, slow)
-  { fromId: 5, toId: 6, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.24 }, // Air route (purple, fast)
+  { fromId: 5, toId: 6, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.15, mode: 'MARITIMO' }, // Maritime route (emerald green, slow)
+  { fromId: 5, toId: 6, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.24, mode: 'AEREO' }, // Air route (purple, fast)
 ]
 
 interface RouteDetail {
@@ -1067,7 +1068,7 @@ const TOP_DESTINOS = [
 ]
 
 const MODAIS_INFO = [
-  { modal: 'MARITIMO', label: 'Marítimo', count: 120, pct: 60, cor: '#52d69b' },
+  { modal: 'MARITIMO', label: 'Marítimo', count: 120, pct: 60, cor: '#34d399' },
   { modal: 'AEREO', label: 'Aéreo', count: 70, pct: 35, cor: '#a78bfa' },
   { modal: 'RODOVIARIO', label: 'Rodoviário', count: 10, pct: 5, cor: '#fbbf24' },
 ]
@@ -1180,7 +1181,7 @@ function VisaoGeralMapa() {
       }
       
       const isWide = w > 850
-      const cx = isWide ? (w / 2 + 120) : (w / 2)
+      const cx = isWide ? (w / 2 - 120) : (w / 2)
       const cy = h / 2
       const R = Math.min(w, h) * 0.42 * zoomRef.current
       const pulseTime = Date.now() / 2400
@@ -1217,15 +1218,13 @@ function VisaoGeralMapa() {
       ctx.clearRect(0, 0, w, h)
       
       // 1. Draw Deep Space Background Glow Behind Globe (Premium Volumetric Aura)
-      const bgGlow = ctx.createRadialGradient(cx, cy, R * 0.4, cx, cy, R * 1.35)
-      bgGlow.addColorStop(0, 'rgba(8, 12, 24, 0.70)') // Soft midnight blue core
-      bgGlow.addColorStop(0.5, 'rgba(16, 28, 48, 0.40)') // Faded slate blue core shading
-      bgGlow.addColorStop(0.8, 'rgba(82, 214, 155, 0.05)') // Extremely subtle emerald glow on the globe's horizon
-      bgGlow.addColorStop(0.92, 'rgba(167, 139, 250, 0.02)') // Barely visible outer violet corona
+      const bgGlow = ctx.createRadialGradient(cx, cy, R * 0.8, cx, cy, R * 1.3)
+      bgGlow.addColorStop(0, 'rgba(16, 28, 48, 0.45)') // Soft midnight blue core
+      bgGlow.addColorStop(0.5, 'rgba(96, 165, 250, 0.03)') // Faded blue core shading
       bgGlow.addColorStop(1.0, 'rgba(0, 0, 0, 0)') // Fades out completely to let the card bg take over
       ctx.fillStyle = bgGlow
       ctx.beginPath()
-      ctx.arc(cx, cy, R * 1.35, 0, Math.PI * 2)
+      ctx.arc(cx, cy, R * 1.3, 0, Math.PI * 2)
       ctx.fill()
       
       // 2. Draw 3D Grid Meridian & Parallels (back layer)
@@ -1296,12 +1295,12 @@ function VisaoGeralMapa() {
         // Depth check: z2 < 0 is back, z2 >= 0 is front
         if (rz2 < 0) {
           // Slightly more visible dots for the back hemisphere to give structural context
-          ctx.fillStyle = 'rgba(82, 214, 155, 0.12)'
+          ctx.fillStyle = 'rgba(96, 165, 250, 0.12)'
           ctx.fillRect(sx - 0.5, sy - 0.5, 1.0, 1.0)
         } else {
           // Bright, highly defined neon dots for the front hemisphere (sharper countries)
           const normalizedDepth = Math.max(0, Math.min(1, rz2)) // 1 at front, 0 at edge
-          ctx.fillStyle = `rgba(82, 214, 155, ${0.30 + normalizedDepth * 0.60})`
+          ctx.fillStyle = `rgba(96, 165, 250, ${0.30 + normalizedDepth * 0.60})`
           const size = 1.1 + normalizedDepth * 0.9 // optimized for higher density scan
           ctx.beginPath()
           ctx.arc(sx, sy, size, 0, Math.PI * 2)
@@ -1311,8 +1310,8 @@ function VisaoGeralMapa() {
       
       // 4. Draw Atmospheric Cyber Glass Rim Glow & Futuristic Holographic Ring
       ctx.shadowBlur = 15
-      ctx.shadowColor = 'rgba(82, 214, 155, 0.2)'
-      ctx.strokeStyle = 'rgba(82, 214, 155, 0.18)'
+      ctx.shadowColor = 'rgba(96, 165, 250, 0.2)'
+      ctx.strokeStyle = 'rgba(96, 165, 250, 0.18)'
       ctx.lineWidth = 2
       ctx.beginPath()
       ctx.arc(cx, cy, R, 0, Math.PI * 2)
@@ -1320,7 +1319,7 @@ function VisaoGeralMapa() {
       ctx.shadowBlur = 0 // Reset
       
       // Fine-lined rotating futuristic coordinates ring (outer tech orbit)
-      ctx.strokeStyle = 'rgba(82, 214, 155, 0.12)'
+      ctx.strokeStyle = 'rgba(96, 165, 250, 0.12)'
       ctx.lineWidth = 1
       ctx.setLineDash([4, 15])
       ctx.beginPath()
@@ -1328,7 +1327,7 @@ function VisaoGeralMapa() {
       ctx.stroke()
       
       // Secondary reverse-rotating orbit
-      ctx.strokeStyle = 'rgba(167, 139, 250, 0.1)'
+      ctx.strokeStyle = 'rgba(96, 165, 250, 0.08)'
       ctx.setLineDash([2, 25])
       ctx.beginPath()
       ctx.arc(cx, cy, R * 1.13, -pulseTime * 0.08, -pulseTime * 0.08 + Math.PI * 2)
@@ -1420,7 +1419,7 @@ function VisaoGeralMapa() {
           ctx.lineWidth = isRouteDirectSource ? 3.5 : 2.0
           ctx.setLineDash([5, 8])
           // Negative offset moves the dash pattern from start to end (fromId -> toId)
-          const isMaritime = route.color === 'rgba(82, 214, 155, 0.8)'
+          const isMaritime = route.mode === 'MARITIMO'
           ctx.lineDashOffset = -(Date.now() / (isMaritime ? 320 : 32)) % 100
           
           ctx.beginPath()
@@ -1443,7 +1442,7 @@ function VisaoGeralMapa() {
               ctx.save()
               ctx.translate(p1.sx, p1.sy)
               ctx.rotate(angle)
-              ctx.strokeStyle = route.color === 'rgba(167, 139, 250, 0.8)' ? '#c084fc' : '#34d399'
+              ctx.strokeStyle = route.mode === 'AEREO' ? '#c084fc' : '#34d399'
               ctx.lineWidth = isRouteDirectSource ? 3.0 : 2.0
               ctx.lineCap = 'round'
               ctx.lineJoin = 'round'
@@ -1463,7 +1462,7 @@ function VisaoGeralMapa() {
         if (!isBack && (currentHovered === null || isRouteDirectSource)) {
           // Draw 2 staggered pulses per route so direction is immediately obvious
           [0.0, 0.5].forEach((offset) => {
-            const isMaritime = route.color === 'rgba(82, 214, 155, 0.8)'
+            const isMaritime = route.mode === 'MARITIMO'
             const routePulseTime = Date.now() / (isMaritime ? 24000 : 2400)
             const tPulse = (routePulseTime + routeIdx * 0.22 + offset) % 1.0
             const rawIdx = tPulse * segmentsCount
@@ -1671,7 +1670,7 @@ function VisaoGeralMapa() {
         </div>
         <div className="bfd-map-legend">
           <span className="bfd-map-legend__item">
-            <Anchor size={15} weight="bold" style={{ color: '#52d69b' }} /> Marítimo
+            <Anchor size={15} weight="bold" style={{ color: '#34d399' }} /> Marítimo
           </span>
           <span className="bfd-map-legend__item">
             <AirplaneTilt size={15} weight="bold" style={{ color: '#a78bfa' }} /> Aéreo
@@ -1694,13 +1693,13 @@ function VisaoGeralMapa() {
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
         
         {/* HUD de Cotações Globais */}
-        <div className={`bfd-map-left-panel bfd-map-left-panel--${activeTab}`}>
+        <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
           <div className="bfd-map-panel__header">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span className="bfd-map-panel__title">HUD de Cotações Globais</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <span className="bfd-map-panel__live-dot" />
-                <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#52d69b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
+                <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
               </div>
             </div>
             <span className="bfd-map-panel__subtitle">Rankings em tempo real • 200 bids</span>
@@ -1765,7 +1764,7 @@ function VisaoGeralMapa() {
                   <div className="bfd-map-panel__info-wrap">
                     <div className="bfd-map-panel__row-header">
                       <span className="bfd-map-panel__row-name">{item.name} <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 500 }}>{item.code}</span></span>
-                      <span className="bfd-map-panel__row-stats" style={{ color: '#52d69b' }}>{item.count} bids</span>
+                      <span className="bfd-map-panel__row-stats" style={{ color: '#60a5fa' }}>{item.count} bids</span>
                     </div>
                     <div className="bfd-map-panel__row-bar-wrap">
                       <div 
@@ -1773,9 +1772,9 @@ function VisaoGeralMapa() {
                         style={{ 
                           width: `${item.pct}%`, 
                           background: item.rank === 1 
-                            ? 'linear-gradient(90deg, #52d69b, #059669)' 
-                            : 'linear-gradient(90deg, rgba(82, 214, 155, 0.8), rgba(52, 211, 153, 0.4))',
-                          boxShadow: item.rank === 1 ? '0 0 6px rgba(82, 214, 155, 0.4)' : 'none'
+                            ? 'linear-gradient(90deg, #60a5fa, #2563eb)' 
+                            : 'linear-gradient(90deg, rgba(96, 165, 250, 0.8), rgba(59, 130, 246, 0.4))',
+                          boxShadow: item.rank === 1 ? '0 0 6px rgba(96, 165, 250, 0.4)' : 'none'
                         }} 
                       />
                     </div>
@@ -1890,7 +1889,7 @@ function VisaoGeralMapa() {
                         </div>
                         <div className="bfd-map-panel__modal-stat-box">
                           <span className="bfd-map-panel__modal-stat-lbl">Saving Médio</span>
-                          <span className="bfd-map-panel__modal-stat-num" style={{ color: '#52d69b' }}>
+                          <span className="bfd-map-panel__modal-stat-num" style={{ color: '#60a5fa' }}>
                             {item.modal === 'AEREO' ? '+23.4%' : item.modal === 'MARITIMO' ? '+19.1%' : '+12.5%'}
                           </span>
                         </div>
@@ -2045,10 +2044,16 @@ function VisaoGeralMapa() {
               }}
             >
               {/* Outer pulsing ring */}
-              <div className="bfd-map-pin__glow" style={{ borderColor: pin.mode === 'AEREO' ? '#a78bfa' : '#52d69b' }} />
+              <div className="bfd-map-pin__glow" style={{ borderColor: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399' }} />
               
               {/* Glowing pin dot */}
-              <div className="bfd-map-pin__dot" style={{ backgroundColor: pin.mode === 'AEREO' ? '#a78bfa' : '#52d69b' }}>
+              <div 
+                className="bfd-map-pin__dot" 
+                style={{ 
+                  backgroundColor: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399',
+                  boxShadow: pin.mode === 'AEREO' ? '0 0 10px rgba(167, 139, 250, 0.6)' : '0 0 10px rgba(52, 211, 153, 0.6)'
+                }}
+              >
                 <span className="bfd-map-pin__icon-inner">{Icon}</span>
               </div>
               
@@ -2061,7 +2066,7 @@ function VisaoGeralMapa() {
                       <span className="bfd-map-tooltip__title">{pin.label}</span>
                       <span className="bfd-map-tooltip__subtitle">{pin.portCode} • {pin.country}</span>
                     </div>
-                    <span className="bfd-map-tooltip__mode-icon" style={{ color: pin.mode === 'AEREO' ? '#a78bfa' : '#52d69b' }}>
+                    <span className="bfd-map-tooltip__mode-icon" style={{ color: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399' }}>
                       {Icon}
                     </span>
                   </div>
@@ -2079,7 +2084,7 @@ function VisaoGeralMapa() {
                     </div>
                     <div className="bfd-map-tooltip__stat">
                       <span className="bfd-map-tooltip__stat-label">Saving Médio</span>
-                      <span className="bfd-map-tooltip__stat-val" style={{ color: '#52d69b', fontWeight: 700 }}>
+                      <span className="bfd-map-tooltip__stat-val" style={{ color: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399', fontWeight: 700 }}>
                         +{pin.savingPct}%
                       </span>
                     </div>
@@ -2128,7 +2133,7 @@ function VisaoGeralMapa() {
                   ) : (
                     connections.map((route, idx) => {
                       const isAir = route.mode === 'AEREO'
-                      const modeColor = isAir ? '#a78bfa' : '#52d69b'
+                      const modeColor = isAir ? '#a78bfa' : '#34d399'
                       const modeIcon = isAir ? <AirplaneTilt size={14} weight="bold" /> : <Anchor size={14} weight="bold" />
                       const badgeClass = isAir ? 'bfd-route-badge bfd-route-badge--aereo' : 'bfd-route-badge bfd-route-badge--maritimo'
                       const cardClass = isAir ? 'bfd-route-card bfd-route-card--aereo' : 'bfd-route-card bfd-route-card--maritimo'
@@ -2193,8 +2198,8 @@ function VisaoGeralMapa() {
                                   // High quality mini cargo ship shape facing right
                                   <path 
                                     d="M-8,-2 L4,-2 L8,0 L4,2 L-8,2 Z M-5,-2 L-5,-4 L-2,-4 L-2,-2 Z" 
-                                    fill="#52d69b" 
-                                    style={{ filter: 'drop-shadow(0 0 3px rgba(82, 214, 155, 0.6))' }}
+                                    fill="#34d399" 
+                                    style={{ filter: 'drop-shadow(0 0 3px rgba(52, 211, 153, 0.6))' }}
                                   />
                                 )}
                                 <animateMotion 
@@ -2218,7 +2223,7 @@ function VisaoGeralMapa() {
                             </div>
                             <div className="bfd-route-stat-item">
                               <span className="bfd-route-stat-label">Saving</span>
-                              <span className="bfd-route-stat-value" style={{ color: '#52d69b' }}>+{route.saving}%</span>
+                              <span className="bfd-route-stat-value" style={{ color: isAir ? '#a78bfa' : '#34d399' }}>+{route.saving}%</span>
                             </div>
                             <div className="bfd-route-stat-item">
                               <span className="bfd-route-stat-label">Transit Time</span>
@@ -2305,13 +2310,13 @@ export default function Dashboard() {
         }
         
         .bfd-kpi--destacado {
-          border: 1px solid #52d69b !important;
-          background: rgba(82, 214, 155, 0.08) !important;
-          box-shadow: 0 0 18px rgba(82, 214, 155, 0.15);
+          border: 1px solid #60a5fa !important;
+          background: rgba(96, 165, 250, 0.08) !important;
+          box-shadow: 0 0 18px rgba(96, 165, 250, 0.15);
         }
         .bfd-kpi--destacado:hover {
-          background: rgba(82, 214, 155, 0.12) !important;
-          box-shadow: 0 0 24px rgba(82, 214, 155, 0.25);
+          background: rgba(96, 165, 250, 0.12) !important;
+          box-shadow: 0 0 24px rgba(96, 165, 250, 0.25);
         }
 
         .bfd-kpi--action {
@@ -2344,7 +2349,7 @@ export default function Dashboard() {
         .bfd-kpi__spark-line { display: flex; align-items: center; height: 32px; margin: 0.35rem 0; width: 100%; }
         .bfd-kpi__progress-wrap { display: flex; align-items: center; height: 32px; margin: 0.35rem 0; width: 100%; }
         .bfd-kpi__progress-bg { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; width: 100%; }
-        .bfd-kpi__progress-fill { height: 100%; background: #52d69b; border-radius: 3px; }
+        .bfd-kpi__progress-fill { height: 100%; background: #60a5fa; border-radius: 3px; }
 
         /* ── Base Cards and Containers ───────────────────────────── */
         .bfd-card {
@@ -2400,10 +2405,10 @@ export default function Dashboard() {
           background: transparent;
         }
 
-        /* ── HUD Left Panel ──────────────────────────────────────── */
-        .bfd-map-left-panel {
+        /* ── HUD Right Panel ─────────────────────────────────────── */
+        .bfd-map-right-panel {
           position: absolute;
-          left: 1.25rem;
+          right: 1.25rem;
           top: 1.25rem;
           bottom: 1.25rem;
           width: 310px;
@@ -2420,15 +2425,15 @@ export default function Dashboard() {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
           transition: border-color 0.4s ease, box-shadow 0.4s ease;
         }
-        .bfd-map-left-panel--origens {
-          border-color: rgba(82, 214, 155, 0.25);
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(82, 214, 155, 0.1);
+        .bfd-map-right-panel--origens {
+          border-color: rgba(96, 165, 250, 0.25);
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(96, 165, 250, 0.1);
         }
-        .bfd-map-left-panel--destinos {
+        .bfd-map-right-panel--destinos {
           border-color: rgba(167, 139, 250, 0.25);
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(167, 139, 250, 0.1);
         }
-        .bfd-map-left-panel--modal {
+        .bfd-map-right-panel--modal {
           border-color: rgba(251, 191, 36, 0.25);
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(251, 191, 36, 0.1);
         }
@@ -2436,20 +2441,20 @@ export default function Dashboard() {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #52d69b;
-          box-shadow: 0 0 8px #52d69b, 0 0 12px #52d69b;
+          background: #60a5fa;
+          box-shadow: 0 0 8px #60a5fa, 0 0 12px #60a5fa;
           animation: bfdLaserPulse 1.8s infinite alternate ease-in-out;
         }
         @keyframes bfdLaserPulse {
           0% {
             transform: scale(0.9);
             opacity: 0.6;
-            box-shadow: 0 0 4px #52d69b, 0 0 6px #52d69b;
+            box-shadow: 0 0 4px #60a5fa, 0 0 6px #60a5fa;
           }
           100% {
             transform: scale(1.2);
             opacity: 1;
-            box-shadow: 0 0 10px #52d69b, 0 0 16px #52d69b;
+            box-shadow: 0 0 10px #60a5fa, 0 0 16px #60a5fa;
           }
         }
         .bfd-map-panel__modal-stats-grid {
@@ -2530,9 +2535,9 @@ export default function Dashboard() {
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         }
         .bfd-map-panel__tab.is-active.tab-origens {
-          color: #52d69b;
-          border-color: rgba(82, 214, 155, 0.2);
-          background: rgba(82, 214, 155, 0.08);
+          color: #60a5fa;
+          border-color: rgba(96, 165, 250, 0.2);
+          background: rgba(96, 165, 250, 0.08);
         }
         .bfd-map-panel__tab.is-active.tab-destinos {
           color: #a78bfa;
@@ -2588,9 +2593,9 @@ export default function Dashboard() {
           border-color: rgba(255, 255, 255, 0.08);
         }
         .bfd-map-panel__row.is-highlighted {
-          background: rgba(82, 214, 155, 0.08);
-          border-color: rgba(82, 214, 155, 0.25);
-          box-shadow: 0 0 10px rgba(82, 214, 155, 0.15);
+          background: rgba(96, 165, 250, 0.08);
+          border-color: rgba(96, 165, 250, 0.25);
+          box-shadow: 0 0 10px rgba(96, 165, 250, 0.15);
         }
         .bfd-map-panel__row.is-highlighted-dest {
           background: rgba(167, 139, 250, 0.08);
@@ -2765,7 +2770,7 @@ export default function Dashboard() {
         .bfd-map-panel__terminal-saving {
           font-size: 0.8rem;
           font-weight: 700;
-          color: #52d69b;
+          color: #60a5fa;
         }
         .bfd-map-panel__progress-bar {
           height: 4px;
@@ -2786,7 +2791,7 @@ export default function Dashboard() {
           font-weight: 500;
         }
         @media (max-width: 1023px) {
-          .bfd-map-left-panel {
+          .bfd-map-right-panel {
             display: none !important;
           }
         }
@@ -2803,12 +2808,12 @@ export default function Dashboard() {
         .bfd-map-pin-wrapper.is-active { z-index: 100; }
 
         .bfd-map-pin__glow {
-          position: absolute; inset: -8px; border-radius: 50%; border: 1.5px solid #52d69b;
+          position: absolute; inset: -8px; border-radius: 50%; border: 1.5px solid #60a5fa;
           opacity: 0; animation: pinPulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite; pointer-events: none;
         }
         .bfd-map-pin__dot {
           width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center;
-          justify-content: center; color: #000000; box-shadow: 0 0 10px rgba(82,214,155,0.4);
+          justify-content: center; color: #000000; box-shadow: 0 0 10px rgba(96,165,250,0.4);
           transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
         }
         .bfd-map-pin-wrapper:hover .bfd-map-pin__dot {
@@ -2984,7 +2989,7 @@ export default function Dashboard() {
         }
 
         .bfd-route-card--maritimo {
-          border-left: 3px solid #52d69b;
+          border-left: 3px solid #34d399;
         }
         .bfd-route-card--aereo {
           border-left: 3px solid #a78bfa;
@@ -3025,9 +3030,9 @@ export default function Dashboard() {
           text-transform: uppercase;
         }
         .bfd-route-badge--maritimo {
-          background: rgba(82, 214, 155, 0.12);
-          color: #52d69b;
-          border: 1px solid rgba(82, 214, 155, 0.2);
+          background: rgba(52, 211, 153, 0.12);
+          color: #34d399;
+          border: 1px solid rgba(52, 211, 153, 0.2);
         }
         .bfd-route-badge--aereo {
           background: rgba(167, 139, 250, 0.12);
@@ -3092,8 +3097,15 @@ export default function Dashboard() {
 
         /* ── Globe Map + Câmbio Row ───────────────────────────────── */
         .bfd-globe-row {
-          display: block;
+          display: grid;
+          grid-template-columns: 2.15fr 1fr;
+          gap: 1.25rem;
           margin-bottom: 1.25rem;
+        }
+        @media (max-width: 1200px) {
+          .bfd-globe-row {
+            grid-template-columns: 1fr;
+          }
         }
 
         /* ── Charts Grid ─────────────────────────────────────────── */
@@ -3138,7 +3150,7 @@ export default function Dashboard() {
         }
 
         /* ── Insights Grid ───────────────────────────────────────── */
-        .bfd-insights-grid { display: grid; grid-template-columns: 1.1fr 1.2fr 0.7fr; gap: 1.25rem; }
+        .bfd-insights-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem; }
 
         /* ── Melhor cotação ──────────────────────────────────────── */
         .bfd-best { display: flex; flex-direction: column; gap: 0.85rem; }
@@ -3154,10 +3166,10 @@ export default function Dashboard() {
         }
         .bfd-best__saving-badge {
           font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 6px;
-          background: rgba(52,211,153,0.12); color: #34d399; display: flex; align-items: center; gap: 4px;
+          background: rgba(96, 165, 250, 0.12); color: #60a5fa; display: flex; align-items: center; gap: 4px;
           letter-spacing: 0.01em;
         }
-        .bfd-best__saving-val { font-size: 1.45rem; font-weight: 800; color: #52d69b; letter-spacing: 0.02em; }
+        .bfd-best__saving-val { font-size: 1.45rem; font-weight: 800; color: #60a5fa; letter-spacing: 0.02em; }
         .bfd-best__meta { font-size: 0.82rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 500; line-height: 1.5; }
 
         /* ── Donut ───────────────────────────────────────────────── */
@@ -3260,7 +3272,7 @@ export default function Dashboard() {
           label="Em andamento"
           value={String(kpis.cotacoes_andamento)}
           badge="+3 semana"
-          badgeColor="#52d69b"
+          badgeColor="#60a5fa"
           sparkData={andamentoSpark}
           sparkType="line"
           sub={`USD ${fmtMoeda(kpis.valor_andamento_usd)} em aberto`}
@@ -3270,7 +3282,7 @@ export default function Dashboard() {
           label="Aprovadas"
           value={String(kpis.cotacoes_passadas)}
           badge="+12% mes"
-          badgeColor="#52d69b"
+          badgeColor="#60a5fa"
           sparkData={DEMO_MENSAL.map(d => d.aprovadas)}
           sparkType="bar"
           destacado={true}
@@ -3281,7 +3293,7 @@ export default function Dashboard() {
           label="Saving medio"
           value={`${kpis.savings.media_saving_percentual}%`}
           badge="+2.3pp"
-          badgeColor="#52d69b"
+          badgeColor="#60a5fa"
           sparkData={savingSpark}
           sparkType="line"
           sub={`USD ${fmtMoeda(kpis.savings.total_saving_usd)} acumulado`}
@@ -3291,16 +3303,22 @@ export default function Dashboard() {
           label="Tempo medio resp."
           value="2.4 di."
           badge="-0.8d"
-          badgeColor="#52d69b"
+          badgeColor="#60a5fa"
           sparkType="progress"
           sub="Meta: 3 dias"
         />
       </div>
 
-      {/* Row 2: Globe Map + Câmbio card */}
+      {/* Row 2: Globe Map + Funil de Cotações */}
       <div className="bfd-globe-row">
         {/* Global World Map Overview Section */}
         <VisaoGeralMapa />
+
+        {/* Funil */}
+        <div className="bfd-card">
+          <span className="bfd-card__title">Funil de Cotações</span>
+          <FunilStatus />
+        </div>
       </div>
 
       {/* Charts Row */}
@@ -3313,8 +3331,8 @@ export default function Dashboard() {
           </div>
           <GraficoBarrasMensal />
           <div className="bfd-chart__legend">
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#34d399' }} /> Aprovadas</span>
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#60a5fa' }} /> Em andamento</span>
+            <span><span className="bfd-chart__legend-dot" style={{ background: '#60a5fa' }} /> Aprovadas</span>
+            <span><span className="bfd-chart__legend-dot" style={{ background: '#8b5cf6' }} /> Em andamento</span>
             <span><span className="bfd-chart__legend-dot" style={{ background: '#f87171' }} /> Recusadas</span>
           </div>
         </div>
@@ -3343,8 +3361,8 @@ export default function Dashboard() {
                     fontWeight: 700,
                     padding: '0.2rem 0.5rem',
                     borderRadius: '6px',
-                    color: m.variacao >= 0 ? '#52d69b' : '#f87171',
-                    background: m.variacao >= 0 ? 'rgba(82,214,155,0.1)' : 'rgba(248,113,113,0.1)',
+                    color: m.variacao >= 0 ? '#34d399' : '#f87171',
+                    background: m.variacao >= 0 ? 'rgba(52,211,153,0.1)' : 'rgba(248,113,113,0.1)',
                   }}
                 >
                   {m.variacao >= 0 ? '+' : ''}{m.variacao.toFixed(2).replace('.', ',')}%
@@ -3373,10 +3391,10 @@ export default function Dashboard() {
                 </span>
                 <svg width="100%" height="20" viewBox="0 0 160 20" style={{ overflow: 'visible' }}>
                   <line x1="0" y1="10" x2="160" y2="10" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="4,4" />
-                  <circle cx="80" cy="10" r="10" fill="rgba(82,214,155,0.15)" />
-                  <circle cx="80" cy="10" r="3.5" fill="#52d69b" />
+                  <circle cx="80" cy="10" r="10" fill="rgba(96,165,250,0.15)" />
+                  <circle cx="80" cy="10" r="3.5" fill="#60a5fa" />
                   <g transform="translate(73, 3)">
-                    <Anchor size={14} weight="bold" style={{ color: '#52d69b' }} />
+                    <Anchor size={14} weight="bold" style={{ color: '#60a5fa' }} />
                   </g>
                 </svg>
               </div>
@@ -3398,12 +3416,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Funil */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Funil de Cotações</span>
-          <FunilStatus />
-        </div>
-
         {/* Top Incoterms */}
         <div className="bfd-card">
           <span className="bfd-card__title">Top Incoterms</span>
@@ -3417,7 +3429,7 @@ export default function Dashboard() {
                   </span>
                 </div>
                 <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.04)', borderRadius: '3px', overflow: 'hidden' }}>
-                  <div style={{ width: `${inc.pct}%`, height: '100%', background: 'linear-gradient(90deg, #60a5fa, #34d399)', borderRadius: '3px' }} />
+                  <div style={{ width: `${inc.pct}%`, height: '100%', background: 'linear-gradient(90deg, #60a5fa, #2563eb)', borderRadius: '3px' }} />
                 </div>
               </div>
             ))}
@@ -3446,7 +3458,7 @@ export default function Dashboard() {
           </div>
           <div className="bfd-alertas__pills">
             {alertas.map((a, i) => {
-              const pillColors: Record<string, string> = { red: '#f87171', orange: '#fbbf24', yellow: '#eab308', green: '#52d69b' }
+              const pillColors: Record<string, string> = { red: '#f87171', orange: '#fbbf24', yellow: '#eab308', green: '#34d399' }
               return (
                 <div key={i} className="bfd-alertas__pill">
                   <span className="bfd-alertas__pill-count" style={{ color: pillColors[a.cor] || '#60a5fa' }}>{a.count}</span>

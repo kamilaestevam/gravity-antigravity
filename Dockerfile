@@ -20,8 +20,10 @@ RUN npx prisma generate --schema=servicos-global/servicos-plataforma/prisma/sche
 RUN npx prisma generate --schema=servicos-global/cadastros/prisma/schema.prisma
 RUN npx prisma generate --schema=servicos-global/produto/pedido/prisma/schema.prisma
 
-# Pedido uses default Prisma output (node_modules/.prisma/client) — copy to root
-RUN mkdir -p node_modules/.prisma \
+# Pedido uses default Prisma output (node_modules/.prisma/client) — copy to root.
+# rm -rf first: npm ci may have created the dir, and cp -r would nest instead of replace.
+RUN rm -rf node_modules/.prisma/client \
+    && mkdir -p node_modules/.prisma \
     && cp -r servicos-global/produto/pedido/node_modules/.prisma/client node_modules/.prisma/client
 
 # Vite embeds VITE_* env vars at build time — Railway passes them as build args

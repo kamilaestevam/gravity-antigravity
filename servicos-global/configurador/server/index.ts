@@ -294,7 +294,14 @@ app.use('/api/v1/pedidos', (req, res) => {
     res.writeHead(proxyRes.statusCode ?? 502, proxyRes.headers)
     proxyRes.pipe(res)
   })
-  proxyReq.on('error', () => {
+  proxyReq.on('error', (err) => {
+    console.error('[proxy-pedido] erro ao conectar com sidecar', {
+      code: (err as NodeJS.ErrnoException).code,
+      message: err.message,
+      method: req.method,
+      url: req.originalUrl,
+      headerKeys: Object.keys(req.headers),
+    })
     if (!res.headersSent) res.status(502).json({ error: 'Pedido service unavailable', sidecar: _sidecarStatus['pedido'] })
   })
   if (bodyBuf) {

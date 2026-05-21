@@ -1179,7 +1179,8 @@ function VisaoGeralMapa() {
         canvas.height = h
       }
       
-      const cx = w / 2
+      const isWide = w > 850
+      const cx = isWide ? (w / 2 + 120) : (w / 2)
       const cy = h / 2
       const R = Math.min(w, h) * 0.42 * zoomRef.current
       const pulseTime = Date.now() / 2400
@@ -3091,19 +3092,12 @@ export default function Dashboard() {
 
         /* ── Globe Map + Câmbio Row ───────────────────────────────── */
         .bfd-globe-row {
-          display: grid;
-          grid-template-columns: 1.5fr 1fr;
-          gap: 1.25rem;
+          display: block;
           margin-bottom: 1.25rem;
-        }
-        @media (max-width: 1200px) {
-          .bfd-globe-row {
-            grid-template-columns: 1fr;
-          }
         }
 
         /* ── Charts Grid ─────────────────────────────────────────── */
-        .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem; }
+        .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1.25rem; }
         .bfd-chart-svg { width: 100%; height: auto; }
         .bfd-chart__legend { display: flex; gap: 1.25rem; margin-top: auto; padding-top: 0.75rem; justify-content: center; }
         .bfd-chart__legend span { font-size: 0.85rem; color: #cbd5e1; letter-spacing: 0.02em; display: flex; align-items: center; gap: 8px; font-weight: 500; }
@@ -3232,7 +3226,6 @@ export default function Dashboard() {
 
         /* ── Responsive ──────────────────────────────────────────── */
         @media (max-width: 1200px) {
-          .bfd-globe-row { grid-template-columns: 1fr; }
           .bfd-kpi-grid { grid-template-columns: repeat(3, 1fr); }
           .bfd-charts-grid { grid-template-columns: 1fr; }
           .bfd-insights-grid { grid-template-columns: 1fr; }
@@ -3308,6 +3301,29 @@ export default function Dashboard() {
       <div className="bfd-globe-row">
         {/* Global World Map Overview Section */}
         <VisaoGeralMapa />
+      </div>
+
+      {/* Charts Row */}
+      <div className="bfd-charts-grid">
+        {/* Barras mensal */}
+        <div className="bfd-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <span className="bfd-card__title" style={{ marginBottom: 0 }}>Cotações por Mês</span>
+            <span className="bfd-chart__subtitle">Últimos 6 meses</span>
+          </div>
+          <GraficoBarrasMensal />
+          <div className="bfd-chart__legend">
+            <span><span className="bfd-chart__legend-dot" style={{ background: '#34d399' }} /> Aprovadas</span>
+            <span><span className="bfd-chart__legend-dot" style={{ background: '#60a5fa' }} /> Em andamento</span>
+            <span><span className="bfd-chart__legend-dot" style={{ background: '#f87171' }} /> Recusadas</span>
+          </div>
+        </div>
+
+        {/* Donut modal */}
+        <div className="bfd-card">
+          <span className="bfd-card__title">Distribuição por Modal</span>
+          <GraficoDonutModal />
+        </div>
 
         {/* Câmbio */}
         <div className="bfd-card" style={{ height: '100%', justifyContent: 'flex-start' }}>
@@ -3336,29 +3352,6 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Charts Row */}
-      <div className="bfd-charts-grid">
-        {/* Barras mensal */}
-        <div className="bfd-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-            <span className="bfd-card__title" style={{ marginBottom: 0 }}>Cotações por Mês</span>
-            <span className="bfd-chart__subtitle">Últimos 6 meses</span>
-          </div>
-          <GraficoBarrasMensal />
-          <div className="bfd-chart__legend">
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#34d399' }} /> Aprovadas</span>
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#60a5fa' }} /> Em andamento</span>
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#f87171' }} /> Recusadas</span>
-          </div>
-        </div>
-
-        {/* Donut modal */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Distribuição por Modal</span>
-          <GraficoDonutModal />
         </div>
       </div>
 

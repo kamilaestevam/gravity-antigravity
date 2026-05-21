@@ -16,6 +16,12 @@ npx prisma generate --schema=servicos-global/servicos-plataforma/prisma/schema.p
 npx prisma generate --schema=servicos-global/cadastros/prisma/schema.prisma
 npx prisma generate --schema=servicos-global/produto/pedido/prisma/schema.prisma
 
+# 2b. Pedido's schema outputs to pedido/node_modules/.prisma/client/ but
+#     @prisma/client at root does require('.prisma/client') from root.
+#     Other services use custom output="../generated" so root is free.
+mkdir -p node_modules/.prisma
+cp -r servicos-global/produto/pedido/node_modules/.prisma/client node_modules/.prisma/client
+
 # 3. Build Vite frontend
 cd servicos-global/configurador
 npx vite build

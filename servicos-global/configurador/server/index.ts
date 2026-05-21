@@ -269,13 +269,20 @@ app.use('/api/v1/catalogo', publicCatalogRouter)
 // Em produção o Pedido roda como sidecar no mesmo processo (porta 8030).
 // O frontend faz chamadas relativas `/api/v1/pedidos/*` que chegam neste
 // Express. Este proxy encaminha para o sidecar via localhost.
+// O proxy injeta x-chave-interna-servico pois o browser não envia essa header.
 import { request as httpRequest } from 'node:http'
+
+const _sidecarStatus: Record<string, { ok: boolean; error?: string }> = {}
+
+app.get('/api/v1/internal/sidecar-status', requireAuth, requireGravityAdmin, (_req, res) => {
+  res.json(_sidecarStatus)
+})
 
 app.use('/api/v1/pedidos', (req, res) => {
   const targetUrl = `http://127.0.0.1:8030${req.originalUrl}`
   const headers = { ...req.headers, host: '127.0.0.1:8030' }
+  headers['x-chave-interna-servico'] = process.env.CHAVE_INTERNA_SERVICO!
 
-  // express.json() já consumiu o stream — serializar body de volta se presente
   let bodyBuf: Buffer | undefined
   if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
     bodyBuf = Buffer.from(JSON.stringify(req.body))
@@ -287,7 +294,7 @@ app.use('/api/v1/pedidos', (req, res) => {
     proxyRes.pipe(res)
   })
   proxyReq.on('error', () => {
-    if (!res.headersSent) res.status(502).json({ error: 'Pedido service unavailable' })
+    if (!res.headersSent) res.status(502).json({ error: 'Pedido service unavailable', sidecar: _sidecarStatus['pedido'] })
   })
   if (bodyBuf) {
     proxyReq.end(bodyBuf)
@@ -327,6 +334,8 @@ if (process.env.NODE_ENV !== 'test') {
   }
 
   // Sidecar 2: Pedido (porta 8030)
+  // Protege contra process.exit() que o Pedido chama em validações de env —
+  // em modo sidecar, exit() mataria o processo inteiro (Configurador incluso).
   if (process.env.PEDIDO_DATABASE_URL) {
     process.env.PORT = '8030'
     process.env.DATABASE_URL = process.env.PEDIDO_DATABASE_URL
@@ -336,13 +345,23 @@ if (process.env.NODE_ENV !== 'test') {
         ? `https://${process.env.CANONICAL_DOMAIN}`
         : 'https://usegravity.com.br'
     }
+    const _origExit = process.exit
+    process.exit = ((code?: number) => {
+      throw new Error(`[sidecar-guard] process.exit(${code}) bloqueado em modo sidecar`)
+    }) as typeof process.exit
     try {
       await import('../../produto/pedido/server/src/index.js')
+      _sidecarStatus['pedido'] = { ok: true }
       console.log('[configurador] Sidecar Pedido iniciado na porta 8030')
     } catch (err) {
-      console.error('[configurador] Falha ao iniciar sidecar Pedido:', err)
+      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+      _sidecarStatus['pedido'] = { ok: false, error: msg }
+      console.error('[configurador] Falha ao iniciar sidecar Pedido:', msg)
+    } finally {
+      process.exit = _origExit
     }
   } else {
+    _sidecarStatus['pedido'] = { ok: false, error: 'PEDIDO_DATABASE_URL ausente' }
     console.warn('[configurador] PEDIDO_DATABASE_URL ausente — sidecar Pedido desativado')
   }
 

@@ -1160,10 +1160,10 @@ function VisaoGeralMapa() {
         </div>
         <div className="bfd-map-legend">
           <span className="bfd-map-legend__item">
-            <span className="bfd-map-legend__dot bfd-map-legend__dot--maritimo" /> Marítimo
+            <Anchor size={15} weight="bold" style={{ color: '#52d69b' }} /> Marítimo
           </span>
           <span className="bfd-map-legend__item">
-            <span className="bfd-map-legend__dot bfd-map-legend__dot--aereo" /> Aéreo
+            <AirplaneTilt size={15} weight="bold" style={{ color: '#a78bfa' }} /> Aéreo
           </span>
         </div>
       </div>

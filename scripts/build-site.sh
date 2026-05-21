@@ -10,6 +10,9 @@ echo "[build-site] Starting full build pipeline..."
 # 1. Install all dependencies (including devDependencies for build tools)
 npm ci --include=dev
 
+# 1b. Build workspace packages required by sidecars
+cd packages/resolver-organizacao && npx tsup && cd ../..
+
 # 2. Generate Prisma clients for all databases
 npx prisma generate --schema=configurador/prisma/schema.prisma
 npx prisma generate --schema=servicos-global/servicos-plataforma/prisma/schema.prisma

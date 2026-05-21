@@ -33,7 +33,15 @@ import {
   MapPin,
   Clock,
   CheckCircle,
+  ChatText,
+  Bell,
   Coins,
+  Funnel,
+  ChartBar,
+  ChartPie,
+  CurrencyDollar,
+  ListNumbers,
+  ThumbsUp,
 } from '@phosphor-icons/react'
 
 import { DEMO_KPIS, DEMO_CALENDARIO, DEMO_MENSAL, DEMO_MODAL, DEMO_MELHOR_COTACAO, DEMO_INCOTERMS } from '../shared/demo-data'
@@ -1573,12 +1581,17 @@ function VisaoGeralMapa() {
   }
   
   return (
-    <div className="bfd-card bfd-map-card">
-      <div className="bfd-map-card__header">
-        <div>
-          <span className="bfd-card__title" style={{ marginBottom: '0.4rem', display: 'block', fontSize: '1.05rem', fontWeight: 600, color: '#ffffff', letterSpacing: '0.01em' }}>Visão Geral Global de Cotações</span>
-          <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }}>Localizações estratégicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)</span>
+    <div className="bfd-card bfd-map-card bfd-card--accent-brand">
+      <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+        <div className="cg-card__icon-wrap">
+          <Globe weight="duotone" size={16} style={{ color: '#60a5fa' }} />
         </div>
+        <p className="cg-card__label">Visão Geral Global de Cotações</p>
+      </div>
+      <div style={{ marginTop: '-0.75rem', marginBottom: '0.5rem', paddingLeft: '1.5rem' }}>
+        <span style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.01em', lineHeight: 1.4 }}>
+          Localizações estratégicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)
+        </span>
       </div>
       
       <div className="bfd-map-container">
@@ -1739,7 +1752,7 @@ function VisaoGeralMapa() {
           <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
             <div className="bfd-map-panel__header">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="bfd-map-panel__title">HUD de Cotações Globais</span>
+                <span className="bfd-map-panel__title">Rankings Globais</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <span className="bfd-map-panel__live-dot" />
                   <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
@@ -2027,6 +2040,10 @@ function VisaoGeralMapa() {
 
 export default function VisaoGeral() {
   const navigate = useNavigate()
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
+  const [alertModalTab, setAlertModalTab] = useState<'geral' | 'itens' | 'propostas' | 'historico'>('geral')
+  const [selectedAlertContext, setSelectedAlertContext] = useState<any>(null)
+
   const kpis = DEMO_KPIS
   const alertas = DEMO_CALENDARIO
   const andamentoSpark = [12, 14, 18, 15, 20, 22, 25]
@@ -2136,6 +2153,61 @@ export default function VisaoGeral() {
           flex-direction: column;
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
           transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bfd-card:hover {
+          transform: translateY(-2px);
+          background: rgba(255, 255, 255, 0.06);
+          border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Modificadores premium com borda esquerda de 3px e efeito glow no hover */
+        .bfd-card--accent-brand {
+          border-left: 3px solid #60a5fa !important;
+        }
+        .bfd-card--accent-brand:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(96, 165, 250, 0.18) !important;
+        }
+
+        .bfd-card--accent-blue {
+          border-left: 3px solid #3b82f6 !important;
+        }
+        .bfd-card--accent-blue:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
+        }
+
+        .bfd-card--accent-indigo {
+          border-left: 3px solid #818cf8 !important;
+        }
+        .bfd-card--accent-indigo:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(129, 140, 248, 0.18) !important;
+        }
+
+        .bfd-card--accent-purple {
+          border-left: 3px solid #a78bfa !important;
+        }
+        .bfd-card--accent-purple:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(167, 139, 250, 0.18) !important;
+        }
+
+        .bfd-card--accent-emerald {
+          border-left: 3px solid #34d399 !important;
+        }
+        .bfd-card--accent-emerald:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(52, 211, 153, 0.18) !important;
+        }
+
+        .bfd-card--accent-amber {
+          border-left: 3px solid #fbbf24 !important;
+        }
+        .bfd-card--accent-amber:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(251, 191, 36, 0.18) !important;
+        }
+
+        .bfd-card--accent-rose {
+          border-left: 3px solid #f87171 !important;
+        }
+        .bfd-card--accent-rose:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(248, 113, 113, 0.18) !important;
         }
         .bfd-card__title {
           font-size: 1.1rem;
@@ -3121,6 +3193,26 @@ export default function VisaoGeral() {
           tendencia={{ valor: '+3/sem', direcao: 'up' }}
           subtexto={`USD ${fmtMoeda(kpis.valor_andamento_usd)} em aberto`}
           variante="padrao"
+          tooltip={
+            <>
+              <div className="cg-tooltip__row">
+                <span>Volume em aberto</span>
+                <strong>USD {fmtMoeda(kpis.valor_andamento_usd)}</strong>
+              </div>
+              <div className="cg-tooltip__row">
+                <span>Cotações ativas</span>
+                <strong>{kpis.cotacoes_andamento}</strong>
+              </div>
+              <div className="cg-tooltip__row">
+                <span>Marítimo (Estimado)</span>
+                <strong style={{ color: '#34d399' }}>{Math.round(kpis.cotacoes_andamento * 0.6)}</strong>
+              </div>
+              <div className="cg-tooltip__row">
+                <span>Aéreo (Estimado)</span>
+                <strong style={{ color: '#a78bfa' }}>{Math.round(kpis.cotacoes_andamento * 0.4)}</strong>
+              </div>
+            </>
+          }
         />
         <CardBasicoGlobal
           titulo="Aprovadas"
@@ -3129,6 +3221,26 @@ export default function VisaoGeral() {
           tendencia={{ valor: '+12%', direcao: 'up' }}
           subtexto={`USD ${fmtMoeda(kpis.valor_aprovado_usd)} total`}
           variante="padrao"
+          tooltip={
+            <>
+              <div className="cg-tooltip__row">
+                <span>Volume fechado</span>
+                <strong>USD {fmtMoeda(kpis.valor_aprovado_usd)}</strong>
+              </div>
+              <div className="cg-tooltip__row">
+                <span>Total aprovado</span>
+                <strong>{kpis.cotacoes_passadas}</strong>
+              </div>
+              <div className="cg-tooltip__row">
+                <span>Taxa de conversão</span>
+                <strong style={{ color: '#60a5fa' }}>78.4%</strong>
+              </div>
+              <div className="cg-tooltip__row">
+                <span>Parceiros atendidos</span>
+                <strong>14 armadores</strong>
+              </div>
+            </>
+          }
         />
         <CardBasicoGlobal
           titulo="Saving Médio"
@@ -3137,6 +3249,26 @@ export default function VisaoGeral() {
           tendencia={{ valor: '+2.3pp', direcao: 'up' }}
           subtexto={`USD ${fmtMoeda(kpis.savings.total_saving_usd)} acumulado`}
           variante="padrao"
+          tooltip={
+            <>
+              <div className="cg-tooltip__row">
+                <span>Saving acumulado</span>
+                <strong>USD {fmtMoeda(kpis.savings.total_saving_usd)}</strong>
+              </div>
+              <div className="cg-tooltip__row">
+                <span>Saving percentual</span>
+                <strong style={{ color: '#34d399' }}>{kpis.savings.media_saving_percentual}%</strong>
+              </div>
+              <div className="cg-tooltip__row">
+                <span>Benchmark target</span>
+                <strong>12.0%</strong>
+              </div>
+              <div className="cg-tooltip__row">
+                <span>Performance vs target</span>
+                <strong style={{ color: '#34d399' }}>+{(kpis.savings.media_saving_percentual - 12).toFixed(1)} pp</strong>
+              </div>
+            </>
+          }
         />
         <CardBasicoGlobal
           titulo="Tempo Médio de Resposta"
@@ -3145,6 +3277,26 @@ export default function VisaoGeral() {
           tendencia={{ valor: '-0.8d', direcao: 'down' }}
           subtexto="Meta: 3 dias"
           variante="padrao"
+          tooltip={
+            <>
+              <div className="cg-tooltip__row">
+                <span>Média de resposta</span>
+                <strong>2.4 dias</strong>
+              </div>
+              <div className="cg-tooltip__row">
+                <span>Meta SLA</span>
+                <strong>3.0 dias</strong>
+              </div>
+              <div className="cg-tooltip__row">
+                <span>Dentro do SLA</span>
+                <strong style={{ color: '#34d399' }}>92.5%</strong>
+              </div>
+              <div className="cg-tooltip__row">
+                <span>Principal gargalo</span>
+                <strong style={{ color: '#fb923c' }}>Santos (SLA 3.8d)</strong>
+              </div>
+            </>
+          }
         />
       </div>
 
@@ -3156,23 +3308,94 @@ export default function VisaoGeral() {
         {/* Right Column Stacking Alertas + Funil */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', minHeight: 0 }}>
           {/* Alertas */}
-          <div className="bfd-card bfd-alertas" style={{ flex: 1, padding: '1.25rem 1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <span className="bfd-card__title" style={{ marginBottom: 0, fontSize: '1rem' }}>Alertas</span>
-              <div className="bfd-alertas__nav" style={{ margin: 0 }}>
-                <button><CaretLeft size={14} /></button>
-                <span>Hoje</span>
-                <button><CaretRight size={14} /></button>
-                <span style={{ marginLeft: 8 }}>Amanha</span>
+          <div className="bfd-card bfd-alertas bfd-card--accent-rose" style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <div className="cg-card__header">
+                <div className="cg-card__icon-wrap">
+                  <Bell weight="duotone" size={16} style={{ color: '#f87171' }} />
+                </div>
+                <p className="cg-card__label">Alertas</p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255, 255, 255, 0.04)', padding: '2px', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}><CaretLeft size={12} /></button>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', padding: '0 4px', letterSpacing: '0.02em' }}>Hoje</span>
+                <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}><CaretRight size={12} /></button>
               </div>
             </div>
-            <div className="bfd-alertas__pills" style={{ gap: '0.6rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.65rem', flex: 1 }}>
               {alertas.map((a, i) => {
-                const pillColors: Record<string, string> = { red: '#f87171', orange: '#fbbf24', yellow: '#eab308', green: '#34d399' }
+                let icon = <Clock size={16} weight="duotone" />
+                let glowColor = 'rgba(248, 113, 113, 0.15)'
+                let textColor = '#f87171'
+                let borderLeftColor = '#f87171'
+                let itemBg = 'rgba(248, 113, 113, 0.04)'
+
+                if (a.cor === 'orange' || a.cor === 'yellow') {
+                  icon = <ChatText size={16} weight="duotone" />
+                  glowColor = 'rgba(251, 191, 36, 0.15)'
+                  textColor = '#fbbf24'
+                  borderLeftColor = '#fbbf24'
+                  itemBg = 'rgba(251, 191, 36, 0.04)'
+                } else if (a.cor === 'green') {
+                  icon = <Bell size={16} weight="duotone" />
+                  glowColor = 'rgba(52, 211, 153, 0.15)'
+                  textColor = '#34d399'
+                  borderLeftColor = '#34d399'
+                  itemBg = 'rgba(52, 211, 153, 0.04)'
+                } else {
+                  icon = <CheckCircle size={16} weight="duotone" />
+                  glowColor = 'rgba(96, 165, 250, 0.15)'
+                  textColor = '#60a5fa'
+                  borderLeftColor = '#60a5fa'
+                  itemBg = 'rgba(96, 165, 250, 0.04)'
+                }
+
                 return (
-                  <div key={i} className="bfd-alertas__pill" style={{ padding: '0.45rem 0.8rem', fontSize: '0.8rem', gap: '0.45rem', borderRadius: '6px' }}>
-                    <span className="bfd-alertas__pill-count" style={{ color: pillColors[a.cor] || '#60a5fa', fontSize: '0.85rem' }}>{a.count}</span>
-                    <span>{a.label}</span>
+                  <div
+                    key={i}
+                    className="bfd-alertas__glow-card"
+                    onClick={() => {
+                      setSelectedAlertContext(a)
+                      setAlertModalTab('geral')
+                      setIsAlertModalOpen(true)
+                    }}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      background: itemBg,
+                      border: '1px solid rgba(255, 255, 255, 0.03)',
+                      borderLeft: `3px solid ${borderLeftColor}`,
+                      borderRadius: '6px',
+                      padding: '0.65rem 0.8rem',
+                      transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                      cursor: 'pointer',
+                      minHeight: '75px',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)'
+                      e.currentTarget.style.background = itemBg.replace('0.04', '0.07')
+                      e.currentTarget.style.borderColor = borderLeftColor + '2b'
+                      e.currentTarget.style.boxShadow = `0 4px 12px ${glowColor}`
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'none'
+                      e.currentTarget.style.background = itemBg
+                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.03)'
+                      e.currentTarget.style.boxShadow = 'none'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                      <span style={{ color: borderLeftColor, display: 'flex', alignItems: 'center' }}>
+                        {icon}
+                      </span>
+                      <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                        {a.count}
+                      </span>
+                    </div>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1', lineHeight: '1.2', marginTop: '0.35rem', letterSpacing: '0.01em' }}>
+                      {a.label}
+                    </span>
                   </div>
                 )
               })}
@@ -3180,8 +3403,13 @@ export default function VisaoGeral() {
           </div>
 
           {/* Funil */}
-          <div className="bfd-card" style={{ flex: 1, padding: '1.25rem 1.5rem' }}>
-            <span className="bfd-card__title" style={{ marginBottom: '1.05rem', fontSize: '1rem' }}>Funil de Cotações</span>
+          <div className="bfd-card bfd-card--accent-indigo" style={{ flex: 1, padding: '1.25rem 1.5rem' }}>
+            <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+              <div className="cg-card__icon-wrap">
+                <Funnel weight="duotone" size={16} style={{ color: '#818cf8' }} />
+              </div>
+              <p className="cg-card__label">Funil de Cotações</p>
+            </div>
             <FunilStatus />
           </div>
         </div>
@@ -3190,9 +3418,14 @@ export default function VisaoGeral() {
       {/* Charts Row */}
       <div className="bfd-charts-grid">
         {/* Barras mensal */}
-        <div className="bfd-card">
+        <div className="bfd-card bfd-card--accent-blue">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-            <span className="bfd-card__title" style={{ marginBottom: 0 }}>Cotações por Mês</span>
+            <div className="cg-card__header">
+              <div className="cg-card__icon-wrap">
+                <ChartBar weight="duotone" size={16} style={{ color: '#3b82f6' }} />
+              </div>
+              <p className="cg-card__label">Cotações por Mês</p>
+            </div>
             <span className="bfd-chart__subtitle">Últimos 6 meses</span>
           </div>
           <GraficoBarrasMensal />
@@ -3204,15 +3437,25 @@ export default function VisaoGeral() {
         </div>
 
         {/* Donut modal_cotacao_bid_frete_internacional */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Distribuição por Modal</span>
+        <div className="bfd-card bfd-card--accent-emerald">
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <ChartPie weight="duotone" size={16} style={{ color: '#34d399' }} />
+            </div>
+            <p className="cg-card__label">Distribuição por Modal</p>
+          </div>
           <GraficoDonutModal />
         </div>
 
         {/* Câmbio */}
-        <div className="bfd-card" style={{ height: '100%', justifyContent: 'flex-start' }}>
+        <div className="bfd-card bfd-card--accent-amber" style={{ height: '100%', justifyContent: 'flex-start' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-            <span className="bfd-card__title" style={{ marginBottom: 0 }}>Câmbio do Dia</span>
+            <div className="cg-card__header">
+              <div className="cg-card__icon-wrap">
+                <CurrencyDollar weight="duotone" size={16} style={{ color: '#fbbf24' }} />
+              </div>
+              <p className="cg-card__label">Câmbio do Dia</p>
+            </div>
             <TrendUp size={16} weight="bold" style={{ color: '#cbd5e1' }} />
           </div>
           <div className="bfd-cambio" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
@@ -3242,8 +3485,13 @@ export default function VisaoGeral() {
       {/* Insights Row */}
       <div className="bfd-insights-grid">
         {/* Melhor cotação */}
-        <div className="bfd-card">
-          <span className="bfd-card__title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Trophy weight="duotone" size={18} style={{ color: '#fbbf24' }} />Melhor Cotação do Mês</span>
+        <div className="bfd-card bfd-card--accent-amber">
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <Trophy weight="duotone" size={16} style={{ color: '#fbbf24' }} />
+            </div>
+            <p className="cg-card__label">Melhor Cotação do Mês</p>
+          </div>
           <div className="bfd-best">
             <div className="bfd-best__route" style={{ margin: '0.35rem 0 0.75rem' }}>
               <div className="bfd-best__port">
@@ -3283,8 +3531,13 @@ export default function VisaoGeral() {
         </div>
 
         {/* Top Incoterms */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Top Incoterms</span>
+        <div className="bfd-card bfd-card--accent-purple">
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <ListNumbers weight="duotone" size={16} style={{ color: '#a78bfa' }} />
+            </div>
+            <p className="cg-card__label">Top Incoterms</p>
+          </div>
           <div className="bfd-incoterms">
             {DEMO_INCOTERMS.map(inc => (
               <div key={inc.incoterm_cotacao_bid_frete_internacional} className="bfd-incoterms__row" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }}>
@@ -3306,8 +3559,13 @@ export default function VisaoGeral() {
       {/* Bottom Row */}
       <div className="bfd-bottom-grid">
         {/* Taxa aprovação */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Taxa de Aprovação</span>
+        <div className="bfd-card bfd-card--accent-emerald">
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <ThumbsUp weight="duotone" size={16} style={{ color: '#34d399' }} />
+            </div>
+            <p className="cg-card__label">Taxa de Aprovação</p>
+          </div>
           <TaxaAprovacao />
         </div>
       </div>
@@ -3315,6 +3573,302 @@ export default function VisaoGeral() {
       <div className="bfd-footer">
         ⚙ Dados demonstrativos — conecte o backend para dados reais
       </div>
+
+      {/* Tabbed Quotation Modal Overlay */}
+      {isAlertModalOpen && selectedAlertContext && (() => {
+         const alert = selectedAlertContext;
+         // Generate mock data for the selected alert type
+         let modalTitle = 'Detalhes da Cotação';
+         let quoteId = 'COT-2026-F401';
+         let origin = 'Shanghai (CNSHA)';
+         let destination = 'Santos (BRSSZ)';
+         let goods = 'Componentes Eletrônicos Premium e Placas de Circuito';
+         let weight = '12.450 Kg';
+         let volume = '38.5 m³';
+         let incoterm = 'FOB';
+         let value = 'USD 8.048,00';
+         let category = 'Marítimo (FCL 40\' HC)';
+         let proposals = [
+           { fornecedor: 'Pacific Cargo (E96)', valor: 'USD 7.950,00', transit: '32 dias', status: 'Melhor Preço', cor: '#34d399' },
+           { fornecedor: 'DHL Global Forwarding', valor: 'USD 8.200,00', transit: '28 dias', status: 'Em Análise', cor: '#60a5fa' }
+         ];
+         let history = [
+           { data: '21/05/2026 12:00', texto: 'Alerta gerado: Prazo de resposta se encerra hoje', autor: 'Sistema' },
+           { data: '15/05/2026 10:20', texto: 'Disparada para 6 fornecedores no portal', autor: 'Daniel' },
+           { data: '15/05/2026 10:14', texto: 'Cotação criada e homologada', autor: 'Daniel' }
+         ];
+
+         if (alert.tipo === 'resposta') {
+           modalTitle = 'Respostas Pendentes';
+           quoteId = 'COT-2026-A228';
+           origin = 'Frankfurt (FRA)';
+           destination = 'Guarulhos (GRU)';
+           goods = 'Peças Automotivas e Motores de Alta Performance';
+           weight = '4.200 Kg';
+           volume = '12.8 m³';
+           incoterm = 'FCA';
+           value = 'EUR 14.200,00';
+           category = 'Aéreo (Geral)';
+           proposals = [
+             { fornecedor: 'Lufthansa Cargo', valor: 'EUR 13.800,00', transit: '4 dias', status: 'Melhor Transit', cor: '#a78bfa' },
+             { fornecedor: 'Kuehne + Nagel', valor: 'Pendente', transit: '—', status: 'Aguardando', cor: '#fbbf24' }
+           ];
+           history = [
+             { data: '21/05/2026 09:30', texto: 'Resposta pendente de Kuehne + Nagel notificada', autor: 'Sistema' },
+             { data: '20/05/2026 14:00', texto: 'Resposta recebida de Lufthansa Cargo', autor: 'Portal' },
+             { data: '19/05/2026 14:15', texto: 'Disparada via e-mail e portal', autor: 'Daniel' }
+           ];
+         } else if (alert.tipo === 'aprovacao') {
+           modalTitle = 'Aguardando Aprovação';
+           quoteId = 'COT-2026-M892';
+           origin = 'Miami (MIA)';
+           destination = 'Itajaí (BRSSZ)';
+           goods = 'Equipamentos Médicos e Ultrassons de Alta Precisão';
+           weight = '1.850 Kg';
+           volume = '6.2 m³';
+           incoterm = 'EXW';
+           value = 'USD 6.800,00';
+           category = 'Marítimo (LCL)';
+           proposals = [
+             { fornecedor: 'Panalpina', valor: 'USD 6.250,00', transit: '22 dias', status: 'Aprovada', cor: '#34d399' },
+             { fornecedor: 'Expeditors', valor: 'USD 6.400,00', transit: '24 dias', status: 'Reprovada', cor: '#f87171' }
+           ];
+           history = [
+             { data: '21/05/2026 10:00', texto: 'Enviada para aprovação do Diretor de Comex', autor: 'Daniel' },
+             { data: '16/05/2026 15:45', texto: 'Proposta consolidada de Panalpina selecionada', autor: 'Sistema' },
+             { data: '14/05/2026 11:30', texto: 'Criada e disparada para 4 fornecedores', autor: 'Daniel' }
+           ];
+         } else if (alert.tipo === 'nova') {
+           modalTitle = 'Novas Cotações (7 dias)';
+           quoteId = 'COT-2026-R115';
+           origin = 'Buenos Aires (BUE)';
+           destination = 'São Paulo (SPO)';
+           goods = 'Fios de Cobre e Condutores Elétricos Industriais';
+           weight = '24.000 Kg';
+           volume = '44.0 m³';
+           incoterm = 'DDP';
+           value = 'BRL 28.000,00';
+           category = 'Rodoviário (FTL)';
+           proposals = [
+             { fornecedor: 'Mercosul Transportes', valor: 'BRL 26.500,00', transit: '5 dias', status: 'Melhor Preço', cor: '#34d399' }
+           ];
+           history = [
+             { data: '21/05/2026 10:00', texto: 'Validada e publicada no portal', autor: 'Daniel' },
+             { data: '20/05/2026 08:00', texto: 'Cotação rascunhada', autor: 'Daniel' }
+           ];
+         }
+
+         return (
+            <div className="bfd-modal-overlay" style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(15, 23, 42, 0.75)',
+              backdropFilter: 'blur(8px)',
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              animation: 'fadeIn 0.25s ease-out'
+            }} onClick={() => setIsAlertModalOpen(false)}>
+              <style>{`
+                @keyframes fadeIn {
+                  from { opacity: 0; }
+                  to { opacity: 1; }
+                }
+                @keyframes scaleIn {
+                  from { transform: scale(0.95); opacity: 0; }
+                  to { transform: scale(1); opacity: 1; }
+                }
+              `}</style>
+              <div className="bfd-modal-card" style={{
+                background: 'rgba(30, 41, 59, 0.85)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4)',
+                borderRadius: '16px',
+                width: '100%',
+                maxWidth: '750px',
+                maxHeight: '90vh',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+              }} onClick={e => e.stopPropagation()}>
+                {/* Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                  <div>
+                    <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ color: alert.cor === 'red' ? '#f87171' : alert.cor === 'orange' ? '#fbbf24' : alert.cor === 'green' ? '#34d399' : '#60a5fa' }}>●</span>
+                      {modalTitle}
+                    </h2>
+                    <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0' }}>Referência: {quoteId}</p>
+                  </div>
+                  <button style={{ background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', transition: 'all 0.2s' }}
+                    onClick={() => setIsAlertModalOpen(false)}
+                  >✕</button>
+                </div>
+
+                {/* Tabs */}
+                <div style={{ display: 'flex', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(15, 23, 42, 0.2)', padding: '0 1rem' }}>
+                  {['geral', 'itens', 'propostas', 'historico'].map(t => {
+                    const isActive = alertModalTab === t;
+                    const labels = { geral: 'Geral', itens: 'Itens', propostas: 'Propostas', historico: 'Histórico' };
+                    return (
+                      <button key={t} style={{
+                        background: 'none',
+                        border: 'none',
+                        borderBottom: isActive ? '2px solid #3b82f6' : '2px solid transparent',
+                        color: isActive ? '#3b82f6' : '#94a3b8',
+                        padding: '0.85rem 1rem',
+                        fontSize: '0.88rem',
+                        fontWeight: isActive ? 700 : 500,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }} onClick={() => setAlertModalTab(t as any)}>{labels[t as keyof typeof labels]}</button>
+                    )
+                  })}
+                </div>
+
+                {/* Body */}
+                <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', minHeight: '300px' }}>
+                  {alertModalTab === 'geral' && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }}>
+                      <div className="bfd-modal-field">
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Origem</label>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{origin}</div>
+                      </div>
+                      <div className="bfd-modal-field">
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Destino</label>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{destination}</div>
+                      </div>
+                      <div className="bfd-modal-field" style={{ gridColumn: 'span 2' }}>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Mercadoria / Descrição</label>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{goods}</div>
+                      </div>
+                      <div className="bfd-modal-field">
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Peso Total</label>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{weight}</div>
+                      </div>
+                      <div className="bfd-modal-field">
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Cubagem (M³)</label>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{volume}</div>
+                      </div>
+                      <div className="bfd-modal-field">
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Incoterm</label>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{incoterm}</div>
+                      </div>
+                      <div className="bfd-modal-field">
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Valor Limite / Estimado</label>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{value}</div>
+                      </div>
+                      <div className="bfd-modal-field" style={{ gridColumn: 'span 2' }}>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Modalidade</label>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{category}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {alertModalTab === 'itens' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                      <div style={{ display: 'flex', background: 'rgba(255,255,255,0.02)', padding: '0.5rem 0.75rem', borderRadius: '4px', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.78rem', fontWeight: 700, color: '#94a3b8' }}>
+                        <div style={{ flex: 1 }}>Código</div>
+                        <div style={{ flex: 2 }}>Descrição</div>
+                        <div style={{ flex: 1, textAlign: 'right' }}>Qtd</div>
+                        <div style={{ flex: 1, textAlign: 'right' }}>Peso (Kg)</div>
+                      </div>
+                      <div style={{ display: 'flex', padding: '0.75rem', borderRadius: '6px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', fontSize: '0.85rem' }}>
+                        <div style={{ flex: 1, color: '#60a5fa', fontWeight: 600 }}>ITM-01</div>
+                        <div style={{ flex: 2, color: '#cbd5e1' }}>{goods}</div>
+                        <div style={{ flex: 1, textAlign: 'right', color: '#ffffff' }}>1.000 un</div>
+                        <div style={{ flex: 1, textAlign: 'right', color: '#ffffff' }}>{weight}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {alertModalTab === 'propostas' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                      {proposals.map((p, idx) => (
+                        <div key={idx} style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '1rem',
+                          background: 'rgba(255, 255, 255, 0.02)',
+                          border: '1px solid rgba(255, 255, 255, 0.05)',
+                          borderRadius: '8px',
+                          transition: 'all 0.2s'
+                        }}>
+                          <div>
+                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#ffffff', display: 'block' }}>{p.fornecedor}</span>
+                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Transit time: {p.transit}</span>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#60a5fa', display: 'block' }}>{p.valor}</span>
+                            <span style={{ display: 'inline-block', fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '12px', background: p.cor + '22', color: p.cor }}>{p.status}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {alertModalTab === 'historico' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingLeft: '1rem', borderLeft: '2px solid rgba(255, 255, 255, 0.05)', position: 'relative' }}>
+                      {history.map((h, idx) => (
+                        <div key={idx} style={{ position: 'relative' }}>
+                          <span style={{
+                            position: 'absolute',
+                            left: '-1.45rem',
+                            top: '4px',
+                            width: '10px',
+                            height: '10px',
+                            borderRadius: '50%',
+                            background: '#3b82f6',
+                            boxShadow: '0 0 8px #3b82f6'
+                          }} />
+                          <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block', fontWeight: 600 }}>{h.data} • por {h.autor}</span>
+                          <span style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '0.2rem', display: 'block' }}>{h.texto}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', padding: '1rem 1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(15, 23, 42, 0.2)' }}>
+                  <button style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '8px',
+                    color: '#f1f5f9',
+                    padding: '0.5rem 1rem',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                    onClick={() => setIsAlertModalOpen(false)}
+                  >Fechar</button>
+                  <button style={{
+                    background: '#2563eb',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#ffffff',
+                    padding: '0.5rem 1rem',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)'
+                  }}
+                    onClick={() => alert('Operação atualizada com sucesso!')}
+                  >Salvar</button>
+                </div>
+              </div>
+            </div>
+         )
+      })()}
     </div>
   )
 }

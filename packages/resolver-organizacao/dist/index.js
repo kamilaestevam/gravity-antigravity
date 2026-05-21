@@ -101,14 +101,18 @@ var AppError = class _AppError extends Error {
 };
 
 // src/schema-name.ts
-var SCHEMA_NAME_REGEX = /^tenant_[a-z][a-z0-9]{22,24}$/;
 var CUID_REGEX = /^[a-z][a-z0-9]{22,24}$/;
+var UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+var SCHEMA_NAME_REGEX = /^tenant_([a-z][a-z0-9]{22,24}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
+function isValidOrganizacaoId(id) {
+  return CUID_REGEX.test(id) || UUID_REGEX.test(id);
+}
 function buildSchemaName(idOrganizacao) {
   if (typeof idOrganizacao !== "string" || idOrganizacao.length === 0) {
     throw new AppError("idOrganizacao vazio ou inv\xE1lido", 400, "INVALID_ORGANIZACAO_ID");
   }
-  if (!CUID_REGEX.test(idOrganizacao)) {
-    throw new AppError("idOrganizacao n\xE3o \xE9 um CUID v\xE1lido", 400, "INVALID_ORGANIZACAO_ID");
+  if (!isValidOrganizacaoId(idOrganizacao)) {
+    throw new AppError("idOrganizacao n\xE3o \xE9 um CUID/UUID v\xE1lido", 400, "INVALID_ORGANIZACAO_ID");
   }
   const name = `tenant_${idOrganizacao}`;
   if (!SCHEMA_NAME_REGEX.test(name)) {

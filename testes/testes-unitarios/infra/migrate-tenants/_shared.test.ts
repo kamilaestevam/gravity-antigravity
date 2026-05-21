@@ -21,6 +21,8 @@ describe('buildSchemaName', () => {
   const VALID_CUID_V1 = 'c' + 'a'.repeat(24)
   // CUID v2 válido: começa com qualquer letra, 24 chars total [a-z0-9]
   const VALID_CUID_V2 = 'y' + '95indq8sfe7fmx5kl02h8y'
+  // UUID v4 válido
+  const VALID_UUID = '19fa2567-16f8-4a2f-9708-3367b85e70d3'
 
   it('retorna "tenant_<id>" para CUID v1 válido', () => {
     expect(buildSchemaName(VALID_CUID_V1)).toBe(`tenant_${VALID_CUID_V1}`)
@@ -30,15 +32,24 @@ describe('buildSchemaName', () => {
     expect(buildSchemaName(VALID_CUID_V2)).toBe(`tenant_${VALID_CUID_V2}`)
   })
 
+  it('retorna "tenant_<id>" para UUID v4 válido', () => {
+    expect(buildSchemaName(VALID_UUID)).toBe(`tenant_${VALID_UUID}`)
+  })
+
+  it('aceita UUID com todos os dígitos hex', () => {
+    const uuid = 'abcdef01-2345-6789-abcd-ef0123456789'
+    expect(buildSchemaName(uuid)).toBe(`tenant_${uuid}`)
+  })
+
   it('lança erro para string vazia', () => {
     expect(() => buildSchemaName('')).toThrow('ID de tenant inválido')
   })
 
-  it('lança erro para ID muito curto (< 23 chars)', () => {
+  it('lança erro para CUID muito curto (< 23 chars)', () => {
     expect(() => buildSchemaName('c' + 'a'.repeat(21))).toThrow('ID de tenant inválido')
   })
 
-  it('lança erro para ID muito longo (> 25 chars)', () => {
+  it('lança erro para CUID muito longo (> 25 chars)', () => {
     expect(() => buildSchemaName('c' + 'a'.repeat(25))).toThrow('ID de tenant inválido')
   })
 
@@ -50,11 +61,11 @@ describe('buildSchemaName', () => {
     expect(() => buildSchemaName('c' + '_'.repeat(24))).toThrow('ID de tenant inválido')
   })
 
-  it('lança erro para ID com hífen', () => {
-    expect(() => buildSchemaName('c' + '-'.repeat(24))).toThrow('ID de tenant inválido')
+  it('lança erro para UUID com letras maiúsculas', () => {
+    expect(() => buildSchemaName('19FA2567-16F8-4A2F-9708-3367B85E70D3')).toThrow('ID de tenant inválido')
   })
 
-  it('aceita ID com dígitos numéricos', () => {
+  it('aceita CUID com dígitos numéricos', () => {
     const idComNumeros = 'c' + '1234567890'.repeat(2) + 'aaaa'
     expect(buildSchemaName(idComNumeros)).toBe(`tenant_${idComNumeros}`)
   })
@@ -92,9 +103,9 @@ describe('loadEnv', () => {
   })
 
   it('usa apenas o primeiro "=" — valor pode conter "=" (ex: URLs)', () => {
-    mockRead.mockReturnValue('URL=postgresql://user:pass@host/db?ssl=true&mode=require')
+    mockRead.mockReturnValue('URL=pg://host/db?ssl=true&mode=require')
     expect(loadEnv('test.env')).toEqual({
-      URL: 'postgresql://user:pass@host/db?ssl=true&mode=require',
+      URL: 'pg://host/db?ssl=true&mode=require',
     })
   })
 

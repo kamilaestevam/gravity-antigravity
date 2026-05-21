@@ -43,6 +43,12 @@ export interface MenuLateralGlobalProps {
   onCreateWorkspace?: () => void
   /** Callback para ir às configurações do workspace */
   onManageWorkspace?: () => void
+  /** Placeholder de busca no dropdown (padrão: "Buscar workspace…") */
+  dropdownSearchPlaceholder?: string
+  /** Label do botão criar (padrão: "Criar workspace") */
+  dropdownCreateLabel?: string
+  /** Label do botão gerenciar (padrão: "Gerenciar workspace") */
+  dropdownManageLabel?: string
   defaultCollapsed?: boolean
   isCollapsed?: boolean
   onToggleCollapse?: () => void
@@ -59,6 +65,9 @@ export function MenuLateralGlobal({
   onSwitchWorkspace,
   onCreateWorkspace,
   onManageWorkspace,
+  dropdownSearchPlaceholder = 'Buscar workspace…',
+  dropdownCreateLabel = 'Criar workspace',
+  dropdownManageLabel = 'Gerenciar workspace',
   defaultCollapsed = false,
   isCollapsed: controlledIsCollapsed,
   onToggleCollapse,
@@ -263,7 +272,7 @@ export function MenuLateralGlobal({
                 <input
                   className="mlg-ws-search__input"
                   type="text"
-                  placeholder="Buscar workspace…"
+                  placeholder={dropdownSearchPlaceholder}
                   value={wsSearch}
                   onChange={e => setWsSearch(e.target.value)}
                   autoFocus
@@ -300,13 +309,13 @@ export function MenuLateralGlobal({
             {onCreateWorkspace && (
               <button className="mlg-ws-action" onClick={() => { onCreateWorkspace(); setWsOpen(false) }}>
                 <Plus size={14} weight="bold" />
-                Criar workspace
+                {dropdownCreateLabel}
               </button>
             )}
             {onManageWorkspace && (
               <button className="mlg-ws-action" onClick={() => { onManageWorkspace(); setWsOpen(false) }}>
                 <Gear size={14} weight="duotone" />
-                Gerenciar workspace
+                {dropdownManageLabel}
               </button>
             )}
           </div>

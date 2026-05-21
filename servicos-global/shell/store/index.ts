@@ -9,4 +9,5 @@ export type {
   AvisoShell,
   AvisoTipo,
   WorkspaceShell,
+  OrganizacaoShell,
 } from './types'

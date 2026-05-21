@@ -51,6 +51,13 @@ export interface CurrentUser {
   role?: string
 }
 
+export interface OrganizacaoShell {
+  id_organizacao: string
+  nome_organizacao: string
+  subdominio_organizacao: string
+  status_organizacao: string
+}
+
 export interface AllowedProduct {
   product_key: string
   is_active: boolean
@@ -68,6 +75,9 @@ export interface ShellState {
   // --- Workspaces da organização ---
   workspaces: WorkspaceShell[]
   idWorkspaceAtivo: string | null
+
+  // --- Organizações disponíveis (SUPER_ADMIN/ADMIN) ---
+  organizacoes: OrganizacaoShell[]
 
   // --- Produtos habilitados para o tenant ---
   allowedProducts: AllowedProduct[]
@@ -101,6 +111,7 @@ export interface ShellState {
   clearCurrentUser: () => void
   setWorkspaces: (workspaces: WorkspaceShell[]) => void
   setWorkspaceAtivo: (id: string) => void
+  setOrganizacoes: (organizacoes: OrganizacaoShell[]) => void
   setAllowedProducts: (products: AllowedProduct[]) => void
   isProductAllowed: (productKey: string) => boolean
 

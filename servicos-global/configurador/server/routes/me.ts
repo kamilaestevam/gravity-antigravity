@@ -2,6 +2,8 @@
 // Rotas do usuário autenticado (self).
 //
 // GET    /api/v1/me                                → contexto completo: usuario + organizacao + workspaces + produtos
+// GET    /api/v1/me/organizacoes                   → lista todas as organizações (SUPER_ADMIN/ADMIN only)
+// PUT    /api/v1/me/organizacao-ativa              → troca a organização ativa do SUPER_ADMIN/ADMIN
 // GET    /api/v1/me/preferencias                   → { preferredCompanyId: string | null }
 // PUT    /api/v1/me/preferencias                   → atualiza workspace preferido (skip pós-login)
 // GET    /api/v1/me/workspaces                     → lista workspaces da organização
@@ -12,7 +14,7 @@
 
 import { Router, type Request, type Response, type NextFunction } from 'express'
 import { z } from 'zod'
-import { requireAuth } from '../middleware/requireAuth.js'
+import { requireAuth, invalidarCacheRequireAuth } from '../middleware/requireAuth.js'
 import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
 import { AppError } from '../lib/appError.js'
 import { prisma } from '../lib/prisma.js'
@@ -27,6 +29,21 @@ import {
 // Schema de resposta — contrato exportável para testes e consumidores
 // Garante que breaking changes no payload sejam detectados pelo CI
 // ─────────────────────────────────────────────────────────────────────────────
+
+export const meOrganizacoesResponseSchema = z.object({
+  organizacoes: z.array(z.object({
+    id_organizacao:         z.string(),
+    nome_organizacao:       z.string(),
+    subdominio_organizacao: z.string(),
+    status_organizacao:     z.string(),
+  })),
+})
+
+export type MeOrganizacoesResponse = z.infer<typeof meOrganizacoesResponseSchema>
+
+const trocarOrganizacaoAtivaSchema = z.object({
+  id_organizacao: z.string().min(1),
+})
 
 export const meResponseSchema = z.object({
   usuario: z.object({
@@ -141,6 +158,94 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         produtos: m.company.company_products.map((p) => p.id_produto_gravity),
       })),
     })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Organizações — Troca de contexto para SUPER_ADMIN / ADMIN
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/v1/me/organizacoes
+ * Lista todas as organizações do sistema (payload leve para o sidebar).
+ * Restrito a SUPER_ADMIN e ADMIN — demais roles recebem 403.
+ */
+meRouter.get('/organizacoes', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN' && req.auth.tipo_usuario !== 'ADMIN') {
+      throw new AppError('Acesso restrito a administradores Gravity', 403, 'FORBIDDEN')
+    }
+
+    const organizacoes = await prisma.organizacao.findMany({
+      select: {
+        id_organizacao: true,
+        nome_organizacao: true,
+        subdominio_organizacao: true,
+        status_organizacao: true,
+      },
+      orderBy: { nome_organizacao: 'asc' },
+    })
+
+    res.json({ organizacoes })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * PUT /api/v1/me/organizacao-ativa
+ * Troca a organização ativa do usuário SUPER_ADMIN/ADMIN.
+ * Atualiza id_organizacao do usuario e limpa workspace preferido (pertence à org anterior).
+ */
+meRouter.put('/organizacao-ativa', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN' && req.auth.tipo_usuario !== 'ADMIN') {
+      throw new AppError('Acesso restrito a administradores Gravity', 403, 'FORBIDDEN')
+    }
+
+    const parsed = trocarOrganizacaoAtivaSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(
+        parsed.error.errors[0]?.message ?? 'Dados inválidos',
+        400,
+        'VALIDATION_ERROR',
+      )
+    }
+
+    const orgAlvo = await prisma.organizacao.findUnique({
+      where: { id_organizacao: parsed.data.id_organizacao },
+      select: { id_organizacao: true, nome_organizacao: true, status_organizacao: true },
+    })
+
+    if (!orgAlvo) {
+      throw new AppError('Organização não encontrada', 404, 'NOT_FOUND')
+    }
+
+    await prisma.usuario.update({
+      where: { id_usuario: req.auth.id_usuario },
+      data: {
+        id_organizacao: orgAlvo.id_organizacao,
+        id_workspace_preferido_usuario: null,
+      },
+    })
+
+    invalidarCacheRequireAuth(req.auth.clerkUserId)
+
+    AuditService.log({
+      id_organizacao: orgAlvo.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.nome_usuario,
+      modulo_historico_log: 'configuracao',
+      tipo_recurso_historico_log: 'Organizacao',
+      id_recurso_historico_log: orgAlvo.id_organizacao,
+      acao_historico_log: 'ATUALIZAR',
+      detalhe_acao_historico_log: `Trocou contexto para organização "${orgAlvo.nome_organizacao}"`,
+    }).catch(() => {})
+
+    res.json({ id_organizacao: orgAlvo.id_organizacao, nome_organizacao: orgAlvo.nome_organizacao })
   } catch (err) {
     next(err)
   }

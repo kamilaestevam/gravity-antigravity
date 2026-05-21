@@ -6,7 +6,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
-import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
+import { ToastContainer, useShellStore, useUserPreferences, useMeSync, type OrganizacaoShell } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
 import {
@@ -62,7 +62,7 @@ export function WorkspaceLayout() {
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, currentUser } = useShellStore()
 
   // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
-  useMeSync()
+  const { refetchMe } = useMeSync()
   // Sincroniza preferências de UI com o backend (cross-device)
   useUserPreferences({ id_usuario: currentUser.id || user?.id, id_organizacao: currentUser.idOrganizacao })
   const isLight = currentTheme === 'light'
@@ -74,6 +74,64 @@ export function WorkspaceLayout() {
   const userEmail = currentUser.email ?? user?.primaryEmailAddress?.emailAddress ?? 'usuario@usegravity.com.br'
 
   const { tipoUsuario: dbRole, gravityAdmin: isGravityAdmin } = useCarregarTipoUsuario()
+  const { signOut } = useClerk()
+  const { getToken } = useAuth()
+
+  const { organizacoes, setOrganizacoes } = useShellStore()
+  const orgsFetchedRef = useRef(false)
+
+  useEffect(() => {
+    if (!isGravityAdmin || orgsFetchedRef.current) return
+    orgsFetchedRef.current = true
+
+    async function fetchOrganizacoes() {
+      try {
+        const token = await getToken()
+        if (!token) return
+        const res = await fetch('/api/v1/me/organizacoes', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        if (Array.isArray(data.organizacoes)) {
+          setOrganizacoes(data.organizacoes)
+        }
+      } catch { /* silencioso — lista de orgs é UX opcional */ }
+    }
+    fetchOrganizacoes()
+  }, [isGravityAdmin, getToken, setOrganizacoes])
+
+  const handleTrocarOrganizacao = async (idOrg: string) => {
+    try {
+      const token = await getToken()
+      if (!token) return
+      const res = await fetch('/api/v1/me/organizacao-ativa', {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id_organizacao: idOrg }),
+      })
+      if (!res.ok) {
+        console.warn('[WorkspaceLayout] Falha ao trocar organização:', res.status)
+        return
+      }
+      sessionStorage.removeItem('gravity_company_id')
+      window.location.href = '/workspace/workspaces'
+    } catch (err) {
+      console.warn('[WorkspaceLayout] Erro ao trocar organização:', err)
+    }
+  }
+
+  const orgWorkspaceItems = isGravityAdmin
+    ? organizacoes.map((org: OrganizacaoShell) => ({
+        id: org.id_organizacao,
+        name: org.nome_organizacao,
+        plan: org.subdominio_organizacao,
+      }))
+    : []
+
   const ROLE_LABELS: Record<string, string> = {
     SUPER_ADMIN: 'Super Admin',
     ADMIN:       'Admin',
@@ -82,9 +140,6 @@ export function WorkspaceLayout() {
     FORNECEDOR:  'Fornecedor',
   }
   const userRole = ROLE_LABELS[dbRole ?? ''] ?? 'Standard'
-
-  const { signOut } = useClerk()
-  const { getToken } = useAuth()
 
   // ── Localizador ────────────────────────────────────────────────────────────
   const { history: locHistory, addEntry: locAddEntry } = useLocalizadorHistory('configurador')
@@ -137,13 +192,16 @@ export function WorkspaceLayout() {
   return (
     <div className="ws-shell">
       {/* ── Sidebar ── */}
-      <MenuLateralGlobal 
-        tenantName={currentUser?.nomeWorkspacePreferido ?? nomeOrganizacao}
-        tenantPlan={nomeOrganizacao}
+      <MenuLateralGlobal
+        tenantName={nomeOrganizacao}
+        tenantPlan={isGravityAdmin ? 'Super Admin' : (currentUser?.nomeWorkspacePreferido ?? nomeOrganizacao)}
         navItems={navItems}
         moduleName={t('workspace.layout.modulo_nome')}
         moduleColor="#7dd3fc"
         defaultCollapsed={false}
+        workspaces={isGravityAdmin ? orgWorkspaceItems : undefined}
+        onSwitchWorkspace={isGravityAdmin ? handleTrocarOrganizacao : undefined}
+        dropdownSearchPlaceholder={isGravityAdmin ? 'Buscar organização…' : undefined}
       />
 
       {/* ── Main area ── */}

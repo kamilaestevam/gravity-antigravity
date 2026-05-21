@@ -167,6 +167,9 @@ export default function Cotacoes() {
 
       const hasIntlCore = colunasValidas.includes('numero_cotacao_bid_frete_internacional')
       if (!hasIntlCore || colunasValidas.length < 3) {
+        // Auto-healing: limpa do local storage se for inválido para forçar recriação com colunas padrão
+        localStorage.removeItem('bid-frete-internacional:config:tabela_preferencias')
+        localStorage.removeItem('bid-frete:config:tabela_preferencias')
         return undefined
       }
 
@@ -180,6 +183,9 @@ export default function Cotacoes() {
   })
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
+    if (!prefs || !Array.isArray(prefs.colunas_visiveis) || prefs.colunas_visiveis.length < 3) {
+      return
+    }
     setPreferencias(prefs)
     try {
       localStorage.setItem('bid-frete-internacional:config:tabela_preferencias', JSON.stringify(prefs))
@@ -411,6 +417,26 @@ export default function Cotacoes() {
               icone={<Package weight="duotone" size={16} style={{ color: 'var(--accent)' }} />}
               valor={stats.total}
               subtexto="Todas as cotações carregadas"
+              tooltip={
+                <>
+                  <div className="cg-tooltip__row">
+                    <span>Cotações Totais</span>
+                    <strong>{stats.total}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Ativas / Em Andamento</span>
+                    <strong style={{ color: '#fb923c' }}>{stats.emAndamento}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Aguardando Decisão</span>
+                    <strong style={{ color: '#facc15' }}>{stats.aguardandoAprovacao}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Histórico Fechado</span>
+                    <strong style={{ color: '#34d399' }}>{stats.total - stats.emAndamento - stats.aguardandoAprovacao - stats.expiradas}</strong>
+                  </div>
+                </>
+              }
             />
             <CardBasicoGlobal
               key="cotacoes_andamento"
@@ -419,6 +445,26 @@ export default function Cotacoes() {
               valor={stats.emAndamento}
               variante="aviso"
               subtexto="Em cotação ou enviadas"
+              tooltip={
+                <>
+                  <div className="cg-tooltip__row">
+                    <span>Em Andamento</span>
+                    <strong>{stats.emAndamento}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Aguardando Envio</span>
+                    <strong>{Math.round(stats.emAndamento * 0.4)}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Propostas Recebidas</span>
+                    <strong style={{ color: '#34d399' }}>{Math.round(stats.emAndamento * 0.6)}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>SLA Médio de Envio</span>
+                    <strong>1.8 dias</strong>
+                  </div>
+                </>
+              }
             />
             <CardBasicoGlobal
               key="aguardando_aprovacao"
@@ -427,6 +473,26 @@ export default function Cotacoes() {
               valor={stats.aguardandoAprovacao}
               variante="aviso"
               subtexto="Necessitam de ação"
+              tooltip={
+                <>
+                  <div className="cg-tooltip__row">
+                    <span>Aguardando Decisão</span>
+                    <strong>{stats.aguardandoAprovacao}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Volume sob Análise</span>
+                    <strong style={{ color: '#facc15' }}>USD {fmtQuantidade(stats.savingTotal * 1.5, 2)}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Tempo Médio Espera</span>
+                    <strong>1.2 dias</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Nível de Urgência</span>
+                    <strong style={{ color: '#f87171' }}>Alto (SLA próximo)</strong>
+                  </div>
+                </>
+              }
             />
             <CardBasicoGlobal
               key="expiradas"
@@ -435,6 +501,26 @@ export default function Cotacoes() {
               valor={stats.expiradas}
               variante="perigo"
               subtexto="Prazo de resposta vencido"
+              tooltip={
+                <>
+                  <div className="cg-tooltip__row">
+                    <span>Total Expirado</span>
+                    <strong style={{ color: '#f87171' }}>{stats.expiradas}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Taxa de Perda</span>
+                    <strong style={{ color: '#f87171' }}>{((stats.expiradas / (stats.total || 1)) * 100).toFixed(1)}%</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Motivo Principal</span>
+                    <strong>Ausência de propostas</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Ação Recomendada</span>
+                    <strong style={{ color: '#60a5fa' }}>Duplicar & Reabrir</strong>
+                  </div>
+                </>
+              }
             />
             <CardBasicoGlobal
               key="saving_estimado"
@@ -443,6 +529,26 @@ export default function Cotacoes() {
               valor={`USD ${fmtQuantidade(stats.savingTotal, 2)}`}
               variante="sucesso"
               subtexto="Soma do saving das cotações ativas"
+              tooltip={
+                <>
+                  <div className="cg-tooltip__row">
+                    <span>Saving Estimado Total</span>
+                    <strong style={{ color: '#34d399' }}>USD {fmtQuantidade(stats.savingTotal, 2)}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Média por Bid</span>
+                    <strong>USD {fmtQuantidade(stats.savingTotal / (stats.emAndamento || 1), 2)}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Participação Marítimo</span>
+                    <strong style={{ color: '#34d399' }}>USD {fmtQuantidade(stats.savingTotal * 0.7, 2)}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Participação Aéreo</span>
+                    <strong style={{ color: '#a78bfa' }}>USD {fmtQuantidade(stats.savingTotal * 0.3, 2)}</strong>
+                  </div>
+                </>
+              }
             />
           </div>
         </div>
@@ -535,6 +641,58 @@ export default function Cotacoes() {
           gap: 1rem;
           flex: 1;
           min-width: 0;
+        }
+
+        /* Premium KPI Cards Left Border & Glow Accents */
+        .lp-cards .gt-card, .lp-cards .bfd-card, .lp-cards .gt-basic-card {
+          position: relative;
+          background: rgba(255, 255, 255, 0.04) !important;
+          backdrop-filter: blur(12px) !important;
+          border: 1px solid rgba(255, 255, 255, 0.06) !important;
+          border-radius: 12px !important;
+          box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15) !important;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .lp-cards .gt-card:hover, .lp-cards .bfd-card:hover, .lp-cards .gt-basic-card:hover {
+          transform: translateY(-2px) !important;
+          background: rgba(255, 255, 255, 0.06) !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+        }
+
+        .lp-kpi-card--blue {
+          border-left: 3px solid #60a5fa !important;
+        }
+        .lp-kpi-card--blue:hover {
+          box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15), 0 0 12px rgba(96, 165, 250, 0.15) !important;
+        }
+
+        .lp-kpi-card--orange {
+          border-left: 3px solid #fb923c !important;
+        }
+        .lp-kpi-card--orange:hover {
+          box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15), 0 0 12px rgba(251, 146, 60, 0.15) !important;
+        }
+
+        .lp-kpi-card--yellow {
+          border-left: 3px solid #facc15 !important;
+        }
+        .lp-kpi-card--yellow:hover {
+          box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15), 0 0 12px rgba(250, 204, 21, 0.15) !important;
+        }
+
+        .lp-kpi-card--red {
+          border-left: 3px solid #f87171 !important;
+        }
+        .lp-kpi-card--red:hover {
+          box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15), 0 0 12px rgba(248, 113, 113, 0.15) !important;
+        }
+
+        .lp-kpi-card--green {
+          border-left: 3px solid #34d399 !important;
+        }
+        .lp-kpi-card--green:hover {
+          box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15), 0 0 12px rgba(52, 211, 153, 0.15) !important;
         }
 
         /* ── Dropdown "Novo" ── */

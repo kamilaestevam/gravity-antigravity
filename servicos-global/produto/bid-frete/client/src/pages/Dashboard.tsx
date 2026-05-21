@@ -961,7 +961,8 @@ function VisaoGeralMapa() {
           ctx.lineWidth = 2.0
           ctx.setLineDash([5, 8])
           // Negative offset moves the dash pattern from start to end (fromId -> toId)
-          ctx.lineDashOffset = -(Date.now() / 32) % 100
+          const isMaritime = route.color === 'rgba(82, 214, 155, 0.8)'
+          ctx.lineDashOffset = -(Date.now() / (isMaritime ? 160 : 32)) % 100
           
           ctx.beginPath()
           ctx.moveTo(pathPoints[0].sx, pathPoints[0].sy)
@@ -1003,7 +1004,9 @@ function VisaoGeralMapa() {
         if (!isBack) {
           // Draw 2 staggered pulses per route so direction is immediately obvious
           [0.0, 0.5].forEach((offset) => {
-            const tPulse = (pulseTime + routeIdx * 0.22 + offset) % 1.0
+            const isMaritime = route.color === 'rgba(82, 214, 155, 0.8)'
+            const routePulseTime = Date.now() / (isMaritime ? 12000 : 2400)
+            const tPulse = (routePulseTime + routeIdx * 0.22 + offset) % 1.0
             const rawIdx = tPulse * segmentsCount
             
             // Draw trail

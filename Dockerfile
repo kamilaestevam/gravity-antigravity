@@ -12,7 +12,8 @@ COPY . .
 RUN npm ci --include=dev
 
 # Build workspace packages required by sidecars (symlink resolves to packages/)
-RUN cd packages/resolver-organizacao && npx tsup
+# rm -rf dist: bust Docker layer cache — stale dist caused CUID v1-only regex in prod
+RUN cd packages/resolver-organizacao && rm -rf dist && npx tsup
 
 # Generate Prisma clients
 RUN npx prisma generate --schema=configurador/prisma/schema.prisma

@@ -495,9 +495,9 @@ export function CadastroContinuarPage() {
             />
             <span style={{ fontSize: '0.8125rem', color: 'var(--ws-text)', lineHeight: 1.5 }}>
               Li e aceito os{' '}
-              <a href="#" target="_blank" rel="noreferrer" style={{ color: '#818cf8' }}>Termos de Uso</a>
+              <a href="/termos-de-uso" target="_blank" rel="noreferrer" style={{ color: '#818cf8' }}>Termos de Uso</a>
               {' '}e a{' '}
-              <a href="#" target="_blank" rel="noreferrer" style={{ color: '#818cf8' }}>Política de Privacidade</a>.
+              <a href="/politica-de-privacidade" target="_blank" rel="noreferrer" style={{ color: '#818cf8' }}>Política de Privacidade</a>.
             </span>
           </label>
 
@@ -536,7 +536,7 @@ export function CadastroContinuarPage() {
             blocoCompleto
             centralizado
             disabled={!podeEnviar}
-            icone={enviando ? <CircleNotch size={18} weight="bold" className="cadastro-spinner" /> : undefined}
+            carregando={enviando}
           >
             {enviando ? t('cadastro.continuar.criando', 'Criando conta…') : t('cadastro.continuar.submit', 'Criar conta')}
           </BotaoGlobal>

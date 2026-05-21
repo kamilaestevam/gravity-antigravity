@@ -2338,23 +2338,142 @@ export default function Dashboard() {
         .bfd-kpi__spark { display: flex; align-items: flex-end; gap: 4px; height: 32px; margin: 0.35rem 0; }
         .bfd-kpi__spark-bar { flex: 1; border-radius: 2px; min-width: 8px; transition: height 0.3s; }
         .bfd-kpi__spark-line { display: flex; align-items: center; height: 32px; margin: 0.35rem 0; width: 100%; }
-        .bfd-kpi__progres        .bfd-map-left-panel {
+        .bfd-kpi__progress-wrap { display: flex; align-items: center; height: 32px; margin: 0.35rem 0; width: 100%; }
+        .bfd-kpi__progress-bg { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; width: 100%; }
+        .bfd-kpi__progress-fill { height: 100%; background: #52d69b; border-radius: 3px; }
+
+        /* ── Base Cards and Containers ───────────────────────────── */
+        .bfd-card {
+          background: rgba(255, 255, 255, 0.04);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 14px;
+          padding: 1.5rem 1.75rem;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bfd-card__title {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: #ffffff;
+          letter-spacing: 0.02em;
+          margin-bottom: 1.25rem;
+          line-height: 1.4;
+        }
+        .bfd-map-card {
+          padding: 1.5rem 1.75rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
+          position: relative;
+        }
+        .bfd-map-card__header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .bfd-map-legend {
+          display: flex;
+          gap: 1.25rem;
+        }
+        .bfd-map-legend__item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.85rem;
+          color: #cbd5e1;
+          letter-spacing: 0.02em;
+          font-weight: 600;
+        }
+        .bfd-map-container {
+          position: relative;
+          height: 440px;
+          border-radius: 12px;
+          overflow: visible;
+          background: transparent;
+        }
+
+        /* ── HUD Left Panel ──────────────────────────────────────── */
+        .bfd-map-left-panel {
           position: absolute;
           left: 1.25rem;
           top: 1.25rem;
           bottom: 1.25rem;
-          width: 300px;
+          width: 310px;
           background: rgba(11, 14, 20, 0.82);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 12px;
-          padding: 1.2rem;
+          padding: 1.25rem;
           display: flex;
           flex-direction: column;
           gap: 0.85rem;
           z-index: 20;
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+          transition: border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        .bfd-map-left-panel--origens {
+          border-color: rgba(82, 214, 155, 0.25);
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(82, 214, 155, 0.1);
+        }
+        .bfd-map-left-panel--destinos {
+          border-color: rgba(167, 139, 250, 0.25);
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(167, 139, 250, 0.1);
+        }
+        .bfd-map-left-panel--modal {
+          border-color: rgba(251, 191, 36, 0.25);
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(251, 191, 36, 0.1);
+        }
+        .bfd-map-panel__live-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #52d69b;
+          box-shadow: 0 0 8px #52d69b, 0 0 12px #52d69b;
+          animation: bfdLaserPulse 1.8s infinite alternate ease-in-out;
+        }
+        @keyframes bfdLaserPulse {
+          0% {
+            transform: scale(0.9);
+            opacity: 0.6;
+            box-shadow: 0 0 4px #52d69b, 0 0 6px #52d69b;
+          }
+          100% {
+            transform: scale(1.2);
+            opacity: 1;
+            box-shadow: 0 0 10px #52d69b, 0 0 16px #52d69b;
+          }
+        }
+        .bfd-map-panel__modal-stats-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
+        }
+        .bfd-map-panel__modal-stat-box {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 6px;
+          padding: 0.4rem 0.5rem;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .bfd-map-panel__modal-stat-lbl {
+          font-size: 0.62rem;
+          text-transform: uppercase;
+          color: #94a3b8;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+        }
+        .bfd-map-panel__modal-stat-num {
+          font-size: 0.8rem;
+          font-weight: 800;
+          letter-spacing: 0.01em;
         }
         .bfd-map-panel__header {
           display: flex;
@@ -2603,7 +2722,8 @@ export default function Dashboard() {
           font-size: 0.72rem;
           color: #cbd5e1;
           font-weight: 500;
-        }em;
+        }
+        .bfd-map-panel__terminal-list {
           overflow-y: auto;
           flex: 1;
         }

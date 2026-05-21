@@ -2846,3 +2846,74 @@ body.bf-configuracoes-page .mtg-left__page-title {
   display: none !important;
 }
 
+/* ── Shift Premium Header to Top-Bar next to logo ── */
+
+/* Sidebar is expanded (default/not collapsed) */
+body.bf-configuracoes-page .pg-cabecalho-wrapper .cg-header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 272px !important; /* 240px sidebar + 32px padding */
+  height: 60px !important;
+  min-height: 60px !important;
+  display: flex !important;
+  align-items: center !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  z-index: 101 !important;
+  pointer-events: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Sidebar is collapsed (using CSS :has selector to detect child of sibling) */
+body.bf-configuracoes-page .tpg-layout:has(.mlg-sidebar.collapsed) .pg-cabecalho-wrapper .cg-header {
+  left: 104px !important; /* 72px sidebar + 32px padding */
+}
+
+/* Mobile responsiveness: when sidebar is completely hidden (width <= 768px) */
+@media (max-width: 768px) {
+  body.bf-configuracoes-page .pg-cabecalho-wrapper .cg-header {
+    left: 2rem !important; /* aligned to left screen edge padding */
+  }
+}
+
+/* Reset inner title-block to center vertically inside the 60px header */
+body.bf-configuracoes-page .pg-cabecalho-wrapper .cg-header__title-block {
+  margin-top: 0 !important;
+  gap: 2px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+/* Title text styling and size override */
+body.bf-configuracoes-page .pg-cabecalho-wrapper .cg-header__title {
+  color: var(--text-primary, #f1f5f9) !important;
+  font-size: 1.625rem !important;
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.015em !important;
+}
+
+/* Accentuated Sliders rotating icon */
+body.bf-configuracoes-page .pg-cabecalho-wrapper .cg-header__icon {
+  color: var(--ws-accent, #818cf8) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* Subtitle styled elegantly with ellipsis overflow safeguard */
+body.bf-configuracoes-page .pg-cabecalho-wrapper .cg-header__subtitle {
+  font-size: 0.8125rem !important;
+  color: var(--text-muted, #64748b) !important;
+  margin: 0 !important;
+  line-height: 1.4 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 45vw !important;
+}
+
+

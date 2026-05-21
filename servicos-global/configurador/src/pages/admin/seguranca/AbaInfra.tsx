@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import {
   HardDrives, Timer, CloudArrowUp, CheckCircle, Warning, ArrowsClockwise,
 } from '@phosphor-icons/react'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
@@ -180,7 +180,7 @@ export function AbaInfra() {
 
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
         <TooltipGlobal titulo="Último Backup" descricao="Data e hora do backup automático mais recente do banco de dados">
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo="Último Backup"
             valor={backup ? new Date(backup.ultimo_backup.data).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : '...'}
             icone={<CloudArrowUp weight="fill" size={20} />}
@@ -188,7 +188,7 @@ export function AbaInfra() {
           />
         </TooltipGlobal>
         <TooltipGlobal titulo="RPO" descricao="Recovery Point Objective: máximo de dados que pode ser perdido em caso de falha">
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo="RPO (Meta: 24h)"
             valor={backup ? `${backup.rpo.atual_horas}h` : '...'}
             icone={<Timer weight="fill" size={20} />}
@@ -196,7 +196,7 @@ export function AbaInfra() {
           />
         </TooltipGlobal>
         <TooltipGlobal titulo="RTO" descricao="Recovery Time Objective: tempo máximo para restaurar o sistema após uma falha">
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo="RTO (Meta: 60min)"
             valor={backup ? `${backup.rto.estimado_minutos}min` : '...'}
             icone={<ArrowsClockwise weight="fill" size={20} />}
@@ -204,7 +204,7 @@ export function AbaInfra() {
           />
         </TooltipGlobal>
         <TooltipGlobal titulo="Teste de Restauração" descricao="Último teste real de restauração do backup — valida que o backup funciona">
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo="Último Teste Restauração"
             valor={backup
               ? (backup.ultimo_teste_restauracao.data

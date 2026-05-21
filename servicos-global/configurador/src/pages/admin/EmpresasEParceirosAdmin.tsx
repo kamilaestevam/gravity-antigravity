@@ -20,17 +20,16 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Warning, Buildings, Globe } from '@phosphor-icons/react'
+import { Warning, Buildings, Globe, UsersThree, GlobeHemisphereWest, ChartPieSlice } from '@phosphor-icons/react'
 import { useAuth } from '@clerk/clerk-react'
 import { z } from 'zod'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
+import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import {
-  SelectOrganizacaoAdminGlobal,
   type OrganizacaoOpcao,
 } from '@nucleo/select-organizacao-admin-global'
 import { listaEmpresasAdminSchema, type EmpresaAdmin } from '@cadastros/shared/schemas'
@@ -203,78 +202,57 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
           subtitulo="Visão cross-organização (SUPER_ADMIN / ADMIN Gravity)"
         />
       }
-    >
-      {/* ── Camada 1: Banner permanente de aviso ──────────────────────────── */}
-      <div style={{ marginBottom: 16 }}>
-        <CardBasicoGlobal
-          titulo="Modo Administrador Gravity — Visão Cross-Organização"
-          icone={<Warning weight="duotone" size={18} />}
-          variante="aviso"
-          valor=""
-          tooltip={
-            <span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>
-              Você está vendo empresas/parceiros de TODAS as organizações da
-              plataforma. Toda consulta é registrada no log de auditoria com
-              seu id_usuario, timestamp e filtros aplicados. Esta tela NÃO
-              substitui a tela do workspace — existe apenas para suporte,
-              auditoria e troubleshooting interno da Gravity. Edição
-              desabilitada — read-only por design.
-            </span>
-          }
-        />
-      </div>
-
-      {/* ── Filtros ─────────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'flex-end' }}>
-        <div style={{ flex: 1, maxWidth: 400 }}>
-          <SelectOrganizacaoAdminGlobal
-            value={filtroOrg}
-            onChange={(id) => setFiltroOrg(id)}
-            fetchOrganizacoes={fetchOrganizacoes}
-            label="Organização"
-            placeholder="Todas as organizações"
+      stats={
+        <>
+          <CardBasicoGlobal
+            titulo="Total de Empresas"
+            icone={<Buildings weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
+            valor={totalGeral}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row"><span>Empresas cadastradas</span> <strong>{totalGeral}</strong></div>
+                <div className="cg-tooltip__row"><span>Ativas</span> <strong style={{ color: '#34d399' }}>{empresas.filter(e => e.ativo_empresa).length}</strong></div>
+                <div className="cg-tooltip__row"><span>Inativas</span> <strong style={{ color: '#94a3b8' }}>{empresas.filter(e => !e.ativo_empresa).length}</strong></div>
+              </>
+            }
           />
-        </div>
+          <CardBasicoGlobal
+            titulo="Países"
+            icone={<GlobeHemisphereWest weight="duotone" size={16} style={{ color: '#34d399' }} />}
+            valor={new Set(empresas.map(e => e.pais_empresa)).size}
+            tooltip={
+              <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Quantidade de países distintos entre todas as empresas cadastradas.</span>
+            }
+          />
+          <CardBasicoGlobal
+            titulo="Organizações"
+            icone={<UsersThree weight="duotone" size={16} style={{ color: '#8b5cf6' }} />}
+            valor={new Set(empresas.map(e => e.id_organizacao)).size}
+            tooltip={
+              <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Organizações que possuem ao menos uma empresa/parceiro cadastrado.</span>
+            }
+          />
+          <CardGraficoGlobal
+            titulo="Status"
+            icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
+            total={empresas.length}
+            valorPrincipal={empresas.filter(e => e.ativo_empresa).length}
+            corGauge="#34d399"
+            legenda={[
+              { label: 'Ativas', valor: empresas.filter(e => e.ativo_empresa).length, cor: 'green' },
+              { label: 'Inativas', valor: empresas.filter(e => !e.ativo_empresa).length, cor: 'red' },
+            ]}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row"><span>Ativas</span> <strong style={{ color: '#34d399' }}>{empresas.filter(e => e.ativo_empresa).length}</strong></div>
+                <div className="cg-tooltip__row"><span>Inativas</span> <strong style={{ color: '#f87171' }}>{empresas.filter(e => !e.ativo_empresa).length}</strong></div>
+              </>
+            }
+          />
+        </>
+      }
+    >
 
-        <div style={{ flex: 1, maxWidth: 320 }}>
-          <label style={{
-            display: 'block',
-            fontSize: '0.75rem',
-            fontWeight: 500,
-            color: 'var(--ws-text-muted, #94a3b8)',
-            marginBottom: 4,
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-          }}>
-            Tipo de Parceiro
-          </label>
-          <select
-            value={filtroTipoParceiro}
-            onChange={(e) => setFiltroTipoParceiro(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              background: 'var(--ws-input-bg, #1e293b)',
-              border: '1px solid var(--ws-border, #334155)',
-              borderRadius: 6,
-              color: 'var(--ws-text, #e2e8f0)',
-              fontSize: '0.875rem',
-            }}
-          >
-            <option value="">Todos os tipos</option>
-            {TIPOS_PARCEIRO.map((t) => (
-              <option key={t.key} value={t.key}>{t.label}</option>
-            ))}
-          </select>
-        </div>
-
-        <div style={{ marginLeft: 'auto', color: 'var(--ws-text-muted)', fontSize: '0.75rem' }}>
-          Total: <strong style={{ color: 'var(--ws-text)' }}>{totalGeral}</strong>
-          {alertaVolume && (
-            <span style={{ marginLeft: 8, color: '#f59e0b' }}>⚠ volume alto</span>
-          )}
-        </div>
-      </div>
 
       {/* ── Estados ──────────────────────────────────────────────────────── */}
       {carregando && (

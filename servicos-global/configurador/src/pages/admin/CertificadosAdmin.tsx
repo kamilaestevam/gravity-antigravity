@@ -198,17 +198,33 @@ export default function CertificadosAdmin() {
             valor={certAtivo ? certAtivo.cn.split(':')[0] : '—'}
             icone={<Certificate weight="duotone" size={18} />}
             variante={certAtivo ? 'sucesso' : 'padrao'}
+            tooltip={
+              certAtivo ? (
+                <>
+                  <div className="cg-tooltip__row"><span>CN</span> <strong>{certAtivo.cn}</strong></div>
+                  <div className="cg-tooltip__row"><span>Válido até</span> <strong>{new Date(certAtivo.validade_fim).toLocaleDateString('pt-BR')}</strong></div>
+                </>
+              ) : (
+                <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Nenhum certificado ativo no momento.</span>
+              )
+            }
           />
           <CardBasicoGlobal
             titulo={t('admin.certificados.card_validade', 'Validade')}
             valor={certAtivo ? `${diasRestantes(certAtivo.validade_fim)}d` : '—'}
             icone={<ShieldCheck weight="duotone" size={18} />}
             variante={certAtivo && diasRestantes(certAtivo.validade_fim) < 30 ? 'aviso' : 'sucesso'}
+            tooltip={
+              <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Dias restantes até o vencimento do certificado ativo. Renove com antecedência para evitar interrupções.</span>
+            }
           />
           <CardBasicoGlobal
             titulo={t('admin.certificados.card_total', 'Total Cadastrados')}
             valor={String(certificados.length)}
             icone={<Certificate weight="duotone" size={18} />}
+            tooltip={
+              <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Total de certificados digitais cadastrados na plataforma, incluindo ativos e expirados.</span>
+            }
           />
         </>
       }

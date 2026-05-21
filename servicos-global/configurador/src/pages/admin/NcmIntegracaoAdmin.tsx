@@ -15,7 +15,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
 import { adminNcmApi, type NcmSyncLogApi, type NcmSyncStatusApi } from '../../services/api-client'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
@@ -268,23 +268,42 @@ export function NcmIntegracaoAdmin() {
       }
       stats={
         <>
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo={t('admin.ncm.card_ativos')}
             valor={carregando ? '—' : (status?.total_ativos ?? 0).toLocaleString('pt-BR')}
             icone={<Tag size={20} weight="duotone" />}
-            cor="#10b981"
+            variante="sucesso"
+            tooltip={
+              <>
+                <div className="cg-tooltip__row"><span>NCMs ativos</span> <strong style={{ color: '#34d399' }}>{(status?.total_ativos ?? 0).toLocaleString('pt-BR')}</strong></div>
+                <div className="cg-tooltip__divider" />
+                <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Total de códigos NCM disponíveis na base sincronizada com o Siscomex.</span>
+              </>
+            }
           />
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo={t('admin.ncm.card_ultima_sync')}
             valor={carregando ? '—' : ultimaSyncLabel}
             icone={<Clock size={20} weight="duotone" />}
-            cor={statusCorIcone}
+            variante="padrao"
+            tooltip={
+              <>
+                <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Última sincronização com a base do Siscomex. A plataforma verifica atualizações periodicamente.</span>
+              </>
+            }
           />
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo={t('admin.ncm.card_erros')}
             valor={carregando ? '—' : String(status?.erros_48h ?? 0)}
             icone={<Database size={20} weight="duotone" />}
-            cor={status?.erros_48h ? '#f87171' : '#34d399'}
+            variante={status?.erros_48h ? 'perigo' : 'sucesso'}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row"><span>Erros nas últimas 48h</span> <strong style={{ color: status?.erros_48h ? '#f87171' : '#34d399' }}>{status?.erros_48h ?? 0}</strong></div>
+                <div className="cg-tooltip__divider" />
+                <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Falhas de sincronização ou parsing detectadas no período.</span>
+              </>
+            }
           />
         </>
       }
@@ -298,11 +317,7 @@ export function NcmIntegracaoAdmin() {
             }
           `}</style>
           {alertaDesatualizado}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
-            <p className="ws-section-title" style={{ margin: 0 }}>
-              <Database weight="duotone" size={14} color="#818cf8" />
-              {t('admin.ncm.historico_titulo', { count: totalLogs.toLocaleString('pt-BR') })}
-            </p>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '0.5rem 0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <button
                 onClick={() => setModalAgendamentoAberto(true)}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 
@@ -228,43 +228,43 @@ export function ApiCockpitAdminKpis() {
 
   return (
     <>
-      <CardEstatisticaGlobal
+      <CardBasicoGlobal
         titulo={t('admin.api-cockpit.status_geral')}
         valor={statusGeral}
         variante={statusVariante}
         tooltip={tooltipStatusGeral}
       />
-      <CardEstatisticaGlobal
+      <CardBasicoGlobal
         titulo={t('admin.api-cockpit.uptime_24h')}
         valor={uptimePercent}
         variante="primario"
         tooltip={tooltipUptime}
       />
-      <CardEstatisticaGlobal
+      <CardBasicoGlobal
         titulo={t('admin.api-cockpit.latencia_media')}
         valor={latenciaMediaMs}
         variante="padrao"
         tooltip={tooltipLatencia}
       />
-      <CardEstatisticaGlobal
+      <CardBasicoGlobal
         titulo={t('admin.api-cockpit.apis_online')}
         valor={`${apisOnline}/${apisTotal}`}
         variante="sucesso"
         tooltip={tooltipApisOnline}
       />
-      <CardEstatisticaGlobal
+      <CardBasicoGlobal
         titulo={t('admin.api-cockpit.requisicoes_24h')}
         valor={String(requisicoes24h)}
         variante="primario"
         tooltip={tooltipRequisicoes}
       />
-      <CardEstatisticaGlobal
+      <CardBasicoGlobal
         titulo="GABI IA · Chamadas"
         valor={gabiLoading ? '…' : String(gabiCalls)}
         variante="primario"
         tooltip={tooltipGabiChamadas}
       />
-      <CardEstatisticaGlobal
+      <CardBasicoGlobal
         titulo="GABI IA · Custo Mês"
         valor={gabiLoading ? '…' : fmtUSD(gabiCost)}
         variante="aviso"

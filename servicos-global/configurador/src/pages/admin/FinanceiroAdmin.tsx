@@ -9,7 +9,7 @@ import type { FaturaProdutoGravity } from '../../schemas/fatura-produto-gravity'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
@@ -640,38 +640,54 @@ export function FinanceiroAdmin() {
         }
         stats={
           <>
-            <CardEstatisticaGlobal
+            <CardBasicoGlobal
               titulo={t('admin.financeiro-admin.card_a_receber') ?? 'A Receber (Aberto)'}
               icone={<ChartLineUp weight="duotone" size={16} />}
-              valor={<span style={{ fontSize: '1.5rem' }}>{formatCents(totalAberto, currencyForCards)}</span>}
+              valor={formatCents(totalAberto, currencyForCards)}
               subtexto={`${abertas.length} fatura(s) pendente(s)`}
               variante="padrao"
+              tooltip={
+                <>
+                  <div className="cg-tooltip__row"><span>Emitidas</span> <strong>{invoices.filter(i => i.status === 'EMITIDA').length}</strong></div>
+                  <div className="cg-tooltip__row"><span>Enviadas</span> <strong>{invoices.filter(i => i.status === 'ENVIADA').length}</strong></div>
+                  <div className="cg-tooltip__row"><span>Em Atraso</span> <strong style={{ color: '#f87171' }}>{invoices.filter(i => i.status === 'EM_ATRASO').length}</strong></div>
+                  <div className="cg-tooltip__divider" />
+                  <div className="cg-tooltip__row"><span>Total pendente</span> <strong>{abertas.length}</strong></div>
+                </>
+              }
             />
-            <CardEstatisticaGlobal
+            <CardBasicoGlobal
               titulo={t('admin.financeiro-admin.card_risco') ?? 'Risco de Inadimplência'}
-              valor={<span style={{ fontSize: '1.5rem' }}>{formatCents(totalInadimplencia, currencyForCards)}</span>}
+              valor={formatCents(totalInadimplencia, currencyForCards)}
               subtexto={`${inadimplentes.length} em atraso`}
               variante={inadimplentes.length > 0 ? 'perigo' : 'sucesso'}
+              tooltip={
+                <>
+                  <div className="cg-tooltip__row"><span>Em Atraso</span> <strong style={{ color: '#f87171' }}>{invoices.filter(i => i.status === 'EM_ATRASO').length}</strong></div>
+                  <div className="cg-tooltip__row"><span>Incobrável</span> <strong style={{ color: '#ef4444' }}>{invoices.filter(i => i.status === 'INCOBRAVEL').length}</strong></div>
+                  <div className="cg-tooltip__divider" />
+                  <div className="cg-tooltip__row"><span>Total em risco</span> <strong>{inadimplentes.length}</strong></div>
+                </>
+              }
             />
-            <CardEstatisticaGlobal
+            <CardBasicoGlobal
               titulo={t('admin.financeiro-admin.card_performance') ?? 'Performance'}
-              valor={<span style={{ fontSize: '1.75rem' }}>{performancePct}%</span>}
+              valor={`${performancePct}%`}
               subtexto={t('admin.financeiro-admin.card_performance_subtexto') ?? 'Taxa de recebimento'}
               variante="sucesso"
+              tooltip={
+                <>
+                  <div className="cg-tooltip__row"><span>Pagas</span> <strong style={{ color: '#34d399' }}>{invoices.filter(i => i.status === 'PAGA').length}</strong></div>
+                  <div className="cg-tooltip__row"><span>Total de faturas</span> <strong>{invoices.length}</strong></div>
+                  <div className="cg-tooltip__divider" />
+                  <div className="cg-tooltip__row"><span>Taxa de recebimento</span> <strong style={{ color: '#34d399' }}>{performancePct}%</strong></div>
+                </>
+              }
             />
           </>
         }
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <p className="ws-section-title" style={{ margin: 0 }}>
-            <Buildings weight="duotone" size={14} color="#818cf8" />
-            {t('admin.financeiro-admin.secao_faturamento') ?? 'Faturamento por cliente e base'}
-            {carregando && (
-              <span style={{ marginLeft: 12, fontSize: '0.75rem', color: 'var(--ws-muted)', fontWeight: 400 }}>
-                {t('admin.financeiro-admin.carregando') ?? 'Carregando...'}
-              </span>
-            )}
-          </p>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
           <BotaoNovoAdminGlobal
             rotulo={t('admin.financeiro-admin.btn_lancar') ?? 'Lançar Fatura'}
             onClick={abrirModal}

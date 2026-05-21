@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 
 /**
@@ -120,11 +120,11 @@ export function ApiCockpitKpiCards() {
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
-      <CardEstatisticaGlobal titulo={t('workspace.cockpit.status_integracao')}  valor={statusIntegracao}    variante={statusVariante} tooltip={tooltipStatusIntegracao} />
-      <CardEstatisticaGlobal titulo={t('workspace.cockpit.taxa_sucesso_24h')}   valor={taxaSucessoLabel}    variante="primario"        tooltip={tooltipTaxaSucesso} />
-      <CardEstatisticaGlobal titulo={t('workspace.cockpit.latencia_media_24h')} valor={latenciaMediaMs}     variante="padrao"          tooltip={tooltipLatencia} />
-      <CardEstatisticaGlobal titulo={t('workspace.cockpit.produtos_em_uso')}    valor={produtosEmUsoLabel}  variante="sucesso"         tooltip={tooltipProdutos} />
-      <CardEstatisticaGlobal titulo={t('workspace.cockpit.requisicoes_24h')}    valor={requisicoes24h}      variante="primario"        tooltip={tooltipRequisicoes} />
+      <CardBasicoGlobal titulo={t('workspace.cockpit.status_integracao')}  valor={statusIntegracao}    variante={statusVariante} tooltip={tooltipStatusIntegracao} />
+      <CardBasicoGlobal titulo={t('workspace.cockpit.taxa_sucesso_24h')}   valor={taxaSucessoLabel}    variante="primario"        tooltip={tooltipTaxaSucesso} />
+      <CardBasicoGlobal titulo={t('workspace.cockpit.latencia_media_24h')} valor={latenciaMediaMs}     variante="padrao"          tooltip={tooltipLatencia} />
+      <CardBasicoGlobal titulo={t('workspace.cockpit.produtos_em_uso')}    valor={produtosEmUsoLabel}  variante="sucesso"         tooltip={tooltipProdutos} />
+      <CardBasicoGlobal titulo={t('workspace.cockpit.requisicoes_24h')}    valor={requisicoes24h}      variante="primario"        tooltip={tooltipRequisicoes} />
     </div>
   )
 }

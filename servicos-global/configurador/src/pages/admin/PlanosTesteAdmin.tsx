@@ -98,12 +98,18 @@ export function PlanosTesteAdmin() {
             valor={totalPlanos}
             icone={<ListChecks weight="duotone" size={18} />}
             variante="primario"
+            tooltip={
+              <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Quantidade total de planos de teste 20/20 gerados pelo agente.</span>
+            }
           />
           <CardBasicoGlobal
             titulo="Cobertura Média"
             valor={`${coberturaMedia}%`}
             icone={<MagnifyingGlass weight="duotone" size={18} />}
             variante={coberturaMedia >= 80 ? 'sucesso' : 'aviso'}
+            tooltip={
+              <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Percentual médio de cobertura entre todos os planos. Meta: 80%+.</span>
+            }
           />
         </>
       }

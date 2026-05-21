@@ -7,7 +7,7 @@ import {
   Eye, Buildings
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
@@ -542,10 +542,10 @@ export function FinanceiroWorkspace() {
       }
       stats={
         <>
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo={t('workspace.financial.proximo_vencimento')}
             icone={<CalendarBlank weight="duotone" size={16} />}
-            valor={<span style={{ fontSize: '1.5rem' }}>{formatarData(proximaFatura?.data_vencimento_fatura_produto_gravity ?? null)}</span>}
+            valor={formatarData(proximaFatura?.data_vencimento_fatura_produto_gravity ?? null)}
             subtexto={proximaFatura?.competencia_fatura_produto_gravity ?? 'Sem faturas abertas'}
             tooltip={
               <>
@@ -565,9 +565,9 @@ export function FinanceiroWorkspace() {
               </>
             }
           />
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo={t('workspace.financial.valor_pagar')}
-            valor={<span style={{ fontSize: '1.5rem' }}>{formatarMoeda(valorEmAberto, proximaFatura?.moeda_fatura_produto_gravity ?? 'brl')}</span>}
+            valor={formatarMoeda(valorEmAberto, proximaFatura?.moeda_fatura_produto_gravity ?? 'brl')}
             variante={faturasEmAberto.length ? 'aviso' : 'sucesso'}
             tooltip={
               <>
@@ -583,9 +583,9 @@ export function FinanceiroWorkspace() {
               </>
             }
           />
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo={t('workspace.financial.faturas_abertas')}
-            valor={<span style={{ fontSize: '1.75rem' }}>{faturasEmAberto.length}</span>}
+            valor={faturasEmAberto.length}
             subtexto={faturasEmAberto.length === 0 ? 'Tudo em dia' : 'Requer atenção'}
             variante={faturasEmAberto.length > 0 ? 'perigo' : 'sucesso'}
             tooltip={

@@ -4,7 +4,7 @@ import {
   CheckCircle, Warning, XCircle, Certificate, ShieldCheck,
   CaretDown, CaretRight, Lightning, Clock,
 } from '@phosphor-icons/react'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 
 // ─── Tipos (espelhados do backend verificacao-owasp-service.ts) ─────────────
@@ -144,7 +144,7 @@ export function AbaCompliance() {
       {/* KPI Cards OWASP */}
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
         <TooltipGlobal titulo="Score OWASP" descricao="Percentual de itens OWASP Top 10 em conformidade">
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo="Score OWASP"
             valor={resumo ? `${resumo.score}%` : '...'}
             icone={<ShieldCheck weight="fill" size={20} />}
@@ -152,7 +152,7 @@ export function AbaCompliance() {
           />
         </TooltipGlobal>
         <TooltipGlobal titulo="Conformes" descricao="Itens OWASP que passaram em todas as verificações">
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo="Conformes"
             valor={String(resumo?.conformes ?? 0)}
             icone={<CheckCircle weight="fill" size={20} />}
@@ -160,7 +160,7 @@ export function AbaCompliance() {
           />
         </TooltipGlobal>
         <TooltipGlobal titulo="Pendentes" descricao="Itens com verificações parciais ou não implementadas">
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo="Pendentes"
             valor={String(resumo?.pendentes ?? 0)}
             icone={<Warning weight="fill" size={20} />}
@@ -168,7 +168,7 @@ export function AbaCompliance() {
           />
         </TooltipGlobal>
         <TooltipGlobal titulo="Falhas" descricao="Itens com verificações que falharam — requer correção">
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo="Falhas"
             valor={String(resumo?.falhas ?? 0)}
             icone={<XCircle weight="fill" size={20} />}

@@ -9,7 +9,7 @@ import {
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
@@ -497,7 +497,7 @@ export function SegurancaAdmin() {
             )
           })()}
           <TooltipGlobal titulo="Críticos (24h)" descricao="Eventos de severidade CRITICAL nas últimas 24 horas">
-            <CardEstatisticaGlobal
+            <CardBasicoGlobal
               titulo={t('admin.seguranca-admin.criticos_24h')}
               valor={loading ? '—' : String(stats.criticalCount)}
               icone={<Warning weight="fill" size={20} />}
@@ -505,7 +505,7 @@ export function SegurancaAdmin() {
             />
           </TooltipGlobal>
           <TooltipGlobal titulo="Alertas (24h)" descricao="Eventos de severidade WARNING nas últimas 24 horas">
-            <CardEstatisticaGlobal
+            <CardBasicoGlobal
               titulo={t('admin.seguranca-admin.alertas_24h')}
               valor={loading ? '—' : String(stats.warningCount)}
               icone={<ShieldWarning weight="fill" size={20} />}
@@ -513,7 +513,7 @@ export function SegurancaAdmin() {
             />
           </TooltipGlobal>
           <TooltipGlobal titulo="Bloqueados (24h)" descricao="Requisições bloqueadas por rate limiting nas últimas 24h">
-            <CardEstatisticaGlobal
+            <CardBasicoGlobal
               titulo={t('admin.seguranca-admin.bloqueados_24h')}
               valor={loading ? '—' : String(stats.blockedCount)}
               icone={<Lock weight="fill" size={20} />}
@@ -521,7 +521,7 @@ export function SegurancaAdmin() {
             />
           </TooltipGlobal>
           <TooltipGlobal titulo="Total Auditado" descricao="Quantidade total de registros no audit trail do sistema">
-            <CardEstatisticaGlobal
+            <CardBasicoGlobal
               titulo="Total Auditado"
               valor={String(auditStats.total)}
               icone={<ClockCounterClockwise weight="fill" size={20} />}
@@ -529,7 +529,7 @@ export function SegurancaAdmin() {
             />
           </TooltipGlobal>
           <TooltipGlobal titulo="Impersonações" descricao="Vezes que um admin acessou o sistema como outro usuário">
-            <CardEstatisticaGlobal
+            <CardBasicoGlobal
               titulo="Impersonações (F-03)"
               valor={String(auditStats.totalImpersonacoes)}
               icone={<UserCircle weight="fill" size={20} />}
@@ -537,7 +537,7 @@ export function SegurancaAdmin() {
             />
           </TooltipGlobal>
           <TooltipGlobal titulo="Mudanças Permissão" descricao="Alterações em tipo_usuario ou tipo_usuario_workspace">
-            <CardEstatisticaGlobal
+            <CardBasicoGlobal
               titulo="Mudanças Permissão (F-08)"
               valor={String(auditStats.totalPermissoes)}
               icone={<ArrowsLeftRight weight="fill" size={20} />}
@@ -545,7 +545,7 @@ export function SegurancaAdmin() {
             />
           </TooltipGlobal>
           <TooltipGlobal titulo="Ações Admin" descricao="Ações executadas por gravity_admin no painel administrativo">
-            <CardEstatisticaGlobal
+            <CardBasicoGlobal
               titulo="Ações Admin"
               valor={String(auditStats.totalAdmin)}
               icone={<ShieldStar weight="fill" size={20} />}
@@ -912,7 +912,7 @@ export function SegurancaAdmin() {
                 <div style={{ display: 'flex', gap: '1rem' }}>
                   {chavesComPolitica.map(s => (
                     <TooltipGlobal key={s.name} titulo={s.name} descricao={`${s.descricao}. Política: ${s.politica_dias} dias${s.proxima_rotacao ? `. Próxima: ${new Date(s.proxima_rotacao).toLocaleDateString('pt-BR')}` : ''}`}>
-                      <CardEstatisticaGlobal titulo={s.descricao || s.name} valor={valorCard(s)} icone={<Key weight="fill" size={20} />} variante={s.status_rotacao === 'EXPIRADA' ? 'perigo' : s.status_rotacao === 'EXPIRANDO' ? 'aviso' : 'sucesso'} />
+                      <CardBasicoGlobal titulo={s.descricao || s.name} valor={valorCard(s)} icone={<Key weight="fill" size={20} />} variante={s.status_rotacao === 'EXPIRADA' ? 'perigo' : s.status_rotacao === 'EXPIRANDO' ? 'aviso' : 'sucesso'} />
                     </TooltipGlobal>
                   ))}
                 </div>

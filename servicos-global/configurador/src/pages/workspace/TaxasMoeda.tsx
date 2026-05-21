@@ -13,7 +13,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 
@@ -409,10 +409,10 @@ export function TaxasMoeda() {
           abaAtiva === 'atual' ? (
             <>
               {/* ═══════ KPIs ABA 1: Cotação atual ═══════ */}
-              <CardEstatisticaGlobal
+              <CardBasicoGlobal
                 titulo="USD / BRL"
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
-                valor={<span style={{ fontSize: '1.5rem' }}>{taxaUSD?.venda != null ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}</span>}
+                valor={taxaUSD?.venda != null ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}
                 subtexto={
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '2px' }}>
                     <PillPeriodo>Atual</PillPeriodo>
@@ -446,10 +446,10 @@ export function TaxasMoeda() {
                   </>
                 }
               />
-              <CardEstatisticaGlobal
+              <CardBasicoGlobal
                 titulo="EUR / BRL"
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
-                valor={<span style={{ fontSize: '1.5rem' }}>{taxaEUR?.venda != null ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}</span>}
+                valor={taxaEUR?.venda != null ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}
                 subtexto={
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '2px' }}>
                     <PillPeriodo>Atual</PillPeriodo>
@@ -483,10 +483,10 @@ export function TaxasMoeda() {
                   </>
                 }
               />
-              <CardEstatisticaGlobal
+              <CardBasicoGlobal
                 titulo="Moedas ativas"
                 icone={<ChartLine weight="duotone" size={16} />}
-                valor={<span style={{ fontSize: '1.75rem' }}>{moedasComDados}</span>}
+                valor={moedasComDados}
                 subtexto={
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '2px' }}>
                     <PillPeriodo>Atual</PillPeriodo>
@@ -520,10 +520,10 @@ export function TaxasMoeda() {
           ) : (
             <>
               {/* ═══════ KPIs ABA 2: Média 30 dias ═══════ */}
-              <CardEstatisticaGlobal
+              <CardBasicoGlobal
                 titulo="USD / BRL"
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
-                valor={<span style={{ fontSize: '1.5rem' }}>{media30dUSD.venda != null ? `R$ ${fmtTaxa(media30dUSD.venda)}` : '—'}</span>}
+                valor={media30dUSD.venda != null ? `R$ ${fmtTaxa(media30dUSD.venda)}` : '—'}
                 subtexto={
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
                     <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo>
@@ -560,10 +560,10 @@ export function TaxasMoeda() {
                   </>
                 }
               />
-              <CardEstatisticaGlobal
+              <CardBasicoGlobal
                 titulo="EUR / BRL"
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
-                valor={<span style={{ fontSize: '1.5rem' }}>{media30dEUR.venda != null ? `R$ ${fmtTaxa(media30dEUR.venda)}` : '—'}</span>}
+                valor={media30dEUR.venda != null ? `R$ ${fmtTaxa(media30dEUR.venda)}` : '—'}
                 subtexto={
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
                     <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo>
@@ -600,10 +600,10 @@ export function TaxasMoeda() {
                   </>
                 }
               />
-              <CardEstatisticaGlobal
+              <CardBasicoGlobal
                 titulo="Boletins"
                 icone={<ChartLine weight="duotone" size={16} />}
-                valor={<span style={{ fontSize: '1.75rem' }}>{historico.length}</span>}
+                valor={historico.length}
                 subtexto={
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
                     <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo>

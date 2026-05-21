@@ -63,7 +63,8 @@ export const PRODUCT_CONFIG = {
     // ── BID Frete ─────────────────────────────────────────────────────────────
     { id: 'section-bid-frete',                          label: 'BID Frete',      sectionDivider: true },
     { id: '/produto/bid-frete/visao-geral',             label: 'Visão Geral',    icon: 'chart-pie-slice', source: 'product' },
-    { id: '/produto/bid-frete/cotacoes',                label: 'Cotações',       icon: 'file-text',       source: 'product' },
+    { id: '/produto/bid-frete/cotacoes?visao=lista',    label: 'Lista',          icon: 'list-bullets',    source: 'product' },
+    { id: '/produto/bid-frete/cotacoes?visao=kanban',   label: 'Kanban',         icon: 'kanban',          source: 'product' },
     { id: '/produto/bid-frete/fornecedores',            label: 'Fornecedores',   icon: 'buildings',       source: 'product' },
 
     // ── Serviços ──────────────────────────────────────────────────────────────

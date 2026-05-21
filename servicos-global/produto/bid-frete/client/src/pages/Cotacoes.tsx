@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 
 const NovaCotacao = React.lazy(() => import('./NovaCotacao'))
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
@@ -108,10 +108,23 @@ export default function Cotacoes() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
   const isNovaCotacao = location.pathname.endsWith('/nova')
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [visao, setVisao] = useState<'lista' | 'kanban'>('lista')
+
+  const visaoParam = searchParams.get('visao')
+  const visao = visaoParam === 'kanban' ? 'kanban' : 'lista'
+
+  const setVisao = (novaVisao: 'lista' | 'kanban') => {
+    setSearchParams(
+      (prev) => {
+        prev.set('visao', novaVisao)
+        return prev
+      },
+      { replace: true }
+    )
+  }
   const [filtroTab, setFiltroTab] = useState('TODAS')
 
   const carregar = useCallback(async () => {

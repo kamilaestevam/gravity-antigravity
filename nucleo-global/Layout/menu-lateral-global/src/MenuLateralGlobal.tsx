@@ -170,7 +170,21 @@ export function MenuLateralGlobal({
 
     // Item normal (link) — navegação nativa via <a href> força reload completo (F5).
     // Evita race conditions de SPA entre Clerk/Zustand/API ao trocar de tela.
-    const isActive = !!item.to && location.pathname === item.to
+    const checkActive = (to: string) => {
+      if (!to) return false
+      if (to.includes('?')) {
+        const [toPath, toQuery] = to.split('?')
+        if (location.pathname !== toPath) return false
+        const toParams = new URLSearchParams(toQuery)
+        const currentParams = new URLSearchParams(location.search)
+        for (const [key, val] of toParams.entries()) {
+          if (currentParams.get(key) !== val) return false
+        }
+        return true
+      }
+      return location.pathname === to
+    }
+    const isActive = checkActive(item.to || '')
     const navLink = item.disabled ? (
       <div className={`mlg-nav-item mlg-disabled ${isSubmenu ? 'mlg-submenu-item' : ''}`}>
         <div className="mlg-nav-icon">{item.icon}</div>

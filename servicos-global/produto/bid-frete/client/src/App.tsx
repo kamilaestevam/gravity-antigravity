@@ -23,6 +23,7 @@ import {
   CheckCircle,
   Envelope,
   WhatsappLogo,
+  Kanban,
 } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import type { NavItem } from '@nucleo/tela-produto-global'
@@ -68,6 +69,7 @@ const iconMap: Record<string, React.ReactNode> = {
   'check-circle':            <CheckCircle           weight="duotone" size={20} />,
   'envelope':                <Envelope              weight="duotone" size={20} />,
   'whatsapp-logo':           <WhatsappLogo          weight="duotone" size={20} />,
+  'kanban':                  <Kanban                weight="duotone" size={20} />,
 }
 
 function mapNavItem(item: NavigationItem): NavItem {

@@ -1002,8 +1002,7 @@ function VisaoGeralMapa() {
         canvas.height = h
       }
       
-      const isWide = window.innerWidth > 1024
-      const cx = isWide ? w * 0.70 : w / 2
+      const cx = w / 2
       const cy = h / 2
       const R = Math.min(w, h) * 0.42
       const pulseTime = Date.now() / 2400
@@ -1461,60 +1460,6 @@ function VisaoGeralMapa() {
         onTouchEnd={handleMouseUpOrLeave}
         style={{ cursor: isDraggingRef.current ? 'grabbing' : 'grab', userSelect: 'none', touchAction: 'none' }}
       >
-        {/* Left Sidebar Panel inside Map Container (Only visible on wide screens) */}
-        <div className="bfd-map-left-panel">
-          <div className="bfd-map-panel__header">
-            <span className="bfd-map-panel__title">Monitor de Bids Global</span>
-            <span className="bfd-map-panel__subtitle">Consolidado em tempo real</span>
-          </div>
-
-          <div className="bfd-map-panel__stats-row">
-            <div className="bfd-map-panel__stat-card">
-              <span className="bfd-map-panel__stat-num">200</span>
-              <span className="bfd-map-panel__stat-lbl">Bids Ativos</span>
-            </div>
-            <div className="bfd-map-panel__stat-card">
-              <span className="bfd-map-panel__stat-num" style={{ color: '#52d69b' }}>18.2%</span>
-              <span className="bfd-map-panel__stat-lbl">Avg Saving</span>
-            </div>
-          </div>
-
-          <div className="bfd-map-panel__divider" />
-
-          <span className="bfd-map-panel__section-title">Terminais Estratégicos</span>
-          <div className="bfd-map-panel__terminals">
-            {MAP_PINS.map(pin => (
-              <div 
-                key={pin.id} 
-                className={`bfd-map-panel__terminal-item ${hoveredPin === pin.id ? 'is-hovered' : ''}`}
-                onMouseEnter={() => {
-                  setHoveredPin(pin.id)
-                  isRotationPausedRef.current = true
-                }}
-                onMouseLeave={() => {
-                  setHoveredPin(null)
-                  isRotationPausedRef.current = false
-                }}
-              >
-                <div className="bfd-map-panel__terminal-header">
-                  <span className="bfd-map-panel__terminal-name">
-                    <span className="bfd-map-panel__terminal-flag">{pin.flag}</span>
-                    <strong>{pin.label}</strong> <span style={{ opacity: 0.6 }}>({pin.portCode})</span>
-                  </span>
-                  <span className="bfd-map-panel__terminal-saving">+{pin.savingPct}%</span>
-                </div>
-                <div className="bfd-map-panel__progress-bar">
-                  <div className="bfd-map-panel__progress-fill" style={{ width: `${(pin.activeBids / 140) * 100}%`, backgroundColor: pin.mode === 'AEREO' ? '#a78bfa' : '#52d69b' }} />
-                </div>
-                <div className="bfd-map-panel__terminal-meta">
-                  <span>{pin.activeBids} bids ativos</span>
-                  <span>Melhor: USD {fmtMoeda(pin.bestPrice)}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* The high-performance 3D Canvas */}
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
         
@@ -1640,7 +1585,7 @@ export default function Dashboard() {
           line-height: 1.6;
           margin: 0.45rem 0 0;
         }
-        .bfd-header__actions { display: flex; align-items: center; gap: 0.75rem; margin-top: 140px; }
+        .bfd-header__actions { display: flex; align-items: center; gap: 0.75rem; transform: translateY(80px); }
         .bfd-header__icon-btn {
           width: 38px; height: 38px; border-radius: 8px; border: none; cursor: pointer;
           display: flex; align-items: center; justify-content: center;

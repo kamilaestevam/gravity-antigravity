@@ -203,13 +203,13 @@
   animation: gl-spin-cw 3.5s linear infinite;
 }
 .gl-orbit-1 .gl-orbit-ring {
-  border-color: rgba(103, 232, 249, 0.15);
+  border-color: rgba(196, 181, 253, 0.15);
   border-width: 1.5px;
 }
 .gl-orbit-1::before {
-  border-top-color: #67e8f9;
-  border-right-color: rgba(103, 232, 249, 0.3);
-  filter: drop-shadow(0 0 6px #67e8f9);
+  border-top-color: #c4b5fd;
+  border-right-color: rgba(196, 181, 253, 0.3);
+  filter: drop-shadow(0 0 6px #c4b5fd);
 }
 
 .gl-container--sm .gl-orbit-1 { width: 96px; height: 96px; }
@@ -261,8 +261,8 @@
   border-color: rgba(99, 102, 241, 0.05);
 }
 .gl-orbit-4::before {
-  border-left-color: rgba(255, 255, 255, 0.15);
-  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.2));
+  border-left-color: rgba(139, 92, 246, 0.15);
+  filter: drop-shadow(0 0 3px rgba(139, 92, 246, 0.2));
 }
 
 .gl-container--sm .gl-orbit-4 { width: 200px; height: 200px; }
@@ -312,15 +312,15 @@
   height: 10px;
   top: -5px;
   left: 50%;
-  background: radial-gradient(circle at 35% 35%, #a5f3fc, #67e8f9, #0e7490);
-  box-shadow: 0 0 8px #67e8f9, 0 0 16px rgba(103, 232, 249, 0.4);
+  background: radial-gradient(circle at 35% 35%, #ede9fe, #c4b5fd, #6d28d9);
+  box-shadow: 0 0 8px #c4b5fd, 0 0 16px rgba(196, 181, 253, 0.4);
 }
 .gl-planet-1::after {
   width: 22px;
   height: 6px;
   top: 2px;
   right: 10px;
-  background: linear-gradient(90deg, rgba(103, 232, 249, 0.6), transparent);
+  background: linear-gradient(90deg, rgba(196, 181, 253, 0.6), transparent);
   filter: blur(2px);
 }
 
@@ -377,8 +377,8 @@
   height: 6px;
   top: -3px;
   left: 30%;
-  background: radial-gradient(circle at 35% 35%, #fff, #94a3b8, #475569);
-  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  background: radial-gradient(circle at 35% 35%, #e9d5ff, #a855f7, #7e22ce);
+  box-shadow: 0 0 5px rgba(168, 85, 247, 0.5);
   opacity: 0.7;
 }
 
@@ -392,8 +392,8 @@
   top: 50%;
   left: -3px;
   transform: translateY(-50%);
-  background: radial-gradient(circle at 40% 40%, #d4d4d8, #71717a, #3f3f46);
-  box-shadow: 0 0 4px rgba(161, 161, 170, 0.4);
+  background: radial-gradient(circle at 40% 40%, #ddd6fe, #8b5cf6, #5b21b6);
+  box-shadow: 0 0 4px rgba(139, 92, 246, 0.4);
   opacity: 0.6;
 }
 
@@ -411,11 +411,11 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(103, 232, 249, 0.12) 20%,
+    rgba(196, 181, 253, 0.12) 20%,
     rgba(129, 140, 248, 0.25) 40%,
     rgba(167, 139, 250, 0.35) 50%,
     rgba(129, 140, 248, 0.25) 60%,
-    rgba(103, 232, 249, 0.12) 80%,
+    rgba(196, 181, 253, 0.12) 80%,
     transparent 100%
   );
   border-radius: 50%;
@@ -518,14 +518,14 @@ body.light-theme .gl-constellation line { stroke: #4f46e5; }
 body.light-theme .gl-constellation circle { fill: #4f46e5; }
 body.light-theme .gl-star { background: rgba(79, 70, 229, 0.4); }
 
-body.light-theme .gl-orbit-1 .gl-orbit-ring { border-color: rgba(6, 182, 212, 0.15); }
+body.light-theme .gl-orbit-1 .gl-orbit-ring { border-color: rgba(124, 58, 237, 0.15); }
 body.light-theme .gl-orbit-2 .gl-orbit-ring { border-color: rgba(79, 70, 229, 0.12); }
 body.light-theme .gl-orbit-3 .gl-orbit-ring { border-color: rgba(124, 58, 237, 0.08); }
 body.light-theme .gl-orbit-4 .gl-orbit-ring { border-color: rgba(67, 56, 202, 0.05); }
 
 body.light-theme .gl-planet-1 {
-  background: radial-gradient(circle at 35% 35%, #a5f3fc, #06b6d4, #0e7490);
-  box-shadow: 0 0 8px #06b6d4, 0 0 16px rgba(6, 182, 212, 0.4);
+  background: radial-gradient(circle at 35% 35%, #ede9fe, #7c3aed, #6d28d9);
+  box-shadow: 0 0 8px #7c3aed, 0 0 16px rgba(124, 58, 237, 0.4);
 }
 body.light-theme .gl-planet-2 {
   background: radial-gradient(circle at 35% 35%, #ddd6fe, #7c3aed, #5b21b6);

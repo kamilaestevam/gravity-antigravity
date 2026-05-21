@@ -28,7 +28,6 @@ import {
   X,
 } from '@phosphor-icons/react'
 
-import { StepperPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
 import { criarCotacao } from '../shared/api'
 import type {
   TipoOperacao,
@@ -243,6 +242,12 @@ export default function NovaCotacao() {
   const [salvando, setSalvando] = useState(false)
   const [sucesso, setSucesso] = useState(false)
   const [cotacaoId, setCotacaoId] = useState<string | null>(null)
+
+  const stepStatus = (passoId: number): 'pendente' | 'ativo' | 'feito' => {
+    if (passoId < step) return 'feito'
+    if (passoId === step) return 'ativo'
+    return 'pendente'
+  }
 
   const set = <K extends keyof FormState>(key: K, val: FormState[K]) =>
     setForm(prev => ({ ...prev, [key]: val }))
@@ -744,7 +749,71 @@ export default function NovaCotacao() {
 
         {/* Linha do Stepper com customizações visuais intensas da Imagem 02 */}
         <div className="nc-stepper-container">
-          <StepperPassoPassoGlobal passos={STEPS} passoAtual={step} />
+          <div className="mpg-stepper" role="list" aria-label="Passos">
+            {STEPS.map((passo, idx) => {
+              const status = stepStatus(passo.id)
+              const isClickable = status === 'feito'
+
+              return (
+                <React.Fragment key={passo.id}>
+                  <div
+                    className={`mpg-passo ${isClickable ? 'mpg-passo-feito' : ''}`}
+                    role="listitem"
+                    aria-current={status === 'ativo' ? 'step' : undefined}
+                    onClick={isClickable ? () => setStep(passo.id) : undefined}
+                    title={isClickable ? `Voltar para: ${passo.label}` : undefined}
+                    style={{ cursor: isClickable ? 'pointer' : 'default' }}
+                  >
+                    <div className="mpg-circulo-wrap">
+                      <div
+                        className={`mpg-circulo ${
+                          status === 'ativo' ? 'mpg-circulo-ativo' :
+                          status === 'feito' ? 'mpg-circulo-feito' : 'mpg-circulo-pendente'
+                        }`}
+                      >
+                        {status === 'feito' ? (
+                          <span className="mpg-check-icon"><Check size={14} weight="bold" /></span>
+                        ) : (
+                          passo.icone ?? passo.id
+                        )}
+                      </div>
+                      {/* Orbita 3D Gravity — apenas no passo ativo */}
+                      {status === 'ativo' && (
+                        <>
+                          <div className="mpg-orbita-3d" aria-hidden="true">
+                            <div className="mpg-orbita-ring mpg-orbita-ring--1">
+                              <div className="mpg-orbita-anel" />
+                              <div className="mpg-orbita-eletron mpg-orbita-eletron--1" />
+                            </div>
+                            <div className="mpg-orbita-ring mpg-orbita-ring--2">
+                              <div className="mpg-orbita-anel" />
+                              <div className="mpg-orbita-eletron mpg-orbita-eletron--2" />
+                            </div>
+                          </div>
+                          {/* Glow atras do circulo */}
+                          <div className="mpg-nucleo-glow" aria-hidden="true" />
+                        </>
+                      )}
+                    </div>
+                    <span className={`mpg-label ${
+                      status === 'ativo' ? 'mpg-label-ativo' :
+                      status === 'feito' ? 'mpg-label-feito' : ''
+                    }`}>
+                      {passo.label}
+                    </span>
+                  </div>
+                  {idx < STEPS.length - 1 && (
+                    <div className="mpg-conector" aria-hidden="true">
+                      <div
+                        className="mpg-conector-fill"
+                        style={{ width: status === 'feito' ? '100%' : '0%' }}
+                      />
+                    </div>
+                  )}
+                </React.Fragment>
+              )
+            })}
+          </div>
         </div>
 
         {/* Corpo do modal com scroll individual */}
@@ -922,166 +991,231 @@ export default function NovaCotacao() {
           background: rgba(10, 15, 30, 0.25);
         }
 
-        /* ── Custom Stepper Overrides para o Efeito de Brilho da Imagem 02 ── */
-        .nc-stepper-container [role="list"] {
-          padding: 0.5rem 0 !important;
-          background: transparent !important;
-          border: none !important;
+        /* Stepper markup aligned with ModalPassoPassoGlobal */
+        .mpg-stepper {
+          display: flex;
+          align-items: flex-start;
+          gap: 0;
+          overflow-x: auto;
+          scrollbar-width: none;
+        }
+        .mpg-stepper::-webkit-scrollbar {
+          display: none;
         }
 
-        .nc-stepper-container [role="listitem"] {
-          gap: 0.625rem !important;
-          overflow: visible !important;
+        .mpg-passo {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          flex: 1;
+          gap: 0.5rem;
+          flex-shrink: 0;
         }
 
-        /* Todos os círculos (Pendente/Base) */
-        .nc-stepper-container [role="listitem"] > div:first-child {
-          width: 32px !important;
-          height: 32px !important;
-          min-width: 32px !important;
-          border-radius: 50% !important;
-          background: rgba(30, 41, 59, 0.3) !important;
-          border: 1px solid rgba(255, 255, 255, 0.12) !important;
-          color: rgba(255, 255, 255, 0.35) !important;
-          font-size: 0.8125rem !important;
-          font-weight: 700 !important;
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
-          box-shadow: none !important;
+        .mpg-circulo-wrap {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 2.75rem;
+          height: 2.75rem;
         }
 
-        /* Círculo Ativo com Brilho Pulsante e Efeito Orbital 3D da Imagem 02 */
-        .nc-stepper-container [role="listitem"][aria-current="step"] > div:first-child {
-          position: relative !important;
-          overflow: visible !important;
-          background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%) !important; /* Gradiente roxo/violeta de alta intensidade */
-          border: 1.5px solid #a78bfa !important; /* Lilás brilhante */
-          color: #ffffff !important;
-          transform: scale(1.08);
-          /* Animação pulsante no brilho principal */
-          animation: nc-stepper-pulse 3s ease-in-out infinite !important;
+        .mpg-circulo {
+          position: relative;
+          z-index: 3;
+          width: 2.75rem;
+          height: 2.75rem;
+          min-width: 2.75rem;
+          flex-shrink: 0;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1.5px solid rgba(255, 255, 255, 0.1);
+          color: var(--text-muted, #64748b);
+          font-size: 0.875rem;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Anéis Orbitais Animados em 3D — Efeito Atômico da Imagem 02 */
-        .nc-stepper-container [role="listitem"][aria-current="step"] > div:first-child::before,
-        .nc-stepper-container [role="listitem"][aria-current="step"] > div:first-child::after {
-          content: "" !important;
-          position: absolute !important;
-          top: 50% !important;
-          left: 50% !important;
-          border-radius: 50% !important;
-          pointer-events: none !important;
-          transform-origin: center !important;
-          display: block !important;
+        /* Active Circle styling with exact linear-gradient and box-shadow */
+        .mpg-circulo-ativo {
+          background: linear-gradient(135deg, #4f46e5, #7c3aed, #6366f1) !important;
+          border: 2px solid rgba(129, 140, 248, 0.5) !important;
+          color: #fff !important;
+          font-size: 1rem !important;
+          font-weight: 800 !important;
+          animation: mpg-neon-pulse 2s ease-in-out infinite;
         }
 
-        /* Anel orbital 1 */
-        .nc-stepper-container [role="listitem"][aria-current="step"] > div:first-child::before {
-          width: 48px !important;
-          height: 24px !important;
-          border: 1px solid rgba(167, 139, 250, 0.7) !important;
-          box-shadow: 0 0 10px rgba(139, 92, 246, 0.5) !important;
-          animation: nc-orbit-1 4s linear infinite !important;
+        /* Completed Circle styling with exact success gradient and box-shadow */
+        .mpg-circulo-feito {
+          background: linear-gradient(135deg, #16a34a, #22c55e, #4ade80) !important;
+          border: 2px solid rgba(74, 222, 128, 0.4) !important;
+          color: #fff !important;
+          box-shadow: 0 0 8px rgba(34, 197, 94, 0.4), 0 0 20px rgba(34, 197, 94, 0.2), 0 0 35px rgba(34, 197, 94, 0.1) !important;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease !important;
         }
 
-        /* Anel orbital 2 (Direção oposta e tracejado) */
-        .nc-stepper-container [role="listitem"][aria-current="step"] > div:first-child::after {
-          width: 48px !important;
-          height: 24px !important;
-          border: 1px dashed rgba(192, 132, 252, 0.5) !important;
-          box-shadow: 0 0 8px rgba(192, 132, 252, 0.35) !important;
-          animation: nc-orbit-2 5s linear infinite !important;
+        .mpg-passo-feito:hover .mpg-circulo-feito {
+          transform: scale(1.1);
+          box-shadow: 0 0 10px rgba(34, 197, 94, 0.5), 0 0 25px rgba(34, 197, 94, 0.25), 0 0 50px rgba(34, 197, 94, 0.1) !important;
         }
 
-        /* Animações Keyframes para o Efeito Premium da Imagem 02 */
-        @keyframes nc-stepper-pulse {
-          0% {
-            box-shadow: 
-              0 0 0 1px rgba(167, 139, 250, 0.35),
-              0 0 15px 4px rgba(139, 92, 246, 0.6), 
-              0 0 35px 12px rgba(139, 92, 246, 0.35), 
-              inset 0 0 8px rgba(255, 255, 255, 0.3) !important;
+        /* Stepper Labels */
+        .mpg-label {
+          font-size: 0.6875rem;
+          font-weight: 600;
+          text-align: center;
+          color: var(--text-muted, #64748b);
+          white-space: nowrap;
+          transition: color 0.3s, text-shadow 0.3s;
+        }
+
+        .mpg-label-ativo {
+          color: #a5b4fc !important;
+          text-shadow: 0 0 8px rgba(99, 102, 241, 0.5) !important;
+        }
+
+        .mpg-label-feito {
+          color: #86efac !important;
+          text-shadow: 0 0 6px rgba(34, 197, 94, 0.3) !important;
+        }
+
+        /* Connectors */
+        .mpg-conector {
+          position: relative;
+          flex: 1;
+          height: 2px;
+          background: rgba(255, 255, 255, 0.06);
+          min-width: 20px;
+          margin-top: 1.375rem;
+          border-radius: 1px;
+          overflow: hidden;
+        }
+
+        .mpg-conector-fill {
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          background: linear-gradient(90deg, #22c55e, #4ade80);
+          border-radius: 1px;
+          box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+          transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Ambient Glow Behind Active Circle */
+        .mpg-nucleo-glow {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%,-50%);
+          width: 3.5rem;
+          height: 3.5rem;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(129,140,248,0.2) 0%, transparent 70%);
+          animation: mpg-nucleo-glow 3s ease-in-out infinite;
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        /* Keyframes for animations */
+        @keyframes mpg-neon-pulse {
+          0%, 100% {
+            box-shadow: 0 0 8px rgba(99,102,241,0.5), 0 0 20px rgba(99,102,241,0.3), 0 0 40px rgba(99,102,241,0.15), inset 0 0 12px rgba(99,102,241,0.1);
           }
           50% {
-            box-shadow: 
-              0 0 0 2px rgba(167, 139, 250, 0.55),
-              0 0 22px 8px rgba(139, 92, 246, 0.8), 
-              0 0 45px 18px rgba(139, 92, 246, 0.45), 
-              inset 0 0 12px rgba(255, 255, 255, 0.5) !important;
-          }
-          100% {
-            box-shadow: 
-              0 0 0 1px rgba(167, 139, 250, 0.35),
-              0 0 15px 4px rgba(139, 92, 246, 0.6), 
-              0 0 35px 12px rgba(139, 92, 246, 0.35), 
-              inset 0 0 8px rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 0 12px rgba(99,102,241,0.7), 0 0 30px rgba(99,102,241,0.4), 0 0 60px rgba(99,102,241,0.2), inset 0 0 16px rgba(99,102,241,0.15);
           }
         }
 
-        @keyframes nc-orbit-1 {
-          0% {
-            transform: translate(-50%, -50%) rotateX(68deg) rotateY(18deg) rotateZ(0deg);
-          }
-          100% {
-            transform: translate(-50%, -50%) rotateX(68deg) rotateY(18deg) rotateZ(360deg);
-          }
+        @keyframes mpg-nucleo-glow {
+          0%, 100% { opacity: 0.4; transform: translate(-50%,-50%) scale(1); }
+          50%      { opacity: 0.8; transform: translate(-50%,-50%) scale(1.3); }
         }
 
-        @keyframes nc-orbit-2 {
-          0% {
-            transform: translate(-50%, -50%) rotateX(68deg) rotateY(-18deg) rotateZ(360deg);
-          }
-          100% {
-            transform: translate(-50%, -50%) rotateX(68deg) rotateY(-18deg) rotateZ(0deg);
-          }
+        /* --- Orbita 3D ao redor do circulo ativo (identidade Gravity) --- */
+        @keyframes mpg-orbita-drift {
+          from { transform: rotateX(70deg) rotateZ(0deg); }
+          to   { transform: rotateX(70deg) rotateZ(360deg); }
+        }
+        @keyframes mpg-eletron-spin {
+          from { transform: translate(-50%,-50%) rotate(0deg); }
+          to   { transform: translate(-50%,-50%) rotate(360deg); }
         }
 
-        /* Círculo Concluído (Feito) */
-        .nc-stepper-container [role="listitem"] > div:first-child[style*="#22c55e"],
-        .nc-stepper-container [role="listitem"] > div:first-child[style*="var(--success"],
-        .nc-stepper-container [role="listitem"] > div:first-child[style*="rgb(34, 197, 94)"] {
-          background: rgba(16, 185, 129, 0.15) !important;
-          border: 1.5px solid #10b981 !important;
-          color: #10b981 !important;
-          box-shadow: 0 0 8px rgba(16, 185, 129, 0.2) !important;
-          transform: scale(1) !important;
+        .mpg-orbita-3d {
+          position: absolute;
+          top: 50%; left: 50%;
+          width: 130%; height: 130%;
+          transform: translate(-50%,-50%);
+          pointer-events: none;
+          perspective: 200px;
+          transform-style: preserve-3d;
+          z-index: 2;
         }
-
-        /* Legendas de Passo */
-        .nc-stepper-container [role="listitem"] > span {
-          font-size: 0.72rem !important;
-          font-weight: 600 !important;
-          color: rgba(255, 255, 255, 0.3) !important;
-          transition: all 0.3s !important;
+        .mpg-orbita-ring {
+          position: absolute;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          transform-style: preserve-3d;
         }
-
-        /* Legenda Ativa (Lilás como o Configurar da Imagem 02) */
-        .nc-stepper-container [role="listitem"][aria-current="step"] > span {
-          color: #a78bfa !important;
-          font-weight: 700 !important;
+        .mpg-orbita-ring--1 {
+          transform: rotateX(70deg) rotateZ(0deg);
+          animation: mpg-orbita-drift 3s linear infinite;
         }
-
-        /* Legenda Concluída */
-        .nc-stepper-container [role="listitem"] > span[style*="#22c55e"],
-        .nc-stepper-container [role="listitem"] > span[style*="var(--success"],
-        .nc-stepper-container [role="listitem"] > span[style*="rgb(34, 197, 94)"] {
-          color: #10b981 !important;
+        .mpg-orbita-ring--2 {
+          transform: rotateX(70deg) rotateZ(90deg);
+          animation: mpg-orbita-drift 4.5s linear infinite reverse;
         }
-
-        /* Conectores cinzas padrão */
-        .nc-stepper-container div[aria-hidden="true"] {
-          background: rgba(255, 255, 255, 0.08) !important;
-          height: 1px !important;
-          margin-top: -1.25rem !important;
-          opacity: 0.7;
+        .mpg-orbita-anel {
+          position: absolute;
+          top: 50%; left: 50%;
+          width: 100%; height: 100%;
+          transform: translate(-50%,-50%);
+          border-radius: 50%;
+          border: 1px solid rgba(129,140,248,0.2);
         }
-
-        /* Conector concluído (Verde) */
-        .nc-stepper-container div[aria-hidden="true"][style*="#22c55e"],
-        .nc-stepper-container div[aria-hidden="true"][style*="var(--success"],
-        .nc-stepper-container div[aria-hidden="true"][style*="rgb(34, 197, 94)"] {
-          background: #10b981 !important;
-          height: 1.5px !important;
-          opacity: 1 !important;
+        .mpg-orbita-ring--2 .mpg-orbita-anel {
+          border-color: rgba(167,139,250,0.15);
+        }
+        .mpg-orbita-eletron {
+          position: absolute;
+          top: 50%; left: 50%;
+          width: 100%; height: 100%;
+          transform: translate(-50%,-50%);
+          border-radius: 50%;
+          pointer-events: none;
+        }
+        .mpg-orbita-eletron--1 {
+          animation: mpg-eletron-spin 3s linear infinite;
+        }
+        .mpg-orbita-eletron--1::after {
+          content: '';
+          position: absolute;
+          width: 5px; height: 5px;
+          border-radius: 50%;
+          top: -2.5px; left: 50%;
+          transform: translateX(-50%);
+          background: #818cf8;
+          box-shadow: 0 0 8px 2px rgba(129,140,248,0.7), 0 0 16px 4px rgba(129,140,248,0.3);
+        }
+        .mpg-orbita-eletron--2 {
+          animation: mpg-eletron-spin 4.5s linear infinite reverse;
+        }
+        .mpg-orbita-eletron--2::after {
+          content: '';
+          position: absolute;
+          width: 4px; height: 4px;
+          border-radius: 50%;
+          top: -2px; left: 50%;
+          transform: translateX(-50%);
+          background: #a78bfa;
+          box-shadow: 0 0 8px 2px rgba(167,139,250,0.7), 0 0 16px 4px rgba(167,139,250,0.3);
         }
 
         .nc-modal-body {

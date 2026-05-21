@@ -985,7 +985,7 @@ export default function Configuracoes() {
 
   return (
     <PaginaGlobal
-      className="bf-configuracoes cfg-page"
+      className="bf-configuracoes"
       cabecalho={
         <CabecalhoGlobal
           icone={<GearSixWrapper />}
@@ -994,8 +994,9 @@ export default function Configuracoes() {
         />
       }
     >
-      {/* ── Sidebar ── */}
-      <aside className="cfg-sidebar">
+      <div className="cfg-page">
+        {/* ── Sidebar ── */}
+        <aside className="cfg-sidebar">
         <nav className="cfg-sidebar__nav">
           {SIDEBAR_ITEMS.map((item, idx) => {
             if (item.tipo === 'grupo') {
@@ -1808,6 +1809,7 @@ export default function Configuracoes() {
         )}
 
       </main>
+      </div>
 
       {/* ── Barra de Salvamento Flutuante ── */}
       <div className={`bf-cfg-savebar ${isDirtyGlobal ? 'bf-cfg-savebar--visible' : ''}`}>

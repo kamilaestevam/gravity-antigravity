@@ -1043,12 +1043,12 @@ export default function NovaCotacao() {
 
         /* Active Circle styling with exact linear-gradient and box-shadow */
         .mpg-circulo-ativo {
-          background: linear-gradient(135deg, #4f46e5, #7c3aed, #6366f1) !important;
-          border: 2px solid rgba(129, 140, 248, 0.5) !important;
+          background: linear-gradient(135deg, #c084fc 0%, #7c3aed 50%, #2563eb 100%) !important;
+          border: 1.5px solid rgba(192, 132, 252, 0.6) !important;
           color: #fff !important;
           font-size: 1rem !important;
           font-weight: 800 !important;
-          box-shadow: 0 0 8px rgba(99, 102, 241, 0.5), 0 0 20px rgba(99, 102, 241, 0.3), 0 0 40px rgba(99, 102, 241, 0.15), inset 0 0 12px rgba(99, 102, 241, 0.1) !important;
+          box-shadow: 0 0 10px rgba(192, 132, 252, 0.5), 0 0 25px rgba(124, 58, 237, 0.35), 0 0 50px rgba(37, 99, 235, 0.2), inset 0 0 12px rgba(255, 255, 255, 0.2) !important;
           animation: mpg-neon-pulse 2s ease-in-out infinite;
         }
 
@@ -1077,8 +1077,8 @@ export default function NovaCotacao() {
         }
 
         .mpg-label-ativo {
-          color: #a5b4fc !important;
-          text-shadow: 0 0 8px rgba(99, 102, 241, 0.5) !important;
+          color: #c084fc !important;
+          text-shadow: 0 0 8px rgba(192, 132, 252, 0.5) !important;
           font-weight: 700 !important;
         }
 
@@ -1119,7 +1119,7 @@ export default function NovaCotacao() {
           width: 3.5rem;
           height: 3.5rem;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(129,140,248,0.2) 0%, transparent 70%);
+          background: radial-gradient(circle, rgba(192, 132, 252, 0.2) 0%, transparent 70%);
           animation: mpg-nucleo-glow 3s ease-in-out infinite;
           pointer-events: none;
           z-index: 0;
@@ -1129,17 +1129,17 @@ export default function NovaCotacao() {
         @keyframes mpg-neon-pulse {
           0%, 100% {
             box-shadow: 
-              0 0 0 1px rgba(129, 140, 248, 0.4),
-              0 0 15px 4px rgba(99, 102, 241, 0.6), 
-              0 0 35px 12px rgba(99, 102, 241, 0.35),
-              inset 0 0 8px rgba(255, 255, 255, 0.35) !important;
+              0 0 0 1px rgba(192, 132, 252, 0.4),
+              0 0 15px 4px rgba(124, 58, 237, 0.6), 
+              0 0 35px 12px rgba(37, 99, 235, 0.35),
+              inset 0 0 8px rgba(255, 255, 255, 0.35);
           }
           50% {
             box-shadow: 
-              0 0 0 2px rgba(129, 140, 248, 0.6),
-              0 0 22px 8px rgba(99, 102, 241, 0.85), 
-              0 0 45px 18px rgba(99, 102, 241, 0.5),
-              inset 0 0 12px rgba(255, 255, 255, 0.5) !important;
+              0 0 0 2px rgba(192, 132, 252, 0.6),
+              0 0 22px 8px rgba(124, 58, 237, 0.85), 
+              0 0 45px 18px rgba(37, 99, 235, 0.5),
+              inset 0 0 12px rgba(255, 255, 255, 0.5);
           }
         }
 
@@ -1188,11 +1188,11 @@ export default function NovaCotacao() {
           width: 100%; height: 100%;
           transform: translate(-50%,-50%);
           border-radius: 50%;
-          border: 1px solid rgba(129, 140, 248, 0.2) !important;
+          border: 1px solid rgba(192, 132, 252, 0.3) !important;
           box-shadow: none !important;
         }
         .mpg-orbita-ring--2 .mpg-orbita-anel {
-          border: 1px dashed rgba(167, 139, 250, 0.15) !important;
+          border: 1px dashed rgba(124, 58, 237, 0.2) !important;
           box-shadow: none !important;
         }
         .mpg-orbita-eletron {
@@ -1213,8 +1213,8 @@ export default function NovaCotacao() {
           border-radius: 50%;
           top: -2.5px; left: 50%;
           transform: translateX(-50%);
-          background: #818cf8;
-          box-shadow: 0 0 8px 2px rgba(129,140,248,0.7), 0 0 16px 4px rgba(129,140,248,0.3);
+          background: #c084fc;
+          box-shadow: 0 0 8px 2px rgba(192, 132, 252, 0.8), 0 0 16px 4px rgba(192, 132, 252, 0.4);
         }
         .mpg-orbita-eletron--2 {
           animation: mpg-eletron-spin 4.5s linear infinite reverse;
@@ -1226,8 +1226,8 @@ export default function NovaCotacao() {
           border-radius: 50%;
           top: -2px; left: 50%;
           transform: translateX(-50%);
-          background: #a78bfa;
-          box-shadow: 0 0 8px 2px rgba(167,139,250,0.7), 0 0 16px 4px rgba(167,139,250,0.3);
+          background: #7c3aed;
+          box-shadow: 0 0 8px 2px rgba(124, 58, 237, 0.8), 0 0 16px 4px rgba(124, 58, 237, 0.4);
         }
 
         .nc-modal-body {

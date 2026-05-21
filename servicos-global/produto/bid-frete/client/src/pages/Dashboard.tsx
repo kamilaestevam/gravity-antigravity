@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect, useRef, useMemo } from 'react'
+// @ts-expect-error
 import darkWorldMap from '../../public/dark_world_map.png'
 import { useNavigate } from 'react-router-dom'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -28,6 +29,9 @@ import {
   ArrowCounterClockwise,
   Play,
   Pause,
+  Globe,
+  List,
+  MapPin,
 } from '@phosphor-icons/react'
 
 import { DEMO_KPIS, DEMO_CALENDARIO, DEMO_MENSAL, DEMO_MODAL, DEMO_MELHOR_COTACAO, DEMO_INCOTERMS } from '../shared/demo-data'
@@ -993,10 +997,87 @@ const GLOBE_ROUTES: ArcRoute[] = [
   { fromId: 5, toId: 6, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.24 }, // Air route (purple, fast)
 ]
 
+interface RouteDetail {
+  fromPort: string
+  fromFlag: string
+  toPort: string
+  toFlag: string
+  mode: 'MARITIMO' | 'AEREO'
+  bids: number
+  bestPrice: number
+  saving: number
+  transitTime: number
+  supplier: string
+}
+
+const PORT_CONNECTIONS: Record<number, RouteDetail[]> = {
+  1: [
+    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Santos (BRSSZ)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 56, bestPrice: 12400, saving: 23.4, transitTime: 28, supplier: 'Pacific Cargo (E96)' },
+    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Guarulhos (BRGRU)', toFlag: '🇧🇷', mode: 'AEREO', bids: 84, bestPrice: 18200, saving: 19.1, transitTime: 3, supplier: 'Delta Cargo' },
+    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Itajaí (BRITI)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 32, bestPrice: 13100, saving: 20.5, transitTime: 30, supplier: 'EuroFreight Corp' }
+  ],
+  2: [
+    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Guarulhos (BRGRU)', toFlag: '🇧🇷', mode: 'AEREO', bids: 84, bestPrice: 18200, saving: 19.1, transitTime: 3, supplier: 'Delta Cargo' },
+    { fromPort: 'Miami (USMIA)', fromFlag: '🇺🇸', toPort: 'Guarulhos (BRGRU)', toFlag: '🇧🇷', mode: 'AEREO', bids: 48, bestPrice: 8400, saving: 15.6, transitTime: 2, supplier: 'Delta Cargo' }
+  ],
+  3: [
+    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Itajaí (BRITI)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 32, bestPrice: 13100, saving: 20.5, transitTime: 30, supplier: 'EuroFreight Corp' },
+    { fromPort: 'Miami (USMIA)', fromFlag: '🇺🇸', toPort: 'Itajaí (BRITI)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 24, bestPrice: 9500, saving: 17.2, transitTime: 18, supplier: 'Hamburg Süd' }
+  ],
+  4: [
+    { fromPort: 'Miami (USMIA)', fromFlag: '🇺🇸', toPort: 'Guarulhos (BRGRU)', toFlag: '🇧🇷', mode: 'AEREO', bids: 48, bestPrice: 8400, saving: 15.6, transitTime: 2, supplier: 'Delta Cargo' },
+    { fromPort: 'Miami (USMIA)', fromFlag: '🇺🇸', toPort: 'Itajaí (BRITI)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 24, bestPrice: 9500, saving: 17.2, transitTime: 18, supplier: 'Hamburg Süd' }
+  ],
+  5: [
+    { fromPort: 'Buenos Aires (ARBUE)', fromFlag: '🇦🇷', toPort: 'Recife (BRREC)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 20, bestPrice: 15300, saving: 18.8, transitTime: 8, supplier: 'Merlion Shipping' },
+    { fromPort: 'Buenos Aires (ARBUE)', fromFlag: '🇦🇷', toPort: 'Santos (BRSSZ)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 15, bestPrice: 7200, saving: 16.4, transitTime: 4, supplier: 'MSC Line' }
+  ],
+  6: [
+    { fromPort: 'Buenos Aires (ARBUE)', fromFlag: '🇦🇷', toPort: 'Recife (BRREC)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 20, bestPrice: 15300, saving: 18.8, transitTime: 8, supplier: 'Merlion Shipping' },
+    { fromPort: 'Miami (USMIA)', fromFlag: '🇺🇸', toPort: 'Recife (BRREC)', toFlag: '🇧🇷', mode: 'AEREO', bids: 12, bestPrice: 11200, saving: 14.5, transitTime: 3, supplier: 'PacAnchor Logistics' }
+  ]
+}
+
+// ─── Infográficos & HUD Rankings (Top 10) ────────────────────────────────────────
+
+const TOP_ORIGENS = [
+  { rank: 1, name: 'Shanghai', code: 'CNSHA', flag: '🇨🇳', count: 140, pct: 70, pinId: 1 },
+  { rank: 2, name: 'Miami', code: 'USMIA', flag: '🇺🇸', count: 40, pct: 20, pinId: 4 },
+  { rank: 3, name: 'Buenos Aires', code: 'ARBUE', flag: '🇦🇷', count: 20, pct: 10, pinId: 5 },
+  { rank: 4, name: 'Rotterdam', code: 'NLRTM', flag: '🇳🇱', count: 12, pct: 6, pinId: null },
+  { rank: 5, name: 'Singapura', code: 'SGSIN', flag: '🇸🇬', count: 10, pct: 5, pinId: null },
+  { rank: 6, name: 'Hamburgo', code: 'DEHAM', flag: '🇩🇪', count: 8, pct: 4, pinId: null },
+  { rank: 7, name: 'Houston', code: 'USHOU', flag: '🇺🇸', count: 7, pct: 3.5, pinId: null },
+  { rank: 8, name: 'Santos', code: 'BRSSZ', flag: '🇧🇷', count: 5, pct: 2.5, pinId: null },
+  { rank: 9, name: 'Tóquio', code: 'JPTYO', flag: '🇯🇵', count: 4, pct: 2, pinId: null },
+  { rank: 10, name: 'Antuérpia', code: 'BEANT', flag: '🇧🇪', count: 3, pct: 1.5, pinId: null },
+]
+
+const TOP_DESTINOS = [
+  { rank: 1, name: 'Guarulhos', code: 'BRGRU', flag: '🇧🇷', count: 140, pct: 70, pinId: 2 },
+  { rank: 2, name: 'Itajaí', code: 'BRITI', flag: '🇧🇷', count: 40, pct: 20, pinId: 3 },
+  { rank: 3, name: 'Recife', code: 'BRREC', flag: '🇧🇷', count: 20, pct: 10, pinId: 6 },
+  { rank: 4, name: 'Santos', code: 'BRSSZ', flag: '🇧🇷', count: 15, pct: 7.5, pinId: null },
+  { rank: 5, name: 'Paranaguá', code: 'BRPNG', flag: '🇧🇷', count: 12, pct: 6, pinId: null },
+  { rank: 6, name: 'Rio de Janeiro', code: 'BRRIO', flag: '🇧🇷', count: 10, pct: 5, pinId: null },
+  { rank: 7, name: 'Manaus', code: 'BRMAO', flag: '🇧🇷', count: 8, pct: 4, pinId: null },
+  { rank: 8, name: 'Viracopos', code: 'BRVCP', flag: '🇧🇷', count: 6, pct: 3, pinId: null },
+  { rank: 9, name: 'Suape', code: 'BRSUA', flag: '🇧🇷', count: 4, pct: 2, pinId: null },
+  { rank: 10, name: 'Rio Grande', code: 'BRRIG', flag: '🇧🇷', count: 3, pct: 1.5, pinId: null },
+]
+
+const MODAIS_INFO = [
+  { modal: 'MARITIMO', label: 'Marítimo', count: 120, pct: 60, cor: '#52d69b' },
+  { modal: 'AEREO', label: 'Aéreo', count: 70, pct: 35, cor: '#a78bfa' },
+  { modal: 'RODOVIARIO', label: 'Rodoviário', count: 10, pct: 5, cor: '#fbbf24' },
+]
+
 // ─── Visão Geral Global (Globo 3D Interativo Premium) ───────────────────────────
 
 function VisaoGeralMapa() {
+  const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modal'>('origens')
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
+  const [selectedPinForModal, setSelectedPinForModal] = useState<number | null>(null)
   
   const hoveredPinRef = useRef<number | null>(null)
   useEffect(() => {
@@ -1608,6 +1689,216 @@ function VisaoGeralMapa() {
         {/* The high-performance 3D Canvas */}
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
         
+        {/* HUD de Cotações Globais */}
+        <div className={`bfd-map-left-panel bfd-map-left-panel--${activeTab}`}>
+          <div className="bfd-map-panel__header">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span className="bfd-map-panel__title">HUD de Cotações Globais</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <span className="bfd-map-panel__live-dot" />
+                <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#52d69b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
+              </div>
+            </div>
+            <span className="bfd-map-panel__subtitle">Rankings em tempo real • 200 bids</span>
+          </div>
+          
+          {/* Tabs */}
+          <div className="bfd-map-panel__tabs">
+            <button 
+              className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
+            >
+              <Globe size={13} weight="bold" /> Origens
+            </button>
+            <button 
+              className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
+            >
+              <MapPin size={13} weight="bold" /> Destinos
+            </button>
+            <button 
+              className={`bfd-map-panel__tab tab-modal ${activeTab === 'modal' ? 'is-active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); setActiveTab('modal'); }}
+            >
+              <List size={13} weight="bold" /> Modais
+            </button>
+          </div>
+          
+          {/* List Content */}
+          <div className="bfd-map-panel__list">
+            {activeTab === 'origens' && TOP_ORIGENS.map(item => {
+              const hasLink = item.pinId !== null
+              const isHighlighted = hoveredPin === item.pinId && hasLink
+              
+              return (
+                <div 
+                  key={item.rank}
+                  className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
+                  onMouseEnter={() => {
+                    if (item.pinId) {
+                      setHoveredPin(item.pinId)
+                      isRotationPausedRef.current = true
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (item.pinId) {
+                      setHoveredPin(null)
+                      isRotationPausedRef.current = false
+                    }
+                  }}
+                  onClick={(e) => {
+                    if (item.pinId) {
+                      e.stopPropagation()
+                      setSelectedPinForModal(item.pinId)
+                      isRotationPausedRef.current = true
+                    }
+                  }}
+                >
+                  <span className={`bfd-map-panel__rank bfd-map-panel__rank--${item.rank}`}>
+                    {item.rank}
+                  </span>
+                  <span className="bfd-map-panel__row-flag">{item.flag}</span>
+                  <div className="bfd-map-panel__info-wrap">
+                    <div className="bfd-map-panel__row-header">
+                      <span className="bfd-map-panel__row-name">{item.name} <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 500 }}>{item.code}</span></span>
+                      <span className="bfd-map-panel__row-stats" style={{ color: '#52d69b' }}>{item.count} bids</span>
+                    </div>
+                    <div className="bfd-map-panel__row-bar-wrap">
+                      <div 
+                        className="bfd-map-panel__row-bar-fill" 
+                        style={{ 
+                          width: `${item.pct}%`, 
+                          background: item.rank === 1 
+                            ? 'linear-gradient(90deg, #52d69b, #059669)' 
+                            : 'linear-gradient(90deg, rgba(82, 214, 155, 0.8), rgba(52, 211, 153, 0.4))',
+                          boxShadow: item.rank === 1 ? '0 0 6px rgba(82, 214, 155, 0.4)' : 'none'
+                        }} 
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+            
+            {activeTab === 'destinos' && TOP_DESTINOS.map(item => {
+              const hasLink = item.pinId !== null
+              const isHighlighted = hoveredPin === item.pinId && hasLink
+              
+              return (
+                <div 
+                  key={item.rank}
+                  className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted-dest' : ''}`}
+                  onMouseEnter={() => {
+                    if (item.pinId) {
+                      setHoveredPin(item.pinId)
+                      isRotationPausedRef.current = true
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (item.pinId) {
+                      setHoveredPin(null)
+                      isRotationPausedRef.current = false
+                    }
+                  }}
+                  onClick={(e) => {
+                    if (item.pinId) {
+                      e.stopPropagation()
+                      setSelectedPinForModal(item.pinId)
+                      isRotationPausedRef.current = true
+                    }
+                  }}
+                >
+                  <span className={`bfd-map-panel__rank bfd-map-panel__rank--${item.rank}`}>
+                    {item.rank}
+                  </span>
+                  <span className="bfd-map-panel__row-flag">{item.flag}</span>
+                  <div className="bfd-map-panel__info-wrap">
+                    <div className="bfd-map-panel__row-header">
+                      <span className="bfd-map-panel__row-name">{item.name} <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 500 }}>{item.code}</span></span>
+                      <span className="bfd-map-panel__row-stats" style={{ color: '#a78bfa' }}>{item.count} bids</span>
+                    </div>
+                    <div className="bfd-map-panel__row-bar-wrap">
+                      <div 
+                        className="bfd-map-panel__row-bar-fill" 
+                        style={{ 
+                          width: `${item.pct}%`, 
+                          background: item.rank === 1 
+                            ? 'linear-gradient(90deg, #a78bfa, #7c3aed)' 
+                            : 'linear-gradient(90deg, rgba(167, 139, 250, 0.8), rgba(124, 58, 237, 0.4))',
+                          boxShadow: item.rank === 1 ? '0 0 6px rgba(167, 139, 250, 0.4)' : 'none'
+                        }} 
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+            
+            {activeTab === 'modal' && (
+              <div className="bfd-map-panel__modal-wrap">
+                {MODAIS_INFO.map(item => {
+                  const Icon = MODAL_ICONS[item.modal] || <Anchor size={14} />
+                  return (
+                    <div key={item.modal} className="bfd-map-panel__modal-item" style={{ borderLeft: `3px solid ${item.cor}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                        {/* Modern Radial Meter */}
+                        <svg width="40" height="40" viewBox="0 0 40 40" style={{ overflow: 'visible', flexShrink: 0 }}>
+                          <circle cx={20} cy={20} r={16} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
+                          <circle 
+                            cx={20} cy={20} r={16} 
+                            fill="none" 
+                            stroke={item.cor} 
+                            strokeWidth="3.5" 
+                            strokeDasharray={100.5} 
+                            strokeDashoffset={100.5 - (item.pct / 100) * 100.5}
+                            strokeLinecap="round"
+                            style={{ 
+                              filter: `drop-shadow(0 0 4px ${item.cor}60)`,
+                              transform: 'rotate(-90deg)', 
+                              transformOrigin: '20px 20px',
+                              transition: 'stroke-dashoffset 0.8s ease-out'
+                            }}
+                          />
+                          <g style={{ transform: 'translate(12px, 12px)', color: item.cor }}>
+                            {item.modal === 'MARITIMO' && <Anchor weight="bold" size={16} />}
+                            {item.modal === 'AEREO' && <AirplaneTilt weight="bold" size={16} />}
+                            {item.modal === 'RODOVIARIO' && <Truck weight="bold" size={16} />}
+                          </g>
+                        </svg>
+
+                        {/* Modal Info */}
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>{item.label}</span>
+                            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: item.cor }}>{item.count} bids</span>
+                          </div>
+                          <span style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>Representa {item.pct}% das cotações</span>
+                        </div>
+                      </div>
+
+                      {/* Stats Breakdown */}
+                      <div className="bfd-map-panel__modal-stats-grid">
+                        <div className="bfd-map-panel__modal-stat-box">
+                          <span className="bfd-map-panel__modal-stat-lbl">Melhor Preço</span>
+                          <span className="bfd-map-panel__modal-stat-num" style={{ color: '#ffffff' }}>
+                            USD {item.modal === 'AEREO' ? '8.400' : item.modal === 'MARITIMO' ? '7.200' : '5.100'}
+                          </span>
+                        </div>
+                        <div className="bfd-map-panel__modal-stat-box">
+                          <span className="bfd-map-panel__modal-stat-lbl">Saving Médio</span>
+                          <span className="bfd-map-panel__modal-stat-num" style={{ color: '#52d69b' }}>
+                            {item.modal === 'AEREO' ? '+23.4%' : item.modal === 'MARITIMO' ? '+19.1%' : '+12.5%'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+        
         {/* Floating Zoom & Control Panel */}
         <div className="bfd-map-controls" style={{
           position: 'absolute',
@@ -1746,6 +2037,7 @@ function VisaoGeralMapa() {
               onClick={(e) => {
                 e.stopPropagation() // Avoid triggering map drag
                 isRotationPausedRef.current = true
+                setSelectedPinForModal(pin.id)
               }}
             >
               {/* Outer pulsing ring */}
@@ -1789,10 +2081,13 @@ function VisaoGeralMapa() {
                     </div>
                   </div>
                   
-                  <div className="bfd-map-tooltip__footer">
-                    <span className="bfd-map-tooltip__supplier">
-                      Forn: <strong>{pin.supplier}</strong>
-                    </span>
+                  <div className="bfd-map-tooltip__footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem', marginTop: '0.2rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                      <span className="bfd-map-tooltip__supplier" style={{ fontSize: '0.78rem' }}>
+                        Forn: <strong>{pin.supplier}</strong>
+                      </span>
+                    </div>
+                    <div className="bfd-map-tooltip__hint">👉 Clique para ver rotas</div>
                   </div>
                   <div className="bfd-map-tooltip__after" />
                 </div>
@@ -1800,6 +2095,149 @@ function VisaoGeralMapa() {
             </div>
           )
         })}
+
+        {/* Premium Detail Modal Overlay */}
+        {selectedPinForModal !== null && (() => {
+          const pin = MAP_PINS.find(p => p.id === selectedPinForModal)
+          if (!pin) return null
+          const connections = PORT_CONNECTIONS[selectedPinForModal] || []
+          
+          return (
+            <div className="bfd-modal-overlay" onClick={() => setSelectedPinForModal(null)}>
+              <div className="bfd-modal-card" onClick={e => e.stopPropagation()}>
+                <div className="bfd-modal-header">
+                  <div className="bfd-modal-title-group">
+                    <span className="bfd-modal-flag-large">{pin.flag}</span>
+                    <div>
+                      <h2 className="bfd-modal-title">Rotas Ativas: {pin.label}</h2>
+                      <span className="bfd-modal-subtitle">{pin.portCode} • {pin.country}</span>
+                    </div>
+                  </div>
+                  <button className="bfd-modal-close-btn" onClick={() => setSelectedPinForModal(null)}>✕</button>
+                </div>
+                
+                <div className="bfd-modal-body">
+                  {connections.length === 0 ? (
+                    <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
+                      Nenhuma rota ativa cadastrada para este terminal.
+                    </div>
+                  ) : (
+                    connections.map((route, idx) => {
+                      const isAir = route.mode === 'AEREO'
+                      const modeColor = isAir ? '#a78bfa' : '#52d69b'
+                      const modeIcon = isAir ? <AirplaneTilt size={14} weight="bold" /> : <Anchor size={14} weight="bold" />
+                      const badgeClass = isAir ? 'bfd-route-badge bfd-route-badge--aereo' : 'bfd-route-badge bfd-route-badge--maritimo'
+                      const cardClass = isAir ? 'bfd-route-card bfd-route-card--aereo' : 'bfd-route-card bfd-route-card--maritimo'
+                      
+                      // High-quality loop motion path details
+                      const pathD = "M 10,15 Q 120,-5 230,15"
+                      const speed = isAir ? "3.2s" : "6.5s"
+                      
+                      return (
+                        <div key={idx} className={cardClass}>
+                          <div className="bfd-route-header">
+                            <div className="bfd-route-ports">
+                              <span className="bfd-route-port-flag">{route.fromFlag}</span>
+                              <span className="bfd-route-port-name">{route.fromPort}</span>
+                              <span className="bfd-route-arrow-icon">➔</span>
+                              <span className="bfd-route-port-flag">{route.toFlag}</span>
+                              <span className="bfd-route-port-name">{route.toPort}</span>
+                            </div>
+                            
+                            <span className={badgeClass} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              {modeIcon} {route.mode}
+                            </span>
+                          </div>
+                          
+                          {/* Animated SVG Path with native animateMotion */}
+                          <div className="bfd-route-svg-container">
+                            <svg width="100%" height="30" viewBox="0 0 240 30" style={{ overflow: 'visible' }}>
+                              {/* Base dotted connection line */}
+                              <path 
+                                d={pathD} 
+                                fill="none" 
+                                stroke="rgba(255, 255, 255, 0.12)" 
+                                strokeWidth="2" 
+                                strokeDasharray="4,4" 
+                              />
+                              {/* Glowing animate line trail */}
+                              <path 
+                                d={pathD} 
+                                fill="none" 
+                                stroke={modeColor} 
+                                strokeWidth="1.5" 
+                                strokeDasharray="20, 220" 
+                                opacity="0.8"
+                              >
+                                <animate 
+                                  attributeName="stroke-dashoffset" 
+                                  values="240;0" 
+                                  dur={speed} 
+                                  repeatCount="indefinite" 
+                                />
+                              </path>
+                              {/* High-fidelity moving ship or plane */}
+                              <g>
+                                {isAir ? (
+                                  // High quality mini plane shape facing right
+                                  <path 
+                                    d="M-7,-2 L-2,-2 L1,-6 L3,-6 L2,-2 L6,-1 L8,0 L6,1 L2,2 L3,6 L1,6 L-2,2 L-7,2 Z" 
+                                    fill="#a78bfa" 
+                                    style={{ filter: 'drop-shadow(0 0 3px rgba(167, 139, 250, 0.6))' }}
+                                  />
+                                ) : (
+                                  // High quality mini cargo ship shape facing right
+                                  <path 
+                                    d="M-8,-2 L4,-2 L8,0 L4,2 L-8,2 Z M-5,-2 L-5,-4 L-2,-4 L-2,-2 Z" 
+                                    fill="#52d69b" 
+                                    style={{ filter: 'drop-shadow(0 0 3px rgba(82, 214, 155, 0.6))' }}
+                                  />
+                                )}
+                                <animateMotion 
+                                  path={pathD} 
+                                  dur={speed} 
+                                  repeatCount="indefinite" 
+                                  rotate="auto" 
+                                />
+                              </g>
+                            </svg>
+                          </div>
+                          
+                          <div className="bfd-route-stats">
+                            <div className="bfd-route-stat-item">
+                              <span className="bfd-route-stat-label">Bids Ativos</span>
+                              <span className="bfd-route-stat-value">{route.bids} bids</span>
+                            </div>
+                            <div className="bfd-route-stat-item">
+                              <span className="bfd-route-stat-label">Melhor Preço</span>
+                              <span className="bfd-route-stat-value" style={{ color: '#ffffff' }}>USD {fmtMoeda(route.bestPrice)}</span>
+                            </div>
+                            <div className="bfd-route-stat-item">
+                              <span className="bfd-route-stat-label">Saving</span>
+                              <span className="bfd-route-stat-value" style={{ color: '#52d69b' }}>+{route.saving}%</span>
+                            </div>
+                            <div className="bfd-route-stat-item">
+                              <span className="bfd-route-stat-label">Transit Time</span>
+                              <span className="bfd-route-stat-value">{route.transitTime} dias</span>
+                            </div>
+                          </div>
+                          
+                          <div style={{ fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }}>
+                            <span>Forn. Líder: <strong>{route.supplier}</strong></span>
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+                
+                <div className="bfd-modal-footer">
+                  <button className="bfd-modal-close-action" onClick={() => setSelectedPinForModal(null)}>Fechar</button>
+                </div>
+              </div>
+            </div>
+          )
+        })()}
       </div>
     </div>
   )
@@ -1840,7 +2278,7 @@ export default function Dashboard() {
           line-height: 1.6;
           margin: 0.45rem 0 0;
         }
-        .bfd-header__actions { display: flex; align-items: center; gap: 0.75rem; transform: translateY(28px); }
+        .bfd-header__actions { display: flex; align-items: center; gap: 0.75rem; transform: translateY(40px); }
         .bfd-header__icon-btn {
           width: 38px; height: 38px; border-radius: 8px; border: none; cursor: pointer;
           display: flex; align-items: center; justify-content: center;
@@ -1900,47 +2338,23 @@ export default function Dashboard() {
         .bfd-kpi__spark { display: flex; align-items: flex-end; gap: 4px; height: 32px; margin: 0.35rem 0; }
         .bfd-kpi__spark-bar { flex: 1; border-radius: 2px; min-width: 8px; transition: height 0.3s; }
         .bfd-kpi__spark-line { display: flex; align-items: center; height: 32px; margin: 0.35rem 0; width: 100%; }
-        .bfd-kpi__progress-wrap { display: flex; align-items: center; height: 32px; margin: 0.35rem 0; width: 100%; }
-        .bfd-kpi__progress-bg { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; width: 100%; }
-        .bfd-kpi__progress-fill { height: 100%; background: #52d69b; border-radius: 3px; }
-
-        /* ── Card genérico ───────────────────────────────────────── */
-        .bfd-card {
-          background: rgba(255,255,255,0.04); border-radius: 14px; padding: 1.5rem 1.75rem;
-          border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column;
-        }
-        .bfd-card__title { font-size: 1.1rem; font-weight: 700; color: #ffffff; letter-spacing: 0.02em; margin-bottom: 1.25rem; line-height: 1.4; }
-
-        /* ── World Map Card ──────────────────────────────────────── */
-        .bfd-map-card { padding: 1.5rem 1.75rem; display: flex; flex-direction: column; gap: 1.25rem; }
-        .bfd-map-card__header { display: flex; justify-content: space-between; align-items: center; }
-        .bfd-map-legend { display: flex; gap: 1.25rem; }
-        .bfd-map-legend__item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #e2e8f0; letter-spacing: 0.02em; font-weight: 600; }
-        .bfd-map-legend__dot { width: 9px; height: 9px; border-radius: 50%; }
-        .bfd-map-legend__dot--maritimo { background: #52d69b; }
-        .bfd-map-legend__dot--aereo { background: #a78bfa; }
-
-        .bfd-map-container {
-          position: relative; height: 380px; border-radius: 12px; overflow: visible;
-          background: transparent;
-        }
-        .bfd-map-left-panel {
+        .bfd-kpi__progres        .bfd-map-left-panel {
           position: absolute;
           left: 1.25rem;
           top: 1.25rem;
           bottom: 1.25rem;
-          width: 320px;
-          background: rgba(11, 14, 20, 0.85);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
+          width: 300px;
+          background: rgba(11, 14, 20, 0.82);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
           border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 12px;
           padding: 1.2rem;
           display: flex;
           flex-direction: column;
-          gap: 0.8rem;
+          gap: 0.85rem;
           z-index: 20;
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
         }
         .bfd-map-panel__header {
           display: flex;
@@ -1948,7 +2362,7 @@ export default function Dashboard() {
           gap: 0.2rem;
         }
         .bfd-map-panel__title {
-          font-size: 0.95rem;
+          font-size: 0.98rem;
           font-weight: 700;
           color: #ffffff;
           letter-spacing: 0.02em;
@@ -1958,49 +2372,238 @@ export default function Dashboard() {
           color: #cbd5e1;
           letter-spacing: 0.015em;
         }
-        .bfd-map-panel__stats-row {
+        .bfd-map-panel__tabs {
           display: flex;
-          gap: 0.75rem;
-        }
-        .bfd-map-panel__stat-card {
-          flex: 1;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.06);
           border-radius: 8px;
-          padding: 0.6rem;
+          padding: 2px;
+          gap: 2px;
+        }
+        .bfd-map-panel__tab {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+          font-size: 0.76rem;
+          font-weight: 700;
+          color: #94a3b8;
+          background: transparent;
+          border: none;
+          border-radius: 6px;
+          padding: 6px 2px;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bfd-map-panel__tab:hover {
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.03);
+        }
+        .bfd-map-panel__tab.is-active {
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+        .bfd-map-panel__tab.is-active.tab-origens {
+          color: #52d69b;
+          border-color: rgba(82, 214, 155, 0.2);
+          background: rgba(82, 214, 155, 0.08);
+        }
+        .bfd-map-panel__tab.is-active.tab-destinos {
+          color: #a78bfa;
+          border-color: rgba(167, 139, 250, 0.2);
+          background: rgba(167, 139, 250, 0.08);
+        }
+        .bfd-map-panel__tab.is-active.tab-modal {
+          color: #fbbf24;
+          border-color: rgba(251, 191, 36, 0.2);
+          background: rgba(251, 191, 36, 0.08);
+        }
+        
+        .bfd-map-panel__list {
+          overflow-y: auto;
+          flex: 1;
           display: flex;
           flex-direction: column;
+          gap: 0.5rem;
+          padding-right: 0.25rem;
+        }
+        /* Custom scrollbar */
+        .bfd-map-panel__list::-webkit-scrollbar {
+          width: 4px;
+        }
+        .bfd-map-panel__list::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.02);
+          border-radius: 4px;
+        }
+        .bfd-map-panel__list::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.15);
+          border-radius: 4px;
+        }
+        .bfd-map-panel__list::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
+
+        .bfd-map-panel__row {
+          display: flex;
           align-items: center;
-          gap: 0.15rem;
+          gap: 0.6rem;
+          padding: 0.45rem 0.55rem;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.03);
+          border-radius: 8px;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          cursor: default;
         }
-        .bfd-map-panel__stat-num {
-          font-size: 1.25rem;
+        .bfd-map-panel__row.has-link {
+          cursor: pointer;
+        }
+        .bfd-map-panel__row:hover {
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(255, 255, 255, 0.08);
+        }
+        .bfd-map-panel__row.is-highlighted {
+          background: rgba(82, 214, 155, 0.08);
+          border-color: rgba(82, 214, 155, 0.25);
+          box-shadow: 0 0 10px rgba(82, 214, 155, 0.15);
+        }
+        .bfd-map-panel__row.is-highlighted-dest {
+          background: rgba(167, 139, 250, 0.08);
+          border-color: rgba(167, 139, 250, 0.25);
+          box-shadow: 0 0 10px rgba(167, 139, 250, 0.15);
+        }
+        
+        .bfd-map-panel__rank {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.65rem;
           font-weight: 800;
-          color: #ffffff;
-          line-height: 1.2;
+          color: #cbd5e1;
+          border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .bfd-map-panel__stat-lbl {
+        .bfd-map-panel__rank--1 {
+          background: linear-gradient(135deg, #f59e0b, #d97706);
+          color: #ffffff;
+          border: none;
+          box-shadow: 0 0 8px rgba(245, 158, 11, 0.35);
+        }
+        .bfd-map-panel__rank--2 {
+          background: linear-gradient(135deg, #94a3b8, #64748b);
+          color: #ffffff;
+          border: none;
+          box-shadow: 0 0 8px rgba(148, 163, 184, 0.3);
+        }
+        .bfd-map-panel__rank--3 {
+          background: linear-gradient(135deg, #b45309, #78350f);
+          color: #ffffff;
+          border: none;
+          box-shadow: 0 0 8px rgba(180, 83, 9, 0.3);
+        }
+        
+        .bfd-map-panel__row-flag {
+          font-size: 1rem;
+          line-height: 1;
+        }
+        
+        .bfd-map-panel__info-wrap {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        
+        .bfd-map-panel__row-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        
+        .bfd-map-panel__row-name {
+          font-size: 0.8rem;
+          font-weight: 700;
+          color: #ffffff;
+        }
+        
+        .bfd-map-panel__row-stats {
+          font-size: 0.72rem;
+          font-weight: 600;
+        }
+        
+        .bfd-map-panel__row-bar-wrap {
+          height: 3px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 1.5px;
+          overflow: hidden;
+          width: 100%;
+        }
+        .bfd-map-panel__row-bar-fill {
+          height: 100%;
+          border-radius: 1.5px;
+          transition: width 0.5s ease-out;
+        }
+
+        .bfd-map-panel__modal-wrap {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          padding: 0.2rem 0;
+        }
+        .bfd-map-panel__modal-item {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.04);
+          border-radius: 10px;
+          padding: 0.75rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          transition: all 0.2s ease;
+        }
+        .bfd-map-panel__modal-item:hover {
+          background: rgba(255, 255, 255, 0.04);
+          border-color: rgba(255, 255, 255, 0.08);
+        }
+        .bfd-map-panel__modal-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .bfd-map-panel__modal-title {
+          font-size: 0.8rem;
+          font-weight: 700;
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+        }
+        .bfd-map-panel__modal-count {
+          font-size: 0.8rem;
+          font-weight: 700;
+        }
+        .bfd-map-panel__modal-bar-wrap {
+          height: 6px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 3px;
+          overflow: hidden;
+          width: 100%;
+        }
+        .bfd-map-panel__modal-bar-fill {
+          height: 100%;
+          border-radius: 3px;
+          transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .bfd-map-panel__modal-stats {
+          display: flex;
+          justify-content: space-between;
           font-size: 0.72rem;
           color: #cbd5e1;
           font-weight: 500;
-          letter-spacing: 0.02em;
-        }
-        .bfd-map-panel__divider {
-          height: 1px;
-          background: rgba(255, 255, 255, 0.08);
-          margin: 0.2rem 0;
-        }
-        .bfd-map-panel__section-title {
-          font-size: 0.78rem;
-          font-weight: 700;
-          color: #52d69b;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-        }
-        .bfd-map-panel__terminals {
-          display: flex;
-          flex-direction: column;
-          gap: 0.6rem;
+        }em;
           overflow-y: auto;
           flex: 1;
         }
@@ -2093,17 +2696,18 @@ export default function Dashboard() {
         /* ── World Map Tooltip ───────────────────────────────────── */
         .bfd-map-tooltip {
           position: absolute; bottom: 36px; left: 50%; transform: translate3d(-50%, 0, 0);
-          width: 280px; background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 12px; padding: 1.1rem;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.65), inset 0 1px 1px rgba(255,255,255,0.2);
+          width: 290px; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 1.1rem;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.15);
           display: flex; flex-direction: column; gap: 0.8rem; pointer-events: none;
           animation: tooltipFadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           will-change: transform, opacity;
         }
         .bfd-map-tooltip__after {
           content: ''; position: absolute; bottom: -6px; left: 50%; transform: translate3d(-50%, 0, 0) rotate(45deg);
-          width: 10px; height: 10px; background: rgba(15, 23, 42, 0.96);
-          border-right: 1px solid rgba(255, 255, 255, 0.16); border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+          width: 10px; height: 10px; background: rgba(15, 23, 42, 0.94);
+          border-right: 1px solid rgba(255, 255, 255, 0.12); border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .bfd-map-tooltip__header { display: flex; align-items: center; gap: 0.6rem; }
@@ -2124,6 +2728,243 @@ export default function Dashboard() {
         .bfd-map-tooltip__footer { display: flex; justify-content: space-between; align-items: center; }
         .bfd-map-tooltip__supplier { font-size: 0.8rem; color: #cbd5e1; letter-spacing: 0.02em; }
         .bfd-map-tooltip__supplier strong { color: #ffffff; font-weight: 600; }
+        
+        @keyframes bfdBlink {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
+        }
+        .bfd-map-tooltip__hint {
+          font-size: 0.72rem;
+          color: #fbbf24;
+          font-weight: 700;
+          text-align: center;
+          margin-top: 0.2rem;
+          animation: bfdBlink 1.8s infinite;
+          letter-spacing: 0.03em;
+        }
+
+        /* ── Premium Modal overlay ───────────────────────────────── */
+        .bfd-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(8, 10, 18, 0.75);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 99999;
+          animation: bfdModalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          padding: 1rem;
+        }
+        @keyframes bfdModalFadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        .bfd-modal-card {
+          width: 100%;
+          max-width: 620px;
+          max-height: 90vh;
+          background: rgba(15, 23, 42, 0.94);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          border-radius: 18px;
+          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          animation: bfdModalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes bfdModalSlideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bfd-modal-header {
+          padding: 1.25rem 1.5rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .bfd-modal-title-group {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+        .bfd-modal-flag-large {
+          font-size: 2.2rem;
+          line-height: 1;
+        }
+        .bfd-modal-title {
+          font-size: 1.25rem;
+          font-weight: 800;
+          color: #ffffff;
+          letter-spacing: -0.01em;
+          margin: 0;
+        }
+        .bfd-modal-subtitle {
+          font-size: 0.82rem;
+          color: #cbd5e1;
+          margin-top: 0.15rem;
+          display: block;
+          font-weight: 500;
+        }
+        .bfd-modal-close-btn {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          color: #94a3b8;
+          border-radius: 50%;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .bfd-modal-close-btn:hover {
+          background: rgba(255, 255, 255, 0.12);
+          border-color: rgba(255, 255, 255, 0.2);
+          color: #ffffff;
+          transform: rotate(90deg);
+        }
+
+        .bfd-modal-body {
+          padding: 1.5rem;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
+        }
+        
+        .bfd-route-card {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 12px;
+          padding: 1.25rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.85rem;
+          position: relative;
+          overflow: hidden;
+          transition: all 0.3s ease;
+        }
+        .bfd-route-card:hover {
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(255, 255, 255, 0.15);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+          transform: translateY(-2px);
+        }
+
+        .bfd-route-card--maritimo {
+          border-left: 3px solid #52d69b;
+        }
+        .bfd-route-card--aereo {
+          border-left: 3px solid #a78bfa;
+        }
+
+        .bfd-route-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        
+        .bfd-route-ports {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        .bfd-route-port-flag {
+          font-size: 1.15rem;
+        }
+        .bfd-route-port-name {
+          font-size: 0.9rem;
+          font-weight: 700;
+          color: #ffffff;
+        }
+        
+        .bfd-route-arrow-icon {
+          color: rgba(255, 255, 255, 0.4);
+          font-weight: 700;
+          font-size: 0.85rem;
+        }
+        
+        .bfd-route-badge {
+          font-size: 0.72rem;
+          font-weight: 800;
+          padding: 0.25rem 0.6rem;
+          border-radius: 6px;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+        }
+        .bfd-route-badge--maritimo {
+          background: rgba(82, 214, 155, 0.12);
+          color: #52d69b;
+          border: 1px solid rgba(82, 214, 155, 0.2);
+        }
+        .bfd-route-badge--aereo {
+          background: rgba(167, 139, 250, 0.12);
+          color: #a78bfa;
+          border: 1px solid rgba(167, 139, 250, 0.2);
+        }
+
+        .bfd-route-svg-container {
+          margin: 0.25rem 0;
+          width: 100%;
+          height: 30px;
+        }
+
+        .bfd-route-stats {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 0.75rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.06);
+          padding-top: 0.75rem;
+          margin-top: 0.25rem;
+        }
+        .bfd-route-stat-item {
+          display: flex;
+          flex-direction: column;
+          gap: 0.15rem;
+        }
+        .bfd-route-stat-label {
+          font-size: 0.68rem;
+          color: #94a3b8;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.03em;
+        }
+        .bfd-route-stat-value {
+          font-size: 0.8rem;
+          font-weight: 700;
+          color: #ffffff;
+        }
+
+        .bfd-modal-footer {
+          padding: 1rem 1.5rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+          display: flex;
+          justify-content: flex-end;
+          background: rgba(11, 15, 28, 0.5);
+        }
+        .bfd-modal-close-action {
+          padding: 0.5rem 1.25rem;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #ffffff;
+          font-weight: 600;
+          font-size: 0.85rem;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .bfd-modal-close-action:hover {
+          background: rgba(255, 255, 255, 0.12);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
 
         /* ── Globe Map + Câmbio Row ───────────────────────────────── */
         .bfd-globe-row {

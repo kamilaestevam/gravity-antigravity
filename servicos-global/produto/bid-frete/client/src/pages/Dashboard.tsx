@@ -69,44 +69,44 @@ const MAP_PINS: MapPin[] = [
     lng: 82,
     geoLat: 31.2,
     geoLng: 121.5,
-    activeBids: 12,
+    activeBids: 140, // 70% of 200
     bestPrice: 80480,
     savingPct: 23.4,
     mode: 'MARITIMO',
-    supplier: 'Paclcffic Cargo (E96)',
+    supplier: 'Pacific Cargo (E96)',
     flag: '🇨🇳'
   },
   {
     id: 2,
-    label: 'Santos',
-    portCode: 'BRSSZ',
+    label: 'Guarulhos',
+    portCode: 'BRGRU',
     country: 'Brasil',
     lat: 74,
     lng: 39,
-    geoLat: -23.9,
-    geoLng: -46.3,
-    activeBids: 8,
+    geoLat: -23.43,
+    geoLng: -46.47,
+    activeBids: 140, // Destination of 70% (140 bids)
     bestPrice: 18200,
     savingPct: 19.1,
-    mode: 'MARITIMO',
-    supplier: 'Transatlantico SA',
+    mode: 'AEREO',
+    supplier: 'Delta Cargo',
     flag: '🇧🇷'
   },
   {
     id: 3,
-    label: 'Rotterdam',
-    portCode: 'NLRTM',
-    country: 'Holanda',
-    lat: 28,
-    lng: 50,
-    geoLat: 51.9,
-    geoLng: 4.5,
-    activeBids: 15,
+    label: 'Itajaí',
+    portCode: 'BRITI',
+    country: 'Brasil',
+    lat: 76,
+    lng: 38,
+    geoLat: -26.9,
+    geoLng: -48.6,
+    activeBids: 40, // Destination of 20% (40 bids)
     bestPrice: 24500,
     savingPct: 21.0,
     mode: 'MARITIMO',
     supplier: 'EuroFreight Corp',
-    flag: '🇳🇱'
+    flag: '🇧🇷'
   },
   {
     id: 4,
@@ -117,7 +117,7 @@ const MAP_PINS: MapPin[] = [
     lng: 29,
     geoLat: 25.8,
     geoLng: -80.2,
-    activeBids: 5,
+    activeBids: 40, // 20% of 200
     bestPrice: 8400,
     savingPct: 15.6,
     mode: 'AEREO',
@@ -126,51 +126,35 @@ const MAP_PINS: MapPin[] = [
   },
   {
     id: 5,
-    label: 'Singapore',
-    portCode: 'SGSIN',
-    country: 'Singapura',
-    lat: 56,
-    lng: 78,
-    geoLat: 1.35,
-    geoLng: 103.8,
-    activeBids: 9,
+    label: 'Buenos Aires',
+    portCode: 'ARBUE',
+    country: 'Argentina',
+    lat: 82,
+    lng: 34,
+    geoLat: -34.6,
+    geoLng: -58.4,
+    activeBids: 20, // 10% of 200
     bestPrice: 15300,
     savingPct: 18.8,
     mode: 'MARITIMO',
     supplier: 'Merlion Shipping',
-    flag: '🇸🇬'
+    flag: '🇦🇷'
   },
   {
     id: 6,
-    label: 'Los Angeles',
-    portCode: 'USLAX',
-    country: 'EUA',
-    lat: 38,
-    lng: 15,
-    geoLat: 34.05,
-    geoLng: -118.24,
-    activeBids: 6,
+    label: 'Recife',
+    portCode: 'BRREC',
+    country: 'Brasil',
+    lat: 68,
+    lng: 44,
+    geoLat: -8.05,
+    geoLng: -34.9,
+    activeBids: 20, // Destination of 10% (20 bids)
     bestPrice: 12100,
     savingPct: 14.5,
     mode: 'MARITIMO',
     supplier: 'PacAnchor Logistics',
-    flag: '🇺🇸'
-  },
-  {
-    id: 7,
-    label: 'Frankfurt',
-    portCode: 'DEFRA',
-    country: 'Alemanha',
-    lat: 31,
-    lng: 52,
-    geoLat: 50.11,
-    geoLng: 8.68,
-    activeBids: 4,
-    bestPrice: 7200,
-    savingPct: 12.2,
-    mode: 'AEREO',
-    supplier: 'Lufthansa Cargo',
-    flag: '🇩🇪'
+    flag: '🇧🇷'
   }
 ]
 
@@ -600,15 +584,21 @@ interface ArcRoute {
   fromId: number
   toId: number
   color: string
+  heightFactor?: number // Custom height factor to avoid overlapping curves
 }
 
 const GLOBE_ROUTES: ArcRoute[] = [
-  { fromId: 1, toId: 2, color: 'rgba(82, 214, 155, 0.8)' }, // Shanghai -> Santos (maritime green)
-  { fromId: 1, toId: 6, color: 'rgba(82, 214, 155, 0.8)' }, // Shanghai -> Los Angeles (maritime green)
-  { fromId: 3, toId: 2, color: 'rgba(82, 214, 155, 0.8)' }, // Rotterdam -> Santos (maritime green)
-  { fromId: 5, toId: 3, color: 'rgba(82, 214, 155, 0.8)' }, // Singapore -> Rotterdam (maritime green)
-  { fromId: 4, toId: 7, color: 'rgba(167, 139, 250, 0.8)' }, // Miami -> Frankfurt (air purple)
-  { fromId: 6, toId: 4, color: 'rgba(167, 139, 250, 0.8)' }, // Los Angeles -> Miami (air purple)
+  // 70% China (Shanghai) -> Guarulhos (São Paulo)
+  { fromId: 1, toId: 2, color: 'rgba(82, 214, 155, 0.8)', heightFactor: 0.14 }, // Maritime route (green, slow)
+  { fromId: 1, toId: 2, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.22 }, // Air route (purple, fast)
+
+  // 20% USA (Miami) -> Itajaí
+  { fromId: 4, toId: 3, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.20 }, // Air route (purple, fast)
+  { fromId: 4, toId: 3, color: 'rgba(82, 214, 155, 0.8)', heightFactor: 0.13 }, // Maritime route (green, slow)
+
+  // 10% Argentina (Buenos Aires) -> Recife
+  { fromId: 5, toId: 6, color: 'rgba(82, 214, 155, 0.8)', heightFactor: 0.15 }, // Maritime route (green, slow)
+  { fromId: 5, toId: 6, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.24 }, // Air route (purple, fast)
 ]
 
 // ─── Visão Geral Global (Globo 3D Interativo Premium) ───────────────────────────
@@ -919,7 +909,8 @@ function VisaoGeralMapa() {
           pz /= len
           
           // Dome height factor
-          const height = 1 + 0.16 * Math.sin(t * Math.PI)
+          const hFactor = route.heightFactor || 0.16
+          const height = 1 + hFactor * Math.sin(t * Math.PI)
           px *= height
           py *= height
           pz *= height
@@ -1188,7 +1179,7 @@ function VisaoGeralMapa() {
 
           <div className="bfd-map-panel__stats-row">
             <div className="bfd-map-panel__stat-card">
-              <span className="bfd-map-panel__stat-num">59</span>
+              <span className="bfd-map-panel__stat-num">200</span>
               <span className="bfd-map-panel__stat-lbl">Bids Ativos</span>
             </div>
             <div className="bfd-map-panel__stat-card">
@@ -1222,7 +1213,7 @@ function VisaoGeralMapa() {
                   <span className="bfd-map-panel__terminal-saving">+{pin.savingPct}%</span>
                 </div>
                 <div className="bfd-map-panel__progress-bar">
-                  <div className="bfd-map-panel__progress-fill" style={{ width: `${(pin.activeBids / 15) * 100}%`, backgroundColor: pin.mode === 'AEREO' ? '#a78bfa' : '#52d69b' }} />
+                  <div className="bfd-map-panel__progress-fill" style={{ width: `${(pin.activeBids / 140) * 100}%`, backgroundColor: pin.mode === 'AEREO' ? '#a78bfa' : '#52d69b' }} />
                 </div>
                 <div className="bfd-map-panel__terminal-meta">
                   <span>{pin.activeBids} bids ativos</span>
@@ -1368,7 +1359,7 @@ export default function Dashboard() {
         .bfd-header__icon-btn:hover { background: rgba(255,255,255,0.12); color: #ffffff; }
 
         /* ── KPI Grid ────────────────────────────────────────────── */
-        .bfd-kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.25rem; }
+        .bfd-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
         .bfd-kpi {
           background: rgba(255,255,255,0.04); border-radius: 14px; padding: 1.5rem 1.75rem;
           border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 0.65rem;
@@ -1804,8 +1795,13 @@ export default function Dashboard() {
           <p>Visão geral das cotações de frete</p>
         </div>
         <div className="bfd-header__actions">
-          <button className="bfd-header__icon-btn" title="Exportar"><Export weight="bold" size={18} /></button>
-          <button className="bfd-header__icon-btn" title="Download"><DownloadSimple weight="bold" size={18} /></button>
+          <BotaoGlobal
+            variante="primario"
+            icone={<MagnifyingGlass weight="bold" size={15} />}
+            onClick={() => navigate('/produto/bid-frete/cotacoes/nova')}
+          >
+            Buscar frete
+          </BotaoGlobal>
         </div>
       </div>
 
@@ -1851,38 +1847,6 @@ export default function Dashboard() {
           sparkType="progress"
           sub="Meta: 3 dias"
         />
-
-        {/* 5th Column: Blue "Buscar frete" Action Card */}
-        <div
-          className="bfd-kpi bfd-kpi--action"
-          onClick={() => navigate('/produto/bid-frete/cotacoes/nova')}
-          style={{
-            background: 'linear-gradient(135deg, #1d4ed8, #3b82f6)',
-            border: '1px solid rgba(255,255,255,0.15)',
-          }}
-        >
-          <div style={{
-            width: '44px',
-            height: '44px',
-            borderRadius: '50%',
-            background: 'rgba(255,255,255,0.18)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ffffff',
-          }}>
-            <MagnifyingGlass weight="bold" size={22} />
-          </div>
-          <span style={{
-            fontSize: '0.92rem',
-            fontWeight: '600',
-            color: '#ffffff',
-            letterSpacing: '0.02em',
-            marginTop: '0.25rem'
-          }}>
-            Buscar frete
-          </span>
-        </div>
       </div>
 
       {/* Row 2: Globe Map + Câmbio card */}

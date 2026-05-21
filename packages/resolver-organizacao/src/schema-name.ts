@@ -40,6 +40,7 @@ export function buildSchemaName(idOrganizacao: string): string {
   }
 
   if (!CUID_REGEX.test(idOrganizacao)) {
+    console.error('[buildSchemaName] REJEITADO — idOrganizacao recebido:', JSON.stringify(idOrganizacao), 'length:', idOrganizacao.length, 'chars:', [...idOrganizacao].map(c => c.charCodeAt(0)))
     throw new AppError('idOrganizacao não é um CUID válido', 400, 'INVALID_ORGANIZACAO_ID');
   }
 

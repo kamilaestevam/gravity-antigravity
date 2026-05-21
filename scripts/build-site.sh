@@ -11,7 +11,10 @@ echo "[build-site] Starting full build pipeline..."
 npm ci --include=dev
 
 # 1b. Build workspace packages required by sidecars
+echo "[build-site] Building @gravity/resolver-organizacao..."
 cd packages/resolver-organizacao && npx tsup && cd ../..
+# Ensure dist is available even if npm used copy instead of symlink
+cp -r packages/resolver-organizacao/dist node_modules/@gravity/resolver-organizacao/dist
 
 # 2. Generate Prisma clients for all databases
 npx prisma generate --schema=configurador/prisma/schema.prisma

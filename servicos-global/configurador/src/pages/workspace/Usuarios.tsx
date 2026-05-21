@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUser } from '@clerk/clerk-react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { Users, UserCircleCheck, PauseCircle, PlayCircle, PencilSimple, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, User, EnvelopeSimple, ShieldCheck, Crown, Buildings } from '@phosphor-icons/react'
+import { Users, UserCircleCheck, PauseCircle, PlayCircle, PencilSimple, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, User, EnvelopeSimple, ShieldCheck, Crown, Buildings, ArrowClockwise } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -333,6 +333,7 @@ export function Usuarios() {
   const [fTipo, setFTipo]       = useState<NivelAcesso>('Standard')
   const [fTodosWorkspaces, setFTodosWorkspaces] = useState(true)
   const [fWorkspacesSelecionados, setFWorkspacesSelecionados] = useState<string[]>([])
+  const [convidando, setConvidando] = useState(false)
 
   const [usuarioEditando, setUsuarioEditando] = useState<UsuarioOrg | null>(null)
   const [abaEditando, setAbaEditando] = useState<string>('dados')
@@ -355,6 +356,7 @@ export function Usuarios() {
 
   async function handleInvite() {
     if (!fNome.trim() || !fEmail.trim()) return
+    setConvidando(true)
     try {
       // Map UI label → enum canônico do backend (PADRAO/MASTER/FORNECEDOR).
       // Super Admin/Admin não convidam por aqui — caem para PADRAO defensivamente.
@@ -414,6 +416,8 @@ export function Usuarios() {
         type: 'error',
         message: extractCatchError(err, 'Falha ao convidar usuário. Tente novamente.'),
       })
+    } finally {
+      setConvidando(false)
     }
     setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]); setShowForm(false)
   }
@@ -477,6 +481,22 @@ export function Usuarios() {
       addNotification({
         type: 'error',
         message: err instanceof Error ? err.message : 'Falha ao cancelar convite.',
+      })
+    }
+  }
+
+  async function handleReenviarConvite(u: UsuarioOrg) {
+    if (u.status_usuario !== 'CONVIDADO') return
+    try {
+      await usuariosApi.reenviarConvite(u.id_usuario)
+      addNotification({
+        type: 'success',
+        message: `Convite reenviado para ${u.email_usuario}.`,
+      })
+    } catch (err) {
+      addNotification({
+        type: 'error',
+        message: extractCatchError(err, 'Falha ao reenviar convite.'),
       })
     }
   }
@@ -661,6 +681,33 @@ export function Usuarios() {
   // (renderCustom retornando null quando ator não pode editar). `suspend`
   // segue como ação UI-only (status local).
   const ACOES: TabelaGlobalAcao<UsuarioOrg>[] = [
+    {
+      id: 'resend-invite',
+      icone: <ArrowClockwise size={15} weight="bold" />,
+      tooltip: 'Reenviar Convite',
+      onClick: handleReenviarConvite,
+      renderCustom: (item) => {
+        if (item.status_usuario !== 'CONVIDADO') return null
+        return (
+          <TooltipGlobal descricao="Reenviar e-mail de convite para este usuário">
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); void handleReenviarConvite(item) }}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: 28, height: 28, borderRadius: '50%',
+                background: 'transparent', border: '1px solid transparent',
+                color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+              }}
+              onMouseEnter={(ev) => { ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = '#818cf8' }}
+              onMouseLeave={(ev) => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+            >
+              <ArrowClockwise size={15} weight="bold" />
+            </button>
+          </TooltipGlobal>
+        )
+      },
+    },
     {
       id: 'permissions',
       icone: <Key size={15} weight="bold" />,
@@ -1022,7 +1069,8 @@ export function Usuarios() {
         tamanho="md"
         altura={(fTipo === 'Standard' || fTipo === 'Fornecedor') ? '600px' : '480px'}
         dirty={!!(fNome || fEmail)}
-        podesSalvar={requisitosConvite.every(r => r.ok)}
+        podesSalvar={requisitosConvite.every(r => r.ok) && !convidando}
+        carregando={convidando}
       >
         <BannerRequisitosContexto requisitos={requisitosConvite}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

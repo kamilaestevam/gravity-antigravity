@@ -1820,6 +1820,64 @@ body.light-theme .sw-topbar {
    LIGHT THEME OVERRIDES — Elementos com cores hardcoded
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* ── Topbar: separação visual com borda + sombra sutil ── */
+body.light-theme .sw-topbar {
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+/* ── Subtítulo "Selecione o workspace..." (era #cbd5e1 = invisível) ── */
+body.light-theme .sw-ws-sub {
+  color: #64748b;
+}
+
+/* ── Ícone e placeholder da busca (eram #cbd5e1 = invisível) ── */
+body.light-theme .sw-ws-search-icon {
+  color: #94a3b8;
+}
+
+body.light-theme .sw-ws-search::placeholder {
+  color: #94a3b8;
+}
+
+/* ── Workspace cards: profundidade via sombra ── */
+body.light-theme .sw-ws-card {
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+body.light-theme .sw-ws-card:hover {
+  border-color: #818cf8;
+  background: rgba(79, 70, 229, 0.03);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15), 0 8px 24px rgba(15, 23, 42, 0.1);
+}
+
+body.light-theme .sw-ws-card:hover::after {
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(79, 70, 229, 0.06) 0%, transparent 70%);
+}
+
+/* ── Card selecionado: borda mais sutil, fundo accent-soft ── */
+body.light-theme .sw-ws-card.selected {
+  border-color: #818cf8;
+  background: #eef2ff;
+  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.2), 0 4px 16px rgba(79, 70, 229, 0.1);
+}
+
+body.light-theme .sw-ws-card.selected:hover {
+  border-color: #6366f1;
+  background: #e0e7ff;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.25), 0 8px 24px rgba(15, 23, 42, 0.1);
+}
+
+body.light-theme .sw-ws-card.selected::after {
+  background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(79, 70, 229, 0.04) 0%, transparent 70%);
+}
+
+body.light-theme .sw-ws-card.selected:hover::after {
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(79, 70, 229, 0.06) 0%, transparent 70%);
+}
+
 /* Workspace card: role, stats label, stats border */
 body.light-theme .sw-ws-role {
   color: #64748b;
@@ -1831,6 +1889,21 @@ body.light-theme .sw-ws-stats {
 
 body.light-theme .sw-ws-stat-l {
   color: #64748b;
+}
+
+/* ── Setas do carrossel: sombra light-appropriate ── */
+body.light-theme .sw-carousel-btn {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #475569;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .sw-carousel-btn:hover {
+  background: #f8fafc;
+  border-color: #818cf8;
+  color: #4f46e5;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
 }
 
 /* "Criar novo workspace" card */
@@ -1845,9 +1918,32 @@ body.light-theme .sw-ws-add-card:hover {
   background: rgba(79, 70, 229, 0.05);
 }
 
+/* ── GABI AI card: sombra para integrar com fundo claro ── */
+body.light-theme .sw-gabi-card {
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.2);
+}
+
 /* Section count badge */
 body.light-theme .sw-sec-count {
   color: #475569;
+  background: #f1f5f9;
+}
+
+/* ── Seção de Produtos: bordas e separadores mais visíveis ── */
+body.light-theme .sw-sec-header {
+  border-bottom-color: #e2e8f0;
+}
+
+body.light-theme .sw-prod-panel {
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+body.light-theme .sw-prod-panel-head {
+  border-bottom-color: #e2e8f0;
+}
+
+body.light-theme .sw-prod-item:hover {
   background: #f1f5f9;
 }
 
@@ -1861,9 +1957,33 @@ body.light-theme .sw-prod-empty-desc {
   color: #64748b;
 }
 
+/* ── Shortcuts panel ── */
+body.light-theme .sw-shortcuts-panel {
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+body.light-theme .sw-shortcuts-head {
+  border-bottom-color: #e2e8f0;
+}
+
+body.light-theme .sw-shortcuts-grid {
+  background: #e2e8f0;
+}
+
+body.light-theme .sw-shortcut-item:hover {
+  background: #f1f5f9;
+}
+
 /* Shortcut descriptions */
 body.light-theme .sw-sh-desc {
   color: #64748b;
+}
+
+/* ── Gabi panel ── */
+body.light-theme .sw-gabi-panel {
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 }
 
 /* Gabi subtitle */
@@ -1871,11 +1991,59 @@ body.light-theme .sw-gabi-sub {
   color: #64748b;
 }
 
+/* ── Insight cards dentro do Gabi panel ── */
+body.light-theme .sw-insight-card {
+  border-color: #e2e8f0;
+}
+
+body.light-theme .sw-insight-card:hover {
+  background: #f1f5f9;
+}
+
+/* ── Status badges: contraste melhorado para light ── */
+body.light-theme .hb-prod-status--active,
+body.light-theme .sw-b-active {
+  background: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
+}
+
+body.light-theme .sw-b-promo {
+  background: rgba(180, 83, 9, 0.08);
+  color: #b45309;
+}
+
+body.light-theme .sw-badge-popular {
+  background: rgba(180, 83, 9, 0.08);
+  color: #b45309;
+}
+
+/* ── Botão "Acessar" no light: verde com contraste ── */
+body.light-theme .sw-btn-acessar {
+  border-color: rgba(22, 163, 74, 0.3);
+  background: rgba(22, 163, 74, 0.06);
+  color: #16a34a;
+}
+
+body.light-theme .sw-btn-acessar:hover {
+  background: rgba(22, 163, 74, 0.12);
+  border-color: rgba(22, 163, 74, 0.5);
+}
+
 /* Shine/shimmer superior do card (branco invisível em fundo claro) */
 body.light-theme .sw-ws-card::before {
-  background: linear-gradient(90deg, transparent, rgba(99,102,241,0.12), transparent);
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,0.08), transparent);
 }
 
 body.light-theme .sw-ws-card:hover::before {
-  background: linear-gradient(90deg, transparent, rgba(99,102,241,0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,0.15), transparent);
+}
+
+/* ── Scrollbar: tom claro ── */
+body.light-theme .sw-page::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+/* ── Activity items border ── */
+body.light-theme .sw-prod-list .sw-prod-item + .sw-prod-item {
+  border-top: 1px solid #f1f5f9;
 }

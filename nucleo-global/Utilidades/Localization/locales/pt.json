@@ -361,9 +361,7 @@
     "central_ajuda": "Central de Ajuda",
     "novidades": "Novidades",
     "sair": "Sair do Sistema",
-    "seguranca_acesso": "Segurança e Acesso",
-    "preferencias": "Preferências",
-    "ir_marketplace": "Ir para o Marketplace"
+    "ir_marketplace": "Ir para Gravity Store"
   },
   "login": {
     "recuperar_senha_titulo": "Recuperar senha",

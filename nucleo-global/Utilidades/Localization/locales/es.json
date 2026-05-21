@@ -272,9 +272,7 @@
     "central_ajuda": "Centro de Ayuda",
     "novidades": "Novedades",
     "sair": "Cerrar Sesión",
-    "seguranca_acesso": "Seguridad y Acceso",
-    "preferencias": "Preferencias",
-    "ir_marketplace": "Ir al Marketplace"
+    "ir_marketplace": "Ir a Gravity Store"
   },
   "login": {
     "recuperar_senha_titulo": "Recuperar contraseña",

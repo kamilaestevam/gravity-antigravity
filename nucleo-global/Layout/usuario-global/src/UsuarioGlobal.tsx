@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CaretDown, ShieldCheck, Gear, Sliders, Storefront, Moon, Sun, Robot, Sparkle, SignOut, Crown } from '@phosphor-icons/react'
+import { CaretDown, Gear, Sliders, Storefront, Moon, Sun, Sparkle, SignOut, Crown } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './usuario-global.css'
 
@@ -118,19 +118,6 @@ export function UsuarioGlobal({
           <div className="ws-profile-separator" />
 
           <div className="ws-profile-section">
-            <button className="ws-profile-item" type="button" disabled>
-              <ShieldCheck weight="duotone" size={16} /> {t('admin.security.titulo', 'Segurança e Acesso')}
-              <span className="ws-profile-badge-soon">{t('comum.em_breve')}</span>
-            </button>
-            <button className="ws-profile-item" type="button" disabled>
-              <Gear weight="duotone" size={16} /> {t('shell.menu.configuracoes', 'Preferências')}
-              <span className="ws-profile-badge-soon">{t('comum.em_breve')}</span>
-            </button>
-          </div>
-
-          <div className="ws-profile-separator" />
-
-          <div className="ws-profile-section">
             {!isAdminPanel && (
               <>
                 {canAccessWorkspace ? (
@@ -154,7 +141,7 @@ export function UsuarioGlobal({
                   type="button"
                   onClick={() => { onNavigateMarketPlace(); setIsProfileOpen(false) }}
                 >
-                  <Storefront weight="duotone" size={16} /> {t('usuario.ir_marketplace', 'Ir para Market Place')}
+                  <Storefront weight="duotone" size={16} /> {t('usuario.ir_marketplace', 'Ir para Gravity Store')}
                 </button>
 
                 {hasAdminPrivileges && (
@@ -190,10 +177,6 @@ export function UsuarioGlobal({
             >
               {isLight ? <Moon weight="duotone" size={16} /> : <Sun weight="duotone" size={16} />}
               {t('usuario.alternar_tema', { tema: isLight ? t('shell.label_tema_escuro') : t('shell.label_tema_claro') })}
-            </button>
-            <button className="ws-profile-item" type="button" disabled>
-              <Robot weight="duotone" size={16} /> {t('usuario.central_ajuda', 'Central de Ajuda')}
-              <span className="ws-profile-badge-soon">{t('comum.em_breve')}</span>
             </button>
             <button className="ws-profile-item" type="button" disabled>
               <Sparkle weight="duotone" size={16} /> {t('usuario.novidades', 'Novidades')}

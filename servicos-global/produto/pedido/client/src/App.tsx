@@ -36,9 +36,13 @@ const ID_NAV_PARA_SECAO: Record<string, SecaoPedido> = {
 injectTenantGetter(() => useShellStore.getState().currentUser?.idOrganizacao)
 
 // Injeta o getter de id_workspace — exigido pelo middleware verificarAcessoProduto
-// (Portão 3 / Mandamento 04) no backend do Pedido. Workspace ativo mora em
-// sessionStorage('gravity_company_id'), definido pelo Shell em SelecionarWorkspace.tsx.
+// (Portão 3 / Mandamento 04) no backend do Pedido. A fonte canônica do workspace
+// ativo é o shell store (`idWorkspaceAtivo`, populado pelo useMeSync no login).
+// O sessionStorage('gravity_company_id') só é preenchido quando o usuário troca
+// de workspace manualmente — logo, é apenas fallback.
 injectWorkspaceGetter(() => {
+  const idStore = useShellStore.getState().idWorkspaceAtivo
+  if (idStore) return idStore
   try { return sessionStorage.getItem('gravity_company_id') || undefined }
   catch { return undefined }
 })

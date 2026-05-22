@@ -1136,11 +1136,11 @@ function VisaoGeralMapa({ onOpenCompleto }) {
                                         ctx.beginPath();
                                         if (isMaritime) {
                                             ctx.rect(-2, -1.5, 3, 3);
-                                            ctx.fillStyle = coreCol; // core for ship containers
+                                            ctx.fillStyle = coreCol; // green core for ship containers
                                         }
                                         else {
                                             ctx.arc(1, 0, 1.5, 0, Math.PI * 2);
-                                            ctx.fillStyle = coreCol; // core for plane cockpit
+                                            ctx.fillStyle = coreCol; // purple core for plane cockpit
                                         }
                                         ctx.shadowBlur = 0;
                                         ctx.fill();
@@ -1149,7 +1149,7 @@ function VisaoGeralMapa({ onOpenCompleto }) {
                                     else {
                                         ctx.beginPath();
                                         ctx.arc(pulseSx, pulseSy, size, 0, Math.PI * 2);
-                                        ctx.fillStyle = route.color.replace('0.8', (opacity * 0.85).toString());
+                                        ctx.fillStyle = routeStrokeColor.replace('0.85', (opacity * 0.85).toString()).replace('0.8', (opacity * 0.85).toString());
                                         ctx.shadowBlur = 0;
                                         ctx.globalAlpha = opacity;
                                         ctx.fill();
@@ -1243,7 +1243,9 @@ function VisaoGeralMapa({ onOpenCompleto }) {
         velocityRef.current.x = dy * 0.0055;
         dragStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     };
-    return (_jsxs("div", { className: "bfd-card bfd-map-card bfd-card--accent-amber", children: [_jsxs("div", { className: "bfd-map-card__header", style: { marginBottom: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }, children: [_jsxs("div", { children: [_jsxs("div", { className: "cg-card__header", style: { marginBottom: '0.4rem' }, children: [_jsx("div", { className: "cg-card__icon-wrap", children: _jsx(Globe, { weight: "duotone", size: 16, style: { color: '#fbbf24' } }) }), _jsx("p", { className: "cg-card__label", style: { margin: 0 }, children: "Vis\u00E3o Geral Global de Cota\u00E7\u00F5es" })] }), _jsx("span", { style: { fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }, children: mapaModo === 'transit' ? "Benchmarking de Transit Time global (Sua Empresa vs. M\u00E9dia de Mercado)" : "Localiza\u00E7\u00F5es estrat\u00E9gicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)" })] }), _jsxs("div", { style: {
+    return (_jsxs("div", { className: "bfd-card bfd-map-card bfd-card--accent-amber", children: [_jsxs("div", { className: "bfd-map-card__header", style: { marginBottom: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }, children: [_jsxs("div", { children: [_jsxs("div", { className: "cg-card__header", style: { marginBottom: '0.4rem' }, children: [_jsx("div", { className: "cg-card__icon-wrap", children: _jsx(Globe, { weight: "duotone", size: 16, style: { color: '#fbbf24' } }) }), _jsx("p", { className: "cg-card__label", style: { margin: 0 }, children: "Vis\u00E3o Geral Global de Cota\u00E7\u00F5es" })] }), _jsx("span", { style: { fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }, children: mapaModo === 'transit'
+                                    ? 'Benchmarking de Transit Time global (Sua Empresa vs. Média de Mercado)'
+                                    : 'Localizações estratégicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)' })] }), _jsxs("div", { style: {
                             display: 'inline-flex',
                             background: 'rgba(255, 255, 255, 0.04)',
                             border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -1278,7 +1280,12 @@ function VisaoGeralMapa({ onOpenCompleto }) {
                                     gap: '6px',
                                     transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                                     boxShadow: mapaModo === 'transit' ? '0 0 10px rgba(52, 211, 153, 0.1)' : 'none',
-                                }, children: [_jsx(Clock, { size: 13, weight: "bold" }), _jsx("span", { children: "Transit Time" })] })] })] }), _jsxs("div", { className: "bfd-map-container", children: [_jsxs("div", { className: "bfd-map-canvas-wrapper", onMouseDown: handleMouseDown, onMouseMove: handleMouseMove, onMouseUp: handleMouseUpOrLeave, onMouseLeave: handleMouseUpOrLeave, onTouchStart: handleTouchStart, onTouchMove: handleTouchMove, onTouchEnd: handleMouseUpOrLeave, style: { cursor: isDraggingRef.current ? 'grabbing' : 'grab', userSelect: 'none', touchAction: 'none' }, children: [_jsx("canvas", { ref: canvasRef, style: { width: '100%', height: '100%', display: 'block' } }), _jsx("div", { className: "bfd-map-legend-floating", style: { display: 'flex', flexDirection: 'column', gap: '0.35rem', alignItems: 'flex-start' }, children: mapaModo === 'transit' ? _jsxs(_Fragment, { children: [_jsx("div", { style: { fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.15rem' }, children: "Efici\u00EAncia (Cliente vs. Mercado)" }), _jsxs("span", { className: "bfd-map-legend__item", style: { fontSize: '0.72rem', fontWeight: 600 }, children: [_jsx("span", { style: { width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#34d399', display: 'inline-block', marginRight: '6px', boxShadow: '0 0 6px rgba(52, 211, 153, 0.6)' } }), "Empresa mais r\u00E1pida (Verde)"] }), _jsxs("span", { className: "bfd-map-legend__item", style: { fontSize: '0.72rem', fontWeight: 600 }, children: [_jsx("span", { style: { width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#fbbf24', display: 'inline-block', marginRight: '6px', boxShadow: '0 0 6px rgba(251, 191, 36, 0.6)' } }), "Dentro do mercado (Amarelo)"] }), _jsxs("span", { className: "bfd-map-legend__item", style: { fontSize: '0.72rem', fontWeight: 600 }, children: [_jsx("span", { style: { width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#f87171', display: 'inline-block', marginRight: '6px', boxShadow: '0 0 6px rgba(248, 113, 113, 0.6)' } }), "Gargalo / Lenta (Vermelho)"] })] }) : _jsxs(_Fragment, { children: [_jsxs("span", { className: "bfd-map-legend__item", children: [_jsx(Anchor, { size: 15, weight: "bold", style: { color: '#34d399' } }), " Mar\u00EDtimo"] }), _jsxs("span", { className: "bfd-map-legend__item", children: [_jsx(AirplaneTilt, { size: 15, weight: "bold", style: { color: '#a78bfa' } }), " A\u00E9reo"] })] }) }), _jsxs("div", { className: "bfd-map-controls", children: [_jsx("button", { onClick: handleZoomIn, title: "Aumentar Zoom", className: "bfd-map-control-btn", children: _jsx(Plus, { size: 16, weight: "bold" }) }), _jsx("button", { onClick: handleZoomOut, title: "Diminuir Zoom", className: "bfd-map-control-btn", children: _jsx(Minus, { size: 16, weight: "bold" }) }), _jsx("button", { onClick: handleReset, title: "Restaurar Globo", className: "bfd-map-control-btn", children: _jsx(ArrowCounterClockwise, { size: 16, weight: "bold" }) }), _jsx("button", { onClick: toggleRotation, title: isAutoRotating ? "Pausar Rotação" : "Iniciar Rotação", className: "bfd-map-control-btn", children: isAutoRotating ? _jsx(Pause, { size: 16, weight: "bold" }) : _jsx(Play, { size: 16, weight: "bold" }) })] }), projectedPins.map(pin => {
+                                }, children: [_jsx(Clock, { size: 13, weight: "bold" }), _jsx("span", { children: "Transit Time" })] })] })] }), _jsxs("div", { className: "bfd-map-container", children: [_jsxs("div", { className: "bfd-map-canvas-wrapper", onMouseDown: handleMouseDown, onMouseMove: handleMouseMove, onMouseUp: handleMouseUpOrLeave, onMouseLeave: handleMouseUpOrLeave, onTouchStart: handleTouchStart, onTouchMove: handleTouchMove, onTouchEnd: handleMouseUpOrLeave, style: { cursor: isDraggingRef.current ? 'grabbing' : 'grab', userSelect: 'none', touchAction: 'none' }, children: [_jsx("canvas", { ref: canvasRef, style: { width: '100%', height: '100%', display: 'block' } }), _jsx("div", { className: "bfd-map-legend-floating", style: {
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '0.35rem',
+                                    alignItems: 'flex-start',
+                                }, children: mapaModo === 'transit' ? (_jsxs(_Fragment, { children: [_jsx("div", { style: { fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.15rem' }, children: "Efici\u00EAncia (Cliente vs. Mercado)" }), _jsxs("span", { className: "bfd-map-legend__item", style: { fontSize: '0.72rem', fontWeight: 600 }, children: [_jsx("span", { style: { width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#34d399', display: 'inline-block', marginRight: '6px', boxShadow: '0 0 6px rgba(52, 211, 153, 0.6)' } }), "Empresa mais r\u00E1pida (Verde)"] }), _jsxs("span", { className: "bfd-map-legend__item", style: { fontSize: '0.72rem', fontWeight: 600 }, children: [_jsx("span", { style: { width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#fbbf24', display: 'inline-block', marginRight: '6px', boxShadow: '0 0 6px rgba(251, 191, 36, 0.6)' } }), "Dentro do mercado (Amarelo)"] }), _jsxs("span", { className: "bfd-map-legend__item", style: { fontSize: '0.72rem', fontWeight: 600 }, children: [_jsx("span", { style: { width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#f87171', display: 'inline-block', marginRight: '6px', boxShadow: '0 0 6px rgba(248, 113, 113, 0.6)' } }), "Gargalo / Lenta (Vermelho)"] })] })) : (_jsxs(_Fragment, { children: [_jsxs("span", { className: "bfd-map-legend__item", children: [_jsx(Anchor, { size: 15, weight: "bold", style: { color: '#34d399' } }), " Mar\u00EDtimo"] }), _jsxs("span", { className: "bfd-map-legend__item", children: [_jsx(AirplaneTilt, { size: 15, weight: "bold", style: { color: '#a78bfa' } }), " A\u00E9reo"] })] })) }), _jsxs("div", { className: "bfd-map-controls", children: [_jsx("button", { onClick: handleZoomIn, title: "Aumentar Zoom", className: "bfd-map-control-btn", children: _jsx(Plus, { size: 16, weight: "bold" }) }), _jsx("button", { onClick: handleZoomOut, title: "Diminuir Zoom", className: "bfd-map-control-btn", children: _jsx(Minus, { size: 16, weight: "bold" }) }), _jsx("button", { onClick: handleReset, title: "Restaurar Globo", className: "bfd-map-control-btn", children: _jsx(ArrowCounterClockwise, { size: 16, weight: "bold" }) }), _jsx("button", { onClick: toggleRotation, title: isAutoRotating ? "Pausar Rotação" : "Iniciar Rotação", className: "bfd-map-control-btn", children: isAutoRotating ? _jsx(Pause, { size: 16, weight: "bold" }) : _jsx(Play, { size: 16, weight: "bold" }) })] }), projectedPins.map(pin => {
                                 if (pin.opacity <= 0.05)
                                     return null;
                                 const isHovered = hoveredPin === pin.id;
@@ -1302,157 +1309,130 @@ function VisaoGeralMapa({ onOpenCompleto }) {
                                                 backgroundColor: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399',
                                                 boxShadow: pin.mode === 'AEREO' ? '0 0 10px rgba(167, 139, 250, 0.6)' : '0 0 10px rgba(52, 211, 153, 0.6)'
                                             }, children: _jsx("span", { className: "bfd-map-pin__icon-inner", children: Icon }) }), isHovered && pin.opacity > 0.7 && (_jsxs("div", { className: "bfd-map-tooltip", children: [_jsxs("div", { className: "bfd-map-tooltip__header", children: [_jsx("span", { className: "bfd-map-tooltip__flag", children: pin.flag }), _jsxs("div", { className: "bfd-map-tooltip__title-wrap", children: [_jsx("span", { className: "bfd-map-tooltip__title", children: pin.label }), _jsxs("span", { className: "bfd-map-tooltip__subtitle", children: [pin.portCode, " \u2022 ", pin.country] })] })] }), _jsxs("div", { className: "bfd-map-tooltip__body", children: [_jsxs("div", { className: "bfd-map-tooltip__stat", children: [_jsx("span", { className: "bfd-map-tooltip__stat-label", children: "Bids Ativos" }), _jsxs("span", { className: "bfd-map-tooltip__stat-val", children: [pin.activeBids, " cota\u00E7\u00F5es"] })] }), _jsxs("div", { className: "bfd-map-tooltip__stat", children: [_jsx("span", { className: "bfd-map-tooltip__stat-label", children: "Melhor Pre\u00E7o" }), _jsxs("span", { className: "bfd-map-tooltip__stat-val", style: { color: '#ffffff' }, children: ["USD ", fmtMoeda(pin.bestPrice)] })] }), _jsxs("div", { className: "bfd-map-tooltip__stat", children: [_jsx("span", { className: "bfd-map-tooltip__stat-label", children: "Saving M\u00E9dio" }), _jsxs("span", { className: "bfd-map-tooltip__stat-val", style: { color: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399', fontWeight: 700 }, children: ["+", pin.savingPct, "%"] })] })] }), _jsxs("div", { className: "bfd-map-tooltip__footer", style: { display: 'flex', flexDirection: 'column', gap: '0.4rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem', marginTop: '0.2rem' }, children: [_jsx("div", { style: { display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }, children: _jsxs("span", { className: "bfd-map-tooltip__supplier", style: { fontSize: '0.78rem' }, children: ["Forn: ", _jsx("strong", { children: pin.supplier })] }) }), _jsx("div", { className: "bfd-map-tooltip__hint", children: "\uD83D\uDC49 Clique para ver rotas" })] }), _jsx("div", { className: "bfd-map-tooltip__after" })] }))] }, pin.id));
-                            })] }), _jsx("div", { className: "bfd-hud-container", children: mapaModo === 'transit' ? (
-                _jsxs("div", { className: "bfd-map-right-panel bfd-map-right-panel--transit", style: { background: 'rgba(11, 14, 20, 0.45)', border: '1px solid rgba(52, 211, 153, 0.15)', boxShadow: '0 8px 32px 0 rgba(0,0,0,0.5), 0 0 16px rgba(52, 211, 153, 0.08)' }, children: [
-                    _jsxs("div", { className: "bfd-map-panel__header", children: [
-                        _jsxs("div", { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' }, children: [
-                            _jsx("span", { className: "bfd-map-panel__title", style: { color: '#34d399', textShadow: '0 0 10px rgba(52, 211, 153, 0.2)' }, children: "Transit Benchmark" }),
-                            _jsxs("div", { style: { display: 'flex', alignItems: 'center', gap: '5px' }, children: [
-                                _jsx("span", { className: "bfd-map-panel__live-dot", style: { backgroundColor: '#10b981', boxShadow: '0 0 8px #10b981' } }),
-                                _jsx("span", { style: { fontSize: '0.62rem', fontWeight: 800, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.06em' }, children: "ATIVO" })
-                            ] })
-                        ] }),
-                        _jsx("span", { className: "bfd-map-panel__subtitle", children: "Sua Empresa vs. M\u00E9dia de Mercado" })
-                    ] }),
-                    _jsxs("div", { style: {
-                            background: 'rgba(255, 255, 255, 0.03)',
-                            border: '1px solid rgba(255, 255, 255, 0.06)',
-                            borderRadius: '8px',
-                            padding: '0.65rem',
-                            margin: '0 0.75rem 0.75rem',
-                            fontSize: '0.78rem',
-                            color: '#cbd5e1'
-                        }, children: [
-                            _jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontWeight: 700 }, children: [
-                                _jsx("span", { children: "Efici\u00EAncia M\u00E9dia Geral" }),
-                                _jsx("span", { style: { color: '#34d399' }, children: "+14.2% mais r\u00E1pido" })
-                            ] }),
-                            _jsxs("span", { style: { fontSize: '0.7rem', color: '#94a3b8' }, children: [
-                                    "Suas rotas ativas est\u00E3o em m\u00E9dia ",
-                                    _jsx("strong", { children: "3.1 dias" }),
-                                    " \u00E0 frente do benchmark log\u00EDstico internacional."
-                                ] })
-                        ] }),
-                    _jsx("div", { className: "bfd-map-panel__list", style: { padding: '0 0.75rem 0.75rem', height: 'calc(100% - 100px)', overflowY: 'auto' }, children: GLOBE_ROUTES.map((route, idx) => {
-                            const fromPin = MAP_PINS.find(p => p.id === route.fromId) || { label: 'Shanghai', flag: '🇨🇳', portCode: 'CNSHA' };
-                            const toPin = MAP_PINS.find(p => p.id === route.toId) || { label: 'Santos', flag: '🇧🇷', portCode: 'BRSSZ' };
-                            const isAir = route.mode === 'AEREO';
-                            const tClient = route.transitTime || 20;
-                            const tMarket = route.marketTransitTime || 23;
-                            const delta = tMarket - tClient;
-                            let statusColor = '#34d399';
-                            let statusBg = 'rgba(52, 211, 153, 0.1)';
-                            let statusText = `+${delta}d mais r\u00E1pido`;
-                            if (delta === 0) {
-                                statusColor = '#fbbf24';
-                                statusBg = 'rgba(251, 191, 36, 0.1)';
-                                statusText = 'Dentro da m\u00E9dia';
-                            }
-                            else if (delta < 0) {
-                                statusColor = '#f87171';
-                                statusBg = 'rgba(248, 113, 113, 0.1)';
-                                statusText = `${Math.abs(delta)}d atrasado`;
-                            }
-                            const isHighlighted = hoveredPin === route.fromId || hoveredPin === route.toId;
-                            return (_jsxs("div", { className: `bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted' : ''}`, style: {
-                                    flexDirection: 'column',
-                                    alignItems: 'stretch',
-                                    gap: '0.4rem',
-                                    padding: '0.6rem 0.5rem',
-                                    marginBottom: '0.5rem',
-                                    background: isHighlighted ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.01)',
-                                    border: isHighlighted ? '1px solid rgba(52, 211, 153, 0.2)' : '1px solid rgba(255,255,255,0.04)',
-                                    borderRadius: '6px',
-                                    cursor: 'pointer',
-                                    height: 'auto'
-                                }, onMouseEnter: () => {
-                                    setHoveredPin(route.fromId);
-                                    isRotationPausedRef.current = true;
-                                }, onMouseLeave: () => {
-                                    setHoveredPin(null);
-                                    isRotationPausedRef.current = false;
-                                }, onClick: () => {
-                                    setSelectedPinForModalResumido(route.fromId);
-                                }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }, children: [_jsxs("div", { style: { display: 'flex', alignItems: 'center', gap: '4px' }, children: [_jsx("span", { style: { fontSize: '0.85rem' }, children: fromPin.flag }), _jsx("strong", { style: { fontSize: '0.78rem', color: '#ffffff' }, children: fromPin.portCode }), _jsx("span", { style: { fontSize: '0.65rem', color: '#64748b' }, children: "\u2794" }), _jsx("span", { style: { fontSize: '0.85rem' }, children: toPin.flag }), _jsx("strong", { style: { fontSize: '0.78rem', color: '#ffffff' }, children: toPin.portCode })] }), _jsxs("span", { style: {
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    gap: '3px',
-                                                    fontSize: '0.62rem',
-                                                    fontWeight: 800,
-                                                    padding: '2px 6px',
-                                                    borderRadius: '12px',
-                                                    background: isAir ? 'rgba(167, 139, 250, 0.12)' : 'rgba(52, 211, 153, 0.12)',
-                                                    color: isAir ? '#c084fc' : '#34d399',
-                                                    border: `1px solid ${isAir ? 'rgba(167, 139, 250, 0.15)' : 'rgba(52, 211, 153, 0.15)'}`,
-                                                    textTransform: 'uppercase',
-                                                }, children: [isAir ? _jsx(AirplaneTilt, { size: 9, weight: "bold" }) : _jsx(Anchor, { size: 9, weight: "bold" }), isAir ? 'Aéreo' : 'Marítimo'] })] }), _jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }, children: [_jsxs("span", { style: { color: '#94a3b8' }, children: ["Sua Empresa: ", _jsx("strong", { style: { color: '#ffffff' }, children: `${tClient}d` }), " vs Mercado: ", _jsx("span", { style: { color: '#cbd5e1' }, children: `${tMarket}d` })] }), _jsx("span", { style: {
-                                                    fontSize: '0.68rem',
-                                                    fontWeight: 700,
-                                                    color: statusColor,
-                                                    padding: '1px 5px',
-                                                    borderRadius: '4px',
-                                                    background: statusBg,
-                                                    boxShadow: `0 0 6px ${statusColor}15`
-                                                }, children: statusText })] }), _jsxs("div", { style: { height: '4px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '2px', overflow: 'hidden', position: 'relative', marginTop: '0.1rem' }, children: [_jsx("div", { style: { position: 'absolute', left: 0, top: 0, height: '100%', width: '100%', background: 'rgba(255,255,255,0.06)' } }), _jsx("div", { style: {
-                                                        position: 'absolute',
-                                                        left: 0,
-                                                        top: 0,
-                                                        height: '100%',
-                                                        width: `${Math.min(100, (tClient / Math.max(tClient, tMarket)) * 100)}%`,
-                                                        background: `linear-gradient(90deg, ${statusColor}dd, ${statusColor})`,
-                                                        boxShadow: `0 0 4px ${statusColor}60`,
-                                                        borderRadius: '2px',
-                                                    } })] })] }, idx));
-                        }) })
-                ] })
-            ) : (
-                _jsxs("div", { className: `bfd-map-right-panel bfd-map-right-panel--${activeTab}`, children: [_jsxs("div", { className: "bfd-map-panel__header", children: [_jsxs("div", { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' }, children: [_jsx("span", { className: "bfd-map-panel__title", children: "Rankings Globais" }), _jsxs("div", { style: { display: 'flex', alignItems: 'center', gap: '5px' }, children: [_jsx("span", { className: "bfd-map-panel__live-dot" }), _jsx("span", { style: { fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }, children: "LIVE FEED" })] })] }), _jsx("span", { className: "bfd-map-panel__subtitle", children: "Rankings em tempo real \u2022 200 bids" })] }), _jsxs("div", { className: "bfd-map-panel__tabs", children: [_jsxs("button", { className: `bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`, onClick: (e) => { e.stopPropagation(); setActiveTab('origens'); }, children: [_jsx(Globe, { size: 13, weight: "bold" }), " Origens"] }), _jsxs("button", { className: `bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`, onClick: (e) => { e.stopPropagation(); setActiveTab('destinos'); }, children: [_jsx(MapPin, { size: 13, weight: "bold" }), " Destinos"] }), _jsxs("button", { className: `bfd-map-panel__tab tab-modal_cotacao_bid_frete_internacional ${activeTab === 'modal_cotacao_bid_frete_internacional' ? 'is-active' : ''}`, onClick: (e) => { e.stopPropagation(); setActiveTab('modal_cotacao_bid_frete_internacional'); }, children: [_jsx(List, { size: 13, weight: "bold" }), " Modais"] })] }), _jsxs("div", { className: "bfd-map-panel__list", children: [activeTab === 'origens' && TOP_ORIGENS.map(item => {
-                                                const hasLink = item.pinId !== null;
-                                                const isHighlighted = hoveredPin === item.pinId && hasLink;
-                                                return (_jsxs("div", { className: `bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`, onMouseEnter: () => {
-                                                        if (item.pinId) {
-                                                            setHoveredPin(item.pinId);
-                                                            isRotationPausedRef.current = true;
-                                                        }
-                                                    }, onMouseLeave: () => {
-                                                        if (item.pinId) {
-                                                            setHoveredPin(null);
-                                                            isRotationPausedRef.current = false;
-                                                        }
-                                                    }, onClick: (e) => {
-                                                        if (item.pinId) {
-                                                            e.stopPropagation();
-                                                            setSelectedPinForModalResumido(item.pinId);
-                                                        }
-                                                    }, children: [_jsx("span", { className: "bfd-map-panel__row-rank", children: item.rank }), _jsx("span", { className: "bfd-map-panel__row-flag", children: item.flag }), _jsxs("div", { className: "bfd-map-panel__row-info", children: [_jsx("span", { className: "bfd-map-panel__row-city", children: item.name }), _jsx("span", { className: "bfd-map-panel__row-code", children: item.code })] }), _jsxs("span", { className: "bfd-map-panel__row-bids", children: [item.count, " bids"] })] }, item.rank));
-                                            }), activeTab === 'destinos' && TOP_DESTINOS.map(item => {
-                                                const hasLink = item.pinId !== null;
-                                                const isHighlighted = hoveredPin === item.pinId && hasLink;
-                                                return (_jsxs("div", { className: `bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`, onMouseEnter: () => {
-                                                        if (item.pinId) {
-                                                            setHoveredPin(item.pinId);
-                                                            isRotationPausedRef.current = true;
-                                                        }
-                                                    }, onMouseLeave: () => {
-                                                        if (item.pinId) {
-                                                            setHoveredPin(null);
-                                                            isRotationPausedRef.current = false;
-                                                        }
-                                                    }, onClick: (e) => {
-                                                        if (item.pinId) {
-                                                            e.stopPropagation();
-                                                            setSelectedPinForModalResumido(item.pinId);
-                                                        }
-                                                    }, children: [_jsx("span", { className: "bfd-map-panel__row-rank", children: item.rank }), _jsx("span", { className: "bfd-map-panel__row-flag", children: item.flag }), _jsxs("div", { className: "bfd-map-panel__row-info", children: [_jsx("span", { className: "bfd-map-panel__row-city", children: item.name }), _jsx("span", { className: "bfd-map-panel__row-code", children: item.code })] }), _jsxs("span", { className: "bfd-map-panel__row-bids", children: [item.count, " bids"] })] }, item.rank));
-                                            }), activeTab === 'modal_cotacao_bid_frete_internacional' && MODAIS_INFO.map((item, idx) => {
-                                                return (_jsxs("div", { className: "bfd-map-panel__row", children: [_jsx("span", { className: "bfd-map-panel__row-rank", children: idx + 1 }), _jsx("span", { className: "bfd-map-panel__modal-icon-wrap", style: { color: item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '#a78bfa' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '#34d399' : '#fbbf24' }, children: MODAL_ICONS[item.modal_cotacao_bid_frete_internacional] || _jsx(Anchor, { size: 14 }) }), _jsxs("div", { className: "bfd-map-panel__row-info", style: { gap: '1px' }, children: [_jsx("span", { className: "bfd-map-panel__row-city", style: { fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }, children: item.label }), _jsxs("span", { className: "bfd-map-panel__row-code", style: { fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }, children: [item.count, " bids"] })] }), _jsxs("div", { style: { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }, children: [_jsxs("span", { className: "bfd-map-panel__row-bids", style: { fontWeight: 800, color: '#ffffff' }, children: [item.pct, "%"] }), _jsx("span", { className: "bfd-map-panel__modal-stat-num", style: { color: '#60a5fa' }, children: item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '+23.4%' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '+19.1%' : '+12.5%' })] })] }, idx));
-                                            })] })] })
-            ) }), selectedPinForModalResumido !== null && (() => {
+                            })] }), _jsx("div", { className: "bfd-hud-container", children: mapaModo === 'transit' ? (_jsxs("div", { className: "bfd-map-right-panel bfd-map-right-panel--transit", style: { background: 'rgba(11, 14, 20, 0.45)', border: '1px solid rgba(52, 211, 153, 0.15)', boxShadow: '0 8px 32px 0 rgba(0,0,0,0.5), 0 0 16px rgba(52, 211, 153, 0.08)' }, children: [_jsxs("div", { className: "bfd-map-panel__header", children: [_jsxs("div", { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' }, children: [_jsx("span", { className: "bfd-map-panel__title", style: { color: '#34d399', textShadow: '0 0 10px rgba(52, 211, 153, 0.2)' }, children: "Transit Benchmark" }), _jsxs("div", { style: { display: 'flex', alignItems: 'center', gap: '5px' }, children: [_jsx("span", { className: "bfd-map-panel__live-dot", style: { backgroundColor: '#10b981', boxShadow: '0 0 8px #10b981' } }), _jsx("span", { style: { fontSize: '0.62rem', fontWeight: 800, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.06em' }, children: "ATIVO" })] })] }), _jsx("span", { className: "bfd-map-panel__subtitle", children: "Sua Empresa vs. M\u00E9dia de Mercado" })] }), _jsxs("div", { style: {
+                                        background: 'rgba(255, 255, 255, 0.03)',
+                                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                                        borderRadius: '8px',
+                                        padding: '0.65rem',
+                                        margin: '0 0.75rem 0.75rem',
+                                        fontSize: '0.78rem',
+                                        color: '#cbd5e1'
+                                    }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontWeight: 700 }, children: [_jsx("span", { children: "Efici\u00EAncia M\u00E9dia Geral" }), _jsx("span", { style: { color: '#34d399' }, children: "+14.2% mais r\u00E1pido" })] }), _jsxs("span", { style: { fontSize: '0.7rem', color: '#94a3b8' }, children: ["Suas rotas ativas est\u00E3o em m\u00E9dia ", _jsx("strong", { children: "3.1 dias" }), " \u00E0 frente do benchmark log\u00EDstico internacional."] })] }), _jsx("div", { className: "bfd-map-panel__list", style: { padding: '0 0.75rem 0.75rem', height: 'calc(100% - 100px)', overflowY: 'auto' }, children: GLOBE_ROUTES.map((route, idx) => {
+                                        const fromPin = MAP_PINS.find(p => p.id === route.fromId) || { label: 'Shanghai', flag: '🇨🇳', portCode: 'CNSHA' };
+                                        const toPin = MAP_PINS.find(p => p.id === route.toId) || { label: 'Santos', flag: '🇧🇷', portCode: 'BRSSZ' };
+                                        const isAir = route.mode === 'AEREO';
+                                        const tClient = route.transitTime || 20;
+                                        const tMarket = route.marketTransitTime || 23;
+                                        const delta = tMarket - tClient;
+                                        let statusColor = '#34d399';
+                                        let statusBg = 'rgba(52, 211, 153, 0.1)';
+                                        let statusText = `+${delta}d mais rápido`;
+                                        if (delta === 0) {
+                                            statusColor = '#fbbf24';
+                                            statusBg = 'rgba(251, 191, 36, 0.1)';
+                                            statusText = 'Dentro da média';
+                                        }
+                                        else if (delta < 0) {
+                                            statusColor = '#f87171';
+                                            statusBg = 'rgba(248, 113, 113, 0.1)';
+                                            statusText = `${Math.abs(delta)}d atrasado`;
+                                        }
+                                        const isHighlighted = hoveredPin === route.fromId || hoveredPin === route.toId;
+                                        return (_jsxs("div", { className: `bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted' : ''}`, style: {
+                                                flexDirection: 'column',
+                                                alignItems: 'stretch',
+                                                gap: '0.4rem',
+                                                padding: '0.6rem 0.5rem',
+                                                marginBottom: '0.5rem',
+                                                background: isHighlighted ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.01)',
+                                                border: isHighlighted ? '1px solid rgba(52, 211, 153, 0.2)' : '1px solid rgba(255,255,255,0.04)',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                height: 'auto'
+                                            }, onMouseEnter: () => {
+                                                setHoveredPin(route.fromId);
+                                                isRotationPausedRef.current = true;
+                                            }, onMouseLeave: () => {
+                                                setHoveredPin(null);
+                                                isRotationPausedRef.current = false;
+                                            }, onClick: () => {
+                                                setSelectedPinForModalResumido(route.fromId);
+                                            }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }, children: [_jsxs("div", { style: { display: 'flex', alignItems: 'center', gap: '4px' }, children: [_jsx("span", { style: { fontSize: '0.85rem' }, children: fromPin.flag }), _jsx("strong", { style: { fontSize: '0.78rem', color: '#ffffff' }, children: fromPin.portCode }), _jsx("span", { style: { fontSize: '0.65rem', color: '#64748b' }, children: "\u2794" }), _jsx("span", { style: { fontSize: '0.85rem' }, children: toPin.flag }), _jsx("strong", { style: { fontSize: '0.78rem', color: '#ffffff' }, children: toPin.portCode })] }), _jsxs("span", { style: {
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                gap: '3px',
+                                                                fontSize: '0.62rem',
+                                                                fontWeight: 800,
+                                                                padding: '2px 6px',
+                                                                borderRadius: '12px',
+                                                                background: isAir ? 'rgba(167, 139, 250, 0.12)' : 'rgba(52, 211, 153, 0.12)',
+                                                                color: isAir ? '#c084fc' : '#34d399',
+                                                                border: `1px solid ${isAir ? 'rgba(167, 139, 250, 0.15)' : 'rgba(52, 211, 153, 0.15)'}`,
+                                                                textTransform: 'uppercase',
+                                                            }, children: [isAir ? _jsx(AirplaneTilt, { size: 9, weight: "bold" }) : _jsx(Anchor, { size: 9, weight: "bold" }), isAir ? 'Aéreo' : 'Marítimo'] })] }), _jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }, children: [_jsxs("span", { style: { color: '#94a3b8' }, children: ["Sua Empresa: ", _jsxs("strong", { style: { color: '#ffffff' }, children: [tClient, "d"] }), " vs Mercado: ", _jsxs("span", { style: { color: '#cbd5e1' }, children: [tMarket, "d"] })] }), _jsx("span", { style: {
+                                                                fontSize: '0.68rem',
+                                                                fontWeight: 700,
+                                                                color: statusColor,
+                                                                padding: '1px 5px',
+                                                                borderRadius: '4px',
+                                                                background: statusBg,
+                                                                boxShadow: `0 0 6px ${statusColor}15`
+                                                            }, children: statusText })] }), _jsxs("div", { style: { height: '4px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '2px', overflow: 'hidden', position: 'relative', marginTop: '0.1rem' }, children: [_jsx("div", { style: { position: 'absolute', left: 0, top: 0, height: '100%', width: '100%', background: 'rgba(255,255,255,0.06)' } }), _jsx("div", { style: {
+                                                                position: 'absolute',
+                                                                left: 0,
+                                                                top: 0,
+                                                                height: '100%',
+                                                                width: `${Math.min(100, (tClient / Math.max(tClient, tMarket)) * 100)}%`,
+                                                                background: `linear-gradient(90deg, ${statusColor}dd, ${statusColor})`,
+                                                                boxShadow: `0 0 4px ${statusColor}60`,
+                                                                borderRadius: '2px',
+                                                            } })] })] }, idx));
+                                    }) })] })) : (_jsxs("div", { className: `bfd-map-right-panel bfd-map-right-panel--${activeTab}`, children: [_jsxs("div", { className: "bfd-map-panel__header", children: [_jsxs("div", { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' }, children: [_jsx("span", { className: "bfd-map-panel__title", children: "Rankings Globais" }), _jsxs("div", { style: { display: 'flex', alignItems: 'center', gap: '5px' }, children: [_jsx("span", { className: "bfd-map-panel__live-dot" }), _jsx("span", { style: { fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }, children: "LIVE FEED" })] })] }), _jsx("span", { className: "bfd-map-panel__subtitle", children: "Rankings em tempo real \u2022 200 bids" })] }), _jsxs("div", { className: "bfd-map-panel__tabs", children: [_jsxs("button", { className: `bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`, onClick: (e) => { e.stopPropagation(); setActiveTab('origens'); }, children: [_jsx(Globe, { size: 13, weight: "bold" }), " Origens"] }), _jsxs("button", { className: `bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`, onClick: (e) => { e.stopPropagation(); setActiveTab('destinos'); }, children: [_jsx(MapPin, { size: 13, weight: "bold" }), " Destinos"] }), _jsxs("button", { className: `bfd-map-panel__tab tab-modal_cotacao_bid_frete_internacional ${activeTab === 'modal_cotacao_bid_frete_internacional' ? 'is-active' : ''}`, onClick: (e) => { e.stopPropagation(); setActiveTab('modal_cotacao_bid_frete_internacional'); }, children: [_jsx(List, { size: 13, weight: "bold" }), " Modais"] })] }), _jsxs("div", { className: "bfd-map-panel__list", children: [activeTab === 'origens' && TOP_ORIGENS.map(item => {
+                                            const hasLink = item.pinId !== null;
+                                            const isHighlighted = hoveredPin === item.pinId && hasLink;
+                                            return (_jsxs("div", { className: `bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`, onMouseEnter: () => {
+                                                    if (item.pinId) {
+                                                        setHoveredPin(item.pinId);
+                                                        isRotationPausedRef.current = true;
+                                                    }
+                                                }, onMouseLeave: () => {
+                                                    if (item.pinId) {
+                                                        setHoveredPin(null);
+                                                        isRotationPausedRef.current = false;
+                                                    }
+                                                }, onClick: (e) => {
+                                                    if (item.pinId) {
+                                                        e.stopPropagation();
+                                                        setSelectedPinForModalResumido(item.pinId);
+                                                    }
+                                                }, children: [_jsx("span", { className: "bfd-map-panel__row-rank", children: item.rank }), _jsx("span", { className: "bfd-map-panel__row-flag", children: item.flag }), _jsxs("div", { className: "bfd-map-panel__row-info", children: [_jsx("span", { className: "bfd-map-panel__row-city", children: item.name }), _jsx("span", { className: "bfd-map-panel__row-code", children: item.code })] }), _jsxs("span", { className: "bfd-map-panel__row-bids", children: [item.count, " bids"] })] }, item.rank));
+                                        }), activeTab === 'destinos' && TOP_DESTINOS.map(item => {
+                                            const hasLink = item.pinId !== null;
+                                            const isHighlighted = hoveredPin === item.pinId && hasLink;
+                                            return (_jsxs("div", { className: `bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`, onMouseEnter: () => {
+                                                    if (item.pinId) {
+                                                        setHoveredPin(item.pinId);
+                                                        isRotationPausedRef.current = true;
+                                                    }
+                                                }, onMouseLeave: () => {
+                                                    if (item.pinId) {
+                                                        setHoveredPin(null);
+                                                        isRotationPausedRef.current = false;
+                                                    }
+                                                }, onClick: (e) => {
+                                                    if (item.pinId) {
+                                                        e.stopPropagation();
+                                                        setSelectedPinForModalResumido(item.pinId);
+                                                    }
+                                                }, children: [_jsx("span", { className: "bfd-map-panel__row-rank", children: item.rank }), _jsx("span", { className: "bfd-map-panel__row-flag", children: item.flag }), _jsxs("div", { className: "bfd-map-panel__row-info", children: [_jsx("span", { className: "bfd-map-panel__row-city", children: item.name }), _jsx("span", { className: "bfd-map-panel__row-code", children: item.code })] }), _jsxs("span", { className: "bfd-map-panel__row-bids", children: [item.count, " bids"] })] }, item.rank));
+                                        }), activeTab === 'modal_cotacao_bid_frete_internacional' && MODAIS_INFO.map((item, idx) => {
+                                            return (_jsxs("div", { className: "bfd-map-panel__row", children: [_jsx("span", { className: "bfd-map-panel__row-rank", children: idx + 1 }), _jsx("span", { className: "bfd-map-panel__modal-icon-wrap", style: { color: item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '#a78bfa' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '#34d399' : '#fbbf24' }, children: MODAL_ICONS[item.modal_cotacao_bid_frete_internacional] || _jsx(Anchor, { size: 14 }) }), _jsxs("div", { className: "bfd-map-panel__row-info", style: { gap: '1px' }, children: [_jsx("span", { className: "bfd-map-panel__row-city", style: { fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }, children: item.label }), _jsxs("span", { className: "bfd-map-panel__row-code", style: { fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }, children: [item.count, " bids"] })] }), _jsxs("div", { style: { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }, children: [_jsxs("span", { className: "bfd-map-panel__row-bids", style: { fontWeight: 800, color: '#ffffff' }, children: [item.pct, "%"] }), _jsx("span", { className: "bfd-map-panel__modal-stat-num", style: { color: '#60a5fa' }, children: item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '+23.4%' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '+19.1%' : '+12.5%' })] })] }, idx));
+                                        })] })] })) }), selectedPinForModalResumido !== null && (() => {
                         const pin = MAP_PINS.find(p => p.id === selectedPinForModalResumido);
                         if (!pin)
                             return null;
                         const connections = PORT_CONNECTIONS[selectedPinForModalResumido] || [];
-                        return (_jsx("div", { className: "modal_resumido_cotacao_bid_frete_internacional-overlay", onClick: () => setSelectedPinForModalResumido(null), children: _jsxs("div", { className: "modal_resumido_cotacao_bid_frete_internacional-card", onClick: e => e.stopPropagation(), children: [_jsxs("div", { className: "modal_resumido_cotacao_bid_frete_internacional-header", children: [_jsxs("div", { className: "modal_resumido_cotacao_bid_frete_internacional-title-group", children: [_jsx("span", { className: "modal_resumido_cotacao_bid_frete_internacional-flag-large", children: pin.flag }), _jsxs("div", { children: [_jsxs("h2", { className: "modal_resumido_cotacao_bid_frete_internacional-title", children: ["Rotas Ativas: ", pin.label] }), _jsxs("span", { className: "modal_resumido_cotacao_bid_frete_internacional-subtitle", children: [pin.portCode, " \u2022 ", pin.country] })] })] }), _jsx("button", { className: "modal_resumido_cotacao_bid_frete_internacional-close-btn", onClick: () => setSelectedPinForModalResumido(null), children: "\u2715" })] }), _jsx("div", { className: "modal_resumido_cotacao_bid_frete_internacional-body", children: connections.length === 0 ? (_jsx("div", { style: { padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }, children: "Nenhuma rota ativa cadastrada para este terminal." })) : (connections.map((route, idx) => {
+                        return (_jsx("div", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-overlay", onClick: () => setSelectedPinForModalResumido(null), children: _jsxs("div", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-card", onClick: e => e.stopPropagation(), children: [_jsxs("div", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-header", children: [_jsxs("div", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-title-group", children: [_jsx("span", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-flag-large", children: pin.flag }), _jsxs("div", { children: [_jsxs("h2", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-title", children: ["Rotas Ativas: ", pin.label] }), _jsxs("span", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-subtitle", children: [pin.portCode, " \u2022 ", pin.country] })] })] }), _jsx("button", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-close-btn", onClick: () => setSelectedPinForModalResumido(null), children: "\u2715" })] }), _jsx("div", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-body", children: connections.length === 0 ? (_jsx("div", { style: { padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }, children: "Nenhuma rota ativa cadastrada para este terminal." })) : (connections.map((route, idx) => {
                                             const isAir = route.mode === 'AEREO';
                                             const modeColor = isAir ? '#a78bfa' : '#34d399';
                                             const modeIcon = isAir ? _jsx(AirplaneTilt, { size: 14, weight: "bold" }) : _jsx(Anchor, { size: 14, weight: "bold" });
@@ -1504,7 +1484,7 @@ function VisaoGeralMapa({ onOpenCompleto }) {
                                                                     e.currentTarget.style.transform = 'translateY(0) scale(1)';
                                                                     e.currentTarget.style.boxShadow = `0 0 10px ${isAir ? 'rgba(167, 139, 250, 0.06)' : 'rgba(52, 211, 153, 0.06)'}`;
                                                                 }, children: [_jsx(Eye, { size: 12, weight: "bold" }), _jsx("span", { children: "Ver Cota\u00E7\u00E3o Completa" }), _jsx(ArrowRight, { size: 10, weight: "bold", style: { marginLeft: '2px' } })] })] })] }, idx));
-                                        })) }), _jsx("div", { className: "modal_resumido_cotacao_bid_frete_internacional-footer", children: _jsx("button", { className: "modal_resumido_cotacao_bid_frete_internacional-close-action", onClick: () => setSelectedPinForModalResumido(null), children: "Fechar" }) })] }) }));
+                                        })) }), _jsx("div", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-footer", children: _jsx("button", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-close-action", onClick: () => setSelectedPinForModalResumido(null), children: "Fechar" }) })] }) }));
                     })()] })] }));
 }
 export default function VisaoGeral() {
@@ -2275,7 +2255,7 @@ export default function VisaoGeral() {
         }
 
         /* ── Premium Modal overlay ───────────────────────────────── */
-        .modal_resumido_cotacao_bid_frete_internacional-overlay {
+        .modal_resumido_cotação_bid_frete_iternacional-overlay {
           position: fixed;
           inset: 0;
           background: rgba(8, 10, 18, 0.75);
@@ -2293,7 +2273,7 @@ export default function VisaoGeral() {
           to { opacity: 1; }
         }
         
-        .modal_resumido_cotacao_bid_frete_internacional-card {
+        .modal_resumido_cotação_bid_frete_iternacional-card {
           width: 100%;
           max-width: 620px;
           max-height: 90vh;
@@ -2313,37 +2293,37 @@ export default function VisaoGeral() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        .modal_resumido_cotacao_bid_frete_internacional-header {
+        .modal_resumido_cotação_bid_frete_iternacional-header {
           padding: 1.25rem 1.5rem;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-title-group {
+        .modal_resumido_cotação_bid_frete_iternacional-title-group {
           display: flex;
           align-items: center;
           gap: 0.75rem;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-flag-large {
+        .modal_resumido_cotação_bid_frete_iternacional-flag-large {
           font-size: 2.2rem;
           line-height: 1;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-title {
+        .modal_resumido_cotação_bid_frete_iternacional-title {
           font-size: 1.25rem;
           font-weight: 800;
           color: #ffffff;
           letter-spacing: -0.01em;
           margin: 0;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-subtitle {
+        .modal_resumido_cotação_bid_frete_iternacional-subtitle {
           font-size: 0.82rem;
           color: #cbd5e1;
           margin-top: 0.15rem;
           display: block;
           font-weight: 500;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-close-btn {
+        .modal_resumido_cotação_bid_frete_iternacional-close-btn {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.08);
           color: #94a3b8;
@@ -2356,14 +2336,14 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-close-btn:hover {
+        .modal_resumido_cotação_bid_frete_iternacional-close-btn:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
           color: #ffffff;
           transform: rotate(90deg);
         }
 
-        .modal_resumido_cotacao_bid_frete_internacional-body {
+        .modal_resumido_cotação_bid_frete_iternacional-body {
           padding: 1.5rem;
           overflow-y: auto;
           display: flex;
@@ -2474,14 +2454,14 @@ export default function VisaoGeral() {
           color: #ffffff;
         }
 
-        .modal_resumido_cotacao_bid_frete_internacional-footer {
+        .modal_resumido_cotação_bid_frete_iternacional-footer {
           padding: 1rem 1.5rem;
           border-top: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           justify-content: flex-end;
           background: rgba(11, 15, 28, 0.5);
         }
-        .modal_resumido_cotacao_bid_frete_internacional-close-action {
+        .modal_resumido_cotação_bid_frete_iternacional-close-action {
           padding: 0.5rem 1.25rem;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.1);
@@ -2492,7 +2472,7 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-close-action:hover {
+        .modal_resumido_cotação_bid_frete_iternacional-close-action:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
         }
@@ -2924,7 +2904,7 @@ export default function VisaoGeral() {
                                                 cursor: 'pointer',
                                                 transition: 'all 0.2s'
                                             }, onClick: () => setAlertModalTab(t), children: labels[t] }, t));
-                                    }) }), _jsxs("div", { style: { flex: 1, overflowY: 'auto', padding: '1.5rem', minHeight: '300px' }, children: [alertModalTab === 'geral' && (_jsxs("div", { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }, children: [_jsxs("div", { className: "bfd-modal-field", children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Origem" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: origin })] }), _jsxs("div", { className: "bfd-modal-field", children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Destino" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: destination })] }), _jsxs("div", { className: "bfd-modal-field", style: { gridColumn: 'span 2' }, children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Mercadoria / Descri\u00E7\u00E3o" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: goods })] }), _jsxs("div", { className: "bfd-modal-field", children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Peso Total" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: weight })] }), _jsxs("div", { className: "bfd-modal-field", children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Cubagem (M\u00B3)" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: volume })] }), _jsxs("div", { className: "bfd-modal-field", children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Incoterm" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: incoterm })] }), _jsxs("div", { className: "bfd-modal-field", children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Valor Limite / Estimado" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: value })] }), _jsxs("div", { className: "bfd-modal-field", style: { gridColumn: 'span 2' }, children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Modalidade" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: category })] })] })), alertModalTab === 'itens' && (_jsxs("div", { style: { display: 'flex', flexDirection: 'column', gap: '0.75rem' }, children: [_jsxs("div", { style: { display: 'flex', background: 'rgba(255,255,255,0.02)', padding: '0.5rem 0.75rem', borderRadius: '4px', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.78rem', fontWeight: 700, color: '#94a3b8' }, children: [_jsx("div", { style: { flex: 1 }, children: "C\u00F3digo" }), _jsx("div", { style: { flex: 2 }, children: "Descri\u00E7\u00E3o" }), _jsx("div", { style: { flex: 1, textAlign: 'right' }, children: "Qtd" }), _jsx("div", { style: { flex: 1, textAlign: 'right' }, children: "Peso (Kg)" })] }), _jsxs("div", { style: { display: 'flex', padding: '0.75rem', borderRadius: '6px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', fontSize: '0.85rem' }, children: [_jsx("div", { style: { flex: 1, color: '#60a5fa', fontWeight: 600 }, children: "ITM-01" }), _jsx("div", { style: { flex: 2, color: '#cbd5e1' }, children: goods }), _jsx("div", { style: { flex: 1, textAlign: 'right', color: '#ffffff' }, children: "1.000 un" }), _jsx("div", { style: { flex: 1, textAlign: 'right', color: '#ffffff' }, children: weight })] })] })), alertModalTab === 'propostas' && (_jsx("div", { style: { display: 'flex', flexDirection: 'column', gap: '0.85rem' }, children: proposals.map((p, idx) => (_jsxs("div", { style: {
+                                    }) }), _jsxs("div", { style: { flex: 1, overflowY: 'auto', padding: '1.5rem', minHeight: '300px' }, children: [alertModalTab === 'geral' && (_jsxs("div", { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }, children: [_jsxs("div", { className: "modal_completo_cota\u00E7\u00E3o_bid_frete_iternacional-field", children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Origem" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: origin })] }), _jsxs("div", { className: "modal_completo_cota\u00E7\u00E3o_bid_frete_iternacional-field", children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Destino" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: destination })] }), _jsxs("div", { className: "modal_completo_cota\u00E7\u00E3o_bid_frete_iternacional-field", style: { gridColumn: 'span 2' }, children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Mercadoria / Descri\u00E7\u00E3o" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: goods })] }), _jsxs("div", { className: "modal_completo_cota\u00E7\u00E3o_bid_frete_iternacional-field", children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Peso Total" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: weight })] }), _jsxs("div", { className: "modal_completo_cota\u00E7\u00E3o_bid_frete_iternacional-field", children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Cubagem (M\u00B3)" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: volume })] }), _jsxs("div", { className: "modal_completo_cota\u00E7\u00E3o_bid_frete_iternacional-field", children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Incoterm" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: incoterm })] }), _jsxs("div", { className: "modal_completo_cota\u00E7\u00E3o_bid_frete_iternacional-field", children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Valor Limite / Estimado" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: value })] }), _jsxs("div", { className: "modal_completo_cota\u00E7\u00E3o_bid_frete_iternacional-field", style: { gridColumn: 'span 2' }, children: [_jsx("label", { style: { display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }, children: "Modalidade" }), _jsx("div", { style: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }, children: category })] })] })), alertModalTab === 'itens' && (_jsxs("div", { style: { display: 'flex', flexDirection: 'column', gap: '0.75rem' }, children: [_jsxs("div", { style: { display: 'flex', background: 'rgba(255,255,255,0.02)', padding: '0.5rem 0.75rem', borderRadius: '4px', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.78rem', fontWeight: 700, color: '#94a3b8' }, children: [_jsx("div", { style: { flex: 1 }, children: "C\u00F3digo" }), _jsx("div", { style: { flex: 2 }, children: "Descri\u00E7\u00E3o" }), _jsx("div", { style: { flex: 1, textAlign: 'right' }, children: "Qtd" }), _jsx("div", { style: { flex: 1, textAlign: 'right' }, children: "Peso (Kg)" })] }), _jsxs("div", { style: { display: 'flex', padding: '0.75rem', borderRadius: '6px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', fontSize: '0.85rem' }, children: [_jsx("div", { style: { flex: 1, color: '#60a5fa', fontWeight: 600 }, children: "ITM-01" }), _jsx("div", { style: { flex: 2, color: '#cbd5e1' }, children: goods }), _jsx("div", { style: { flex: 1, textAlign: 'right', color: '#ffffff' }, children: "1.000 un" }), _jsx("div", { style: { flex: 1, textAlign: 'right', color: '#ffffff' }, children: weight })] })] })), alertModalTab === 'propostas' && (_jsx("div", { style: { display: 'flex', flexDirection: 'column', gap: '0.85rem' }, children: proposals.map((p, idx) => (_jsxs("div", { style: {
                                                     display: 'flex',
                                                     justifyContent: 'space-between',
                                                     alignItems: 'center',

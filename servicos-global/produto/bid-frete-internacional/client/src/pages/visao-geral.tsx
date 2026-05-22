@@ -2198,20 +2198,20 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
           const connections = PORT_CONNECTIONS[selectedPinForModalResumido] || []
           
           return (
-            <div className="modal_resumido_cotacao_bid_frete_internacional-overlay" onClick={() => setSelectedPinForModalResumido(null)}>
-              <div className="modal_resumido_cotacao_bid_frete_internacional-card" onClick={e => e.stopPropagation()}>
-                <div className="modal_resumido_cotacao_bid_frete_internacional-header">
-                  <div className="modal_resumido_cotacao_bid_frete_internacional-title-group">
-                    <span className="modal_resumido_cotacao_bid_frete_internacional-flag-large">{pin.flag}</span>
+            <div className="modal_resumido_cotação_bid_frete_iternacional-overlay" onClick={() => setSelectedPinForModalResumido(null)}>
+              <div className="modal_resumido_cotação_bid_frete_iternacional-card" onClick={e => e.stopPropagation()}>
+                <div className="modal_resumido_cotação_bid_frete_iternacional-header">
+                  <div className="modal_resumido_cotação_bid_frete_iternacional-title-group">
+                    <span className="modal_resumido_cotação_bid_frete_iternacional-flag-large">{pin.flag}</span>
                     <div>
-                      <h2 className="modal_resumido_cotacao_bid_frete_internacional-title">Rotas Ativas: {pin.label}</h2>
-                      <span className="modal_resumido_cotacao_bid_frete_internacional-subtitle">{pin.portCode} • {pin.country}</span>
+                      <h2 className="modal_resumido_cotação_bid_frete_iternacional-title">Rotas Ativas: {pin.label}</h2>
+                      <span className="modal_resumido_cotação_bid_frete_iternacional-subtitle">{pin.portCode} • {pin.country}</span>
                     </div>
                   </div>
-                  <button className="modal_resumido_cotacao_bid_frete_internacional-close-btn" onClick={() => setSelectedPinForModalResumido(null)}>✕</button>
+                  <button className="modal_resumido_cotação_bid_frete_iternacional-close-btn" onClick={() => setSelectedPinForModalResumido(null)}>✕</button>
                 </div>
                 
-                <div className="modal_resumido_cotacao_bid_frete_internacional-body">
+                <div className="modal_resumido_cotação_bid_frete_iternacional-body">
                   {connections.length === 0 ? (
                     <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
                       Nenhuma rota ativa cadastrada para este terminal.
@@ -2392,8 +2392,8 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                   )}
                 </div>
                 
-                <div className="modal_resumido_cotacao_bid_frete_internacional-footer">
-                  <button className="modal_resumido_cotacao_bid_frete_internacional-close-action" onClick={() => setSelectedPinForModalResumido(null)}>Fechar</button>
+                <div className="modal_resumido_cotação_bid_frete_iternacional-footer">
+                  <button className="modal_resumido_cotação_bid_frete_iternacional-close-action" onClick={() => setSelectedPinForModalResumido(null)}>Fechar</button>
                 </div>
               </div>
             </div>
@@ -3182,7 +3182,7 @@ export default function VisaoGeral() {
         }
 
         /* ── Premium Modal overlay ───────────────────────────────── */
-        .modal_resumido_cotacao_bid_frete_internacional-overlay {
+        .modal_resumido_cotação_bid_frete_iternacional-overlay {
           position: fixed;
           inset: 0;
           background: rgba(8, 10, 18, 0.75);
@@ -3200,7 +3200,7 @@ export default function VisaoGeral() {
           to { opacity: 1; }
         }
         
-        .modal_resumido_cotacao_bid_frete_internacional-card {
+        .modal_resumido_cotação_bid_frete_iternacional-card {
           width: 100%;
           max-width: 620px;
           max-height: 90vh;
@@ -3220,37 +3220,37 @@ export default function VisaoGeral() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        .modal_resumido_cotacao_bid_frete_internacional-header {
+        .modal_resumido_cotação_bid_frete_iternacional-header {
           padding: 1.25rem 1.5rem;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-title-group {
+        .modal_resumido_cotação_bid_frete_iternacional-title-group {
           display: flex;
           align-items: center;
           gap: 0.75rem;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-flag-large {
+        .modal_resumido_cotação_bid_frete_iternacional-flag-large {
           font-size: 2.2rem;
           line-height: 1;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-title {
+        .modal_resumido_cotação_bid_frete_iternacional-title {
           font-size: 1.25rem;
           font-weight: 800;
           color: #ffffff;
           letter-spacing: -0.01em;
           margin: 0;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-subtitle {
+        .modal_resumido_cotação_bid_frete_iternacional-subtitle {
           font-size: 0.82rem;
           color: #cbd5e1;
           margin-top: 0.15rem;
           display: block;
           font-weight: 500;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-close-btn {
+        .modal_resumido_cotação_bid_frete_iternacional-close-btn {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.08);
           color: #94a3b8;
@@ -3263,14 +3263,14 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-close-btn:hover {
+        .modal_resumido_cotação_bid_frete_iternacional-close-btn:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
           color: #ffffff;
           transform: rotate(90deg);
         }
 
-        .modal_resumido_cotacao_bid_frete_internacional-body {
+        .modal_resumido_cotação_bid_frete_iternacional-body {
           padding: 1.5rem;
           overflow-y: auto;
           display: flex;
@@ -3381,14 +3381,14 @@ export default function VisaoGeral() {
           color: #ffffff;
         }
 
-        .modal_resumido_cotacao_bid_frete_internacional-footer {
+        .modal_resumido_cotação_bid_frete_iternacional-footer {
           padding: 1rem 1.5rem;
           border-top: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           justify-content: flex-end;
           background: rgba(11, 15, 28, 0.5);
         }
-        .modal_resumido_cotacao_bid_frete_internacional-close-action {
+        .modal_resumido_cotação_bid_frete_iternacional-close-action {
           padding: 0.5rem 1.25rem;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.1);
@@ -3399,7 +3399,7 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-close-action:hover {
+        .modal_resumido_cotação_bid_frete_iternacional-close-action:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
         }
@@ -4294,35 +4294,35 @@ export default function VisaoGeral() {
                 <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', minHeight: '300px' }}>
                   {alertModalTab === 'geral' && (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }}>
-                      <div className="bfd-modal-field">
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Origem</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{origin}</div>
                       </div>
-                      <div className="bfd-modal-field">
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Destino</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{destination}</div>
                       </div>
-                      <div className="bfd-modal-field" style={{ gridColumn: 'span 2' }}>
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field" style={{ gridColumn: 'span 2' }}>
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Mercadoria / Descrição</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{goods}</div>
                       </div>
-                      <div className="bfd-modal-field">
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Peso Total</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{weight}</div>
                       </div>
-                      <div className="bfd-modal-field">
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Cubagem (M³)</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{volume}</div>
                       </div>
-                      <div className="bfd-modal-field">
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Incoterm</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{incoterm}</div>
                       </div>
-                      <div className="bfd-modal-field">
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Valor Limite / Estimado</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{value}</div>
                       </div>
-                      <div className="bfd-modal-field" style={{ gridColumn: 'span 2' }}>
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field" style={{ gridColumn: 'span 2' }}>
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Modalidade</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{category}</div>
                       </div>

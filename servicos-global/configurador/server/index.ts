@@ -318,6 +318,9 @@ app.use('/api/v1/pedidos', (req, res) => {
 const _proxyCadastros = (req: express.Request, res: express.Response) => {
   const targetUrl = `http://127.0.0.1:8031${req.originalUrl}`
   const headers = { ...req.headers, host: '127.0.0.1:8031' }
+  // O serviço Cadastros valida a chave inter-serviço via `x-internal-key`.
+  // Injetada server-side: a chave interna nunca deve depender do navegador.
+  headers['x-internal-key'] = process.env.CHAVE_INTERNA_SERVICO!
   headers['x-chave-interna-servico'] = process.env.CHAVE_INTERNA_SERVICO!
 
   let bodyBuf: Buffer | undefined

@@ -317,7 +317,9 @@ app.use('/api/v1/pedidos', (req, res) => {
 // Sem este proxy, as chamadas relativas do frontend caem no catch-all → 404.
 const _proxyCadastros = (req: express.Request, res: express.Response) => {
   const targetUrl = `http://127.0.0.1:8031${req.originalUrl}`
-  const headers = { ...req.headers, host: '127.0.0.1:8031' }
+  // Tipado explicitamente: o spread de req.headers (IncomingHttpHeaders) perde
+  // o index signature, e atribuir chaves custom (x-internal-key) viraria TS7053.
+  const headers: Record<string, string | string[] | undefined> = { ...req.headers, host: '127.0.0.1:8031' }
   // O serviço Cadastros valida a chave inter-serviço via `x-internal-key`.
   // Injetada server-side: a chave interna nunca deve depender do navegador.
   headers['x-internal-key'] = process.env.CHAVE_INTERNA_SERVICO!

@@ -42,6 +42,9 @@ import {
   CurrencyDollar,
   ListNumbers,
   ThumbsUp,
+  Eye,
+  ChartLine,
+  CalendarBlank,
 } from '@phosphor-icons/react'
 
 import { DEMO_KPIS, DEMO_CALENDARIO, DEMO_MENSAL, DEMO_MODAL, DEMO_MELHOR_COTACAO, DEMO_INCOTERMS } from '../shared/demo-data'
@@ -995,10 +998,14 @@ const MODAIS_INFO = [
 
 // ─── Visão Geral Global (Globo 3D Interativo Premium) ───────────────────────────
 
-function VisaoGeralMapa() {
+interface VisaoGeralMapaProps {
+  onOpenCompleto?: (route: RouteDetail) => void
+}
+
+function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
   const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modal_cotacao_bid_frete_internacional'>('origens')
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
-  const [selectedPinForModal, setSelectedPinForModal] = useState<number | null>(null)
+  const [selectedPinForModalResumido, setSelectedPinForModalResumido] = useState<number | null>(null)
   
   const hoveredPinRef = useRef<number | null>(null)
   useEffect(() => {
@@ -1683,7 +1690,7 @@ function VisaoGeralMapa() {
                 onClick={(e) => {
                   e.stopPropagation() // Avoid triggering map drag
                   isRotationPausedRef.current = true
-                  setSelectedPinForModal(pin.id)
+                  setSelectedPinForModalResumido(pin.id)
                 }}
               >
                 {/* Outer pulsing ring */}
@@ -1808,7 +1815,7 @@ function VisaoGeralMapa() {
                     onClick={(e) => {
                       if (item.pinId) {
                         e.stopPropagation()
-                        setSelectedPinForModal(item.pinId)
+                        setSelectedPinForModalResumido(item.pinId)
                       }
                     }}
                   >
@@ -1846,7 +1853,7 @@ function VisaoGeralMapa() {
                     onClick={(e) => {
                       if (item.pinId) {
                         e.stopPropagation()
-                        setSelectedPinForModal(item.pinId)
+                        setSelectedPinForModalResumido(item.pinId)
                       }
                     }}
                   >
@@ -1892,26 +1899,26 @@ function VisaoGeralMapa() {
         </div>
 
         {/* Premium Detail Modal Overlay */}
-        {selectedPinForModal !== null && (() => {
-          const pin = MAP_PINS.find(p => p.id === selectedPinForModal)
+        {selectedPinForModalResumido !== null && (() => {
+          const pin = MAP_PINS.find(p => p.id === selectedPinForModalResumido)
           if (!pin) return null
-          const connections = PORT_CONNECTIONS[selectedPinForModal] || []
+          const connections = PORT_CONNECTIONS[selectedPinForModalResumido] || []
           
           return (
-            <div className="bfd-modal_cotacao_bid_frete_internacional-overlay" onClick={() => setSelectedPinForModal(null)}>
-              <div className="bfd-modal_cotacao_bid_frete_internacional-card" onClick={e => e.stopPropagation()}>
-                <div className="bfd-modal_cotacao_bid_frete_internacional-header">
-                  <div className="bfd-modal_cotacao_bid_frete_internacional-title-group">
-                    <span className="bfd-modal_cotacao_bid_frete_internacional-flag-large">{pin.flag}</span>
+            <div className="modal_resumido_cotacao_bid_frete_internacional-overlay" onClick={() => setSelectedPinForModalResumido(null)}>
+              <div className="modal_resumido_cotacao_bid_frete_internacional-card" onClick={e => e.stopPropagation()}>
+                <div className="modal_resumido_cotacao_bid_frete_internacional-header">
+                  <div className="modal_resumido_cotacao_bid_frete_internacional-title-group">
+                    <span className="modal_resumido_cotacao_bid_frete_internacional-flag-large">{pin.flag}</span>
                     <div>
-                      <h2 className="bfd-modal_cotacao_bid_frete_internacional-title">Rotas Ativas: {pin.label}</h2>
-                      <span className="bfd-modal_cotacao_bid_frete_internacional-subtitle">{pin.portCode} • {pin.country}</span>
+                      <h2 className="modal_resumido_cotacao_bid_frete_internacional-title">Rotas Ativas: {pin.label}</h2>
+                      <span className="modal_resumido_cotacao_bid_frete_internacional-subtitle">{pin.portCode} • {pin.country}</span>
                     </div>
                   </div>
-                  <button className="bfd-modal_cotacao_bid_frete_internacional-close-btn" onClick={() => setSelectedPinForModal(null)}>✕</button>
+                  <button className="modal_resumido_cotacao_bid_frete_internacional-close-btn" onClick={() => setSelectedPinForModalResumido(null)}>✕</button>
                 </div>
                 
-                <div className="bfd-modal_cotacao_bid_frete_internacional-body">
+                <div className="modal_resumido_cotacao_bid_frete_internacional-body">
                   {connections.length === 0 ? (
                     <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
                       Nenhuma rota ativa cadastrada para este terminal.
@@ -2017,8 +2024,48 @@ function VisaoGeralMapa() {
                             </div>
                           </div>
                           
-                          <div style={{ fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }}>
+                          <div style={{ fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }}>
                             <span>Forn. Líder: <strong>{route.supplier}</strong></span>
+                            <button
+                              className="bfd-route-btn-completo"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setSelectedPinForModalResumido(null)
+                                if (onOpenCompleto) {
+                                  onOpenCompleto(route)
+                                }
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                background: isAir ? 'rgba(167, 139, 250, 0.12)' : 'rgba(52, 211, 153, 0.12)',
+                                border: `1px solid ${isAir ? 'rgba(167, 139, 250, 0.25)' : 'rgba(52, 211, 153, 0.25)'}`,
+                                color: isAir ? '#c084fc' : '#34d399',
+                                padding: '4px 10px',
+                                borderRadius: '20px',
+                                fontSize: '0.68rem',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                                letterSpacing: '0.02em',
+                                boxShadow: `0 0 10px ${isAir ? 'rgba(167, 139, 250, 0.06)' : 'rgba(52, 211, 153, 0.06)'}`
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = isAir ? 'rgba(167, 139, 250, 0.25)' : 'rgba(52, 211, 153, 0.25)'
+                                e.currentTarget.style.transform = 'translateY(-1px) scale(1.02)'
+                                e.currentTarget.style.boxShadow = `0 4px 12px ${isAir ? 'rgba(167, 139, 250, 0.2)' : 'rgba(52, 211, 153, 0.2)'}`
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = isAir ? 'rgba(167, 139, 250, 0.12)' : 'rgba(52, 211, 153, 0.12)'
+                                e.currentTarget.style.transform = 'translateY(0) scale(1)'
+                                e.currentTarget.style.boxShadow = `0 0 10px ${isAir ? 'rgba(167, 139, 250, 0.06)' : 'rgba(52, 211, 153, 0.06)'}`
+                              }}
+                            >
+                              <Eye size={12} weight="bold" />
+                              <span>Ver Cotação Completa</span>
+                              <ArrowRight size={10} weight="bold" style={{ marginLeft: '2px' }} />
+                            </button>
                           </div>
                         </div>
                       )
@@ -2026,8 +2073,8 @@ function VisaoGeralMapa() {
                   )}
                 </div>
                 
-                <div className="bfd-modal_cotacao_bid_frete_internacional-footer">
-                  <button className="bfd-modal_cotacao_bid_frete_internacional-close-action" onClick={() => setSelectedPinForModal(null)}>Fechar</button>
+                <div className="modal_resumido_cotacao_bid_frete_internacional-footer">
+                  <button className="modal_resumido_cotacao_bid_frete_internacional-close-action" onClick={() => setSelectedPinForModalResumido(null)}>Fechar</button>
                 </div>
               </div>
             </div>
@@ -2040,11 +2087,55 @@ function VisaoGeralMapa() {
 
 export default function VisaoGeral() {
   const navigate = useNavigate()
-  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
+  const [isModalCompletoOpen, setIsModalCompletoOpen] = useState(false)
   const [alertModalTab, setAlertModalTab] = useState<'geral' | 'itens' | 'propostas' | 'historico'>('geral')
-  const [selectedAlertContext, setSelectedAlertContext] = useState<any>(null)
+  const [selectedAlertContextCompleto, setSelectedAlertContextCompleto] = useState<any>(null)
+
+  // Interactive exchange rate & spread states (DDD nomenclature, PT-BR without accents)
+  const [cambioModo, setCambioModo] = useState<'hoje' | 'historico' | 'futuro'>('hoje')
+  const [dataSelecionada, setDataSelecionada] = useState<string>('2026-05-22')
+  const [futuroDias, setFuturoDias] = useState<number>(30)
 
   const kpis = DEMO_KPIS
+
+  // PTAX currency simulation
+  const obterCotacoes = useMemo(() => {
+    const moedasBase = [
+      { codigo: 'USD', nome: 'Dólar', referencia: true, valor_brl: 5.12, variacao: -0.32 },
+      { codigo: 'EUR', nome: 'Euro', referencia: false, valor_brl: 5.68, variacao: 0.15 },
+      { codigo: 'CNY', nome: 'Yuan', referencia: false, valor_brl: 0.71, variacao: -0.08 },
+    ]
+
+    if (cambioModo === 'hoje') {
+      return moedasBase
+    }
+
+    if (cambioModo === 'historico') {
+      let hash = 0
+      for (let i = 0; i < dataSelecionada.length; i++) {
+        hash = dataSelecionada.charCodeAt(i) + ((hash << 5) - hash)
+      }
+      const fator = (hash % 120) / 1000
+      const variacaoBase = (hash % 300) / 100 - 1.5
+      return [
+        { codigo: 'USD', nome: 'Dólar', referencia: true, valor_brl: +(5.12 * (1 + fator)).toFixed(2), variacao: +variacaoBase.toFixed(2) },
+        { codigo: 'EUR', nome: 'Euro', referencia: false, valor_brl: +(5.68 * (1 + fator * 1.05)).toFixed(2), variacao: +(variacaoBase * 1.1).toFixed(2) },
+        { codigo: 'CNY', nome: 'Yuan', referencia: false, valor_brl: +(0.71 * (1 + fator * 0.95)).toFixed(2), variacao: +(variacaoBase * 0.85).toFixed(2) },
+      ]
+    }
+
+    if (cambioModo === 'futuro') {
+      const fatorDias = futuroDias === 30 ? 1 : futuroDias === 90 ? 3 : futuroDias === 180 ? 6 : 12
+      const fatorAcrescimo = 1 + (0.0075 * fatorDias)
+      return [
+        { codigo: 'USD', nome: 'Dólar', referencia: true, valor_brl: +(5.12 * fatorAcrescimo).toFixed(2), variacao: +(0.45 * fatorDias).toFixed(2) },
+        { codigo: 'EUR', nome: 'Euro', referencia: false, valor_brl: +(5.68 * fatorAcrescimo * 1.01).toFixed(2), variacao: +(0.52 * fatorDias).toFixed(2) },
+        { codigo: 'CNY', nome: 'Yuan', referencia: false, valor_brl: +(0.71 * fatorAcrescimo * 0.99).toFixed(2), variacao: +(0.38 * fatorDias).toFixed(2) },
+      ]
+    }
+
+    return moedasBase
+  }, [cambioModo, dataSelecionada, futuroDias])
   const alertas = DEMO_CALENDARIO
   const andamentoSpark = [12, 14, 18, 15, 20, 22, 25]
   const savingSpark = [15, 18, 16, 21, 19, 23, 24]
@@ -2147,6 +2238,7 @@ export default function VisaoGeral() {
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           border: 1px solid rgba(255, 255, 255, 0.06);
+          border-left: 3px solid #3b82f6 !important; /* Unified native blue left accent border */
           border-radius: 14px;
           padding: 1.5rem 1.75rem;
           display: flex;
@@ -2158,6 +2250,7 @@ export default function VisaoGeral() {
           transform: translateY(-2px);
           background: rgba(255, 255, 255, 0.06);
           border-color: rgba(255, 255, 255, 0.12);
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important; /* Unified native blue hover glow */
         }
 
         /* Modificadores premium com efeito glow no hover (sem borda acentuada) */
@@ -2770,7 +2863,7 @@ export default function VisaoGeral() {
         }
 
         /* ── Premium Modal overlay ───────────────────────────────── */
-        .bfd-modal_cotacao_bid_frete_internacional-overlay {
+        .modal_resumido_cotacao_bid_frete_internacional-overlay {
           position: fixed;
           inset: 0;
           background: rgba(8, 10, 18, 0.75);
@@ -2788,7 +2881,7 @@ export default function VisaoGeral() {
           to { opacity: 1; }
         }
         
-        .bfd-modal_cotacao_bid_frete_internacional-card {
+        .modal_resumido_cotacao_bid_frete_internacional-card {
           width: 100%;
           max-width: 620px;
           max-height: 90vh;
@@ -2808,37 +2901,37 @@ export default function VisaoGeral() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        .bfd-modal_cotacao_bid_frete_internacional-header {
+        .modal_resumido_cotacao_bid_frete_internacional-header {
           padding: 1.25rem 1.5rem;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-title-group {
+        .modal_resumido_cotacao_bid_frete_internacional-title-group {
           display: flex;
           align-items: center;
           gap: 0.75rem;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-flag-large {
+        .modal_resumido_cotacao_bid_frete_internacional-flag-large {
           font-size: 2.2rem;
           line-height: 1;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-title {
+        .modal_resumido_cotacao_bid_frete_internacional-title {
           font-size: 1.25rem;
           font-weight: 800;
           color: #ffffff;
           letter-spacing: -0.01em;
           margin: 0;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-subtitle {
+        .modal_resumido_cotacao_bid_frete_internacional-subtitle {
           font-size: 0.82rem;
           color: #cbd5e1;
           margin-top: 0.15rem;
           display: block;
           font-weight: 500;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-close-btn {
+        .modal_resumido_cotacao_bid_frete_internacional-close-btn {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.08);
           color: #94a3b8;
@@ -2851,14 +2944,14 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-close-btn:hover {
+        .modal_resumido_cotacao_bid_frete_internacional-close-btn:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
           color: #ffffff;
           transform: rotate(90deg);
         }
 
-        .bfd-modal_cotacao_bid_frete_internacional-body {
+        .modal_resumido_cotacao_bid_frete_internacional-body {
           padding: 1.5rem;
           overflow-y: auto;
           display: flex;
@@ -2969,14 +3062,14 @@ export default function VisaoGeral() {
           color: #ffffff;
         }
 
-        .bfd-modal_cotacao_bid_frete_internacional-footer {
+        .modal_resumido_cotacao_bid_frete_internacional-footer {
           padding: 1rem 1.5rem;
           border-top: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           justify-content: flex-end;
           background: rgba(11, 15, 28, 0.5);
         }
-        .bfd-modal_cotacao_bid_frete_internacional-close-action {
+        .modal_resumido_cotacao_bid_frete_internacional-close-action {
           padding: 0.5rem 1.25rem;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.1);
@@ -2987,7 +3080,7 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-close-action:hover {
+        .modal_resumido_cotacao_bid_frete_internacional-close-action:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
         }
@@ -3006,7 +3099,7 @@ export default function VisaoGeral() {
         }
 
         /* ── Charts Grid ─────────────────────────────────────────── */
-        .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1.25rem; }
+        .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 1.25rem; }
         .bfd-charts-grid .bfd-card { height: 380px; }
         .bfd-chart-svg { width: 100%; max-height: 230px; height: auto; display: block; margin: auto 0; }
         .bfd-chart__legend { display: flex; gap: 1.25rem; margin-top: auto; padding-top: 0.75rem; justify-content: center; }
@@ -3282,7 +3375,16 @@ export default function VisaoGeral() {
       {/* Row 2: Globe Map + Right Column (Alertas on top, Funil de Cotações on bottom) */}
       <div className="bfd-globe-row">
         {/* Global World Map Overview Section */}
-        <VisaoGeralMapa />
+        <VisaoGeralMapa 
+          onOpenCompleto={(route) => {
+            setSelectedAlertContextCompleto({
+              tipo: 'route',
+              ...route
+            })
+            setAlertModalTab('geral')
+            setIsModalCompletoOpen(true)
+          }}
+        />
 
         {/* Right Column Stacking Alertas + Funil */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', minHeight: 0 }}>
@@ -3334,9 +3436,9 @@ export default function VisaoGeral() {
                     key={i}
                     className="bfd-alertas__glow-card"
                     onClick={() => {
-                      setSelectedAlertContext(a)
+                      setSelectedAlertContextCompleto(a)
                       setAlertModalTab('geral')
-                      setIsAlertModalOpen(true)
+                      setIsModalCompletoOpen(true)
                     }}
                     style={{
                       display: 'flex',
@@ -3426,28 +3528,117 @@ export default function VisaoGeral() {
           <GraficoDonutModal />
         </div>
 
-        {/* Câmbio */}
-        <div className="bfd-card bfd-card--accent-amber" style={{ height: '100%', justifyContent: 'flex-start' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+        {/* Câmbio PTAX (BACEN) */}
+        <div className="bfd-card bfd-card--accent-blue" style={{ height: '100%', justifyContent: 'flex-start', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <div className="cg-card__header">
               <div className="cg-card__icon-wrap">
-                <CurrencyDollar weight="duotone" size={16} style={{ color: '#fbbf24' }} />
+                <CurrencyDollar weight="duotone" size={16} style={{ color: '#3b82f6' }} />
               </div>
-              <p className="cg-card__label" style={{ margin: 0 }}>Câmbio do Dia</p>
+              <p className="cg-card__label" style={{ margin: 0 }}>Câmbio PTAX (BACEN)</p>
             </div>
-            <TrendUp size={16} weight="bold" style={{ color: '#cbd5e1' }} />
           </div>
-          <div className="bfd-cambio" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-            {kpis.moedas.map(m => (
-              <div key={m.codigo} className="bfd-cambio__row" style={{ padding: '0.68rem 0' }}>
-                <span className="bfd-cambio__code" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', minWidth: '44px' }}>{m.codigo}</span>
-                <span className="bfd-cambio__val" style={{ fontSize: '0.85rem', color: '#cbd5e1', flex: 1, fontWeight: 600 }}>R$ {m.valor_brl.toFixed(2).replace('.', ',')}</span>
+
+          {/* Tab Switcher */}
+          <div style={{ display: 'flex', gap: '0.25rem', background: 'rgba(255, 255, 255, 0.04)', padding: '0.2rem', borderRadius: '8px', marginBottom: '0.85rem' }}>
+            {[
+              { id: 'hoje', label: 'Hoje' },
+              { id: 'historico', label: 'Histórico' },
+              { id: 'futuro', label: 'Futuro' },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setCambioModo(tab.id as any)}
+                style={{
+                  flex: 1,
+                  padding: '0.35rem 0.5rem',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: cambioModo === tab.id ? '#3b82f6' : 'transparent',
+                  color: cambioModo === tab.id ? '#ffffff' : '#cbd5e1',
+                  boxShadow: cambioModo === tab.id ? '0 2px 6px rgba(59, 130, 246, 0.3)' : 'none',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Histórico: Date Picker */}
+          {cambioModo === 'historico' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginBottom: '0.85rem' }}>
+              <label style={{ fontSize: '0.62rem', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.05em' }}>SELECIONAR DATA PTAX</label>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <CalendarBlank size={14} style={{ position: 'absolute', left: '8px', color: '#94a3b8' }} />
+                <input
+                  type="date"
+                  value={dataSelecionada}
+                  max="2026-05-22"
+                  onChange={(e) => setDataSelecionada(e.target.value)}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '6px',
+                    padding: '0.35rem 0.5rem 0.35rem 1.75rem',
+                    fontSize: '0.75rem',
+                    color: '#ffffff',
+                    outline: 'none',
+                    width: '100%',
+                    fontFamily: 'inherit',
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Futuro: Forward Horizon Selectors */}
+          {cambioModo === 'futuro' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginBottom: '0.85rem' }}>
+              <label style={{ fontSize: '0.62rem', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.05em' }}>HORIZONTE HEDGE</label>
+              <div style={{ display: 'flex', gap: '0.25rem' }}>
+                {[30, 90, 180, 360].map(dias => (
+                  <button
+                    key={dias}
+                    onClick={() => setFuturoDias(dias)}
+                    style={{
+                      flex: 1,
+                      padding: '0.3rem',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      borderRadius: '4px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      background: futuroDias === dias ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255, 255, 255, 0.02)',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      borderColor: futuroDias === dias ? '#3b82f6' : 'rgba(255, 255, 255, 0.05)',
+                      color: futuroDias === dias ? '#60a5fa' : '#cbd5e1',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    +{dias}d
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Exchange Rates List */}
+          <div className="bfd-cambio" style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem', margin: cambioModo === 'hoje' ? 'auto 0' : '0' }}>
+            {obterCotacoes.map(m => (
+              <div key={m.codigo} className="bfd-cambio__row" style={{ padding: '0.55rem 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <span className="bfd-cambio__code" style={{ fontSize: '0.82rem', fontWeight: 700, color: '#ffffff', minWidth: '40px' }}>{m.codigo}</span>
+                <span className="bfd-cambio__val" style={{ fontSize: '0.82rem', color: '#cbd5e1', flex: 1, fontWeight: 600, paddingLeft: '0.5rem' }}>R$ {m.valor_brl.toFixed(2).replace('.', ',')}</span>
                 <span
                   className="bfd-cambio__var"
                   style={{
-                    fontSize: '0.75rem',
+                    fontSize: '0.72rem',
                     fontWeight: 700,
-                    padding: '0.2rem 0.5rem',
+                    padding: '0.15rem 0.45rem',
                     borderRadius: '6px',
                     color: m.variacao >= 0 ? '#34d399' : '#f87171',
                     background: m.variacao >= 0 ? 'rgba(52,211,153,0.1)' : 'rgba(248,113,113,0.1)',
@@ -3457,6 +3648,51 @@ export default function VisaoGeral() {
                 </span>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Taxa Média de Spread */}
+        <div className="bfd-card bfd-card--accent-blue" style={{ height: '100%', justifyContent: 'flex-start', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div className="cg-card__header">
+              <div className="cg-card__icon-wrap">
+                <ChartLine weight="duotone" size={16} style={{ color: '#3b82f6' }} />
+              </div>
+              <p className="cg-card__label" style={{ margin: 0 }}>Spread Médio Aplicado</p>
+            </div>
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', margin: 'auto 0' }}>
+            {[
+              { moeda: 'USD', valor: '1,85%', pct: 60, cor: '#3b82f6' },
+              { moeda: 'EUR', valor: '2,10%', pct: 75, cor: '#8b5cf6' },
+              { moeda: 'CNY', valor: '1,45%', pct: 45, cor: '#fbbf24' },
+            ].map(item => (
+              <div key={item.moeda} style={{ display: 'flex', flexDirection: 'column', gap: '0.3' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#ffffff' }}>{item.moeda}</span>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#60a5fa' }}>{item.valor}</span>
+                </div>
+                <div style={{ height: '6px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '3px', overflow: 'hidden', position: 'relative' }}>
+                  <div
+                    style={{
+                      height: '100%',
+                      width: `${item.pct}%`,
+                      background: `linear-gradient(90deg, #3b82f6 0%, ${item.cor} 100%)`,
+                      boxShadow: `0 0 6px ${item.cor}60`,
+                      borderRadius: '3px',
+                      transition: 'width 0.5s ease-out',
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 'auto', paddingTop: '0.5rem' }}>
+            <p style={{ fontSize: '0.65rem', color: '#94a3b8', margin: 0, lineHeight: 1.4 }}>
+              Média aplicada pelos fornecedores sobre as cotações ativas dos últimos 30 dias.
+            </p>
           </div>
         </div>
       </div>
@@ -3554,8 +3790,8 @@ export default function VisaoGeral() {
       </div>
 
       {/* Tabbed Quotation Modal Overlay */}
-      {isAlertModalOpen && selectedAlertContext && (() => {
-         const alert = selectedAlertContext;
+      {isModalCompletoOpen && selectedAlertContextCompleto && (() => {
+         const alert = selectedAlertContextCompleto;
          // Generate mock data for the selected alert type
          let modalTitle = 'Detalhes da Cotação';
          let quoteId = 'COT-2026-F401';
@@ -3577,7 +3813,27 @@ export default function VisaoGeral() {
            { data: '15/05/2026 10:14', texto: 'Cotação criada e homologada', autor: 'Daniel' }
          ];
 
-         if (alert.tipo === 'resposta') {
+         if (alert.tipo === 'route') {
+           modalTitle = 'Detalhes da Rota Ativa';
+           quoteId = alert.quoteId || 'COT-2026-R' + Math.floor(100 + Math.random() * 900);
+           origin = alert.fromPort;
+           destination = alert.toPort;
+           goods = alert.goods || 'Componentes de Alta Tecnologia e Cargas Premium';
+           weight = alert.weight || '14.800 Kg';
+           volume = alert.volume || '32.4 m³';
+           incoterm = alert.incoterm || (alert.mode === 'AEREO' ? 'FCA' : 'FOB');
+           value = 'USD ' + fmtMoeda(alert.bestPrice);
+           category = alert.mode === 'AEREO' ? "Aéreo (Geral)" : "Marítimo (FCL 40' HC)";
+           proposals = [
+             { fornecedor: alert.supplier, valor: 'USD ' + fmtMoeda(alert.bestPrice), transit: alert.transitTime + ' dias', status: 'Melhor Preço', cor: alert.mode === 'AEREO' ? '#a78bfa' : '#34d399' },
+             { fornecedor: 'Apex Global forwarders', valor: 'USD ' + fmtMoeda(alert.bestPrice * 1.08), transit: (alert.transitTime + 3) + ' dias', status: 'Em Análise', cor: '#60a5fa' }
+           ];
+           history = [
+             { data: '21/05/2026 10:00', texto: 'Melhor proposta validada de ' + alert.supplier, autor: 'Sistema' },
+             { data: '18/05/2026 14:30', texto: 'Resposta de Apex Global forwarders recebida', autor: 'Portal' },
+             { data: '15/05/2026 09:00', texto: 'Cotação disparada para 4 fornecedores homologados', autor: 'Daniel' }
+           ];
+         } else if (alert.tipo === 'resposta') {
            modalTitle = 'Respostas Pendentes';
            quoteId = 'COT-2026-A228';
            origin = 'Frankfurt (FRA)';
@@ -3651,7 +3907,7 @@ export default function VisaoGeral() {
               alignItems: 'center',
               justifyContent: 'center',
               animation: 'fadeIn 0.25s ease-out'
-            }} onClick={() => setIsAlertModalOpen(false)}>
+            }} onClick={() => setIsModalCompletoOpen(false)}>
               <style>{`
                 @keyframes fadeIn {
                   from { opacity: 0; }
@@ -3685,7 +3941,7 @@ export default function VisaoGeral() {
                     <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0' }}>Referência: {quoteId}</p>
                   </div>
                   <button style={{ background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', transition: 'all 0.2s' }}
-                    onClick={() => setIsAlertModalOpen(false)}
+                    onClick={() => setIsModalCompletoOpen(false)}
                   >✕</button>
                 </div>
 
@@ -3827,7 +4083,7 @@ export default function VisaoGeral() {
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
-                    onClick={() => setIsAlertModalOpen(false)}
+                    onClick={() => setIsModalCompletoOpen(false)}
                   >Fechar</button>
                   <button style={{
                     background: '#2563eb',

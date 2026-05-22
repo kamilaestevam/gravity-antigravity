@@ -72,7 +72,7 @@ export function CampoBuscarNcm({
   onFechar,
   onSelecionar,
   valorAtual,
-  baseUrl = '/api/v1/ncm',
+  baseUrl = '/api/v1/cadastros/ncm',
 }: ModalBuscaNcmProps) {
   const [query, setQuery]       = useState('')
   const [itens, setItens]       = useState<NcmOpcao[]>([])

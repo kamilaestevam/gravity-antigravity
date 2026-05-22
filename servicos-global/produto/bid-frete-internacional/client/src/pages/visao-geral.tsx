@@ -48,7 +48,7 @@ import {
 } from '@phosphor-icons/react'
 
 import { DEMO_KPIS, DEMO_CALENDARIO, DEMO_MENSAL, DEMO_MODAL, DEMO_MELHOR_COTACAO, DEMO_INCOTERMS } from '../shared/demo-data'
-import { STATUS_LABELS, MODAL_LABELS } from '../shared/types'
+import { STATUS_LABELS, MODAL_LABELS, CalendarioAlerta } from '../shared/types'
 import type { StatusCotacao } from '../shared/types'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -2023,6 +2023,32 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                               <span className="bfd-route-stat-value">{route.transitTime} dias</span>
                             </div>
                           </div>
+
+                          {/* Visual Transit Time Comparison Bar (Benchmark vs Client) */}
+                          <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', fontWeight: 600 }}>
+                              <span style={{ color: '#94a3b8' }}>Benchmarking Transit Time</span>
+                              <span style={{ color: isAir ? '#c084fc' : '#34d399' }}>Sua Empresa: {route.transitTime}d vs Mercado: {route.transitTime + 3}d</span>
+                            </div>
+                            <div style={{ height: '4px', background: 'rgba(255, 255, 255, 0.06)', borderRadius: '2px', overflow: 'hidden', position: 'relative' }}>
+                              <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '100%', background: 'rgba(255,255,255,0.12)' }} />
+                              <div
+                                style={{
+                                  position: 'absolute',
+                                  left: 0,
+                                  top: 0,
+                                  height: '100%',
+                                  width: `${(route.transitTime / (route.transitTime + 3)) * 100}%`,
+                                  background: isAir ? 'linear-gradient(90deg, #8b5cf6, #c084fc)' : 'linear-gradient(90deg, #10b981, #34d399)',
+                                  boxShadow: `0 0 4px ${isAir ? '#c084fc' : '#34d399'}60`,
+                                  borderRadius: '2px',
+                                }}
+                              />
+                            </div>
+                            <div style={{ fontSize: '0.62rem', color: '#94a3b8', textAlign: 'right', fontStyle: 'italic' }}>
+                              Ganho de eficiência de +{(((route.transitTime + 3) - route.transitTime) / (route.transitTime + 3) * 100).toFixed(0)}% (+3 dias mais rápido que a média geral)
+                            </div>
+                          </div>
                           
                           <div style={{ fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }}>
                             <span>Forn. Líder: <strong>{route.supplier}</strong></span>
@@ -2089,7 +2115,7 @@ export default function VisaoGeral() {
   const navigate = useNavigate()
   const [isModalCompletoOpen, setIsModalCompletoOpen] = useState(false)
   const [alertModalTab, setAlertModalTab] = useState<'geral' | 'itens' | 'propostas' | 'historico'>('geral')
-  const [selectedAlertContextCompleto, setSelectedAlertContextCompleto] = useState<any>(null)
+  const [selectedAlertContextCompleto, setSelectedAlertContextCompleto] = useState<CalendarioAlerta | (RouteDetail & { tipo: 'route' }) | null>(null)
 
   // Interactive exchange rate & spread states (DDD nomenclature, PT-BR without accents)
   const [cambioModo, setCambioModo] = useState<'hoje' | 'historico' | 'futuro'>('hoje')
@@ -3791,7 +3817,7 @@ export default function VisaoGeral() {
 
       {/* Tabbed Quotation Modal Overlay */}
       {isModalCompletoOpen && selectedAlertContextCompleto && (() => {
-         const alert = selectedAlertContextCompleto;
+         const context = selectedAlertContextCompleto;
          // Generate mock data for the selected alert type
          let modalTitle = 'Detalhes da Cotação';
          let quoteId = 'COT-2026-F401';
@@ -3813,27 +3839,32 @@ export default function VisaoGeral() {
            { data: '15/05/2026 10:14', texto: 'Cotação criada e homologada', autor: 'Daniel' }
          ];
 
-         if (alert.tipo === 'route') {
+         const dotColor = context.tipo === 'route'
+           ? ((context as RouteDetail).mode === 'AEREO' ? '#a78bfa' : '#34d399')
+           : ((context as CalendarioAlerta).cor === 'red' ? '#f87171' : (context as CalendarioAlerta).cor === 'orange' ? '#fbbf24' : (context as CalendarioAlerta).cor === 'green' ? '#34d399' : '#60a5fa');
+
+         if (context.tipo === 'route') {
+           const route = context as RouteDetail;
            modalTitle = 'Detalhes da Rota Ativa';
-           quoteId = alert.quoteId || 'COT-2026-R' + Math.floor(100 + Math.random() * 900);
-           origin = alert.fromPort;
-           destination = alert.toPort;
-           goods = alert.goods || 'Componentes de Alta Tecnologia e Cargas Premium';
-           weight = alert.weight || '14.800 Kg';
-           volume = alert.volume || '32.4 m³';
-           incoterm = alert.incoterm || (alert.mode === 'AEREO' ? 'FCA' : 'FOB');
-           value = 'USD ' + fmtMoeda(alert.bestPrice);
-           category = alert.mode === 'AEREO' ? "Aéreo (Geral)" : "Marítimo (FCL 40' HC)";
+           quoteId = 'COT-2026-R' + Math.floor(100 + Math.random() * 900);
+           origin = route.fromPort;
+           destination = route.toPort;
+           goods = 'Componentes de Alta Tecnologia e Cargas Premium';
+           weight = '14.800 Kg';
+           volume = '32.4 m³';
+           incoterm = route.mode === 'AEREO' ? 'FCA' : 'FOB';
+           value = 'USD ' + fmtMoeda(route.bestPrice);
+           category = route.mode === 'AEREO' ? "Aéreo (Geral)" : "Marítimo (FCL 40' HC)";
            proposals = [
-             { fornecedor: alert.supplier, valor: 'USD ' + fmtMoeda(alert.bestPrice), transit: alert.transitTime + ' dias', status: 'Melhor Preço', cor: alert.mode === 'AEREO' ? '#a78bfa' : '#34d399' },
-             { fornecedor: 'Apex Global forwarders', valor: 'USD ' + fmtMoeda(alert.bestPrice * 1.08), transit: (alert.transitTime + 3) + ' dias', status: 'Em Análise', cor: '#60a5fa' }
+             { fornecedor: route.supplier, valor: 'USD ' + fmtMoeda(route.bestPrice), transit: route.transitTime + ' dias', status: 'Melhor Preço', cor: route.mode === 'AEREO' ? '#a78bfa' : '#34d399' },
+             { fornecedor: 'Apex Global forwarders', valor: 'USD ' + fmtMoeda(route.bestPrice * 1.08), transit: (route.transitTime + 3) + ' dias', status: 'Em Análise', cor: '#60a5fa' }
            ];
            history = [
-             { data: '21/05/2026 10:00', texto: 'Melhor proposta validada de ' + alert.supplier, autor: 'Sistema' },
+             { data: '21/05/2026 10:00', texto: 'Melhor proposta validada de ' + route.supplier, autor: 'Sistema' },
              { data: '18/05/2026 14:30', texto: 'Resposta de Apex Global forwarders recebida', autor: 'Portal' },
              { data: '15/05/2026 09:00', texto: 'Cotação disparada para 4 fornecedores homologados', autor: 'Daniel' }
            ];
-         } else if (alert.tipo === 'resposta') {
+         } else if (context.tipo === 'resposta') {
            modalTitle = 'Respostas Pendentes';
            quoteId = 'COT-2026-A228';
            origin = 'Frankfurt (FRA)';
@@ -3853,7 +3884,7 @@ export default function VisaoGeral() {
              { data: '20/05/2026 14:00', texto: 'Resposta recebida de Lufthansa Cargo', autor: 'Portal' },
              { data: '19/05/2026 14:15', texto: 'Disparada via e-mail e portal', autor: 'Daniel' }
            ];
-         } else if (alert.tipo === 'aprovacao') {
+         } else if (context.tipo === 'aprovacao') {
            modalTitle = 'Aguardando Aprovação';
            quoteId = 'COT-2026-M892';
            origin = 'Miami (MIA)';
@@ -3873,7 +3904,7 @@ export default function VisaoGeral() {
              { data: '16/05/2026 15:45', texto: 'Proposta consolidada de Panalpina selecionada', autor: 'Sistema' },
              { data: '14/05/2026 11:30', texto: 'Criada e disparada para 4 fornecedores', autor: 'Daniel' }
            ];
-         } else if (alert.tipo === 'nova') {
+         } else if (context.tipo === 'nova') {
            modalTitle = 'Novas Cotações (7 dias)';
            quoteId = 'COT-2026-R115';
            origin = 'Buenos Aires (BUE)';
@@ -3935,7 +3966,7 @@ export default function VisaoGeral() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
                   <div>
                     <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ color: alert.cor === 'red' ? '#f87171' : alert.cor === 'orange' ? '#fbbf24' : alert.cor === 'green' ? '#34d399' : '#60a5fa' }}>●</span>
+                      <span style={{ color: dotColor }}>●</span>
                       {modalTitle}
                     </h2>
                     <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0' }}>Referência: {quoteId}</p>

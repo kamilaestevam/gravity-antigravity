@@ -1268,7 +1268,16 @@ function VisaoGeralMapa({ onOpenCompleto }) {
                                                                         // High quality mini plane shape facing right
                                                                         _jsx("path", { d: "M-7,-2 L-2,-2 L1,-6 L3,-6 L2,-2 L6,-1 L8,0 L6,1 L2,2 L3,6 L1,6 L-2,2 L-7,2 Z", fill: "#a78bfa", style: { filter: 'drop-shadow(0 0 3px rgba(167, 139, 250, 0.6))' } })) : (
                                                                         // High quality mini cargo ship shape facing right
-                                                                        _jsx("path", { d: "M-8,-2 L4,-2 L8,0 L4,2 L-8,2 Z M-5,-2 L-5,-4 L-2,-4 L-2,-2 Z", fill: "#34d399", style: { filter: 'drop-shadow(0 0 3px rgba(52, 211, 153, 0.6))' } })), _jsx("animateMotion", { path: pathD, dur: speed, repeatCount: "indefinite", rotate: "auto" })] })] }) }), _jsxs("div", { className: "bfd-route-stats", children: [_jsxs("div", { className: "bfd-route-stat-item", children: [_jsx("span", { className: "bfd-route-stat-label", children: "Bids Ativos" }), _jsxs("span", { className: "bfd-route-stat-value", children: [route.bids, " bids"] })] }), _jsxs("div", { className: "bfd-route-stat-item", children: [_jsx("span", { className: "bfd-route-stat-label", children: "Melhor Pre\u00E7o" }), _jsxs("span", { className: "bfd-route-stat-value", style: { color: '#ffffff' }, children: ["USD ", fmtMoeda(route.bestPrice)] })] }), _jsxs("div", { className: "bfd-route-stat-item", children: [_jsx("span", { className: "bfd-route-stat-label", children: "Saving" }), _jsxs("span", { className: "bfd-route-stat-value", style: { color: isAir ? '#a78bfa' : '#34d399' }, children: ["+", route.saving, "%"] })] }), _jsxs("div", { className: "bfd-route-stat-item", children: [_jsx("span", { className: "bfd-route-stat-label", children: "Transit Time" }), _jsxs("span", { className: "bfd-route-stat-value", children: [route.transitTime, " dias"] })] })] }), _jsxs("div", { style: { fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }, children: [_jsxs("span", { children: ["Forn. L\u00EDder: ", _jsx("strong", { children: route.supplier })] }), _jsxs("button", { className: "bfd-route-btn-completo", onClick: (e) => {
+                                                                        _jsx("path", { d: "M-8,-2 L4,-2 L8,0 L4,2 L-8,2 Z M-5,-2 L-5,-4 L-2,-4 L-2,-2 Z", fill: "#34d399", style: { filter: 'drop-shadow(0 0 3px rgba(52, 211, 153, 0.6))' } })), _jsx("animateMotion", { path: pathD, dur: speed, repeatCount: "indefinite", rotate: "auto" })] })] }) }), _jsxs("div", { className: "bfd-route-stats", children: [_jsxs("div", { className: "bfd-route-stat-item", children: [_jsx("span", { className: "bfd-route-stat-label", children: "Bids Ativos" }), _jsxs("span", { className: "bfd-route-stat-value", children: [route.bids, " bids"] })] }), _jsxs("div", { className: "bfd-route-stat-item", children: [_jsx("span", { className: "bfd-route-stat-label", children: "Melhor Pre\u00E7o" }), _jsxs("span", { className: "bfd-route-stat-value", style: { color: '#ffffff' }, children: ["USD ", fmtMoeda(route.bestPrice)] })] }), _jsxs("div", { className: "bfd-route-stat-item", children: [_jsx("span", { className: "bfd-route-stat-label", children: "Saving" }), _jsxs("span", { className: "bfd-route-stat-value", style: { color: isAir ? '#a78bfa' : '#34d399' }, children: ["+", route.saving, "%"] })] }), _jsxs("div", { className: "bfd-route-stat-item", children: [_jsx("span", { className: "bfd-route-stat-label", children: "Transit Time" }), _jsxs("span", { className: "bfd-route-stat-value", children: [route.transitTime, " dias"] })] })] }), _jsxs("div", { style: { marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', fontWeight: 600 }, children: [_jsx("span", { style: { color: '#94a3b8' }, children: "Benchmarking Transit Time" }), _jsxs("span", { style: { color: isAir ? '#c084fc' : '#34d399' }, children: ["Sua Empresa: ", route.transitTime, "d vs Mercado: ", route.transitTime + 3, "d"] })] }), _jsxs("div", { style: { height: '4px', background: 'rgba(255, 255, 255, 0.06)', borderRadius: '2px', overflow: 'hidden', position: 'relative' }, children: [_jsx("div", { style: { position: 'absolute', left: 0, top: 0, height: '100%', width: '100%', background: 'rgba(255,255,255,0.12)' } }), _jsx("div", { style: {
+                                                                            position: 'absolute',
+                                                                            left: 0,
+                                                                            top: 0,
+                                                                            height: '100%',
+                                                                            width: `${(route.transitTime / (route.transitTime + 3)) * 100}%`,
+                                                                            background: isAir ? 'linear-gradient(90deg, #8b5cf6, #c084fc)' : 'linear-gradient(90deg, #10b981, #34d399)',
+                                                                            boxShadow: `0 0 4px ${isAir ? '#c084fc' : '#34d399'}60`,
+                                                                            borderRadius: '2px',
+                                                                        } })] }), _jsxs("div", { style: { fontSize: '0.62rem', color: '#94a3b8', textAlign: 'right', fontStyle: 'italic' }, children: ["Ganho de efici\u00EAncia de +", (((route.transitTime + 3) - route.transitTime) / (route.transitTime + 3) * 100).toFixed(0), "% (+3 dias mais r\u00E1pido que a m\u00E9dia geral)"] })] }), _jsxs("div", { style: { fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }, children: [_jsxs("span", { children: ["Forn. L\u00EDder: ", _jsx("strong", { children: route.supplier })] }), _jsxs("button", { className: "bfd-route-btn-completo", onClick: (e) => {
                                                                     e.stopPropagation();
                                                                     setSelectedPinForModalResumido(null);
                                                                     if (onOpenCompleto) {
@@ -2563,7 +2572,7 @@ export default function VisaoGeral() {
                                                     borderRadius: '3px',
                                                     transition: 'width 0.5s ease-out',
                                                 } }) })] }, item.moeda))) }), _jsx("div", { style: { marginTop: 'auto', paddingTop: '0.5rem' }, children: _jsx("p", { style: { fontSize: '0.65rem', color: '#94a3b8', margin: 0, lineHeight: 1.4 }, children: "M\u00E9dia aplicada pelos fornecedores sobre as cota\u00E7\u00F5es ativas dos \u00FAltimos 30 dias." }) })] })] }), _jsxs("div", { className: "bfd-insights-grid", children: [_jsxs("div", { className: "bfd-card bfd-card--accent-amber", children: [_jsxs("div", { className: "cg-card__header", style: { marginBottom: '1.25rem' }, children: [_jsx("div", { className: "cg-card__icon-wrap", children: _jsx(Trophy, { weight: "duotone", size: 16, style: { color: '#fbbf24' } }) }), _jsx("p", { className: "cg-card__label", style: { margin: 0 }, children: "Melhor Cota\u00E7\u00E3o do M\u00EAs" })] }), _jsxs("div", { className: "bfd-best", children: [_jsxs("div", { className: "bfd-best__route", style: { margin: '0.35rem 0 0.75rem' }, children: [_jsxs("div", { className: "bfd-best__port", children: [_jsx("div", { className: "bfd-best__port-flag", children: "\uD83C\uDDE8\uD83C\uDDF3" }), _jsx("div", { className: "bfd-best__port-code", children: "Shanghai (CNSHA)" })] }), _jsxs("div", { className: "bfd-best__arrow", style: { position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', padding: '0 0.5rem' }, children: [_jsxs("span", { className: "bfd-best__arrow-tt", style: { fontSize: '0.68rem', color: '#94a3b8', letterSpacing: '0.02em', marginBottom: '4px', fontWeight: 500 }, children: [DEMO_MELHOR_COTACAO.transit_time, " dias"] }), _jsxs("svg", { width: "100%", height: "20", viewBox: "0 0 160 20", style: { overflow: 'visible' }, children: [_jsx("line", { x1: "0", y1: "10", x2: "160", y2: "10", stroke: "rgba(255,255,255,0.15)", strokeWidth: "1.5", strokeDasharray: "4,4" }), _jsx("circle", { cx: "80", cy: "10", r: "10", fill: "rgba(96,165,250,0.15)" }), _jsx("circle", { cx: "80", cy: "10", r: "3.5", fill: "#60a5fa" }), _jsx("g", { transform: "translate(73, 3)", children: _jsx(Anchor, { size: 14, weight: "bold", style: { color: '#60a5fa' } }) })] })] }), _jsxs("div", { className: "bfd-best__port", children: [_jsx("div", { className: "bfd-best__port-flag", children: "\uD83C\uDDE7\uD83C\uDDF7" }), _jsx("div", { className: "bfd-best__port-code", children: "Santos (BRSSZ)" })] })] }), _jsxs("div", { className: "bfd-best__saving", children: [_jsxs("span", { className: "bfd-best__saving-badge", children: [_jsx(TrendUp, { size: 12 }), " ", DEMO_MELHOR_COTACAO.saving_pct, "% saving"] }), _jsxs("span", { className: "bfd-best__saving-val", children: ["USD ", fmtMoeda(DEMO_MELHOR_COTACAO.ganho_valor_cotacao_bid_frete_internacional)] })] }), _jsxs("div", { className: "bfd-best__meta", children: [DEMO_MELHOR_COTACAO.numero_cotacao_bid_frete_internacional, " | ", DEMO_MELHOR_COTACAO.fornecedor, " | USD ", fmtMoeda(DEMO_MELHOR_COTACAO.valor_aprovado_ganho_bid_frete_internacional)] })] })] }), _jsxs("div", { className: "bfd-card bfd-card--accent-purple", children: [_jsxs("div", { className: "cg-card__header", style: { marginBottom: '1.25rem' }, children: [_jsx("div", { className: "cg-card__icon-wrap", children: _jsx(List, { weight: "duotone", size: 16, style: { color: '#a78bfa' } }) }), _jsx("p", { className: "cg-card__label", style: { margin: 0 }, children: "Top Incoterms" })] }), _jsx("div", { className: "bfd-incoterms", children: DEMO_INCOTERMS.map(inc => (_jsxs("div", { className: "bfd-incoterms__row", style: { display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', width: '100%' }, children: [_jsx("span", { className: "bfd-incoterms__code", children: inc.incoterm_cotacao_bid_frete_internacional }), _jsxs("span", { className: "bfd-incoterms__count", style: { fontWeight: 600, color: '#ffffff', letterSpacing: '0.01em' }, children: [inc.count, " ", _jsxs("span", { style: { fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }, children: ["(", inc.pct, "%)"] })] })] }), _jsx("div", { style: { width: '100%', height: '6px', background: 'rgba(255,255,255,0.04)', borderRadius: '3px', overflow: 'hidden' }, children: _jsx("div", { style: { width: `${inc.pct}%`, height: '100%', background: 'linear-gradient(90deg, #60a5fa, #2563eb)', borderRadius: '3px' } }) })] }, inc.incoterm_cotacao_bid_frete_internacional))) })] })] }), _jsx("div", { className: "bfd-bottom-grid", children: _jsxs("div", { className: "bfd-card bfd-card--accent-emerald", children: [_jsxs("div", { className: "cg-card__header", style: { marginBottom: '1.25rem' }, children: [_jsx("div", { className: "cg-card__icon-wrap", children: _jsx(ThumbsUp, { weight: "duotone", size: 16, style: { color: '#34d399' } }) }), _jsx("p", { className: "cg-card__label", style: { margin: 0 }, children: "Taxa de Aprova\u00E7\u00E3o" })] }), _jsx(TaxaAprovacao, {})] }) }), _jsx("div", { className: "bfd-footer", children: "\u2699 Dados demonstrativos \u2014 conecte o backend para dados reais" }), isModalCompletoOpen && selectedAlertContextCompleto && (() => {
-                const alert = selectedAlertContextCompleto;
+                const context = selectedAlertContextCompleto;
                 // Generate mock data for the selected alert type
                 let modalTitle = 'Detalhes da Cotação';
                 let quoteId = 'COT-2026-F401';
@@ -2584,28 +2593,32 @@ export default function VisaoGeral() {
                     { data: '15/05/2026 10:20', texto: 'Disparada para 6 fornecedores no portal', autor: 'Daniel' },
                     { data: '15/05/2026 10:14', texto: 'Cotação criada e homologada', autor: 'Daniel' }
                 ];
-                if (alert.tipo === 'route') {
+                const dotColor = context.tipo === 'route'
+                    ? (context.mode === 'AEREO' ? '#a78bfa' : '#34d399')
+                    : (context.cor === 'red' ? '#f87171' : context.cor === 'orange' ? '#fbbf24' : context.cor === 'green' ? '#34d399' : '#60a5fa');
+                if (context.tipo === 'route') {
+                    const route = context;
                     modalTitle = 'Detalhes da Rota Ativa';
-                    quoteId = alert.quoteId || 'COT-2026-R' + Math.floor(100 + Math.random() * 900);
-                    origin = alert.fromPort;
-                    destination = alert.toPort;
-                    goods = alert.goods || 'Componentes de Alta Tecnologia e Cargas Premium';
-                    weight = alert.weight || '14.800 Kg';
-                    volume = alert.volume || '32.4 m³';
-                    incoterm = alert.incoterm || (alert.mode === 'AEREO' ? 'FCA' : 'FOB');
-                    value = 'USD ' + fmtMoeda(alert.bestPrice);
-                    category = alert.mode === 'AEREO' ? "Aéreo (Geral)" : "Marítimo (FCL 40' HC)";
+                    quoteId = 'COT-2026-R' + Math.floor(100 + Math.random() * 900);
+                    origin = route.fromPort;
+                    destination = route.toPort;
+                    goods = 'Componentes de Alta Tecnologia e Cargas Premium';
+                    weight = '14.800 Kg';
+                    volume = '32.4 m³';
+                    incoterm = route.mode === 'AEREO' ? 'FCA' : 'FOB';
+                    value = 'USD ' + fmtMoeda(route.bestPrice);
+                    category = route.mode === 'AEREO' ? "Aéreo (Geral)" : "Marítimo (FCL 40' HC)";
                     proposals = [
-                        { fornecedor: alert.supplier, valor: 'USD ' + fmtMoeda(alert.bestPrice), transit: alert.transitTime + ' dias', status: 'Melhor Preço', cor: alert.mode === 'AEREO' ? '#a78bfa' : '#34d399' },
-                        { fornecedor: 'Apex Global forwarders', valor: 'USD ' + fmtMoeda(alert.bestPrice * 1.08), transit: (alert.transitTime + 3) + ' dias', status: 'Em Análise', cor: '#60a5fa' }
+                        { fornecedor: route.supplier, valor: 'USD ' + fmtMoeda(route.bestPrice), transit: route.transitTime + ' dias', status: 'Melhor Preço', cor: route.mode === 'AEREO' ? '#a78bfa' : '#34d399' },
+                        { fornecedor: 'Apex Global forwarders', valor: 'USD ' + fmtMoeda(route.bestPrice * 1.08), transit: (route.transitTime + 3) + ' dias', status: 'Em Análise', cor: '#60a5fa' }
                     ];
                     history = [
-                        { data: '21/05/2026 10:00', texto: 'Melhor proposta validada de ' + alert.supplier, autor: 'Sistema' },
+                        { data: '21/05/2026 10:00', texto: 'Melhor proposta validada de ' + route.supplier, autor: 'Sistema' },
                         { data: '18/05/2026 14:30', texto: 'Resposta de Apex Global forwarders recebida', autor: 'Portal' },
                         { data: '15/05/2026 09:00', texto: 'Cotação disparada para 4 fornecedores homologados', autor: 'Daniel' }
                     ];
                 }
-                else if (alert.tipo === 'resposta') {
+                else if (context.tipo === 'resposta') {
                     modalTitle = 'Respostas Pendentes';
                     quoteId = 'COT-2026-A228';
                     origin = 'Frankfurt (FRA)';
@@ -2626,7 +2639,7 @@ export default function VisaoGeral() {
                         { data: '19/05/2026 14:15', texto: 'Disparada via e-mail e portal', autor: 'Daniel' }
                     ];
                 }
-                else if (alert.tipo === 'aprovacao') {
+                else if (context.tipo === 'aprovacao') {
                     modalTitle = 'Aguardando Aprovação';
                     quoteId = 'COT-2026-M892';
                     origin = 'Miami (MIA)';
@@ -2647,7 +2660,7 @@ export default function VisaoGeral() {
                         { data: '14/05/2026 11:30', texto: 'Criada e disparada para 4 fornecedores', autor: 'Daniel' }
                     ];
                 }
-                else if (alert.tipo === 'nova') {
+                else if (context.tipo === 'nova') {
                     modalTitle = 'Novas Cotações (7 dias)';
                     quoteId = 'COT-2026-R115';
                     origin = 'Buenos Aires (BUE)';
@@ -2700,7 +2713,7 @@ export default function VisaoGeral() {
                                 flexDirection: 'column',
                                 overflow: 'hidden',
                                 animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
-                            }, onClick: e => e.stopPropagation(), children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }, children: [_jsxs("div", { children: [_jsxs("h2", { style: { fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }, children: [_jsx("span", { style: { color: alert.cor === 'red' ? '#f87171' : alert.cor === 'orange' ? '#fbbf24' : alert.cor === 'green' ? '#34d399' : '#60a5fa' }, children: "\u25CF" }), modalTitle] }), _jsxs("p", { style: { fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0' }, children: ["Refer\u00EAncia: ", quoteId] })] }), _jsx("button", { style: { background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', transition: 'all 0.2s' }, onClick: () => setIsModalCompletoOpen(false), children: "\u2715" })] }), _jsx("div", { style: { display: 'flex', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(15, 23, 42, 0.2)', padding: '0 1rem' }, children: ['geral', 'itens', 'propostas', 'historico'].map(t => {
+                            }, onClick: e => e.stopPropagation(), children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }, children: [_jsxs("div", { children: [_jsxs("h2", { style: { fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }, children: [_jsx("span", { style: { color: dotColor }, children: "\u25CF" }), modalTitle] }), _jsxs("p", { style: { fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0' }, children: ["Refer\u00EAncia: ", quoteId] })] }), _jsx("button", { style: { background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', transition: 'all 0.2s' }, onClick: () => setIsModalCompletoOpen(false), children: "\u2715" })] }), _jsx("div", { style: { display: 'flex', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(15, 23, 42, 0.2)', padding: '0 1rem' }, children: ['geral', 'itens', 'propostas', 'historico'].map(t => {
                                         const isActive = alertModalTab === t;
                                         const labels = { geral: 'Geral', itens: 'Itens', propostas: 'Propostas', historico: 'Histórico' };
                                         return (_jsx("button", { style: {

@@ -374,6 +374,11 @@ if (process.env.NODE_ENV !== 'test') {
   // Sidecar 1: Cadastros (porta 8031)
   process.env.PORT = '8031'
   process.env.CADASTROS_SIDECAR = '1'
+  // O Cadastros faz chamadas S2S ao Configurador (ex: GET /da-organizacao).
+  // Sem CONFIGURADOR_BASE_URL ele cai no default localhost:8005 e o fetch
+  // falha em produção (Configurador roda na PORT real). Aponta para o
+  // próprio processo via loopback.
+  process.env.CONFIGURADOR_BASE_URL = `http://127.0.0.1:${PORT}`
   try {
     await import('../../cadastros/server/src/index.js')
     _sidecarStatus['cadastros'] = { ok: true }

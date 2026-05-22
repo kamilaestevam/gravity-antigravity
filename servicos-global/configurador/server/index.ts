@@ -315,7 +315,7 @@ app.use('/api/v1/pedidos', (req, res) => {
 // O sidecar Cadastros expõe `/api/v1/empresas` e `/api/v1/cadastros/*`
 // (moedas, unidades, incoterms, ncm, operacoes-comex, paises...).
 // Sem este proxy, as chamadas relativas do frontend caem no catch-all → 404.
-const _proxyCadastros = (req: Request, res: Response) => {
+const _proxyCadastros = (req: express.Request, res: express.Response) => {
   const targetUrl = `http://127.0.0.1:8031${req.originalUrl}`
   const headers = { ...req.headers, host: '127.0.0.1:8031' }
   headers['x-chave-interna-servico'] = process.env.CHAVE_INTERNA_SERVICO!

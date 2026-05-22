@@ -258,8 +258,8 @@ export default function NovaCotacao() {
   const canNext = (): boolean => {
     switch (step) {
       case 1: return !!form.tipo_operacao_cotacao_bid_frete_internacional && !!form.modal_cotacao_bid_frete_internacional && !!form.modalidade_cotacao_bid_frete_internacional
-      case 2: return !!form.origem_codigo_cotacao_bid_frete_internacional && !!form.origem_nome_cotacao_bid_frete_internacional
-      case 3: return !!form.destino_codigo_cotacao_bid_frete_internacional && !!form.destino_nome_cotacao_bid_frete_internacional
+      case 2: return !!form.origem_codigo_cotacao_bid_frete_internacional && !!form.origem_nome_cotacao_bid_frete_internacional && !!form.origem_pais_cotacao_bid_frete_internacional
+      case 3: return !!form.destino_codigo_cotacao_bid_frete_internacional && !!form.destino_nome_cotacao_bid_frete_internacional && !!form.destino_pais_cotacao_bid_frete_internacional
       case 4: return !!form.descricao_mercadoria_cotacao_bid_frete_internacional && form.quantidade_cotacao_bid_frete_internacional > 0
       case 5: return !!form.incoterm_cotacao_bid_frete_internacional
       case 6: return true
@@ -297,9 +297,9 @@ export default function NovaCotacao() {
       })
       setCotacaoId(cotacao.id)
       setSucesso(true)
-    } catch (err: any) {
+    } catch (err) {
       console.error('Erro ao criar cotação:', err)
-      alert('Erro ao criar cotação: ' + (err?.message || err))
+      alert('Erro ao criar cotação: ' + (err instanceof Error ? err.message : String(err)))
     } finally {
       setSalvando(false)
     }
@@ -413,7 +413,7 @@ export default function NovaCotacao() {
                 <Field label={t('bidfrete.nova_cotacao.nome')} required>
                   <input className="nc-input" placeholder="Ex: Shanghai" value={form.origem_nome_cotacao_bid_frete_internacional} onChange={e => set('origem_nome_cotacao_bid_frete_internacional', e.target.value)} />
                 </Field>
-                <Field label={t('bidfrete.nova_cotacao.pais')}>
+                <Field label={t('bidfrete.nova_cotacao.pais')} required>
                   <input className="nc-input" placeholder="Ex: China" value={form.origem_pais_cotacao_bid_frete_internacional} onChange={e => set('origem_pais_cotacao_bid_frete_internacional', e.target.value)} />
                 </Field>
               </div>
@@ -443,7 +443,7 @@ export default function NovaCotacao() {
                 <Field label={t('bidfrete.nova_cotacao.nome')} required>
                   <input className="nc-input" placeholder="Ex: Santos" value={form.destino_nome_cotacao_bid_frete_internacional} onChange={e => set('destino_nome_cotacao_bid_frete_internacional', e.target.value)} />
                 </Field>
-                <Field label={t('bidfrete.nova_cotacao.pais')}>
+                <Field label={t('bidfrete.nova_cotacao.pais')} required>
                   <input className="nc-input" placeholder="Ex: Brasil" value={form.destino_pais_cotacao_bid_frete_internacional} onChange={e => set('destino_pais_cotacao_bid_frete_internacional', e.target.value)} />
                 </Field>
               </div>

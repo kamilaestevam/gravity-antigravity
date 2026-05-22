@@ -55,8 +55,9 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
 // ─── Bidirectional Mappers ──────────────────────────────────────────────────
 
-export function mapFornecedorFromServer(raw: any): Fornecedor {
-  if (!raw) return raw
+export function mapFornecedorFromServer(rawUnknown: unknown): Fornecedor {
+  if (!rawUnknown) return rawUnknown as Fornecedor
+  const raw = rawUnknown as any
   return {
     id: raw.id_fornecedor_bid_frete_internacional ?? raw.id,
     id_organizacao: raw.id_organizacao,
@@ -83,8 +84,9 @@ export function mapFornecedorFromServer(raw: any): Fornecedor {
   }
 }
 
-export function mapBidResponseFromServer(raw: any): BidResponse {
-  if (!raw) return raw
+export function mapBidResponseFromServer(rawUnknown: unknown): BidResponse {
+  if (!rawUnknown) return rawUnknown as BidResponse
+  const raw = rawUnknown as any
   return {
     id: raw.id_proposta_bid_frete_internacional ?? raw.id,
     id_organizacao: raw.id_organizacao,
@@ -114,8 +116,9 @@ export function mapBidResponseFromServer(raw: any): BidResponse {
   }
 }
 
-export function mapBidRequestFromServer(raw: any): BidRequest {
-  if (!raw) return raw
+export function mapBidRequestFromServer(rawUnknown: unknown): BidRequest {
+  if (!rawUnknown) return rawUnknown as BidRequest
+  const raw = rawUnknown as any
   return {
     id: raw.id_pedido_cotacao_bid_frete_internacional ?? raw.id,
     id_organizacao: raw.id_organizacao,
@@ -134,10 +137,11 @@ export function mapBidRequestFromServer(raw: any): BidRequest {
   }
 }
 
-export function mapCotacaoFromServer(raw: any): Cotacao {
-  if (!raw) return raw
+export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
+  if (!rawUnknown) return rawUnknown as Cotacao
+  const raw = rawUnknown as any
   const propostas = raw.propostas || raw.bid_responses || [];
-  const approvedProposta = propostas.find((p: any) => 
+  const approvedProposta = propostas.find((p: { status_proposta_bid_frete_internacional?: string; aprovada?: boolean }) => 
     p.status_proposta_bid_frete_internacional === 'APROVADA' || p.aprovada === true
   );
 
@@ -188,7 +192,7 @@ export function mapCotacaoFromServer(raw: any): Cotacao {
   }
 }
 
-export function mapCotacaoToServer(input: Partial<Cotacao>): any {
+export function mapCotacaoToServer(input: Partial<Cotacao>): Record<string, any> {
   const result: Record<string, any> = { ...input }
 
   if (input.cep_destino !== undefined) {
@@ -273,7 +277,7 @@ export async function getCotacoes(params: CotacoesListParams = {}): Promise<Cota
 
 export async function getCotacao(id: string): Promise<Cotacao> {
   const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes/${id}`, { headers: headers() })
-  const data = await handleResponse<{ cotacao: any }>(res)
+  const data = await handleResponse<{ cotacao: unknown }>(res)
   return mapCotacaoFromServer(data.cotacao)
 }
 
@@ -284,7 +288,7 @@ export async function criarCotacao(input: Partial<Cotacao>): Promise<Cotacao> {
     headers: headers(),
     body: JSON.stringify(serverInput),
   })
-  const data = await handleResponse<{ cotacao: any }>(res)
+  const data = await handleResponse<{ cotacao: unknown }>(res)
   return mapCotacaoFromServer(data.cotacao)
 }
 
@@ -295,7 +299,7 @@ export async function atualizarCotacao(id: string, input: Partial<Cotacao>): Pro
     headers: headers(),
     body: JSON.stringify(serverInput),
   })
-  const data = await handleResponse<{ cotacao: any }>(res)
+  const data = await handleResponse<{ cotacao: unknown }>(res)
   return mapCotacaoFromServer(data.cotacao)
 }
 
@@ -305,7 +309,7 @@ export async function mudarStatusCotacao(id: string, status: StatusCotacao): Pro
     headers: headers(),
     body: JSON.stringify({ status }),
   })
-  const data = await handleResponse<{ cotacao: any }>(res)
+  const data = await handleResponse<{ cotacao: unknown }>(res)
   return mapCotacaoFromServer(data.cotacao)
 }
 
@@ -346,7 +350,7 @@ export async function aprovarResposta(cotacaoId: string, responseId: string): Pr
     headers: headers(),
     body: JSON.stringify({ id_proposta_bid_frete_internacional: responseId }),
   })
-  const data = await handleResponse<{ cotacao: any }>(res)
+  const data = await handleResponse<{ cotacao: unknown }>(res)
   return mapCotacaoFromServer(data.cotacao)
 }
 
@@ -356,7 +360,7 @@ export async function reprovarTodas(cotacaoId: string, motivo: string): Promise<
     headers: headers(),
     body: JSON.stringify({ motivo }),
   })
-  const data = await handleResponse<{ cotacao: any }>(res)
+  const data = await handleResponse<{ cotacao: unknown }>(res)
   return mapCotacaoFromServer(data.cotacao)
 }
 

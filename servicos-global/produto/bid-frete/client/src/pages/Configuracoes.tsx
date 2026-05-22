@@ -35,7 +35,7 @@ import { useShellStore } from '@gravity/shell'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { SwitchGlobal } from '@nucleo/switch-global'
-import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
+// PedidoSnapshotCadastros removido — arquivo nao commitado (bid-frete descontinuado)
 import './Configuracoes.css'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
@@ -1782,10 +1782,7 @@ export default function Configuracoes() {
           </section>
         )}
 
-        {/* ── CATEGORIA: SNAPSHOT CADASTROS ── */}
-        {categoria === 'snapshot-cadastros' && (
-          <PedidoSnapshotCadastros />
-        )}
+        {/* CATEGORIA SNAPSHOT CADASTROS removida — componente nao commitado (bid-frete descontinuado) */}
 
         {/* ── CATEGORIA: NOTIFICAÇÕES ── */}
         {categoria === 'notificacoes' && (

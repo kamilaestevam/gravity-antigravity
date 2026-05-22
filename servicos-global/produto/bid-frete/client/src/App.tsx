@@ -32,7 +32,7 @@ import type { NavItem } from '@nucleo/tela-produto-global'
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 
 // Páginas do Cliente (Importador/Exportador)
-const VisaoGeral = lazy(() => import('./pages/VisaoGeral'))
+// VisaoGeral removida — arquivo nao commitado; bid-frete descontinuado (substituido por bid-frete-internacional)
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Cotacoes = lazy(() => import('./pages/Cotacoes'))
 const NovaCotacao = lazy(() => import('./pages/NovaCotacao'))
@@ -240,8 +240,8 @@ export default function App() {
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           {/* Rotas do Cliente */}
-          <Route path="/"              element={<Navigate to="visao-geral" replace />} />
-          <Route path="visao-geral"    element={<VisaoGeral />} />
+          <Route path="/"              element={<Navigate to="dashboard" replace />} />
+          {/* Route visao-geral removida — pagina nao commitada (bid-frete descontinuado) */}
           <Route path="dashboard"      element={<Dashboard />} />
           <Route path="cotacoes"       element={<Cotacoes />} />
           <Route path="cotacoes/nova"  element={<NovaCotacao />} />

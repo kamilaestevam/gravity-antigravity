@@ -49,7 +49,8 @@ const PedidosKanban    = lazy(() => import('./pages/PedidosKanban'))
 const Configuracoes    = lazy(() => import('./pages/Configuracoes'))
 const PedidoFormulario = lazy(() => import('./pages/PedidoFormulario'))
 const PedidosDashboard = lazy(() => import('./pages/PedidosDashboard'))
-const PedidosVisaoGeral = lazy(() => import('./pages/PedidosVisaoGeral'))
+// PedidosVisaoGeral removido do build — depende de useVisaoGeralPedido (hook nao commitado).
+// Re-adicionar a rota quando shared/useVisaoGeralPedido.ts for commitado.
 
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('pedido')
@@ -297,11 +298,8 @@ function AppInner() {
               <Pedidos />
             </BloqueioPermissaoOpaco>
           } />
-          <Route path="pedidos/visao-geral"      element={
-            <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver a Visão Geral" modo="bloqueio-tela">
-              <PedidosVisaoGeral />
-            </BloqueioPermissaoOpaco>
-          } />
+          {/* Route pedidos/visao-geral removida — PedidosVisaoGeral depende de
+              useVisaoGeralPedido (hook nao commitado). Re-adicionar quando o hook existir. */}
           <Route path="pedidos/dashboard"        element={
             <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver o Dashboard" modo="bloqueio-tela">
               <PedidosDashboard />

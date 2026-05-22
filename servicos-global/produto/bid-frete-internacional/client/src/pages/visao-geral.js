@@ -685,7 +685,7 @@ const MODAIS_INFO = [
 function VisaoGeralMapa({ onOpenCompleto }) {
     const [activeTab, setActiveTab] = useState('origens');
     const [hoveredPin, setHoveredPin] = useState(null);
-    const [selectedPinForModalResumido, setSelectedPinForModalResumido] = useState(null);
+    const [selectedPinForDialogoResumido, setSelectedPinForDialogoResumido] = useState(null);
     const [mapaModo, setMapaModo] = useState('bids');
     const hoveredPinRef = useRef(null);
     useEffect(() => {
@@ -1304,7 +1304,7 @@ function VisaoGeralMapa({ onOpenCompleto }) {
                                     }, onClick: (e) => {
                                         e.stopPropagation(); // Avoid triggering map drag
                                         isRotationPausedRef.current = true;
-                                        setSelectedPinForModalResumido(pin.id);
+                                        setSelectedPinForDialogoResumido(pin.id);
                                     }, children: [_jsx("div", { className: "bfd-map-pin__glow", style: { borderColor: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399' } }), _jsx("div", { className: "bfd-map-pin__dot", style: {
                                                 backgroundColor: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399',
                                                 boxShadow: pin.mode === 'AEREO' ? '0 0 10px rgba(167, 139, 250, 0.6)' : '0 0 10px rgba(52, 211, 153, 0.6)'
@@ -1356,7 +1356,7 @@ function VisaoGeralMapa({ onOpenCompleto }) {
                                                 setHoveredPin(null);
                                                 isRotationPausedRef.current = false;
                                             }, onClick: () => {
-                                                setSelectedPinForModalResumido(route.fromId);
+                                                setSelectedPinForDialogoResumido(route.fromId);
                                             }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }, children: [_jsxs("div", { style: { display: 'flex', alignItems: 'center', gap: '4px' }, children: [_jsx("span", { style: { fontSize: '0.85rem' }, children: fromPin.flag }), _jsx("strong", { style: { fontSize: '0.78rem', color: '#ffffff' }, children: fromPin.portCode }), _jsx("span", { style: { fontSize: '0.65rem', color: '#64748b' }, children: "\u2794" }), _jsx("span", { style: { fontSize: '0.85rem' }, children: toPin.flag }), _jsx("strong", { style: { fontSize: '0.78rem', color: '#ffffff' }, children: toPin.portCode })] }), _jsxs("span", { style: {
                                                                 display: 'inline-flex',
                                                                 alignItems: 'center',
@@ -1403,7 +1403,7 @@ function VisaoGeralMapa({ onOpenCompleto }) {
                                                 }, onClick: (e) => {
                                                     if (item.pinId) {
                                                         e.stopPropagation();
-                                                        setSelectedPinForModalResumido(item.pinId);
+                                                        setSelectedPinForDialogoResumido(item.pinId);
                                                     }
                                                 }, children: [_jsx("span", { className: "bfd-map-panel__row-rank", children: item.rank }), _jsx("span", { className: "bfd-map-panel__row-flag", children: item.flag }), _jsxs("div", { className: "bfd-map-panel__row-info", children: [_jsx("span", { className: "bfd-map-panel__row-city", children: item.name }), _jsx("span", { className: "bfd-map-panel__row-code", children: item.code })] }), _jsxs("span", { className: "bfd-map-panel__row-bids", children: [item.count, " bids"] })] }, item.rank));
                                         }), activeTab === 'destinos' && TOP_DESTINOS.map(item => {
@@ -1422,17 +1422,17 @@ function VisaoGeralMapa({ onOpenCompleto }) {
                                                 }, onClick: (e) => {
                                                     if (item.pinId) {
                                                         e.stopPropagation();
-                                                        setSelectedPinForModalResumido(item.pinId);
+                                                        setSelectedPinForDialogoResumido(item.pinId);
                                                     }
                                                 }, children: [_jsx("span", { className: "bfd-map-panel__row-rank", children: item.rank }), _jsx("span", { className: "bfd-map-panel__row-flag", children: item.flag }), _jsxs("div", { className: "bfd-map-panel__row-info", children: [_jsx("span", { className: "bfd-map-panel__row-city", children: item.name }), _jsx("span", { className: "bfd-map-panel__row-code", children: item.code })] }), _jsxs("span", { className: "bfd-map-panel__row-bids", children: [item.count, " bids"] })] }, item.rank));
                                         }), activeTab === 'modal_cotacao_bid_frete_internacional' && MODAIS_INFO.map((item, idx) => {
                                             return (_jsxs("div", { className: "bfd-map-panel__row", children: [_jsx("span", { className: "bfd-map-panel__row-rank", children: idx + 1 }), _jsx("span", { className: "bfd-map-panel__modal-icon-wrap", style: { color: item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '#a78bfa' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '#34d399' : '#fbbf24' }, children: MODAL_ICONS[item.modal_cotacao_bid_frete_internacional] || _jsx(Anchor, { size: 14 }) }), _jsxs("div", { className: "bfd-map-panel__row-info", style: { gap: '1px' }, children: [_jsx("span", { className: "bfd-map-panel__row-city", style: { fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }, children: item.label }), _jsxs("span", { className: "bfd-map-panel__row-code", style: { fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }, children: [item.count, " bids"] })] }), _jsxs("div", { style: { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }, children: [_jsxs("span", { className: "bfd-map-panel__row-bids", style: { fontWeight: 800, color: '#ffffff' }, children: [item.pct, "%"] }), _jsx("span", { className: "bfd-map-panel__modal-stat-num", style: { color: '#60a5fa' }, children: item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '+23.4%' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '+19.1%' : '+12.5%' })] })] }, idx));
-                                        })] })] })) }), selectedPinForModalResumido !== null && (() => {
-                        const pin = MAP_PINS.find(p => p.id === selectedPinForModalResumido);
+                                        })] })] })) }), selectedPinForDialogoResumido !== null && (() => {
+                        const pin = MAP_PINS.find(p => p.id === selectedPinForDialogoResumido);
                         if (!pin)
                             return null;
-                        const connections = PORT_CONNECTIONS[selectedPinForModalResumido] || [];
-                        return (_jsx("div", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-overlay", onClick: () => setSelectedPinForModalResumido(null), children: _jsxs("div", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-card", onClick: e => e.stopPropagation(), children: [_jsxs("div", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-header", children: [_jsxs("div", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-title-group", children: [_jsx("span", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-flag-large", children: pin.flag }), _jsxs("div", { children: [_jsxs("h2", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-title", children: ["Rotas Ativas: ", pin.label] }), _jsxs("span", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-subtitle", children: [pin.portCode, " \u2022 ", pin.country] })] })] }), _jsx("button", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-close-btn", onClick: () => setSelectedPinForModalResumido(null), children: "\u2715" })] }), _jsx("div", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-body", children: connections.length === 0 ? (_jsx("div", { style: { padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }, children: "Nenhuma rota ativa cadastrada para este terminal." })) : (connections.map((route, idx) => {
+                        const connections = PORT_CONNECTIONS[selectedPinForDialogoResumido] || [];
+                        return (_jsx("div", { className: "dialogo-cotacao-resumida-bid-frete-internacional-overlay", onClick: () => setSelectedPinForDialogoResumido(null), children: _jsxs("div", { className: "dialogo-cotacao-resumida-bid-frete-internacional-card", onClick: e => e.stopPropagation(), children: [_jsxs("div", { className: "dialogo-cotacao-resumida-bid-frete-internacional-header", children: [_jsxs("div", { className: "dialogo-cotacao-resumida-bid-frete-internacional-title-group", children: [_jsx("span", { className: "dialogo-cotacao-resumida-bid-frete-internacional-flag-large", children: pin.flag }), _jsxs("div", { children: [_jsxs("h2", { className: "dialogo-cotacao-resumida-bid-frete-internacional-title", children: ["Rotas Ativas: ", pin.label] }), _jsxs("span", { className: "dialogo-cotacao-resumida-bid-frete-internacional-subtitle", children: [pin.portCode, " \u2022 ", pin.country] })] })] }), _jsx("button", { className: "dialogo-cotacao-resumida-bid-frete-internacional-close-btn", onClick: () => setSelectedPinForDialogoResumido(null), children: "\u2715" })] }), _jsx("div", { className: "dialogo-cotacao-resumida-bid-frete-internacional-body", children: connections.length === 0 ? (_jsx("div", { style: { padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }, children: "Nenhuma rota ativa cadastrada para este terminal." })) : (connections.map((route, idx) => {
                                             const isAir = route.mode === 'AEREO';
                                             const modeColor = isAir ? '#a78bfa' : '#34d399';
                                             const modeIcon = isAir ? _jsx(AirplaneTilt, { size: 14, weight: "bold" }) : _jsx(Anchor, { size: 14, weight: "bold" });
@@ -1456,7 +1456,7 @@ function VisaoGeralMapa({ onOpenCompleto }) {
                                                                             borderRadius: '2px',
                                                                         } })] }), _jsxs("div", { style: { fontSize: '0.62rem', color: '#94a3b8', textAlign: 'right', fontStyle: 'italic' }, children: ["Ganho de efici\u00EAncia de +", (((route.transitTime + 3) - route.transitTime) / (route.transitTime + 3) * 100).toFixed(0), "% (+3 dias mais r\u00E1pido que a m\u00E9dia geral)"] })] }), _jsxs("div", { style: { fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }, children: [_jsxs("span", { children: ["Forn. L\u00EDder: ", _jsx("strong", { children: route.supplier })] }), _jsxs("button", { className: "bfd-route-btn-completo", onClick: (e) => {
                                                                     e.stopPropagation();
-                                                                    setSelectedPinForModalResumido(null);
+                                                                    setSelectedPinForDialogoResumido(null);
                                                                     if (onOpenCompleto) {
                                                                         onOpenCompleto(route);
                                                                     }
@@ -1484,12 +1484,12 @@ function VisaoGeralMapa({ onOpenCompleto }) {
                                                                     e.currentTarget.style.transform = 'translateY(0) scale(1)';
                                                                     e.currentTarget.style.boxShadow = `0 0 10px ${isAir ? 'rgba(167, 139, 250, 0.06)' : 'rgba(52, 211, 153, 0.06)'}`;
                                                                 }, children: [_jsx(Eye, { size: 12, weight: "bold" }), _jsx("span", { children: "Ver Cota\u00E7\u00E3o Completa" }), _jsx(ArrowRight, { size: 10, weight: "bold", style: { marginLeft: '2px' } })] })] })] }, idx));
-                                        })) }), _jsx("div", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-footer", children: _jsx("button", { className: "modal_resumido_cota\u00E7\u00E3o_bid_frete_iternacional-close-action", onClick: () => setSelectedPinForModalResumido(null), children: "Fechar" }) })] }) }));
+                                        })) }), _jsx("div", { className: "dialogo-cotacao-resumida-bid-frete-internacional-footer", children: _jsx("button", { className: "dialogo-cotacao-resumida-bid-frete-internacional-close-action", onClick: () => setSelectedPinForDialogoResumido(null), children: "Fechar" }) })] }) }));
                     })()] })] }));
 }
 export default function VisaoGeral() {
     const navigate = useNavigate();
-    const [isModalCompletoOpen, setIsModalCompletoOpen] = useState(false);
+    const [isDialogoCompletoOpen, setIsDialogoCompletoOpen] = useState(false);
     const [alertModalTab, setAlertModalTab] = useState('geral');
     const [selectedAlertContextCompleto, setSelectedAlertContextCompleto] = useState(null);
     // Interactive exchange rate & spread states (DDD nomenclature, PT-BR without accents)
@@ -1630,7 +1630,6 @@ export default function VisaoGeral() {
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           border: 1px solid rgba(255, 255, 255, 0.06);
-          border-left: 3px solid #3b82f6 !important; /* Unified native blue left accent border */
           border-radius: 14px;
           padding: 1.5rem 1.75rem;
           display: flex;
@@ -2255,7 +2254,7 @@ export default function VisaoGeral() {
         }
 
         /* ── Premium Modal overlay ───────────────────────────────── */
-        .modal_resumido_cotação_bid_frete_iternacional-overlay {
+        .dialogo-cotacao-resumida-bid-frete-internacional-overlay {
           position: fixed;
           inset: 0;
           background: rgba(8, 10, 18, 0.75);
@@ -2273,7 +2272,7 @@ export default function VisaoGeral() {
           to { opacity: 1; }
         }
         
-        .modal_resumido_cotação_bid_frete_iternacional-card {
+        .dialogo-cotacao-resumida-bid-frete-internacional-card {
           width: 100%;
           max-width: 620px;
           max-height: 90vh;
@@ -2293,37 +2292,37 @@ export default function VisaoGeral() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        .modal_resumido_cotação_bid_frete_iternacional-header {
+        .dialogo-cotacao-resumida-bid-frete-internacional-header {
           padding: 1.25rem 1.5rem;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-title-group {
+        .dialogo-cotacao-resumida-bid-frete-internacional-title-group {
           display: flex;
           align-items: center;
           gap: 0.75rem;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-flag-large {
+        .dialogo-cotacao-resumida-bid-frete-internacional-flag-large {
           font-size: 2.2rem;
           line-height: 1;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-title {
+        .dialogo-cotacao-resumida-bid-frete-internacional-title {
           font-size: 1.25rem;
           font-weight: 800;
           color: #ffffff;
           letter-spacing: -0.01em;
           margin: 0;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-subtitle {
+        .dialogo-cotacao-resumida-bid-frete-internacional-subtitle {
           font-size: 0.82rem;
           color: #cbd5e1;
           margin-top: 0.15rem;
           display: block;
           font-weight: 500;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-close-btn {
+        .dialogo-cotacao-resumida-bid-frete-internacional-close-btn {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.08);
           color: #94a3b8;
@@ -2336,14 +2335,14 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-close-btn:hover {
+        .dialogo-cotacao-resumida-bid-frete-internacional-close-btn:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
           color: #ffffff;
           transform: rotate(90deg);
         }
 
-        .modal_resumido_cotação_bid_frete_iternacional-body {
+        .dialogo-cotacao-resumida-bid-frete-internacional-body {
           padding: 1.5rem;
           overflow-y: auto;
           display: flex;
@@ -2370,12 +2369,7 @@ export default function VisaoGeral() {
           transform: translateY(-2px);
         }
 
-        .bfd-route-card--maritimo {
-          border-left: 3px solid #34d399;
-        }
-        .bfd-route-card--aereo {
-          border-left: 3px solid #a78bfa;
-        }
+
 
         .bfd-route-header {
           display: flex;
@@ -2454,14 +2448,14 @@ export default function VisaoGeral() {
           color: #ffffff;
         }
 
-        .modal_resumido_cotação_bid_frete_iternacional-footer {
+        .dialogo-cotacao-resumida-bid-frete-internacional-footer {
           padding: 1rem 1.5rem;
           border-top: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           justify-content: flex-end;
           background: rgba(11, 15, 28, 0.5);
         }
-        .modal_resumido_cotação_bid_frete_iternacional-close-action {
+        .dialogo-cotacao-resumida-bid-frete-internacional-close-action {
           padding: 0.5rem 1.25rem;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.1);
@@ -2472,7 +2466,7 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-close-action:hover {
+        .dialogo-cotacao-resumida-bid-frete-internacional-close-action:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
         }
@@ -2635,7 +2629,7 @@ export default function VisaoGeral() {
                                 ...route
                             });
                             setAlertModalTab('geral');
-                            setIsModalCompletoOpen(true);
+                            setIsDialogoCompletoOpen(true);
                         } }), _jsxs("div", { style: { display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', minHeight: 0 }, children: [_jsxs("div", { className: "bfd-card bfd-alertas bfd-card--accent-rose", style: { flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }, children: [_jsxs("div", { className: "cg-card__header", children: [_jsx("div", { className: "cg-card__icon-wrap", children: _jsx(Bell, { weight: "duotone", size: 16, style: { color: '#f87171' } }) }), _jsx("p", { className: "cg-card__label", style: { margin: 0 }, children: "Alertas" })] }), _jsxs("div", { style: { display: 'flex', alignItems: 'center', background: 'rgba(255, 255, 255, 0.04)', padding: '2px', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.06)' }, children: [_jsx("button", { style: { background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }, children: _jsx(CaretLeft, { size: 12 }) }), _jsx("span", { style: { fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', padding: '0 4px', letterSpacing: '0.02em' }, children: "Hoje" }), _jsx("button", { style: { background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }, children: _jsx(CaretRight, { size: 12 }) })] })] }), _jsx("div", { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.65rem', flex: 1 }, children: alertas.map((a, i) => {
                                             let icon = _jsx(Clock, { size: 16, weight: "duotone" });
                                             let glowColor = 'rgba(248, 113, 113, 0.15)';
@@ -2666,7 +2660,7 @@ export default function VisaoGeral() {
                                             return (_jsxs("div", { className: "bfd-alertas__glow-card", onClick: () => {
                                                     setSelectedAlertContextCompleto(a);
                                                     setAlertModalTab('geral');
-                                                    setIsModalCompletoOpen(true);
+                                                    setIsDialogoCompletoOpen(true);
                                                 }, style: {
                                                     display: 'flex',
                                                     flexDirection: 'column',
@@ -2748,7 +2742,7 @@ export default function VisaoGeral() {
                                                     boxShadow: `0 0 6px ${item.cor}60`,
                                                     borderRadius: '3px',
                                                     transition: 'width 0.5s ease-out',
-                                                } }) })] }, item.moeda))) }), _jsx("div", { style: { marginTop: 'auto', paddingTop: '0.5rem' }, children: _jsx("p", { style: { fontSize: '0.65rem', color: '#94a3b8', margin: 0, lineHeight: 1.4 }, children: "M\u00E9dia aplicada pelos fornecedores sobre as cota\u00E7\u00F5es ativas dos \u00FAltimos 30 dias." }) })] })] }), _jsxs("div", { className: "bfd-insights-grid", children: [_jsxs("div", { className: "bfd-card bfd-card--accent-amber", children: [_jsxs("div", { className: "cg-card__header", style: { marginBottom: '1.25rem' }, children: [_jsx("div", { className: "cg-card__icon-wrap", children: _jsx(Trophy, { weight: "duotone", size: 16, style: { color: '#fbbf24' } }) }), _jsx("p", { className: "cg-card__label", style: { margin: 0 }, children: "Melhor Cota\u00E7\u00E3o do M\u00EAs" })] }), _jsxs("div", { className: "bfd-best", children: [_jsxs("div", { className: "bfd-best__route", style: { margin: '0.35rem 0 0.75rem' }, children: [_jsxs("div", { className: "bfd-best__port", children: [_jsx("div", { className: "bfd-best__port-flag", children: "\uD83C\uDDE8\uD83C\uDDF3" }), _jsx("div", { className: "bfd-best__port-code", children: "Shanghai (CNSHA)" })] }), _jsxs("div", { className: "bfd-best__arrow", style: { position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', padding: '0 0.5rem' }, children: [_jsxs("span", { className: "bfd-best__arrow-tt", style: { fontSize: '0.68rem', color: '#94a3b8', letterSpacing: '0.02em', marginBottom: '4px', fontWeight: 500 }, children: [DEMO_MELHOR_COTACAO.transit_time, " dias"] }), _jsxs("svg", { width: "100%", height: "20", viewBox: "0 0 160 20", style: { overflow: 'visible' }, children: [_jsx("line", { x1: "0", y1: "10", x2: "160", y2: "10", stroke: "rgba(255,255,255,0.15)", strokeWidth: "1.5", strokeDasharray: "4,4" }), _jsx("circle", { cx: "80", cy: "10", r: "10", fill: "rgba(96,165,250,0.15)" }), _jsx("circle", { cx: "80", cy: "10", r: "3.5", fill: "#60a5fa" }), _jsx("g", { transform: "translate(73, 3)", children: _jsx(Anchor, { size: 14, weight: "bold", style: { color: '#60a5fa' } }) })] })] }), _jsxs("div", { className: "bfd-best__port", children: [_jsx("div", { className: "bfd-best__port-flag", children: "\uD83C\uDDE7\uD83C\uDDF7" }), _jsx("div", { className: "bfd-best__port-code", children: "Santos (BRSSZ)" })] })] }), _jsxs("div", { className: "bfd-best__saving", children: [_jsxs("span", { className: "bfd-best__saving-badge", children: [_jsx(TrendUp, { size: 12 }), " ", DEMO_MELHOR_COTACAO.saving_pct, "% saving"] }), _jsxs("span", { className: "bfd-best__saving-val", children: ["USD ", fmtMoeda(DEMO_MELHOR_COTACAO.ganho_valor_cotacao_bid_frete_internacional)] })] }), _jsxs("div", { className: "bfd-best__meta", children: [DEMO_MELHOR_COTACAO.numero_cotacao_bid_frete_internacional, " | ", DEMO_MELHOR_COTACAO.fornecedor, " | USD ", fmtMoeda(DEMO_MELHOR_COTACAO.valor_aprovado_ganho_bid_frete_internacional)] })] })] }), _jsxs("div", { className: "bfd-card bfd-card--accent-purple", children: [_jsxs("div", { className: "cg-card__header", style: { marginBottom: '1.25rem' }, children: [_jsx("div", { className: "cg-card__icon-wrap", children: _jsx(List, { weight: "duotone", size: 16, style: { color: '#a78bfa' } }) }), _jsx("p", { className: "cg-card__label", style: { margin: 0 }, children: "Top Incoterms" })] }), _jsx("div", { className: "bfd-incoterms", children: DEMO_INCOTERMS.map(inc => (_jsxs("div", { className: "bfd-incoterms__row", style: { display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', width: '100%' }, children: [_jsx("span", { className: "bfd-incoterms__code", children: inc.incoterm_cotacao_bid_frete_internacional }), _jsxs("span", { className: "bfd-incoterms__count", style: { fontWeight: 600, color: '#ffffff', letterSpacing: '0.01em' }, children: [inc.count, " ", _jsxs("span", { style: { fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }, children: ["(", inc.pct, "%)"] })] })] }), _jsx("div", { style: { width: '100%', height: '6px', background: 'rgba(255,255,255,0.04)', borderRadius: '3px', overflow: 'hidden' }, children: _jsx("div", { style: { width: `${inc.pct}%`, height: '100%', background: 'linear-gradient(90deg, #60a5fa, #2563eb)', borderRadius: '3px' } }) })] }, inc.incoterm_cotacao_bid_frete_internacional))) })] })] }), _jsx("div", { className: "bfd-bottom-grid", children: _jsxs("div", { className: "bfd-card bfd-card--accent-emerald", children: [_jsxs("div", { className: "cg-card__header", style: { marginBottom: '1.25rem' }, children: [_jsx("div", { className: "cg-card__icon-wrap", children: _jsx(ThumbsUp, { weight: "duotone", size: 16, style: { color: '#34d399' } }) }), _jsx("p", { className: "cg-card__label", style: { margin: 0 }, children: "Taxa de Aprova\u00E7\u00E3o" })] }), _jsx(TaxaAprovacao, {})] }) }), _jsx("div", { className: "bfd-footer", children: "\u2699 Dados demonstrativos \u2014 conecte o backend para dados reais" }), isModalCompletoOpen && selectedAlertContextCompleto && (() => {
+                                                } }) })] }, item.moeda))) }), _jsx("div", { style: { marginTop: 'auto', paddingTop: '0.5rem' }, children: _jsx("p", { style: { fontSize: '0.65rem', color: '#94a3b8', margin: 0, lineHeight: 1.4 }, children: "M\u00E9dia aplicada pelos fornecedores sobre as cota\u00E7\u00F5es ativas dos \u00FAltimos 30 dias." }) })] })] }), _jsxs("div", { className: "bfd-insights-grid", children: [_jsxs("div", { className: "bfd-card bfd-card--accent-amber", children: [_jsxs("div", { className: "cg-card__header", style: { marginBottom: '1.25rem' }, children: [_jsx("div", { className: "cg-card__icon-wrap", children: _jsx(Trophy, { weight: "duotone", size: 16, style: { color: '#fbbf24' } }) }), _jsx("p", { className: "cg-card__label", style: { margin: 0 }, children: "Melhor Cota\u00E7\u00E3o do M\u00EAs" })] }), _jsxs("div", { className: "bfd-best", children: [_jsxs("div", { className: "bfd-best__route", style: { margin: '0.35rem 0 0.75rem' }, children: [_jsxs("div", { className: "bfd-best__port", children: [_jsx("div", { className: "bfd-best__port-flag", children: "\uD83C\uDDE8\uD83C\uDDF3" }), _jsx("div", { className: "bfd-best__port-code", children: "Shanghai (CNSHA)" })] }), _jsxs("div", { className: "bfd-best__arrow", style: { position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', padding: '0 0.5rem' }, children: [_jsxs("span", { className: "bfd-best__arrow-tt", style: { fontSize: '0.68rem', color: '#94a3b8', letterSpacing: '0.02em', marginBottom: '4px', fontWeight: 500 }, children: [DEMO_MELHOR_COTACAO.transit_time, " dias"] }), _jsxs("svg", { width: "100%", height: "20", viewBox: "0 0 160 20", style: { overflow: 'visible' }, children: [_jsx("line", { x1: "0", y1: "10", x2: "160", y2: "10", stroke: "rgba(255,255,255,0.15)", strokeWidth: "1.5", strokeDasharray: "4,4" }), _jsx("circle", { cx: "80", cy: "10", r: "10", fill: "rgba(96,165,250,0.15)" }), _jsx("circle", { cx: "80", cy: "10", r: "3.5", fill: "#60a5fa" }), _jsx("g", { transform: "translate(73, 3)", children: _jsx(Anchor, { size: 14, weight: "bold", style: { color: '#60a5fa' } }) })] })] }), _jsxs("div", { className: "bfd-best__port", children: [_jsx("div", { className: "bfd-best__port-flag", children: "\uD83C\uDDE7\uD83C\uDDF7" }), _jsx("div", { className: "bfd-best__port-code", children: "Santos (BRSSZ)" })] })] }), _jsxs("div", { className: "bfd-best__saving", children: [_jsxs("span", { className: "bfd-best__saving-badge", children: [_jsx(TrendUp, { size: 12 }), " ", DEMO_MELHOR_COTACAO.saving_pct, "% saving"] }), _jsxs("span", { className: "bfd-best__saving-val", children: ["USD ", fmtMoeda(DEMO_MELHOR_COTACAO.ganho_valor_cotacao_bid_frete_internacional)] })] }), _jsxs("div", { className: "bfd-best__meta", children: [DEMO_MELHOR_COTACAO.numero_cotacao_bid_frete_internacional, " | ", DEMO_MELHOR_COTACAO.fornecedor, " | USD ", fmtMoeda(DEMO_MELHOR_COTACAO.valor_aprovado_ganho_bid_frete_internacional)] })] })] }), _jsxs("div", { className: "bfd-card bfd-card--accent-purple", children: [_jsxs("div", { className: "cg-card__header", style: { marginBottom: '1.25rem' }, children: [_jsx("div", { className: "cg-card__icon-wrap", children: _jsx(List, { weight: "duotone", size: 16, style: { color: '#a78bfa' } }) }), _jsx("p", { className: "cg-card__label", style: { margin: 0 }, children: "Top Incoterms" })] }), _jsx("div", { className: "bfd-incoterms", children: DEMO_INCOTERMS.map(inc => (_jsxs("div", { className: "bfd-incoterms__row", style: { display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', width: '100%' }, children: [_jsx("span", { className: "bfd-incoterms__code", children: inc.incoterm_cotacao_bid_frete_internacional }), _jsxs("span", { className: "bfd-incoterms__count", style: { fontWeight: 600, color: '#ffffff', letterSpacing: '0.01em' }, children: [inc.count, " ", _jsxs("span", { style: { fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }, children: ["(", inc.pct, "%)"] })] })] }), _jsx("div", { style: { width: '100%', height: '6px', background: 'rgba(255,255,255,0.04)', borderRadius: '3px', overflow: 'hidden' }, children: _jsx("div", { style: { width: `${inc.pct}%`, height: '100%', background: 'linear-gradient(90deg, #60a5fa, #2563eb)', borderRadius: '3px' } }) })] }, inc.incoterm_cotacao_bid_frete_internacional))) })] })] }), _jsx("div", { className: "bfd-bottom-grid", children: _jsxs("div", { className: "bfd-card bfd-card--accent-emerald", children: [_jsxs("div", { className: "cg-card__header", style: { marginBottom: '1.25rem' }, children: [_jsx("div", { className: "cg-card__icon-wrap", children: _jsx(ThumbsUp, { weight: "duotone", size: 16, style: { color: '#34d399' } }) }), _jsx("p", { className: "cg-card__label", style: { margin: 0 }, children: "Taxa de Aprova\u00E7\u00E3o" })] }), _jsx(TaxaAprovacao, {})] }) }), _jsx("div", { className: "bfd-footer", children: "\u2699 Dados demonstrativos \u2014 conecte o backend para dados reais" }), isDialogoCompletoOpen && selectedAlertContextCompleto && (() => {
                 const context = selectedAlertContextCompleto;
                 // Generate mock data for the selected alert type
                 let modalTitle = 'Detalhes da Cotação';
@@ -2856,7 +2850,7 @@ export default function VisaoGeral() {
                         { data: '20/05/2026 08:00', texto: 'Cotação rascunhada', autor: 'Daniel' }
                     ];
                 }
-                return (_jsxs("div", { className: "bfd-modal-overlay", style: {
+                return (_jsxs("div", { className: "bfd-dialogo-overlay", style: {
                         position: 'fixed',
                         top: 0,
                         left: 0,
@@ -2869,7 +2863,7 @@ export default function VisaoGeral() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         animation: 'fadeIn 0.25s ease-out'
-                    }, onClick: () => setIsModalCompletoOpen(false), children: [_jsx("style", { children: `
+                    }, onClick: () => setIsDialogoCompletoOpen(false), children: [_jsx("style", { children: `
                 @keyframes fadeIn {
                   from { opacity: 0; }
                   to { opacity: 1; }
@@ -2878,7 +2872,7 @@ export default function VisaoGeral() {
                   from { transform: scale(0.95); opacity: 0; }
                   to { transform: scale(1); opacity: 1; }
                 }
-              ` }), _jsxs("div", { className: "bfd-modal-card", style: {
+              ` }), _jsxs("div", { className: "bfd-dialogo-card", style: {
                                 background: 'rgba(30, 41, 59, 0.85)',
                                 border: '1px solid rgba(255, 255, 255, 0.08)',
                                 boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4)',
@@ -2890,7 +2884,7 @@ export default function VisaoGeral() {
                                 flexDirection: 'column',
                                 overflow: 'hidden',
                                 animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
-                            }, onClick: e => e.stopPropagation(), children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }, children: [_jsxs("div", { children: [_jsxs("h2", { style: { fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }, children: [_jsx("span", { style: { color: dotColor }, children: "\u25CF" }), modalTitle] }), _jsxs("p", { style: { fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0' }, children: ["Refer\u00EAncia: ", quoteId] })] }), _jsx("button", { style: { background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', transition: 'all 0.2s' }, onClick: () => setIsModalCompletoOpen(false), children: "\u2715" })] }), _jsx("div", { style: { display: 'flex', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(15, 23, 42, 0.2)', padding: '0 1rem' }, children: ['geral', 'itens', 'propostas', 'historico'].map(t => {
+                            }, onClick: e => e.stopPropagation(), children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }, children: [_jsxs("div", { children: [_jsxs("h2", { style: { fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }, children: [_jsx("span", { style: { color: dotColor }, children: "\u25CF" }), modalTitle] }), _jsxs("p", { style: { fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0' }, children: ["Refer\u00EAncia: ", quoteId] })] }), _jsx("button", { style: { background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', transition: 'all 0.2s' }, onClick: () => setIsDialogoCompletoOpen(false), children: "\u2715" })] }), _jsx("div", { style: { display: 'flex', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(15, 23, 42, 0.2)', padding: '0 1rem' }, children: ['geral', 'itens', 'propostas', 'historico'].map(t => {
                                         const isActive = alertModalTab === t;
                                         const labels = { geral: 'Geral', itens: 'Itens', propostas: 'Propostas', historico: 'Histórico' };
                                         return (_jsx("button", { style: {
@@ -2932,7 +2926,7 @@ export default function VisaoGeral() {
                                                 fontWeight: 600,
                                                 cursor: 'pointer',
                                                 transition: 'all 0.2s'
-                                            }, onClick: () => setIsModalCompletoOpen(false), children: "Fechar" }), _jsx("button", { style: {
+                                            }, onClick: () => setIsDialogoCompletoOpen(false), children: "Fechar" }), _jsx("button", { style: {
                                                 background: '#2563eb',
                                                 border: 'none',
                                                 borderRadius: '8px',
@@ -2946,4 +2940,3 @@ export default function VisaoGeral() {
                                             }, onClick: () => alert('Operação atualizada com sucesso!'), children: "Salvar" })] })] })] }));
             })()] }));
 }
-//# sourceMappingURL=visao-geral.js.map

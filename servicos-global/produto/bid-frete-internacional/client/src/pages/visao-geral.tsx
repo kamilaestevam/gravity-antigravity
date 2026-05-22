@@ -1007,7 +1007,7 @@ interface VisaoGeralMapaProps {
 function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
   const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modal_cotacao_bid_frete_internacional'>('origens')
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
-  const [selectedPinForModalResumido, setSelectedPinForModalResumido] = useState<number | null>(null)
+  const [selectedPinForDialogoResumido, setSelectedPinForDialogoResumido] = useState<number | null>(null)
   const [mapaModo, setMapaModo] = useState<'bids' | 'transit'>('bids')
   
   const hoveredPinRef = useRef<number | null>(null)
@@ -1829,7 +1829,7 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                 onClick={(e) => {
                   e.stopPropagation() // Avoid triggering map drag
                   isRotationPausedRef.current = true
-                  setSelectedPinForModalResumido(pin.id)
+                  setSelectedPinForDialogoResumido(pin.id)
                 }}
               >
                 {/* Outer pulsing ring */}
@@ -1977,7 +1977,7 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                         isRotationPausedRef.current = false
                       }}
                       onClick={() => {
-                        setSelectedPinForModalResumido(route.fromId)
+                        setSelectedPinForDialogoResumido(route.fromId)
                       }}
                     >
                       {/* Top Row: Ports and Mode */}
@@ -2107,7 +2107,7 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                       onClick={(e) => {
                         if (item.pinId) {
                           e.stopPropagation()
-                          setSelectedPinForModalResumido(item.pinId)
+                          setSelectedPinForDialogoResumido(item.pinId)
                         }
                       }}
                     >
@@ -2145,7 +2145,7 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                       onClick={(e) => {
                         if (item.pinId) {
                           e.stopPropagation()
-                          setSelectedPinForModalResumido(item.pinId)
+                          setSelectedPinForDialogoResumido(item.pinId)
                         }
                       }}
                     >
@@ -2192,26 +2192,26 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
         </div>
 
         {/* Premium Detail Modal Overlay */}
-        {selectedPinForModalResumido !== null && (() => {
-          const pin = MAP_PINS.find(p => p.id === selectedPinForModalResumido)
+        {selectedPinForDialogoResumido !== null && (() => {
+          const pin = MAP_PINS.find(p => p.id === selectedPinForDialogoResumido)
           if (!pin) return null
-          const connections = PORT_CONNECTIONS[selectedPinForModalResumido] || []
+          const connections = PORT_CONNECTIONS[selectedPinForDialogoResumido] || []
           
           return (
-            <div className="modal_resumido_cotação_bid_frete_iternacional-overlay" onClick={() => setSelectedPinForModalResumido(null)}>
-              <div className="modal_resumido_cotação_bid_frete_iternacional-card" onClick={e => e.stopPropagation()}>
-                <div className="modal_resumido_cotação_bid_frete_iternacional-header">
-                  <div className="modal_resumido_cotação_bid_frete_iternacional-title-group">
-                    <span className="modal_resumido_cotação_bid_frete_iternacional-flag-large">{pin.flag}</span>
+            <div className="dialogo-cotacao-resumida-bid-frete-internacional-overlay" onClick={() => setSelectedPinForDialogoResumido(null)}>
+              <div className="dialogo-cotacao-resumida-bid-frete-internacional-card" onClick={e => e.stopPropagation()}>
+                <div className="dialogo-cotacao-resumida-bid-frete-internacional-header">
+                  <div className="dialogo-cotacao-resumida-bid-frete-internacional-title-group">
+                    <span className="dialogo-cotacao-resumida-bid-frete-internacional-flag-large">{pin.flag}</span>
                     <div>
-                      <h2 className="modal_resumido_cotação_bid_frete_iternacional-title">Rotas Ativas: {pin.label}</h2>
-                      <span className="modal_resumido_cotação_bid_frete_iternacional-subtitle">{pin.portCode} • {pin.country}</span>
+                      <h2 className="dialogo-cotacao-resumida-bid-frete-internacional-title">Rotas Ativas: {pin.label}</h2>
+                      <span className="dialogo-cotacao-resumida-bid-frete-internacional-subtitle">{pin.portCode} • {pin.country}</span>
                     </div>
                   </div>
-                  <button className="modal_resumido_cotação_bid_frete_iternacional-close-btn" onClick={() => setSelectedPinForModalResumido(null)}>✕</button>
+                  <button className="dialogo-cotacao-resumida-bid-frete-internacional-close-btn" onClick={() => setSelectedPinForDialogoResumido(null)}>✕</button>
                 </div>
                 
-                <div className="modal_resumido_cotação_bid_frete_iternacional-body">
+                <div className="dialogo-cotacao-resumida-bid-frete-internacional-body">
                   {connections.length === 0 ? (
                     <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
                       Nenhuma rota ativa cadastrada para este terminal.
@@ -2349,7 +2349,7 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                               className="bfd-route-btn-completo"
                               onClick={(e) => {
                                 e.stopPropagation()
-                                setSelectedPinForModalResumido(null)
+                                setSelectedPinForDialogoResumido(null)
                                 if (onOpenCompleto) {
                                   onOpenCompleto(route)
                                 }
@@ -2392,8 +2392,8 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                   )}
                 </div>
                 
-                <div className="modal_resumido_cotação_bid_frete_iternacional-footer">
-                  <button className="modal_resumido_cotação_bid_frete_iternacional-close-action" onClick={() => setSelectedPinForModalResumido(null)}>Fechar</button>
+                <div className="dialogo-cotacao-resumida-bid-frete-internacional-footer">
+                  <button className="dialogo-cotacao-resumida-bid-frete-internacional-close-action" onClick={() => setSelectedPinForDialogoResumido(null)}>Fechar</button>
                 </div>
               </div>
             </div>
@@ -2406,7 +2406,7 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
 
 export default function VisaoGeral() {
   const navigate = useNavigate()
-  const [isModalCompletoOpen, setIsModalCompletoOpen] = useState(false)
+  const [isDialogoCompletoOpen, setIsDialogoCompletoOpen] = useState(false)
   const [alertModalTab, setAlertModalTab] = useState<'geral' | 'itens' | 'propostas' | 'historico'>('geral')
   const [selectedAlertContextCompleto, setSelectedAlertContextCompleto] = useState<CalendarioAlerta | (RouteDetail & { tipo: 'route' }) | null>(null)
 
@@ -2557,7 +2557,6 @@ export default function VisaoGeral() {
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           border: 1px solid rgba(255, 255, 255, 0.06);
-          border-left: 3px solid #3b82f6 !important; /* Unified native blue left accent border */
           border-radius: 14px;
           padding: 1.5rem 1.75rem;
           display: flex;
@@ -3182,7 +3181,7 @@ export default function VisaoGeral() {
         }
 
         /* ── Premium Modal overlay ───────────────────────────────── */
-        .modal_resumido_cotação_bid_frete_iternacional-overlay {
+        .dialogo-cotacao-resumida-bid-frete-internacional-overlay {
           position: fixed;
           inset: 0;
           background: rgba(8, 10, 18, 0.75);
@@ -3200,7 +3199,7 @@ export default function VisaoGeral() {
           to { opacity: 1; }
         }
         
-        .modal_resumido_cotação_bid_frete_iternacional-card {
+        .dialogo-cotacao-resumida-bid-frete-internacional-card {
           width: 100%;
           max-width: 620px;
           max-height: 90vh;
@@ -3220,37 +3219,37 @@ export default function VisaoGeral() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        .modal_resumido_cotação_bid_frete_iternacional-header {
+        .dialogo-cotacao-resumida-bid-frete-internacional-header {
           padding: 1.25rem 1.5rem;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-title-group {
+        .dialogo-cotacao-resumida-bid-frete-internacional-title-group {
           display: flex;
           align-items: center;
           gap: 0.75rem;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-flag-large {
+        .dialogo-cotacao-resumida-bid-frete-internacional-flag-large {
           font-size: 2.2rem;
           line-height: 1;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-title {
+        .dialogo-cotacao-resumida-bid-frete-internacional-title {
           font-size: 1.25rem;
           font-weight: 800;
           color: #ffffff;
           letter-spacing: -0.01em;
           margin: 0;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-subtitle {
+        .dialogo-cotacao-resumida-bid-frete-internacional-subtitle {
           font-size: 0.82rem;
           color: #cbd5e1;
           margin-top: 0.15rem;
           display: block;
           font-weight: 500;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-close-btn {
+        .dialogo-cotacao-resumida-bid-frete-internacional-close-btn {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.08);
           color: #94a3b8;
@@ -3263,14 +3262,14 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-close-btn:hover {
+        .dialogo-cotacao-resumida-bid-frete-internacional-close-btn:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
           color: #ffffff;
           transform: rotate(90deg);
         }
 
-        .modal_resumido_cotação_bid_frete_iternacional-body {
+        .dialogo-cotacao-resumida-bid-frete-internacional-body {
           padding: 1.5rem;
           overflow-y: auto;
           display: flex;
@@ -3297,12 +3296,7 @@ export default function VisaoGeral() {
           transform: translateY(-2px);
         }
 
-        .bfd-route-card--maritimo {
-          border-left: 3px solid #34d399;
-        }
-        .bfd-route-card--aereo {
-          border-left: 3px solid #a78bfa;
-        }
+
 
         .bfd-route-header {
           display: flex;
@@ -3381,14 +3375,14 @@ export default function VisaoGeral() {
           color: #ffffff;
         }
 
-        .modal_resumido_cotação_bid_frete_iternacional-footer {
+        .dialogo-cotacao-resumida-bid-frete-internacional-footer {
           padding: 1rem 1.5rem;
           border-top: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           justify-content: flex-end;
           background: rgba(11, 15, 28, 0.5);
         }
-        .modal_resumido_cotação_bid_frete_iternacional-close-action {
+        .dialogo-cotacao-resumida-bid-frete-internacional-close-action {
           padding: 0.5rem 1.25rem;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.1);
@@ -3399,7 +3393,7 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .modal_resumido_cotação_bid_frete_iternacional-close-action:hover {
+        .dialogo-cotacao-resumida-bid-frete-internacional-close-action:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
         }
@@ -3701,7 +3695,7 @@ export default function VisaoGeral() {
               ...route
             })
             setAlertModalTab('geral')
-            setIsModalCompletoOpen(true)
+            setIsDialogoCompletoOpen(true)
           }}
         />
 
@@ -3757,7 +3751,7 @@ export default function VisaoGeral() {
                     onClick={() => {
                       setSelectedAlertContextCompleto(a)
                       setAlertModalTab('geral')
-                      setIsModalCompletoOpen(true)
+                      setIsDialogoCompletoOpen(true)
                     }}
                     style={{
                       display: 'flex',
@@ -4109,7 +4103,7 @@ export default function VisaoGeral() {
       </div>
 
       {/* Tabbed Quotation Modal Overlay */}
-      {isModalCompletoOpen && selectedAlertContextCompleto && (() => {
+      {isDialogoCompletoOpen && selectedAlertContextCompleto && (() => {
          const context = selectedAlertContextCompleto;
          // Generate mock data for the selected alert type
          let modalTitle = 'Detalhes da Cotação';
@@ -4218,7 +4212,7 @@ export default function VisaoGeral() {
          }
 
          return (
-            <div className="bfd-modal-overlay" style={{
+            <div className="bfd-dialogo-overlay" style={{
               position: 'fixed',
               top: 0,
               left: 0,
@@ -4231,7 +4225,7 @@ export default function VisaoGeral() {
               alignItems: 'center',
               justifyContent: 'center',
               animation: 'fadeIn 0.25s ease-out'
-            }} onClick={() => setIsModalCompletoOpen(false)}>
+            }} onClick={() => setIsDialogoCompletoOpen(false)}>
               <style>{`
                 @keyframes fadeIn {
                   from { opacity: 0; }
@@ -4242,7 +4236,7 @@ export default function VisaoGeral() {
                   to { transform: scale(1); opacity: 1; }
                 }
               `}</style>
-              <div className="bfd-modal-card" style={{
+              <div className="bfd-dialogo-card" style={{
                 background: 'rgba(30, 41, 59, 0.85)',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4)',
@@ -4265,7 +4259,7 @@ export default function VisaoGeral() {
                     <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0' }}>Referência: {quoteId}</p>
                   </div>
                   <button style={{ background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', transition: 'all 0.2s' }}
-                    onClick={() => setIsModalCompletoOpen(false)}
+                    onClick={() => setIsDialogoCompletoOpen(false)}
                   >✕</button>
                 </div>
 
@@ -4407,7 +4401,7 @@ export default function VisaoGeral() {
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
-                    onClick={() => setIsModalCompletoOpen(false)}
+                    onClick={() => setIsDialogoCompletoOpen(false)}
                   >Fechar</button>
                   <button style={{
                     background: '#2563eb',

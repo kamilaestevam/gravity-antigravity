@@ -5,14 +5,17 @@
  * funil com percentuais, donut com progress bars, câmbio do dia.
  */
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   MagnifyingGlass,
   Export,
   DownloadSimple,
   TrendUp,
+  TrendDown,
   Timer,
   Anchor,
   AirplaneTilt,
@@ -20,6 +23,25 @@ import {
   Trophy,
   CaretLeft,
   CaretRight,
+  Plus,
+  Minus,
+  ArrowCounterClockwise,
+  Play,
+  Pause,
+  Globe,
+  List,
+  MapPin,
+  Clock,
+  CheckCircle,
+  ChatText,
+  Bell,
+  Coins,
+  Funnel,
+  ChartBar,
+  ChartPie,
+  CurrencyDollar,
+  ListNumbers,
+  ThumbsUp,
 } from '@phosphor-icons/react'
 
 import { DEMO_KPIS, DEMO_CALENDARIO, DEMO_MENSAL, DEMO_MODAL, DEMO_MELHOR_COTACAO, DEMO_INCOTERMS } from '../shared/demo-data'
@@ -46,50 +68,6 @@ const MODAL_ICONS: Record<string, React.ReactNode> = {
   RODOVIARIO: <Truck weight="duotone" size={16} />,
 }
 
-// ─── KPI Card ───────────────────────────────────────────────────────────────
-
-function KpiCard({ icon, label, value, sub, badge, badgeColor, sparkData }: {
-  icon: React.ReactNode
-  label: string
-  value: string
-  sub: string
-  badge?: string
-  badgeColor?: string
-  sparkData?: number[]
-}) {
-  const maxSpark = sparkData ? Math.max(...sparkData) : 0
-  return (
-    <div className="bfd-kpi">
-      <div className="bfd-kpi__header">
-        <span className="bfd-kpi__icon">{icon}</span>
-        <span className="bfd-kpi__label">{label}</span>
-      </div>
-      <div className="bfd-kpi__row">
-        <span className="bfd-kpi__value">{value}</span>
-        {badge && (
-          <span className="bfd-kpi__badge" style={{ color: badgeColor || '#34d399' }}>
-            {badge}
-          </span>
-        )}
-      </div>
-      {sparkData && (
-        <div className="bfd-kpi__spark">
-          {sparkData.map((d, i) => (
-            <div
-              key={i}
-              className="bfd-kpi__spark-bar"
-              style={{
-                height: `${(d / maxSpark) * 100}%`,
-                background: `rgba(99,91,255,${0.3 + (i / sparkData.length) * 0.7})`,
-              }}
-            />
-          ))}
-        </div>
-      )}
-      <span className="bfd-kpi__sub">{sub}</span>
-    </div>
-  )
-}
 
 // ─── Gráfico de Barras Mensal (SVG) ─────────────────────────────────────────
 
@@ -132,6 +110,7 @@ function GraficoBarrasMensal() {
 // ─── Donut Modal (SVG + progress bars) ──────────────────────────────────────
 
 function GraficoDonutModal() {
+  const { t } = useTranslation()
   const total = DEMO_MODAL.reduce((s, m) => s + m.count, 0)
   const cx = 80
   const cy = 80
@@ -166,7 +145,7 @@ function GraficoDonutModal() {
           />
         ))}
         <text x={cx} y={cy - 4} textAnchor="middle" fill="var(--text-primary)" fontSize="28" fontWeight="700">{total}</text>
-        <text x={cx} y={cy + 14} textAnchor="middle" fill="var(--text-muted)" fontSize="10">cotacoes</text>
+        <text x={cx} y={cy + 14} textAnchor="middle" fill="var(--text-muted)" fontSize="10">{t('bidfrete.dashboard.quotes')}</text>
       </svg>
       <div className="bfd-donut__legend">
         {DEMO_MODAL.map(m => (
@@ -216,6 +195,7 @@ function FunilStatus() {
 // ─── Taxa Aprovação (donut) ──────────────────────────────────────────────────
 
 function TaxaAprovacao() {
+  const { t } = useTranslation()
   const { percentual_em_tempo, percentual_atraso, nao_respondidas } = DEMO_KPIS.aprovacao
   const cx = 55
   const cy = 55
@@ -223,11 +203,11 @@ function TaxaAprovacao() {
   const stroke = 10
   const circ = 2 * Math.PI * r
 
-  const segments = [
-    { pct: percentual_em_tempo, cor: '#34d399', label: `Em tempo: ${percentual_em_tempo}%` },
-    { pct: percentual_atraso, cor: '#fbbf24', label: `Atrasadas: ${percentual_atraso}%` },
-    { pct: nao_respondidas, cor: '#f87171', label: `Sem resposta: ${nao_respondidas}%` },
-  ]
+  const segments = useMemo(() => [
+    { pct: percentual_em_tempo, cor: '#34d399', label: t('bidfrete.dashboard.onTimeLabel', { value: percentual_em_tempo }) },
+    { pct: percentual_atraso, cor: '#fbbf24', label: t('bidfrete.dashboard.lateLabel', { value: percentual_atraso }) },
+    { pct: nao_respondidas, cor: '#f87171', label: t('bidfrete.dashboard.noResponseLabel', { value: nao_respondidas }) },
+  ], [t, percentual_em_tempo, percentual_atraso, nao_respondidas])
   let off = 0
 
   return (
@@ -252,7 +232,7 @@ function TaxaAprovacao() {
           return arc
         })}
         <text x={cx} y={cy + 2} textAnchor="middle" fill="var(--text-primary)" fontSize="20" fontWeight="700">{percentual_em_tempo}%</text>
-        <text x={cx} y={cy + 14} textAnchor="middle" fill="var(--text-muted)" fontSize="8">em tempo</text>
+        <text x={cx} y={cy + 14} textAnchor="middle" fill="var(--text-muted)" fontSize="8">{t('bidfrete.dashboard.onTime')}</text>
       </svg>
       <div className="bfd-taxa__legend">
         {segments.map((s, i) => (
@@ -269,6 +249,7 @@ function TaxaAprovacao() {
 // ─── Componente Principal ────────────────────────────────────────────────────
 
 export default function Dashboard() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [_calIdx, setCalIdx] = useState(0)
 
@@ -296,32 +277,70 @@ export default function Dashboard() {
 
         /* ── KPI Grid ────────────────────────────────────────────── */
         .bfd-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
-        .bfd-kpi {
-          background: rgba(255,255,255,0.04); border-radius: 12px; padding: 1.25rem 1.5rem;
-          border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 0.35rem;
-        }
-        .bfd-kpi__header { display: flex; align-items: center; gap: 0.5rem; }
-        .bfd-kpi__icon { color: var(--text-muted); }
-        .bfd-kpi__label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
-        .bfd-kpi__row { display: flex; align-items: baseline; gap: 0.6rem; }
-        .bfd-kpi__value { font-size: 1.85rem; font-weight: 800; color: var(--text-primary); line-height: 1.1; }
-        .bfd-kpi__badge {
-          font-size: 0.75rem; font-weight: 600; padding: 0.15rem 0.5rem;
-          border-radius: 6px; background: rgba(52,211,153,0.12);
-        }
-        .bfd-kpi__sub { font-size: 0.75rem; color: var(--text-muted); }
-        .bfd-kpi__spark { display: flex; align-items: flex-end; gap: 3px; height: 32px; margin: 0.25rem 0; }
-        .bfd-kpi__spark-bar { flex: 1; border-radius: 2px; min-width: 8px; transition: height 0.3s; }
 
-        /* ── Card genérico ───────────────────────────────────────── */
+        /* ── Card genérico com efeito hover/rover e borda ────────── */
         .bfd-card {
-          background: rgba(255,255,255,0.04); border-radius: 12px; padding: 1.25rem 1.5rem;
-          border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column;
+          background: rgba(255, 255, 255, 0.04);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 14px;
+          padding: 1.5rem 1.75rem;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .bfd-card__title { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; }
+        .bfd-card:hover {
+          transform: translateY(-2px);
+          background: rgba(255, 255, 255, 0.06);
+          border-color: rgba(255, 255, 255, 0.12);
+        }
 
+        /* Modificadores premium com borda esquerda de 3px e efeito glow no hover */
+        .bfd-card--accent-blue {
+          border-left: 3px solid #3b82f6 !important;
+        }
+        .bfd-card--accent-blue:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
+        }
+
+        .bfd-card--accent-indigo {
+          border-left: 3px solid #818cf8 !important;
+        }
+        .bfd-card--accent-indigo:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(129, 140, 248, 0.18) !important;
+        }
+
+        .bfd-card--accent-purple {
+          border-left: 3px solid #a78bfa !important;
+        }
+        .bfd-card--accent-purple:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(167, 139, 250, 0.18) !important;
+        }
+
+        .bfd-card--accent-emerald {
+          border-left: 3px solid #34d399 !important;
+        }
+        .bfd-card--accent-emerald:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(52, 211, 153, 0.18) !important;
+        }
+
+        .bfd-card--accent-amber {
+          border-left: 3px solid #fbbf24 !important;
+        }
+        .bfd-card--accent-amber:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(251, 191, 36, 0.18) !important;
+        }
+
+        .bfd-card--accent-rose {
+          border-left: 3px solid #f87171 !important;
+        }
+        .bfd-card--accent-rose:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(248, 113, 113, 0.18) !important;
+        }
         /* ── Charts Grid ─────────────────────────────────────────── */
-        .bfd-charts-grid { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 1rem; }
+        .bfd-charts-grid { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 1.25rem; }
         .bfd-chart-svg { width: 100%; height: auto; }
         .bfd-chart__legend { display: flex; gap: 1rem; margin-top: 0.5rem; }
         .bfd-chart__legend span { font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
@@ -342,7 +361,7 @@ export default function Dashboard() {
         }
 
         /* ── Insights Grid ───────────────────────────────────────── */
-        .bfd-insights-grid { display: grid; grid-template-columns: 1.1fr 1.2fr 0.7fr; gap: 1rem; }
+        .bfd-insights-grid { display: grid; grid-template-columns: 1.1fr 1.2fr 0.7fr; gap: 1.25rem; }
 
         /* ── Melhor cotação ──────────────────────────────────────── */
         .bfd-best { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -388,7 +407,7 @@ export default function Dashboard() {
         .bfd-incoterms__count { font-size: 0.8rem; color: var(--text-muted); }
 
         /* ── Bottom Grid ─────────────────────────────────────────── */
-        .bfd-bottom-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; }
+        .bfd-bottom-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 1.25rem; }
 
         /* ── Taxa ────────────────────────────────────────────────── */
         .bfd-taxa { display: flex; align-items: center; gap: 1rem; }
@@ -398,7 +417,7 @@ export default function Dashboard() {
 
         /* ── Alertas ─────────────────────────────────────────────── */
         .bfd-alertas { display: flex; flex-direction: column; gap: 0.75rem; }
-        .bfd-alertas__nav { display: flex; align-items: center; gap: 0.5rem; justify-content: flex-end; margin-bottom: 0.5rem; }
+        .bfd-alertas__nav { display: flex; align-items: center; gap: 0.5rem; justify-content: flex-end; }
         .bfd-alertas__nav button {
           background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center;
         }
@@ -426,85 +445,102 @@ export default function Dashboard() {
       {/* Header */}
       <div className="bfd-header">
         <div className="bfd-header__left">
-          <h1>Dashboard</h1>
-          <p>Visao geral das cotacoes de frete</p>
+          <h1>{t('bidfrete.dashboard.title')}</h1>
+          <p>{t('bidfrete.dashboard.subtitle')}</p>
         </div>
         <div className="bfd-header__actions">
-          <button className="bfd-header__icon-btn" title="Exportar"><Export weight="bold" size={18} /></button>
-          <button className="bfd-header__icon-btn" title="Download"><DownloadSimple weight="bold" size={18} /></button>
+          <button className="bfd-header__icon-btn" title={t('bidfrete.dashboard.export')}><Export weight="bold" size={18} /></button>
+          <button className="bfd-header__icon-btn" title={t('bidfrete.dashboard.download')}><DownloadSimple weight="bold" size={18} /></button>
           <BotaoGlobal
             variante="primario"
             tamanho="medio"
             iconeEsquerda={<MagnifyingGlass weight="bold" size={16} />}
             onClick={() => navigate('/produto/bid-frete/cotacoes/nova')}
           >
-            Buscar frete
+            {t('bidfrete.dashboard.searchFreight')}
           </BotaoGlobal>
         </div>
       </div>
 
       {/* KPIs */}
       <div className="bfd-kpi-grid">
-        <KpiCard
-          icon={<Timer weight="duotone" size={18} />}
-          label="Em andamento"
-          value={String(kpis.cotacoes_andamento)}
-          badge="+3 semana"
-          badgeColor="#34d399"
-          sub={`USD ${fmtMoeda(kpis.valor_andamento_usd)} em aberto`}
+        <CardBasicoGlobal
+          titulo={t('bidfrete.dashboard.inProgress')}
+          icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
+          valor={String(kpis.cotacoes_andamento)}
+          tendencia={{ valor: t('bidfrete.dashboard.trendPerWeek', { value: '+3' }), direcao: 'up' }}
+          subtexto={t('bidfrete.dashboard.openAmountUsd', { value: fmtMoeda(kpis.valor_andamento_usd) })}
+          variante="padrao"
         />
-        <KpiCard
-          icon={<TrendUp weight="duotone" size={18} />}
-          label="Aprovadas"
-          value={String(kpis.cotacoes_passadas)}
-          badge="+12% mes"
-          badgeColor="#34d399"
-          sparkData={DEMO_MENSAL.map(d => d.aprovadas)}
-          sub={`USD ${fmtMoeda(kpis.valor_aprovado_usd)} total`}
+        <CardBasicoGlobal
+          titulo={t('bidfrete.dashboard.approved')}
+          icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
+          valor={String(kpis.cotacoes_passadas)}
+          tendencia={{ valor: '+12%', direcao: 'up' }}
+          subtexto={t('bidfrete.dashboard.totalAmountUsd', { value: fmtMoeda(kpis.valor_aprovado_usd) })}
+          variante="padrao"
         />
-        <KpiCard
-          icon={<TrendUp weight="duotone" size={18} />}
-          label="Saving medio"
-          value={`${kpis.savings.media_saving_percentual}%`}
-          badge="+2.3pp"
-          badgeColor="#34d399"
-          sub={`USD ${fmtMoeda(kpis.savings.total_saving_usd)} acumulado`}
+        <CardBasicoGlobal
+          titulo={t('bidfrete.dashboard.averageSaving')}
+          icone={<Coins weight="duotone" size={16} style={{ color: '#34d399' }} />}
+          valor={`${kpis.savings.media_saving_percentual}%`}
+          tendencia={{ valor: '+2.3pp', direcao: 'up' }}
+          subtexto={t('bidfrete.dashboard.accumulatedUsd', { value: fmtMoeda(kpis.savings.total_saving_usd) })}
+          variante="padrao"
         />
-        <KpiCard
-          icon={<Timer weight="duotone" size={18} />}
-          label="Tempo medio resp."
-          value="2.4 di."
-          badge="-0.8d"
-          badgeColor="#f87171"
-          sub="Meta: 3 dias"
+        <CardBasicoGlobal
+          titulo={t('bidfrete.dashboard.avgResponseTime')}
+          icone={<Timer weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
+          valor={t('bidfrete.dashboard.daysShort', { value: '2.4' })}
+          tendencia={{ valor: '-0.8d', direcao: 'down' }}
+          subtexto={t('bidfrete.dashboard.goalDays', { count: 3 })}
+          variante="padrao"
         />
       </div>
 
       {/* Charts Row */}
       <div className="bfd-charts-grid">
         {/* Barras mensal */}
-        <div className="bfd-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="bfd-card__title">Cotacoes por mes</span>
-            <span className="bfd-chart__subtitle">Ultimos 6 meses</span>
+        <div className="bfd-card bfd-card--accent-blue">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <div className="cg-card__header">
+              <div className="cg-card__icon-wrap">
+                <ChartBar weight="duotone" size={16} style={{ color: '#3b82f6' }} />
+              </div>
+              <p className="cg-card__label" style={{ margin: 0 }}>{t('bidfrete.dashboard.quotesByMonth')}</p>
+            </div>
+            <span className="bfd-chart__subtitle">{t('bidfrete.dashboard.lastNMonths', { count: 6 })}</span>
           </div>
           <GraficoBarrasMensal />
           <div className="bfd-chart__legend">
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#6ee7b7' }} /> Aprovadas</span>
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#7dd3fc' }} /> Em andamento</span>
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#fca5a5' }} /> Recusadas</span>
+            <span><span className="bfd-chart__legend-dot" style={{ background: '#6ee7b7' }} /> {t('bidfrete.dashboard.approved')}</span>
+            <span><span className="bfd-chart__legend-dot" style={{ background: '#7dd3fc' }} /> {t('bidfrete.dashboard.inProgress')}</span>
+            <span><span className="bfd-chart__legend-dot" style={{ background: '#fca5a5' }} /> {t('bidfrete.dashboard.rejected')}</span>
           </div>
         </div>
 
         {/* Donut modal */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Distribuicao por modal</span>
+        <div className="bfd-card bfd-card--accent-emerald">
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <ChartPie weight="duotone" size={16} style={{ color: '#34d399' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>{t('bidfrete.dashboard.distributionByModal')}</p>
+          </div>
           <GraficoDonutModal />
         </div>
 
         {/* Câmbio */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Cambio do dia</span>
+        <div className="bfd-card bfd-card--accent-amber">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <div className="cg-card__header">
+              <div className="cg-card__icon-wrap">
+                <CurrencyDollar weight="duotone" size={16} style={{ color: '#fbbf24' }} />
+              </div>
+              <p className="cg-card__label" style={{ margin: 0 }}>{t('bidfrete.dashboard.exchangeRateToday')}</p>
+            </div>
+            <TrendUp size={16} weight="bold" style={{ color: '#cbd5e1' }} />
+          </div>
           <div className="bfd-cambio">
             {kpis.moedas.map(m => (
               <div key={m.codigo} className="bfd-cambio__row">
@@ -528,8 +564,13 @@ export default function Dashboard() {
       {/* Insights Row */}
       <div className="bfd-insights-grid">
         {/* Melhor cotação */}
-        <div className="bfd-card">
-          <span className="bfd-card__title"><Trophy weight="duotone" size={16} style={{ marginRight: 6, verticalAlign: -2 }} />Melhor cotacao do mes</span>
+        <div className="bfd-card bfd-card--accent-amber">
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <Trophy weight="duotone" size={16} style={{ color: '#fbbf24' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>{t('bidfrete.dashboard.bestQuoteOfMonth')}</p>
+          </div>
           <div className="bfd-best">
             <div className="bfd-best__route">
               <div className="bfd-best__port">
@@ -549,7 +590,7 @@ export default function Dashboard() {
             </div>
             <div className="bfd-best__saving">
               <span className="bfd-best__saving-badge">
-                <TrendUp size={12} /> {DEMO_MELHOR_COTACAO.saving_pct}% saving
+                <TrendUp size={12} /> {t('bidfrete.dashboard.savingPct', { value: DEMO_MELHOR_COTACAO.saving_pct })}
               </span>
               <span className="bfd-best__saving-val">USD {fmtMoeda(DEMO_MELHOR_COTACAO.saving_valor)}</span>
             </div>
@@ -560,14 +601,24 @@ export default function Dashboard() {
         </div>
 
         {/* Funil */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Funil de cotacoes</span>
+        <div className="bfd-card bfd-card--accent-indigo">
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <Funnel weight="duotone" size={16} style={{ color: '#818cf8' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>{t('bidfrete.dashboard.quotesFunnel')}</p>
+          </div>
           <FunilStatus />
         </div>
 
         {/* Top Incoterms */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Top incoterms</span>
+        <div className="bfd-card bfd-card--accent-purple">
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <List weight="duotone" size={16} style={{ color: '#a78bfa' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>{t('bidfrete.dashboard.topIncoterms')}</p>
+          </div>
           <div className="bfd-incoterms">
             {DEMO_INCOTERMS.map(inc => (
               <div key={inc.incoterm} className="bfd-incoterms__row">
@@ -582,20 +633,30 @@ export default function Dashboard() {
       {/* Bottom Row */}
       <div className="bfd-bottom-grid">
         {/* Taxa aprovação */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Taxa de aprovacao</span>
+        <div className="bfd-card bfd-card--accent-emerald">
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <ThumbsUp weight="duotone" size={16} style={{ color: '#34d399' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>{t('bidfrete.dashboard.approvalRate')}</p>
+          </div>
           <TaxaAprovacao />
         </div>
 
         {/* Alertas */}
-        <div className="bfd-card bfd-alertas">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="bfd-card__title" style={{ marginBottom: 0 }}>Alertas</span>
+        <div className="bfd-card bfd-alertas bfd-card--accent-rose">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <div className="cg-card__header">
+              <div className="cg-card__icon-wrap">
+                <Bell weight="duotone" size={16} style={{ color: '#f87171' }} />
+              </div>
+              <p className="cg-card__label" style={{ margin: 0 }}>{t('bidfrete.dashboard.alerts')}</p>
+            </div>
             <div className="bfd-alertas__nav">
               <button onClick={() => setCalIdx(i => Math.max(0, i - 1))}><CaretLeft size={14} /></button>
-              <span>Hoje</span>
+              <span>{t('bidfrete.dashboard.today')}</span>
               <button onClick={() => setCalIdx(i => i + 1)}><CaretRight size={14} /></button>
-              <span style={{ marginLeft: 8 }}>Amanha</span>
+              <span style={{ marginLeft: 8 }}>{t('bidfrete.dashboard.tomorrow')}</span>
             </div>
           </div>
           <div className="bfd-alertas__pills">
@@ -613,7 +674,7 @@ export default function Dashboard() {
       </div>
 
       <div className="bfd-footer">
-        ⚙ Dados demonstrativos — conecte o backend para dados reais
+        {t('bidfrete.dashboard.demoDataNotice')}
       </div>
     </div>
   )

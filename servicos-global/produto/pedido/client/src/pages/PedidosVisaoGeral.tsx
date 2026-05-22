@@ -10,6 +10,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   MagnifyingGlass,
   Export,
@@ -36,6 +37,12 @@ import {
   CheckCircle,
   ChatText,
   Bell,
+  Coins,
+  Funnel,
+  ChartBar,
+  ChartPie,
+  ThumbsUp,
+  CurrencyDollar,
 } from '@phosphor-icons/react'
 
 import { useVisaoGeralPedido } from '../shared/useVisaoGeralPedido'
@@ -169,97 +176,6 @@ const MAP_PINS: MapPin[] = [
   }
 ]
 
-// ─── KPI Card ───────────────────────────────────────────────────────────────
-
-function KpiCard({ icon, label, value, sub, badge, badgeColor, sparkData, sparkType = 'bar', destacado = false }: {
-  icon: React.ReactNode
-  label: string
-  value: string
-  sub: string
-  badge?: string
-  badgeColor?: string
-  sparkData?: number[]
-  sparkType?: 'line' | 'bar' | 'progress'
-  destacado?: boolean
-}) {
-  const maxSpark = sparkData ? Math.max(...sparkData) : 0
-  return (
-    <div className={`bfd-kpi ${destacado ? 'bfd-kpi--destacado' : ''}`}>
-      <div className="bfd-kpi__header">
-        <span className="bfd-kpi__icon" style={{ color: destacado ? '#f59e0b' : '#cbd5e1' }}>{icon}</span>
-        <span className="bfd-kpi__label" style={{ color: destacado ? '#ffffff' : '#94a3b8' }}>{label}</span>
-      </div>
-      <div className="bfd-kpi__row">
-        <span className="bfd-kpi__value" style={{ color: destacado ? '#ffffff' : '#ffffff' }}>{value}</span>
-        {badge && (
-          <span
-            className="bfd-kpi__badge"
-            style={{
-              color: destacado ? '#ffffff' : (badgeColor || '#f59e0b'),
-              background: destacado ? 'rgba(245,158,11,0.25)' : 'rgba(245,158,11,0.12)',
-            }}
-          >
-            {badge}
-          </span>
-        )}
-      </div>
-      
-      {sparkData && sparkType === 'bar' && (
-        <div className="bfd-kpi__spark">
-          {sparkData.map((d, i) => (
-            <div
-              key={i}
-              className="bfd-kpi__spark-bar"
-              style={{
-                height: `${(d / maxSpark) * 100}%`,
-                background: destacado ? '#f59e0b' : `rgba(99,91,255,${0.3 + (i / sparkData.length) * 0.7})`,
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {sparkData && sparkType === 'line' && (
-        <div className="bfd-kpi__spark-line">
-          {(() => {
-            const w = 140
-            const h = 32
-            const points = sparkData.map((d, i) => {
-              const x = (i / (sparkData.length - 1)) * w
-              const y = h - (d / maxSpark) * 22 - 5
-              return { x, y }
-            })
-            const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
-            const fillPath = `${linePath} L ${points[points.length - 1].x} ${h} L ${points[0].x} ${h} Z`
-            
-            return (
-              <svg width="100%" height="32" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                <defs>
-                  <linearGradient id="sparkline-grad-blue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
-                  </linearGradient>
-                </defs>
-                <path d={fillPath} fill="url(#sparkline-grad-blue)" />
-                <path d={linePath} fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            )
-          })()}
-        </div>
-      )}
-
-      {sparkType === 'progress' && (
-        <div className="bfd-kpi__progress-wrap">
-          <div className="bfd-kpi__progress-bg">
-            <div className="bfd-kpi__progress-fill" style={{ width: '80%' }} />
-          </div>
-        </div>
-      )}
-
-      <span className="bfd-kpi__sub" style={{ color: destacado ? '#ffffff' : '#cbd5e1' }}>{sub}</span>
-    </div>
-  )
-}
 
 // ─── Gráfico de Barras Mensal (SVG) ─────────────────────────────────────────
 
@@ -1667,11 +1583,16 @@ function VisaoGeralMapa() {
   }
   
   return (
-    <div className="bfd-card bfd-map-card">
-      <div className="bfd-map-card__header">
+    <div className="bfd-card bfd-map-card bfd-card--accent-amber">
+      <div className="bfd-map-card__header" style={{ marginBottom: '1.25rem' }}>
         <div>
-          <span className="bfd-card__title" style={{ marginBottom: '0.4rem', display: 'block', fontSize: '1.05rem', fontWeight: 600, color: '#ffffff', letterSpacing: '0.01em' }}>Visão Geral Global de Cotações</span>
-          <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }}>Localizações estratégicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)</span>
+          <div className="cg-card__header" style={{ marginBottom: '0.4rem' }}>
+            <div className="cg-card__icon-wrap">
+              <Globe weight="duotone" size={16} style={{ color: '#fbbf24' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>Visão Geral Global de Cotações</p>
+          </div>
+          <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5, display: 'block', marginLeft: '28px' }}>Localizações estratégicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)</span>
         </div>
       </div>
       
@@ -2227,6 +2148,7 @@ export default function VisaoGeral() {
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           border: 1px solid rgba(255, 255, 255, 0.06);
+          border-left: 3px solid #3b82f6 !important;
           border-radius: 14px;
           padding: 1.5rem 1.75rem;
           display: flex;
@@ -2234,6 +2156,55 @@ export default function VisaoGeral() {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
           transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .bfd-card:hover {
+          transform: translateY(-2px);
+          background: rgba(255, 255, 255, 0.06);
+          border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Modificadores premium com borda esquerda de 3px e efeito glow no hover */
+        .bfd-card--accent-blue {
+          border-left: 3px solid #3b82f6 !important;
+        }
+        .bfd-card--accent-blue:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
+        }
+
+        .bfd-card--accent-indigo {
+          border-left: 3px solid #818cf8 !important;
+        }
+        .bfd-card--accent-indigo:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(129, 140, 248, 0.18) !important;
+        }
+
+        .bfd-card--accent-purple {
+          border-left: 3px solid #a78bfa !important;
+        }
+        .bfd-card--accent-purple:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(167, 139, 250, 0.18) !important;
+        }
+
+        .bfd-card--accent-emerald {
+          border-left: 3px solid #34d399 !important;
+        }
+        .bfd-card--accent-emerald:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(52, 211, 153, 0.18) !important;
+        }
+
+        .bfd-card--accent-amber {
+          border-left: 3px solid #fbbf24 !important;
+        }
+        .bfd-card--accent-amber:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(251, 191, 36, 0.18) !important;
+        }
+
+        .bfd-card--accent-rose {
+          border-left: 3px solid #f87171 !important;
+        }
+        .bfd-card--accent-rose:hover {
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(248, 113, 113, 0.18) !important;
+        }
+
         .bfd-card__title {
           font-size: 1.1rem;
           font-weight: 700;
@@ -3210,40 +3181,37 @@ export default function VisaoGeral() {
 
       {/* KPIs Grid */}
       <div className="bfd-kpi-grid">
-        <KpiCard
-          icon={<Timer weight="duotone" size={18} />}
-          label="Pedidos em andamento"
-          value={String(kpis.andamento_count)}
-          badgeColor="#f59e0b"
-          sparkData={sparkAndamento}
-          sparkType="line"
-          sub={`R$ ${fmtMoeda(kpis.andamento_valor)} em aberto`}
+        <CardBasicoGlobal
+          titulo="Pedidos em andamento"
+          icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
+          valor={String(kpis.andamento_count)}
+          tendencia={{ valor: '+3 sem.', direcao: 'up' }}
+          subtexto={`R$ ${fmtMoeda(kpis.andamento_valor)} em aberto`}
+          variante="padrao"
         />
-        <KpiCard
-          icon={<TrendUp weight="duotone" size={18} />}
-          label="Pedidos concluídos"
-          value={String(kpis.concluido_count)}
-          badgeColor="#f59e0b"
-          sparkData={sparkConcluido}
-          sparkType="bar"
-          destacado={true}
-          sub={`R$ ${fmtMoeda(kpis.concluido_valor)} total`}
+        <CardBasicoGlobal
+          titulo="Pedidos concluídos"
+          icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
+          valor={String(kpis.concluido_count)}
+          tendencia={{ valor: '+12% mês', direcao: 'up' }}
+          subtexto={`R$ ${fmtMoeda(kpis.concluido_valor)} total`}
+          variante="padrao"
         />
-        <KpiCard
-          icon={<TrendUp weight="duotone" size={18} />}
-          label="Valor total"
-          value={`R$ ${fmtMoeda(kpis.valor_total)}`}
-          badgeColor="#f59e0b"
-          sparkType="progress"
-          sub={`Ticket médio R$ ${fmtMoeda(kpis.ticket_medio)}`}
+        <CardBasicoGlobal
+          titulo="Valor total"
+          icone={<Coins weight="duotone" size={16} style={{ color: '#34d399' }} />}
+          valor={`R$ ${fmtMoeda(kpis.valor_total)}`}
+          tendencia={{ valor: '+2.3pp', direcao: 'up' }}
+          subtexto={`Ticket médio R$ ${fmtMoeda(kpis.ticket_medio)}`}
+          variante="padrao"
         />
-        <KpiCard
-          icon={<Timer weight="duotone" size={18} />}
-          label="Taxa de atraso"
-          value={`${kpis.taxa_atraso_pct}%`}
-          badgeColor="#f87171"
-          sparkType="progress"
-          sub={`${kpis.atrasados_count} pedidos atrasados`}
+        <CardBasicoGlobal
+          titulo="Taxa de atraso"
+          icone={<Timer weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
+          valor={`${kpis.taxa_atraso_pct}%`}
+          tendencia={{ valor: '-0.8d', direcao: 'down' }}
+          subtexto={`${kpis.atrasados_count} pedidos atrasados`}
+          variante="padrao"
         />
       </div>
 
@@ -3255,9 +3223,14 @@ export default function VisaoGeral() {
         {/* Right Column Stacking Alertas + Funil */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', minHeight: 0 }}>
           {/* Alertas */}
-          <div className="bfd-card bfd-alertas" style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
-              <span className="bfd-card__title" style={{ marginBottom: 0, fontSize: '0.95rem', fontWeight: 700, letterSpacing: '0.02em' }}>Alertas</span>
+          <div className="bfd-card bfd-alertas bfd-card--accent-rose" style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <div className="cg-card__header">
+                <div className="cg-card__icon-wrap">
+                  <Bell weight="duotone" size={16} style={{ color: '#f87171' }} />
+                </div>
+                <p className="cg-card__label" style={{ margin: 0 }}>Alertas</p>
+              </div>
               <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255, 255, 255, 0.04)', padding: '2px', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
                 <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}><CaretLeft size={12} /></button>
                 <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', padding: '0 4px', letterSpacing: '0.02em' }}>Hoje</span>
@@ -3346,8 +3319,13 @@ export default function VisaoGeral() {
           </div>
 
           {/* Funil */}
-          <div className="bfd-card" style={{ flex: 1, padding: '1.25rem 1.5rem' }}>
-            <span className="bfd-card__title" style={{ marginBottom: '1.05rem', fontSize: '1rem' }}>Funil de Cotações</span>
+          <div className="bfd-card bfd-card--accent-indigo" style={{ flex: 1, padding: '1.25rem 1.5rem' }}>
+            <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+              <div className="cg-card__icon-wrap">
+                <Funnel weight="duotone" size={16} style={{ color: '#818cf8' }} />
+              </div>
+              <p className="cg-card__label" style={{ margin: 0 }}>Funil de Cotações</p>
+            </div>
             <FunilStatus />
           </div>
         </div>
@@ -3356,9 +3334,14 @@ export default function VisaoGeral() {
       {/* Charts Row */}
       <div className="bfd-charts-grid">
         {/* Barras mensal */}
-        <div className="bfd-card">
+        <div className="bfd-card bfd-card--accent-blue">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-            <span className="bfd-card__title" style={{ marginBottom: 0 }}>Cotações por Mês</span>
+            <div className="cg-card__header">
+              <div className="cg-card__icon-wrap">
+                <ChartBar weight="duotone" size={16} style={{ color: '#3b82f6' }} />
+              </div>
+              <p className="cg-card__label" style={{ margin: 0 }}>Cotações por Mês</p>
+            </div>
             <span className="bfd-chart__subtitle">Últimos 6 meses</span>
           </div>
           <GraficoBarrasMensal />
@@ -3370,15 +3353,25 @@ export default function VisaoGeral() {
         </div>
 
         {/* Donut modal_cotacao_bid_frete_internacional */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Distribuição por Modal</span>
+        <div className="bfd-card bfd-card--accent-emerald">
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <ChartPie weight="duotone" size={16} style={{ color: '#34d399' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>Distribuição por Modal</p>
+          </div>
           <GraficoDonutModal />
         </div>
 
         {/* Moedas dos pedidos */}
-        <div className="bfd-card" style={{ height: '100%', justifyContent: 'flex-start' }}>
+        <div className="bfd-card bfd-card--accent-amber" style={{ height: '100%', justifyContent: 'flex-start' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-            <span className="bfd-card__title" style={{ marginBottom: 0 }}>Moedas dos Pedidos</span>
+            <div className="cg-card__header">
+              <div className="cg-card__icon-wrap">
+                <CurrencyDollar weight="duotone" size={16} style={{ color: '#fbbf24' }} />
+              </div>
+              <p className="cg-card__label" style={{ margin: 0 }}>Moedas dos Pedidos</p>
+            </div>
             <TrendUp size={16} weight="bold" style={{ color: '#cbd5e1' }} />
           </div>
           <div className="bfd-cambio" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
@@ -3411,8 +3404,13 @@ export default function VisaoGeral() {
       {/* Insights Row */}
       <div className="bfd-insights-grid">
         {/* Maior pedido */}
-        <div className="bfd-card">
-          <span className="bfd-card__title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Trophy weight="duotone" size={18} style={{ color: '#fbbf24' }} />Maior Pedido do Período</span>
+        <div className="bfd-card bfd-card--accent-amber">
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <Trophy weight="duotone" size={16} style={{ color: '#fbbf24' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>Maior Pedido do Período</p>
+          </div>
           <div className="bfd-best">
             {maiorPedido ? (
               <>
@@ -3433,8 +3431,13 @@ export default function VisaoGeral() {
         </div>
 
         {/* Top Incoterms */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Top Incoterms</span>
+        <div className="bfd-card bfd-card--accent-purple">
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <List weight="duotone" size={16} style={{ color: '#a78bfa' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>Top Incoterms</p>
+          </div>
           <div className="bfd-incoterms">
             {incoterms.length === 0 && (
               <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>Nenhum incoterm informado nos pedidos.</span>
@@ -3459,8 +3462,13 @@ export default function VisaoGeral() {
       {/* Bottom Row */}
       <div className="bfd-bottom-grid">
         {/* Taxa aprovação */}
-        <div className="bfd-card">
-          <span className="bfd-card__title">Taxa de Aprovação</span>
+        <div className="bfd-card bfd-card--accent-emerald">
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <ThumbsUp weight="duotone" size={16} style={{ color: '#34d399' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>Taxa de Aprovação</p>
+          </div>
           <TaxaAprovacao />
         </div>
       </div>

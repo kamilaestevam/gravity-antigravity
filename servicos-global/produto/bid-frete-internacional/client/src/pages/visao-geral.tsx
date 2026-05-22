@@ -1581,10 +1581,15 @@ function VisaoGeralMapa() {
   }
   
   return (
-    <div className="bfd-card bfd-map-card bfd-card--accent-brand">
-      <div className="bfd-map-card__header">
+    <div className="bfd-card bfd-map-card bfd-card--accent-amber">
+      <div className="bfd-map-card__header" style={{ marginBottom: '0.4rem' }}>
         <div>
-          <span className="bfd-card__title" style={{ marginBottom: '0.4rem', display: 'block', fontSize: '1.05rem', fontWeight: 600, color: '#ffffff', letterSpacing: '0.01em' }}>Visão Geral Global de Cotações</span>
+          <div className="cg-card__header" style={{ marginBottom: '0.4rem' }}>
+            <div className="cg-card__icon-wrap">
+              <Globe weight="duotone" size={16} style={{ color: '#fbbf24' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>Visão Geral Global de Cotações</p>
+          </div>
           <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }}>Localizações estratégicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)</span>
         </div>
       </div>
@@ -2142,6 +2147,7 @@ export default function VisaoGeral() {
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           border: 1px solid rgba(255, 255, 255, 0.06);
+          border-left: 3px solid #3b82f6 !important;
           border-radius: 14px;
           padding: 1.5rem 1.75rem;
           display: flex;
@@ -2156,13 +2162,6 @@ export default function VisaoGeral() {
         }
 
         /* Modificadores premium com borda esquerda de 3px e efeito glow no hover */
-        .bfd-card--accent-brand {
-          border-left: 3px solid #60a5fa !important;
-        }
-        .bfd-card--accent-brand:hover {
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(96, 165, 250, 0.18) !important;
-        }
-
         .bfd-card--accent-blue {
           border-left: 3px solid #3b82f6 !important;
         }
@@ -2204,6 +2203,9 @@ export default function VisaoGeral() {
         .bfd-card--accent-rose:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(248, 113, 113, 0.18) !important;
         }
+
+
+
         .bfd-card__title {
           font-size: 1.1rem;
           font-weight: 700;
@@ -3304,8 +3306,13 @@ export default function VisaoGeral() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', minHeight: 0 }}>
           {/* Alertas */}
           <div className="bfd-card bfd-alertas bfd-card--accent-rose" style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
-              <span className="bfd-card__title" style={{ marginBottom: 0, fontSize: '0.95rem', fontWeight: 700, letterSpacing: '0.02em' }}>Alertas</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <div className="cg-card__header">
+                <div className="cg-card__icon-wrap">
+                  <Bell weight="duotone" size={16} style={{ color: '#f87171' }} />
+                </div>
+                <p className="cg-card__label" style={{ margin: 0 }}>Alertas</p>
+              </div>
               <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255, 255, 255, 0.04)', padding: '2px', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
                 <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}><CaretLeft size={12} /></button>
                 <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', padding: '0 4px', letterSpacing: '0.02em' }}>Hoje</span>
@@ -3394,7 +3401,12 @@ export default function VisaoGeral() {
 
           {/* Funil */}
           <div className="bfd-card bfd-card--accent-indigo" style={{ flex: 1, padding: '1.25rem 1.5rem' }}>
-            <span className="bfd-card__title" style={{ marginBottom: '1.05rem', fontSize: '1rem' }}>Funil de Cotações</span>
+            <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+              <div className="cg-card__icon-wrap">
+                <Funnel weight="duotone" size={16} style={{ color: '#818cf8' }} />
+              </div>
+              <p className="cg-card__label" style={{ margin: 0 }}>Funil de Cotações</p>
+            </div>
             <FunilStatus />
           </div>
         </div>
@@ -3405,7 +3417,12 @@ export default function VisaoGeral() {
         {/* Barras mensal */}
         <div className="bfd-card bfd-card--accent-blue">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-            <span className="bfd-card__title" style={{ marginBottom: 0 }}>Cotações por Mês</span>
+            <div className="cg-card__header">
+              <div className="cg-card__icon-wrap">
+                <ChartBar weight="duotone" size={16} style={{ color: '#3b82f6' }} />
+              </div>
+              <p className="cg-card__label" style={{ margin: 0 }}>Cotações por Mês</p>
+            </div>
             <span className="bfd-chart__subtitle">Últimos 6 meses</span>
           </div>
           <GraficoBarrasMensal />
@@ -3418,14 +3435,24 @@ export default function VisaoGeral() {
 
         {/* Donut modal_cotacao_bid_frete_internacional */}
         <div className="bfd-card bfd-card--accent-emerald">
-          <span className="bfd-card__title">Distribuição por Modal</span>
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <ChartPie weight="duotone" size={16} style={{ color: '#34d399' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>Distribuição por Modal</p>
+          </div>
           <GraficoDonutModal />
         </div>
 
         {/* Câmbio */}
         <div className="bfd-card bfd-card--accent-amber" style={{ height: '100%', justifyContent: 'flex-start' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-            <span className="bfd-card__title" style={{ marginBottom: 0 }}>Câmbio do Dia</span>
+            <div className="cg-card__header">
+              <div className="cg-card__icon-wrap">
+                <CurrencyDollar weight="duotone" size={16} style={{ color: '#fbbf24' }} />
+              </div>
+              <p className="cg-card__label" style={{ margin: 0 }}>Câmbio do Dia</p>
+            </div>
             <TrendUp size={16} weight="bold" style={{ color: '#cbd5e1' }} />
           </div>
           <div className="bfd-cambio" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
@@ -3456,7 +3483,12 @@ export default function VisaoGeral() {
       <div className="bfd-insights-grid">
         {/* Melhor cotação */}
         <div className="bfd-card bfd-card--accent-amber">
-          <span className="bfd-card__title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Trophy weight="duotone" size={18} style={{ color: '#fbbf24' }} />Melhor Cotação do Mês</span>
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <Trophy weight="duotone" size={16} style={{ color: '#fbbf24' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>Melhor Cotação do Mês</p>
+          </div>
           <div className="bfd-best">
             <div className="bfd-best__route" style={{ margin: '0.35rem 0 0.75rem' }}>
               <div className="bfd-best__port">
@@ -3497,7 +3529,12 @@ export default function VisaoGeral() {
 
         {/* Top Incoterms */}
         <div className="bfd-card bfd-card--accent-purple">
-          <span className="bfd-card__title">Top Incoterms</span>
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <List weight="duotone" size={16} style={{ color: '#a78bfa' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>Top Incoterms</p>
+          </div>
           <div className="bfd-incoterms">
             {DEMO_INCOTERMS.map(inc => (
               <div key={inc.incoterm_cotacao_bid_frete_internacional} className="bfd-incoterms__row" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }}>
@@ -3520,7 +3557,12 @@ export default function VisaoGeral() {
       <div className="bfd-bottom-grid">
         {/* Taxa aprovação */}
         <div className="bfd-card bfd-card--accent-emerald">
-          <span className="bfd-card__title">Taxa de Aprovação</span>
+          <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+            <div className="cg-card__icon-wrap">
+              <ThumbsUp weight="duotone" size={16} style={{ color: '#34d399' }} />
+            </div>
+            <p className="cg-card__label" style={{ margin: 0 }}>Taxa de Aprovação</p>
+          </div>
           <TaxaAprovacao />
         </div>
       </div>
@@ -3586,7 +3628,7 @@ export default function VisaoGeral() {
            category = 'Marítimo (LCL)';
            proposals = [
              { fornecedor: 'Panalpina', valor: 'USD 6.250,00', transit: '22 dias', status: 'Aprovada', cor: '#34d399' },
-             { fornecedor: 'Expeditors', valor: 'USD 6.400,00', transit: 'Reprovada', cor: '#f87171' }
+             { fornecedor: 'Expeditors', valor: 'USD 6.400,00', transit: '24 dias', status: 'Reprovada', cor: '#f87171' }
            ];
            history = [
              { data: '21/05/2026 10:00', texto: 'Enviada para aprovação do Diretor de Comex', autor: 'Daniel' },

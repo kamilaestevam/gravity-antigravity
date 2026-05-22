@@ -2148,7 +2148,6 @@ export default function VisaoGeral() {
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           border: 1px solid rgba(255, 255, 255, 0.06);
-          border-left: 3px solid #3b82f6 !important;
           border-radius: 14px;
           padding: 1.5rem 1.75rem;
           display: flex;
@@ -2162,47 +2161,29 @@ export default function VisaoGeral() {
           border-color: rgba(255, 255, 255, 0.12);
         }
 
-        /* Modificadores premium com borda esquerda de 3px e efeito glow no hover */
-        .bfd-card--accent-blue {
-          border-left: 3px solid #3b82f6 !important;
-        }
+        /* Modificadores premium com efeito glow no hover (sem borda acentuada) */
         .bfd-card--accent-blue:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
         }
 
-        .bfd-card--accent-indigo {
-          border-left: 3px solid #3b82f6 !important;
-        }
         .bfd-card--accent-indigo:hover {
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(129, 140, 248, 0.18) !important;
         }
 
-        .bfd-card--accent-purple {
-          border-left: 3px solid #3b82f6 !important;
-        }
         .bfd-card--accent-purple:hover {
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(167, 139, 250, 0.18) !important;
         }
 
-        .bfd-card--accent-emerald {
-          border-left: 3px solid #3b82f6 !important;
-        }
         .bfd-card--accent-emerald:hover {
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(52, 211, 153, 0.18) !important;
         }
 
-        .bfd-card--accent-amber {
-          border-left: 3px solid #3b82f6 !important;
-        }
         .bfd-card--accent-amber:hover {
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(251, 191, 36, 0.18) !important;
         }
 
-        .bfd-card--accent-rose {
-          border-left: 3px solid #3b82f6 !important;
-        }
         .bfd-card--accent-rose:hover {
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(248, 113, 113, 0.18) !important;
         }
 
         .bfd-card__title {

@@ -331,8 +331,8 @@ function FunilStatus() {
   const localFunil = [
     { label: "Draft", count: 5, color: "#94a3b8" },
     { label: "Recebido no fornecedor", count: 8, color: "#8b5cf6" },
-    { label: "Aprovação", count: 12, color: "#818cf8" },
-    { label: "Aprovação pendente", count: 7, color: "#fbbf24" },
+    { label: "Aprova\xE7\xE3o", count: 12, color: "#818cf8" },
+    { label: "Aprova\xE7\xE3o pendente", count: 7, color: "#fbbf24" },
     { label: "Recusada", count: 42, color: "#60a5fa" },
     { label: "Aprovada", count: 6, color: "#f87171" },
     { label: "Expirada", count: 3, color: "#64748b" }
@@ -4983,7 +4983,7 @@ function VisaoGeral() {
           }
         }
 
-        /* ── Charts Grid ─────────────────────────────────────────── */
+        /* \u2500\u2500 Charts Grid \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
         .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1.25rem; }
         .bfd-charts-grid .bfd-card { height: 380px; }
         .bfd-chart-svg { width: 100%; max-height: 230px; height: auto; display: block; margin: auto 0; }
@@ -4992,7 +4992,7 @@ function VisaoGeral() {
         .bfd-chart__legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
         .bfd-chart__subtitle { font-size: 0.82rem; color: #cbd5e1; letter-spacing: 0.02em; text-align: right; margin-bottom: 0.5rem; font-weight: 500; }
 
-        /* ──── Column Chart Hovers ────────────────────────────────── */
+        /* \u2500\u2500 Column Chart Hovers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
         .bfd-chart-bar-group {
           cursor: pointer;
           transform-origin: bottom;
@@ -5012,7 +5012,7 @@ function VisaoGeral() {
           opacity: 0.35;
         }
 
-        /* ── Câmbio ──────────────────────────────────────────────── */
+        /* \u2500\u2500 C\xE2mbio \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
         .bfd-cambio { display: flex; flex-direction: column; gap: 0; margin: auto 0; }
         .bfd-cambio__row {
           display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 0;
@@ -5025,10 +5025,10 @@ function VisaoGeral() {
           font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; letter-spacing: 0.01em;
         }
 
-        /* ──── Insights Grid ─────────────────────────────────────────── */
+        /* \u2500\u2500 Insights Grid \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
         .bfd-insights-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem; }
 
-        /* ──── Melhor cotação ────────────────────────────────────────── */
+        /* \u2500\u2500 Melhor cota\xE7\xE3o \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
         .bfd-best { display: flex; flex-direction: column; gap: 0.85rem; }
         .bfd-best__route { display: flex; align-items: center; justify-content: space-between; }
         .bfd-best__port { text-align: center; }
@@ -5048,7 +5048,7 @@ function VisaoGeral() {
         .bfd-best__saving-val { font-size: 1.45rem; font-weight: 800; color: #60a5fa; letter-spacing: 0.02em; }
         .bfd-best__meta { font-size: 0.82rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 500; line-height: 1.5; }
 
-        /* ── Donut ───────────────────────────────────────────────── */
+        /* \u2500\u2500 Donut \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
         .bfd-donut { display: flex; align-items: center; gap: 1.75rem; margin: auto 0; }
         .bfd-donut__legend { display: flex; flex-direction: column; gap: 0.75rem; flex: 1; }
         .bfd-donut__legend-row { display: flex; align-items: center; gap: 0.6rem; }

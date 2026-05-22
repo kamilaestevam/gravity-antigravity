@@ -471,7 +471,7 @@ const GTEditPopover = memo(function GTEditPopover({
       if (ncmBuscaTimerRef.current) clearTimeout(ncmBuscaTimerRef.current)
       ncmBuscaTimerRef.current = setTimeout(async () => {
         try {
-          const res = await fetch(`/api/v1/ncm/buscar?q=${encodeURIComponent(ncmTexto)}&limite=8`)
+          const res = await fetch(`/api/v1/cadastros/ncm/buscar?q=${encodeURIComponent(ncmTexto)}&limite=8`)
           if (res.ok) {
             const data = await res.json()
             setNcmBuscaResultados(data.itens ?? [])

@@ -94,13 +94,6 @@ function mapNavItem(item: NavigationItem): NavItem {
   }
 }
 
-// ── Workspaces demo ───────────────────────────────────────────────────────────
-const DEMO_WORKSPACES = [
-  { id: 'ws-1',  name: 'Gravity Soluções',     plan: 'Pro' },
-  { id: 'ws-2',  name: 'Acme Importações',     plan: 'Enterprise' },
-  { id: 'ws-3',  name: 'Comex Express',        plan: 'Starter' },
-]
-
 // ── Nós do ecossistema ───────────────────────────────────────────────────────
 const ECOSYSTEM_NODES: EcosystemNode[] = [
   { id: 'hub',          label: 'Hub',          sublabel: 'workspaces',     color: '#818cf8',     type: 'hub',          status: 'accessible' },
@@ -180,9 +173,9 @@ export default function App() {
   const wsAtivo = workspacesStore.find(ws => ws.id === idWorkspaceAtivo)
   const nomeWorkspaceAtivo = wsAtivo?.nome_workspace ?? currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa'
 
-  const workspacesSidebar = workspacesStore.length > 0
-    ? workspacesStore.map(ws => ({ id: ws.id, name: ws.nome_workspace, plan: '' }))
-    : DEMO_WORKSPACES
+  // Workspaces reais do shell store (GET /api/v1/me). Sem fallback de
+  // demonstração — Mandamento 05 (mock proibido) e 08 (fallback silencioso).
+  const workspacesSidebar = workspacesStore.map(ws => ({ id: ws.id, name: ws.nome_workspace, plan: '' }))
 
   const navItems = useMemo(
     () => PRODUCT_CONFIG.navigation.map(item => mapNavItem(item)),

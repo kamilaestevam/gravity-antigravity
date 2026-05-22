@@ -55,7 +55,7 @@ async function validarNcmDefault(codigo: string, baseUrl: string): Promise<NcmVa
 
 export function useNcmValidation(options: UseNcmValidationOptions = {}): UseNcmValidationReturn {
   const {
-    baseUrl    = '/api/v1/ncm',
+    baseUrl    = '/api/v1/cadastros/ncm',
     onValidar,
     debounceMs = 600,
   } = options

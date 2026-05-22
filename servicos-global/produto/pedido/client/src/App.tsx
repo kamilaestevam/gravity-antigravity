@@ -89,19 +89,6 @@ function mapNavItem(item: NavigationItem, t: (key: string) => string): NavItem {
   }
 }
 
-// ── Workspaces demo ───────────────────────────────────────────────────────────
-const DEMO_WORKSPACES = [
-  { id: 'ws-1',  name: 'Gravity Soluções',     plan: 'Pro' },
-  { id: 'ws-2',  name: 'Acme Importações',     plan: 'Enterprise' },
-  { id: 'ws-3',  name: 'Comex Express',        plan: 'Starter' },
-  { id: 'ws-4',  name: 'Global Trade Co.',     plan: 'Pro' },
-  { id: 'ws-5',  name: 'Brasília Logistics',   plan: 'Pro' },
-  { id: 'ws-6',  name: 'Porto Sul LTDA',       plan: 'Enterprise' },
-  { id: 'ws-7',  name: 'Nordeste Import',      plan: 'Starter' },
-  { id: 'ws-8',  name: 'Sul Cargo',            plan: 'Pro' },
-  { id: 'ws-9',  name: 'Importadora Paulista', plan: 'Enterprise' },
-  { id: 'ws-10', name: 'Rio Trade Group',      plan: 'Starter' },
-]
 
 // ── Nós do ecossistema ────────────────────────────────────────────────────────
 const ECOSYSTEM_NODES: EcosystemNode[] = [
@@ -230,9 +217,12 @@ function AppInner() {
   const wsAtivo = workspacesStore.find(ws => ws.id === idWorkspaceAtivo)
   const nomeWorkspaceAtivo = wsAtivo?.nome_workspace ?? currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa'
 
-  const workspacesSidebar = workspacesStore.length > 0
-    ? workspacesStore.map(ws => ({ id: ws.id, name: ws.nome_workspace, plan: '' }))
-    : DEMO_WORKSPACES
+  // Workspaces reais do shell store (populado por GET /api/v1/me).
+  // SEM fallback de demonstração (Mandamento 05 — proibido mock preguiçoso;
+  // Mandamento 08 — proibido fallback silencioso): store vazio → lista vazia.
+  // O DEMO_WORKSPACES anterior injetava ids fake ('ws-2'...) que o Configurador
+  // rejeitava na verificação de permissão (não-CUID) → 503 em todas as rotas.
+  const workspacesSidebar = workspacesStore.map(ws => ({ id: ws.id, name: ws.nome_workspace, plan: '' }))
 
   return (
     <TelaProdutoGlobal

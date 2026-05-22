@@ -293,11 +293,13 @@ export default function NovaCotacao() {
         anonima: form.anonima,
         valor_alvo: form.valor_alvo ? parseFloat(form.valor_alvo) : undefined,
         moeda_alvo: form.moeda_alvo,
+        prazo_resposta: form.prazo_resposta || undefined,
       })
       setCotacaoId(cotacao.id)
       setSucesso(true)
-    } catch {
-      // erro tratado
+    } catch (err: any) {
+      console.error('Erro ao criar cotação:', err)
+      alert('Erro ao criar cotação: ' + (err?.message || err))
     } finally {
       setSalvando(false)
     }

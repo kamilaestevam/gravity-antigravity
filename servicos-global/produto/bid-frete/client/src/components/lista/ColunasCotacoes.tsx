@@ -1,4 +1,5 @@
 import React from 'react'
+import i18next from 'i18next'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
 import { Anchor, AirplaneTilt, Truck } from '@phosphor-icons/react'
 import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../../shared/types'
@@ -61,7 +62,7 @@ export function RenderBadgeVisibilidade(valor: unknown): React.ReactNode {
   const isAberta = vis === 'ABERTA'
   const bg = isAberta ? 'rgba(34,197,94,0.15)' : 'rgba(59,130,246,0.15)'
   const color = isAberta ? 'var(--success, #22c55e)' : 'var(--accent, #6366f1)'
-  const label = isAberta ? 'Aberta' : 'Direcionada'
+  const label = isAberta ? i18next.t('bidfrete.colunas.aberta') : i18next.t('bidfrete.colunas.direcionada')
   return (
     <span style={{
       display: 'inline-flex',
@@ -83,7 +84,7 @@ export function RenderBadgeAnonima(valor: unknown): React.ReactNode {
   const isAnonima = !!valor
   const bg = isAnonima ? 'rgba(148,163,184,0.15)' : 'rgba(59,130,246,0.15)'
   const color = isAnonima ? 'var(--text-muted, #64748b)' : 'var(--accent, #6366f1)'
-  const label = isAnonima ? 'Sim' : 'Não'
+  const label = isAnonima ? i18next.t('bidfrete.colunas.sim') : i18next.t('bidfrete.colunas.nao')
   return (
     <span style={{
       display: 'inline-flex',
@@ -126,11 +127,11 @@ export const getCasas = (v: number): number => {
 }
 
 // ─── Construtor de colunas ───
-export function buildColunasCotacoes(t: unknown): GTColuna<Cotacao>[] {
+export function buildColunasCotacoes(): GTColuna<Cotacao>[] {
   return [
     {
       key: 'numero',
-      label: 'Processo',
+      label: i18next.t('bidfrete.colunas.processo'),
       tipo: 'texto',
       render: (val: unknown) => (
         <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem', color: 'var(--accent, #6366f1)', fontWeight: 600 }}>
@@ -140,37 +141,37 @@ export function buildColunasCotacoes(t: unknown): GTColuna<Cotacao>[] {
     },
     {
       key: 'referencia_interna',
-      label: 'Referência',
+      label: i18next.t('bidfrete.colunas.referencia'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
       key: 'tipo_operacao',
-      label: 'Operação',
+      label: i18next.t('bidfrete.colunas.operacao'),
       tipo: 'texto',
       render: (val: unknown) => RenderBadgeOperacao(val),
     },
     {
       key: 'status',
-      label: 'Status',
+      label: i18next.t('bidfrete.colunas.status'),
       tipo: 'texto',
       render: (val: unknown) => RenderBadgeStatus(val),
     },
     {
       key: 'created_at',
-      label: 'Data da cotação',
+      label: i18next.t('bidfrete.colunas.dataCotacao'),
       tipo: 'periodo',
       render: (val: unknown) => fmtData(val as string),
     },
     {
       key: 'updated_at',
-      label: 'Última Atualização',
+      label: i18next.t('bidfrete.colunas.ultimaAtualizacao'),
       tipo: 'periodo',
       render: (val: unknown) => fmtData(val as string),
     },
     {
       key: 'modal',
-      label: 'Modal',
+      label: i18next.t('bidfrete.colunas.modal'),
       tipo: 'texto',
       render: (val: unknown) => {
         const modal = val as ModalFrete
@@ -184,7 +185,7 @@ export function buildColunasCotacoes(t: unknown): GTColuna<Cotacao>[] {
     },
     {
       key: 'modalidade',
-      label: 'Modalidade',
+      label: i18next.t('bidfrete.colunas.modalidade'),
       tipo: 'texto',
       render: (val: unknown) => {
         const mod = val as ModalidadeCarga
@@ -193,133 +194,133 @@ export function buildColunasCotacoes(t: unknown): GTColuna<Cotacao>[] {
     },
     {
       key: 'origem_codigo',
-      label: 'Código Origem',
+      label: i18next.t('bidfrete.colunas.codigoOrigem'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
       key: 'origem_nome',
-      label: 'Origem',
+      label: i18next.t('bidfrete.colunas.origem'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
       key: 'origem_pais',
-      label: 'País Origem',
+      label: i18next.t('bidfrete.colunas.paisOrigem'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
       key: 'destino_codigo',
-      label: 'Código Destino',
+      label: i18next.t('bidfrete.colunas.codigoDestino'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
       key: 'destino_nome',
-      label: 'Destino',
+      label: i18next.t('bidfrete.colunas.destino'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
       key: 'destino_pais',
-      label: 'País Destino',
+      label: i18next.t('bidfrete.colunas.paisDestino'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
       key: 'descricao_mercadoria',
-      label: 'Descrição Mercadoria',
+      label: i18next.t('bidfrete.colunas.descricaoMercadoria'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
       key: 'ncm',
-      label: 'NCM',
+      label: i18next.t('bidfrete.colunas.ncm'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
       key: 'quantidade',
-      label: 'Quantidade',
+      label: i18next.t('bidfrete.colunas.quantidade'),
       tipo: 'numero',
       align: 'right',
       render: (val: unknown) => val != null ? fmtQuantidade(val as number, 0) : '—',
     },
     {
       key: 'tipo_container',
-      label: 'Tipo Container',
+      label: i18next.t('bidfrete.colunas.tipoContainer'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
       key: 'peso_kg',
-      label: 'Peso (Kg)',
+      label: i18next.t('bidfrete.colunas.pesoKg'),
       tipo: 'numero',
       align: 'right',
       render: (val: unknown) => val != null ? fmtQuantidade(val as number, 0) : '—',
     },
     {
       key: 'cubagem_m3',
-      label: 'Volume (m³)',
+      label: i18next.t('bidfrete.colunas.volumeM3'),
       tipo: 'numero',
       align: 'right',
       render: (val: unknown) => val != null ? fmtQuantidade(val as number, 2) : '—',
     },
     {
       key: 'incoterm',
-      label: 'Incoterm',
+      label: i18next.t('bidfrete.colunas.incoterm'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
       key: 'cep_destino',
-      label: 'CEP Destino',
+      label: i18next.t('bidfrete.colunas.cepDestino'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
       key: 'visibilidade',
-      label: 'Visibilidade',
+      label: i18next.t('bidfrete.colunas.visibilidade'),
       tipo: 'texto',
       render: (val: unknown) => RenderBadgeVisibilidade(val),
     },
     {
       key: 'anonima',
-      label: 'Anônima',
+      label: i18next.t('bidfrete.colunas.anonima'),
       tipo: 'texto',
       render: (val: unknown) => RenderBadgeAnonima(val),
     },
     {
       key: 'valor_alvo',
-      label: 'Valor Alvo',
+      label: i18next.t('bidfrete.colunas.valorAlvo'),
       tipo: 'numero',
       align: 'right',
       render: (val: unknown, item: Cotacao) => val != null ? `${item.moeda_alvo} ${fmtQuantidade(val as number, 2)}` : '—',
     },
     {
       key: 'prazo_resposta',
-      label: 'Prazo Resposta',
+      label: i18next.t('bidfrete.colunas.prazoResposta'),
       tipo: 'periodo',
       render: (val: unknown) => fmtData(val as string),
     },
     {
       key: 'valor_aprovado',
-      label: 'Valor Aprovado',
+      label: i18next.t('bidfrete.colunas.valorAprovado'),
       tipo: 'numero',
       align: 'right',
       render: (val: unknown, item: Cotacao) => val != null ? `${item.moeda_aprovada ?? 'USD'} ${fmtQuantidade(val as number, 2)}` : '—',
     },
     {
       key: 'saving_valor',
-      label: 'Saving Estimado',
+      label: i18next.t('bidfrete.colunas.savingEstimado'),
       tipo: 'numero',
       align: 'right',
       render: (val: unknown) => val != null ? `USD ${fmtQuantidade(val as number, 2)}` : '—',
     },
     {
       key: 'saving_percentual',
-      label: 'Saving (%)',
+      label: i18next.t('bidfrete.colunas.savingPercentual'),
       tipo: 'numero',
       align: 'right',
       render: (val: unknown) => val != null ? `${fmtQuantidade(val as number, 2)}%` : '—',

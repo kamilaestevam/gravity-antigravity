@@ -4,9 +4,10 @@
  * cards ricos em descrição, painel inteligente de Incoterms e resumo visual avançado.
  */
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import {
@@ -43,15 +44,17 @@ import {
 } from '../shared/types'
 
 // ─── Passos do wizard ─────────────────────────────────────────────────────────
-const STEPS = [
-  { id: 1, label: 'Modal e Operação', icone: <Truck weight="duotone" size={16} /> },
-  { id: 2, label: 'Origem',           icone: <MapPin weight="duotone" size={16} /> },
-  { id: 3, label: 'Destino',          icone: <MapPin weight="duotone" size={16} /> },
-  { id: 4, label: 'Carga',            icone: <Package weight="duotone" size={16} /> },
-  { id: 5, label: 'Incoterm',         icone: <Scales weight="duotone" size={16} /> },
-  { id: 6, label: 'Fornecedores',     icone: <Users weight="duotone" size={16} /> },
-  { id: 7, label: 'Resumo',           icone: <FileText weight="duotone" size={16} /> },
-]
+function buildSteps(t: TFunction) {
+  return [
+    { id: 1, label: t('bidfrete.nova_cotacao.stepModalOperacao'), icone: <Truck weight="duotone" size={16} /> },
+    { id: 2, label: t('bidfrete.nova_cotacao.stepOrigem'),        icone: <MapPin weight="duotone" size={16} /> },
+    { id: 3, label: t('bidfrete.nova_cotacao.stepDestino'),       icone: <MapPin weight="duotone" size={16} /> },
+    { id: 4, label: t('bidfrete.nova_cotacao.stepCarga'),         icone: <Package weight="duotone" size={16} /> },
+    { id: 5, label: 'Incoterm',                                  icone: <Scales weight="duotone" size={16} /> },
+    { id: 6, label: t('bidfrete.nova_cotacao.stepFornecedores'),  icone: <Users weight="duotone" size={16} /> },
+    { id: 7, label: t('bidfrete.nova_cotacao.stepResumo'),        icone: <FileText weight="duotone" size={16} /> },
+  ]
+}
 
 // ─── Form State ──────────────────────────────────────────────────────────────
 interface FormState {
@@ -105,81 +108,89 @@ const INITIAL_FORM: FormState = {
 }
 
 // ─── Descrições Enriquecidas de Opções ──────────────────────────────────────
-const OPERACAO_DESCS: Record<TipoOperacao, string> = {
-  IMPORTACAO: 'Trazer cargas de outros países para o território nacional.',
-  EXPORTACAO: 'Enviar produtos nacionais para compradores internacionais.',
+function buildOperacaoDescs(t: TFunction): Record<TipoOperacao, string> {
+  return {
+    IMPORTACAO: t('bidfrete.nova_cotacao.descImportacao'),
+    EXPORTACAO: t('bidfrete.nova_cotacao.descExportacao'),
+  }
 }
 
-const MODAL_DESCS: Record<ModalFrete, string> = {
-  MARITIMO: 'Grandes volumes por vias oceânicas com custo altamente otimizado.',
-  AEREO: 'Agilidade máxima e trânsito expresso para mercadorias críticas.',
-  RODOVIARIO: 'Transporte flexível, direto e porta-a-porta por rodovias.',
+function buildModalDescs(t: TFunction): Record<ModalFrete, string> {
+  return {
+    MARITIMO: t('bidfrete.nova_cotacao.descMaritimo'),
+    AEREO: t('bidfrete.nova_cotacao.descAereo'),
+    RODOVIARIO: t('bidfrete.nova_cotacao.descRodoviario'),
+  }
 }
 
-const MODALIDADE_DESCS: Record<ModalidadeCarga, string> = {
-  FCL: 'Container completo e exclusivo para acomodar suas mercadorias.',
-  LCL: 'Carga fracionada. Pague somente pelo volume que ocupar no container.',
-  AEREO_GERAL: 'Envio aéreo padrão para cargas gerais em compartimentos dedicados.',
-  RODOVIARIO_FTL: 'Caminhão inteiro e exclusivo dedicado para a sua logística.',
-  RODOVIARIO_LTL: 'Carga rodoviária fracionada consolidada com outros embarques.',
+function buildModalidadeDescs(t: TFunction): Record<ModalidadeCarga, string> {
+  return {
+    FCL: t('bidfrete.nova_cotacao.descFcl'),
+    LCL: t('bidfrete.nova_cotacao.descLcl'),
+    AEREO_GERAL: t('bidfrete.nova_cotacao.descAereoGeral'),
+    RODOVIARIO_FTL: t('bidfrete.nova_cotacao.descRodoviarioFtl'),
+    RODOVIARIO_LTL: t('bidfrete.nova_cotacao.descRodoviarioLtl'),
+  }
 }
 
 // ─── Dicionário de Incoterms (UX Helper) ──────────────────────────────────
-const INCOTERM_EXPLANATIONS: Record<string, { title: string; desc: string; responsabilidade: string }> = {
-  EXW: {
-    title: 'EXW — Ex Works (Na Origem)',
-    desc: 'O comprador assume todos os custos e riscos a partir do estabelecimento do vendedor (coleta, porto de origem, frete internacional e taxas).',
-    responsabilidade: 'Comprador assume 100% da cadeia logística.'
-  },
-  FCA: {
-    title: 'FCA — Free Carrier (Franco Transportador)',
-    desc: 'O vendedor realiza o desembaraço de exportação e entrega a carga no local/transportador indicado na origem pelo comprador.',
-    responsabilidade: 'Vendedor desembaraça na origem; comprador assume a partir da entrega ao transportador.'
-  },
-  CPT: {
-    title: 'CPT — Carriage Paid To (Transporte Pago Até)',
-    desc: 'O vendedor contrata e paga o frete principal até o ponto acordado. Porém, os riscos passam ao comprador na entrega ao primeiro transportador.',
-    responsabilidade: 'Custos com o vendedor; riscos de perda ou dano com o comprador durante o transporte.'
-  },
-  CIP: {
-    title: 'CIP — Carriage and Insurance Paid To (Transporte e Seguro Pagos Até)',
-    desc: 'Idêntico ao CPT, mas o vendedor é responsável por contratar e pagar um seguro de transporte contra perda ou dano da carga.',
-    responsabilidade: 'Custos e seguro com o vendedor; riscos com o comprador a partir da origem.'
-  },
-  DAP: {
-    title: 'DAP — Delivered At Place (Entregue no Local)',
-    desc: 'O vendedor assume riscos e fretes até a chegada no local de destino acordado (antes da descarga). O comprador faz a importação e descarga.',
-    responsabilidade: 'Vendedor assume frete internacional até o destino; comprador faz desembaraço de importação.'
-  },
-  DPU: {
-    title: 'DPU — Delivered at Place Unloaded (Entregue no Local Descarregado)',
-    desc: 'O vendedor entrega a mercadoria descarregada do meio de transporte no local indicado. Substitui o antigo DAT.',
-    responsabilidade: 'Vendedor assume o transporte e a descarga no destino; comprador faz o desembaraço.'
-  },
-  DDP: {
-    title: 'DDP — Delivered Duty Paid (Entregue com Direitos Pagos)',
-    desc: 'O vendedor assume todos os custos e riscos da operação até a entrega no destino do comprador, incluindo tarifas alfandegárias de importação.',
-    responsabilidade: 'Vendedor assume 100% da logística e impostos de importação.'
-  },
-  FAS: {
-    title: 'FAS — Free Alongside Ship (Livre ao Lado do Navio)',
-    desc: 'O vendedor coloca a mercadoria ao lado do navio do comprador no porto de embarque indicado. Risco passa na linha de cais.',
-    responsabilidade: 'Exclusivo para modal marítimo/fluvial. Comprador contrata frete internacional.'
-  },
-  FOB: {
-    title: 'FOB — Free On Board (Livre a Bordo)',
-    desc: 'O vendedor entrega a carga a bordo do navio indicado pelo comprador no porto de embarque designado. O risco passa quando a carga está a bordo.',
-    responsabilidade: 'Exclusivo para modal marítimo. Custos de embarque de origem com o vendedor; frete com o comprador.'
-  },
-  CFR: {
-    title: 'CFR — Cost and Freight (Custo e Frete)',
-    desc: 'O vendedor paga os custos e frete marítimo até o porto de destino. Os riscos de perda são transferidos ao comprador no embarque.',
-    responsabilidade: 'Exclusivo para marítimo. Frete pago pelo vendedor; seguro internacional é opcional do comprador.'
-  },
-  CIF: {
-    title: 'CIF — Cost, Insurance and Freight (Custo, Seguro e Frete)',
-    desc: 'O vendedor paga custos, frete internacional e contrata seguro marítimo até o porto de destino designado. Riscos transferem no embarque.',
-    responsabilidade: 'Exclusivo para marítimo. Frete e seguro básico com o vendedor; riscos com o comprador.'
+function buildIncotermExplanations(t: TFunction): Record<string, { title: string; desc: string; responsabilidade: string }> {
+  return {
+    EXW: {
+      title: t('bidfrete.nova_cotacao.incotermExwTitle'),
+      desc: t('bidfrete.nova_cotacao.incotermExwDesc'),
+      responsabilidade: t('bidfrete.nova_cotacao.incotermExwResp'),
+    },
+    FCA: {
+      title: t('bidfrete.nova_cotacao.incotermFcaTitle'),
+      desc: t('bidfrete.nova_cotacao.incotermFcaDesc'),
+      responsabilidade: t('bidfrete.nova_cotacao.incotermFcaResp'),
+    },
+    CPT: {
+      title: t('bidfrete.nova_cotacao.incotermCptTitle'),
+      desc: t('bidfrete.nova_cotacao.incotermCptDesc'),
+      responsabilidade: t('bidfrete.nova_cotacao.incotermCptResp'),
+    },
+    CIP: {
+      title: t('bidfrete.nova_cotacao.incotermCipTitle'),
+      desc: t('bidfrete.nova_cotacao.incotermCipDesc'),
+      responsabilidade: t('bidfrete.nova_cotacao.incotermCipResp'),
+    },
+    DAP: {
+      title: t('bidfrete.nova_cotacao.incotermDapTitle'),
+      desc: t('bidfrete.nova_cotacao.incotermDapDesc'),
+      responsabilidade: t('bidfrete.nova_cotacao.incotermDapResp'),
+    },
+    DPU: {
+      title: t('bidfrete.nova_cotacao.incotermDpuTitle'),
+      desc: t('bidfrete.nova_cotacao.incotermDpuDesc'),
+      responsabilidade: t('bidfrete.nova_cotacao.incotermDpuResp'),
+    },
+    DDP: {
+      title: t('bidfrete.nova_cotacao.incotermDdpTitle'),
+      desc: t('bidfrete.nova_cotacao.incotermDdpDesc'),
+      responsabilidade: t('bidfrete.nova_cotacao.incotermDdpResp'),
+    },
+    FAS: {
+      title: t('bidfrete.nova_cotacao.incotermFasTitle'),
+      desc: t('bidfrete.nova_cotacao.incotermFasDesc'),
+      responsabilidade: t('bidfrete.nova_cotacao.incotermFasResp'),
+    },
+    FOB: {
+      title: t('bidfrete.nova_cotacao.incotermFobTitle'),
+      desc: t('bidfrete.nova_cotacao.incotermFobDesc'),
+      responsabilidade: t('bidfrete.nova_cotacao.incotermFobResp'),
+    },
+    CFR: {
+      title: t('bidfrete.nova_cotacao.incotermCfrTitle'),
+      desc: t('bidfrete.nova_cotacao.incotermCfrDesc'),
+      responsabilidade: t('bidfrete.nova_cotacao.incotermCfrResp'),
+    },
+    CIF: {
+      title: t('bidfrete.nova_cotacao.incotermCifTitle'),
+      desc: t('bidfrete.nova_cotacao.incotermCifDesc'),
+      responsabilidade: t('bidfrete.nova_cotacao.incotermCifResp'),
+    },
   }
 }
 
@@ -240,6 +251,11 @@ function Field({
 export default function NovaCotacao() {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const STEPS = useMemo(() => buildSteps(t), [t])
+  const OPERACAO_DESCS = useMemo(() => buildOperacaoDescs(t), [t])
+  const MODAL_DESCS = useMemo(() => buildModalDescs(t), [t])
+  const MODALIDADE_DESCS = useMemo(() => buildModalidadeDescs(t), [t])
+  const INCOTERM_EXPLANATIONS = useMemo(() => buildIncotermExplanations(t), [t])
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormState>(INITIAL_FORM)
   const [salvando, setSalvando] = useState(false)
@@ -335,7 +351,7 @@ export default function NovaCotacao() {
                   set('modalidade', '') // reseta para forçar escolha limpa
                 }}
                 icon={<Anchor weight="duotone" size={28} />}
-                label="Marítimo"
+                label={t('bidfrete.nova_cotacao.maritimo')}
                 description={MODAL_DESCS.MARITIMO}
               />
               <OptionButton
@@ -345,7 +361,7 @@ export default function NovaCotacao() {
                   set('modalidade', '')
                 }}
                 icon={<AirplaneTilt weight="duotone" size={28} />}
-                label="Aéreo"
+                label={t('bidfrete.nova_cotacao.aereo')}
                 description={MODAL_DESCS.AEREO}
               />
               <OptionButton
@@ -355,7 +371,7 @@ export default function NovaCotacao() {
                   set('modalidade', '')
                 }}
                 icon={<Van weight="duotone" size={28} />}
-                label="Rodoviário"
+                label={t('bidfrete.nova_cotacao.rodoviario')}
                 description={MODAL_DESCS.RODOVIARIO}
               />
             </div>
@@ -364,19 +380,19 @@ export default function NovaCotacao() {
             <div className="nc-options-grid-2">
               {form.modal === 'MARITIMO' && (
                 <>
-                  <OptionButton selected={form.modalidade === 'FCL'} onClick={() => set('modalidade', 'FCL')} icon={<Package weight="duotone" size={22} />} label="FCL — Container Completo" description={MODALIDADE_DESCS.FCL} />
-                  <OptionButton selected={form.modalidade === 'LCL'} onClick={() => set('modalidade', 'LCL')} icon={<Package weight="duotone" size={22} />} label="LCL — Carga Fracionada" description={MODALIDADE_DESCS.LCL} />
+                  <OptionButton selected={form.modalidade === 'FCL'} onClick={() => set('modalidade', 'FCL')} icon={<Package weight="duotone" size={22} />} label={t('bidfrete.nova_cotacao.labelFcl')} description={MODALIDADE_DESCS.FCL} />
+                  <OptionButton selected={form.modalidade === 'LCL'} onClick={() => set('modalidade', 'LCL')} icon={<Package weight="duotone" size={22} />} label={t('bidfrete.nova_cotacao.labelLcl')} description={MODALIDADE_DESCS.LCL} />
                 </>
               )}
               {form.modal === 'AEREO' && (
                 <div style={{ gridColumn: 'span 2' }}>
-                  <OptionButton selected={form.modalidade === 'AEREO_GERAL'} onClick={() => set('modalidade', 'AEREO_GERAL')} icon={<AirplaneTilt weight="duotone" size={22} />} label="Aéreo Geral" description={MODALIDADE_DESCS.AEREO_GERAL} />
+                  <OptionButton selected={form.modalidade === 'AEREO_GERAL'} onClick={() => set('modalidade', 'AEREO_GERAL')} icon={<AirplaneTilt weight="duotone" size={22} />} label={t('bidfrete.nova_cotacao.labelAereoGeral')} description={MODALIDADE_DESCS.AEREO_GERAL} />
                 </div>
               )}
               {form.modal === 'RODOVIARIO' && (
                 <>
-                  <OptionButton selected={form.modalidade === 'RODOVIARIO_FTL'} onClick={() => set('modalidade', 'RODOVIARIO_FTL')} icon={<Van weight="duotone" size={22} />} label="FTL — Carga Completa" description={MODALIDADE_DESCS.RODOVIARIO_FTL} />
-                  <OptionButton selected={form.modalidade === 'RODOVIARIO_LTL'} onClick={() => set('modalidade', 'RODOVIARIO_LTL')} icon={<Van weight="duotone" size={22} />} label="LTL — Carga Fracionada" description={MODALIDADE_DESCS.RODOVIARIO_LTL} />
+                  <OptionButton selected={form.modalidade === 'RODOVIARIO_FTL'} onClick={() => set('modalidade', 'RODOVIARIO_FTL')} icon={<Van weight="duotone" size={22} />} label={t('bidfrete.nova_cotacao.labelFtl')} description={MODALIDADE_DESCS.RODOVIARIO_FTL} />
+                  <OptionButton selected={form.modalidade === 'RODOVIARIO_LTL'} onClick={() => set('modalidade', 'RODOVIARIO_LTL')} icon={<Van weight="duotone" size={22} />} label={t('bidfrete.nova_cotacao.labelLtl')} description={MODALIDADE_DESCS.RODOVIARIO_LTL} />
                 </>
               )}
               {!form.modal && (
@@ -400,19 +416,19 @@ export default function NovaCotacao() {
                 </div>
                 <div className="nc-location-visual-text">
                   <h4>{t('bidfrete.nova_cotacao.porto_origem')}</h4>
-                  <p>Informe o local de coleta ou porto de origem de partida internacional.</p>
+                  <p>{t('bidfrete.nova_cotacao.origemHint')}</p>
                 </div>
               </div>
               
               <div className="nc-fields-grid nc-fields-grid--location">
                 <Field label={t('bidfrete.nova_cotacao.codigo_locode')} required>
-                  <input className="nc-input" placeholder="Ex: CNSHA" value={form.origem_codigo} onChange={e => set('origem_codigo', e.target.value.toUpperCase())} />
+                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderLocode')} value={form.origem_codigo} onChange={e => set('origem_codigo', e.target.value.toUpperCase())} />
                 </Field>
                 <Field label={t('bidfrete.nova_cotacao.nome')} required>
-                  <input className="nc-input" placeholder="Ex: Shanghai" value={form.origem_nome} onChange={e => set('origem_nome', e.target.value)} />
+                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderNomeOrigem')} value={form.origem_nome} onChange={e => set('origem_nome', e.target.value)} />
                 </Field>
                 <Field label={t('bidfrete.nova_cotacao.pais')}>
-                  <input className="nc-input" placeholder="Ex: China" value={form.origem_pais} onChange={e => set('origem_pais', e.target.value)} />
+                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderPaisOrigem')} value={form.origem_pais} onChange={e => set('origem_pais', e.target.value)} />
                 </Field>
               </div>
             </div>
@@ -430,19 +446,19 @@ export default function NovaCotacao() {
                 </div>
                 <div className="nc-location-visual-text">
                   <h4>{t('bidfrete.nova_cotacao.porto_destino')}</h4>
-                  <p>Defina o local de entrega final ou porto de destino de chegada.</p>
+                  <p>{t('bidfrete.nova_cotacao.destinoHint')}</p>
                 </div>
               </div>
               
               <div className="nc-fields-grid nc-fields-grid--location">
                 <Field label={t('bidfrete.nova_cotacao.codigo_locode')} required>
-                  <input className="nc-input" placeholder="Ex: BRSSZ" value={form.destino_codigo} onChange={e => set('destino_codigo', e.target.value.toUpperCase())} />
+                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderLocodeDestino')} value={form.destino_codigo} onChange={e => set('destino_codigo', e.target.value.toUpperCase())} />
                 </Field>
                 <Field label={t('bidfrete.nova_cotacao.nome')} required>
-                  <input className="nc-input" placeholder="Ex: Santos" value={form.destino_nome} onChange={e => set('destino_nome', e.target.value)} />
+                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderNomeDestino')} value={form.destino_nome} onChange={e => set('destino_nome', e.target.value)} />
                 </Field>
                 <Field label={t('bidfrete.nova_cotacao.pais')}>
-                  <input className="nc-input" placeholder="Ex: Brasil" value={form.destino_pais} onChange={e => set('destino_pais', e.target.value)} />
+                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderPaisDestino')} value={form.destino_pais} onChange={e => set('destino_pais', e.target.value)} />
                 </Field>
               </div>
             </div>
@@ -457,36 +473,36 @@ export default function NovaCotacao() {
             <div className="nc-fields-grid nc-fields-grid--cargo">
               <div style={{ gridColumn: 'span 2' }}>
                 <Field label={t('bidfrete.nova_cotacao.descricao_mercadoria')} required>
-                  <input className="nc-input" placeholder="Ex: Peças automotivas, eletrônicos industriais..." value={form.descricao_mercadoria} onChange={e => set('descricao_mercadoria', e.target.value)} />
+                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderMercadoria')} value={form.descricao_mercadoria} onChange={e => set('descricao_mercadoria', e.target.value)} />
                 </Field>
               </div>
               <Field label={t('bidfrete.nova_cotacao.ncm')}>
-                <input className="nc-input" placeholder="Ex: 87089990" value={form.ncm} onChange={e => set('ncm', e.target.value.replace(/\D/g, '').slice(0, 8))} />
+                <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderNcm')} value={form.ncm} onChange={e => set('ncm', e.target.value.replace(/\D/g, '').slice(0, 8))} />
               </Field>
               
               <Field label={t('bidfrete.nova_cotacao.quantidade')} required>
                 <div className="nc-input-group">
                   <input className="nc-input nc-input--with-suffix" type="number" min={1} value={form.quantidade} onChange={e => set('quantidade', parseInt(e.target.value) || 1)} />
-                  <span className="nc-input-suffix">un</span>
+                  <span className="nc-input-suffix">{t('bidfrete.nova_cotacao.unidade')}</span>
                 </div>
               </Field>
 
               {form.modal === 'MARITIMO' && (
                 <Field label={t('bidfrete.nova_cotacao.tipo_container')}>
-                  <input className="nc-input" placeholder="Ex: 40' HC" value={form.tipo_container} onChange={e => set('tipo_container', e.target.value)} />
+                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderContainer')} value={form.tipo_container} onChange={e => set('tipo_container', e.target.value)} />
                 </Field>
               )}
               
               <Field label={t('bidfrete.nova_cotacao.peso_kg')}>
                 <div className="nc-input-group">
-                  <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 12000" value={form.peso_kg} onChange={e => set('peso_kg', e.target.value)} />
+                  <input className="nc-input nc-input--with-suffix" type="number" placeholder={t('bidfrete.nova_cotacao.placeholderPeso')} value={form.peso_kg} onChange={e => set('peso_kg', e.target.value)} />
                   <span className="nc-input-suffix">Kg</span>
                 </div>
               </Field>
               
               <Field label={t('bidfrete.nova_cotacao.cubagem_m3')}>
                 <div className="nc-input-group">
-                  <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 33.2" value={form.cubagem_m3} onChange={e => set('cubagem_m3', e.target.value)} />
+                  <input className="nc-input nc-input--with-suffix" type="number" placeholder={t('bidfrete.nova_cotacao.placeholderCubagem')} value={form.cubagem_m3} onChange={e => set('cubagem_m3', e.target.value)} />
                   <span className="nc-input-suffix">m³</span>
                 </div>
               </Field>
@@ -523,7 +539,7 @@ export default function NovaCotacao() {
                 </div>
                 <p className="nc-helper-desc">{explanation.desc}</p>
                 <div className="nc-helper-footer">
-                  <strong>Responsabilidade:</strong> {explanation.responsabilidade}
+                  <strong>{t('bidfrete.nova_cotacao.responsabilidade')}:</strong> {explanation.responsabilidade}
                 </div>
               </div>
             )}
@@ -531,7 +547,7 @@ export default function NovaCotacao() {
             {form.incoterm === 'EXW' && (
               <div style={{ marginTop: '1.25rem' }} className="nc-fade-in">
                 <Field label={t('bidfrete.nova_cotacao.cep_coleta')} required>
-                  <input className="nc-input" placeholder="Ex: 01310-100" value={form.cep_destino} onChange={e => set('cep_destino', e.target.value)} />
+                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderCep')} value={form.cep_destino} onChange={e => set('cep_destino', e.target.value)} />
                 </Field>
               </div>
             )}
@@ -586,7 +602,7 @@ export default function NovaCotacao() {
               <label className="nc-switch-label">
                 <div className="nc-switch-text">
                   <span className="nc-switch-title">{t('bidfrete.nova_cotacao.anonima_label')}</span>
-                  <span className="nc-switch-desc">Ocultar o nome da sua empresa no mercado inicial de lances para total confidencialidade.</span>
+                  <span className="nc-switch-desc">{t('bidfrete.nova_cotacao.anonimaDesc')}</span>
                 </div>
                 <div className="nc-switch">
                   <input type="checkbox" checked={form.anonima} onChange={e => set('anonima', e.target.checked)} />
@@ -605,7 +621,7 @@ export default function NovaCotacao() {
 
             <div className="nc-fields-grid nc-fields-grid--summary-inputs">
               <Field label={t('bidfrete.nova_cotacao.valor_alvo')}>
-                <input className="nc-input" type="number" placeholder="Ex: 5000" value={form.valor_alvo} onChange={e => set('valor_alvo', e.target.value)} />
+                <input className="nc-input" type="number" placeholder={t('bidfrete.nova_cotacao.placeholderValor')} value={form.valor_alvo} onChange={e => set('valor_alvo', e.target.value)} />
               </Field>
               <Field label={t('bidfrete.nova_cotacao.moeda')}>
                 <select className="nc-input" value={form.moeda_alvo} onChange={e => set('moeda_alvo', e.target.value)}>
@@ -678,7 +694,7 @@ export default function NovaCotacao() {
                 <div className="nc-receipt-row">
                   <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_visibilidade')}</span>
                   <span className="nc-receipt-value">
-                    {form.visibilidade === 'ABERTA' ? 'Aberta' : 'Direcionada'}{form.anonima ? ' (Anônima)' : ''}
+                    {form.visibilidade === 'ABERTA' ? t('bidfrete.nova_cotacao.aberta') : t('bidfrete.nova_cotacao.direcionada')}{form.anonima ? ` (${t('bidfrete.nova_cotacao.anonima')})` : ''}
                   </span>
                 </div>
               </div>
@@ -701,7 +717,7 @@ export default function NovaCotacao() {
     return (
       <div className="nc-modal-overlay" onClick={handleOverlayClick}>
         <div className="nc-modal-container nc-fade-in" style={{ maxWidth: '520px', padding: '3rem 2rem' }} onClick={e => e.stopPropagation()}>
-          <button className="nc-modal-close" onClick={() => navigate('/cotacoes')} aria-label="Fechar">
+          <button className="nc-modal-close" onClick={() => navigate('/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
             <X weight="bold" size={20} />
           </button>
           <div className="nc-sucesso nc-fade-in">
@@ -738,21 +754,21 @@ export default function NovaCotacao() {
               <Truck weight="duotone" size={22} />
             </div>
             <div>
-              <h2 className="nc-modal-title">Nova Cotação</h2>
-              <p className="nc-modal-subtitle">Preencha as informações para buscar as melhores opções de frete</p>
+              <h2 className="nc-modal-title">{t('bidfrete.nova_cotacao.titulo')}</h2>
+              <p className="nc-modal-subtitle">{t('bidfrete.nova_cotacao.subtitulo')}</p>
             </div>
           </div>
           <div className="nc-modal-header-step-badge">
-            Etapa {step} de 7 • <span className="nc-modal-header-step-name">{STEPS[step - 1].label}</span>
+            {t('bidfrete.nova_cotacao.etapaDe', { step, total: 7 })} • <span className="nc-modal-header-step-name">{STEPS[step - 1].label}</span>
           </div>
-          <button className="nc-modal-close" onClick={() => navigate('/cotacoes')} aria-label="Fechar">
+          <button className="nc-modal-close" onClick={() => navigate('/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
             <X weight="bold" size={20} />
           </button>
         </div>
 
         {/* Linha do Stepper com customizações visuais intensas da Imagem 02 */}
         <div className="nc-stepper-container">
-          <div className="mpg-stepper" role="list" aria-label="Passos">
+          <div className="mpg-stepper" role="list" aria-label={t('bidfrete.nova_cotacao.passos')}>
             {STEPS.map((passo, idx) => {
               const status = stepStatus(passo.id)
               const isClickable = status === 'feito'
@@ -764,7 +780,7 @@ export default function NovaCotacao() {
                     role="listitem"
                     aria-current={status === 'ativo' ? 'step' : undefined}
                     onClick={isClickable ? () => setStep(passo.id) : undefined}
-                    title={isClickable ? `Voltar para: ${passo.label}` : undefined}
+                    title={isClickable ? t('bidfrete.nova_cotacao.voltarPara', { label: passo.label }) : undefined}
                     style={{ cursor: isClickable ? 'pointer' : 'default' }}
                   >
                     <div className="mpg-circulo-wrap">
@@ -835,7 +851,7 @@ export default function NovaCotacao() {
               className="nc-btn nc-btn--secondary nc-btn-cancelar"
               onClick={() => navigate('/cotacoes')}
             >
-              Cancelar
+              {t('bidfrete.nova_cotacao.cancelar')}
             </button>
           ) : (
             <button

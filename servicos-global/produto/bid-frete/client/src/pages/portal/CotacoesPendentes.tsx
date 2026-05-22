@@ -51,16 +51,16 @@ interface CotacaoInfo {
   prazo_resposta: string | null
 }
 
-function calcCountdown(prazo: string | null): { label: string; urgente: boolean } {
-  if (!prazo) return { label: 'Sem prazo', urgente: false }
+function calcCountdown(prazo: string | null, t: (key: string, opts?: Record<string, unknown>) => string): { label: string; urgente: boolean } {
+  if (!prazo) return { label: t('bidfrete.portal.cotacoes_pendentes.sem_prazo'), urgente: false }
   const diff = new Date(prazo).getTime() - Date.now()
-  if (diff <= 0) return { label: 'Expirado', urgente: true }
+  if (diff <= 0) return { label: t('bidfrete.portal.cotacoes_pendentes.expirado'), urgente: true }
   const horas = Math.floor(diff / (1000 * 60 * 60))
   const dias = Math.floor(horas / 24)
-  if (dias > 1) return { label: `${dias} dias restantes`, urgente: dias <= 2 }
-  if (horas > 0) return { label: `${horas}h restantes`, urgente: true }
+  if (dias > 1) return { label: t('bidfrete.portal.cotacoes_pendentes.dias_restantes', { count: dias }), urgente: dias <= 2 }
+  if (horas > 0) return { label: t('bidfrete.portal.cotacoes_pendentes.horas_restantes', { count: horas }), urgente: true }
   const minutos = Math.floor(diff / (1000 * 60))
-  return { label: `${minutos}min restantes`, urgente: true }
+  return { label: t('bidfrete.portal.cotacoes_pendentes.min_restantes', { count: minutos }), urgente: true }
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -92,7 +92,7 @@ export default function CotacoesPendentes() {
         <CabecalhoGlobal
           icone={<Envelope weight="duotone" size={22} />}
           titulo={t('bidfrete.portal.cotacoes_pendentes.titulo')}
-          subtitulo={`${bids.length} cotação(ões) aguardando sua resposta`}
+          subtitulo={t('bidfrete.portal.cotacoes_pendentes.subtitulo', { count: bids.length })}
         />
       }
     >
@@ -112,7 +112,7 @@ export default function CotacoesPendentes() {
             const cotacao = (bid as unknown as { cotacao: CotacaoInfo }).cotacao
             const numero = cotacao?.numero ?? bid.cotacao_id.slice(0, 8).toUpperCase()
             const modal = cotacao?.modal ?? 'MARITIMO'
-            const countdown = calcCountdown(cotacao?.prazo_resposta ?? bid.expirado_em)
+            const countdown = calcCountdown(cotacao?.prazo_resposta ?? bid.expirado_em, t)
             const statusCores = BID_STATUS_COLORS[bid.status] ?? BID_STATUS_COLORS.PENDENTE
 
             return (

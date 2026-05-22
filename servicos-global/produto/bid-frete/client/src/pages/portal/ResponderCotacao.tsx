@@ -145,7 +145,7 @@ export default function ResponderCotacao() {
       await responderBid(bidRequestId, payload)
       setSucesso(true)
     } catch (err) {
-      setErro(err instanceof Error ? err.message : 'Erro ao enviar resposta')
+      setErro(err instanceof Error ? err.message : t('bidfrete.portal.publico.erro_envio'))
     } finally {
       setEnviando(false)
     }

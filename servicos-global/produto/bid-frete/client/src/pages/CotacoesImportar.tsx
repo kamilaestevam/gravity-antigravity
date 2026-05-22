@@ -258,8 +258,8 @@ export default function ImportarBloco() {
         criadas++
       } catch (err) {
         erros++
-        const msg = err instanceof Error ? err.message : 'Erro desconhecido'
-        detalhes.push(`Linha ${row.linha}: ${msg}`)
+        const msg = err instanceof Error ? err.message : t('bidfrete.importar.erro_desconhecido')
+        detalhes.push(t('bidfrete.importar.erro_linha', { linha: row.linha, msg }))
       }
     }
 
@@ -664,7 +664,7 @@ export default function ImportarBloco() {
                     }}
                   >
                     <CheckCircle weight="duotone" size={15} />
-                    {validCount} valida{validCount !== 1 ? 's' : ''}
+                    {t('bidfrete.importar.validas', { count: validCount })}
                   </span>
                   {errorCount > 0 && (
                     <span
@@ -675,7 +675,7 @@ export default function ImportarBloco() {
                       }}
                     >
                       <XCircle weight="duotone" size={15} />
-                      {errorCount} com erro{errorCount !== 1 ? 's' : ''}
+                      {t('bidfrete.importar.com_erros', { count: errorCount })}
                     </span>
                   )}
                   <span style={{
@@ -683,7 +683,7 @@ export default function ImportarBloco() {
                     color: 'var(--text-muted, #64748b)',
                     marginLeft: '0.25rem',
                   }}>
-                    {rows.length} linha{rows.length !== 1 ? 's' : ''} no total
+                    {t('bidfrete.importar.linhas_total', { count: rows.length })}
                   </span>
                 </div>
 
@@ -759,7 +759,7 @@ export default function ImportarBloco() {
                     }}
                   >
                     <CheckCircle weight="duotone" size={14} />
-                    {result.criadas} criada{result.criadas !== 1 ? 's' : ''}
+                    {t('bidfrete.importar.criadas', { count: result.criadas })}
                   </span>
                   {result.erros > 0 && (
                     <span
@@ -770,7 +770,7 @@ export default function ImportarBloco() {
                       }}
                     >
                       <XCircle weight="duotone" size={14} />
-                      {result.erros} erro{result.erros !== 1 ? 's' : ''}
+                      {t('bidfrete.importar.erros_count', { count: result.erros })}
                     </span>
                   )}
                 </div>
@@ -793,7 +793,7 @@ export default function ImportarBloco() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.04em',
                   }}>
-                    Detalhes dos erros
+                    {t('bidfrete.importar.detalhes_erros')}
                   </p>
                   {result.detalhes.map((d, i) => (
                     <p
@@ -817,13 +817,13 @@ export default function ImportarBloco() {
                   className="importar-bloco-pill-btn importar-bloco-pill-btn--secondary"
                   onClick={handleReset}
                 >
-                  <ArrowClockwise weight="duotone" size={14} /> Nova importacao
+                  <ArrowClockwise weight="duotone" size={14} /> {t('bidfrete.importar.nova_importacao')}
                 </button>
                 <button
                   className="importar-bloco-pill-btn importar-bloco-pill-btn--primary"
                   onClick={() => navigate('/cotacoes')}
                 >
-                  Ver cotacoes
+                  {t('bidfrete.importar.ver_cotacoes')}
                 </button>
               </div>
             </div>

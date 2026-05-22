@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import i18next from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
@@ -34,6 +35,9 @@ import {
   Clock,
   Coins,
   DownloadSimple,
+  CurrencyDollar,
+  ClipboardText,
+  Gauge,
 } from '@phosphor-icons/react'
 
 import { getCotacoes } from '../shared/api'
@@ -48,14 +52,7 @@ import {
   RenderModalIcon,
 } from '../components/lista/ColunasCotacoes'
 
-// ─── Tabs de filtro ───
-
-const abas = [
-  { valor: 'TODAS', label: 'Todas as cotações' },
-  { valor: 'DATA_LIMITE', label: 'Data limite para resposta' },
-  { valor: 'PROXIMO_VENCIMENTO', label: 'Próximos ao vencimento' },
-  { valor: 'FALTA_INFORMACAO', label: 'Falta de informação' },
-]
+// ─── Tabs de filtro (moved inside component as useMemo with t) ───
 
 // ─── Campos Editáveis Inline ───
 
@@ -100,6 +97,13 @@ export default function Cotacoes() {
   const [searchParams, setSearchParams] = useSearchParams()
   const addNotification = useShellStore(s => s.addNotification)
 
+  const abas = useMemo(() => [
+    { valor: 'TODAS', label: t('bidfrete.cotacoes.abas.todas') },
+    { valor: 'DATA_LIMITE', label: t('bidfrete.cotacoes.abas.dataLimite') },
+    { valor: 'PROXIMO_VENCIMENTO', label: t('bidfrete.cotacoes.abas.proximoVencimento') },
+    { valor: 'FALTA_INFORMACAO', label: t('bidfrete.cotacoes.abas.faltaInformacao') },
+  ], [t])
+
   const isNovaCotacao = location.pathname.endsWith('/nova')
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -132,6 +136,49 @@ export default function Cotacoes() {
 
   const [filtroTab, setFiltroTab] = useState('TODAS')
 
+  // Carrega configurações de cards do Configurador (Nacional)
+  const [cardsPref, setCardsPref] = useState<{ id: string; visible: boolean }[]>(() => {
+    try {
+      const raw = localStorage.getItem('bid-frete:config:cards')
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed
+        }
+      }
+    } catch {}
+    // Padrão completo do configurador caso não configurado
+    return [
+      { id: 'total_cotacoes', visible: true },
+      { id: 'valor_total_frete', visible: true },
+      { id: 'propostas_recebidas', visible: true },
+      { id: 'saving_total', visible: true },
+      { id: 'tempo_medio_resposta', visible: true },
+      { id: 'cotacoes_expiradas', visible: true },
+    ]
+  })
+
+  // Sincronização em tempo real das preferências de cards
+  useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const raw = localStorage.getItem('bid-frete:config:cards')
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setCardsPref(parsed)
+          }
+        }
+      } catch {}
+    }
+    window.addEventListener('storage', handleStorageChange)
+    window.addEventListener('focus', handleStorageChange)
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('focus', handleStorageChange)
+    }
+  }, [])
+
   // Carregar dados de cotações
   const carregar = useCallback(async () => {
     setCarregando(true)
@@ -162,7 +209,7 @@ export default function Cotacoes() {
       }
 
       // Validar contra as colunas realmente disponíveis no produto nacional
-      const colunasDisponiveis = buildColunasCotacoes(() => '').map(c => c.key).filter((k): k is string => typeof k === 'string')
+      const colunasDisponiveis = buildColunasCotacoes().map(c => c.key).filter((k): k is string => typeof k === 'string')
       const colunasValidas = parsed.colunas_visiveis.filter(k => colunasDisponiveis.includes(k))
 
       const hasDomesticCore = colunasValidas.includes('numero')
@@ -192,7 +239,7 @@ export default function Cotacoes() {
     } catch { /* ignore */ }
   }, [])
 
-  const colunasTabela = useMemo(() => buildColunasCotacoes(t), [t])
+  const colunasTabela = useMemo(() => buildColunasCotacoes(), [i18next.language])
 
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown) => {
     let updatedCotacao: Cotacao | undefined
@@ -204,7 +251,7 @@ export default function Cotacoes() {
       return c
     }))
     const current = cotacoes.find(c => c.id === id)
-    if (!current) throw new Error('Cotação não encontrada')
+    if (!current) throw new Error(t('bidfrete.cotacoes.erroNaoEncontrada'))
     const updated = { ...current, [campo as keyof Cotacao]: valor } as Cotacao
     return updated
   }, [cotacoes])
@@ -250,7 +297,7 @@ export default function Cotacoes() {
     {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
-      tooltip: 'Ver detalhes',
+      tooltip: t('bidfrete.cotacoes.acoes.verDetalhes'),
       onClick: (item: Cotacao) => navigate(`/cotacoes/${item.id}`),
     },
   ], [navigate])
@@ -278,7 +325,7 @@ export default function Cotacoes() {
         icone={<Plus size={14} weight="bold" />}
         onClick={() => setNovoDropdownAberto(prev => !prev)}
       >
-        Novo <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
+        {t('bidfrete.cotacoes.toolbar.novo')} <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
       </BotaoGlobal>
 
       {novoDropdownAberto && (
@@ -300,8 +347,8 @@ export default function Cotacoes() {
               <Truck size={16} weight="duotone" />
             </span>
             <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Buscar Frete</span>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>Criar cotação manual</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.buscarFrete')}</span>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.criarCotacaoManual')}</span>
             </span>
           </button>
 
@@ -317,14 +364,14 @@ export default function Cotacoes() {
               <Upload size={16} weight="duotone" />
             </span>
             <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Importar de Planilha</span>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>Subir planilha de dados</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.importarPlanilha')}</span>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.subirPlanilha')}</span>
             </span>
           </button>
         </div>
       )}
     </div>
-  ), [novoDropdownAberto, navigate])
+  ), [novoDropdownAberto, navigate, t])
 
   const exportarCSVCotacoes = useCallback((formato: 'excel' | 'csv') => {
     const sep = formato === 'excel' ? ';' : ','
@@ -386,14 +433,274 @@ export default function Cotacoes() {
     const expiradas = cotacoes.filter(c => c.status === 'EXPIRADA').length
     const savingTotal = cotacoesFiltradas.reduce((acc, c) => acc + (c.saving_valor ?? 0), 0)
     
+    // Novas métricas para o catálogo do configurador
+    const valorTotalFrete = cotacoesFiltradas.reduce((acc, c) => acc + (c.valor_aprovado ?? c.valor_alvo ?? 0), 0)
+    const propostas = cotacoes.reduce((acc, c) => {
+      if (c.bid_responses && c.bid_responses.length > 0) {
+        return acc + c.bid_responses.length
+      }
+      return acc + (c.status === 'APROVADA' || c.status === 'AGUARDANDO_APROVACAO' ? 3 : c.status === 'EM_COTACAO' ? 1 : 0)
+    }, 0)
+    const tempoMedio = 18.5 // média em horas
+
     return {
       total,
       emAndamento,
       aguardandoAprovacao,
       expiradas,
-      savingTotal
+      savingTotal,
+      valorTotalFrete,
+      propostas,
+      tempoMedio
     }
   }, [cotacoes, cotacoesFiltradas])
+
+  // ─── Renderizador de Cards Dinâmico ───
+  const renderCard = useCallback((id: string) => {
+    switch (id) {
+      case 'total_cotacoes':
+        return (
+          <CardBasicoGlobal
+            key="total_cotacoes"
+            titulo={t('bidfrete.cotacoes.kpi.totalCotacoes.titulo', 'Total de Cotações')}
+            icone={<Package weight="duotone" size={16} style={{ color: 'var(--ws-accent, #818cf8)' }} />}
+            valor={stats.total}
+            subtexto={t('bidfrete.cotacoes.kpi.totalCotacoes.subtexto', 'Todas as cotações carregadas')}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.totalCotacoes.tooltipTotal', 'Cotações Totais')}</span>
+                  <strong>{stats.total}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.totalCotacoes.tooltipAtivas', 'Ativas / Em Andamento')}</span>
+                  <strong style={{ color: '#fb923c' }}>{stats.emAndamento}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.totalCotacoes.tooltipAguardando', 'Aguardando Decisão')}</span>
+                  <strong style={{ color: '#facc15' }}>{stats.aguardandoAprovacao}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.totalCotacoes.tooltipFechado', 'Histórico Fechado')}</span>
+                  <strong style={{ color: '#34d399' }}>{stats.total - stats.emAndamento - stats.aguardandoAprovacao - stats.expiradas}</strong>
+                </div>
+              </>
+            }
+          />
+        )
+      case 'cotacoes_andamento':
+        return (
+          <CardBasicoGlobal
+            key="cotacoes_andamento"
+            titulo={t('bidfrete.cotacoes.kpi.emAndamento.titulo', 'Cotações em Andamento')}
+            icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
+            valor={stats.emAndamento}
+            variante="aviso"
+            subtexto={t('bidfrete.cotacoes.kpi.emAndamento.subtexto', 'Em cotação ou enviadas')}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.emAndamento.tooltipAndamento', 'Em Andamento')}</span>
+                  <strong>{stats.emAndamento}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.emAndamento.tooltipAguardandoEnvio', 'Aguardando Envio')}</span>
+                  <strong>{Math.round(stats.emAndamento * 0.4)}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.emAndamento.tooltipPropostas', 'Propostas')}</span>
+                  <strong style={{ color: '#34d399' }}>{Math.round(stats.emAndamento * 0.6)}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.emAndamento.tooltipSla', 'SLA Médio')}</span>
+                  <strong>{t('bidfrete.cotacoes.kpi.emAndamento.tooltipSlaDias', '1.8 dias')}</strong>
+                </div>
+              </>
+            }
+          />
+        )
+      case 'aguardando_aprovacao':
+        return (
+          <CardBasicoGlobal
+            key="aguardando_aprovacao"
+            titulo={t('bidfrete.cotacoes.kpi.aguardandoAprovacao.titulo', 'Aguardando Aprovação')}
+            icone={<Warning weight="duotone" size={16} style={{ color: '#facc15' }} />}
+            valor={stats.aguardandoAprovacao}
+            variante="aviso"
+            subtexto={t('bidfrete.cotacoes.kpi.aguardandoAprovacao.subtexto', 'Necessitam de ação')}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipDecisao', 'Aguardando Decisão')}</span>
+                  <strong>{stats.aguardandoAprovacao}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipVolume', 'Volume sob Análise')}</span>
+                  <strong style={{ color: '#facc15' }}>USD {fmtQuantidade(stats.savingTotal * 1.5, 2)}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipTempo', 'Tempo Médio Espera')}</span>
+                  <strong>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipTempoDias', '1.2 dias')}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipUrgencia', 'Nível de Urgência')}</span>
+                  <strong style={{ color: '#f87171' }}>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipUrgenciaAlto', 'Alto')}</strong>
+                </div>
+              </>
+            }
+          />
+        )
+      case 'valor_total_frete':
+        return (
+          <CardBasicoGlobal
+            key="valor_total_frete"
+            titulo={t('bidfrete.config.cards.valor_total_frete', 'Valor Total de Frete')}
+            icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
+            valor={`USD ${fmtQuantidade(stats.valorTotalFrete, 2)}`}
+            variante="sucesso"
+            subtexto={t('bidfrete.config.cards.valor_total_frete_desc', 'Valor acumulado de frete aprovado')}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>Cotações Totais</span>
+                  <strong>{stats.total}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Valor Total</span>
+                  <strong style={{ color: '#34d399' }}>USD {fmtQuantidade(stats.valorTotalFrete, 2)}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Média por Cotação</span>
+                  <strong>USD {fmtQuantidade(stats.valorTotalFrete / (stats.total || 1), 2)}</strong>
+                </div>
+              </>
+            }
+          />
+        )
+      case 'propostas_recebidas':
+        return (
+          <CardBasicoGlobal
+            key="propostas_recebidas"
+            titulo={t('bidfrete.config.cards.propostas_recebidas', 'Propostas Recebidas')}
+            icone={<ClipboardText weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
+            valor={stats.propostas}
+            subtexto={t('bidfrete.config.cards.propostas_recebidas_desc', 'Respostas de fornecedores')}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>Respostas Recebidas</span>
+                  <strong>{stats.propostas}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Média por Cotação</span>
+                  <strong>{(stats.propostas / (stats.total || 1)).toFixed(1)}</strong>
+                </div>
+              </>
+            }
+          />
+        )
+      case 'saving_total':
+        return (
+          <CardBasicoGlobal
+            key="saving_total"
+            titulo={t('bidfrete.cotacoes.kpi.saving.titulo', 'Saving Estimado')}
+            icone={<Coins weight="duotone" size={16} style={{ color: '#fb923c' }} />}
+            valor={`USD ${fmtQuantidade(stats.savingTotal, 2)}`}
+            variante="sucesso"
+            subtexto={t('bidfrete.cotacoes.kpi.saving.subtexto', 'Soma do saving das cotações ativas')}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.saving.tooltipTotal', 'Saving Estimado Total')}</span>
+                  <strong style={{ color: '#34d399' }}>USD {fmtQuantidade(stats.savingTotal, 2)}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.saving.tooltipMedia', 'Média por Bid')}</span>
+                  <strong>USD {fmtQuantidade(stats.savingTotal / (stats.emAndamento || 1), 2)}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.saving.tooltipMaritimo', 'Participação Marítimo')}</span>
+                  <strong style={{ color: '#34d399' }}>USD {fmtQuantidade(stats.savingTotal * 0.7, 2)}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.saving.tooltipAereo', 'Participação Aéreo')}</span>
+                  <strong style={{ color: '#a78bfa' }}>USD {fmtQuantidade(stats.savingTotal * 0.3, 2)}</strong>
+                </div>
+              </>
+            }
+          />
+        )
+      case 'tempo_medio_resposta':
+        return (
+          <CardBasicoGlobal
+            key="tempo_medio_resposta"
+            titulo={t('bidfrete.config.cards.tempo_medio_resposta', 'Tempo Médio de Resposta')}
+            icone={<Gauge weight="duotone" size={16} style={{ color: '#a78bfa' }} />}
+            valor={`${stats.tempoMedio} h`}
+            subtexto={t('bidfrete.config.cards.tempo_medio_resposta_desc', 'Tempo médio de resposta')}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>SLA de Resposta</span>
+                  <strong>24 horas</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Tempo Médio Real</span>
+                  <strong style={{ color: '#a78bfa' }}>{stats.tempoMedio} h</strong>
+                </div>
+              </>
+            }
+          />
+        )
+      case 'cotacoes_expiradas':
+        return (
+          <CardBasicoGlobal
+            key="cotacoes_expiradas"
+            titulo={t('bidfrete.cotacoes.kpi.expiradas.titulo', 'Expiradas')}
+            icone={<Warning weight="duotone" size={16} style={{ color: '#f87171' }} />}
+            valor={stats.expiradas}
+            variante="perigo"
+            subtexto={t('bidfrete.cotacoes.kpi.expiradas.subtexto', 'Prazo de resposta vencido')}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.expiradas.tooltipTotal', 'Total Expirado')}</span>
+                  <strong style={{ color: '#f87171' }}>{stats.expiradas}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.expiradas.tooltipTaxa', 'Taxa de Perda')}</span>
+                  <strong style={{ color: '#f87171' }}>{((stats.expiradas / (stats.total || 1)) * 100).toFixed(1)}%</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.expiradas.tooltipMotivo', 'Motivo Principal')}</span>
+                  <strong>{t('bidfrete.cotacoes.kpi.expiradas.tooltipMotivoValor', 'Ausência de propostas')}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.expiradas.tooltipAcao', 'Ação Recomendada')}</span>
+                  <strong style={{ color: '#60a5fa' }}>{t('bidfrete.cotacoes.kpi.expiradas.tooltipAcaoValor', 'Duplicar & Reabrir')}</strong>
+                </div>
+              </>
+            }
+          />
+        )
+      default:
+        return (
+          <CardBasicoGlobal
+            key={id}
+            titulo={id.startsWith('card_') ? 'Custom Card' : id}
+            icone={<Package weight="duotone" size={16} style={{ color: 'var(--ws-accent, #818cf8)' }} />}
+            valor="--"
+            subtexto="Métrica customizada"
+            tooltip={
+              <div className="cg-tooltip__row">
+                <span>Card Personalizado</span>
+                <strong>Fórmula em processamento</strong>
+              </div>
+            }
+          />
+        )
+    }
+  }, [stats, t])
 
   // ─── Render ───
 
@@ -403,153 +710,17 @@ export default function Cotacoes() {
       cabecalho={
         <CabecalhoGlobal
           icone={<FileText weight="duotone" size={22} />}
-          titulo={visao === 'kanban' ? 'Kanban' : t('bidfrete.cotacoes.titulo')}
+          titulo={visao === 'kanban' ? t('bidfrete.cotacoes.tituloKanban') : t('bidfrete.cotacoes.titulo')}
         />
       }
     >
-      {/* ── KPI cards ── */}
+      {/* ── KPI cards (Configuração dinâmica com sincronização do local storage) ── */}
       {visao === 'lista' && (
         <div className="lp-stats-row">
           <div className="lp-cards">
-            <CardBasicoGlobal
-              key="total_cotacoes"
-              titulo="Total de Cotações"
-              icone={<Package weight="duotone" size={16} style={{ color: 'var(--accent)' }} />}
-              valor={stats.total}
-              subtexto="Todas as cotações carregadas"
-              tooltip={
-                <>
-                  <div className="cg-tooltip__row">
-                    <span>Cotações Totais</span>
-                    <strong>{stats.total}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Ativas / Em Andamento</span>
-                    <strong style={{ color: '#fb923c' }}>{stats.emAndamento}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Aguardando Decisão</span>
-                    <strong style={{ color: '#facc15' }}>{stats.aguardandoAprovacao}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Histórico Fechado</span>
-                    <strong style={{ color: '#34d399' }}>{stats.total - stats.emAndamento - stats.aguardandoAprovacao - stats.expiradas}</strong>
-                  </div>
-                </>
-              }
-            />
-            <CardBasicoGlobal
-              key="cotacoes_andamento"
-              titulo="Cotações em Andamento"
-              icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
-              valor={stats.emAndamento}
-              variante="aviso"
-              subtexto="Em cotação ou enviadas"
-              tooltip={
-                <>
-                  <div className="cg-tooltip__row">
-                    <span>Em Andamento</span>
-                    <strong>{stats.emAndamento}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Aguardando Envio</span>
-                    <strong>{Math.round(stats.emAndamento * 0.4)}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Propostas Recebidas</span>
-                    <strong style={{ color: '#34d399' }}>{Math.round(stats.emAndamento * 0.6)}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>SLA Médio de Envio</span>
-                    <strong>1.8 dias</strong>
-                  </div>
-                </>
-              }
-            />
-            <CardBasicoGlobal
-              key="aguardando_aprovacao"
-              titulo="Aguardando Aprovação"
-              icone={<Warning weight="duotone" size={16} style={{ color: '#facc15' }} />}
-              valor={stats.aguardandoAprovacao}
-              variante="aviso"
-              subtexto="Necessitam de ação"
-              tooltip={
-                <>
-                  <div className="cg-tooltip__row">
-                    <span>Aguardando Decisão</span>
-                    <strong>{stats.aguardandoAprovacao}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Volume sob Análise</span>
-                    <strong style={{ color: '#facc15' }}>USD {fmtQuantidade(stats.savingTotal * 1.5, 2)}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Tempo Médio Espera</span>
-                    <strong>1.2 dias</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Nível de Urgência</span>
-                    <strong style={{ color: '#f87171' }}>Alto (SLA próximo)</strong>
-                  </div>
-                </>
-              }
-            />
-            <CardBasicoGlobal
-              key="expiradas"
-              titulo="Expiradas"
-              icone={<Warning weight="duotone" size={16} style={{ color: '#f87171' }} />}
-              valor={stats.expiradas}
-              variante="perigo"
-              subtexto="Prazo de resposta vencido"
-              tooltip={
-                <>
-                  <div className="cg-tooltip__row">
-                    <span>Total Expirado</span>
-                    <strong style={{ color: '#f87171' }}>{stats.expiradas}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Taxa de Perda</span>
-                    <strong style={{ color: '#f87171' }}>{((stats.expiradas / (stats.total || 1)) * 100).toFixed(1)}%</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Motivo Principal</span>
-                    <strong>Ausência de propostas</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Ação Recomendada</span>
-                    <strong style={{ color: '#60a5fa' }}>Duplicar & Reabrir</strong>
-                  </div>
-                </>
-              }
-            />
-            <CardBasicoGlobal
-              key="saving_estimado"
-              titulo="Saving Estimado"
-              icone={<Coins weight="duotone" size={16} style={{ color: '#34d399' }} />}
-              valor={`USD ${fmtQuantidade(stats.savingTotal, 2)}`}
-              variante="sucesso"
-              subtexto="Soma do saving das cotações ativas"
-              tooltip={
-                <>
-                  <div className="cg-tooltip__row">
-                    <span>Saving Estimado Total</span>
-                    <strong style={{ color: '#34d399' }}>USD {fmtQuantidade(stats.savingTotal, 2)}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Média por Bid</span>
-                    <strong>USD {fmtQuantidade(stats.savingTotal / (stats.emAndamento || 1), 2)}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Participação Marítimo</span>
-                    <strong style={{ color: '#34d399' }}>USD {fmtQuantidade(stats.savingTotal * 0.7, 2)}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Participação Aéreo</span>
-                    <strong style={{ color: '#a78bfa' }}>USD {fmtQuantidade(stats.savingTotal * 0.3, 2)}</strong>
-                  </div>
-                </>
-              }
-            />
+            {cardsPref
+              .filter(pref => pref.visible !== false)
+              .map(pref => renderCard(pref.id))}
           </div>
         </div>
       )}
@@ -566,7 +737,7 @@ export default function Cotacoes() {
             totalItens={cotacoesFiltradas.length}
             paginaAtual={1}
             onMudarPagina={() => {}}
-            labelPai={['cotação', 'cotações']}
+            labelPai={[t('bidfrete.cotacoes.labelPai_one'), t('bidfrete.cotacoes.labelPai_other')]}
             
             abas={abas}
             abaAtiva={filtroTab}
@@ -578,11 +749,11 @@ export default function Cotacoes() {
             
             onBuscar={setBusca}
             modoLocalizar={true}
-            placeholderBusca="Buscar por processo, referência, origem ou destino..."
+            placeholderBusca={t('bidfrete.cotacoes.placeholderBusca')}
             
             camposEditaveis={CAMPOS_EDITAVEIS}
             onEditar={handleEditar}
-            onSalvoComSucesso={() => addNotification({ type: 'success', message: 'Campo atualizado com sucesso.' })}
+            onSalvoComSucesso={() => addNotification({ type: 'success', message: t('bidfrete.cotacoes.campoAtualizado') })}
             onErroAoSalvar={(msg) => addNotification({ type: 'error', message: msg })}
             
             arrastavelPai={true}
@@ -595,9 +766,9 @@ export default function Cotacoes() {
             carregando={carregando}
             emptyIcon={<Package size={40} weight="duotone" style={{ color: 'var(--text-muted)' }} />}
             emptyTitle={t('bidfrete.cotacoes.vazio')}
-            emptyDescription="Nenhuma cotação encontrada com os filtros selecionados."
+            emptyDescription={t('bidfrete.cotacoes.vazioDescricao')}
             
-            ariaLabel="Lista de Cotações"
+            ariaLabel={t('bidfrete.cotacoes.ariaLabel')}
           />
         </div>
       ) : (

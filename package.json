@@ -51,7 +51,7 @@
     "servicos-global/servicos-plataforma/taxas-cambio/server"
   ],
   "scripts": {
-    "dev": "concurrently -k -n CFG-BACK,CFG-FRONT,ORG,SC-BACK,PROC-BACK,PEDIDO,CADASTROS,COCKPIT -c blue,green,cyan,yellow,magenta,red,gray,white \"cd servicos-global/configurador && npm run dev\" \"cd servicos-global/configurador && npx vite\" \"cd servicos-global/servicos-plataforma && npm run dev\" \"cd servicos-global/produto/simula-custo && npm run dev\" \"cd servicos-global/produto/processo && npm run dev\" \"cd servicos-global/produto/pedido && npm run dev\" \"cd servicos-global/cadastros && npm run dev\" \"cd servicos-global/servicos-plataforma/api-cockpit && npm run dev\"",
+    "dev": "concurrently -k -n CFG-BACK,CFG-FRONT,ORG,SC-BACK,PROC-BACK,PEDIDO,CADASTROS,COCKPIT,BID-INTER -c blue,green,cyan,yellow,magenta,red,gray,white,bgYellow.black \"cd servicos-global/configurador && npm run dev\" \"cd servicos-global/configurador && npx vite\" \"cd servicos-global/servicos-plataforma && npm run dev\" \"cd servicos-global/produto/simula-custo && npm run dev\" \"cd servicos-global/produto/processo && npm run dev\" \"cd servicos-global/produto/pedido && npm run dev\" \"cd servicos-global/cadastros && npm run dev\" \"cd servicos-global/servicos-plataforma/api-cockpit && npm run dev\" \"cd servicos-global/produto/bid-frete-internacional && npm run dev\"",
     "dev:reset": "npx tsx scripts/ativamente/dev-reset.ts",
     "db:compose": "npx ts-node scripts/ativamente/compose-plataforma-schema.ts",
     "db:migrate:dev": "npm run db:compose && npx prisma migrate dev --schema=configurador/prisma/schema.prisma && npx prisma migrate dev --schema=servicos-global/servicos-plataforma/prisma/schema.prisma",

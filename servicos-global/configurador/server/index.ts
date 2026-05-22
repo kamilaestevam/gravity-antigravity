@@ -279,6 +279,46 @@ app.get('/api/v1/internal/sidecar-status', requireAuth, requireGravityAdmin, (_r
   res.json(_sidecarStatus)
 })
 
+app.use('/api/v1/bid-frete-internacional', (req, res) => {
+  const serviceUrl = process.env.BID_FRETE_SERVICE_URL || 'http://127.0.0.1:8023'
+  const targetUrl = `${serviceUrl}${req.originalUrl}`
+  const host = serviceUrl.replace(/^https?:\/\//, '')
+  const headers = { ...req.headers, host } as Record<string, any>
+  headers['x-chave-interna-servico'] = process.env.CHAVE_INTERNA_SERVICO!
+
+  if (!headers['x-id-organizacao'] || headers['x-id-organizacao'] === '') {
+    headers['x-id-organizacao'] = 'org_dev_default'
+  }
+  if (!headers['x-id-usuario'] || headers['x-id-usuario'] === '') {
+    headers['x-id-usuario'] = 'user_dev_default'
+  }
+
+  let bodyBuf: Buffer | undefined
+  if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+    bodyBuf = Buffer.from(JSON.stringify(req.body))
+    headers['content-length'] = String(bodyBuf.length)
+  }
+
+  const proxyReq = httpRequest(targetUrl, { method: req.method, headers }, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode ?? 502, proxyRes.headers)
+    proxyRes.pipe(res)
+  })
+  proxyReq.on('error', (err) => {
+    console.error('[proxy-bid-frete-internacional] erro ao conectar', {
+      code: (err as NodeJS.ErrnoException).code,
+      message: err.message,
+      method: req.method,
+      url: req.originalUrl,
+    })
+    if (!res.headersSent) res.status(502).json({ error: 'BID Frete Internacional service unavailable' })
+  })
+  if (bodyBuf) {
+    proxyReq.end(bodyBuf)
+  } else {
+    proxyReq.end()
+  }
+})
+
 app.use('/api/v1/pedidos', (req, res) => {
   const targetUrl = `http://127.0.0.1:8030${req.originalUrl}`
   const headers = { ...req.headers, host: '127.0.0.1:8030' }
@@ -311,6 +351,46 @@ app.use('/api/v1/pedidos', (req, res) => {
   }
 })
 
+// ─── Proxy reverso: Cadastros sidecar (porta 8031) ──────────────────────────
+// O sidecar Cadastros expõe `/api/v1/empresas` e `/api/v1/cadastros/*`
+// (moedas, unidades, incoterms, ncm, operacoes-comex, paises...).
+// Sem este proxy, as chamadas relativas do frontend caem no catch-all → 404.
+const _proxyCadastros = (req: express.Request, res: express.Response) => {
+  const targetUrl = `http://127.0.0.1:8031${req.originalUrl}`
+  const headers = { ...req.headers, host: '127.0.0.1:8031' }
+  // O serviço Cadastros valida a chave inter-serviço via `x-internal-key`.
+  // Injetada server-side: a chave interna nunca deve depender do navegador.
+  headers['x-internal-key'] = process.env.CHAVE_INTERNA_SERVICO!
+  headers['x-chave-interna-servico'] = process.env.CHAVE_INTERNA_SERVICO!
+
+  let bodyBuf: Buffer | undefined
+  if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+    bodyBuf = Buffer.from(JSON.stringify(req.body))
+    headers['content-length'] = String(bodyBuf.length)
+  }
+
+  const proxyReq = httpRequest(targetUrl, { method: req.method, headers }, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode ?? 502, proxyRes.headers)
+    proxyRes.pipe(res)
+  })
+  proxyReq.on('error', (err) => {
+    console.error('[proxy-cadastros] erro ao conectar com sidecar', {
+      code: (err as NodeJS.ErrnoException).code,
+      message: err.message,
+      method: req.method,
+      url: req.originalUrl,
+    })
+    if (!res.headersSent) res.status(502).json({ error: 'Cadastros service unavailable', sidecar: _sidecarStatus['cadastros'] })
+  })
+  if (bodyBuf) {
+    proxyReq.end(bodyBuf)
+  } else {
+    proxyReq.end()
+  }
+}
+app.use('/api/v1/empresas', _proxyCadastros)
+app.use('/api/v1/cadastros', _proxyCadastros)
+
 // ─── Servir frontend Vite em produção ────────────────────────────────────────
 const clientDistDir = resolve(__dir, '../dist')
 app.use(express.static(clientDistDir))
@@ -336,8 +416,11 @@ if (process.env.NODE_ENV !== 'test') {
   process.env.CADASTROS_SIDECAR = '1'
   try {
     await import('../../cadastros/server/src/index.js')
+    _sidecarStatus['cadastros'] = { ok: true }
     console.log('[configurador] Sidecar Cadastros iniciado na porta 8031')
   } catch (err) {
+    const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+    _sidecarStatus['cadastros'] = { ok: false, error: msg }
     console.error('[configurador] Falha ao iniciar sidecar Cadastros:', err)
   }
 

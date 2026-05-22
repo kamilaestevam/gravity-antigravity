@@ -18,6 +18,8 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { useShellStore } from '@shell'
 import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
 import {
@@ -189,7 +191,7 @@ const fmtBRL = (n: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(n)
 const fmtPct = (n: number) => `${n.toFixed(1)}%`
 
-function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): GabiInsightItem[] {
+function buildClientInsights(kpis: DashboardKpis, prev: DashboardKpis | null | undefined, t: TFunction): GabiInsightItem[] {
   const items: GabiInsightItem[] = []
 
   // ── ALERTAS (warn) — sempre primeiro ─────────────────────────────────────────
@@ -199,10 +201,10 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     items.push({
       id: 'atrasados',
       variante: 'warn',
-      tag: 'Atenção · Pedidos Atrasados',
-      texto: `${kpis.pedidos_atrasados} pedido${kpis.pedidos_atrasados > 1 ? 's' : ''} com prazo vencido. Ação imediata recomendada.`,
-      stat: { label: 'Taxa de atraso', valor: fmtPct(taxa) },
-      textoLink: 'Ver atrasados',
+      tag: t('pedido.dashboard.insight_atrasados_tag'),
+      texto: t('pedido.dashboard.insight_atrasados_texto', { count: kpis.pedidos_atrasados }),
+      stat: { label: t('pedido.dashboard.insight_atrasados_stat_label'), valor: fmtPct(taxa) },
+      textoLink: t('pedido.dashboard.insight_atrasados_link'),
       rota: '/pedidos/lista?status=atrasado',
     })
   }
@@ -211,10 +213,10 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     items.push({
       id: 'sem_exportador',
       variante: 'warn',
-      tag: 'Atenção · Sem Exportador',
-      texto: `${kpis.pedidos_sem_exportador} pedido${kpis.pedidos_sem_exportador > 1 ? 's' : ''} sem exportador vinculado — bloqueio de faturamento em risco.`,
-      stat: { label: 'Sem exportador', valor: fmtNum(kpis.pedidos_sem_exportador) },
-      textoLink: 'Corrigir agora',
+      tag: t('pedido.dashboard.insight_sem_exportador_tag'),
+      texto: t('pedido.dashboard.insight_sem_exportador_texto', { count: kpis.pedidos_sem_exportador }),
+      stat: { label: t('pedido.dashboard.insight_sem_exportador_stat_label'), valor: fmtNum(kpis.pedidos_sem_exportador) },
+      textoLink: t('pedido.dashboard.insight_sem_exportador_link'),
       rota: '/pedidos/lista?exportador=nenhum',
     })
   }
@@ -224,10 +226,12 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     items.push({
       id: 'cancelados',
       variante: pct > 10 ? 'warn' : 'default',
-      tag: pct > 10 ? 'Atenção · Cancelamentos' : 'Alerta · Cancelamentos',
-      texto: `${kpis.pedidos_cancelados} pedido${kpis.pedidos_cancelados > 1 ? 's' : ''} cancelado${kpis.pedidos_cancelados > 1 ? 's' : ''} no período — ${fmtPct(pct)} do total.`,
-      stat: { label: 'Total no período', valor: fmtNum(kpis.total_pedidos) },
-      textoLink: 'Ver cancelados',
+      tag: pct > 10
+        ? t('pedido.dashboard.insight_cancelados_tag_atencao')
+        : t('pedido.dashboard.insight_cancelados_tag_alerta'),
+      texto: t('pedido.dashboard.insight_cancelados_texto', { count: kpis.pedidos_cancelados, pct: fmtPct(pct) }),
+      stat: { label: t('pedido.dashboard.insight_cancelados_stat_label'), valor: fmtNum(kpis.total_pedidos) },
+      textoLink: t('pedido.dashboard.insight_cancelados_link'),
       rota: '/pedidos/lista?status=cancelado',
     })
   }
@@ -236,10 +240,10 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     items.push({
       id: 'rascunho',
       variante: 'warn',
-      tag: 'Atenção · Rascunhos',
-      texto: `${kpis.pedidos_rascunho} pedido${kpis.pedidos_rascunho > 1 ? 's' : ''} em rascunho ainda não foram enviados para operação.`,
-      stat: { label: 'Em rascunho', valor: fmtNum(kpis.pedidos_rascunho) },
-      textoLink: 'Ver rascunhos',
+      tag: t('pedido.dashboard.insight_rascunho_tag'),
+      texto: t('pedido.dashboard.insight_rascunho_texto', { count: kpis.pedidos_rascunho }),
+      stat: { label: t('pedido.dashboard.insight_rascunho_stat_label'), valor: fmtNum(kpis.pedidos_rascunho) },
+      textoLink: t('pedido.dashboard.insight_rascunho_link'),
       rota: '/pedidos/lista?status=rascunho',
     })
   }
@@ -250,12 +254,12 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     items.push({
       id: 'abertos',
       variante: 'default',
-      tag: 'Operacional · Em Aberto',
-      texto: `${kpis.pedidos_abertos} pedido${kpis.pedidos_abertos > 1 ? 's' : ''} em aberto prontos para iniciar transferência.`,
+      tag: t('pedido.dashboard.insight_abertos_tag'),
+      texto: t('pedido.dashboard.insight_abertos_texto', { count: kpis.pedidos_abertos }),
       stat: kpis.qtd_transferida_total > 0
-        ? { label: 'Qtd. já transferida', valor: fmtNum(kpis.qtd_transferida_total) }
-        : { label: 'Pedidos abertos', valor: fmtNum(kpis.pedidos_abertos) },
-      textoLink: 'Ver pedidos',
+        ? { label: t('pedido.dashboard.insight_abertos_stat_label_transferida'), valor: fmtNum(kpis.qtd_transferida_total) }
+        : { label: t('pedido.dashboard.insight_abertos_stat_label_abertos'), valor: fmtNum(kpis.pedidos_abertos) },
+      textoLink: t('pedido.dashboard.insight_abertos_link'),
       rota: '/pedidos/lista?status=aberto',
     })
   }
@@ -266,10 +270,10 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     items.push({
       id: 'transferencia',
       variante: 'default',
-      tag: 'Operacional · Transferência',
-      texto: `${kpis.pedidos_em_andamento} pedido${kpis.pedidos_em_andamento > 1 ? 's' : ''} em fase de transferência de quantidades.`,
-      stat: { label: 'Taxa de transferência', valor: fmtPct(txTransf) },
-      textoLink: 'Ver em andamento',
+      tag: t('pedido.dashboard.insight_transferencia_tag'),
+      texto: t('pedido.dashboard.insight_transferencia_texto', { count: kpis.pedidos_em_andamento }),
+      stat: { label: t('pedido.dashboard.insight_transferencia_stat_label'), valor: fmtPct(txTransf) },
+      textoLink: t('pedido.dashboard.insight_transferencia_link'),
       rota: '/pedidos/lista?status=transferencia',
     })
   }
@@ -280,10 +284,10 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     items.push({
       id: 'qtd_pronta',
       variante: 'default',
-      tag: 'Operacional · Qtd. Pronta',
-      texto: `${fmtNum(kpis.itens_prontos)} unidades prontas disponíveis para embarque — ${fmtPct(pctPronta)} do total.`,
-      stat: { label: 'Saldo disponível', valor: fmtNum(kpis.qtd_atual_total) },
-      textoLink: 'Ver prontos',
+      tag: t('pedido.dashboard.insight_qtd_pronta_tag'),
+      texto: t('pedido.dashboard.insight_qtd_pronta_texto', { qtd: fmtNum(kpis.itens_prontos), pct: fmtPct(pctPronta) }),
+      stat: { label: t('pedido.dashboard.insight_qtd_pronta_stat_label'), valor: fmtNum(kpis.qtd_atual_total) },
+      textoLink: t('pedido.dashboard.insight_qtd_pronta_link'),
       rota: '/pedidos/lista?status=pronto',
     })
   }
@@ -292,10 +296,10 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     items.push({
       id: 'consolidados',
       variante: 'default',
-      tag: 'Operacional · Consolidados',
-      texto: `${kpis.pedidos_consolidados} pedido${kpis.pedidos_consolidados > 1 ? 's' : ''} consolidado${kpis.pedidos_consolidados > 1 ? 's' : ''} no período.`,
-      stat: { label: 'Consolidados', valor: fmtNum(kpis.pedidos_consolidados) },
-      textoLink: 'Ver consolidados',
+      tag: t('pedido.dashboard.insight_consolidados_tag'),
+      texto: t('pedido.dashboard.insight_consolidados_texto', { count: kpis.pedidos_consolidados }),
+      stat: { label: t('pedido.dashboard.insight_consolidados_stat_label'), valor: fmtNum(kpis.pedidos_consolidados) },
+      textoLink: t('pedido.dashboard.insight_consolidados_link'),
       rota: '/pedidos/lista?status=consolidado',
     })
   }
@@ -306,12 +310,12 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     items.push({
       id: 'financeiro',
       variante: 'default',
-      tag: 'Financeiro · Carteira',
-      texto: `Carteira do período totaliza ${fmtBRL(kpis.valor_total)} em pedidos.`,
+      tag: t('pedido.dashboard.insight_financeiro_tag'),
+      texto: t('pedido.dashboard.insight_financeiro_texto', { valor: fmtBRL(kpis.valor_total) }),
       stat: kpis.ticket_medio > 0
-        ? { label: 'Ticket médio', valor: fmtBRL(kpis.ticket_medio) }
-        : { label: 'Total de pedidos', valor: fmtNum(kpis.total_pedidos) },
-      textoLink: 'Ver tendências',
+        ? { label: t('pedido.dashboard.insight_financeiro_stat_label_ticket'), valor: fmtBRL(kpis.ticket_medio) }
+        : { label: t('pedido.dashboard.insight_financeiro_stat_label_total'), valor: fmtNum(kpis.total_pedidos) },
+      textoLink: t('pedido.dashboard.insight_financeiro_link'),
     })
   }
 
@@ -319,10 +323,14 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     items.push({
       id: 'cambio_brl',
       variante: 'default',
-      tag: 'Financeiro · Exposição BRL',
-      texto: `Exposição total convertida pela PTAX mais recente. Moedas: ${(kpis.moedas_sem_taxa as string[]).length > 0 ? 'algumas sem taxa disponível' : 'todas convertidas'}.`,
-      stat: { label: 'Total em BRL', valor: fmtBRL(kpis.valor_total_brl) },
-      textoLink: 'Ver exposição',
+      tag: t('pedido.dashboard.insight_cambio_brl_tag'),
+      texto: t('pedido.dashboard.insight_cambio_brl_texto', {
+        moedas: (kpis.moedas_sem_taxa as string[]).length > 0
+          ? t('pedido.dashboard.insight_cambio_brl_moedas_parcial')
+          : t('pedido.dashboard.insight_cambio_brl_moedas_todas'),
+      }),
+      stat: { label: t('pedido.dashboard.insight_cambio_brl_stat_label'), valor: fmtBRL(kpis.valor_total_brl) },
+      textoLink: t('pedido.dashboard.insight_cambio_brl_link'),
     })
   }
 
@@ -330,10 +338,10 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     items.push({
       id: 'valor_itens',
       variante: 'default',
-      tag: 'Financeiro · Valor dos Itens',
-      texto: `Valor total dos itens (FOB/CIF) no período selecionado.`,
-      stat: { label: 'Valor itens', valor: fmtBRL(kpis.valor_itens_total) },
-      textoLink: 'Ver itens',
+      tag: t('pedido.dashboard.insight_valor_itens_tag'),
+      texto: t('pedido.dashboard.insight_valor_itens_texto'),
+      stat: { label: t('pedido.dashboard.insight_valor_itens_stat_label'), valor: fmtBRL(kpis.valor_itens_total) },
+      textoLink: t('pedido.dashboard.insight_valor_itens_link'),
     })
   }
 
@@ -347,10 +355,14 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
       items.push({
         id: 'tendencia_volume',
         variante: 'default',
-        tag: `Tendência · Volume ${crescendo ? 'Crescente' : 'Queda'}`,
-        texto: `Volume de pedidos ${crescendo ? 'cresceu' : 'caiu'} ${fmtPct(pct)} vs. período anterior.`,
-        stat: { label: 'Período anterior', valor: fmtNum(prev.total_pedidos) },
-        textoLink: 'Ver tendências',
+        tag: crescendo
+          ? t('pedido.dashboard.insight_tendencia_volume_tag_crescente')
+          : t('pedido.dashboard.insight_tendencia_volume_tag_queda'),
+        texto: crescendo
+          ? t('pedido.dashboard.insight_tendencia_volume_texto_crescente', { pct: fmtPct(pct) })
+          : t('pedido.dashboard.insight_tendencia_volume_texto_queda', { pct: fmtPct(pct) }),
+        stat: { label: t('pedido.dashboard.insight_tendencia_volume_stat_label'), valor: fmtNum(prev.total_pedidos) },
+        textoLink: t('pedido.dashboard.insight_tendencia_volume_link'),
       })
     }
   }
@@ -363,10 +375,14 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
       items.push({
         id: 'tendencia_valor',
         variante: crescendo ? 'default' : 'warn',
-        tag: `Financeiro · Valor ${crescendo ? 'Aumentou' : 'Reduziu'}`,
-        texto: `Valor da carteira ${crescendo ? 'aumentou' : 'reduziu'} ${fmtPct(pct)} em relação ao período anterior.`,
-        stat: { label: 'Variação', valor: `${crescendo ? '+' : ''}${fmtBRL(delta)}` },
-        textoLink: 'Ver tendências',
+        tag: crescendo
+          ? t('pedido.dashboard.insight_tendencia_valor_tag_aumentou')
+          : t('pedido.dashboard.insight_tendencia_valor_tag_reduziu'),
+        texto: crescendo
+          ? t('pedido.dashboard.insight_tendencia_valor_texto_aumentou', { pct: fmtPct(pct) })
+          : t('pedido.dashboard.insight_tendencia_valor_texto_reduziu', { pct: fmtPct(pct) }),
+        stat: { label: t('pedido.dashboard.insight_tendencia_valor_stat_label'), valor: `${crescendo ? '+' : ''}${fmtBRL(delta)}` },
+        textoLink: t('pedido.dashboard.insight_tendencia_valor_link'),
       })
     }
   }
@@ -379,10 +395,10 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     items.push({
       id: 'imp_exp',
       variante: 'default',
-      tag: 'Análise · Imp. vs Exp.',
-      texto: `${pctImp}% das operações são importações e ${100 - pctImp}% exportações no período.`,
-      stat: { label: 'Total de operações', valor: fmtNum(totalOps) },
-      textoLink: 'Ver distribuição',
+      tag: t('pedido.dashboard.insight_imp_exp_tag'),
+      texto: t('pedido.dashboard.insight_imp_exp_texto', { pctImp, pctExp: 100 - pctImp }),
+      stat: { label: t('pedido.dashboard.insight_imp_exp_stat_label'), valor: fmtNum(totalOps) },
+      textoLink: t('pedido.dashboard.insight_imp_exp_link'),
     })
   }
 
@@ -392,19 +408,19 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     items.push({
       id: 'status_ok',
       variante: 'default',
-      tag: 'Status · Tudo em dia',
-      texto: 'Nenhuma pendência identificada. Operação normalizada no período selecionado.',
-      stat: { label: 'Pedidos no período', valor: fmtNum(kpis.total_pedidos) },
-      textoLink: 'Ver pedidos',
+      tag: t('pedido.dashboard.insight_status_ok_tag'),
+      texto: t('pedido.dashboard.insight_status_ok_texto'),
+      stat: { label: t('pedido.dashboard.insight_status_ok_stat_label'), valor: fmtNum(kpis.total_pedidos) },
+      textoLink: t('pedido.dashboard.insight_status_ok_link'),
       rota: '/pedidos/lista',
     })
     items.push({
       id: 'dica_periodo',
       variante: 'default',
-      tag: 'Dica · Gabi AI',
-      texto: 'Use o filtro de período para explorar tendências históricas dos seus pedidos.',
-      stat: { label: 'Período', valor: kpis.period ?? '30d' },
-      textoLink: 'Explorar dados',
+      tag: t('pedido.dashboard.insight_dica_periodo_tag'),
+      texto: t('pedido.dashboard.insight_dica_periodo_texto'),
+      stat: { label: t('pedido.dashboard.insight_dica_periodo_stat_label'), valor: kpis.period ?? '30d' },
+      textoLink: t('pedido.dashboard.insight_dica_periodo_link'),
     })
   }
 
@@ -442,12 +458,17 @@ const WIDGET_NAV_ROUTE: Record<string, string> = {
 const PERIOD_SEQUENCE = ['7d', '30d', '90d', '12m', 'current_year'] as const
 type PeriodKey = typeof PERIOD_SEQUENCE[number]
 
-const PERIOD_LABEL: Record<string, string> = {
-  '7d':           'Últimos 7 dias',
-  '30d':          'Últimos 30 dias',
-  '90d':          'Últimos 90 dias',
-  '12m':          'Últimos 12 meses',
-  'current_year': 'Ano atual',
+const PERIOD_LABEL_KEY: Record<string, string> = {
+  '7d':           'pedido.dashboard.periodo_7d',
+  '30d':          'pedido.dashboard.periodo_30d',
+  '90d':          'pedido.dashboard.periodo_90d',
+  '12m':          'pedido.dashboard.periodo_12m',
+  'current_year': 'pedido.dashboard.periodo_current_year',
+}
+
+function getPeriodLabel(t: TFunction, key: string): string {
+  const i18nKey = PERIOD_LABEL_KEY[key]
+  return i18nKey ? t(i18nKey) : key
 }
 
 function getNextPeriods(current: string): string[] {
@@ -456,24 +477,24 @@ function getNextPeriods(current: string): string[] {
   return Array.from(PERIOD_SEQUENCE.slice(idx + 1, idx + 3))
 }
 
-function buildEmptyText(chartType: string, fieldNames: string[]): string {
+function buildEmptyText(chartType: string, fieldNames: string[], t: TFunction): string {
   const fieldStr = fieldNames.length === 0
-    ? 'este campo'
+    ? t('pedido.dashboard.empty_campo_padrao')
     : fieldNames.length === 1
       ? `"${fieldNames[0]}"`
-      : fieldNames.slice(0, 2).map(f => `"${f}"`).join(' e ')
+      : fieldNames.slice(0, 2).map(f => `"${f}"`).join(t('pedido.dashboard.empty_campo_juntor'))
 
   switch (chartType) {
     case 'DISTRIBUTION':
-      return `Nenhum registro encontrado para distribuir ${fieldStr} no período selecionado. Isso pode indicar que os dados ainda não foram importados ou que o filtro é muito restritivo.`
+      return t('pedido.dashboard.empty_distribution', { campos: fieldStr })
     case 'LINE':
     case 'AREA':
-      return `Sem dados de tendência para ${fieldStr} neste intervalo. Ampliar o período pode revelar movimentações históricas relevantes.`
+      return t('pedido.dashboard.empty_linha', { campos: fieldStr })
     case 'BAR':
     case 'BAR_HORIZONTAL':
-      return `Nenhuma movimentação registrada para comparar ${fieldStr} no período atual. Tente um intervalo maior ou verifique os filtros ativos.`
+      return t('pedido.dashboard.empty_barras', { campos: fieldStr })
     default:
-      return `Não há dados disponíveis para este widget no período selecionado. Amplie o intervalo ou ajuste os campos.`
+      return t('pedido.dashboard.empty_padrao')
   }
 }
 
@@ -511,8 +532,9 @@ interface WidgetEmptyGabiProps {
 }
 
 function WidgetEmptyGabi({ widget, fieldNames, currentPeriod, onExpandPeriod, onEdit, onRemove }: WidgetEmptyGabiProps) {
+  const { t } = useTranslation()
   const nextPeriods = getNextPeriods(currentPeriod)
-  const emptyText   = buildEmptyText(widget.chart_type, fieldNames)
+  const emptyText   = buildEmptyText(widget.chart_type, fieldNames, t)
 
   return (
     <div style={gabiEmptyStyles.wrap} className="dp-gabi-empty-pulse">
@@ -526,7 +548,7 @@ function WidgetEmptyGabi({ widget, fieldNames, currentPeriod, onExpandPeriod, on
           <div style={gabiEmptyStyles.avatar}>
             <RocketLaunch size={13} weight="fill" color="#fff" />
           </div>
-          <span style={gabiEmptyStyles.tag}>GABI · Sem dados no período</span>
+          <span style={gabiEmptyStyles.tag}>{t('pedido.dashboard.empty_gabi_tag')}</span>
         </div>
 
         <p style={gabiEmptyStyles.text}>{emptyText}</p>
@@ -534,31 +556,31 @@ function WidgetEmptyGabi({ widget, fieldNames, currentPeriod, onExpandPeriod, on
         <div style={gabiEmptyStyles.actions}>
           {nextPeriods.length > 0 ? (
             <div style={gabiEmptyStyles.periodGroup}>
-              <span style={gabiEmptyStyles.actionLabel}>Ampliar para:</span>
+              <span style={gabiEmptyStyles.actionLabel}>{t('pedido.dashboard.empty_ampliar_para')}</span>
               {nextPeriods.map(p => (
                 <button key={p} type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod(p)}>
-                  {PERIOD_LABEL[p] ?? p}
+                  {getPeriodLabel(t, p)}
                 </button>
               ))}
             </div>
           ) : (
             <div style={gabiEmptyStyles.periodGroup}>
-              <span style={gabiEmptyStyles.actionLabel}>Já no período máximo. Experimente:</span>
+              <span style={gabiEmptyStyles.actionLabel}>{t('pedido.dashboard.empty_periodo_maximo')}</span>
               <button type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod('30d')}>
-                Últimos 30 dias
+                {t('pedido.dashboard.periodo_30d')}
               </button>
               <button type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod('12m')}>
-                Últimos 12 meses
+                {t('pedido.dashboard.periodo_12m')}
               </button>
             </div>
           )}
 
           <div style={gabiEmptyStyles.rowActions}>
             <button type="button" style={gabiEmptyStyles.editBtn} onClick={onEdit}>
-              Editar campos
+              {t('pedido.dashboard.empty_editar_campos')}
             </button>
             <button type="button" style={gabiEmptyStyles.removeBtn} onClick={onRemove}>
-              Remover widget
+              {t('pedido.dashboard.empty_remover_widget')}
             </button>
           </div>
         </div>
@@ -866,6 +888,7 @@ function SortableTabWrapper({ id, children }: { id: string; children: ReactNode 
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export default function PedidosDashboard() {
+  const { t } = useTranslation()
   const {
     widgets, addWidget, removeWidget, updateWidget, updateLayout,
     slicers, setPeriod, setStatusFilter,
@@ -1052,7 +1075,7 @@ export default function PedidosDashboard() {
 
   // Efeito visual reutilizável: scroll + outline pulse após adicionar qualquer widget
   const triggerWidgetAddedFX = useCallback((widgetId: string, title: string) => {
-    try { addNotification({ type: 'success', message: `Widget "${title}" adicionado ao dashboard.`, duration: 4000 }) } catch { /* ignorar */ }
+    try { addNotification({ type: 'success', message: t('pedido.dashboard.widget_adicionado', { titulo: title }), duration: 4000 }) } catch { /* ignorar */ }
     setTimeout(() => {
       const wrapper = document.querySelector(`[data-widget-id="${widgetId}"]`)
       wrapper?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -1062,7 +1085,7 @@ export default function PedidosDashboard() {
         setTimeout(() => wrapper.classList.remove('wc-highlighted'), 4500)
       }, 700)
     }, 300)
-  }, [addNotification])
+  }, [addNotification, t])
 
   const handleAddWidgetFromSuggestions = useCallback((widgetConfig: DashboardWidgetConfig) => {
     addWidget(widgetConfig)
@@ -1124,7 +1147,7 @@ export default function PedidosDashboard() {
       const insights = insightsData.length > 0
         ? insightsData
         : kpisData
-          ? buildClientInsights(kpisData, prevKpisData)
+          ? buildClientInsights(kpisData, prevKpisData, t)
           : [] // kpisData ainda não carregou — skeleton cobre esse estado
 
       return (
@@ -1143,14 +1166,14 @@ export default function PedidosDashboard() {
                 <div className="dp-gabi-avatar">
                   <RocketLaunch weight="fill" size={13} color="#fff" />
                 </div>
-                <span className="dp-gabi-label">Gabi AI · Insights</span>
+                <span className="dp-gabi-label">{t('pedido.dashboard.gabi_label')}</span>
               </div>
               <div className="dp-gabi-header-right">
                 <button
                   className="dp-gabi-nav-btn"
                   type="button"
                   onClick={() => scrollGabi('left')}
-                  aria-label="Insight anterior"
+                  aria-label={t('pedido.dashboard.gabi_insight_anterior')}
                 >
                   <CaretLeft size={12} weight="bold" />
                 </button>
@@ -1158,13 +1181,13 @@ export default function PedidosDashboard() {
                   className="dp-gabi-nav-btn"
                   type="button"
                   onClick={() => scrollGabi('right')}
-                  aria-label="Próximo insight"
+                  aria-label={t('pedido.dashboard.gabi_proximo_insight')}
                 >
                   <CaretRight size={12} weight="bold" />
                 </button>
                 <span className="dp-gabi-live-badge">
                   <span className="dp-gabi-live-dot" />
-                  ao vivo
+                  {t('pedido.dashboard.gabi_ao_vivo')}
                 </span>
               </div>
             </div>
@@ -1401,7 +1424,7 @@ export default function PedidosDashboard() {
         <DashboardValorKPI data={result.data} fieldKey={fieldKey} fieldType="number" />
       </DashboardPainelContainer>
     )
-  }, [editMode, removeWidget, allDerived, kpisData, prevKpisData, trendData, loadingData, slicers, setPeriod, fieldLabels])
+  }, [editMode, removeWidget, allDerived, kpisData, prevKpisData, trendData, loadingData, slicers, setPeriod, fieldLabels, t])
 
   function handleQueryBuilderSave(spec: WidgetQuerySpec, title: string, chartType: ChartType) {
     const id = `custom_${Date.now()}`
@@ -1445,10 +1468,10 @@ export default function PedidosDashboard() {
   }
 
   const STATUS_LABELS: Record<string, string> = {
-    abertos:      statusConfig['aberto']?.label       ?? 'Abertos',
-    em_andamento: statusConfig['em_andamento']?.label  ?? 'Em Andamento',
-    atrasados:    statusConfig['atrasados']?.label     ?? 'Atrasados',
-    concluidos:   statusConfig['consolidado']?.label   ?? 'Concluídos',
+    abertos:      statusConfig['aberto']?.label       ?? t('pedido.dashboard.status_abertos'),
+    em_andamento: statusConfig['em_andamento']?.label  ?? t('pedido.dashboard.status_em_andamento'),
+    atrasados:    statusConfig['atrasados']?.label     ?? t('pedido.dashboard.status_atrasados'),
+    concluidos:   statusConfig['consolidado']?.label   ?? t('pedido.dashboard.status_concluidos'),
   }
 
   const STATUS_ACTIVE_COLORS: Record<string, { bg: string; border: string; text: string }> = Object.fromEntries(
@@ -1467,9 +1490,9 @@ export default function PedidosDashboard() {
       {/* ── Onboarding banner — fixo, nunca some ───────────────────────── */}
       <div style={onboardingBannerStyle}>
         <div style={onboardingBannerContent}>
-          <span style={onboardingBannerTitle}>Este dashboard é seu.</span>
+          <span style={onboardingBannerTitle}>{t('pedido.dashboard.onboarding_titulo')}</span>
           <span style={onboardingBannerText}>
-            Adicione métricas, mova seções e crie seus próprios widgets.
+            {t('pedido.dashboard.onboarding_texto')}
           </span>
           <div style={onboardingBannerActions}>
             <button
@@ -1478,14 +1501,14 @@ export default function PedidosDashboard() {
               onClick={() => setSuggestionsOpen(true)}
             >
               <RocketLaunch size={13} weight="fill" />
-              Explorar sugestões
+              {t('pedido.dashboard.onboarding_explorar_sugestoes')}
             </button>
             <button
               type="button"
               style={onboardingBtnGhost}
               onClick={() => { setEditMode(true); setQueryBuilderOpen(true) }}
             >
-              Criar Dashboard →
+              {t('pedido.dashboard.onboarding_criar_dashboard')}
             </button>
           </div>
         </div>
@@ -1557,7 +1580,7 @@ export default function PedidosDashboard() {
                         {p.nome}
                         <span
                           role="button"
-                          aria-label="Opções do painel"
+                          aria-label={t('pedido.dashboard.painel_opcoes')}
                           style={sty.painelMenuBtn}
                           onPointerDown={e => e.stopPropagation()}
                           onClick={(e) => { e.stopPropagation(); setMenuPainelId(prev => prev === p.id ? null : p.id); setDeletingId(null) }}
@@ -1575,14 +1598,16 @@ export default function PedidosDashboard() {
                         /* Confirmação inline */
                         <div style={{ padding: '0.5rem 0.75rem' }}>
                           <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 0.5rem' }}>
-                            Excluir <strong style={{ color: '#fff' }}>{p.nome}</strong>?
+                            {t('pedido.dashboard.painel_excluir_prefixo')}{' '}
+                            <strong style={{ color: '#fff' }}>{p.nome}</strong>
+                            {t('pedido.dashboard.painel_excluir_sufixo')}
                           </p>
                           <div style={{ display: 'flex', gap: '0.4rem' }}>
                             <button type="button" style={sty.painelNovoBtnOk} onClick={() => handleDeletarPainel(p.id)}>
-                              Confirmar
+                              {t('comum.confirmar')}
                             </button>
                             <button type="button" style={sty.painelNovoBtnCancel} onClick={() => setDeletingId(null)}>
-                              Cancelar
+                              {t('comum.cancelar')}
                             </button>
                           </div>
                         </div>
@@ -1594,17 +1619,17 @@ export default function PedidosDashboard() {
                             onClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome); setMenuPainelId(null) }}
                           >
                             <PencilSimple size={13} />
-                            Renomear
+                            {t('pedido.dashboard.painel_renomear')}
                           </button>
                           <button
                             type="button"
                             style={paineis.length <= 1 ? { ...sty.painelMenuItemDanger, opacity: 0.35, cursor: 'default' } : sty.painelMenuItemDanger}
                             onClick={() => paineis.length > 1 && setDeletingId(p.id)}
                             disabled={paineis.length <= 1}
-                            title={paineis.length <= 1 ? 'Não é possível excluir o único painel' : ''}
+                            title={paineis.length <= 1 ? t('pedido.dashboard.painel_excluir_unico_bloqueado') : ''}
                           >
                             <Trash size={13} />
-                            Excluir
+                            {t('pedido.dashboard.painel_excluir')}
                           </button>
                         </>
                       )}
@@ -1638,19 +1663,19 @@ export default function PedidosDashboard() {
               <input
                 autoFocus
                 type="text"
-                placeholder="Nome do painel"
+                placeholder={t('pedido.dashboard.painel_novo_placeholder')}
                 value={novoNomePainel}
                 onChange={(e) => setNovoNomePainel(e.target.value)}
                 style={sty.painelNovoInput}
                 maxLength={60}
               />
-              <button type="submit" style={sty.painelNovoBtnOk}>Criar</button>
+              <button type="submit" style={sty.painelNovoBtnOk}>{t('pedido.dashboard.painel_criar')}</button>
               <button type="button" style={sty.painelNovoBtnCancel} onClick={() => { setCriandoPainel(false); setNovoNomePainel('') }}>
                 <X size={11} />
               </button>
             </form>
           ) : (
-            <button type="button" style={sty.painelAddBtn} onClick={() => setCriandoPainel(true)} title="Novo painel">
+            <button type="button" style={sty.painelAddBtn} onClick={() => setCriandoPainel(true)} title={t('pedido.dashboard.painel_novo')}>
               +
             </button>
           )}
@@ -1659,8 +1684,8 @@ export default function PedidosDashboard() {
           {ncmStatus && (ncmStatus.itens_invalidos > 0 || ncmStatus.sem_sync) && (
             <span
               title={ncmStatus.sem_sync
-                ? 'Tabela NCM não sincronizada — acesse o painel Admin para sincronizar.'
-                : `${ncmStatus.itens_invalidos} ${ncmStatus.itens_invalidos === 1 ? 'item possui' : 'itens possuem'} NCM não encontrado na tabela Siscomex.`
+                ? t('pedido.dashboard.ncm_nao_sincronizada')
+                : t('pedido.dashboard.ncm_itens_invalidos_tooltip', { count: ncmStatus.itens_invalidos })
               }
               style={{
                 marginLeft: 'auto',
@@ -1679,7 +1704,9 @@ export default function PedidosDashboard() {
               }}
             >
               <Warning size={11} weight="fill" />
-              {ncmStatus.sem_sync ? 'NCM desatualizada' : `${ncmStatus.itens_invalidos} NCM inválido${ncmStatus.itens_invalidos > 1 ? 's' : ''}`}
+              {ncmStatus.sem_sync
+                ? t('pedido.dashboard.ncm_desatualizada')
+                : t('pedido.dashboard.ncm_invalido_chip', { count: ncmStatus.itens_invalidos })}
             </span>
           )}
         </div>

@@ -10,6 +10,8 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { KanbanGlobal } from '@nucleo/kanban-global'
 import type { KanbanItem } from '@nucleo/kanban-global'
 import {
@@ -86,7 +88,7 @@ function dataCritica(p: Pedido, campo: string | null): { label: string; urgencia
   return { label: data.toLocaleDateString('pt-BR'), urgencia }
 }
 
-function formatarValorCampo(p: Pedido, campo: string): string {
+function formatarValorCampo(p: Pedido, campo: string, t: TFunction): string {
   const val = (p as unknown as Record<string, unknown>)[campo]
   if (val === null || val === undefined) return '—'
   if (campo.startsWith('data_') || campo.includes('_em')) {
@@ -97,20 +99,21 @@ function formatarValorCampo(p: Pedido, campo: string): string {
     const n = typeof val === 'number' ? val : Number(val)
     return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   }
-  if (campo === 'tipo_operacao') return val === 'importacao' ? '↓ Importação' : '↑ Exportação'
+  if (campo === 'tipo_operacao') return val === 'importacao' ? t('pedido.kanban.tipo_importacao') : t('pedido.kanban.tipo_exportacao')
   return String(val)
 }
 
 // ── Card ──────────────────────────────────────────────────────────────────────
 
 function CardPedido({ item, cardConfig }: { item: PedidoKanbanItem; cardConfig: KanbanCardConfig }) {
+  const { t } = useTranslation()
   const p = item.pedido
   const campos = cardConfig.campos
   const isVisivel = (campo: string) => campos.find(c => c.campo === campo)?.visivel ?? false
 
   const critica = dataCritica(p, cardConfig.dataCritica)
 
-  const tipoLabel = p.tipo_operacao === 'importacao' ? '↓ Importação' : '↑ Exportação'
+  const tipoLabel = p.tipo_operacao === 'importacao' ? t('pedido.kanban.tipo_importacao') : t('pedido.kanban.tipo_exportacao')
   const tipoColor = p.tipo_operacao === 'importacao' ? '#818cf8' : '#34d399'
 
   const valorLabel = p.valor_total_pedido != null
@@ -147,12 +150,12 @@ function CardPedido({ item, cardConfig }: { item: PedidoKanbanItem; cardConfig: 
       {isVisivel('numero_itens_pedido') && (
         <div className="kbp-card-itens">
           <Package size={11} />
-          {String((p as unknown as Record<string, unknown>)['numero_itens_pedido'] ?? '—')} itens
+          {t('pedido.kanban.itens_contagem', { count: Number((p as unknown as Record<string, unknown>)['numero_itens_pedido'] ?? 0), valor: String((p as unknown as Record<string, unknown>)['numero_itens_pedido'] ?? '—') })}
         </div>
       )}
 
       {isVisivel('status') && p.status && (
-        <div className="kbp-card-status">{STATUS_PEDIDO_LABELS[p.status] ?? p.status}</div>
+        <div className="kbp-card-status">{t(`pedido.kanban.status.${p.status}`, { defaultValue: STATUS_PEDIDO_LABELS[p.status] ?? p.status })}</div>
       )}
 
       {critica && (
@@ -214,6 +217,7 @@ function ModalKanbanPedido({
   preferencias,
   onFechar,
 }: ModalKanbanPedidoProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [abaAtiva, setAbaAtiva] = useState('pedido')
 
@@ -243,7 +247,7 @@ function ModalKanbanPedido({
 
   const colunaAtual  = colunas.find(c => c.key === pedido.status)
   const statusCor    = colunaAtual?.color ?? '#64748b'
-  const statusRotulo = colunaAtual?.label ?? pedido.status
+  const statusRotulo = t(`pedido.kanban.status.${pedido.status}`, { defaultValue: colunaAtual?.label ?? pedido.status })
 
   function abrirNoCampo(campo: string) {
     navigate('/pedidos', { state: { openPedidoId: pedido!.id, editCampo: campo, numeroPedido: pedido!.numero_pedido } })
@@ -255,11 +259,13 @@ function ModalKanbanPedido({
     onFechar()
   }
 
+  // Definido apos o early return acima — `useMemo` aqui violaria as Rules of
+  // Hooks (hook condicional). Como sao apenas labels estaticas, plain const.
   const ABAS_MODAL = [
-    { id: 'pedido',      rotulo: 'Pedido',      icone: <PencilSimple size={13} weight="duotone" /> },
-    { id: 'quantidades', rotulo: 'Quantidades', icone: <Package      size={13} weight="duotone" /> },
-    { id: 'datas',       rotulo: 'Datas',        icone: <CalendarBlank size={13} weight="duotone" /> },
-    { id: 'lembrete',    rotulo: 'Lembrete',     icone: <Bell         size={13} weight="duotone" /> },
+    { id: 'pedido',      rotulo: t('pedido.kanban.aba_pedido'),      icone: <PencilSimple size={13} weight="duotone" /> },
+    { id: 'quantidades', rotulo: t('pedido.kanban.aba_quantidades'), icone: <Package      size={13} weight="duotone" /> },
+    { id: 'datas',       rotulo: t('pedido.kanban.aba_datas'),       icone: <CalendarBlank size={13} weight="duotone" /> },
+    { id: 'lembrete',    rotulo: t('pedido.kanban.aba_lembrete'),    icone: <Bell         size={13} weight="duotone" /> },
   ]
 
   const hoje = new Date()
@@ -273,16 +279,16 @@ function ModalKanbanPedido({
           <div className="kbp-modal-titulo-wrap">
             <span className="kbp-modal-numero">{pedido.numero_pedido}</span>
             <span className={`kbp-modal-tipo kbp-modal-tipo--${pedido.tipo_operacao}`}>
-              {pedido.tipo_operacao === 'importacao' ? '↓ Importação' : '↑ Exportação'}
+              {pedido.tipo_operacao === 'importacao' ? t('pedido.kanban.tipo_importacao') : t('pedido.kanban.tipo_exportacao')}
             </span>
           </div>
           <div className="kbp-modal-status-row">
-            <span className="kbp-modal-status-label">STATUS</span>
+            <span className="kbp-modal-status-label">{t('pedido.kanban.status_label')}</span>
             <button
               type="button"
               className="kbp-modal-status-badge kbp-modal-campo--clicavel"
               onClick={() => abrirNoCampo('status')}
-              title="Clique para editar na lista"
+              title={t('pedido.kanban.editar_na_lista')}
               style={{ color: statusCor, background: `${statusCor}1a`, borderColor: `${statusCor}40` }}
             >
               <span className="kbp-modal-status-dot" style={{ background: statusCor }} />
@@ -290,7 +296,7 @@ function ModalKanbanPedido({
               <PencilSimple size={10} weight="bold" className="kbp-modal-campo-edit-icon" />
             </button>
           </div>
-          <button className="kbp-modal-btn-fechar" onClick={onFechar} aria-label="Fechar">
+          <button className="kbp-modal-btn-fechar" onClick={onFechar} aria-label={t('comum.fechar')}>
             <X size={16} weight="bold" />
           </button>
         </div>
@@ -315,9 +321,9 @@ function ModalKanbanPedido({
           {abaAtiva === 'pedido' && (
             <div className="kbp-modal-aba-grid">
               {camposPedido.map(cfg => (
-                <div key={cfg.campo} className="kbp-modal-campo kbp-modal-campo--clicavel" onClick={() => abrirNoCampo(cfg.campo)} title="Clique para editar">
+                <div key={cfg.campo} className="kbp-modal-campo kbp-modal-campo--clicavel" onClick={() => abrirNoCampo(cfg.campo)} title={t('pedido.kanban.clique_editar')}>
                   <span className="kbp-modal-campo-label">{cfg.label}</span>
-                  <span className="kbp-modal-campo-valor">{formatarValorCampo(pedido, cfg.campo)}</span>
+                  <span className="kbp-modal-campo-valor">{formatarValorCampo(pedido, cfg.campo, t)}</span>
                   <PencilSimple size={11} className="kbp-modal-campo-edit-icon" weight="bold" />
                 </div>
               ))}
@@ -330,7 +336,7 @@ function ModalKanbanPedido({
                 const val = (pedido as unknown as Record<string, unknown>)[cfg.campo]
                 const isSaldo = cfg.campo === 'saldo_itens_do_pedido'
                 return (
-                  <div key={cfg.campo} className={`kbp-modal-qtd-row kbp-modal-campo--clicavel${isSaldo ? ' kbp-modal-qtd-row--saldo' : ''}`} onClick={() => abrirNoCampo(cfg.campo)} title="Clique para ver itens">
+                  <div key={cfg.campo} className={`kbp-modal-qtd-row kbp-modal-campo--clicavel${isSaldo ? ' kbp-modal-qtd-row--saldo' : ''}`} onClick={() => abrirNoCampo(cfg.campo)} title={t('pedido.kanban.clique_ver_itens')}>
                     <span className="kbp-modal-qtd-label">
                       {isSaldo ? <Scales size={13} weight="duotone" /> : <Package size={13} weight="duotone" />}
                       {cfg.label}
@@ -345,7 +351,7 @@ function ModalKanbanPedido({
                 )
               })}
               {Boolean((pedido as unknown as Record<string, unknown>)['unidade_comercializada_pedido']) && (
-                <p className="kbp-modal-qtd-unidade">Unidade: {String((pedido as unknown as Record<string, unknown>)['unidade_comercializada_pedido'])}</p>
+                <p className="kbp-modal-qtd-unidade">{t('pedido.kanban.unidade', { unidade: String((pedido as unknown as Record<string, unknown>)['unidade_comercializada_pedido']) })}</p>
               )}
             </div>
           )}
@@ -357,7 +363,7 @@ function ModalKanbanPedido({
                 const d = val ? new Date(val) : null
                 const vencida = d && d < hoje && cfg.campo.includes('prevista')
                 return (
-                  <div key={cfg.campo} className="kbp-modal-data-row kbp-modal-campo--clicavel" onClick={() => abrirNoCampo(cfg.campo)} title="Clique para editar">
+                  <div key={cfg.campo} className="kbp-modal-data-row kbp-modal-campo--clicavel" onClick={() => abrirNoCampo(cfg.campo)} title={t('pedido.kanban.clique_editar')}>
                     <span className="kbp-modal-data-label">
                       {vencida
                         ? <CalendarX size={13} weight="duotone" className="kbp-icon-vencida" />
@@ -379,10 +385,10 @@ function ModalKanbanPedido({
 
           {abaAtiva === 'lembrete' && (
             <div className="kbp-modal-lembrete">
-              <p className="kbp-modal-lembrete-info">Configure lembretes para este pedido na tela de detalhe.</p>
+              <p className="kbp-modal-lembrete-info">{t('pedido.kanban.lembrete_info')}</p>
               <button type="button" className="kbp-modal-btn-abrir" onClick={abrirCompleto}>
                 <ArrowSquareOut size={15} weight="duotone" />
-                Abrir pedido completo
+                {t('pedido.kanban.abrir_pedido_completo')}
               </button>
             </div>
           )}
@@ -392,11 +398,11 @@ function ModalKanbanPedido({
         <div className="kbp-modal-footer">
           <button type="button" className="kbp-modal-btn-abrir" onClick={abrirCompleto}>
             <ArrowSquareOut size={15} weight="duotone" />
-            Abrir pedido completo
+            {t('pedido.kanban.abrir_pedido_completo')}
           </button>
           <button type="button" className="kbp-modal-btn-fechar-footer" onClick={onFechar}>
             <X size={13} weight="bold" />
-            Fechar
+            {t('comum.fechar')}
           </button>
         </div>
 
@@ -413,6 +419,7 @@ export default function PedidosKanban() {
   // Gating `pedido:kanban:editar` (decisao dono + Líder + Coordenador 2026-05-13).
   // `podeEditar` é ESTRITO durante load — evita flash de drag-drop habilitado
   // que dispararia 403 ao mover. Backend rejeita PATCH /alteracoes-status-lote.
+  const { t } = useTranslation()
   const { podeEditar, carregando: carregandoPermissoes } = usePermissoesPedido()
   const podeEditarKanban = podeEditar('kanban')
   const [pedidos, setPedidos]           = useState<Pedido[]>([])
@@ -506,14 +513,14 @@ export default function PedidosKanban() {
         <input
           type="text"
           className="kbp-search"
-          placeholder="Localizar"
+          placeholder={t('pedido.kanban.localizar')}
           value={busca}
           onChange={e => setBusca(e.target.value)}
         onBlur={e => { if (e.target.value.trim()) trackFilter('busca', e.target.value.trim()) }}
         />
       </div>
       <span className="kbp-total">
-        {itensFiltrados.length} pedido{itensFiltrados.length !== 1 ? 's' : ''}
+        {t('pedido.kanban.total_pedidos', { count: itensFiltrados.length })}
       </span>
     </div>
   )
@@ -526,7 +533,7 @@ export default function PedidosKanban() {
       {!carregandoPermissoes && !podeEditarKanban && (
         <div
           role="note"
-          aria-label="Sem permissao para editar Kanban"
+          aria-label={t('pedido.kanban.sem_permissao_aria')}
           style={{
             margin: '0 0 0.75rem',
             padding: '0.65rem 1rem',
@@ -538,7 +545,7 @@ export default function PedidosKanban() {
             fontWeight: 600,
           }}
         >
-          🔒 Sem permissão para mover cards. Visualização em modo leitura.
+          🔒 {t('pedido.kanban.sem_permissao_banner')}
         </div>
       )}
       <KanbanGlobal<PedidoKanbanItem>
@@ -549,7 +556,7 @@ export default function PedidosKanban() {
         onCardClick={(item) => setModalPedido(item.pedido)}
         isLoading={loading}
         skeletonCount={4}
-        emptyLabel="Nenhum pedido"
+        emptyLabel={t('pedido.kanban.nenhum_pedido')}
         getItemLabel={(item) => item.pedido.numero_pedido}
         getItemDate={(item) => item.pedido.data_emissao_pedido}
         toolbarSlot={toolbar}

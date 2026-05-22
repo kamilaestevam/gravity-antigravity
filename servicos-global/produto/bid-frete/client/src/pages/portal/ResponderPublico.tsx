@@ -145,7 +145,7 @@ export default function ResponderPublico() {
       await responderPublico(token, payload)
       setPageState('success')
     } catch (err) {
-      setErro(err instanceof Error ? err.message : 'Erro ao enviar resposta')
+      setErro(err instanceof Error ? err.message : t('bidfrete.portal.publico.erro_envio'))
     } finally {
       setEnviando(false)
     }
@@ -201,7 +201,7 @@ export default function ResponderPublico() {
         <div className="rp-header">
           <Truck weight="duotone" size={32} style={{ color: 'var(--accent, #6366f1)' }} />
           <div>
-            <h1 className="rp-title">BID Frete — {t('bidfrete.portal.responder.titulo')}</h1>
+            <h1 className="rp-title">{t('bidfrete.portal.publico.header_titulo')}</h1>
             {cotacao?.fornecedor_nome && (
               <p className="rp-text-muted">{cotacao.fornecedor_nome}</p>
             )}
@@ -358,7 +358,7 @@ export default function ResponderPublico() {
               <textarea
                 className="rp-input rp-textarea"
                 rows={3}
-                placeholder="Informacoes adicionais..."
+                placeholder={t('bidfrete.portal.publico.placeholder_observacoes')}
                 value={form.observacoes}
                 onChange={e => handleChange('observacoes', e.target.value)}
               />

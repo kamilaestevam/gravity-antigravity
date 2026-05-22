@@ -110,9 +110,12 @@ async function runInOrganizacaoTransaction<T>(
   }
 
   const log = getLogger();
-  // `ctx.urlBanco` é capturada no boot pelo middleware `resolverOrganizacao`.
-  // Ausente em workers (`withOrganizacaoContext`) → fallback `DATABASE_URL`.
-  const prisma = getInternalPrisma(ctx.urlBanco);
+  // Prioridade (ADR-0003):
+  //  1. `ctx.prismaInterno` — client gerado do próprio produto, injetado via
+  //     `config.prismaClient`. Único que garante ter os models do produto.
+  //  2. Fallback `getInternalPrisma(ctx.urlBanco)` — client da raiz roteado
+  //     pela URL; usado por workers e por produtos que ainda não injetam.
+  const prisma = ctx.prismaInterno ?? getInternalPrisma(ctx.urlBanco);
   const startedAt = Date.now();
 
   try {

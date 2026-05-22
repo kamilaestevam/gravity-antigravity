@@ -5,7 +5,20 @@
  * Qualquer mudança aqui é breaking change e exige bump major + ADR novo.
  */
 
-import type { Prisma } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
+
+/**
+ * Cliente Prisma que um produto pode injetar no SDK.
+ *
+ * Tipado como `PrismaClient` para conveniência, mas o SDK só usa `$transaction`
+ * — qualquer client Prisma (de qualquer schema de produto) é estruturalmente
+ * compatível. Existe porque, no monorepo, há UM único `@prisma/client` gerado
+ * na raiz e o último `prisma generate` "ganha": o SDK, por morar em
+ * `packages/`, sempre resolve esse client da raiz, que pode não ter os models
+ * do produto. Injetar o client gerado do próprio produto elimina essa loteria.
+ * Vide ADR-0003 e `internal-prisma.ts`.
+ */
+export type ClientePrismaInjetavel = PrismaClient;
 
 /**
  * Identificador canônico de cada produto/serviço de organização que consome o SDK.
@@ -56,6 +69,15 @@ export interface ContextoOrganizacao {
    * `process.env.DATABASE_URL` como fallback — comportamento legado.
    */
   urlBanco?: string;
+  /**
+   * Cliente Prisma injetado pelo produto (ADR-0003). Capturado no boot pelo
+   * middleware `resolverOrganizacao` a partir de `config.prismaClient`.
+   *
+   * Quando presente, o SDK usa ESTE client em vez de instanciar um a partir do
+   * `@prisma/client` da raiz — que, no monorepo, pode ter os models de outro
+   * produto. Quando ausente, cai no fallback `getInternalPrisma(urlBanco)`.
+   */
+  prismaInterno?: ClientePrismaInjetavel;
 }
 
 /**
@@ -85,6 +107,16 @@ export interface ConfigResolverOrganizacao {
   configuradorTimeoutMs?: number;
   /** Tentativas para chamadas ao Configurador (incluindo a primeira). Default: 3. */
   configuradorRetries?: number;
+  /**
+   * Cliente Prisma do PRÓPRIO produto (ADR-0003). O produto importa o client
+   * gerado do seu schema e o instancia já amarrado ao seu banco
+   * (`new PrismaClient({ datasources: { db: { url } } })`), passando aqui.
+   *
+   * Recomendado em deploy monolito-sidecar e sempre que o `@prisma/client` da
+   * raiz puder não conter os models do produto. Ausente → o SDK cai no
+   * fallback `getInternalPrisma` (client da raiz + `urlBanco`).
+   */
+  prismaClient?: ClientePrismaInjetavel;
 }
 
 /**

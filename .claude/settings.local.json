@@ -29,7 +29,8 @@
       "mcp__Claude_in_Chrome__file_upload",
       "mcp__Claude_in_Chrome__form_input",
       "mcp__Claude_in_Chrome__read_network_requests",
-      "mcp__Claude_in_Chrome__resize_window"
+      "mcp__Claude_in_Chrome__resize_window",
+      "Bash(rm -f C:/Users/danie/gravity-antigravity/.git/index.lock)"
     ],
     "defaultMode": "bypassPermissions"
   }

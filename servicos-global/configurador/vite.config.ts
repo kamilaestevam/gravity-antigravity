@@ -102,6 +102,25 @@ export default defineConfig(({ command }) => {
       // O proxy reescreve x-internal-key em tempo de request para o valor que
       // o backend daquele produto espera, evitando mismatch com a VITE_CHAVE_INTERNA_SERVICO
       // do configurador (que é outra chave, usada pelo backend do próprio configurador).
+      '/api/v1/bid-frete-internacional': {
+        target: 'http://localhost:8023',
+        changeOrigin: true,
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq, req) => {
+            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
+            if (!req.headers['x-id-organizacao'] || req.headers['x-id-organizacao'] === '') {
+              proxyReq.setHeader('x-id-organizacao', 'org_dev_default')
+            }
+            if (!req.headers['x-id-usuario'] || req.headers['x-id-usuario'] === '') {
+              proxyReq.setHeader('x-id-usuario', 'user_dev_default')
+            }
+          })
+        },
+        onError(err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
       '/api/v1/pedidos': {
         target: 'http://localhost:8030',
         changeOrigin: true,

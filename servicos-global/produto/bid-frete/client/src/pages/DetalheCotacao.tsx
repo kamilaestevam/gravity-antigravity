@@ -6,7 +6,7 @@
  * Layout: Header + Timeline + Dados + BidRequests + BidResponses
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -92,21 +92,23 @@ const BID_STATUS_VARIANTE: Record<StatusBidRequest, string> = {
 
 // ─── Timeline ────────────────────────────────────────────────────────────────
 
-const TIMELINE_STEPS: { status: StatusCotacao; label: string }[] = [
-  { status: 'RASCUNHO', label: 'Rascunho' },
-  { status: 'ENVIADA_FORNECEDORES', label: 'Enviada' },
-  { status: 'EM_COTACAO', label: 'Em Cotação' },
-  { status: 'AGUARDANDO_APROVACAO', label: 'Aguardando' },
-  { status: 'APROVADA', label: 'Aprovada' },
-]
+function buildTimelineSteps(t: (key: string) => string): { status: StatusCotacao; label: string }[] {
+  return [
+    { status: 'RASCUNHO', label: t('bidfrete.detalhe_cotacao.timeline_rascunho') },
+    { status: 'ENVIADA_FORNECEDORES', label: t('bidfrete.detalhe_cotacao.timeline_enviada') },
+    { status: 'EM_COTACAO', label: t('bidfrete.detalhe_cotacao.timeline_em_cotacao') },
+    { status: 'AGUARDANDO_APROVACAO', label: t('bidfrete.detalhe_cotacao.timeline_aguardando') },
+    { status: 'APROVADA', label: t('bidfrete.detalhe_cotacao.timeline_aprovada') },
+  ]
+}
 
-function Timeline({ statusAtual }: { statusAtual: StatusCotacao }) {
-  const currentIdx = TIMELINE_STEPS.findIndex(s => s.status === statusAtual)
+function Timeline({ statusAtual, steps }: { statusAtual: StatusCotacao; steps: { status: StatusCotacao; label: string }[] }) {
+  const currentIdx = steps.findIndex(s => s.status === statusAtual)
   const isFinal = ['APROVADA', 'REPROVADA', 'CANCELADA', 'EXPIRADA'].includes(statusAtual)
 
   return (
     <div className="dc-timeline">
-      {TIMELINE_STEPS.map((step, i) => {
+      {steps.map((step, i) => {
         const done = i <= currentIdx
         const active = i === currentIdx
         return (
@@ -117,7 +119,7 @@ function Timeline({ statusAtual }: { statusAtual: StatusCotacao }) {
               </div>
               <span className="dc-tl-label">{step.label}</span>
             </div>
-            {i < TIMELINE_STEPS.length - 1 && (
+            {i < steps.length - 1 && (
               <div className={`dc-tl-line ${i < currentIdx ? 'dc-tl-line--done' : ''}`} />
             )}
           </React.Fragment>
@@ -148,6 +150,8 @@ export default function DetalheCotacao() {
   const [bids, setBids] = useState<BidRequest[]>([])
   const [carregando, setCarregando] = useState(true)
   const [tab, setTab] = useState<'dados' | 'bids' | 'respostas'>('dados')
+
+  const timelineSteps = useMemo(() => buildTimelineSteps(t), [t])
 
   const carregar = useCallback(async () => {
     if (!id) return
@@ -237,8 +241,8 @@ export default function DetalheCotacao() {
       cabecalho={
         <CabecalhoGlobal
           icone={<FileText weight="duotone" size={22} />}
-          titulo={`Cotação ${cotacao.numero}`}
-          subtitulo={cotacao.referencia_interna ? `Ref: ${cotacao.referencia_interna}` : undefined}
+          titulo={t('bidfrete.detalhe_cotacao.titulo_cotacao', { numero: cotacao.numero })}
+          subtitulo={cotacao.referencia_interna ? t('bidfrete.detalhe_cotacao.ref_prefix', { ref: cotacao.referencia_interna }) : undefined}
           acoes={
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button className="dc-btn dc-btn--secondary" onClick={() => navigate('/cotacoes')}>
@@ -265,13 +269,13 @@ export default function DetalheCotacao() {
         <span className="dc-status-date">{t('bidfrete.detalhe_cotacao.criada_em')} {dataBR(cotacao.created_at)}</span>
         {cotacao.saving_percentual != null && cotacao.saving_percentual > 0 && (
           <span className="dc-saving-badge">
-            Saving: {cotacao.saving_percentual.toFixed(1)}%
+            {t('bidfrete.detalhe_cotacao.saving_label')}: {cotacao.saving_percentual.toFixed(1)}%
           </span>
         )}
       </div>
 
       {/* Timeline */}
-      <Timeline statusAtual={cotacao.status} />
+      <Timeline statusAtual={cotacao.status} steps={timelineSteps} />
 
       {/* Tabs */}
       <div className="dc-tabs">
@@ -328,7 +332,7 @@ export default function DetalheCotacao() {
               <span>{t('bidfrete.detalhe_cotacao.aprovado')}: <strong>{cotacao.moeda_aprovada ?? 'USD'} {cotacao.valor_aprovado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></span>
               {cotacao.saving_valor != null && (
                 <span style={{ color: 'var(--success)', fontWeight: 700 }}>
-                  Saving: {usd(cotacao.saving_valor)} ({cotacao.saving_percentual?.toFixed(1)}%)
+                  {t('bidfrete.detalhe_cotacao.saving_label')}: {usd(cotacao.saving_valor)} ({cotacao.saving_percentual?.toFixed(1)}%)
                 </span>
               )}
             </div>
@@ -362,7 +366,7 @@ export default function DetalheCotacao() {
               {cotacao.bid_responses.map(resp => (
                 <div key={resp.id} className={`dc-response-card ${resp.aprovada ? 'dc-response-card--aprovada' : ''}`}>
                   <div className="dc-resp-header">
-                    <span className="dc-resp-fornecedor">{resp.fornecedor?.nome ?? 'Fornecedor'}</span>
+                    <span className="dc-resp-fornecedor">{resp.fornecedor?.nome ?? t('bidfrete.comparativo.fornecedor')}</span>
                     {resp.aprovada && <Badge label={t('bidfrete.comparativo.aprovar')} variante="success" />}
                   </div>
                   <div className="dc-resp-grid">

@@ -24,6 +24,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CheckCircle, Spinner, Trash, Warning, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { ResultadoAcao } from '@nucleo/botao-global'
@@ -46,6 +47,7 @@ interface ModalPedidosExcluirProps {
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar, onConcluido }: ModalPedidosExcluirProps) {
+  const { t } = useTranslation()
   const { addNotification } = useShellStore()
   const [preview, setPreview] = useState<ExcluirPreview | null>(null)
   const [carregando, setCarregando] = useState(true)
@@ -98,7 +100,7 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
       })
       .catch((err: unknown) => {
         if (cancelado) return
-        setErro(err instanceof Error ? err.message : 'Erro ao carregar preview')
+        setErro(err instanceof Error ? err.message : t('pedido.excluir.erro_carregar_preview'))
       })
       .finally(() => {
         if (!cancelado) setCarregando(false)
@@ -162,16 +164,14 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
       // Notificação consolidada
       const partes: string[] = []
       if (totalPedidosExcluidos > 0) {
-        const s = totalPedidosExcluidos === 1 ? '' : 's'
-        partes.push(`${totalPedidosExcluidos} pedido${s} excluído${s}`)
+        partes.push(t('pedido.excluir.notif_pedidos_excluidos', { count: totalPedidosExcluidos }))
       }
       if (totalItensExcluidos > 0) {
-        const s = totalItensExcluidos === 1 ? '' : 's'
-        partes.push(`${totalItensExcluidos} item${s} excluído${s}`)
+        partes.push(t('pedido.excluir.notif_itens_excluidos', { count: totalItensExcluidos }))
       }
       addNotification({
         type: 'success',
-        message: partes.length > 0 ? `${partes.join('. ')}.` : 'Exclusão concluída.',
+        message: partes.length > 0 ? `${partes.join('. ')}.` : t('pedido.excluir.notif_concluida'),
         duration: 4000,
       })
 
@@ -181,33 +181,33 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
       }, 1200)
       return
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao excluir'
+      const msg = err instanceof Error ? err.message : t('pedido.excluir.erro_excluir')
       setConfirmando(false)
       setFeedbackBotao('erro')
       setErro(msg)
-      addNotification({ type: 'error', message: `Falha ao excluir: ${msg}`, duration: 4000 })
+      addNotification({ type: 'error', message: t('pedido.excluir.notif_falha', { msg }), duration: 4000 })
 
       setTimeout(() => { setFeedbackBotao(null) }, 1500)
       return
     }
-  }, [podeExcluir, preview, totalPermitidos, itensAgrupados, addNotification])
+  }, [podeExcluir, preview, totalPermitidos, itensAgrupados, addNotification, t])
 
   // ── Tela de resultado ──────────────────────────────────────────────────────
   if (resultado) {
     const temPedidosExcluidos = resultado.excluidos > 0
     const temItensExcluidosResult = resultado.itens_excluidos > 0
     return (
-      <div className="modal-excluir__overlay" role="dialog" aria-modal="true" aria-label="Exclusão concluída">
+      <div className="modal-excluir__overlay" role="dialog" aria-modal="true" aria-label={t('pedido.excluir.aria_concluida')}>
         <div className="modal-excluir__container">
           <div className="modal-excluir__header">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Trash size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
-                <h2 className="modal-excluir__titulo">Exclusão concluída</h2>
+                <h2 className="modal-excluir__titulo">{t('pedido.excluir.titulo_concluida')}</h2>
               </div>
-              <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Resultado da operação de exclusão</p>
+              <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>{t('pedido.excluir.subtitulo_concluida')}</p>
             </div>
-            <button className="modal-excluir__fechar" onClick={onConcluido} aria-label="Fechar">
+            <button className="modal-excluir__fechar" onClick={onConcluido} aria-label={t('comum.fechar')}>
               <X size={18} aria-hidden="true" />
             </button>
           </div>
@@ -217,7 +217,7 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
               <div className="modal-excluir__resultado-sucesso">
                 <CheckCircle size={20} weight="fill" className="modal-excluir__icone-sucesso" aria-hidden="true" />
                 <p className="modal-excluir__resultado-texto">
-                  {resultado.excluidos} pedido{resultado.excluidos === 1 ? '' : 's'} excluído{resultado.excluidos === 1 ? '' : 's'} permanentemente.
+                  {t('pedido.excluir.resultado_pedidos', { count: resultado.excluidos })}
                 </p>
               </div>
             )}
@@ -225,20 +225,20 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
               <div className="modal-excluir__resultado-sucesso">
                 <CheckCircle size={20} weight="fill" className="modal-excluir__icone-sucesso" aria-hidden="true" />
                 <p className="modal-excluir__resultado-texto">
-                  {resultado.itens_excluidos} item{resultado.itens_excluidos === 1 ? '' : 's'} excluído{resultado.itens_excluidos === 1 ? '' : 's'} permanentemente.
+                  {t('pedido.excluir.resultado_itens', { count: resultado.itens_excluidos })}
                 </p>
               </div>
             )}
             {resultado.pedidos_excluidos_por_sem_item > 0 && (
               <p className="modal-excluir__resultado-detalhe">
-                {resultado.pedidos_excluidos_por_sem_item} pedido{resultado.pedidos_excluidos_por_sem_item === 1 ? '' : 's'} excluído{resultado.pedidos_excluidos_por_sem_item === 1 ? '' : 's'} automaticamente por ficar{resultado.pedidos_excluidos_por_sem_item === 1 ? '' : 'em'} sem itens.
+                {t('pedido.excluir.resultado_sem_item', { count: resultado.pedidos_excluidos_por_sem_item })}
               </p>
             )}
           </div>
 
           <div className="modal-excluir__footer">
             <BotaoGlobal variante="primario" onClick={onConcluido}>
-              Fechar
+              {t('comum.fechar')}
             </BotaoGlobal>
           </div>
         </div>
@@ -254,34 +254,34 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
 
   const tituloPartes: string[] = []
   if (pedidos.length > 0) {
-    tituloPartes.push(`${pedidos.length} pedido${pedidos.length === 1 ? '' : 's'}`)
+    tituloPartes.push(t('pedido.excluir.contagem_pedidos', { count: pedidos.length }))
   }
   if (totalItensGeral > 0) {
-    tituloPartes.push(`${totalItensGeral} item${totalItensGeral === 1 ? '' : 's'}`)
+    tituloPartes.push(t('pedido.excluir.contagem_itens', { count: totalItensGeral }))
   } else if (itensAvulsos.length > 0) {
-    tituloPartes.push(`${itensAvulsos.length} item${itensAvulsos.length === 1 ? '' : 's'}`)
+    tituloPartes.push(t('pedido.excluir.contagem_itens', { count: itensAvulsos.length }))
   }
-  const tituloContagem = tituloPartes.join(' e ')
+  const tituloContagem = tituloPartes.join(t('pedido.excluir.contagem_separador'))
 
   // ── Tela de confirmação ────────────────────────────────────────────────────
   return (
-    <div className="modal-excluir__overlay" role="dialog" aria-modal="true" aria-label="Excluir pedidos e itens">
+    <div className="modal-excluir__overlay" role="dialog" aria-modal="true" aria-label={t('pedido.excluir.aria_modal')}>
       <div className="modal-excluir__container">
         <div className="modal-excluir__header">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Trash size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
               <h2 className="modal-excluir__titulo">
-                Excluir ({tituloContagem})
+                {t('pedido.excluir.titulo', { contagem: tituloContagem })}
               </h2>
             </div>
-            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Esta ação é permanente e não pode ser desfeita</p>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>{t('pedido.excluir.subtitulo')}</p>
           </div>
           <button
             className="modal-excluir__fechar"
             onClick={onFechar}
             disabled={confirmando}
-            aria-label="Fechar"
+            aria-label={t('comum.fechar')}
           >
             <X size={18} aria-hidden="true" />
           </button>
@@ -291,7 +291,7 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
           {carregando && (
             <div className="modal-excluir__carregando" aria-live="polite">
               <Spinner size={24} className="modal-excluir__spinner" aria-hidden="true" />
-              <span>Verificando pedidos...</span>
+              <span>{t('pedido.excluir.verificando')}</span>
             </div>
           )}
 
@@ -307,12 +307,12 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
               <div className="modal-excluir__aviso">
                 <Warning size={20} weight="fill" className="modal-excluir__aviso-icone" aria-hidden="true" />
                 <p className="modal-excluir__aviso-texto">
-                  <strong>Esta ação não pode ser desfeita.</strong>{' '}
+                  <strong>{t('pedido.excluir.aviso_irreversivel')}</strong>{' '}
                   {temPedidos && temItensAvulsos
-                    ? 'Os pedidos selecionados (e seus itens) e os itens avulsos serão removidos permanentemente.'
+                    ? t('pedido.excluir.aviso_misto')
                     : temPedidos
-                      ? 'Os pedidos selecionados e seus itens serão removidos permanentemente.'
-                      : 'Os itens selecionados serão removidos permanentemente.'}
+                      ? t('pedido.excluir.aviso_pedidos')
+                      : t('pedido.excluir.aviso_itens')}
                 </p>
               </div>
 
@@ -323,9 +323,7 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
                   {totalPermitidos > 0 && (
                     <div>
                       <p className="modal-excluir__secao-titulo">
-                        {totalPermitidos === 1
-                          ? '1 pedido será excluído'
-                          : `${totalPermitidos} pedidos serão excluídos`}
+                        {t('pedido.excluir.secao_permitidos', { count: totalPermitidos })}
                       </p>
 
                       {/* Aviso de transferências vinculadas */}
@@ -337,19 +335,19 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
                               const comTransf = preview.permitidos.filter(p => (p.total_transferencias ?? 0) > 0)
                               const totalTransf = comTransf.reduce((acc, p) => acc + (p.total_transferencias ?? 0), 0)
                               return comTransf.length === 1
-                                ? `O pedido "${comTransf[0].numero_pedido}" possui ${totalTransf} registro${totalTransf === 1 ? '' : 's'} de transferência que também ${totalTransf === 1 ? 'será excluído' : 'serão excluídos'}.`
-                                : `${comTransf.length} pedidos possuem ${totalTransf} registro${totalTransf === 1 ? '' : 's'} de transferência que também ${totalTransf === 1 ? 'será excluído' : 'serão excluídos'}.`
+                                ? t('pedido.excluir.aviso_transf_um', { numero: comTransf[0].numero_pedido, count: totalTransf })
+                                : t('pedido.excluir.aviso_transf_varios', { pedidos: comTransf.length, count: totalTransf })
                             })()}
                           </p>
                         </div>
                       )}
 
-                      <table className="modal-excluir__tabela" aria-label="Pedidos que serão excluídos">
+                      <table className="modal-excluir__tabela" aria-label={t('pedido.excluir.tabela_pedidos_aria')}>
                         <thead>
                           <tr>
-                            <th className="modal-excluir__th">Número</th>
-                            <th className="modal-excluir__th">Itens</th>
-                            <th className="modal-excluir__th">Transferências</th>
+                            <th className="modal-excluir__th">{t('pedido.excluir.col_numero')}</th>
+                            <th className="modal-excluir__th">{t('pedido.excluir.col_itens')}</th>
+                            <th className="modal-excluir__th">{t('pedido.excluir.col_transferencias')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -357,10 +355,10 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
                             <tr key={p.id} className="modal-excluir__linha">
                               <td className="modal-excluir__td modal-excluir__td--numero">{p.numero_pedido || p.id}</td>
                               <td className="modal-excluir__td modal-excluir__td--itens">
-                                {p.total_itens} {p.total_itens === 1 ? 'item' : 'itens'}
+                                {t('pedido.excluir.celula_itens', { count: p.total_itens })}
                               </td>
                               <td className="modal-excluir__td modal-excluir__td--itens">
-                                {(p.total_transferencias ?? 0) > 0 ? `${p.total_transferencias} registro${(p.total_transferencias ?? 0) === 1 ? '' : 's'}` : '—'}
+                                {(p.total_transferencias ?? 0) > 0 ? t('pedido.excluir.celula_registros', { count: p.total_transferencias ?? 0 }) : '—'}
                               </td>
                             </tr>
                           ))}
@@ -373,9 +371,7 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
                   {totalBloqueados > 0 && (
                     <div>
                       <p className="modal-excluir__secao-titulo">
-                        {totalBloqueados === 1
-                          ? '1 pedido bloqueado (status não permite exclusão)'
-                          : `${totalBloqueados} pedidos bloqueados (status não permite exclusão)`}
+                        {t('pedido.excluir.secao_bloqueados', { count: totalBloqueados })}
                       </p>
                       <ul className="modal-excluir__bloqueados">
                         {preview.bloqueados.map(b => (
@@ -390,13 +386,13 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
 
                   {totalPermitidos === 0 && totalBloqueados > 0 && !temItensAvulsos && (
                     <div className="modal-excluir__erro" role="alert">
-                      Nenhum dos pedidos selecionados pode ser excluído com os status atuais.
+                      {t('pedido.excluir.erro_nenhum_permitido')}
                     </div>
                   )}
 
                   {totalPermitidos === 0 && totalBloqueados === 0 && !temItensAvulsos && (
                     <div className="modal-excluir__erro" role="alert">
-                      Não foi possível carregar os dados dos pedidos selecionados. Tente novamente ou verifique se o servidor está acessível.
+                      {t('pedido.excluir.erro_sem_dados')}
                     </div>
                   )}
                 </>
@@ -406,16 +402,14 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
               {temItensAvulsos && (
                 <div>
                   <p className="modal-excluir__secao-titulo">
-                    {itensAvulsos.length === 1
-                      ? '1 item será excluído'
-                      : `${itensAvulsos.length} itens serão excluídos`}
+                    {t('pedido.excluir.secao_itens', { count: itensAvulsos.length })}
                   </p>
-                  <table className="modal-excluir__tabela" aria-label="Itens que serão excluídos">
+                  <table className="modal-excluir__tabela" aria-label={t('pedido.excluir.tabela_itens_aria')}>
                     <thead>
                       <tr>
-                        <th className="modal-excluir__th">Nº Pedido</th>
-                        <th className="modal-excluir__th">Nº Item</th>
-                        <th className="modal-excluir__th">Descrição</th>
+                        <th className="modal-excluir__th">{t('pedido.excluir.col_num_pedido')}</th>
+                        <th className="modal-excluir__th">{t('pedido.excluir.col_num_item')}</th>
+                        <th className="modal-excluir__th">{t('pedido.excluir.col_descricao')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -442,18 +436,18 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
 
         <div className="modal-excluir__footer">
           <BotaoGlobal variante="secundario" onClick={onFechar} disabled={confirmando || feedbackBotao !== null}>
-            Cancelar
+            {t('comum.cancelar')}
           </BotaoGlobal>
           <BotaoGlobal
             variante="perigo"
             onClick={handleConfirmar}
             disabled={!podeExcluir}
             carregando={confirmando}
-            textoCarregando="Excluindo..."
+            textoCarregando={t('pedido.excluir.botao_excluindo')}
             resultadoAcao={feedbackBotao}
             icone={<Trash size={14} weight="bold" />}
           >
-            {feedbackBotao === 'sucesso' ? 'Excluído' : feedbackBotao === 'erro' ? 'Falhou' : 'Excluir'}
+            {feedbackBotao === 'sucesso' ? t('pedido.excluir.botao_excluido') : feedbackBotao === 'erro' ? t('pedido.excluir.botao_falhou') : t('pedido.excluir.botao_excluir')}
           </BotaoGlobal>
         </div>
       </div>

@@ -3,6 +3,11 @@
  * Skill: antigravity-criar-produto (Passo 1 — shared/api.ts)
  */
 import type { Cotacao, CotacoesListResponse, Fornecedor, FornecedoresListResponse, BidRequest, BidResponse, DashboardKPIs, CalendarioAlerta, TabelaPreco, Avaliacao, Porto, Moeda, StatusCotacao } from './types';
+export declare function mapFornecedorFromServer(raw: any): Fornecedor;
+export declare function mapBidResponseFromServer(raw: any): BidResponse;
+export declare function mapBidRequestFromServer(raw: any): BidRequest;
+export declare function mapCotacaoFromServer(raw: any): Cotacao;
+export declare function mapCotacaoToServer(input: Partial<Cotacao>): any;
 export declare function getDashboardKpis(): Promise<DashboardKPIs>;
 export declare function getDashboardCalendario(): Promise<CalendarioAlerta[]>;
 export interface CotacoesListParams {
@@ -135,7 +140,7 @@ export declare const dashboardApi: {
         total_invalidos: number;
         itens_invalidos: number;
         sem_sync: boolean;
-        ultima_sync: null;
+        ultima_sync: any;
     }>;
 };
 //# sourceMappingURL=api.d.ts.map

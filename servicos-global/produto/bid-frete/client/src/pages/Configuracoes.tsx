@@ -169,25 +169,26 @@ const CARD_VISUAL: Record<string, { icone: React.ReactNode; cor: string }> = {
   cotacoes_expiradas:    { icone: <Warning           weight="duotone" size={18} />, cor: '#f87171' },
 }
 
-const NOME_EXIBICAO_CARDS: Record<string, string> = {
-  total_cotacoes: 'Total de Cotações',
-  valor_total_frete: 'Valor Total de Frete',
-  propostas_recebidas: 'Propostas Recebidas',
-  saving_total: 'Saving Total',
-  tempo_medio_resposta: 'Tempo Médio de Resposta',
-  cotacoes_expiradas: 'Cotações Expiradas',
+const NOME_EXIBICAO_CARDS_KEYS: Record<string, string> = {
+  total_cotacoes: 'bidfrete.configuracoes.card_total_cotacoes',
+  valor_total_frete: 'bidfrete.configuracoes.card_valor_total_frete',
+  propostas_recebidas: 'bidfrete.configuracoes.card_propostas_recebidas',
+  saving_total: 'bidfrete.configuracoes.card_saving_total',
+  tempo_medio_resposta: 'bidfrete.configuracoes.card_tempo_medio_resposta',
+  cotacoes_expiradas: 'bidfrete.configuracoes.card_cotacoes_expiradas',
 }
 
-function obterNomeExibicaoCard(card: CardDefinicao): string {
-  return NOME_EXIBICAO_CARDS[card.id] || card.labelKey
+function obterNomeExibicaoCard(card: CardDefinicao, t: (key: string) => string): string {
+  const key = NOME_EXIBICAO_CARDS_KEYS[card.id]
+  return key ? t(key) : card.labelKey
 }
 
-const PERIODOS = [
-  { id: '7d',   label: '7 dias'  },
-  { id: '30d',  label: '30 dias' },
-  { id: '6m',   label: '6 meses' },
-  { id: '1a',   label: '1 ano'   },
-  { id: 'tudo', label: 'Tudo'    },
+const PERIODOS_KEYS = [
+  { id: '7d',   labelKey: 'bidfrete.configuracoes.periodo_7d'  },
+  { id: '30d',  labelKey: 'bidfrete.configuracoes.periodo_30d' },
+  { id: '6m',   labelKey: 'bidfrete.configuracoes.periodo_6m'  },
+  { id: '1a',   labelKey: 'bidfrete.configuracoes.periodo_1a'  },
+  { id: 'tudo', labelKey: 'bidfrete.configuracoes.periodo_tudo' },
 ]
 
 const SIDEBAR_ITEMS = [
@@ -218,30 +219,30 @@ const SIDEBAR_ITEMS = [
   { tipo: 'item',   id: 'exportacao',            label: 'Exportação',        labelKey: 'bidfrete.config.sidebar.exportacao',        icone: <DownloadSimple size={15} weight="duotone" />, ativo: true },
 ]
 
-const COLUNAS_NUMERICAS_NATIVAS = [
-  { campo: 'valor_frete',         label: 'Valor do Frete',         categoria: 'Frete', padrao: 2 },
-  { campo: 'taxas_origem',        label: 'Taxas de Origem',        categoria: 'Frete', padrao: 2 },
-  { campo: 'taxas_destino',       label: 'Taxas de Destino',       categoria: 'Frete', padrao: 2 },
-  { campo: 'peso_kg',             label: 'Peso da Mercadoria (KG)',categoria: 'Mercadoria', padrao: 2 },
-  { campo: 'cubagem_m3',          label: 'Cubagem (M3)',           categoria: 'Mercadoria', padrao: 3 },
+const COLUNAS_NUMERICAS_NATIVAS_KEYS = [
+  { campo: 'valor_frete',         labelKey: 'bidfrete.configuracoes.col_valor_frete',  categoriaKey: 'bidfrete.configuracoes.cat_frete', padrao: 2 },
+  { campo: 'taxas_origem',        labelKey: 'bidfrete.configuracoes.col_taxas_origem', categoriaKey: 'bidfrete.configuracoes.cat_frete', padrao: 2 },
+  { campo: 'taxas_destino',       labelKey: 'bidfrete.configuracoes.col_taxas_destino',categoriaKey: 'bidfrete.configuracoes.cat_frete', padrao: 2 },
+  { campo: 'peso_kg',             labelKey: 'bidfrete.configuracoes.col_peso_kg',      categoriaKey: 'bidfrete.configuracoes.cat_mercadoria', padrao: 2 },
+  { campo: 'cubagem_m3',          labelKey: 'bidfrete.configuracoes.col_cubagem_m3',   categoriaKey: 'bidfrete.configuracoes.cat_mercadoria', padrao: 3 },
 ]
 
-const TIPOS_COLUNA = [
-  { id: 'texto',          label: 'Texto',         icone: <TextT size={16} weight="duotone" /> },
-  { id: 'numero',         label: 'Numérico',      icone: <Hash size={16} weight="duotone" /> },
-  { id: 'data',           label: 'Data',          icone: <CalendarBlank size={16} weight="duotone" /> },
-  { id: 'percentual',     label: 'Percentual %',  icone: <Percent size={16} weight="duotone" /> },
-  { id: 'select',         label: 'Select/Lista',  icone: <ListBullets size={16} weight="duotone" /> },
-  { id: 'checkbox',       label: 'Checkbox',      icone: <CheckSquare size={16} weight="duotone" /> },
-  { id: 'tipo_documento', label: 'Tipo Documento',icone: <Tag size={16} weight="duotone" /> },
-  { id: 'formula',        label: 'Fórmula',       icone: <MathOperations size={16} weight="duotone" /> },
-  { id: 'anexo',          label: 'Anexo',         icone: <Paperclip size={16} weight="duotone" /> },
+const TIPOS_COLUNA_KEYS = [
+  { id: 'texto',          labelKey: 'bidfrete.configuracoes.tipo_texto',         icone: <TextT size={16} weight="duotone" /> },
+  { id: 'numero',         labelKey: 'bidfrete.configuracoes.tipo_numerico',      icone: <Hash size={16} weight="duotone" /> },
+  { id: 'data',           labelKey: 'bidfrete.configuracoes.tipo_data',          icone: <CalendarBlank size={16} weight="duotone" /> },
+  { id: 'percentual',     labelKey: 'bidfrete.configuracoes.tipo_percentual',    icone: <Percent size={16} weight="duotone" /> },
+  { id: 'select',         labelKey: 'bidfrete.configuracoes.tipo_select',        icone: <ListBullets size={16} weight="duotone" /> },
+  { id: 'checkbox',       labelKey: 'bidfrete.configuracoes.tipo_checkbox',      icone: <CheckSquare size={16} weight="duotone" /> },
+  { id: 'tipo_documento', labelKey: 'bidfrete.configuracoes.tipo_documento',     icone: <Tag size={16} weight="duotone" /> },
+  { id: 'formula',        labelKey: 'bidfrete.configuracoes.tipo_formula',       icone: <MathOperations size={16} weight="duotone" /> },
+  { id: 'anexo',          labelKey: 'bidfrete.configuracoes.tipo_anexo',         icone: <Paperclip size={16} weight="duotone" /> },
 ]
 
-const FORMULA_FIELDS = [
-  { chave: 'valor_frete', label: 'Valor do Frete' },
-  { chave: 'taxas_origem', label: 'Taxas Origem' },
-  { chave: 'taxas_destino', label: 'Taxas Destino' },
+const FORMULA_FIELDS_KEYS = [
+  { chave: 'valor_frete', labelKey: 'bidfrete.configuracoes.formula_valor_frete' },
+  { chave: 'taxas_origem', labelKey: 'bidfrete.configuracoes.formula_taxas_origem' },
+  { chave: 'taxas_destino', labelKey: 'bidfrete.configuracoes.formula_taxas_destino' },
 ]
 
 // ─── Sub-Components (Sortable and Helpers) ───────────────────────────────────────
@@ -254,6 +255,7 @@ function CardSortavel({
   onRemover: () => void
   periodoAtivo: string
 }) {
+  const { t } = useTranslation()
   const def = CARDS_CATALOGO.find(c => c.id === pref.id)!
   const visual = CARD_VISUAL[pref.id]
   const [detalheAberto, setDetalheAberto] = useState(false)
@@ -270,7 +272,9 @@ function CardSortavel({
     zIndex: isDragging ? 999 : undefined,
   }
 
-  const periodoLabel = PERIODOS.find(p => p.id === periodoAtivo)?.label ?? periodoAtivo
+  const periodoLabel = PERIODOS_KEYS.find(p => p.id === periodoAtivo)
+    ? t(PERIODOS_KEYS.find(p => p.id === periodoAtivo)!.labelKey)
+    : periodoAtivo
   const subtitulo = `${def.tipoAgg} · ${def.origem} · ${periodoLabel}`
 
   return (
@@ -281,7 +285,7 @@ function CardSortavel({
           className="cfg-drag-handle"
           {...attributes}
           {...listeners}
-          aria-label="Arrastar para reordenar"
+          aria-label={t('bidfrete.configuracoes.arrastar_reordenar')}
         >
           <DotsSixVertical size={16} weight="bold" />
         </button>
@@ -291,41 +295,41 @@ function CardSortavel({
             {visual.icone}
           </span>
           <div>
-            <p className="cfg-card-row__nome">{obterNomeExibicaoCard(def)}</p>
+            <p className="cfg-card-row__nome">{obterNomeExibicaoCard(def, t)}</p>
             <p className="cfg-card-row__desc">{subtitulo}</p>
           </div>
         </div>
 
         <span className="cfg-origem-badge cfg-origem-badge--meus">{def.origem}</span>
 
-        <TooltipGlobal descricao="Ver detalhes do card">
+        <TooltipGlobal descricao={t('bidfrete.configuracoes.ver_detalhes_card')}>
           <button
             type="button"
             className={`cfg-eye-btn${detalheAberto ? ' cfg-eye-btn--on' : ''}`}
             onClick={() => setDetalheAberto(v => !v)}
-            aria-label="Ver detalhes do card"
+            aria-label={t('bidfrete.configuracoes.ver_detalhes_card')}
           >
             <Info size={15} weight="bold" />
           </button>
         </TooltipGlobal>
 
-        <TooltipGlobal descricao={pref.visible ? 'Ocultar card' : 'Exibir card'}>
+        <TooltipGlobal descricao={pref.visible ? t('bidfrete.configuracoes.ocultar_card') : t('bidfrete.configuracoes.exibir_card')}>
           <button
             type="button"
             className={`cfg-eye-btn${pref.visible ? ' cfg-eye-btn--on' : ''}`}
             onClick={onToggle}
-            aria-label={pref.visible ? 'Ocultar' : 'Exibir'}
+            aria-label={pref.visible ? t('bidfrete.configuracoes.ocultar') : t('bidfrete.configuracoes.exibir')}
           >
             {pref.visible ? <Eye size={15} weight="bold" /> : <EyeSlash size={15} weight="bold" />}
           </button>
         </TooltipGlobal>
 
-        <TooltipGlobal descricao="Remover card">
+        <TooltipGlobal descricao={t('bidfrete.configuracoes.remover_card')}>
           <button
             type="button"
             className="cfg-remove-btn"
             onClick={onRemover}
-            aria-label="Remover card"
+            aria-label={t('bidfrete.configuracoes.remover_card')}
           >
             <X size={13} weight="bold" />
           </button>
@@ -335,23 +339,23 @@ function CardSortavel({
       {detalheAberto && (
         <div className="cfg-card-detail-panel">
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Campo base</span>
+            <span className="cfg-card-detail-panel__label">{t('bidfrete.configuracoes.campo_base')}</span>
             <span className="cfg-card-detail-panel__value">{def.campoBase}</span>
           </div>
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Agregação</span>
+            <span className="cfg-card-detail-panel__label">{t('bidfrete.configuracoes.agregacao')}</span>
             <span className="cfg-card-detail-panel__value">{def.tipoAgg}</span>
           </div>
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Origem</span>
+            <span className="cfg-card-detail-panel__label">{t('bidfrete.configuracoes.origem')}</span>
             <span className="cfg-card-detail-panel__value">{def.origem}</span>
           </div>
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Período</span>
+            <span className="cfg-card-detail-panel__label">{t('bidfrete.configuracoes.periodo')}</span>
             <span className="cfg-card-detail-panel__value">{periodoLabel}</span>
           </div>
           <div className="cfg-card-detail-panel__row cfg-card-detail-panel__row--full">
-            <span className="cfg-card-detail-panel__label">Descrição</span>
+            <span className="cfg-card-detail-panel__label">{t('bidfrete.configuracoes.descricao')}</span>
             <span className="cfg-card-detail-panel__value">{def.descricao}</span>
           </div>
         </div>
@@ -367,9 +371,12 @@ function CardDisponivel({
   onAdicionar: () => void
   periodoAtivo: string
 }) {
+  const { t } = useTranslation()
   const visual = CARD_VISUAL[def.id]
   const [detalheAberto, setDetalheAberto] = useState(false)
-  const periodoLabel = PERIODOS.find(p => p.id === periodoAtivo)?.label ?? periodoAtivo
+  const periodoLabel = PERIODOS_KEYS.find(p => p.id === periodoAtivo)
+    ? t(PERIODOS_KEYS.find(p => p.id === periodoAtivo)!.labelKey)
+    : periodoAtivo
 
   return (
     <div>
@@ -382,28 +389,28 @@ function CardDisponivel({
             {visual.icone}
           </span>
           <div>
-            <p className="cfg-card-row__nome">{obterNomeExibicaoCard(def)}</p>
+            <p className="cfg-card-row__nome">{obterNomeExibicaoCard(def, t)}</p>
             <p className="cfg-card-row__desc">{def.descricao}</p>
           </div>
         </div>
         <span className="cfg-origem-badge cfg-origem-badge--pedido">{def.origem}</span>
         <span className="cfg-agg-badge">{def.tipoAgg}</span>
-        <TooltipGlobal descricao="Ver detalhes do card">
+        <TooltipGlobal descricao={t('bidfrete.configuracoes.ver_detalhes_card')}>
           <button
             type="button"
             className={`cfg-eye-btn${detalheAberto ? ' cfg-eye-btn--on' : ''}`}
             onClick={() => setDetalheAberto(v => !v)}
-            aria-label="Ver detalhes do card"
+            aria-label={t('bidfrete.configuracoes.ver_detalhes_card')}
           >
             <Info size={15} weight="bold" />
           </button>
         </TooltipGlobal>
-        <TooltipGlobal descricao="Adicionar aos meus cards">
+        <TooltipGlobal descricao={t('bidfrete.configuracoes.adicionar_meus_cards')}>
           <button
             type="button"
             className="cfg-add-btn"
             onClick={onAdicionar}
-            aria-label="Adicionar card"
+            aria-label={t('bidfrete.configuracoes.adicionar_card')}
           >
             <Plus size={13} weight="bold" />
           </button>
@@ -413,23 +420,23 @@ function CardDisponivel({
       {detalheAberto && (
         <div className="cfg-card-detail-panel">
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Campo base</span>
+            <span className="cfg-card-detail-panel__label">{t('bidfrete.configuracoes.campo_base')}</span>
             <span className="cfg-card-detail-panel__value">{def.campoBase}</span>
           </div>
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Agregação</span>
+            <span className="cfg-card-detail-panel__label">{t('bidfrete.configuracoes.agregacao')}</span>
             <span className="cfg-card-detail-panel__value">{def.tipoAgg}</span>
           </div>
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Origem</span>
+            <span className="cfg-card-detail-panel__label">{t('bidfrete.configuracoes.origem')}</span>
             <span className="cfg-card-detail-panel__value">{def.origem}</span>
           </div>
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Período</span>
+            <span className="cfg-card-detail-panel__label">{t('bidfrete.configuracoes.periodo')}</span>
             <span className="cfg-card-detail-panel__value">{periodoLabel}</span>
           </div>
           <div className="cfg-card-detail-panel__row cfg-card-detail-panel__row--full">
-            <span className="cfg-card-detail-panel__label">Descrição</span>
+            <span className="cfg-card-detail-panel__label">{t('bidfrete.configuracoes.descricao')}</span>
             <span className="cfg-card-detail-panel__value">{def.descricao}</span>
           </div>
         </div>
@@ -463,24 +470,24 @@ function ColunaSortavel({
 
   return (
     <div ref={setNodeRef} style={style} className={`cfg-kanban-campo-row${!col.ativo ? ' cfg-kanban-campo-row--oculto' : ''}${editando ? ' cfg-kanban-campo-row--editando' : ''}`}>
-      <button type="button" className="cfg-drag-handle" {...attributes} {...listeners} aria-label="Arrastar para reordenar">
+      <button type="button" className="cfg-drag-handle" {...attributes} {...listeners} aria-label={t('bidfrete.configuracoes.aria_arrastar')}>
         <DotsSixVertical size={15} weight="bold" />
       </button>
       <div className="cfg-kanban-campo-row__info">
         <span className="cfg-kanban-campo-row__nome">{col.nome}</span>
         <span className="cfg-kanban-campo-row__tipo">{tipoInfo?.label ?? col.tipo}</span>
       </div>
-      <TooltipGlobal descricao="Editar propriedades">
+      <TooltipGlobal descricao={t('bidfrete.configuracoes.editar_propriedades')}>
         <button type="button" className={`cfg-kanban-campo-btn${editando ? ' cfg-kanban-campo-btn--ativo' : ''}`} onClick={onEditar} aria-label={`Editar ${col.nome}`}>
           <PencilSimple size={14} weight="duotone" />
         </button>
       </TooltipGlobal>
-      <TooltipGlobal descricao={col.ativo ? 'Ocultar coluna' : 'Exibir coluna'}>
-        <button type="button" className="cfg-kanban-campo-btn" onClick={onToggleAtivo} aria-label={col.ativo ? 'Ocultar' : 'Exibir'}>
+      <TooltipGlobal descricao={col.ativo ? t('bidfrete.configuracoes.ocultar_coluna') : t('bidfrete.configuracoes.exibir_coluna')}>
+        <button type="button" className="cfg-kanban-campo-btn" onClick={onToggleAtivo} aria-label={col.ativo ? t('bidfrete.configuracoes.ocultar_coluna') : t('bidfrete.configuracoes.exibir_coluna')}>
           {col.ativo ? <Eye size={14} weight="duotone" /> : <EyeSlash size={14} weight="duotone" />}
         </button>
       </TooltipGlobal>
-      <TooltipGlobal descricao="Excluir coluna">
+      <TooltipGlobal descricao={t('bidfrete.configuracoes.excluir_coluna')}>
         <button type="button" className="cfg-kanban-campo-btn cfg-kanban-campo-btn--remove" onClick={onRemover} aria-label={`Excluir ${col.nome}`}>
           <X size={13} weight="bold" />
         </button>
@@ -543,7 +550,7 @@ function StatusSortavel({
           className="cfg-drag-handle"
           {...attributes}
           {...listeners}
-          aria-label="Arrastar"
+          aria-label={t('bidfrete.configuracoes.aria_arrastar')}
         >
           <DotsSixVertical size={16} weight="bold" />
         </button>
@@ -560,23 +567,23 @@ function StatusSortavel({
         )}
 
         <div className="cfg-status-acoes">
-          <TooltipGlobal descricao="Editar">
+          <TooltipGlobal descricao={t('comum.editar')}>
             <button
               type="button"
               className="cfg-eye-btn"
               onClick={() => onIniciarEdicao(status)}
-              aria-label="Editar"
+              aria-label={t('comum.editar')}
             >
               <PencilSimple size={14} weight="bold" />
             </button>
           </TooltipGlobal>
           {!status.is_sistema && (
-            <TooltipGlobal descricao="Excluir">
+            <TooltipGlobal descricao={t('comum.excluir')}>
               <button
                 type="button"
                 className="cfg-remove-btn"
                 onClick={() => onExcluir(status.id)}
-                aria-label="Excluir"
+                aria-label={t('comum.excluir')}
               >
                 <Trash size={14} weight="bold" />
               </button>
@@ -591,7 +598,7 @@ function StatusSortavel({
             <input
               type="text"
               className="cfg-input cfg-input--grow"
-              placeholder="Nome do status"
+              placeholder={t('bidfrete.configuracoes.placeholder_nome_status')}
               value={editLabel}
               onChange={e => onChangeLabel(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') onSalvarEdicao() }}
@@ -796,7 +803,7 @@ export default function Configuracoes() {
     const save = () => {
       localStorage.setItem(storageKey, JSON.stringify(currentState))
       setSavedState(currentState)
-      addNotification({ type: 'success', message: 'Configurações salvas com sucesso!' })
+      addNotification({ type: 'success', message: t('bidfrete.configuracoes.salvas_sucesso') })
     }
 
     const reset = () => {
@@ -1033,8 +1040,8 @@ export default function Configuracoes() {
       cabecalho={
         <CabecalhoGlobal
           icone={<GearSixWrapper />}
-          titulo="Configurações"
-          subtitulo="Gerencie as visualizações, regras de negócio e preferências do BID Frete."
+          titulo={t('bidfrete.configuracoes.titulo')}
+          subtitulo={t('bidfrete.configuracoes.subtitulo')}
         />
       }
     >
@@ -1210,24 +1217,24 @@ export default function Configuracoes() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>Itens por Página</p>
-                  <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Selecione a quantidade de registros exibidos em listas de cotação.</p>
+                  <p style={{ fontSize: '0.75rem', color: '#64748b' }}>{t('bidfrete.configuracoes.tabela_desc_linhas')}</p>
                 </div>
                 <select
                   value={tabelaConfig.linhasPorPagina}
                   onChange={e => setTabelaConfig(prev => ({ ...prev, linhasPorPagina: Number(e.target.value) as 25 | 50 | 100 | 200 }))}
                   style={{ padding: '6px 12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }}
                 >
-                  <option value={25}>25 linhas</option>
-                  <option value={50}>50 linhas</option>
-                  <option value={100}>100 linhas</option>
-                  <option value={200}>200 linhas</option>
+                  <option value={25}>{t('bidfrete.configuracoes.linhas', { count: 25 })}</option>
+                  <option value={50}>{t('bidfrete.configuracoes.linhas', { count: 50 })}</option>
+                  <option value={100}>{t('bidfrete.configuracoes.linhas', { count: 100 })}</option>
+                  <option value={200}>{t('bidfrete.configuracoes.linhas', { count: 200 })}</option>
                 </select>
               </div>
               <div className="cfg-divider" style={{ margin: '0.5rem 0' }} />
               <ToggleRow
                 id="tab-destaque"
-                label="Destacar cotações prestes a expirar"
-                desc="Aplica borda sutil avermelhada a cotações com menos de 2 horas restantes para expiração."
+                label={t('bidfrete.configuracoes.destacar_expirar_label')}
+                desc={t('bidfrete.configuracoes.destacar_expirar_desc')}
                 checked={tabelaConfig.destacarAtrasados}
                 onChange={v => setTabelaConfig(prev => ({ ...prev, destacarAtrasados: v }))}
               />
@@ -1240,8 +1247,8 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Casas Decimais</h2>
-                <p className="cfg-secao__desc">Configure as precisões numéricas de moedas, pesos e medidas em listas e visualizações do BID Frete.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.casas_decimais_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.casas_decimais_desc')}</p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -1249,7 +1256,7 @@ export default function Configuracoes() {
                 <div key={item.campo} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
                     <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{item.label}</span>
-                    <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Categoria: {item.categoria}</p>
+                    <p style={{ fontSize: '0.75rem', color: '#64748b' }}>{t('bidfrete.configuracoes.categoria')}: {item.categoria}</p>
                   </div>
                   <select
                     value={casasDecimais[item.campo] ?? item.padrao}
@@ -1257,7 +1264,7 @@ export default function Configuracoes() {
                     style={{ padding: '4px 10px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }}
                   >
                     {[0, 1, 2, 3, 4].map(v => (
-                      <option key={v} value={v}>{v} casas</option>
+                      <option key={v} value={v}>{t('bidfrete.configuracoes.n_casas', { count: v })}</option>
                     ))}
                   </select>
                 </div>
@@ -1271,8 +1278,8 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Formato de Data</h2>
-                <p className="cfg-secao__desc">Configure a exibição padrão de datas no sistema.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.formato_data_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.formato_data_desc')}</p>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -1295,8 +1302,8 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Colunas Personalizadas</h2>
-                <p className="cfg-secao__desc">Adicione colunas personalizadas extras para as cotações de frete.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.colunas_personalizadas_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.colunas_personalizadas_desc')}</p>
               </div>
             </div>
 
@@ -1424,36 +1431,36 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Preferências do Card no Kanban</h2>
-                <p className="cfg-secao__desc">Selecione quais informações devem ser destacadas diretamente nos cards de cotação.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.kanban_card_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.kanban_card_desc')}</p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <ToggleRow
                 id="kcard-val"
-                label="Exibir Valor Estimado / Aprovado"
-                desc="Mostra valores financeiros de teto e proposta vencedora."
+                label={t('bidfrete.configuracoes.kcard_exibir_valor_label')}
+                desc={t('bidfrete.configuracoes.kcard_exibir_valor_desc')}
                 checked={kanbanCardConfig.exibirValor}
                 onChange={v => setKanbanCardConfig(prev => ({ ...prev, exibirValor: v }))}
               />
               <ToggleRow
                 id="kcard-inc"
-                label="Exibir Incoterm"
-                desc="Mostra a sigla do Incoterm (FOB, CIF, etc.) no card."
+                label={t('bidfrete.configuracoes.kcard_exibir_incoterm_label')}
+                desc={t('bidfrete.configuracoes.kcard_exibir_incoterm_desc')}
                 checked={kanbanCardConfig.exibirIncoterm}
                 onChange={v => setKanbanCardConfig(prev => ({ ...prev, exibirIncoterm: v }))}
               />
               <ToggleRow
                 id="kcard-arm"
-                label="Exibir Armador / Agente Comercial"
-                desc="Exibe a logo ou nome do fornecedor encarregado do frete."
+                label={t('bidfrete.configuracoes.kcard_exibir_armador_label')}
+                desc={t('bidfrete.configuracoes.kcard_exibir_armador_desc')}
                 checked={kanbanCardConfig.exibirArmador}
                 onChange={v => setKanbanCardConfig(prev => ({ ...prev, exibirArmador: v }))}
               />
               <ToggleRow
                 id="kcard-dat"
-                label="Exibir Datas de Fechamento"
-                desc="Mostra datas limites para envio de propostas."
+                label={t('bidfrete.configuracoes.kcard_exibir_datas_label')}
+                desc={t('bidfrete.configuracoes.kcard_exibir_datas_desc')}
                 checked={kanbanCardConfig.exibirDatas}
                 onChange={v => setKanbanCardConfig(prev => ({ ...prev, exibirDatas: v }))}
               />
@@ -1466,8 +1473,8 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Campos do Modal Rápido</h2>
-                <p className="cfg-secao__desc">Decida quais informações da cotação são editáveis no modal pop-up lateral.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.modal_rapido_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.modal_rapido_desc')}</p>
               </div>
             </div>
             <p className="cfg-hint">Todas as informações completas continuam acessíveis através do botão Detalhes na cotação.</p>
@@ -1479,8 +1486,8 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Gerenciar Status</h2>
-                <p className="cfg-secao__desc">Configure, ordene e crie status customizados para as suas cotações.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.status_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.status_desc')}</p>
               </div>
             </div>
 
@@ -1547,13 +1554,13 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Máscara e Sequência Numérica</h2>
-                <p className="cfg-secao__desc">Configure o formato padrão dos IDs gerados para cada BID.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.numeracao_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.numeracao_desc')}</p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.875rem', color: '#f1f5f9' }}>
-                Prefixo do ID
+                {t('bidfrete.configuracoes.prefixo_id')}
                 <input
                   type="text"
                   value={numeracaoConfig.prefixo}
@@ -1563,8 +1570,8 @@ export default function Configuracoes() {
               </label>
               <ToggleRow
                 id="num-ano"
-                label="Incluir Ano Atual (EX: BID-2026-00001)"
-                desc="Anexa o ano corrente ao ID numérico de cada cotação."
+                label={t('bidfrete.configuracoes.incluir_ano_label')}
+                desc={t('bidfrete.configuracoes.incluir_ano_desc')}
                 checked={numeracaoConfig.incluirAno}
                 onChange={v => setNumeracaoConfig(prev => ({ ...prev, incluirAno: v }))}
               />
@@ -1577,8 +1584,8 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Templates PDF</h2>
-                <p className="cfg-secao__desc">Personalize o design visual e fontes de relatórios em PDF de BIDs de Frete.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.templates_pdf_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.templates_pdf_desc')}</p>
               </div>
             </div>
 
@@ -1617,7 +1624,7 @@ export default function Configuracoes() {
 
             {editandoTemplateId && (
               <div style={{ marginTop: '1.25rem', padding: '1rem', background: '#1e293b', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9', marginBottom: '0.5rem' }}>Editar Template</p>
+                <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9', marginBottom: '0.5rem' }}>{t('bidfrete.configuracoes.editar_template')}</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <input
                     type="text"
@@ -1632,12 +1639,12 @@ export default function Configuracoes() {
                     style={{ padding: '6px 12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', fontFamily: 'monospace' }}
                   />
                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                    <button type="button" className="cfg-btn-secundario cfg-btn-secundario--xs" onClick={() => setEditandoTemplateId(null)}>Cancelar</button>
+                    <button type="button" className="cfg-btn-secundario cfg-btn-secundario--xs" onClick={() => setEditandoTemplateId(null)}>{t('comum.cancelar')}</button>
                     <button type="button" className="cfg-btn-primario cfg-btn-primario--xs" onClick={() => {
                       if (!tplNome.trim()) return
                       setTemplatesPdf(prev => prev.map(t => t.id === editandoTemplateId ? { ...t, nome: tplNome, codigo_fonte: tplConteudo } : t))
                       setEditandoTemplateId(null)
-                    }}>Salvar</button>
+                    }}>{t('comum.salvar')}</button>
                   </div>
                 </div>
               </div>
@@ -1648,7 +1655,7 @@ export default function Configuracoes() {
                 const newId = `tpl_${Date.now()}`
                 setTemplatesPdf(prev => [...prev, { id: newId, nome: 'Novo Template PDF', documento_tipo: 'pdf', codigo_fonte: '<p>Novo</p>', created_at: new Date().toISOString() }])
               }}>
-                <Plus size={14} /> Novo Template PDF
+                <Plus size={14} /> {t('bidfrete.configuracoes.novo_template_pdf')}
               </BotaoGlobal>
             </div>
           </section>
@@ -1659,15 +1666,15 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Regras de Negócio</h2>
-                <p className="cfg-secao__desc">Configure as regras de envio, validação e automações do BID Frete.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.regras_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.regras_desc')}</p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <ToggleRow
                 id="reg-resp"
-                label="Envio Automático aos Fornecedores"
-                desc="Dispara o edital de BID instantaneamente aos parceiros preferenciais ao aprovar o rascunho."
+                label={t('bidfrete.configuracoes.envio_auto_label')}
+                desc={t('bidfrete.configuracoes.envio_auto_desc')}
                 checked={regrasConfig.respostaAutomatica}
                 onChange={v => setRegrasConfig(prev => ({ ...prev, respostaAutomatica: v }))}
               />
@@ -1685,8 +1692,8 @@ export default function Configuracoes() {
               </div>
               <ToggleRow
                 id="reg-div"
-                label="Alertar Divergências de Incoterms"
-                desc="Mostra ícone de alerta caso um fornecedor responda com Incoterm diferente do solicitado no edital."
+                label={t('bidfrete.configuracoes.alertar_incoterm_label')}
+                desc={t('bidfrete.configuracoes.alertar_incoterm_desc')}
                 checked={regrasConfig.alertasDivergencia}
                 onChange={v => setRegrasConfig(prev => ({ ...prev, alertasDivergencia: v }))}
               />
@@ -1699,8 +1706,8 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Categorias de Anexo</h2>
-                <p className="cfg-secao__desc">Configure as tags de anexo obrigatórias e opcionais para documentos anexados.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.categ_anexos_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.categ_anexos_desc')}</p>
               </div>
             </div>
 
@@ -1740,7 +1747,7 @@ export default function Configuracoes() {
                 setCategoriasAnexos(prev => [...prev, { id: newId, nome: novoAnexoNome, sistema: false }])
                 setNovoAnexoNome('')
               }}>
-                <Plus size={14} /> Adicionar Categoria
+                <Plus size={14} /> {t('bidfrete.configuracoes.adicionar_categoria')}
               </BotaoGlobal>
             </div>
           </section>
@@ -1751,8 +1758,8 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Boletim Cambial</h2>
-                <p className="cfg-secao__desc">Configure as cotações das moedas de referência para as cotações internacionais de frete.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.boletim_cambial_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.boletim_cambial_desc')}</p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -1785,29 +1792,29 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Preferências de Notificação</h2>
-                <p className="cfg-secao__desc">Ajuste os disparos e alertas de cotação de frete por email e WhatsApp.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.notificacoes_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.notificacoes_desc')}</p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <ToggleRow
                 id="not-resp"
-                label="Fornecedor respondeu ao BID"
-                desc="Notifica o analista quando armadores ou agentes enviam uma proposta de frete."
+                label={t('bidfrete.configuracoes.not_resposta_label')}
+                desc={t('bidfrete.configuracoes.not_resposta_desc')}
                 checked={notificacoesConfig.respostaFornecedor}
                 onChange={v => setNotificacoesConfig(prev => ({ ...prev, respostaFornecedor: v }))}
               />
               <ToggleRow
                 id="not-nova"
-                label="Nova Cotação Criada"
-                desc="Avisa os fornecedores cadastrados que há um novo edital aberto para lances."
+                label={t('bidfrete.configuracoes.not_nova_cotacao_label')}
+                desc={t('bidfrete.configuracoes.not_nova_cotacao_desc')}
                 checked={notificacoesConfig.novaCotacao}
                 onChange={v => setNotificacoesConfig(prev => ({ ...prev, novaCotacao: v }))}
               />
               <ToggleRow
                 id="not-exp"
-                label="Cotação Expirada"
-                desc="Notifica quando a data limite para cotação passou sem propostas aprovadas."
+                label={t('bidfrete.configuracoes.not_expirada_label')}
+                desc={t('bidfrete.configuracoes.not_expirada_desc')}
                 checked={notificacoesConfig.cotacaoExpirada}
                 onChange={v => setNotificacoesConfig(prev => ({ ...prev, cotacaoExpirada: v }))}
               />
@@ -1820,31 +1827,31 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Exportação de Relatórios</h2>
-                <p className="cfg-secao__desc">Configure as preferências de download e layout de arquivos de propostas geradas.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.exportacao_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.exportacao_desc')}</p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>Formato Padrão</p>
-                  <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Selecione o formato padrão preferido para relatórios gerados.</p>
+                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{t('bidfrete.configuracoes.formato_padrao')}</p>
+                  <p style={{ fontSize: '0.75rem', color: '#64748b' }}>{t('bidfrete.configuracoes.formato_padrao_desc')}</p>
                 </div>
                 <select
                   value={exportConfig.formatoPadrao}
                   onChange={e => setExportConfig(prev => ({ ...prev, formatoPadrao: e.target.value as 'csv' | 'xlsx' | 'pdf' }))}
                   style={{ padding: '6px 12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }}
                 >
-                  <option value="xlsx">Excel (XLSX)</option>
-                  <option value="csv">CSV delimitado</option>
-                  <option value="pdf">PDF Compactado</option>
+                  <option value="xlsx">{t('bidfrete.configuracoes.formato_xlsx')}</option>
+                  <option value="csv">{t('bidfrete.configuracoes.formato_csv')}</option>
+                  <option value="pdf">{t('bidfrete.configuracoes.formato_pdf')}</option>
                 </select>
               </div>
               <div className="cfg-divider" style={{ margin: '0.5rem 0' }} />
               <ToggleRow
                 id="exp-prop"
-                label="Incluir Histórico de Propostas"
-                desc="Exporta todas as respostas do armador juntamente com a vencedora aprovada."
+                label={t('bidfrete.configuracoes.incluir_historico_label')}
+                desc={t('bidfrete.configuracoes.incluir_historico_desc')}
                 checked={exportConfig.incluirPropostas}
                 onChange={v => setExportConfig(prev => ({ ...prev, incluirPropostas: v }))}
               />
@@ -1858,21 +1865,21 @@ export default function Configuracoes() {
       {/* ── Barra de Salvamento Flutuante ── */}
       <div className={`bf-cfg-savebar ${isDirtyGlobal ? 'bf-cfg-savebar--visible' : ''}`}>
         <div className="bf-cfg-savebar-inner">
-          <span className="bf-cfg-dirty-msg">Você possui alterações não salvas!</span>
+          <span className="bf-cfg-dirty-msg">{t('bidfrete.configuracoes.alteracoes_nao_salvas')}</span>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               className="cfg-btn-secundario"
               style={{ padding: '0.5rem 1rem', borderRadius: '9999px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#fff' }}
               onClick={handleDescartarTudo}
             >
-              Descartar
+              {t('bidfrete.configuracoes.descartar')}
             </button>
             <button
               className="bf-cfg-btn-save"
               onClick={handleSalvarTudo}
             >
               <FloppyDisk weight="bold" size={16} />
-              Salvar Alterações
+              {t('bidfrete.configuracoes.salvar_alteracoes')}
             </button>
           </div>
         </div>

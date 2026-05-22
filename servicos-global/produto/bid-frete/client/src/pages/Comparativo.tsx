@@ -340,7 +340,7 @@ export default function Comparativo() {
       align: 'center',
       render: (val: number) => (
         <span className={`bf-transbordo ${val === 0 ? 'bf-transbordo--direto' : ''}`}>
-          {val === 0 ? 'Direto' : val}
+          {val === 0 ? t('bidfrete.comparativo.direto') : val}
         </span>
       ),
     },

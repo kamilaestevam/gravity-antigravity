@@ -306,49 +306,50 @@ export default function Dashboard() {
         }
 
         .bfd-card--accent-indigo {
-          border-left: 3px solid #818cf8 !important;
+          border-left: 3px solid #3b82f6 !important;
         }
         .bfd-card--accent-indigo:hover {
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(129, 140, 248, 0.18) !important;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
         }
 
         .bfd-card--accent-purple {
-          border-left: 3px solid #a78bfa !important;
+          border-left: 3px solid #3b82f6 !important;
         }
         .bfd-card--accent-purple:hover {
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(167, 139, 250, 0.18) !important;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
         }
 
         .bfd-card--accent-emerald {
-          border-left: 3px solid #34d399 !important;
+          border-left: 3px solid #3b82f6 !important;
         }
         .bfd-card--accent-emerald:hover {
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(52, 211, 153, 0.18) !important;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
         }
 
         .bfd-card--accent-amber {
-          border-left: 3px solid #fbbf24 !important;
+          border-left: 3px solid #3b82f6 !important;
         }
         .bfd-card--accent-amber:hover {
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(251, 191, 36, 0.18) !important;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
         }
 
         .bfd-card--accent-rose {
-          border-left: 3px solid #f87171 !important;
+          border-left: 3px solid #3b82f6 !important;
         }
         .bfd-card--accent-rose:hover {
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(248, 113, 113, 0.18) !important;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
         }
         /* ── Charts Grid ─────────────────────────────────────────── */
         .bfd-charts-grid { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 1.25rem; }
-        .bfd-chart-svg { width: 100%; height: auto; }
+        .bfd-charts-grid .bfd-card { height: 380px; }
+        .bfd-chart-svg { width: 100%; max-height: 230px; height: auto; display: block; margin: auto 0; }
         .bfd-chart__legend { display: flex; gap: 1rem; margin-top: 0.5rem; }
         .bfd-chart__legend span { font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
         .bfd-chart__legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
         .bfd-chart__subtitle { font-size: 0.7rem; color: var(--text-muted); text-align: right; margin-bottom: 0.5rem; }
 
         /* ── Câmbio ──────────────────────────────────────────────── */
-        .bfd-cambio { display: flex; flex-direction: column; gap: 0; margin-top: auto; }
+        .bfd-cambio { display: flex; flex-direction: column; gap: 0; margin: auto 0; }
         .bfd-cambio__row {
           display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0;
           border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -381,7 +382,7 @@ export default function Dashboard() {
         .bfd-best__meta { font-size: 0.7rem; color: var(--text-muted); }
 
         /* ── Donut ───────────────────────────────────────────────── */
-        .bfd-donut { display: flex; align-items: center; gap: 1.5rem; }
+        .bfd-donut { display: flex; align-items: center; gap: 1.5rem; margin: auto 0; }
         .bfd-donut__legend { display: flex; flex-direction: column; gap: 0.6rem; flex: 1; }
         .bfd-donut__legend-row { display: flex; align-items: center; gap: 0.5rem; }
         .bfd-donut__legend-icon { color: var(--text-muted); display: flex; }

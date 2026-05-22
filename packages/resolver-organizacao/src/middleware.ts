@@ -77,6 +77,11 @@ export function resolverOrganizacao(config: ConfigResolverOrganizacao): RequestH
   // Vide `internal-prisma.ts` (revisão 2026-05-21).
   const urlBancoBoot = process.env.DATABASE_URL;
 
+  // Cliente Prisma injetado pelo produto (ADR-0003). Quando presente, o SDK
+  // usa este client — gerado a partir do schema do próprio produto — em vez do
+  // `@prisma/client` da raiz, que pode conter os models de outro produto.
+  const prismaClienteInjetado = config.prismaClient;
+
   const cache = new CacheOrganizacao({ ttlMs: config.cacheTtlMs });
 
   const configuradorClient = createConfiguradorClient({
@@ -127,8 +132,14 @@ export function resolverOrganizacao(config: ConfigResolverOrganizacao): RequestH
       }
 
       // Passo 8 — idCorrelacao único por request (sobrepõe o do cache) +
-      // urlBanco capturada no boot (roteamento de banco no monolito-sidecar)
-      ctx = { ...ctx, idCorrelacao, urlBanco: urlBancoBoot };
+      // urlBanco e prismaInterno capturados no boot (roteamento de banco e
+      // client injetado — monolito-sidecar / ADR-0003)
+      ctx = {
+        ...ctx,
+        idCorrelacao,
+        urlBanco: urlBancoBoot,
+        prismaInterno: prismaClienteInjetado,
+      };
 
       // Passo 7 — Defense-in-depth: revalida nomeSchema
       if (!isValidSchemaName(ctx.nomeSchema)) {

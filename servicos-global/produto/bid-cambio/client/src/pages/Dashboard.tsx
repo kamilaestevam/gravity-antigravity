@@ -666,12 +666,10 @@ export default function Dashboard() {
 
   return (
     <PaginaGlobal>
-      <CabecalhoGlobal
-        titulo="Dashboard"
-        subtitulo="KPIs e widgets configuráveis"
-        icone={<ChartBar weight="duotone" size={24} />}
-        acoes={toolbarActions}
-      />
+      {/* Ações da página (Atualizar / Editar layout / Adicionar Widget) */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        {toolbarActions}
+      </div>
 
       {/* ── KPIs de Resumo (sempre visíveis no topo) ── */}
       <div style={{

@@ -771,13 +771,6 @@ export default function Configuracoes() {
 
   const [periodoAtivo, setPeriodoAtivo] = useState('30d')
 
-  useEffect(() => {
-    document.body.classList.add('bf-configuracoes-page')
-    return () => {
-      document.body.classList.remove('bf-configuracoes-page')
-    }
-  }, [])
-
   // ─── Mocks & Persistence Hook ─────────────────────────────────────────────────
 
   const useConfigState = <T,>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>, T, () => void, () => void, boolean] => {
@@ -1030,13 +1023,6 @@ export default function Configuracoes() {
   return (
     <PaginaGlobal
       className="bf-configuracoes"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<GearSixWrapper />}
-          titulo="Configurações"
-          subtitulo="Gerencie as visualizações, regras de negócio e preferências do BID Frete."
-        />
-      }
     >
       <div className="cfg-page">
         {/* ── Sidebar ── */}

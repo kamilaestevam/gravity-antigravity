@@ -52,7 +52,7 @@
 
 .mtg-left__page-title {
   font-family: 'Plus Jakarta Sans', sans-serif !important;
-  font-size: 1.625rem !important;
+  font-size: 1.25rem !important;
   font-weight: 700 !important;
   color: var(--text-primary, #f1f5f9);
   line-height: 1.1;
@@ -86,9 +86,9 @@
 
 .mtg-left__page-subtitle {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.8125rem;
-  color: var(--text-muted, #94a3b8);
-  line-height: 1.4;
+  font-size: 0.8rem;
+  color: var(--text-muted, #64748b);
+  line-height: 1.5;
   margin: 0;
 }
 

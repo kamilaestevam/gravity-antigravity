@@ -191,8 +191,15 @@ export default function App() {
   const produtoIdx   = segments.findIndex(s => s === 'produto')
   const relSegments  = produtoIdx >= 0 ? segments.slice(produtoIdx + 2) : segments
   const routeKey     = relSegments.join('/')
-  const pageLabel    = routeKey === 'configuracoes' ? '' : (ROUTE_LABELS[routeKey] ?? 'Visão Geral')
-  const pageHeader   = ROUTE_HEADERS[routeKey]
+
+  // Sub-view via query param (ex: /cotacoes?visao=kanban → cabeçalho "Kanban")
+  const visao        = new URLSearchParams(location.search).get('visao')
+  const isKanbanView = routeKey === 'cotacoes' && visao === 'kanban'
+
+  const pageLabel    = isKanbanView ? 'Kanban' : (ROUTE_LABELS[routeKey] ?? 'Visão Geral')
+  const pageHeader   = isKanbanView
+    ? { icone: <Kanban weight="duotone" size={22} />, subtitulo: 'Cotações organizadas por status' }
+    : ROUTE_HEADERS[routeKey]
 
   // Dados do usuário
   const initials = currentUser.name

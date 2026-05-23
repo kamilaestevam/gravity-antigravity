@@ -321,10 +321,6 @@ export default function ListaCambios() {
   if (loading && cambios.length === 0) {
     return (
       <div style={containerStyle}>
-        <div style={headerStyle}>
-          <FileText size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Cambios</h1>
-        </div>
         <div style={{ background: 'var(--bg-surface, #334155)', borderRadius: 12, padding: '3rem', textAlign: 'center' }}>
           <Loader2 size={28} style={{ color: 'var(--accent, #6366f1)', animation: 'spin 1s linear infinite' }} />
           <p style={{ color: 'var(--text-muted, #64748b)', marginTop: '0.75rem' }}>Carregando cambios...</p>
@@ -339,10 +335,6 @@ export default function ListaCambios() {
   if (error) {
     return (
       <div style={containerStyle}>
-        <div style={headerStyle}>
-          <FileText size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Cambios</h1>
-        </div>
         <div style={{ background: 'var(--bg-surface, #334155)', borderRadius: 12, padding: '2rem', textAlign: 'center' }}>
           <AlertTriangle size={32} style={{ color: 'var(--danger, #ef4444)' }} />
           <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>Erro ao carregar</p>
@@ -358,10 +350,6 @@ export default function ListaCambios() {
   if (cambios.length === 0 && !loading) {
     return (
       <div style={containerStyle}>
-        <div style={headerStyle}>
-          <FileText size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Cambios</h1>
-        </div>
         <div style={{ background: 'var(--bg-surface, #334155)', borderRadius: 12, padding: '3rem', textAlign: 'center' }}>
           <FileText size={40} style={{ color: 'var(--text-muted, #64748b)' }} />
           <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>Nenhum cambio encontrado</p>
@@ -379,10 +367,6 @@ export default function ListaCambios() {
     <div style={containerStyle}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-        <div style={headerStyle}>
-          <FileText size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Cambios</h1>
-        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <button onClick={() => setShowColumnModal(true)} style={btnSecondary} title="Configurar colunas">
             <Columns3 size={14} /> Colunas

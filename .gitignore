@@ -20,6 +20,7 @@ prisma/dev.db
 prisma/dev.db-journal
 *.tmp*
 configurador/generated/*.tmp*
+**/generated/client/
 
 # ── Logs ─────────────────────────────────────────────────────
 *.log
@@ -31,6 +32,15 @@ yarn-error.log*
 playwright-report/
 test-results/
 testes/**/resultados/
+
+# ── Artefatos de compilação TS dentro de __tests__ ───────────
+**/__tests__/**/*.js
+**/__tests__/**/*.js.map
+**/__tests__/**/*.d.ts
+**/__tests__/**/*.d.ts.map
+
+# ── Logs gerados por testes ──────────────────────────────────
+servicos-global/configurador/data/test-logs/
 
 # ── Turborepo (proibido na Fase 1, mas previne lixo residual) ─
 .turbo/
@@ -54,3 +64,5 @@ servicos-global/organizacao/pedido/server/backups/
 # ── Arquivos temporarios de trabalho (planilhas, scratch) ─
 .claude/planilha-tmp.xlsx
 .claude/*.tmp.*
+scratch/
+vite_fetch.html

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import type { Cotacao, StatusCotacao } from '../shared/types'
@@ -11,21 +11,50 @@ interface CotacoesKanbanProps {
   onRefresh: () => void
 }
 
-interface KanbanColConfig {
-  status: StatusCotacao
-  label: string
-  headerColor: string
-  headerBg: string
+// ─── Status Config dinâmico (sincronizado com Configurações via localStorage) ───
+
+interface StatusConfig {
+  id: string
+  nome: string
+  rotulo: string
+  cor: string
+  ordem: number
+  is_sistema: boolean
 }
 
-const KANBAN_COLS: KanbanColConfig[] = [
-  { status: 'ENVIADA_FORNECEDORES',  label: 'Enviada ao fornecedor', headerColor: '#3b82f6', headerBg: 'rgba(59,130,246,0.15)' },
-  { status: 'AGUARDANDO_APROVACAO',  label: 'Aprovação pendente',    headerColor: '#f59e0b', headerBg: 'rgba(245,158,11,0.15)' },
-  { status: 'FALTA_INFORMACAO',      label: 'Falta de informação',   headerColor: '#f97316', headerBg: 'rgba(249,115,22,0.15)' },
-  { status: 'EM_COTACAO',            label: 'Baixo limite de resposta', headerColor: '#ef4444', headerBg: 'rgba(239,68,68,0.15)' },
-  { status: 'EXPIRADA',              label: 'Fora de prazo',         headerColor: '#ef4444', headerBg: 'rgba(239,68,68,0.15)' },
-  { status: 'APROVADA',              label: 'Encerradas',            headerColor: '#22c55e', headerBg: 'rgba(34,197,94,0.15)' },
+const STATUS_CONFIG_KEY = 'bid-frete:config:status'
+
+const STATUS_CANONICOS: StatusConfig[] = [
+  { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
+  { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
+  { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
+  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
+  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: false },
+  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: false },
+  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: false },
+  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, is_sistema: false },
+  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, is_sistema: false },
 ]
+
+function lerStatusConfig(): StatusConfig[] {
+  try {
+    const raw = localStorage.getItem(STATUS_CONFIG_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch { /* storage indisponível */ }
+  return STATUS_CANONICOS
+}
+
+/** Converte hex (#RRGGBB) para rgba com opacidade */
+function hexToRgba(hex: string, alpha: number): string {
+  const h = hex.replace('#', '')
+  const r = parseInt(h.substring(0, 2), 16)
+  const g = parseInt(h.substring(2, 4), 16)
+  const b = parseInt(h.substring(4, 6), 16)
+  return `rgba(${r},${g},${b},${alpha})`
+}
 
 export default function CotacoesKanban({ cotacoes, carregando }: CotacoesKanbanProps) {
   const { t } = useTranslation()
@@ -36,7 +65,7 @@ export default function CotacoesKanban({ cotacoes, carregando }: CotacoesKanbanP
     return (
       <div
         className="bf-kanban-card"
-        onClick={() => navigate(`/cotacoes/${cotacao.id}`)}
+        onClick={() => navigate(`/produto/bid-frete/cotacoes/${cotacao.id}`)}
       >
         <div className="bf-kanban-card-header">
           <span className="bf-kanban-card-numero">
@@ -74,6 +103,29 @@ export default function CotacoesKanban({ cotacoes, carregando }: CotacoesKanbanP
     )
   }
 
+  // ─── Status dinâmico do localStorage ───
+  const [statusConfig, setStatusConfig] = useState<StatusConfig[]>(lerStatusConfig)
+
+  useEffect(() => {
+    const handleStorage = () => setStatusConfig(lerStatusConfig())
+    window.addEventListener('storage', handleStorage)
+    window.addEventListener('focus', handleStorage)
+    return () => {
+      window.removeEventListener('storage', handleStorage)
+      window.removeEventListener('focus', handleStorage)
+    }
+  }, [])
+
+  const kanbanCols = useMemo(() =>
+    statusConfig.map(s => ({
+      status: s.nome as StatusCotacao,
+      label: s.rotulo,
+      headerColor: s.cor,
+      headerBg: hexToRgba(s.cor, 0.15),
+    })),
+    [statusConfig]
+  )
+
   if (carregando) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px', color: 'var(--text-secondary)' }}>
@@ -84,7 +136,7 @@ export default function CotacoesKanban({ cotacoes, carregando }: CotacoesKanbanP
 
   return (
     <div className="bf-kanban-board">
-      {KANBAN_COLS.map(col => {
+      {kanbanCols.map(col => {
         const cards = cotacoes.filter(c => c.status === col.status)
         return (
           <div key={col.status} className="bf-kanban-col">

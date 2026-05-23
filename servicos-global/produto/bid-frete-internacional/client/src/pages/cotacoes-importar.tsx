@@ -283,7 +283,7 @@ export default function ImportarBloco() {
       tipo: 'numero',
       largura: 56,
       align: 'center',
-      render: (v: any) => (
+      render: (v: unknown) => (
         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.75rem' }}>
           {String(v)}
         </span>
@@ -295,7 +295,7 @@ export default function ImportarBloco() {
       tipo: 'texto',
       largura: 90,
       align: 'center',
-      render: (v: any) => {
+      render: (v: unknown) => {
         const isOk = v === 'OK'
         return (
           <span
@@ -325,7 +325,7 @@ export default function ImportarBloco() {
       label: t('bidfrete.importar.col_origem'),
       tipo: 'texto',
       largura: 90,
-      render: (v: any) => (
+      render: (v: unknown) => (
         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>
       ),
     },
@@ -334,7 +334,7 @@ export default function ImportarBloco() {
       label: t('bidfrete.importar.col_destino'),
       tipo: 'texto',
       largura: 90,
-      render: (v: any) => (
+      render: (v: unknown) => (
         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>
       ),
     },
@@ -345,7 +345,7 @@ export default function ImportarBloco() {
       tipo: 'texto',
       largura: 80,
       align: 'center',
-      render: (v: any) => (
+      render: (v: unknown) => (
         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem', fontWeight: 600 }}>
           {String(v).toUpperCase()}
         </span>
@@ -357,7 +357,7 @@ export default function ImportarBloco() {
       tipo: 'numero',
       largura: 64,
       align: 'right',
-      render: (v: any) => (
+      render: (v: unknown) => (
         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>
       ),
     },
@@ -365,7 +365,7 @@ export default function ImportarBloco() {
       key: 'erros',
       label: t('bidfrete.importar.col_erros'),
       tipo: 'texto',
-      render: (v: any) => {
+      render: (v: unknown) => {
         const text = String(v)
         if (!text) return null
         return (
@@ -539,7 +539,7 @@ export default function ImportarBloco() {
                 )}
                 <button
                   className="importar-bloco-pill-btn importar-bloco-pill-btn--secondary"
-                  onClick={() => navigate('/cotacoes')}
+                  onClick={() => navigate('/produto/bid-frete/cotacoes')}
                 >
                   <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
                 </button>
@@ -825,7 +825,7 @@ export default function ImportarBloco() {
                 </button>
                 <button
                   className="importar-bloco-pill-btn importar-bloco-pill-btn--primary"
-                  onClick={() => navigate('/cotacoes')}
+                  onClick={() => navigate('/produto/bid-frete/cotacoes')}
                 >
                   Ver cotacoes
                 </button>

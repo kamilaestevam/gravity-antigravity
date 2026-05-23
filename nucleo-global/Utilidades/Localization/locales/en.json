@@ -7656,5 +7656,127 @@
       "ATIVO": "Active",
       "INATIVO": "Inactive"
     }
+  },
+  "nucleo": {
+    "dashboard": {
+      "kpi": {
+        "vs_periodo_anterior": "vs previous period"
+      },
+      "widgets": {
+        "dados_insuficientes": "Insufficient data",
+        "tabela": {
+          "categoria": "Category",
+          "valor": "Value",
+          "sem_dados": "No data to display"
+        },
+        "distribuicao": {
+          "sem_dados": "No data to distribute",
+          "pct_do_total": "{{pct}}% of total"
+        }
+      },
+      "painel": {
+        "opcoes_widget_aria": "Widget options",
+        "opcoes": "Options",
+        "editar": "Edit",
+        "exportar_dados": "Export data",
+        "remover": "Remove",
+        "arraste_reorganizar": "Drag to reorganize",
+        "dados_parciais": "Partial data",
+        "dados_parciais_tooltip": "Some data could not be loaded",
+        "cache": "Cache",
+        "dados_cache_tooltip": "Cached data",
+        "tentar_novamente": "Try again"
+      },
+      "chart": {
+        "linha": "Line",
+        "area": "Area",
+        "barras": "Bars",
+        "barras_h": "H. Bars",
+        "distribuicao": "Distribution",
+        "donut": "Donut",
+        "kpi": "KPI",
+        "funil": "Funnel",
+        "tabela": "Table",
+        "gauge": "Gauge"
+      },
+      "periodo": {
+        "7_dias": "7 days",
+        "30_dias": "30 days",
+        "90_dias": "90 days",
+        "12_meses": "12 months",
+        "mes_atual": "Current month",
+        "ano_atual": "Current year",
+        "ultimos_7_dias": "Last 7 days",
+        "ultimos_30_dias": "Last 30 days",
+        "ultimos_90_dias": "Last 90 days",
+        "ultimos_12_meses": "Last 12 months",
+        "personalizado": "Custom period"
+      },
+      "modal_editar": {
+        "titulo": "Edit Widget",
+        "fechar": "Close",
+        "label_titulo": "Title",
+        "tipo_grafico": "Chart type",
+        "periodo": "Period",
+        "info_tipo": "Type",
+        "info_campos": "Field(s)",
+        "cancelar": "Cancel",
+        "salvar": "Save"
+      },
+      "sugestoes": {
+        "confianca_alta": "High",
+        "confianca_media": "Medium",
+        "confianca_baixa": "Low",
+        "titulo": "Suggestions for your dashboard",
+        "fechar": "Close",
+        "hint": "Automatically generated from product metrics.",
+        "adicionar": "Add",
+        "metricas_derivadas": "Derived Metrics",
+        "nao_encontrou": "Didn't find what you need?",
+        "criar_widget_zero": "Create widget from scratch"
+      },
+      "barra": {
+        "periodo": "Period",
+        "todos_status": "All statuses",
+        "todos": "All",
+        "filtros_ativos": "Active filters:",
+        "limpar": "Clear",
+        "adicionar_dashboard": "Add Dashboard",
+        "arraste_widgets_tooltip": "Drag and rearrange widgets",
+        "concluir": "Done",
+        "reorganizar": "Rearrange",
+        "hint_reorganizar_pre": "Drag widgets to rearrange. Click",
+        "hint_reorganizar_pos": "to save."
+      },
+      "construtor": {
+        "passo_campos": "Fields",
+        "passo_operacao": "Operation",
+        "passo_visualizar": "Preview",
+        "reason_max_campos": "Maximum {{count}} field(s) for this type",
+        "reason_min_campos": "Minimum {{count}} fields for this type",
+        "reason_mesma_unidade": "All fields must have the same unit",
+        "bloqueio_max_campos": "Maximum {{count}} fields",
+        "bloqueio_max_unidades": "There are already {{count}} unit types. Remove a field first.",
+        "bloqueio_distribuicao_unidade": "Distribution requires fields with the same unit",
+        "hint_selecione": "Select up to {{max}} fields. Maximum 2 unit types (R$, # or %).",
+        "warning_eixo_duplo": "Fields with different units will use a dual Y-axis in this chart.",
+        "buscar_campo_placeholder": "Search field...",
+        "buscar_campo_aria": "Search field",
+        "nenhum_campo": "No field found",
+        "step2_hint": "Configure the title, operation per field, and analysis period.",
+        "titulo_widget": "Widget title",
+        "titulo_widget_placeholder": "Ex: Revenue per Month",
+        "operacao_todos": "Operation (all fields)",
+        "auto_preenchido_nota": "— auto-filled (all fields have the same operation)",
+        "operacao_por_campo": "Operation per field",
+        "periodo": "Period",
+        "step3_hint": "Choose how the data will be visualized.",
+        "eixo_duplo_ativado": "Dual Y-axis will be activated (incompatible units)",
+        "editar_widget": "Edit Widget",
+        "novo_widget": "New Widget",
+        "subtitulo_modal": "Configure the widget's data and visualization",
+        "salvar_widget": "Save Widget"
+      }
+    }
   }
 }

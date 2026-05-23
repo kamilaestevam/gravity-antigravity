@@ -11,6 +11,7 @@
  */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   BarChart,
   Bar,
@@ -158,8 +159,9 @@ export function DashboardWidgetBarras({
   rightUnit = 'number',
   horizontal = false,
 }: BarChartWidgetProps) {
+  const { t } = useTranslation()
   if (series.length === 0) {
-    return <div style={styles.empty}><span style={styles.emptyText}>Dados insuficientes</span></div>
+    return <div style={styles.empty}><span style={styles.emptyText}>{t('nucleo.dashboard.widgets.dados_insuficientes')}</span></div>
   }
 
   const chartData = buildChartData(series)

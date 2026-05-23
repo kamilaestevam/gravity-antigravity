@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ChartLine,
   ChartBar,
@@ -43,11 +44,13 @@ export interface QueryBuilderProps {
 
 // ── Passos ────────────────────────────────────────────────────────────────────
 
-const PASSOS = [
-  { id: 1, label: 'Campos',     icone: <ListBullets size={14} /> },
-  { id: 2, label: 'Operação',   icone: <SlidersHorizontal size={14} /> },
-  { id: 3, label: 'Visualizar', icone: <Eye size={14} /> },
-]
+function buildPassos(t: (k: string) => string) {
+  return [
+    { id: 1, label: t('nucleo.dashboard.construtor.passo_campos'),     icone: <ListBullets size={14} /> },
+    { id: 2, label: t('nucleo.dashboard.construtor.passo_operacao'),   icone: <SlidersHorizontal size={14} /> },
+    { id: 3, label: t('nucleo.dashboard.construtor.passo_visualizar'), icone: <Eye size={14} /> },
+  ]
+}
 
 const MAX_FIELDS = 5
 const MAX_UNIT_TYPES = 2
@@ -63,27 +66,31 @@ interface ChartTypeOption {
   requiresSameUnit?: boolean
 }
 
-const CHART_OPTIONS: ChartTypeOption[] = [
-  { type: 'KPI_CARD',       label: 'KPI',          icon: <NumberSquareOne size={22} />,      maxFields: 1 },
-  { type: 'LINE',           label: 'Linha',         icon: <ChartLine size={22} /> },
-  { type: 'AREA',           label: 'Área',          icon: <ChartLine size={22} weight="fill" /> },
-  { type: 'BAR',            label: 'Barras',        icon: <ChartBar size={22} /> },
-  { type: 'BAR_HORIZONTAL', label: 'Barras H.',     icon: <ChartBarHorizontal size={22} /> },
-  { type: 'DISTRIBUTION',   label: 'Distribuição',  icon: <ChartPieSlice size={22} />, minFields: 2, requiresSameUnit: true },
-  { type: 'DONUT',          label: 'Donut',         icon: <ChartDonut size={22} />,           maxFields: 1 },
-  { type: 'TABLE',          label: 'Tabela',        icon: <Table size={22} /> },
-  { type: 'FUNNEL',         label: 'Funil',         icon: <Funnel size={22} /> },
-  { type: 'GAUGE',          label: 'Gauge',         icon: <Gauge size={22} />,               maxFields: 1 },
-]
+function buildChartOptions(t: (k: string) => string): ChartTypeOption[] {
+  return [
+    { type: 'KPI_CARD',       label: t('nucleo.dashboard.chart.kpi'),          icon: <NumberSquareOne size={22} />,      maxFields: 1 },
+    { type: 'LINE',           label: t('nucleo.dashboard.chart.linha'),        icon: <ChartLine size={22} /> },
+    { type: 'AREA',           label: t('nucleo.dashboard.chart.area'),         icon: <ChartLine size={22} weight="fill" /> },
+    { type: 'BAR',            label: t('nucleo.dashboard.chart.barras'),       icon: <ChartBar size={22} /> },
+    { type: 'BAR_HORIZONTAL', label: t('nucleo.dashboard.chart.barras_h'),     icon: <ChartBarHorizontal size={22} /> },
+    { type: 'DISTRIBUTION',   label: t('nucleo.dashboard.chart.distribuicao'), icon: <ChartPieSlice size={22} />, minFields: 2, requiresSameUnit: true },
+    { type: 'DONUT',          label: t('nucleo.dashboard.chart.donut'),        icon: <ChartDonut size={22} />,           maxFields: 1 },
+    { type: 'TABLE',          label: t('nucleo.dashboard.chart.tabela'),       icon: <Table size={22} /> },
+    { type: 'FUNNEL',         label: t('nucleo.dashboard.chart.funil'),        icon: <Funnel size={22} /> },
+    { type: 'GAUGE',          label: t('nucleo.dashboard.chart.gauge'),        icon: <Gauge size={22} />,               maxFields: 1 },
+  ]
+}
 
-const PERIOD_OPTIONS = [
-  { value: '7d',            label: '7 dias' },
-  { value: '30d',           label: '30 dias' },
-  { value: '90d',           label: '90 dias' },
-  { value: '12m',           label: '12 meses' },
-  { value: 'current_month', label: 'Mês atual' },
-  { value: 'current_year',  label: 'Ano atual' },
-]
+function buildPeriodOptions(t: (k: string) => string) {
+  return [
+    { value: '7d',            label: t('nucleo.dashboard.periodo.7_dias') },
+    { value: '30d',           label: t('nucleo.dashboard.periodo.30_dias') },
+    { value: '90d',           label: t('nucleo.dashboard.periodo.90_dias') },
+    { value: '12m',           label: t('nucleo.dashboard.periodo.12_meses') },
+    { value: 'current_month', label: t('nucleo.dashboard.periodo.mes_atual') },
+    { value: 'current_year',  label: t('nucleo.dashboard.periodo.ano_atual') },
+  ]
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -105,18 +112,19 @@ function hasMixedUnits(fields: CatalogField[]): boolean {
 function isChartTypeAvailable(
   opt: ChartTypeOption,
   selectedFields: CatalogField[],
+  t: (k: string, opts?: Record<string, unknown>) => string,
 ): { available: boolean; reason?: string } {
   const count = selectedFields.length
   if (count === 0) return { available: true }
 
   if (opt.maxFields !== undefined && count > opt.maxFields) {
-    return { available: false, reason: `Máximo ${opt.maxFields} campo(s) para este tipo` }
+    return { available: false, reason: t('nucleo.dashboard.construtor.reason_max_campos', { count: opt.maxFields }) }
   }
   if (opt.minFields !== undefined && count < opt.minFields) {
-    return { available: false, reason: `Mínimo ${opt.minFields} campos para este tipo` }
+    return { available: false, reason: t('nucleo.dashboard.construtor.reason_min_campos', { count: opt.minFields }) }
   }
   if (opt.requiresSameUnit && hasMixedUnits(selectedFields)) {
-    return { available: false, reason: 'Todos os campos devem ter a mesma unidade' }
+    return { available: false, reason: t('nucleo.dashboard.construtor.reason_mesma_unidade') }
   }
   return { available: true }
 }
@@ -131,6 +139,8 @@ interface Step1Props {
 }
 
 function Step1Fields({ fields, selected, chartType, onToggle }: Step1Props) {
+  const { t } = useTranslation()
+  const CHART_OPTIONS = useMemo(() => buildChartOptions(t), [t])
   const [query, setQuery] = useState('')
 
   const selectedFields = useMemo(
@@ -164,12 +174,12 @@ function Step1Fields({ fields, selected, chartType, onToggle }: Step1Props) {
   } {
     const isSelected = selected.includes(field.key)
     if (isSelected) return { blocked: false }
-    if (selected.length >= MAX_FIELDS) return { blocked: true, reason: `Máximo ${MAX_FIELDS} campos` }
+    if (selected.length >= MAX_FIELDS) return { blocked: true, reason: t('nucleo.dashboard.construtor.bloqueio_max_campos', { count: MAX_FIELDS }) }
 
     // Verifica limite de tipos de unidade
     const fieldUnit = getFieldUnit(field)
     if (wouldExceedUnitLimit(currentUnitTypes, fieldUnit)) {
-      return { blocked: true, reason: `Já há ${MAX_UNIT_TYPES} tipos de unidade. Remova um campo antes.` }
+      return { blocked: true, reason: t('nucleo.dashboard.construtor.bloqueio_max_unidades', { count: MAX_UNIT_TYPES }) }
     }
 
     // Restrição de DISTRIBUTION: mesma unidade
@@ -177,7 +187,7 @@ function Step1Fields({ fields, selected, chartType, onToggle }: Step1Props) {
     if (chartOpt?.requiresSameUnit && selectedFields.length > 0) {
       const firstUnit = getFieldUnit(selectedFields[0])
       if (fieldUnit !== firstUnit) {
-        return { blocked: true, reason: 'Distribuição exige campos com a mesma unidade' }
+        return { blocked: true, reason: t('nucleo.dashboard.construtor.bloqueio_distribuicao_unidade') }
       }
     }
 
@@ -186,12 +196,12 @@ function Step1Fields({ fields, selected, chartType, onToggle }: Step1Props) {
 
   return (
     <div style={s1.wrap}>
-      <p style={s1.hint}>Selecione até {MAX_FIELDS} campos. Máximo 2 tipos de unidade (R$, # ou %).</p>
+      <p style={s1.hint}>{t('nucleo.dashboard.construtor.hint_selecione', { max: MAX_FIELDS })}</p>
 
       {mixedUnits && (
         <div style={s1.warningBox}>
           <Warning size={13} weight="fill" color="var(--warning)" />
-          <span>Campos com unidades diferentes usarão eixo Y duplo neste gráfico.</span>
+          <span>{t('nucleo.dashboard.construtor.warning_eixo_duplo')}</span>
         </div>
       )}
 
@@ -200,10 +210,10 @@ function Step1Fields({ fields, selected, chartType, onToggle }: Step1Props) {
         <input
           style={s1.searchInput}
           type="text"
-          placeholder="Buscar campo..."
+          placeholder={t('nucleo.dashboard.construtor.buscar_campo_placeholder')}
           value={query}
           onChange={e => setQuery(e.target.value)}
-          aria-label="Buscar campo"
+          aria-label={t('nucleo.dashboard.construtor.buscar_campo_aria')}
         />
       </div>
 
@@ -241,7 +251,7 @@ function Step1Fields({ fields, selected, chartType, onToggle }: Step1Props) {
           </div>
         ))}
         {filtered.length === 0 && (
-          <p style={s1.emptySearch}>Nenhum campo encontrado</p>
+          <p style={s1.emptySearch}>{t('nucleo.dashboard.construtor.nenhum_campo')}</p>
         )}
       </div>
     </div>
@@ -265,6 +275,8 @@ function Step2Config({
   fields, selectedKeys, fieldOps, period, title,
   onFieldOp, onPeriod, onTitle,
 }: Step2Props) {
+  const { t } = useTranslation()
+  const PERIOD_OPTIONS = useMemo(() => buildPeriodOptions(t), [t])
   const selectedFields = fields.filter(f => selectedKeys.includes(f.key))
 
   // Verifica se todas as operações são iguais e há só uma opção por campo → colapsar
@@ -286,15 +298,15 @@ function Step2Config({
 
   return (
     <div style={s2.wrap}>
-      <p style={s2.hint}>Configure o título, operação por campo e o período de análise.</p>
+      <p style={s2.hint}>{t('nucleo.dashboard.construtor.step2_hint')}</p>
 
       <div style={s2.formGroup}>
-        <label style={s2.label} htmlFor="qb-title">Título do widget</label>
+        <label style={s2.label} htmlFor="qb-title">{t('nucleo.dashboard.construtor.titulo_widget')}</label>
         <input
           id="qb-title"
           style={s2.input}
           type="text"
-          placeholder="Ex: Receita por Mês"
+          placeholder={t('nucleo.dashboard.construtor.titulo_widget_placeholder')}
           value={title}
           onChange={e => onTitle(e.target.value)}
           maxLength={80}
@@ -303,15 +315,15 @@ function Step2Config({
 
       {collapsed ? (
         <div style={s2.formGroup}>
-          <label style={s2.label}>Operação (todos os campos)</label>
+          <label style={s2.label}>{t('nucleo.dashboard.construtor.operacao_todos')}</label>
           <div style={s2.collapsedOp}>
             {selectedFields[0].aggregations[0]}
-            <span style={s2.collapsedNote}>— auto-preenchido (todos os campos têm a mesma operação)</span>
+            <span style={s2.collapsedNote}>{t('nucleo.dashboard.construtor.auto_preenchido_nota')}</span>
           </div>
         </div>
       ) : (
         <div style={s2.formGroup}>
-          <label style={s2.label}>Operação por campo</label>
+          <label style={s2.label}>{t('nucleo.dashboard.construtor.operacao_por_campo')}</label>
           <div style={s2.fieldOpList}>
             {selectedFields.map(field => {
               const avail = field.aggregations
@@ -342,7 +354,7 @@ function Step2Config({
       )}
 
       <div style={s2.formGroup}>
-        <label style={s2.label} htmlFor="qb-period">Período</label>
+        <label style={s2.label} htmlFor="qb-period">{t('nucleo.dashboard.construtor.periodo')}</label>
         <select
           id="qb-period"
           style={s2.select}
@@ -367,22 +379,24 @@ interface Step3Props {
 }
 
 function Step3Visualization({ chartType, selectedFields, onSelect }: Step3Props) {
+  const { t } = useTranslation()
+  const CHART_OPTIONS = useMemo(() => buildChartOptions(t), [t])
   const mixedUnits = hasMixedUnits(selectedFields)
 
   return (
     <div style={s3.wrap}>
-      <p style={s3.hint}>Escolha como os dados serão visualizados.</p>
+      <p style={s3.hint}>{t('nucleo.dashboard.construtor.step3_hint')}</p>
 
       {mixedUnits && (
         <div style={s3.dualAxisBadge}>
           <Warning size={12} weight="fill" color="var(--warning)" />
-          Eixo Y duplo será ativado (unidades incompatíveis)
+          {t('nucleo.dashboard.construtor.eixo_duplo_ativado')}
         </div>
       )}
 
       <div style={s3.chartGrid}>
         {CHART_OPTIONS.map(opt => {
-          const { available, reason } = isChartTypeAvailable(opt, selectedFields)
+          const { available, reason } = isChartTypeAvailable(opt, selectedFields, t)
           const isSelected = chartType === opt.type
           return (
             <button
@@ -421,6 +435,8 @@ export function DashboardConstrutorConsulta({
   onCancel,
   initialWidget,
 }: QueryBuilderProps) {
+  const { t } = useTranslation()
+  const PASSOS = useMemo(() => buildPassos(t), [t])
   const isEdit = !!initialWidget
 
   const [step,        setStep]       = useState<1 | 2 | 3>(1)
@@ -490,14 +506,14 @@ export function DashboardConstrutorConsulta({
 
   return (
     <ModalPassoPassoGlobal
-      titulo={isEdit ? 'Editar Widget' : 'Novo Widget'}
+      titulo={isEdit ? t('nucleo.dashboard.construtor.editar_widget') : t('nucleo.dashboard.construtor.novo_widget')}
       icone={<Gauge size={20} weight="duotone" />}
-      subtitulo="Configure os dados e a visualização do widget"
+      subtitulo={t('nucleo.dashboard.construtor.subtitulo_modal')}
       aberto={aberto}
       passos={PASSOS}
       passoAtual={step}
       podeAvancar={canAdvance()}
-      labelBotaoFinal="Salvar Widget"
+      labelBotaoFinal={t('nucleo.dashboard.construtor.salvar_widget')}
       onProximo={handleNext}
       onVoltar={() => step > 1 && setStep((step - 1) as 1 | 2 | 3)}
       onFechar={onCancel}

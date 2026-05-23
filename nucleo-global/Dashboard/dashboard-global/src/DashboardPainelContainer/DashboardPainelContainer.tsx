@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { DotsThreeVertical, PencilSimple, Trash, DownloadSimple, Warning, ArrowClockwise, DotsSixVertical } from '@phosphor-icons/react'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import type { DashboardWidgetConfig, WidgetResult } from '../tipos.js'
@@ -54,6 +55,7 @@ interface OptionsMenuProps {
 }
 
 function OptionsMenu({ onEdit, onRemove }: OptionsMenuProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -73,8 +75,8 @@ function OptionsMenu({ onEdit, onRemove }: OptionsMenuProps) {
       <button
         style={styles.menuBtn}
         onClick={() => setOpen(v => !v)}
-        aria-label="Opções do widget"
-        title="Opções"
+        aria-label={t('nucleo.dashboard.painel.opcoes_widget_aria')}
+        title={t('nucleo.dashboard.painel.opcoes')}
       >
         <DotsThreeVertical size={18} weight="bold" />
       </button>
@@ -88,7 +90,7 @@ function OptionsMenu({ onEdit, onRemove }: OptionsMenuProps) {
               role="menuitem"
             >
               <PencilSimple size={14} />
-              Editar
+              {t('nucleo.dashboard.painel.editar')}
             </button>
           )}
           <button
@@ -97,7 +99,7 @@ function OptionsMenu({ onEdit, onRemove }: OptionsMenuProps) {
             role="menuitem"
           >
             <DownloadSimple size={14} />
-            Exportar dados
+            {t('nucleo.dashboard.painel.exportar_dados')}
           </button>
           {onRemove && (
             <button
@@ -106,7 +108,7 @@ function OptionsMenu({ onEdit, onRemove }: OptionsMenuProps) {
               role="menuitem"
             >
               <Trash size={14} />
-              Remover
+              {t('nucleo.dashboard.painel.remover')}
             </button>
           )}
         </div>
@@ -132,6 +134,7 @@ export function DashboardPainelContainer({
   clickable = false,
   highlighted = false,
 }: WidgetContainerProps) {
+  const { t } = useTranslation()
   const isPartial = result?.partial === true
   const isCached = result?.cached === true
   const [hovered, setHovered] = useState(false)
@@ -164,7 +167,7 @@ export function DashboardPainelContainer({
         <div style={styles.titleArea}>
           {/* Ícone de arraste visível no modo edição */}
           {editMode && (
-            <span style={styles.dragHandleIcon} title="Arraste para reorganizar">
+            <span style={styles.dragHandleIcon} title={t('nucleo.dashboard.painel.arraste_reorganizar')}>
               <DotsSixVertical size={16} weight="bold" />
             </span>
           )}
@@ -173,14 +176,14 @@ export function DashboardPainelContainer({
 
           {/* Badges de estado */}
           {isPartial && (
-            <span style={styles.badgePartial} title="Alguns dados não puderam ser carregados">
+            <span style={styles.badgePartial} title={t('nucleo.dashboard.painel.dados_parciais_tooltip')}>
               <Warning size={11} weight="fill" />
-              Dados parciais
+              {t('nucleo.dashboard.painel.dados_parciais')}
             </span>
           )}
           {isCached && !isPartial && (
-            <span style={styles.badgeCached} title="Dados do cache">
-              Cache
+            <span style={styles.badgeCached} title={t('nucleo.dashboard.painel.dados_cache_tooltip')}>
+              {t('nucleo.dashboard.painel.cache')}
             </span>
           )}
         </div>
@@ -202,10 +205,10 @@ export function DashboardPainelContainer({
             <button
               style={styles.retryBtn}
               onClick={() => window.location.reload()}
-              aria-label="Tentar novamente"
+              aria-label={t('nucleo.dashboard.painel.tentar_novamente')}
             >
               <ArrowClockwise size={13} />
-              Tentar novamente
+              {t('nucleo.dashboard.painel.tentar_novamente')}
             </button>
           </div>
         )}

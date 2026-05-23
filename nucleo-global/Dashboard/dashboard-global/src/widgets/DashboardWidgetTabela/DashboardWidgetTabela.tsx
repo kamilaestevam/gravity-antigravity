@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import type { WidgetDataValue } from '../../tipos.js'
 
 export interface TableWidgetProps {
@@ -77,6 +78,7 @@ function SimpleTable({
 }
 
 export function DashboardWidgetTabela({ data, fieldKey, columns }: TableWidgetProps) {
+  const { t } = useTranslation()
   const raw = data[fieldKey]
 
   if (isDistribution(raw)) {
@@ -87,11 +89,11 @@ export function DashboardWidgetTabela({ data, fieldKey, columns }: TableWidgetPr
     return (
       <SimpleTable
         colunas={[
-          { key: 'label', label: 'Categoria' },
-          { key: 'valor', label: 'Valor' },
+          { key: 'label', label: t('nucleo.dashboard.widgets.tabela.categoria') },
+          { key: 'valor', label: t('nucleo.dashboard.widgets.tabela.valor') },
         ]}
         rows={rows}
-        mensagemVazio="Sem dados para exibir"
+        mensagemVazio={t('nucleo.dashboard.widgets.tabela.sem_dados')}
       />
     )
   }
@@ -112,14 +114,14 @@ export function DashboardWidgetTabela({ data, fieldKey, columns }: TableWidgetPr
       <SimpleTable
         colunas={colunas}
         rows={rows}
-        mensagemVazio="Sem dados para exibir"
+        mensagemVazio={t('nucleo.dashboard.widgets.tabela.sem_dados')}
       />
     )
   }
 
   return (
     <div style={styles.empty}>
-      <span style={styles.emptyText}>Dados insuficientes</span>
+      <span style={styles.emptyText}>{t('nucleo.dashboard.widgets.dados_insuficientes')}</span>
     </div>
   )
 }

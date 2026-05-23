@@ -6619,5 +6619,127 @@
       "ATIVO": "Activo",
       "INATIVO": "Inactivo"
     }
+  },
+  "nucleo": {
+    "dashboard": {
+      "kpi": {
+        "vs_periodo_anterior": "vs período anterior"
+      },
+      "widgets": {
+        "dados_insuficientes": "Datos insuficientes",
+        "tabela": {
+          "categoria": "Categoría",
+          "valor": "Valor",
+          "sem_dados": "Sin datos para mostrar"
+        },
+        "distribuicao": {
+          "sem_dados": "Sin datos para distribuir",
+          "pct_do_total": "{{pct}}% del total"
+        }
+      },
+      "painel": {
+        "opcoes_widget_aria": "Opciones del widget",
+        "opcoes": "Opciones",
+        "editar": "Editar",
+        "exportar_dados": "Exportar datos",
+        "remover": "Eliminar",
+        "arraste_reorganizar": "Arrastre para reorganizar",
+        "dados_parciais": "Datos parciales",
+        "dados_parciais_tooltip": "Algunos datos no pudieron ser cargados",
+        "cache": "Caché",
+        "dados_cache_tooltip": "Datos de la caché",
+        "tentar_novamente": "Intentar de nuevo"
+      },
+      "chart": {
+        "linha": "Línea",
+        "area": "Área",
+        "barras": "Barras",
+        "barras_h": "Barras H.",
+        "distribuicao": "Distribución",
+        "donut": "Donut",
+        "kpi": "KPI",
+        "funil": "Embudo",
+        "tabela": "Tabla",
+        "gauge": "Gauge"
+      },
+      "periodo": {
+        "7_dias": "7 días",
+        "30_dias": "30 días",
+        "90_dias": "90 días",
+        "12_meses": "12 meses",
+        "mes_atual": "Mes actual",
+        "ano_atual": "Año actual",
+        "ultimos_7_dias": "Últimos 7 días",
+        "ultimos_30_dias": "Últimos 30 días",
+        "ultimos_90_dias": "Últimos 90 días",
+        "ultimos_12_meses": "Últimos 12 meses",
+        "personalizado": "Período personalizado"
+      },
+      "modal_editar": {
+        "titulo": "Editar Widget",
+        "fechar": "Cerrar",
+        "label_titulo": "Título",
+        "tipo_grafico": "Tipo de gráfico",
+        "periodo": "Período",
+        "info_tipo": "Tipo",
+        "info_campos": "Campo(s)",
+        "cancelar": "Cancelar",
+        "salvar": "Guardar"
+      },
+      "sugestoes": {
+        "confianca_alta": "Alta",
+        "confianca_media": "Media",
+        "confianca_baixa": "Baja",
+        "titulo": "Sugerencias para tu dashboard",
+        "fechar": "Cerrar",
+        "hint": "Generadas automáticamente a partir de las métricas del producto.",
+        "adicionar": "Añadir",
+        "metricas_derivadas": "Métricas Derivadas",
+        "nao_encontrou": "¿No encontraste lo que necesitas?",
+        "criar_widget_zero": "Crear widget desde cero"
+      },
+      "barra": {
+        "periodo": "Período",
+        "todos_status": "Todos los estados",
+        "todos": "Todos",
+        "filtros_ativos": "Filtros activos:",
+        "limpar": "Limpiar",
+        "adicionar_dashboard": "Añadir Dashboard",
+        "arraste_widgets_tooltip": "Arrastra y reorganiza los widgets",
+        "concluir": "Concluir",
+        "reorganizar": "Reorganizar",
+        "hint_reorganizar_pre": "Arrastra los widgets para reorganizar. Haz clic en",
+        "hint_reorganizar_pos": "para guardar."
+      },
+      "construtor": {
+        "passo_campos": "Campos",
+        "passo_operacao": "Operación",
+        "passo_visualizar": "Visualizar",
+        "reason_max_campos": "Máximo {{count}} campo(s) para este tipo",
+        "reason_min_campos": "Mínimo {{count}} campos para este tipo",
+        "reason_mesma_unidade": "Todos los campos deben tener la misma unidad",
+        "bloqueio_max_campos": "Máximo {{count}} campos",
+        "bloqueio_max_unidades": "Ya hay {{count}} tipos de unidad. Elimine un campo antes.",
+        "bloqueio_distribuicao_unidade": "La distribución requiere campos con la misma unidad",
+        "hint_selecione": "Seleccione hasta {{max}} campos. Máximo 2 tipos de unidad (R$, # o %).",
+        "warning_eixo_duplo": "Los campos con unidades diferentes usarán un eje Y doble en este gráfico.",
+        "buscar_campo_placeholder": "Buscar campo...",
+        "buscar_campo_aria": "Buscar campo",
+        "nenhum_campo": "Ningún campo encontrado",
+        "step2_hint": "Configure el título, la operación por campo y el período de análisis.",
+        "titulo_widget": "Título del widget",
+        "titulo_widget_placeholder": "Ej: Ingresos por Mes",
+        "operacao_todos": "Operación (todos los campos)",
+        "auto_preenchido_nota": "— auto-rellenado (todos los campos tienen la misma operación)",
+        "operacao_por_campo": "Operación por campo",
+        "periodo": "Período",
+        "step3_hint": "Elija cómo se visualizarán los datos.",
+        "eixo_duplo_ativado": "El eje Y doble se activará (unidades incompatibles)",
+        "editar_widget": "Editar Widget",
+        "novo_widget": "Nuevo Widget",
+        "subtitulo_modal": "Configure los datos y la visualización del widget",
+        "salvar_widget": "Guardar Widget"
+      }
+    }
   }
 }

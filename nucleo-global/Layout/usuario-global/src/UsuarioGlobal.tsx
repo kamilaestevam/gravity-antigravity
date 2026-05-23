@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CaretDown, Gear, Sliders, Storefront, Moon, Sun, Sparkle, SignOut, Crown } from '@phosphor-icons/react'
+import { CaretDown, Gear, Sliders, Storefront, Moon, Sun, Sparkle, SignOut, Crown, Key, ArrowUUpLeft } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './usuario-global.css'
 
@@ -21,6 +21,22 @@ export interface UsuarioGlobalProps {
   onNavigateConfigurador?: () => void
   /** Modo compacto — exibe apenas o avatar no trigger, sem nome/role/caret */
   compact?: boolean
+  /**
+   * Quando `true`, renderiza item 🔑 "Trocar Organização" no menu (logo abaixo
+   * de "Acesso ao Admin"). Apenas SUPER_ADMIN/ADMIN — caller calcula via
+   * `useOrganizacaoOverride().podeAtivarOverride`.
+   */
+  temAcessoTrocarOrganizacao?: boolean
+  /**
+   * Quando `true`, indica que admin já está visualizando uma org diferente da
+   * própria. O item de menu vira "Voltar para Gravity" (estilo dourado de
+   * destaque). Calculado via `useOrganizacaoOverride().overrideAtivo`.
+   */
+  organizacaoOverrideAtiva?: boolean
+  /** Handler do item "Trocar Organização" — abre `ModalTrocarOrganizacao`. */
+  aoTrocarOrganizacao?: () => void
+  /** Handler do item "Voltar para Gravity" — chama `limparOverride()`. */
+  aoVoltarParaGravity?: () => void
 }
 
 export function UsuarioGlobal({
@@ -39,6 +55,10 @@ export function UsuarioGlobal({
   onNavigateAdmin,
   onNavigateConfigurador,
   compact = false,
+  temAcessoTrocarOrganizacao,
+  organizacaoOverrideAtiva,
+  aoTrocarOrganizacao,
+  aoVoltarParaGravity,
 }: UsuarioGlobalProps) {
   const { t } = useTranslation()
   const [isProfileOpen, setIsProfileOpen] = useState(false)
@@ -152,6 +172,47 @@ export function UsuarioGlobal({
                   >
                     <Crown weight="duotone" size={16} /> {t('usuario.acesso_admin')}
                   </button>
+                )}
+
+                {/*
+                  Item "Trocar Organização" / "Voltar para Gravity" —
+                  Pendência #4 (Org switcher admin).
+
+                  Renderizado SÓ para admin Gravity (`temAcessoTrocarOrganizacao`,
+                  calculado em `useOrganizacaoOverride().podeAtivarOverride`).
+                  Quando override JÁ ativo, vira o atalho de retorno (estilo
+                  dourado de destaque + ícone de retorno). Quando inativo,
+                  ícone de chave + texto neutro.
+
+                  Defesa cliente: callbacks sem efeito se props ausentes —
+                  backend é a defesa real (middleware do SDK).
+                */}
+                {temAcessoTrocarOrganizacao && (
+                  organizacaoOverrideAtiva ? (
+                    <button
+                      className="ws-profile-item ws-profile-item--admin"
+                      type="button"
+                      onClick={() => {
+                        if (aoVoltarParaGravity) aoVoltarParaGravity()
+                        setIsProfileOpen(false)
+                      }}
+                    >
+                      <ArrowUUpLeft weight="duotone" size={16} />
+                      {t('usuario.voltar_para_gravity', 'Voltar para Gravity')}
+                    </button>
+                  ) : (
+                    <button
+                      className="ws-profile-item ws-profile-item--trocar-organizacao"
+                      type="button"
+                      onClick={() => {
+                        if (aoTrocarOrganizacao) aoTrocarOrganizacao()
+                        setIsProfileOpen(false)
+                      }}
+                    >
+                      <Key weight="duotone" size={16} />
+                      {t('usuario.trocar_organizacao', 'Trocar Organização')}
+                    </button>
+                  )
                 )}
               </>
             )}

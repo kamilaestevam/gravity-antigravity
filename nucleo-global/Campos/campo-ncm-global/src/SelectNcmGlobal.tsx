@@ -57,7 +57,7 @@ export function SelectNcmGlobal({
   obrigatorio = false,
   disabled    = false,
   hint,
-  baseUrl     = '/api/v1/ncm',
+  baseUrl     = '/api/v1/cadastros/ncm',
   className,
 }: NcmSelectGlobalProps) {
   const id                       = useId()

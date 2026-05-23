@@ -131,6 +131,63 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
+    // ── Mandamento 04 (LIMBO) + database-governance Regra de Ouro ──────────────
+    // SUPER_ADMIN, ADMIN e MASTER têm acesso global a TODOS os workspaces da
+    // organização ATIVA, SEM precisar de vínculo em UsuarioWorkspace:
+    //   - SUPER_ADMIN / ADMIN: equipe interna Gravity (Mandamento 04 LIMBO).
+    //   - MASTER: dono da organização do cliente — a `database-governance`
+    //     Regra de Ouro explicita "Master/Super Admin são ignorados (acesso
+    //     global automático)".
+    //
+    // Por isso a lista de workspaces destes três papéis NÃO pode sair de
+    // `memberships` (ficaria vazia, quebrando o seletor de workspace no front e
+    // derrubando toda rota autenticada do produto em 503). É buscada direto da
+    // tabela Workspace, filtrada por `id_organizacao` — o Configurador é
+    // single-schema `public`, então esse filtro é OBRIGATÓRIO (isolamento).
+    //
+    // O campo `tipo_usuario` de cada item da lista recebe 'MASTER': o usuário
+    // tem acesso nível-master em qualquer workspace. Isto NÃO rebaixa nem
+    // altera o `tipo_usuario` GLOBAL do usuário (que continua
+    // SUPER_ADMIN/ADMIN/MASTER) — é apenas o "papel dentro daquele workspace"
+    // no payload do /me.
+    // Usuários PADRAO/FORNECEDOR seguem via `memberships`.
+    const temAcessoGlobalAosWorkspaces =
+      usuario.tipo_usuario === 'SUPER_ADMIN' ||
+      usuario.tipo_usuario === 'ADMIN' ||
+      usuario.tipo_usuario === 'MASTER'
+
+    let workspacesResposta
+    if (temAcessoGlobalAosWorkspaces) {
+      const workspacesDaOrg = await prisma.workspace.findMany({
+        where: { id_organizacao: usuario.id_organizacao, status_workspace: 'ATIVO' },
+        select: {
+          id_workspace: true,
+          nome_workspace: true,
+          status_workspace: true,
+          company_products: {
+            where: { ativo_produto_gravity_workspace: true },
+            select: { id_produto_gravity: true },
+          },
+        },
+        orderBy: { nome_workspace: 'asc' },
+      })
+      workspacesResposta = workspacesDaOrg.map((w) => ({
+        id: w.id_workspace,
+        nome_workspace: w.nome_workspace,
+        status: w.status_workspace,
+        tipo_usuario: 'MASTER' as const,
+        produtos: w.company_products.map((p) => p.id_produto_gravity),
+      }))
+    } else {
+      workspacesResposta = usuario.memberships.map((m) => ({
+        id: m.company.id_workspace,
+        nome_workspace: m.company.nome_workspace,
+        status: m.company.status_workspace,
+        tipo_usuario: m.tipo_usuario_workspace,
+        produtos: m.company.company_products.map((p) => p.id_produto_gravity),
+      }))
+    }
+
     res.json({
       usuario: {
         id_usuario: usuario.id_usuario,
@@ -150,13 +207,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
             hospeda_colaboradores_gravity: usuario.tenant.hospeda_colaboradores_gravity,
           }
         : null,
-      workspaces: usuario.memberships.map((m) => ({
-        id: m.company.id_workspace,
-        nome_workspace: m.company.nome_workspace,
-        status: m.company.status_workspace,
-        tipo_usuario: m.tipo_usuario_workspace,
-        produtos: m.company.company_products.map((p) => p.id_produto_gravity),
-      })),
+      workspaces: workspacesResposta,
     })
   } catch (err) {
     next(err)

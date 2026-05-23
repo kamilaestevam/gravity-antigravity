@@ -13,7 +13,7 @@ import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
 
 const NovaCotacao = React.lazy(() => import('./NovaCotacao'))
-import CotacoesKanban from './CotacoesKanban'
+// CotacoesKanban removido — arquivo nao commitado (bid-frete descontinuado)
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -772,11 +772,7 @@ export default function Cotacoes() {
           />
         </div>
       ) : (
-        <CotacoesKanban
-          cotacoes={cotacoesFiltradas}
-          carregando={carregando}
-          onRefresh={carregar}
-        />
+        null /* CotacoesKanban removido — arquivo nao commitado (bid-frete descontinuado) */
       )}
 
       <style>{`

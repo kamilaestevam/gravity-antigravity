@@ -131,7 +131,7 @@ const CAMPOS_PESOS_PEDIDO = [
 
 const CAMPOS_PESOS_ITEM = [
   'peso_liquido_unitario_item', 'peso_bruto_unitario_item',
-  'cubagem_unitaria_item', 'tipo_embalagem_item', 'quantidade_volumes_item',
+  'cubagem_unitaria_item',
 ] as const
 
 const CAMPOS_DESCRICOES_ITEM = [

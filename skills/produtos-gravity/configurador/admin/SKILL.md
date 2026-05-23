@@ -378,3 +378,44 @@ A Opção A (tab "Empresas e Parceiros" dentro de `OrganizacaoDetalheAdmin`, vis
 
 ### Skill relacionada
 - `skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md` (seção "Exceções permitidas") — autorização da rota Cadastros sem `extrairIdOrganizacao`.
+
+---
+
+## Override de Organização Ativa (Admin Gravity)
+
+Feature exclusiva de SUPER_ADMIN e ADMIN: ativar 🔑 "Trocar Organização" no menu do avatar permite visualizar **qualquer organização ativa** da plataforma como se fosse Master dela, dentro da mesma sessão. Documentação técnica completa: [documentos-tecnicos/arquitetura/organizacao-override-admin.md](../../../../documentos-tecnicos/arquitetura/organizacao-override-admin.md).
+
+### Como funciona resumidamente
+1. Admin clica 🔑 no menu do avatar (item disponível só quando `tipo_usuario ∈ {SUPER_ADMIN, ADMIN}`).
+2. Modal lista orgs ATIVAS via `GET /api/v1/admin/organizacoes`. Admin escolhe.
+3. `useOrganizacaoOverride().definirOverride({ id, nome })` grava em `ShellStore` + `localStorage` e navega para `/hub`.
+4. Todo `fetch` subsequente injeta `x-organizacao-override: <id>` via `injetarHeaderOverride()`.
+5. Middleware do SDK valida ator (JWT do Clerk), valida org alvo (Configurador), troca `idOrganizacao` + `nomeSchema`. Admin opera como Master daquela org até "Voltar para Gravity".
+
+### Marca visual obrigatória durante override
+- Banner âmbar fixo no topo (`BannerOrganizacaoOverride`).
+- Borda dourada inset ao redor do shell (classe `.layout--override-ativo`).
+- Item de menu vira "Voltar para Gravity" (estilo dourado).
+
+### Audit log persistente (obrigatório)
+Cada troca aceita pelo middleware dispara `POST /api/v1/internal/admin/audit-organizacao-override` no Configurador. Grava 1 row em `AuditLogAdmin` com:
+- `acao = 'admin.organizacao_override.trocar'`
+- `recurso = 'organizacao'`
+- `filtros = { id_organizacao_origem, id_organizacao_destino, cross_org: true }`
+- `id_usuario`, `tipo_usuario`, `ip_origem`, `correlation_id`
+
+Fire-and-forget no SDK: falha do pipeline NÃO bloqueia a troca, mas é logada via `getLogger().warn()` (Mand. 08 — log alto sem derrubar a feature).
+
+### Limitações conhecidas
+- **Produtos legados sem SDK** (bid-frete, bid-cambio, bid-frete-internacional, simula-custo) usam `x-internal-key` + `x-id-organizacao` direto fora do middleware. Override é no-op neles até migrarem para `withOrganizacao`.
+- **Workers / CRON** não recebem override (não há header HTTP). Background jobs continuam usando `withOrganizacaoContext(idOrganizacao, ...)` com a org concreta passada na tarefa.
+
+### Anti-padrões proibidos
+- ❌ Confiar no header sem validar JWT do Clerk.
+- ❌ Persistir override fora do `localStorage` (cookies vazariam para subdomain).
+- ❌ Audit log síncrono (bloqueia request crítica).
+- ❌ Cache cruzado entre `id_organizacao` original e alvo.
+
+### Skills relacionadas
+- `skills/governanca/lei/sdk-resolvedor-organizacao/SKILL.md` — contrato do middleware.
+- `skills/governanca/convencao-tecnica/observabilidade-minima/SKILL.md` — `AuditLogAdmin` é uma das fontes obrigatórias de log estruturado.

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import type { ShellState, CurrentUser, Notification, Theme, AllowedProduct, AvisoShell, MeStatus, WorkspaceShell, OrganizacaoShell } from './types'
+import type { ShellState, CurrentUser, Notification, Theme, AllowedProduct, AvisoShell, MeStatus, WorkspaceShell, OrganizacaoShell, OrganizacaoOverride } from './types'
 
 // Gera ID único para cada notificação
 function generateId(): string {
@@ -39,6 +39,7 @@ export const useShellStore = create<ShellState>()(
       avisos: [],
       linkContextual: null,
       meStatus: 'idle' as MeStatus,
+      organizacaoOverride: null as OrganizacaoOverride | null,
 
       // ─── Sidebar ──────────────────────────────────────────────────────────
       toggleSidebar: () =>
@@ -74,7 +75,19 @@ export const useShellStore = create<ShellState>()(
         set({ currentUser: user }),
 
       clearCurrentUser: () =>
-        set({ currentUser: DEFAULT_USER, workspaces: [], idWorkspaceAtivo: null, organizacoes: [], allowedProducts: [], productsLoaded: false, meStatus: 'idle' }),
+        set({
+          currentUser: DEFAULT_USER,
+          workspaces: [],
+          idWorkspaceAtivo: null,
+          organizacoes: [],
+          allowedProducts: [],
+          productsLoaded: false,
+          meStatus: 'idle',
+          // Override de admin NUNCA persiste entre sessões — limpa no logout.
+          // Evita que admin saia e o próximo usuário (possivelmente outro tipo)
+          // entre vendo dados da org alvo do admin anterior.
+          organizacaoOverride: null,
+        }),
 
       setWorkspaces: (workspaces: WorkspaceShell[]) =>
         set({ workspaces }),
@@ -166,15 +179,32 @@ export const useShellStore = create<ShellState>()(
 
       setMeStatus: (status: MeStatus) =>
         set({ meStatus: status }),
+
+      // ─── Override de organização (admin Gravity) ──────────────────────────
+      // Action é permissive — caller (`useOrganizacaoOverride`) é responsável
+      // por validar que `currentUser.tipoUsuario` é SUPER_ADMIN/ADMIN antes
+      // de chamar. Backend (middleware do SDK) é fonte da verdade — se um
+      // não-admin de alguma forma chamar isso e o header for enviado, o
+      // backend rejeita com 403 OVERRIDE_NAO_AUTORIZADO.
+      definirOrganizacaoOverride: (override: OrganizacaoOverride) =>
+        set({ organizacaoOverride: override }),
+
+      limparOrganizacaoOverride: () =>
+        set({ organizacaoOverride: null }),
     }),
     {
       name: 'gravity-shell-state',
       storage: createJSONStorage(() => localStorage),
-      // Persiste apenas tema e sidebar — nunca dados sensíveis
+      // Persiste apenas tema, sidebar e override de admin — nunca dados sensíveis.
+      // O override é considerado seguro persistir porque:
+      //   (a) o backend valida o tipo_usuario do JWT a cada request, e
+      //   (b) `clearCurrentUser` (logout) zera o override antes do próximo login,
+      //   (c) sem JWT válido de admin, o header é silenciosamente ignorado no servidor.
       partialize: (state) => ({
         sidebarOpen: state.sidebarOpen,
         currentTheme: state.currentTheme,
         tooltipsDisabled: state.tooltipsDisabled,
+        organizacaoOverride: state.organizacaoOverride,
       }),
       // Reaplica a classe no body ao hidratar do localStorage (ex: refresh de página)
       onRehydrateStorage: () => (state) => {

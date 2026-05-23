@@ -12,6 +12,7 @@ import { ToastContainer } from './ToastContainer'
 import { useShellStore } from './store'
 import { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
 import { useMeSync } from './hooks/useMeSync'
+import { BannerOrganizacaoOverride } from './BannerOrganizacaoOverride'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -41,7 +42,7 @@ export function Layout({
   tenantPlan
 }: LayoutProps) {
   const { t, i18n } = useTranslation()
-  const { sidebarOpen, currentTheme, tooltipsDisabled, currentUser, meStatus, workspaces: wsStore, idWorkspaceAtivo } = useShellStore()
+  const { sidebarOpen, currentTheme, tooltipsDisabled, currentUser, meStatus, workspaces: wsStore, idWorkspaceAtivo, organizacaoOverride } = useShellStore()
   const location = useLocation()
   
   // Detecção de contexto de navegação
@@ -111,8 +112,14 @@ export function Layout({
   const wsAtivoShell = wsStore.find(ws => ws.id === idWorkspaceAtivo)
   const nomeWsAtivo = wsAtivoShell?.nome_workspace ?? currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? t('shell.organizacao_padrao')
 
+  // Pendência #4 — modo override admin: classe extra ativa banner âmbar +
+  // borda dourada inset no shell-layout (vide banner-organizacao-override.css).
+  const overrideAtivo = organizacaoOverride !== null
+  const classeOverride = overrideAtivo ? ' layout--override-ativo' : ''
+
   return (
-    <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
+    <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}${classeOverride}`}>
+      {overrideAtivo && <BannerOrganizacaoOverride />}
       {isProcessoRoute ? (
         <ContextualSidebar
           tenantName={tenantName ?? nomeWsAtivo}

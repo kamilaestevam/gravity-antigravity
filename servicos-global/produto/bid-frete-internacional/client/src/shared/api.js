@@ -30,9 +30,10 @@ async function handleResponse(res) {
     return res.json();
 }
 // ─── Bidirectional Mappers ──────────────────────────────────────────────────
-export function mapFornecedorFromServer(raw) {
-    if (!raw)
-        return raw;
+export function mapFornecedorFromServer(rawUnknown) {
+    if (!rawUnknown)
+        return rawUnknown;
+    const raw = rawUnknown;
     return {
         id: raw.id_fornecedor_bid_frete_internacional ?? raw.id,
         id_organizacao: raw.id_organizacao,
@@ -58,9 +59,10 @@ export function mapFornecedorFromServer(raw) {
         updated_at: raw.data_atualizacao_fornecedor_bid_frete_internacional ?? raw.updated_at,
     };
 }
-export function mapBidResponseFromServer(raw) {
-    if (!raw)
-        return raw;
+export function mapBidResponseFromServer(rawUnknown) {
+    if (!rawUnknown)
+        return rawUnknown;
+    const raw = rawUnknown;
     return {
         id: raw.id_proposta_bid_frete_internacional ?? raw.id,
         id_organizacao: raw.id_organizacao,
@@ -89,9 +91,10 @@ export function mapBidResponseFromServer(raw) {
         created_at: raw.data_criacao_proposta_bid_frete_internacional ?? raw.created_at,
     };
 }
-export function mapBidRequestFromServer(raw) {
-    if (!raw)
-        return raw;
+export function mapBidRequestFromServer(rawUnknown) {
+    if (!rawUnknown)
+        return rawUnknown;
+    const raw = rawUnknown;
     return {
         id: raw.id_pedido_cotacao_bid_frete_internacional ?? raw.id,
         id_organizacao: raw.id_organizacao,
@@ -109,9 +112,10 @@ export function mapBidRequestFromServer(raw) {
         response: raw.proposta ? mapBidResponseFromServer(raw.proposta) : undefined,
     };
 }
-export function mapCotacaoFromServer(raw) {
-    if (!raw)
-        return raw;
+export function mapCotacaoFromServer(rawUnknown) {
+    if (!rawUnknown)
+        return rawUnknown;
+    const raw = rawUnknown;
     const propostas = raw.propostas || raw.bid_responses || [];
     const approvedProposta = propostas.find((p) => p.status_proposta_bid_frete_internacional === 'APROVADA' || p.aprovada === true);
     return {

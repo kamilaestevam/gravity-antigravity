@@ -23,7 +23,24 @@ import { CacheOrganizacao } from './cache.js';
 import { createConfiguradorClient } from './configurador-client.js';
 import { AppError } from './errors.js';
 import { getLogger, recordSpan } from './observability.js';
-import { isValidSchemaName } from './schema-name.js';
+import { buildSchemaName, isValidSchemaName } from './schema-name.js';
+
+// ---------------------------------------------------------------------------
+// Override de organização (admin Gravity)
+// ---------------------------------------------------------------------------
+
+/**
+ * CUID v1 (Prisma `@default(cuid())`): `c` + 24 chars [a-z0-9], 25 chars total.
+ * Mesmo formato usado em `id_organizacao` no Configurador.
+ */
+const OrganizacaoOverrideHeaderSchema = z
+  .string()
+  .regex(/^c[a-z0-9]{24}$/, 'id_organizacao inválido (esperado CUID)');
+
+const TIPOS_ADMIN_OVERRIDE = new Set(['SUPER_ADMIN', 'ADMIN']);
+
+/** Header HTTP customizado para override admin. kebab-case PT-BR (DDD). */
+const HEADER_OVERRIDE = 'x-organizacao-override';
 
 // ---------------------------------------------------------------------------
 // Validação da config no boot (falha rápido, não em runtime)
@@ -140,6 +157,106 @@ export function resolverOrganizacao(config: ConfigResolverOrganizacao): RequestH
         urlBanco: urlBancoBoot,
         prismaInterno: prismaClienteInjetado,
       };
+
+      // Passo 8.5 — Override de organização (admin Gravity)
+      // ------------------------------------------------------------------
+      // SUPER_ADMIN/ADMIN podem visualizar qualquer organização da plataforma
+      // via header `x-organizacao-override`. O override:
+      //   - SÓ é aceito se ator é SUPER_ADMIN ou ADMIN (Mandamento 04 + database-
+      //     governance Regra de Ouro). Não-admin com header → 403 ruidoso.
+      //   - Substitui `idOrganizacao` + `nomeSchema` no contexto, MANTÉM
+      //     `tipoUsuario`, `idUsuario` e `tiposUsuario` (admin continua admin).
+      //   - Preserva `idOrganizacaoOriginal` para audit log distinguir "ator"
+      //     de "alvo".
+      //   - Valida org alvo via `resolveOrganizacaoById` (reusa endpoint
+      //     existente `/api/v1/internal/organizacoes/:id`). Org INATIVA ou
+      //     inexistente → 403/404.
+      // ------------------------------------------------------------------
+      const overrideHeaderRaw = req.headers[HEADER_OVERRIDE];
+      if (typeof overrideHeaderRaw === 'string' && overrideHeaderRaw.length > 0) {
+        const ehAdmin = ctx.tiposUsuario.some((t) => TIPOS_ADMIN_OVERRIDE.has(t));
+        if (!ehAdmin) {
+          log.warn(
+            {
+              idUsuario,
+              tiposUsuario: ctx.tiposUsuario,
+              idOrganizacaoOverrideTentado: overrideHeaderRaw,
+              idCorrelacao,
+            },
+            'Tentativa de override de organização por usuário não-admin — bloqueada',
+          );
+          throw new AppError(
+            'Override de organização só permitido para SUPER_ADMIN/ADMIN',
+            403,
+            'OVERRIDE_NAO_AUTORIZADO',
+          );
+        }
+
+        const parsedOverride = OrganizacaoOverrideHeaderSchema.safeParse(overrideHeaderRaw);
+        if (!parsedOverride.success) {
+          throw new AppError(
+            `Header ${HEADER_OVERRIDE} com formato inválido`,
+            400,
+            'OVERRIDE_FORMATO_INVALIDO',
+          );
+        }
+
+        const idOrganizacaoAlvo = parsedOverride.data;
+
+        // Idempotência: se admin tentou "trocar" para a própria org, pula.
+        if (idOrganizacaoAlvo !== ctx.idOrganizacao) {
+          let ctxAlvo;
+          try {
+            ctxAlvo = await configuradorClient.resolveOrganizacaoById(
+              idOrganizacaoAlvo,
+              idCorrelacao,
+            );
+          } catch (err) {
+            // resolveOrganizacaoById já lança AppError com 404/403/503 conforme caso.
+            log.warn(
+              {
+                idUsuario,
+                idOrganizacaoOverrideTentado: idOrganizacaoAlvo,
+                err: err instanceof Error ? err.message : String(err),
+                idCorrelacao,
+              },
+              'Override de organização rejeitado pelo Configurador',
+            );
+            throw err;
+          }
+
+          const nomeSchemaAlvo = buildSchemaName(idOrganizacaoAlvo);
+          if (!isValidSchemaName(nomeSchemaAlvo) || nomeSchemaAlvo !== ctxAlvo.nomeSchema) {
+            throw new AppError(
+              'nomeSchema do override divergiu do esperado (possível corrupção)',
+              500,
+              'OVERRIDE_SCHEMA_MISMATCH',
+            );
+          }
+
+          log.info(
+            {
+              idUsuario,
+              tiposUsuario: ctx.tiposUsuario,
+              idOrganizacaoOriginal: ctx.idOrganizacao,
+              idOrganizacaoAlvo,
+              nomeSchemaAlvo,
+              idCorrelacao,
+            },
+            'Override de organização aceito (admin Gravity)',
+          );
+
+          ctx = {
+            ...ctx,
+            idOrganizacaoOriginal: ctx.idOrganizacao,
+            idOrganizacao: idOrganizacaoAlvo,
+            nomeSchema: nomeSchemaAlvo,
+            // Sob override, descarta workspace ativo do contexto original — o
+            // admin escolherá um novo no /hub da org alvo.
+            idWorkspace: undefined,
+          };
+        }
+      }
 
       // Passo 7 — Defense-in-depth: revalida nomeSchema
       if (!isValidSchemaName(ctx.nomeSchema)) {

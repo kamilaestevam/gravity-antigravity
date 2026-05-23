@@ -15,6 +15,7 @@ export { ProductSidebar }  from './ProductSidebar'
 export { Header }          from './Header'
 export { Navigation }      from './Navigation'
 export { ToastContainer }  from './ToastContainer'
+export { BannerOrganizacaoOverride } from './BannerOrganizacaoOverride'
 
 // Store e tipos
 export { useShellStore }   from './store'
@@ -27,6 +28,8 @@ export type { KnownEntity } from './entityLinkFactory'
 export { useUserPreferences } from './hooks/useUserPreferences'
 export { useMeSync }           from './hooks/useMeSync'
 export { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
+export { useOrganizacaoOverride } from './hooks/useOrganizacaoOverride'
+export type { UsoOrganizacaoOverride } from './hooks/useOrganizacaoOverride'
 export type {
   ShellState,
   CurrentUser,
@@ -36,4 +39,5 @@ export type {
   Theme,
   WorkspaceShell,
   OrganizacaoShell,
+  OrganizacaoOverride,
 } from './store'

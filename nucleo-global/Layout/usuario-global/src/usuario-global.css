@@ -309,6 +309,12 @@
   background: rgba(129, 140, 248, 0.05);
 }
 
+/* Item "Trocar Organização" — Pendência #4 */
+.ws-profile-item--trocar-organizacao {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.05);
+}
+
 /* ── Light theme ─────────────────────────────────────────────────────────── */
 body.light-theme .ws-global-user {
   background: rgba(255, 255, 255, 0.88) !important;
@@ -338,6 +344,11 @@ body.light-theme .ws-profile-item--admin {
 body.light-theme .ws-profile-item--configurador {
   color: #4f46e5;
   background: rgba(79, 70, 229, 0.05);
+}
+
+body.light-theme .ws-profile-item--trocar-organizacao {
+  color: #b45309;
+  background: rgba(180, 83, 9, 0.05);
 }
 
 body.light-theme .ws-profile-item--danger:hover:not(:disabled) {

@@ -1,0 +1,113 @@
+/* ─── Banner de override de organização (admin) ──────────────────────────── */
+/* Pendência #4. Faixa âmbar fixa no topo quando admin Gravity visualiza
+   como outra organização. Combina com a classe `.layout--override-ativo`
+   aplicada em `.shell-layout` que adiciona padding-top e borda dourada inset. */
+
+:root {
+  --banner-override-height: 36px;
+  /* Tom âmbar de destaque (alinhado com .ws-profile-item--trocar-organizacao) */
+  --banner-override-bg: linear-gradient(180deg,
+    rgba(251, 191, 36, 0.95) 0%,
+    rgba(245, 158, 11, 0.95) 100%);
+  --banner-override-text: #1c1917;
+  --banner-override-border: rgba(180, 83, 9, 0.65);
+}
+
+.banner-override {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--banner-override-height);
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  gap: 1rem;
+
+  background: var(--banner-override-bg);
+  color: var(--banner-override-text);
+  border-bottom: 1px solid var(--banner-override-border);
+  box-shadow: 0 2px 8px rgba(180, 83, 9, 0.25);
+
+  font-size: 0.8125rem;
+  font-weight: 500;
+
+  /* Animação sutil de entrada */
+  animation: banner-override-enter 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes banner-override-enter {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.banner-override__content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.banner-override__icon {
+  flex-shrink: 0;
+  color: var(--banner-override-text);
+}
+
+.banner-override__text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.banner-override__org-nome {
+  font-weight: 700;
+  margin-left: 0.25rem;
+}
+
+.banner-override__btn-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  height: 26px;
+  border: 1px solid var(--banner-override-border);
+  border-radius: 0.375rem;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--banner-override-text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+  flex-shrink: 0;
+}
+
+.banner-override__btn-voltar:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+}
+
+.banner-override__btn-voltar:active {
+  transform: translateY(0);
+}
+
+/* ─── Layout em modo override ─────────────────────────────────────────────── */
+/* Quando `BannerOrganizacaoOverride` está visível, o `shell-layout` recebe
+   a classe `.layout--override-ativo` (aplicada em Layout.tsx). Ela:
+     1. Adiciona padding-top para o banner não cobrir a sidebar/header.
+     2. Adiciona borda dourada inset ao redor da tela inteira (refuerzo
+        visual de que algo está "fora do normal"). */
+.shell-layout.layout--override-ativo {
+  padding-top: var(--banner-override-height);
+  height: 100vh; /* mantém viewport — banner reduz área útil */
+  box-shadow: inset 0 0 0 2px var(--banner-override-border);
+}

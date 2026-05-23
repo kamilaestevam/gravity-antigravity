@@ -81,7 +81,12 @@ export function useMeSync() {
         nomeOrganizacao: organizacao?.nome_organizacao ?? undefined,
         idWorkspacePreferido:   wsAtivo?.id ?? undefined,
         nomeWorkspacePreferido: wsAtivo?.nome_workspace ?? undefined,
+        // Label PT-BR traduzido — apenas para exibição na UI.
         role:       resolveRole(usuario.tipo_usuario ?? ''),
+        // Valor RAW do enum tipo_usuario — usado para autorização frontend
+        // (ex: useOrganizacaoOverride checa se é SUPER_ADMIN/ADMIN).
+        // Mandamento 08: autorização não pode depender de label traduzido.
+        tipoUsuario: usuario.tipo_usuario ?? undefined,
       })
 
       if (Array.isArray(workspaces)) {

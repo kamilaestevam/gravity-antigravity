@@ -55,6 +55,20 @@ export interface ContextoOrganizacao {
   /** ULID gerado por request — propagado em logs/spans. */
   idCorrelacao: string;
   /**
+   * Quando o admin (SUPER_ADMIN/ADMIN) ativou override de organização via
+   * header `x-organizacao-override`, este campo guarda o id da organização
+   * ORIGINAL do usuário (sua org nativa, geralmente a Gravity Interna).
+   *
+   * Permite que logs/audit distingam "quem você é" (ator real, da
+   * `idOrganizacaoOriginal`) de "onde você está olhando" (alvo do override,
+   * em `idOrganizacao`).
+   *
+   * - Ausente quando NÃO há override (request normal — Master/Padrao/etc.).
+   * - Presente apenas quando middleware aceitou um header
+   *   `x-organizacao-override` válido (admin autorizado + org alvo ATIVA).
+   */
+  idOrganizacaoOriginal?: string;
+  /**
    * URL do banco do produto, capturada no boot pelo middleware
    * `resolverOrganizacao` (quando `process.env.DATABASE_URL` ainda aponta
    * para o banco correto do produto).

@@ -6017,7 +6017,16 @@
       "total_pedidos_other": "{{count}} pedidos",
       "nenhum_pedido": "Nenhum pedido encontrado",
       "sem_permissao_aria": "Você não tem permissão para editar o Kanban",
-      "sem_permissao_banner": "Você não tem permissão para mover pedidos entre colunas."
+      "sem_permissao_banner": "Você não tem permissão para mover pedidos entre colunas.",
+      "status": {
+        "rascunho": "Rascunho",
+        "aberto": "Aberto",
+        "em_andamento": "Em Andamento",
+        "aprovado": "Aprovado",
+        "transferencia": "Transferido",
+        "consolidado": "Consolidado",
+        "cancelado": "Cancelado"
+      }
     },
     "excluir": {
       "erro_carregar_preview": "Falha ao carregar a verificação dos pedidos.",
@@ -6549,6 +6558,94 @@
         "transit_time": "Transit time",
         "por_autor": "por {{autor}}",
         "pedido_atualizado": "Pedido atualizado com sucesso!"
+      }
+    },
+    "cards": {
+      "total_pedidos": {
+        "subtexto": "{{count}} itens no total",
+        "row": {
+          "abertos": "Abertos",
+          "em_andamento": "Em andamento",
+          "concluidos": "Concluídos"
+        }
+      },
+      "valor_total": {
+        "subtexto": "Soma de todos os pedidos",
+        "row": {
+          "moeda": "Moeda",
+          "media_por_pedido": "Média por pedido"
+        }
+      },
+      "qtd_total": {
+        "subtexto": "{{saldo}} saldo atual",
+        "row": {
+          "pronto": "Pronto",
+          "saldo_vivo": "Saldo vivo"
+        }
+      },
+      "pedidos_atrasados": {
+        "subtexto": "Pedidos com prazo vencido",
+        "row": {
+          "atrasados": "Atrasados"
+        }
+      },
+      "pedidos_abertos": {
+        "subtexto": "Pedidos com status aberto",
+        "row": {
+          "abertos": "Abertos"
+        }
+      },
+      "pedidos_em_andamento": {
+        "subtexto": "Pedidos em andamento",
+        "row": {
+          "em_andamento": "Em andamento"
+        }
+      },
+      "cobertura_pendente": {
+        "subtexto": "Sem cobertura cambial",
+        "row": {
+          "aguardando_cobertura": "Aguardando cobertura"
+        }
+      },
+      "itens_prontos": {
+        "subtexto": "Itens com produção concluída",
+        "row": {
+          "prontos": "Prontos"
+        }
+      },
+      "qtd_atual_total": {
+        "subtexto": "Saldo disponível de todos os itens",
+        "row": {
+          "saldo_atual": "Saldo atual",
+          "qtd_inicial": "Qtd inicial",
+          "transferido": "Transferido"
+        }
+      },
+      "qtd_transferida_total": {
+        "subtexto": "Já alocado em processos logísticos",
+        "row": {
+          "transferido": "Transferido",
+          "percentual": "% do total"
+        }
+      },
+      "qtd_inicial_total": {
+        "subtexto": "Soma das quantidades originais dos itens",
+        "row": {
+          "qtd_inicial": "Qtd inicial",
+          "saldo_vivo": "Saldo vivo"
+        }
+      },
+      "valor_itens_total": {
+        "subtexto": "Soma do valor de todos os itens",
+        "row": {
+          "total_itens": "Total itens",
+          "media_por_item": "Média por item"
+        }
+      },
+      "custom": {
+        "row": {
+          "valor": "Valor"
+        }
       }
     }
   },

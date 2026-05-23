@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef, useMemo, type ReactNode } from 'react'
-import i18next from 'i18next'
+import i18next, { type TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
@@ -276,7 +276,7 @@ const ABAS_STATUS_VALORES = ['todos','aberto','em_andamento','aprovado','transfe
 /** Lê abas do localStorage (salvo pelo Configuracoes e pela API success da Lista).
  *  Usa label do banco (cfg.label) como fonte da verdade — respeita customizações
  *  feitas pelo usuário em Configurações (ex: "Transferido" → "Transferência"). */
-function lerAbasDoLocalStorage(t: (key: string) => string = i18next.t.bind(i18next)): GTAbaTipo[] | null {
+function lerAbasDoLocalStorage(t: TFunction = i18next.t.bind(i18next) as unknown as TFunction): GTAbaTipo[] | null {
   try {
     const raw = localStorage.getItem('pedido:status_config')
     if (!raw) return null
@@ -287,7 +287,9 @@ function lerAbasDoLocalStorage(t: (key: string) => string = i18next.t.bind(i18ne
       { valor: 'todos', label: t('pedido.status.todos') },
       ...entries.map(([id, cfg]) => ({
         valor: id,
-        label: cfg.label,
+        // Para IDs de sistema (rascunho/aberto/etc) traduz via i18n; para IDs
+        // customizados pelo usuario, mantem o label salvo no localStorage.
+        label: t(`pedido.status.${id}`, { defaultValue: cfg.label }),
         cor: cfg.cor,
       })),
     ]
@@ -6088,8 +6090,8 @@ export default function Pedidos() {
                   icone={registryEntry.icone}
                   valor={valor}
                   variante={registryEntry.variante}
-                  subtexto={registryEntry.subtexto(cardStats)}
-                  tooltip={registryEntry.tooltip(pedidos, cardStats)}
+                  subtexto={registryEntry.subtexto(t, cardStats)}
+                  tooltip={registryEntry.tooltip(t, pedidos, cardStats)}
                 />
               )
             }

@@ -6013,7 +6013,16 @@
       "total_pedidos_other": "{{count}} orders",
       "nenhum_pedido": "No order found",
       "sem_permissao_aria": "You do not have permission to edit the Kanban",
-      "sem_permissao_banner": "You do not have permission to move orders between columns."
+      "sem_permissao_banner": "You do not have permission to move orders between columns.",
+      "status": {
+        "rascunho": "Draft",
+        "aberto": "Open",
+        "em_andamento": "In Progress",
+        "aprovado": "Approved",
+        "transferencia": "Transferred",
+        "consolidado": "Consolidated",
+        "cancelado": "Canceled"
+      }
     },
     "kanban_colunas": {
       "titulo": "Kanban Columns",
@@ -6487,6 +6496,94 @@
         "transit_time": "Transit time",
         "por_autor": "by {{autor}}",
         "pedido_atualizado": "Order updated successfully!"
+      }
+    },
+    "cards": {
+      "total_pedidos": {
+        "subtexto": "{{count}} total items",
+        "row": {
+          "abertos": "Open",
+          "em_andamento": "In progress",
+          "concluidos": "Completed"
+        }
+      },
+      "valor_total": {
+        "subtexto": "Sum of all orders",
+        "row": {
+          "moeda": "Currency",
+          "media_por_pedido": "Average per order"
+        }
+      },
+      "qtd_total": {
+        "subtexto": "{{saldo}} current balance",
+        "row": {
+          "pronto": "Ready",
+          "saldo_vivo": "Live balance"
+        }
+      },
+      "pedidos_atrasados": {
+        "subtexto": "Orders with expired deadline",
+        "row": {
+          "atrasados": "Overdue"
+        }
+      },
+      "pedidos_abertos": {
+        "subtexto": "Orders with open status",
+        "row": {
+          "abertos": "Open"
+        }
+      },
+      "pedidos_em_andamento": {
+        "subtexto": "Orders in progress",
+        "row": {
+          "em_andamento": "In progress"
+        }
+      },
+      "cobertura_pendente": {
+        "subtexto": "No exchange coverage",
+        "row": {
+          "aguardando_cobertura": "Awaiting coverage"
+        }
+      },
+      "itens_prontos": {
+        "subtexto": "Items with production completed",
+        "row": {
+          "prontos": "Ready"
+        }
+      },
+      "qtd_atual_total": {
+        "subtexto": "Available balance of all items",
+        "row": {
+          "saldo_atual": "Current balance",
+          "qtd_inicial": "Initial Qty",
+          "transferido": "Transferred"
+        }
+      },
+      "qtd_transferida_total": {
+        "subtexto": "Already allocated in logistics processes",
+        "row": {
+          "transferido": "Transferred",
+          "percentual": "% of total"
+        }
+      },
+      "qtd_inicial_total": {
+        "subtexto": "Sum of original quantities of items",
+        "row": {
+          "qtd_inicial": "Initial Qty",
+          "saldo_vivo": "Live balance"
+        }
+      },
+      "valor_itens_total": {
+        "subtexto": "Sum of the value of all items",
+        "row": {
+          "total_itens": "Total items",
+          "media_por_item": "Average per item"
+        }
+      },
+      "custom": {
+        "row": {
+          "valor": "Value"
+        }
       }
     }
   },

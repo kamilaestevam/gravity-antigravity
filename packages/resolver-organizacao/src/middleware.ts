@@ -42,6 +42,87 @@ const TIPOS_ADMIN_OVERRIDE = new Set(['SUPER_ADMIN', 'ADMIN']);
 /** Header HTTP customizado para override admin. kebab-case PT-BR (DDD). */
 const HEADER_OVERRIDE = 'x-organizacao-override';
 
+/**
+ * Extrai IP do cliente — `X-Forwarded-For` (primeiro IP da cadeia) ou
+ * `req.ip` como fallback. Mesma heurística usada em
+ * `servicos-global/configurador/server/routes/admin-empresas.ts` —
+ * mantida em paridade porque o IP é gravado em `AuditLogAdmin`.
+ */
+function extrairIpOrigem(req: { headers: Record<string, unknown>; ip?: string }): string {
+  const xff = req.headers['x-forwarded-for'];
+  if (typeof xff === 'string' && xff.length > 0) {
+    const primeiro = xff.split(',')[0]?.trim();
+    if (primeiro) return primeiro;
+  }
+  return typeof req.ip === 'string' && req.ip.length > 0 ? req.ip : '0.0.0.0';
+}
+
+/**
+ * Dispara audit log de override de organização para o Configurador
+ * (fire-and-forget — não bloqueia a request). Falha de rede ou banco NÃO
+ * pode derrubar a troca de org; apenas loga ruidosamente (Mand. 08).
+ *
+ * Endpoint: POST /api/v1/internal/admin/audit-organizacao-override
+ */
+function dispararAuditOverride(opts: {
+  configuradorBaseUrl: string;
+  chaveInterna: string;
+  idUsuarioAtor: string;
+  tipoUsuarioAtor: string;
+  idOrganizacaoOrigem: string;
+  idOrganizacaoDestino: string;
+  ipOrigem: string;
+  correlationId: string;
+  timeoutMs: number;
+  log: ReturnType<typeof getLogger>;
+}): void {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), opts.timeoutMs);
+
+  void fetch(`${opts.configuradorBaseUrl}/api/v1/internal/admin/audit-organizacao-override`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-chave-interna-servico': opts.chaveInterna,
+      'x-id-correlacao': opts.correlationId,
+    },
+    body: JSON.stringify({
+      id_usuario_ator:        opts.idUsuarioAtor,
+      tipo_usuario_ator:      opts.tipoUsuarioAtor,
+      id_organizacao_origem:  opts.idOrganizacaoOrigem,
+      id_organizacao_destino: opts.idOrganizacaoDestino,
+      ip_origem:              opts.ipOrigem,
+      correlation_id:         opts.correlationId,
+    }),
+    signal: controller.signal,
+  })
+    .then((res) => {
+      if (!res.ok) {
+        opts.log.warn(
+          {
+            status: res.status,
+            idUsuarioAtor: opts.idUsuarioAtor,
+            idOrganizacaoDestino: opts.idOrganizacaoDestino,
+            correlationId: opts.correlationId,
+          },
+          'audit-organizacao-override gravação rejeitada pelo Configurador',
+        );
+      }
+    })
+    .catch((err) => {
+      opts.log.warn(
+        {
+          err: err instanceof Error ? err.message : String(err),
+          idUsuarioAtor: opts.idUsuarioAtor,
+          idOrganizacaoDestino: opts.idOrganizacaoDestino,
+          correlationId: opts.correlationId,
+        },
+        'audit-organizacao-override falhou — request seguiu sem audit (Mand. 08)',
+      );
+    })
+    .finally(() => clearTimeout(timer));
+}
+
 // ---------------------------------------------------------------------------
 // Validação da config no boot (falha rápido, não em runtime)
 // ---------------------------------------------------------------------------
@@ -245,6 +326,26 @@ export function resolverOrganizacao(config: ConfigResolverOrganizacao): RequestH
             },
             'Override de organização aceito (admin Gravity)',
           );
+
+          // Audit log persistente em AuditLogAdmin (fire-and-forget — não
+          // bloqueia a request, não derruba a troca se Configurador falhar).
+          // Caller pode usar `tipoUsuarioAtor` derivado do primeiro tipo
+          // admin presente em tiposUsuario; admin Gravity tem exatamente
+          // SUPER_ADMIN ou ADMIN (mutuamente exclusivos pela patente).
+          const tipoUsuarioAtor =
+            ctx.tiposUsuario.find((t) => TIPOS_ADMIN_OVERRIDE.has(t)) ?? 'ADMIN';
+          dispararAuditOverride({
+            configuradorBaseUrl: config.configuradorBaseUrl,
+            chaveInterna:        config.chaveInterna,
+            idUsuarioAtor:       ctx.idUsuario,
+            tipoUsuarioAtor,
+            idOrganizacaoOrigem:  ctx.idOrganizacao,
+            idOrganizacaoDestino: idOrganizacaoAlvo,
+            ipOrigem:            extrairIpOrigem(req),
+            correlationId:       idCorrelacao,
+            timeoutMs:           config.configuradorTimeoutMs ?? 5_000,
+            log,
+          });
 
           ctx = {
             ...ctx,

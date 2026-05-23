@@ -86,11 +86,17 @@ export interface PayloadFocusItem {
 // ----------------------------------------------------------------------------
 
 export async function buscarFocusUSD(meses: number = 12): Promise<PayloadFocusItem[]> {
-  const url = `${BACEN_FOCUS_URL}/ExpectativasMercadoMensais`
+  // ATENCAO: endpoint correto e "ExpectativaMercadoMensais" (singular, sem "s").
+  // O nome popular do produto BACEN e "Expectativas de Mercado" (plural), mas o
+  // EntitySet OData e singular. Confirmado via $metadata em 2026-05-23.
+  const url = `${BACEN_FOCUS_URL}/ExpectativaMercadoMensais`
   const params = {
     // Sobreamostragem: cada DataReferencia tem varias projecoes (datas diferentes)
     $top: meses * 10,
-    $filter: `Indicador eq 'Câmbio'`,
+    // baseCalculo=0 e a agregacao geral (todas as instituicoes respondentes).
+    // baseCalculo=1 e a base "Top 5". Sem o filtro, ambas chegam e o dedup
+    // escolhe arbitrariamente — fixamos em 0 para consistencia.
+    $filter: `Indicador eq 'Câmbio' and baseCalculo eq 0`,
     $orderby: 'Data desc',
     $format: 'json',
   }

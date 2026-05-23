@@ -274,19 +274,21 @@ describe('MOEDAS_FOCUS_SUPORTADAS', () => {
 describe('buscarFocusUSD', () => {
   beforeEach(() => { vi.clearAllMocks() })
 
-  it('chama API Olinda com endpoint ExpectativasMercadoMensais', async () => {
+  it('chama API Olinda com endpoint ExpectativaMercadoMensais (singular, sem "s")', async () => {
     mockAxiosGet.mockResolvedValueOnce({ data: { value: [] } })
     await buscarFocusUSD(4)
     expect(mockAxiosGet).toHaveBeenCalledOnce()
     const [url] = mockAxiosGet.mock.calls[0]
-    expect(url).toContain('ExpectativasMercadoMensais')
+    expect(url).toContain('ExpectativaMercadoMensais')
+    // Guarda contra regressao: o nome com "s" causa HTTP 400 no BACEN
+    expect(url).not.toContain('ExpectativasMercadoMensais')
   })
 
-  it('passa filtro Indicador=Câmbio (com acento) e formato JSON', async () => {
+  it('passa filtro Indicador=Câmbio + baseCalculo=0 (agregacao geral) + formato JSON', async () => {
     mockAxiosGet.mockResolvedValueOnce({ data: { value: [] } })
     await buscarFocusUSD(4)
     const [, opts] = mockAxiosGet.mock.calls[0]
-    expect(opts.params.$filter).toBe(`Indicador eq 'Câmbio'`)
+    expect(opts.params.$filter).toBe(`Indicador eq 'Câmbio' and baseCalculo eq 0`)
     expect(opts.params.$format).toBe('json')
     expect(opts.params.$orderby).toBe('Data desc')
   })

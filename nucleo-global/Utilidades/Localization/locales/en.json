@@ -6620,6 +6620,597 @@
       "title_kpi_qtd_inicial": "Total Initial Qty.",
       "title_kpi_qtd_transferida": "Transferred Qty.",
       "title_kpi_valor_itens": "Total Value of Items"
+    },
+    "coluna_filho": {
+      "part_number": {
+        "label": "Item No.",
+        "tooltip_titulo": "Item No."
+      },
+      "ncm": {
+        "label": "NCM"
+      },
+      "descricao_item": {
+        "label": "Item Description",
+        "tooltip_titulo": "Item Description"
+      },
+      "quantidade_inicial_pedido": {
+        "label": "Initial Item Qty in Order",
+        "tooltip_titulo": "Initial Quantity",
+        "tooltip_descricao": "Original item quantity — immutable value"
+      },
+      "quantidade_atual_pedido": {
+        "label": "Item Balance",
+        "tooltip_titulo": "Balance",
+        "tooltip_descricao": "Initial quantity minus canceled and transferred"
+      },
+      "quantidade_pronta_total_item_pedido": {
+        "label": "Total Ready Quantity of Item in Order",
+        "tooltip_titulo": "Ready Quantity",
+        "tooltip_descricao": "Amount produced by the factory and validated for shipment"
+      },
+      "quantidade_transferida_pedido": {
+        "label": "Transferred Quantity of Item in Order",
+        "tooltip_titulo": "Transferred Quantity",
+        "tooltip_descricao": "Quantity of this item already transferred to other orders.",
+        "tooltip_bloqueado": "Calculated field — automatically incremented when performing a transfer. Cannot be edited directly."
+      },
+      "quantidade_cancelada_pedido": {
+        "label": "Canceled Quantity of Item in Order",
+        "tooltip_titulo": "Canceled Quantity",
+        "tooltip_descricao": "Total permanently canceled — subtracts from initial balance"
+      },
+      "sequencia_item": {
+        "label": "Item Seq.",
+        "tooltip_titulo": "Item Sequence",
+        "tooltip_descricao": "Sequential item number within the order (as per invoice)"
+      },
+      "descricao_completa_item_pt": {
+        "label": "Complete Item/Product Description",
+        "tooltip_titulo": "Complete Product Description",
+        "tooltip_descricao": "Detailed technical description of the product as per catalog"
+      },
+      "descricao_completa_item_nf": {
+        "label": "Complete Item/Product Description - NF",
+        "tooltip_titulo": "NF Mirror Description",
+        "tooltip_descricao": "Product description as it will be displayed on the incoming NF"
+      },
+      "quantidade_unidade_estatistica": {
+        "label": "Stat. Qty.",
+        "tooltip_titulo": "Quantity in Statistical Unit",
+        "tooltip_descricao": "Item quantity expressed in the statistical unit required by DUIMP"
+      },
+      "peso_liquido_unitario": {
+        "label": "Item Unit Net Weight",
+        "tooltip_titulo": "Unit Net Weight",
+        "tooltip_descricao": "Product unit net weight, in kg"
+      },
+      "peso_bruto_unitario": {
+        "label": "Item Unit Gross Weight",
+        "tooltip_titulo": "Unit Gross Weight",
+        "tooltip_descricao": "Unit gross weight including packaging, in kg"
+      },
+      "cubagem_unitaria": {
+        "label": "Item Unit Volume",
+        "tooltip_titulo": "Unit Volume",
+        "tooltip_descricao": "Product unit volume, in m³"
+      },
+      "tipo_embalagem": {
+        "label": "Packaging Type",
+        "tooltip_titulo": "Packaging Type",
+        "tooltip_descricao": "Product packaging type (e.g.: Box, Pallet, Drum)"
+      },
+      "numero_lpco": {
+        "label": "LPCO Number",
+        "tooltip_titulo": "LPCO Number",
+        "tooltip_descricao": "License, Permit, Certificate or Other documents required for import"
+      },
+      "numero_certificado_origem": {
+        "label": "Certificate of Origin Number",
+        "tooltip_titulo": "Certificate of Origin Number",
+        "tooltip_descricao": "Certificate of origin number issued by the exporter or chamber of commerce"
+      },
+      "data_certificado_origem": {
+        "label": "Certificate of Origin Issue Date",
+        "tooltip_titulo": "Certificate of Origin Date",
+        "tooltip_descricao": "Certificate of origin issue date"
+      },
+      "grupo_item": {
+        "label": "Item/Product Group",
+        "tooltip_titulo": "Product Group",
+        "tooltip_descricao": "Product classification group as per registration"
+      },
+      "subgrupo_item": {
+        "label": "Item/Product Subgroup",
+        "tooltip_titulo": "Product Subgroup",
+        "tooltip_descricao": "Product classification subgroup within the main group"
+      },
+      "campo_especial_item": {
+        "label": "Item/Product Special Field",
+        "tooltip_titulo": "Special Field",
+        "tooltip_descricao": "Configurable field for internal use or specific integrations"
+      },
+      "descricao_completa_item_en": {
+        "label": "Complete Item/Product Description - English",
+        "tooltip_titulo": "Product Description (English)",
+        "tooltip_descricao": "Product description in English, as per international invoice"
+      },
+      "descricao_completa_item_es": {
+        "label": "Complete Item/Product Description - Spanish",
+        "tooltip_titulo": "Descripción del Producto (Español)",
+        "tooltip_descricao": "Product description in Spanish"
+      },
+      "texto_posicao_ncm": {
+        "label": "NCM Text",
+        "tooltip_titulo": "NCM Position Text",
+        "tooltip_descricao": "Official description of the NCM tariff position as per TEC"
+      },
+      "atributos_catalogo": {
+        "label": "Product Attribute - Catalog",
+        "tooltip_titulo": "Attributes — Product Catalog",
+        "tooltip_descricao": "Technical attributes of the product according to the catalog (color, voltage, etc.)"
+      },
+      "anexo_lpco": {
+        "label": "LPCO Attachment",
+        "tooltip_titulo": "LPCO Attachment",
+        "tooltip_descricao": "License, Permit, Certificate or Other (LPCO) file"
+      },
+      "data_transferencia_item": {
+        "label": "Item Transfer Date",
+        "tooltip_titulo": "Product/Item Transfer Date",
+        "tooltip_descricao": "Date the item was transferred to a logistics process"
+      },
+      "data_consolidacao_item": {
+        "label": "Item Consolidation Date",
+        "tooltip_titulo": "Product/Item Consolidation Date",
+        "tooltip_descricao": "Date the item was consolidated into a process"
+      },
+      "data_prevista_conferencia_draft_lpco": {
+        "label": "Est. Draft LPCO Review Date",
+        "tooltip_titulo": "Estimated Review Date — Draft LPCO",
+        "tooltip_descricao": "Estimated date for review of the LPCO draft"
+      },
+      "data_confirmada_conferencia_draft_lpco": {
+        "label": "Conf. Draft LPCO Review Date",
+        "tooltip_titulo": "Confirmed Review Date — Draft LPCO",
+        "tooltip_descricao": "Confirmed date for review of the LPCO draft"
+      },
+      "data_meta_conferencia_draft_lpco": {
+        "label": "Target Draft LPCO Review Date",
+        "tooltip_titulo": "Target Review Date — Draft LPCO",
+        "tooltip_descricao": "Target date for review of the LPCO draft"
+      },
+      "data_prevista_aprovacao_draft_lpco": {
+        "label": "Est. Draft LPCO Approval Date",
+        "tooltip_titulo": "Estimated Approval Date — Draft LPCO",
+        "tooltip_descricao": "Estimated date for approval of the LPCO draft"
+      },
+      "data_confirmada_aprovacao_draft_lpco": {
+        "label": "Conf. Draft LPCO Approval Date",
+        "tooltip_titulo": "Confirmed Approval Date — Draft LPCO",
+        "tooltip_descricao": "Confirmed date for approval of the LPCO draft"
+      },
+      "data_meta_aprovacao_draft_lpco": {
+        "label": "Target Draft LPCO Approval Date",
+        "tooltip_titulo": "Target Approval Date — Draft LPCO",
+        "tooltip_descricao": "Target date for approval of the LPCO draft"
+      },
+      "data_prevista_registro_lpco": {
+        "label": "Est. LPCO Registration Date",
+        "tooltip_titulo": "Estimated LPCO Registration Date",
+        "tooltip_descricao": "Estimated date for LPCO registration with the competent authority"
+      },
+      "data_confirmada_registro_lpco": {
+        "label": "Conf. LPCO Registration Date",
+        "tooltip_titulo": "Confirmed LPCO Registration Date",
+        "tooltip_descricao": "Confirmed date for LPCO registration"
+      },
+      "data_meta_registro_lpco": {
+        "label": "Target LPCO Registration Date",
+        "tooltip_titulo": "Target LPCO Registration Date",
+        "tooltip_descricao": "Target date for LPCO registration"
+      },
+      "data_prevista_resultado_analise_lpco": {
+        "label": "Est. LPCO Analysis Result Date",
+        "tooltip_titulo": "Estimated LPCO Analysis Result Date",
+        "tooltip_descricao": "Estimated date for analysis result by the consenting authority"
+      },
+      "data_confirmada_resultado_analise_lpco": {
+        "label": "Conf. LPCO Analysis Result Date",
+        "tooltip_titulo": "Confirmed LPCO Analysis Result Date",
+        "tooltip_descricao": "Confirmed date for LPCO analysis result"
+      },
+      "data_meta_resultado_analise_lpco": {
+        "label": "Target LPCO Analysis Result Date",
+        "tooltip_titulo": "Target LPCO Analysis Result Date",
+        "tooltip_descricao": "Target date for LPCO analysis result"
+      },
+      "data_prevista_deferimento_lpco": {
+        "label": "Est. LPCO Granting Date",
+        "tooltip_titulo": "Estimated LPCO Granting Date",
+        "tooltip_descricao": "Estimated date for LPCO granting (final approval)"
+      },
+      "data_confirmada_deferimento_lpco": {
+        "label": "Conf. Dt. LPCO Approval",
+        "tooltip_titulo": "Confirmed Date of LPCO Approval",
+        "tooltip_descricao": "Confirmed date of LPCO approval"
+      },
+      "data_meta_deferimento_lpco": {
+        "label": "Target Dt. LPCO Approval",
+        "tooltip_titulo": "Target Date of LPCO Approval",
+        "tooltip_descricao": "Target date for LPCO approval"
+      },
+      "data_confirmada_indeferimento_lpco": {
+        "label": "Conf. Dt. LPCO Denial",
+        "tooltip_titulo": "Confirmed Date of LPCO Denial",
+        "tooltip_descricao": "Confirmed date of LPCO denial (rejection)"
+      },
+      "data_confirmada_exigencia_lpco": {
+        "label": "Conf. Dt. LPCO Requirement",
+        "tooltip_titulo": "Confirmed Date of LPCO Requirement",
+        "tooltip_descricao": "Confirmed date of LPCO requirement/pending issue by the approving body"
+      },
+      "data_prevista_recebimento_draft_cert_origem": {
+        "label": "Est. Rec. Draft Cert. Origin",
+        "tooltip_titulo": "Estimated Receipt Date — Draft of Certificate of Origin",
+        "tooltip_descricao": "Estimated date for receipt of the draft certificate of origin"
+      },
+      "data_confirmada_recebimento_draft_cert_origem": {
+        "label": "Conf. Rec. Draft Cert. Origin",
+        "tooltip_titulo": "Confirmed Receipt Date — Draft of Certificate of Origin",
+        "tooltip_descricao": "Confirmed date of receipt of the draft certificate of origin"
+      },
+      "data_meta_recebimento_draft_cert_origem": {
+        "label": "Target Rec. Draft Cert. Origin",
+        "tooltip_titulo": "Target Receipt Date — Draft of Certificate of Origin",
+        "tooltip_descricao": "Target date for receipt of the draft certificate of origin"
+      },
+      "data_prevista_aprovacao_draft_cert_origem": {
+        "label": "Est. Approv. Draft Cert. Origin",
+        "tooltip_titulo": "Estimated Approval Date — Draft of Certificate of Origin",
+        "tooltip_descricao": "Estimated date for approval of the draft certificate of origin"
+      },
+      "data_confirmada_aprovacao_draft_cert_origem": {
+        "label": "Conf. Approv. Draft Cert. Origin",
+        "tooltip_titulo": "Confirmed Approval Date — Draft of Certificate of Origin",
+        "tooltip_descricao": "Confirmed date of approval of the draft certificate of origin"
+      },
+      "data_meta_aprovacao_draft_cert_origem": {
+        "label": "Target Approv. Draft Cert. Origin",
+        "tooltip_titulo": "Target Approval Date — Draft of Certificate of Origin",
+        "tooltip_descricao": "Target date for approval of the draft certificate of origin"
+      },
+      "data_prevista_envio_original_cert_origem": {
+        "label": "Est. Dispatch Original Cert. Origin",
+        "tooltip_titulo": "Estimated Dispatch Date — Original of Certificate of Origin",
+        "tooltip_descricao": "Estimated date for dispatch of the original certificate of origin"
+      },
+      "data_confirmada_envio_original_cert_origem": {
+        "label": "Conf. Dispatch Original Cert. Origin",
+        "tooltip_titulo": "Confirmed Dispatch Date — Original of Certificate of Origin",
+        "tooltip_descricao": "Confirmed date of dispatch of the original certificate of origin"
+      },
+      "data_meta_envio_original_cert_origem": {
+        "label": "Target Dispatch Original Cert. Origin",
+        "tooltip_titulo": "Target Dispatch Date — Original of Certificate of Origin",
+        "tooltip_descricao": "Target date for dispatch of the original certificate of origin"
+      },
+      "data_prevista_recebimento_original_cert_origem": {
+        "label": "Est. Rec. Original Cert. Origin",
+        "tooltip_titulo": "Estimated Receipt Date — Original of Certificate of Origin",
+        "tooltip_descricao": "Estimated date for receipt of the original certificate of origin"
+      },
+      "data_confirmada_recebimento_original_cert_origem": {
+        "label": "Conf. Rec. Original Cert. Origin",
+        "tooltip_titulo": "Confirmed Receipt Date — Original of Certificate of Origin",
+        "tooltip_descricao": "Confirmed date of receipt of the original certificate of origin"
+      },
+      "data_meta_recebimento_original_cert_origem": {
+        "label": "Target Rec. Original Cert. Origin",
+        "tooltip_titulo": "Target Receipt Date — Original of Certificate of Origin",
+        "tooltip_descricao": "Target date for receipt of the original certificate of origin"
+      },
+      "tipo_operacao_duimp": {
+        "label": "Operation Type - DUIMP",
+        "tooltip_titulo": "Operation Type — DUIMP",
+        "tooltip_descricao": "Type of import operation according to DUIMP"
+      },
+      "descricao_resumida_duimp": {
+        "label": "Product Summary Description - DUIMP",
+        "tooltip_titulo": "Product Summary Description — DUIMP",
+        "tooltip_descricao": "Product summary description as registered in DUIMP"
+      },
+      "versao_produto_duimp": {
+        "label": "Product Version - DUIMP",
+        "tooltip_titulo": "Product Version — DUIMP Catalog",
+        "tooltip_descricao": "Product registration version in the DUIMP catalog"
+      },
+      "ncm_duimp": {
+        "label": "NCM - DUIMP",
+        "tooltip_titulo": "NCM — DUIMP",
+        "tooltip_descricao": "NCM code used in DUIMP (may differ from the NCM in the catalog)"
+      },
+      "atributos_duimp": {
+        "label": "Attributes - DUIMP",
+        "tooltip_titulo": "Attributes — DUIMP",
+        "tooltip_descricao": "Product technical attributes according to DUIMP"
+      },
+      "aplicacao_mercadoria_duimp": {
+        "label": "Merchandise Application - DUIMP",
+        "tooltip_titulo": "Merchandise Application — DUIMP",
+        "tooltip_descricao": "Purpose or application of the merchandise according to DUIMP"
+      },
+      "condicao_mercadoria_duimp": {
+        "label": "Merchandise Condition - DUIMP",
+        "tooltip_titulo": "Merchandise Condition — DUIMP",
+        "tooltip_descricao": "Condition of the merchandise (new, used, reconditioned) according to DUIMP"
+      },
+      "relacao_exportador_fabricante_duimp": {
+        "label": "Exporter/Manufacturer Relationship - DUIMP",
+        "tooltip_titulo": "Relationship between Exporter and Manufacturer — DUIMP",
+        "tooltip_descricao": "Type of relationship between exporter and manufacturer according to DUIMP"
+      },
+      "vinculacao_preco_duimp": {
+        "label": "Price Linkage - DUIMP",
+        "tooltip_titulo": "Price Linkage — DUIMP",
+        "tooltip_descricao": "Indicates if there is a price linkage between buyer and seller according to DUIMP"
+      },
+      "descricao_completa_duimp": {
+        "label": "Complete Description - DUIMP",
+        "tooltip_titulo": "Complete Product Description — DUIMP",
+        "tooltip_descricao": "Complete and technical description of the product according to DUIMP"
+      },
+      "descricao_complementar_duimp": {
+        "label": "Complementary Description - DUIMP",
+        "tooltip_titulo": "Complementary Merchandise Description — DUIMP",
+        "tooltip_descricao": "Complementary information about the merchandise in DUIMP"
+      },
+      "codigo_ope_duimp": {
+        "label": "OPE Code Complete Description - DUIMP",
+        "tooltip_titulo": "Foreign Operator Code — DUIMP",
+        "tooltip_descricao": "OPE code (exporter) as registered in DUIMP"
+      },
+      "nome_ope_duimp": {
+        "label": "OPE Name - DUIMP",
+        "tooltip_titulo": "Foreign Operator Name — DUIMP",
+        "tooltip_descricao": "OPE name as registered in DUIMP"
+      },
+      "pais_ope_duimp": {
+        "label": "OPE Country - DUIMP",
+        "tooltip_titulo": "Foreign Operator Country — DUIMP",
+        "tooltip_descricao": "OPE country according to DUIMP"
+      },
+      "codigo_ope_fabricante_duimp": {
+        "label": "Manufacturer OPE Code - DUIMP",
+        "tooltip_titulo": "Foreign Manufacturer Operator Code — DUIMP",
+        "tooltip_descricao": "Manufacturer OPE code according to DUIMP"
+      },
+      "nome_ope_fabricante_duimp": {
+        "label": "Manufacturer OPE Name - DUIMP",
+        "tooltip_titulo": "Foreign Manufacturer Operator Name — DUIMP",
+        "tooltip_descricao": "Manufacturer OPE name according to DUIMP"
+      },
+      "pais_fabricante_ope_duimp": {
+        "label": "Manufacturer OPE Country - DUIMP",
+        "tooltip_titulo": "Foreign Manufacturer Operator Country — DUIMP",
+        "tooltip_descricao": "Manufacturer OPE country according to DUIMP"
+      },
+      "metodo_valoracao_duimp": {
+        "label": "Valuation Method - DUIMP",
+        "tooltip_titulo": "Valuation Method — DUIMP",
+        "tooltip_descricao": "Customs valuation method used in DUIMP (e.g., Method 1 — Transaction Value)"
+      },
+      "incoterm_duimp": {
+        "label": "Incoterm - DUIMP",
+        "tooltip_titulo": "Incoterm / Condition of Sale — DUIMP",
+        "tooltip_descricao": "Incoterm or condition of sale declared in DUIMP"
+      },
+      "moeda_produto_duimp": {
+        "label": "Currency - DUIMP",
+        "tooltip_titulo": "Product Currency — DUIMP",
+        "tooltip_descricao": "Currency used for the product value according to DUIMP"
+      },
+      "valor_unitario_duimp": {
+        "label": "Product Unit Value - DUIMP",
+        "tooltip_titulo": "Product Unit Value — DUIMP",
+        "tooltip_descricao": "Product unit value in the currency declared in DUIMP"
+      },
+      "valor_total_condicao_venda_duimp": {
+        "label": "Total Value in Condition of Sale - DUIMP",
+        "tooltip_titulo": "Total Value in Condition of Sale — DUIMP",
+        "tooltip_descricao": "Total value of the item in the condition of sale declared in DUIMP"
+      },
+      "valor_condicao_venda_brl_duimp": {
+        "label": "Value in Condition of Sale - DUIMP",
+        "tooltip_titulo": "Value in Condition of Sale (R$) — DUIMP",
+        "tooltip_descricao": "Value of the item in the condition of sale converted to Reais"
+      },
+      "valor_frete_internacional_brl_duimp": {
+        "label": "International Freight (R$) - DUIMP",
+        "tooltip_titulo": "International Freight Value (R$) — DUIMP",
+        "tooltip_descricao": "International freight value in Reais for customs valuation purposes"
+      },
+      "valor_seguro_internacional_brl_duimp": {
+        "label": "International Insurance (R$) - DUIMP",
+        "tooltip_titulo": "International Insurance Value (R$) — DUIMP",
+        "tooltip_descricao": "International insurance value in Reais for customs valuation purposes"
+      },
+      "valor_local_embarque_brl_duimp": {
+        "label": "Value at Place of Shipment (R$) - DUIMP",
+        "tooltip_titulo": "Value at Place of Shipment (R$) — DUIMP",
+        "tooltip_descricao": "Value of the goods at the place of shipment in Reais"
+      },
+      "valor_aduaneiro_brl_duimp": {
+        "label": "Customs Value (R$) - DUIMP",
+        "tooltip_titulo": "Customs Value (R$) — DUIMP",
+        "tooltip_descricao": "Customs value calculated in Reais, basis for import taxes"
+      },
+      "tipo_cobertura_cambial_duimp": {
+        "label": "Exchange Coverage Type - DUIMP",
+        "tooltip_titulo": "Exchange Coverage Type — DUIMP",
+        "tooltip_descricao": "Type of exchange coverage declared in DUIMP"
+      },
+      "numero_rof_bacen_duimp": {
+        "label": "ROF Number - DUIMP",
+        "tooltip_titulo": "ROF/BACEN Number — DUIMP",
+        "tooltip_descricao": "Financial Operations Registration Number with BACEN"
+      },
+      "motivo_sem_cobertura_duimp": {
+        "label": "Reason Without Coverage - DUIMP",
+        "tooltip_titulo": "Reason Without Exchange Coverage — DUIMP",
+        "tooltip_descricao": "Legal justification for the absence of exchange coverage"
+      },
+      "base_calculo_ii_duimp": {
+        "label": "II Tax Base (R$) - DUIMP",
+        "tooltip_titulo": "II Tax Base (R$) — DUIMP",
+        "tooltip_descricao": "Import Tax calculation base in Reais"
+      },
+      "percentual_ii_duimp": {
+        "label": "II Tax Rate (%) - DUIMP",
+        "tooltip_titulo": "II Tax Rate (%) — DUIMP",
+        "tooltip_descricao": "Import Tax rate percentage"
+      },
+      "valor_devido_ii_duimp": {
+        "label": "II Tax Due Amount - DUIMP",
+        "tooltip_titulo": "II Tax Due Amount (R$) — DUIMP",
+        "tooltip_descricao": "Total Import Tax due amount"
+      },
+      "valor_recolher_ii_duimp": {
+        "label": "II Tax Amount to Collect - DUIMP",
+        "tooltip_titulo": "II Tax Amount to Collect (R$) — DUIMP",
+        "tooltip_descricao": "Effective Import Tax amount to collect (deducting suspensions)"
+      },
+      "base_calculo_ipi_duimp": {
+        "label": "IPI CB (R$) - DUIMP",
+        "tooltip_titulo": "IPI Calculation Basis (R$) — DUIMP",
+        "tooltip_descricao": "IPI calculation basis in Brazilian Reals"
+      },
+      "percentual_ipi_duimp": {
+        "label": "IPI Rate (%) - DUIMP",
+        "tooltip_titulo": "IPI Rate (%) — DUIMP",
+        "tooltip_descricao": "IPI rate percentage"
+      },
+      "valor_recolher_ipi_duimp": {
+        "label": "IPI Amount to Collect - DUIMP",
+        "tooltip_titulo": "IPI Amount to Collect (R$) — DUIMP",
+        "tooltip_descricao": "IPI amount to collect"
+      },
+      "base_calculo_pis_duimp": {
+        "label": "PIS CB (R$) - DUIMP",
+        "tooltip_titulo": "PIS Calculation Basis (R$) — DUIMP",
+        "tooltip_descricao": "PIS/PASEP calculation basis in Brazilian Reals"
+      },
+      "percentual_pis_duimp": {
+        "label": "PIS Rate (%) - DUIMP",
+        "tooltip_titulo": "PIS Rate (%) — DUIMP",
+        "tooltip_descricao": "PIS/PASEP rate percentage"
+      },
+      "valor_recolher_pis_duimp": {
+        "label": "PIS Amount to Collect - DUIMP",
+        "tooltip_titulo": "PIS Amount to Collect (R$) — DUIMP",
+        "tooltip_descricao": "PIS/PASEP amount to collect"
+      },
+      "base_calculo_cofins_duimp": {
+        "label": "COFINS CB (R$) - DUIMP",
+        "tooltip_titulo": "COFINS Calculation Basis (R$) — DUIMP",
+        "tooltip_descricao": "COFINS calculation basis in Brazilian Reals"
+      },
+      "percentual_cofins_duimp": {
+        "label": "COFINS Rate (%) - DUIMP",
+        "tooltip_titulo": "COFINS Rate (%) — DUIMP",
+        "tooltip_descricao": "COFINS rate percentage"
+      },
+      "valor_recolher_cofins_duimp": {
+        "label": "COFINS Amount to Collect - DUIMP",
+        "tooltip_titulo": "COFINS Amount to Collect (R$) — DUIMP",
+        "tooltip_descricao": "COFINS amount to collect"
+      },
+      "existe_tratamento_administrativo_duimp": {
+        "label": "Administrative Treatment Exists - DUIMP",
+        "tooltip_titulo": "Administrative Treatment Exists? — DUIMP",
+        "tooltip_descricao": "Indicates if administrative treatment is associated with the item in DUIMP"
+      },
+      "tipo_trat_adm_duimp": {
+        "label": "Administrative Treatment Type - DUIMP",
+        "tooltip_titulo": "Administrative Treatment Type — DUIMP",
+        "tooltip_descricao": "Type/modality of administrative treatment in DUIMP"
+      },
+      "orgao_trat_adm_duimp": {
+        "label": "Approving Body for Administrative Treatment - DUIMP",
+        "tooltip_titulo": "Administrative Treatment Body — DUIMP",
+        "tooltip_descricao": "Approving body responsible for administrative treatment"
+      },
+      "numero_lpco_trat_adm_duimp": {
+        "label": "LPCO Number for Administrative Treatment - DUIMP",
+        "tooltip_titulo": "LPCO Number for Administrative Treatment — DUIMP",
+        "tooltip_descricao": "LPCO number linked to the administrative treatment in DUIMP"
+      },
+      "mapa_numero_pedido": {
+        "tooltip_titulo": "Item No."
+      },
+      "mapa_nome_exportador": {
+        "tooltip_bloqueado_cond": "Exporter automatically defined by the workspace — not editable in Export",
+        "tooltip_titulo": "Exporter"
+      },
+      "mapa_nome_importador": {
+        "tooltip_bloqueado_cond": "Importer automatically defined by the workspace — not editable in Import",
+        "tooltip_titulo": "Importer"
+      },
+      "mapa_nome_fabricante": {
+        "tooltip_titulo": "Manufacturer Name"
+      },
+      "mapa_referencia_importador": {
+        "tooltip_titulo": "Importer Reference"
+      },
+      "mapa_referencia_exportador": {
+        "tooltip_titulo": "Exporter Reference"
+      },
+      "mapa_numero_proforma": {
+        "tooltip_titulo": "Proforma Number"
+      },
+      "mapa_numero_invoice": {
+        "tooltip_titulo": "Invoice Number"
+      },
+      "mapa_incoterm": {
+        "tooltip_titulo": "Incoterm"
+      },
+      "mapa_referencia_fabricante": {
+        "tooltip_titulo": "Manufacturer's Reference"
+      },
+      "mapa_cobertura_cambial": {
+        "tooltip_titulo": "Foreign Exchange Coverage"
+      },
+      "mapa_condicao_pagamento": {
+        "tooltip_titulo": "Payment Term"
+      },
+      "mapa_cnpj_importador": {
+        "descricao": "In export operations, the Importer's CNPJ does not apply — the foreign counterparty does not have a Brazilian CNPJ.",
+        "descricao_2": "CNPJ not registered in the Workspace. Click to register"
+      },
+      "helper": {
+        "cadastrar_cnpj": "Register CNPJ",
+        "saldo_calculado_prefixo": "Calculated based on items — not editable. ",
+        "saldo_calculado_link": "Edit formula in the Configurator"
+      },
+      "mapa_cnpj_exportador": {
+        "descricao": "In import operations, the Exporter's CNPJ does not apply — the foreign counterparty does not have a Brazilian CNPJ.",
+        "descricao_2": "CNPJ not registered in the Workspace. Click to register"
+      },
+      "mapa_descricao_item": {
+        "tooltip_titulo": "Item Description"
+      },
+      "mapa_saldo_itens_do_pedido": {
+        "titulo": "Order Balance"
+      },
+      "mapa_quantidade_transferida_total": {
+        "tooltip_bloqueado": "Calculated field — automatically incremented when executing a transfer. Cannot be edited directly."
+      },
+      "mapa_quantidade_cancelada_total_pedido": {
+        "tooltip_bloqueado": "Calculated field — incremented when canceling items. Cannot be edited directly."
+      },
+      "mapa_tipo_operacao": {
+        "valor_importacao": "Import",
+        "valor_exportacao": "Export"
+      }
     }
   },
   "processo": {

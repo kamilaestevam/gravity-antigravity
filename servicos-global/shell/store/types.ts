@@ -48,7 +48,30 @@ export interface CurrentUser {
   nomeOrganizacao?: string
   idWorkspacePreferido?: string
   nomeWorkspacePreferido?: string
+  /**
+   * Label traduzido do tipo_usuario (ex: "Super Admin", "Master") — usado para exibição.
+   * Para checagens de autorização use `tipoUsuario` (raw), nunca este.
+   */
   role?: string
+  /**
+   * Valor RAW do enum `tipo_usuario` (SUPER_ADMIN / ADMIN / MASTER / PADRAO / FORNECEDOR).
+   * Usado por hooks de autorização frontend (ex: `useOrganizacaoOverride`)
+   * — Mandamento 08 (autorização não pode depender de label traduzido).
+   */
+  tipoUsuario?: string
+}
+
+/**
+ * Override de organização ativado pelo admin Gravity.
+ * Persistido em localStorage (sobrevive refresh) — limpo no logout.
+ * Quando presente, todo `fetch` injeta header `x-organizacao-override`.
+ *
+ * Apenas SUPER_ADMIN/ADMIN podem ativar (defesa no cliente + servidor).
+ * Backend valida em `packages/resolver-organizacao/src/middleware.ts`.
+ */
+export interface OrganizacaoOverride {
+  idOrganizacao: string
+  nomeOrganizacao: string
 }
 
 export interface OrganizacaoShell {
@@ -101,6 +124,18 @@ export interface ShellState {
   // --- Status do carregamento de identidade (GET /api/v1/me) ---
   meStatus: MeStatus
 
+  // --- Override de organização (admin Gravity) ---
+  /**
+   * Quando SUPER_ADMIN/ADMIN gira a chave "Trocar Organização", este campo
+   * guarda a org alvo. Toda request HTTP injeta header
+   * `x-organizacao-override` enquanto não-nulo. Persistido em localStorage
+   * (key `gravity-shell-state`). Limpo no logout.
+   *
+   * Apenas SUPER_ADMIN/ADMIN podem ativar — defesa cliente em
+   * `useOrganizacaoOverride`, defesa servidor no middleware do SDK.
+   */
+  organizacaoOverride: OrganizacaoOverride | null
+
   // --- Actions ---
   toggleSidebar: () => void
   setSidebarOpen: (open: boolean) => void
@@ -132,4 +167,13 @@ export interface ShellState {
   marcarTodosAvisosLidos: () => void
   setLinkContextual: (link: string | null) => void
   setMeStatus: (status: MeStatus) => void
+
+  /**
+   * Ativa override de organização (admin Gravity).
+   * Action permissive — caller (`useOrganizacaoOverride`) é quem valida que
+   * `currentUser.tipoUsuario` é SUPER_ADMIN/ADMIN antes de chamar.
+   */
+  definirOrganizacaoOverride: (override: OrganizacaoOverride) => void
+  /** Remove override — admin volta a operar na própria org. */
+  limparOrganizacaoOverride: () => void
 }

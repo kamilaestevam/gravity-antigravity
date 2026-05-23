@@ -46,7 +46,7 @@ A regra de ouro: **espelhar SCHEMA é obrigatório, espelhar DADOS é raro e per
 # 2. Aplicar migrations Prisma em cada banco
 DATABASE_URL=<URL prod cadastros>     npx prisma migrate deploy --schema servicos-global/cadastros/prisma/schema.prisma
 DATABASE_URL=<URL prod configurador>  npx prisma migrate deploy --schema servicos-global/configurador/prisma/schema.prisma
-DATABASE_URL=<URL prod pedido>        npx prisma migrate deploy --schema servicos-global/produto/pedido/prisma/schema.prisma
+DATABASE_URL=<URL prod pedido>        npx prisma migrate deploy --schema servicos-global/pedido/prisma/schema.prisma
 
 # 3. Rodar seeds mínimos (apenas o essencial — enums, configs, master admin)
 DATABASE_URL=<URL prod cadastros>     npx tsx scripts/seed/cadastros-seed-prod.ts

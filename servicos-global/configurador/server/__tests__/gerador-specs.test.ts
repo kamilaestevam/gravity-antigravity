@@ -25,7 +25,7 @@ const minimalPlan: PlanoTeste = {
   escopo: 'CONFIG',
   sublocal: 'TestePuro',
   tela: 'Teste Puro',
-  rota: '/workspace/teste',
+  rota: '/configurador/teste',
   componenteFilePath: 'src/pages/Teste.tsx',
   mapeamentoFilePath: 'testes/_mapeamentos/configurador/teste.testids.json',
   ambientes: ['Local'],
@@ -58,8 +58,8 @@ const minimalPlan: PlanoTeste = {
       acao: 'Navegar para a tela de teste',
       categoria: 1,
       origem: 'agente-adicionado',
-      interacao: { tipo: 'goto', rota: '/workspace/teste' },
-      assercao: { tipo: 'urlMatches', regex: '/workspace/teste' },
+      interacao: { tipo: 'goto', rota: '/configurador/teste' },
+      assercao: { tipo: 'urlMatches', regex: '/configurador/teste' },
       resultadoEsperado: 'URL correta carregada',
       screenshot: '01_navegar',
       tiposAplicaveis: ['E2E'],
@@ -119,7 +119,7 @@ describe('generateSpec', () => {
 
   it('gera goto para interacao tipo goto', () => {
     const spec = generateSpec(minimalPlan)
-    expect(spec).toContain("await page.goto('/workspace/teste')")
+    expect(spec).toContain("await page.goto('/configurador/teste')")
   })
 
   it('gera getByTestId.click para interacao tipo click', () => {

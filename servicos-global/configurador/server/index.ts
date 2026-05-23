@@ -402,8 +402,53 @@ app.use('/api/v1/cadastros', _proxyCadastros)
 // ─── Servir frontend Vite em produção ────────────────────────────────────────
 const clientDistDir = resolve(__dir, '../dist')
 app.use(express.static(clientDistDir))
-app.get('*', (_req, res, next) => {
-  if (_req.path.startsWith('/api') || _req.path.startsWith('/health')) return next()
+
+/**
+ * Middleware de normalização de URL canônica
+ * Ver: documentos-tecnicos/arquitetura/rotas-convencao.md §"Trailing slash e case"
+ *
+ * Aplica APENAS em GETs fora de /api e /health (rotas SPA). Ordem:
+ *  1. Trailing slash → 301 versão sem barra (exceto a raiz `/`)
+ *  2. Maiúsculas → 301 versão minúscula
+ *  3. Path legacy (/workspace, /produto/{X}) → 301 canônica preservando sufixo
+ *
+ * O redirect é server-side (301) para que crawlers e bookmarks aprendam a URL
+ * canônica. O fallback client-side via NavigateComPrefixo no App.tsx cobre
+ * o caso de navegação interna pós-load.
+ */
+const REDIRECTS_PREFIXO_LEGACY: Array<{ de: string; para: string }> = [
+  { de: '/workspace', para: '/configurador' },
+  { de: '/produto/pedido', para: '/pedido' },
+  { de: '/produto/simula-custo', para: '/simula-custo' },
+  { de: '/produto/processo', para: '/processo' },
+  { de: '/produto/bid-frete', para: '/bid-frete' },
+  { de: '/produto/bid-cambio', para: '/bid-cambio' },
+]
+
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/health')) return next()
+
+  const path = req.path
+  const query = req.url.slice(req.path.length) // preserva ?... e #... (hash não chega no server)
+
+  // 1. Trailing slash → 301 sem barra (exceto raiz)
+  if (path.length > 1 && path.endsWith('/')) {
+    return res.redirect(301, path.slice(0, -1) + query)
+  }
+
+  // 2. Case-sensitivity → 301 minúsculas
+  if (path !== path.toLowerCase()) {
+    return res.redirect(301, path.toLowerCase() + query)
+  }
+
+  // 3. Path legacy → 301 canônica preservando sufixo
+  for (const { de, para } of REDIRECTS_PREFIXO_LEGACY) {
+    if (path === de) return res.redirect(301, para + query)
+    if (path.startsWith(de + '/')) {
+      return res.redirect(301, para + path.slice(de.length) + query)
+    }
+  }
+
   res.sendFile(resolve(clientDistDir, 'index.html'))
 })
 

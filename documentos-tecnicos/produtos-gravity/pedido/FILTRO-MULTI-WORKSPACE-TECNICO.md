@@ -55,7 +55,7 @@ A Lista de Pedidos suporta filtro multi-workspace: o usuário pode selecionar 1 
 | `servicos-global/configurador/server/__tests__/workspaces-habilitados-internal.test.ts` | NOVO | 6 testes funcionais |
 | `servicos-global/configurador/server/index.ts` | mod | Registra router |
 | `servicos-global/configurador/server/routes/hub-init.ts` | mod | Filtro `status_workspace='ATIVO'` em ambos branches |
-| `servicos-global/produto/processos-core/src/routes/pedidos.ts` | mod | `parseCsvQueryParam` + `validarMultiWorkspace` |
+| `servicos-global/processos-core/src/routes/pedidos.ts` | mod | `parseCsvQueryParam` + `validarMultiWorkspace` |
 | `packages/resolver-organizacao/src/configurador-client.ts` | mod | Método `obterWorkspacesHabilitadosDoUsuario` |
 | `packages/resolver-organizacao/src/obter-workspaces-habilitados.ts` | NOVO | Helper público |
 | `packages/resolver-organizacao/src/index.ts` | mod | Export do helper |
@@ -64,9 +64,9 @@ A Lista de Pedidos suporta filtro multi-workspace: o usuário pode selecionar 1 
 
 | Arquivo | Tipo | Mudança |
 |---|---|---|
-| `servicos-global/produto/pedido/client/src/pages/Pedidos.tsx` | mod | Estado, useEffects de sincronia, popover clicável a partir do chip, lista numerada no tooltip |
-| `servicos-global/produto/pedido/client/src/shared/api.ts` | mod | `workspacesDisponiveisApi.listar()` + param `idsWorkspacesFiltro` |
-| `servicos-global/produto/pedido/client/src/components/lista/ColunasPai.tsx` | mod | Coluna "Workspace" com `key='id_workspace'` |
+| `servicos-global/pedido/client/src/pages/Pedidos.tsx` | mod | Estado, useEffects de sincronia, popover clicável a partir do chip, lista numerada no tooltip |
+| `servicos-global/pedido/client/src/shared/api.ts` | mod | `workspacesDisponiveisApi.listar()` + param `idsWorkspacesFiltro` |
+| `servicos-global/pedido/client/src/components/lista/ColunasPai.tsx` | mod | Coluna "Workspace" com `key='id_workspace'` |
 
 ### Tooling
 

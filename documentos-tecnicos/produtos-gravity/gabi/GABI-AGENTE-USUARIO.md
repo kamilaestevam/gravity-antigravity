@@ -62,7 +62,7 @@ Um **agente operacional** que:
 
 | Produto | Servico Backend | Porta | Dados acessiveis | Acoes possiveis |
 |---------|----------------|-------|-------------------|-----------------|
-| **Pedido** | `servicos-global/produto/pedido/server` | 8030 | Pedidos, itens, KPIs, dashboards, colunas usuario | CRUD pedido/item, edicao em massa, consolidacao, transferencia, duplicacao, exclusao, importacao |
+| **Pedido** | `servicos-global/pedido/server` | 8030 | Pedidos, itens, KPIs, dashboards, colunas usuario | CRUD pedido/item, edicao em massa, consolidacao, transferencia, duplicacao, exclusao, importacao |
 | **Configurador** | `servicos-global/configurador/server` | 8005 | Org, workspaces, usuarios, assinaturas, produtos ativos | Gerenciar workspaces, convidar usuarios, alterar patentes, ativar produtos |
 | **Admin** | `servicos-global/configurador/server` (rotas /admin) | 8005 | Organizacoes, produtos globais, seguranca, historico | Gerenciar orgs, produtos, usuarios globais (somente ADMIN/SUPER_ADMIN) |
 | **Hub** | `servicos-global/configurador/server` (rotas /hub, /core) | 8005 | Dashboard consolidado, processos recentes, KPIs cross-produto | Navegacao, resumo de atividade |

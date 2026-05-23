@@ -166,7 +166,7 @@ export const permissaoStringSchema = z.string().regex(
 ### Caso especial — `<slug>:historico:ver` (cross-workspace)
 
 > **Decisão arquitetural — 2026-05-07** (aprovada por Líder Técnico + Coordenador):
-> A 6ª seção `historico` foi adicionada para gating do hyperlink "Histórico" que cada produto expõe no menu lateral (abre nova aba em `/workspace/historico-organizacao` no Configurador — tela única de auditoria do cliente).
+> A 6ª seção `historico` foi adicionada para gating do hyperlink "Histórico" que cada produto expõe no menu lateral (abre nova aba em `/configurador/historico-organizacao` no Configurador — tela única de auditoria do cliente).
 >
 > A permissão segue o padrão Cadeia 2 (linha por workspace), mas o **gating de acesso à tela** consulta via `verificarPermissaoEmAlgumWorkspace` — basta UMA linha em qualquer workspace da org pra liberar. Razão: auditoria é cross-workspace por natureza; granularidade fina por workspace seria fricção sem ganho de segurança real.
 >
@@ -493,7 +493,7 @@ Editor inline na linha expandida — padrão Assinaturas (cânone em [criacao-te
 
 | Tela | Cálculo de `podeEditar` | Endpoint de carregamento de workspaces |
 |---|---|---|
-| `/workspace/usuarios` (Configurador) | `usePodeEditarUsuario(alvo).podeAlterarVinculosWorkspace && !ehProprio` | `GET /api/v1/me/workspaces` (org logada) |
+| `/configurador/usuarios` (Configurador) | `usePodeEditarUsuario(alvo).podeAlterarVinculosWorkspace && !ehProprio` | `GET /api/v1/me/workspaces` (org logada) |
 | `/admin/usuarios-globais` (Admin Panel) | **Opção α (decisão dono 2026-05-05): `perfilLogado === 'Super Admin'`** — apenas SAdmin edita cross-org. ADMIN visualiza o editor em modo read-only. | `GET /api/v1/admin/organizacoes/:id_organizacao/workspaces` (lazy-load por org do alvo, `requireGravityAdmin`) |
 
 Em ambos os casos, quando `podeEditar=false` o componente renderiza badges sem botões (defesa em profundidade espelhando o backend).

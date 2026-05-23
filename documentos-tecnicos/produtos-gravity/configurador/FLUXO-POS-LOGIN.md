@@ -156,7 +156,7 @@ Sem o parâmetro, qualquer botão "Voltar ao Hub" entraria em loop para usuário
 | 1 | Login pela primeira vez (sem preferência) | Vê `/hub` com lista de workspaces |
 | 2 | Login com preferência salva | Pula direto para `/core` do workspace preferido |
 | 3 | Click em "Voltar ao Hub" do `/core` | Vê `/hub?select=1` com cards (skip não dispara) |
-| 4 | Click em "Voltar ao Hub" do `/store`, `/admin/*`, `/workspace/*` ou produto | idem ao caso 3 |
+| 4 | Click em "Voltar ao Hub" do `/store`, `/admin/*`, `/configurador/*` ou produto | idem ao caso 3 |
 | 5 | Click na estrela do workspace preferido (em `/hub?select=1`) | Toast "removido" + próximo login vê `/hub` |
 | 6 | FORNECEDOR com preferência | Vê `/hub` (skip não dispara — exceção) |
 | 7 | Tenant com 0 produtos ativos | Vê `/hub` com modal "Nenhum produto" (não pula) |

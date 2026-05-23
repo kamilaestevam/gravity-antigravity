@@ -103,8 +103,8 @@ Sempre que a relação for **(Entidade-Pai) × N (Entidade-Filho)** com bind/unb
 
 ### Referências canônicas
 
-- [Assinaturas.tsx](../../../servicos-global/configurador/src/pages/workspace/Assinaturas.tsx) — implementação per-item (toggle independente por workspace, N requests no save via `Promise.all`)
-- [Usuarios.tsx](../../../servicos-global/configurador/src/pages/workspace/Usuarios.tsx) — implementação replace-all (Configurador, escopo da org logada)
+- [Assinaturas.tsx](../../../servicos-global/configurador/src/pages/configurador/Assinaturas.tsx) — implementação per-item (toggle independente por workspace, N requests no save via `Promise.all`)
+- [Usuarios.tsx](../../../servicos-global/configurador/src/pages/configurador/Usuarios.tsx) — implementação replace-all (Configurador, escopo da org logada)
 - [UsuariosAdmin.tsx](../../../servicos-global/configurador/src/pages/admin/UsuariosAdmin.tsx) — implementação replace-all cross-org (Admin Panel, lazy-load via `GET /v1/admin/organizacoes/:id/workspaces`)
 
 ### Componente compartilhado

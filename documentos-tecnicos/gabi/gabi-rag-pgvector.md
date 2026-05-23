@@ -202,24 +202,24 @@ Mapeia rotas do frontend para segmentos da KB, usado tanto no RAG quanto no fall
 | Rota | Segmento(s) |
 |------|-------------|
 | `/produto/lpco` | lpco |
-| `/produto/pedido` | pedido |
+| `/pedido` | pedido |
 | `/produto/nf-importacao` | nf-importacao |
-| `/produto/bid-frete` | bid-frete |
-| `/produto/bid-cambio` | bid-cambio |
+| `/bid-frete` | bid-frete |
+| `/bid-cambio` | bid-cambio |
 | `/produto/financeiro-comex` | financeiro-comex |
-| `/produto/simula-custo` | simula-custo |
-| `/produto/processo` | processo |
-| `/workspace/organizacao` | configurador |
-| `/workspace/workspaces` | configurador |
-| `/workspace/usuarios` | configurador |
-| `/workspace/assinaturas` | configurador |
-| `/workspace/financeiro` | configurador |
-| `/workspace/api-cockpit` | api-cockpit, configurador |
-| `/workspace/conector-cargowise` | api-cockpit |
+| `/simula-custo` | simula-custo |
+| `/processo` | processo |
+| `/configurador/organizacao` | configurador |
+| `/configurador/workspaces` | configurador |
+| `/configurador/usuarios` | configurador |
+| `/configurador/assinaturas` | configurador |
+| `/configurador/financeiro` | configurador |
+| `/configurador/api-cockpit` | api-cockpit, configurador |
+| `/configurador/conector-cargowise` | api-cockpit |
 | `/admin` | configurador |
 | `/store` | marketplace |
 | `/hub` | dashboard, configurador |
 
 Rotas nao mapeadas recebem a KB completa (fallback estatico) ou busca sem filtro de segmento (RAG).
 
-A resolucao e por match exato primeiro, depois por prefixo (ex: `/produto/pedido/123` resolve para `pedido`).
+A resolucao e por match exato primeiro, depois por prefixo (ex: `/pedido/123` resolve para `pedido`).

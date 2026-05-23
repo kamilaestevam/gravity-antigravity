@@ -119,7 +119,7 @@ Para um usuário `STANDARD` ou `SUPPLIER` trabalhar em um Workspace, ele precisa
 
 #### UI de Vinculação — Editor inline na linha expandida (decisão dono 2026-05-05)
 
-A tela `/workspace/usuarios` adota o **padrão Assinaturas** documentado em [criacao-telas](../../ux/criacao-telas/SKILL.md):
+A tela `/configurador/usuarios` adota o **padrão Assinaturas** documentado em [criacao-telas](../../ux/criacao-telas/SKILL.md):
 
 - **Master/SAdmin/Admin** — linha expandida exibe panel "Acesso implícito a todos os workspaces" (read-only). Para revogar acesso, alterar `tipo_usuario`.
 - **Standard/Fornecedor** — linha expandida exibe editor com checkboxes, multi-select, toggle individual Play/Pause, toolbar Habilitar/Bloquear em massa, Salvar/Descartar com badge de pendentes.
@@ -288,11 +288,11 @@ Retorna campos com nomes DDD em Português:
 
 ## Assinaturas, Financeiro e Gateway
 
-### /workspace/assinaturas
+### /configurador/assinaturas
 - Upgrade/Downgrade de planos; Adição de produtos avulsos
 - **Tipos de cobrança:** SaaS (mensal), Uso (por item), Setup (taxa única)
 
-### /workspace/financeiro
+### /configurador/financeiro
 - Histórico de faturas, Download de Boletos/NF-e
 
 ### /gateway
@@ -509,7 +509,7 @@ Decisão dono **2026-05-05**: a linha expandida da tabela usa o **padrão Assina
 - **Lazy-load:** `GET /api/v1/admin/organizacoes/:id_organizacao/workspaces` (auth: `requireGravityAdmin` — SAdmin + ADMIN podem ler) — invocado quando a linha é expandida; cache em `workspacesPorOrg[id]` evita refetch.
 - **Mutação:** `PUT /api/v1/usuarios/:id_usuario/workspaces` (replace-all atômico). Backend já suporta SUPER_ADMIN cross-org via desvio do filtro `id_organizacao` no findFirst do alvo.
 - **Gating UI — opção α (decisão dono):** **apenas SUPER_ADMIN** edita vínculos via Admin Panel. ADMIN logado vê o editor em modo read-only (sem checkboxes, sem botões de ação). Para abrir esse poder ao ADMIN no futuro, mudar `podeEditar` em [UsuariosAdmin.tsx](../../../../servicos-global/configurador/src/pages/admin/UsuariosAdmin.tsx) e revisar [seguranca/permissoes](../../../seguranca/permissoes/SKILL.md).
-- **Componente compartilhado:** [src/components/expandido-editor-vinculos](../../../../servicos-global/configurador/src/components/expandido-editor-vinculos/index.tsx) — mesmo componente usado em `/workspace/usuarios` (Configurador).
+- **Componente compartilhado:** [src/components/expandido-editor-vinculos](../../../../servicos-global/configurador/src/components/expandido-editor-vinculos/index.tsx) — mesmo componente usado em `/configurador/usuarios` (Configurador).
 - **Audit:** `securityAudit.permissionChanged` continua sendo emitido na org do **alvo** (não do ator), com `acao_permissao: 'GRANTED' | 'REVOKED'`.
 
 ---
@@ -1658,7 +1658,7 @@ Sem o parâmetro, qualquer botão "Voltar ao Hub" entraria em loop para usuário
 | 1 | Login pela primeira vez (sem preferência) | Vê `/hub` com lista de workspaces |
 | 2 | Login com preferência salva | Pula direto para `/core` do workspace preferido |
 | 3 | Click em "Voltar ao Hub" do `/core` | Vê `/hub?select=1` com cards (skip não dispara) |
-| 4 | Click em "Voltar ao Hub" do `/store`, `/admin/*`, `/workspace/*` ou produto | idem ao caso 3 |
+| 4 | Click em "Voltar ao Hub" do `/store`, `/admin/*`, `/configurador/*` ou produto | idem ao caso 3 |
 | 5 | Click na estrela do workspace preferido (em `/hub?select=1`) | Toast "removido" + próximo login vê `/hub` |
 | 6 | FORNECEDOR com preferência | Vê `/hub` (skip não dispara — exceção) |
 | 7 | Tenant com 0 produtos ativos | Vê `/hub` com modal "Nenhum produto" (não pula) |

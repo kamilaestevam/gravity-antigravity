@@ -47,15 +47,15 @@ export function WorkspaceLayout() {
   const { t } = useTranslation()
 
   const navItems = [
-    { to: '/workspace/organizacao',  label: t('workspace.layout.organizacao'),    icon: <Crown       weight="duotone" size={18} /> },
-    { to: '/workspace/workspaces',     label: t('workspace.layout.workspaces'), icon: <Buildings   weight="duotone" size={18} /> },
-    { to: '/workspace/usuarios',     label: t('workspace.layout.usuarios'),        icon: <Users       weight="duotone" size={18} /> },
-    { to: '/workspace/empresas-e-parceiros', label: 'Empresas e Parceiros',          icon: <Buildings   weight="duotone" size={18} /> },
-    { to: '/workspace/assinaturas',  label: t('workspace.layout.assinaturas'),     icon: <CreditCard  weight="duotone" size={18} /> },
-    { to: '/workspace/financeiro',   label: t('workspace.layout.financeiro'),      icon: <Receipt     weight="duotone" size={18} /> },
-    { to: '/workspace/api-cockpit',  label: t('workspace.layout.api-cockpit'),     icon: <Pulse weight="duotone" size={18} /> },
-    { to: '/workspace/taxas-moeda',  label: t('workspace.layout.taxa-cambio'),       icon: <CurrencyCircleDollar weight="duotone" size={18} /> },
-    { to: '/workspace/historico-organizacao', label: t('workspace.layout.historico-organizacao'), icon: <ClockCounterClockwise weight="duotone" size={18} /> },
+    { to: '/configurador/organizacao',  label: t('workspace.layout.organizacao'),    icon: <Crown       weight="duotone" size={18} /> },
+    { to: '/configurador/workspaces',     label: t('workspace.layout.workspaces'), icon: <Buildings   weight="duotone" size={18} /> },
+    { to: '/configurador/usuarios',     label: t('workspace.layout.usuarios'),        icon: <Users       weight="duotone" size={18} /> },
+    { to: '/configurador/empresas-e-parceiros', label: 'Empresas e Parceiros',          icon: <Buildings   weight="duotone" size={18} /> },
+    { to: '/configurador/assinaturas',  label: t('workspace.layout.assinaturas'),     icon: <CreditCard  weight="duotone" size={18} /> },
+    { to: '/configurador/financeiro',   label: t('workspace.layout.financeiro'),      icon: <Receipt     weight="duotone" size={18} /> },
+    { to: '/configurador/api-cockpit',  label: t('workspace.layout.api-cockpit'),     icon: <Pulse weight="duotone" size={18} /> },
+    { to: '/configurador/taxas-moeda',  label: t('workspace.layout.taxa-cambio'),       icon: <CurrencyCircleDollar weight="duotone" size={18} /> },
+    { to: '/configurador/historico-organizacao', label: t('workspace.layout.historico-organizacao'), icon: <ClockCounterClockwise weight="duotone" size={18} /> },
   ]
 
   const navigate = useNavigate()
@@ -121,7 +121,7 @@ export function WorkspaceLayout() {
         return
       }
       sessionStorage.removeItem('gravity_company_id')
-      window.location.href = '/workspace/workspaces'
+      window.location.href = '/configurador/workspaces'
     } catch (err) {
       console.warn('[WorkspaceLayout] Erro ao trocar organização:', err)
     }
@@ -151,7 +151,7 @@ export function WorkspaceLayout() {
   )
 
   useEffect(() => {
-    locAddEntry({ productId: 'configurador', productLabel: 'Configurador', productColor: '#7dd3fc', pageLabel: 'Configurador', pagePath: '/workspace' })
+    locAddEntry({ productId: 'configurador', productLabel: 'Configurador', productColor: '#7dd3fc', pageLabel: 'Configurador', pagePath: '/configurador' })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -268,7 +268,7 @@ export function WorkspaceLayout() {
             nodes={wsEcosystemNodes}
             onNavigate={(node) => {
               if (node.type === 'hub')               navigate('/hub?select=1')
-              else if (node.type === 'configurador') navigate('/workspace/workspaces')
+              else if (node.type === 'configurador') navigate('/configurador/workspaces')
               else if (node.type === 'core')         navigate('/core')
               else if (node.type === 'admin')        navigate('/admin/visao-geral')
               else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
@@ -288,7 +288,7 @@ export function WorkspaceLayout() {
             userRole={userRole}
             isLight={isLight}
             onToggleTheme={toggleTheme}
-            onNavigateWorkspace={() => navigate('/workspace/organizacao')}
+            onNavigateWorkspace={() => navigate('/configurador/organizacao')}
             onNavigateMarketPlace={() => navigate('/store')}
             onSignOut={() => signOut()}
             isAdmin={isGravityAdmin}

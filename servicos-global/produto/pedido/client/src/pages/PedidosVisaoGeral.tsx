@@ -3154,7 +3154,7 @@ export default function VisaoGeral() {
           <BotaoGlobal
             variante="primario"
             icone={<Plus weight="bold" size={15} />}
-            onClick={() => navigate('/produto/pedido/pedidos/novo')}
+            onClick={() => navigate('/pedido/pedidos/novo')}
           >
             Novo Pedido
           </BotaoGlobal>

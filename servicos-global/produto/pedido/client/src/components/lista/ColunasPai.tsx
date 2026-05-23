@@ -925,7 +925,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     align: 'right',
     avisoImpacto: 'A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Inicial, Qtd. Pronta, Qtd. Transferida e Qtd. Cancelada',
     tooltipTitulo: t('pedido.coluna_pai.saldo_itens_do_pedido_titulo'),
-    tooltipDescricao: <span>Calculado com base nos itens — não editável. <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>,
+    tooltipDescricao: <span>Calculado com base nos itens — não editável. <a href="/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>,
     tooltipInterativo: true,
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => {
@@ -940,7 +940,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         return (
           <TooltipGlobal
             titulo={t('pedido.coluna_pai.saldo_itens_do_pedido_titulo')}
-            descricao={<span>Calculado com base nos itens — não editável. <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+            descricao={<span>Calculado com base nos itens — não editável. <a href="/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
             interativo
           >
             <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
@@ -968,7 +968,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       const tooltipWrap = (node: React.ReactNode) => (
         <TooltipGlobal
           titulo={t('pedido.coluna_pai.saldo_itens_do_pedido_titulo')}
-          descricao={<span>Calculado com base nos itens — não editável. <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+          descricao={<span>Calculado com base nos itens — não editável. <a href="/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
           interativo
         >
           <span style={{ display: 'contents' }}>{node}</span>

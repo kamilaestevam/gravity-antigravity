@@ -28,7 +28,7 @@ A tabela `cadastros.unidade` (catálogo global, sem `id_organizacao`) é a únic
 
 ### Hook canônico
 
-`useUnidadesPedido()` em `servicos-global/produto/pedido/client/src/shared/useUnidadesPedido.ts` envelopa `useUnidades()` do `nucleo-global/Modais/modal-tabela-unidades` e expõe 3 listas pré-filtradas + formatadas:
+`useUnidadesPedido()` em `servicos-global/pedido/client/src/shared/useUnidadesPedido.ts` envelopa `useUnidades()` do `nucleo-global/Modais/modal-tabela-unidades` e expõe 3 listas pré-filtradas + formatadas:
 
 ```ts
 const { unidadesComercializadas, unidadesPeso, unidadesCubagem, loading, erro } = useUnidadesPedido()
@@ -134,7 +134,7 @@ Formato sempre `SIGLA — Nome` em qualquer cenário — ver `TabelaVirtualGloba
 
 ## 5. Migration
 
-`servicos-global/produto/pedido/prisma/migrations/20260512000000_pedido_item_unidades_peso_cubagem/migration.sql`:
+`servicos-global/pedido/prisma/migrations/20260512000000_pedido_item_unidades_peso_cubagem/migration.sql`:
 
 ```sql
 ALTER TABLE "pedido_item" ADD COLUMN "peso_liquido_unidade_item" TEXT DEFAULT 'KG';

@@ -228,7 +228,7 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
       texto: `${rascunhosCount} cotação${rascunhosCount > 1 ? 's' : ''} em rascunho. Finalize e envie para negociação de frete.`,
       stat: { label: 'Em rascunho', valor: fmtNum(rascunhosCount) },
       textoLink: 'Ver cotações',
-      rota: '/produto/bid-frete-internacional/cotacoes',
+      rota: '/bid-frete-internacional/cotacoes',
     })
   }
 
@@ -243,7 +243,7 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
         ? { label: 'Valor em cotação', valor: fmtUSD(kpis.valor_andamento_usd) }
         : { label: 'Cotações ativas', valor: fmtNum(kpis.cotacoes_andamento) },
       textoLink: 'Acompanhar BIDs',
-      rota: '/produto/bid-frete-internacional/cotacoes',
+      rota: '/bid-frete-internacional/cotacoes',
     })
   }
 
@@ -301,7 +301,7 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
       texto: 'Nenhuma pendência crítica ou anomalia operacional identificada no período selecionado.',
       stat: { label: 'Período', valor: kpis.period ?? '30d' },
       textoLink: 'Ver cotações',
-      rota: '/produto/bid-frete-internacional/cotacoes',
+      rota: '/bid-frete-internacional/cotacoes',
     })
   }
 
@@ -326,8 +326,8 @@ const WIDGET_VISUAL: Record<string, { accentColor?: string; icone?: ReactNode }>
 }
 
 const WIDGET_NAV_ROUTE: Record<string, string> = {
-  kpi_cotacoes_andamento:  '/produto/bid-frete-internacional/cotacoes',
-  kpi_cotacoes_passadas:   '/produto/bid-frete-internacional/cotacoes',
+  kpi_cotacoes_andamento:  '/bid-frete-internacional/cotacoes',
+  kpi_cotacoes_passadas:   '/bid-frete-internacional/cotacoes',
 }
 
 const PERIOD_SEQUENCE = ['7d', '30d', '90d', '12m', 'current_year'] as const

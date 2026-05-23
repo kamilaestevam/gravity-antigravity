@@ -62,15 +62,15 @@ export const PRODUCT_CONFIG = {
 
     // ── BID Frete ─────────────────────────────────────────────────────────────
     { id: 'section-bid-frete',                          label: 'BID Frete',      sectionDivider: true },
-    { id: '/produto/bid-frete/visao-geral',             label: 'Visão Geral',    icon: 'chart-pie-slice', source: 'product' },
-    { id: '/produto/bid-frete/dashboard',               label: 'Dashboard',      icon: 'chart-bar',       source: 'product' },
-    { id: '/produto/bid-frete/cotacoes?visao=lista',    label: 'Lista',          icon: 'list-bullets',    source: 'product' },
-    { id: '/produto/bid-frete/cotacoes?visao=kanban',   label: 'Kanban',         icon: 'kanban',          source: 'product' },
-    { id: '/produto/bid-frete/fornecedores',            label: 'Fornecedores',   icon: 'buildings',       source: 'product' },
+    { id: '/bid-frete/visao-geral',             label: 'Visão Geral',    icon: 'chart-pie-slice', source: 'product' },
+    { id: '/bid-frete/dashboard',               label: 'Dashboard',      icon: 'chart-bar',       source: 'product' },
+    { id: '/bid-frete/cotacoes?visao=lista',    label: 'Lista',          icon: 'list-bullets',    source: 'product' },
+    { id: '/bid-frete/cotacoes?visao=kanban',   label: 'Kanban',         icon: 'kanban',          source: 'product' },
+    { id: '/bid-frete/fornecedores',            label: 'Fornecedores',   icon: 'buildings',       source: 'product' },
 
     // ── Serviços ──────────────────────────────────────────────────────────────
     { id: '/workspace/historico-organizacao?id_produto_historico_log=bid-frete', label: 'Histórico', icon: 'clock-counter-clockwise', source: 'tenant', external: true },
-    { id: '/produto/bid-frete/configuracoes', label: 'Configurações', icon: 'gear-six', source: 'product' },
+    { id: '/bid-frete/configuracoes', label: 'Configurações', icon: 'gear-six', source: 'product' },
 
   ] satisfies NavigationItem[],
 

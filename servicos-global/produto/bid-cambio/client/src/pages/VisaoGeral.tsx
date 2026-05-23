@@ -2247,7 +2247,7 @@ export default function VisaoGeral() {
           titulo="Visão Geral"
           subtitulo="Resumo das operações de câmbio"
           acoes={
-            <BotaoGlobal variante="primario" icone={<ArrowsLeftRight weight="bold" size={15} />} onClick={() => navigate('/produto/bid-cambio/cotacoes/nova')}>
+            <BotaoGlobal variante="primario" icone={<ArrowsLeftRight weight="bold" size={15} />} onClick={() => navigate('/bid-cambio/cotacoes/nova')}>
               Nova Cotação
             </BotaoGlobal>
           }

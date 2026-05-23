@@ -115,7 +115,7 @@ export interface ShellState {
   /**
    * Link contextual para o "Enviar Para" do sininho.
    * Cada tela pode chamar setLinkContextual() com a rota do item selecionado
-   * (ex: /workspace/pedido/PED-2024-001). Quando presente, sobrescreve o
+   * (ex: /configurador/pedido/PED-2024-001). Quando presente, sobrescreve o
    * pathname genérico no campo de link do painel "Enviar Para".
    * Chamar com null para limpar (ex: ao desselecionar).
    */

@@ -203,7 +203,7 @@ export default function App() {
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
       onNavigateCore={() => { window.location.href = '/core' }}
-      onNavigateSettings={() => { navigate('/produto/bid-frete/configuracoes') }}
+      onNavigateSettings={() => { navigate('/bid-frete/configuracoes') }}
       localizador={{
         workspaceName:    nomeWorkspaceAtivo,
         currentPageLabel: pageLabel,

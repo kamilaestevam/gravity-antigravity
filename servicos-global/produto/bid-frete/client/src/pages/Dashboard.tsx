@@ -438,7 +438,7 @@ export default function Dashboard() {
             variante="primario"
             tamanho="medio"
             iconeEsquerda={<MagnifyingGlass weight="bold" size={16} />}
-            onClick={() => navigate('/produto/bid-frete/cotacoes/nova')}
+            onClick={() => navigate('/bid-frete/cotacoes/nova')}
           >
             {t('bidfrete.dashboard.searchFreight')}
           </BotaoGlobal>

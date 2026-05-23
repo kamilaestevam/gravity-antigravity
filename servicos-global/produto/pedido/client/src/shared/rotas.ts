@@ -19,4 +19,4 @@ export const ROTAS_PEDIDO = {
   dinamicas: [/^pedidos\/[^/]+\/editar$/],
 } as const
 
-export const BASE_ROTA_PEDIDO = '/produto/pedido'
+export const BASE_ROTA_PEDIDO = '/pedido'

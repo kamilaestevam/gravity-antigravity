@@ -186,7 +186,7 @@ export type PlanoTeste = z.infer<typeof PlanoTesteSchema>
   "escopo": "CONFIG",
   "sublocal": "Organização",
   "tela": "Organização",
-  "rota": "/workspace/organizacao",
+  "rota": "/configurador/organizacao",
   "componenteFilePath": "servicos-global/configurador/src/pages/Organizacao.tsx",
   "mapeamentoFilePath": "testes/_mapeamentos/configurador/organizacao.testids.json",
   "ambientes": ["Local", "Staging", "Producao"],

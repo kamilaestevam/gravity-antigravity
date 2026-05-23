@@ -227,7 +227,7 @@ async function fetchPedidoInsights(
         ? { label: 'Taxa de atraso', valor: `${((atrasados / total) * 100).toFixed(1)}%` }
         : undefined,
       textoLink: 'Ver atrasados',
-      rota: '/produto/pedido/lista?status=atrasado',
+      rota: '/pedido/lista?status=atrasado',
       score: weights.pedidos_atrasados ?? 0,
       produto: 'Pedido',
     })
@@ -240,7 +240,7 @@ async function fetchPedidoInsights(
       tag: 'Atenção · Sem Exportador',
       texto: `${semExportador} pedido${semExportador > 1 ? 's' : ''} sem exportador vinculado. Risco de bloqueio de faturamento.`,
       textoLink: 'Corrigir agora',
-      rota: '/produto/pedido/lista?sem_exportador=true',
+      rota: '/pedido/lista?sem_exportador=true',
       score: weights.pedidos_sem_exportador ?? 0,
       produto: 'Pedido',
     })
@@ -254,7 +254,7 @@ async function fetchPedidoInsights(
       texto: `${abertos} pedido${abertos > 1 ? 's' : ''} em aberto prontos para transferência.`,
       stat: { label: 'Total no período', valor: fmtNum(total) },
       textoLink: 'Ver pedidos',
-      rota: '/produto/pedido/lista?status=aberto',
+      rota: '/pedido/lista?status=aberto',
       score: weights.pedidos_abertos ?? 0,
       produto: 'Pedido',
     })
@@ -269,7 +269,7 @@ async function fetchPedidoInsights(
       texto: `${cancelados} pedido${cancelados > 1 ? 's' : ''} cancelado${cancelados > 1 ? 's' : ''} no período (${pctCancel}% do total).`,
       stat: { label: 'Total no período', valor: fmtNum(total) },
       textoLink: 'Ver cancelados',
-      rota: '/produto/pedido/lista?status=cancelado',
+      rota: '/pedido/lista?status=cancelado',
       score: weights.pedidos_cancelados ?? 0,
       produto: 'Pedido',
     })
@@ -284,7 +284,7 @@ async function fetchPedidoInsights(
       stat: ticketMedio > 0
         ? { label: 'Ticket médio', valor: fmtBRL(ticketMedio) }
         : undefined,
-      rota: '/produto/pedido/dashboard',
+      rota: '/pedido/dashboard',
       score: weights.pedidos_financeiro ?? 0,
       produto: 'Pedido',
     })
@@ -297,7 +297,7 @@ async function fetchPedidoInsights(
       tag: 'Visão Geral · Pedidos',
       texto: `${fmtNum(total)} pedido${total > 1 ? 's' : ''} no período, ${fmtNum(abertos)} em aberto.`,
       stat: { label: 'Pedidos no período', valor: fmtNum(total) },
-      rota: '/produto/pedido/dashboard',
+      rota: '/pedido/dashboard',
       score: weights.pedidos_volume ?? 0,
       produto: 'Pedido',
     })
@@ -327,7 +327,7 @@ async function fetchBidCambioInsights(
         tag: 'Alerta de Prazo · BID Câmbio',
         texto: `${total} parcela${total > 1 ? 's' : ''} vence${total === 1 ? '' : 'm'} em menos de 30 dias. Revise para não perder o prazo.`,
         textoLink: 'Ver parcelas',
-        rota: '/produto/bid-cambio',
+        rota: '/bid-cambio',
         score: weights.cambio_vencimentos ?? 0,
         produto: 'BID Câmbio',
       })
@@ -351,7 +351,7 @@ async function fetchBidCambioInsights(
         texto: `Economia de ${fmtBRL(eco)} este mês operando câmbio pelo marketplace Gravity.`,
         stat: { label: 'Economia acumulada', valor: fmtBRL(eco) },
         textoLink: 'Ver detalhes',
-        rota: '/produto/bid-cambio',
+        rota: '/bid-cambio',
         score: weights.cambio_economia ?? 0,
         produto: 'BID Câmbio',
       })
@@ -389,7 +389,7 @@ async function fetchBidFreteInsights(
       tag: 'Alerta · BID Frete',
       texto: `${parts.join('. ')}.`,
       textoLink: 'Ver cotações',
-      rota: '/produto/bid-frete',
+      rota: '/bid-frete',
       score: weights.frete_alertas ?? 0,
       produto: 'BID Frete',
     })
@@ -422,7 +422,7 @@ async function fetchSimulaCustoInsights(
       texto: `${inviavel} simulaç${inviavel > 1 ? 'ões inviáveis' : 'ão inviável'} detectada${inviavel > 1 ? 's' : ''}.`,
       stat: media > 0 ? { label: 'Média landed cost', valor: fmtBRL(media) } : undefined,
       textoLink: 'Ver simulações',
-      rota: '/produto/simula-custo',
+      rota: '/simula-custo',
       score: weights.simula_inviavel ?? 0,
       produto: 'SimulaCusto',
     })
@@ -436,7 +436,7 @@ async function fetchSimulaCustoInsights(
       texto: `${atencao} simulaç${atencao > 1 ? 'ões requerem' : 'ão requer'} atenção.`,
       stat: media > 0 ? { label: 'Média landed cost', valor: fmtBRL(media) } : undefined,
       textoLink: 'Ver simulações',
-      rota: '/produto/simula-custo',
+      rota: '/simula-custo',
       score: weights.simula_atencao ?? 0,
       produto: 'SimulaCusto',
     })
@@ -584,7 +584,7 @@ const FALLBACK_INSIGHTS: HubInsight[] = [
     tag: 'Dica · Store de Módulos',
     texto: 'Ative novos produtos na Store para ampliar os insights da GABI com dados de toda sua operação COMEX.',
     textoLink: 'Explorar Store',
-    rota: '/workspace/assinaturas',
+    rota: '/configurador/assinaturas',
     score: 1,
   },
   {
@@ -593,7 +593,7 @@ const FALLBACK_INSIGHTS: HubInsight[] = [
     tag: 'Dica · Configurações',
     texto: 'Configure regras fiscais, permissões de equipe e preferências de workspace no Configurador.',
     textoLink: 'Configurar',
-    rota: '/workspace/organizacao',
+    rota: '/configurador/organizacao',
     score: 0,
   },
   {
@@ -602,7 +602,7 @@ const FALLBACK_INSIGHTS: HubInsight[] = [
     tag: 'Dica · Relatórios',
     texto: 'Gere relatórios consolidados com dados de todos os seus produtos. Exporte em PDF, CSV ou Excel.',
     textoLink: 'Ver relatórios',
-    rota: '/workspace/financeiro',
+    rota: '/configurador/financeiro',
     score: 0,
   },
 ]
@@ -630,7 +630,7 @@ function buildContextInsights(
       tag: 'Ecossistema · Gravity',
       texto: `Você tem ${count} produto${count > 1 ? 's' : ''} ativo${count > 1 ? 's' : ''}: ${nomes.join(', ')}. A GABI analisa todos em tempo real.`,
       textoLink: 'Gerenciar produtos',
-      rota: '/workspace/assinaturas',
+      rota: '/configurador/assinaturas',
       score: 2,
     })
   }

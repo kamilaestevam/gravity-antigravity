@@ -227,7 +227,7 @@ describe('Enums', () => {
 
 describe('InteracaoSchema', () => {
   it('aceita goto', () => {
-    expect(InteracaoSchema.safeParse({ tipo: 'goto', rota: '/workspace/org' }).success).toBe(true)
+    expect(InteracaoSchema.safeParse({ tipo: 'goto', rota: '/configurador/org' }).success).toBe(true)
   })
 
   it('aceita click', () => {
@@ -259,7 +259,7 @@ describe('AssercaoSchema', () => {
   })
 
   it('aceita urlMatches', () => {
-    expect(AssercaoSchema.safeParse({ tipo: 'urlMatches', regex: '/workspace' }).success).toBe(true)
+    expect(AssercaoSchema.safeParse({ tipo: 'urlMatches', regex: '/configurador' }).success).toBe(true)
   })
 
   it('aceita toastShown', () => {
@@ -280,8 +280,8 @@ describe('PassoSchema', () => {
       acao: 'Navegar para a tela de organização',
       categoria: 1,
       origem: 'humano-original',
-      interacao: { tipo: 'goto', rota: '/workspace/org' },
-      assercao: { tipo: 'urlMatches', regex: '/workspace/org' },
+      interacao: { tipo: 'goto', rota: '/configurador/org' },
+      assercao: { tipo: 'urlMatches', regex: '/configurador/org' },
       resultadoEsperado: 'URL correta carregada no navegador',
       screenshot: '01_navegar',
       tiposAplicaveis: ['E2E'],

@@ -128,7 +128,7 @@ produto/pedido/
 testes/
 ├── testes-e2e/pedido/
 │   └── gabi-insights.spec.ts             ← 4 testes E2E Playwright @critico
-└── testes-em-tela/produto/pedido/
+└── testes-em-tela/pedido/
     └── 2026-04-09-gabi-insights/         ← 7 prints headless capturados
 
 produto/pedido/server/src/services/

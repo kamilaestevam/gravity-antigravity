@@ -19,7 +19,7 @@ Sistema que permite que clientes do Gravity consumam os produtos sem precisar de
 
 ```text
 servicos-global/configurador/
-  └── src/pages/workspace/
+  └── src/pages/configurador/
       └── api-cockpit/      ← central de APIs (visão consolidada)
 
 produtos/[nome-do-produto]/
@@ -194,7 +194,7 @@ Usuário: "Quantos rolamentos importei esse mês?"
 
 ## Tipo runtime — ServicoPlataforma (não persistido)
 
-Inventário de serviços (visto na tela `/workspace/api-cockpit` aba **Inventário**) é gerado em runtime via health-check; não há tabela `servico_plataforma`.
+Inventário de serviços (visto na tela `/configurador/api-cockpit` aba **Inventário**) é gerado em runtime via health-check; não há tabela `servico_plataforma`.
 
 Campos do payload:
 - `nome_servico_plataforma`, `tipo_servico_plataforma` (`NUCLEO`/`PRODUTO_GRAVITY`/`GATEWAY`)

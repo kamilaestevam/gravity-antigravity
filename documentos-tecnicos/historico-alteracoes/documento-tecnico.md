@@ -683,8 +683,8 @@ Funcionalidades:
 
 ### Cliente — `HistoricoOrganizacao.tsx`
 
-**Rota:** `/workspace/historico-organizacao`
-**Arquivo:** `servicos-global/configurador/src/pages/workspace/HistoricoOrganizacao.tsx`
+**Rota:** `/configurador/historico-organizacao`
+**Arquivo:** `servicos-global/configurador/src/pages/configurador/HistoricoOrganizacao.tsx`
 **Quem acessa:** MASTER (sempre); STANDARD/FORNECEDOR com permissao Cadeia 2 `<slug>:historico:ver`.
 
 Funcionalidades:
@@ -697,7 +697,7 @@ Funcionalidades:
 ### Hyperlink dos produtos
 
 Cada produto Gravity expoe item "Histórico" no menu lateral como **link externo**
-(`target="_blank"`) apontando para `/workspace/historico-organizacao?id_produto_historico_log=<slug>`.
+(`target="_blank"`) apontando para `/configurador/historico-organizacao?id_produto_historico_log=<slug>`.
 A rota interna `<Route path="historico">` no produto e o componente shared `<Historico />`
 foram removidos. Backend de escrita (`auditLog()` via `historico-global/src/audit-client.ts`)
 permanece intacto — produtos continuam gravando logs normalmente.

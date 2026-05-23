@@ -11,7 +11,7 @@
   "escopo": "CONFIG",
   "sublocal": "Organização",
   "tela": "Organização",
-  "rota": "/workspace/organizacao",
+  "rota": "/configurador/organizacao",
   "componenteFilePath": "servicos-global/configurador/src/pages/Organizacao.tsx",
   "componenteFileContent": "...",
   "criticidade": "alta",
@@ -100,10 +100,10 @@
 ```json
 {
   "numero": 3,
-  "acao": "Navegar para /workspace/organizacao",
+  "acao": "Navegar para /configurador/organizacao",
   "categoria": 1,
   "origem": "humano-original",
-  "interacao": { "tipo": "goto", "rota": "/workspace/organizacao" },
+  "interacao": { "tipo": "goto", "rota": "/configurador/organizacao" },
   "assercao": { "tipo": "visible", "testid": "tela-organizacao-root" },
   "resultadoEsperado": "Tela carregada",
   "screenshot": "01_tela_carregada_configurador_organizacao",

@@ -343,7 +343,7 @@ const workspace = await organizacaoService.updateWorkspace(...)
 // Diff X→Y automático: ['Nome: "X" → "Y"', 'Status: "Inativo" → "Ativo"']
 const diff_campos = compararEstadosHistoricoLog(estado_anterior, workspace, 'Workspace')
 
-// Texto final pra coluna "Detalhes" da tela /workspace/historico-organizacao
+// Texto final pra coluna "Detalhes" da tela /configurador/historico-organizacao
 const detalhe_acao_historico_log = montarDetalheAcaoHistoricoLog(
   'Atualizou', 'Workspace', workspace.nome_workspace, diff_campos,
 )
@@ -364,10 +364,10 @@ ser substituídas pelos utilitários acima.
 
 - `servicos-global/configurador/server/routes/me.ts` (PATCH workspace — usa diff X→Y)
 - `servicos-global/configurador/server/routes/organizacao.ts` (PATCH /me — usa diff X→Y)
-- `servicos-global/produto/pedido/server/src/services/transferirService.ts`
-- `servicos-global/produto/pedido/server/src/services/duplicarExcluirService.ts`
-- `servicos-global/produto/pedido/server/src/services/edicaoEmMassaService.ts`
-- `servicos-global/produto/pedido/server/src/routes/consolidacoes-pedido.ts`
+- `servicos-global/pedido/server/src/services/transferirService.ts`
+- `servicos-global/pedido/server/src/services/duplicarExcluirService.ts`
+- `servicos-global/pedido/server/src/services/edicaoEmMassaService.ts`
+- `servicos-global/pedido/server/src/routes/consolidacoes-pedido.ts`
 
 ### Auto-instrumentação opcional
 

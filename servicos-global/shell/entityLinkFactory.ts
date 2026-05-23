@@ -6,12 +6,12 @@
  */
 
 const ENTITY_ROUTES: Record<string, (id: string) => string> = {
-  PEDIDO:       (id) => `/produto/pedido/pedidos/${id}/editar`,
-  ITEM:         (id) => `/produto/pedido/pedidos/${id}/editar`,
-  SIMULACUSTO:  (id) => `/produto/simulacusto/resultado/${id}`,
-  PROCESSO:     (id) => `/produto/processo/${id}`,
-  FINANCEIRO:   (id) => `/produto/financeiro/${id}`,
-  NF_IMPORTACAO:(id) => `/produto/nf-importacao/${id}`,
+  PEDIDO:       (id) => `/pedido/pedidos/${id}/editar`,
+  ITEM:         (id) => `/pedido/pedidos/${id}/editar`,
+  SIMULACUSTO:  (id) => `/simula-custo/resultado/${id}`,
+  PROCESSO:     (id) => `/processo/${id}`,
+  FINANCEIRO:   (id) => `/configurador/financeiro/${id}`,
+  NF_IMPORTACAO:(id) => `/nf-importacao/${id}`,
 }
 
 export function buildEntityLink(entity: string, id: string): string {

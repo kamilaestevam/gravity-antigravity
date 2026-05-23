@@ -3249,7 +3249,7 @@ export default function VisaoGeral() {
           <BotaoGlobal
             variante="primario"
             icone={<MagnifyingGlass weight="bold" size={15} />}
-            onClick={() => navigate('/produto/bid-frete/cotacoes/nova')}
+            onClick={() => navigate('/bid-frete/cotacoes/nova')}
           >
             Buscar frete
           </BotaoGlobal>

@@ -43,8 +43,8 @@ import { produtosWorkspaceApi } from '../services/api-client'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync, useOrganizacaoOverride } from '@gravity/shell'
 import { limparCacheTipoUsuario, useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
-import './workspace/workspace.css'
-import './workspace/gabi.css'
+import './configurador/workspace.css'
+import './configurador/gabi.css'
 
 // Lazy-load componentes pesados — antes eram estáticos e bloqueavam o render do Core
 const Notificacoes = React.lazy(() => import('../../../servicos-plataforma/notificacoes/src/Notificacoes').then(m => ({ default: m.Notificacoes })))
@@ -192,7 +192,7 @@ export function Core() {
 
     // Processo
     items.push({
-      to: '/produto/processo',
+      to: '/processo',
       label: t('shell.processo_prefixo'),
       icon: <Folders weight="duotone" size={18} />,
     })
@@ -312,7 +312,7 @@ export function Core() {
             userRole={currentUser.role ?? t('shell.papel_membro')}
             isLight={isLight}
             onToggleTheme={toggleTheme}
-            onNavigateWorkspace={() => navigate('/workspace/organizacao')}
+            onNavigateWorkspace={() => navigate('/configurador/organizacao')}
             onNavigateMarketPlace={() => navigate('/store')}
             onSignOut={() => {
               limparCacheTipoUsuario()
@@ -322,7 +322,7 @@ export function Core() {
             }}
             isAdmin={isGravityAdmin}
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
-            onNavigateConfigurador={() => navigate('/workspace/workspaces')}
+            onNavigateConfigurador={() => navigate('/configurador/workspaces')}
             temAcessoTrocarOrganizacao={podeAtivarOverride}
             organizacaoOverrideAtiva={overrideAtivo}
             aoTrocarOrganizacao={() => setModalTrocarOrgAberto(true)}

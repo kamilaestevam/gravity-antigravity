@@ -60,20 +60,20 @@ const NcmIntegracaoAdmin = lazy(() => import('./pages/admin/NcmIntegracaoAdmin')
 const CertificadosAdmin = lazy(() => import('./pages/admin/CertificadosAdmin'), 'CertificadosAdmin')
 const CadastrosGlobaisAdmin = React.lazy(() => import('./pages/admin/CadastrosGlobaisAdmin'))
 const EmpresasEParceirosAdmin = lazy(() => import('./pages/admin/EmpresasEParceirosAdmin'), 'EmpresasEParceirosAdmin')
-const WorkspaceLayout = lazy(() => import('./pages/workspace/WorkspaceLayout'), 'WorkspaceLayout')
-const Organizacao = lazy(() => import('./pages/workspace/Organizacao'), 'Organizacao')
-const Workspaces = lazy(() => import('./pages/workspace/Workspaces'), 'Workspaces')
-const Usuarios = lazy(() => import('./pages/workspace/Usuarios'), 'Usuarios')
-const EmpresasEParceiros = lazy(() => import('./pages/workspace/EmpresasEParceiros'), 'EmpresasEParceiros')
-const Assinaturas = lazy(() => import('./pages/workspace/Assinaturas'), 'Assinaturas')
-const FinanceiroWorkspace = lazy(() => import('./pages/workspace/FinanceiroWorkspace'), 'FinanceiroWorkspace')
-const ApiCockpit = lazy(() => import('./pages/workspace/ApiCockpit'), 'ApiCockpit')
-const ApiTokens = lazy(() => import('./pages/workspace/ApiTokens'), 'ApiTokens')
-const ApiWebhooks = lazy(() => import('./pages/workspace/ApiWebhooks'), 'ApiWebhooks')
-const ApiConsumo = lazy(() => import('./pages/workspace/ApiConsumo'), 'ApiConsumo')
-const ConectorCargoWise = lazy(() => import('./pages/workspace/ConectorCargoWise'), 'ConectorCargoWise')
-const TaxasMoedaPage = lazy(() => import('./pages/workspace/TaxasMoeda'), 'TaxasMoeda')
-const HistoricoOrganizacao = lazy(() => import('./pages/workspace/HistoricoOrganizacao'), 'HistoricoOrganizacao')
+const WorkspaceLayout = lazy(() => import('./pages/configurador/WorkspaceLayout'), 'WorkspaceLayout')
+const Organizacao = lazy(() => import('./pages/configurador/Organizacao'), 'Organizacao')
+const Workspaces = lazy(() => import('./pages/configurador/Workspaces'), 'Workspaces')
+const Usuarios = lazy(() => import('./pages/configurador/Usuarios'), 'Usuarios')
+const EmpresasEParceiros = lazy(() => import('./pages/configurador/EmpresasEParceiros'), 'EmpresasEParceiros')
+const Assinaturas = lazy(() => import('./pages/configurador/Assinaturas'), 'Assinaturas')
+const FinanceiroWorkspace = lazy(() => import('./pages/configurador/FinanceiroWorkspace'), 'FinanceiroWorkspace')
+const ApiCockpit = lazy(() => import('./pages/configurador/ApiCockpit'), 'ApiCockpit')
+const ApiTokens = lazy(() => import('./pages/configurador/ApiTokens'), 'ApiTokens')
+const ApiWebhooks = lazy(() => import('./pages/configurador/ApiWebhooks'), 'ApiWebhooks')
+const ApiConsumo = lazy(() => import('./pages/configurador/ApiConsumo'), 'ApiConsumo')
+const ConectorCargoWise = lazy(() => import('./pages/configurador/ConectorCargoWise'), 'ConectorCargoWise')
+const TaxasMoedaPage = lazy(() => import('./pages/configurador/TaxasMoeda'), 'TaxasMoeda')
+const HistoricoOrganizacao = lazy(() => import('./pages/configurador/HistoricoOrganizacao'), 'HistoricoOrganizacao')
 
 // Core — tela pós-seleção de workspace (menu lateral + conteúdo)
 const Core = lazy(() => import('./pages/Core'), 'Core')
@@ -340,12 +340,21 @@ export default function App() {
           </Route>
         </Route>
 
-        {/* Produtos — carregados como lazy routes dentro do Configurador */}
-        <Route path="/produto/simula-custo/*" element={<ProtectedRoute><ProductErrorBoundary name="SimulaCusto"><React.Suspense fallback={<ProductLoading />}><SimulaCustoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
-        <Route path="/produto/processo/*" element={<ProtectedRoute><ProductErrorBoundary name="Processo"><React.Suspense fallback={<ProductLoading />}><ProcessoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
-        <Route path="/produto/bid-frete/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
-        <Route path="/produto/bid-cambio/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Câmbio"><React.Suspense fallback={<ProductLoading />}><BidCambioApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
-        <Route path="/produto/pedido/*" element={<ProtectedRoute><ProductErrorBoundary name="Pedido"><GuardaRotaPedido /></ProductErrorBoundary></ProtectedRoute>} />
+        {/* Produtos — rotas canônicas (sem prefixo /produto/, ver
+            documentos-tecnicos/arquitetura/rotas-convencao.md) */}
+        <Route path="/simula-custo/*" element={<ProtectedRoute><ProductErrorBoundary name="SimulaCusto"><React.Suspense fallback={<ProductLoading />}><SimulaCustoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/processo/*" element={<ProtectedRoute><ProductErrorBoundary name="Processo"><React.Suspense fallback={<ProductLoading />}><ProcessoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/bid-frete/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/bid-frete-internacional/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/bid-cambio/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Câmbio"><React.Suspense fallback={<ProductLoading />}><BidCambioApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/pedido/*" element={<ProtectedRoute><ProductErrorBoundary name="Pedido"><GuardaRotaPedido /></ProductErrorBoundary></ProtectedRoute>} />
+
+        {/* Redirects legacy (90 dias após merge — Pendência #5) */}
+        <Route path="/produto/simula-custo/*" element={<NavigateComPrefixo de="/produto/simula-custo" para="/simula-custo" />} />
+        <Route path="/produto/processo/*" element={<NavigateComPrefixo de="/produto/processo" para="/processo" />} />
+        <Route path="/produto/bid-frete/*" element={<NavigateComPrefixo de="/produto/bid-frete" para="/bid-frete" />} />
+        <Route path="/produto/bid-cambio/*" element={<NavigateComPrefixo de="/produto/bid-cambio" para="/bid-cambio" />} />
+        <Route path="/produto/pedido/*" element={<NavigateComPrefixo de="/produto/pedido" para="/pedido" />} />
 
         {/* Admin — área interna restrita — exclusivo gravity_admin */}
         <Route path="/admin" element={<AdminRoute><React.Suspense fallback={<ProductLoading />}><AdminLayout /></React.Suspense></AdminRoute>}>
@@ -373,12 +382,12 @@ export default function App() {
           <Route path="organizacoes/:id_organizacao" element={<React.Suspense fallback={<ProductLoading />}><OrganizacaoDetalheWrapper /></React.Suspense>} />
         </Route>
 
-        {/* Workspace — área Configurador, restrita a MASTER/SUPER_ADMIN/ADMIN
+        {/* Configurador — área da org do cliente, restrita a MASTER/SUPER_ADMIN/ADMIN
             (matriz Cadeia 1 em src/routing/route-policy.ts). PADRAO/FORNECEDOR
             redirecionados para /hub. ADMIN entra read-only — mutações são
             bloqueadas no backend por requireConfiguradorMutation. */}
-        <Route path="/workspace" element={<ConfiguradorRoute><React.Suspense fallback={<ProductLoading />}><WorkspaceLayout /></React.Suspense></ConfiguradorRoute>}>
-          <Route index element={<Navigate to="/workspace/organizacao" replace />} />
+        <Route path="/configurador" element={<ConfiguradorRoute><React.Suspense fallback={<ProductLoading />}><WorkspaceLayout /></React.Suspense></ConfiguradorRoute>}>
+          <Route index element={<Navigate to="/configurador/organizacao" replace />} />
           <Route path="organizacao" element={<React.Suspense fallback={<ProductLoading />}><Organizacao /></React.Suspense>} />
           <Route path="workspaces" element={<React.Suspense fallback={<ProductLoading />}><Workspaces /></React.Suspense>} />
           <Route path="usuarios" element={<React.Suspense fallback={<ProductLoading />}><Usuarios /></React.Suspense>} />
@@ -391,10 +400,14 @@ export default function App() {
           <Route path="api-cockpit/consumo" element={<React.Suspense fallback={<ProductLoading />}><ApiConsumo /></React.Suspense>} />
           <Route path="conector-cargowise" element={<React.Suspense fallback={<ProductLoading />}><ConectorCargoWise /></React.Suspense>} />
           <Route path="taxas-moeda" element={<React.Suspense fallback={<ProductLoading />}><TaxasMoedaPage /></React.Suspense>} />
-          <Route path="taxas-cambio" element={<Navigate to="/workspace/taxas-moeda" replace />} />
-          <Route path="taxa-cambio" element={<Navigate to="/workspace/taxas-moeda" replace />} />
+          <Route path="taxas-cambio" element={<Navigate to="/configurador/taxas-moeda" replace />} />
+          <Route path="taxa-cambio" element={<Navigate to="/configurador/taxas-moeda" replace />} />
           <Route path="historico-organizacao" element={<React.Suspense fallback={<ProductLoading />}><HistoricoOrganizacao /></React.Suspense>} />
         </Route>
+
+        {/* Redirect legacy /workspace/* → /configurador/* (90 dias — Pendência #5) */}
+        <Route path="/workspace" element={<Navigate to="/configurador" replace />} />
+        <Route path="/workspace/*" element={<NavigateComPrefixo de="/workspace" para="/configurador" />} />
 
         {/* Harness E2E — dev-only, sem autenticação */}
         {E2ENotificacoesHarness && (
@@ -412,9 +425,9 @@ export default function App() {
         <Route path="*" element={
           <div style={{ textAlign: 'center', padding: '6rem 1.5rem' }}>
             <p style={{ fontSize: '5rem', fontWeight: 800, color: 'var(--bg-elevated)', lineHeight: 1 }}>404</p>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '1rem 0 0.5rem', color: 'var(--text-primary)' }}>Pagina nao encontrada</h1>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>A pagina que voce procura nao existe ou foi movida.</p>
-            <a href="/" style={{ color: 'var(--accent)' }}>Voltar ao inicio</a>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '1rem 0 0.5rem', color: 'var(--text-primary)' }}>Página não encontrada</h1>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>A página que você procura não existe ou foi movida.</p>
+            <a href="/" style={{ color: 'var(--accent)' }}>Voltar ao início</a>
           </div>
         } />
       </Routes>

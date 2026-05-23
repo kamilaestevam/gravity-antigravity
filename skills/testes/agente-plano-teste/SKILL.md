@@ -35,7 +35,7 @@ description: "Use sempre que precisar criar ou expandir um plano de teste para u
 | `escopo` | enum | LOGIN, CONFIG, ADMIN, HUB, CORE, MARKET, TENANT, DBASE, PEDIDO, NFIMP, LPCO, BIDFRT, BIDCAM, SIMCUS, FINCOM, PROCSO |
 | `sublocal` | string | Ex: "Organização", "Acessar Workspace", "Visão Geral" |
 | `tela` | string | Geralmente igual ao sublocal, mas pode haver mais granularidade |
-| `rota` | string | Ex: `/workspace/organizacao` |
+| `rota` | string | Ex: `/configurador/organizacao` |
 | `componenteFilePath` | string | Path do arquivo React principal da tela |
 | `componenteFileContent` | string | Conteúdo do componente — fonte da verdade dos testids |
 | `screenshot` | string \| null | PNG da tela renderizada (opcional mas recomendado — ajuda IA "ver") |
@@ -58,7 +58,7 @@ JSON validado por Zod (ver [formato-plano.md](./formato-plano.md)). Estrutura ma
   escopo:       "CONFIG",
   sublocal:     "Organização",
   tela:         "Organização",
-  rota:         "/workspace/organizacao",
+  rota:         "/configurador/organizacao",
   ambientes:    ["Local", "Staging", "Producao"],
   criticidade:  "alta",
   preRequisitos: { ... },

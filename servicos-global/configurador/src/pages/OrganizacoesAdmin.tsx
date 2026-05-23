@@ -23,8 +23,8 @@ import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalNovaOrganizacao, type DadosNovaOrg } from './admin/ModalNovaOrganizacao'
 import { ModalEditarOrganizacao, type DadosEditarOrg } from './admin/ModalEditarOrganizacao'
-import { ModalEditarWorkspace } from './workspace/ModalEditarWorkspace'
-import type { Workspace } from './workspace/Workspaces'
+import { ModalEditarWorkspace } from './configurador/ModalEditarWorkspace'
+import type { Workspace } from './configurador/Workspaces'
 import { getAcoesExportacaoPadrao } from '../utils/export-helper'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -283,7 +283,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       tooltipDescricao: 'Alias em uso pelo API Gateway para roteamento da organização.',
       render: (_v, item) => (
         <a
-          href={`${SHELL_URL}/workspace/${item.subdominio_organizacao}`}
+          href={`${SHELL_URL}/configurador/${item.subdominio_organizacao}`}
           target="_blank"
           rel="noopener noreferrer"
           style={{ color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s' }}
@@ -348,7 +348,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
             {item.nome_workspace.charAt(0).toUpperCase()}
           </div>
           <a
-            href={`/workspace/workspaces?id=${item.id_workspace}`}
+            href={`/configurador/workspaces?id=${item.id_workspace}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ fontWeight: 600, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer' }}
@@ -365,7 +365,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       key: 'subdominio_workspace', label: 'Subdomínio', tipo: 'texto',
       render: (_v, item) => (
         <a
-          href={item.subdominio_workspace ? `${SHELL_URL}/workspace/${item.subdominio_workspace}` : '#'}
+          href={item.subdominio_workspace ? `${SHELL_URL}/configurador/${item.subdominio_workspace}` : '#'}
           target={item.subdominio_workspace ? '_blank' : undefined}
           rel="noopener noreferrer"
           style={{ color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s' }}

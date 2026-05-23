@@ -319,7 +319,7 @@ on('timer:stopped', ({ activity_id, duration }) => {
 - **Path**: `GET /api/v1/taxas-moeda` → `{ por_moeda: { USD: [...], EUR: [...] } }`
 - **Auth**: público nos GETs (PTAX é dado público), `requireAuth` no `POST /sync`
 - **O que faz**: lê os boletins persistidos em `prisma.cambio` (todos boletins do dia agrupados por moeda)
-- **Quem consome**: frontend (tela `/workspace/taxas-moeda` e `/admin/taxas-moeda`), produtos via hook `useTaxasMoeda`
+- **Quem consome**: frontend (tela `/configurador/taxas-moeda` e `/admin/taxas-moeda`), produtos via hook `useTaxasMoeda`
 
 ### Cadeia completa
 

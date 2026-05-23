@@ -27,7 +27,7 @@ A política vale para **todo produto e serviço** que referencia entidade de Cad
 
 | Produto / Serviço | Padrão atual | Padrão exigido |
 |---|---|---|
-| Configurador (`/workspace/empresas-e-parceiros`) | Leitura ao vivo (gestão) | Mantém — gestão da entidade |
+| Configurador (`/configurador/empresas-e-parceiros`) | Leitura ao vivo (gestão) | Mantém — gestão da entidade |
 | Configurador (Modal Editar Empresa — campo País) | Leitura ao vivo via `usePaises()` hook | Mantém — gestão. Lista vem de `GET /api/v1/cadastros/paises` |
 | Pedido | Snapshot (`pedido_snapshot_empresa`) | Mantém — referência canônica desta lei |
 | LPCO | (a definir) | **Snapshot** — emite ao Portal Único |
@@ -241,7 +241,7 @@ Quando criar a próxima entidade master-data (Unidade, NCM já existem com regra
 
 A primeira implementação correta — usar como gabarito para LPCO, NF-Importação, Bid-Cambio:
 
-[`servicos-global/produto/pedido/prisma/fragment.prisma:480`](../../../../servicos-global/produto/pedido/prisma/fragment.prisma) — `model PedidoSnapshotEmpresa`
+[`servicos-global/pedido/prisma/fragment.prisma:480`](../../../../servicos-global/pedido/prisma/fragment.prisma) — `model PedidoSnapshotEmpresa`
 
 Inclui:
 

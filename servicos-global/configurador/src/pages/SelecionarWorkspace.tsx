@@ -132,10 +132,10 @@ const WORKSPACE_GRADIENTS = [
 
 /* ── Atalhos (estáticos — navegação interna) ── */
 const ATALHOS: Atalho[] = [
-  { id: 'a1', nome: 'Configurador', descricao: 'Workspace, CNPJ, regras fiscais e usuários', iconBg: 'var(--sw-amber-dim)', iconColor: 'var(--sw-amber)', icon: 'gear', admin: true, rota: '/workspace/organizacao' },
-  { id: 'a2', nome: 'Store de Módulos', descricao: 'Ative, desative e gerencie produtos', iconBg: 'var(--sw-accent-dim)', iconColor: 'var(--sw-accent-2)', icon: 'squares', rota: '/workspace/assinaturas' },
-  { id: 'a3', nome: 'Relatórios', descricao: 'Exportações, histórico e dashboards', iconBg: 'var(--sw-green-dim)', iconColor: 'var(--sw-green)', icon: 'chart', rota: '/workspace/financeiro' },
-  { id: 'a4', nome: 'Equipe', descricao: 'Convites, papéis e permissões', iconBg: 'var(--sw-surface-3)', iconColor: 'var(--sw-text-2)', icon: 'users', admin: true, rota: '/workspace/usuarios' },
+  { id: 'a1', nome: 'Configurador', descricao: 'Workspace, CNPJ, regras fiscais e usuários', iconBg: 'var(--sw-amber-dim)', iconColor: 'var(--sw-amber)', icon: 'gear', admin: true, rota: '/configurador/organizacao' },
+  { id: 'a2', nome: 'Store de Módulos', descricao: 'Ative, desative e gerencie produtos', iconBg: 'var(--sw-accent-dim)', iconColor: 'var(--sw-accent-2)', icon: 'squares', rota: '/configurador/assinaturas' },
+  { id: 'a3', nome: 'Relatórios', descricao: 'Exportações, histórico e dashboards', iconBg: 'var(--sw-green-dim)', iconColor: 'var(--sw-green)', icon: 'chart', rota: '/configurador/financeiro' },
+  { id: 'a4', nome: 'Equipe', descricao: 'Convites, papéis e permissões', iconBg: 'var(--sw-surface-3)', iconColor: 'var(--sw-text-2)', icon: 'users', admin: true, rota: '/configurador/usuarios' },
 ]
 
 /* ── Helpers ── */
@@ -152,11 +152,11 @@ function ShortcutIcon({ icon, color }: { icon: string; color: string }) {
 
 /* ── Mapa de slug → rota e nome amigável ── */
 const PRODUCT_ROUTE_MAP: Record<string, { nome: string; rota: string }> = {
-  'simula-custo': { nome: 'SimulaCusto', rota: '/produto/simula-custo' },
-  'bid-frete': { nome: 'BID Frete Internacional', rota: '/produto/bid-frete' },
-  'bid-cambio': { nome: 'BID Câmbio', rota: '/produto/bid-cambio' },
+  'simula-custo': { nome: 'SimulaCusto', rota: '/simula-custo' },
+  'bid-frete': { nome: 'BID Frete Internacional', rota: '/bid-frete' },
+  'bid-cambio': { nome: 'BID Câmbio', rota: '/bid-cambio' },
   'smart-read': { nome: 'Smart Read', rota: '/produto/smart-read' },
-  'processo': { nome: 'Processo', rota: '/produto/processo' },
+  'processo': { nome: 'Processo', rota: '/processo' },
 }
 
 /* ── Mapa de slug → ícone, cor e bg para produtos sugeridos ── */
@@ -551,8 +551,8 @@ export function SelecionarWorkspace() {
         { to: '/hub', label: 'Dashboard', icon: <House weight="duotone" size={18} /> },
         { to: '/hub', label: 'Atividades', icon: <ListChecks weight="duotone" size={18} /> },
         { to: '/store', label: 'Produtos', icon: <Package weight="duotone" size={18} /> },
-        { to: '/workspace/financeiro', label: 'Email', icon: <Envelope weight="duotone" size={18} /> },
-        { to: '/workspace/usuarios', label: 'WhatsApp', icon: <WhatsappLogo weight="duotone" size={18} /> },
+        { to: '/configurador/financeiro', label: 'Email', icon: <Envelope weight="duotone" size={18} /> },
+        { to: '/configurador/usuarios', label: 'WhatsApp', icon: <WhatsappLogo weight="duotone" size={18} /> },
       ],
     })
 
@@ -583,11 +583,11 @@ export function SelecionarWorkspace() {
     }
 
     items.push({ label: '', sectionDivider: true, icon: null })
-    items.push({ to: '/produto/processo', label: 'Processo', icon: <Folders weight="duotone" size={18} /> })
-    items.push({ to: '/workspace/financeiro', label: 'Relatórios', icon: <FileText weight="duotone" size={18} /> })
-    items.push({ to: '/workspace/organizacao', label: 'Histórico de Alterações', icon: <ClockCounterClockwise weight="duotone" size={18} /> })
-    items.push({ to: '/workspace/api-cockpit', label: 'Cockpit API', icon: <Plug weight="duotone" size={18} /> })
-    items.push({ to: '/workspace/organizacao', label: 'Configurações', icon: <GearSix weight="duotone" size={18} /> })
+    items.push({ to: '/processo', label: 'Processo', icon: <Folders weight="duotone" size={18} /> })
+    items.push({ to: '/configurador/financeiro', label: 'Relatórios', icon: <FileText weight="duotone" size={18} /> })
+    items.push({ to: '/configurador/organizacao', label: 'Histórico de Alterações', icon: <ClockCounterClockwise weight="duotone" size={18} /> })
+    items.push({ to: '/configurador/api-cockpit', label: 'Cockpit API', icon: <Plug weight="duotone" size={18} /> })
+    items.push({ to: '/configurador/organizacao', label: 'Configurações', icon: <GearSix weight="duotone" size={18} /> })
 
     return items
   }, [produtosAtivos])
@@ -602,7 +602,7 @@ export function SelecionarWorkspace() {
   }, [signOut, navigate])
 
   const handleCriarWorkspace = useCallback(() => {
-    navigate('/workspace/workspaces')
+    navigate('/configurador/workspaces')
   }, [navigate])
 
   /* ── Carrossel scroll ── */
@@ -701,7 +701,7 @@ export function SelecionarWorkspace() {
                 if (prod) { navigate(`/produto/${prod.product_key}`); return }
                 // Buscar em catálogo
                 const cat = catalogoProdutos.find(p => p.name.toLowerCase().includes(termLower))
-                if (cat) { navigate('/workspace/assinaturas'); return }
+                if (cat) { navigate('/configurador/assinaturas'); return }
                 // Buscar em navItems
                 const flat = navItems.flatMap(i => i.children ? i.children : [i])
                 const target = flat.find(item => item.label?.toLowerCase().includes(termLower))
@@ -758,7 +758,7 @@ export function SelecionarWorkspace() {
               className="sw-t-icon"
               type="button"
               title={t('workspace.layout.modulo_nome')}
-              onClick={() => navigate('/workspace/organizacao')}
+              onClick={() => navigate('/configurador/organizacao')}
             >
               <GearSix size={16} weight="duotone" />
             </button>
@@ -770,7 +770,7 @@ export function SelecionarWorkspace() {
               userRole={userRole}
               isLight={isLight}
               onToggleTheme={toggleTheme}
-              onNavigateWorkspace={() => navigate('/workspace/organizacao')}
+              onNavigateWorkspace={() => navigate('/configurador/organizacao')}
               onNavigateMarketPlace={() => navigate('/store')}
               onSignOut={handleSair}
               isAdmin={isGravityAdmin}

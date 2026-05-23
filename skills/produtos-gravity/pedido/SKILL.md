@@ -23,7 +23,7 @@ rascunho → aberto → consolidado/transferido → cancelado.
 ## Localização na Arquitetura
 
 ```text
-servicos-global/produto/pedido/
+servicos-global/pedido/
 ├── prisma/
 │   ├── fragment.prisma           ← fonte da verdade (Mand. 02)
 │   └── schema.prisma             ← gerado por compose-pedido-schema.ts

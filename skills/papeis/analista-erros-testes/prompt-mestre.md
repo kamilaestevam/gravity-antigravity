@@ -127,7 +127,7 @@ INPUT:
 {
   "errorLog": "TypeError: Cannot read properties of undefined (reading 'nome') at Organizacao.tsx:67",
   "testName": "01. Tela Organização carrega",
-  "specFileContent": "await page.goto('/workspace/organizacao')...",
+  "specFileContent": "await page.goto('/configurador/organizacao')...",
   "componentFileContent": "const { data } = useOrganizacao()\nreturn <h1>{data.nome}</h1>",
   "lastCommitsTouching": [
     {"hash": "def5678", "autor": "Daniel", "data": "2026-04-15", "mensagem": "feat: adiciona useOrganizacao hook"}

@@ -18,7 +18,7 @@ import {
 import { PRODUCT_META, RELACAO_ENTRE_PRODUTOS_GRAVITY, STACK_ORDER } from '../data/product-meta'
 import './hub-store.css'
 import './hub.css'
-import '../pages/workspace/workspace.css'
+import '../pages/configurador/workspace.css'
 import './selecionar-workspace.css'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
@@ -349,7 +349,7 @@ export function Store() {
             onNavigate={(node) => {
               if (node.type === 'hub')               navigate('/hub?select=1')
               else if (node.type === 'core')         navigate('/core')
-              else if (node.type === 'configurador') navigate('/workspace')
+              else if (node.type === 'configurador') navigate('/configurador')
               else if (node.type === 'admin')        navigate('/admin/visao-geral')
               else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
             }}
@@ -365,7 +365,7 @@ export function Store() {
             className="hb-topbar-btn"
             type="button"
             title={t('workspace.layout.modulo_nome')}
-            onClick={() => navigate('/workspace')}
+            onClick={() => navigate('/configurador')}
           >
             <Gear weight="duotone" size={16} />
           </button>
@@ -377,7 +377,7 @@ export function Store() {
             userRole={userRoleLabel}
             isLight={isLight}
             onToggleTheme={toggleTheme}
-            onNavigateWorkspace={() => navigate('/workspace/organizacao')}
+            onNavigateWorkspace={() => navigate('/configurador/organizacao')}
             onNavigateMarketPlace={() => navigate('/store')}
             onSignOut={() => signOut()}
             isAdmin={isGravityAdmin}

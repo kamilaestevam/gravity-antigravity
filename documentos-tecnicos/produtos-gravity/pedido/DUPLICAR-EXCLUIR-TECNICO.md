@@ -10,7 +10,7 @@
 ## Estrutura de Arquivos (atual)
 
 ```
-servicos-global/produto/pedido/
+servicos-global/pedido/
 ├── client/
 │   └── src/
 │       ├── components/

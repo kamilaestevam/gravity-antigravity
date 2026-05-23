@@ -106,7 +106,7 @@ function getScreenContext(path: string): ScreenContext {
     }
 
   // /workspace/financeiro
-  if (path.includes('/workspace/financeiro'))
+  if (path.includes('/configurador/financeiro'))
     return {
       welcome: 'Acompanhe faturas, pagamentos e o historico financeiro da sua conta.',
       actions: [

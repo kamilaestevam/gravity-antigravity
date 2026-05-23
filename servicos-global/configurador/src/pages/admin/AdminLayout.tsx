@@ -222,7 +222,7 @@ export function AdminLayout() {
             nodes={adminEcosystemNodes}
             onNavigate={(node) => {
               if (node.type === 'hub')               navigate('/hub?select=1')
-              else if (node.type === 'configurador') navigate('/workspace/workspaces')
+              else if (node.type === 'configurador') navigate('/configurador/workspaces')
               else if (node.type === 'core')         navigate('/core')
               else if (node.type === 'admin')        navigate('/admin/visao-geral')
               else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
@@ -249,7 +249,7 @@ export function AdminLayout() {
             isAdminPanel={true}
             compact
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
-            onNavigateConfigurador={() => navigate('/workspace/workspaces')}
+            onNavigateConfigurador={() => navigate('/configurador/workspaces')}
             temAcessoTrocarOrganizacao={podeAtivarOverride}
             organizacaoOverrideAtiva={overrideAtivo}
             aoTrocarOrganizacao={() => setModalTrocarOrgAberto(true)}

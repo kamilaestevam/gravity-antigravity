@@ -6,7 +6,7 @@ import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Storefront, Buildings, IdentificationCard, ArrowLeft, Sparkle, RocketLaunch, Users, ShoppingBagOpen, ArrowRight } from '@phosphor-icons/react'
-import './workspace/workspace.css'
+import './configurador/workspace.css'
 
 // ─── Helpers de CNPJ (inline — evita dependência de @nucleo/utils) ────────────
 

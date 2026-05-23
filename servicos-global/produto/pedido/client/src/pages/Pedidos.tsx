@@ -3034,7 +3034,7 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
       return (
         <TooltipGlobal
           titulo="Saldo do Pedido"
-          descricao={<span>Calculado com base nos itens — não editável. <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+          descricao={<span>Calculado com base nos itens — não editável. <a href="/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
           interativo
         >
           <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
@@ -3991,7 +3991,7 @@ export default function Pedidos() {
         const tooltipSaldo = (conteudo: React.ReactNode) => (
           <TooltipGlobal
             titulo="Saldo do Pedido"
-            descricao={<span>Calculado com base nos itens — não editável. <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+            descricao={<span>Calculado com base nos itens — não editável. <a href="/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
             interativo
           >
             <span style={{ display: 'contents' }}>{conteudo}</span>
@@ -4583,7 +4583,7 @@ export default function Pedidos() {
     // Usar '/configuracoes' (sem prefixo) bate no shell e dá 404.
     // tab=colunas-personalizadas (não 'colunas' — id de categoria precisa
     // bater com COLUNAS_FILHOS para o effect de scroll+focus disparar).
-    navigate('/produto/pedido/configuracoes?tab=colunas-personalizadas&acao=nova')
+    navigate('/pedido/configuracoes?tab=colunas-personalizadas&acao=nova')
     setNovoDropdownAberto(false)
   }, [navigate])
 

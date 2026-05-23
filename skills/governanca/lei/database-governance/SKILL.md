@@ -119,7 +119,7 @@ Banco PostgreSQL (por produto)
 
 ```typescript
 // ❌ PROIBIDO — produto acessando banco de outro produto
-import { prisma as pedidoPrisma } from '../../../produto/pedido/server/prisma.js'
+import { prisma as pedidoPrisma } from '../../../pedido/server/prisma.js'
 
 // ❌ PROIBIDO — produto acessando banco do Configurador
 import { prisma as configuradorPrisma } from '../../../servicos-global/configurador/server/prisma.js'

@@ -62,7 +62,7 @@ const DEV_MOCKS: AvisoInterno[] = import.meta.env.DEV ? [
     dataHora: '16/04/2026, 09:14',
     lido: false,
     tipo: 'mencao',
-    href: '/produto/pedido/pedidos/PED-2024-089',
+    href: '/pedido/pedidos/PED-2024-089',
   },
   {
     id: 'mock-2',

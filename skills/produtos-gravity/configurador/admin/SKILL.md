@@ -132,7 +132,7 @@ Decisão dono **2026-05-05**: a linha expandida da tabela usa o **padrão Assina
 - **Lazy-load:** `GET /api/v1/admin/organizacoes/:id_organizacao/workspaces` (auth: `requireGravityAdmin` — SAdmin + ADMIN podem ler) — invocado quando a linha é expandida; cache em `workspacesPorOrg[id]` evita refetch.
 - **Mutação:** `PUT /api/v1/usuarios/:id_usuario/workspaces` (replace-all atômico). Backend já suporta SUPER_ADMIN cross-org via desvio do filtro `id_organizacao` no findFirst do alvo.
 - **Gating UI — opção α (decisão dono):** **apenas SUPER_ADMIN** edita vínculos via Admin Panel. ADMIN logado vê o editor em modo read-only (sem checkboxes, sem botões de ação). Para abrir esse poder ao ADMIN no futuro, mudar `podeEditar` em [UsuariosAdmin.tsx](../../../../servicos-global/configurador/src/pages/admin/UsuariosAdmin.tsx) e revisar [seguranca/permissoes](../../../seguranca/permissoes/SKILL.md).
-- **Componente compartilhado:** [src/components/expandido-editor-vinculos](../../../../servicos-global/configurador/src/components/expandido-editor-vinculos/index.tsx) — mesmo componente usado em `/workspace/usuarios` (Configurador).
+- **Componente compartilhado:** [src/components/expandido-editor-vinculos](../../../../servicos-global/configurador/src/components/expandido-editor-vinculos/index.tsx) — mesmo componente usado em `/configurador/usuarios` (Configurador).
 - **Audit:** `securityAudit.permissionChanged` continua sendo emitido na org do **alvo** (não do ator), com `acao_permissao: 'GRANTED' | 'REVOKED'`.
 
 ### Convite Cross-Org (Admin) — 2026-05-12

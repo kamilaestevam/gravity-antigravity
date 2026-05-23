@@ -15,7 +15,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
  */
 type AbaCockpit = 'servidores' | 'tokens' | 'webhooks' | 'consumo'
 
-const ROTA_BASE = '/workspace/api-cockpit'
+const ROTA_BASE = '/configurador/api-cockpit'
 
 export function ApiCockpitTabs() {
   const { t } = useTranslation()

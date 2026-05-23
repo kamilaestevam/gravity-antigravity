@@ -262,7 +262,7 @@ export function Hub() {
             onNavigate={(node) => {
               if (node.type === 'hub')               navigate('/hub?select=1')
               else if (node.type === 'core')         navigate('/core')
-              else if (node.type === 'configurador') navigate('/workspace')
+              else if (node.type === 'configurador') navigate('/configurador')
               else if (node.type === 'admin')        navigate('/admin/visao-geral')
               else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
             }}
@@ -277,7 +277,7 @@ export function Hub() {
             className="hb-topbar-btn"
             type="button"
             title={t('workspace.layout.modulo_nome')}
-            onClick={() => navigate('/workspace')}
+            onClick={() => navigate('/configurador')}
           >
             <Gear weight="duotone" size={16} />
           </button>
@@ -289,7 +289,7 @@ export function Hub() {
             userRole={userRole}
             isLight={isLight}
             onToggleTheme={toggleTheme}
-            onNavigateWorkspace={() => navigate('/workspace')}
+            onNavigateWorkspace={() => navigate('/configurador')}
             onNavigateMarketPlace={() => navigate('/store')}
             onSignOut={() => {
               sessionStorage.removeItem('gravity_company_id')
@@ -464,13 +464,13 @@ export function Hub() {
             <span className="hb-section-title" style={{ marginBottom: 0 }}>
               {t('hub.processos_recentes', 'Processos recentes')}
             </span>
-            <button className="hb-section-link" type="button" onClick={() => navigate('/produto/processo')}>
+            <button className="hb-section-link" type="button" onClick={() => navigate('/processo')}>
               {t('hub.ver_todos', 'ver todos')} →
             </button>
           </div>
           <div className="hb-proc-list">
             {getMockProcesses(t).map(p => (
-              <div key={p.id} className="hb-proc-item" onClick={() => navigate('/produto/processo')}>
+              <div key={p.id} className="hb-proc-item" onClick={() => navigate('/processo')}>
                 <div className="hb-proc-num">{p.num}</div>
                 <div className="hb-proc-info">
                   <div className="hb-proc-name">{p.name}</div>

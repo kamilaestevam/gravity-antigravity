@@ -124,7 +124,7 @@ export function ApiCockpit() {
 
   // Compat: ?aba=logs antigo redireciona para /consumo (merge Logs+Consumo, 2026-05-07)
   if (redirecionarParaConsumo) {
-    return <Navigate to="/workspace/api-cockpit/consumo" replace />
+    return <Navigate to="/configurador/api-cockpit/consumo" replace />
   }
 
   const colunasServicos: TabelaGlobalColuna<ServicoPlataforma>[] = [

@@ -30,14 +30,14 @@ Granularidade fina (ação/campo dentro da tela) é responsabilidade da **Cadeia
 | Área | MASTER | SAdmin | ADMIN | PADRAO | FORNECEDOR |
 |---|---|---|---|---|---|
 | `/admin/*` | ❌ | ✅ | ✅ | ❌ | ❌ |
-| `/workspace/*` (Configurador) | ✅ | ✅ | ✅ read-only | ❌ | ❌ |
+| `/configurador/*` (Configurador) | ✅ | ✅ | ✅ read-only | ❌ | ❌ |
 | `/hub` | ✅ | ✅ | ✅ | ✅ filtrado | ✅ filtrado |
 | `/store` | ✅ | ✅ | ✅ | ✅ sem comprar | ✅ sem comprar |
 | `/core/*` | ✅ | ✅ | ✅ | ✅ filtrado | ✅ filtrado |
 | `/produto/*` | ✅ se contratado | ✅ | ✅ | ⚠️ contratado + habilitado | ⚠️ contratado + habilitado |
 
 ### Decisões importantes
-- **`/workspace/*` é bloco único** — Standard não entra em nenhuma sub-rota, nem `api-cockpit`, nem `taxas-moeda`. Decisão do dono 2026-05-12.
+- **`/configurador/*` é bloco único** — Standard não entra em nenhuma sub-rota, nem `api-cockpit`, nem `taxas-moeda`. Decisão do dono 2026-05-12.
 - **ADMIN entra mas é read-only** — backend bloqueia mutações via `requireConfiguradorMutation`.
 - **`/store` "Comprar" SEMPRE bloqueado** para PADRAO/FORNECEDOR — Fornecedor é potencial cliente (vê valor, não adquire).
 - **`/hub` "Criar novo workspace"** — escondido para PADRAO/FORNECEDOR; renderiza só se `podeMutarConfigurador()`.
@@ -61,8 +61,8 @@ Granularidade fina (ação/campo dentro da tela) é responsabilidade da **Cadeia
 
 ### 3. Backend — Middlewares
 `servicos-global/configurador/server/middleware/requireConfiguradorAccess.ts`
-- `requireConfiguradorAccess` — leitura `/workspace/*` (MASTER+SAdmin+ADMIN)
-- `requireConfiguradorMutation` — mutação `/workspace/*` (MASTER+SAdmin, ADMIN bloqueado)
+- `requireConfiguradorAccess` — leitura `/configurador/*` (MASTER+SAdmin+ADMIN)
+- `requireConfiguradorMutation` — mutação `/configurador/*` (MASTER+SAdmin, ADMIN bloqueado)
 
 ### Já existentes (mantidos)
 - `requireGravityAdmin` — `/admin/*`
@@ -146,7 +146,7 @@ Exemplo: `pedido:acesso_usuario_produtos_gravity:permitido`
 | **Service SSOT Hub+Core** | `server/services/produtos-acessiveis-service.ts` | `listarSlugsProdutosAcessiveis(org, user, ws?)` — aplica os 3 portões |
 | **S2S endpoint** | `server/routes/acesso.ts` `/internal/acesso-produto/verificar` | Permite produtos consultarem Portão 3 via HTTP |
 | **Middleware shared** | `@gravity/resolver-organizacao` `verificarAcessoProduto()` | Factory para produtos; lê `x-id-workspace` do header e chama S2S |
-| **Modal admin** | `src/pages/workspace/ModalEditarUsuario.tsx` (aba "Produtos") | Master configura quais produtos cada Standard pode acessar |
+| **Modal admin** | `src/pages/configurador/ModalEditarUsuario.tsx` (aba "Produtos") | Master configura quais produtos cada Standard pode acessar |
 
 ### Default α (rapa-tapete)
 

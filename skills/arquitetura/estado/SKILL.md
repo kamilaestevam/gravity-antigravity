@@ -218,7 +218,7 @@ function SimulacaoPage() {
 | **API** | O mapper expõe esse campo como `updated_at` no payload |
 | **Frontend** | `itemVersion = pai => pai.updated_at` no `useGTExpandir` ou hook equivalente |
 
-**Exemplo real** (`servicos-global/produto/pedido/server/src/services/duplicarExcluirService.ts`):
+**Exemplo real** (`servicos-global/pedido/server/src/services/duplicarExcluirService.ts`):
 
 ```ts
 // Após shift de sequência + criação dos itens novos

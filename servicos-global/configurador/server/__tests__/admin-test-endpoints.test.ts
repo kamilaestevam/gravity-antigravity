@@ -165,7 +165,7 @@ describe('POST /api/v1/admin/planos-teste/gerar', () => {
         escopo: 'CONFIG',
         sublocal: 'TestGeracao',
         tela: 'Teste Geração',
-        rota: '/workspace/teste',
+        rota: '/configurador/teste',
         componenteFilePath: 'src/pages/Teste.tsx',
         criticidade: 'alta',
       })

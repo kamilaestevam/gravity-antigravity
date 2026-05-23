@@ -20,11 +20,11 @@ import type { NavItem } from '@nucleo/tela-produto-global'
  * Itens cujo id NÃO está aqui não são gateados (Meu Espaço, section divider).
  */
 const ID_NAV_PARA_SECAO: Record<string, SecaoPedido> = {
-  '/produto/pedido/pedidos/visao-geral': 'dashboard',
-  '/produto/pedido/pedidos/dashboard': 'dashboard',
-  '/produto/pedido/pedidos/lista':     'lista',
-  '/produto/pedido/pedidos/kanban':    'kanban',
-  '/produto/pedido/configuracoes':     'configuracao',
+  '/pedido/pedidos/visao-geral': 'dashboard',
+  '/pedido/pedidos/dashboard': 'dashboard',
+  '/pedido/pedidos/lista':     'lista',
+  '/pedido/pedidos/kanban':    'kanban',
+  '/pedido/configuracoes':     'configuracao',
   '/workspace/historico-organizacao?id_produto_historico_log=pedido': 'historico',
 }
 
@@ -244,7 +244,7 @@ function AppInner() {
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
       onNavigateCore={() => { window.location.href = '/core' }}
-      onNavigateSettings={() => { navigate('/produto/pedido/configuracoes') }}
+      onNavigateSettings={() => { navigate('/pedido/configuracoes') }}
       headerActions={<Notificacoes />}
       localizador={{
         workspaceName:    nomeWorkspaceAtivo,
@@ -275,8 +275,8 @@ function AppInner() {
       <ToastContainer />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/"       element={<Navigate to="/produto/pedido/pedidos/lista" replace />} />
-          <Route path="pedidos"                  element={<Navigate to="/produto/pedido/pedidos/lista" replace />} />
+          <Route path="/"       element={<Navigate to="/pedido/pedidos/lista" replace />} />
+          <Route path="pedidos"                  element={<Navigate to="/pedido/pedidos/lista" replace />} />
           {/* Defesa de URL direta — usuário cola link sem permissão. Backend
               também rejeita 403 (defesa em profundidade). Decisão dono 2026-05-13.
               Pivô 2026-05-14: usa `estadoPermissao() !== 'negado'` — durante load
@@ -317,7 +317,7 @@ function AppInner() {
               <Configuracoes />
             </BloqueioPermissaoOpaco>
           } />
-          <Route path="*"                    element={<Navigate to="/produto/pedido/pedidos/lista" replace />} />
+          <Route path="*"                    element={<Navigate to="/pedido/pedidos/lista" replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoGlobal>

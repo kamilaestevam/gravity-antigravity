@@ -106,30 +106,56 @@ Local `.env` do serviço sempre fica em `--env-file=.env` (relativo ao cwd do `n
 "dev": "tsx watch server/src/index.ts"
 ```
 
-### Orchestrator `npm run dev` da raiz
+### Orchestrator PM2 — `ecosystem.config.cjs` (2026-05-23)
 
-Roda `concurrently` cobrindo apenas os **serviços do dev master** (não os 17 — manter enxuto). Estado em 2026-05-14:
+O dev master passou de `concurrently -k` para **PM2** (`npm run pm2:start`). O PM2 garante:
+- Cada serviço reinicia **independentemente** — crash de um não derruba os outros
+- PORT explícito em cada entry — sem herança de variável de ambiente
+- Backoff exponencial — evita loop de crash em falha de banco
+- Todos os 14 serviços sobem com um único comando
 
-| Cor | Serviço | Porta |
+| Nome PM2 | Serviço | Porta |
 |:---|:---|:---:|
-| blue | CFG-BACK (Configurador) | 8005 |
-| green | CFG-FRONT (Configurador) | 8000 |
-| cyan | ORG (Plataforma) | 3001 |
-| yellow | SC-BACK (Simula-Custo) | 8020 |
-| magenta | PROC-BACK (Processo) | 8026 |
-| red | PEDIDO | 8030 |
-| gray | CADASTROS | 8031 |
-| white | COCKPIT (API-Cockpit) | 8016 |
+| cfg-back | Configurador backend | 8005 |
+| cfg-front | Configurador Vite frontend | 8000 |
+| org | Plataforma super-server | 3001 |
+| cockpit | API-Cockpit | 8016 |
+| conector-erp | Conector ERP | 8017 |
+| sc-back | Simula-Custo | 8020 |
+| bid-frete | Bid Frete Internacional | 8023 |
+| bid-cambio | Bid Câmbio | 8025 |
+| proc-back | Processo | 8026 |
+| lpco | LPCO | 8027 |
+| nf-importacao | NF Importação | 8028 |
+| fin-comex | Financeiro COMEX | 8029 |
+| pedido | Pedido | 8030 |
+| cadastros | Cadastros | 8031 |
 
-Adicionar/remover serviços do dev master exige aprovação do Líder.
+**Comandos:**
+
+```bash
+npm run pm2:start      # sobe todos os 14
+npm run pm2:stop       # para todos
+npm run pm2:restart    # reinicia todos
+npm run pm2:status     # lista status + PID + restarts
+npm run pm2:logs       # tail de todos os logs
+npm run dev:reset      # PM2 delete + kill portas + clear .vite (reset total)
+```
+
+Adicionar/remover serviços do `ecosystem.config.cjs` exige aprovação do Líder.
+
+### Regra absoluta — `--env-file` em todo script `dev` de backend (2026-05-14)
+
+> Ver seção "1.bis" acima para a regra completa e motivo (ESM hoisting bug).
 
 ### Comando de reset
 
 `npm run dev:reset` (script em `scripts/ativamente/dev-reset.ts`):
-1. Mata processos node nas 8 portas conhecidas (zombies de tsx watch + EADDRINUSE)
-2. Apaga todos os `node_modules/.vite` (cache stale após mudança de estrutura)
+1. Remove todos os processos PM2 (`pm2 delete ecosystem.config.cjs`)
+2. Mata processos node nas 14 portas conhecidas (zombies EADDRINUSE)
+3. Apaga todos os `node_modules/.vite` (cache stale após mudança de estrutura)
 
-Não toca em banco, `.env`, ou código. Higiene de processos + caches.
+Não toca em banco, `.env`, ou código. Higiene de PM2 + processos + caches.
 
 ---
 

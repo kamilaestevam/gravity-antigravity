@@ -121,7 +121,7 @@ Para um usuário `STANDARD` ou `SUPPLIER` trabalhar em um Workspace, ele precisa
 
 #### UI de Vinculação — Editor inline na linha expandida (decisão dono 2026-05-05)
 
-A tela `/workspace/usuarios` adota o **padrão Assinaturas** documentado em [criacao-telas](../../ux/criacao-telas/SKILL.md):
+A tela `/configurador/usuarios` adota o **padrão Assinaturas** documentado em [criacao-telas](../../ux/criacao-telas/SKILL.md):
 
 - **Master/SAdmin/Admin** — linha expandida exibe panel "Acesso implícito a todos os workspaces" (read-only). Para revogar acesso, alterar `tipo_usuario`.
 - **Standard/Fornecedor** — linha expandida exibe editor com checkboxes, multi-select, toggle individual Play/Pause, toolbar Habilitar/Bloquear em massa, Salvar/Descartar com badge de pendentes.
@@ -290,11 +290,11 @@ Retorna campos com nomes DDD em Português:
 
 ## Assinaturas, Financeiro e Gateway
 
-### /workspace/assinaturas
+### /configurador/assinaturas
 - Upgrade/Downgrade de planos; Adição de produtos avulsos
 - **Tipos de cobrança:** SaaS (mensal), Uso (por item), Setup (taxa única)
 
-### /workspace/financeiro
+### /configurador/financeiro
 - Histórico de faturas, Download de Boletos/NF-e
 
 ### /gateway

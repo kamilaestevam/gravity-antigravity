@@ -3,6 +3,7 @@
 // Substitui o catalogService (localStorage) por chamadas reais ao backend.
 
 import { z } from 'zod'
+import { injetarHeaderOverride } from '@gravity/shell'
 
 const BASE_URL = '/api'
 
@@ -55,6 +56,7 @@ async function request<T>(
     headers: {
       'Content-Type': 'application/json',
       ...authHeaders,
+      ...injetarHeaderOverride(),
       ...(extraHeaders as Record<string, string>),
     },
     ...restOptions,
@@ -115,6 +117,7 @@ export async function apiFetch(url: string, options: RequestInit = {}): Promise<
     headers: {
       'Content-Type': 'application/json',
       ...authHeaders,
+      ...injetarHeaderOverride(),
       ...(extraHeaders as Record<string, string>),
     },
     ...restOptions,

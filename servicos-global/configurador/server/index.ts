@@ -192,6 +192,12 @@ app.use('/api/v1/internal/usuarios', workspacesHabilitadosInternalRouter)
 app.use('/api/v1/internal/permissoes', permissoesVerificarInternalRouter)
 app.use('/api/v1/internal/gabi', gabiInternalRouter)
 
+// Pendência #4 — audit log de override de organização. Endpoint S2S chamado
+// pelo middleware do SDK `@gravity/resolver-organizacao` (fire-and-forget)
+// sempre que SUPER_ADMIN/ADMIN ativa o header `x-organizacao-override`.
+import { adminOrganizacaoOverrideAuditRouter } from './routes/admin-organizacao-override-audit.js'
+app.use('/api/v1/internal/admin', adminOrganizacaoOverrideAuditRouter)
+
 // ─── Rotas admin (gravity_admin only) ───────────────────────────────────────
 
 import { historicoRouter, historicoReadOnlyRouter } from '../../servicos-plataforma/historico-global/server/routes.js'

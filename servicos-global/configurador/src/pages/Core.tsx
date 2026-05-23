@@ -40,8 +40,9 @@ import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildTenantProductNodes } from '../utils/ecosystem-nodes'
 import { produtosWorkspaceApi } from '../services/api-client'
-import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
+import { ToastContainer, useShellStore, useUserPreferences, useMeSync, useOrganizacaoOverride } from '@gravity/shell'
 import { limparCacheTipoUsuario, useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
+import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import './workspace/workspace.css'
 import './workspace/gabi.css'
 
@@ -71,6 +72,8 @@ export function Core() {
   // ── Localizador ────────────────────────────────────────────────────────────
   const { history: locHistory, addEntry: locAddEntry } = useLocalizadorHistory('core')
   const { gravityAdmin: isGravityAdmin } = useCarregarTipoUsuario()
+  const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
+  const [modalTrocarOrgAberto, setModalTrocarOrgAberto] = useState(false)
   useEffect(() => {
     locAddEntry({ productId: 'core', productLabel: 'Core', productColor: '#a78bfa', pageLabel: 'Core', pagePath: '/core' })
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -310,7 +313,7 @@ export function Core() {
             isLight={isLight}
             onToggleTheme={toggleTheme}
             onNavigateWorkspace={() => navigate('/workspace/organizacao')}
-            onNavigateAssinaturas={() => navigate('/workspace/assinaturas')}
+            onNavigateMarketPlace={() => navigate('/store')}
             onSignOut={() => {
               limparCacheTipoUsuario()
               sessionStorage.removeItem('gravity_company_id')
@@ -320,9 +323,17 @@ export function Core() {
             isAdmin={isGravityAdmin}
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
             onNavigateConfigurador={() => navigate('/workspace/workspaces')}
+            temAcessoTrocarOrganizacao={podeAtivarOverride}
+            organizacaoOverrideAtiva={overrideAtivo}
+            aoTrocarOrganizacao={() => setModalTrocarOrgAberto(true)}
+            aoVoltarParaGravity={() => { limparOverride(); navigate('/hub') }}
             compact
           />
         </div>
+        <ModalTrocarOrganizacao
+          aberto={modalTrocarOrgAberto}
+          aoFechar={() => setModalTrocarOrgAberto(false)}
+        />
 
         {/* ── Conteúdo ── */}
         <div className="ws-content">

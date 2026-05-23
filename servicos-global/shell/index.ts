@@ -23,6 +23,7 @@ export { useShellStore }   from './store'
 // Utilitários
 export { buildEntityLink } from './entityLinkFactory'
 export type { KnownEntity } from './entityLinkFactory'
+export { injetarHeaderOverride } from './utils/inject-override-header'
 
 // Hooks
 export { useUserPreferences } from './hooks/useUserPreferences'

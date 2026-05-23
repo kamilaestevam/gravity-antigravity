@@ -5,7 +5,8 @@ import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
+import { ToastContainer, useShellStore, useUserPreferences, useMeSync, useOrganizacaoOverride } from '@gravity/shell'
+import { ModalTrocarOrganizacao } from '../../components/modal-trocar-organizacao'
 import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
@@ -70,6 +71,8 @@ export function AdminLayout() {
     { to: '/admin/testes-gerais', label: t('admin.layout.log_testes'),      icon: <Bug             weight="duotone" size={18} /> },
   ]
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
+  const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
+  const [modalTrocarOrgAberto, setModalTrocarOrgAberto] = useState(false)
 
   // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
   useMeSync()
@@ -247,6 +250,10 @@ export function AdminLayout() {
             compact
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
             onNavigateConfigurador={() => navigate('/workspace/workspaces')}
+            temAcessoTrocarOrganizacao={podeAtivarOverride}
+            organizacaoOverrideAtiva={overrideAtivo}
+            aoTrocarOrganizacao={() => setModalTrocarOrgAberto(true)}
+            aoVoltarParaGravity={() => { limparOverride(); navigate('/hub') }}
           />
         </div>
 
@@ -255,6 +262,11 @@ export function AdminLayout() {
           <Outlet />
         </div>
       </div>
+
+      <ModalTrocarOrganizacao
+        aberto={modalTrocarOrgAberto}
+        aoFechar={() => setModalTrocarOrgAberto(false)}
+      />
 
       <ToastContainer />
     </div>

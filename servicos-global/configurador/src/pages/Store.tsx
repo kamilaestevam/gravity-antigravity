@@ -31,8 +31,9 @@ import {
   type EcosystemNode,
 } from '@nucleo/localizador-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
-import { ToastContainer, useShellStore } from '@gravity/shell'
+import { ToastContainer, useShellStore, useOrganizacaoOverride } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
+import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { podeComprarNoStore } from '../routing/route-policy'
 import { mapRole } from '../types/niveis-acesso'
 import { Notificacoes } from '../../../servicos-plataforma/notificacoes/src/Notificacoes'
@@ -71,6 +72,8 @@ export function Store() {
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
   const isLight = currentTheme === 'light'
   const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
+  const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
+  const [modalTrocarOrgAberto, setModalTrocarOrgAberto] = useState(false)
 
   // Matriz Cadeia 1 (route-policy.ts): só Master/SuperAdmin/Admin contratam
   // produtos no Store. PADRAO/FORNECEDOR veem o catálogo (Fornecedor é
@@ -379,10 +382,18 @@ export function Store() {
             onSignOut={() => signOut()}
             isAdmin={isGravityAdmin}
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
+            temAcessoTrocarOrganizacao={podeAtivarOverride}
+            organizacaoOverrideAtiva={overrideAtivo}
+            aoTrocarOrganizacao={() => setModalTrocarOrgAberto(true)}
+            aoVoltarParaGravity={() => { limparOverride(); navigate('/hub') }}
             compact
           />
         </div>
       </header>
+      <ModalTrocarOrganizacao
+        aberto={modalTrocarOrgAberto}
+        aoFechar={() => setModalTrocarOrgAberto(false)}
+      />
 
       {/* Conteúdo abaixo da topbar */}
       <div className="gs-store">

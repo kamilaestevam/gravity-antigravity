@@ -16,6 +16,10 @@ import type {
   Avaliacao,
   Porto,
   Moeda,
+  Pais,
+  Aeroporto,
+  ContainerOption,
+  IncotermOption,
   StatusCotacao,
   StatusCotacaoBidFreteConfig,
 } from './types'
@@ -308,13 +312,49 @@ export async function reordenarStatusConfig(ids: string[]): Promise<StatusCotaca
 
 // ─── Master Data ────────────────────────────────────────────────────────────
 
-export async function getPortos(tipo?: string): Promise<Porto[]> {
-  const query = tipo ? `?tipo=${tipo}` : ''
-  const res = await fetch(`${API_BASE}/bid-frete/master-data/portos${query}`)
-  return handleResponse(res)
+export async function getPortos(q?: string, pais?: string): Promise<Porto[]> {
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  if (pais) params.set('pais', pais)
+  const query = params.toString() ? `?${params.toString()}` : ''
+  const res = await fetch(`${API_BASE}/portos${query}`)
+  const data = await handleResponse<{ portos: Porto[] }>(res)
+  return data.portos
 }
 
 export async function getMoedas(): Promise<Moeda[]> {
-  const res = await fetch(`${API_BASE}/bid-frete/master-data/moedas`)
-  return handleResponse(res)
+  const res = await fetch(`${API_BASE}/moedas`)
+  const data = await handleResponse<{ moedas: Moeda[] }>(res)
+  return data.moedas
+}
+
+export async function getPaises(q?: string): Promise<Pais[]> {
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  const query = params.toString() ? `?${params.toString()}` : ''
+  const res = await fetch(`${API_BASE}/paises${query}`)
+  const data = await handleResponse<{ paises: Pais[] }>(res)
+  return data.paises
+}
+
+export async function getAeroportos(q?: string, pais?: string): Promise<Aeroporto[]> {
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  if (pais) params.set('pais', pais)
+  const query = params.toString() ? `?${params.toString()}` : ''
+  const res = await fetch(`${API_BASE}/aeroportos${query}`)
+  const data = await handleResponse<{ aeroportos: Aeroporto[] }>(res)
+  return data.aeroportos
+}
+
+export async function getContainers(): Promise<ContainerOption[]> {
+  const res = await fetch(`${API_BASE}/containers`)
+  const data = await handleResponse<{ containers: ContainerOption[] }>(res)
+  return data.containers
+}
+
+export async function getIncoterms(): Promise<IncotermOption[]> {
+  const res = await fetch(`${API_BASE}/incoterms`)
+  const data = await handleResponse<{ incoterms: IncotermOption[] }>(res)
+  return data.incoterms
 }

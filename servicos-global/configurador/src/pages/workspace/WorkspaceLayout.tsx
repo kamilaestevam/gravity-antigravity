@@ -6,8 +6,9 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
-import { ToastContainer, useShellStore, useUserPreferences, useMeSync, type OrganizacaoShell } from '@gravity/shell'
+import { ToastContainer, useShellStore, useUserPreferences, useMeSync, useOrganizacaoOverride, type OrganizacaoShell } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
+import { ModalTrocarOrganizacao } from '../../components/modal-trocar-organizacao'
 import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
 import {
   Crown,
@@ -74,6 +75,8 @@ export function WorkspaceLayout() {
   const userEmail = currentUser.email ?? user?.primaryEmailAddress?.emailAddress ?? 'usuario@usegravity.com.br'
 
   const { tipoUsuario: dbRole, gravityAdmin: isGravityAdmin } = useCarregarTipoUsuario()
+  const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
+  const [modalTrocarOrgAberto, setModalTrocarOrgAberto] = useState(false)
   const { signOut } = useClerk()
   const { getToken } = useAuth()
 
@@ -290,6 +293,10 @@ export function WorkspaceLayout() {
             onSignOut={() => signOut()}
             isAdmin={isGravityAdmin}
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
+            temAcessoTrocarOrganizacao={podeAtivarOverride}
+            organizacaoOverrideAtiva={overrideAtivo}
+            aoTrocarOrganizacao={() => setModalTrocarOrgAberto(true)}
+            aoVoltarParaGravity={() => { limparOverride(); navigate('/hub') }}
             compact
           />
         </div>
@@ -299,6 +306,11 @@ export function WorkspaceLayout() {
           <Outlet />
         </div>
       </div>
+
+      <ModalTrocarOrganizacao
+        aberto={modalTrocarOrgAberto}
+        aoFechar={() => setModalTrocarOrgAberto(false)}
+      />
 
       {/* ── Gabi IA Floating Panel ── */}
       {isGabiOpen && (

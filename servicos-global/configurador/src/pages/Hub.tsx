@@ -23,9 +23,10 @@ import {
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import './hub.css'
-import { useShellStore } from '@gravity/shell'
+import { useShellStore, useOrganizacaoOverride } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { produtosWorkspaceApi, type ProdutoWorkspaceItem } from '../services/api-client'
+import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LogoHub } from '@nucleo/logo-produtos'
 import { LogoGlobal } from '@nucleo/logo-global'
@@ -134,6 +135,8 @@ export function Hub() {
   const { user } = useUser()
   const navigate = useNavigate()
   const { gravityAdmin: isAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
+  const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
+  const [modalTrocarOrgAberto, setModalTrocarOrgAberto] = useState(false)
 
   const id_workspace   = sessionStorage.getItem('gravity_company_id')
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
@@ -295,10 +298,18 @@ export function Hub() {
             }}
             isAdmin={isAdmin}
             onNavigateAdmin={() => navigate('/admin')}
+            temAcessoTrocarOrganizacao={podeAtivarOverride}
+            organizacaoOverrideAtiva={overrideAtivo}
+            aoTrocarOrganizacao={() => setModalTrocarOrgAberto(true)}
+            aoVoltarParaGravity={() => { limparOverride(); navigate('/hub') }}
             compact
           />
         </div>
       </header>
+      <ModalTrocarOrganizacao
+        aberto={modalTrocarOrgAberto}
+        aoFechar={() => setModalTrocarOrgAberto(false)}
+      />
 
       {/* ── Content ── */}
       <div className="hb-content">

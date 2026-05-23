@@ -18,7 +18,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
 
-const ROOT_REPO = path.resolve(__dirname, '../../..')
+const ROOT_REPO = path.resolve(__dirname, '../../../..')
 const PT_PATH = path.join(ROOT_REPO, 'nucleo-global/Utilidades/Localization/locales/pt.json')
 const EN_PATH = path.join(ROOT_REPO, 'nucleo-global/Utilidades/Localization/locales/en.json')
 const ES_PATH = path.join(ROOT_REPO, 'nucleo-global/Utilidades/Localization/locales/es.json')

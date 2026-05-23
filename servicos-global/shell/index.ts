@@ -15,6 +15,7 @@ export { ProductSidebar }  from './ProductSidebar'
 export { Header }          from './Header'
 export { Navigation }      from './Navigation'
 export { ToastContainer }  from './ToastContainer'
+export { BannerOrganizacaoOverride } from './BannerOrganizacaoOverride'
 
 // Store e tipos
 export { useShellStore }   from './store'

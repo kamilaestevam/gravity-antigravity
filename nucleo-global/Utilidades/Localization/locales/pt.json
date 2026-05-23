@@ -2633,7 +2633,21 @@
       "modal_cor": "Cor",
       "modal_formula": "Fórmula Simplificada",
       "cancelar": "Cancelar",
-      "criar": "Criar"
+      "criar": "Criar",
+      "cor_label": "Cor",
+      "status_ativos_label": "STATUS ATIVOS",
+      "placeholder_novo_status": "Ex: Em Análise do Armador",
+      "adicionar_status": "Adicionar Status",
+      "seus_templates_label": "SEUS TEMPLATES",
+      "novo_template_nome": "Novo Template PDF",
+      "prazo_limite_titulo": "Prazo Limite Padrão (Horas)",
+      "prazo_limite_desc": "Define o tempo limite recomendado para respostas dos fornecedores.",
+      "categorias_registradas_label": "CATEGORIAS REGISTRADAS",
+      "categorias_count": "categorias",
+      "placeholder_nova_categoria": "Ex: Certificado de Origem",
+      "ativos_label": "ATIVOS",
+      "suas_colunas_label": "SUAS COLUNAS",
+      "colunas_count": "colunas"
     },
     "fornecedores": {
       "titulo": "Fornecedores",
@@ -3044,6 +3058,21 @@
       "mock_thc": "Taxa Administrativa (THC)",
       "mock_icms": "Alíquota de ICMS Aplicada",
       "mock_cambio": "Câmbio de Fechamento"
+    },
+    "app": {
+      "rota_visao_geral": "Visão Geral",
+      "rota_cotacoes": "Cotações",
+      "rota_nova_cotacao": "Nova Cotação",
+      "rota_importar_cotacoes": "Importar Cotações",
+      "rota_fornecedores": "Fornecedores",
+      "rota_configuracoes": "Configurações",
+      "rota_portal_dashboard": "Portal — Dashboard",
+      "rota_cotacoes_pendentes": "Cotações Pendentes",
+      "rota_respostas": "Respostas",
+      "rota_tabela_precos": "Tabela de Preços",
+      "rota_desempenho": "Desempenho",
+      "usuario_fallback": "Usuário",
+      "membro_fallback": "Membro"
     }
   },
   "bidcambio": {
@@ -3772,7 +3801,13 @@
       "msg_mixed_tipos": "Selecione apenas pedidos de importação ou apenas de exportação para realizar esta ação.",
       "filtros_ativos": "Filtros ativos",
       "chip_busca": "Busca",
-      "remover_busca": "Remover busca"
+      "remover_busca": "Remover busca",
+      "sem_permissao_criar_pedido": "Sem permissão para criar pedidos",
+      "sem_permissao_criar_item": "Sem permissão para criar itens",
+      "label_item_one": "item",
+      "label_item_other": "itens",
+      "label_pedido_one": "pedido",
+      "label_pedido_other": "pedidos"
     },
     "status": {
       "todos": "Todos",
@@ -3810,7 +3845,8 @@
         "cor": "Cor",
         "erro_carregar": "Não foi possível carregar os status. Verifique sua conexão e tente novamente.",
         "tentar_novamente": "Tentar novamente",
-        "nenhum_status": "Nenhum status configurado. Clique em \"Novo Status\" para criar."
+        "nenhum_status": "Nenhum status configurado. Clique em \"Novo Status\" para criar.",
+        "erro_criar": "Erro ao criar status. Tente novamente."
       },
       "notificacoes": {
         "titulo": "Notificações",
@@ -3857,7 +3893,8 @@
         "reiniciar_mes": "Todo mês",
         "auto_criar": "Número automático ao criar pedido",
         "auto_duplicar": "Número automático ao duplicar pedido",
-        "auto_consolidar": "Número automático ao consolidar pedido"
+        "auto_consolidar": "Número automático ao consolidar pedido",
+        "incluir_ano_exemplo": "Ex.: {{exemplo}}"
       },
       "kanban": {
         "modal_titulo": "Campos do modal",
@@ -3907,7 +3944,8 @@
         "descricao": "Preferências de exibição da lista de pedidos",
         "linhas_por_pagina": "LINHAS POR PÁGINA PADRÃO",
         "preferencias": "PREFERÊNCIAS DE EXIBIÇÃO",
-        "destacar_atrasados": "Destacar pedidos atrasados em vermelho"
+        "destacar_atrasados": "Destacar pedidos atrasados em vermelho",
+        "msg_salvo": "Preferências da tabela salvas com sucesso."
       },
       "sidebar": {
         "grupo_visualizacoes": "VISUALIZAÇÕES",
@@ -3932,7 +3970,8 @@
         "taxa_cambio": "Taxa de Câmbio",
         "snapshot_cadastros": "Cadastros",
         "notificacoes": "Notificações",
-        "exportacao": "Exportação"
+        "exportacao": "Exportação",
+        "em_breve": "Em breve"
       },
       "cards": {
         "titulo": "Meus Cards",
@@ -3961,7 +4000,27 @@
         "tooltip_ocultar": "Ocultar na lista",
         "tooltip_exibir": "Exibir na lista",
         "tooltip_remover": "Remover da lista",
-        "tooltip_detalhes": "Ver detalhes"
+        "tooltip_detalhes": "Ver detalhes",
+        "aria_ver_detalhes": "Ver detalhes do card",
+        "aria_remover_card": "Remover card",
+        "aria_adicionar_card": "Adicionar card",
+        "tooltip_adicionar_meus": "Adicionar aos meus cards",
+        "detalhe_campo_base": "Campo base",
+        "detalhe_agregacao": "Agregação",
+        "detalhe_origem": "Origem",
+        "detalhe_periodo": "Período",
+        "detalhe_descricao": "Descrição",
+        "count_card_one": "{{count}} card",
+        "count_card_other": "{{count}} cards",
+        "todos_adicionados": "Todos os cards disponíveis já foram adicionados",
+        "personalizados_titulo": "Cards Personalizados",
+        "formula_personalizado": "Fórmula · Personalizado",
+        "badge_custom": "Custom",
+        "tooltip_ocultar_card": "Ocultar card",
+        "tooltip_exibir_card": "Exibir card",
+        "tooltip_excluir_personalizado": "Excluir card personalizado",
+        "aria_excluir_card": "Excluir card",
+        "criar_personalizado": "Criar Card Personalizado"
       },
       "colunas": {
         "casas_decimais": {
@@ -3997,7 +4056,11 @@
           "btn_cancelar_migracao": "Cancelar",
           "btn_iniciando": "Iniciando…",
           "btn_confirmar_migracao": "Confirmar migração",
-          "btn_descartar": "Descartar"
+          "btn_descartar": "Descartar",
+          "msg_salvo": "Casas decimais salvas com sucesso.",
+          "msg_erro_salvar": "Erro ao salvar casas decimais.",
+          "msg_migracao_iniciada": "Configuração salva. Migração iniciada em background.",
+          "msg_erro_migracao": "Erro ao iniciar migração."
         },
         "formato_data": {
           "titulo": "Formato de Data",
@@ -4007,7 +4070,9 @@
           "regiao_eua": "EUA",
           "regiao_iso_asia": "ISO 8601, Ásia",
           "regiao_alemanha_russia": "Alemanha, Rússia",
-          "regiao_compacto": "Compacto"
+          "regiao_compacto": "Compacto",
+          "msg_salvo": "Formato de data salvo com sucesso.",
+          "msg_erro_salvar": "Erro ao salvar formato de data."
         },
         "personalizadas": {
           "titulo": "Colunas Personalizadas",
@@ -4073,7 +4138,30 @@
           "btn_salvando": "Salvando...",
           "btn_limpar": "Limpar",
           "btn_criar_coluna": "Criar Coluna",
-          "btn_criando": "Criando..."
+          "btn_criando": "Criando...",
+          "tooltip_editar_propriedades": "Editar propriedades",
+          "aria_editar_coluna": "Editar {{nome}}",
+          "tooltip_ocultar_coluna": "Ocultar coluna",
+          "tooltip_exibir_coluna": "Exibir coluna",
+          "aria_ocultar": "Ocultar",
+          "aria_exibir": "Exibir",
+          "tooltip_excluir_coluna": "Excluir coluna",
+          "aria_excluir_coluna": "Excluir {{nome}}",
+          "msg_salvo": "Colunas salvas com sucesso.",
+          "msg_erro_salvar": "Erro ao salvar colunas.",
+          "formula_erro_circular": "Referência circular: a fórmula cria um ciclo de dependências. Remova a referência que volta para esta coluna.",
+          "formula_gabi_nao_numerico_titulo": "Campo não-numérico detectado",
+          "formula_gabi_nao_numerico_texto_one": "{{campos}} não é um campo numérico. Em operações aritméticas, campos texto, data ou checkbox serão tratados como 0.",
+          "formula_gabi_nao_numerico_texto_other": "{{campos}} não são campos numéricos. Em operações aritméticas, campos texto, data ou checkbox serão tratados como 0.",
+          "formula_gabi_desconhecido_titulo": "Campo não reconhecido",
+          "formula_gabi_desconhecido_texto_one": "{{lista}} não é um campo disponível. Use os chips acima para inserir campos válidos ou verifique se há um erro de digitação.",
+          "formula_gabi_desconhecido_texto_other": "{{lista}} não são campos disponíveis. Use os chips acima para inserir campos válidos ou verifique se há um erro de digitação.",
+          "formula_gabi_falta_op_titulo": "Falta um operador",
+          "formula_gabi_falta_op_texto": "Parece que faltou um operador entre \"{{antes}}\" e \"{{token}}\". Escolha o que faz mais sentido para o negócio e insira entre os dois campos.",
+          "formula_invalida": "Fórmula inválida",
+          "erro_add_opcao": "Adicione ao menos uma opção à lista.",
+          "erro_digite_formula": "Digite a expressão da fórmula.",
+          "erro_criar_coluna": "Erro ao criar coluna."
         },
         "campos_calculados": {
           "titulo": "Campos Calculados",
@@ -4089,7 +4177,30 @@
           "gabi_formula_valida": "Fórmula válida ✓",
           "gabi_ok": "Tudo certo! Clique em Salvar para aplicar.",
           "gabi_usar": "Usar",
-          "limpar": "Limpar"
+          "limpar": "Limpar",
+          "gabi_desconhecido_titulo": "Campo não reconhecido",
+          "gabi_desconhecido_texto_one": "{{lista}} não é um campo disponível. Use os chips acima para inserir campos válidos ou verifique se há erro de digitação.",
+          "gabi_desconhecido_texto_other": "{{lista}} não são campos disponíveis. Use os chips acima para inserir campos válidos ou verifique se há erro de digitação.",
+          "gabi_falta_op_titulo": "Falta um operador",
+          "gabi_falta_op_texto": "Parece que faltou um operador entre \"{{antes}}\" e \"{{token}}\". Escolha o que faz mais sentido e insira entre os dois campos.",
+          "formula_invalida": "Fórmula inválida",
+          "erro_salvar_formula": "Erro ao salvar fórmula",
+          "aria_remover_token": "Remover {{label}}",
+          "clique_remover": "Clique para remover",
+          "grupo_quantidades": "Quantidades",
+          "grupo_financeiro": "Financeiro",
+          "grupo_minhas_colunas": "Minhas Colunas",
+          "grupo_qtd_nativas": "Quantidades Nativas",
+          "grupo_colunas_personalizadas": "Colunas Personalizadas",
+          "campo_qtd_inicial": "Quantidade Inicial",
+          "campo_qtd_cancelada": "Quantidade Cancelada",
+          "campo_qtd_transferida": "Quantidade Transferida",
+          "campo_qtd_pronta": "Quantidade Pronta",
+          "campo_saldo": "Saldo",
+          "campo_valor_total": "Valor Total",
+          "campo_peso_liquido": "Peso Líquido",
+          "campo_peso_bruto": "Peso Bruto",
+          "campo_cubagem": "Cubagem"
         }
       },
       "templates_pdf": {
@@ -4112,7 +4223,11 @@
         "tooltip_editar": "Editar template",
         "tooltip_excluir": "Excluir template",
         "aria_editar": "Editar template",
-        "aria_excluir": "Excluir template"
+        "aria_excluir": "Excluir template",
+        "inserir_variavel": "Inserir {{var}}",
+        "placeholder_nome": "Ex.: Template Proforma",
+        "modal_excluir_titulo": "Excluir template",
+        "modal_excluir_desc": "Esta ação não pode ser desfeita."
       },
       "regras": {
         "duplicar": {
@@ -4225,7 +4340,38 @@
         "hist_col_boletim": "Boletim",
         "hist_col_compra": "Compra (R$)",
         "hist_col_venda": "Venda (R$)",
-        "hist_col_hora": "Hora"
+        "hist_col_hora": "Hora",
+        "erro_sync_offline": "Não foi possível sincronizar. O serviço pode estar offline.",
+        "erro_comunicacao": "Erro de comunicação.",
+        "moeda_usd": "Dólar Americano",
+        "moeda_eur": "Euro",
+        "moeda_gbp": "Libra Esterlina",
+        "moeda_cny": "Yuan Chinês",
+        "moeda_jpy": "Iene Japonês",
+        "moeda_chf": "Franco Suíço",
+        "moeda_cad": "Dólar Canadense"
+      },
+      "permissao": {
+        "sem_aria": "Sem permissão para editar configurações",
+        "sem_msg": "Sem permissão para editar configurações. Os campos estão em modo leitura."
+      },
+      "snapshot": {
+        "titulo": "Snapshot — Política de Atualização",
+        "desc": "Define quais papéis e gatilhos disparam re-snapshot automático quando o cadastro-base muda. Persistido por workspace na tabela",
+        "label_papeis": "Papéis (atualização automática)",
+        "label_gatilhos": "Gatilhos (transições de status que re-snapshotam)",
+        "papel_importador": "Importador",
+        "papel_exportador": "Exportador",
+        "papel_fabricante": "Fabricante",
+        "papel_agente": "Agente",
+        "papel_despachante": "Despachante",
+        "papel_armador": "Armador",
+        "papel_ope": "OPE (Operação Portal Único)",
+        "gatilho_emissao": "Emissão do Pedido",
+        "gatilho_embarque": "Embarque",
+        "gatilho_desembaraco": "Desembaraço",
+        "msg_salvo": "Política de snapshot salva.",
+        "erro_salvar": "Erro ao salvar política"
       }
     },
     "campos": {
@@ -6178,6 +6324,232 @@
       "btn_incluir_avisos": "+ Incluir avisos",
       "btn_selecionar_todas": "Selecionar todas",
       "btn_limpar_selecao": "Limpar seleção"
+    },
+    "lista": {
+      "erro": {
+        "http_400": "Dados inválidos. Verifique o valor informado e tente novamente.",
+        "http_401": "Sessão expirada. Recarregue a página e faça login novamente.",
+        "http_403": "Sem permissão para editar este campo.",
+        "http_404": "Registro não encontrado. Atualize a página.",
+        "http_409": "Conflito de edição — outra aba já alterou este registro. Valor restaurado.",
+        "http_422": "Valor inválido para este campo. Verifique o formato esperado.",
+        "http_429": "Muitas requisições. Aguarde alguns segundos e tente novamente.",
+        "http_5xx": "Erro interno do servidor. Tente novamente em instantes.",
+        "resposta_invalida": "O servidor retornou uma resposta inválida. Tente novamente ou contate o suporte.",
+        "sem_conexao": "Sem conexão com o servidor. Verifique sua rede e tente novamente.",
+        "timeout": "A requisição demorou demais. Verifique sua conexão e tente novamente.",
+        "cancelada": "A operação foi cancelada. Tente novamente.",
+        "generico": "Erro ao salvar. Tente novamente ou contate o suporte.",
+        "desconhecido": "Erro desconhecido",
+        "pedido_nao_encontrado": "Pedido não encontrado",
+        "pedido_item_nao_localizado": "Não foi possível localizar o pedido deste item. Recarregue a página.",
+        "editar_valor_total_item": "Erro ao editar valor_total_item",
+        "editar_moeda_item": "Erro ao editar moeda do item",
+        "editar_moeda_item_obj": "Erro ao editar moeda_item",
+        "editar_unidade_item": "Erro ao editar unidade_comercializada_item",
+        "editar_valor_unidade_item": "Erro ao editar valor_por_unidade_item",
+        "atualizar_unidade_item": "Erro ao atualizar unidade do item",
+        "atualizar_qtd_pronta": "Erro ao atualizar quantidade pronta",
+        "salvar_data": "Erro ao salvar data",
+        "editar_campo_pedido": "Erro ao editar campo {{campo}} do pedido",
+        "editar_campo": "Erro ao editar campo {{campo}}"
+      },
+      "tipo_operacao": {
+        "importacao": "Importação",
+        "exportacao": "Exportação"
+      },
+      "coluna_dinamica": {
+        "valor_total": "Valor Total do Pedido/Item",
+        "qtd_inicial": "Qtd. Inicial do Pedido/Item",
+        "qtd_pronta": "Qtd. Pronta do Pedido/Item",
+        "saldo": "Saldo do Pedido/Item",
+        "qtd_transferida": "Qtd. Transferida do Pedido/Item",
+        "qtd_cancelada": "Qtd. Cancelada do Pedido/Item",
+        "peso_liquido": "Peso Líquido Total do Pedido/Item",
+        "peso_bruto": "Peso Bruto Total do Pedido/Item",
+        "cubagem": "Cubagem Total do Pedido/Item"
+      },
+      "saldo_pedido": {
+        "titulo": "Saldo do Pedido",
+        "descricao_prefixo": "Calculado com base nos itens — não editável.",
+        "link_editor": "Editar fórmula no Configurador"
+      },
+      "acao": {
+        "editar_pedido": "Editar pedido"
+      },
+      "notif": {
+        "item_excluido": "Item excluído com sucesso.",
+        "erro_excluir_item": "Erro ao excluir item. Tente novamente.",
+        "erro_reordenar": "Erro ao reordenar itens. Tente novamente.",
+        "campo_atualizado": "Campo atualizado com sucesso.",
+        "ordem_resetada": "Ordem manual dos pedidos foi resetada pela ordenação por coluna."
+      },
+      "indicador": {
+        "recebeu_enviou": "Recebeu e enviou transferências",
+        "recebeu": "Recebeu itens de outro pedido",
+        "enviou": "Transferiu itens para outro pedido",
+        "consolidado": "Pedido consolidado",
+        "item_transferido": "Este item teve quantidade transferida"
+      },
+      "modal_transferir": {
+        "titulo": "Transferir Quantidade — {{part}}",
+        "saldo_disponivel": "Saldo disponível",
+        "quantidade_label": "Quantidade a Transferir",
+        "confirmado": "✓ Transferência de {{qtd}} registrada."
+      },
+      "fechar_erro": "Fechar erro",
+      "cockpit": {
+        "titulo": "Criar Pedido via API",
+        "subtitulo": "Use a API do Cockpit para criar pedidos programaticamente",
+        "endpoint": "Endpoint",
+        "autenticacao": "Autenticação",
+        "exemplo_payload": "Exemplo de Payload",
+        "gerencie_tokens_prefixo": "Gerencie seus tokens em",
+        "gerencie_tokens_link": "Configurações → API"
+      },
+      "card": {
+        "total_brl_titulo": "Total Pedidos — BRL",
+        "total_brl_subtexto": "Todos os pedidos convertidos para R$",
+        "sem_taxa": "— sem taxa",
+        "saldo": "saldo"
+      },
+      "sem_permissao_editar": "Sem permissão para editar",
+      "aria_lista_pedidos": "Lista de pedidos",
+      "export_titulo": "Pedidos",
+      "export_linha": {
+        "item": "Item",
+        "pedido": "Pedido"
+      }
+    },
+    "visao_geral": {
+      "donut": {
+        "legenda_total": "pedidos",
+        "titulo": "Distribuição por Modal"
+      },
+      "taxa_aprovacao": {
+        "em_tempo": "Em tempo: {{pct}}%",
+        "atrasadas": "Atrasadas: {{pct}}%",
+        "sem_resposta": "Sem resposta: {{pct}}%",
+        "em_tempo_short": "em tempo",
+        "titulo": "Taxa de Aprovação"
+      },
+      "mapa": {
+        "titulo": "Visão Geral Global de Cotações",
+        "subtitulo": "Localizações estratégicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)",
+        "legenda_maritimo": "Marítimo",
+        "legenda_aereo": "Aéreo",
+        "aumentar_zoom": "Aumentar Zoom",
+        "diminuir_zoom": "Diminuir Zoom",
+        "restaurar_globo": "Restaurar Globo",
+        "pausar_rotacao": "Pausar Rotação",
+        "iniciar_rotacao": "Iniciar Rotação",
+        "bids_ativos": "Bids Ativos",
+        "cotacoes_count_one": "{{count}} cotação",
+        "cotacoes_count_other": "{{count}} cotações",
+        "melhor_preco": "Melhor Preço",
+        "saving_medio": "Saving Médio",
+        "saving": "Saving",
+        "transit_time": "Transit Time",
+        "dias_count_one": "{{count}} dia",
+        "dias_count_other": "{{count}} dias",
+        "fornecedor_abreviado": "Forn",
+        "fornecedor_lider": "Forn. Líder",
+        "clique_ver_rotas": "Clique para ver rotas",
+        "rotas_ativas": "Rotas Ativas: {{local}}",
+        "sem_rotas": "Nenhuma rota ativa cadastrada para este terminal."
+      },
+      "hud": {
+        "titulo": "HUD de Cotações Globais",
+        "live_feed": "LIVE FEED",
+        "subtitulo": "Rankings em tempo real • 200 bids",
+        "tab_origens": "Origens",
+        "tab_destinos": "Destinos",
+        "tab_modais": "Modais",
+        "bids_count_one": "{{count}} bid",
+        "bids_count_other": "{{count}} bids"
+      },
+      "modal": {
+        "maritimo": "Marítimo",
+        "aereo": "Aéreo",
+        "rodoviario": "Rodoviário"
+      },
+      "header": {
+        "titulo": "Visão Geral",
+        "subtitulo": "Panorama dos pedidos — volume, status, valores e prazos",
+        "novo_pedido": "Novo Pedido"
+      },
+      "kpi": {
+        "andamento_titulo": "Pedidos em andamento",
+        "andamento_tendencia": "+3 sem.",
+        "andamento_subtexto": "R$ {{valor}} em aberto",
+        "concluido_titulo": "Pedidos concluídos",
+        "concluido_tendencia": "+12% mês",
+        "concluido_subtexto": "R$ {{valor}} total",
+        "valor_total_titulo": "Valor total",
+        "valor_total_subtexto": "Ticket médio R$ {{valor}}",
+        "taxa_atraso_titulo": "Taxa de atraso",
+        "taxa_atraso_subtexto_one": "{{count}} pedido atrasado",
+        "taxa_atraso_subtexto_other": "{{count}} pedidos atrasados"
+      },
+      "alertas": {
+        "titulo": "Alertas",
+        "hoje": "Hoje"
+      },
+      "funil": {
+        "titulo": "Funil de Cotações"
+      },
+      "barras": {
+        "titulo": "Cotações por Mês",
+        "subtitulo": "Últimos 6 meses",
+        "aprovadas": "Aprovadas",
+        "em_andamento": "Em andamento",
+        "recusadas": "Recusadas"
+      },
+      "moedas": {
+        "titulo": "Moedas dos Pedidos",
+        "vazio": "Sem pedidos no período.",
+        "pedidos_count_one": "{{count}} pedido",
+        "pedidos_count_other": "{{count}} pedidos"
+      },
+      "maior_pedido": {
+        "titulo": "Maior Pedido do Período",
+        "descricao": "Pedido de maior valor entre {{total}} pedidos do período.",
+        "vazio": "Nenhum pedido no período."
+      },
+      "incoterms": {
+        "titulo": "Top Incoterms",
+        "vazio": "Nenhum incoterm informado nos pedidos."
+      },
+      "footer": "Indicadores e gráficos com dados reais dos pedidos • globo ilustrativo nesta etapa",
+      "modal_alerta": {
+        "titulo_padrao": "Detalhes da Cotação / Pedido",
+        "titulo_atrasado": "Pedido Atrasado",
+        "titulo_a_vencer": "Pedido a Vencer (7 dias)",
+        "titulo_rascunho": "Pedido em Rascunho",
+        "titulo_novos": "Novos Pedidos (7 dias)",
+        "referencia": "Referência",
+        "tab_geral": "Geral",
+        "tab_itens": "Itens",
+        "tab_propostas": "Propostas",
+        "tab_historico": "Histórico",
+        "campo_origem": "Origem",
+        "campo_destino": "Destino",
+        "campo_mercadoria": "Mercadoria / Descrição",
+        "campo_peso_total": "Peso Total",
+        "campo_cubagem": "Cubagem (M³)",
+        "campo_incoterm": "Incoterm",
+        "campo_valor_limite": "Valor Limite / Estimado",
+        "campo_modalidade": "Modalidade",
+        "col_codigo": "Código",
+        "col_descricao": "Descrição",
+        "col_qtd": "Qtd",
+        "col_peso": "Peso (Kg)",
+        "unidades_one": "{{count}} un",
+        "unidades_other": "{{count}} un",
+        "transit_time": "Transit time",
+        "por_autor": "por {{autor}}",
+        "pedido_atualizado": "Pedido atualizado com sucesso!"
+      }
     }
   },
   "processo": {

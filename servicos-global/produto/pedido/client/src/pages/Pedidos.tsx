@@ -234,25 +234,35 @@ function detectarTipoColunaPedido(col: GTColuna<Pedido>): FiltroTipo {
 }
 
 /** Mapeia valor raw → label legível para exibição no filtro (tipo_operacao é fixo, status é dinâmico) */
-const LABELS_FILTRO_FIXO: Record<string, Record<string, string>> = {
-  tipo_operacao: { importacao: 'Importação', exportacao: 'Exportação' },
-}
-
-function getLabelsFiltro(campo: string): Record<string, string> {
+function getLabelsFiltro(campo: string, t: (key: string) => string = i18next.t.bind(i18next)): Record<string, string> {
   if (campo === 'status') {
     const config = _lerStatusConfig()
     const map: Record<string, string> = {}
     for (const [nome, cfg] of Object.entries(config)) map[nome] = cfg.label
     if (!Object.keys(map).length) {
-      return { rascunho: 'Rascunho', aberto: 'Aberto', em_andamento: 'Em Andamento', aprovado: 'Aprovado', transferencia: 'Transferido', consolidado: 'Consolidado', cancelado: 'Cancelado' }
+      return {
+        rascunho: t('pedido.status.rascunho'),
+        aberto: t('pedido.status.aberto'),
+        em_andamento: t('pedido.status.em_andamento'),
+        aprovado: t('pedido.status.aprovado'),
+        transferencia: t('pedido.status.transferencia'),
+        consolidado: t('pedido.status.consolidado'),
+        cancelado: t('pedido.status.cancelado'),
+      }
     }
     return map
   }
-  return LABELS_FILTRO_FIXO[campo] ?? {}
+  if (campo === 'tipo_operacao') {
+    return {
+      importacao: t('pedido.lista.tipo_operacao.importacao'),
+      exportacao: t('pedido.lista.tipo_operacao.exportacao'),
+    }
+  }
+  return {}
 }
 
-function getLabelsFiltroInverso(campo: string): Record<string, string> {
-  const map = getLabelsFiltro(campo)
+function getLabelsFiltroInverso(campo: string, t: (key: string) => string = i18next.t.bind(i18next)): Record<string, string> {
+  const map = getLabelsFiltro(campo, t)
   return Object.fromEntries(Object.entries(map).map(([raw, label]) => [label, raw]))
 }
 
@@ -3172,39 +3182,39 @@ const pedidoRenderConectorFilho = (i: PedidoItem) => (
 
 // ── Helper: traduz erro de API em mensagem clara para o usuário ───────────────
 
-function mensagemErro(err: unknown): string {
+function mensagemErro(err: unknown, t: (key: string) => string = i18next.t.bind(i18next)): string {
   const msg = err instanceof Error ? err.message : String(err ?? '')
   const low = msg.toLowerCase()
 
   // ── Erros HTTP por código exato ────────────────────────────────────────────
   if (msg.includes('HTTP 400'))
-    return 'Dados inválidos. Verifique o valor informado e tente novamente.'
+    return t('pedido.lista.erro.http_400')
   if (msg.includes('HTTP 401'))
-    return 'Sessão expirada. Recarregue a página e faça login novamente.'
+    return t('pedido.lista.erro.http_401')
   if (msg.includes('HTTP 403'))
-    return 'Sem permissão para editar este campo.'
+    return t('pedido.lista.erro.http_403')
   if (msg.includes('HTTP 404'))
-    return 'Registro não encontrado. Atualize a página.'
+    return t('pedido.lista.erro.http_404')
   if (msg.includes('HTTP 409'))
-    return 'Conflito de edição — outra aba já alterou este registro. Valor restaurado.'
+    return t('pedido.lista.erro.http_409')
   if (msg.includes('HTTP 422'))
-    return 'Valor inválido para este campo. Verifique o formato esperado.'
+    return t('pedido.lista.erro.http_422')
   if (msg.includes('HTTP 429'))
-    return 'Muitas requisições. Aguarde alguns segundos e tente novamente.'
+    return t('pedido.lista.erro.http_429')
   if (/HTTP 5\d\d/.test(msg))
-    return 'Erro interno do servidor. Tente novamente em instantes.'
+    return t('pedido.lista.erro.http_5xx')
 
   // ── Resposta inválida do servidor (JSON parse error) ──────────────────────
   if (low.includes('unexpected token') || low.includes('is not valid json') || low.includes('syntaxerror'))
-    return 'O servidor retornou uma resposta inválida. Tente novamente ou contate o suporte.'
+    return t('pedido.lista.erro.resposta_invalida')
 
   // ── Erros de rede / conectividade ─────────────────────────────────────────
   if (low.includes('failed to fetch') || low.includes('networkerror') || low.includes('network request failed'))
-    return 'Sem conexão com o servidor. Verifique sua rede e tente novamente.'
+    return t('pedido.lista.erro.sem_conexao')
   if (low.includes('timeout') || low.includes('timed out'))
-    return 'A requisição demorou demais. Verifique sua conexão e tente novamente.'
+    return t('pedido.lista.erro.timeout')
   if (low.includes('aborted') || low.includes('abort'))
-    return 'A operação foi cancelada. Tente novamente.'
+    return t('pedido.lista.erro.cancelada')
 
   // ── Mensagem da API com conteúdo útil — exibir diretamente ───────────────
   // Mensagens curtas sem prefixo HTTP vêm do backend e são legíveis
@@ -3213,7 +3223,7 @@ function mensagemErro(err: unknown): string {
     return msg
 
   // ── Fallback genérico ─────────────────────────────────────────────────────
-  return 'Erro ao salvar. Tente novamente ou contate o suporte.'
+  return t('pedido.lista.erro.generico')
 }
 
 // ── BarraAcoesPedido — sub-componente memoizado da barra de ações ────────────
@@ -3307,7 +3317,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                 position: 'relative',
                 ...(podeEditarLista ? {} : { opacity: 0.45, pointerEvents: 'none', cursor: 'not-allowed' }),
               }}
-              title={podeEditarLista ? undefined : 'Sem permissão para criar pedidos'}
+              title={podeEditarLista ? undefined : t('pedido.barra.sem_permissao_criar_pedido')}
               aria-disabled={!podeEditarLista}
               onMouseEnter={() => podeEditarLista && setNovoSubmenu('pedido')}
               onMouseLeave={() => setNovoSubmenu(null)}
@@ -3367,7 +3377,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                 position: 'relative',
                 ...(podeEditarLista ? {} : { opacity: 0.45, pointerEvents: 'none', cursor: 'not-allowed' }),
               }}
-              title={podeEditarLista ? undefined : 'Sem permissão para criar itens'}
+              title={podeEditarLista ? undefined : t('pedido.barra.sem_permissao_criar_item')}
               aria-disabled={!podeEditarLista}
               onMouseEnter={() => podeEditarLista && setNovoSubmenu('item')}
               onMouseLeave={() => setNovoSubmenu(null)}
@@ -3503,8 +3513,8 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
         {/* Duplicar — aceita pedido E/OU item (modal único trata mistura) */}
         <TooltipGlobal
           titulo={(() => {
-            const labelItem = itensSelecionados.length === 1 ? 'item' : 'itens'
-            const labelPedido = pedidosSelecionados.length === 1 ? 'pedido' : 'pedidos'
+            const labelItem = itensSelecionados.length === 1 ? t('pedido.barra.label_item_one') : t('pedido.barra.label_item_other')
+            const labelPedido = pedidosSelecionados.length === 1 ? t('pedido.barra.label_pedido_one') : t('pedido.barra.label_pedido_other')
             if (pedidosSelecionados.length > 0 && itensSelecionados.length > 0) {
               return `${t('pedido.barra.duplicar')} · ${pedidosSelecionados.length} ${labelPedido} + ${itensSelecionados.length} ${labelItem}`
             }
@@ -3919,13 +3929,13 @@ export default function Pedidos() {
     return abas
       ? abas.filter(a => a.valor !== 'todos').map(a => ({ valor: a.valor, label: a.label }))
       : [
-          { valor: 'rascunho',      label: 'Rascunho'    },
-          { valor: 'aberto',        label: 'Aberto'      },
-          { valor: 'em_andamento',  label: 'Em Andamento'},
-          { valor: 'aprovado',      label: 'Aprovado'    },
-          { valor: 'transferencia', label: 'Transferido' },
-          { valor: 'consolidado',   label: 'Consolidado' },
-          { valor: 'cancelado',     label: 'Cancelado'   },
+          { valor: 'rascunho',      label: t('pedido.status.rascunho')      },
+          { valor: 'aberto',        label: t('pedido.status.aberto')        },
+          { valor: 'em_andamento',  label: t('pedido.status.em_andamento')  },
+          { valor: 'aprovado',      label: t('pedido.status.aprovado')      },
+          { valor: 'transferencia', label: t('pedido.status.transferencia') },
+          { valor: 'consolidado',   label: t('pedido.status.consolidado')   },
+          { valor: 'cancelado',     label: t('pedido.status.cancelado')     },
         ]
   })
 
@@ -3972,15 +3982,15 @@ export default function Pedidos() {
       }
 
       const COLUNAS_DINAMICAS_PEDIDO_ITEM: Record<string, string> = {
-        valor_total_pedido:                   'Valor Total do Pedido/Item',
-        quantidade_total_pedido:      'Qtd. Inicial do Pedido/Item',
-        quantidade_pronta_itens_pedido_total: 'Qtd. Pronta do Pedido/Item',
-        saldo_itens_do_pedido:                'Saldo do Pedido/Item',
-        quantidade_transferida_total:         'Qtd. Transferida do Pedido/Item',
-        quantidade_cancelada_total_pedido:    'Qtd. Cancelada do Pedido/Item',
-        peso_liquido_total_pedido:            'Peso Líquido Total do Pedido/Item',
-        peso_bruto_total_pedido:              'Peso Bruto Total do Pedido/Item',
-        cubagem_total_pedido:                 'Cubagem Total do Pedido/Item',
+        valor_total_pedido:                   t('pedido.lista.coluna_dinamica.valor_total'),
+        quantidade_total_pedido:              t('pedido.lista.coluna_dinamica.qtd_inicial'),
+        quantidade_pronta_itens_pedido_total: t('pedido.lista.coluna_dinamica.qtd_pronta'),
+        saldo_itens_do_pedido:                t('pedido.lista.coluna_dinamica.saldo'),
+        quantidade_transferida_total:         t('pedido.lista.coluna_dinamica.qtd_transferida'),
+        quantidade_cancelada_total_pedido:    t('pedido.lista.coluna_dinamica.qtd_cancelada'),
+        peso_liquido_total_pedido:            t('pedido.lista.coluna_dinamica.peso_liquido'),
+        peso_bruto_total_pedido:              t('pedido.lista.coluna_dinamica.peso_bruto'),
+        cubagem_total_pedido:                 t('pedido.lista.coluna_dinamica.cubagem'),
       }
       if (temExpandido && col.key in COLUNAS_DINAMICAS_PEDIDO_ITEM) {
         const label = COLUNAS_DINAMICAS_PEDIDO_ITEM[col.key]
@@ -3990,8 +4000,8 @@ export default function Pedidos() {
       if (col.key === 'saldo_itens_do_pedido') {
         const tooltipSaldo = (conteudo: React.ReactNode) => (
           <TooltipGlobal
-            titulo="Saldo do Pedido"
-            descricao={<span>Calculado com base nos itens — não editável. <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+            titulo={t('pedido.lista.saldo_pedido.titulo')}
+            descricao={<span>{t('pedido.lista.saldo_pedido.descricao_prefixo')} <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">{t('pedido.lista.saldo_pedido.link_editor')}</a></span>}
             interativo
           >
             <span style={{ display: 'contents' }}>{conteudo}</span>
@@ -4028,7 +4038,7 @@ export default function Pedidos() {
     })
 
     return [...colunasBase, ...custom]
-  }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido])
+  }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido, t])
 
   // Campos editáveis em linhas filho — estáticos + chaves das colunas customizadas editáveis
   const camposEditaveisFilhosComCustom = useMemo(() => {
@@ -4122,7 +4132,7 @@ export default function Pedidos() {
           if (!String(val ?? '').toLowerCase().includes(filtro.valor.toLowerCase())) return false
         } else if (filtro.tipo === 'enum') {
           const strVal = String(val ?? '')
-          const inverso = getLabelsFiltroInverso(campo)
+          const inverso = getLabelsFiltroInverso(campo, t)
           const rawSet = inverso
             ? new Set(Array.from(filtro.valor).map(l => inverso[l] ?? l))
             : filtro.valor
@@ -4297,7 +4307,7 @@ export default function Pedidos() {
       // mesmo quando o usuário tem dados válidos carregados.
       // Mand. 08 — registramos o erro no estado para que o empty state possa
       // diferenciar "vazio legítimo" de "falhou ao carregar" (sem fallback silencioso).
-      setErroCarga(err instanceof Error ? err.message : 'Erro desconhecido')
+      setErroCarga(err instanceof Error ? err.message : t('pedido.lista.erro.desconhecido'))
     } finally {
       setCarregando(false)
       carregandoRef.current = false
@@ -4429,18 +4439,18 @@ export default function Pedidos() {
   const acoesPai = useMemo(() => ([
     {
       id: 'editar',
-      tooltip: 'Editar pedido',
+      tooltip: t('pedido.lista.acao.editar_pedido'),
       icone: <PencilLine size={14} weight="duotone" />,
       onClick: (pedido: Pedido) => {
         setPedidoEditandoId(pedido.id)
         setDrawerAberto(true)
       },
     },
-  ]), [])
+  ]), [t])
 
   const acoesFilhoEstavel = useCallback((item: PedidoItem) => ([
     {
-      label: 'Transferir',
+      label: t('pedido.barra.transferir'),
       icone: <ArrowsLeftRight size={13} weight="duotone" />,
       onClick: () => {
         setItensSelecionados([item])
@@ -4448,7 +4458,7 @@ export default function Pedidos() {
       },
     },
     {
-      label: 'Duplicar',
+      label: t('pedido.barra.duplicar'),
       icone: <StackPlus size={13} weight="duotone" />,
       onClick: () => {
         setItensSelecionados([item])
@@ -4456,23 +4466,23 @@ export default function Pedidos() {
       },
     },
     {
-      label: 'Excluir',
+      label: t('pedido.barra.excluir'),
       icone: <Trash size={13} weight="duotone" />,
       perigo: true,
       onClick: async () => {
         setExcluindoItens(true)
         try {
           await pedidoExcluirApi.excluirItens(item.pedido_id, [item.id])
-          addNotification({ type: 'success', message: 'Item excluído com sucesso.' })
+          addNotification({ type: 'success', message: t('pedido.lista.notif.item_excluido') })
           await carregarInicial()
         } catch {
-          addNotification({ type: 'error', message: 'Erro ao excluir item. Tente novamente.' })
+          addNotification({ type: 'error', message: t('pedido.lista.notif.erro_excluir_item') })
         } finally {
           setExcluindoItens(false)
         }
       },
     },
-  ]), [carregarInicial, addNotification])
+  ]), [carregarInicial, addNotification, t])
 
   const onSelecaoFilhoEstavel = useCallback(
     (itens: PedidoItem[]) => setItensSelecionados(itens),
@@ -4498,7 +4508,7 @@ export default function Pedidos() {
     let iconeTransf: ReactNode = null
     if (recebeu && enviou) {
       iconeTransf = (
-        <TooltipGlobal titulo="Recebeu e enviou transferências" descricao="">
+        <TooltipGlobal titulo={t('pedido.lista.indicador.recebeu_enviou')} descricao="">
           <svg width={tamTransf} height={tamTransf} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
             <polygon points="12,1 5,9 19,9" fill="#f87171" />
             <rect x="10.5" y="8.5" width="3" height="7" fill="url(#gradTransf)" />
@@ -4514,7 +4524,7 @@ export default function Pedidos() {
       )
     } else if (recebeu) {
       iconeTransf = (
-        <TooltipGlobal titulo="Recebeu itens de outro pedido" descricao="">
+        <TooltipGlobal titulo={t('pedido.lista.indicador.recebeu')} descricao="">
           <svg width={tamTransf} height={tamTransf} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
             <polygon points="12,22 4,12 20,12" fill="#60a5fa" />
             <rect x="10.5" y="2" width="3" height="11" fill="#60a5fa" />
@@ -4523,7 +4533,7 @@ export default function Pedidos() {
       )
     } else if (enviou) {
       iconeTransf = (
-        <TooltipGlobal titulo="Transferiu itens para outro pedido" descricao="">
+        <TooltipGlobal titulo={t('pedido.lista.indicador.enviou')} descricao="">
           <svg width={tamTransf} height={tamTransf} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
             <polygon points="12,2 4,12 20,12" fill="#f87171" />
             <rect x="10.5" y="11" width="3" height="11" fill="#f87171" />
@@ -4533,7 +4543,7 @@ export default function Pedidos() {
     }
 
     const iconeConsol = consolidado ? (
-      <TooltipGlobal titulo="Pedido consolidado" descricao="">
+      <TooltipGlobal titulo={t('pedido.lista.indicador.consolidado')} descricao="">
         <GitMerge size={tamConsol} weight="duotone" style={{ color: '#a78bfa', opacity: 0.3 }} />
       </TooltipGlobal>
     ) : null
@@ -4542,20 +4552,20 @@ export default function Pedidos() {
       return <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>{iconeTransf}{iconeConsol}</span>
     }
     return iconeTransf ?? iconeConsol
-  }, [])
+  }, [t])
 
   const renderIndicadorLinhaItem = useCallback((item: PedidoItem) => {
     const transferiu = (item.quantidade_transferida_pedido ?? 0) > 0
     if (!transferiu) return null
     return (
-      <TooltipGlobal titulo="Este item teve quantidade transferida" descricao="">
+      <TooltipGlobal titulo={t('pedido.lista.indicador.item_transferido')} descricao="">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
           <polygon points="12,2 4,12 20,12" fill="#f87171" />
           <rect x="10.5" y="11" width="3" height="11" fill="#f87171" />
         </svg>
       </TooltipGlobal>
     )
-  }, [])
+  }, [t])
 
   const onFiltroColuna = useCallback((key: string, anchor: HTMLElement) => {
     setPopoverAberto(prev => prev === key ? null : key)
@@ -4645,7 +4655,7 @@ export default function Pedidos() {
         if (nomes.length > 0) result[col.key] = Array.from(new Set(nomes)).sort()
         continue
       }
-      const labelMap = getLabelsFiltro(col.key)
+      const labelMap = getLabelsFiltro(col.key, t)
       const vals = new Set<string>()
       for (const p of pedidos) {
         const raw = String((p as Record<string, unknown>)[col.key] ?? '').trim()
@@ -4656,7 +4666,7 @@ export default function Pedidos() {
       if (vals.size > 0) result[col.key] = Array.from(vals).sort()
     }
     return result
-  }, [pedidos, colunasPai, workspacesDisponiveis])
+  }, [pedidos, colunasPai, workspacesDisponiveis, t])
 
   // ── Carregar status e preferências ──────────────────────────────────────────
   useEffect(() => {
@@ -4673,7 +4683,7 @@ export default function Pedidos() {
         if (res.data.length > 0) {
           const sorted = res.data.sort((a, b) => a.ordem - b.ordem)
           const abasApi: GTAbaTipo[] = [
-            { valor: 'todos', label: 'Todos' },
+            { valor: 'todos', label: t('pedido.status.todos') },
             ...sorted.map((s: PedidoStatusConfig) => ({
               valor: s.nome,
               label: s.rotulo,
@@ -4833,9 +4843,9 @@ export default function Pedidos() {
     try {
       await pedidoItemApi.reordenar(paiId, ids)
     } catch {
-      addNotification({ type: 'error', message: 'Erro ao reordenar itens. Tente novamente.' })
+      addNotification({ type: 'error', message: t('pedido.lista.notif.erro_reordenar') })
     }
-  }, [addNotification])
+  }, [addNotification, t])
 
   // ── Busca ────────────────────────────────────────────────────────────────────
   const handleBuscar = useCallback((termo: string) => {
@@ -4878,7 +4888,7 @@ export default function Pedidos() {
     const colunaCustom = colunasUsuario.find(c => c.chave === campo)
     if (colunaCustom) {
       const pedidoAtual = pedidos.find(p => p.id === id)
-      if (!pedidoAtual) throw new Error('Pedido não encontrado')
+      if (!pedidoAtual) throw new Error(t('pedido.lista.erro.pedido_nao_encontrado'))
       await colunasUsuarioApi.salvarValores('pedido', id, { [colunaCustom.id]: String(valor) })
       const replicarCustom = opts?.replicar_em_itens ?? false
       if (replicarCustom && ((colunaCustom.escopo || 'ambos') === 'ambos')) {
@@ -4941,7 +4951,7 @@ export default function Pedidos() {
     // campos normais (isPropagavel) — o frontend é apenas o reflexo visual.
     if (CAMPOS_GHOST_ITENS.has(campo)) {
       const pedidoAtual = pedidos.find(p => p.id === id)
-      if (!pedidoAtual) throw new Error('Pedido não encontrado')
+      if (!pedidoAtual) throw new Error(t('pedido.lista.erro.pedido_nao_encontrado'))
       const valorEnviar = campo === 'data_emissao_pedido' ? normalizarDataISO(valor) : valor
       const itensGhost = itensCarregadosRef.current.get(id) ?? []
       await Promise.all(
@@ -5108,7 +5118,7 @@ export default function Pedidos() {
       if (itensCache.some(i => i.id === id)) { pedidoId = pId; break }
     }
     const pedido = pedidoId ? pedidos.find(p => p.id === pedidoId) : undefined
-    if (!pedido) throw new Error('Não foi possível localizar o pedido deste item. Recarregue a página.')
+    if (!pedido) throw new Error(t('pedido.lista.erro.pedido_item_nao_localizado'))
     // Helper: itens carregados via handleCarregarFilhos (lista view retorna itens:[])
     const getItensCache = () => itensCarregadosRef.current.get(pedido.id) ?? []
 
@@ -5142,7 +5152,7 @@ export default function Pedidos() {
       const pedidoAtualizado = await pedidoApi.atualizar(pedido.id, { [campo]: valor as string } as Partial<Pedido>)
         .catch(() => {
           if (import.meta.env.DEV) return { ...pedido, [campo]: valor } as Pedido
-          throw new Error(`Erro ao editar campo ${campo} do pedido`)
+          throw new Error(t('pedido.lista.erro.editar_campo_pedido', { campo }))
         })
       // _p completo construído a partir do pedidoAtualizado (itens crus de pedidos.itens não têm _p)
       const novoPaiP = {
@@ -5186,7 +5196,7 @@ export default function Pedidos() {
       } as Partial<PedidoItem>)
         .catch(() => {
           if (import.meta.env.DEV && itemAtualMv) return { ...itemAtualMv, valor_total_item: mv.amount, moeda_item: mv.currency } as PedidoItem
-          throw new Error('Erro ao editar valor_total_item')
+          throw new Error(t('pedido.lista.erro.editar_valor_total_item'))
         })
       const enriquecidoMv: PedidoItemEnriquecido = {
         ...atualizadoMv,
@@ -5260,7 +5270,7 @@ export default function Pedidos() {
       } as Partial<PedidoItem>)
         .catch(() => {
           if (import.meta.env.DEV && itemAtualMp) return { ...itemAtualMp, moeda_item: moedaCodigo } as PedidoItem
-          throw new Error('Erro ao editar moeda do item')
+          throw new Error(t('pedido.lista.erro.editar_moeda_item'))
         })
       const enriquecidoMp: PedidoItemEnriquecido = {
         ...atualizadoMp,
@@ -5307,7 +5317,7 @@ export default function Pedidos() {
       } as Partial<PedidoItem>)
         .catch(() => {
           if (import.meta.env.DEV && itemAtualMi) return { ...itemAtualMi, moeda_item: mv.currency } as PedidoItem
-          throw new Error('Erro ao editar moeda_item')
+          throw new Error(t('pedido.lista.erro.editar_moeda_item_obj'))
         })
       const enriquecidoMi: PedidoItemEnriquecido = {
         ...atualizadoMi,
@@ -5354,7 +5364,7 @@ export default function Pedidos() {
       } as Partial<PedidoItem>)
         .catch(() => {
           if (import.meta.env.DEV && itemAtualUi) return { ...itemAtualUi, unidade_comercializada_item: uv.unit } as PedidoItem
-          throw new Error('Erro ao editar unidade_comercializada_item')
+          throw new Error(t('pedido.lista.erro.editar_unidade_item'))
         })
       const enriquecidoUi: PedidoItemEnriquecido = {
         ...atualizadoUi,
@@ -5406,7 +5416,7 @@ export default function Pedidos() {
       } as Partial<PedidoItem>)
         .catch(() => {
           if (import.meta.env.DEV && itemAtualVu) return { ...itemAtualVu, valor_por_unidade_item: mv.amount, moeda_item: mv.currency } as PedidoItem
-          throw new Error('Erro ao editar valor_por_unidade_item')
+          throw new Error(t('pedido.lista.erro.editar_valor_unidade_item'))
         })
       const enriquecidoVu: PedidoItemEnriquecido = {
         ...atualizadoVu,
@@ -5479,14 +5489,14 @@ export default function Pedidos() {
       if (unidadeMudou) {
         await pedidoItemApi.atualizar(pedido.id, id, { unidade_comercializada_item: novaUnidade } as Partial<PedidoItem>)
           .catch(() => {
-            if (!import.meta.env.DEV) throw new Error('Erro ao atualizar unidade do item')
+            if (!import.meta.env.DEV) throw new Error(t('pedido.lista.erro.atualizar_unidade_item'))
           })
       }
 
       const atualizadoPronta = await pedidoItemApi.atualizarPronta(pedido.id, id, qtd)
         .catch(() => {
           if (import.meta.env.DEV && itemAtualPronta) return { ...itemAtualPronta, quantidade_pronta_total_item_pedido: qtd, unidade_comercializada_item: novaUnidade ?? itemAtualPronta.unidade_comercializada_item } as PedidoItem
-          throw new Error('Erro ao atualizar quantidade pronta')
+          throw new Error(t('pedido.lista.erro.atualizar_qtd_pronta'))
         })
       // Garante que a unidade persistida via PUT acima esteja no objeto retornado
       // (atualizarPronta devolve apenas o item — pode não refletir a unidade nova).
@@ -5610,7 +5620,7 @@ export default function Pedidos() {
         const atualizadoData = await pedidoItemApi.editarCampo(pedido.id, id, campo, isoData)
           .catch(() => {
             if (import.meta.env.DEV && itemAtualData) return { ...itemAtualData, data_emissao_pedido: isoData } as PedidoItem
-            throw new Error('Erro ao salvar data')
+            throw new Error(t('pedido.lista.erro.salvar_data'))
           })
         const enriquecidoData: PedidoItemEnriquecido = {
           ...atualizadoData,
@@ -5668,7 +5678,7 @@ export default function Pedidos() {
         if (import.meta.env.DEV) {
           if (itemAtual) return { ...itemAtual, ...payload } as PedidoItem
         }
-        throw new Error(`Erro ao editar campo ${campo}`)
+        throw new Error(t('pedido.lista.erro.editar_campo', { campo }))
       })
 
     // Persiste o total do pedido pai no servidor (fire-and-forget) quando um campo de peso muda
@@ -5830,7 +5840,7 @@ export default function Pedidos() {
         const pai = p as unknown as Record<string, unknown>
         const itensDoPedido = (p.itens ?? []).map((i, _idx) => ({
           ...pai,
-          _tipo_linha: 'Item',
+          _tipo_linha: t('pedido.lista.export_linha.item'),
           numero_item: i.part_number ?? '',
           part_number: i.part_number,
           descricao_item: i.descricao_item,
@@ -5840,11 +5850,11 @@ export default function Pedidos() {
           valor_item: i.valor_total_item,
         }))
         return itensDoPedido.length > 0
-          ? [{ ...pai, _tipo_linha: 'Pedido', numero_item: '' }, ...itensDoPedido]
-          : [{ ...pai, _tipo_linha: 'Pedido' }]
+          ? [{ ...pai, _tipo_linha: t('pedido.lista.export_linha.pedido'), numero_item: '' }, ...itensDoPedido]
+          : [{ ...pai, _tipo_linha: t('pedido.lista.export_linha.pedido') }]
       })
     } else {
-      dados = base.map(p => ({ ...(p as unknown as Record<string, unknown>), _tipo_linha: 'Pedido' }))
+      dados = base.map(p => ({ ...(p as unknown as Record<string, unknown>), _tipo_linha: t('pedido.lista.export_linha.pedido') }))
     }
 
     // Aplica fmtData em todas as colunas de data — colunas estáticas (data_*) e
@@ -5876,7 +5886,7 @@ export default function Pedidos() {
       icone: <DownloadSimple size={15} weight="duotone" />,
       onClick: () => {
         const { dados, colunasExport } = buildDadosExport()
-        exportarExcel(dados, colunasExport, { nomeArquivo: 'pedidos', titulo: 'Pedidos' })
+        exportarExcel(dados, colunasExport, { nomeArquivo: 'pedidos', titulo: t('pedido.lista.export_titulo') })
       },
     },
     {
@@ -5916,7 +5926,7 @@ export default function Pedidos() {
       icone: <FilePdf size={15} weight="duotone" />,
       onClick: () => {
         const { dados, colunasExport } = buildDadosExport()
-        void exportarPDF(dados, colunasExport, { nomeArquivo: 'pedidos', titulo: 'Pedidos' })
+        void exportarPDF(dados, colunasExport, { nomeArquivo: 'pedidos', titulo: t('pedido.lista.export_titulo') })
       },
     },
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -6011,18 +6021,18 @@ export default function Pedidos() {
               })
               return (
                 <CardBasicoGlobal key="valor_total_brl"
-                  titulo="Total Pedidos — BRL"
+                  titulo={t('pedido.lista.card.total_brl_titulo')}
                   icone={<CurrencyCircleDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
                   valor={`R$ ${fmtQuantidade(valorTotalBrl, 2)}`}
                   variante="sucesso"
-                  subtexto="Todos os pedidos convertidos para R$"
+                  subtexto={t('pedido.lista.card.total_brl_subtexto')}
                   tooltip={<>
                     {entradas.map(([m, v]) => {
                       const taxa = taxasVenda[m]
                       return (
                         <p key={m} className="cg-tooltip__row">
                           <span>{m} {fmtQuantidade(Number(v), 2)}</span>
-                          <strong>{taxa != null ? `× ${fmtQuantidade(taxa, 4)}` : '— sem taxa'}</strong>
+                          <strong>{taxa != null ? `× ${fmtQuantidade(taxa, 4)}` : t('pedido.lista.card.sem_taxa')}</strong>
                         </p>
                       )
                     })}
@@ -6044,7 +6054,7 @@ export default function Pedidos() {
                       ? unidadesQtd.map(un => (
                           <p key={un} className="cg-tooltip__row">
                             <span>{fmtQuantidade(qtdPorUnidade[un])} {un}</span>
-                            <strong>{fmtQuantidade(qtdSaldoPorUnidade[un])} saldo</strong>
+                            <strong>{fmtQuantidade(qtdSaldoPorUnidade[un])} {t('pedido.lista.card.saldo')}</strong>
                           </p>
                         ))
                       : <>
@@ -6093,7 +6103,7 @@ export default function Pedidos() {
         <div className="lp-erro-lote" role="alert">
           <Warning size={16} weight="duotone" />
           <span>{erroLote}</span>
-          <button onClick={() => setErroLote(null)} aria-label="Fechar erro"><X size={14} /></button>
+          <button onClick={() => setErroLote(null)} aria-label={t('pedido.lista.fechar_erro')}><X size={14} /></button>
         </div>
       )}
 
@@ -6113,7 +6123,7 @@ export default function Pedidos() {
             onOrdenar={handleOrdenar}
             onFechar={() => setPopoverAberto(null)}
             anchorPos={popoverPos}
-            labelInverso={getLabelsFiltroInverso(col.key)}
+            labelInverso={getLabelsFiltroInverso(col.key, t)}
           />
         )
       })()}
@@ -6136,7 +6146,7 @@ export default function Pedidos() {
           totalItens={total}
           paginaAtual={paginaAtual}
           onMudarPagina={handleMudarPagina}
-          labelPai={['pedido', 'pedidos']}
+          labelPai={[t('pedido.barra.label_pedido_one'), t('pedido.barra.label_pedido_other')]}
           totalFilhos={todosItens.length}
 
           abas={abas}
@@ -6181,7 +6191,7 @@ export default function Pedidos() {
           sortDir={sortDir}
 
           camposEditaveis={CAMPOS_EDITAVEIS_PAI}
-          mensagemSemPermissaoEditar={!podeEditarLista ? 'Sem permissão para editar' : undefined}
+          mensagemSemPermissaoEditar={!podeEditarLista ? t('pedido.lista.sem_permissao_editar') : undefined}
           onEditar={podeEditarLista ? async (id: string, campo: string, valor: unknown, opts) => {
             let idReal = id;
             if (!pedidosFiltrados.some(p => p.id === idReal)) {
@@ -6207,15 +6217,15 @@ export default function Pedidos() {
           camposEditaveisFilhos={camposEditaveisFilhosComCustom}
           onEditarFilho={podeEditarLista ? handleEditarFilho : undefined}
 
-          onSalvoComSucesso={() => addNotification({ type: 'success', message: 'Campo atualizado com sucesso.' })}
-          onErroAoSalvar={(msg) => addNotification({ type: 'error', message: mensagemErro(msg) })}
+          onSalvoComSucesso={() => addNotification({ type: 'success', message: t('pedido.lista.notif.campo_atualizado') })}
+          onErroAoSalvar={(msg) => addNotification({ type: 'error', message: mensagemErro(msg, t) })}
 
           arrastavelPai
           onReordenarPai={handleReordenarPedidos}
           arrastavelFilho
           onReordenarFilho={handleReordenarItens}
           filhoSequenciaKey="sequencia_item"
-          onOrdemManualResetada={() => addNotification({ type: 'info', message: 'Ordem manual dos pedidos foi resetada pela ordenação por coluna.' })}
+          onOrdemManualResetada={() => addNotification({ type: 'info', message: t('pedido.lista.notif.ordem_resetada') })}
 
           preferencias={preferencias}
           onSalvarPreferencias={handleSalvarPreferencias}
@@ -6272,7 +6282,7 @@ export default function Pedidos() {
             )
           }
 
-          ariaLabel="Lista de pedidos"
+          ariaLabel={t('pedido.lista.aria_lista_pedidos')}
         />
       </div>
 
@@ -6343,14 +6353,14 @@ export default function Pedidos() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: 'var(--bg-surface)', borderRadius: '0.75rem', padding: '1.5rem', width: '400px', border: '1px solid var(--border-subtle)' }}>
             <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-              Transferir Quantidade — {modalTransferir.item.part_number}
+              {t('pedido.lista.modal_transferir.titulo', { part: modalTransferir.item.part_number })}
             </h3>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-              Saldo disponível: <strong>{fmtQuantidade(modalTransferir.item.quantidade_atual_pedido, getCasas('quantidade_item', 0))}</strong>
+              {t('pedido.lista.modal_transferir.saldo_disponivel')}: <strong>{fmtQuantidade(modalTransferir.item.quantidade_atual_pedido, getCasas('quantidade_item', 0))}</strong>
             </p>
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'uppercase' }}>
-                Quantidade a Transferir
+                {t('pedido.lista.modal_transferir.quantidade_label')}
               </label>
               <input
                 type="number"
@@ -6365,7 +6375,7 @@ export default function Pedidos() {
               />
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-              <BotaoGlobal variante="secundario" onClick={() => { setModalTransferir(null); setQtdTransferir('') }}>Cancelar</BotaoGlobal>
+              <BotaoGlobal variante="secundario" onClick={() => { setModalTransferir(null); setQtdTransferir('') }}>{t('comum.cancelar')}</BotaoGlobal>
               <BotaoGlobal
                 variante="primario"
                 icone={<ArrowRight size={14} />}
@@ -6373,12 +6383,12 @@ export default function Pedidos() {
                   const qtd = parseFloat(qtdTransferir)
                   if (!qtd || qtd <= 0 || qtd > modalTransferir.item.quantidade_atual_pedido) return
                   console.info('[Pedido] Transferir:', { item: modalTransferir.item.id, quantidade: qtd })
-                  window.alert(`✓ Transferência de ${fmtQuantidade(qtd, getCasas('quantidade_item', 0))} registrada.`)
+                  window.alert(t('pedido.lista.modal_transferir.confirmado', { qtd: fmtQuantidade(qtd, getCasas('quantidade_item', 0)) }))
                   setModalTransferir(null)
                   setQtdTransferir('')
                 }}
               >
-                Transferir
+                {t('pedido.barra.transferir')}
               </BotaoGlobal>
             </div>
           </div>
@@ -6522,15 +6532,15 @@ export default function Pedidos() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <PlugsConnected size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
                   <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
-                    Criar Pedido via API
+                    {t('pedido.lista.cockpit.titulo')}
                   </h3>
                 </div>
-                <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Use a API do Cockpit para criar pedidos programaticamente</p>
+                <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>{t('pedido.lista.cockpit.subtitulo')}</p>
               </div>
               <button
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '0.25rem', borderRadius: '0.25rem', display: 'flex', alignItems: 'center' }}
                 onClick={() => setModalCockpitAberto(false)}
-                aria-label="Fechar"
+                aria-label={t('comum.fechar')}
               >
                 <X size={16} weight="bold" />
               </button>
@@ -6539,7 +6549,7 @@ export default function Pedidos() {
             {/* Endpoint */}
             <div style={{ marginBottom: '1rem' }}>
               <p style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.25rem', letterSpacing: '0.05em' }}>
-                Endpoint
+                {t('pedido.lista.cockpit.endpoint')}
               </p>
               <code style={{ display: 'block', background: 'var(--bg-base)', borderRadius: '0.375rem', padding: '0.625rem 0.875rem', fontSize: '0.8125rem', color: 'var(--ws-accent)', fontFamily: 'monospace', border: '1px solid var(--border-subtle)' }}>
                 POST /api/v1/cockpit/pedidos
@@ -6549,7 +6559,7 @@ export default function Pedidos() {
             {/* Auth */}
             <div style={{ marginBottom: '1rem' }}>
               <p style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.25rem', letterSpacing: '0.05em' }}>
-                Autenticação
+                {t('pedido.lista.cockpit.autenticacao')}
               </p>
               <code style={{ display: 'block', background: 'var(--bg-base)', borderRadius: '0.375rem', padding: '0.625rem 0.875rem', fontSize: '0.8125rem', color: 'var(--text-primary)', fontFamily: 'monospace', border: '1px solid var(--border-subtle)', whiteSpace: 'pre' }}>
                 {`Authorization: Bearer gravity_token_api_producao_...`}
@@ -6559,7 +6569,7 @@ export default function Pedidos() {
             {/* Payload */}
             <div style={{ marginBottom: '1.25rem' }}>
               <p style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.25rem', letterSpacing: '0.05em' }}>
-                Exemplo de Payload
+                {t('pedido.lista.cockpit.exemplo_payload')}
               </p>
               <code style={{ display: 'block', background: 'var(--bg-base)', borderRadius: '0.375rem', padding: '0.875rem', fontSize: '0.8rem', color: 'var(--text-primary)', fontFamily: 'monospace', border: '1px solid var(--border-subtle)', whiteSpace: 'pre', lineHeight: 1.6, overflowX: 'auto' }}>
                 {`{
@@ -6582,7 +6592,7 @@ export default function Pedidos() {
 
             {/* Nota */}
             <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', background: 'var(--bg-base)', borderRadius: '0.375rem', padding: '0.625rem 0.875rem', border: '1px solid var(--border-subtle)', margin: 0 }}>
-              Gerencie seus tokens em <strong style={{ color: 'var(--ws-accent)' }}>Configurações → API</strong>
+              {t('pedido.lista.cockpit.gerencie_tokens_prefixo')} <strong style={{ color: 'var(--ws-accent)' }}>{t('pedido.lista.cockpit.gerencie_tokens_link')}</strong>
             </p>
           </div>
         </div>

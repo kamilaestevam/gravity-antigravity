@@ -130,7 +130,7 @@ function CardSortavel({
     zIndex:  isDragging ? 999 : undefined,
   }
 
-  const periodoLabel = PERIODOS.find(p => p.id === periodoAtivo)?.label ?? periodoAtivo
+  const periodoLabel = t(`pedido.config.cards.periodo_${periodoAtivo}`, { defaultValue: PERIODOS.find(p => p.id === periodoAtivo)?.label ?? periodoAtivo })
   const subtitulo = `${def.tipoAgg} · ${def.origem} · ${periodoLabel}`
 
   return (
@@ -141,7 +141,7 @@ function CardSortavel({
           className="cfg-drag-handle"
           {...attributes}
           {...listeners}
-          aria-label="Arrastar para reordenar"
+          aria-label={t('pedido.config.acao.arrastar')}
         >
           <DotsSixVertical size={16} weight="bold" />
         </button>
@@ -163,7 +163,7 @@ function CardSortavel({
             type="button"
             className={`cfg-eye-btn${detalheAberto ? ' cfg-eye-btn--on' : ''}`}
             onClick={() => setDetalheAberto(v => !v)}
-            aria-label="Ver detalhes do card"
+            aria-label={t('pedido.config.cards.aria_ver_detalhes')}
           >
             <Info size={15} weight="bold" />
           </button>
@@ -188,7 +188,7 @@ function CardSortavel({
             type="button"
             className="cfg-remove-btn"
             onClick={onRemover}
-            aria-label="Remover card"
+            aria-label={t('pedido.config.cards.aria_remover_card')}
           >
             <X size={13} weight="bold" />
           </button>
@@ -198,23 +198,23 @@ function CardSortavel({
       {detalheAberto && (
         <div className="cfg-card-detail-panel">
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Campo base</span>
+            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_campo_base')}</span>
             <span className="cfg-card-detail-panel__value">{def.campoBase}</span>
           </div>
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Agregação</span>
+            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_agregacao')}</span>
             <span className="cfg-card-detail-panel__value">{def.tipoAgg}</span>
           </div>
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Origem</span>
+            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_origem')}</span>
             <span className="cfg-card-detail-panel__value">{def.origem}</span>
           </div>
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Período</span>
+            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_periodo')}</span>
             <span className="cfg-card-detail-panel__value">{periodoLabel}</span>
           </div>
           <div className="cfg-card-detail-panel__row cfg-card-detail-panel__row--full">
-            <span className="cfg-card-detail-panel__label">Descrição</span>
+            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_descricao')}</span>
             <span className="cfg-card-detail-panel__value">{def.descricao}</span>
           </div>
         </div>
@@ -235,7 +235,7 @@ function CardDisponivel({
   const { t } = useTranslation()
   const visual = CARD_VISUAL[def.id]
   const [detalheAberto, setDetalheAberto] = useState(false)
-  const periodoLabel = PERIODOS.find(p => p.id === periodoAtivo)?.label ?? periodoAtivo
+  const periodoLabel = t(`pedido.config.cards.periodo_${periodoAtivo}`, { defaultValue: PERIODOS.find(p => p.id === periodoAtivo)?.label ?? periodoAtivo })
 
   return (
     <div>
@@ -261,17 +261,17 @@ function CardDisponivel({
             type="button"
             className={`cfg-eye-btn${detalheAberto ? ' cfg-eye-btn--on' : ''}`}
             onClick={() => setDetalheAberto(v => !v)}
-            aria-label="Ver detalhes do card"
+            aria-label={t('pedido.config.cards.aria_ver_detalhes')}
           >
             <Info size={15} weight="bold" />
           </button>
         </TooltipGlobal>
-        <TooltipGlobal descricao="Adicionar aos meus cards">
+        <TooltipGlobal descricao={t('pedido.config.cards.tooltip_adicionar_meus')}>
           <button
             type="button"
             className="cfg-add-btn"
             onClick={onAdicionar}
-            aria-label="Adicionar card"
+            aria-label={t('pedido.config.cards.aria_adicionar_card')}
           >
             <Plus size={13} weight="bold" />
           </button>
@@ -281,23 +281,23 @@ function CardDisponivel({
       {detalheAberto && (
         <div className="cfg-card-detail-panel">
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Campo base</span>
+            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_campo_base')}</span>
             <span className="cfg-card-detail-panel__value">{def.campoBase}</span>
           </div>
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Agregação</span>
+            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_agregacao')}</span>
             <span className="cfg-card-detail-panel__value">{def.tipoAgg}</span>
           </div>
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Origem</span>
+            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_origem')}</span>
             <span className="cfg-card-detail-panel__value">{def.origem}</span>
           </div>
           <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">Período</span>
+            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_periodo')}</span>
             <span className="cfg-card-detail-panel__value">{periodoLabel}</span>
           </div>
           <div className="cfg-card-detail-panel__row cfg-card-detail-panel__row--full">
-            <span className="cfg-card-detail-panel__label">Descrição</span>
+            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_descricao')}</span>
             <span className="cfg-card-detail-panel__value">{def.descricao}</span>
           </div>
         </div>
@@ -317,13 +317,18 @@ function ColunaSortavel({
   onEditar: () => void
   editando: boolean
 }) {
+  const { t } = useTranslation()
   const tipoInfo = [
-    { id: 'texto', label: 'Texto' }, { id: 'numero', label: 'Numérico' },
-    { id: 'data', label: 'Data' }, { id: 'percentual', label: 'Percentual %' },
-    { id: 'select', label: 'Select/Lista' }, { id: 'checkbox', label: 'Checkbox' },
-    { id: 'tipo_documento', label: 'Tipo Documento' }, { id: 'formula', label: 'Fórmula' },
-    { id: 'anexo', label: 'Anexo' },
-  ].find(t => t.id === col.tipo)
+    { id: 'texto', label: t('pedido.config.colunas.personalizadas.tipo_texto') },
+    { id: 'numero', label: t('pedido.config.colunas.personalizadas.tipo_numero') },
+    { id: 'data', label: t('pedido.config.colunas.personalizadas.tipo_data') },
+    { id: 'percentual', label: t('pedido.config.colunas.personalizadas.tipo_percentual') },
+    { id: 'select', label: t('pedido.config.colunas.personalizadas.tipo_select') },
+    { id: 'checkbox', label: t('pedido.config.colunas.personalizadas.tipo_checkbox') },
+    { id: 'tipo_documento', label: t('pedido.config.colunas.personalizadas.tipo_tipo_documento') },
+    { id: 'formula', label: t('pedido.config.colunas.personalizadas.tipo_formula') },
+    { id: 'anexo', label: t('pedido.config.colunas.personalizadas.tipo_anexo') },
+  ].find(opt => opt.id === col.tipo)
 
   const {
     attributes, listeners, setNodeRef,
@@ -339,25 +344,25 @@ function ColunaSortavel({
 
   return (
     <div ref={setNodeRef} style={style} className={`cfg-kanban-campo-row${!col.ativo ? ' cfg-kanban-campo-row--oculto' : ''}${editando ? ' cfg-kanban-campo-row--editando' : ''}`}>
-      <button type="button" className="cfg-drag-handle" {...attributes} {...listeners} aria-label="Arrastar para reordenar">
+      <button type="button" className="cfg-drag-handle" {...attributes} {...listeners} aria-label={t('pedido.config.acao.arrastar')}>
         <DotsSixVertical size={15} weight="bold" />
       </button>
       <div className="cfg-kanban-campo-row__info">
         <span className="cfg-kanban-campo-row__nome">{col.nome}</span>
         <span className="cfg-kanban-campo-row__tipo">{tipoInfo?.label ?? col.tipo}</span>
       </div>
-      <TooltipGlobal descricao="Editar propriedades">
-        <button type="button" className={`cfg-kanban-campo-btn${editando ? ' cfg-kanban-campo-btn--ativo' : ''}`} onClick={onEditar} aria-label={`Editar ${col.nome}`}>
+      <TooltipGlobal descricao={t('pedido.config.colunas.personalizadas.tooltip_editar_propriedades')}>
+        <button type="button" className={`cfg-kanban-campo-btn${editando ? ' cfg-kanban-campo-btn--ativo' : ''}`} onClick={onEditar} aria-label={t('pedido.config.colunas.personalizadas.aria_editar_coluna', { nome: col.nome })}>
           <PencilSimple size={14} weight="duotone" />
         </button>
       </TooltipGlobal>
-      <TooltipGlobal descricao={col.ativo ? 'Ocultar coluna' : 'Exibir coluna'}>
-        <button type="button" className="cfg-kanban-campo-btn" onClick={onToggleAtivo} aria-label={col.ativo ? 'Ocultar' : 'Exibir'}>
+      <TooltipGlobal descricao={col.ativo ? t('pedido.config.colunas.personalizadas.tooltip_ocultar_coluna') : t('pedido.config.colunas.personalizadas.tooltip_exibir_coluna')}>
+        <button type="button" className="cfg-kanban-campo-btn" onClick={onToggleAtivo} aria-label={col.ativo ? t('pedido.config.colunas.personalizadas.aria_ocultar') : t('pedido.config.colunas.personalizadas.aria_exibir')}>
           {col.ativo ? <Eye size={14} weight="duotone" /> : <EyeSlash size={14} weight="duotone" />}
         </button>
       </TooltipGlobal>
-      <TooltipGlobal descricao="Excluir coluna">
-        <button type="button" className="cfg-kanban-campo-btn cfg-kanban-campo-btn--remove" onClick={onRemover} aria-label={`Excluir ${col.nome}`}>
+      <TooltipGlobal descricao={t('pedido.config.colunas.personalizadas.tooltip_excluir_coluna')}>
+        <button type="button" className="cfg-kanban-campo-btn cfg-kanban-campo-btn--remove" onClick={onRemover} aria-label={t('pedido.config.colunas.personalizadas.aria_excluir_coluna', { nome: col.nome })}>
           <X size={13} weight="bold" />
         </button>
       </TooltipGlobal>
@@ -942,10 +947,10 @@ export default function Configuracoes() {
       if (res.auditoria.total_pedidos > 0) {
         setAguardandoConfirmacaoCasas(true)
       } else {
-        addNotification({ type: 'success', message: 'Casas decimais salvas com sucesso.' })
+        addNotification({ type: 'success', message: t('pedido.config.colunas.casas_decimais.msg_salvo') })
       }
     } catch {
-      addNotification({ type: 'error', message: 'Erro ao salvar casas decimais.' })
+      addNotification({ type: 'error', message: t('pedido.config.colunas.casas_decimais.msg_erro_salvar') })
     } finally {
       setSalvandoCasas(false)
     }
@@ -961,9 +966,9 @@ export default function Configuracoes() {
       await casasDecimaisApi.salvar({ ...payload, confirmar: true })
       setAguardandoConfirmacaoCasas(false)
       setAuditoriaCasas(null)
-      addNotification({ type: 'success', message: 'Configuração salva. Migração iniciada em background.' })
+      addNotification({ type: 'success', message: t('pedido.config.colunas.casas_decimais.msg_migracao_iniciada') })
     } catch {
-      addNotification({ type: 'error', message: 'Erro ao iniciar migração.' })
+      addNotification({ type: 'error', message: t('pedido.config.colunas.casas_decimais.msg_erro_migracao') })
     } finally {
       setSalvandoCasas(false)
     }
@@ -986,9 +991,9 @@ export default function Configuracoes() {
       await casasDecimaisApi.salvar({ ...payload, formato_data: pendingFormato })
       setFormatoData(pendingFormato)        // atualiza store global
       setFormatoDataLocal(pendingFormato)   // atualiza estado local
-      addNotification({ type: 'success', message: 'Formato de data salvo com sucesso.' })
+      addNotification({ type: 'success', message: t('pedido.config.colunas.formato_data.msg_salvo') })
     } catch {
-      addNotification({ type: 'error', message: 'Erro ao salvar formato de data.' })
+      addNotification({ type: 'error', message: t('pedido.config.colunas.formato_data.msg_erro_salvar') })
     } finally {
       setSalvandoFormato(false)
     }
@@ -1044,9 +1049,9 @@ export default function Configuracoes() {
       await Promise.all(changed.map(col => colunasUsuarioApi.atualizar(col.id, { ativo: col.ativo })))
       const lista = await colunasUsuarioApi.listar()
       setColunasUsuarioApi(lista)
-      addNotification({ type: 'success', message: 'Colunas salvas com sucesso.' })
+      addNotification({ type: 'success', message: t('pedido.config.colunas.personalizadas.msg_salvo') })
     } catch {
-      addNotification({ type: 'error', message: 'Erro ao salvar colunas.' })
+      addNotification({ type: 'error', message: t('pedido.config.colunas.personalizadas.msg_erro_salvar') })
     } finally {
       setSalvandoColunas(false)
     }
@@ -1193,9 +1198,9 @@ export default function Configuracoes() {
       const resp = await salvarSnapshotAtualizacaoPolicy(snapPolicy)
       setSnapPolicyBase(resp.data)
       setSnapPolicy(resp.data)
-      addNotification({ type: 'success', message: 'Política de snapshot salva.' })
+      addNotification({ type: 'success', message: t('pedido.config.snapshot.msg_salvo') })
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Erro ao salvar política'
+      const msg = e instanceof Error ? e.message : t('pedido.config.snapshot.erro_salvar')
       addNotification({ type: 'error', message: msg })
     } finally {
       setSnapPolicySalvando(false)
@@ -1226,7 +1231,7 @@ export default function Configuracoes() {
       // FIX #1: usa ref para pegar nome atual — sem closure stale durante async
       const chave = nomeColRef.current.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '__nova__'
       if (detectarCircular(chave, expressaoChave, colunasUsuarioApi_)) {
-        setFormulaErro('Referência circular: a fórmula cria um ciclo de dependências. Remova a referência que volta para esta coluna.')
+        setFormulaErro(t('pedido.config.colunas.personalizadas.formula_erro_circular'))
         setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
         return
       }
@@ -1245,8 +1250,8 @@ export default function Configuracoes() {
       if (camposTexto.length > 0) {
         setFormulaErro(null); setFormulaValida(true); setFormulaAviso(null)
         setFormulaGabi({
-          titulo: 'Campo não-numérico detectado',
-          texto:  `${camposTexto.join(', ')} ${camposTexto.length === 1 ? 'não é um campo numérico' : 'não são campos numéricos'}. Em operações aritméticas, campos texto, data ou checkbox serão tratados como 0.`,
+          titulo: t('pedido.config.colunas.personalizadas.formula_gabi_nao_numerico_titulo'),
+          texto:  t(camposTexto.length === 1 ? 'pedido.config.colunas.personalizadas.formula_gabi_nao_numerico_texto_one' : 'pedido.config.colunas.personalizadas.formula_gabi_nao_numerico_texto_other', { campos: camposTexto.join(', ') }),
         })
         return
       }
@@ -1268,8 +1273,8 @@ export default function Configuracoes() {
         setFormulaErro(null); setFormulaValida(false); setFormulaAviso(null)
         const lista = camposDesconhecidos.map(c => `"${c}"`).join(', ')
         setFormulaGabi({
-          titulo: 'Campo não reconhecido',
-          texto:  `${lista} ${camposDesconhecidos.length === 1 ? 'não é um campo disponível' : 'não são campos disponíveis'}. Use os chips acima para inserir campos válidos ou verifique se há um erro de digitação.`,
+          titulo: t('pedido.config.colunas.personalizadas.formula_gabi_desconhecido_titulo'),
+          texto:  t(camposDesconhecidos.length === 1 ? 'pedido.config.colunas.personalizadas.formula_gabi_desconhecido_texto_one' : 'pedido.config.colunas.personalizadas.formula_gabi_desconhecido_texto_other', { lista }),
         })
         return
       }
@@ -1285,7 +1290,7 @@ export default function Configuracoes() {
       }
       // Se Gemini desabilitado (gemini: false), resultado local já está correto — não faz nada
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Fórmula inválida'
+      const msg = err instanceof Error ? err.message : t('pedido.config.colunas.personalizadas.formula_invalida')
 
       // Detecta padrão "dois campos sem operador": campo1 campo2
       // O parser lança "Token inesperado após fim da fórmula: 'X'"
@@ -1299,8 +1304,8 @@ export default function Configuracoes() {
             setFormulaErro(null)
             setFormulaValida(false); setFormulaAviso(null)
             setFormulaGabi({
-              titulo:   'Falta um operador',
-              texto:    `Parece que faltou um operador entre "${antes}" e "${tokenExtra}". Escolha o que faz mais sentido para o negócio e insira entre os dois campos.`,
+              titulo:   t('pedido.config.colunas.personalizadas.formula_gabi_falta_op_titulo'),
+              texto:    t('pedido.config.colunas.personalizadas.formula_gabi_falta_op_texto', { antes, token: tokenExtra }),
               sugestao: `${antes} + ${tokenExtra}`,
             })
             return
@@ -1357,8 +1362,8 @@ export default function Configuracoes() {
         setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaAnalisando(false)
         const lista = camposDesconhecidos.map(c => `"${c}"`).join(', ')
         setSaldoFormulaGabi({
-          titulo: 'Campo não reconhecido',
-          texto:  `${lista} ${camposDesconhecidos.length === 1 ? 'não é um campo disponível' : 'não são campos disponíveis'}. Use os chips acima para inserir campos válidos ou verifique se há erro de digitação.`,
+          titulo: t('pedido.config.colunas.campos_calculados.gabi_desconhecido_titulo'),
+          texto:  t(camposDesconhecidos.length === 1 ? 'pedido.config.colunas.campos_calculados.gabi_desconhecido_texto_one' : 'pedido.config.colunas.campos_calculados.gabi_desconhecido_texto_other', { lista }),
         })
         return
       }
@@ -1374,7 +1379,7 @@ export default function Configuracoes() {
         setSaldoFormulaGabi({ titulo: respostaGemini.titulo, texto: respostaGemini.texto, sugestao: respostaGemini.sugestao })
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Fórmula inválida'
+      const msg = err instanceof Error ? err.message : t('pedido.config.colunas.campos_calculados.formula_invalida')
 
       // Detecta padrão "dois campos sem operador"
       if (msg.includes('Token inesperado após fim da fórmula:')) {
@@ -1386,8 +1391,8 @@ export default function Configuracoes() {
           if (antes) {
             setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaAnalisando(false)
             setSaldoFormulaGabi({
-              titulo:   'Falta um operador',
-              texto:    `Parece que faltou um operador entre "${antes}" e "${tokenExtra}". Escolha o que faz mais sentido e insira entre os dois campos.`,
+              titulo:   t('pedido.config.colunas.campos_calculados.gabi_falta_op_titulo'),
+              texto:    t('pedido.config.colunas.campos_calculados.gabi_falta_op_texto', { antes, token: tokenExtra }),
               sugestao: `${antes} + ${tokenExtra}`,
             })
             return
@@ -1432,7 +1437,7 @@ export default function Configuracoes() {
       setSaldoFormulaSalva(resp.data.formula_expressao)
       setSaldoFormulaErro(null)
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Erro ao salvar formula'
+      const msg = e instanceof Error ? e.message : t('pedido.config.colunas.campos_calculados.erro_salvar_formula')
       setSaldoFormulaErro(msg)
     }
   }
@@ -1453,26 +1458,26 @@ export default function Configuracoes() {
   // Campos disponíveis para fórmulas — chave = alias legível (o que o chip insere e o usuário vê)
   const CAMPOS_FORMULA: { grupo: string; campos: { chave: string; label: string }[] }[] = [
     {
-      grupo: 'Quantidades',
+      grupo: t('pedido.config.colunas.campos_calculados.grupo_quantidades'),
       campos: [
-        { chave: 'quantidade_inicial',     label: 'Quantidade Inicial' },
-        { chave: 'quantidade_cancelada',   label: 'Quantidade Cancelada' },
-        { chave: 'quantidade_transferida', label: 'Quantidade Transferida' },
-        { chave: 'quantidade_pronta',      label: 'Quantidade Pronta' },
-        { chave: 'saldo',                  label: 'Saldo' },
+        { chave: 'quantidade_inicial',     label: t('pedido.config.colunas.campos_calculados.campo_qtd_inicial') },
+        { chave: 'quantidade_cancelada',   label: t('pedido.config.colunas.campos_calculados.campo_qtd_cancelada') },
+        { chave: 'quantidade_transferida', label: t('pedido.config.colunas.campos_calculados.campo_qtd_transferida') },
+        { chave: 'quantidade_pronta',      label: t('pedido.config.colunas.campos_calculados.campo_qtd_pronta') },
+        { chave: 'saldo',                  label: t('pedido.config.colunas.campos_calculados.campo_saldo') },
       ],
     },
     {
-      grupo: 'Financeiro',
+      grupo: t('pedido.config.colunas.campos_calculados.grupo_financeiro'),
       campos: [
-        { chave: 'valor_total',  label: 'Valor Total' },
-        { chave: 'peso_liquido', label: 'Peso Líquido' },
-        { chave: 'peso_bruto',   label: 'Peso Bruto' },
-        { chave: 'cubagem',      label: 'Cubagem' },
+        { chave: 'valor_total',  label: t('pedido.config.colunas.campos_calculados.campo_valor_total') },
+        { chave: 'peso_liquido', label: t('pedido.config.colunas.campos_calculados.campo_peso_liquido') },
+        { chave: 'peso_bruto',   label: t('pedido.config.colunas.campos_calculados.campo_peso_bruto') },
+        { chave: 'cubagem',      label: t('pedido.config.colunas.campos_calculados.campo_cubagem') },
       ],
     },
     ...( colunasUsuarioApi_.filter(c => c.tipo !== 'formula' && c.ativo).length > 0 ? [{
-      grupo: 'Minhas Colunas',
+      grupo: t('pedido.config.colunas.campos_calculados.grupo_minhas_colunas'),
       campos: colunasUsuarioApi_
         .filter(c => c.tipo !== 'formula' && c.ativo)
         .map(c => ({ chave: c.chave ?? c.id, label: c.nome })),
@@ -1483,16 +1488,16 @@ export default function Configuracoes() {
   // chave = alias legível (o que aparece na fórmula e o chip insere); label = nome exibido no chip
   const CAMPOS_SALDO: { grupo: string; campos: { chave: string; label: string }[] }[] = [
     {
-      grupo: 'Quantidades Nativas',
+      grupo: t('pedido.config.colunas.campos_calculados.grupo_qtd_nativas'),
       campos: [
-        { chave: 'quantidade_inicial',     label: 'Quantidade Inicial' },
-        { chave: 'quantidade_cancelada',   label: 'Quantidade Cancelada' },
-        { chave: 'quantidade_transferida', label: 'Quantidade Transferida' },
-        { chave: 'quantidade_pronta',      label: 'Quantidade Pronta' },
+        { chave: 'quantidade_inicial',     label: t('pedido.config.colunas.campos_calculados.campo_qtd_inicial') },
+        { chave: 'quantidade_cancelada',   label: t('pedido.config.colunas.campos_calculados.campo_qtd_cancelada') },
+        { chave: 'quantidade_transferida', label: t('pedido.config.colunas.campos_calculados.campo_qtd_transferida') },
+        { chave: 'quantidade_pronta',      label: t('pedido.config.colunas.campos_calculados.campo_qtd_pronta') },
       ],
     },
     ...( colunasUsuarioApi_.filter(c => (c.tipo === 'numero' || c.tipo === 'formula') && c.ativo).length > 0 ? [{
-      grupo: 'Colunas Personalizadas',
+      grupo: t('pedido.config.colunas.campos_calculados.grupo_colunas_personalizadas'),
       campos: colunasUsuarioApi_
         .filter(c => (c.tipo === 'numero' || c.tipo === 'formula') && c.ativo)
         .map(c => ({ chave: c.chave ?? c.id, label: c.nome })),
@@ -1536,11 +1541,11 @@ export default function Configuracoes() {
     if (!nomeTrimmed) return
     const tipoComOpcoes = novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento'
     if (tipoComOpcoes && novaColuna.opcoes.length === 0) {
-      setErroColuna('Adicione ao menos uma opção à lista.')
+      setErroColuna(t('pedido.config.colunas.personalizadas.erro_add_opcao'))
       return
     }
     if (novaColuna.tipo === 'formula' && !novaColuna.formula_expressao.trim()) {
-      setErroColuna('Digite a expressão da fórmula.')
+      setErroColuna(t('pedido.config.colunas.personalizadas.erro_digite_formula'))
       return
     }
     setSalvandoColuna(true)
@@ -1567,7 +1572,7 @@ export default function Configuracoes() {
       setNovaOpcao('')
       setFormulaTokens([])
     } catch (err) {
-      setErroColuna(err instanceof Error ? err.message : 'Erro ao criar coluna.')
+      setErroColuna(err instanceof Error ? err.message : t('pedido.config.colunas.personalizadas.erro_criar_coluna'))
     } finally {
       setSalvandoColuna(false)
     }
@@ -1617,7 +1622,7 @@ export default function Configuracoes() {
   function salvarTabelaConfig() {
     try { localStorage.setItem(TABELA_CONFIG_KEY, JSON.stringify(tabelaConfig)) } catch { /* ignore */ }
     setTabelaConfigSalva(tabelaConfig)
-    addNotification({ type: 'success', message: 'Preferências da tabela salvas com sucesso.' })
+    addNotification({ type: 'success', message: t('pedido.config.tabela.msg_salvo') })
   }
 
   function restaurarTabelaConfig() {
@@ -2156,17 +2161,25 @@ export default function Configuracoes() {
       const res = await fetch('/api/v1/taxas-moeda/sync', { method: 'POST' })
       const raw = await res.json()
       const json = SyncTaxasResponseSchema.parse(raw)
-      if (json.total_ok === 0) { setErroSyncTaxa('Não foi possível sincronizar. O serviço pode estar offline.') }
+      if (json.total_ok === 0) { setErroSyncTaxa(t('pedido.config.taxa_cambio.erro_sync_offline')) }
       else { setUltimaSyncTaxa(new Date().toLocaleTimeString('pt-BR')); await buscarTaxasAtuais(); await buscarHistoricoTaxa(moedaHistoricoTaxa) }
     } catch (err) {
       // Mand. 08 — registra erro real (nao apenas mensagem generica) pra investigacao em prod
       console.warn('[Configuracoes/taxas-sync] falha ao sincronizar:', err)
-      setErroSyncTaxa('Erro de comunicação.')
+      setErroSyncTaxa(t('pedido.config.taxa_cambio.erro_comunicacao'))
     } finally { setSincronizandoTaxa(false) }
   }
 
   const MOEDAS_ORDEM = ['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'CHF', 'CAD']
-  const MOEDAS_INFO: Record<string, string> = { USD: 'Dólar Americano', EUR: 'Euro', GBP: 'Libra Esterlina', CNY: 'Yuan Chinês', JPY: 'Iene Japonês', CHF: 'Franco Suíço', CAD: 'Dólar Canadense' }
+  const MOEDAS_INFO: Record<string, string> = {
+    USD: t('pedido.config.taxa_cambio.moeda_usd'),
+    EUR: t('pedido.config.taxa_cambio.moeda_eur'),
+    GBP: t('pedido.config.taxa_cambio.moeda_gbp'),
+    CNY: t('pedido.config.taxa_cambio.moeda_cny'),
+    JPY: t('pedido.config.taxa_cambio.moeda_jpy'),
+    CHF: t('pedido.config.taxa_cambio.moeda_chf'),
+    CAD: t('pedido.config.taxa_cambio.moeda_cad'),
+  }
   const BOLETIM_COR: Record<string, string> = { '1º Boletim': '#60a5fa', '2º Boletim': '#a78bfa', '3º Boletim': '#34d399', 'Fechamento': '#fbbf24' }
 
   function fmtTaxa(v: number | null | undefined) { return v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 }) }
@@ -2276,7 +2289,7 @@ export default function Configuracoes() {
           sincronizarStatusLocal(lista)
           return lista
         })
-        addNotification({ type: 'error', message: 'Erro ao criar status. Tente novamente.' })
+        addNotification({ type: 'error', message: t('pedido.config.status.erro_criar') })
       })
   }
 
@@ -2344,7 +2357,7 @@ export default function Configuracoes() {
                             onClick={() => sub.ativo && setCategoria(sub.id as CategoriaId)}
                           >
                             <span className="cfg-sidebar__item-label">{t(sub.labelKey)}</span>
-                            {!sub.ativo && <span className="cfg-badge-breve">Em breve</span>}
+                            {!sub.ativo && <span className="cfg-badge-breve">{t('pedido.config.sidebar.em_breve')}</span>}
                           </button>
                         )
                       })}
@@ -2371,7 +2384,7 @@ export default function Configuracoes() {
               >
                 <span className="cfg-sidebar__item-icon">{item.icone}</span>
                 <span className="cfg-sidebar__item-label">{t(item.labelKey)}</span>
-                {!item.ativo && <span className="cfg-badge-breve">Em breve</span>}
+                {!item.ativo && <span className="cfg-badge-breve">{t('pedido.config.sidebar.em_breve')}</span>}
               </button>
             )
           })}
@@ -2384,7 +2397,7 @@ export default function Configuracoes() {
       {!carregandoPermissoes && !podeEditarConfig && (
         <div
           role="note"
-          aria-label="Sem permissão para editar configurações"
+          aria-label={t('pedido.config.permissao.sem_aria')}
           style={{
             margin: '0 1.25rem',
             marginTop: '1rem',
@@ -2397,7 +2410,7 @@ export default function Configuracoes() {
             fontWeight: 600,
           }}
         >
-          🔒 Sem permissão para editar configurações. Os campos estão em modo leitura.
+          🔒 {t('pedido.config.permissao.sem_msg')}
         </div>
       )}
       <main
@@ -2486,7 +2499,7 @@ export default function Configuracoes() {
               )}
 
               {/* ── Ativos ── */}
-              <ConfiguracaoSecaoGlobal label={t('pedido.config.cards.ativos')} count={`${prefs.length} card${prefs.length !== 1 ? 's' : ''}`} />
+              <ConfiguracaoSecaoGlobal label={t('pedido.config.cards.ativos')} count={t('pedido.config.cards.count_card', { count: prefs.length })} />
 
               {prefs.length === 0 ? (
                 <p className="cfg-empty">{t('pedido.config.cards.vazio')}</p>
@@ -2529,15 +2542,15 @@ export default function Configuracoes() {
                 ))}
                 {CARDS_CATALOGO.filter(def => !prefs.find(p => p.id === def.id)).length === 0 && (
                   <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
-                    Todos os cards disponíveis já foram adicionados
+                    {t('pedido.config.cards.todos_adicionados')}
                   </p>
                 )}
               </div>
 
               {/* ── Cards Personalizados ── */}
               <ConfiguracaoSecaoGlobal
-                label="Cards Personalizados"
-                count={cardsCustom.length > 0 ? `${cardsCustom.length} card${cardsCustom.length !== 1 ? 's' : ''}` : undefined}
+                label={t('pedido.config.cards.personalizados_titulo')}
+                count={cardsCustom.length > 0 ? t('pedido.config.cards.count_card', { count: cardsCustom.length }) : undefined}
                 style={{ marginTop: '1.5rem' }}
               />
 
@@ -2560,26 +2573,26 @@ export default function Configuracoes() {
                             </span>
                             <div>
                               <p className="cfg-card-row__nome">{card.nome}</p>
-                              <p className="cfg-card-row__desc">Fórmula · Personalizado</p>
+                              <p className="cfg-card-row__desc">{t('pedido.config.cards.formula_personalizado')}</p>
                             </div>
                           </div>
-                          <span className="cfg-origem-badge cfg-origem-badge--meus">Custom</span>
-                          <TooltipGlobal descricao={card.ativo ? 'Ocultar card' : 'Exibir card'}>
+                          <span className="cfg-origem-badge cfg-origem-badge--meus">{t('pedido.config.cards.badge_custom')}</span>
+                          <TooltipGlobal descricao={card.ativo ? t('pedido.config.cards.tooltip_ocultar_card') : t('pedido.config.cards.tooltip_exibir_card')}>
                             <button
                               type="button"
                               className={`cfg-eye-btn${card.ativo ? ' cfg-eye-btn--on' : ''}`}
                               onClick={() => toggleCardCustom(card.id)}
-                              aria-label={card.ativo ? 'Ocultar' : 'Exibir'}
+                              aria-label={card.ativo ? t('pedido.config.colunas.personalizadas.aria_ocultar') : t('pedido.config.colunas.personalizadas.aria_exibir')}
                             >
                               {card.ativo ? <Eye size={15} weight="bold" /> : <EyeSlash size={15} weight="bold" />}
                             </button>
                           </TooltipGlobal>
-                          <TooltipGlobal descricao="Excluir card personalizado">
+                          <TooltipGlobal descricao={t('pedido.config.cards.tooltip_excluir_personalizado')}>
                             <button
                               type="button"
                               className="cfg-remove-btn"
                               onClick={() => excluirCardCustom(card.id)}
-                              aria-label="Excluir card"
+                              aria-label={t('pedido.config.cards.aria_excluir_card')}
                             >
                               <X size={13} weight="bold" />
                             </button>
@@ -2597,7 +2610,7 @@ export default function Configuracoes() {
                       style={{ marginTop: '0.75rem' }}
                     >
                       <Plus size={13} weight="bold" />
-                      Criar Card Personalizado
+                      {t('pedido.config.cards.criar_personalizado')}
                     </button>
                   )}
                 </>
@@ -2918,7 +2931,7 @@ export default function Configuracoes() {
                                   type="button"
                                   className="cfg-eye-btn cfg-eye-btn--on"
                                   onClick={() => kanbanCardToggle(cfg.campo)}
-                                  aria-label="Ocultar campo"
+                                  aria-label={t('pedido.config.kanban.aria_ocultar_campo')}
                                 >
                                   <Eye size={14} weight="bold" />
                                 </button>
@@ -3301,7 +3314,7 @@ export default function Configuracoes() {
                 <ToggleRow
                   id="num-ano"
                   label={t('pedido.config.numeracao.incluir_ano')}
-                  desc={`Ex.: ${numConfig.prefixo}${new Date().getFullYear()}/0001`}
+                  desc={t('pedido.config.numeracao.incluir_ano_exemplo', { exemplo: `${numConfig.prefixo}${new Date().getFullYear()}/0001` })}
                   checked={numConfig.incluirAno}
                   onChange={v => setNumConfig(prev => ({ ...prev, incluirAno: v }))}
                 />
@@ -3387,7 +3400,7 @@ export default function Configuracoes() {
                             id="tpl-nome"
                             type="text"
                             className="cfg-input"
-                            placeholder="Ex.: Template Proforma"
+                            placeholder={t('pedido.config.templates_pdf.placeholder_nome')}
                             value={templateNome}
                             onChange={e => setTemplateNome(e.target.value)}
                           />
@@ -3413,7 +3426,7 @@ export default function Configuracoes() {
                                       type="button"
                                       className="cfg-tpl-variavel-chip"
                                       onClick={() => inserirVariavel(v)}
-                                      title={`Inserir ${v}`}
+                                      title={t('pedido.config.templates_pdf.inserir_variavel', { var: v })}
                                     >
                                       {v}
                                     </button>
@@ -4502,12 +4515,12 @@ export default function Configuracoes() {
                         token.tipo === 'campo' ? (
                           <span key={i} className="cfg-saldo-token cfg-saldo-token--campo">
                             <span className="cfg-saldo-token__label">{token.label}</span>
-                            <button type="button" className="cfg-saldo-token__remove" onClick={() => removerTokenSaldo(i)} aria-label={`Remover ${token.label}`}>
+                            <button type="button" className="cfg-saldo-token__remove" onClick={() => removerTokenSaldo(i)} aria-label={t('pedido.config.colunas.campos_calculados.aria_remover_token', { label: token.label })}>
                               <X size={9} weight="bold" />
                             </button>
                           </span>
                         ) : (
-                          <button key={i} type="button" className="cfg-saldo-token cfg-saldo-token--op" onClick={() => removerTokenSaldo(i)} title="Clique para remover">
+                          <button key={i} type="button" className="cfg-saldo-token cfg-saldo-token--op" onClick={() => removerTokenSaldo(i)} title={t('pedido.config.colunas.campos_calculados.clique_remover')}>
                             {token.valor}
                           </button>
                         )
@@ -4771,25 +4784,24 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Snapshot — Política de Atualização</h2>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.snapshot.titulo')}</h2>
                   <p className="cfg-secao__desc">
-                    Define quais papéis e gatilhos disparam re-snapshot automático
-                    quando o cadastro-base muda. Persistido por workspace na tabela
+                    {t('pedido.config.snapshot.desc')}
                     <code> pedido_snapshot_atualizacao</code>.
                   </p>
                 </div>
               </div>
 
-              <ConfiguracaoSecaoGlobal label="Papéis (atualização automática)" />
+              <ConfiguracaoSecaoGlobal label={t('pedido.config.snapshot.label_papeis')} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.75rem' }}>
                 {([
-                  ['atualiza_importador',  'Importador'],
-                  ['atualiza_exportador',  'Exportador'],
-                  ['atualiza_fabricante',  'Fabricante'],
-                  ['atualiza_agente',      'Agente'],
-                  ['atualiza_despachante', 'Despachante'],
-                  ['atualiza_armador',     'Armador'],
-                  ['atualiza_ope',         'OPE (Operação Portal Único)'],
+                  ['atualiza_importador',  t('pedido.config.snapshot.papel_importador')],
+                  ['atualiza_exportador',  t('pedido.config.snapshot.papel_exportador')],
+                  ['atualiza_fabricante',  t('pedido.config.snapshot.papel_fabricante')],
+                  ['atualiza_agente',      t('pedido.config.snapshot.papel_agente')],
+                  ['atualiza_despachante', t('pedido.config.snapshot.papel_despachante')],
+                  ['atualiza_armador',     t('pedido.config.snapshot.papel_armador')],
+                  ['atualiza_ope',         t('pedido.config.snapshot.papel_ope')],
                 ] as Array<[keyof SnapshotAtualizacaoPolicy, string]>).map(([chave, label]) => (
                   <label key={chave} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                     <input
@@ -4802,12 +4814,12 @@ export default function Configuracoes() {
                 ))}
               </div>
 
-              <ConfiguracaoSecaoGlobal label="Gatilhos (transições de status que re-snapshotam)" />
+              <ConfiguracaoSecaoGlobal label={t('pedido.config.snapshot.label_gatilhos')} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.75rem' }}>
                 {([
-                  ['gatilho_emissao',     'Emissão do Pedido'],
-                  ['gatilho_embarque',    'Embarque'],
-                  ['gatilho_desembaraco', 'Desembaraço'],
+                  ['gatilho_emissao',     t('pedido.config.snapshot.gatilho_emissao')],
+                  ['gatilho_embarque',    t('pedido.config.snapshot.gatilho_embarque')],
+                  ['gatilho_desembaraco', t('pedido.config.snapshot.gatilho_desembaraco')],
                 ] as Array<[keyof SnapshotAtualizacaoPolicy, string]>).map(([chave, label]) => (
                   <label key={chave} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                     <input
@@ -4838,9 +4850,9 @@ export default function Configuracoes() {
 
       <ModalConfirmarExcluirGlobal
         aberto={confirmarExcluirTemplateId !== null}
-        titulo="Excluir template"
-        descricao="Esta ação não pode ser desfeita."
-        nomeItem={templates.find(t => t.id === confirmarExcluirTemplateId)?.nome}
+        titulo={t('pedido.config.templates_pdf.modal_excluir_titulo')}
+        descricao={t('pedido.config.templates_pdf.modal_excluir_desc')}
+        nomeItem={templates.find(tpl => tpl.id === confirmarExcluirTemplateId)?.nome}
         aoConfirmar={excluirTemplateConfirmado}
         aoCancelar={() => setConfirmarExcluirTemplateId(null)}
       />

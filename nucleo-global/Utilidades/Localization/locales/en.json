@@ -4012,7 +4012,13 @@
       "placeholder_busca": "Search order, exporter, reference...",
       "filtros_ativos": "Active filters",
       "chip_busca": "Search",
-      "remover_busca": "Remove search"
+      "remover_busca": "Remove search",
+      "sem_permissao_criar_pedido": "No permission to create orders",
+      "sem_permissao_criar_item": "No permission to create items",
+      "label_item_one": "item",
+      "label_item_other": "items",
+      "label_pedido_one": "order",
+      "label_pedido_other": "orders"
     },
     "status": {
       "todos": "All",
@@ -4472,7 +4478,8 @@
         "cor": "Color",
         "erro_carregar": "Could not load statuses. Check your connection and try again.",
         "tentar_novamente": "Try again",
-        "nenhum_status": "No statuses configured. Click \"New Status\" to create one."
+        "nenhum_status": "No statuses configured. Click \"New Status\" to create one.",
+        "erro_criar": "Error creating status. Try again."
       },
       "notificacoes": {
         "titulo": "Notifications",
@@ -4519,7 +4526,8 @@
         "reiniciar_mes": "Every month",
         "auto_criar": "Auto number when creating order",
         "auto_duplicar": "Auto number when duplicating order",
-        "auto_consolidar": "Auto number when consolidating order"
+        "auto_consolidar": "Auto number when consolidating order",
+        "incluir_ano_exemplo": "Ex.: {{exemplo}}"
       },
       "kanban": {
         "modal_titulo": "Modal fields",
@@ -4569,7 +4577,8 @@
         "descricao": "Display preferences for the order list",
         "linhas_por_pagina": "DEFAULT ROWS PER PAGE",
         "preferencias": "DISPLAY PREFERENCES",
-        "destacar_atrasados": "Highlight overdue orders in red"
+        "destacar_atrasados": "Highlight overdue orders in red",
+        "msg_salvo": "Table preferences saved successfully."
       },
       "sidebar": {
         "grupo_visualizacoes": "VIEWS",
@@ -4595,7 +4604,8 @@
         "snapshot_cadastros": "Master Data",
         "notificacoes": "Notifications",
         "exportacao": "Export",
-        "badge_em_breve": "Coming soon"
+        "badge_em_breve": "Coming soon",
+        "em_breve": "Coming soon"
       },
       "cards": {
         "titulo": "My Cards",
@@ -4640,7 +4650,15 @@
         "tooltip_ocultar_card": "Hide custom card",
         "tooltip_exibir_card": "Show custom card",
         "tooltip_excluir_custom": "Delete custom card",
-        "btn_criar_personalizado": "Create custom card"
+        "btn_criar_personalizado": "Create custom card",
+        "aria_remover_card": "Remove card",
+        "aria_adicionar_card": "Add card",
+        "count_card_one": "{{count}} card",
+        "count_card_other": "{{count}} cards",
+        "badge_custom": "Custom",
+        "tooltip_excluir_personalizado": "Delete custom card",
+        "aria_excluir_card": "Delete card",
+        "criar_personalizado": "Create Custom Card"
       },
       "colunas": {
         "casas_decimais": {
@@ -4676,7 +4694,11 @@
           "btn_cancelar_migracao": "Cancel",
           "btn_iniciando": "Starting…",
           "btn_confirmar_migracao": "Confirm migration",
-          "btn_descartar": "Discard"
+          "btn_descartar": "Discard",
+          "msg_salvo": "Decimal places saved successfully.",
+          "msg_erro_salvar": "Error saving decimal places.",
+          "msg_migracao_iniciada": "Configuration saved. Migration started in background.",
+          "msg_erro_migracao": "Error starting migration."
         },
         "formato_data": {
           "titulo": "Date Format",
@@ -4686,7 +4708,9 @@
           "regiao_eua": "USA",
           "regiao_iso_asia": "ISO 8601, Asia",
           "regiao_alemanha_russia": "Germany, Russia",
-          "regiao_compacto": "Compact"
+          "regiao_compacto": "Compact",
+          "msg_salvo": "Date format saved successfully.",
+          "msg_erro_salvar": "Error saving date format."
         },
         "personalizadas": {
           "titulo": "Custom Columns",
@@ -4758,7 +4782,30 @@
           "opcoes_hint_minimo": "Add at least 2 options",
           "erro_referencia_circular": "Circular reference detected in formula",
           "erro_sem_opcoes": "Add at least 2 options before saving",
-          "erro_sem_formula": "Define a formula before saving"
+          "erro_sem_formula": "Define a formula before saving",
+          "tooltip_editar_propriedades": "Edit properties",
+          "aria_editar_coluna": "Edit {{nome}}",
+          "tooltip_ocultar_coluna": "Hide column",
+          "tooltip_exibir_coluna": "Show column",
+          "aria_ocultar": "Hide",
+          "aria_exibir": "Show",
+          "tooltip_excluir_coluna": "Delete column",
+          "aria_excluir_coluna": "Delete {{nome}}",
+          "msg_salvo": "Columns saved successfully.",
+          "msg_erro_salvar": "Error saving columns.",
+          "formula_erro_circular": "Circular reference: the formula creates a dependency cycle. Remove the reference that points back to this column.",
+          "formula_gabi_nao_numerico_titulo": "Non-numeric field detected",
+          "formula_gabi_nao_numerico_texto_one": "{{campos}} is not a numeric field. In arithmetic operations, text, date, or checkbox fields will be treated as 0.",
+          "formula_gabi_nao_numerico_texto_other": "{{campos}} are not numeric fields. In arithmetic operations, text, date, or checkbox fields will be treated as 0.",
+          "formula_gabi_desconhecido_titulo": "Unrecognized field",
+          "formula_gabi_desconhecido_texto_one": "{{lista}} is not an available field. Use the chips above to insert valid fields or check for a typo.",
+          "formula_gabi_desconhecido_texto_other": "{{lista}} are not available fields. Use the chips above to insert valid fields or check for a typo.",
+          "formula_gabi_falta_op_titulo": "Missing operator",
+          "formula_gabi_falta_op_texto": "It seems an operator is missing between \"{{antes}}\" and \"{{token}}\". Choose what makes most sense for the business and insert it between the two fields.",
+          "formula_invalida": "Invalid formula",
+          "erro_add_opcao": "Add at least one option to the list.",
+          "erro_digite_formula": "Enter the formula expression.",
+          "erro_criar_coluna": "Error creating column."
         },
         "campos_calculados": {
           "titulo": "Calculated Fields",
@@ -4774,7 +4821,30 @@
           "gabi_formula_valida": "Valid formula ✓",
           "gabi_ok": "All good! Click Save to apply.",
           "gabi_usar": "Use",
-          "limpar": "Clear"
+          "limpar": "Clear",
+          "gabi_desconhecido_titulo": "Unrecognized field",
+          "gabi_desconhecido_texto_one": "{{lista}} is not an available field. Use the chips above to insert valid fields or check for a typo.",
+          "gabi_desconhecido_texto_other": "{{lista}} are not available fields. Use the chips above to insert valid fields or check for a typo.",
+          "gabi_falta_op_titulo": "Missing an operator",
+          "gabi_falta_op_texto": "It seems an operator is missing between \"{{antes}}\" and \"{{token}}\". Choose what makes more sense and insert it between the two fields.",
+          "formula_invalida": "Invalid formula",
+          "erro_salvar_formula": "Error saving formula",
+          "aria_remover_token": "Remove {{label}}",
+          "clique_remover": "Click to remove",
+          "grupo_quantidades": "Quantities",
+          "grupo_financeiro": "Financial",
+          "grupo_minhas_colunas": "My Columns",
+          "grupo_qtd_nativas": "Native Quantities",
+          "grupo_colunas_personalizadas": "Custom Columns",
+          "campo_qtd_inicial": "Initial Quantity",
+          "campo_qtd_cancelada": "Canceled Quantity",
+          "campo_qtd_transferida": "Transferred Quantity",
+          "campo_qtd_pronta": "Ready Quantity",
+          "campo_saldo": "Balance",
+          "campo_valor_total": "Total Value",
+          "campo_peso_liquido": "Net Weight",
+          "campo_peso_bruto": "Gross Weight",
+          "campo_cubagem": "Cubage"
         }
       },
       "templates_pdf": {
@@ -4800,7 +4870,8 @@
         "aria_excluir": "Delete template",
         "placeholder_nome": "Ex.: Proforma Invoice",
         "modal_excluir_titulo": "Delete template?",
-        "modal_excluir_desc": "This action cannot be undone."
+        "modal_excluir_desc": "This action cannot be undone.",
+        "inserir_variavel": "Insert {{var}}"
       },
       "regras": {
         "duplicar": {
@@ -4915,7 +4986,14 @@
         "hist_col_venda": "Sell (R$)",
         "hist_col_hora": "Time",
         "erro_sync_offline": "Could not synchronize: service offline",
-        "erro_comunicacao": "Communication error when synchronizing rates"
+        "erro_comunicacao": "Communication error when synchronizing rates",
+        "moeda_usd": "US Dollar",
+        "moeda_eur": "Euro",
+        "moeda_gbp": "Pound Sterling",
+        "moeda_cny": "Chinese Yuan",
+        "moeda_jpy": "Japanese Yen",
+        "moeda_chf": "Swiss Franc",
+        "moeda_cad": "Canadian Dollar"
       },
       "toast": {
         "casas_decimais_salvas": "Decimal places saved successfully",
@@ -4939,7 +5017,23 @@
         "titulo": "Snapshot Policy",
         "desc": "Configure when supplier and product data should be frozen in orders.",
         "label_papeis": "Roles that activate snapshot",
-        "label_gatilhos": "Snapshot triggers"
+        "label_gatilhos": "Snapshot triggers",
+        "papel_importador": "Importer",
+        "papel_exportador": "Exporter",
+        "papel_fabricante": "Manufacturer",
+        "papel_agente": "Agent",
+        "papel_despachante": "Customs Broker",
+        "papel_armador": "Shipowner",
+        "papel_ope": "OPE (Single Portal Operation)",
+        "gatilho_emissao": "Order Issuance",
+        "gatilho_embarque": "Shipment",
+        "gatilho_desembaraco": "Customs Clearance",
+        "msg_salvo": "Snapshot policy saved.",
+        "erro_salvar": "Error saving policy"
+      },
+      "permissao": {
+        "sem_aria": "No permission to edit settings",
+        "sem_msg": "No permission to edit settings. Fields are in read-only mode."
       }
     },
     "campos": {
@@ -6933,6 +7027,232 @@
       "btn_incluir_avisos": "+ Include warnings",
       "btn_selecionar_todas": "Select all",
       "btn_limpar_selecao": "Clear selection"
+    },
+    "lista": {
+      "erro": {
+        "http_400": "Invalid data. Check the provided value and try again.",
+        "http_401": "Session expired. Reload the page and log in again.",
+        "http_403": "No permission to edit this field.",
+        "http_404": "Record not found. Refresh the page.",
+        "http_409": "Edit conflict — another tab has already changed this record. Value restored.",
+        "http_422": "Invalid value for this field. Check the expected format.",
+        "http_429": "Too many requests. Please wait a few seconds and try again.",
+        "http_5xx": "Internal server error. Please try again shortly.",
+        "resposta_invalida": "The server returned an invalid response. Try again or contact support.",
+        "sem_conexao": "No connection to the server. Check your network and try again.",
+        "timeout": "The request took too long. Check your connection and try again.",
+        "cancelada": "The operation was canceled. Try again.",
+        "generico": "Error saving. Try again or contact support.",
+        "desconhecido": "Unknown error",
+        "pedido_nao_encontrado": "Order not found",
+        "pedido_item_nao_localizado": "Could not locate the order for this item. Reload the page.",
+        "editar_valor_total_item": "Error editing valor_total_item",
+        "editar_moeda_item": "Error editing item currency",
+        "editar_moeda_item_obj": "Error editing moeda_item",
+        "editar_unidade_item": "Error editing unidade_comercializada_item",
+        "editar_valor_unidade_item": "Error editing valor_por_unidade_item",
+        "atualizar_unidade_item": "Error updating item unit",
+        "atualizar_qtd_pronta": "Error updating ready quantity",
+        "salvar_data": "Error saving date",
+        "editar_campo_pedido": "Error editing order field {{campo}}",
+        "editar_campo": "Error editing field {{campo}}"
+      },
+      "tipo_operacao": {
+        "importacao": "Import",
+        "exportacao": "Export"
+      },
+      "coluna_dinamica": {
+        "valor_total": "Total Order/Item Value",
+        "qtd_inicial": "Initial Order/Item Qty.",
+        "qtd_pronta": "Ready Order/Item Qty.",
+        "saldo": "Order/Item Balance",
+        "qtd_transferida": "Transferred Order/Item Qty.",
+        "qtd_cancelada": "Canceled Order/Item Qty.",
+        "peso_liquido": "Total Net Weight of Order/Item",
+        "peso_bruto": "Total Gross Weight of Order/Item",
+        "cubagem": "Total Cubage of Order/Item"
+      },
+      "saldo_pedido": {
+        "titulo": "Order Balance",
+        "descricao_prefixo": "Calculated based on items — not editable.",
+        "link_editor": "Edit formula in Configurator"
+      },
+      "acao": {
+        "editar_pedido": "Edit order"
+      },
+      "notif": {
+        "item_excluido": "Item deleted successfully.",
+        "erro_excluir_item": "Error deleting item. Try again.",
+        "erro_reordenar": "Error reordering items. Try again.",
+        "campo_atualizado": "Field updated successfully.",
+        "ordem_resetada": "Manual order of requests has been reset by column sorting."
+      },
+      "indicador": {
+        "recebeu_enviou": "Received and sent transfers",
+        "recebeu": "Received items from another order",
+        "enviou": "Transferred items to another order",
+        "consolidado": "Consolidated order",
+        "item_transferido": "This item had quantity transferred"
+      },
+      "modal_transferir": {
+        "titulo": "Transfer Quantity — {{part}}",
+        "saldo_disponivel": "Available balance",
+        "quantidade_label": "Quantity to Transfer",
+        "confirmado": "✓ Transfer of {{qtd}} registered."
+      },
+      "fechar_erro": "Close error",
+      "cockpit": {
+        "titulo": "Create Order via API",
+        "subtitulo": "Use the Cockpit API to programmatically create orders",
+        "endpoint": "Endpoint",
+        "autenticacao": "Authentication",
+        "exemplo_payload": "Payload Example",
+        "gerencie_tokens_prefixo": "Manage your tokens in",
+        "gerencie_tokens_link": "Settings → API"
+      },
+      "card": {
+        "total_brl_titulo": "Total Orders — BRL",
+        "total_brl_subtexto": "All orders converted to R$",
+        "sem_taxa": "— no fee",
+        "saldo": "balance"
+      },
+      "sem_permissao_editar": "No permission to edit",
+      "aria_lista_pedidos": "Orders list",
+      "export_titulo": "Orders",
+      "export_linha": {
+        "item": "Item",
+        "pedido": "Order"
+      }
+    },
+    "visao_geral": {
+      "donut": {
+        "legenda_total": "orders",
+        "titulo": "Distribution by Mode"
+      },
+      "taxa_aprovacao": {
+        "em_tempo": "On time: {{pct}}%",
+        "atrasadas": "Delayed: {{pct}}%",
+        "sem_resposta": "No response: {{pct}}%",
+        "em_tempo_short": "on time",
+        "titulo": "Approval Rate"
+      },
+      "mapa": {
+        "titulo": "Global Quotes Overview",
+        "subtitulo": "Strategic locations, active bids, and accumulated savings per terminal (Drag to Rotate)",
+        "legenda_maritimo": "Maritime",
+        "legenda_aereo": "Air",
+        "aumentar_zoom": "Zoom In",
+        "diminuir_zoom": "Zoom Out",
+        "restaurar_globo": "Restore Globe",
+        "pausar_rotacao": "Pause Rotation",
+        "iniciar_rotacao": "Start Rotation",
+        "bids_ativos": "Active Bids",
+        "cotacoes_count_one": "{{count}} quote",
+        "cotacoes_count_other": "{{count}} quotes",
+        "melhor_preco": "Best Price",
+        "saving_medio": "Average Saving",
+        "saving": "Saving",
+        "transit_time": "Transit Time",
+        "dias_count_one": "{{count}} day",
+        "dias_count_other": "{{count}} days",
+        "fornecedor_abreviado": "Supp",
+        "fornecedor_lider": "Leading Supp.",
+        "clique_ver_rotas": "Click to see routes",
+        "rotas_ativas": "Active Routes: {{local}}",
+        "sem_rotas": "No active routes registered for this terminal."
+      },
+      "hud": {
+        "titulo": "Global Quotes HUD",
+        "live_feed": "LIVE FEED",
+        "subtitulo": "Real-time rankings • 200 bids",
+        "tab_origens": "Origins",
+        "tab_destinos": "Destinations",
+        "tab_modais": "Modes",
+        "bids_count_one": "{{count}} bid",
+        "bids_count_other": "{{count}} bids"
+      },
+      "modal": {
+        "maritimo": "Maritime",
+        "aereo": "Air",
+        "rodoviario": "Road"
+      },
+      "header": {
+        "titulo": "Overview",
+        "subtitulo": "Orders panorama — volume, status, values, and deadlines",
+        "novo_pedido": "New Order"
+      },
+      "kpi": {
+        "andamento_titulo": "Orders in progress",
+        "andamento_tendencia": "+3 wks.",
+        "andamento_subtexto": "R$ {{valor}} outstanding",
+        "concluido_titulo": "Completed orders",
+        "concluido_tendencia": "+12% month",
+        "concluido_subtexto": "R$ {{valor}} total",
+        "valor_total_titulo": "Total value",
+        "valor_total_subtexto": "Average ticket R$ {{valor}}",
+        "taxa_atraso_titulo": "Delay rate",
+        "taxa_atraso_subtexto_one": "{{count}} delayed order",
+        "taxa_atraso_subtexto_other": "{{count}} delayed orders"
+      },
+      "alertas": {
+        "titulo": "Alerts",
+        "hoje": "Today"
+      },
+      "funil": {
+        "titulo": "Quotation Funnel"
+      },
+      "barras": {
+        "titulo": "Quotations by Month",
+        "subtitulo": "Last 6 months",
+        "aprovadas": "Approved",
+        "em_andamento": "In progress",
+        "recusadas": "Rejected"
+      },
+      "moedas": {
+        "titulo": "Order Currencies",
+        "vazio": "No orders in the period.",
+        "pedidos_count_one": "{{count}} order",
+        "pedidos_count_other": "{{count}} orders"
+      },
+      "maior_pedido": {
+        "titulo": "Largest Order of the Period",
+        "descricao": "Highest value order among {{total}} orders in the period.",
+        "vazio": "No orders in the period."
+      },
+      "incoterms": {
+        "titulo": "Top Incoterms",
+        "vazio": "No incoterms informed in the orders."
+      },
+      "footer": "Indicators and charts with real order data • illustrative globe at this stage",
+      "modal_alerta": {
+        "titulo_padrao": "Quotation / Order Details",
+        "titulo_atrasado": "Delayed Order",
+        "titulo_a_vencer": "Order Due (7 days)",
+        "titulo_rascunho": "Draft Order",
+        "titulo_novos": "New Orders (7 days)",
+        "referencia": "Reference",
+        "tab_geral": "General",
+        "tab_itens": "Items",
+        "tab_propostas": "Proposals",
+        "tab_historico": "History",
+        "campo_origem": "Origin",
+        "campo_destino": "Destination",
+        "campo_mercadoria": "Merchandise / Description",
+        "campo_peso_total": "Total Weight",
+        "campo_cubagem": "Volume (M³)",
+        "campo_incoterm": "Incoterm",
+        "campo_valor_limite": "Limit / Estimated Value",
+        "campo_modalidade": "Mode",
+        "col_codigo": "Code",
+        "col_descricao": "Description",
+        "col_qtd": "Qty",
+        "col_peso": "Weight (Kg)",
+        "unidades_one": "{{count}} unit",
+        "unidades_other": "{{count}} units",
+        "transit_time": "Transit time",
+        "por_autor": "by {{autor}}",
+        "pedido_atualizado": "Order updated successfully!"
+      }
     }
   },
   "processo": {

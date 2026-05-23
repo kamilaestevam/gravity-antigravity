@@ -9,6 +9,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
@@ -180,6 +181,7 @@ const MAP_PINS: MapPin[] = [
 // ─── Gráfico de Barras Mensal (SVG) ─────────────────────────────────────────
 
 function GraficoBarrasMensal() {
+  const { t } = useTranslation()
   const { mensal } = useVisaoGeralPedido()
   const W = 520
   const H = 280
@@ -223,9 +225,9 @@ function GraficoBarrasMensal() {
       </defs>
 
       {/* Gridlines & Y-axis labels in background */}
-      {gridTicks.map((t, idx) => {
-        const y = pad.top + t * innerH
-        const val = Math.round((1 - t) * maxVal)
+      {gridTicks.map((tick, idx) => {
+        const y = pad.top + tick * innerH
+        const val = Math.round((1 - tick) * maxVal)
         return (
           <g key={idx} className="bfd-chart-gridline-group">
             <line
@@ -235,7 +237,7 @@ function GraficoBarrasMensal() {
               y2={y}
               stroke="rgba(255, 255, 255, 0.05)"
               strokeWidth="1"
-              strokeDasharray={t === 1 ? undefined : "4, 4"}
+              strokeDasharray={tick === 1 ? undefined : "4, 4"}
             />
             <text
               x={pad.left - 12}
@@ -347,6 +349,7 @@ function GraficoBarrasMensal() {
 // ─── Donut Modal (SVG + progress bars) ──────────────────────────────────────
 
 function GraficoDonutModal() {
+  const { t } = useTranslation()
   const { modal } = useVisaoGeralPedido()
   const total = modal.reduce((s, m) => s + m.count, 0)
   const cx = 80
@@ -382,7 +385,7 @@ function GraficoDonutModal() {
           />
         ))}
         <text x={cx} y={cy - 4} textAnchor="middle" fill="#ffffff" fontSize="28" fontWeight="800" style={{ letterSpacing: '0.02em' }}>{total}</text>
-        <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="10" fontWeight="600" style={{ letterSpacing: '0.04em' }}>pedidos</text>
+        <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="10" fontWeight="600" style={{ letterSpacing: '0.04em' }}>{t('pedido.visao_geral.donut.legenda_total')}</text>
       </svg>
       <div className="bfd-donut__legend">
         {modal.map(m => (
@@ -406,6 +409,7 @@ function GraficoDonutModal() {
 // ─── Funil ──────────────────────────────────────────────────────────────────
 
 function FunilStatus() {
+  const { t } = useTranslation()
   const { funil } = useVisaoGeralPedido()
   const total = funil.reduce((s, f) => s + f.count, 0)
   const maxCount = Math.max(0, ...funil.map(f => f.count))
@@ -436,6 +440,7 @@ function FunilStatus() {
 // ─── Taxa Aprovação (donut) ──────────────────────────────────────────────────
 
 function TaxaAprovacao() {
+  const { t } = useTranslation()
   const { aprovacao } = useVisaoGeralPedido()
   const { percentual_em_tempo, percentual_atraso, nao_respondidas } = aprovacao
   const cx = 55
@@ -445,9 +450,9 @@ function TaxaAprovacao() {
   const circ = 2 * Math.PI * r
 
   const segments = [
-    { pct: percentual_em_tempo, cor: '#f59e0b', label: `Em tempo: ${percentual_em_tempo}%` },
-    { pct: percentual_atraso, cor: '#fbbf24', label: `Atrasadas: ${percentual_atraso}%` },
-    { pct: nao_respondidas, cor: '#f87171', label: `Sem resposta: ${nao_respondidas}%` },
+    { pct: percentual_em_tempo, cor: '#f59e0b', label: t('pedido.visao_geral.taxa_aprovacao.em_tempo', { pct: percentual_em_tempo }) },
+    { pct: percentual_atraso, cor: '#fbbf24', label: t('pedido.visao_geral.taxa_aprovacao.atrasadas', { pct: percentual_atraso }) },
+    { pct: nao_respondidas, cor: '#f87171', label: t('pedido.visao_geral.taxa_aprovacao.sem_resposta', { pct: nao_respondidas }) },
   ]
   let off = 0
 
@@ -473,7 +478,7 @@ function TaxaAprovacao() {
           return arc
         })}
         <text x={cx} y={cy + 2} textAnchor="middle" fill="#ffffff" fontSize="22" fontWeight="800" style={{ letterSpacing: '0.02em' }}>{percentual_em_tempo}%</text>
-        <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="9" fontWeight="600" style={{ letterSpacing: '0.04em' }}>em tempo</text>
+        <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="9" fontWeight="600" style={{ letterSpacing: '0.04em' }}>{t('pedido.visao_geral.taxa_aprovacao.em_tempo_short')}</text>
       </svg>
       <div className="bfd-taxa__legend">
         {segments.map((s, i) => (
@@ -998,6 +1003,7 @@ const MODAIS_INFO = [
 // ─── Visão Geral Global (Globo 3D Interativo Premium) ───────────────────────────
 
 function VisaoGeralMapa() {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modal_cotacao_bid_frete_internacional'>('origens')
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
   const [selectedPinForModal, setSelectedPinForModal] = useState<number | null>(null)
@@ -1590,9 +1596,9 @@ function VisaoGeralMapa() {
             <div className="cg-card__icon-wrap">
               <Globe weight="duotone" size={16} style={{ color: '#fbbf24' }} />
             </div>
-            <p className="cg-card__label" style={{ margin: 0 }}>Visão Geral Global de Cotações</p>
+            <p className="cg-card__label" style={{ margin: 0 }}>{t('pedido.visao_geral.mapa.titulo')}</p>
           </div>
-          <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5, display: 'block', marginLeft: '28px' }}>Localizações estratégicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)</span>
+          <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5, display: 'block', marginLeft: '28px' }}>{t('pedido.visao_geral.mapa.subtitulo')}</span>
         </div>
       </div>
       
@@ -1615,10 +1621,10 @@ function VisaoGeralMapa() {
           {/* Floating Legend */}
           <div className="bfd-map-legend-floating">
             <span className="bfd-map-legend__item">
-              <Anchor size={15} weight="bold" style={{ color: '#34d399' }} /> Marítimo
+              <Anchor size={15} weight="bold" style={{ color: '#34d399' }} /> {t('pedido.visao_geral.mapa.legenda_maritimo')}
             </span>
             <span className="bfd-map-legend__item">
-              <AirplaneTilt size={15} weight="bold" style={{ color: '#a78bfa' }} /> Aéreo
+              <AirplaneTilt size={15} weight="bold" style={{ color: '#a78bfa' }} /> {t('pedido.visao_geral.mapa.legenda_aereo')}
             </span>
           </div>
           
@@ -1626,7 +1632,7 @@ function VisaoGeralMapa() {
           <div className="bfd-map-controls">
             <button 
               onClick={handleZoomIn} 
-              title="Aumentar Zoom" 
+              title={t('pedido.visao_geral.mapa.aumentar_zoom')}
               className="bfd-map-control-btn"
             >
               <Plus size={16} weight="bold" />
@@ -1634,7 +1640,7 @@ function VisaoGeralMapa() {
             
             <button 
               onClick={handleZoomOut} 
-              title="Diminuir Zoom" 
+              title={t('pedido.visao_geral.mapa.diminuir_zoom')}
               className="bfd-map-control-btn"
             >
               <Minus size={16} weight="bold" />
@@ -1642,7 +1648,7 @@ function VisaoGeralMapa() {
 
             <button 
               onClick={handleReset} 
-              title="Restaurar Globo" 
+              title={t('pedido.visao_geral.mapa.restaurar_globo')}
               className="bfd-map-control-btn"
             >
               <ArrowCounterClockwise size={16} weight="bold" />
@@ -1650,7 +1656,7 @@ function VisaoGeralMapa() {
 
             <button 
               onClick={toggleRotation} 
-              title={isAutoRotating ? "Pausar Rotação" : "Iniciar Rotação"} 
+              title={isAutoRotating ? t('pedido.visao_geral.mapa.pausar_rotacao') : t('pedido.visao_geral.mapa.iniciar_rotacao')}
               className="bfd-map-control-btn"
             >
               {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
@@ -1715,17 +1721,17 @@ function VisaoGeralMapa() {
                     
                     <div className="bfd-map-tooltip__body">
                       <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">Bids Ativos</span>
-                        <span className="bfd-map-tooltip__stat-val">{pin.activeBids} cotações</span>
+                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.bids_ativos')}</span>
+                        <span className="bfd-map-tooltip__stat-val">{t('pedido.visao_geral.mapa.cotacoes_count', { count: pin.activeBids })}</span>
                       </div>
                       <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">Melhor Preço</span>
+                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.melhor_preco')}</span>
                         <span className="bfd-map-tooltip__stat-val" style={{ color: '#ffffff' }}>
                           USD {fmtMoeda(pin.bestPrice)}
                         </span>
                       </div>
                       <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">Saving Médio</span>
+                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.saving_medio')}</span>
                         <span className="bfd-map-tooltip__stat-val" style={{ color: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399', fontWeight: 700 }}>
                           +{pin.savingPct}%
                         </span>
@@ -1735,10 +1741,10 @@ function VisaoGeralMapa() {
                     <div className="bfd-map-tooltip__footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem', marginTop: '0.2rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                         <span className="bfd-map-tooltip__supplier" style={{ fontSize: '0.78rem' }}>
-                          Forn: <strong>{pin.supplier}</strong>
+                          {t('pedido.visao_geral.mapa.fornecedor_abreviado')}: <strong>{pin.supplier}</strong>
                         </span>
                       </div>
-                      <div className="bfd-map-tooltip__hint">👉 Clique para ver rotas</div>
+                      <div className="bfd-map-tooltip__hint">👉 {t('pedido.visao_geral.mapa.clique_ver_rotas')}</div>
                     </div>
                     <div className="bfd-map-tooltip__after" />
                   </div>
@@ -1754,13 +1760,13 @@ function VisaoGeralMapa() {
           <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
             <div className="bfd-map-panel__header">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="bfd-map-panel__title">HUD de Cotações Globais</span>
+                <span className="bfd-map-panel__title">{t('pedido.visao_geral.hud.titulo')}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <span className="bfd-map-panel__live-dot" />
-                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
+                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('pedido.visao_geral.hud.live_feed')}</span>
                 </div>
               </div>
-              <span className="bfd-map-panel__subtitle">Rankings em tempo real • 200 bids</span>
+              <span className="bfd-map-panel__subtitle">{t('pedido.visao_geral.hud.subtitulo')}</span>
             </div>
             
             {/* Tabs */}
@@ -1769,19 +1775,19 @@ function VisaoGeralMapa() {
                 className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
                 onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
               >
-                <Globe size={13} weight="bold" /> Origens
+                <Globe size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_origens')}
               </button>
               <button 
                 className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
                 onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
               >
-                <MapPin size={13} weight="bold" /> Destinos
+                <MapPin size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_destinos')}
               </button>
               <button 
                 className={`bfd-map-panel__tab tab-modal_cotacao_bid_frete_internacional ${activeTab === 'modal_cotacao_bid_frete_internacional' ? 'is-active' : ''}`}
                 onClick={(e) => { e.stopPropagation(); setActiveTab('modal_cotacao_bid_frete_internacional'); }}
               >
-                <List size={13} weight="bold" /> Modais
+                <List size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_modais')}
               </button>
             </div>
             
@@ -1820,7 +1826,7 @@ function VisaoGeralMapa() {
                       <span className="bfd-map-panel__row-city">{item.name}</span>
                       <span className="bfd-map-panel__row-code">{item.code}</span>
                     </div>
-                    <span className="bfd-map-panel__row-bids">{item.count} bids</span>
+                    <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.bids_count', { count: item.count })}</span>
                   </div>
                 )
               })}
@@ -1858,7 +1864,7 @@ function VisaoGeralMapa() {
                       <span className="bfd-map-panel__row-city">{item.name}</span>
                       <span className="bfd-map-panel__row-code">{item.code}</span>
                     </div>
-                    <span className="bfd-map-panel__row-bids">{item.count} bids</span>
+                    <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.bids_count', { count: item.count })}</span>
                   </div>
                 )
               })}
@@ -1872,10 +1878,10 @@ function VisaoGeralMapa() {
                     </span>
                     <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
                       <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
-                        {item.label}
+                        {t(`pedido.visao_geral.modal.${item.modal_cotacao_bid_frete_internacional.toLowerCase()}`, { defaultValue: item.label })}
                       </span>
                       <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
-                        {item.count} bids
+                        {t('pedido.visao_geral.hud.bids_count', { count: item.count })}
                       </span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
@@ -1906,7 +1912,7 @@ function VisaoGeralMapa() {
                   <div className="bfd-modal_cotacao_bid_frete_internacional-title-group">
                     <span className="bfd-modal_cotacao_bid_frete_internacional-flag-large">{pin.flag}</span>
                     <div>
-                      <h2 className="bfd-modal_cotacao_bid_frete_internacional-title">Rotas Ativas: {pin.label}</h2>
+                      <h2 className="bfd-modal_cotacao_bid_frete_internacional-title">{t('pedido.visao_geral.mapa.rotas_ativas', { local: pin.label })}</h2>
                       <span className="bfd-modal_cotacao_bid_frete_internacional-subtitle">{pin.portCode} • {pin.country}</span>
                     </div>
                   </div>
@@ -1916,7 +1922,7 @@ function VisaoGeralMapa() {
                 <div className="bfd-modal_cotacao_bid_frete_internacional-body">
                   {connections.length === 0 ? (
                     <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
-                      Nenhuma rota ativa cadastrada para este terminal.
+                      {t('pedido.visao_geral.mapa.sem_rotas')}
                     </div>
                   ) : (
                     connections.map((route, idx) => {
@@ -2002,25 +2008,25 @@ function VisaoGeralMapa() {
                           
                           <div className="bfd-route-stats">
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">Bids Ativos</span>
-                              <span className="bfd-route-stat-value">{route.bids} bids</span>
+                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.bids_ativos')}</span>
+                              <span className="bfd-route-stat-value">{t('pedido.visao_geral.hud.bids_count', { count: route.bids })}</span>
                             </div>
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">Melhor Preço</span>
+                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.melhor_preco')}</span>
                               <span className="bfd-route-stat-value" style={{ color: '#ffffff' }}>USD {fmtMoeda(route.bestPrice)}</span>
                             </div>
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">Saving</span>
+                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.saving')}</span>
                               <span className="bfd-route-stat-value" style={{ color: isAir ? '#a78bfa' : '#34d399' }}>+{route.saving}%</span>
                             </div>
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">Transit Time</span>
-                              <span className="bfd-route-stat-value">{route.transitTime} dias</span>
+                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.transit_time')}</span>
+                              <span className="bfd-route-stat-value">{t('pedido.visao_geral.mapa.dias_count', { count: route.transitTime })}</span>
                             </div>
                           </div>
                           
                           <div style={{ fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }}>
-                            <span>Forn. Líder: <strong>{route.supplier}</strong></span>
+                            <span>{t('pedido.visao_geral.mapa.fornecedor_lider')}: <strong>{route.supplier}</strong></span>
                           </div>
                         </div>
                       )
@@ -2029,7 +2035,7 @@ function VisaoGeralMapa() {
                 </div>
                 
                 <div className="bfd-modal_cotacao_bid_frete_internacional-footer">
-                  <button className="bfd-modal_cotacao_bid_frete_internacional-close-action" onClick={() => setSelectedPinForModal(null)}>Fechar</button>
+                  <button className="bfd-modal_cotacao_bid_frete_internacional-close-action" onClick={() => setSelectedPinForModal(null)}>{t('comum.fechar')}</button>
                 </div>
               </div>
             </div>
@@ -2041,6 +2047,7 @@ function VisaoGeralMapa() {
 }
 
 export default function VisaoGeral() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const vg = useVisaoGeralPedido()
   const { kpis, alertas, incoterms, moedas, maiorPedido, sparkAndamento, sparkConcluido } = vg
@@ -3147,8 +3154,8 @@ export default function VisaoGeral() {
       {/* Header */}
       <div className="bfd-header">
         <div className="bfd-header__left">
-          <h1>Visão Geral</h1>
-          <p>Panorama dos pedidos — volume, status, valores e prazos</p>
+          <h1>{t('pedido.visao_geral.header.titulo')}</h1>
+          <p>{t('pedido.visao_geral.header.subtitulo')}</p>
         </div>
         <div className="bfd-header__actions">
           <BotaoGlobal
@@ -3156,7 +3163,7 @@ export default function VisaoGeral() {
             icone={<Plus weight="bold" size={15} />}
             onClick={() => navigate('/produto/pedido/pedidos/novo')}
           >
-            Novo Pedido
+            {t('pedido.visao_geral.header.novo_pedido')}
           </BotaoGlobal>
         </div>
       </div>
@@ -3164,35 +3171,35 @@ export default function VisaoGeral() {
       {/* KPIs Grid */}
       <div className="bfd-kpi-grid">
         <CardBasicoGlobal
-          titulo="Pedidos em andamento"
+          titulo={t('pedido.visao_geral.kpi.andamento_titulo')}
           icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
           valor={String(kpis.andamento_count)}
-          tendencia={{ valor: '+3 sem.', direcao: 'up' }}
-          subtexto={`R$ ${fmtMoeda(kpis.andamento_valor)} em aberto`}
+          tendencia={{ valor: t('pedido.visao_geral.kpi.andamento_tendencia'), direcao: 'up' }}
+          subtexto={t('pedido.visao_geral.kpi.andamento_subtexto', { valor: fmtMoeda(kpis.andamento_valor) })}
           variante="padrao"
         />
         <CardBasicoGlobal
-          titulo="Pedidos concluídos"
+          titulo={t('pedido.visao_geral.kpi.concluido_titulo')}
           icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
           valor={String(kpis.concluido_count)}
-          tendencia={{ valor: '+12% mês', direcao: 'up' }}
-          subtexto={`R$ ${fmtMoeda(kpis.concluido_valor)} total`}
+          tendencia={{ valor: t('pedido.visao_geral.kpi.concluido_tendencia'), direcao: 'up' }}
+          subtexto={t('pedido.visao_geral.kpi.concluido_subtexto', { valor: fmtMoeda(kpis.concluido_valor) })}
           variante="padrao"
         />
         <CardBasicoGlobal
-          titulo="Valor total"
+          titulo={t('pedido.visao_geral.kpi.valor_total_titulo')}
           icone={<Coins weight="duotone" size={16} style={{ color: '#34d399' }} />}
           valor={`R$ ${fmtMoeda(kpis.valor_total)}`}
           tendencia={{ valor: '+2.3pp', direcao: 'up' }}
-          subtexto={`Ticket médio R$ ${fmtMoeda(kpis.ticket_medio)}`}
+          subtexto={t('pedido.visao_geral.kpi.valor_total_subtexto', { valor: fmtMoeda(kpis.ticket_medio) })}
           variante="padrao"
         />
         <CardBasicoGlobal
-          titulo="Taxa de atraso"
+          titulo={t('pedido.visao_geral.kpi.taxa_atraso_titulo')}
           icone={<Timer weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
           valor={`${kpis.taxa_atraso_pct}%`}
           tendencia={{ valor: '-0.8d', direcao: 'down' }}
-          subtexto={`${kpis.atrasados_count} pedidos atrasados`}
+          subtexto={t('pedido.visao_geral.kpi.taxa_atraso_subtexto', { count: kpis.atrasados_count })}
           variante="padrao"
         />
       </div>
@@ -3211,11 +3218,11 @@ export default function VisaoGeral() {
                 <div className="cg-card__icon-wrap">
                   <Bell weight="duotone" size={16} style={{ color: '#f87171' }} />
                 </div>
-                <p className="cg-card__label" style={{ margin: 0 }}>Alertas</p>
+                <p className="cg-card__label" style={{ margin: 0 }}>{t('pedido.visao_geral.alertas.titulo')}</p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255, 255, 255, 0.04)', padding: '2px', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
                 <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}><CaretLeft size={12} /></button>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', padding: '0 4px', letterSpacing: '0.02em' }}>Hoje</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', padding: '0 4px', letterSpacing: '0.02em' }}>{t('pedido.visao_geral.alertas.hoje')}</span>
                 <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}><CaretRight size={12} /></button>
               </div>
             </div>
@@ -3306,7 +3313,7 @@ export default function VisaoGeral() {
               <div className="cg-card__icon-wrap">
                 <Funnel weight="duotone" size={16} style={{ color: '#818cf8' }} />
               </div>
-              <p className="cg-card__label" style={{ margin: 0 }}>Funil de Cotações</p>
+              <p className="cg-card__label" style={{ margin: 0 }}>{t('pedido.visao_geral.funil.titulo')}</p>
             </div>
             <FunilStatus />
           </div>
@@ -3322,15 +3329,15 @@ export default function VisaoGeral() {
               <div className="cg-card__icon-wrap">
                 <ChartBar weight="duotone" size={16} style={{ color: '#3b82f6' }} />
               </div>
-              <p className="cg-card__label" style={{ margin: 0 }}>Cotações por Mês</p>
+              <p className="cg-card__label" style={{ margin: 0 }}>{t('pedido.visao_geral.barras.titulo')}</p>
             </div>
-            <span className="bfd-chart__subtitle">Últimos 6 meses</span>
+            <span className="bfd-chart__subtitle">{t('pedido.visao_geral.barras.subtitulo')}</span>
           </div>
           <GraficoBarrasMensal />
           <div className="bfd-chart__legend">
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#f59e0b' }} /> Aprovadas</span>
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#8b5cf6' }} /> Em andamento</span>
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#f87171' }} /> Recusadas</span>
+            <span><span className="bfd-chart__legend-dot" style={{ background: '#f59e0b' }} /> {t('pedido.visao_geral.barras.aprovadas')}</span>
+            <span><span className="bfd-chart__legend-dot" style={{ background: '#8b5cf6' }} /> {t('pedido.visao_geral.barras.em_andamento')}</span>
+            <span><span className="bfd-chart__legend-dot" style={{ background: '#f87171' }} /> {t('pedido.visao_geral.barras.recusadas')}</span>
           </div>
         </div>
 
@@ -3340,7 +3347,7 @@ export default function VisaoGeral() {
             <div className="cg-card__icon-wrap">
               <ChartPie weight="duotone" size={16} style={{ color: '#34d399' }} />
             </div>
-            <p className="cg-card__label" style={{ margin: 0 }}>Distribuição por Modal</p>
+            <p className="cg-card__label" style={{ margin: 0 }}>{t('pedido.visao_geral.donut.titulo')}</p>
           </div>
           <GraficoDonutModal />
         </div>
@@ -3352,18 +3359,18 @@ export default function VisaoGeral() {
               <div className="cg-card__icon-wrap">
                 <CurrencyDollar weight="duotone" size={16} style={{ color: '#fbbf24' }} />
               </div>
-              <p className="cg-card__label" style={{ margin: 0 }}>Moedas dos Pedidos</p>
+              <p className="cg-card__label" style={{ margin: 0 }}>{t('pedido.visao_geral.moedas.titulo')}</p>
             </div>
             <TrendUp size={16} weight="bold" style={{ color: '#cbd5e1' }} />
           </div>
           <div className="bfd-cambio" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
             {moedas.length === 0 && (
-              <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>Sem pedidos no período.</span>
+              <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>{t('pedido.visao_geral.moedas.vazio')}</span>
             )}
             {moedas.map(m => (
               <div key={m.codigo} className="bfd-cambio__row" style={{ padding: '0.68rem 0' }}>
                 <span className="bfd-cambio__code" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', minWidth: '44px' }}>{m.codigo}</span>
-                <span className="bfd-cambio__val" style={{ fontSize: '0.85rem', color: '#cbd5e1', flex: 1, fontWeight: 600 }}>{m.quantidade} pedidos</span>
+                <span className="bfd-cambio__val" style={{ fontSize: '0.85rem', color: '#cbd5e1', flex: 1, fontWeight: 600 }}>{t('pedido.visao_geral.moedas.pedidos_count', { count: m.quantidade })}</span>
                 <span
                   className="bfd-cambio__var"
                   style={{
@@ -3391,7 +3398,7 @@ export default function VisaoGeral() {
             <div className="cg-card__icon-wrap">
               <Trophy weight="duotone" size={16} style={{ color: '#fbbf24' }} />
             </div>
-            <p className="cg-card__label" style={{ margin: 0 }}>Maior Pedido do Período</p>
+            <p className="cg-card__label" style={{ margin: 0 }}>{t('pedido.visao_geral.maior_pedido.titulo')}</p>
           </div>
           <div className="bfd-best">
             {maiorPedido ? (
@@ -3403,11 +3410,11 @@ export default function VisaoGeral() {
                   <span className="bfd-best__saving-val">{maiorPedido.moeda} {fmtMoeda(maiorPedido.valor)}</span>
                 </div>
                 <div className="bfd-best__meta">
-                  Pedido de maior valor entre {vg.total} pedidos do período.
+                  {t('pedido.visao_geral.maior_pedido.descricao', { total: vg.total })}
                 </div>
               </>
             ) : (
-              <div className="bfd-best__meta">Nenhum pedido no período.</div>
+              <div className="bfd-best__meta">{t('pedido.visao_geral.maior_pedido.vazio')}</div>
             )}
           </div>
         </div>
@@ -3418,11 +3425,11 @@ export default function VisaoGeral() {
             <div className="cg-card__icon-wrap">
               <List weight="duotone" size={16} style={{ color: '#a78bfa' }} />
             </div>
-            <p className="cg-card__label" style={{ margin: 0 }}>Top Incoterms</p>
+            <p className="cg-card__label" style={{ margin: 0 }}>{t('pedido.visao_geral.incoterms.titulo')}</p>
           </div>
           <div className="bfd-incoterms">
             {incoterms.length === 0 && (
-              <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>Nenhum incoterm informado nos pedidos.</span>
+              <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>{t('pedido.visao_geral.incoterms.vazio')}</span>
             )}
             {incoterms.map(inc => (
               <div key={inc.incoterm} className="bfd-incoterms__row" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }}>
@@ -3449,21 +3456,21 @@ export default function VisaoGeral() {
             <div className="cg-card__icon-wrap">
               <ThumbsUp weight="duotone" size={16} style={{ color: '#34d399' }} />
             </div>
-            <p className="cg-card__label" style={{ margin: 0 }}>Taxa de Aprovação</p>
+            <p className="cg-card__label" style={{ margin: 0 }}>{t('pedido.visao_geral.taxa_aprovacao.titulo')}</p>
           </div>
           <TaxaAprovacao />
         </div>
       </div>
 
       <div className="bfd-footer">
-        Indicadores e gráficos com dados reais dos pedidos • globo ilustrativo nesta etapa
+        {t('pedido.visao_geral.footer')}
       </div>
 
       {/* Tabbed Quotation Modal Overlay */}
       {isAlertModalOpen && selectedAlertContext && (() => {
          const alert = selectedAlertContext;
          // Generate mock data for the selected alert type
-         let modalTitle = 'Detalhes da Cotação / Pedido';
+         let modalTitle = t('pedido.visao_geral.modal_alerta.titulo_padrao');
          let quoteId = 'COT-2026-F401';
          let origin = 'Shanghai (CNSHA)';
          let destination = 'Santos (BRSSZ)';
@@ -3486,7 +3493,7 @@ export default function VisaoGeral() {
          const labelStr = String(alert.label || '').toLowerCase();
 
          if (labelStr.includes('atrasado')) {
-           modalTitle = 'Pedido Atrasado';
+           modalTitle = t('pedido.visao_geral.modal_alerta.titulo_atrasado');
            quoteId = 'PED-2026-A109';
            origin = 'Shanghai (CNSHA)';
            destination = 'Santos (BRSSZ)';
@@ -3506,7 +3513,7 @@ export default function VisaoGeral() {
              { data: '05/05/2026 16:00', texto: 'Pedido faturado e liberado para coleta', autor: 'Fornecedor' }
            ];
          } else if (labelStr.includes('7 dias') && (labelStr.includes('vence') || labelStr.includes('vencem'))) {
-           modalTitle = 'Pedido a Vencer (7 dias)';
+           modalTitle = t('pedido.visao_geral.modal_alerta.titulo_a_vencer');
            quoteId = 'PED-2026-V882';
            origin = 'Rotterdam (NLRTM)';
            destination = 'Paranaguá (BRPNG)';
@@ -3524,7 +3531,7 @@ export default function VisaoGeral() {
              { data: '18/05/2026 15:00', texto: 'Instruções de embarque aprovadas', autor: 'Daniel' }
            ];
          } else if (labelStr.includes('rascunho')) {
-           modalTitle = 'Pedido em Rascunho';
+           modalTitle = t('pedido.visao_geral.modal_alerta.titulo_rascunho');
            quoteId = 'PED-2026-R004';
            origin = 'Miami (USMIA)';
            destination = 'Viracopos (BRVCP)';
@@ -3541,7 +3548,7 @@ export default function VisaoGeral() {
              { data: '20/05/2026 17:30', texto: 'Rascunho criado', autor: 'Daniel' }
            ];
          } else if (labelStr.includes('novo') || labelStr.includes('novos')) {
-           modalTitle = 'Novos Pedidos (7 dias)';
+           modalTitle = t('pedido.visao_geral.modal_alerta.titulo_novos');
            quoteId = 'PED-2026-N901';
            origin = 'Genoa (ITGOA)';
            destination = 'Rio de Janeiro (BRRIO)';
@@ -3604,7 +3611,7 @@ export default function VisaoGeral() {
                       <span style={{ color: alert.cor === 'red' ? '#f87171' : alert.cor === 'orange' ? '#fbbf24' : alert.cor === 'green' ? '#34d399' : '#f59e0b' }}>●</span>
                       {modalTitle}
                     </h2>
-                    <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0' }}>Referência: {quoteId}</p>
+                    <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0' }}>{t('pedido.visao_geral.modal_alerta.referencia')}: {quoteId}</p>
                   </div>
                   <button style={{ background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', transition: 'all 0.2s' }}
                     onClick={() => setIsAlertModalOpen(false)}
@@ -3613,11 +3620,16 @@ export default function VisaoGeral() {
 
                 {/* Tabs */}
                 <div style={{ display: 'flex', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(15, 23, 42, 0.2)', padding: '0 1rem' }}>
-                  {['geral', 'itens', 'propostas', 'historico'].map(t => {
-                    const isActive = alertModalTab === t;
-                    const labels = { geral: 'Geral', itens: 'Itens', propostas: 'Propostas', historico: 'Histórico' };
+                  {['geral', 'itens', 'propostas', 'historico'].map(tabKey => {
+                    const isActive = alertModalTab === tabKey;
+                    const labels = {
+                      geral: t('pedido.visao_geral.modal_alerta.tab_geral'),
+                      itens: t('pedido.visao_geral.modal_alerta.tab_itens'),
+                      propostas: t('pedido.visao_geral.modal_alerta.tab_propostas'),
+                      historico: t('pedido.visao_geral.modal_alerta.tab_historico'),
+                    };
                     return (
-                      <button key={t} style={{
+                      <button key={tabKey} style={{
                         background: 'none',
                         border: 'none',
                         borderBottom: isActive ? '2px solid #f59e0b' : '2px solid transparent',
@@ -3627,7 +3639,7 @@ export default function VisaoGeral() {
                         fontWeight: isActive ? 700 : 500,
                         cursor: 'pointer',
                         transition: 'all 0.2s'
-                      }} onClick={() => setAlertModalTab(t as any)}>{labels[t as keyof typeof labels]}</button>
+                      }} onClick={() => setAlertModalTab(tabKey as any)}>{labels[tabKey as keyof typeof labels]}</button>
                     )
                   })}
                 </div>
@@ -3637,35 +3649,35 @@ export default function VisaoGeral() {
                   {alertModalTab === 'geral' && (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }}>
                       <div className="bfd-modal-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Origem</label>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_origem')}</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{origin}</div>
                       </div>
                       <div className="bfd-modal-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Destino</label>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_destino')}</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{destination}</div>
                       </div>
                       <div className="bfd-modal-field" style={{ gridColumn: 'span 2' }}>
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Mercadoria / Descrição</label>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_mercadoria')}</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{goods}</div>
                       </div>
                       <div className="bfd-modal-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Peso Total</label>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_peso_total')}</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{weight}</div>
                       </div>
                       <div className="bfd-modal-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Cubagem (M³)</label>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_cubagem')}</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{volume}</div>
                       </div>
                       <div className="bfd-modal-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Incoterm</label>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_incoterm')}</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{incoterm}</div>
                       </div>
                       <div className="bfd-modal-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Valor Limite / Estimado</label>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_valor_limite')}</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{value}</div>
                       </div>
                       <div className="bfd-modal-field" style={{ gridColumn: 'span 2' }}>
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Modalidade</label>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_modalidade')}</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{category}</div>
                       </div>
                     </div>
@@ -3674,15 +3686,15 @@ export default function VisaoGeral() {
                   {alertModalTab === 'itens' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       <div style={{ display: 'flex', background: 'rgba(255,255,255,0.02)', padding: '0.5rem 0.75rem', borderRadius: '4px', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.78rem', fontWeight: 700, color: '#94a3b8' }}>
-                        <div style={{ flex: 1 }}>Código</div>
-                        <div style={{ flex: 2 }}>Descrição</div>
-                        <div style={{ flex: 1, textAlign: 'right' }}>Qtd</div>
-                        <div style={{ flex: 1, textAlign: 'right' }}>Peso (Kg)</div>
+                        <div style={{ flex: 1 }}>{t('pedido.visao_geral.modal_alerta.col_codigo')}</div>
+                        <div style={{ flex: 2 }}>{t('pedido.visao_geral.modal_alerta.col_descricao')}</div>
+                        <div style={{ flex: 1, textAlign: 'right' }}>{t('pedido.visao_geral.modal_alerta.col_qtd')}</div>
+                        <div style={{ flex: 1, textAlign: 'right' }}>{t('pedido.visao_geral.modal_alerta.col_peso')}</div>
                       </div>
                       <div style={{ display: 'flex', padding: '0.75rem', borderRadius: '6px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', fontSize: '0.85rem' }}>
                         <div style={{ flex: 1, color: '#f59e0b', fontWeight: 600 }}>ITM-01</div>
                         <div style={{ flex: 2, color: '#cbd5e1' }}>{goods}</div>
-                        <div style={{ flex: 1, textAlign: 'right', color: '#ffffff' }}>1.000 un</div>
+                        <div style={{ flex: 1, textAlign: 'right', color: '#ffffff' }}>{t('pedido.visao_geral.modal_alerta.unidades', { count: 1000 })}</div>
                         <div style={{ flex: 1, textAlign: 'right', color: '#ffffff' }}>{weight}</div>
                       </div>
                     </div>
@@ -3703,7 +3715,7 @@ export default function VisaoGeral() {
                         }}>
                           <div>
                             <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#ffffff', display: 'block' }}>{p.fornecedor}</span>
-                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Transit time: {p.transit}</span>
+                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{t('pedido.visao_geral.modal_alerta.transit_time')}: {p.transit}</span>
                           </div>
                           <div style={{ textAlign: 'right' }}>
                             <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#f59e0b', display: 'block' }}>{p.valor}</span>
@@ -3728,7 +3740,7 @@ export default function VisaoGeral() {
                             background: '#f59e0b',
                             boxShadow: '0 0 8px #f59e0b'
                           }} />
-                          <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block', fontWeight: 600 }}>{h.data} • por {h.autor}</span>
+                          <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block', fontWeight: 600 }}>{h.data} • {t('pedido.visao_geral.modal_alerta.por_autor', { autor: h.autor })}</span>
                           <span style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '0.2rem', display: 'block' }}>{h.texto}</span>
                         </div>
                       ))}
@@ -3750,7 +3762,7 @@ export default function VisaoGeral() {
                     transition: 'all 0.2s'
                   }}
                     onClick={() => setIsAlertModalOpen(false)}
-                  >Fechar</button>
+                  >{t('comum.fechar')}</button>
                   <button style={{
                     background: '#f59e0b',
                     border: 'none',
@@ -3763,8 +3775,8 @@ export default function VisaoGeral() {
                     transition: 'all 0.2s',
                     boxShadow: '0 4px 6px -1px rgba(245, 158, 11, 0.2)'
                   }}
-                    onClick={() => alert('Pedido atualizado com sucesso!')}
-                  >Salvar</button>
+                    onClick={() => alert(t('pedido.visao_geral.modal_alerta.pedido_atualizado'))}
+                  >{t('comum.salvar')}</button>
                 </div>
               </div>
             </div>

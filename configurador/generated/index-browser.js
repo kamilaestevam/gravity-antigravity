@@ -392,6 +392,20 @@ exports.Prisma.CambioScalarFieldEnum = {
   data_criacao_cambio: 'data_criacao_cambio'
 };
 
+exports.Prisma.PrevisaoTaxaFuturaMoedaScalarFieldEnum = {
+  id_previsao_taxa_futura_moeda: 'id_previsao_taxa_futura_moeda',
+  moeda_previsao_taxa_futura_moeda: 'moeda_previsao_taxa_futura_moeda',
+  mes_previsao_taxa_futura_moeda: 'mes_previsao_taxa_futura_moeda',
+  valor_mediano_previsao_taxa_futura_moeda: 'valor_mediano_previsao_taxa_futura_moeda',
+  valor_medio_previsao_taxa_futura_moeda: 'valor_medio_previsao_taxa_futura_moeda',
+  valor_minimo_previsao_taxa_futura_moeda: 'valor_minimo_previsao_taxa_futura_moeda',
+  valor_maximo_previsao_taxa_futura_moeda: 'valor_maximo_previsao_taxa_futura_moeda',
+  fonte_previsao_taxa_futura_moeda: 'fonte_previsao_taxa_futura_moeda',
+  data_previsao_taxa_futura_moeda: 'data_previsao_taxa_futura_moeda',
+  data_criacao_previsao_taxa_futura_moeda: 'data_criacao_previsao_taxa_futura_moeda',
+  data_atualizacao_previsao_taxa_futura_moeda: 'data_atualizacao_previsao_taxa_futura_moeda'
+};
+
 exports.Prisma.TesteScalarFieldEnum = {
   id_teste: 'id_teste',
   id_organizacao: 'id_organizacao',
@@ -693,6 +707,7 @@ exports.Prisma.ModelName = {
   Requisicoes: 'Requisicoes',
   ServicoGravity: 'ServicoGravity',
   Cambio: 'Cambio',
+  PrevisaoTaxaFuturaMoeda: 'PrevisaoTaxaFuturaMoeda',
   Teste: 'Teste',
   TesteAgendamento: 'TesteAgendamento',
   TestePlano: 'TestePlano',

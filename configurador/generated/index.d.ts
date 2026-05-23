@@ -104,6 +104,11 @@ export type ServicoGravity = $Result.DefaultSelection<Prisma.$ServicoGravityPayl
  */
 export type Cambio = $Result.DefaultSelection<Prisma.$CambioPayload>
 /**
+ * Model PrevisaoTaxaFuturaMoeda
+ * 
+ */
+export type PrevisaoTaxaFuturaMoeda = $Result.DefaultSelection<Prisma.$PrevisaoTaxaFuturaMoedaPayload>
+/**
  * Model Teste
  * 
  */
@@ -647,6 +652,16 @@ export class PrismaClient<
     * ```
     */
   get cambio(): Prisma.CambioDelegate<ExtArgs>;
+
+  /**
+   * `prisma.previsaoTaxaFuturaMoeda`: Exposes CRUD operations for the **PrevisaoTaxaFuturaMoeda** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PrevisaoTaxaFuturaMoedas
+    * const previsaoTaxaFuturaMoedas = await prisma.previsaoTaxaFuturaMoeda.findMany()
+    * ```
+    */
+  get previsaoTaxaFuturaMoeda(): Prisma.PrevisaoTaxaFuturaMoedaDelegate<ExtArgs>;
 
   /**
    * `prisma.teste`: Exposes CRUD operations for the **Teste** model.
@@ -1206,6 +1221,7 @@ export namespace Prisma {
     Requisicoes: 'Requisicoes',
     ServicoGravity: 'ServicoGravity',
     Cambio: 'Cambio',
+    PrevisaoTaxaFuturaMoeda: 'PrevisaoTaxaFuturaMoeda',
     Teste: 'Teste',
     TesteAgendamento: 'TesteAgendamento',
     TestePlano: 'TestePlano',
@@ -1231,7 +1247,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "organizacaoFornecedor" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "teste" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "produtoGravityFaturaItem" | "produtoGravityFaturaDocumento" | "lLMMetricas" | "gabiLimiteMonetarioGlobal" | "gabiAlertaEmitidoGlobal" | "auditLogAdmin"
+      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "organizacaoFornecedor" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "previsaoTaxaFuturaMoeda" | "teste" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "produtoGravityFaturaItem" | "produtoGravityFaturaDocumento" | "lLMMetricas" | "gabiLimiteMonetarioGlobal" | "gabiAlertaEmitidoGlobal" | "auditLogAdmin"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2492,6 +2508,76 @@ export namespace Prisma {
           count: {
             args: Prisma.CambioCountArgs<ExtArgs>
             result: $Utils.Optional<CambioCountAggregateOutputType> | number
+          }
+        }
+      }
+      PrevisaoTaxaFuturaMoeda: {
+        payload: Prisma.$PrevisaoTaxaFuturaMoedaPayload<ExtArgs>
+        fields: Prisma.PrevisaoTaxaFuturaMoedaFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload>
+          }
+          findFirst: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload>
+          }
+          findMany: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload>[]
+          }
+          create: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload>
+          }
+          createMany: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload>[]
+          }
+          delete: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload>
+          }
+          update: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload>
+          }
+          deleteMany: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload>
+          }
+          aggregate: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePrevisaoTaxaFuturaMoeda>
+          }
+          groupBy: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PrevisaoTaxaFuturaMoedaGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PrevisaoTaxaFuturaMoedaCountArgs<ExtArgs>
+            result: $Utils.Optional<PrevisaoTaxaFuturaMoedaCountAggregateOutputType> | number
           }
         }
       }
@@ -22386,6 +22472,1002 @@ export namespace Prisma {
 
 
   /**
+   * Model PrevisaoTaxaFuturaMoeda
+   */
+
+  export type AggregatePrevisaoTaxaFuturaMoeda = {
+    _count: PrevisaoTaxaFuturaMoedaCountAggregateOutputType | null
+    _avg: PrevisaoTaxaFuturaMoedaAvgAggregateOutputType | null
+    _sum: PrevisaoTaxaFuturaMoedaSumAggregateOutputType | null
+    _min: PrevisaoTaxaFuturaMoedaMinAggregateOutputType | null
+    _max: PrevisaoTaxaFuturaMoedaMaxAggregateOutputType | null
+  }
+
+  export type PrevisaoTaxaFuturaMoedaAvgAggregateOutputType = {
+    valor_mediano_previsao_taxa_futura_moeda: Decimal | null
+    valor_medio_previsao_taxa_futura_moeda: Decimal | null
+    valor_minimo_previsao_taxa_futura_moeda: Decimal | null
+    valor_maximo_previsao_taxa_futura_moeda: Decimal | null
+  }
+
+  export type PrevisaoTaxaFuturaMoedaSumAggregateOutputType = {
+    valor_mediano_previsao_taxa_futura_moeda: Decimal | null
+    valor_medio_previsao_taxa_futura_moeda: Decimal | null
+    valor_minimo_previsao_taxa_futura_moeda: Decimal | null
+    valor_maximo_previsao_taxa_futura_moeda: Decimal | null
+  }
+
+  export type PrevisaoTaxaFuturaMoedaMinAggregateOutputType = {
+    id_previsao_taxa_futura_moeda: string | null
+    moeda_previsao_taxa_futura_moeda: string | null
+    mes_previsao_taxa_futura_moeda: Date | null
+    valor_mediano_previsao_taxa_futura_moeda: Decimal | null
+    valor_medio_previsao_taxa_futura_moeda: Decimal | null
+    valor_minimo_previsao_taxa_futura_moeda: Decimal | null
+    valor_maximo_previsao_taxa_futura_moeda: Decimal | null
+    fonte_previsao_taxa_futura_moeda: string | null
+    data_previsao_taxa_futura_moeda: Date | null
+    data_criacao_previsao_taxa_futura_moeda: Date | null
+    data_atualizacao_previsao_taxa_futura_moeda: Date | null
+  }
+
+  export type PrevisaoTaxaFuturaMoedaMaxAggregateOutputType = {
+    id_previsao_taxa_futura_moeda: string | null
+    moeda_previsao_taxa_futura_moeda: string | null
+    mes_previsao_taxa_futura_moeda: Date | null
+    valor_mediano_previsao_taxa_futura_moeda: Decimal | null
+    valor_medio_previsao_taxa_futura_moeda: Decimal | null
+    valor_minimo_previsao_taxa_futura_moeda: Decimal | null
+    valor_maximo_previsao_taxa_futura_moeda: Decimal | null
+    fonte_previsao_taxa_futura_moeda: string | null
+    data_previsao_taxa_futura_moeda: Date | null
+    data_criacao_previsao_taxa_futura_moeda: Date | null
+    data_atualizacao_previsao_taxa_futura_moeda: Date | null
+  }
+
+  export type PrevisaoTaxaFuturaMoedaCountAggregateOutputType = {
+    id_previsao_taxa_futura_moeda: number
+    moeda_previsao_taxa_futura_moeda: number
+    mes_previsao_taxa_futura_moeda: number
+    valor_mediano_previsao_taxa_futura_moeda: number
+    valor_medio_previsao_taxa_futura_moeda: number
+    valor_minimo_previsao_taxa_futura_moeda: number
+    valor_maximo_previsao_taxa_futura_moeda: number
+    fonte_previsao_taxa_futura_moeda: number
+    data_previsao_taxa_futura_moeda: number
+    data_criacao_previsao_taxa_futura_moeda: number
+    data_atualizacao_previsao_taxa_futura_moeda: number
+    _all: number
+  }
+
+
+  export type PrevisaoTaxaFuturaMoedaAvgAggregateInputType = {
+    valor_mediano_previsao_taxa_futura_moeda?: true
+    valor_medio_previsao_taxa_futura_moeda?: true
+    valor_minimo_previsao_taxa_futura_moeda?: true
+    valor_maximo_previsao_taxa_futura_moeda?: true
+  }
+
+  export type PrevisaoTaxaFuturaMoedaSumAggregateInputType = {
+    valor_mediano_previsao_taxa_futura_moeda?: true
+    valor_medio_previsao_taxa_futura_moeda?: true
+    valor_minimo_previsao_taxa_futura_moeda?: true
+    valor_maximo_previsao_taxa_futura_moeda?: true
+  }
+
+  export type PrevisaoTaxaFuturaMoedaMinAggregateInputType = {
+    id_previsao_taxa_futura_moeda?: true
+    moeda_previsao_taxa_futura_moeda?: true
+    mes_previsao_taxa_futura_moeda?: true
+    valor_mediano_previsao_taxa_futura_moeda?: true
+    valor_medio_previsao_taxa_futura_moeda?: true
+    valor_minimo_previsao_taxa_futura_moeda?: true
+    valor_maximo_previsao_taxa_futura_moeda?: true
+    fonte_previsao_taxa_futura_moeda?: true
+    data_previsao_taxa_futura_moeda?: true
+    data_criacao_previsao_taxa_futura_moeda?: true
+    data_atualizacao_previsao_taxa_futura_moeda?: true
+  }
+
+  export type PrevisaoTaxaFuturaMoedaMaxAggregateInputType = {
+    id_previsao_taxa_futura_moeda?: true
+    moeda_previsao_taxa_futura_moeda?: true
+    mes_previsao_taxa_futura_moeda?: true
+    valor_mediano_previsao_taxa_futura_moeda?: true
+    valor_medio_previsao_taxa_futura_moeda?: true
+    valor_minimo_previsao_taxa_futura_moeda?: true
+    valor_maximo_previsao_taxa_futura_moeda?: true
+    fonte_previsao_taxa_futura_moeda?: true
+    data_previsao_taxa_futura_moeda?: true
+    data_criacao_previsao_taxa_futura_moeda?: true
+    data_atualizacao_previsao_taxa_futura_moeda?: true
+  }
+
+  export type PrevisaoTaxaFuturaMoedaCountAggregateInputType = {
+    id_previsao_taxa_futura_moeda?: true
+    moeda_previsao_taxa_futura_moeda?: true
+    mes_previsao_taxa_futura_moeda?: true
+    valor_mediano_previsao_taxa_futura_moeda?: true
+    valor_medio_previsao_taxa_futura_moeda?: true
+    valor_minimo_previsao_taxa_futura_moeda?: true
+    valor_maximo_previsao_taxa_futura_moeda?: true
+    fonte_previsao_taxa_futura_moeda?: true
+    data_previsao_taxa_futura_moeda?: true
+    data_criacao_previsao_taxa_futura_moeda?: true
+    data_atualizacao_previsao_taxa_futura_moeda?: true
+    _all?: true
+  }
+
+  export type PrevisaoTaxaFuturaMoedaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PrevisaoTaxaFuturaMoeda to aggregate.
+     */
+    where?: PrevisaoTaxaFuturaMoedaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PrevisaoTaxaFuturaMoedas to fetch.
+     */
+    orderBy?: PrevisaoTaxaFuturaMoedaOrderByWithRelationInput | PrevisaoTaxaFuturaMoedaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PrevisaoTaxaFuturaMoedaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PrevisaoTaxaFuturaMoedas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PrevisaoTaxaFuturaMoedas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PrevisaoTaxaFuturaMoedas
+    **/
+    _count?: true | PrevisaoTaxaFuturaMoedaCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PrevisaoTaxaFuturaMoedaAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PrevisaoTaxaFuturaMoedaSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PrevisaoTaxaFuturaMoedaMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PrevisaoTaxaFuturaMoedaMaxAggregateInputType
+  }
+
+  export type GetPrevisaoTaxaFuturaMoedaAggregateType<T extends PrevisaoTaxaFuturaMoedaAggregateArgs> = {
+        [P in keyof T & keyof AggregatePrevisaoTaxaFuturaMoeda]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePrevisaoTaxaFuturaMoeda[P]>
+      : GetScalarType<T[P], AggregatePrevisaoTaxaFuturaMoeda[P]>
+  }
+
+
+
+
+  export type PrevisaoTaxaFuturaMoedaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PrevisaoTaxaFuturaMoedaWhereInput
+    orderBy?: PrevisaoTaxaFuturaMoedaOrderByWithAggregationInput | PrevisaoTaxaFuturaMoedaOrderByWithAggregationInput[]
+    by: PrevisaoTaxaFuturaMoedaScalarFieldEnum[] | PrevisaoTaxaFuturaMoedaScalarFieldEnum
+    having?: PrevisaoTaxaFuturaMoedaScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PrevisaoTaxaFuturaMoedaCountAggregateInputType | true
+    _avg?: PrevisaoTaxaFuturaMoedaAvgAggregateInputType
+    _sum?: PrevisaoTaxaFuturaMoedaSumAggregateInputType
+    _min?: PrevisaoTaxaFuturaMoedaMinAggregateInputType
+    _max?: PrevisaoTaxaFuturaMoedaMaxAggregateInputType
+  }
+
+  export type PrevisaoTaxaFuturaMoedaGroupByOutputType = {
+    id_previsao_taxa_futura_moeda: string
+    moeda_previsao_taxa_futura_moeda: string
+    mes_previsao_taxa_futura_moeda: Date
+    valor_mediano_previsao_taxa_futura_moeda: Decimal
+    valor_medio_previsao_taxa_futura_moeda: Decimal
+    valor_minimo_previsao_taxa_futura_moeda: Decimal
+    valor_maximo_previsao_taxa_futura_moeda: Decimal
+    fonte_previsao_taxa_futura_moeda: string
+    data_previsao_taxa_futura_moeda: Date
+    data_criacao_previsao_taxa_futura_moeda: Date
+    data_atualizacao_previsao_taxa_futura_moeda: Date
+    _count: PrevisaoTaxaFuturaMoedaCountAggregateOutputType | null
+    _avg: PrevisaoTaxaFuturaMoedaAvgAggregateOutputType | null
+    _sum: PrevisaoTaxaFuturaMoedaSumAggregateOutputType | null
+    _min: PrevisaoTaxaFuturaMoedaMinAggregateOutputType | null
+    _max: PrevisaoTaxaFuturaMoedaMaxAggregateOutputType | null
+  }
+
+  type GetPrevisaoTaxaFuturaMoedaGroupByPayload<T extends PrevisaoTaxaFuturaMoedaGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PrevisaoTaxaFuturaMoedaGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PrevisaoTaxaFuturaMoedaGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PrevisaoTaxaFuturaMoedaGroupByOutputType[P]>
+            : GetScalarType<T[P], PrevisaoTaxaFuturaMoedaGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PrevisaoTaxaFuturaMoedaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_previsao_taxa_futura_moeda?: boolean
+    moeda_previsao_taxa_futura_moeda?: boolean
+    mes_previsao_taxa_futura_moeda?: boolean
+    valor_mediano_previsao_taxa_futura_moeda?: boolean
+    valor_medio_previsao_taxa_futura_moeda?: boolean
+    valor_minimo_previsao_taxa_futura_moeda?: boolean
+    valor_maximo_previsao_taxa_futura_moeda?: boolean
+    fonte_previsao_taxa_futura_moeda?: boolean
+    data_previsao_taxa_futura_moeda?: boolean
+    data_criacao_previsao_taxa_futura_moeda?: boolean
+    data_atualizacao_previsao_taxa_futura_moeda?: boolean
+  }, ExtArgs["result"]["previsaoTaxaFuturaMoeda"]>
+
+  export type PrevisaoTaxaFuturaMoedaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_previsao_taxa_futura_moeda?: boolean
+    moeda_previsao_taxa_futura_moeda?: boolean
+    mes_previsao_taxa_futura_moeda?: boolean
+    valor_mediano_previsao_taxa_futura_moeda?: boolean
+    valor_medio_previsao_taxa_futura_moeda?: boolean
+    valor_minimo_previsao_taxa_futura_moeda?: boolean
+    valor_maximo_previsao_taxa_futura_moeda?: boolean
+    fonte_previsao_taxa_futura_moeda?: boolean
+    data_previsao_taxa_futura_moeda?: boolean
+    data_criacao_previsao_taxa_futura_moeda?: boolean
+    data_atualizacao_previsao_taxa_futura_moeda?: boolean
+  }, ExtArgs["result"]["previsaoTaxaFuturaMoeda"]>
+
+  export type PrevisaoTaxaFuturaMoedaSelectScalar = {
+    id_previsao_taxa_futura_moeda?: boolean
+    moeda_previsao_taxa_futura_moeda?: boolean
+    mes_previsao_taxa_futura_moeda?: boolean
+    valor_mediano_previsao_taxa_futura_moeda?: boolean
+    valor_medio_previsao_taxa_futura_moeda?: boolean
+    valor_minimo_previsao_taxa_futura_moeda?: boolean
+    valor_maximo_previsao_taxa_futura_moeda?: boolean
+    fonte_previsao_taxa_futura_moeda?: boolean
+    data_previsao_taxa_futura_moeda?: boolean
+    data_criacao_previsao_taxa_futura_moeda?: boolean
+    data_atualizacao_previsao_taxa_futura_moeda?: boolean
+  }
+
+
+  export type $PrevisaoTaxaFuturaMoedaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PrevisaoTaxaFuturaMoeda"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_previsao_taxa_futura_moeda: string
+      moeda_previsao_taxa_futura_moeda: string
+      mes_previsao_taxa_futura_moeda: Date
+      valor_mediano_previsao_taxa_futura_moeda: Prisma.Decimal
+      valor_medio_previsao_taxa_futura_moeda: Prisma.Decimal
+      valor_minimo_previsao_taxa_futura_moeda: Prisma.Decimal
+      valor_maximo_previsao_taxa_futura_moeda: Prisma.Decimal
+      fonte_previsao_taxa_futura_moeda: string
+      data_previsao_taxa_futura_moeda: Date
+      data_criacao_previsao_taxa_futura_moeda: Date
+      data_atualizacao_previsao_taxa_futura_moeda: Date
+    }, ExtArgs["result"]["previsaoTaxaFuturaMoeda"]>
+    composites: {}
+  }
+
+  type PrevisaoTaxaFuturaMoedaGetPayload<S extends boolean | null | undefined | PrevisaoTaxaFuturaMoedaDefaultArgs> = $Result.GetResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload, S>
+
+  type PrevisaoTaxaFuturaMoedaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<PrevisaoTaxaFuturaMoedaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: PrevisaoTaxaFuturaMoedaCountAggregateInputType | true
+    }
+
+  export interface PrevisaoTaxaFuturaMoedaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PrevisaoTaxaFuturaMoeda'], meta: { name: 'PrevisaoTaxaFuturaMoeda' } }
+    /**
+     * Find zero or one PrevisaoTaxaFuturaMoeda that matches the filter.
+     * @param {PrevisaoTaxaFuturaMoedaFindUniqueArgs} args - Arguments to find a PrevisaoTaxaFuturaMoeda
+     * @example
+     * // Get one PrevisaoTaxaFuturaMoeda
+     * const previsaoTaxaFuturaMoeda = await prisma.previsaoTaxaFuturaMoeda.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PrevisaoTaxaFuturaMoedaFindUniqueArgs>(args: SelectSubset<T, PrevisaoTaxaFuturaMoedaFindUniqueArgs<ExtArgs>>): Prisma__PrevisaoTaxaFuturaMoedaClient<$Result.GetResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one PrevisaoTaxaFuturaMoeda that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {PrevisaoTaxaFuturaMoedaFindUniqueOrThrowArgs} args - Arguments to find a PrevisaoTaxaFuturaMoeda
+     * @example
+     * // Get one PrevisaoTaxaFuturaMoeda
+     * const previsaoTaxaFuturaMoeda = await prisma.previsaoTaxaFuturaMoeda.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PrevisaoTaxaFuturaMoedaFindUniqueOrThrowArgs>(args: SelectSubset<T, PrevisaoTaxaFuturaMoedaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PrevisaoTaxaFuturaMoedaClient<$Result.GetResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first PrevisaoTaxaFuturaMoeda that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PrevisaoTaxaFuturaMoedaFindFirstArgs} args - Arguments to find a PrevisaoTaxaFuturaMoeda
+     * @example
+     * // Get one PrevisaoTaxaFuturaMoeda
+     * const previsaoTaxaFuturaMoeda = await prisma.previsaoTaxaFuturaMoeda.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PrevisaoTaxaFuturaMoedaFindFirstArgs>(args?: SelectSubset<T, PrevisaoTaxaFuturaMoedaFindFirstArgs<ExtArgs>>): Prisma__PrevisaoTaxaFuturaMoedaClient<$Result.GetResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first PrevisaoTaxaFuturaMoeda that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PrevisaoTaxaFuturaMoedaFindFirstOrThrowArgs} args - Arguments to find a PrevisaoTaxaFuturaMoeda
+     * @example
+     * // Get one PrevisaoTaxaFuturaMoeda
+     * const previsaoTaxaFuturaMoeda = await prisma.previsaoTaxaFuturaMoeda.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PrevisaoTaxaFuturaMoedaFindFirstOrThrowArgs>(args?: SelectSubset<T, PrevisaoTaxaFuturaMoedaFindFirstOrThrowArgs<ExtArgs>>): Prisma__PrevisaoTaxaFuturaMoedaClient<$Result.GetResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more PrevisaoTaxaFuturaMoedas that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PrevisaoTaxaFuturaMoedaFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PrevisaoTaxaFuturaMoedas
+     * const previsaoTaxaFuturaMoedas = await prisma.previsaoTaxaFuturaMoeda.findMany()
+     * 
+     * // Get first 10 PrevisaoTaxaFuturaMoedas
+     * const previsaoTaxaFuturaMoedas = await prisma.previsaoTaxaFuturaMoeda.findMany({ take: 10 })
+     * 
+     * // Only select the `id_previsao_taxa_futura_moeda`
+     * const previsaoTaxaFuturaMoedaWithId_previsao_taxa_futura_moedaOnly = await prisma.previsaoTaxaFuturaMoeda.findMany({ select: { id_previsao_taxa_futura_moeda: true } })
+     * 
+     */
+    findMany<T extends PrevisaoTaxaFuturaMoedaFindManyArgs>(args?: SelectSubset<T, PrevisaoTaxaFuturaMoedaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a PrevisaoTaxaFuturaMoeda.
+     * @param {PrevisaoTaxaFuturaMoedaCreateArgs} args - Arguments to create a PrevisaoTaxaFuturaMoeda.
+     * @example
+     * // Create one PrevisaoTaxaFuturaMoeda
+     * const PrevisaoTaxaFuturaMoeda = await prisma.previsaoTaxaFuturaMoeda.create({
+     *   data: {
+     *     // ... data to create a PrevisaoTaxaFuturaMoeda
+     *   }
+     * })
+     * 
+     */
+    create<T extends PrevisaoTaxaFuturaMoedaCreateArgs>(args: SelectSubset<T, PrevisaoTaxaFuturaMoedaCreateArgs<ExtArgs>>): Prisma__PrevisaoTaxaFuturaMoedaClient<$Result.GetResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many PrevisaoTaxaFuturaMoedas.
+     * @param {PrevisaoTaxaFuturaMoedaCreateManyArgs} args - Arguments to create many PrevisaoTaxaFuturaMoedas.
+     * @example
+     * // Create many PrevisaoTaxaFuturaMoedas
+     * const previsaoTaxaFuturaMoeda = await prisma.previsaoTaxaFuturaMoeda.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PrevisaoTaxaFuturaMoedaCreateManyArgs>(args?: SelectSubset<T, PrevisaoTaxaFuturaMoedaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PrevisaoTaxaFuturaMoedas and returns the data saved in the database.
+     * @param {PrevisaoTaxaFuturaMoedaCreateManyAndReturnArgs} args - Arguments to create many PrevisaoTaxaFuturaMoedas.
+     * @example
+     * // Create many PrevisaoTaxaFuturaMoedas
+     * const previsaoTaxaFuturaMoeda = await prisma.previsaoTaxaFuturaMoeda.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PrevisaoTaxaFuturaMoedas and only return the `id_previsao_taxa_futura_moeda`
+     * const previsaoTaxaFuturaMoedaWithId_previsao_taxa_futura_moedaOnly = await prisma.previsaoTaxaFuturaMoeda.createManyAndReturn({ 
+     *   select: { id_previsao_taxa_futura_moeda: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PrevisaoTaxaFuturaMoedaCreateManyAndReturnArgs>(args?: SelectSubset<T, PrevisaoTaxaFuturaMoedaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a PrevisaoTaxaFuturaMoeda.
+     * @param {PrevisaoTaxaFuturaMoedaDeleteArgs} args - Arguments to delete one PrevisaoTaxaFuturaMoeda.
+     * @example
+     * // Delete one PrevisaoTaxaFuturaMoeda
+     * const PrevisaoTaxaFuturaMoeda = await prisma.previsaoTaxaFuturaMoeda.delete({
+     *   where: {
+     *     // ... filter to delete one PrevisaoTaxaFuturaMoeda
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PrevisaoTaxaFuturaMoedaDeleteArgs>(args: SelectSubset<T, PrevisaoTaxaFuturaMoedaDeleteArgs<ExtArgs>>): Prisma__PrevisaoTaxaFuturaMoedaClient<$Result.GetResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one PrevisaoTaxaFuturaMoeda.
+     * @param {PrevisaoTaxaFuturaMoedaUpdateArgs} args - Arguments to update one PrevisaoTaxaFuturaMoeda.
+     * @example
+     * // Update one PrevisaoTaxaFuturaMoeda
+     * const previsaoTaxaFuturaMoeda = await prisma.previsaoTaxaFuturaMoeda.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PrevisaoTaxaFuturaMoedaUpdateArgs>(args: SelectSubset<T, PrevisaoTaxaFuturaMoedaUpdateArgs<ExtArgs>>): Prisma__PrevisaoTaxaFuturaMoedaClient<$Result.GetResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more PrevisaoTaxaFuturaMoedas.
+     * @param {PrevisaoTaxaFuturaMoedaDeleteManyArgs} args - Arguments to filter PrevisaoTaxaFuturaMoedas to delete.
+     * @example
+     * // Delete a few PrevisaoTaxaFuturaMoedas
+     * const { count } = await prisma.previsaoTaxaFuturaMoeda.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PrevisaoTaxaFuturaMoedaDeleteManyArgs>(args?: SelectSubset<T, PrevisaoTaxaFuturaMoedaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PrevisaoTaxaFuturaMoedas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PrevisaoTaxaFuturaMoedaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PrevisaoTaxaFuturaMoedas
+     * const previsaoTaxaFuturaMoeda = await prisma.previsaoTaxaFuturaMoeda.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PrevisaoTaxaFuturaMoedaUpdateManyArgs>(args: SelectSubset<T, PrevisaoTaxaFuturaMoedaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one PrevisaoTaxaFuturaMoeda.
+     * @param {PrevisaoTaxaFuturaMoedaUpsertArgs} args - Arguments to update or create a PrevisaoTaxaFuturaMoeda.
+     * @example
+     * // Update or create a PrevisaoTaxaFuturaMoeda
+     * const previsaoTaxaFuturaMoeda = await prisma.previsaoTaxaFuturaMoeda.upsert({
+     *   create: {
+     *     // ... data to create a PrevisaoTaxaFuturaMoeda
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PrevisaoTaxaFuturaMoeda we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PrevisaoTaxaFuturaMoedaUpsertArgs>(args: SelectSubset<T, PrevisaoTaxaFuturaMoedaUpsertArgs<ExtArgs>>): Prisma__PrevisaoTaxaFuturaMoedaClient<$Result.GetResult<Prisma.$PrevisaoTaxaFuturaMoedaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of PrevisaoTaxaFuturaMoedas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PrevisaoTaxaFuturaMoedaCountArgs} args - Arguments to filter PrevisaoTaxaFuturaMoedas to count.
+     * @example
+     * // Count the number of PrevisaoTaxaFuturaMoedas
+     * const count = await prisma.previsaoTaxaFuturaMoeda.count({
+     *   where: {
+     *     // ... the filter for the PrevisaoTaxaFuturaMoedas we want to count
+     *   }
+     * })
+    **/
+    count<T extends PrevisaoTaxaFuturaMoedaCountArgs>(
+      args?: Subset<T, PrevisaoTaxaFuturaMoedaCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PrevisaoTaxaFuturaMoedaCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PrevisaoTaxaFuturaMoeda.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PrevisaoTaxaFuturaMoedaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PrevisaoTaxaFuturaMoedaAggregateArgs>(args: Subset<T, PrevisaoTaxaFuturaMoedaAggregateArgs>): Prisma.PrismaPromise<GetPrevisaoTaxaFuturaMoedaAggregateType<T>>
+
+    /**
+     * Group by PrevisaoTaxaFuturaMoeda.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PrevisaoTaxaFuturaMoedaGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PrevisaoTaxaFuturaMoedaGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PrevisaoTaxaFuturaMoedaGroupByArgs['orderBy'] }
+        : { orderBy?: PrevisaoTaxaFuturaMoedaGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PrevisaoTaxaFuturaMoedaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPrevisaoTaxaFuturaMoedaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PrevisaoTaxaFuturaMoeda model
+   */
+  readonly fields: PrevisaoTaxaFuturaMoedaFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PrevisaoTaxaFuturaMoeda.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PrevisaoTaxaFuturaMoedaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PrevisaoTaxaFuturaMoeda model
+   */ 
+  interface PrevisaoTaxaFuturaMoedaFieldRefs {
+    readonly id_previsao_taxa_futura_moeda: FieldRef<"PrevisaoTaxaFuturaMoeda", 'String'>
+    readonly moeda_previsao_taxa_futura_moeda: FieldRef<"PrevisaoTaxaFuturaMoeda", 'String'>
+    readonly mes_previsao_taxa_futura_moeda: FieldRef<"PrevisaoTaxaFuturaMoeda", 'DateTime'>
+    readonly valor_mediano_previsao_taxa_futura_moeda: FieldRef<"PrevisaoTaxaFuturaMoeda", 'Decimal'>
+    readonly valor_medio_previsao_taxa_futura_moeda: FieldRef<"PrevisaoTaxaFuturaMoeda", 'Decimal'>
+    readonly valor_minimo_previsao_taxa_futura_moeda: FieldRef<"PrevisaoTaxaFuturaMoeda", 'Decimal'>
+    readonly valor_maximo_previsao_taxa_futura_moeda: FieldRef<"PrevisaoTaxaFuturaMoeda", 'Decimal'>
+    readonly fonte_previsao_taxa_futura_moeda: FieldRef<"PrevisaoTaxaFuturaMoeda", 'String'>
+    readonly data_previsao_taxa_futura_moeda: FieldRef<"PrevisaoTaxaFuturaMoeda", 'DateTime'>
+    readonly data_criacao_previsao_taxa_futura_moeda: FieldRef<"PrevisaoTaxaFuturaMoeda", 'DateTime'>
+    readonly data_atualizacao_previsao_taxa_futura_moeda: FieldRef<"PrevisaoTaxaFuturaMoeda", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PrevisaoTaxaFuturaMoeda findUnique
+   */
+  export type PrevisaoTaxaFuturaMoedaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PrevisaoTaxaFuturaMoeda
+     */
+    select?: PrevisaoTaxaFuturaMoedaSelect<ExtArgs> | null
+    /**
+     * Filter, which PrevisaoTaxaFuturaMoeda to fetch.
+     */
+    where: PrevisaoTaxaFuturaMoedaWhereUniqueInput
+  }
+
+  /**
+   * PrevisaoTaxaFuturaMoeda findUniqueOrThrow
+   */
+  export type PrevisaoTaxaFuturaMoedaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PrevisaoTaxaFuturaMoeda
+     */
+    select?: PrevisaoTaxaFuturaMoedaSelect<ExtArgs> | null
+    /**
+     * Filter, which PrevisaoTaxaFuturaMoeda to fetch.
+     */
+    where: PrevisaoTaxaFuturaMoedaWhereUniqueInput
+  }
+
+  /**
+   * PrevisaoTaxaFuturaMoeda findFirst
+   */
+  export type PrevisaoTaxaFuturaMoedaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PrevisaoTaxaFuturaMoeda
+     */
+    select?: PrevisaoTaxaFuturaMoedaSelect<ExtArgs> | null
+    /**
+     * Filter, which PrevisaoTaxaFuturaMoeda to fetch.
+     */
+    where?: PrevisaoTaxaFuturaMoedaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PrevisaoTaxaFuturaMoedas to fetch.
+     */
+    orderBy?: PrevisaoTaxaFuturaMoedaOrderByWithRelationInput | PrevisaoTaxaFuturaMoedaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PrevisaoTaxaFuturaMoedas.
+     */
+    cursor?: PrevisaoTaxaFuturaMoedaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PrevisaoTaxaFuturaMoedas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PrevisaoTaxaFuturaMoedas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PrevisaoTaxaFuturaMoedas.
+     */
+    distinct?: PrevisaoTaxaFuturaMoedaScalarFieldEnum | PrevisaoTaxaFuturaMoedaScalarFieldEnum[]
+  }
+
+  /**
+   * PrevisaoTaxaFuturaMoeda findFirstOrThrow
+   */
+  export type PrevisaoTaxaFuturaMoedaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PrevisaoTaxaFuturaMoeda
+     */
+    select?: PrevisaoTaxaFuturaMoedaSelect<ExtArgs> | null
+    /**
+     * Filter, which PrevisaoTaxaFuturaMoeda to fetch.
+     */
+    where?: PrevisaoTaxaFuturaMoedaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PrevisaoTaxaFuturaMoedas to fetch.
+     */
+    orderBy?: PrevisaoTaxaFuturaMoedaOrderByWithRelationInput | PrevisaoTaxaFuturaMoedaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PrevisaoTaxaFuturaMoedas.
+     */
+    cursor?: PrevisaoTaxaFuturaMoedaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PrevisaoTaxaFuturaMoedas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PrevisaoTaxaFuturaMoedas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PrevisaoTaxaFuturaMoedas.
+     */
+    distinct?: PrevisaoTaxaFuturaMoedaScalarFieldEnum | PrevisaoTaxaFuturaMoedaScalarFieldEnum[]
+  }
+
+  /**
+   * PrevisaoTaxaFuturaMoeda findMany
+   */
+  export type PrevisaoTaxaFuturaMoedaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PrevisaoTaxaFuturaMoeda
+     */
+    select?: PrevisaoTaxaFuturaMoedaSelect<ExtArgs> | null
+    /**
+     * Filter, which PrevisaoTaxaFuturaMoedas to fetch.
+     */
+    where?: PrevisaoTaxaFuturaMoedaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PrevisaoTaxaFuturaMoedas to fetch.
+     */
+    orderBy?: PrevisaoTaxaFuturaMoedaOrderByWithRelationInput | PrevisaoTaxaFuturaMoedaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PrevisaoTaxaFuturaMoedas.
+     */
+    cursor?: PrevisaoTaxaFuturaMoedaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PrevisaoTaxaFuturaMoedas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PrevisaoTaxaFuturaMoedas.
+     */
+    skip?: number
+    distinct?: PrevisaoTaxaFuturaMoedaScalarFieldEnum | PrevisaoTaxaFuturaMoedaScalarFieldEnum[]
+  }
+
+  /**
+   * PrevisaoTaxaFuturaMoeda create
+   */
+  export type PrevisaoTaxaFuturaMoedaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PrevisaoTaxaFuturaMoeda
+     */
+    select?: PrevisaoTaxaFuturaMoedaSelect<ExtArgs> | null
+    /**
+     * The data needed to create a PrevisaoTaxaFuturaMoeda.
+     */
+    data: XOR<PrevisaoTaxaFuturaMoedaCreateInput, PrevisaoTaxaFuturaMoedaUncheckedCreateInput>
+  }
+
+  /**
+   * PrevisaoTaxaFuturaMoeda createMany
+   */
+  export type PrevisaoTaxaFuturaMoedaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PrevisaoTaxaFuturaMoedas.
+     */
+    data: PrevisaoTaxaFuturaMoedaCreateManyInput | PrevisaoTaxaFuturaMoedaCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PrevisaoTaxaFuturaMoeda createManyAndReturn
+   */
+  export type PrevisaoTaxaFuturaMoedaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PrevisaoTaxaFuturaMoeda
+     */
+    select?: PrevisaoTaxaFuturaMoedaSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many PrevisaoTaxaFuturaMoedas.
+     */
+    data: PrevisaoTaxaFuturaMoedaCreateManyInput | PrevisaoTaxaFuturaMoedaCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PrevisaoTaxaFuturaMoeda update
+   */
+  export type PrevisaoTaxaFuturaMoedaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PrevisaoTaxaFuturaMoeda
+     */
+    select?: PrevisaoTaxaFuturaMoedaSelect<ExtArgs> | null
+    /**
+     * The data needed to update a PrevisaoTaxaFuturaMoeda.
+     */
+    data: XOR<PrevisaoTaxaFuturaMoedaUpdateInput, PrevisaoTaxaFuturaMoedaUncheckedUpdateInput>
+    /**
+     * Choose, which PrevisaoTaxaFuturaMoeda to update.
+     */
+    where: PrevisaoTaxaFuturaMoedaWhereUniqueInput
+  }
+
+  /**
+   * PrevisaoTaxaFuturaMoeda updateMany
+   */
+  export type PrevisaoTaxaFuturaMoedaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PrevisaoTaxaFuturaMoedas.
+     */
+    data: XOR<PrevisaoTaxaFuturaMoedaUpdateManyMutationInput, PrevisaoTaxaFuturaMoedaUncheckedUpdateManyInput>
+    /**
+     * Filter which PrevisaoTaxaFuturaMoedas to update
+     */
+    where?: PrevisaoTaxaFuturaMoedaWhereInput
+  }
+
+  /**
+   * PrevisaoTaxaFuturaMoeda upsert
+   */
+  export type PrevisaoTaxaFuturaMoedaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PrevisaoTaxaFuturaMoeda
+     */
+    select?: PrevisaoTaxaFuturaMoedaSelect<ExtArgs> | null
+    /**
+     * The filter to search for the PrevisaoTaxaFuturaMoeda to update in case it exists.
+     */
+    where: PrevisaoTaxaFuturaMoedaWhereUniqueInput
+    /**
+     * In case the PrevisaoTaxaFuturaMoeda found by the `where` argument doesn't exist, create a new PrevisaoTaxaFuturaMoeda with this data.
+     */
+    create: XOR<PrevisaoTaxaFuturaMoedaCreateInput, PrevisaoTaxaFuturaMoedaUncheckedCreateInput>
+    /**
+     * In case the PrevisaoTaxaFuturaMoeda was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PrevisaoTaxaFuturaMoedaUpdateInput, PrevisaoTaxaFuturaMoedaUncheckedUpdateInput>
+  }
+
+  /**
+   * PrevisaoTaxaFuturaMoeda delete
+   */
+  export type PrevisaoTaxaFuturaMoedaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PrevisaoTaxaFuturaMoeda
+     */
+    select?: PrevisaoTaxaFuturaMoedaSelect<ExtArgs> | null
+    /**
+     * Filter which PrevisaoTaxaFuturaMoeda to delete.
+     */
+    where: PrevisaoTaxaFuturaMoedaWhereUniqueInput
+  }
+
+  /**
+   * PrevisaoTaxaFuturaMoeda deleteMany
+   */
+  export type PrevisaoTaxaFuturaMoedaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PrevisaoTaxaFuturaMoedas to delete
+     */
+    where?: PrevisaoTaxaFuturaMoedaWhereInput
+  }
+
+  /**
+   * PrevisaoTaxaFuturaMoeda without action
+   */
+  export type PrevisaoTaxaFuturaMoedaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PrevisaoTaxaFuturaMoeda
+     */
+    select?: PrevisaoTaxaFuturaMoedaSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Model Teste
    */
 
@@ -33145,6 +34227,23 @@ export namespace Prisma {
   export type CambioScalarFieldEnum = (typeof CambioScalarFieldEnum)[keyof typeof CambioScalarFieldEnum]
 
 
+  export const PrevisaoTaxaFuturaMoedaScalarFieldEnum: {
+    id_previsao_taxa_futura_moeda: 'id_previsao_taxa_futura_moeda',
+    moeda_previsao_taxa_futura_moeda: 'moeda_previsao_taxa_futura_moeda',
+    mes_previsao_taxa_futura_moeda: 'mes_previsao_taxa_futura_moeda',
+    valor_mediano_previsao_taxa_futura_moeda: 'valor_mediano_previsao_taxa_futura_moeda',
+    valor_medio_previsao_taxa_futura_moeda: 'valor_medio_previsao_taxa_futura_moeda',
+    valor_minimo_previsao_taxa_futura_moeda: 'valor_minimo_previsao_taxa_futura_moeda',
+    valor_maximo_previsao_taxa_futura_moeda: 'valor_maximo_previsao_taxa_futura_moeda',
+    fonte_previsao_taxa_futura_moeda: 'fonte_previsao_taxa_futura_moeda',
+    data_previsao_taxa_futura_moeda: 'data_previsao_taxa_futura_moeda',
+    data_criacao_previsao_taxa_futura_moeda: 'data_criacao_previsao_taxa_futura_moeda',
+    data_atualizacao_previsao_taxa_futura_moeda: 'data_atualizacao_previsao_taxa_futura_moeda'
+  };
+
+  export type PrevisaoTaxaFuturaMoedaScalarFieldEnum = (typeof PrevisaoTaxaFuturaMoedaScalarFieldEnum)[keyof typeof PrevisaoTaxaFuturaMoedaScalarFieldEnum]
+
+
   export const TesteScalarFieldEnum: {
     id_teste: 'id_teste',
     id_organizacao: 'id_organizacao',
@@ -35344,6 +36443,91 @@ export namespace Prisma {
     boletim_cambio?: StringWithAggregatesFilter<"Cambio"> | string
     fonte_cambio?: StringWithAggregatesFilter<"Cambio"> | string
     data_criacao_cambio?: DateTimeWithAggregatesFilter<"Cambio"> | Date | string
+  }
+
+  export type PrevisaoTaxaFuturaMoedaWhereInput = {
+    AND?: PrevisaoTaxaFuturaMoedaWhereInput | PrevisaoTaxaFuturaMoedaWhereInput[]
+    OR?: PrevisaoTaxaFuturaMoedaWhereInput[]
+    NOT?: PrevisaoTaxaFuturaMoedaWhereInput | PrevisaoTaxaFuturaMoedaWhereInput[]
+    id_previsao_taxa_futura_moeda?: StringFilter<"PrevisaoTaxaFuturaMoeda"> | string
+    moeda_previsao_taxa_futura_moeda?: StringFilter<"PrevisaoTaxaFuturaMoeda"> | string
+    mes_previsao_taxa_futura_moeda?: DateTimeFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
+    valor_mediano_previsao_taxa_futura_moeda?: DecimalFilter<"PrevisaoTaxaFuturaMoeda"> | Decimal | DecimalJsLike | number | string
+    valor_medio_previsao_taxa_futura_moeda?: DecimalFilter<"PrevisaoTaxaFuturaMoeda"> | Decimal | DecimalJsLike | number | string
+    valor_minimo_previsao_taxa_futura_moeda?: DecimalFilter<"PrevisaoTaxaFuturaMoeda"> | Decimal | DecimalJsLike | number | string
+    valor_maximo_previsao_taxa_futura_moeda?: DecimalFilter<"PrevisaoTaxaFuturaMoeda"> | Decimal | DecimalJsLike | number | string
+    fonte_previsao_taxa_futura_moeda?: StringFilter<"PrevisaoTaxaFuturaMoeda"> | string
+    data_previsao_taxa_futura_moeda?: DateTimeFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
+    data_criacao_previsao_taxa_futura_moeda?: DateTimeFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
+    data_atualizacao_previsao_taxa_futura_moeda?: DateTimeFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
+  }
+
+  export type PrevisaoTaxaFuturaMoedaOrderByWithRelationInput = {
+    id_previsao_taxa_futura_moeda?: SortOrder
+    moeda_previsao_taxa_futura_moeda?: SortOrder
+    mes_previsao_taxa_futura_moeda?: SortOrder
+    valor_mediano_previsao_taxa_futura_moeda?: SortOrder
+    valor_medio_previsao_taxa_futura_moeda?: SortOrder
+    valor_minimo_previsao_taxa_futura_moeda?: SortOrder
+    valor_maximo_previsao_taxa_futura_moeda?: SortOrder
+    fonte_previsao_taxa_futura_moeda?: SortOrder
+    data_previsao_taxa_futura_moeda?: SortOrder
+    data_criacao_previsao_taxa_futura_moeda?: SortOrder
+    data_atualizacao_previsao_taxa_futura_moeda?: SortOrder
+  }
+
+  export type PrevisaoTaxaFuturaMoedaWhereUniqueInput = Prisma.AtLeast<{
+    id_previsao_taxa_futura_moeda?: string
+    moeda_previsao_taxa_futura_moeda_mes_previsao_taxa_futura_moeda?: PrevisaoTaxaFuturaMoedaMoeda_previsao_taxa_futura_moedaMes_previsao_taxa_futura_moedaCompoundUniqueInput
+    AND?: PrevisaoTaxaFuturaMoedaWhereInput | PrevisaoTaxaFuturaMoedaWhereInput[]
+    OR?: PrevisaoTaxaFuturaMoedaWhereInput[]
+    NOT?: PrevisaoTaxaFuturaMoedaWhereInput | PrevisaoTaxaFuturaMoedaWhereInput[]
+    moeda_previsao_taxa_futura_moeda?: StringFilter<"PrevisaoTaxaFuturaMoeda"> | string
+    mes_previsao_taxa_futura_moeda?: DateTimeFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
+    valor_mediano_previsao_taxa_futura_moeda?: DecimalFilter<"PrevisaoTaxaFuturaMoeda"> | Decimal | DecimalJsLike | number | string
+    valor_medio_previsao_taxa_futura_moeda?: DecimalFilter<"PrevisaoTaxaFuturaMoeda"> | Decimal | DecimalJsLike | number | string
+    valor_minimo_previsao_taxa_futura_moeda?: DecimalFilter<"PrevisaoTaxaFuturaMoeda"> | Decimal | DecimalJsLike | number | string
+    valor_maximo_previsao_taxa_futura_moeda?: DecimalFilter<"PrevisaoTaxaFuturaMoeda"> | Decimal | DecimalJsLike | number | string
+    fonte_previsao_taxa_futura_moeda?: StringFilter<"PrevisaoTaxaFuturaMoeda"> | string
+    data_previsao_taxa_futura_moeda?: DateTimeFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
+    data_criacao_previsao_taxa_futura_moeda?: DateTimeFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
+    data_atualizacao_previsao_taxa_futura_moeda?: DateTimeFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
+  }, "id_previsao_taxa_futura_moeda" | "moeda_previsao_taxa_futura_moeda_mes_previsao_taxa_futura_moeda">
+
+  export type PrevisaoTaxaFuturaMoedaOrderByWithAggregationInput = {
+    id_previsao_taxa_futura_moeda?: SortOrder
+    moeda_previsao_taxa_futura_moeda?: SortOrder
+    mes_previsao_taxa_futura_moeda?: SortOrder
+    valor_mediano_previsao_taxa_futura_moeda?: SortOrder
+    valor_medio_previsao_taxa_futura_moeda?: SortOrder
+    valor_minimo_previsao_taxa_futura_moeda?: SortOrder
+    valor_maximo_previsao_taxa_futura_moeda?: SortOrder
+    fonte_previsao_taxa_futura_moeda?: SortOrder
+    data_previsao_taxa_futura_moeda?: SortOrder
+    data_criacao_previsao_taxa_futura_moeda?: SortOrder
+    data_atualizacao_previsao_taxa_futura_moeda?: SortOrder
+    _count?: PrevisaoTaxaFuturaMoedaCountOrderByAggregateInput
+    _avg?: PrevisaoTaxaFuturaMoedaAvgOrderByAggregateInput
+    _max?: PrevisaoTaxaFuturaMoedaMaxOrderByAggregateInput
+    _min?: PrevisaoTaxaFuturaMoedaMinOrderByAggregateInput
+    _sum?: PrevisaoTaxaFuturaMoedaSumOrderByAggregateInput
+  }
+
+  export type PrevisaoTaxaFuturaMoedaScalarWhereWithAggregatesInput = {
+    AND?: PrevisaoTaxaFuturaMoedaScalarWhereWithAggregatesInput | PrevisaoTaxaFuturaMoedaScalarWhereWithAggregatesInput[]
+    OR?: PrevisaoTaxaFuturaMoedaScalarWhereWithAggregatesInput[]
+    NOT?: PrevisaoTaxaFuturaMoedaScalarWhereWithAggregatesInput | PrevisaoTaxaFuturaMoedaScalarWhereWithAggregatesInput[]
+    id_previsao_taxa_futura_moeda?: StringWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | string
+    moeda_previsao_taxa_futura_moeda?: StringWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | string
+    mes_previsao_taxa_futura_moeda?: DateTimeWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
+    valor_mediano_previsao_taxa_futura_moeda?: DecimalWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | Decimal | DecimalJsLike | number | string
+    valor_medio_previsao_taxa_futura_moeda?: DecimalWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | Decimal | DecimalJsLike | number | string
+    valor_minimo_previsao_taxa_futura_moeda?: DecimalWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | Decimal | DecimalJsLike | number | string
+    valor_maximo_previsao_taxa_futura_moeda?: DecimalWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | Decimal | DecimalJsLike | number | string
+    fonte_previsao_taxa_futura_moeda?: StringWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | string
+    data_previsao_taxa_futura_moeda?: DateTimeWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
+    data_criacao_previsao_taxa_futura_moeda?: DateTimeWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
+    data_atualizacao_previsao_taxa_futura_moeda?: DateTimeWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
   }
 
   export type TesteWhereInput = {
@@ -38256,6 +39440,104 @@ export namespace Prisma {
     data_criacao_cambio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type PrevisaoTaxaFuturaMoedaCreateInput = {
+    id_previsao_taxa_futura_moeda?: string
+    moeda_previsao_taxa_futura_moeda: string
+    mes_previsao_taxa_futura_moeda: Date | string
+    valor_mediano_previsao_taxa_futura_moeda: Decimal | DecimalJsLike | number | string
+    valor_medio_previsao_taxa_futura_moeda: Decimal | DecimalJsLike | number | string
+    valor_minimo_previsao_taxa_futura_moeda: Decimal | DecimalJsLike | number | string
+    valor_maximo_previsao_taxa_futura_moeda: Decimal | DecimalJsLike | number | string
+    fonte_previsao_taxa_futura_moeda?: string
+    data_previsao_taxa_futura_moeda: Date | string
+    data_criacao_previsao_taxa_futura_moeda?: Date | string
+    data_atualizacao_previsao_taxa_futura_moeda?: Date | string
+  }
+
+  export type PrevisaoTaxaFuturaMoedaUncheckedCreateInput = {
+    id_previsao_taxa_futura_moeda?: string
+    moeda_previsao_taxa_futura_moeda: string
+    mes_previsao_taxa_futura_moeda: Date | string
+    valor_mediano_previsao_taxa_futura_moeda: Decimal | DecimalJsLike | number | string
+    valor_medio_previsao_taxa_futura_moeda: Decimal | DecimalJsLike | number | string
+    valor_minimo_previsao_taxa_futura_moeda: Decimal | DecimalJsLike | number | string
+    valor_maximo_previsao_taxa_futura_moeda: Decimal | DecimalJsLike | number | string
+    fonte_previsao_taxa_futura_moeda?: string
+    data_previsao_taxa_futura_moeda: Date | string
+    data_criacao_previsao_taxa_futura_moeda?: Date | string
+    data_atualizacao_previsao_taxa_futura_moeda?: Date | string
+  }
+
+  export type PrevisaoTaxaFuturaMoedaUpdateInput = {
+    id_previsao_taxa_futura_moeda?: StringFieldUpdateOperationsInput | string
+    moeda_previsao_taxa_futura_moeda?: StringFieldUpdateOperationsInput | string
+    mes_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+    valor_mediano_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valor_medio_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valor_minimo_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valor_maximo_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    fonte_previsao_taxa_futura_moeda?: StringFieldUpdateOperationsInput | string
+    data_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PrevisaoTaxaFuturaMoedaUncheckedUpdateInput = {
+    id_previsao_taxa_futura_moeda?: StringFieldUpdateOperationsInput | string
+    moeda_previsao_taxa_futura_moeda?: StringFieldUpdateOperationsInput | string
+    mes_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+    valor_mediano_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valor_medio_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valor_minimo_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valor_maximo_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    fonte_previsao_taxa_futura_moeda?: StringFieldUpdateOperationsInput | string
+    data_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PrevisaoTaxaFuturaMoedaCreateManyInput = {
+    id_previsao_taxa_futura_moeda?: string
+    moeda_previsao_taxa_futura_moeda: string
+    mes_previsao_taxa_futura_moeda: Date | string
+    valor_mediano_previsao_taxa_futura_moeda: Decimal | DecimalJsLike | number | string
+    valor_medio_previsao_taxa_futura_moeda: Decimal | DecimalJsLike | number | string
+    valor_minimo_previsao_taxa_futura_moeda: Decimal | DecimalJsLike | number | string
+    valor_maximo_previsao_taxa_futura_moeda: Decimal | DecimalJsLike | number | string
+    fonte_previsao_taxa_futura_moeda?: string
+    data_previsao_taxa_futura_moeda: Date | string
+    data_criacao_previsao_taxa_futura_moeda?: Date | string
+    data_atualizacao_previsao_taxa_futura_moeda?: Date | string
+  }
+
+  export type PrevisaoTaxaFuturaMoedaUpdateManyMutationInput = {
+    id_previsao_taxa_futura_moeda?: StringFieldUpdateOperationsInput | string
+    moeda_previsao_taxa_futura_moeda?: StringFieldUpdateOperationsInput | string
+    mes_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+    valor_mediano_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valor_medio_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valor_minimo_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valor_maximo_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    fonte_previsao_taxa_futura_moeda?: StringFieldUpdateOperationsInput | string
+    data_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PrevisaoTaxaFuturaMoedaUncheckedUpdateManyInput = {
+    id_previsao_taxa_futura_moeda?: StringFieldUpdateOperationsInput | string
+    moeda_previsao_taxa_futura_moeda?: StringFieldUpdateOperationsInput | string
+    mes_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+    valor_mediano_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valor_medio_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valor_minimo_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valor_maximo_previsao_taxa_futura_moeda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    fonte_previsao_taxa_futura_moeda?: StringFieldUpdateOperationsInput | string
+    data_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type TesteCreateInput = {
     id_teste?: string
     id_organizacao?: string
@@ -40973,6 +42255,67 @@ export namespace Prisma {
   export type CambioSumOrderByAggregateInput = {
     compra_cambio?: SortOrder
     venda_cambio?: SortOrder
+  }
+
+  export type PrevisaoTaxaFuturaMoedaMoeda_previsao_taxa_futura_moedaMes_previsao_taxa_futura_moedaCompoundUniqueInput = {
+    moeda_previsao_taxa_futura_moeda: string
+    mes_previsao_taxa_futura_moeda: Date | string
+  }
+
+  export type PrevisaoTaxaFuturaMoedaCountOrderByAggregateInput = {
+    id_previsao_taxa_futura_moeda?: SortOrder
+    moeda_previsao_taxa_futura_moeda?: SortOrder
+    mes_previsao_taxa_futura_moeda?: SortOrder
+    valor_mediano_previsao_taxa_futura_moeda?: SortOrder
+    valor_medio_previsao_taxa_futura_moeda?: SortOrder
+    valor_minimo_previsao_taxa_futura_moeda?: SortOrder
+    valor_maximo_previsao_taxa_futura_moeda?: SortOrder
+    fonte_previsao_taxa_futura_moeda?: SortOrder
+    data_previsao_taxa_futura_moeda?: SortOrder
+    data_criacao_previsao_taxa_futura_moeda?: SortOrder
+    data_atualizacao_previsao_taxa_futura_moeda?: SortOrder
+  }
+
+  export type PrevisaoTaxaFuturaMoedaAvgOrderByAggregateInput = {
+    valor_mediano_previsao_taxa_futura_moeda?: SortOrder
+    valor_medio_previsao_taxa_futura_moeda?: SortOrder
+    valor_minimo_previsao_taxa_futura_moeda?: SortOrder
+    valor_maximo_previsao_taxa_futura_moeda?: SortOrder
+  }
+
+  export type PrevisaoTaxaFuturaMoedaMaxOrderByAggregateInput = {
+    id_previsao_taxa_futura_moeda?: SortOrder
+    moeda_previsao_taxa_futura_moeda?: SortOrder
+    mes_previsao_taxa_futura_moeda?: SortOrder
+    valor_mediano_previsao_taxa_futura_moeda?: SortOrder
+    valor_medio_previsao_taxa_futura_moeda?: SortOrder
+    valor_minimo_previsao_taxa_futura_moeda?: SortOrder
+    valor_maximo_previsao_taxa_futura_moeda?: SortOrder
+    fonte_previsao_taxa_futura_moeda?: SortOrder
+    data_previsao_taxa_futura_moeda?: SortOrder
+    data_criacao_previsao_taxa_futura_moeda?: SortOrder
+    data_atualizacao_previsao_taxa_futura_moeda?: SortOrder
+  }
+
+  export type PrevisaoTaxaFuturaMoedaMinOrderByAggregateInput = {
+    id_previsao_taxa_futura_moeda?: SortOrder
+    moeda_previsao_taxa_futura_moeda?: SortOrder
+    mes_previsao_taxa_futura_moeda?: SortOrder
+    valor_mediano_previsao_taxa_futura_moeda?: SortOrder
+    valor_medio_previsao_taxa_futura_moeda?: SortOrder
+    valor_minimo_previsao_taxa_futura_moeda?: SortOrder
+    valor_maximo_previsao_taxa_futura_moeda?: SortOrder
+    fonte_previsao_taxa_futura_moeda?: SortOrder
+    data_previsao_taxa_futura_moeda?: SortOrder
+    data_criacao_previsao_taxa_futura_moeda?: SortOrder
+    data_atualizacao_previsao_taxa_futura_moeda?: SortOrder
+  }
+
+  export type PrevisaoTaxaFuturaMoedaSumOrderByAggregateInput = {
+    valor_mediano_previsao_taxa_futura_moeda?: SortOrder
+    valor_medio_previsao_taxa_futura_moeda?: SortOrder
+    valor_minimo_previsao_taxa_futura_moeda?: SortOrder
+    valor_maximo_previsao_taxa_futura_moeda?: SortOrder
   }
 
   export type TesteAgendamentoNullableRelationFilter = {
@@ -48542,6 +49885,10 @@ export namespace Prisma {
      * @deprecated Use CambioDefaultArgs instead
      */
     export type CambioArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CambioDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use PrevisaoTaxaFuturaMoedaDefaultArgs instead
+     */
+    export type PrevisaoTaxaFuturaMoedaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PrevisaoTaxaFuturaMoedaDefaultArgs<ExtArgs>
     /**
      * @deprecated Use TesteDefaultArgs instead
      */

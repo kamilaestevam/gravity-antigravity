@@ -2030,6 +2030,97 @@ export default function NovaCotacao() {
           }
         }
 
+        /* Novo layout: País + Estado/Província (linha 1) + Porto/Aeroporto (linha 2) */
+        .nc-fields-grid--location-new {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.25rem;
+        }
+        .nc-fields-grid--location-new > *:nth-child(3) {
+          grid-column: span 2;
+        }
+        @media(max-width: 600px) {
+          .nc-fields-grid--location-new {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+          }
+          .nc-fields-grid--location-new > *:nth-child(3) {
+            grid-column: span 1;
+          }
+        }
+
+        /* ── Autocomplete ── */
+        .nc-autocomplete {
+          position: relative;
+          width: 100%;
+        }
+        .nc-input-icon-wrap {
+          position: relative;
+          width: 100%;
+        }
+        .nc-input-search-icon {
+          position: absolute;
+          left: 0.75rem;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--text-muted, #64748b);
+          pointer-events: none;
+          z-index: 2;
+        }
+        .nc-input--search {
+          padding-left: 2rem !important;
+        }
+        .nc-autocomplete-list {
+          position: absolute;
+          top: calc(100% + 4px);
+          left: 0;
+          right: 0;
+          z-index: 50;
+          max-height: 240px;
+          overflow-y: auto;
+          background: rgba(15, 23, 42, 0.98);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(99, 102, 241, 0.3);
+          border-radius: 8px;
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+          padding: 0.25rem;
+          list-style: none;
+          margin: 0;
+        }
+        .nc-autocomplete-item {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.55rem 0.75rem;
+          border-radius: 6px;
+          cursor: pointer;
+          color: var(--text-primary, #f8fafc);
+          font-size: 0.875rem;
+          transition: background 0.12s ease;
+        }
+        .nc-autocomplete-item:hover {
+          background: rgba(99, 102, 241, 0.12);
+        }
+        .nc-ac-code {
+          font-family: 'DM Mono', monospace;
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: #a5b4fc;
+          background: rgba(99, 102, 241, 0.12);
+          padding: 0.15rem 0.45rem;
+          border-radius: 4px;
+          min-width: 2.5rem;
+          text-align: center;
+        }
+        .nc-ac-name {
+          flex: 1;
+          color: var(--text-primary, #f8fafc);
+        }
+        .nc-ac-pais {
+          font-size: 0.75rem;
+          color: var(--text-muted, #64748b);
+        }
+
         /* ── Incoterms ── */
         .nc-incoterm-grid {
           display: flex;
@@ -2064,7 +2155,7 @@ export default function NovaCotacao() {
         }
 
         /* UX Helper Card do Incoterm */
-        .nc-incoterm_cotacao_bid_frete_internacional-helper-card {
+        .nc-incoterm-helper-card {
           background: rgba(99, 102, 241, 0.04);
           border: 1px solid rgba(99, 102, 241, 0.25);
           border-radius: 10px;
@@ -2400,7 +2491,7 @@ export default function NovaCotacao() {
           font-family: 'DM Mono', monospace;
           color: var(--text-secondary, #94a3b8);
         }
-        .nc-receipt-value--incoterm_cotacao_bid_frete_internacional {
+        .nc-receipt-value--incoterm {
           color: var(--accent, #6366f1);
           font-family: 'DM Mono', monospace;
           background: rgba(99, 102, 241, 0.08);

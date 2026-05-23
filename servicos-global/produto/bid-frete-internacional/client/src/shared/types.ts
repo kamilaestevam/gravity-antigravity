@@ -141,6 +141,13 @@ export interface Cotacao {
   cubagem_m3_cotacao_bid_frete_internacional: number | null
   incoterm_cotacao_bid_frete_internacional: string
   cep_destino: string | null
+  cep_origem?: string | null
+  estado_provincia_origem_cotacao_bid_frete_internacional?: string | null
+  aeroporto_origem_cotacao_bid_frete_internacional?: string | null
+  estado_provincia_destino_cotacao_bid_frete_internacional?: string | null
+  aeroporto_destino_cotacao_bid_frete_internacional?: string | null
+  hs_code_cotacao_bid_frete_internacional?: string | null
+  peso_ton_cotacao_bid_frete_internacional?: number | null
   visibilidade_cotacao_bid_frete_internacional: Visibilidade
   anonima: boolean
   valor_alvo: number | null

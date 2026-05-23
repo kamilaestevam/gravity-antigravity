@@ -203,6 +203,10 @@ export function mapCotacaoToServer(input: Partial<Cotacao>): Record<string, any>
     result.zipcode_destino_cotacao_bid_frete_internacional = input.cep_destino
     delete result.cep_destino
   }
+  if ((input as any).cep_origem !== undefined) {
+    result.zipcode_origem_cotacao_bid_frete_internacional = (input as any).cep_origem
+    delete result.cep_origem
+  }
   if (input.anonima !== undefined) {
     result.anonima_cotacao_bid_frete_internacional = input.anonima
     delete result.anonima
@@ -453,10 +457,14 @@ export async function responderPublico(token: string, data: Partial<BidResponse>
 
 // ─── Master Data ────────────────────────────────────────────────────────────
 
-export async function getPortos(tipo?: string): Promise<Porto[]> {
-  const query = tipo ? `?tipo=${tipo}` : ''
+export async function getPortos(q?: string, pais?: string): Promise<Porto[]> {
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  if (pais) params.set('pais', pais)
+  const query = params.toString() ? `?${params.toString()}` : ''
   const res = await fetch(`${API_BASE}/bid-frete-internacional/dados-mestre/portos${query}`)
-  return handleResponse(res)
+  const data = await handleResponse<{ portos: Porto[] }>(res)
+  return data.portos
 }
 
 export async function getMoedas(): Promise<Moeda[]> {

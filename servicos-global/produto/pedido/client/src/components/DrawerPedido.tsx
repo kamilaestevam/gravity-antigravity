@@ -553,7 +553,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                     <div className="drawer-pedido__campo">
                       <label className="drawer-pedido__label" htmlFor="dp-pagamento" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                         {t('pedido.drawer.label_cond_pgto')}
-                        <GabiCampoIconeGlobal campo="condicao_pagamento" label="Condição de Pagamento" gabiEndpoint="/api/v1/pedidos/gabi/ajuda-campo" />
+                        <GabiCampoIconeGlobal campo="condicao_pagamento" label={t('pedido.drawer.label_cond_pgto')} gabiEndpoint="/api/v1/pedidos/gabi/ajuda-campo" />
                       </label>
                       <input
                         id="dp-pagamento"

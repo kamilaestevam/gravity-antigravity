@@ -31,6 +31,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import {
   Package, Truck, Factory, UserGear, ShieldStar, Boat,
@@ -59,19 +60,17 @@ type PapelChave =
 
 interface PapelDef {
   chave: PapelChave
-  label: string
-  descricao: string
   icone: React.ReactNode
   cor: string
 }
 
 const PAPEIS: PapelDef[] = [
-  { chave: 'pode_ser_importador',  label: 'Importador',  descricao: 'Empresa que figura como importador no pedido',  icone: <Package    weight="duotone" size={16} />, cor: '#60a5fa' },
-  { chave: 'pode_ser_exportador',  label: 'Exportador',  descricao: 'Empresa que figura como exportador no pedido',  icone: <Truck      weight="duotone" size={16} />, cor: '#34d399' },
-  { chave: 'pode_ser_fabricante',  label: 'Fabricante',  descricao: 'Fabricante da mercadoria',                       icone: <Factory    weight="duotone" size={16} />, cor: '#fbbf24' },
-  { chave: 'pode_ser_agente',      label: 'Agente',      descricao: 'Agente comercial ou de carga',                   icone: <UserGear   weight="duotone" size={16} />, cor: '#c084fc' },
-  { chave: 'pode_ser_despachante', label: 'Despachante', descricao: 'Despachante aduaneiro / broker',                 icone: <ShieldStar weight="duotone" size={16} />, cor: '#f472b6' },
-  { chave: 'pode_ser_armador',     label: 'Armador',     descricao: 'Companhia marítima armadora',                    icone: <Boat       weight="duotone" size={16} />, cor: '#22d3ee' },
+  { chave: 'pode_ser_importador',  icone: <Package    weight="duotone" size={16} />, cor: '#60a5fa' },
+  { chave: 'pode_ser_exportador',  icone: <Truck      weight="duotone" size={16} />, cor: '#34d399' },
+  { chave: 'pode_ser_fabricante',  icone: <Factory    weight="duotone" size={16} />, cor: '#fbbf24' },
+  { chave: 'pode_ser_agente',      icone: <UserGear   weight="duotone" size={16} />, cor: '#c084fc' },
+  { chave: 'pode_ser_despachante', icone: <ShieldStar weight="duotone" size={16} />, cor: '#f472b6' },
+  { chave: 'pode_ser_armador',     icone: <Boat       weight="duotone" size={16} />, cor: '#22d3ee' },
 ]
 
 // ─── Persistência ──────────────────────────────────────────────────────────────
@@ -138,6 +137,15 @@ function salvarMatriz(idOrganizacao: string | undefined, matriz: Matriz): void {
 // ─── Componente ────────────────────────────────────────────────────────────────
 
 export function PedidoSnapshotCadastros() {
+  const { t } = useTranslation()
+  const papeisLabels = useMemo<Record<PapelChave, { label: string; descricao: string }>>(() => ({
+    pode_ser_importador:  { label: t('pedido.snapshot_cadastros.papel_importador'),  descricao: t('pedido.snapshot_cadastros.papel_importador_desc') },
+    pode_ser_exportador:  { label: t('pedido.snapshot_cadastros.papel_exportador'),  descricao: t('pedido.snapshot_cadastros.papel_exportador_desc') },
+    pode_ser_fabricante:  { label: t('pedido.snapshot_cadastros.papel_fabricante'),  descricao: t('pedido.snapshot_cadastros.papel_fabricante_desc') },
+    pode_ser_agente:      { label: t('pedido.snapshot_cadastros.papel_agente'),      descricao: t('pedido.snapshot_cadastros.papel_agente_desc') },
+    pode_ser_despachante: { label: t('pedido.snapshot_cadastros.papel_despachante'), descricao: t('pedido.snapshot_cadastros.papel_despachante_desc') },
+    pode_ser_armador:     { label: t('pedido.snapshot_cadastros.papel_armador'),     descricao: t('pedido.snapshot_cadastros.papel_armador_desc') },
+  }), [t])
   const currentUser    = useShellStore(s => s.currentUser)
   const addNotification = useShellStore(s => s.addNotification)
   const idOrganizacao       = currentUser?.idOrganizacao
@@ -169,7 +177,7 @@ export function PedidoSnapshotCadastros() {
         setStatusList([])
         setMatriz(matrizVazia([]))
         setSnapshot(matrizVazia([]))
-        addNotification({ type: 'error', message: 'Erro ao carregar status do Pedido.' })
+        addNotification({ type: 'error', message: t('pedido.snapshot_cadastros.erro_carregar_status') })
       })
       .finally(() => { if (!cancelado) setLoading(false) })
     return () => { cancelado = true }
@@ -229,7 +237,7 @@ export function PedidoSnapshotCadastros() {
     if (!matriz) return
     salvarMatriz(idOrganizacao, matriz)
     setSnapshot(matriz)
-    addNotification({ type: 'success', message: 'Matriz de snapshot salva.' })
+    addNotification({ type: 'success', message: t('pedido.snapshot_cadastros.matriz_salva') })
   }
 
   function cancelar() {
@@ -241,31 +249,28 @@ export function PedidoSnapshotCadastros() {
     <section className="cfg-secao">
       <div className="cfg-secao__header">
         <div>
-          <h2 className="cfg-secao__titulo">Matriz de Snapshot — Cadastros</h2>
+          <h2 className="cfg-secao__titulo">{t('pedido.snapshot_cadastros.titulo')}</h2>
           <p className="cfg-secao__desc">
-            Cada pedido guarda uma cópia (snapshot) dos dados do cadastro no momento
-            em que é aberto. Use esta matriz para decidir, por <strong>papel</strong> e
-            <strong> status do pedido</strong>, se o snapshot deve ser re-sincronizado
-            automaticamente quando o cadastro-base for alterado.
+            <span dangerouslySetInnerHTML={{ __html: t('pedido.snapshot_cadastros.descricao') }} />
           </p>
         </div>
         <div className="msc-header-actions">
-          <TooltipGlobal descricao="Marca os status iniciais e congela os finais">
+          <TooltipGlobal descricao={t('pedido.snapshot_cadastros.tooltip_padrao')}>
             <button type="button" className="msc-mini-btn" onClick={aplicarPadrao}>
               <ArrowCounterClockwise size={13} weight="bold" />
-              Padrão recomendado
+              {t('pedido.snapshot_cadastros.padrao_recomendado')}
             </button>
           </TooltipGlobal>
-          <TooltipGlobal descricao="Habilita todas as células">
+          <TooltipGlobal descricao={t('pedido.snapshot_cadastros.tooltip_marcar_todos')}>
             <button type="button" className="msc-mini-btn" onClick={() => marcarTodos(true)}>
               <CheckSquare size={13} weight="bold" />
-              Marcar todos
+              {t('pedido.snapshot_cadastros.marcar_todos')}
             </button>
           </TooltipGlobal>
-          <TooltipGlobal descricao="Desabilita todas as células">
+          <TooltipGlobal descricao={t('pedido.snapshot_cadastros.tooltip_desmarcar_todos')}>
             <button type="button" className="msc-mini-btn" onClick={() => marcarTodos(false)}>
               <Square size={13} weight="bold" />
-              Desmarcar todos
+              {t('pedido.snapshot_cadastros.desmarcar_todos')}
             </button>
           </TooltipGlobal>
         </div>
@@ -273,23 +278,22 @@ export function PedidoSnapshotCadastros() {
 
       {loading && (
         <div className="msc-loading">
-          <GravityLoader texto="Carregando status do Pedido…" tamanho="sm" />
+          <GravityLoader texto={t('pedido.snapshot_cadastros.carregando')} tamanho="sm" />
         </div>
       )}
 
       {!loading && statusList.length === 0 && (
         <p className="msc-feedback msc-feedback--aviso">
-          Nenhum status cadastrado. Cadastre ao menos um status do Pedido em
-          <strong> Configurações &gt; Status</strong> antes de configurar a matriz.
+          <span dangerouslySetInnerHTML={{ __html: t('pedido.snapshot_cadastros.nenhum_status') }} />
         </p>
       )}
 
       {!loading && statusList.length > 0 && matriz && (
         <div className="msc-tabela-wrapper">
-          <table className="msc-tabela" role="grid" aria-label="Matriz de snapshot — papéis por status">
+          <table className="msc-tabela" role="grid" aria-label={t('pedido.snapshot_cadastros.aria_tabela')}>
             <thead>
               <tr>
-                <th scope="col" className="msc-th msc-th--papel">Papel \ Status</th>
+                <th scope="col" className="msc-th msc-th--papel">{t('pedido.snapshot_cadastros.papel_status')}</th>
                 {statusList?.map(s => (
                   <th key={s.id} scope="col" className="msc-th msc-th--status">
                     <button
@@ -299,7 +303,7 @@ export function PedidoSnapshotCadastros() {
                         const algumOff = PAPEIS.some(p => !(matriz?.[p.chave]?.[s.id]))
                         toggleColuna(s.id, algumOff)
                       }}
-                      title="Clique para alternar a coluna inteira"
+                      title={t('pedido.snapshot_cadastros.title_alternar_coluna')}
                     >
                       <span className="msc-status-dot" style={{ background: s.cor }} />
                       <span className="msc-status-label">{s.rotulo}</span>
@@ -319,12 +323,12 @@ export function PedidoSnapshotCadastros() {
                         type="button"
                         className="msc-papel-label"
                         onClick={() => toggleLinha(p.chave, !todosOn)}
-                        title="Clique para alternar a linha inteira"
+                        title={t('pedido.snapshot_cadastros.title_alternar_linha')}
                       >
                         <span className="msc-papel-icone" style={{ color: p.cor }}>{p.icone}</span>
                         <span>
-                          <span className="msc-papel-nome">{p.label}</span>
-                          <span className="msc-papel-desc">{p.descricao}</span>
+                          <span className="msc-papel-nome">{papeisLabels[p.chave].label}</span>
+                          <span className="msc-papel-desc">{papeisLabels[p.chave].descricao}</span>
                         </span>
                       </button>
                     </th>
@@ -343,13 +347,7 @@ export function PedidoSnapshotCadastros() {
             </tbody>
           </table>
 
-          <p className="msc-legenda">
-            <strong>Ligado</strong> = o snapshot é re-sincronizado quando o cadastro-base
-            muda enquanto o pedido está neste status.
-            <br />
-            <strong>Desligado</strong> = o snapshot permanece congelado — alterações no
-            cadastro-base não alcançam pedidos neste status.
-          </p>
+          <p className="msc-legenda" dangerouslySetInnerHTML={{ __html: t('pedido.snapshot_cadastros.legenda') }} />
         </div>
       )}
 

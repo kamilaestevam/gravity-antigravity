@@ -267,14 +267,14 @@ export function ModalNovoItemPedido({
         // valor_total_item: NÃO enviado — backend recalcula via
         // recalcularAgregadosPedido (fonte única de verdade, Mandamento 08)
       } as Partial<PedidoItem>)
-      const pn = item.part_number_item.trim() || item.descricao_item.trim() || 'item'
-      addNotification({ type: 'success', message: `Item ${pn} adicionado ao PO.`, duration: 4000 })
+      const pn = item.part_number_item.trim() || item.descricao_item.trim() || t('pedido.modal_item.item_padrao')
+      addNotification({ type: 'success', message: t('pedido.modal_item.notif_adicionado', { item: pn }), duration: 4000 })
       onSalvo(resultado)
       handleFechar()
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Erro ao adicionar item. Tente novamente.'
+      const msg = err instanceof Error ? err.message : t('pedido.modal_item.erro_adicionar')
       setErro(msg)
-      addNotification({ type: 'error', message: `Falha ao adicionar item: ${msg}`, duration: 4000 })
+      addNotification({ type: 'error', message: t('pedido.modal_item.notif_falha', { msg }), duration: 4000 })
     } finally {
       setSalvando(false)
     }
@@ -295,7 +295,7 @@ export function ModalNovoItemPedido({
     <ModalPassoPassoGlobal
       titulo={titulo}
       icone={<Tag size={20} weight="duotone" />}
-      subtitulo="Preencha os dados do item para adicionar ao pedido"
+      subtitulo={t('pedido.modal_item.subtitulo')}
       aberto={aberto}
       passos={passos}
       passoAtual={passo}
@@ -373,14 +373,14 @@ export function ModalNovoItemPedido({
               />
             </div>
             <div style={s.campo}>
-              <label style={s.label} htmlFor="mni-qty">QTD INICIAL DO ITEM</label>
+              <label style={s.label} htmlFor="mni-qty">{t('pedido.modal_item.label_qtd_inicial')}</label>
               {/* P15: Live mask BR (10.000,00) — padrão sistêmico CampoDecimalGlobal */}
               <CampoDecimalGlobal
                 id="mni-qty"
                 valor={item.quantidade_inicial_item === '' ? null : Number(item.quantidade_inicial_item)}
                 aoMudarValor={(n) => setItemField('quantidade_inicial_item', n === null ? '' : String(n))}
                 casasDecimais={casasQtdItem()}
-                placeholder="Quantidade"
+                placeholder={t('pedido.modal_item.ph_quantidade')}
                 style={s.input}
                 textAlign="right"
               />
@@ -395,7 +395,7 @@ export function ModalNovoItemPedido({
                 valor={item.moeda_item || null}
                 aoMudarValor={(v) => setItemField('moeda_item', String(v ?? ''))}
                 buscavel
-                placeholder="Selecionar moeda"
+                placeholder={t('pedido.modal_item.ph_selecionar_moeda')}
               />
             </div>
             <div style={s.campo}>
@@ -405,7 +405,7 @@ export function ModalNovoItemPedido({
                 valor={item.valor_por_unidade_item === '' ? null : Number(item.valor_por_unidade_item)}
                 aoMudarValor={(n) => setItemField('valor_por_unidade_item', n === null ? '' : String(n))}
                 casasDecimais={casasValorUnitario()}
-                placeholder="Valor unitário"
+                placeholder={t('pedido.modal_item.ph_valor_unitario')}
                 style={s.input}
                 textAlign="right"
               />
@@ -423,7 +423,7 @@ export function ModalNovoItemPedido({
                 }
                 aoMudarValor={() => { /* read-only */ }}
                 casasDecimais={casasValorTotal()}
-                placeholder="Calculado"
+                placeholder={t('pedido.modal_item.ph_calculado')}
                 style={{ ...s.input, cursor: 'not-allowed', background: 'var(--bg-elevated, #1e293b)' }}
                 textAlign="right"
                 desabilitado

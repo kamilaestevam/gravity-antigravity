@@ -97,13 +97,13 @@ function traduzirErroDetalhado(
   if (msg === 'Failed to fetch' || msg.includes('NetworkError') || msg.includes('fetch')) {
     return {
       code: 'NETWORK_ERROR',
-      titulo: 'Sem conexao com o servidor',
-      mensagem: 'Nao foi possivel chegar no servidor.',
-      causa: 'Pode ser internet instavel, servidor fora do ar ou firewall bloqueando.',
+      titulo: t('pedido.smart_import.err_network_titulo'),
+      mensagem: t('pedido.smart_import.err_network_msg'),
+      causa: t('pedido.smart_import.err_network_causa'),
       sugestoes: [
-        'Verifique sua conexao com a internet',
-        'Atualize a pagina (F5) e tente novamente',
-        'Se persistir, contate o suporte',
+        t('pedido.smart_import.err_network_sug1'),
+        t('pedido.smart_import.err_network_sug2'),
+        t('pedido.smart_import.err_network_sug3'),
       ],
       retryable: true,
     }
@@ -114,11 +114,11 @@ function traduzirErroDetalhado(
     case 'ARQUIVO_AUSENTE':
       return {
         code: codeBackend,
-        titulo: 'Voce nao selecionou nenhum arquivo',
-        mensagem: 'O upload chegou no servidor sem arquivo anexado.',
+        titulo: t('pedido.smart_import.err_arquivo_ausente_titulo'),
+        mensagem: t('pedido.smart_import.err_arquivo_ausente_msg'),
         sugestoes: [
-          'Clique na area "Arraste um arquivo ou clique para selecionar"',
-          'Escolha um arquivo .xlsx, .csv, .xml, .txt, .json ou .pdf',
+          t('pedido.smart_import.err_arquivo_ausente_sug1'),
+          t('pedido.smart_import.err_arquivo_ausente_sug2'),
         ],
         retryable: false,
       }
@@ -126,29 +126,29 @@ function traduzirErroDetalhado(
     case 'ARQUIVO_SEM_DADOS':
       return {
         code: codeBackend,
-        titulo: 'A planilha esta vazia',
-        mensagem: 'O arquivo nao tem nenhuma linha de dados.',
-        causa: 'Voce baixou o template e nao preencheu nenhuma linha de dados.',
+        titulo: t('pedido.smart_import.err_sem_dados_titulo'),
+        mensagem: t('pedido.smart_import.err_sem_dados_msg'),
+        causa: t('pedido.smart_import.err_sem_dados_causa'),
         sugestoes: [
-          'Preencha pelo menos 1 linha de dados (linhas 3+ da planilha)',
-          'Linha 1 e o cabecalho de grupo (PEDIDO/ITEM)',
-          'Linha 2 e o cabecalho com o nome dos campos',
-          'Use o template baixado como referencia',
+          t('pedido.smart_import.err_sem_dados_sug1'),
+          t('pedido.smart_import.err_sem_dados_sug2'),
+          t('pedido.smart_import.err_sem_dados_sug3'),
+          t('pedido.smart_import.err_sem_dados_sug4'),
         ],
         retryable: false,
-        acoes: [{ label: 'Baixar template', tipo: 'baixar_template' }],
+        acoes: [{ label: t('pedido.smart_import.acao_baixar_template'), tipo: 'baixar_template' }],
       }
 
     case 'FORMATO_NAO_SUPORTADO':
     case 'FORMATO_INVALIDO':
       return {
         code: codeBackend,
-        titulo: 'Formato nao aceito',
-        mensagem: msg || 'Esse formato de arquivo nao e suportado.',
+        titulo: t('pedido.smart_import.err_formato_titulo'),
+        mensagem: msg || t('pedido.smart_import.err_formato_msg'),
         sugestoes: [
-          'Aceitos: xlsx, xls, csv, xml, txt, json, pdf',
-          'Salve seu arquivo em formato Excel (.xlsx) — File > Save As',
-          'Para CSV, use UTF-8 e separador , ou ;',
+          t('pedido.smart_import.err_formato_sug1'),
+          t('pedido.smart_import.err_formato_sug2'),
+          t('pedido.smart_import.err_formato_sug3'),
         ],
         retryable: false,
       }
@@ -156,13 +156,13 @@ function traduzirErroDetalhado(
     case 'JSON_FORMATO_INVALIDO':
       return {
         code: codeBackend,
-        titulo: 'JSON com formato esperado',
-        mensagem: 'O arquivo JSON nao tem o formato que o sistema entende.',
-        causa: 'O sistema espera um array de objetos: [{...}, {...}].',
+        titulo: t('pedido.smart_import.err_json_formato_titulo'),
+        mensagem: t('pedido.smart_import.err_json_formato_msg'),
+        causa: t('pedido.smart_import.err_json_formato_causa'),
         sugestoes: [
-          'Verifique se o JSON e um array (comeca com [ e termina com ])',
-          'Cada item do array deve ser um objeto com os campos do pedido',
-          'Se possivel, prefira Excel (.xlsx) — e mais facil de editar',
+          t('pedido.smart_import.err_json_formato_sug1'),
+          t('pedido.smart_import.err_json_formato_sug2'),
+          t('pedido.smart_import.err_json_formato_sug3'),
         ],
         retryable: false,
       }
@@ -170,14 +170,14 @@ function traduzirErroDetalhado(
     case 'JSON_MALFORMADO':
       return {
         code: codeBackend,
-        titulo: 'JSON malformado',
-        mensagem: msg || 'O arquivo JSON tem erro de sintaxe.',
-        causa: 'JSON invalido — virgula sobrando, chave nao fechada, aspas erradas, etc.',
+        titulo: t('pedido.smart_import.err_json_malformado_titulo'),
+        mensagem: msg || t('pedido.smart_import.err_json_malformado_msg'),
+        causa: t('pedido.smart_import.err_json_malformado_causa'),
         sugestoes: [
-          'Cole o conteudo em https://jsonlint.com para identificar a linha do erro',
-          'Verifique se todas as chaves abrem ({) e fecham (})',
-          'Verifique se nao ha virgula apos o ultimo item',
-          'Strings devem usar aspas duplas, nao simples',
+          t('pedido.smart_import.err_json_malformado_sug1'),
+          t('pedido.smart_import.err_json_malformado_sug2'),
+          t('pedido.smart_import.err_json_malformado_sug3'),
+          t('pedido.smart_import.err_json_malformado_sug4'),
         ],
         retryable: false,
       }
@@ -185,13 +185,13 @@ function traduzirErroDetalhado(
     case 'JSON_VAZIO':
       return {
         code: codeBackend,
-        titulo: 'JSON sem dados',
-        mensagem: 'O arquivo JSON e valido mas nao contem nenhum registro.',
-        causa: 'Array vazio: [] — nao ha nada para importar.',
+        titulo: t('pedido.smart_import.err_json_vazio_titulo'),
+        mensagem: t('pedido.smart_import.err_json_vazio_msg'),
+        causa: t('pedido.smart_import.err_json_vazio_causa'),
         sugestoes: [
-          'Verifique a fonte que gerou o JSON',
-          'Confirme se o filtro/query trouxe linhas',
-          'Para template, prefira Excel (.xlsx)',
+          t('pedido.smart_import.err_json_vazio_sug1'),
+          t('pedido.smart_import.err_json_vazio_sug2'),
+          t('pedido.smart_import.err_json_vazio_sug3'),
         ],
         retryable: false,
       }
@@ -199,12 +199,12 @@ function traduzirErroDetalhado(
     case 'PDF_PROTEGIDO':
       return {
         code: codeBackend,
-        titulo: 'PDF protegido por senha',
-        mensagem: 'O PDF tem protecao de senha e nao pode ser lido automaticamente.',
+        titulo: t('pedido.smart_import.err_pdf_protegido_titulo'),
+        mensagem: t('pedido.smart_import.err_pdf_protegido_msg'),
         sugestoes: [
-          'Abra o PDF, va em Arquivo > Imprimir > Salvar como PDF (sem protecao)',
-          'Ou use ferramentas como SmallPDF/iLovePDF para remover a senha',
-          'Apos remover a protecao, faca o upload novamente',
+          t('pedido.smart_import.err_pdf_protegido_sug1'),
+          t('pedido.smart_import.err_pdf_protegido_sug2'),
+          t('pedido.smart_import.err_pdf_protegido_sug3'),
         ],
         retryable: false,
       }
@@ -212,13 +212,13 @@ function traduzirErroDetalhado(
     case 'PDF_ESCANEADO':
       return {
         code: codeBackend,
-        titulo: 'PDF escaneado (sem texto)',
-        mensagem: 'O PDF parece ser escaneado — contem so imagens, sem texto extraivel.',
-        causa: 'Documentos escaneados precisam passar por OCR (reconhecimento otico) antes.',
+        titulo: t('pedido.smart_import.err_pdf_escaneado_titulo'),
+        mensagem: t('pedido.smart_import.err_pdf_escaneado_msg'),
+        causa: t('pedido.smart_import.err_pdf_escaneado_causa'),
         sugestoes: [
-          'Use Adobe Acrobat > Reconhecer texto (OCR) e salve novamente',
-          'Ou ferramentas online: SmallPDF OCR, ilovepdf.com/ocr',
-          'Apos OCR, exporte para Excel (.xlsx) — mais confiavel',
+          t('pedido.smart_import.err_pdf_escaneado_sug1'),
+          t('pedido.smart_import.err_pdf_escaneado_sug2'),
+          t('pedido.smart_import.err_pdf_escaneado_sug3'),
         ],
         retryable: false,
       }
@@ -226,13 +226,13 @@ function traduzirErroDetalhado(
     case 'PDF_INVALIDO':
       return {
         code: codeBackend,
-        titulo: 'PDF nao e valido',
-        mensagem: msg || 'O arquivo enviado nao e um PDF de verdade.',
-        causa: 'Arquivos salvos como "pagina web" (.html) nao funcionam mesmo com extensao .pdf.',
+        titulo: t('pedido.smart_import.err_pdf_invalido_titulo'),
+        mensagem: msg || t('pedido.smart_import.err_pdf_invalido_msg'),
+        causa: t('pedido.smart_import.err_pdf_invalido_causa'),
         sugestoes: [
-          'Abra no navegador e salve como PDF de verdade (Ctrl+P > Salvar como PDF)',
-          'Ou prefira Excel (.xlsx) — extracao e mais confiavel',
-          'PDFs escaneados (imagem) nao sao suportados — precisa OCR',
+          t('pedido.smart_import.err_pdf_invalido_sug1'),
+          t('pedido.smart_import.err_pdf_invalido_sug2'),
+          t('pedido.smart_import.err_pdf_invalido_sug3'),
         ],
         retryable: false,
       }
@@ -240,11 +240,11 @@ function traduzirErroDetalhado(
     case 'RATE_LIMIT_EXCEEDED':
       return {
         code: codeBackend,
-        titulo: 'Muitos uploads em pouco tempo',
-        mensagem: 'O limite de uploads por minuto foi atingido.',
+        titulo: t('pedido.smart_import.err_rate_limit_titulo'),
+        mensagem: t('pedido.smart_import.err_rate_limit_msg'),
         sugestoes: [
-          'Aguarde 60 segundos antes de fazer outro upload',
-          'Limite: 10 uploads por minuto',
+          t('pedido.smart_import.err_rate_limit_sug1'),
+          t('pedido.smart_import.err_rate_limit_sug2'),
         ],
         retryable: true,
       }
@@ -252,14 +252,14 @@ function traduzirErroDetalhado(
     case 'UNAUTHORIZED_PREVIEW':
       return {
         code: codeBackend,
-        titulo: 'Sessao expirou',
-        mensagem: 'Os dados do preview nao pertencem mais a sua sessao.',
+        titulo: t('pedido.smart_import.err_unauth_preview_titulo'),
+        mensagem: t('pedido.smart_import.err_unauth_preview_msg'),
         sugestoes: [
-          'Recarregue a pagina (Ctrl+Shift+R)',
-          'Faca o upload do arquivo novamente',
+          t('pedido.smart_import.err_unauth_preview_sug1'),
+          t('pedido.smart_import.err_unauth_preview_sug2'),
         ],
         retryable: false,
-        acoes: [{ label: 'Recarregar pagina', tipo: 'recarregar' }],
+        acoes: [{ label: t('pedido.smart_import.acao_recarregar_pagina'), tipo: 'recarregar' }],
       }
   }
 
@@ -267,11 +267,11 @@ function traduzirErroDetalhado(
   if (/^HTTP_5\d\d|^HTTP 5\d\d/.test(codeBackend ?? msg)) {
     return {
       code: codeBackend ?? 'HTTP_500',
-      titulo: 'Erro no servidor',
-      mensagem: 'O servidor falhou ao processar a requisicao.',
+      titulo: t('pedido.smart_import.err_http500_titulo'),
+      mensagem: t('pedido.smart_import.err_http500_msg'),
       sugestoes: [
-        'Tente novamente em 30 segundos',
-        'Se persistir, abra um chamado com o codigo abaixo',
+        t('pedido.smart_import.err_http500_sug1'),
+        t('pedido.smart_import.err_http500_sug2'),
       ],
       retryable: true,
     }
@@ -280,12 +280,12 @@ function traduzirErroDetalhado(
   if (codeBackend === 'HTTP_413' || msg === 'HTTP 413') {
     return {
       code: 'HTTP_413',
-      titulo: 'Arquivo muito grande',
-      mensagem: 'O arquivo excede o limite de 10 MB.',
+      titulo: t('pedido.smart_import.err_http413_titulo'),
+      mensagem: t('pedido.smart_import.err_http413_msg'),
       sugestoes: [
-        'Tamanho maximo: 10 MB',
-        'Divida em varios arquivos menores',
-        'Ou compacte (xlsx ja e compactado)',
+        t('pedido.smart_import.err_http413_sug1'),
+        t('pedido.smart_import.err_http413_sug2'),
+        t('pedido.smart_import.err_http413_sug3'),
       ],
       retryable: false,
     }
@@ -295,24 +295,24 @@ function traduzirErroDetalhado(
       codeBackend === 'UNAUTHENTICATED' || msg.includes('Authorization')) {
     return {
       code: 'HTTP_401',
-      titulo: 'Sessao expirou',
-      mensagem: 'Voce precisa estar logado para importar pedidos.',
+      titulo: t('pedido.smart_import.err_http401_titulo'),
+      mensagem: t('pedido.smart_import.err_http401_msg'),
       sugestoes: [
-        'Recarregue a pagina (Ctrl+Shift+R)',
-        'Se persistir, faca login novamente',
+        t('pedido.smart_import.err_http401_sug1'),
+        t('pedido.smart_import.err_http401_sug2'),
       ],
       retryable: false,
-      acoes: [{ label: 'Recarregar pagina', tipo: 'recarregar' }],
+      acoes: [{ label: t('pedido.smart_import.acao_recarregar_pagina'), tipo: 'recarregar' }],
     }
   }
 
   if (codeBackend === 'HTTP_403' || msg === 'HTTP 403') {
     return {
       code: 'HTTP_403',
-      titulo: 'Sem permissao',
-      mensagem: 'Voce nao tem permissao para importar pedidos.',
+      titulo: t('pedido.smart_import.err_http403_titulo'),
+      mensagem: t('pedido.smart_import.err_http403_msg'),
       sugestoes: [
-        'Solicite ao Master da sua organizacao a permissao "pedido:lista:editar"',
+        t('pedido.smart_import.err_http403_sug1'),
       ],
       retryable: false,
     }
@@ -322,11 +322,11 @@ function traduzirErroDetalhado(
   if (msg && msg.length > 0 && !msg.startsWith('HTTP ')) {
     return {
       code: codeBackend ?? 'ERRO_DESCONHECIDO',
-      titulo: contexto === 'upload' ? 'Nao foi possivel processar o arquivo' : 'Nao foi possivel concluir',
+      titulo: contexto === 'upload' ? t('pedido.smart_import.err_fallback_upload_titulo') : t('pedido.smart_import.err_fallback_concluir_titulo'),
       mensagem: msg,
       sugestoes: [
-        'Verifique se o arquivo segue o template baixavel',
-        'Tente novamente — se persistir, abra chamado com o codigo abaixo',
+        t('pedido.smart_import.err_fallback_sug1'),
+        t('pedido.smart_import.err_fallback_sug2'),
       ],
       retryable: true,
     }
@@ -335,13 +335,13 @@ function traduzirErroDetalhado(
   // ── Fallback final ──────────────────────────────────────────────────────
   return {
     code: codeBackend ?? 'ERRO_DESCONHECIDO',
-    titulo: contexto === 'upload' ? 'Erro no upload' : 'Erro na confirmacao',
+    titulo: contexto === 'upload' ? t('pedido.smart_import.err_final_upload_titulo') : t('pedido.smart_import.err_final_confirmar_titulo'),
     mensagem: msg || (contexto === 'upload'
       ? t('pedido.smart_import.err_upload_gen')
       : t('pedido.smart_import.err_confirmar_gen')),
     sugestoes: [
-      'Tente novamente',
-      'Se persistir, abra um chamado com o codigo abaixo',
+      t('pedido.smart_import.err_final_sug1'),
+      t('pedido.smart_import.err_final_sug2'),
     ],
     retryable: true,
   }
@@ -572,12 +572,12 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
       const dados = await smartImportApi.confirmar(payload)
       setResultado(dados)
       setEtapa('confirmacao')
-      addNotification({ type: 'success', message: `${dados.ids_criados?.length ?? 0} PO(s) importadas via SmartImport.`, duration: 4000 })
+      addNotification({ type: 'success', message: t('pedido.smart_import.toast_sucesso', { count: dados.ids_criados?.length ?? 0 }), duration: 4000 })
     } catch (err: unknown) {
       const codeBackend = (err as { codeBackend?: string })?.codeBackend
       const detalhado = traduzirErroDetalhado(err, 'confirmar', t, codeBackend)
       setErro(detalhado)
-      addNotification({ type: 'error', message: `Falha na importação: ${detalhado.mensagem}`, duration: 4000 })
+      addNotification({ type: 'error', message: t('pedido.smart_import.toast_falha', { msg: detalhado.mensagem }), duration: 4000 })
     } finally {
       setConfirmando(false)
     }
@@ -722,7 +722,7 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
             tamanho="medio"
             onClick={handleAvancarParaPreview}
             disabled={analisando || conflitosAtuais.length > 0}
-            title={conflitosAtuais.length > 0 ? 'Resolva os conflitos de mapeamento antes de continuar' : undefined}
+            title={conflitosAtuais.length > 0 ? t('pedido.smart_import.title_resolver_conflitos') : undefined}
           >
             {t('pedido.smart_import.continuar')}
           </BotaoGlobal>
@@ -755,7 +755,7 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
     <ModalPassoPassoGlobal
       titulo={t('pedido.smart_import.titulo')}
       icone={<UploadSimple size={20} weight="duotone" />}
-      subtitulo="Importe itens a partir de planilha ou documento"
+      subtitulo={t('pedido.smart_import.subtitulo')}
       aberto={aberto}
       passos={PASSOS_IMPORT}
       passoAtual={etapaParaId(etapa)}
@@ -798,11 +798,11 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
             fontWeight: 500,
             flexShrink: 0,
           }}>
-            <strong>⚠️ Conflito de mapeamento:</strong>{' '}
+            <strong>{t('pedido.smart_import.conflito_titulo')}</strong>{' '}
             {conflitosAtuais.map((c) => (
-              `"${c.colunas_arquivo.join('", "')}" apontam para "${c.campo_sistema}"`
+              t('pedido.smart_import.conflito_detalhe', { colunas: c.colunas_arquivo.join('", "'), campo: c.campo_sistema })
             )).join(' · ')}
-            . Escolha apenas 1 coluna por campo (marque as outras como "Ignorar").
+            {t('pedido.smart_import.conflito_instrucao')}
           </div>
         )}
 

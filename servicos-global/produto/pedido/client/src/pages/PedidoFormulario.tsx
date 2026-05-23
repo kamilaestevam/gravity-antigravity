@@ -238,7 +238,7 @@ export default function PedidoFormulario() {
             icone={<FloppyDisk size={16} />}
             onClick={handleSalvar}
             disabled={salvando || !podeEditarLista}
-            title={podeEditarLista ? undefined : 'Sem permissão para salvar pedido'}
+            title={podeEditarLista ? undefined : t('pedido.formulario.sem_permissao_salvar')}
           >
             {salvando ? t('comum.salvando', 'Salvando...') : t('comum.salvar', 'Salvar')}
           </BotaoGlobal>
@@ -261,47 +261,47 @@ export default function PedidoFormulario() {
         <div style={gridStyle}>
           <div>
             <SelectGlobal
-              label="Tipo Operacao"
+              label={t('pedido.formulario.label_tipo_operacao')}
               obrigatorio
               buscavel={false}
               opcoes={[
-                { valor: 'importacao', rotulo: 'Importacao' },
-                { valor: 'exportacao', rotulo: 'Exportacao' },
+                { valor: 'importacao', rotulo: t('pedido.formulario.opt_importacao') },
+                { valor: 'exportacao', rotulo: t('pedido.formulario.opt_exportacao') },
               ]}
               valor={form.tipo_operacao}
               aoMudarValor={v => v != null && handleChange('tipo_operacao', String(v))}
             />
           </div>
           <div>
-            <label style={labelStyle}>Numero Pedido *</label>
+            <label style={labelStyle}>{t('pedido.formulario.label_numero_pedido')}</label>
             <input
               style={inputStyle}
               value={form.numero_pedido}
               onChange={(e) => handleChange('numero_pedido', e.target.value)}
-              placeholder="Ex: PO-2026/001"
+              placeholder={t('pedido.formulario.ph_numero_pedido')}
             />
           </div>
           <div>
-            <label style={labelStyle}>Exportador</label>
+            <label style={labelStyle}>{t('pedido.formulario.label_exportador')}</label>
             <input
               style={inputStyle}
               value={form.importacao_exportador_id}
               onChange={(e) => handleChange('importacao_exportador_id', e.target.value)}
-              placeholder="Selecionar exportador"
+              placeholder={t('pedido.formulario.ph_exportador')}
             />
           </div>
           <div>
-            <label style={labelStyle}>Fabricante</label>
+            <label style={labelStyle}>{t('pedido.formulario.label_fabricante')}</label>
             <input
               style={inputStyle}
               value={form.fabricante_id}
               onChange={(e) => handleChange('fabricante_id', e.target.value)}
-              placeholder="Selecionar fabricante"
+              placeholder={t('pedido.formulario.ph_fabricante')}
             />
           </div>
           <div>
             <SelectGlobal
-              label="Incoterm"
+              label={t('pedido.formulario.label_incoterm')}
               buscavel={false}
               opcoes={[
                 { valor: 'FOB', rotulo: 'FOB' },
@@ -321,13 +321,13 @@ export default function PedidoFormulario() {
             />
           </div>
           <div>
-            <label style={labelStyle}>Moeda</label>
+            <label style={labelStyle}>{t('pedido.formulario.label_moeda')}</label>
             <button
               type="button"
               style={{ ...inputStyle, textAlign: 'left', cursor: 'pointer' }}
               onClick={() => setModalMoedaAberta(true)}
             >
-              {form.moeda_pedido || 'Selecionar moeda'}
+              {form.moeda_pedido || t('pedido.formulario.selecionar_moeda')}
             </button>
             <ModalTabelaMoedaGlobal
               aberto={modalMoedaAberta}
@@ -337,16 +337,16 @@ export default function PedidoFormulario() {
             />
           </div>
           <div>
-            <label style={labelStyle}>Condicao Pagamento</label>
+            <label style={labelStyle}>{t('pedido.formulario.label_condicao_pagamento')}</label>
             <input
               style={inputStyle}
               value={form.condicao_pagamento}
               onChange={(e) => handleChange('condicao_pagamento', e.target.value)}
-              placeholder="Ex: 30% Antecipado"
+              placeholder={t('pedido.formulario.ph_condicao_pagamento')}
             />
           </div>
           <div>
-            <label style={labelStyle}>Numero Proforma</label>
+            <label style={labelStyle}>{t('pedido.formulario.label_numero_proforma')}</label>
             <input
               style={inputStyle}
               value={form.numero_proforma}
@@ -354,7 +354,7 @@ export default function PedidoFormulario() {
             />
           </div>
           <div>
-            <label style={labelStyle}>Numero Invoice</label>
+            <label style={labelStyle}>{t('pedido.formulario.label_numero_invoice')}</label>
             <input
               style={inputStyle}
               value={form.numero_invoice}
@@ -362,7 +362,7 @@ export default function PedidoFormulario() {
             />
           </div>
           <div>
-            <label style={labelStyle}>Ref. Importador</label>
+            <label style={labelStyle}>{t('pedido.formulario.label_ref_importador')}</label>
             <input
               style={inputStyle}
               value={form.referencia_importador}
@@ -370,7 +370,7 @@ export default function PedidoFormulario() {
             />
           </div>
           <div>
-            <label style={labelStyle}>Ref. Exportador</label>
+            <label style={labelStyle}>{t('pedido.formulario.label_ref_exportador')}</label>
             <input
               style={inputStyle}
               value={form.referencia_exportador}
@@ -378,7 +378,7 @@ export default function PedidoFormulario() {
             />
           </div>
           <div>
-            <label style={labelStyle}>Ref. Fabricante</label>
+            <label style={labelStyle}>{t('pedido.formulario.label_ref_fabricante')}</label>
             <input
               style={inputStyle}
               value={form.referencia_fabricante}
@@ -386,7 +386,7 @@ export default function PedidoFormulario() {
             />
           </div>
           <div>
-            <label style={labelStyle}>Data Emissao</label>
+            <label style={labelStyle}>{t('pedido.formulario.label_data_emissao')}</label>
             <input
               type="date"
               style={inputStyle}
@@ -439,16 +439,16 @@ export default function PedidoFormulario() {
               }}
             >
               <div>
-                <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>Part Number *</label>
+                <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>{t('pedido.formulario.label_part_number')}</label>
                 <input
                   style={inputStyle}
                   value={item.part_number}
                   onChange={(e) => handleItemChange(index, 'part_number', e.target.value)}
-                  placeholder="SKU"
+                  placeholder={t('pedido.formulario.ph_part_number')}
                 />
               </div>
               <div>
-                <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>NCM *</label>
+                <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>{t('pedido.formulario.label_ncm')}</label>
                 <input
                   style={{ ...inputStyle, fontFamily: 'var(--font-mono, monospace)' }}
                   value={item.ncm}
@@ -457,16 +457,16 @@ export default function PedidoFormulario() {
                 />
               </div>
               <div>
-                <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>Descricao *</label>
+                <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>{t('pedido.formulario.label_descricao')}</label>
                 <input
                   style={inputStyle}
                   value={item.descricao_item}
                   onChange={(e) => handleItemChange(index, 'descricao_item', e.target.value)}
-                  placeholder="Descricao do item"
+                  placeholder={t('pedido.formulario.ph_descricao')}
                 />
               </div>
               <div>
-                <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>Quantidade *</label>
+                <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>{t('pedido.formulario.label_quantidade')}</label>
                 <input
                   type="number"
                   style={{ ...inputStyle, textAlign: 'right' }}
@@ -497,7 +497,7 @@ export default function PedidoFormulario() {
                 />
               </div>
               <div>
-                <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>Valor do Item</label>
+                <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>{t('pedido.formulario.label_valor_item')}</label>
                 <input
                   type="number"
                   style={{ ...inputStyle, textAlign: 'right' }}
@@ -522,7 +522,7 @@ export default function PedidoFormulario() {
                     borderRadius: '0.25rem',
                     transition: 'opacity 0.15s',
                   }}
-                  title="Remover item"
+                  title={t('pedido.formulario.remover_item')}
                 >
                   <Trash size={16} weight="duotone" />
                 </button>

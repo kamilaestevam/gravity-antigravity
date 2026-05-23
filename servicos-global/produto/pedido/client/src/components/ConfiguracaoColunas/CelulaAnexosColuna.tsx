@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Paperclip, Upload, Trash, Download, X } from '@phosphor-icons/react'
 import type { Anexo } from '../../shared/types'
 import { anexosApi } from '../../shared/api'
@@ -29,6 +30,7 @@ export function CelulaAnexosColuna({
   colunaId,
   colunaNome,
 }: CelulaAnexosColunaProps) {
+  const { t } = useTranslation()
   const [aberto, setAberto]           = useState(false)
   const [carregando, setCarregando]   = useState(false)
   const [enviando, setEnviando]       = useState(false)
@@ -48,11 +50,11 @@ export function CelulaAnexosColuna({
       const todos = await anexosApi.listar(vinculo, vinculo_id)
       setAnexos(todos)
     } catch {
-      setErro('Erro ao carregar arquivos.')
+      setErro(t('pedido.cel_anexos.erro_carregar'))
     } finally {
       setCarregando(false)
     }
-  }, [vinculo, vinculo_id, carregando])
+  }, [vinculo, vinculo_id, carregando, t])
 
   const handleToggle = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
@@ -69,11 +71,11 @@ export function CelulaAnexosColuna({
       await anexosApi.upload(vinculo, vinculo_id, arquivo, undefined, colunaId)
       await carregar()
     } catch (err) {
-      setErro(err instanceof Error ? err.message : 'Erro ao enviar arquivo.')
+      setErro(err instanceof Error ? err.message : t('pedido.cel_anexos.erro_enviar'))
     } finally {
       setEnviando(false)
     }
-  }, [vinculo, vinculo_id, colunaId, carregar])
+  }, [vinculo, vinculo_id, colunaId, carregar, t])
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const arquivo = e.target.files?.[0]
@@ -87,9 +89,9 @@ export function CelulaAnexosColuna({
       await anexosApi.excluir(id)
       setAnexos(prev => prev?.filter(a => a.id !== id) ?? null)
     } catch {
-      setErro('Erro ao excluir arquivo.')
+      setErro(t('pedido.cel_anexos.erro_excluir'))
     }
-  }, [])
+  }, [t])
 
   const handleDownload = useCallback(async (anexo: Anexo) => {
     try {
@@ -101,9 +103,9 @@ export function CelulaAnexosColuna({
       a.click()
       URL.revokeObjectURL(url)
     } catch {
-      setErro('Erro ao baixar arquivo.')
+      setErro(t('pedido.cel_anexos.erro_baixar'))
     }
-  }, [])
+  }, [t])
 
   // Fecha ao clicar fora
   useEffect(() => {
@@ -126,8 +128,8 @@ export function CelulaAnexosColuna({
         type="button"
         className={['cac-trigger', contagem > 0 ? 'cac-trigger--com-anexos' : ''].filter(Boolean).join(' ')}
         onClick={handleToggle}
-        title={contagem > 0 ? `${contagem} arquivo${contagem > 1 ? 's' : ''} anexado${contagem > 1 ? 's' : ''}` : 'Anexar arquivo'}
-        aria-label={`${colunaNome}: ${contagem} arquivo${contagem > 1 ? 's' : ''}`}
+        title={contagem > 0 ? t('pedido.cel_anexos.arquivos_anexados', { count: contagem }) : t('pedido.cel_anexos.anexar_arquivo')}
+        aria-label={t('pedido.cel_anexos.coluna_arquivos_aria', { coluna: colunaNome, count: contagem })}
         aria-expanded={aberto}
       >
         <Paperclip size={14} weight={contagem > 0 ? 'fill' : 'regular'} />
@@ -136,7 +138,7 @@ export function CelulaAnexosColuna({
 
       {/* Painel dropdown */}
       {aberto && (
-        <div className="cac-painel" role="dialog" aria-label={`Arquivos — ${colunaNome}`}>
+        <div className="cac-painel" role="dialog" aria-label={t('pedido.cel_anexos.painel_aria', { coluna: colunaNome })}>
           {/* Cabeçalho */}
           <div className="cac-painel-header">
             <span className="cac-painel-titulo">{colunaNome}</span>
@@ -144,7 +146,7 @@ export function CelulaAnexosColuna({
               type="button"
               className="cac-painel-fechar"
               onClick={() => setAberto(false)}
-              aria-label="Fechar painel de anexos"
+              aria-label={t('pedido.cel_anexos.fechar_painel')}
             >
               <X size={13} weight="bold" />
             </button>
@@ -152,9 +154,9 @@ export function CelulaAnexosColuna({
 
           {/* Lista de arquivos */}
           <div className="cac-lista">
-            {carregando && <p className="cac-info">Carregando...</p>}
+            {carregando && <p className="cac-info">{t('comum.carregando')}</p>}
             {!carregando && anexosColuna.length === 0 && (
-              <p className="cac-info cac-info--vazio">Nenhum arquivo anexado</p>
+              <p className="cac-info cac-info--vazio">{t('pedido.cel_anexos.nenhum_arquivo')}</p>
             )}
             {!carregando && anexosColuna.map(a => (
               <div key={a.id} className="cac-item">
@@ -164,8 +166,8 @@ export function CelulaAnexosColuna({
                   type="button"
                   className="cac-item-btn"
                   onClick={() => handleDownload(a)}
-                  title="Baixar"
-                  aria-label={`Baixar ${a.nome_arquivo}`}
+                  title={t('pedido.cel_anexos.baixar')}
+                  aria-label={t('pedido.cel_anexos.baixar_arquivo', { nome: a.nome_arquivo })}
                 >
                   <Download size={12} />
                 </button>
@@ -173,8 +175,8 @@ export function CelulaAnexosColuna({
                   type="button"
                   className="cac-item-btn cac-item-btn--excluir"
                   onClick={() => handleExcluir(a.id)}
-                  title="Excluir"
-                  aria-label={`Excluir ${a.nome_arquivo}`}
+                  title={t('pedido.cel_anexos.excluir')}
+                  aria-label={t('pedido.cel_anexos.excluir_arquivo', { nome: a.nome_arquivo })}
                 >
                   <Trash size={12} />
                 </button>
@@ -192,17 +194,17 @@ export function CelulaAnexosColuna({
               type="file"
               className="cac-input-file"
               onChange={handleFileChange}
-              aria-label="Selecionar arquivo para upload"
+              aria-label={t('pedido.cel_anexos.selecionar_arquivo')}
             />
             <button
               type="button"
               className="cac-btn-upload"
               onClick={() => inputFileRef.current?.click()}
               disabled={enviando}
-              aria-label="Anexar arquivo"
+              aria-label={t('pedido.cel_anexos.anexar_arquivo')}
             >
               <Upload size={12} />
-              {enviando ? 'Enviando...' : 'Anexar arquivo'}
+              {enviando ? t('pedido.cel_anexos.enviando') : t('pedido.cel_anexos.anexar_arquivo')}
             </button>
           </div>
         </div>

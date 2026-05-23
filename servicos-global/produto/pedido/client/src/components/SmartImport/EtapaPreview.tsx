@@ -7,6 +7,8 @@
  */
 
 import React, { useState, useMemo } from 'react'
+import { useTranslation, Trans } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import {
   CheckCircle,
   Warning,
@@ -99,7 +101,7 @@ function fmtDataBr(s: string): string {
   return s
 }
 
-function formatarValor(campo: string, valor: unknown): string {
+function formatarValor(campo: string, valor: unknown, t: TFunction): string {
   const str = String(valor ?? '')
   if (!str.trim()) return str
   // Fallback rapido (cobertura legada)
@@ -113,8 +115,8 @@ function formatarValor(campo: string, valor: unknown): string {
     case 'telefone':  return aplicarMaskTelefone(str)
     case 'data':      return fmtDataBr(str)
     case 'tipo_operacao': {
-      if (str === 'importacao') return 'Importação'
-      if (str === 'exportacao') return 'Exportação'
+      if (str === 'importacao') return t('pedido.smart_preview.tipo_operacao_importacao')
+      if (str === 'exportacao') return t('pedido.smart_preview.tipo_operacao_exportacao')
       return str
     }
     case 'decimal_quantidade':
@@ -211,9 +213,10 @@ function rotulo(campo: string): string {
 // ── Componente de status ──────────────────────────────────────────────────────
 
 function IconeStatus({ status }: { status: SmartImportLinha['status'] }) {
-  if (status === 'ok')    return <CheckCircle size={16} weight="fill" className="smart-import__status-ok"    aria-label="Ok"    />
-  if (status === 'aviso') return <Warning     size={16} weight="fill" className="smart-import__status-aviso" aria-label="Aviso" />
-  return                         <XCircle     size={16} weight="fill" className="smart-import__status-erro"  aria-label="Erro"  />
+  const { t } = useTranslation()
+  if (status === 'ok')    return <CheckCircle size={16} weight="fill" className="smart-import__status-ok"    aria-label={t('pedido.smart_preview.status_ok')}    />
+  if (status === 'aviso') return <Warning     size={16} weight="fill" className="smart-import__status-aviso" aria-label={t('pedido.smart_preview.status_aviso')} />
+  return                         <XCircle     size={16} weight="fill" className="smart-import__status-erro"  aria-label={t('pedido.smart_preview.status_erro')}  />
 }
 
 // ── Card de pedido ────────────────────────────────────────────────────────────
@@ -239,6 +242,7 @@ function CardPedido({
   onAdicionarItemInline?: (linhaPedido: SmartImportLinha, dadosItem: Record<string, unknown>) => void
   onEditarCampoLinha?: (linhaArquivo: number, campo: string, novoValor: string) => void
 }) {
+  const { t } = useTranslation()
   const [expandidoAlertas, setExpandidoAlertas] = useState(false)
   const [expandidoCampos, setExpandidoCampos]   = useState(false)
   const [editandoNumero, setEditandoNumero]      = useState(false)
@@ -337,28 +341,28 @@ function CardPedido({
           type="checkbox"
           checked={selecionada}
           onChange={onToggle}
-          aria-label={`Selecionar pedido da linha ${linha.linha_arquivo}`}
+          aria-label={t('pedido.smart_preview.aria_selecionar_linha', { linha: linha.linha_arquivo })}
           style={{ flexShrink: 0 }}
         />
 
         {/* Badge novo pedido */}
         {linha.status === 'ok' && !linha.alertas.some(a => a.tipo === 'duplicado_sistema') && (
           <span style={{ color: '#34d399', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.25)', fontSize: '0.625rem', fontWeight: 700, padding: '0.125rem 0.375rem', borderRadius: '9999px', flexShrink: 0 }}>
-            NOVO PEDIDO
+            {t('pedido.smart_preview.badge_novo_pedido')}
           </span>
         )}
 
         {/* Badge aviso — sera criado mas tem alertas */}
         {linha.status === 'aviso' && !temDuplicata && (
           <span style={{ color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', fontSize: '0.625rem', fontWeight: 700, padding: '0.125rem 0.375rem', borderRadius: '9999px', flexShrink: 0 }}>
-            COM AVISO
+            {t('pedido.smart_preview.badge_com_aviso')}
           </span>
         )}
 
         {/* Badge erro — nao sera criado */}
         {linha.status === 'erro' && (
           <span style={{ color: '#ef4444', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '0.625rem', fontWeight: 700, padding: '0.125rem 0.375rem', borderRadius: '9999px', flexShrink: 0 }}>
-            COM ERRO
+            {t('pedido.smart_preview.badge_com_erro')}
           </span>
         )}
 
@@ -372,13 +376,13 @@ function CardPedido({
                 onChange={e => setNumeroTemp(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') confirmarEdicao(); if (e.key === 'Escape') setEditandoNumero(false) }}
                 autoFocus
-                aria-label="Numero do pedido"
+                aria-label={t('pedido.smart_preview.aria_numero_pedido')}
               />
-              <button type="button" className="smart-import__btn-icone" onClick={confirmarEdicao} aria-label="Confirmar">
+              <button type="button" className="smart-import__btn-icone" onClick={confirmarEdicao} aria-label={t('comum.confirmar')}>
                 <Check size={14} weight="bold" />
               </button>
               <span style={{ fontSize: '0.625rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                Enter ✓ · Esc ✕
+                {t('pedido.smart_preview.dica_enter_esc')}
               </span>
             </div>
           ) : (
@@ -389,14 +393,14 @@ function CardPedido({
                   type="button"
                   className="smart-import__btn-icone"
                   onClick={iniciarEdicao}
-                  aria-label="Editar numero do pedido"
-                  title="Editar número (Enter para confirmar, Esc para cancelar)"
+                  aria-label={t('pedido.smart_preview.aria_editar_numero')}
+                  title={t('pedido.smart_preview.title_editar_numero')}
                 >
                   <PencilSimple size={13} weight="bold" />
                 </button>
               )}
               {numeroEditado && (
-                <span style={{ fontSize: '0.7rem', color: '#60a5fa' }}>editado</span>
+                <span style={{ fontSize: '0.7rem', color: '#60a5fa' }}>{t('pedido.smart_preview.editado')}</span>
               )}
             </div>
           )}
@@ -413,7 +417,7 @@ function CardPedido({
 
         {/* Linha bruta */}
         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', marginLeft: 'auto', flexShrink: 0 }}>
-          linha {linha.linha_arquivo}
+          {t('pedido.smart_preview.linha_n', { linha: linha.linha_arquivo })}
         </span>
       </div>
 
@@ -421,18 +425,18 @@ function CardPedido({
       {temDuplicata && (
         <div className="smart-import__duplicata-aviso">
           <Warning size={13} weight="fill" style={{ color: '#f59e0b' }} aria-hidden="true" />
-          <span>Pedido já existe no sistema.</span>
+          <span>{t('pedido.smart_preview.duplicata_aviso')}</span>
           <SelectGlobal
             buscavel={false}
             tamanho="compacto"
             opcoes={[
-              { valor: 'sobrescrever', rotulo: 'Sobrescrever' },
-              { valor: 'criar', rotulo: 'Criar mesmo assim' },
-              { valor: 'pular', rotulo: 'Pular' },
+              { valor: 'sobrescrever', rotulo: t('pedido.smart_preview.decisao_sobrescrever') },
+              { valor: 'criar', rotulo: t('pedido.smart_preview.decisao_criar') },
+              { valor: 'pular', rotulo: t('pedido.smart_preview.decisao_pular') },
             ]}
             valor={decisao ?? 'pular'}
             aoMudarValor={v => v != null && onDecisao(v as DecisaoDuplicata)}
-            aria-label="Decisao para pedido duplicado"
+            aria-label={t('pedido.smart_preview.aria_decisao_duplicado')}
           />
         </div>
       )}
@@ -448,7 +452,7 @@ function CardPedido({
           fontSize: '0.75rem',
         }}>
           <p style={{ margin: '0 0 0.375rem', fontWeight: 600, color: 'var(--accent, #6366f1)' }}>
-            Campos que serão atualizados:
+            {t('pedido.smart_preview.campos_atualizados')}
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.25rem 0.75rem' }}>
             {Object.entries(linha.dados)
@@ -457,14 +461,14 @@ function CardPedido({
               .map(([campo, valor]) => (
                 <React.Fragment key={campo}>
                   <span style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{rotulo(campo)}:</span>
-                  <span style={{ color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{formatarValor(campo, valor)}</span>
+                  <span style={{ color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{formatarValor(campo, valor, t)}</span>
                 </React.Fragment>
               ))
             }
           </div>
           {Object.keys(linha.dados).length > 8 && (
             <p style={{ margin: '0.375rem 0 0', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-              + {Object.keys(linha.dados).length - 8} outros campos
+              {t('pedido.smart_preview.outros_campos', { count: Object.keys(linha.dados).length - 8 })}
             </p>
           )}
         </div>
@@ -483,8 +487,8 @@ function CardPedido({
               ? <CaretDown size={11} aria-hidden="true" />
               : <CaretRight size={11} aria-hidden="true" />}
             {expandidoCampos
-              ? 'Ocultar campos'
-              : `Ver ${camposVisiveis.length} campo(s) detectado(s)`}
+              ? t('pedido.smart_preview.ocultar_campos')
+              : t('pedido.smart_preview.ver_campos_detectados', { count: camposVisiveis.length })}
           </button>
 
           {expandidoCampos && (
@@ -502,7 +506,7 @@ function CardPedido({
                     <span className="smart-import__campo-label">
                       {rotulo(campo)}
                       {ehObrigatorio && (
-                        <span className="smart-import__form-label-obrig" aria-label="obrigatorio">*</span>
+                        <span className="smart-import__form-label-obrig" aria-label={t('pedido.smart_preview.aria_obrigatorio')}>*</span>
                       )}
                     </span>
                     {/* P15.2 — edicao inline (mesmo padrao do numero_pedido)
@@ -545,10 +549,10 @@ function CardPedido({
                             semLabel
                           />
                         </div>
-                        <button type="button" className="smart-import__btn-icone" onClick={confirmarEdicaoCampo} aria-label="Confirmar edicao" title="Confirmar (Enter)">
+                        <button type="button" className="smart-import__btn-icone" onClick={confirmarEdicaoCampo} aria-label={t('pedido.smart_preview.aria_confirmar_edicao')} title={t('pedido.smart_preview.title_confirmar_enter')}>
                           <Check size={13} weight="bold" />
                         </button>
-                        <button type="button" className="smart-import__btn-icone" onClick={cancelarEdicaoCampo} aria-label="Cancelar edicao" title="Cancelar (Esc)">
+                        <button type="button" className="smart-import__btn-icone" onClick={cancelarEdicaoCampo} aria-label={t('pedido.smart_preview.aria_cancelar_edicao')} title={t('pedido.smart_preview.title_cancelar_esc')}>
                           <X size={13} weight="bold" />
                         </button>
                       </div>
@@ -557,15 +561,15 @@ function CardPedido({
                         className={`smart-import__campo-valor${deveDestacarErro ? ' smart-import__campo-valor--erro' : ''}`}
                       >
                         {deveDestacarErro
-                          ? <em style={{ fontStyle: 'normal' }}>(vazio)</em>
-                          : formatarValor(campo, valor)}
+                          ? <em style={{ fontStyle: 'normal' }}>{t('pedido.smart_preview.valor_vazio')}</em>
+                          : formatarValor(campo, valor, t)}
                         {onEditarCampoLinha && ehCampoEditavel(campo) && (
                           <button
                             type="button"
                             className="smart-import__btn-icone smart-import__btn-icone--ghost"
                             onClick={() => iniciarEdicaoCampo(campo, valor)}
-                            aria-label={`Editar ${rotulo(campo)}`}
-                            title="Editar valor"
+                            aria-label={t('pedido.smart_preview.aria_editar_campo', { campo: rotulo(campo) })}
+                            title={t('pedido.smart_preview.title_editar_valor')}
                           >
                             <PencilSimple size={12} weight="bold" />
                           </button>
@@ -593,7 +597,7 @@ function CardPedido({
             {expandidoAlertas
               ? <CaretDown size={11} aria-hidden="true" />
               : <CaretRight size={11} aria-hidden="true" />}
-            {linha.alertas.length} alerta(s)
+            {t('pedido.smart_preview.n_alertas', { count: linha.alertas.length })}
           </button>
 
           {expandidoAlertas && (
@@ -621,15 +625,19 @@ function CardPedido({
               type="button"
               onClick={() => setMostrandoFormItem(true)}
               className="smart-import__btn-adicionar-item"
-              aria-label="Adicionar item inline"
+              aria-label={t('pedido.smart_preview.aria_adicionar_item')}
             >
               <Plus size={14} weight="bold" aria-hidden="true" />
-              Adicionar Item aqui (sem voltar a planilha)
+              {t('pedido.smart_preview.btn_adicionar_item_aqui')}
             </button>
           ) : (
             <div>
               <p className="smart-import__form-item-titulo">
-                Novo item para <strong>{numeroAtual}</strong>:
+                <Trans
+                  i18nKey="pedido.smart_preview.novo_item_para"
+                  values={{ numero: numeroAtual }}
+                  components={{ strong: <strong /> }}
+                />
               </p>
               {/*
                 P19/Q4 — Renderizacao 100% dinamica baseada no SSOT.
@@ -666,16 +674,16 @@ function CardPedido({
                   onClick={cancelarAdicionarItem}
                   className="smart-import__btn-pill smart-import__btn-pill--secondary"
                 >
-                  Cancelar
+                  {t('comum.cancelar')}
                 </button>
                 <button
                   type="button"
                   onClick={confirmarAdicionarItem}
                   disabled={!(formItem.part_number_item ?? '').trim()}
                   className="smart-import__btn-pill smart-import__btn-pill--primary"
-                  title={(formItem.part_number_item ?? '').trim() ? 'Adicionar item ao pedido' : 'Part Number e obrigatorio'}
+                  title={(formItem.part_number_item ?? '').trim() ? t('pedido.smart_preview.title_adicionar_item_ao_pedido') : t('pedido.smart_preview.title_part_number_obrigatorio')}
                 >
-                  Adicionar Item
+                  {t('pedido.smart_preview.btn_adicionar_item')}
                 </button>
               </div>
             </div>
@@ -699,6 +707,7 @@ export function EtapaPreview({
   onAdicionarItemInline,
   onEditarCampoLinha,
 }: EtapaPreviewProps) {
+  const { t } = useTranslation()
   const [filtro, setFiltro] = useState<FiltroPreview>('todos')
   const [filtroVisible, setFiltroVisible] = useState(true)
 
@@ -759,18 +768,48 @@ export function EtapaPreview({
     <div>
       {/* Contador de resumo */}
       <div className="smart-import__contador" role="status">
-        <span><strong>{pedidosUnicosSelecionados}</strong> pedido(s) de <strong>{pedidosUnicosTotal}</strong> únicos</span>
+        <span>
+          <Trans
+            i18nKey="pedido.smart_preview.resumo_pedidos_unicos"
+            values={{ selecionados: pedidosUnicosSelecionados, total: pedidosUnicosTotal }}
+            components={{ strong: <strong /> }}
+          />
+        </span>
         <span>·</span>
-        <span><strong>{criados}</strong> linha(s) incluídas</span>
-        <span><strong>{atualizados}</strong> atualiz.</span>
-        <span><strong>{pulados}</strong> pulados</span>
+        <span>
+          <Trans
+            i18nKey="pedido.smart_preview.resumo_linhas_incluidas"
+            values={{ count: criados }}
+            components={{ strong: <strong /> }}
+          />
+        </span>
+        <span>
+          <Trans
+            i18nKey="pedido.smart_preview.resumo_atualizados"
+            values={{ count: atualizados }}
+            components={{ strong: <strong /> }}
+          />
+        </span>
+        <span>
+          <Trans
+            i18nKey="pedido.smart_preview.resumo_pulados"
+            values={{ count: pulados }}
+            components={{ strong: <strong /> }}
+          />
+        </span>
         {contadores.erro > 0 && (
-          <span style={{ color: '#ef4444' }}><strong>{contadores.erro}</strong> com erro</span>
+          <span style={{ color: '#ef4444' }}>
+            <Trans
+              i18nKey="pedido.smart_preview.resumo_com_erro"
+              values={{ count: contadores.erro }}
+              components={{ strong: <strong /> }}
+            />
+          </span>
         )}
       </div>
 
       {/* Filtros + ações */}
-      <div className="smart-import__filtros" role="group" aria-label="Filtrar pedidos">
+      <div className="smart-import__filtros" role="group" aria-label={t('pedido.smart_preview.aria_filtrar_pedidos')}>
         {(['todos', 'ok', 'aviso', 'erro'] as FiltroPreview[]).map(f => (
           <button
             key={f}
@@ -778,15 +817,15 @@ export function EtapaPreview({
             onClick={() => aplicarFiltro(f)}
             aria-pressed={filtro === f}
           >
-            {f === 'todos' && `Todos (${linhas.length})`}
-            {f === 'ok'    && `Ok (${contadores.ok})`}
-            {f === 'aviso' && `Aviso (${contadores.aviso})`}
-            {f === 'erro'  && `Erro (${contadores.erro})`}
+            {f === 'todos' && t('pedido.smart_preview.filtro_todos', { count: linhas.length })}
+            {f === 'ok'    && t('pedido.smart_preview.filtro_ok', { count: contadores.ok })}
+            {f === 'aviso' && t('pedido.smart_preview.filtro_aviso', { count: contadores.aviso })}
+            {f === 'erro'  && t('pedido.smart_preview.filtro_erro', { count: contadores.erro })}
           </button>
         ))}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
           <button className="smart-import__filtro-btn" onClick={selecionarTodasValidas}>
-            Selecionar validas
+            {t('pedido.smart_preview.btn_selecionar_validas')}
           </button>
           <button className="smart-import__filtro-btn" onClick={() => {
             onSelecaoChange(new Set([
@@ -794,13 +833,13 @@ export function EtapaPreview({
               ...linhas.filter(l => l.status === 'aviso').map(l => l.linha_arquivo)
             ]))
           }}>
-            + Incluir avisos
+            {t('pedido.smart_preview.btn_incluir_avisos')}
           </button>
           <button className="smart-import__filtro-btn" onClick={selecionarTodas}>
-            Selecionar todas
+            {t('pedido.smart_preview.btn_selecionar_todas')}
           </button>
           <button className="smart-import__filtro-btn" onClick={desselecionarTodas}>
-            Limpar selecao
+            {t('pedido.smart_preview.btn_limpar_selecao')}
           </button>
         </div>
       </div>

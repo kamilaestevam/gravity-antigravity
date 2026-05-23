@@ -168,12 +168,12 @@ export function ModalNovaColunaUsuario({
     const grupos = [...CAMPOS_FORMULA_BASE]
     if (colunasNumericas.length > 0) {
       grupos.push({
-        grupo: 'Minhas Colunas',
+        grupo: t('pedido.modal_col.grupo_minhas_colunas'),
         campos: colunasNumericas.map(c => ({ chave: c.chave ?? c.id, label: c.nome })),
       })
     }
     return grupos
-  }, [todasColunas])
+  }, [todasColunas, t])
 
   // Manter ref atualizada
   useEffect(() => {
@@ -213,7 +213,7 @@ export function ModalNovaColunaUsuario({
       // Verificar ciclo
       const chave = nomeRef.current.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '__nova__'
       if (detectarCircular(chave, expressaoChave, todasColunas)) {
-        setFormulaErro('Referência circular: a fórmula cria um ciclo de dependências.')
+        setFormulaErro(t('pedido.modal_col.gabi_erro_circular'))
         setFormulaValida(false); setFormulaGabi(null)
         return
       }
@@ -232,8 +232,8 @@ export function ModalNovaColunaUsuario({
       if (camposTexto.length > 0) {
         setFormulaErro(null); setFormulaValida(true)
         setFormulaGabi({
-          titulo: 'Campo não-numérico detectado',
-          texto: `${camposTexto.join(', ')} ${camposTexto.length === 1 ? 'não é um campo numérico' : 'não são campos numéricos'}. Em operações aritméticas, campos texto, data ou checkbox serão tratados como 0.`,
+          titulo: t('pedido.modal_col.gabi_titulo_nao_numerico'),
+          texto: t('pedido.modal_col.gabi_texto_nao_numerico', { campos: camposTexto.join(', '), count: camposTexto.length }),
         })
         return
       }
@@ -254,8 +254,8 @@ export function ModalNovaColunaUsuario({
       if (camposDesconhecidos.length > 0) {
         setFormulaErro(null); setFormulaValida(false)
         setFormulaGabi({
-          titulo: 'Campo não reconhecido',
-          texto: `${camposDesconhecidos.map(c => `"${c}"`).join(', ')} ${camposDesconhecidos.length === 1 ? 'não é um campo disponível' : 'não são campos disponíveis'}. Use os chips abaixo para inserir campos válidos.`,
+          titulo: t('pedido.modal_col.gabi_titulo_desconhecido'),
+          texto: t('pedido.modal_col.gabi_texto_desconhecido', { campos: camposDesconhecidos.map(c => `"${c}"`).join(', '), count: camposDesconhecidos.length }),
         })
         return
       }
@@ -270,7 +270,7 @@ export function ModalNovaColunaUsuario({
         setFormulaGabi({ titulo: respostaGemini.titulo, texto: respostaGemini.texto, sugestao: respostaGemini.sugestao })
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Fórmula inválida'
+      const msg = err instanceof Error ? err.message : t('pedido.modal_col.gabi_formula_invalida')
 
       // Detectar "dois campos sem operador"
       if (msg.includes('Token inesperado após fim da fórmula:')) {
@@ -282,8 +282,8 @@ export function ModalNovaColunaUsuario({
           if (antes) {
             setFormulaErro(null); setFormulaValida(false)
             setFormulaGabi({
-              titulo: 'Falta um operador',
-              texto: `Parece que faltou um operador entre "${antes}" e "${tokenExtra}". Escolha o que faz mais sentido e insira entre os dois campos.`,
+              titulo: t('pedido.modal_col.gabi_titulo_falta_operador'),
+              texto: t('pedido.modal_col.gabi_texto_falta_operador', { antes, token: tokenExtra }),
               sugestao: `${antes} + ${tokenExtra}`,
             })
             return
@@ -293,7 +293,7 @@ export function ModalNovaColunaUsuario({
 
       setFormulaErro(msg); setFormulaValida(false); setFormulaGabi(null)
     }
-  }, [todasColunas])
+  }, [todasColunas, t])
 
   // Sincronizar tokens → validação com debounce
   useEffect(() => {
@@ -403,7 +403,7 @@ export function ModalNovaColunaUsuario({
       setSalvando(false)
       try { await Promise.resolve(onSalvo()) } catch { /* pai trata */ }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao salvar coluna.'
+      const msg = err instanceof Error ? err.message : t('pedido.modal_col.erro_salvar')
       setErro(msg)
       setSalvando(false)
     }
@@ -439,7 +439,7 @@ export function ModalNovaColunaUsuario({
               <h2 className="mnc-titulo">{t(isEdicao ? 'pedido.modal_col.titulo_edicao' : 'pedido.modal_col.titulo_novo')}</h2>
             </div>
             <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>
-              {isEdicao ? 'Altere as propriedades da coluna personalizada' : 'Crie uma coluna personalizada para organizar seus pedidos'}
+              {isEdicao ? t('pedido.modal_col.subtitulo_edicao') : t('pedido.modal_col.subtitulo_novo')}
             </p>
           </div>
           <button
@@ -521,12 +521,12 @@ export function ModalNovaColunaUsuario({
                     token.tipo === 'campo' ? (
                       <span key={i} className="mnc-token mnc-token--campo">
                         <span className="mnc-token__label">{token.label}</span>
-                        <button type="button" className="mnc-token__remove" onClick={() => removerToken(i)} aria-label={`Remover ${token.label}`}>
+                        <button type="button" className="mnc-token__remove" onClick={() => removerToken(i)} aria-label={t('pedido.modal_col.aria_remover_token', { label: token.label })}>
                           <X size={9} weight="bold" />
                         </button>
                       </span>
                     ) : (
-                      <button key={i} type="button" className="mnc-token mnc-token--op" onClick={() => removerToken(i)} title="Clique para remover">
+                      <button key={i} type="button" className="mnc-token mnc-token--op" onClick={() => removerToken(i)} title={t('pedido.modal_col.clique_remover')}>
                         {token.valor}
                       </button>
                     )
@@ -540,7 +540,7 @@ export function ModalNovaColunaUsuario({
                   <button key={op} type="button" className="mnc-op-btn" onClick={() => adicionarOpToken(op)}>{op}</button>
                 ))}
                 {formulaTokens.length > 0 && (
-                  <button type="button" className="mnc-op-btn mnc-op-btn--clear" onClick={() => setFormulaTokens([])}>Limpar</button>
+                  <button type="button" className="mnc-op-btn mnc-op-btn--clear" onClick={() => setFormulaTokens([])}>{t('pedido.modal_col.limpar')}</button>
                 )}
               </div>
 
@@ -548,7 +548,7 @@ export function ModalNovaColunaUsuario({
               <div className="mnc-formula-campos">
                 <p className="mnc-formula-campos-titulo">
                   <Info size={13} weight="fill" />
-                  Adicionar campo
+                  {t('pedido.modal_col.adicionar_campo')}
                 </p>
                 {camposFormula.map(grupo => (
                   <div key={grupo.grupo} className="mnc-campos-grupo">
@@ -560,7 +560,7 @@ export function ModalNovaColunaUsuario({
                           type="button"
                           className="mnc-formula-chip"
                           onClick={() => adicionarCampoToken(campo)}
-                          title={`Inserir: ${campo.label}`}
+                          title={t('pedido.modal_col.inserir_campo', { label: campo.label })}
                         >
                           {campo.label}
                         </button>
@@ -576,17 +576,17 @@ export function ModalNovaColunaUsuario({
                   <div className="mnc-gabi-card mnc-gabi-card--info" role="note">
                     <div className="mnc-gabi-card__header">
                       <span className="mnc-gabi-card__ico">✦</span>
-                      <span className="mnc-gabi-card__titulo">Gabi · Como montar sua fórmula</span>
+                      <span className="mnc-gabi-card__titulo">{t('pedido.modal_col.gabi_como_montar')}</span>
                     </div>
                     <p className="mnc-gabi-card__texto">
-                      Use os chips acima para inserir campos e os operadores (+, -, *, /) para construir sua fórmula. A Gabi vai analisar e sugerir melhorias automaticamente.
+                      {t('pedido.modal_col.gabi_como_montar_texto')}
                     </p>
                   </div>
                 )
                 if (!formulaErro && !formulaGabi && !formulaValida) return null
                 const variante = formulaErro ? 'erro' : formulaGabi ? 'aviso' : 'ok'
-                const titulo   = formulaErro ? 'Erro na fórmula' : formulaGabi ? formulaGabi.titulo : 'Fórmula válida'
-                const texto    = formulaErro ?? formulaGabi?.texto ?? 'A fórmula está correta. Preencha os demais campos para criar a coluna.'
+                const titulo   = formulaErro ? t('pedido.modal_col.gabi_erro_formula') : formulaGabi ? formulaGabi.titulo : t('pedido.modal_col.gabi_formula_valida')
+                const texto    = formulaErro ?? formulaGabi?.texto ?? t('pedido.modal_col.gabi_formula_correta')
                 const sugestao = formulaGabi?.sugestao
                 return (
                   <div className={`mnc-gabi-card mnc-gabi-card--${variante}`} role="note" aria-live="polite">
@@ -610,9 +610,9 @@ export function ModalNovaColunaUsuario({
                             })
                             setFormulaTokens(tokens)
                           }}
-                          title="Usar esta sugestão"
+                          title={t('pedido.modal_col.usar_sugestao_tooltip')}
                         >
-                          Usar
+                          {t('pedido.modal_col.usar')}
                         </button>
                       </div>
                     )}
@@ -655,14 +655,14 @@ export function ModalNovaColunaUsuario({
                       type="button"
                       className="mnc-opcao-remover"
                       onClick={() => handleRemoverOpcao(opcao)}
-                      aria-label={`Remover opção ${opcao}`}
+                      aria-label={t('pedido.modal_col.aria_remover_opcao', { opcao })}
                     >
                       <X size={10} weight="bold" />
                     </button>
                   </span>
                 )) : (
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', padding: '0.25rem 0.5rem' }}>
-                    Nenhuma opção adicionada
+                    {t('pedido.modal_col.nenhuma_opcao')}
                   </span>
                 )}
               </div>
@@ -686,9 +686,9 @@ export function ModalNovaColunaUsuario({
           <div className="mnc-campo mnc-campo--toggle-row">
             <div>
               <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                Itens podem ter dados diferentes
+                {t('pedido.modal_col.itens_diferentes')}
               </span>
-              <p className="mnc-hint">Cada item do pedido poderá ter seu próprio valor nesta coluna</p>
+              <p className="mnc-hint">{t('pedido.modal_col.itens_diferentes_hint')}</p>
             </div>
             <MncToggle checked={itensDiferentes} onChange={setItensDiferentes} id="mnc-itens-dif" />
           </div>
@@ -697,15 +697,15 @@ export function ModalNovaColunaUsuario({
             <>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', padding: '0.5rem 0.625rem', background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: '6px', fontSize: '0.75rem', color: 'var(--text-secondary, #94a3b8)' }}>
                 <Warning size={14} weight="fill" style={{ color: '#f59e0b', flexShrink: 0, marginTop: '0.05rem' }} />
-                <span>Dados existentes não serão migrados automaticamente. Valores do pedido serão mantidos e itens iniciam vazios.</span>
+                <span>{t('pedido.modal_col.dados_nao_migrados')}</span>
               </div>
 
               <div className="mnc-campo mnc-campo--toggle-row">
                 <div>
                   <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                    O pedido também é editável
+                    {t('pedido.modal_col.pedido_editavel')}
                   </span>
-                  <p className="mnc-hint">Além dos itens, o valor a nível de pedido também poderá ser preenchido</p>
+                  <p className="mnc-hint">{t('pedido.modal_col.pedido_editavel_hint')}</p>
                 </div>
                 <MncToggle checked={pedidoEditavel} onChange={setPedidoEditavel} id="mnc-pedido-edit" />
               </div>
@@ -726,7 +726,7 @@ export function ModalNovaColunaUsuario({
           {tipo !== 'formula' && (
             <div className="mnc-campo">
               <label className="mnc-label" htmlFor="mnc-valor-padrao">{t('pedido.modal_col.label_valor_padrao')}</label>
-              <p className="mnc-hint">Valor preenchido automaticamente ao criar um novo pedido/item</p>
+              <p className="mnc-hint">{t('pedido.modal_col.valor_padrao_hint')}</p>
               {tipo === 'checkbox' ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <input
@@ -737,14 +737,14 @@ export function ModalNovaColunaUsuario({
                     onChange={e => setValorPadrao(e.target.checked ? 'true' : 'false')}
                   />
                   <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)' }}>
-                    {valorPadrao === 'true' ? 'Marcado por padrão' : 'Desmarcado por padrão'}
+                    {valorPadrao === 'true' ? t('pedido.modal_col.marcado_padrao') : t('pedido.modal_col.desmarcado_padrao')}
                   </span>
                 </div>
               ) : (tipo === 'select' || tipo === 'tipo_documento') ? (
                 opcoes.length > 0 ? (
                   <SelectGlobal
                     opcoes={[
-                      { valor: '', rotulo: 'Sem valor padrão' },
+                      { valor: '', rotulo: t('pedido.modal_col.sem_valor_padrao') },
                       ...opcoes.map(o => ({ valor: o, rotulo: o })),
                     ]}
                     valor={valorPadrao}
@@ -752,7 +752,7 @@ export function ModalNovaColunaUsuario({
                     buscavel={false}
                   />
                 ) : (
-                  <p className="mnc-hint" style={{ fontStyle: 'italic' }}>Adicione opções acima para definir um valor padrão</p>
+                  <p className="mnc-hint" style={{ fontStyle: 'italic' }}>{t('pedido.modal_col.adicione_opcoes_padrao')}</p>
                 )
               ) : (
                 <input

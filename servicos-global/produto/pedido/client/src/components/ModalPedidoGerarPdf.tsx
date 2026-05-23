@@ -115,7 +115,7 @@ export function ModalGerarPdfPedido({ pedidos, onFechar, onConcluido }: ModalGer
           urlDownload = resultado.url_download
           isPdf = resultado.is_pdf !== false
         } else {
-          if (!templateId) throw new Error('Selecione um template.')
+          if (!templateId) throw new Error(t('pedido.modal_pdf.erro_selecione_template'))
           const payload: GerarPdfPayload = {
             pedido_id: pedido.id,
             template_id: templateId,
@@ -148,7 +148,7 @@ export function ModalGerarPdfPedido({ pedidos, onFechar, onConcluido }: ModalGer
       setSucesso(true)
       setTimeout(() => onConcluido(), 1500)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao gerar documento'
+      const msg = err instanceof Error ? err.message : t('pedido.modal_pdf.erro_gerar')
       setErro(msg)
     } finally {
       setGerando(false)
@@ -178,7 +178,7 @@ export function ModalGerarPdfPedido({ pedidos, onFechar, onConcluido }: ModalGer
                 {titulo}
               </h2>
             </div>
-            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Gere documentos PDF dos pedidos selecionados</p>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>{t('pedido.modal_pdf.subtitulo')}</p>
           </div>
           <button
             type="button"

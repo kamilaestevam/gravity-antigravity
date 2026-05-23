@@ -151,6 +151,133 @@ model Incoterm {
 }
 
 // ---------------------------------------------------------------------
+// Porto — catálogo global de portos marítimos/fluviais (UN/LOCODE).
+// Fonte: UNECE UN/LOCODE (datahub.io), ~6.000 portos ativos.
+// Critério de inclusão: Function contém "1" (port) ou "8" (inland water).
+// Atualizado 2x/ano pelo UN (via seed script manual).
+// Catálogo global — sem id_organizacao.
+// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
+// ---------------------------------------------------------------------
+
+model Porto {
+  id_porto                    String   @id @default(cuid())
+
+  // UN/LOCODE — identificação única internacional
+  codigo_unlocode_porto       String   @unique   // ex: "BRSSZ", "USNYC", "CNSHA"
+  codigo_pais_porto           String              // ISO alpha-2 (BR, US, CN)
+  codigo_local_porto          String              // 3 chars UNLOCODE (SSZ, NYC, SHA)
+
+  // Nomes
+  nome_porto                  String              // Santos, New York, Shanghai
+  nome_ascii_porto            String              // sem diacríticos (busca)
+
+  // Localização
+  subdivisao_porto            String?             // UF/estado/província (SP, NY, SH)
+  latitude_porto              Float?
+  longitude_porto             Float?
+
+  // IATA (quando porto coincide com localidade de aeroporto)
+  codigo_iata_porto           String?
+
+  // Estado
+  ativo_porto                 Boolean  @default(true)
+
+  @@index([codigo_pais_porto],           map: "porto_pais_idx")
+  @@index([nome_porto],                  map: "porto_nome_idx")
+  @@index([nome_ascii_porto],            map: "porto_nome_ascii_idx")
+  @@index([ativo_porto],                 map: "porto_ativo_idx")
+  @@map("porto")
+}
+
+// ---------------------------------------------------------------------
+// Aeroporto — catálogo global de aeroportos (UN/LOCODE + IATA).
+// Fonte: UNECE UN/LOCODE (datahub.io), ~4.000 aeroportos ativos.
+// Critério de inclusão: Function contém "4" (airport).
+// Atualizado 2x/ano pelo UN (via seed script manual).
+// Catálogo global — sem id_organizacao.
+// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
+// ---------------------------------------------------------------------
+
+model Aeroporto {
+  id_aeroporto                    String   @id @default(cuid())
+
+  // UN/LOCODE — identificação única internacional
+  codigo_unlocode_aeroporto       String   @unique   // ex: "BRGRU", "USJFK", "CNPVG"
+  codigo_pais_aeroporto           String              // ISO alpha-2 (BR, US, CN)
+  codigo_local_aeroporto          String              // 3 chars UNLOCODE (GRU, JFK, PVG)
+
+  // Nomes
+  nome_aeroporto                  String              // Guarulhos, John F. Kennedy, Pudong
+  nome_ascii_aeroporto            String              // sem diacríticos (busca)
+
+  // Localização
+  subdivisao_aeroporto            String?             // UF/estado/província (SP, NY, SH)
+  latitude_aeroporto              Float?
+  longitude_aeroporto             Float?
+
+  // IATA — código de 3 letras do aeroporto (fundamental para aéreo)
+  codigo_iata_aeroporto           String?  @unique    // GRU, JFK, PVG
+
+  // Estado
+  ativo_aeroporto                 Boolean  @default(true)
+
+  @@index([codigo_pais_aeroporto],           map: "aeroporto_pais_idx")
+  @@index([nome_aeroporto],                  map: "aeroporto_nome_idx")
+  @@index([nome_ascii_aeroporto],            map: "aeroporto_nome_ascii_idx")
+  @@index([ativo_aeroporto],                 map: "aeroporto_ativo_idx")
+  @@map("aeroporto")
+}
+
+// ---------------------------------------------------------------------
+// Container — catálogo global / fonte única da verdade (ISO 6346).
+// Cada registro = um tipo+tamanho de container existente no mundo.
+// ~25 tipos práticos. Catálogo global — sem id_organizacao.
+// Produtos fazem snapshot deste catálogo nas suas tabelas filhas:
+//   - BID Frete:     container_dados_bid_frete   (snapshot catálogo)
+//   - Processo:      container_processo           (snapshot + operacional)
+//   - NF Importação: container_nf_importacao      (snapshot + operacional)
+// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
+// ---------------------------------------------------------------------
+
+model Container {
+  id_container                       String         @id @default(cuid())
+
+  // Tipo funcional (enum)
+  tipo_container                     ContainerTipo
+
+  // Tamanho
+  tamanho_container                  String              // "20'" | "40'" | "40'HC" | "45'"
+
+  // ISO 6346 — código de 4 caracteres
+  codigo_iso_container               String?  @unique    // ex: "22G0", "45R1", "42U1"
+
+  // Armador proprietário do container
+  armador_dono_container             String?             // ex: "MSC", "Maersk", "Hapag-Lloyd", "CMA CGM"
+
+  // Estado
+  ativo_container                    Boolean  @default(true)
+
+  @@index([tipo_container],                  map: "container_tipo_idx")
+  @@index([tamanho_container],               map: "container_tamanho_idx")
+  @@index([ativo_container],                 map: "container_ativo_idx")
+  @@map("container")
+}
+
+// ---------------------------------------------------------------------
+// Enum ContainerTipo — tipos funcionais ISO 6346 + Siscomex Tabela EF.
+// Cobre 99% do frete marítimo prático.
+// ---------------------------------------------------------------------
+enum ContainerTipo {
+  DRY
+  REEFER
+  OPEN_TOP
+  FLAT_RACK
+  TANK
+  BULK
+  PLATAFORMA
+}
+
+// ---------------------------------------------------------------------
 // NcmSync — catálogo NCM sincronizado do Portal Único Siscomex
 // (renomeado de "Ncm" para evitar confusão com a coluna "ncm_item" das
 // tabelas de produto. O job diário de sync mora aqui no Cadastros).

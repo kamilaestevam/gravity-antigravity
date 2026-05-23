@@ -183,6 +183,16 @@
         }
       }
     },
+    "admin-organizacao-override-audit": {
+      "baseUrl": "http://localhost:8005",
+      "pathPrefix": "/api/v1/internal/admin",
+      "middleware": ["requireInternalKey"],
+      "internal": true,
+      "note": "Endpoint S2S de audit log para override de organização (Pendência #4). Chamado fire-and-forget pelo middleware do SDK @gravity/resolver-organizacao (packages/resolver-organizacao/src/middleware.ts) sempre que SUPER_ADMIN/ADMIN ativa o header x-organizacao-override. Falha de gravação NÃO derruba a troca de organização (Mand. 08: log alto via getLogger().warn no SDK). Grava em AuditLogAdmin com acao='admin.organizacao_override.trocar' e recurso='organizacao'.",
+      "endpoints": {
+        "POST /audit-organizacao-override": "Persiste 1 row em AuditLogAdmin. Body Zod (auditOrganizacaoOverrideBodySchema): id_usuario_ator (CUID), tipo_usuario_ator ('SUPER_ADMIN'|'ADMIN'), id_organizacao_origem (CUID), id_organizacao_destino (CUID), ip_origem, correlation_id. Rejeita origem === destino com 400 OVERRIDE_AUDIT_NOOP (no-op no middleware não deveria chegar aqui)."
+      }
+    },
     "api-cockpit": {
       "baseUrl": "http://localhost:8016",
       "pathPrefix": "/api/v1/cockpit/observability",

@@ -25,6 +25,13 @@ import {
   Envelope,
   WhatsappLogo,
   Kanban,
+  Compass,
+  Truck,
+  Upload,
+  PaperPlaneTilt,
+  Star,
+  CurrencyDollar,
+  PencilSimple,
 } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import type { NavItem } from '@nucleo/tela-produto-global'
@@ -122,6 +129,22 @@ const ROUTE_LABELS: Record<string, string> = {
   'portal/desempenho':                  'Desempenho',
 }
 
+// ── Cabeçalho da página por rota (ícone + subtítulo) — renderizado no top bar ──
+const ROUTE_HEADERS: Record<string, { icone: React.ReactNode; subtitulo: string }> = {
+  'visao-geral':         { icone: <Compass         weight="duotone" size={22} />, subtitulo: 'Resumo das cotações de frete internacional' },
+  'dashboard':           { icone: <ChartBar        weight="duotone" size={22} />, subtitulo: 'KPIs e widgets configuráveis' },
+  'cotacoes':            { icone: <FileText        weight="duotone" size={22} />, subtitulo: 'Cotações de frete internacional' },
+  'cotacoes/nova':       { icone: <Truck           weight="duotone" size={22} />, subtitulo: 'Crie uma nova cotação de frete' },
+  'cotacoes/importar':   { icone: <Upload          weight="duotone" size={22} />, subtitulo: 'Importar cotações em massa via planilha' },
+  'fornecedores':        { icone: <Buildings       weight="duotone" size={22} />, subtitulo: 'Transportadores e agentes de carga cadastrados' },
+  'configuracoes':       { icone: <GearSix         weight="duotone" size={22} />, subtitulo: 'Personalize cards, colunas e status do produto' },
+  'portal/dashboard':    { icone: <ChartPieSlice   weight="duotone" size={22} />, subtitulo: 'Visão geral das suas cotações e desempenho' },
+  'portal/pendentes':    { icone: <Envelope        weight="duotone" size={22} />, subtitulo: 'Cotações aguardando sua resposta' },
+  'portal/respostas':    { icone: <PaperPlaneTilt  weight="duotone" size={22} />, subtitulo: 'Propostas que você enviou' },
+  'portal/tabela-precos':{ icone: <CurrencyDollar  weight="duotone" size={22} />, subtitulo: 'Sua tabela de preços e fretes' },
+  'portal/desempenho':   { icone: <Star            weight="duotone" size={22} />, subtitulo: 'Métricas das suas propostas' },
+}
+
 function LoadingFallback() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '2rem' }}>
@@ -162,11 +185,14 @@ export default function App() {
   }, [location.pathname])
 
   // Resolve título da página a partir dos segmentos relativos ao produto
-  const segments    = location.pathname.split('/').filter(Boolean)
-  const productIdx  = segments.findIndex(s => s === PRODUCT_ID)
-  const relSegments = productIdx >= 0 ? segments.slice(productIdx + 1) : segments
-  const routeKey    = relSegments.join('/')
-  const pageLabel   = routeKey === 'configuracoes' ? '' : (ROUTE_LABELS[routeKey] ?? 'Visão Geral')
+  const segments     = location.pathname.split('/').filter(Boolean)
+  // URL usa slug 'bid-frete' enquanto PRODUCT_ID é 'bid-frete-internacional'.
+  // Localizamos via segmento 'produto' e pulamos 2 (produto + slug).
+  const produtoIdx   = segments.findIndex(s => s === 'produto')
+  const relSegments  = produtoIdx >= 0 ? segments.slice(produtoIdx + 2) : segments
+  const routeKey     = relSegments.join('/')
+  const pageLabel    = routeKey === 'configuracoes' ? '' : (ROUTE_LABELS[routeKey] ?? 'Visão Geral')
+  const pageHeader   = ROUTE_HEADERS[routeKey]
 
   // Dados do usuário
   const initials = currentUser.name
@@ -212,8 +238,10 @@ export default function App() {
       onNavigateCore={() => { window.location.href = '/core' }}
       onNavigateSettings={() => { navigate('/produto/bid-frete/configuracoes') }}
       localizador={{
-        workspaceName:    nomeWorkspaceAtivo,
-        currentPageLabel: pageLabel,
+        workspaceName:       nomeWorkspaceAtivo,
+        currentPageLabel:    pageLabel,
+        currentPageIcon:     pageHeader?.icone,
+        currentPageSubtitle: pageHeader?.subtitulo,
         history,
         nodes: ECOSYSTEM_NODES,
         onNavigate: (node: EcosystemNode) => {

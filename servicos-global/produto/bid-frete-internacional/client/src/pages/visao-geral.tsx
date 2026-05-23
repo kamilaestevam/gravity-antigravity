@@ -3275,6 +3275,8 @@ export default function VisaoGeral() {
           display: flex;
           flex-direction: column;
           gap: 1.25rem;
+          flex: 1;
+          min-height: 0;
         }
         
         .bfd-route-card {
@@ -3288,6 +3290,8 @@ export default function VisaoGeral() {
           position: relative;
           overflow: hidden;
           transition: all 0.3s ease;
+          flex-shrink: 0;
+          min-height: max-content;
         }
         .bfd-route-card:hover {
           background: rgba(255, 255, 255, 0.05);
@@ -3552,21 +3556,15 @@ export default function VisaoGeral() {
         }
       `}</style>
 
-      {/* Header */}
-      <div className="bfd-header">
-        <div className="bfd-header__left">
-          <h1>Dashboard BID Frete</h1>
-          <p>Visão geral das cotações de frete</p>
-        </div>
-        <div className="bfd-header__actions">
-          <BotaoGlobal
-            variante="primario"
-            icone={<MagnifyingGlass weight="bold" size={15} />}
-            onClick={() => navigate('/produto/bid-frete/cotacoes/nova')}
-          >
-            Buscar frete
-          </BotaoGlobal>
-        </div>
+      {/* Ação da página (Buscar frete) — cabeçalho agora vive no top bar */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <BotaoGlobal
+          variante="primario"
+          icone={<MagnifyingGlass weight="bold" size={15} />}
+          onClick={() => navigate('/produto/bid-frete/cotacoes/nova')}
+        >
+          Buscar frete
+        </BotaoGlobal>
       </div>
 
       {/* KPIs Grid (5 columns now) */}

@@ -41,12 +41,14 @@ router.get('/:token_acesso', async (req: Request, res: Response, next: NextFunct
       include: {
         cotacao: {
           select: {
-            id: true, numero: true, modal: true, modalidade: true,
-            origem_nome: true, origem_pais: true,
-            destino_nome: true, destino_pais: true,
-            descricao_mercadoria: true, ncm: true, incoterm: true,
-            quantidade: true, tipo_container: true, peso_kg: true, cubagem_m3: true,
-            data_limite_resposta: true, ocultar_nome_empresa: true,
+            id_cotacao_bid_frete: true, numero_cotacao_bid_frete: true, modal: true, modalidade: true,
+            // TODO: lookup from Cadastros
+            pais_origem_cotacao_bid_frete: true,
+            // TODO: lookup from Cadastros
+            pais_destino_cotacao_bid_frete: true,
+            descricao_mercadoria_cotacao_bid_frete: true, ncm_cotacao_bid_frete: true, incoterm_cotacao_bid_frete: true,
+            quantidade_volumes_cotacao_bid_frete: true, tipo_container: true, peso_kg_cotacao_bid_frete: true, cubagem_m3_cotacao_bid_frete: true,
+            data_limite_resposta_cotacao_bid_frete: true, anonima_cotacao_bid_frete: true,
           },
         },
         fornecedor: { select: { id: true, nome: true } },

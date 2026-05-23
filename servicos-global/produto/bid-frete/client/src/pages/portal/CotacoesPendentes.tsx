@@ -41,13 +41,13 @@ const BID_STATUS_COLORS: Record<string, { bg: string; color: string }> = {
 }
 
 interface CotacaoInfo {
-  numero: string
-  origem_nome: string
-  destino_nome: string
+  numero_cotacao_bid_frete: string
+  porto_origem_cotacao_bid_frete: string
+  porto_destino_cotacao_bid_frete: string
   modal: ModalFrete
-  incoterm: string
-  quantidade: number
-  peso_kg: number | null
+  incoterm_cotacao_bid_frete: string
+  quantidade_volumes_cotacao_bid_frete: number
+  peso_kg_cotacao_bid_frete: number | null
   prazo_resposta: string | null
 }
 
@@ -110,7 +110,7 @@ export default function CotacoesPendentes() {
         <div className="cp-grid">
           {bids.map(bid => {
             const cotacao = (bid as unknown as { cotacao: CotacaoInfo }).cotacao
-            const numero = cotacao?.numero ?? bid.cotacao_id.slice(0, 8).toUpperCase()
+            const numero = cotacao?.numero_cotacao_bid_frete ?? bid.cotacao_id.slice(0, 8).toUpperCase()
             const modal = cotacao?.modal ?? 'MARITIMO'
             const countdown = calcCountdown(cotacao?.prazo_resposta ?? bid.expirado_em, t)
             const statusCores = BID_STATUS_COLORS[bid.status] ?? BID_STATUS_COLORS.PENDENTE
@@ -135,7 +135,7 @@ export default function CotacoesPendentes() {
                 <div className="cp-card-body">
                   <div className="cp-info-row">
                     <MapPin weight="duotone" size={14} />
-                    <span>{cotacao?.origem_nome ?? '—'} &rarr; {cotacao?.destino_nome ?? '—'}</span>
+                    <span>{cotacao?.porto_origem_cotacao_bid_frete ?? '—'} &rarr; {cotacao?.porto_destino_cotacao_bid_frete ?? '—'}</span>
                   </div>
                   <div className="cp-info-row">
                     <span className="cp-info-label">Modal</span>
@@ -143,13 +143,13 @@ export default function CotacoesPendentes() {
                   </div>
                   <div className="cp-info-row">
                     <span className="cp-info-label">Incoterm</span>
-                    <span>{cotacao?.incoterm ?? '—'}</span>
+                    <span>{cotacao?.incoterm_cotacao_bid_frete ?? '—'}</span>
                   </div>
                   <div className="cp-info-row">
                     <Package weight="duotone" size={14} />
                     <span>
-                      {cotacao?.quantidade ?? 0} un
-                      {cotacao?.peso_kg != null ? ` / ${cotacao.peso_kg.toLocaleString('pt-BR')} kg` : ''}
+                      {cotacao?.quantidade_volumes_cotacao_bid_frete ?? 0} un
+                      {cotacao?.peso_kg_cotacao_bid_frete != null ? ` / ${cotacao.peso_kg_cotacao_bid_frete.toLocaleString('pt-BR')} kg` : ''}
                     </span>
                   </div>
                 </div>

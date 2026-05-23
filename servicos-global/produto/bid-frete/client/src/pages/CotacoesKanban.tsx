@@ -64,8 +64,8 @@ export default function CotacoesKanban({ cotacoes, carregando, onRefresh }: Cota
       mapa[s.nome_status_cotacao_bid_frete] = []
     }
     for (const c of cotacoes) {
-      if (mapa[c.status]) {
-        mapa[c.status].push(c)
+      if (mapa[c.status_cotacao_bid_frete]) {
+        mapa[c.status_cotacao_bid_frete].push(c)
       }
     }
     return mapa
@@ -159,7 +159,7 @@ export default function CotacoesKanban({ cotacoes, carregando, onRefresh }: Cota
                 </div>
               ) : (
                 items.map(c => (
-                  <div key={c.id} style={{
+                  <div key={c.id_cotacao_bid_frete} style={{
                     background: 'var(--bg-card, #0f172a)',
                     borderRadius: '0.5rem',
                     padding: '0.75rem',
@@ -174,18 +174,18 @@ export default function CotacoesKanban({ cotacoes, carregando, onRefresh }: Cota
                         fontWeight: 600,
                         color: 'var(--accent, #6366f1)',
                       }}>
-                        {c.numero}
+                        {c.numero_cotacao_bid_frete}
                       </span>
                       <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>
                         {c.modal}
                       </span>
                     </div>
                     <div style={{ fontSize: '0.8125rem', color: 'var(--text-primary, #f1f5f9)', marginBottom: '0.25rem' }}>
-                      {c.origem_nome} → {c.destino_nome}
+                      {c.porto_origem_cotacao_bid_frete} → {c.porto_destino_cotacao_bid_frete}
                     </div>
-                    {c.valor_alvo != null && (
+                    {c.valor_alvo_cotacao_bid_frete != null && (
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary, #94a3b8)' }}>
-                        {c.moeda_alvo} {c.valor_alvo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        {c.moeda_alvo_cotacao_bid_frete} {c.valor_alvo_cotacao_bid_frete.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </div>
                     )}
                   </div>

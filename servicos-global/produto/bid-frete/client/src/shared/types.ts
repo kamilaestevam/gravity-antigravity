@@ -118,40 +118,52 @@ export type Incoterm = typeof INCOTERMS[number]
 // ─── Entidades ───────────────────────────────────────────────────────────────
 
 export interface Cotacao {
-  id: string
+  id_cotacao_bid_frete: string
   id_organizacao: string
-  user_id: string | null
-  numero: string
-  referencia_interna: string | null
+  id_produto_gravity: string | null
+  id_usuario: string | null
+  id_workspace: string | null
+  numero_cotacao_bid_frete: string
+  referencia_interna_cotacao_bid_frete: string | null
   tipo_operacao: TipoOperacao
   modal: ModalFrete
   modalidade: ModalidadeCarga
-  status: StatusCotacao
-  origem_codigo: string
-  origem_nome: string
-  origem_pais: string
-  destino_codigo: string
-  destino_nome: string
-  destino_pais: string
-  descricao_mercadoria: string
-  ncm: string | null
-  quantidade: number
+  status_cotacao_bid_frete: StatusCotacao
+  porto_origem_cotacao_bid_frete: string
+  pais_origem_cotacao_bid_frete: string
+  estado_provincia_origem_cotacao_bid_frete?: string
+  aeroporto_origem_cotacao_bid_frete?: string
+  porto_destino_cotacao_bid_frete: string
+  pais_destino_cotacao_bid_frete: string
+  estado_provincia_destino_cotacao_bid_frete?: string
+  aeroporto_destino_cotacao_bid_frete?: string
+  descricao_mercadoria_cotacao_bid_frete: string
+  ncm_cotacao_bid_frete: string | null
+  hs_code_cotacao_bid_frete?: string
+  quantidade_volumes_cotacao_bid_frete: number
   tipo_container: string | null
-  peso_kg: number | null
-  cubagem_m3: number | null
-  incoterm: string
-  cep_destino: string | null
-  visibilidade: Visibilidade
-  anonima: boolean
-  valor_alvo: number | null
-  moeda_alvo: string
-  prazo_resposta: string | null
+  peso_kg_cotacao_bid_frete: number | null
+  peso_ton_cotacao_bid_frete?: number
+  cubagem_m3_cotacao_bid_frete: number | null
+  incoterm_cotacao_bid_frete: string
+  cep_origem_cotacao_bid_frete: string | null
+  cep_destino_cotacao_bid_frete: string | null
+  visibilidade_cotacao_bid_frete: Visibilidade
+  anonima_cotacao_bid_frete: boolean
+  valor_alvo_cotacao_bid_frete: number | null
+  moeda_alvo_cotacao_bid_frete: string
+  data_limite_resposta_cotacao_bid_frete: string | null
+  data_aprovacao_cotacao_bid_frete: string | null
+  data_cancelamento_cotacao_bid_frete: string | null
+  motivo_reprovacao_cotacao_bid_frete: string | null
+  motivo_cancelamento_cotacao_bid_frete: string | null
+  id_fornecedor_vencedor_cotacao_bid_frete: string | null
   valor_aprovado: number | null
   moeda_aprovada: string | null
-  saving_valor: number | null
-  saving_percentual: number | null
-  created_at: string
-  updated_at: string
+  saving_valor_cotacao_bid_frete: number | null
+  saving_percentual_cotacao_bid_frete: number | null
+  criado_em_cotacao_bid_frete: string
+  atualizado_em_cotacao_bid_frete: string
   bid_requests?: BidRequest[]
   bid_responses?: BidResponse[]
 }

@@ -25,6 +25,7 @@ import { cotacoesPublicasRouter } from './routes/cotacoes-publicas.js'
 import { avaliacoesRouter } from './routes/avaliacoes.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
+import { configStatusRouter } from './routes/config-status.js'
 import { startCronJobs } from './services/cronJobs.js'
 import { rateLimitPresets } from '../../../../servicos-plataforma/middleware/rateLimiter.js'
 import { apiObservability } from '../../../../servicos-plataforma/middleware/apiObservability.js'
@@ -127,6 +128,7 @@ app.use('/api/v1/bid-frete/portal', portalRouter)
 app.use('/api/v1/bid-frete/avaliacoes', avaliacoesRouter)
 app.use('/api/v1/bid-frete/dashboard', dashboardRouter)
 app.use('/api/v1/bid-frete/dashboard', dashboardWidgetsRouter)
+app.use('/api/v1/bid-frete/config/status', configStatusRouter)
 
 // --- 10. SPA Fallback ---
 app.get('*', (_req: Request, res: Response) => {

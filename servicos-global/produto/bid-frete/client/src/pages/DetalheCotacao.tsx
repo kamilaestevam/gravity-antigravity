@@ -241,20 +241,20 @@ export default function DetalheCotacao() {
       cabecalho={
         <CabecalhoGlobal
           icone={<FileText weight="duotone" size={22} />}
-          titulo={t('bidfrete.detalhe_cotacao.titulo_cotacao', { numero: cotacao.numero })}
-          subtitulo={cotacao.referencia_interna ? t('bidfrete.detalhe_cotacao.ref_prefix', { ref: cotacao.referencia_interna }) : undefined}
+          titulo={t('bidfrete.detalhe_cotacao.titulo_cotacao', { numero: cotacao.numero_cotacao_bid_frete })}
+          subtitulo={cotacao.referencia_interna_cotacao_bid_frete ? t('bidfrete.detalhe_cotacao.ref_prefix', { ref: cotacao.referencia_interna_cotacao_bid_frete }) : undefined}
           acoes={
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button className="dc-btn dc-btn--secondary" onClick={() => navigate('/produto/bid-frete/cotacoes')}>
                 <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
               </button>
-              {cotacao.status === 'AGUARDANDO_APROVACAO' && (
+              {cotacao.status_cotacao_bid_frete === 'AGUARDANDO_APROVACAO' && (
                 <button className="dc-btn dc-btn--primary" onClick={() => navigate(`/produto/bid-frete/cotacoes/${id}/comparativo`)}>
                   <Ranking weight="bold" size={14} /> {t('bidfrete.detalhe_cotacao.comparativo')}
                 </button>
               )}
-              {cotacao.status === 'RASCUNHO' && (
-                <button className="dc-btn dc-btn--danger" onClick={async () => { await excluirCotacao(cotacao.id); navigate('/produto/bid-frete/cotacoes') }}>
+              {cotacao.status_cotacao_bid_frete === 'RASCUNHO' && (
+                <button className="dc-btn dc-btn--danger" onClick={async () => { await excluirCotacao(cotacao.id_cotacao_bid_frete); navigate('/produto/bid-frete/cotacoes') }}>
                   <Trash weight="bold" size={14} /> {t('comum.excluir')}
                 </button>
               )}
@@ -265,17 +265,17 @@ export default function DetalheCotacao() {
     >
       {/* Status Badge */}
       <div className="dc-status-bar">
-        <Badge label={STATUS_LABELS[cotacao.status]} variante={STATUS_BADGE[cotacao.status]} />
-        <span className="dc-status-date">{t('bidfrete.detalhe_cotacao.criada_em')} {dataBR(cotacao.created_at)}</span>
-        {cotacao.saving_percentual != null && cotacao.saving_percentual > 0 && (
+        <Badge label={STATUS_LABELS[cotacao.status_cotacao_bid_frete]} variante={STATUS_BADGE[cotacao.status_cotacao_bid_frete]} />
+        <span className="dc-status-date">{t('bidfrete.detalhe_cotacao.criada_em')} {dataBR(cotacao.criado_em_cotacao_bid_frete)}</span>
+        {cotacao.saving_percentual_cotacao_bid_frete != null && cotacao.saving_percentual_cotacao_bid_frete > 0 && (
           <span className="dc-saving-badge">
-            {t('bidfrete.detalhe_cotacao.saving_label')}: {cotacao.saving_percentual.toFixed(1)}%
+            {t('bidfrete.detalhe_cotacao.saving_label')}: {cotacao.saving_percentual_cotacao_bid_frete.toFixed(1)}%
           </span>
         )}
       </div>
 
       {/* Timeline */}
-      <Timeline statusAtual={cotacao.status} steps={timelineSteps} />
+      <Timeline statusAtual={cotacao.status_cotacao_bid_frete} steps={timelineSteps} />
 
       {/* Tabs */}
       <div className="dc-tabs">
@@ -298,30 +298,30 @@ export default function DetalheCotacao() {
               <InfoRow label={t('bidfrete.detalhe_cotacao.tipo_operacao')} value={OPERACAO_LABELS[cotacao.tipo_operacao]} />
               <InfoRow label={t('bidfrete.detalhe_cotacao.modal')} value={MODAL_LABELS[cotacao.modal]} />
               <InfoRow label={t('bidfrete.detalhe_cotacao.modalidade')} value={MODALIDADE_LABELS[cotacao.modalidade]} />
-              <InfoRow label={t('bidfrete.detalhe_cotacao.incoterm')} value={cotacao.incoterm} mono />
-              <InfoRow label={t('bidfrete.detalhe_cotacao.visibilidade')} value={cotacao.visibilidade === 'ABERTA' ? t('bidfrete.nova_cotacao.tipo_aberta') : t('bidfrete.nova_cotacao.tipo_direcionada')} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.incoterm')} value={cotacao.incoterm_cotacao_bid_frete} mono />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.visibilidade')} value={cotacao.visibilidade_cotacao_bid_frete === 'ABERTA' ? t('bidfrete.nova_cotacao.tipo_aberta') : t('bidfrete.nova_cotacao.tipo_direcionada')} />
             </div>
             <div className="dc-info-col">
-              <InfoRow label={t('bidfrete.detalhe_cotacao.origem')} value={`${cotacao.origem_nome} (${cotacao.origem_codigo})`} />
-              <InfoRow label={t('bidfrete.detalhe_cotacao.pais_origem')} value={cotacao.origem_pais} />
-              <InfoRow label={t('bidfrete.detalhe_cotacao.destino')} value={`${cotacao.destino_nome} (${cotacao.destino_codigo})`} />
-              <InfoRow label={t('bidfrete.detalhe_cotacao.pais_destino')} value={cotacao.destino_pais} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.origem')} value={cotacao.porto_origem_cotacao_bid_frete} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.pais_origem')} value={cotacao.pais_origem_cotacao_bid_frete} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.destino')} value={cotacao.porto_destino_cotacao_bid_frete} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.pais_destino')} value={cotacao.pais_destino_cotacao_bid_frete} />
             </div>
             <div className="dc-info-col">
-              <InfoRow label={t('bidfrete.detalhe_cotacao.mercadoria')} value={cotacao.descricao_mercadoria} />
-              <InfoRow label={t('bidfrete.detalhe_cotacao.ncm')} value={cotacao.ncm ?? '—'} mono />
-              <InfoRow label={t('bidfrete.detalhe_cotacao.quantidade')} value={String(cotacao.quantidade)} />
-              <InfoRow label={t('bidfrete.detalhe_cotacao.peso')} value={cotacao.peso_kg ? `${cotacao.peso_kg.toLocaleString('pt-BR')} Kg` : '—'} />
-              <InfoRow label={t('bidfrete.detalhe_cotacao.cubagem')} value={cotacao.cubagem_m3 ? `${cotacao.cubagem_m3} m³` : '—'} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.mercadoria')} value={cotacao.descricao_mercadoria_cotacao_bid_frete} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.ncm')} value={cotacao.ncm_cotacao_bid_frete ?? '—'} mono />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.quantidade')} value={String(cotacao.quantidade_volumes_cotacao_bid_frete)} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.peso')} value={cotacao.peso_kg_cotacao_bid_frete ? `${cotacao.peso_kg_cotacao_bid_frete.toLocaleString('pt-BR')} Kg` : '—'} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.cubagem')} value={cotacao.cubagem_m3_cotacao_bid_frete ? `${cotacao.cubagem_m3_cotacao_bid_frete} m³` : '—'} />
               {cotacao.tipo_container && <InfoRow label={t('bidfrete.detalhe_cotacao.container')} value={cotacao.tipo_container} />}
             </div>
           </div>
 
           {/* Valor alvo */}
-          {cotacao.valor_alvo != null && (
+          {cotacao.valor_alvo_cotacao_bid_frete != null && (
             <div className="dc-target">
               <span className="dc-target-label">{t('bidfrete.detalhe_cotacao.valor_alvo')}:</span>
-              <span className="dc-target-value">{cotacao.moeda_alvo} {cotacao.valor_alvo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+              <span className="dc-target-value">{cotacao.moeda_alvo_cotacao_bid_frete} {cotacao.valor_alvo_cotacao_bid_frete.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
             </div>
           )}
 
@@ -330,9 +330,9 @@ export default function DetalheCotacao() {
             <div className="dc-aprovado">
               <CheckCircle weight="fill" size={20} style={{ color: 'var(--success)' }} />
               <span>{t('bidfrete.detalhe_cotacao.aprovado')}: <strong>{cotacao.moeda_aprovada ?? 'USD'} {cotacao.valor_aprovado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></span>
-              {cotacao.saving_valor != null && (
+              {cotacao.saving_valor_cotacao_bid_frete != null && (
                 <span style={{ color: 'var(--success)', fontWeight: 700 }}>
-                  {t('bidfrete.detalhe_cotacao.saving_label')}: {usd(cotacao.saving_valor)} ({cotacao.saving_percentual?.toFixed(1)}%)
+                  {t('bidfrete.detalhe_cotacao.saving_label')}: {usd(cotacao.saving_valor_cotacao_bid_frete)} ({cotacao.saving_percentual_cotacao_bid_frete?.toFixed(1)}%)
                 </span>
               )}
             </div>

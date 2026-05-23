@@ -383,7 +383,7 @@ export default function Comparativo() {
           <CabecalhoGlobal
             icone={<Confetti weight="duotone" size={22} />}
             titulo={t('bidfrete.comparativo.titulo_aprovada')}
-            subtitulo={`${t('bidfrete.cotacoes.titulo')} ${resultadoAprovacao.numero}`}
+            subtitulo={`${t('bidfrete.cotacoes.titulo')} ${resultadoAprovacao.numero_cotacao_bid_frete}`}
           />
         }
       >
@@ -396,7 +396,7 @@ export default function Comparativo() {
             {t('bidfrete.comparativo.fornecedor_selecionado')}: <strong>{respostaSelecionada?.fornecedor?.nome ?? t('bidfrete.comparativo.fornecedor')}</strong>
           </p>
 
-          {resultadoAprovacao.saving_valor != null && resultadoAprovacao.saving_valor > 0 && (
+          {resultadoAprovacao.saving_valor_cotacao_bid_frete != null && resultadoAprovacao.saving_valor_cotacao_bid_frete > 0 && (
             <div className="bf-saving-card">
               <div className="bf-saving-header">
                 <CurrencyDollar weight="duotone" size={18} />
@@ -404,11 +404,11 @@ export default function Comparativo() {
               </div>
               <div className="bf-saving-valores">
                 <span className="bf-saving-valor">
-                  {moeda(resultadoAprovacao.saving_valor, resultadoAprovacao.moeda_aprovada ?? 'USD')}
+                  {moeda(resultadoAprovacao.saving_valor_cotacao_bid_frete, resultadoAprovacao.moeda_aprovada ?? 'USD')}
                 </span>
-                {resultadoAprovacao.saving_percentual != null && (
+                {resultadoAprovacao.saving_percentual_cotacao_bid_frete != null && (
                   <span className="bf-saving-pct">
-                    {resultadoAprovacao.saving_percentual.toFixed(1)}%
+                    {resultadoAprovacao.saving_percentual_cotacao_bid_frete.toFixed(1)}%
                   </span>
                 )}
               </div>
@@ -438,7 +438,7 @@ export default function Comparativo() {
         <CabecalhoGlobal
           icone={<Ranking weight="duotone" size={22} />}
           titulo={t('bidfrete.comparativo.titulo')}
-          subtitulo={cotacao ? `${cotacao.numero} — ${cotacao.origem_nome} → ${cotacao.destino_nome}` : t('bidfrete.comparativo.subtitulo')}
+          subtitulo={cotacao ? `${cotacao.numero_cotacao_bid_frete} — ${cotacao.porto_origem_cotacao_bid_frete} → ${cotacao.porto_destino_cotacao_bid_frete}` : t('bidfrete.comparativo.subtitulo')}
           acoes={
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
               <button className="btn btn-danger-outline" onClick={() => setModalReprovar(true)} disabled={respostas.length === 0}>
@@ -485,7 +485,7 @@ export default function Comparativo() {
             <div>
               <span className="bf-summary-label">{t('bidfrete.detalhe_cotacao.valor_alvo')}</span>
               <span className="bf-summary-valor bf-mono">
-                {cotacao.valor_alvo != null ? moeda(cotacao.valor_alvo, cotacao.moeda_alvo) : '—'}
+                {cotacao.valor_alvo_cotacao_bid_frete != null ? moeda(cotacao.valor_alvo_cotacao_bid_frete, cotacao.moeda_alvo_cotacao_bid_frete) : '—'}
               </span>
             </div>
           </div>

@@ -30,10 +30,10 @@ async function expirarCotacoesVencidas() {
   // Leitura cross-tenant: buscar todas as cotações vencidas (necessário para cron)
   const cotacoesVencidas = await cronPrisma.freteIntBidCotacoes.findMany({
     where: {
-      status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
-      data_limite_resposta: { lt: agora },
+      status_cotacao_bid_frete: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
+      data_limite_resposta_cotacao_bid_frete: { lt: agora },
     } as any,
-    select: { id: true, numero: true, id_organizacao: true, user_id: true },
+    select: { id_cotacao_bid_frete: true, numero_cotacao_bid_frete: true, id_organizacao: true, id_usuario: true },
   } as any)
 
   for (const cotacao of cotacoesVencidas as any[]) {
@@ -41,20 +41,20 @@ async function expirarCotacoesVencidas() {
     const tenantDb = withTenantIsolation(cronPrisma, cotacao.id_organizacao)
 
     await tenantDb.freteIntBidCotacoes.update({
-      where: { id: cotacao.id },
-      data: { status: 'EXPIRADA' } as any,
+      where: { id_cotacao_bid_frete: cotacao.id_cotacao_bid_frete },
+      data: { status_cotacao_bid_frete: 'EXPIRADA' } as any,
     } as any)
 
     // Notificar o criador
-    notificacoesIntegration.cotacaoExpirada(cotacao.id_organizacao, cotacao.user_id, {
-      cotacao_numero: cotacao.numero,
-      cotacao_id: cotacao.id,
+    notificacoesIntegration.cotacaoExpirada(cotacao.id_organizacao, cotacao.id_usuario, {
+      numero_cotacao_bid_frete: cotacao.numero_cotacao_bid_frete,
+      cotacao_id: cotacao.id_cotacao_bid_frete,
     })
 
     // Expirar BidRequests pendentes — isolado por tenant
     await tenantDb.freteIntBidPedidoCotacoes.updateMany({
       where: {
-        cotacao_id: cotacao.id,
+        cotacao_id: cotacao.id_cotacao_bid_frete,
         status: { in: ['PENDENTE', 'ENVIADO', 'VISUALIZADO'] },
       } as any,
       data: { status: 'EXPIRADO' } as any,
@@ -76,16 +76,16 @@ async function alertarProximoVencimento() {
 
   const cotacoesVencendo = await cronPrisma.freteIntBidCotacoes.findMany({
     where: {
-      status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
-      data_limite_resposta: { gte: agora, lte: em24h },
+      status_cotacao_bid_frete: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
+      data_limite_resposta_cotacao_bid_frete: { gte: agora, lte: em24h },
     } as any,
-    select: { id: true, numero: true, id_organizacao: true, user_id: true, data_limite_resposta: true },
+    select: { id_cotacao_bid_frete: true, numero_cotacao_bid_frete: true, id_organizacao: true, id_usuario: true, data_limite_resposta_cotacao_bid_frete: true },
   } as any)
 
   for (const cotacao of cotacoesVencendo as any[]) {
-    atividadesIntegration.proximoVencimento(cotacao.id_organizacao, cotacao.user_id, {
-      numero: cotacao.numero,
-      data_limite: cotacao.data_limite_resposta.toISOString(),
+    atividadesIntegration.proximoVencimento(cotacao.id_organizacao, cotacao.id_usuario, {
+      numero_cotacao_bid_frete: cotacao.numero_cotacao_bid_frete,
+      data_limite: cotacao.data_limite_resposta_cotacao_bid_frete.toISOString(),
     })
   }
 
@@ -107,7 +107,7 @@ async function detectarSemResposta() {
       enviado_em: { lt: ha48h },
     } as any,
     include: {
-      cotacao: { select: { id: true, numero: true, id_organizacao: true, user_id: true } },
+      cotacao: { select: { id_cotacao_bid_frete: true, numero_cotacao_bid_frete: true, id_organizacao: true, id_usuario: true } },
       fornecedor: { select: { nome: true, email: true } },
     } as any,
   } as any)
@@ -115,10 +115,10 @@ async function detectarSemResposta() {
   for (const req of requestsSemResposta as any[]) {
     atividadesIntegration.criarAtividade(req.cotacao.id_organizacao, {
       titulo: `Lembrar fornecedor ${req.fornecedor.nome}`,
-      descricao: `O fornecedor ${req.fornecedor.nome} (${req.fornecedor.email}) não respondeu a cotação ${req.cotacao.numero} em 48h.`,
+      descricao: `O fornecedor ${req.fornecedor.nome} (${req.fornecedor.email}) não respondeu a cotação ${req.cotacao.numero_cotacao_bid_frete} em 48h.`,
       tipo: 'FOLLOW_UP',
       prioridade: 'ALTA',
-      user_id: req.cotacao.user_id,
+      user_id: req.cotacao.id_usuario,
     })
   }
 

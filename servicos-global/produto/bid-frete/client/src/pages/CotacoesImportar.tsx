@@ -38,14 +38,16 @@ function getExpectedColumns() {
   return [
     { key: 'tipo_operacao', label: t('bidfrete.importar.ecol_tipo_operacao'), example: 'IMPORTACAO ou EXPORTACAO' },
     { key: 'modal', label: t('bidfrete.importar.ecol_modal'), example: 'MARITIMO, AEREO ou RODOVIARIO' },
-    { key: 'origem_codigo', label: t('bidfrete.importar.ecol_origem_codigo'), example: 'BRSSZ' },
-    { key: 'origem_nome', label: t('bidfrete.importar.ecol_origem_nome'), example: 'Santos' },
-    { key: 'destino_codigo', label: t('bidfrete.importar.ecol_destino_codigo'), example: 'CNSHA' },
-    { key: 'destino_nome', label: t('bidfrete.importar.ecol_destino_nome'), example: 'Shanghai' },
-    { key: 'descricao_mercadoria', label: t('bidfrete.importar.ecol_mercadoria'), example: 'Pecas automotivas' },
-    { key: 'incoterm', label: 'Incoterm', example: 'FOB, CIF, EXW...' },
-    { key: 'quantidade', label: t('bidfrete.importar.ecol_quantidade'), example: '10' },
-    { key: 'ncm', label: t('bidfrete.importar.ecol_ncm'), example: '8708.99.90' },
+    { key: 'porto_origem_cotacao_bid_frete', label: t('bidfrete.importar.ecol_origem_codigo'), example: 'BRSSZ' },
+    { key: 'porto_destino_cotacao_bid_frete', label: t('bidfrete.importar.ecol_destino_codigo'), example: 'CNSHA' },
+    { key: 'pais_origem_cotacao_bid_frete', label: t('bidfrete.importar.ecol_origem_pais'), example: 'BR' },
+    { key: 'pais_destino_cotacao_bid_frete', label: t('bidfrete.importar.ecol_destino_pais'), example: 'CN' },
+    { key: 'descricao_mercadoria_cotacao_bid_frete', label: t('bidfrete.importar.ecol_mercadoria'), example: 'Pecas automotivas' },
+    { key: 'incoterm_cotacao_bid_frete', label: 'Incoterm', example: 'FOB, CIF, EXW...' },
+    { key: 'quantidade_volumes_cotacao_bid_frete', label: t('bidfrete.importar.ecol_quantidade'), example: '10' },
+    { key: 'peso_kg_cotacao_bid_frete', label: t('bidfrete.importar.ecol_peso_kg'), example: '100' },
+    { key: 'cubagem_m3_cotacao_bid_frete', label: t('bidfrete.importar.ecol_cubagem_m3'), example: '0.5' },
+    { key: 'ncm_cotacao_bid_frete', label: t('bidfrete.importar.ecol_ncm'), example: '8708.99.90' },
   ]
 }
 
@@ -57,14 +59,16 @@ const VALID_MODAIS: ModalFrete[] = ['MARITIMO', 'AEREO', 'RODOVIARIO']
 interface ParsedRow {
   tipo_operacao: string
   modal: string
-  origem_codigo: string
-  origem_nome: string
-  destino_codigo: string
-  destino_nome: string
-  descricao_mercadoria: string
-  incoterm: string
-  quantidade: string
-  ncm: string
+  porto_origem_cotacao_bid_frete: string
+  porto_destino_cotacao_bid_frete: string
+  pais_origem_cotacao_bid_frete: string
+  pais_destino_cotacao_bid_frete: string
+  descricao_mercadoria_cotacao_bid_frete: string
+  incoterm_cotacao_bid_frete: string
+  quantidade_volumes_cotacao_bid_frete: string
+  peso_kg_cotacao_bid_frete: string
+  cubagem_m3_cotacao_bid_frete: string
+  ncm_cotacao_bid_frete: string
 }
 
 interface ValidatedRow extends RegistroTabela {
@@ -73,14 +77,16 @@ interface ValidatedRow extends RegistroTabela {
   status: 'OK' | 'Erro'
   tipo_operacao: string
   modal: string
-  origem_codigo: string
-  origem_nome: string
-  destino_codigo: string
-  destino_nome: string
-  descricao_mercadoria: string
-  incoterm: string
-  quantidade: string
-  ncm: string
+  porto_origem_cotacao_bid_frete: string
+  porto_destino_cotacao_bid_frete: string
+  pais_origem_cotacao_bid_frete: string
+  pais_destino_cotacao_bid_frete: string
+  descricao_mercadoria_cotacao_bid_frete: string
+  incoterm_cotacao_bid_frete: string
+  quantidade_volumes_cotacao_bid_frete: string
+  peso_kg_cotacao_bid_frete: string
+  cubagem_m3_cotacao_bid_frete: string
+  ncm_cotacao_bid_frete: string
   erros: string
 }
 
@@ -110,26 +116,26 @@ function validateRow(row: ParsedRow): string[] {
     erros.push(t('bidfrete.importar.val_modal_invalido'))
   }
 
-  if (!row.origem_codigo?.trim()) {
+  if (!row.porto_origem_cotacao_bid_frete?.trim()) {
     erros.push(t('bidfrete.importar.val_origem_obrigatorio'))
   }
 
-  if (!row.destino_codigo?.trim()) {
+  if (!row.porto_destino_cotacao_bid_frete?.trim()) {
     erros.push(t('bidfrete.importar.val_destino_obrigatorio'))
   }
 
-  if (!row.descricao_mercadoria?.trim()) {
+  if (!row.descricao_mercadoria_cotacao_bid_frete?.trim()) {
     erros.push(t('bidfrete.importar.val_descricao_obrigatoria'))
   }
 
-  if (!row.incoterm?.trim()) {
+  if (!row.incoterm_cotacao_bid_frete?.trim()) {
     erros.push(t('bidfrete.importar.val_incoterm_obrigatorio'))
-  } else if (!INCOTERMS.includes(row.incoterm.trim().toUpperCase() as Incoterm)) {
+  } else if (!INCOTERMS.includes(row.incoterm_cotacao_bid_frete.trim().toUpperCase() as Incoterm)) {
     erros.push(t('bidfrete.importar.val_incoterm_invalido'))
   }
 
-  const qty = Number(row.quantidade)
-  if (!row.quantidade?.trim() || isNaN(qty) || qty <= 0) {
+  const qty = Number(row.quantidade_volumes_cotacao_bid_frete)
+  if (!row.quantidade_volumes_cotacao_bid_frete?.trim() || isNaN(qty) || qty <= 0) {
     erros.push(t('bidfrete.importar.val_quantidade_positiva'))
   }
 
@@ -159,14 +165,16 @@ function parseCSV(content: string): ParsedRow[] {
     rows.push({
       tipo_operacao: cells[colMap['tipo_operacao'] ?? 0] ?? '',
       modal: cells[colMap['modal'] ?? 1] ?? '',
-      origem_codigo: cells[colMap['origem_codigo'] ?? 2] ?? '',
-      origem_nome: cells[colMap['origem_nome'] ?? 3] ?? '',
-      destino_codigo: cells[colMap['destino_codigo'] ?? 4] ?? '',
-      destino_nome: cells[colMap['destino_nome'] ?? 5] ?? '',
-      descricao_mercadoria: cells[colMap['descricao_mercadoria'] ?? 6] ?? '',
-      incoterm: cells[colMap['incoterm'] ?? 7] ?? '',
-      quantidade: cells[colMap['quantidade'] ?? 8] ?? '',
-      ncm: cells[colMap['ncm'] ?? 9] ?? '',
+      porto_origem_cotacao_bid_frete: cells[colMap['porto_origem_cotacao_bid_frete'] ?? 2] ?? '',
+      porto_destino_cotacao_bid_frete: cells[colMap['porto_destino_cotacao_bid_frete'] ?? 3] ?? '',
+      pais_origem_cotacao_bid_frete: cells[colMap['pais_origem_cotacao_bid_frete'] ?? 4] ?? '',
+      pais_destino_cotacao_bid_frete: cells[colMap['pais_destino_cotacao_bid_frete'] ?? 5] ?? '',
+      descricao_mercadoria_cotacao_bid_frete: cells[colMap['descricao_mercadoria_cotacao_bid_frete'] ?? 6] ?? '',
+      incoterm_cotacao_bid_frete: cells[colMap['incoterm_cotacao_bid_frete'] ?? 7] ?? '',
+      quantidade_volumes_cotacao_bid_frete: cells[colMap['quantidade_volumes_cotacao_bid_frete'] ?? 8] ?? '',
+      peso_kg_cotacao_bid_frete: cells[colMap['peso_kg_cotacao_bid_frete'] ?? 9] ?? '',
+      cubagem_m3_cotacao_bid_frete: cells[colMap['cubagem_m3_cotacao_bid_frete'] ?? 10] ?? '',
+      ncm_cotacao_bid_frete: cells[colMap['ncm_cotacao_bid_frete'] ?? 11] ?? '',
     })
   }
 
@@ -249,16 +257,16 @@ export default function ImportarBloco() {
         await criarCotacao({
           tipo_operacao: row.tipo_operacao.trim().toUpperCase() as TipoOperacao,
           modal: row.modal.trim().toUpperCase() as ModalFrete,
-          origem_codigo: row.origem_codigo.trim(),
-          origem_nome: row.origem_nome.trim() || row.origem_codigo.trim(),
-          origem_pais: '',
-          destino_codigo: row.destino_codigo.trim(),
-          destino_nome: row.destino_nome.trim() || row.destino_codigo.trim(),
-          destino_pais: '',
-          descricao_mercadoria: row.descricao_mercadoria.trim(),
-          incoterm: row.incoterm.trim().toUpperCase(),
-          quantidade: Number(row.quantidade),
-          ncm: row.ncm?.trim() || null,
+          porto_origem_cotacao_bid_frete: row.porto_origem_cotacao_bid_frete.trim(),
+          pais_origem_cotacao_bid_frete: row.pais_origem_cotacao_bid_frete.trim() || null,
+          porto_destino_cotacao_bid_frete: row.porto_destino_cotacao_bid_frete.trim(),
+          pais_destino_cotacao_bid_frete: row.pais_destino_cotacao_bid_frete.trim() || null,
+          descricao_mercadoria_cotacao_bid_frete: row.descricao_mercadoria_cotacao_bid_frete.trim(),
+          incoterm_cotacao_bid_frete: row.incoterm_cotacao_bid_frete.trim().toUpperCase(),
+          quantidade_volumes_cotacao_bid_frete: Number(row.quantidade_volumes_cotacao_bid_frete),
+          peso_kg_cotacao_bid_frete: row.peso_kg_cotacao_bid_frete.trim() ? Number(row.peso_kg_cotacao_bid_frete) : null,
+          cubagem_m3_cotacao_bid_frete: row.cubagem_m3_cotacao_bid_frete.trim() ? Number(row.cubagem_m3_cotacao_bid_frete) : null,
+          ncm_cotacao_bid_frete: row.ncm_cotacao_bid_frete?.trim() || null,
         })
         criadas++
       } catch (err) {
@@ -325,7 +333,7 @@ export default function ImportarBloco() {
     { key: 'tipo_operacao', label: t('bidfrete.importar.col_tipo'), largura: '110px' },
     { key: 'modal', label: t('bidfrete.importar.col_modal'), largura: '100px' },
     {
-      key: 'origem_codigo',
+      key: 'porto_origem_cotacao_bid_frete',
       label: t('bidfrete.importar.col_origem'),
       largura: '90px',
       renderizar: (v) => (
@@ -333,16 +341,16 @@ export default function ImportarBloco() {
       ),
     },
     {
-      key: 'destino_codigo',
+      key: 'porto_destino_cotacao_bid_frete',
       label: t('bidfrete.importar.col_destino'),
       largura: '90px',
       renderizar: (v) => (
         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>
       ),
     },
-    { key: 'descricao_mercadoria', label: t('bidfrete.importar.col_mercadoria') },
+    { key: 'descricao_mercadoria_cotacao_bid_frete', label: t('bidfrete.importar.col_mercadoria') },
     {
-      key: 'incoterm',
+      key: 'incoterm_cotacao_bid_frete',
       label: t('bidfrete.importar.col_incoterm'),
       largura: '80px',
       alinhamento: 'center',
@@ -353,7 +361,7 @@ export default function ImportarBloco() {
       ),
     },
     {
-      key: 'quantidade',
+      key: 'quantidade_volumes_cotacao_bid_frete',
       label: t('bidfrete.importar.col_qtd'),
       largura: '64px',
       alinhamento: 'right',

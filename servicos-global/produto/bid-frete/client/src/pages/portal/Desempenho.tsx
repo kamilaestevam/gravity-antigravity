@@ -37,7 +37,7 @@ interface DesempenhoData {
     nota_global: number
     comentario: string | null
     created_at: string
-    cotacao_numero: string | null
+    numero_cotacao_bid_frete: string | null
   }>
 }
 
@@ -194,8 +194,8 @@ export default function MeuDesempenho() {
                     <span className="md-aval-nota md-mono">{aval.nota_global.toFixed(1)}</span>
                     <span className="md-aval-data">{fmtData(aval.created_at)}</span>
                   </div>
-                  {aval.cotacao_numero && (
-                    <span className="md-aval-cotacao md-mono">#{aval.cotacao_numero}</span>
+                  {aval.numero_cotacao_bid_frete && (
+                    <span className="md-aval-cotacao md-mono">#{aval.numero_cotacao_bid_frete}</span>
                   )}
                   {aval.comentario && (
                     <p className="md-aval-comment">{aval.comentario}</p>

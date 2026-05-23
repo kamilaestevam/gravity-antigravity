@@ -23,6 +23,8 @@ _preview_*.html
 # ── Prisma engines gerados (plataforma-específicos) ──────────
 **/generated/libquery_engine-*
 **/generated/query_engine-*
+**/src/generated/client/query_engine-*
+**/src/generated/client/libquery_engine-*
 
 # ── Variáveis de ambiente (NUNCA commitar segredos!) ─────────
 .env

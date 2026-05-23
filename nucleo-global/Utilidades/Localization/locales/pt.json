@@ -4604,7 +4604,7 @@
       "col_num_copia": "Número da cópia",
       "num_auto_badge": "auto",
       "num_placeholder": "Ex.: PO-2026/099",
-      "resultado_sucesso": "{{count}} pedido{{s}} duplicado{{s}} com sucesso.",
+      "resultado_sucesso": "{{count}} pedido duplicado com sucesso.",
       "erros_titulo": "{{count}} pedido{{s}} com erro:",
       "duplicar": "Duplicar",
       "duplicando": "Duplicando...",
@@ -4671,7 +4671,7 @@
       "badge_divergencia": "{{count}} origens",
       "fundir_label": "Fundir itens com mesmo part_number",
       "fundir_hint": "Soma as quantidades de itens com o mesmo part_number entre os pedidos",
-      "divergencias": "{{count}} divergência{{s}} encontrada{{s}}",
+      "divergencias": "{{count}} divergência encontrada",
       "consolidar": "Consolidar",
       "consolidando": "Consolidando...",
       "cancelar": "Cancelar",
@@ -4772,7 +4772,7 @@
       "n_itens": "{{count}} itens"
     },
     "modal_massa": {
-      "titulo": "Editar em Massa ({{count}} pedido{{s}} selecionado{{s}})",
+      "titulo": "Editar em Massa ({{count}} pedido selecionado)",
       "nivel_pedido": "Pedido",
       "nivel_item": "Item",
       "nivel_combinado": "Combinado",

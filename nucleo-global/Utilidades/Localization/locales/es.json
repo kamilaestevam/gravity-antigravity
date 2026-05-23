@@ -3050,7 +3050,13 @@
       "divergente_data_meta_envio_original_invoice": "Fechas objetivo de envío original de la factura divergentes entre ítems",
       "divergente_data_prevista_recebimento_original_invoice": "Fechas previstas de recepción original de la factura divergentes entre ítems",
       "divergente_data_confirmada_recebimento_original_invoice": "Fechas confirmadas de recepción original de la factura divergentes entre ítems",
-      "divergente_data_meta_recebimento_original_invoice": "Fechas objetivo de recepción original de la factura divergentes entre ítems"
+      "divergente_data_meta_recebimento_original_invoice": "Fechas objetivo de recepción original de la factura divergentes entre ítems",
+      "data_documento_proforma": "Fecha Doc. Proforma",
+      "data_documento_proforma_titulo": "Fecha del Documento Proforma",
+      "data_documento_proforma_desc": "Fecha de emisión del documento proforma",
+      "data_documento_invoice": "Fecha Doc. Factura",
+      "data_documento_invoice_titulo": "Fecha del Documento Invoice",
+      "data_documento_invoice_desc": "Fecha de emisión del documento invoice"
     },
     "config": {
       "acao": {
@@ -3833,7 +3839,7 @@
       "col_num_copia": "Número de copia",
       "num_auto_badge": "auto",
       "num_placeholder": "Ej.: PO-2026/099",
-      "resultado_sucesso": "{{count}} pedido{{s}} duplicado{{s}} con éxito.",
+      "resultado_sucesso": "{{count}} pedido duplicado con éxito.",
       "erros_titulo": "{{count}} pedido{{s}} con error:",
       "duplicar": "Duplicar",
       "duplicando": "Duplicando...",
@@ -3900,7 +3906,7 @@
       "badge_divergencia": "{{count}} orígenes",
       "fundir_label": "Fusionar ítems con el mismo part_number",
       "fundir_hint": "Suma las cantidades de ítems con el mismo part_number entre los pedidos",
-      "divergencias": "{{count}} divergencia{{s}} encontrada{{s}}",
+      "divergencias": "{{count}} divergencia encontrada",
       "consolidar": "Consolidar",
       "consolidando": "Consolidando...",
       "cancelar": "Cancelar",
@@ -4001,7 +4007,7 @@
       "n_itens": "{{count}} artículos"
     },
     "modal_massa": {
-      "titulo": "Edición Masiva ({{count}} pedido{{s}} seleccionado{{s}})",
+      "titulo": "Edición Masiva ({{count}} pedido seleccionado)",
       "nivel_pedido": "Pedido",
       "nivel_item": "Ítem",
       "nivel_combinado": "Combinado",
@@ -4920,14 +4926,14 @@
       "fechar_erro": "Cerrar error",
       "nenhum_anexo": "Ningún anexo",
       "visualizar": "Visualizar",
-      "visualizar_arquivo": "Visualizar {{nombre}}",
+      "visualizar_arquivo": "Visualizar {{nome}}",
       "baixar": "Descargar",
-      "baixar_arquivo": "Descargar {{nombre}}",
+      "baixar_arquivo": "Descargar {{nome}}",
       "excluir": "Eliminar",
-      "excluir_arquivo": "Eliminar {{nombre}}",
+      "excluir_arquivo": "Eliminar {{nome}}",
       "fechar_preview": "Cerrar vista previa",
-      "preview_aria": "Vista previa: {{nombre}}",
-      "preview_de": "Vista previa de {{nombre}}",
+      "preview_aria": "Vista previa: {{nome}}",
+      "preview_de": "Vista previa de {{nome}}",
       "excluir_anexo_titulo": "Eliminar anexo",
       "excluir_anexo_desc": "Esta acción no se puede deshacer.",
       "erro_carregar": "Error al cargar anexos",
@@ -5338,7 +5344,9 @@
         "por_autor": "por {{autor}}",
         "pedido_atualizado": "¡Pedido actualizado con éxito!"
       }
-    }
+    },
+    "valor_total_brl": "Total Pedidos — BRL",
+    "valor_total_brl_desc": "Todos los pedidos convertidos a R$"
   },
   "processo": {
     "titulo": "Proceso",

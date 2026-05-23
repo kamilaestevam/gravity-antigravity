@@ -19,6 +19,11 @@ out/
 # ── Scratch / preview / fragments temporários ────────────────
 _*/
 _preview_*.html
+scratch/
+vite_fetch.html
+
+# ── Logs gerados por testes ──────────────────────────────────
+servicos-global/configurador/data/test-logs/
 
 # ── Prisma engines gerados (plataforma-específicos) ──────────
 **/generated/libquery_engine-*

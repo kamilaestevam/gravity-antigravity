@@ -392,10 +392,37 @@ O Líder confere antes do push:
 
 ---
 
-## REGRA ABSOLUTA — Sem Worktrees
+## REGRA ABSOLUTA — Worktrees, Branches e Master
 
-**PROIBIDO criar worktrees.** Todo trabalho é feito diretamente na branch `master`.
-Nunca usar `git worktree`, nunca criar branches auxiliares, nunca usar isolamento de worktree.
+**PROIBIDO commitar direto na master.** Toda mudança passa por branch + PR + revisão. Master fica sempre verde e deployável (auto-deploy do Railway dispara em ~1s após merge — código quebrado em master = produção quebrada).
+
+**Cada agente trabalha em sua branch.** O nome reflete a tarefa: `feature/<nome>`, `fix/<nome>`, `hotfix/<nome>`, `docs/<nome>`, `seguranca/<nome>`. Branches auxiliares são esperadas e necessárias — não são "ruído".
+
+**Worktrees são permitidas e recomendadas para paralelismo.** Quando múltiplos agentes trabalham simultaneamente, cada um deve ter sua worktree própria. O Cowork cria automaticamente com o toggle `worktree ✅`, ou manualmente:
+
+```bash
+git worktree add ../gravity-<nome-da-tarefa> -b feature/<nome-da-tarefa>
+```
+
+**Worktree órfã não pode acumular.** Após o merge do PR e remoção da branch:
+
+```bash
+git worktree remove ../gravity-<nome-da-tarefa>
+```
+
+Periodicamente: `git worktree list` para auditar e `git worktree prune` para limpar referências mortas.
+
+**Quando NÃO usar worktree:** dois agentes que precisam colaborar serialmente no MESMO arquivo (um termina, outro começa). Aí mesma worktree + mesma branch, mas um agente por vez. **Nunca** dois agentes editando simultaneamente o mesmo working tree — causa sobrescrita silenciosa e commits misturados.
+
+**Antes de qualquer edição, todo agente DEVE rodar:**
+
+```bash
+git status
+git rev-parse --abbrev-ref HEAD
+git worktree list
+```
+
+E confirmar que está na pasta certa, na branch certa, com working tree limpo. Se algo estiver fora do esperado, PARAR e avisar o dono.
 
 ---
 
@@ -424,6 +451,7 @@ ETAPA 6: QA completo (código + testes + pastas + cobertura)
     ↓
 ETAPA 7: DONO aprova resultado final ← (última interação do dono)
     ↓
-ETAPA 8: Commit + Push (apenas arquivos deste agente, direto na master)
+ETAPA 8: Commit + Push na branch da tarefa → abrir PR → revisão → merge em master
     🔒 Líder verifica staging antes do push
+    🔒 Após merge: confirmar deploy em produção via `railway deployment list --json --limit 1`
 ```

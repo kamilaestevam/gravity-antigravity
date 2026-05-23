@@ -45,6 +45,7 @@ import type {
   LineSeriesConfig,
   BarSeriesConfig,
   DerivedMetric,
+  EnrichedCatalogField,
 } from '@nucleo/dashboard'
 import { resolveAxisAssignment, SERIES_COLORS, formatValueByUnit } from '@nucleo/dashboard'
 import {
@@ -56,9 +57,9 @@ import {
 } from '@phosphor-icons/react'
 import './PedidosDashboard.css'
 
-import { useDashboardStore } from '../stores/dashboardStore'
+import { useDashboardStore, translateWidgetTitle } from '../stores/dashboardStore'
 import { useTrackBehavior } from '../hooks/useTrackBehavior'
-import { DASHBOARD_CATALOG, CATALOG_BY_KEY } from '../shared/dashboardCatalog'
+import { buildDashboardCatalog, buildCatalogByKey } from '../shared/dashboardCatalog'
 import { generateSuggestions } from '../shared/dashboardSuggestions'
 import { BUILT_IN_DERIVED, computeDerived } from '../shared/derivedMetrics'
 import { dashboardApi, paineisDashboardApi } from '../shared/api'
@@ -71,6 +72,7 @@ function buildWidgetResult(
   kpis: DashboardKpis,
   trend: DashboardTrendBucket[],
   allDerived: DerivedMetric[],
+  catalogByKey: Record<string, EnrichedCatalogField>,
 ): WidgetResult {
   const now = new Date().toISOString()
   const fields = widget.query_spec.fields
@@ -79,7 +81,7 @@ function buildWidgetResult(
   // ── DISTRIBUTION ──────────────────────────────────────────────────────────
   if (chartType === 'DISTRIBUTION') {
     const slices: WidgetDistributionSlice[] = fields.map(fqs => {
-      const catalog = CATALOG_BY_KEY[fqs.key]
+      const catalog = catalogByKey[fqs.key]
       const unit: FieldUnitType = catalog?.type === 'currency' ? 'currency'
         : catalog?.type === 'percentage' ? 'percentage' : 'number'
       return {
@@ -105,7 +107,7 @@ function buildWidgetResult(
 
     const unitTypes = [...new Set(
       fields.map(fqs => {
-        const cat = CATALOG_BY_KEY[fqs.key]
+        const cat = catalogByKey[fqs.key]
         return (cat?.type === 'currency' ? 'currency' : 'number') as FieldUnitType
       }),
     )]
@@ -1050,10 +1052,14 @@ export default function PedidosDashboard() {
     [userDerivedMetrics],
   )
 
+  // Catálogo traduzido (rebuild quando muda o idioma)
+  const dashboardCatalog = useMemo(() => buildDashboardCatalog(t), [t])
+  const catalogByKey = useMemo(() => buildCatalogByKey(t), [t])
+
   // Labels dos campos para o DashboardPainelEditarModal (produto-específico)
   const fieldLabels = useMemo(
-    () => Object.fromEntries(DASHBOARD_CATALOG.map(f => [f.key, f.label])),
-    [],
+    () => Object.fromEntries(dashboardCatalog.map(f => [f.key, f.label])),
+    [dashboardCatalog],
   )
 
   // Posição de inserção de novos widgets — sempre após o último widget existente
@@ -1069,8 +1075,9 @@ export default function PedidosDashboard() {
       allDerived,
       gridBottom,
       widgets.flatMap(w => w.query_spec.fields.map((f: { key: string }) => f.key)),
+      dashboardCatalog,
     ),
-    [widgets, allDerived, gridBottom],
+    [widgets, allDerived, gridBottom, dashboardCatalog],
   )
 
   // Efeito visual reutilizável: scroll + outline pulse após adicionar qualquer widget
@@ -1130,13 +1137,14 @@ export default function PedidosDashboard() {
   const activeWidgets = useMemo(() =>
     widgets.map(w => ({
       ...w,
+      title: translateWidgetTitle(w, t),
       query_spec: {
         ...w.query_spec,
         filters: w.query_spec.filters.period === '12m'
           ? w.query_spec.filters
           : { ...w.query_spec.filters, period: slicers.period },
       },
-    })), [widgets, slicers.period],
+    })), [widgets, slicers.period, t],
   )
 
   const renderWidget = useCallback((widget: DashboardWidgetConfig) => {
@@ -1255,7 +1263,7 @@ export default function PedidosDashboard() {
     }
 
     const result = kpisData
-      ? buildWidgetResult(widget, kpisData, trendData, allDerived)
+      ? buildWidgetResult(widget, kpisData, trendData, allDerived, catalogByKey)
       : { data: {}, chartType: widget.chart_type, partial: true, cached: false, computed_at: new Date().toISOString() }
     const fields = widget.query_spec.fields
     const isDerived = !!widget.config?.derivedMetricId
@@ -1301,11 +1309,11 @@ export default function PedidosDashboard() {
 
     // ── LINE / AREA ──────────────────────────────────────────────────────────
     if (chartType === 'LINE' || chartType === 'AREA') {
-      const catalogFields = fields.map(fqs => CATALOG_BY_KEY[fqs.key]).filter(Boolean)
+      const catalogFields = fields.map(fqs => catalogByKey[fqs.key]).filter(Boolean)
       const { assignments, dualAxis, leftUnit, rightUnit } = resolveAxisAssignment(catalogFields)
 
       const series: LineSeriesConfig[] = fields.map((fqs, i) => {
-        const cat = CATALOG_BY_KEY[fqs.key]
+        const cat = catalogByKey[fqs.key]
         const unit: FieldUnitType = cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number'
         const seriesPoints = result.series ?? []
         return {
@@ -1338,11 +1346,11 @@ export default function PedidosDashboard() {
 
     // ── BAR / BAR_HORIZONTAL ─────────────────────────────────────────────────
     if (chartType === 'BAR' || chartType === 'BAR_HORIZONTAL') {
-      const catalogFields = fields.map(fqs => CATALOG_BY_KEY[fqs.key]).filter(Boolean)
+      const catalogFields = fields.map(fqs => catalogByKey[fqs.key]).filter(Boolean)
       const { assignments, dualAxis, leftUnit, rightUnit } = resolveAxisAssignment(catalogFields)
 
       const series: BarSeriesConfig[] = fields.map((fqs, i) => {
-        const cat = CATALOG_BY_KEY[fqs.key]
+        const cat = catalogByKey[fqs.key]
         const unit: FieldUnitType = cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number'
         const seriesPoints = result.series ?? []
         return {
@@ -1376,7 +1384,7 @@ export default function PedidosDashboard() {
     // ── KPI_CARD ─────────────────────────────────────────────────────────────
     if (chartType === 'KPI_CARD') {
       const fieldKey = fields[0]?.key ?? 'value'
-      const cat = CATALOG_BY_KEY[fieldKey]
+      const cat = catalogByKey[fieldKey]
       const dm = widget.config?.derivedMetricId
         ? allDerived.find(m => m.id === widget.config!.derivedMetricId)
         : undefined
@@ -1424,7 +1432,7 @@ export default function PedidosDashboard() {
         <DashboardValorKPI data={result.data} fieldKey={fieldKey} fieldType="number" />
       </DashboardPainelContainer>
     )
-  }, [editMode, removeWidget, allDerived, kpisData, prevKpisData, trendData, loadingData, slicers, setPeriod, fieldLabels, t])
+  }, [editMode, removeWidget, allDerived, kpisData, prevKpisData, trendData, loadingData, slicers, setPeriod, fieldLabels, catalogByKey, t])
 
   function handleQueryBuilderSave(spec: WidgetQuerySpec, title: string, chartType: ChartType) {
     const id = `custom_${Date.now()}`
@@ -1728,7 +1736,7 @@ export default function PedidosDashboard() {
 
       <DashboardConstrutorConsulta
         aberto={queryBuilderOpen}
-        availableFields={DASHBOARD_CATALOG}
+        availableFields={dashboardCatalog}
         onSave={handleQueryBuilderSave}
         onCancel={() => setQueryBuilderOpen(false)}
       />

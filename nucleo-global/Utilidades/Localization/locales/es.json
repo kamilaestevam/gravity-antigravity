@@ -5443,6 +5443,41 @@
           "valor": "Valor"
         }
       }
+    },
+    "dashboard_widgets": {
+      "field_total_pedidos": "Total de Pedidos",
+      "field_pedidos_abertos": "Pedidos Abiertos",
+      "field_pedidos_em_andamento": "En Curso",
+      "field_pedidos_atrasados": "Pedidos Atrasados",
+      "field_pedidos_consolidados": "Consolidados",
+      "field_pedidos_cancelados": "Cancelados",
+      "field_pedidos_rascunho": "Borradores",
+      "field_valor_total": "Valor Total de los Pedidos",
+      "field_valor_total_brl": "Exposición Cambiaria (BRL)",
+      "field_cobertura_pendente": "Cobertura Cambiaria a Contratar",
+      "field_valor_itens_total": "Valor de los Artículos (FOB/CIF)",
+      "field_qtd_total": "Cantidad Total",
+      "field_itens_prontos": "Artículos Listos",
+      "field_qtd_atual_total": "Cant. Actual (Artículos)",
+      "field_qtd_transferida_total": "Cant. Transferida",
+      "field_qtd_inicial_total": "Cant. Inicial (Artículos)",
+      "dim_status_pedidos": "Estado de los Pedidos",
+      "title_kpi_total_pedidos": "Total de Pedidos",
+      "title_kpi_pedidos_abertos": "Pedidos Abiertos",
+      "title_kpi_saldo_total": "Saldo Total (Cant)",
+      "title_kpi_valor_total": "Valor Total (BRL)",
+      "title_gabi_insights": "GABI AI · Insights",
+      "title_pedidos_por_mes": "Pedidos por Mes",
+      "title_valor_total_trend": "Evolución del Valor Total",
+      "title_section_alertas": "Alertas Operacionales",
+      "title_kpi_pedidos_atrasados": "Pedidos Atrasados",
+      "title_kpi_sem_exportador": "Sin Exportador",
+      "title_kpi_qtd_pronta": "Cant. Lista",
+      "title_status_dist": "Distribución por Estado",
+      "title_tipo_operacao_dist": "Importación vs Exportación",
+      "title_kpi_qtd_inicial": "Cant. Inicial Total",
+      "title_kpi_qtd_transferida": "Cant. Transferida",
+      "title_kpi_valor_itens": "Valor Total de los Artículos"
     }
   },
   "processo": {

@@ -10,8 +10,43 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import type { TFunction } from 'i18next'
 import type { DashboardWidgetConfig, WidgetQuerySpec, FieldQuerySpec, DerivedMetric, ActiveFilter, GlobalSlicers } from '@nucleo/dashboard'
 import type { DashboardPainel } from '../shared/api'
+
+// ── i18n — chaves de tradução dos títulos dos widgets padrão ─────────────────
+//
+// Cada id de widget em DEFAULT_WIDGETS aponta para uma chave i18n. O título PT
+// armazenado em `title` continua sendo o fallback (e o que vai pro localStorage
+// na primeira hidratação). Em runtime, `translateWidgetTitle(widget, t)` resolve
+// o título para o idioma corrente.
+export const WIDGET_TITLE_KEYS: Record<string, string> = {
+  kpi_total_pedidos:      'pedido.dashboard_widgets.title_kpi_total_pedidos',
+  kpi_pedidos_abertos:    'pedido.dashboard_widgets.title_kpi_pedidos_abertos',
+  kpi_saldo_total:        'pedido.dashboard_widgets.title_kpi_saldo_total',
+  kpi_valor_total:        'pedido.dashboard_widgets.title_kpi_valor_total',
+  gabi_insights:          'pedido.dashboard_widgets.title_gabi_insights',
+  pedidos_por_mes:        'pedido.dashboard_widgets.title_pedidos_por_mes',
+  valor_total_trend:      'pedido.dashboard_widgets.title_valor_total_trend',
+  section_alertas:        'pedido.dashboard_widgets.title_section_alertas',
+  kpi_pedidos_atrasados:  'pedido.dashboard_widgets.title_kpi_pedidos_atrasados',
+  kpi_sem_exportador:     'pedido.dashboard_widgets.title_kpi_sem_exportador',
+  kpi_qtd_pronta:         'pedido.dashboard_widgets.title_kpi_qtd_pronta',
+  status_dist:            'pedido.dashboard_widgets.title_status_dist',
+  tipo_operacao_dist:     'pedido.dashboard_widgets.title_tipo_operacao_dist',
+  kpi_qtd_inicial:        'pedido.dashboard_widgets.title_kpi_qtd_inicial',
+  kpi_qtd_transferida:    'pedido.dashboard_widgets.title_kpi_qtd_transferida',
+  kpi_valor_itens:        'pedido.dashboard_widgets.title_kpi_valor_itens',
+}
+
+/**
+ * Resolve o título do widget para o idioma corrente. Para widgets criados pelo
+ * usuário (sem entrada em WIDGET_TITLE_KEYS) mantém o título salvo no painel.
+ */
+export function translateWidgetTitle(widget: DashboardWidgetConfig, t: TFunction): string {
+  const key = WIDGET_TITLE_KEYS[widget.id]
+  return key ? t(key) : widget.title
+}
 
 // ── Migração de formato legado ────────────────────────────────────────────────
 

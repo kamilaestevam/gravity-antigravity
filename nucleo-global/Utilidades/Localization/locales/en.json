@@ -6585,6 +6585,41 @@
           "valor": "Value"
         }
       }
+    },
+    "dashboard_widgets": {
+      "field_total_pedidos": "Total Orders",
+      "field_pedidos_abertos": "Open Orders",
+      "field_pedidos_em_andamento": "In Progress",
+      "field_pedidos_atrasados": "Delayed Orders",
+      "field_pedidos_consolidados": "Consolidated",
+      "field_pedidos_cancelados": "Canceled",
+      "field_pedidos_rascunho": "Drafts",
+      "field_valor_total": "Total Order Value",
+      "field_valor_total_brl": "Currency Exposure (BRL)",
+      "field_cobertura_pendente": "Currency Hedge to Contract",
+      "field_valor_itens_total": "Total Item Value (FOB/CIF)",
+      "field_qtd_total": "Total Quantity",
+      "field_itens_prontos": "Ready Items",
+      "field_qtd_atual_total": "Current Qty. (Items)",
+      "field_qtd_transferida_total": "Transferred Qty.",
+      "field_qtd_inicial_total": "Initial Qty. (Items)",
+      "dim_status_pedidos": "Order Status",
+      "title_kpi_total_pedidos": "Total Orders",
+      "title_kpi_pedidos_abertos": "Open Orders",
+      "title_kpi_saldo_total": "Total Balance (Qty)",
+      "title_kpi_valor_total": "Total Value (BRL)",
+      "title_gabi_insights": "GABI AI · Insights",
+      "title_pedidos_por_mes": "Orders by Month",
+      "title_valor_total_trend": "Total Value Trend",
+      "title_section_alertas": "Operational Alerts",
+      "title_kpi_pedidos_atrasados": "Overdue Orders",
+      "title_kpi_sem_exportador": "No Exporter",
+      "title_kpi_qtd_pronta": "Qty. Ready",
+      "title_status_dist": "Distribution by Status",
+      "title_tipo_operacao_dist": "Import vs Export",
+      "title_kpi_qtd_inicial": "Total Initial Qty.",
+      "title_kpi_qtd_transferida": "Transferred Qty.",
+      "title_kpi_valor_itens": "Total Value of Items"
     }
   },
   "processo": {

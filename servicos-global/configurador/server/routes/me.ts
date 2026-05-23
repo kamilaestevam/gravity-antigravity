@@ -131,25 +131,33 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
-    // ── Mandamento 04 (LIMBO) — admin Gravity enxerga todos os workspaces ──────
-    // SUPER_ADMIN e ADMIN são equipe interna Gravity: têm acesso global a TODOS
-    // os workspaces da organização ATIVA, SEM precisar de vínculo em
-    // UsuarioWorkspace. Por isso a lista de workspaces deles NÃO pode sair de
+    // ── Mandamento 04 (LIMBO) + database-governance Regra de Ouro ──────────────
+    // SUPER_ADMIN, ADMIN e MASTER têm acesso global a TODOS os workspaces da
+    // organização ATIVA, SEM precisar de vínculo em UsuarioWorkspace:
+    //   - SUPER_ADMIN / ADMIN: equipe interna Gravity (Mandamento 04 LIMBO).
+    //   - MASTER: dono da organização do cliente — a `database-governance`
+    //     Regra de Ouro explicita "Master/Super Admin são ignorados (acesso
+    //     global automático)".
+    //
+    // Por isso a lista de workspaces destes três papéis NÃO pode sair de
     // `memberships` (ficaria vazia, quebrando o seletor de workspace no front e
     // derrubando toda rota autenticada do produto em 503). É buscada direto da
     // tabela Workspace, filtrada por `id_organizacao` — o Configurador é
     // single-schema `public`, então esse filtro é OBRIGATÓRIO (isolamento).
     //
-    // O campo `tipo_usuario` de cada item da lista recebe 'MASTER': o admin tem
-    // acesso nível-master em qualquer workspace. Isto NÃO rebaixa nem altera o
-    // `tipo_usuario` GLOBAL do usuário (que continua SUPER_ADMIN/ADMIN) — é
-    // apenas o "papel dentro daquele workspace" no payload do /me.
-    // Usuários não-admin (MASTER/PADRAO/FORNECEDOR) seguem via `memberships`.
-    const ehAdminGravity =
-      usuario.tipo_usuario === 'SUPER_ADMIN' || usuario.tipo_usuario === 'ADMIN'
+    // O campo `tipo_usuario` de cada item da lista recebe 'MASTER': o usuário
+    // tem acesso nível-master em qualquer workspace. Isto NÃO rebaixa nem
+    // altera o `tipo_usuario` GLOBAL do usuário (que continua
+    // SUPER_ADMIN/ADMIN/MASTER) — é apenas o "papel dentro daquele workspace"
+    // no payload do /me.
+    // Usuários PADRAO/FORNECEDOR seguem via `memberships`.
+    const temAcessoGlobalAosWorkspaces =
+      usuario.tipo_usuario === 'SUPER_ADMIN' ||
+      usuario.tipo_usuario === 'ADMIN' ||
+      usuario.tipo_usuario === 'MASTER'
 
     let workspacesResposta
-    if (ehAdminGravity) {
+    if (temAcessoGlobalAosWorkspaces) {
       const workspacesDaOrg = await prisma.workspace.findMany({
         where: { id_organizacao: usuario.id_organizacao, status_workspace: 'ATIVO' },
         select: {

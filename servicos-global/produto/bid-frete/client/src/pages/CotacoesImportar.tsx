@@ -26,24 +26,28 @@ import {
   ArrowClockwise,
 } from '@phosphor-icons/react'
 
+import i18next from 'i18next'
 import { criarCotacao } from '../shared/api'
 import type { TipoOperacao, ModalFrete, Incoterm } from '../shared/types'
 import { INCOTERMS } from '../shared/types'
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const EXPECTED_COLUMNS = [
-  { key: 'tipo_operacao', label: 'Tipo Operacao', example: 'IMPORTACAO ou EXPORTACAO' },
-  { key: 'modal', label: 'Modal', example: 'MARITIMO, AEREO ou RODOVIARIO' },
-  { key: 'origem_codigo', label: 'Origem (codigo)', example: 'BRSSZ' },
-  { key: 'origem_nome', label: 'Origem (nome)', example: 'Santos' },
-  { key: 'destino_codigo', label: 'Destino (codigo)', example: 'CNSHA' },
-  { key: 'destino_nome', label: 'Destino (nome)', example: 'Shanghai' },
-  { key: 'descricao_mercadoria', label: 'Mercadoria', example: 'Pecas automotivas' },
-  { key: 'incoterm', label: 'Incoterm', example: 'FOB, CIF, EXW...' },
-  { key: 'quantidade', label: 'Quantidade', example: '10' },
-  { key: 'ncm', label: 'NCM (opcional)', example: '8708.99.90' },
-]
+function getExpectedColumns() {
+  const t = i18next.t.bind(i18next)
+  return [
+    { key: 'tipo_operacao', label: t('bidfrete.importar.ecol_tipo_operacao'), example: 'IMPORTACAO ou EXPORTACAO' },
+    { key: 'modal', label: t('bidfrete.importar.ecol_modal'), example: 'MARITIMO, AEREO ou RODOVIARIO' },
+    { key: 'origem_codigo', label: t('bidfrete.importar.ecol_origem_codigo'), example: 'BRSSZ' },
+    { key: 'origem_nome', label: t('bidfrete.importar.ecol_origem_nome'), example: 'Santos' },
+    { key: 'destino_codigo', label: t('bidfrete.importar.ecol_destino_codigo'), example: 'CNSHA' },
+    { key: 'destino_nome', label: t('bidfrete.importar.ecol_destino_nome'), example: 'Shanghai' },
+    { key: 'descricao_mercadoria', label: t('bidfrete.importar.ecol_mercadoria'), example: 'Pecas automotivas' },
+    { key: 'incoterm', label: 'Incoterm', example: 'FOB, CIF, EXW...' },
+    { key: 'quantidade', label: t('bidfrete.importar.ecol_quantidade'), example: '10' },
+    { key: 'ncm', label: t('bidfrete.importar.ecol_ncm'), example: '8708.99.90' },
+  ]
+}
 
 const VALID_TIPOS: TipoOperacao[] = ['IMPORTACAO', 'EXPORTACAO']
 const VALID_MODAIS: ModalFrete[] = ['MARITIMO', 'AEREO', 'RODOVIARIO']
@@ -91,41 +95,42 @@ interface CreationResult {
 // ─── Validation ─────────────────────────────────────────────────────────────
 
 function validateRow(row: ParsedRow): string[] {
+  const t = i18next.t.bind(i18next)
   const erros: string[] = []
 
   if (!row.tipo_operacao?.trim()) {
-    erros.push('tipo_operacao obrigatorio')
+    erros.push(t('bidfrete.importar.val_tipo_operacao_obrigatorio'))
   } else if (!VALID_TIPOS.includes(row.tipo_operacao.trim().toUpperCase() as TipoOperacao)) {
-    erros.push('tipo_operacao invalido (IMPORTACAO/EXPORTACAO)')
+    erros.push(t('bidfrete.importar.val_tipo_operacao_invalido'))
   }
 
   if (!row.modal?.trim()) {
-    erros.push('modal obrigatorio')
+    erros.push(t('bidfrete.importar.val_modal_obrigatorio'))
   } else if (!VALID_MODAIS.includes(row.modal.trim().toUpperCase() as ModalFrete)) {
-    erros.push('modal invalido (MARITIMO/AEREO/RODOVIARIO)')
+    erros.push(t('bidfrete.importar.val_modal_invalido'))
   }
 
   if (!row.origem_codigo?.trim()) {
-    erros.push('origem_codigo obrigatorio')
+    erros.push(t('bidfrete.importar.val_origem_obrigatorio'))
   }
 
   if (!row.destino_codigo?.trim()) {
-    erros.push('destino_codigo obrigatorio')
+    erros.push(t('bidfrete.importar.val_destino_obrigatorio'))
   }
 
   if (!row.descricao_mercadoria?.trim()) {
-    erros.push('descricao obrigatoria')
+    erros.push(t('bidfrete.importar.val_descricao_obrigatoria'))
   }
 
   if (!row.incoterm?.trim()) {
-    erros.push('incoterm obrigatorio')
+    erros.push(t('bidfrete.importar.val_incoterm_obrigatorio'))
   } else if (!INCOTERMS.includes(row.incoterm.trim().toUpperCase() as Incoterm)) {
-    erros.push('incoterm invalido')
+    erros.push(t('bidfrete.importar.val_incoterm_invalido'))
   }
 
   const qty = Number(row.quantidade)
   if (!row.quantidade?.trim() || isNaN(qty) || qty <= 0) {
-    erros.push('quantidade deve ser > 0')
+    erros.push(t('bidfrete.importar.val_quantidade_positiva'))
   }
 
   return erros
@@ -141,7 +146,7 @@ function parseCSV(content: string): ParsedRow[] {
   const headerLine = lines[0].split(delimiter).map((h) => h.trim().toLowerCase().replace(/['"]/g, ''))
 
   const colMap: Record<string, number> = {}
-  EXPECTED_COLUMNS.forEach((col) => {
+  getExpectedColumns().forEach((col) => {
     const idx = headerLine.findIndex(
       (h) => h === col.key || h === col.label.toLowerCase() || h.replace(/[_\s]/g, '') === col.key.replace(/[_\s]/g, ''),
     )
@@ -533,7 +538,7 @@ export default function ImportarBloco() {
                 )}
                 <button
                   className="importar-bloco-pill-btn importar-bloco-pill-btn--secondary"
-                  onClick={() => navigate('/cotacoes')}
+                  onClick={() => navigate('/produto/bid-frete/cotacoes')}
                 >
                   <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
                 </button>
@@ -631,7 +636,7 @@ export default function ImportarBloco() {
                     </tr>
                   </thead>
                   <tbody>
-                    {EXPECTED_COLUMNS.map((col) => (
+                    {getExpectedColumns().map((col) => (
                       <tr key={col.key}>
                         <td>{col.key}</td>
                         <td style={{ color: 'var(--text-secondary, #94a3b8)' }}>{col.label}</td>
@@ -821,7 +826,7 @@ export default function ImportarBloco() {
                 </button>
                 <button
                   className="importar-bloco-pill-btn importar-bloco-pill-btn--primary"
-                  onClick={() => navigate('/cotacoes')}
+                  onClick={() => navigate('/produto/bid-frete/cotacoes')}
                 >
                   {t('bidfrete.importar.ver_cotacoes')}
                 </button>

@@ -218,7 +218,7 @@ export default function Fornecedores() {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: t('bidfrete.fornecedores.ver_detalhes'),
-      onClick: (item: Fornecedor) => navigate(`/fornecedores/${item.id}`),
+      onClick: (item: Fornecedor) => navigate(`/produto/bid-frete/fornecedores/${item.id}`),
     },
   ]
 
@@ -335,7 +335,7 @@ export default function Fornecedores() {
           carregando={carregando}
           mensagemVazio={t('bidfrete.fornecedores.vazio')}
           tooltipBusca={t('bidfrete.fornecedores.buscar_tabela')}
-          aoClicarLinha={(item: Fornecedor) => navigate(`/fornecedores/${item.id}`)}
+          aoClicarLinha={(item: Fornecedor) => navigate(`/produto/bid-frete/fornecedores/${item.id}`)}
         />
       </div>
 

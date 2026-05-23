@@ -50,7 +50,7 @@ function buildSteps(t: TFunction) {
     { id: 2, label: t('bidfrete.nova_cotacao.stepOrigem'),        icone: <MapPin weight="duotone" size={16} /> },
     { id: 3, label: t('bidfrete.nova_cotacao.stepDestino'),       icone: <MapPin weight="duotone" size={16} /> },
     { id: 4, label: t('bidfrete.nova_cotacao.stepCarga'),         icone: <Package weight="duotone" size={16} /> },
-    { id: 5, label: 'Incoterm',                                  icone: <Scales weight="duotone" size={16} /> },
+    { id: 5, label: t('bidfrete.nova_cotacao.incoterm'),           icone: <Scales weight="duotone" size={16} /> },
     { id: 6, label: t('bidfrete.nova_cotacao.stepFornecedores'),  icone: <Users weight="duotone" size={16} /> },
     { id: 7, label: t('bidfrete.nova_cotacao.stepResumo'),        icone: <FileText weight="duotone" size={16} /> },
   ]
@@ -711,13 +711,13 @@ export default function NovaCotacao() {
   if (sucesso) {
     const handleOverlayClick = (e: React.MouseEvent) => {
       if (e.target === e.currentTarget) {
-        navigate('/cotacoes')
+        navigate('/produto/bid-frete/cotacoes')
       }
     }
     return (
       <div className="nc-modal-overlay" onClick={handleOverlayClick}>
         <div className="nc-modal-container nc-fade-in" style={{ maxWidth: '520px', padding: '3rem 2rem' }} onClick={e => e.stopPropagation()}>
-          <button className="nc-modal-close" onClick={() => navigate('/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
+          <button className="nc-modal-close" onClick={() => navigate('/produto/bid-frete/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
             <X weight="bold" size={20} />
           </button>
           <div className="nc-sucesso nc-fade-in">
@@ -727,8 +727,8 @@ export default function NovaCotacao() {
             <h2 className="nc-sucesso-title">{t('bidfrete.nova_cotacao.criado_sucesso')}</h2>
             <p className="nc-sucesso-desc">{t('bidfrete.nova_cotacao.criado_desc')}</p>
             <div className="nc-sucesso-actions">
-              <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/cotacoes')}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
-              {cotacaoId && <button className="nc-btn nc-btn--primary" onClick={() => navigate(`/cotacoes/${cotacaoId}`)}>{t('bidfrete.nova_cotacao.ver_detalhes')}</button>}
+              <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/produto/bid-frete/cotacoes')}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
+              {cotacaoId && <button className="nc-btn nc-btn--primary" onClick={() => navigate(`/produto/bid-frete/cotacoes/${cotacaoId}`)}>{t('bidfrete.nova_cotacao.ver_detalhes')}</button>}
             </div>
           </div>
         </div>
@@ -738,7 +738,7 @@ export default function NovaCotacao() {
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      navigate('/cotacoes')
+      navigate('/produto/bid-frete/cotacoes')
     }
   }
 
@@ -761,7 +761,7 @@ export default function NovaCotacao() {
           <div className="nc-modal-header-step-badge">
             {t('bidfrete.nova_cotacao.etapaDe', { step, total: 7 })} • <span className="nc-modal-header-step-name">{STEPS[step - 1].label}</span>
           </div>
-          <button className="nc-modal-close" onClick={() => navigate('/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
+          <button className="nc-modal-close" onClick={() => navigate('/produto/bid-frete/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
             <X weight="bold" size={20} />
           </button>
         </div>
@@ -849,7 +849,7 @@ export default function NovaCotacao() {
             <button
               type="button"
               className="nc-btn nc-btn--secondary nc-btn-cancelar"
-              onClick={() => navigate('/cotacoes')}
+              onClick={() => navigate('/produto/bid-frete/cotacoes')}
             >
               {t('bidfrete.nova_cotacao.cancelar')}
             </button>

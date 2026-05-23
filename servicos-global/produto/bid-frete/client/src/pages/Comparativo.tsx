@@ -230,7 +230,7 @@ export default function Comparativo() {
     setReprovando(true)
     try {
       await reprovarTodas(id, motivoReprovar.trim())
-      navigate(`/cotacoes/${id}`)
+      navigate(`/produto/bid-frete/cotacoes/${id}`)
     } catch {
       // erro tratado pelo loading state
     } finally {
@@ -416,11 +416,11 @@ export default function Comparativo() {
           )}
 
           <div className="bf-aprovacao-result-acoes">
-            <button className="btn btn-secondary" onClick={() => navigate(`/cotacoes/${id}`)}>
+            <button className="btn btn-secondary" onClick={() => navigate(`/produto/bid-frete/cotacoes/${id}`)}>
               <ArrowLeft weight="bold" size={14} />
               {t('bidfrete.comparativo.ver_cotacao')}
             </button>
-            <button className="btn btn-primary" onClick={() => navigate('/cotacoes')}>
+            <button className="btn btn-primary" onClick={() => navigate('/produto/bid-frete/cotacoes')}>
               {t('bidfrete.comparativo.voltar_cotacoes')}
             </button>
           </div>
@@ -445,7 +445,7 @@ export default function Comparativo() {
                 <XCircle weight="duotone" size={16} />
                 {t('bidfrete.comparativo.reprovar')}
               </button>
-              <button className="btn btn-secondary" onClick={() => navigate(`/cotacoes/${id}`)}>
+              <button className="btn btn-secondary" onClick={() => navigate(`/produto/bid-frete/cotacoes/${id}`)}>
                 <ArrowLeft weight="bold" size={14} />
                 {t('comum.voltar')}
               </button>
@@ -525,7 +525,7 @@ export default function Comparativo() {
           <Ranking weight="duotone" size={48} />
           <h3>{t('bidfrete.comparativo.sem_respostas')}</h3>
           <p>{t('bidfrete.comparativo.aguardar')}</p>
-          <button className="btn btn-secondary" onClick={() => navigate(`/cotacoes/${id}`)}>
+          <button className="btn btn-secondary" onClick={() => navigate(`/produto/bid-frete/cotacoes/${id}`)}>
             <ArrowLeft weight="bold" size={14} />
             {t('bidfrete.comparativo.voltar_cotacao')}
           </button>

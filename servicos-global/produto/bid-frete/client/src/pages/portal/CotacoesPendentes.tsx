@@ -161,7 +161,7 @@ export default function CotacoesPendentes() {
 
                 <button
                   className="cp-btn-responder"
-                  onClick={() => navigate(`/portal/responder/${bid.id}`)}
+                  onClick={() => navigate(`/produto/bid-frete/portal/responder/${bid.id}`)}
                 >
                   {t('bidfrete.portal.responder.titulo')}
                   <ArrowRight weight="bold" size={14} />

@@ -609,7 +609,7 @@ function StatusSortavel({
               autoFocus
             />
             <div className="cfg-status-color-picker">
-              <span className="cfg-status-color-label">Cor</span>
+              <span className="cfg-status-color-label">{t('bidfrete.configuracoes.cor_label')}</span>
               <input
                 type="color"
                 className="cfg-status-color-input"
@@ -1198,7 +1198,7 @@ export default function Configuracoes() {
               </div>
 
               {/* Ativos List (DnD Context) */}
-              <ConfiguracaoSecaoGlobal label="ATIVOS" count={`${cardsPref.length} cards`} />
+              <ConfiguracaoSecaoGlobal label={t('bidfrete.configuracoes.ativos_label')} count={`${cardsPref.length} cards`} />
               <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleDragEndCards}>
                 <SortableContext items={cardsPref.map(p => p.id)} strategy={verticalListSortingStrategy}>
                   <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
@@ -1342,7 +1342,7 @@ export default function Configuracoes() {
               </div>
             </div>
 
-            <ConfiguracaoSecaoGlobal label="SUAS COLUNAS" count={`${colunasPersonalizadas.length} colunas`} />
+            <ConfiguracaoSecaoGlobal label={t('bidfrete.configuracoes.suas_colunas_label')} count={`${colunasPersonalizadas.length} ${t('bidfrete.configuracoes.colunas_count')}`} />
             
             <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleDragEndColunas}>
               <SortableContext items={colunasPersonalizadas.map(c => c.id)} strategy={verticalListSortingStrategy}>
@@ -1526,7 +1526,7 @@ export default function Configuracoes() {
               </div>
             </div>
 
-            <ConfiguracaoSecaoGlobal label="STATUS ATIVOS" count={`${statusList.length} status`} />
+            <ConfiguracaoSecaoGlobal label={t('bidfrete.configuracoes.status_ativos_label')} count={`${statusList.length} status`} />
 
             <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleDragEndStatus}>
               <SortableContext items={statusList.map(s => s.id)} strategy={verticalListSortingStrategy}>
@@ -1574,7 +1574,7 @@ export default function Configuracoes() {
             <div style={{ marginTop: '1.5rem', display: 'flex', gap: '8px' }}>
               <input
                 type="text"
-                placeholder="Ex: Em Análise do Armador"
+                placeholder={t('bidfrete.configuracoes.placeholder_novo_status')}
                 value={editStatusLabel}
                 onChange={e => setEditStatusLabel(e.target.value)}
                 style={{ flex: 1, padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#fff' }}
@@ -1611,7 +1611,7 @@ export default function Configuracoes() {
                   console.warn('[Configuracoes] Erro ao criar status via API, adicionado localmente', err)
                 }
               }}>
-                <Plus size={14} /> Adicionar Status
+                <Plus size={14} /> {t('bidfrete.configuracoes.adicionar_status')}
               </BotaoGlobal>
             </div>
           </section>
@@ -1657,7 +1657,7 @@ export default function Configuracoes() {
               </div>
             </div>
 
-            <ConfiguracaoSecaoGlobal label="SEUS TEMPLATES" count={`${templatesPdf.length} templates`} />
+            <ConfiguracaoSecaoGlobal label={t('bidfrete.configuracoes.seus_templates_label')} count={`${templatesPdf.length} templates`} />
 
             <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
               {templatesPdf.map(tpl => (
@@ -1721,7 +1721,7 @@ export default function Configuracoes() {
             <div style={{ marginTop: '1.5rem' }}>
               <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={() => {
                 const newId = `tpl_${Date.now()}`
-                setTemplatesPdf(prev => [...prev, { id: newId, nome: 'Novo Template PDF', documento_tipo: 'pdf', codigo_fonte: '<p>Novo</p>', created_at: new Date().toISOString() }])
+                setTemplatesPdf(prev => [...prev, { id: newId, nome: t('bidfrete.configuracoes.novo_template_nome'), documento_tipo: 'pdf', codigo_fonte: '<p>Novo</p>', created_at: new Date().toISOString() }])
               }}>
                 <Plus size={14} /> {t('bidfrete.configuracoes.novo_template_pdf')}
               </BotaoGlobal>
@@ -1748,8 +1748,8 @@ export default function Configuracoes() {
               />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>Prazo Limite Padrão (Horas)</p>
-                  <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Define o tempo limite recomendado para respostas dos fornecedores.</p>
+                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{t('bidfrete.configuracoes.prazo_limite_titulo')}</p>
+                  <p style={{ fontSize: '0.75rem', color: '#64748b' }}>{t('bidfrete.configuracoes.prazo_limite_desc')}</p>
                 </div>
                 <input
                   type="number"
@@ -1779,7 +1779,7 @@ export default function Configuracoes() {
               </div>
             </div>
 
-            <ConfiguracaoSecaoGlobal label="CATEGORIAS REGISTRADAS" count={`${categoriasAnexos.length} categorias`} />
+            <ConfiguracaoSecaoGlobal label={t('bidfrete.configuracoes.categorias_registradas_label')} count={`${categoriasAnexos.length} ${t('bidfrete.configuracoes.categorias_count')}`} />
 
             <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
               {categoriasAnexos.map(anexo => (
@@ -1804,7 +1804,7 @@ export default function Configuracoes() {
             <div style={{ marginTop: '1.5rem', display: 'flex', gap: '8px' }}>
               <input
                 type="text"
-                placeholder="Ex: Certificado de Origem"
+                placeholder={t('bidfrete.configuracoes.placeholder_nova_categoria')}
                 value={novoAnexoNome}
                 onChange={e => setNovoAnexoNome(e.target.value)}
                 style={{ flex: 1, padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#fff' }}

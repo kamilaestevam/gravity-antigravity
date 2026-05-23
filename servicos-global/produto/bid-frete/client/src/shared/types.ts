@@ -262,6 +262,86 @@ export interface Avaliacao {
   created_at: string
 }
 
+// ─── Status Config (Configuração dinâmica por organização) ──────────────────
+
+export interface StatusCotacaoBidFreteConfig {
+  id_status_cotacao_bid_frete: string
+  id_organizacao: string
+  nome_status_cotacao_bid_frete: string
+  rotulo_status_cotacao_bid_frete: string
+  cor_status_cotacao_bid_frete: string
+  icone_status_cotacao_bid_frete: string | null
+  ordem_status_cotacao_bid_frete: number
+  padrao_status_cotacao_bid_frete: boolean
+  gerenciado_sistema_status_cotacao_bid_frete: boolean
+  data_criacao_status_cotacao_bid_frete: string
+  data_atualizacao_status_cotacao_bid_frete: string
+}
+
+/** Chave do localStorage para sincronização status config */
+export const STATUS_CONFIG_STORAGE_KEY = 'bid-frete:config:status-dinamico'
+
+/** Sincroniza status da API com localStorage para consumo offline */
+export function sincronizarStatusLocal(statusList: StatusCotacaoBidFreteConfig[]): void {
+  try {
+    localStorage.setItem(STATUS_CONFIG_STORAGE_KEY, JSON.stringify(statusList))
+    // Também atualiza a chave legada para compatibilidade com Configuracoes.tsx
+    const legado = statusList.map(s => ({
+      id: s.id_status_cotacao_bid_frete,
+      nome: s.nome_status_cotacao_bid_frete,
+      rotulo: s.rotulo_status_cotacao_bid_frete,
+      cor: s.cor_status_cotacao_bid_frete,
+      ordem: s.ordem_status_cotacao_bid_frete,
+      is_sistema: s.gerenciado_sistema_status_cotacao_bid_frete,
+    }))
+    localStorage.setItem('bid-frete:config:status', JSON.stringify(legado))
+  } catch { /* storage indisponível */ }
+}
+
+/** Lê status config do localStorage */
+export function lerStatusConfigLocal(): StatusCotacaoBidFreteConfig[] {
+  try {
+    const raw = localStorage.getItem(STATUS_CONFIG_STORAGE_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch { /* storage indisponível */ }
+  return []
+}
+
+/** Gera abas dinâmicas a partir dos status config */
+export function gerarAbasStatus(statusList: StatusCotacaoBidFreteConfig[], t: (key: string, fallback?: string) => string): Array<{ valor: string; label: string }> {
+  const abas: Array<{ valor: string; label: string }> = [
+    { valor: 'TODAS', label: t('bidfrete.cotacoes.abas.todas', 'Todas') },
+  ]
+  for (const s of statusList) {
+    abas.push({
+      valor: s.nome_status_cotacao_bid_frete,
+      label: s.rotulo_status_cotacao_bid_frete,
+    })
+  }
+  return abas
+}
+
+/** Obtém rótulo e cor de um status a partir da config. Fallback para hardcoded. */
+export function obterInfoStatus(statusNome: string, statusList: StatusCotacaoBidFreteConfig[]): { rotulo: string; cor: string } {
+  const config = statusList.find(s => s.nome_status_cotacao_bid_frete === statusNome)
+  if (config) {
+    return {
+      rotulo: config.rotulo_status_cotacao_bid_frete,
+      cor: config.cor_status_cotacao_bid_frete,
+    }
+  }
+  // Fallback para labels/badges hardcoded
+  const rotulo = STATUS_LABELS[statusNome as StatusCotacao] ?? statusNome
+  const variante = STATUS_BADGE[statusNome as StatusCotacao] ?? 'default'
+  const FALLBACK_CORES: Record<string, string> = {
+    info: '#6366f1', warning: '#f59e0b', success: '#22c55e', danger: '#ef4444', default: '#64748b',
+  }
+  return { rotulo, cor: FALLBACK_CORES[variante] ?? '#64748b' }
+}
+
 // ─── Dashboard KPIs ──────────────────────────────────────────────────────────
 
 export interface DashboardKPIs {

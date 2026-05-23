@@ -165,7 +165,7 @@ export default function ResponderCotacao() {
           <CheckCircle weight="duotone" size={64} style={{ color: 'var(--success, #22c55e)' }} />
           <h2 className="rc-sucesso-title">{t('bidfrete.portal.responder.sucesso')}</h2>
           <p className="rc-sucesso-desc">{t('bidfrete.portal.responder.sucesso_desc')}</p>
-          <button className="rc-btn rc-btn--primary" onClick={() => navigate('/portal/pendentes')}>
+          <button className="rc-btn rc-btn--primary" onClick={() => navigate('/produto/bid-frete/portal/pendentes')}>
             {t('bidfrete.portal.responder.voltar_pendentes')}
           </button>
         </div>
@@ -182,7 +182,7 @@ export default function ResponderCotacao() {
           icone={<PencilSimple weight="duotone" size={22} />}
           titulo={t('bidfrete.portal.responder.titulo')}
           acoes={
-            <button className="rc-btn rc-btn--secondary" onClick={() => navigate('/portal/pendentes')}>
+            <button className="rc-btn rc-btn--secondary" onClick={() => navigate('/produto/bid-frete/portal/pendentes')}>
               <ArrowLeft weight="bold" size={14} /> {t('bidfrete.portal.responder.voltar')}
             </button>
           }

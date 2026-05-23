@@ -6,6 +6,8 @@
  */
 
 import React, { lazy, Suspense, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import i18next from 'i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
 import { useAuth, useClerk } from '@clerk/clerk-react'
@@ -107,19 +109,22 @@ const ECOSYSTEM_NODES: EcosystemNode[] = [
 ]
 
 // ── Labels de rota para título de página ──────────────────────────────────────
-const ROUTE_LABELS: Record<string, string> = {
-  'visao-geral':                        'Visão Geral',
-  'dashboard':                          'Dashboard',
-  'cotacoes':                           'Cotações',
-  'cotacoes/nova':                      'Nova Cotação',
-  'cotacoes/importar':                  'Importar Cotações',
-  'fornecedores':                       'Fornecedores',
-  'configuracoes':                      'Configurações',
-  'portal/dashboard':                   'Portal — Dashboard',
-  'portal/pendentes':                   'Cotações Pendentes',
-  'portal/respostas':                   'Respostas',
-  'portal/tabela-precos':               'Tabela de Preços',
-  'portal/desempenho':                  'Desempenho',
+function getRouteLabels(): Record<string, string> {
+  const t = i18next.t.bind(i18next)
+  return {
+    'visao-geral':                        t('bidfrete.app.rota_visao_geral'),
+    'dashboard':                          'Dashboard',
+    'cotacoes':                           t('bidfrete.app.rota_cotacoes'),
+    'cotacoes/nova':                      t('bidfrete.app.rota_nova_cotacao'),
+    'cotacoes/importar':                  t('bidfrete.app.rota_importar_cotacoes'),
+    'fornecedores':                       t('bidfrete.app.rota_fornecedores'),
+    'configuracoes':                      t('bidfrete.app.rota_configuracoes'),
+    'portal/dashboard':                   t('bidfrete.app.rota_portal_dashboard'),
+    'portal/pendentes':                   t('bidfrete.app.rota_cotacoes_pendentes'),
+    'portal/respostas':                   t('bidfrete.app.rota_respostas'),
+    'portal/tabela-precos':               t('bidfrete.app.rota_tabela_precos'),
+    'portal/desempenho':                  t('bidfrete.app.rota_desempenho'),
+  }
 }
 
 function LoadingFallback() {
@@ -133,6 +138,7 @@ function LoadingFallback() {
 
 export default function App() {
   useMeSync()
+  const { t } = useTranslation()
   const { getToken } = useAuth()
   const { signOut } = useClerk()
   const location = useLocation()
@@ -166,7 +172,8 @@ export default function App() {
   const productIdx  = segments.findIndex(s => s === PRODUCT_ID)
   const relSegments = productIdx >= 0 ? segments.slice(productIdx + 1) : segments
   const routeKey    = relSegments.join('/')
-  const pageLabel   = routeKey === 'configuracoes' ? '' : (ROUTE_LABELS[routeKey] ?? 'Visão Geral')
+  const routeLabels = useMemo(() => getRouteLabels(), [t])
+  const pageLabel   = routeKey === 'configuracoes' ? '' : (routeLabels[routeKey] ?? t('bidfrete.app.rota_visao_geral'))
 
   // Dados do usuário
   const initials = currentUser.name
@@ -223,10 +230,10 @@ export default function App() {
         },
       }}
       usuario={{
-        userName:              currentUser.name  || 'Usuário',
+        userName:              currentUser.name  || t('bidfrete.app.usuario_fallback'),
         userEmail:             currentUser.email || '',
         userInitials:          initials,
-        userRole:              currentUser.role  ?? 'Membro',
+        userRole:              currentUser.role  ?? t('bidfrete.app.membro_fallback'),
         isAdmin,
         onNavigateAdmin:       () => { window.location.href = '/admin' },
         isLight:               currentTheme === 'light',

@@ -2,22 +2,25 @@ import React from 'react'
 import i18next from 'i18next'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
 import { Anchor, AirplaneTilt, Truck } from '@phosphor-icons/react'
-import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../../shared/types'
-import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS } from '../../shared/types'
+import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade, StatusCotacaoBidFreteConfig } from '../../shared/types'
+import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS, lerStatusConfigLocal, obterInfoStatus } from '../../shared/types'
 
-// ─── Badge de status ───
-const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
-  info:    { bg: 'rgba(59,130,246,0.15)',  color: 'var(--accent, #6366f1)' },
-  warning: { bg: 'rgba(245,158,11,0.15)',  color: 'var(--warning, #f59e0b)' },
-  success: { bg: 'rgba(34,197,94,0.15)',   color: 'var(--success, #22c55e)' },
-  danger:  { bg: 'rgba(239,68,68,0.15)',   color: 'var(--danger, #ef4444)' },
-  default: { bg: 'rgba(100,116,139,0.15)', color: 'var(--text-muted, #64748b)' },
+// ─── Badge de status (dinâmico via config) ───
+
+/** Gera cor de fundo com transparência a partir de cor hex */
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return `rgba(100,116,139,${alpha})`
+  return `rgba(${r},${g},${b},${alpha})`
 }
 
 export function RenderBadgeStatus(valor: unknown): React.ReactNode {
-  const status = valor as StatusCotacao
-  const variante = STATUS_BADGE[status] || 'default'
-  const cores = BADGE_COLORS[variante]
+  const status = valor as string
+  const statusConfig = lerStatusConfigLocal()
+  const info = obterInfoStatus(status, statusConfig)
+
   return (
     <span style={{
       display: 'inline-flex',
@@ -26,10 +29,10 @@ export function RenderBadgeStatus(valor: unknown): React.ReactNode {
       borderRadius: 'var(--radius-pill, 9999px)',
       fontSize: '0.75rem',
       fontWeight: 600,
-      background: cores.bg,
-      color: cores.color,
+      background: hexToRgba(info.cor, 0.15),
+      color: info.cor,
     }}>
-      {STATUS_LABELS[status] || status}
+      {info.rotulo}
     </span>
   )
 }

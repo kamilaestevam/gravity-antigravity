@@ -257,7 +257,7 @@ export default function DetalheFornecedor() {
           acoes={
             <button
               className="btn btn-secondary"
-              onClick={() => navigate('/fornecedores')}
+              onClick={() => navigate('/produto/bid-frete/fornecedores')}
             >
               <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
             </button>

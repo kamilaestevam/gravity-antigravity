@@ -17,14 +17,33 @@ import type {
   Porto,
   Moeda,
   StatusCotacao,
+  StatusCotacaoBidFreteConfig,
 } from './types'
 
 const API_BASE = '/api/v1'
 
-const headers = () => ({
-  'Content-Type': 'application/json',
-  'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
-})
+const headers = () => {
+  const customHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
+  }
+
+  const orgId = sessionStorage.getItem('gravity_tenant_id') ||
+                sessionStorage.getItem('gravity_company_id') ||
+                sessionStorage.getItem('gravity_id_organizacao') ||
+                import.meta.env.VITE_TENANT_ID ||
+                import.meta.env.VITE_DEV_TENANT_ID ||
+                'org_dev_default'
+
+  const userId = sessionStorage.getItem('gravity_id_usuario') ||
+                 import.meta.env.VITE_USER_ID ||
+                 'user_dev_default'
+
+  customHeaders['x-id-organizacao'] = orgId
+  customHeaders['x-id-usuario'] = userId
+
+  return customHeaders
+}
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -227,6 +246,64 @@ export async function responderPublico(token: string, data: Partial<BidResponse>
     body: JSON.stringify(data),
   })
   return handleResponse(res)
+}
+
+// ─── Config Status (Configuração dinâmica) ─────────────────────────────────
+
+export async function getStatusConfig(): Promise<StatusCotacaoBidFreteConfig[]> {
+  const res = await fetch(`${API_BASE}/bid-frete/config/status`, { headers: headers() })
+  const data = await handleResponse<{ status: StatusCotacaoBidFreteConfig[] }>(res)
+  return data.status
+}
+
+export async function criarStatusConfig(input: {
+  nome_status_cotacao_bid_frete: string
+  rotulo_status_cotacao_bid_frete: string
+  cor_status_cotacao_bid_frete: string
+  icone_status_cotacao_bid_frete?: string
+}): Promise<StatusCotacaoBidFreteConfig> {
+  const res = await fetch(`${API_BASE}/bid-frete/config/status`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify(input),
+  })
+  const data = await handleResponse<{ status: StatusCotacaoBidFreteConfig }>(res)
+  return data.status
+}
+
+export async function editarStatusConfig(id: string, input: {
+  rotulo_status_cotacao_bid_frete?: string
+  cor_status_cotacao_bid_frete?: string
+  icone_status_cotacao_bid_frete?: string | null
+}): Promise<StatusCotacaoBidFreteConfig> {
+  const res = await fetch(`${API_BASE}/bid-frete/config/status/${id}`, {
+    method: 'PATCH',
+    headers: headers(),
+    body: JSON.stringify(input),
+  })
+  const data = await handleResponse<{ status: StatusCotacaoBidFreteConfig }>(res)
+  return data.status
+}
+
+export async function excluirStatusConfig(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/bid-frete/config/status/${id}`, {
+    method: 'DELETE',
+    headers: headers(),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error?.message ?? `Erro ${res.status} ao excluir status`)
+  }
+}
+
+export async function reordenarStatusConfig(ids: string[]): Promise<StatusCotacaoBidFreteConfig[]> {
+  const res = await fetch(`${API_BASE}/bid-frete/config/status/reordenar`, {
+    method: 'PATCH',
+    headers: headers(),
+    body: JSON.stringify({ ids }),
+  })
+  const data = await handleResponse<{ status: StatusCotacaoBidFreteConfig[] }>(res)
+  return data.status
 }
 
 // ─── Master Data ────────────────────────────────────────────────────────────

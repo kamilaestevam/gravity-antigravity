@@ -245,16 +245,16 @@ export default function DetalheCotacao() {
           subtitulo={cotacao.referencia_interna ? t('bidfrete.detalhe_cotacao.ref_prefix', { ref: cotacao.referencia_interna }) : undefined}
           acoes={
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button className="dc-btn dc-btn--secondary" onClick={() => navigate('/cotacoes')}>
+              <button className="dc-btn dc-btn--secondary" onClick={() => navigate('/produto/bid-frete/cotacoes')}>
                 <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
               </button>
               {cotacao.status === 'AGUARDANDO_APROVACAO' && (
-                <button className="dc-btn dc-btn--primary" onClick={() => navigate(`/cotacoes/${id}/comparativo`)}>
+                <button className="dc-btn dc-btn--primary" onClick={() => navigate(`/produto/bid-frete/cotacoes/${id}/comparativo`)}>
                   <Ranking weight="bold" size={14} /> {t('bidfrete.detalhe_cotacao.comparativo')}
                 </button>
               )}
               {cotacao.status === 'RASCUNHO' && (
-                <button className="dc-btn dc-btn--danger" onClick={async () => { await excluirCotacao(cotacao.id); navigate('/cotacoes') }}>
+                <button className="dc-btn dc-btn--danger" onClick={async () => { await excluirCotacao(cotacao.id); navigate('/produto/bid-frete/cotacoes') }}>
                   <Trash weight="bold" size={14} /> {t('comum.excluir')}
                 </button>
               )}

@@ -40,9 +40,12 @@ import {
   Gauge,
 } from '@phosphor-icons/react'
 
-import { getCotacoes } from '../shared/api'
-import type { Cotacao, StatusCotacao } from '../shared/types'
-import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, MODALIDADE_LABELS } from '../shared/types'
+import { getCotacoes, getStatusConfig } from '../shared/api'
+import type { Cotacao, StatusCotacao, StatusCotacaoBidFreteConfig } from '../shared/types'
+import {
+  STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, MODALIDADE_LABELS,
+  lerStatusConfigLocal, gerarAbasStatus, sincronizarStatusLocal,
+} from '../shared/types'
 import {
   buildColunasCotacoes,
   fmtData,
@@ -97,12 +100,38 @@ export default function Cotacoes() {
   const [searchParams, setSearchParams] = useSearchParams()
   const addNotification = useShellStore(s => s.addNotification)
 
-  const abas = useMemo(() => [
-    { valor: 'TODAS', label: t('bidfrete.cotacoes.abas.todas') },
-    { valor: 'DATA_LIMITE', label: t('bidfrete.cotacoes.abas.dataLimite') },
-    { valor: 'PROXIMO_VENCIMENTO', label: t('bidfrete.cotacoes.abas.proximoVencimento') },
-    { valor: 'FALTA_INFORMACAO', label: t('bidfrete.cotacoes.abas.faltaInformacao') },
-  ], [t])
+  // Status config dinâmico (fonte: API → localStorage)
+  const [statusConfig, setStatusConfig] = useState<StatusCotacaoBidFreteConfig[]>(() => lerStatusConfigLocal())
+
+  useEffect(() => {
+    let cancelado = false
+    async function carregarStatus() {
+      try {
+        const lista = await getStatusConfig()
+        if (cancelado) return
+        setStatusConfig(lista)
+        sincronizarStatusLocal(lista)
+      } catch {
+        // Usa localStorage como fallback (já carregado no useState)
+      }
+    }
+    carregarStatus()
+
+    // Escutar mudanças do localStorage (quando Configurações salva)
+    const handleStorage = () => {
+      const local = lerStatusConfigLocal()
+      if (local.length > 0) setStatusConfig(local)
+    }
+    window.addEventListener('storage', handleStorage)
+    window.addEventListener('focus', handleStorage)
+    return () => {
+      cancelado = true
+      window.removeEventListener('storage', handleStorage)
+      window.removeEventListener('focus', handleStorage)
+    }
+  }, [])
+
+  const abas = useMemo(() => gerarAbasStatus(statusConfig, t), [statusConfig, t])
 
   const isNovaCotacao = location.pathname.endsWith('/nova')
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
@@ -268,13 +297,9 @@ export default function Cotacoes() {
   const cotacoesFiltradas = useMemo(() => {
     let result = cotacoes
 
-    // Filtro por abas
-    if (filtroTab === 'DATA_LIMITE') {
-      result = result.filter(c => c.status === 'AGUARDANDO_APROVACAO')
-    } else if (filtroTab === 'PROXIMO_VENCIMENTO') {
-      result = result.filter(c => c.status === 'EM_COTACAO')
-    } else if (filtroTab === 'FALTA_INFORMACAO') {
-      result = result.filter(c => c.status === 'FALTA_INFORMACAO')
+    // Filtro por abas dinâmicas (nome do status ou "TODAS")
+    if (filtroTab !== 'TODAS') {
+      result = result.filter(c => c.status === filtroTab)
     }
 
     // Filtro por busca
@@ -298,7 +323,7 @@ export default function Cotacoes() {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: t('bidfrete.cotacoes.acoes.verDetalhes'),
-      onClick: (item: Cotacao) => navigate(`/cotacoes/${item.id}`),
+      onClick: (item: Cotacao) => navigate(`/produto/bid-frete/cotacoes/${item.id}`),
     },
   ], [navigate])
 
@@ -339,7 +364,7 @@ export default function Cotacoes() {
             type="button"
             className="lp-dropdown-btn"
             onClick={() => {
-              navigate('/cotacoes/nova')
+              navigate('/produto/bid-frete/cotacoes/nova')
               setNovoDropdownAberto(false)
             }}
           >
@@ -356,7 +381,7 @@ export default function Cotacoes() {
             type="button"
             className="lp-dropdown-btn"
             onClick={() => {
-              navigate('/cotacoes/importar')
+              navigate('/produto/bid-frete/cotacoes/importar')
               setNovoDropdownAberto(false)
             }}
           >

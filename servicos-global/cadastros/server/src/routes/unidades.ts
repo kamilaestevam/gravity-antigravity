@@ -11,22 +11,10 @@ import { criarUnidadeSchema, atualizarUnidadeSchema } from '../../../shared/sche
 import { notificarMudancaEntidade } from '../services/notifyPedido.js'
 
 const router = Router()
-router.use(requireInternalKey)
 
-router.post('/', async (req, res, next) => {
-  try {
-    const dados = criarUnidadeSchema.parse(req.body)
-    const criada = await prisma.unidade.create({ data: dados })
-    void notificarMudancaEntidade('unidade', criada.codigo_unidade, '')
-    res.status(201).json(criada)
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-      return next(AppError.conflito('Unidade já cadastrada (codigo duplicado)'))
-    }
-    next(err)
-  }
-})
-
+// ─── ROTA PÚBLICA (sem requireInternalKey) ───────────────────────────────────
+// Consumida pelo frontend via useUnidades() para alimentar selects de unidades.
+// Unidade é catálogo global somente leitura nesta rota; mutações seguem S2S.
 router.get('/', async (req, res, next) => {
   try {
     const apenasAtivas = req.query.apenas_ativas === 'true'
@@ -40,6 +28,23 @@ router.get('/', async (req, res, next) => {
     })
     res.status(200).json({ itens, total: itens.length })
   } catch (err) {
+    next(err)
+  }
+})
+
+// ─── ROTAS PROTEGIDAS (S2S — requireInternalKey) ─────────────────────────────
+router.use(requireInternalKey)
+
+router.post('/', async (req, res, next) => {
+  try {
+    const dados = criarUnidadeSchema.parse(req.body)
+    const criada = await prisma.unidade.create({ data: dados })
+    void notificarMudancaEntidade('unidade', criada.codigo_unidade, '')
+    res.status(201).json(criada)
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      return next(AppError.conflito('Unidade já cadastrada (codigo duplicado)'))
+    }
     next(err)
   }
 })

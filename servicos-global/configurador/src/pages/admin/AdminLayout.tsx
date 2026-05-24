@@ -35,8 +35,8 @@ import {
   CurrencyCircleDollar,
   Certificate,
 } from '@phosphor-icons/react'
-import '../workspace/workspace.css'
-import '../workspace/gabi.css'
+import '../configurador/workspace.css'
+import '../configurador/gabi.css'
 import './admin.css'
 
 export function AdminLayout() {

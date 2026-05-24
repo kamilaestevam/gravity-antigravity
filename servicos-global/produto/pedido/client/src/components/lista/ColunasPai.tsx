@@ -883,6 +883,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     key: 'unidade_comercializada_pedido',
     label: 'Unidade Comercializada',
     tipo: 'unidade',
+    apenasUnidade: true,
     filtravel: true,
     grupo: 'Quantidades',
     avisoImpacto: 'A alteração da unidade irá alterar também Qtd. Inicial, Qtd. Pronta, Qtd. Transferida, Saldo e Qtd. Cancelada',

@@ -23,7 +23,7 @@ import { formatarCNPJ, validarCNPJ } from '@nucleo/utils'
 import { adminPlatformApi } from '../../services/api-client'
 import { useCidadesIBGE } from '../../hooks/use-cidades-ibge'
 
-import '../workspace/workspace.css'
+import '../configurador/workspace.css'
 
 type DadosAdmin = {
   nome:         string

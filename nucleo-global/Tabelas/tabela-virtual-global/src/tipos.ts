@@ -75,6 +75,12 @@ export interface GTColuna<T = unknown> {
   /** Casas decimais usadas no input de quantidade (ativo quando tipo='unidade') */
   casasDecimais?: number
   /**
+   * Quando true (e tipo='unidade'), o popover de edição oculta o input de
+   * quantidade e exibe apenas o seletor de unidade. Usado em colunas que
+   * representam só a unidade (ex: unidade_comercializada_pedido).
+   */
+  apenasUnidade?: boolean
+  /**
    * Extrai o valor composto para edição inline (ex: { currency, amount }).
    * Quando omitido, usa item[col.key] diretamente.
    */

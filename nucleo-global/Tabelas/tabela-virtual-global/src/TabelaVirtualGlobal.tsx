@@ -400,6 +400,7 @@ interface GTEditPopoverProps {
     gabiCampo?: string
     gabiEndpoint?: string
     avisoImpacto?: string
+    apenasUnidade?: boolean
   }
   valorEditando: unknown
   salvando: boolean
@@ -787,37 +788,39 @@ const GTEditPopover = memo(function GTEditPopover({
             </div>
           ) : isUnidade ? (
             <div className="gtv-edit-unidade">
-              <input
-                ref={inputRef}
-                autoFocus
-                type="text"
-                inputMode="decimal"
-                className="gtv-edit-unidade-qty"
-                value={displayQty}
-                placeholder={casas > 0 ? `0,${'0'.repeat(casas)}` : '0'}
-                disabled={salvando}
-                onChange={e => {
-                  const raw = e.target.value
-                  if (raw !== '' && !/^-?[\d.,]*$/.test(raw)) {
-                    mostrarErroInput('Apenas números são permitidos neste campo')
-                    return
-                  }
-                  setErroInput(null)
-                  setDisplayQty(raw)
-                  onAtualizar({ ...uv, quantity: parseBRNum(raw) })
-                }}
-                onKeyDown={e => {
-                  if (e.key === 'Enter')  { e.preventDefault(); confirmarComOpts() }
-                  if (e.key === 'Escape') { e.preventDefault(); setUnidadeAberta(false); onCancelar() }
-                }}
-                onBlur={e => {
-                  const parsed = parseBRNum(displayQty)
-                  setDisplayQty(fmtBR(parsed, casas))
-                  if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
-                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) confirmarComOpts()
-                }}
-                onPaste={handleSmartPasteDetect}
-              />
+              {!overlayInfo.apenasUnidade && (
+                <input
+                  ref={inputRef}
+                  autoFocus
+                  type="text"
+                  inputMode="decimal"
+                  className="gtv-edit-unidade-qty"
+                  value={displayQty}
+                  placeholder={casas > 0 ? `0,${'0'.repeat(casas)}` : '0'}
+                  disabled={salvando}
+                  onChange={e => {
+                    const raw = e.target.value
+                    if (raw !== '' && !/^-?[\d.,]*$/.test(raw)) {
+                      mostrarErroInput('Apenas números são permitidos neste campo')
+                      return
+                    }
+                    setErroInput(null)
+                    setDisplayQty(raw)
+                    onAtualizar({ ...uv, quantity: parseBRNum(raw) })
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter')  { e.preventDefault(); confirmarComOpts() }
+                    if (e.key === 'Escape') { e.preventDefault(); setUnidadeAberta(false); onCancelar() }
+                  }}
+                  onBlur={e => {
+                    const parsed = parseBRNum(displayQty)
+                    setDisplayQty(fmtBR(parsed, casas))
+                    if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
+                    if (!popoverRef.current?.contains(e.relatedTarget as Node)) confirmarComOpts()
+                  }}
+                  onPaste={handleSmartPasteDetect}
+                />
+              )}
               {/* Trigger — dropdown via portal para não ser cortado pelo overflow:hidden */}
               <div className="gtv-edit-custom-select">
                 <button
@@ -2437,7 +2440,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             e.stopPropagation()
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
             const colU = col as GTColuna<unknown>
-            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo, opcoes: colU.opcoes, moedas: colU.moedas, unidades: colU.unidades, casasDecimais: colU.casasDecimais, gabiCampo: colU.gabiCampo, gabiEndpoint: colU.gabiEndpoint, avisoImpacto: colU.avisoImpacto })
+            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo, opcoes: colU.opcoes, moedas: colU.moedas, unidades: colU.unidades, casasDecimais: colU.casasDecimais, gabiCampo: colU.gabiCampo, gabiEndpoint: colU.gabiEndpoint, avisoImpacto: colU.avisoImpacto, apenasUnidade: colU.apenasUnidade })
             const valorParaEdicao = colU.getValorEditar ? colU.getValorEditar(item) : valor
             iniciarEdicao(id, col.key, valorParaEdicao)
           }
@@ -2737,7 +2740,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                   const colU2 = col as GTColuna<unknown>
-                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: mapa?.opcoes ?? colU2.opcoes, moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades, casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais, gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint, avisoImpacto: colU2.avisoImpacto })
+                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: mapa?.opcoes ?? colU2.opcoes, moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades, casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais, gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint, avisoImpacto: colU2.avisoImpacto, apenasUnidade: colU2.apenasUnidade })
                   const valorFilhoParaEdicao = mapa?.getValorEditar ? mapa.getValorEditar(item) : (colU2.getValorEditar ? colU2.getValorEditar(item as unknown) : valor)
                   iniciarEdicaoFilho(id, campo, valorFilhoParaEdicao)
                 } : undefined}

@@ -23,7 +23,7 @@ import {
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
-import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
+import { ModalEditarUsuario } from '../configurador/ModalEditarUsuario'
 import { type NivelAcesso, type UserStatus, mapRole, nivelToRole } from '../../types/niveis-acesso'
 import {
   adminUsuariosApi,

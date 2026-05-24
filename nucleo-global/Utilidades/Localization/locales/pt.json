@@ -6371,6 +6371,8 @@
         "generico": "Erro ao salvar. Tente novamente ou contate o suporte.",
         "desconhecido": "Erro desconhecido",
         "pedido_nao_encontrado": "Pedido não encontrado",
+        "ghost_requer_replicar": "Marque \"Aplicar a todos os itens deste pedido\" para salvar este campo pela linha do pedido.",
+        "pedido_sem_itens_para_campo": "Este pedido não tem itens para atualizar.",
         "workspace_somente_pedido": "Workspace é definido no pedido e aplica-se a todos os itens.",
         "pedido_item_nao_localizado": "Não foi possível localizar o pedido deste item. Recarregue a página.",
         "editar_valor_total_item": "Erro ao editar valor_total_item",

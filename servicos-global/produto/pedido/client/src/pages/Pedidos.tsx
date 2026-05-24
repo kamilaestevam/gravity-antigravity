@@ -85,6 +85,7 @@ import { useTaxasCambio } from '../shared/useTaxasCambio'
 import { useTrackBehavior } from '../hooks/useTrackBehavior'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF } from '../shared/exportUtils'
 import type { ColunasExport } from '../shared/exportUtils'
+import { isCampoGhostItemNoPedido } from '../../../shared/camposGhostPedidoItem'
 import {
   pedidoApi,
   pedidoVirtualApi,
@@ -104,7 +105,10 @@ import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
 import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../shared/mapaPropagacaoPedidoItem'
 import { marcarPartNumbersDuplicados, pedidoTemPartNumberDuplicado } from '../../../shared/partNumberDuplicado'
-import { calcularDivergenciasPedido } from '../../../shared/pedidoDivergencias'
+import {
+  calcularDivergenciasPedido,
+  mesclarDivergenciasPreservandoDescricaoPedido,
+} from '../../../shared/pedidoDivergencias'
 import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
 import { inserirColunaAposAncora, moverColunaParaAposAncora } from '../shared/migracaoColunas'
@@ -5191,9 +5195,6 @@ export default function Pedidos() {
     }, 350)
   }, [abaAtiva, busca])
 
-  // Campos "ghost" — existem no item mas NÃO como coluna directa no pai. PATCH directo nos itens.
-  const CAMPOS_GHOST_ITENS = new Set(['ncm', 'cobertura_cambial'])
-
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
   const handleEditar = useCallback(async (
     id: string,
@@ -5281,18 +5282,65 @@ export default function Pedidos() {
     // ── Ghost: campos que existem no item mas NÃO como coluna directa no pai ────
     // PATCH directo nos itens. Lógica de propagação real fica no servidor para
     // campos normais (isPropagavel) — o frontend é apenas o reflexo visual.
-    if (CAMPOS_GHOST_ITENS.has(campo)) {
+    if (isCampoGhostItemNoPedido(campo)) {
       const pedidoAtual = pedidos.find(p => p.id === id)
       if (!pedidoAtual) throw new Error(t('pedido.lista.erro.pedido_nao_encontrado'))
       const valorEnviar = campo === 'data_emissao_pedido' ? normalizarDataISO(valor) : valor
-      const itensGhost = itensCarregadosRef.current.get(id) ?? []
-      await Promise.all(
+      const replicar = opts?.replicar_em_itens ?? false
+
+      // Descrição na linha pai: sem checkbox → só valor canônico do pedido (itens intactos).
+      if (campo === 'descricao_item' && !replicar) {
+        const valorStr = String(valorEnviar ?? '')
+        let itensExistentes = itensCarregadosRef.current.get(id) ?? []
+        if (itensExistentes.length === 0 && (pedidoAtual.itens?.length ?? 0) > 0) {
+          itensExistentes = pedidoAtual.itens as PedidoItem[]
+        }
+        const pedidoComValor = {
+          ...pedidoAtual,
+          descricao_item: valorStr,
+          descricao_item_valor_unico: valorStr,
+        } as Pedido
+        const sinc = sincronizarItensPedido(itensExistentes, pedidoComValor)
+        const divergencias = mesclarDivergenciasPreservandoDescricaoPedido(
+          pedidoComValor as Record<string, unknown>,
+          sinc.divergencias as Record<string, unknown>,
+        )
+        const pedidoAtualizado = {
+          ...pedidoComValor,
+          ...divergencias,
+          itens: sinc.itens,
+        } as Pedido
+        if (itensExistentes.length > 0) {
+          itensCarregadosRef.current.set(id, sinc.itens)
+        }
+        setPedidos(prev => prev.map(p => (p.id === id ? pedidoAtualizado : p)))
+        return pedidoAtualizado
+      }
+
+      // NCM / cobertura: edição no pai sempre propaga aos itens (comportamento legado).
+      let itensGhost = itensCarregadosRef.current.get(id) ?? []
+      if (itensGhost.length === 0) {
+        itensGhost = (pedidoAtual.itens?.length ?? 0) > 0
+          ? (pedidoAtual.itens as PedidoItem[])
+          : await pedidoItemApi.listar(id)
+      }
+      if (itensGhost.length === 0) {
+        throw new Error(t('pedido.lista.erro.pedido_sem_itens_para_campo', 'Este pedido não tem itens para atualizar.'))
+      }
+      const itensAtualizados = await Promise.all(
         itensGhost.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valorEnviar))
       )
-      // Invalida cache local — itemVersion detectará mudança e refetch acontece automaticamente
-      itensCarregadosRef.current.delete(id)
-      const pedidoAtualizado = { ...pedidoAtual, [campo]: valorEnviar } as Pedido
-      setPedidos(prev => prev.map(p => p.id === id ? pedidoAtualizado : p))
+      const itensComValor = itensAtualizados.map(i => ({ ...i, [campo]: valorEnviar } as PedidoItem))
+      const pedidoComValorCanonico = { ...pedidoAtual, [campo]: valorEnviar } as Pedido
+      const { itens: itensSinc, divergencias } = sincronizarItensPedido(itensComValor, pedidoComValorCanonico)
+      itensCarregadosRef.current.set(id, itensSinc)
+      const divMesclada = mesclarDivergenciasPreservandoDescricaoPedido(
+        pedidoComValorCanonico as Record<string, unknown>,
+        divergencias as Record<string, unknown>,
+      )
+      const pedidoAtualizado = { ...pedidoComValorCanonico, ...divMesclada, itens: itensSinc } as Pedido
+      setPedidos(prev => prev.map(p => (p.id === id ? pedidoAtualizado : p)))
+      setResetFilhos(prev => prev + 1)
       return pedidoAtualizado
     }
     const pedidoAtual = pedidos.find(p => p.id === id)
@@ -5378,12 +5426,16 @@ export default function Pedidos() {
     divergencias: Partial<Pedido>
   } {
     const itensMarcados = marcarPartNumbersDuplicados(itens)
+    const divergencias = {
+      ...calcularDivergencias(itensMarcados, pedidoPai),
+      part_number_duplicado_no_pedido: pedidoTemPartNumberDuplicado(itensMarcados),
+    }
     return {
       itens: itensMarcados,
-      divergencias: {
-        ...calcularDivergencias(itensMarcados, pedidoPai),
-        part_number_duplicado_no_pedido: pedidoTemPartNumberDuplicado(itensMarcados),
-      },
+      divergencias: mesclarDivergenciasPreservandoDescricaoPedido(
+        pedidoPai as Record<string, unknown> | undefined,
+        divergencias as Record<string, unknown>,
+      ) as Partial<Pedido>,
     }
   }
 
@@ -5997,6 +6049,7 @@ export default function Pedidos() {
       return {
         ...p,
         ...divergencias,
+        descricao_item: p.descricao_item,
         itens: itensAposEdicao,
         quantidade_total_pedido: itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_inicial_pedido) || 0), 0),
         quantidade_transferida_total:    itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_transferida_pedido)    || 0), 0),
@@ -6005,9 +6058,6 @@ export default function Pedidos() {
         cubagem_total_pedido:            itensAposEdicao.reduce((s, i) => s + (Number(i.cubagem_unitaria)     || 0), 0),
       }
     }))
-    // filhosCache da TabelaVirtual só atualiza 1 item via atualizarFilhoNoCache;
-    // alertas de PN duplicado dependem de TODOS os itens — força reload do cache.
-    setResetFilhos(prev => prev + 1)
     return itensAposEdicao.find(i => i.id === id) ?? enriquecido
   }, [pedidos])
 
@@ -6337,7 +6387,6 @@ export default function Pedidos() {
             ])
             return !COLUNAS_SEM_REPLICACAO.has(campo)
           } : undefined}
-
           camposEditaveisFilhos={camposEditaveisFilhosComCustom}
           onEditarFilho={podeEditarLista ? handleEditarFilho : undefined}
 

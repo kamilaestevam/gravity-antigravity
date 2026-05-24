@@ -47,6 +47,7 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   referencia_importador:     { tipo: 'alfanumerico' },
   referencia_exportador:     { tipo: 'alfanumerico' },
   ncm:                       { tipo: 'alfanumerico' },
+  descricao_item:            { tipo: 'alfanumerico' },
   numero_proforma:           { tipo: 'alfanumerico' },
   numero_invoice:            { tipo: 'alfanumerico' },
   incoterm:                  { tipo: 'alfanumerico' },

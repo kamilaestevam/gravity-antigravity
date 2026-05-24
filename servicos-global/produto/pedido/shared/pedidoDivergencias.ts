@@ -33,13 +33,24 @@ export function calcularDivergenciasPedido(
   const result: Record<string, unknown> = {}
 
   for (const campo of getAlertavelKeys()) {
-    const valores = itens
+    const valorPai = pedidoPai?.[campo]
+    const valoresItens = itens
       .map(i => i[campo])
       .filter((v): v is string => v != null && v !== '')
-    const distintos = new Set(valores).size
-    result[`${campo}_divergente`] = distintos > 1
+    const distintos = new Set(valoresItens).size
+    let divergente = distintos > 1
+
+    // Pai com valor canônico: alerta se algum item preenchido difere (ex: pedido "abc", item "cde").
+    if (!divergente && valorPai != null && String(valorPai) !== '') {
+      const paiStr = String(valorPai)
+      if (valoresItens.some(v => String(v) !== paiStr)) {
+        divergente = true
+      }
+    }
+
+    result[`${campo}_divergente`] = divergente
     if (CAMPOS_GHOST.has(campo)) {
-      result[`${campo}_valor_unico`] = distintos === 1 ? valores[0] : null
+      result[`${campo}_valor_unico`] = distintos === 1 ? valoresItens[0] : null
     }
   }
 
@@ -76,6 +87,13 @@ export function calcularDivergenciasPedido(
   result.ncm_divergente = ncmsUnicos.size > 1
   result.ncm_valor_unico = ncmsUnicos.size === 1 ? [...ncmsUnicos][0] : null
 
+  // Descrição: valor único na linha pai quando todos os itens coincidem — sem alerta ⚠.
+  const descricoes = itens
+    .map(i => i.descricao_item)
+    .filter((v): v is string => v != null && String(v).trim() !== '')
+  const descricoesUnicas = new Set(descricoes.map(d => String(d)))
+  result.descricao_item_valor_unico = descricoesUnicas.size === 1 ? [...descricoesUnicas][0] : null
+
   const datasItens = itens
     .map(i => dateKey(i.data_emissao_pedido))
     .filter((v): v is string => v != null)
@@ -110,4 +128,31 @@ export function calcularDivergenciasPedido(
   result['_colunas_usuario_divergentes'] = divergenciasCustom
 
   return result
+}
+
+/** Valor exibido na linha pai — canônico do pedido tem prioridade sobre agregado dos itens. */
+export function obterDescricaoExibicaoPedido(
+  pedido?: Record<string, unknown> | null,
+): string | null {
+  const canonico = pedido?.descricao_item
+  if (canonico != null && String(canonico).trim() !== '') return String(canonico)
+  const agregado = pedido?.descricao_item_valor_unico
+  if (agregado != null && String(agregado).trim() !== '') return String(agregado)
+  return null
+}
+
+/**
+ * Após recalcular divergências, mantém `descricao_item` / exibição do pedido quando o
+ * usuário gravou só na linha pai (sem replicar nos itens).
+ */
+export function mesclarDivergenciasPreservandoDescricaoPedido(
+  pedidoPai: Record<string, unknown> | undefined,
+  divergencias: DivergenciasPedido,
+): DivergenciasPedido {
+  const canonico = obterDescricaoExibicaoPedido(pedidoPai)
+  if (!canonico) return divergencias
+  return {
+    ...divergencias,
+    descricao_item_valor_unico: canonico,
+  }
 }

@@ -1021,7 +1021,7 @@ export default function Configuracoes() {
 
   return (
     <PaginaGlobal
-      className="bf-configuracoes"
+      className="bf-configuracoes bid-frete-page-shell"
     >
       <div className="cfg-page">
         {/* ── Sidebar ── */}

@@ -2,7 +2,7 @@
  * cleanup-users.ts
  *
  * Exclui TODOS os usuários exceto dmmltda@gmail.com (Super Admin)
- * de: Clerk (frontend auth) + Banco Configurador (Usuario, UsuarioPermissao, UsuarioWorkspace, OrganizacaoFornecedor)
+ * de: Clerk (frontend auth) + Banco Configurador (Usuario, UsuarioPermissao, UsuarioWorkspace)
  *
  * Uso:
  *   cd servicos-global/configurador
@@ -92,15 +92,10 @@ async function main() {
     const dbMemberships = await prisma.usuarioWorkspace.count({
       where: { user: { id_clerk_usuario: { in: toDelete.map(u => u.id) } } },
     })
-    const dbSupplier = await prisma.organizacaoFornecedor.count({
-      where: { id_clerk_usuario: { in: toDelete.map(u => u.id) } },
-    })
-
     console.log(`\n--- Impacto no banco ---`)
     console.log(`   Usuario:                 ${dbUsers} registros`)
     console.log(`   UsuarioPermissao:       ${dbPermissions} registros`)
     console.log(`   UsuarioWorkspace:       ${dbMemberships} registros`)
-    console.log(`   OrganizacaoFornecedor: ${dbSupplier} registros`)
     console.log(`\nDRY RUN completo. Execute sem --dry-run para aplicar.`)
     return
   }
@@ -110,16 +105,13 @@ async function main() {
   const clerkIds = toDelete.map(u => u.id)
 
   const deleted = await prisma.$transaction(async (tx) => {
-    const sup = await tx.organizacaoFornecedor.deleteMany({
-      where: { id_clerk_usuario: { in: clerkIds } },
-    })
     const users = await tx.usuario.deleteMany({
       where: { id_clerk_usuario: { in: clerkIds } },
     })
-    return { users: users.count, supplier: sup.count }
+    return { users: users.count }
   })
 
-  console.log(`   Banco: ${deleted.users} Usuario(s) + ${deleted.supplier} OrganizacaoFornecedor excluidos`)
+  console.log(`   Banco: ${deleted.users} Usuario(s) excluidos`)
 
   // 3. Excluir do Clerk
   console.log('\nExcluindo do Clerk...')

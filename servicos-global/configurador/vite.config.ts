@@ -181,11 +181,22 @@ export default defineConfig(({ command }) => {
           if (!res.headersSent) res.writeHead(502).end()
         },
       },
-      // /api/v1/empresas — também servido pelo Cadastros (mesmo backend, porta 8031).
-      // Histórico DDD: o router de Empresa foi montado em /api/v1/empresas (raiz)
-      // em vez de /api/v1/cadastros/empresas (ver cadastros/server/src/index.ts:41).
-      // Sem este proxy, a chamada cai no fallback `/api` → :8005 (configurador) → 404.
+      // /api/v1/fornecedores — cartório Cadastros (porta 8031).
       '/api/v1/empresas': {
+        target: 'http://localhost:8031',
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(/^\/api\/v1\/empresas/, '/api/v1/fornecedores'),
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
+          })
+        },
+        onError(err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
+      '/api/v1/fornecedores': {
         target: 'http://localhost:8031',
         changeOrigin: true,
         configure(proxy) {

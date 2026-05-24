@@ -339,7 +339,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
     cadastrosApi
       .listarEmpresas()
       .then((resp) => {
-        if (!cancelado) setEmpresas(resp.itens.filter((e) => e.ativo_empresa))
+        if (!cancelado) setEmpresas(resp.itens.filter((e) => e.ativo_fornecedor))
       })
       .catch(() => {
         // Falha silenciosa só na pré-carga (o usuário ainda pode cadastrar
@@ -389,16 +389,16 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       if (prev.tipo_operacao_pedido === 'importacao') {
         return {
           ...prev,
-          suid_importador: empresaDaOrg.suid_empresa,
+          suid_importador: empresaDaOrg.id_fornecedor,
           // Limpa exportador antigo se ele apontava para a empresa-da-org
           // (por ex. mudou de exportacao→importacao e ficou inconsistente)
-          suid_exportador: prev.suid_exportador === empresaDaOrg.suid_empresa ? '' : prev.suid_exportador,
+          suid_exportador: prev.suid_exportador === empresaDaOrg.id_fornecedor ? '' : prev.suid_exportador,
         }
       }
       return {
         ...prev,
-        suid_exportador: empresaDaOrg.suid_empresa,
-        suid_importador: prev.suid_importador === empresaDaOrg.suid_empresa ? '' : prev.suid_importador,
+        suid_exportador: empresaDaOrg.id_fornecedor,
+        suid_importador: prev.suid_importador === empresaDaOrg.id_fornecedor ? '' : prev.suid_importador,
       }
     })
   }, [form.tipo_operacao_pedido, empresaDaOrg])
@@ -410,22 +410,22 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   // o usuário usa o atalho "+ Nova" que abre o cascade modal.
   function opcoesEmpresaPara(papel: PapelEmpresaRapido) {
     const papelKey =
-      papel === 'importador' ? 'pode_ser_importador_empresa'
-      : papel === 'exportador' ? 'pode_ser_exportador_empresa'
-      : 'pode_ser_fabricante_empresa'
+      papel === 'importador' ? 'pode_ser_importador_fornecedor'
+      : papel === 'exportador' ? 'pode_ser_exportador_fornecedor'
+      : 'pode_ser_fabricante_fornecedor'
     return empresas
       .filter((e) => e[papelKey])
       .map((e) => ({
-        valor: e.suid_empresa,
-        rotulo: `${e.nome_empresa} (${e.pais_empresa})`,
+        valor: e.id_fornecedor,
+        rotulo: `${e.nome_fornecedor} (${e.pais_fornecedor})`,
       }))
   }
 
   function aoCriarEmpresa(empresa: Empresa) {
-    setEmpresas((prev) => [empresa, ...prev.filter((e) => e.suid_empresa !== empresa.suid_empresa)])
-    if (cadastroEmpresaPapel === 'importador') set('suid_importador', empresa.suid_empresa)
-    if (cadastroEmpresaPapel === 'exportador') set('suid_exportador', empresa.suid_empresa)
-    if (cadastroEmpresaPapel === 'fabricante') set('suid_fabricante', empresa.suid_empresa)
+    setEmpresas((prev) => [empresa, ...prev.filter((e) => e.id_fornecedor !== empresa.id_fornecedor)])
+    if (cadastroEmpresaPapel === 'importador') set('suid_importador', empresa.id_fornecedor)
+    if (cadastroEmpresaPapel === 'exportador') set('suid_exportador', empresa.id_fornecedor)
+    if (cadastroEmpresaPapel === 'fabricante') set('suid_fabricante', empresa.id_fornecedor)
     setCadastroEmpresaPapel(null)
   }
 
@@ -487,15 +487,15 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
     | { tipo: 'sem_cnpj'; nome: string }
   function diagnosticarEmpresa(suid: string, esperaEstrangeira: boolean): DiagnosticoEmpresa | null {
     if (!suid) return null
-    const e = empresas.find((x) => x.suid_empresa === suid)
+    const e = empresas.find((x) => x.id_fornecedor === suid)
     if (!e) return null
-    if (esperaEstrangeira && e.pais_empresa === 'BR') {
-      return { tipo: 'pais_br', nome: e.nome_empresa }
+    if (esperaEstrangeira && e.pais_fornecedor === 'BR') {
+      return { tipo: 'pais_br', nome: e.nome_fornecedor }
     }
-    if (e.pais_empresa === 'BR' && (!e.cnpj_empresa || !e.cnpj_empresa.trim())) {
-      return { tipo: 'sem_cnpj', nome: e.nome_empresa }
+    if (e.pais_fornecedor === 'BR' && (!e.cnpj_fornecedor || !e.cnpj_fornecedor.trim())) {
+      return { tipo: 'sem_cnpj', nome: e.nome_fornecedor }
     }
-    return { tipo: 'ok', nome: e.nome_empresa }
+    return { tipo: 'ok', nome: e.nome_fornecedor }
   }
 
   const exportadorDiag = form.tipo_operacao_pedido === 'importacao'
@@ -899,7 +899,7 @@ function CampoEmpresaDaOrg({
           {carregando
             ? '…'
             : empresa
-            ? `${empresa.nome_empresa}${empresa.cnpj_empresa ? ` — ${empresa.cnpj_empresa}` : ''}`
+            ? `${empresa.nome_fornecedor}${empresa.cnpj_fornecedor ? ` — ${empresa.cnpj_fornecedor}` : ''}`
             : '—'}
         </span>
       </div>
@@ -958,18 +958,18 @@ function Passo1Dados({
   // selecionar uma empresa BR que jamais geraria snapshot válido (CNPJ não
   // se aplica e snapshot exige documento por país).
   const suidsBr = useMemo(
-    () => new Set(empresas.filter((e) => e.pais_empresa === 'BR').map((e) => e.suid_empresa)),
+    () => new Set(empresas.filter((e) => e.pais_fornecedor === 'BR').map((e) => e.id_fornecedor)),
     [empresas],
   )
   const opcoesContraparteImportador = useMemo(
     () => opcoesImportador
-      .filter((o) => o.valor !== empresaDaOrg?.suid_empresa)
+      .filter((o) => o.valor !== empresaDaOrg?.id_fornecedor)
       .filter((o) => !suidsBr.has(String(o.valor))),
     [opcoesImportador, empresaDaOrg, suidsBr],
   )
   const opcoesContraparteExportador = useMemo(
     () => opcoesExportador
-      .filter((o) => o.valor !== empresaDaOrg?.suid_empresa)
+      .filter((o) => o.valor !== empresaDaOrg?.id_fornecedor)
       .filter((o) => !suidsBr.has(String(o.valor))),
     [opcoesExportador, empresaDaOrg, suidsBr],
   )

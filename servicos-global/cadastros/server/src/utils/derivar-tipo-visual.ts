@@ -1,61 +1,52 @@
 /**
- * Tipo da empresa NÃO é campo persistido — é DERIVADO das flags pode_ser_*.
- * Documento de referência: seção 4.1 do documento técnico Cadastros.
- *
- * Esta função é a fonte canônica de derivação. Backend e SDK do client a
- * utilizam para gerar o label exibido na UI ("Importador",
- * "Importador + Exportador", "Importador + Exportador + Agente").
+ * Tipo do fornecedor DERIVADO das flags pode_ser_* (não persistido).
  */
 
-export interface FlagsTipoEmpresa {
-  pode_ser_importador_empresa: boolean
-  pode_ser_exportador_empresa: boolean
-  pode_ser_fabricante_empresa: boolean
-  pode_ser_agente_empresa: boolean
-  pode_ser_despachante_empresa: boolean
-  pode_ser_armador_empresa: boolean
-  pode_ser_cia_aerea_empresa: boolean
-  pode_ser_transportadora_rodoviaria_nacional_empresa: boolean
-  pode_ser_transportadora_rodoviaria_internacional_empresa: boolean
-  pode_ser_armazem_alfandegado_empresa: boolean
-  pode_ser_armazem_nacional_empresa: boolean
-  pode_ser_banco_empresa: boolean
-  pode_ser_seguradora_internacional_empresa: boolean
-  pode_ser_seguradora_corretora_cambio_empresa: boolean
+export interface FlagsTipoFornecedor {
+  pode_ser_importador_fornecedor: boolean
+  pode_ser_exportador_fornecedor: boolean
+  pode_ser_fabricante_fornecedor: boolean
+  pode_ser_agente_fornecedor: boolean
+  pode_ser_despachante_fornecedor: boolean
+  pode_ser_armador_fornecedor: boolean
+  pode_ser_cia_aerea_fornecedor: boolean
+  pode_ser_transportadora_rodoviaria_nacional_fornecedor: boolean
+  pode_ser_transportadora_rodoviaria_internacional_fornecedor: boolean
+  pode_ser_armazem_alfandegado_fornecedor: boolean
+  pode_ser_armazem_nacional_fornecedor: boolean
+  pode_ser_banco_fornecedor: boolean
+  pode_ser_seguradora_internacional_fornecedor: boolean
+  pode_ser_seguradora_corretora_cambio_fornecedor: boolean
 }
 
-/**
- * Ordem fixa para garantir saída estável e idempotente.
- * Importador e Exportador aparecem primeiro porque são os papéis primários
- * em qualquer operação COMEX; demais aparecem em ordem alfabética.
- */
-const ORDEM_PAPEIS: ReadonlyArray<{ flag: keyof FlagsTipoEmpresa; label: string }> = [
-  { flag: 'pode_ser_importador_empresa', label: 'Importador' },
-  { flag: 'pode_ser_exportador_empresa', label: 'Exportador' },
-  { flag: 'pode_ser_agente_empresa', label: 'Agente' },
-  { flag: 'pode_ser_armador_empresa', label: 'Armador' },
-  { flag: 'pode_ser_armazem_alfandegado_empresa', label: 'Armazém Alfandegado' },
-  { flag: 'pode_ser_armazem_nacional_empresa', label: 'Armazém Nacional' },
-  { flag: 'pode_ser_banco_empresa', label: 'Banco' },
-  { flag: 'pode_ser_cia_aerea_empresa', label: 'Cia Aérea' },
-  { flag: 'pode_ser_despachante_empresa', label: 'Despachante' },
-  { flag: 'pode_ser_fabricante_empresa', label: 'Fabricante' },
-  { flag: 'pode_ser_seguradora_corretora_cambio_empresa', label: 'Seguradora / Corretora de Câmbio' },
-  { flag: 'pode_ser_seguradora_internacional_empresa', label: 'Seguradora Internacional' },
-  { flag: 'pode_ser_transportadora_rodoviaria_internacional_empresa', label: 'Transp. Rod. Internacional' },
-  { flag: 'pode_ser_transportadora_rodoviaria_nacional_empresa', label: 'Transp. Rod. Nacional' },
+const ORDEM_PAPEIS: ReadonlyArray<{ flag: keyof FlagsTipoFornecedor; label: string }> = [
+  { flag: 'pode_ser_importador_fornecedor', label: 'Importador' },
+  { flag: 'pode_ser_exportador_fornecedor', label: 'Exportador' },
+  { flag: 'pode_ser_agente_fornecedor', label: 'Agente' },
+  { flag: 'pode_ser_armador_fornecedor', label: 'Armador' },
+  { flag: 'pode_ser_armazem_alfandegado_fornecedor', label: 'Armazém Alfandegado' },
+  { flag: 'pode_ser_armazem_nacional_fornecedor', label: 'Armazém Nacional' },
+  { flag: 'pode_ser_banco_fornecedor', label: 'Banco' },
+  { flag: 'pode_ser_cia_aerea_fornecedor', label: 'Cia Aérea' },
+  { flag: 'pode_ser_despachante_fornecedor', label: 'Despachante' },
+  { flag: 'pode_ser_fabricante_fornecedor', label: 'Fabricante' },
+  { flag: 'pode_ser_seguradora_corretora_cambio_fornecedor', label: 'Seguradora / Corretora de Câmbio' },
+  { flag: 'pode_ser_seguradora_internacional_fornecedor', label: 'Seguradora Internacional' },
+  { flag: 'pode_ser_transportadora_rodoviaria_internacional_fornecedor', label: 'Transp. Rod. Internacional' },
+  { flag: 'pode_ser_transportadora_rodoviaria_nacional_fornecedor', label: 'Transp. Rod. Nacional' },
 ]
 
-export function derivarTipoVisual(empresa: FlagsTipoEmpresa): string {
-  const papeis = ORDEM_PAPEIS.filter(({ flag }) => empresa[flag] === true).map(({ label }) => label)
+export function derivarTipoVisual(fornecedor: FlagsTipoFornecedor): string {
+  const papeis = ORDEM_PAPEIS.filter(({ flag }) => fornecedor[flag] === true).map(({ label }) => label)
 
   if (papeis.length === 0) {
-    // Nenhuma flag ativa nunca deveria passar pela validação Zod;
-    // se chegou até aqui, é bug — falha ruidosa (Mandamento 08).
     throw new Error(
-      '[derivarTipoVisual] Empresa sem nenhuma flag pode_ser_* ativa. Validação Zod foi pulada?',
+      '[derivarTipoVisual] Fornecedor sem nenhuma flag pode_ser_* ativa. Validação Zod foi pulada?',
     )
   }
 
   return papeis.join(' + ')
 }
+
+/** @deprecated Use FlagsTipoFornecedor */
+export type FlagsTipoEmpresa = FlagsTipoFornecedor

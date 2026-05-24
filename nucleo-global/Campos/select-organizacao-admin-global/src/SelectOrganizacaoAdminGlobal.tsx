@@ -19,11 +19,30 @@
  */
 
 import React, { useEffect, useRef, useState, useId } from 'react'
+import ReactDOM from 'react-dom'
 import { MagnifyingGlass, X, CaretDown } from '@phosphor-icons/react'
 
 export interface OrganizacaoOpcao {
   id_organizacao: string
   nome_organizacao: string
+}
+
+type DropdownPos = { top: number; left: number; width: number; above: boolean; maxHeight: number }
+
+function calcPos(trigger: HTMLElement): DropdownPos {
+  const rect = trigger.getBoundingClientRect()
+  const spaceBelow = window.innerHeight - rect.bottom
+  const spaceAbove = rect.top
+  const above = spaceBelow < 260 && spaceAbove > spaceBelow
+  return {
+    top: above ? rect.top : rect.bottom + 4,
+    left: rect.left,
+    width: rect.width,
+    above,
+    maxHeight: above
+      ? Math.min(320, spaceAbove - 16)
+      : Math.min(320, spaceBelow - 16),
+  }
 }
 
 export interface SelectOrganizacaoAdminGlobalProps {
@@ -54,12 +73,16 @@ export function SelectOrganizacaoAdminGlobal({
   className,
 }: SelectOrganizacaoAdminGlobalProps): JSX.Element {
   const id = useId()
+  const portalId = `${id}-dropdown-portal`
   const [busca, setBusca] = useState('')
   const [aberto, setAberto] = useState(false)
+  const [pos, setPos] = useState<DropdownPos | null>(null)
   const [resultados, setResultados] = useState<OrganizacaoOpcao[]>([])
   const [carregando, setCarregando] = useState(false)
   const [nomeSelecionado, setNomeSelecionado] = useState<string>('')
   const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const buscaRef = useRef<HTMLInputElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Resolve nome quando value muda externamente (ex: navegação direta com ?id_organizacao=).
@@ -103,16 +126,42 @@ export function SelectOrganizacaoAdminGlobal({
     }
   }, [busca, aberto, fetchOrganizacoes])
 
-  // Fecha ao clicar fora
+  // Posição do dropdown via portal (escapa overflow:hidden de modais)
   useEffect(() => {
+    if (!aberto || !triggerRef.current) return
+    setPos(calcPos(triggerRef.current))
+
+    const update = () => {
+      if (triggerRef.current) setPos(calcPos(triggerRef.current))
+    }
+    window.addEventListener('scroll', update, true)
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update, true)
+      window.removeEventListener('resize', update)
+    }
+  }, [aberto])
+
+  useEffect(() => {
+    if (aberto) {
+      setTimeout(() => buscaRef.current?.focus(), 50)
+    }
+  }, [aberto])
+
+  // Fecha ao clicar fora (trigger + portal)
+  useEffect(() => {
+    if (!aberto) return
     function onClickFora(e: MouseEvent): void {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setAberto(false)
-      }
+      const alvo = e.target as Node
+      if (containerRef.current?.contains(alvo)) return
+      const portalEl = document.getElementById(portalId)
+      if (portalEl?.contains(alvo)) return
+      setAberto(false)
+      setBusca('')
     }
     document.addEventListener('mousedown', onClickFora)
     return () => document.removeEventListener('mousedown', onClickFora)
-  }, [])
+  }, [aberto, portalId])
 
   function selecionar(opcao: OrganizacaoOpcao): void {
     onChange(opcao.id_organizacao, opcao.nome_organizacao)
@@ -153,6 +202,7 @@ export function SelectOrganizacaoAdminGlobal({
 
       <button
         id={id}
+        ref={triggerRef}
         type="button"
         disabled={disabled}
         onClick={() => setAberto((a) => !a)}
@@ -191,27 +241,29 @@ export function SelectOrganizacaoAdminGlobal({
         <CaretDown size={12} weight="bold" />
       </button>
 
-      {aberto && (
+      {aberto && pos && ReactDOM.createPortal(
         <div
+          id={portalId}
+          onMouseDown={(e) => e.stopPropagation()}
           style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            right: 0,
-            marginTop: 4,
+            position: 'fixed',
+            top: pos.above ? undefined : pos.top,
+            bottom: pos.above ? window.innerHeight - pos.top : undefined,
+            left: pos.left,
+            minWidth: pos.width,
+            maxHeight: pos.maxHeight,
             background: 'var(--ws-surface, #0f172a)',
             border: '1px solid var(--ws-border, #334155)',
             borderRadius: 6,
             boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-            zIndex: 1000,
-            maxHeight: 320,
+            zIndex: 99999,
             overflow: 'auto',
           }}
         >
           <div style={{ padding: 8, borderBottom: '1px solid var(--ws-border, #334155)' }}>
             <input
+              ref={buscaRef}
               type="text"
-              autoFocus
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder={placeholder}
@@ -283,7 +335,8 @@ export function SelectOrganizacaoAdminGlobal({
               </div>
             </button>
           ))}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   )

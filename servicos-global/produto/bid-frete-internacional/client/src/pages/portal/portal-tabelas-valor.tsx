@@ -232,7 +232,7 @@ export default function TabelaPrecos() {
   ]
 
   return (
-    <PaginaGlobal className="tp-page">
+    <PaginaGlobal className="tp-page bid-frete-page-shell">
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <button className="tp-btn tp-btn--primary" type="button" onClick={abrirNovo}>
           <Plus weight="bold" size={14} />
@@ -394,7 +394,7 @@ export default function TabelaPrecos() {
       )}
 
       <style>{`
-        .tp-page { padding: 0; }
+        .tp-page { }
 
         /* Buttons */
         .tp-btn {

@@ -1493,7 +1493,7 @@ export default function PedidosDashboard() {
   )
 
   return (
-    <div style={{ padding: '1.5rem' }}>
+    <div className="pedido-page-shell" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, gap: '1rem' }}>
 
       {/* ── Onboarding banner — fixo, nunca some ───────────────────────── */}
       <div style={onboardingBannerStyle}>

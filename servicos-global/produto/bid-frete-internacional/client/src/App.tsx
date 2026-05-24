@@ -9,7 +9,7 @@ import React, { lazy, Suspense, useEffect, useMemo } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
 import { useAuth, useClerk } from '@clerk/clerk-react'
-import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
+import { TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import {
@@ -28,6 +28,7 @@ import {
 } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { resolverPageMetaTopo } from './shared/page-meta-topo'
+import './shared/bid-frete-page-shell.css'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
@@ -164,7 +165,7 @@ export default function App() {
   )
 
   return (
-    <TelaProdutoGlobal
+    <TelaProdutoComOrganizacaoOverride
       productId={PRODUCT_ID}
       productName={PRODUCT_NAME}
       tenantName={nomeWorkspaceAtivo}
@@ -239,7 +240,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="visao-geral" replace />} />
         </Routes>
       </Suspense>
-    </TelaProdutoGlobal>
+    </TelaProdutoComOrganizacaoOverride>
   )
 }
 

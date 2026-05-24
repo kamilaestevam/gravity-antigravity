@@ -122,39 +122,50 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.EmpresaScalarFieldEnum = {
-  suid_empresa: 'suid_empresa',
-  id_organizacao_empresa: 'id_organizacao_empresa',
-  id_produto_empresa: 'id_produto_empresa',
-  id_usuario_empresa: 'id_usuario_empresa',
-  nome_empresa: 'nome_empresa',
-  cnpj_empresa: 'cnpj_empresa',
-  tin_empresa: 'tin_empresa',
-  pais_empresa: 'pais_empresa',
-  estado_empresa: 'estado_empresa',
-  cidade_empresa: 'cidade_empresa',
-  endereco_empresa: 'endereco_empresa',
-  zipcode_empresa: 'zipcode_empresa',
-  email_empresa: 'email_empresa',
-  telefone_empresa: 'telefone_empresa',
-  whatsapp_empresa: 'whatsapp_empresa',
-  pode_ser_importador_empresa: 'pode_ser_importador_empresa',
-  pode_ser_exportador_empresa: 'pode_ser_exportador_empresa',
-  pode_ser_fabricante_empresa: 'pode_ser_fabricante_empresa',
-  pode_ser_agente_empresa: 'pode_ser_agente_empresa',
-  pode_ser_despachante_empresa: 'pode_ser_despachante_empresa',
-  pode_ser_armador_empresa: 'pode_ser_armador_empresa',
-  pode_ser_armazem_alfandegado_empresa: 'pode_ser_armazem_alfandegado_empresa',
-  pode_ser_transportadora_rodoviaria_nacional_empresa: 'pode_ser_transportadora_rodoviaria_nacional_empresa',
-  pode_ser_cia_aerea_empresa: 'pode_ser_cia_aerea_empresa',
-  pode_ser_transportadora_rodoviaria_internacional_empresa: 'pode_ser_transportadora_rodoviaria_internacional_empresa',
-  pode_ser_seguradora_internacional_empresa: 'pode_ser_seguradora_internacional_empresa',
-  pode_ser_seguradora_corretora_cambio_empresa: 'pode_ser_seguradora_corretora_cambio_empresa',
-  pode_ser_banco_empresa: 'pode_ser_banco_empresa',
-  pode_ser_armazem_nacional_empresa: 'pode_ser_armazem_nacional_empresa',
-  ativo_empresa: 'ativo_empresa',
-  criado_em_empresa: 'criado_em_empresa',
-  atualizado_em_empresa: 'atualizado_em_empresa'
+exports.Prisma.FornecedorScalarFieldEnum = {
+  id_fornecedor: 'id_fornecedor',
+  id_organizacao_cadastro_fornecedor: 'id_organizacao_cadastro_fornecedor',
+  id_produto_fornecedor: 'id_produto_fornecedor',
+  id_usuario_cadastro_fornecedor: 'id_usuario_cadastro_fornecedor',
+  nome_fornecedor: 'nome_fornecedor',
+  cnpj_fornecedor: 'cnpj_fornecedor',
+  tin_fornecedor: 'tin_fornecedor',
+  pais_fornecedor: 'pais_fornecedor',
+  estado_provincia_fornecedor: 'estado_provincia_fornecedor',
+  cidade_fornecedor: 'cidade_fornecedor',
+  endereco_fornecedor: 'endereco_fornecedor',
+  cep_zipcode_fornecedor: 'cep_zipcode_fornecedor',
+  email_principal_fornecedor: 'email_principal_fornecedor',
+  telefone_principal_fornecedor: 'telefone_principal_fornecedor',
+  whatsapp_principal_fornecedor: 'whatsapp_principal_fornecedor',
+  pode_ser_importador_fornecedor: 'pode_ser_importador_fornecedor',
+  pode_ser_exportador_fornecedor: 'pode_ser_exportador_fornecedor',
+  pode_ser_fabricante_fornecedor: 'pode_ser_fabricante_fornecedor',
+  pode_ser_agente_fornecedor: 'pode_ser_agente_fornecedor',
+  pode_ser_despachante_fornecedor: 'pode_ser_despachante_fornecedor',
+  pode_ser_armador_fornecedor: 'pode_ser_armador_fornecedor',
+  pode_ser_armazem_alfandegado_fornecedor: 'pode_ser_armazem_alfandegado_fornecedor',
+  pode_ser_transportadora_rodoviaria_nacional_fornecedor: 'pode_ser_transportadora_rodoviaria_nacional_fornecedor',
+  pode_ser_cia_aerea_fornecedor: 'pode_ser_cia_aerea_fornecedor',
+  pode_ser_transportadora_rodoviaria_internacional_fornecedor: 'pode_ser_transportadora_rodoviaria_internacional_fornecedor',
+  pode_ser_seguradora_internacional_fornecedor: 'pode_ser_seguradora_internacional_fornecedor',
+  pode_ser_seguradora_corretora_cambio_fornecedor: 'pode_ser_seguradora_corretora_cambio_fornecedor',
+  pode_ser_banco_fornecedor: 'pode_ser_banco_fornecedor',
+  pode_ser_armazem_nacional_fornecedor: 'pode_ser_armazem_nacional_fornecedor',
+  ativo_fornecedor: 'ativo_fornecedor',
+  criado_em_fornecedor: 'criado_em_fornecedor',
+  atualizado_em_fornecedor: 'atualizado_em_fornecedor'
+};
+
+exports.Prisma.FornecedorOrganizacaoScalarFieldEnum = {
+  id_fornecedor_organizacao: 'id_fornecedor_organizacao',
+  id_fornecedor: 'id_fornecedor',
+  id_organizacao: 'id_organizacao',
+  tipo_fornecedor_organizacao: 'tipo_fornecedor_organizacao',
+  status_fornecedor_organizacao: 'status_fornecedor_organizacao',
+  id_usuario: 'id_usuario',
+  data_criacao_fornecedor_organizacao: 'data_criacao_fornecedor_organizacao',
+  data_atualizacao_fornecedor_organizacao: 'data_atualizacao_fornecedor_organizacao'
 };
 
 exports.Prisma.PaisScalarFieldEnum = {
@@ -223,14 +234,13 @@ exports.Prisma.AeroportoScalarFieldEnum = {
   ativo_aeroporto: 'ativo_aeroporto'
 };
 
-exports.Prisma.TipoContainerScalarFieldEnum = {
-  id_tipo_container: 'id_tipo_container',
-  codigo_iso_tipo_container: 'codigo_iso_tipo_container',
-  nome_tipo_container: 'nome_tipo_container',
-  nome_ingles_tipo_container: 'nome_ingles_tipo_container',
-  tamanho_pes_tipo_container: 'tamanho_pes_tipo_container',
-  categoria_tipo_container: 'categoria_tipo_container',
-  ativo_tipo_container: 'ativo_tipo_container'
+exports.Prisma.ContainerScalarFieldEnum = {
+  id_container: 'id_container',
+  tipo_container: 'tipo_container',
+  tamanho_container: 'tamanho_container',
+  codigo_iso_container: 'codigo_iso_container',
+  armador_dono_container: 'armador_dono_container',
+  ativo_container: 'ativo_container'
 };
 
 exports.Prisma.NcmSyncScalarFieldEnum = {
@@ -307,34 +317,6 @@ exports.Prisma.OPEHistoricoStatusScalarFieldEnum = {
   registrado_em_ope_historico_status: 'registrado_em_ope_historico_status'
 };
 
-exports.Prisma.ExportadorQuandoImportacaoScalarFieldEnum = {
-  id_exportador_quando_importacao: 'id_exportador_quando_importacao',
-  id_organizacao_exportador: 'id_organizacao_exportador',
-  id_workspace_exportador: 'id_workspace_exportador',
-  nome_exportador: 'nome_exportador',
-  endereco_exportador: 'endereco_exportador',
-  cidade_exportador: 'cidade_exportador',
-  estado_provincia_exportador: 'estado_provincia_exportador',
-  pais_exportador: 'pais_exportador',
-  zipcode_exportador: 'zipcode_exportador',
-  criado_em_exportador: 'criado_em_exportador',
-  atualizado_em_exportador: 'atualizado_em_exportador'
-};
-
-exports.Prisma.ImportadorQuandoExportacaoScalarFieldEnum = {
-  id_importador_quando_exportacao: 'id_importador_quando_exportacao',
-  id_organizacao_importador: 'id_organizacao_importador',
-  id_workspace_importador: 'id_workspace_importador',
-  nome_importador: 'nome_importador',
-  endereco_importador: 'endereco_importador',
-  cidade_importador: 'cidade_importador',
-  estado_provincia_importador: 'estado_provincia_importador',
-  pais_importador: 'pais_importador',
-  zipcode_importador: 'zipcode_importador',
-  criado_em_importador: 'criado_em_importador',
-  atualizado_em_importador: 'atualizado_em_importador'
-};
-
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -359,6 +341,37 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+exports.TipoFornecedorOrganizacao = exports.$Enums.TipoFornecedorOrganizacao = {
+  AGENTE_CARGA: 'AGENTE_CARGA',
+  DESPACHANTE_ADUANEIRO: 'DESPACHANTE_ADUANEIRO',
+  ARMADOR: 'ARMADOR',
+  CIA_AEREA: 'CIA_AEREA',
+  TRANSPORTADORA_RODOVIARIA_NACIONAL: 'TRANSPORTADORA_RODOVIARIA_NACIONAL',
+  TRANSPORTADORA_RODOVIARIA_INTERNACIONAL: 'TRANSPORTADORA_RODOVIARIA_INTERNACIONAL',
+  ARMAZEM_ALFANDEGADO: 'ARMAZEM_ALFANDEGADO',
+  ARMAZEM_NACIONAL: 'ARMAZEM_NACIONAL',
+  BANCO: 'BANCO',
+  SEGURADORA_INTERNACIONAL: 'SEGURADORA_INTERNACIONAL',
+  CORRETORA_CAMBIO: 'CORRETORA_CAMBIO',
+  FABRICANTE: 'FABRICANTE'
+};
+
+exports.StatusFornecedorOrganizacao = exports.$Enums.StatusFornecedorOrganizacao = {
+  ATIVO: 'ATIVO',
+  INATIVO: 'INATIVO',
+  PENDENTE_APROVACAO: 'PENDENTE_APROVACAO'
+};
+
+exports.ContainerTipo = exports.$Enums.ContainerTipo = {
+  DRY: 'DRY',
+  REEFER: 'REEFER',
+  OPEN_TOP: 'OPEN_TOP',
+  FLAT_RACK: 'FLAT_RACK',
+  TANK: 'TANK',
+  BULK: 'BULK',
+  PLATAFORMA: 'PLATAFORMA'
+};
+
 exports.NcmSyncStatusSincronizacao = exports.$Enums.NcmSyncStatusSincronizacao = {
   EXECUTANDO: 'EXECUTANDO',
   SUCESSO: 'SUCESSO',
@@ -371,21 +384,20 @@ exports.NcmSyncOrigemSincronizacao = exports.$Enums.NcmSyncOrigemSincronizacao =
 };
 
 exports.Prisma.ModelName = {
-  Empresa: 'Empresa',
+  Fornecedor: 'Fornecedor',
+  FornecedorOrganizacao: 'FornecedorOrganizacao',
   Pais: 'Pais',
   Moeda: 'Moeda',
   Unidade: 'Unidade',
   Incoterm: 'Incoterm',
   Porto: 'Porto',
   Aeroporto: 'Aeroporto',
-  TipoContainer: 'TipoContainer',
+  Container: 'Container',
   NcmSync: 'NcmSync',
   NcmSyncLog: 'NcmSyncLog',
   NcmSyncAgendamento: 'NcmSyncAgendamento',
   Ope: 'Ope',
-  OPEHistoricoStatus: 'OPEHistoricoStatus',
-  ExportadorQuandoImportacao: 'ExportadorQuandoImportacao',
-  ImportadorQuandoExportacao: 'ImportadorQuandoExportacao'
+  OPEHistoricoStatus: 'OPEHistoricoStatus'
 };
 
 /**

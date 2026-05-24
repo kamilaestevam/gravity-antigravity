@@ -94,7 +94,7 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
       if (filtroTipoParceiro) qs.set('tipo_parceiro', filtroTipoParceiro)
       qs.set('por_pagina', '200')
 
-      const res = await fetch(`/api/v1/admin/empresas?${qs.toString()}`, {
+      const res = await fetch(`/api/v1/admin/fornecedores?${qs.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (!res.ok) {
@@ -158,22 +158,22 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
         </button>
       ),
     },
-    { key: 'nome_empresa', label: 'Nome do parceiro' },
+    { key: 'nome_fornecedor', label: 'Nome do parceiro' },
     {
       key:   'documento',
       label: 'CNPJ / TIN',
       render: (_, l) =>
-        l.pais_empresa === 'BR'
-          ? (l.cnpj_empresa ?? '—')
-          : (l.tin_empresa ?? '—'),
+        l.pais_fornecedor === 'BR'
+          ? (l.cnpj_fornecedor ?? '—')
+          : (l.tin_fornecedor ?? '—'),
     },
     {
-      key:   'pais_empresa',
+      key:   'pais_fornecedor',
       label: 'País',
       render: (_, l) => (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
           <Globe size={12} weight="bold" />
-          {l.pais_empresa}
+          {l.pais_fornecedor}
         </span>
       ),
     },
@@ -183,11 +183,11 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
       render: (_, l) => derivarTiposEmpresa(l),
     },
     {
-      key:   'ativo_empresa',
+      key:   'ativo_fornecedor',
       label: 'Status',
       render: (_, l) => (
-        <span style={{ color: l.ativo_empresa ? '#34d399' : '#94a3b8' }}>
-          {l.ativo_empresa ? 'Ativa' : 'Inativa'}
+        <span style={{ color: l.ativo_fornecedor ? '#34d399' : '#94a3b8' }}>
+          {l.ativo_fornecedor ? 'Ativa' : 'Inativa'}
         </span>
       ),
     },
@@ -211,15 +211,15 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
             tooltip={
               <>
                 <div className="cg-tooltip__row"><span>Empresas cadastradas</span> <strong>{totalGeral}</strong></div>
-                <div className="cg-tooltip__row"><span>Ativas</span> <strong style={{ color: '#34d399' }}>{empresas.filter(e => e.ativo_empresa).length}</strong></div>
-                <div className="cg-tooltip__row"><span>Inativas</span> <strong style={{ color: '#94a3b8' }}>{empresas.filter(e => !e.ativo_empresa).length}</strong></div>
+                <div className="cg-tooltip__row"><span>Ativas</span> <strong style={{ color: '#34d399' }}>{empresas.filter(e => e.ativo_fornecedor).length}</strong></div>
+                <div className="cg-tooltip__row"><span>Inativas</span> <strong style={{ color: '#94a3b8' }}>{empresas.filter(e => !e.ativo_fornecedor).length}</strong></div>
               </>
             }
           />
           <CardBasicoGlobal
             titulo="Países"
             icone={<GlobeHemisphereWest weight="duotone" size={16} style={{ color: '#34d399' }} />}
-            valor={new Set(empresas.map(e => e.pais_empresa)).size}
+            valor={new Set(empresas.map(e => e.pais_fornecedor)).size}
             tooltip={
               <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Quantidade de países distintos entre todas as empresas cadastradas.</span>
             }
@@ -236,16 +236,16 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
             titulo="Status"
             icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
             total={empresas.length}
-            valorPrincipal={empresas.filter(e => e.ativo_empresa).length}
+            valorPrincipal={empresas.filter(e => e.ativo_fornecedor).length}
             corGauge="#34d399"
             legenda={[
-              { label: 'Ativas', valor: empresas.filter(e => e.ativo_empresa).length, cor: 'green' },
-              { label: 'Inativas', valor: empresas.filter(e => !e.ativo_empresa).length, cor: 'red' },
+              { label: 'Ativas', valor: empresas.filter(e => e.ativo_fornecedor).length, cor: 'green' },
+              { label: 'Inativas', valor: empresas.filter(e => !e.ativo_fornecedor).length, cor: 'red' },
             ]}
             tooltip={
               <>
-                <div className="cg-tooltip__row"><span>Ativas</span> <strong style={{ color: '#34d399' }}>{empresas.filter(e => e.ativo_empresa).length}</strong></div>
-                <div className="cg-tooltip__row"><span>Inativas</span> <strong style={{ color: '#f87171' }}>{empresas.filter(e => !e.ativo_empresa).length}</strong></div>
+                <div className="cg-tooltip__row"><span>Ativas</span> <strong style={{ color: '#34d399' }}>{empresas.filter(e => e.ativo_fornecedor).length}</strong></div>
+                <div className="cg-tooltip__row"><span>Inativas</span> <strong style={{ color: '#f87171' }}>{empresas.filter(e => !e.ativo_fornecedor).length}</strong></div>
               </>
             }
           />
@@ -278,7 +278,7 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
         <TabelaGlobal<EmpresaAdmin>
           dados={empresas}
           colunas={colunas}
-          idKey="suid_empresa"
+          idKey="id_fornecedor"
           mensagemVazio="Nenhuma empresa encontrada com os filtros atuais."
           tooltipBusca="Busca por nome do parceiro"
         />

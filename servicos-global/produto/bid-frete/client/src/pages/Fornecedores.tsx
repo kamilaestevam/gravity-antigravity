@@ -225,7 +225,7 @@ export default function Fornecedores() {
 
   return (
     <PaginaGlobal
-      className="bf-fornecedores"
+      className="bf-fornecedores bid-frete-page-shell"
       acoes={
         <button className="btn btn-primary" type="button">
           <Plus weight="bold" size={16} />
@@ -332,7 +332,7 @@ export default function Fornecedores() {
       </div>
 
       <style>{`
-        .bf-fornecedores { padding: 0; }
+        .bf-fornecedores { }
 
         /* ── Top row: KPIs + Donut ── */
         .bf-forn-top {

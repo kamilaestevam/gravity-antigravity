@@ -1290,7 +1290,7 @@ export default function Dashboard() {
   )
 
   return (
-    <div style={{ padding: '1.5rem' }}>
+    <div className="bid-frete-page-shell" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, gap: '1rem' }}>
 
       {/* ── Onboarding Banner ── */}
       <div style={onboardingBannerStyle}>

@@ -751,7 +751,7 @@ export default function Cotacoes() {
 
   return (
     <PaginaGlobal
-      className="bf-cotacoes"
+      className="bf-cotacoes bid-frete-page-shell"
     >
       {/* ── KPI cards (Configuração dinâmica com sincronização do local storage) ── */}
       {visao === 'lista' && (
@@ -820,7 +820,6 @@ export default function Cotacoes() {
 
       <style>{`
         .bf-cotacoes {
-          padding: 0.5rem 2rem 1.5rem;
           display: flex;
           flex-direction: column;
           flex: 1;

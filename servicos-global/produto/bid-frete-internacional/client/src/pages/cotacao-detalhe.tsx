@@ -277,7 +277,7 @@ export default function DetalheCotacao() {
   // ─── Render ───────────────────────────────────────────────────────────
 
   return (
-    <PaginaGlobal className="dc-page">
+    <PaginaGlobal className="dc-page bid-frete-page-shell">
       {acoesToolbar}
       {/* Status Badge */}
       <div className="dc-status-bar">
@@ -430,7 +430,7 @@ export default function DetalheCotacao() {
       )}
 
       <style>{`
-        .dc-page { padding: 0; }
+        .dc-page { }
 
         /* ── Status Bar ── */
         .dc-status-bar {

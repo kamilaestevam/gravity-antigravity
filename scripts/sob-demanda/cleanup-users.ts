@@ -2,7 +2,7 @@
  * cleanup-users.ts
  *
  * Exclui TODOS os usuários exceto dmmltda@gmail.com (Super Admin)
- * de: Clerk (frontend auth) + Banco Configurador (User, UserPermission, UserMembership, SupplierTenantAccess)
+ * de: Clerk (frontend auth) + Banco Configurador (Usuario, UsuarioPermissao, UsuarioWorkspace)
  *
  * Uso (executar de dentro do configurador para resolver dependências):
  *   cd servicos-global/configurador
@@ -99,17 +99,10 @@ async function main() {
         user: { clerk_user_id: { in: toDelete.map(u => u.id) } },
       },
     })
-    const dbSupplier = await prisma.organizacaoFornecedor.count({
-      where: {
-        clerk_user_id: { in: toDelete.map(u => u.id) },
-      },
-    })
-
     console.log(`\n--- Impacto no banco ---`)
-    console.log(`   User:                 ${dbUsers} registros`)
-    console.log(`   UserPermission:       ${dbPermissions} registros`)
-    console.log(`   UserMembership:       ${dbMemberships} registros`)
-    console.log(`   SupplierTenantAccess: ${dbSupplier} registros`)
+    console.log(`   Usuario:              ${dbUsers} registros`)
+    console.log(`   UsuarioPermissao:     ${dbPermissions} registros`)
+    console.log(`   UsuarioWorkspace:     ${dbMemberships} registros`)
     console.log(`\nDRY RUN completo. Execute sem --dry-run para aplicar.`)
     return
   }
@@ -119,20 +112,15 @@ async function main() {
   const clerkIds = toDelete.map(u => u.id)
 
   const deleted = await prisma.$transaction(async (tx) => {
-    // OrganizacaoFornecedor não tem cascade automático
-    const sup = await tx.organizacaoFornecedor.deleteMany({
-      where: { clerk_user_id: { in: clerkIds } },
-    })
-
-    // Usuario delete cascata: UsuarioPermissao + UsuarioWorkspace (onDelete: Cascade no schema)
+    // Vínculos prestador (fornecedor_organizacao) vivem no Cadastros — limpar lá se necessário.
     const users = await tx.usuario.deleteMany({
       where: { clerk_user_id: { in: clerkIds } },
     })
 
-    return { users: users.count, supplier: sup.count }
+    return { users: users.count }
   })
 
-  console.log(`   Banco: ${deleted.users} Usuario(s) + ${deleted.supplier} OrganizacaoFornecedor excluidos`)
+  console.log(`   Banco: ${deleted.users} Usuario(s) excluidos`)
 
   // 3. Excluir do Clerk
   console.log('\nExcluindo do Clerk...')

@@ -9,10 +9,11 @@
  * Modo edicao: recebe id via useParams, carrega pedido existente
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams, useNavigate } from 'react-router-dom'
 import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
+import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import {
   Package,
   FloppyDisk,
@@ -21,7 +22,6 @@ import {
   Trash,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { ModalTabelaMoedaGlobal } from '@nucleo/modal-tabela-moeda'
@@ -130,6 +130,14 @@ export default function PedidoFormulario() {
   const [salvando, setSalvando] = useState(false)
   const [modalMoedaAberta, setModalMoedaAberta] = useState(false)
 
+  useSincronizarTituloPaginaTopo(useMemo(() => ({
+    label:     modoEdicao ? t('pedido.editar') : t('pedido.novo_pedido'),
+    icone:     <Package weight="duotone" size={22} />,
+    subtitulo: modoEdicao
+      ? t('pedido.editando', `Editando pedido ${id_pedido}`, { id: id_pedido })
+      : t('pedido.criar_subtitulo'),
+  }), [modoEdicao, id_pedido, t]))
+
   function handleChange(campo: keyof PedidoForm, valor: string) {
     setForm((prev) => ({ ...prev, [campo]: valor }))
   }
@@ -204,7 +212,7 @@ export default function PedidoFormulario() {
       } else {
         await pedidoApi.criar(payload)
       }
-      navigate('/pedidos')
+      navigate('/pedido/pedidos/lista')
     } catch (err) {
       console.error('[PedidoFormulario] Erro ao salvar:', err)
       if (import.meta.env.DEV) navigate(-1)
@@ -215,21 +223,14 @@ export default function PedidoFormulario() {
 
   return (
     <PaginaGlobal
-      className="ws-fade-up"
+      className="ws-fade-up pedido-page-shell"
       layout="formulario"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Package weight="duotone" size={22} />}
-          titulo={modoEdicao ? t('pedido.editar', 'Editar Pedido') : t('pedido.novo_pedido')}
-          subtitulo={modoEdicao ? t('pedido.editando', `Editando pedido ${id_pedido}`, { id: id_pedido }) : t('pedido.criar_subtitulo', 'Criar novo pedido de compra/venda')}
-        />
-      }
       acoes={
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <BotaoGlobal
             variante="secundario"
             icone={<ArrowLeft size={16} />}
-            onClick={() => navigate('/pedidos')}
+            onClick={() => navigate('/pedido/pedidos/lista')}
           >
             {t('comum.voltar', 'Voltar')}
           </BotaoGlobal>

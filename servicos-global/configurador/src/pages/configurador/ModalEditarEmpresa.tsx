@@ -1,8 +1,8 @@
 /**
  * ModalEditarEmpresa.tsx — Criação/edição de Empresa do Cadastros (Fase 5).
  *
- * Contrato bilateral (Mandamento 09): usa `criarEmpresaSchema` e
- * `atualizarEmpresaSchema` do próprio Cadastros.
+ * Contrato bilateral (Mandamento 09): usa `criarFornecedorSchema` e
+ * `atualizarFornecedorSchema` do próprio Cadastros.
  *
  * Regras de UI seguem o schema:
  *   - pais === 'BR'  → CNPJ obrigatório, TIN oculto
@@ -51,9 +51,9 @@ import { useShellStore } from '@gravity/shell'
 import { useCidadesIBGE } from '../../hooks/use-cidades-ibge'
 import { usePaises } from '../../hooks/use-paises'
 import {
-  criarEmpresaSchema,
-  atualizarEmpresaSchema,
-  empresaSchema,
+  criarFornecedorSchema,
+  atualizarFornecedorSchema,
+  fornecedorSchema,
   type Empresa,
 } from '@cadastros/shared/schemas'
 
@@ -135,7 +135,7 @@ const PAPEIS: PapelConfig[] = [
 // ── Formulário state shape ───────────────────────────────────────────────────
 
 interface FormState {
-  nome_empresa: string
+  nome_fornecedor: string
   pais: string
   cnpj: string
   tin: string
@@ -152,34 +152,34 @@ interface FormState {
 
 function empresaParaForm(empresa: Empresa | null): FormState {
   return {
-    nome_empresa: empresa?.nome_empresa ?? '',
-    pais: empresa?.pais_empresa ?? 'BR',
-    cnpj: empresa?.cnpj_empresa ?? '',
-    tin: empresa?.tin_empresa ?? '',
-    estado: empresa?.estado_empresa ?? '',
-    cidade: empresa?.cidade_empresa ?? '',
-    endereco: empresa?.endereco_empresa ?? '',
-    zipcode: empresa?.zipcode_empresa ?? '',
-    email: empresa?.email_empresa ?? '',
-    telefone: empresa?.telefone_empresa ?? '',
-    whatsapp: empresa?.whatsapp_empresa ?? '',
+    nome_fornecedor: empresa?.nome_fornecedor ?? '',
+    pais: empresa?.pais_fornecedor ?? 'BR',
+    cnpj: empresa?.cnpj_fornecedor ?? '',
+    tin: empresa?.tin_fornecedor ?? '',
+    estado: empresa?.estado_provincia_fornecedor ?? '',
+    cidade: empresa?.cidade_fornecedor ?? '',
+    endereco: empresa?.endereco_fornecedor ?? '',
+    zipcode: empresa?.cep_zipcode_fornecedor ?? '',
+    email: empresa?.email_principal_fornecedor ?? '',
+    telefone: empresa?.telefone_principal_fornecedor ?? '',
+    whatsapp: empresa?.whatsapp_principal_fornecedor ?? '',
     papeis: {
-      pode_ser_importador: empresa?.pode_ser_importador_empresa ?? false,
-      pode_ser_exportador: empresa?.pode_ser_exportador_empresa ?? false,
-      pode_ser_fabricante: empresa?.pode_ser_fabricante_empresa ?? false,
-      pode_ser_agente: empresa?.pode_ser_agente_empresa ?? false,
-      pode_ser_despachante: empresa?.pode_ser_despachante_empresa ?? false,
-      pode_ser_armador: empresa?.pode_ser_armador_empresa ?? false,
-      pode_ser_cia_aerea: empresa?.pode_ser_cia_aerea_empresa ?? false,
-      pode_ser_transportadora_rodoviaria_nacional: empresa?.pode_ser_transportadora_rodoviaria_nacional_empresa ?? false,
-      pode_ser_transportadora_rodoviaria_internacional: empresa?.pode_ser_transportadora_rodoviaria_internacional_empresa ?? false,
-      pode_ser_armazem_alfandegado: empresa?.pode_ser_armazem_alfandegado_empresa ?? false,
-      pode_ser_armazem_nacional: empresa?.pode_ser_armazem_nacional_empresa ?? false,
-      pode_ser_banco: empresa?.pode_ser_banco_empresa ?? false,
-      pode_ser_seguradora_internacional: empresa?.pode_ser_seguradora_internacional_empresa ?? false,
-      pode_ser_seguradora_corretora_cambio: empresa?.pode_ser_seguradora_corretora_cambio_empresa ?? false,
+      pode_ser_importador: empresa?.pode_ser_importador_fornecedor ?? false,
+      pode_ser_exportador: empresa?.pode_ser_exportador_fornecedor ?? false,
+      pode_ser_fabricante: empresa?.pode_ser_fabricante_fornecedor ?? false,
+      pode_ser_agente: empresa?.pode_ser_agente_fornecedor ?? false,
+      pode_ser_despachante: empresa?.pode_ser_despachante_fornecedor ?? false,
+      pode_ser_armador: empresa?.pode_ser_armador_fornecedor ?? false,
+      pode_ser_cia_aerea: empresa?.pode_ser_cia_aerea_fornecedor ?? false,
+      pode_ser_transportadora_rodoviaria_nacional: empresa?.pode_ser_transportadora_rodoviaria_nacional_fornecedor ?? false,
+      pode_ser_transportadora_rodoviaria_internacional: empresa?.pode_ser_transportadora_rodoviaria_internacional_fornecedor ?? false,
+      pode_ser_armazem_alfandegado: empresa?.pode_ser_armazem_alfandegado_fornecedor ?? false,
+      pode_ser_armazem_nacional: empresa?.pode_ser_armazem_nacional_fornecedor ?? false,
+      pode_ser_banco: empresa?.pode_ser_banco_fornecedor ?? false,
+      pode_ser_seguradora_internacional: empresa?.pode_ser_seguradora_internacional_fornecedor ?? false,
+      pode_ser_seguradora_corretora_cambio: empresa?.pode_ser_seguradora_corretora_cambio_fornecedor ?? false,
     },
-    ativo: empresa?.ativo_empresa ?? true,
+    ativo: empresa?.ativo_fornecedor ?? true,
   }
 }
 
@@ -189,20 +189,20 @@ function empresaParaForm(empresa: Empresa | null): FormState {
  */
 function papeisParaPayload(papeis: FormState['papeis']): Record<string, boolean> {
   return {
-    pode_ser_importador_empresa:                              papeis.pode_ser_importador,
-    pode_ser_exportador_empresa:                              papeis.pode_ser_exportador,
-    pode_ser_fabricante_empresa:                              papeis.pode_ser_fabricante,
-    pode_ser_agente_empresa:                                  papeis.pode_ser_agente,
-    pode_ser_despachante_empresa:                             papeis.pode_ser_despachante,
-    pode_ser_armador_empresa:                                 papeis.pode_ser_armador,
-    pode_ser_cia_aerea_empresa:                               papeis.pode_ser_cia_aerea,
-    pode_ser_transportadora_rodoviaria_nacional_empresa:      papeis.pode_ser_transportadora_rodoviaria_nacional,
-    pode_ser_transportadora_rodoviaria_internacional_empresa: papeis.pode_ser_transportadora_rodoviaria_internacional,
-    pode_ser_armazem_alfandegado_empresa:                     papeis.pode_ser_armazem_alfandegado,
-    pode_ser_armazem_nacional_empresa:                        papeis.pode_ser_armazem_nacional,
-    pode_ser_banco_empresa:                                   papeis.pode_ser_banco,
-    pode_ser_seguradora_internacional_empresa:                papeis.pode_ser_seguradora_internacional,
-    pode_ser_seguradora_corretora_cambio_empresa:             papeis.pode_ser_seguradora_corretora_cambio,
+    pode_ser_importador_fornecedor:                              papeis.pode_ser_importador,
+    pode_ser_exportador_fornecedor:                              papeis.pode_ser_exportador,
+    pode_ser_fabricante_fornecedor:                              papeis.pode_ser_fabricante,
+    pode_ser_agente_fornecedor:                                  papeis.pode_ser_agente,
+    pode_ser_despachante_fornecedor:                             papeis.pode_ser_despachante,
+    pode_ser_armador_fornecedor:                                 papeis.pode_ser_armador,
+    pode_ser_cia_aerea_fornecedor:                               papeis.pode_ser_cia_aerea,
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor:      papeis.pode_ser_transportadora_rodoviaria_nacional,
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor: papeis.pode_ser_transportadora_rodoviaria_internacional,
+    pode_ser_armazem_alfandegado_fornecedor:                     papeis.pode_ser_armazem_alfandegado,
+    pode_ser_armazem_nacional_fornecedor:                        papeis.pode_ser_armazem_nacional,
+    pode_ser_banco_fornecedor:                                   papeis.pode_ser_banco,
+    pode_ser_seguradora_internacional_fornecedor:                papeis.pode_ser_seguradora_internacional,
+    pode_ser_seguradora_corretora_cambio_fornecedor:             papeis.pode_ser_seguradora_corretora_cambio,
   }
 }
 
@@ -210,38 +210,38 @@ function formParaPayloadCriar(form: FormState, idOrganizacao: string): Record<st
   const ehBr = form.pais === 'BR'
   return {
     id_organizacao:   idOrganizacao,
-    nome_empresa:     form.nome_empresa.trim(),
-    pais_empresa:     form.pais.trim().toUpperCase(),
-    cnpj_empresa:     ehBr ? form.cnpj.trim() || null : null,
-    tin_empresa:      !ehBr ? form.tin.trim() || null : null,
-    estado_empresa:   form.estado.trim() || null,
-    cidade_empresa:   form.cidade.trim() || null,
-    endereco_empresa: form.endereco.trim() || null,
-    zipcode_empresa:  form.zipcode.trim() || null,
-    email_empresa:    form.email.trim() || null,
-    telefone_empresa: form.telefone.trim() || null,
-    whatsapp_empresa: form.whatsapp.trim() || null,
+    nome_fornecedor:     form.nome_fornecedor.trim(),
+    pais_fornecedor:     form.pais.trim().toUpperCase(),
+    cnpj_fornecedor:     ehBr ? form.cnpj.trim() || null : null,
+    tin_fornecedor:      !ehBr ? form.tin.trim() || null : null,
+    estado_provincia_fornecedor:   form.estado.trim() || null,
+    cidade_fornecedor:   form.cidade.trim() || null,
+    endereco_fornecedor: form.endereco.trim() || null,
+    cep_zipcode_fornecedor:  form.zipcode.trim() || null,
+    email_principal_fornecedor:    form.email.trim() || null,
+    telefone_principal_fornecedor: form.telefone.trim() || null,
+    whatsapp_principal_fornecedor: form.whatsapp.trim() || null,
     ...papeisParaPayload(form.papeis),
-    ativo_empresa:    form.ativo,
+    ativo_fornecedor:    form.ativo,
   }
 }
 
 function formParaPayloadAtualizar(form: FormState): Record<string, unknown> {
   const ehBr = form.pais === 'BR'
   return {
-    nome_empresa:     form.nome_empresa.trim(),
-    pais_empresa:     form.pais.trim().toUpperCase(),
-    cnpj_empresa:     ehBr ? form.cnpj.trim() || null : null,
-    tin_empresa:      !ehBr ? form.tin.trim() || null : null,
-    estado_empresa:   form.estado.trim() || null,
-    cidade_empresa:   form.cidade.trim() || null,
-    endereco_empresa: form.endereco.trim() || null,
-    zipcode_empresa:  form.zipcode.trim() || null,
-    email_empresa:    form.email.trim() || null,
-    telefone_empresa: form.telefone.trim() || null,
-    whatsapp_empresa: form.whatsapp.trim() || null,
+    nome_fornecedor:     form.nome_fornecedor.trim(),
+    pais_fornecedor:     form.pais.trim().toUpperCase(),
+    cnpj_fornecedor:     ehBr ? form.cnpj.trim() || null : null,
+    tin_fornecedor:      !ehBr ? form.tin.trim() || null : null,
+    estado_provincia_fornecedor:   form.estado.trim() || null,
+    cidade_fornecedor:   form.cidade.trim() || null,
+    endereco_fornecedor: form.endereco.trim() || null,
+    cep_zipcode_fornecedor:  form.zipcode.trim() || null,
+    email_principal_fornecedor:    form.email.trim() || null,
+    telefone_principal_fornecedor: form.telefone.trim() || null,
+    whatsapp_principal_fornecedor: form.whatsapp.trim() || null,
     ...papeisParaPayload(form.papeis),
-    ativo_empresa:    form.ativo,
+    ativo_fornecedor:    form.ativo,
   }
 }
 
@@ -370,7 +370,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
   const ehBr = form.pais === 'BR'
   const { cidades, carregando: carregandoCidades } = useCidadesIBGE(form.estado)
   // Lista de países da fonte única (Cadastros). Sprint 1: form.pais ainda
-  // armazena ISO-2 ('BR') por compatibilidade com Empresa.pais_empresa
+  // armazena ISO-2 ('BR') por compatibilidade com Empresa.pais_fornecedor
   // existente. Sprint 2 vai migrar para id_pais (cuid).
   const { paises, carregando: carregandoPaises } = usePaises()
   const opcoesPaises: SelectOpcao[] = useMemo(() => {
@@ -391,8 +391,8 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
   const requisitos = useMemo<RequisitoSalvar[]>(() => {
     const lista: RequisitoSalvar[] = [
       {
-        chave: 'nome_empresa',
-        ok: form.nome_empresa.trim().length >= 2,
+        chave: 'nome_fornecedor',
+        ok: form.nome_fornecedor.trim().length >= 2,
         mensagem: 'Razão social com pelo menos 2 caracteres',
       },
       {
@@ -416,7 +416,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
       mensagem: 'Pelo menos uma função habilitada',
     })
     return lista
-  }, [form.nome_empresa, form.pais, form.cnpj, ehBr, algumaFlagAtiva])
+  }, [form.nome_fornecedor, form.pais, form.cnpj, ehBr, algumaFlagAtiva])
 
   const camposComRequisitoFaltando = camposComRequisitoPendente(requisitos)
   const podeSalvar = requisitos.every((r) => r.ok) && !enviando
@@ -439,11 +439,11 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
       const payload = modoEdicao
         ? formParaPayloadAtualizar(form)
         : formParaPayloadCriar(form, idOrganizacao)
-      const schema = modoEdicao ? atualizarEmpresaSchema : criarEmpresaSchema
+      const schema = modoEdicao ? atualizarFornecedorSchema : criarFornecedorSchema
       const pre = schema.safeParse(payload)
       if (!pre.success) {
         // Mapeia chaves do schema (sufixo _empresa) para chaves curtas usadas no
-        // JSX/erro(): whatsapp_empresa → whatsapp, etc. Sem isso o destaque
+        // JSX/erro(): whatsapp_principal_fornecedor → whatsapp, etc. Sem isso o destaque
         // visual nunca casa e o usuario fica no escuro (ponto cego).
         const SUFIXO = '_empresa'
         const campos: Record<string, string> = {}
@@ -466,8 +466,8 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
       }
 
       const url = modoEdicao
-        ? `/api/v1/empresas/${empresa!.suid_empresa}`
-        : '/api/v1/empresas'
+        ? `/api/v1/fornecedores/${empresa!.id_fornecedor}`
+        : '/api/v1/fornecedores'
       const res = await fetch(url, {
         method: modoEdicao ? 'PUT' : 'POST',
         headers,
@@ -482,10 +482,10 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
         return
       }
       const raw = await res.json()
-      const salva = empresaSchema.parse(raw)
+      const salva = fornecedorSchema.parse(raw)
       addNotification({
         type: 'success',
-        message: modoEdicao ? `Empresa "${salva.nome_empresa}" atualizada.` : `Empresa "${salva.nome_empresa}" criada.`,
+        message: modoEdicao ? `Empresa "${salva.nome_fornecedor}" atualizada.` : `Empresa "${salva.nome_fornecedor}" criada.`,
       })
       aoSalvar(salva)
     } catch (err) {
@@ -508,7 +508,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
       titulo={modoEdicao ? 'Editar Empresa e Parceiro' : 'Nova Empresa e Parceiro'}
       subtitulo={
         modoEdicao
-          ? `Ajuste os dados e papéis de ${empresa?.nome_empresa ?? ''}`
+          ? `Ajuste os dados e papéis de ${empresa?.nome_fornecedor ?? ''}`
           : 'Cadastre um importador, exportador, fabricante ou parceiro COMEX'
       }
       tamanho="lg"
@@ -561,13 +561,13 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
             <div className="ws-input-icon-wrap">
               <Buildings size={16} />
               <input
-                value={form.nome_empresa}
-                onChange={(e) => setCampo('nome_empresa', e.target.value)}
+                value={form.nome_fornecedor}
+                onChange={(e) => setCampo('nome_fornecedor', e.target.value)}
                 placeholder="Ex: ACME Importadora Ltda"
-                style={{ width: '100%', borderColor: (erro('nome_empresa') || camposComRequisitoFaltando.has('nome_empresa')) ? corErro : undefined }}
+                style={{ width: '100%', borderColor: (erro('nome_fornecedor') || camposComRequisitoFaltando.has('nome_fornecedor')) ? corErro : undefined }}
               />
             </div>
-            {erro('nome_empresa') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('nome_empresa')}</span>}
+            {erro('nome_fornecedor') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('nome_fornecedor')}</span>}
           </CampoGeralGlobal>
 
           <CampoGeralGlobal label="PAÍS" obrigatorio>

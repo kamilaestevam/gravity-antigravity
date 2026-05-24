@@ -3545,6 +3545,13 @@
       "historico": "Histórico",
       "configuracoes": "Configurações"
     },
+    "page_topo": {
+      "dashboard_subtitulo": "KPIs e widgets configuráveis",
+      "lista_subtitulo": "Pedidos de importação e exportação em tabela virtual",
+      "kanban_subtitulo": "Pedidos organizados por status",
+      "configuracoes_subtitulo": "Personalize cards, colunas e status do produto",
+      "editar_subtitulo": "Informações, itens e ações do pedido"
+    },
     "tabela": {
       "pedido_item": "Pedido / Item",
       "po_tipo": "P.O / Tipo",
@@ -6527,7 +6534,11 @@
       },
       "alertas": {
         "titulo": "Alertas",
-        "hoje": "Hoje"
+        "hoje": "Hoje",
+        "atrasados": "Pedidos atrasados",
+        "vencendo_7": "Vencem em 7 dias",
+        "rascunho": "Em rascunho",
+        "novos_7": "Novos pedidos (7 dias)"
       },
       "funil": {
         "titulo": "Funil de Pedidos"
@@ -6558,9 +6569,20 @@
       "modal_alerta": {
         "titulo_padrao": "Detalhes da Cotação / Pedido",
         "titulo_atrasado": "Pedido Atrasado",
+        "titulo_atrasados": "Pedidos atrasados",
         "titulo_a_vencer": "Pedido a Vencer (7 dias)",
-        "titulo_rascunho": "Pedido em Rascunho",
+        "titulo_vencendo_7": "Pedidos a vencer (7 dias)",
+        "titulo_rascunho": "Pedidos em rascunho",
         "titulo_novos": "Novos Pedidos (7 dias)",
+        "titulo_novos_7": "Novos pedidos (7 dias)",
+        "total_count": "{{count}} pedidos",
+        "lista_vazia": "Nenhum pedido neste alerta.",
+        "abrir_pedido": "Abrir na lista",
+        "col_numero": "Pedido",
+        "col_parceiro": "Parceiro",
+        "col_status": "Status",
+        "col_prazo": "Prazo",
+        "col_valor": "Valor",
         "referencia": "Referência",
         "tab_geral": "Geral",
         "tab_itens": "Itens",

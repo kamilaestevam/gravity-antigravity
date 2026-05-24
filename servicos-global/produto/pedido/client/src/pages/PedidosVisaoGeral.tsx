@@ -8,10 +8,9 @@
  */
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   MagnifyingGlass,
@@ -45,7 +44,9 @@ import {
   CurrencyDollar,
 } from '@phosphor-icons/react'
 
-import { useVisaoGeralPedido } from '../shared/useVisaoGeralPedido'
+import { useVisaoGeralPedido, filtrarPedidosAlertaVisaoGeral } from '../shared/useVisaoGeralPedido'
+import type { VisaoGeralAlertaTipo } from '../shared/useVisaoGeralPedido'
+import type { Pedido } from '../shared/types'
 import type {
   VisaoGeralMapPin,
   VisaoGeralRotaDetalhe,
@@ -65,6 +66,26 @@ const fmtDataPt = (iso: string) => {
   const [y, m, d] = iso.split('-')
   if (!y || !m || !d) return iso
   return `${d}/${m}/${y}`
+}
+
+function fmtDataPedido(p: Pedido): string {
+  const raw = p.data_prevista_pedido_pronto ?? p.data_meta_pedido_pronto ?? p.data_emissao_pedido
+  if (!raw) return '—'
+  return fmtDataPt(String(raw).slice(0, 10))
+}
+
+function nomeParceiroPedido(p: Pedido): string {
+  if (p.tipo_operacao === 'exportacao') {
+    return p.nome_importador ?? p.nome_exportador ?? '—'
+  }
+  return p.nome_exportador ?? p.nome_importador ?? '—'
+}
+
+function fmtValorPedido(p: Pedido): string {
+  const v = Number(p.valor_total_pedido)
+  if (!Number.isFinite(v) || v <= 0) return '—'
+  const moeda = (p.moeda_pedido ?? 'BRL').trim().toUpperCase()
+  return `${moeda} ${fmtMoeda(v)}`
 }
 
 function rotuloCabecalhoRota(route: VisaoGeralRotaDetalhe, isExportacao: boolean): { origem: string; destino: string } {
@@ -2247,18 +2268,34 @@ export default function VisaoGeral() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const vg = useVisaoGeralPedido()
-  const { kpis, alertas, incoterms, moedas, maiorPedido, sparkAndamento, sparkConcluido } = vg
+  const { kpis, alertas, pedidos, incoterms, moedas, maiorPedido, sparkAndamento, sparkConcluido } = vg
 
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
-  const [alertModalTab, setAlertModalTab] = useState<'geral' | 'itens' | 'propostas' | 'historico'>('geral')
-  const [selectedAlertContext, setSelectedAlertContext] = useState<any>(null)
+  const [alertModalTipo, setAlertModalTipo] = useState<VisaoGeralAlertaTipo | null>(null)
+
+  const pedidosAlertaModal = useMemo(
+    () => (alertModalTipo ? filtrarPedidosAlertaVisaoGeral(alertModalTipo, pedidos) : []),
+    [alertModalTipo, pedidos],
+  )
+
+  function abrirPedidoNaLista(pedido: Pedido) {
+    setIsAlertModalOpen(false)
+    setAlertModalTipo(null)
+    navigate('/pedido/pedidos/lista', {
+      state: {
+        openPedidoId: pedido.id,
+        abrirDrawer: true,
+        numeroPedido: pedido.numero_pedido,
+      },
+    })
+  }
 
 
   return (
     <div className="bfd-dashboard">
       <style>{`
         .bfd-dashboard {
-          padding: 0 1.5rem 2rem;
+          padding: var(--pedido-page-pt) var(--pedido-page-px) var(--pedido-page-pb);
           display: flex;
           flex-direction: column;
           gap: 1.5rem;
@@ -2270,26 +2307,6 @@ export default function VisaoGeral() {
           letter-spacing: 0.015em;
           color: #f1f5f9;
         }
-
-        /* ── Header ──────────────────────────────────────────────── */
-        .bfd-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; }
-        .bfd-header__left h1 { font-size: 1.65rem; font-weight: 700; color: #ffffff; letter-spacing: -0.005em; margin: 0; }
-        .bfd-header__left p {
-          font-size: 0.95rem;
-          color: #f1f5f9;
-          font-weight: 500;
-          letter-spacing: 0.025em;
-          line-height: 1.6;
-          margin: 0.45rem 0 0;
-        }
-        .bfd-header__actions { display: flex; align-items: center; gap: 0.75rem; transform: translateY(40px); }
-        .bfd-header__icon-btn {
-          width: 38px; height: 38px; border-radius: 8px; border: none; cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          background: rgba(255,255,255,0.06); color: #cbd5e1;
-          transition: all 0.2s;
-        }
-        .bfd-header__icon-btn:hover { background: rgba(255,255,255,0.12); color: #ffffff; }
 
         /* ── KPI Grid ────────────────────────────────────────────── */
         .bfd-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
@@ -3704,23 +3721,6 @@ export default function VisaoGeral() {
         }
       `}</style>
 
-      {/* Header */}
-      <div className="bfd-header">
-        <div className="bfd-header__left">
-          <h1>{t('pedido.visao_geral.header.titulo')}</h1>
-          <p>{t('pedido.visao_geral.header.subtitulo')}</p>
-        </div>
-        <div className="bfd-header__actions">
-          <BotaoGlobal
-            variante="primario"
-            icone={<Plus weight="bold" size={15} />}
-            onClick={() => navigate('/pedido/pedidos/novo')}
-          >
-            {t('pedido.visao_geral.header.novo_pedido')}
-          </BotaoGlobal>
-        </div>
-      </div>
-
       {/* KPIs Grid */}
       <div className="bfd-kpi-grid">
         <CardBasicoGlobal
@@ -3809,7 +3809,7 @@ export default function VisaoGeral() {
 
                 return (
                   <div
-                    key={i}
+                    key={a.tipo}
                     className="bfd-alertas__glow-card"
                     style={{
                       display: 'flex',
@@ -3825,8 +3825,7 @@ export default function VisaoGeral() {
                       minHeight: '75px',
                     }}
                     onClick={() => {
-                      setSelectedAlertContext(a)
-                      setAlertModalTab('geral')
+                      setAlertModalTipo(a.tipo)
                       setIsAlertModalOpen(true)
                     }}
 
@@ -3852,7 +3851,7 @@ export default function VisaoGeral() {
                       </span>
                     </div>
                     <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1', lineHeight: '1.2', marginTop: '0.35rem', letterSpacing: '0.01em' }}>
-                      {a.label}
+                      {t(`pedido.visao_geral.alertas.${a.tipo}`)}
                     </span>
                   </div>
                 )
@@ -4019,291 +4018,177 @@ export default function VisaoGeral() {
         {t('pedido.visao_geral.footer')}
       </div>
 
-      {/* Tabbed Quotation Modal Overlay */}
-      {isAlertModalOpen && selectedAlertContext && (() => {
-         const alert = selectedAlertContext;
-         // Generate mock data for the selected alert type
-         let modalTitle = t('pedido.visao_geral.modal_alerta.titulo_padrao');
-         let quoteId = 'COT-2026-F401';
-         let origin = 'Shanghai (CNSHA)';
-         let destination = 'Santos (BRSSZ)';
-         let goods = 'Componentes Eletrônicos Premium e Placas de Circuito';
-         let weight = '12.450 Kg';
-         let volume = '38.5 m³';
-         let incoterm = 'FOB';
-         let value = 'USD 8.048,00';
-         let category = 'Marítimo (FCL 40\' HC)';
-         let proposals = [
-           { fornecedor: 'Pacific Cargo (E96)', valor: 'USD 7.950,00', transit: '32 dias', status: 'Melhor Preço', cor: '#34d399' },
-           { fornecedor: 'DHL Global Forwarding', valor: 'USD 8.200,00', transit: '28 dias', status: 'Em Análise', cor: '#60a5fa' }
-         ];
-         let history = [
-           { data: '21/05/2026 12:00', texto: 'Alerta gerado: Prazo de resposta se encerra hoje', autor: 'Sistema' },
-           { data: '15/05/2026 10:20', texto: 'Disparada para 6 fornecedores no portal', autor: 'Daniel' },
-           { data: '15/05/2026 10:14', texto: 'Cotação criada e homologada', autor: 'Daniel' }
-         ];
+      {/* Modal — lista de pedidos do alerta */}
+      {isAlertModalOpen && alertModalTipo && (() => {
+        const alertAtivo = alertas.find(a => a.tipo === alertModalTipo)
+        const accent =
+          alertAtivo?.cor === 'red' ? '#f87171'
+            : alertAtivo?.cor === 'orange' ? '#fbbf24'
+              : alertAtivo?.cor === 'green' ? '#34d399'
+                : '#f59e0b'
 
-         const labelStr = String(alert.label || '').toLowerCase();
-
-         if (labelStr.includes('atrasado')) {
-           modalTitle = t('pedido.visao_geral.modal_alerta.titulo_atrasado');
-           quoteId = 'PED-2026-A109';
-           origin = 'Shanghai (CNSHA)';
-           destination = 'Santos (BRSSZ)';
-           goods = 'Componentes Industriais e Peças de Reposição';
-           weight = '8.450 Kg';
-           volume = '24.0 m³';
-           incoterm = 'FOB';
-           value = 'USD 48.200,00';
-           category = 'Marítimo (FCL 20\' GP)';
-           proposals = [
-             { fornecedor: 'Hamburg Süd', valor: 'USD 5.100,00', transit: 'Atrasado (35 dias)', status: 'Crítico', cor: '#f87171' },
-             { fornecedor: 'Maersk Line', valor: 'USD 5.300,00', transit: 'Estimado 40 dias', status: 'Em Rota', cor: '#fbbf24' }
-           ];
-           history = [
-             { data: '21/05/2026 14:00', texto: 'Atraso logístico confirmado pelo armador em transbordo', autor: 'Sistema' },
-             { data: '10/05/2026 09:30', texto: 'Mercadoria embarcada na origem', autor: 'Hamburg Süd' },
-             { data: '05/05/2026 16:00', texto: 'Pedido faturado e liberado para coleta', autor: 'Fornecedor' }
-           ];
-         } else if (labelStr.includes('7 dias') && (labelStr.includes('vence') || labelStr.includes('vencem'))) {
-           modalTitle = t('pedido.visao_geral.modal_alerta.titulo_a_vencer');
-           quoteId = 'PED-2026-V882';
-           origin = 'Rotterdam (NLRTM)';
-           destination = 'Paranaguá (BRPNG)';
-           goods = 'Valvulas de Pressão e Tubulações de Aço Carbono';
-           weight = '12.300 Kg';
-           volume = '18.5 m³';
-           incoterm = 'CFR';
-           value = 'EUR 31.500,00';
-           category = 'Marítimo (LCL)';
-           proposals = [
-             { fornecedor: 'Kuehne + Nagel', valor: 'EUR 4.800,00', transit: '24 dias', status: 'Aprovada', cor: '#34d399' }
-           ];
-           history = [
-             { data: '21/05/2026 11:00', texto: 'Validade de câmbio e envio expira em 3 dias', autor: 'Sistema' },
-             { data: '18/05/2026 15:00', texto: 'Instruções de embarque aprovadas', autor: 'Daniel' }
-           ];
-         } else if (labelStr.includes('rascunho')) {
-           modalTitle = t('pedido.visao_geral.modal_alerta.titulo_rascunho');
-           quoteId = 'PED-2026-R004';
-           origin = 'Miami (USMIA)';
-           destination = 'Viracopos (BRVCP)';
-           goods = 'Sensores de Temperatura e Placas Eletrônicas SMD';
-           weight = '320 Kg';
-           volume = '1.2 m³';
-           incoterm = 'EXW';
-           value = 'USD 9.400,00';
-           category = 'Aéreo (Expresso)';
-           proposals = [
-             { fornecedor: 'FedEx Express', valor: 'USD 2.850,00', transit: '3 dias', status: 'Rascunho', cor: '#94a3b8' }
-           ];
-           history = [
-             { data: '20/05/2026 17:30', texto: 'Rascunho criado', autor: 'Daniel' }
-           ];
-         } else if (labelStr.includes('novo') || labelStr.includes('novos')) {
-           modalTitle = t('pedido.visao_geral.modal_alerta.titulo_novos');
-           quoteId = 'PED-2026-N901';
-           origin = 'Genoa (ITGOA)';
-           destination = 'Rio de Janeiro (BRRIO)';
-           goods = 'Equipamentos Hidráulicos e Bombas Centrífugas';
-           weight = '6.700 Kg';
-           volume = '14.2 m³';
-           incoterm = 'FOB';
-           value = 'EUR 22.000,00';
-           category = 'Marítimo (LCL)';
-           proposals = [
-             { fornecedor: 'MSC Shipping', valor: 'EUR 3.900,00', transit: '28 dias', status: 'Novo', cor: '#34d399' }
-           ];
-           history = [
-             { data: '21/05/2026 08:30', texto: 'Novo pedido gerado a partir do sistema de compras', autor: 'Integração ERP' }
-           ];
-         }
-
-         return (
-            <div className="bfd-modal-overlay" style={{
+        return (
+          <div
+            className="bfd-modal-overlay"
+            style={{
               position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
+              inset: 0,
               background: 'rgba(15, 23, 42, 0.75)',
               backdropFilter: 'blur(8px)',
               zIndex: 9999,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              animation: 'fadeIn 0.25s ease-out'
-            }} onClick={() => setIsAlertModalOpen(false)}>
-              <style>{`
-                @keyframes fadeIn {
-                  from { opacity: 0; }
-                  to { opacity: 1; }
-                }
-                @keyframes scaleIn {
-                  from { transform: scale(0.95); opacity: 0; }
-                  to { transform: scale(1); opacity: 1; }
-                }
-              `}</style>
-              <div className="bfd-modal-card" style={{
-                background: 'rgba(30, 41, 59, 0.85)',
+            }}
+            onClick={() => { setIsAlertModalOpen(false); setAlertModalTipo(null) }}
+          >
+            <div
+              className="bfd-modal-card bfd-alerta-modal"
+              style={{
+                background: 'rgba(30, 41, 59, 0.92)',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4)',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
                 borderRadius: '16px',
                 width: '100%',
-                maxWidth: '750px',
-                maxHeight: '90vh',
+                maxWidth: '820px',
+                maxHeight: '85vh',
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
-                animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
-              }} onClick={e => e.stopPropagation()}>
-                {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                  <div>
-                    <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ color: alert.cor === 'red' ? '#f87171' : alert.cor === 'orange' ? '#fbbf24' : alert.cor === 'green' ? '#34d399' : '#f59e0b' }}>●</span>
-                      {modalTitle}
-                    </h2>
-                    <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0' }}>{t('pedido.visao_geral.modal_alerta.referencia')}: {quoteId}</p>
-                  </div>
-                  <button style={{ background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', transition: 'all 0.2s' }}
-                    onClick={() => setIsAlertModalOpen(false)}
-                  >✕</button>
+              }}
+              onClick={e => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="bfd-alerta-modal-titulo"
+            >
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '1.15rem 1.35rem',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+              }}>
+                <div>
+                  <h2
+                    id="bfd-alerta-modal-titulo"
+                    style={{ fontSize: '1.1rem', fontWeight: 700, color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                  >
+                    <span style={{ color: accent }}>●</span>
+                    {t(`pedido.visao_geral.modal_alerta.titulo_${alertModalTipo}`)}
+                  </h2>
+                  <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0.25rem 0 0' }}>
+                    {t('pedido.visao_geral.modal_alerta.total_count', { count: pedidosAlertaModal.length })}
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#94a3b8',
+                  }}
+                  aria-label={t('comum.fechar')}
+                  onClick={() => { setIsAlertModalOpen(false); setAlertModalTipo(null) }}
+                >
+                  ✕
+                </button>
+              </div>
 
-                {/* Tabs */}
-                <div style={{ display: 'flex', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(15, 23, 42, 0.2)', padding: '0 1rem' }}>
-                  {['geral', 'itens', 'propostas', 'historico'].map(tabKey => {
-                    const isActive = alertModalTab === tabKey;
-                    const labels = {
-                      geral: t('pedido.visao_geral.modal_alerta.tab_geral'),
-                      itens: t('pedido.visao_geral.modal_alerta.tab_itens'),
-                      propostas: t('pedido.visao_geral.modal_alerta.tab_propostas'),
-                      historico: t('pedido.visao_geral.modal_alerta.tab_historico'),
-                    };
-                    return (
-                      <button key={tabKey} style={{
-                        background: 'none',
-                        border: 'none',
-                        borderBottom: isActive ? '2px solid #f59e0b' : '2px solid transparent',
-                        color: isActive ? '#f59e0b' : '#94a3b8',
-                        padding: '0.85rem 1rem',
-                        fontSize: '0.88rem',
-                        fontWeight: isActive ? 700 : 500,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s'
-                      }} onClick={() => setAlertModalTab(tabKey as any)}>{labels[tabKey as keyof typeof labels]}</button>
-                    )
-                  })}
-                </div>
-
-                {/* Body */}
-                <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', minHeight: '300px' }}>
-                  {alertModalTab === 'geral' && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }}>
-                      <div className="bfd-modal-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_origem')}</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{origin}</div>
-                      </div>
-                      <div className="bfd-modal-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_destino')}</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{destination}</div>
-                      </div>
-                      <div className="bfd-modal-field" style={{ gridColumn: 'span 2' }}>
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_mercadoria')}</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{goods}</div>
-                      </div>
-                      <div className="bfd-modal-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_peso_total')}</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{weight}</div>
-                      </div>
-                      <div className="bfd-modal-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_cubagem')}</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{volume}</div>
-                      </div>
-                      <div className="bfd-modal-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_incoterm')}</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{incoterm}</div>
-                      </div>
-                      <div className="bfd-modal-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_valor_limite')}</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{value}</div>
-                      </div>
-                      <div className="bfd-modal-field" style={{ gridColumn: 'span 2' }}>
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>{t('pedido.visao_geral.modal_alerta.campo_modalidade')}</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{category}</div>
-                      </div>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '0.75rem 1.35rem 1.25rem' }}>
+                {pedidosAlertaModal.length === 0 ? (
+                  <p style={{ color: '#94a3b8', fontSize: '0.9rem', textAlign: 'center', padding: '2rem 0', margin: 0 }}>
+                    {t('pedido.visao_geral.modal_alerta.lista_vazia')}
+                  </p>
+                ) : (
+                  <>
+                    <div
+                      className="bfd-alerta-modal__head"
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1.1fr 1.4fr 0.9fr 0.8fr 1fr auto',
+                        gap: '0.75rem',
+                        padding: '0.45rem 0.75rem',
+                        fontSize: '0.68rem',
+                        fontWeight: 700,
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                        color: '#64748b',
+                        borderBottom: '1px solid rgba(255,255,255,0.06)',
+                      }}
+                    >
+                      <span>{t('pedido.visao_geral.modal_alerta.col_numero')}</span>
+                      <span>{t('pedido.visao_geral.modal_alerta.col_parceiro')}</span>
+                      <span>{t('pedido.visao_geral.modal_alerta.col_status')}</span>
+                      <span>{t('pedido.visao_geral.modal_alerta.col_prazo')}</span>
+                      <span style={{ textAlign: 'right' }}>{t('pedido.visao_geral.modal_alerta.col_valor')}</span>
+                      <span aria-hidden="true" />
                     </div>
-                  )}
 
-                  {alertModalTab === 'itens' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      <div style={{ display: 'flex', background: 'rgba(255,255,255,0.02)', padding: '0.5rem 0.75rem', borderRadius: '4px', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.78rem', fontWeight: 700, color: '#94a3b8' }}>
-                        <div style={{ flex: 1 }}>{t('pedido.visao_geral.modal_alerta.col_codigo')}</div>
-                        <div style={{ flex: 2 }}>{t('pedido.visao_geral.modal_alerta.col_descricao')}</div>
-                        <div style={{ flex: 1, textAlign: 'right' }}>{t('pedido.visao_geral.modal_alerta.col_qtd')}</div>
-                        <div style={{ flex: 1, textAlign: 'right' }}>{t('pedido.visao_geral.modal_alerta.col_peso')}</div>
-                      </div>
-                      <div style={{ display: 'flex', padding: '0.75rem', borderRadius: '6px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', fontSize: '0.85rem' }}>
-                        <div style={{ flex: 1, color: '#f59e0b', fontWeight: 600 }}>ITM-01</div>
-                        <div style={{ flex: 2, color: '#cbd5e1' }}>{goods}</div>
-                        <div style={{ flex: 1, textAlign: 'right', color: '#ffffff' }}>{t('pedido.visao_geral.modal_alerta.unidades', { count: 1000 })}</div>
-                        <div style={{ flex: 1, textAlign: 'right', color: '#ffffff' }}>{weight}</div>
-                      </div>
-                    </div>
-                  )}
-
-                  {alertModalTab === 'propostas' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                      {proposals.map((p, idx) => (
-                        <div key={idx} style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          padding: '1rem',
-                          background: 'rgba(255, 255, 255, 0.02)',
-                          border: '1px solid rgba(255, 255, 255, 0.05)',
-                          borderRadius: '8px',
-                          transition: 'all 0.2s'
-                        }}>
-                          <div>
-                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#ffffff', display: 'block' }}>{p.fornecedor}</span>
-                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{t('pedido.visao_geral.modal_alerta.transit_time')}: {p.transit}</span>
-                          </div>
-                          <div style={{ textAlign: 'right' }}>
-                            <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#f59e0b', display: 'block' }}>{p.valor}</span>
-                            <span style={{ display: 'inline-block', fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '12px', background: p.cor + '22', color: p.cor }}>{p.status}</span>
-                          </div>
-                        </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      {pedidosAlertaModal.map(pedido => (
+                        <button
+                          key={pedido.id}
+                          type="button"
+                          className="bfd-alerta-modal__linha"
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1.1fr 1.4fr 0.9fr 0.8fr 1fr auto',
+                            gap: '0.75rem',
+                            alignItems: 'center',
+                            width: '100%',
+                            padding: '0.75rem',
+                            margin: 0,
+                            border: 'none',
+                            borderBottom: '1px solid rgba(255,255,255,0.04)',
+                            background: 'transparent',
+                            color: '#e2e8f0',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                            fontSize: '0.85rem',
+                            transition: 'background 0.15s',
+                          }}
+                          onClick={() => abrirPedidoNaLista(pedido)}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+                        >
+                          <span style={{ fontWeight: 700, color: '#f59e0b' }}>{pedido.numero_pedido}</span>
+                          <span style={{ color: '#cbd5e1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {nomeParceiroPedido(pedido)}
+                          </span>
+                          <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>
+                            {t(`pedido.status.${pedido.status}`, { defaultValue: pedido.status })}
+                          </span>
+                          <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{fmtDataPedido(pedido)}</span>
+                          <span style={{ textAlign: 'right', fontWeight: 600, color: '#f1f5f9' }}>{fmtValorPedido(pedido)}</span>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: accent, fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                            {t('pedido.visao_geral.modal_alerta.abrir_pedido')}
+                            <ArrowRight size={14} weight="bold" />
+                          </span>
+                        </button>
                       ))}
                     </div>
-                  )}
+                  </>
+                )}
+              </div>
 
-                  {alertModalTab === 'historico' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingLeft: '1rem', borderLeft: '2px solid rgba(255, 255, 255, 0.05)', position: 'relative' }}>
-                      {history.map((h, idx) => (
-                        <div key={idx} style={{ position: 'relative' }}>
-                          <span style={{
-                            position: 'absolute',
-                            left: '-1.45rem',
-                            top: '4px',
-                            width: '10px',
-                            height: '10px',
-                            borderRadius: '50%',
-                            background: '#f59e0b',
-                            boxShadow: '0 0 8px #f59e0b'
-                          }} />
-                          <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block', fontWeight: 600 }}>{h.data} • {t('pedido.visao_geral.modal_alerta.por_autor', { autor: h.autor })}</span>
-                          <span style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '0.2rem', display: 'block' }}>{h.texto}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Footer */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', padding: '1rem 1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(15, 23, 42, 0.2)' }}>
-                  <button style={{
+              <div style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                padding: '0.85rem 1.35rem',
+                borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+                background: 'rgba(15, 23, 42, 0.25)',
+              }}>
+                <button
+                  type="button"
+                  style={{
                     background: 'rgba(255, 255, 255, 0.05)',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
                     borderRadius: '8px',
@@ -4312,28 +4197,15 @@ export default function VisaoGeral() {
                     fontSize: '0.85rem',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.2s'
                   }}
-                    onClick={() => setIsAlertModalOpen(false)}
-                  >{t('comum.fechar')}</button>
-                  <button style={{
-                    background: '#f59e0b',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#ffffff',
-                    padding: '0.5rem 1rem',
-                    fontSize: '0.85rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    boxShadow: '0 4px 6px -1px rgba(245, 158, 11, 0.2)'
-                  }}
-                    onClick={() => alert(t('pedido.visao_geral.modal_alerta.pedido_atualizado'))}
-                  >{t('comum.salvar')}</button>
-                </div>
+                  onClick={() => { setIsAlertModalOpen(false); setAlertModalTipo(null) }}
+                >
+                  {t('comum.fechar')}
+                </button>
               </div>
             </div>
-         )
+          </div>
+        )
       })()}
     </div>
   )

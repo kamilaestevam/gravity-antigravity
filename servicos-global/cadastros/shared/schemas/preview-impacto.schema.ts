@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 /**
- * Resposta consolidada do endpoint /empresas/:suid/preview-impacto.
+ * Resposta consolidada do endpoint /fornecedores/:id_fornecedor/preview-impacto.
  * Cada produto consultado pode estar `ok` (respondeu), `indisponivel`
  * (URL não configurada / fora do ar) ou `erro` (timeout / 5xx).
  */
@@ -15,7 +15,7 @@ export const impactoProdutoSchema = z.object({
 })
 
 export const previewImpactoSchema = z.object({
-  suid_empresa: z.string(),
+  id_fornecedor: z.string(),
   total: z.number().int().nonnegative(),
   por_produto: z.array(impactoProdutoSchema),
 })

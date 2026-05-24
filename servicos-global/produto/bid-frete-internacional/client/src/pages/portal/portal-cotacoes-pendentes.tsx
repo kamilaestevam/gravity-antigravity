@@ -92,7 +92,7 @@ export default function CotacoesPendentes() {
   }), [t, bids.length]))
 
   return (
-    <PaginaGlobal className="cp-page">
+    <PaginaGlobal className="cp-page bid-frete-page-shell">
       {carregando ? (
         <div className="cp-loading">
           <ClockCountdown weight="duotone" size={48} style={{ opacity: 0.3 }} />
@@ -170,7 +170,7 @@ export default function CotacoesPendentes() {
       )}
 
       <style>{`
-        .cp-page { padding: 0; }
+        .cp-page { }
 
         .cp-loading, .cp-empty {
           display: flex;

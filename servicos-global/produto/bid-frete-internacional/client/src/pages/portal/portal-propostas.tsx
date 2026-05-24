@@ -217,7 +217,7 @@ export default function MinhasRespostas() {
   ]
 
   return (
-    <PaginaGlobal className="mr-page">
+    <PaginaGlobal className="mr-page bid-frete-page-shell">
       {/* Tabs */}
       <div className="mr-tabs">
         {TABS.map(tab => (
@@ -249,7 +249,7 @@ export default function MinhasRespostas() {
       )}
 
       <style>{`
-        .mr-page { padding: 0; }
+        .mr-page { }
 
         .mr-tabs {
           display: flex;

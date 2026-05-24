@@ -3417,6 +3417,13 @@
       "historico": "History",
       "configuracoes": "Settings"
     },
+    "page_topo": {
+      "dashboard_subtitulo": "Configurable KPIs and widgets",
+      "lista_subtitulo": "Import and export orders in a virtual table",
+      "kanban_subtitulo": "Orders organized by status",
+      "configuracoes_subtitulo": "Customize cards, columns and order statuses",
+      "editar_subtitulo": "Order details, items and actions"
+    },
     "total_pedidos": "Total Orders",
     "itens_total": "total items",
     "valor_total": "Total Value",
@@ -6465,7 +6472,11 @@
       },
       "alertas": {
         "titulo": "Alerts",
-        "hoje": "Today"
+        "hoje": "Today",
+        "atrasados": "Delayed orders",
+        "vencendo_7": "Due in 7 days",
+        "rascunho": "In draft",
+        "novos_7": "New orders (7 days)"
       },
       "funil": {
         "titulo": "Order Funnel"
@@ -6496,9 +6507,20 @@
       "modal_alerta": {
         "titulo_padrao": "Quotation / Order Details",
         "titulo_atrasado": "Delayed Order",
+        "titulo_atrasados": "Delayed orders",
         "titulo_a_vencer": "Order Due (7 days)",
-        "titulo_rascunho": "Draft Order",
+        "titulo_vencendo_7": "Orders due (7 days)",
+        "titulo_rascunho": "Draft orders",
         "titulo_novos": "New Orders (7 days)",
+        "titulo_novos_7": "New orders (7 days)",
+        "total_count": "{{count}} orders",
+        "lista_vazia": "No orders in this alert.",
+        "abrir_pedido": "Open in list",
+        "col_numero": "Order",
+        "col_parceiro": "Partner",
+        "col_status": "Status",
+        "col_prazo": "Deadline",
+        "col_valor": "Value",
         "referencia": "Reference",
         "tab_geral": "General",
         "tab_itens": "Items",

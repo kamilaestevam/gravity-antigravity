@@ -197,7 +197,7 @@ export default function ResponderCotacao() {
   )
 
   return (
-    <PaginaGlobal className="rc-page">
+    <PaginaGlobal className="rc-page bid-frete-page-shell">
       {acoesResponder}
       {carregando ? (
         <div className="rc-loading">
@@ -400,7 +400,7 @@ export default function ResponderCotacao() {
 // ─── Styles ─────────────────────────────────────────────────────────────────
 
 const rcStyles = `
-  .rc-page { padding: 0; }
+  .rc-page { }
 
   .rc-loading {
     display: flex;

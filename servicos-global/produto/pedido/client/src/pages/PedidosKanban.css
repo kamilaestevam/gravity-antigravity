@@ -5,7 +5,7 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  padding: 1.5rem;
+  padding: var(--pedido-page-pt) var(--pedido-page-px) var(--pedido-page-pb);
 }
 
 /* ── Toolbar ─────────────────────────────────────────────────────────── */

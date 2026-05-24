@@ -259,7 +259,7 @@ app.use('/api/v1/api-cockpit', apiCockpitRouter)             // workspace: obser
 app.use('/api/v1/api-cockpit/admin', apiCockpitAdminRouter)       // admin: observabilidade global (gravity_admin only)
 app.use('/api/v1/admin/integracao-ncm', adminNcmIntegracaoRouter) // admin: sincronização NCM Siscomex
 app.use('/api/v1/admin/certificados', adminCertificadosRouter)    // admin: certificados digitais Siscomex (e-CNPJ)
-app.use('/api/v1/admin/empresas', adminEmpresasRouter)            // admin: empresas/parceiros cross-organização (audit logged)
+app.use('/api/v1/admin/fornecedores', adminEmpresasRouter)       // admin: fornecedores cross-organização (audit logged)
 
 // ─── Taxas de moeda (PTAX) — sem auth (dados públicos do BCB) ──────────────
 
@@ -364,11 +364,12 @@ app.use('/api/v1/pedidos', (req, res) => {
 })
 
 // ─── Proxy reverso: Cadastros sidecar (porta 8031) ──────────────────────────
-// O sidecar Cadastros expõe `/api/v1/empresas` e `/api/v1/cadastros/*`
+// O sidecar Cadastros expõe `/api/v1/fornecedores` (alias `/api/v1/empresas`) e `/api/v1/cadastros/*`
 // (moedas, unidades, incoterms, ncm, operacoes-comex, paises...).
 // Sem este proxy, as chamadas relativas do frontend caem no catch-all → 404.
 const _proxyCadastros = (req: express.Request, res: express.Response) => {
-  const targetUrl = `http://127.0.0.1:8031${req.originalUrl}`
+  const cadastrosPath = req.originalUrl.replace(/^\/api\/v1\/empresas/, '/api/v1/fornecedores')
+  const targetUrl = `http://127.0.0.1:8031${cadastrosPath}`
   // Tipado explicitamente: o spread de req.headers (IncomingHttpHeaders) perde
   // o index signature, e atribuir chaves custom (x-internal-key) viraria TS7053.
   const headers: Record<string, string | string[] | undefined> = { ...req.headers, host: '127.0.0.1:8031' }
@@ -402,7 +403,8 @@ const _proxyCadastros = (req: express.Request, res: express.Response) => {
     proxyReq.end()
   }
 }
-app.use('/api/v1/empresas', _proxyCadastros)
+app.use('/api/v1/fornecedores', _proxyCadastros)
+app.use('/api/v1/empresas', _proxyCadastros) // compat legado → Cadastros /fornecedores
 app.use('/api/v1/cadastros', _proxyCadastros)
 
 // ─── Servir frontend Vite em produção ────────────────────────────────────────

@@ -2463,7 +2463,7 @@ export default function VisaoGeral() {
     <div className="bfd-dashboard">
       <style>{`
         .bfd-dashboard {
-          padding: 0 1.5rem 2rem;
+          padding: var(--bid-frete-page-pt) var(--bid-frete-page-px) var(--bid-frete-page-pb);
           display: flex;
           flex-direction: column;
           gap: 1.5rem;

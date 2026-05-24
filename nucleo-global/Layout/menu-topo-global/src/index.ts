@@ -4,7 +4,7 @@ export type {
   MenuTopoLocalizadorConfig,
   MenuTopoUsuarioConfig,
 } from './MenuTopoGlobal'
-export { resolveRouteKey, BID_FRETE_URL_SLUGS } from './resolve-route-key'
+export { resolveRouteKey, BID_FRETE_URL_SLUGS, PRODUCT_URL_SLUGS } from './resolve-route-key'
 export {
   TituloPaginaTopoProvider,
   useTituloPaginaTopoOverride,

@@ -259,7 +259,7 @@ export default function Dashboard() {
   return (
     <div className="bfd-dashboard">
       <style>{`
-        .bfd-dashboard { padding: 0 1.5rem 2rem; display: flex; flex-direction: column; gap: 1.25rem; }
+        .bfd-dashboard { padding: var(--bid-frete-page-pt) var(--bid-frete-page-px) var(--bid-frete-page-pb); display: flex; flex-direction: column; gap: 1.25rem; }
 
         /* ── Header ──────────────────────────────────────────────── */
         .bfd-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0; }

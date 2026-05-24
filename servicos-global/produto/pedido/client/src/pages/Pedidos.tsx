@@ -4372,20 +4372,28 @@ export default function Pedidos() {
   // ── Ref imperativo da tabela + edição inline pendente (navegação via Kanban) ─
   const tabelaRef = useRef<GTVirtualHandle | null>(null)
   const pendingInlineEditRef = useRef<{ id: string; campo: string } | null>(null)
+  const pendingOpenDrawerRef = useRef<string | null>(null)
 
-  // Navegação via Kanban:
+  // Navegação via Kanban / Visão Geral:
   //   { openPedidoId, editCampo, numeroPedido } → edição inline na célula
+  //   { openPedidoId, abrirDrawer, numeroPedido } → abre drawer na lista
   //   { numeroPedido }                          → apenas filtrar na lista (Abrir pedido completo)
   useEffect(() => {
     const st = location.state as {
       openPedidoId?: string
       editCampo?: string
+      abrirDrawer?: boolean
       numeroPedido?: string
     } | null
     if (!st?.openPedidoId && !st?.numeroPedido) return
     window.history.replaceState({}, '')
 
-    if (st.openPedidoId && st.editCampo) {
+    if (st.openPedidoId && st.abrirDrawer) {
+      pendingOpenDrawerRef.current = st.openPedidoId
+      if (st.numeroPedido) {
+        handleBuscar(st.numeroPedido)
+      }
+    } else if (st.openPedidoId && st.editCampo) {
       // Fluxo inline: filtrar + abrir célula para edição
       pendingInlineEditRef.current = { id: st.openPedidoId, campo: st.editCampo }
       if (st.numeroPedido) {
@@ -4397,6 +4405,17 @@ export default function Pedidos() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state])
+
+  // Abre drawer quando navegação pede abrirPedidoId (Visão Geral, etc.)
+  useEffect(() => {
+    const pendingId = pendingOpenDrawerRef.current
+    if (!pendingId || carregando) return
+    const pedido = pedidos.find(p => p.id === pendingId)
+    if (!pedido) return
+    pendingOpenDrawerRef.current = null
+    setPedidoEditandoId(pedido.id)
+    setDrawerAberto(true)
+  }, [pedidos, carregando])
 
   // Dispara edição inline assim que o pedido estiver no array e o carregamento terminar
   useEffect(() => {

@@ -430,7 +430,7 @@ export default function Comparativo() {
   // Se acabou de aprovar, mostra tela de confirmacao
   if (resultadoAprovacao) {
     return (
-      <PaginaGlobal className="bf-comparativo">
+      <PaginaGlobal className="bf-comparativo bid-frete-page-shell">
         <div className="bf-aprovacao-result">
           <div className="bf-aprovacao-result-icon">
             <CheckCircle weight="duotone" size={64} />
@@ -476,7 +476,7 @@ export default function Comparativo() {
   }
 
   return (
-    <PaginaGlobal className="bf-comparativo">
+    <PaginaGlobal className="bf-comparativo bid-frete-page-shell">
       {acoesComparativo}
       {/* ════════ Sort Buttons ════════ */}
       <div className="bf-sort-bar">
@@ -668,7 +668,7 @@ const comparativoStyles = `
   /* Design System: Solid Slate (CSS Vars)                 */
   /* ═══════════════════════════════════════════════════════ */
 
-  .bf-comparativo { padding: 0; }
+  .bf-comparativo { }
 
   /* ── Sort Bar ── */
   .bf-sort-bar {

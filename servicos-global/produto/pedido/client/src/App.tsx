@@ -9,6 +9,8 @@ import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-g
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import { ChartPieSlice, ChartBar, ListBullets, Kanban, ClockCounterClockwise, GearSix, UserCircle, CheckCircle, Envelope, WhatsappLogo } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
+import { resolverPageMetaTopo } from './shared/page-meta-topo'
+import './shared/pedido-page-shell.css'
 import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
 import { setApiContext, injectTenantGetter, injectTokenGetter, injectWorkspaceGetter } from './shared/api'
 import { usePermissoesPedido, type SecaoPedido } from './shared/permissoes/usePermissoesPedido'
@@ -192,6 +194,11 @@ function AppInner() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname])
 
+  const pageMeta = useMemo(
+    () => resolverPageMetaTopo(location.pathname, location.search, t),
+    [location.pathname, location.search, t],
+  )
+
   const initials = currentUser.name
     ? currentUser.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : currentUser.email?.[0]?.toUpperCase() ?? '?'
@@ -199,23 +206,6 @@ function AppInner() {
   const isAdmin =
     currentUser.role === 'Super Admin' || currentUser.role === 'Admin' ||
     currentUser.role === 'SUPER_ADMIN'  || currentUser.role === 'ADMIN'
-
-  const ROUTE_LABELS: Record<string, string> = {
-    'pedidos':            'Lista',
-    'pedidos/lista':      'Lista',
-    'pedidos/visao-geral': 'Visão Geral',
-    'pedidos/dashboard':  'Dashboard',
-    'pedidos/kanban':    'Kanban',
-    'pedidos/novo':      'Novo Pedido',
-    'configuracoes':     'Configurações',
-  }
-  // Extrai segmentos relativos ao produto — funciona standalone (/pedidos)
-  // e embarcado no shell (/produto/pedido/pedidos)
-  const segments     = location.pathname.split('/').filter(Boolean)
-  const productIdx   = segments.findIndex(s => s === PRODUCT_ID)
-  const relSegments  = productIdx >= 0 ? segments.slice(productIdx + 1) : segments
-  const routeKey     = relSegments.join('/')
-  const pageLabel    = ROUTE_LABELS[routeKey] ?? 'Lista'
 
   const wsAtivo = workspacesStore.find(ws => ws.id === idWorkspaceAtivo)
   const nomeWorkspaceAtivo = wsAtivo?.nome_workspace ?? currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa'
@@ -250,8 +240,10 @@ function AppInner() {
       onNavigateSettings={() => { navigate('/pedido/configuracoes') }}
       headerActions={<Notificacoes />}
       localizador={{
-        workspaceName:    nomeWorkspaceAtivo,
-        currentPageLabel: pageLabel,
+        workspaceName:       nomeWorkspaceAtivo,
+        currentPageLabel:    pageMeta.label,
+        currentPageIcon:     pageMeta.icone,
+        currentPageSubtitle: pageMeta.subtitulo,
         history,
         nodes: ECOSYSTEM_NODES,
         visitedNodeIds: visitedIds,

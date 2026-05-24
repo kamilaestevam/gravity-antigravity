@@ -55,7 +55,13 @@ export interface VisaoGeralMensal { mes: string; aprovadas: number; andamento: n
 export interface VisaoGeralModal { key: string; label: string; count: number; pct: number; cor: string }
 export interface VisaoGeralFunil { label: string; count: number; color: string }
 export interface VisaoGeralIncoterm { incoterm: string; count: number; pct: number }
-export interface VisaoGeralAlerta { label: string; count: number; cor: 'red' | 'orange' | 'yellow' | 'green' }
+export type VisaoGeralAlertaTipo = 'atrasados' | 'vencendo_7' | 'rascunho' | 'novos_7'
+
+export interface VisaoGeralAlerta {
+  tipo: VisaoGeralAlertaTipo
+  count: number
+  cor: 'red' | 'orange' | 'yellow' | 'green'
+}
 export interface VisaoGeralMoeda { codigo: string; quantidade: number; pct: number }
 
 export interface VisaoGeralPedido {
@@ -73,6 +79,32 @@ export interface VisaoGeralPedido {
   sparkConcluido: number[]
   maiorPedido: { numero: string; valor: number; moeda: string } | null
   mapa: VisaoGeralMapaData
+  pedidos: Pedido[]
+}
+
+export function filtrarPedidosAlertaVisaoGeral(
+  tipo: VisaoGeralAlertaTipo,
+  pedidos: Pedido[],
+  hoje = new Date(),
+): Pedido[] {
+  switch (tipo) {
+    case 'atrasados':
+      return pedidos.filter(p => estaAtrasado(p, hoje))
+    case 'vencendo_7':
+      return pedidos.filter(p => {
+        const dias = diasEntre(p.data_prevista_pedido_pronto, hoje)
+        return dias !== null && dias >= 0 && dias <= 7 && !BUCKET_CONCLUIDO.has(p.status)
+      })
+    case 'rascunho':
+      return pedidos.filter(p => p.status === 'rascunho')
+    case 'novos_7':
+      return pedidos.filter(p => {
+        const dias = diasEntre(p.created_at, hoje)
+        return dias !== null && dias >= -7 && dias <= 0
+      })
+    default:
+      return []
+  }
 }
 
 export type { VisaoGeralMapaData, VisaoGeralMapPin, VisaoGeralRotaDetalhe } from './visaoGeralMapaPedido'
@@ -216,10 +248,10 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
       return dias !== null && dias >= -7 && dias <= 0
     }).length
     const alertas: VisaoGeralAlerta[] = [
-      { label: 'Pedidos atrasados',       count: atrasados.length, cor: 'red' },
-      { label: 'Vencem em 7 dias',        count: vencendo7,        cor: 'orange' },
-      { label: 'Em rascunho',             count: rascunhos,        cor: 'yellow' },
-      { label: 'Novos pedidos (7 dias)',  count: novos7,           cor: 'green' },
+      { tipo: 'atrasados',  count: atrasados.length, cor: 'red' },
+      { tipo: 'vencendo_7', count: vencendo7,        cor: 'orange' },
+      { tipo: 'rascunho',   count: rascunhos,        cor: 'yellow' },
+      { tipo: 'novos_7',    count: novos7,           cor: 'green' },
     ]
 
     // Maior pedido do período
@@ -248,6 +280,7 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
       sparkConcluido: mensal.map(m => m.aprovadas),
       maiorPedido,
       mapa,
+      pedidos,
     }
   }, [pedidos, total, isLoading, nomesWorkspacePorId])
 }

@@ -21,7 +21,6 @@ import {
   Warning,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
@@ -127,20 +126,13 @@ export default function PedidosImportar() {
 
   return (
     <PaginaGlobal
-      className="ws-fade-up"
+      className="ws-fade-up pedido-page-shell"
       layout="formulario"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<UploadSimple weight="duotone" size={22} />}
-          titulo={t('pedido.importar.titulo', 'Importar Pedidos')}
-          subtitulo={t('pedido.importar.subtitulo', 'Importar pedidos a partir de arquivo (Excel, CSV, XML, TXT, JSON)')}
-        />
-      }
       acoes={
         <BotaoGlobal
           variante="secundario"
           icone={<ArrowLeft size={16} />}
-          onClick={() => navigate('/pedidos')}
+          onClick={() => navigate('/pedido/pedidos/lista')}
         >
           {t('comum.voltar', 'Voltar')}
         </BotaoGlobal>
@@ -330,7 +322,7 @@ export default function PedidosImportar() {
           </p>
           <BotaoGlobal
             variante="primario"
-            onClick={() => navigate('/pedidos')}
+            onClick={() => navigate('/pedido/pedidos/lista')}
           >
             {t('pedido.importar.ver_pedidos', 'Ver Pedidos')}
           </BotaoGlobal>

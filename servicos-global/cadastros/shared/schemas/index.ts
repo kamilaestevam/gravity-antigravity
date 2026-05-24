@@ -5,6 +5,8 @@
  * server e client SDK importam exatamente daqui — não duplicar.
  */
 
+export * from './fornecedor.schema.js'
+/** @deprecated aliases empresa* — manter até consumidores migrarem para fornecedor* */
 export * from './empresa.schema.js'
 export * from './moeda.schema.js'
 export * from './unidade.schema.js'
@@ -13,5 +15,4 @@ export * from './ncm.schema.js'
 export * from './ope.schema.js'
 export * from './pais.schema.js'
 export * from './preview-impacto.schema.js'
-export * from './exportador-quando-importacao.schema.js'
-export * from './importador-quando-exportacao.schema.js'
+export * from './fornecedor-organizacao.schema.js'

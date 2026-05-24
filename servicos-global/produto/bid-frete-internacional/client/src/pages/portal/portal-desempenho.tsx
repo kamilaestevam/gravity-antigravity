@@ -116,7 +116,7 @@ export default function MeuDesempenho() {
   const cats = dados?.categorias ?? { frete: 0, atendimento: 0, prazo: 0, confiabilidade: 0 }
 
   return (
-    <PaginaGlobal className="md-page">
+    <PaginaGlobal className="md-page bid-frete-page-shell">
       {/* Rating Global */}
       <div className="md-rating-hero">
         <div className="md-rating-number">{rating.toFixed(1)}</div>
@@ -203,7 +203,7 @@ export default function MeuDesempenho() {
 // ─── Styles ─────────────────────────────────────────────────────────────────
 
 const mdStyles = `
-  .md-page { padding: 0; }
+  .md-page { }
 
   .md-loading {
     display: flex;

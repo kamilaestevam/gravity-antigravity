@@ -87,7 +87,7 @@ export default function PortalDashboard() {
   ]
 
   return (
-    <PaginaGlobal className="portal-dash">
+    <PaginaGlobal className="portal-dash bid-frete-page-shell">
       {/* KPI Cards */}
       <div className="pd-kpis">
         <CardBasicoGlobal
@@ -168,7 +168,7 @@ export default function PortalDashboard() {
       </div>
 
       <style>{`
-        .portal-dash { padding: 0; }
+        .portal-dash { }
 
         .pd-kpis {
           display: grid;

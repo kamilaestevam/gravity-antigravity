@@ -90,7 +90,7 @@ export async function buscarEmpresaPorSuid(
   let response: Response
   try {
     response = await fetch(
-      `${getCadastrosUrl()}/api/v1/empresas/${encodeURIComponent(suid)}`,
+      `${getCadastrosUrl()}/api/v1/fornecedores/${encodeURIComponent(suid)}`,
       {
         method: 'GET',
         headers: headersPadrao(ctx),

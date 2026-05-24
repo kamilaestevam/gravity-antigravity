@@ -6,7 +6,7 @@
 //   1. requireAuth         — valida JWT Clerk e popula req.auth
 //   2. requireGravityAdmin — bloqueia se tipo_usuario ∉ {SUPER_ADMIN, ADMIN}
 //   3. valida req.query    — Zod (Mand. 06) — REJEITA com 422 se inválido
-//   4. fetch Cadastros     — chama /api/v1/admin/empresas com x-internal-key
+//   4. fetch Cadastros     — chama /api/v1/admin/fornecedores com x-internal-key
 //   5. valida resposta     — Zod (Mand. 06 + 09) — listaEmpresasAdminSchema
 //                            REJEITA com 502 CADASTROS_CONTRATO_QUEBRADO se quebrar
 //   6. enriquecer          — UMA query batch IN(...) em Configurador.Organizacao
@@ -102,7 +102,7 @@ function extrairIpCliente(req: Request): string {
 }
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/admin/empresas
+// GET /api/v1/admin/fornecedores
 // ---------------------------------------------------------------------------
 adminEmpresasRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -135,7 +135,7 @@ adminEmpresasRouter.get('/', async (req: Request, res: Response, next: NextFunct
     const porPaginaClampado = clampPorPagina(filtros.por_pagina)
     if (porPaginaClampado !== undefined) qsParams.set('por_pagina', String(porPaginaClampado))
     const qs = qsParams.toString()
-    const url = `${getCadastrosUrl()}/api/v1/admin/empresas${qs ? `?${qs}` : ''}`
+    const url = `${getCadastrosUrl()}/api/v1/admin/fornecedores${qs ? `?${qs}` : ''}`
 
     let response: Response
     try {

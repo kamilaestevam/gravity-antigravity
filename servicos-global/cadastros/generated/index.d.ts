@@ -14,10 +14,15 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
 
 
 /**
- * Model Empresa
+ * Model Fornecedor
  * 
  */
-export type Empresa = $Result.DefaultSelection<Prisma.$EmpresaPayload>
+export type Fornecedor = $Result.DefaultSelection<Prisma.$FornecedorPayload>
+/**
+ * Model FornecedorOrganizacao
+ * 
+ */
+export type FornecedorOrganizacao = $Result.DefaultSelection<Prisma.$FornecedorOrganizacaoPayload>
 /**
  * Model Pais
  * Pais — fonte única da verdade para país no monorepo Gravity.
@@ -54,10 +59,10 @@ export type Porto = $Result.DefaultSelection<Prisma.$PortoPayload>
  */
 export type Aeroporto = $Result.DefaultSelection<Prisma.$AeroportoPayload>
 /**
- * Model TipoContainer
+ * Model Container
  * 
  */
-export type TipoContainer = $Result.DefaultSelection<Prisma.$TipoContainerPayload>
+export type Container = $Result.DefaultSelection<Prisma.$ContainerPayload>
 /**
  * Model NcmSync
  * 
@@ -83,22 +88,52 @@ export type Ope = $Result.DefaultSelection<Prisma.$OpePayload>
  * 
  */
 export type OPEHistoricoStatus = $Result.DefaultSelection<Prisma.$OPEHistoricoStatusPayload>
-/**
- * Model ExportadorQuandoImportacao
- * 
- */
-export type ExportadorQuandoImportacao = $Result.DefaultSelection<Prisma.$ExportadorQuandoImportacaoPayload>
-/**
- * Model ImportadorQuandoExportacao
- * 
- */
-export type ImportadorQuandoExportacao = $Result.DefaultSelection<Prisma.$ImportadorQuandoExportacaoPayload>
 
 /**
  * Enums
  */
 export namespace $Enums {
-  export const NcmSyncStatusSincronizacao: {
+  export const TipoFornecedorOrganizacao: {
+  AGENTE_CARGA: 'AGENTE_CARGA',
+  DESPACHANTE_ADUANEIRO: 'DESPACHANTE_ADUANEIRO',
+  ARMADOR: 'ARMADOR',
+  CIA_AEREA: 'CIA_AEREA',
+  TRANSPORTADORA_RODOVIARIA_NACIONAL: 'TRANSPORTADORA_RODOVIARIA_NACIONAL',
+  TRANSPORTADORA_RODOVIARIA_INTERNACIONAL: 'TRANSPORTADORA_RODOVIARIA_INTERNACIONAL',
+  ARMAZEM_ALFANDEGADO: 'ARMAZEM_ALFANDEGADO',
+  ARMAZEM_NACIONAL: 'ARMAZEM_NACIONAL',
+  BANCO: 'BANCO',
+  SEGURADORA_INTERNACIONAL: 'SEGURADORA_INTERNACIONAL',
+  CORRETORA_CAMBIO: 'CORRETORA_CAMBIO',
+  FABRICANTE: 'FABRICANTE'
+};
+
+export type TipoFornecedorOrganizacao = (typeof TipoFornecedorOrganizacao)[keyof typeof TipoFornecedorOrganizacao]
+
+
+export const StatusFornecedorOrganizacao: {
+  ATIVO: 'ATIVO',
+  INATIVO: 'INATIVO',
+  PENDENTE_APROVACAO: 'PENDENTE_APROVACAO'
+};
+
+export type StatusFornecedorOrganizacao = (typeof StatusFornecedorOrganizacao)[keyof typeof StatusFornecedorOrganizacao]
+
+
+export const ContainerTipo: {
+  DRY: 'DRY',
+  REEFER: 'REEFER',
+  OPEN_TOP: 'OPEN_TOP',
+  FLAT_RACK: 'FLAT_RACK',
+  TANK: 'TANK',
+  BULK: 'BULK',
+  PLATAFORMA: 'PLATAFORMA'
+};
+
+export type ContainerTipo = (typeof ContainerTipo)[keyof typeof ContainerTipo]
+
+
+export const NcmSyncStatusSincronizacao: {
   EXECUTANDO: 'EXECUTANDO',
   SUCESSO: 'SUCESSO',
   ERRO: 'ERRO'
@@ -116,6 +151,18 @@ export type NcmSyncOrigemSincronizacao = (typeof NcmSyncOrigemSincronizacao)[key
 
 }
 
+export type TipoFornecedorOrganizacao = $Enums.TipoFornecedorOrganizacao
+
+export const TipoFornecedorOrganizacao: typeof $Enums.TipoFornecedorOrganizacao
+
+export type StatusFornecedorOrganizacao = $Enums.StatusFornecedorOrganizacao
+
+export const StatusFornecedorOrganizacao: typeof $Enums.StatusFornecedorOrganizacao
+
+export type ContainerTipo = $Enums.ContainerTipo
+
+export const ContainerTipo: typeof $Enums.ContainerTipo
+
 export type NcmSyncStatusSincronizacao = $Enums.NcmSyncStatusSincronizacao
 
 export const NcmSyncStatusSincronizacao: typeof $Enums.NcmSyncStatusSincronizacao
@@ -131,8 +178,8 @@ export const NcmSyncOrigemSincronizacao: typeof $Enums.NcmSyncOrigemSincronizaca
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Empresas
- * const empresas = await prisma.empresa.findMany()
+ * // Fetch zero or more Fornecedors
+ * const fornecedors = await prisma.fornecedor.findMany()
  * ```
  *
  * 
@@ -152,8 +199,8 @@ export class PrismaClient<
    * @example
    * ```
    * const prisma = new PrismaClient()
-   * // Fetch zero or more Empresas
-   * const empresas = await prisma.empresa.findMany()
+   * // Fetch zero or more Fornecedors
+   * const fornecedors = await prisma.fornecedor.findMany()
    * ```
    *
    * 
@@ -248,14 +295,24 @@ export class PrismaClient<
   $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb, ExtArgs>
 
       /**
-   * `prisma.empresa`: Exposes CRUD operations for the **Empresa** model.
+   * `prisma.fornecedor`: Exposes CRUD operations for the **Fornecedor** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Empresas
-    * const empresas = await prisma.empresa.findMany()
+    * // Fetch zero or more Fornecedors
+    * const fornecedors = await prisma.fornecedor.findMany()
     * ```
     */
-  get empresa(): Prisma.EmpresaDelegate<ExtArgs>;
+  get fornecedor(): Prisma.FornecedorDelegate<ExtArgs>;
+
+  /**
+   * `prisma.fornecedorOrganizacao`: Exposes CRUD operations for the **FornecedorOrganizacao** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FornecedorOrganizacaos
+    * const fornecedorOrganizacaos = await prisma.fornecedorOrganizacao.findMany()
+    * ```
+    */
+  get fornecedorOrganizacao(): Prisma.FornecedorOrganizacaoDelegate<ExtArgs>;
 
   /**
    * `prisma.pais`: Exposes CRUD operations for the **Pais** model.
@@ -318,14 +375,14 @@ export class PrismaClient<
   get aeroporto(): Prisma.AeroportoDelegate<ExtArgs>;
 
   /**
-   * `prisma.tipoContainer`: Exposes CRUD operations for the **TipoContainer** model.
+   * `prisma.container`: Exposes CRUD operations for the **Container** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more TipoContainers
-    * const tipoContainers = await prisma.tipoContainer.findMany()
+    * // Fetch zero or more Containers
+    * const containers = await prisma.container.findMany()
     * ```
     */
-  get tipoContainer(): Prisma.TipoContainerDelegate<ExtArgs>;
+  get container(): Prisma.ContainerDelegate<ExtArgs>;
 
   /**
    * `prisma.ncmSync`: Exposes CRUD operations for the **NcmSync** model.
@@ -376,26 +433,6 @@ export class PrismaClient<
     * ```
     */
   get oPEHistoricoStatus(): Prisma.OPEHistoricoStatusDelegate<ExtArgs>;
-
-  /**
-   * `prisma.exportadorQuandoImportacao`: Exposes CRUD operations for the **ExportadorQuandoImportacao** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more ExportadorQuandoImportacaos
-    * const exportadorQuandoImportacaos = await prisma.exportadorQuandoImportacao.findMany()
-    * ```
-    */
-  get exportadorQuandoImportacao(): Prisma.ExportadorQuandoImportacaoDelegate<ExtArgs>;
-
-  /**
-   * `prisma.importadorQuandoExportacao`: Exposes CRUD operations for the **ImportadorQuandoExportacao** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more ImportadorQuandoExportacaos
-    * const importadorQuandoExportacaos = await prisma.importadorQuandoExportacao.findMany()
-    * ```
-    */
-  get importadorQuandoExportacao(): Prisma.ImportadorQuandoExportacaoDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -837,21 +874,20 @@ export namespace Prisma {
 
 
   export const ModelName: {
-    Empresa: 'Empresa',
+    Fornecedor: 'Fornecedor',
+    FornecedorOrganizacao: 'FornecedorOrganizacao',
     Pais: 'Pais',
     Moeda: 'Moeda',
     Unidade: 'Unidade',
     Incoterm: 'Incoterm',
     Porto: 'Porto',
     Aeroporto: 'Aeroporto',
-    TipoContainer: 'TipoContainer',
+    Container: 'Container',
     NcmSync: 'NcmSync',
     NcmSyncLog: 'NcmSyncLog',
     NcmSyncAgendamento: 'NcmSyncAgendamento',
     Ope: 'Ope',
-    OPEHistoricoStatus: 'OPEHistoricoStatus',
-    ExportadorQuandoImportacao: 'ExportadorQuandoImportacao',
-    ImportadorQuandoExportacao: 'ImportadorQuandoExportacao'
+    OPEHistoricoStatus: 'OPEHistoricoStatus'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -867,77 +903,147 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "pais" | "moeda" | "unidade" | "incoterm" | "porto" | "aeroporto" | "tipoContainer" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus" | "exportadorQuandoImportacao" | "importadorQuandoExportacao"
+      modelProps: "fornecedor" | "fornecedorOrganizacao" | "pais" | "moeda" | "unidade" | "incoterm" | "porto" | "aeroporto" | "container" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
-      Empresa: {
-        payload: Prisma.$EmpresaPayload<ExtArgs>
-        fields: Prisma.EmpresaFieldRefs
+      Fornecedor: {
+        payload: Prisma.$FornecedorPayload<ExtArgs>
+        fields: Prisma.FornecedorFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.EmpresaFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload> | null
+            args: Prisma.FornecedorFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.EmpresaFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+            args: Prisma.FornecedorFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorPayload>
           }
           findFirst: {
-            args: Prisma.EmpresaFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload> | null
+            args: Prisma.FornecedorFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.EmpresaFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+            args: Prisma.FornecedorFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorPayload>
           }
           findMany: {
-            args: Prisma.EmpresaFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>[]
+            args: Prisma.FornecedorFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorPayload>[]
           }
           create: {
-            args: Prisma.EmpresaCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+            args: Prisma.FornecedorCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorPayload>
           }
           createMany: {
-            args: Prisma.EmpresaCreateManyArgs<ExtArgs>
+            args: Prisma.FornecedorCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.EmpresaCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>[]
+            args: Prisma.FornecedorCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorPayload>[]
           }
           delete: {
-            args: Prisma.EmpresaDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+            args: Prisma.FornecedorDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorPayload>
           }
           update: {
-            args: Prisma.EmpresaUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+            args: Prisma.FornecedorUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorPayload>
           }
           deleteMany: {
-            args: Prisma.EmpresaDeleteManyArgs<ExtArgs>
+            args: Prisma.FornecedorDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.EmpresaUpdateManyArgs<ExtArgs>
+            args: Prisma.FornecedorUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.EmpresaUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+            args: Prisma.FornecedorUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorPayload>
           }
           aggregate: {
-            args: Prisma.EmpresaAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateEmpresa>
+            args: Prisma.FornecedorAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFornecedor>
           }
           groupBy: {
-            args: Prisma.EmpresaGroupByArgs<ExtArgs>
-            result: $Utils.Optional<EmpresaGroupByOutputType>[]
+            args: Prisma.FornecedorGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FornecedorGroupByOutputType>[]
           }
           count: {
-            args: Prisma.EmpresaCountArgs<ExtArgs>
-            result: $Utils.Optional<EmpresaCountAggregateOutputType> | number
+            args: Prisma.FornecedorCountArgs<ExtArgs>
+            result: $Utils.Optional<FornecedorCountAggregateOutputType> | number
+          }
+        }
+      }
+      FornecedorOrganizacao: {
+        payload: Prisma.$FornecedorOrganizacaoPayload<ExtArgs>
+        fields: Prisma.FornecedorOrganizacaoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FornecedorOrganizacaoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FornecedorOrganizacaoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>
+          }
+          findFirst: {
+            args: Prisma.FornecedorOrganizacaoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FornecedorOrganizacaoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>
+          }
+          findMany: {
+            args: Prisma.FornecedorOrganizacaoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>[]
+          }
+          create: {
+            args: Prisma.FornecedorOrganizacaoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>
+          }
+          createMany: {
+            args: Prisma.FornecedorOrganizacaoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FornecedorOrganizacaoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>[]
+          }
+          delete: {
+            args: Prisma.FornecedorOrganizacaoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>
+          }
+          update: {
+            args: Prisma.FornecedorOrganizacaoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>
+          }
+          deleteMany: {
+            args: Prisma.FornecedorOrganizacaoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FornecedorOrganizacaoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.FornecedorOrganizacaoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>
+          }
+          aggregate: {
+            args: Prisma.FornecedorOrganizacaoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFornecedorOrganizacao>
+          }
+          groupBy: {
+            args: Prisma.FornecedorOrganizacaoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FornecedorOrganizacaoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FornecedorOrganizacaoCountArgs<ExtArgs>
+            result: $Utils.Optional<FornecedorOrganizacaoCountAggregateOutputType> | number
           }
         }
       }
@@ -1361,73 +1467,73 @@ export namespace Prisma {
           }
         }
       }
-      TipoContainer: {
-        payload: Prisma.$TipoContainerPayload<ExtArgs>
-        fields: Prisma.TipoContainerFieldRefs
+      Container: {
+        payload: Prisma.$ContainerPayload<ExtArgs>
+        fields: Prisma.ContainerFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.TipoContainerFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload> | null
+            args: Prisma.ContainerFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContainerPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.TipoContainerFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>
+            args: Prisma.ContainerFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContainerPayload>
           }
           findFirst: {
-            args: Prisma.TipoContainerFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload> | null
+            args: Prisma.ContainerFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContainerPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.TipoContainerFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>
+            args: Prisma.ContainerFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContainerPayload>
           }
           findMany: {
-            args: Prisma.TipoContainerFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>[]
+            args: Prisma.ContainerFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContainerPayload>[]
           }
           create: {
-            args: Prisma.TipoContainerCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>
+            args: Prisma.ContainerCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContainerPayload>
           }
           createMany: {
-            args: Prisma.TipoContainerCreateManyArgs<ExtArgs>
+            args: Prisma.ContainerCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.TipoContainerCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>[]
+            args: Prisma.ContainerCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContainerPayload>[]
           }
           delete: {
-            args: Prisma.TipoContainerDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>
+            args: Prisma.ContainerDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContainerPayload>
           }
           update: {
-            args: Prisma.TipoContainerUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>
+            args: Prisma.ContainerUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContainerPayload>
           }
           deleteMany: {
-            args: Prisma.TipoContainerDeleteManyArgs<ExtArgs>
+            args: Prisma.ContainerDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.TipoContainerUpdateManyArgs<ExtArgs>
+            args: Prisma.ContainerUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.TipoContainerUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>
+            args: Prisma.ContainerUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContainerPayload>
           }
           aggregate: {
-            args: Prisma.TipoContainerAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateTipoContainer>
+            args: Prisma.ContainerAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateContainer>
           }
           groupBy: {
-            args: Prisma.TipoContainerGroupByArgs<ExtArgs>
-            result: $Utils.Optional<TipoContainerGroupByOutputType>[]
+            args: Prisma.ContainerGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ContainerGroupByOutputType>[]
           }
           count: {
-            args: Prisma.TipoContainerCountArgs<ExtArgs>
-            result: $Utils.Optional<TipoContainerCountAggregateOutputType> | number
+            args: Prisma.ContainerCountArgs<ExtArgs>
+            result: $Utils.Optional<ContainerCountAggregateOutputType> | number
           }
         }
       }
@@ -1781,146 +1887,6 @@ export namespace Prisma {
           }
         }
       }
-      ExportadorQuandoImportacao: {
-        payload: Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>
-        fields: Prisma.ExportadorQuandoImportacaoFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.ExportadorQuandoImportacaoFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.ExportadorQuandoImportacaoFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>
-          }
-          findFirst: {
-            args: Prisma.ExportadorQuandoImportacaoFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.ExportadorQuandoImportacaoFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>
-          }
-          findMany: {
-            args: Prisma.ExportadorQuandoImportacaoFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>[]
-          }
-          create: {
-            args: Prisma.ExportadorQuandoImportacaoCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>
-          }
-          createMany: {
-            args: Prisma.ExportadorQuandoImportacaoCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.ExportadorQuandoImportacaoCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>[]
-          }
-          delete: {
-            args: Prisma.ExportadorQuandoImportacaoDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>
-          }
-          update: {
-            args: Prisma.ExportadorQuandoImportacaoUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>
-          }
-          deleteMany: {
-            args: Prisma.ExportadorQuandoImportacaoDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.ExportadorQuandoImportacaoUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.ExportadorQuandoImportacaoUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>
-          }
-          aggregate: {
-            args: Prisma.ExportadorQuandoImportacaoAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateExportadorQuandoImportacao>
-          }
-          groupBy: {
-            args: Prisma.ExportadorQuandoImportacaoGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ExportadorQuandoImportacaoGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.ExportadorQuandoImportacaoCountArgs<ExtArgs>
-            result: $Utils.Optional<ExportadorQuandoImportacaoCountAggregateOutputType> | number
-          }
-        }
-      }
-      ImportadorQuandoExportacao: {
-        payload: Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>
-        fields: Prisma.ImportadorQuandoExportacaoFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.ImportadorQuandoExportacaoFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.ImportadorQuandoExportacaoFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>
-          }
-          findFirst: {
-            args: Prisma.ImportadorQuandoExportacaoFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.ImportadorQuandoExportacaoFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>
-          }
-          findMany: {
-            args: Prisma.ImportadorQuandoExportacaoFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>[]
-          }
-          create: {
-            args: Prisma.ImportadorQuandoExportacaoCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>
-          }
-          createMany: {
-            args: Prisma.ImportadorQuandoExportacaoCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.ImportadorQuandoExportacaoCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>[]
-          }
-          delete: {
-            args: Prisma.ImportadorQuandoExportacaoDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>
-          }
-          update: {
-            args: Prisma.ImportadorQuandoExportacaoUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>
-          }
-          deleteMany: {
-            args: Prisma.ImportadorQuandoExportacaoDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.ImportadorQuandoExportacaoUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.ImportadorQuandoExportacaoUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>
-          }
-          aggregate: {
-            args: Prisma.ImportadorQuandoExportacaoAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateImportadorQuandoExportacao>
-          }
-          groupBy: {
-            args: Prisma.ImportadorQuandoExportacaoGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ImportadorQuandoExportacaoGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.ImportadorQuandoExportacaoCountArgs<ExtArgs>
-            result: $Utils.Optional<ImportadorQuandoExportacaoCountAggregateOutputType> | number
-          }
-        }
-      }
     }
   } & {
     other: {
@@ -2077,631 +2043,670 @@ export namespace Prisma {
    */
 
 
+  /**
+   * Count Type FornecedorCountOutputType
+   */
+
+  export type FornecedorCountOutputType = {
+    fornecedores_organizacao: number
+  }
+
+  export type FornecedorCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    fornecedores_organizacao?: boolean | FornecedorCountOutputTypeCountFornecedores_organizacaoArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * FornecedorCountOutputType without action
+   */
+  export type FornecedorCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorCountOutputType
+     */
+    select?: FornecedorCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * FornecedorCountOutputType without action
+   */
+  export type FornecedorCountOutputTypeCountFornecedores_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FornecedorOrganizacaoWhereInput
+  }
+
 
   /**
    * Models
    */
 
   /**
-   * Model Empresa
+   * Model Fornecedor
    */
 
-  export type AggregateEmpresa = {
-    _count: EmpresaCountAggregateOutputType | null
-    _min: EmpresaMinAggregateOutputType | null
-    _max: EmpresaMaxAggregateOutputType | null
+  export type AggregateFornecedor = {
+    _count: FornecedorCountAggregateOutputType | null
+    _min: FornecedorMinAggregateOutputType | null
+    _max: FornecedorMaxAggregateOutputType | null
   }
 
-  export type EmpresaMinAggregateOutputType = {
-    suid_empresa: string | null
-    id_organizacao_empresa: string | null
-    id_produto_empresa: string | null
-    id_usuario_empresa: string | null
-    nome_empresa: string | null
-    cnpj_empresa: string | null
-    tin_empresa: string | null
-    pais_empresa: string | null
-    estado_empresa: string | null
-    cidade_empresa: string | null
-    endereco_empresa: string | null
-    zipcode_empresa: string | null
-    email_empresa: string | null
-    telefone_empresa: string | null
-    whatsapp_empresa: string | null
-    pode_ser_importador_empresa: boolean | null
-    pode_ser_exportador_empresa: boolean | null
-    pode_ser_fabricante_empresa: boolean | null
-    pode_ser_agente_empresa: boolean | null
-    pode_ser_despachante_empresa: boolean | null
-    pode_ser_armador_empresa: boolean | null
-    pode_ser_armazem_alfandegado_empresa: boolean | null
-    pode_ser_transportadora_rodoviaria_nacional_empresa: boolean | null
-    pode_ser_cia_aerea_empresa: boolean | null
-    pode_ser_transportadora_rodoviaria_internacional_empresa: boolean | null
-    pode_ser_seguradora_internacional_empresa: boolean | null
-    pode_ser_seguradora_corretora_cambio_empresa: boolean | null
-    pode_ser_banco_empresa: boolean | null
-    pode_ser_armazem_nacional_empresa: boolean | null
-    ativo_empresa: boolean | null
-    criado_em_empresa: Date | null
-    atualizado_em_empresa: Date | null
+  export type FornecedorMinAggregateOutputType = {
+    id_fornecedor: string | null
+    id_organizacao_cadastro_fornecedor: string | null
+    id_produto_fornecedor: string | null
+    id_usuario_cadastro_fornecedor: string | null
+    nome_fornecedor: string | null
+    cnpj_fornecedor: string | null
+    tin_fornecedor: string | null
+    pais_fornecedor: string | null
+    estado_provincia_fornecedor: string | null
+    cidade_fornecedor: string | null
+    endereco_fornecedor: string | null
+    cep_zipcode_fornecedor: string | null
+    email_principal_fornecedor: string | null
+    telefone_principal_fornecedor: string | null
+    whatsapp_principal_fornecedor: string | null
+    pode_ser_importador_fornecedor: boolean | null
+    pode_ser_exportador_fornecedor: boolean | null
+    pode_ser_fabricante_fornecedor: boolean | null
+    pode_ser_agente_fornecedor: boolean | null
+    pode_ser_despachante_fornecedor: boolean | null
+    pode_ser_armador_fornecedor: boolean | null
+    pode_ser_armazem_alfandegado_fornecedor: boolean | null
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor: boolean | null
+    pode_ser_cia_aerea_fornecedor: boolean | null
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor: boolean | null
+    pode_ser_seguradora_internacional_fornecedor: boolean | null
+    pode_ser_seguradora_corretora_cambio_fornecedor: boolean | null
+    pode_ser_banco_fornecedor: boolean | null
+    pode_ser_armazem_nacional_fornecedor: boolean | null
+    ativo_fornecedor: boolean | null
+    criado_em_fornecedor: Date | null
+    atualizado_em_fornecedor: Date | null
   }
 
-  export type EmpresaMaxAggregateOutputType = {
-    suid_empresa: string | null
-    id_organizacao_empresa: string | null
-    id_produto_empresa: string | null
-    id_usuario_empresa: string | null
-    nome_empresa: string | null
-    cnpj_empresa: string | null
-    tin_empresa: string | null
-    pais_empresa: string | null
-    estado_empresa: string | null
-    cidade_empresa: string | null
-    endereco_empresa: string | null
-    zipcode_empresa: string | null
-    email_empresa: string | null
-    telefone_empresa: string | null
-    whatsapp_empresa: string | null
-    pode_ser_importador_empresa: boolean | null
-    pode_ser_exportador_empresa: boolean | null
-    pode_ser_fabricante_empresa: boolean | null
-    pode_ser_agente_empresa: boolean | null
-    pode_ser_despachante_empresa: boolean | null
-    pode_ser_armador_empresa: boolean | null
-    pode_ser_armazem_alfandegado_empresa: boolean | null
-    pode_ser_transportadora_rodoviaria_nacional_empresa: boolean | null
-    pode_ser_cia_aerea_empresa: boolean | null
-    pode_ser_transportadora_rodoviaria_internacional_empresa: boolean | null
-    pode_ser_seguradora_internacional_empresa: boolean | null
-    pode_ser_seguradora_corretora_cambio_empresa: boolean | null
-    pode_ser_banco_empresa: boolean | null
-    pode_ser_armazem_nacional_empresa: boolean | null
-    ativo_empresa: boolean | null
-    criado_em_empresa: Date | null
-    atualizado_em_empresa: Date | null
+  export type FornecedorMaxAggregateOutputType = {
+    id_fornecedor: string | null
+    id_organizacao_cadastro_fornecedor: string | null
+    id_produto_fornecedor: string | null
+    id_usuario_cadastro_fornecedor: string | null
+    nome_fornecedor: string | null
+    cnpj_fornecedor: string | null
+    tin_fornecedor: string | null
+    pais_fornecedor: string | null
+    estado_provincia_fornecedor: string | null
+    cidade_fornecedor: string | null
+    endereco_fornecedor: string | null
+    cep_zipcode_fornecedor: string | null
+    email_principal_fornecedor: string | null
+    telefone_principal_fornecedor: string | null
+    whatsapp_principal_fornecedor: string | null
+    pode_ser_importador_fornecedor: boolean | null
+    pode_ser_exportador_fornecedor: boolean | null
+    pode_ser_fabricante_fornecedor: boolean | null
+    pode_ser_agente_fornecedor: boolean | null
+    pode_ser_despachante_fornecedor: boolean | null
+    pode_ser_armador_fornecedor: boolean | null
+    pode_ser_armazem_alfandegado_fornecedor: boolean | null
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor: boolean | null
+    pode_ser_cia_aerea_fornecedor: boolean | null
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor: boolean | null
+    pode_ser_seguradora_internacional_fornecedor: boolean | null
+    pode_ser_seguradora_corretora_cambio_fornecedor: boolean | null
+    pode_ser_banco_fornecedor: boolean | null
+    pode_ser_armazem_nacional_fornecedor: boolean | null
+    ativo_fornecedor: boolean | null
+    criado_em_fornecedor: Date | null
+    atualizado_em_fornecedor: Date | null
   }
 
-  export type EmpresaCountAggregateOutputType = {
-    suid_empresa: number
-    id_organizacao_empresa: number
-    id_produto_empresa: number
-    id_usuario_empresa: number
-    nome_empresa: number
-    cnpj_empresa: number
-    tin_empresa: number
-    pais_empresa: number
-    estado_empresa: number
-    cidade_empresa: number
-    endereco_empresa: number
-    zipcode_empresa: number
-    email_empresa: number
-    telefone_empresa: number
-    whatsapp_empresa: number
-    pode_ser_importador_empresa: number
-    pode_ser_exportador_empresa: number
-    pode_ser_fabricante_empresa: number
-    pode_ser_agente_empresa: number
-    pode_ser_despachante_empresa: number
-    pode_ser_armador_empresa: number
-    pode_ser_armazem_alfandegado_empresa: number
-    pode_ser_transportadora_rodoviaria_nacional_empresa: number
-    pode_ser_cia_aerea_empresa: number
-    pode_ser_transportadora_rodoviaria_internacional_empresa: number
-    pode_ser_seguradora_internacional_empresa: number
-    pode_ser_seguradora_corretora_cambio_empresa: number
-    pode_ser_banco_empresa: number
-    pode_ser_armazem_nacional_empresa: number
-    ativo_empresa: number
-    criado_em_empresa: number
-    atualizado_em_empresa: number
+  export type FornecedorCountAggregateOutputType = {
+    id_fornecedor: number
+    id_organizacao_cadastro_fornecedor: number
+    id_produto_fornecedor: number
+    id_usuario_cadastro_fornecedor: number
+    nome_fornecedor: number
+    cnpj_fornecedor: number
+    tin_fornecedor: number
+    pais_fornecedor: number
+    estado_provincia_fornecedor: number
+    cidade_fornecedor: number
+    endereco_fornecedor: number
+    cep_zipcode_fornecedor: number
+    email_principal_fornecedor: number
+    telefone_principal_fornecedor: number
+    whatsapp_principal_fornecedor: number
+    pode_ser_importador_fornecedor: number
+    pode_ser_exportador_fornecedor: number
+    pode_ser_fabricante_fornecedor: number
+    pode_ser_agente_fornecedor: number
+    pode_ser_despachante_fornecedor: number
+    pode_ser_armador_fornecedor: number
+    pode_ser_armazem_alfandegado_fornecedor: number
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor: number
+    pode_ser_cia_aerea_fornecedor: number
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor: number
+    pode_ser_seguradora_internacional_fornecedor: number
+    pode_ser_seguradora_corretora_cambio_fornecedor: number
+    pode_ser_banco_fornecedor: number
+    pode_ser_armazem_nacional_fornecedor: number
+    ativo_fornecedor: number
+    criado_em_fornecedor: number
+    atualizado_em_fornecedor: number
     _all: number
   }
 
 
-  export type EmpresaMinAggregateInputType = {
-    suid_empresa?: true
-    id_organizacao_empresa?: true
-    id_produto_empresa?: true
-    id_usuario_empresa?: true
-    nome_empresa?: true
-    cnpj_empresa?: true
-    tin_empresa?: true
-    pais_empresa?: true
-    estado_empresa?: true
-    cidade_empresa?: true
-    endereco_empresa?: true
-    zipcode_empresa?: true
-    email_empresa?: true
-    telefone_empresa?: true
-    whatsapp_empresa?: true
-    pode_ser_importador_empresa?: true
-    pode_ser_exportador_empresa?: true
-    pode_ser_fabricante_empresa?: true
-    pode_ser_agente_empresa?: true
-    pode_ser_despachante_empresa?: true
-    pode_ser_armador_empresa?: true
-    pode_ser_armazem_alfandegado_empresa?: true
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: true
-    pode_ser_cia_aerea_empresa?: true
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: true
-    pode_ser_seguradora_internacional_empresa?: true
-    pode_ser_seguradora_corretora_cambio_empresa?: true
-    pode_ser_banco_empresa?: true
-    pode_ser_armazem_nacional_empresa?: true
-    ativo_empresa?: true
-    criado_em_empresa?: true
-    atualizado_em_empresa?: true
+  export type FornecedorMinAggregateInputType = {
+    id_fornecedor?: true
+    id_organizacao_cadastro_fornecedor?: true
+    id_produto_fornecedor?: true
+    id_usuario_cadastro_fornecedor?: true
+    nome_fornecedor?: true
+    cnpj_fornecedor?: true
+    tin_fornecedor?: true
+    pais_fornecedor?: true
+    estado_provincia_fornecedor?: true
+    cidade_fornecedor?: true
+    endereco_fornecedor?: true
+    cep_zipcode_fornecedor?: true
+    email_principal_fornecedor?: true
+    telefone_principal_fornecedor?: true
+    whatsapp_principal_fornecedor?: true
+    pode_ser_importador_fornecedor?: true
+    pode_ser_exportador_fornecedor?: true
+    pode_ser_fabricante_fornecedor?: true
+    pode_ser_agente_fornecedor?: true
+    pode_ser_despachante_fornecedor?: true
+    pode_ser_armador_fornecedor?: true
+    pode_ser_armazem_alfandegado_fornecedor?: true
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: true
+    pode_ser_cia_aerea_fornecedor?: true
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: true
+    pode_ser_seguradora_internacional_fornecedor?: true
+    pode_ser_seguradora_corretora_cambio_fornecedor?: true
+    pode_ser_banco_fornecedor?: true
+    pode_ser_armazem_nacional_fornecedor?: true
+    ativo_fornecedor?: true
+    criado_em_fornecedor?: true
+    atualizado_em_fornecedor?: true
   }
 
-  export type EmpresaMaxAggregateInputType = {
-    suid_empresa?: true
-    id_organizacao_empresa?: true
-    id_produto_empresa?: true
-    id_usuario_empresa?: true
-    nome_empresa?: true
-    cnpj_empresa?: true
-    tin_empresa?: true
-    pais_empresa?: true
-    estado_empresa?: true
-    cidade_empresa?: true
-    endereco_empresa?: true
-    zipcode_empresa?: true
-    email_empresa?: true
-    telefone_empresa?: true
-    whatsapp_empresa?: true
-    pode_ser_importador_empresa?: true
-    pode_ser_exportador_empresa?: true
-    pode_ser_fabricante_empresa?: true
-    pode_ser_agente_empresa?: true
-    pode_ser_despachante_empresa?: true
-    pode_ser_armador_empresa?: true
-    pode_ser_armazem_alfandegado_empresa?: true
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: true
-    pode_ser_cia_aerea_empresa?: true
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: true
-    pode_ser_seguradora_internacional_empresa?: true
-    pode_ser_seguradora_corretora_cambio_empresa?: true
-    pode_ser_banco_empresa?: true
-    pode_ser_armazem_nacional_empresa?: true
-    ativo_empresa?: true
-    criado_em_empresa?: true
-    atualizado_em_empresa?: true
+  export type FornecedorMaxAggregateInputType = {
+    id_fornecedor?: true
+    id_organizacao_cadastro_fornecedor?: true
+    id_produto_fornecedor?: true
+    id_usuario_cadastro_fornecedor?: true
+    nome_fornecedor?: true
+    cnpj_fornecedor?: true
+    tin_fornecedor?: true
+    pais_fornecedor?: true
+    estado_provincia_fornecedor?: true
+    cidade_fornecedor?: true
+    endereco_fornecedor?: true
+    cep_zipcode_fornecedor?: true
+    email_principal_fornecedor?: true
+    telefone_principal_fornecedor?: true
+    whatsapp_principal_fornecedor?: true
+    pode_ser_importador_fornecedor?: true
+    pode_ser_exportador_fornecedor?: true
+    pode_ser_fabricante_fornecedor?: true
+    pode_ser_agente_fornecedor?: true
+    pode_ser_despachante_fornecedor?: true
+    pode_ser_armador_fornecedor?: true
+    pode_ser_armazem_alfandegado_fornecedor?: true
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: true
+    pode_ser_cia_aerea_fornecedor?: true
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: true
+    pode_ser_seguradora_internacional_fornecedor?: true
+    pode_ser_seguradora_corretora_cambio_fornecedor?: true
+    pode_ser_banco_fornecedor?: true
+    pode_ser_armazem_nacional_fornecedor?: true
+    ativo_fornecedor?: true
+    criado_em_fornecedor?: true
+    atualizado_em_fornecedor?: true
   }
 
-  export type EmpresaCountAggregateInputType = {
-    suid_empresa?: true
-    id_organizacao_empresa?: true
-    id_produto_empresa?: true
-    id_usuario_empresa?: true
-    nome_empresa?: true
-    cnpj_empresa?: true
-    tin_empresa?: true
-    pais_empresa?: true
-    estado_empresa?: true
-    cidade_empresa?: true
-    endereco_empresa?: true
-    zipcode_empresa?: true
-    email_empresa?: true
-    telefone_empresa?: true
-    whatsapp_empresa?: true
-    pode_ser_importador_empresa?: true
-    pode_ser_exportador_empresa?: true
-    pode_ser_fabricante_empresa?: true
-    pode_ser_agente_empresa?: true
-    pode_ser_despachante_empresa?: true
-    pode_ser_armador_empresa?: true
-    pode_ser_armazem_alfandegado_empresa?: true
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: true
-    pode_ser_cia_aerea_empresa?: true
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: true
-    pode_ser_seguradora_internacional_empresa?: true
-    pode_ser_seguradora_corretora_cambio_empresa?: true
-    pode_ser_banco_empresa?: true
-    pode_ser_armazem_nacional_empresa?: true
-    ativo_empresa?: true
-    criado_em_empresa?: true
-    atualizado_em_empresa?: true
+  export type FornecedorCountAggregateInputType = {
+    id_fornecedor?: true
+    id_organizacao_cadastro_fornecedor?: true
+    id_produto_fornecedor?: true
+    id_usuario_cadastro_fornecedor?: true
+    nome_fornecedor?: true
+    cnpj_fornecedor?: true
+    tin_fornecedor?: true
+    pais_fornecedor?: true
+    estado_provincia_fornecedor?: true
+    cidade_fornecedor?: true
+    endereco_fornecedor?: true
+    cep_zipcode_fornecedor?: true
+    email_principal_fornecedor?: true
+    telefone_principal_fornecedor?: true
+    whatsapp_principal_fornecedor?: true
+    pode_ser_importador_fornecedor?: true
+    pode_ser_exportador_fornecedor?: true
+    pode_ser_fabricante_fornecedor?: true
+    pode_ser_agente_fornecedor?: true
+    pode_ser_despachante_fornecedor?: true
+    pode_ser_armador_fornecedor?: true
+    pode_ser_armazem_alfandegado_fornecedor?: true
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: true
+    pode_ser_cia_aerea_fornecedor?: true
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: true
+    pode_ser_seguradora_internacional_fornecedor?: true
+    pode_ser_seguradora_corretora_cambio_fornecedor?: true
+    pode_ser_banco_fornecedor?: true
+    pode_ser_armazem_nacional_fornecedor?: true
+    ativo_fornecedor?: true
+    criado_em_fornecedor?: true
+    atualizado_em_fornecedor?: true
     _all?: true
   }
 
-  export type EmpresaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Empresa to aggregate.
+     * Filter which Fornecedor to aggregate.
      */
-    where?: EmpresaWhereInput
+    where?: FornecedorWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Empresas to fetch.
+     * Determine the order of Fornecedors to fetch.
      */
-    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
+    orderBy?: FornecedorOrderByWithRelationInput | FornecedorOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: EmpresaWhereUniqueInput
+    cursor?: FornecedorWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Empresas from the position of the cursor.
+     * Take `±n` Fornecedors from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Empresas.
+     * Skip the first `n` Fornecedors.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned Empresas
+     * Count returned Fornecedors
     **/
-    _count?: true | EmpresaCountAggregateInputType
+    _count?: true | FornecedorCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: EmpresaMinAggregateInputType
+    _min?: FornecedorMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: EmpresaMaxAggregateInputType
+    _max?: FornecedorMaxAggregateInputType
   }
 
-  export type GetEmpresaAggregateType<T extends EmpresaAggregateArgs> = {
-        [P in keyof T & keyof AggregateEmpresa]: P extends '_count' | 'count'
+  export type GetFornecedorAggregateType<T extends FornecedorAggregateArgs> = {
+        [P in keyof T & keyof AggregateFornecedor]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateEmpresa[P]>
-      : GetScalarType<T[P], AggregateEmpresa[P]>
+        : GetScalarType<T[P], AggregateFornecedor[P]>
+      : GetScalarType<T[P], AggregateFornecedor[P]>
   }
 
 
 
 
-  export type EmpresaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: EmpresaWhereInput
-    orderBy?: EmpresaOrderByWithAggregationInput | EmpresaOrderByWithAggregationInput[]
-    by: EmpresaScalarFieldEnum[] | EmpresaScalarFieldEnum
-    having?: EmpresaScalarWhereWithAggregatesInput
+  export type FornecedorGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FornecedorWhereInput
+    orderBy?: FornecedorOrderByWithAggregationInput | FornecedorOrderByWithAggregationInput[]
+    by: FornecedorScalarFieldEnum[] | FornecedorScalarFieldEnum
+    having?: FornecedorScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: EmpresaCountAggregateInputType | true
-    _min?: EmpresaMinAggregateInputType
-    _max?: EmpresaMaxAggregateInputType
+    _count?: FornecedorCountAggregateInputType | true
+    _min?: FornecedorMinAggregateInputType
+    _max?: FornecedorMaxAggregateInputType
   }
 
-  export type EmpresaGroupByOutputType = {
-    suid_empresa: string
-    id_organizacao_empresa: string
-    id_produto_empresa: string | null
-    id_usuario_empresa: string | null
-    nome_empresa: string
-    cnpj_empresa: string | null
-    tin_empresa: string | null
-    pais_empresa: string
-    estado_empresa: string | null
-    cidade_empresa: string | null
-    endereco_empresa: string | null
-    zipcode_empresa: string | null
-    email_empresa: string | null
-    telefone_empresa: string | null
-    whatsapp_empresa: string | null
-    pode_ser_importador_empresa: boolean
-    pode_ser_exportador_empresa: boolean
-    pode_ser_fabricante_empresa: boolean
-    pode_ser_agente_empresa: boolean
-    pode_ser_despachante_empresa: boolean
-    pode_ser_armador_empresa: boolean
-    pode_ser_armazem_alfandegado_empresa: boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa: boolean
-    pode_ser_cia_aerea_empresa: boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa: boolean
-    pode_ser_seguradora_internacional_empresa: boolean
-    pode_ser_seguradora_corretora_cambio_empresa: boolean
-    pode_ser_banco_empresa: boolean
-    pode_ser_armazem_nacional_empresa: boolean
-    ativo_empresa: boolean
-    criado_em_empresa: Date
-    atualizado_em_empresa: Date
-    _count: EmpresaCountAggregateOutputType | null
-    _min: EmpresaMinAggregateOutputType | null
-    _max: EmpresaMaxAggregateOutputType | null
+  export type FornecedorGroupByOutputType = {
+    id_fornecedor: string
+    id_organizacao_cadastro_fornecedor: string
+    id_produto_fornecedor: string | null
+    id_usuario_cadastro_fornecedor: string | null
+    nome_fornecedor: string
+    cnpj_fornecedor: string | null
+    tin_fornecedor: string | null
+    pais_fornecedor: string
+    estado_provincia_fornecedor: string | null
+    cidade_fornecedor: string | null
+    endereco_fornecedor: string | null
+    cep_zipcode_fornecedor: string | null
+    email_principal_fornecedor: string | null
+    telefone_principal_fornecedor: string | null
+    whatsapp_principal_fornecedor: string | null
+    pode_ser_importador_fornecedor: boolean
+    pode_ser_exportador_fornecedor: boolean
+    pode_ser_fabricante_fornecedor: boolean
+    pode_ser_agente_fornecedor: boolean
+    pode_ser_despachante_fornecedor: boolean
+    pode_ser_armador_fornecedor: boolean
+    pode_ser_armazem_alfandegado_fornecedor: boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor: boolean
+    pode_ser_cia_aerea_fornecedor: boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor: boolean
+    pode_ser_seguradora_internacional_fornecedor: boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor: boolean
+    pode_ser_banco_fornecedor: boolean
+    pode_ser_armazem_nacional_fornecedor: boolean
+    ativo_fornecedor: boolean
+    criado_em_fornecedor: Date
+    atualizado_em_fornecedor: Date
+    _count: FornecedorCountAggregateOutputType | null
+    _min: FornecedorMinAggregateOutputType | null
+    _max: FornecedorMaxAggregateOutputType | null
   }
 
-  type GetEmpresaGroupByPayload<T extends EmpresaGroupByArgs> = Prisma.PrismaPromise<
+  type GetFornecedorGroupByPayload<T extends FornecedorGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<EmpresaGroupByOutputType, T['by']> &
+      PickEnumerable<FornecedorGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof EmpresaGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof FornecedorGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], EmpresaGroupByOutputType[P]>
-            : GetScalarType<T[P], EmpresaGroupByOutputType[P]>
+              : GetScalarType<T[P], FornecedorGroupByOutputType[P]>
+            : GetScalarType<T[P], FornecedorGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type EmpresaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    suid_empresa?: boolean
-    id_organizacao_empresa?: boolean
-    id_produto_empresa?: boolean
-    id_usuario_empresa?: boolean
-    nome_empresa?: boolean
-    cnpj_empresa?: boolean
-    tin_empresa?: boolean
-    pais_empresa?: boolean
-    estado_empresa?: boolean
-    cidade_empresa?: boolean
-    endereco_empresa?: boolean
-    zipcode_empresa?: boolean
-    email_empresa?: boolean
-    telefone_empresa?: boolean
-    whatsapp_empresa?: boolean
-    pode_ser_importador_empresa?: boolean
-    pode_ser_exportador_empresa?: boolean
-    pode_ser_fabricante_empresa?: boolean
-    pode_ser_agente_empresa?: boolean
-    pode_ser_despachante_empresa?: boolean
-    pode_ser_armador_empresa?: boolean
-    pode_ser_armazem_alfandegado_empresa?: boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
-    pode_ser_cia_aerea_empresa?: boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
-    pode_ser_seguradora_internacional_empresa?: boolean
-    pode_ser_seguradora_corretora_cambio_empresa?: boolean
-    pode_ser_banco_empresa?: boolean
-    pode_ser_armazem_nacional_empresa?: boolean
-    ativo_empresa?: boolean
-    criado_em_empresa?: boolean
-    atualizado_em_empresa?: boolean
-  }, ExtArgs["result"]["empresa"]>
+  export type FornecedorSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_fornecedor?: boolean
+    id_organizacao_cadastro_fornecedor?: boolean
+    id_produto_fornecedor?: boolean
+    id_usuario_cadastro_fornecedor?: boolean
+    nome_fornecedor?: boolean
+    cnpj_fornecedor?: boolean
+    tin_fornecedor?: boolean
+    pais_fornecedor?: boolean
+    estado_provincia_fornecedor?: boolean
+    cidade_fornecedor?: boolean
+    endereco_fornecedor?: boolean
+    cep_zipcode_fornecedor?: boolean
+    email_principal_fornecedor?: boolean
+    telefone_principal_fornecedor?: boolean
+    whatsapp_principal_fornecedor?: boolean
+    pode_ser_importador_fornecedor?: boolean
+    pode_ser_exportador_fornecedor?: boolean
+    pode_ser_fabricante_fornecedor?: boolean
+    pode_ser_agente_fornecedor?: boolean
+    pode_ser_despachante_fornecedor?: boolean
+    pode_ser_armador_fornecedor?: boolean
+    pode_ser_armazem_alfandegado_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: boolean
+    pode_ser_cia_aerea_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: boolean
+    pode_ser_seguradora_internacional_fornecedor?: boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: boolean
+    pode_ser_banco_fornecedor?: boolean
+    pode_ser_armazem_nacional_fornecedor?: boolean
+    ativo_fornecedor?: boolean
+    criado_em_fornecedor?: boolean
+    atualizado_em_fornecedor?: boolean
+    fornecedores_organizacao?: boolean | Fornecedor$fornecedores_organizacaoArgs<ExtArgs>
+    _count?: boolean | FornecedorCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["fornecedor"]>
 
-  export type EmpresaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    suid_empresa?: boolean
-    id_organizacao_empresa?: boolean
-    id_produto_empresa?: boolean
-    id_usuario_empresa?: boolean
-    nome_empresa?: boolean
-    cnpj_empresa?: boolean
-    tin_empresa?: boolean
-    pais_empresa?: boolean
-    estado_empresa?: boolean
-    cidade_empresa?: boolean
-    endereco_empresa?: boolean
-    zipcode_empresa?: boolean
-    email_empresa?: boolean
-    telefone_empresa?: boolean
-    whatsapp_empresa?: boolean
-    pode_ser_importador_empresa?: boolean
-    pode_ser_exportador_empresa?: boolean
-    pode_ser_fabricante_empresa?: boolean
-    pode_ser_agente_empresa?: boolean
-    pode_ser_despachante_empresa?: boolean
-    pode_ser_armador_empresa?: boolean
-    pode_ser_armazem_alfandegado_empresa?: boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
-    pode_ser_cia_aerea_empresa?: boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
-    pode_ser_seguradora_internacional_empresa?: boolean
-    pode_ser_seguradora_corretora_cambio_empresa?: boolean
-    pode_ser_banco_empresa?: boolean
-    pode_ser_armazem_nacional_empresa?: boolean
-    ativo_empresa?: boolean
-    criado_em_empresa?: boolean
-    atualizado_em_empresa?: boolean
-  }, ExtArgs["result"]["empresa"]>
+  export type FornecedorSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_fornecedor?: boolean
+    id_organizacao_cadastro_fornecedor?: boolean
+    id_produto_fornecedor?: boolean
+    id_usuario_cadastro_fornecedor?: boolean
+    nome_fornecedor?: boolean
+    cnpj_fornecedor?: boolean
+    tin_fornecedor?: boolean
+    pais_fornecedor?: boolean
+    estado_provincia_fornecedor?: boolean
+    cidade_fornecedor?: boolean
+    endereco_fornecedor?: boolean
+    cep_zipcode_fornecedor?: boolean
+    email_principal_fornecedor?: boolean
+    telefone_principal_fornecedor?: boolean
+    whatsapp_principal_fornecedor?: boolean
+    pode_ser_importador_fornecedor?: boolean
+    pode_ser_exportador_fornecedor?: boolean
+    pode_ser_fabricante_fornecedor?: boolean
+    pode_ser_agente_fornecedor?: boolean
+    pode_ser_despachante_fornecedor?: boolean
+    pode_ser_armador_fornecedor?: boolean
+    pode_ser_armazem_alfandegado_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: boolean
+    pode_ser_cia_aerea_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: boolean
+    pode_ser_seguradora_internacional_fornecedor?: boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: boolean
+    pode_ser_banco_fornecedor?: boolean
+    pode_ser_armazem_nacional_fornecedor?: boolean
+    ativo_fornecedor?: boolean
+    criado_em_fornecedor?: boolean
+    atualizado_em_fornecedor?: boolean
+  }, ExtArgs["result"]["fornecedor"]>
 
-  export type EmpresaSelectScalar = {
-    suid_empresa?: boolean
-    id_organizacao_empresa?: boolean
-    id_produto_empresa?: boolean
-    id_usuario_empresa?: boolean
-    nome_empresa?: boolean
-    cnpj_empresa?: boolean
-    tin_empresa?: boolean
-    pais_empresa?: boolean
-    estado_empresa?: boolean
-    cidade_empresa?: boolean
-    endereco_empresa?: boolean
-    zipcode_empresa?: boolean
-    email_empresa?: boolean
-    telefone_empresa?: boolean
-    whatsapp_empresa?: boolean
-    pode_ser_importador_empresa?: boolean
-    pode_ser_exportador_empresa?: boolean
-    pode_ser_fabricante_empresa?: boolean
-    pode_ser_agente_empresa?: boolean
-    pode_ser_despachante_empresa?: boolean
-    pode_ser_armador_empresa?: boolean
-    pode_ser_armazem_alfandegado_empresa?: boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
-    pode_ser_cia_aerea_empresa?: boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
-    pode_ser_seguradora_internacional_empresa?: boolean
-    pode_ser_seguradora_corretora_cambio_empresa?: boolean
-    pode_ser_banco_empresa?: boolean
-    pode_ser_armazem_nacional_empresa?: boolean
-    ativo_empresa?: boolean
-    criado_em_empresa?: boolean
-    atualizado_em_empresa?: boolean
+  export type FornecedorSelectScalar = {
+    id_fornecedor?: boolean
+    id_organizacao_cadastro_fornecedor?: boolean
+    id_produto_fornecedor?: boolean
+    id_usuario_cadastro_fornecedor?: boolean
+    nome_fornecedor?: boolean
+    cnpj_fornecedor?: boolean
+    tin_fornecedor?: boolean
+    pais_fornecedor?: boolean
+    estado_provincia_fornecedor?: boolean
+    cidade_fornecedor?: boolean
+    endereco_fornecedor?: boolean
+    cep_zipcode_fornecedor?: boolean
+    email_principal_fornecedor?: boolean
+    telefone_principal_fornecedor?: boolean
+    whatsapp_principal_fornecedor?: boolean
+    pode_ser_importador_fornecedor?: boolean
+    pode_ser_exportador_fornecedor?: boolean
+    pode_ser_fabricante_fornecedor?: boolean
+    pode_ser_agente_fornecedor?: boolean
+    pode_ser_despachante_fornecedor?: boolean
+    pode_ser_armador_fornecedor?: boolean
+    pode_ser_armazem_alfandegado_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: boolean
+    pode_ser_cia_aerea_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: boolean
+    pode_ser_seguradora_internacional_fornecedor?: boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: boolean
+    pode_ser_banco_fornecedor?: boolean
+    pode_ser_armazem_nacional_fornecedor?: boolean
+    ativo_fornecedor?: boolean
+    criado_em_fornecedor?: boolean
+    atualizado_em_fornecedor?: boolean
   }
 
+  export type FornecedorInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    fornecedores_organizacao?: boolean | Fornecedor$fornecedores_organizacaoArgs<ExtArgs>
+    _count?: boolean | FornecedorCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type FornecedorIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
-  export type $EmpresaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Empresa"
-    objects: {}
+  export type $FornecedorPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Fornecedor"
+    objects: {
+      fornecedores_organizacao: Prisma.$FornecedorOrganizacaoPayload<ExtArgs>[]
+    }
     scalars: $Extensions.GetPayloadResult<{
-      suid_empresa: string
-      id_organizacao_empresa: string
-      id_produto_empresa: string | null
-      id_usuario_empresa: string | null
-      nome_empresa: string
-      cnpj_empresa: string | null
-      tin_empresa: string | null
-      pais_empresa: string
-      estado_empresa: string | null
-      cidade_empresa: string | null
-      endereco_empresa: string | null
-      zipcode_empresa: string | null
-      email_empresa: string | null
-      telefone_empresa: string | null
-      whatsapp_empresa: string | null
-      pode_ser_importador_empresa: boolean
-      pode_ser_exportador_empresa: boolean
-      pode_ser_fabricante_empresa: boolean
-      pode_ser_agente_empresa: boolean
-      pode_ser_despachante_empresa: boolean
-      pode_ser_armador_empresa: boolean
-      pode_ser_armazem_alfandegado_empresa: boolean
-      pode_ser_transportadora_rodoviaria_nacional_empresa: boolean
-      pode_ser_cia_aerea_empresa: boolean
-      pode_ser_transportadora_rodoviaria_internacional_empresa: boolean
-      pode_ser_seguradora_internacional_empresa: boolean
-      pode_ser_seguradora_corretora_cambio_empresa: boolean
-      pode_ser_banco_empresa: boolean
-      pode_ser_armazem_nacional_empresa: boolean
-      ativo_empresa: boolean
-      criado_em_empresa: Date
-      atualizado_em_empresa: Date
-    }, ExtArgs["result"]["empresa"]>
+      id_fornecedor: string
+      id_organizacao_cadastro_fornecedor: string
+      id_produto_fornecedor: string | null
+      id_usuario_cadastro_fornecedor: string | null
+      nome_fornecedor: string
+      cnpj_fornecedor: string | null
+      tin_fornecedor: string | null
+      pais_fornecedor: string
+      estado_provincia_fornecedor: string | null
+      cidade_fornecedor: string | null
+      endereco_fornecedor: string | null
+      cep_zipcode_fornecedor: string | null
+      email_principal_fornecedor: string | null
+      telefone_principal_fornecedor: string | null
+      whatsapp_principal_fornecedor: string | null
+      pode_ser_importador_fornecedor: boolean
+      pode_ser_exportador_fornecedor: boolean
+      pode_ser_fabricante_fornecedor: boolean
+      pode_ser_agente_fornecedor: boolean
+      pode_ser_despachante_fornecedor: boolean
+      pode_ser_armador_fornecedor: boolean
+      pode_ser_armazem_alfandegado_fornecedor: boolean
+      pode_ser_transportadora_rodoviaria_nacional_fornecedor: boolean
+      pode_ser_cia_aerea_fornecedor: boolean
+      pode_ser_transportadora_rodoviaria_internacional_fornecedor: boolean
+      pode_ser_seguradora_internacional_fornecedor: boolean
+      pode_ser_seguradora_corretora_cambio_fornecedor: boolean
+      pode_ser_banco_fornecedor: boolean
+      pode_ser_armazem_nacional_fornecedor: boolean
+      ativo_fornecedor: boolean
+      criado_em_fornecedor: Date
+      atualizado_em_fornecedor: Date
+    }, ExtArgs["result"]["fornecedor"]>
     composites: {}
   }
 
-  type EmpresaGetPayload<S extends boolean | null | undefined | EmpresaDefaultArgs> = $Result.GetResult<Prisma.$EmpresaPayload, S>
+  type FornecedorGetPayload<S extends boolean | null | undefined | FornecedorDefaultArgs> = $Result.GetResult<Prisma.$FornecedorPayload, S>
 
-  type EmpresaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<EmpresaFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: EmpresaCountAggregateInputType | true
+  type FornecedorCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<FornecedorFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: FornecedorCountAggregateInputType | true
     }
 
-  export interface EmpresaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Empresa'], meta: { name: 'Empresa' } }
+  export interface FornecedorDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Fornecedor'], meta: { name: 'Fornecedor' } }
     /**
-     * Find zero or one Empresa that matches the filter.
-     * @param {EmpresaFindUniqueArgs} args - Arguments to find a Empresa
+     * Find zero or one Fornecedor that matches the filter.
+     * @param {FornecedorFindUniqueArgs} args - Arguments to find a Fornecedor
      * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findUnique({
+     * // Get one Fornecedor
+     * const fornecedor = await prisma.fornecedor.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends EmpresaFindUniqueArgs>(args: SelectSubset<T, EmpresaFindUniqueArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends FornecedorFindUniqueArgs>(args: SelectSubset<T, FornecedorFindUniqueArgs<ExtArgs>>): Prisma__FornecedorClient<$Result.GetResult<Prisma.$FornecedorPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Empresa that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one Fornecedor that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {EmpresaFindUniqueOrThrowArgs} args - Arguments to find a Empresa
+     * @param {FornecedorFindUniqueOrThrowArgs} args - Arguments to find a Fornecedor
      * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findUniqueOrThrow({
+     * // Get one Fornecedor
+     * const fornecedor = await prisma.fornecedor.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends EmpresaFindUniqueOrThrowArgs>(args: SelectSubset<T, EmpresaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends FornecedorFindUniqueOrThrowArgs>(args: SelectSubset<T, FornecedorFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FornecedorClient<$Result.GetResult<Prisma.$FornecedorPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first Empresa that matches the filter.
+     * Find the first Fornecedor that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaFindFirstArgs} args - Arguments to find a Empresa
+     * @param {FornecedorFindFirstArgs} args - Arguments to find a Fornecedor
      * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findFirst({
+     * // Get one Fornecedor
+     * const fornecedor = await prisma.fornecedor.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends EmpresaFindFirstArgs>(args?: SelectSubset<T, EmpresaFindFirstArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends FornecedorFindFirstArgs>(args?: SelectSubset<T, FornecedorFindFirstArgs<ExtArgs>>): Prisma__FornecedorClient<$Result.GetResult<Prisma.$FornecedorPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first Empresa that matches the filter or
+     * Find the first Fornecedor that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaFindFirstOrThrowArgs} args - Arguments to find a Empresa
+     * @param {FornecedorFindFirstOrThrowArgs} args - Arguments to find a Fornecedor
      * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findFirstOrThrow({
+     * // Get one Fornecedor
+     * const fornecedor = await prisma.fornecedor.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends EmpresaFindFirstOrThrowArgs>(args?: SelectSubset<T, EmpresaFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends FornecedorFindFirstOrThrowArgs>(args?: SelectSubset<T, FornecedorFindFirstOrThrowArgs<ExtArgs>>): Prisma__FornecedorClient<$Result.GetResult<Prisma.$FornecedorPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more Empresas that matches the filter.
+     * Find zero or more Fornecedors that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {FornecedorFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Empresas
-     * const empresas = await prisma.empresa.findMany()
+     * // Get all Fornecedors
+     * const fornecedors = await prisma.fornecedor.findMany()
      * 
-     * // Get first 10 Empresas
-     * const empresas = await prisma.empresa.findMany({ take: 10 })
+     * // Get first 10 Fornecedors
+     * const fornecedors = await prisma.fornecedor.findMany({ take: 10 })
      * 
-     * // Only select the `suid_empresa`
-     * const empresaWithSuid_empresaOnly = await prisma.empresa.findMany({ select: { suid_empresa: true } })
+     * // Only select the `id_fornecedor`
+     * const fornecedorWithId_fornecedorOnly = await prisma.fornecedor.findMany({ select: { id_fornecedor: true } })
      * 
      */
-    findMany<T extends EmpresaFindManyArgs>(args?: SelectSubset<T, EmpresaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends FornecedorFindManyArgs>(args?: SelectSubset<T, FornecedorFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FornecedorPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a Empresa.
-     * @param {EmpresaCreateArgs} args - Arguments to create a Empresa.
+     * Create a Fornecedor.
+     * @param {FornecedorCreateArgs} args - Arguments to create a Fornecedor.
      * @example
-     * // Create one Empresa
-     * const Empresa = await prisma.empresa.create({
+     * // Create one Fornecedor
+     * const Fornecedor = await prisma.fornecedor.create({
      *   data: {
-     *     // ... data to create a Empresa
+     *     // ... data to create a Fornecedor
      *   }
      * })
      * 
      */
-    create<T extends EmpresaCreateArgs>(args: SelectSubset<T, EmpresaCreateArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends FornecedorCreateArgs>(args: SelectSubset<T, FornecedorCreateArgs<ExtArgs>>): Prisma__FornecedorClient<$Result.GetResult<Prisma.$FornecedorPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many Empresas.
-     * @param {EmpresaCreateManyArgs} args - Arguments to create many Empresas.
+     * Create many Fornecedors.
+     * @param {FornecedorCreateManyArgs} args - Arguments to create many Fornecedors.
      * @example
-     * // Create many Empresas
-     * const empresa = await prisma.empresa.createMany({
+     * // Create many Fornecedors
+     * const fornecedor = await prisma.fornecedor.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends EmpresaCreateManyArgs>(args?: SelectSubset<T, EmpresaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends FornecedorCreateManyArgs>(args?: SelectSubset<T, FornecedorCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Empresas and returns the data saved in the database.
-     * @param {EmpresaCreateManyAndReturnArgs} args - Arguments to create many Empresas.
+     * Create many Fornecedors and returns the data saved in the database.
+     * @param {FornecedorCreateManyAndReturnArgs} args - Arguments to create many Fornecedors.
      * @example
-     * // Create many Empresas
-     * const empresa = await prisma.empresa.createManyAndReturn({
+     * // Create many Fornecedors
+     * const fornecedor = await prisma.fornecedor.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many Empresas and only return the `suid_empresa`
-     * const empresaWithSuid_empresaOnly = await prisma.empresa.createManyAndReturn({ 
-     *   select: { suid_empresa: true },
+     * // Create many Fornecedors and only return the `id_fornecedor`
+     * const fornecedorWithId_fornecedorOnly = await prisma.fornecedor.createManyAndReturn({ 
+     *   select: { id_fornecedor: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -2710,28 +2715,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends EmpresaCreateManyAndReturnArgs>(args?: SelectSubset<T, EmpresaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends FornecedorCreateManyAndReturnArgs>(args?: SelectSubset<T, FornecedorCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FornecedorPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a Empresa.
-     * @param {EmpresaDeleteArgs} args - Arguments to delete one Empresa.
+     * Delete a Fornecedor.
+     * @param {FornecedorDeleteArgs} args - Arguments to delete one Fornecedor.
      * @example
-     * // Delete one Empresa
-     * const Empresa = await prisma.empresa.delete({
+     * // Delete one Fornecedor
+     * const Fornecedor = await prisma.fornecedor.delete({
      *   where: {
-     *     // ... filter to delete one Empresa
+     *     // ... filter to delete one Fornecedor
      *   }
      * })
      * 
      */
-    delete<T extends EmpresaDeleteArgs>(args: SelectSubset<T, EmpresaDeleteArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends FornecedorDeleteArgs>(args: SelectSubset<T, FornecedorDeleteArgs<ExtArgs>>): Prisma__FornecedorClient<$Result.GetResult<Prisma.$FornecedorPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one Empresa.
-     * @param {EmpresaUpdateArgs} args - Arguments to update one Empresa.
+     * Update one Fornecedor.
+     * @param {FornecedorUpdateArgs} args - Arguments to update one Fornecedor.
      * @example
-     * // Update one Empresa
-     * const empresa = await prisma.empresa.update({
+     * // Update one Fornecedor
+     * const fornecedor = await prisma.fornecedor.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -2741,30 +2746,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends EmpresaUpdateArgs>(args: SelectSubset<T, EmpresaUpdateArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends FornecedorUpdateArgs>(args: SelectSubset<T, FornecedorUpdateArgs<ExtArgs>>): Prisma__FornecedorClient<$Result.GetResult<Prisma.$FornecedorPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more Empresas.
-     * @param {EmpresaDeleteManyArgs} args - Arguments to filter Empresas to delete.
+     * Delete zero or more Fornecedors.
+     * @param {FornecedorDeleteManyArgs} args - Arguments to filter Fornecedors to delete.
      * @example
-     * // Delete a few Empresas
-     * const { count } = await prisma.empresa.deleteMany({
+     * // Delete a few Fornecedors
+     * const { count } = await prisma.fornecedor.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends EmpresaDeleteManyArgs>(args?: SelectSubset<T, EmpresaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends FornecedorDeleteManyArgs>(args?: SelectSubset<T, FornecedorDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Empresas.
+     * Update zero or more Fornecedors.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {FornecedorUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Empresas
-     * const empresa = await prisma.empresa.updateMany({
+     * // Update many Fornecedors
+     * const fornecedor = await prisma.fornecedor.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -2774,56 +2779,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends EmpresaUpdateManyArgs>(args: SelectSubset<T, EmpresaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends FornecedorUpdateManyArgs>(args: SelectSubset<T, FornecedorUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Empresa.
-     * @param {EmpresaUpsertArgs} args - Arguments to update or create a Empresa.
+     * Create or update one Fornecedor.
+     * @param {FornecedorUpsertArgs} args - Arguments to update or create a Fornecedor.
      * @example
-     * // Update or create a Empresa
-     * const empresa = await prisma.empresa.upsert({
+     * // Update or create a Fornecedor
+     * const fornecedor = await prisma.fornecedor.upsert({
      *   create: {
-     *     // ... data to create a Empresa
+     *     // ... data to create a Fornecedor
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Empresa we want to update
+     *     // ... the filter for the Fornecedor we want to update
      *   }
      * })
      */
-    upsert<T extends EmpresaUpsertArgs>(args: SelectSubset<T, EmpresaUpsertArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends FornecedorUpsertArgs>(args: SelectSubset<T, FornecedorUpsertArgs<ExtArgs>>): Prisma__FornecedorClient<$Result.GetResult<Prisma.$FornecedorPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of Empresas.
+     * Count the number of Fornecedors.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaCountArgs} args - Arguments to filter Empresas to count.
+     * @param {FornecedorCountArgs} args - Arguments to filter Fornecedors to count.
      * @example
-     * // Count the number of Empresas
-     * const count = await prisma.empresa.count({
+     * // Count the number of Fornecedors
+     * const count = await prisma.fornecedor.count({
      *   where: {
-     *     // ... the filter for the Empresas we want to count
+     *     // ... the filter for the Fornecedors we want to count
      *   }
      * })
     **/
-    count<T extends EmpresaCountArgs>(
-      args?: Subset<T, EmpresaCountArgs>,
+    count<T extends FornecedorCountArgs>(
+      args?: Subset<T, FornecedorCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], EmpresaCountAggregateOutputType>
+          : GetScalarType<T['select'], FornecedorCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Empresa.
+     * Allows you to perform aggregations operations on a Fornecedor.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {FornecedorAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -2843,13 +2848,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends EmpresaAggregateArgs>(args: Subset<T, EmpresaAggregateArgs>): Prisma.PrismaPromise<GetEmpresaAggregateType<T>>
+    aggregate<T extends FornecedorAggregateArgs>(args: Subset<T, FornecedorAggregateArgs>): Prisma.PrismaPromise<GetFornecedorAggregateType<T>>
 
     /**
-     * Group by Empresa.
+     * Group by Fornecedor.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaGroupByArgs} args - Group by arguments.
+     * @param {FornecedorGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -2864,14 +2869,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends EmpresaGroupByArgs,
+      T extends FornecedorGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: EmpresaGroupByArgs['orderBy'] }
-        : { orderBy?: EmpresaGroupByArgs['orderBy'] },
+        ? { orderBy: FornecedorGroupByArgs['orderBy'] }
+        : { orderBy?: FornecedorGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -2920,21 +2925,22 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, EmpresaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmpresaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, FornecedorGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFornecedorGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the Empresa model
+   * Fields of the Fornecedor model
    */
-  readonly fields: EmpresaFieldRefs;
+  readonly fields: FornecedorFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Empresa.
+   * The delegate class that acts as a "Promise-like" for Fornecedor.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__EmpresaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__FornecedorClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    fornecedores_organizacao<T extends Fornecedor$fornecedores_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Fornecedor$fornecedores_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2961,326 +2967,1355 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the Empresa model
+   * Fields of the Fornecedor model
    */ 
-  interface EmpresaFieldRefs {
-    readonly suid_empresa: FieldRef<"Empresa", 'String'>
-    readonly id_organizacao_empresa: FieldRef<"Empresa", 'String'>
-    readonly id_produto_empresa: FieldRef<"Empresa", 'String'>
-    readonly id_usuario_empresa: FieldRef<"Empresa", 'String'>
-    readonly nome_empresa: FieldRef<"Empresa", 'String'>
-    readonly cnpj_empresa: FieldRef<"Empresa", 'String'>
-    readonly tin_empresa: FieldRef<"Empresa", 'String'>
-    readonly pais_empresa: FieldRef<"Empresa", 'String'>
-    readonly estado_empresa: FieldRef<"Empresa", 'String'>
-    readonly cidade_empresa: FieldRef<"Empresa", 'String'>
-    readonly endereco_empresa: FieldRef<"Empresa", 'String'>
-    readonly zipcode_empresa: FieldRef<"Empresa", 'String'>
-    readonly email_empresa: FieldRef<"Empresa", 'String'>
-    readonly telefone_empresa: FieldRef<"Empresa", 'String'>
-    readonly whatsapp_empresa: FieldRef<"Empresa", 'String'>
-    readonly pode_ser_importador_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_exportador_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_fabricante_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_agente_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_despachante_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_armador_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_armazem_alfandegado_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_transportadora_rodoviaria_nacional_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_cia_aerea_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_transportadora_rodoviaria_internacional_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_seguradora_internacional_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_seguradora_corretora_cambio_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_banco_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_armazem_nacional_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly ativo_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly criado_em_empresa: FieldRef<"Empresa", 'DateTime'>
-    readonly atualizado_em_empresa: FieldRef<"Empresa", 'DateTime'>
+  interface FornecedorFieldRefs {
+    readonly id_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly id_organizacao_cadastro_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly id_produto_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly id_usuario_cadastro_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly nome_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly cnpj_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly tin_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly pais_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly estado_provincia_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly cidade_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly endereco_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly cep_zipcode_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly email_principal_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly telefone_principal_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly whatsapp_principal_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly pode_ser_importador_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly pode_ser_exportador_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly pode_ser_fabricante_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly pode_ser_agente_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly pode_ser_despachante_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly pode_ser_armador_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly pode_ser_armazem_alfandegado_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly pode_ser_transportadora_rodoviaria_nacional_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly pode_ser_cia_aerea_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly pode_ser_transportadora_rodoviaria_internacional_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly pode_ser_seguradora_internacional_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly pode_ser_seguradora_corretora_cambio_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly pode_ser_banco_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly pode_ser_armazem_nacional_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly ativo_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
+    readonly criado_em_fornecedor: FieldRef<"Fornecedor", 'DateTime'>
+    readonly atualizado_em_fornecedor: FieldRef<"Fornecedor", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * Empresa findUnique
+   * Fornecedor findUnique
    */
-  export type EmpresaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Fornecedor
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: FornecedorSelect<ExtArgs> | null
     /**
-     * Filter, which Empresa to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where: EmpresaWhereUniqueInput
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
+     * Filter, which Fornecedor to fetch.
+     */
+    where: FornecedorWhereUniqueInput
   }
 
   /**
-   * Empresa findUniqueOrThrow
+   * Fornecedor findUniqueOrThrow
    */
-  export type EmpresaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Fornecedor
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: FornecedorSelect<ExtArgs> | null
     /**
-     * Filter, which Empresa to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where: EmpresaWhereUniqueInput
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
+     * Filter, which Fornecedor to fetch.
+     */
+    where: FornecedorWhereUniqueInput
   }
 
   /**
-   * Empresa findFirst
+   * Fornecedor findFirst
    */
-  export type EmpresaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Fornecedor
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: FornecedorSelect<ExtArgs> | null
     /**
-     * Filter, which Empresa to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: EmpresaWhereInput
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
+     * Filter, which Fornecedor to fetch.
+     */
+    where?: FornecedorWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Empresas to fetch.
+     * Determine the order of Fornecedors to fetch.
      */
-    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
+    orderBy?: FornecedorOrderByWithRelationInput | FornecedorOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Empresas.
+     * Sets the position for searching for Fornecedors.
      */
-    cursor?: EmpresaWhereUniqueInput
+    cursor?: FornecedorWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Empresas from the position of the cursor.
+     * Take `±n` Fornecedors from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Empresas.
+     * Skip the first `n` Fornecedors.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Empresas.
+     * Filter by unique combinations of Fornecedors.
      */
-    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
+    distinct?: FornecedorScalarFieldEnum | FornecedorScalarFieldEnum[]
   }
 
   /**
-   * Empresa findFirstOrThrow
+   * Fornecedor findFirstOrThrow
    */
-  export type EmpresaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Fornecedor
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: FornecedorSelect<ExtArgs> | null
     /**
-     * Filter, which Empresa to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: EmpresaWhereInput
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
+     * Filter, which Fornecedor to fetch.
+     */
+    where?: FornecedorWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Empresas to fetch.
+     * Determine the order of Fornecedors to fetch.
      */
-    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
+    orderBy?: FornecedorOrderByWithRelationInput | FornecedorOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Empresas.
+     * Sets the position for searching for Fornecedors.
      */
-    cursor?: EmpresaWhereUniqueInput
+    cursor?: FornecedorWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Empresas from the position of the cursor.
+     * Take `±n` Fornecedors from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Empresas.
+     * Skip the first `n` Fornecedors.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Empresas.
+     * Filter by unique combinations of Fornecedors.
      */
-    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
+    distinct?: FornecedorScalarFieldEnum | FornecedorScalarFieldEnum[]
   }
 
   /**
-   * Empresa findMany
+   * Fornecedor findMany
    */
-  export type EmpresaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Fornecedor
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: FornecedorSelect<ExtArgs> | null
     /**
-     * Filter, which Empresas to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: EmpresaWhereInput
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
+     * Filter, which Fornecedors to fetch.
+     */
+    where?: FornecedorWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Empresas to fetch.
+     * Determine the order of Fornecedors to fetch.
      */
-    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
+    orderBy?: FornecedorOrderByWithRelationInput | FornecedorOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing Empresas.
+     * Sets the position for listing Fornecedors.
      */
-    cursor?: EmpresaWhereUniqueInput
+    cursor?: FornecedorWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Empresas from the position of the cursor.
+     * Take `±n` Fornecedors from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Empresas.
+     * Skip the first `n` Fornecedors.
      */
     skip?: number
-    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
+    distinct?: FornecedorScalarFieldEnum | FornecedorScalarFieldEnum[]
   }
 
   /**
-   * Empresa create
+   * Fornecedor create
    */
-  export type EmpresaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Fornecedor
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: FornecedorSelect<ExtArgs> | null
     /**
-     * The data needed to create a Empresa.
+     * Choose, which related nodes to fetch as well
      */
-    data: XOR<EmpresaCreateInput, EmpresaUncheckedCreateInput>
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Fornecedor.
+     */
+    data: XOR<FornecedorCreateInput, FornecedorUncheckedCreateInput>
   }
 
   /**
-   * Empresa createMany
+   * Fornecedor createMany
    */
-  export type EmpresaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many Empresas.
+     * The data used to create many Fornecedors.
      */
-    data: EmpresaCreateManyInput | EmpresaCreateManyInput[]
+    data: FornecedorCreateManyInput | FornecedorCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Empresa createManyAndReturn
+   * Fornecedor createManyAndReturn
    */
-  export type EmpresaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Fornecedor
      */
-    select?: EmpresaSelectCreateManyAndReturn<ExtArgs> | null
+    select?: FornecedorSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many Empresas.
+     * The data used to create many Fornecedors.
      */
-    data: EmpresaCreateManyInput | EmpresaCreateManyInput[]
+    data: FornecedorCreateManyInput | FornecedorCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Empresa update
+   * Fornecedor update
    */
-  export type EmpresaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Fornecedor
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: FornecedorSelect<ExtArgs> | null
     /**
-     * The data needed to update a Empresa.
+     * Choose, which related nodes to fetch as well
      */
-    data: XOR<EmpresaUpdateInput, EmpresaUncheckedUpdateInput>
+    include?: FornecedorInclude<ExtArgs> | null
     /**
-     * Choose, which Empresa to update.
+     * The data needed to update a Fornecedor.
      */
-    where: EmpresaWhereUniqueInput
+    data: XOR<FornecedorUpdateInput, FornecedorUncheckedUpdateInput>
+    /**
+     * Choose, which Fornecedor to update.
+     */
+    where: FornecedorWhereUniqueInput
   }
 
   /**
-   * Empresa updateMany
+   * Fornecedor updateMany
    */
-  export type EmpresaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update Empresas.
+     * The data used to update Fornecedors.
      */
-    data: XOR<EmpresaUpdateManyMutationInput, EmpresaUncheckedUpdateManyInput>
+    data: XOR<FornecedorUpdateManyMutationInput, FornecedorUncheckedUpdateManyInput>
     /**
-     * Filter which Empresas to update
+     * Filter which Fornecedors to update
      */
-    where?: EmpresaWhereInput
+    where?: FornecedorWhereInput
   }
 
   /**
-   * Empresa upsert
+   * Fornecedor upsert
    */
-  export type EmpresaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Fornecedor
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: FornecedorSelect<ExtArgs> | null
     /**
-     * The filter to search for the Empresa to update in case it exists.
+     * Choose, which related nodes to fetch as well
      */
-    where: EmpresaWhereUniqueInput
+    include?: FornecedorInclude<ExtArgs> | null
     /**
-     * In case the Empresa found by the `where` argument doesn't exist, create a new Empresa with this data.
+     * The filter to search for the Fornecedor to update in case it exists.
      */
-    create: XOR<EmpresaCreateInput, EmpresaUncheckedCreateInput>
+    where: FornecedorWhereUniqueInput
     /**
-     * In case the Empresa was found with the provided `where` argument, update it with this data.
+     * In case the Fornecedor found by the `where` argument doesn't exist, create a new Fornecedor with this data.
      */
-    update: XOR<EmpresaUpdateInput, EmpresaUncheckedUpdateInput>
+    create: XOR<FornecedorCreateInput, FornecedorUncheckedCreateInput>
+    /**
+     * In case the Fornecedor was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FornecedorUpdateInput, FornecedorUncheckedUpdateInput>
   }
 
   /**
-   * Empresa delete
+   * Fornecedor delete
    */
-  export type EmpresaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Fornecedor
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: FornecedorSelect<ExtArgs> | null
     /**
-     * Filter which Empresa to delete.
+     * Choose, which related nodes to fetch as well
      */
-    where: EmpresaWhereUniqueInput
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
+     * Filter which Fornecedor to delete.
+     */
+    where: FornecedorWhereUniqueInput
   }
 
   /**
-   * Empresa deleteMany
+   * Fornecedor deleteMany
    */
-  export type EmpresaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FornecedorDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Empresas to delete
+     * Filter which Fornecedors to delete
      */
-    where?: EmpresaWhereInput
+    where?: FornecedorWhereInput
   }
 
   /**
-   * Empresa without action
+   * Fornecedor.fornecedores_organizacao
    */
-  export type EmpresaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Fornecedor$fornecedores_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the FornecedorOrganizacao
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorOrganizacaoInclude<ExtArgs> | null
+    where?: FornecedorOrganizacaoWhereInput
+    orderBy?: FornecedorOrganizacaoOrderByWithRelationInput | FornecedorOrganizacaoOrderByWithRelationInput[]
+    cursor?: FornecedorOrganizacaoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FornecedorOrganizacaoScalarFieldEnum | FornecedorOrganizacaoScalarFieldEnum[]
+  }
+
+  /**
+   * Fornecedor without action
+   */
+  export type FornecedorDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Fornecedor
+     */
+    select?: FornecedorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model FornecedorOrganizacao
+   */
+
+  export type AggregateFornecedorOrganizacao = {
+    _count: FornecedorOrganizacaoCountAggregateOutputType | null
+    _min: FornecedorOrganizacaoMinAggregateOutputType | null
+    _max: FornecedorOrganizacaoMaxAggregateOutputType | null
+  }
+
+  export type FornecedorOrganizacaoMinAggregateOutputType = {
+    id_fornecedor_organizacao: string | null
+    id_fornecedor: string | null
+    id_organizacao: string | null
+    tipo_fornecedor_organizacao: $Enums.TipoFornecedorOrganizacao | null
+    status_fornecedor_organizacao: $Enums.StatusFornecedorOrganizacao | null
+    id_usuario: string | null
+    data_criacao_fornecedor_organizacao: Date | null
+    data_atualizacao_fornecedor_organizacao: Date | null
+  }
+
+  export type FornecedorOrganizacaoMaxAggregateOutputType = {
+    id_fornecedor_organizacao: string | null
+    id_fornecedor: string | null
+    id_organizacao: string | null
+    tipo_fornecedor_organizacao: $Enums.TipoFornecedorOrganizacao | null
+    status_fornecedor_organizacao: $Enums.StatusFornecedorOrganizacao | null
+    id_usuario: string | null
+    data_criacao_fornecedor_organizacao: Date | null
+    data_atualizacao_fornecedor_organizacao: Date | null
+  }
+
+  export type FornecedorOrganizacaoCountAggregateOutputType = {
+    id_fornecedor_organizacao: number
+    id_fornecedor: number
+    id_organizacao: number
+    tipo_fornecedor_organizacao: number
+    status_fornecedor_organizacao: number
+    id_usuario: number
+    data_criacao_fornecedor_organizacao: number
+    data_atualizacao_fornecedor_organizacao: number
+    _all: number
+  }
+
+
+  export type FornecedorOrganizacaoMinAggregateInputType = {
+    id_fornecedor_organizacao?: true
+    id_fornecedor?: true
+    id_organizacao?: true
+    tipo_fornecedor_organizacao?: true
+    status_fornecedor_organizacao?: true
+    id_usuario?: true
+    data_criacao_fornecedor_organizacao?: true
+    data_atualizacao_fornecedor_organizacao?: true
+  }
+
+  export type FornecedorOrganizacaoMaxAggregateInputType = {
+    id_fornecedor_organizacao?: true
+    id_fornecedor?: true
+    id_organizacao?: true
+    tipo_fornecedor_organizacao?: true
+    status_fornecedor_organizacao?: true
+    id_usuario?: true
+    data_criacao_fornecedor_organizacao?: true
+    data_atualizacao_fornecedor_organizacao?: true
+  }
+
+  export type FornecedorOrganizacaoCountAggregateInputType = {
+    id_fornecedor_organizacao?: true
+    id_fornecedor?: true
+    id_organizacao?: true
+    tipo_fornecedor_organizacao?: true
+    status_fornecedor_organizacao?: true
+    id_usuario?: true
+    data_criacao_fornecedor_organizacao?: true
+    data_atualizacao_fornecedor_organizacao?: true
+    _all?: true
+  }
+
+  export type FornecedorOrganizacaoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FornecedorOrganizacao to aggregate.
+     */
+    where?: FornecedorOrganizacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorOrganizacaos to fetch.
+     */
+    orderBy?: FornecedorOrganizacaoOrderByWithRelationInput | FornecedorOrganizacaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FornecedorOrganizacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorOrganizacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorOrganizacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FornecedorOrganizacaos
+    **/
+    _count?: true | FornecedorOrganizacaoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FornecedorOrganizacaoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FornecedorOrganizacaoMaxAggregateInputType
+  }
+
+  export type GetFornecedorOrganizacaoAggregateType<T extends FornecedorOrganizacaoAggregateArgs> = {
+        [P in keyof T & keyof AggregateFornecedorOrganizacao]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFornecedorOrganizacao[P]>
+      : GetScalarType<T[P], AggregateFornecedorOrganizacao[P]>
+  }
+
+
+
+
+  export type FornecedorOrganizacaoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FornecedorOrganizacaoWhereInput
+    orderBy?: FornecedorOrganizacaoOrderByWithAggregationInput | FornecedorOrganizacaoOrderByWithAggregationInput[]
+    by: FornecedorOrganizacaoScalarFieldEnum[] | FornecedorOrganizacaoScalarFieldEnum
+    having?: FornecedorOrganizacaoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FornecedorOrganizacaoCountAggregateInputType | true
+    _min?: FornecedorOrganizacaoMinAggregateInputType
+    _max?: FornecedorOrganizacaoMaxAggregateInputType
+  }
+
+  export type FornecedorOrganizacaoGroupByOutputType = {
+    id_fornecedor_organizacao: string
+    id_fornecedor: string
+    id_organizacao: string
+    tipo_fornecedor_organizacao: $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao: $Enums.StatusFornecedorOrganizacao
+    id_usuario: string | null
+    data_criacao_fornecedor_organizacao: Date
+    data_atualizacao_fornecedor_organizacao: Date
+    _count: FornecedorOrganizacaoCountAggregateOutputType | null
+    _min: FornecedorOrganizacaoMinAggregateOutputType | null
+    _max: FornecedorOrganizacaoMaxAggregateOutputType | null
+  }
+
+  type GetFornecedorOrganizacaoGroupByPayload<T extends FornecedorOrganizacaoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FornecedorOrganizacaoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FornecedorOrganizacaoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FornecedorOrganizacaoGroupByOutputType[P]>
+            : GetScalarType<T[P], FornecedorOrganizacaoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FornecedorOrganizacaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_fornecedor_organizacao?: boolean
+    id_fornecedor?: boolean
+    id_organizacao?: boolean
+    tipo_fornecedor_organizacao?: boolean
+    status_fornecedor_organizacao?: boolean
+    id_usuario?: boolean
+    data_criacao_fornecedor_organizacao?: boolean
+    data_atualizacao_fornecedor_organizacao?: boolean
+    fornecedor?: boolean | FornecedorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["fornecedorOrganizacao"]>
+
+  export type FornecedorOrganizacaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_fornecedor_organizacao?: boolean
+    id_fornecedor?: boolean
+    id_organizacao?: boolean
+    tipo_fornecedor_organizacao?: boolean
+    status_fornecedor_organizacao?: boolean
+    id_usuario?: boolean
+    data_criacao_fornecedor_organizacao?: boolean
+    data_atualizacao_fornecedor_organizacao?: boolean
+    fornecedor?: boolean | FornecedorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["fornecedorOrganizacao"]>
+
+  export type FornecedorOrganizacaoSelectScalar = {
+    id_fornecedor_organizacao?: boolean
+    id_fornecedor?: boolean
+    id_organizacao?: boolean
+    tipo_fornecedor_organizacao?: boolean
+    status_fornecedor_organizacao?: boolean
+    id_usuario?: boolean
+    data_criacao_fornecedor_organizacao?: boolean
+    data_atualizacao_fornecedor_organizacao?: boolean
+  }
+
+  export type FornecedorOrganizacaoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    fornecedor?: boolean | FornecedorDefaultArgs<ExtArgs>
+  }
+  export type FornecedorOrganizacaoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    fornecedor?: boolean | FornecedorDefaultArgs<ExtArgs>
+  }
+
+  export type $FornecedorOrganizacaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FornecedorOrganizacao"
+    objects: {
+      fornecedor: Prisma.$FornecedorPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id_fornecedor_organizacao: string
+      id_fornecedor: string
+      id_organizacao: string
+      tipo_fornecedor_organizacao: $Enums.TipoFornecedorOrganizacao
+      status_fornecedor_organizacao: $Enums.StatusFornecedorOrganizacao
+      id_usuario: string | null
+      data_criacao_fornecedor_organizacao: Date
+      data_atualizacao_fornecedor_organizacao: Date
+    }, ExtArgs["result"]["fornecedorOrganizacao"]>
+    composites: {}
+  }
+
+  type FornecedorOrganizacaoGetPayload<S extends boolean | null | undefined | FornecedorOrganizacaoDefaultArgs> = $Result.GetResult<Prisma.$FornecedorOrganizacaoPayload, S>
+
+  type FornecedorOrganizacaoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<FornecedorOrganizacaoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: FornecedorOrganizacaoCountAggregateInputType | true
+    }
+
+  export interface FornecedorOrganizacaoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FornecedorOrganizacao'], meta: { name: 'FornecedorOrganizacao' } }
+    /**
+     * Find zero or one FornecedorOrganizacao that matches the filter.
+     * @param {FornecedorOrganizacaoFindUniqueArgs} args - Arguments to find a FornecedorOrganizacao
+     * @example
+     * // Get one FornecedorOrganizacao
+     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FornecedorOrganizacaoFindUniqueArgs>(args: SelectSubset<T, FornecedorOrganizacaoFindUniqueArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one FornecedorOrganizacao that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {FornecedorOrganizacaoFindUniqueOrThrowArgs} args - Arguments to find a FornecedorOrganizacao
+     * @example
+     * // Get one FornecedorOrganizacao
+     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FornecedorOrganizacaoFindUniqueOrThrowArgs>(args: SelectSubset<T, FornecedorOrganizacaoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first FornecedorOrganizacao that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorOrganizacaoFindFirstArgs} args - Arguments to find a FornecedorOrganizacao
+     * @example
+     * // Get one FornecedorOrganizacao
+     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FornecedorOrganizacaoFindFirstArgs>(args?: SelectSubset<T, FornecedorOrganizacaoFindFirstArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first FornecedorOrganizacao that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorOrganizacaoFindFirstOrThrowArgs} args - Arguments to find a FornecedorOrganizacao
+     * @example
+     * // Get one FornecedorOrganizacao
+     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FornecedorOrganizacaoFindFirstOrThrowArgs>(args?: SelectSubset<T, FornecedorOrganizacaoFindFirstOrThrowArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more FornecedorOrganizacaos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorOrganizacaoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FornecedorOrganizacaos
+     * const fornecedorOrganizacaos = await prisma.fornecedorOrganizacao.findMany()
+     * 
+     * // Get first 10 FornecedorOrganizacaos
+     * const fornecedorOrganizacaos = await prisma.fornecedorOrganizacao.findMany({ take: 10 })
+     * 
+     * // Only select the `id_fornecedor_organizacao`
+     * const fornecedorOrganizacaoWithId_fornecedor_organizacaoOnly = await prisma.fornecedorOrganizacao.findMany({ select: { id_fornecedor_organizacao: true } })
+     * 
+     */
+    findMany<T extends FornecedorOrganizacaoFindManyArgs>(args?: SelectSubset<T, FornecedorOrganizacaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a FornecedorOrganizacao.
+     * @param {FornecedorOrganizacaoCreateArgs} args - Arguments to create a FornecedorOrganizacao.
+     * @example
+     * // Create one FornecedorOrganizacao
+     * const FornecedorOrganizacao = await prisma.fornecedorOrganizacao.create({
+     *   data: {
+     *     // ... data to create a FornecedorOrganizacao
+     *   }
+     * })
+     * 
+     */
+    create<T extends FornecedorOrganizacaoCreateArgs>(args: SelectSubset<T, FornecedorOrganizacaoCreateArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many FornecedorOrganizacaos.
+     * @param {FornecedorOrganizacaoCreateManyArgs} args - Arguments to create many FornecedorOrganizacaos.
+     * @example
+     * // Create many FornecedorOrganizacaos
+     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FornecedorOrganizacaoCreateManyArgs>(args?: SelectSubset<T, FornecedorOrganizacaoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FornecedorOrganizacaos and returns the data saved in the database.
+     * @param {FornecedorOrganizacaoCreateManyAndReturnArgs} args - Arguments to create many FornecedorOrganizacaos.
+     * @example
+     * // Create many FornecedorOrganizacaos
+     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FornecedorOrganizacaos and only return the `id_fornecedor_organizacao`
+     * const fornecedorOrganizacaoWithId_fornecedor_organizacaoOnly = await prisma.fornecedorOrganizacao.createManyAndReturn({ 
+     *   select: { id_fornecedor_organizacao: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FornecedorOrganizacaoCreateManyAndReturnArgs>(args?: SelectSubset<T, FornecedorOrganizacaoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a FornecedorOrganizacao.
+     * @param {FornecedorOrganizacaoDeleteArgs} args - Arguments to delete one FornecedorOrganizacao.
+     * @example
+     * // Delete one FornecedorOrganizacao
+     * const FornecedorOrganizacao = await prisma.fornecedorOrganizacao.delete({
+     *   where: {
+     *     // ... filter to delete one FornecedorOrganizacao
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FornecedorOrganizacaoDeleteArgs>(args: SelectSubset<T, FornecedorOrganizacaoDeleteArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one FornecedorOrganizacao.
+     * @param {FornecedorOrganizacaoUpdateArgs} args - Arguments to update one FornecedorOrganizacao.
+     * @example
+     * // Update one FornecedorOrganizacao
+     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FornecedorOrganizacaoUpdateArgs>(args: SelectSubset<T, FornecedorOrganizacaoUpdateArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more FornecedorOrganizacaos.
+     * @param {FornecedorOrganizacaoDeleteManyArgs} args - Arguments to filter FornecedorOrganizacaos to delete.
+     * @example
+     * // Delete a few FornecedorOrganizacaos
+     * const { count } = await prisma.fornecedorOrganizacao.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FornecedorOrganizacaoDeleteManyArgs>(args?: SelectSubset<T, FornecedorOrganizacaoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FornecedorOrganizacaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorOrganizacaoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FornecedorOrganizacaos
+     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FornecedorOrganizacaoUpdateManyArgs>(args: SelectSubset<T, FornecedorOrganizacaoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one FornecedorOrganizacao.
+     * @param {FornecedorOrganizacaoUpsertArgs} args - Arguments to update or create a FornecedorOrganizacao.
+     * @example
+     * // Update or create a FornecedorOrganizacao
+     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.upsert({
+     *   create: {
+     *     // ... data to create a FornecedorOrganizacao
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FornecedorOrganizacao we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FornecedorOrganizacaoUpsertArgs>(args: SelectSubset<T, FornecedorOrganizacaoUpsertArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of FornecedorOrganizacaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorOrganizacaoCountArgs} args - Arguments to filter FornecedorOrganizacaos to count.
+     * @example
+     * // Count the number of FornecedorOrganizacaos
+     * const count = await prisma.fornecedorOrganizacao.count({
+     *   where: {
+     *     // ... the filter for the FornecedorOrganizacaos we want to count
+     *   }
+     * })
+    **/
+    count<T extends FornecedorOrganizacaoCountArgs>(
+      args?: Subset<T, FornecedorOrganizacaoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FornecedorOrganizacaoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FornecedorOrganizacao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorOrganizacaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FornecedorOrganizacaoAggregateArgs>(args: Subset<T, FornecedorOrganizacaoAggregateArgs>): Prisma.PrismaPromise<GetFornecedorOrganizacaoAggregateType<T>>
+
+    /**
+     * Group by FornecedorOrganizacao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorOrganizacaoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FornecedorOrganizacaoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FornecedorOrganizacaoGroupByArgs['orderBy'] }
+        : { orderBy?: FornecedorOrganizacaoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FornecedorOrganizacaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFornecedorOrganizacaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FornecedorOrganizacao model
+   */
+  readonly fields: FornecedorOrganizacaoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FornecedorOrganizacao.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FornecedorOrganizacaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    fornecedor<T extends FornecedorDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FornecedorDefaultArgs<ExtArgs>>): Prisma__FornecedorClient<$Result.GetResult<Prisma.$FornecedorPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FornecedorOrganizacao model
+   */ 
+  interface FornecedorOrganizacaoFieldRefs {
+    readonly id_fornecedor_organizacao: FieldRef<"FornecedorOrganizacao", 'String'>
+    readonly id_fornecedor: FieldRef<"FornecedorOrganizacao", 'String'>
+    readonly id_organizacao: FieldRef<"FornecedorOrganizacao", 'String'>
+    readonly tipo_fornecedor_organizacao: FieldRef<"FornecedorOrganizacao", 'TipoFornecedorOrganizacao'>
+    readonly status_fornecedor_organizacao: FieldRef<"FornecedorOrganizacao", 'StatusFornecedorOrganizacao'>
+    readonly id_usuario: FieldRef<"FornecedorOrganizacao", 'String'>
+    readonly data_criacao_fornecedor_organizacao: FieldRef<"FornecedorOrganizacao", 'DateTime'>
+    readonly data_atualizacao_fornecedor_organizacao: FieldRef<"FornecedorOrganizacao", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FornecedorOrganizacao findUnique
+   */
+  export type FornecedorOrganizacaoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorOrganizacao
+     */
+    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorOrganizacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorOrganizacao to fetch.
+     */
+    where: FornecedorOrganizacaoWhereUniqueInput
+  }
+
+  /**
+   * FornecedorOrganizacao findUniqueOrThrow
+   */
+  export type FornecedorOrganizacaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorOrganizacao
+     */
+    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorOrganizacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorOrganizacao to fetch.
+     */
+    where: FornecedorOrganizacaoWhereUniqueInput
+  }
+
+  /**
+   * FornecedorOrganizacao findFirst
+   */
+  export type FornecedorOrganizacaoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorOrganizacao
+     */
+    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorOrganizacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorOrganizacao to fetch.
+     */
+    where?: FornecedorOrganizacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorOrganizacaos to fetch.
+     */
+    orderBy?: FornecedorOrganizacaoOrderByWithRelationInput | FornecedorOrganizacaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FornecedorOrganizacaos.
+     */
+    cursor?: FornecedorOrganizacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorOrganizacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorOrganizacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FornecedorOrganizacaos.
+     */
+    distinct?: FornecedorOrganizacaoScalarFieldEnum | FornecedorOrganizacaoScalarFieldEnum[]
+  }
+
+  /**
+   * FornecedorOrganizacao findFirstOrThrow
+   */
+  export type FornecedorOrganizacaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorOrganizacao
+     */
+    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorOrganizacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorOrganizacao to fetch.
+     */
+    where?: FornecedorOrganizacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorOrganizacaos to fetch.
+     */
+    orderBy?: FornecedorOrganizacaoOrderByWithRelationInput | FornecedorOrganizacaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FornecedorOrganizacaos.
+     */
+    cursor?: FornecedorOrganizacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorOrganizacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorOrganizacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FornecedorOrganizacaos.
+     */
+    distinct?: FornecedorOrganizacaoScalarFieldEnum | FornecedorOrganizacaoScalarFieldEnum[]
+  }
+
+  /**
+   * FornecedorOrganizacao findMany
+   */
+  export type FornecedorOrganizacaoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorOrganizacao
+     */
+    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorOrganizacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorOrganizacaos to fetch.
+     */
+    where?: FornecedorOrganizacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorOrganizacaos to fetch.
+     */
+    orderBy?: FornecedorOrganizacaoOrderByWithRelationInput | FornecedorOrganizacaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FornecedorOrganizacaos.
+     */
+    cursor?: FornecedorOrganizacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorOrganizacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorOrganizacaos.
+     */
+    skip?: number
+    distinct?: FornecedorOrganizacaoScalarFieldEnum | FornecedorOrganizacaoScalarFieldEnum[]
+  }
+
+  /**
+   * FornecedorOrganizacao create
+   */
+  export type FornecedorOrganizacaoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorOrganizacao
+     */
+    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorOrganizacaoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FornecedorOrganizacao.
+     */
+    data: XOR<FornecedorOrganizacaoCreateInput, FornecedorOrganizacaoUncheckedCreateInput>
+  }
+
+  /**
+   * FornecedorOrganizacao createMany
+   */
+  export type FornecedorOrganizacaoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FornecedorOrganizacaos.
+     */
+    data: FornecedorOrganizacaoCreateManyInput | FornecedorOrganizacaoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * FornecedorOrganizacao createManyAndReturn
+   */
+  export type FornecedorOrganizacaoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorOrganizacao
+     */
+    select?: FornecedorOrganizacaoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many FornecedorOrganizacaos.
+     */
+    data: FornecedorOrganizacaoCreateManyInput | FornecedorOrganizacaoCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorOrganizacaoIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FornecedorOrganizacao update
+   */
+  export type FornecedorOrganizacaoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorOrganizacao
+     */
+    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorOrganizacaoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FornecedorOrganizacao.
+     */
+    data: XOR<FornecedorOrganizacaoUpdateInput, FornecedorOrganizacaoUncheckedUpdateInput>
+    /**
+     * Choose, which FornecedorOrganizacao to update.
+     */
+    where: FornecedorOrganizacaoWhereUniqueInput
+  }
+
+  /**
+   * FornecedorOrganizacao updateMany
+   */
+  export type FornecedorOrganizacaoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FornecedorOrganizacaos.
+     */
+    data: XOR<FornecedorOrganizacaoUpdateManyMutationInput, FornecedorOrganizacaoUncheckedUpdateManyInput>
+    /**
+     * Filter which FornecedorOrganizacaos to update
+     */
+    where?: FornecedorOrganizacaoWhereInput
+  }
+
+  /**
+   * FornecedorOrganizacao upsert
+   */
+  export type FornecedorOrganizacaoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorOrganizacao
+     */
+    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorOrganizacaoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FornecedorOrganizacao to update in case it exists.
+     */
+    where: FornecedorOrganizacaoWhereUniqueInput
+    /**
+     * In case the FornecedorOrganizacao found by the `where` argument doesn't exist, create a new FornecedorOrganizacao with this data.
+     */
+    create: XOR<FornecedorOrganizacaoCreateInput, FornecedorOrganizacaoUncheckedCreateInput>
+    /**
+     * In case the FornecedorOrganizacao was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FornecedorOrganizacaoUpdateInput, FornecedorOrganizacaoUncheckedUpdateInput>
+  }
+
+  /**
+   * FornecedorOrganizacao delete
+   */
+  export type FornecedorOrganizacaoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorOrganizacao
+     */
+    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorOrganizacaoInclude<ExtArgs> | null
+    /**
+     * Filter which FornecedorOrganizacao to delete.
+     */
+    where: FornecedorOrganizacaoWhereUniqueInput
+  }
+
+  /**
+   * FornecedorOrganizacao deleteMany
+   */
+  export type FornecedorOrganizacaoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FornecedorOrganizacaos to delete
+     */
+    where?: FornecedorOrganizacaoWhereInput
+  }
+
+  /**
+   * FornecedorOrganizacao without action
+   */
+  export type FornecedorOrganizacaoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorOrganizacao
+     */
+    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorOrganizacaoInclude<ExtArgs> | null
   }
 
 
@@ -8845,384 +9880,339 @@ export namespace Prisma {
 
 
   /**
-   * Model TipoContainer
+   * Model Container
    */
 
-  export type AggregateTipoContainer = {
-    _count: TipoContainerCountAggregateOutputType | null
-    _avg: TipoContainerAvgAggregateOutputType | null
-    _sum: TipoContainerSumAggregateOutputType | null
-    _min: TipoContainerMinAggregateOutputType | null
-    _max: TipoContainerMaxAggregateOutputType | null
+  export type AggregateContainer = {
+    _count: ContainerCountAggregateOutputType | null
+    _min: ContainerMinAggregateOutputType | null
+    _max: ContainerMaxAggregateOutputType | null
   }
 
-  export type TipoContainerAvgAggregateOutputType = {
-    tamanho_pes_tipo_container: number | null
+  export type ContainerMinAggregateOutputType = {
+    id_container: string | null
+    tipo_container: $Enums.ContainerTipo | null
+    tamanho_container: string | null
+    codigo_iso_container: string | null
+    armador_dono_container: string | null
+    ativo_container: boolean | null
   }
 
-  export type TipoContainerSumAggregateOutputType = {
-    tamanho_pes_tipo_container: number | null
+  export type ContainerMaxAggregateOutputType = {
+    id_container: string | null
+    tipo_container: $Enums.ContainerTipo | null
+    tamanho_container: string | null
+    codigo_iso_container: string | null
+    armador_dono_container: string | null
+    ativo_container: boolean | null
   }
 
-  export type TipoContainerMinAggregateOutputType = {
-    id_tipo_container: string | null
-    codigo_iso_tipo_container: string | null
-    nome_tipo_container: string | null
-    nome_ingles_tipo_container: string | null
-    tamanho_pes_tipo_container: number | null
-    categoria_tipo_container: string | null
-    ativo_tipo_container: boolean | null
-  }
-
-  export type TipoContainerMaxAggregateOutputType = {
-    id_tipo_container: string | null
-    codigo_iso_tipo_container: string | null
-    nome_tipo_container: string | null
-    nome_ingles_tipo_container: string | null
-    tamanho_pes_tipo_container: number | null
-    categoria_tipo_container: string | null
-    ativo_tipo_container: boolean | null
-  }
-
-  export type TipoContainerCountAggregateOutputType = {
-    id_tipo_container: number
-    codigo_iso_tipo_container: number
-    nome_tipo_container: number
-    nome_ingles_tipo_container: number
-    tamanho_pes_tipo_container: number
-    categoria_tipo_container: number
-    ativo_tipo_container: number
+  export type ContainerCountAggregateOutputType = {
+    id_container: number
+    tipo_container: number
+    tamanho_container: number
+    codigo_iso_container: number
+    armador_dono_container: number
+    ativo_container: number
     _all: number
   }
 
 
-  export type TipoContainerAvgAggregateInputType = {
-    tamanho_pes_tipo_container?: true
+  export type ContainerMinAggregateInputType = {
+    id_container?: true
+    tipo_container?: true
+    tamanho_container?: true
+    codigo_iso_container?: true
+    armador_dono_container?: true
+    ativo_container?: true
   }
 
-  export type TipoContainerSumAggregateInputType = {
-    tamanho_pes_tipo_container?: true
+  export type ContainerMaxAggregateInputType = {
+    id_container?: true
+    tipo_container?: true
+    tamanho_container?: true
+    codigo_iso_container?: true
+    armador_dono_container?: true
+    ativo_container?: true
   }
 
-  export type TipoContainerMinAggregateInputType = {
-    id_tipo_container?: true
-    codigo_iso_tipo_container?: true
-    nome_tipo_container?: true
-    nome_ingles_tipo_container?: true
-    tamanho_pes_tipo_container?: true
-    categoria_tipo_container?: true
-    ativo_tipo_container?: true
-  }
-
-  export type TipoContainerMaxAggregateInputType = {
-    id_tipo_container?: true
-    codigo_iso_tipo_container?: true
-    nome_tipo_container?: true
-    nome_ingles_tipo_container?: true
-    tamanho_pes_tipo_container?: true
-    categoria_tipo_container?: true
-    ativo_tipo_container?: true
-  }
-
-  export type TipoContainerCountAggregateInputType = {
-    id_tipo_container?: true
-    codigo_iso_tipo_container?: true
-    nome_tipo_container?: true
-    nome_ingles_tipo_container?: true
-    tamanho_pes_tipo_container?: true
-    categoria_tipo_container?: true
-    ativo_tipo_container?: true
+  export type ContainerCountAggregateInputType = {
+    id_container?: true
+    tipo_container?: true
+    tamanho_container?: true
+    codigo_iso_container?: true
+    armador_dono_container?: true
+    ativo_container?: true
     _all?: true
   }
 
-  export type TipoContainerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which TipoContainer to aggregate.
+     * Filter which Container to aggregate.
      */
-    where?: TipoContainerWhereInput
+    where?: ContainerWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TipoContainers to fetch.
+     * Determine the order of Containers to fetch.
      */
-    orderBy?: TipoContainerOrderByWithRelationInput | TipoContainerOrderByWithRelationInput[]
+    orderBy?: ContainerOrderByWithRelationInput | ContainerOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: TipoContainerWhereUniqueInput
+    cursor?: ContainerWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TipoContainers from the position of the cursor.
+     * Take `±n` Containers from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TipoContainers.
+     * Skip the first `n` Containers.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned TipoContainers
+     * Count returned Containers
     **/
-    _count?: true | TipoContainerCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: TipoContainerAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: TipoContainerSumAggregateInputType
+    _count?: true | ContainerCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: TipoContainerMinAggregateInputType
+    _min?: ContainerMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: TipoContainerMaxAggregateInputType
+    _max?: ContainerMaxAggregateInputType
   }
 
-  export type GetTipoContainerAggregateType<T extends TipoContainerAggregateArgs> = {
-        [P in keyof T & keyof AggregateTipoContainer]: P extends '_count' | 'count'
+  export type GetContainerAggregateType<T extends ContainerAggregateArgs> = {
+        [P in keyof T & keyof AggregateContainer]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateTipoContainer[P]>
-      : GetScalarType<T[P], AggregateTipoContainer[P]>
+        : GetScalarType<T[P], AggregateContainer[P]>
+      : GetScalarType<T[P], AggregateContainer[P]>
   }
 
 
 
 
-  export type TipoContainerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TipoContainerWhereInput
-    orderBy?: TipoContainerOrderByWithAggregationInput | TipoContainerOrderByWithAggregationInput[]
-    by: TipoContainerScalarFieldEnum[] | TipoContainerScalarFieldEnum
-    having?: TipoContainerScalarWhereWithAggregatesInput
+  export type ContainerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ContainerWhereInput
+    orderBy?: ContainerOrderByWithAggregationInput | ContainerOrderByWithAggregationInput[]
+    by: ContainerScalarFieldEnum[] | ContainerScalarFieldEnum
+    having?: ContainerScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: TipoContainerCountAggregateInputType | true
-    _avg?: TipoContainerAvgAggregateInputType
-    _sum?: TipoContainerSumAggregateInputType
-    _min?: TipoContainerMinAggregateInputType
-    _max?: TipoContainerMaxAggregateInputType
+    _count?: ContainerCountAggregateInputType | true
+    _min?: ContainerMinAggregateInputType
+    _max?: ContainerMaxAggregateInputType
   }
 
-  export type TipoContainerGroupByOutputType = {
-    id_tipo_container: string
-    codigo_iso_tipo_container: string
-    nome_tipo_container: string
-    nome_ingles_tipo_container: string
-    tamanho_pes_tipo_container: number
-    categoria_tipo_container: string
-    ativo_tipo_container: boolean
-    _count: TipoContainerCountAggregateOutputType | null
-    _avg: TipoContainerAvgAggregateOutputType | null
-    _sum: TipoContainerSumAggregateOutputType | null
-    _min: TipoContainerMinAggregateOutputType | null
-    _max: TipoContainerMaxAggregateOutputType | null
+  export type ContainerGroupByOutputType = {
+    id_container: string
+    tipo_container: $Enums.ContainerTipo
+    tamanho_container: string
+    codigo_iso_container: string | null
+    armador_dono_container: string | null
+    ativo_container: boolean
+    _count: ContainerCountAggregateOutputType | null
+    _min: ContainerMinAggregateOutputType | null
+    _max: ContainerMaxAggregateOutputType | null
   }
 
-  type GetTipoContainerGroupByPayload<T extends TipoContainerGroupByArgs> = Prisma.PrismaPromise<
+  type GetContainerGroupByPayload<T extends ContainerGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<TipoContainerGroupByOutputType, T['by']> &
+      PickEnumerable<ContainerGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof TipoContainerGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ContainerGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], TipoContainerGroupByOutputType[P]>
-            : GetScalarType<T[P], TipoContainerGroupByOutputType[P]>
+              : GetScalarType<T[P], ContainerGroupByOutputType[P]>
+            : GetScalarType<T[P], ContainerGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type TipoContainerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_tipo_container?: boolean
-    codigo_iso_tipo_container?: boolean
-    nome_tipo_container?: boolean
-    nome_ingles_tipo_container?: boolean
-    tamanho_pes_tipo_container?: boolean
-    categoria_tipo_container?: boolean
-    ativo_tipo_container?: boolean
-  }, ExtArgs["result"]["tipoContainer"]>
+  export type ContainerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_container?: boolean
+    tipo_container?: boolean
+    tamanho_container?: boolean
+    codigo_iso_container?: boolean
+    armador_dono_container?: boolean
+    ativo_container?: boolean
+  }, ExtArgs["result"]["container"]>
 
-  export type TipoContainerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_tipo_container?: boolean
-    codigo_iso_tipo_container?: boolean
-    nome_tipo_container?: boolean
-    nome_ingles_tipo_container?: boolean
-    tamanho_pes_tipo_container?: boolean
-    categoria_tipo_container?: boolean
-    ativo_tipo_container?: boolean
-  }, ExtArgs["result"]["tipoContainer"]>
+  export type ContainerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_container?: boolean
+    tipo_container?: boolean
+    tamanho_container?: boolean
+    codigo_iso_container?: boolean
+    armador_dono_container?: boolean
+    ativo_container?: boolean
+  }, ExtArgs["result"]["container"]>
 
-  export type TipoContainerSelectScalar = {
-    id_tipo_container?: boolean
-    codigo_iso_tipo_container?: boolean
-    nome_tipo_container?: boolean
-    nome_ingles_tipo_container?: boolean
-    tamanho_pes_tipo_container?: boolean
-    categoria_tipo_container?: boolean
-    ativo_tipo_container?: boolean
+  export type ContainerSelectScalar = {
+    id_container?: boolean
+    tipo_container?: boolean
+    tamanho_container?: boolean
+    codigo_iso_container?: boolean
+    armador_dono_container?: boolean
+    ativo_container?: boolean
   }
 
 
-  export type $TipoContainerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "TipoContainer"
+  export type $ContainerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Container"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id_tipo_container: string
-      codigo_iso_tipo_container: string
-      nome_tipo_container: string
-      nome_ingles_tipo_container: string
-      tamanho_pes_tipo_container: number
-      categoria_tipo_container: string
-      ativo_tipo_container: boolean
-    }, ExtArgs["result"]["tipoContainer"]>
+      id_container: string
+      tipo_container: $Enums.ContainerTipo
+      tamanho_container: string
+      codigo_iso_container: string | null
+      armador_dono_container: string | null
+      ativo_container: boolean
+    }, ExtArgs["result"]["container"]>
     composites: {}
   }
 
-  type TipoContainerGetPayload<S extends boolean | null | undefined | TipoContainerDefaultArgs> = $Result.GetResult<Prisma.$TipoContainerPayload, S>
+  type ContainerGetPayload<S extends boolean | null | undefined | ContainerDefaultArgs> = $Result.GetResult<Prisma.$ContainerPayload, S>
 
-  type TipoContainerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<TipoContainerFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: TipoContainerCountAggregateInputType | true
+  type ContainerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ContainerFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ContainerCountAggregateInputType | true
     }
 
-  export interface TipoContainerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TipoContainer'], meta: { name: 'TipoContainer' } }
+  export interface ContainerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Container'], meta: { name: 'Container' } }
     /**
-     * Find zero or one TipoContainer that matches the filter.
-     * @param {TipoContainerFindUniqueArgs} args - Arguments to find a TipoContainer
+     * Find zero or one Container that matches the filter.
+     * @param {ContainerFindUniqueArgs} args - Arguments to find a Container
      * @example
-     * // Get one TipoContainer
-     * const tipoContainer = await prisma.tipoContainer.findUnique({
+     * // Get one Container
+     * const container = await prisma.container.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends TipoContainerFindUniqueArgs>(args: SelectSubset<T, TipoContainerFindUniqueArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ContainerFindUniqueArgs>(args: SelectSubset<T, ContainerFindUniqueArgs<ExtArgs>>): Prisma__ContainerClient<$Result.GetResult<Prisma.$ContainerPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one TipoContainer that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one Container that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {TipoContainerFindUniqueOrThrowArgs} args - Arguments to find a TipoContainer
+     * @param {ContainerFindUniqueOrThrowArgs} args - Arguments to find a Container
      * @example
-     * // Get one TipoContainer
-     * const tipoContainer = await prisma.tipoContainer.findUniqueOrThrow({
+     * // Get one Container
+     * const container = await prisma.container.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends TipoContainerFindUniqueOrThrowArgs>(args: SelectSubset<T, TipoContainerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ContainerFindUniqueOrThrowArgs>(args: SelectSubset<T, ContainerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ContainerClient<$Result.GetResult<Prisma.$ContainerPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first TipoContainer that matches the filter.
+     * Find the first Container that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TipoContainerFindFirstArgs} args - Arguments to find a TipoContainer
+     * @param {ContainerFindFirstArgs} args - Arguments to find a Container
      * @example
-     * // Get one TipoContainer
-     * const tipoContainer = await prisma.tipoContainer.findFirst({
+     * // Get one Container
+     * const container = await prisma.container.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends TipoContainerFindFirstArgs>(args?: SelectSubset<T, TipoContainerFindFirstArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ContainerFindFirstArgs>(args?: SelectSubset<T, ContainerFindFirstArgs<ExtArgs>>): Prisma__ContainerClient<$Result.GetResult<Prisma.$ContainerPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first TipoContainer that matches the filter or
+     * Find the first Container that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TipoContainerFindFirstOrThrowArgs} args - Arguments to find a TipoContainer
+     * @param {ContainerFindFirstOrThrowArgs} args - Arguments to find a Container
      * @example
-     * // Get one TipoContainer
-     * const tipoContainer = await prisma.tipoContainer.findFirstOrThrow({
+     * // Get one Container
+     * const container = await prisma.container.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends TipoContainerFindFirstOrThrowArgs>(args?: SelectSubset<T, TipoContainerFindFirstOrThrowArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ContainerFindFirstOrThrowArgs>(args?: SelectSubset<T, ContainerFindFirstOrThrowArgs<ExtArgs>>): Prisma__ContainerClient<$Result.GetResult<Prisma.$ContainerPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more TipoContainers that matches the filter.
+     * Find zero or more Containers that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TipoContainerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ContainerFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all TipoContainers
-     * const tipoContainers = await prisma.tipoContainer.findMany()
+     * // Get all Containers
+     * const containers = await prisma.container.findMany()
      * 
-     * // Get first 10 TipoContainers
-     * const tipoContainers = await prisma.tipoContainer.findMany({ take: 10 })
+     * // Get first 10 Containers
+     * const containers = await prisma.container.findMany({ take: 10 })
      * 
-     * // Only select the `id_tipo_container`
-     * const tipoContainerWithId_tipo_containerOnly = await prisma.tipoContainer.findMany({ select: { id_tipo_container: true } })
+     * // Only select the `id_container`
+     * const containerWithId_containerOnly = await prisma.container.findMany({ select: { id_container: true } })
      * 
      */
-    findMany<T extends TipoContainerFindManyArgs>(args?: SelectSubset<T, TipoContainerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ContainerFindManyArgs>(args?: SelectSubset<T, ContainerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContainerPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a TipoContainer.
-     * @param {TipoContainerCreateArgs} args - Arguments to create a TipoContainer.
+     * Create a Container.
+     * @param {ContainerCreateArgs} args - Arguments to create a Container.
      * @example
-     * // Create one TipoContainer
-     * const TipoContainer = await prisma.tipoContainer.create({
+     * // Create one Container
+     * const Container = await prisma.container.create({
      *   data: {
-     *     // ... data to create a TipoContainer
+     *     // ... data to create a Container
      *   }
      * })
      * 
      */
-    create<T extends TipoContainerCreateArgs>(args: SelectSubset<T, TipoContainerCreateArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ContainerCreateArgs>(args: SelectSubset<T, ContainerCreateArgs<ExtArgs>>): Prisma__ContainerClient<$Result.GetResult<Prisma.$ContainerPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many TipoContainers.
-     * @param {TipoContainerCreateManyArgs} args - Arguments to create many TipoContainers.
+     * Create many Containers.
+     * @param {ContainerCreateManyArgs} args - Arguments to create many Containers.
      * @example
-     * // Create many TipoContainers
-     * const tipoContainer = await prisma.tipoContainer.createMany({
+     * // Create many Containers
+     * const container = await prisma.container.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends TipoContainerCreateManyArgs>(args?: SelectSubset<T, TipoContainerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ContainerCreateManyArgs>(args?: SelectSubset<T, ContainerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many TipoContainers and returns the data saved in the database.
-     * @param {TipoContainerCreateManyAndReturnArgs} args - Arguments to create many TipoContainers.
+     * Create many Containers and returns the data saved in the database.
+     * @param {ContainerCreateManyAndReturnArgs} args - Arguments to create many Containers.
      * @example
-     * // Create many TipoContainers
-     * const tipoContainer = await prisma.tipoContainer.createManyAndReturn({
+     * // Create many Containers
+     * const container = await prisma.container.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many TipoContainers and only return the `id_tipo_container`
-     * const tipoContainerWithId_tipo_containerOnly = await prisma.tipoContainer.createManyAndReturn({ 
-     *   select: { id_tipo_container: true },
+     * // Create many Containers and only return the `id_container`
+     * const containerWithId_containerOnly = await prisma.container.createManyAndReturn({ 
+     *   select: { id_container: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -9231,28 +10221,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends TipoContainerCreateManyAndReturnArgs>(args?: SelectSubset<T, TipoContainerCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ContainerCreateManyAndReturnArgs>(args?: SelectSubset<T, ContainerCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContainerPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a TipoContainer.
-     * @param {TipoContainerDeleteArgs} args - Arguments to delete one TipoContainer.
+     * Delete a Container.
+     * @param {ContainerDeleteArgs} args - Arguments to delete one Container.
      * @example
-     * // Delete one TipoContainer
-     * const TipoContainer = await prisma.tipoContainer.delete({
+     * // Delete one Container
+     * const Container = await prisma.container.delete({
      *   where: {
-     *     // ... filter to delete one TipoContainer
+     *     // ... filter to delete one Container
      *   }
      * })
      * 
      */
-    delete<T extends TipoContainerDeleteArgs>(args: SelectSubset<T, TipoContainerDeleteArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ContainerDeleteArgs>(args: SelectSubset<T, ContainerDeleteArgs<ExtArgs>>): Prisma__ContainerClient<$Result.GetResult<Prisma.$ContainerPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one TipoContainer.
-     * @param {TipoContainerUpdateArgs} args - Arguments to update one TipoContainer.
+     * Update one Container.
+     * @param {ContainerUpdateArgs} args - Arguments to update one Container.
      * @example
-     * // Update one TipoContainer
-     * const tipoContainer = await prisma.tipoContainer.update({
+     * // Update one Container
+     * const container = await prisma.container.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -9262,30 +10252,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends TipoContainerUpdateArgs>(args: SelectSubset<T, TipoContainerUpdateArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ContainerUpdateArgs>(args: SelectSubset<T, ContainerUpdateArgs<ExtArgs>>): Prisma__ContainerClient<$Result.GetResult<Prisma.$ContainerPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more TipoContainers.
-     * @param {TipoContainerDeleteManyArgs} args - Arguments to filter TipoContainers to delete.
+     * Delete zero or more Containers.
+     * @param {ContainerDeleteManyArgs} args - Arguments to filter Containers to delete.
      * @example
-     * // Delete a few TipoContainers
-     * const { count } = await prisma.tipoContainer.deleteMany({
+     * // Delete a few Containers
+     * const { count } = await prisma.container.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends TipoContainerDeleteManyArgs>(args?: SelectSubset<T, TipoContainerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ContainerDeleteManyArgs>(args?: SelectSubset<T, ContainerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more TipoContainers.
+     * Update zero or more Containers.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TipoContainerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ContainerUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many TipoContainers
-     * const tipoContainer = await prisma.tipoContainer.updateMany({
+     * // Update many Containers
+     * const container = await prisma.container.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -9295,56 +10285,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends TipoContainerUpdateManyArgs>(args: SelectSubset<T, TipoContainerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ContainerUpdateManyArgs>(args: SelectSubset<T, ContainerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one TipoContainer.
-     * @param {TipoContainerUpsertArgs} args - Arguments to update or create a TipoContainer.
+     * Create or update one Container.
+     * @param {ContainerUpsertArgs} args - Arguments to update or create a Container.
      * @example
-     * // Update or create a TipoContainer
-     * const tipoContainer = await prisma.tipoContainer.upsert({
+     * // Update or create a Container
+     * const container = await prisma.container.upsert({
      *   create: {
-     *     // ... data to create a TipoContainer
+     *     // ... data to create a Container
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the TipoContainer we want to update
+     *     // ... the filter for the Container we want to update
      *   }
      * })
      */
-    upsert<T extends TipoContainerUpsertArgs>(args: SelectSubset<T, TipoContainerUpsertArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ContainerUpsertArgs>(args: SelectSubset<T, ContainerUpsertArgs<ExtArgs>>): Prisma__ContainerClient<$Result.GetResult<Prisma.$ContainerPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of TipoContainers.
+     * Count the number of Containers.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TipoContainerCountArgs} args - Arguments to filter TipoContainers to count.
+     * @param {ContainerCountArgs} args - Arguments to filter Containers to count.
      * @example
-     * // Count the number of TipoContainers
-     * const count = await prisma.tipoContainer.count({
+     * // Count the number of Containers
+     * const count = await prisma.container.count({
      *   where: {
-     *     // ... the filter for the TipoContainers we want to count
+     *     // ... the filter for the Containers we want to count
      *   }
      * })
     **/
-    count<T extends TipoContainerCountArgs>(
-      args?: Subset<T, TipoContainerCountArgs>,
+    count<T extends ContainerCountArgs>(
+      args?: Subset<T, ContainerCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], TipoContainerCountAggregateOutputType>
+          : GetScalarType<T['select'], ContainerCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a TipoContainer.
+     * Allows you to perform aggregations operations on a Container.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TipoContainerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ContainerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -9364,13 +10354,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends TipoContainerAggregateArgs>(args: Subset<T, TipoContainerAggregateArgs>): Prisma.PrismaPromise<GetTipoContainerAggregateType<T>>
+    aggregate<T extends ContainerAggregateArgs>(args: Subset<T, ContainerAggregateArgs>): Prisma.PrismaPromise<GetContainerAggregateType<T>>
 
     /**
-     * Group by TipoContainer.
+     * Group by Container.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TipoContainerGroupByArgs} args - Group by arguments.
+     * @param {ContainerGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -9385,14 +10375,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends TipoContainerGroupByArgs,
+      T extends ContainerGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: TipoContainerGroupByArgs['orderBy'] }
-        : { orderBy?: TipoContainerGroupByArgs['orderBy'] },
+        ? { orderBy: ContainerGroupByArgs['orderBy'] }
+        : { orderBy?: ContainerGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -9441,20 +10431,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, TipoContainerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTipoContainerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ContainerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetContainerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the TipoContainer model
+   * Fields of the Container model
    */
-  readonly fields: TipoContainerFieldRefs;
+  readonly fields: ContainerFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for TipoContainer.
+   * The delegate class that acts as a "Promise-like" for Container.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__TipoContainerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ContainerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -9482,301 +10472,300 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the TipoContainer model
+   * Fields of the Container model
    */ 
-  interface TipoContainerFieldRefs {
-    readonly id_tipo_container: FieldRef<"TipoContainer", 'String'>
-    readonly codigo_iso_tipo_container: FieldRef<"TipoContainer", 'String'>
-    readonly nome_tipo_container: FieldRef<"TipoContainer", 'String'>
-    readonly nome_ingles_tipo_container: FieldRef<"TipoContainer", 'String'>
-    readonly tamanho_pes_tipo_container: FieldRef<"TipoContainer", 'Int'>
-    readonly categoria_tipo_container: FieldRef<"TipoContainer", 'String'>
-    readonly ativo_tipo_container: FieldRef<"TipoContainer", 'Boolean'>
+  interface ContainerFieldRefs {
+    readonly id_container: FieldRef<"Container", 'String'>
+    readonly tipo_container: FieldRef<"Container", 'ContainerTipo'>
+    readonly tamanho_container: FieldRef<"Container", 'String'>
+    readonly codigo_iso_container: FieldRef<"Container", 'String'>
+    readonly armador_dono_container: FieldRef<"Container", 'String'>
+    readonly ativo_container: FieldRef<"Container", 'Boolean'>
   }
     
 
   // Custom InputTypes
   /**
-   * TipoContainer findUnique
+   * Container findUnique
    */
-  export type TipoContainerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TipoContainer
+     * Select specific fields to fetch from the Container
      */
-    select?: TipoContainerSelect<ExtArgs> | null
+    select?: ContainerSelect<ExtArgs> | null
     /**
-     * Filter, which TipoContainer to fetch.
+     * Filter, which Container to fetch.
      */
-    where: TipoContainerWhereUniqueInput
+    where: ContainerWhereUniqueInput
   }
 
   /**
-   * TipoContainer findUniqueOrThrow
+   * Container findUniqueOrThrow
    */
-  export type TipoContainerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TipoContainer
+     * Select specific fields to fetch from the Container
      */
-    select?: TipoContainerSelect<ExtArgs> | null
+    select?: ContainerSelect<ExtArgs> | null
     /**
-     * Filter, which TipoContainer to fetch.
+     * Filter, which Container to fetch.
      */
-    where: TipoContainerWhereUniqueInput
+    where: ContainerWhereUniqueInput
   }
 
   /**
-   * TipoContainer findFirst
+   * Container findFirst
    */
-  export type TipoContainerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TipoContainer
+     * Select specific fields to fetch from the Container
      */
-    select?: TipoContainerSelect<ExtArgs> | null
+    select?: ContainerSelect<ExtArgs> | null
     /**
-     * Filter, which TipoContainer to fetch.
+     * Filter, which Container to fetch.
      */
-    where?: TipoContainerWhereInput
+    where?: ContainerWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TipoContainers to fetch.
+     * Determine the order of Containers to fetch.
      */
-    orderBy?: TipoContainerOrderByWithRelationInput | TipoContainerOrderByWithRelationInput[]
+    orderBy?: ContainerOrderByWithRelationInput | ContainerOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for TipoContainers.
+     * Sets the position for searching for Containers.
      */
-    cursor?: TipoContainerWhereUniqueInput
+    cursor?: ContainerWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TipoContainers from the position of the cursor.
+     * Take `±n` Containers from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TipoContainers.
+     * Skip the first `n` Containers.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of TipoContainers.
+     * Filter by unique combinations of Containers.
      */
-    distinct?: TipoContainerScalarFieldEnum | TipoContainerScalarFieldEnum[]
+    distinct?: ContainerScalarFieldEnum | ContainerScalarFieldEnum[]
   }
 
   /**
-   * TipoContainer findFirstOrThrow
+   * Container findFirstOrThrow
    */
-  export type TipoContainerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TipoContainer
+     * Select specific fields to fetch from the Container
      */
-    select?: TipoContainerSelect<ExtArgs> | null
+    select?: ContainerSelect<ExtArgs> | null
     /**
-     * Filter, which TipoContainer to fetch.
+     * Filter, which Container to fetch.
      */
-    where?: TipoContainerWhereInput
+    where?: ContainerWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TipoContainers to fetch.
+     * Determine the order of Containers to fetch.
      */
-    orderBy?: TipoContainerOrderByWithRelationInput | TipoContainerOrderByWithRelationInput[]
+    orderBy?: ContainerOrderByWithRelationInput | ContainerOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for TipoContainers.
+     * Sets the position for searching for Containers.
      */
-    cursor?: TipoContainerWhereUniqueInput
+    cursor?: ContainerWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TipoContainers from the position of the cursor.
+     * Take `±n` Containers from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TipoContainers.
+     * Skip the first `n` Containers.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of TipoContainers.
+     * Filter by unique combinations of Containers.
      */
-    distinct?: TipoContainerScalarFieldEnum | TipoContainerScalarFieldEnum[]
+    distinct?: ContainerScalarFieldEnum | ContainerScalarFieldEnum[]
   }
 
   /**
-   * TipoContainer findMany
+   * Container findMany
    */
-  export type TipoContainerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TipoContainer
+     * Select specific fields to fetch from the Container
      */
-    select?: TipoContainerSelect<ExtArgs> | null
+    select?: ContainerSelect<ExtArgs> | null
     /**
-     * Filter, which TipoContainers to fetch.
+     * Filter, which Containers to fetch.
      */
-    where?: TipoContainerWhereInput
+    where?: ContainerWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TipoContainers to fetch.
+     * Determine the order of Containers to fetch.
      */
-    orderBy?: TipoContainerOrderByWithRelationInput | TipoContainerOrderByWithRelationInput[]
+    orderBy?: ContainerOrderByWithRelationInput | ContainerOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing TipoContainers.
+     * Sets the position for listing Containers.
      */
-    cursor?: TipoContainerWhereUniqueInput
+    cursor?: ContainerWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TipoContainers from the position of the cursor.
+     * Take `±n` Containers from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TipoContainers.
+     * Skip the first `n` Containers.
      */
     skip?: number
-    distinct?: TipoContainerScalarFieldEnum | TipoContainerScalarFieldEnum[]
+    distinct?: ContainerScalarFieldEnum | ContainerScalarFieldEnum[]
   }
 
   /**
-   * TipoContainer create
+   * Container create
    */
-  export type TipoContainerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TipoContainer
+     * Select specific fields to fetch from the Container
      */
-    select?: TipoContainerSelect<ExtArgs> | null
+    select?: ContainerSelect<ExtArgs> | null
     /**
-     * The data needed to create a TipoContainer.
+     * The data needed to create a Container.
      */
-    data: XOR<TipoContainerCreateInput, TipoContainerUncheckedCreateInput>
+    data: XOR<ContainerCreateInput, ContainerUncheckedCreateInput>
   }
 
   /**
-   * TipoContainer createMany
+   * Container createMany
    */
-  export type TipoContainerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many TipoContainers.
+     * The data used to create many Containers.
      */
-    data: TipoContainerCreateManyInput | TipoContainerCreateManyInput[]
+    data: ContainerCreateManyInput | ContainerCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * TipoContainer createManyAndReturn
+   * Container createManyAndReturn
    */
-  export type TipoContainerCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TipoContainer
+     * Select specific fields to fetch from the Container
      */
-    select?: TipoContainerSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ContainerSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many TipoContainers.
+     * The data used to create many Containers.
      */
-    data: TipoContainerCreateManyInput | TipoContainerCreateManyInput[]
+    data: ContainerCreateManyInput | ContainerCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * TipoContainer update
+   * Container update
    */
-  export type TipoContainerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TipoContainer
+     * Select specific fields to fetch from the Container
      */
-    select?: TipoContainerSelect<ExtArgs> | null
+    select?: ContainerSelect<ExtArgs> | null
     /**
-     * The data needed to update a TipoContainer.
+     * The data needed to update a Container.
      */
-    data: XOR<TipoContainerUpdateInput, TipoContainerUncheckedUpdateInput>
+    data: XOR<ContainerUpdateInput, ContainerUncheckedUpdateInput>
     /**
-     * Choose, which TipoContainer to update.
+     * Choose, which Container to update.
      */
-    where: TipoContainerWhereUniqueInput
+    where: ContainerWhereUniqueInput
   }
 
   /**
-   * TipoContainer updateMany
+   * Container updateMany
    */
-  export type TipoContainerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update TipoContainers.
+     * The data used to update Containers.
      */
-    data: XOR<TipoContainerUpdateManyMutationInput, TipoContainerUncheckedUpdateManyInput>
+    data: XOR<ContainerUpdateManyMutationInput, ContainerUncheckedUpdateManyInput>
     /**
-     * Filter which TipoContainers to update
+     * Filter which Containers to update
      */
-    where?: TipoContainerWhereInput
+    where?: ContainerWhereInput
   }
 
   /**
-   * TipoContainer upsert
+   * Container upsert
    */
-  export type TipoContainerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TipoContainer
+     * Select specific fields to fetch from the Container
      */
-    select?: TipoContainerSelect<ExtArgs> | null
+    select?: ContainerSelect<ExtArgs> | null
     /**
-     * The filter to search for the TipoContainer to update in case it exists.
+     * The filter to search for the Container to update in case it exists.
      */
-    where: TipoContainerWhereUniqueInput
+    where: ContainerWhereUniqueInput
     /**
-     * In case the TipoContainer found by the `where` argument doesn't exist, create a new TipoContainer with this data.
+     * In case the Container found by the `where` argument doesn't exist, create a new Container with this data.
      */
-    create: XOR<TipoContainerCreateInput, TipoContainerUncheckedCreateInput>
+    create: XOR<ContainerCreateInput, ContainerUncheckedCreateInput>
     /**
-     * In case the TipoContainer was found with the provided `where` argument, update it with this data.
+     * In case the Container was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<TipoContainerUpdateInput, TipoContainerUncheckedUpdateInput>
+    update: XOR<ContainerUpdateInput, ContainerUncheckedUpdateInput>
   }
 
   /**
-   * TipoContainer delete
+   * Container delete
    */
-  export type TipoContainerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TipoContainer
+     * Select specific fields to fetch from the Container
      */
-    select?: TipoContainerSelect<ExtArgs> | null
+    select?: ContainerSelect<ExtArgs> | null
     /**
-     * Filter which TipoContainer to delete.
+     * Filter which Container to delete.
      */
-    where: TipoContainerWhereUniqueInput
+    where: ContainerWhereUniqueInput
   }
 
   /**
-   * TipoContainer deleteMany
+   * Container deleteMany
    */
-  export type TipoContainerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which TipoContainers to delete
+     * Filter which Containers to delete
      */
-    where?: TipoContainerWhereInput
+    where?: ContainerWhereInput
   }
 
   /**
-   * TipoContainer without action
+   * Container without action
    */
-  export type TipoContainerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContainerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TipoContainer
+     * Select specific fields to fetch from the Container
      */
-    select?: TipoContainerSelect<ExtArgs> | null
+    select?: ContainerSelect<ExtArgs> | null
   }
 
 
@@ -14663,1906 +15652,6 @@ export namespace Prisma {
 
 
   /**
-   * Model ExportadorQuandoImportacao
-   */
-
-  export type AggregateExportadorQuandoImportacao = {
-    _count: ExportadorQuandoImportacaoCountAggregateOutputType | null
-    _min: ExportadorQuandoImportacaoMinAggregateOutputType | null
-    _max: ExportadorQuandoImportacaoMaxAggregateOutputType | null
-  }
-
-  export type ExportadorQuandoImportacaoMinAggregateOutputType = {
-    id_exportador_quando_importacao: string | null
-    id_organizacao_exportador: string | null
-    id_workspace_exportador: string | null
-    nome_exportador: string | null
-    endereco_exportador: string | null
-    cidade_exportador: string | null
-    estado_provincia_exportador: string | null
-    pais_exportador: string | null
-    zipcode_exportador: string | null
-    criado_em_exportador: Date | null
-    atualizado_em_exportador: Date | null
-  }
-
-  export type ExportadorQuandoImportacaoMaxAggregateOutputType = {
-    id_exportador_quando_importacao: string | null
-    id_organizacao_exportador: string | null
-    id_workspace_exportador: string | null
-    nome_exportador: string | null
-    endereco_exportador: string | null
-    cidade_exportador: string | null
-    estado_provincia_exportador: string | null
-    pais_exportador: string | null
-    zipcode_exportador: string | null
-    criado_em_exportador: Date | null
-    atualizado_em_exportador: Date | null
-  }
-
-  export type ExportadorQuandoImportacaoCountAggregateOutputType = {
-    id_exportador_quando_importacao: number
-    id_organizacao_exportador: number
-    id_workspace_exportador: number
-    nome_exportador: number
-    endereco_exportador: number
-    cidade_exportador: number
-    estado_provincia_exportador: number
-    pais_exportador: number
-    zipcode_exportador: number
-    criado_em_exportador: number
-    atualizado_em_exportador: number
-    _all: number
-  }
-
-
-  export type ExportadorQuandoImportacaoMinAggregateInputType = {
-    id_exportador_quando_importacao?: true
-    id_organizacao_exportador?: true
-    id_workspace_exportador?: true
-    nome_exportador?: true
-    endereco_exportador?: true
-    cidade_exportador?: true
-    estado_provincia_exportador?: true
-    pais_exportador?: true
-    zipcode_exportador?: true
-    criado_em_exportador?: true
-    atualizado_em_exportador?: true
-  }
-
-  export type ExportadorQuandoImportacaoMaxAggregateInputType = {
-    id_exportador_quando_importacao?: true
-    id_organizacao_exportador?: true
-    id_workspace_exportador?: true
-    nome_exportador?: true
-    endereco_exportador?: true
-    cidade_exportador?: true
-    estado_provincia_exportador?: true
-    pais_exportador?: true
-    zipcode_exportador?: true
-    criado_em_exportador?: true
-    atualizado_em_exportador?: true
-  }
-
-  export type ExportadorQuandoImportacaoCountAggregateInputType = {
-    id_exportador_quando_importacao?: true
-    id_organizacao_exportador?: true
-    id_workspace_exportador?: true
-    nome_exportador?: true
-    endereco_exportador?: true
-    cidade_exportador?: true
-    estado_provincia_exportador?: true
-    pais_exportador?: true
-    zipcode_exportador?: true
-    criado_em_exportador?: true
-    atualizado_em_exportador?: true
-    _all?: true
-  }
-
-  export type ExportadorQuandoImportacaoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which ExportadorQuandoImportacao to aggregate.
-     */
-    where?: ExportadorQuandoImportacaoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ExportadorQuandoImportacaos to fetch.
-     */
-    orderBy?: ExportadorQuandoImportacaoOrderByWithRelationInput | ExportadorQuandoImportacaoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: ExportadorQuandoImportacaoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ExportadorQuandoImportacaos from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ExportadorQuandoImportacaos.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned ExportadorQuandoImportacaos
-    **/
-    _count?: true | ExportadorQuandoImportacaoCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: ExportadorQuandoImportacaoMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: ExportadorQuandoImportacaoMaxAggregateInputType
-  }
-
-  export type GetExportadorQuandoImportacaoAggregateType<T extends ExportadorQuandoImportacaoAggregateArgs> = {
-        [P in keyof T & keyof AggregateExportadorQuandoImportacao]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateExportadorQuandoImportacao[P]>
-      : GetScalarType<T[P], AggregateExportadorQuandoImportacao[P]>
-  }
-
-
-
-
-  export type ExportadorQuandoImportacaoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ExportadorQuandoImportacaoWhereInput
-    orderBy?: ExportadorQuandoImportacaoOrderByWithAggregationInput | ExportadorQuandoImportacaoOrderByWithAggregationInput[]
-    by: ExportadorQuandoImportacaoScalarFieldEnum[] | ExportadorQuandoImportacaoScalarFieldEnum
-    having?: ExportadorQuandoImportacaoScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: ExportadorQuandoImportacaoCountAggregateInputType | true
-    _min?: ExportadorQuandoImportacaoMinAggregateInputType
-    _max?: ExportadorQuandoImportacaoMaxAggregateInputType
-  }
-
-  export type ExportadorQuandoImportacaoGroupByOutputType = {
-    id_exportador_quando_importacao: string
-    id_organizacao_exportador: string
-    id_workspace_exportador: string
-    nome_exportador: string
-    endereco_exportador: string | null
-    cidade_exportador: string | null
-    estado_provincia_exportador: string | null
-    pais_exportador: string
-    zipcode_exportador: string | null
-    criado_em_exportador: Date
-    atualizado_em_exportador: Date
-    _count: ExportadorQuandoImportacaoCountAggregateOutputType | null
-    _min: ExportadorQuandoImportacaoMinAggregateOutputType | null
-    _max: ExportadorQuandoImportacaoMaxAggregateOutputType | null
-  }
-
-  type GetExportadorQuandoImportacaoGroupByPayload<T extends ExportadorQuandoImportacaoGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<ExportadorQuandoImportacaoGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof ExportadorQuandoImportacaoGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], ExportadorQuandoImportacaoGroupByOutputType[P]>
-            : GetScalarType<T[P], ExportadorQuandoImportacaoGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type ExportadorQuandoImportacaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_exportador_quando_importacao?: boolean
-    id_organizacao_exportador?: boolean
-    id_workspace_exportador?: boolean
-    nome_exportador?: boolean
-    endereco_exportador?: boolean
-    cidade_exportador?: boolean
-    estado_provincia_exportador?: boolean
-    pais_exportador?: boolean
-    zipcode_exportador?: boolean
-    criado_em_exportador?: boolean
-    atualizado_em_exportador?: boolean
-  }, ExtArgs["result"]["exportadorQuandoImportacao"]>
-
-  export type ExportadorQuandoImportacaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_exportador_quando_importacao?: boolean
-    id_organizacao_exportador?: boolean
-    id_workspace_exportador?: boolean
-    nome_exportador?: boolean
-    endereco_exportador?: boolean
-    cidade_exportador?: boolean
-    estado_provincia_exportador?: boolean
-    pais_exportador?: boolean
-    zipcode_exportador?: boolean
-    criado_em_exportador?: boolean
-    atualizado_em_exportador?: boolean
-  }, ExtArgs["result"]["exportadorQuandoImportacao"]>
-
-  export type ExportadorQuandoImportacaoSelectScalar = {
-    id_exportador_quando_importacao?: boolean
-    id_organizacao_exportador?: boolean
-    id_workspace_exportador?: boolean
-    nome_exportador?: boolean
-    endereco_exportador?: boolean
-    cidade_exportador?: boolean
-    estado_provincia_exportador?: boolean
-    pais_exportador?: boolean
-    zipcode_exportador?: boolean
-    criado_em_exportador?: boolean
-    atualizado_em_exportador?: boolean
-  }
-
-
-  export type $ExportadorQuandoImportacaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ExportadorQuandoImportacao"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id_exportador_quando_importacao: string
-      id_organizacao_exportador: string
-      id_workspace_exportador: string
-      nome_exportador: string
-      endereco_exportador: string | null
-      cidade_exportador: string | null
-      estado_provincia_exportador: string | null
-      pais_exportador: string
-      zipcode_exportador: string | null
-      criado_em_exportador: Date
-      atualizado_em_exportador: Date
-    }, ExtArgs["result"]["exportadorQuandoImportacao"]>
-    composites: {}
-  }
-
-  type ExportadorQuandoImportacaoGetPayload<S extends boolean | null | undefined | ExportadorQuandoImportacaoDefaultArgs> = $Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload, S>
-
-  type ExportadorQuandoImportacaoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ExportadorQuandoImportacaoFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: ExportadorQuandoImportacaoCountAggregateInputType | true
-    }
-
-  export interface ExportadorQuandoImportacaoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ExportadorQuandoImportacao'], meta: { name: 'ExportadorQuandoImportacao' } }
-    /**
-     * Find zero or one ExportadorQuandoImportacao that matches the filter.
-     * @param {ExportadorQuandoImportacaoFindUniqueArgs} args - Arguments to find a ExportadorQuandoImportacao
-     * @example
-     * // Get one ExportadorQuandoImportacao
-     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends ExportadorQuandoImportacaoFindUniqueArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoFindUniqueArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
-
-    /**
-     * Find one ExportadorQuandoImportacao that matches the filter or throw an error with `error.code='P2025'` 
-     * if no matches were found.
-     * @param {ExportadorQuandoImportacaoFindUniqueOrThrowArgs} args - Arguments to find a ExportadorQuandoImportacao
-     * @example
-     * // Get one ExportadorQuandoImportacao
-     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends ExportadorQuandoImportacaoFindUniqueOrThrowArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
-
-    /**
-     * Find the first ExportadorQuandoImportacao that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExportadorQuandoImportacaoFindFirstArgs} args - Arguments to find a ExportadorQuandoImportacao
-     * @example
-     * // Get one ExportadorQuandoImportacao
-     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends ExportadorQuandoImportacaoFindFirstArgs>(args?: SelectSubset<T, ExportadorQuandoImportacaoFindFirstArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
-
-    /**
-     * Find the first ExportadorQuandoImportacao that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExportadorQuandoImportacaoFindFirstOrThrowArgs} args - Arguments to find a ExportadorQuandoImportacao
-     * @example
-     * // Get one ExportadorQuandoImportacao
-     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends ExportadorQuandoImportacaoFindFirstOrThrowArgs>(args?: SelectSubset<T, ExportadorQuandoImportacaoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
-
-    /**
-     * Find zero or more ExportadorQuandoImportacaos that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExportadorQuandoImportacaoFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all ExportadorQuandoImportacaos
-     * const exportadorQuandoImportacaos = await prisma.exportadorQuandoImportacao.findMany()
-     * 
-     * // Get first 10 ExportadorQuandoImportacaos
-     * const exportadorQuandoImportacaos = await prisma.exportadorQuandoImportacao.findMany({ take: 10 })
-     * 
-     * // Only select the `id_exportador_quando_importacao`
-     * const exportadorQuandoImportacaoWithId_exportador_quando_importacaoOnly = await prisma.exportadorQuandoImportacao.findMany({ select: { id_exportador_quando_importacao: true } })
-     * 
-     */
-    findMany<T extends ExportadorQuandoImportacaoFindManyArgs>(args?: SelectSubset<T, ExportadorQuandoImportacaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "findMany">>
-
-    /**
-     * Create a ExportadorQuandoImportacao.
-     * @param {ExportadorQuandoImportacaoCreateArgs} args - Arguments to create a ExportadorQuandoImportacao.
-     * @example
-     * // Create one ExportadorQuandoImportacao
-     * const ExportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.create({
-     *   data: {
-     *     // ... data to create a ExportadorQuandoImportacao
-     *   }
-     * })
-     * 
-     */
-    create<T extends ExportadorQuandoImportacaoCreateArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoCreateArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "create">, never, ExtArgs>
-
-    /**
-     * Create many ExportadorQuandoImportacaos.
-     * @param {ExportadorQuandoImportacaoCreateManyArgs} args - Arguments to create many ExportadorQuandoImportacaos.
-     * @example
-     * // Create many ExportadorQuandoImportacaos
-     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends ExportadorQuandoImportacaoCreateManyArgs>(args?: SelectSubset<T, ExportadorQuandoImportacaoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many ExportadorQuandoImportacaos and returns the data saved in the database.
-     * @param {ExportadorQuandoImportacaoCreateManyAndReturnArgs} args - Arguments to create many ExportadorQuandoImportacaos.
-     * @example
-     * // Create many ExportadorQuandoImportacaos
-     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many ExportadorQuandoImportacaos and only return the `id_exportador_quando_importacao`
-     * const exportadorQuandoImportacaoWithId_exportador_quando_importacaoOnly = await prisma.exportadorQuandoImportacao.createManyAndReturn({ 
-     *   select: { id_exportador_quando_importacao: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends ExportadorQuandoImportacaoCreateManyAndReturnArgs>(args?: SelectSubset<T, ExportadorQuandoImportacaoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "createManyAndReturn">>
-
-    /**
-     * Delete a ExportadorQuandoImportacao.
-     * @param {ExportadorQuandoImportacaoDeleteArgs} args - Arguments to delete one ExportadorQuandoImportacao.
-     * @example
-     * // Delete one ExportadorQuandoImportacao
-     * const ExportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.delete({
-     *   where: {
-     *     // ... filter to delete one ExportadorQuandoImportacao
-     *   }
-     * })
-     * 
-     */
-    delete<T extends ExportadorQuandoImportacaoDeleteArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoDeleteArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
-
-    /**
-     * Update one ExportadorQuandoImportacao.
-     * @param {ExportadorQuandoImportacaoUpdateArgs} args - Arguments to update one ExportadorQuandoImportacao.
-     * @example
-     * // Update one ExportadorQuandoImportacao
-     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends ExportadorQuandoImportacaoUpdateArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoUpdateArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "update">, never, ExtArgs>
-
-    /**
-     * Delete zero or more ExportadorQuandoImportacaos.
-     * @param {ExportadorQuandoImportacaoDeleteManyArgs} args - Arguments to filter ExportadorQuandoImportacaos to delete.
-     * @example
-     * // Delete a few ExportadorQuandoImportacaos
-     * const { count } = await prisma.exportadorQuandoImportacao.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends ExportadorQuandoImportacaoDeleteManyArgs>(args?: SelectSubset<T, ExportadorQuandoImportacaoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more ExportadorQuandoImportacaos.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExportadorQuandoImportacaoUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many ExportadorQuandoImportacaos
-     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends ExportadorQuandoImportacaoUpdateManyArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one ExportadorQuandoImportacao.
-     * @param {ExportadorQuandoImportacaoUpsertArgs} args - Arguments to update or create a ExportadorQuandoImportacao.
-     * @example
-     * // Update or create a ExportadorQuandoImportacao
-     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.upsert({
-     *   create: {
-     *     // ... data to create a ExportadorQuandoImportacao
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the ExportadorQuandoImportacao we want to update
-     *   }
-     * })
-     */
-    upsert<T extends ExportadorQuandoImportacaoUpsertArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoUpsertArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
-
-
-    /**
-     * Count the number of ExportadorQuandoImportacaos.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExportadorQuandoImportacaoCountArgs} args - Arguments to filter ExportadorQuandoImportacaos to count.
-     * @example
-     * // Count the number of ExportadorQuandoImportacaos
-     * const count = await prisma.exportadorQuandoImportacao.count({
-     *   where: {
-     *     // ... the filter for the ExportadorQuandoImportacaos we want to count
-     *   }
-     * })
-    **/
-    count<T extends ExportadorQuandoImportacaoCountArgs>(
-      args?: Subset<T, ExportadorQuandoImportacaoCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], ExportadorQuandoImportacaoCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a ExportadorQuandoImportacao.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExportadorQuandoImportacaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends ExportadorQuandoImportacaoAggregateArgs>(args: Subset<T, ExportadorQuandoImportacaoAggregateArgs>): Prisma.PrismaPromise<GetExportadorQuandoImportacaoAggregateType<T>>
-
-    /**
-     * Group by ExportadorQuandoImportacao.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExportadorQuandoImportacaoGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends ExportadorQuandoImportacaoGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ExportadorQuandoImportacaoGroupByArgs['orderBy'] }
-        : { orderBy?: ExportadorQuandoImportacaoGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, ExportadorQuandoImportacaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetExportadorQuandoImportacaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the ExportadorQuandoImportacao model
-   */
-  readonly fields: ExportadorQuandoImportacaoFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for ExportadorQuandoImportacao.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__ExportadorQuandoImportacaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the ExportadorQuandoImportacao model
-   */ 
-  interface ExportadorQuandoImportacaoFieldRefs {
-    readonly id_exportador_quando_importacao: FieldRef<"ExportadorQuandoImportacao", 'String'>
-    readonly id_organizacao_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
-    readonly id_workspace_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
-    readonly nome_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
-    readonly endereco_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
-    readonly cidade_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
-    readonly estado_provincia_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
-    readonly pais_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
-    readonly zipcode_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
-    readonly criado_em_exportador: FieldRef<"ExportadorQuandoImportacao", 'DateTime'>
-    readonly atualizado_em_exportador: FieldRef<"ExportadorQuandoImportacao", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * ExportadorQuandoImportacao findUnique
-   */
-  export type ExportadorQuandoImportacaoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ExportadorQuandoImportacao
-     */
-    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
-    /**
-     * Filter, which ExportadorQuandoImportacao to fetch.
-     */
-    where: ExportadorQuandoImportacaoWhereUniqueInput
-  }
-
-  /**
-   * ExportadorQuandoImportacao findUniqueOrThrow
-   */
-  export type ExportadorQuandoImportacaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ExportadorQuandoImportacao
-     */
-    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
-    /**
-     * Filter, which ExportadorQuandoImportacao to fetch.
-     */
-    where: ExportadorQuandoImportacaoWhereUniqueInput
-  }
-
-  /**
-   * ExportadorQuandoImportacao findFirst
-   */
-  export type ExportadorQuandoImportacaoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ExportadorQuandoImportacao
-     */
-    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
-    /**
-     * Filter, which ExportadorQuandoImportacao to fetch.
-     */
-    where?: ExportadorQuandoImportacaoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ExportadorQuandoImportacaos to fetch.
-     */
-    orderBy?: ExportadorQuandoImportacaoOrderByWithRelationInput | ExportadorQuandoImportacaoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for ExportadorQuandoImportacaos.
-     */
-    cursor?: ExportadorQuandoImportacaoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ExportadorQuandoImportacaos from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ExportadorQuandoImportacaos.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ExportadorQuandoImportacaos.
-     */
-    distinct?: ExportadorQuandoImportacaoScalarFieldEnum | ExportadorQuandoImportacaoScalarFieldEnum[]
-  }
-
-  /**
-   * ExportadorQuandoImportacao findFirstOrThrow
-   */
-  export type ExportadorQuandoImportacaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ExportadorQuandoImportacao
-     */
-    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
-    /**
-     * Filter, which ExportadorQuandoImportacao to fetch.
-     */
-    where?: ExportadorQuandoImportacaoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ExportadorQuandoImportacaos to fetch.
-     */
-    orderBy?: ExportadorQuandoImportacaoOrderByWithRelationInput | ExportadorQuandoImportacaoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for ExportadorQuandoImportacaos.
-     */
-    cursor?: ExportadorQuandoImportacaoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ExportadorQuandoImportacaos from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ExportadorQuandoImportacaos.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ExportadorQuandoImportacaos.
-     */
-    distinct?: ExportadorQuandoImportacaoScalarFieldEnum | ExportadorQuandoImportacaoScalarFieldEnum[]
-  }
-
-  /**
-   * ExportadorQuandoImportacao findMany
-   */
-  export type ExportadorQuandoImportacaoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ExportadorQuandoImportacao
-     */
-    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
-    /**
-     * Filter, which ExportadorQuandoImportacaos to fetch.
-     */
-    where?: ExportadorQuandoImportacaoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ExportadorQuandoImportacaos to fetch.
-     */
-    orderBy?: ExportadorQuandoImportacaoOrderByWithRelationInput | ExportadorQuandoImportacaoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing ExportadorQuandoImportacaos.
-     */
-    cursor?: ExportadorQuandoImportacaoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ExportadorQuandoImportacaos from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ExportadorQuandoImportacaos.
-     */
-    skip?: number
-    distinct?: ExportadorQuandoImportacaoScalarFieldEnum | ExportadorQuandoImportacaoScalarFieldEnum[]
-  }
-
-  /**
-   * ExportadorQuandoImportacao create
-   */
-  export type ExportadorQuandoImportacaoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ExportadorQuandoImportacao
-     */
-    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
-    /**
-     * The data needed to create a ExportadorQuandoImportacao.
-     */
-    data: XOR<ExportadorQuandoImportacaoCreateInput, ExportadorQuandoImportacaoUncheckedCreateInput>
-  }
-
-  /**
-   * ExportadorQuandoImportacao createMany
-   */
-  export type ExportadorQuandoImportacaoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many ExportadorQuandoImportacaos.
-     */
-    data: ExportadorQuandoImportacaoCreateManyInput | ExportadorQuandoImportacaoCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * ExportadorQuandoImportacao createManyAndReturn
-   */
-  export type ExportadorQuandoImportacaoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ExportadorQuandoImportacao
-     */
-    select?: ExportadorQuandoImportacaoSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * The data used to create many ExportadorQuandoImportacaos.
-     */
-    data: ExportadorQuandoImportacaoCreateManyInput | ExportadorQuandoImportacaoCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * ExportadorQuandoImportacao update
-   */
-  export type ExportadorQuandoImportacaoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ExportadorQuandoImportacao
-     */
-    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
-    /**
-     * The data needed to update a ExportadorQuandoImportacao.
-     */
-    data: XOR<ExportadorQuandoImportacaoUpdateInput, ExportadorQuandoImportacaoUncheckedUpdateInput>
-    /**
-     * Choose, which ExportadorQuandoImportacao to update.
-     */
-    where: ExportadorQuandoImportacaoWhereUniqueInput
-  }
-
-  /**
-   * ExportadorQuandoImportacao updateMany
-   */
-  export type ExportadorQuandoImportacaoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update ExportadorQuandoImportacaos.
-     */
-    data: XOR<ExportadorQuandoImportacaoUpdateManyMutationInput, ExportadorQuandoImportacaoUncheckedUpdateManyInput>
-    /**
-     * Filter which ExportadorQuandoImportacaos to update
-     */
-    where?: ExportadorQuandoImportacaoWhereInput
-  }
-
-  /**
-   * ExportadorQuandoImportacao upsert
-   */
-  export type ExportadorQuandoImportacaoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ExportadorQuandoImportacao
-     */
-    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
-    /**
-     * The filter to search for the ExportadorQuandoImportacao to update in case it exists.
-     */
-    where: ExportadorQuandoImportacaoWhereUniqueInput
-    /**
-     * In case the ExportadorQuandoImportacao found by the `where` argument doesn't exist, create a new ExportadorQuandoImportacao with this data.
-     */
-    create: XOR<ExportadorQuandoImportacaoCreateInput, ExportadorQuandoImportacaoUncheckedCreateInput>
-    /**
-     * In case the ExportadorQuandoImportacao was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<ExportadorQuandoImportacaoUpdateInput, ExportadorQuandoImportacaoUncheckedUpdateInput>
-  }
-
-  /**
-   * ExportadorQuandoImportacao delete
-   */
-  export type ExportadorQuandoImportacaoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ExportadorQuandoImportacao
-     */
-    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
-    /**
-     * Filter which ExportadorQuandoImportacao to delete.
-     */
-    where: ExportadorQuandoImportacaoWhereUniqueInput
-  }
-
-  /**
-   * ExportadorQuandoImportacao deleteMany
-   */
-  export type ExportadorQuandoImportacaoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which ExportadorQuandoImportacaos to delete
-     */
-    where?: ExportadorQuandoImportacaoWhereInput
-  }
-
-  /**
-   * ExportadorQuandoImportacao without action
-   */
-  export type ExportadorQuandoImportacaoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ExportadorQuandoImportacao
-     */
-    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
-  }
-
-
-  /**
-   * Model ImportadorQuandoExportacao
-   */
-
-  export type AggregateImportadorQuandoExportacao = {
-    _count: ImportadorQuandoExportacaoCountAggregateOutputType | null
-    _min: ImportadorQuandoExportacaoMinAggregateOutputType | null
-    _max: ImportadorQuandoExportacaoMaxAggregateOutputType | null
-  }
-
-  export type ImportadorQuandoExportacaoMinAggregateOutputType = {
-    id_importador_quando_exportacao: string | null
-    id_organizacao_importador: string | null
-    id_workspace_importador: string | null
-    nome_importador: string | null
-    endereco_importador: string | null
-    cidade_importador: string | null
-    estado_provincia_importador: string | null
-    pais_importador: string | null
-    zipcode_importador: string | null
-    criado_em_importador: Date | null
-    atualizado_em_importador: Date | null
-  }
-
-  export type ImportadorQuandoExportacaoMaxAggregateOutputType = {
-    id_importador_quando_exportacao: string | null
-    id_organizacao_importador: string | null
-    id_workspace_importador: string | null
-    nome_importador: string | null
-    endereco_importador: string | null
-    cidade_importador: string | null
-    estado_provincia_importador: string | null
-    pais_importador: string | null
-    zipcode_importador: string | null
-    criado_em_importador: Date | null
-    atualizado_em_importador: Date | null
-  }
-
-  export type ImportadorQuandoExportacaoCountAggregateOutputType = {
-    id_importador_quando_exportacao: number
-    id_organizacao_importador: number
-    id_workspace_importador: number
-    nome_importador: number
-    endereco_importador: number
-    cidade_importador: number
-    estado_provincia_importador: number
-    pais_importador: number
-    zipcode_importador: number
-    criado_em_importador: number
-    atualizado_em_importador: number
-    _all: number
-  }
-
-
-  export type ImportadorQuandoExportacaoMinAggregateInputType = {
-    id_importador_quando_exportacao?: true
-    id_organizacao_importador?: true
-    id_workspace_importador?: true
-    nome_importador?: true
-    endereco_importador?: true
-    cidade_importador?: true
-    estado_provincia_importador?: true
-    pais_importador?: true
-    zipcode_importador?: true
-    criado_em_importador?: true
-    atualizado_em_importador?: true
-  }
-
-  export type ImportadorQuandoExportacaoMaxAggregateInputType = {
-    id_importador_quando_exportacao?: true
-    id_organizacao_importador?: true
-    id_workspace_importador?: true
-    nome_importador?: true
-    endereco_importador?: true
-    cidade_importador?: true
-    estado_provincia_importador?: true
-    pais_importador?: true
-    zipcode_importador?: true
-    criado_em_importador?: true
-    atualizado_em_importador?: true
-  }
-
-  export type ImportadorQuandoExportacaoCountAggregateInputType = {
-    id_importador_quando_exportacao?: true
-    id_organizacao_importador?: true
-    id_workspace_importador?: true
-    nome_importador?: true
-    endereco_importador?: true
-    cidade_importador?: true
-    estado_provincia_importador?: true
-    pais_importador?: true
-    zipcode_importador?: true
-    criado_em_importador?: true
-    atualizado_em_importador?: true
-    _all?: true
-  }
-
-  export type ImportadorQuandoExportacaoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which ImportadorQuandoExportacao to aggregate.
-     */
-    where?: ImportadorQuandoExportacaoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ImportadorQuandoExportacaos to fetch.
-     */
-    orderBy?: ImportadorQuandoExportacaoOrderByWithRelationInput | ImportadorQuandoExportacaoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: ImportadorQuandoExportacaoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ImportadorQuandoExportacaos from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ImportadorQuandoExportacaos.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned ImportadorQuandoExportacaos
-    **/
-    _count?: true | ImportadorQuandoExportacaoCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: ImportadorQuandoExportacaoMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: ImportadorQuandoExportacaoMaxAggregateInputType
-  }
-
-  export type GetImportadorQuandoExportacaoAggregateType<T extends ImportadorQuandoExportacaoAggregateArgs> = {
-        [P in keyof T & keyof AggregateImportadorQuandoExportacao]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateImportadorQuandoExportacao[P]>
-      : GetScalarType<T[P], AggregateImportadorQuandoExportacao[P]>
-  }
-
-
-
-
-  export type ImportadorQuandoExportacaoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ImportadorQuandoExportacaoWhereInput
-    orderBy?: ImportadorQuandoExportacaoOrderByWithAggregationInput | ImportadorQuandoExportacaoOrderByWithAggregationInput[]
-    by: ImportadorQuandoExportacaoScalarFieldEnum[] | ImportadorQuandoExportacaoScalarFieldEnum
-    having?: ImportadorQuandoExportacaoScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: ImportadorQuandoExportacaoCountAggregateInputType | true
-    _min?: ImportadorQuandoExportacaoMinAggregateInputType
-    _max?: ImportadorQuandoExportacaoMaxAggregateInputType
-  }
-
-  export type ImportadorQuandoExportacaoGroupByOutputType = {
-    id_importador_quando_exportacao: string
-    id_organizacao_importador: string
-    id_workspace_importador: string
-    nome_importador: string
-    endereco_importador: string | null
-    cidade_importador: string | null
-    estado_provincia_importador: string | null
-    pais_importador: string
-    zipcode_importador: string | null
-    criado_em_importador: Date
-    atualizado_em_importador: Date
-    _count: ImportadorQuandoExportacaoCountAggregateOutputType | null
-    _min: ImportadorQuandoExportacaoMinAggregateOutputType | null
-    _max: ImportadorQuandoExportacaoMaxAggregateOutputType | null
-  }
-
-  type GetImportadorQuandoExportacaoGroupByPayload<T extends ImportadorQuandoExportacaoGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<ImportadorQuandoExportacaoGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof ImportadorQuandoExportacaoGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], ImportadorQuandoExportacaoGroupByOutputType[P]>
-            : GetScalarType<T[P], ImportadorQuandoExportacaoGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type ImportadorQuandoExportacaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_importador_quando_exportacao?: boolean
-    id_organizacao_importador?: boolean
-    id_workspace_importador?: boolean
-    nome_importador?: boolean
-    endereco_importador?: boolean
-    cidade_importador?: boolean
-    estado_provincia_importador?: boolean
-    pais_importador?: boolean
-    zipcode_importador?: boolean
-    criado_em_importador?: boolean
-    atualizado_em_importador?: boolean
-  }, ExtArgs["result"]["importadorQuandoExportacao"]>
-
-  export type ImportadorQuandoExportacaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_importador_quando_exportacao?: boolean
-    id_organizacao_importador?: boolean
-    id_workspace_importador?: boolean
-    nome_importador?: boolean
-    endereco_importador?: boolean
-    cidade_importador?: boolean
-    estado_provincia_importador?: boolean
-    pais_importador?: boolean
-    zipcode_importador?: boolean
-    criado_em_importador?: boolean
-    atualizado_em_importador?: boolean
-  }, ExtArgs["result"]["importadorQuandoExportacao"]>
-
-  export type ImportadorQuandoExportacaoSelectScalar = {
-    id_importador_quando_exportacao?: boolean
-    id_organizacao_importador?: boolean
-    id_workspace_importador?: boolean
-    nome_importador?: boolean
-    endereco_importador?: boolean
-    cidade_importador?: boolean
-    estado_provincia_importador?: boolean
-    pais_importador?: boolean
-    zipcode_importador?: boolean
-    criado_em_importador?: boolean
-    atualizado_em_importador?: boolean
-  }
-
-
-  export type $ImportadorQuandoExportacaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ImportadorQuandoExportacao"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id_importador_quando_exportacao: string
-      id_organizacao_importador: string
-      id_workspace_importador: string
-      nome_importador: string
-      endereco_importador: string | null
-      cidade_importador: string | null
-      estado_provincia_importador: string | null
-      pais_importador: string
-      zipcode_importador: string | null
-      criado_em_importador: Date
-      atualizado_em_importador: Date
-    }, ExtArgs["result"]["importadorQuandoExportacao"]>
-    composites: {}
-  }
-
-  type ImportadorQuandoExportacaoGetPayload<S extends boolean | null | undefined | ImportadorQuandoExportacaoDefaultArgs> = $Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload, S>
-
-  type ImportadorQuandoExportacaoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ImportadorQuandoExportacaoFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: ImportadorQuandoExportacaoCountAggregateInputType | true
-    }
-
-  export interface ImportadorQuandoExportacaoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ImportadorQuandoExportacao'], meta: { name: 'ImportadorQuandoExportacao' } }
-    /**
-     * Find zero or one ImportadorQuandoExportacao that matches the filter.
-     * @param {ImportadorQuandoExportacaoFindUniqueArgs} args - Arguments to find a ImportadorQuandoExportacao
-     * @example
-     * // Get one ImportadorQuandoExportacao
-     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends ImportadorQuandoExportacaoFindUniqueArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoFindUniqueArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
-
-    /**
-     * Find one ImportadorQuandoExportacao that matches the filter or throw an error with `error.code='P2025'` 
-     * if no matches were found.
-     * @param {ImportadorQuandoExportacaoFindUniqueOrThrowArgs} args - Arguments to find a ImportadorQuandoExportacao
-     * @example
-     * // Get one ImportadorQuandoExportacao
-     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends ImportadorQuandoExportacaoFindUniqueOrThrowArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
-
-    /**
-     * Find the first ImportadorQuandoExportacao that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ImportadorQuandoExportacaoFindFirstArgs} args - Arguments to find a ImportadorQuandoExportacao
-     * @example
-     * // Get one ImportadorQuandoExportacao
-     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends ImportadorQuandoExportacaoFindFirstArgs>(args?: SelectSubset<T, ImportadorQuandoExportacaoFindFirstArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
-
-    /**
-     * Find the first ImportadorQuandoExportacao that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ImportadorQuandoExportacaoFindFirstOrThrowArgs} args - Arguments to find a ImportadorQuandoExportacao
-     * @example
-     * // Get one ImportadorQuandoExportacao
-     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends ImportadorQuandoExportacaoFindFirstOrThrowArgs>(args?: SelectSubset<T, ImportadorQuandoExportacaoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
-
-    /**
-     * Find zero or more ImportadorQuandoExportacaos that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ImportadorQuandoExportacaoFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all ImportadorQuandoExportacaos
-     * const importadorQuandoExportacaos = await prisma.importadorQuandoExportacao.findMany()
-     * 
-     * // Get first 10 ImportadorQuandoExportacaos
-     * const importadorQuandoExportacaos = await prisma.importadorQuandoExportacao.findMany({ take: 10 })
-     * 
-     * // Only select the `id_importador_quando_exportacao`
-     * const importadorQuandoExportacaoWithId_importador_quando_exportacaoOnly = await prisma.importadorQuandoExportacao.findMany({ select: { id_importador_quando_exportacao: true } })
-     * 
-     */
-    findMany<T extends ImportadorQuandoExportacaoFindManyArgs>(args?: SelectSubset<T, ImportadorQuandoExportacaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "findMany">>
-
-    /**
-     * Create a ImportadorQuandoExportacao.
-     * @param {ImportadorQuandoExportacaoCreateArgs} args - Arguments to create a ImportadorQuandoExportacao.
-     * @example
-     * // Create one ImportadorQuandoExportacao
-     * const ImportadorQuandoExportacao = await prisma.importadorQuandoExportacao.create({
-     *   data: {
-     *     // ... data to create a ImportadorQuandoExportacao
-     *   }
-     * })
-     * 
-     */
-    create<T extends ImportadorQuandoExportacaoCreateArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoCreateArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "create">, never, ExtArgs>
-
-    /**
-     * Create many ImportadorQuandoExportacaos.
-     * @param {ImportadorQuandoExportacaoCreateManyArgs} args - Arguments to create many ImportadorQuandoExportacaos.
-     * @example
-     * // Create many ImportadorQuandoExportacaos
-     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends ImportadorQuandoExportacaoCreateManyArgs>(args?: SelectSubset<T, ImportadorQuandoExportacaoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many ImportadorQuandoExportacaos and returns the data saved in the database.
-     * @param {ImportadorQuandoExportacaoCreateManyAndReturnArgs} args - Arguments to create many ImportadorQuandoExportacaos.
-     * @example
-     * // Create many ImportadorQuandoExportacaos
-     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many ImportadorQuandoExportacaos and only return the `id_importador_quando_exportacao`
-     * const importadorQuandoExportacaoWithId_importador_quando_exportacaoOnly = await prisma.importadorQuandoExportacao.createManyAndReturn({ 
-     *   select: { id_importador_quando_exportacao: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends ImportadorQuandoExportacaoCreateManyAndReturnArgs>(args?: SelectSubset<T, ImportadorQuandoExportacaoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "createManyAndReturn">>
-
-    /**
-     * Delete a ImportadorQuandoExportacao.
-     * @param {ImportadorQuandoExportacaoDeleteArgs} args - Arguments to delete one ImportadorQuandoExportacao.
-     * @example
-     * // Delete one ImportadorQuandoExportacao
-     * const ImportadorQuandoExportacao = await prisma.importadorQuandoExportacao.delete({
-     *   where: {
-     *     // ... filter to delete one ImportadorQuandoExportacao
-     *   }
-     * })
-     * 
-     */
-    delete<T extends ImportadorQuandoExportacaoDeleteArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoDeleteArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
-
-    /**
-     * Update one ImportadorQuandoExportacao.
-     * @param {ImportadorQuandoExportacaoUpdateArgs} args - Arguments to update one ImportadorQuandoExportacao.
-     * @example
-     * // Update one ImportadorQuandoExportacao
-     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends ImportadorQuandoExportacaoUpdateArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoUpdateArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "update">, never, ExtArgs>
-
-    /**
-     * Delete zero or more ImportadorQuandoExportacaos.
-     * @param {ImportadorQuandoExportacaoDeleteManyArgs} args - Arguments to filter ImportadorQuandoExportacaos to delete.
-     * @example
-     * // Delete a few ImportadorQuandoExportacaos
-     * const { count } = await prisma.importadorQuandoExportacao.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends ImportadorQuandoExportacaoDeleteManyArgs>(args?: SelectSubset<T, ImportadorQuandoExportacaoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more ImportadorQuandoExportacaos.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ImportadorQuandoExportacaoUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many ImportadorQuandoExportacaos
-     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends ImportadorQuandoExportacaoUpdateManyArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one ImportadorQuandoExportacao.
-     * @param {ImportadorQuandoExportacaoUpsertArgs} args - Arguments to update or create a ImportadorQuandoExportacao.
-     * @example
-     * // Update or create a ImportadorQuandoExportacao
-     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.upsert({
-     *   create: {
-     *     // ... data to create a ImportadorQuandoExportacao
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the ImportadorQuandoExportacao we want to update
-     *   }
-     * })
-     */
-    upsert<T extends ImportadorQuandoExportacaoUpsertArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoUpsertArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
-
-
-    /**
-     * Count the number of ImportadorQuandoExportacaos.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ImportadorQuandoExportacaoCountArgs} args - Arguments to filter ImportadorQuandoExportacaos to count.
-     * @example
-     * // Count the number of ImportadorQuandoExportacaos
-     * const count = await prisma.importadorQuandoExportacao.count({
-     *   where: {
-     *     // ... the filter for the ImportadorQuandoExportacaos we want to count
-     *   }
-     * })
-    **/
-    count<T extends ImportadorQuandoExportacaoCountArgs>(
-      args?: Subset<T, ImportadorQuandoExportacaoCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], ImportadorQuandoExportacaoCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a ImportadorQuandoExportacao.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ImportadorQuandoExportacaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends ImportadorQuandoExportacaoAggregateArgs>(args: Subset<T, ImportadorQuandoExportacaoAggregateArgs>): Prisma.PrismaPromise<GetImportadorQuandoExportacaoAggregateType<T>>
-
-    /**
-     * Group by ImportadorQuandoExportacao.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ImportadorQuandoExportacaoGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends ImportadorQuandoExportacaoGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ImportadorQuandoExportacaoGroupByArgs['orderBy'] }
-        : { orderBy?: ImportadorQuandoExportacaoGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, ImportadorQuandoExportacaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetImportadorQuandoExportacaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the ImportadorQuandoExportacao model
-   */
-  readonly fields: ImportadorQuandoExportacaoFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for ImportadorQuandoExportacao.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__ImportadorQuandoExportacaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the ImportadorQuandoExportacao model
-   */ 
-  interface ImportadorQuandoExportacaoFieldRefs {
-    readonly id_importador_quando_exportacao: FieldRef<"ImportadorQuandoExportacao", 'String'>
-    readonly id_organizacao_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
-    readonly id_workspace_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
-    readonly nome_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
-    readonly endereco_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
-    readonly cidade_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
-    readonly estado_provincia_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
-    readonly pais_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
-    readonly zipcode_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
-    readonly criado_em_importador: FieldRef<"ImportadorQuandoExportacao", 'DateTime'>
-    readonly atualizado_em_importador: FieldRef<"ImportadorQuandoExportacao", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * ImportadorQuandoExportacao findUnique
-   */
-  export type ImportadorQuandoExportacaoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ImportadorQuandoExportacao
-     */
-    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
-    /**
-     * Filter, which ImportadorQuandoExportacao to fetch.
-     */
-    where: ImportadorQuandoExportacaoWhereUniqueInput
-  }
-
-  /**
-   * ImportadorQuandoExportacao findUniqueOrThrow
-   */
-  export type ImportadorQuandoExportacaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ImportadorQuandoExportacao
-     */
-    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
-    /**
-     * Filter, which ImportadorQuandoExportacao to fetch.
-     */
-    where: ImportadorQuandoExportacaoWhereUniqueInput
-  }
-
-  /**
-   * ImportadorQuandoExportacao findFirst
-   */
-  export type ImportadorQuandoExportacaoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ImportadorQuandoExportacao
-     */
-    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
-    /**
-     * Filter, which ImportadorQuandoExportacao to fetch.
-     */
-    where?: ImportadorQuandoExportacaoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ImportadorQuandoExportacaos to fetch.
-     */
-    orderBy?: ImportadorQuandoExportacaoOrderByWithRelationInput | ImportadorQuandoExportacaoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for ImportadorQuandoExportacaos.
-     */
-    cursor?: ImportadorQuandoExportacaoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ImportadorQuandoExportacaos from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ImportadorQuandoExportacaos.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ImportadorQuandoExportacaos.
-     */
-    distinct?: ImportadorQuandoExportacaoScalarFieldEnum | ImportadorQuandoExportacaoScalarFieldEnum[]
-  }
-
-  /**
-   * ImportadorQuandoExportacao findFirstOrThrow
-   */
-  export type ImportadorQuandoExportacaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ImportadorQuandoExportacao
-     */
-    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
-    /**
-     * Filter, which ImportadorQuandoExportacao to fetch.
-     */
-    where?: ImportadorQuandoExportacaoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ImportadorQuandoExportacaos to fetch.
-     */
-    orderBy?: ImportadorQuandoExportacaoOrderByWithRelationInput | ImportadorQuandoExportacaoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for ImportadorQuandoExportacaos.
-     */
-    cursor?: ImportadorQuandoExportacaoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ImportadorQuandoExportacaos from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ImportadorQuandoExportacaos.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ImportadorQuandoExportacaos.
-     */
-    distinct?: ImportadorQuandoExportacaoScalarFieldEnum | ImportadorQuandoExportacaoScalarFieldEnum[]
-  }
-
-  /**
-   * ImportadorQuandoExportacao findMany
-   */
-  export type ImportadorQuandoExportacaoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ImportadorQuandoExportacao
-     */
-    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
-    /**
-     * Filter, which ImportadorQuandoExportacaos to fetch.
-     */
-    where?: ImportadorQuandoExportacaoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ImportadorQuandoExportacaos to fetch.
-     */
-    orderBy?: ImportadorQuandoExportacaoOrderByWithRelationInput | ImportadorQuandoExportacaoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing ImportadorQuandoExportacaos.
-     */
-    cursor?: ImportadorQuandoExportacaoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ImportadorQuandoExportacaos from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ImportadorQuandoExportacaos.
-     */
-    skip?: number
-    distinct?: ImportadorQuandoExportacaoScalarFieldEnum | ImportadorQuandoExportacaoScalarFieldEnum[]
-  }
-
-  /**
-   * ImportadorQuandoExportacao create
-   */
-  export type ImportadorQuandoExportacaoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ImportadorQuandoExportacao
-     */
-    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
-    /**
-     * The data needed to create a ImportadorQuandoExportacao.
-     */
-    data: XOR<ImportadorQuandoExportacaoCreateInput, ImportadorQuandoExportacaoUncheckedCreateInput>
-  }
-
-  /**
-   * ImportadorQuandoExportacao createMany
-   */
-  export type ImportadorQuandoExportacaoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many ImportadorQuandoExportacaos.
-     */
-    data: ImportadorQuandoExportacaoCreateManyInput | ImportadorQuandoExportacaoCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * ImportadorQuandoExportacao createManyAndReturn
-   */
-  export type ImportadorQuandoExportacaoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ImportadorQuandoExportacao
-     */
-    select?: ImportadorQuandoExportacaoSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * The data used to create many ImportadorQuandoExportacaos.
-     */
-    data: ImportadorQuandoExportacaoCreateManyInput | ImportadorQuandoExportacaoCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * ImportadorQuandoExportacao update
-   */
-  export type ImportadorQuandoExportacaoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ImportadorQuandoExportacao
-     */
-    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
-    /**
-     * The data needed to update a ImportadorQuandoExportacao.
-     */
-    data: XOR<ImportadorQuandoExportacaoUpdateInput, ImportadorQuandoExportacaoUncheckedUpdateInput>
-    /**
-     * Choose, which ImportadorQuandoExportacao to update.
-     */
-    where: ImportadorQuandoExportacaoWhereUniqueInput
-  }
-
-  /**
-   * ImportadorQuandoExportacao updateMany
-   */
-  export type ImportadorQuandoExportacaoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update ImportadorQuandoExportacaos.
-     */
-    data: XOR<ImportadorQuandoExportacaoUpdateManyMutationInput, ImportadorQuandoExportacaoUncheckedUpdateManyInput>
-    /**
-     * Filter which ImportadorQuandoExportacaos to update
-     */
-    where?: ImportadorQuandoExportacaoWhereInput
-  }
-
-  /**
-   * ImportadorQuandoExportacao upsert
-   */
-  export type ImportadorQuandoExportacaoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ImportadorQuandoExportacao
-     */
-    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
-    /**
-     * The filter to search for the ImportadorQuandoExportacao to update in case it exists.
-     */
-    where: ImportadorQuandoExportacaoWhereUniqueInput
-    /**
-     * In case the ImportadorQuandoExportacao found by the `where` argument doesn't exist, create a new ImportadorQuandoExportacao with this data.
-     */
-    create: XOR<ImportadorQuandoExportacaoCreateInput, ImportadorQuandoExportacaoUncheckedCreateInput>
-    /**
-     * In case the ImportadorQuandoExportacao was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<ImportadorQuandoExportacaoUpdateInput, ImportadorQuandoExportacaoUncheckedUpdateInput>
-  }
-
-  /**
-   * ImportadorQuandoExportacao delete
-   */
-  export type ImportadorQuandoExportacaoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ImportadorQuandoExportacao
-     */
-    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
-    /**
-     * Filter which ImportadorQuandoExportacao to delete.
-     */
-    where: ImportadorQuandoExportacaoWhereUniqueInput
-  }
-
-  /**
-   * ImportadorQuandoExportacao deleteMany
-   */
-  export type ImportadorQuandoExportacaoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which ImportadorQuandoExportacaos to delete
-     */
-    where?: ImportadorQuandoExportacaoWhereInput
-  }
-
-  /**
-   * ImportadorQuandoExportacao without action
-   */
-  export type ImportadorQuandoExportacaoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ImportadorQuandoExportacao
-     */
-    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
-  }
-
-
-  /**
    * Enums
    */
 
@@ -16576,42 +15665,56 @@ export namespace Prisma {
   export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-  export const EmpresaScalarFieldEnum: {
-    suid_empresa: 'suid_empresa',
-    id_organizacao_empresa: 'id_organizacao_empresa',
-    id_produto_empresa: 'id_produto_empresa',
-    id_usuario_empresa: 'id_usuario_empresa',
-    nome_empresa: 'nome_empresa',
-    cnpj_empresa: 'cnpj_empresa',
-    tin_empresa: 'tin_empresa',
-    pais_empresa: 'pais_empresa',
-    estado_empresa: 'estado_empresa',
-    cidade_empresa: 'cidade_empresa',
-    endereco_empresa: 'endereco_empresa',
-    zipcode_empresa: 'zipcode_empresa',
-    email_empresa: 'email_empresa',
-    telefone_empresa: 'telefone_empresa',
-    whatsapp_empresa: 'whatsapp_empresa',
-    pode_ser_importador_empresa: 'pode_ser_importador_empresa',
-    pode_ser_exportador_empresa: 'pode_ser_exportador_empresa',
-    pode_ser_fabricante_empresa: 'pode_ser_fabricante_empresa',
-    pode_ser_agente_empresa: 'pode_ser_agente_empresa',
-    pode_ser_despachante_empresa: 'pode_ser_despachante_empresa',
-    pode_ser_armador_empresa: 'pode_ser_armador_empresa',
-    pode_ser_armazem_alfandegado_empresa: 'pode_ser_armazem_alfandegado_empresa',
-    pode_ser_transportadora_rodoviaria_nacional_empresa: 'pode_ser_transportadora_rodoviaria_nacional_empresa',
-    pode_ser_cia_aerea_empresa: 'pode_ser_cia_aerea_empresa',
-    pode_ser_transportadora_rodoviaria_internacional_empresa: 'pode_ser_transportadora_rodoviaria_internacional_empresa',
-    pode_ser_seguradora_internacional_empresa: 'pode_ser_seguradora_internacional_empresa',
-    pode_ser_seguradora_corretora_cambio_empresa: 'pode_ser_seguradora_corretora_cambio_empresa',
-    pode_ser_banco_empresa: 'pode_ser_banco_empresa',
-    pode_ser_armazem_nacional_empresa: 'pode_ser_armazem_nacional_empresa',
-    ativo_empresa: 'ativo_empresa',
-    criado_em_empresa: 'criado_em_empresa',
-    atualizado_em_empresa: 'atualizado_em_empresa'
+  export const FornecedorScalarFieldEnum: {
+    id_fornecedor: 'id_fornecedor',
+    id_organizacao_cadastro_fornecedor: 'id_organizacao_cadastro_fornecedor',
+    id_produto_fornecedor: 'id_produto_fornecedor',
+    id_usuario_cadastro_fornecedor: 'id_usuario_cadastro_fornecedor',
+    nome_fornecedor: 'nome_fornecedor',
+    cnpj_fornecedor: 'cnpj_fornecedor',
+    tin_fornecedor: 'tin_fornecedor',
+    pais_fornecedor: 'pais_fornecedor',
+    estado_provincia_fornecedor: 'estado_provincia_fornecedor',
+    cidade_fornecedor: 'cidade_fornecedor',
+    endereco_fornecedor: 'endereco_fornecedor',
+    cep_zipcode_fornecedor: 'cep_zipcode_fornecedor',
+    email_principal_fornecedor: 'email_principal_fornecedor',
+    telefone_principal_fornecedor: 'telefone_principal_fornecedor',
+    whatsapp_principal_fornecedor: 'whatsapp_principal_fornecedor',
+    pode_ser_importador_fornecedor: 'pode_ser_importador_fornecedor',
+    pode_ser_exportador_fornecedor: 'pode_ser_exportador_fornecedor',
+    pode_ser_fabricante_fornecedor: 'pode_ser_fabricante_fornecedor',
+    pode_ser_agente_fornecedor: 'pode_ser_agente_fornecedor',
+    pode_ser_despachante_fornecedor: 'pode_ser_despachante_fornecedor',
+    pode_ser_armador_fornecedor: 'pode_ser_armador_fornecedor',
+    pode_ser_armazem_alfandegado_fornecedor: 'pode_ser_armazem_alfandegado_fornecedor',
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor: 'pode_ser_transportadora_rodoviaria_nacional_fornecedor',
+    pode_ser_cia_aerea_fornecedor: 'pode_ser_cia_aerea_fornecedor',
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor: 'pode_ser_transportadora_rodoviaria_internacional_fornecedor',
+    pode_ser_seguradora_internacional_fornecedor: 'pode_ser_seguradora_internacional_fornecedor',
+    pode_ser_seguradora_corretora_cambio_fornecedor: 'pode_ser_seguradora_corretora_cambio_fornecedor',
+    pode_ser_banco_fornecedor: 'pode_ser_banco_fornecedor',
+    pode_ser_armazem_nacional_fornecedor: 'pode_ser_armazem_nacional_fornecedor',
+    ativo_fornecedor: 'ativo_fornecedor',
+    criado_em_fornecedor: 'criado_em_fornecedor',
+    atualizado_em_fornecedor: 'atualizado_em_fornecedor'
   };
 
-  export type EmpresaScalarFieldEnum = (typeof EmpresaScalarFieldEnum)[keyof typeof EmpresaScalarFieldEnum]
+  export type FornecedorScalarFieldEnum = (typeof FornecedorScalarFieldEnum)[keyof typeof FornecedorScalarFieldEnum]
+
+
+  export const FornecedorOrganizacaoScalarFieldEnum: {
+    id_fornecedor_organizacao: 'id_fornecedor_organizacao',
+    id_fornecedor: 'id_fornecedor',
+    id_organizacao: 'id_organizacao',
+    tipo_fornecedor_organizacao: 'tipo_fornecedor_organizacao',
+    status_fornecedor_organizacao: 'status_fornecedor_organizacao',
+    id_usuario: 'id_usuario',
+    data_criacao_fornecedor_organizacao: 'data_criacao_fornecedor_organizacao',
+    data_atualizacao_fornecedor_organizacao: 'data_atualizacao_fornecedor_organizacao'
+  };
+
+  export type FornecedorOrganizacaoScalarFieldEnum = (typeof FornecedorOrganizacaoScalarFieldEnum)[keyof typeof FornecedorOrganizacaoScalarFieldEnum]
 
 
   export const PaisScalarFieldEnum: {
@@ -16698,17 +15801,16 @@ export namespace Prisma {
   export type AeroportoScalarFieldEnum = (typeof AeroportoScalarFieldEnum)[keyof typeof AeroportoScalarFieldEnum]
 
 
-  export const TipoContainerScalarFieldEnum: {
-    id_tipo_container: 'id_tipo_container',
-    codigo_iso_tipo_container: 'codigo_iso_tipo_container',
-    nome_tipo_container: 'nome_tipo_container',
-    nome_ingles_tipo_container: 'nome_ingles_tipo_container',
-    tamanho_pes_tipo_container: 'tamanho_pes_tipo_container',
-    categoria_tipo_container: 'categoria_tipo_container',
-    ativo_tipo_container: 'ativo_tipo_container'
+  export const ContainerScalarFieldEnum: {
+    id_container: 'id_container',
+    tipo_container: 'tipo_container',
+    tamanho_container: 'tamanho_container',
+    codigo_iso_container: 'codigo_iso_container',
+    armador_dono_container: 'armador_dono_container',
+    ativo_container: 'ativo_container'
   };
 
-  export type TipoContainerScalarFieldEnum = (typeof TipoContainerScalarFieldEnum)[keyof typeof TipoContainerScalarFieldEnum]
+  export type ContainerScalarFieldEnum = (typeof ContainerScalarFieldEnum)[keyof typeof ContainerScalarFieldEnum]
 
 
   export const NcmSyncScalarFieldEnum: {
@@ -16800,40 +15902,6 @@ export namespace Prisma {
   export type OPEHistoricoStatusScalarFieldEnum = (typeof OPEHistoricoStatusScalarFieldEnum)[keyof typeof OPEHistoricoStatusScalarFieldEnum]
 
 
-  export const ExportadorQuandoImportacaoScalarFieldEnum: {
-    id_exportador_quando_importacao: 'id_exportador_quando_importacao',
-    id_organizacao_exportador: 'id_organizacao_exportador',
-    id_workspace_exportador: 'id_workspace_exportador',
-    nome_exportador: 'nome_exportador',
-    endereco_exportador: 'endereco_exportador',
-    cidade_exportador: 'cidade_exportador',
-    estado_provincia_exportador: 'estado_provincia_exportador',
-    pais_exportador: 'pais_exportador',
-    zipcode_exportador: 'zipcode_exportador',
-    criado_em_exportador: 'criado_em_exportador',
-    atualizado_em_exportador: 'atualizado_em_exportador'
-  };
-
-  export type ExportadorQuandoImportacaoScalarFieldEnum = (typeof ExportadorQuandoImportacaoScalarFieldEnum)[keyof typeof ExportadorQuandoImportacaoScalarFieldEnum]
-
-
-  export const ImportadorQuandoExportacaoScalarFieldEnum: {
-    id_importador_quando_exportacao: 'id_importador_quando_exportacao',
-    id_organizacao_importador: 'id_organizacao_importador',
-    id_workspace_importador: 'id_workspace_importador',
-    nome_importador: 'nome_importador',
-    endereco_importador: 'endereco_importador',
-    cidade_importador: 'cidade_importador',
-    estado_provincia_importador: 'estado_provincia_importador',
-    pais_importador: 'pais_importador',
-    zipcode_importador: 'zipcode_importador',
-    criado_em_importador: 'criado_em_importador',
-    atualizado_em_importador: 'atualizado_em_importador'
-  };
-
-  export type ImportadorQuandoExportacaoScalarFieldEnum = (typeof ImportadorQuandoExportacaoScalarFieldEnum)[keyof typeof ImportadorQuandoExportacaoScalarFieldEnum]
-
-
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -16915,6 +15983,34 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'TipoFornecedorOrganizacao'
+   */
+  export type EnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoFornecedorOrganizacao'>
+    
+
+
+  /**
+   * Reference to a field of type 'TipoFornecedorOrganizacao[]'
+   */
+  export type ListEnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoFornecedorOrganizacao[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'StatusFornecedorOrganizacao'
+   */
+  export type EnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusFornecedorOrganizacao'>
+    
+
+
+  /**
+   * Reference to a field of type 'StatusFornecedorOrganizacao[]'
+   */
+  export type ListEnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusFornecedorOrganizacao[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -16929,16 +16025,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Int'
+   * Reference to a field of type 'ContainerTipo'
    */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+  export type EnumContainerTipoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContainerTipo'>
     
 
 
   /**
-   * Reference to a field of type 'Int[]'
+   * Reference to a field of type 'ContainerTipo[]'
    */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+  export type ListEnumContainerTipoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContainerTipo[]'>
     
 
 
@@ -16953,6 +16049,20 @@ export namespace Prisma {
    * Reference to a field of type 'NcmSyncStatusSincronizacao[]'
    */
   export type ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncStatusSincronizacao[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 
@@ -16980,193 +16090,267 @@ export namespace Prisma {
    */
 
 
-  export type EmpresaWhereInput = {
-    AND?: EmpresaWhereInput | EmpresaWhereInput[]
-    OR?: EmpresaWhereInput[]
-    NOT?: EmpresaWhereInput | EmpresaWhereInput[]
-    suid_empresa?: StringFilter<"Empresa"> | string
-    id_organizacao_empresa?: StringFilter<"Empresa"> | string
-    id_produto_empresa?: StringNullableFilter<"Empresa"> | string | null
-    id_usuario_empresa?: StringNullableFilter<"Empresa"> | string | null
-    nome_empresa?: StringFilter<"Empresa"> | string
-    cnpj_empresa?: StringNullableFilter<"Empresa"> | string | null
-    tin_empresa?: StringNullableFilter<"Empresa"> | string | null
-    pais_empresa?: StringFilter<"Empresa"> | string
-    estado_empresa?: StringNullableFilter<"Empresa"> | string | null
-    cidade_empresa?: StringNullableFilter<"Empresa"> | string | null
-    endereco_empresa?: StringNullableFilter<"Empresa"> | string | null
-    zipcode_empresa?: StringNullableFilter<"Empresa"> | string | null
-    email_empresa?: StringNullableFilter<"Empresa"> | string | null
-    telefone_empresa?: StringNullableFilter<"Empresa"> | string | null
-    whatsapp_empresa?: StringNullableFilter<"Empresa"> | string | null
-    pode_ser_importador_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_exportador_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_fabricante_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_agente_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_despachante_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_armador_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_armazem_alfandegado_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_cia_aerea_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_seguradora_internacional_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_seguradora_corretora_cambio_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_banco_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_armazem_nacional_empresa?: BoolFilter<"Empresa"> | boolean
-    ativo_empresa?: BoolFilter<"Empresa"> | boolean
-    criado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
-    atualizado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
+  export type FornecedorWhereInput = {
+    AND?: FornecedorWhereInput | FornecedorWhereInput[]
+    OR?: FornecedorWhereInput[]
+    NOT?: FornecedorWhereInput | FornecedorWhereInput[]
+    id_fornecedor?: StringFilter<"Fornecedor"> | string
+    id_organizacao_cadastro_fornecedor?: StringFilter<"Fornecedor"> | string
+    id_produto_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    id_usuario_cadastro_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    nome_fornecedor?: StringFilter<"Fornecedor"> | string
+    cnpj_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    tin_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    pais_fornecedor?: StringFilter<"Fornecedor"> | string
+    estado_provincia_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    cidade_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    endereco_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    cep_zipcode_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    email_principal_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    telefone_principal_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    whatsapp_principal_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    pode_ser_importador_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_exportador_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_fabricante_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_agente_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_despachante_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_armador_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_armazem_alfandegado_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_cia_aerea_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_seguradora_internacional_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_banco_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_armazem_nacional_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    ativo_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    criado_em_fornecedor?: DateTimeFilter<"Fornecedor"> | Date | string
+    atualizado_em_fornecedor?: DateTimeFilter<"Fornecedor"> | Date | string
+    fornecedores_organizacao?: FornecedorOrganizacaoListRelationFilter
   }
 
-  export type EmpresaOrderByWithRelationInput = {
-    suid_empresa?: SortOrder
-    id_organizacao_empresa?: SortOrder
-    id_produto_empresa?: SortOrderInput | SortOrder
-    id_usuario_empresa?: SortOrderInput | SortOrder
-    nome_empresa?: SortOrder
-    cnpj_empresa?: SortOrderInput | SortOrder
-    tin_empresa?: SortOrderInput | SortOrder
-    pais_empresa?: SortOrder
-    estado_empresa?: SortOrderInput | SortOrder
-    cidade_empresa?: SortOrderInput | SortOrder
-    endereco_empresa?: SortOrderInput | SortOrder
-    zipcode_empresa?: SortOrderInput | SortOrder
-    email_empresa?: SortOrderInput | SortOrder
-    telefone_empresa?: SortOrderInput | SortOrder
-    whatsapp_empresa?: SortOrderInput | SortOrder
-    pode_ser_importador_empresa?: SortOrder
-    pode_ser_exportador_empresa?: SortOrder
-    pode_ser_fabricante_empresa?: SortOrder
-    pode_ser_agente_empresa?: SortOrder
-    pode_ser_despachante_empresa?: SortOrder
-    pode_ser_armador_empresa?: SortOrder
-    pode_ser_armazem_alfandegado_empresa?: SortOrder
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
-    pode_ser_cia_aerea_empresa?: SortOrder
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
-    pode_ser_seguradora_internacional_empresa?: SortOrder
-    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
-    pode_ser_banco_empresa?: SortOrder
-    pode_ser_armazem_nacional_empresa?: SortOrder
-    ativo_empresa?: SortOrder
-    criado_em_empresa?: SortOrder
-    atualizado_em_empresa?: SortOrder
+  export type FornecedorOrderByWithRelationInput = {
+    id_fornecedor?: SortOrder
+    id_organizacao_cadastro_fornecedor?: SortOrder
+    id_produto_fornecedor?: SortOrderInput | SortOrder
+    id_usuario_cadastro_fornecedor?: SortOrderInput | SortOrder
+    nome_fornecedor?: SortOrder
+    cnpj_fornecedor?: SortOrderInput | SortOrder
+    tin_fornecedor?: SortOrderInput | SortOrder
+    pais_fornecedor?: SortOrder
+    estado_provincia_fornecedor?: SortOrderInput | SortOrder
+    cidade_fornecedor?: SortOrderInput | SortOrder
+    endereco_fornecedor?: SortOrderInput | SortOrder
+    cep_zipcode_fornecedor?: SortOrderInput | SortOrder
+    email_principal_fornecedor?: SortOrderInput | SortOrder
+    telefone_principal_fornecedor?: SortOrderInput | SortOrder
+    whatsapp_principal_fornecedor?: SortOrderInput | SortOrder
+    pode_ser_importador_fornecedor?: SortOrder
+    pode_ser_exportador_fornecedor?: SortOrder
+    pode_ser_fabricante_fornecedor?: SortOrder
+    pode_ser_agente_fornecedor?: SortOrder
+    pode_ser_despachante_fornecedor?: SortOrder
+    pode_ser_armador_fornecedor?: SortOrder
+    pode_ser_armazem_alfandegado_fornecedor?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: SortOrder
+    pode_ser_cia_aerea_fornecedor?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: SortOrder
+    pode_ser_seguradora_internacional_fornecedor?: SortOrder
+    pode_ser_seguradora_corretora_cambio_fornecedor?: SortOrder
+    pode_ser_banco_fornecedor?: SortOrder
+    pode_ser_armazem_nacional_fornecedor?: SortOrder
+    ativo_fornecedor?: SortOrder
+    criado_em_fornecedor?: SortOrder
+    atualizado_em_fornecedor?: SortOrder
+    fornecedores_organizacao?: FornecedorOrganizacaoOrderByRelationAggregateInput
   }
 
-  export type EmpresaWhereUniqueInput = Prisma.AtLeast<{
-    suid_empresa?: string
-    id_organizacao_empresa_cnpj_empresa?: EmpresaId_organizacao_empresaCnpj_empresaCompoundUniqueInput
-    id_organizacao_empresa_tin_empresa_pais_empresa?: EmpresaId_organizacao_empresaTin_empresaPais_empresaCompoundUniqueInput
-    AND?: EmpresaWhereInput | EmpresaWhereInput[]
-    OR?: EmpresaWhereInput[]
-    NOT?: EmpresaWhereInput | EmpresaWhereInput[]
-    id_organizacao_empresa?: StringFilter<"Empresa"> | string
-    id_produto_empresa?: StringNullableFilter<"Empresa"> | string | null
-    id_usuario_empresa?: StringNullableFilter<"Empresa"> | string | null
-    nome_empresa?: StringFilter<"Empresa"> | string
-    cnpj_empresa?: StringNullableFilter<"Empresa"> | string | null
-    tin_empresa?: StringNullableFilter<"Empresa"> | string | null
-    pais_empresa?: StringFilter<"Empresa"> | string
-    estado_empresa?: StringNullableFilter<"Empresa"> | string | null
-    cidade_empresa?: StringNullableFilter<"Empresa"> | string | null
-    endereco_empresa?: StringNullableFilter<"Empresa"> | string | null
-    zipcode_empresa?: StringNullableFilter<"Empresa"> | string | null
-    email_empresa?: StringNullableFilter<"Empresa"> | string | null
-    telefone_empresa?: StringNullableFilter<"Empresa"> | string | null
-    whatsapp_empresa?: StringNullableFilter<"Empresa"> | string | null
-    pode_ser_importador_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_exportador_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_fabricante_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_agente_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_despachante_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_armador_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_armazem_alfandegado_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_cia_aerea_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_seguradora_internacional_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_seguradora_corretora_cambio_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_banco_empresa?: BoolFilter<"Empresa"> | boolean
-    pode_ser_armazem_nacional_empresa?: BoolFilter<"Empresa"> | boolean
-    ativo_empresa?: BoolFilter<"Empresa"> | boolean
-    criado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
-    atualizado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
-  }, "suid_empresa" | "id_organizacao_empresa_cnpj_empresa" | "id_organizacao_empresa_tin_empresa_pais_empresa">
+  export type FornecedorWhereUniqueInput = Prisma.AtLeast<{
+    id_fornecedor?: string
+    id_organizacao_cadastro_fornecedor_cnpj_fornecedor?: FornecedorId_organizacao_cadastro_fornecedorCnpj_fornecedorCompoundUniqueInput
+    id_organizacao_cadastro_fornecedor_tin_fornecedor_pais_fornecedor?: FornecedorId_organizacao_cadastro_fornecedorTin_fornecedorPais_fornecedorCompoundUniqueInput
+    AND?: FornecedorWhereInput | FornecedorWhereInput[]
+    OR?: FornecedorWhereInput[]
+    NOT?: FornecedorWhereInput | FornecedorWhereInput[]
+    id_organizacao_cadastro_fornecedor?: StringFilter<"Fornecedor"> | string
+    id_produto_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    id_usuario_cadastro_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    nome_fornecedor?: StringFilter<"Fornecedor"> | string
+    cnpj_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    tin_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    pais_fornecedor?: StringFilter<"Fornecedor"> | string
+    estado_provincia_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    cidade_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    endereco_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    cep_zipcode_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    email_principal_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    telefone_principal_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    whatsapp_principal_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    pode_ser_importador_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_exportador_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_fabricante_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_agente_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_despachante_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_armador_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_armazem_alfandegado_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_cia_aerea_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_seguradora_internacional_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_banco_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    pode_ser_armazem_nacional_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    ativo_fornecedor?: BoolFilter<"Fornecedor"> | boolean
+    criado_em_fornecedor?: DateTimeFilter<"Fornecedor"> | Date | string
+    atualizado_em_fornecedor?: DateTimeFilter<"Fornecedor"> | Date | string
+    fornecedores_organizacao?: FornecedorOrganizacaoListRelationFilter
+  }, "id_fornecedor" | "id_organizacao_cadastro_fornecedor_cnpj_fornecedor" | "id_organizacao_cadastro_fornecedor_tin_fornecedor_pais_fornecedor">
 
-  export type EmpresaOrderByWithAggregationInput = {
-    suid_empresa?: SortOrder
-    id_organizacao_empresa?: SortOrder
-    id_produto_empresa?: SortOrderInput | SortOrder
-    id_usuario_empresa?: SortOrderInput | SortOrder
-    nome_empresa?: SortOrder
-    cnpj_empresa?: SortOrderInput | SortOrder
-    tin_empresa?: SortOrderInput | SortOrder
-    pais_empresa?: SortOrder
-    estado_empresa?: SortOrderInput | SortOrder
-    cidade_empresa?: SortOrderInput | SortOrder
-    endereco_empresa?: SortOrderInput | SortOrder
-    zipcode_empresa?: SortOrderInput | SortOrder
-    email_empresa?: SortOrderInput | SortOrder
-    telefone_empresa?: SortOrderInput | SortOrder
-    whatsapp_empresa?: SortOrderInput | SortOrder
-    pode_ser_importador_empresa?: SortOrder
-    pode_ser_exportador_empresa?: SortOrder
-    pode_ser_fabricante_empresa?: SortOrder
-    pode_ser_agente_empresa?: SortOrder
-    pode_ser_despachante_empresa?: SortOrder
-    pode_ser_armador_empresa?: SortOrder
-    pode_ser_armazem_alfandegado_empresa?: SortOrder
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
-    pode_ser_cia_aerea_empresa?: SortOrder
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
-    pode_ser_seguradora_internacional_empresa?: SortOrder
-    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
-    pode_ser_banco_empresa?: SortOrder
-    pode_ser_armazem_nacional_empresa?: SortOrder
-    ativo_empresa?: SortOrder
-    criado_em_empresa?: SortOrder
-    atualizado_em_empresa?: SortOrder
-    _count?: EmpresaCountOrderByAggregateInput
-    _max?: EmpresaMaxOrderByAggregateInput
-    _min?: EmpresaMinOrderByAggregateInput
+  export type FornecedorOrderByWithAggregationInput = {
+    id_fornecedor?: SortOrder
+    id_organizacao_cadastro_fornecedor?: SortOrder
+    id_produto_fornecedor?: SortOrderInput | SortOrder
+    id_usuario_cadastro_fornecedor?: SortOrderInput | SortOrder
+    nome_fornecedor?: SortOrder
+    cnpj_fornecedor?: SortOrderInput | SortOrder
+    tin_fornecedor?: SortOrderInput | SortOrder
+    pais_fornecedor?: SortOrder
+    estado_provincia_fornecedor?: SortOrderInput | SortOrder
+    cidade_fornecedor?: SortOrderInput | SortOrder
+    endereco_fornecedor?: SortOrderInput | SortOrder
+    cep_zipcode_fornecedor?: SortOrderInput | SortOrder
+    email_principal_fornecedor?: SortOrderInput | SortOrder
+    telefone_principal_fornecedor?: SortOrderInput | SortOrder
+    whatsapp_principal_fornecedor?: SortOrderInput | SortOrder
+    pode_ser_importador_fornecedor?: SortOrder
+    pode_ser_exportador_fornecedor?: SortOrder
+    pode_ser_fabricante_fornecedor?: SortOrder
+    pode_ser_agente_fornecedor?: SortOrder
+    pode_ser_despachante_fornecedor?: SortOrder
+    pode_ser_armador_fornecedor?: SortOrder
+    pode_ser_armazem_alfandegado_fornecedor?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: SortOrder
+    pode_ser_cia_aerea_fornecedor?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: SortOrder
+    pode_ser_seguradora_internacional_fornecedor?: SortOrder
+    pode_ser_seguradora_corretora_cambio_fornecedor?: SortOrder
+    pode_ser_banco_fornecedor?: SortOrder
+    pode_ser_armazem_nacional_fornecedor?: SortOrder
+    ativo_fornecedor?: SortOrder
+    criado_em_fornecedor?: SortOrder
+    atualizado_em_fornecedor?: SortOrder
+    _count?: FornecedorCountOrderByAggregateInput
+    _max?: FornecedorMaxOrderByAggregateInput
+    _min?: FornecedorMinOrderByAggregateInput
   }
 
-  export type EmpresaScalarWhereWithAggregatesInput = {
-    AND?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
-    OR?: EmpresaScalarWhereWithAggregatesInput[]
-    NOT?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
-    suid_empresa?: StringWithAggregatesFilter<"Empresa"> | string
-    id_organizacao_empresa?: StringWithAggregatesFilter<"Empresa"> | string
-    id_produto_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    id_usuario_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    nome_empresa?: StringWithAggregatesFilter<"Empresa"> | string
-    cnpj_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    tin_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    pais_empresa?: StringWithAggregatesFilter<"Empresa"> | string
-    estado_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    cidade_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    endereco_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    zipcode_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    email_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    telefone_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    whatsapp_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    pode_ser_importador_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_exportador_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_fabricante_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_agente_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_despachante_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_armador_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_armazem_alfandegado_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_cia_aerea_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_seguradora_internacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_seguradora_corretora_cambio_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_banco_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_armazem_nacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    ativo_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    criado_em_empresa?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
-    atualizado_em_empresa?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
+  export type FornecedorScalarWhereWithAggregatesInput = {
+    AND?: FornecedorScalarWhereWithAggregatesInput | FornecedorScalarWhereWithAggregatesInput[]
+    OR?: FornecedorScalarWhereWithAggregatesInput[]
+    NOT?: FornecedorScalarWhereWithAggregatesInput | FornecedorScalarWhereWithAggregatesInput[]
+    id_fornecedor?: StringWithAggregatesFilter<"Fornecedor"> | string
+    id_organizacao_cadastro_fornecedor?: StringWithAggregatesFilter<"Fornecedor"> | string
+    id_produto_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    id_usuario_cadastro_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    nome_fornecedor?: StringWithAggregatesFilter<"Fornecedor"> | string
+    cnpj_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    tin_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    pais_fornecedor?: StringWithAggregatesFilter<"Fornecedor"> | string
+    estado_provincia_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    cidade_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    endereco_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    cep_zipcode_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    email_principal_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    telefone_principal_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    whatsapp_principal_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    pode_ser_importador_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    pode_ser_exportador_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    pode_ser_fabricante_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    pode_ser_agente_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    pode_ser_despachante_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    pode_ser_armador_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    pode_ser_armazem_alfandegado_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    pode_ser_cia_aerea_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    pode_ser_seguradora_internacional_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    pode_ser_banco_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    pode_ser_armazem_nacional_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    ativo_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
+    criado_em_fornecedor?: DateTimeWithAggregatesFilter<"Fornecedor"> | Date | string
+    atualizado_em_fornecedor?: DateTimeWithAggregatesFilter<"Fornecedor"> | Date | string
+  }
+
+  export type FornecedorOrganizacaoWhereInput = {
+    AND?: FornecedorOrganizacaoWhereInput | FornecedorOrganizacaoWhereInput[]
+    OR?: FornecedorOrganizacaoWhereInput[]
+    NOT?: FornecedorOrganizacaoWhereInput | FornecedorOrganizacaoWhereInput[]
+    id_fornecedor_organizacao?: StringFilter<"FornecedorOrganizacao"> | string
+    id_fornecedor?: StringFilter<"FornecedorOrganizacao"> | string
+    id_organizacao?: StringFilter<"FornecedorOrganizacao"> | string
+    tipo_fornecedor_organizacao?: EnumTipoFornecedorOrganizacaoFilter<"FornecedorOrganizacao"> | $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: EnumStatusFornecedorOrganizacaoFilter<"FornecedorOrganizacao"> | $Enums.StatusFornecedorOrganizacao
+    id_usuario?: StringNullableFilter<"FornecedorOrganizacao"> | string | null
+    data_criacao_fornecedor_organizacao?: DateTimeFilter<"FornecedorOrganizacao"> | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeFilter<"FornecedorOrganizacao"> | Date | string
+    fornecedor?: XOR<FornecedorRelationFilter, FornecedorWhereInput>
+  }
+
+  export type FornecedorOrganizacaoOrderByWithRelationInput = {
+    id_fornecedor_organizacao?: SortOrder
+    id_fornecedor?: SortOrder
+    id_organizacao?: SortOrder
+    tipo_fornecedor_organizacao?: SortOrder
+    status_fornecedor_organizacao?: SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    data_criacao_fornecedor_organizacao?: SortOrder
+    data_atualizacao_fornecedor_organizacao?: SortOrder
+    fornecedor?: FornecedorOrderByWithRelationInput
+  }
+
+  export type FornecedorOrganizacaoWhereUniqueInput = Prisma.AtLeast<{
+    id_fornecedor_organizacao?: string
+    id_fornecedor_id_organizacao_tipo_fornecedor_organizacao?: FornecedorOrganizacaoId_fornecedorId_organizacaoTipo_fornecedor_organizacaoCompoundUniqueInput
+    AND?: FornecedorOrganizacaoWhereInput | FornecedorOrganizacaoWhereInput[]
+    OR?: FornecedorOrganizacaoWhereInput[]
+    NOT?: FornecedorOrganizacaoWhereInput | FornecedorOrganizacaoWhereInput[]
+    id_fornecedor?: StringFilter<"FornecedorOrganizacao"> | string
+    id_organizacao?: StringFilter<"FornecedorOrganizacao"> | string
+    tipo_fornecedor_organizacao?: EnumTipoFornecedorOrganizacaoFilter<"FornecedorOrganizacao"> | $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: EnumStatusFornecedorOrganizacaoFilter<"FornecedorOrganizacao"> | $Enums.StatusFornecedorOrganizacao
+    id_usuario?: StringNullableFilter<"FornecedorOrganizacao"> | string | null
+    data_criacao_fornecedor_organizacao?: DateTimeFilter<"FornecedorOrganizacao"> | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeFilter<"FornecedorOrganizacao"> | Date | string
+    fornecedor?: XOR<FornecedorRelationFilter, FornecedorWhereInput>
+  }, "id_fornecedor_organizacao" | "id_fornecedor_id_organizacao_tipo_fornecedor_organizacao">
+
+  export type FornecedorOrganizacaoOrderByWithAggregationInput = {
+    id_fornecedor_organizacao?: SortOrder
+    id_fornecedor?: SortOrder
+    id_organizacao?: SortOrder
+    tipo_fornecedor_organizacao?: SortOrder
+    status_fornecedor_organizacao?: SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    data_criacao_fornecedor_organizacao?: SortOrder
+    data_atualizacao_fornecedor_organizacao?: SortOrder
+    _count?: FornecedorOrganizacaoCountOrderByAggregateInput
+    _max?: FornecedorOrganizacaoMaxOrderByAggregateInput
+    _min?: FornecedorOrganizacaoMinOrderByAggregateInput
+  }
+
+  export type FornecedorOrganizacaoScalarWhereWithAggregatesInput = {
+    AND?: FornecedorOrganizacaoScalarWhereWithAggregatesInput | FornecedorOrganizacaoScalarWhereWithAggregatesInput[]
+    OR?: FornecedorOrganizacaoScalarWhereWithAggregatesInput[]
+    NOT?: FornecedorOrganizacaoScalarWhereWithAggregatesInput | FornecedorOrganizacaoScalarWhereWithAggregatesInput[]
+    id_fornecedor_organizacao?: StringWithAggregatesFilter<"FornecedorOrganizacao"> | string
+    id_fornecedor?: StringWithAggregatesFilter<"FornecedorOrganizacao"> | string
+    id_organizacao?: StringWithAggregatesFilter<"FornecedorOrganizacao"> | string
+    tipo_fornecedor_organizacao?: EnumTipoFornecedorOrganizacaoWithAggregatesFilter<"FornecedorOrganizacao"> | $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: EnumStatusFornecedorOrganizacaoWithAggregatesFilter<"FornecedorOrganizacao"> | $Enums.StatusFornecedorOrganizacao
+    id_usuario?: StringNullableWithAggregatesFilter<"FornecedorOrganizacao"> | string | null
+    data_criacao_fornecedor_organizacao?: DateTimeWithAggregatesFilter<"FornecedorOrganizacao"> | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeWithAggregatesFilter<"FornecedorOrganizacao"> | Date | string
   }
 
   export type PaisWhereInput = {
@@ -17575,68 +16759,61 @@ export namespace Prisma {
     ativo_aeroporto?: BoolWithAggregatesFilter<"Aeroporto"> | boolean
   }
 
-  export type TipoContainerWhereInput = {
-    AND?: TipoContainerWhereInput | TipoContainerWhereInput[]
-    OR?: TipoContainerWhereInput[]
-    NOT?: TipoContainerWhereInput | TipoContainerWhereInput[]
-    id_tipo_container?: StringFilter<"TipoContainer"> | string
-    codigo_iso_tipo_container?: StringFilter<"TipoContainer"> | string
-    nome_tipo_container?: StringFilter<"TipoContainer"> | string
-    nome_ingles_tipo_container?: StringFilter<"TipoContainer"> | string
-    tamanho_pes_tipo_container?: IntFilter<"TipoContainer"> | number
-    categoria_tipo_container?: StringFilter<"TipoContainer"> | string
-    ativo_tipo_container?: BoolFilter<"TipoContainer"> | boolean
+  export type ContainerWhereInput = {
+    AND?: ContainerWhereInput | ContainerWhereInput[]
+    OR?: ContainerWhereInput[]
+    NOT?: ContainerWhereInput | ContainerWhereInput[]
+    id_container?: StringFilter<"Container"> | string
+    tipo_container?: EnumContainerTipoFilter<"Container"> | $Enums.ContainerTipo
+    tamanho_container?: StringFilter<"Container"> | string
+    codigo_iso_container?: StringNullableFilter<"Container"> | string | null
+    armador_dono_container?: StringNullableFilter<"Container"> | string | null
+    ativo_container?: BoolFilter<"Container"> | boolean
   }
 
-  export type TipoContainerOrderByWithRelationInput = {
-    id_tipo_container?: SortOrder
-    codigo_iso_tipo_container?: SortOrder
-    nome_tipo_container?: SortOrder
-    nome_ingles_tipo_container?: SortOrder
-    tamanho_pes_tipo_container?: SortOrder
-    categoria_tipo_container?: SortOrder
-    ativo_tipo_container?: SortOrder
+  export type ContainerOrderByWithRelationInput = {
+    id_container?: SortOrder
+    tipo_container?: SortOrder
+    tamanho_container?: SortOrder
+    codigo_iso_container?: SortOrderInput | SortOrder
+    armador_dono_container?: SortOrderInput | SortOrder
+    ativo_container?: SortOrder
   }
 
-  export type TipoContainerWhereUniqueInput = Prisma.AtLeast<{
-    id_tipo_container?: string
-    codigo_iso_tipo_container?: string
-    AND?: TipoContainerWhereInput | TipoContainerWhereInput[]
-    OR?: TipoContainerWhereInput[]
-    NOT?: TipoContainerWhereInput | TipoContainerWhereInput[]
-    nome_tipo_container?: StringFilter<"TipoContainer"> | string
-    nome_ingles_tipo_container?: StringFilter<"TipoContainer"> | string
-    tamanho_pes_tipo_container?: IntFilter<"TipoContainer"> | number
-    categoria_tipo_container?: StringFilter<"TipoContainer"> | string
-    ativo_tipo_container?: BoolFilter<"TipoContainer"> | boolean
-  }, "id_tipo_container" | "codigo_iso_tipo_container">
+  export type ContainerWhereUniqueInput = Prisma.AtLeast<{
+    id_container?: string
+    codigo_iso_container?: string
+    AND?: ContainerWhereInput | ContainerWhereInput[]
+    OR?: ContainerWhereInput[]
+    NOT?: ContainerWhereInput | ContainerWhereInput[]
+    tipo_container?: EnumContainerTipoFilter<"Container"> | $Enums.ContainerTipo
+    tamanho_container?: StringFilter<"Container"> | string
+    armador_dono_container?: StringNullableFilter<"Container"> | string | null
+    ativo_container?: BoolFilter<"Container"> | boolean
+  }, "id_container" | "codigo_iso_container">
 
-  export type TipoContainerOrderByWithAggregationInput = {
-    id_tipo_container?: SortOrder
-    codigo_iso_tipo_container?: SortOrder
-    nome_tipo_container?: SortOrder
-    nome_ingles_tipo_container?: SortOrder
-    tamanho_pes_tipo_container?: SortOrder
-    categoria_tipo_container?: SortOrder
-    ativo_tipo_container?: SortOrder
-    _count?: TipoContainerCountOrderByAggregateInput
-    _avg?: TipoContainerAvgOrderByAggregateInput
-    _max?: TipoContainerMaxOrderByAggregateInput
-    _min?: TipoContainerMinOrderByAggregateInput
-    _sum?: TipoContainerSumOrderByAggregateInput
+  export type ContainerOrderByWithAggregationInput = {
+    id_container?: SortOrder
+    tipo_container?: SortOrder
+    tamanho_container?: SortOrder
+    codigo_iso_container?: SortOrderInput | SortOrder
+    armador_dono_container?: SortOrderInput | SortOrder
+    ativo_container?: SortOrder
+    _count?: ContainerCountOrderByAggregateInput
+    _max?: ContainerMaxOrderByAggregateInput
+    _min?: ContainerMinOrderByAggregateInput
   }
 
-  export type TipoContainerScalarWhereWithAggregatesInput = {
-    AND?: TipoContainerScalarWhereWithAggregatesInput | TipoContainerScalarWhereWithAggregatesInput[]
-    OR?: TipoContainerScalarWhereWithAggregatesInput[]
-    NOT?: TipoContainerScalarWhereWithAggregatesInput | TipoContainerScalarWhereWithAggregatesInput[]
-    id_tipo_container?: StringWithAggregatesFilter<"TipoContainer"> | string
-    codigo_iso_tipo_container?: StringWithAggregatesFilter<"TipoContainer"> | string
-    nome_tipo_container?: StringWithAggregatesFilter<"TipoContainer"> | string
-    nome_ingles_tipo_container?: StringWithAggregatesFilter<"TipoContainer"> | string
-    tamanho_pes_tipo_container?: IntWithAggregatesFilter<"TipoContainer"> | number
-    categoria_tipo_container?: StringWithAggregatesFilter<"TipoContainer"> | string
-    ativo_tipo_container?: BoolWithAggregatesFilter<"TipoContainer"> | boolean
+  export type ContainerScalarWhereWithAggregatesInput = {
+    AND?: ContainerScalarWhereWithAggregatesInput | ContainerScalarWhereWithAggregatesInput[]
+    OR?: ContainerScalarWhereWithAggregatesInput[]
+    NOT?: ContainerScalarWhereWithAggregatesInput | ContainerScalarWhereWithAggregatesInput[]
+    id_container?: StringWithAggregatesFilter<"Container"> | string
+    tipo_container?: EnumContainerTipoWithAggregatesFilter<"Container"> | $Enums.ContainerTipo
+    tamanho_container?: StringWithAggregatesFilter<"Container"> | string
+    codigo_iso_container?: StringNullableWithAggregatesFilter<"Container"> | string | null
+    armador_dono_container?: StringNullableWithAggregatesFilter<"Container"> | string | null
+    ativo_container?: BoolWithAggregatesFilter<"Container"> | boolean
   }
 
   export type NcmSyncWhereInput = {
@@ -18073,413 +17250,329 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: DateTimeWithAggregatesFilter<"OPEHistoricoStatus"> | Date | string
   }
 
-  export type ExportadorQuandoImportacaoWhereInput = {
-    AND?: ExportadorQuandoImportacaoWhereInput | ExportadorQuandoImportacaoWhereInput[]
-    OR?: ExportadorQuandoImportacaoWhereInput[]
-    NOT?: ExportadorQuandoImportacaoWhereInput | ExportadorQuandoImportacaoWhereInput[]
-    id_exportador_quando_importacao?: StringFilter<"ExportadorQuandoImportacao"> | string
-    id_organizacao_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
-    id_workspace_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
-    nome_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
-    endereco_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
-    cidade_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
-    estado_provincia_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
-    pais_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
-    zipcode_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
-    criado_em_exportador?: DateTimeFilter<"ExportadorQuandoImportacao"> | Date | string
-    atualizado_em_exportador?: DateTimeFilter<"ExportadorQuandoImportacao"> | Date | string
+  export type FornecedorCreateInput = {
+    id_fornecedor: string
+    id_organizacao_cadastro_fornecedor: string
+    id_produto_fornecedor?: string | null
+    id_usuario_cadastro_fornecedor?: string | null
+    nome_fornecedor: string
+    cnpj_fornecedor?: string | null
+    tin_fornecedor?: string | null
+    pais_fornecedor: string
+    estado_provincia_fornecedor?: string | null
+    cidade_fornecedor?: string | null
+    endereco_fornecedor?: string | null
+    cep_zipcode_fornecedor?: string | null
+    email_principal_fornecedor?: string | null
+    telefone_principal_fornecedor?: string | null
+    whatsapp_principal_fornecedor?: string | null
+    pode_ser_importador_fornecedor?: boolean
+    pode_ser_exportador_fornecedor?: boolean
+    pode_ser_fabricante_fornecedor?: boolean
+    pode_ser_agente_fornecedor?: boolean
+    pode_ser_despachante_fornecedor?: boolean
+    pode_ser_armador_fornecedor?: boolean
+    pode_ser_armazem_alfandegado_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: boolean
+    pode_ser_cia_aerea_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: boolean
+    pode_ser_seguradora_internacional_fornecedor?: boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: boolean
+    pode_ser_banco_fornecedor?: boolean
+    pode_ser_armazem_nacional_fornecedor?: boolean
+    ativo_fornecedor?: boolean
+    criado_em_fornecedor?: Date | string
+    atualizado_em_fornecedor?: Date | string
+    fornecedores_organizacao?: FornecedorOrganizacaoCreateNestedManyWithoutFornecedorInput
   }
 
-  export type ExportadorQuandoImportacaoOrderByWithRelationInput = {
-    id_exportador_quando_importacao?: SortOrder
-    id_organizacao_exportador?: SortOrder
-    id_workspace_exportador?: SortOrder
-    nome_exportador?: SortOrder
-    endereco_exportador?: SortOrderInput | SortOrder
-    cidade_exportador?: SortOrderInput | SortOrder
-    estado_provincia_exportador?: SortOrderInput | SortOrder
-    pais_exportador?: SortOrder
-    zipcode_exportador?: SortOrderInput | SortOrder
-    criado_em_exportador?: SortOrder
-    atualizado_em_exportador?: SortOrder
+  export type FornecedorUncheckedCreateInput = {
+    id_fornecedor: string
+    id_organizacao_cadastro_fornecedor: string
+    id_produto_fornecedor?: string | null
+    id_usuario_cadastro_fornecedor?: string | null
+    nome_fornecedor: string
+    cnpj_fornecedor?: string | null
+    tin_fornecedor?: string | null
+    pais_fornecedor: string
+    estado_provincia_fornecedor?: string | null
+    cidade_fornecedor?: string | null
+    endereco_fornecedor?: string | null
+    cep_zipcode_fornecedor?: string | null
+    email_principal_fornecedor?: string | null
+    telefone_principal_fornecedor?: string | null
+    whatsapp_principal_fornecedor?: string | null
+    pode_ser_importador_fornecedor?: boolean
+    pode_ser_exportador_fornecedor?: boolean
+    pode_ser_fabricante_fornecedor?: boolean
+    pode_ser_agente_fornecedor?: boolean
+    pode_ser_despachante_fornecedor?: boolean
+    pode_ser_armador_fornecedor?: boolean
+    pode_ser_armazem_alfandegado_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: boolean
+    pode_ser_cia_aerea_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: boolean
+    pode_ser_seguradora_internacional_fornecedor?: boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: boolean
+    pode_ser_banco_fornecedor?: boolean
+    pode_ser_armazem_nacional_fornecedor?: boolean
+    ativo_fornecedor?: boolean
+    criado_em_fornecedor?: Date | string
+    atualizado_em_fornecedor?: Date | string
+    fornecedores_organizacao?: FornecedorOrganizacaoUncheckedCreateNestedManyWithoutFornecedorInput
   }
 
-  export type ExportadorQuandoImportacaoWhereUniqueInput = Prisma.AtLeast<{
-    id_exportador_quando_importacao?: string
-    AND?: ExportadorQuandoImportacaoWhereInput | ExportadorQuandoImportacaoWhereInput[]
-    OR?: ExportadorQuandoImportacaoWhereInput[]
-    NOT?: ExportadorQuandoImportacaoWhereInput | ExportadorQuandoImportacaoWhereInput[]
-    id_organizacao_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
-    id_workspace_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
-    nome_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
-    endereco_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
-    cidade_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
-    estado_provincia_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
-    pais_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
-    zipcode_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
-    criado_em_exportador?: DateTimeFilter<"ExportadorQuandoImportacao"> | Date | string
-    atualizado_em_exportador?: DateTimeFilter<"ExportadorQuandoImportacao"> | Date | string
-  }, "id_exportador_quando_importacao">
-
-  export type ExportadorQuandoImportacaoOrderByWithAggregationInput = {
-    id_exportador_quando_importacao?: SortOrder
-    id_organizacao_exportador?: SortOrder
-    id_workspace_exportador?: SortOrder
-    nome_exportador?: SortOrder
-    endereco_exportador?: SortOrderInput | SortOrder
-    cidade_exportador?: SortOrderInput | SortOrder
-    estado_provincia_exportador?: SortOrderInput | SortOrder
-    pais_exportador?: SortOrder
-    zipcode_exportador?: SortOrderInput | SortOrder
-    criado_em_exportador?: SortOrder
-    atualizado_em_exportador?: SortOrder
-    _count?: ExportadorQuandoImportacaoCountOrderByAggregateInput
-    _max?: ExportadorQuandoImportacaoMaxOrderByAggregateInput
-    _min?: ExportadorQuandoImportacaoMinOrderByAggregateInput
+  export type FornecedorUpdateInput = {
+    id_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_produto_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_cadastro_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_fornecedor?: StringFieldUpdateOperationsInput | string
+    cnpj_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_fornecedor?: StringFieldUpdateOperationsInput | string
+    estado_provincia_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_alfandegado_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    ativo_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    fornecedores_organizacao?: FornecedorOrganizacaoUpdateManyWithoutFornecedorNestedInput
   }
 
-  export type ExportadorQuandoImportacaoScalarWhereWithAggregatesInput = {
-    AND?: ExportadorQuandoImportacaoScalarWhereWithAggregatesInput | ExportadorQuandoImportacaoScalarWhereWithAggregatesInput[]
-    OR?: ExportadorQuandoImportacaoScalarWhereWithAggregatesInput[]
-    NOT?: ExportadorQuandoImportacaoScalarWhereWithAggregatesInput | ExportadorQuandoImportacaoScalarWhereWithAggregatesInput[]
-    id_exportador_quando_importacao?: StringWithAggregatesFilter<"ExportadorQuandoImportacao"> | string
-    id_organizacao_exportador?: StringWithAggregatesFilter<"ExportadorQuandoImportacao"> | string
-    id_workspace_exportador?: StringWithAggregatesFilter<"ExportadorQuandoImportacao"> | string
-    nome_exportador?: StringWithAggregatesFilter<"ExportadorQuandoImportacao"> | string
-    endereco_exportador?: StringNullableWithAggregatesFilter<"ExportadorQuandoImportacao"> | string | null
-    cidade_exportador?: StringNullableWithAggregatesFilter<"ExportadorQuandoImportacao"> | string | null
-    estado_provincia_exportador?: StringNullableWithAggregatesFilter<"ExportadorQuandoImportacao"> | string | null
-    pais_exportador?: StringWithAggregatesFilter<"ExportadorQuandoImportacao"> | string
-    zipcode_exportador?: StringNullableWithAggregatesFilter<"ExportadorQuandoImportacao"> | string | null
-    criado_em_exportador?: DateTimeWithAggregatesFilter<"ExportadorQuandoImportacao"> | Date | string
-    atualizado_em_exportador?: DateTimeWithAggregatesFilter<"ExportadorQuandoImportacao"> | Date | string
+  export type FornecedorUncheckedUpdateInput = {
+    id_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_produto_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_cadastro_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_fornecedor?: StringFieldUpdateOperationsInput | string
+    cnpj_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_fornecedor?: StringFieldUpdateOperationsInput | string
+    estado_provincia_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_alfandegado_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    ativo_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    fornecedores_organizacao?: FornecedorOrganizacaoUncheckedUpdateManyWithoutFornecedorNestedInput
   }
 
-  export type ImportadorQuandoExportacaoWhereInput = {
-    AND?: ImportadorQuandoExportacaoWhereInput | ImportadorQuandoExportacaoWhereInput[]
-    OR?: ImportadorQuandoExportacaoWhereInput[]
-    NOT?: ImportadorQuandoExportacaoWhereInput | ImportadorQuandoExportacaoWhereInput[]
-    id_importador_quando_exportacao?: StringFilter<"ImportadorQuandoExportacao"> | string
-    id_organizacao_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
-    id_workspace_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
-    nome_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
-    endereco_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
-    cidade_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
-    estado_provincia_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
-    pais_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
-    zipcode_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
-    criado_em_importador?: DateTimeFilter<"ImportadorQuandoExportacao"> | Date | string
-    atualizado_em_importador?: DateTimeFilter<"ImportadorQuandoExportacao"> | Date | string
+  export type FornecedorCreateManyInput = {
+    id_fornecedor: string
+    id_organizacao_cadastro_fornecedor: string
+    id_produto_fornecedor?: string | null
+    id_usuario_cadastro_fornecedor?: string | null
+    nome_fornecedor: string
+    cnpj_fornecedor?: string | null
+    tin_fornecedor?: string | null
+    pais_fornecedor: string
+    estado_provincia_fornecedor?: string | null
+    cidade_fornecedor?: string | null
+    endereco_fornecedor?: string | null
+    cep_zipcode_fornecedor?: string | null
+    email_principal_fornecedor?: string | null
+    telefone_principal_fornecedor?: string | null
+    whatsapp_principal_fornecedor?: string | null
+    pode_ser_importador_fornecedor?: boolean
+    pode_ser_exportador_fornecedor?: boolean
+    pode_ser_fabricante_fornecedor?: boolean
+    pode_ser_agente_fornecedor?: boolean
+    pode_ser_despachante_fornecedor?: boolean
+    pode_ser_armador_fornecedor?: boolean
+    pode_ser_armazem_alfandegado_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: boolean
+    pode_ser_cia_aerea_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: boolean
+    pode_ser_seguradora_internacional_fornecedor?: boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: boolean
+    pode_ser_banco_fornecedor?: boolean
+    pode_ser_armazem_nacional_fornecedor?: boolean
+    ativo_fornecedor?: boolean
+    criado_em_fornecedor?: Date | string
+    atualizado_em_fornecedor?: Date | string
   }
 
-  export type ImportadorQuandoExportacaoOrderByWithRelationInput = {
-    id_importador_quando_exportacao?: SortOrder
-    id_organizacao_importador?: SortOrder
-    id_workspace_importador?: SortOrder
-    nome_importador?: SortOrder
-    endereco_importador?: SortOrderInput | SortOrder
-    cidade_importador?: SortOrderInput | SortOrder
-    estado_provincia_importador?: SortOrderInput | SortOrder
-    pais_importador?: SortOrder
-    zipcode_importador?: SortOrderInput | SortOrder
-    criado_em_importador?: SortOrder
-    atualizado_em_importador?: SortOrder
+  export type FornecedorUpdateManyMutationInput = {
+    id_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_produto_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_cadastro_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_fornecedor?: StringFieldUpdateOperationsInput | string
+    cnpj_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_fornecedor?: StringFieldUpdateOperationsInput | string
+    estado_provincia_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_alfandegado_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    ativo_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ImportadorQuandoExportacaoWhereUniqueInput = Prisma.AtLeast<{
-    id_importador_quando_exportacao?: string
-    AND?: ImportadorQuandoExportacaoWhereInput | ImportadorQuandoExportacaoWhereInput[]
-    OR?: ImportadorQuandoExportacaoWhereInput[]
-    NOT?: ImportadorQuandoExportacaoWhereInput | ImportadorQuandoExportacaoWhereInput[]
-    id_organizacao_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
-    id_workspace_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
-    nome_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
-    endereco_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
-    cidade_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
-    estado_provincia_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
-    pais_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
-    zipcode_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
-    criado_em_importador?: DateTimeFilter<"ImportadorQuandoExportacao"> | Date | string
-    atualizado_em_importador?: DateTimeFilter<"ImportadorQuandoExportacao"> | Date | string
-  }, "id_importador_quando_exportacao">
-
-  export type ImportadorQuandoExportacaoOrderByWithAggregationInput = {
-    id_importador_quando_exportacao?: SortOrder
-    id_organizacao_importador?: SortOrder
-    id_workspace_importador?: SortOrder
-    nome_importador?: SortOrder
-    endereco_importador?: SortOrderInput | SortOrder
-    cidade_importador?: SortOrderInput | SortOrder
-    estado_provincia_importador?: SortOrderInput | SortOrder
-    pais_importador?: SortOrder
-    zipcode_importador?: SortOrderInput | SortOrder
-    criado_em_importador?: SortOrder
-    atualizado_em_importador?: SortOrder
-    _count?: ImportadorQuandoExportacaoCountOrderByAggregateInput
-    _max?: ImportadorQuandoExportacaoMaxOrderByAggregateInput
-    _min?: ImportadorQuandoExportacaoMinOrderByAggregateInput
+  export type FornecedorUncheckedUpdateManyInput = {
+    id_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_produto_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_cadastro_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_fornecedor?: StringFieldUpdateOperationsInput | string
+    cnpj_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_fornecedor?: StringFieldUpdateOperationsInput | string
+    estado_provincia_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_alfandegado_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    ativo_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ImportadorQuandoExportacaoScalarWhereWithAggregatesInput = {
-    AND?: ImportadorQuandoExportacaoScalarWhereWithAggregatesInput | ImportadorQuandoExportacaoScalarWhereWithAggregatesInput[]
-    OR?: ImportadorQuandoExportacaoScalarWhereWithAggregatesInput[]
-    NOT?: ImportadorQuandoExportacaoScalarWhereWithAggregatesInput | ImportadorQuandoExportacaoScalarWhereWithAggregatesInput[]
-    id_importador_quando_exportacao?: StringWithAggregatesFilter<"ImportadorQuandoExportacao"> | string
-    id_organizacao_importador?: StringWithAggregatesFilter<"ImportadorQuandoExportacao"> | string
-    id_workspace_importador?: StringWithAggregatesFilter<"ImportadorQuandoExportacao"> | string
-    nome_importador?: StringWithAggregatesFilter<"ImportadorQuandoExportacao"> | string
-    endereco_importador?: StringNullableWithAggregatesFilter<"ImportadorQuandoExportacao"> | string | null
-    cidade_importador?: StringNullableWithAggregatesFilter<"ImportadorQuandoExportacao"> | string | null
-    estado_provincia_importador?: StringNullableWithAggregatesFilter<"ImportadorQuandoExportacao"> | string | null
-    pais_importador?: StringWithAggregatesFilter<"ImportadorQuandoExportacao"> | string
-    zipcode_importador?: StringNullableWithAggregatesFilter<"ImportadorQuandoExportacao"> | string | null
-    criado_em_importador?: DateTimeWithAggregatesFilter<"ImportadorQuandoExportacao"> | Date | string
-    atualizado_em_importador?: DateTimeWithAggregatesFilter<"ImportadorQuandoExportacao"> | Date | string
+  export type FornecedorOrganizacaoCreateInput = {
+    id_fornecedor_organizacao?: string
+    id_organizacao: string
+    tipo_fornecedor_organizacao: $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: $Enums.StatusFornecedorOrganizacao
+    id_usuario?: string | null
+    data_criacao_fornecedor_organizacao?: Date | string
+    data_atualizacao_fornecedor_organizacao?: Date | string
+    fornecedor: FornecedorCreateNestedOneWithoutFornecedores_organizacaoInput
   }
 
-  export type EmpresaCreateInput = {
-    suid_empresa: string
-    id_organizacao_empresa: string
-    id_produto_empresa?: string | null
-    id_usuario_empresa?: string | null
-    nome_empresa: string
-    cnpj_empresa?: string | null
-    tin_empresa?: string | null
-    pais_empresa: string
-    estado_empresa?: string | null
-    cidade_empresa?: string | null
-    endereco_empresa?: string | null
-    zipcode_empresa?: string | null
-    email_empresa?: string | null
-    telefone_empresa?: string | null
-    whatsapp_empresa?: string | null
-    pode_ser_importador_empresa?: boolean
-    pode_ser_exportador_empresa?: boolean
-    pode_ser_fabricante_empresa?: boolean
-    pode_ser_agente_empresa?: boolean
-    pode_ser_despachante_empresa?: boolean
-    pode_ser_armador_empresa?: boolean
-    pode_ser_armazem_alfandegado_empresa?: boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
-    pode_ser_cia_aerea_empresa?: boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
-    pode_ser_seguradora_internacional_empresa?: boolean
-    pode_ser_seguradora_corretora_cambio_empresa?: boolean
-    pode_ser_banco_empresa?: boolean
-    pode_ser_armazem_nacional_empresa?: boolean
-    ativo_empresa?: boolean
-    criado_em_empresa?: Date | string
-    atualizado_em_empresa?: Date | string
+  export type FornecedorOrganizacaoUncheckedCreateInput = {
+    id_fornecedor_organizacao?: string
+    id_fornecedor: string
+    id_organizacao: string
+    tipo_fornecedor_organizacao: $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: $Enums.StatusFornecedorOrganizacao
+    id_usuario?: string | null
+    data_criacao_fornecedor_organizacao?: Date | string
+    data_atualizacao_fornecedor_organizacao?: Date | string
   }
 
-  export type EmpresaUncheckedCreateInput = {
-    suid_empresa: string
-    id_organizacao_empresa: string
-    id_produto_empresa?: string | null
-    id_usuario_empresa?: string | null
-    nome_empresa: string
-    cnpj_empresa?: string | null
-    tin_empresa?: string | null
-    pais_empresa: string
-    estado_empresa?: string | null
-    cidade_empresa?: string | null
-    endereco_empresa?: string | null
-    zipcode_empresa?: string | null
-    email_empresa?: string | null
-    telefone_empresa?: string | null
-    whatsapp_empresa?: string | null
-    pode_ser_importador_empresa?: boolean
-    pode_ser_exportador_empresa?: boolean
-    pode_ser_fabricante_empresa?: boolean
-    pode_ser_agente_empresa?: boolean
-    pode_ser_despachante_empresa?: boolean
-    pode_ser_armador_empresa?: boolean
-    pode_ser_armazem_alfandegado_empresa?: boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
-    pode_ser_cia_aerea_empresa?: boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
-    pode_ser_seguradora_internacional_empresa?: boolean
-    pode_ser_seguradora_corretora_cambio_empresa?: boolean
-    pode_ser_banco_empresa?: boolean
-    pode_ser_armazem_nacional_empresa?: boolean
-    ativo_empresa?: boolean
-    criado_em_empresa?: Date | string
-    atualizado_em_empresa?: Date | string
+  export type FornecedorOrganizacaoUpdateInput = {
+    id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_fornecedor_organizacao?: EnumTipoFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: EnumStatusFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.StatusFornecedorOrganizacao
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    fornecedor?: FornecedorUpdateOneRequiredWithoutFornecedores_organizacaoNestedInput
   }
 
-  export type EmpresaUpdateInput = {
-    suid_empresa?: StringFieldUpdateOperationsInput | string
-    id_organizacao_empresa?: StringFieldUpdateOperationsInput | string
-    id_produto_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    nome_empresa?: StringFieldUpdateOperationsInput | string
-    cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    pais_empresa?: StringFieldUpdateOperationsInput | string
-    estado_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    endereco_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    zipcode_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    email_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    pode_ser_importador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_exportador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_fabricante_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_seguradora_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
-    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type FornecedorOrganizacaoUncheckedUpdateInput = {
+    id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
+    id_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_fornecedor_organizacao?: EnumTipoFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: EnumStatusFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.StatusFornecedorOrganizacao
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type EmpresaUncheckedUpdateInput = {
-    suid_empresa?: StringFieldUpdateOperationsInput | string
-    id_organizacao_empresa?: StringFieldUpdateOperationsInput | string
-    id_produto_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    nome_empresa?: StringFieldUpdateOperationsInput | string
-    cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    pais_empresa?: StringFieldUpdateOperationsInput | string
-    estado_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    endereco_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    zipcode_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    email_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    pode_ser_importador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_exportador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_fabricante_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_seguradora_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
-    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type FornecedorOrganizacaoCreateManyInput = {
+    id_fornecedor_organizacao?: string
+    id_fornecedor: string
+    id_organizacao: string
+    tipo_fornecedor_organizacao: $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: $Enums.StatusFornecedorOrganizacao
+    id_usuario?: string | null
+    data_criacao_fornecedor_organizacao?: Date | string
+    data_atualizacao_fornecedor_organizacao?: Date | string
   }
 
-  export type EmpresaCreateManyInput = {
-    suid_empresa: string
-    id_organizacao_empresa: string
-    id_produto_empresa?: string | null
-    id_usuario_empresa?: string | null
-    nome_empresa: string
-    cnpj_empresa?: string | null
-    tin_empresa?: string | null
-    pais_empresa: string
-    estado_empresa?: string | null
-    cidade_empresa?: string | null
-    endereco_empresa?: string | null
-    zipcode_empresa?: string | null
-    email_empresa?: string | null
-    telefone_empresa?: string | null
-    whatsapp_empresa?: string | null
-    pode_ser_importador_empresa?: boolean
-    pode_ser_exportador_empresa?: boolean
-    pode_ser_fabricante_empresa?: boolean
-    pode_ser_agente_empresa?: boolean
-    pode_ser_despachante_empresa?: boolean
-    pode_ser_armador_empresa?: boolean
-    pode_ser_armazem_alfandegado_empresa?: boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
-    pode_ser_cia_aerea_empresa?: boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
-    pode_ser_seguradora_internacional_empresa?: boolean
-    pode_ser_seguradora_corretora_cambio_empresa?: boolean
-    pode_ser_banco_empresa?: boolean
-    pode_ser_armazem_nacional_empresa?: boolean
-    ativo_empresa?: boolean
-    criado_em_empresa?: Date | string
-    atualizado_em_empresa?: Date | string
+  export type FornecedorOrganizacaoUpdateManyMutationInput = {
+    id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_fornecedor_organizacao?: EnumTipoFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: EnumStatusFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.StatusFornecedorOrganizacao
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type EmpresaUpdateManyMutationInput = {
-    suid_empresa?: StringFieldUpdateOperationsInput | string
-    id_organizacao_empresa?: StringFieldUpdateOperationsInput | string
-    id_produto_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    nome_empresa?: StringFieldUpdateOperationsInput | string
-    cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    pais_empresa?: StringFieldUpdateOperationsInput | string
-    estado_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    endereco_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    zipcode_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    email_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    pode_ser_importador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_exportador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_fabricante_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_seguradora_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
-    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type EmpresaUncheckedUpdateManyInput = {
-    suid_empresa?: StringFieldUpdateOperationsInput | string
-    id_organizacao_empresa?: StringFieldUpdateOperationsInput | string
-    id_produto_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    nome_empresa?: StringFieldUpdateOperationsInput | string
-    cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    pais_empresa?: StringFieldUpdateOperationsInput | string
-    estado_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    endereco_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    zipcode_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    email_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_empresa?: NullableStringFieldUpdateOperationsInput | string | null
-    pode_ser_importador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_exportador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_fabricante_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_seguradora_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
-    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
-    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type FornecedorOrganizacaoUncheckedUpdateManyInput = {
+    id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
+    id_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_fornecedor_organizacao?: EnumTipoFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: EnumStatusFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.StatusFornecedorOrganizacao
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PaisCreateInput = {
@@ -18944,74 +18037,67 @@ export namespace Prisma {
     ativo_aeroporto?: BoolFieldUpdateOperationsInput | boolean
   }
 
-  export type TipoContainerCreateInput = {
-    id_tipo_container?: string
-    codigo_iso_tipo_container: string
-    nome_tipo_container: string
-    nome_ingles_tipo_container: string
-    tamanho_pes_tipo_container: number
-    categoria_tipo_container: string
-    ativo_tipo_container?: boolean
+  export type ContainerCreateInput = {
+    id_container?: string
+    tipo_container: $Enums.ContainerTipo
+    tamanho_container: string
+    codigo_iso_container?: string | null
+    armador_dono_container?: string | null
+    ativo_container?: boolean
   }
 
-  export type TipoContainerUncheckedCreateInput = {
-    id_tipo_container?: string
-    codigo_iso_tipo_container: string
-    nome_tipo_container: string
-    nome_ingles_tipo_container: string
-    tamanho_pes_tipo_container: number
-    categoria_tipo_container: string
-    ativo_tipo_container?: boolean
+  export type ContainerUncheckedCreateInput = {
+    id_container?: string
+    tipo_container: $Enums.ContainerTipo
+    tamanho_container: string
+    codigo_iso_container?: string | null
+    armador_dono_container?: string | null
+    ativo_container?: boolean
   }
 
-  export type TipoContainerUpdateInput = {
-    id_tipo_container?: StringFieldUpdateOperationsInput | string
-    codigo_iso_tipo_container?: StringFieldUpdateOperationsInput | string
-    nome_tipo_container?: StringFieldUpdateOperationsInput | string
-    nome_ingles_tipo_container?: StringFieldUpdateOperationsInput | string
-    tamanho_pes_tipo_container?: IntFieldUpdateOperationsInput | number
-    categoria_tipo_container?: StringFieldUpdateOperationsInput | string
-    ativo_tipo_container?: BoolFieldUpdateOperationsInput | boolean
+  export type ContainerUpdateInput = {
+    id_container?: StringFieldUpdateOperationsInput | string
+    tipo_container?: EnumContainerTipoFieldUpdateOperationsInput | $Enums.ContainerTipo
+    tamanho_container?: StringFieldUpdateOperationsInput | string
+    codigo_iso_container?: NullableStringFieldUpdateOperationsInput | string | null
+    armador_dono_container?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_container?: BoolFieldUpdateOperationsInput | boolean
   }
 
-  export type TipoContainerUncheckedUpdateInput = {
-    id_tipo_container?: StringFieldUpdateOperationsInput | string
-    codigo_iso_tipo_container?: StringFieldUpdateOperationsInput | string
-    nome_tipo_container?: StringFieldUpdateOperationsInput | string
-    nome_ingles_tipo_container?: StringFieldUpdateOperationsInput | string
-    tamanho_pes_tipo_container?: IntFieldUpdateOperationsInput | number
-    categoria_tipo_container?: StringFieldUpdateOperationsInput | string
-    ativo_tipo_container?: BoolFieldUpdateOperationsInput | boolean
+  export type ContainerUncheckedUpdateInput = {
+    id_container?: StringFieldUpdateOperationsInput | string
+    tipo_container?: EnumContainerTipoFieldUpdateOperationsInput | $Enums.ContainerTipo
+    tamanho_container?: StringFieldUpdateOperationsInput | string
+    codigo_iso_container?: NullableStringFieldUpdateOperationsInput | string | null
+    armador_dono_container?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_container?: BoolFieldUpdateOperationsInput | boolean
   }
 
-  export type TipoContainerCreateManyInput = {
-    id_tipo_container?: string
-    codigo_iso_tipo_container: string
-    nome_tipo_container: string
-    nome_ingles_tipo_container: string
-    tamanho_pes_tipo_container: number
-    categoria_tipo_container: string
-    ativo_tipo_container?: boolean
+  export type ContainerCreateManyInput = {
+    id_container?: string
+    tipo_container: $Enums.ContainerTipo
+    tamanho_container: string
+    codigo_iso_container?: string | null
+    armador_dono_container?: string | null
+    ativo_container?: boolean
   }
 
-  export type TipoContainerUpdateManyMutationInput = {
-    id_tipo_container?: StringFieldUpdateOperationsInput | string
-    codigo_iso_tipo_container?: StringFieldUpdateOperationsInput | string
-    nome_tipo_container?: StringFieldUpdateOperationsInput | string
-    nome_ingles_tipo_container?: StringFieldUpdateOperationsInput | string
-    tamanho_pes_tipo_container?: IntFieldUpdateOperationsInput | number
-    categoria_tipo_container?: StringFieldUpdateOperationsInput | string
-    ativo_tipo_container?: BoolFieldUpdateOperationsInput | boolean
+  export type ContainerUpdateManyMutationInput = {
+    id_container?: StringFieldUpdateOperationsInput | string
+    tipo_container?: EnumContainerTipoFieldUpdateOperationsInput | $Enums.ContainerTipo
+    tamanho_container?: StringFieldUpdateOperationsInput | string
+    codigo_iso_container?: NullableStringFieldUpdateOperationsInput | string | null
+    armador_dono_container?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_container?: BoolFieldUpdateOperationsInput | boolean
   }
 
-  export type TipoContainerUncheckedUpdateManyInput = {
-    id_tipo_container?: StringFieldUpdateOperationsInput | string
-    codigo_iso_tipo_container?: StringFieldUpdateOperationsInput | string
-    nome_tipo_container?: StringFieldUpdateOperationsInput | string
-    nome_ingles_tipo_container?: StringFieldUpdateOperationsInput | string
-    tamanho_pes_tipo_container?: IntFieldUpdateOperationsInput | number
-    categoria_tipo_container?: StringFieldUpdateOperationsInput | string
-    ativo_tipo_container?: BoolFieldUpdateOperationsInput | boolean
+  export type ContainerUncheckedUpdateManyInput = {
+    id_container?: StringFieldUpdateOperationsInput | string
+    tipo_container?: EnumContainerTipoFieldUpdateOperationsInput | $Enums.ContainerTipo
+    tamanho_container?: StringFieldUpdateOperationsInput | string
+    codigo_iso_container?: NullableStringFieldUpdateOperationsInput | string | null
+    armador_dono_container?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_container?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type NcmSyncCreateInput = {
@@ -19532,202 +18618,6 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ExportadorQuandoImportacaoCreateInput = {
-    id_exportador_quando_importacao?: string
-    id_organizacao_exportador: string
-    id_workspace_exportador: string
-    nome_exportador: string
-    endereco_exportador?: string | null
-    cidade_exportador?: string | null
-    estado_provincia_exportador?: string | null
-    pais_exportador: string
-    zipcode_exportador?: string | null
-    criado_em_exportador?: Date | string
-    atualizado_em_exportador?: Date | string
-  }
-
-  export type ExportadorQuandoImportacaoUncheckedCreateInput = {
-    id_exportador_quando_importacao?: string
-    id_organizacao_exportador: string
-    id_workspace_exportador: string
-    nome_exportador: string
-    endereco_exportador?: string | null
-    cidade_exportador?: string | null
-    estado_provincia_exportador?: string | null
-    pais_exportador: string
-    zipcode_exportador?: string | null
-    criado_em_exportador?: Date | string
-    atualizado_em_exportador?: Date | string
-  }
-
-  export type ExportadorQuandoImportacaoUpdateInput = {
-    id_exportador_quando_importacao?: StringFieldUpdateOperationsInput | string
-    id_organizacao_exportador?: StringFieldUpdateOperationsInput | string
-    id_workspace_exportador?: StringFieldUpdateOperationsInput | string
-    nome_exportador?: StringFieldUpdateOperationsInput | string
-    endereco_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    estado_provincia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    pais_exportador?: StringFieldUpdateOperationsInput | string
-    zipcode_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    criado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ExportadorQuandoImportacaoUncheckedUpdateInput = {
-    id_exportador_quando_importacao?: StringFieldUpdateOperationsInput | string
-    id_organizacao_exportador?: StringFieldUpdateOperationsInput | string
-    id_workspace_exportador?: StringFieldUpdateOperationsInput | string
-    nome_exportador?: StringFieldUpdateOperationsInput | string
-    endereco_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    estado_provincia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    pais_exportador?: StringFieldUpdateOperationsInput | string
-    zipcode_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    criado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ExportadorQuandoImportacaoCreateManyInput = {
-    id_exportador_quando_importacao?: string
-    id_organizacao_exportador: string
-    id_workspace_exportador: string
-    nome_exportador: string
-    endereco_exportador?: string | null
-    cidade_exportador?: string | null
-    estado_provincia_exportador?: string | null
-    pais_exportador: string
-    zipcode_exportador?: string | null
-    criado_em_exportador?: Date | string
-    atualizado_em_exportador?: Date | string
-  }
-
-  export type ExportadorQuandoImportacaoUpdateManyMutationInput = {
-    id_exportador_quando_importacao?: StringFieldUpdateOperationsInput | string
-    id_organizacao_exportador?: StringFieldUpdateOperationsInput | string
-    id_workspace_exportador?: StringFieldUpdateOperationsInput | string
-    nome_exportador?: StringFieldUpdateOperationsInput | string
-    endereco_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    estado_provincia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    pais_exportador?: StringFieldUpdateOperationsInput | string
-    zipcode_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    criado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ExportadorQuandoImportacaoUncheckedUpdateManyInput = {
-    id_exportador_quando_importacao?: StringFieldUpdateOperationsInput | string
-    id_organizacao_exportador?: StringFieldUpdateOperationsInput | string
-    id_workspace_exportador?: StringFieldUpdateOperationsInput | string
-    nome_exportador?: StringFieldUpdateOperationsInput | string
-    endereco_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    estado_provincia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    pais_exportador?: StringFieldUpdateOperationsInput | string
-    zipcode_exportador?: NullableStringFieldUpdateOperationsInput | string | null
-    criado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ImportadorQuandoExportacaoCreateInput = {
-    id_importador_quando_exportacao?: string
-    id_organizacao_importador: string
-    id_workspace_importador: string
-    nome_importador: string
-    endereco_importador?: string | null
-    cidade_importador?: string | null
-    estado_provincia_importador?: string | null
-    pais_importador: string
-    zipcode_importador?: string | null
-    criado_em_importador?: Date | string
-    atualizado_em_importador?: Date | string
-  }
-
-  export type ImportadorQuandoExportacaoUncheckedCreateInput = {
-    id_importador_quando_exportacao?: string
-    id_organizacao_importador: string
-    id_workspace_importador: string
-    nome_importador: string
-    endereco_importador?: string | null
-    cidade_importador?: string | null
-    estado_provincia_importador?: string | null
-    pais_importador: string
-    zipcode_importador?: string | null
-    criado_em_importador?: Date | string
-    atualizado_em_importador?: Date | string
-  }
-
-  export type ImportadorQuandoExportacaoUpdateInput = {
-    id_importador_quando_exportacao?: StringFieldUpdateOperationsInput | string
-    id_organizacao_importador?: StringFieldUpdateOperationsInput | string
-    id_workspace_importador?: StringFieldUpdateOperationsInput | string
-    nome_importador?: StringFieldUpdateOperationsInput | string
-    endereco_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    estado_provincia_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    pais_importador?: StringFieldUpdateOperationsInput | string
-    zipcode_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    criado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ImportadorQuandoExportacaoUncheckedUpdateInput = {
-    id_importador_quando_exportacao?: StringFieldUpdateOperationsInput | string
-    id_organizacao_importador?: StringFieldUpdateOperationsInput | string
-    id_workspace_importador?: StringFieldUpdateOperationsInput | string
-    nome_importador?: StringFieldUpdateOperationsInput | string
-    endereco_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    estado_provincia_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    pais_importador?: StringFieldUpdateOperationsInput | string
-    zipcode_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    criado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ImportadorQuandoExportacaoCreateManyInput = {
-    id_importador_quando_exportacao?: string
-    id_organizacao_importador: string
-    id_workspace_importador: string
-    nome_importador: string
-    endereco_importador?: string | null
-    cidade_importador?: string | null
-    estado_provincia_importador?: string | null
-    pais_importador: string
-    zipcode_importador?: string | null
-    criado_em_importador?: Date | string
-    atualizado_em_importador?: Date | string
-  }
-
-  export type ImportadorQuandoExportacaoUpdateManyMutationInput = {
-    id_importador_quando_exportacao?: StringFieldUpdateOperationsInput | string
-    id_organizacao_importador?: StringFieldUpdateOperationsInput | string
-    id_workspace_importador?: StringFieldUpdateOperationsInput | string
-    nome_importador?: StringFieldUpdateOperationsInput | string
-    endereco_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    estado_provincia_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    pais_importador?: StringFieldUpdateOperationsInput | string
-    zipcode_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    criado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ImportadorQuandoExportacaoUncheckedUpdateManyInput = {
-    id_importador_quando_exportacao?: StringFieldUpdateOperationsInput | string
-    id_organizacao_importador?: StringFieldUpdateOperationsInput | string
-    id_workspace_importador?: StringFieldUpdateOperationsInput | string
-    nome_importador?: StringFieldUpdateOperationsInput | string
-    endereco_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    estado_provincia_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    pais_importador?: StringFieldUpdateOperationsInput | string
-    zipcode_importador?: NullableStringFieldUpdateOperationsInput | string | null
-    criado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -19774,125 +18664,135 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type FornecedorOrganizacaoListRelationFilter = {
+    every?: FornecedorOrganizacaoWhereInput
+    some?: FornecedorOrganizacaoWhereInput
+    none?: FornecedorOrganizacaoWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
   }
 
-  export type EmpresaId_organizacao_empresaCnpj_empresaCompoundUniqueInput = {
-    id_organizacao_empresa: string
-    cnpj_empresa: string
+  export type FornecedorOrganizacaoOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
-  export type EmpresaId_organizacao_empresaTin_empresaPais_empresaCompoundUniqueInput = {
-    id_organizacao_empresa: string
-    tin_empresa: string
-    pais_empresa: string
+  export type FornecedorId_organizacao_cadastro_fornecedorCnpj_fornecedorCompoundUniqueInput = {
+    id_organizacao_cadastro_fornecedor: string
+    cnpj_fornecedor: string
   }
 
-  export type EmpresaCountOrderByAggregateInput = {
-    suid_empresa?: SortOrder
-    id_organizacao_empresa?: SortOrder
-    id_produto_empresa?: SortOrder
-    id_usuario_empresa?: SortOrder
-    nome_empresa?: SortOrder
-    cnpj_empresa?: SortOrder
-    tin_empresa?: SortOrder
-    pais_empresa?: SortOrder
-    estado_empresa?: SortOrder
-    cidade_empresa?: SortOrder
-    endereco_empresa?: SortOrder
-    zipcode_empresa?: SortOrder
-    email_empresa?: SortOrder
-    telefone_empresa?: SortOrder
-    whatsapp_empresa?: SortOrder
-    pode_ser_importador_empresa?: SortOrder
-    pode_ser_exportador_empresa?: SortOrder
-    pode_ser_fabricante_empresa?: SortOrder
-    pode_ser_agente_empresa?: SortOrder
-    pode_ser_despachante_empresa?: SortOrder
-    pode_ser_armador_empresa?: SortOrder
-    pode_ser_armazem_alfandegado_empresa?: SortOrder
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
-    pode_ser_cia_aerea_empresa?: SortOrder
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
-    pode_ser_seguradora_internacional_empresa?: SortOrder
-    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
-    pode_ser_banco_empresa?: SortOrder
-    pode_ser_armazem_nacional_empresa?: SortOrder
-    ativo_empresa?: SortOrder
-    criado_em_empresa?: SortOrder
-    atualizado_em_empresa?: SortOrder
+  export type FornecedorId_organizacao_cadastro_fornecedorTin_fornecedorPais_fornecedorCompoundUniqueInput = {
+    id_organizacao_cadastro_fornecedor: string
+    tin_fornecedor: string
+    pais_fornecedor: string
   }
 
-  export type EmpresaMaxOrderByAggregateInput = {
-    suid_empresa?: SortOrder
-    id_organizacao_empresa?: SortOrder
-    id_produto_empresa?: SortOrder
-    id_usuario_empresa?: SortOrder
-    nome_empresa?: SortOrder
-    cnpj_empresa?: SortOrder
-    tin_empresa?: SortOrder
-    pais_empresa?: SortOrder
-    estado_empresa?: SortOrder
-    cidade_empresa?: SortOrder
-    endereco_empresa?: SortOrder
-    zipcode_empresa?: SortOrder
-    email_empresa?: SortOrder
-    telefone_empresa?: SortOrder
-    whatsapp_empresa?: SortOrder
-    pode_ser_importador_empresa?: SortOrder
-    pode_ser_exportador_empresa?: SortOrder
-    pode_ser_fabricante_empresa?: SortOrder
-    pode_ser_agente_empresa?: SortOrder
-    pode_ser_despachante_empresa?: SortOrder
-    pode_ser_armador_empresa?: SortOrder
-    pode_ser_armazem_alfandegado_empresa?: SortOrder
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
-    pode_ser_cia_aerea_empresa?: SortOrder
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
-    pode_ser_seguradora_internacional_empresa?: SortOrder
-    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
-    pode_ser_banco_empresa?: SortOrder
-    pode_ser_armazem_nacional_empresa?: SortOrder
-    ativo_empresa?: SortOrder
-    criado_em_empresa?: SortOrder
-    atualizado_em_empresa?: SortOrder
+  export type FornecedorCountOrderByAggregateInput = {
+    id_fornecedor?: SortOrder
+    id_organizacao_cadastro_fornecedor?: SortOrder
+    id_produto_fornecedor?: SortOrder
+    id_usuario_cadastro_fornecedor?: SortOrder
+    nome_fornecedor?: SortOrder
+    cnpj_fornecedor?: SortOrder
+    tin_fornecedor?: SortOrder
+    pais_fornecedor?: SortOrder
+    estado_provincia_fornecedor?: SortOrder
+    cidade_fornecedor?: SortOrder
+    endereco_fornecedor?: SortOrder
+    cep_zipcode_fornecedor?: SortOrder
+    email_principal_fornecedor?: SortOrder
+    telefone_principal_fornecedor?: SortOrder
+    whatsapp_principal_fornecedor?: SortOrder
+    pode_ser_importador_fornecedor?: SortOrder
+    pode_ser_exportador_fornecedor?: SortOrder
+    pode_ser_fabricante_fornecedor?: SortOrder
+    pode_ser_agente_fornecedor?: SortOrder
+    pode_ser_despachante_fornecedor?: SortOrder
+    pode_ser_armador_fornecedor?: SortOrder
+    pode_ser_armazem_alfandegado_fornecedor?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: SortOrder
+    pode_ser_cia_aerea_fornecedor?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: SortOrder
+    pode_ser_seguradora_internacional_fornecedor?: SortOrder
+    pode_ser_seguradora_corretora_cambio_fornecedor?: SortOrder
+    pode_ser_banco_fornecedor?: SortOrder
+    pode_ser_armazem_nacional_fornecedor?: SortOrder
+    ativo_fornecedor?: SortOrder
+    criado_em_fornecedor?: SortOrder
+    atualizado_em_fornecedor?: SortOrder
   }
 
-  export type EmpresaMinOrderByAggregateInput = {
-    suid_empresa?: SortOrder
-    id_organizacao_empresa?: SortOrder
-    id_produto_empresa?: SortOrder
-    id_usuario_empresa?: SortOrder
-    nome_empresa?: SortOrder
-    cnpj_empresa?: SortOrder
-    tin_empresa?: SortOrder
-    pais_empresa?: SortOrder
-    estado_empresa?: SortOrder
-    cidade_empresa?: SortOrder
-    endereco_empresa?: SortOrder
-    zipcode_empresa?: SortOrder
-    email_empresa?: SortOrder
-    telefone_empresa?: SortOrder
-    whatsapp_empresa?: SortOrder
-    pode_ser_importador_empresa?: SortOrder
-    pode_ser_exportador_empresa?: SortOrder
-    pode_ser_fabricante_empresa?: SortOrder
-    pode_ser_agente_empresa?: SortOrder
-    pode_ser_despachante_empresa?: SortOrder
-    pode_ser_armador_empresa?: SortOrder
-    pode_ser_armazem_alfandegado_empresa?: SortOrder
-    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
-    pode_ser_cia_aerea_empresa?: SortOrder
-    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
-    pode_ser_seguradora_internacional_empresa?: SortOrder
-    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
-    pode_ser_banco_empresa?: SortOrder
-    pode_ser_armazem_nacional_empresa?: SortOrder
-    ativo_empresa?: SortOrder
-    criado_em_empresa?: SortOrder
-    atualizado_em_empresa?: SortOrder
+  export type FornecedorMaxOrderByAggregateInput = {
+    id_fornecedor?: SortOrder
+    id_organizacao_cadastro_fornecedor?: SortOrder
+    id_produto_fornecedor?: SortOrder
+    id_usuario_cadastro_fornecedor?: SortOrder
+    nome_fornecedor?: SortOrder
+    cnpj_fornecedor?: SortOrder
+    tin_fornecedor?: SortOrder
+    pais_fornecedor?: SortOrder
+    estado_provincia_fornecedor?: SortOrder
+    cidade_fornecedor?: SortOrder
+    endereco_fornecedor?: SortOrder
+    cep_zipcode_fornecedor?: SortOrder
+    email_principal_fornecedor?: SortOrder
+    telefone_principal_fornecedor?: SortOrder
+    whatsapp_principal_fornecedor?: SortOrder
+    pode_ser_importador_fornecedor?: SortOrder
+    pode_ser_exportador_fornecedor?: SortOrder
+    pode_ser_fabricante_fornecedor?: SortOrder
+    pode_ser_agente_fornecedor?: SortOrder
+    pode_ser_despachante_fornecedor?: SortOrder
+    pode_ser_armador_fornecedor?: SortOrder
+    pode_ser_armazem_alfandegado_fornecedor?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: SortOrder
+    pode_ser_cia_aerea_fornecedor?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: SortOrder
+    pode_ser_seguradora_internacional_fornecedor?: SortOrder
+    pode_ser_seguradora_corretora_cambio_fornecedor?: SortOrder
+    pode_ser_banco_fornecedor?: SortOrder
+    pode_ser_armazem_nacional_fornecedor?: SortOrder
+    ativo_fornecedor?: SortOrder
+    criado_em_fornecedor?: SortOrder
+    atualizado_em_fornecedor?: SortOrder
+  }
+
+  export type FornecedorMinOrderByAggregateInput = {
+    id_fornecedor?: SortOrder
+    id_organizacao_cadastro_fornecedor?: SortOrder
+    id_produto_fornecedor?: SortOrder
+    id_usuario_cadastro_fornecedor?: SortOrder
+    nome_fornecedor?: SortOrder
+    cnpj_fornecedor?: SortOrder
+    tin_fornecedor?: SortOrder
+    pais_fornecedor?: SortOrder
+    estado_provincia_fornecedor?: SortOrder
+    cidade_fornecedor?: SortOrder
+    endereco_fornecedor?: SortOrder
+    cep_zipcode_fornecedor?: SortOrder
+    email_principal_fornecedor?: SortOrder
+    telefone_principal_fornecedor?: SortOrder
+    whatsapp_principal_fornecedor?: SortOrder
+    pode_ser_importador_fornecedor?: SortOrder
+    pode_ser_exportador_fornecedor?: SortOrder
+    pode_ser_fabricante_fornecedor?: SortOrder
+    pode_ser_agente_fornecedor?: SortOrder
+    pode_ser_despachante_fornecedor?: SortOrder
+    pode_ser_armador_fornecedor?: SortOrder
+    pode_ser_armazem_alfandegado_fornecedor?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: SortOrder
+    pode_ser_cia_aerea_fornecedor?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: SortOrder
+    pode_ser_seguradora_internacional_fornecedor?: SortOrder
+    pode_ser_seguradora_corretora_cambio_fornecedor?: SortOrder
+    pode_ser_banco_fornecedor?: SortOrder
+    pode_ser_armazem_nacional_fornecedor?: SortOrder
+    ativo_fornecedor?: SortOrder
+    criado_em_fornecedor?: SortOrder
+    atualizado_em_fornecedor?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -19951,6 +18851,84 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type EnumTipoFornecedorOrganizacaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoFornecedorOrganizacao | EnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoFornecedorOrganizacao[] | ListEnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoFornecedorOrganizacao[] | ListEnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoFornecedorOrganizacaoFilter<$PrismaModel> | $Enums.TipoFornecedorOrganizacao
+  }
+
+  export type EnumStatusFornecedorOrganizacaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusFornecedorOrganizacao | EnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusFornecedorOrganizacao[] | ListEnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusFornecedorOrganizacao[] | ListEnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusFornecedorOrganizacaoFilter<$PrismaModel> | $Enums.StatusFornecedorOrganizacao
+  }
+
+  export type FornecedorRelationFilter = {
+    is?: FornecedorWhereInput
+    isNot?: FornecedorWhereInput
+  }
+
+  export type FornecedorOrganizacaoId_fornecedorId_organizacaoTipo_fornecedor_organizacaoCompoundUniqueInput = {
+    id_fornecedor: string
+    id_organizacao: string
+    tipo_fornecedor_organizacao: $Enums.TipoFornecedorOrganizacao
+  }
+
+  export type FornecedorOrganizacaoCountOrderByAggregateInput = {
+    id_fornecedor_organizacao?: SortOrder
+    id_fornecedor?: SortOrder
+    id_organizacao?: SortOrder
+    tipo_fornecedor_organizacao?: SortOrder
+    status_fornecedor_organizacao?: SortOrder
+    id_usuario?: SortOrder
+    data_criacao_fornecedor_organizacao?: SortOrder
+    data_atualizacao_fornecedor_organizacao?: SortOrder
+  }
+
+  export type FornecedorOrganizacaoMaxOrderByAggregateInput = {
+    id_fornecedor_organizacao?: SortOrder
+    id_fornecedor?: SortOrder
+    id_organizacao?: SortOrder
+    tipo_fornecedor_organizacao?: SortOrder
+    status_fornecedor_organizacao?: SortOrder
+    id_usuario?: SortOrder
+    data_criacao_fornecedor_organizacao?: SortOrder
+    data_atualizacao_fornecedor_organizacao?: SortOrder
+  }
+
+  export type FornecedorOrganizacaoMinOrderByAggregateInput = {
+    id_fornecedor_organizacao?: SortOrder
+    id_fornecedor?: SortOrder
+    id_organizacao?: SortOrder
+    tipo_fornecedor_organizacao?: SortOrder
+    status_fornecedor_organizacao?: SortOrder
+    id_usuario?: SortOrder
+    data_criacao_fornecedor_organizacao?: SortOrder
+    data_atualizacao_fornecedor_organizacao?: SortOrder
+  }
+
+  export type EnumTipoFornecedorOrganizacaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoFornecedorOrganizacao | EnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoFornecedorOrganizacao[] | ListEnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoFornecedorOrganizacao[] | ListEnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoFornecedorOrganizacaoWithAggregatesFilter<$PrismaModel> | $Enums.TipoFornecedorOrganizacao
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTipoFornecedorOrganizacaoFilter<$PrismaModel>
+    _max?: NestedEnumTipoFornecedorOrganizacaoFilter<$PrismaModel>
+  }
+
+  export type EnumStatusFornecedorOrganizacaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusFornecedorOrganizacao | EnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusFornecedorOrganizacao[] | ListEnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusFornecedorOrganizacao[] | ListEnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusFornecedorOrganizacaoWithAggregatesFilter<$PrismaModel> | $Enums.StatusFornecedorOrganizacao
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStatusFornecedorOrganizacaoFilter<$PrismaModel>
+    _max?: NestedEnumStatusFornecedorOrganizacaoFilter<$PrismaModel>
   }
 
   export type PaisCountOrderByAggregateInput = {
@@ -20198,69 +19176,48 @@ export namespace Prisma {
     longitude_aeroporto?: SortOrder
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
+  export type EnumContainerTipoFilter<$PrismaModel = never> = {
+    equals?: $Enums.ContainerTipo | EnumContainerTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.ContainerTipo[] | ListEnumContainerTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ContainerTipo[] | ListEnumContainerTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumContainerTipoFilter<$PrismaModel> | $Enums.ContainerTipo
   }
 
-  export type TipoContainerCountOrderByAggregateInput = {
-    id_tipo_container?: SortOrder
-    codigo_iso_tipo_container?: SortOrder
-    nome_tipo_container?: SortOrder
-    nome_ingles_tipo_container?: SortOrder
-    tamanho_pes_tipo_container?: SortOrder
-    categoria_tipo_container?: SortOrder
-    ativo_tipo_container?: SortOrder
+  export type ContainerCountOrderByAggregateInput = {
+    id_container?: SortOrder
+    tipo_container?: SortOrder
+    tamanho_container?: SortOrder
+    codigo_iso_container?: SortOrder
+    armador_dono_container?: SortOrder
+    ativo_container?: SortOrder
   }
 
-  export type TipoContainerAvgOrderByAggregateInput = {
-    tamanho_pes_tipo_container?: SortOrder
+  export type ContainerMaxOrderByAggregateInput = {
+    id_container?: SortOrder
+    tipo_container?: SortOrder
+    tamanho_container?: SortOrder
+    codigo_iso_container?: SortOrder
+    armador_dono_container?: SortOrder
+    ativo_container?: SortOrder
   }
 
-  export type TipoContainerMaxOrderByAggregateInput = {
-    id_tipo_container?: SortOrder
-    codigo_iso_tipo_container?: SortOrder
-    nome_tipo_container?: SortOrder
-    nome_ingles_tipo_container?: SortOrder
-    tamanho_pes_tipo_container?: SortOrder
-    categoria_tipo_container?: SortOrder
-    ativo_tipo_container?: SortOrder
+  export type ContainerMinOrderByAggregateInput = {
+    id_container?: SortOrder
+    tipo_container?: SortOrder
+    tamanho_container?: SortOrder
+    codigo_iso_container?: SortOrder
+    armador_dono_container?: SortOrder
+    ativo_container?: SortOrder
   }
 
-  export type TipoContainerMinOrderByAggregateInput = {
-    id_tipo_container?: SortOrder
-    codigo_iso_tipo_container?: SortOrder
-    nome_tipo_container?: SortOrder
-    nome_ingles_tipo_container?: SortOrder
-    tamanho_pes_tipo_container?: SortOrder
-    categoria_tipo_container?: SortOrder
-    ativo_tipo_container?: SortOrder
-  }
-
-  export type TipoContainerSumOrderByAggregateInput = {
-    tamanho_pes_tipo_container?: SortOrder
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+  export type EnumContainerTipoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ContainerTipo | EnumContainerTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.ContainerTipo[] | ListEnumContainerTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ContainerTipo[] | ListEnumContainerTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumContainerTipoWithAggregatesFilter<$PrismaModel> | $Enums.ContainerTipo
     _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumContainerTipoFilter<$PrismaModel>
+    _max?: NestedEnumContainerTipoFilter<$PrismaModel>
   }
 
   export type DateTimeNullableFilter<$PrismaModel = never> = {
@@ -20354,6 +19311,17 @@ export namespace Prisma {
     not?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel> | $Enums.NcmSyncStatusSincronizacao
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type EnumNcmSyncOrigemSincronizacaoFilter<$PrismaModel = never> = {
     equals?: $Enums.NcmSyncOrigemSincronizacao | EnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
     in?: $Enums.NcmSyncOrigemSincronizacao[] | ListEnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
@@ -20431,6 +19399,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel>
     _max?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type EnumNcmSyncOrigemSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
@@ -20615,88 +19599,18 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: SortOrder
   }
 
-  export type ExportadorQuandoImportacaoCountOrderByAggregateInput = {
-    id_exportador_quando_importacao?: SortOrder
-    id_organizacao_exportador?: SortOrder
-    id_workspace_exportador?: SortOrder
-    nome_exportador?: SortOrder
-    endereco_exportador?: SortOrder
-    cidade_exportador?: SortOrder
-    estado_provincia_exportador?: SortOrder
-    pais_exportador?: SortOrder
-    zipcode_exportador?: SortOrder
-    criado_em_exportador?: SortOrder
-    atualizado_em_exportador?: SortOrder
+  export type FornecedorOrganizacaoCreateNestedManyWithoutFornecedorInput = {
+    create?: XOR<FornecedorOrganizacaoCreateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput> | FornecedorOrganizacaoCreateWithoutFornecedorInput[] | FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput[]
+    connectOrCreate?: FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput | FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput[]
+    createMany?: FornecedorOrganizacaoCreateManyFornecedorInputEnvelope
+    connect?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
   }
 
-  export type ExportadorQuandoImportacaoMaxOrderByAggregateInput = {
-    id_exportador_quando_importacao?: SortOrder
-    id_organizacao_exportador?: SortOrder
-    id_workspace_exportador?: SortOrder
-    nome_exportador?: SortOrder
-    endereco_exportador?: SortOrder
-    cidade_exportador?: SortOrder
-    estado_provincia_exportador?: SortOrder
-    pais_exportador?: SortOrder
-    zipcode_exportador?: SortOrder
-    criado_em_exportador?: SortOrder
-    atualizado_em_exportador?: SortOrder
-  }
-
-  export type ExportadorQuandoImportacaoMinOrderByAggregateInput = {
-    id_exportador_quando_importacao?: SortOrder
-    id_organizacao_exportador?: SortOrder
-    id_workspace_exportador?: SortOrder
-    nome_exportador?: SortOrder
-    endereco_exportador?: SortOrder
-    cidade_exportador?: SortOrder
-    estado_provincia_exportador?: SortOrder
-    pais_exportador?: SortOrder
-    zipcode_exportador?: SortOrder
-    criado_em_exportador?: SortOrder
-    atualizado_em_exportador?: SortOrder
-  }
-
-  export type ImportadorQuandoExportacaoCountOrderByAggregateInput = {
-    id_importador_quando_exportacao?: SortOrder
-    id_organizacao_importador?: SortOrder
-    id_workspace_importador?: SortOrder
-    nome_importador?: SortOrder
-    endereco_importador?: SortOrder
-    cidade_importador?: SortOrder
-    estado_provincia_importador?: SortOrder
-    pais_importador?: SortOrder
-    zipcode_importador?: SortOrder
-    criado_em_importador?: SortOrder
-    atualizado_em_importador?: SortOrder
-  }
-
-  export type ImportadorQuandoExportacaoMaxOrderByAggregateInput = {
-    id_importador_quando_exportacao?: SortOrder
-    id_organizacao_importador?: SortOrder
-    id_workspace_importador?: SortOrder
-    nome_importador?: SortOrder
-    endereco_importador?: SortOrder
-    cidade_importador?: SortOrder
-    estado_provincia_importador?: SortOrder
-    pais_importador?: SortOrder
-    zipcode_importador?: SortOrder
-    criado_em_importador?: SortOrder
-    atualizado_em_importador?: SortOrder
-  }
-
-  export type ImportadorQuandoExportacaoMinOrderByAggregateInput = {
-    id_importador_quando_exportacao?: SortOrder
-    id_organizacao_importador?: SortOrder
-    id_workspace_importador?: SortOrder
-    nome_importador?: SortOrder
-    endereco_importador?: SortOrder
-    cidade_importador?: SortOrder
-    estado_provincia_importador?: SortOrder
-    pais_importador?: SortOrder
-    zipcode_importador?: SortOrder
-    criado_em_importador?: SortOrder
-    atualizado_em_importador?: SortOrder
+  export type FornecedorOrganizacaoUncheckedCreateNestedManyWithoutFornecedorInput = {
+    create?: XOR<FornecedorOrganizacaoCreateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput> | FornecedorOrganizacaoCreateWithoutFornecedorInput[] | FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput[]
+    connectOrCreate?: FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput | FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput[]
+    createMany?: FornecedorOrganizacaoCreateManyFornecedorInputEnvelope
+    connect?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -20715,6 +19629,56 @@ export namespace Prisma {
     set?: Date | string
   }
 
+  export type FornecedorOrganizacaoUpdateManyWithoutFornecedorNestedInput = {
+    create?: XOR<FornecedorOrganizacaoCreateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput> | FornecedorOrganizacaoCreateWithoutFornecedorInput[] | FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput[]
+    connectOrCreate?: FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput | FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput[]
+    upsert?: FornecedorOrganizacaoUpsertWithWhereUniqueWithoutFornecedorInput | FornecedorOrganizacaoUpsertWithWhereUniqueWithoutFornecedorInput[]
+    createMany?: FornecedorOrganizacaoCreateManyFornecedorInputEnvelope
+    set?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
+    disconnect?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
+    delete?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
+    connect?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
+    update?: FornecedorOrganizacaoUpdateWithWhereUniqueWithoutFornecedorInput | FornecedorOrganizacaoUpdateWithWhereUniqueWithoutFornecedorInput[]
+    updateMany?: FornecedorOrganizacaoUpdateManyWithWhereWithoutFornecedorInput | FornecedorOrganizacaoUpdateManyWithWhereWithoutFornecedorInput[]
+    deleteMany?: FornecedorOrganizacaoScalarWhereInput | FornecedorOrganizacaoScalarWhereInput[]
+  }
+
+  export type FornecedorOrganizacaoUncheckedUpdateManyWithoutFornecedorNestedInput = {
+    create?: XOR<FornecedorOrganizacaoCreateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput> | FornecedorOrganizacaoCreateWithoutFornecedorInput[] | FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput[]
+    connectOrCreate?: FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput | FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput[]
+    upsert?: FornecedorOrganizacaoUpsertWithWhereUniqueWithoutFornecedorInput | FornecedorOrganizacaoUpsertWithWhereUniqueWithoutFornecedorInput[]
+    createMany?: FornecedorOrganizacaoCreateManyFornecedorInputEnvelope
+    set?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
+    disconnect?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
+    delete?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
+    connect?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
+    update?: FornecedorOrganizacaoUpdateWithWhereUniqueWithoutFornecedorInput | FornecedorOrganizacaoUpdateWithWhereUniqueWithoutFornecedorInput[]
+    updateMany?: FornecedorOrganizacaoUpdateManyWithWhereWithoutFornecedorInput | FornecedorOrganizacaoUpdateManyWithWhereWithoutFornecedorInput[]
+    deleteMany?: FornecedorOrganizacaoScalarWhereInput | FornecedorOrganizacaoScalarWhereInput[]
+  }
+
+  export type FornecedorCreateNestedOneWithoutFornecedores_organizacaoInput = {
+    create?: XOR<FornecedorCreateWithoutFornecedores_organizacaoInput, FornecedorUncheckedCreateWithoutFornecedores_organizacaoInput>
+    connectOrCreate?: FornecedorCreateOrConnectWithoutFornecedores_organizacaoInput
+    connect?: FornecedorWhereUniqueInput
+  }
+
+  export type EnumTipoFornecedorOrganizacaoFieldUpdateOperationsInput = {
+    set?: $Enums.TipoFornecedorOrganizacao
+  }
+
+  export type EnumStatusFornecedorOrganizacaoFieldUpdateOperationsInput = {
+    set?: $Enums.StatusFornecedorOrganizacao
+  }
+
+  export type FornecedorUpdateOneRequiredWithoutFornecedores_organizacaoNestedInput = {
+    create?: XOR<FornecedorCreateWithoutFornecedores_organizacaoInput, FornecedorUncheckedCreateWithoutFornecedores_organizacaoInput>
+    connectOrCreate?: FornecedorCreateOrConnectWithoutFornecedores_organizacaoInput
+    upsert?: FornecedorUpsertWithoutFornecedores_organizacaoInput
+    connect?: FornecedorWhereUniqueInput
+    update?: XOR<XOR<FornecedorUpdateToOneWithWhereWithoutFornecedores_organizacaoInput, FornecedorUpdateWithoutFornecedores_organizacaoInput>, FornecedorUncheckedUpdateWithoutFornecedores_organizacaoInput>
+  }
+
   export type NullableFloatFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
@@ -20723,12 +19687,8 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
+  export type EnumContainerTipoFieldUpdateOperationsInput = {
+    set?: $Enums.ContainerTipo
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -20737,6 +19697,14 @@ export namespace Prisma {
 
   export type EnumNcmSyncStatusSincronizacaoFieldUpdateOperationsInput = {
     set?: $Enums.NcmSyncStatusSincronizacao
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type EnumNcmSyncOrigemSincronizacaoFieldUpdateOperationsInput = {
@@ -20865,6 +19833,40 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedEnumTipoFornecedorOrganizacaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoFornecedorOrganizacao | EnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoFornecedorOrganizacao[] | ListEnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoFornecedorOrganizacao[] | ListEnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoFornecedorOrganizacaoFilter<$PrismaModel> | $Enums.TipoFornecedorOrganizacao
+  }
+
+  export type NestedEnumStatusFornecedorOrganizacaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusFornecedorOrganizacao | EnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusFornecedorOrganizacao[] | ListEnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusFornecedorOrganizacao[] | ListEnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusFornecedorOrganizacaoFilter<$PrismaModel> | $Enums.StatusFornecedorOrganizacao
+  }
+
+  export type NestedEnumTipoFornecedorOrganizacaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoFornecedorOrganizacao | EnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoFornecedorOrganizacao[] | ListEnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoFornecedorOrganizacao[] | ListEnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoFornecedorOrganizacaoWithAggregatesFilter<$PrismaModel> | $Enums.TipoFornecedorOrganizacao
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTipoFornecedorOrganizacaoFilter<$PrismaModel>
+    _max?: NestedEnumTipoFornecedorOrganizacaoFilter<$PrismaModel>
+  }
+
+  export type NestedEnumStatusFornecedorOrganizacaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusFornecedorOrganizacao | EnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusFornecedorOrganizacao[] | ListEnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusFornecedorOrganizacao[] | ListEnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusFornecedorOrganizacaoWithAggregatesFilter<$PrismaModel> | $Enums.StatusFornecedorOrganizacao
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStatusFornecedorOrganizacaoFilter<$PrismaModel>
+    _max?: NestedEnumStatusFornecedorOrganizacaoFilter<$PrismaModel>
+  }
+
   export type NestedFloatNullableFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
     in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
@@ -20892,31 +19894,21 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
-  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
+  export type NestedEnumContainerTipoFilter<$PrismaModel = never> = {
+    equals?: $Enums.ContainerTipo | EnumContainerTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.ContainerTipo[] | ListEnumContainerTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ContainerTipo[] | ListEnumContainerTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumContainerTipoFilter<$PrismaModel> | $Enums.ContainerTipo
   }
 
-  export type NestedFloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
+  export type NestedEnumContainerTipoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ContainerTipo | EnumContainerTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.ContainerTipo[] | ListEnumContainerTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ContainerTipo[] | ListEnumContainerTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumContainerTipoWithAggregatesFilter<$PrismaModel> | $Enums.ContainerTipo
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumContainerTipoFilter<$PrismaModel>
+    _max?: NestedEnumContainerTipoFilter<$PrismaModel>
   }
 
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
@@ -20968,6 +19960,33 @@ export namespace Prisma {
     _max?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel>
   }
 
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type NestedEnumNcmSyncOrigemSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.NcmSyncOrigemSincronizacao | EnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
     in?: $Enums.NcmSyncOrigemSincronizacao[] | ListEnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
@@ -21000,15 +20019,279 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type FornecedorOrganizacaoCreateWithoutFornecedorInput = {
+    id_fornecedor_organizacao?: string
+    id_organizacao: string
+    tipo_fornecedor_organizacao: $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: $Enums.StatusFornecedorOrganizacao
+    id_usuario?: string | null
+    data_criacao_fornecedor_organizacao?: Date | string
+    data_atualizacao_fornecedor_organizacao?: Date | string
+  }
+
+  export type FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput = {
+    id_fornecedor_organizacao?: string
+    id_organizacao: string
+    tipo_fornecedor_organizacao: $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: $Enums.StatusFornecedorOrganizacao
+    id_usuario?: string | null
+    data_criacao_fornecedor_organizacao?: Date | string
+    data_atualizacao_fornecedor_organizacao?: Date | string
+  }
+
+  export type FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput = {
+    where: FornecedorOrganizacaoWhereUniqueInput
+    create: XOR<FornecedorOrganizacaoCreateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput>
+  }
+
+  export type FornecedorOrganizacaoCreateManyFornecedorInputEnvelope = {
+    data: FornecedorOrganizacaoCreateManyFornecedorInput | FornecedorOrganizacaoCreateManyFornecedorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type FornecedorOrganizacaoUpsertWithWhereUniqueWithoutFornecedorInput = {
+    where: FornecedorOrganizacaoWhereUniqueInput
+    update: XOR<FornecedorOrganizacaoUpdateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedUpdateWithoutFornecedorInput>
+    create: XOR<FornecedorOrganizacaoCreateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput>
+  }
+
+  export type FornecedorOrganizacaoUpdateWithWhereUniqueWithoutFornecedorInput = {
+    where: FornecedorOrganizacaoWhereUniqueInput
+    data: XOR<FornecedorOrganizacaoUpdateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedUpdateWithoutFornecedorInput>
+  }
+
+  export type FornecedorOrganizacaoUpdateManyWithWhereWithoutFornecedorInput = {
+    where: FornecedorOrganizacaoScalarWhereInput
+    data: XOR<FornecedorOrganizacaoUpdateManyMutationInput, FornecedorOrganizacaoUncheckedUpdateManyWithoutFornecedorInput>
+  }
+
+  export type FornecedorOrganizacaoScalarWhereInput = {
+    AND?: FornecedorOrganizacaoScalarWhereInput | FornecedorOrganizacaoScalarWhereInput[]
+    OR?: FornecedorOrganizacaoScalarWhereInput[]
+    NOT?: FornecedorOrganizacaoScalarWhereInput | FornecedorOrganizacaoScalarWhereInput[]
+    id_fornecedor_organizacao?: StringFilter<"FornecedorOrganizacao"> | string
+    id_fornecedor?: StringFilter<"FornecedorOrganizacao"> | string
+    id_organizacao?: StringFilter<"FornecedorOrganizacao"> | string
+    tipo_fornecedor_organizacao?: EnumTipoFornecedorOrganizacaoFilter<"FornecedorOrganizacao"> | $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: EnumStatusFornecedorOrganizacaoFilter<"FornecedorOrganizacao"> | $Enums.StatusFornecedorOrganizacao
+    id_usuario?: StringNullableFilter<"FornecedorOrganizacao"> | string | null
+    data_criacao_fornecedor_organizacao?: DateTimeFilter<"FornecedorOrganizacao"> | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeFilter<"FornecedorOrganizacao"> | Date | string
+  }
+
+  export type FornecedorCreateWithoutFornecedores_organizacaoInput = {
+    id_fornecedor: string
+    id_organizacao_cadastro_fornecedor: string
+    id_produto_fornecedor?: string | null
+    id_usuario_cadastro_fornecedor?: string | null
+    nome_fornecedor: string
+    cnpj_fornecedor?: string | null
+    tin_fornecedor?: string | null
+    pais_fornecedor: string
+    estado_provincia_fornecedor?: string | null
+    cidade_fornecedor?: string | null
+    endereco_fornecedor?: string | null
+    cep_zipcode_fornecedor?: string | null
+    email_principal_fornecedor?: string | null
+    telefone_principal_fornecedor?: string | null
+    whatsapp_principal_fornecedor?: string | null
+    pode_ser_importador_fornecedor?: boolean
+    pode_ser_exportador_fornecedor?: boolean
+    pode_ser_fabricante_fornecedor?: boolean
+    pode_ser_agente_fornecedor?: boolean
+    pode_ser_despachante_fornecedor?: boolean
+    pode_ser_armador_fornecedor?: boolean
+    pode_ser_armazem_alfandegado_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: boolean
+    pode_ser_cia_aerea_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: boolean
+    pode_ser_seguradora_internacional_fornecedor?: boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: boolean
+    pode_ser_banco_fornecedor?: boolean
+    pode_ser_armazem_nacional_fornecedor?: boolean
+    ativo_fornecedor?: boolean
+    criado_em_fornecedor?: Date | string
+    atualizado_em_fornecedor?: Date | string
+  }
+
+  export type FornecedorUncheckedCreateWithoutFornecedores_organizacaoInput = {
+    id_fornecedor: string
+    id_organizacao_cadastro_fornecedor: string
+    id_produto_fornecedor?: string | null
+    id_usuario_cadastro_fornecedor?: string | null
+    nome_fornecedor: string
+    cnpj_fornecedor?: string | null
+    tin_fornecedor?: string | null
+    pais_fornecedor: string
+    estado_provincia_fornecedor?: string | null
+    cidade_fornecedor?: string | null
+    endereco_fornecedor?: string | null
+    cep_zipcode_fornecedor?: string | null
+    email_principal_fornecedor?: string | null
+    telefone_principal_fornecedor?: string | null
+    whatsapp_principal_fornecedor?: string | null
+    pode_ser_importador_fornecedor?: boolean
+    pode_ser_exportador_fornecedor?: boolean
+    pode_ser_fabricante_fornecedor?: boolean
+    pode_ser_agente_fornecedor?: boolean
+    pode_ser_despachante_fornecedor?: boolean
+    pode_ser_armador_fornecedor?: boolean
+    pode_ser_armazem_alfandegado_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: boolean
+    pode_ser_cia_aerea_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: boolean
+    pode_ser_seguradora_internacional_fornecedor?: boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: boolean
+    pode_ser_banco_fornecedor?: boolean
+    pode_ser_armazem_nacional_fornecedor?: boolean
+    ativo_fornecedor?: boolean
+    criado_em_fornecedor?: Date | string
+    atualizado_em_fornecedor?: Date | string
+  }
+
+  export type FornecedorCreateOrConnectWithoutFornecedores_organizacaoInput = {
+    where: FornecedorWhereUniqueInput
+    create: XOR<FornecedorCreateWithoutFornecedores_organizacaoInput, FornecedorUncheckedCreateWithoutFornecedores_organizacaoInput>
+  }
+
+  export type FornecedorUpsertWithoutFornecedores_organizacaoInput = {
+    update: XOR<FornecedorUpdateWithoutFornecedores_organizacaoInput, FornecedorUncheckedUpdateWithoutFornecedores_organizacaoInput>
+    create: XOR<FornecedorCreateWithoutFornecedores_organizacaoInput, FornecedorUncheckedCreateWithoutFornecedores_organizacaoInput>
+    where?: FornecedorWhereInput
+  }
+
+  export type FornecedorUpdateToOneWithWhereWithoutFornecedores_organizacaoInput = {
+    where?: FornecedorWhereInput
+    data: XOR<FornecedorUpdateWithoutFornecedores_organizacaoInput, FornecedorUncheckedUpdateWithoutFornecedores_organizacaoInput>
+  }
+
+  export type FornecedorUpdateWithoutFornecedores_organizacaoInput = {
+    id_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_produto_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_cadastro_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_fornecedor?: StringFieldUpdateOperationsInput | string
+    cnpj_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_fornecedor?: StringFieldUpdateOperationsInput | string
+    estado_provincia_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_alfandegado_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    ativo_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorUncheckedUpdateWithoutFornecedores_organizacaoInput = {
+    id_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_produto_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_cadastro_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_fornecedor?: StringFieldUpdateOperationsInput | string
+    cnpj_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_fornecedor?: StringFieldUpdateOperationsInput | string
+    estado_provincia_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_alfandegado_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    ativo_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorOrganizacaoCreateManyFornecedorInput = {
+    id_fornecedor_organizacao?: string
+    id_organizacao: string
+    tipo_fornecedor_organizacao: $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: $Enums.StatusFornecedorOrganizacao
+    id_usuario?: string | null
+    data_criacao_fornecedor_organizacao?: Date | string
+    data_atualizacao_fornecedor_organizacao?: Date | string
+  }
+
+  export type FornecedorOrganizacaoUpdateWithoutFornecedorInput = {
+    id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_fornecedor_organizacao?: EnumTipoFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: EnumStatusFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.StatusFornecedorOrganizacao
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorOrganizacaoUncheckedUpdateWithoutFornecedorInput = {
+    id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_fornecedor_organizacao?: EnumTipoFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: EnumStatusFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.StatusFornecedorOrganizacao
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorOrganizacaoUncheckedUpdateManyWithoutFornecedorInput = {
+    id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_fornecedor_organizacao?: EnumTipoFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.TipoFornecedorOrganizacao
+    status_fornecedor_organizacao?: EnumStatusFornecedorOrganizacaoFieldUpdateOperationsInput | $Enums.StatusFornecedorOrganizacao
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
 
 
   /**
    * Aliases for legacy arg types
    */
     /**
-     * @deprecated Use EmpresaDefaultArgs instead
+     * @deprecated Use FornecedorCountOutputTypeDefaultArgs instead
      */
-    export type EmpresaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EmpresaDefaultArgs<ExtArgs>
+    export type FornecedorCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = FornecedorCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use FornecedorDefaultArgs instead
+     */
+    export type FornecedorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = FornecedorDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use FornecedorOrganizacaoDefaultArgs instead
+     */
+    export type FornecedorOrganizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = FornecedorOrganizacaoDefaultArgs<ExtArgs>
     /**
      * @deprecated Use PaisDefaultArgs instead
      */
@@ -21034,9 +20317,9 @@ export namespace Prisma {
      */
     export type AeroportoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AeroportoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use TipoContainerDefaultArgs instead
+     * @deprecated Use ContainerDefaultArgs instead
      */
-    export type TipoContainerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TipoContainerDefaultArgs<ExtArgs>
+    export type ContainerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ContainerDefaultArgs<ExtArgs>
     /**
      * @deprecated Use NcmSyncDefaultArgs instead
      */
@@ -21057,14 +20340,6 @@ export namespace Prisma {
      * @deprecated Use OPEHistoricoStatusDefaultArgs instead
      */
     export type OPEHistoricoStatusArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OPEHistoricoStatusDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use ExportadorQuandoImportacaoDefaultArgs instead
-     */
-    export type ExportadorQuandoImportacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ExportadorQuandoImportacaoDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use ImportadorQuandoExportacaoDefaultArgs instead
-     */
-    export type ImportadorQuandoExportacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ImportadorQuandoExportacaoDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

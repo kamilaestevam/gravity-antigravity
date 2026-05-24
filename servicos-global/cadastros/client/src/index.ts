@@ -115,7 +115,7 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
         if (params.por_pagina) qs.set('por_pagina', String(params.por_pagina))
         if (params.busca) qs.set('busca', params.busca)
         if (params.pais) qs.set('pais', params.pais)
-        return chamar('GET', `/api/v1/empresas?${qs.toString()}`, listaEmpresasSchema, {
+        return chamar('GET', `/api/v1/fornecedores?${qs.toString()}`, listaEmpresasSchema, {
           idOrganizacao: params.id_organizacao,
         })
       },
@@ -124,13 +124,13 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
         const chave = `${idOrganizacao}:${suid}`
         const cacheado = cacheEmpresa.get(chave)
         if (cacheado) return cacheado
-        const empresa = await chamar('GET', `/api/v1/empresas/${encodeURIComponent(suid)}`, empresaSchema, { idOrganizacao })
+        const empresa = await chamar('GET', `/api/v1/fornecedores/${encodeURIComponent(suid)}`, empresaSchema, { idOrganizacao })
         cacheEmpresa.set(chave, empresa)
         return empresa
       },
 
       criar: async (dados) => {
-        const empresa = await chamar('POST', '/api/v1/empresas', empresaSchema, {
+        const empresa = await chamar('POST', '/api/v1/fornecedores', empresaSchema, {
           body: dados,
           idOrganizacao: dados.id_organizacao,
         })
@@ -139,7 +139,7 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
       },
 
       atualizar: async (suid, idOrganizacao, dados) => {
-        const empresa = await chamar('PUT', `/api/v1/empresas/${encodeURIComponent(suid)}`, empresaSchema, {
+        const empresa = await chamar('PUT', `/api/v1/fornecedores/${encodeURIComponent(suid)}`, empresaSchema, {
           body: dados,
           idOrganizacao,
         })
@@ -148,13 +148,13 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
       },
 
       desativar: async (suid, idOrganizacao) => {
-        const empresa = await chamar('DELETE', `/api/v1/empresas/${encodeURIComponent(suid)}`, empresaSchema, { idOrganizacao })
+        const empresa = await chamar('DELETE', `/api/v1/fornecedores/${encodeURIComponent(suid)}`, empresaSchema, { idOrganizacao })
         cacheEmpresa.invalidate(`${idOrganizacao}:${suid}`)
         return empresa
       },
 
       previewImpacto: async (suid, idOrganizacao) => {
-        return chamar('GET', `/api/v1/empresas/${encodeURIComponent(suid)}/preview-impacto`, previewImpactoSchema, { idOrganizacao })
+        return chamar('GET', `/api/v1/fornecedores/${encodeURIComponent(suid)}/preview-impacto`, previewImpactoSchema, { idOrganizacao })
       },
     },
 

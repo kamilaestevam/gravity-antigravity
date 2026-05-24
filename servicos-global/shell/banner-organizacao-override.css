@@ -111,3 +111,10 @@
   height: 100vh; /* mantém viewport — banner reduz área útil */
   box-shadow: inset 0 0 0 2px var(--banner-override-border);
 }
+
+/* Produtos usam TelaProdutoGlobal (.tpg-layout) em vez de shell-layout */
+.tpg-layout.layout--override-ativo {
+  padding-top: var(--banner-override-height);
+  min-height: 100vh;
+  box-shadow: inset 0 0 0 2px var(--banner-override-border);
+}

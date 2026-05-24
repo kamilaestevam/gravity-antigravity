@@ -1,2 +1,4 @@
-export { ModalTrocarOrganizacao } from './ModalTrocarOrganizacao'
-export type { ModalTrocarOrganizacaoProps } from './ModalTrocarOrganizacao'
+export {
+  ModalTrocarOrganizacao,
+  type ModalTrocarOrganizacaoProps,
+} from '@gravity/shell'

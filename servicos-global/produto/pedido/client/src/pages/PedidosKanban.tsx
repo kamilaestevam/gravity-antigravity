@@ -250,12 +250,12 @@ function ModalKanbanPedido({
   const statusRotulo = t(`pedido.kanban.status.${pedido.status}`, { defaultValue: colunaAtual?.label ?? pedido.status })
 
   function abrirNoCampo(campo: string) {
-    navigate('/pedidos', { state: { openPedidoId: pedido!.id, editCampo: campo, numeroPedido: pedido!.numero_pedido } })
+    navigate('/pedido/pedidos/lista', { state: { openPedidoId: pedido!.id, editCampo: campo, numeroPedido: pedido!.numero_pedido } })
     onFechar()
   }
 
   function abrirCompleto() {
-    navigate('/pedidos', { state: { numeroPedido: pedido!.numero_pedido } })
+    navigate('/pedido/pedidos/lista', { state: { numeroPedido: pedido!.numero_pedido } })
     onFechar()
   }
 

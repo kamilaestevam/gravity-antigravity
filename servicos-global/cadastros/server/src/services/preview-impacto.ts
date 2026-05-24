@@ -3,7 +3,7 @@
  * descobrir quantos registros ATIVOS usam uma Empresa específica hoje.
  *
  * Princípios (seção 8 do documento técnico, Fase 5):
- * - Cada produto expõe `GET /api/v1/empresas/:suid/uso` que retorna
+ * - Cada produto expõe `GET /api/v1/fornecedores/:suid/uso` que retorna
  *   `{ ativos: number }`.
  * - URL base de cada produto vem de env opcional. Se ausente -> retorna
  *   `status: 'indisponivel'` (não derruba a resposta).
@@ -46,7 +46,7 @@ async function consultarUsoNoProduto(
     throw new Error('[preview-impacto] CHAVE_INTERNA_SERVICO ausente — não é possível consultar produtos')
   }
 
-  const url = `${baseUrl.replace(/\/$/, '')}/api/v1/empresas/${encodeURIComponent(suid)}/uso`
+  const url = `${baseUrl.replace(/\/$/, '')}/api/v1/fornecedores/${encodeURIComponent(suid)}/uso`
   try {
     const resposta = await fetch(url, {
       method: 'GET',
@@ -87,5 +87,5 @@ export async function consultarImpacto(
     .filter((r) => r.status === 'ok')
     .reduce((acc, r) => acc + r.ativos, 0)
 
-  return { suid_empresa: suid, total, por_produto: resultados }
+  return { id_fornecedor: suid, total, por_produto: resultados }
 }

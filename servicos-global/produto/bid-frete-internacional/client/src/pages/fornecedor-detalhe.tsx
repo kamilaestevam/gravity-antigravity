@@ -261,7 +261,7 @@ export default function DetalheFornecedor() {
   ]
 
   return (
-    <PaginaGlobal className="bf-detalhe-forn">
+    <PaginaGlobal className="bf-detalhe-forn bid-frete-page-shell">
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <button
           className="btn btn-secondary"
@@ -494,7 +494,7 @@ export default function DetalheFornecedor() {
       )}
 
       <style>{`
-        .bf-detalhe-forn { padding: 0; }
+        .bf-detalhe-forn { }
 
         /* ── Metrics row ── */
         .bf-det-metrics {

@@ -1,13 +1,16 @@
 /** Slugs de URL canônicos do BID Frete (Configurador monta em `/bid-frete/*`). */
 export const BID_FRETE_URL_SLUGS = ['bid-frete', 'bid-frete-internacional'] as const
 
+/** Slugs de produtos Gravity servidos em `/produto/<slug>/*` ou `/<slug>/*`. */
+export const PRODUCT_URL_SLUGS = [...BID_FRETE_URL_SLUGS, 'pedido'] as const
+
 /**
  * Extrai segmentos relativos ao produto a partir do pathname.
  * Suporta `/bid-frete/...`, `/bid-frete-internacional/...` e `/produto/<slug>/...`.
  */
 export function resolveRouteKey(
   pathname: string,
-  slugs: readonly string[] = BID_FRETE_URL_SLUGS,
+  slugs: readonly string[] = PRODUCT_URL_SLUGS,
 ): string {
   const segments = pathname.split('/').filter(Boolean)
   const produtoIdx = segments.findIndex(s => s === 'produto')

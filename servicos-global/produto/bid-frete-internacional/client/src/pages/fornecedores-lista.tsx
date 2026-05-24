@@ -227,7 +227,7 @@ export default function Fornecedores() {
 
   return (
     <PaginaGlobal
-      className="bf-fornecedores"
+      className="bf-fornecedores bid-frete-page-shell"
     >
       {/* Ação da página (Novo Fornecedor) — cabeçalho agora vive no top bar */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
@@ -340,7 +340,7 @@ export default function Fornecedores() {
       </div>
 
       <style>{`
-        .bf-fornecedores { padding: 0; }
+        .bf-fornecedores { }
 
         /* ── Top row: KPIs + Donut ── */
         .bf-forn-top {

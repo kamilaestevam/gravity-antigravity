@@ -34,6 +34,7 @@ servicos-global/configurador/data/test-logs/
 # ── Variáveis de ambiente (NUNCA commitar segredos!) ─────────
 .env
 .env.local
+.env.producao
 .env.*.local
 
 # ── Prisma ───────────────────────────────────────────────────

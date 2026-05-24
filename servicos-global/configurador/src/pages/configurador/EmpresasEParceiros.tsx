@@ -39,8 +39,8 @@ import {
 import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
-  listaEmpresasSchema,
-  empresaSchema,
+  listaFornecedoresSchema,
+  fornecedorSchema,
   type Empresa,
 } from '@cadastros/shared/schemas'
 import { useShellStore } from '@gravity/shell'
@@ -77,20 +77,20 @@ async function getAuthHeaders(idOrganizacao: string | undefined): Promise<Record
 type EmpresaComTipos = Empresa & { tipos_empresa: string }
 
 const PAPEIS: Array<{ key: keyof Empresa; label: string; cor: string }> = [
-  { key: 'pode_ser_importador_empresa', label: 'Importador', cor: '#60a5fa' },
-  { key: 'pode_ser_exportador_empresa', label: 'Exportador', cor: '#34d399' },
-  { key: 'pode_ser_fabricante_empresa', label: 'Fabricante', cor: '#fbbf24' },
-  { key: 'pode_ser_agente_empresa', label: 'Agente', cor: '#c084fc' },
-  { key: 'pode_ser_despachante_empresa', label: 'Despachante', cor: '#f472b6' },
-  { key: 'pode_ser_armador_empresa', label: 'Armador', cor: '#22d3ee' },
-  { key: 'pode_ser_cia_aerea_empresa', label: 'Cia Aérea', cor: '#818cf8' },
-  { key: 'pode_ser_transportadora_rodoviaria_nacional_empresa', label: 'Transp. Rod. Nacional', cor: '#a3e635' },
-  { key: 'pode_ser_transportadora_rodoviaria_internacional_empresa', label: 'Transp. Rod. Internacional', cor: '#facc15' },
-  { key: 'pode_ser_armazem_alfandegado_empresa', label: 'Armazém Alfandegado', cor: '#fb923c' },
-  { key: 'pode_ser_armazem_nacional_empresa', label: 'Armazém Nacional', cor: '#fdba74' },
-  { key: 'pode_ser_banco_empresa', label: 'Banco', cor: '#10b981' },
-  { key: 'pode_ser_seguradora_internacional_empresa', label: 'Seguradora Internacional', cor: '#06b6d4' },
-  { key: 'pode_ser_seguradora_corretora_cambio_empresa', label: 'Seguradora / Corretora Câmbio', cor: '#14b8a6' },
+  { key: 'pode_ser_importador_fornecedor', label: 'Importador', cor: '#60a5fa' },
+  { key: 'pode_ser_exportador_fornecedor', label: 'Exportador', cor: '#34d399' },
+  { key: 'pode_ser_fabricante_fornecedor', label: 'Fabricante', cor: '#fbbf24' },
+  { key: 'pode_ser_agente_fornecedor', label: 'Agente', cor: '#c084fc' },
+  { key: 'pode_ser_despachante_fornecedor', label: 'Despachante', cor: '#f472b6' },
+  { key: 'pode_ser_armador_fornecedor', label: 'Armador', cor: '#22d3ee' },
+  { key: 'pode_ser_cia_aerea_fornecedor', label: 'Cia Aérea', cor: '#818cf8' },
+  { key: 'pode_ser_transportadora_rodoviaria_nacional_fornecedor', label: 'Transp. Rod. Nacional', cor: '#a3e635' },
+  { key: 'pode_ser_transportadora_rodoviaria_internacional_fornecedor', label: 'Transp. Rod. Internacional', cor: '#facc15' },
+  { key: 'pode_ser_armazem_alfandegado_fornecedor', label: 'Armazém Alfandegado', cor: '#fb923c' },
+  { key: 'pode_ser_armazem_nacional_fornecedor', label: 'Armazém Nacional', cor: '#fdba74' },
+  { key: 'pode_ser_banco_fornecedor', label: 'Banco', cor: '#10b981' },
+  { key: 'pode_ser_seguradora_internacional_fornecedor', label: 'Seguradora Internacional', cor: '#06b6d4' },
+  { key: 'pode_ser_seguradora_corretora_cambio_fornecedor', label: 'Seguradora / Corretora Câmbio', cor: '#14b8a6' },
 ]
 
 function derivarTiposEmpresa(empresa: Empresa): string {
@@ -129,8 +129,8 @@ function ChipsPapeis({ empresa }: { empresa: EmpresaComTipos | Empresa }) {
 }
 
 function DocumentoCell({ empresa }: { empresa: Empresa }) {
-  const ehBr = empresa.pais_empresa === 'BR'
-  const doc = ehBr ? empresa.cnpj_empresa : empresa.tin_empresa
+  const ehBr = empresa.pais_fornecedor === 'BR'
+  const doc = ehBr ? empresa.cnpj_fornecedor : empresa.tin_fornecedor
   const tipo = ehBr ? 'CNPJ' : 'TIN'
   if (!doc) {
     return <span style={{ color: 'var(--ws-muted)', fontStyle: 'italic' }}>sem documento</span>
@@ -203,7 +203,7 @@ export function EmpresasEParceiros() {
     try {
       setCarregando(true)
       const headers = await getAuthHeaders(idOrganizacao)
-      const res = await fetch('/api/v1/empresas?pagina=1&por_pagina=200', { headers })
+      const res = await fetch('/api/v1/fornecedores?pagina=1&por_pagina=200', { headers })
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
         addNotification({
@@ -213,7 +213,7 @@ export function EmpresasEParceiros() {
         return
       }
       const raw = await res.json()
-      const parsed = listaEmpresasSchema.parse(raw)
+      const parsed = listaFornecedoresSchema.parse(raw)
       setEmpresas(parsed.itens)
     } catch (err) {
       console.error('[EmpresasEParceiros] erro ao carregar:', err)
@@ -234,16 +234,16 @@ export function EmpresasEParceiros() {
   async function alternarAtivacao(empresa: Empresa) {
     try {
       const headers = await getAuthHeaders(idOrganizacao)
-      // Soft delete (DELETE) desativa; para reativar usamos PUT com { ativo_empresa: true }.
-      const res = empresa.ativo_empresa
-        ? await fetch(`/api/v1/empresas/${empresa.suid_empresa}`, {
+      // Soft delete (DELETE) desativa; para reativar usamos PUT com { ativo_fornecedor: true }.
+      const res = empresa.ativo_fornecedor
+        ? await fetch(`/api/v1/fornecedores/${empresa.id_fornecedor}`, {
             method: 'DELETE',
             headers,
           })
-        : await fetch(`/api/v1/empresas/${empresa.suid_empresa}`, {
+        : await fetch(`/api/v1/fornecedores/${empresa.id_fornecedor}`, {
             method: 'PUT',
             headers,
-            body: JSON.stringify({ ativo_empresa: true }),
+            body: JSON.stringify({ ativo_fornecedor: true }),
           })
 
       if (!res.ok) {
@@ -255,11 +255,11 @@ export function EmpresasEParceiros() {
         return
       }
       const raw = await res.json()
-      const atualizada = empresaSchema.parse(raw)
-      setEmpresas((prev) => prev.map((e) => (e.suid_empresa === atualizada.suid_empresa ? atualizada : e)))
+      const atualizada = fornecedorSchema.parse(raw)
+      setEmpresas((prev) => prev.map((e) => (e.id_fornecedor === atualizada.id_fornecedor ? atualizada : e)))
       addNotification({
         type: 'success',
-        message: `Empresa "${atualizada.nome_empresa}" ${atualizada.ativo_empresa ? 'reativada' : 'desativada'}.`,
+        message: `Empresa "${atualizada.nome_fornecedor}" ${atualizada.ativo_fornecedor ? 'reativada' : 'desativada'}.`,
       })
     } catch (err) {
       console.error('[EmpresasEParceiros] erro ao alternar status:', err)
@@ -271,7 +271,7 @@ export function EmpresasEParceiros() {
 
   const COLUNAS: TabelaGlobalColuna<EmpresaComTipos>[] = [
     {
-      key: 'nome_empresa',
+      key: 'nome_fornecedor',
       label: 'Empresa',
       tipo: 'texto',
       tooltipTitulo: 'Empresa',
@@ -296,14 +296,14 @@ export function EmpresasEParceiros() {
             <Buildings size={16} weight="duotone" />
           </span>
           <span style={{ display: 'inline-flex', flexDirection: 'column', lineHeight: 1.2, textAlign: 'left' }}>
-            <span style={{ fontWeight: 600 }}>{item.nome_empresa}</span>
-            <code style={{ fontSize: '0.625rem', color: 'var(--ws-muted)' }}>{item.suid_empresa}</code>
+            <span style={{ fontWeight: 600 }}>{item.nome_fornecedor}</span>
+            <code style={{ fontSize: '0.625rem', color: 'var(--ws-muted)' }}>{item.id_fornecedor}</code>
           </span>
         </span>
       ),
     },
     {
-      key: 'cnpj_empresa',
+      key: 'cnpj_fornecedor',
       label: 'CNPJ do Parceiro',
       tipo: 'texto',
       tooltipTitulo: 'CNPJ do Parceiro',
@@ -311,7 +311,7 @@ export function EmpresasEParceiros() {
       render: (_, item) => <DocumentoCell empresa={item} />,
     },
     {
-      key: 'pais_empresa',
+      key: 'pais_fornecedor',
       label: 'Localização',
       tipo: 'texto',
       tooltipTitulo: 'Localização',
@@ -319,11 +319,11 @@ export function EmpresasEParceiros() {
       render: (_, item) => (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
           <Globe size={14} weight="duotone" color="var(--ws-muted)" />
-          <strong style={{ fontSize: '0.8125rem' }}>{item.pais_empresa}</strong>
-          {item.cidade_empresa && (
+          <strong style={{ fontSize: '0.8125rem' }}>{item.pais_fornecedor}</strong>
+          {item.cidade_fornecedor && (
             <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>
-              · {item.cidade_empresa}
-              {item.estado_empresa ? `/${item.estado_empresa}` : ''}
+              · {item.cidade_fornecedor}
+              {item.estado_provincia_fornecedor ? `/${item.estado_provincia_fornecedor}` : ''}
             </span>
           )}
         </span>
@@ -338,12 +338,12 @@ export function EmpresasEParceiros() {
       render: (_, item) => <ChipsPapeis empresa={item} />,
     },
     {
-      key: 'ativo_empresa',
+      key: 'ativo_fornecedor',
       label: 'Status',
       tipo: 'texto',
       tooltipTitulo: 'Status',
       tooltipDescricao: 'Empresas inativas não aparecem em dropdowns operacionais',
-      render: (_, item) => <StatusCell ativo={item.ativo_empresa} />,
+      render: (_, item) => <StatusCell ativo={item.ativo_fornecedor} />,
       renderFiltroLabel: (val) => (val === 'true' ? 'Ativa' : val === 'false' ? 'Inativa' : val),
     },
   ]
@@ -361,7 +361,7 @@ export function EmpresasEParceiros() {
       tooltip: 'Desativar/Reativar',
       onClick: (e) => void alternarAtivacao(e),
       renderCustom: (item) => (
-        <TooltipGlobal descricao={item.ativo_empresa ? 'Desativar empresa' : 'Reativar empresa'}>
+        <TooltipGlobal descricao={item.ativo_fornecedor ? 'Desativar empresa' : 'Reativar empresa'}>
           <button
             type="button"
             onClick={(ev) => {
@@ -384,9 +384,9 @@ export function EmpresasEParceiros() {
               flexShrink: 0,
             }}
             onMouseEnter={(ev) => {
-              ev.currentTarget.style.background = item.ativo_empresa ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'
-              ev.currentTarget.style.borderColor = item.ativo_empresa ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'
-              ev.currentTarget.style.color = item.ativo_empresa ? '#fbbf24' : '#34d399'
+              ev.currentTarget.style.background = item.ativo_fornecedor ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'
+              ev.currentTarget.style.borderColor = item.ativo_fornecedor ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'
+              ev.currentTarget.style.color = item.ativo_fornecedor ? '#fbbf24' : '#34d399'
             }}
             onMouseLeave={(ev) => {
               ev.currentTarget.style.background = 'transparent'
@@ -394,7 +394,7 @@ export function EmpresasEParceiros() {
               ev.currentTarget.style.color = '#64748b'
             }}
           >
-            {item.ativo_empresa ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
+            {item.ativo_fornecedor ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
           </button>
         </TooltipGlobal>
       ),
@@ -405,7 +405,7 @@ export function EmpresasEParceiros() {
 
   const COLUNAS_EXPORT: ColunasExport[] = [
     { header: 'SUID', key: 'suid' },
-    { header: 'Nome', key: 'nome_empresa' },
+    { header: 'Nome', key: 'nome_fornecedor' },
     { header: 'País', key: 'pais' },
     { header: 'CNPJ', key: 'cnpj' },
     { header: 'TIN', key: 'tin' },
@@ -441,7 +441,7 @@ export function EmpresasEParceiros() {
   // ── Stats ────────────────────────────────────────────────────────────────
 
   const stats = useMemo(() => {
-    const ativas = empresas.filter((e) => e.ativo_empresa)
+    const ativas = empresas.filter((e) => e.ativo_fornecedor)
     // Contagem por papel — empresas podem somar em mais de um (count > total e' OK).
     // Ordena por count desc para destacar o tipo mais frequente.
     const tiposCount = PAPEIS
@@ -611,7 +611,7 @@ export function EmpresasEParceiros() {
         ) : (
           <TabelaGlobal<EmpresaComTipos>
             id="workspace-empresas-e-parceiros"
-            idKey="suid_empresa"
+            idKey="id_fornecedor"
             dados={empresas.map((e) => ({ ...e, tipos_empresa: derivarTiposEmpresa(e) }))}
             colunas={COLUNAS}
             acoes={ACOES}
@@ -651,9 +651,9 @@ export function EmpresasEParceiros() {
           }}
           aoSalvar={(empresaSalva) => {
             setEmpresas((prev) => {
-              const existe = prev.some((e) => e.suid_empresa === empresaSalva.suid_empresa)
+              const existe = prev.some((e) => e.id_fornecedor === empresaSalva.id_fornecedor)
               return existe
-                ? prev.map((e) => (e.suid_empresa === empresaSalva.suid_empresa ? empresaSalva : e))
+                ? prev.map((e) => (e.id_fornecedor === empresaSalva.id_fornecedor ? empresaSalva : e))
                 : [empresaSalva, ...prev]
             })
             setEmpresaEditando(null)
@@ -664,11 +664,11 @@ export function EmpresasEParceiros() {
                 const urlRetorno = new URL(decodeURIComponent(paramRetorno))
                 // Injetar dados da empresa criada para o Pedido vincular automaticamente
                 if (paramCriar === 'exportador-quando-importacao') {
-                  urlRetorno.searchParams.set('vincular_exportador_id', empresaSalva.suid_empresa)
-                  urlRetorno.searchParams.set('vincular_exportador_nome', empresaSalva.nome_empresa)
+                  urlRetorno.searchParams.set('vincular_exportador_id', empresaSalva.id_fornecedor)
+                  urlRetorno.searchParams.set('vincular_exportador_nome', empresaSalva.nome_fornecedor)
                 } else if (paramCriar === 'importador-quando-exportacao') {
-                  urlRetorno.searchParams.set('vincular_importador_id', empresaSalva.suid_empresa)
-                  urlRetorno.searchParams.set('vincular_importador_nome', empresaSalva.nome_empresa)
+                  urlRetorno.searchParams.set('vincular_importador_id', empresaSalva.id_fornecedor)
+                  urlRetorno.searchParams.set('vincular_importador_nome', empresaSalva.nome_fornecedor)
                 }
                 window.location.href = urlRetorno.toString()
               } catch {

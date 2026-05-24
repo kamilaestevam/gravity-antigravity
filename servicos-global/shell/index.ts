@@ -16,6 +16,10 @@ export { Header }          from './Header'
 export { Navigation }      from './Navigation'
 export { ToastContainer }  from './ToastContainer'
 export { BannerOrganizacaoOverride } from './BannerOrganizacaoOverride'
+export { ModalTrocarOrganizacao } from './components/ModalTrocarOrganizacao'
+export type { ModalTrocarOrganizacaoProps } from './components/ModalTrocarOrganizacao'
+export { TelaProdutoComOrganizacaoOverride } from './TelaProdutoComOrganizacaoOverride'
+export type { TelaProdutoComOrganizacaoOverrideProps } from './TelaProdutoComOrganizacaoOverride'
 
 // Store e tipos
 export { useShellStore }   from './store'

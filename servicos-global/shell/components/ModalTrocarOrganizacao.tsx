@@ -1,24 +1,8 @@
 /**
  * ModalTrocarOrganizacao — Pendência #4 (Org switcher admin).
  *
- * Modal acionado pelo item 🔑 "Trocar Organização" no menu do `UsuarioGlobal`
- * (apenas SUPER_ADMIN/ADMIN). Permite ao admin Gravity escolher qualquer
- * organização ATIVA da plataforma e "girar a chave" — após confirmar:
- *
- *  1. `useOrganizacaoOverride().definirOverride(org)` grava no ShellStore +
- *     localStorage.
- *  2. Navega para `/hub` da org alvo (admin opera como Master daquela org).
- *  3. Banner dourado + borda dourada aparecem (`BannerOrganizacaoOverride` +
- *     classe `.layout--override-ativo`).
- *  4. Toda request HTTP passa a enviar header `x-organizacao-override`.
- *  5. Middleware do SDK (`packages/resolver-organizacao/src/middleware.ts`)
- *     valida ator e org alvo, substitui `req.organizacao`.
- *
- * Mandamentos:
- *  - 01: tipoUsuario lido do Prisma via `/api/v1/me` (ShellStore.currentUser).
- *  - 04: admin continua admin sob override.
- *  - 06: resposta de `/api/v1/admin/organizacoes` validada com Zod.
- *  - 08: erro de fetch → lista vazia + log (sem fallback enganoso).
+ * Vive no shell para ser consumido por Configurador e produtos (Pedido etc.)
+ * sem acoplamento produto → configurador.
  */
 
 import React, { useEffect, useState } from 'react'
@@ -30,7 +14,9 @@ import {
   SelectOrganizacaoAdminGlobal,
   type OrganizacaoOpcao,
 } from '@nucleo/select-organizacao-admin-global'
-import { useOrganizacaoOverride } from '@gravity/shell'
+import { useOrganizacaoOverride } from '../hooks/useOrganizacaoOverride'
+
+const CONFIGURADOR_URL = import.meta.env.VITE_CONFIGURADOR_URL ?? ''
 
 const organizacoesListaSchema = z.object({
   itens: z.array(
@@ -58,7 +44,6 @@ export function ModalTrocarOrganizacao({
   const [nomeOrganizacaoSelecionada, setNomeOrganizacaoSelecionada] = useState('')
   const [confirmando, setConfirmando] = useState(false)
 
-  // Limpa seleção ao fechar.
   useEffect(() => {
     if (!aberto) {
       setIdOrganizacaoSelecionada('')
@@ -72,8 +57,9 @@ export function ModalTrocarOrganizacao({
       const token = await getToken()
       const qs = new URLSearchParams()
       if (busca) qs.set('busca', busca)
+      const base = CONFIGURADOR_URL || ''
       const res = await fetch(
-        `/api/v1/admin/organizacoes${qs.toString() ? `?${qs}` : ''}`,
+        `${base}/api/v1/admin/organizacoes${qs.toString() ? `?${qs}` : ''}`,
         { headers: { Authorization: `Bearer ${token}` } },
       )
       if (!res.ok) {
@@ -100,14 +86,13 @@ export function ModalTrocarOrganizacao({
 
   function aoConfirmar(): void {
     if (!idOrganizacaoSelecionada || !nomeOrganizacaoSelecionada) return
-    if (!podeAtivarOverride) return // defesa cliente — hook já bloqueia
+    if (!podeAtivarOverride) return
     setConfirmando(true)
     definirOverride({
       idOrganizacao:   idOrganizacaoSelecionada,
       nomeOrganizacao: nomeOrganizacaoSelecionada,
     })
     aoFechar()
-    // Navega para o hub da org alvo — admin opera como Master dela.
     navigate('/hub')
   }
 

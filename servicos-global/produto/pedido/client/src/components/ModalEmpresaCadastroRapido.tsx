@@ -163,16 +163,16 @@ export function ModalEmpresaCadastroRapido({
     setSalvando(true)
     setErro(null)
     try {
-      const empresa = await cadastrosApi.criarEmpresa({
-        nome_empresa: nome,
-        pais_empresa: pais,
-        cnpj_empresa: ehBr && cnpj.trim() ? cnpj.trim() : null,
-        tin_empresa:  !ehBr && tin.trim() ? tin.trim() : null,
+      const empresa = await cadastrosApi.criarFornecedor({
+        nome_fornecedor: nome,
+        pais_fornecedor: pais,
+        cnpj_fornecedor: ehBr && cnpj.trim() ? cnpj.trim() : null,
+        tin_fornecedor:  !ehBr && tin.trim() ? tin.trim() : null,
         papel,
       })
       addNotification({
         type: 'success',
-        message: t('pedido.cadastro_empresa.sucesso_toast', { nome: empresa.nome_empresa }),
+        message: t('pedido.cadastro_empresa.sucesso_toast', { nome: empresa.nome_fornecedor }),
         duration: 5000,
       })
       onCriado(empresa)

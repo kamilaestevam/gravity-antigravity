@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
-import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
+import { TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
 import {
   useLocalizadorHistory,
   type EcosystemNode,
@@ -157,7 +157,7 @@ export default function App() {
   const pageLabel = ROUTE_LABELS[routeSegment] ?? routeSegment.charAt(0).toUpperCase() + routeSegment.slice(1)
 
   return (
-    <TelaProdutoGlobal
+    <TelaProdutoComOrganizacaoOverride
       productId={PRODUCT_ID}
       productName={PRODUCT_NAME}
       tenantName={currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa'}
@@ -209,7 +209,7 @@ export default function App() {
           <Route path="*"                element={<Navigate to="dashboard" replace />} />
         </Routes>
       </Suspense>
-    </TelaProdutoGlobal>
+    </TelaProdutoComOrganizacaoOverride>
   )
 }
 

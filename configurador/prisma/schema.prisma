@@ -120,6 +120,8 @@ model Organizacao {
 // id_organizacao é obrigatório — nunca nullable.
 // ---------------------------------------------------------------------------
 
+// FORNECEDOR portal: vínculo com id_fornecedor (SUID) NÃO fica em usuario.
+// SSOT Cadastros.fornecedor_organizacao.id_usuario → usuario.id_usuario (troca de crachá por id_organizacao).
 model Usuario {
   id_usuario                     String        @id @default(cuid())
   id_organizacao                 String
@@ -564,31 +566,6 @@ model Deploy {
   @@index([status_deploy])
   @@index([area_deploy, data_execucao_deploy])
   @@map("deploy")
-}
-
-// ---------------------------------------------------------------------------
-// SUPPLIER TENANT ACCESS
-// Fornecedor cross-tenant — pode prestar serviços para múltiplos tenants.
-// clerk_user_id único no Clerk, múltiplos vínculos aqui.
-// ---------------------------------------------------------------------------
-
-model OrganizacaoFornecedor {
-  id_fornecedor_organizacao             String @id @default(cuid())
-  id_clerk_usuario                      String
-  id_organizacao_fornecedor_organizacao String
-  status_fornecedor_organizacao         String @default("active")
-
-  // Timestamps
-  data_criacao_fornecedor_organizacao     DateTime @default(now())
-  data_atualizacao_fornecedor_organizacao DateTime @updatedAt
-
-  // Unique: um clerk_user_id não pode ter dois acessos ao mesmo tenant
-  @@unique([id_clerk_usuario, id_organizacao_fornecedor_organizacao], map: "fornecedor_organizacao_clerk_usuario_id_organizacao_id_key")
-  // Índices
-  @@index([id_organizacao_fornecedor_organizacao], map: "fornecedor_organizacao_id_idx")
-  @@index([id_clerk_usuario], map: "fornecedor_organizacao_clerk_usuario_id_idx")
-  @@index([id_organizacao_fornecedor_organizacao, id_clerk_usuario], map: "fornecedor_organizacao_id_clerk_usuario_id_idx")
-  @@map("fornecedor_organizacao")
 }
 
 // ---------------------------------------------------------------------------

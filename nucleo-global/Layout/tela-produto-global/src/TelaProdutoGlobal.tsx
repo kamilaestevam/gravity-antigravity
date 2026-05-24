@@ -40,6 +40,8 @@ export interface TelaProdutoGlobalProps {
   headerActions?: React.ReactNode
   /** Navegar para Configurações do produto — omitir oculta o botão */
   onNavigateSettings?: () => void
+  /** Classe extra no container raiz (ex: `layout--override-ativo` admin) */
+  layoutClassName?: string
   children:    React.ReactNode
 }
 
@@ -61,6 +63,7 @@ function TelaProdutoLayout({
   onNavigateCore,
   headerActions,
   onNavigateSettings,
+  layoutClassName,
   children,
 }: TelaProdutoGlobalProps) {
   const meta        = getProdutoMeta(productId)
@@ -79,7 +82,7 @@ function TelaProdutoLayout({
   )
 
   return (
-    <div className="tpg-layout">
+    <div className={layoutClassName ? `tpg-layout ${layoutClassName}` : 'tpg-layout'}>
 
       <div className="tpg-lateral">
         <MenuLateralGlobal

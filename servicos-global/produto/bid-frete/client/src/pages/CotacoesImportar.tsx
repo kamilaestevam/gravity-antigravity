@@ -556,7 +556,7 @@ export default function ImportarBloco() {
         }
       `}</style>
 
-      <PaginaGlobal>
+      <PaginaGlobal className="bid-frete-page-shell">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {acoesImportar}
 

@@ -19,9 +19,9 @@ vi.hoisted(() => {
 import {
   buscarEmpresaPorSuid,
   buscarEmpresasPorSuids,
-} from '../../../../processos-core/src/services/cadastros-client.js'
+} from '../../../../processos-core/src/services/cadastrosClient.js'
 import { montarSnapshotEmpresa } from '../../../../processos-core/src/services/pedidoSnapshots.js'
-import { AppError } from '../../../../processos-core/src/services/saldoEngine.js'
+import { AppError } from '../../../../processos-core/src/services/saldo-pedido.js'
 
 // ── Fetch mock ──────────────────────────────────────────────────────────────
 
@@ -98,7 +98,7 @@ describe('buscarEmpresaPorSuid', () => {
 
     // Headers corretos
     const [url, init] = fetchMock.mock.calls[0]
-    expect(String(url)).toMatch(/\/empresas\/BR-ACME-00001$/)
+    expect(String(url)).toMatch(/\/fornecedores\/BR-ACME-00001$/)
     expect(init?.method).toBe('GET')
     const h = init?.headers as Record<string, string>
     expect(h['x-internal-key']).toBe('test-internal-key')
@@ -185,6 +185,8 @@ describe('montarSnapshotEmpresa', () => {
       'org-test',
       'ws-test',
     )
+    expect(snap.suid_empresa).toBe('BR-ACME-00001')
+    expect(snap.nome_empresa).toBe('ACME Importadora')
     expect(snap.tipo_documento).toBe('CNPJ')
     expect(snap.documento_principal).toBe('12.345.678/0001-99')
     expect(snap.cnpj_raiz).toBe('12345678')
@@ -206,10 +208,20 @@ describe('montarSnapshotEmpresa', () => {
     expect(snap.endereco_pais).toBe('US')
   })
 
-  it('empresa sem documento válido → lança erro', () => {
+  it('fornecedor sem documento válido → snapshot com identidade, documento null', () => {
     const semDoc = { ...empresaBR('BR-X-00001'), cnpj_fornecedor: null }
-    expect(() => montarSnapshotEmpresa(semDoc, 'exportador', 'org')).toThrow(
-      /sem documento/,
+    const snap = montarSnapshotEmpresa(semDoc, 'exportador', 'org')
+    expect(snap.suid_empresa).toBe('BR-X-00001')
+    expect(snap.nome_empresa).toBe('ACME Importadora')
+    expect(snap.documento_principal).toBeNull()
+    expect(snap.tipo_documento).toBeNull()
+    expect(snap.cnpj_raiz).toBeNull()
+  })
+
+  it('fornecedor sem id_fornecedor → lança erro', () => {
+    const semId = { ...empresaBR('BR-X-00001'), id_fornecedor: '' }
+    expect(() => montarSnapshotEmpresa(semId, 'exportador', 'org')).toThrow(
+      /Fornecedor incompleto para snapshot/,
     )
   })
 })

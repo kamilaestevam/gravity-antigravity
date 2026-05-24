@@ -5577,6 +5577,10 @@
       "workspace_label": "Workspace",
       "workspace_divergente": "Workspaces divergentes entre itens",
       "nome_exportador_bloqueado": "Exportador vinculado via Cadastros — clique para editar",
+      "parte_importador_titulo": "Importador",
+      "parte_exportador_titulo": "Exportador",
+      "importador_workspace_desc": "Importador definido pelo workspace {{nome}}",
+      "exportador_workspace_desc": "Exportador definido pelo workspace {{nome}}",
       "exportador_e_workspace": "Exportador é o próprio Workspace. Clique para editar dados no Configurador",
       "workspace_sem_nome": "Nome do Workspace não cadastrado. Clique para cadastrar no Configurador",
       "cadastrar_exportador": "Cadastrar Exportador",
@@ -7295,11 +7299,11 @@
         "tooltip_titulo": "Nº do Item"
       },
       "mapa_nome_exportador": {
-        "tooltip_bloqueado_cond": "Exportador definido automaticamente pelo workspace — não editável em Exportação",
+        "tooltip_bloqueado_cond": "Exportador definido pelo workspace do pedido — não editável em Exportação",
         "tooltip_titulo": "Exportador"
       },
       "mapa_nome_importador": {
-        "tooltip_bloqueado_cond": "Importador definido automaticamente pelo workspace — não editável em Importação",
+        "tooltip_bloqueado_cond": "Importador definido pelo workspace do pedido — não editável em Importação",
         "tooltip_titulo": "Importador"
       },
       "mapa_nome_fabricante": {

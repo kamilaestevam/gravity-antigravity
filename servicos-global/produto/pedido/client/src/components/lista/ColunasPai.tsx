@@ -8,7 +8,7 @@
 import React from 'react'
 import { Trans } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { PencilSimpleLine, Eye, LinkSimple, Buildings } from '@phosphor-icons/react'
+import { PencilSimpleLine, Eye, LinkSimple } from '@phosphor-icons/react'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
@@ -18,6 +18,12 @@ import type { RegrasConfigBackend } from '../../shared/api'
 import { LABELS_FILTRO_INVERSO } from './filtros'
 import type { GTUnidadeOpcao } from '../../shared/useUnidadesPedido'
 import { getEditavel } from '../../shared/columnBehaviorConfig'
+import { renderBadgeParteWorkspace } from './renderBadgeParteWorkspace'
+import {
+  urlEditarCnpjWorkspace,
+  urlVincularExportador,
+  urlVincularImportador,
+} from './urlsDeepLinkConfigurador'
 
 // Re-export so callers that used to import from ListaPedidos still work
 export { LABELS_FILTRO_INVERSO }
@@ -292,39 +298,6 @@ export interface OpcoesUnidadesColunas {
 export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GTColuna<Pedido>[] {
   const { unidadesPeso, unidadesCubagem, incotermsOpcoes, moedasOpcoes, workspacesMap } = opcoes
 
-  /** Monta URL deep-link para editar CNPJ do workspace no Configurador, com retorno automático */
-  const urlEditarCnpjWorkspace = (idWorkspace: string, pedidoId?: string) => {
-    const urlAtual = new URL(window.location.href)
-    if (pedidoId) urlAtual.searchParams.set('expandir', pedidoId)
-    const retorno = encodeURIComponent(urlAtual.toString())
-    const base = import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
-    return `${base}/workspace/workspaces?id=${idWorkspace}&foco=cnpj&retorno=${retorno}`
-  }
-
-  /** Monta URL deep-link para vincular/editar Exportador no Configurador (tela Empresas e Parceiros) */
-  const urlVincularExportador = (idExportador: string | null, pedidoId?: string) => {
-    const urlAtual = new URL(window.location.href)
-    if (pedidoId) urlAtual.searchParams.set('expandir', pedidoId)
-    const retorno = encodeURIComponent(urlAtual.toString())
-    const base = import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
-    if (idExportador) {
-      return `${base}/workspace/empresas-e-parceiros?id=${idExportador}&tipo=exportador-quando-importacao&retorno=${retorno}`
-    }
-    return `${base}/workspace/empresas-e-parceiros?criar=exportador-quando-importacao&retorno=${retorno}`
-  }
-
-  /** Monta URL deep-link para vincular/editar Importador no Configurador (tela Empresas e Parceiros) */
-  const urlVincularImportador = (idImportador: string | null, pedidoId?: string) => {
-    const urlAtual = new URL(window.location.href)
-    if (pedidoId) urlAtual.searchParams.set('expandir', pedidoId)
-    const retorno = encodeURIComponent(urlAtual.toString())
-    const base = import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
-    if (idImportador) {
-      return `${base}/workspace/empresas-e-parceiros?id=${idImportador}&tipo=importador-quando-exportacao&retorno=${retorno}`
-    }
-    return `${base}/workspace/empresas-e-parceiros?criar=importador-quando-exportacao&retorno=${retorno}`
-  }
-
   return [
   {
     key: 'numero_pedido',
@@ -458,20 +431,12 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         const nomeWorkspace = workspacesMap?.get(row.id_workspace ?? '')?.nome
         if (nomeWorkspace) {
           const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
-          return (
-            <TooltipGlobal descricao={nomeWorkspace.length > 50 ? nomeWorkspace : t('pedido.coluna_pai.exportador_e_workspace')}>
-              <span
-                role="link"
-                tabIndex={0}
-                onClick={(e) => { e.stopPropagation(); window.location.href = href }}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'rgba(129, 140, 248, 0.12)', border: '1px solid rgba(129, 140, 248, 0.28)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: '#818cf8', maxWidth: '100%' }}
-              >
-                <Buildings size={12} weight="bold" style={{ flexShrink: 0, color: '#818cf8' }} />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeWorkspace}</span>
-              </span>
-            </TooltipGlobal>
-          )
+          return renderBadgeParteWorkspace({
+            nomeWorkspace,
+            titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
+            descricao: t('pedido.coluna_pai.exportador_workspace_desc', { nome: nomeWorkspace }),
+            href,
+          })
         }
         // Workspace sem nome cadastrado → link para cadastrar
         const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
@@ -550,20 +515,12 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         const nomeWorkspace = workspacesMap?.get(row.id_workspace ?? '')?.nome
         if (nomeWorkspace) {
           const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
-          return (
-            <TooltipGlobal descricao={nomeWorkspace.length > 50 ? nomeWorkspace : t('pedido.coluna_pai.importador_e_workspace')}>
-              <span
-                role="link"
-                tabIndex={0}
-                onClick={(e) => { e.stopPropagation(); window.location.href = href }}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'rgba(129, 140, 248, 0.12)', border: '1px solid rgba(129, 140, 248, 0.28)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: '#818cf8', maxWidth: '100%' }}
-              >
-                <Buildings size={12} weight="bold" style={{ flexShrink: 0, color: '#818cf8' }} />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeWorkspace}</span>
-              </span>
-            </TooltipGlobal>
-          )
+          return renderBadgeParteWorkspace({
+            nomeWorkspace,
+            titulo: t('pedido.coluna_pai.parte_importador_titulo'),
+            descricao: t('pedido.coluna_pai.importador_workspace_desc', { nome: nomeWorkspace }),
+            href,
+          })
         }
         // Workspace sem nome cadastrado → link para cadastrar
         const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)

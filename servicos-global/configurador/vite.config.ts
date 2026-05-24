@@ -6,6 +6,16 @@ import { createNucleoAliases, createServiceAliases, createTenantAliases } from '
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const monorepoRoot = path.resolve(__dirname, '../..')
+const nodeModules = path.resolve(monorepoRoot, 'node_modules')
+
+/** Força uma única instância física de React no bundle dev (evita Invalid hook call no ClerkProvider). */
+const reactAliases = {
+  react: path.resolve(nodeModules, 'react'),
+  'react-dom': path.resolve(nodeModules, 'react-dom'),
+  'react-dom/client': path.resolve(nodeModules, 'react-dom/client'),
+  'react/jsx-runtime': path.resolve(nodeModules, 'react/jsx-runtime'),
+  'react/jsx-dev-runtime': path.resolve(nodeModules, 'react/jsx-dev-runtime'),
+} as const
 
 export default defineConfig(({ command }) => {
   const isBuild = command === 'build'
@@ -27,6 +37,7 @@ export default defineConfig(({ command }) => {
     extensions: ['.mjs', '.ts', '.tsx', '.mts', '.jsx', '.js', '.json'],
     dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom', 'zustand', 'i18next', 'react-i18next', '@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities', 'react-grid-layout', 'react-resizable'],
     alias: {
+      ...reactAliases,
       // Aliases específicos de tenant devem vir ANTES do base '@tenant' de createServiceAliases
       // (Vite usa o primeiro match — mais específico deve ter precedência)
       // historico-global: nome de pasta difere do alias usado pelo produto
@@ -35,9 +46,9 @@ export default defineConfig(({ command }) => {
       ...createServiceAliases(monorepoRoot),
       ...createTenantAliases(monorepoRoot, ['gabi', 'dashboard', 'atividades', 'cadastros']),
       // peerDeps do kanban-global — npm workspaces hoista para o root
-      '@dnd-kit/core': path.resolve(monorepoRoot, 'node_modules/@dnd-kit/core'),
-      '@dnd-kit/sortable': path.resolve(monorepoRoot, 'node_modules/@dnd-kit/sortable'),
-      '@dnd-kit/utilities': path.resolve(monorepoRoot, 'node_modules/@dnd-kit/utilities'),
+      '@dnd-kit/core': path.resolve(nodeModules, '@dnd-kit/core'),
+      '@dnd-kit/sortable': path.resolve(nodeModules, '@dnd-kit/sortable'),
+      '@dnd-kit/utilities': path.resolve(nodeModules, '@dnd-kit/utilities'),
       // Aliases dos Produtos (para lazy-load dentro do Configurador)
       '@produto': path.resolve(monorepoRoot, 'servicos-global/produto'),
       // Cadastros — domínio próprio fora de servicos-plataforma
@@ -46,6 +57,12 @@ export default defineConfig(({ command }) => {
   },
   optimizeDeps: {
     include: [
+      'react',
+      'react-dom',
+      'react-dom/client',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
+      'react-router-dom',
       'react-i18next', 'i18next', 'zustand', '@clerk/clerk-react',
       // exceljs: Node.js-heavy — pré-bundle garante que o polyfill process.env seja aplicado
       'exceljs',

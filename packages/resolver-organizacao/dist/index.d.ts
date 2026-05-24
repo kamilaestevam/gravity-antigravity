@@ -1,6 +1,18 @@
 import { RequestHandler, Request } from 'express';
-import { Prisma } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
+/**
+ * Cliente Prisma que um produto pode injetar no SDK.
+ *
+ * Tipado como `PrismaClient` para conveniência, mas o SDK só usa `$transaction`
+ * — qualquer client Prisma (de qualquer schema de produto) é estruturalmente
+ * compatível. Existe porque, no monorepo, há UM único `@prisma/client` gerado
+ * na raiz e o último `prisma generate` "ganha": o SDK, por morar em
+ * `packages/`, sempre resolve esse client da raiz, que pode não ter os models
+ * do produto. Injetar o client gerado do próprio produto elimina essa loteria.
+ * Vide ADR-0003 e `internal-prisma.ts`.
+ */
+type ClientePrismaInjetavel = PrismaClient;
 /**
  * Identificador canônico de cada produto/serviço de organização que consome o SDK.
  * Usado para roteamento, métricas e logs.
@@ -26,6 +38,20 @@ interface ContextoOrganizacao {
     /** ULID gerado por request — propagado em logs/spans. */
     idCorrelacao: string;
     /**
+     * Quando o admin (SUPER_ADMIN/ADMIN) ativou override de organização via
+     * header `x-organizacao-override`, este campo guarda o id da organização
+     * ORIGINAL do usuário (sua org nativa, geralmente a Gravity Interna).
+     *
+     * Permite que logs/audit distingam "quem você é" (ator real, da
+     * `idOrganizacaoOriginal`) de "onde você está olhando" (alvo do override,
+     * em `idOrganizacao`).
+     *
+     * - Ausente quando NÃO há override (request normal — Master/Padrao/etc.).
+     * - Presente apenas quando middleware aceitou um header
+     *   `x-organizacao-override` válido (admin autorizado + org alvo ATIVA).
+     */
+    idOrganizacaoOriginal?: string;
+    /**
      * URL do banco do produto, capturada no boot pelo middleware
      * `resolverOrganizacao` (quando `process.env.DATABASE_URL` ainda aponta
      * para o banco correto do produto).
@@ -40,6 +66,15 @@ interface ContextoOrganizacao {
      * `process.env.DATABASE_URL` como fallback — comportamento legado.
      */
     urlBanco?: string;
+    /**
+     * Cliente Prisma injetado pelo produto (ADR-0003). Capturado no boot pelo
+     * middleware `resolverOrganizacao` a partir de `config.prismaClient`.
+     *
+     * Quando presente, o SDK usa ESTE client em vez de instanciar um a partir do
+     * `@prisma/client` da raiz — que, no monorepo, pode ter os models de outro
+     * produto. Quando ausente, cai no fallback `getInternalPrisma(urlBanco)`.
+     */
+    prismaInterno?: ClientePrismaInjetavel;
 }
 /**
  * Configuração do middleware. Cada produto cria 1 instância no boot.
@@ -68,6 +103,16 @@ interface ConfigResolverOrganizacao {
     configuradorTimeoutMs?: number;
     /** Tentativas para chamadas ao Configurador (incluindo a primeira). Default: 3. */
     configuradorRetries?: number;
+    /**
+     * Cliente Prisma do PRÓPRIO produto (ADR-0003). O produto importa o client
+     * gerado do seu schema e o instancia já amarrado ao seu banco
+     * (`new PrismaClient({ datasources: { db: { url } } })`), passando aqui.
+     *
+     * Recomendado em deploy monolito-sidecar e sempre que o `@prisma/client` da
+     * raiz puder não conter os models do produto. Ausente → o SDK cai no
+     * fallback `getInternalPrisma` (client da raiz + `urlBanco`).
+     */
+    prismaClient?: ClientePrismaInjetavel;
 }
 /**
  * Cliente Prisma DENTRO de `$transaction`.

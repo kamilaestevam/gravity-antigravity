@@ -175,7 +175,7 @@ describe('computeCardStats', () => {
     expect(stats.valorItens).toBe(800)
   })
 
-  it('conta pedidosAtrasados corretamente', () => {
+  it('conta pedidosAtrasados corretamente (exclui consolidado/cancelado)', () => {
     const pedidos = [
       { status: 'aberto', data_prevista_pedido_pronto: '2026-05-01' },
       { status: 'aberto', data_prevista_pedido_pronto: '2026-06-01' },
@@ -183,6 +183,25 @@ describe('computeCardStats', () => {
     ] as any[]
     const stats = computeCardStats(pedidos, [], 3, '2026-05-17')
     expect(stats.pedidosAtrasados).toBe(1)
+  })
+
+  it('conta pedidosEmAndamento com transferencia e em_andamento', () => {
+    const pedidos = [
+      { status: 'transferencia' },
+      { status: 'em_andamento' },
+      { status: 'aberto' },
+    ] as any[]
+    const stats = computeCardStats(pedidos, [], 3, '2026-05-17')
+    expect(stats.pedidosEmAndamento).toBe(2)
+  })
+
+  it('safeNum evita concatenação string em soma de qtdTotal', () => {
+    const pedidos = [
+      { quantidade_total_pedido: 100, status: 'aberto' },
+      { quantidade_total_pedido: '50', status: 'aberto' },
+    ] as any[]
+    const stats = computeCardStats(pedidos, [], 2, '2026-05-17')
+    expect(stats.qtdTotal).toBe(150)
   })
 
   it('usa totalItensBanco quando fornecido e > 0', () => {

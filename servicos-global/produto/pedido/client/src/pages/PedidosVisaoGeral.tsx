@@ -21,7 +21,6 @@ import {
   Timer,
   Anchor,
   AirplaneTilt,
-  Truck,
   Trophy,
   ArrowRight,
   CaretLeft,
@@ -47,136 +46,20 @@ import {
 } from '@phosphor-icons/react'
 
 import { useVisaoGeralPedido } from '../shared/useVisaoGeralPedido'
+import type { VisaoGeralMapPin } from '../shared/visaoGeralMapaPedido'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 const fmtMoeda = (v: number) =>
   new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v)
 
-const MODAL_ICONS: Record<string, React.ReactNode> = {
-  MARITIMO: <Anchor weight="duotone" size={16} />,
-  AEREO: <AirplaneTilt weight="duotone" size={16} />,
-  RODOVIARIO: <Truck weight="duotone" size={16} />,
+const fmtMoedaSafe = (v: number) =>
+  Number.isFinite(v) && v > 0 ? fmtMoeda(v) : '—'
+
+const TIPO_OPERACAO_ICONS: Record<string, React.ReactNode> = {
+  importacao: <Anchor weight="duotone" size={16} />,
+  exportacao: <AirplaneTilt weight="duotone" size={16} />,
 }
-
-// ─── Map Pin Data ──────────────────────────────────────────────────────────
-
-interface MapPin {
-  id: number
-  label: string
-  portCode: string
-  country: string
-  lat: number // Percentage from top (legacy)
-  lng: number // Percentage from left (legacy)
-  geoLat: number // Latitude (-90 to +90)
-  geoLng: number // Longitude (-180 to +180)
-  activeBids: number
-  bestPrice: number
-  savingPct: number
-  mode: 'MARITIMO' | 'AEREO' | 'RODOVIARIO'
-  supplier: string
-  flag: string
-}
-
-const MAP_PINS: MapPin[] = [
-  {
-    id: 1,
-    label: 'Shanghai',
-    portCode: 'CNSHA',
-    country: 'China',
-    lat: 40,
-    lng: 82,
-    geoLat: 31.2,
-    geoLng: 121.5,
-    activeBids: 140, // 70% of 200
-    bestPrice: 80480,
-    savingPct: 23.4,
-    mode: 'MARITIMO',
-    supplier: 'Pacific Cargo (E96)',
-    flag: '🇨🇳'
-  },
-  {
-    id: 2,
-    label: 'Guarulhos',
-    portCode: 'BRGRU',
-    country: 'Brasil',
-    lat: 74,
-    lng: 39,
-    geoLat: -23.43,
-    geoLng: -46.47,
-    activeBids: 140, // Destination of 70% (140 bids)
-    bestPrice: 18200,
-    savingPct: 19.1,
-    mode: 'AEREO',
-    supplier: 'Delta Cargo',
-    flag: '🇧🇷'
-  },
-  {
-    id: 3,
-    label: 'Itajaí',
-    portCode: 'BRITI',
-    country: 'Brasil',
-    lat: 76,
-    lng: 38,
-    geoLat: -26.9,
-    geoLng: -48.6,
-    activeBids: 40, // Destination of 20% (40 bids)
-    bestPrice: 24500,
-    savingPct: 21.0,
-    mode: 'MARITIMO',
-    supplier: 'EuroFreight Corp',
-    flag: '🇧🇷'
-  },
-  {
-    id: 4,
-    label: 'Miami',
-    portCode: 'USMIA',
-    country: 'EUA',
-    lat: 44,
-    lng: 29,
-    geoLat: 25.8,
-    geoLng: -80.2,
-    activeBids: 40, // 20% of 200
-    bestPrice: 8400,
-    savingPct: 15.6,
-    mode: 'AEREO',
-    supplier: 'Delta Cargo',
-    flag: '🇺🇸'
-  },
-  {
-    id: 5,
-    label: 'Buenos Aires',
-    portCode: 'ARBUE',
-    country: 'Argentina',
-    lat: 82,
-    lng: 34,
-    geoLat: -34.6,
-    geoLng: -58.4,
-    activeBids: 20, // 10% of 200
-    bestPrice: 15300,
-    savingPct: 18.8,
-    mode: 'MARITIMO',
-    supplier: 'Merlion Shipping',
-    flag: '🇦🇷'
-  },
-  {
-    id: 6,
-    label: 'Recife',
-    portCode: 'BRREC',
-    country: 'Brasil',
-    lat: 68,
-    lng: 44,
-    geoLat: -8.05,
-    geoLng: -34.9,
-    activeBids: 20, // Destination of 10% (20 bids)
-    bestPrice: 12100,
-    savingPct: 14.5,
-    mode: 'MARITIMO',
-    supplier: 'PacAnchor Logistics',
-    flag: '🇧🇷'
-  }
-]
-
 
 // ─── Gráfico de Barras Mensal (SVG) ─────────────────────────────────────────
 
@@ -902,111 +785,21 @@ const getCartesian = (lat: number, lng: number) => {
   }
 }
 
-// Arc Routes definition
-interface ArcRoute {
-  fromId: number
-  toId: number
-  color: string
-  heightFactor?: number // Custom height factor to avoid overlapping curves
-  mode: 'MARITIMO' | 'AEREO'
-}
-
-const GLOBE_ROUTES: ArcRoute[] = [
-  // 70% China (Shanghai) -> Guarulhos (São Paulo)
-  { fromId: 1, toId: 2, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.14, mode: 'MARITIMO' }, // Maritime route (emerald green, slow)
-  { fromId: 1, toId: 2, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.22, mode: 'AEREO' }, // Air route (purple, fast)
-
-  // 20% USA (Miami) -> Itajaí
-  { fromId: 4, toId: 3, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.20, mode: 'AEREO' }, // Air route (purple, fast)
-  { fromId: 4, toId: 3, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.13, mode: 'MARITIMO' }, // Maritime route (emerald green, slow)
-
-  // 10% Argentina (Buenos Aires) -> Recife
-  { fromId: 5, toId: 6, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.15, mode: 'MARITIMO' }, // Maritime route (emerald green, slow)
-  { fromId: 5, toId: 6, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.24, mode: 'AEREO' }, // Air route (purple, fast)
-]
-
-interface RouteDetail {
-  fromPort: string
-  fromFlag: string
-  toPort: string
-  toFlag: string
-  mode: 'MARITIMO' | 'AEREO'
-  bids: number
-  bestPrice: number
-  saving: number
-  transitTime: number
-  supplier: string
-}
-
-const PORT_CONNECTIONS: Record<number, RouteDetail[]> = {
-  1: [
-    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Santos (BRSSZ)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 56, bestPrice: 12400, saving: 23.4, transitTime: 28, supplier: 'Pacific Cargo (E96)' },
-    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Guarulhos (BRGRU)', toFlag: '🇧🇷', mode: 'AEREO', bids: 84, bestPrice: 18200, saving: 19.1, transitTime: 3, supplier: 'Delta Cargo' },
-    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Itajaí (BRITI)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 32, bestPrice: 13100, saving: 20.5, transitTime: 30, supplier: 'EuroFreight Corp' }
-  ],
-  2: [
-    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Guarulhos (BRGRU)', toFlag: '🇧🇷', mode: 'AEREO', bids: 84, bestPrice: 18200, saving: 19.1, transitTime: 3, supplier: 'Delta Cargo' },
-    { fromPort: 'Miami (USMIA)', fromFlag: '🇺🇸', toPort: 'Guarulhos (BRGRU)', toFlag: '🇧🇷', mode: 'AEREO', bids: 48, bestPrice: 8400, saving: 15.6, transitTime: 2, supplier: 'Delta Cargo' }
-  ],
-  3: [
-    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Itajaí (BRITI)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 32, bestPrice: 13100, saving: 20.5, transitTime: 30, supplier: 'EuroFreight Corp' },
-    { fromPort: 'Miami (USMIA)', fromFlag: '🇺🇸', toPort: 'Itajaí (BRITI)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 24, bestPrice: 9500, saving: 17.2, transitTime: 18, supplier: 'Hamburg Süd' }
-  ],
-  4: [
-    { fromPort: 'Miami (USMIA)', fromFlag: '🇺🇸', toPort: 'Guarulhos (BRGRU)', toFlag: '🇧🇷', mode: 'AEREO', bids: 48, bestPrice: 8400, saving: 15.6, transitTime: 2, supplier: 'Delta Cargo' },
-    { fromPort: 'Miami (USMIA)', fromFlag: '🇺🇸', toPort: 'Itajaí (BRITI)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 24, bestPrice: 9500, saving: 17.2, transitTime: 18, supplier: 'Hamburg Süd' }
-  ],
-  5: [
-    { fromPort: 'Buenos Aires (ARBUE)', fromFlag: '🇦🇷', toPort: 'Recife (BRREC)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 20, bestPrice: 15300, saving: 18.8, transitTime: 8, supplier: 'Merlion Shipping' },
-    { fromPort: 'Buenos Aires (ARBUE)', fromFlag: '🇦🇷', toPort: 'Santos (BRSSZ)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 15, bestPrice: 7200, saving: 16.4, transitTime: 4, supplier: 'MSC Line' }
-  ],
-  6: [
-    { fromPort: 'Buenos Aires (ARBUE)', fromFlag: '🇦🇷', toPort: 'Recife (BRREC)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 20, bestPrice: 15300, saving: 18.8, transitTime: 8, supplier: 'Merlion Shipping' },
-    { fromPort: 'Miami (USMIA)', fromFlag: '🇺🇸', toPort: 'Recife (BRREC)', toFlag: '🇧🇷', mode: 'AEREO', bids: 12, bestPrice: 11200, saving: 14.5, transitTime: 3, supplier: 'PacAnchor Logistics' }
-  ]
-}
-
-// ─── Infográficos & HUD Rankings (Top 10) ────────────────────────────────────────
-
-const TOP_ORIGENS = [
-  { rank: 1, name: 'Shanghai', code: 'CNSHA', flag: '🇨🇳', count: 140, pct: 70, pinId: 1 },
-  { rank: 2, name: 'Miami', code: 'USMIA', flag: '🇺🇸', count: 40, pct: 20, pinId: 4 },
-  { rank: 3, name: 'Buenos Aires', code: 'ARBUE', flag: '🇦🇷', count: 20, pct: 10, pinId: 5 },
-  { rank: 4, name: 'Rotterdam', code: 'NLRTM', flag: '🇳🇱', count: 12, pct: 6, pinId: null },
-  { rank: 5, name: 'Singapura', code: 'SGSIN', flag: '🇸🇬', count: 10, pct: 5, pinId: null },
-  { rank: 6, name: 'Hamburgo', code: 'DEHAM', flag: '🇩🇪', count: 8, pct: 4, pinId: null },
-  { rank: 7, name: 'Houston', code: 'USHOU', flag: '🇺🇸', count: 7, pct: 3.5, pinId: null },
-  { rank: 8, name: 'Santos', code: 'BRSSZ', flag: '🇧🇷', count: 5, pct: 2.5, pinId: null },
-  { rank: 9, name: 'Tóquio', code: 'JPTYO', flag: '🇯🇵', count: 4, pct: 2, pinId: null },
-  { rank: 10, name: 'Antuérpia', code: 'BEANT', flag: '🇧🇪', count: 3, pct: 1.5, pinId: null },
-]
-
-const TOP_DESTINOS = [
-  { rank: 1, name: 'Guarulhos', code: 'BRGRU', flag: '🇧🇷', count: 140, pct: 70, pinId: 2 },
-  { rank: 2, name: 'Itajaí', code: 'BRITI', flag: '🇧🇷', count: 40, pct: 20, pinId: 3 },
-  { rank: 3, name: 'Recife', code: 'BRREC', flag: '🇧🇷', count: 20, pct: 10, pinId: 6 },
-  { rank: 4, name: 'Santos', code: 'BRSSZ', flag: '🇧🇷', count: 15, pct: 7.5, pinId: null },
-  { rank: 5, name: 'Paranaguá', code: 'BRPNG', flag: '🇧🇷', count: 12, pct: 6, pinId: null },
-  { rank: 6, name: 'Rio de Janeiro', code: 'BRRIO', flag: '🇧🇷', count: 10, pct: 5, pinId: null },
-  { rank: 7, name: 'Manaus', code: 'BRMAO', flag: '🇧🇷', count: 8, pct: 4, pinId: null },
-  { rank: 8, name: 'Viracopos', code: 'BRVCP', flag: '🇧🇷', count: 6, pct: 3, pinId: null },
-  { rank: 9, name: 'Suape', code: 'BRSUA', flag: '🇧🇷', count: 4, pct: 2, pinId: null },
-  { rank: 10, name: 'Rio Grande', code: 'BRRIG', flag: '🇧🇷', count: 3, pct: 1.5, pinId: null },
-]
-
-const MODAIS_INFO = [
-  { modal_cotacao_bid_frete_internacional: 'MARITIMO', label: 'Marítimo', count: 120, pct: 60, cor: '#34d399' },
-  { modal_cotacao_bid_frete_internacional: 'AEREO', label: 'Aéreo', count: 70, pct: 35, cor: '#a78bfa' },
-  { modal_cotacao_bid_frete_internacional: 'RODOVIARIO', label: 'Rodoviário', count: 10, pct: 5, cor: '#fbbf24' },
-]
-
 // ─── Visão Geral Global (Globo 3D Interativo Premium) ───────────────────────────
 
 function VisaoGeralMapa() {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modal_cotacao_bid_frete_internacional'>('origens')
+  const { mapa, total } = useVisaoGeralPedido()
+  const { pins, globeRoutes, detalhesPorLocKey, topOrigens, topDestinos, modaisGlobo } = mapa
+
+  const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modais'>('origens')
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
-  const [selectedPinForModal, setSelectedPinForModal] = useState<number | null>(null)
+  const [selectedLocKey, setSelectedLocKey] = useState<string | null>(null)
+
+  const pinsRef = useRef(pins)
+  const globeRoutesRef = useRef(globeRoutes)
+  useEffect(() => { pinsRef.current = pins }, [pins])
+  useEffect(() => { globeRoutesRef.current = globeRoutes }, [globeRoutes])
   
   const hoveredPinRef = useRef<number | null>(null)
   useEffect(() => {
@@ -1014,7 +807,7 @@ function VisaoGeralMapa() {
   }, [hoveredPin])
   
   // State for React overlays
-  const [projectedPins, setProjectedPins] = useState<(MapPin & { px: number; py: number; opacity: number })[]>([])
+  const [projectedPins, setProjectedPins] = useState<(VisaoGeralMapPin & { px: number; py: number; opacity: number })[]>([])
   
   const canvasRef = useRef<HTMLCanvasElement>(null)
   
@@ -1263,9 +1056,9 @@ function VisaoGeralMapa() {
       
       // 5. Draw 3D curved Logistics Arc Routes & cargo pulses
       
-      GLOBE_ROUTES.forEach((route, routeIdx) => {
-        const fromPin = MAP_PINS.find(p => p.id === route.fromId)
-        const toPin = MAP_PINS.find(p => p.id === route.toId)
+      globeRoutesRef.current.forEach((route, routeIdx) => {
+        const fromPin = pinsRef.current.find(p => p.id === route.fromId)
+        const toPin = pinsRef.current.find(p => p.id === route.toId)
         if (!fromPin || !toPin) return
         
         const p1 = getCartesian(fromPin.geoLat, fromPin.geoLng)
@@ -1346,8 +1139,8 @@ function VisaoGeralMapa() {
           ctx.lineWidth = isRouteDirectSource ? 3.5 : 2.0
           ctx.setLineDash([5, 8])
           // Negative offset moves the dash pattern from start to end (fromId -> toId)
-          const isMaritime = route.mode === 'MARITIMO'
-          ctx.lineDashOffset = -(Date.now() / (isMaritime ? 320 : 32)) % 100
+          const isImportacao = route.mode === 'importacao'
+          ctx.lineDashOffset = -(Date.now() / (isImportacao ? 320 : 32)) % 100
           
           ctx.beginPath()
           ctx.moveTo(pathPoints[0].sx, pathPoints[0].sy)
@@ -1369,7 +1162,7 @@ function VisaoGeralMapa() {
               ctx.save()
               ctx.translate(p1.sx, p1.sy)
               ctx.rotate(angle)
-              ctx.strokeStyle = route.mode === 'AEREO' ? '#c084fc' : '#34d399'
+              ctx.strokeStyle = route.mode === 'exportacao' ? '#c084fc' : '#f59e0b'
               ctx.lineWidth = isRouteDirectSource ? 3.0 : 2.0
               ctx.lineCap = 'round'
               ctx.lineJoin = 'round'
@@ -1389,8 +1182,8 @@ function VisaoGeralMapa() {
         if (!isBack && (currentHovered === null || isRouteDirectSource)) {
           // Draw 2 staggered pulses per route so direction is immediately obvious
           [0.0, 0.5].forEach((offset) => {
-            const isMaritime = route.mode === 'MARITIMO'
-            const routePulseTime = Date.now() / (isMaritime ? 24000 : 2400)
+            const isImportacao = route.mode === 'importacao'
+            const routePulseTime = Date.now() / (isImportacao ? 24000 : 2400)
             const tPulse = (routePulseTime + routeIdx * 0.22 + offset) % 1.0
             const rawIdx = tPulse * segmentsCount
             
@@ -1430,7 +1223,7 @@ function VisaoGeralMapa() {
                     }
                     
                     ctx.beginPath()
-                    if (isMaritime) {
+                    if (isImportacao) {
                       // Draw sleek top-down cargo ship hull
                       ctx.moveTo(8, 0)
                       ctx.lineTo(4, 3)
@@ -1455,14 +1248,14 @@ function VisaoGeralMapa() {
                     
                     ctx.fillStyle = '#ffffff'
                     ctx.shadowBlur = isRouteDirectSource ? 16 : 12
-                    ctx.shadowColor = isMaritime ? '#34d399' : '#c084fc'
+                    ctx.shadowColor = isImportacao ? '#f59e0b' : '#c084fc'
                     ctx.fill()
                     
                     // Draw a tiny colorful inner core/cabin for maximum luxury detail
                     ctx.beginPath()
-                    if (isMaritime) {
+                    if (isImportacao) {
                       ctx.rect(-2, -1.5, 3, 3)
-                      ctx.fillStyle = '#34d399' // green core for ship containers
+                      ctx.fillStyle = '#f59e0b'
                     } else {
                       ctx.arc(1, 0, 1.5, 0, Math.PI * 2)
                       ctx.fillStyle = '#a78bfa' // purple core for plane cockpit
@@ -1492,7 +1285,7 @@ function VisaoGeralMapa() {
       const offsetX = canvas.offsetLeft || 0
       const offsetY = canvas.offsetTop || 0
 
-      const tempPins = MAP_PINS.map(pin => {
+      const tempPins = pinsRef.current.map(pin => {
         const p = getCartesian(pin.geoLat, pin.geoLng)
         
         // Rotate Y
@@ -1621,10 +1414,10 @@ function VisaoGeralMapa() {
           {/* Floating Legend */}
           <div className="bfd-map-legend-floating">
             <span className="bfd-map-legend__item">
-              <Anchor size={15} weight="bold" style={{ color: '#34d399' }} /> {t('pedido.visao_geral.mapa.legenda_maritimo')}
+              <Anchor size={15} weight="bold" style={{ color: '#f59e0b' }} /> {t('pedido.visao_geral.mapa.legenda_importacao')}
             </span>
             <span className="bfd-map-legend__item">
-              <AirplaneTilt size={15} weight="bold" style={{ color: '#a78bfa' }} /> {t('pedido.visao_geral.mapa.legenda_aereo')}
+              <AirplaneTilt size={15} weight="bold" style={{ color: '#a78bfa' }} /> {t('pedido.visao_geral.mapa.legenda_exportacao')}
             </span>
           </div>
           
@@ -1668,7 +1461,8 @@ function VisaoGeralMapa() {
             if (pin.opacity <= 0.05) return null
             
             const isHovered = hoveredPin === pin.id
-            const Icon = MODAL_ICONS[pin.mode] || <Anchor size={12} />
+            const isExportacao = pin.tipoOperacao === 'exportacao'
+            const Icon = TIPO_OPERACAO_ICONS[pin.tipoOperacao] || <Anchor size={12} />
             
             return (
               <div
@@ -1691,18 +1485,18 @@ function VisaoGeralMapa() {
                 onClick={(e) => {
                   e.stopPropagation() // Avoid triggering map drag
                   isRotationPausedRef.current = true
-                  setSelectedPinForModal(pin.id)
+                  setSelectedLocKey(pin.locKey)
                 }}
               >
                 {/* Outer pulsing ring */}
-                <div className="bfd-map-pin__glow" style={{ borderColor: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399' }} />
+                <div className="bfd-map-pin__glow" style={{ borderColor: isExportacao ? '#a78bfa' : '#f59e0b' }} />
                 
                 {/* Glowing pin dot */}
                 <div 
                   className="bfd-map-pin__dot" 
                   style={{ 
-                    backgroundColor: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399',
-                    boxShadow: pin.mode === 'AEREO' ? '0 0 10px rgba(167, 139, 250, 0.6)' : '0 0 10px rgba(52, 211, 153, 0.6)'
+                    backgroundColor: isExportacao ? '#a78bfa' : '#f59e0b',
+                    boxShadow: isExportacao ? '0 0 10px rgba(167, 139, 250, 0.6)' : '0 0 10px rgba(245, 158, 11, 0.6)'
                   }}
                 >
                   <span className="bfd-map-pin__icon-inner">{Icon}</span>
@@ -1721,19 +1515,23 @@ function VisaoGeralMapa() {
                     
                     <div className="bfd-map-tooltip__body">
                       <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.bids_ativos')}</span>
-                        <span className="bfd-map-tooltip__stat-val">{t('pedido.visao_geral.mapa.cotacoes_count', { count: pin.activeBids })}</span>
+                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.pedidos_ativos')}</span>
+                        <span className="bfd-map-tooltip__stat-val">{t('pedido.visao_geral.mapa.pedidos_count', { count: pin.pedidosCount })}</span>
                       </div>
                       <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.melhor_preco')}</span>
-                        <span className="bfd-map-tooltip__stat-val" style={{ color: '#ffffff' }}>
-                          USD {fmtMoeda(pin.bestPrice)}
+                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.contratos_cambio')}</span>
+                        <span className="bfd-map-tooltip__stat-val">{t('pedido.visao_geral.mapa.contratos_cambio_count', { count: pin.contratosCambioCount })}</span>
+                      </div>
+                      <div className="bfd-map-tooltip__stat">
+                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.total_a_receber')}</span>
+                        <span className="bfd-map-tooltip__stat-val" style={{ color: '#34d399' }}>
+                          {pin.totalAReceber > 0 ? `${pin.moedaCambio} ${fmtMoedaSafe(pin.totalAReceber)}` : '—'}
                         </span>
                       </div>
                       <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.saving_medio')}</span>
-                        <span className="bfd-map-tooltip__stat-val" style={{ color: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399', fontWeight: 700 }}>
-                          +{pin.savingPct}%
+                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.total_a_pagar')}</span>
+                        <span className="bfd-map-tooltip__stat-val" style={{ color: '#f59e0b' }}>
+                          {pin.totalAPagar > 0 ? `${pin.moedaCambio} ${fmtMoedaSafe(pin.totalAPagar)}` : '—'}
                         </span>
                       </div>
                     </div>
@@ -1741,7 +1539,7 @@ function VisaoGeralMapa() {
                     <div className="bfd-map-tooltip__footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem', marginTop: '0.2rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                         <span className="bfd-map-tooltip__supplier" style={{ fontSize: '0.78rem' }}>
-                          {t('pedido.visao_geral.mapa.fornecedor_abreviado')}: <strong>{pin.supplier}</strong>
+                          {t('pedido.visao_geral.mapa.parceiro_abreviado')}: <strong>{pin.parceiro}</strong>
                         </span>
                       </div>
                       <div className="bfd-map-tooltip__hint">👉 {t('pedido.visao_geral.mapa.clique_ver_rotas')}</div>
@@ -1766,7 +1564,7 @@ function VisaoGeralMapa() {
                   <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('pedido.visao_geral.hud.live_feed')}</span>
                 </div>
               </div>
-              <span className="bfd-map-panel__subtitle">{t('pedido.visao_geral.hud.subtitulo')}</span>
+              <span className="bfd-map-panel__subtitle">{t('pedido.visao_geral.hud.subtitulo_pedidos', { total })}</span>
             </div>
             
             {/* Tabs */}
@@ -1784,8 +1582,8 @@ function VisaoGeralMapa() {
                 <MapPin size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_destinos')}
               </button>
               <button 
-                className={`bfd-map-panel__tab tab-modal_cotacao_bid_frete_internacional ${activeTab === 'modal_cotacao_bid_frete_internacional' ? 'is-active' : ''}`}
-                onClick={(e) => { e.stopPropagation(); setActiveTab('modal_cotacao_bid_frete_internacional'); }}
+                className={`bfd-map-panel__tab tab-modais ${activeTab === 'modais' ? 'is-active' : ''}`}
+                onClick={(e) => { e.stopPropagation(); setActiveTab('modais'); }}
               >
                 <List size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_modais')}
               </button>
@@ -1793,14 +1591,15 @@ function VisaoGeralMapa() {
             
             {/* List Content */}
             <div className="bfd-map-panel__list">
-              {activeTab === 'origens' && TOP_ORIGENS.map(item => {
-                const hasLink = item.pinId !== null
-                const isHighlighted = hoveredPin === item.pinId && hasLink
+              {activeTab === 'origens' && (topOrigens.length === 0 ? (
+                <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
+              ) : topOrigens.map(item => {
+                const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
                 
                 return (
                   <div 
                     key={item.rank}
-                    className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
+                    className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted' : ''}`}
                     onMouseEnter={() => {
                       if (item.pinId) {
                         setHoveredPin(item.pinId)
@@ -1814,10 +1613,9 @@ function VisaoGeralMapa() {
                       }
                     }}
                     onClick={(e) => {
-                      if (item.pinId) {
-                        e.stopPropagation()
-                        setSelectedPinForModal(item.pinId)
-                      }
+                      e.stopPropagation()
+                      isRotationPausedRef.current = true
+                      setSelectedLocKey(item.locKey)
                     }}
                   >
                     <span className="bfd-map-panel__row-rank">{item.rank}</span>
@@ -1826,19 +1624,20 @@ function VisaoGeralMapa() {
                       <span className="bfd-map-panel__row-city">{item.name}</span>
                       <span className="bfd-map-panel__row-code">{item.code}</span>
                     </div>
-                    <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.bids_count', { count: item.count })}</span>
+                    <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
                   </div>
                 )
-              })}
+              }))}
               
-              {activeTab === 'destinos' && TOP_DESTINOS.map(item => {
-                const hasLink = item.pinId !== null
-                const isHighlighted = hoveredPin === item.pinId && hasLink
+              {activeTab === 'destinos' && (topDestinos.length === 0 ? (
+                <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
+              ) : topDestinos.map(item => {
+                const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
                 
                 return (
                   <div 
                     key={item.rank}
-                    className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
+                    className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted-dest' : ''}`}
                     onMouseEnter={() => {
                       if (item.pinId) {
                         setHoveredPin(item.pinId)
@@ -1852,10 +1651,9 @@ function VisaoGeralMapa() {
                       }
                     }}
                     onClick={(e) => {
-                      if (item.pinId) {
-                        e.stopPropagation()
-                        setSelectedPinForModal(item.pinId)
-                      }
+                      e.stopPropagation()
+                      isRotationPausedRef.current = true
+                      setSelectedLocKey(item.locKey)
                     }}
                   >
                     <span className="bfd-map-panel__row-rank">{item.rank}</span>
@@ -1864,32 +1662,37 @@ function VisaoGeralMapa() {
                       <span className="bfd-map-panel__row-city">{item.name}</span>
                       <span className="bfd-map-panel__row-code">{item.code}</span>
                     </div>
-                    <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.bids_count', { count: item.count })}</span>
+                    <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
                   </div>
                 )
-              })}
+              }))}
               
-              {activeTab === 'modal_cotacao_bid_frete_internacional' && MODAIS_INFO.map((item, idx) => {
+              {activeTab === 'modais' && modaisGlobo.map((item, idx) => {
+                const isExportacao = item.key === 'exportacao'
                 return (
-                  <div key={idx} className="bfd-map-panel__row">
+                  <div
+                    key={item.key}
+                    className="bfd-map-panel__row has-link"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedLocKey(`modal|${item.key}`)
+                    }}
+                  >
                     <span className="bfd-map-panel__row-rank">{idx + 1}</span>
-                    <span className="bfd-map-panel__modal-icon-wrap" style={{ color: item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '#a78bfa' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '#34d399' : '#fbbf24' }}>
-                      {MODAL_ICONS[item.modal_cotacao_bid_frete_internacional] || <Anchor size={14} />}
+                    <span className="bfd-map-panel__modal-icon-wrap" style={{ color: isExportacao ? '#a78bfa' : '#f59e0b' }}>
+                      {TIPO_OPERACAO_ICONS[item.key] || <Anchor size={14} />}
                     </span>
                     <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
                       <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
-                        {t(`pedido.visao_geral.modal.${item.modal_cotacao_bid_frete_internacional.toLowerCase()}`, { defaultValue: item.label })}
+                        {t(`pedido.visao_geral.modal.${item.key}`, { defaultValue: item.label })}
                       </span>
                       <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
-                        {t('pedido.visao_geral.hud.bids_count', { count: item.count })}
+                        {t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}
                       </span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
                       <span className="bfd-map-panel__row-bids" style={{ fontWeight: 800, color: '#ffffff' }}>
                         {item.pct}%
-                      </span>
-                      <span className="bfd-map-panel__modal-stat-num" style={{ color: '#f59e0b' }}>
-                        {item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '+23.4%' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '+19.1%' : '+12.5%'}
                       </span>
                     </div>
                   </div>
@@ -1900,41 +1703,72 @@ function VisaoGeralMapa() {
         </div>
 
         {/* Premium Detail Modal Overlay */}
-        {selectedPinForModal !== null && (() => {
-          const pin = MAP_PINS.find(p => p.id === selectedPinForModal)
-          if (!pin) return null
-          const connections = PORT_CONNECTIONS[selectedPinForModal] || []
+        {selectedLocKey !== null && (() => {
+          const detalhe = detalhesPorLocKey[selectedLocKey]
+          if (!detalhe) return null
+          const connections = detalhe.rotas
           
           return (
-            <div className="bfd-modal_cotacao_bid_frete_internacional-overlay" onClick={() => setSelectedPinForModal(null)}>
-              <div className="bfd-modal_cotacao_bid_frete_internacional-card" onClick={e => e.stopPropagation()}>
-                <div className="bfd-modal_cotacao_bid_frete_internacional-header">
-                  <div className="bfd-modal_cotacao_bid_frete_internacional-title-group">
-                    <span className="bfd-modal_cotacao_bid_frete_internacional-flag-large">{pin.flag}</span>
+            <div className="bfd-modal-mapa-overlay" onClick={() => setSelectedLocKey(null)}>
+              <div className="bfd-modal-mapa-card" onClick={e => e.stopPropagation()}>
+                <div className="bfd-modal-mapa-header">
+                  <div className="bfd-modal-mapa-title-group">
+                    <span className="bfd-modal-mapa-flag-large">{detalhe.flag}</span>
                     <div>
-                      <h2 className="bfd-modal_cotacao_bid_frete_internacional-title">{t('pedido.visao_geral.mapa.rotas_ativas', { local: pin.label })}</h2>
-                      <span className="bfd-modal_cotacao_bid_frete_internacional-subtitle">{pin.portCode} • {pin.country}</span>
+                      <h2 className="bfd-modal-mapa-title">{t('pedido.visao_geral.mapa.rotas_ativas', { local: detalhe.label })}</h2>
+                      <span className="bfd-modal-mapa-subtitle">{detalhe.code} • {detalhe.country}</span>
                     </div>
                   </div>
-                  <button className="bfd-modal_cotacao_bid_frete_internacional-close-btn" onClick={() => setSelectedPinForModal(null)}>✕</button>
+                  <button className="bfd-modal-mapa-close-btn" onClick={() => setSelectedLocKey(null)}>✕</button>
+                </div>
+
+                <div
+                  className="bfd-modal-mapa-cambio-resumo"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                    gap: '0.65rem',
+                    padding: '0.85rem 1.25rem',
+                    borderBottom: '1px solid rgba(255,255,255,0.06)',
+                    background: 'rgba(255,255,255,0.02)',
+                  }}
+                >
+                  <div className="bfd-modal-mapa-cambio-item">
+                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{t('pedido.visao_geral.mapa.pedidos_ativos')}</span>
+                    <strong style={{ color: '#fff', fontSize: '0.88rem' }}>{t('pedido.visao_geral.hud.pedidos_count', { count: detalhe.pedidosCount })}</strong>
+                  </div>
+                  <div className="bfd-modal-mapa-cambio-item">
+                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{t('pedido.visao_geral.mapa.contratos_cambio')}</span>
+                    <strong style={{ color: '#fff', fontSize: '0.88rem' }}>{t('pedido.visao_geral.mapa.contratos_cambio_count', { count: detalhe.contratosCambioCount })}</strong>
+                  </div>
+                  <div className="bfd-modal-mapa-cambio-item">
+                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{t('pedido.visao_geral.mapa.total_a_receber')}</span>
+                    <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>
+                      {detalhe.totalAReceber > 0 ? `${detalhe.moedaCambio} ${fmtMoedaSafe(detalhe.totalAReceber)}` : '—'}
+                    </strong>
+                  </div>
+                  <div className="bfd-modal-mapa-cambio-item">
+                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{t('pedido.visao_geral.mapa.total_a_pagar')}</span>
+                    <strong style={{ color: '#f59e0b', fontSize: '0.88rem' }}>
+                      {detalhe.totalAPagar > 0 ? `${detalhe.moedaCambio} ${fmtMoedaSafe(detalhe.totalAPagar)}` : '—'}
+                    </strong>
+                  </div>
                 </div>
                 
-                <div className="bfd-modal_cotacao_bid_frete_internacional-body">
+                <div className="bfd-modal-mapa-body">
                   {connections.length === 0 ? (
                     <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
                       {t('pedido.visao_geral.mapa.sem_rotas')}
                     </div>
                   ) : (
                     connections.map((route, idx) => {
-                      const isAir = route.mode === 'AEREO'
-                      const modeColor = isAir ? '#a78bfa' : '#34d399'
-                      const modeIcon = isAir ? <AirplaneTilt size={14} weight="bold" /> : <Anchor size={14} weight="bold" />
-                      const badgeClass = isAir ? 'bfd-route-badge bfd-route-badge--aereo' : 'bfd-route-badge bfd-route-badge--maritimo'
-                      const cardClass = isAir ? 'bfd-route-card bfd-route-card--aereo' : 'bfd-route-card bfd-route-card--maritimo'
-                      
-                      // High-quality loop motion path details
+                      const isExportacao = route.tipoOperacao === 'exportacao'
+                      const modeColor = isExportacao ? '#a78bfa' : '#f59e0b'
+                      const modeIcon = isExportacao ? <AirplaneTilt size={14} weight="bold" /> : <Anchor size={14} weight="bold" />
+                      const badgeClass = isExportacao ? 'bfd-route-badge bfd-route-badge--aereo' : 'bfd-route-badge bfd-route-badge--maritimo'
+                      const cardClass = isExportacao ? 'bfd-route-card bfd-route-card--aereo' : 'bfd-route-card bfd-route-card--maritimo'
                       const pathD = "M 10,15 Q 120,-5 230,15"
-                      const speed = isAir ? "3.2s" : "6.5s"
+                      const speed = isExportacao ? "3.2s" : "6.5s"
                       
                       return (
                         <div key={idx} className={cardClass}>
@@ -1948,85 +1782,44 @@ function VisaoGeralMapa() {
                             </div>
                             
                             <span className={badgeClass} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              {modeIcon} {route.mode}
+                              {modeIcon} {t(`pedido.visao_geral.modal.${route.tipoOperacao}`, { defaultValue: route.tipoOperacao })}
                             </span>
                           </div>
                           
-                          {/* Animated SVG Path with native animateMotion */}
                           <div className="bfd-route-svg-container">
                             <svg width="100%" height="30" viewBox="0 0 240 30" style={{ overflow: 'visible' }}>
-                              {/* Base dotted connection line */}
-                              <path 
-                                d={pathD} 
-                                fill="none" 
-                                stroke="rgba(255, 255, 255, 0.12)" 
-                                strokeWidth="2" 
-                                strokeDasharray="4,4" 
-                              />
-                              {/* Glowing animate line trail */}
-                              <path 
-                                d={pathD} 
-                                fill="none" 
-                                stroke={modeColor} 
-                                strokeWidth="1.5" 
-                                strokeDasharray="20, 220" 
-                                opacity="0.8"
-                              >
-                                <animate 
-                                  attributeName="stroke-dashoffset" 
-                                  values="240;0" 
-                                  dur={speed} 
-                                  repeatCount="indefinite" 
-                                />
+                              <path d={pathD} fill="none" stroke="rgba(255, 255, 255, 0.12)" strokeWidth="2" strokeDasharray="4,4" />
+                              <path d={pathD} fill="none" stroke={modeColor} strokeWidth="1.5" strokeDasharray="20, 220" opacity="0.8">
+                                <animate attributeName="stroke-dashoffset" values="240;0" dur={speed} repeatCount="indefinite" />
                               </path>
-                              {/* High-fidelity moving ship or plane */}
                               <g>
-                                {isAir ? (
-                                  // High quality mini plane shape facing right
-                                  <path 
-                                    d="M-7,-2 L-2,-2 L1,-6 L3,-6 L2,-2 L6,-1 L8,0 L6,1 L2,2 L3,6 L1,6 L-2,2 L-7,2 Z" 
-                                    fill="#a78bfa" 
-                                    style={{ filter: 'drop-shadow(0 0 3px rgba(167, 139, 250, 0.6))' }}
-                                  />
+                                {isExportacao ? (
+                                  <path d="M-7,-2 L-2,-2 L1,-6 L3,-6 L2,-2 L6,-1 L8,0 L6,1 L2,2 L3,6 L1,6 L-2,2 L-7,2 Z" fill="#a78bfa" style={{ filter: 'drop-shadow(0 0 3px rgba(167, 139, 250, 0.6))' }} />
                                 ) : (
-                                  // High quality mini cargo ship shape facing right
-                                  <path 
-                                    d="M-8,-2 L4,-2 L8,0 L4,2 L-8,2 Z M-5,-2 L-5,-4 L-2,-4 L-2,-2 Z" 
-                                    fill="#34d399" 
-                                    style={{ filter: 'drop-shadow(0 0 3px rgba(52, 211, 153, 0.6))' }}
-                                  />
+                                  <path d="M-8,-2 L4,-2 L8,0 L4,2 L-8,2 Z M-5,-2 L-5,-4 L-2,-4 L-2,-2 Z" fill="#f59e0b" style={{ filter: 'drop-shadow(0 0 3px rgba(245, 158, 11, 0.6))' }} />
                                 )}
-                                <animateMotion 
-                                  path={pathD} 
-                                  dur={speed} 
-                                  repeatCount="indefinite" 
-                                  rotate="auto" 
-                                />
+                                <animateMotion path={pathD} dur={speed} repeatCount="indefinite" rotate="auto" />
                               </g>
                             </svg>
                           </div>
                           
                           <div className="bfd-route-stats">
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.bids_ativos')}</span>
-                              <span className="bfd-route-stat-value">{t('pedido.visao_geral.hud.bids_count', { count: route.bids })}</span>
+                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.pedidos_ativos')}</span>
+                              <span className="bfd-route-stat-value">{t('pedido.visao_geral.hud.pedidos_count', { count: route.pedidos })}</span>
                             </div>
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.melhor_preco')}</span>
-                              <span className="bfd-route-stat-value" style={{ color: '#ffffff' }}>USD {fmtMoeda(route.bestPrice)}</span>
+                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.valor_total')}</span>
+                              <span className="bfd-route-stat-value" style={{ color: '#ffffff' }}>{route.moeda} {fmtMoedaSafe(route.valorTotal)}</span>
                             </div>
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.saving')}</span>
-                              <span className="bfd-route-stat-value" style={{ color: isAir ? '#a78bfa' : '#34d399' }}>+{route.saving}%</span>
-                            </div>
-                            <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.transit_time')}</span>
-                              <span className="bfd-route-stat-value">{t('pedido.visao_geral.mapa.dias_count', { count: route.transitTime })}</span>
+                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.incoterm')}</span>
+                              <span className="bfd-route-stat-value" style={{ color: modeColor }}>{route.incoterm}</span>
                             </div>
                           </div>
                           
                           <div style={{ fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }}>
-                            <span>{t('pedido.visao_geral.mapa.fornecedor_lider')}: <strong>{route.supplier}</strong></span>
+                            <span>{t('pedido.visao_geral.mapa.parceiro_lider')}: <strong>{route.parceiro}</strong></span>
                           </div>
                         </div>
                       )
@@ -2034,8 +1827,8 @@ function VisaoGeralMapa() {
                   )}
                 </div>
                 
-                <div className="bfd-modal_cotacao_bid_frete_internacional-footer">
-                  <button className="bfd-modal_cotacao_bid_frete_internacional-close-action" onClick={() => setSelectedPinForModal(null)}>{t('comum.fechar')}</button>
+                <div className="bfd-modal-mapa-footer">
+                  <button className="bfd-modal-mapa-close-action" onClick={() => setSelectedLocKey(null)}>{t('comum.fechar')}</button>
                 </div>
               </div>
             </div>
@@ -2297,7 +2090,7 @@ export default function VisaoGeral() {
           border-color: rgba(167, 139, 250, 0.25);
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(167, 139, 250, 0.1);
         }
-        .bfd-map-right-panel--modal_cotacao_bid_frete_internacional {
+        .bfd-map-right-panel--modais {
           border-color: rgba(251, 191, 36, 0.25);
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(251, 191, 36, 0.1);
         }
@@ -2408,7 +2201,7 @@ export default function VisaoGeral() {
           border-color: rgba(167, 139, 250, 0.2);
           background: rgba(167, 139, 250, 0.08);
         }
-        .bfd-map-panel__tab.is-active.tab-modal_cotacao_bid_frete_internacional {
+        .bfd-map-panel__tab.is-active.tab-modais {
           color: #fbbf24;
           border-color: rgba(251, 191, 36, 0.2);
           background: rgba(251, 191, 36, 0.08);
@@ -2775,7 +2568,7 @@ export default function VisaoGeral() {
         }
 
         /* ── Premium Modal overlay ───────────────────────────────── */
-        .bfd-modal_cotacao_bid_frete_internacional-overlay {
+        .bfd-modal-mapa-overlay {
           position: fixed;
           inset: 0;
           background: rgba(8, 10, 18, 0.75);
@@ -2793,7 +2586,7 @@ export default function VisaoGeral() {
           to { opacity: 1; }
         }
         
-        .bfd-modal_cotacao_bid_frete_internacional-card {
+        .bfd-modal-mapa-card {
           width: 100%;
           max-width: 620px;
           max-height: 90vh;
@@ -2813,37 +2606,37 @@ export default function VisaoGeral() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        .bfd-modal_cotacao_bid_frete_internacional-header {
+        .bfd-modal-mapa-header {
           padding: 1.25rem 1.5rem;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-title-group {
+        .bfd-modal-mapa-title-group {
           display: flex;
           align-items: center;
           gap: 0.75rem;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-flag-large {
+        .bfd-modal-mapa-flag-large {
           font-size: 2.2rem;
           line-height: 1;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-title {
+        .bfd-modal-mapa-title {
           font-size: 1.25rem;
           font-weight: 800;
           color: #ffffff;
           letter-spacing: -0.01em;
           margin: 0;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-subtitle {
+        .bfd-modal-mapa-subtitle {
           font-size: 0.82rem;
           color: #cbd5e1;
           margin-top: 0.15rem;
           display: block;
           font-weight: 500;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-close-btn {
+        .bfd-modal-mapa-close-btn {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.08);
           color: #94a3b8;
@@ -2856,14 +2649,14 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-close-btn:hover {
+        .bfd-modal-mapa-close-btn:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
           color: #ffffff;
           transform: rotate(90deg);
         }
 
-        .bfd-modal_cotacao_bid_frete_internacional-body {
+        .bfd-modal-mapa-body {
           padding: 1.5rem;
           overflow-y: auto;
           display: flex;
@@ -2974,14 +2767,14 @@ export default function VisaoGeral() {
           color: #ffffff;
         }
 
-        .bfd-modal_cotacao_bid_frete_internacional-footer {
+        .bfd-modal-mapa-footer {
           padding: 1rem 1.5rem;
           border-top: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           justify-content: flex-end;
           background: rgba(11, 15, 28, 0.5);
         }
-        .bfd-modal_cotacao_bid_frete_internacional-close-action {
+        .bfd-modal-mapa-close-action {
           padding: 0.5rem 1.25rem;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.1);
@@ -2992,7 +2785,7 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .bfd-modal_cotacao_bid_frete_internacional-close-action:hover {
+        .bfd-modal-mapa-close-action:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
         }
@@ -3341,7 +3134,7 @@ export default function VisaoGeral() {
           </div>
         </div>
 
-        {/* Donut modal_cotacao_bid_frete_internacional */}
+        {/* Donut tipo de operação */}
         <div className="bfd-card bfd-card--accent-emerald">
           <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
             <div className="cg-card__icon-wrap">

@@ -6,7 +6,7 @@
   "main": "./client/src/index.ts",
   "types": "./client/src/index.ts",
   "prisma": {
-    "schema": "../prisma/schema.prisma"
+    "schema": "./prisma/schema.prisma"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

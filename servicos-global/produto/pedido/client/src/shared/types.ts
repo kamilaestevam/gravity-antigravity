@@ -36,6 +36,9 @@ export interface PedidoItem {
   pedido_id: string
   sequencia_item: number | null
 
+  /** Computado no client — part_number repetido entre itens do mesmo pedido */
+  part_number_duplicado_no_pedido?: boolean
+
   // Identificação do produto
   part_number: string
   ncm: string
@@ -376,6 +379,8 @@ export interface Pedido {
   // e estas flags ficam `true` (via `calcularDivergencias` em Pedidos.tsx).
   moeda_item_divergente?: boolean | null
   unidade_comercializada_item_divergente?: boolean | null
+  /** Computado no client — algum item repete part_number no mesmo pedido */
+  part_number_duplicado_no_pedido?: boolean | null
 
   // Financeiro
   condicao_pagamento: string | null

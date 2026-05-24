@@ -6433,7 +6433,7 @@
     "visao_geral": {
       "donut": {
         "legenda_total": "pedidos",
-        "titulo": "Distribuição por Modal"
+        "titulo": "Distribuição por Tipo de Operação"
       },
       "taxa_aprovacao": {
         "em_tempo": "Em tempo: {{pct}}%",
@@ -6443,44 +6443,47 @@
         "titulo": "Taxa de Aprovação"
       },
       "mapa": {
-        "titulo": "Visão Geral Global de Cotações",
-        "subtitulo": "Localizações estratégicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)",
-        "legenda_maritimo": "Marítimo",
-        "legenda_aereo": "Aéreo",
+        "titulo": "Visão Geral Global de Pedidos",
+        "subtitulo": "Origens, destinos e volume por localização (arraste para girar)",
+        "legenda_importacao": "Importação",
+        "legenda_exportacao": "Exportação",
         "aumentar_zoom": "Aumentar Zoom",
         "diminuir_zoom": "Diminuir Zoom",
         "restaurar_globo": "Restaurar Globo",
         "pausar_rotacao": "Pausar Rotação",
         "iniciar_rotacao": "Iniciar Rotação",
-        "bids_ativos": "Bids Ativos",
-        "cotacoes_count_one": "{{count}} cotação",
-        "cotacoes_count_other": "{{count}} cotações",
-        "melhor_preco": "Melhor Preço",
-        "saving_medio": "Saving Médio",
-        "saving": "Saving",
-        "transit_time": "Transit Time",
-        "dias_count_one": "{{count}} dia",
-        "dias_count_other": "{{count}} dias",
-        "fornecedor_abreviado": "Forn",
-        "fornecedor_lider": "Forn. Líder",
+        "pedidos_ativos": "Pedidos",
+        "pedidos_count_one": "{{count}} pedido",
+        "pedidos_count_other": "{{count}} pedidos",
+        "contratos_cambio": "Contratos de Câmbio",
+        "contratos_cambio_count_one": "{{count}} contrato",
+        "contratos_cambio_count_other": "{{count}} contratos",
+        "total_a_receber": "Total a Receber",
+        "total_a_pagar": "Total a Pagar",
+        "maior_valor": "Maior Valor",
+        "participacao_volume": "Participação no Volume",
+        "valor_total": "Valor Total",
+        "incoterm": "Incoterm",
+        "parceiro_abreviado": "Parceiro",
+        "parceiro_lider": "Parceiro Principal",
         "clique_ver_rotas": "Clique para ver rotas",
-        "rotas_ativas": "Rotas Ativas: {{local}}",
-        "sem_rotas": "Nenhuma rota ativa cadastrada para este terminal."
+        "rotas_ativas": "Rotas de Pedidos: {{local}}",
+        "sem_rotas": "Nenhuma rota de pedido para esta localização."
       },
       "hud": {
-        "titulo": "HUD de Cotações Globais",
-        "live_feed": "LIVE FEED",
-        "subtitulo": "Rankings em tempo real • 200 bids",
+        "titulo": "Rankings Globais de Pedidos",
+        "live_feed": "AO VIVO",
+        "subtitulo_pedidos": "Rankings em tempo real • {{total}} pedidos",
         "tab_origens": "Origens",
         "tab_destinos": "Destinos",
-        "tab_modais": "Modais",
-        "bids_count_one": "{{count}} bid",
-        "bids_count_other": "{{count}} bids"
+        "tab_modais": "Operação",
+        "pedidos_count_one": "{{count}} pedido",
+        "pedidos_count_other": "{{count}} pedidos",
+        "vazio": "Sem dados geográficos nos pedidos carregados."
       },
       "modal": {
-        "maritimo": "Marítimo",
-        "aereo": "Aéreo",
-        "rodoviario": "Rodoviário"
+        "importacao": "Importação",
+        "exportacao": "Exportação"
       },
       "header": {
         "titulo": "Visão Geral",
@@ -6505,10 +6508,10 @@
         "hoje": "Hoje"
       },
       "funil": {
-        "titulo": "Funil de Cotações"
+        "titulo": "Funil de Pedidos"
       },
       "barras": {
-        "titulo": "Cotações por Mês",
+        "titulo": "Pedidos por Mês",
         "subtitulo": "Últimos 6 meses",
         "aprovadas": "Aprovadas",
         "em_andamento": "Em andamento",
@@ -6529,7 +6532,7 @@
         "titulo": "Top Incoterms",
         "vazio": "Nenhum incoterm informado nos pedidos."
       },
-      "footer": "Indicadores e gráficos com dados reais dos pedidos • globo ilustrativo nesta etapa",
+      "footer": "Indicadores e gráficos com dados reais dos pedidos",
       "modal_alerta": {
         "titulo_padrao": "Detalhes da Cotação / Pedido",
         "titulo_atrasado": "Pedido Atrasado",
@@ -6686,7 +6689,8 @@
     "coluna_filho": {
       "part_number": {
         "label": "Nº do Item",
-        "tooltip_titulo": "Nº do Item"
+        "tooltip_titulo": "Nº do Item",
+        "duplicado_tooltip": "Existem itens com o mesmo Part Number neste pedido"
       },
       "ncm": {
         "label": "NCM"

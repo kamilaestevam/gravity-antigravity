@@ -9,6 +9,7 @@
 import { useMemo } from 'react'
 import { usePedidos } from './queries'
 import type { Pedido } from './types'
+import { buildVisaoGeralMapa, type VisaoGeralMapaData } from './visaoGeralMapaPedido'
 
 const BUCKET_CONCLUIDO = new Set(['aprovado', 'transferencia', 'consolidado'])
 const BUCKET_CANCELADO = new Set(['cancelado'])
@@ -69,13 +70,21 @@ export interface VisaoGeralPedido {
   sparkAndamento: number[]
   sparkConcluido: number[]
   maiorPedido: { numero: string; valor: number; moeda: string } | null
+  mapa: VisaoGeralMapaData
 }
+
+export type { VisaoGeralMapaData, VisaoGeralMapPin, VisaoGeralRotaDetalhe } from './visaoGeralMapaPedido'
 
 function diasEntre(data: string | null | undefined, base: Date): number | null {
   if (!data) return null
   const d = new Date(data)
   if (Number.isNaN(d.getTime())) return null
   return Math.floor((d.getTime() - base.getTime()) / 86_400_000)
+}
+
+function toNumeroPedido(valor: unknown): number {
+  const n = Number(valor)
+  return Number.isFinite(n) ? n : 0
 }
 
 function estaAtrasado(p: Pedido, hoje: Date): boolean {
@@ -97,7 +106,7 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
     const andamento  = pedidos.filter(p => !BUCKET_CONCLUIDO.has(p.status) && !BUCKET_CANCELADO.has(p.status))
     const atrasados  = pedidos.filter(p => estaAtrasado(p, hoje))
 
-    const somaValor = (lista: Pedido[]) => lista.reduce((s, p) => s + (p.valor_total_pedido ?? 0), 0)
+    const somaValor = (lista: Pedido[]) => lista.reduce((s, p) => s + toNumeroPedido(p.valor_total_pedido), 0)
     const valorTotal = somaValor(pedidos)
 
     const kpis: VisaoGeralKpis = {
@@ -201,11 +210,13 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
     // Maior pedido do período
     let maiorPedido: VisaoGeralPedido['maiorPedido'] = null
     for (const p of pedidos) {
-      const v = p.valor_total_pedido ?? 0
+      const v = toNumeroPedido(p.valor_total_pedido)
       if (!maiorPedido || v > maiorPedido.valor) {
         maiorPedido = { numero: p.numero_pedido, valor: v, moeda: p.moeda_pedido ?? 'BRL' }
       }
     }
+
+    const mapa = buildVisaoGeralMapa(pedidos)
 
     return {
       loading: isLoading,
@@ -221,6 +232,7 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
       sparkAndamento: mensal.map(m => m.andamento),
       sparkConcluido: mensal.map(m => m.aprovadas),
       maiorPedido,
+      mapa,
     }
   }, [pedidos, total, isLoading])
 }

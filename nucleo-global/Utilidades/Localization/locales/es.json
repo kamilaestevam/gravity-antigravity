@@ -5227,7 +5227,7 @@
     "visao_geral": {
       "donut": {
         "legenda_total": "pedidos",
-        "titulo": "Distribución por Modal"
+        "titulo": "Distribución por Tipo de Operación"
       },
       "taxa_aprovacao": {
         "em_tempo": "A tiempo: {{pct}}%",
@@ -5237,44 +5237,47 @@
         "titulo": "Tasa de Aprobación"
       },
       "mapa": {
-        "titulo": "Visión General Global de Cotizaciones",
-        "subtitulo": "Ubicaciones estratégicas, bids activos y saving acumulado por terminal (Arrastrar para Girar)",
-        "legenda_maritimo": "Marítimo",
-        "legenda_aereo": "Aéreo",
+        "titulo": "Visión General Global de Pedidos",
+        "subtitulo": "Orígenes, destinos y volumen por ubicación (arrastre para girar)",
+        "legenda_importacao": "Importación",
+        "legenda_exportacao": "Exportación",
         "aumentar_zoom": "Aumentar Zoom",
         "diminuir_zoom": "Disminuir Zoom",
         "restaurar_globo": "Restaurar Globo",
         "pausar_rotacao": "Pausar Rotación",
         "iniciar_rotacao": "Iniciar Rotación",
-        "bids_ativos": "Bids Activos",
-        "cotacoes_count_one": "{{count}} cotización",
-        "cotacoes_count_other": "{{count}} cotizaciones",
-        "melhor_preco": "Mejor Precio",
-        "saving_medio": "Saving Medio",
-        "saving": "Saving",
-        "transit_time": "Tiempo de Tránsito",
-        "dias_count_one": "{{count}} día",
-        "dias_count_other": "{{count}} días",
-        "fornecedor_abreviado": "Prov",
-        "fornecedor_lider": "Prov. Líder",
+        "pedidos_ativos": "Pedidos",
+        "pedidos_count_one": "{{count}} pedido",
+        "pedidos_count_other": "{{count}} pedidos",
+        "contratos_cambio": "Contratos de Cambio",
+        "contratos_cambio_count_one": "{{count}} contrato",
+        "contratos_cambio_count_other": "{{count}} contratos",
+        "total_a_receber": "Total por Cobrar",
+        "total_a_pagar": "Total por Pagar",
+        "maior_valor": "Mayor Valor",
+        "participacao_volume": "Participación en el Volumen",
+        "valor_total": "Valor Total",
+        "incoterm": "Incoterm",
+        "parceiro_abreviado": "Socio",
+        "parceiro_lider": "Socio Principal",
         "clique_ver_rotas": "Clic para ver rutas",
-        "rotas_ativas": "Rutas Activas: {{local}}",
-        "sem_rotas": "Ninguna ruta activa registrada para este terminal."
+        "rotas_ativas": "Rutas de Pedidos: {{local}}",
+        "sem_rotas": "Ninguna ruta de pedido para esta ubicación."
       },
       "hud": {
-        "titulo": "HUD de Cotizaciones Globales",
-        "live_feed": "LIVE FEED",
-        "subtitulo": "Rankings en tiempo real • 200 bids",
+        "titulo": "Rankings Globales de Pedidos",
+        "live_feed": "EN VIVO",
+        "subtitulo_pedidos": "Rankings en tiempo real • {{total}} pedidos",
         "tab_origens": "Orígenes",
         "tab_destinos": "Destinos",
-        "tab_modais": "Modales",
-        "bids_count_one": "{{count}} bid",
-        "bids_count_other": "{{count}} bids"
+        "tab_modais": "Operación",
+        "pedidos_count_one": "{{count}} pedido",
+        "pedidos_count_other": "{{count}} pedidos",
+        "vazio": "Sin datos geográficos en los pedidos cargados."
       },
       "modal": {
-        "maritimo": "Marítimo",
-        "aereo": "Aéreo",
-        "rodoviario": "Terrestre"
+        "importacao": "Importación",
+        "exportacao": "Exportación"
       },
       "header": {
         "titulo": "Visión General",
@@ -5299,10 +5302,10 @@
         "hoje": "Hoy"
       },
       "funil": {
-        "titulo": "Embudo de Cotizaciones"
+        "titulo": "Embudo de Pedidos"
       },
       "barras": {
-        "titulo": "Cotizaciones por Mes",
+        "titulo": "Pedidos por Mes",
         "subtitulo": "Últimos 6 meses",
         "aprovadas": "Aprobadas",
         "em_andamento": "En curso",
@@ -5482,7 +5485,8 @@
     "coluna_filho": {
       "part_number": {
         "label": "Nº de Artículo",
-        "tooltip_titulo": "Nº de Artículo"
+        "tooltip_titulo": "Nº de Artículo",
+        "duplicado_tooltip": "Existen ítems con el mismo Part Number en este pedido"
       },
       "ncm": {
         "label": "NCM"

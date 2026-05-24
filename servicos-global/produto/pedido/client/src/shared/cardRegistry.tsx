@@ -27,8 +27,13 @@ import {
   Heart, Fire, Trophy, Medal, Crown, Diamond,
 } from '@phosphor-icons/react'
 import type { TFunction } from 'i18next'
-import type { Pedido, PedidoItem } from './types'
+import type { Pedido, PedidoItem, CardUsuario } from './types'
 import { fmtMoeda, fmtQuantidade } from './types'
+import type { CardComputedStats } from './listaCardStats'
+import { computeCardStats, isEmAndamento } from './listaCardStats'
+
+export type { CardComputedStats }
+export { computeCardStats }
 
 // ─── Mapa de ícones para cards personalizados ────────────────────────────────
 
@@ -63,36 +68,6 @@ export const ICONE_CUSTOM_MAP: Record<string, React.ReactNode> = {
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
 type CardVariante = 'padrao' | 'sucesso' | 'aviso' | 'perigo' | 'primario'
-
-/** Estatísticas pré-calculadas passadas para cada entry do registry */
-export interface CardComputedStats {
-  /** Total de pedidos (número vindo do estado/servidor) */
-  total: number
-  /** Soma de valor_total_pedido */
-  valorTotal: number
-  /** Soma de quantidade_total_pedido */
-  qtdTotal: number
-  /** Soma de quantidade_atual_pedido (todos os itens) */
-  qtdAtualTotal: number
-  /** Soma de quantidade_pronta_total (todos os itens) */
-  itensProntos: number
-  /** Soma de valor_total_pedido dos pedidos sem cobertura cambial */
-  coberturaPend: number
-  /** Pedidos não concluídos/cancelados com data_prevista_pedido_pronto < hoje */
-  pedidosAtrasados: number
-  /** Pedidos com status === 'aberto' */
-  pedidosAbertos: number
-  /** Pedidos com status === 'em_andamento' */
-  pedidosEmAndamento: number
-  /** Soma de quantidade_transferida_item (todos os itens) */
-  qtdTransferida: number
-  /** Soma de quantidade_inicial_pedido (todos os itens) */
-  qtdInicial: number
-  /** Soma de valor_total_item (todos os itens) */
-  valorItens: number
-  /** Número total de itens (todosItens.length) */
-  nItens: number
-}
 
 export interface CardRegistryEntry {
   /** Ícone Phosphor */
@@ -137,7 +112,7 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     subtexto: (t, s) => t('pedido.cards.total_pedidos.subtexto', { count: s.nItens }),
     tooltip:  (t, pedidos) => <>
       {row(t('pedido.cards.total_pedidos.row.abertos'),      pedidos.filter(p => p.status === 'aberto').length)}
-      {row(t('pedido.cards.total_pedidos.row.em_andamento'), pedidos.filter(p => p.status === 'transferencia').length)}
+      {row(t('pedido.cards.total_pedidos.row.em_andamento'), pedidos.filter(p => isEmAndamento(p.status)).length)}
       {row(t('pedido.cards.total_pedidos.row.concluidos'),   pedidos.filter(p => p.status === 'consolidado').length)}
     </>,
   },
@@ -341,63 +316,3 @@ export function buildCustomCardEntry(card: CardUsuario): CardRegistryEntry {
   }
 }
 
-// ─── Função de cálculo central ────────────────────────────────────────────────
-
-/**
- * Calcula todas as stats de uma vez — chamar dentro de useMemo em ListaPedidos.
- * Recebe `total` do estado (número do servidor, não pedidos.length).
- */
-export function computeCardStats(
-  pedidos: Pedido[],
-  itens: PedidoItem[],
-  total: number,
-  hoje: string,
-  totalItensBanco?: number,
-): CardComputedStats {
-  const valorTotal       = pedidos.reduce((acc, p) => acc + (Number(p.valor_total_pedido) || 0), 0)
-  const qtdTotal         = pedidos.reduce((acc, p) => acc + (Number(p.quantidade_total_pedido) || 0), 0)
-  const qtdAtualTotal    = itens.reduce((acc, i)   => acc + (Number(i.quantidade_atual_pedido) || 0), 0)
-  const itensProntos     = itens.reduce((acc, i)   => acc + (Number(i.quantidade_pronta_total_item_pedido) || 0), 0)
-  const qtdTransferida   = itens.reduce((acc, i)   => acc + (Number(i.quantidade_transferida_pedido) || 0), 0)
-  const qtdInicial       = itens.reduce((acc, i)   => acc + (Number(i.quantidade_inicial_pedido) || 0), 0)
-  const valorItens       = itens.reduce((acc, i)   => acc + (Number(i.valor_total_item) || 0), 0)
-  const coberturaPend    = pedidos
-    .filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'sem_cobertura'))
-    .reduce((acc, p) => acc + (Number(p.valor_total_pedido) || 0), 0)
-  const pedidosAtrasados = pedidos.filter(p => {
-    const pares: Array<[string | null | undefined, string | null | undefined]> = [
-      [p.data_prevista_pedido_pronto,                  p.data_confirmada_pedido_pronto],
-      [p.data_prevista_inspecao_pedido,                 p.data_confirmada_inspecao_pedido],
-      [p.data_prevista_coleta_pedido,                   p.data_confirmada_coleta_pedido],
-      [p.data_prevista_recebimento_rascunho_pedido,     p.data_confirmada_recebimento_rascunho_pedido],
-      [p.data_prevista_aprovacao_rascunho_pedido,       p.data_confirmada_aprovacao_rascunho_pedido],
-      [p.data_prevista_recebimento_rascunho_proforma,   p.data_confirmada_recebimento_rascunho_proforma],
-      [p.data_prevista_aprovacao_rascunho_proforma,     p.data_confirmada_aprovacao_rascunho_proforma],
-      [p.data_prevista_envio_original_proforma,         p.data_confirmada_envio_original_proforma],
-      [p.data_prevista_recebimento_original_proforma,   p.data_confirmada_recebimento_original_proforma],
-      [p.data_prevista_recebimento_rascunho_invoice,    p.data_confirmada_recebimento_rascunho_invoice],
-      [p.data_prevista_aprovacao_rascunho_invoice,      p.data_confirmada_aprovacao_rascunho_invoice],
-      [p.data_prevista_envio_original_invoice,          p.data_confirmada_envio_original_invoice],
-      [p.data_prevista_recebimento_original_invoice,    p.data_confirmada_recebimento_original_invoice],
-    ]
-    return pares.some(([prev, conf]) => prev != null && prev < hoje && !conf)
-  }).length
-  const pedidosAbertos      = pedidos.filter(p => p.status === 'aberto').length
-  const pedidosEmAndamento  = pedidos.filter(p => p.status === 'em_andamento').length
-
-  return {
-    total,
-    valorTotal,
-    qtdTotal,
-    qtdAtualTotal,
-    itensProntos,
-    coberturaPend,
-    pedidosAtrasados,
-    pedidosAbertos,
-    pedidosEmAndamento,
-    qtdTransferida,
-    qtdInicial,
-    valorItens,
-    nItens: totalItensBanco != null && totalItensBanco > 0 ? totalItensBanco : itens.length,
-  }
-}

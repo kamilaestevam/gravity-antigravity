@@ -486,7 +486,70 @@ function getLogger() {
 function recordSpan(_name, _attributes, _durationMs) {
 }
 
+// src/boot-prisma-client.ts
+var clientePrismaBoot;
+function registrarClientePrismaBoot(client) {
+  clientePrismaBoot = client;
+}
+function obterClientePrismaBoot() {
+  return clientePrismaBoot;
+}
+
 // src/middleware.ts
+var OrganizacaoOverrideHeaderSchema = z.string().regex(/^c[a-z0-9]{24}$/, "id_organizacao inv\xE1lido (esperado CUID)");
+var TIPOS_ADMIN_OVERRIDE = /* @__PURE__ */ new Set(["SUPER_ADMIN", "ADMIN"]);
+var HEADER_OVERRIDE = "x-organizacao-override";
+function extrairIpOrigem(req) {
+  const xff = req.headers["x-forwarded-for"];
+  if (typeof xff === "string" && xff.length > 0) {
+    const primeiro = xff.split(",")[0]?.trim();
+    if (primeiro) return primeiro;
+  }
+  return typeof req.ip === "string" && req.ip.length > 0 ? req.ip : "0.0.0.0";
+}
+function dispararAuditOverride(opts) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), opts.timeoutMs);
+  void fetch(`${opts.configuradorBaseUrl}/api/v1/internal/admin/audit-organizacao-override`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-chave-interna-servico": opts.chaveInterna,
+      "x-id-correlacao": opts.correlationId
+    },
+    body: JSON.stringify({
+      id_usuario_ator: opts.idUsuarioAtor,
+      tipo_usuario_ator: opts.tipoUsuarioAtor,
+      id_organizacao_origem: opts.idOrganizacaoOrigem,
+      id_organizacao_destino: opts.idOrganizacaoDestino,
+      ip_origem: opts.ipOrigem,
+      correlation_id: opts.correlationId
+    }),
+    signal: controller.signal
+  }).then((res) => {
+    if (!res.ok) {
+      opts.log.warn(
+        {
+          status: res.status,
+          idUsuarioAtor: opts.idUsuarioAtor,
+          idOrganizacaoDestino: opts.idOrganizacaoDestino,
+          correlationId: opts.correlationId
+        },
+        "audit-organizacao-override grava\xE7\xE3o rejeitada pelo Configurador"
+      );
+    }
+  }).catch((err) => {
+    opts.log.warn(
+      {
+        err: err instanceof Error ? err.message : String(err),
+        idUsuarioAtor: opts.idUsuarioAtor,
+        idOrganizacaoDestino: opts.idOrganizacaoDestino,
+        correlationId: opts.correlationId
+      },
+      "audit-organizacao-override falhou \u2014 request seguiu sem audit (Mand. 08)"
+    );
+  }).finally(() => clearTimeout(timer));
+}
 var ConfigResolverOrganizacaoSchema = z.object({
   chaveProduto: z.string().min(1),
   configuradorBaseUrl: z.string().url(),
@@ -512,6 +575,10 @@ ${parsed.error.toString()}`
     );
   }
   const urlBancoBoot = process.env.DATABASE_URL;
+  const prismaClienteInjetado = config.prismaClient;
+  if (prismaClienteInjetado) {
+    registrarClientePrismaBoot(prismaClienteInjetado);
+  }
   const cache = new CacheOrganizacao({ ttlMs: config.cacheTtlMs });
   const configuradorClient = createConfiguradorClient({
     baseUrl: config.configuradorBaseUrl,
@@ -548,7 +615,102 @@ ${parsed.error.toString()}`
         ctx = await configuradorClient.resolveOrganizacaoByIdUsuario(idUsuario, idCorrelacao);
         cache.set(idUsuario, ctx);
       }
-      ctx = { ...ctx, idCorrelacao, urlBanco: urlBancoBoot };
+      ctx = {
+        ...ctx,
+        idCorrelacao,
+        urlBanco: urlBancoBoot,
+        prismaInterno: prismaClienteInjetado
+      };
+      const overrideHeaderRaw = req.headers[HEADER_OVERRIDE];
+      if (typeof overrideHeaderRaw === "string" && overrideHeaderRaw.length > 0) {
+        const ehAdmin = ctx.tiposUsuario.some((t) => TIPOS_ADMIN_OVERRIDE.has(t));
+        if (!ehAdmin) {
+          log.warn(
+            {
+              idUsuario,
+              tiposUsuario: ctx.tiposUsuario,
+              idOrganizacaoOverrideTentado: overrideHeaderRaw,
+              idCorrelacao
+            },
+            "Tentativa de override de organiza\xE7\xE3o por usu\xE1rio n\xE3o-admin \u2014 bloqueada"
+          );
+          throw new AppError(
+            "Override de organiza\xE7\xE3o s\xF3 permitido para SUPER_ADMIN/ADMIN",
+            403,
+            "OVERRIDE_NAO_AUTORIZADO"
+          );
+        }
+        const parsedOverride = OrganizacaoOverrideHeaderSchema.safeParse(overrideHeaderRaw);
+        if (!parsedOverride.success) {
+          throw new AppError(
+            `Header ${HEADER_OVERRIDE} com formato inv\xE1lido`,
+            400,
+            "OVERRIDE_FORMATO_INVALIDO"
+          );
+        }
+        const idOrganizacaoAlvo = parsedOverride.data;
+        if (idOrganizacaoAlvo !== ctx.idOrganizacao) {
+          let ctxAlvo;
+          try {
+            ctxAlvo = await configuradorClient.resolveOrganizacaoById(
+              idOrganizacaoAlvo,
+              idCorrelacao
+            );
+          } catch (err) {
+            log.warn(
+              {
+                idUsuario,
+                idOrganizacaoOverrideTentado: idOrganizacaoAlvo,
+                err: err instanceof Error ? err.message : String(err),
+                idCorrelacao
+              },
+              "Override de organiza\xE7\xE3o rejeitado pelo Configurador"
+            );
+            throw err;
+          }
+          const nomeSchemaAlvo = buildSchemaName(idOrganizacaoAlvo);
+          if (!isValidSchemaName(nomeSchemaAlvo) || nomeSchemaAlvo !== ctxAlvo.nomeSchema) {
+            throw new AppError(
+              "nomeSchema do override divergiu do esperado (poss\xEDvel corrup\xE7\xE3o)",
+              500,
+              "OVERRIDE_SCHEMA_MISMATCH"
+            );
+          }
+          log.info(
+            {
+              idUsuario,
+              tiposUsuario: ctx.tiposUsuario,
+              idOrganizacaoOriginal: ctx.idOrganizacao,
+              idOrganizacaoAlvo,
+              nomeSchemaAlvo,
+              idCorrelacao
+            },
+            "Override de organiza\xE7\xE3o aceito (admin Gravity)"
+          );
+          const tipoUsuarioAtor = ctx.tiposUsuario.find((t) => TIPOS_ADMIN_OVERRIDE.has(t)) ?? "ADMIN";
+          dispararAuditOverride({
+            configuradorBaseUrl: config.configuradorBaseUrl,
+            chaveInterna: config.chaveInterna,
+            idUsuarioAtor: ctx.idUsuario,
+            tipoUsuarioAtor,
+            idOrganizacaoOrigem: ctx.idOrganizacao,
+            idOrganizacaoDestino: idOrganizacaoAlvo,
+            ipOrigem: extrairIpOrigem(req),
+            correlationId: idCorrelacao,
+            timeoutMs: config.configuradorTimeoutMs ?? 5e3,
+            log
+          });
+          ctx = {
+            ...ctx,
+            idOrganizacaoOriginal: ctx.idOrganizacao,
+            idOrganizacao: idOrganizacaoAlvo,
+            nomeSchema: nomeSchemaAlvo,
+            // Sob override, descarta workspace ativo do contexto original — o
+            // admin escolherá um novo no /hub da org alvo.
+            idWorkspace: void 0
+          };
+        }
+      }
       if (!isValidSchemaName(ctx.nomeSchema)) {
         log.error(
           { idUsuario, idOrganizacao: ctx.idOrganizacao, nomeSchema: ctx.nomeSchema, idCorrelacao },
@@ -812,7 +974,7 @@ async function runInOrganizacaoTransaction(ctx, fn, timeoutMs) {
     );
   }
   const log = getLogger();
-  const prisma = getInternalPrisma(ctx.urlBanco);
+  const prisma = ctx.prismaInterno ?? obterClientePrismaBoot() ?? getInternalPrisma(ctx.urlBanco);
   const startedAt = Date.now();
   try {
     return await prisma.$transaction(

@@ -52,9 +52,8 @@ const Pedidos          = lazy(() => import('./pages/Pedidos'))
 const PedidosKanban    = lazy(() => import('./pages/PedidosKanban'))
 const Configuracoes    = lazy(() => import('./pages/Configuracoes'))
 const PedidoFormulario = lazy(() => import('./pages/PedidoFormulario'))
-const PedidosDashboard = lazy(() => import('./pages/PedidosDashboard'))
-// PedidosVisaoGeral removido do build — depende de useVisaoGeralPedido (hook nao commitado).
-// Re-adicionar a rota quando shared/useVisaoGeralPedido.ts for commitado.
+const PedidosDashboard   = lazy(() => import('./pages/PedidosDashboard'))
+const PedidosVisaoGeral  = lazy(() => import('./pages/PedidosVisaoGeral'))
 
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('pedido')
@@ -279,8 +278,8 @@ function AppInner() {
       <ToastContainer />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/"       element={<Navigate to="/pedido/pedidos/lista" replace />} />
-          <Route path="pedidos"                  element={<Navigate to="/pedido/pedidos/lista" replace />} />
+          <Route path="/"       element={<Navigate to="/pedido/pedidos/visao-geral" replace />} />
+          <Route path="pedidos"                  element={<Navigate to="/pedido/pedidos/visao-geral" replace />} />
           {/* Defesa de URL direta — usuário cola link sem permissão. Backend
               também rejeita 403 (defesa em profundidade). Decisão dono 2026-05-13.
               Pivô 2026-05-14: usa `estadoPermissao() !== 'negado'` — durante load
@@ -292,8 +291,11 @@ function AppInner() {
               <Pedidos />
             </BloqueioPermissaoOpaco>
           } />
-          {/* Route pedidos/visao-geral removida — PedidosVisaoGeral depende de
-              useVisaoGeralPedido (hook nao commitado). Re-adicionar quando o hook existir. */}
+          <Route path="pedidos/visao-geral"        element={
+            <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver a Visão Geral" modo="bloqueio-tela">
+              <PedidosVisaoGeral />
+            </BloqueioPermissaoOpaco>
+          } />
           <Route path="pedidos/dashboard"        element={
             <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver o Dashboard" modo="bloqueio-tela">
               <PedidosDashboard />
@@ -321,7 +323,7 @@ function AppInner() {
               <Configuracoes />
             </BloqueioPermissaoOpaco>
           } />
-          <Route path="*"                    element={<Navigate to="/pedido/pedidos/lista" replace />} />
+          <Route path="*"                    element={<Navigate to="/pedido/pedidos/visao-geral" replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoGlobal>

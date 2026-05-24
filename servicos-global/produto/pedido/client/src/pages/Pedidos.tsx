@@ -26,9 +26,7 @@ import {
   Eye,
   PencilSimple,
   Trash,
-  CurrencyDollar,
   CurrencyCircleDollar,
-  Scales,
   Warning,
   ArrowRight,
   DownloadSimple,
@@ -50,7 +48,6 @@ import {
   PlugsConnected,
   PencilSimpleLine,
 } from '@phosphor-icons/react'
-import { CardBasicoGlobal } from '@nucleo/card-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -75,8 +72,9 @@ import type {
   FiltrosAtivosMap,
   FiltroTipo,
 } from '@nucleo/tabela-virtual-global'
-import { useCardPreferences, CARDS_CATALOGO } from '../shared/useCardPreferences'
-import { CARD_REGISTRY, computeCardStats } from '../shared/cardRegistry'
+import { useCardPreferences } from '../shared/useCardPreferences'
+import { useCardsUsuario } from '../shared/useCardsUsuario'
+import { ListaPedidoCards } from '../components/ListaPedidoCards'
 import { useTaxasCambio } from '../shared/useTaxasCambio'
 import { useTrackBehavior } from '../hooks/useTrackBehavior'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF } from '../shared/exportUtils'
@@ -99,6 +97,7 @@ import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
 import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../shared/mapaPropagacaoPedidoItem'
+import { marcarPartNumbersDuplicados, pedidoTemPartNumberDuplicado } from '../../../shared/partNumberDuplicado'
 import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
 import { inserirColunaAposAncora, moverColunaParaAposAncora } from '../shared/migracaoColunas'
@@ -664,6 +663,41 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
   }
 }
 
+// ── Part Number do item — valor + alerta quando repetido no mesmo pedido ─────
+
+function renderPartNumberItemLista(t: TFunction, row: PedidoItem): React.ReactElement {
+  const v = row.part_number
+  const duplicado = row.part_number_duplicado_no_pedido === true
+  const msgDuplicado = t('pedido.coluna_filho.part_number.duplicado_tooltip')
+
+  if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+
+  const texto = v.length <= 50
+    ? <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{v}</span>
+    : (
+      <TooltipGlobal titulo={t('pedido.coluna_filho.part_number.tooltip_titulo')} descricao={v}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontFamily: 'var(--font-mono, monospace)' }}>
+          {v.slice(0, 50) + '…'}
+          <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+        </span>
+      </TooltipGlobal>
+    )
+
+  if (!duplicado) return texto
+
+  return (
+    <TooltipGlobal
+      titulo={t('pedido.coluna_filho.part_number.tooltip_titulo')}
+      descricao={msgDuplicado}
+    >
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        {texto}
+        <Warning size={14} weight="fill" style={{ color: '#F59E0B', flexShrink: 0 }} />
+      </span>
+    </TooltipGlobal>
+  )
+}
+
 // ── Colunas filha (PedidoItem) ────────────────────────────────────────────────
 
 function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
@@ -673,19 +707,7 @@ function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
     label: t('pedido.coluna_filho.part_number.label'),
     tipo: 'texto',
     grupo: 'Identificação',
-    render: (_val: unknown, row: PedidoItem) => {
-      const v = row.part_number
-      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
-      if (v.length <= 50) return <span>{v}</span>
-      return (
-        <TooltipGlobal titulo={t('pedido.coluna_filho.part_number.tooltip_titulo')} descricao={v}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-            {v.slice(0, 50) + '…'}
-            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
-          </span>
-        </TooltipGlobal>
-      )
-    },
+    render: (_val: unknown, row: PedidoItem) => renderPartNumberItemLista(t, row),
   },
   {
     key: 'ncm',
@@ -2514,19 +2536,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   numero_pedido: {
     editavel: true,
     campo: 'part_number',
-    render: (row: PedidoItem) => {
-      const v = row.part_number
-      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
-      if (v.length <= 50) return <span>{v}</span>
-      return (
-        <TooltipGlobal titulo={t('pedido.coluna_filho.mapa_numero_pedido.tooltip_titulo')} descricao={v}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-            {v.slice(0, 50) + '…'}
-            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
-          </span>
-        </TooltipGlobal>
-      )
-    },
+    render: (row: PedidoItem) => renderPartNumberItemLista(t, row),
   },
   // ── NCM do item ───────────────────────────────────────────────────────────
   ncm: {
@@ -3712,7 +3722,8 @@ export default function Pedidos() {
     }
     return { ...base, ...custom }
   }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario])
-  const { visiveis: cardsVisiveis } = useCardPreferences()
+  const { visiveis: cardsVisiveis, periodo: periodoCards } = useCardPreferences()
+  const { cards: cardsCustom } = useCardsUsuario()
   const navigate = useNavigate()
   const location = useLocation()
   const addNotification = useShellStore(s => s.addNotification)
@@ -4151,6 +4162,11 @@ export default function Pedidos() {
     })
   }, [pedidos, filtrosAtivos, abaAtiva, busca])
 
+  const temFiltroColunaCliente = useMemo(
+    () => Object.keys(filtrosAtivos).some(k => k !== 'id_workspace'),
+    [filtrosAtivos],
+  )
+
   // ── Handlers de filtro ────────────────────────────────────────────────────────
   const handleAplicarFiltro = useCallback((campo: string, filtro: FiltroAtivo) => {
     setFiltrosAtivos(prev => ({ ...prev, [campo]: filtro }))
@@ -4299,7 +4315,8 @@ export default function Pedidos() {
       // Decisão UX 2026-05-13: alerta deve aparecer no list view sem expansão.
       const pedidosComDivergencias = res.data.map(p => {
         if (!p.itens || p.itens.length === 0) return p
-        return { ...p, ...calcularDivergencias(p.itens, p) }
+        const { itens, divergencias } = sincronizarItensPedido(p.itens, p)
+        return { ...p, itens, ...divergencias }
       })
       setPedidos(pedidosComDivergencias)
       setTotal(res.total)
@@ -4924,9 +4941,11 @@ export default function Pedidos() {
         updated_at: new Date().toISOString(),
       } as Pedido
       const divergenciasCustom = (itensFinais as PedidoItem[]).length > 0
-        ? calcularDivergencias(itensFinais as PedidoItem[], atualizado)
-        : {}
-      setPedidos(prev => prev.map(p => p.id === id ? { ...atualizado, ...divergenciasCustom } : p))
+        ? sincronizarItensPedido(itensFinais as PedidoItem[], atualizado)
+        : { itens: itensFinais as PedidoItem[], divergencias: {} as Partial<Pedido> }
+      setPedidos(prev => prev.map(p => p.id === id
+        ? { ...atualizado, itens: divergenciasCustom.itens, ...divergenciasCustom.divergencias }
+        : p))
       return atualizado
     }
     if (campo === 'status') {
@@ -5022,8 +5041,10 @@ export default function Pedidos() {
     setPedidos(prev => prev.map(p => {
       if (p.id !== id) return p
       const itensFallback = itensAtuais.length > 0 ? itensAtuais : (p.itens ?? [])
-      const divergenciasPos = itensFallback.length > 0 ? calcularDivergencias(itensFallback, updatedPedido) : {}
-      return { ...updatedPedido, itens: itensFallback.length > 0 ? itensFallback : p.itens, ...divergenciasPos }
+      const sinc = itensFallback.length > 0
+        ? sincronizarItensPedido(itensFallback, updatedPedido)
+        : { itens: itensFallback, divergencias: {} as Partial<Pedido> }
+      return { ...updatedPedido, itens: sinc.itens.length > 0 ? sinc.itens : p.itens, ...sinc.divergencias }
     }))
     return updatedPedido
   }, [pedidos, colunasUsuario])
@@ -5134,6 +5155,21 @@ export default function Pedidos() {
     result['_colunas_usuario_divergentes'] = divergenciasCustom
 
     return result as Partial<Pedido>
+  }
+
+  /** Marca PN duplicado nos itens + recalcula divergências pai/filho (SSOT local). */
+  function sincronizarItensPedido(itens: PedidoItem[], pedidoPai?: Pedido): {
+    itens: PedidoItem[]
+    divergencias: Partial<Pedido>
+  } {
+    const itensMarcados = marcarPartNumbersDuplicados(itens)
+    return {
+      itens: itensMarcados,
+      divergencias: {
+        ...calcularDivergencias(itensMarcados, pedidoPai),
+        part_number_duplicado_no_pedido: pedidoTemPartNumberDuplicado(itensMarcados),
+      },
+    }
   }
 
   // ── Edição inline (filho / item) ──────────────────────────────────────────────
@@ -5250,9 +5286,11 @@ export default function Pedidos() {
       // de homogeneidade (Onda A8) localmente. Sem isso, mudar moeda do item
       // não dispara o flag `moeda_item_divergente` no front e o pai mostra
       // valor stale ou alerta stale.
-      const itensAposEdicaoMv = getItensCache().map(i => i.id === id ? enriquecidoMv : i)
+      const { itens: itensAposEdicaoMv, divergencias: divergenciasMv } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoMv : i),
+        pedido,
+      )
       itensCarregadosRef.current.set(pedido.id, itensAposEdicaoMv)
-      const divergenciasMv = calcularDivergencias(itensAposEdicaoMv, pedido)
 
       // Regra de homogeneidade (espelha helper recalcularAgregadosPedido):
       // moedas mistas → valor_total_pedido = null; unidades mistas → qty null.
@@ -5319,9 +5357,11 @@ export default function Pedidos() {
           moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
         },
       }
-      const itensAposEdicaoMp = getItensCache().map(i => i.id === id ? enriquecidoMp : i)
+      const { itens: itensAposEdicaoMp, divergencias: divergenciasMp } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoMp : i),
+        pedido,
+      )
       itensCarregadosRef.current.set(pedido.id, itensAposEdicaoMp)
-      const divergenciasMp = calcularDivergencias(itensAposEdicaoMp, pedido)
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
         return {
@@ -5366,9 +5406,11 @@ export default function Pedidos() {
           moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
         },
       }
-      const itensAposEdicaoMi = getItensCache().map(i => i.id === id ? enriquecidoMi : i)
+      const { itens: itensAposEdicaoMi, divergencias: divergenciasMi } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoMi : i),
+        pedido,
+      )
       itensCarregadosRef.current.set(pedido.id, itensAposEdicaoMi)
-      const divergenciasMi = calcularDivergencias(itensAposEdicaoMi, pedido)
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
         return {
@@ -5413,9 +5455,11 @@ export default function Pedidos() {
           moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
         },
       }
-      const itensAposEdicaoUi = getItensCache().map(i => i.id === id ? enriquecidoUi : i)
+      const { itens: itensAposEdicaoUi, divergencias: divergenciasUi } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoUi : i),
+        pedido,
+      )
       itensCarregadosRef.current.set(pedido.id, itensAposEdicaoUi)
-      const divergenciasUi = calcularDivergencias(itensAposEdicaoUi, pedido)
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
         return {
@@ -5468,9 +5512,11 @@ export default function Pedidos() {
 
       // Mesma lógica de recompute do caminho valor_total_item: divergências
       // + agregados locais (homogeneidade Onda A8).
-      const itensAposEdicaoVu = getItensCache().map(i => i.id === id ? enriquecidoVu : i)
+      const { itens: itensAposEdicaoVu, divergencias: divergenciasVu } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoVu : i),
+        pedido,
+      )
       itensCarregadosRef.current.set(pedido.id, itensAposEdicaoVu)
-      const divergenciasVu = calcularDivergencias(itensAposEdicaoVu, pedido)
       const moedasContribVu = new Set(
         itensAposEdicaoVu
           .filter(i => Number(i.valor_total_item ?? 0) > 0 && i.moeda_item)
@@ -5550,12 +5596,14 @@ export default function Pedidos() {
           moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
         },
       }
-      const itensAposEdicao = getItensCache().map(i => i.id === id ? enriquecidoPronta : i)
+      const { itens: itensAposEdicao, divergencias: divergenciasPronta } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoPronta : i),
+        pedido,
+      )
       itensCarregadosRef.current.set(pedido.id, itensAposEdicao)
       // Recalcula divergencias: se unidade mudou e divergem entre itens, a flag
       // `unidade_comercializada_item_divergente` é setada e a coluna mostra o
       // alerta "⚠ Unidades divergentes entre itens" via renderQtdPedido.
-      const divergenciasPronta = calcularDivergencias(itensAposEdicao, pedido)
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
         return {
@@ -5624,13 +5672,18 @@ export default function Pedidos() {
           return { ...i, _colunas_usuario: { ...colunasAntesItem, [colunaCustomFilho.id]: String(valor) } }
         })
         const itensDivCache = itensCarregadosRef.current.get(pedido.id) ?? itensAtualizados
-        const divergenciasFilho = itensDivCache.length > 0 ? calcularDivergencias(itensDivCache as PedidoItem[], p) : {}
+        const sincFilho = itensDivCache.length > 0
+          ? sincronizarItensPedido(itensDivCache as PedidoItem[], p)
+          : { itens: itensAtualizados, divergencias: {} as Partial<Pedido> }
+        itensCarregadosRef.current.set(pedido.id, sincFilho.itens)
         return {
           ...p,
-          ...divergenciasFilho,
-          itens: itensAtualizados,
+          ...sincFilho.divergencias,
+          itens: sincFilho.itens,
         }
       }))
+
+      if (aceitaPorItem) setResetFilhos(prev => prev + 1)
 
       const item = getItensCache().find(i => i.id === id)!
       const colunasAtuais = (item as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
@@ -5742,9 +5795,11 @@ export default function Pedidos() {
     }
 
     // Atualiza cache e recalcula os aggregates do pedido pai
-    const itensAposEdicao = getItensCache().map(i => i.id === id ? enriquecido : i)
+    const { itens: itensAposEdicao, divergencias } = sincronizarItensPedido(
+      getItensCache().map(i => i.id === id ? enriquecido : i),
+      pedido,
+    )
     itensCarregadosRef.current.set(pedido.id, itensAposEdicao)
-    const divergencias = calcularDivergencias(itensAposEdicao, pedido)
     setPedidos(prev => prev.map(p => {
       if (p.id !== pedido.id) return p
       return {
@@ -5758,7 +5813,10 @@ export default function Pedidos() {
         cubagem_total_pedido:            itensAposEdicao.reduce((s, i) => s + (Number(i.cubagem_unitaria)     || 0), 0),
       }
     }))
-    return enriquecido
+    // filhosCache da TabelaVirtual só atualiza 1 item via atualizarFilhoNoCache;
+    // alertas de PN duplicado dependem de TODOS os itens — força reload do cache.
+    setResetFilhos(prev => prev + 1)
+    return itensAposEdicao.find(i => i.id === id) ?? enriquecido
   }, [pedidos])
 
   // ── Carregar filhos (itens do pedido) ────────────────────────────────────────
@@ -5794,25 +5852,25 @@ export default function Pedidos() {
       },
     }))
     // Popula cache para handleEditarFilho (não-reativo, evita re-loads em useGTExpandir)
-    itensCarregadosRef.current.set(pedido.id, itensEnriquecidos)
+    const { itens: itensComAlertas, divergencias } = sincronizarItensPedido(itensEnriquecidos, pedido)
+    itensCarregadosRef.current.set(pedido.id, itensComAlertas)
     // Atualiza pedidos state com itens carregados + recalcula aggregates e divergências.
     // Isso habilita alertas de peso (unidades mistas), renderQtdPedido (soma por unidade)
     // e qualquer outra lógica que depende de row.itens na renderização do pai.
-    const divergencias = calcularDivergencias(itensEnriquecidos, pedido)
     setPedidos(prev => prev.map(p => {
       if (p.id !== pedido.id) return p
       return {
         ...p,
         ...divergencias,
-        itens: itensEnriquecidos,
-        quantidade_total_pedido: itensEnriquecidos.reduce((s, i) => s + (Number(i.quantidade_inicial_pedido) || 0), 0),
-        quantidade_transferida_total:    itensEnriquecidos.reduce((s, i) => s + (Number(i.quantidade_transferida_pedido) || 0), 0),
-        peso_liquido_total_pedido:       itensEnriquecidos.reduce((s, i) => s + (Number(i.peso_liquido_unitario) || 0), 0),
-        peso_bruto_total_pedido:         itensEnriquecidos.reduce((s, i) => s + (Number(i.peso_bruto_unitario) || 0), 0),
-        cubagem_total_pedido:            itensEnriquecidos.reduce((s, i) => s + (Number(i.cubagem_unitaria) || 0), 0),
+        itens: itensComAlertas,
+        quantidade_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.quantidade_inicial_pedido) || 0), 0),
+        quantidade_transferida_total:    itensComAlertas.reduce((s, i) => s + (Number(i.quantidade_transferida_pedido) || 0), 0),
+        peso_liquido_total_pedido:       itensComAlertas.reduce((s, i) => s + (Number(i.peso_liquido_unitario) || 0), 0),
+        peso_bruto_total_pedido:         itensComAlertas.reduce((s, i) => s + (Number(i.peso_bruto_unitario) || 0), 0),
+        cubagem_total_pedido:            itensComAlertas.reduce((s, i) => s + (Number(i.cubagem_unitaria) || 0), 0),
       }
     }))
-    return itensEnriquecidos
+    return itensComAlertas
   }, [])
 
   // ── Salvar preferências ──────────────────────────────────────────────────────
@@ -5958,42 +6016,6 @@ export default function Pedidos() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   ], [pedidos, pedidosFiltrados, pedidosSelecionados, colunasUsuario])
 
-  // ── Stats para KPIs ──────────────────────────────────────────────────────────
-  // Number() obrigatório: Prisma Decimal serializa como string no JSON
-  const valorTotal    = pedidos.reduce((acc, p) => acc + (Number(p.valor_total_pedido) || 0), 0)
-  const qtdTotal      = pedidos.reduce((acc, p) => acc + (Number(p.quantidade_total_pedido) || 0), 0)
-  const todosItens    = pedidos.flatMap(p => p.itens ?? [])
-  // Com list view otimizada, itens são carregados sob demanda — usar campos pré-computados do pedido
-  const itensProntos  = pedidos.reduce((acc, p) => acc + (Number((p as Pedido & { quantidade_pronta_itens_pedido_total?: number }).quantidade_pronta_itens_pedido_total) || 0), 0)
-  const qtdAtualTotal = pedidos.reduce((acc, p) => {
-    // saldo = inicial - pronta - cancelada (pré-computado pelo mapPedidoListView via itensMinimos)
-    const pronta     = Number((p as Pedido & { quantidade_pronta_itens_pedido_total?: number }).quantidade_pronta_itens_pedido_total) || 0
-    const cancelada  = Number((p as Pedido & { quantidade_cancelada_total_pedido?: number }).quantidade_cancelada_total_pedido) || 0
-    const inicial    = Number(p.quantidade_total_pedido) || 0
-    return acc + Math.max(0, inicial - pronta - cancelada)
-  }, 0)
-  // Breakdown de quantidade por unidade (para tooltip do card)
-  const qtdPorUnidade: Record<string, number> = {}
-  const qtdSaldoPorUnidade: Record<string, number> = {}
-  for (const item of todosItens) {
-    const un = (item as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
-    qtdPorUnidade[un] = (qtdPorUnidade[un] ?? 0) + (Number(item.quantidade_inicial_pedido) || 0)
-    qtdSaldoPorUnidade[un] = (qtdSaldoPorUnidade[un] ?? 0) + (Number(item.quantidade_atual_pedido) || 0)
-  }
-  const unidadesQtd = Object.keys(qtdPorUnidade)
-  const coberturaPend = pedidos
-    .filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'sem_cobertura'))
-    .reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
-  // Valor total convertido para BRL usando taxa PTAX de venda
-  // Number() necessário pois Prisma Decimal serializa como string no JSON
-  const valorTotalBrl = pedidos.reduce((acc, p) => {
-    const moeda = p.moeda_pedido ?? 'USD'
-    const taxa  = taxasVenda[moeda] ?? taxasVenda['USD'] ?? 1
-    return acc + Number(p.valor_total_pedido ?? 0) * taxa
-  }, 0)
-  // Stats computadas pelo registry (usadas como fallback no map de cards)
-  const cardStats = computeCardStats(pedidos, todosItens as PedidoItem[], total, new Date().toISOString().slice(0, 10), totalItensBanco)
-
   return (
     <div className="ws-fade-up lp-page">
 
@@ -6005,124 +6027,21 @@ export default function Pedidos() {
       )}
 
       {/* ── KPI cards ── */}
-      <div className="lp-stats-row">
-        <div className="lp-cards">
-          {cardsVisiveis.map(pref => {
-            if (pref.id === 'total_pedidos') return (
-              <CardBasicoGlobal key="total_pedidos"
-                titulo={t('pedido.total_pedidos')}
-                icone={<Package weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
-                valor={total}
-                subtexto={`${totalItensBanco > 0 ? totalItensBanco : todosItens.length} ${t('pedido.itens_total')}`}
-                tooltip={<>
-                  <p className="cg-tooltip__row"><span>{t('pedido.abertos')}</span><strong>{pedidos.filter(p => p.status === 'aberto').length}</strong></p>
-                  <p className="cg-tooltip__row"><span>{t('pedido.em_andamento')}</span><strong>{pedidos.filter(p => p.status === 'transferencia').length}</strong></p>
-                  <p className="cg-tooltip__row"><span>{t('pedido.concluidos')}</span><strong>{pedidos.filter(p => p.status === 'consolidado').length}</strong></p>
-                </>}
-              />
-            )
-            if (pref.id === 'valor_total') return (
-              <CardBasicoGlobal key="valor_total"
-                titulo={t('pedido.valor_total')}
-                icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
-                valor={fmtQuantidade(valorTotal, 2)}
-                variante="sucesso"
-                subtexto={t('pedido.soma_pedidos')}
-                tooltip={<>
-                  <p className="cg-tooltip__row"><span>{t('pedido.media_por_pedido')}</span><strong>{fmtQuantidade(pedidos.length ? valorTotal / pedidos.length : 0, 2)}</strong></p>
-                </>}
-              />
-            )
-            if (pref.id === 'valor_total_brl') {
-              // Number() evita concatenação de string Decimal do Prisma
-              const porMoeda: Record<string, number> = {}
-              for (const p of pedidos) {
-                const m = p.moeda_pedido ?? 'USD'
-                porMoeda[m] = (porMoeda[m] ?? 0) + Number(p.valor_total_pedido ?? 0)
-              }
-              const MOEDA_ORDEM = ['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'CHF', 'CAD']
-              const entradas = Object.entries(porMoeda).sort(([a], [b]) => {
-                const ia = MOEDA_ORDEM.indexOf(a); const ib = MOEDA_ORDEM.indexOf(b)
-                return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib)
-              })
-              return (
-                <CardBasicoGlobal key="valor_total_brl"
-                  titulo={t('pedido.lista.card.total_brl_titulo')}
-                  icone={<CurrencyCircleDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
-                  valor={`R$ ${fmtQuantidade(valorTotalBrl, 2)}`}
-                  variante="sucesso"
-                  subtexto={t('pedido.lista.card.total_brl_subtexto')}
-                  tooltip={<>
-                    {entradas.map(([m, v]) => {
-                      const taxa = taxasVenda[m]
-                      return (
-                        <p key={m} className="cg-tooltip__row">
-                          <span>{m} {fmtQuantidade(Number(v), 2)}</span>
-                          <strong>{taxa != null ? `× ${fmtQuantidade(taxa, 4)}` : t('pedido.lista.card.sem_taxa')}</strong>
-                        </p>
-                      )
-                    })}
-                  </>}
-                />
-              )
-            }
-            if (pref.id === 'qtd_total') {
-              const unicaUnidade = unidadesQtd.length === 1 ? unidadesQtd[0] : null
-              return (
-                <CardBasicoGlobal key="qtd_total"
-                  titulo={t('pedido.qtd_total')}
-                  icone={<Scales weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
-                  valor={unicaUnidade ? `${fmtQuantidade(qtdTotal)} ${unicaUnidade}` : fmtQuantidade(qtdTotal)}
-                  variante="aviso"
-                  subtexto={`${fmtQuantidade(qtdAtualTotal)} ${t('pedido.saldo_atual')}`}
-                  tooltip={<>
-                    {unidadesQtd.length > 1
-                      ? unidadesQtd.map(un => (
-                          <p key={un} className="cg-tooltip__row">
-                            <span>{fmtQuantidade(qtdPorUnidade[un])} {un}</span>
-                            <strong>{fmtQuantidade(qtdSaldoPorUnidade[un])} {t('pedido.lista.card.saldo')}</strong>
-                          </p>
-                        ))
-                      : <>
-                          <p className="cg-tooltip__row"><span>{t('pedido.pronto')}</span><strong>{fmtQuantidade(itensProntos)}{unicaUnidade ? ` ${unicaUnidade}` : ''}</strong></p>
-                          <p className="cg-tooltip__row"><span>{t('pedido.saldo_vivo')}</span><strong>{fmtQuantidade(qtdAtualTotal)}{unicaUnidade ? ` ${unicaUnidade}` : ''}</strong></p>
-                        </>
-                    }
-                  </>}
-                />
-              )
-            }
-            if (pref.id === 'cobertura_pendente') return (
-              <CardBasicoGlobal key="cobertura_pendente"
-                titulo={t('pedido.cobertura_pendente')}
-                icone={<Warning weight="duotone" size={16} style={{ color: '#f87171' }} />}
-                valor={fmtQuantidade(coberturaPend, 2)}
-                variante="erro"
-                subtexto={t('pedido.sem_cobertura')}
-                tooltip={<p className="cg-tooltip__row"><span>{t('pedido.aguardando_cobertura')}</span><strong>{pedidos.filter(p => (p.itens ?? []).some(i => (i as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial === 'sem_cobertura')).length}</strong></p>}
-              />
-            )
-            // Fallback: cards definidos no CARD_REGISTRY mas sem bloco manual acima
-            const registryEntry = CARD_REGISTRY[pref.id]
-            if (registryEntry) {
-              const def = CARDS_CATALOGO.find(c => c.id === pref.id)
-              const titulo = def ? t(def.labelKey) : pref.id
-              const valor = registryEntry.format(registryEntry.getValue(cardStats))
-              return (
-                <CardBasicoGlobal key={pref.id}
-                  titulo={titulo}
-                  icone={registryEntry.icone}
-                  valor={valor}
-                  variante={registryEntry.variante}
-                  subtexto={registryEntry.subtexto(t, cardStats)}
-                  tooltip={registryEntry.tooltip(t, pedidos, cardStats)}
-                />
-              )
-            }
-            return null
-          })}
-        </div>
-      </div>
+      <ListaPedidoCards
+        cardsVisiveis={cardsVisiveis}
+        cardsCustom={cardsCustom}
+        pedidos={pedidos}
+        pedidosFiltrados={pedidosFiltrados}
+        total={total}
+        totalItensBanco={totalItensBanco}
+        periodo={periodoCards}
+        abaAtiva={abaAtiva}
+        busca={busca}
+        workspacesSelecionados={workspacesSelecionados}
+        workspaceAtivo={workspaceAtivo}
+        temFiltroColunaCliente={temFiltroColunaCliente}
+        taxasVenda={taxasVenda}
+      />
 
       {/* ── Feedback de erro em lote ── */}
       {erroLote && (
@@ -6173,7 +6092,7 @@ export default function Pedidos() {
           paginaAtual={paginaAtual}
           onMudarPagina={handleMudarPagina}
           labelPai={[t('pedido.barra.label_pedido_one'), t('pedido.barra.label_pedido_other')]}
-          totalFilhos={todosItens.length}
+          totalFilhos={totalItensBanco}
 
           abas={abas}
           abaAtiva={abaAtiva}

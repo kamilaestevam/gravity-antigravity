@@ -1,29 +1,25 @@
 /**
  * useCardPreferences — preferências de cards por usuário (localStorage)
- *
- * Sincronização entre abas e componentes via custom event:
- *  - Toda escrita despacha 'pedido:cards-updated' no window
- *  - Todo hook ouve o evento e re-lê o localStorage
- *  - Funciona mesmo com múltiplas instâncias do hook na mesma página
  */
 
 import { useState, useCallback, useEffect } from 'react'
 import { CARDS_CATALOGO, CARDS_PADRAO } from './columnCatalog'
+import type { CardPeriodoCodigo } from './lista-card-schemas'
 
 export type { CardDefinicao } from './columnCatalog'
 export { CARDS_CATALOGO, CARDS_PADRAO }
-
-// ─── Preferência por card ─────────────────────────────────────────────────────
 
 export interface CardPreferencia {
   id:      string
   visible: boolean
 }
 
-const STORAGE_KEY   = 'pedido:cards-v2'
-const SYNC_EVENT    = 'pedido:cards-updated'
+const STORAGE_KEY    = 'pedido:cards-v2'
+const PERIOD_KEY     = 'pedido:cards-periodo'
+const SYNC_EVENT     = 'pedido:cards-updated'
 
 const DEFAULT: CardPreferencia[] = CARDS_PADRAO.map(id => ({ id, visible: true }))
+const DEFAULT_PERIODO: CardPeriodoCodigo = '30d'
 
 function carregarPrefs(): CardPreferencia[] {
   try {
@@ -38,73 +34,92 @@ function carregarPrefs(): CardPreferencia[] {
   }
 }
 
-function salvar(next: CardPreferencia[]) {
+function carregarPeriodo(): CardPeriodoCodigo {
+  try {
+    const raw = localStorage.getItem(PERIOD_KEY) as CardPeriodoCodigo | null
+    if (raw && ['7d', '30d', '6m', '1a', 'tudo'].includes(raw)) return raw
+  } catch { /* ignore */ }
+  return DEFAULT_PERIODO
+}
+
+function salvarPrefs(next: CardPreferencia[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
   window.dispatchEvent(new CustomEvent(SYNC_EVENT))
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+function salvarPeriodo(periodo: CardPeriodoCodigo) {
+  localStorage.setItem(PERIOD_KEY, periodo)
+  window.dispatchEvent(new CustomEvent(SYNC_EVENT))
+}
 
 export function useCardPreferences() {
   const [prefs, setPrefs] = useState<CardPreferencia[]>(carregarPrefs)
+  const [periodo, setPeriodoState] = useState<CardPeriodoCodigo>(carregarPeriodo)
 
-  // Re-sincroniza quando outro componente (ou outra aba) atualiza
   useEffect(() => {
-    function onSync() { setPrefs(carregarPrefs()) }
+    function onSync() {
+      setPrefs(carregarPrefs())
+      setPeriodoState(carregarPeriodo())
+    }
     window.addEventListener(SYNC_EVENT, onSync)
-    window.addEventListener('storage',  onSync)   // outras abas
+    window.addEventListener('storage', onSync)
     return () => {
       window.removeEventListener(SYNC_EVENT, onSync)
-      window.removeEventListener('storage',  onSync)
+      window.removeEventListener('storage', onSync)
     }
   }, [])
 
   const persistir = useCallback((next: CardPreferencia[]) => {
     setPrefs(next)
-    salvar(next)
+    salvarPrefs(next)
   }, [])
 
-  /** Colunas do catálogo ainda não adicionadas pelo usuário */
+  const setPeriodo = useCallback((next: CardPeriodoCodigo) => {
+    setPeriodoState(next)
+    salvarPeriodo(next)
+  }, [])
+
   const disponiveis = CARDS_CATALOGO.filter(c => !prefs.find(p => p.id === c.id))
 
-  /** Adiciona um card do catálogo ao final da lista */
   const adicionar = useCallback((id: string) => {
     setPrefs(prev => {
       if (prev.find(p => p.id === id)) return prev
       const next = [...prev, { id, visible: true }]
-      salvar(next)
+      salvarPrefs(next)
       return next
     })
   }, [])
 
-  /** Remove um card da lista do usuário */
   const remover = useCallback((id: string) => {
     setPrefs(prev => {
       const next = prev.filter(p => p.id !== id)
-      salvar(next)
+      salvarPrefs(next)
       return next
     })
   }, [])
 
-  /** Alterna visibilidade (olho) sem remover */
   const toggle = useCallback((id: string) => {
     setPrefs(prev => {
       const next = prev.map(p => p.id === id ? { ...p, visible: !p.visible } : p)
-      salvar(next)
+      salvarPrefs(next)
       return next
     })
   }, [])
 
-  /** Reordena a lista após DnD */
   const reordenar = useCallback((novaOrdem: CardPreferencia[]) => {
     persistir(novaOrdem)
   }, [persistir])
 
-  /** Restaura configuração padrão */
-  const resetar = useCallback(() => persistir(DEFAULT), [persistir])
+  const resetar = useCallback(() => {
+    persistir(DEFAULT)
+    setPeriodoState(DEFAULT_PERIODO)
+    salvarPeriodo(DEFAULT_PERIODO)
+  }, [persistir])
 
-  /** Cards visíveis na ordem configurada */
   const visiveis = prefs.filter(p => p.visible)
 
-  return { prefs, visiveis, disponiveis, adicionar, remover, toggle, reordenar, resetar }
+  return {
+    prefs, visiveis, disponiveis, periodo,
+    adicionar, remover, toggle, reordenar, resetar, setPeriodo,
+  }
 }

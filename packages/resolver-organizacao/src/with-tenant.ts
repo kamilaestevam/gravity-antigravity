@@ -22,6 +22,7 @@
 import type { Request } from 'express';
 import { Prisma } from '@prisma/client';
 import type { ContextoOrganizacao, BancoOrganizacao } from './types.js';
+import { obterClientePrismaBoot } from './boot-prisma-client.js';
 import { getInternalPrisma } from './internal-prisma.js';
 import { resolveOrganizacaoById } from './configurador-client.js';
 import { buildSchemaName, isValidSchemaName } from './schema-name.js';
@@ -112,10 +113,15 @@ async function runInOrganizacaoTransaction<T>(
   const log = getLogger();
   // Prioridade (ADR-0003):
   //  1. `ctx.prismaInterno` — client gerado do próprio produto, injetado via
-  //     `config.prismaClient`. Único que garante ter os models do produto.
-  //  2. Fallback `getInternalPrisma(ctx.urlBanco)` — client da raiz roteado
-  //     pela URL; usado por workers e por produtos que ainda não injetam.
-  const prisma = ctx.prismaInterno ?? getInternalPrisma(ctx.urlBanco);
+  //     `config.prismaClient` (request HTTP) ou caminho S2S manual.
+  //  2. Cliente registrado no boot — cobre `withOrganizacaoContext` (webhooks,
+  //     CRON, workers) quando o contexto não traz `prismaInterno`.
+  //  3. Fallback `getInternalPrisma(ctx.urlBanco)` — client da raiz roteado
+  //     pela URL; legado — pode não conter os models do produto no monorepo.
+  const prisma =
+    ctx.prismaInterno ??
+    obterClientePrismaBoot() ??
+    getInternalPrisma(ctx.urlBanco);
   const startedAt = Date.now();
 
   try {

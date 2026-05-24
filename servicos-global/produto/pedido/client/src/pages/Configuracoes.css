@@ -265,6 +265,15 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
 
 /* ── Período pills ── */
 
+.cfg-periodo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
 .cfg-periodo-pills {
   display: flex;
   gap: 0.5rem;

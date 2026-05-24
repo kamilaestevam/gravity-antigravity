@@ -10,6 +10,7 @@ export const ROTAS_PEDIDO = {
   estaticas: [
     '',
     'pedidos',
+    'pedidos/visao-geral',
     'pedidos/lista',
     'pedidos/dashboard',
     'pedidos/kanban',

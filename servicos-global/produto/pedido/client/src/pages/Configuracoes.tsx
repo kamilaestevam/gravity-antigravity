@@ -889,7 +889,6 @@ export default function Configuracoes() {
     setExpandedGroups(prev => ({ ...prev, [id]: !prev[id] }))
   }
   const [abaAtiva, setAbaAtiva]     = useState<'pedido' | 'quantidades' | 'datas'>('pedido')
-  const [periodoAtivo, setPeriodoAtivo] = useState('30d')
 
   // ── Estado: casas decimais ──
   const [casasDecimais, setCasasDecimais] = useState<Record<string, number>>(carregarCasasDecimais)
@@ -1597,7 +1596,7 @@ export default function Configuracoes() {
     setNovaColuna(prev => ({ ...prev, opcoes: prev.opcoes.filter(o => o !== opcao) }))
   }
 
-  const { prefs, disponiveis, adicionar, remover, toggle, reordenar, resetar } = useCardPreferences()
+  const { prefs, disponiveis, periodo, setPeriodo, adicionar, remover, toggle, reordenar, resetar } = useCardPreferences()
   const { cards: cardsCustom, criar: criarCardCustom, excluir: excluirCardCustom, toggleAtivo: toggleCardCustom, carregando: carregandoCardsCustom } = useCardsUsuario()
   const [modalCardAberto, setModalCardAberto] = useState(false)
 
@@ -2441,17 +2440,29 @@ export default function Configuracoes() {
 
               {/* ── Período de comparação ── */}
               <ConfiguracaoSecaoGlobal label={t('pedido.config.cards.label_periodo')} />
-              <div className="cfg-periodo-pills" style={{ marginTop: '0.75rem' }}>
-                {PERIODOS.map(p => (
+              <div className="cfg-periodo-row">
+                <div className="cfg-periodo-pills">
+                  {PERIODOS.map(p => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      className={`cfg-periodo-pill${periodo === p.id ? ' cfg-periodo-pill--ativo' : ''}`}
+                      onClick={() => setPeriodo(p.id as typeof periodo)}
+                    >
+                      {t(`pedido.config.cards.periodo_${p.id}`)}
+                    </button>
+                  ))}
+                </div>
+                {podeEditarConfig && (
                   <button
-                    key={p.id}
                     type="button"
-                    className={`cfg-periodo-pill${periodoAtivo === p.id ? ' cfg-periodo-pill--ativo' : ''}`}
-                    onClick={() => setPeriodoAtivo(p.id)}
+                    className="cfg-add-row-btn"
+                    onClick={() => setModalCardAberto(true)}
                   >
-                    {t(`pedido.config.cards.periodo_${p.id}`)}
+                    <Plus size={13} weight="bold" />
+                    {t('pedido.config.cards.criar_personalizado')}
                   </button>
-                ))}
+                )}
               </div>
 
               {/* ── Preview ao vivo ── */}
@@ -2511,7 +2522,7 @@ export default function Configuracoes() {
                         <CardSortavel
                           key={pref.id}
                           pref={pref}
-                          periodoAtivo={periodoAtivo}
+                          periodoAtivo={periodo}
                           onToggle={() => toggle(pref.id)}
                           onRemover={() => remover(pref.id)}
                         />
@@ -2537,7 +2548,7 @@ export default function Configuracoes() {
                     key={def.id}
                     def={def}
                     onAdicionar={() => adicionar(def.id)}
-                    periodoAtivo={periodoAtivo}
+                    periodoAtivo={periodo}
                   />
                 ))}
                 {CARDS_CATALOGO.filter(def => !prefs.find(p => p.id === def.id)).length === 0 && (
@@ -2602,17 +2613,6 @@ export default function Configuracoes() {
                     </div>
                   )}
 
-                  {podeEditarConfig && (
-                    <button
-                      type="button"
-                      className="cfg-add-row-btn"
-                      onClick={() => setModalCardAberto(true)}
-                      style={{ marginTop: '0.75rem' }}
-                    >
-                      <Plus size={13} weight="bold" />
-                      {t('pedido.config.cards.criar_personalizado')}
-                    </button>
-                  )}
                 </>
               )}
 

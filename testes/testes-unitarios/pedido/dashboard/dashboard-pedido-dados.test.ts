@@ -322,6 +322,50 @@ describe('TST-UNI-PEDIDO-000001 — aggregateKpis (pure function)', () => {
     expect(result.pedidos_abertos).toBe(0) // não conta — status_pedido é undefined
     expect(result.total_pedidos).toBe(1)   // ainda conta no total
   })
+
+  it('027 — pedidos_em_andamento inclui transferencia e em_andamento', () => {
+    const pedidos = [
+      { status_pedido: 'transferencia', valor_total_pedido: 0, moeda_pedido: 'BRL' },
+      { status_pedido: 'em_andamento', valor_total_pedido: 0, moeda_pedido: 'BRL' },
+      { status_pedido: 'aberto', valor_total_pedido: 0, moeda_pedido: 'BRL' },
+    ]
+    const result = aggregateKpis(pedidos, [], { BRL: 1 }, '30d')
+    expect(result.pedidos_em_andamento).toBe(2)
+  })
+
+  it('028 — pedidos_atrasados exclui consolidado com marco vencido', () => {
+    const pedidos = [
+      {
+        status_pedido: 'aberto',
+        valor_total_pedido: 0,
+        moeda_pedido: 'BRL',
+        data_prevista_pedido_pronto: '2026-01-01',
+        data_confirmada_pedido_pronto: null,
+      },
+      {
+        status_pedido: 'consolidado',
+        valor_total_pedido: 0,
+        moeda_pedido: 'BRL',
+        data_prevista_pedido_pronto: '2026-01-01',
+        data_confirmada_pedido_pronto: null,
+      },
+    ]
+    const result = aggregateKpis(pedidos, [], { BRL: 1 }, '30d')
+    expect(result.pedidos_atrasados).toBe(1)
+  })
+
+  it('029 — cobertura_pendente soma valor de pedidos com itens sem_cobertura', () => {
+    const pedidos = [
+      { id_pedido: 'p1', status_pedido: 'aberto', valor_total_pedido: 1000, moeda_pedido: 'BRL' },
+      { id_pedido: 'p2', status_pedido: 'aberto', valor_total_pedido: 2000, moeda_pedido: 'BRL' },
+    ]
+    const itens = [
+      { id_pedido: 'p1', cobertura_cambial_item: 'sem_cobertura' },
+      { id_pedido: 'p2', cobertura_cambial_item: 'com_cobertura' },
+    ]
+    const result = aggregateKpis(pedidos, itens, { BRL: 1 }, '30d')
+    expect(result.cobertura_pendente).toBe(1000)
+  })
 })
 
 describe('TST-UNI-PEDIDO-000001 — aggregateDistribution (pure function)', () => {

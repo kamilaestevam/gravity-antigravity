@@ -70,6 +70,8 @@ export interface CardBasicoProps {
    * O cabeçalho com ícone+título é gerado automaticamente.
    */
   tooltip?: ReactNode
+  /** Posição do tooltip — 'top' evita sobrepor conteúdo abaixo do card */
+  tooltipPosicao?: 'top' | 'bottom'
 }
 
 /** @deprecated Use CardBasicoProps */

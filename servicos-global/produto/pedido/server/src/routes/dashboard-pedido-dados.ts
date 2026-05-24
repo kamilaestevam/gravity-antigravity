@@ -26,15 +26,16 @@
  * Mapeamento para chaves do catálogo do dashboard:
  *   pedidos_abertos      ← status = 'aberto'
  *   pedidos_em_andamento ← status = 'transferencia'
- *   pedidos_atrasados    ← 0 (sem campo de prazo no schema)
- *   cobertura_pendente   ← 0 (sem campo correspondente no schema)
+ *   pedidos_atrasados    ← marcos previstos vencidos sem confirmação (pedidos ativos)
+ *   cobertura_pendente   ← soma valor_total_pedido de pedidos com itens sem_cobertura
  */
 
 import { Router, Request, Response } from 'express'
-import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
+import { withOrganizacao } from '@gravity/resolver-organizacao'
 import { generateInsights, normalizeRole, type KpiSnapshot } from '../services/gabiInsightsService.js'
 import { getUserBehaviorScores } from '../services/behaviorTrackingService.js'
 import { enhanceWithLlm } from '../services/gabiLlmInsightsService.js'
+import { isEmAndamento, isPedidoAtrasado, safeNum } from '../shared/lista-card-aggregate.js'
 
 export const dashboardDataRouter = Router()
 
@@ -127,7 +128,7 @@ export function aggregateKpis(
   // Contagens por status
   const total_pedidos        = pedidos.length
   const pedidos_abertos      = pedidos.filter((p) => p.status_pedido === 'aberto').length
-  const pedidos_em_andamento = pedidos.filter((p) => p.status_pedido === 'transferencia').length
+  const pedidos_em_andamento = pedidos.filter((p) => isEmAndamento(p.status_pedido)).length
   const pedidos_consolidados = pedidos.filter((p) => p.status_pedido === 'consolidado').length
   const pedidos_cancelados   = pedidos.filter((p) => p.status_pedido === 'cancelado').length
   const pedidos_rascunho     = pedidos.filter((p) => p.status_pedido === 'rascunho').length
@@ -135,8 +136,8 @@ export function aggregateKpis(
   const pedidos_importacao   = pedidos.filter((p) => p.tipo_operacao_pedido === 'importacao').length
   const pedidos_exportacao   = pedidos.filter((p) => p.tipo_operacao_pedido === 'exportacao').length
 
-  // Sem campo de prazo no schema — retorna 0 para não quebrar derivadas
-  const pedidos_atrasados = 0
+  const hoje = new Date().toISOString().slice(0, 10)
+  const pedidos_atrasados = pedidos.filter((p) => isPedidoAtrasado(p, hoje)).length
 
   // Completude documental
   const pedidos_sem_incoterm   = pedidos.filter((p) => !p.incoterm_pedido || p.incoterm_pedido.trim() === '').length
@@ -161,8 +162,12 @@ export function aggregateKpis(
   const valor_total = pedidos.reduce((s, p) => s + Number(p.valor_total_pedido ?? 0), 0)
   const qtd_total   = pedidos.reduce((s, p) => s + Number(p.quantidade_total_pedido ?? 0), 0)
 
-  // Sem campo cobertura_pendente no schema — retorna 0
-  const cobertura_pendente = 0
+  const pedidosSemCobertura = new Set(
+    itens.filter((i) => i.cobertura_cambial_item === 'sem_cobertura').map((i) => String(i.id_pedido)),
+  )
+  const cobertura_pendente = pedidos
+    .filter((p) => pedidosSemCobertura.has(String(p.id_pedido)))
+    .reduce((s, p) => s + safeNum(p.valor_total_pedido), 0)
 
   // Valor Total em BRL — converte cada pedido pela taxa PTAX de venda
   const moedas_sem_taxa: string[] = []
@@ -209,7 +214,7 @@ export function aggregateKpis(
     qtd_atual_total,
     qtd_transferida_total,
     valor_itens_total,
-    taxa_atraso:          0,
+    taxa_atraso:          total_pedidos > 0 ? (pedidos_atrasados / total_pedidos) * 100 : 0,
     taxa_conclusao_itens: qtd_inicial_total > 0 ? (itens_prontos / qtd_inicial_total) * 100 : 0,
     exposicao_financeira: 0,
     taxa_transferencia:   qtd_inicial_total > 0 ? (qtd_transferida_total / qtd_inicial_total) * 100 : 0,
@@ -236,6 +241,42 @@ export function aggregateDistribution(pedidos: PedidoRaw[], period: string) {
     groups[k].valor_total += Number(p.valor_total_pedido ?? 0)
   }
   return { period, value: Object.values(groups) }
+}
+
+/** Converte payload de aggregateKpis para KpiSnapshot (insights Gabi). */
+export function toKpiSnapshot(agg: AggregatedKpis): KpiSnapshot {
+  return {
+    total_pedidos: agg.total_pedidos,
+    pedidos_abertos: agg.pedidos_abertos,
+    pedidos_em_andamento: agg.pedidos_em_andamento,
+    pedidos_atrasados: agg.pedidos_atrasados,
+    pedidos_sem_exportador: agg.pedidos_sem_exportador,
+    pedidos_cancelados: agg.pedidos_cancelados,
+    pedidos_consolidados: agg.pedidos_consolidados,
+    pedidos_importacao: agg.pedidos_importacao,
+    pedidos_exportacao: agg.pedidos_exportacao,
+    qtd_saldo_total: agg.qtd_atual_total,
+    qtd_pronta_total: agg.itens_prontos,
+    qtd_transferida_total: agg.qtd_transferida_total,
+    qtd_inicial_total: agg.qtd_inicial_total,
+    valor_total: agg.valor_total,
+    valor_total_brl: agg.valor_total_brl,
+    valor_itens_total: agg.valor_itens_total,
+    ticket_medio: agg.ticket_medio,
+    taxa_atraso: agg.taxa_atraso,
+    taxa_transferencia: agg.taxa_transferencia,
+    pedidos_sem_incoterm: agg.pedidos_sem_incoterm,
+    pedidos_sem_fabricante: agg.pedidos_sem_fabricante,
+    pedidos_sem_proforma: agg.pedidos_sem_proforma,
+    pedidos_sem_invoice: agg.pedidos_sem_invoice,
+    pedidos_sem_ref_imp: agg.pedidos_sem_ref_imp,
+    moedas_distintas: agg.moedas_distintas,
+    peso_bruto_total: agg.peso_bruto_total,
+    cubagem_total: agg.cubagem_total,
+    itens_sem_cobertura: agg.itens_sem_cobertura,
+    qtd_cancelada_total: agg.qtd_cancelada_total,
+    pedidos_rascunho: agg.pedidos_rascunho,
+  }
 }
 
 function periodToDateRange(period: string): { from: Date; to: Date } {
@@ -283,6 +324,7 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
             data_exclusao_pedido: null,
           },
           select: {
+            id_pedido: true,
             status_pedido: true,
             valor_total_pedido: true,
             quantidade_total_pedido: true,
@@ -297,6 +339,32 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
             referencia_exportador_pedido: true,
             peso_bruto_total_pedido: true,
             cubagem_total_pedido: true,
+            data_prevista_pedido_pronto: true,
+            data_confirmada_pedido_pronto: true,
+            data_prevista_inspecao_pedido: true,
+            data_confirmada_inspecao_pedido: true,
+            data_prevista_coleta_pedido: true,
+            data_confirmada_coleta_pedido: true,
+            data_previsao_recebimento_rascunho_pedido: true,
+            data_confirmacao_recebimento_rascunho_pedido: true,
+            data_previsao_aprovacao_rascunho_pedido: true,
+            data_confirmacao_aprovacao_rascunho_pedido: true,
+            data_previsao_recebimento_rascunho_proforma_pedido: true,
+            data_confirmacao_recebimento_rascunho_proforma_pedido: true,
+            data_previsao_aprovacao_rascunho_proforma_pedido: true,
+            data_confirmacao_aprovacao_rascunho_proforma_pedido: true,
+            data_previsao_envio_original_proforma_pedido: true,
+            data_confirmacao_envio_original_proforma_pedido: true,
+            data_previsao_recebimento_original_proforma_pedido: true,
+            data_confirmacao_recebimento_original_proforma_pedido: true,
+            data_previsao_recebimento_rascunho_invoice_pedido: true,
+            data_confirmacao_recebimento_rascunho_invoice_pedido: true,
+            data_previsao_aprovacao_rascunho_invoice_pedido: true,
+            data_confirmacao_aprovacao_rascunho_invoice_pedido: true,
+            data_previsao_envio_original_invoice_pedido: true,
+            data_confirmacao_envio_original_invoice_pedido: true,
+            data_previsao_recebimento_original_invoice_pedido: true,
+            data_confirmacao_recebimento_original_invoice_pedido: true,
           },
         }),
         db.pedidoItem.findMany({
@@ -307,6 +375,7 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
             },
           },
           select: {
+            id_pedido: true,
             quantidade_inicial_item: true,
             quantidade_atual_item: true,
             quantidade_transferida_item: true,
@@ -423,72 +492,81 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 
-      // ── 1. Buscar KPIs do período ──────────────────────────────────────────────
-      const [pedidosRaw2, itensRaw2] = await Promise.all([
+      const wherePeriodo = { data_emissao_pedido: { gte: from, lte: to }, data_exclusao_pedido: null }
+
+      const [pedidosRaw2, itensRaw2, taxasVendaInsights] = await Promise.all([
         db.pedido.findMany({
-          where: { data_emissao_pedido: { gte: from, lte: to }, data_exclusao_pedido: null },
+          where: wherePeriodo,
           select: {
+            id_pedido: true,
             status_pedido: true,
             valor_total_pedido: true,
+            quantidade_total_pedido: true,
             moeda_pedido: true,
             id_importacao_exportador_pedido: true,
             tipo_operacao_pedido: true,
+            incoterm_pedido: true,
+            id_fabricante_pedido: true,
+            numero_proforma_pedido: true,
+            numero_invoice_pedido: true,
+            referencia_importador_pedido: true,
+            referencia_exportador_pedido: true,
+            peso_bruto_total_pedido: true,
+            cubagem_total_pedido: true,
+            data_prevista_pedido_pronto: true,
+            data_confirmada_pedido_pronto: true,
+            data_prevista_inspecao_pedido: true,
+            data_confirmada_inspecao_pedido: true,
+            data_prevista_coleta_pedido: true,
+            data_confirmada_coleta_pedido: true,
+            data_previsao_recebimento_rascunho_pedido: true,
+            data_confirmacao_recebimento_rascunho_pedido: true,
+            data_previsao_aprovacao_rascunho_pedido: true,
+            data_confirmacao_aprovacao_rascunho_pedido: true,
+            data_previsao_recebimento_rascunho_proforma_pedido: true,
+            data_confirmacao_recebimento_rascunho_proforma_pedido: true,
+            data_previsao_aprovacao_rascunho_proforma_pedido: true,
+            data_confirmacao_aprovacao_rascunho_proforma_pedido: true,
+            data_previsao_envio_original_proforma_pedido: true,
+            data_confirmacao_envio_original_proforma_pedido: true,
+            data_previsao_recebimento_original_proforma_pedido: true,
+            data_confirmacao_recebimento_original_proforma_pedido: true,
+            data_previsao_recebimento_rascunho_invoice_pedido: true,
+            data_confirmacao_recebimento_rascunho_invoice_pedido: true,
+            data_previsao_aprovacao_rascunho_invoice_pedido: true,
+            data_confirmacao_aprovacao_rascunho_invoice_pedido: true,
+            data_previsao_envio_original_invoice_pedido: true,
+            data_confirmacao_envio_original_invoice_pedido: true,
+            data_previsao_recebimento_original_invoice_pedido: true,
+            data_confirmacao_recebimento_original_invoice_pedido: true,
           },
         }),
         db.pedidoItem.findMany({
-          where: { pedido_item: { data_emissao_pedido: { gte: from, lte: to }, data_exclusao_pedido: null } },
+          where: { pedido_item: wherePeriodo },
           select: {
+            id_pedido: true,
             quantidade_inicial_item: true,
             quantidade_atual_item: true,
             quantidade_transferida_item: true,
             quantidade_pronta_item: true,
             valor_total_item: true,
+            cobertura_cambial_item: true,
+            quantidade_cancelada_item: true,
+            peso_bruto_unitario_item: true,
+            cubagem_unitaria_item: true,
           },
         }),
+        buscarTaxasVenda(),
       ])
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pedidos = pedidosRaw2 as any[]
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const itens = itensRaw2 as any[]
 
-      const total_pedidos        = pedidos.length
-      const pedidos_abertos      = pedidos.filter((p) => p.status_pedido === 'aberto').length
-      const pedidos_em_andamento = pedidos.filter((p) => p.status_pedido === 'transferencia').length
-      const pedidos_consolidados = pedidos.filter((p) => p.status_pedido === 'consolidado').length
-      const pedidos_cancelados   = pedidos.filter((p) => p.status_pedido === 'cancelado').length
-      const pedidos_atrasados    = 0  // sem campo prazo no schema atual
-      const pedidos_sem_exportador = pedidos.filter((p) => !p.id_importacao_exportador_pedido).length
-      const pedidos_importacao   = pedidos.filter((p) => p.tipo_operacao_pedido === 'importacao').length
-      const pedidos_exportacao   = pedidos.filter((p) => p.tipo_operacao_pedido === 'exportacao').length
-
-      const valor_total          = pedidos.reduce((s, p) => s + Number(p.valor_total_pedido ?? 0), 0)
-      const qtd_inicial_total    = itens.reduce((s, i) => s + Number(i.quantidade_inicial_item ?? 0), 0)
-      const qtd_transferida_total = itens.reduce((s, i) => s + Number(i.quantidade_transferida_item ?? 0), 0)
-      const qtd_pronta_total     = itens.reduce((s, i) => s + Number(i.quantidade_pronta_item ?? 0), 0)
-      const qtd_saldo_total      = itens.reduce((s, i) => s + Number(i.quantidade_atual_item ?? 0), 0)
-      const valor_itens_total    = itens.reduce((s, i) => s + Number(i.valor_total_item ?? 0), 0)
-      const ticket_medio         = total_pedidos > 0 ? valor_total / total_pedidos : 0
-      const taxa_atraso          = 0
-      const taxa_transferencia   = qtd_inicial_total > 0 ? (qtd_transferida_total / qtd_inicial_total) * 100 : 0
-
-      kpis = {
-        total_pedidos, pedidos_abertos, pedidos_em_andamento, pedidos_atrasados,
-        pedidos_sem_exportador, pedidos_cancelados, pedidos_consolidados,
-        pedidos_importacao, pedidos_exportacao, qtd_saldo_total, qtd_pronta_total,
-        qtd_transferida_total, qtd_inicial_total, valor_total, valor_itens_total,
-        ticket_medio, taxa_atraso, taxa_transferencia,
-        valor_total_brl: 0,
-        pedidos_sem_incoterm: 0,
-        pedidos_sem_fabricante: 0,
-        pedidos_sem_proforma: 0,
-        pedidos_sem_invoice: 0,
-        pedidos_sem_ref_imp: 0,
-        moedas_distintas: 1,
-        peso_bruto_total: 0,
-        cubagem_total: 0,
-        itens_sem_cobertura: 0,
-        qtd_cancelada_total: 0,
-      }
+      kpis = toKpiSnapshot(
+        aggregateKpis(
+          pedidosRaw2 as PedidoRaw[],
+          itensRaw2 as ItemRaw[],
+          taxasVendaInsights,
+          period,
+        ),
+      )
 
       // ── 2. Fase 2: scores de comportamento do usuário ──────────────────────────
       behaviorScores = await getUserBehaviorScores(db, tenantId, userId)

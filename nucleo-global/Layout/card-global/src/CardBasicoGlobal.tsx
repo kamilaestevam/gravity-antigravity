@@ -36,6 +36,7 @@ export function CardBasicoGlobal({
   alinhamento = 'esquerda',
   className = '',
   tooltip,
+  tooltipPosicao = 'bottom',
 }: CardBasicoProps) {
 
   const [periodoAtivo, setPeriodoAtivo] = useState<PeriodoCodigo>(DEFAULT_PERIODO)
@@ -52,6 +53,7 @@ export function CardBasicoGlobal({
     variante !== 'padrao' ? `cg-card--${variante}` : '',
     `cg-card--align-${alinhamento}`,
     tooltip ? 'cg-card--has-tooltip' : '',
+    tooltip && tooltipPosicao === 'top' ? 'cg-card--tooltip-top' : '',
     className,
   ].filter(Boolean).join(' ')
 

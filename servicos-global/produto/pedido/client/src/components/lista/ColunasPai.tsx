@@ -337,6 +337,23 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.numero_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.numero_pedido_desc'),
     grupo: 'Identificação',
+    render: (_val: unknown, row: Pedido) => {
+      const numero = row.numero_pedido || null
+      if (!row.part_number_duplicado_no_pedido) {
+        return numero ? <span>{numero}</span> : renderAgregado(null, false)
+      }
+      return (
+        <TooltipGlobal
+          titulo={t('pedido.coluna_pai.numero_pedido_titulo')}
+          descricao={t('pedido.coluna_filho.part_number.duplicado_tooltip')}
+        >
+          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+            {numero ? <span>{numero}</span> : <span>—</span>}
+            <span style={{ display: 'inline-flex', color: '#F59E0B', flexShrink: 0 }}><WarnIcon /></span>
+          </span>
+        </TooltipGlobal>
+      )
+    },
   },
   {
     key: 'tipo_operacao',

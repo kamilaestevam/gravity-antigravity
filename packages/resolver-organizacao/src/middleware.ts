@@ -23,6 +23,7 @@ import { CacheOrganizacao } from './cache.js';
 import { createConfiguradorClient } from './configurador-client.js';
 import { AppError } from './errors.js';
 import { getLogger, recordSpan } from './observability.js';
+import { registrarClientePrismaBoot } from './boot-prisma-client.js';
 import { buildSchemaName, isValidSchemaName } from './schema-name.js';
 
 // ---------------------------------------------------------------------------
@@ -179,6 +180,9 @@ export function resolverOrganizacao(config: ConfigResolverOrganizacao): RequestH
   // usa este client — gerado a partir do schema do próprio produto — em vez do
   // `@prisma/client` da raiz, que pode conter os models de outro produto.
   const prismaClienteInjetado = config.prismaClient;
+  if (prismaClienteInjetado) {
+    registrarClientePrismaBoot(prismaClienteInjetado);
+  }
 
   const cache = new CacheOrganizacao({ ttlMs: config.cacheTtlMs });
 

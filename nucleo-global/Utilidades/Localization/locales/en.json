@@ -6371,7 +6371,7 @@
     "visao_geral": {
       "donut": {
         "legenda_total": "orders",
-        "titulo": "Distribution by Mode"
+        "titulo": "Distribution by Operation Type"
       },
       "taxa_aprovacao": {
         "em_tempo": "On time: {{pct}}%",
@@ -6381,44 +6381,47 @@
         "titulo": "Approval Rate"
       },
       "mapa": {
-        "titulo": "Global Quotes Overview",
-        "subtitulo": "Strategic locations, active bids, and accumulated savings per terminal (Drag to Rotate)",
-        "legenda_maritimo": "Maritime",
-        "legenda_aereo": "Air",
+        "titulo": "Global Orders Overview",
+        "subtitulo": "Origins, destinations, and volume by location (drag to rotate)",
+        "legenda_importacao": "Import",
+        "legenda_exportacao": "Export",
         "aumentar_zoom": "Zoom In",
         "diminuir_zoom": "Zoom Out",
         "restaurar_globo": "Restore Globe",
         "pausar_rotacao": "Pause Rotation",
         "iniciar_rotacao": "Start Rotation",
-        "bids_ativos": "Active Bids",
-        "cotacoes_count_one": "{{count}} quote",
-        "cotacoes_count_other": "{{count}} quotes",
-        "melhor_preco": "Best Price",
-        "saving_medio": "Average Saving",
-        "saving": "Saving",
-        "transit_time": "Transit Time",
-        "dias_count_one": "{{count}} day",
-        "dias_count_other": "{{count}} days",
-        "fornecedor_abreviado": "Supp",
-        "fornecedor_lider": "Leading Supp.",
+        "pedidos_ativos": "Orders",
+        "pedidos_count_one": "{{count}} order",
+        "pedidos_count_other": "{{count}} orders",
+        "contratos_cambio": "Exchange Contracts",
+        "contratos_cambio_count_one": "{{count}} contract",
+        "contratos_cambio_count_other": "{{count}} contracts",
+        "total_a_receber": "Total Receivable",
+        "total_a_pagar": "Total Payable",
+        "maior_valor": "Highest Value",
+        "participacao_volume": "Volume Share",
+        "valor_total": "Total Value",
+        "incoterm": "Incoterm",
+        "parceiro_abreviado": "Partner",
+        "parceiro_lider": "Main Partner",
         "clique_ver_rotas": "Click to see routes",
-        "rotas_ativas": "Active Routes: {{local}}",
-        "sem_rotas": "No active routes registered for this terminal."
+        "rotas_ativas": "Order Routes: {{local}}",
+        "sem_rotas": "No order routes for this location."
       },
       "hud": {
-        "titulo": "Global Quotes HUD",
-        "live_feed": "LIVE FEED",
-        "subtitulo": "Real-time rankings • 200 bids",
+        "titulo": "Global Order Rankings",
+        "live_feed": "LIVE",
+        "subtitulo_pedidos": "Real-time rankings • {{total}} orders",
         "tab_origens": "Origins",
         "tab_destinos": "Destinations",
-        "tab_modais": "Modes",
-        "bids_count_one": "{{count}} bid",
-        "bids_count_other": "{{count}} bids"
+        "tab_modais": "Operation",
+        "pedidos_count_one": "{{count}} order",
+        "pedidos_count_other": "{{count}} orders",
+        "vazio": "No geographic data in loaded orders."
       },
       "modal": {
-        "maritimo": "Maritime",
-        "aereo": "Air",
-        "rodoviario": "Road"
+        "importacao": "Import",
+        "exportacao": "Export"
       },
       "header": {
         "titulo": "Overview",
@@ -6443,10 +6446,10 @@
         "hoje": "Today"
       },
       "funil": {
-        "titulo": "Quotation Funnel"
+        "titulo": "Order Funnel"
       },
       "barras": {
-        "titulo": "Quotations by Month",
+        "titulo": "Orders by Month",
         "subtitulo": "Last 6 months",
         "aprovadas": "Approved",
         "em_andamento": "In progress",
@@ -6624,7 +6627,8 @@
     "coluna_filho": {
       "part_number": {
         "label": "Item No.",
-        "tooltip_titulo": "Item No."
+        "tooltip_titulo": "Item No.",
+        "duplicado_tooltip": "There are items with the same Part Number in this order"
       },
       "ncm": {
         "label": "NCM"

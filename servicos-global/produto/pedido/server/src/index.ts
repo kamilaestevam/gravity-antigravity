@@ -61,12 +61,17 @@ import { snapshotStatusPedidoRouter } from './routes/snapshot-status-pedido.js'
 import { saldoFormulaRouter } from './routes/saldo-formula-pedido.js'
 import { initRouter } from './routes/inicializacao-pedido.js'
 import { internalCadastrosChangedRouter } from './routes/internal-cadastros-changed.js'
+import { listaPedidoKpisRouter } from './routes/lista-pedido-kpis.js'
 import { pedidosRouter } from '../../../../../servicos-global/produto/processos-core/src/routes/pedidos.js'
 import { pedidosConfigRouter } from '../../../../../servicos-global/produto/processos-core/src/routes/pedidos-config.js'
 import { importacaoRouter } from '../../../../../servicos-global/produto/processos-core/src/routes/importacao.js'
 import { apiObservability } from '../../../../../servicos-global/servicos-plataforma/middleware/apiObservability.js'
 import { openapiRouter } from './routes/openapi-pedido.js'
 import { createProductAuditPlugin } from '../../../../../servicos-global/servicos-plataforma/historico-global/src/product-audit-plugin.js'
+import {
+  obterClientePrismaPedido,
+  validarClientePrismaPedido,
+} from './cliente-prisma-pedido.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 8030
@@ -126,24 +131,35 @@ app.get('/api/v1/pedidos/importacoes-inteligentes/template', templateHandler)
 // (Gamma-3 leva 3). Consumers passaram a chamar o tenant service standalone.
 
 // ── 6. Tenant resolver — Schema-per-Tenant (ADR-001/ADR-002) ─────────────────
+// Client + URL capturados no boot — ADR-0003: o `@prisma/client` hoisted na raiz
+// do monorepo pode conter models de outro produto; injetamos o client gerado
+// do schema do Pedido em todos os caminhos (JWT, S2S e withOrganizacaoContext).
+const _prismaPedido = obterClientePrismaPedido()
+validarClientePrismaPedido(_prismaPedido)
+
 // Wrapper: chamadas S2S via api-cockpit enviam x-id-organizacao sem JWT Clerk.
 // Nesses casos, resolvemos o tenant pelo ID direto (mesma função que CRON/workers usam).
 const _resolverOrg = resolverOrganizacao({
   chaveProduto:        'pedido',
   configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
   chaveInterna:        process.env.CHAVE_INTERNA_SERVICO!,
+  prismaClient:        _prismaPedido,
 })
 // URL do banco do Pedido capturada no boot — aqui `DATABASE_URL` ainda aponta
-// para `PEDIDO_DATABASE_URL` (o sidecar do Configurador a restaura depois).
-// O caminho JWT recebe `urlBanco` via middleware; o caminho S2S (sem JWT,
-// resolveOrganizacaoById) precisa anexá-la manualmente. Vide internal-prisma.ts.
+// para o banco deste processo (sidecar monolito restaura depois).
+// Caminho JWT recebe urlBanco + prismaInterno via middleware; caminho S2S
+// (sem JWT, resolveOrganizacaoById) precisa anexar ambos manualmente.
 const _urlBancoPedido = process.env.DATABASE_URL
 app.use(async (req: Request, res: Response, next: NextFunction) => {
   const idOrg = req.headers['x-id-organizacao'] as string | undefined
   const hasJwt = !!req.headers['authorization']
   if (!hasJwt && idOrg) {
     try {
-      req.organizacao = { ...(await resolveOrganizacaoById(idOrg)), urlBanco: _urlBancoPedido }
+      req.organizacao = {
+        ...(await resolveOrganizacaoById(idOrg)),
+        urlBanco: _urlBancoPedido,
+        prismaInterno: _prismaPedido,
+      }
       ;(req as Record<string, unknown>).externalApi = true
       return next()
     } catch (err) {
@@ -256,6 +272,7 @@ app.post('/api/v1/pedidos/importar/confirmar',         exigirPermissao('lista', 
 app.post('/api/v1/pedidos/exportar',                   exigirPermissao('lista', 'editar'))
 app.use('/api/v1/pedidos',                             importacaoRouter)
 // CRUD principal — deve vir após os routers de sub-rotas estáticas
+app.use('/api/v1/pedidos/lista',                       exigirPermissao('lista', 'ver'), listaPedidoKpisRouter)
 app.use('/api/v1/pedidos',                             exigirPorMetodo('lista'), pedidosRouter)
 // Parâmetros dinâmicos após todos os estáticos
 app.use('/api/v1/pedidos/:id_pedido/transferencias',   exigirPermissao('lista', 'editar'), transferirRouter)

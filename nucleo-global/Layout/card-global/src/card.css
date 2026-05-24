@@ -110,6 +110,24 @@
   transform: translateX(-50%) translateY(0);
 }
 
+/* Tooltip acima do card — evita sobrepor conteúdo abaixo (ex: barra de busca da Lista) */
+.cg-card--tooltip-top .cg-card__tooltip {
+  top: auto;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%) translateY(6px);
+}
+
+.cg-card--tooltip-top.cg-card--has-tooltip:hover .cg-card__tooltip {
+  transform: translateX(-50%) translateY(0);
+}
+
+.cg-card--tooltip-top .cg-card__tooltip::after {
+  bottom: auto;
+  top: 100%;
+  border-bottom-color: transparent;
+  border-top-color: var(--ws-accent-border, rgba(129, 140, 248, 0.2));
+}
+
 /* Seta apontando para cima */
 .cg-card__tooltip::after {
   content: '';

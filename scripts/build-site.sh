@@ -45,7 +45,14 @@ cd ../..
 mv servicos-global/configurador/dist/servicos-global/configurador/index.html servicos-global/configurador/dist/index.html
 rm -rf servicos-global/configurador/dist/servicos-global
 
-# 5. Create tsx loader for the server
+# 5. Build all backend servers
+# Configurador — tsx loader (cross-service imports + custom Prisma paths)
 bash scripts/build-esm.sh servicos-global/configurador/server/index.ts servicos-global/configurador/dist/server.mjs
+
+# Pedido — esbuild bundle (clean dependency graph)
+bash scripts/build-esm.sh servicos-global/produto/pedido/server/src/index.ts servicos-global/produto/pedido/dist/server.mjs
+
+# Cadastros — tsx loader (cross-service imports + custom Prisma paths)
+bash scripts/build-esm.sh servicos-global/cadastros/server/src/index.ts servicos-global/cadastros/dist/server.mjs
 
 echo "[build-site] Build pipeline complete!"

@@ -38,9 +38,16 @@ RUN cd servicos-global/configurador && npx vite build && cd ../..
 RUN mv servicos-global/configurador/dist/servicos-global/configurador/index.html servicos-global/configurador/dist/index.html \
     && rm -rf servicos-global/configurador/dist/servicos-global
 
-# Create tsx loader
+# Build all backend servers
+# Configurador — tsx loader (cross-service imports + custom Prisma paths)
 RUN bash scripts/build-esm.sh servicos-global/configurador/server/index.ts servicos-global/configurador/dist/server.mjs
+
+# Pedido — esbuild bundle (clean dependency graph)
+RUN bash scripts/build-esm.sh servicos-global/produto/pedido/server/src/index.ts servicos-global/produto/pedido/dist/server.mjs
+
+# Cadastros — tsx loader (cross-service imports + custom Prisma paths)
+RUN bash scripts/build-esm.sh servicos-global/cadastros/server/src/index.ts servicos-global/cadastros/dist/server.mjs
 
 EXPOSE 8005
 
-CMD ["node", "servicos-global/configurador/dist/server.mjs"]
+CMD ["node", "scripts/start-all-servers.mjs"]

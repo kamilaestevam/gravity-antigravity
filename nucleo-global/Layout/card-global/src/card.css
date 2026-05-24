@@ -121,6 +121,24 @@
   transform: translateX(-50%) translateY(0);
 }
 
+/* Tooltip via portal (position:fixed) — escapa overflow de .tpg-main e ws-fade-up */
+.cg-card__tooltip--portal {
+  position: fixed;
+  z-index: 10000;
+  opacity: 1;
+  pointer-events: none;
+  transform: translateX(-50%);
+  transition: none;
+}
+
+.cg-card__tooltip--portal-top {
+  transform: translate(-50%, -100%);
+}
+
+.cg-card__tooltip--portal::after {
+  display: none;
+}
+
 .cg-card--tooltip-top .cg-card__tooltip::after {
   bottom: auto;
   top: 100%;

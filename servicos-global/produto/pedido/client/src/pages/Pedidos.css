@@ -60,6 +60,9 @@
   display: flex;
   align-items: flex-end;
   gap: 1rem;
+  position: relative;
+  z-index: 20;
+  overflow: visible;
 }
 
 .lp-cards {
@@ -68,6 +71,7 @@
   gap: 1rem;
   flex: 1;
   min-width: 0;
+  overflow: visible;
 }
 
 .lp-acoes {

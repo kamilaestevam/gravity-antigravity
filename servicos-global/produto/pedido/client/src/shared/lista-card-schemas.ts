@@ -4,6 +4,21 @@
 
 import { z } from 'zod'
 
+export const alertasBreakdownSchema = z.object({
+  part_number_duplicado_item: z.number(),
+  part_number_duplicado_resumo: z.number(),
+  numero_pedido_duplicado: z.number(),
+  divergencia_campos: z.number(),
+  valor_total_divergente: z.number(),
+  quantidade_total_divergente: z.number(),
+  quantidade_pronta_divergente: z.number(),
+  peso_liquido_divergente: z.number(),
+  peso_bruto_divergente: z.number(),
+  cubagem_divergente: z.number(),
+})
+
+export type AlertasBreakdownKpis = z.infer<typeof alertasBreakdownSchema>
+
 export const listaCardKpisSchema = z.object({
   period: z.string(),
   total_pedidos: z.number(),
@@ -23,6 +38,7 @@ export const listaCardKpisSchema = z.object({
   alertas_total: z.number(),
   alertas_pedido: z.number(),
   alertas_item: z.number(),
+  alertas_breakdown: alertasBreakdownSchema.optional(),
 })
 
 export type ListaCardKpis = z.infer<typeof listaCardKpisSchema>

@@ -6360,6 +6360,7 @@
         "generico": "Erro ao salvar. Tente novamente ou contate o suporte.",
         "desconhecido": "Erro desconhecido",
         "pedido_nao_encontrado": "Pedido não encontrado",
+        "workspace_somente_pedido": "Workspace é definido no pedido e aplica-se a todos os itens.",
         "pedido_item_nao_localizado": "Não foi possível localizar o pedido deste item. Recarregue a página.",
         "editar_valor_total_item": "Erro ao editar valor_total_item",
         "editar_moeda_item": "Erro ao editar moeda do item",
@@ -6372,6 +6373,7 @@
         "editar_campo_pedido": "Erro ao editar campo {{campo}} do pedido",
         "editar_campo": "Erro ao editar campo {{campo}}"
       },
+      "filtro_workspace_auto_expandido": "Filtro de workspace atualizado: {{nomes}}",
       "tipo_operacao": {
         "importacao": "Importação",
         "exportacao": "Exportação"
@@ -6479,6 +6481,7 @@
         "proximos_7_dias_count": "{{count}} nos próximos 7 dias",
         "mais_vencimentos": "+{{count}} mais",
         "voltar_rotas": "Voltar às rotas",
+        "expandir_grafico_vencimentos": "Expandir gráfico de vencimentos",
         "maior_valor": "Maior Valor",
         "participacao_volume": "Participação no Volume",
         "valor_total": "Valor Total",
@@ -6683,6 +6686,21 @@
           "total": "Total"
         }
       },
+      "alertas": {
+        "breakdown": {
+          "vazio": "Nenhum alerta no período",
+          "part_number_duplicado_item": "Part Number duplicado (item)",
+          "part_number_duplicado_resumo": "Part Number duplicado (resumo pedido)",
+          "numero_pedido_duplicado": "Número de pedido duplicado",
+          "divergencia_campos": "Divergência entre itens (campos)",
+          "valor_total_divergente": "Valor total pedido ≠ soma itens",
+          "quantidade_total_divergente": "Quantidade total pedido ≠ soma itens",
+          "quantidade_pronta_divergente": "Quantidade pronta pedido ≠ soma itens",
+          "peso_liquido_divergente": "Peso líquido pedido ≠ soma itens",
+          "peso_bruto_divergente": "Peso bruto pedido ≠ soma itens",
+          "cubagem_divergente": "Cubagem pedido ≠ soma itens"
+        }
+      },
       "custom": {
         "row": {
           "valor": "Valor"
@@ -6725,6 +6743,9 @@
       "title_kpi_valor_itens": "Valor Total dos Itens"
     },
     "coluna_filho": {
+      "mapa_id_workspace": {
+        "tooltip_bloqueado": "Workspace é do pedido — altere na linha do pedido"
+      },
       "part_number": {
         "label": "Nº do Item",
         "tooltip_titulo": "Nº do Item",

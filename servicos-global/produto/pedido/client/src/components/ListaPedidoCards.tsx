@@ -125,8 +125,6 @@ export function ListaPedidoCards({
   const unidadesQtd = Object.keys(qtdPorUnidade)
   const unicaUnidade = unidadesQtd.length === 1 ? unidadesQtd[0] : null
 
-  const tooltipProps = { tooltipPosicao: 'top' as const }
-
   return (
     <div className="lp-stats-row">
       <div className="lp-cards">
@@ -144,7 +142,6 @@ export function ListaPedidoCards({
                   <p className="cg-tooltip__row"><span>{t('pedido.em_andamento')}</span><strong>{cardStats.pedidosEmAndamento}</strong></p>
                   <p className="cg-tooltip__row"><span>{t('pedido.concluidos')}</span><strong>{pedidosBase.filter(p => p.status === 'consolidado').length}</strong></p>
                 </>}
-                {...tooltipProps}
               />
             )
           }
@@ -161,7 +158,6 @@ export function ListaPedidoCards({
                 tooltip={<>
                   <p className="cg-tooltip__row"><span>{t('pedido.media_por_pedido')}</span><strong>{fmtMoedaCard(cardStats.total ? cardStats.valorTotal / cardStats.total : 0)}</strong></p>
                 </>}
-                {...tooltipProps}
               />
             )
           }
@@ -197,7 +193,6 @@ export function ListaPedidoCards({
                     )
                   })}
                 </>}
-                {...tooltipProps}
               />
             )
           }
@@ -225,7 +220,6 @@ export function ListaPedidoCards({
                       </>
                   }
                 </>}
-                {...tooltipProps}
               />
             )
           }
@@ -240,7 +234,6 @@ export function ListaPedidoCards({
                 variante="erro"
                 subtexto={t('pedido.sem_cobertura')}
                 tooltip={<p className="cg-tooltip__row"><span>{t('pedido.aguardando_cobertura')}</span><strong>{pedidosBase.filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'sem_cobertura')).length}</strong></p>}
-                {...tooltipProps}
               />
             )
           }
@@ -259,7 +252,6 @@ export function ListaPedidoCards({
                 variante={registryEntry.variante}
                 subtexto={registryEntry.subtexto(t, cardStats)}
                 tooltip={registryEntry.tooltip(t, pedidosBase, cardStats)}
-                {...tooltipProps}
               />
             )
           }

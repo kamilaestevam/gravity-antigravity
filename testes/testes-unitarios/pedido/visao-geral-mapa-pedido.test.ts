@@ -148,6 +148,17 @@ describe('buildVisaoGeralMapa', () => {
     expect(resumoPagar?.valorTotal).toBe(5000)
     expect(resumoPagar?.proximoData).toBe('2026-03-01')
     expect(resumoPagar?.moeda).toBe('USD')
+    expect(detalhe?.rotas[0]?.nome_workspace).toBe('—')
+  })
+
+  it('propaga nome_workspace quando mapa de workspaces é informado', () => {
+    const mapa = buildVisaoGeralMapa(
+      [pedidoBase({ company_id: 'ws-hitachi' })],
+      new Map([['ws-hitachi', 'CDE Importadora']]),
+    )
+
+    const detalhe = Object.values(mapa.detalhesPorLocKey).find(d => d.rotas.length > 0)
+    expect(detalhe?.rotas[0]?.nome_workspace).toBe('CDE Importadora')
   })
 
   it('classifica exportação com origem Brasil', () => {

@@ -1999,12 +1999,10 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
       // mas a coluna do item é 'incoterm_item'. Resultado: Prisma rejeitava
       // silenciosamente, propagação nunca funcionou.
       //
-      // Agora: só replica quando `replicar_em_itens=true` (checkbox marcado
-      // no popover da linha pai). Tradução pedido→item via
-      // obterCampoItemPropagado — SSOT em mapaPropagacaoPedidoItem.ts.
-      // Mandamento 08: falha alta se whitelist rejeitar o campo (sem
-      // fallback silencioso).
-      if (replicar_em_itens) {
+      // Agora: replica quando `replicar_em_itens=true` (checkbox no popover)
+      // OU quando o campo é id_workspace (regra de negócio: item = mesmo workspace).
+      const deveReplicarItens = replicar_em_itens || campo === 'id_workspace'
+      if (deveReplicarItens) {
         // Traduz: campo legado (ex: 'incoterm') → campo DDD pedido (ex:
         // 'incoterm_pedido') → campo DDD item (ex: 'incoterm_item').
         const campoPedido = ALIAS_LEGADO_PARA_PRISMA[campo] ?? campo
@@ -2061,7 +2059,18 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         }
       }
 
-      res.json(mapPedido(updated))
+      const pedidoResposta = deveReplicarItens
+        ? await db.pedido.findUnique({
+            where: { id_pedido: req.params.id_pedido },
+            include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
+          })
+        : updated
+
+      if (!pedidoResposta) {
+        throw new AppError(404, 'Pedido não encontrado após atualização.')
+      }
+
+      res.json(mapPedido(pedidoResposta))
     })
   } catch (err) {
     // Logging detalhado para diagnosticar erros 500 difíceis de reproduzir.

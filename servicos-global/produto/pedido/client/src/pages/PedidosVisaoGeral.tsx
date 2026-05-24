@@ -67,30 +67,71 @@ const fmtDataPt = (iso: string) => {
   return `${d}/${m}/${y}`
 }
 
-function MiniTimelineVencimentos({ timeline }: { timeline: import('../shared/visaoGeralMapaPedido').VisaoGeralTimelineVencimento[] }) {
+function rotuloCabecalhoRota(route: VisaoGeralRotaDetalhe, isExportacao: boolean): { origem: string; destino: string } {
+  const ws = route.nome_workspace !== '—' ? route.nome_workspace : null
+  const limparCodigo = (texto: string) => texto.replace(/\s*\([^)]*\)\s*$/, '').trim()
+
+  if (isExportacao) {
+    return {
+      origem: ws ?? limparCodigo(route.fromPort),
+      destino: limparCodigo(route.toPort),
+    }
+  }
+
+  const origem =
+    route.parceiro && route.parceiro !== '—'
+      ? route.parceiro
+      : limparCodigo(route.fromPort)
+
+  return {
+    origem,
+    destino: ws ?? limparCodigo(route.toPort),
+  }
+}
+
+function MiniTimelineVencimentos({
+  timeline,
+  onExpand,
+}: {
+  timeline: import('../shared/visaoGeralMapaPedido').VisaoGeralTimelineVencimento[]
+  onExpand?: () => void
+}) {
+  const { t } = useTranslation()
   if (timeline.length === 0) return null
-  const max = Math.max(1, ...timeline.flatMap(t => [t.receber, t.pagar]))
+  const max = Math.max(1, ...timeline.flatMap(item => [item.receber, item.pagar]))
+  const slotW = 14
+  const svgW = Math.max(timeline.length * slotW, 42)
 
   return (
-    <div className="bfd-route-mini-timeline" aria-hidden="true">
-      <svg width="100%" height="100%" viewBox={`0 0 ${timeline.length * 14} 36`} preserveAspectRatio="xMidYMid meet">
+    <button
+      type="button"
+      className="bfd-route-mini-timeline bfd-route-mini-timeline--clickable"
+      aria-label={t('pedido.visao_geral.mapa.expandir_grafico_vencimentos')}
+      onClick={e => {
+        e.preventDefault()
+        e.stopPropagation()
+        onExpand?.()
+      }}
+    >
+      <svg width="100%" height="100%" viewBox={`0 0 ${svgW} 40`} preserveAspectRatio="xMidYMid meet">
+        <line x1="0" y1="22" x2={svgW} y2="22" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
         {timeline.map((mes, idx) => {
-          const hRec = mes.receber > 0 ? Math.max(3, (mes.receber / max) * 22) : 0
-          const hPag = mes.pagar > 0 ? Math.max(3, (mes.pagar / max) * 22) : 0
-          const x = idx * 14 + 2
+          const hRec = mes.receber > 0 ? Math.max(4, (mes.receber / max) * 18) : 0
+          const hPag = mes.pagar > 0 ? Math.max(4, (mes.pagar / max) * 18) : 0
+          const x = idx * slotW + 2
           return (
             <g key={mes.chave}>
               {hPag > 0 && (
-                <rect x={x} y={18 - hPag} width={4} height={hPag} rx={1} fill="#f59e0b" opacity={0.9} />
+                <rect x={x} y={22 - hPag} width={4} height={hPag} rx={1} fill="#f59e0b" opacity={0.92} />
               )}
               {hRec > 0 && (
-                <rect x={x + 5} y={18 - hRec} width={4} height={hRec} rx={1} fill="#34d399" opacity={0.9} />
+                <rect x={x + 5} y={22 - hRec} width={4} height={hRec} rx={1} fill="#34d399" opacity={0.92} />
               )}
             </g>
           )
         })}
       </svg>
-    </div>
+    </button>
   )
 }
 
@@ -227,6 +268,83 @@ function ListaVencimentosVirtualizada({
   )
 }
 
+function PainelTimelineExpandido({
+  route,
+  onVoltar,
+}: {
+  route: VisaoGeralRotaDetalhe
+  onVoltar: () => void
+}) {
+  const { t } = useTranslation()
+  const isExportacao = route.tipoOperacao === 'exportacao'
+  const { origem, destino } = rotuloCabecalhoRota(route, isExportacao)
+  const timeline = route.timelineVencimentos
+  const max = Math.max(1, ...timeline.flatMap(m => [m.receber, m.pagar]))
+  const slotW = 72
+  const chartH = 160
+  const svgW = Math.max(timeline.length * slotW, 320)
+
+  return (
+    <div className="bfd-timeline-expandido">
+      <div className="bfd-venc-expandido__header">
+        <button type="button" className="bfd-venc-expandido__voltar" onClick={onVoltar}>
+          ← {t('pedido.visao_geral.mapa.voltar_rotas')}
+        </button>
+        <span className="bfd-venc-expandido__rota">{origem} ➔ {destino}</span>
+      </div>
+
+      <div className="bfd-timeline-expandido__legenda">
+        <span className="bfd-timeline-expandido__legenda-item">
+          <i className="bfd-timeline-expandido__swatch bfd-timeline-expandido__swatch--pagar" />
+          {t('pedido.visao_geral.mapa.vencimentos_pagar')}
+        </span>
+        <span className="bfd-timeline-expandido__legenda-item">
+          <i className="bfd-timeline-expandido__swatch bfd-timeline-expandido__swatch--receber" />
+          {t('pedido.visao_geral.mapa.vencimentos_receber')}
+        </span>
+      </div>
+
+      <div className="bfd-timeline-expandido__chart-wrap">
+        <svg
+          className="bfd-timeline-expandido__chart"
+          viewBox={`0 0 ${svgW} ${chartH + 48}`}
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <line x1="24" y1={chartH} x2={svgW - 12} y2={chartH} stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+          {timeline.map((mes, idx) => {
+            const x = idx * slotW + 24
+            const hPag = mes.pagar > 0 ? Math.max(8, (mes.pagar / max) * (chartH - 24)) : 0
+            const hRec = mes.receber > 0 ? Math.max(8, (mes.receber / max) * (chartH - 24)) : 0
+            return (
+              <g key={mes.chave}>
+                {hPag > 0 && (
+                  <>
+                    <rect x={x} y={chartH - hPag} width={14} height={hPag} rx={3} fill="#f59e0b" opacity={0.92} />
+                    <text x={x + 7} y={chartH - hPag - 6} textAnchor="middle" fill="#fcd34d" fontSize="9">
+                      {fmtMoedaSafe(mes.pagar)}
+                    </text>
+                  </>
+                )}
+                {hRec > 0 && (
+                  <>
+                    <rect x={x + 18} y={chartH - hRec} width={14} height={hRec} rx={3} fill="#34d399" opacity={0.92} />
+                    <text x={x + 25} y={chartH - hRec - 6} textAnchor="middle" fill="#6ee7b7" fontSize="9">
+                      {fmtMoedaSafe(mes.receber)}
+                    </text>
+                  </>
+                )}
+                <text x={x + 16} y={chartH + 22} textAnchor="middle" fill="#94a3b8" fontSize="11" fontWeight="600">
+                  {mes.label}
+                </text>
+              </g>
+            )
+          })}
+        </svg>
+      </div>
+    </div>
+  )
+}
+
 function PainelVencimentosExpandido({
   route,
   tabInicial,
@@ -238,6 +356,8 @@ function PainelVencimentosExpandido({
 }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState<'pagar' | 'receber'>(tabInicial)
+  const isExportacao = route.tipoOperacao === 'exportacao'
+  const { origem, destino } = rotuloCabecalhoRota(route, isExportacao)
   const items = tab === 'pagar' ? route.vencimentosPagar : route.vencimentosReceber
   const resumo = tab === 'pagar' ? route.resumoVencimentosPagar : route.resumoVencimentosReceber
   const corValor = tab === 'pagar' ? '#f59e0b' : '#34d399'
@@ -248,9 +368,7 @@ function PainelVencimentosExpandido({
         <button type="button" className="bfd-venc-expandido__voltar" onClick={onVoltar}>
           ← {t('pedido.visao_geral.mapa.voltar_rotas')}
         </button>
-        <span className="bfd-venc-expandido__rota">
-          {route.fromPort} ➔ {route.toPort}
-        </span>
+        <span className="bfd-venc-expandido__rota">{origem} ➔ {destino}</span>
       </div>
 
       <div className="bfd-venc-expandido__tabs">
@@ -1028,11 +1146,23 @@ function VisaoGeralMapa() {
   const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modais'>('origens')
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
   const [selectedLocKey, setSelectedLocKey] = useState<string | null>(null)
-  const [vencimentosExpandido, setVencimentosExpandido] = useState<{ routeIdx: number; tab: 'pagar' | 'receber' } | null>(null)
+  const [modalDrillDown, setModalDrillDown] = useState<
+    | { view: 'vencimentos'; routeIdx: number; tab: 'pagar' | 'receber' }
+    | { view: 'timeline'; routeIdx: number }
+    | null
+  >(null)
 
   useEffect(() => {
-    setVencimentosExpandido(null)
+    setModalDrillDown(null)
   }, [selectedLocKey])
+
+  const handleModalFecharOuVoltar = () => {
+    if (modalDrillDown !== null) {
+      setModalDrillDown(null)
+      return
+    }
+    setSelectedLocKey(null)
+  }
 
   const pinsRef = useRef(pins)
   const globeRoutesRef = useRef(globeRoutes)
@@ -1938,7 +2068,7 @@ function VisaoGeralMapa() {
           const connections = detalhe.rotas
           
           return (
-            <div className="bfd-modal-mapa-overlay" onClick={() => setSelectedLocKey(null)}>
+            <div className="bfd-modal-mapa-overlay" onClick={handleModalFecharOuVoltar}>
               <div className="bfd-modal-mapa-card" onClick={e => e.stopPropagation()}>
                 <div className="bfd-modal-mapa-header">
                   <div className="bfd-modal-mapa-title-group">
@@ -1948,7 +2078,7 @@ function VisaoGeralMapa() {
                       <span className="bfd-modal-mapa-subtitle">{detalhe.code} • {detalhe.country}</span>
                     </div>
                   </div>
-                  <button className="bfd-modal-mapa-close-btn" onClick={() => setSelectedLocKey(null)}>✕</button>
+                  <button type="button" className="bfd-modal-mapa-close-btn" onClick={handleModalFecharOuVoltar}>✕</button>
                 </div>
 
                 <div
@@ -1985,11 +2115,16 @@ function VisaoGeralMapa() {
                 </div>
                 
                 <div className="bfd-modal-mapa-body">
-                  {vencimentosExpandido !== null && connections[vencimentosExpandido.routeIdx] ? (
+                  {modalDrillDown?.view === 'vencimentos' && connections[modalDrillDown.routeIdx] ? (
                     <PainelVencimentosExpandido
-                      route={connections[vencimentosExpandido.routeIdx]}
-                      tabInicial={vencimentosExpandido.tab}
-                      onVoltar={() => setVencimentosExpandido(null)}
+                      route={connections[modalDrillDown.routeIdx]}
+                      tabInicial={modalDrillDown.tab}
+                      onVoltar={() => setModalDrillDown(null)}
+                    />
+                  ) : modalDrillDown?.view === 'timeline' && connections[modalDrillDown.routeIdx] ? (
+                    <PainelTimelineExpandido
+                      route={connections[modalDrillDown.routeIdx]}
+                      onVoltar={() => setModalDrillDown(null)}
                     />
                   ) : connections.length === 0 ? (
                     <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
@@ -2006,6 +2141,7 @@ function VisaoGeralMapa() {
                       const cardClass = isExportacao ? 'bfd-route-card bfd-route-card--exportacao' : 'bfd-route-card bfd-route-card--importacao'
                       const totalVencimentos =
                         route.resumoVencimentosPagar.quantidade + route.resumoVencimentosReceber.quantidade
+                      const { origem, destino } = rotuloCabecalhoRota(route, isExportacao)
                       
                       return (
                         <div key={idx} className={cardClass}>
@@ -2013,11 +2149,9 @@ function VisaoGeralMapa() {
 
                           <div className="bfd-route-header">
                             <div className="bfd-route-ports">
-                              <span className="bfd-route-port-flag">{route.fromFlag}</span>
-                              <span className="bfd-route-port-name">{route.fromPort}</span>
+                              <span className="bfd-route-port-name" title={origem}>{origem}</span>
                               <span className="bfd-route-arrow-icon">➔</span>
-                              <span className="bfd-route-port-flag">{route.toFlag}</span>
-                              <span className="bfd-route-port-name">{route.toPort}</span>
+                              <span className="bfd-route-port-name" title={destino}>{destino}</span>
                             </div>
                             
                             <span className={badgeClass} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -2026,6 +2160,10 @@ function VisaoGeralMapa() {
                           </div>
 
                           <div className="bfd-route-vencimentos">
+                            <MiniTimelineVencimentos
+                              timeline={route.timelineVencimentos}
+                              onExpand={() => setModalDrillDown({ view: 'timeline', routeIdx: idx })}
+                            />
                             <div className="bfd-route-vencimentos__cols">
                               <ResumoVencimentosCol
                                 titulo={t('pedido.visao_geral.mapa.vencimentos_pagar')}
@@ -2040,16 +2178,18 @@ function VisaoGeralMapa() {
                                 corValor="#34d399"
                               />
                             </div>
-                            <MiniTimelineVencimentos timeline={route.timelineVencimentos} />
                           </div>
 
                           {totalVencimentos > 0 && (
                             <button
                               type="button"
                               className="bfd-route-ver-todos-btn"
+                              onMouseDown={e => e.stopPropagation()}
                               onClick={e => {
+                                e.preventDefault()
                                 e.stopPropagation()
-                                setVencimentosExpandido({
+                                setModalDrillDown({
+                                  view: 'vencimentos',
                                   routeIdx: idx,
                                   tab: route.resumoVencimentosPagar.quantidade > 0 ? 'pagar' : 'receber',
                                 })
@@ -2084,7 +2224,15 @@ function VisaoGeralMapa() {
                 </div>
                 
                 <div className="bfd-modal-mapa-footer">
-                  <button className="bfd-modal-mapa-close-action" onClick={() => setSelectedLocKey(null)}>{t('comum.fechar')}</button>
+                  <button
+                    type="button"
+                    className="bfd-modal-mapa-close-action"
+                    onClick={handleModalFecharOuVoltar}
+                  >
+                    {modalDrillDown !== null
+                      ? t('pedido.visao_geral.mapa.voltar_rotas')
+                      : t('comum.fechar')}
+                  </button>
                 </div>
               </div>
             </div>
@@ -2959,8 +3107,12 @@ export default function VisaoGeral() {
         .bfd-route-ports {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.45rem;
+          flex: 1;
+          min-width: 0;
+          flex-wrap: nowrap;
         }
+
         .bfd-route-port-flag {
           font-size: 1.15rem;
         }
@@ -2968,6 +3120,10 @@ export default function VisaoGeral() {
           font-size: 0.9rem;
           font-weight: 700;
           color: #ffffff;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 42%;
         }
         
         .bfd-route-arrow-icon {
@@ -3036,6 +3192,11 @@ export default function VisaoGeral() {
           border: 1px solid rgba(255, 255, 255, 0.05);
           overflow: visible;
           flex-shrink: 0;
+          position: relative;
+        }
+
+        .bfd-route-vencimentos:has(.bfd-route-mini-timeline) {
+          padding-top: 3.1rem;
         }
 
         .bfd-route-vencimentos__cols {
@@ -3256,11 +3417,71 @@ export default function VisaoGeral() {
         }
 
         .bfd-route-mini-timeline {
-          width: 84px;
-          height: 38px;
-          align-self: flex-end;
+          position: absolute;
+          top: 0.55rem;
+          right: 0.65rem;
+          width: 92px;
+          height: 44px;
           flex-shrink: 0;
           opacity: 0.95;
+          padding: 0;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 8px;
+          background: rgba(0, 0, 0, 0.2);
+          cursor: pointer;
+          transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        .bfd-route-mini-timeline--clickable:hover {
+          border-color: rgba(56, 189, 248, 0.45);
+          background: rgba(56, 189, 248, 0.08);
+        }
+
+        .bfd-timeline-expandido {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          min-height: 320px;
+        }
+
+        .bfd-timeline-expandido__legenda {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1rem;
+          font-size: 0.78rem;
+          color: #cbd5e1;
+        }
+
+        .bfd-timeline-expandido__legenda-item {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+        }
+
+        .bfd-timeline-expandido__swatch {
+          width: 10px;
+          height: 10px;
+          border-radius: 2px;
+          display: inline-block;
+        }
+
+        .bfd-timeline-expandido__swatch--pagar { background: #f59e0b; }
+        .bfd-timeline-expandido__swatch--receber { background: #34d399; }
+
+        .bfd-timeline-expandido__chart-wrap {
+          flex: 1;
+          overflow-x: auto;
+          padding: 0.5rem;
+          border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: rgba(0, 0, 0, 0.18);
+        }
+
+        .bfd-timeline-expandido__chart {
+          width: 100%;
+          min-width: 320px;
+          height: auto;
+          display: block;
         }
 
         .bfd-route-cambio-icon {

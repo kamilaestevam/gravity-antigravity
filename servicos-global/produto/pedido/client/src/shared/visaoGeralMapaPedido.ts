@@ -88,6 +88,7 @@ export interface VisaoGeralRotaDetalhe {
   fromFlag: string
   toPort: string
   toFlag: string
+  nome_workspace: string
   tipoOperacao: TipoOperacaoMapa
   pedidos: number
   valorTotal: number
@@ -472,6 +473,7 @@ interface RotaAggInterna {
   fromFlag: string
   toPort: string
   toFlag: string
+  nome_workspace: string
   tipoOperacao: TipoOperacaoMapa
   pedidos: number
   valorTotal: number
@@ -832,7 +834,10 @@ function construirRotasGlobo(
   return routes
 }
 
-export function buildVisaoGeralMapa(pedidos: Pedido[]): VisaoGeralMapaData {
+export function buildVisaoGeralMapa(
+  pedidos: Pedido[],
+  nomesWorkspacePorId: ReadonlyMap<string, string> = new Map(),
+): VisaoGeralMapaData {
   if (pedidos.length === 0) return MAPA_VAZIO
 
   const origensMap = new Map<string, LocAgg>()
@@ -869,7 +874,9 @@ export function buildVisaoGeralMapa(pedidos: Pedido[]): VisaoGeralMapaData {
 
     if (!orig) continue
 
-    const rotaKey = `${orig.key}→${dest.key}|${p.tipo_operacao}`
+    const idWorkspace = p.company_id?.trim() || 'sem-workspace'
+    const nomeWorkspace = nomesWorkspacePorId.get(idWorkspace) ?? '—'
+    const rotaKey = `${orig.key}→${dest.key}|${p.tipo_operacao}|${idWorkspace}`
     const geoOrig = resolverGeo(orig.country, orig.cidade)
     const geoDest = resolverGeo(dest.country, dest.cidade)
     const existente = rotasMap.get(rotaKey)
@@ -885,6 +892,7 @@ export function buildVisaoGeralMapa(pedidos: Pedido[]): VisaoGeralMapaData {
         fromFlag: geoOrig.flag,
         toPort: `${dest.label} (${geoDest.code})`,
         toFlag: geoDest.flag,
+        nome_workspace: nomeWorkspace,
         tipoOperacao: p.tipo_operacao,
         pedidos: 1,
         valorTotal: valor,

@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useCallback, useEffect } from 'react'
+import ReactDOM from 'react-dom'
 import { ArrowUp, ArrowDown, ArrowRight } from '@phosphor-icons/react'
 import type { CardBasicoProps, PeriodoCodigo, PeriodoTendencia } from './tipos'
 import './card.css'
@@ -9,7 +10,7 @@ const DEFAULT_PERIODO: PeriodoCodigo = '30d'
  * CardBasicoGlobal — Card de métrica numérica do Gravity Design System
  *
  * Exibe título, ícone, valor em destaque, tendência com seletor de período
- * interativo (7d / 30d / 6m / 1a), subtexto e um tooltip CSS-only ao hover.
+ * interativo (7d / 30d / 6m / 1a), subtexto e tooltip ao hover (portal fixed).
  *
  * @example
  * <CardBasicoGlobal
@@ -41,7 +42,40 @@ export function CardBasicoGlobal({
 
   const [periodoAtivo, setPeriodoAtivo] = useState<PeriodoCodigo>(DEFAULT_PERIODO)
   const [showPicker, setShowPicker] = useState(false)
+  const [showTooltip, setShowTooltip] = useState(false)
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  const atualizarPosTooltip = useCallback(() => {
+    const el = cardRef.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    setTooltipPos({
+      x: r.left + r.width / 2,
+      y: tooltipPosicao === 'top' ? r.top - 10 : r.bottom + 10,
+    })
+  }, [tooltipPosicao])
+
+  const abrirTooltip = useCallback(() => {
+    if (!tooltip || document.body.classList.contains('tooltips-disabled')) return
+    atualizarPosTooltip()
+    setShowTooltip(true)
+  }, [tooltip, atualizarPosTooltip])
+
+  const fecharTooltip = useCallback(() => setShowTooltip(false), [])
+
+  useEffect(() => {
+    if (!showTooltip) return
+    function reposicionar() { atualizarPosTooltip() }
+    function fechar() { setShowTooltip(false) }
+    window.addEventListener('scroll', fechar, true)
+    window.addEventListener('resize', reposicionar)
+    return () => {
+      window.removeEventListener('scroll', fechar, true)
+      window.removeEventListener('resize', reposicionar)
+    }
+  }, [showTooltip, atualizarPosTooltip])
 
   // Resolve a tendência ativa: periodos tem prioridade sobre tendencia estática
   const tendenciaAtiva: { valor: string; direcao: string } | undefined = periodos
@@ -53,9 +87,26 @@ export function CardBasicoGlobal({
     variante !== 'padrao' ? `cg-card--${variante}` : '',
     `cg-card--align-${alinhamento}`,
     tooltip ? 'cg-card--has-tooltip' : '',
-    tooltip && tooltipPosicao === 'top' ? 'cg-card--tooltip-top' : '',
     className,
   ].filter(Boolean).join(' ')
+
+  const tooltipPortal = tooltip && showTooltip
+    ? ReactDOM.createPortal(
+        <div
+          className={`cg-card__tooltip cg-card__tooltip--portal${tooltipPosicao === 'top' ? ' cg-card__tooltip--portal-top' : ''}`}
+          style={{ left: tooltipPos.x, top: tooltipPos.y }}
+          role="tooltip"
+        >
+          <div className="cg-tooltip__header">
+            {icone && <span className="cg-tooltip__header-icon">{icone}</span>}
+            <p className="cg-tooltip__title">{titulo}</p>
+          </div>
+          <div className="cg-tooltip__divider" />
+          {tooltip}
+        </div>,
+        document.body,
+      )
+    : null
 
   function TrendArrow({ direcao }: { direcao: string }) {
     if (direcao === 'up')      return <ArrowUp    size={13} weight="bold" />
@@ -64,7 +115,12 @@ export function CardBasicoGlobal({
   }
 
   return (
-    <div className={cls}>
+    <div
+      ref={cardRef}
+      className={cls}
+      onMouseEnter={abrirTooltip}
+      onMouseLeave={fecharTooltip}
+    >
 
       {/* Cabeçalho: ícone + rótulo */}
       <div className="cg-card__header">
@@ -122,18 +178,7 @@ export function CardBasicoGlobal({
         )}
       </div>
 
-      {/* Tooltip (cabeçalho automático com ícone + título) */}
-      {tooltip && (
-        <div className="cg-card__tooltip">
-          <div className="cg-tooltip__header">
-            {icone && <span className="cg-tooltip__header-icon">{icone}</span>}
-            <p className="cg-tooltip__title">{titulo}</p>
-          </div>
-          <div className="cg-tooltip__divider" />
-          {tooltip}
-        </div>
-      )}
-
+      {tooltipPortal}
     </div>
   )
 }

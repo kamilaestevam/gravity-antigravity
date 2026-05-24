@@ -32,6 +32,7 @@ import type { Pedido, PedidoItem, CardUsuario } from './types'
 import { fmtMoeda, fmtQuantidade } from './types'
 import type { CardComputedStats } from './listaCardStats'
 import { computeCardStats, isEmAndamento } from './listaCardStats'
+import type { AlertasBreakdown } from '../../../shared/pedidoAlertasAggregate'
 import { decodeMetricaCard } from './cardMetricaCatalog'
 import { CARDS_CATALOGO } from './columnCatalog'
 
@@ -100,6 +101,34 @@ function row(label: string, value: string | number) {
       <strong>{value}</strong>
     </p>
   )
+}
+
+const BREAKDOWN_PEDIDO: (keyof AlertasBreakdown)[] = [
+  'part_number_duplicado_resumo',
+  'numero_pedido_duplicado',
+  'divergencia_campos',
+  'valor_total_divergente',
+  'quantidade_total_divergente',
+  'quantidade_pronta_divergente',
+  'peso_liquido_divergente',
+  'peso_bruto_divergente',
+  'cubagem_divergente',
+]
+
+const BREAKDOWN_ITEM: (keyof AlertasBreakdown)[] = ['part_number_duplicado_item']
+
+const BREAKDOWN_TOTAL: (keyof AlertasBreakdown)[] = [...BREAKDOWN_PEDIDO, ...BREAKDOWN_ITEM]
+
+function tooltipBreakdownAlertas(
+  t: TFunction,
+  breakdown: AlertasBreakdown,
+  keys: (keyof AlertasBreakdown)[],
+) {
+  const ativos = keys.filter(k => breakdown[k] > 0)
+  if (ativos.length === 0) {
+    return row(t('pedido.cards.alertas.breakdown.vazio'), '—')
+  }
+  return <>{ativos.map(k => row(t(`pedido.cards.alertas.breakdown.${k}`), breakdown[k]))}</>
 }
 
 // ─── Registry ─────────────────────────────────────────────────────────────────
@@ -256,10 +285,7 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
       pedido: s.alertasPedido,
       item: s.alertasItem,
     }),
-    tooltip:  (t, _, s) => <>
-      {row(t('pedido.cards.alertas_total.row.pedido'), s.alertasPedido)}
-      {row(t('pedido.cards.alertas_total.row.item'), s.alertasItem)}
-    </>,
+    tooltip:  (t, _, s) => tooltipBreakdownAlertas(t, s.alertasBreakdown, BREAKDOWN_TOTAL),
   },
 
   alertas_pedido: {
@@ -268,7 +294,7 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     getValue: s => s.alertasPedido,
     format:   v => v,
     subtexto: (t) => t('pedido.cards.alertas_pedido.subtexto'),
-    tooltip:  (t, _, s) => row(t('pedido.cards.alertas_pedido.row.total'), s.alertasPedido),
+    tooltip:  (t, _, s) => tooltipBreakdownAlertas(t, s.alertasBreakdown, BREAKDOWN_PEDIDO),
   },
 
   alertas_item: {
@@ -277,7 +303,7 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     getValue: s => s.alertasItem,
     format:   v => v,
     subtexto: (t) => t('pedido.cards.alertas_item.subtexto'),
-    tooltip:  (t, _, s) => row(t('pedido.cards.alertas_item.row.total'), s.alertasItem),
+    tooltip:  (t, _, s) => tooltipBreakdownAlertas(t, s.alertasBreakdown, BREAKDOWN_ITEM),
   },
 }
 

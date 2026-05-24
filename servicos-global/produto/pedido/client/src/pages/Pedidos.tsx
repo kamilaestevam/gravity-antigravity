@@ -2519,6 +2519,61 @@ type PedidoItemEnriquecido = PedidoItem & {
   }
 }
 
+/** ID de workspace do pedido (DDD id_workspace ou ACL company_id). */
+function extrairIdWorkspaceDePedido(p: Pedido): string {
+  const r = p as Record<string, unknown>
+  return String(r.id_workspace ?? r.company_id ?? '').trim()
+}
+
+/** ID de workspace do item (ACL company_id ou _p.id_workspace). */
+function extrairIdWorkspaceDeItem(item: PedidoItem): string {
+  const enr = item as PedidoItemEnriquecido
+  return String(item.company_id ?? enr._p?.id_workspace ?? '').trim()
+}
+
+/** Coleta todos os IDs de workspace visíveis em pedidos + itens embutidos. */
+function coletarIdsWorkspaceDePedidos(lista: ReadonlyArray<Pedido>): string[] {
+  const ids: string[] = []
+  for (const p of lista) {
+    const idPai = extrairIdWorkspaceDePedido(p)
+    if (idPai) ids.push(idPai)
+    for (const item of p.itens ?? []) {
+      const idItem = extrairIdWorkspaceDeItem(item)
+      if (idItem) ids.push(idItem)
+    }
+  }
+  return ids
+}
+
+type ExpansaoFiltroWorkspace = {
+  novosIds: string[]
+  nomesAdicionados: string[]
+  nomesFiltro: Set<string>
+}
+
+/** Calcula expansão do filtro multi-workspace quando há IDs visíveis fora da seleção. */
+function calcularExpansaoFiltroWorkspace(
+  idsVisiveis: ReadonlyArray<string>,
+  workspacesSelecionados: ReadonlyArray<string>,
+  workspacesMap: ReadonlyMap<string, { nome: string; cnpj?: string | null }>,
+): ExpansaoFiltroWorkspace | null {
+  const idsUnicos = [...new Set(idsVisiveis.map(id => id.trim()).filter(Boolean))]
+  const faltando = idsUnicos.filter(id => !workspacesSelecionados.includes(id))
+  if (faltando.length === 0) return null
+
+  const novosIds = [...new Set([...workspacesSelecionados, ...faltando])]
+  const nomesFiltro = new Set<string>()
+  const nomesAdicionados: string[] = []
+  for (const id of novosIds) {
+    const nome = workspacesMap.get(id)?.nome
+    if (!nome) continue
+    nomesFiltro.add(nome)
+    if (faltando.includes(id)) nomesAdicionados.push(nome)
+  }
+  if (nomesAdicionados.length === 0) return null
+  return { novosIds, nomesAdicionados, nomesFiltro }
+}
+
 /** Propaga valor do pai no item em memória — traduz id_workspace → company_id (ACL JSON). */
 function aplicarPropagacaoPedidoNoItem(
   item: PedidoItem,
@@ -2550,6 +2605,14 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     const retorno = encodeURIComponent(urlAtual.toString())
     const base = import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
     return `${base}/workspace/workspaces?id=${idWorkspace}&foco=cnpj&retorno=${retorno}`
+  }
+
+  /** Nome do workspace do pedido pai — espelha ColunasPai (importação/exportação). */
+  const resolverNomeWorkspacePedidoPai = (row: PedidoItem): string | null => {
+    const enr = row as PedidoItemEnriquecido
+    const id = enr._p?.id_workspace ?? row.company_id ?? ''
+    if (!id) return null
+    return workspacesMap?.get(id)?.nome ?? null
   }
 
   return {
@@ -2592,12 +2655,16 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   },
   id_workspace: {
     editavel: false,
+    tooltipBloqueado: t('pedido.coluna_filho.mapa_id_workspace.tooltip_bloqueado', 'Workspace é do pedido — altere na linha do pedido'),
     render: (row: PedidoItem) => {
       const enr = row as PedidoItemEnriquecido
-      const id = row.company_id ?? enr._p?.id_workspace ?? ''
+      // Fonte canônica: workspace do pedido pai (itens sempre herdam).
+      const id = enr._p?.id_workspace ?? row.company_id ?? ''
       if (!id) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
       const nome = workspacesMap?.get(id)?.nome ?? id
-      const divergente = enr._p?.id_workspace != null && id !== enr._p.id_workspace
+      const divergente = enr._p?.id_workspace != null
+        && row.company_id != null
+        && row.company_id !== enr._p.id_workspace
       const conteudo = nome.length <= 50
         ? <span>{nome}</span>
         : (
@@ -2631,7 +2698,10 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'nome_exportador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
-      const v = tipoOp === 'importacao' ? (row.nome_exportador ?? null) : ((row as PedidoItemEnriquecido)._p?.nome_exportador ?? null)
+      // Exportação: workspace = exportador (mesma regra de ColunasPai.tsx)
+      const v = tipoOp === 'exportacao'
+        ? (resolverNomeWorkspacePedidoPai(row) ?? row.nome_exportador ?? (row as PedidoItemEnriquecido)._p?.nome_exportador ?? null)
+        : (row.nome_exportador ?? null)
       if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
       if (v.length <= 50) return <span>{v}</span>
       return (
@@ -2653,7 +2723,10 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'nome_importador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
-      const v = tipoOp === 'exportacao' ? (row.nome_importador ?? null) : ((row as PedidoItemEnriquecido)._p?.nome_importador ?? null)
+      // Importação: workspace = importador (mesma regra de ColunasPai.tsx)
+      const v = tipoOp === 'importacao'
+        ? (resolverNomeWorkspacePedidoPai(row) ?? row.nome_importador ?? (row as PedidoItemEnriquecido)._p?.nome_importador ?? null)
+        : (row.nome_importador ?? null)
       if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
       if (v.length <= 50) return <span>{v}</span>
       return (
@@ -4129,7 +4202,8 @@ export default function Pedidos() {
       .filter(c => c.tipo !== 'formula' && c.tipo !== 'anexo'
                  && ((c.escopo || 'ambos') === 'item' || (c.escopo || 'ambos') === 'ambos'))
       .map(c => c.chave)
-    return [...CAMPOS_EDITAVEIS_PAI, ...customKeys]
+    // id_workspace é exclusivo do pedido — itens herdam sempre, sem edição inline.
+    return [...CAMPOS_EDITAVEIS_PAI, ...customKeys].filter(k => k !== 'id_workspace')
   }, [colunasUsuario])
 
   // ── Estado de filtros de coluna ───────────────────────────────────────────────
@@ -4185,6 +4259,35 @@ export default function Pedidos() {
     )
   }, [filtrosAtivos, workspacesMap])
 
+
+  // ── Expansão automática do filtro workspace ─────────────────────────────────
+  // Quando a lista/expansão/edição revela um workspace que não está no filtro
+  // ativo, incluímos automaticamente para o usuário não ficar "cego" (chip ≠ dados).
+  const aplicarExpansaoFiltroWorkspace = useCallback((
+    idsVisiveis: ReadonlyArray<string>,
+    opcoes?: { notificar?: boolean },
+  ): string[] | null => {
+    const expansao = calcularExpansaoFiltroWorkspace(idsVisiveis, workspacesSelecionados, workspacesMap)
+    if (!expansao) return null
+
+    setFiltrosAtivos(prev => ({
+      ...prev,
+      id_workspace: { tipo: 'enum', valor: expansao.nomesFiltro },
+    }))
+    initializedFilterRef.current = true
+
+    if (opcoes?.notificar !== false && expansao.nomesAdicionados.length > 0) {
+      addNotification({
+        type: 'info',
+        message: t('pedido.lista.filtro_workspace_auto_expandido', {
+          nomes: expansao.nomesAdicionados.join(', '),
+          defaultValue: `Filtro de workspace atualizado: ${expansao.nomesAdicionados.join(', ')}`,
+        }),
+      })
+    }
+
+    return expansao.novosIds
+  }, [workspacesSelecionados, workspacesMap, addNotification, t])
 
   // ── Pedidos filtrados (client-side) ───────────────────────────────────────────
   const pedidosFiltrados = useMemo<Pedido[]>(() => {
@@ -4378,14 +4481,37 @@ export default function Pedidos() {
       })
       // Pré-computa flags de divergência no carregamento inicial — pedidos vem
       // com itens populados do backend (include itens_pedido na rota /listar).
-      // Sem isso, alertas como data_emissao_pedido_divergente ficavam undefined
-      // até o usuário expandir manualmente o pedido (handleCarregarFilhos).
-      // Decisão UX 2026-05-13: alerta deve aparecer no list view sem expansão.
       const pedidosComDivergencias = res.data.map(p => {
         if (!p.itens || p.itens.length === 0) return p
         const { itens, divergencias } = sincronizarItensPedido(p.itens, p)
         return { ...p, itens, ...divergencias }
       })
+
+      // Workspace visível fora do filtro → expande filtro + refetch atômico
+      // (evita race com carregandoRef quando o useEffect de workspaces dispara).
+      const idsVisiveis = coletarIdsWorkspaceDePedidos(pedidosComDivergencias)
+      const novosIdsFiltro = aplicarExpansaoFiltroWorkspace(idsVisiveis)
+      if (novosIdsFiltro) {
+        const resExpandido = await pedidoVirtualApi.listar({
+          sort: novaOrdem,
+          dir: novaDir,
+          limit: ITENS_POR_PAGINA,
+          page: novaPagina,
+          status: novaAba !== 'todos' ? novaAba : undefined,
+          busca: novaBusca || undefined,
+          idsWorkspacesFiltro: novosIdsFiltro,
+        })
+        const pedidosExpandidos = resExpandido.data.map(p => {
+          if (!p.itens || p.itens.length === 0) return p
+          const { itens, divergencias } = sincronizarItensPedido(p.itens, p)
+          return { ...p, itens, ...divergencias }
+        })
+        setPedidos(pedidosExpandidos)
+        setTotal(resExpandido.total)
+        setTotalItensBanco(resExpandido.totalItens ?? 0)
+        return
+      }
+
       setPedidos(pedidosComDivergencias)
       setTotal(res.total)
       setTotalItensBanco(res.totalItens ?? 0)
@@ -4401,7 +4527,7 @@ export default function Pedidos() {
       setCarregando(false)
       carregandoRef.current = false
     }
-  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo])
+  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo, aplicarExpansaoFiltroWorkspace])
 
   // Recarrega lista quando mudou seleção de workspaces (filtro multi-workspace)
   useEffect(() => {
@@ -5090,24 +5216,25 @@ export default function Pedidos() {
           : valor
     // replicar_em_itens vem do checkbox "Aplicar a todos os itens" no popover
     // do pai (Decisão UX 2026-05-13). Default false — comportamento divergente.
-    const replicar = opts?.replicar_em_itens ?? false
+    // Exceção: id_workspace SEMPRE replica — item não pode ter workspace distinto.
+    const replicar = campo === 'id_workspace'
+      ? true
+      : (opts?.replicar_em_itens ?? false)
     const updatedPedido = await pedidoVirtualApi.editarCampo(id, campo, valorEnviarPai, replicar)
     // Quando replicou, o servidor atualizou os itens filhos via updateMany.
     // ATUALIZA o cache local de itens com o novo valor (em vez de só invalidar
     // — invalidar sozinho exige refetch ao expandir e mantém flag stale).
     // Decisão UX 2026-05-13: refletir imediatamente nos itens em memória.
     if (replicar && isPropagavel(campo)) {
+      const patchItens = (lista: PedidoItem[]) =>
+        lista.map(i => aplicarPropagacaoPedidoNoItem(i, campo, valorEnviarPai))
       const itensCache = itensCarregadosRef.current.get(id) ?? []
       if (itensCache.length > 0) {
-        const itensAtualizados = itensCache.map(i =>
-          aplicarPropagacaoPedidoNoItem(i, campo, valorEnviarPai),
-        )
-        itensCarregadosRef.current.set(id, itensAtualizados)
+        itensCarregadosRef.current.set(id, patchItens(itensCache))
         if (campo === 'id_workspace') {
           setResetFilhos(prev => prev + 1)
         }
       } else {
-        // Sem cache (pedido nunca foi expandido) — só invalida para refetch quando expandir.
         itensCarregadosRef.current.delete(id)
       }
     }
@@ -5119,14 +5246,20 @@ export default function Pedidos() {
     // para não perder flags de divergência que já vieram do backend.
     setPedidos(prev => prev.map(p => {
       if (p.id !== id) return p
-      const itensFallback = itensAtuais.length > 0 ? itensAtuais : (p.itens ?? [])
+      let itensFallback = itensAtuais.length > 0 ? itensAtuais : (p.itens ?? [])
+      if (replicar && isPropagavel(campo) && itensAtuais.length === 0 && itensFallback.length > 0) {
+        itensFallback = itensFallback.map(i => aplicarPropagacaoPedidoNoItem(i, campo, valorEnviarPai))
+      }
       const sinc = itensFallback.length > 0
         ? sincronizarItensPedido(itensFallback, updatedPedido)
         : { itens: itensFallback, divergencias: {} as Partial<Pedido> }
       return { ...updatedPedido, itens: sinc.itens.length > 0 ? sinc.itens : p.itens, ...sinc.divergencias }
     }))
+    if (campo === 'id_workspace') {
+      aplicarExpansaoFiltroWorkspace([String(valorEnviarPai ?? '')])
+    }
     return updatedPedido
-  }, [pedidos, colunasUsuario])
+  }, [pedidos, colunasUsuario, aplicarExpansaoFiltroWorkspace])
 
   // ── Recalcula flags de divergência a partir dos itens carregados ─────────────
   // SSOT: pedidoDivergencias.ts (shared) + getAlertavelKeys() em columnAlertConfig.ts
@@ -5163,6 +5296,10 @@ export default function Pedidos() {
     if (!pedido) throw new Error(t('pedido.lista.erro.pedido_item_nao_localizado'))
     // Helper: itens carregados via handleCarregarFilhos (lista view retorna itens:[])
     const getItensCache = () => itensCarregadosRef.current.get(pedido.id) ?? []
+
+    if (campo === 'id_workspace' || campo === 'company_id') {
+      throw new Error(t('pedido.lista.erro.workspace_somente_pedido', 'Workspace é definido no pedido e aplica-se a todos os itens.'))
+    }
 
     if (campo === 'status') {
       const novoStatus = String(valor)
@@ -5840,8 +5977,12 @@ export default function Pedidos() {
         cubagem_total_pedido:            itensComAlertas.reduce((s, i) => s + (Number(i.cubagem_unitaria) || 0), 0),
       }
     }))
+    aplicarExpansaoFiltroWorkspace([
+      extrairIdWorkspaceDePedido(pedido),
+      ...itensComAlertas.map(extrairIdWorkspaceDeItem),
+    ])
     return itensComAlertas
-  }, [])
+  }, [aplicarExpansaoFiltroWorkspace])
 
   // ── Salvar preferências ──────────────────────────────────────────────────────
   const pedidoItemVersion = useCallback((p: Pedido) => p.updated_at, [])
@@ -6116,6 +6257,7 @@ export default function Pedidos() {
           } : undefined}
           permiteReplicacaoPaiEmItens={podeEditarLista ? (campo) => {
             const COLUNAS_SEM_REPLICACAO = new Set([
+              'id_workspace', // replicação automática — sem checkbox
               'numero_pedido',
               'valor_total_pedido',
               'valor_por_unidade_item',

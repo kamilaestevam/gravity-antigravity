@@ -34,8 +34,9 @@
  */
 export const MAPA_PROPAGACAO_PEDIDO_ITEM: Readonly<Record<string, string>> = Object.freeze({
   // ── Isolamento — workspace (1) ───────────────────────────────────────────
-  // Mesmo nome Prisma em Pedido e PedidoItem. No JSON público do item o ACL
-  // expõe `company_id` (legado) — o front traduz na atualização do cache.
+  // Mesmo nome Prisma em Pedido e PedidoItem. Regra de negócio: item NUNCA
+  // pode divergir — edição no pai replica SEMPRE (sem checkbox). No JSON
+  // público do item o ACL expõe `company_id` (legado).
   id_workspace:                     'id_workspace',
 
   // ── Identidade comercial (5) ─────────────────────────────────────────────

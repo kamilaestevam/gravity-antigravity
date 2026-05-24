@@ -7,7 +7,9 @@
  */
 
 import { useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { usePedidos } from './queries'
+import { workspacesDisponiveisApi } from './api'
 import type { Pedido } from './types'
 import { buildVisaoGeralMapa, type VisaoGeralMapaData } from './visaoGeralMapaPedido'
 
@@ -96,8 +98,21 @@ function estaAtrasado(p: Pedido, hoje: Date): boolean {
 
 export function useVisaoGeralPedido(): VisaoGeralPedido {
   const { data, isLoading } = usePedidos({ limit: 1000 })
+  const { data: workspaces = [] } = useQuery({
+    queryKey: ['workspaces-disponiveis'],
+    queryFn: () => workspacesDisponiveisApi.listar(),
+    staleTime: 5 * 60_000,
+  })
   const pedidos = data?.data ?? []
   const total = data?.total ?? pedidos.length
+
+  const nomesWorkspacePorId = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const ws of workspaces) {
+      map.set(ws.id_workspace, ws.nome_workspace)
+    }
+    return map
+  }, [workspaces])
 
   return useMemo<VisaoGeralPedido>(() => {
     const hoje = new Date()
@@ -216,7 +231,7 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
       }
     }
 
-    const mapa = buildVisaoGeralMapa(pedidos)
+    const mapa = buildVisaoGeralMapa(pedidos, nomesWorkspacePorId)
 
     return {
       loading: isLoading,
@@ -234,5 +249,5 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
       maiorPedido,
       mapa,
     }
-  }, [pedidos, total, isLoading])
+  }, [pedidos, total, isLoading, nomesWorkspacePorId])
 }

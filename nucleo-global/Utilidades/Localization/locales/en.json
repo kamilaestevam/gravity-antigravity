@@ -6298,6 +6298,7 @@
         "generico": "Error saving. Try again or contact support.",
         "desconhecido": "Unknown error",
         "pedido_nao_encontrado": "Order not found",
+        "workspace_somente_pedido": "Workspace is set on the order and applies to all items.",
         "pedido_item_nao_localizado": "Could not locate the order for this item. Reload the page.",
         "editar_valor_total_item": "Error editing valor_total_item",
         "editar_moeda_item": "Error editing item currency",
@@ -6310,6 +6311,7 @@
         "editar_campo_pedido": "Error editing order field {{campo}}",
         "editar_campo": "Error editing field {{campo}}"
       },
+      "filtro_workspace_auto_expandido": "Workspace filter updated: {{nomes}}",
       "tipo_operacao": {
         "importacao": "Import",
         "exportacao": "Export"
@@ -6417,6 +6419,7 @@
         "proximos_7_dias_count": "{{count}} in the next 7 days",
         "mais_vencimentos": "+{{count}} more",
         "voltar_rotas": "Back to routes",
+        "expandir_grafico_vencimentos": "Expand due dates chart",
         "maior_valor": "Highest Value",
         "participacao_volume": "Volume Share",
         "valor_total": "Total Value",
@@ -6621,6 +6624,21 @@
           "total": "Total"
         }
       },
+      "alertas": {
+        "breakdown": {
+          "vazio": "No alerts in the period",
+          "part_number_duplicado_item": "Duplicate Part Number (item)",
+          "part_number_duplicado_resumo": "Duplicate Part Number (order summary)",
+          "numero_pedido_duplicado": "Duplicate order number",
+          "divergencia_campos": "Field divergence between items",
+          "valor_total_divergente": "Order total value ≠ sum of items",
+          "quantidade_total_divergente": "Order total qty ≠ sum of items",
+          "quantidade_pronta_divergente": "Ready qty on order ≠ sum of items",
+          "peso_liquido_divergente": "Net weight on order ≠ sum of items",
+          "peso_bruto_divergente": "Gross weight on order ≠ sum of items",
+          "cubagem_divergente": "Volume on order ≠ sum of items"
+        }
+      },
       "custom": {
         "row": {
           "valor": "Value"
@@ -6663,6 +6681,9 @@
       "title_kpi_valor_itens": "Total Value of Items"
     },
     "coluna_filho": {
+      "mapa_id_workspace": {
+        "tooltip_bloqueado": "Workspace belongs to the order — edit on the order row"
+      },
       "part_number": {
         "label": "Item No.",
         "tooltip_titulo": "Item No.",

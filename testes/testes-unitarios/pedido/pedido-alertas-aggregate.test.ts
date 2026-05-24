@@ -68,13 +68,36 @@ describe('pedidoAlertasAggregate', () => {
 
     expect(result.alertas_item).toBe(2)
     expect(result.alertas_total).toBe(result.alertas_pedido + result.alertas_item)
+    expect(result.alertas_breakdown.part_number_duplicado_item).toBe(2)
+    expect(result.alertas_breakdown.valor_total_divergente).toBeGreaterThanOrEqual(0)
+  })
+
+  it('retorna breakdown detalhado por tipo de alerta', () => {
+    const pedido = { id_pedido: 'p1', numero_pedido: 'DUP', valor_total_pedido: 100 }
+    const itens = [
+      { valor_total_item: 40 },
+      { valor_total_item: 50, part_number: 'ABC' },
+      { part_number: 'ABC' },
+    ]
+
+    const { breakdown } = contarAlertasPedidoEItens(
+      pedido,
+      itens,
+      REGRAS_ALERTAS_DEFAULT,
+      true,
+    )
+
+    expect(breakdown.valor_total_divergente).toBe(1)
+    expect(breakdown.numero_pedido_duplicado).toBe(1)
+    expect(breakdown.part_number_duplicado_item).toBe(2)
+    expect(breakdown.part_number_duplicado_resumo).toBe(1)
   })
 
   it('ignora alerta de valor quando regra desabilitada', () => {
     const pedido = { id_pedido: 'p1', valor_total_pedido: 100 }
     const itens = [{ valor_total_item: 50 }]
 
-    const { alertasPedido } = contarAlertasPedidoEItens(
+    const { alertasPedido, breakdown } = contarAlertasPedidoEItens(
       pedido,
       itens,
       { ...REGRAS_ALERTAS_DEFAULT, alerta_valor_total_divergente: false },
@@ -82,5 +105,6 @@ describe('pedidoAlertasAggregate', () => {
     )
 
     expect(alertasPedido).toBe(0)
+    expect(breakdown.valor_total_divergente).toBe(0)
   })
 })

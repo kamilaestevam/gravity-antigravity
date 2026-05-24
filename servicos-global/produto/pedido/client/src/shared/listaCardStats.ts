@@ -6,7 +6,9 @@ import type { Pedido, PedidoItem } from './types'
 import {
   aggregateAlertasKpis,
   REGRAS_ALERTAS_DEFAULT,
+  ALERTAS_BREAKDOWN_ZERO,
   type RegrasAlertasConfig,
+  type AlertasBreakdown,
 } from '../../../shared/pedidoAlertasAggregate'
 
 export function safeNum(v: unknown): number {
@@ -96,6 +98,7 @@ export interface CardComputedStats {
   alertasTotal: number
   alertasPedido: number
   alertasItem: number
+  alertasBreakdown: AlertasBreakdown
 }
 
 export function computeCardStats(
@@ -176,6 +179,7 @@ export function computeCardStats(
     alertasTotal: alertas.alertas_total,
     alertasPedido: alertas.alertas_pedido,
     alertasItem: alertas.alertas_item,
+    alertasBreakdown: alertas.alertas_breakdown,
   }
 }
 
@@ -197,6 +201,7 @@ export function kpisApiToCardStats(kpis: {
   alertas_total: number
   alertas_pedido: number
   alertas_item: number
+  alertas_breakdown?: AlertasBreakdown
 }): CardComputedStats {
   return {
     total: kpis.total_pedidos,
@@ -216,5 +221,6 @@ export function kpisApiToCardStats(kpis: {
     alertasTotal: kpis.alertas_total,
     alertasPedido: kpis.alertas_pedido,
     alertasItem: kpis.alertas_item,
+    alertasBreakdown: kpis.alertas_breakdown ?? ALERTAS_BREAKDOWN_ZERO,
   }
 }

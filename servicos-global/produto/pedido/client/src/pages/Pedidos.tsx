@@ -49,6 +49,7 @@ import {
   PencilSimpleLine,
 } from '@phosphor-icons/react'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
+import { renderBadgeParteWorkspace } from '../components/lista/renderBadgeParteWorkspace'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
@@ -2698,10 +2699,18 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'nome_exportador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
-      // Exportação: workspace = exportador (mesma regra de ColunasPai.tsx)
-      const v = tipoOp === 'exportacao'
-        ? (resolverNomeWorkspacePedidoPai(row) ?? row.nome_exportador ?? (row as PedidoItemEnriquecido)._p?.nome_exportador ?? null)
-        : (row.nome_exportador ?? null)
+      if (tipoOp === 'exportacao') {
+        const nomeWs = resolverNomeWorkspacePedidoPai(row)
+        if (nomeWs) {
+          return renderBadgeParteWorkspace({
+            nomeWorkspace: nomeWs,
+            titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
+            descricao: t('pedido.coluna_pai.exportador_workspace_desc', { nome: nomeWs }),
+            somenteLeitura: true,
+          })
+        }
+      }
+      const v = row.nome_exportador ?? (row as PedidoItemEnriquecido)._p?.nome_exportador ?? null
       if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
       if (v.length <= 50) return <span>{v}</span>
       return (
@@ -2723,10 +2732,18 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'nome_importador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
-      // Importação: workspace = importador (mesma regra de ColunasPai.tsx)
-      const v = tipoOp === 'importacao'
-        ? (resolverNomeWorkspacePedidoPai(row) ?? row.nome_importador ?? (row as PedidoItemEnriquecido)._p?.nome_importador ?? null)
-        : (row.nome_importador ?? null)
+      if (tipoOp === 'importacao') {
+        const nomeWs = resolverNomeWorkspacePedidoPai(row)
+        if (nomeWs) {
+          return renderBadgeParteWorkspace({
+            nomeWorkspace: nomeWs,
+            titulo: t('pedido.coluna_pai.parte_importador_titulo'),
+            descricao: t('pedido.coluna_pai.importador_workspace_desc', { nome: nomeWs }),
+            somenteLeitura: true,
+          })
+        }
+      }
+      const v = row.nome_importador ?? (row as PedidoItemEnriquecido)._p?.nome_importador ?? null
       if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
       if (v.length <= 50) return <span>{v}</span>
       return (

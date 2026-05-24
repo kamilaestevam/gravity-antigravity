@@ -1587,6 +1587,43 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     }
   }, [selecionados, paisAutoPromovidos])
 
+  // REGRA UNIVERSAL: pai marcado → filhos recém-carregados entram marcados (feedback visual)
+  const filhosIdsCacheAnteriorRef = useRef<Map<string, Set<string>>>(new Map())
+  useEffect(() => {
+    if (!selecionavelFilhos) return
+
+    setFilhosSelecionados(prev => {
+      let mudou = false
+      const novo = new Set(prev)
+      const proximoSnapshot = new Map<string, Set<string>>()
+
+      for (const [paiId, filhosArr] of filhosCache.entries()) {
+        const idsAtuais = new Set<string>()
+        for (const filho of filhosArr) {
+          const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+          if (fId) idsAtuais.add(fId)
+        }
+        proximoSnapshot.set(paiId, idsAtuais)
+
+        if (!selecionados.has(paiId)) continue
+
+        const idsAnteriores = filhosIdsCacheAnteriorRef.current.get(paiId) ?? new Set<string>()
+        for (const filho of filhosArr) {
+          const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+          if (!fId || idsAnteriores.has(fId)) continue
+          if (!novo.has(fId)) {
+            novo.add(fId)
+            filhosCacheMap.current.set(fId, filho)
+            mudou = true
+          }
+        }
+      }
+
+      filhosIdsCacheAnteriorRef.current = proximoSnapshot
+      return mudou ? novo : prev
+    })
+  }, [filhosCache, selecionados, selecionavelFilhos, filhoId])
+
   // Dispara onSelecaoFilho sempre que filhosSelecionados mudar
   useEffect(() => {
     if (!onSelecaoFilhoRef.current) return
@@ -2165,7 +2202,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     // Tooltip de célula bloqueada (editavel retornou false para esta linha)
     const colU0 = col as GTColuna<unknown>
-    const tooltipBloqueadoMsg = !podeEditar && colU0.tooltipBloqueado
+    const tooltipBloqueadoMsg = !podeEditar && colU0.tooltipBloqueado && !col.render
       ? (typeof colU0.tooltipBloqueado === 'function' ? colU0.tooltipBloqueado(item) : colU0.tooltipBloqueado)
       : undefined
 
@@ -2516,7 +2553,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   if (semPermissaoFilho && mensagemSemPermissaoEditar) {
                     return <TooltipGlobal titulo={col.label} descricao={mensagemSemPermissaoEditar}><span style={{ display: 'contents' }}>{conteudoFilho}</span></TooltipGlobal>
                   }
-                  if (!podeEditar && mapa?.tooltipBloqueado) {
+                  if (!podeEditar && mapa?.tooltipBloqueado && !mapa?.render) {
                     const msg = typeof mapa.tooltipBloqueado === 'function' ? mapa.tooltipBloqueado(item) : mapa.tooltipBloqueado
                     if (msg) return <TooltipGlobal titulo={col.label} descricao={msg}><span style={{ display: 'contents' }}>{conteudoFilho}</span></TooltipGlobal>
                   }

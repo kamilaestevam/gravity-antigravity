@@ -5,24 +5,27 @@ description: "Use esta skill para entender, configurar ou estender o linter cust
 
 # Gravity — Linter Custom de Isolamento de Organizacao
 
-> ## ⚠️ STATUS: ESPECIFICAÇÃO / NÃO IMPLEMENTADO (2026-05-12)
+> ## ⚠️ STATUS: PARCIALMENTE IMPLEMENTADO (atualizado 2026-05-18)
 >
-> Esta skill **documenta** as regras planejadas para o plugin
-> `@gravity/eslint-plugin-tenant-safety`, mas o **pacote ainda não existe** no
-> monorepo (`packages/eslint-plugin-tenant-safety/` está ausente). Nenhuma
-> das 6 regras roda no CI atualmente.
+> O plugin ESLint `@gravity/eslint-plugin-tenant-safety` **ainda não existe**
+> no monorepo — as 6 regras AST (Regras 1-6) continuam como especificação.
+>
+> **O que JÁ roda em pre-commit (lint-staged):**
+>
+> | Script | Regra | O que bloqueia |
+> |:---|:---|:---|
+> | `scripts/ativamente/check-env-toplevel.ts` | Regra 7 | `process.env.X!` top-level fora de `index.ts` |
+> | `scripts/ativamente/check-secrets.ts` | — | Credenciais hardcoded (DB URLs, API keys Stripe/Clerk/Resend, hex keys) |
+> | `scripts/ativamente/check-deps.ts` | — | Versões, `require()`, `@ts-ignore`, `any` |
 >
 > **Implicações práticas:**
-> - Anti-padrões listados abaixo (PrismaClient direto, filtro de organizacao
+> - Anti-padrões de Regras 1-6 (PrismaClient direto, filtro de organizacao
 >   ausente, `id_organizacao` incorreta em queries cross-org, etc.) **não são
->   bloqueados em CI nem em pre-commit**.
-> - Defesa atual é apenas **revisão humana** e testes funcionais.
-> - Auditoria 2026-05-12 (Coordenador + Líder Técnico) confirmou que o
->   anti-padrão `id_organizacao: req.auth.id_organizacao` em rotas
->   cross-org foi reintroduzido em `admin.ts` sem detecção automática
->   (bug P0 do convite admin cross-org, corrigido manualmente).
+>   bloqueados em CI** — defesa é revisão humana + testes funcionais.
+> - Regra 7 + check-secrets + check-deps **bloqueiam commit** via lint-staged.
+> - Auditoria de segurança 2026-05-18 adicionou `check-secrets.ts` ao pipeline.
 >
-> **Roadmap:** implementar o plugin quando houver capacidade. Esta skill
+> **Roadmap:** implementar o plugin ESLint quando houver capacidade. Esta skill
 > serve como **especificação congelada** das 6 regras a implementar,
 > evitando bikeshedding no momento da execução.
 >

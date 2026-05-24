@@ -136,9 +136,10 @@ CHAVE_INTERNA_SERVICO=...
 
 **Regras:**
 - Toda variável de ambiente está documentada no `.env.example` do serviço
-- Nenhuma variável hardcoded no código
+- Nenhuma variável hardcoded no código — pre-commit hook `scripts/ativamente/check-secrets.ts` bloqueia (detecta DB URLs com senha, API keys Stripe/Clerk/Resend, hex keys longas)
 - `CHAVE_INTERNA_SERVICO` rotacionada trimestralmente
 - Variáveis de staging e produção são sempre diferentes
+- `ENCRYPTION_KEY` (AES-256-GCM) documentada em `servicos-global/servicos-plataforma/api-cockpit/.env.example` — gerar com `openssl rand -hex 32`
 
 ---
 

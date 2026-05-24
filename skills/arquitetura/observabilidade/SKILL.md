@@ -74,6 +74,18 @@ export function createLogger(context: LogContext) {
 
 > **Onde os logs vão parar, retenção e log de auditoria:** ver [Observabilidade Mínima](../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md). Esta skill cobre apenas o formato emitido pela aplicação.
 
+### Dados Proibidos em Logs (auditoria 2026-05-18)
+
+**NUNCA** incluir nos campos `extra` ou `message` de qualquer log:
+
+- **Email** de usuário (`email_usuario`, `primaryEmail`, `emailAddress`)
+- **Tokens** JWT, API keys, `x-chave-interna`, `clerk_secret`
+- **Senhas**, hashes de senha, certificados digitais
+- **CPF/CNPJ** completo (mascarar: `***.***.123-45`)
+- **IDs de candidatos** em fallbacks de autenticação (lista de IDs possíveis)
+
+Se o contexto de debug exigir o dado, usar apenas o **id_usuario** (cuid) — nunca o email. Auditoria 2026-05-18 removeu emails de `requireAuth.ts` e `auth.ts` do Configurador que logavam `primaryEmail` em fallbacks de desambiguação.
+
 ---
 
 ## Pilar 2 — Correlation ID

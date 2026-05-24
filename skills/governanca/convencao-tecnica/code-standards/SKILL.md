@@ -189,10 +189,11 @@ app.get('/api/activities/:id', async (req, res, next) => {
   }
 })
 
-// ❌ proibido — res.status direto na rota
+// ❌ proibido — res.status direto na rota (auditoria 2026-05-18 corrigiu catalogo-publico.ts)
 app.get('/api/activities/:id', async (req, res) => {
   const activity = await prisma.activity.findFirst(...)
   if (!activity) return res.status(404).json({ message: 'não encontrado' })
+  // Usar: throw new AppError('Atividade não encontrada', 404, 'NOT_FOUND')
 })
 ```
 

@@ -35,11 +35,13 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 - [ ] **Nenhum** `SET search_path` sem `LOCAL` ou fora de `$transaction`?
 - [ ] `idOrganizacao` lido de `req.organizacao` (API real do SDK) — **NUNCA** do `publicMetadata` do Clerk (Mandamento 01)?
 - [ ] **Nenhuma autorização** baseada em `currentUser.publicMetadata.role` — sempre via `/api/v1/me` + Prisma (Mandamento 01)?
-- [ ] `x-chave-interna` em chamadas S2S?
+- [ ] `x-chave-interna` em chamadas S2S, validada com `timingSafeEqual` (nunca `!==`)?
 - [ ] Chaves de cache prefixadas por `organizacao:<idOrganizacao>:` ou `organizacao:_global:`?
 - [ ] Erros via `AppError` (nunca `res.status().json()` direto)?
-- [ ] Nenhum dado sensível em logs?
-- [ ] Nenhuma variável hardcoded?
+- [ ] Nenhum PII em logs (email, CPF, tokens, candidateIds — ver skill observabilidade)?
+- [ ] Nenhuma variável hardcoded (credenciais, DB URLs, API keys)?
+- [ ] `$executeRawUnsafe` / `$queryRawUnsafe` com whitelist de colunas (nunca interpolação de input do usuário)?
+- [ ] Pre-commit hook `check-secrets.ts` passa sem erros?
 - [ ] **Nenhum** `useState<T>({} as T)` — sempre `useState<T | null>(null)` + tratamento (Mandamento 05)?
 - [ ] **Nenhum** fallback silencioso em autorização tipo `(data?.x?.y ?? null) as Role` (Mandamento 08)?
 - [ ] Schemas Zod do front refletem o payload do back no MESMO commit (Mandamento 07 + 09)?

@@ -149,7 +149,13 @@ export function withInternalKeyValidation(
 }
 ```
 
-> **Regras:** (1) `INTERNAL_API_KEY` deve ser rotacionada a cada trimestre. (2) Use `timingSafeEqual` — nunca `!==`. (3) Retornar 403, não 401, para não confundir com falta de autenticação de usuário.
+> **Regras:** (1) `INTERNAL_API_KEY` deve ser rotacionada a cada trimestre. (2) Use `timingSafeEqual` — nunca `!==`. (3) Retornar 403, não 401, para não confundir com falta de autenticação de usuário. (4) Pre-commit hook `scripts/ativamente/check-secrets.ts` bloqueia credenciais hardcoded em commits.
+>
+> **Middlewares que implementam `timingSafeEqual` (auditoria 2026-05-18):**
+> - `servicos-global/servicos-plataforma/middleware/auth.ts`
+> - `servicos-global/servicos-plataforma/gabi/server/middleware/auth.ts`
+> - `servicos-global/servicos-plataforma/email/server/middleware/auth.ts`
+> - `servicos-global/cadastros/server/src/middleware/internal-key.ts`
 
 ---
 

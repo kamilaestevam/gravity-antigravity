@@ -65,8 +65,16 @@ CI bloqueia merge abaixo do limite. Ver `padroes-vitest-playwright` para configu
 - [ ] Teste funcional de erro de banco (500)
 
 ### Acesso a banco de produto (via SDK)
-- [ ] Teste anti-cross-organização (`testes/security/cross-tenant-isolation.test.ts`)
+- [ ] Teste anti-cross-organização (`testes/testes-cross-organizacao/<servico>/`)
 - [ ] Teste de pool leak (`SET LOCAL` reset após crash do handler)
+
+> **Scaffolds cross-tenant disponíveis (auditoria 2026-05-18):**
+> 64 `it.todo()` prontos para implementação em 3 serviços:
+> - `testes/testes-cross-organizacao/gabi/gabi.cross-tenant.test.ts` (19 testes)
+> - `testes/testes-cross-organizacao/pedido/pedido.cross-tenant.test.ts` (24 testes)
+> - `testes/testes-cross-organizacao/email/email.cross-tenant.test.ts` (21 testes)
+>
+> Cobrem 5 vetores: leitura cross-tenant, modificação, criação com tenant forçado, bypass de auth, pool leak.
 
 ### Componentes React
 - [ ] Teste unitário de render

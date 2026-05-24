@@ -366,6 +366,9 @@ Todo commit passa por verificação automática via Husky + lint-staged:
 
 - `package.json` alterado → `check-deps.ts` valida versões e type:module
 - `.ts/.tsx` alterado → `check-deps.ts` verifica require(), @ts-ignore, any
+- `.ts/.tsx` alterado → `check-secrets.ts` detecta credenciais hardcoded (DB URLs com senha, API keys Stripe/Clerk/Resend/Google, hex keys ≥32 chars)
+- `.ts/.tsx` alterado → `check-env-toplevel.ts` bloqueia `process.env.X!` top-level fora de `index.ts`
+- `.env/.json/.yml/.yaml/.toml` alterado → `check-secrets.ts` varre configs por segredos
 
 ### ❌ Proibido
 

@@ -13,9 +13,6 @@
     },
     "dependencies": {
         "@clerk/clerk-react": "^5.0.0",
-        "@nucleo/modal-global": "*",
-        "@nucleo/select-organizacao-admin-global": "*",
-        "@nucleo/tela-produto-global": "*",
         "@phosphor-icons/react": "^2.1.5",
         "i18next": "^26.0.1",
         "react": "^18.3.0",

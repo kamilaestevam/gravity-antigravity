@@ -64,7 +64,12 @@ export interface SnapshotEmpresaData {
 }
 
 /**
- * Converte uma Empresa do Cadastros em dados para PedidoSnapshotEmpresa.
+ * Converte um Fornecedor do Cadastros (alias `Empresa`) em dados para
+ * PedidoSnapshotEmpresa.
+ *
+ * Entrada Cadastros (fornecedor): `id_fornecedor`, `nome_fornecedor`, etc.
+ * Saída Pedido (snapshot): `suid_empresa`, `nome_empresa`, etc. — nomes legados
+ * do banco do Pedido, intencionalmente preservados no snapshot congelado.
  *
  * - documento_principal = cnpj se BR; tin se estrangeira; **null** se a empresa
  *   estrangeira ainda não tem TIN cadastrado (regra de produto: TIN não é
@@ -88,29 +93,37 @@ export function montarSnapshotEmpresa(
   idWorkspace: string | null = null,
   motivo: MotivoCongelamento = 'emissao',
 ): SnapshotEmpresaData {
-  const ehBr = empresa.pais_empresa === 'BR'
-  const documentoBruto = ehBr ? empresa.cnpj_empresa : empresa.tin_empresa
+  const suidEmpresa = empresa.id_fornecedor?.trim()
+  const nomeEmpresa = empresa.nome_fornecedor?.trim()
+  if (!suidEmpresa || !nomeEmpresa) {
+    throw new Error(
+      `Fornecedor incompleto para snapshot (id_fornecedor=${empresa.id_fornecedor ?? '<ausente>'}, nome_fornecedor=${empresa.nome_fornecedor ?? '<ausente>'})`,
+    )
+  }
+
+  const ehBr = empresa.pais_fornecedor === 'BR'
+  const documentoBruto = ehBr ? empresa.cnpj_fornecedor : empresa.tin_fornecedor
   const documento = documentoBruto && documentoBruto.trim() ? documentoBruto.trim() : null
 
   return {
     id_organizacao: idOrganizacao,
     id_workspace: idWorkspace,
     papel,
-    suid_empresa: empresa.suid_empresa,
-    nome_empresa: empresa.nome_empresa,
+    suid_empresa: suidEmpresa,
+    nome_empresa: nomeEmpresa,
     documento_principal: documento,
     tipo_documento: documento ? (ehBr ? 'CNPJ' : 'TIN') : null,
     cnpj_raiz:
-      ehBr && empresa.cnpj_empresa
-        ? empresa.cnpj_empresa.replace(/\D/g, '').slice(0, 8)
+      ehBr && empresa.cnpj_fornecedor
+        ? empresa.cnpj_fornecedor.replace(/\D/g, '').slice(0, 8)
         : null,
-    endereco_cidade: empresa.cidade_empresa,
-    endereco_uf: empresa.estado_empresa,
-    endereco_cep: empresa.zipcode_empresa ?? null,
-    endereco_pais: empresa.pais_empresa,
-    endereco_logradouro: empresa.endereco_empresa ?? null,
-    contato_email: empresa.email_empresa ?? null,
-    contato_whatsapp: empresa.whatsapp_empresa ?? null,
+    endereco_cidade: empresa.cidade_fornecedor ?? null,
+    endereco_uf: empresa.estado_provincia_fornecedor ?? null,
+    endereco_cep: empresa.cep_zipcode_fornecedor ?? null,
+    endereco_pais: empresa.pais_fornecedor,
+    endereco_logradouro: empresa.endereco_fornecedor ?? null,
+    contato_email: empresa.email_principal_fornecedor ?? null,
+    contato_whatsapp: empresa.whatsapp_principal_fornecedor ?? null,
     motivo_congelamento: motivo,
   }
 }

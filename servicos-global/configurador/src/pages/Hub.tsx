@@ -23,7 +23,7 @@ import {
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import './hub.css'
-import { useShellStore, useOrganizacaoOverride } from '@gravity/shell'
+import { useShellStore, useOrganizacaoOverride, useMeSync } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { produtosWorkspaceApi, type ProdutoWorkspaceItem } from '../services/api-client'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
@@ -135,6 +135,11 @@ export function Hub() {
   const { user } = useUser()
   const navigate = useNavigate()
   const { gravityAdmin: isAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
+  // Popula currentUser.tipoUsuario no ShellStore (consumido por
+  // useOrganizacaoOverride — Pendência #4). Sem isso, /hub acessado
+  // direto pós-login deixa o store vazio e o item "Trocar Organização"
+  // não renderiza para SUPER_ADMIN/ADMIN.
+  useMeSync()
   const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
   const [modalTrocarOrgAberto, setModalTrocarOrgAberto] = useState(false)
 

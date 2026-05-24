@@ -31,7 +31,7 @@ import {
   type EcosystemNode,
 } from '@nucleo/localizador-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
-import { ToastContainer, useShellStore, useOrganizacaoOverride } from '@gravity/shell'
+import { ToastContainer, useShellStore, useOrganizacaoOverride, useMeSync } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { podeComprarNoStore } from '../routing/route-policy'
@@ -72,6 +72,9 @@ export function Store() {
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
   const isLight = currentTheme === 'light'
   const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
+  // Popula currentUser.tipoUsuario no ShellStore (Pendência #4 — sem
+  // isso o item "Trocar Organização" não aparece nesta tela).
+  useMeSync()
   const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
   const [modalTrocarOrgAberto, setModalTrocarOrgAberto] = useState(false)
 

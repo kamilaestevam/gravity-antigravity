@@ -18,6 +18,7 @@ import type { RegrasConfigBackend } from '../../shared/api'
 import { LABELS_FILTRO_INVERSO } from './filtros'
 import type { GTUnidadeOpcao } from '../../shared/useUnidadesPedido'
 import { getEditavel } from '../../shared/columnBehaviorConfig'
+import { obterDescricaoExibicaoPedido } from '../../../../shared/pedidoDivergencias'
 import { renderBadgeParteWorkspace } from './renderBadgeParteWorkspace'
 import {
   urlEditarCnpjWorkspace,
@@ -735,10 +736,16 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     label: t('pedido.coluna_pai.descricao_item'),
     tipo: 'texto',
     filtravel: false,
+    editavel: getEditavel('descricao_item'),
     tooltipTitulo: t('pedido.coluna_pai.descricao_item_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.descricao_item_desc'),
     grupo: 'Identificação',
-    render: () => <span>{'—'}</span>,
+    getValorEditar: (row: Pedido) => obterDescricaoExibicaoPedido(row as Record<string, unknown>) ?? '',
+    render: (_val: unknown, row: Pedido) =>
+      renderTextoTruncado(
+        obterDescricaoExibicaoPedido(row as Record<string, unknown>),
+        t('pedido.coluna_pai.descricao_item'),
+      ),
   },
   {
     key: 'numero_proforma',

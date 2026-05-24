@@ -356,12 +356,16 @@ export interface Pedido {
   saldo_itens_do_pedido?: number | null
   quantidade_cancelada_total_pedido?: number | null
   ncms_distintos_count?: number | null
+  /** Valor canônico após edição na linha pai (campo ghost — não persiste no model Pedido). */
+  descricao_item?: string | null
 
   // Divergência de itens — pré-computado pelo backend na list view
   // Elimina a necessidade de carregar itens no state apenas para exibir badges
   tipo_operacao_divergente?: boolean | null
   ncm_divergente?: boolean | null
   ncm_valor_unico?: string | null
+  /** Quando todos os itens têm a mesma descrição — exibido na linha pai (sem alerta). */
+  descricao_item_valor_unico?: string | null
   referencia_importador_divergente?: boolean | null
   referencia_exportador_divergente?: boolean | null
   incoterm_divergente?: boolean | null

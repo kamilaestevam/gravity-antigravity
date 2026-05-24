@@ -6309,6 +6309,8 @@
         "generico": "Error saving. Try again or contact support.",
         "desconhecido": "Unknown error",
         "pedido_nao_encontrado": "Order not found",
+        "ghost_requer_replicar": "Check \"Apply to all items in this order\" to save this field from the order row.",
+        "pedido_sem_itens_para_campo": "This order has no items to update.",
         "workspace_somente_pedido": "Workspace is set on the order and applies to all items.",
         "pedido_item_nao_localizado": "Could not locate the order for this item. Reload the page.",
         "editar_valor_total_item": "Error editing valor_total_item",

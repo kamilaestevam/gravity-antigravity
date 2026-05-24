@@ -68,6 +68,7 @@ import {
   recalcularAgregadosPedido,
   campoItemAfetaAgregado,
 } from '../services/recalcularAgregadosPedido.js'
+import { LIMITE_ABSOLUTO_DECIMAL_18_6 } from '../services/decimalPedido.js'
 // FASE 06E (Frente 1, completa): OPE agora vem via `suid_ope` no payload.
 // montarSnapshotOpe é plugado no fluxo POST quando suid_ope está presente.
 // SnapshotOpeData usado no array de snapshots tipados.
@@ -88,11 +89,11 @@ const criarItemSchema = z.object({
   part_number_item:               z.string().optional().nullable().default(''),
   ncm_item:                       z.string().optional().nullable().default(''),
   descricao_item:                 z.string().optional().nullable().default(''),
-  quantidade_inicial_item:        z.number().min(0).optional().default(0),
+  quantidade_inicial_item:        z.number().min(0).max(LIMITE_ABSOLUTO_DECIMAL_18_6).optional().default(0),
   unidade_comercializada_item:    z.string().optional().nullable(),
   moeda_item:                     z.string().optional(),  // propagado de moeda_pedido se ausente
-  valor_por_unidade_item:         z.number().optional().nullable(),
-  valor_total_item:               z.number().optional().nullable(),
+  valor_por_unidade_item:         z.number().min(0).max(LIMITE_ABSOLUTO_DECIMAL_18_6).optional().nullable(),
+  valor_total_item:               z.number().min(0).max(LIMITE_ABSOLUTO_DECIMAL_18_6).optional().nullable(),
   casas_decimais_quantidade_item: z.number().int().optional(),  // propagado de casas_decimais_quantidade_pedido se ausente
   casas_decimais_valor_item:      z.number().int().optional(),  // propagado de casas_decimais_valor_pedido se ausente
   sequencia_item_pedido:          z.number().int().optional().nullable(),
@@ -511,6 +512,22 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
         ncm_valor_unico:      ncmsUnicos.size === 1 ? [...ncmsUnicos][0] : null,
         ncm_divergente:       ncmsUnicos.size > 1,
         ncms_distintos_count: ncmsUnicos.size,
+      }
+    })(),
+    // Descrição agregada (sem alerta na UI — só exibe quando todos os itens coincidem).
+    ...(() => {
+      if (!Array.isArray(itens)) {
+        return {
+          descricao_item_valor_unico: (pedido as { descricao_item_valor_unico?: string | null }).descricao_item_valor_unico ?? null,
+        }
+      }
+      const descUnicas = new Set(
+        itens
+          .map((i: PedidoItemRaw) => i.descricao_item as string | null | undefined)
+          .filter((x): x is string => !!x && x.trim().length > 0),
+      )
+      return {
+        descricao_item_valor_unico: descUnicas.size === 1 ? [...descUnicas][0] : null,
       }
     })(),
   }
@@ -2257,6 +2274,9 @@ pedidosRouter.post('/:id_pedido/itens', async (req: Request, res: Response, next
 
       const pedido = await db.pedido.findFirst({
         where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao, id_workspace: idWorkspace },
+        include: {
+          snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true } },
+        },
       })
 
       if (!pedido) {
@@ -2271,27 +2291,62 @@ pedidosRouter.post('/:id_pedido/itens', async (req: Request, res: Response, next
         where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao, id_workspace: idWorkspace },
       })
 
-      // criarItemSchema agora é DDD-puro (Mandamento 03) — sem mais tradução.
+      const propagacaoPedido = construirCamposPropagadosParaItem(pedido as Record<string, unknown>)
+      const nomesEmpresa = derivarNomesEmpresaParaItem(
+        (pedido.snapshots_empresa_pedido ?? []) as Array<{ papel: string; nome_empresa: string }>,
+      )
+      const camposHerdados = { ...propagacaoPedido, ...nomesEmpresa }
+
+      const qtdInicial = result.data.quantidade_inicial_item ?? 0
+      const valorUnit = result.data.valor_por_unidade_item ?? null
+      const valorTotalItem =
+        result.data.valor_total_item ?? ((valorUnit ?? 0) * qtdInicial)
+
+      const moedaItemExplicita = result.data.moeda_item?.trim()
+      const moedaItem =
+        moedaItemExplicita && moedaItemExplicita.length > 0
+          ? moedaItemExplicita
+          : (camposHerdados.moeda_item as string | undefined) ?? pedido.moeda_pedido ?? 'USD'
+
       const itemData: Record<string, unknown> = {
         id_item:                        gerarId('pite'),
         id_organizacao:                 idOrganizacao,
         id_workspace:                   idWorkspace,
         id_pedido:                      req.params.id_pedido,
+        ...camposHerdados,
         sequencia_item_pedido:          result.data.sequencia_item_pedido ?? (itemCount + 1),
         part_number_item:               result.data.part_number_item ?? '',
         ncm_item:                       result.data.ncm_item ?? '',
         descricao_item:                 result.data.descricao_item ?? '',
-        unidade_comercializada_item:    result.data.unidade_comercializada_item,
-        quantidade_inicial_item:        result.data.quantidade_inicial_item,
-        quantidade_atual_item:          result.data.quantidade_inicial_item,
+        quantidade_inicial_item:        qtdInicial,
+        quantidade_atual_item:          qtdInicial,
         quantidade_pronta_item:         0,
         quantidade_transferida_item:    0,
         quantidade_cancelada_item:      0,
-        casas_decimais_quantidade_item: result.data.casas_decimais_quantidade_item,
-        moeda_item:                     result.data.moeda_item,
-        valor_por_unidade_item:         result.data.valor_por_unidade_item,
-        valor_total_item:               result.data.valor_total_item ?? (result.data.valor_por_unidade_item ?? 0) * (result.data.quantidade_inicial_item ?? 0),
-        casas_decimais_valor_item:      result.data.casas_decimais_valor_item,
+        moeda_item:                     moedaItem,
+        valor_por_unidade_item:         valorUnit,
+        valor_total_item:               valorTotalItem,
+        ...(result.data.unidade_comercializada_item != null
+          ? { unidade_comercializada_item: result.data.unidade_comercializada_item }
+          : camposHerdados.unidade_comercializada_item != null
+            ? { unidade_comercializada_item: camposHerdados.unidade_comercializada_item }
+            : {}),
+        ...(result.data.casas_decimais_quantidade_item !== undefined
+          ? { casas_decimais_quantidade_item: result.data.casas_decimais_quantidade_item }
+          : {
+              casas_decimais_quantidade_item:
+                (camposHerdados.casas_decimais_quantidade_item as number | undefined)
+                ?? pedido.casas_decimais_quantidade_pedido
+                ?? 2,
+            }),
+        ...(result.data.casas_decimais_valor_item !== undefined
+          ? { casas_decimais_valor_item: result.data.casas_decimais_valor_item }
+          : {
+              casas_decimais_valor_item:
+                (camposHerdados.casas_decimais_valor_item as number | undefined)
+                ?? pedido.casas_decimais_valor_pedido
+                ?? 2,
+            }),
       }
 
       // withOrganizacao já garante atomicidade — `db` é TransactionClient.

@@ -416,6 +416,8 @@ interface GTEditPopoverProps {
   /** Quando true, o popover exibe o checkbox "Aplicar a todos os itens" — usuário
    *  controla se a edição replica para os items filhos. Padrão: false. */
   mostrarCheckboxReplicar?: boolean
+  /** Inicia o checkbox marcado (campos ghost: descrição, NCM, etc.). */
+  replicarEmItensInicial?: boolean
 }
 
 const POPOVER_W = 340
@@ -431,10 +433,15 @@ const GTEditPopover = memo(function GTEditPopover({
   onSmartPaste,
   placeholderData = 'DD/MM/AAAA',
   mostrarCheckboxReplicar = false,
+  replicarEmItensInicial = false,
 }: GTEditPopoverProps) {
   // Estado do checkbox "Aplicar a todos os itens" (Decisão UX 2026-05-13).
   // Só relevante quando mostrarCheckboxReplicar=true (linha pai + campo elegível).
-  const [replicarEmItens, setReplicarEmItens] = useState(false)
+  const [replicarEmItens, setReplicarEmItens] = useState(replicarEmItensInicial)
+
+  useEffect(() => {
+    setReplicarEmItens(replicarEmItensInicial)
+  }, [overlayInfo.id, overlayInfo.campo, replicarEmItensInicial])
   // Helper único — todos os caminhos de confirmação propagam o estado do checkbox.
   // Quando mostrarCheckboxReplicar=false, replicarEmItens é sempre false (estado
   // inicial), entao o backend recebe replicar_em_itens=false (padrão divergente).

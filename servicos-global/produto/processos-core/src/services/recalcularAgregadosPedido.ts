@@ -38,6 +38,12 @@
 
 import type { PrismaClient } from '@prisma/client'
 import { AppError } from './saldo-pedido.js'
+import {
+  arredondarAgregadoDecimal186,
+  casasDecimaisSeguras,
+  numeroDecimal186,
+  somarDecimal186,
+} from './decimalPedido.js'
 
 // Mesmo padrão do saldo-pedido.ts: tipo Tx que preserva delegates de modelo.
 type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
@@ -81,10 +87,8 @@ interface PedidoCasas {
   casas_decimais_cubagem_pedido:    number | null
 }
 
-function n(v: unknown): number {
-  if (v == null) return 0
-  const num = typeof v === 'object' ? Number((v as { toString(): string }).toString()) : Number(v)
-  return isNaN(num) ? 0 : num
+function n(v: unknown, campo = 'valor'): number {
+  return numeroDecimal186(v, campo)
 }
 
 /**
@@ -139,25 +143,26 @@ export async function recalcularAgregadosPedido(
   }
 
   const pedido = lockResult[0]
-  const casasValor    = pedido.casas_decimais_valor_pedido      ?? CASAS_DEFAULT.valor
-  const casasQtd      = pedido.casas_decimais_quantidade_pedido ?? CASAS_DEFAULT.quantidade
-  const casasPeso     = pedido.casas_decimais_peso_pedido       ?? CASAS_DEFAULT.peso
-  const casasCubagem  = pedido.casas_decimais_cubagem_pedido    ?? CASAS_DEFAULT.cubagem
+  const casasValor    = casasDecimaisSeguras(pedido.casas_decimais_valor_pedido,      CASAS_DEFAULT.valor)
+  const casasQtd      = casasDecimaisSeguras(pedido.casas_decimais_quantidade_pedido, CASAS_DEFAULT.quantidade)
+  const casasPeso     = casasDecimaisSeguras(pedido.casas_decimais_peso_pedido,       CASAS_DEFAULT.peso)
+  const casasCubagem  = casasDecimaisSeguras(pedido.casas_decimais_cubagem_pedido,    CASAS_DEFAULT.cubagem)
 
   // ── 2. SELECT itens (somente colunas necessárias) ──────────────────────────
+  // Qualifier `"public".` obrigatório — mesma razão do lock do pedido pai.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const itens = await (tx as any).pedidoItem.findMany({
-    where: { id_pedido: idPedido, id_organizacao: idOrganizacao },
-    select: {
-      valor_total_item:            true,
-      quantidade_inicial_item:     true,
-      peso_liquido_unitario_item:  true,
-      peso_bruto_unitario_item:    true,
-      cubagem_unitaria_item:       true,
-      moeda_item:                  true,
-      unidade_comercializada_item: true,
-    },
-  }) as ItemAgregado[]
+  const itens = await (tx as any).$queryRaw`
+    SELECT valor_total_item,
+           quantidade_inicial_item,
+           peso_liquido_unitario_item,
+           peso_bruto_unitario_item,
+           cubagem_unitaria_item,
+           moeda_item,
+           unidade_comercializada_item
+      FROM "public"."pedido_item"
+     WHERE id_pedido = ${idPedido}
+       AND id_organizacao = ${idOrganizacao}
+  ` as ItemAgregado[]
 
   // ── 3. Detectar HOMOGENEIDADE (Onda A8) ─────────────────────────────────────
   // Regra: só somamos quando todos os itens CONTRIBUINTES têm a mesma moeda
@@ -197,23 +202,23 @@ export async function recalcularAgregadosPedido(
   let somaCubagem = 0
 
   for (const it of itens) {
-    const qty = n(it.quantidade_inicial_item)
-    somaValor   += n(it.valor_total_item)
-    somaQtd     += qty
-    somaPesoLiq += n(it.peso_liquido_unitario_item) * qty
-    somaPesoBr  += n(it.peso_bruto_unitario_item)   * qty
-    somaCubagem += n(it.cubagem_unitaria_item)      * qty
+    const qty = n(it.quantidade_inicial_item, 'quantidade_inicial_item')
+    somaValor   = somarDecimal186(somaValor,   n(it.valor_total_item, 'valor_total_item'), 'valor_total_item')
+    somaQtd     = somarDecimal186(somaQtd,     qty, 'quantidade_inicial_item')
+    somaPesoLiq = somarDecimal186(somaPesoLiq, n(it.peso_liquido_unitario_item, 'peso_liquido_unitario_item') * qty, 'peso_liquido_total_pedido')
+    somaPesoBr  = somarDecimal186(somaPesoBr,  n(it.peso_bruto_unitario_item, 'peso_bruto_unitario_item') * qty, 'peso_bruto_total_pedido')
+    somaCubagem = somarDecimal186(somaCubagem, n(it.cubagem_unitaria_item, 'cubagem_unitaria_item') * qty, 'cubagem_total_pedido')
   }
 
   const valorTotal: number | null = valorHomogeneo
-    ? parseFloat(somaValor.toFixed(casasValor))
+    ? arredondarAgregadoDecimal186(somaValor, casasValor, 'valor_total_pedido')
     : null
   const qtdTotal: number | null = qtyHomogenea
-    ? parseFloat(somaQtd.toFixed(casasQtd))
+    ? arredondarAgregadoDecimal186(somaQtd, casasQtd, 'quantidade_total_pedido')
     : null
-  const pesoLiquidoTotal = parseFloat(somaPesoLiq.toFixed(casasPeso))
-  const pesoBrutoTotal   = parseFloat(somaPesoBr.toFixed(casasPeso))
-  const cubagemTotal     = parseFloat(somaCubagem.toFixed(casasCubagem))
+  const pesoLiquidoTotal = arredondarAgregadoDecimal186(somaPesoLiq, casasPeso, 'peso_liquido_total_pedido')
+  const pesoBrutoTotal   = arredondarAgregadoDecimal186(somaPesoBr, casasPeso, 'peso_bruto_total_pedido')
+  const cubagemTotal     = arredondarAgregadoDecimal186(somaCubagem, casasCubagem, 'cubagem_total_pedido')
 
   // ── 5. UPDATE no pedido pai ─────────────────────────────────────────────────
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

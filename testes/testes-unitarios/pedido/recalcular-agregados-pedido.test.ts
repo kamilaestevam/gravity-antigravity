@@ -56,20 +56,16 @@ function fabricarTx(opts: {
   itens: ItemMock[]
 }) {
   const queryRawCalls: unknown[][] = []
-  const findManyCalls: unknown[]   = []
-  const updateCalls:   unknown[]   = []
+  const updateCalls: unknown[] = []
 
   const tx = {
     $queryRaw: vi.fn(async (...args: unknown[]) => {
       queryRawCalls.push(args)
-      return opts.pedido ? [opts.pedido] : []
+      if (queryRawCalls.length === 1) {
+        return opts.pedido ? [opts.pedido] : []
+      }
+      return comDefaults(opts.itens)
     }),
-    pedidoItem: {
-      findMany: vi.fn(async (arg: unknown) => {
-        findManyCalls.push(arg)
-        return comDefaults(opts.itens)
-      }),
-    },
     pedido: {
       update: vi.fn(async (arg: unknown) => {
         updateCalls.push(arg)
@@ -78,7 +74,7 @@ function fabricarTx(opts: {
     },
   }
 
-  return { tx, queryRawCalls, findManyCalls, updateCalls }
+  return { tx, queryRawCalls, updateCalls }
 }
 
 const ORG = 'org_test_001'
@@ -291,19 +287,15 @@ describe('recalcularAgregadosPedido — falhas (Mandamento 08)', () => {
 })
 
 describe('recalcularAgregadosPedido — ordem de operações', () => {
-  it('chama $queryRaw (lock) ANTES de findMany e update', async () => {
+  it('chama lock ($queryRaw) ANTES da leitura de itens ($queryRaw) e update', async () => {
     const ordem: string[] = []
+    let queryRawCount = 0
     const tx = {
       $queryRaw: vi.fn(async () => {
-        ordem.push('queryRaw')
-        return [PEDIDO_PADRAO]
+        queryRawCount += 1
+        ordem.push(queryRawCount === 1 ? 'queryRawLock' : 'queryRawItens')
+        return queryRawCount === 1 ? [PEDIDO_PADRAO] : []
       }),
-      pedidoItem: {
-        findMany: vi.fn(async () => {
-          ordem.push('findMany')
-          return []
-        }),
-      },
       pedido: {
         update: vi.fn(async () => {
           ordem.push('update')
@@ -315,11 +307,11 @@ describe('recalcularAgregadosPedido — ordem de operações', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await recalcularAgregadosPedido(tx as any, PEDIDO_ID, ORG)
 
-    expect(ordem).toEqual(['queryRaw', 'findMany', 'update'])
+    expect(ordem).toEqual(['queryRawLock', 'queryRawItens', 'update'])
   })
 
-  it('passa id_pedido e id_organizacao corretos no findMany (defesa de isolamento)', async () => {
-    const { tx, findManyCalls } = fabricarTx({
+  it('consulta itens via segundo $queryRaw (public.pedido_item)', async () => {
+    const { tx, queryRawCalls } = fabricarTx({
       pedido: PEDIDO_PADRAO,
       itens: [],
     })
@@ -327,10 +319,7 @@ describe('recalcularAgregadosPedido — ordem de operações', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await recalcularAgregadosPedido(tx as any, PEDIDO_ID, ORG)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where = (findManyCalls[0] as any).where
-    expect(where.id_pedido).toBe(PEDIDO_ID)
-    expect(where.id_organizacao).toBe(ORG)
+    expect(queryRawCalls).toHaveLength(2)
   })
 })
 

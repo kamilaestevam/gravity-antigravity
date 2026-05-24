@@ -4,7 +4,7 @@
  * cards ricos em descrição, painel inteligente de Incoterms e resumo visual avançado.
  */
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
@@ -24,12 +24,13 @@ import {
   Users,
   FileText,
   CheckCircle,
-  Warning,
   Info,
   X,
+  Globe,
+  Airplane,
 } from '@phosphor-icons/react'
 
-import { criarCotacao } from '../shared/api'
+import { criarCotacao, getPaises, getPortos, getAeroportos, getContainers } from '../shared/api'
 import type {
   TipoOperacao,
   ModalFrete,
@@ -50,7 +51,7 @@ function buildSteps(t: TFunction) {
     { id: 2, label: t('bidfrete.nova_cotacao.stepOrigem'),        icone: <MapPin weight="duotone" size={16} /> },
     { id: 3, label: t('bidfrete.nova_cotacao.stepDestino'),       icone: <MapPin weight="duotone" size={16} /> },
     { id: 4, label: t('bidfrete.nova_cotacao.stepCarga'),         icone: <Package weight="duotone" size={16} /> },
-    { id: 5, label: 'Incoterm',                                  icone: <Scales weight="duotone" size={16} /> },
+    { id: 5, label: t('bidfrete.nova_cotacao.incoterm'),           icone: <Scales weight="duotone" size={16} /> },
     { id: 6, label: t('bidfrete.nova_cotacao.stepFornecedores'),  icone: <Users weight="duotone" size={16} /> },
     { id: 7, label: t('bidfrete.nova_cotacao.stepResumo'),        icone: <FileText weight="duotone" size={16} /> },
   ]
@@ -61,50 +62,60 @@ interface FormState {
   tipo_operacao: TipoOperacao | ''
   modal: ModalFrete | ''
   modalidade: ModalidadeCarga | ''
-  origem_codigo: string
-  origem_nome: string
-  origem_pais: string
-  destino_codigo: string
-  destino_nome: string
-  destino_pais: string
-  descricao_mercadoria: string
-  ncm: string
-  quantidade: number
+  porto_origem_cotacao_bid_frete: string
+  pais_origem_cotacao_bid_frete: string
+  estado_provincia_origem_cotacao_bid_frete: string
+  aeroporto_origem_cotacao_bid_frete: string
+  porto_destino_cotacao_bid_frete: string
+  pais_destino_cotacao_bid_frete: string
+  estado_provincia_destino_cotacao_bid_frete: string
+  aeroporto_destino_cotacao_bid_frete: string
+  descricao_mercadoria_cotacao_bid_frete: string
+  ncm_cotacao_bid_frete: string
+  hs_code_cotacao_bid_frete: string
+  quantidade_volumes_cotacao_bid_frete: number
   tipo_container: string
-  peso_kg: string
-  cubagem_m3: string
-  incoterm: string
-  cep_destino: string
+  peso_kg_cotacao_bid_frete: string
+  peso_ton_cotacao_bid_frete: string
+  cubagem_m3_cotacao_bid_frete: string
+  incoterm_cotacao_bid_frete: string
+  cep_origem_cotacao_bid_frete: string
+  cep_destino_cotacao_bid_frete: string
   prazo_resposta: string
-  visibilidade: Visibilidade
-  anonima: boolean
-  valor_alvo: string
-  moeda_alvo: string
+  visibilidade_cotacao_bid_frete: Visibilidade
+  anonima_cotacao_bid_frete: boolean
+  valor_alvo_cotacao_bid_frete: string
+  moeda_alvo_cotacao_bid_frete: string
 }
 
 const INITIAL_FORM: FormState = {
   tipo_operacao: '',
   modal: '',
   modalidade: '',
-  origem_codigo: '',
-  origem_nome: '',
-  origem_pais: '',
-  destino_codigo: '',
-  destino_nome: '',
-  destino_pais: '',
-  descricao_mercadoria: '',
-  ncm: '',
-  quantidade: 1,
+  porto_origem_cotacao_bid_frete: '',
+  pais_origem_cotacao_bid_frete: '',
+  estado_provincia_origem_cotacao_bid_frete: '',
+  aeroporto_origem_cotacao_bid_frete: '',
+  porto_destino_cotacao_bid_frete: '',
+  pais_destino_cotacao_bid_frete: '',
+  estado_provincia_destino_cotacao_bid_frete: '',
+  aeroporto_destino_cotacao_bid_frete: '',
+  descricao_mercadoria_cotacao_bid_frete: '',
+  ncm_cotacao_bid_frete: '',
+  hs_code_cotacao_bid_frete: '',
+  quantidade_volumes_cotacao_bid_frete: 1,
   tipo_container: '',
-  peso_kg: '',
-  cubagem_m3: '',
-  incoterm: '',
-  cep_destino: '',
+  peso_kg_cotacao_bid_frete: '',
+  peso_ton_cotacao_bid_frete: '',
+  cubagem_m3_cotacao_bid_frete: '',
+  incoterm_cotacao_bid_frete: '',
+  cep_origem_cotacao_bid_frete: '',
+  cep_destino_cotacao_bid_frete: '',
   prazo_resposta: '',
-  visibilidade: 'DIRECIONADA',
-  anonima: false,
-  valor_alvo: '',
-  moeda_alvo: 'USD',
+  visibilidade_cotacao_bid_frete: 'DIRECIONADA',
+  anonima_cotacao_bid_frete: false,
+  valor_alvo_cotacao_bid_frete: '',
+  moeda_alvo_cotacao_bid_frete: 'USD',
 }
 
 // ─── Descrições Enriquecidas de Opções ──────────────────────────────────────
@@ -262,6 +273,115 @@ export default function NovaCotacao() {
   const [sucesso, setSucesso] = useState(false)
   const [cotacaoId, setCotacaoId] = useState<string | null>(null)
 
+  // ─── Master Data Lists ──────────────────────────────────────────────
+  const [paisesLista, setPaisesLista] = useState<Array<{ id_pais: string; nome_pais_portugues: string; codigo_pais_iso_alpha2: string }>>([])
+  const [portosLista, setPortosLista] = useState<Array<{ codigo: string; nome: string; pais: string }>>([])
+  const [aeroportosLista, setAeroportosLista] = useState<Array<{ id_aeroporto: string; codigo_iata_aeroporto: string; nome_aeroporto: string; codigo_pais_aeroporto: string }>>([])
+  const [containersLista, setContainersLista] = useState<Array<{ codigo: string; nome: string; teus: number }>>([])
+
+  // ─── Autocomplete search states ────────────────────────────────────
+  const [buscaPaisOrigem, setBuscaPaisOrigem] = useState('')
+  const [buscaPaisDestino, setBuscaPaisDestino] = useState('')
+  const [buscaPortoOrigem, setBuscaPortoOrigem] = useState('')
+  const [buscaPortoDestino, setBuscaPortoDestino] = useState('')
+  const [buscaAeroportoOrigem, setBuscaAeroportoOrigem] = useState('')
+  const [buscaAeroportoDestino, setBuscaAeroportoDestino] = useState('')
+  const [dropdownAberto, setDropdownAberto] = useState<string | null>(null)
+
+  // ─── Fetch master data on mount ────────────────────────────────────
+  useEffect(() => {
+    getPaises().then(setPaisesLista).catch(() => {})
+    getContainers().then(setContainersLista).catch(() => {})
+  }, [])
+
+  // Fetch portos/aeroportos when modal changes
+  useEffect(() => {
+    if (form.modal === 'MARITIMO') {
+      getPortos().then(setPortosLista).catch(() => {})
+    } else if (form.modal === 'AEREO') {
+      getAeroportos().then(setAeroportosLista).catch(() => {})
+    }
+  }, [form.modal])
+
+  // ─── Filtered lists for autocomplete ──────────────────────────────
+  const paisesOrigemFiltrados = useMemo(() => {
+    if (!buscaPaisOrigem) return paisesLista.slice(0, 15)
+    const q = buscaPaisOrigem.toLowerCase()
+    return paisesLista.filter(p =>
+      p.nome_pais_portugues.toLowerCase().includes(q) ||
+      p.codigo_pais_iso_alpha2.toLowerCase().includes(q)
+    ).slice(0, 15)
+  }, [paisesLista, buscaPaisOrigem])
+
+  const paisesDestinoFiltrados = useMemo(() => {
+    if (!buscaPaisDestino) return paisesLista.slice(0, 15)
+    const q = buscaPaisDestino.toLowerCase()
+    return paisesLista.filter(p =>
+      p.nome_pais_portugues.toLowerCase().includes(q) ||
+      p.codigo_pais_iso_alpha2.toLowerCase().includes(q)
+    ).slice(0, 15)
+  }, [paisesLista, buscaPaisDestino])
+
+  const portosOrigemFiltrados = useMemo(() => {
+    const pais = form.pais_origem_cotacao_bid_frete
+    let lista = portosLista
+    if (pais) lista = lista.filter(p => p.pais === pais)
+    if (buscaPortoOrigem) {
+      const q = buscaPortoOrigem.toLowerCase()
+      lista = lista.filter(p => p.nome.toLowerCase().includes(q) || p.codigo.toLowerCase().includes(q))
+    }
+    return lista.slice(0, 20)
+  }, [portosLista, buscaPortoOrigem, form.pais_origem_cotacao_bid_frete])
+
+  const portosDestinoFiltrados = useMemo(() => {
+    const pais = form.pais_destino_cotacao_bid_frete
+    let lista = portosLista
+    if (pais) lista = lista.filter(p => p.pais === pais)
+    if (buscaPortoDestino) {
+      const q = buscaPortoDestino.toLowerCase()
+      lista = lista.filter(p => p.nome.toLowerCase().includes(q) || p.codigo.toLowerCase().includes(q))
+    }
+    return lista.slice(0, 20)
+  }, [portosLista, buscaPortoDestino, form.pais_destino_cotacao_bid_frete])
+
+  const aeroportosOrigemFiltrados = useMemo(() => {
+    const pais = form.pais_origem_cotacao_bid_frete
+    let lista = aeroportosLista
+    if (pais) lista = lista.filter(a => a.codigo_pais_aeroporto === pais)
+    if (buscaAeroportoOrigem) {
+      const q = buscaAeroportoOrigem.toLowerCase()
+      lista = lista.filter(a => a.nome_aeroporto.toLowerCase().includes(q) || a.codigo_iata_aeroporto.toLowerCase().includes(q))
+    }
+    return lista.slice(0, 20)
+  }, [aeroportosLista, buscaAeroportoOrigem, form.pais_origem_cotacao_bid_frete])
+
+  const aeroportosDestinoFiltrados = useMemo(() => {
+    const pais = form.pais_destino_cotacao_bid_frete
+    let lista = aeroportosLista
+    if (pais) lista = lista.filter(a => a.codigo_pais_aeroporto === pais)
+    if (buscaAeroportoDestino) {
+      const q = buscaAeroportoDestino.toLowerCase()
+      lista = lista.filter(a => a.nome_aeroporto.toLowerCase().includes(q) || a.codigo_iata_aeroporto.toLowerCase().includes(q))
+    }
+    return lista.slice(0, 20)
+  }, [aeroportosLista, buscaAeroportoDestino, form.pais_destino_cotacao_bid_frete])
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    if (!dropdownAberto) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('.nc-autocomplete')) setDropdownAberto(null)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [dropdownAberto])
+
+  // Helper: get display name for selected values
+  const paisNome = useCallback((iso2: string) => paisesLista.find(p => p.codigo_pais_iso_alpha2 === iso2)?.nome_pais_portugues ?? iso2, [paisesLista])
+  const portoNome = useCallback((codigo: string) => portosLista.find(p => p.codigo === codigo)?.nome ?? codigo, [portosLista])
+  const aeroportoNome = useCallback((iata: string) => aeroportosLista.find(a => a.codigo_iata_aeroporto === iata)?.nome_aeroporto ?? iata, [aeroportosLista])
+
   const stepStatus = (passoId: number): 'pendente' | 'ativo' | 'feito' => {
     if (passoId < step) return 'feito'
     if (passoId === step) return 'ativo'
@@ -274,10 +394,20 @@ export default function NovaCotacao() {
   const canNext = (): boolean => {
     switch (step) {
       case 1: return !!form.tipo_operacao && !!form.modal && !!form.modalidade
-      case 2: return !!form.origem_codigo && !!form.origem_nome
-      case 3: return !!form.destino_codigo && !!form.destino_nome
-      case 4: return !!form.descricao_mercadoria && form.quantidade > 0
-      case 5: return !!form.incoterm
+      case 2: {
+        if (!form.pais_origem_cotacao_bid_frete) return false
+        if (form.modal === 'MARITIMO' && !form.porto_origem_cotacao_bid_frete) return false
+        if (form.modal === 'AEREO' && !form.aeroporto_origem_cotacao_bid_frete) return false
+        return true
+      }
+      case 3: {
+        if (!form.pais_destino_cotacao_bid_frete) return false
+        if (form.modal === 'MARITIMO' && !form.porto_destino_cotacao_bid_frete) return false
+        if (form.modal === 'AEREO' && !form.aeroporto_destino_cotacao_bid_frete) return false
+        return true
+      }
+      case 4: return !!form.descricao_mercadoria_cotacao_bid_frete && form.quantidade_volumes_cotacao_bid_frete > 0
+      case 5: return !!form.incoterm_cotacao_bid_frete
       case 6: return true
       case 7: return true
       default: return false
@@ -291,26 +421,32 @@ export default function NovaCotacao() {
         tipo_operacao: form.tipo_operacao as TipoOperacao,
         modal: form.modal as ModalFrete,
         modalidade: form.modalidade as ModalidadeCarga,
-        origem_codigo: form.origem_codigo,
-        origem_nome: form.origem_nome,
-        origem_pais: form.origem_pais,
-        destino_codigo: form.destino_codigo,
-        destino_nome: form.destino_nome,
-        destino_pais: form.destino_pais,
-        descricao_mercadoria: form.descricao_mercadoria,
-        ncm: form.ncm || undefined,
-        quantidade: form.quantidade,
+        porto_origem_cotacao_bid_frete: form.porto_origem_cotacao_bid_frete,
+        pais_origem_cotacao_bid_frete: form.pais_origem_cotacao_bid_frete,
+        estado_provincia_origem_cotacao_bid_frete: form.estado_provincia_origem_cotacao_bid_frete || undefined,
+        aeroporto_origem_cotacao_bid_frete: form.aeroporto_origem_cotacao_bid_frete || undefined,
+        porto_destino_cotacao_bid_frete: form.porto_destino_cotacao_bid_frete,
+        pais_destino_cotacao_bid_frete: form.pais_destino_cotacao_bid_frete,
+        estado_provincia_destino_cotacao_bid_frete: form.estado_provincia_destino_cotacao_bid_frete || undefined,
+        aeroporto_destino_cotacao_bid_frete: form.aeroporto_destino_cotacao_bid_frete || undefined,
+        descricao_mercadoria_cotacao_bid_frete: form.descricao_mercadoria_cotacao_bid_frete,
+        ncm_cotacao_bid_frete: form.ncm_cotacao_bid_frete || undefined,
+        hs_code_cotacao_bid_frete: form.hs_code_cotacao_bid_frete || undefined,
+        quantidade_volumes_cotacao_bid_frete: form.quantidade_volumes_cotacao_bid_frete,
         tipo_container: form.tipo_container || undefined,
-        peso_kg: form.peso_kg ? parseFloat(form.peso_kg) : undefined,
-        cubagem_m3: form.cubagem_m3 ? parseFloat(form.cubagem_m3) : undefined,
-        incoterm: form.incoterm,
-        cep_destino: form.cep_destino || undefined,
-        visibilidade: form.visibilidade,
-        anonima: form.anonima,
-        valor_alvo: form.valor_alvo ? parseFloat(form.valor_alvo) : undefined,
-        moeda_alvo: form.moeda_alvo,
+        peso_kg_cotacao_bid_frete: form.peso_kg_cotacao_bid_frete ? parseFloat(form.peso_kg_cotacao_bid_frete) : undefined,
+        peso_ton_cotacao_bid_frete: form.peso_ton_cotacao_bid_frete ? parseFloat(form.peso_ton_cotacao_bid_frete) : undefined,
+        cubagem_m3_cotacao_bid_frete: form.cubagem_m3_cotacao_bid_frete ? parseFloat(form.cubagem_m3_cotacao_bid_frete) : undefined,
+        incoterm_cotacao_bid_frete: form.incoterm_cotacao_bid_frete,
+        cep_origem_cotacao_bid_frete: form.cep_origem_cotacao_bid_frete || undefined,
+        cep_destino_cotacao_bid_frete: form.cep_destino_cotacao_bid_frete || undefined,
+        visibilidade_cotacao_bid_frete: form.visibilidade_cotacao_bid_frete,
+        anonima_cotacao_bid_frete: form.anonima_cotacao_bid_frete,
+        valor_alvo_cotacao_bid_frete: form.valor_alvo_cotacao_bid_frete ? parseFloat(form.valor_alvo_cotacao_bid_frete) : undefined,
+        moeda_alvo_cotacao_bid_frete: form.moeda_alvo_cotacao_bid_frete,
+        data_limite_resposta_cotacao_bid_frete: form.prazo_resposta ? new Date(form.prazo_resposta).toISOString() : undefined,
       })
-      setCotacaoId(cotacao.id)
+      setCotacaoId(cotacao.id_cotacao_bid_frete)
       setSucesso(true)
     } catch {
       // erro tratado
@@ -348,7 +484,11 @@ export default function NovaCotacao() {
                 selected={form.modal === 'MARITIMO'}
                 onClick={() => {
                   set('modal', 'MARITIMO')
-                  set('modalidade', '') // reseta para forçar escolha limpa
+                  set('modalidade', '')
+                  set('porto_origem_cotacao_bid_frete', '')
+                  set('porto_destino_cotacao_bid_frete', '')
+                  set('aeroporto_origem_cotacao_bid_frete', '')
+                  set('aeroporto_destino_cotacao_bid_frete', '')
                 }}
                 icon={<Anchor weight="duotone" size={28} />}
                 label={t('bidfrete.nova_cotacao.maritimo')}
@@ -359,6 +499,10 @@ export default function NovaCotacao() {
                 onClick={() => {
                   set('modal', 'AEREO')
                   set('modalidade', '')
+                  set('porto_origem_cotacao_bid_frete', '')
+                  set('porto_destino_cotacao_bid_frete', '')
+                  set('aeroporto_origem_cotacao_bid_frete', '')
+                  set('aeroporto_destino_cotacao_bid_frete', '')
                 }}
                 icon={<AirplaneTilt weight="duotone" size={28} />}
                 label={t('bidfrete.nova_cotacao.aereo')}
@@ -369,6 +513,10 @@ export default function NovaCotacao() {
                 onClick={() => {
                   set('modal', 'RODOVIARIO')
                   set('modalidade', '')
+                  set('porto_origem_cotacao_bid_frete', '')
+                  set('porto_destino_cotacao_bid_frete', '')
+                  set('aeroporto_origem_cotacao_bid_frete', '')
+                  set('aeroporto_destino_cotacao_bid_frete', '')
                 }}
                 icon={<Van weight="duotone" size={28} />}
                 label={t('bidfrete.nova_cotacao.rodoviario')}
@@ -415,21 +563,113 @@ export default function NovaCotacao() {
                   <MapPin weight="duotone" size={26} className="nc-pulsing-icon" />
                 </div>
                 <div className="nc-location-visual-text">
-                  <h4>{t('bidfrete.nova_cotacao.porto_origem')}</h4>
+                  <h4>{form.modal === 'AEREO' ? t('bidfrete.nova_cotacao.aeroporto_origem', 'Aeroporto de Origem') : form.modal === 'RODOVIARIO' ? t('bidfrete.nova_cotacao.local_origem', 'Local de Origem') : t('bidfrete.nova_cotacao.porto_origem')}</h4>
                   <p>{t('bidfrete.nova_cotacao.origemHint')}</p>
                 </div>
               </div>
-              
+
               <div className="nc-fields-grid nc-fields-grid--location">
-                <Field label={t('bidfrete.nova_cotacao.codigo_locode')} required>
-                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderLocode')} value={form.origem_codigo} onChange={e => set('origem_codigo', e.target.value.toUpperCase())} />
+                {/* País — sempre visível */}
+                <Field label={t('bidfrete.nova_cotacao.pais')} required>
+                  <div className="nc-autocomplete">
+                    <div className="nc-input-icon-wrap">
+                      <Globe weight="duotone" size={16} className="nc-input-icon" />
+                      <input
+                        className="nc-input nc-input--with-icon"
+                        placeholder={t('bidfrete.nova_cotacao.placeholderBuscarPais', 'Buscar país...')}
+                        value={dropdownAberto === 'paisOrigem' ? buscaPaisOrigem : (form.pais_origem_cotacao_bid_frete ? paisNome(form.pais_origem_cotacao_bid_frete) : '')}
+                        onChange={e => { setBuscaPaisOrigem(e.target.value); setDropdownAberto('paisOrigem') }}
+                        onFocus={() => setDropdownAberto('paisOrigem')}
+                      />
+                    </div>
+                    {dropdownAberto === 'paisOrigem' && (
+                      <div className="nc-dropdown">
+                        {paisesOrigemFiltrados.map(p => (
+                          <button key={p.codigo_pais_iso_alpha2} type="button" className="nc-dropdown-item" onClick={() => {
+                            set('pais_origem_cotacao_bid_frete', p.codigo_pais_iso_alpha2)
+                            setBuscaPaisOrigem('')
+                            setDropdownAberto(null)
+                          }}>
+                            <span className="nc-dropdown-flag">{p.codigo_pais_iso_alpha2}</span>
+                            <span>{p.nome_pais_portugues}</span>
+                          </button>
+                        ))}
+                        {paisesOrigemFiltrados.length === 0 && <div className="nc-dropdown-empty">{t('bidfrete.nova_cotacao.nenhum_resultado', 'Nenhum resultado')}</div>}
+                      </div>
+                    )}
+                  </div>
                 </Field>
-                <Field label={t('bidfrete.nova_cotacao.nome')} required>
-                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderNomeOrigem')} value={form.origem_nome} onChange={e => set('origem_nome', e.target.value)} />
+
+                {/* Estado/Província — sempre visível */}
+                <Field label={t('bidfrete.nova_cotacao.estado_provincia', 'Estado / Província')}>
+                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderEstado', 'Ex: SP, NY, SH')} value={form.estado_provincia_origem_cotacao_bid_frete} onChange={e => set('estado_provincia_origem_cotacao_bid_frete', e.target.value.toUpperCase())} />
                 </Field>
-                <Field label={t('bidfrete.nova_cotacao.pais')}>
-                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderPaisOrigem')} value={form.origem_pais} onChange={e => set('origem_pais', e.target.value)} />
-                </Field>
+
+                {/* Porto — apenas MARITIMO */}
+                {form.modal === 'MARITIMO' && (
+                  <Field label={t('bidfrete.nova_cotacao.porto', 'Porto')} required>
+                    <div className="nc-autocomplete">
+                      <div className="nc-input-icon-wrap">
+                        <Anchor weight="duotone" size={16} className="nc-input-icon" />
+                        <input
+                          className="nc-input nc-input--with-icon"
+                          placeholder={t('bidfrete.nova_cotacao.placeholderBuscarPorto', 'Buscar porto...')}
+                          value={dropdownAberto === 'portoOrigem' ? buscaPortoOrigem : (form.porto_origem_cotacao_bid_frete || '')}
+                          onChange={e => { setBuscaPortoOrigem(e.target.value); setDropdownAberto('portoOrigem') }}
+                          onFocus={() => setDropdownAberto('portoOrigem')}
+                        />
+                      </div>
+                      {dropdownAberto === 'portoOrigem' && (
+                        <div className="nc-dropdown">
+                          {portosOrigemFiltrados.map(p => (
+                            <button key={p.codigo} type="button" className="nc-dropdown-item" onClick={() => {
+                              set('porto_origem_cotacao_bid_frete', p.codigo)
+                              setBuscaPortoOrigem('')
+                              setDropdownAberto(null)
+                            }}>
+                              <span className="nc-dropdown-code">{p.codigo}</span>
+                              <span>{p.nome}</span>
+                            </button>
+                          ))}
+                          {portosOrigemFiltrados.length === 0 && <div className="nc-dropdown-empty">{t('bidfrete.nova_cotacao.nenhum_resultado', 'Nenhum resultado')}</div>}
+                        </div>
+                      )}
+                    </div>
+                  </Field>
+                )}
+
+                {/* Aeroporto — apenas AEREO */}
+                {form.modal === 'AEREO' && (
+                  <Field label={t('bidfrete.nova_cotacao.aeroporto', 'Aeroporto')} required>
+                    <div className="nc-autocomplete">
+                      <div className="nc-input-icon-wrap">
+                        <Airplane weight="duotone" size={16} className="nc-input-icon" />
+                        <input
+                          className="nc-input nc-input--with-icon"
+                          placeholder={t('bidfrete.nova_cotacao.placeholderBuscarAeroporto', 'Buscar aeroporto...')}
+                          value={dropdownAberto === 'aeroportoOrigem' ? buscaAeroportoOrigem : (form.aeroporto_origem_cotacao_bid_frete || '')}
+                          onChange={e => { setBuscaAeroportoOrigem(e.target.value); setDropdownAberto('aeroportoOrigem') }}
+                          onFocus={() => setDropdownAberto('aeroportoOrigem')}
+                        />
+                      </div>
+                      {dropdownAberto === 'aeroportoOrigem' && (
+                        <div className="nc-dropdown">
+                          {aeroportosOrigemFiltrados.map(a => (
+                            <button key={a.codigo_iata_aeroporto} type="button" className="nc-dropdown-item" onClick={() => {
+                              set('aeroporto_origem_cotacao_bid_frete', a.codigo_iata_aeroporto)
+                              setBuscaAeroportoOrigem('')
+                              setDropdownAberto(null)
+                            }}>
+                              <span className="nc-dropdown-code">{a.codigo_iata_aeroporto}</span>
+                              <span>{a.nome_aeroporto}</span>
+                            </button>
+                          ))}
+                          {aeroportosOrigemFiltrados.length === 0 && <div className="nc-dropdown-empty">{t('bidfrete.nova_cotacao.nenhum_resultado', 'Nenhum resultado')}</div>}
+                        </div>
+                      )}
+                    </div>
+                  </Field>
+                )}
               </div>
             </div>
           </div>
@@ -445,21 +685,113 @@ export default function NovaCotacao() {
                   <MapPin weight="duotone" size={26} className="nc-pulsing-icon-dest" />
                 </div>
                 <div className="nc-location-visual-text">
-                  <h4>{t('bidfrete.nova_cotacao.porto_destino')}</h4>
+                  <h4>{form.modal === 'AEREO' ? t('bidfrete.nova_cotacao.aeroporto_destino', 'Aeroporto de Destino') : form.modal === 'RODOVIARIO' ? t('bidfrete.nova_cotacao.local_destino', 'Local de Destino') : t('bidfrete.nova_cotacao.porto_destino')}</h4>
                   <p>{t('bidfrete.nova_cotacao.destinoHint')}</p>
                 </div>
               </div>
-              
+
               <div className="nc-fields-grid nc-fields-grid--location">
-                <Field label={t('bidfrete.nova_cotacao.codigo_locode')} required>
-                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderLocodeDestino')} value={form.destino_codigo} onChange={e => set('destino_codigo', e.target.value.toUpperCase())} />
+                {/* País — sempre visível */}
+                <Field label={t('bidfrete.nova_cotacao.pais')} required>
+                  <div className="nc-autocomplete">
+                    <div className="nc-input-icon-wrap">
+                      <Globe weight="duotone" size={16} className="nc-input-icon" />
+                      <input
+                        className="nc-input nc-input--with-icon"
+                        placeholder={t('bidfrete.nova_cotacao.placeholderBuscarPais', 'Buscar país...')}
+                        value={dropdownAberto === 'paisDestino' ? buscaPaisDestino : (form.pais_destino_cotacao_bid_frete ? paisNome(form.pais_destino_cotacao_bid_frete) : '')}
+                        onChange={e => { setBuscaPaisDestino(e.target.value); setDropdownAberto('paisDestino') }}
+                        onFocus={() => setDropdownAberto('paisDestino')}
+                      />
+                    </div>
+                    {dropdownAberto === 'paisDestino' && (
+                      <div className="nc-dropdown">
+                        {paisesDestinoFiltrados.map(p => (
+                          <button key={p.codigo_pais_iso_alpha2} type="button" className="nc-dropdown-item" onClick={() => {
+                            set('pais_destino_cotacao_bid_frete', p.codigo_pais_iso_alpha2)
+                            setBuscaPaisDestino('')
+                            setDropdownAberto(null)
+                          }}>
+                            <span className="nc-dropdown-flag">{p.codigo_pais_iso_alpha2}</span>
+                            <span>{p.nome_pais_portugues}</span>
+                          </button>
+                        ))}
+                        {paisesDestinoFiltrados.length === 0 && <div className="nc-dropdown-empty">{t('bidfrete.nova_cotacao.nenhum_resultado', 'Nenhum resultado')}</div>}
+                      </div>
+                    )}
+                  </div>
                 </Field>
-                <Field label={t('bidfrete.nova_cotacao.nome')} required>
-                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderNomeDestino')} value={form.destino_nome} onChange={e => set('destino_nome', e.target.value)} />
+
+                {/* Estado/Província — sempre visível */}
+                <Field label={t('bidfrete.nova_cotacao.estado_provincia', 'Estado / Província')}>
+                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderEstado', 'Ex: SP, NY, SH')} value={form.estado_provincia_destino_cotacao_bid_frete} onChange={e => set('estado_provincia_destino_cotacao_bid_frete', e.target.value.toUpperCase())} />
                 </Field>
-                <Field label={t('bidfrete.nova_cotacao.pais')}>
-                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderPaisDestino')} value={form.destino_pais} onChange={e => set('destino_pais', e.target.value)} />
-                </Field>
+
+                {/* Porto — apenas MARITIMO */}
+                {form.modal === 'MARITIMO' && (
+                  <Field label={t('bidfrete.nova_cotacao.porto', 'Porto')} required>
+                    <div className="nc-autocomplete">
+                      <div className="nc-input-icon-wrap">
+                        <Anchor weight="duotone" size={16} className="nc-input-icon" />
+                        <input
+                          className="nc-input nc-input--with-icon"
+                          placeholder={t('bidfrete.nova_cotacao.placeholderBuscarPorto', 'Buscar porto...')}
+                          value={dropdownAberto === 'portoDestino' ? buscaPortoDestino : (form.porto_destino_cotacao_bid_frete || '')}
+                          onChange={e => { setBuscaPortoDestino(e.target.value); setDropdownAberto('portoDestino') }}
+                          onFocus={() => setDropdownAberto('portoDestino')}
+                        />
+                      </div>
+                      {dropdownAberto === 'portoDestino' && (
+                        <div className="nc-dropdown">
+                          {portosDestinoFiltrados.map(p => (
+                            <button key={p.codigo} type="button" className="nc-dropdown-item" onClick={() => {
+                              set('porto_destino_cotacao_bid_frete', p.codigo)
+                              setBuscaPortoDestino('')
+                              setDropdownAberto(null)
+                            }}>
+                              <span className="nc-dropdown-code">{p.codigo}</span>
+                              <span>{p.nome}</span>
+                            </button>
+                          ))}
+                          {portosDestinoFiltrados.length === 0 && <div className="nc-dropdown-empty">{t('bidfrete.nova_cotacao.nenhum_resultado', 'Nenhum resultado')}</div>}
+                        </div>
+                      )}
+                    </div>
+                  </Field>
+                )}
+
+                {/* Aeroporto — apenas AEREO */}
+                {form.modal === 'AEREO' && (
+                  <Field label={t('bidfrete.nova_cotacao.aeroporto', 'Aeroporto')} required>
+                    <div className="nc-autocomplete">
+                      <div className="nc-input-icon-wrap">
+                        <Airplane weight="duotone" size={16} className="nc-input-icon" />
+                        <input
+                          className="nc-input nc-input--with-icon"
+                          placeholder={t('bidfrete.nova_cotacao.placeholderBuscarAeroporto', 'Buscar aeroporto...')}
+                          value={dropdownAberto === 'aeroportoDestino' ? buscaAeroportoDestino : (form.aeroporto_destino_cotacao_bid_frete || '')}
+                          onChange={e => { setBuscaAeroportoDestino(e.target.value); setDropdownAberto('aeroportoDestino') }}
+                          onFocus={() => setDropdownAberto('aeroportoDestino')}
+                        />
+                      </div>
+                      {dropdownAberto === 'aeroportoDestino' && (
+                        <div className="nc-dropdown">
+                          {aeroportosDestinoFiltrados.map(a => (
+                            <button key={a.codigo_iata_aeroporto} type="button" className="nc-dropdown-item" onClick={() => {
+                              set('aeroporto_destino_cotacao_bid_frete', a.codigo_iata_aeroporto)
+                              setBuscaAeroportoDestino('')
+                              setDropdownAberto(null)
+                            }}>
+                              <span className="nc-dropdown-code">{a.codigo_iata_aeroporto}</span>
+                              <span>{a.nome_aeroporto}</span>
+                            </button>
+                          ))}
+                          {aeroportosDestinoFiltrados.length === 0 && <div className="nc-dropdown-empty">{t('bidfrete.nova_cotacao.nenhum_resultado', 'Nenhum resultado')}</div>}
+                        </div>
+                      )}
+                    </div>
+                  </Field>
+                )}
               </div>
             </div>
           </div>
@@ -473,36 +805,53 @@ export default function NovaCotacao() {
             <div className="nc-fields-grid nc-fields-grid--cargo">
               <div style={{ gridColumn: 'span 2' }}>
                 <Field label={t('bidfrete.nova_cotacao.descricao_mercadoria')} required>
-                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderMercadoria')} value={form.descricao_mercadoria} onChange={e => set('descricao_mercadoria', e.target.value)} />
+                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderMercadoria')} value={form.descricao_mercadoria_cotacao_bid_frete} onChange={e => set('descricao_mercadoria_cotacao_bid_frete', e.target.value)} />
                 </Field>
               </div>
-              <Field label={t('bidfrete.nova_cotacao.ncm')}>
-                <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderNcm')} value={form.ncm} onChange={e => set('ncm', e.target.value.replace(/\D/g, '').slice(0, 8))} />
+
+              <Field label={t('bidfrete.nova_cotacao.ncm', 'NCM')}>
+                <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderNcm')} value={form.ncm_cotacao_bid_frete} onChange={e => set('ncm_cotacao_bid_frete', e.target.value.replace(/\D/g, '').slice(0, 8))} />
               </Field>
-              
+
+              <Field label={t('bidfrete.nova_cotacao.hs_code', 'HS Code')}>
+                <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderHsCode', 'Ex: 8471.30')} value={form.hs_code_cotacao_bid_frete} onChange={e => set('hs_code_cotacao_bid_frete', e.target.value.replace(/[^0-9.]/g, '').slice(0, 12))} />
+              </Field>
+
               <Field label={t('bidfrete.nova_cotacao.quantidade')} required>
                 <div className="nc-input-group">
-                  <input className="nc-input nc-input--with-suffix" type="number" min={1} value={form.quantidade} onChange={e => set('quantidade', parseInt(e.target.value) || 1)} />
+                  <input className="nc-input nc-input--with-suffix" type="number" min={1} value={form.quantidade_volumes_cotacao_bid_frete} onChange={e => set('quantidade_volumes_cotacao_bid_frete', parseInt(e.target.value) || 1)} />
                   <span className="nc-input-suffix">{t('bidfrete.nova_cotacao.unidade')}</span>
                 </div>
               </Field>
 
               {form.modal === 'MARITIMO' && (
-                <Field label={t('bidfrete.nova_cotacao.tipo_container')}>
-                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderContainer')} value={form.tipo_container} onChange={e => set('tipo_container', e.target.value)} />
+                <Field label={t('bidfrete.nova_cotacao.tipo_container', 'Tipo de Container')}>
+                  <select className="nc-input" value={form.tipo_container} onChange={e => set('tipo_container', e.target.value)}>
+                    <option value="">{t('bidfrete.nova_cotacao.selecionarContainer', 'Selecionar container...')}</option>
+                    {containersLista.map(c => (
+                      <option key={c.codigo} value={c.codigo}>{c.nome} ({c.teus} TEU)</option>
+                    ))}
+                  </select>
                 </Field>
               )}
-              
-              <Field label={t('bidfrete.nova_cotacao.peso_kg')}>
+
+              <Field label={t('bidfrete.nova_cotacao.peso_kg', 'Peso (Kg)')}>
                 <div className="nc-input-group">
-                  <input className="nc-input nc-input--with-suffix" type="number" placeholder={t('bidfrete.nova_cotacao.placeholderPeso')} value={form.peso_kg} onChange={e => set('peso_kg', e.target.value)} />
+                  <input className="nc-input nc-input--with-suffix" type="number" placeholder={t('bidfrete.nova_cotacao.placeholderPeso')} value={form.peso_kg_cotacao_bid_frete} onChange={e => set('peso_kg_cotacao_bid_frete', e.target.value)} />
                   <span className="nc-input-suffix">Kg</span>
                 </div>
               </Field>
-              
-              <Field label={t('bidfrete.nova_cotacao.cubagem_m3')}>
+
+              <Field label={t('bidfrete.nova_cotacao.peso_ton', 'Peso (Ton)')}>
                 <div className="nc-input-group">
-                  <input className="nc-input nc-input--with-suffix" type="number" placeholder={t('bidfrete.nova_cotacao.placeholderCubagem')} value={form.cubagem_m3} onChange={e => set('cubagem_m3', e.target.value)} />
+                  <input className="nc-input nc-input--with-suffix" type="number" placeholder={t('bidfrete.nova_cotacao.placeholderPesoTon', '0.00')} value={form.peso_ton_cotacao_bid_frete} onChange={e => set('peso_ton_cotacao_bid_frete', e.target.value)} />
+                  <span className="nc-input-suffix">Ton</span>
+                </div>
+              </Field>
+
+              <Field label={t('bidfrete.nova_cotacao.cubagem_m3', 'Cubagem (m³)')}>
+                <div className="nc-input-group">
+                  <input className="nc-input nc-input--with-suffix" type="number" placeholder={t('bidfrete.nova_cotacao.placeholderCubagem')} value={form.cubagem_m3_cotacao_bid_frete} onChange={e => set('cubagem_m3_cotacao_bid_frete', e.target.value)} />
                   <span className="nc-input-suffix">m³</span>
                 </div>
               </Field>
@@ -512,7 +861,7 @@ export default function NovaCotacao() {
 
       // STEP 5 — Incoterm
       case 5: {
-        const explanation = form.incoterm ? INCOTERM_EXPLANATIONS[form.incoterm] : null
+        const explanation = form.incoterm_cotacao_bid_frete ? INCOTERM_EXPLANATIONS[form.incoterm_cotacao_bid_frete] : null
 
         return (
           <div className="nc-step-content">
@@ -522,8 +871,8 @@ export default function NovaCotacao() {
                 <button
                   key={inc}
                   type="button"
-                  className={`nc-incoterm-btn ${form.incoterm === inc ? 'nc-incoterm-btn--selected' : ''}`}
-                  onClick={() => set('incoterm', inc)}
+                  className={`nc-incoterm-btn ${form.incoterm_cotacao_bid_frete === inc ? 'nc-incoterm-btn--selected' : ''}`}
+                  onClick={() => set('incoterm_cotacao_bid_frete', inc)}
                 >
                   {inc}
                 </button>
@@ -544,10 +893,23 @@ export default function NovaCotacao() {
               </div>
             )}
 
-            {form.incoterm === 'EXW' && (
+            {/* CEPs condicionais por Incoterm */}
+            {(form.incoterm_cotacao_bid_frete === 'EXW' || form.incoterm_cotacao_bid_frete === 'FCA') && (
               <div style={{ marginTop: '1.25rem' }} className="nc-fade-in">
-                <Field label={t('bidfrete.nova_cotacao.cep_coleta')} required>
-                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderCep')} value={form.cep_destino} onChange={e => set('cep_destino', e.target.value)} />
+                <div className="nc-fields-grid">
+                  <Field label={t('bidfrete.nova_cotacao.cep_origem', 'CEP Origem (Coleta)')}>
+                    <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderCepOrigem', 'CEP do local de coleta')} value={form.cep_origem_cotacao_bid_frete} onChange={e => set('cep_origem_cotacao_bid_frete', e.target.value)} />
+                  </Field>
+                  <Field label={t('bidfrete.nova_cotacao.cep_destino', 'CEP Destino (Entrega)')}>
+                    <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderCepDestino', 'CEP do local de entrega')} value={form.cep_destino_cotacao_bid_frete} onChange={e => set('cep_destino_cotacao_bid_frete', e.target.value)} />
+                  </Field>
+                </div>
+              </div>
+            )}
+            {['DAP', 'DPU', 'DDP'].includes(form.incoterm_cotacao_bid_frete) && (
+              <div style={{ marginTop: '1.25rem' }} className="nc-fade-in">
+                <Field label={t('bidfrete.nova_cotacao.cep_destino', 'CEP Destino (Entrega)')}>
+                  <input className="nc-input" placeholder={t('bidfrete.nova_cotacao.placeholderCepDestino', 'CEP do local de entrega')} value={form.cep_destino_cotacao_bid_frete} onChange={e => set('cep_destino_cotacao_bid_frete', e.target.value)} />
                 </Field>
               </div>
             )}
@@ -570,8 +932,8 @@ export default function NovaCotacao() {
             <div className="nc-visibilidade-grid">
               <button
                 type="button"
-                className={`nc-vis-card ${form.visibilidade === 'DIRECIONADA' ? 'nc-vis-card--selected' : ''}`}
-                onClick={() => set('visibilidade', 'DIRECIONADA')}
+                className={`nc-vis-card ${form.visibilidade_cotacao_bid_frete === 'DIRECIONADA' ? 'nc-vis-card--selected' : ''}`}
+                onClick={() => set('visibilidade_cotacao_bid_frete', 'DIRECIONADA')}
               >
                 <div className="nc-vis-icon-wrap">
                   <Users weight="duotone" size={24} />
@@ -584,8 +946,8 @@ export default function NovaCotacao() {
               
               <button
                 type="button"
-                className={`nc-vis-card ${form.visibilidade === 'ABERTA' ? 'nc-vis-card--selected' : ''}`}
-                onClick={() => set('visibilidade', 'ABERTA')}
+                className={`nc-vis-card ${form.visibilidade_cotacao_bid_frete === 'ABERTA' ? 'nc-vis-card--selected' : ''}`}
+                onClick={() => set('visibilidade_cotacao_bid_frete', 'ABERTA')}
               >
                 <div className="nc-vis-icon-wrap">
                   <Users weight="duotone" size={24} />
@@ -605,7 +967,7 @@ export default function NovaCotacao() {
                   <span className="nc-switch-desc">{t('bidfrete.nova_cotacao.anonimaDesc')}</span>
                 </div>
                 <div className="nc-switch">
-                  <input type="checkbox" checked={form.anonima} onChange={e => set('anonima', e.target.checked)} />
+                  <input type="checkbox" checked={form.anonima_cotacao_bid_frete} onChange={e => set('anonima_cotacao_bid_frete', e.target.checked)} />
                   <span className="nc-switch-slider"></span>
                 </div>
               </label>
@@ -621,10 +983,10 @@ export default function NovaCotacao() {
 
             <div className="nc-fields-grid nc-fields-grid--summary-inputs">
               <Field label={t('bidfrete.nova_cotacao.valor_alvo')}>
-                <input className="nc-input" type="number" placeholder={t('bidfrete.nova_cotacao.placeholderValor')} value={form.valor_alvo} onChange={e => set('valor_alvo', e.target.value)} />
+                <input className="nc-input" type="number" placeholder={t('bidfrete.nova_cotacao.placeholderValor')} value={form.valor_alvo_cotacao_bid_frete} onChange={e => set('valor_alvo_cotacao_bid_frete', e.target.value)} />
               </Field>
               <Field label={t('bidfrete.nova_cotacao.moeda')}>
-                <select className="nc-input" value={form.moeda_alvo} onChange={e => set('moeda_alvo', e.target.value)}>
+                <select className="nc-input" value={form.moeda_alvo_cotacao_bid_frete} onChange={e => set('moeda_alvo_cotacao_bid_frete', e.target.value)}>
                   <option value="USD">USD ($)</option>
                   <option value="BRL">BRL (R$)</option>
                   <option value="EUR">EUR (€)</option>
@@ -646,8 +1008,12 @@ export default function NovaCotacao() {
                 <div className="nc-timeline-node">
                   <div className="nc-node-dot nc-node-dot--origin"></div>
                   <div className="nc-node-text">
-                    <span className="nc-node-code">{form.origem_codigo || '—'}</span>
-                    <span className="nc-node-name">{form.origem_nome || '—'}{form.origem_pais ? `, ${form.origem_pais}` : ''}</span>
+                    <span className="nc-node-code">
+                      {form.modal === 'MARITIMO' ? (form.porto_origem_cotacao_bid_frete || '—')
+                        : form.modal === 'AEREO' ? (form.aeroporto_origem_cotacao_bid_frete || '—')
+                        : (form.estado_provincia_origem_cotacao_bid_frete || '—')}
+                    </span>
+                    <span className="nc-node-name">{form.pais_origem_cotacao_bid_frete ? paisNome(form.pais_origem_cotacao_bid_frete) : '—'}</span>
                   </div>
                 </div>
 
@@ -664,8 +1030,12 @@ export default function NovaCotacao() {
                 <div className="nc-timeline-node">
                   <div className="nc-node-dot nc-node-dot--destination"></div>
                   <div className="nc-node-text">
-                    <span className="nc-node-code">{form.destino_codigo || '—'}</span>
-                    <span className="nc-node-name">{form.destino_nome || '—'}{form.destino_pais ? `, ${form.destino_pais}` : ''}</span>
+                    <span className="nc-node-code">
+                      {form.modal === 'MARITIMO' ? (form.porto_destino_cotacao_bid_frete || '—')
+                        : form.modal === 'AEREO' ? (form.aeroporto_destino_cotacao_bid_frete || '—')
+                        : (form.estado_provincia_destino_cotacao_bid_frete || '—')}
+                    </span>
+                    <span className="nc-node-name">{form.pais_destino_cotacao_bid_frete ? paisNome(form.pais_destino_cotacao_bid_frete) : '—'}</span>
                   </div>
                 </div>
               </div>
@@ -673,28 +1043,37 @@ export default function NovaCotacao() {
               <div className="nc-receipt-details">
                 <div className="nc-receipt-row">
                   <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_mercadoria')}</span>
-                  <span className="nc-receipt-value">{form.descricao_mercadoria || '—'}</span>
+                  <span className="nc-receipt-value">{form.descricao_mercadoria_cotacao_bid_frete || '—'}</span>
                 </div>
-                {form.ncm && (
+                {form.ncm_cotacao_bid_frete && (
                   <div className="nc-receipt-row">
                     <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_ncm')}</span>
-                    <span className="nc-receipt-value font-mono">{form.ncm}</span>
+                    <span className="nc-receipt-value font-mono">{form.ncm_cotacao_bid_frete}</span>
+                  </div>
+                )}
+                {form.hs_code_cotacao_bid_frete && (
+                  <div className="nc-receipt-row">
+                    <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_hs_code', 'HS Code')}</span>
+                    <span className="nc-receipt-value font-mono">{form.hs_code_cotacao_bid_frete}</span>
                   </div>
                 )}
                 <div className="nc-receipt-row">
                   <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_qtd_peso')}</span>
                   <span className="nc-receipt-value">
-                    {form.quantidade} un {form.peso_kg ? `| ${form.peso_kg} Kg` : ''} {form.cubagem_m3 ? `| ${form.cubagem_m3} m³` : ''}
+                    {form.quantidade_volumes_cotacao_bid_frete} un{' '}
+                    {form.peso_kg_cotacao_bid_frete ? `| ${form.peso_kg_cotacao_bid_frete} Kg` : ''}{' '}
+                    {form.peso_ton_cotacao_bid_frete ? `| ${form.peso_ton_cotacao_bid_frete} Ton` : ''}{' '}
+                    {form.cubagem_m3_cotacao_bid_frete ? `| ${form.cubagem_m3_cotacao_bid_frete} m³` : ''}
                   </span>
                 </div>
                 <div className="nc-receipt-row">
                   <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_incoterm')}</span>
-                  <span className="nc-receipt-value nc-receipt-value--incoterm">{form.incoterm || '—'}</span>
+                  <span className="nc-receipt-value nc-receipt-value--incoterm">{form.incoterm_cotacao_bid_frete || '—'}</span>
                 </div>
                 <div className="nc-receipt-row">
                   <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_visibilidade')}</span>
                   <span className="nc-receipt-value">
-                    {form.visibilidade === 'ABERTA' ? t('bidfrete.nova_cotacao.aberta') : t('bidfrete.nova_cotacao.direcionada')}{form.anonima ? ` (${t('bidfrete.nova_cotacao.anonima')})` : ''}
+                    {form.visibilidade_cotacao_bid_frete === 'ABERTA' ? t('bidfrete.nova_cotacao.aberta') : t('bidfrete.nova_cotacao.direcionada')}{form.anonima_cotacao_bid_frete ? ` (${t('bidfrete.nova_cotacao.anonima')})` : ''}
                   </span>
                 </div>
               </div>
@@ -711,13 +1090,13 @@ export default function NovaCotacao() {
   if (sucesso) {
     const handleOverlayClick = (e: React.MouseEvent) => {
       if (e.target === e.currentTarget) {
-        navigate('/cotacoes')
+        navigate('/produto/bid-frete/cotacoes')
       }
     }
     return (
       <div className="nc-modal-overlay" onClick={handleOverlayClick}>
         <div className="nc-modal-container nc-fade-in" style={{ maxWidth: '520px', padding: '3rem 2rem' }} onClick={e => e.stopPropagation()}>
-          <button className="nc-modal-close" onClick={() => navigate('/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
+          <button className="nc-modal-close" onClick={() => navigate('/produto/bid-frete/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
             <X weight="bold" size={20} />
           </button>
           <div className="nc-sucesso nc-fade-in">
@@ -727,8 +1106,8 @@ export default function NovaCotacao() {
             <h2 className="nc-sucesso-title">{t('bidfrete.nova_cotacao.criado_sucesso')}</h2>
             <p className="nc-sucesso-desc">{t('bidfrete.nova_cotacao.criado_desc')}</p>
             <div className="nc-sucesso-actions">
-              <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/cotacoes')}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
-              {cotacaoId && <button className="nc-btn nc-btn--primary" onClick={() => navigate(`/cotacoes/${cotacaoId}`)}>{t('bidfrete.nova_cotacao.ver_detalhes')}</button>}
+              <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/produto/bid-frete/cotacoes')}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
+              {cotacaoId && <button className="nc-btn nc-btn--primary" onClick={() => navigate(`/produto/bid-frete/cotacoes/${cotacaoId}`)}>{t('bidfrete.nova_cotacao.ver_detalhes')}</button>}
             </div>
           </div>
         </div>
@@ -738,7 +1117,7 @@ export default function NovaCotacao() {
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      navigate('/cotacoes')
+      navigate('/produto/bid-frete/cotacoes')
     }
   }
 
@@ -761,7 +1140,7 @@ export default function NovaCotacao() {
           <div className="nc-modal-header-step-badge">
             {t('bidfrete.nova_cotacao.etapaDe', { step, total: 7 })} • <span className="nc-modal-header-step-name">{STEPS[step - 1].label}</span>
           </div>
-          <button className="nc-modal-close" onClick={() => navigate('/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
+          <button className="nc-modal-close" onClick={() => navigate('/produto/bid-frete/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
             <X weight="bold" size={20} />
           </button>
         </div>
@@ -849,7 +1228,7 @@ export default function NovaCotacao() {
             <button
               type="button"
               className="nc-btn nc-btn--secondary nc-btn-cancelar"
-              onClick={() => navigate('/cotacoes')}
+              onClick={() => navigate('/produto/bid-frete/cotacoes')}
             >
               {t('bidfrete.nova_cotacao.cancelar')}
             </button>
@@ -2131,6 +2510,89 @@ export default function NovaCotacao() {
         }
         .nc-btn--cta {
           box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+        }
+
+        /* ── Autocomplete Dropdown ── */
+        .nc-autocomplete {
+          position: relative;
+        }
+        .nc-input-icon-wrap {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+        .nc-input-icon {
+          position: absolute;
+          left: 0.75rem;
+          color: var(--text-muted, #64748b);
+          pointer-events: none;
+          z-index: 1;
+        }
+        .nc-input--with-icon {
+          padding-left: 2.25rem !important;
+        }
+        .nc-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          z-index: 100;
+          max-height: 240px;
+          overflow-y: auto;
+          background: rgba(15, 23, 42, 0.97);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 10px;
+          margin-top: 4px;
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+          padding: 0.25rem;
+        }
+        .nc-dropdown-item {
+          display: flex;
+          align-items: center;
+          gap: 0.625rem;
+          width: 100%;
+          padding: 0.55rem 0.75rem;
+          border: none;
+          background: transparent;
+          color: var(--text-primary, #f8fafc);
+          font-size: 0.8125rem;
+          font-family: inherit;
+          cursor: pointer;
+          border-radius: 6px;
+          text-align: left;
+          transition: background 0.15s;
+        }
+        .nc-dropdown-item:hover {
+          background: rgba(99, 102, 241, 0.12);
+        }
+        .nc-dropdown-flag, .nc-dropdown-code {
+          font-weight: 700;
+          font-size: 0.75rem;
+          color: var(--accent, #6366f1);
+          background: rgba(99, 102, 241, 0.1);
+          padding: 0.15rem 0.4rem;
+          border-radius: 4px;
+          min-width: 32px;
+          text-align: center;
+          font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+        .nc-dropdown-empty {
+          padding: 1rem;
+          text-align: center;
+          color: var(--text-muted, #64748b);
+          font-size: 0.8125rem;
+          font-style: italic;
+        }
+        .nc-dropdown::-webkit-scrollbar {
+          width: 6px;
+        }
+        .nc-dropdown::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .nc-dropdown::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.12);
+          border-radius: 3px;
         }
 
         /* ── Sucesso Premium ── */

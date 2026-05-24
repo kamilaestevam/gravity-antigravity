@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { ArrowUp, ArrowDown, Minus } from '@phosphor-icons/react'
 import type { FieldUnitType, WidgetDataValue } from '../tipos.js'
 import { formatValueByUnit } from '../utils/axisUtils.js'
@@ -26,6 +27,7 @@ export function DashboardValorKPI({
   data, fieldKey, fieldType = 'number',
   delta, deltaPercent, deltaDirection,
 }: KpiValueProps) {
+  const { t } = useTranslation()
   const raw = data[fieldKey]
   const value: number | null =
     typeof raw === 'number' ? raw
@@ -53,7 +55,7 @@ export function DashboardValorKPI({
               : formatValueByUnit(Math.abs(delta!), fieldType)
             }
           </span>
-          <span style={styles.deltaLabel}>vs período anterior</span>
+          <span style={styles.deltaLabel}>{t('nucleo.dashboard.kpi.vs_periodo_anterior')}</span>
         </div>
       )}
     </div>

@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { CardGraficoGlobal } from '@nucleo/card-global'
 import type { WidgetDataValue } from '../../tipos.js'
 
@@ -35,12 +36,13 @@ function isDistribution(value: WidgetDataValue): value is Record<string, number>
 }
 
 export function DashboardWidgetDonut({ title, data, fieldKey }: DonutWidgetProps) {
+  const { t } = useTranslation()
   const raw = data[fieldKey]
 
   if (!isDistribution(raw)) {
     return (
       <div style={styles.empty}>
-        <span style={styles.emptyText}>Dados insuficientes</span>
+        <span style={styles.emptyText}>{t('nucleo.dashboard.widgets.dados_insuficientes')}</span>
       </div>
     )
   }

@@ -4,7 +4,7 @@
  * cards ricos em descrição, painel inteligente de Incoterms e resumo visual avançado.
  */
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -26,14 +26,19 @@ import {
   Warning,
   Info,
   X,
+  MagnifyingGlass,
 } from '@phosphor-icons/react'
 
-import { criarCotacao } from '../shared/api'
+import { criarCotacao, getPaises, getPortos, getAeroportos, getContainers } from '../shared/api'
 import type {
   TipoOperacao,
   ModalFrete,
   ModalidadeCarga,
   Visibilidade,
+  Pais,
+  Porto,
+  Aeroporto,
+  ContainerOption,
 } from '../shared/types'
 import {
   OPERACAO_LABELS,
@@ -53,28 +58,88 @@ const STEPS = [
   { id: 7, label: 'Resumo',           icone: <FileText weight="duotone" size={16} /> },
 ]
 
+// ─── UF Brasil ──────────────────────────────────────────────────────────────
+const UFS_BRASIL = [
+  'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG',
+  'PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO',
+]
+
+// ─── Autocomplete Helper ────────────────────────────────────────────────────
+function useAutocomplete<T>(
+  fetchFn: (q: string) => Promise<T[]>,
+  delay = 300,
+) {
+  const [query, setQuery] = useState('')
+  const [options, setOptions] = useState<T[]>([])
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout>>()
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!query || query.length < 2) { setOptions([]); return }
+    setLoading(true)
+    timerRef.current = setTimeout(async () => {
+      try {
+        const data = await fetchFn(query)
+        setOptions(data)
+        setOpen(true)
+      } catch { setOptions([]) }
+      finally { setLoading(false) }
+    }, delay)
+    return () => clearTimeout(timerRef.current)
+  }, [query])
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  return { query, setQuery, options, open, setOpen, loading, wrapperRef }
+}
+
 // ─── Form State ──────────────────────────────────────────────────────────────
 interface FormState {
   tipo_operacao_cotacao_bid_frete_internacional: TipoOperacao | ''
   modal_cotacao_bid_frete_internacional: ModalFrete | ''
   modalidade_cotacao_bid_frete_internacional: ModalidadeCarga | ''
+  // Origem
+  origem_pais_cotacao_bid_frete_internacional: string
+  origem_pais_nome: string
+  estado_provincia_origem_cotacao_bid_frete_internacional: string
   origem_codigo_cotacao_bid_frete_internacional: string
   origem_nome_cotacao_bid_frete_internacional: string
-  origem_pais_cotacao_bid_frete_internacional: string
+  aeroporto_origem_cotacao_bid_frete_internacional: string
+  aeroporto_origem_nome: string
+  // Destino
+  destino_pais_cotacao_bid_frete_internacional: string
+  destino_pais_nome: string
+  estado_provincia_destino_cotacao_bid_frete_internacional: string
   destino_codigo_cotacao_bid_frete_internacional: string
   destino_nome_cotacao_bid_frete_internacional: string
-  destino_pais_cotacao_bid_frete_internacional: string
+  aeroporto_destino_cotacao_bid_frete_internacional: string
+  aeroporto_destino_nome: string
+  // Carga
   descricao_mercadoria_cotacao_bid_frete_internacional: string
   ncm_cotacao_bid_frete_internacional: string
+  hs_code_cotacao_bid_frete_internacional: string
   quantidade_cotacao_bid_frete_internacional: number
   tipo_container_cotacao_bid_frete_internacional: string
   peso_kg_cotacao_bid_frete_internacional: string
+  peso_ton_cotacao_bid_frete_internacional: string
   cubagem_m3_cotacao_bid_frete_internacional: string
+  // Incoterm
   incoterm_cotacao_bid_frete_internacional: string
+  cep_origem: string
   cep_destino: string
   prazo_resposta: string
+  // Fornecedores
   visibilidade_cotacao_bid_frete_internacional: Visibilidade
   anonima: boolean
+  // Resumo
   valor_alvo: string
   moeda_alvo: string
 }
@@ -83,19 +148,30 @@ const INITIAL_FORM: FormState = {
   tipo_operacao_cotacao_bid_frete_internacional: '',
   modal_cotacao_bid_frete_internacional: '',
   modalidade_cotacao_bid_frete_internacional: '',
+  origem_pais_cotacao_bid_frete_internacional: '',
+  origem_pais_nome: '',
+  estado_provincia_origem_cotacao_bid_frete_internacional: '',
   origem_codigo_cotacao_bid_frete_internacional: '',
   origem_nome_cotacao_bid_frete_internacional: '',
-  origem_pais_cotacao_bid_frete_internacional: '',
+  aeroporto_origem_cotacao_bid_frete_internacional: '',
+  aeroporto_origem_nome: '',
+  destino_pais_cotacao_bid_frete_internacional: '',
+  destino_pais_nome: '',
+  estado_provincia_destino_cotacao_bid_frete_internacional: '',
   destino_codigo_cotacao_bid_frete_internacional: '',
   destino_nome_cotacao_bid_frete_internacional: '',
-  destino_pais_cotacao_bid_frete_internacional: '',
+  aeroporto_destino_cotacao_bid_frete_internacional: '',
+  aeroporto_destino_nome: '',
   descricao_mercadoria_cotacao_bid_frete_internacional: '',
   ncm_cotacao_bid_frete_internacional: '',
+  hs_code_cotacao_bid_frete_internacional: '',
   quantidade_cotacao_bid_frete_internacional: 1,
   tipo_container_cotacao_bid_frete_internacional: '',
   peso_kg_cotacao_bid_frete_internacional: '',
+  peso_ton_cotacao_bid_frete_internacional: '',
   cubagem_m3_cotacao_bid_frete_internacional: '',
   incoterm_cotacao_bid_frete_internacional: '',
+  cep_origem: '',
   cep_destino: '',
   prazo_resposta: '',
   visibilidade_cotacao_bid_frete_internacional: 'DIRECIONADA',
@@ -245,6 +321,22 @@ export default function NovaCotacao() {
   const [salvando, setSalvando] = useState(false)
   const [sucesso, setSucesso] = useState(false)
   const [cotacaoId, setCotacaoId] = useState<string | null>(null)
+  const [containersList, setContainersList] = useState<ContainerOption[]>([])
+
+  // Autocompletes
+  const paisOrigem = useAutocomplete<Pais>((q) => getPaises(q))
+  const paisDestino = useAutocomplete<Pais>((q) => getPaises(q))
+  const portoOrigem = useAutocomplete<Porto>((q) => getPortos(q))
+  const portoDestino = useAutocomplete<Porto>((q) => getPortos(q))
+  const aeroportoOrigem = useAutocomplete<Aeroporto>((q) => getAeroportos(q, form.origem_pais_cotacao_bid_frete_internacional || undefined))
+  const aeroportoDestino = useAutocomplete<Aeroporto>((q) => getAeroportos(q, form.destino_pais_cotacao_bid_frete_internacional || undefined))
+
+  // Carregar containers ao montar
+  useEffect(() => {
+    getContainers().then(setContainersList).catch(() => {})
+  }, [])
+
+  const modal = form.modal_cotacao_bid_frete_internacional
 
   const stepStatus = (passoId: number): 'pendente' | 'ativo' | 'feito' => {
     if (passoId < step) return 'feito'
@@ -258,8 +350,18 @@ export default function NovaCotacao() {
   const canNext = (): boolean => {
     switch (step) {
       case 1: return !!form.tipo_operacao_cotacao_bid_frete_internacional && !!form.modal_cotacao_bid_frete_internacional && !!form.modalidade_cotacao_bid_frete_internacional
-      case 2: return !!form.origem_codigo_cotacao_bid_frete_internacional && !!form.origem_nome_cotacao_bid_frete_internacional && !!form.origem_pais_cotacao_bid_frete_internacional
-      case 3: return !!form.destino_codigo_cotacao_bid_frete_internacional && !!form.destino_nome_cotacao_bid_frete_internacional && !!form.destino_pais_cotacao_bid_frete_internacional
+      case 2: {
+        const temPais = !!form.origem_pais_cotacao_bid_frete_internacional
+        if (modal === 'MARITIMO') return temPais && !!form.origem_codigo_cotacao_bid_frete_internacional
+        if (modal === 'AEREO') return temPais && !!form.aeroporto_origem_cotacao_bid_frete_internacional
+        return temPais // RODOVIARIO: só país
+      }
+      case 3: {
+        const temPais = !!form.destino_pais_cotacao_bid_frete_internacional
+        if (modal === 'MARITIMO') return temPais && !!form.destino_codigo_cotacao_bid_frete_internacional
+        if (modal === 'AEREO') return temPais && !!form.aeroporto_destino_cotacao_bid_frete_internacional
+        return temPais
+      }
       case 4: return !!form.descricao_mercadoria_cotacao_bid_frete_internacional && form.quantidade_cotacao_bid_frete_internacional > 0
       case 5: return !!form.incoterm_cotacao_bid_frete_internacional
       case 6: return true
@@ -276,10 +378,10 @@ export default function NovaCotacao() {
         modal_cotacao_bid_frete_internacional: form.modal_cotacao_bid_frete_internacional as ModalFrete,
         modalidade_cotacao_bid_frete_internacional: form.modalidade_cotacao_bid_frete_internacional as ModalidadeCarga,
         origem_codigo_cotacao_bid_frete_internacional: form.origem_codigo_cotacao_bid_frete_internacional,
-        origem_nome_cotacao_bid_frete_internacional: form.origem_nome_cotacao_bid_frete_internacional,
+        origem_nome_cotacao_bid_frete_internacional: form.origem_nome_cotacao_bid_frete_internacional || form.aeroporto_origem_nome,
         origem_pais_cotacao_bid_frete_internacional: form.origem_pais_cotacao_bid_frete_internacional,
         destino_codigo_cotacao_bid_frete_internacional: form.destino_codigo_cotacao_bid_frete_internacional,
-        destino_nome_cotacao_bid_frete_internacional: form.destino_nome_cotacao_bid_frete_internacional,
+        destino_nome_cotacao_bid_frete_internacional: form.destino_nome_cotacao_bid_frete_internacional || form.aeroporto_destino_nome,
         destino_pais_cotacao_bid_frete_internacional: form.destino_pais_cotacao_bid_frete_internacional,
         descricao_mercadoria_cotacao_bid_frete_internacional: form.descricao_mercadoria_cotacao_bid_frete_internacional,
         ncm_cotacao_bid_frete_internacional: form.ncm_cotacao_bid_frete_internacional || undefined,
@@ -294,7 +396,7 @@ export default function NovaCotacao() {
         valor_alvo: form.valor_alvo ? parseFloat(form.valor_alvo) : undefined,
         moeda_alvo: form.moeda_alvo,
         prazo_resposta: form.prazo_resposta || undefined,
-      })
+      } as any)
       setCotacaoId(cotacao.id)
       setSucesso(true)
     } catch (err) {
@@ -401,21 +503,122 @@ export default function NovaCotacao() {
                   <MapPin weight="duotone" size={26} className="nc-pulsing-icon" />
                 </div>
                 <div className="nc-location-visual-text">
-                  <h4>{t('bidfrete.nova_cotacao.porto_origem')}</h4>
-                  <p>Informe o local de coleta ou porto de origem de partida internacional.</p>
+                  <h4>{modal === 'AEREO' ? 'Aeroporto de Origem' : modal === 'RODOVIARIO' ? 'Local de Origem' : t('bidfrete.nova_cotacao.porto_origem')}</h4>
+                  <p>{modal === 'AEREO' ? 'Selecione o país e o aeroporto de partida.' : modal === 'RODOVIARIO' ? 'Selecione o país e estado/província de coleta.' : 'Selecione o país e o porto de embarque.'}</p>
                 </div>
               </div>
-              
-              <div className="nc-fields-grid nc-fields-grid--location">
-                <Field label={t('bidfrete.nova_cotacao.codigo_locode')} required>
-                  <input className="nc-input" placeholder="Ex: CNSHA" value={form.origem_codigo_cotacao_bid_frete_internacional} onChange={e => set('origem_codigo_cotacao_bid_frete_internacional', e.target.value.toUpperCase())} />
+
+              <div className="nc-fields-grid nc-fields-grid--location-new">
+                {/* País Origem — Autocomplete */}
+                <Field label="PAÍS" required>
+                  <div className="nc-autocomplete" ref={paisOrigem.wrapperRef}>
+                    <div className="nc-input-icon-wrap">
+                      <MagnifyingGlass size={14} className="nc-input-search-icon" />
+                      <input
+                        className="nc-input nc-input--search"
+                        placeholder="Buscar país..."
+                        value={form.origem_pais_nome || paisOrigem.query}
+                        onChange={e => { paisOrigem.setQuery(e.target.value); set('origem_pais_cotacao_bid_frete_internacional', ''); set('origem_pais_nome', '') }}
+                        onFocus={() => { if (paisOrigem.options.length > 0) paisOrigem.setOpen(true) }}
+                      />
+                    </div>
+                    {paisOrigem.open && paisOrigem.options.length > 0 && (
+                      <ul className="nc-autocomplete-list">
+                        {paisOrigem.options.map(p => (
+                          <li key={p.codigo_pais_iso_alpha2} className="nc-autocomplete-item" onClick={() => {
+                            set('origem_pais_cotacao_bid_frete_internacional', p.codigo_pais_iso_alpha2)
+                            set('origem_pais_nome', `${p.nome_pais_portugues} (${p.codigo_pais_iso_alpha2})`)
+                            paisOrigem.setQuery('')
+                            paisOrigem.setOpen(false)
+                          }}>
+                            <span className="nc-ac-code">{p.codigo_pais_iso_alpha2}</span>
+                            <span className="nc-ac-name">{p.nome_pais_portugues}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </Field>
-                <Field label={t('bidfrete.nova_cotacao.nome')} required>
-                  <input className="nc-input" placeholder="Ex: Shanghai" value={form.origem_nome_cotacao_bid_frete_internacional} onChange={e => set('origem_nome_cotacao_bid_frete_internacional', e.target.value)} />
+
+                {/* Estado/Província */}
+                <Field label="ESTADO / PROVÍNCIA">
+                  {form.origem_pais_cotacao_bid_frete_internacional === 'BR' ? (
+                    <select className="nc-input" value={form.estado_provincia_origem_cotacao_bid_frete_internacional} onChange={e => set('estado_provincia_origem_cotacao_bid_frete_internacional', e.target.value)}>
+                      <option value="">Selecione o UF</option>
+                      {UFS_BRASIL.map(uf => <option key={uf} value={uf}>{uf}</option>)}
+                    </select>
+                  ) : (
+                    <input className="nc-input" placeholder="Ex: Guangdong" value={form.estado_provincia_origem_cotacao_bid_frete_internacional} onChange={e => set('estado_provincia_origem_cotacao_bid_frete_internacional', e.target.value)} />
+                  )}
                 </Field>
-                <Field label={t('bidfrete.nova_cotacao.pais')} required>
-                  <input className="nc-input" placeholder="Ex: China" value={form.origem_pais_cotacao_bid_frete_internacional} onChange={e => set('origem_pais_cotacao_bid_frete_internacional', e.target.value)} />
-                </Field>
+
+                {/* Porto — só MARITIMO */}
+                {modal === 'MARITIMO' && (
+                  <Field label="PORTO DE EMBARQUE" required>
+                    <div className="nc-autocomplete" ref={portoOrigem.wrapperRef}>
+                      <div className="nc-input-icon-wrap">
+                        <Anchor size={14} className="nc-input-search-icon" />
+                        <input
+                          className="nc-input nc-input--search"
+                          placeholder="Buscar porto..."
+                          value={form.origem_nome_cotacao_bid_frete_internacional || portoOrigem.query}
+                          onChange={e => { portoOrigem.setQuery(e.target.value); set('origem_codigo_cotacao_bid_frete_internacional', ''); set('origem_nome_cotacao_bid_frete_internacional', '') }}
+                          onFocus={() => { if (portoOrigem.options.length > 0) portoOrigem.setOpen(true) }}
+                        />
+                      </div>
+                      {portoOrigem.open && portoOrigem.options.length > 0 && (
+                        <ul className="nc-autocomplete-list">
+                          {portoOrigem.options.map(p => (
+                            <li key={p.codigo} className="nc-autocomplete-item" onClick={() => {
+                              set('origem_codigo_cotacao_bid_frete_internacional', p.codigo)
+                              set('origem_nome_cotacao_bid_frete_internacional', `${p.nome} (${p.codigo})`)
+                              portoOrigem.setQuery('')
+                              portoOrigem.setOpen(false)
+                            }}>
+                              <span className="nc-ac-code">{p.codigo}</span>
+                              <span className="nc-ac-name">{p.nome}</span>
+                              <span className="nc-ac-pais">{p.pais}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </Field>
+                )}
+
+                {/* Aeroporto — só AEREO */}
+                {modal === 'AEREO' && (
+                  <Field label="AEROPORTO DE EMBARQUE" required>
+                    <div className="nc-autocomplete" ref={aeroportoOrigem.wrapperRef}>
+                      <div className="nc-input-icon-wrap">
+                        <AirplaneTilt size={14} className="nc-input-search-icon" />
+                        <input
+                          className="nc-input nc-input--search"
+                          placeholder="Buscar aeroporto..."
+                          value={form.aeroporto_origem_nome || aeroportoOrigem.query}
+                          onChange={e => { aeroportoOrigem.setQuery(e.target.value); set('aeroporto_origem_cotacao_bid_frete_internacional', ''); set('aeroporto_origem_nome', '') }}
+                          onFocus={() => { if (aeroportoOrigem.options.length > 0) aeroportoOrigem.setOpen(true) }}
+                        />
+                      </div>
+                      {aeroportoOrigem.open && aeroportoOrigem.options.length > 0 && (
+                        <ul className="nc-autocomplete-list">
+                          {aeroportoOrigem.options.map(a => (
+                            <li key={a.id_aeroporto} className="nc-autocomplete-item" onClick={() => {
+                              set('aeroporto_origem_cotacao_bid_frete_internacional', a.codigo_iata_aeroporto)
+                              set('aeroporto_origem_nome', `${a.nome_aeroporto} (${a.codigo_iata_aeroporto})`)
+                              aeroportoOrigem.setQuery('')
+                              aeroportoOrigem.setOpen(false)
+                            }}>
+                              <span className="nc-ac-code">{a.codigo_iata_aeroporto}</span>
+                              <span className="nc-ac-name">{a.nome_aeroporto}</span>
+                              <span className="nc-ac-pais">{a.codigo_pais_aeroporto}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </Field>
+                )}
               </div>
             </div>
           </div>
@@ -431,21 +634,122 @@ export default function NovaCotacao() {
                   <MapPin weight="duotone" size={26} className="nc-pulsing-icon-dest" />
                 </div>
                 <div className="nc-location-visual-text">
-                  <h4>{t('bidfrete.nova_cotacao.porto_destino')}</h4>
-                  <p>Defina o local de entrega final ou porto de destino de chegada.</p>
+                  <h4>{modal === 'AEREO' ? 'Aeroporto de Destino' : modal === 'RODOVIARIO' ? 'Local de Destino' : t('bidfrete.nova_cotacao.porto_destino')}</h4>
+                  <p>{modal === 'AEREO' ? 'Selecione o país e o aeroporto de chegada.' : modal === 'RODOVIARIO' ? 'Selecione o país e estado/província de entrega.' : 'Selecione o país e o porto de destino.'}</p>
                 </div>
               </div>
-              
-              <div className="nc-fields-grid nc-fields-grid--location">
-                <Field label={t('bidfrete.nova_cotacao.codigo_locode')} required>
-                  <input className="nc-input" placeholder="Ex: BRSSZ" value={form.destino_codigo_cotacao_bid_frete_internacional} onChange={e => set('destino_codigo_cotacao_bid_frete_internacional', e.target.value.toUpperCase())} />
+
+              <div className="nc-fields-grid nc-fields-grid--location-new">
+                {/* País Destino — Autocomplete */}
+                <Field label="PAÍS" required>
+                  <div className="nc-autocomplete" ref={paisDestino.wrapperRef}>
+                    <div className="nc-input-icon-wrap">
+                      <MagnifyingGlass size={14} className="nc-input-search-icon" />
+                      <input
+                        className="nc-input nc-input--search"
+                        placeholder="Buscar país..."
+                        value={form.destino_pais_nome || paisDestino.query}
+                        onChange={e => { paisDestino.setQuery(e.target.value); set('destino_pais_cotacao_bid_frete_internacional', ''); set('destino_pais_nome', '') }}
+                        onFocus={() => { if (paisDestino.options.length > 0) paisDestino.setOpen(true) }}
+                      />
+                    </div>
+                    {paisDestino.open && paisDestino.options.length > 0 && (
+                      <ul className="nc-autocomplete-list">
+                        {paisDestino.options.map(p => (
+                          <li key={p.codigo_pais_iso_alpha2} className="nc-autocomplete-item" onClick={() => {
+                            set('destino_pais_cotacao_bid_frete_internacional', p.codigo_pais_iso_alpha2)
+                            set('destino_pais_nome', `${p.nome_pais_portugues} (${p.codigo_pais_iso_alpha2})`)
+                            paisDestino.setQuery('')
+                            paisDestino.setOpen(false)
+                          }}>
+                            <span className="nc-ac-code">{p.codigo_pais_iso_alpha2}</span>
+                            <span className="nc-ac-name">{p.nome_pais_portugues}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </Field>
-                <Field label={t('bidfrete.nova_cotacao.nome')} required>
-                  <input className="nc-input" placeholder="Ex: Santos" value={form.destino_nome_cotacao_bid_frete_internacional} onChange={e => set('destino_nome_cotacao_bid_frete_internacional', e.target.value)} />
+
+                {/* Estado/Província */}
+                <Field label="ESTADO / PROVÍNCIA">
+                  {form.destino_pais_cotacao_bid_frete_internacional === 'BR' ? (
+                    <select className="nc-input" value={form.estado_provincia_destino_cotacao_bid_frete_internacional} onChange={e => set('estado_provincia_destino_cotacao_bid_frete_internacional', e.target.value)}>
+                      <option value="">Selecione o UF</option>
+                      {UFS_BRASIL.map(uf => <option key={uf} value={uf}>{uf}</option>)}
+                    </select>
+                  ) : (
+                    <input className="nc-input" placeholder="Ex: California" value={form.estado_provincia_destino_cotacao_bid_frete_internacional} onChange={e => set('estado_provincia_destino_cotacao_bid_frete_internacional', e.target.value)} />
+                  )}
                 </Field>
-                <Field label={t('bidfrete.nova_cotacao.pais')} required>
-                  <input className="nc-input" placeholder="Ex: Brasil" value={form.destino_pais_cotacao_bid_frete_internacional} onChange={e => set('destino_pais_cotacao_bid_frete_internacional', e.target.value)} />
-                </Field>
+
+                {/* Porto — só MARITIMO */}
+                {modal === 'MARITIMO' && (
+                  <Field label="PORTO DE DESTINO" required>
+                    <div className="nc-autocomplete" ref={portoDestino.wrapperRef}>
+                      <div className="nc-input-icon-wrap">
+                        <Anchor size={14} className="nc-input-search-icon" />
+                        <input
+                          className="nc-input nc-input--search"
+                          placeholder="Buscar porto..."
+                          value={form.destino_nome_cotacao_bid_frete_internacional || portoDestino.query}
+                          onChange={e => { portoDestino.setQuery(e.target.value); set('destino_codigo_cotacao_bid_frete_internacional', ''); set('destino_nome_cotacao_bid_frete_internacional', '') }}
+                          onFocus={() => { if (portoDestino.options.length > 0) portoDestino.setOpen(true) }}
+                        />
+                      </div>
+                      {portoDestino.open && portoDestino.options.length > 0 && (
+                        <ul className="nc-autocomplete-list">
+                          {portoDestino.options.map(p => (
+                            <li key={p.codigo} className="nc-autocomplete-item" onClick={() => {
+                              set('destino_codigo_cotacao_bid_frete_internacional', p.codigo)
+                              set('destino_nome_cotacao_bid_frete_internacional', `${p.nome} (${p.codigo})`)
+                              portoDestino.setQuery('')
+                              portoDestino.setOpen(false)
+                            }}>
+                              <span className="nc-ac-code">{p.codigo}</span>
+                              <span className="nc-ac-name">{p.nome}</span>
+                              <span className="nc-ac-pais">{p.pais}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </Field>
+                )}
+
+                {/* Aeroporto — só AEREO */}
+                {modal === 'AEREO' && (
+                  <Field label="AEROPORTO DE DESTINO" required>
+                    <div className="nc-autocomplete" ref={aeroportoDestino.wrapperRef}>
+                      <div className="nc-input-icon-wrap">
+                        <AirplaneTilt size={14} className="nc-input-search-icon" />
+                        <input
+                          className="nc-input nc-input--search"
+                          placeholder="Buscar aeroporto..."
+                          value={form.aeroporto_destino_nome || aeroportoDestino.query}
+                          onChange={e => { aeroportoDestino.setQuery(e.target.value); set('aeroporto_destino_cotacao_bid_frete_internacional', ''); set('aeroporto_destino_nome', '') }}
+                          onFocus={() => { if (aeroportoDestino.options.length > 0) aeroportoDestino.setOpen(true) }}
+                        />
+                      </div>
+                      {aeroportoDestino.open && aeroportoDestino.options.length > 0 && (
+                        <ul className="nc-autocomplete-list">
+                          {aeroportoDestino.options.map(a => (
+                            <li key={a.id_aeroporto} className="nc-autocomplete-item" onClick={() => {
+                              set('aeroporto_destino_cotacao_bid_frete_internacional', a.codigo_iata_aeroporto)
+                              set('aeroporto_destino_nome', `${a.nome_aeroporto} (${a.codigo_iata_aeroporto})`)
+                              aeroportoDestino.setQuery('')
+                              aeroportoDestino.setOpen(false)
+                            }}>
+                              <span className="nc-ac-code">{a.codigo_iata_aeroporto}</span>
+                              <span className="nc-ac-name">{a.nome_aeroporto}</span>
+                              <span className="nc-ac-pais">{a.codigo_pais_aeroporto}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </Field>
+                )}
               </div>
             </div>
           </div>
@@ -462,10 +766,13 @@ export default function NovaCotacao() {
                   <input className="nc-input" placeholder="Ex: Peças automotivas, eletrônicos industriais..." value={form.descricao_mercadoria_cotacao_bid_frete_internacional} onChange={e => set('descricao_mercadoria_cotacao_bid_frete_internacional', e.target.value)} />
                 </Field>
               </div>
-              <Field label={t('bidfrete.nova_cotacao.ncm')}>
+              <Field label="NCM">
                 <input className="nc-input" placeholder="Ex: 87089990" value={form.ncm_cotacao_bid_frete_internacional} onChange={e => set('ncm_cotacao_bid_frete_internacional', e.target.value.replace(/\D/g, '').slice(0, 8))} />
               </Field>
-              
+              <Field label="HS CODE">
+                <input className="nc-input" placeholder="Ex: 8708.99" value={form.hs_code_cotacao_bid_frete_internacional} onChange={e => set('hs_code_cotacao_bid_frete_internacional', e.target.value.slice(0, 10))} />
+              </Field>
+
               <Field label={t('bidfrete.nova_cotacao.quantidade')} required>
                 <div className="nc-input-group">
                   <input className="nc-input nc-input--with-suffix" type="number" min={1} value={form.quantidade_cotacao_bid_frete_internacional} onChange={e => set('quantidade_cotacao_bid_frete_internacional', parseInt(e.target.value) || 1)} />
@@ -473,20 +780,42 @@ export default function NovaCotacao() {
                 </div>
               </Field>
 
-              {form.modal_cotacao_bid_frete_internacional === 'MARITIMO' && (
-                <Field label={t('bidfrete.nova_cotacao.tipo_container')}>
-                  <input className="nc-input" placeholder="Ex: 40' HC" value={form.tipo_container_cotacao_bid_frete_internacional} onChange={e => set('tipo_container_cotacao_bid_frete_internacional', e.target.value)} />
+              {modal === 'MARITIMO' && (
+                <Field label="TIPO CONTAINER">
+                  <select className="nc-input" value={form.tipo_container_cotacao_bid_frete_internacional} onChange={e => set('tipo_container_cotacao_bid_frete_internacional', e.target.value)}>
+                    <option value="">Selecione</option>
+                    {containersList.map(c => (
+                      <option key={c.codigo} value={c.codigo}>{c.nome} ({c.teus} TEU)</option>
+                    ))}
+                  </select>
                 </Field>
               )}
-              
-              <Field label={t('bidfrete.nova_cotacao.peso_kg')}>
+
+              <Field label="PESO (KG)">
                 <div className="nc-input-group">
-                  <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 12000" value={form.peso_kg_cotacao_bid_frete_internacional} onChange={e => set('peso_kg_cotacao_bid_frete_internacional', e.target.value)} />
+                  <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 12000" value={form.peso_kg_cotacao_bid_frete_internacional} onChange={e => {
+                    const val = e.target.value
+                    set('peso_kg_cotacao_bid_frete_internacional', val)
+                    if (val) set('peso_ton_cotacao_bid_frete_internacional', (parseFloat(val) / 1000).toFixed(3))
+                    else set('peso_ton_cotacao_bid_frete_internacional', '')
+                  }} />
                   <span className="nc-input-suffix">Kg</span>
                 </div>
               </Field>
-              
-              <Field label={t('bidfrete.nova_cotacao.cubagem_m3')}>
+
+              <Field label="PESO (TON)">
+                <div className="nc-input-group">
+                  <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 12.0" value={form.peso_ton_cotacao_bid_frete_internacional} onChange={e => {
+                    const val = e.target.value
+                    set('peso_ton_cotacao_bid_frete_internacional', val)
+                    if (val) set('peso_kg_cotacao_bid_frete_internacional', (parseFloat(val) * 1000).toFixed(0))
+                    else set('peso_kg_cotacao_bid_frete_internacional', '')
+                  }} />
+                  <span className="nc-input-suffix">TON</span>
+                </div>
+              </Field>
+
+              <Field label="CUBAGEM (M³)">
                 <div className="nc-input-group">
                   <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 33.2" value={form.cubagem_m3_cotacao_bid_frete_internacional} onChange={e => set('cubagem_m3_cotacao_bid_frete_internacional', e.target.value)} />
                   <span className="nc-input-suffix">m³</span>
@@ -503,12 +832,12 @@ export default function NovaCotacao() {
         return (
           <div className="nc-step-content">
             <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.incoterm')}</h3>
-            <div className="nc-incoterm_cotacao_bid_frete_internacional-grid">
+            <div className="nc-incoterm-grid">
               {INCOTERMS.map(inc => (
                 <button
                   key={inc}
                   type="button"
-                  className={`nc-incoterm_cotacao_bid_frete_internacional-btn ${form.incoterm_cotacao_bid_frete_internacional === inc ? 'nc-incoterm_cotacao_bid_frete_internacional-btn--selected' : ''}`}
+                  className={`nc-incoterm-btn ${form.incoterm_cotacao_bid_frete_internacional === inc ? 'nc-incoterm-btn--selected' : ''}`}
                   onClick={() => set('incoterm_cotacao_bid_frete_internacional', inc)}
                 >
                   {inc}
@@ -518,7 +847,7 @@ export default function NovaCotacao() {
 
             {/* UX Helper: Painel Explicativo Dinâmico do Incoterm */}
             {explanation && (
-              <div className="nc-incoterm_cotacao_bid_frete_internacional-helper-card nc-fade-in">
+              <div className="nc-incoterm-helper-card nc-fade-in">
                 <div className="nc-helper-header">
                   <Scales size={20} weight="duotone" className="nc-helper-icon" />
                   <h4>{explanation.title}</h4>
@@ -530,14 +859,15 @@ export default function NovaCotacao() {
               </div>
             )}
 
-            {form.incoterm_cotacao_bid_frete_internacional === 'EXW' && (
-              <div style={{ marginTop: '1.25rem' }} className="nc-fade-in">
-                <Field label={t('bidfrete.nova_cotacao.cep_coleta')} required>
-                  <input className="nc-input" placeholder="Ex: 01310-100" value={form.cep_destino} onChange={e => set('cep_destino', e.target.value)} />
-                </Field>
-              </div>
-            )}
-            
+            <div className="nc-fields-grid" style={{ marginTop: '1.5rem' }}>
+              <Field label="CEP ORIGEM">
+                <input className="nc-input" placeholder="Ex: 01310-100" value={form.cep_origem} onChange={e => set('cep_origem', e.target.value)} />
+              </Field>
+              <Field label="CEP DESTINO">
+                <input className="nc-input" placeholder="Ex: 90000-000" value={form.cep_destino} onChange={e => set('cep_destino', e.target.value)} />
+              </Field>
+            </div>
+
             <div className="nc-fields-grid" style={{ marginTop: '1.5rem' }}>
               <Field label={t('bidfrete.nova_cotacao.prazo_respostas')}>
                 <input className="nc-input nc-input--date" type="datetime-local" value={form.prazo_resposta} onChange={e => set('prazo_resposta', e.target.value)} />
@@ -600,7 +930,12 @@ export default function NovaCotacao() {
         )
 
       // STEP 7 — Resumo
-      case 7:
+      case 7: {
+        const origemCode = modal === 'AEREO' ? form.aeroporto_origem_cotacao_bid_frete_internacional : form.origem_codigo_cotacao_bid_frete_internacional
+        const origemName = modal === 'AEREO' ? form.aeroporto_origem_nome : (modal === 'RODOVIARIO' ? (form.estado_provincia_origem_cotacao_bid_frete_internacional || form.origem_pais_nome) : form.origem_nome_cotacao_bid_frete_internacional)
+        const destinoCode = modal === 'AEREO' ? form.aeroporto_destino_cotacao_bid_frete_internacional : form.destino_codigo_cotacao_bid_frete_internacional
+        const destinoName = modal === 'AEREO' ? form.aeroporto_destino_nome : (modal === 'RODOVIARIO' ? (form.estado_provincia_destino_cotacao_bid_frete_internacional || form.destino_pais_nome) : form.destino_nome_cotacao_bid_frete_internacional)
+
         return (
           <div className="nc-step-content">
             <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.resumo_cotacao')}</h3>
@@ -622,7 +957,7 @@ export default function NovaCotacao() {
             <div className="nc-receipt-card">
               <div className="nc-receipt-header">
                 <span className="nc-receipt-badge">{form.tipo_operacao_cotacao_bid_frete_internacional ? OPERACAO_LABELS[form.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao] : '—'}</span>
-                <span className="nc-receipt-modal_cotacao_bid_frete_internacional">
+                <span className="nc-receipt-modal">
                   {form.modal_cotacao_bid_frete_internacional ? MODAL_LABELS[form.modal_cotacao_bid_frete_internacional as ModalFrete] : '—'} / {form.modalidade_cotacao_bid_frete_internacional ? MODALIDADE_LABELS[form.modalidade_cotacao_bid_frete_internacional as ModalidadeCarga] : '—'}
                 </span>
               </div>
@@ -632,17 +967,17 @@ export default function NovaCotacao() {
                 <div className="nc-timeline-node">
                   <div className="nc-node-dot nc-node-dot--origin"></div>
                   <div className="nc-node-text">
-                    <span className="nc-node-code">{form.origem_codigo_cotacao_bid_frete_internacional || '—'}</span>
-                    <span className="nc-node-name">{form.origem_nome_cotacao_bid_frete_internacional || '—'}{form.origem_pais_cotacao_bid_frete_internacional ? `, ${form.origem_pais_cotacao_bid_frete_internacional}` : ''}</span>
+                    <span className="nc-node-code">{origemCode || form.origem_pais_cotacao_bid_frete_internacional || '—'}</span>
+                    <span className="nc-node-name">{origemName || '—'}{form.origem_pais_nome && !origemName?.includes(form.origem_pais_cotacao_bid_frete_internacional) ? `, ${form.origem_pais_cotacao_bid_frete_internacional}` : ''}</span>
                   </div>
                 </div>
 
                 <div className="nc-timeline-line">
                   <div className="nc-timeline-icon-wrap">
-                    {form.modal_cotacao_bid_frete_internacional === 'MARITIMO' && <Anchor weight="duotone" size={16} />}
-                    {form.modal_cotacao_bid_frete_internacional === 'AEREO' && <AirplaneTilt weight="duotone" size={16} />}
-                    {form.modal_cotacao_bid_frete_internacional === 'RODOVIARIO' && <Van weight="duotone" size={16} />}
-                    {!form.modal_cotacao_bid_frete_internacional && <Truck weight="duotone" size={16} />}
+                    {modal === 'MARITIMO' && <Anchor weight="duotone" size={16} />}
+                    {modal === 'AEREO' && <AirplaneTilt weight="duotone" size={16} />}
+                    {modal === 'RODOVIARIO' && <Van weight="duotone" size={16} />}
+                    {!modal && <Truck weight="duotone" size={16} />}
                   </div>
                   <div className="nc-timeline-line-fill"></div>
                 </div>
@@ -650,8 +985,8 @@ export default function NovaCotacao() {
                 <div className="nc-timeline-node">
                   <div className="nc-node-dot nc-node-dot--destination"></div>
                   <div className="nc-node-text">
-                    <span className="nc-node-code">{form.destino_codigo_cotacao_bid_frete_internacional || '—'}</span>
-                    <span className="nc-node-name">{form.destino_nome_cotacao_bid_frete_internacional || '—'}{form.destino_pais_cotacao_bid_frete_internacional ? `, ${form.destino_pais_cotacao_bid_frete_internacional}` : ''}</span>
+                    <span className="nc-node-code">{destinoCode || form.destino_pais_cotacao_bid_frete_internacional || '—'}</span>
+                    <span className="nc-node-name">{destinoName || '—'}{form.destino_pais_nome && !destinoName?.includes(form.destino_pais_cotacao_bid_frete_internacional) ? `, ${form.destino_pais_cotacao_bid_frete_internacional}` : ''}</span>
                   </div>
                 </div>
               </div>
@@ -663,19 +998,31 @@ export default function NovaCotacao() {
                 </div>
                 {form.ncm_cotacao_bid_frete_internacional && (
                   <div className="nc-receipt-row">
-                    <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_ncm')}</span>
+                    <span className="nc-receipt-label">NCM</span>
                     <span className="nc-receipt-value font-mono">{form.ncm_cotacao_bid_frete_internacional}</span>
+                  </div>
+                )}
+                {form.hs_code_cotacao_bid_frete_internacional && (
+                  <div className="nc-receipt-row">
+                    <span className="nc-receipt-label">HS Code</span>
+                    <span className="nc-receipt-value font-mono">{form.hs_code_cotacao_bid_frete_internacional}</span>
                   </div>
                 )}
                 <div className="nc-receipt-row">
                   <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_qtd_peso')}</span>
                   <span className="nc-receipt-value">
-                    {form.quantidade_cotacao_bid_frete_internacional} un {form.peso_kg_cotacao_bid_frete_internacional ? `| ${form.peso_kg_cotacao_bid_frete_internacional} Kg` : ''} {form.cubagem_m3_cotacao_bid_frete_internacional ? `| ${form.cubagem_m3_cotacao_bid_frete_internacional} m³` : ''}
+                    {form.quantidade_cotacao_bid_frete_internacional} un {form.peso_kg_cotacao_bid_frete_internacional ? `| ${form.peso_kg_cotacao_bid_frete_internacional} Kg` : ''} {form.peso_ton_cotacao_bid_frete_internacional ? `(${form.peso_ton_cotacao_bid_frete_internacional} TON)` : ''} {form.cubagem_m3_cotacao_bid_frete_internacional ? `| ${form.cubagem_m3_cotacao_bid_frete_internacional} m³` : ''}
                   </span>
                 </div>
+                {form.tipo_container_cotacao_bid_frete_internacional && (
+                  <div className="nc-receipt-row">
+                    <span className="nc-receipt-label">Container</span>
+                    <span className="nc-receipt-value">{containersList.find(c => c.codigo === form.tipo_container_cotacao_bid_frete_internacional)?.nome || form.tipo_container_cotacao_bid_frete_internacional}</span>
+                  </div>
+                )}
                 <div className="nc-receipt-row">
                   <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_incoterm')}</span>
-                  <span className="nc-receipt-value nc-receipt-value--incoterm_cotacao_bid_frete_internacional">{form.incoterm_cotacao_bid_frete_internacional || '—'}</span>
+                  <span className="nc-receipt-value nc-receipt-value--incoterm">{form.incoterm_cotacao_bid_frete_internacional || '—'}</span>
                 </div>
                 <div className="nc-receipt-row">
                   <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_visibilidade')}</span>
@@ -687,6 +1034,7 @@ export default function NovaCotacao() {
             </div>
           </div>
         )
+      }
 
       default:
         return null
@@ -697,13 +1045,13 @@ export default function NovaCotacao() {
   if (sucesso) {
     const handleOverlayClick = (e: React.MouseEvent) => {
       if (e.target === e.currentTarget) {
-        navigate('/cotacoes')
+        navigate('/produto/bid-frete/cotacoes')
       }
     }
     return (
       <div className="nc-modal_cotacao_bid_frete_internacional-overlay" onClick={handleOverlayClick}>
         <div className="nc-modal_cotacao_bid_frete_internacional-container nc-fade-in" style={{ maxWidth: '520px', padding: '3rem 2rem' }} onClick={e => e.stopPropagation()}>
-          <button className="nc-modal_cotacao_bid_frete_internacional-close" onClick={() => navigate('/cotacoes')} aria-label="Fechar">
+          <button className="nc-modal_cotacao_bid_frete_internacional-close" onClick={() => navigate('/produto/bid-frete/cotacoes')} aria-label="Fechar">
             <X weight="bold" size={20} />
           </button>
           <div className="nc-sucesso nc-fade-in">
@@ -713,8 +1061,8 @@ export default function NovaCotacao() {
             <h2 className="nc-sucesso-title">{t('bidfrete.nova_cotacao.criado_sucesso')}</h2>
             <p className="nc-sucesso-desc">{t('bidfrete.nova_cotacao.criado_desc')}</p>
             <div className="nc-sucesso-actions">
-              <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/cotacoes')}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
-              {cotacaoId && <button className="nc-btn nc-btn--primary" onClick={() => navigate(`/cotacoes/${cotacaoId}`)}>{t('bidfrete.nova_cotacao.ver_detalhes')}</button>}
+              <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/produto/bid-frete/cotacoes')}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
+              {cotacaoId && <button className="nc-btn nc-btn--primary" onClick={() => navigate(`/produto/bid-frete/cotacoes/${cotacaoId}`)}>{t('bidfrete.nova_cotacao.ver_detalhes')}</button>}
             </div>
           </div>
         </div>
@@ -724,7 +1072,7 @@ export default function NovaCotacao() {
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      navigate('/cotacoes')
+      navigate('/produto/bid-frete/cotacoes')
     }
   }
 
@@ -747,7 +1095,7 @@ export default function NovaCotacao() {
           <div className="nc-modal_cotacao_bid_frete_internacional-header-step-badge">
             Etapa {step} de 7 • <span className="nc-modal_cotacao_bid_frete_internacional-header-step-name">{STEPS[step - 1].label}</span>
           </div>
-          <button className="nc-modal_cotacao_bid_frete_internacional-close" onClick={() => navigate('/cotacoes')} aria-label="Fechar">
+          <button className="nc-modal_cotacao_bid_frete_internacional-close" onClick={() => navigate('/produto/bid-frete/cotacoes')} aria-label="Fechar">
             <X weight="bold" size={20} />
           </button>
         </div>
@@ -835,7 +1183,7 @@ export default function NovaCotacao() {
             <button
               type="button"
               className="nc-btn nc-btn--secondary nc-btn-cancelar"
-              onClick={() => navigate('/cotacoes')}
+              onClick={() => navigate('/produto/bid-frete/cotacoes')}
             >
               Cancelar
             </button>
@@ -1682,15 +2030,106 @@ export default function NovaCotacao() {
           }
         }
 
+        /* Novo layout: País + Estado/Província (linha 1) + Porto/Aeroporto (linha 2) */
+        .nc-fields-grid--location-new {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.25rem;
+        }
+        .nc-fields-grid--location-new > *:nth-child(3) {
+          grid-column: span 2;
+        }
+        @media(max-width: 600px) {
+          .nc-fields-grid--location-new {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+          }
+          .nc-fields-grid--location-new > *:nth-child(3) {
+            grid-column: span 1;
+          }
+        }
+
+        /* ── Autocomplete ── */
+        .nc-autocomplete {
+          position: relative;
+          width: 100%;
+        }
+        .nc-input-icon-wrap {
+          position: relative;
+          width: 100%;
+        }
+        .nc-input-search-icon {
+          position: absolute;
+          left: 0.75rem;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--text-muted, #64748b);
+          pointer-events: none;
+          z-index: 2;
+        }
+        .nc-input--search {
+          padding-left: 2rem !important;
+        }
+        .nc-autocomplete-list {
+          position: absolute;
+          top: calc(100% + 4px);
+          left: 0;
+          right: 0;
+          z-index: 50;
+          max-height: 240px;
+          overflow-y: auto;
+          background: rgba(15, 23, 42, 0.98);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(99, 102, 241, 0.3);
+          border-radius: 8px;
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+          padding: 0.25rem;
+          list-style: none;
+          margin: 0;
+        }
+        .nc-autocomplete-item {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.55rem 0.75rem;
+          border-radius: 6px;
+          cursor: pointer;
+          color: var(--text-primary, #f8fafc);
+          font-size: 0.875rem;
+          transition: background 0.12s ease;
+        }
+        .nc-autocomplete-item:hover {
+          background: rgba(99, 102, 241, 0.12);
+        }
+        .nc-ac-code {
+          font-family: 'DM Mono', monospace;
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: #a5b4fc;
+          background: rgba(99, 102, 241, 0.12);
+          padding: 0.15rem 0.45rem;
+          border-radius: 4px;
+          min-width: 2.5rem;
+          text-align: center;
+        }
+        .nc-ac-name {
+          flex: 1;
+          color: var(--text-primary, #f8fafc);
+        }
+        .nc-ac-pais {
+          font-size: 0.75rem;
+          color: var(--text-muted, #64748b);
+        }
+
         /* ── Incoterms ── */
-        .nc-incoterm_cotacao_bid_frete_internacional-grid {
+        .nc-incoterm-grid {
           display: flex;
           flex-wrap: wrap;
           gap: 0.75rem;
           margin-bottom: 1.75rem;
         }
 
-        .nc-incoterm_cotacao_bid_frete_internacional-btn {
+        .nc-incoterm-btn {
           padding: 0.625rem 1.25rem;
           background: var(--bg-base, rgba(15, 23, 42, 0.45));
           border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
@@ -1703,12 +2142,12 @@ export default function NovaCotacao() {
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .nc-incoterm_cotacao_bid_frete_internacional-btn:hover {
+        .nc-incoterm-btn:hover {
           border-color: rgba(99, 102, 241, 0.5);
           color: #fff;
           transform: scale(1.05);
         }
-        .nc-incoterm_cotacao_bid_frete_internacional-btn--selected {
+        .nc-incoterm-btn--selected {
           background: rgba(99, 102, 241, 0.15);
           border-color: var(--accent, #6366f1);
           color: var(--accent, #6366f1);
@@ -1716,7 +2155,7 @@ export default function NovaCotacao() {
         }
 
         /* UX Helper Card do Incoterm */
-        .nc-incoterm_cotacao_bid_frete_internacional-helper-card {
+        .nc-incoterm-helper-card {
           background: rgba(99, 102, 241, 0.04);
           border: 1px solid rgba(99, 102, 241, 0.25);
           border-radius: 10px;
@@ -2052,7 +2491,7 @@ export default function NovaCotacao() {
           font-family: 'DM Mono', monospace;
           color: var(--text-secondary, #94a3b8);
         }
-        .nc-receipt-value--incoterm_cotacao_bid_frete_internacional {
+        .nc-receipt-value--incoterm {
           color: var(--accent, #6366f1);
           font-family: 'DM Mono', monospace;
           background: rgba(99, 102, 241, 0.08);

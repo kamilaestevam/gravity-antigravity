@@ -181,8 +181,8 @@ function SeletorItemQuantidade({
       <thead>
         <tr>
           <th scope="col" className="modal-transferir__col-check"></th>
-          {multiPedido && <th scope="col">Pedido</th>}
-          <th scope="col">Sequência do Item</th>
+          {multiPedido && <th scope="col">{t('pedido.modal_transf.col_pedido')}</th>}
+          <th scope="col">{t('pedido.modal_transf.col_sequencia_item')}</th>
           <th scope="col">{t('pedido.modal_transf.col_part_number')}</th>
           <th scope="col">{t('pedido.modal_transf.col_descricao')}</th>
           <th scope="col">{t('pedido.modal_transf.col_saldo')}</th>
@@ -211,7 +211,7 @@ function SeletorItemQuantidade({
                   type="checkbox"
                   checked={selecionado}
                   readOnly
-                  aria-label={`Selecionar item ${item.part_number}`}
+                  aria-label={t('pedido.modal_transf.aria_selecionar_item', { item: item.part_number })}
                 />
               </td>
               {multiPedido && (
@@ -341,7 +341,7 @@ function ConfigurarDestinos({
     <div className="modal-transferir__destinos">
       {cenario === 'split_pedido_existente' && carregandoPedidosDestino && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 0' }}>
-          <GravityLoader texto="Carregando pedidos…" tamanho="sm" />
+          <GravityLoader texto={t('pedido.modal_transf.carregando_pedidos')} tamanho="sm" />
         </div>
       )}
       {!(cenario === 'split_pedido_existente' && carregandoPedidosDestino) && destinos.map((destino, idx) => (
@@ -731,7 +731,7 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
       }
       setPreviews(resultados)
     } catch (err: unknown) {
-      setErroPreview(err instanceof Error ? err.message : 'Erro ao calcular preview')
+      setErroPreview(err instanceof Error ? err.message : t('pedido.modal_transf.erro_calcular_preview'))
     } finally {
       setCarregandoPreview(false)
     }
@@ -799,11 +799,11 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
       setConcluido(true)
       const totalQty = itensArray.reduce((s, [, q]) => s + q, 0)
       const pedidosEnvolvidos = [...new Set(itensArray.map(([id]) => itemToPedidoMap.get(id)?.numero_pedido).filter(Boolean))]
-      addNotification({ type: 'success', message: `Transferência concluída: ${itensArray.length} item(ns), ${totalQty} un. de ${pedidosEnvolvidos.join(', ')} processadas.`, duration: 4000 })
+      addNotification({ type: 'success', message: t('pedido.modal_transf.toast_sucesso', { itens: itensArray.length, qtd: totalQty, pedidos: pedidosEnvolvidos.join(', ') }), duration: 4000 })
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Erro ao confirmar transferência'
+      const msg = err instanceof Error ? err.message : t('pedido.modal_transf.erro_confirmar')
       setErroConfirmar(msg)
-      addNotification({ type: 'error', message: `Falha na transferência: ${msg}`, duration: 4000 })
+      addNotification({ type: 'error', message: t('pedido.modal_transf.toast_falha', { msg }), duration: 4000 })
     } finally {
       setConfirmando(false)
     }
@@ -954,7 +954,7 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
                       <span className="modal-transferir__resultado-detalhe">
                         {itensQuantidades.size === 1
                           ? (itensComPedido.find(ic => ic.item.id === primeiroItemId)?.item.part_number ?? '—')
-                          : `${itensQuantidades.size} itens`
+                          : t('pedido.modal_transf.n_itens', { count: itensQuantidades.size })
                         }
                       </span>
                     </div>

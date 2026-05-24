@@ -141,6 +141,13 @@ export interface Cotacao {
   cubagem_m3_cotacao_bid_frete_internacional: number | null
   incoterm_cotacao_bid_frete_internacional: string
   cep_destino: string | null
+  cep_origem?: string | null
+  estado_provincia_origem_cotacao_bid_frete_internacional?: string | null
+  aeroporto_origem_cotacao_bid_frete_internacional?: string | null
+  estado_provincia_destino_cotacao_bid_frete_internacional?: string | null
+  aeroporto_destino_cotacao_bid_frete_internacional?: string | null
+  hs_code_cotacao_bid_frete_internacional?: string | null
+  peso_ton_cotacao_bid_frete_internacional?: number | null
   visibilidade_cotacao_bid_frete_internacional: Visibilidade
   anonima: boolean
   valor_alvo: number | null
@@ -327,7 +334,7 @@ export interface Porto {
   codigo: string
   nome: string
   pais: string
-  tipo: 'maritimo' | 'aereo' | 'rodoviario'
+  tipo?: 'maritimo' | 'aereo' | 'rodoviario'
   lat?: number
   lng?: number
 }
@@ -336,4 +343,30 @@ export interface Moeda {
   codigo: string
   nome: string
   simbolo: string
+}
+
+export interface Pais {
+  id_pais: string
+  nome_pais_portugues: string
+  codigo_pais_iso_alpha2: string
+}
+
+export interface Aeroporto {
+  id_aeroporto: string
+  codigo_iata_aeroporto: string
+  nome_aeroporto: string
+  codigo_pais_aeroporto: string
+}
+
+export interface ContainerOption {
+  codigo: string
+  nome: string
+  teus: number
+}
+
+export interface IncotermOption {
+  codigo: string
+  nome: string
+  grupo: string
+  descricao: string
 }

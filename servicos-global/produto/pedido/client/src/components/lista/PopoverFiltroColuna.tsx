@@ -6,6 +6,7 @@
  */
 
 import React, { useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ArrowUp, ArrowDown } from '@phosphor-icons/react'
 import type { FiltroAtivo } from './filtros'
 
@@ -34,6 +35,7 @@ export function PopoverFiltroColuna({
   onFechar,
   anchorPos,
 }: PopoverFiltroColunaProps) {
+  const { t } = useTranslation()
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -114,7 +116,7 @@ export function PopoverFiltroColuna({
         background: '#1e2130',
       }}
       role="dialog"
-      aria-label={`Filtrar coluna ${label}`}
+      aria-label={t('pedido.popover_filtro.aria_dialog', { label })}
     >
       {/* Cabeçalho — nome da coluna */}
       <div className="lp-filtro-coluna-nome">{label.toUpperCase()}</div>
@@ -127,7 +129,7 @@ export function PopoverFiltroColuna({
           style={{ flex: 1, justifyContent: 'center' }}
           onClick={() => { onOrdenar(campo, 'asc'); onFechar() }}
         >
-          <ArrowUp size={11} weight="bold" /> Cresc.
+          <ArrowUp size={11} weight="bold" /> {t('pedido.popover_filtro.crescente')}
         </button>
         <button
           type="button"
@@ -135,7 +137,7 @@ export function PopoverFiltroColuna({
           style={{ flex: 1, justifyContent: 'center' }}
           onClick={() => { onOrdenar(campo, 'desc'); onFechar() }}
         >
-          <ArrowDown size={11} weight="bold" /> Decresc.
+          <ArrowDown size={11} weight="bold" /> {t('pedido.popover_filtro.decrescente')}
         </button>
       </div>
 
@@ -144,12 +146,12 @@ export function PopoverFiltroColuna({
       {/* Filtrar por — texto (livre, apenas quando não há valores conhecidos) */}
       {tipo === 'texto' && valoresUnicos.length === 0 && (
         <div style={{ padding: '0.375rem 0.5rem' }}>
-          <div className="lp-filtro-section-title">FILTRAR POR</div>
+          <div className="lp-filtro-section-title">{t('pedido.popover_filtro.filtrar_por')}</div>
           <div className="gtv-col-busca" style={{ borderRadius: '6px', marginTop: '0.25rem' }}>
             <input
               type="text"
               className="gtv-col-busca-input"
-              placeholder="Buscar..."
+              placeholder={t('pedido.popover_filtro.buscar_placeholder')}
               value={textoLocal}
               onChange={e => setTextoLocal(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') aplicar() }}
@@ -162,13 +164,13 @@ export function PopoverFiltroColuna({
       {/* Filtrar por — enum (checkboxes) — também para texto com valores conhecidos */}
       {(tipo === 'enum' || (tipo === 'texto' && valoresUnicos.length > 0)) && (
         <div style={{ padding: '0.375rem 0.5rem' }}>
-          <div className="lp-filtro-section-title">FILTRAR POR</div>
+          <div className="lp-filtro-section-title">{t('pedido.popover_filtro.filtrar_por')}</div>
           {valoresUnicos.length > 6 && (
             <div className="gtv-col-busca" style={{ borderRadius: '6px', margin: '0.25rem 0' }}>
               <input
                 type="text"
                 className="gtv-col-busca-input"
-                placeholder="Buscar..."
+                placeholder={t('pedido.popover_filtro.buscar_placeholder')}
                 value={enumBusca}
                 onChange={e => setEnumBusca(e.target.value)}
               />
@@ -194,10 +196,10 @@ export function PopoverFiltroColuna({
                     else onLimpar(campo)
                   }}
                 />
-                <span style={{ fontSize: '0.8125rem' }}>{v || '(vazio)'}</span>
+                <span style={{ fontSize: '0.8125rem' }}>{v || t('pedido.popover_filtro.vazio')}</span>
               </label>
             )) : (
-              <div className="gtv-col-vazio">Nenhum valor encontrado</div>
+              <div className="gtv-col-vazio">{t('pedido.popover_filtro.nenhum_valor')}</div>
             )}
           </div>
         </div>
@@ -206,14 +208,14 @@ export function PopoverFiltroColuna({
       {/* Filtrar por — intervalo numérico */}
       {tipo === 'numero' && (
         <div style={{ padding: '0.375rem 0.5rem' }}>
-          <div className="lp-filtro-section-title">INTERVALO</div>
+          <div className="lp-filtro-section-title">{t('pedido.popover_filtro.intervalo')}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginTop: '0.25rem' }}>
             <div className="gtv-col-busca" style={{ borderRadius: '6px', flex: 1 }}>
-              <input type="number" className="gtv-col-busca-input" placeholder="Mín" value={minLocal} onChange={e => setMinLocal(e.target.value)} />
+              <input type="number" className="gtv-col-busca-input" placeholder={t('pedido.popover_filtro.min')} value={minLocal} onChange={e => setMinLocal(e.target.value)} />
             </div>
             <span style={{ color: 'var(--gtv-muted, #64748b)', fontSize: '0.75rem', flexShrink: 0 }}>—</span>
             <div className="gtv-col-busca" style={{ borderRadius: '6px', flex: 1 }}>
-              <input type="number" className="gtv-col-busca-input" placeholder="Máx" value={maxLocal} onChange={e => setMaxLocal(e.target.value)} />
+              <input type="number" className="gtv-col-busca-input" placeholder={t('pedido.popover_filtro.max')} value={maxLocal} onChange={e => setMaxLocal(e.target.value)} />
             </div>
           </div>
         </div>
@@ -223,11 +225,11 @@ export function PopoverFiltroColuna({
       <div style={{ height: 1, background: 'var(--gtv-border, rgba(255,255,255,0.07))' }} />
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.375rem 0.5rem' }}>
         <button type="button" className="gtv-col-acao-btn gtv-col-acao-btn--reset" onClick={limpar}>
-          × Limpar filtro
+          {t('pedido.popover_filtro.limpar_filtro')}
         </button>
         {(tipo === 'texto' || tipo === 'numero') && (
           <button type="button" className="gtv-btn gtv-btn--ativo" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }} onClick={aplicar}>
-            Aplicar
+            {t('pedido.popover_filtro.aplicar')}
           </button>
         )}
       </div>

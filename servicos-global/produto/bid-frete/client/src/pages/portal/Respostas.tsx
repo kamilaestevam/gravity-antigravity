@@ -31,9 +31,9 @@ const TAB_KEYS: FiltroTab[] = ['TODAS', 'PENDENTES', 'APROVADAS', 'REPROVADAS']
 
 interface RespostaComCotacao extends BidResponse {
   cotacao?: {
-    numero: string
-    origem_nome: string
-    destino_nome: string
+    numero_cotacao_bid_frete: string
+    porto_origem_cotacao_bid_frete: string
+    porto_destino_cotacao_bid_frete: string
     modal: ModalFrete
   }
 }
@@ -119,7 +119,7 @@ export default function MinhasRespostas() {
       largura: 140,
       render: (_val: unknown, row: RespostaComCotacao) => (
         <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem', color: 'var(--accent, #6366f1)' }}>
-          {row.cotacao?.numero ?? row.cotacao_id.slice(0, 8).toUpperCase()}
+          {row.cotacao?.numero_cotacao_bid_frete ?? row.cotacao_id.slice(0, 8).toUpperCase()}
         </span>
       ),
     },
@@ -130,7 +130,7 @@ export default function MinhasRespostas() {
       largura: 200,
       render: (_val: unknown, row: RespostaComCotacao) => (
         <span style={{ fontSize: '0.8125rem' }}>
-          {row.cotacao?.origem_nome ?? '—'} &rarr; {row.cotacao?.destino_nome ?? '—'}
+          {row.cotacao?.porto_origem_cotacao_bid_frete ?? '—'} &rarr; {row.cotacao?.porto_destino_cotacao_bid_frete ?? '—'}
         </span>
       ),
     },

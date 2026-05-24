@@ -36,7 +36,7 @@ export const bidEngine = {
     const { cotacao_id, fornecedor_ids, canais, user_id, id_organizacao } = options
 
     // Buscar cotacao
-    const cotacao = await (prisma as any).freteIntBidCotacoes.findFirst({ where: { id: cotacao_id } })
+    const cotacao = await (prisma as any).freteIntBidCotacoes.findFirst({ where: { id_cotacao_bid_frete: cotacao_id } })
     if (!cotacao) throw new Error('Cotacao nao encontrada')
 
     // Buscar fornecedores
@@ -99,8 +99,8 @@ export const bidEngine = {
 
     // Atualizar status da cotacao
     await (prisma as any).freteIntBidCotacoes.update({
-      where: { id: cotacao_id },
-      data: { status: 'ENVIADA_FORNECEDORES' },
+      where: { id_cotacao_bid_frete: cotacao_id },
+      data: { status_cotacao_bid_frete: 'ENVIADA_FORNECEDORES' },
     })
 
     return { disparos: results.length, results }
@@ -118,8 +118,8 @@ export const bidEngine = {
     const tabela = await (prisma as any).freteIntBidTabelasProntas.findFirst({
       where: {
         fornecedor_id: fornecedor.id,
-        origem_codigo: cotacao.origem_codigo,
-        destino_codigo: cotacao.destino_codigo,
+        origem_codigo: cotacao.porto_origem_cotacao_bid_frete,
+        destino_codigo: cotacao.porto_destino_cotacao_bid_frete,
         modal: cotacao.modal,
         ativa: true,
         validade_inicio: { lte: agora },
@@ -140,7 +140,7 @@ export const bidEngine = {
     const tabela = _tabela as any
     // Buscar o bidRequest correspondente
     const bidRequest = await (prisma as any).freteIntBidPedidoCotacoes.findFirst({
-      where: { cotacao_id: cotacao.id, fornecedor_id: fornecedor.id },
+      where: { cotacao_id: cotacao.id_cotacao_bid_frete, fornecedor_id: fornecedor.id },
       orderBy: { created_at: 'desc' },
     })
 
@@ -150,7 +150,7 @@ export const bidEngine = {
       data: {
         product_id: 'bid-frete',
         bid_request_id: bidRequest.id,
-        cotacao_id: cotacao.id,
+        cotacao_id: cotacao.id_cotacao_bid_frete,
         fornecedor_id: fornecedor.id,
         moeda: tabela.moeda,
         valor_frete: tabela.valor_frete,
@@ -183,21 +183,21 @@ export const bidEngine = {
 
     const body = {
       to: fornecedor.email,
-      subject: `Solicitacao de Cotacao de Frete - ${cotacao.numero}`,
+      subject: `Solicitacao de Cotacao de Frete - ${cotacao.numero_cotacao_bid_frete}`,
       html: `
         <h2>Solicitacao de Cotacao de Frete Internacional</h2>
         <p>Prezado(a) ${fornecedor.nome},</p>
         <p>Recebemos uma solicitacao de cotacao com os seguintes dados:</p>
         <ul>
-          <li><strong>Numero:</strong> ${cotacao.numero}</li>
+          <li><strong>Numero:</strong> ${cotacao.numero_cotacao_bid_frete}</li>
           <li><strong>Modal:</strong> ${cotacao.modal}</li>
-          <li><strong>Origem:</strong> ${cotacao.origem_nome} (${cotacao.origem_pais})</li>
-          <li><strong>Destino:</strong> ${cotacao.destino_nome} (${cotacao.destino_pais})</li>
-          <li><strong>Mercadoria:</strong> ${cotacao.descricao_mercadoria}</li>
-          <li><strong>Incoterm:</strong> ${cotacao.incoterm}</li>
-          ${cotacao.tipo_container ? `<li><strong>Container:</strong> ${cotacao.quantidade}x ${cotacao.tipo_container}</li>` : ''}
-          ${cotacao.peso_kg ? `<li><strong>Peso:</strong> ${cotacao.peso_kg} kg</li>` : ''}
-          ${cotacao.data_limite_resposta ? `<li><strong>Prazo de Resposta:</strong> ${new Date(cotacao.data_limite_resposta).toLocaleDateString('pt-BR')}</li>` : ''}
+          <li><strong>Origem:</strong> ${cotacao.porto_origem_cotacao_bid_frete} (${cotacao.pais_origem_cotacao_bid_frete})</li>
+          <li><strong>Destino:</strong> ${cotacao.porto_destino_cotacao_bid_frete} (${cotacao.pais_destino_cotacao_bid_frete})</li>
+          <li><strong>Mercadoria:</strong> ${cotacao.descricao_mercadoria_cotacao_bid_frete}</li>
+          <li><strong>Incoterm:</strong> ${cotacao.incoterm_cotacao_bid_frete}</li>
+          ${cotacao.tipo_container ? `<li><strong>Container:</strong> ${cotacao.quantidade_volumes_cotacao_bid_frete}x ${cotacao.tipo_container}</li>` : ''}
+          ${cotacao.peso_kg_cotacao_bid_frete ? `<li><strong>Peso:</strong> ${cotacao.peso_kg_cotacao_bid_frete} kg</li>` : ''}
+          ${cotacao.data_limite_resposta_cotacao_bid_frete ? `<li><strong>Prazo de Resposta:</strong> ${new Date(cotacao.data_limite_resposta_cotacao_bid_frete).toLocaleDateString('pt-BR')}</li>` : ''}
         </ul>
         <p><a href="${linkResposta}" style="background:#4F46E5;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;">Responder Cotacao</a></p>
         <p>Ou acesse o portal para ver todas as cotacoes pendentes.</p>
@@ -228,12 +228,12 @@ export const bidEngine = {
 
     const body = {
       phone_number: fornecedor.whatsapp,
-      text: `*Solicitacao de Cotacao - ${cotacao.numero}*\n\n` +
+      text: `*Solicitacao de Cotacao - ${cotacao.numero_cotacao_bid_frete}*\n\n` +
         `Modal: ${cotacao.modal}\n` +
-        `Origem: ${cotacao.origem_nome}\n` +
-        `Destino: ${cotacao.destino_nome}\n` +
-        `Mercadoria: ${cotacao.descricao_mercadoria}\n` +
-        `Incoterm: ${cotacao.incoterm}\n\n` +
+        `Origem: ${cotacao.porto_origem_cotacao_bid_frete}\n` +
+        `Destino: ${cotacao.porto_destino_cotacao_bid_frete}\n` +
+        `Mercadoria: ${cotacao.descricao_mercadoria_cotacao_bid_frete}\n` +
+        `Incoterm: ${cotacao.incoterm_cotacao_bid_frete}\n\n` +
         `Responda pelo link: ${linkResposta}`,
     }
 

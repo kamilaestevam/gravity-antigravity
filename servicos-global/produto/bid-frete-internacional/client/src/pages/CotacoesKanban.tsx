@@ -79,7 +79,7 @@ export default function CotacoesKanban({ cotacoes, carregando, onRefresh }: Cota
                 <div className="bf-kanban-empty">Nenhuma cotação</div>
               ) : (
                 colCotacoes.map(c => (
-                  <div key={c.id} className="bf-kanban-card" onClick={() => navigate(`/cotacoes/${c.id}`)}>
+                  <div key={c.id} className="bf-kanban-card" onClick={() => navigate(`/produto/bid-frete/cotacoes/${c.id}`)}>
                     <div className="bf-kanban-card-header">
                       <span className="bf-kanban-card-numero_cotacao_bid_frete_internacional">
                         {c.numero_cotacao_bid_frete_internacional}

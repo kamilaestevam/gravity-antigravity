@@ -2,22 +2,25 @@ import React from 'react'
 import i18next from 'i18next'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
 import { Anchor, AirplaneTilt, Truck } from '@phosphor-icons/react'
-import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../../shared/types'
-import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS } from '../../shared/types'
+import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade, StatusCotacaoBidFreteConfig } from '../../shared/types'
+import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS, lerStatusConfigLocal, obterInfoStatus } from '../../shared/types'
 
-// ─── Badge de status ───
-const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
-  info:    { bg: 'rgba(59,130,246,0.15)',  color: 'var(--accent, #6366f1)' },
-  warning: { bg: 'rgba(245,158,11,0.15)',  color: 'var(--warning, #f59e0b)' },
-  success: { bg: 'rgba(34,197,94,0.15)',   color: 'var(--success, #22c55e)' },
-  danger:  { bg: 'rgba(239,68,68,0.15)',   color: 'var(--danger, #ef4444)' },
-  default: { bg: 'rgba(100,116,139,0.15)', color: 'var(--text-muted, #64748b)' },
+// ─── Badge de status (dinâmico via config) ───
+
+/** Gera cor de fundo com transparência a partir de cor hex */
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return `rgba(100,116,139,${alpha})`
+  return `rgba(${r},${g},${b},${alpha})`
 }
 
 export function RenderBadgeStatus(valor: unknown): React.ReactNode {
-  const status = valor as StatusCotacao
-  const variante = STATUS_BADGE[status] || 'default'
-  const cores = BADGE_COLORS[variante]
+  const status = valor as string
+  const statusConfig = lerStatusConfigLocal()
+  const info = obterInfoStatus(status, statusConfig)
+
   return (
     <span style={{
       display: 'inline-flex',
@@ -26,10 +29,10 @@ export function RenderBadgeStatus(valor: unknown): React.ReactNode {
       borderRadius: 'var(--radius-pill, 9999px)',
       fontSize: '0.75rem',
       fontWeight: 600,
-      background: cores.bg,
-      color: cores.color,
+      background: hexToRgba(info.cor, 0.15),
+      color: info.cor,
     }}>
-      {STATUS_LABELS[status] || status}
+      {info.rotulo}
     </span>
   )
 }
@@ -130,7 +133,7 @@ export const getCasas = (v: number): number => {
 export function buildColunasCotacoes(): GTColuna<Cotacao>[] {
   return [
     {
-      key: 'numero',
+      key: 'numero_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.processo'),
       tipo: 'texto',
       render: (val: unknown) => (
@@ -140,7 +143,7 @@ export function buildColunasCotacoes(): GTColuna<Cotacao>[] {
       ),
     },
     {
-      key: 'referencia_interna',
+      key: 'referencia_interna_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.referencia'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
@@ -152,19 +155,19 @@ export function buildColunasCotacoes(): GTColuna<Cotacao>[] {
       render: (val: unknown) => RenderBadgeOperacao(val),
     },
     {
-      key: 'status',
+      key: 'status_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.status'),
       tipo: 'texto',
       render: (val: unknown) => RenderBadgeStatus(val),
     },
     {
-      key: 'created_at',
+      key: 'criado_em_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.dataCotacao'),
       tipo: 'periodo',
       render: (val: unknown) => fmtData(val as string),
     },
     {
-      key: 'updated_at',
+      key: 'atualizado_em_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.ultimaAtualizacao'),
       tipo: 'periodo',
       render: (val: unknown) => fmtData(val as string),
@@ -193,55 +196,43 @@ export function buildColunasCotacoes(): GTColuna<Cotacao>[] {
       },
     },
     {
-      key: 'origem_codigo',
+      key: 'porto_origem_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.codigoOrigem'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
-      key: 'origem_nome',
-      label: i18next.t('bidfrete.colunas.origem'),
-      tipo: 'texto',
-      render: (val: unknown) => (val as string | null) ?? '—',
-    },
-    {
-      key: 'origem_pais',
+      key: 'pais_origem_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.paisOrigem'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
-      key: 'destino_codigo',
+      key: 'porto_destino_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.codigoDestino'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
-      key: 'destino_nome',
-      label: i18next.t('bidfrete.colunas.destino'),
-      tipo: 'texto',
-      render: (val: unknown) => (val as string | null) ?? '—',
-    },
-    {
-      key: 'destino_pais',
+      key: 'pais_destino_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.paisDestino'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
-      key: 'descricao_mercadoria',
+      key: 'descricao_mercadoria_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.descricaoMercadoria'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
-      key: 'ncm',
+      key: 'ncm_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.ncm'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
-      key: 'quantidade',
+      key: 'quantidade_volumes_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.quantidade'),
       tipo: 'numero',
       align: 'right',
@@ -254,52 +245,52 @@ export function buildColunasCotacoes(): GTColuna<Cotacao>[] {
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
-      key: 'peso_kg',
+      key: 'peso_kg_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.pesoKg'),
       tipo: 'numero',
       align: 'right',
       render: (val: unknown) => val != null ? fmtQuantidade(val as number, 0) : '—',
     },
     {
-      key: 'cubagem_m3',
+      key: 'cubagem_m3_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.volumeM3'),
       tipo: 'numero',
       align: 'right',
       render: (val: unknown) => val != null ? fmtQuantidade(val as number, 2) : '—',
     },
     {
-      key: 'incoterm',
+      key: 'incoterm_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.incoterm'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
-      key: 'cep_destino',
+      key: 'cep_destino_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.cepDestino'),
       tipo: 'texto',
       render: (val: unknown) => (val as string | null) ?? '—',
     },
     {
-      key: 'visibilidade',
+      key: 'visibilidade_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.visibilidade'),
       tipo: 'texto',
       render: (val: unknown) => RenderBadgeVisibilidade(val),
     },
     {
-      key: 'anonima',
+      key: 'anonima_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.anonima'),
       tipo: 'texto',
       render: (val: unknown) => RenderBadgeAnonima(val),
     },
     {
-      key: 'valor_alvo',
+      key: 'valor_alvo_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.valorAlvo'),
       tipo: 'numero',
       align: 'right',
-      render: (val: unknown, item: Cotacao) => val != null ? `${item.moeda_alvo} ${fmtQuantidade(val as number, 2)}` : '—',
+      render: (val: unknown, item: Cotacao) => val != null ? `${item.moeda_alvo_cotacao_bid_frete} ${fmtQuantidade(val as number, 2)}` : '—',
     },
     {
-      key: 'prazo_resposta',
+      key: 'data_limite_resposta_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.prazoResposta'),
       tipo: 'periodo',
       render: (val: unknown) => fmtData(val as string),
@@ -312,14 +303,14 @@ export function buildColunasCotacoes(): GTColuna<Cotacao>[] {
       render: (val: unknown, item: Cotacao) => val != null ? `${item.moeda_aprovada ?? 'USD'} ${fmtQuantidade(val as number, 2)}` : '—',
     },
     {
-      key: 'saving_valor',
+      key: 'saving_valor_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.savingEstimado'),
       tipo: 'numero',
       align: 'right',
       render: (val: unknown) => val != null ? `USD ${fmtQuantidade(val as number, 2)}` : '—',
     },
     {
-      key: 'saving_percentual',
+      key: 'saving_percentual_cotacao_bid_frete',
       label: i18next.t('bidfrete.colunas.savingPercentual'),
       tipo: 'numero',
       align: 'right',

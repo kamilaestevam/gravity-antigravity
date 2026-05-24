@@ -10,6 +10,27 @@ out/
 # ── Cache TypeScript ─────────────────────────────────────────
 *.tsbuildinfo
 
+# ── Output acidental de tsc dentro de src/ (Vite usa noEmit) ─
+**/src/**/*.js
+**/src/**/*.js.map
+**/src/**/*.d.ts
+**/src/**/*.d.ts.map
+
+# ── Scratch / preview / fragments temporários ────────────────
+_*/
+_preview_*.html
+scratch/
+vite_fetch.html
+
+# ── Logs gerados por testes ──────────────────────────────────
+servicos-global/configurador/data/test-logs/
+
+# ── Prisma engines gerados (plataforma-específicos) ──────────
+**/generated/libquery_engine-*
+**/generated/query_engine-*
+**/src/generated/client/query_engine-*
+**/src/generated/client/libquery_engine-*
+
 # ── Variáveis de ambiente (NUNCA commitar segredos!) ─────────
 .env
 .env.local

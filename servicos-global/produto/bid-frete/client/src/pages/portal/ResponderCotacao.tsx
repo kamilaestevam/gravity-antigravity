@@ -28,15 +28,15 @@ import { MODAL_LABELS } from '../../shared/types'
 // ─── Tipos locais ───────────────────────────────────────────────────────────
 
 interface CotacaoInfo {
-  numero: string
-  origem_nome: string
-  destino_nome: string
+  numero_cotacao_bid_frete: string
+  porto_origem_cotacao_bid_frete: string
+  porto_destino_cotacao_bid_frete: string
   modal: ModalFrete
-  incoterm: string
-  descricao_mercadoria: string
-  quantidade: number
-  peso_kg: number | null
-  cubagem_m3: number | null
+  incoterm_cotacao_bid_frete: string
+  descricao_mercadoria_cotacao_bid_frete: string
+  quantidade_volumes_cotacao_bid_frete: number
+  peso_kg_cotacao_bid_frete: number | null
+  cubagem_m3_cotacao_bid_frete: number | null
 }
 
 interface FormState {
@@ -165,7 +165,7 @@ export default function ResponderCotacao() {
           <CheckCircle weight="duotone" size={64} style={{ color: 'var(--success, #22c55e)' }} />
           <h2 className="rc-sucesso-title">{t('bidfrete.portal.responder.sucesso')}</h2>
           <p className="rc-sucesso-desc">{t('bidfrete.portal.responder.sucesso_desc')}</p>
-          <button className="rc-btn rc-btn--primary" onClick={() => navigate('/portal/pendentes')}>
+          <button className="rc-btn rc-btn--primary" onClick={() => navigate('/produto/bid-frete/portal/pendentes')}>
             {t('bidfrete.portal.responder.voltar_pendentes')}
           </button>
         </div>
@@ -182,7 +182,7 @@ export default function ResponderCotacao() {
           icone={<PencilSimple weight="duotone" size={22} />}
           titulo={t('bidfrete.portal.responder.titulo')}
           acoes={
-            <button className="rc-btn rc-btn--secondary" onClick={() => navigate('/portal/pendentes')}>
+            <button className="rc-btn rc-btn--secondary" onClick={() => navigate('/produto/bid-frete/portal/pendentes')}>
               <ArrowLeft weight="bold" size={14} /> {t('bidfrete.portal.responder.voltar')}
             </button>
           }
@@ -202,14 +202,14 @@ export default function ResponderCotacao() {
               <div className="rc-detail-item">
                 <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_numero')}</span>
                 <span className="rc-detail-value rc-mono">
-                  {cotacao?.numero ?? bid?.cotacao_id.slice(0, 8).toUpperCase() ?? '—'}
+                  {cotacao?.numero_cotacao_bid_frete ?? bid?.cotacao_id.slice(0, 8).toUpperCase() ?? '—'}
                 </span>
               </div>
               <div className="rc-detail-item">
                 <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_rota')}</span>
                 <span className="rc-detail-value">
                   <MapPin weight="duotone" size={14} />
-                  {cotacao?.origem_nome ?? '—'} &rarr; {cotacao?.destino_nome ?? '—'}
+                  {cotacao?.porto_origem_cotacao_bid_frete ?? '—'} &rarr; {cotacao?.porto_destino_cotacao_bid_frete ?? '—'}
                 </span>
               </div>
               <div className="rc-detail-item">
@@ -221,16 +221,16 @@ export default function ResponderCotacao() {
               </div>
               <div className="rc-detail-item">
                 <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_incoterm')}</span>
-                <span className="rc-detail-value">{cotacao?.incoterm ?? '—'}</span>
+                <span className="rc-detail-value">{cotacao?.incoterm_cotacao_bid_frete ?? '—'}</span>
               </div>
               <div className="rc-detail-item rc-detail-wide">
                 <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_carga')}</span>
                 <span className="rc-detail-value">
                   <Package weight="duotone" size={14} />
-                  {cotacao?.descricao_mercadoria ?? '—'}
-                  {cotacao?.quantidade != null ? ` / ${cotacao.quantidade} un` : ''}
-                  {cotacao?.peso_kg != null ? ` / ${cotacao.peso_kg.toLocaleString('pt-BR')} kg` : ''}
-                  {cotacao?.cubagem_m3 != null ? ` / ${cotacao.cubagem_m3} m3` : ''}
+                  {cotacao?.descricao_mercadoria_cotacao_bid_frete ?? '—'}
+                  {cotacao?.quantidade_volumes_cotacao_bid_frete != null ? ` / ${cotacao.quantidade_volumes_cotacao_bid_frete} un` : ''}
+                  {cotacao?.peso_kg_cotacao_bid_frete != null ? ` / ${cotacao.peso_kg_cotacao_bid_frete.toLocaleString('pt-BR')} kg` : ''}
+                  {cotacao?.cubagem_m3_cotacao_bid_frete != null ? ` / ${cotacao.cubagem_m3_cotacao_bid_frete} m3` : ''}
                 </span>
               </div>
             </div>

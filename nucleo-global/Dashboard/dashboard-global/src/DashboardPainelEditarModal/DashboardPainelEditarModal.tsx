@@ -6,7 +6,8 @@
  * Usa ModalFormularioAbasGlobal do nucleo para consistência visual.
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ChartLine, ChartBar, ChartBarHorizontal, ChartDonut,
   NumberSquareOne, Funnel, ChartPieSlice,
@@ -20,30 +21,34 @@ export interface ChartOptionMeta {
   icone: React.ReactNode
 }
 
-const DEFAULT_CHART_OPTIONS: ChartOptionMeta[] = [
-  { type: 'LINE',           label: 'Linha',        cor: '#818cf8', icone: <ChartLine          size={18} weight="duotone" /> },
-  { type: 'AREA',           label: 'Área',         cor: '#6366f1', icone: <ChartLine          size={18} weight="fill"    /> },
-  { type: 'BAR',            label: 'Barras',       cor: '#34d399', icone: <ChartBar           size={18} weight="duotone" /> },
-  { type: 'BAR_HORIZONTAL', label: 'Barras H.',    cor: '#34d399', icone: <ChartBarHorizontal size={18} weight="duotone" /> },
-  { type: 'DISTRIBUTION',   label: 'Distribuição', cor: '#f59e0b', icone: <ChartPieSlice      size={18} weight="duotone" /> },
-  { type: 'DONUT',          label: 'Donut',        cor: '#f59e0b', icone: <ChartDonut         size={18} weight="duotone" /> },
-  { type: 'KPI_CARD',       label: 'KPI',          cor: '#60a5fa', icone: <NumberSquareOne    size={18} weight="duotone" /> },
-  { type: 'FUNNEL',         label: 'Funil',        cor: '#fb923c', icone: <Funnel             size={18} weight="duotone" /> },
-]
+function buildDefaultChartOptions(t: (k: string) => string): ChartOptionMeta[] {
+  return [
+    { type: 'LINE',           label: t('nucleo.dashboard.chart.linha'),        cor: '#818cf8', icone: <ChartLine          size={18} weight="duotone" /> },
+    { type: 'AREA',           label: t('nucleo.dashboard.chart.area'),         cor: '#6366f1', icone: <ChartLine          size={18} weight="fill"    /> },
+    { type: 'BAR',            label: t('nucleo.dashboard.chart.barras'),       cor: '#34d399', icone: <ChartBar           size={18} weight="duotone" /> },
+    { type: 'BAR_HORIZONTAL', label: t('nucleo.dashboard.chart.barras_h'),     cor: '#34d399', icone: <ChartBarHorizontal size={18} weight="duotone" /> },
+    { type: 'DISTRIBUTION',   label: t('nucleo.dashboard.chart.distribuicao'), cor: '#f59e0b', icone: <ChartPieSlice      size={18} weight="duotone" /> },
+    { type: 'DONUT',          label: t('nucleo.dashboard.chart.donut'),        cor: '#f59e0b', icone: <ChartDonut         size={18} weight="duotone" /> },
+    { type: 'KPI_CARD',       label: t('nucleo.dashboard.chart.kpi'),          cor: '#60a5fa', icone: <NumberSquareOne    size={18} weight="duotone" /> },
+    { type: 'FUNNEL',         label: t('nucleo.dashboard.chart.funil'),        cor: '#fb923c', icone: <Funnel             size={18} weight="duotone" /> },
+  ]
+}
 
 export interface PeriodOptionEdit {
   value: string
   label: string
 }
 
-const DEFAULT_PERIOD_OPTS: PeriodOptionEdit[] = [
-  { value: '7d',            label: '7 dias'    },
-  { value: '30d',           label: '30 dias'   },
-  { value: '90d',           label: '90 dias'   },
-  { value: '12m',           label: '12 meses'  },
-  { value: 'current_month', label: 'Mês atual' },
-  { value: 'current_year',  label: 'Ano atual' },
-]
+function buildDefaultPeriodOpts(t: (k: string) => string): PeriodOptionEdit[] {
+  return [
+    { value: '7d',            label: t('nucleo.dashboard.periodo.7_dias')    },
+    { value: '30d',           label: t('nucleo.dashboard.periodo.30_dias')   },
+    { value: '90d',           label: t('nucleo.dashboard.periodo.90_dias')   },
+    { value: '12m',           label: t('nucleo.dashboard.periodo.12_meses')  },
+    { value: 'current_month', label: t('nucleo.dashboard.periodo.mes_atual') },
+    { value: 'current_year',  label: t('nucleo.dashboard.periodo.ano_atual') },
+  ]
+}
 
 export interface ModalEditarWidgetProps {
   widget: DashboardWidgetConfig | null
@@ -64,9 +69,12 @@ export function DashboardPainelEditarModal({
   onFechar,
   onSalvar,
   fieldLabels = {},
-  chartOptions = DEFAULT_CHART_OPTIONS,
-  periodOptions = DEFAULT_PERIOD_OPTS,
+  chartOptions: chartOptionsProp,
+  periodOptions: periodOptionsProp,
 }: ModalEditarWidgetProps) {
+  const { t } = useTranslation()
+  const chartOptions = useMemo(() => chartOptionsProp ?? buildDefaultChartOptions(t), [chartOptionsProp, t])
+  const periodOptions = useMemo(() => periodOptionsProp ?? buildDefaultPeriodOpts(t), [periodOptionsProp, t])
   const [title,     setTitle]     = useState('')
   const [chartType, setChartType] = useState<ChartType>('LINE')
   const [period,    setPeriod]    = useState('30d')
@@ -104,18 +112,18 @@ export function DashboardPainelEditarModal({
 
   return (
     <div style={s.overlay} onClick={e => { if (e.target === e.currentTarget) onFechar() }}>
-      <div style={s.card} role="dialog" aria-modal="true" aria-label="Editar Widget">
+      <div style={s.card} role="dialog" aria-modal="true" aria-label={t('nucleo.dashboard.modal_editar.titulo')}>
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <div style={s.header}>
           <div style={s.headerInfo}>
             <ChartLine size={18} weight="duotone" style={{ color: 'var(--accent)', flexShrink: 0 }} />
             <div>
-              <div style={s.headerTitle}>Editar Widget</div>
+              <div style={s.headerTitle}>{t('nucleo.dashboard.modal_editar.titulo')}</div>
               <div style={s.headerSub}>{widget.title}</div>
             </div>
           </div>
-          <button type="button" style={s.closeBtn} onClick={onFechar} aria-label="Fechar">✕</button>
+          <button type="button" style={s.closeBtn} onClick={onFechar} aria-label={t('nucleo.dashboard.modal_editar.fechar')}>✕</button>
         </div>
 
         {/* ── Body ────────────────────────────────────────────────────────── */}
@@ -123,7 +131,7 @@ export function DashboardPainelEditarModal({
 
           {/* Título */}
           <div style={s.field}>
-            <label style={s.label}>Título</label>
+            <label style={s.label}>{t('nucleo.dashboard.modal_editar.label_titulo')}</label>
             <input
               style={s.input}
               value={title}
@@ -135,7 +143,7 @@ export function DashboardPainelEditarModal({
 
           {/* Tipo de gráfico */}
           <div style={s.field}>
-            <label style={s.label}>Tipo de gráfico</label>
+            <label style={s.label}>{t('nucleo.dashboard.modal_editar.tipo_grafico')}</label>
             <div style={s.chartGrid}>
               {chartOptions.map(o => (
                 <button
@@ -154,7 +162,7 @@ export function DashboardPainelEditarModal({
 
           {/* Período */}
           <div style={s.field}>
-            <label style={s.label}>Período</label>
+            <label style={s.label}>{t('nucleo.dashboard.modal_editar.periodo')}</label>
             <select style={s.select} value={period} onChange={e => setPeriod(e.target.value)}>
               {periodOptions.map(p => (
                 <option key={p.value} value={p.value}>{p.label}</option>
@@ -164,12 +172,12 @@ export function DashboardPainelEditarModal({
 
           {/* Info read-only: tipo atual + campos */}
           <div style={s.infoBox}>
-            <span style={s.infoKey}>Tipo</span>
+            <span style={s.infoKey}>{t('nucleo.dashboard.modal_editar.info_tipo')}</span>
             <span style={{ ...s.infoVal, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
               <span style={{ color: currentChartMeta?.cor }}>{currentChartMeta?.icone}</span>
               {currentChartMeta?.label}
             </span>
-            <span style={s.infoKey}>Campo(s)</span>
+            <span style={s.infoKey}>{t('nucleo.dashboard.modal_editar.info_campos')}</span>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
               {widget.query_spec.fields.map(fqs => (
                 <span key={fqs.key} style={s.infoVal}>
@@ -183,14 +191,14 @@ export function DashboardPainelEditarModal({
 
         {/* ── Footer ──────────────────────────────────────────────────────── */}
         <div style={s.footer}>
-          <button type="button" style={s.btnCancel} onClick={onFechar}>Cancelar</button>
+          <button type="button" style={s.btnCancel} onClick={onFechar}>{t('nucleo.dashboard.modal_editar.cancelar')}</button>
           <button
             type="button"
             style={{ ...s.btnSave, ...(dirty ? {} : s.btnSaveDisabled) }}
             onClick={handleSalvar}
             disabled={!dirty}
           >
-            Salvar
+            {t('nucleo.dashboard.modal_editar.salvar')}
           </button>
         </div>
 

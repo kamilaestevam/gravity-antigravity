@@ -6,6 +6,11 @@
  *
  * Para criar sugestões em outro produto, basta copiar este arquivo,
  * trocar o DASHBOARD_CATALOG e os BUILT_IN_DERIVED.
+ *
+ * i18n — 2026-05-22:
+ * - As funções agora aceitam um `catalog` opcional. Consumidores React devem
+ *   passar `buildDashboardCatalog(t)` para títulos de sugestões traduzidos.
+ * - Sem o parâmetro, fallback para o catálogo estático PT-BR (compat).
  */
 
 import {
@@ -25,10 +30,14 @@ export function generateSuggestions(
   derivedMetrics: DerivedMetric[] = [],
   startY = 0,
   existingFieldKeys: string[] = [],
+  catalog: EnrichedCatalogField[] = DASHBOARD_CATALOG,
 ) {
-  return _generateSuggestions(DASHBOARD_CATALOG, existingWidgetIds, derivedMetrics, startY, existingFieldKeys)
+  return _generateSuggestions(catalog, existingWidgetIds, derivedMetrics, startY, existingFieldKeys)
 }
 
-export function getComplementaryFields(selectedKeys: string[]): EnrichedCatalogField[] {
-  return _getComplementaryFields(DASHBOARD_CATALOG, selectedKeys)
+export function getComplementaryFields(
+  selectedKeys: string[],
+  catalog: EnrichedCatalogField[] = DASHBOARD_CATALOG,
+): EnrichedCatalogField[] {
+  return _getComplementaryFields(catalog, selectedKeys)
 }

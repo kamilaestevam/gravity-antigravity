@@ -16,6 +16,8 @@ import { incotermsRouter } from './routes/incoterms.js'
 import { modaisRouter } from './routes/modais.js'
 import { moedasRouter } from './routes/moedas.js'
 import { containersRouter } from './routes/containers.js'
+import { paisesRouter } from './routes/paises.js'
+import { aeroportosRouter } from './routes/aeroportos.js'
 import { cotacoesRouter } from './routes/cotacoes.js'
 import { fornecedoresRouter } from './routes/fornecedores.js'
 import { bidsRouter } from './routes/bids.js'
@@ -25,6 +27,7 @@ import { cotacoesPublicasRouter } from './routes/cotacoes-publicas.js'
 import { avaliacoesRouter } from './routes/avaliacoes.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
+import { configStatusRouter } from './routes/config-status.js'
 import { startCronJobs } from './services/cronJobs.js'
 import { rateLimitPresets } from '../../../../servicos-plataforma/middleware/rateLimiter.js'
 import { apiObservability } from '../../../../servicos-plataforma/middleware/apiObservability.js'
@@ -92,9 +95,9 @@ app.use('/api/v1', rateLimitPresets.public(), portosRouter)
 app.use('/api/v1', rateLimitPresets.public(), incotermsRouter)
 app.use('/api/v1', rateLimitPresets.public(), modaisRouter)
 app.use('/api/v1', rateLimitPresets.public(), moedasRouter)
-// paisesRouter removido — fonte única em Cadastros (/api/v1/cadastros/paises).
-// Bid-frete não tinha consumers reais desse endpoint.
 app.use('/api/v1', rateLimitPresets.public(), containersRouter)
+app.use('/api/v1', rateLimitPresets.public(), paisesRouter)
+app.use('/api/v1', rateLimitPresets.public(), aeroportosRouter)
 
 // --- 6. Portal Publico do Fornecedor — SEM internal key (usa token de resposta) ---
 app.use('/api/v1/cotacoes-publicas', rateLimitPresets.public(), cotacoesPublicasRouter)
@@ -127,6 +130,7 @@ app.use('/api/v1/bid-frete/portal', portalRouter)
 app.use('/api/v1/bid-frete/avaliacoes', avaliacoesRouter)
 app.use('/api/v1/bid-frete/dashboard', dashboardRouter)
 app.use('/api/v1/bid-frete/dashboard', dashboardWidgetsRouter)
+app.use('/api/v1/bid-frete/config/status', configStatusRouter)
 
 // --- 10. SPA Fallback ---
 app.get('*', (_req: Request, res: Response) => {

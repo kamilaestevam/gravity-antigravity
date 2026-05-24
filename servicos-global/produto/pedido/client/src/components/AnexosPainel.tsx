@@ -12,6 +12,7 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   FilePdf,
   FileDoc,
@@ -64,6 +65,7 @@ function formatarTamanho(bytes: number): string {
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: AnexosPainelProps) {
+  const { t } = useTranslation()
   const [anexos, setAnexos] = useState<Anexo[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
@@ -82,11 +84,11 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
       const dados = await anexosApi.listar(vinculo, vinculo_id)
       setAnexos(dados)
     } catch {
-      setErro('Erro ao carregar anexos')
+      setErro(t('pedido.anexos.erro_carregar'))
     } finally {
       setCarregando(false)
     }
-  }, [vinculo, vinculo_id])
+  }, [vinculo, vinculo_id, t])
 
   useEffect(() => {
     carregarAnexos()
@@ -115,13 +117,13 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
       }
       await carregarAnexos()
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao fazer upload'
+      const msg = err instanceof Error ? err.message : t('pedido.anexos.erro_upload')
       setErro(msg)
     } finally {
       setUploading(false)
       setUploadProgress(0)
     }
-  }, [vinculo, vinculo_id, somenteLeitura, carregarAnexos])
+  }, [vinculo, vinculo_id, somenteLeitura, carregarAnexos, t])
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -150,9 +152,9 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
       a.click()
       URL.revokeObjectURL(url)
     } catch {
-      setErro('Erro ao baixar arquivo')
+      setErro(t('pedido.anexos.erro_baixar'))
     }
-  }, [])
+  }, [t])
 
   const handlePreview = useCallback(async (anexo: Anexo) => {
     try {
@@ -162,9 +164,9 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
       setPreviewUrl(url)
       setPreviewAnexo(anexo)
     } catch {
-      setErro('Erro ao carregar preview')
+      setErro(t('pedido.anexos.erro_preview'))
     }
-  }, [previewUrl])
+  }, [previewUrl, t])
 
   const handleExcluir = useCallback((anexo: Anexo) => {
     setConfirmarExcluirAnexo(anexo)
@@ -178,9 +180,9 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
       await anexosApi.excluir(anexo.id)
       setAnexos(prev => prev.filter(a => a.id !== anexo.id))
     } catch {
-      setErro('Erro ao excluir anexo')
+      setErro(t('pedido.anexos.erro_excluir'))
     }
-  }, [confirmarExcluirAnexo])
+  }, [confirmarExcluirAnexo, t])
 
   const isPrevisualizavel = (anexo: Anexo) => {
     const ext = anexo.nome_arquivo.split('.').pop()?.toLowerCase() ?? ''
@@ -192,7 +194,7 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
       {/* Cabeçalho */}
       <div className="painel-anexos__cabecalho">
         <span className="painel-anexos__titulo">
-          Anexos {!carregando && `(${anexos.length})`}
+          {t('pedido.anexos.titulo')} {!carregando && `(${anexos.length})`}
         </span>
         {!somenteLeitura && (
           <button
@@ -200,10 +202,10 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
             className="painel-anexos__btn-adicionar"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            aria-label="Adicionar anexo"
+            aria-label={t('pedido.anexos.adicionar_anexo')}
           >
             <Plus size={14} aria-hidden="true" />
-            Adicionar
+            {t('pedido.anexos.adicionar')}
           </button>
         )}
         <input
@@ -225,10 +227,10 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           role="region"
-          aria-label="Arraste arquivos aqui para fazer upload"
+          aria-label={t('pedido.anexos.dropzone_aria')}
         >
           <span className="painel-anexos__dropzone-texto">
-            Arraste arquivos aqui ou clique em Adicionar
+            {t('pedido.anexos.dropzone_texto')}
           </span>
         </div>
       )}
@@ -239,7 +241,7 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
           <div className="painel-anexos__progresso-barra" style={{ width: `${uploadProgress}%` }} />
           <span className="painel-anexos__progresso-texto">
             <Spinner size={12} className="painel-anexos__spinner" aria-hidden="true" />
-            Enviando... {uploadProgress}%
+            {t('pedido.anexos.enviando')} {uploadProgress}%
           </span>
         </div>
       )}
@@ -248,7 +250,7 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
       {erro && (
         <div className="painel-anexos__erro" role="alert">
           {erro}
-          <button type="button" onClick={() => setErro(null)} aria-label="Fechar erro">
+          <button type="button" onClick={() => setErro(null)} aria-label={t('pedido.anexos.fechar_erro')}>
             <X size={12} aria-hidden="true" />
           </button>
         </div>
@@ -258,10 +260,10 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
       {carregando ? (
         <div className="painel-anexos__carregando">
           <Spinner size={16} aria-hidden="true" />
-          <span>Carregando...</span>
+          <span>{t('comum.carregando')}</span>
         </div>
       ) : anexos.length === 0 ? (
-        <div className="painel-anexos__vazio">Nenhum anexo</div>
+        <div className="painel-anexos__vazio">{t('pedido.anexos.nenhum_anexo')}</div>
       ) : (
         <ul className="painel-anexos__lista" role="list">
           {anexos.map(anexo => (
@@ -282,8 +284,8 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
                     type="button"
                     className="painel-anexos__btn-acao"
                     onClick={() => handlePreview(anexo)}
-                    aria-label={`Visualizar ${anexo.nome_arquivo}`}
-                    title="Visualizar"
+                    aria-label={t('pedido.anexos.visualizar_arquivo', { nome: anexo.nome_arquivo })}
+                    title={t('pedido.anexos.visualizar')}
                   >
                     <Eye size={15} aria-hidden="true" />
                   </button>
@@ -292,8 +294,8 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
                   type="button"
                   className="painel-anexos__btn-acao"
                   onClick={() => handleDownload(anexo)}
-                  aria-label={`Baixar ${anexo.nome_arquivo}`}
-                  title="Baixar"
+                  aria-label={t('pedido.anexos.baixar_arquivo', { nome: anexo.nome_arquivo })}
+                  title={t('pedido.anexos.baixar')}
                 >
                   <DownloadSimple size={15} aria-hidden="true" />
                 </button>
@@ -302,8 +304,8 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
                     type="button"
                     className="painel-anexos__btn-acao painel-anexos__btn-excluir"
                     onClick={() => handleExcluir(anexo)}
-                    aria-label={`Excluir ${anexo.nome_arquivo}`}
-                    title="Excluir"
+                    aria-label={t('pedido.anexos.excluir_arquivo', { nome: anexo.nome_arquivo })}
+                    title={t('pedido.anexos.excluir')}
                   >
                     <Trash size={15} aria-hidden="true" />
                   </button>
@@ -320,7 +322,7 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
           className="painel-anexos__preview-overlay"
           role="dialog"
           aria-modal="true"
-          aria-label={`Preview: ${previewAnexo.nome_arquivo}`}
+          aria-label={t('pedido.anexos.preview_aria', { nome: previewAnexo.nome_arquivo })}
           onClick={() => { setPreviewAnexo(null); URL.revokeObjectURL(previewUrl); setPreviewUrl(null) }}
         >
           <div className="painel-anexos__preview-caixa" onClick={e => e.stopPropagation()}>
@@ -329,7 +331,7 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
               <button
                 type="button"
                 onClick={() => { setPreviewAnexo(null); URL.revokeObjectURL(previewUrl); setPreviewUrl(null) }}
-                aria-label="Fechar preview"
+                aria-label={t('pedido.anexos.fechar_preview')}
               >
                 <X size={16} aria-hidden="true" />
               </button>
@@ -338,7 +340,7 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
               <iframe
                 src={previewUrl}
                 className="painel-anexos__preview-iframe"
-                title={`Preview de ${previewAnexo.nome_arquivo}`}
+                title={t('pedido.anexos.preview_de', { nome: previewAnexo.nome_arquivo })}
               />
             ) : (
               <img
@@ -352,8 +354,8 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
       )}
       <ModalConfirmarExcluirGlobal
         aberto={confirmarExcluirAnexo !== null}
-        titulo="Excluir anexo"
-        descricao="Esta ação não pode ser desfeita."
+        titulo={t('pedido.anexos.excluir_anexo_titulo')}
+        descricao={t('pedido.anexos.excluir_anexo_desc')}
         nomeItem={confirmarExcluirAnexo?.nome_arquivo}
         aoConfirmar={handleExcluirConfirmado}
         aoCancelar={() => setConfirmarExcluirAnexo(null)}

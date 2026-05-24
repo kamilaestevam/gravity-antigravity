@@ -333,6 +333,64 @@ const persistir    = passoInserir.mudou || passoMover.mudou
 
 ---
 
+## Parte 5 — Internacionalização (i18n)
+
+> Entrega 2026-05-22 — produto **100% i18n'd** em PT/EN/ES. Veja [arquitetura/traducao](../../arquitetura/traducao/SKILL.md) para o pipeline geral.
+
+### Cobertura atual
+
+- **2743 referências `t('pedido.*')`** no `pedido/client/src` — 0 missing (todas resolvem em pt.json).
+- **24 arquivos `.tsx`** convertidos (todos os modais, formulários, lista, dashboard, kanban, configurações, smart import, snapshot, anexos, visão geral).
+- Paridade pt/en/es 100% nas keys de `pedido.*`.
+
+### Namespaces de keys do produto
+
+| Namespace | Origem |
+|-----------|--------|
+| `pedido.dashboard.*` | PedidosDashboard.tsx |
+| `pedido.kanban.*` / `pedido.kanban_colunas.*` | PedidosKanban + SecaoKanbanColunas |
+| `pedido.excluir.*` | ModalPedidosExcluir |
+| `pedido.lista.*` / `pedido.barra.*` / `pedido.coluna_pai.*` / `pedido.popover_filtro.*` | Pedidos.tsx + ColunasPai + barra/filtro |
+| `pedido.visao_geral.*` | PedidosVisaoGeral.tsx |
+| `pedido.config.*` / `pedido.config_colunas.*` | Configuracoes.tsx + ConfiguracaoColunas/* |
+| `pedido.modal_novo.*` / `pedido.modal_item.*` | ModalPedidoNovo + ModalItemNovo |
+| `pedido.modal_dup.*` / `pedido.modal_transf.*` / `pedido.modal_massa.*` / `pedido.modal_pdf.*` | modais correspondentes |
+| `pedido.modal_col.*` / `pedido.card_usuario.*` | ConfiguracaoColunas/ModalNova + ConfiguracaoCards/ModalNovo |
+| `pedido.smart_import.*` / `pedido.smart_preview.*` | SmartImport/* |
+| `pedido.anexos.*` / `pedido.cel_anexos.*` | AnexosPainel + CelulaAnexosColuna |
+| `pedido.drawer.*` / `pedido.formulario.*` | DrawerPedido + PedidoFormulario |
+| `pedido.snapshot_cadastros.*` | configuracoes/PedidoSnapshotCadastros |
+| `pedido.massa_campos.*` | rótulos de campo da edição em massa |
+
+### Proteção contra regressão
+
+Teste unitário `testes/testes-unitarios/pedido/i18n-paridade.test.ts` cobre:
+- Toda key `t('pedido.*')` no client/src tem entry em `pt.json`
+- Paridade pt → en e pt → es (sem keys faltantes)
+- Sem valores vazios em `pedido.*`
+- Variáveis `{{var}}` preservadas entre os 3 idiomas
+
+Roda no CI a cada PR — adicionou key no pt sem rodar `npm run translate`, falha.
+
+### Items adiados (refactor de assinatura de função pendente)
+
+Hardcoded strings que ficaram fora do escopo i18n porque a função/módulo onde vivem **não recebe `t: TFunction`**:
+
+1. `components/lista/ColunasFilho.tsx` — função `mapColunaUsuarioParaGTColuna` (1 string)
+2. `pages/Pedidos.tsx` — constantes `COLUNAS_FILHO` (linhas ~657-2483) e `buildMapaColunasFilho` (linhas ~2486-3160), ~50 strings de metadata de coluna
+3. `components/lista/ColunasPai.tsx` — helpers `renderQtdPedido`, `renderAgregado` (~3 strings)
+4. `pages/PedidosVisaoGeral.tsx` — mocks de demo de alertas (fornecedores fictícios) — esperam dados reais do backend (Mand. 05)
+
+**Quem corrigir**: passar `t: TFunction` como parâmetro nas funções acima e atualizar todos os callers no mesmo commit (Mand. 07 — sincronia de contratos).
+
+### Anti-padrões i18n específicos do Pedido
+
+- **AP4 — Shadowing de `t` em `.map(t => ...)`**: parâmetros de callback em arrays como tabs/colunas/status que usam `t` sobrescrevem o hook silenciosamente. Caso real corrigido em 2026-05-22 em `PedidosVisaoGeral.tsx` L3623. Sempre renomear o param antes de inserir `t()` dentro do bloco.
+- **AP5 — Constantes module-level com labels**: declarar `const TIPO_LABELS = { ... }` fora do componente impede tradução. Mover para dentro do componente como `useMemo([t])` OU manter keys-only e resolver via `t()` no render.
+- **AP6 — Helpers exportados sem `t`**: `mapColunaUsuario*`, `renderAgregado` etc. recebem dados mas não `t`. Tradução exige refactor de assinatura — Item 1-3 da lista de adiados acima.
+
+---
+
 ## Status da skill
 
 | Parte | Status |
@@ -341,6 +399,7 @@ const persistir    = passoInserir.mudou || passoMover.mudou
 | 2 — Lista de Pedidos | 🟡 Placeholder — a desenvolver |
 | 2.1 — Filtro Multi-Workspace | ✅ Consolidada (2026-05-13) |
 | 3 — Consolidar / Transferir | 🟡 Placeholder — a desenvolver |
+| 5 — Internacionalização (i18n) | ✅ Consolidada (2026-05-22) |
 
 ---
 

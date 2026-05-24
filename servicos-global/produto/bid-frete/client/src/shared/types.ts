@@ -118,40 +118,52 @@ export type Incoterm = typeof INCOTERMS[number]
 // ─── Entidades ───────────────────────────────────────────────────────────────
 
 export interface Cotacao {
-  id: string
+  id_cotacao_bid_frete: string
   id_organizacao: string
-  user_id: string | null
-  numero: string
-  referencia_interna: string | null
+  id_produto_gravity: string | null
+  id_usuario: string | null
+  id_workspace: string | null
+  numero_cotacao_bid_frete: string
+  referencia_interna_cotacao_bid_frete: string | null
   tipo_operacao: TipoOperacao
   modal: ModalFrete
   modalidade: ModalidadeCarga
-  status: StatusCotacao
-  origem_codigo: string
-  origem_nome: string
-  origem_pais: string
-  destino_codigo: string
-  destino_nome: string
-  destino_pais: string
-  descricao_mercadoria: string
-  ncm: string | null
-  quantidade: number
+  status_cotacao_bid_frete: StatusCotacao
+  porto_origem_cotacao_bid_frete: string
+  pais_origem_cotacao_bid_frete: string
+  estado_provincia_origem_cotacao_bid_frete?: string
+  aeroporto_origem_cotacao_bid_frete?: string
+  porto_destino_cotacao_bid_frete: string
+  pais_destino_cotacao_bid_frete: string
+  estado_provincia_destino_cotacao_bid_frete?: string
+  aeroporto_destino_cotacao_bid_frete?: string
+  descricao_mercadoria_cotacao_bid_frete: string
+  ncm_cotacao_bid_frete: string | null
+  hs_code_cotacao_bid_frete?: string
+  quantidade_volumes_cotacao_bid_frete: number
   tipo_container: string | null
-  peso_kg: number | null
-  cubagem_m3: number | null
-  incoterm: string
-  cep_destino: string | null
-  visibilidade: Visibilidade
-  anonima: boolean
-  valor_alvo: number | null
-  moeda_alvo: string
-  prazo_resposta: string | null
+  peso_kg_cotacao_bid_frete: number | null
+  peso_ton_cotacao_bid_frete?: number
+  cubagem_m3_cotacao_bid_frete: number | null
+  incoterm_cotacao_bid_frete: string
+  cep_origem_cotacao_bid_frete: string | null
+  cep_destino_cotacao_bid_frete: string | null
+  visibilidade_cotacao_bid_frete: Visibilidade
+  anonima_cotacao_bid_frete: boolean
+  valor_alvo_cotacao_bid_frete: number | null
+  moeda_alvo_cotacao_bid_frete: string
+  data_limite_resposta_cotacao_bid_frete: string | null
+  data_aprovacao_cotacao_bid_frete: string | null
+  data_cancelamento_cotacao_bid_frete: string | null
+  motivo_reprovacao_cotacao_bid_frete: string | null
+  motivo_cancelamento_cotacao_bid_frete: string | null
+  id_fornecedor_vencedor_cotacao_bid_frete: string | null
   valor_aprovado: number | null
   moeda_aprovada: string | null
-  saving_valor: number | null
-  saving_percentual: number | null
-  created_at: string
-  updated_at: string
+  saving_valor_cotacao_bid_frete: number | null
+  saving_percentual_cotacao_bid_frete: number | null
+  criado_em_cotacao_bid_frete: string
+  atualizado_em_cotacao_bid_frete: string
   bid_requests?: BidRequest[]
   bid_responses?: BidResponse[]
 }
@@ -262,6 +274,86 @@ export interface Avaliacao {
   created_at: string
 }
 
+// ─── Status Config (Configuração dinâmica por organização) ──────────────────
+
+export interface StatusCotacaoBidFreteConfig {
+  id_status_cotacao_bid_frete: string
+  id_organizacao: string
+  nome_status_cotacao_bid_frete: string
+  rotulo_status_cotacao_bid_frete: string
+  cor_status_cotacao_bid_frete: string
+  icone_status_cotacao_bid_frete: string | null
+  ordem_status_cotacao_bid_frete: number
+  padrao_status_cotacao_bid_frete: boolean
+  gerenciado_sistema_status_cotacao_bid_frete: boolean
+  data_criacao_status_cotacao_bid_frete: string
+  data_atualizacao_status_cotacao_bid_frete: string
+}
+
+/** Chave do localStorage para sincronização status config */
+export const STATUS_CONFIG_STORAGE_KEY = 'bid-frete:config:status-dinamico'
+
+/** Sincroniza status da API com localStorage para consumo offline */
+export function sincronizarStatusLocal(statusList: StatusCotacaoBidFreteConfig[]): void {
+  try {
+    localStorage.setItem(STATUS_CONFIG_STORAGE_KEY, JSON.stringify(statusList))
+    // Também atualiza a chave legada para compatibilidade com Configuracoes.tsx
+    const legado = statusList.map(s => ({
+      id: s.id_status_cotacao_bid_frete,
+      nome: s.nome_status_cotacao_bid_frete,
+      rotulo: s.rotulo_status_cotacao_bid_frete,
+      cor: s.cor_status_cotacao_bid_frete,
+      ordem: s.ordem_status_cotacao_bid_frete,
+      is_sistema: s.gerenciado_sistema_status_cotacao_bid_frete,
+    }))
+    localStorage.setItem('bid-frete:config:status', JSON.stringify(legado))
+  } catch { /* storage indisponível */ }
+}
+
+/** Lê status config do localStorage */
+export function lerStatusConfigLocal(): StatusCotacaoBidFreteConfig[] {
+  try {
+    const raw = localStorage.getItem(STATUS_CONFIG_STORAGE_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch { /* storage indisponível */ }
+  return []
+}
+
+/** Gera abas dinâmicas a partir dos status config */
+export function gerarAbasStatus(statusList: StatusCotacaoBidFreteConfig[], t: (key: string, fallback?: string) => string): Array<{ valor: string; label: string }> {
+  const abas: Array<{ valor: string; label: string }> = [
+    { valor: 'TODAS', label: t('bidfrete.cotacoes.abas.todas', 'Todas') },
+  ]
+  for (const s of statusList) {
+    abas.push({
+      valor: s.nome_status_cotacao_bid_frete,
+      label: s.rotulo_status_cotacao_bid_frete,
+    })
+  }
+  return abas
+}
+
+/** Obtém rótulo e cor de um status a partir da config. Fallback para hardcoded. */
+export function obterInfoStatus(statusNome: string, statusList: StatusCotacaoBidFreteConfig[]): { rotulo: string; cor: string } {
+  const config = statusList.find(s => s.nome_status_cotacao_bid_frete === statusNome)
+  if (config) {
+    return {
+      rotulo: config.rotulo_status_cotacao_bid_frete,
+      cor: config.cor_status_cotacao_bid_frete,
+    }
+  }
+  // Fallback para labels/badges hardcoded
+  const rotulo = STATUS_LABELS[statusNome as StatusCotacao] ?? statusNome
+  const variante = STATUS_BADGE[statusNome as StatusCotacao] ?? 'default'
+  const FALLBACK_CORES: Record<string, string> = {
+    info: '#6366f1', warning: '#f59e0b', success: '#22c55e', danger: '#ef4444', default: '#64748b',
+  }
+  return { rotulo, cor: FALLBACK_CORES[variante] ?? '#64748b' }
+}
+
 // ─── Dashboard KPIs ──────────────────────────────────────────────────────────
 
 export interface DashboardKPIs {
@@ -327,7 +419,7 @@ export interface Porto {
   codigo: string
   nome: string
   pais: string
-  tipo: 'maritimo' | 'aereo' | 'rodoviario'
+  tipo?: 'maritimo' | 'aereo' | 'rodoviario'
   lat?: number
   lng?: number
 }
@@ -336,4 +428,30 @@ export interface Moeda {
   codigo: string
   nome: string
   simbolo: string
+}
+
+export interface Pais {
+  id_pais: string
+  nome_pais_portugues: string
+  codigo_pais_iso_alpha2: string
+}
+
+export interface Aeroporto {
+  id_aeroporto: string
+  codigo_iata_aeroporto: string
+  nome_aeroporto: string
+  codigo_pais_aeroporto: string
+}
+
+export interface ContainerOption {
+  codigo: string
+  nome: string
+  teus: number
+}
+
+export interface IncotermOption {
+  codigo: string
+  nome: string
+  grupo: string
+  descricao: string
 }

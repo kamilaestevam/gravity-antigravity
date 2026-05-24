@@ -122,15 +122,15 @@ export default function Fornecedores() {
 
   // ─── Colunas TabelaGlobal ─────────────────────────────────────────────
 
-  const colunas: TabelaGlobalColuna<any>[] = [
+  const colunas: TabelaGlobalColuna<Fornecedor>[] = [
     {
       key: 'nome',
       label: t('bidfrete.fornecedores.col_nome'),
       tipo: 'texto',
       largura: 220,
-      render: (val: any, item: any) => (
+      render: (val: unknown, item: Fornecedor) => (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
-          <span style={{ fontWeight: 600, color: 'var(--text-primary, #f1f5f9)', fontSize: '0.8125rem' }}>{val}</span>
+          <span style={{ fontWeight: 600, color: 'var(--text-primary, #f1f5f9)', fontSize: '0.8125rem' }}>{String(val ?? '')}</span>
           {item.nome_fantasia && (
             <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>{item.nome_fantasia}</span>
           )}
@@ -142,8 +142,8 @@ export default function Fornecedores() {
       label: t('bidfrete.fornecedores.col_email'),
       tipo: 'texto',
       largura: 200,
-      render: (val: any) => (
-        <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>{val}</span>
+      render: (val: unknown) => (
+        <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>{String(val ?? '')}</span>
       ),
     },
     {
@@ -151,8 +151,9 @@ export default function Fornecedores() {
       label: t('bidfrete.fornecedores.col_tipo'),
       tipo: 'texto',
       largura: 140,
-      render: (val: any) => {
-        const cores = TIPO_FORNECEDOR_COLORS[val as TipoFornecedor]
+      render: (val: unknown) => {
+        const tipo = val as TipoFornecedor
+        const cores = TIPO_FORNECEDOR_COLORS[tipo]
         return (
           <span style={{
             display: 'inline-flex',
@@ -164,7 +165,7 @@ export default function Fornecedores() {
             background: cores.bg,
             color: cores.color,
           }}>
-            {TIPO_FORNECEDOR_LABELS[val as TipoFornecedor]}
+            {TIPO_FORNECEDOR_LABELS[tipo]}
           </span>
         )
       },
@@ -174,8 +175,9 @@ export default function Fornecedores() {
       label: t('comum.status'),
       tipo: 'texto',
       largura: 120,
-      render: (val: any) => {
-        const cores = STATUS_FORNECEDOR_COLORS[val as StatusFornecedor]
+      render: (val: unknown) => {
+        const status = val as StatusFornecedor
+        const cores = STATUS_FORNECEDOR_COLORS[status]
         return (
           <span style={{
             display: 'inline-flex',
@@ -187,7 +189,7 @@ export default function Fornecedores() {
             background: cores.bg,
             color: cores.color,
           }}>
-            {STATUS_FORNECEDOR_LABELS[val as StatusFornecedor]}
+            {STATUS_FORNECEDOR_LABELS[status]}
           </span>
         )
       },
@@ -197,7 +199,7 @@ export default function Fornecedores() {
       label: t('bidfrete.fornecedores.col_rating'),
       tipo: 'numero',
       largura: 150,
-      render: (val: any) => <Stars rating={val} />,
+      render: (val: unknown) => <Stars rating={Number(val ?? 0)} />,
     },
     {
       key: 'total_cotacoes',
@@ -205,9 +207,9 @@ export default function Fornecedores() {
       tipo: 'numero',
       largura: 120,
       align: 'right',
-      render: (val: any) => (
+      render: (val: unknown) => (
         <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem', color: 'var(--text-primary, #f1f5f9)' }}>
-          {val}
+          {String(val ?? '')}
         </span>
       ),
     },
@@ -218,7 +220,7 @@ export default function Fornecedores() {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: t('bidfrete.fornecedores.ver_detalhes'),
-      onClick: (item: Fornecedor) => navigate(`/fornecedores/${item.id}`),
+      onClick: (item: Fornecedor) => navigate(`/produto/bid-frete/fornecedores/${item.id}`),
     },
   ]
 
@@ -227,20 +229,15 @@ export default function Fornecedores() {
   return (
     <PaginaGlobal
       className="bf-fornecedores"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Buildings weight="duotone" size={22} />}
-          titulo={t('bidfrete.fornecedores.titulo')}
-          subtitulo={t('bidfrete.fornecedores.subtitulo')}
-          acoes={
-            <button className="btn btn-primary">
-              <Plus weight="bold" size={16} />
-              {t('bidfrete.fornecedores.novo_fornecedor')}
-            </button>
-          }
-        />
-      }
     >
+      {/* Ação da página (Novo Fornecedor) — cabeçalho agora vive no top bar */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <button className="btn btn-primary">
+          <Plus weight="bold" size={16} />
+          {t('bidfrete.fornecedores.novo_fornecedor')}
+        </button>
+      </div>
+
       {/* ════════ LINHA 1: KPIs + Donut ════════ */}
       <div className="bf-forn-top">
         <div className="bf-forn-kpis">

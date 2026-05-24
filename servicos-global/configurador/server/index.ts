@@ -49,6 +49,7 @@ import { publicCatalogRouter } from './routes/catalogo-publico.js'
 import { hubRouter } from './routes/hub-init.js'
 import { meRouter } from './routes/me.js'
 import { taxasMoedaRouter } from './routes/taxas-moeda.js'
+import { previsaoTaxaFuturaMoedaRouter } from './routes/previsao-taxa-futura-moeda.js'
 import { historicoOrganizacaoRouter } from './routes/historico-organizacao.js'
 import { apiObservability } from '../../servicos-plataforma/middleware/apiObservability.js'
 import { createProductAuditPlugin } from '../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
@@ -263,6 +264,11 @@ app.use('/api/v1/admin/empresas', adminEmpresasRouter)            // admin: empr
 // ─── Taxas de moeda (PTAX) — sem auth (dados públicos do BCB) ──────────────
 
 app.use('/api/v1/taxas-moeda', taxasMoedaRouter)
+
+// ─── Previsões de taxa futura (BACEN Focus) — GET público, POST com auth ────
+// Projeções de mercado do Focus, irmã arquitetural das cotações PTAX.
+
+app.use('/api/v1/previsoes-taxa-futura-moeda', previsaoTaxaFuturaMoedaRouter)
 
 // ─── Histórico da organização — workspace page (requireAuth interno) ────────
 
@@ -563,6 +569,10 @@ if (process.env.NODE_ENV !== 'test') {
         // Taxas de moeda — sync automático 4x/dia (10h / 11h / 12h / 13h BRT)
         const { startTaxasMoedaSyncWorker } = await import('./queue/taxasMoedaSyncWorker.js')
         startTaxasMoedaSyncWorker()
+
+        // Previsão Focus — sync semanal terça 22h BRT (quarta 01h UTC)
+        const { startPrevisaoTaxaFuturaMoedaSyncWorker } = await import('./queue/previsao-taxa-futura-moeda-sync-worker.js')
+        startPrevisaoTaxaFuturaMoedaSyncWorker()
 
         // NCM Siscomex — cron job diário roda no bootstrap do serviço Cadastros
         // (porta 8031). Configurador apenas proxya as chamadas admin via REST.

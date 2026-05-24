@@ -4,6 +4,7 @@
  */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { CheckCircle, XCircle } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
@@ -47,6 +48,7 @@ function exportarErrosCSV(erros: { linha: number; motivo: string }[]) {
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaConfirmacaoProps) {
+  const { t } = useTranslation()
   const totalSucesso = resultado.criados + resultado.atualizados
 
   // Salvar no histórico de importações (localStorage)
@@ -100,12 +102,12 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
         body: JSON.stringify({ ids_criados: resultado.ids_criados }),
       })
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: { message: 'Erro desconhecido' } }))
+        const err = await res.json().catch(() => ({ error: { message: t('pedido.smart_import.erro_desconhecido') } }))
         throw new Error(err.error?.message ?? `HTTP ${res.status}`)
       }
       setRevertido(true)
     } catch (e) {
-      setErroReversao(e instanceof Error ? e.message : 'Erro ao reverter')
+      setErroReversao(e instanceof Error ? e.message : t('pedido.smart_import.erro_reverter'))
     } finally {
       setRevertendo(false)
     }
@@ -131,8 +133,8 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
 
       <h3 className="smart-import__resultado-titulo">
         {totalSucesso > 0
-          ? `Importacao concluida — ${totalSucesso} pedido(s) processado(s)`
-          : 'Nenhum pedido foi importado'}
+          ? t('pedido.smart_import.concluida', { count: totalSucesso })
+          : t('pedido.smart_import.nenhum_importado')}
       </h3>
 
       <div className="smart-import__resultado-grid">
@@ -140,25 +142,25 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
           <div className="smart-import__resultado-numero" style={{ color: '#34d399' }}>
             {resultado.criados}
           </div>
-          <div className="smart-import__resultado-label">Criados</div>
+          <div className="smart-import__resultado-label">{t('pedido.smart_import.criados')}</div>
         </div>
         <div className="smart-import__resultado-card">
           <div className="smart-import__resultado-numero" style={{ color: '#60a5fa' }}>
             {resultado.atualizados}
           </div>
-          <div className="smart-import__resultado-label">Atualizados</div>
+          <div className="smart-import__resultado-label">{t('pedido.smart_import.atualizados')}</div>
         </div>
         <div className="smart-import__resultado-card">
           <div className="smart-import__resultado-numero" style={{ color: '#94a3b8' }}>
             {resultado.pulados}
           </div>
-          <div className="smart-import__resultado-label">Pulados</div>
+          <div className="smart-import__resultado-label">{t('pedido.smart_import.pulados')}</div>
         </div>
         <div className="smart-import__resultado-card">
           <div className="smart-import__resultado-numero" style={{ color: resultado.erros.length > 0 ? '#ef4444' : '#94a3b8' }}>
             {resultado.erros.length}
           </div>
-          <div className="smart-import__resultado-label">Erros</div>
+          <div className="smart-import__resultado-label">{t('pedido.smart_import.erros')}</div>
         </div>
       </div>
 
@@ -166,7 +168,7 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
         <div style={{ width: '100%', maxWidth: 520, textAlign: 'left' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
             <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#ef4444', margin: 0 }}>
-              Linhas com erro:
+              {t('pedido.smart_import.linhas_com_erro')}
             </p>
             <button
               type="button"
@@ -174,13 +176,13 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
               onClick={() => exportarErrosCSV(resultado.erros)}
               style={{ fontSize: '0.75rem' }}
             >
-              ↓ Baixar relatório (.csv)
+              ↓ {t('pedido.smart_import.baixar_relatorio')}
             </button>
           </div>
           <ul style={{ margin: 0, padding: '0 0 0 1rem', fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
             {resultado.erros.map((e, i) => (
               <li key={i}>
-                Linha {e.linha}: {e.motivo}
+                {t('pedido.smart_import.linha_label', { linha: e.linha })}: {e.motivo}
               </li>
             ))}
           </ul>
@@ -197,18 +199,18 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
         textAlign: 'left',
       }}>
         <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', margin: 0 }}>
-          <strong style={{ color: 'var(--accent, #6366f1)' }}>Importante:</strong>{' '}
-          Pedidos criados com status <strong>Rascunho</strong>. Verifique os dados importados e altere o status para <strong>Aberto</strong> quando estiver pronto.
+          <strong style={{ color: 'var(--accent, #6366f1)' }}>{t('pedido.smart_import.importante')}</strong>{' '}
+          {t('pedido.smart_import.aviso_status_p1')} <strong>Rascunho</strong>. {t('pedido.smart_import.aviso_status_p2')} <strong>Aberto</strong> {t('pedido.smart_import.aviso_status_p3')}
         </p>
       </div>
 
       <div style={{ display: 'flex', gap: '0.75rem' }}>
         <BotaoGlobal variante="secundario" tamanho="medio" onClick={onFechar}>
-          Fechar
+          {t('comum.fechar')}
         </BotaoGlobal>
         {resultado.ids_criados.length > 0 && (
           <BotaoGlobal variante="primario" tamanho="medio" onClick={onVerPedidos}>
-            Ver Pedidos Importados
+            {t('pedido.smart_import.ver_pedidos_importados')}
           </BotaoGlobal>
         )}
       </div>
@@ -230,27 +232,29 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
               transition: 'all 0.15s',
             }}
           >
-            {revertendo ? 'Revertendo...' : '↩ Reverter esta importação'}
+            {revertendo ? t('pedido.smart_import.revertendo') : `↩ ${t('pedido.smart_import.reverter_importacao')}`}
           </button>
           {erroReversao && (
             <span style={{ fontSize: '0.75rem', color: '#ef4444' }}>{erroReversao}</span>
           )}
           <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
-            Marca os pedidos criados{resultado.atualizados > 0 ? ' e atualizados' : ''} como Cancelado
+            {resultado.atualizados > 0
+              ? t('pedido.smart_import.marca_criados_atualizados')
+              : t('pedido.smart_import.marca_criados')}
           </span>
         </div>
       )}
 
       {revertido && (
         <div style={{ marginTop: '0.75rem', padding: '0.5rem 1rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '6px', fontSize: '0.8125rem', color: '#ef4444' }}>
-          ✓ Importação revertida — pedidos marcados como Cancelado
+          ✓ {t('pedido.smart_import.revertido_msg')}
         </div>
       )}
 
       <ModalConfirmarExcluirGlobal
         aberto={confirmarReversaoAberto}
-        titulo="Reverter importação"
-        descricao={`${resultado.criados + resultado.atualizados} pedido(s) serão marcados como Cancelado. Esta ação não pode ser desfeita.`}
+        titulo={t('pedido.smart_import.reverter_titulo')}
+        descricao={t('pedido.smart_import.reverter_desc', { count: resultado.criados + resultado.atualizados })}
         aoConfirmar={handleReversaoConfirmada}
         aoCancelar={() => setConfirmarReversaoAberto(false)}
       />

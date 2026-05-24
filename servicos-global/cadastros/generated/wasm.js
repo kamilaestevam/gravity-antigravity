@@ -195,6 +195,44 @@ exports.Prisma.IncotermScalarFieldEnum = {
   ativo_incoterm: 'ativo_incoterm'
 };
 
+exports.Prisma.PortoScalarFieldEnum = {
+  id_porto: 'id_porto',
+  codigo_unlocode_porto: 'codigo_unlocode_porto',
+  codigo_pais_porto: 'codigo_pais_porto',
+  codigo_local_porto: 'codigo_local_porto',
+  nome_porto: 'nome_porto',
+  nome_ascii_porto: 'nome_ascii_porto',
+  subdivisao_porto: 'subdivisao_porto',
+  latitude_porto: 'latitude_porto',
+  longitude_porto: 'longitude_porto',
+  codigo_iata_porto: 'codigo_iata_porto',
+  ativo_porto: 'ativo_porto'
+};
+
+exports.Prisma.AeroportoScalarFieldEnum = {
+  id_aeroporto: 'id_aeroporto',
+  codigo_unlocode_aeroporto: 'codigo_unlocode_aeroporto',
+  codigo_pais_aeroporto: 'codigo_pais_aeroporto',
+  codigo_local_aeroporto: 'codigo_local_aeroporto',
+  nome_aeroporto: 'nome_aeroporto',
+  nome_ascii_aeroporto: 'nome_ascii_aeroporto',
+  subdivisao_aeroporto: 'subdivisao_aeroporto',
+  latitude_aeroporto: 'latitude_aeroporto',
+  longitude_aeroporto: 'longitude_aeroporto',
+  codigo_iata_aeroporto: 'codigo_iata_aeroporto',
+  ativo_aeroporto: 'ativo_aeroporto'
+};
+
+exports.Prisma.TipoContainerScalarFieldEnum = {
+  id_tipo_container: 'id_tipo_container',
+  codigo_iso_tipo_container: 'codigo_iso_tipo_container',
+  nome_tipo_container: 'nome_tipo_container',
+  nome_ingles_tipo_container: 'nome_ingles_tipo_container',
+  tamanho_pes_tipo_container: 'tamanho_pes_tipo_container',
+  categoria_tipo_container: 'categoria_tipo_container',
+  ativo_tipo_container: 'ativo_tipo_container'
+};
+
 exports.Prisma.NcmSyncScalarFieldEnum = {
   codigo_ncm_sync: 'codigo_ncm_sync',
   descricao_ncm_sync: 'descricao_ncm_sync',
@@ -338,6 +376,9 @@ exports.Prisma.ModelName = {
   Moeda: 'Moeda',
   Unidade: 'Unidade',
   Incoterm: 'Incoterm',
+  Porto: 'Porto',
+  Aeroporto: 'Aeroporto',
+  TipoContainer: 'TipoContainer',
   NcmSync: 'NcmSync',
   NcmSyncLog: 'NcmSyncLog',
   NcmSyncAgendamento: 'NcmSyncAgendamento',

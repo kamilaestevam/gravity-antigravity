@@ -162,7 +162,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
       })
       .catch((err: unknown) => {
         if (cancelado) return
-        setErro(err instanceof Error ? err.message : 'Erro ao carregar preview')
+        setErro(err instanceof Error ? err.message : t('pedido.modal_dup.erro_carregar_preview'))
       })
       .finally(() => {
         if (!cancelado) setCarregando(false)
@@ -247,11 +247,11 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
       await new Promise(r => setTimeout(r, 1200))
       setFeedbackBotao(null)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao duplicar'
+      const msg = err instanceof Error ? err.message : t('pedido.modal_dup.erro_duplicar')
       setConfirmando(false)
       setFeedbackBotao('erro')
       setErro(msg)
-      addNotification({ type: 'error', message: `Falha ao duplicar: ${msg}`, duration: 4000 })
+      addNotification({ type: 'error', message: t('pedido.modal_dup.toast_falha_duplicar', { msg }), duration: 4000 })
       setTimeout(() => { setFeedbackBotao(null) }, 1500)
     }
   }, [config, ids, itensPorPedido, numeros, opcoes, temPedidos, addNotification, t])
@@ -328,7 +328,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
     const tooltipResto = resto.map(formatItemLabel).join(', ')
     return (
       <div className="modal-duplicar__itens-lista">
-        <strong className="modal-duplicar__itens-count" aria-label={`${n} itens`}>{n}</strong>
+        <strong className="modal-duplicar__itens-count" aria-label={t('pedido.modal_dup.aria_n_itens', { count: n })}>{n}</strong>
         <div className="modal-duplicar__itens-chips">
           {inline.map(it => {
             const textoCompleto = it.part_number || it.descricao_item || it.id
@@ -352,7 +352,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
             >
               <span
                 className="modal-duplicar__item-chip modal-duplicar__item-chip--mais"
-                aria-label={`Mais ${resto.length} itens`}
+                aria-label={t('pedido.modal_dup.aria_mais_itens', { count: resto.length })}
               >
                 +{resto.length}
               </span>
@@ -388,7 +388,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
           </summary>
           <div className="modal-duplicar__raio-x-listas">
             <div className="modal-duplicar__raio-x-coluna">
-              <span className="modal-duplicar__raio-x-coluna-titulo">Pedido</span>
+              <span className="modal-duplicar__raio-x-coluna-titulo">{t('pedido.modal_dup.coluna_pedido')}</span>
               <ul className="modal-duplicar__raio-x-campos">
                 {t('pedido.modal_dup.raio_x.reset_pedido_campos').split(', ').map(campo => (
                   <li key={campo}>{campo}</li>
@@ -396,7 +396,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
               </ul>
             </div>
             <div className="modal-duplicar__raio-x-coluna">
-              <span className="modal-duplicar__raio-x-coluna-titulo">Item</span>
+              <span className="modal-duplicar__raio-x-coluna-titulo">{t('pedido.modal_dup.coluna_item')}</span>
               <ul className="modal-duplicar__raio-x-campos">
                 {t('pedido.modal_dup.raio_x.reset_item_campos').split(', ').map(campo => (
                   <li key={campo}>{campo}</li>
@@ -499,7 +499,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
                     <td className="modal-duplicar__td">
                       {config.numero_auto ? (
                         <span className="modal-duplicar__numero-auto">
-                          {numeros[p.id] || '(gerado automaticamente)'}
+                          {numeros[p.id] || t('pedido.modal_dup.num_gerado_auto_placeholder')}
                           {' '}
                           <span className="modal-duplicar__badge-auto">{t('pedido.modal_dup.num_auto_badge')}</span>
                         </span>
@@ -511,7 +511,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
                             value={valorNumero}
                             onChange={e => handleNumeroChange(p.id, e.target.value)}
                             placeholder={t('pedido.modal_dup.num_placeholder')}
-                            aria-label={`Número da cópia do pedido ${p.numero_pedido}`}
+                            aria-label={t('pedido.modal_dup.aria_numero_copia', { pedido: p.numero_pedido })}
                             aria-required="true"
                             aria-invalid={numeroVazio}
                             maxLength={100}
@@ -745,7 +745,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
     <ModalPassoPassoGlobal
       titulo={tituloModal}
       icone={<Copy size={22} weight="duotone" />}
-      subtitulo="Crie cópias dos pedidos ou itens selecionados"
+      subtitulo={t('pedido.modal_dup.subtitulo')}
       aberto={true}
       passos={PASSOS}
       passoAtual={passoAtual}
@@ -754,10 +754,10 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
       onFechar={onFechar}
       podeAvancar={podeAvancar}
       labelBotaoFinal={t('pedido.modal_dup.duplicar')}
-      labelProximo="Próximo"
+      labelProximo={t('comum.proximo')}
       tamanho="lg"
       carregando={confirmando}
-      textoCarregando="Duplicando…"
+      textoCarregando={t('pedido.modal_dup.duplicando')}
       ocultarStepper={!!resultado}
       ocultarFooter={!!resultado}
       footerCustom={footerResultado}

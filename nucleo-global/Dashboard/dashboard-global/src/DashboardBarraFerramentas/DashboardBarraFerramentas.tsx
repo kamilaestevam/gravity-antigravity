@@ -12,7 +12,8 @@
  * - Banner de modo edição ativo com orientação ao usuário
  */
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Check, Plus, X, DotsSixVertical, CaretDown, CaretUp, CalendarBlank } from '@phosphor-icons/react'
 import { CalendarioPainelGlobal } from '@nucleo/campo-calendario-global'
 import type { ActiveFilter, GlobalSlicers } from '../tipos.js'
@@ -21,10 +22,10 @@ import type { ActiveFilter, GlobalSlicers } from '../tipos.js'
 
 const MONTH_NAMES_SHORT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']
 
-function formatCustomLabel(period: string): string {
+function formatCustomLabel(period: string, fallbackLabel: string): string {
   if (!period.startsWith('custom:')) return period
   const [, start, end] = period.split(':')
-  if (!start || !end) return 'Período personalizado'
+  if (!start || !end) return fallbackLabel
   const fmt = (d: string) => {
     const [y, m, day] = d.split('-')
     return `${parseInt(day)} ${MONTH_NAMES_SHORT[parseInt(m) - 1]} ${y}`
@@ -50,6 +51,7 @@ interface PeriodDropdownProps {
 // exclusivos (lista de opções e calendário inline) com estado compartilhado. Decompor
 // quebraria o closure que une open/showCal/ref sem prop drilling desnecessário.
 function PeriodDropdown({ value, options, onChange }: PeriodDropdownProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [showCal, setShowCal] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -57,7 +59,7 @@ function PeriodDropdown({ value, options, onChange }: PeriodDropdownProps) {
   // Suporte a período customizado: custom:YYYY-MM-DD:YYYY-MM-DD
   const isCustom = value.startsWith('custom:')
   const selectedLabel = isCustom
-    ? formatCustomLabel(value)
+    ? formatCustomLabel(value, t('nucleo.dashboard.periodo.personalizado'))
     : (options.find(o => o.value === value) ?? options[0])?.label
 
   useEffect(() => {
@@ -213,15 +215,17 @@ export interface PeriodOption {
   label: string
 }
 
-const DEFAULT_PERIOD_OPTIONS: PeriodOption[] = [
-  { value: '7d',            label: 'Últimos 7 dias'       },
-  { value: '30d',           label: 'Últimos 30 dias'      },
-  { value: '90d',           label: 'Últimos 90 dias'      },
-  { value: '12m',           label: 'Últimos 12 meses'     },
-  { value: 'current_month', label: 'Mês atual'            },
-  { value: 'current_year',  label: 'Ano atual'            },
-  { value: 'custom',        label: 'Período personalizado'},
-]
+function buildDefaultPeriodOptions(t: (k: string) => string): PeriodOption[] {
+  return [
+    { value: '7d',            label: t('nucleo.dashboard.periodo.ultimos_7_dias')   },
+    { value: '30d',           label: t('nucleo.dashboard.periodo.ultimos_30_dias')  },
+    { value: '90d',           label: t('nucleo.dashboard.periodo.ultimos_90_dias')  },
+    { value: '12m',           label: t('nucleo.dashboard.periodo.ultimos_12_meses') },
+    { value: 'current_month', label: t('nucleo.dashboard.periodo.mes_atual')        },
+    { value: 'current_year',  label: t('nucleo.dashboard.periodo.ano_atual')        },
+    { value: 'custom',        label: t('nucleo.dashboard.periodo.personalizado')    },
+  ]
+}
 
 export interface DashboardToolbarProps {
   slicers: GlobalSlicers
@@ -272,10 +276,15 @@ export function DashboardBarraFerramentas({
   statusActiveColors = {},
   statusCounts,
   compactStatus = false,
-  periodOptions = DEFAULT_PERIOD_OPTIONS,
+  periodOptions: periodOptionsProp,
   onAddWidget,
   className,
 }: DashboardToolbarProps) {
+  const { t } = useTranslation()
+  const periodOptions = useMemo(
+    () => periodOptionsProp ?? buildDefaultPeriodOptions(t),
+    [periodOptionsProp, t],
+  )
   const s = styles
 
   // "Todos" está ativo quando nenhum status específico está selecionado
@@ -289,7 +298,7 @@ export function DashboardBarraFerramentas({
 
         {/* ── Período ─────────────────────────────────────────────────────── */}
         <div style={s.slicerGroup}>
-          <span style={s.slicerLabel}>Período</span>
+          <span style={s.slicerLabel}>{t('nucleo.dashboard.barra.periodo')}</span>
           <PeriodDropdown
             value={slicers.period}
             options={periodOptions}
@@ -309,7 +318,7 @@ export function DashboardBarraFerramentas({
                   <PeriodDropdown
                     value={slicers.status[0] ?? '__todos__'}
                     options={[
-                      { value: '__todos__', label: 'Todos os status' },
+                      { value: '__todos__', label: t('nucleo.dashboard.barra.todos_status') },
                       ...statusOptions.map(opt => ({
                         value: opt,
                         label: `${statusLabels[opt] ?? opt.replace(/_/g, ' ')}${statusCounts?.[opt] !== undefined ? ` (${statusCounts[opt]})` : ''}`,
@@ -330,7 +339,7 @@ export function DashboardBarraFerramentas({
                     onClick={() => onStatusChange([])}
                     data-testid="status-chip-todos"
                   >
-                    Todos
+                    {t('nucleo.dashboard.barra.todos')}
                     {statusCounts !== undefined && (
                       <span style={s.chipCount}>
                         ({statusCounts['todos'] ?? Object.values(statusCounts).reduce((a, b) => a + b, 0)})
@@ -385,14 +394,14 @@ export function DashboardBarraFerramentas({
         {/* ── Filtros ativos ───────────────────────────────────────────────── */}
         {activeFilters.length > 0 && (
           <div style={s.activeFilters}>
-            <span style={s.slicerLabel}>Filtros ativos:</span>
+            <span style={s.slicerLabel}>{t('nucleo.dashboard.barra.filtros_ativos')}</span>
             {activeFilters.map(f => (
               <span key={`${f.field}-${f.sourceWidgetId}`} style={s.filterTag}>
                 {f.label}
               </span>
             ))}
             <button type="button" style={s.clearBtn} onClick={onClearFilters}>
-              <X size={12} /> Limpar
+              <X size={12} /> {t('nucleo.dashboard.barra.limpar')}
             </button>
           </div>
         )}
@@ -407,7 +416,7 @@ export function DashboardBarraFerramentas({
             onClick={onAddWidget}
             data-testid="btn-adicionar-dashboard"
           >
-            <Plus size={14} weight="bold" /> Adicionar Dashboard
+            <Plus size={14} weight="bold" /> {t('nucleo.dashboard.barra.adicionar_dashboard')}
           </button>
         )}
 
@@ -417,11 +426,11 @@ export function DashboardBarraFerramentas({
           style={editMode ? s.btnPrimaryStrong : s.btnSecondary}
           onClick={() => onEditModeChange(!editMode)}
           data-testid="btn-reorganizar"
-          title={editMode ? undefined : 'Arraste e reorganize os widgets'}
+          title={editMode ? undefined : t('nucleo.dashboard.barra.arraste_widgets_tooltip')}
         >
           {editMode
-            ? <><Check size={14} weight="bold" /> Concluir</>
-            : <><DotsSixVertical size={14} weight="bold" /> Reorganizar</>
+            ? <><Check size={14} weight="bold" /> {t('nucleo.dashboard.barra.concluir')}</>
+            : <><DotsSixVertical size={14} weight="bold" /> {t('nucleo.dashboard.barra.reorganizar')}</>
           }
         </button>
 
@@ -431,7 +440,7 @@ export function DashboardBarraFerramentas({
       {editMode && (
         <div style={s.editHint}>
           <DotsSixVertical size={13} weight="bold" />
-          Arraste os widgets para reorganizar. Clique em <strong>Concluir</strong> para salvar.
+          {t('nucleo.dashboard.barra.hint_reorganizar_pre')} <strong>{t('nucleo.dashboard.barra.concluir')}</strong> {t('nucleo.dashboard.barra.hint_reorganizar_pos')}
         </div>
       )}
     </div>

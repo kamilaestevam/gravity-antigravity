@@ -2,7 +2,7 @@
 
 /* ── Container — seamless com o fundo da página ── */
 .mtg-header {
-  height: var(--header-height, 60px);
+  height: var(--header-height, 74px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -52,12 +52,43 @@
 
 .mtg-left__page-title {
   font-family: 'Plus Jakarta Sans', sans-serif !important;
-  font-size: 1.625rem !important;
+  font-size: 1.25rem !important;
   font-weight: 700 !important;
   color: var(--text-primary, #f1f5f9);
   line-height: 1.1;
   letter-spacing: -0.015em;
   white-space: nowrap;
+  margin: 0;
+}
+
+/* ── Cabeçalho da página dentro do top bar (padrão Configurador) ── */
+.mtg-left__page-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 12px;
+}
+
+.mtg-left__page-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--mtg-accent, #818cf8);
+}
+
+.mtg-left__page-titles {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+}
+
+.mtg-left__page-subtitle {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.8rem;
+  color: var(--text-muted, #64748b);
+  line-height: 1.5;
   margin: 0;
 }
 

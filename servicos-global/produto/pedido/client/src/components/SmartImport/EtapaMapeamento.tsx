@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect, useMemo, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   CheckCircle,
   Warning,
@@ -84,8 +85,9 @@ interface EtapaMapeamentoProps {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function BadgeConfianca({ confianca, nivel, campoSistema }: { confianca: number; nivel: ColunaMapeada['nivel']; campoSistema?: string | null }) {
+  const { t } = useTranslation()
   if (nivel === 'ignorado' && !campoSistema) {
-    return <span className="smart-import__conf-cinza" title="Campo extra — dados preservados em campos_custom"><Question size={14} aria-hidden="true" /> Campo extra</span>
+    return <span className="smart-import__conf-cinza" title={t('pedido.smart_import.campo_extra_tooltip')}><Question size={14} aria-hidden="true" /> {t('pedido.smart_import.campo_extra')}</span>
   }
   if (confianca >= 90) {
     return <span className="smart-import__conf-verde"><CheckCircle size={14} aria-hidden="true" /> {confianca}%</span>
@@ -109,6 +111,7 @@ export function EtapaMapeamento({
   onVoltar,
   onResetarMapeamento,
 }: EtapaMapeamentoProps) {
+  const { t } = useTranslation()
   const [verDocumento, setVerDocumento] = useState(false)
   const [camposSistema, setCamposSistema] = useState<CampoSistemaOpcao[]>(CAMPOS_SISTEMA_FALLBACK)
   // P6.1 — Estado do Modo Essencial e busca textual
@@ -211,8 +214,8 @@ export function EtapaMapeamento({
     const indice = new Map<string, CampoSistemaOpcao[]>()
 
     for (const c of camposSistema) {
-      const prefixo = c.nivel === 'item' ? '📋 ITEM' : '📦 PEDIDO'
-      const chave = `${prefixo} — ${c.grupo || 'Outros'}`
+      const prefixo = c.nivel === 'item' ? `📋 ${t('pedido.smart_import.grupo_item')}` : `📦 ${t('pedido.smart_import.grupo_pedido')}`
+      const chave = `${prefixo} — ${c.grupo || t('pedido.smart_import.grupo_outros')}`
       if (!indice.has(chave)) {
         indice.set(chave, [])
         grupos.push({ label: chave, opcoes: indice.get(chave)! })
@@ -227,7 +230,7 @@ export function EtapaMapeamento({
       return 0
     })
     return grupos
-  }, [camposSistema])
+  }, [camposSistema, t])
 
   function atualizarCampo(index: number, campo_sistema: string | null) {
     const novo = mapeamento.map((col, i) => {
@@ -289,7 +292,7 @@ export function EtapaMapeamento({
           onClick={onVoltar}
           style={{ marginBottom: '0.75rem' }}
         >
-          ← Trocar arquivo
+          ← {t('pedido.smart_import.trocar_arquivo')}
         </button>
       )}
 
@@ -297,20 +300,20 @@ export function EtapaMapeamento({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           {/* P6.1 — Indicador focado em essenciais (em vez de "136 de 138" ruidoso) */}
           <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
-            <strong style={{ color: 'var(--text-primary)' }}>{essenciaisMapeados} de {CAMPOS_ESSENCIAIS.size}</strong> campos essenciais mapeados
+            <strong style={{ color: 'var(--text-primary)' }}>{t('pedido.smart_import.contador_essenciais', { mapeados: essenciaisMapeados, total: CAMPOS_ESSENCIAIS.size })}</strong> {t('pedido.smart_import.essenciais_mapeados')}
             {obrigatoriosFaltando > 0 && (
               <span style={{ color: '#ef4444', marginLeft: '0.5rem' }}>
-                · ⚠️ {obrigatoriosFaltando} obrigatorio{obrigatoriosFaltando > 1 ? 's' : ''} faltando
+                · ⚠️ {t('pedido.smart_import.obrigatorios_faltando', { count: obrigatoriosFaltando })}
               </span>
             )}
             <span style={{ color: 'var(--text-muted)', marginLeft: '0.5rem', fontSize: '0.6875rem' }}>
-              (total: {mapeadas}/{total})
+              {t('pedido.smart_import.total_legenda', { mapeadas, total })}
             </span>
           </p>
           {memoriaAplicada && (
             <>
               <span className="smart-import__badge-memoria">
-                <Brain size={11} aria-hidden="true" /> Memoria aplicada
+                <Brain size={11} aria-hidden="true" /> {t('pedido.smart_import.memoria_aplicada')}
               </span>
               {onResetarMapeamento && (
                 <button
@@ -318,9 +321,9 @@ export function EtapaMapeamento({
                   className="smart-import__filtro-btn"
                   onClick={onResetarMapeamento}
                   style={{ fontSize: '0.6875rem' }}
-                  title="Ignorar memória e remapear manualmente"
+                  title={t('pedido.smart_import.remapear_tooltip')}
                 >
-                  Remapear
+                  {t('pedido.smart_import.remapear')}
                 </button>
               )}
             </>
@@ -333,7 +336,7 @@ export function EtapaMapeamento({
               style={{ marginLeft: '0.5rem' }}
             >
               <Table size={13} weight="duotone" aria-hidden="true" />
-              Ver documento
+              {t('pedido.smart_import.ver_documento')}
             </button>
           )}
         </div>
@@ -342,9 +345,9 @@ export function EtapaMapeamento({
             type="checkbox"
             checked={lembrarMapeamento}
             onChange={e => onLembrarChange(e.target.checked)}
-            aria-label="Lembrar este mapeamento para proximas importacoes"
+            aria-label={t('pedido.smart_import.aria_lembrar')}
           />
-          Lembrar este mapeamento
+          {t('pedido.smart_import.lembrar_mapeamento')}
         </label>
       </div>
 
@@ -359,7 +362,7 @@ export function EtapaMapeamento({
         borderRadius: '6px',
         flexWrap: 'wrap',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }} role="group" aria-label="Modo de exibicao">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }} role="group" aria-label={t('pedido.smart_import.aria_modo_exibicao')}>
           <button
             type="button"
             onClick={() => handleModoChange(true)}
@@ -377,10 +380,10 @@ export function EtapaMapeamento({
               alignItems: 'center',
               gap: '0.25rem',
             }}
-            title="Mostra apenas campos criticos e principais (31 campos)"
+            title={t('pedido.smart_import.modo_essencial_tooltip')}
           >
             <Star size={12} weight={modoEssencial ? 'fill' : 'regular'} aria-hidden="true" />
-            Essencial
+            {t('pedido.smart_import.modo_essencial')}
           </button>
           <button
             type="button"
@@ -396,9 +399,9 @@ export function EtapaMapeamento({
               color: !modoEssencial ? 'var(--color-info, #60a5fa)' : 'var(--text-secondary)',
               cursor: 'pointer',
             }}
-            title="Mostra todos os campos do arquivo (incluindo secundarios)"
+            title={t('pedido.smart_import.modo_completo_tooltip')}
           >
-            Completo
+            {t('pedido.smart_import.modo_completo')}
           </button>
         </div>
 
@@ -408,8 +411,8 @@ export function EtapaMapeamento({
             type="search"
             value={busca}
             onChange={e => setBusca(e.target.value)}
-            placeholder="Buscar coluna do arquivo, valor ou campo..."
-            aria-label="Buscar campos do mapeamento"
+            placeholder={t('pedido.smart_import.buscar_placeholder')}
+            aria-label={t('pedido.smart_import.aria_buscar')}
             style={{
               flex: 1,
               padding: '0.375rem 0.5rem 0.375rem 1.875rem',
@@ -424,19 +427,19 @@ export function EtapaMapeamento({
         </div>
 
         <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
-          Mostrando <strong style={{ color: 'var(--text-secondary)' }}>{linhasFiltradas.length}</strong> de {total}
+          {t('pedido.smart_import.mostrando_de', { mostrando: linhasFiltradas.length, total })}
         </span>
       </div>
 
       <div style={{ overflowX: 'auto' }}>
-        <table className="smart-import__tabela" aria-label="Mapeamento de colunas">
+        <table className="smart-import__tabela" aria-label={t('pedido.smart_import.aria_tabela_mapeamento')}>
           <thead>
             <tr>
-              <th scope="col">Coluna do Arquivo</th>
-              <th scope="col">Valor Extraído</th>
-              <th scope="col">Campo no Sistema</th>
-              <th scope="col">Confianca</th>
-              <th scope="col">Inferido Por</th>
+              <th scope="col">{t('pedido.smart_import.col_coluna_arquivo')}</th>
+              <th scope="col">{t('pedido.smart_import.col_valor_extraido')}</th>
+              <th scope="col">{t('pedido.smart_import.col_campo_sistema')}</th>
+              <th scope="col">{t('pedido.smart_import.col_confianca')}</th>
+              <th scope="col">{t('pedido.smart_import.col_inferido_por')}</th>
             </tr>
           </thead>
           <tbody>
@@ -466,15 +469,15 @@ export function EtapaMapeamento({
                   }} title={col.coluna_arquivo}>
                     {ehObrigatorio && (
                       <span
-                        title="Campo obrigatorio — sem isto nao cria pedido"
+                        title={t('pedido.smart_import.campo_obrigatorio_tooltip')}
                         style={{ color: '#ef4444', marginRight: '0.375rem', fontWeight: 700 }}
-                        aria-label="obrigatorio"
+                        aria-label={t('pedido.smart_import.aria_obrigatorio')}
                       >
                         ⚠️
                       </span>
                     )}
                     {!ehObrigatorio && ehEssencial && (
-                      <Star size={11} weight="fill" style={{ color: '#f59e0b', marginRight: '0.375rem', verticalAlign: '-1px' }} aria-label="essencial" />
+                      <Star size={11} weight="fill" style={{ color: '#f59e0b', marginRight: '0.375rem', verticalAlign: '-1px' }} aria-label={t('pedido.smart_import.aria_essencial')} />
                     )}
                     {nomeColunaExibido}
                   </td>
@@ -494,15 +497,15 @@ export function EtapaMapeamento({
                             if (e.key === 'Escape') cancelarEdicaoValorExemplo()
                           }}
                           autoFocus
-                          aria-label={`Editar valor exemplo de ${col.coluna_arquivo}`}
+                          aria-label={t('pedido.smart_import.aria_editar_valor', { coluna: col.coluna_arquivo })}
                           style={{ flex: 1, minWidth: 0, maxWidth: 140 }}
                         />
                         <button
                           type="button"
                           className="smart-import__btn-icone"
                           onClick={confirmarEdicaoValorExemplo}
-                          aria-label="Confirmar edicao"
-                          title="Confirmar (Enter)"
+                          aria-label={t('pedido.smart_import.aria_confirmar_edicao')}
+                          title={t('pedido.smart_import.confirmar_enter')}
                         >
                           <Check size={12} weight="bold" />
                         </button>
@@ -510,8 +513,8 @@ export function EtapaMapeamento({
                           type="button"
                           className="smart-import__btn-icone"
                           onClick={cancelarEdicaoValorExemplo}
-                          aria-label="Cancelar edicao"
-                          title="Cancelar (Esc)"
+                          aria-label={t('pedido.smart_import.aria_cancelar_edicao')}
+                          title={t('pedido.smart_import.cancelar_esc')}
                         >
                           <X size={12} weight="bold" />
                         </button>
@@ -530,8 +533,8 @@ export function EtapaMapeamento({
                             type="button"
                             className="smart-import__btn-icone"
                             onClick={() => iniciarEdicaoValorExemplo(indexOriginal, col.valor_exemplo_coluna_pedido)}
-                            aria-label={`Editar valor exemplo de ${col.coluna_arquivo}`}
-                            title="Editar valor (afeta apenas a 1a linha — para alteracoes por linha, use o Preview)"
+                            aria-label={t('pedido.smart_import.aria_editar_valor', { coluna: col.coluna_arquivo })}
+                            title={t('pedido.smart_import.editar_valor_tooltip')}
                             style={{ opacity: 0.6, flexShrink: 0 }}
                           >
                             <PencilSimple size={11} weight="bold" />
@@ -544,9 +547,9 @@ export function EtapaMapeamento({
                     <SelectGlobal
                       buscavel
                       tamanho="compacto"
-                      placeholder="→ Campo extra (preservar)"
+                      placeholder={t('pedido.smart_import.campo_extra_preservar')}
                       opcoes={[
-                        { valor: '__drop__', rotulo: '✕ Descartar este campo' },
+                        { valor: '__drop__', rotulo: t('pedido.smart_import.descartar_campo') },
                       ]}
                       grupos={camposAgrupados.map(g => ({
                         rotulo: g.label,
@@ -554,17 +557,17 @@ export function EtapaMapeamento({
                       }))}
                       valor={col.campo_sistema ?? null}
                       aoMudarValor={v => atualizarCampo(indexOriginal, v != null ? String(v) : null)}
-                      aria-label={`Campo sistema para ${col.coluna_arquivo}`}
+                      aria-label={t('pedido.smart_import.aria_campo_sistema', { coluna: col.coluna_arquivo })}
                     />
                   </td>
                   <td>
                     <BadgeConfianca confianca={col.confianca} nivel={col.nivel} campoSistema={col.campo_sistema} />
                   </td>
                   <td style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>
-                    {col.inferido_por === 'memoria'  && 'Memoria'}
-                    {col.inferido_por === 'ia'       && 'IA'}
-                    {col.inferido_por === 'dados'    && 'Dados'}
-                    {col.inferido_por === 'usuario'  && 'Usuario'}
+                    {col.inferido_por === 'memoria'  && t('pedido.smart_import.inferido_memoria')}
+                    {col.inferido_por === 'ia'       && t('pedido.smart_import.inferido_ia')}
+                    {col.inferido_por === 'dados'    && t('pedido.smart_import.inferido_dados')}
+                    {col.inferido_por === 'usuario'  && t('pedido.smart_import.inferido_usuario')}
                   </td>
                 </tr>
               )
@@ -572,14 +575,14 @@ export function EtapaMapeamento({
             {linhasFiltradas.length === 0 && (
               <tr>
                 <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.8125rem' }}>
-                  Nenhum campo corresponde aos filtros atuais.{' '}
+                  {t('pedido.smart_import.nenhum_filtro_corresponde')}{' '}
                   {modoEssencial && (
                     <button
                       type="button"
                       onClick={() => handleModoChange(false)}
                       style={{ background: 'none', border: 'none', color: 'var(--color-info, #60a5fa)', cursor: 'pointer', textDecoration: 'underline', padding: 0, fontSize: 'inherit' }}
                     >
-                      Mostrar todos
+                      {t('pedido.smart_import.mostrar_todos')}
                     </button>
                   )}
                 </td>
@@ -602,7 +605,7 @@ export function EtapaMapeamento({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem', borderBottom: '1px solid var(--border-default, rgba(255,255,255,0.08))' }}>
             <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>
-              Documento importado
+              {t('pedido.smart_import.documento_importado')}
             </span>
             <button type="button" onClick={() => setVerDocumento(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0.25rem' }}>
               ✕

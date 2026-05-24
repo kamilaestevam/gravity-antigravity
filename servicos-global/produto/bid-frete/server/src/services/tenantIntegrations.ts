@@ -60,10 +60,16 @@ export const atividadesIntegration = {
   },
 
   /** Cotação criada — lembrete para acompanhar */
-  async cotacaoCriada(tenantId: string, userId: string, cotacao: { numero: string; origem_nome: string; destino_nome: string }) {
+  async cotacaoCriada(tenantId: string, userId: string, cotacao: {
+    numero_cotacao_bid_frete: string
+    // TODO: lookup from Cadastros
+    // TODO: lookup from Cadastros
+    porto_origem_cotacao_bid_frete: string
+    porto_destino_cotacao_bid_frete: string
+  }) {
     await this.criarAtividade(tenantId, {
-      titulo: `Acompanhar cotação ${cotacao.numero}`,
-      descricao: `Cotação ${cotacao.origem_nome} → ${cotacao.destino_nome} criada. Acompanhar respostas dos fornecedores.`,
+      titulo: `Acompanhar cotação ${cotacao.numero_cotacao_bid_frete}`,
+      descricao: `Cotação ${cotacao.porto_origem_cotacao_bid_frete} → ${cotacao.porto_destino_cotacao_bid_frete} criada. Acompanhar respostas dos fornecedores.`,
       tipo: 'FOLLOW_UP',
       prioridade: 'MEDIA',
       user_id: userId,
@@ -71,9 +77,9 @@ export const atividadesIntegration = {
   },
 
   /** Cotação com falta de informação */
-  async faltaInformacao(tenantId: string, userId: string, cotacao: { numero: string; campos_faltantes: string[] }) {
+  async faltaInformacao(tenantId: string, userId: string, cotacao: { numero_cotacao_bid_frete: string; campos_faltantes: string[] }) {
     await this.criarAtividade(tenantId, {
-      titulo: `Pendência de dados para cotação ${cotacao.numero}`,
+      titulo: `Pendência de dados para cotação ${cotacao.numero_cotacao_bid_frete}`,
       descricao: `Campos faltantes: ${cotacao.campos_faltantes.join(', ')}. Preencha para destravar a cotação.`,
       tipo: 'TAREFA',
       prioridade: 'ALTA',
@@ -82,9 +88,9 @@ export const atividadesIntegration = {
   },
 
   /** Fornecedor respondeu — aguardando aprovação */
-  async aguardandoAprovacao(tenantId: string, userId: string, cotacao: { numero: string; total_respostas: number }) {
+  async aguardandoAprovacao(tenantId: string, userId: string, cotacao: { numero_cotacao_bid_frete: string; total_respostas: number }) {
     await this.criarAtividade(tenantId, {
-      titulo: `Aprovar cotação ${cotacao.numero}`,
+      titulo: `Aprovar cotação ${cotacao.numero_cotacao_bid_frete}`,
       descricao: `${cotacao.total_respostas} fornecedor(es) responderam. Acesse o comparativo para aprovar ou reprovar.`,
       tipo: 'TAREFA',
       prioridade: 'URGENTE',
@@ -93,9 +99,9 @@ export const atividadesIntegration = {
   },
 
   /** Cotação próxima ao vencimento */
-  async proximoVencimento(tenantId: string, userId: string, cotacao: { numero: string; data_limite: string }) {
+  async proximoVencimento(tenantId: string, userId: string, cotacao: { numero_cotacao_bid_frete: string; data_limite: string }) {
     await this.criarAtividade(tenantId, {
-      titulo: `Cotação ${cotacao.numero} vence em breve`,
+      titulo: `Cotação ${cotacao.numero_cotacao_bid_frete} vence em breve`,
       descricao: `Data limite: ${new Date(cotacao.data_limite).toLocaleDateString('pt-BR')}. Tome uma ação antes do vencimento.`,
       tipo: 'TAREFA',
       prioridade: 'URGENTE',
@@ -135,32 +141,32 @@ export const notificacoesIntegration = {
   },
 
   /** Fornecedor respondeu cotação */
-  async fornecedorRespondeu(tenantId: string, userId: string, data: { cotacao_numero: string; fornecedor_nome: string; cotacao_id: string }) {
+  async fornecedorRespondeu(tenantId: string, userId: string, data: { numero_cotacao_bid_frete: string; fornecedor_nome: string; cotacao_id: string }) {
     await this.enviar(tenantId, {
       user_id: userId,
       tipo: 'BID_RESPOSTA',
       titulo: `Nova resposta de ${data.fornecedor_nome}`,
-      mensagem: `O fornecedor ${data.fornecedor_nome} respondeu a cotação ${data.cotacao_numero}.`,
+      mensagem: `O fornecedor ${data.fornecedor_nome} respondeu a cotação ${data.numero_cotacao_bid_frete}.`,
       link: `/cotacoes/${data.cotacao_id}/comparativo`,
     })
   },
 
   /** Cotação aprovada — notificar fornecedor vencedor */
-  async cotacaoAprovada(tenantId: string, userId: string, data: { cotacao_numero: string; fornecedor_nome: string }) {
+  async cotacaoAprovada(tenantId: string, userId: string, data: { numero_cotacao_bid_frete: string; fornecedor_nome: string }) {
     await this.enviar(tenantId, {
       user_id: userId,
       tipo: 'BID_APROVADA',
-      titulo: `Cotação ${data.cotacao_numero} aprovada`,
+      titulo: `Cotação ${data.numero_cotacao_bid_frete} aprovada`,
       mensagem: `Fornecedor vencedor: ${data.fornecedor_nome}.`,
     })
   },
 
   /** Cotação expirou */
-  async cotacaoExpirada(tenantId: string, userId: string, data: { cotacao_numero: string; cotacao_id: string }) {
+  async cotacaoExpirada(tenantId: string, userId: string, data: { numero_cotacao_bid_frete: string; cotacao_id: string }) {
     await this.enviar(tenantId, {
       user_id: userId,
       tipo: 'BID_EXPIRADA',
-      titulo: `Cotação ${data.cotacao_numero} expirou`,
+      titulo: `Cotação ${data.numero_cotacao_bid_frete} expirou`,
       mensagem: `O prazo de resposta da cotação expirou sem aprovação.`,
       link: `/cotacoes/${data.cotacao_id}`,
     })
@@ -198,63 +204,63 @@ export const historicoIntegration = {
   },
 
   /** Cotação criada */
-  async cotacaoCriada(tenantId: string, userId: string, cotacao: { id: string; numero: string }) {
+  async cotacaoCriada(tenantId: string, userId: string, cotacao: { id_cotacao_bid_frete: string; numero_cotacao_bid_frete: string }) {
     await this.registrar(tenantId, {
       user_id: userId,
       acao: 'CRIAR',
       entidade: 'cotacao',
-      entidade_id: cotacao.id,
-      detalhes: `Cotação ${cotacao.numero} criada`,
+      entidade_id: cotacao.id_cotacao_bid_frete,
+      detalhes: `Cotação ${cotacao.numero_cotacao_bid_frete} criada`,
     })
   },
 
   /** BIDs disparados */
-  async bidsDisparados(tenantId: string, userId: string, cotacao: { id: string; numero: string }, totalDisparos: number) {
+  async bidsDisparados(tenantId: string, userId: string, cotacao: { id_cotacao_bid_frete: string; numero_cotacao_bid_frete: string }, totalDisparos: number) {
     await this.registrar(tenantId, {
       user_id: userId,
       acao: 'DISPARAR',
       entidade: 'cotacao',
-      entidade_id: cotacao.id,
-      detalhes: `${totalDisparos} BIDs disparados para cotação ${cotacao.numero}`,
+      entidade_id: cotacao.id_cotacao_bid_frete,
+      detalhes: `${totalDisparos} BIDs disparados para cotação ${cotacao.numero_cotacao_bid_frete}`,
     })
   },
 
   /** Cotação aprovada */
-  async cotacaoAprovada(tenantId: string, userId: string, cotacao: { id: string; numero: string }, fornecedorNome: string, valor: number) {
+  async cotacaoAprovada(tenantId: string, userId: string, cotacao: { id_cotacao_bid_frete: string; numero_cotacao_bid_frete: string }, fornecedorNome: string, valor: number) {
     await this.registrar(tenantId, {
       user_id: userId,
       acao: 'APROVAR',
       entidade: 'cotacao',
-      entidade_id: cotacao.id,
-      campo: 'status',
+      entidade_id: cotacao.id_cotacao_bid_frete,
+      campo: 'status_cotacao_bid_frete',
       valor_antes: 'AGUARDANDO_APROVACAO',
       valor_depois: 'APROVADA',
-      detalhes: `Cotação ${cotacao.numero} aprovada. Fornecedor: ${fornecedorNome}. Valor: USD ${valor}`,
+      detalhes: `Cotação ${cotacao.numero_cotacao_bid_frete} aprovada. Fornecedor: ${fornecedorNome}. Valor: USD ${valor}`,
     })
   },
 
   /** Cotação reprovada */
-  async cotacaoReprovada(tenantId: string, userId: string, cotacao: { id: string; numero: string }, motivo?: string) {
+  async cotacaoReprovada(tenantId: string, userId: string, cotacao: { id_cotacao_bid_frete: string; numero_cotacao_bid_frete: string }, motivo?: string) {
     await this.registrar(tenantId, {
       user_id: userId,
       acao: 'REPROVAR',
       entidade: 'cotacao',
-      entidade_id: cotacao.id,
-      campo: 'status',
+      entidade_id: cotacao.id_cotacao_bid_frete,
+      campo: 'status_cotacao_bid_frete',
       valor_antes: 'AGUARDANDO_APROVACAO',
       valor_depois: 'REPROVADA',
-      detalhes: `Cotação ${cotacao.numero} reprovada. ${motivo ? `Motivo: ${motivo}` : ''}`,
+      detalhes: `Cotação ${cotacao.numero_cotacao_bid_frete} reprovada. ${motivo ? `Motivo: ${motivo}` : ''}`,
     })
   },
 
   /** Fornecedor respondeu */
-  async fornecedorRespondeu(tenantId: string, fornecedorNome: string, cotacao: { id: string; numero: string }, valor: number) {
+  async fornecedorRespondeu(tenantId: string, fornecedorNome: string, cotacao: { id_cotacao_bid_frete: string; numero_cotacao_bid_frete: string }, valor: number) {
     await this.registrar(tenantId, {
       user_id: 'system',
       acao: 'RESPONDER',
       entidade: 'cotacao',
-      entidade_id: cotacao.id,
-      detalhes: `Fornecedor ${fornecedorNome} respondeu cotação ${cotacao.numero} com USD ${valor}`,
+      entidade_id: cotacao.id_cotacao_bid_frete,
+      detalhes: `Fornecedor ${fornecedorNome} respondeu cotação ${cotacao.numero_cotacao_bid_frete} com USD ${valor}`,
     })
   },
 
@@ -278,7 +284,7 @@ export const gabiIntegration = {
    * Retorna recomendação de melhor custo-benefício
    */
   async analisarPropostas(tenantId: string, userId: string, data: {
-    cotacao_numero: string
+    numero_cotacao_bid_frete: string
     origem: string
     destino: string
     respostas: Array<{
@@ -289,7 +295,7 @@ export const gabiIntegration = {
     }>
   }): Promise<string | null> {
     try {
-      const prompt = `Analise as propostas de frete para a cotação ${data.cotacao_numero} (${data.origem} → ${data.destino}):\n\n` +
+      const prompt = `Analise as propostas de frete para a cotação ${data.numero_cotacao_bid_frete} (${data.origem} → ${data.destino}):\n\n` +
         data.respostas.map((r, i) => `${i + 1}. ${r.fornecedor}: USD ${r.valor_total} | ${r.transit_time} dias | Rating ${r.rating}/5`).join('\n') +
         `\n\nQual a melhor opção custo-benefício? Considere preço, prazo e confiabilidade.`
 

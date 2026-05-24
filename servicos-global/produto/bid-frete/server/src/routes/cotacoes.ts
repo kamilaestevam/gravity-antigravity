@@ -18,35 +18,35 @@ const router = Router()
 // --- Schemas de validacao ---
 
 const CriarCotacaoSchema = z.object({
-  referencia_interna: z.string().optional(),
+  referencia_interna_cotacao_bid_frete: z.string().optional(),
   tipo_operacao: z.enum(['IMPORTACAO', 'EXPORTACAO']),
   modal: z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO']),
   modalidade: z.enum(['FCL', 'LCL', 'AEREO_GERAL', 'RODOVIARIO_FTL', 'RODOVIARIO_LTL']),
-  origem_codigo: z.string().min(1),
-  origem_nome: z.string().min(1),
-  origem_pais: z.string().min(1),
-  destino_codigo: z.string().min(1),
-  destino_nome: z.string().min(1),
-  destino_pais: z.string().min(1),
-  descricao_mercadoria: z.string().min(1),
-  ncm: z.string().optional(),
-  quantidade: z.number().int().positive().default(1),
+  porto_origem_cotacao_bid_frete: z.string().min(1),
+  // TODO: lookup from Cadastros
+  pais_origem_cotacao_bid_frete: z.string().min(1),
+  porto_destino_cotacao_bid_frete: z.string().min(1),
+  // TODO: lookup from Cadastros
+  pais_destino_cotacao_bid_frete: z.string().min(1),
+  descricao_mercadoria_cotacao_bid_frete: z.string().min(1),
+  ncm_cotacao_bid_frete: z.string().optional(),
+  quantidade_volumes_cotacao_bid_frete: z.number().int().positive().default(1),
   tipo_container: z.string().optional(),
-  peso_kg: z.number().positive().optional(),
-  cubagem_m3: z.number().positive().optional(),
-  incoterm: z.string().min(1),
-  zip_code_origem: z.string().optional(),
-  zip_code_destino: z.string().optional(),
-  valor_target: z.number().positive().optional(),
-  moeda_target: z.string().default('USD'),
-  visibilidade: z.enum(['DIRECIONADA', 'ABERTA']).default('DIRECIONADA'),
-  ocultar_nome_empresa: z.boolean().default(false),
-  data_limite_resposta: z.string().datetime().optional(),
+  peso_kg_cotacao_bid_frete: z.number().positive().optional(),
+  cubagem_m3_cotacao_bid_frete: z.number().positive().optional(),
+  incoterm_cotacao_bid_frete: z.string().min(1),
+  cep_origem_cotacao_bid_frete: z.string().optional(),
+  cep_destino_cotacao_bid_frete: z.string().optional(),
+  valor_alvo_cotacao_bid_frete: z.number().positive().optional(),
+  moeda_alvo_cotacao_bid_frete: z.string().default('USD'),
+  visibilidade_cotacao_bid_frete: z.enum(['DIRECIONADA', 'ABERTA']).default('DIRECIONADA'),
+  anonima_cotacao_bid_frete: z.boolean().default(false),
+  data_limite_resposta_cotacao_bid_frete: z.string().datetime().optional(),
   fornecedor_ids: z.array(z.string()).optional(), // IDs dos fornecedores para cotacao direcionada
 })
 
 const FiltrosCotacaoSchema = z.object({
-  status: z.string().optional(),
+  status_cotacao_bid_frete: z.string().optional(),
   modal: z.string().optional(),
   tipo_operacao: z.string().optional(),
   origem: z.string().optional(),
@@ -55,15 +55,15 @@ const FiltrosCotacaoSchema = z.object({
   data_fim: z.string().optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
-  order_by: z.string().default('created_at'),
+  order_by: z.string().default('criado_em_cotacao_bid_frete'),
   order_dir: z.enum(['asc', 'desc']).default('desc'),
 })
 
 const AtualizarStatusSchema = z.object({
-  status: z.enum(['APROVADA', 'REPROVADA', 'CANCELADA']),
-  fornecedor_vencedor_id: z.string().optional(),
-  motivo_reprovacao: z.string().optional(),
-  motivo_cancelamento: z.string().optional(),
+  status_cotacao_bid_frete: z.enum(['APROVADA', 'REPROVADA', 'CANCELADA']),
+  id_fornecedor_vencedor_cotacao_bid_frete: z.string().optional(),
+  motivo_reprovacao_cotacao_bid_frete: z.string().optional(),
+  motivo_cancelamento_cotacao_bid_frete: z.string().optional(),
 })
 
 // --- Gerar numero sequencial ---
@@ -90,10 +90,12 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const cotacao = await (req.prisma as any).freteIntBidCotacoes.create({
       data: {
         ...cotacaoData,
-        product_id: 'bid-frete',
-        user_id: userId,
-        numero: gerarNumeroCotacao(),
-        data_limite_resposta: cotacaoData.data_limite_resposta ? new Date(cotacaoData.data_limite_resposta) : null,
+        id_produto_gravity: 'bid-frete',
+        id_usuario: userId,
+        numero_cotacao_bid_frete: gerarNumeroCotacao(),
+        data_limite_resposta_cotacao_bid_frete: cotacaoData.data_limite_resposta_cotacao_bid_frete
+          ? new Date(cotacaoData.data_limite_resposta_cotacao_bid_frete)
+          : null,
       },
     })
 
@@ -115,17 +117,19 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const filtros = FiltrosCotacaoSchema.parse(req.query)
 
-    const where: Record<string, unknown> = { product_id: 'bid-frete' }
-    if (filtros.status) where.status = filtros.status
+    const where: Record<string, unknown> = { id_produto_gravity: 'bid-frete' }
+    if (filtros.status_cotacao_bid_frete) where.status_cotacao_bid_frete = filtros.status_cotacao_bid_frete
     if (filtros.modal) where.modal = filtros.modal
     if (filtros.tipo_operacao) where.tipo_operacao = filtros.tipo_operacao
-    if (filtros.origem) where.origem_nome = { contains: filtros.origem, mode: 'insensitive' }
-    if (filtros.destino) where.destino_nome = { contains: filtros.destino, mode: 'insensitive' }
+    // TODO: lookup from Cadastros — filtrar por porto_origem_cotacao_bid_frete em vez de nome
+    if (filtros.origem) where.porto_origem_cotacao_bid_frete = { contains: filtros.origem, mode: 'insensitive' }
+    // TODO: lookup from Cadastros — filtrar por porto_destino_cotacao_bid_frete em vez de nome
+    if (filtros.destino) where.porto_destino_cotacao_bid_frete = { contains: filtros.destino, mode: 'insensitive' }
     if (filtros.data_inicio || filtros.data_fim) {
-      const createdAt: Record<string, unknown> = {}
-      if (filtros.data_inicio) createdAt.gte = new Date(filtros.data_inicio)
-      if (filtros.data_fim) createdAt.lte = new Date(filtros.data_fim)
-      where.created_at = createdAt
+      const criadoEm: Record<string, unknown> = {}
+      if (filtros.data_inicio) criadoEm.gte = new Date(filtros.data_inicio)
+      if (filtros.data_fim) criadoEm.lte = new Date(filtros.data_fim)
+      where.criado_em_cotacao_bid_frete = criadoEm
     }
 
     const skip = (filtros.page - 1) * filtros.limit
@@ -162,7 +166,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const cotacao = await (req.prisma as any).freteIntBidCotacoes.findFirst({
-      where: { id: req.params.id },
+      where: { id_cotacao_bid_frete: req.params.id },
       include: {
         bid_requests: {
           include: {
@@ -190,14 +194,14 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 // --- PATCH /:id — Atualizar cotacao ---
 router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const existing = await (req.prisma as any).freteIntBidCotacoes.findFirst({ where: { id: req.params.id } })
+    const existing = await (req.prisma as any).freteIntBidCotacoes.findFirst({ where: { id_cotacao_bid_frete: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
-    if (existing.status !== 'RASCUNHO' && existing.status !== 'FALTA_INFORMACAO') {
+    if (existing.status_cotacao_bid_frete !== 'RASCUNHO' && existing.status_cotacao_bid_frete !== 'FALTA_INFORMACAO') {
       throw new AppError('So e possivel editar cotacoes em rascunho ou com falta de informacao', 400, 'INVALID_STATUS')
     }
 
     const cotacao = await (req.prisma as any).freteIntBidCotacoes.update({
-      where: { id: req.params.id },
+      where: { id_cotacao_bid_frete: req.params.id },
       data: req.body,
     })
 
@@ -213,23 +217,23 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
     const parsed = AtualizarStatusSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
-    const existing = await (req.prisma as any).freteIntBidCotacoes.findFirst({ where: { id: req.params.id } })
+    const existing = await (req.prisma as any).freteIntBidCotacoes.findFirst({ where: { id_cotacao_bid_frete: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
 
-    const data: Record<string, unknown> = { status: parsed.data.status }
+    const data: Record<string, unknown> = { status_cotacao_bid_frete: parsed.data.status_cotacao_bid_frete }
 
-    if (parsed.data.status === 'APROVADA') {
-      data.data_aprovacao = new Date()
-      data.fornecedor_vencedor_id = parsed.data.fornecedor_vencedor_id
-    } else if (parsed.data.status === 'REPROVADA') {
-      data.motivo_reprovacao = parsed.data.motivo_reprovacao
-    } else if (parsed.data.status === 'CANCELADA') {
-      data.data_cancelamento = new Date()
-      data.motivo_cancelamento = parsed.data.motivo_cancelamento
+    if (parsed.data.status_cotacao_bid_frete === 'APROVADA') {
+      data.data_aprovacao_cotacao_bid_frete = new Date()
+      data.id_fornecedor_vencedor_cotacao_bid_frete = parsed.data.id_fornecedor_vencedor_cotacao_bid_frete
+    } else if (parsed.data.status_cotacao_bid_frete === 'REPROVADA') {
+      data.motivo_reprovacao_cotacao_bid_frete = parsed.data.motivo_reprovacao_cotacao_bid_frete
+    } else if (parsed.data.status_cotacao_bid_frete === 'CANCELADA') {
+      data.data_cancelamento_cotacao_bid_frete = new Date()
+      data.motivo_cancelamento_cotacao_bid_frete = parsed.data.motivo_cancelamento_cotacao_bid_frete
     }
 
     const cotacao = await (req.prisma as any).freteIntBidCotacoes.update({
-      where: { id: req.params.id },
+      where: { id_cotacao_bid_frete: req.params.id },
       data,
     })
 
@@ -242,13 +246,13 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
 // --- DELETE /:id — Excluir rascunho ---
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const existing = await (req.prisma as any).freteIntBidCotacoes.findFirst({ where: { id: req.params.id } })
+    const existing = await (req.prisma as any).freteIntBidCotacoes.findFirst({ where: { id_cotacao_bid_frete: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
-    if (existing.status !== 'RASCUNHO') {
+    if (existing.status_cotacao_bid_frete !== 'RASCUNHO') {
       throw new AppError('So e possivel excluir cotacoes em rascunho', 400, 'INVALID_STATUS')
     }
 
-    await (req.prisma as any).freteIntBidCotacoes.delete({ where: { id: req.params.id } })
+    await (req.prisma as any).freteIntBidCotacoes.delete({ where: { id_cotacao_bid_frete: req.params.id } })
     res.json({ deleted: true })
   } catch (err) {
     next(err)
@@ -258,31 +262,31 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 // ─── IMPORTAÇÃO EM BLOCO ────────────────────────────────────────────────────────
 
 const ItemBlocoSchema = z.object({
-  referencia_interna: z.string().optional(),
+  referencia_interna_cotacao_bid_frete: z.string().optional(),
   tipo_operacao: z.enum(['IMPORTACAO', 'EXPORTACAO']),
   modal: z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO']),
   modalidade: z.enum(['FCL', 'LCL', 'AEREO_GERAL', 'RODOVIARIO_FTL', 'RODOVIARIO_LTL']),
-  origem_codigo: z.string().min(1),
-  origem_nome: z.string().min(1),
-  origem_pais: z.string().min(1),
-  destino_codigo: z.string().min(1),
-  destino_nome: z.string().min(1),
-  destino_pais: z.string().min(1),
-  descricao_mercadoria: z.string().min(1),
-  ncm: z.string().optional(),
-  quantidade: z.number().int().positive().default(1),
+  porto_origem_cotacao_bid_frete: z.string().min(1),
+  // TODO: lookup from Cadastros
+  pais_origem_cotacao_bid_frete: z.string().min(1),
+  porto_destino_cotacao_bid_frete: z.string().min(1),
+  // TODO: lookup from Cadastros
+  pais_destino_cotacao_bid_frete: z.string().min(1),
+  descricao_mercadoria_cotacao_bid_frete: z.string().min(1),
+  ncm_cotacao_bid_frete: z.string().optional(),
+  quantidade_volumes_cotacao_bid_frete: z.number().int().positive().default(1),
   tipo_container: z.string().optional(),
-  peso_kg: z.number().positive().optional(),
-  cubagem_m3: z.number().positive().optional(),
-  incoterm: z.string().min(1),
-  valor_target: z.number().positive().optional(),
-  moeda_target: z.string().default('USD'),
+  peso_kg_cotacao_bid_frete: z.number().positive().optional(),
+  cubagem_m3_cotacao_bid_frete: z.number().positive().optional(),
+  incoterm_cotacao_bid_frete: z.string().min(1),
+  valor_alvo_cotacao_bid_frete: z.number().positive().optional(),
+  moeda_alvo_cotacao_bid_frete: z.string().default('USD'),
 })
 
 const ImportarBlocoSchema = z.object({
   itens: z.array(ItemBlocoSchema).min(1).max(500),
-  data_limite_resposta: z.string().datetime().optional(),
-  visibilidade: z.enum(['DIRECIONADA', 'ABERTA']).default('DIRECIONADA'),
+  data_limite_resposta_cotacao_bid_frete: z.string().datetime().optional(),
+  visibilidade_cotacao_bid_frete: z.enum(['DIRECIONADA', 'ABERTA']).default('DIRECIONADA'),
   fornecedor_ids: z.array(z.string()).optional(),
   canais: z.array(z.enum(['EMAIL', 'WHATSAPP'])).optional(),
 })
@@ -298,23 +302,25 @@ router.post('/bloco', async (req: Request, res: Response, next: NextFunction) =>
     const userId = req.headers['x-id-usuario'] as string
     if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
 
-    const results: Array<{ linha: number; id?: string; numero?: string; status: 'ok' | 'erro'; erro?: string }> = []
+    const results: Array<{ linha: number; id_cotacao_bid_frete?: string; numero_cotacao_bid_frete?: string; status: 'ok' | 'erro'; erro?: string }> = []
 
     for (let i = 0; i < parsed.data.itens.length; i++) {
       const item = parsed.data.itens[i]
       try {
-        const numero = gerarNumeroCotacao()
+        const numero_cotacao_bid_frete = gerarNumeroCotacao()
         const cotacao = await (req.prisma as any).freteIntBidCotacoes.create({
           data: {
             ...item,
-            product_id: 'bid-frete',
-            user_id: userId,
-            numero,
-            visibilidade: parsed.data.visibilidade,
-            data_limite_resposta: parsed.data.data_limite_resposta ? new Date(parsed.data.data_limite_resposta) : null,
+            id_produto_gravity: 'bid-frete',
+            id_usuario: userId,
+            numero_cotacao_bid_frete,
+            visibilidade_cotacao_bid_frete: parsed.data.visibilidade_cotacao_bid_frete,
+            data_limite_resposta_cotacao_bid_frete: parsed.data.data_limite_resposta_cotacao_bid_frete
+              ? new Date(parsed.data.data_limite_resposta_cotacao_bid_frete)
+              : null,
           },
         })
-        results.push({ linha: i + 1, id: cotacao.id, numero, status: 'ok' })
+        results.push({ linha: i + 1, id_cotacao_bid_frete: cotacao.id_cotacao_bid_frete, numero_cotacao_bid_frete, status: 'ok' })
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : String(err)
         results.push({ linha: i + 1, status: 'erro', erro: errorMessage })
@@ -328,7 +334,7 @@ router.post('/bloco', async (req: Request, res: Response, next: NextFunction) =>
     const tenantId = (req as any).tenantId
     if (tenantId && ok > 0) {
       historicoIntegration.registrar(tenantId, {
-        user_id: userId,
+        id_usuario: userId,
         acao: 'IMPORTAR_BLOCO',
         entidade: 'cotacao',
         entidade_id: 'batch',

@@ -40,9 +40,12 @@ import {
   Gauge,
 } from '@phosphor-icons/react'
 
-import { getCotacoes } from '../shared/api'
-import type { Cotacao, StatusCotacao } from '../shared/types'
-import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, MODALIDADE_LABELS } from '../shared/types'
+import { getCotacoes, getStatusConfig } from '../shared/api'
+import type { Cotacao, StatusCotacao, StatusCotacaoBidFreteConfig } from '../shared/types'
+import {
+  STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, MODALIDADE_LABELS,
+  lerStatusConfigLocal, gerarAbasStatus, sincronizarStatusLocal,
+} from '../shared/types'
 import {
   buildColunasCotacoes,
   fmtData,
@@ -57,35 +60,35 @@ import {
 // ─── Campos Editáveis Inline ───
 
 const CAMPOS_EDITAVEIS = [
-  'referencia_interna',
-  'prazo_resposta',
-  'origem_nome',
-  'destino_nome',
+  'referencia_interna_cotacao_bid_frete',
+  'data_limite_resposta_cotacao_bid_frete',
+  'porto_origem_cotacao_bid_frete',
+  'porto_destino_cotacao_bid_frete',
   'modal',
   'modalidade',
-  'peso_kg',
-  'cubagem_m3',
-  'quantidade',
-  'incoterm',
-  'valor_alvo',
+  'peso_kg_cotacao_bid_frete',
+  'cubagem_m3_cotacao_bid_frete',
+  'quantidade_volumes_cotacao_bid_frete',
+  'incoterm_cotacao_bid_frete',
+  'valor_alvo_cotacao_bid_frete',
 ]
 
 // ─── Sequência de colunas padrão ───
 
 const COLUNAS_PADRAO_VISIVEIS = [
-  'numero',
-  'referencia_interna',
-  'status',
-  'created_at',
+  'numero_cotacao_bid_frete',
+  'referencia_interna_cotacao_bid_frete',
+  'status_cotacao_bid_frete',
+  'criado_em_cotacao_bid_frete',
   'modal',
-  'origem_nome',
-  'destino_nome',
-  'peso_kg',
-  'cubagem_m3',
-  'incoterm',
-  'valor_alvo',
-  'saving_valor',
-  'saving_percentual',
+  'porto_origem_cotacao_bid_frete',
+  'porto_destino_cotacao_bid_frete',
+  'peso_kg_cotacao_bid_frete',
+  'cubagem_m3_cotacao_bid_frete',
+  'incoterm_cotacao_bid_frete',
+  'valor_alvo_cotacao_bid_frete',
+  'saving_valor_cotacao_bid_frete',
+  'saving_percentual_cotacao_bid_frete',
 ]
 
 
@@ -97,12 +100,38 @@ export default function Cotacoes() {
   const [searchParams, setSearchParams] = useSearchParams()
   const addNotification = useShellStore(s => s.addNotification)
 
-  const abas = useMemo(() => [
-    { valor: 'TODAS', label: t('bidfrete.cotacoes.abas.todas') },
-    { valor: 'DATA_LIMITE', label: t('bidfrete.cotacoes.abas.dataLimite') },
-    { valor: 'PROXIMO_VENCIMENTO', label: t('bidfrete.cotacoes.abas.proximoVencimento') },
-    { valor: 'FALTA_INFORMACAO', label: t('bidfrete.cotacoes.abas.faltaInformacao') },
-  ], [t])
+  // Status config dinâmico (fonte: API → localStorage)
+  const [statusConfig, setStatusConfig] = useState<StatusCotacaoBidFreteConfig[]>(() => lerStatusConfigLocal())
+
+  useEffect(() => {
+    let cancelado = false
+    async function carregarStatus() {
+      try {
+        const lista = await getStatusConfig()
+        if (cancelado) return
+        setStatusConfig(lista)
+        sincronizarStatusLocal(lista)
+      } catch {
+        // Usa localStorage como fallback (já carregado no useState)
+      }
+    }
+    carregarStatus()
+
+    // Escutar mudanças do localStorage (quando Configurações salva)
+    const handleStorage = () => {
+      const local = lerStatusConfigLocal()
+      if (local.length > 0) setStatusConfig(local)
+    }
+    window.addEventListener('storage', handleStorage)
+    window.addEventListener('focus', handleStorage)
+    return () => {
+      cancelado = true
+      window.removeEventListener('storage', handleStorage)
+      window.removeEventListener('focus', handleStorage)
+    }
+  }, [])
+
+  const abas = useMemo(() => gerarAbasStatus(statusConfig, t), [statusConfig, t])
 
   const isNovaCotacao = location.pathname.endsWith('/nova')
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
@@ -212,7 +241,7 @@ export default function Cotacoes() {
       const colunasDisponiveis = buildColunasCotacoes().map(c => c.key).filter((k): k is string => typeof k === 'string')
       const colunasValidas = parsed.colunas_visiveis.filter(k => colunasDisponiveis.includes(k))
 
-      const hasDomesticCore = colunasValidas.includes('numero')
+      const hasDomesticCore = colunasValidas.includes('numero_cotacao_bid_frete')
       if (!hasDomesticCore || colunasValidas.length < 3) {
         // Auto-healing: limpa do local storage se for inválido para forçar recriação com colunas padrão
         localStorage.removeItem('bid-frete-nacional:config:tabela_preferencias')
@@ -244,22 +273,22 @@ export default function Cotacoes() {
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown) => {
     let updatedCotacao: Cotacao | undefined
     setCotacoes(prev => prev.map(c => {
-      if (c.id === id) {
+      if (c.id_cotacao_bid_frete === id) {
         updatedCotacao = { ...c, [campo as keyof Cotacao]: valor } as Cotacao
         return updatedCotacao
       }
       return c
     }))
-    const current = cotacoes.find(c => c.id === id)
+    const current = cotacoes.find(c => c.id_cotacao_bid_frete === id)
     if (!current) throw new Error(t('bidfrete.cotacoes.erroNaoEncontrada'))
     const updated = { ...current, [campo as keyof Cotacao]: valor } as Cotacao
     return updated
   }, [cotacoes])
 
   const handleReordenarCotacoes = useCallback((ids: string[]) => {
-    const mapa = new Map(cotacoes.map(c => [c.id, c]))
+    const mapa = new Map(cotacoes.map(c => [c.id_cotacao_bid_frete, c]))
     const reordenados = ids.map(id => mapa.get(id)).filter((c): c is Cotacao => c != null)
-    const restantes = cotacoes.filter(c => !ids.includes(c.id))
+    const restantes = cotacoes.filter(c => !ids.includes(c.id_cotacao_bid_frete))
     setCotacoes([...reordenados, ...restantes])
   }, [cotacoes])
 
@@ -268,23 +297,19 @@ export default function Cotacoes() {
   const cotacoesFiltradas = useMemo(() => {
     let result = cotacoes
 
-    // Filtro por abas
-    if (filtroTab === 'DATA_LIMITE') {
-      result = result.filter(c => c.status === 'AGUARDANDO_APROVACAO')
-    } else if (filtroTab === 'PROXIMO_VENCIMENTO') {
-      result = result.filter(c => c.status === 'EM_COTACAO')
-    } else if (filtroTab === 'FALTA_INFORMACAO') {
-      result = result.filter(c => c.status === 'FALTA_INFORMACAO')
+    // Filtro por abas dinâmicas (nome do status ou "TODAS")
+    if (filtroTab !== 'TODAS') {
+      result = result.filter(c => c.status_cotacao_bid_frete === filtroTab)
     }
 
     // Filtro por busca
     if (busca.trim()) {
       const term = busca.toLowerCase()
       result = result.filter(c =>
-        c.numero.toLowerCase().includes(term) ||
-        (c.referencia_interna ?? '').toLowerCase().includes(term) ||
-        c.origem_nome.toLowerCase().includes(term) ||
-        c.destino_nome.toLowerCase().includes(term)
+        c.numero_cotacao_bid_frete.toLowerCase().includes(term) ||
+        (c.referencia_interna_cotacao_bid_frete ?? '').toLowerCase().includes(term) ||
+        c.porto_origem_cotacao_bid_frete.toLowerCase().includes(term) ||
+        c.porto_destino_cotacao_bid_frete.toLowerCase().includes(term)
       )
     }
 
@@ -298,7 +323,7 @@ export default function Cotacoes() {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: t('bidfrete.cotacoes.acoes.verDetalhes'),
-      onClick: (item: Cotacao) => navigate(`/cotacoes/${item.id}`),
+      onClick: (item: Cotacao) => navigate(`/produto/bid-frete/cotacoes/${item.id_cotacao_bid_frete}`),
     },
   ], [navigate])
 
@@ -339,7 +364,7 @@ export default function Cotacoes() {
             type="button"
             className="lp-dropdown-btn"
             onClick={() => {
-              navigate('/cotacoes/nova')
+              navigate('/produto/bid-frete/cotacoes/nova')
               setNovoDropdownAberto(false)
             }}
           >
@@ -356,7 +381,7 @@ export default function Cotacoes() {
             type="button"
             className="lp-dropdown-btn"
             onClick={() => {
-              navigate('/cotacoes/importar')
+              navigate('/produto/bid-frete/cotacoes/importar')
               setNovoDropdownAberto(false)
             }}
           >
@@ -391,10 +416,10 @@ export default function Cotacoes() {
       return colunasExport.map(c => {
         const val = row[c.key as keyof Cotacao]
         if (val == null) return escape('')
-        if (c.key === 'created_at' || c.key === 'prazo_resposta' || c.key === 'updated_at') {
+        if (c.key === 'criado_em_cotacao_bid_frete' || c.key === 'data_limite_resposta_cotacao_bid_frete' || c.key === 'atualizado_em_cotacao_bid_frete') {
           return escape(fmtData(val as string))
         }
-        if (c.key === 'saving_valor' || c.key === 'valor_alvo' || c.key === 'valor_aprovado') {
+        if (c.key === 'saving_valor_cotacao_bid_frete' || c.key === 'valor_alvo_cotacao_bid_frete' || c.key === 'valor_aprovado') {
           return escape(val != null ? String(val) : '')
         }
         return escape(String(val))
@@ -428,18 +453,18 @@ export default function Cotacoes() {
 
   const stats = useMemo(() => {
     const total = cotacoes.length
-    const emAndamento = cotacoes.filter(c => c.status === 'EM_COTACAO' || c.status === 'ENVIADA_FORNECEDORES').length
-    const aguardandoAprovacao = cotacoes.filter(c => c.status === 'AGUARDANDO_APROVACAO').length
-    const expiradas = cotacoes.filter(c => c.status === 'EXPIRADA').length
-    const savingTotal = cotacoesFiltradas.reduce((acc, c) => acc + (c.saving_valor ?? 0), 0)
-    
+    const emAndamento = cotacoes.filter(c => c.status_cotacao_bid_frete === 'EM_COTACAO' || c.status_cotacao_bid_frete === 'ENVIADA_FORNECEDORES').length
+    const aguardandoAprovacao = cotacoes.filter(c => c.status_cotacao_bid_frete === 'AGUARDANDO_APROVACAO').length
+    const expiradas = cotacoes.filter(c => c.status_cotacao_bid_frete === 'EXPIRADA').length
+    const savingTotal = cotacoesFiltradas.reduce((acc, c) => acc + (c.saving_valor_cotacao_bid_frete ?? 0), 0)
+
     // Novas métricas para o catálogo do configurador
-    const valorTotalFrete = cotacoesFiltradas.reduce((acc, c) => acc + (c.valor_aprovado ?? c.valor_alvo ?? 0), 0)
+    const valorTotalFrete = cotacoesFiltradas.reduce((acc, c) => acc + (c.valor_aprovado ?? c.valor_alvo_cotacao_bid_frete ?? 0), 0)
     const propostas = cotacoes.reduce((acc, c) => {
       if (c.bid_responses && c.bid_responses.length > 0) {
         return acc + c.bid_responses.length
       }
-      return acc + (c.status === 'APROVADA' || c.status === 'AGUARDANDO_APROVACAO' ? 3 : c.status === 'EM_COTACAO' ? 1 : 0)
+      return acc + (c.status_cotacao_bid_frete === 'APROVADA' || c.status_cotacao_bid_frete === 'AGUARDANDO_APROVACAO' ? 3 : c.status_cotacao_bid_frete === 'EM_COTACAO' ? 1 : 0)
     }, 0)
     const tempoMedio = 18.5 // média em horas
 
@@ -731,7 +756,7 @@ export default function Cotacoes() {
           <TabelaVirtualGlobal<Cotacao, any>
             dados={cotacoesFiltradas}
             colunas={colunasTabela}
-            itemId={(item) => item.id}
+            itemId={(item) => item.id_cotacao_bid_frete}
             
             itensPorPagina={50}
             totalItens={cotacoesFiltradas.length}

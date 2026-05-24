@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   DndContext,
   closestCenter,
@@ -38,39 +39,21 @@ import { COLUNAS_PAI_CHAVES } from '../../pages/Pedidos'
 import { ModalNovaColunaUsuario } from './ModalNovaColunaUsuario'
 import './GerenciadorColunas.css'
 
-// ── Labels de exibição ────────────────────────────────────────────────────────
-
-const TIPO_LABELS: Record<string, string> = {
-  texto:          'Texto',
-  numero:         'Número',
-  data:           'Data',
-  select:         'Select',
-  checkbox:       'Checkbox',
-  percentual:     'Percentual (%)',
-  tipo_documento: 'Tipo de Documento',
-}
-
-const ESCOPO_LABELS: Record<string, string> = {
-  pedido: 'Pedido',
-  item:   'Item',
-  ambos:  'Ambos',
-}
-
-const VISIBILIDADE_LABELS: Record<string, string> = {
-  todos:   'Todos',
-  roles:   'Por Perfil',
-  privado: 'Só eu',
-}
-
 // ── Item sortável (linha da tabela) ───────────────────────────────────────────
 
 interface LinhaColunaSortavelProps {
   coluna: ColunaUsuario
   onEditar: (coluna: ColunaUsuario) => void
   onExcluir: (id: string) => void
+  tipoLabels: Record<string, string>
+  escopoLabels: Record<string, string>
+  visibilidadeLabels: Record<string, string>
+  ariaEditar: (nome: string) => string
+  ariaExcluir: (nome: string) => string
+  ariaArrastar: string
 }
 
-function LinhaColunaSortavel({ coluna, onEditar, onExcluir }: LinhaColunaSortavelProps) {
+function LinhaColunaSortavel({ coluna, onEditar, onExcluir, tipoLabels, escopoLabels, visibilidadeLabels, ariaEditar, ariaExcluir, ariaArrastar }: LinhaColunaSortavelProps) {
   const {
     attributes,
     listeners,
@@ -97,7 +80,7 @@ function LinhaColunaSortavel({ coluna, onEditar, onExcluir }: LinhaColunaSortave
           className="gc-drag-handle"
           {...attributes}
           {...listeners}
-          aria-label="Arrastar para reordenar"
+          aria-label={ariaArrastar}
           type="button"
         >
           <DotsSixVertical size={16} weight="bold" />
@@ -106,17 +89,17 @@ function LinhaColunaSortavel({ coluna, onEditar, onExcluir }: LinhaColunaSortave
       <td className="gc-celula gc-celula--nome">{coluna.nome}</td>
       <td className="gc-celula">
         <span className="gc-badge gc-badge--tipo">
-          {TIPO_LABELS[coluna.tipo] ?? coluna.tipo}
+          {tipoLabels[coluna.tipo] ?? coluna.tipo}
         </span>
       </td>
       <td className="gc-celula">
         <span className="gc-badge gc-badge--escopo">
-          {ESCOPO_LABELS[coluna.escopo] ?? coluna.escopo}
+          {escopoLabels[coluna.escopo] ?? coluna.escopo}
         </span>
       </td>
       <td className="gc-celula">
         <span className="gc-badge gc-badge--visibilidade">
-          {VISIBILIDADE_LABELS[coluna.visibilidade] ?? coluna.visibilidade}
+          {visibilidadeLabels[coluna.visibilidade] ?? coluna.visibilidade}
         </span>
       </td>
       <td className="gc-celula gc-celula--acoes">
@@ -124,7 +107,7 @@ function LinhaColunaSortavel({ coluna, onEditar, onExcluir }: LinhaColunaSortave
           type="button"
           className="gc-btn-acao gc-btn-acao--editar"
           onClick={() => onEditar(coluna)}
-          aria-label={`Editar coluna ${coluna.nome}`}
+          aria-label={ariaEditar(coluna.nome)}
         >
           <PencilSimple size={14} weight="bold" />
         </button>
@@ -132,7 +115,7 @@ function LinhaColunaSortavel({ coluna, onEditar, onExcluir }: LinhaColunaSortave
           type="button"
           className="gc-btn-acao gc-btn-acao--excluir"
           onClick={() => onExcluir(coluna.id)}
-          aria-label={`Excluir coluna ${coluna.nome}`}
+          aria-label={ariaExcluir(coluna.nome)}
         >
           <Trash size={14} weight="bold" />
         </button>
@@ -144,6 +127,26 @@ function LinhaColunaSortavel({ coluna, onEditar, onExcluir }: LinhaColunaSortave
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function GerenciadorColunas() {
+  const { t } = useTranslation()
+  const tipoLabels = useMemo<Record<string, string>>(() => ({
+    texto:          t('pedido.config_colunas.tipo_texto'),
+    numero:         t('pedido.config_colunas.tipo_numero'),
+    data:           t('pedido.config_colunas.tipo_data'),
+    select:         t('pedido.config_colunas.tipo_select'),
+    checkbox:       t('pedido.config_colunas.tipo_checkbox'),
+    percentual:     t('pedido.config_colunas.tipo_percentual'),
+    tipo_documento: t('pedido.config_colunas.tipo_documento'),
+  }), [t])
+  const escopoLabels = useMemo<Record<string, string>>(() => ({
+    pedido: t('pedido.config_colunas.escopo_pedido'),
+    item:   t('pedido.config_colunas.escopo_item'),
+    ambos:  t('pedido.config_colunas.escopo_ambos'),
+  }), [t])
+  const visibilidadeLabels = useMemo<Record<string, string>>(() => ({
+    todos:   t('pedido.config_colunas.visib_todos'),
+    roles:   t('pedido.config_colunas.visib_roles'),
+    privado: t('pedido.config_colunas.visib_privado'),
+  }), [t])
   const [colunas, setColunas]         = useState<ColunaUsuario[]>([])
   const [carregando, setCarregando]   = useState(true)
   const [erro, setErro]               = useState<string | null>(null)
@@ -168,7 +171,7 @@ export function GerenciadorColunas() {
       const lista = await colunasUsuarioApi.listar()
       setColunas(lista.sort((a, b) => a.ordem - b.ordem))
     } catch {
-      setErro('Não foi possível carregar as colunas. Tente novamente.')
+      setErro(t('pedido.config_colunas.erro_carregar'))
     } finally {
       setCarregando(false)
     }
@@ -209,7 +212,7 @@ export function GerenciadorColunas() {
       await colunasUsuarioApi.excluir(id)
       setColunas(prev => prev.filter(c => c.id !== id))
     } catch {
-      setErro('Erro ao excluir coluna. Tente novamente.')
+      setErro(t('pedido.config_colunas.erro_excluir'))
     }
   }, [confirmarExcluirColunaId])
 
@@ -227,14 +230,14 @@ export function GerenciadorColunas() {
   return (
     <div className="gc-container">
       <div className="gc-header">
-        <h3 className="gc-titulo">Colunas Customizadas</h3>
+        <h3 className="gc-titulo">{t('pedido.config_colunas.titulo')}</h3>
         <BotaoGlobal
           variante="primario"
           tamanho="pequeno"
           icone={<Plus size={14} />}
           onClick={handleNova}
         >
-          Nova Coluna
+          {t('pedido.config_colunas.nova_coluna')}
         </BotaoGlobal>
       </div>
 
@@ -243,11 +246,11 @@ export function GerenciadorColunas() {
       )}
 
       {carregando ? (
-        <div className="gc-carregando" aria-label="Carregando colunas">
+        <div className="gc-carregando" aria-label={t('pedido.config_colunas.aria_carregando')}>
           <GravityLoader tamanho="sm" />
         </div>
       ) : colunas.length === 0 ? (
-        <p className="gc-vazio">Nenhuma coluna criada. Clique em "Nova Coluna" para começar.</p>
+        <p className="gc-vazio">{t('pedido.config_colunas.vazio')}</p>
       ) : (
         <DndContext
           sensors={sensors}
@@ -258,15 +261,15 @@ export function GerenciadorColunas() {
             items={colunas.map(c => c.id)}
             strategy={verticalListSortingStrategy}
           >
-            <table className="gc-tabela" aria-label="Colunas customizadas">
+            <table className="gc-tabela" aria-label={t('pedido.config_colunas.aria_tabela')}>
               <thead>
                 <tr>
-                  <th className="gc-th gc-th--drag" aria-label="Arrastar" />
-                  <th className="gc-th">Nome</th>
-                  <th className="gc-th">Tipo</th>
-                  <th className="gc-th">Escopo</th>
-                  <th className="gc-th">Visibilidade</th>
-                  <th className="gc-th gc-th--acoes">Ações</th>
+                  <th className="gc-th gc-th--drag" aria-label={t('pedido.config_colunas.aria_arrastar_th')} />
+                  <th className="gc-th">{t('pedido.config_colunas.th_nome')}</th>
+                  <th className="gc-th">{t('pedido.config_colunas.th_tipo')}</th>
+                  <th className="gc-th">{t('pedido.config_colunas.th_escopo')}</th>
+                  <th className="gc-th">{t('pedido.config_colunas.th_visibilidade')}</th>
+                  <th className="gc-th gc-th--acoes">{t('pedido.config_colunas.th_acoes')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -276,6 +279,12 @@ export function GerenciadorColunas() {
                     coluna={coluna}
                     onEditar={handleEditar}
                     onExcluir={handleExcluir}
+                    tipoLabels={tipoLabels}
+                    escopoLabels={escopoLabels}
+                    visibilidadeLabels={visibilidadeLabels}
+                    ariaEditar={(nome) => t('pedido.config_colunas.aria_editar', { nome })}
+                    ariaExcluir={(nome) => t('pedido.config_colunas.aria_excluir', { nome })}
+                    ariaArrastar={t('pedido.config_colunas.aria_arrastar_reordenar')}
                   />
                 ))}
               </tbody>
@@ -286,8 +295,8 @@ export function GerenciadorColunas() {
 
       <ModalConfirmarExcluirGlobal
         aberto={confirmarExcluirColunaId !== null}
-        titulo="Excluir coluna"
-        descricao="Os valores existentes serão preservados."
+        titulo={t('pedido.config_colunas.modal_excluir_titulo')}
+        descricao={t('pedido.config_colunas.modal_excluir_descricao')}
         nomeItem={colunas.find(c => c.id === confirmarExcluirColunaId)?.nome}
         aoConfirmar={handleExcluirConfirmado}
         aoCancelar={() => setConfirmarExcluirColunaId(null)}

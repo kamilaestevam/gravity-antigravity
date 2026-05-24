@@ -26,7 +26,7 @@ export interface CobrancaFornecedor {
   fornecedor_id: string
   fornecedor_email: string
   cotacao_id: string
-  cotacao_numero: string
+  numero_cotacao_bid_frete: string
   valor_frete_aprovado: number
   taxa_cobrada: number
   moeda: string
@@ -45,7 +45,7 @@ export const monetizacao = {
       fornecedor_id: string
       fornecedor_email: string
       cotacao_id: string
-      cotacao_numero: string
+      numero_cotacao_bid_frete: string
       valor_frete_aprovado: number
       id_organizacao: string
     }
@@ -65,7 +65,7 @@ export const monetizacao = {
         fornecedor_id: data.fornecedor_id,
         fornecedor_email: data.fornecedor_email,
         cotacao_id: data.cotacao_id,
-        cotacao_numero: data.cotacao_numero,
+        numero_cotacao_bid_frete: data.numero_cotacao_bid_frete,
         valor_frete_aprovado: data.valor_frete_aprovado,
         taxa_cobrada: 0,
         moeda: 'USD',
@@ -79,7 +79,7 @@ export const monetizacao = {
       fornecedor_id: data.fornecedor_id,
       fornecedor_email: data.fornecedor_email,
       cotacao_id: data.cotacao_id,
-      cotacao_numero: data.cotacao_numero,
+      numero_cotacao_bid_frete: data.numero_cotacao_bid_frete,
       valor_frete_aprovado: data.valor_frete_aprovado,
       taxa_cobrada: DEFAULT_CONFIG.taxa_por_frete_usd,
       moeda: 'USD',
@@ -93,7 +93,7 @@ export const monetizacao = {
     //   customer: fornecedor.stripe_customer_id,
     //   amount: DEFAULT_CONFIG.taxa_por_frete_usd * 100,
     //   currency: 'usd',
-    //   description: `BID Frete - Taxa por frete fechado (${data.cotacao_numero})`,
+    //   description: `BID Frete - Taxa por frete fechado (${data.numero_cotacao_bid_frete})`,
     // })
 
     return cobranca

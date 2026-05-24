@@ -35,7 +35,16 @@ import { useShellStore } from '@gravity/shell'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { SwitchGlobal } from '@nucleo/switch-global'
-// PedidoSnapshotCadastros removido — arquivo nao commitado (bid-frete descontinuado)
+import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
+import {
+  getStatusConfig,
+  criarStatusConfig,
+  editarStatusConfig,
+  excluirStatusConfig,
+  reordenarStatusConfig,
+} from '../shared/api'
+import type { StatusCotacaoBidFreteConfig } from '../shared/types'
+import { sincronizarStatusLocal } from '../shared/types'
 import './Configuracoes.css'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
@@ -528,6 +537,7 @@ function StatusSortavel({
   onChangeCor: (v: string) => void
   onExcluir: (id: string) => void
 }) {
+  const { t } = useTranslation()
   const {
     attributes, listeners, setNodeRef,
     transform, transition, isDragging,
@@ -562,10 +572,6 @@ function StatusSortavel({
 
         <span className="cfg-status-label">{status.rotulo}</span>
 
-        {status.is_sistema && (
-          <span className="cfg-badge-sistema">sistema</span>
-        )}
-
         <div className="cfg-status-acoes">
           <TooltipGlobal descricao={t('comum.editar')}>
             <button
@@ -577,18 +583,16 @@ function StatusSortavel({
               <PencilSimple size={14} weight="bold" />
             </button>
           </TooltipGlobal>
-          {!status.is_sistema && (
-            <TooltipGlobal descricao={t('comum.excluir')}>
-              <button
-                type="button"
-                className="cfg-remove-btn"
-                onClick={() => onExcluir(status.id)}
-                aria-label={t('comum.excluir')}
-              >
-                <Trash size={14} weight="bold" />
-              </button>
-            </TooltipGlobal>
-          )}
+          <TooltipGlobal descricao={t('comum.excluir')}>
+            <button
+              type="button"
+              className="cfg-remove-btn"
+              onClick={() => onExcluir(status.id)}
+              aria-label={t('comum.excluir')}
+            >
+              <Trash size={14} weight="bold" />
+            </button>
+          </TooltipGlobal>
         </div>
       </div>
 
@@ -605,7 +609,7 @@ function StatusSortavel({
               autoFocus
             />
             <div className="cfg-status-color-picker">
-              <span className="cfg-status-color-label">Cor</span>
+              <span className="cfg-status-color-label">{t('bidfrete.configuracoes.cor_label')}</span>
               <input
                 type="color"
                 className="cfg-status-color-input"
@@ -665,6 +669,7 @@ function ModalNovoCardUsuario({
   onFechar: () => void
   onSalvo: (card: { nome: string; icone: string; cor: string; formula_expressao: string }) => void
 }) {
+  const { t } = useTranslation()
   const [nome, setNome] = useState('')
   const [icone, setIcone] = useState('Package')
   const [cor, setCor] = useState('#818cf8')
@@ -681,14 +686,14 @@ function ModalNovoCardUsuario({
   return (
     <div className="mcu-overlay" onClick={onFechar} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
       <div className="mcu-modal" onClick={e => e.stopPropagation()} style={{ background: '#1e293b', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', width: '420px' }}>
-        <h3 className="mcu-header__titulo" style={{ fontSize: '1rem', fontWeight: 600, color: '#f1f5f9', marginBottom: '1rem' }}>Novo Card Personalizado</h3>
+        <h3 className="mcu-header__titulo" style={{ fontSize: '1rem', fontWeight: 600, color: '#f1f5f9', marginBottom: '1rem' }}>{t('bidfrete.configuracoes.modal_novo_card_titulo')}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem', color: '#94a3b8' }}>
-            Nome do Card
+            {t('bidfrete.configuracoes.modal_nome_card')}
             <input type="text" value={nome} onChange={e => setNome(e.target.value)} style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#f1f5f9' }} />
           </label>
           <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-            Ícone
+            {t('bidfrete.configuracoes.modal_icone')}
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
               {ICONES.map(ic => (
                 <button key={ic} type="button" onClick={() => setIcone(ic)} style={{ padding: '6px', borderRadius: '6px', border: '1px solid transparent', background: icone === ic ? '#818cf8' : '#334155', color: '#f1f5f9', cursor: 'pointer' }}>
@@ -698,7 +703,7 @@ function ModalNovoCardUsuario({
             </div>
           </div>
           <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-            Cor
+            {t('bidfrete.configuracoes.modal_cor')}
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
               {CORES.map(c => (
                 <button key={c} type="button" onClick={() => setCor(c)} style={{ width: '24px', height: '24px', borderRadius: '50%', border: cor === c ? '2px solid white' : 'none', background: c, cursor: 'pointer' }} />
@@ -706,12 +711,12 @@ function ModalNovoCardUsuario({
             </div>
           </div>
           <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem', color: '#94a3b8' }}>
-            Fórmula Simplificada
+            {t('bidfrete.configuracoes.modal_formula')}
             <input type="text" placeholder="Ex: valor_frete * 1.05" value={formula} onChange={e => setFormula(e.target.value)} style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#f1f5f9' }} />
           </label>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1rem' }}>
-            <button type="button" onClick={onFechar} style={{ padding: '6px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#f1f5f9', cursor: 'pointer' }}>Cancelar</button>
-            <button type="button" onClick={handleSalvar} style={{ padding: '6px 16px', borderRadius: '8px', border: 'none', background: '#818cf8', color: '#fff', cursor: 'pointer' }}>Criar</button>
+            <button type="button" onClick={onFechar} style={{ padding: '6px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#f1f5f9', cursor: 'pointer' }}>{t('bidfrete.configuracoes.cancelar')}</button>
+            <button type="button" onClick={handleSalvar} style={{ padding: '6px 16px', borderRadius: '8px', border: 'none', background: '#818cf8', color: '#fff', cursor: 'pointer' }}>{t('bidfrete.configuracoes.criar')}</button>
           </div>
         </div>
       </div>
@@ -727,6 +732,7 @@ function ModalNovaColunaUsuario({
   onFechar: () => void
   onSalvo: (col: { nome: string; tipo: TipoColunaUsuario; escopo: EscopoColunaUsuario; visibilidade: VisibilidadeColunaUsuario }) => void
 }) {
+  const { t } = useTranslation()
   const [nome, setNome] = useState('')
   const [tipo, setTipo] = useState<TipoColunaUsuario>('texto')
 
@@ -738,14 +744,14 @@ function ModalNovaColunaUsuario({
   return (
     <div className="mcu-overlay" onClick={onFechar} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
       <div className="mcu-modal" onClick={e => e.stopPropagation()} style={{ background: '#1e293b', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', width: '420px' }}>
-        <h3 className="mcu-header__titulo" style={{ fontSize: '1rem', fontWeight: 600, color: '#f1f5f9', marginBottom: '1rem' }}>Nova Coluna Personalizada</h3>
+        <h3 className="mcu-header__titulo" style={{ fontSize: '1rem', fontWeight: 600, color: '#f1f5f9', marginBottom: '1rem' }}>{t('bidfrete.configuracoes.modal_nova_coluna_titulo')}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem', color: '#94a3b8' }}>
-            Nome da Coluna
+            {t('bidfrete.configuracoes.modal_nome_coluna')}
             <input type="text" value={nome} onChange={e => setNome(e.target.value)} style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#f1f5f9' }} />
           </label>
           <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem', color: '#94a3b8' }}>
-            Tipo de Dado
+            {t('bidfrete.configuracoes.modal_tipo_dado')}
             <select value={tipo} onChange={e => setTipo(e.target.value as TipoColunaUsuario)} style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#f1f5f9' }}>
               {TIPOS_COLUNA.map(t => (
                 <option key={t.id} value={t.id}>{t.label}</option>
@@ -753,8 +759,8 @@ function ModalNovaColunaUsuario({
             </select>
           </label>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1rem' }}>
-            <button type="button" onClick={onFechar} style={{ padding: '6px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#f1f5f9', cursor: 'pointer' }}>Cancelar</button>
-            <button type="button" onClick={handleSalvar} style={{ padding: '6px 16px', borderRadius: '8px', border: 'none', background: '#818cf8', color: '#fff', cursor: 'pointer' }}>Criar</button>
+            <button type="button" onClick={onFechar} style={{ padding: '6px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#f1f5f9', cursor: 'pointer' }}>{t('bidfrete.configuracoes.cancelar')}</button>
+            <button type="button" onClick={handleSalvar} style={{ padding: '6px 16px', borderRadius: '8px', border: 'none', background: '#818cf8', color: '#fff', cursor: 'pointer' }}>{t('bidfrete.configuracoes.criar')}</button>
           </div>
         </div>
       </div>
@@ -778,6 +784,11 @@ export default function Configuracoes() {
 
   const [periodoAtivo, setPeriodoAtivo] = useState('30d')
 
+  // ─── DnD Sensors ──────────────────────────────────────────────────────────────
+  const dndSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  )
+
   useEffect(() => {
     document.body.classList.add('bf-configuracoes-page')
     return () => {
@@ -787,7 +798,7 @@ export default function Configuracoes() {
 
   // ─── Mocks & Persistence Hook ─────────────────────────────────────────────────
 
-  const useConfigState = <T,>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>, T, () => void, () => void, boolean] => {
+  const useConfigState = <T,>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>, T, () => void, () => void, boolean, (v: T) => void] => {
     const storageKey = `bid-frete:config:${key}`
     const [savedState, setSavedState] = useState<T>(() => {
       try {
@@ -810,7 +821,14 @@ export default function Configuracoes() {
       setCurrentState(savedState)
     }
 
-    return [currentState, setCurrentState, savedState, save, reset, isDirty]
+    /** Atualiza currentState E savedState juntos (sem marcar dirty) — usado para sync com API */
+    const syncBoth = (v: T) => {
+      setCurrentState(v)
+      setSavedState(v)
+      localStorage.setItem(storageKey, JSON.stringify(v))
+    }
+
+    return [currentState, setCurrentState, savedState, save, reset, isDirty, syncBoth]
   }
 
   // ─── States declarations ──────────────────────────────────────────────────────
@@ -846,11 +864,11 @@ export default function Configuracoes() {
     { tipo: 'campo', chave: 'taxas_origem', label: 'Taxas Origem' }
   ])
 
-  const [statusList, setStatusList, , saveStatus, resetStatus, statusDirty] = useConfigState<PedidoStatusConfig[]>('status', [
-    { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
-    { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
-    { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
-    { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
+  const [statusList, setStatusList, , saveStatus, resetStatus, statusDirty, syncStatusBoth] = useConfigState<PedidoStatusConfig[]>('status', [
+    { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: false },
+    { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: false },
+    { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: false },
+    { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: false },
     { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: false },
     { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: false },
     { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: false },
@@ -858,24 +876,36 @@ export default function Configuracoes() {
     { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, is_sistema: false }
   ])
 
-  // Migração automática de status antigos (caso possua apenas os 4 status iniciais)
+  // Estado da API de status (fonte primária)
+  const [statusApiCarregado, setStatusApiCarregado] = useState(false)
+
+  // Carregar status da API (fonte primária) e sincronizar localStorage
   useEffect(() => {
-    if (statusList.length < 9) {
-      const canonicals: PedidoStatusConfig[] = [
-        { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
-        { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
-        { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
-        { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
-        { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: false },
-        { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: false },
-        { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: false },
-        { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, is_sistema: false },
-        { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, is_sistema: false }
-      ]
-      setStatusList(canonicals)
-      localStorage.setItem('bid-frete:config:status', JSON.stringify(canonicals))
+    let cancelado = false
+    async function carregarStatusApi() {
+      try {
+        const statusApi = await getStatusConfig()
+        if (cancelado) return
+        const convertidos: PedidoStatusConfig[] = statusApi.map(s => ({
+          id: s.id_status_cotacao_bid_frete,
+          nome: s.nome_status_cotacao_bid_frete,
+          rotulo: s.rotulo_status_cotacao_bid_frete,
+          cor: s.cor_status_cotacao_bid_frete,
+          ordem: s.ordem_status_cotacao_bid_frete,
+          is_sistema: false, // Todos editáveis/deletáveis pelo usuário
+        }))
+        // syncBoth atualiza current + saved + localStorage sem marcar dirty
+        syncStatusBoth(convertidos)
+        sincronizarStatusLocal(statusApi)
+        setStatusApiCarregado(true)
+      } catch (err) {
+        console.warn('[Configuracoes] Falha ao carregar status da API, usando localStorage', err)
+        setStatusApiCarregado(true)
+      }
     }
-  }, [statusList, setStatusList])
+    carregarStatusApi()
+    return () => { cancelado = true }
+  }, [])
 
   const [numeracaoConfig, setNumeracaoConfig, , saveNumeracao, resetNumeracao, numeracaoDirty] = useConfigState<NumeracaoConfig>('numeracao', {
     prefixo: 'BID-',
@@ -989,7 +1019,12 @@ export default function Configuracoes() {
       const oldIdx = prev.findIndex(p => p.id === active.id)
       const newIdx = prev.findIndex(p => p.id === over.id)
       const reordered = arrayMove(prev, oldIdx, newIdx)
-      return reordered.map((s, idx) => ({ ...s, ordem: idx + 1 }))
+      const comOrdem = reordered.map((s, idx) => ({ ...s, ordem: idx + 1 }))
+      // Reordenar via API (fire-and-forget)
+      reordenarStatusConfig(comOrdem.map(s => s.id)).catch(err =>
+        console.warn('[Configuracoes] Erro ao reordenar status via API', err)
+      )
+      return comOrdem
     })
   }
 
@@ -1117,22 +1152,22 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Meus Cards</h2>
-                  <p className="cfg-secao__desc">Defina quais cards numéricos aparecem no topo da tela, ordene e oculte os não utilizados.</p>
+                  <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.meus_cards_titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('bidfrete.configuracoes.meus_cards_desc')}</p>
                 </div>
                 <button type="button" className="cfg-btn-header--restaurar" onClick={() => setCardsPref(CARDS_CATALOGO.map(c => ({ id: c.id, visible: true })))}>
                   <ArrowCounterClockwise size={13} weight="bold" />
-                  Restaurar padrão
+                  {t('bidfrete.configuracoes.restaurar_padrao')}
                 </button>
               </div>
 
               {/* Período */}
               <div style={{ marginBottom: '1.25rem' }}>
-                <p className="cfg-list-section-label" style={{ marginBottom: '0.5rem' }}>Período de Comparação</p>
+                <p className="cfg-list-section-label" style={{ marginBottom: '0.5rem' }}>{t('bidfrete.configuracoes.periodo_comparacao')}</p>
                 <div className="cfg-periodo-pills">
-                  {PERIODOS.map(p => (
+                  {PERIODOS_KEYS.map(p => (
                     <button key={p.id} type="button" className={`cfg-periodo-pill ${periodoAtivo === p.id ? 'cfg-periodo-pill--ativo' : ''}`} onClick={() => setPeriodoAtivo(p.id)}>
-                      {p.label}
+                      {t(p.labelKey)}
                     </button>
                   ))}
                 </div>
@@ -1142,7 +1177,7 @@ export default function Configuracoes() {
               <div className="cfg-cards-preview-wrap">
                 <p className="cfg-cards-preview-label">
                   <SquaresFour size={12} weight="fill" />
-                  Preview — Como ficará na tela
+                  {t('bidfrete.configuracoes.preview_como_ficara')}
                 </p>
                 <div className="cfg-cards-preview-grid">
                   {cardsPref.map((pref, i) => {
@@ -1155,7 +1190,7 @@ export default function Configuracoes() {
                           {CARD_VISUAL[card.id]?.icone}
                         </div>
                         <div className="cfg-kpi-preview-card__line" style={{ background: CARD_VISUAL[card.id]?.cor }} />
-                        <p className="cfg-kpi-preview-card__label">{obterNomeExibicaoCard(card)}</p>
+                        <p className="cfg-kpi-preview-card__label">{obterNomeExibicaoCard(card, t)}</p>
                       </div>
                     )
                   })}
@@ -1163,8 +1198,8 @@ export default function Configuracoes() {
               </div>
 
               {/* Ativos List (DnD Context) */}
-              <ConfiguracaoSecaoGlobal label="ATIVOS" count={`${cardsPref.length} cards`} />
-              <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEndCards}>
+              <ConfiguracaoSecaoGlobal label={t('bidfrete.configuracoes.ativos_label')} count={`${cardsPref.length} cards`} />
+              <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleDragEndCards}>
                 <SortableContext items={cardsPref.map(p => p.id)} strategy={verticalListSortingStrategy}>
                   <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
                     {cardsPref.map(pref => (
@@ -1182,7 +1217,7 @@ export default function Configuracoes() {
 
               {/* Disponíveis para adicionar */}
               <div className="cfg-list-section-header">
-                <p className="cfg-list-section-label">Disponíveis para adicionar</p>
+                <p className="cfg-list-section-label">{t('bidfrete.configuracoes.disponiveis_adicionar')}</p>
               </div>
               <div className="cfg-cards-lista">
                 {CARDS_CATALOGO.filter(c => !cardsPref.some(p => p.id === c.id)).map(def => (
@@ -1197,7 +1232,7 @@ export default function Configuracoes() {
 
               <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-start' }}>
                 <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={() => setCriandoCard(true)}>
-                  <Plus size={14} weight="bold" /> Adicionar card KPI customizado
+                  <Plus size={14} weight="bold" /> {t('bidfrete.configuracoes.adicionar_card_kpi')}
                 </BotaoGlobal>
               </div>
             </section>
@@ -1209,14 +1244,14 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Preferências da Tabela</h2>
-                <p className="cfg-secao__desc">Configure as preferências de paginação e visualização para a listagem do BID Frete.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.pref_tabela_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.pref_tabela_desc')}</p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>Itens por Página</p>
+                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{t('bidfrete.configuracoes.itens_por_pagina')}</p>
                   <p style={{ fontSize: '0.75rem', color: '#64748b' }}>{t('bidfrete.configuracoes.tabela_desc_linhas')}</p>
                 </div>
                 <select
@@ -1307,9 +1342,9 @@ export default function Configuracoes() {
               </div>
             </div>
 
-            <ConfiguracaoSecaoGlobal label="SUAS COLUNAS" count={`${colunasPersonalizadas.length} colunas`} />
+            <ConfiguracaoSecaoGlobal label={t('bidfrete.configuracoes.suas_colunas_label')} count={`${colunasPersonalizadas.length} ${t('bidfrete.configuracoes.colunas_count')}`} />
             
-            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEndColunas}>
+            <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleDragEndColunas}>
               <SortableContext items={colunasPersonalizadas.map(c => c.id)} strategy={verticalListSortingStrategy}>
                 <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
                   {colunasPersonalizadas.map(col => (
@@ -1328,7 +1363,7 @@ export default function Configuracoes() {
 
             {editandoColunaId && (
               <div style={{ marginTop: '1rem', padding: '1rem', background: '#334155', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <p style={{ fontSize: '0.8rem', fontWeight: 600, color: '#f1f5f9' }}>Editar descrição</p>
+                <p style={{ fontSize: '0.8rem', fontWeight: 600, color: '#f1f5f9' }}>{t('bidfrete.configuracoes.editar_descricao')}</p>
                 <input
                   type="text"
                   className="cfg-input"
@@ -1341,7 +1376,7 @@ export default function Configuracoes() {
 
             <div style={{ marginTop: '1.5rem' }}>
               <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={() => setCriandoColuna(true)}>
-                <Plus size={14} weight="bold" /> Criar Coluna Personalizada
+                <Plus size={14} weight="bold" /> {t('bidfrete.configuracoes.criar_coluna_personalizada')}
               </BotaoGlobal>
             </div>
           </section>
@@ -1352,13 +1387,13 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Campos Calculados</h2>
-                <p className="cfg-secao__desc">Configure fórmulas matemáticas customizadas com campos nativos de frete.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.campos_calculados_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.campos_calculados_desc')}</p>
               </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>Custo Total Estimado do Frete</p>
+              <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{t('bidfrete.configuracoes.custo_total_estimado')}</p>
               <div className="mcu-formula-area mcu-formula-area--ok" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', padding: '10px', background: '#0f172a', borderRadius: '8px', border: '1px solid #818cf8' }}>
                 {saldoTokens.map((tk, idx) => (
                   <span key={idx} className={`mcu-token ${tk.tipo === 'campo' ? 'mcu-token--campo' : 'mcu-token--op'}`}>
@@ -1377,7 +1412,7 @@ export default function Configuracoes() {
               </div>
 
               <div>
-                <span className="cfg-list-section-label" style={{ marginBottom: '0.5rem' }}>Campos disponíveis</span>
+                <span className="cfg-list-section-label" style={{ marginBottom: '0.5rem' }}>{t('bidfrete.configuracoes.campos_disponiveis')}</span>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                   {FORMULA_FIELDS.map(f => (
                     <button
@@ -1400,8 +1435,8 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Colunas do Kanban</h2>
-                <p className="cfg-secao__desc">Configure quais colunas de status devem aparecer no seu Kanban de BID de Frete.</p>
+                <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.kanban_colunas_titulo')}</h2>
+                <p className="cfg-secao__desc">{t('bidfrete.configuracoes.kanban_colunas_desc')}</p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -1411,7 +1446,7 @@ export default function Configuracoes() {
                     <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: s.cor }} />
                     <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{s.rotulo}</span>
                   </div>
-                  <TooltipGlobal descricao={kanbanColunasOcultas.includes(s.id) ? 'Exibir no Kanban' : 'Ocultar do Kanban'}>
+                  <TooltipGlobal descricao={kanbanColunasOcultas.includes(s.id) ? t('bidfrete.configuracoes.exibir_kanban') : t('bidfrete.configuracoes.ocultar_kanban')}>
                     <button
                       type="button"
                       className={`cfg-eye-btn ${!kanbanColunasOcultas.includes(s.id) ? 'cfg-eye-btn--on' : ''}`}
@@ -1477,7 +1512,7 @@ export default function Configuracoes() {
                 <p className="cfg-secao__desc">{t('bidfrete.configuracoes.modal_rapido_desc')}</p>
               </div>
             </div>
-            <p className="cfg-hint">Todas as informações completas continuam acessíveis através do botão Detalhes na cotação.</p>
+            <p className="cfg-hint">{t('bidfrete.configuracoes.modal_rapido_hint')}</p>
           </section>
         )}
 
@@ -1491,9 +1526,9 @@ export default function Configuracoes() {
               </div>
             </div>
 
-            <ConfiguracaoSecaoGlobal label="STATUS ATIVOS" count={`${statusList.length} status`} />
+            <ConfiguracaoSecaoGlobal label={t('bidfrete.configuracoes.status_ativos_label')} count={`${statusList.length} status`} />
 
-            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEndStatus}>
+            <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleDragEndStatus}>
               <SortableContext items={statusList.map(s => s.id)} strategy={verticalListSortingStrategy}>
                 <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
                   {statusList.map(s => (
@@ -1511,12 +1546,25 @@ export default function Configuracoes() {
                       onSalvarEdicao={() => {
                         if (!editStatusLabel.trim()) return
                         setStatusList(prev => prev.map(s => s.id === editandoStatusId ? { ...s, rotulo: editStatusLabel, cor: editStatusCor } : s))
+                        // Salvar via API
+                        if (editandoStatusId) {
+                          editarStatusConfig(editandoStatusId, {
+                            rotulo_status_cotacao_bid_frete: editStatusLabel,
+                            cor_status_cotacao_bid_frete: editStatusCor,
+                          }).catch(err => console.warn('[Configuracoes] Erro ao editar status via API', err))
+                        }
                         setEditandoStatusId(null)
                       }}
                       onCancelarEdicao={() => setEditandoStatusId(null)}
                       onChangeLabel={setEditStatusLabel}
                       onChangeCor={setEditStatusCor}
-                      onExcluir={id => setStatusList(prev => prev.filter(x => x.id !== id))}
+                      onExcluir={id => {
+                        setStatusList(prev => prev.filter(x => x.id !== id))
+                        // Excluir via API
+                        excluirStatusConfig(id).catch(err =>
+                          console.warn('[Configuracoes] Erro ao excluir status via API', err)
+                        )
+                      }}
                     />
                   ))}
                 </div>
@@ -1526,7 +1574,7 @@ export default function Configuracoes() {
             <div style={{ marginTop: '1.5rem', display: 'flex', gap: '8px' }}>
               <input
                 type="text"
-                placeholder="Ex: Em Análise do Armador"
+                placeholder={t('bidfrete.configuracoes.placeholder_novo_status')}
                 value={editStatusLabel}
                 onChange={e => setEditStatusLabel(e.target.value)}
                 style={{ flex: 1, padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#fff' }}
@@ -1537,13 +1585,33 @@ export default function Configuracoes() {
                 onChange={e => setEditStatusCor(e.target.value)}
                 style={{ width: '40px', height: '34px', border: 'none', background: 'transparent', cursor: 'pointer' }}
               />
-              <BotaoGlobal variante="primario" tamanho="pequeno" onClick={() => {
+              <BotaoGlobal variante="primario" tamanho="pequeno" onClick={async () => {
                 if (!editStatusLabel.trim()) return
-                const newId = `status_${Date.now()}`
-                setStatusList(prev => [...prev, { id: newId, nome: editStatusLabel.toUpperCase().replace(/\s+/g, '_'), rotulo: editStatusLabel, cor: editStatusCor, ordem: prev.length + 1, is_sistema: false }])
-                setEditStatusLabel('')
+                const nomeNovo = editStatusLabel.toUpperCase().replace(/\s+/g, '_')
+                try {
+                  const criado = await criarStatusConfig({
+                    nome_status_cotacao_bid_frete: nomeNovo,
+                    rotulo_status_cotacao_bid_frete: editStatusLabel,
+                    cor_status_cotacao_bid_frete: editStatusCor,
+                  })
+                  setStatusList(prev => [...prev, {
+                    id: criado.id_status_cotacao_bid_frete,
+                    nome: criado.nome_status_cotacao_bid_frete,
+                    rotulo: criado.rotulo_status_cotacao_bid_frete,
+                    cor: criado.cor_status_cotacao_bid_frete,
+                    ordem: criado.ordem_status_cotacao_bid_frete,
+                    is_sistema: criado.gerenciado_sistema_status_cotacao_bid_frete,
+                  }])
+                  setEditStatusLabel('')
+                } catch (err) {
+                  // Fallback: adicionar localmente se API falhar
+                  const newId = `status_${Date.now()}`
+                  setStatusList(prev => [...prev, { id: newId, nome: nomeNovo, rotulo: editStatusLabel, cor: editStatusCor, ordem: prev.length + 1, is_sistema: false }])
+                  setEditStatusLabel('')
+                  console.warn('[Configuracoes] Erro ao criar status via API, adicionado localmente', err)
+                }
               }}>
-                <Plus size={14} /> Adicionar Status
+                <Plus size={14} /> {t('bidfrete.configuracoes.adicionar_status')}
               </BotaoGlobal>
             </div>
           </section>
@@ -1589,7 +1657,7 @@ export default function Configuracoes() {
               </div>
             </div>
 
-            <ConfiguracaoSecaoGlobal label="SEUS TEMPLATES" count={`${templatesPdf.length} templates`} />
+            <ConfiguracaoSecaoGlobal label={t('bidfrete.configuracoes.seus_templates_label')} count={`${templatesPdf.length} templates`} />
 
             <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
               {templatesPdf.map(tpl => (
@@ -1653,7 +1721,7 @@ export default function Configuracoes() {
             <div style={{ marginTop: '1.5rem' }}>
               <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={() => {
                 const newId = `tpl_${Date.now()}`
-                setTemplatesPdf(prev => [...prev, { id: newId, nome: 'Novo Template PDF', documento_tipo: 'pdf', codigo_fonte: '<p>Novo</p>', created_at: new Date().toISOString() }])
+                setTemplatesPdf(prev => [...prev, { id: newId, nome: t('bidfrete.configuracoes.novo_template_nome'), documento_tipo: 'pdf', codigo_fonte: '<p>Novo</p>', created_at: new Date().toISOString() }])
               }}>
                 <Plus size={14} /> {t('bidfrete.configuracoes.novo_template_pdf')}
               </BotaoGlobal>
@@ -1680,8 +1748,8 @@ export default function Configuracoes() {
               />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>Prazo Limite Padrão (Horas)</p>
-                  <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Define o tempo limite recomendado para respostas dos fornecedores.</p>
+                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{t('bidfrete.configuracoes.prazo_limite_titulo')}</p>
+                  <p style={{ fontSize: '0.75rem', color: '#64748b' }}>{t('bidfrete.configuracoes.prazo_limite_desc')}</p>
                 </div>
                 <input
                   type="number"
@@ -1711,7 +1779,7 @@ export default function Configuracoes() {
               </div>
             </div>
 
-            <ConfiguracaoSecaoGlobal label="CATEGORIAS REGISTRADAS" count={`${categoriasAnexos.length} categorias`} />
+            <ConfiguracaoSecaoGlobal label={t('bidfrete.configuracoes.categorias_registradas_label')} count={`${categoriasAnexos.length} ${t('bidfrete.configuracoes.categorias_count')}`} />
 
             <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
               {categoriasAnexos.map(anexo => (
@@ -1736,7 +1804,7 @@ export default function Configuracoes() {
             <div style={{ marginTop: '1.5rem', display: 'flex', gap: '8px' }}>
               <input
                 type="text"
-                placeholder="Ex: Certificado de Origem"
+                placeholder={t('bidfrete.configuracoes.placeholder_nova_categoria')}
                 value={novoAnexoNome}
                 onChange={e => setNovoAnexoNome(e.target.value)}
                 style={{ flex: 1, padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#fff' }}
@@ -1782,7 +1850,10 @@ export default function Configuracoes() {
           </section>
         )}
 
-        {/* CATEGORIA SNAPSHOT CADASTROS removida — componente nao commitado (bid-frete descontinuado) */}
+        {/* ── CATEGORIA: SNAPSHOT CADASTROS ── */}
+        {categoria === 'snapshot-cadastros' && (
+          <PedidoSnapshotCadastros />
+        )}
 
         {/* ── CATEGORIA: NOTIFICAÇÕES ── */}
         {categoria === 'notificacoes' && (

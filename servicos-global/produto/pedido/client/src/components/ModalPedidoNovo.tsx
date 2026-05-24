@@ -649,7 +649,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       const resultado = await pedidoApi.criar(payload)
       addNotification({
         type: 'success',
-        message: `Pedido ${resultado.numero_pedido} criado com sucesso.`,
+        message: t('pedido.modal_novo.notif_criado', { numero: resultado.numero_pedido }),
       })
       onSalvo(resultado)
       handleFechar()
@@ -674,7 +674,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       <ModalPassoPassoGlobal
         titulo={t('pedido.modal_novo.titulo')}
         icone={<Package size={20} weight="duotone" />}
-        subtitulo="Preencha os dados do pedido e adicione os itens"
+        subtitulo={t('pedido.modal_novo.subtitulo')}
         aberto={aberto}
         passos={PASSOS}
         passoAtual={passo}
@@ -1118,7 +1118,7 @@ function Passo1Dados({
         </div>
         <div style={s.campo}>
           <SelectGlobal
-            label="Incoterm"
+            label={t('pedido.modal_novo.label_incoterm')}
             opcoes={incotermsOpcoes.map(o => ({ valor: o.valor, rotulo: o.label }))}
             valor={form.incoterm_pedido}
             aoMudarValor={v => onChange('incoterm_pedido', String(v ?? ''))}
@@ -1191,7 +1191,7 @@ function Passo1Dados({
             label={t('pedido.drawer.label_data_emissao')}
             obrigatorio
             modoUnico
-            placeholder="Selecione a data"
+            placeholder={t('pedido.modal_novo.ph_selecione_data')}
             disabled={camposBloqueados}
             valor={form.data_emissao_pedido
               ? { inicio: new Date(`${form.data_emissao_pedido}T00:00:00`), fim: null }
@@ -1274,10 +1274,10 @@ function Passo2Itens({
   // de um valor selecionado e o usuário lê como "USD pré-preenchido". Padrão do
   // sistema (DrawerPedido): "Selecionar moeda".
   const placeholderMoeda = erroMoedas
-    ? `Erro: ${erroMoedas}`
+    ? t('pedido.modal_novo.moeda_erro', { erro: erroMoedas })
     : (!carregandoMoedas && opcoesMoeda.length === 0)
-      ? 'Sem moedas cadastradas'
-      : 'Selecionar moeda'
+      ? t('pedido.modal_novo.moeda_sem_cadastro')
+      : t('pedido.modal_novo.moeda_selecionar')
 
   return (
     <div>
@@ -1345,7 +1345,7 @@ function Passo2Itens({
                 valor={item.quantidade_inicial_item === '' ? null : Number(item.quantidade_inicial_item)}
                 aoMudarValor={(n) => onChangeItem(index, 'quantidade_inicial_item', n === null ? '' : String(n))}
                 casasDecimais={casasQtdItem()}
-                placeholder="Quantidade"
+                placeholder={t('pedido.modal_novo.ph_quantidade')}
                 style={s.input}
                 textAlign="left"
               />
@@ -1370,7 +1370,7 @@ function Passo2Itens({
                 valor={item.valor_por_unidade_item === '' ? null : Number(item.valor_por_unidade_item)}
                 aoMudarValor={(n) => onChangeItem(index, 'valor_por_unidade_item', n === null ? '' : String(n))}
                 casasDecimais={casasValorUnitario()}
-                placeholder="Valor unitário"
+                placeholder={t('pedido.modal_novo.ph_valor_unitario')}
                 style={s.input}
                 textAlign="left"
               />
@@ -1386,7 +1386,7 @@ function Passo2Itens({
                 }
                 aoMudarValor={() => {}}
                 casasDecimais={casasValorTotal()}
-                placeholder="Calculado"
+                placeholder={t('pedido.modal_novo.ph_calculado')}
                 style={{ ...s.input, cursor: 'not-allowed', background: 'var(--bg-elevated, #1e293b)' }}
                 textAlign="left"
                 desabilitado

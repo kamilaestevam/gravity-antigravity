@@ -25,14 +25,14 @@ import { MODAL_LABELS } from '../../shared/types'
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 interface CotacaoPublica {
-  numero: string
-  origem_nome: string
-  destino_nome: string
+  numero_cotacao_bid_frete: string
+  porto_origem_cotacao_bid_frete: string
+  porto_destino_cotacao_bid_frete: string
   modal: ModalFrete
-  incoterm: string
-  descricao_mercadoria: string
-  quantidade: number
-  peso_kg: number | null
+  incoterm_cotacao_bid_frete: string
+  descricao_mercadoria_cotacao_bid_frete: string
+  quantidade_volumes_cotacao_bid_frete: number
+  peso_kg_cotacao_bid_frete: number | null
   fornecedor_nome: string
 }
 
@@ -214,13 +214,13 @@ export default function ResponderPublico() {
           <div className="rp-detail-grid">
             <div className="rp-detail-item">
               <span className="rp-detail-label">{t('bidfrete.portal.responder.campo_numero')}</span>
-              <span className="rp-detail-value rp-mono">{cotacao?.numero ?? '—'}</span>
+              <span className="rp-detail-value rp-mono">{cotacao?.numero_cotacao_bid_frete ?? '—'}</span>
             </div>
             <div className="rp-detail-item">
               <span className="rp-detail-label">{t('bidfrete.portal.responder.campo_rota')}</span>
               <span className="rp-detail-value">
                 <MapPin weight="duotone" size={14} />
-                {cotacao?.origem_nome ?? '—'} &rarr; {cotacao?.destino_nome ?? '—'}
+                {cotacao?.porto_origem_cotacao_bid_frete ?? '—'} &rarr; {cotacao?.porto_destino_cotacao_bid_frete ?? '—'}
               </span>
             </div>
             <div className="rp-detail-item">
@@ -232,15 +232,15 @@ export default function ResponderPublico() {
             </div>
             <div className="rp-detail-item">
               <span className="rp-detail-label">{t('bidfrete.portal.responder.campo_incoterm')}</span>
-              <span className="rp-detail-value">{cotacao?.incoterm ?? '—'}</span>
+              <span className="rp-detail-value">{cotacao?.incoterm_cotacao_bid_frete ?? '—'}</span>
             </div>
             <div className="rp-detail-item rp-detail-wide">
               <span className="rp-detail-label">{t('bidfrete.portal.responder.campo_carga')}</span>
               <span className="rp-detail-value">
                 <Package weight="duotone" size={14} />
-                {cotacao?.descricao_mercadoria ?? '—'}
-                {cotacao?.quantidade != null ? ` / ${cotacao.quantidade} un` : ''}
-                {cotacao?.peso_kg != null ? ` / ${cotacao.peso_kg.toLocaleString('pt-BR')} kg` : ''}
+                {cotacao?.descricao_mercadoria_cotacao_bid_frete ?? '—'}
+                {cotacao?.quantidade_volumes_cotacao_bid_frete != null ? ` / ${cotacao.quantidade_volumes_cotacao_bid_frete} un` : ''}
+                {cotacao?.peso_kg_cotacao_bid_frete != null ? ` / ${cotacao.peso_kg_cotacao_bid_frete.toLocaleString('pt-BR')} kg` : ''}
               </span>
             </div>
           </div>

@@ -132,7 +132,7 @@ export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNov
         {/* Header */}
         <div className="mcu-header">
           <h3 className="mcu-header__titulo">
-            {cardEdicao ? 'Editar Card' : 'Novo Card Personalizado'}
+            {cardEdicao ? t('pedido.card_usuario.titulo_editar') : t('pedido.card_usuario.titulo_novo')}
           </h3>
           <button type="button" className="mcu-header__fechar" onClick={onFechar}>
             <X size={14} weight="bold" />
@@ -144,11 +144,11 @@ export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNov
 
           {/* Nome */}
           <div className="mcu-campo">
-            <span className="mcu-campo__label">Nome</span>
+            <span className="mcu-campo__label">{t('pedido.card_usuario.label_nome')}</span>
             <input
               type="text"
               className="mcu-campo__input"
-              placeholder="Ex: Saldo Financeiro"
+              placeholder={t('pedido.card_usuario.ph_nome')}
               value={nome}
               onChange={e => setNome(e.target.value)}
               maxLength={100}
@@ -158,7 +158,7 @@ export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNov
 
           {/* Ícone */}
           <div className="mcu-campo">
-            <span className="mcu-campo__label">Ícone</span>
+            <span className="mcu-campo__label">{t('pedido.card_usuario.label_icone')}</span>
             <div className="mcu-icone-grid">
               {ICONES_DISPONIVEIS.map(ic => (
                 <button
@@ -176,7 +176,7 @@ export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNov
 
           {/* Cor */}
           <div className="mcu-campo">
-            <span className="mcu-campo__label">Cor</span>
+            <span className="mcu-campo__label">{t('pedido.card_usuario.label_cor')}</span>
             <div className="mcu-cor-grid">
               {CORES_DISPONIVEIS.map(c => (
                 <button
@@ -193,10 +193,10 @@ export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNov
 
           {/* Fórmula */}
           <div className="mcu-campo">
-            <span className="mcu-campo__label">Fórmula</span>
+            <span className="mcu-campo__label">{t('pedido.card_usuario.label_formula')}</span>
             <div className={`mcu-formula-area${formulaOk ? ' mcu-formula-area--ok' : ''}${formulaErro ? ' mcu-formula-area--erro' : ''}`}>
               {tokens.length === 0 ? (
-                <span className="mcu-placeholder">Adicione campos e operadores abaixo</span>
+                <span className="mcu-placeholder">{t('pedido.card_usuario.ph_formula')}</span>
               ) : (
                 tokens.map((token, i) =>
                   token.tipo === 'campo' ? (
@@ -221,14 +221,14 @@ export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNov
                 <button key={op} type="button" className="mcu-op-btn" onClick={() => adicionarOp(op)}>{op}</button>
               ))}
               {tokens.length > 0 && (
-                <button type="button" className="mcu-op-btn mcu-op-btn--clear" onClick={() => setTokens([])}>Limpar</button>
+                <button type="button" className="mcu-op-btn mcu-op-btn--clear" onClick={() => setTokens([])}>{t('pedido.card_usuario.btn_limpar')}</button>
               )}
             </div>
           </div>
 
           {/* Campos disponíveis */}
           <div className="mcu-campo">
-            <span className="mcu-campo__label">Campos disponíveis</span>
+            <span className="mcu-campo__label">{t('pedido.card_usuario.label_campos_disponiveis')}</span>
             <div className="mcu-campos-disponiveis">
               {CAMPOS_FORMULA_BASE.flatMap(g => g.campos).map(campo => (
                 <button
@@ -247,10 +247,10 @@ export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNov
         {/* Footer */}
         <div className="mcu-footer">
           <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={onFechar}>
-            Cancelar
+            {t('comum.cancelar')}
           </BotaoGlobal>
           <BotaoGlobal variante="primario" tamanho="pequeno" onClick={handleSubmit} disabled={!podeSubmeter} carregando={salvando}>
-            {cardEdicao ? 'Salvar' : 'Criar Card'}
+            {cardEdicao ? t('pedido.card_usuario.btn_salvar') : t('pedido.card_usuario.btn_criar')}
           </BotaoGlobal>
         </div>
       </div>

@@ -1427,7 +1427,38 @@
       "origem": "Origen",
       "agregacao": "Agregación",
       "campo_base": "Campo base",
-      "editar_propriedades": "Editar propiedades"
+      "editar_propriedades": "Editar propiedades",
+      "modal_nova_coluna_titulo": "Nueva Columna Personalizada",
+      "modal_nome_coluna": "Nombre de la Columna",
+      "modal_tipo_dado": "Tipo de Dato",
+      "meus_cards_titulo": "Mis Cards",
+      "meus_cards_desc": "Define qué cards numéricos aparecen en la parte superior de la pantalla, ordena y oculta los no utilizados.",
+      "restaurar_padrao": "Restaurar predeterminado",
+      "periodo_comparacao": "Período de Comparación",
+      "preview_como_ficara": "Vista previa — Cómo se verá en pantalla",
+      "disponiveis_adicionar": "Disponibles para agregar",
+      "adicionar_card_kpi": "Agregar card KPI personalizado",
+      "pref_tabela_titulo": "Preferencias de la Tabla",
+      "pref_tabela_desc": "Configure las preferencias de paginación y visualización para el listado del BID Flete.",
+      "itens_por_pagina": "Ítems por Página",
+      "editar_descricao": "Editar descripción",
+      "criar_coluna_personalizada": "Crear Columna Personalizada",
+      "campos_calculados_titulo": "Campos Calculados",
+      "campos_calculados_desc": "Configure fórmulas matemáticas personalizadas con campos nativos de flete.",
+      "custo_total_estimado": "Costo Total Estimado del Flete",
+      "campos_disponiveis": "Campos disponibles",
+      "kanban_colunas_titulo": "Columnas del Kanban",
+      "kanban_colunas_desc": "Configure qué columnas de estado deben aparecer en su Kanban de BID de Flete.",
+      "exibir_kanban": "Mostrar en Kanban",
+      "ocultar_kanban": "Ocultar del Kanban",
+      "modal_rapido_hint": "Toda la información completa sigue accesible a través del botón Detalles en la cotización.",
+      "modal_novo_card_titulo": "Nuevo Card Personalizado",
+      "modal_nome_card": "Nombre del Card",
+      "modal_icone": "Ícono",
+      "modal_cor": "Color",
+      "modal_formula": "Fórmula Simplificada",
+      "cancelar": "Cancelar",
+      "criar": "Crear"
     },
     "fornecedores": {
       "titulo": "Proveedores",
@@ -1531,7 +1562,27 @@
       "nova_importacao": "Nueva importación",
       "ver_cotacoes": "Ver cotizaciones",
       "criar_cotacoes": "Crear cotizaciones",
-      "processando": "Procesando..."
+      "processando": "Procesando...",
+      "ecol_referencia": "Referencia",
+      "ecol_origem": "Origen",
+      "ecol_destino": "Destino",
+      "ecol_modal_transporte": "Modo de Transporte",
+      "ecol_incoterm": "Incoterm",
+      "ecol_tipo_container": "Tipo Container",
+      "ecol_peso_kg": "Peso (kg)",
+      "ecol_volume_m3": "Volumen (m³)",
+      "ecol_moeda": "Moneda",
+      "ecol_valor_alvo": "Valor Objetivo",
+      "val_referencia_obrigatoria": "La referencia es obligatoria",
+      "val_origem_obrigatoria": "El origen es obligatorio",
+      "val_destino_obrigatorio": "El destino es obligatorio",
+      "val_modal_invalido": "Modo inválido",
+      "val_incoterm_invalido": "Incoterm inválido",
+      "val_peso_positivo": "El peso debe ser positivo",
+      "val_volume_positivo": "El volumen debe ser positivo",
+      "val_moeda_invalida": "Moneda inválida",
+      "val_valor_alvo_positivo": "El valor objetivo debe ser positivo",
+      "val_container_invalido": "Tipo de container inválido"
     },
     "portal": {
       "cotacoes_pendentes": {
@@ -1782,6 +1833,42 @@
       "sim": "Sí",
       "nao": "No",
       "anonima": "Anónima"
+    },
+    "visao_geral": {
+      "em_construcao": "Visión General — En construcción"
+    },
+    "snapshot": {
+      "titulo": "Historial & Snapshots de Auditoría",
+      "desc": "Garantía jurídica y conformidad regulatoria a través del congelamiento automatizado de los datos maestros asociados a los Bids.",
+      "porque_titulo": "¿Por qué congelamos estos datos?",
+      "porque_desc": "A diferencia del módulo de pedidos nacionales comunes donde los datos maestros dinámicos pueden actualizarse en tiempo real, las cotizaciones de <bold>Flete Internacional</bold> involucran conformidad aduanera y acuerdos tarifarios estrictos. El sistema congela la imagen fiel (\"Snapshot\") de las tablas de apoyo para auditar los valores acordados ante la dirección y los órganos de control financiero.",
+      "ciclo_vida_titulo": "Ciclo de Vida del Lock del Bid",
+      "fase_01": "Fase 01",
+      "fase_02": "Fase 02",
+      "fase_03": "Fase 03",
+      "dinamico": "Dinámico",
+      "monitorado": "Monitoreado",
+      "congelado": "Congelado",
+      "rascunho_titulo": "Borrador & Análisis",
+      "rascunho_desc": "Todos los datos fiscales y registros maestros de socios se actualizan dinámicamente según los cambios globales del ERP.",
+      "bid_ativo_titulo": "Bid Activo en el Mercado",
+      "bid_ativo_desc": "Los registros maestros permanecen editables, pero los cambios en los campos de reglas de flete disparan alertas a los proveedores.",
+      "aprovacao_titulo": "Aprobación & Lock Final",
+      "aprovacao_desc": "Al aprobar/rechazar el Bid, las tablas de soporte se congelan permanentemente. Los cambios futuros en el ERP no afectarán el historial de este flete.",
+      "visualizador_titulo": "Visualizador de Snapshot (Solo Lectura)",
+      "visualizador_exemplo": "Ejemplo de auditoría del Bid #BF-2026-9902 aprobado",
+      "integridade_sha": "Integridad Protegida por SHA-256",
+      "th_propriedade": "Propiedad",
+      "th_valor_snapshot": "Valor al Cierre (Snapshot)",
+      "th_valor_erp": "Valor Actual del ERP",
+      "th_status": "Estado",
+      "data_gravacao": "Fecha de Grabación del Bloque:",
+      "assinatura_digital": "Firma Digital:",
+      "mock_fornecedor": "Proveedor Líder",
+      "mock_incoterm": "Incoterm Asociado",
+      "mock_thc": "Tasa Administrativa (THC)",
+      "mock_icms": "Alícuota de ICMS Aplicada",
+      "mock_cambio": "Tipo de Cambio de Cierre"
     }
   },
   "bidcambio": {
@@ -2413,7 +2500,9 @@
       "qtd_pronta_desc": "Cantidad producida por la fábrica y validada para embarque",
       "qtd_transferida": "Cantidad Transferida del Artículo en el Pedido",
       "qtd_transferida_tooltip": "Cantidad Transferida",
-      "qtd_transferida_desc": "Cantidad ya transferida de este artículo a otros pedidos."
+      "qtd_transferida_desc": "Cantidad ya transferida de este artículo a otros pedidos.",
+      "valor_por_unidade_item": "Valor del Artículo",
+      "valor_total_item": "Valor Total de los Artículos"
     },
     "item_grupo": {
       "identificacao": "Identificación",
@@ -2523,7 +2612,16 @@
       "excluir_desc": "Elimina permanentemente los pedidos seleccionados",
       "limpar_tudo": "Limpiar todo",
       "remover_filtro": "Eliminar filtro {{label}}",
-      "placeholder_busca": "Buscar pedido, exportador, referencia..."
+      "placeholder_busca": "Buscar pedido, exportador, referencia...",
+      "filtros_ativos": "Filtros activos",
+      "chip_busca": "Búsqueda",
+      "remover_busca": "Eliminar búsqueda",
+      "sem_permissao_criar_pedido": "Sin permiso para crear pedidos",
+      "sem_permissao_criar_item": "Sin permiso para crear ítems",
+      "label_item_one": "ítem",
+      "label_item_other": "ítems",
+      "label_pedido_one": "pedido",
+      "label_pedido_other": "pedidos"
     },
     "status": {
       "todos": "Todos",
@@ -2850,7 +2948,115 @@
       "data_confirmada_recebimento_original_invoice_desc": "Fecha confirmada para recepción del original de la Invoice",
       "data_meta_recebimento_original_invoice": "Fecha Meta — Recepción Original Invoice",
       "data_meta_recebimento_original_invoice_titulo": "Fecha Meta — Recepción del Original Invoice",
-      "data_meta_recebimento_original_invoice_desc": "Fecha meta para recepción del original de la Invoice"
+      "data_meta_recebimento_original_invoice_desc": "Fecha meta para recepción del original de la Invoice",
+      "contrato_cambio": "Contrato de Cambio",
+      "condicao_pagamento": "Condición de Pago",
+      "tipo_operacao_importacao": "Importación",
+      "tipo_operacao_exportacao": "Exportación",
+      "tipo_operacao_divergente": "Tipo de operación divergente entre ítems",
+      "workspace_label": "Workspace",
+      "nome_exportador_bloqueado": "Exportador vinculado vía Registros — haga clic para editar",
+      "exportador_e_workspace": "El exportador es el propio Workspace. Haga clic para editar datos en el Configurador",
+      "workspace_sem_nome": "Nombre del Workspace no registrado. Haga clic para registrar en el Configurador",
+      "cadastrar_exportador": "Registrar Exportador",
+      "clique_editar_exportador": "Haga clic para editar el exportador en Registros",
+      "nenhum_exportador_vinculado": "Ningún exportador vinculado. Haga clic para registrar en Registros",
+      "vincular_exportador": "Vincular Exportador",
+      "nome_importador_bloqueado": "Importador vinculado vía Registros — haga clic para editar",
+      "importador_e_workspace": "El importador es el propio Workspace. Haga clic para editar datos en el Configurador",
+      "cadastrar_importador": "Registrar Importador",
+      "clique_editar_importador": "Haga clic para editar el importador en Registros",
+      "nenhum_importador_vinculado": "Ningún importador vinculado. Haga clic para registrar en Registros",
+      "vincular_importador": "Vincular Importador",
+      "cnpj_importador": "CNPJ del Importador",
+      "cnpj_importador_titulo": "CNPJ del Importador",
+      "cnpj_importador_desc": "CNPJ de la empresa importadora. Fuente única: CNPJ del Workspace. En exportación, no aplica (contraparte extranjera).",
+      "cnpj_importador_nao_aplica": "En operaciones de exportación, el CNPJ del Importador no aplica — la contraparte extranjera no posee CNPJ brasileño.",
+      "cnpj_nao_cadastrado": "CNPJ no registrado en el Workspace. Haga clic para registrar",
+      "cadastrar_cnpj": "Registrar CNPJ",
+      "cnpj_exportador": "CNPJ del Exportador",
+      "cnpj_exportador_titulo": "CNPJ del Exportador",
+      "cnpj_exportador_desc": "CNPJ de la empresa exportadora. Fuente única: CNPJ del Workspace. En importación, no aplica (contraparte extranjera).",
+      "cnpj_exportador_nao_aplica": "En operaciones de importación, el CNPJ del Exportador no aplica — la contraparte extranjera no posee CNPJ brasileño.",
+      "fabricantes_divergentes": "Fabricantes divergentes entre ítems",
+      "referencias_divergentes": "Referencias divergentes entre ítems",
+      "ncms_distintos": "{{count}} NCMs diferentes en los ítems",
+      "incoterms_divergentes": "Incoterms divergentes entre ítems",
+      "moedas_divergentes": "Monedas divergentes entre ítems",
+      "moeda_pedido_item": "Moneda del Pedido/Ítem",
+      "aviso_impacto_moeda": "La alteración de la moneda también cambiará el Valor Total del Pedido/Ítem y el Valor del Ítem",
+      "unidade_comercializada": "Unidad Comercializada",
+      "aviso_impacto_unidade_full": "La alteración de la unidad también cambiará Cant. Inicial, Cant. Lista, Cant. Transferida, Saldo y Cant. Cancelada",
+      "unidades_divergentes": "Unidades divergentes entre ítems",
+      "aviso_impacto_unidade_inicial": "La alteración de la unidad también cambiará Unidad Comercializada, Cant. Lista, Cant. Transferida, Saldo y Cant. Cancelada",
+      "aviso_impacto_unidade_pronta": "La alteración de la unidad también cambiará Unidad Comercializada, Cant. Inicial, Cant. Transferida, Saldo y Cant. Cancelada",
+      "aviso_impacto_unidade_saldo": "La alteración de la unidad también cambiará Unidad Comercializada, Cant. Inicial, Cant. Lista, Cant. Transferida y Cant. Cancelada",
+      "calculado_itens_editar_formula": "Calculado en base a los ítems — no editable. <a>Editar fórmula en el Configurador</a>",
+      "aviso_impacto_unidade_transferida": "La alteración de la unidad también cambiará Unidad Comercializada, Cant. Inicial, Cant. Lista, Saldo y Cant. Cancelada",
+      "quantidade_transferida_bloqueado": "Campo calculado — suma de cantidad_transferida_pedido de todos los ítems. Alterado solo por operaciones de transferencia.",
+      "aviso_impacto_unidade_cancelada": "La alteración de la unidad también cambiará Unidad Comercializada, Cant. Inicial, Cant. Lista, Cant. Transferida y Saldo",
+      "datas_emissao_divergentes": "Fechas de emisión divergentes entre ítems",
+      "coberturas_cambiais_divergentes": "Coberturas cambiarias divergentes entre ítems",
+      "moeda_cambio": "Moneda de Cambio",
+      "taxa_cambio_estimada": "Tasa de Cambio Estimada",
+      "valor_total_cambio": "Valor Total de Cambio",
+      "contrato_cambio_label": "Contrato de Cambio",
+      "condicoes_pagamento_divergentes": "Condiciones de pago divergentes entre ítems",
+      "aviso_impacto_peso_bruto": "La alteración de la unidad también cambiará Peso Bruto Total",
+      "unidades_peso_liquido_divergentes": "Unidades de peso neto divergentes entre ítems",
+      "aviso_impacto_peso_liquido": "La alteración de la unidad también cambiará Peso Neto Total",
+      "unidades_peso_bruto_divergentes": "Unidades de peso bruto divergentes entre ítems",
+      "unidades_cubagem_divergentes": "Unidades de cubicaje divergentes entre ítems",
+      "divergente_data_prevista_pedido_pronto": "Fechas previstas de pedido listo divergentes entre ítems",
+      "divergente_data_confirmada_pedido_pronto": "Fechas confirmadas de pedido listo divergentes entre ítems",
+      "divergente_data_meta_pedido_pronto": "Fechas objetivo de pedido listo divergentes entre ítems",
+      "divergente_data_prevista_inspecao": "Fechas previstas de inspección divergentes entre ítems",
+      "divergente_data_confirmada_inspecao": "Fechas confirmadas de inspección divergentes entre ítems",
+      "divergente_data_meta_inspecao": "Fechas objetivo de inspección divergentes entre ítems",
+      "divergente_data_prevista_coleta": "Fechas previstas de recolección divergentes entre ítems",
+      "divergente_data_confirmada_coleta": "Fechas confirmadas de recolección divergentes entre ítems",
+      "divergente_data_meta_coleta": "Fechas objetivo de recolección divergentes entre ítems",
+      "divergente_data_consolidacao": "Fechas de consolidación divergentes entre ítems",
+      "divergente_data_transferencia_saldo": "Fechas de transferencia de saldo divergentes entre ítems",
+      "divergente_data_prevista_recebimento_rascunho_pedido": "Fechas previstas de recepción del borrador del pedido divergentes entre ítems",
+      "divergente_data_confirmada_recebimento_rascunho_pedido": "Fechas confirmadas de recepción del borrador del pedido divergentes entre ítems",
+      "divergente_data_meta_recebimento_rascunho_pedido": "Fechas objetivo de recepción del borrador del pedido divergentes entre ítems",
+      "divergente_data_prevista_aprovacao_rascunho_pedido": "Fechas previstas de aprobación del borrador del pedido divergentes entre ítems",
+      "divergente_data_confirmada_aprovacao_rascunho_pedido": "Fechas confirmadas de aprobación del borrador del pedido divergentes entre ítems",
+      "divergente_data_meta_aprovacao_rascunho_pedido": "Fechas objetivo de aprobación del borrador del pedido divergentes entre ítems",
+      "divergente_data_documento_pedido": "Fechas de documento del pedido divergentes entre ítems",
+      "divergente_data_documento_proforma": "Fechas de documento proforma divergentes entre ítems",
+      "divergente_data_documento_invoice": "Fechas de documento invoice divergentes entre ítems",
+      "divergente_data_prevista_recebimento_rascunho_proforma": "Fechas previstas de recepción del borrador de la proforma divergentes entre ítems",
+      "divergente_data_confirmada_recebimento_rascunho_proforma": "Fechas confirmadas de recepción del borrador de la proforma divergentes entre ítems",
+      "divergente_data_meta_recebimento_rascunho_proforma": "Fechas objetivo de recepción del borrador de la proforma divergentes entre ítems",
+      "divergente_data_prevista_aprovacao_rascunho_proforma": "Fechas previstas de aprobación del borrador de la proforma divergentes entre ítems",
+      "divergente_data_confirmada_aprovacao_rascunho_proforma": "Fechas confirmadas de aprobación del borrador de la proforma divergentes entre ítems",
+      "divergente_data_meta_aprovacao_rascunho_proforma": "Fechas objetivo de aprobación del borrador de la proforma divergentes entre ítems",
+      "divergente_data_prevista_envio_original_proforma": "Fechas previstas de envío original de la proforma divergentes entre ítems",
+      "divergente_data_confirmada_envio_original_proforma": "Fechas confirmadas de envío original de la proforma divergentes entre ítems",
+      "divergente_data_meta_envio_original_proforma": "Fechas objetivo de envío original de la proforma divergentes entre ítems",
+      "divergente_data_prevista_recebimento_original_proforma": "Fechas previstas de recepción original de la proforma divergentes entre ítems",
+      "divergente_data_confirmada_recebimento_original_proforma": "Fechas confirmadas de recepción original de la proforma divergentes entre ítems",
+      "divergente_data_meta_recebimento_original_proforma": "Fechas objetivo de recepción original de la proforma divergentes entre ítems",
+      "divergente_data_prevista_recebimento_rascunho_invoice": "Fechas previstas de recepción del borrador de la factura divergentes entre ítems",
+      "divergente_data_confirmada_recebimento_rascunho_invoice": "Fechas confirmadas de recepción del borrador de la factura divergentes entre ítems",
+      "divergente_data_meta_recebimento_rascunho_invoice": "Fechas objetivo de recepción del borrador de la factura divergentes entre ítems",
+      "divergente_data_prevista_aprovacao_rascunho_invoice": "Fechas previstas de aprobación del borrador de la factura divergentes entre ítems",
+      "divergente_data_confirmada_aprovacao_rascunho_invoice": "Fechas confirmadas de aprobación del borrador de la factura divergentes entre ítems",
+      "divergente_data_meta_aprovacao_rascunho_invoice": "Fechas objetivo de aprobación del borrador de la factura divergentes entre ítems",
+      "divergente_data_prevista_envio_original_invoice": "Fechas previstas de envío original de la factura divergentes entre ítems",
+      "divergente_data_confirmada_envio_original_invoice": "Fechas confirmadas de envío original de la factura divergentes entre ítems",
+      "divergente_data_meta_envio_original_invoice": "Fechas objetivo de envío original de la factura divergentes entre ítems",
+      "divergente_data_prevista_recebimento_original_invoice": "Fechas previstas de recepción original de la factura divergentes entre ítems",
+      "divergente_data_confirmada_recebimento_original_invoice": "Fechas confirmadas de recepción original de la factura divergentes entre ítems",
+      "divergente_data_meta_recebimento_original_invoice": "Fechas objetivo de recepción original de la factura divergentes entre ítems",
+      "data_documento_proforma": "Fecha Doc. Proforma",
+      "data_documento_proforma_titulo": "Fecha del Documento Proforma",
+      "data_documento_proforma_desc": "Fecha de emisión del documento proforma",
+      "data_documento_invoice": "Fecha Doc. Factura",
+      "data_documento_invoice_titulo": "Fecha del Documento Invoice",
+      "data_documento_invoice_desc": "Fecha de emisión del documento invoice"
     },
     "config": {
       "acao": {
@@ -2874,7 +3080,8 @@
         "cor": "Color",
         "erro_carregar": "No se pudieron cargar los estados. Verifique su conexión e intente de nuevo.",
         "tentar_novamente": "Intentar de nuevo",
-        "nenhum_status": "No hay estados configurados. Haga clic en \"Nuevo Estado\" para crear uno."
+        "nenhum_status": "No hay estados configurados. Haga clic en \"Nuevo Estado\" para crear uno.",
+        "erro_criar": "Error al crear estado. Intente nuevamente."
       },
       "notificacoes": {
         "titulo": "Notificaciones",
@@ -2921,7 +3128,8 @@
         "reiniciar_mes": "Cada mes",
         "auto_criar": "Número automático al crear pedido",
         "auto_duplicar": "Número automático al duplicar pedido",
-        "auto_consolidar": "Número automático al consolidar pedido"
+        "auto_consolidar": "Número automático al consolidar pedido",
+        "incluir_ano_exemplo": "Ej.: {{exemplo}}"
       },
       "kanban": {
         "modal_titulo": "Campos del modal",
@@ -2971,7 +3179,8 @@
         "descricao": "Preferencias de visualización de la lista de pedidos",
         "linhas_por_pagina": "FILAS POR PÁGINA PREDETERMINADAS",
         "preferencias": "PREFERENCIAS DE VISUALIZACIÓN",
-        "destacar_atrasados": "Destacar pedidos atrasados en rojo"
+        "destacar_atrasados": "Destacar pedidos atrasados en rojo",
+        "msg_salvo": "Preferencias de la tabla guardadas con éxito."
       },
       "sidebar": {
         "grupo_visualizacoes": "VISTAS",
@@ -2996,7 +3205,8 @@
         "taxa_cambio": "Tipo de Cambio",
         "snapshot_cadastros": "Datos Maestros",
         "notificacoes": "Notificaciones",
-        "exportacao": "Exportación"
+        "exportacao": "Exportación",
+        "em_breve": "Próximamente"
       },
       "cards": {
         "titulo": "Mis Cards",
@@ -3024,7 +3234,28 @@
         "agg_media": "Promedio",
         "tooltip_ocultar": "Ocultar de la lista",
         "tooltip_exibir": "Mostrar en la lista",
-        "tooltip_remover": "Quitar de la lista"
+        "tooltip_remover": "Quitar de la lista",
+        "tooltip_detalhes": "Ver detalles",
+        "aria_ver_detalhes": "Ver detalles de la tarjeta",
+        "aria_remover_card": "Eliminar tarjeta",
+        "aria_adicionar_card": "Añadir tarjeta",
+        "tooltip_adicionar_meus": "Añadir a mis tarjetas",
+        "detalhe_campo_base": "Campo base",
+        "detalhe_agregacao": "Agregación",
+        "detalhe_origem": "Origen",
+        "detalhe_periodo": "Período",
+        "detalhe_descricao": "Descripción",
+        "count_card_one": "{{count}} tarjeta",
+        "count_card_other": "{{count}} tarjetas",
+        "todos_adicionados": "Todas las tarjetas disponibles ya han sido añadidas",
+        "personalizados_titulo": "Tarjetas Personalizadas",
+        "formula_personalizado": "Fórmula · Personalizado",
+        "badge_custom": "Custom",
+        "tooltip_ocultar_card": "Ocultar tarjeta",
+        "tooltip_exibir_card": "Mostrar tarjeta",
+        "tooltip_excluir_personalizado": "Eliminar tarjeta personalizada",
+        "aria_excluir_card": "Eliminar tarjeta",
+        "criar_personalizado": "Crear Tarjeta Personalizada"
       },
       "colunas": {
         "casas_decimais": {
@@ -3060,7 +3291,11 @@
           "btn_cancelar_migracao": "Cancelar",
           "btn_iniciando": "Iniciando…",
           "btn_confirmar_migracao": "Confirmar migración",
-          "btn_descartar": "Descartar"
+          "btn_descartar": "Descartar",
+          "msg_salvo": "Decimales guardados con éxito.",
+          "msg_erro_salvar": "Error al guardar decimales.",
+          "msg_migracao_iniciada": "Configuración guardada. Migración iniciada en segundo plano.",
+          "msg_erro_migracao": "Error al iniciar migración."
         },
         "formato_data": {
           "titulo": "Formato de Fecha",
@@ -3070,7 +3305,9 @@
           "regiao_eua": "EE.UU.",
           "regiao_iso_asia": "ISO 8601, Asia",
           "regiao_alemanha_russia": "Alemania, Rusia",
-          "regiao_compacto": "Compacto"
+          "regiao_compacto": "Compacto",
+          "msg_salvo": "Formato de fecha guardado con éxito.",
+          "msg_erro_salvar": "Error al guardar formato de fecha."
         },
         "personalizadas": {
           "titulo": "Columnas Personalizadas",
@@ -3136,7 +3373,30 @@
           "btn_salvando": "Guardando...",
           "btn_limpar": "Limpiar",
           "btn_criar_coluna": "Crear Columna",
-          "btn_criando": "Creando..."
+          "btn_criando": "Creando...",
+          "tooltip_editar_propriedades": "Editar propiedades",
+          "aria_editar_coluna": "Editar {{nome}}",
+          "tooltip_ocultar_coluna": "Ocultar columna",
+          "tooltip_exibir_coluna": "Mostrar columna",
+          "aria_ocultar": "Ocultar",
+          "aria_exibir": "Mostrar",
+          "tooltip_excluir_coluna": "Eliminar columna",
+          "aria_excluir_coluna": "Eliminar {{nome}}",
+          "msg_salvo": "Columnas guardadas con éxito.",
+          "msg_erro_salvar": "Error al guardar columnas.",
+          "formula_erro_circular": "Referencia circular: la fórmula crea un ciclo de dependencias. Elimine la referencia que vuelve a esta columna.",
+          "formula_gabi_nao_numerico_titulo": "Campo no numérico detectado",
+          "formula_gabi_nao_numerico_texto_one": "{{campos}} no es un campo numérico. En operaciones aritméticas, los campos de texto, fecha o casilla de verificación se tratarán como 0.",
+          "formula_gabi_nao_numerico_texto_other": "{{campos}} no son campos numéricos. En operaciones aritméticas, los campos de texto, fecha o casilla de verificación se tratarán como 0.",
+          "formula_gabi_desconhecido_titulo": "Campo no reconocido",
+          "formula_gabi_desconhecido_texto_one": "{{lista}} no es un campo disponible. Use los chips de arriba para insertar campos válidos o verifique si hay un error de escritura.",
+          "formula_gabi_desconhecido_texto_other": "{{lista}} no son campos disponibles. Use los chips de arriba para insertar campos válidos o verifique si hay un error de escritura.",
+          "formula_gabi_falta_op_titulo": "Falta un operador",
+          "formula_gabi_falta_op_texto": "Parece que falta un operador entre \"{{antes}}\" y \"{{token}}\". Elija lo que tenga más sentido para el negocio e insértelo entre los dos campos.",
+          "formula_invalida": "Fórmula inválida",
+          "erro_add_opcao": "Agregue al menos una opción a la lista.",
+          "erro_digite_formula": "Escriba la expresión de la fórmula.",
+          "erro_criar_coluna": "Error al crear columna."
         },
         "campos_calculados": {
           "titulo": "Campos Calculados",
@@ -3152,7 +3412,30 @@
           "gabi_formula_valida": "Fórmula válida ✓",
           "gabi_ok": "¡Todo bien! Haga clic en Guardar para aplicar.",
           "gabi_usar": "Usar",
-          "limpar": "Limpiar"
+          "limpar": "Limpiar",
+          "gabi_desconhecido_titulo": "Campo no reconocido",
+          "gabi_desconhecido_texto_one": "{{lista}} no es un campo disponible. Use los chips de arriba para insertar campos válidos o verifique si hay un error de escritura.",
+          "gabi_desconhecido_texto_other": "{{lista}} no son campos disponibles. Use los chips de arriba para insertar campos válidos o verifique si hay un error de escritura.",
+          "gabi_falta_op_titulo": "Falta un operador",
+          "gabi_falta_op_texto": "Parece que falta un operador entre \"{{antes}}\" y \"{{token}}\". Elija lo que tenga más sentido e insértelo entre los dos campos.",
+          "formula_invalida": "Fórmula inválida",
+          "erro_salvar_formula": "Error al guardar fórmula",
+          "aria_remover_token": "Eliminar {{label}}",
+          "clique_remover": "Haga clic para eliminar",
+          "grupo_quantidades": "Cantidades",
+          "grupo_financeiro": "Financiero",
+          "grupo_minhas_colunas": "Mis Columnas",
+          "grupo_qtd_nativas": "Cantidades Nativas",
+          "grupo_colunas_personalizadas": "Columnas Personalizadas",
+          "campo_qtd_inicial": "Cantidad Inicial",
+          "campo_qtd_cancelada": "Cantidad Cancelada",
+          "campo_qtd_transferida": "Cantidad Transferida",
+          "campo_qtd_pronta": "Cantidad Lista",
+          "campo_saldo": "Saldo",
+          "campo_valor_total": "Valor Total",
+          "campo_peso_liquido": "Peso Neto",
+          "campo_peso_bruto": "Peso Bruto",
+          "campo_cubagem": "Cubicaje"
         }
       },
       "templates_pdf": {
@@ -3175,7 +3458,11 @@
         "tooltip_editar": "Editar plantilla",
         "tooltip_excluir": "Eliminar plantilla",
         "aria_editar": "Editar plantilla",
-        "aria_excluir": "Eliminar plantilla"
+        "aria_excluir": "Eliminar plantilla",
+        "inserir_variavel": "Insertar {{var}}",
+        "placeholder_nome": "Ej.: Plantilla Proforma",
+        "modal_excluir_titulo": "Eliminar plantilla",
+        "modal_excluir_desc": "Esta acción no se puede deshacer."
       },
       "regras": {
         "duplicar": {
@@ -3288,7 +3575,38 @@
         "hist_col_boletim": "Boletín",
         "hist_col_compra": "Compra (R$)",
         "hist_col_venda": "Venta (R$)",
-        "hist_col_hora": "Hora"
+        "hist_col_hora": "Hora",
+        "erro_sync_offline": "No fue posible sincronizar. El servicio puede estar offline.",
+        "erro_comunicacao": "Error de comunicación.",
+        "moeda_usd": "Dólar Americano",
+        "moeda_eur": "Euro",
+        "moeda_gbp": "Libra Esterlina",
+        "moeda_cny": "Yuan Chino",
+        "moeda_jpy": "Yen Japonés",
+        "moeda_chf": "Franco Suizo",
+        "moeda_cad": "Dólar Canadiense"
+      },
+      "permissao": {
+        "sem_aria": "Sin permiso para editar configuraciones",
+        "sem_msg": "Sin permiso para editar configuraciones. Los campos están en modo lectura."
+      },
+      "snapshot": {
+        "titulo": "Snapshot — Política de Actualización",
+        "desc": "Define qué roles y disparadores activan la re-snapshot automática cuando el registro base cambia. Persistido por workspace en la tabla",
+        "label_papeis": "Roles (actualización automática)",
+        "label_gatilhos": "Disparadores (transiciones de estado que re-snapshotan)",
+        "papel_importador": "Importador",
+        "papel_exportador": "Exportador",
+        "papel_fabricante": "Fabricante",
+        "papel_agente": "Agente",
+        "papel_despachante": "Despachante",
+        "papel_armador": "Armador",
+        "papel_ope": "OPE (Operación Portal Único)",
+        "gatilho_emissao": "Emisión del Pedido",
+        "gatilho_embarque": "Embarque",
+        "gatilho_desembaraco": "Despacho de aduanas",
+        "msg_salvo": "Política de snapshot guardada.",
+        "erro_salvar": "Error al guardar política"
       }
     },
     "campos": {
@@ -3304,7 +3622,9 @@
       "ref_importador": "Ref. Importador",
       "ref_exportador": "Ref. Exportador",
       "ref_fabricante": "Ref. Fabricante",
-      "data_emissao": "Fecha de Emisión"
+      "data_emissao": "Fecha de Emisión",
+      "part_number": "Part Number",
+      "ncm": "NCM"
     },
     "drawer": {
       "titulo_novo": "Nuevo Pedido",
@@ -3366,7 +3686,8 @@
       "erro_salvar": "Error al guardar el pedido. Inténtelo nuevamente.",
       "aria_fechar_drawer": "Cerrar panel",
       "aria_secoes_pedido": "Secciones del pedido",
-      "ph_sku": "SKU"
+      "ph_sku": "SKU",
+      "label_importador": "Importador"
     },
     "banner": {
       "snapshot_atualizado_titulo": "Catálogos actualizados",
@@ -3425,7 +3746,17 @@
       "falta_data_emissao_valida": "La fecha de emisión debe ser una fecha válida",
       "falta_documento_empresa": "{{nome}} aún no tiene CNPJ/Tax ID en Cadastros — necesario para el pedido",
       "empresa_br_sem_cnpj": "{{nome}} es una empresa BR sin CNPJ — empresas BR necesitan CNPJ en Cadastros antes de usarse en el pedido.",
-      "contraparte_pais_br": "{{nome}} es una empresa BR — en pedidos internacionales el {{papel}} debe ser extranjero. Elija otra empresa o ajuste el país en Cadastros."
+      "contraparte_pais_br": "{{nome}} es una empresa BR — en pedidos internacionales el {{papel}} debe ser extranjero. Elija otra empresa o ajuste el país en Cadastros.",
+      "subtitulo": "Rellene los datos del pedido y añada los artículos",
+      "label_incoterm": "Incoterm",
+      "ph_selecione_data": "Seleccione la fecha",
+      "ph_quantidade": "Cantidad",
+      "ph_valor_unitario": "Valor unitario",
+      "ph_calculado": "Calculado",
+      "moeda_erro": "Error: {{erro}}",
+      "moeda_sem_cadastro": "Sin monedas registradas",
+      "moeda_selecionar": "Seleccionar moneda",
+      "notif_criado": "Pedido {{numero}} creado con éxito."
     },
     "cadastro_empresa": {
       "titulo": "Registrar Empresa",
@@ -3476,7 +3807,17 @@
       "adicionar": "Agregar Ítem",
       "adicionando": "Agregando...",
       "ph_sku": "SKU",
-      "ph_descricao": "Descripción del ítem"
+      "ph_descricao": "Descripción del ítem",
+      "subtitulo": "Rellene los datos del artículo para añadirlo al pedido",
+      "label_qtd_inicial": "Cantidad Inicial del Artículo",
+      "ph_quantidade": "Cantidad",
+      "ph_selecionar_moeda": "Seleccionar moneda",
+      "ph_valor_unitario": "Valor unitario",
+      "ph_calculado": "Calculado",
+      "item_padrao": "artículo",
+      "notif_adicionado": "Artículo {{item}} añadido al PO.",
+      "erro_adicionar": "Error al añadir artículo. Intente de nuevo.",
+      "notif_falha": "Fallo al añadir artículo: {{msg}}"
     },
     "modal_dup": {
       "titulo": "Duplicar Pedidos ({{count}} seleccionado{{s}})",
@@ -3498,7 +3839,7 @@
       "col_num_copia": "Número de copia",
       "num_auto_badge": "auto",
       "num_placeholder": "Ej.: PO-2026/099",
-      "resultado_sucesso": "{{count}} pedido{{s}} duplicado{{s}} con éxito.",
+      "resultado_sucesso": "{{count}} pedido duplicado con éxito.",
       "erros_titulo": "{{count}} pedido{{s}} con error:",
       "duplicar": "Duplicar",
       "duplicando": "Duplicando...",
@@ -3537,7 +3878,17 @@
         "toggle_referencias": "Copiar referencias externas (proforma, invoice, LPCO)",
         "toggle_pesos": "Copiar pesos y dimensiones",
         "toggle_descricoes": "Copiar descripciones complementarias (PT/EN/ES/NF)"
-      }
+      },
+      "coluna_pedido": "Pedido",
+      "coluna_item": "Artículo",
+      "num_gerado_auto_placeholder": "(generado automáticamente)",
+      "aria_numero_copia": "Número de la copia del pedido {{pedido}}",
+      "subtitulo": "Cree copias de los pedidos o artículos seleccionados",
+      "aria_n_itens": "{{count}} artículos",
+      "aria_mais_itens": "Más {{count}} artículos",
+      "erro_carregar_preview": "Error al cargar vista previa",
+      "erro_duplicar": "Error al duplicar",
+      "toast_falha_duplicar": "Fallo al duplicar: {{msg}}"
     },
     "modal_cons": {
       "titulo": "Consolidar Pedidos ({{count}} seleccionados)",
@@ -3555,7 +3906,7 @@
       "badge_divergencia": "{{count}} orígenes",
       "fundir_label": "Fusionar ítems con el mismo part_number",
       "fundir_hint": "Suma las cantidades de ítems con el mismo part_number entre los pedidos",
-      "divergencias": "{{count}} divergencia{{s}} encontrada{{s}}",
+      "divergencias": "{{count}} divergencia encontrada",
       "consolidar": "Consolidar",
       "consolidando": "Consolidando...",
       "cancelar": "Cancelar",
@@ -3639,10 +3990,24 @@
       "aria_tabela_itens": "Ítems del pedido de origen",
       "aria_qtd_transferir": "Cantidad a transferir",
       "aria_fechar": "Cerrar modal de transferencia",
-      "aria_progresso": "Progreso del asistente de transferencia"
+      "aria_progresso": "Progreso del asistente de transferencia",
+      "passo1_label": "Escenario",
+      "passo2_label": "Destino",
+      "passo3_label": "Cantidades",
+      "passo4_label": "Revisión",
+      "passo5_label": "Confirmación",
+      "col_pedido": "Pedido",
+      "col_sequencia_item": "Secuencia del Artículo",
+      "aria_selecionar_item": "Seleccionar artículo {{item}}",
+      "carregando_pedidos": "Cargando pedidos…",
+      "erro_calcular_preview": "Error al calcular vista previa",
+      "toast_sucesso": "Transferencia completada: {{itens}} artículo(s), {{qtd}} un. de {{pedidos}} procesadas.",
+      "erro_confirmar": "Error al confirmar transferencia",
+      "toast_falha": "Fallo en la transferencia: {{msg}}",
+      "n_itens": "{{count}} artículos"
     },
     "modal_massa": {
-      "titulo": "Edición Masiva ({{count}} pedido{{s}} seleccionado{{s}})",
+      "titulo": "Edición Masiva ({{count}} pedido seleccionado)",
       "nivel_pedido": "Pedido",
       "nivel_item": "Ítem",
       "nivel_combinado": "Combinado",
@@ -3693,7 +4058,111 @@
       "aria_nivel_edicao": "Nivel de edición",
       "aria_resumo": "Resumen de la edición masiva",
       "aria_fechar": "Cerrar modal de edición masiva",
-      "aria_passo_atual": "Paso actual"
+      "aria_passo_atual": "Paso actual",
+      "passo1_label": "Campos",
+      "passo2_label": "Revisión",
+      "passo3_label": "Resultado",
+      "tipo_op_importacao": "Importación",
+      "tipo_op_exportacao": "Exportación",
+      "cobertura_com": "Con Cobertura",
+      "cobertura_sem": "Sin Cobertura",
+      "erro_sem_workspace": "Ningún espacio de trabajo seleccionado. Seleccione un espacio de trabajo en la parte superior de la pantalla antes de editar.",
+      "erro_demorou": "La operación tardó más de lo esperado. Intente de nuevo con menos pedidos seleccionados.",
+      "erro_inesperado": "Ocurrió un error inesperado. Intente de nuevo o contacte a soporte.",
+      "erro_sem_conexao": "No fue posible conectar al servidor. Intente de nuevo en unos segundos.",
+      "notif_falha": "Fallo en la edición masiva: {{msg}}",
+      "contador_campos": "{{count}} {{count, plural, one {campo} other {campos}}}",
+      "para_termo": "para \"{{termo}}\"",
+      "grupo_outros": "Otros",
+      "badge_item": "(ítem)",
+      "depara_alteracoes_count": "{{count}} {{count, plural, one {cambio} other {cambios}}}",
+      "depara_aria_lista": "Cambios de {{rotulo}} por pedido",
+      "nenhum_resultado": "Ningún resultado",
+      "buscar_placeholder": "Buscar...",
+      "nivel_titulo": "Nivel de edición",
+      "incoterms_indisponiveis": "Incoterms no disponibles — el campo se deshabilitará hasta que la lista cargue. ({{erro}})",
+      "tooltip_unique": "\"{{rotulo}}\" es único por organización — no es posible asignar el mismo valor a múltiples pedidos. Seleccione solo 1 pedido para editar este campo.",
+      "aria_operacao_para": "Operación para {{campo}}",
+      "aria_valor_para": "Valor para {{campo}}",
+      "bloqueado_unique": "Bloqueado — campo único",
+      "badge_unique_org": "Único por organización — seleccione 1 pedido",
+      "aria_remover_campo": "Eliminar campo {{campo}}",
+      "stat_pedidos_titulo": "Pedidos seleccionados",
+      "stat_itens_titulo": "Total de ítems",
+      "stat_inteiros_titulo": "Pedidos completos",
+      "stat_parciais_titulo": "Pedidos parciales",
+      "stat_categoria_edicao": "Edición Masiva",
+      "stat_categoria_itens": "Ítems",
+      "stat_categoria_todos_itens": "Todos los ítems seleccionados",
+      "stat_categoria_alguns_itens": "Algunos ítems seleccionados",
+      "stat_selecionados": "Seleccionados",
+      "stat_afetados": "Afectados",
+      "stat_total": "Total",
+      "stat_de_pedidos": "De pedidos",
+      "stat_label_pedidos": "Pedidos",
+      "stat_label_itens": "Ítems",
+      "stat_label_inteiros": "Pedidos completos",
+      "stat_label_parciais": "Pedidos parciales",
+      "stat_itens_count": "{{count}} {{count, plural, one {ítem} other {ítems}}}",
+      "stat_itens_fracao": "{{sel}}/{{total}} ítems",
+      "stat_nenhum_inteiro": "Ningún pedido completo",
+      "stat_nenhum_parcial": "Ningún pedido parcial",
+      "tipos_diferentes_titulo": "Atención — tipos de operación diferentes",
+      "tipos_diferentes_msg": "Está a punto de modificar pedidos de importación y exportación juntos. Confirme que esto es intencional antes de aplicar.",
+      "autofill_titulo": "Autocompletado al cambiar tipo de operación",
+      "autofill_msg": "El nombre y CNPJ del lado nacional se completarán automáticamente con datos del workspace de cada pedido:",
+      "autofill_cnpj_label": "CNPJ {{cnpj}}",
+      "autofill_sem_cnpj": "sin CNPJ",
+      "workspace_sem_cnpj_titulo": "Workspace sin CNPJ",
+      "workspace_sem_cnpj_msg": "{{count}} pedido(s) tienen workspace sin CNPJ registrado. El CNPJ quedará vacío en los pedidos afectados — puede rellenarlo en los Registros antes o continuar de todos modos.",
+      "status_critico_titulo": "Pedidos con estado crítico",
+      "status_critico_msg": "{{count}} pedido(s) con estado diferente de borrador/abierto: cambiar el tipo de operación puede causar inconsistencia con documentos legales ya emitidos. Estados afectados:",
+      "manual_sobrescreve_titulo": "Edición manual sobrescribe autocompletado",
+      "manual_sobrescreve_prefixo": "Ha editado manualmente",
+      "manual_sobrescreve_sufixo": "Este(s) valor(es) sobrescribirán el autocompletado del workspace.",
+      "pill_pedidos": "pedidos",
+      "pill_itens": "ítems",
+      "pill_campos": "campos",
+      "pill_nivel_pedido": "{{count}} nivel pedido",
+      "pill_nivel_item": "{{count}} nivel ítem",
+      "pedido_label": "Pedido:",
+      "filtrar_por_pedido": "Filtrar por pedido",
+      "todos_pedidos": "Todos los pedidos ({{count}})",
+      "filtro_todos": "Todos",
+      "filtro_alterados": "Con modificación",
+      "filtro_sem_efeito": "Sin efecto",
+      "vazio_paren": "(vacío)",
+      "valores_distintos": "{{count}} valores distintos",
+      "origens_count": "{{count}} orígenes",
+      "cascade_msg": "También modifica {{rotulo}} en los ítems",
+      "cascade_overrides": "{{count}} ítems serán sobrescritos",
+      "filtro_nenhum": "Ningún campo corresponde al filtro seleccionado.",
+      "resumo_com_erros": "{{sucessos}} de {{total}} pedido(s) actualizados — {{falhas}} con error",
+      "resumo_sucesso": "{{sucessos}} pedido(s) actualizados · {{itens}} ítems",
+      "campos_editados_titulo": "Campos editados",
+      "status_ok": "OK",
+      "status_erro": "Error",
+      "pedidos_com_erro": "Pedidos con error",
+      "aplicado": "Aplicado",
+      "falhou": "Falló",
+      "subtitulo": "Seleccione los campos que desea modificar en lote",
+      "grupo_identifica_o": "Identificación",
+      "grupo_exportador": "Exportador",
+      "grupo_importador": "Importador",
+      "grupo_fabricante": "Fabricante",
+      "grupo_ope": "OPE",
+      "grupo_comercial": "Comercial",
+      "grupo_partes": "Partes",
+      "grupo_c_mbio": "Cambio",
+      "grupo_f_sico": "Físico",
+      "grupo_documentos": "Documentos",
+      "grupo_log_stica": "Logística",
+      "grupo_datas": "Fechas",
+      "grupo_datas_draft_pedido": "Fechas Borrador Pedido",
+      "grupo_datas_draft_proforma": "Fechas Borrador Proforma",
+      "grupo_datas_draft_invoice": "Fechas Borrador Factura",
+      "grupo_produto": "Producto",
+      "grupo_quantidades": "Cantidades"
     },
     "massa_campos": {
       "numero_pedido": "Número de Pedido",
@@ -3816,7 +4285,67 @@
       "numero_lpco": "Nº LPCO",
       "numero_certificado_origem": "Nº Cert. Origen",
       "data_certificado_origem": "Fecha Cert. Origen",
-      "data_embarque_item": "Fecha de Embarque (Ítem)"
+      "data_embarque_item": "Fecha de Embarque (Ítem)",
+      "status_pedido": "Estado",
+      "tipo_operacao_pedido": "Tipo de Operación",
+      "moeda_pedido": "Moneda",
+      "unidade_comercializada_pedido": "Unidad Comercializada",
+      "incoterm_pedido": "Incoterm",
+      "cobertura_cambial_item": "Cobertura Cambiaria",
+      "valor_total_cambio_pedido": "Valor Total de Cambio",
+      "moeda_cambio_pedido": "Moneda de Cambio",
+      "taxa_cambio_estimada_pedido": "Tasa de Cambio Estimada",
+      "contrato_cambio_id_pedido": "Contrato de Cambio",
+      "numero_proforma_pedido": "Nº Proforma",
+      "numero_invoice_pedido": "Nº Factura",
+      "referencia_importador_pedido": "Referencia Importador",
+      "referencia_exportador_pedido": "Referencia Exportador",
+      "referencia_fabricante_pedido": "Referencia Fabricante",
+      "data_embarque_origem": "Fecha de Embarque",
+      "data_documento_proforma_pedido": "Fecha Documento Proforma",
+      "data_documento_invoice_pedido": "Fecha Documento Factura",
+      "data_previsao_recebimento_rascunho_pedido": "Borrador Pedido — Prev. Recepción",
+      "data_confirmacao_recebimento_rascunho_pedido": "Borrador Pedido — Conf. Recepción",
+      "data_previsao_aprovacao_rascunho_pedido": "Borrador Pedido — Prev. Aprobación",
+      "data_confirmacao_aprovacao_rascunho_pedido": "Borrador Pedido — Conf. Aprobación",
+      "data_previsao_recebimento_rascunho_proforma_pedido": "Borrador Proforma — Prev. Recepción",
+      "data_confirmacao_recebimento_rascunho_proforma_pedido": "Borrador Proforma — Conf. Recepción",
+      "data_meta_recebimento_rascunho_proforma_pedido": "Borrador Proforma — Meta Recepción",
+      "data_previsao_aprovacao_rascunho_proforma_pedido": "Borrador Proforma — Prev. Aprobación",
+      "data_confirmacao_aprovacao_rascunho_proforma_pedido": "Borrador Proforma — Conf. Aprobación",
+      "data_meta_aprovacao_rascunho_proforma_pedido": "Borrador Proforma — Meta Aprobación",
+      "data_previsao_envio_original_proforma_pedido": "Original Proforma — Prev. Envío",
+      "data_confirmacao_envio_original_proforma_pedido": "Original Proforma — Conf. Envío",
+      "data_meta_envio_original_proforma_pedido": "Proforma Original — Objetivo Envío",
+      "data_previsao_recebimento_original_proforma_pedido": "Proforma Original — Prev. Recepción",
+      "data_confirmacao_recebimento_original_proforma_pedido": "Proforma Original — Conf. Recepción",
+      "data_meta_recebimento_original_proforma_pedido": "Proforma Original — Objetivo Recepción",
+      "data_previsao_recebimento_rascunho_invoice_pedido": "Factura Borrador — Prev. Recepción",
+      "data_confirmacao_recebimento_rascunho_invoice_pedido": "Factura Borrador — Conf. Recepción",
+      "data_meta_recebimento_rascunho_invoice_pedido": "Factura Borrador — Objetivo Recepción",
+      "data_previsao_aprovacao_rascunho_invoice_pedido": "Factura Borrador — Prev. Aprobación",
+      "data_confirmacao_aprovacao_rascunho_invoice_pedido": "Factura Borrador — Conf. Aprobación",
+      "data_meta_aprovacao_rascunho_invoice_pedido": "Factura Borrador — Objetivo Aprobación",
+      "data_previsao_envio_original_invoice_pedido": "Factura Original — Prev. Envío",
+      "data_confirmacao_envio_original_invoice_pedido": "Factura Original — Conf. Envío",
+      "data_meta_envio_original_invoice_pedido": "Factura Original — Objetivo Envío",
+      "data_previsao_recebimento_original_invoice_pedido": "Factura Original — Prev. Recepción",
+      "data_confirmacao_recebimento_original_invoice_pedido": "Factura Original — Conf. Recepción",
+      "data_meta_recebimento_original_invoice_pedido": "Factura Original — Objetivo Recepción",
+      "part_number_item": "Part Number",
+      "ncm_item": "NCM",
+      "tipo_operacao_item": "Tipo de Operación (Artículo)",
+      "unidade_comercializada_item": "Unidad Comercializada (Artículo)",
+      "quantidade_inicial_item": "Cant. Inicial",
+      "quantidade_pronta_item": "Cant. Lista",
+      "quantidade_cancelada_item": "Cant. Cancelada",
+      "moeda_item": "Moneda (Artículo)",
+      "incoterm_item": "Incoterm (Artículo)",
+      "condicao_pagamento_item": "Cond. Pago (Artículo)",
+      "data_emissao_item": "Fecha Emisión (Artículo)",
+      "referencia_importador_item": "Referencia Importador",
+      "referencia_exportador_item": "Referencia Exportador",
+      "referencia_fabricante_item": "Referencia Fabricante"
     },
     "modal_pdf": {
       "titulo_singular": "Generar Documento — {{numero}}",
@@ -3849,7 +4378,10 @@
       "erro_sem_template": "Seleccione una plantilla.",
       "aria_fechar": "Cerrar modal",
       "aria_pedidos_selecionados": "Pedidos seleccionados",
-      "aria_modo_geracao": "Modo de generación"
+      "aria_modo_geracao": "Modo de generación",
+      "subtitulo": "Genere documentos PDF de los pedidos seleccionados",
+      "erro_selecione_template": "Seleccione una plantilla.",
+      "erro_gerar": "Error al generar documento"
     },
     "modal_col": {
       "titulo_novo": "Nueva Columna",
@@ -3882,7 +4414,44 @@
       "salvar": "Guardar",
       "aria_fechar": "Cerrar modal",
       "aria_nova_opcao": "Nueva opción de la lista",
-      "aria_adicionar_opcao": "Agregar opción"
+      "aria_adicionar_opcao": "Agregar opción",
+      "tipo_readonly": "El tipo de columna no puede ser modificado después de la creación.",
+      "subtitulo_edicao": "Modifique las propiedades de la columna personalizada",
+      "subtitulo_novo": "Cree una columna personalizada para organizar sus pedidos",
+      "aria_remover_token": "Eliminar {{label}}",
+      "clique_remover": "Haga clic para eliminar",
+      "limpar": "Limpiar",
+      "adicionar_campo": "Añadir campo",
+      "inserir_campo": "Insertar: {{label}}",
+      "gabi_como_montar": "Gabi · Cómo construir su fórmula",
+      "gabi_como_montar_texto": "Use los chips de arriba para insertar campos y los operadores (+, -, *, /) para construir su fórmula. Gabi analizará y sugerirá mejoras automáticamente.",
+      "gabi_erro_formula": "Error en la fórmula",
+      "gabi_formula_valida": "Fórmula válida",
+      "gabi_formula_correta": "La fórmula es correcta. Rellene los demás campos para crear la columna.",
+      "gabi_erro_circular": "Referencia circular: la fórmula crea un ciclo de dependencias.",
+      "gabi_titulo_nao_numerico": "Campo no numérico detectado",
+      "gabi_texto_nao_numerico": "{{campos}} {{count, plural, one {no es un campo numérico} other {no son campos numéricos}}}. En operaciones aritméticas, los campos de texto, fecha o casilla de verificación se tratarán como 0.",
+      "gabi_titulo_desconhecido": "Campo no reconocido",
+      "gabi_texto_desconhecido": "{{campos}} {{count, plural, one {no es un campo disponible} other {no son campos disponibles}}}. Use los chips de abajo para insertar campos válidos.",
+      "gabi_titulo_falta_operador": "Falta un operador",
+      "gabi_texto_falta_operador": "Parece que falta un operador entre \"{{antes}}\" y \"{{token}}\". Elija el que tenga más sentido e insértelo entre los dos campos.",
+      "gabi_formula_invalida": "Fórmula inválida",
+      "erro_salvar": "Error al guardar columna.",
+      "usar_sugestao_tooltip": "Usar esta sugerencia",
+      "usar": "Usar",
+      "aria_remover_opcao": "Eliminar opción {{opcao}}",
+      "nenhuma_opcao": "Ninguna opción añadida",
+      "itens_diferentes": "Los ítems pueden tener datos diferentes",
+      "itens_diferentes_hint": "Cada ítem del pedido podrá tener su propio valor en esta columna",
+      "dados_nao_migrados": "Los datos existentes no se migrarán automáticamente. Los valores del pedido se mantendrán y los ítems comenzarán vacíos.",
+      "pedido_editavel": "El pedido también es editable",
+      "pedido_editavel_hint": "Además de los ítems, el valor a nivel de pedido también podrá ser rellenado",
+      "valor_padrao_hint": "Valor rellenado automáticamente al crear un nuevo pedido/ítem",
+      "marcado_padrao": "Marcado por defecto",
+      "desmarcado_padrao": "Desmarcado por defecto",
+      "sem_valor_padrao": "Sin valor por defecto",
+      "adicione_opcoes_padrao": "Añada opciones arriba para definir un valor por defecto",
+      "grupo_minhas_colunas": "Mis Columnas"
     },
     "smart_import": {
       "titulo": "Importar Pedidos",
@@ -3931,7 +4500,1575 @@
       "prog_xlsx_2": "Mapeando campos con IA...",
       "prog_xlsx_3": "Verificando duplicados en el sistema...",
       "prog_xlsx_4": "Preparando vista previa...",
-      "aria_fechar": "Cerrar modal de importación"
+      "aria_fechar": "Cerrar modal de importación",
+      "err_network_titulo": "Sin conexión con el servidor",
+      "err_network_msg": "No fue posible conectar con el servidor.",
+      "err_network_causa": "Puede ser internet inestable, servidor caído o firewall bloqueando.",
+      "err_network_sug1": "Verifique su conexión a internet",
+      "err_network_sug2": "Actualice la página (F5) e intente nuevamente",
+      "err_network_sug3": "Si persiste, contacte a soporte",
+      "err_arquivo_ausente_titulo": "No ha seleccionado ningún archivo",
+      "err_arquivo_ausente_msg": "La carga llegó al servidor sin archivo adjunto.",
+      "err_arquivo_ausente_sug1": "Haga clic en el área \"Arrastre un archivo o haga clic para seleccionar\"",
+      "err_arquivo_ausente_sug2": "Elija un archivo .xlsx, .csv, .xml, .txt, .json o .pdf",
+      "err_sem_dados_titulo": "La hoja de cálculo está vacía",
+      "err_sem_dados_msg": "El archivo no tiene ninguna línea de datos.",
+      "err_sem_dados_causa": "Ha descargado la plantilla y no ha rellenado ninguna línea de datos.",
+      "err_sem_dados_sug1": "Rellene al menos 1 línea de datos (líneas 3+ de la hoja de cálculo)",
+      "err_sem_dados_sug2": "La línea 1 es el encabezado de grupo (PEDIDO/ARTÍCULO)",
+      "err_sem_dados_sug3": "La línea 2 es el encabezado con el nombre de los campos",
+      "err_sem_dados_sug4": "Use la plantilla descargada como referencia",
+      "acao_baixar_template": "Descargar plantilla",
+      "err_formato_titulo": "Formato no aceptado",
+      "err_formato_msg": "Este formato de archivo no es compatible.",
+      "err_formato_sug1": "Aceptados: xlsx, xls, csv, xml, txt, json, pdf",
+      "err_formato_sug2": "Guarde su archivo en formato Excel (.xlsx) — Archivo > Guardar como",
+      "err_formato_sug3": "Para CSV, use UTF-8 y separador , o ;",
+      "err_json_formato_titulo": "JSON con formato esperado",
+      "err_json_formato_msg": "El archivo JSON no tiene el formato que el sistema entiende.",
+      "err_json_formato_causa": "El sistema espera un array de objetos: [{...}, {...}].",
+      "err_json_formato_sug1": "Verifique si el JSON es un array (comienza con [ y termina con ])",
+      "err_json_formato_sug2": "Cada elemento del array debe ser un objeto con los campos del pedido",
+      "err_json_formato_sug3": "Si es posible, prefiera Excel (.xlsx) — es más fácil de editar",
+      "err_json_malformado_titulo": "JSON malformado",
+      "err_json_malformado_msg": "El archivo JSON tiene un error de sintaxis.",
+      "err_json_malformado_causa": "JSON inválido — coma sobrante, llave no cerrada, comillas incorrectas, etc.",
+      "err_json_malformado_sug1": "Pegue el contenido en https://jsonlint.com para identificar la línea del error",
+      "err_json_malformado_sug2": "Verifique que todas las llaves abren ({) y cierran (})",
+      "err_json_malformado_sug3": "Verifique que no haya coma después del último elemento",
+      "err_json_malformado_sug4": "Las cadenas deben usar comillas dobles, no simples",
+      "err_json_vazio_titulo": "JSON sin datos",
+      "err_json_vazio_msg": "El archivo JSON es válido pero no contiene ningún registro.",
+      "err_json_vazio_causa": "Array vacío: [] — no hay nada para importar.",
+      "err_json_vazio_sug1": "Verifique la fuente que generó el JSON",
+      "err_json_vazio_sug2": "Confirme si el filtro/consulta trajo líneas",
+      "err_json_vazio_sug3": "Para plantilla, prefiera Excel (.xlsx)",
+      "err_pdf_protegido_titulo": "PDF protegido con contraseña",
+      "err_pdf_protegido_msg": "El PDF tiene protección de contraseña y no puede ser leído automáticamente.",
+      "err_pdf_protegido_sug1": "Abra el PDF, vaya a Archivo > Imprimir > Guardar como PDF (sin protección)",
+      "err_pdf_protegido_sug2": "O use herramientas como SmallPDF/iLovePDF para eliminar la contraseña",
+      "err_pdf_protegido_sug3": "Después de eliminar la protección, suba el archivo nuevamente",
+      "err_pdf_escaneado_titulo": "PDF escaneado (sin texto)",
+      "err_pdf_escaneado_msg": "El PDF parece estar escaneado — contiene solo imágenes, sin texto extraíble.",
+      "err_pdf_escaneado_causa": "Los documentos escaneados necesitan pasar por OCR (reconocimiento óptico) antes.",
+      "err_pdf_escaneado_sug1": "Use Adobe Acrobat > Reconocer texto (OCR) y guarde nuevamente",
+      "err_pdf_escaneado_sug2": "O herramientas en línea: SmallPDF OCR, ilovepdf.com/ocr",
+      "err_pdf_escaneado_sug3": "Después de OCR, exporte a Excel (.xlsx) — más confiable",
+      "err_pdf_invalido_titulo": "PDF no válido",
+      "err_pdf_invalido_msg": "El archivo enviado no es un PDF real.",
+      "err_pdf_invalido_causa": "Los archivos guardados como \"página web\" (.html) no funcionan incluso con extensión .pdf.",
+      "err_pdf_invalido_sug1": "Abra en el navegador y guarde como PDF real (Ctrl+P > Guardar como PDF)",
+      "err_pdf_invalido_sug2": "O prefiera Excel (.xlsx) — la extracción es más confiable",
+      "err_pdf_invalido_sug3": "Los PDFs escaneados (imagen) no son compatibles — necesita OCR",
+      "err_rate_limit_titulo": "Demasiadas subidas en poco tiempo",
+      "err_rate_limit_msg": "Se ha alcanzado el límite de subidas por minuto.",
+      "err_rate_limit_sug1": "Espere 60 segundos antes de realizar otra subida",
+      "err_rate_limit_sug2": "Límite: 10 subidas por minuto",
+      "err_unauth_preview_titulo": "Sesión expirada",
+      "err_unauth_preview_msg": "Los datos de la vista previa ya no pertenecen a su sesión.",
+      "err_unauth_preview_sug1": "Recargue la página (Ctrl+Shift+R)",
+      "err_unauth_preview_sug2": "Suba el archivo nuevamente",
+      "acao_recarregar_pagina": "Recargar página",
+      "err_http500_titulo": "Error en el servidor",
+      "err_http500_msg": "El servidor falló al procesar la solicitud.",
+      "err_http500_sug1": "Intente nuevamente en 30 segundos",
+      "err_http500_sug2": "Si persiste, abra un ticket con el código a continuación",
+      "err_http413_titulo": "Archivo demasiado grande",
+      "err_http413_msg": "El archivo excede el límite de 10 MB.",
+      "err_http413_sug1": "Tamaño máximo: 10 MB",
+      "err_http413_sug2": "Divida en varios archivos más pequeños",
+      "err_http413_sug3": "O comprima (xlsx ya está comprimido)",
+      "err_http401_titulo": "Sesión expirada",
+      "err_http401_msg": "Necesita estar logueado para importar pedidos.",
+      "err_http401_sug1": "Recargue la página (Ctrl+Shift+R)",
+      "err_http401_sug2": "Si persiste, inicie sesión nuevamente",
+      "err_http403_titulo": "Sin permiso",
+      "err_http403_msg": "No tiene permiso para importar pedidos.",
+      "err_http403_sug1": "Solicite al Master de su organización el permiso \"pedido:lista:editar\"",
+      "err_fallback_upload_titulo": "No fue posible procesar el archivo",
+      "err_fallback_concluir_titulo": "No fue posible concluir",
+      "err_fallback_sug1": "Verifique si el archivo sigue la plantilla descargable",
+      "err_fallback_sug2": "Intente nuevamente — si persiste, abra un ticket con el código a continuación",
+      "err_final_upload_titulo": "Error en la carga",
+      "err_final_confirmar_titulo": "Error en la confirmación",
+      "err_final_sug1": "Intente nuevamente",
+      "err_final_sug2": "Si persiste, abra un ticket con el código a continuación",
+      "toast_sucesso": "{{count}} PO(s) importadas vía SmartImport.",
+      "toast_falha": "Fallo en la importación: {{msg}}",
+      "title_resolver_conflitos": "Resuelva los conflictos de mapeo antes de continuar",
+      "subtitulo": "Importe ítems a partir de hoja de cálculo o documento",
+      "conflito_titulo": "⚠️ Conflicto de mapeo:",
+      "conflito_detalhe": "\"{{colunas}}\" apuntan a \"{{campo}}\"",
+      "conflito_instrucao": ". Elija solo 1 columna por campo (marque las otras como \"Ignorar\").",
+      "concluida": "Importación concluida — {{count}} pedido(s) procesado(s)",
+      "nenhum_importado": "Ningún pedido fue importado",
+      "criados": "Creados",
+      "atualizados": "Actualizados",
+      "pulados": "Omitidos",
+      "erros": "Errores",
+      "linhas_com_erro": "Líneas con error:",
+      "baixar_relatorio": "Descargar informe (.csv)",
+      "linha_label": "Línea {{linha}}",
+      "importante": "Importante:",
+      "aviso_status_p1": "Pedidos creados con estado",
+      "aviso_status_p2": "Verifique los datos importados y cambie el estado a",
+      "aviso_status_p3": "cuando esté listo.",
+      "ver_pedidos_importados": "Ver Pedidos Importados",
+      "revertendo": "Revirtiendo...",
+      "reverter_importacao": "Revertir esta importación",
+      "marca_criados": "Marca los pedidos creados como Cancelado",
+      "marca_criados_atualizados": "Marca los pedidos creados y actualizados como Cancelado",
+      "revertido_msg": "Importación revertida — pedidos marcados como Cancelado",
+      "reverter_titulo": "Revertir importación",
+      "reverter_desc": "{{count}} pedido(s) serán marcados como Cancelado. Esta acción no se puede deshacer.",
+      "erro_desconhecido": "Error desconocido",
+      "erro_reverter": "Error al revertir",
+      "campo_extra_tooltip": "Campo extra — datos preservados en campos_custom",
+      "campo_extra": "Campo extra",
+      "grupo_pedido": "PEDIDO",
+      "grupo_item": "ITEM",
+      "grupo_outros": "Otros",
+      "trocar_arquivo": "Cambiar archivo",
+      "contador_essenciais": "{{mapeados}} de {{total}}",
+      "essenciais_mapeados": "campos esenciales mapeados",
+      "obrigatorios_faltando": "{{count}} {{count, plural, one {obligatorio} other {obligatorios}}} faltantes",
+      "total_legenda": "(total: {{mapeadas}}/{{total}})",
+      "memoria_aplicada": "Memoria aplicada",
+      "remapear_tooltip": "Ignorar memoria y remapear manualmente",
+      "remapear": "Remapear",
+      "ver_documento": "Ver documento",
+      "aria_lembrar": "Recordar este mapeo para futuras importaciones",
+      "lembrar_mapeamento": "Recordar este mapeo",
+      "aria_modo_exibicao": "Modo de visualización",
+      "modo_essencial_tooltip": "Muestra solo campos críticos y principales (31 campos)",
+      "modo_essencial": "Esencial",
+      "modo_completo_tooltip": "Muestra todos los campos del archivo (incluyendo secundarios)",
+      "modo_completo": "Completo",
+      "buscar_placeholder": "Buscar columna del archivo, valor o campo...",
+      "aria_buscar": "Buscar campos del mapeo",
+      "mostrando_de": "Mostrando {{mostrando}} de {{total}}",
+      "aria_tabela_mapeamento": "Mapeo de columnas",
+      "col_coluna_arquivo": "Columna del Archivo",
+      "col_valor_extraido": "Valor Extraído",
+      "col_campo_sistema": "Campo en el Sistema",
+      "col_confianca": "Confianza",
+      "col_inferido_por": "Inferido Por",
+      "campo_obrigatorio_tooltip": "Campo obligatorio — sin esto no se crea el pedido",
+      "aria_obrigatorio": "obligatorio",
+      "aria_essencial": "esencial",
+      "aria_editar_valor": "Editar valor de ejemplo de {{coluna}}",
+      "aria_confirmar_edicao": "Confirmar edición",
+      "confirmar_enter": "Confirmar (Enter)",
+      "aria_cancelar_edicao": "Cancelar edición",
+      "cancelar_esc": "Cancelar (Esc)",
+      "editar_valor_tooltip": "Editar valor (afecta solo la 1ª línea — para cambios por línea, usa la Vista Previa)",
+      "campo_extra_preservar": "→ Campo extra (preservar)",
+      "descartar_campo": "✕ Descartar este campo",
+      "aria_campo_sistema": "Campo de sistema para {{coluna}}",
+      "inferido_memoria": "Memoria",
+      "inferido_ia": "IA",
+      "inferido_dados": "Datos",
+      "inferido_usuario": "Usuario",
+      "nenhum_filtro_corresponde": "Ningún campo coincide con los filtros actuales.",
+      "mostrar_todos": "Mostrar todos",
+      "documento_importado": "Documento importado"
+    },
+    "dashboard": {
+      "insight_atrasados_tag": "Atención",
+      "insight_atrasados_texto": "Tiene {{count}} pedido(s) con plazo vencido. Priorice la regularización para evitar costos adicionales.",
+      "insight_atrasados_stat_label": "Tasa de retraso",
+      "insight_atrasados_link": "Ver pedidos atrasados",
+      "insight_sem_exportador_tag": "Registro incompleto",
+      "insight_sem_exportador_texto": "{{count}} pedido(s) aún no tienen exportador definido. Complete el registro para liberar el proceso.",
+      "insight_sem_exportador_stat_label": "Pedidos sin exportador",
+      "insight_sem_exportador_link": "Completar registro",
+      "insight_cancelados_tag_atencao": "Atención",
+      "insight_cancelados_tag_alerta": "Alerta",
+      "insight_cancelados_texto": "{{count}} pedido(s) cancelado(s) representan el {{pct}} del total. Evalúe los motivos de cancelación.",
+      "insight_cancelados_stat_label": "Total de pedidos",
+      "insight_cancelados_link": "Ver pedidos cancelados",
+      "insight_rascunho_tag": "Pendiente",
+      "insight_rascunho_texto": "{{count}} pedido(s) en borrador esperando finalización. Concluya el registro para ponerlos en marcha.",
+      "insight_rascunho_stat_label": "Pedidos en borrador",
+      "insight_rascunho_link": "Ver borradores",
+      "insight_abertos_tag": "Operacional",
+      "insight_abertos_texto": "{{count}} pedido(s) abiertos en operación. Siga el progreso de cerca.",
+      "insight_abertos_stat_label_transferida": "Cantidad transferida",
+      "insight_abertos_stat_label_abertos": "Pedidos abiertos",
+      "insight_abertos_link": "Ver pedidos abiertos",
+      "insight_transferencia_tag": "Transferencia",
+      "insight_transferencia_texto": "{{count}} pedido(s) en curso con transferencias en marcha.",
+      "insight_transferencia_stat_label": "Tasa de transferencia",
+      "insight_transferencia_link": "Ver pedidos en transferencia",
+      "insight_qtd_pronta_tag": "Producción",
+      "insight_qtd_pronta_texto": "{{qtd}} artículos listos, equivalente al {{pct}} de la cantidad inicial.",
+      "insight_qtd_pronta_stat_label": "Cantidad actual",
+      "insight_qtd_pronta_link": "Ver artículos listos",
+      "insight_consolidados_tag": "Concluido",
+      "insight_consolidados_texto": "{{count}} pedido(s) consolidado(s) con éxito.",
+      "insight_consolidados_stat_label": "Pedidos consolidados",
+      "insight_consolidados_link": "Ver pedidos consolidados",
+      "insight_financeiro_tag": "Financiero",
+      "insight_financeiro_texto": "El valor total de los pedidos en el período es de {{valor}}.",
+      "insight_financeiro_stat_label_ticket": "Ticket promedio",
+      "insight_financeiro_stat_label_total": "Total de pedidos",
+      "insight_financeiro_link": "Ver detalles financieros",
+      "insight_cambio_brl_tag": "Tipo de cambio",
+      "insight_cambio_brl_texto": "Valor convertido a reales considerando las tasas de cambio de {{moedas}}.",
+      "insight_cambio_brl_moedas_parcial": "parte de las monedas",
+      "insight_cambio_brl_moedas_todas": "todas las monedas",
+      "insight_cambio_brl_stat_label": "Valor total en BRL",
+      "insight_cambio_brl_link": "Ver conversión de tipo de cambio",
+      "insight_valor_itens_tag": "Artículos",
+      "insight_valor_itens_texto": "Los artículos de los pedidos suman un valor significativo en el período.",
+      "insight_valor_itens_stat_label": "Valor total de los artículos",
+      "insight_valor_itens_link": "Ver valor de los artículos",
+      "insight_tendencia_volume_tag_crescente": "Tendencia al alza",
+      "insight_tendencia_volume_tag_queda": "Tendencia a la baja",
+      "insight_tendencia_volume_texto_crescente": "El volumen de pedidos creció un {{pct}} en relación con el período anterior.",
+      "insight_tendencia_volume_texto_queda": "El volumen de pedidos cayó un {{pct}} en relación con el período anterior.",
+      "insight_tendencia_volume_stat_label": "Pedidos en el período anterior",
+      "insight_tendencia_volume_link": "Ver evolución de volumen",
+      "insight_tendencia_valor_tag_aumentou": "Valor al alza",
+      "insight_tendencia_valor_tag_reduziu": "Valor a la baja",
+      "insight_tendencia_valor_texto_aumentou": "El valor total aumentó un {{pct}} en relación con el período anterior.",
+      "insight_tendencia_valor_texto_reduziu": "El valor total se redujo un {{pct}} en relación con el período anterior.",
+      "insight_tendencia_valor_stat_label": "Variación en el período",
+      "insight_tendencia_valor_link": "Ver evolución de valor",
+      "insight_imp_exp_tag": "Importación vs Exportación",
+      "insight_imp_exp_texto": "El {{pctImp}}% de los pedidos son de importación y el {{pctExp}}% de exportación.",
+      "insight_imp_exp_stat_label": "Total de operaciones",
+      "insight_imp_exp_link": "Ver distribución por tipo",
+      "insight_status_ok_tag": "Todo en orden",
+      "insight_status_ok_texto": "Ninguna alerta por el momento. Sus pedidos están al día.",
+      "insight_status_ok_stat_label": "Total de pedidos",
+      "insight_status_ok_link": "Ver todos los pedidos",
+      "insight_dica_periodo_tag": "Consejo",
+      "insight_dica_periodo_texto": "Amplíe el período seleccionado para visualizar más datos y tendencias.",
+      "insight_dica_periodo_stat_label": "Período actual",
+      "insight_dica_periodo_link": "Ajustar período",
+      "periodo_7d": "7 días",
+      "periodo_30d": "30 días",
+      "periodo_90d": "90 días",
+      "periodo_12m": "12 meses",
+      "periodo_current_year": "Año actual",
+      "empty_campo_padrao": "el campo seleccionado",
+      "empty_campo_juntor": " y ",
+      "empty_distribution": "No hay datos de distribución para {{campos}} en el período seleccionado.",
+      "empty_linha": "No hay datos de evolución para {{campos}} en el período seleccionado.",
+      "empty_barras": "No hay datos para {{campos}} en el período seleccionado.",
+      "empty_padrao": "No hay datos para mostrar en el período seleccionado.",
+      "empty_gabi_tag": "GABI",
+      "empty_ampliar_para": "Ampliar a",
+      "empty_periodo_maximo": "Período máximo alcanzado",
+      "empty_editar_campos": "Editar campos",
+      "empty_remover_widget": "Eliminar widget",
+      "widget_adicionado": "Widget \"{{titulo}}\" añadido al dashboard.",
+      "gabi_label": "GABI",
+      "gabi_insight_anterior": "Insight anterior",
+      "gabi_proximo_insight": "Próximo insight",
+      "gabi_ao_vivo": "En vivo",
+      "status_abertos": "Abiertos",
+      "status_em_andamento": "En curso",
+      "status_atrasados": "Atrasados",
+      "status_concluidos": "Concluidos",
+      "onboarding_titulo": "Arma tu dashboard",
+      "onboarding_texto": "Añade widgets para seguir tus pedidos con gráficos e indicadores personalizados.",
+      "onboarding_explorar_sugestoes": "Explorar sugerencias",
+      "onboarding_criar_dashboard": "Crear dashboard desde cero",
+      "painel_opcoes": "Opciones del panel",
+      "painel_excluir_prefixo": "Eliminar el panel",
+      "painel_excluir_sufixo": "?",
+      "painel_renomear": "Renombrar",
+      "painel_excluir": "Eliminar",
+      "painel_excluir_unico_bloqueado": "No es posible eliminar el único panel.",
+      "painel_novo_placeholder": "Nombre del panel",
+      "painel_criar": "Crear",
+      "painel_novo": "Nuevo panel",
+      "ncm_nao_sincronizada": "La tabla NCM aún no ha sido sincronizada.",
+      "ncm_itens_invalidos_tooltip": "{{count}} artículo(s) con NCM inválido.",
+      "ncm_desatualizada": "NCM desactualizada",
+      "ncm_invalido_chip": "{{count}} NCM inválido(s)"
+    },
+    "kanban": {
+      "tipo_importacao": "Importación",
+      "tipo_exportacao": "Exportación",
+      "itens_contagem_one": "{{count}} artículo",
+      "itens_contagem_other": "{{count}} artículos",
+      "aba_pedido": "Pedido",
+      "aba_quantidades": "Cantidades",
+      "aba_datas": "Fechas",
+      "aba_lembrete": "Recordatorio",
+      "status_label": "Estado",
+      "editar_na_lista": "Editar en la lista",
+      "clique_editar": "Haz clic para editar",
+      "clique_ver_itens": "Haz clic para ver los artículos",
+      "unidade": "Unidad: {{unidade}}",
+      "lembrete_info": "Configura recordatorios para este pedido en la pantalla completa.",
+      "abrir_pedido_completo": "Abrir pedido completo",
+      "localizar": "Localizar pedido...",
+      "total_pedidos_one": "{{count}} pedido",
+      "total_pedidos_other": "{{count}} pedidos",
+      "nenhum_pedido": "Ningún pedido encontrado",
+      "sem_permissao_aria": "No tienes permiso para editar el Kanban",
+      "sem_permissao_banner": "No tienes permiso para mover pedidos entre columnas.",
+      "status": {
+        "rascunho": "Borrador",
+        "aberto": "Abierto",
+        "em_andamento": "En Curso",
+        "aprovado": "Aprobado",
+        "transferencia": "Transferido",
+        "consolidado": "Consolidado",
+        "cancelado": "Cancelado"
+      }
+    },
+    "excluir": {
+      "erro_carregar_preview": "Error al cargar la verificación de los pedidos.",
+      "notif_pedidos_excluidos_one": "{{count}} pedido eliminado",
+      "notif_pedidos_excluidos_other": "{{count}} pedidos eliminados",
+      "notif_itens_excluidos_one": "{{count}} artículo eliminado",
+      "notif_itens_excluidos_other": "{{count}} artículos eliminados",
+      "notif_concluida": "Eliminación completada.",
+      "erro_excluir": "Error al eliminar.",
+      "notif_falha": "Error al eliminar: {{msg}}",
+      "aria_concluida": "Eliminación completada",
+      "titulo_concluida": "Eliminación completada",
+      "subtitulo_concluida": "Los registros seleccionados han sido eliminados.",
+      "resultado_pedidos_one": "{{count}} pedido eliminado.",
+      "resultado_pedidos_other": "{{count}} pedidos eliminados.",
+      "resultado_itens_one": "{{count}} artículo eliminado.",
+      "resultado_itens_other": "{{count}} artículos eliminados.",
+      "resultado_sem_item_one": "{{count}} pedido fue eliminado por quedarse sin artículos.",
+      "resultado_sem_item_other": "{{count}} pedidos fueron eliminados por quedarse sin artículos.",
+      "contagem_pedidos_one": "{{count}} pedido",
+      "contagem_pedidos_other": "{{count}} pedidos",
+      "contagem_itens_one": "{{count}} artículo",
+      "contagem_itens_other": "{{count}} artículos",
+      "contagem_separador": " y ",
+      "aria_modal": "Eliminar pedidos y artículos",
+      "titulo": "Eliminar {{contagem}}",
+      "subtitulo": "Revisa los registros antes de confirmar la eliminación.",
+      "verificando": "Verificando pedidos...",
+      "aviso_irreversivel": "Esta acción es irreversible.",
+      "aviso_misto": "Los pedidos y artículos seleccionados serán eliminados permanentemente.",
+      "aviso_pedidos": "Los pedidos seleccionados serán eliminados permanentemente.",
+      "aviso_itens": "Los artículos seleccionados serán eliminados permanentemente.",
+      "secao_permitidos_one": "{{count}} pedido será eliminado",
+      "secao_permitidos_other": "{{count}} pedidos serán eliminados",
+      "aviso_transf_um": "El pedido {{numero}} tiene {{count}} transferencia vinculada que también será eliminada.",
+      "aviso_transf_varios": "{{pedidos}} pedidos tienen {{count}} transferencias vinculadas que también serán eliminadas.",
+      "tabela_pedidos_aria": "Pedidos que serán eliminados",
+      "col_numero": "Número",
+      "col_itens": "Artículos",
+      "col_transferencias": "Transferencias",
+      "celula_itens_one": "{{count}} artículo",
+      "celula_itens_other": "{{count}} ítems",
+      "celula_registros_one": "{{count}} registro",
+      "celula_registros_other": "{{count}} registros",
+      "secao_bloqueados_one": "{{count}} pedido no puede ser eliminado",
+      "secao_bloqueados_other": "{{count}} pedidos no pueden ser eliminados",
+      "erro_nenhum_permitido": "Ninguno de los pedidos seleccionados puede ser eliminado.",
+      "erro_sem_dados": "Ningún pedido disponible para eliminar.",
+      "secao_itens_one": "{{count}} ítem será eliminado",
+      "secao_itens_other": "{{count}} ítems serán eliminados",
+      "tabela_itens_aria": "Ítems que serán eliminados",
+      "col_num_pedido": "Pedido",
+      "col_num_item": "Ítem",
+      "col_descricao": "Descripción",
+      "botao_excluindo": "Eliminando...",
+      "botao_excluido": "Eliminado",
+      "botao_falhou": "Falló",
+      "botao_excluir": "Eliminar"
+    },
+    "card_usuario": {
+      "titulo_editar": "Editar Tarjeta",
+      "titulo_novo": "Nueva Tarjeta Personalizada",
+      "label_nome": "Nombre",
+      "ph_nome": "Ej: Saldo Financiero",
+      "label_icone": "Icono",
+      "label_cor": "Color",
+      "label_formula": "Fórmula",
+      "ph_formula": "Agregue campos y operadores abajo",
+      "btn_limpar": "Limpiar",
+      "label_campos_disponiveis": "Campos disponibles",
+      "btn_salvar": "Guardar",
+      "btn_criar": "Crear Tarjeta"
+    },
+    "formulario": {
+      "sem_permissao_salvar": "Sin permiso para guardar pedido",
+      "label_tipo_operacao": "Tipo de Operación",
+      "opt_importacao": "Importación",
+      "opt_exportacao": "Exportación",
+      "label_numero_pedido": "Número de Pedido *",
+      "ph_numero_pedido": "Ej: PO-2026/001",
+      "label_exportador": "Exportador",
+      "ph_exportador": "Seleccionar exportador",
+      "label_fabricante": "Fabricante",
+      "ph_fabricante": "Seleccionar fabricante",
+      "label_incoterm": "Incoterm",
+      "label_moeda": "Moneda",
+      "selecionar_moeda": "Seleccionar moneda",
+      "label_condicao_pagamento": "Condición de Pago",
+      "ph_condicao_pagamento": "Ej: 30% Anticipado",
+      "label_numero_proforma": "Número de Proforma",
+      "label_numero_invoice": "Número de Factura",
+      "label_ref_importador": "Ref. Importador",
+      "label_ref_exportador": "Ref. Exportador",
+      "label_ref_fabricante": "Ref. Fabricante",
+      "label_data_emissao": "Fecha de Emisión",
+      "label_part_number": "Número de Parte *",
+      "ph_part_number": "SKU",
+      "label_ncm": "NCM *",
+      "label_descricao": "Descripción *",
+      "ph_descricao": "Descripción del artículo",
+      "label_quantidade": "Cantidad *",
+      "label_valor_item": "Valor del Artículo",
+      "remover_item": "Eliminar artículo"
+    },
+    "anexos": {
+      "titulo": "Anexos",
+      "adicionar": "Añadir",
+      "adicionar_anexo": "Añadir anexo",
+      "dropzone_aria": "Arrastre archivos aquí para subir",
+      "dropzone_texto": "Arrastre archivos aquí o haga clic en Añadir",
+      "enviando": "Enviando...",
+      "fechar_erro": "Cerrar error",
+      "nenhum_anexo": "Ningún anexo",
+      "visualizar": "Visualizar",
+      "visualizar_arquivo": "Visualizar {{nome}}",
+      "baixar": "Descargar",
+      "baixar_arquivo": "Descargar {{nome}}",
+      "excluir": "Eliminar",
+      "excluir_arquivo": "Eliminar {{nome}}",
+      "fechar_preview": "Cerrar vista previa",
+      "preview_aria": "Vista previa: {{nome}}",
+      "preview_de": "Vista previa de {{nome}}",
+      "excluir_anexo_titulo": "Eliminar anexo",
+      "excluir_anexo_desc": "Esta acción no se puede deshacer.",
+      "erro_carregar": "Error al cargar anexos",
+      "erro_upload": "Error al subir",
+      "erro_baixar": "Error al descargar archivo",
+      "erro_preview": "Error al cargar vista previa",
+      "erro_excluir": "Error al eliminar anexo"
+    },
+    "cel_anexos": {
+      "anexar_arquivo": "Adjuntar archivo",
+      "arquivos_anexados_one": "{{count}} archivo adjunto",
+      "arquivos_anexados_other": "{{count}} archivos adjuntos",
+      "coluna_arquivos_aria_one": "{{coluna}}: {{count}} archivo",
+      "coluna_arquivos_aria_other": "{{coluna}}: {{count}} archivos",
+      "painel_aria": "Archivos — {{coluna}}",
+      "fechar_painel": "Cerrar panel de anexos",
+      "nenhum_arquivo": "Ningún archivo adjunto",
+      "baixar": "Descargar",
+      "baixar_arquivo": "Descargar {{nome}}",
+      "excluir": "Eliminar",
+      "excluir_arquivo": "Eliminar {{nome}}",
+      "selecionar_arquivo": "Seleccionar archivo para subir",
+      "enviando": "Enviando...",
+      "erro_carregar": "Error al cargar archivos.",
+      "erro_enviar": "Error al enviar archivo.",
+      "erro_excluir": "Error al eliminar archivo.",
+      "erro_baixar": "Error al descargar archivo."
+    },
+    "kanban_colunas": {
+      "titulo": "Columnas del Kanban",
+      "descricao": "Selecciona qué columnas de estado aparecen en el Kanban. Los nuevos estados creados aparecen automáticamente.",
+      "nenhum_status": "Ningún estado configurado",
+      "preview_label": "Vista Previa — columnas visibles en el Kanban",
+      "nenhuma_coluna_visivel": "Ninguna columna visible",
+      "ativos": "ACTIVOS",
+      "contador_colunas": "{{count}} columna(s)",
+      "hint_olho_ocultar": "Ojo para ocultar la columna en el Kanban",
+      "nenhuma_coluna_adicione": "Ninguna columna visible — añade abajo",
+      "badge_sistema": "sistema",
+      "tooltip_sistema": "Columna obligatoria — estado de sistema siempre visible en el Kanban",
+      "aria_coluna_obrigatoria": "Columna obligatoria",
+      "tooltip_ocultar": "Ocultar columna",
+      "aria_ocultar": "Ocultar columna",
+      "aria_mover_disponiveis": "Mover a disponibles",
+      "disponiveis_adicionar": "DISPONIBLES PARA AÑADIR",
+      "hint_clique_mais": "haz clic en + para añadir",
+      "coluna": "Columna",
+      "todas_visiveis": "Todas las columnas están visibles",
+      "tooltip_exibir": "Mostrar columna en el Kanban",
+      "aria_exibir": "Mostrar columna",
+      "rodape_info": "Estas son las columnas predeterminadas. Para crear nuevos estados, accede a la sección <strong>Estados</strong> en el menú lateral."
+    },
+    "popover_filtro": {
+      "aria_dialog": "Filtrar columna {{label}}",
+      "crescente": "Asc.",
+      "decrescente": "Desc.",
+      "filtrar_por": "FILTRAR POR",
+      "buscar_placeholder": "Buscar...",
+      "vazio": "(vacío)",
+      "nenhum_valor": "Ningún valor encontrado",
+      "intervalo": "INTERVALO",
+      "min": "Mín",
+      "max": "Máx",
+      "limpar_filtro": "× Limpiar filtro",
+      "aplicar": "Aplicar"
+    },
+    "config_colunas": {
+      "tipo_texto": "Texto",
+      "tipo_numero": "Número",
+      "tipo_data": "Fecha",
+      "tipo_select": "Select",
+      "tipo_checkbox": "Checkbox",
+      "tipo_percentual": "Porcentual (%)",
+      "tipo_documento": "Tipo de Documento",
+      "escopo_pedido": "Pedido",
+      "escopo_item": "Artículo",
+      "escopo_ambos": "Ambos",
+      "visib_todos": "Todos",
+      "visib_roles": "Por Perfil",
+      "visib_privado": "Solo yo",
+      "erro_carregar": "No fue posible cargar las columnas. Intente nuevamente.",
+      "erro_excluir": "Error al eliminar columna. Intente nuevamente.",
+      "titulo": "Columnas Personalizadas",
+      "nova_coluna": "Nueva Columna",
+      "aria_carregando": "Cargando columnas",
+      "vazio": "Ninguna columna creada. Haga clic en \"Nueva Columna\" para empezar.",
+      "aria_tabela": "Columnas personalizadas",
+      "aria_arrastar_th": "Arrastrar",
+      "aria_arrastar_reordenar": "Arrastrar para reordenar",
+      "th_nome": "Nombre",
+      "th_tipo": "Tipo",
+      "th_escopo": "Alcance",
+      "th_visibilidade": "Visibilidad",
+      "th_acoes": "Acciones",
+      "aria_editar": "Editar columna {{nome}}",
+      "aria_excluir": "Eliminar columna {{nome}}",
+      "modal_excluir_titulo": "Eliminar columna",
+      "modal_excluir_descricao": "Los valores existentes serán preservados."
+    },
+    "snapshot_cadastros": {
+      "papel_importador": "Importador",
+      "papel_importador_desc": "Empresa que figura como importador en el pedido",
+      "papel_exportador": "Exportador",
+      "papel_exportador_desc": "Empresa que figura como exportador en el pedido",
+      "papel_fabricante": "Fabricante",
+      "papel_fabricante_desc": "Fabricante de la mercancía",
+      "papel_agente": "Agente",
+      "papel_agente_desc": "Agente comercial o de carga",
+      "papel_despachante": "Despachante",
+      "papel_despachante_desc": "Despachante aduanero / bróker",
+      "papel_armador": "Armador",
+      "papel_armador_desc": "Compañía marítima armadora",
+      "erro_carregar_status": "Error al cargar el estado del Pedido.",
+      "matriz_salva": "Matriz de instantánea guardada.",
+      "titulo": "Matriz de Snapshot — Registros",
+      "descricao": "Cada pedido guarda una copia (snapshot) de los datos del registro en el momento en que se abre. Use esta matriz para decidir, por <strong>rol</strong> y <strong>estado del pedido</strong>, si el snapshot debe ser re-sincronizado automáticamente cuando el registro base sea modificado.",
+      "tooltip_padrao": "Marca los estados iniciales y congela los finales",
+      "padrao_recomendado": "Estándar recomendado",
+      "tooltip_marcar_todos": "Habilita todas las celdas",
+      "marcar_todos": "Marcar todos",
+      "tooltip_desmarcar_todos": "Deshabilita todas las celdas",
+      "desmarcar_todos": "Desmarcar todos",
+      "carregando": "Cargando estados del Pedido…",
+      "nenhum_status": "Ningún estado registrado. Registre al menos un estado del Pedido en <strong>Configuración &gt; Estados</strong> antes de configurar la matriz.",
+      "aria_tabela": "Matriz de snapshot — roles por estado",
+      "papel_status": "Rol \\ Estado",
+      "title_alternar_coluna": "Haga clic para alternar la columna entera",
+      "title_alternar_linha": "Haga clic para alternar la fila entera",
+      "legenda": "<strong>Activado</strong> = el snapshot se re-sincroniza cuando el registro base cambia mientras el pedido está en este estado.<br /><strong>Desactivado</strong> = el snapshot permanece congelado — los cambios en el registro base no alcanzan a los pedidos en este estado."
+    },
+    "smart_preview": {
+      "tipo_operacao_importacao": "Importación",
+      "tipo_operacao_exportacao": "Exportación",
+      "status_ok": "Ok",
+      "status_aviso": "Aviso",
+      "status_erro": "Error",
+      "aria_selecionar_linha": "Seleccionar pedido de la línea {{linha}}",
+      "badge_novo_pedido": "NUEVO PEDIDO",
+      "badge_com_aviso": "CON AVISO",
+      "badge_com_erro": "CON ERROR",
+      "aria_numero_pedido": "Número del pedido",
+      "dica_enter_esc": "Enter ✓ · Esc ✕",
+      "aria_editar_numero": "Editar número del pedido",
+      "title_editar_numero": "Editar número (Enter para confirmar, Esc para cancelar)",
+      "editado": "editado",
+      "linha_n": "línea {{linha}}",
+      "duplicata_aviso": "El pedido ya existe en el sistema.",
+      "decisao_sobrescrever": "Sobrescribir",
+      "decisao_criar": "Crear de todos modos",
+      "decisao_pular": "Omitir",
+      "aria_decisao_duplicado": "Decisión para pedido duplicado",
+      "campos_atualizados": "Campos que serán actualizados:",
+      "outros_campos": "+ {{count}} otros campos",
+      "ocultar_campos": "Ocultar campos",
+      "ver_campos_detectados": "Ver {{count}} campo(s) detectado(s)",
+      "aria_obrigatorio": "obligatorio",
+      "aria_confirmar_edicao": "Confirmar edición",
+      "title_confirmar_enter": "Confirmar (Enter)",
+      "aria_cancelar_edicao": "Cancelar edición",
+      "title_cancelar_esc": "Cancelar (Esc)",
+      "valor_vazio": "(vacío)",
+      "aria_editar_campo": "Editar {{campo}}",
+      "title_editar_valor": "Editar valor",
+      "n_alertas": "{{count}} alerta(s)",
+      "aria_adicionar_item": "Añadir elemento en línea",
+      "btn_adicionar_item_aqui": "Añadir Elemento aquí (sin volver a la hoja de cálculo)",
+      "novo_item_para": "Nuevo artículo para <strong>{{numero}}</strong>:",
+      "btn_adicionar_item": "Añadir Artículo",
+      "title_adicionar_item_ao_pedido": "Añadir artículo al pedido",
+      "title_part_number_obrigatorio": "Part Number es obligatorio",
+      "resumo_pedidos_unicos": "<strong>{{selecionados}}</strong> pedido(s) de <strong>{{total}}</strong> únicos",
+      "resumo_linhas_incluidas": "<strong>{{count}}</strong> línea(s) incluidas",
+      "resumo_atualizados": "<strong>{{count}}</strong> actualiz.",
+      "resumo_pulados": "<strong>{{count}}</strong> omitidos",
+      "resumo_com_erro": "<strong>{{count}}</strong> con error",
+      "aria_filtrar_pedidos": "Filtrar pedidos",
+      "filtro_todos": "Todos ({{count}})",
+      "filtro_ok": "Ok ({{count}})",
+      "filtro_aviso": "Aviso ({{count}})",
+      "filtro_erro": "Error ({{count}})",
+      "btn_selecionar_validas": "Seleccionar válidas",
+      "btn_incluir_avisos": "+ Incluir avisos",
+      "btn_selecionar_todas": "Seleccionar todas",
+      "btn_limpar_selecao": "Limpiar selección"
+    },
+    "lista": {
+      "erro": {
+        "http_400": "Datos inválidos. Verifique el valor ingresado e intente nuevamente.",
+        "http_401": "Sesión expirada. Recargue la página e inicie sesión nuevamente.",
+        "http_403": "Sin permiso para editar este campo.",
+        "http_404": "Registro no encontrado. Actualice la página.",
+        "http_409": "Conflicto de edición — otra pestaña ya modificó este registro. Valor restaurado.",
+        "http_422": "Valor inválido para este campo. Verifique el formato esperado.",
+        "http_429": "Demasiadas solicitudes. Espere unos segundos e intente nuevamente.",
+        "http_5xx": "Error interno del servidor. Intente nuevamente en unos instantes.",
+        "resposta_invalida": "El servidor devolvió una respuesta inválida. Intente nuevamente o contacte al soporte.",
+        "sem_conexao": "Sin conexión con el servidor. Verifique su red e intente nuevamente.",
+        "timeout": "La solicitud tardó demasiado. Verifique su conexión e intente nuevamente.",
+        "cancelada": "La operación fue cancelada. Intente nuevamente.",
+        "generico": "Error al guardar. Intente de nuevo o contacte al soporte.",
+        "desconhecido": "Error desconocido",
+        "pedido_nao_encontrado": "Pedido no encontrado",
+        "pedido_item_nao_localizado": "No fue posible localizar el pedido de este artículo. Recargue la página.",
+        "editar_valor_total_item": "Error al editar valor_total_item",
+        "editar_moeda_item": "Error al editar moneda del artículo",
+        "editar_moeda_item_obj": "Error al editar moneda_item",
+        "editar_unidade_item": "Error al editar unidad_comercializada_item",
+        "editar_valor_unidade_item": "Error al editar valor_por_unidade_item",
+        "atualizar_unidade_item": "Error al actualizar unidad del artículo",
+        "atualizar_qtd_pronta": "Error al actualizar cantidad lista",
+        "salvar_data": "Error al guardar fecha",
+        "editar_campo_pedido": "Error al editar campo {{campo}} del pedido",
+        "editar_campo": "Error al editar campo {{campo}}"
+      },
+      "tipo_operacao": {
+        "importacao": "Importación",
+        "exportacao": "Exportación"
+      },
+      "coluna_dinamica": {
+        "valor_total": "Valor Total del Pedido/Artículo",
+        "qtd_inicial": "Cant. Inicial del Pedido/Artículo",
+        "qtd_pronta": "Cant. Lista del Pedido/Artículo",
+        "saldo": "Saldo del Pedido/Artículo",
+        "qtd_transferida": "Cant. Transferida del Pedido/Artículo",
+        "qtd_cancelada": "Cant. Cancelada del Pedido/Artículo",
+        "peso_liquido": "Peso Neto Total del Pedido/Artículo",
+        "peso_bruto": "Peso Bruto Total del Pedido/Artículo",
+        "cubagem": "Cubicaje Total del Pedido/Artículo"
+      },
+      "saldo_pedido": {
+        "titulo": "Saldo del Pedido",
+        "descricao_prefixo": "Calculado en base a los artículos — no editable.",
+        "link_editor": "Editar fórmula en el Configurador"
+      },
+      "acao": {
+        "editar_pedido": "Editar pedido"
+      },
+      "notif": {
+        "item_excluido": "Artículo eliminado con éxito.",
+        "erro_excluir_item": "Error al eliminar artículo. Intente de nuevo.",
+        "erro_reordenar": "Error al reordenar artículos. Intente de nuevo.",
+        "campo_atualizado": "Campo actualizado con éxito.",
+        "ordem_resetada": "El orden manual de los pedidos fue restablecido por la ordenación por columna."
+      },
+      "indicador": {
+        "recebeu_enviou": "Recibió y envió transferencias",
+        "recebeu": "Recibió artículos de otro pedido",
+        "enviou": "Transfirió artículos a otro pedido",
+        "consolidado": "Pedido consolidado",
+        "item_transferido": "Este artículo tuvo cantidad transferida"
+      },
+      "modal_transferir": {
+        "titulo": "Transferir Cantidad — {{part}}",
+        "saldo_disponivel": "Saldo disponible",
+        "quantidade_label": "Cantidad a Transferir",
+        "confirmado": "✓ Transferencia de {{qtd}} registrada."
+      },
+      "fechar_erro": "Cerrar error",
+      "cockpit": {
+        "titulo": "Crear Pedido vía API",
+        "subtitulo": "Use la API de Cockpit para crear pedidos programáticamente",
+        "endpoint": "Endpoint",
+        "autenticacao": "Autenticación",
+        "exemplo_payload": "Ejemplo de Payload",
+        "gerencie_tokens_prefixo": "Gestione sus tokens en",
+        "gerencie_tokens_link": "Configuración → API"
+      },
+      "card": {
+        "total_brl_titulo": "Total Pedidos — BRL",
+        "total_brl_subtexto": "Todos los pedidos convertidos a R$",
+        "sem_taxa": "— sin tarifa",
+        "saldo": "saldo"
+      },
+      "sem_permissao_editar": "Sin permiso para editar",
+      "aria_lista_pedidos": "Lista de pedidos",
+      "export_titulo": "Pedidos",
+      "export_linha": {
+        "item": "Artículo",
+        "pedido": "Pedido"
+      }
+    },
+    "visao_geral": {
+      "donut": {
+        "legenda_total": "pedidos",
+        "titulo": "Distribución por Modal"
+      },
+      "taxa_aprovacao": {
+        "em_tempo": "A tiempo: {{pct}}%",
+        "atrasadas": "Atrasadas: {{pct}}%",
+        "sem_resposta": "Sin respuesta: {{pct}}%",
+        "em_tempo_short": "a tiempo",
+        "titulo": "Tasa de Aprobación"
+      },
+      "mapa": {
+        "titulo": "Visión General Global de Cotizaciones",
+        "subtitulo": "Ubicaciones estratégicas, bids activos y saving acumulado por terminal (Arrastrar para Girar)",
+        "legenda_maritimo": "Marítimo",
+        "legenda_aereo": "Aéreo",
+        "aumentar_zoom": "Aumentar Zoom",
+        "diminuir_zoom": "Disminuir Zoom",
+        "restaurar_globo": "Restaurar Globo",
+        "pausar_rotacao": "Pausar Rotación",
+        "iniciar_rotacao": "Iniciar Rotación",
+        "bids_ativos": "Bids Activos",
+        "cotacoes_count_one": "{{count}} cotización",
+        "cotacoes_count_other": "{{count}} cotizaciones",
+        "melhor_preco": "Mejor Precio",
+        "saving_medio": "Saving Medio",
+        "saving": "Saving",
+        "transit_time": "Tiempo de Tránsito",
+        "dias_count_one": "{{count}} día",
+        "dias_count_other": "{{count}} días",
+        "fornecedor_abreviado": "Prov",
+        "fornecedor_lider": "Prov. Líder",
+        "clique_ver_rotas": "Clic para ver rutas",
+        "rotas_ativas": "Rutas Activas: {{local}}",
+        "sem_rotas": "Ninguna ruta activa registrada para este terminal."
+      },
+      "hud": {
+        "titulo": "HUD de Cotizaciones Globales",
+        "live_feed": "LIVE FEED",
+        "subtitulo": "Rankings en tiempo real • 200 bids",
+        "tab_origens": "Orígenes",
+        "tab_destinos": "Destinos",
+        "tab_modais": "Modales",
+        "bids_count_one": "{{count}} bid",
+        "bids_count_other": "{{count}} bids"
+      },
+      "modal": {
+        "maritimo": "Marítimo",
+        "aereo": "Aéreo",
+        "rodoviario": "Terrestre"
+      },
+      "header": {
+        "titulo": "Visión General",
+        "subtitulo": "Panorama de los pedidos — volumen, estado, valores y plazos",
+        "novo_pedido": "Nuevo Pedido"
+      },
+      "kpi": {
+        "andamento_titulo": "Pedidos en curso",
+        "andamento_tendencia": "+3 sem.",
+        "andamento_subtexto": "R$ {{valor}} pendiente",
+        "concluido_titulo": "Pedidos concluidos",
+        "concluido_tendencia": "+12% mes",
+        "concluido_subtexto": "R$ {{valor}} total",
+        "valor_total_titulo": "Valor total",
+        "valor_total_subtexto": "Ticket promedio R$ {{valor}}",
+        "taxa_atraso_titulo": "Tasa de retraso",
+        "taxa_atraso_subtexto_one": "{{count}} pedido retrasado",
+        "taxa_atraso_subtexto_other": "{{count}} pedidos retrasados"
+      },
+      "alertas": {
+        "titulo": "Alertas",
+        "hoje": "Hoy"
+      },
+      "funil": {
+        "titulo": "Embudo de Cotizaciones"
+      },
+      "barras": {
+        "titulo": "Cotizaciones por Mes",
+        "subtitulo": "Últimos 6 meses",
+        "aprovadas": "Aprobadas",
+        "em_andamento": "En curso",
+        "recusadas": "Rechazadas"
+      },
+      "moedas": {
+        "titulo": "Monedas de los Pedidos",
+        "vazio": "Sin pedidos en el período.",
+        "pedidos_count_one": "{{count}} pedido",
+        "pedidos_count_other": "{{count}} pedidos"
+      },
+      "maior_pedido": {
+        "titulo": "Pedido de Mayor Valor del Período",
+        "descricao": "Pedido de mayor valor entre {{total}} pedidos del período.",
+        "vazio": "Ningún pedido en el período."
+      },
+      "incoterms": {
+        "titulo": "Top Incoterms",
+        "vazio": "Ningún incoterm informado en los pedidos."
+      },
+      "footer": "Indicadores y gráficos con datos reales de los pedidos • globo ilustrativo en esta etapa",
+      "modal_alerta": {
+        "titulo_padrao": "Detalles de la Cotización / Pedido",
+        "titulo_atrasado": "Pedido Retrasado",
+        "titulo_a_vencer": "Pedido por Vencer (7 días)",
+        "titulo_rascunho": "Pedido en Borrador",
+        "titulo_novos": "Nuevos Pedidos (7 días)",
+        "referencia": "Referencia",
+        "tab_geral": "General",
+        "tab_itens": "Artículos",
+        "tab_propostas": "Propuestas",
+        "tab_historico": "Historial",
+        "campo_origem": "Origen",
+        "campo_destino": "Destino",
+        "campo_mercadoria": "Mercancía / Descripción",
+        "campo_peso_total": "Peso Total",
+        "campo_cubagem": "Cubicaje (M³)",
+        "campo_incoterm": "Incoterm",
+        "campo_valor_limite": "Valor Límite / Estimado",
+        "campo_modalidade": "Modalidad",
+        "col_codigo": "Código",
+        "col_descricao": "Descripción",
+        "col_qtd": "Cant",
+        "col_peso": "Peso (Kg)",
+        "unidades_one": "{{count}} ud",
+        "unidades_other": "{{count}} uds",
+        "transit_time": "Tiempo de tránsito",
+        "por_autor": "por {{autor}}",
+        "pedido_atualizado": "¡Pedido actualizado con éxito!"
+      }
+    },
+    "valor_total_brl": "Total Pedidos — BRL",
+    "valor_total_brl_desc": "Todos los pedidos convertidos a R$",
+    "cards": {
+      "total_pedidos": {
+        "subtexto": "{{count}} ítems en total",
+        "row": {
+          "abertos": "Abiertos",
+          "em_andamento": "En curso",
+          "concluidos": "Concluidos"
+        }
+      },
+      "valor_total": {
+        "subtexto": "Suma de todos los pedidos",
+        "row": {
+          "moeda": "Moneda",
+          "media_por_pedido": "Promedio por pedido"
+        }
+      },
+      "qtd_total": {
+        "subtexto": "{{saldo}} saldo actual",
+        "row": {
+          "pronto": "Listo",
+          "saldo_vivo": "Saldo vivo"
+        }
+      },
+      "pedidos_atrasados": {
+        "subtexto": "Pedidos con plazo vencido",
+        "row": {
+          "atrasados": "Atrasados"
+        }
+      },
+      "pedidos_abertos": {
+        "subtexto": "Pedidos con estado abierto",
+        "row": {
+          "abertos": "Abiertos"
+        }
+      },
+      "pedidos_em_andamento": {
+        "subtexto": "Pedidos en curso",
+        "row": {
+          "em_andamento": "En curso"
+        }
+      },
+      "cobertura_pendente": {
+        "subtexto": "Sin cobertura cambiaria",
+        "row": {
+          "aguardando_cobertura": "Esperando cobertura"
+        }
+      },
+      "itens_prontos": {
+        "subtexto": "Ítems con producción concluida",
+        "row": {
+          "prontos": "Listos"
+        }
+      },
+      "qtd_atual_total": {
+        "subtexto": "Saldo disponible de todos los ítems",
+        "row": {
+          "saldo_atual": "Saldo actual",
+          "qtd_inicial": "Cantidad inicial",
+          "transferido": "Transferido"
+        }
+      },
+      "qtd_transferida_total": {
+        "subtexto": "Ya asignado en procesos logísticos",
+        "row": {
+          "transferido": "Transferido",
+          "percentual": "% del total"
+        }
+      },
+      "qtd_inicial_total": {
+        "subtexto": "Suma de las cantidades originales de los ítems",
+        "row": {
+          "qtd_inicial": "Cantidad inicial",
+          "saldo_vivo": "Saldo vivo"
+        }
+      },
+      "valor_itens_total": {
+        "subtexto": "Suma del valor de todos los ítems",
+        "row": {
+          "total_itens": "Total ítems",
+          "media_por_item": "Promedio por ítem"
+        }
+      },
+      "custom": {
+        "row": {
+          "valor": "Valor"
+        }
+      }
+    },
+    "dashboard_widgets": {
+      "field_total_pedidos": "Total de Pedidos",
+      "field_pedidos_abertos": "Pedidos Abiertos",
+      "field_pedidos_em_andamento": "En Curso",
+      "field_pedidos_atrasados": "Pedidos Atrasados",
+      "field_pedidos_consolidados": "Consolidados",
+      "field_pedidos_cancelados": "Cancelados",
+      "field_pedidos_rascunho": "Borradores",
+      "field_valor_total": "Valor Total de los Pedidos",
+      "field_valor_total_brl": "Exposición Cambiaria (BRL)",
+      "field_cobertura_pendente": "Cobertura Cambiaria a Contratar",
+      "field_valor_itens_total": "Valor de los Artículos (FOB/CIF)",
+      "field_qtd_total": "Cantidad Total",
+      "field_itens_prontos": "Artículos Listos",
+      "field_qtd_atual_total": "Cant. Actual (Artículos)",
+      "field_qtd_transferida_total": "Cant. Transferida",
+      "field_qtd_inicial_total": "Cant. Inicial (Artículos)",
+      "dim_status_pedidos": "Estado de los Pedidos",
+      "title_kpi_total_pedidos": "Total de Pedidos",
+      "title_kpi_pedidos_abertos": "Pedidos Abiertos",
+      "title_kpi_saldo_total": "Saldo Total (Cant)",
+      "title_kpi_valor_total": "Valor Total (BRL)",
+      "title_gabi_insights": "GABI AI · Insights",
+      "title_pedidos_por_mes": "Pedidos por Mes",
+      "title_valor_total_trend": "Evolución del Valor Total",
+      "title_section_alertas": "Alertas Operacionales",
+      "title_kpi_pedidos_atrasados": "Pedidos Atrasados",
+      "title_kpi_sem_exportador": "Sin Exportador",
+      "title_kpi_qtd_pronta": "Cant. Lista",
+      "title_status_dist": "Distribución por Estado",
+      "title_tipo_operacao_dist": "Importación vs Exportación",
+      "title_kpi_qtd_inicial": "Cant. Inicial Total",
+      "title_kpi_qtd_transferida": "Cant. Transferida",
+      "title_kpi_valor_itens": "Valor Total de los Artículos"
+    },
+    "coluna_filho": {
+      "part_number": {
+        "label": "Nº de Artículo",
+        "tooltip_titulo": "Nº de Artículo"
+      },
+      "ncm": {
+        "label": "NCM"
+      },
+      "descricao_item": {
+        "label": "Descripción del Artículo",
+        "tooltip_titulo": "Descripción del Artículo"
+      },
+      "quantidade_inicial_pedido": {
+        "label": "Cant. Inicial del Artículo en el Pedido",
+        "tooltip_titulo": "Cantidad Inicial",
+        "tooltip_descricao": "Cantidad original del artículo — valor inmutable"
+      },
+      "quantidade_atual_pedido": {
+        "label": "Saldo del Artículo",
+        "tooltip_titulo": "Saldo",
+        "tooltip_descricao": "Cantidad inicial menos canceladas y transferidas"
+      },
+      "quantidade_pronta_total_item_pedido": {
+        "label": "Cantidad Lista del Artículo en el Pedido",
+        "tooltip_titulo": "Cantidad Lista",
+        "tooltip_descricao": "Cantidad producida por la fábrica y validada para embarque"
+      },
+      "quantidade_transferida_pedido": {
+        "label": "Cantidad Transferida del Artículo en el Pedido",
+        "tooltip_titulo": "Cantidad Transferida",
+        "tooltip_descricao": "Cantidad ya transferida de este artículo a otros pedidos.",
+        "tooltip_bloqueado": "Campo calculado — incrementado automáticamente al ejecutar una transferencia. No puede ser editado directamente."
+      },
+      "quantidade_cancelada_pedido": {
+        "label": "Cantidad Cancelada del Artículo en el Pedido",
+        "tooltip_titulo": "Cantidad Cancelada",
+        "tooltip_descricao": "Total cancelado permanentemente — se resta del saldo inicial"
+      },
+      "sequencia_item": {
+        "label": "Sec. Artículo",
+        "tooltip_titulo": "Secuencia del Artículo",
+        "tooltip_descricao": "Número secuencial del artículo dentro del pedido (según factura)"
+      },
+      "descricao_completa_item_pt": {
+        "label": "Descripción Completa del Artículo/Producto",
+        "tooltip_titulo": "Descripción Completa del Producto",
+        "tooltip_descricao": "Descripción técnica detallada del producto según catálogo"
+      },
+      "descricao_completa_item_nf": {
+        "label": "Descripción Completa del Artículo/Producto - NF",
+        "tooltip_titulo": "Descripción Espejo de la Factura",
+        "tooltip_descricao": "Descripción del producto tal como se mostrará en la factura de entrada"
+      },
+      "quantidade_unidade_estatistica": {
+        "label": "Cant. Est.",
+        "tooltip_titulo": "Cantidad en la Unidad Estadística",
+        "tooltip_descricao": "Cantidad del artículo expresada en la unidad estadística exigida por la DUIMP"
+      },
+      "peso_liquido_unitario": {
+        "label": "Peso Neto Unitario del Artículo",
+        "tooltip_titulo": "Peso Neto Unitario",
+        "tooltip_descricao": "Peso neto unitario del producto, en kg"
+      },
+      "peso_bruto_unitario": {
+        "label": "Peso Bruto Unitario del Artículo",
+        "tooltip_titulo": "Peso Bruto Unitario",
+        "tooltip_descricao": "Peso bruto unitario incluyendo embalaje, en kg"
+      },
+      "cubagem_unitaria": {
+        "label": "Cubicaje Unitario del Artículo",
+        "tooltip_titulo": "Cubicaje Unitario",
+        "tooltip_descricao": "Volumen unitario del producto, en m³"
+      },
+      "tipo_embalagem": {
+        "label": "Tipo de Embalaje",
+        "tooltip_titulo": "Tipo de Embalaje",
+        "tooltip_descricao": "Tipo de embalaje del producto (ej: Caja, Pallet, Tambor)"
+      },
+      "numero_lpco": {
+        "label": "Número de LPCO",
+        "tooltip_titulo": "Número de LPCO",
+        "tooltip_descricao": "Licencia, Permiso, Certificado u Otros documentos exigidos para importación"
+      },
+      "numero_certificado_origem": {
+        "label": "Número del Certificado de Origen",
+        "tooltip_titulo": "Número del Certificado de Origen",
+        "tooltip_descricao": "Número del certificado de origen emitido por el exportador o cámara de comercio"
+      },
+      "data_certificado_origem": {
+        "label": "Fecha de emisión del Certificado de Origen",
+        "tooltip_titulo": "Fecha del Certificado de Origen",
+        "tooltip_descricao": "Fecha de emisión del certificado de origen"
+      },
+      "grupo_item": {
+        "label": "Grupo del Artículo/Producto",
+        "tooltip_titulo": "Grupo del Producto",
+        "tooltip_descricao": "Grupo de clasificación del producto según registro"
+      },
+      "subgrupo_item": {
+        "label": "Subgrupo del Artículo/Producto",
+        "tooltip_titulo": "Subgrupo del Producto",
+        "tooltip_descricao": "Subgrupo de clasificación del producto dentro del grupo principal"
+      },
+      "campo_especial_item": {
+        "label": "Campo Especial del Artículo/Producto",
+        "tooltip_titulo": "Campo Especial",
+        "tooltip_descricao": "Campo configurable para uso interno o integraciones específicas"
+      },
+      "descricao_completa_item_en": {
+        "label": "Descripción Completa del Artículo/Producto - Inglés",
+        "tooltip_titulo": "Product Description (English)",
+        "tooltip_descricao": "Descripción del producto en inglés, según factura internacional"
+      },
+      "descricao_completa_item_es": {
+        "label": "Descripción Completa del Artículo/Producto - Español",
+        "tooltip_titulo": "Descripción del Producto (Español)",
+        "tooltip_descricao": "Descripción del producto en español"
+      },
+      "texto_posicao_ncm": {
+        "label": "Texto NCM",
+        "tooltip_titulo": "Texto de la Posición NCM",
+        "tooltip_descricao": "Descripción oficial de la posición arancelaria NCM según TEC"
+      },
+      "atributos_catalogo": {
+        "label": "Atributo del Producto - Catálogo",
+        "tooltip_titulo": "Atributos — Catálogo de Productos",
+        "tooltip_descricao": "Atributos técnicos del producto según catálogo (color, voltaje, etc.)"
+      },
+      "anexo_lpco": {
+        "label": "Anexo LPCO",
+        "tooltip_titulo": "Anexo de la LPCO",
+        "tooltip_descricao": "Archivo de la Licencia, Permiso, Certificado u Otros (LPCO)"
+      },
+      "data_transferencia_item": {
+        "label": "Fecha de Transferencia del Artículo",
+        "tooltip_titulo": "Fecha de Transferencia del Producto/Artículo",
+        "tooltip_descricao": "Fecha en que el artículo fue transferido a un proceso logístico"
+      },
+      "data_consolidacao_item": {
+        "label": "Fecha de Consolidación del Artículo",
+        "tooltip_titulo": "Fecha de Consolidación del Producto/Artículo",
+        "tooltip_descricao": "Fecha en que el artículo fue consolidado en un proceso"
+      },
+      "data_prevista_conferencia_draft_lpco": {
+        "label": "Fch Prev. Conferencia Borrador LPCO",
+        "tooltip_titulo": "Fecha Prevista de Conferencia — Borrador de la LPCO",
+        "tooltip_descricao": "Fecha prevista para la conferencia del borrador de la LPCO"
+      },
+      "data_confirmada_conferencia_draft_lpco": {
+        "label": "Fch Conf. Conferencia Borrador LPCO",
+        "tooltip_titulo": "Fecha Confirmada de Conferencia — Borrador de la LPCO",
+        "tooltip_descricao": "Fecha confirmada de conferencia del borrador de la LPCO"
+      },
+      "data_meta_conferencia_draft_lpco": {
+        "label": "Fch Meta Conferencia Borrador LPCO",
+        "tooltip_titulo": "Fecha Meta de Conferencia — Borrador de la LPCO",
+        "tooltip_descricao": "Fecha meta para la conferencia del borrador de la LPCO"
+      },
+      "data_prevista_aprovacao_draft_lpco": {
+        "label": "Fch Prev. Aprobación Borrador LPCO",
+        "tooltip_titulo": "Fecha Prevista de Aprobación — Borrador de la LPCO",
+        "tooltip_descricao": "Fecha prevista para la aprobación del borrador de la LPCO"
+      },
+      "data_confirmada_aprovacao_draft_lpco": {
+        "label": "Fch Conf. Aprobación Borrador LPCO",
+        "tooltip_titulo": "Fecha Confirmada de Aprobación — Borrador de la LPCO",
+        "tooltip_descricao": "Fecha confirmada de aprobación del borrador de la LPCO"
+      },
+      "data_meta_aprovacao_draft_lpco": {
+        "label": "Fch Meta Aprobación Borrador LPCO",
+        "tooltip_titulo": "Fecha Meta de Aprobación — Borrador de la LPCO",
+        "tooltip_descricao": "Fecha meta para la aprobación del borrador de la LPCO"
+      },
+      "data_prevista_registro_lpco": {
+        "label": "Fch Prev. Registro de la LPCO",
+        "tooltip_titulo": "Fecha Prevista del Registro de la LPCO",
+        "tooltip_descricao": "Fecha prevista para el registro de la LPCO en el organismo competente"
+      },
+      "data_confirmada_registro_lpco": {
+        "label": "Fch Conf. Registro de la LPCO",
+        "tooltip_titulo": "Fecha Confirmada del Registro de la LPCO",
+        "tooltip_descricao": "Fecha confirmada de registro de la LPCO"
+      },
+      "data_meta_registro_lpco": {
+        "label": "Fch. Meta. Registro de la LPCO",
+        "tooltip_titulo": "Fecha Meta del Registro de la LPCO",
+        "tooltip_descricao": "Fecha meta para registro de la LPCO"
+      },
+      "data_prevista_resultado_analise_lpco": {
+        "label": "Fch. Prev. Análisis de la LPCO",
+        "tooltip_titulo": "Fecha Prevista del Resultado del Análisis de la LPCO",
+        "tooltip_descricao": "Fecha prevista para resultado del análisis por el organismo aprobador"
+      },
+      "data_confirmada_resultado_analise_lpco": {
+        "label": "Fch. Conf. Análisis de la LPCO",
+        "tooltip_titulo": "Fecha Confirmada del Resultado del Análisis de la LPCO",
+        "tooltip_descricao": "Fecha confirmada del resultado del análisis de la LPCO"
+      },
+      "data_meta_resultado_analise_lpco": {
+        "label": "Fch. Meta. Análisis de la LPCO",
+        "tooltip_titulo": "Fecha Meta del Resultado del Análisis de la LPCO",
+        "tooltip_descricao": "Fecha meta para resultado del análisis de la LPCO"
+      },
+      "data_prevista_deferimento_lpco": {
+        "label": "Fch. Prev. Aprobación de la LPCO",
+        "tooltip_titulo": "Fecha Prevista de la Aprobación de la LPCO",
+        "tooltip_descricao": "Fecha prevista para aprobación (aprobación final) de la LPCO"
+      },
+      "data_confirmada_deferimento_lpco": {
+        "label": "Fch. Conf. Aprobación de la LPCO",
+        "tooltip_titulo": "Fecha Confirmada de la Aprobación de la LPCO",
+        "tooltip_descricao": "Fecha confirmada de la aprobación de la LPCO"
+      },
+      "data_meta_deferimento_lpco": {
+        "label": "Fch. Meta. Aprobación de la LPCO",
+        "tooltip_titulo": "Fecha Meta de la Aprobación de la LPCO",
+        "tooltip_descricao": "Fecha meta para aprobación de la LPCO"
+      },
+      "data_confirmada_indeferimento_lpco": {
+        "label": "Fch. Conf. Denegación de la LPCO",
+        "tooltip_titulo": "Fecha Confirmada de la Denegación de la LPCO",
+        "tooltip_descricao": "Fecha confirmada de la denegación (rechazo) de la LPCO"
+      },
+      "data_confirmada_exigencia_lpco": {
+        "label": "Fch. Conf. Exigencia de la LPCO",
+        "tooltip_titulo": "Fecha Confirmada de la Exigencia de la LPCO",
+        "tooltip_descricao": "Fecha confirmada de exigencia/pendencia de la LPCO por el organismo aprobador"
+      },
+      "data_prevista_recebimento_draft_cert_origem": {
+        "label": "Prev. Rec. Borrador Cert. Origen",
+        "tooltip_titulo": "Fecha Prevista de Recepción — Borrador del Certificado de Origen",
+        "tooltip_descricao": "Fecha prevista para recepción del borrador del certificado de origen"
+      },
+      "data_confirmada_recebimento_draft_cert_origem": {
+        "label": "Conf. Rec. Borrador Cert. Origen",
+        "tooltip_titulo": "Fecha Confirmada de Recepción — Borrador del Certificado de Origen",
+        "tooltip_descricao": "Fecha confirmada de recepción del borrador del certificado de origen"
+      },
+      "data_meta_recebimento_draft_cert_origem": {
+        "label": "Meta Rec. Borrador Cert. Origen",
+        "tooltip_titulo": "Fecha Meta de Recepción — Borrador del Certificado de Origen",
+        "tooltip_descricao": "Fecha meta para recepción del borrador del certificado de origen"
+      },
+      "data_prevista_aprovacao_draft_cert_origem": {
+        "label": "Prev. Aprob. Borrador Cert. Origen",
+        "tooltip_titulo": "Fecha Prevista de Aprobación — Borrador del Certificado de Origen",
+        "tooltip_descricao": "Fecha prevista para aprobación del borrador del certificado de origen"
+      },
+      "data_confirmada_aprovacao_draft_cert_origem": {
+        "label": "Conf. Aprob. Borrador Cert. Origen",
+        "tooltip_titulo": "Fecha Confirmada de Aprobación — Borrador del Certificado de Origen",
+        "tooltip_descricao": "Fecha confirmada de aprobación del borrador del certificado de origen"
+      },
+      "data_meta_aprovacao_draft_cert_origem": {
+        "label": "Meta Aprob. Borrador Cert. Origen",
+        "tooltip_titulo": "Fecha Meta de Aprobación — Borrador del Certificado de Origen",
+        "tooltip_descricao": "Fecha meta para aprobación del borrador del certificado de origen"
+      },
+      "data_prevista_envio_original_cert_origem": {
+        "label": "Prev. Envío Original Cert. Origen",
+        "tooltip_titulo": "Fecha Prevista de Envío — Original del Certificado de Origen",
+        "tooltip_descricao": "Fecha prevista para envío del original del certificado de origen"
+      },
+      "data_confirmada_envio_original_cert_origem": {
+        "label": "Conf. Envío Original Cert. Origen",
+        "tooltip_titulo": "Fecha Confirmada de Envío — Original del Certificado de Origen",
+        "tooltip_descricao": "Fecha confirmada de envío del original del certificado de origen"
+      },
+      "data_meta_envio_original_cert_origem": {
+        "label": "Meta Envío Original Cert. Origen",
+        "tooltip_titulo": "Fecha Meta de Envío — Original del Certificado de Origen",
+        "tooltip_descricao": "Fecha meta para envío del original del certificado de origen"
+      },
+      "data_prevista_recebimento_original_cert_origem": {
+        "label": "Prev. Rec. Original Cert. Origen",
+        "tooltip_titulo": "Fecha Prevista de Recepción — Original del Certificado de Origen",
+        "tooltip_descricao": "Fecha prevista para recepción del original del certificado de origen"
+      },
+      "data_confirmada_recebimento_original_cert_origem": {
+        "label": "Conf. Rec. Original Cert. Origen",
+        "tooltip_titulo": "Fecha Confirmada de Recepción — Original del Certificado de Origen",
+        "tooltip_descricao": "Fecha confirmada de recepción del original del certificado de origen"
+      },
+      "data_meta_recebimento_original_cert_origem": {
+        "label": "Meta Rec. Original Cert. Origen",
+        "tooltip_titulo": "Fecha Meta de Recepción — Original del Certificado de Origen",
+        "tooltip_descricao": "Fecha meta para recepción del original del certificado de origen"
+      },
+      "tipo_operacao_duimp": {
+        "label": "Tipo de Operación - DUIMP",
+        "tooltip_titulo": "Tipo de Operación — DUIMP",
+        "tooltip_descricao": "Tipo de operación de importación según DUIMP"
+      },
+      "descricao_resumida_duimp": {
+        "label": "Descripción Resumida Producto - DUIMP",
+        "tooltip_titulo": "Descripción Resumida del Producto — DUIMP",
+        "tooltip_descricao": "Descripción resumida del producto según registro en DUIMP"
+      },
+      "versao_produto_duimp": {
+        "label": "Versión del Producto - DUIMP",
+        "tooltip_titulo": "Versión del Producto — Catálogo DUIMP",
+        "tooltip_descricao": "Versión del registro del producto en el catálogo DUIMP"
+      },
+      "ncm_duimp": {
+        "label": "NCM - DUIMP",
+        "tooltip_titulo": "NCM — DUIMP",
+        "tooltip_descricao": "Código NCM utilizado en DUIMP (puede diferir del NCM del catálogo)"
+      },
+      "atributos_duimp": {
+        "label": "Atributos - DUIMP",
+        "tooltip_titulo": "Atributos — DUIMP",
+        "tooltip_descricao": "Atributos técnicos del producto según DUIMP"
+      },
+      "aplicacao_mercadoria_duimp": {
+        "label": "Aplicación Mercancía - DUIMP",
+        "tooltip_titulo": "Aplicación de la Mercancía — DUIMP",
+        "tooltip_descricao": "Finalidad o aplicación de la mercancía según DUIMP"
+      },
+      "condicao_mercadoria_duimp": {
+        "label": "Condición Mercancía - DUIMP",
+        "tooltip_titulo": "Condición de la Mercancía — DUIMP",
+        "tooltip_descricao": "Estado de la mercancía (nueva, usada, reacondicionada) según DUIMP"
+      },
+      "relacao_exportador_fabricante_duimp": {
+        "label": "Relación Exportador/Fabricante - DUIMP",
+        "tooltip_titulo": "Relación entre Exportador y Fabricante — DUIMP",
+        "tooltip_descricao": "Tipo de relación entre exportador y fabricante según DUIMP"
+      },
+      "vinculacao_preco_duimp": {
+        "label": "Vinculación Precio - DUIMP",
+        "tooltip_titulo": "Vinculación de Precio — DUIMP",
+        "tooltip_descricao": "Indica si hay vinculación de precio entre comprador y vendedor según DUIMP"
+      },
+      "descricao_completa_duimp": {
+        "label": "Descripción Completa - DUIMP",
+        "tooltip_titulo": "Descripción Completa del Producto — DUIMP",
+        "tooltip_descricao": "Descripción completa y técnica del producto según DUIMP"
+      },
+      "descricao_complementar_duimp": {
+        "label": "Descripción Complementaria - DUIMP",
+        "tooltip_titulo": "Descripción Complementaria de la Mercancía — DUIMP",
+        "tooltip_descricao": "Información complementaria sobre la mercancía en DUIMP"
+      },
+      "codigo_ope_duimp": {
+        "label": "Cód. OPE Descripción Completa - DUIMP",
+        "tooltip_titulo": "Código del Operador Extranjero — DUIMP",
+        "tooltip_descricao": "Código del OPE (exportador) según registrado en la DUIMP"
+      },
+      "nome_ope_duimp": {
+        "label": "Nombre OPE - DUIMP",
+        "tooltip_titulo": "Nombre del Operador Extranjero — DUIMP",
+        "tooltip_descricao": "Nombre del OPE según registrado en la DUIMP"
+      },
+      "pais_ope_duimp": {
+        "label": "País OPE - DUIMP",
+        "tooltip_titulo": "País del Operador Extranjero — DUIMP",
+        "tooltip_descricao": "País del OPE según DUIMP"
+      },
+      "codigo_ope_fabricante_duimp": {
+        "label": "Cód. OPE Fabricante - DUIMP",
+        "tooltip_titulo": "Código del Operador Extranjero Fabricante — DUIMP",
+        "tooltip_descricao": "Código del OPE del fabricante según DUIMP"
+      },
+      "nome_ope_fabricante_duimp": {
+        "label": "Nombre OPE Fabricante - DUIMP",
+        "tooltip_titulo": "Nombre del Operador Extranjero Fabricante — DUIMP",
+        "tooltip_descricao": "Nombre del OPE del fabricante según DUIMP"
+      },
+      "pais_fabricante_ope_duimp": {
+        "label": "País OPE Fab. - DUIMP",
+        "tooltip_titulo": "País del Operador Extranjero Fabricante — DUIMP",
+        "tooltip_descricao": "País del OPE fabricante según DUIMP"
+      },
+      "metodo_valoracao_duimp": {
+        "label": "Método Valoración - DUIMP",
+        "tooltip_titulo": "Método de Valoración — DUIMP",
+        "tooltip_descricao": "Método de valoración aduanera utilizado en la DUIMP (ej: Método 1 — Valor de Transacción)"
+      },
+      "incoterm_duimp": {
+        "label": "Incoterm - DUIMP",
+        "tooltip_titulo": "Incoterm / Condición de Venta — DUIMP",
+        "tooltip_descricao": "Incoterm o condición de venta declarada en la DUIMP"
+      },
+      "moeda_produto_duimp": {
+        "label": "Moneda - DUIMP",
+        "tooltip_titulo": "Moneda del Producto — DUIMP",
+        "tooltip_descricao": "Moneda utilizada en el valor del producto según DUIMP"
+      },
+      "valor_unitario_duimp": {
+        "label": "Valor Unitario del Producto - DUIMP",
+        "tooltip_titulo": "Valor Unitario del Producto — DUIMP",
+        "tooltip_descricao": "Valor unitario del producto en la moneda declarada en la DUIMP"
+      },
+      "valor_total_condicao_venda_duimp": {
+        "label": "Valor Total en la Condición de Venta - DUIMP",
+        "tooltip_titulo": "Valor Total en la Condición de Venta — DUIMP",
+        "tooltip_descricao": "Valor total del artículo en la condición de venta declarada en la DUIMP"
+      },
+      "valor_condicao_venda_brl_duimp": {
+        "label": "Valor en la Condición de Venta - DUIMP",
+        "tooltip_titulo": "Valor en la Condición de Venta (R$) — DUIMP",
+        "tooltip_descricao": "Valor del artículo en la condición de venta convertido a reales"
+      },
+      "valor_frete_internacional_brl_duimp": {
+        "label": "Flete Internacional (R$) - DUIMP",
+        "tooltip_titulo": "Valor del Flete Internacional (R$) — DUIMP",
+        "tooltip_descricao": "Valor del flete internacional en reales para fines de valoración aduanera"
+      },
+      "valor_seguro_internacional_brl_duimp": {
+        "label": "Seguro Internacional (R$) - DUIMP",
+        "tooltip_titulo": "Valor del Seguro Internacional (R$) — DUIMP",
+        "tooltip_descricao": "Valor del seguro internacional en reales para fines de valoración aduanera"
+      },
+      "valor_local_embarque_brl_duimp": {
+        "label": "Valor Local de Embarque (R$) - DUIMP",
+        "tooltip_titulo": "Valor en el Lugar de Embarque (R$) — DUIMP",
+        "tooltip_descricao": "Valor de la mercancía en el lugar de embarque en reales"
+      },
+      "valor_aduaneiro_brl_duimp": {
+        "label": "Valor Aduanero (R$) - DUIMP",
+        "tooltip_titulo": "Valor Aduanero (R$) — DUIMP",
+        "tooltip_descricao": "Valor aduanero calculado en reales, base para impuestos de importación"
+      },
+      "tipo_cobertura_cambial_duimp": {
+        "label": "Tipo Cobertura Cambiaria - DUIMP",
+        "tooltip_titulo": "Tipo de Cobertura Cambiaria — DUIMP",
+        "tooltip_descricao": "Modalidad de cobertura cambiaria declarada en la DUIMP"
+      },
+      "numero_rof_bacen_duimp": {
+        "label": "Número del ROF - DUIMP",
+        "tooltip_titulo": "Número de ROF/BACEN — DUIMP",
+        "tooltip_descricao": "Número de Registro de Operaciones Financieras ante el BACEN"
+      },
+      "motivo_sem_cobertura_duimp": {
+        "label": "Motivo Sin Cobertura - DUIMP",
+        "tooltip_titulo": "Motivo Sin Cobertura Cambiaria — DUIMP",
+        "tooltip_descricao": "Justificación legal para la ausencia de cobertura cambiaria"
+      },
+      "base_calculo_ii_duimp": {
+        "label": "BC II (R$) - DUIMP",
+        "tooltip_titulo": "Base de Cálculo del II (R$) — DUIMP",
+        "tooltip_descricao": "Base de cálculo del Impuesto de Importación en reales"
+      },
+      "percentual_ii_duimp": {
+        "label": "Alícuota del II (%) - DUIMP",
+        "tooltip_titulo": "Alícuota del II (%) — DUIMP",
+        "tooltip_descricao": "Porcentaje de alícuota del Impuesto de Importación"
+      },
+      "valor_devido_ii_duimp": {
+        "label": "Valor Adeudado del II - DUIMP",
+        "tooltip_titulo": "Valor Adeudado del II (R$) — DUIMP",
+        "tooltip_descricao": "Valor total del Impuesto de Importación adeudado"
+      },
+      "valor_recolher_ii_duimp": {
+        "label": "Valor a Recaudar del II - DUIMP",
+        "tooltip_titulo": "Valor a Recaudar del II (R$) — DUIMP",
+        "tooltip_descricao": "Valor efectivo del Impuesto de Importación a recaudar (deducidas suspensiones)"
+      },
+      "base_calculo_ipi_duimp": {
+        "label": "BC IPI (R$) - DUIMP",
+        "tooltip_titulo": "Base de Cálculo del IPI (R$) — DUIMP",
+        "tooltip_descricao": "Base de cálculo del IPI en reales"
+      },
+      "percentual_ipi_duimp": {
+        "label": "Alícuota del IPI(%) - DUIMP",
+        "tooltip_titulo": "Alícuota del IPI (%) — DUIMP",
+        "tooltip_descricao": "Porcentaje de alícuota del IPI"
+      },
+      "valor_recolher_ipi_duimp": {
+        "label": "Valor a Recaudar del IPI - DUIMP",
+        "tooltip_titulo": "Valor a Recaudar del IPI (R$) — DUIMP",
+        "tooltip_descricao": "Valor del IPI a recaudar"
+      },
+      "base_calculo_pis_duimp": {
+        "label": "BC PIS(R$) - DUIMP",
+        "tooltip_titulo": "Base de Cálculo del PIS (R$) — DUIMP",
+        "tooltip_descricao": "Base de cálculo del PIS/PASEP en reales"
+      },
+      "percentual_pis_duimp": {
+        "label": "Alícuota del PIS(%) - DUIMP",
+        "tooltip_titulo": "Alícuota del PIS (%) — DUIMP",
+        "tooltip_descricao": "Porcentaje de alícuota del PIS/PASEP"
+      },
+      "valor_recolher_pis_duimp": {
+        "label": "Valor a Recaudar del PIS - DUIMP",
+        "tooltip_titulo": "Valor a Recaudar del PIS (R$) — DUIMP",
+        "tooltip_descricao": "Valor del PIS/PASEP a recaudar"
+      },
+      "base_calculo_cofins_duimp": {
+        "label": "BC COFINS(R$) - DUIMP",
+        "tooltip_titulo": "Base de Cálculo del COFINS (R$) — DUIMP",
+        "tooltip_descricao": "Base de cálculo del COFINS en reales"
+      },
+      "percentual_cofins_duimp": {
+        "label": "Alícuota del COFINS(%) - DUIMP",
+        "tooltip_titulo": "Alícuota del COFINS (%) — DUIMP",
+        "tooltip_descricao": "Porcentaje de alícuota del COFINS"
+      },
+      "valor_recolher_cofins_duimp": {
+        "label": "Valor a Recaudar del COFINS - DUIMP",
+        "tooltip_titulo": "Valor a Recaudar del COFINS (R$) — DUIMP",
+        "tooltip_descricao": "Valor del COFINS a recaudar"
+      },
+      "existe_tratamento_administrativo_duimp": {
+        "label": "Existe Tratamiento Administrativo - DUIMP",
+        "tooltip_titulo": "¿Existe Tratamiento Administrativo? — DUIMP",
+        "tooltip_descricao": "Indica si existe tratamiento administrativo asociado al ítem en la DUIMP"
+      },
+      "tipo_trat_adm_duimp": {
+        "label": "Tipo de Tratamiento Administrativo - DUIMP",
+        "tooltip_titulo": "Tipo de Tratamiento Administrativo — DUIMP",
+        "tooltip_descricao": "Tipo/modalidad del tratamiento administrativo en la DUIMP"
+      },
+      "orgao_trat_adm_duimp": {
+        "label": "Organismo Autorizador Tratamiento Administrativo - DUIMP",
+        "tooltip_titulo": "Organismo del Tratamiento Administrativo — DUIMP",
+        "tooltip_descricao": "Organismo autorizador responsable del tratamiento administrativo"
+      },
+      "numero_lpco_trat_adm_duimp": {
+        "label": "Número LPCO Tratamiento Administrativo - DUIMP",
+        "tooltip_titulo": "Número de la LPCO del Tratamiento Administrativo — DUIMP",
+        "tooltip_descricao": "Número de la LPCO vinculada al tratamiento administrativo en la DUIMP"
+      },
+      "mapa_numero_pedido": {
+        "tooltip_titulo": "Nº de Artículo"
+      },
+      "mapa_nome_exportador": {
+        "tooltip_bloqueado_cond": "Exportador definido automáticamente por el workspace — no editable en Exportación",
+        "tooltip_titulo": "Exportador"
+      },
+      "mapa_nome_importador": {
+        "tooltip_bloqueado_cond": "Importador definido automáticamente por el workspace — no editable en Importación",
+        "tooltip_titulo": "Importador"
+      },
+      "mapa_nome_fabricante": {
+        "tooltip_titulo": "Nombre del Fabricante"
+      },
+      "mapa_referencia_importador": {
+        "tooltip_titulo": "Referencia del Importador"
+      },
+      "mapa_referencia_exportador": {
+        "tooltip_titulo": "Referencia del Exportador"
+      },
+      "mapa_numero_proforma": {
+        "tooltip_titulo": "Número de la Proforma"
+      },
+      "mapa_numero_invoice": {
+        "tooltip_titulo": "Número de la Factura"
+      },
+      "mapa_incoterm": {
+        "tooltip_titulo": "Incoterm"
+      },
+      "mapa_referencia_fabricante": {
+        "tooltip_titulo": "Referencia del Fabricante"
+      },
+      "mapa_cobertura_cambial": {
+        "tooltip_titulo": "Cobertura Cambiaria"
+      },
+      "mapa_condicao_pagamento": {
+        "tooltip_titulo": "Condición de Pago"
+      },
+      "mapa_cnpj_importador": {
+        "descricao": "En operaciones de exportación, el CNPJ del Importador no aplica — la contraparte extranjera no posee CNPJ brasileño.",
+        "descricao_2": "CNPJ no registrado en el Workspace. Haga clic para registrar"
+      },
+      "helper": {
+        "cadastrar_cnpj": "Registrar CNPJ",
+        "saldo_calculado_prefixo": "Calculado en base a los artículos — no editable. ",
+        "saldo_calculado_link": "Editar fórmula en el Configurador"
+      },
+      "mapa_cnpj_exportador": {
+        "descricao": "En operaciones de importación, el CNPJ del Exportador no aplica — la contraparte extranjera no posee CNPJ brasileño.",
+        "descricao_2": "CNPJ no registrado en el Workspace. Haga clic para registrar"
+      },
+      "mapa_descricao_item": {
+        "tooltip_titulo": "Descripción del Artículo"
+      },
+      "mapa_saldo_itens_do_pedido": {
+        "titulo": "Saldo del Pedido"
+      },
+      "mapa_quantidade_transferida_total": {
+        "tooltip_bloqueado": "Campo calculado — incrementado automáticamente al ejecutar una transferencia. No puede ser editado directamente."
+      },
+      "mapa_quantidade_cancelada_total_pedido": {
+        "tooltip_bloqueado": "Campo calculado — incrementado al cancelar artículos. No puede ser editado directamente."
+      },
+      "mapa_tipo_operacao": {
+        "valor_importacao": "Importación",
+        "valor_exportacao": "Exportación"
+      }
     }
   },
   "processo": {
@@ -5072,6 +7209,128 @@
     "status_workspace": {
       "ATIVO": "Activo",
       "INATIVO": "Inactivo"
+    }
+  },
+  "nucleo": {
+    "dashboard": {
+      "kpi": {
+        "vs_periodo_anterior": "vs período anterior"
+      },
+      "widgets": {
+        "dados_insuficientes": "Datos insuficientes",
+        "tabela": {
+          "categoria": "Categoría",
+          "valor": "Valor",
+          "sem_dados": "Sin datos para mostrar"
+        },
+        "distribuicao": {
+          "sem_dados": "Sin datos para distribuir",
+          "pct_do_total": "{{pct}}% del total"
+        }
+      },
+      "painel": {
+        "opcoes_widget_aria": "Opciones del widget",
+        "opcoes": "Opciones",
+        "editar": "Editar",
+        "exportar_dados": "Exportar datos",
+        "remover": "Eliminar",
+        "arraste_reorganizar": "Arrastre para reorganizar",
+        "dados_parciais": "Datos parciales",
+        "dados_parciais_tooltip": "Algunos datos no pudieron ser cargados",
+        "cache": "Caché",
+        "dados_cache_tooltip": "Datos de la caché",
+        "tentar_novamente": "Intentar de nuevo"
+      },
+      "chart": {
+        "linha": "Línea",
+        "area": "Área",
+        "barras": "Barras",
+        "barras_h": "Barras H.",
+        "distribuicao": "Distribución",
+        "donut": "Donut",
+        "kpi": "KPI",
+        "funil": "Embudo",
+        "tabela": "Tabla",
+        "gauge": "Gauge"
+      },
+      "periodo": {
+        "7_dias": "7 días",
+        "30_dias": "30 días",
+        "90_dias": "90 días",
+        "12_meses": "12 meses",
+        "mes_atual": "Mes actual",
+        "ano_atual": "Año actual",
+        "ultimos_7_dias": "Últimos 7 días",
+        "ultimos_30_dias": "Últimos 30 días",
+        "ultimos_90_dias": "Últimos 90 días",
+        "ultimos_12_meses": "Últimos 12 meses",
+        "personalizado": "Período personalizado"
+      },
+      "modal_editar": {
+        "titulo": "Editar Widget",
+        "fechar": "Cerrar",
+        "label_titulo": "Título",
+        "tipo_grafico": "Tipo de gráfico",
+        "periodo": "Período",
+        "info_tipo": "Tipo",
+        "info_campos": "Campo(s)",
+        "cancelar": "Cancelar",
+        "salvar": "Guardar"
+      },
+      "sugestoes": {
+        "confianca_alta": "Alta",
+        "confianca_media": "Media",
+        "confianca_baixa": "Baja",
+        "titulo": "Sugerencias para tu dashboard",
+        "fechar": "Cerrar",
+        "hint": "Generadas automáticamente a partir de las métricas del producto.",
+        "adicionar": "Añadir",
+        "metricas_derivadas": "Métricas Derivadas",
+        "nao_encontrou": "¿No encontraste lo que necesitas?",
+        "criar_widget_zero": "Crear widget desde cero"
+      },
+      "barra": {
+        "periodo": "Período",
+        "todos_status": "Todos los estados",
+        "todos": "Todos",
+        "filtros_ativos": "Filtros activos:",
+        "limpar": "Limpiar",
+        "adicionar_dashboard": "Añadir Dashboard",
+        "arraste_widgets_tooltip": "Arrastra y reorganiza los widgets",
+        "concluir": "Concluir",
+        "reorganizar": "Reorganizar",
+        "hint_reorganizar_pre": "Arrastra los widgets para reorganizar. Haz clic en",
+        "hint_reorganizar_pos": "para guardar."
+      },
+      "construtor": {
+        "passo_campos": "Campos",
+        "passo_operacao": "Operación",
+        "passo_visualizar": "Visualizar",
+        "reason_max_campos": "Máximo {{count}} campo(s) para este tipo",
+        "reason_min_campos": "Mínimo {{count}} campos para este tipo",
+        "reason_mesma_unidade": "Todos los campos deben tener la misma unidad",
+        "bloqueio_max_campos": "Máximo {{count}} campos",
+        "bloqueio_max_unidades": "Ya hay {{count}} tipos de unidad. Elimine un campo antes.",
+        "bloqueio_distribuicao_unidade": "La distribución requiere campos con la misma unidad",
+        "hint_selecione": "Seleccione hasta {{max}} campos. Máximo 2 tipos de unidad (R$, # o %).",
+        "warning_eixo_duplo": "Los campos con unidades diferentes usarán un eje Y doble en este gráfico.",
+        "buscar_campo_placeholder": "Buscar campo...",
+        "buscar_campo_aria": "Buscar campo",
+        "nenhum_campo": "Ningún campo encontrado",
+        "step2_hint": "Configure el título, la operación por campo y el período de análisis.",
+        "titulo_widget": "Título del widget",
+        "titulo_widget_placeholder": "Ej: Ingresos por Mes",
+        "operacao_todos": "Operación (todos los campos)",
+        "auto_preenchido_nota": "— auto-rellenado (todos los campos tienen la misma operación)",
+        "operacao_por_campo": "Operación por campo",
+        "periodo": "Período",
+        "step3_hint": "Elija cómo se visualizarán los datos.",
+        "eixo_duplo_ativado": "El eje Y doble se activará (unidades incompatibles)",
+        "editar_widget": "Editar Widget",
+        "novo_widget": "Nuevo Widget",
+        "subtitulo_modal": "Configure los datos y la visualización del widget",
+        "salvar_widget": "Guardar Widget"
+      }
     }
   }
 }

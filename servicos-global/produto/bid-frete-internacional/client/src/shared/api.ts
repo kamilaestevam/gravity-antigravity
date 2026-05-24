@@ -17,6 +17,10 @@ import type {
   Avaliacao,
   Porto,
   Moeda,
+  Pais,
+  Aeroporto,
+  ContainerOption,
+  IncotermOption,
   StatusCotacao,
 } from './types'
 
@@ -198,6 +202,10 @@ export function mapCotacaoToServer(input: Partial<Cotacao>): Record<string, any>
   if (input.cep_destino !== undefined) {
     result.zipcode_destino_cotacao_bid_frete_internacional = input.cep_destino
     delete result.cep_destino
+  }
+  if ((input as any).cep_origem !== undefined) {
+    result.zipcode_origem_cotacao_bid_frete_internacional = (input as any).cep_origem
+    delete result.cep_origem
   }
   if (input.anonima !== undefined) {
     result.anonima_cotacao_bid_frete_internacional = input.anonima
@@ -449,15 +457,50 @@ export async function responderPublico(token: string, data: Partial<BidResponse>
 
 // ─── Master Data ────────────────────────────────────────────────────────────
 
-export async function getPortos(tipo?: string): Promise<Porto[]> {
-  const query = tipo ? `?tipo=${tipo}` : ''
+export async function getPortos(q?: string, pais?: string): Promise<Porto[]> {
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  if (pais) params.set('pais', pais)
+  const query = params.toString() ? `?${params.toString()}` : ''
   const res = await fetch(`${API_BASE}/bid-frete-internacional/dados-mestre/portos${query}`)
-  return handleResponse(res)
+  const data = await handleResponse<{ portos: Porto[] }>(res)
+  return data.portos
 }
 
 export async function getMoedas(): Promise<Moeda[]> {
   const res = await fetch(`${API_BASE}/bid-frete-internacional/dados-mestre/moedas`)
   return handleResponse(res)
+}
+
+export async function getPaises(q?: string): Promise<Pais[]> {
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  const query = params.toString() ? `?${params.toString()}` : ''
+  const res = await fetch(`${API_BASE}/bid-frete-internacional/dados-mestre/paises${query}`)
+  const data = await handleResponse<{ paises: Pais[] }>(res)
+  return data.paises
+}
+
+export async function getAeroportos(q?: string, pais?: string): Promise<Aeroporto[]> {
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  if (pais) params.set('pais', pais)
+  const query = params.toString() ? `?${params.toString()}` : ''
+  const res = await fetch(`${API_BASE}/bid-frete-internacional/dados-mestre/aeroportos${query}`)
+  const data = await handleResponse<{ aeroportos: Aeroporto[] }>(res)
+  return data.aeroportos
+}
+
+export async function getContainers(): Promise<ContainerOption[]> {
+  const res = await fetch(`${API_BASE}/bid-frete-internacional/dados-mestre/containers`)
+  const data = await handleResponse<{ containers: ContainerOption[] }>(res)
+  return data.containers
+}
+
+export async function getIncoterms(): Promise<IncotermOption[]> {
+  const res = await fetch(`${API_BASE}/bid-frete-internacional/dados-mestre/incoterms`)
+  const data = await handleResponse<{ incoterms: IncotermOption[] }>(res)
+  return data.incoterms
 }
 
 // ─── Dashboard Painéis ─────────────────────────────────────────────────────────

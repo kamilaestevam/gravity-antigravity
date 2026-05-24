@@ -35,11 +35,11 @@ interface RankedResponse {
 
 // Shapes dinâmicos vindos do Prisma — usados apenas internamente neste módulo.
 type CotacaoRow = {
-  id: string
-  numero: string
-  origem_nome: string
-  destino_nome: string
-  valor_target?: number | null
+  id_cotacao_bid_frete: string
+  numero_cotacao_bid_frete: string
+  // TODO: lookup from Cadastros
+  // TODO: lookup from Cadastros
+  valor_alvo_cotacao_bid_frete?: number | null
   [key: string]: unknown
 }
 type ResponseRow = Record<string, unknown> & {
@@ -61,7 +61,7 @@ export const comparativoEngine = {
   }> {
     // Buscar cotacao com respostas
     const cotacao = await (prisma as any).freteIntBidCotacoes.findFirst({
-      where: { id: cotacao_id },
+      where: { id_cotacao_bid_frete: cotacao_id },
     })
 
     if (!cotacao) throw new Error('Cotacao nao encontrada')
@@ -150,12 +150,12 @@ export const comparativoEngine = {
     const melhorPreco = ranking[0]?.valor_total ?? 0
     const mediaPreco = responses.reduce((acc: number, r: ResponseRow) => acc + r.valor_total, 0) / responses.length
 
-    const cotacaoLoose = cotacao as Record<string, unknown> & { valor_target?: number }
+    const cotacaoLoose = cotacao as Record<string, unknown> & { valor_alvo_cotacao_bid_frete?: number }
     const saving = {
-      vs_target: cotacaoLoose.valor_target ? cotacaoLoose.valor_target - melhorPreco : null,
+      vs_target: cotacaoLoose.valor_alvo_cotacao_bid_frete ? cotacaoLoose.valor_alvo_cotacao_bid_frete - melhorPreco : null,
       vs_media: mediaPreco - melhorPreco,
-      percentual: cotacaoLoose.valor_target
-        ? ((cotacaoLoose.valor_target - melhorPreco) / cotacaoLoose.valor_target) * 100
+      percentual: cotacaoLoose.valor_alvo_cotacao_bid_frete
+        ? ((cotacaoLoose.valor_alvo_cotacao_bid_frete - melhorPreco) / cotacaoLoose.valor_alvo_cotacao_bid_frete) * 100
         : mediaPreco > 0 ? ((mediaPreco - melhorPreco) / mediaPreco) * 100 : null,
     }
 
@@ -189,7 +189,7 @@ export const comparativoEngine = {
     if (!response) throw new Error('Resposta nao encontrada')
 
     // Buscar cotacao para saving
-    const cotacao = await (prisma as any).freteIntBidCotacoes.findFirst({ where: { id: cotacao_id } })
+    const cotacao = await (prisma as any).freteIntBidCotacoes.findFirst({ where: { id_cotacao_bid_frete: cotacao_id } })
 
     // Aprovar a resposta
     await (prisma as any).freteIntBidPropostas.update({
@@ -209,20 +209,20 @@ export const comparativoEngine = {
     })
     const media = allResponses.reduce((acc: number, r: ResponseRow) => acc + r.valor_total, 0) / allResponses.length
 
-    const savingVsTarget = cotacao.valor_target ? cotacao.valor_target - response.valor_total : null
+    const savingVsTarget = cotacao.valor_alvo_cotacao_bid_frete ? cotacao.valor_alvo_cotacao_bid_frete - response.valor_total : null
     const savingVsMedia = media - response.valor_total
-    const savingPct = cotacao.valor_target
-      ? ((cotacao.valor_target - response.valor_total) / cotacao.valor_target) * 100
+    const savingPct = cotacao.valor_alvo_cotacao_bid_frete
+      ? ((cotacao.valor_alvo_cotacao_bid_frete - response.valor_total) / cotacao.valor_alvo_cotacao_bid_frete) * 100
       : media > 0 ? ((media - response.valor_total) / media) * 100 : null
 
     await (prisma as any).freteIntBidCotacoes.update({
-      where: { id: cotacao_id },
+      where: { id_cotacao_bid_frete: cotacao_id },
       data: {
-        status: 'APROVADA',
-        fornecedor_vencedor_id: response.fornecedor_id,
-        data_aprovacao: new Date(),
-        saving_valor: savingVsTarget ?? savingVsMedia,
-        saving_percentual: savingPct,
+        status_cotacao_bid_frete: 'APROVADA',
+        id_fornecedor_vencedor_cotacao_bid_frete: response.fornecedor_id,
+        data_aprovacao_cotacao_bid_frete: new Date(),
+        saving_valor_cotacao_bid_frete: savingVsTarget ?? savingVsMedia,
+        saving_percentual_cotacao_bid_frete: savingPct,
       },
     })
 
@@ -232,8 +232,8 @@ export const comparativoEngine = {
         product_id: 'bid-frete',
         user_id,
         cotacao_id,
-        company_id: cotacao.company_id,
-        valor_target: cotacao.valor_target,
+        company_id: cotacao.id_workspace,
+        valor_target: cotacao.valor_alvo_cotacao_bid_frete,
         valor_aprovado: response.valor_total,
         valor_medio: media,
         saving_vs_target: savingVsTarget,

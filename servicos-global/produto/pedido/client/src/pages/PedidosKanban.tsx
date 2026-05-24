@@ -479,6 +479,7 @@ export default function PedidosKanban() {
     const shapes = computarColunasKanban(configFiltrado)
     return shapes.map(s => ({
       ...s,
+      label: t(`pedido.kanban.status.${s.key}`, { defaultValue: s.label }),
       icon: COLUNAS_BASE[s.key]?.icon ?? <Tag size={16} weight="duotone" />,
     }))
   }, [statusConfig, preferencias])

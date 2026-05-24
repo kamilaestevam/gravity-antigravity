@@ -64,11 +64,11 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
         }
         case 'cotacoes_status': {
           const items = await prisma.freteIntBidCotacoes.groupBy({
-            by: ['status'],
+            by: ['status_cotacao_bid_frete'],
             _count: true,
-            where: { created_at: { gte: periodStart } },
+            where: { criado_em_cotacao_bid_frete: { gte: periodStart } },
           })
-          result.cotacoes_status = Object.fromEntries(items.map(i => [i.status, i._count]))
+          result.cotacoes_status = Object.fromEntries(items.map(i => [i.status_cotacao_bid_frete, i._count]))
           break
         }
         case 'saving_percentual': {
@@ -93,12 +93,12 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
         case 'volume_mensal': {
           const dozeAtras = new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1)
           const items = await prisma.freteIntBidCotacoes.findMany({
-            where: { created_at: { gte: dozeAtras } },
-            select: { created_at: true },
+            where: { criado_em_cotacao_bid_frete: { gte: dozeAtras } },
+            select: { criado_em_cotacao_bid_frete: true },
           })
           const byMonth: Record<string, number> = {}
           for (const item of items) {
-            const month = item.created_at.toISOString().slice(0, 7)
+            const month = item.criado_em_cotacao_bid_frete.toISOString().slice(0, 7)
             byMonth[month] = (byMonth[month] ?? 0) + 1
           }
           result.volume_mensal = Object.entries(byMonth).map(([month, value]) => ({ month, value }))

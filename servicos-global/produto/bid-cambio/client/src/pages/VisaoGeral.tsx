@@ -2240,20 +2240,7 @@ export default function VisaoGeral() {
   const savingSpark = [10, 12, 11, 15, 14, 17, 19]
 
   return (
-    <PaginaGlobal
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Compass weight="duotone" size={22} />}
-          titulo="Visão Geral"
-          subtitulo="Resumo das operações de câmbio"
-          acoes={
-            <BotaoGlobal variante="primario" icone={<ArrowsLeftRight weight="bold" size={15} />} onClick={() => navigate('/bid-cambio/cotacoes/nova')}>
-              Nova Cotação
-            </BotaoGlobal>
-          }
-        />
-      }
-    >
+    <PaginaGlobal>
     <div className="bcc-dashboard">
       <style>{`
         .bcc-dashboard {

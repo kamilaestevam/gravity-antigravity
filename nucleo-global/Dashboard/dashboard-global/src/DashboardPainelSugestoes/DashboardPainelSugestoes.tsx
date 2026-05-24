@@ -7,6 +7,7 @@
  */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { ChartBar, Plus, X, PencilSimple } from '@phosphor-icons/react'
 import type { DashboardWidgetConfig, DerivedMetric } from '../tipos.js'
 import type { SuggestedWidget } from '../suggestionsEngine.js'
@@ -27,10 +28,11 @@ export function DashboardPainelSugestoes({
   onClose,
   onCreateCustom,
 }: SuggestionsPanelProps) {
+  const { t } = useTranslation()
   const confidenceMeta: Record<string, { label: string; color: string; bg: string }> = {
-    high:   { label: 'Alta',  color: '#34d399', bg: 'rgba(52,211,153,0.12)' },
-    medium: { label: 'Média', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
-    low:    { label: 'Baixa', color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
+    high:   { label: t('nucleo.dashboard.sugestoes.confianca_alta'),  color: '#34d399', bg: 'rgba(52,211,153,0.12)' },
+    medium: { label: t('nucleo.dashboard.sugestoes.confianca_media'), color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+    low:    { label: t('nucleo.dashboard.sugestoes.confianca_baixa'), color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   }
 
   const s = panelStyles
@@ -42,16 +44,16 @@ export function DashboardPainelSugestoes({
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <div style={s.header}>
           <span style={s.headerTitle}>
-            <ChartBar size={16} weight="duotone" color="var(--accent)" /> Sugestões para o seu dashboard
+            <ChartBar size={16} weight="duotone" color="var(--accent)" /> {t('nucleo.dashboard.sugestoes.titulo')}
           </span>
-          <button type="button" style={s.closeBtn} onClick={onClose} aria-label="Fechar">
+          <button type="button" style={s.closeBtn} onClick={onClose} aria-label={t('nucleo.dashboard.sugestoes.fechar')}>
             <X size={16} />
           </button>
         </div>
 
         {/* ── Body (scrollável) ────────────────────────────────────────────── */}
         <div style={s.body}>
-          <p style={s.hint}>Geradas automaticamente a partir das métricas do produto.</p>
+          <p style={s.hint}>{t('nucleo.dashboard.sugestoes.hint')}</p>
 
           {/* ── Sugestões automáticas ──────────────────────────────────────── */}
           <div style={s.list}>
@@ -74,7 +76,7 @@ export function DashboardPainelSugestoes({
                   style={s.addBtn}
                   onClick={() => { onAdd(sug.config); onClose() }}
                 >
-                  <Plus size={13} /> Adicionar
+                  <Plus size={13} /> {t('nucleo.dashboard.sugestoes.adicionar')}
                 </button>
               </div>
             ))}
@@ -84,7 +86,7 @@ export function DashboardPainelSugestoes({
           {derivedMetrics.length > 0 && (
             <>
               <div style={s.divider} />
-              <p style={s.sectionTitle}>Métricas Derivadas</p>
+              <p style={s.sectionTitle}>{t('nucleo.dashboard.sugestoes.metricas_derivadas')}</p>
               <div style={s.list}>
                 {derivedMetrics.map(dm => (
                   <div key={dm.id} style={s.item}>
@@ -112,7 +114,7 @@ export function DashboardPainelSugestoes({
                         onClose()
                       }}
                     >
-                      <Plus size={13} /> Adicionar
+                      <Plus size={13} /> {t('nucleo.dashboard.sugestoes.adicionar')}
                     </button>
                   </div>
                 ))}
@@ -124,13 +126,13 @@ export function DashboardPainelSugestoes({
         {/* ── Footer fixo — criar widget do zero ──────────────────────────── */}
         {onCreateCustom && (
           <div style={s.footer}>
-            <span style={s.footerText}>Não encontrou o que precisa?</span>
+            <span style={s.footerText}>{t('nucleo.dashboard.sugestoes.nao_encontrou')}</span>
             <button
               type="button"
               style={s.footerBtn}
               onClick={() => { onCreateCustom(); onClose() }}
             >
-              <PencilSimple size={13} /> Criar widget do zero
+              <PencilSimple size={13} /> {t('nucleo.dashboard.sugestoes.criar_widget_zero')}
             </button>
           </div>
         )}

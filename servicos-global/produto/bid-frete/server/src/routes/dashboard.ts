@@ -18,18 +18,18 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
     // Cotacoes em andamento
     const cotacoesAndamento = await (req.prisma as any).freteIntBidCotacoes.count({
       where: {
-        product_id: 'bid-frete',
-        status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO', 'FALTA_INFORMACAO'] },
-        ...(company_id ? { company_id } : {}),
+        id_produto_gravity: 'bid-frete',
+        status_cotacao_bid_frete: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO', 'FALTA_INFORMACAO'] },
+        ...(company_id ? { id_workspace: company_id } : {}),
       },
     })
 
     // Total de cotacoes passadas
     const cotacoesPassadas = await (req.prisma as any).freteIntBidCotacoes.count({
       where: {
-        product_id: 'bid-frete',
-        status: { in: ['APROVADA', 'REPROVADA', 'CANCELADA', 'EXPIRADA'] },
-        ...(company_id ? { company_id } : {}),
+        id_produto_gravity: 'bid-frete',
+        status_cotacao_bid_frete: { in: ['APROVADA', 'REPROVADA', 'CANCELADA', 'EXPIRADA'] },
+        ...(company_id ? { id_workspace: company_id } : {}),
       },
     })
 
@@ -38,8 +38,8 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
       where: {
         product_id: 'bid-frete',
         cotacao: {
-          status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO'] },
-          ...(company_id ? { company_id } : {}),
+          status_cotacao_bid_frete: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO'] },
+          ...(company_id ? { id_workspace: company_id } : {}),
         },
       },
       _sum: { valor_total: true },
@@ -50,7 +50,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
       where: {
         product_id: 'bid-frete',
         status: 'APROVADA',
-        ...(company_id ? { cotacao: { company_id } } : {}),
+        ...(company_id ? { cotacao: { id_workspace: company_id } } : {}),
       },
       _sum: { valor_total: true },
     })
@@ -58,16 +58,16 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
     // Cotacoes aprovadas por timing
     const cotacoesAprovadas = await (req.prisma as any).freteIntBidCotacoes.findMany({
       where: {
-        product_id: 'bid-frete',
-        status: 'APROVADA',
-        ...(company_id ? { company_id } : {}),
+        id_produto_gravity: 'bid-frete',
+        status_cotacao_bid_frete: 'APROVADA',
+        ...(company_id ? { id_workspace: company_id } : {}),
       },
-      select: { data_aprovacao: true, data_limite_resposta: true },
+      select: { data_aprovacao_cotacao_bid_frete: true, data_limite_resposta_cotacao_bid_frete: true },
     })
 
-    type AprovadaRow = { data_aprovacao: Date; data_limite_resposta: Date | null }
+    type AprovadaRow = { data_aprovacao_cotacao_bid_frete: Date; data_limite_resposta_cotacao_bid_frete: Date | null }
     const emTempo = (cotacoesAprovadas as AprovadaRow[]).filter((c) =>
-      !c.data_limite_resposta || new Date(c.data_aprovacao) <= new Date(c.data_limite_resposta)
+      !c.data_limite_resposta_cotacao_bid_frete || new Date(c.data_aprovacao_cotacao_bid_frete) <= new Date(c.data_limite_resposta_cotacao_bid_frete)
     ).length
     const fora = cotacoesAprovadas.length - emTempo
 
@@ -80,8 +80,8 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
 
     // Funil de status
     const funil = await (req.prisma as any).freteIntBidCotacoes.groupBy({
-      by: ['status'],
-      where: { product_id: 'bid-frete', ...(company_id ? { company_id } : {}) },
+      by: ['status_cotacao_bid_frete'],
+      where: { id_produto_gravity: 'bid-frete', ...(company_id ? { id_workspace: company_id } : {}) },
       _count: true,
     })
 
@@ -97,7 +97,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
         percentual_em_tempo: cotacoesAprovadas.length > 0 ? (emTempo / cotacoesAprovadas.length * 100).toFixed(1) : '0',
       },
       savings,
-      funil: (funil as Array<{ status: string; _count: number }>).map((f) => ({ status: f.status, count: f._count })),
+      funil: (funil as Array<{ status_cotacao_bid_frete: string; _count: number }>).map((f) => ({ status: f.status_cotacao_bid_frete, count: f._count })),
     })
   } catch (err) {
     next(err)
@@ -125,18 +125,18 @@ router.get('/calendario', async (req: Request, res: Response, next: NextFunction
     // Proximo ao vencimento (1 dia)
     const proximoVencimento = await (req.prisma as any).freteIntBidCotacoes.count({
       where: {
-        product_id: 'bid-frete',
-        status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
-        data_limite_resposta: { gte: agora, lte: em24h },
+        id_produto_gravity: 'bid-frete',
+        status_cotacao_bid_frete: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
+        data_limite_resposta_cotacao_bid_frete: { gte: agora, lte: em24h },
       },
     })
 
     // Data limite vence hoje
     const venceHoje = await (req.prisma as any).freteIntBidCotacoes.count({
       where: {
-        product_id: 'bid-frete',
-        status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
-        data_limite_resposta: {
+        id_produto_gravity: 'bid-frete',
+        status_cotacao_bid_frete: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
+        data_limite_resposta_cotacao_bid_frete: {
           gte: new Date(agora.setHours(0, 0, 0, 0)),
           lte: new Date(agora.setHours(23, 59, 59, 999)),
         },
@@ -146,9 +146,9 @@ router.get('/calendario', async (req: Request, res: Response, next: NextFunction
     // Fora do prazo
     const foraPrazo = await (req.prisma as any).freteIntBidCotacoes.count({
       where: {
-        product_id: 'bid-frete',
-        status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
-        data_limite_resposta: { lt: new Date() },
+        id_produto_gravity: 'bid-frete',
+        status_cotacao_bid_frete: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
+        data_limite_resposta_cotacao_bid_frete: { lt: new Date() },
       },
     })
 

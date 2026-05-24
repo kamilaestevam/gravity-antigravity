@@ -8,6 +8,7 @@
  */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import type { WidgetDistributionSlice } from '../../tipos.js'
 import { formatValueByUnit, SERIES_COLORS } from '../../utils/axisUtils.js'
@@ -24,13 +25,14 @@ interface CustomTooltipProps {
 }
 
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
+  const { t } = useTranslation()
   if (!active || !payload?.length) return null
   const item = payload[0].payload
   return (
     <div style={tooltipStyles.box}>
       <p style={tooltipStyles.label}>{item.label}</p>
       <p style={tooltipStyles.value}>{formatValueByUnit(item.value, item.unit)}</p>
-      <p style={tooltipStyles.pct}>{item.percentage.toFixed(1)}% do total</p>
+      <p style={tooltipStyles.pct}>{t('nucleo.dashboard.widgets.distribuicao.pct_do_total', { pct: item.percentage.toFixed(1) })}</p>
     </div>
   )
 }
@@ -52,13 +54,14 @@ const tooltipStyles = {
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function DashboardWidgetDistribuicao({ slices }: DistributionWidgetProps) {
+  const { t } = useTranslation()
   // Ocultar fatias com valor zero
   const visibleSlices = slices.filter(s => s.value > 0)
 
   if (visibleSlices.length === 0) {
     return (
       <div style={styles.empty}>
-        <span style={styles.emptyText}>Sem dados para distribuir</span>
+        <span style={styles.emptyText}>{t('nucleo.dashboard.widgets.distribuicao.sem_dados')}</span>
       </div>
     )
   }

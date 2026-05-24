@@ -38,7 +38,7 @@ router.post('/:cotacaoId/aprovar', async (req: Request, res: Response, next: Nex
     const tenantId = (req as any).tenantId
     if (tenantId) {
       notificacoesIntegration.cotacaoAprovada(tenantId, userId, { cotacao_numero: req.params.cotacaoId, fornecedor_nome: response_id })
-      historicoIntegration.cotacaoAprovada(tenantId, userId, { id: req.params.cotacaoId, numero: req.params.cotacaoId }, response_id, 0)
+      historicoIntegration.cotacaoAprovada(tenantId, userId, { id_cotacao_bid_frete: req.params.cotacaoId, numero_cotacao_bid_frete: req.params.cotacaoId }, response_id, 0)
     }
 
     res.json(resultado)
@@ -53,10 +53,10 @@ router.post('/:cotacaoId/reprovar', async (req: Request, res: Response, next: Ne
     const { motivo } = req.body
 
     await (req.prisma as any).freteIntBidCotacoes.update({
-      where: { id: req.params.cotacaoId },
+      where: { id_cotacao_bid_frete: req.params.cotacaoId },
       data: {
-        status: 'REPROVADA',
-        motivo_reprovacao: motivo ?? null,
+        status_cotacao_bid_frete: 'REPROVADA',
+        motivo_reprovacao_cotacao_bid_frete: motivo ?? null,
       },
     })
 
@@ -70,7 +70,7 @@ router.post('/:cotacaoId/reprovar', async (req: Request, res: Response, next: Ne
     const tenantId = (req as any).tenantId
     const userId = req.headers['x-id-usuario'] as string
     if (tenantId) {
-      historicoIntegration.cotacaoReprovada(tenantId, userId, { id: req.params.cotacaoId, numero: req.params.cotacaoId }, motivo)
+      historicoIntegration.cotacaoReprovada(tenantId, userId, { id_cotacao_bid_frete: req.params.cotacaoId, numero_cotacao_bid_frete: req.params.cotacaoId }, motivo)
     }
 
     res.json({ reprovada: true })
@@ -96,9 +96,9 @@ router.get('/:cotacaoId/analise-ia', async (req: Request, res: Response, next: N
       req.tenantId!,
       userId,
       {
-        cotacao_numero: resultado.cotacao.numero,
-        origem: resultado.cotacao.origem_nome,
-        destino: resultado.cotacao.destino_nome,
+        cotacao_numero: resultado.cotacao.numero_cotacao_bid_frete,
+        origem: resultado.cotacao.porto_origem_cotacao_bid_frete, // TODO: lookup from Cadastros
+        destino: resultado.cotacao.porto_destino_cotacao_bid_frete, // TODO: lookup from Cadastros
         respostas: resultado.ranking.map(r => ({
           fornecedor: r.fornecedor_nome,
           valor_total: r.valor_total,

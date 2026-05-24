@@ -730,6 +730,38 @@ model Cambio {
 }
 
 // ---------------------------------------------------------------------------
+// PREVISAO TAXA FUTURA MOEDA
+// Projecao de cambio do BACEN Focus (Expectativas de Mercado).
+// Tabela global — sem id_organizacao (projecoes sao publicas, iguais para todos).
+// Alimentada via cron semanal que consulta a API Olinda do BACEN.
+// IMPORTANTE: NAO e cotacao negociada — e expectativa de mercado, com erro grande
+// em horizontes longos. UI obrigatoriamente rotula como "previsao", nao "cotacao".
+// Focus do BACEN publica oficialmente apenas a serie USD/BRL — demais moedas
+// ficam sem dados ate decisao futura sobre cross-rate.
+// ---------------------------------------------------------------------------
+
+model PrevisaoTaxaFuturaMoeda {
+  id_previsao_taxa_futura_moeda               String   @id @default(cuid())
+  moeda_previsao_taxa_futura_moeda            String // "USD", "EUR"... ref. logica a moeda.codigo_moeda (Cadastros)
+  mes_previsao_taxa_futura_moeda              DateTime // primeiro dia do mes-alvo da previsao (UTC)
+  valor_mediano_previsao_taxa_futura_moeda    Decimal  @db.Decimal(15, 6) // valor exibido na tela
+  valor_medio_previsao_taxa_futura_moeda      Decimal  @db.Decimal(15, 6)
+  valor_minimo_previsao_taxa_futura_moeda     Decimal  @db.Decimal(15, 6)
+  valor_maximo_previsao_taxa_futura_moeda     Decimal  @db.Decimal(15, 6)
+  fonte_previsao_taxa_futura_moeda            String   @default("BACEN/Focus")
+  data_previsao_taxa_futura_moeda             DateTime // data em que o Focus publicou esta projecao
+  data_criacao_previsao_taxa_futura_moeda     DateTime @default(now())
+  data_atualizacao_previsao_taxa_futura_moeda DateTime @updatedAt
+
+  @@unique([moeda_previsao_taxa_futura_moeda, mes_previsao_taxa_futura_moeda], map: "ptfm_moeda_mes_unq")
+  @@index([moeda_previsao_taxa_futura_moeda], map: "ptfm_moeda_idx")
+  @@index([moeda_previsao_taxa_futura_moeda, mes_previsao_taxa_futura_moeda], map: "ptfm_moeda_mes_idx")
+  @@index([mes_previsao_taxa_futura_moeda], map: "ptfm_mes_idx")
+  @@index([data_criacao_previsao_taxa_futura_moeda], map: "ptfm_criacao_idx")
+  @@map("previsao_taxa_futura_moeda")
+}
+
+// ---------------------------------------------------------------------------
 // SISTEMA DE TESTES — Testes, TestSchedule, TestPlan
 // ---------------------------------------------------------------------------
 // Tabelas que suportam o sistema de testes automatizado do Admin/Testes.

@@ -9,6 +9,7 @@ import {
   ChartLine,
   Sigma,
 } from '@phosphor-icons/react'
+import { z } from 'zod'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -18,7 +19,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 
 // ---------------------------------------------------------------------------
-// Tipos
+// Tipos — Cotação Atual (PTAX)
 // ---------------------------------------------------------------------------
 
 interface TaxaItem {
@@ -48,6 +49,49 @@ interface TaxaAtual {
 }
 
 // ---------------------------------------------------------------------------
+// Tipos + schema Zod — Previsão da Taxa Futura da Moeda (BACEN Focus)
+//
+// IMPORTANTE (Mandamento 09 — Zod bilateral):
+// Este schema é o ESPELHO de `previsaoTaxaFuturaMoedaResponseSchema` definido
+// em `servicos-global/configurador/server/routes/previsao-taxa-futura-moeda.ts`.
+// Qualquer mudança no payload do backend exige atualização AQUI no mesmo commit.
+// ---------------------------------------------------------------------------
+
+const previsaoItemSchema = z.object({
+  id_previsao_taxa_futura_moeda: z.string(),
+  moeda_previsao_taxa_futura_moeda: z.string(),
+  mes_previsao_taxa_futura_moeda: z.string(),
+  valor_mediano_previsao_taxa_futura_moeda: z.number(),
+  valor_medio_previsao_taxa_futura_moeda: z.number(),
+  valor_minimo_previsao_taxa_futura_moeda: z.number(),
+  valor_maximo_previsao_taxa_futura_moeda: z.number(),
+  fonte_previsao_taxa_futura_moeda: z.string(),
+  data_previsao_taxa_futura_moeda: z.string(),
+  data_criacao_previsao_taxa_futura_moeda: z.string(),
+  data_atualizacao_previsao_taxa_futura_moeda: z.string(),
+})
+
+const previsaoResponseSchema = z.object({
+  data: z.array(previsaoItemSchema),
+  moeda: z.string(),
+  meses: z.number(),
+  total: z.number(),
+})
+
+type PrevisaoItem = z.infer<typeof previsaoItemSchema>
+
+// Linha achatada para a TabelaGlobal
+interface PrevisaoLinha {
+  id: string
+  moeda: string
+  nome_moeda: string
+  mes_previsto: string          // ISO date — primeiro dia do mês-alvo
+  valor_mediano: number
+  data_previsao: string         // ISO date — quando o Focus publicou
+  fonte: string
+}
+
+// ---------------------------------------------------------------------------
 // Constantes / helpers
 // ---------------------------------------------------------------------------
 
@@ -62,7 +106,6 @@ const MOEDAS_INFO: Record<string, { simbolo: string; nome: string }> = {
 }
 
 const MOEDAS_ORDEM = ['USD', 'EUR', 'GBP', 'CHF', 'CNY', 'JPY', 'CAD'] as const
-type MoedaSuportada = typeof MOEDAS_ORDEM[number]
 
 function fmtTaxa(v: number | null | undefined): string {
   if (v == null) return '—'
@@ -79,10 +122,19 @@ function fmtDataHora(iso: string | null | undefined): string {
   return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
 }
 
+/** Formata ISO date como "Jun/2026" — usado em colunas/KPIs da aba Previsão */
+function fmtMes(iso: string | null | undefined): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  const mes = d.toLocaleDateString('pt-BR', { month: 'short', timeZone: 'UTC' }).replace('.', '')
+  const ano = d.getUTCFullYear()
+  return `${mes.charAt(0).toUpperCase()}${mes.slice(1)}/${ano}`
+}
+
 /**
- * Pill de período — destaca "atual" / "Σ 30 dias" no título do card.
+ * Pill de período — destaca "atual" / "Previsão" no título do card.
  * Usa accent indigo (#818cf8) do design system Solid Slate.
- * `icone` opcional aparece antes do texto (ex: <Sigma /> para média).
+ * `icone` opcional aparece antes do texto.
  */
 function PillPeriodo({ children, icone }: { children: React.ReactNode; icone?: React.ReactNode }) {
   return (
@@ -107,23 +159,11 @@ function PillPeriodo({ children, icone }: { children: React.ReactNode; icone?: R
   )
 }
 
-/**
- * Wrap do titulo do card pra alinhar verticalmente o nome da moeda
- * com o pill de periodo.
- */
-function TituloComPill({ children }: { children: React.ReactNode }) {
-  return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-      {children}
-    </span>
-  )
-}
-
 // ---------------------------------------------------------------------------
 // Componente
 // ---------------------------------------------------------------------------
 
-type AbaTaxaMoeda = 'atual' | 'historico'
+type AbaTaxaMoeda = 'atual' | 'futura'
 
 export function TaxasMoeda() {
   const { getToken } = useAuth()
@@ -131,14 +171,13 @@ export function TaxasMoeda() {
 
   const [abaAtiva, setAbaAtiva] = useState<AbaTaxaMoeda>('atual')
   const [taxasAtuais, setTaxasAtuais] = useState<TaxaAtual[]>([])
-  const [historico, setHistorico] = useState<TaxaItem[]>([])
-  const [historico30dPorMoeda, setHistorico30dPorMoeda] = useState<Record<string, TaxaItem[]>>({})
-  const [moedaHistorico, setMoedaHistorico] = useState<MoedaSuportada>('USD')
+  const [previsoes, setPrevisoes] = useState<PrevisaoItem[]>([])
   const [sincronizando, setSincronizando] = useState(false)
   const [carregando, setCarregando] = useState(true)
+  const [carregandoPrevisao, setCarregandoPrevisao] = useState(false)
   const [ultimaSync, setUltimaSync] = useState<string | null>(null)
 
-  // ── Buscar taxas atuais ──────────────────────────────────────────────────
+  // ── Buscar cotações atuais (PTAX) ────────────────────────────────────────
 
   const buscarTaxas = useCallback(async () => {
     setCarregando(true)
@@ -178,91 +217,108 @@ export function TaxasMoeda() {
     }
   }, [])
 
-  // ── Buscar histórico ─────────────────────────────────────────────────────
+  // ── Buscar previsões Focus (Mandamento 06+09 — Zod parse na response) ────
 
-  const buscarHistorico = useCallback(async (moeda: string) => {
+  const buscarPrevisoes = useCallback(async () => {
+    setCarregandoPrevisao(true)
     try {
-      const res = await fetch(`/api/v1/taxas-moeda/historico?moeda=${moeda}&dias=30`)
-      if (!res.ok) throw new Error('Falha ao buscar histórico')
+      const res = await fetch('/api/v1/previsoes-taxa-futura-moeda?moeda=USD&meses=4')
+      if (!res.ok) throw new Error('Falha ao buscar previsões')
       const json = await res.json()
-      const lista: TaxaItem[] = json.historico ?? []
-      setHistorico(lista)
-      setHistorico30dPorMoeda(prev => ({ ...prev, [moeda]: lista }))
-    } catch {
-      setHistorico([])
+      const parsed = previsaoResponseSchema.parse(json)
+      setPrevisoes(parsed.data)
+    } catch (err) {
+      // Mandamento 08 — sem fallback silencioso: registra o erro no console
+      // pra investigação, mas mantém a UI funcional com lista vazia.
+      console.warn('[TaxasMoeda] Falha ao buscar previsões do BACEN Focus', err)
+      setPrevisoes([])
+    } finally {
+      setCarregandoPrevisao(false)
     }
   }, [])
 
   useEffect(() => { buscarTaxas() }, [buscarTaxas])
   useEffect(() => {
-    if (abaAtiva === 'historico') buscarHistorico(moedaHistorico)
-  }, [abaAtiva, moedaHistorico, buscarHistorico])
+    if (abaAtiva === 'futura') buscarPrevisoes()
+  }, [abaAtiva, buscarPrevisoes])
 
-  // Pre-fetch dos históricos de USD e EUR — alimenta os KPIs quando a aba
-  // 'historico' estiver ativa, mesmo sem o usuário ter selecionado essas
-  // moedas no pill. Roda 1x no mount.
+  // Pre-fetch das previsões no mount — alimenta os KPIs da aba 'futura'
+  // antes do usuário clicar nela.
   useEffect(() => {
-    void buscarHistorico('USD')
-    void buscarHistorico('EUR')
+    void buscarPrevisoes()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── Médias 30 dias ───────────────────────────────────────────────────────
-
-  const calcularMediaMoeda = useCallback((moeda: string) => {
-    const lista = historico30dPorMoeda[moeda] ?? []
-    if (lista.length === 0) return { compra: null, venda: null, total: 0, min: null, max: null }
-    const compras = lista.map(r => Number(r.compra)).filter(n => !isNaN(n))
-    const vendas = lista.map(r => Number(r.venda)).filter(n => !isNaN(n))
-    return {
-      compra: compras.length ? compras.reduce((a, b) => a + b, 0) / compras.length : null,
-      venda: vendas.length ? vendas.reduce((a, b) => a + b, 0) / vendas.length : null,
-      total: lista.length,
-      min: vendas.length ? Math.min(...vendas) : null,
-      max: vendas.length ? Math.max(...vendas) : null,
-    }
-  }, [historico30dPorMoeda])
-
-  const media30dUSD = calcularMediaMoeda('USD')
-  const media30dEUR = calcularMediaMoeda('EUR')
-
-  // ── Sincronizar ──────────────────────────────────────────────────────────
+  // ── Sincronizar (branch por aba ativa) ───────────────────────────────────
 
   const sincronizar = async () => {
     setSincronizando(true)
     try {
       const token = await getToken()
-      const res = await fetch('/api/v1/taxas-moeda/sync', {
-        method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      })
+      const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
 
-      if (res.status === 401) {
-        addNotification({ type: 'error', message: 'Sessão expirada. Faça login novamente.' })
-        return
-      }
+      if (abaAtiva === 'atual') {
+        // ─── Sync PTAX ───────────────────────────────────────────────────
+        const res = await fetch('/api/v1/taxas-moeda/sync', { method: 'POST', headers })
 
-      const json = await res.json().catch(() => ({}))
-      const totalOk = json.total_ok ?? 0
-      const totalErro = json.total_erro ?? 0
+        if (res.status === 401) {
+          addNotification({ type: 'error', message: 'Sessão expirada. Faça login novamente.' })
+          return
+        }
 
-      if (totalOk === 0) {
-        const detalhe = json.resultados?.[0]?.detalhe ?? 'serviço taxas-moeda offline'
-        addNotification({
-          type: 'error',
-          message: `Não foi possível sincronizar (${detalhe})`,
-          duration: 6000,
-        })
+        const json = await res.json().catch(() => ({}))
+        const totalOk = json.total_ok ?? 0
+        const totalErro = json.total_erro ?? 0
+
+        if (totalOk === 0) {
+          const detalhe = json.resultados?.[0]?.detalhe ?? 'serviço taxas-moeda offline'
+          addNotification({
+            type: 'error',
+            message: `Não foi possível sincronizar (${detalhe})`,
+            duration: 6000,
+          })
+        } else {
+          setUltimaSync(new Date().toLocaleString('pt-BR'))
+          await buscarTaxas()
+          addNotification({
+            type: totalErro > 0 ? 'warning' : 'success',
+            message: totalErro > 0
+              ? `Sincronizado parcialmente: ${totalOk} ok, ${totalErro} com erro`
+              : `Sincronização PTAX concluída: ${totalOk} moeda(s) atualizada(s)`,
+          })
+        }
       } else {
-        setUltimaSync(new Date().toLocaleString('pt-BR'))
-        await buscarTaxas()
-        if (abaAtiva === 'historico') await buscarHistorico(moedaHistorico)
-        addNotification({
-          type: totalErro > 0 ? 'warning' : 'success',
-          message: totalErro > 0
-            ? `Sincronizado parcialmente: ${totalOk} ok, ${totalErro} com erro`
-            : `Sincronização concluída: ${totalOk} moeda(s) atualizada(s)`,
-        })
+        // ─── Sync Focus (aba 'futura') ───────────────────────────────────
+        const res = await fetch('/api/v1/previsoes-taxa-futura-moeda/sync', { method: 'POST', headers })
+
+        if (res.status === 401) {
+          addNotification({ type: 'error', message: 'Sessão expirada. Faça login novamente.' })
+          return
+        }
+
+        const json = await res.json().catch(() => ({}))
+        const totalOk = json.total_ok ?? 0
+        const totalErro = json.total_erro ?? 0
+        const usdResultado = json.resultados?.find((r: { moeda: string }) => r.moeda === 'USD')
+
+        if (totalOk === 0) {
+          const detalhe = usdResultado?.detalhe ?? 'BACEN Focus indisponível'
+          addNotification({
+            type: 'error',
+            message: `Não foi possível sincronizar Focus (${detalhe})`,
+            duration: 6000,
+          })
+        } else {
+          setUltimaSync(new Date().toLocaleString('pt-BR'))
+          await buscarPrevisoes()
+          const totalMeses = usdResultado?.total ?? 0
+          addNotification({
+            type: totalErro > 0 ? 'warning' : 'success',
+            message: totalErro > 0
+              ? `Sincronização Focus parcial: ${totalOk} ok, ${totalErro} com erro`
+              : `Sincronização Focus concluída: USD atualizado (${totalMeses} mês${totalMeses === 1 ? '' : 'es'})`,
+          })
+        }
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Erro de comunicação'
@@ -272,13 +328,35 @@ export function TaxasMoeda() {
     }
   }
 
-  // ── KPIs ─────────────────────────────────────────────────────────────────
+  // ── KPIs aba 'atual' ─────────────────────────────────────────────────────
 
   const taxaUSD = taxasAtuais.find(t => t.moeda === 'USD')
   const taxaEUR = taxasAtuais.find(t => t.moeda === 'EUR')
   const moedasComDados = taxasAtuais.filter(t => t.venda != null).length
 
-  // ── Colunas — Cotações Atuais ────────────────────────────────────────────
+  // ── KPIs aba 'futura' ────────────────────────────────────────────────────
+
+  const previsaoProximoMes = previsoes[0] ?? null
+  const previsaoMaisDistante = previsoes.length > 0 ? previsoes[previsoes.length - 1] : null
+  const dataUltimaProjecao = previsoes.length > 0
+    ? previsoes.reduce((max, p) =>
+        new Date(p.data_previsao_taxa_futura_moeda) > new Date(max.data_previsao_taxa_futura_moeda) ? p : max,
+      ).data_previsao_taxa_futura_moeda
+    : null
+
+  // ── Tabela: previsões achatadas pra TabelaGlobal ─────────────────────────
+
+  const previsoesLinhas: PrevisaoLinha[] = previsoes.map(p => ({
+    id: p.id_previsao_taxa_futura_moeda,
+    moeda: p.moeda_previsao_taxa_futura_moeda,
+    nome_moeda: MOEDAS_INFO[p.moeda_previsao_taxa_futura_moeda]?.nome ?? p.moeda_previsao_taxa_futura_moeda,
+    mes_previsto: p.mes_previsao_taxa_futura_moeda,
+    valor_mediano: p.valor_mediano_previsao_taxa_futura_moeda,
+    data_previsao: p.data_previsao_taxa_futura_moeda,
+    fonte: p.fonte_previsao_taxa_futura_moeda,
+  }))
+
+  // ── Colunas — Cotação Atual ──────────────────────────────────────────────
 
   const colunasAtual: TabelaGlobalColuna<TaxaAtual>[] = [
     {
@@ -344,44 +422,55 @@ export function TaxasMoeda() {
     },
   ]
 
-  // ── Colunas — Histórico ──────────────────────────────────────────────────
+  // ── Colunas — Previsão da Taxa Futura da Moeda (BACEN Focus) ─────────────
 
-  const colunasHistorico: TabelaGlobalColuna<TaxaItem>[] = [
+  const colunasPrevisao: TabelaGlobalColuna<PrevisaoLinha>[] = [
     {
-      key: 'data_cotacao',
-      label: 'Data',
-      tipo: 'periodo',
-      getValorBruto: (row) => row.data_cotacao
-        ? new Date(row.data_cotacao).toISOString().split('T')[0]
-        : '',
-      render: (_, row) => fmtData(row.data_cotacao),
-    },
-    {
-      key: 'compra',
-      label: 'Compra (R$)',
-      tipo: 'numero',
-      getValorBruto: (row) => String(row.compra),
-      render: (_, row) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtTaxa(row.compra)}</span>,
-    },
-    {
-      key: 'venda',
-      label: 'Venda (R$)',
-      tipo: 'numero',
-      getValorBruto: (row) => String(row.venda),
-      render: (_, row) => <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{fmtTaxa(row.venda)}</span>,
-    },
-    {
-      key: 'hora_cotacao',
-      label: 'Hora',
+      key: 'moeda',
+      label: 'Moeda',
       tipo: 'texto',
-      getValorBruto: (row) => row.hora_cotacao ?? '',
-      render: (_, row) => row.hora_cotacao ?? '—',
+      render: (_, row) => (
+        <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span style={{ fontWeight: 600 }}>{row.moeda}</span>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+            {row.nome_moeda}
+          </span>
+        </span>
+      ),
+    },
+    {
+      key: 'mes_previsto',
+      label: 'Mês previsto',
+      tipo: 'periodo',
+      getValorBruto: (row) => row.mes_previsto.split('T')[0],
+      render: (_, row) => <span style={{ fontWeight: 600 }}>{fmtMes(row.mes_previsto)}</span>,
+    },
+    {
+      key: 'valor_mediano',
+      label: 'Valor previsto (R$)',
+      tipo: 'numero',
+      getValorBruto: (row) => String(row.valor_mediano),
+      render: (_, row) => (
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+          {fmtTaxa(row.valor_mediano)}
+        </span>
+      ),
+    },
+    {
+      key: 'data_previsao',
+      label: 'Atualizado em',
+      tipo: 'periodo',
+      getValorBruto: (row) => row.data_previsao.split('T')[0],
+      render: (_, row) => (
+        <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+          {fmtData(row.data_previsao)}
+        </span>
+      ),
     },
     {
       key: 'fonte',
       label: 'Fonte',
       tipo: 'texto',
-      getValorBruto: (row) => row.fonte ?? '',
       render: (_, row) => (
         <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{row.fonte}</span>
       ),
@@ -401,14 +490,14 @@ export function TaxasMoeda() {
         cabecalho={
           <CabecalhoGlobal
             titulo="Taxas de Moeda"
-            subtitulo="Cotações PTAX oficiais do Banco Central do Brasil"
+            subtitulo="Cotações PTAX oficiais e projeções de câmbio do BACEN Focus"
             icone={<CurrencyCircleDollar weight="duotone" size={22} color="#818cf8" />}
           />
         }
         stats={
           abaAtiva === 'atual' ? (
             <>
-              {/* ═══════ KPIs ABA 1: Cotação atual ═══════ */}
+              {/* ═══════ KPIs ABA 1: Cotação Atual (PTAX) ═══════ */}
               <CardBasicoGlobal
                 titulo="USD / BRL"
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
@@ -519,115 +608,120 @@ export function TaxasMoeda() {
             </>
           ) : (
             <>
-              {/* ═══════ KPIs ABA 2: Média 30 dias ═══════ */}
+              {/* ═══════ KPIs ABA 2: Cotação Futura (BACEN Focus) ═══════ */}
               <CardBasicoGlobal
-                titulo="USD / BRL"
+                titulo="USD próximo mês"
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
-                valor={media30dUSD.venda != null ? `R$ ${fmtTaxa(media30dUSD.venda)}` : '—'}
+                valor={previsaoProximoMes?.valor_mediano_previsao_taxa_futura_moeda != null
+                  ? `R$ ${fmtTaxa(previsaoProximoMes.valor_mediano_previsao_taxa_futura_moeda)}`
+                  : '—'}
                 subtexto={
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                    <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo>
-                    <span>{media30dUSD.compra != null
-                      ? `Compra média: R$ ${fmtTaxa(media30dUSD.compra)}`
-                      : 'Sem histórico nos últimos 30 dias'}</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '2px' }}>
+                    <PillPeriodo>Previsão</PillPeriodo>
+                    <span>{previsaoProximoMes
+                      ? fmtMes(previsaoProximoMes.mes_previsao_taxa_futura_moeda)
+                      : 'Sincronize Focus para carregar'}</span>
                   </span>
                 }
                 tooltip={
                   <>
-                    <p className="cg-tooltip__title">DÓLAR AMERICANO · MÉDIA 30 DIAS</p>
+                    <p className="cg-tooltip__title">DÓLAR AMERICANO · PRÓXIMO MÊS (FOCUS)</p>
                     <div className="cg-tooltip__row">
-                      <span>Compra (média)</span>
-                      <strong>{media30dUSD.compra != null ? `R$ ${fmtTaxa(media30dUSD.compra)}` : '—'}</strong>
+                      <span>Mediana</span>
+                      <strong style={{ color: '#818cf8' }}>{previsaoProximoMes
+                        ? `R$ ${fmtTaxa(previsaoProximoMes.valor_mediano_previsao_taxa_futura_moeda)}`
+                        : '—'}</strong>
                     </div>
                     <div className="cg-tooltip__row">
-                      <span>Venda (média)</span>
-                      <strong style={{ color: '#34d399' }}>{media30dUSD.venda != null ? `R$ ${fmtTaxa(media30dUSD.venda)}` : '—'}</strong>
-                    </div>
-                    <div className="cg-tooltip__divider" />
-                    <div className="cg-tooltip__row">
-                      <span>Mínima (venda)</span>
-                      <strong>{media30dUSD.min != null ? `R$ ${fmtTaxa(media30dUSD.min)}` : '—'}</strong>
-                    </div>
-                    <div className="cg-tooltip__row">
-                      <span>Máxima (venda)</span>
-                      <strong>{media30dUSD.max != null ? `R$ ${fmtTaxa(media30dUSD.max)}` : '—'}</strong>
+                      <span>Média</span>
+                      <strong>{previsaoProximoMes
+                        ? `R$ ${fmtTaxa(previsaoProximoMes.valor_medio_previsao_taxa_futura_moeda)}`
+                        : '—'}</strong>
                     </div>
                     <div className="cg-tooltip__divider" />
                     <div className="cg-tooltip__row">
-                      <span>Boletins no período</span>
-                      <strong>{media30dUSD.total}</strong>
-                    </div>
-                  </>
-                }
-              />
-              <CardBasicoGlobal
-                titulo="EUR / BRL"
-                icone={<CurrencyCircleDollar weight="duotone" size={16} />}
-                valor={media30dEUR.venda != null ? `R$ ${fmtTaxa(media30dEUR.venda)}` : '—'}
-                subtexto={
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                    <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo>
-                    <span>{media30dEUR.compra != null
-                      ? `Compra média: R$ ${fmtTaxa(media30dEUR.compra)}`
-                      : 'Sem histórico nos últimos 30 dias'}</span>
-                  </span>
-                }
-                tooltip={
-                  <>
-                    <p className="cg-tooltip__title">EURO · MÉDIA 30 DIAS</p>
-                    <div className="cg-tooltip__row">
-                      <span>Compra (média)</span>
-                      <strong>{media30dEUR.compra != null ? `R$ ${fmtTaxa(media30dEUR.compra)}` : '—'}</strong>
+                      <span>Mínimo</span>
+                      <strong>{previsaoProximoMes
+                        ? `R$ ${fmtTaxa(previsaoProximoMes.valor_minimo_previsao_taxa_futura_moeda)}`
+                        : '—'}</strong>
                     </div>
                     <div className="cg-tooltip__row">
-                      <span>Venda (média)</span>
-                      <strong style={{ color: '#34d399' }}>{media30dEUR.venda != null ? `R$ ${fmtTaxa(media30dEUR.venda)}` : '—'}</strong>
-                    </div>
-                    <div className="cg-tooltip__divider" />
-                    <div className="cg-tooltip__row">
-                      <span>Mínima (venda)</span>
-                      <strong>{media30dEUR.min != null ? `R$ ${fmtTaxa(media30dEUR.min)}` : '—'}</strong>
-                    </div>
-                    <div className="cg-tooltip__row">
-                      <span>Máxima (venda)</span>
-                      <strong>{media30dEUR.max != null ? `R$ ${fmtTaxa(media30dEUR.max)}` : '—'}</strong>
-                    </div>
-                    <div className="cg-tooltip__divider" />
-                    <div className="cg-tooltip__row">
-                      <span>Boletins no período</span>
-                      <strong>{media30dEUR.total}</strong>
-                    </div>
-                  </>
-                }
-              />
-              <CardBasicoGlobal
-                titulo="Boletins"
-                icone={<ChartLine weight="duotone" size={16} />}
-                valor={historico.length}
-                subtexto={
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                    <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo>
-                    <span>{`${moedaHistorico} nos últimos 30 dias`}</span>
-                  </span>
-                }
-                tooltip={
-                  <>
-                    <p className="cg-tooltip__title">VOLUME DE HISTÓRICO · {moedaHistorico}</p>
-                    <div className="cg-tooltip__row">
-                      <span>Boletins de {moedaHistorico}</span>
-                      <strong style={{ color: '#34d399' }}>{historico.length}</strong>
-                    </div>
-                    <div className="cg-tooltip__row">
-                      <span>Média compra</span>
-                      <strong>{calcularMediaMoeda(moedaHistorico).compra != null ? `R$ ${fmtTaxa(calcularMediaMoeda(moedaHistorico).compra!)}` : '—'}</strong>
-                    </div>
-                    <div className="cg-tooltip__row">
-                      <span>Média venda</span>
-                      <strong>{calcularMediaMoeda(moedaHistorico).venda != null ? `R$ ${fmtTaxa(calcularMediaMoeda(moedaHistorico).venda!)}` : '—'}</strong>
+                      <span>Máximo</span>
+                      <strong>{previsaoProximoMes
+                        ? `R$ ${fmtTaxa(previsaoProximoMes.valor_maximo_previsao_taxa_futura_moeda)}`
+                        : '—'}</strong>
                     </div>
                     <div className="cg-tooltip__divider" />
                     <p style={{ fontSize: '0.7rem', color: '#94a3b8', margin: 0 }}>
-                      Trocar moeda: pills abaixo da tabela
+                      Projeção de mercado (BACEN Focus). Não é cotação negociada.
+                    </p>
+                  </>
+                }
+              />
+              <CardBasicoGlobal
+                titulo="USD horizonte"
+                icone={<Sigma weight="duotone" size={16} />}
+                valor={previsaoMaisDistante?.valor_mediano_previsao_taxa_futura_moeda != null
+                  ? `R$ ${fmtTaxa(previsaoMaisDistante.valor_mediano_previsao_taxa_futura_moeda)}`
+                  : '—'}
+                subtexto={
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '2px' }}>
+                    <PillPeriodo>Previsão</PillPeriodo>
+                    <span>{previsaoMaisDistante
+                      ? fmtMes(previsaoMaisDistante.mes_previsao_taxa_futura_moeda)
+                      : `${previsoes.length} mês(es) carregado(s)`}</span>
+                  </span>
+                }
+                tooltip={
+                  <>
+                    <p className="cg-tooltip__title">USD · HORIZONTE DA PREVISÃO</p>
+                    <div className="cg-tooltip__row">
+                      <span>Meses carregados</span>
+                      <strong>{previsoes.length}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Mês mais próximo</span>
+                      <strong>{previsaoProximoMes
+                        ? fmtMes(previsaoProximoMes.mes_previsao_taxa_futura_moeda)
+                        : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Mês mais distante</span>
+                      <strong>{previsaoMaisDistante
+                        ? fmtMes(previsaoMaisDistante.mes_previsao_taxa_futura_moeda)
+                        : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__divider" />
+                    <p style={{ fontSize: '0.7rem', color: '#94a3b8', margin: 0 }}>
+                      Erro de previsão de câmbio cresce rápido com horizonte.
+                    </p>
+                  </>
+                }
+              />
+              <CardBasicoGlobal
+                titulo="Atualização Focus"
+                icone={<Clock weight="duotone" size={16} />}
+                valor={dataUltimaProjecao ? fmtData(dataUltimaProjecao) : '—'}
+                subtexto={
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '2px' }}>
+                    <PillPeriodo>Fonte</PillPeriodo>
+                    <span>BACEN/Focus</span>
+                  </span>
+                }
+                tooltip={
+                  <>
+                    <p className="cg-tooltip__title">BACEN FOCUS · ATUALIZAÇÃO</p>
+                    <div className="cg-tooltip__row">
+                      <span>Última publicação</span>
+                      <strong>{dataUltimaProjecao ? fmtData(dataUltimaProjecao) : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Cron</span>
+                      <strong>Semanal (terça 22h BRT)</strong>
+                    </div>
+                    <div className="cg-tooltip__divider" />
+                    <p style={{ fontSize: '0.7rem', color: '#94a3b8', margin: 0 }}>
+                      Focus publica oficialmente apenas a série USD/BRL.
                     </p>
                   </>
                 }
@@ -644,15 +738,15 @@ export function TaxasMoeda() {
                 className={`ws-tab${abaAtiva === 'atual' ? ' active' : ''}`}
                 onClick={() => setAbaAtiva('atual')}
               >
-                Cotações Atuais
+                Cotação Atual
               </button>
               <button
                 role="tab"
-                aria-selected={abaAtiva === 'historico'}
-                className={`ws-tab${abaAtiva === 'historico' ? ' active' : ''}`}
-                onClick={() => setAbaAtiva('historico')}
+                aria-selected={abaAtiva === 'futura'}
+                className={`ws-tab${abaAtiva === 'futura' ? ' active' : ''}`}
+                onClick={() => setAbaAtiva('futura')}
               >
-                Histórico — 30 dias
+                Cotação Futura
               </button>
             </div>
 
@@ -677,13 +771,15 @@ export function TaxasMoeda() {
                 disabled={sincronizando}
                 aria-busy={sincronizando}
               >
-                {sincronizando ? 'Sincronizando…' : 'Sincronizar PTAX'}
+                {sincronizando
+                  ? 'Sincronizando…'
+                  : abaAtiva === 'atual' ? 'Sincronizar PTAX' : 'Sincronizar Focus'}
               </BotaoGlobal>
             </div>
           </div>
         }
       >
-        {/* ═══════ ABA 1: Cotações Atuais ═══════ */}
+        {/* ═══════ ABA 1: Cotação Atual ═══════ */}
         {abaAtiva === 'atual' && (
           <div className="ws-fade-up">
             <div style={{ position: 'relative', zIndex: 10 }}>
@@ -714,35 +810,35 @@ export function TaxasMoeda() {
           </div>
         )}
 
-        {/* ═══════ ABA 2: Histórico ═══════ */}
-        {abaAtiva === 'historico' && (
+        {/* ═══════ ABA 2: Cotação Futura (BACEN Focus) ═══════ */}
+        {abaAtiva === 'futura' && (
           <div className="ws-fade-up">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-              <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>Moeda:</span>
-              {MOEDAS_ORDEM.map(m => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setMoedaHistorico(m)}
-                  className={`ws-tab${moedaHistorico === m ? ' active' : ''}`}
-                  style={{ padding: '0.3rem 0.7rem', fontSize: '0.78rem' }}
-                >
-                  {m}
-                </button>
-              ))}
+            <div style={{ position: 'relative', zIndex: 10 }}>
+              <TabelaGlobal<PrevisaoLinha>
+                id="previsao-taxa-futura-moeda"
+                idKey="id"
+                dados={previsoesLinhas}
+                colunas={colunasPrevisao}
+                acoesExportacao={getAcoesExportacaoPadrao(colunasPrevisao, 'previsao-taxa-futura-moeda', 'Previsão da Taxa Futura da Moeda — BACEN Focus')}
+                mensagemVazio={carregandoPrevisao
+                  ? 'Carregando previsões…'
+                  : 'Nenhuma previsão armazenada. Clique em Sincronizar Focus.'}
+                mensagemSemFiltro="Nenhuma previsão encontrada."
+                tooltipBusca="Localizar por moeda, mês ou data"
+              />
             </div>
 
-            <div style={{ position: 'relative', zIndex: 10 }}>
-              <TabelaGlobal<TaxaItem>
-                id={`taxas-moeda-historico-${moedaHistorico}`}
-                idKey="id"
-                dados={historico}
-                colunas={colunasHistorico}
-                acoesExportacao={getAcoesExportacaoPadrao(colunasHistorico, `taxas-moeda-historico-${moedaHistorico}`, `Taxas de Moeda — Histórico ${moedaHistorico}`)}
-                mensagemVazio={`Nenhum histórico de ${moedaHistorico} armazenado.`}
-                mensagemSemFiltro={`Nenhum histórico de ${moedaHistorico} encontrado.`}
-                tooltipBusca="Localizar por data, hora ou fonte"
-              />
+            <div style={{
+              background: 'rgba(129,140,248,0.06)',
+              border: '1px solid rgba(129,140,248,0.15)',
+              borderRadius: '10px',
+              padding: '1rem 1.25rem',
+              fontSize: '0.8125rem',
+              color: 'var(--ws-muted)',
+              lineHeight: 1.6,
+              marginTop: '1.5rem',
+            }}>
+              💡 <strong style={{ color: 'var(--ws-text)' }}>Previsão da Taxa Futura da Moeda</strong> — Os valores acima são <strong style={{ color: '#818cf8' }}>projeções de mercado</strong> publicadas pelo <strong style={{ color: '#818cf8' }}>BACEN Focus</strong> (Expectativas de Mercado), <strong>não cotações negociadas</strong>. Sincronização automática <strong style={{ color: '#818cf8' }}>semanal (terça-feira 22h BRT)</strong>. O erro de previsão cresce rápido com o horizonte — projeções para 4+ meses têm margem alta. O Focus publica oficialmente apenas a série <strong>USD/BRL</strong>; demais moedas ficam sem dados de previsão.
             </div>
           </div>
         )}

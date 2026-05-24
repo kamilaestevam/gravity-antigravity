@@ -44,6 +44,21 @@ export type Unidade = $Result.DefaultSelection<Prisma.$UnidadePayload>
  */
 export type Incoterm = $Result.DefaultSelection<Prisma.$IncotermPayload>
 /**
+ * Model Porto
+ * 
+ */
+export type Porto = $Result.DefaultSelection<Prisma.$PortoPayload>
+/**
+ * Model Aeroporto
+ * 
+ */
+export type Aeroporto = $Result.DefaultSelection<Prisma.$AeroportoPayload>
+/**
+ * Model TipoContainer
+ * 
+ */
+export type TipoContainer = $Result.DefaultSelection<Prisma.$TipoContainerPayload>
+/**
  * Model NcmSync
  * 
  */
@@ -281,6 +296,36 @@ export class PrismaClient<
     * ```
     */
   get incoterm(): Prisma.IncotermDelegate<ExtArgs>;
+
+  /**
+   * `prisma.porto`: Exposes CRUD operations for the **Porto** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Portos
+    * const portos = await prisma.porto.findMany()
+    * ```
+    */
+  get porto(): Prisma.PortoDelegate<ExtArgs>;
+
+  /**
+   * `prisma.aeroporto`: Exposes CRUD operations for the **Aeroporto** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Aeroportos
+    * const aeroportos = await prisma.aeroporto.findMany()
+    * ```
+    */
+  get aeroporto(): Prisma.AeroportoDelegate<ExtArgs>;
+
+  /**
+   * `prisma.tipoContainer`: Exposes CRUD operations for the **TipoContainer** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TipoContainers
+    * const tipoContainers = await prisma.tipoContainer.findMany()
+    * ```
+    */
+  get tipoContainer(): Prisma.TipoContainerDelegate<ExtArgs>;
 
   /**
    * `prisma.ncmSync`: Exposes CRUD operations for the **NcmSync** model.
@@ -797,6 +842,9 @@ export namespace Prisma {
     Moeda: 'Moeda',
     Unidade: 'Unidade',
     Incoterm: 'Incoterm',
+    Porto: 'Porto',
+    Aeroporto: 'Aeroporto',
+    TipoContainer: 'TipoContainer',
     NcmSync: 'NcmSync',
     NcmSyncLog: 'NcmSyncLog',
     NcmSyncAgendamento: 'NcmSyncAgendamento',
@@ -819,7 +867,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "pais" | "moeda" | "unidade" | "incoterm" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus" | "exportadorQuandoImportacao" | "importadorQuandoExportacao"
+      modelProps: "empresa" | "pais" | "moeda" | "unidade" | "incoterm" | "porto" | "aeroporto" | "tipoContainer" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus" | "exportadorQuandoImportacao" | "importadorQuandoExportacao"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1170,6 +1218,216 @@ export namespace Prisma {
           count: {
             args: Prisma.IncotermCountArgs<ExtArgs>
             result: $Utils.Optional<IncotermCountAggregateOutputType> | number
+          }
+        }
+      }
+      Porto: {
+        payload: Prisma.$PortoPayload<ExtArgs>
+        fields: Prisma.PortoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PortoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PortoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PortoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PortoPayload>
+          }
+          findFirst: {
+            args: Prisma.PortoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PortoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PortoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PortoPayload>
+          }
+          findMany: {
+            args: Prisma.PortoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PortoPayload>[]
+          }
+          create: {
+            args: Prisma.PortoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PortoPayload>
+          }
+          createMany: {
+            args: Prisma.PortoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PortoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PortoPayload>[]
+          }
+          delete: {
+            args: Prisma.PortoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PortoPayload>
+          }
+          update: {
+            args: Prisma.PortoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PortoPayload>
+          }
+          deleteMany: {
+            args: Prisma.PortoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PortoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PortoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PortoPayload>
+          }
+          aggregate: {
+            args: Prisma.PortoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePorto>
+          }
+          groupBy: {
+            args: Prisma.PortoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PortoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PortoCountArgs<ExtArgs>
+            result: $Utils.Optional<PortoCountAggregateOutputType> | number
+          }
+        }
+      }
+      Aeroporto: {
+        payload: Prisma.$AeroportoPayload<ExtArgs>
+        fields: Prisma.AeroportoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AeroportoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AeroportoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AeroportoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AeroportoPayload>
+          }
+          findFirst: {
+            args: Prisma.AeroportoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AeroportoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AeroportoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AeroportoPayload>
+          }
+          findMany: {
+            args: Prisma.AeroportoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AeroportoPayload>[]
+          }
+          create: {
+            args: Prisma.AeroportoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AeroportoPayload>
+          }
+          createMany: {
+            args: Prisma.AeroportoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AeroportoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AeroportoPayload>[]
+          }
+          delete: {
+            args: Prisma.AeroportoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AeroportoPayload>
+          }
+          update: {
+            args: Prisma.AeroportoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AeroportoPayload>
+          }
+          deleteMany: {
+            args: Prisma.AeroportoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AeroportoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AeroportoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AeroportoPayload>
+          }
+          aggregate: {
+            args: Prisma.AeroportoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAeroporto>
+          }
+          groupBy: {
+            args: Prisma.AeroportoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AeroportoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AeroportoCountArgs<ExtArgs>
+            result: $Utils.Optional<AeroportoCountAggregateOutputType> | number
+          }
+        }
+      }
+      TipoContainer: {
+        payload: Prisma.$TipoContainerPayload<ExtArgs>
+        fields: Prisma.TipoContainerFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TipoContainerFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TipoContainerFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>
+          }
+          findFirst: {
+            args: Prisma.TipoContainerFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TipoContainerFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>
+          }
+          findMany: {
+            args: Prisma.TipoContainerFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>[]
+          }
+          create: {
+            args: Prisma.TipoContainerCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>
+          }
+          createMany: {
+            args: Prisma.TipoContainerCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TipoContainerCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>[]
+          }
+          delete: {
+            args: Prisma.TipoContainerDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>
+          }
+          update: {
+            args: Prisma.TipoContainerUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>
+          }
+          deleteMany: {
+            args: Prisma.TipoContainerDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TipoContainerUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TipoContainerUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TipoContainerPayload>
+          }
+          aggregate: {
+            args: Prisma.TipoContainerAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTipoContainer>
+          }
+          groupBy: {
+            args: Prisma.TipoContainerGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TipoContainerGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TipoContainerCountArgs<ExtArgs>
+            result: $Utils.Optional<TipoContainerCountAggregateOutputType> | number
           }
         }
       }
@@ -6607,6 +6865,2918 @@ export namespace Prisma {
      * Select specific fields to fetch from the Incoterm
      */
     select?: IncotermSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Porto
+   */
+
+  export type AggregatePorto = {
+    _count: PortoCountAggregateOutputType | null
+    _avg: PortoAvgAggregateOutputType | null
+    _sum: PortoSumAggregateOutputType | null
+    _min: PortoMinAggregateOutputType | null
+    _max: PortoMaxAggregateOutputType | null
+  }
+
+  export type PortoAvgAggregateOutputType = {
+    latitude_porto: number | null
+    longitude_porto: number | null
+  }
+
+  export type PortoSumAggregateOutputType = {
+    latitude_porto: number | null
+    longitude_porto: number | null
+  }
+
+  export type PortoMinAggregateOutputType = {
+    id_porto: string | null
+    codigo_unlocode_porto: string | null
+    codigo_pais_porto: string | null
+    codigo_local_porto: string | null
+    nome_porto: string | null
+    nome_ascii_porto: string | null
+    subdivisao_porto: string | null
+    latitude_porto: number | null
+    longitude_porto: number | null
+    codigo_iata_porto: string | null
+    ativo_porto: boolean | null
+  }
+
+  export type PortoMaxAggregateOutputType = {
+    id_porto: string | null
+    codigo_unlocode_porto: string | null
+    codigo_pais_porto: string | null
+    codigo_local_porto: string | null
+    nome_porto: string | null
+    nome_ascii_porto: string | null
+    subdivisao_porto: string | null
+    latitude_porto: number | null
+    longitude_porto: number | null
+    codigo_iata_porto: string | null
+    ativo_porto: boolean | null
+  }
+
+  export type PortoCountAggregateOutputType = {
+    id_porto: number
+    codigo_unlocode_porto: number
+    codigo_pais_porto: number
+    codigo_local_porto: number
+    nome_porto: number
+    nome_ascii_porto: number
+    subdivisao_porto: number
+    latitude_porto: number
+    longitude_porto: number
+    codigo_iata_porto: number
+    ativo_porto: number
+    _all: number
+  }
+
+
+  export type PortoAvgAggregateInputType = {
+    latitude_porto?: true
+    longitude_porto?: true
+  }
+
+  export type PortoSumAggregateInputType = {
+    latitude_porto?: true
+    longitude_porto?: true
+  }
+
+  export type PortoMinAggregateInputType = {
+    id_porto?: true
+    codigo_unlocode_porto?: true
+    codigo_pais_porto?: true
+    codigo_local_porto?: true
+    nome_porto?: true
+    nome_ascii_porto?: true
+    subdivisao_porto?: true
+    latitude_porto?: true
+    longitude_porto?: true
+    codigo_iata_porto?: true
+    ativo_porto?: true
+  }
+
+  export type PortoMaxAggregateInputType = {
+    id_porto?: true
+    codigo_unlocode_porto?: true
+    codigo_pais_porto?: true
+    codigo_local_porto?: true
+    nome_porto?: true
+    nome_ascii_porto?: true
+    subdivisao_porto?: true
+    latitude_porto?: true
+    longitude_porto?: true
+    codigo_iata_porto?: true
+    ativo_porto?: true
+  }
+
+  export type PortoCountAggregateInputType = {
+    id_porto?: true
+    codigo_unlocode_porto?: true
+    codigo_pais_porto?: true
+    codigo_local_porto?: true
+    nome_porto?: true
+    nome_ascii_porto?: true
+    subdivisao_porto?: true
+    latitude_porto?: true
+    longitude_porto?: true
+    codigo_iata_porto?: true
+    ativo_porto?: true
+    _all?: true
+  }
+
+  export type PortoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Porto to aggregate.
+     */
+    where?: PortoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Portos to fetch.
+     */
+    orderBy?: PortoOrderByWithRelationInput | PortoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PortoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Portos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Portos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Portos
+    **/
+    _count?: true | PortoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PortoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PortoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PortoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PortoMaxAggregateInputType
+  }
+
+  export type GetPortoAggregateType<T extends PortoAggregateArgs> = {
+        [P in keyof T & keyof AggregatePorto]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePorto[P]>
+      : GetScalarType<T[P], AggregatePorto[P]>
+  }
+
+
+
+
+  export type PortoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PortoWhereInput
+    orderBy?: PortoOrderByWithAggregationInput | PortoOrderByWithAggregationInput[]
+    by: PortoScalarFieldEnum[] | PortoScalarFieldEnum
+    having?: PortoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PortoCountAggregateInputType | true
+    _avg?: PortoAvgAggregateInputType
+    _sum?: PortoSumAggregateInputType
+    _min?: PortoMinAggregateInputType
+    _max?: PortoMaxAggregateInputType
+  }
+
+  export type PortoGroupByOutputType = {
+    id_porto: string
+    codigo_unlocode_porto: string
+    codigo_pais_porto: string
+    codigo_local_porto: string
+    nome_porto: string
+    nome_ascii_porto: string
+    subdivisao_porto: string | null
+    latitude_porto: number | null
+    longitude_porto: number | null
+    codigo_iata_porto: string | null
+    ativo_porto: boolean
+    _count: PortoCountAggregateOutputType | null
+    _avg: PortoAvgAggregateOutputType | null
+    _sum: PortoSumAggregateOutputType | null
+    _min: PortoMinAggregateOutputType | null
+    _max: PortoMaxAggregateOutputType | null
+  }
+
+  type GetPortoGroupByPayload<T extends PortoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PortoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PortoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PortoGroupByOutputType[P]>
+            : GetScalarType<T[P], PortoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PortoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_porto?: boolean
+    codigo_unlocode_porto?: boolean
+    codigo_pais_porto?: boolean
+    codigo_local_porto?: boolean
+    nome_porto?: boolean
+    nome_ascii_porto?: boolean
+    subdivisao_porto?: boolean
+    latitude_porto?: boolean
+    longitude_porto?: boolean
+    codigo_iata_porto?: boolean
+    ativo_porto?: boolean
+  }, ExtArgs["result"]["porto"]>
+
+  export type PortoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_porto?: boolean
+    codigo_unlocode_porto?: boolean
+    codigo_pais_porto?: boolean
+    codigo_local_porto?: boolean
+    nome_porto?: boolean
+    nome_ascii_porto?: boolean
+    subdivisao_porto?: boolean
+    latitude_porto?: boolean
+    longitude_porto?: boolean
+    codigo_iata_porto?: boolean
+    ativo_porto?: boolean
+  }, ExtArgs["result"]["porto"]>
+
+  export type PortoSelectScalar = {
+    id_porto?: boolean
+    codigo_unlocode_porto?: boolean
+    codigo_pais_porto?: boolean
+    codigo_local_porto?: boolean
+    nome_porto?: boolean
+    nome_ascii_porto?: boolean
+    subdivisao_porto?: boolean
+    latitude_porto?: boolean
+    longitude_porto?: boolean
+    codigo_iata_porto?: boolean
+    ativo_porto?: boolean
+  }
+
+
+  export type $PortoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Porto"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_porto: string
+      codigo_unlocode_porto: string
+      codigo_pais_porto: string
+      codigo_local_porto: string
+      nome_porto: string
+      nome_ascii_porto: string
+      subdivisao_porto: string | null
+      latitude_porto: number | null
+      longitude_porto: number | null
+      codigo_iata_porto: string | null
+      ativo_porto: boolean
+    }, ExtArgs["result"]["porto"]>
+    composites: {}
+  }
+
+  type PortoGetPayload<S extends boolean | null | undefined | PortoDefaultArgs> = $Result.GetResult<Prisma.$PortoPayload, S>
+
+  type PortoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<PortoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: PortoCountAggregateInputType | true
+    }
+
+  export interface PortoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Porto'], meta: { name: 'Porto' } }
+    /**
+     * Find zero or one Porto that matches the filter.
+     * @param {PortoFindUniqueArgs} args - Arguments to find a Porto
+     * @example
+     * // Get one Porto
+     * const porto = await prisma.porto.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PortoFindUniqueArgs>(args: SelectSubset<T, PortoFindUniqueArgs<ExtArgs>>): Prisma__PortoClient<$Result.GetResult<Prisma.$PortoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Porto that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {PortoFindUniqueOrThrowArgs} args - Arguments to find a Porto
+     * @example
+     * // Get one Porto
+     * const porto = await prisma.porto.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PortoFindUniqueOrThrowArgs>(args: SelectSubset<T, PortoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PortoClient<$Result.GetResult<Prisma.$PortoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Porto that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PortoFindFirstArgs} args - Arguments to find a Porto
+     * @example
+     * // Get one Porto
+     * const porto = await prisma.porto.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PortoFindFirstArgs>(args?: SelectSubset<T, PortoFindFirstArgs<ExtArgs>>): Prisma__PortoClient<$Result.GetResult<Prisma.$PortoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Porto that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PortoFindFirstOrThrowArgs} args - Arguments to find a Porto
+     * @example
+     * // Get one Porto
+     * const porto = await prisma.porto.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PortoFindFirstOrThrowArgs>(args?: SelectSubset<T, PortoFindFirstOrThrowArgs<ExtArgs>>): Prisma__PortoClient<$Result.GetResult<Prisma.$PortoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Portos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PortoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Portos
+     * const portos = await prisma.porto.findMany()
+     * 
+     * // Get first 10 Portos
+     * const portos = await prisma.porto.findMany({ take: 10 })
+     * 
+     * // Only select the `id_porto`
+     * const portoWithId_portoOnly = await prisma.porto.findMany({ select: { id_porto: true } })
+     * 
+     */
+    findMany<T extends PortoFindManyArgs>(args?: SelectSubset<T, PortoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PortoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Porto.
+     * @param {PortoCreateArgs} args - Arguments to create a Porto.
+     * @example
+     * // Create one Porto
+     * const Porto = await prisma.porto.create({
+     *   data: {
+     *     // ... data to create a Porto
+     *   }
+     * })
+     * 
+     */
+    create<T extends PortoCreateArgs>(args: SelectSubset<T, PortoCreateArgs<ExtArgs>>): Prisma__PortoClient<$Result.GetResult<Prisma.$PortoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Portos.
+     * @param {PortoCreateManyArgs} args - Arguments to create many Portos.
+     * @example
+     * // Create many Portos
+     * const porto = await prisma.porto.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PortoCreateManyArgs>(args?: SelectSubset<T, PortoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Portos and returns the data saved in the database.
+     * @param {PortoCreateManyAndReturnArgs} args - Arguments to create many Portos.
+     * @example
+     * // Create many Portos
+     * const porto = await prisma.porto.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Portos and only return the `id_porto`
+     * const portoWithId_portoOnly = await prisma.porto.createManyAndReturn({ 
+     *   select: { id_porto: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PortoCreateManyAndReturnArgs>(args?: SelectSubset<T, PortoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PortoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Porto.
+     * @param {PortoDeleteArgs} args - Arguments to delete one Porto.
+     * @example
+     * // Delete one Porto
+     * const Porto = await prisma.porto.delete({
+     *   where: {
+     *     // ... filter to delete one Porto
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PortoDeleteArgs>(args: SelectSubset<T, PortoDeleteArgs<ExtArgs>>): Prisma__PortoClient<$Result.GetResult<Prisma.$PortoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Porto.
+     * @param {PortoUpdateArgs} args - Arguments to update one Porto.
+     * @example
+     * // Update one Porto
+     * const porto = await prisma.porto.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PortoUpdateArgs>(args: SelectSubset<T, PortoUpdateArgs<ExtArgs>>): Prisma__PortoClient<$Result.GetResult<Prisma.$PortoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Portos.
+     * @param {PortoDeleteManyArgs} args - Arguments to filter Portos to delete.
+     * @example
+     * // Delete a few Portos
+     * const { count } = await prisma.porto.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PortoDeleteManyArgs>(args?: SelectSubset<T, PortoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Portos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PortoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Portos
+     * const porto = await prisma.porto.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PortoUpdateManyArgs>(args: SelectSubset<T, PortoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Porto.
+     * @param {PortoUpsertArgs} args - Arguments to update or create a Porto.
+     * @example
+     * // Update or create a Porto
+     * const porto = await prisma.porto.upsert({
+     *   create: {
+     *     // ... data to create a Porto
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Porto we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PortoUpsertArgs>(args: SelectSubset<T, PortoUpsertArgs<ExtArgs>>): Prisma__PortoClient<$Result.GetResult<Prisma.$PortoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Portos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PortoCountArgs} args - Arguments to filter Portos to count.
+     * @example
+     * // Count the number of Portos
+     * const count = await prisma.porto.count({
+     *   where: {
+     *     // ... the filter for the Portos we want to count
+     *   }
+     * })
+    **/
+    count<T extends PortoCountArgs>(
+      args?: Subset<T, PortoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PortoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Porto.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PortoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PortoAggregateArgs>(args: Subset<T, PortoAggregateArgs>): Prisma.PrismaPromise<GetPortoAggregateType<T>>
+
+    /**
+     * Group by Porto.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PortoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PortoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PortoGroupByArgs['orderBy'] }
+        : { orderBy?: PortoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PortoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPortoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Porto model
+   */
+  readonly fields: PortoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Porto.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PortoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Porto model
+   */ 
+  interface PortoFieldRefs {
+    readonly id_porto: FieldRef<"Porto", 'String'>
+    readonly codigo_unlocode_porto: FieldRef<"Porto", 'String'>
+    readonly codigo_pais_porto: FieldRef<"Porto", 'String'>
+    readonly codigo_local_porto: FieldRef<"Porto", 'String'>
+    readonly nome_porto: FieldRef<"Porto", 'String'>
+    readonly nome_ascii_porto: FieldRef<"Porto", 'String'>
+    readonly subdivisao_porto: FieldRef<"Porto", 'String'>
+    readonly latitude_porto: FieldRef<"Porto", 'Float'>
+    readonly longitude_porto: FieldRef<"Porto", 'Float'>
+    readonly codigo_iata_porto: FieldRef<"Porto", 'String'>
+    readonly ativo_porto: FieldRef<"Porto", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Porto findUnique
+   */
+  export type PortoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Porto
+     */
+    select?: PortoSelect<ExtArgs> | null
+    /**
+     * Filter, which Porto to fetch.
+     */
+    where: PortoWhereUniqueInput
+  }
+
+  /**
+   * Porto findUniqueOrThrow
+   */
+  export type PortoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Porto
+     */
+    select?: PortoSelect<ExtArgs> | null
+    /**
+     * Filter, which Porto to fetch.
+     */
+    where: PortoWhereUniqueInput
+  }
+
+  /**
+   * Porto findFirst
+   */
+  export type PortoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Porto
+     */
+    select?: PortoSelect<ExtArgs> | null
+    /**
+     * Filter, which Porto to fetch.
+     */
+    where?: PortoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Portos to fetch.
+     */
+    orderBy?: PortoOrderByWithRelationInput | PortoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Portos.
+     */
+    cursor?: PortoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Portos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Portos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Portos.
+     */
+    distinct?: PortoScalarFieldEnum | PortoScalarFieldEnum[]
+  }
+
+  /**
+   * Porto findFirstOrThrow
+   */
+  export type PortoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Porto
+     */
+    select?: PortoSelect<ExtArgs> | null
+    /**
+     * Filter, which Porto to fetch.
+     */
+    where?: PortoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Portos to fetch.
+     */
+    orderBy?: PortoOrderByWithRelationInput | PortoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Portos.
+     */
+    cursor?: PortoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Portos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Portos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Portos.
+     */
+    distinct?: PortoScalarFieldEnum | PortoScalarFieldEnum[]
+  }
+
+  /**
+   * Porto findMany
+   */
+  export type PortoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Porto
+     */
+    select?: PortoSelect<ExtArgs> | null
+    /**
+     * Filter, which Portos to fetch.
+     */
+    where?: PortoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Portos to fetch.
+     */
+    orderBy?: PortoOrderByWithRelationInput | PortoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Portos.
+     */
+    cursor?: PortoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Portos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Portos.
+     */
+    skip?: number
+    distinct?: PortoScalarFieldEnum | PortoScalarFieldEnum[]
+  }
+
+  /**
+   * Porto create
+   */
+  export type PortoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Porto
+     */
+    select?: PortoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a Porto.
+     */
+    data: XOR<PortoCreateInput, PortoUncheckedCreateInput>
+  }
+
+  /**
+   * Porto createMany
+   */
+  export type PortoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Portos.
+     */
+    data: PortoCreateManyInput | PortoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Porto createManyAndReturn
+   */
+  export type PortoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Porto
+     */
+    select?: PortoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Portos.
+     */
+    data: PortoCreateManyInput | PortoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Porto update
+   */
+  export type PortoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Porto
+     */
+    select?: PortoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a Porto.
+     */
+    data: XOR<PortoUpdateInput, PortoUncheckedUpdateInput>
+    /**
+     * Choose, which Porto to update.
+     */
+    where: PortoWhereUniqueInput
+  }
+
+  /**
+   * Porto updateMany
+   */
+  export type PortoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Portos.
+     */
+    data: XOR<PortoUpdateManyMutationInput, PortoUncheckedUpdateManyInput>
+    /**
+     * Filter which Portos to update
+     */
+    where?: PortoWhereInput
+  }
+
+  /**
+   * Porto upsert
+   */
+  export type PortoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Porto
+     */
+    select?: PortoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the Porto to update in case it exists.
+     */
+    where: PortoWhereUniqueInput
+    /**
+     * In case the Porto found by the `where` argument doesn't exist, create a new Porto with this data.
+     */
+    create: XOR<PortoCreateInput, PortoUncheckedCreateInput>
+    /**
+     * In case the Porto was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PortoUpdateInput, PortoUncheckedUpdateInput>
+  }
+
+  /**
+   * Porto delete
+   */
+  export type PortoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Porto
+     */
+    select?: PortoSelect<ExtArgs> | null
+    /**
+     * Filter which Porto to delete.
+     */
+    where: PortoWhereUniqueInput
+  }
+
+  /**
+   * Porto deleteMany
+   */
+  export type PortoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Portos to delete
+     */
+    where?: PortoWhereInput
+  }
+
+  /**
+   * Porto without action
+   */
+  export type PortoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Porto
+     */
+    select?: PortoSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Aeroporto
+   */
+
+  export type AggregateAeroporto = {
+    _count: AeroportoCountAggregateOutputType | null
+    _avg: AeroportoAvgAggregateOutputType | null
+    _sum: AeroportoSumAggregateOutputType | null
+    _min: AeroportoMinAggregateOutputType | null
+    _max: AeroportoMaxAggregateOutputType | null
+  }
+
+  export type AeroportoAvgAggregateOutputType = {
+    latitude_aeroporto: number | null
+    longitude_aeroporto: number | null
+  }
+
+  export type AeroportoSumAggregateOutputType = {
+    latitude_aeroporto: number | null
+    longitude_aeroporto: number | null
+  }
+
+  export type AeroportoMinAggregateOutputType = {
+    id_aeroporto: string | null
+    codigo_unlocode_aeroporto: string | null
+    codigo_pais_aeroporto: string | null
+    codigo_local_aeroporto: string | null
+    nome_aeroporto: string | null
+    nome_ascii_aeroporto: string | null
+    subdivisao_aeroporto: string | null
+    latitude_aeroporto: number | null
+    longitude_aeroporto: number | null
+    codigo_iata_aeroporto: string | null
+    ativo_aeroporto: boolean | null
+  }
+
+  export type AeroportoMaxAggregateOutputType = {
+    id_aeroporto: string | null
+    codigo_unlocode_aeroporto: string | null
+    codigo_pais_aeroporto: string | null
+    codigo_local_aeroporto: string | null
+    nome_aeroporto: string | null
+    nome_ascii_aeroporto: string | null
+    subdivisao_aeroporto: string | null
+    latitude_aeroporto: number | null
+    longitude_aeroporto: number | null
+    codigo_iata_aeroporto: string | null
+    ativo_aeroporto: boolean | null
+  }
+
+  export type AeroportoCountAggregateOutputType = {
+    id_aeroporto: number
+    codigo_unlocode_aeroporto: number
+    codigo_pais_aeroporto: number
+    codigo_local_aeroporto: number
+    nome_aeroporto: number
+    nome_ascii_aeroporto: number
+    subdivisao_aeroporto: number
+    latitude_aeroporto: number
+    longitude_aeroporto: number
+    codigo_iata_aeroporto: number
+    ativo_aeroporto: number
+    _all: number
+  }
+
+
+  export type AeroportoAvgAggregateInputType = {
+    latitude_aeroporto?: true
+    longitude_aeroporto?: true
+  }
+
+  export type AeroportoSumAggregateInputType = {
+    latitude_aeroporto?: true
+    longitude_aeroporto?: true
+  }
+
+  export type AeroportoMinAggregateInputType = {
+    id_aeroporto?: true
+    codigo_unlocode_aeroporto?: true
+    codigo_pais_aeroporto?: true
+    codigo_local_aeroporto?: true
+    nome_aeroporto?: true
+    nome_ascii_aeroporto?: true
+    subdivisao_aeroporto?: true
+    latitude_aeroporto?: true
+    longitude_aeroporto?: true
+    codigo_iata_aeroporto?: true
+    ativo_aeroporto?: true
+  }
+
+  export type AeroportoMaxAggregateInputType = {
+    id_aeroporto?: true
+    codigo_unlocode_aeroporto?: true
+    codigo_pais_aeroporto?: true
+    codigo_local_aeroporto?: true
+    nome_aeroporto?: true
+    nome_ascii_aeroporto?: true
+    subdivisao_aeroporto?: true
+    latitude_aeroporto?: true
+    longitude_aeroporto?: true
+    codigo_iata_aeroporto?: true
+    ativo_aeroporto?: true
+  }
+
+  export type AeroportoCountAggregateInputType = {
+    id_aeroporto?: true
+    codigo_unlocode_aeroporto?: true
+    codigo_pais_aeroporto?: true
+    codigo_local_aeroporto?: true
+    nome_aeroporto?: true
+    nome_ascii_aeroporto?: true
+    subdivisao_aeroporto?: true
+    latitude_aeroporto?: true
+    longitude_aeroporto?: true
+    codigo_iata_aeroporto?: true
+    ativo_aeroporto?: true
+    _all?: true
+  }
+
+  export type AeroportoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Aeroporto to aggregate.
+     */
+    where?: AeroportoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Aeroportos to fetch.
+     */
+    orderBy?: AeroportoOrderByWithRelationInput | AeroportoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AeroportoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Aeroportos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Aeroportos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Aeroportos
+    **/
+    _count?: true | AeroportoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AeroportoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AeroportoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AeroportoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AeroportoMaxAggregateInputType
+  }
+
+  export type GetAeroportoAggregateType<T extends AeroportoAggregateArgs> = {
+        [P in keyof T & keyof AggregateAeroporto]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAeroporto[P]>
+      : GetScalarType<T[P], AggregateAeroporto[P]>
+  }
+
+
+
+
+  export type AeroportoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AeroportoWhereInput
+    orderBy?: AeroportoOrderByWithAggregationInput | AeroportoOrderByWithAggregationInput[]
+    by: AeroportoScalarFieldEnum[] | AeroportoScalarFieldEnum
+    having?: AeroportoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AeroportoCountAggregateInputType | true
+    _avg?: AeroportoAvgAggregateInputType
+    _sum?: AeroportoSumAggregateInputType
+    _min?: AeroportoMinAggregateInputType
+    _max?: AeroportoMaxAggregateInputType
+  }
+
+  export type AeroportoGroupByOutputType = {
+    id_aeroporto: string
+    codigo_unlocode_aeroporto: string
+    codigo_pais_aeroporto: string
+    codigo_local_aeroporto: string
+    nome_aeroporto: string
+    nome_ascii_aeroporto: string
+    subdivisao_aeroporto: string | null
+    latitude_aeroporto: number | null
+    longitude_aeroporto: number | null
+    codigo_iata_aeroporto: string | null
+    ativo_aeroporto: boolean
+    _count: AeroportoCountAggregateOutputType | null
+    _avg: AeroportoAvgAggregateOutputType | null
+    _sum: AeroportoSumAggregateOutputType | null
+    _min: AeroportoMinAggregateOutputType | null
+    _max: AeroportoMaxAggregateOutputType | null
+  }
+
+  type GetAeroportoGroupByPayload<T extends AeroportoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AeroportoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AeroportoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AeroportoGroupByOutputType[P]>
+            : GetScalarType<T[P], AeroportoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AeroportoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_aeroporto?: boolean
+    codigo_unlocode_aeroporto?: boolean
+    codigo_pais_aeroporto?: boolean
+    codigo_local_aeroporto?: boolean
+    nome_aeroporto?: boolean
+    nome_ascii_aeroporto?: boolean
+    subdivisao_aeroporto?: boolean
+    latitude_aeroporto?: boolean
+    longitude_aeroporto?: boolean
+    codigo_iata_aeroporto?: boolean
+    ativo_aeroporto?: boolean
+  }, ExtArgs["result"]["aeroporto"]>
+
+  export type AeroportoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_aeroporto?: boolean
+    codigo_unlocode_aeroporto?: boolean
+    codigo_pais_aeroporto?: boolean
+    codigo_local_aeroporto?: boolean
+    nome_aeroporto?: boolean
+    nome_ascii_aeroporto?: boolean
+    subdivisao_aeroporto?: boolean
+    latitude_aeroporto?: boolean
+    longitude_aeroporto?: boolean
+    codigo_iata_aeroporto?: boolean
+    ativo_aeroporto?: boolean
+  }, ExtArgs["result"]["aeroporto"]>
+
+  export type AeroportoSelectScalar = {
+    id_aeroporto?: boolean
+    codigo_unlocode_aeroporto?: boolean
+    codigo_pais_aeroporto?: boolean
+    codigo_local_aeroporto?: boolean
+    nome_aeroporto?: boolean
+    nome_ascii_aeroporto?: boolean
+    subdivisao_aeroporto?: boolean
+    latitude_aeroporto?: boolean
+    longitude_aeroporto?: boolean
+    codigo_iata_aeroporto?: boolean
+    ativo_aeroporto?: boolean
+  }
+
+
+  export type $AeroportoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Aeroporto"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_aeroporto: string
+      codigo_unlocode_aeroporto: string
+      codigo_pais_aeroporto: string
+      codigo_local_aeroporto: string
+      nome_aeroporto: string
+      nome_ascii_aeroporto: string
+      subdivisao_aeroporto: string | null
+      latitude_aeroporto: number | null
+      longitude_aeroporto: number | null
+      codigo_iata_aeroporto: string | null
+      ativo_aeroporto: boolean
+    }, ExtArgs["result"]["aeroporto"]>
+    composites: {}
+  }
+
+  type AeroportoGetPayload<S extends boolean | null | undefined | AeroportoDefaultArgs> = $Result.GetResult<Prisma.$AeroportoPayload, S>
+
+  type AeroportoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AeroportoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AeroportoCountAggregateInputType | true
+    }
+
+  export interface AeroportoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Aeroporto'], meta: { name: 'Aeroporto' } }
+    /**
+     * Find zero or one Aeroporto that matches the filter.
+     * @param {AeroportoFindUniqueArgs} args - Arguments to find a Aeroporto
+     * @example
+     * // Get one Aeroporto
+     * const aeroporto = await prisma.aeroporto.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AeroportoFindUniqueArgs>(args: SelectSubset<T, AeroportoFindUniqueArgs<ExtArgs>>): Prisma__AeroportoClient<$Result.GetResult<Prisma.$AeroportoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Aeroporto that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {AeroportoFindUniqueOrThrowArgs} args - Arguments to find a Aeroporto
+     * @example
+     * // Get one Aeroporto
+     * const aeroporto = await prisma.aeroporto.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AeroportoFindUniqueOrThrowArgs>(args: SelectSubset<T, AeroportoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AeroportoClient<$Result.GetResult<Prisma.$AeroportoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Aeroporto that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AeroportoFindFirstArgs} args - Arguments to find a Aeroporto
+     * @example
+     * // Get one Aeroporto
+     * const aeroporto = await prisma.aeroporto.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AeroportoFindFirstArgs>(args?: SelectSubset<T, AeroportoFindFirstArgs<ExtArgs>>): Prisma__AeroportoClient<$Result.GetResult<Prisma.$AeroportoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Aeroporto that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AeroportoFindFirstOrThrowArgs} args - Arguments to find a Aeroporto
+     * @example
+     * // Get one Aeroporto
+     * const aeroporto = await prisma.aeroporto.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AeroportoFindFirstOrThrowArgs>(args?: SelectSubset<T, AeroportoFindFirstOrThrowArgs<ExtArgs>>): Prisma__AeroportoClient<$Result.GetResult<Prisma.$AeroportoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Aeroportos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AeroportoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Aeroportos
+     * const aeroportos = await prisma.aeroporto.findMany()
+     * 
+     * // Get first 10 Aeroportos
+     * const aeroportos = await prisma.aeroporto.findMany({ take: 10 })
+     * 
+     * // Only select the `id_aeroporto`
+     * const aeroportoWithId_aeroportoOnly = await prisma.aeroporto.findMany({ select: { id_aeroporto: true } })
+     * 
+     */
+    findMany<T extends AeroportoFindManyArgs>(args?: SelectSubset<T, AeroportoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AeroportoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Aeroporto.
+     * @param {AeroportoCreateArgs} args - Arguments to create a Aeroporto.
+     * @example
+     * // Create one Aeroporto
+     * const Aeroporto = await prisma.aeroporto.create({
+     *   data: {
+     *     // ... data to create a Aeroporto
+     *   }
+     * })
+     * 
+     */
+    create<T extends AeroportoCreateArgs>(args: SelectSubset<T, AeroportoCreateArgs<ExtArgs>>): Prisma__AeroportoClient<$Result.GetResult<Prisma.$AeroportoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Aeroportos.
+     * @param {AeroportoCreateManyArgs} args - Arguments to create many Aeroportos.
+     * @example
+     * // Create many Aeroportos
+     * const aeroporto = await prisma.aeroporto.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AeroportoCreateManyArgs>(args?: SelectSubset<T, AeroportoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Aeroportos and returns the data saved in the database.
+     * @param {AeroportoCreateManyAndReturnArgs} args - Arguments to create many Aeroportos.
+     * @example
+     * // Create many Aeroportos
+     * const aeroporto = await prisma.aeroporto.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Aeroportos and only return the `id_aeroporto`
+     * const aeroportoWithId_aeroportoOnly = await prisma.aeroporto.createManyAndReturn({ 
+     *   select: { id_aeroporto: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AeroportoCreateManyAndReturnArgs>(args?: SelectSubset<T, AeroportoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AeroportoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Aeroporto.
+     * @param {AeroportoDeleteArgs} args - Arguments to delete one Aeroporto.
+     * @example
+     * // Delete one Aeroporto
+     * const Aeroporto = await prisma.aeroporto.delete({
+     *   where: {
+     *     // ... filter to delete one Aeroporto
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AeroportoDeleteArgs>(args: SelectSubset<T, AeroportoDeleteArgs<ExtArgs>>): Prisma__AeroportoClient<$Result.GetResult<Prisma.$AeroportoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Aeroporto.
+     * @param {AeroportoUpdateArgs} args - Arguments to update one Aeroporto.
+     * @example
+     * // Update one Aeroporto
+     * const aeroporto = await prisma.aeroporto.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AeroportoUpdateArgs>(args: SelectSubset<T, AeroportoUpdateArgs<ExtArgs>>): Prisma__AeroportoClient<$Result.GetResult<Prisma.$AeroportoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Aeroportos.
+     * @param {AeroportoDeleteManyArgs} args - Arguments to filter Aeroportos to delete.
+     * @example
+     * // Delete a few Aeroportos
+     * const { count } = await prisma.aeroporto.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AeroportoDeleteManyArgs>(args?: SelectSubset<T, AeroportoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Aeroportos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AeroportoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Aeroportos
+     * const aeroporto = await prisma.aeroporto.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AeroportoUpdateManyArgs>(args: SelectSubset<T, AeroportoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Aeroporto.
+     * @param {AeroportoUpsertArgs} args - Arguments to update or create a Aeroporto.
+     * @example
+     * // Update or create a Aeroporto
+     * const aeroporto = await prisma.aeroporto.upsert({
+     *   create: {
+     *     // ... data to create a Aeroporto
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Aeroporto we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AeroportoUpsertArgs>(args: SelectSubset<T, AeroportoUpsertArgs<ExtArgs>>): Prisma__AeroportoClient<$Result.GetResult<Prisma.$AeroportoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Aeroportos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AeroportoCountArgs} args - Arguments to filter Aeroportos to count.
+     * @example
+     * // Count the number of Aeroportos
+     * const count = await prisma.aeroporto.count({
+     *   where: {
+     *     // ... the filter for the Aeroportos we want to count
+     *   }
+     * })
+    **/
+    count<T extends AeroportoCountArgs>(
+      args?: Subset<T, AeroportoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AeroportoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Aeroporto.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AeroportoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AeroportoAggregateArgs>(args: Subset<T, AeroportoAggregateArgs>): Prisma.PrismaPromise<GetAeroportoAggregateType<T>>
+
+    /**
+     * Group by Aeroporto.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AeroportoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AeroportoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AeroportoGroupByArgs['orderBy'] }
+        : { orderBy?: AeroportoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AeroportoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAeroportoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Aeroporto model
+   */
+  readonly fields: AeroportoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Aeroporto.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AeroportoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Aeroporto model
+   */ 
+  interface AeroportoFieldRefs {
+    readonly id_aeroporto: FieldRef<"Aeroporto", 'String'>
+    readonly codigo_unlocode_aeroporto: FieldRef<"Aeroporto", 'String'>
+    readonly codigo_pais_aeroporto: FieldRef<"Aeroporto", 'String'>
+    readonly codigo_local_aeroporto: FieldRef<"Aeroporto", 'String'>
+    readonly nome_aeroporto: FieldRef<"Aeroporto", 'String'>
+    readonly nome_ascii_aeroporto: FieldRef<"Aeroporto", 'String'>
+    readonly subdivisao_aeroporto: FieldRef<"Aeroporto", 'String'>
+    readonly latitude_aeroporto: FieldRef<"Aeroporto", 'Float'>
+    readonly longitude_aeroporto: FieldRef<"Aeroporto", 'Float'>
+    readonly codigo_iata_aeroporto: FieldRef<"Aeroporto", 'String'>
+    readonly ativo_aeroporto: FieldRef<"Aeroporto", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Aeroporto findUnique
+   */
+  export type AeroportoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Aeroporto
+     */
+    select?: AeroportoSelect<ExtArgs> | null
+    /**
+     * Filter, which Aeroporto to fetch.
+     */
+    where: AeroportoWhereUniqueInput
+  }
+
+  /**
+   * Aeroporto findUniqueOrThrow
+   */
+  export type AeroportoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Aeroporto
+     */
+    select?: AeroportoSelect<ExtArgs> | null
+    /**
+     * Filter, which Aeroporto to fetch.
+     */
+    where: AeroportoWhereUniqueInput
+  }
+
+  /**
+   * Aeroporto findFirst
+   */
+  export type AeroportoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Aeroporto
+     */
+    select?: AeroportoSelect<ExtArgs> | null
+    /**
+     * Filter, which Aeroporto to fetch.
+     */
+    where?: AeroportoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Aeroportos to fetch.
+     */
+    orderBy?: AeroportoOrderByWithRelationInput | AeroportoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Aeroportos.
+     */
+    cursor?: AeroportoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Aeroportos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Aeroportos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Aeroportos.
+     */
+    distinct?: AeroportoScalarFieldEnum | AeroportoScalarFieldEnum[]
+  }
+
+  /**
+   * Aeroporto findFirstOrThrow
+   */
+  export type AeroportoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Aeroporto
+     */
+    select?: AeroportoSelect<ExtArgs> | null
+    /**
+     * Filter, which Aeroporto to fetch.
+     */
+    where?: AeroportoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Aeroportos to fetch.
+     */
+    orderBy?: AeroportoOrderByWithRelationInput | AeroportoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Aeroportos.
+     */
+    cursor?: AeroportoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Aeroportos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Aeroportos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Aeroportos.
+     */
+    distinct?: AeroportoScalarFieldEnum | AeroportoScalarFieldEnum[]
+  }
+
+  /**
+   * Aeroporto findMany
+   */
+  export type AeroportoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Aeroporto
+     */
+    select?: AeroportoSelect<ExtArgs> | null
+    /**
+     * Filter, which Aeroportos to fetch.
+     */
+    where?: AeroportoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Aeroportos to fetch.
+     */
+    orderBy?: AeroportoOrderByWithRelationInput | AeroportoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Aeroportos.
+     */
+    cursor?: AeroportoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Aeroportos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Aeroportos.
+     */
+    skip?: number
+    distinct?: AeroportoScalarFieldEnum | AeroportoScalarFieldEnum[]
+  }
+
+  /**
+   * Aeroporto create
+   */
+  export type AeroportoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Aeroporto
+     */
+    select?: AeroportoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a Aeroporto.
+     */
+    data: XOR<AeroportoCreateInput, AeroportoUncheckedCreateInput>
+  }
+
+  /**
+   * Aeroporto createMany
+   */
+  export type AeroportoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Aeroportos.
+     */
+    data: AeroportoCreateManyInput | AeroportoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Aeroporto createManyAndReturn
+   */
+  export type AeroportoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Aeroporto
+     */
+    select?: AeroportoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Aeroportos.
+     */
+    data: AeroportoCreateManyInput | AeroportoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Aeroporto update
+   */
+  export type AeroportoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Aeroporto
+     */
+    select?: AeroportoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a Aeroporto.
+     */
+    data: XOR<AeroportoUpdateInput, AeroportoUncheckedUpdateInput>
+    /**
+     * Choose, which Aeroporto to update.
+     */
+    where: AeroportoWhereUniqueInput
+  }
+
+  /**
+   * Aeroporto updateMany
+   */
+  export type AeroportoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Aeroportos.
+     */
+    data: XOR<AeroportoUpdateManyMutationInput, AeroportoUncheckedUpdateManyInput>
+    /**
+     * Filter which Aeroportos to update
+     */
+    where?: AeroportoWhereInput
+  }
+
+  /**
+   * Aeroporto upsert
+   */
+  export type AeroportoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Aeroporto
+     */
+    select?: AeroportoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the Aeroporto to update in case it exists.
+     */
+    where: AeroportoWhereUniqueInput
+    /**
+     * In case the Aeroporto found by the `where` argument doesn't exist, create a new Aeroporto with this data.
+     */
+    create: XOR<AeroportoCreateInput, AeroportoUncheckedCreateInput>
+    /**
+     * In case the Aeroporto was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AeroportoUpdateInput, AeroportoUncheckedUpdateInput>
+  }
+
+  /**
+   * Aeroporto delete
+   */
+  export type AeroportoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Aeroporto
+     */
+    select?: AeroportoSelect<ExtArgs> | null
+    /**
+     * Filter which Aeroporto to delete.
+     */
+    where: AeroportoWhereUniqueInput
+  }
+
+  /**
+   * Aeroporto deleteMany
+   */
+  export type AeroportoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Aeroportos to delete
+     */
+    where?: AeroportoWhereInput
+  }
+
+  /**
+   * Aeroporto without action
+   */
+  export type AeroportoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Aeroporto
+     */
+    select?: AeroportoSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TipoContainer
+   */
+
+  export type AggregateTipoContainer = {
+    _count: TipoContainerCountAggregateOutputType | null
+    _avg: TipoContainerAvgAggregateOutputType | null
+    _sum: TipoContainerSumAggregateOutputType | null
+    _min: TipoContainerMinAggregateOutputType | null
+    _max: TipoContainerMaxAggregateOutputType | null
+  }
+
+  export type TipoContainerAvgAggregateOutputType = {
+    tamanho_pes_tipo_container: number | null
+  }
+
+  export type TipoContainerSumAggregateOutputType = {
+    tamanho_pes_tipo_container: number | null
+  }
+
+  export type TipoContainerMinAggregateOutputType = {
+    id_tipo_container: string | null
+    codigo_iso_tipo_container: string | null
+    nome_tipo_container: string | null
+    nome_ingles_tipo_container: string | null
+    tamanho_pes_tipo_container: number | null
+    categoria_tipo_container: string | null
+    ativo_tipo_container: boolean | null
+  }
+
+  export type TipoContainerMaxAggregateOutputType = {
+    id_tipo_container: string | null
+    codigo_iso_tipo_container: string | null
+    nome_tipo_container: string | null
+    nome_ingles_tipo_container: string | null
+    tamanho_pes_tipo_container: number | null
+    categoria_tipo_container: string | null
+    ativo_tipo_container: boolean | null
+  }
+
+  export type TipoContainerCountAggregateOutputType = {
+    id_tipo_container: number
+    codigo_iso_tipo_container: number
+    nome_tipo_container: number
+    nome_ingles_tipo_container: number
+    tamanho_pes_tipo_container: number
+    categoria_tipo_container: number
+    ativo_tipo_container: number
+    _all: number
+  }
+
+
+  export type TipoContainerAvgAggregateInputType = {
+    tamanho_pes_tipo_container?: true
+  }
+
+  export type TipoContainerSumAggregateInputType = {
+    tamanho_pes_tipo_container?: true
+  }
+
+  export type TipoContainerMinAggregateInputType = {
+    id_tipo_container?: true
+    codigo_iso_tipo_container?: true
+    nome_tipo_container?: true
+    nome_ingles_tipo_container?: true
+    tamanho_pes_tipo_container?: true
+    categoria_tipo_container?: true
+    ativo_tipo_container?: true
+  }
+
+  export type TipoContainerMaxAggregateInputType = {
+    id_tipo_container?: true
+    codigo_iso_tipo_container?: true
+    nome_tipo_container?: true
+    nome_ingles_tipo_container?: true
+    tamanho_pes_tipo_container?: true
+    categoria_tipo_container?: true
+    ativo_tipo_container?: true
+  }
+
+  export type TipoContainerCountAggregateInputType = {
+    id_tipo_container?: true
+    codigo_iso_tipo_container?: true
+    nome_tipo_container?: true
+    nome_ingles_tipo_container?: true
+    tamanho_pes_tipo_container?: true
+    categoria_tipo_container?: true
+    ativo_tipo_container?: true
+    _all?: true
+  }
+
+  export type TipoContainerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TipoContainer to aggregate.
+     */
+    where?: TipoContainerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TipoContainers to fetch.
+     */
+    orderBy?: TipoContainerOrderByWithRelationInput | TipoContainerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TipoContainerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TipoContainers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TipoContainers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TipoContainers
+    **/
+    _count?: true | TipoContainerCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TipoContainerAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TipoContainerSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TipoContainerMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TipoContainerMaxAggregateInputType
+  }
+
+  export type GetTipoContainerAggregateType<T extends TipoContainerAggregateArgs> = {
+        [P in keyof T & keyof AggregateTipoContainer]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTipoContainer[P]>
+      : GetScalarType<T[P], AggregateTipoContainer[P]>
+  }
+
+
+
+
+  export type TipoContainerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TipoContainerWhereInput
+    orderBy?: TipoContainerOrderByWithAggregationInput | TipoContainerOrderByWithAggregationInput[]
+    by: TipoContainerScalarFieldEnum[] | TipoContainerScalarFieldEnum
+    having?: TipoContainerScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TipoContainerCountAggregateInputType | true
+    _avg?: TipoContainerAvgAggregateInputType
+    _sum?: TipoContainerSumAggregateInputType
+    _min?: TipoContainerMinAggregateInputType
+    _max?: TipoContainerMaxAggregateInputType
+  }
+
+  export type TipoContainerGroupByOutputType = {
+    id_tipo_container: string
+    codigo_iso_tipo_container: string
+    nome_tipo_container: string
+    nome_ingles_tipo_container: string
+    tamanho_pes_tipo_container: number
+    categoria_tipo_container: string
+    ativo_tipo_container: boolean
+    _count: TipoContainerCountAggregateOutputType | null
+    _avg: TipoContainerAvgAggregateOutputType | null
+    _sum: TipoContainerSumAggregateOutputType | null
+    _min: TipoContainerMinAggregateOutputType | null
+    _max: TipoContainerMaxAggregateOutputType | null
+  }
+
+  type GetTipoContainerGroupByPayload<T extends TipoContainerGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TipoContainerGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TipoContainerGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TipoContainerGroupByOutputType[P]>
+            : GetScalarType<T[P], TipoContainerGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TipoContainerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_tipo_container?: boolean
+    codigo_iso_tipo_container?: boolean
+    nome_tipo_container?: boolean
+    nome_ingles_tipo_container?: boolean
+    tamanho_pes_tipo_container?: boolean
+    categoria_tipo_container?: boolean
+    ativo_tipo_container?: boolean
+  }, ExtArgs["result"]["tipoContainer"]>
+
+  export type TipoContainerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_tipo_container?: boolean
+    codigo_iso_tipo_container?: boolean
+    nome_tipo_container?: boolean
+    nome_ingles_tipo_container?: boolean
+    tamanho_pes_tipo_container?: boolean
+    categoria_tipo_container?: boolean
+    ativo_tipo_container?: boolean
+  }, ExtArgs["result"]["tipoContainer"]>
+
+  export type TipoContainerSelectScalar = {
+    id_tipo_container?: boolean
+    codigo_iso_tipo_container?: boolean
+    nome_tipo_container?: boolean
+    nome_ingles_tipo_container?: boolean
+    tamanho_pes_tipo_container?: boolean
+    categoria_tipo_container?: boolean
+    ativo_tipo_container?: boolean
+  }
+
+
+  export type $TipoContainerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TipoContainer"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_tipo_container: string
+      codigo_iso_tipo_container: string
+      nome_tipo_container: string
+      nome_ingles_tipo_container: string
+      tamanho_pes_tipo_container: number
+      categoria_tipo_container: string
+      ativo_tipo_container: boolean
+    }, ExtArgs["result"]["tipoContainer"]>
+    composites: {}
+  }
+
+  type TipoContainerGetPayload<S extends boolean | null | undefined | TipoContainerDefaultArgs> = $Result.GetResult<Prisma.$TipoContainerPayload, S>
+
+  type TipoContainerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<TipoContainerFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: TipoContainerCountAggregateInputType | true
+    }
+
+  export interface TipoContainerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TipoContainer'], meta: { name: 'TipoContainer' } }
+    /**
+     * Find zero or one TipoContainer that matches the filter.
+     * @param {TipoContainerFindUniqueArgs} args - Arguments to find a TipoContainer
+     * @example
+     * // Get one TipoContainer
+     * const tipoContainer = await prisma.tipoContainer.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TipoContainerFindUniqueArgs>(args: SelectSubset<T, TipoContainerFindUniqueArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one TipoContainer that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {TipoContainerFindUniqueOrThrowArgs} args - Arguments to find a TipoContainer
+     * @example
+     * // Get one TipoContainer
+     * const tipoContainer = await prisma.tipoContainer.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TipoContainerFindUniqueOrThrowArgs>(args: SelectSubset<T, TipoContainerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first TipoContainer that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TipoContainerFindFirstArgs} args - Arguments to find a TipoContainer
+     * @example
+     * // Get one TipoContainer
+     * const tipoContainer = await prisma.tipoContainer.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TipoContainerFindFirstArgs>(args?: SelectSubset<T, TipoContainerFindFirstArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first TipoContainer that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TipoContainerFindFirstOrThrowArgs} args - Arguments to find a TipoContainer
+     * @example
+     * // Get one TipoContainer
+     * const tipoContainer = await prisma.tipoContainer.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TipoContainerFindFirstOrThrowArgs>(args?: SelectSubset<T, TipoContainerFindFirstOrThrowArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more TipoContainers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TipoContainerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TipoContainers
+     * const tipoContainers = await prisma.tipoContainer.findMany()
+     * 
+     * // Get first 10 TipoContainers
+     * const tipoContainers = await prisma.tipoContainer.findMany({ take: 10 })
+     * 
+     * // Only select the `id_tipo_container`
+     * const tipoContainerWithId_tipo_containerOnly = await prisma.tipoContainer.findMany({ select: { id_tipo_container: true } })
+     * 
+     */
+    findMany<T extends TipoContainerFindManyArgs>(args?: SelectSubset<T, TipoContainerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a TipoContainer.
+     * @param {TipoContainerCreateArgs} args - Arguments to create a TipoContainer.
+     * @example
+     * // Create one TipoContainer
+     * const TipoContainer = await prisma.tipoContainer.create({
+     *   data: {
+     *     // ... data to create a TipoContainer
+     *   }
+     * })
+     * 
+     */
+    create<T extends TipoContainerCreateArgs>(args: SelectSubset<T, TipoContainerCreateArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many TipoContainers.
+     * @param {TipoContainerCreateManyArgs} args - Arguments to create many TipoContainers.
+     * @example
+     * // Create many TipoContainers
+     * const tipoContainer = await prisma.tipoContainer.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TipoContainerCreateManyArgs>(args?: SelectSubset<T, TipoContainerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TipoContainers and returns the data saved in the database.
+     * @param {TipoContainerCreateManyAndReturnArgs} args - Arguments to create many TipoContainers.
+     * @example
+     * // Create many TipoContainers
+     * const tipoContainer = await prisma.tipoContainer.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TipoContainers and only return the `id_tipo_container`
+     * const tipoContainerWithId_tipo_containerOnly = await prisma.tipoContainer.createManyAndReturn({ 
+     *   select: { id_tipo_container: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TipoContainerCreateManyAndReturnArgs>(args?: SelectSubset<T, TipoContainerCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a TipoContainer.
+     * @param {TipoContainerDeleteArgs} args - Arguments to delete one TipoContainer.
+     * @example
+     * // Delete one TipoContainer
+     * const TipoContainer = await prisma.tipoContainer.delete({
+     *   where: {
+     *     // ... filter to delete one TipoContainer
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TipoContainerDeleteArgs>(args: SelectSubset<T, TipoContainerDeleteArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one TipoContainer.
+     * @param {TipoContainerUpdateArgs} args - Arguments to update one TipoContainer.
+     * @example
+     * // Update one TipoContainer
+     * const tipoContainer = await prisma.tipoContainer.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TipoContainerUpdateArgs>(args: SelectSubset<T, TipoContainerUpdateArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more TipoContainers.
+     * @param {TipoContainerDeleteManyArgs} args - Arguments to filter TipoContainers to delete.
+     * @example
+     * // Delete a few TipoContainers
+     * const { count } = await prisma.tipoContainer.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TipoContainerDeleteManyArgs>(args?: SelectSubset<T, TipoContainerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TipoContainers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TipoContainerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TipoContainers
+     * const tipoContainer = await prisma.tipoContainer.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TipoContainerUpdateManyArgs>(args: SelectSubset<T, TipoContainerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one TipoContainer.
+     * @param {TipoContainerUpsertArgs} args - Arguments to update or create a TipoContainer.
+     * @example
+     * // Update or create a TipoContainer
+     * const tipoContainer = await prisma.tipoContainer.upsert({
+     *   create: {
+     *     // ... data to create a TipoContainer
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TipoContainer we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TipoContainerUpsertArgs>(args: SelectSubset<T, TipoContainerUpsertArgs<ExtArgs>>): Prisma__TipoContainerClient<$Result.GetResult<Prisma.$TipoContainerPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of TipoContainers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TipoContainerCountArgs} args - Arguments to filter TipoContainers to count.
+     * @example
+     * // Count the number of TipoContainers
+     * const count = await prisma.tipoContainer.count({
+     *   where: {
+     *     // ... the filter for the TipoContainers we want to count
+     *   }
+     * })
+    **/
+    count<T extends TipoContainerCountArgs>(
+      args?: Subset<T, TipoContainerCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TipoContainerCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TipoContainer.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TipoContainerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TipoContainerAggregateArgs>(args: Subset<T, TipoContainerAggregateArgs>): Prisma.PrismaPromise<GetTipoContainerAggregateType<T>>
+
+    /**
+     * Group by TipoContainer.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TipoContainerGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TipoContainerGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TipoContainerGroupByArgs['orderBy'] }
+        : { orderBy?: TipoContainerGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TipoContainerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTipoContainerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TipoContainer model
+   */
+  readonly fields: TipoContainerFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TipoContainer.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TipoContainerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TipoContainer model
+   */ 
+  interface TipoContainerFieldRefs {
+    readonly id_tipo_container: FieldRef<"TipoContainer", 'String'>
+    readonly codigo_iso_tipo_container: FieldRef<"TipoContainer", 'String'>
+    readonly nome_tipo_container: FieldRef<"TipoContainer", 'String'>
+    readonly nome_ingles_tipo_container: FieldRef<"TipoContainer", 'String'>
+    readonly tamanho_pes_tipo_container: FieldRef<"TipoContainer", 'Int'>
+    readonly categoria_tipo_container: FieldRef<"TipoContainer", 'String'>
+    readonly ativo_tipo_container: FieldRef<"TipoContainer", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TipoContainer findUnique
+   */
+  export type TipoContainerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TipoContainer
+     */
+    select?: TipoContainerSelect<ExtArgs> | null
+    /**
+     * Filter, which TipoContainer to fetch.
+     */
+    where: TipoContainerWhereUniqueInput
+  }
+
+  /**
+   * TipoContainer findUniqueOrThrow
+   */
+  export type TipoContainerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TipoContainer
+     */
+    select?: TipoContainerSelect<ExtArgs> | null
+    /**
+     * Filter, which TipoContainer to fetch.
+     */
+    where: TipoContainerWhereUniqueInput
+  }
+
+  /**
+   * TipoContainer findFirst
+   */
+  export type TipoContainerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TipoContainer
+     */
+    select?: TipoContainerSelect<ExtArgs> | null
+    /**
+     * Filter, which TipoContainer to fetch.
+     */
+    where?: TipoContainerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TipoContainers to fetch.
+     */
+    orderBy?: TipoContainerOrderByWithRelationInput | TipoContainerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TipoContainers.
+     */
+    cursor?: TipoContainerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TipoContainers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TipoContainers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TipoContainers.
+     */
+    distinct?: TipoContainerScalarFieldEnum | TipoContainerScalarFieldEnum[]
+  }
+
+  /**
+   * TipoContainer findFirstOrThrow
+   */
+  export type TipoContainerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TipoContainer
+     */
+    select?: TipoContainerSelect<ExtArgs> | null
+    /**
+     * Filter, which TipoContainer to fetch.
+     */
+    where?: TipoContainerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TipoContainers to fetch.
+     */
+    orderBy?: TipoContainerOrderByWithRelationInput | TipoContainerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TipoContainers.
+     */
+    cursor?: TipoContainerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TipoContainers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TipoContainers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TipoContainers.
+     */
+    distinct?: TipoContainerScalarFieldEnum | TipoContainerScalarFieldEnum[]
+  }
+
+  /**
+   * TipoContainer findMany
+   */
+  export type TipoContainerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TipoContainer
+     */
+    select?: TipoContainerSelect<ExtArgs> | null
+    /**
+     * Filter, which TipoContainers to fetch.
+     */
+    where?: TipoContainerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TipoContainers to fetch.
+     */
+    orderBy?: TipoContainerOrderByWithRelationInput | TipoContainerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TipoContainers.
+     */
+    cursor?: TipoContainerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TipoContainers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TipoContainers.
+     */
+    skip?: number
+    distinct?: TipoContainerScalarFieldEnum | TipoContainerScalarFieldEnum[]
+  }
+
+  /**
+   * TipoContainer create
+   */
+  export type TipoContainerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TipoContainer
+     */
+    select?: TipoContainerSelect<ExtArgs> | null
+    /**
+     * The data needed to create a TipoContainer.
+     */
+    data: XOR<TipoContainerCreateInput, TipoContainerUncheckedCreateInput>
+  }
+
+  /**
+   * TipoContainer createMany
+   */
+  export type TipoContainerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TipoContainers.
+     */
+    data: TipoContainerCreateManyInput | TipoContainerCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TipoContainer createManyAndReturn
+   */
+  export type TipoContainerCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TipoContainer
+     */
+    select?: TipoContainerSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many TipoContainers.
+     */
+    data: TipoContainerCreateManyInput | TipoContainerCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TipoContainer update
+   */
+  export type TipoContainerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TipoContainer
+     */
+    select?: TipoContainerSelect<ExtArgs> | null
+    /**
+     * The data needed to update a TipoContainer.
+     */
+    data: XOR<TipoContainerUpdateInput, TipoContainerUncheckedUpdateInput>
+    /**
+     * Choose, which TipoContainer to update.
+     */
+    where: TipoContainerWhereUniqueInput
+  }
+
+  /**
+   * TipoContainer updateMany
+   */
+  export type TipoContainerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TipoContainers.
+     */
+    data: XOR<TipoContainerUpdateManyMutationInput, TipoContainerUncheckedUpdateManyInput>
+    /**
+     * Filter which TipoContainers to update
+     */
+    where?: TipoContainerWhereInput
+  }
+
+  /**
+   * TipoContainer upsert
+   */
+  export type TipoContainerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TipoContainer
+     */
+    select?: TipoContainerSelect<ExtArgs> | null
+    /**
+     * The filter to search for the TipoContainer to update in case it exists.
+     */
+    where: TipoContainerWhereUniqueInput
+    /**
+     * In case the TipoContainer found by the `where` argument doesn't exist, create a new TipoContainer with this data.
+     */
+    create: XOR<TipoContainerCreateInput, TipoContainerUncheckedCreateInput>
+    /**
+     * In case the TipoContainer was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TipoContainerUpdateInput, TipoContainerUncheckedUpdateInput>
+  }
+
+  /**
+   * TipoContainer delete
+   */
+  export type TipoContainerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TipoContainer
+     */
+    select?: TipoContainerSelect<ExtArgs> | null
+    /**
+     * Filter which TipoContainer to delete.
+     */
+    where: TipoContainerWhereUniqueInput
+  }
+
+  /**
+   * TipoContainer deleteMany
+   */
+  export type TipoContainerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TipoContainers to delete
+     */
+    where?: TipoContainerWhereInput
+  }
+
+  /**
+   * TipoContainer without action
+   */
+  export type TipoContainerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TipoContainer
+     */
+    select?: TipoContainerSelect<ExtArgs> | null
   }
 
 
@@ -13494,6 +16664,53 @@ export namespace Prisma {
   export type IncotermScalarFieldEnum = (typeof IncotermScalarFieldEnum)[keyof typeof IncotermScalarFieldEnum]
 
 
+  export const PortoScalarFieldEnum: {
+    id_porto: 'id_porto',
+    codigo_unlocode_porto: 'codigo_unlocode_porto',
+    codigo_pais_porto: 'codigo_pais_porto',
+    codigo_local_porto: 'codigo_local_porto',
+    nome_porto: 'nome_porto',
+    nome_ascii_porto: 'nome_ascii_porto',
+    subdivisao_porto: 'subdivisao_porto',
+    latitude_porto: 'latitude_porto',
+    longitude_porto: 'longitude_porto',
+    codigo_iata_porto: 'codigo_iata_porto',
+    ativo_porto: 'ativo_porto'
+  };
+
+  export type PortoScalarFieldEnum = (typeof PortoScalarFieldEnum)[keyof typeof PortoScalarFieldEnum]
+
+
+  export const AeroportoScalarFieldEnum: {
+    id_aeroporto: 'id_aeroporto',
+    codigo_unlocode_aeroporto: 'codigo_unlocode_aeroporto',
+    codigo_pais_aeroporto: 'codigo_pais_aeroporto',
+    codigo_local_aeroporto: 'codigo_local_aeroporto',
+    nome_aeroporto: 'nome_aeroporto',
+    nome_ascii_aeroporto: 'nome_ascii_aeroporto',
+    subdivisao_aeroporto: 'subdivisao_aeroporto',
+    latitude_aeroporto: 'latitude_aeroporto',
+    longitude_aeroporto: 'longitude_aeroporto',
+    codigo_iata_aeroporto: 'codigo_iata_aeroporto',
+    ativo_aeroporto: 'ativo_aeroporto'
+  };
+
+  export type AeroportoScalarFieldEnum = (typeof AeroportoScalarFieldEnum)[keyof typeof AeroportoScalarFieldEnum]
+
+
+  export const TipoContainerScalarFieldEnum: {
+    id_tipo_container: 'id_tipo_container',
+    codigo_iso_tipo_container: 'codigo_iso_tipo_container',
+    nome_tipo_container: 'nome_tipo_container',
+    nome_ingles_tipo_container: 'nome_ingles_tipo_container',
+    tamanho_pes_tipo_container: 'tamanho_pes_tipo_container',
+    categoria_tipo_container: 'categoria_tipo_container',
+    ativo_tipo_container: 'ativo_tipo_container'
+  };
+
+  export type TipoContainerScalarFieldEnum = (typeof TipoContainerScalarFieldEnum)[keyof typeof TipoContainerScalarFieldEnum]
+
+
   export const NcmSyncScalarFieldEnum: {
     codigo_ncm_sync: 'codigo_ncm_sync',
     descricao_ncm_sync: 'descricao_ncm_sync',
@@ -13712,20 +16929,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'NcmSyncStatusSincronizacao'
-   */
-  export type EnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncStatusSincronizacao'>
-    
-
-
-  /**
-   * Reference to a field of type 'NcmSyncStatusSincronizacao[]'
-   */
-  export type ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncStatusSincronizacao[]'>
-    
-
-
-  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -13736,6 +16939,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'NcmSyncStatusSincronizacao'
+   */
+  export type EnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncStatusSincronizacao'>
+    
+
+
+  /**
+   * Reference to a field of type 'NcmSyncStatusSincronizacao[]'
+   */
+  export type ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncStatusSincronizacao[]'>
     
 
 
@@ -14188,6 +17405,238 @@ export namespace Prisma {
     modal_transporte?: StringWithAggregatesFilter<"Incoterm"> | string
     versao_incoterm?: StringWithAggregatesFilter<"Incoterm"> | string
     ativo_incoterm?: BoolWithAggregatesFilter<"Incoterm"> | boolean
+  }
+
+  export type PortoWhereInput = {
+    AND?: PortoWhereInput | PortoWhereInput[]
+    OR?: PortoWhereInput[]
+    NOT?: PortoWhereInput | PortoWhereInput[]
+    id_porto?: StringFilter<"Porto"> | string
+    codigo_unlocode_porto?: StringFilter<"Porto"> | string
+    codigo_pais_porto?: StringFilter<"Porto"> | string
+    codigo_local_porto?: StringFilter<"Porto"> | string
+    nome_porto?: StringFilter<"Porto"> | string
+    nome_ascii_porto?: StringFilter<"Porto"> | string
+    subdivisao_porto?: StringNullableFilter<"Porto"> | string | null
+    latitude_porto?: FloatNullableFilter<"Porto"> | number | null
+    longitude_porto?: FloatNullableFilter<"Porto"> | number | null
+    codigo_iata_porto?: StringNullableFilter<"Porto"> | string | null
+    ativo_porto?: BoolFilter<"Porto"> | boolean
+  }
+
+  export type PortoOrderByWithRelationInput = {
+    id_porto?: SortOrder
+    codigo_unlocode_porto?: SortOrder
+    codigo_pais_porto?: SortOrder
+    codigo_local_porto?: SortOrder
+    nome_porto?: SortOrder
+    nome_ascii_porto?: SortOrder
+    subdivisao_porto?: SortOrderInput | SortOrder
+    latitude_porto?: SortOrderInput | SortOrder
+    longitude_porto?: SortOrderInput | SortOrder
+    codigo_iata_porto?: SortOrderInput | SortOrder
+    ativo_porto?: SortOrder
+  }
+
+  export type PortoWhereUniqueInput = Prisma.AtLeast<{
+    id_porto?: string
+    codigo_unlocode_porto?: string
+    AND?: PortoWhereInput | PortoWhereInput[]
+    OR?: PortoWhereInput[]
+    NOT?: PortoWhereInput | PortoWhereInput[]
+    codigo_pais_porto?: StringFilter<"Porto"> | string
+    codigo_local_porto?: StringFilter<"Porto"> | string
+    nome_porto?: StringFilter<"Porto"> | string
+    nome_ascii_porto?: StringFilter<"Porto"> | string
+    subdivisao_porto?: StringNullableFilter<"Porto"> | string | null
+    latitude_porto?: FloatNullableFilter<"Porto"> | number | null
+    longitude_porto?: FloatNullableFilter<"Porto"> | number | null
+    codigo_iata_porto?: StringNullableFilter<"Porto"> | string | null
+    ativo_porto?: BoolFilter<"Porto"> | boolean
+  }, "id_porto" | "codigo_unlocode_porto">
+
+  export type PortoOrderByWithAggregationInput = {
+    id_porto?: SortOrder
+    codigo_unlocode_porto?: SortOrder
+    codigo_pais_porto?: SortOrder
+    codigo_local_porto?: SortOrder
+    nome_porto?: SortOrder
+    nome_ascii_porto?: SortOrder
+    subdivisao_porto?: SortOrderInput | SortOrder
+    latitude_porto?: SortOrderInput | SortOrder
+    longitude_porto?: SortOrderInput | SortOrder
+    codigo_iata_porto?: SortOrderInput | SortOrder
+    ativo_porto?: SortOrder
+    _count?: PortoCountOrderByAggregateInput
+    _avg?: PortoAvgOrderByAggregateInput
+    _max?: PortoMaxOrderByAggregateInput
+    _min?: PortoMinOrderByAggregateInput
+    _sum?: PortoSumOrderByAggregateInput
+  }
+
+  export type PortoScalarWhereWithAggregatesInput = {
+    AND?: PortoScalarWhereWithAggregatesInput | PortoScalarWhereWithAggregatesInput[]
+    OR?: PortoScalarWhereWithAggregatesInput[]
+    NOT?: PortoScalarWhereWithAggregatesInput | PortoScalarWhereWithAggregatesInput[]
+    id_porto?: StringWithAggregatesFilter<"Porto"> | string
+    codigo_unlocode_porto?: StringWithAggregatesFilter<"Porto"> | string
+    codigo_pais_porto?: StringWithAggregatesFilter<"Porto"> | string
+    codigo_local_porto?: StringWithAggregatesFilter<"Porto"> | string
+    nome_porto?: StringWithAggregatesFilter<"Porto"> | string
+    nome_ascii_porto?: StringWithAggregatesFilter<"Porto"> | string
+    subdivisao_porto?: StringNullableWithAggregatesFilter<"Porto"> | string | null
+    latitude_porto?: FloatNullableWithAggregatesFilter<"Porto"> | number | null
+    longitude_porto?: FloatNullableWithAggregatesFilter<"Porto"> | number | null
+    codigo_iata_porto?: StringNullableWithAggregatesFilter<"Porto"> | string | null
+    ativo_porto?: BoolWithAggregatesFilter<"Porto"> | boolean
+  }
+
+  export type AeroportoWhereInput = {
+    AND?: AeroportoWhereInput | AeroportoWhereInput[]
+    OR?: AeroportoWhereInput[]
+    NOT?: AeroportoWhereInput | AeroportoWhereInput[]
+    id_aeroporto?: StringFilter<"Aeroporto"> | string
+    codigo_unlocode_aeroporto?: StringFilter<"Aeroporto"> | string
+    codigo_pais_aeroporto?: StringFilter<"Aeroporto"> | string
+    codigo_local_aeroporto?: StringFilter<"Aeroporto"> | string
+    nome_aeroporto?: StringFilter<"Aeroporto"> | string
+    nome_ascii_aeroporto?: StringFilter<"Aeroporto"> | string
+    subdivisao_aeroporto?: StringNullableFilter<"Aeroporto"> | string | null
+    latitude_aeroporto?: FloatNullableFilter<"Aeroporto"> | number | null
+    longitude_aeroporto?: FloatNullableFilter<"Aeroporto"> | number | null
+    codigo_iata_aeroporto?: StringNullableFilter<"Aeroporto"> | string | null
+    ativo_aeroporto?: BoolFilter<"Aeroporto"> | boolean
+  }
+
+  export type AeroportoOrderByWithRelationInput = {
+    id_aeroporto?: SortOrder
+    codigo_unlocode_aeroporto?: SortOrder
+    codigo_pais_aeroporto?: SortOrder
+    codigo_local_aeroporto?: SortOrder
+    nome_aeroporto?: SortOrder
+    nome_ascii_aeroporto?: SortOrder
+    subdivisao_aeroporto?: SortOrderInput | SortOrder
+    latitude_aeroporto?: SortOrderInput | SortOrder
+    longitude_aeroporto?: SortOrderInput | SortOrder
+    codigo_iata_aeroporto?: SortOrderInput | SortOrder
+    ativo_aeroporto?: SortOrder
+  }
+
+  export type AeroportoWhereUniqueInput = Prisma.AtLeast<{
+    id_aeroporto?: string
+    codigo_unlocode_aeroporto?: string
+    codigo_iata_aeroporto?: string
+    AND?: AeroportoWhereInput | AeroportoWhereInput[]
+    OR?: AeroportoWhereInput[]
+    NOT?: AeroportoWhereInput | AeroportoWhereInput[]
+    codigo_pais_aeroporto?: StringFilter<"Aeroporto"> | string
+    codigo_local_aeroporto?: StringFilter<"Aeroporto"> | string
+    nome_aeroporto?: StringFilter<"Aeroporto"> | string
+    nome_ascii_aeroporto?: StringFilter<"Aeroporto"> | string
+    subdivisao_aeroporto?: StringNullableFilter<"Aeroporto"> | string | null
+    latitude_aeroporto?: FloatNullableFilter<"Aeroporto"> | number | null
+    longitude_aeroporto?: FloatNullableFilter<"Aeroporto"> | number | null
+    ativo_aeroporto?: BoolFilter<"Aeroporto"> | boolean
+  }, "id_aeroporto" | "codigo_unlocode_aeroporto" | "codigo_iata_aeroporto">
+
+  export type AeroportoOrderByWithAggregationInput = {
+    id_aeroporto?: SortOrder
+    codigo_unlocode_aeroporto?: SortOrder
+    codigo_pais_aeroporto?: SortOrder
+    codigo_local_aeroporto?: SortOrder
+    nome_aeroporto?: SortOrder
+    nome_ascii_aeroporto?: SortOrder
+    subdivisao_aeroporto?: SortOrderInput | SortOrder
+    latitude_aeroporto?: SortOrderInput | SortOrder
+    longitude_aeroporto?: SortOrderInput | SortOrder
+    codigo_iata_aeroporto?: SortOrderInput | SortOrder
+    ativo_aeroporto?: SortOrder
+    _count?: AeroportoCountOrderByAggregateInput
+    _avg?: AeroportoAvgOrderByAggregateInput
+    _max?: AeroportoMaxOrderByAggregateInput
+    _min?: AeroportoMinOrderByAggregateInput
+    _sum?: AeroportoSumOrderByAggregateInput
+  }
+
+  export type AeroportoScalarWhereWithAggregatesInput = {
+    AND?: AeroportoScalarWhereWithAggregatesInput | AeroportoScalarWhereWithAggregatesInput[]
+    OR?: AeroportoScalarWhereWithAggregatesInput[]
+    NOT?: AeroportoScalarWhereWithAggregatesInput | AeroportoScalarWhereWithAggregatesInput[]
+    id_aeroporto?: StringWithAggregatesFilter<"Aeroporto"> | string
+    codigo_unlocode_aeroporto?: StringWithAggregatesFilter<"Aeroporto"> | string
+    codigo_pais_aeroporto?: StringWithAggregatesFilter<"Aeroporto"> | string
+    codigo_local_aeroporto?: StringWithAggregatesFilter<"Aeroporto"> | string
+    nome_aeroporto?: StringWithAggregatesFilter<"Aeroporto"> | string
+    nome_ascii_aeroporto?: StringWithAggregatesFilter<"Aeroporto"> | string
+    subdivisao_aeroporto?: StringNullableWithAggregatesFilter<"Aeroporto"> | string | null
+    latitude_aeroporto?: FloatNullableWithAggregatesFilter<"Aeroporto"> | number | null
+    longitude_aeroporto?: FloatNullableWithAggregatesFilter<"Aeroporto"> | number | null
+    codigo_iata_aeroporto?: StringNullableWithAggregatesFilter<"Aeroporto"> | string | null
+    ativo_aeroporto?: BoolWithAggregatesFilter<"Aeroporto"> | boolean
+  }
+
+  export type TipoContainerWhereInput = {
+    AND?: TipoContainerWhereInput | TipoContainerWhereInput[]
+    OR?: TipoContainerWhereInput[]
+    NOT?: TipoContainerWhereInput | TipoContainerWhereInput[]
+    id_tipo_container?: StringFilter<"TipoContainer"> | string
+    codigo_iso_tipo_container?: StringFilter<"TipoContainer"> | string
+    nome_tipo_container?: StringFilter<"TipoContainer"> | string
+    nome_ingles_tipo_container?: StringFilter<"TipoContainer"> | string
+    tamanho_pes_tipo_container?: IntFilter<"TipoContainer"> | number
+    categoria_tipo_container?: StringFilter<"TipoContainer"> | string
+    ativo_tipo_container?: BoolFilter<"TipoContainer"> | boolean
+  }
+
+  export type TipoContainerOrderByWithRelationInput = {
+    id_tipo_container?: SortOrder
+    codigo_iso_tipo_container?: SortOrder
+    nome_tipo_container?: SortOrder
+    nome_ingles_tipo_container?: SortOrder
+    tamanho_pes_tipo_container?: SortOrder
+    categoria_tipo_container?: SortOrder
+    ativo_tipo_container?: SortOrder
+  }
+
+  export type TipoContainerWhereUniqueInput = Prisma.AtLeast<{
+    id_tipo_container?: string
+    codigo_iso_tipo_container?: string
+    AND?: TipoContainerWhereInput | TipoContainerWhereInput[]
+    OR?: TipoContainerWhereInput[]
+    NOT?: TipoContainerWhereInput | TipoContainerWhereInput[]
+    nome_tipo_container?: StringFilter<"TipoContainer"> | string
+    nome_ingles_tipo_container?: StringFilter<"TipoContainer"> | string
+    tamanho_pes_tipo_container?: IntFilter<"TipoContainer"> | number
+    categoria_tipo_container?: StringFilter<"TipoContainer"> | string
+    ativo_tipo_container?: BoolFilter<"TipoContainer"> | boolean
+  }, "id_tipo_container" | "codigo_iso_tipo_container">
+
+  export type TipoContainerOrderByWithAggregationInput = {
+    id_tipo_container?: SortOrder
+    codigo_iso_tipo_container?: SortOrder
+    nome_tipo_container?: SortOrder
+    nome_ingles_tipo_container?: SortOrder
+    tamanho_pes_tipo_container?: SortOrder
+    categoria_tipo_container?: SortOrder
+    ativo_tipo_container?: SortOrder
+    _count?: TipoContainerCountOrderByAggregateInput
+    _avg?: TipoContainerAvgOrderByAggregateInput
+    _max?: TipoContainerMaxOrderByAggregateInput
+    _min?: TipoContainerMinOrderByAggregateInput
+    _sum?: TipoContainerSumOrderByAggregateInput
+  }
+
+  export type TipoContainerScalarWhereWithAggregatesInput = {
+    AND?: TipoContainerScalarWhereWithAggregatesInput | TipoContainerScalarWhereWithAggregatesInput[]
+    OR?: TipoContainerScalarWhereWithAggregatesInput[]
+    NOT?: TipoContainerScalarWhereWithAggregatesInput | TipoContainerScalarWhereWithAggregatesInput[]
+    id_tipo_container?: StringWithAggregatesFilter<"TipoContainer"> | string
+    codigo_iso_tipo_container?: StringWithAggregatesFilter<"TipoContainer"> | string
+    nome_tipo_container?: StringWithAggregatesFilter<"TipoContainer"> | string
+    nome_ingles_tipo_container?: StringWithAggregatesFilter<"TipoContainer"> | string
+    tamanho_pes_tipo_container?: IntWithAggregatesFilter<"TipoContainer"> | number
+    categoria_tipo_container?: StringWithAggregatesFilter<"TipoContainer"> | string
+    ativo_tipo_container?: BoolWithAggregatesFilter<"TipoContainer"> | boolean
   }
 
   export type NcmSyncWhereInput = {
@@ -15299,6 +18748,272 @@ export namespace Prisma {
     ativo_incoterm?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type PortoCreateInput = {
+    id_porto?: string
+    codigo_unlocode_porto: string
+    codigo_pais_porto: string
+    codigo_local_porto: string
+    nome_porto: string
+    nome_ascii_porto: string
+    subdivisao_porto?: string | null
+    latitude_porto?: number | null
+    longitude_porto?: number | null
+    codigo_iata_porto?: string | null
+    ativo_porto?: boolean
+  }
+
+  export type PortoUncheckedCreateInput = {
+    id_porto?: string
+    codigo_unlocode_porto: string
+    codigo_pais_porto: string
+    codigo_local_porto: string
+    nome_porto: string
+    nome_ascii_porto: string
+    subdivisao_porto?: string | null
+    latitude_porto?: number | null
+    longitude_porto?: number | null
+    codigo_iata_porto?: string | null
+    ativo_porto?: boolean
+  }
+
+  export type PortoUpdateInput = {
+    id_porto?: StringFieldUpdateOperationsInput | string
+    codigo_unlocode_porto?: StringFieldUpdateOperationsInput | string
+    codigo_pais_porto?: StringFieldUpdateOperationsInput | string
+    codigo_local_porto?: StringFieldUpdateOperationsInput | string
+    nome_porto?: StringFieldUpdateOperationsInput | string
+    nome_ascii_porto?: StringFieldUpdateOperationsInput | string
+    subdivisao_porto?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude_porto?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude_porto?: NullableFloatFieldUpdateOperationsInput | number | null
+    codigo_iata_porto?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_porto?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type PortoUncheckedUpdateInput = {
+    id_porto?: StringFieldUpdateOperationsInput | string
+    codigo_unlocode_porto?: StringFieldUpdateOperationsInput | string
+    codigo_pais_porto?: StringFieldUpdateOperationsInput | string
+    codigo_local_porto?: StringFieldUpdateOperationsInput | string
+    nome_porto?: StringFieldUpdateOperationsInput | string
+    nome_ascii_porto?: StringFieldUpdateOperationsInput | string
+    subdivisao_porto?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude_porto?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude_porto?: NullableFloatFieldUpdateOperationsInput | number | null
+    codigo_iata_porto?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_porto?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type PortoCreateManyInput = {
+    id_porto?: string
+    codigo_unlocode_porto: string
+    codigo_pais_porto: string
+    codigo_local_porto: string
+    nome_porto: string
+    nome_ascii_porto: string
+    subdivisao_porto?: string | null
+    latitude_porto?: number | null
+    longitude_porto?: number | null
+    codigo_iata_porto?: string | null
+    ativo_porto?: boolean
+  }
+
+  export type PortoUpdateManyMutationInput = {
+    id_porto?: StringFieldUpdateOperationsInput | string
+    codigo_unlocode_porto?: StringFieldUpdateOperationsInput | string
+    codigo_pais_porto?: StringFieldUpdateOperationsInput | string
+    codigo_local_porto?: StringFieldUpdateOperationsInput | string
+    nome_porto?: StringFieldUpdateOperationsInput | string
+    nome_ascii_porto?: StringFieldUpdateOperationsInput | string
+    subdivisao_porto?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude_porto?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude_porto?: NullableFloatFieldUpdateOperationsInput | number | null
+    codigo_iata_porto?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_porto?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type PortoUncheckedUpdateManyInput = {
+    id_porto?: StringFieldUpdateOperationsInput | string
+    codigo_unlocode_porto?: StringFieldUpdateOperationsInput | string
+    codigo_pais_porto?: StringFieldUpdateOperationsInput | string
+    codigo_local_porto?: StringFieldUpdateOperationsInput | string
+    nome_porto?: StringFieldUpdateOperationsInput | string
+    nome_ascii_porto?: StringFieldUpdateOperationsInput | string
+    subdivisao_porto?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude_porto?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude_porto?: NullableFloatFieldUpdateOperationsInput | number | null
+    codigo_iata_porto?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_porto?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AeroportoCreateInput = {
+    id_aeroporto?: string
+    codigo_unlocode_aeroporto: string
+    codigo_pais_aeroporto: string
+    codigo_local_aeroporto: string
+    nome_aeroporto: string
+    nome_ascii_aeroporto: string
+    subdivisao_aeroporto?: string | null
+    latitude_aeroporto?: number | null
+    longitude_aeroporto?: number | null
+    codigo_iata_aeroporto?: string | null
+    ativo_aeroporto?: boolean
+  }
+
+  export type AeroportoUncheckedCreateInput = {
+    id_aeroporto?: string
+    codigo_unlocode_aeroporto: string
+    codigo_pais_aeroporto: string
+    codigo_local_aeroporto: string
+    nome_aeroporto: string
+    nome_ascii_aeroporto: string
+    subdivisao_aeroporto?: string | null
+    latitude_aeroporto?: number | null
+    longitude_aeroporto?: number | null
+    codigo_iata_aeroporto?: string | null
+    ativo_aeroporto?: boolean
+  }
+
+  export type AeroportoUpdateInput = {
+    id_aeroporto?: StringFieldUpdateOperationsInput | string
+    codigo_unlocode_aeroporto?: StringFieldUpdateOperationsInput | string
+    codigo_pais_aeroporto?: StringFieldUpdateOperationsInput | string
+    codigo_local_aeroporto?: StringFieldUpdateOperationsInput | string
+    nome_aeroporto?: StringFieldUpdateOperationsInput | string
+    nome_ascii_aeroporto?: StringFieldUpdateOperationsInput | string
+    subdivisao_aeroporto?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude_aeroporto?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude_aeroporto?: NullableFloatFieldUpdateOperationsInput | number | null
+    codigo_iata_aeroporto?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_aeroporto?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AeroportoUncheckedUpdateInput = {
+    id_aeroporto?: StringFieldUpdateOperationsInput | string
+    codigo_unlocode_aeroporto?: StringFieldUpdateOperationsInput | string
+    codigo_pais_aeroporto?: StringFieldUpdateOperationsInput | string
+    codigo_local_aeroporto?: StringFieldUpdateOperationsInput | string
+    nome_aeroporto?: StringFieldUpdateOperationsInput | string
+    nome_ascii_aeroporto?: StringFieldUpdateOperationsInput | string
+    subdivisao_aeroporto?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude_aeroporto?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude_aeroporto?: NullableFloatFieldUpdateOperationsInput | number | null
+    codigo_iata_aeroporto?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_aeroporto?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AeroportoCreateManyInput = {
+    id_aeroporto?: string
+    codigo_unlocode_aeroporto: string
+    codigo_pais_aeroporto: string
+    codigo_local_aeroporto: string
+    nome_aeroporto: string
+    nome_ascii_aeroporto: string
+    subdivisao_aeroporto?: string | null
+    latitude_aeroporto?: number | null
+    longitude_aeroporto?: number | null
+    codigo_iata_aeroporto?: string | null
+    ativo_aeroporto?: boolean
+  }
+
+  export type AeroportoUpdateManyMutationInput = {
+    id_aeroporto?: StringFieldUpdateOperationsInput | string
+    codigo_unlocode_aeroporto?: StringFieldUpdateOperationsInput | string
+    codigo_pais_aeroporto?: StringFieldUpdateOperationsInput | string
+    codigo_local_aeroporto?: StringFieldUpdateOperationsInput | string
+    nome_aeroporto?: StringFieldUpdateOperationsInput | string
+    nome_ascii_aeroporto?: StringFieldUpdateOperationsInput | string
+    subdivisao_aeroporto?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude_aeroporto?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude_aeroporto?: NullableFloatFieldUpdateOperationsInput | number | null
+    codigo_iata_aeroporto?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_aeroporto?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AeroportoUncheckedUpdateManyInput = {
+    id_aeroporto?: StringFieldUpdateOperationsInput | string
+    codigo_unlocode_aeroporto?: StringFieldUpdateOperationsInput | string
+    codigo_pais_aeroporto?: StringFieldUpdateOperationsInput | string
+    codigo_local_aeroporto?: StringFieldUpdateOperationsInput | string
+    nome_aeroporto?: StringFieldUpdateOperationsInput | string
+    nome_ascii_aeroporto?: StringFieldUpdateOperationsInput | string
+    subdivisao_aeroporto?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude_aeroporto?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude_aeroporto?: NullableFloatFieldUpdateOperationsInput | number | null
+    codigo_iata_aeroporto?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_aeroporto?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type TipoContainerCreateInput = {
+    id_tipo_container?: string
+    codigo_iso_tipo_container: string
+    nome_tipo_container: string
+    nome_ingles_tipo_container: string
+    tamanho_pes_tipo_container: number
+    categoria_tipo_container: string
+    ativo_tipo_container?: boolean
+  }
+
+  export type TipoContainerUncheckedCreateInput = {
+    id_tipo_container?: string
+    codigo_iso_tipo_container: string
+    nome_tipo_container: string
+    nome_ingles_tipo_container: string
+    tamanho_pes_tipo_container: number
+    categoria_tipo_container: string
+    ativo_tipo_container?: boolean
+  }
+
+  export type TipoContainerUpdateInput = {
+    id_tipo_container?: StringFieldUpdateOperationsInput | string
+    codigo_iso_tipo_container?: StringFieldUpdateOperationsInput | string
+    nome_tipo_container?: StringFieldUpdateOperationsInput | string
+    nome_ingles_tipo_container?: StringFieldUpdateOperationsInput | string
+    tamanho_pes_tipo_container?: IntFieldUpdateOperationsInput | number
+    categoria_tipo_container?: StringFieldUpdateOperationsInput | string
+    ativo_tipo_container?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type TipoContainerUncheckedUpdateInput = {
+    id_tipo_container?: StringFieldUpdateOperationsInput | string
+    codigo_iso_tipo_container?: StringFieldUpdateOperationsInput | string
+    nome_tipo_container?: StringFieldUpdateOperationsInput | string
+    nome_ingles_tipo_container?: StringFieldUpdateOperationsInput | string
+    tamanho_pes_tipo_container?: IntFieldUpdateOperationsInput | number
+    categoria_tipo_container?: StringFieldUpdateOperationsInput | string
+    ativo_tipo_container?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type TipoContainerCreateManyInput = {
+    id_tipo_container?: string
+    codigo_iso_tipo_container: string
+    nome_tipo_container: string
+    nome_ingles_tipo_container: string
+    tamanho_pes_tipo_container: number
+    categoria_tipo_container: string
+    ativo_tipo_container?: boolean
+  }
+
+  export type TipoContainerUpdateManyMutationInput = {
+    id_tipo_container?: StringFieldUpdateOperationsInput | string
+    codigo_iso_tipo_container?: StringFieldUpdateOperationsInput | string
+    nome_tipo_container?: StringFieldUpdateOperationsInput | string
+    nome_ingles_tipo_container?: StringFieldUpdateOperationsInput | string
+    tamanho_pes_tipo_container?: IntFieldUpdateOperationsInput | number
+    categoria_tipo_container?: StringFieldUpdateOperationsInput | string
+    ativo_tipo_container?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type TipoContainerUncheckedUpdateManyInput = {
+    id_tipo_container?: StringFieldUpdateOperationsInput | string
+    codigo_iso_tipo_container?: StringFieldUpdateOperationsInput | string
+    nome_tipo_container?: StringFieldUpdateOperationsInput | string
+    nome_ingles_tipo_container?: StringFieldUpdateOperationsInput | string
+    tamanho_pes_tipo_container?: IntFieldUpdateOperationsInput | number
+    categoria_tipo_container?: StringFieldUpdateOperationsInput | string
+    ativo_tipo_container?: BoolFieldUpdateOperationsInput | boolean
+  }
+
   export type NcmSyncCreateInput = {
     codigo_ncm_sync: string
     descricao_ncm_sync: string
@@ -16363,6 +20078,191 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type PortoCountOrderByAggregateInput = {
+    id_porto?: SortOrder
+    codigo_unlocode_porto?: SortOrder
+    codigo_pais_porto?: SortOrder
+    codigo_local_porto?: SortOrder
+    nome_porto?: SortOrder
+    nome_ascii_porto?: SortOrder
+    subdivisao_porto?: SortOrder
+    latitude_porto?: SortOrder
+    longitude_porto?: SortOrder
+    codigo_iata_porto?: SortOrder
+    ativo_porto?: SortOrder
+  }
+
+  export type PortoAvgOrderByAggregateInput = {
+    latitude_porto?: SortOrder
+    longitude_porto?: SortOrder
+  }
+
+  export type PortoMaxOrderByAggregateInput = {
+    id_porto?: SortOrder
+    codigo_unlocode_porto?: SortOrder
+    codigo_pais_porto?: SortOrder
+    codigo_local_porto?: SortOrder
+    nome_porto?: SortOrder
+    nome_ascii_porto?: SortOrder
+    subdivisao_porto?: SortOrder
+    latitude_porto?: SortOrder
+    longitude_porto?: SortOrder
+    codigo_iata_porto?: SortOrder
+    ativo_porto?: SortOrder
+  }
+
+  export type PortoMinOrderByAggregateInput = {
+    id_porto?: SortOrder
+    codigo_unlocode_porto?: SortOrder
+    codigo_pais_porto?: SortOrder
+    codigo_local_porto?: SortOrder
+    nome_porto?: SortOrder
+    nome_ascii_porto?: SortOrder
+    subdivisao_porto?: SortOrder
+    latitude_porto?: SortOrder
+    longitude_porto?: SortOrder
+    codigo_iata_porto?: SortOrder
+    ativo_porto?: SortOrder
+  }
+
+  export type PortoSumOrderByAggregateInput = {
+    latitude_porto?: SortOrder
+    longitude_porto?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type AeroportoCountOrderByAggregateInput = {
+    id_aeroporto?: SortOrder
+    codigo_unlocode_aeroporto?: SortOrder
+    codigo_pais_aeroporto?: SortOrder
+    codigo_local_aeroporto?: SortOrder
+    nome_aeroporto?: SortOrder
+    nome_ascii_aeroporto?: SortOrder
+    subdivisao_aeroporto?: SortOrder
+    latitude_aeroporto?: SortOrder
+    longitude_aeroporto?: SortOrder
+    codigo_iata_aeroporto?: SortOrder
+    ativo_aeroporto?: SortOrder
+  }
+
+  export type AeroportoAvgOrderByAggregateInput = {
+    latitude_aeroporto?: SortOrder
+    longitude_aeroporto?: SortOrder
+  }
+
+  export type AeroportoMaxOrderByAggregateInput = {
+    id_aeroporto?: SortOrder
+    codigo_unlocode_aeroporto?: SortOrder
+    codigo_pais_aeroporto?: SortOrder
+    codigo_local_aeroporto?: SortOrder
+    nome_aeroporto?: SortOrder
+    nome_ascii_aeroporto?: SortOrder
+    subdivisao_aeroporto?: SortOrder
+    latitude_aeroporto?: SortOrder
+    longitude_aeroporto?: SortOrder
+    codigo_iata_aeroporto?: SortOrder
+    ativo_aeroporto?: SortOrder
+  }
+
+  export type AeroportoMinOrderByAggregateInput = {
+    id_aeroporto?: SortOrder
+    codigo_unlocode_aeroporto?: SortOrder
+    codigo_pais_aeroporto?: SortOrder
+    codigo_local_aeroporto?: SortOrder
+    nome_aeroporto?: SortOrder
+    nome_ascii_aeroporto?: SortOrder
+    subdivisao_aeroporto?: SortOrder
+    latitude_aeroporto?: SortOrder
+    longitude_aeroporto?: SortOrder
+    codigo_iata_aeroporto?: SortOrder
+    ativo_aeroporto?: SortOrder
+  }
+
+  export type AeroportoSumOrderByAggregateInput = {
+    latitude_aeroporto?: SortOrder
+    longitude_aeroporto?: SortOrder
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type TipoContainerCountOrderByAggregateInput = {
+    id_tipo_container?: SortOrder
+    codigo_iso_tipo_container?: SortOrder
+    nome_tipo_container?: SortOrder
+    nome_ingles_tipo_container?: SortOrder
+    tamanho_pes_tipo_container?: SortOrder
+    categoria_tipo_container?: SortOrder
+    ativo_tipo_container?: SortOrder
+  }
+
+  export type TipoContainerAvgOrderByAggregateInput = {
+    tamanho_pes_tipo_container?: SortOrder
+  }
+
+  export type TipoContainerMaxOrderByAggregateInput = {
+    id_tipo_container?: SortOrder
+    codigo_iso_tipo_container?: SortOrder
+    nome_tipo_container?: SortOrder
+    nome_ingles_tipo_container?: SortOrder
+    tamanho_pes_tipo_container?: SortOrder
+    categoria_tipo_container?: SortOrder
+    ativo_tipo_container?: SortOrder
+  }
+
+  export type TipoContainerMinOrderByAggregateInput = {
+    id_tipo_container?: SortOrder
+    codigo_iso_tipo_container?: SortOrder
+    nome_tipo_container?: SortOrder
+    nome_ingles_tipo_container?: SortOrder
+    tamanho_pes_tipo_container?: SortOrder
+    categoria_tipo_container?: SortOrder
+    ativo_tipo_container?: SortOrder
+  }
+
+  export type TipoContainerSumOrderByAggregateInput = {
+    tamanho_pes_tipo_container?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
   export type DateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -16433,22 +20333,6 @@ export namespace Prisma {
     cofins_ncm_sync?: SortOrder
   }
 
-  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
-  }
-
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -16468,17 +20352,6 @@ export namespace Prisma {
     in?: $Enums.NcmSyncStatusSincronizacao[] | ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
     notIn?: $Enums.NcmSyncStatusSincronizacao[] | ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
     not?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel> | $Enums.NcmSyncStatusSincronizacao
-  }
-
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
   }
 
   export type EnumNcmSyncOrigemSincronizacaoFilter<$PrismaModel = never> = {
@@ -16558,22 +20431,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel>
     _max?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel>
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type EnumNcmSyncOrigemSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
@@ -16866,20 +20723,20 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
-  }
-
-  export type EnumNcmSyncStatusSincronizacaoFieldUpdateOperationsInput = {
-    set?: $Enums.NcmSyncStatusSincronizacao
-  }
-
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type EnumNcmSyncStatusSincronizacaoFieldUpdateOperationsInput = {
+    set?: $Enums.NcmSyncStatusSincronizacao
   }
 
   export type EnumNcmSyncOrigemSincronizacaoFieldUpdateOperationsInput = {
@@ -17019,17 +20876,6 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
   export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
     in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
@@ -17044,6 +20890,44 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -17082,33 +20966,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel>
     _max?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel>
-  }
-
-  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type NestedFloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type NestedEnumNcmSyncOrigemSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
@@ -17168,6 +21025,18 @@ export namespace Prisma {
      * @deprecated Use IncotermDefaultArgs instead
      */
     export type IncotermArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = IncotermDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use PortoDefaultArgs instead
+     */
+    export type PortoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PortoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AeroportoDefaultArgs instead
+     */
+    export type AeroportoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AeroportoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use TipoContainerDefaultArgs instead
+     */
+    export type TipoContainerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TipoContainerDefaultArgs<ExtArgs>
     /**
      * @deprecated Use NcmSyncDefaultArgs instead
      */

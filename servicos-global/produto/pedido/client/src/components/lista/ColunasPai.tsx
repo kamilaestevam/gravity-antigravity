@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import { Trans } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { PencilSimpleLine, Eye, LinkSimple, Buildings } from '@phosphor-icons/react'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
@@ -346,8 +347,8 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     editavel: getEditavel('tipo_operacao'),
     campo: 'tipo_operacao',
     opcoes: [
-      { valor: 'importacao', label: 'Importação' },
-      { valor: 'exportacao', label: 'Exportação' },
+      { valor: 'importacao', label: t('pedido.coluna_pai.tipo_operacao_importacao') },
+      { valor: 'exportacao', label: t('pedido.coluna_pai.tipo_operacao_exportacao') },
     ],
     tooltipTitulo: t('pedido.coluna_pai.tipo_operacao_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.tipo_operacao_desc'),
@@ -355,7 +356,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     render: (_val: unknown, row: Pedido) => {
       const badge = (
         <StatusBadgeGlobal
-          valor={row.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação'}
+          valor={row.tipo_operacao === 'importacao' ? t('pedido.coluna_pai.tipo_operacao_importacao') : t('pedido.coluna_pai.tipo_operacao_exportacao')}
           genero="feminino"
           style={row.tipo_operacao === 'importacao'
             ? { color: '#60a5fa', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)' }
@@ -366,7 +367,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       if (row.tipo_operacao_divergente) {
         return (
           <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
-            title="Tipo de operação divergente entre itens">
+            title={t('pedido.coluna_pai.tipo_operacao_divergente')}>
             {badge}
             <span style={{ color: '#F59E0B' }}><WarnIcon /></span>
           </span>
@@ -374,7 +375,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       }
       return badge
     },
-    findDisplay: (row: Pedido) => row.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação',
+    findDisplay: (row: Pedido) => row.tipo_operacao === 'importacao' ? t('pedido.coluna_pai.tipo_operacao_importacao') : t('pedido.coluna_pai.tipo_operacao_exportacao'),
   },
   // ── Coluna "Workspace" — filtro multi-workspace (entrega 2026-05-13) ────────
   // key = 'id_workspace' (DDD-puro). mapPedido() em api.ts injeta id_workspace
@@ -389,7 +390,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   // pulled-out para uma entrega dedicada.
   {
     key: 'id_workspace',
-    label: 'Workspace',
+    label: t('pedido.coluna_pai.workspace_label'),
     tipo: 'texto',           // promovido para 'enum' em Pedidos.tsx → detectarTipoColuna
     filtravel: true,
     sortavel: false,         // backend ordena por id_workspace, não nome — manter simples
@@ -400,7 +401,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       if (!nome) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
       if (nome.length <= 50) return <span style={{ display: 'block', textAlign: 'left' }}>{nome}</span>
       return (
-        <TooltipGlobal titulo="Workspace" descricao={nome}>
+        <TooltipGlobal titulo={t('pedido.coluna_pai.workspace_label')} descricao={nome}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
             {nome.slice(0, 50) + '…'}
             <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
@@ -419,7 +420,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     filtravel: true,
     sortavel: true,
     editavel: false,
-    tooltipBloqueado: 'Exportador vinculado via Cadastros — clique para editar',
+    tooltipBloqueado: t('pedido.coluna_pai.nome_exportador_bloqueado'),
     tooltipTitulo: t('pedido.coluna_pai.nome_exportador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.nome_exportador_desc'),
     grupo: 'Partes',
@@ -432,7 +433,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         if (nomeWorkspace) {
           const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
           return (
-            <TooltipGlobal descricao={nomeWorkspace.length > 50 ? nomeWorkspace : 'Exportador é o próprio Workspace. Clique para editar dados no Configurador'}>
+            <TooltipGlobal descricao={nomeWorkspace.length > 50 ? nomeWorkspace : t('pedido.coluna_pai.exportador_e_workspace')}>
               <span
                 role="link"
                 tabIndex={0}
@@ -449,7 +450,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         // Workspace sem nome cadastrado → link para cadastrar
         const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
         return (
-          <TooltipGlobal descricao="Nome do Workspace não cadastrado. Clique para cadastrar no Configurador">
+          <TooltipGlobal descricao={t('pedido.coluna_pai.workspace_sem_nome')}>
             <span
               role="link"
               tabIndex={0}
@@ -458,7 +459,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
               style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
             >
               <PencilSimpleLine size={12} weight="bold" />
-              Cadastrar Exportador
+              {t('pedido.coluna_pai.cadastrar_exportador')}
             </span>
           </TooltipGlobal>
         )
@@ -470,7 +471,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       if (nome && nome.trim()) {
         const href = urlVincularExportador(idExportador, row.id)
         return (
-          <TooltipGlobal descricao={nome.length > 50 ? nome : 'Clique para editar o exportador no Cadastros'}>
+          <TooltipGlobal descricao={nome.length > 50 ? nome : t('pedido.coluna_pai.clique_editar_exportador')}>
             <span
               role="link"
               tabIndex={0}
@@ -486,7 +487,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       }
       const href = urlVincularExportador(null, row.id)
       return (
-        <TooltipGlobal descricao="Nenhum exportador vinculado. Clique para cadastrar no Cadastros">
+        <TooltipGlobal descricao={t('pedido.coluna_pai.nenhum_exportador_vinculado')}>
           <span
             role="link"
             tabIndex={0}
@@ -495,7 +496,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
             style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
           >
             <PencilSimpleLine size={12} weight="bold" />
-            Vincular Exportador
+            {t('pedido.coluna_pai.vincular_exportador')}
           </span>
         </TooltipGlobal>
       )
@@ -511,7 +512,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     filtravel: true,
     sortavel: true,
     editavel: false,
-    tooltipBloqueado: 'Importador vinculado via Cadastros — clique para editar',
+    tooltipBloqueado: t('pedido.coluna_pai.nome_importador_bloqueado'),
     tooltipTitulo: t('pedido.coluna_pai.nome_importador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.nome_importador_desc'),
     grupo: 'Partes',
@@ -524,7 +525,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         if (nomeWorkspace) {
           const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
           return (
-            <TooltipGlobal descricao={nomeWorkspace.length > 50 ? nomeWorkspace : 'Importador é o próprio Workspace. Clique para editar dados no Configurador'}>
+            <TooltipGlobal descricao={nomeWorkspace.length > 50 ? nomeWorkspace : t('pedido.coluna_pai.importador_e_workspace')}>
               <span
                 role="link"
                 tabIndex={0}
@@ -541,7 +542,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         // Workspace sem nome cadastrado → link para cadastrar
         const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
         return (
-          <TooltipGlobal descricao="Nome do Workspace não cadastrado. Clique para cadastrar no Configurador">
+          <TooltipGlobal descricao={t('pedido.coluna_pai.workspace_sem_nome')}>
             <span
               role="link"
               tabIndex={0}
@@ -550,7 +551,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
               style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
             >
               <PencilSimpleLine size={12} weight="bold" />
-              Cadastrar Importador
+              {t('pedido.coluna_pai.cadastrar_importador')}
             </span>
           </TooltipGlobal>
         )
@@ -562,7 +563,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       if (nome && nome.trim()) {
         const href = urlVincularImportador(idImportador, row.id)
         return (
-          <TooltipGlobal descricao={nome.length > 50 ? nome : 'Clique para editar o importador no Cadastros'}>
+          <TooltipGlobal descricao={nome.length > 50 ? nome : t('pedido.coluna_pai.clique_editar_importador')}>
             <span
               role="link"
               tabIndex={0}
@@ -578,7 +579,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       }
       const href = urlVincularImportador(null, row.id)
       return (
-        <TooltipGlobal descricao="Nenhum importador vinculado. Clique para cadastrar no Cadastros">
+        <TooltipGlobal descricao={t('pedido.coluna_pai.nenhum_importador_vinculado')}>
           <span
             role="link"
             tabIndex={0}
@@ -587,7 +588,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
             style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
           >
             <PencilSimpleLine size={12} weight="bold" />
-            Vincular Importador
+            {t('pedido.coluna_pai.vincular_importador')}
           </span>
         </TooltipGlobal>
       )
@@ -599,17 +600,17 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   // Exportação: contraparte estrangeira → "—" com tooltip.
   {
     key: 'cnpj_importador',
-    label: 'CNPJ do Importador',
+    label: t('pedido.coluna_pai.cnpj_importador'),
     tipo: 'texto',
     editavel: false,
     grupo: 'Partes',
-    tooltipTitulo: 'CNPJ do Importador',
-    tooltipDescricao: 'CNPJ da empresa importadora. Fonte única: CNPJ do Workspace. Em exportação, não se aplica (contraparte estrangeira).',
+    tooltipTitulo: t('pedido.coluna_pai.cnpj_importador_titulo'),
+    tooltipDescricao: t('pedido.coluna_pai.cnpj_importador_desc'),
     render: (_val: unknown, row: Pedido) => {
       const isImportacao = row.tipo_operacao === 'importacao'
       if (!isImportacao) {
         return (
-          <TooltipGlobal descricao="Em operações de exportação, o CNPJ do Importador não se aplica — a contraparte estrangeira não possui CNPJ brasileiro.">
+          <TooltipGlobal descricao={t('pedido.coluna_pai.cnpj_importador_nao_aplica')}>
             <span style={{ color: 'var(--text-disabled, #666)', cursor: 'not-allowed' }}>—</span>
           </TooltipGlobal>
         )
@@ -623,7 +624,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       if (!formatted) {
         const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
         return (
-          <TooltipGlobal descricao="CNPJ não cadastrado no Workspace. Clique para cadastrar">
+          <TooltipGlobal descricao={t('pedido.coluna_pai.cnpj_nao_cadastrado')}>
             <span
               role="link"
               tabIndex={0}
@@ -632,7 +633,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
               style={{ color: 'var(--accent, #f0c040)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
             >
               <PencilSimpleLine size={12} weight="bold" />
-              Cadastrar CNPJ
+              {t('pedido.coluna_pai.cadastrar_cnpj')}
             </span>
           </TooltipGlobal>
         )
@@ -646,17 +647,17 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   // Importação: contraparte estrangeira → "—" com tooltip.
   {
     key: 'cnpj_exportador',
-    label: 'CNPJ do Exportador',
+    label: t('pedido.coluna_pai.cnpj_exportador'),
     tipo: 'texto',
     editavel: false,
     grupo: 'Partes',
-    tooltipTitulo: 'CNPJ do Exportador',
-    tooltipDescricao: 'CNPJ da empresa exportadora. Fonte única: CNPJ do Workspace. Em importação, não se aplica (contraparte estrangeira).',
+    tooltipTitulo: t('pedido.coluna_pai.cnpj_exportador_titulo'),
+    tooltipDescricao: t('pedido.coluna_pai.cnpj_exportador_desc'),
     render: (_val: unknown, row: Pedido) => {
       const isExportacao = row.tipo_operacao === 'exportacao'
       if (!isExportacao) {
         return (
-          <TooltipGlobal descricao="Em operações de importação, o CNPJ do Exportador não se aplica — a contraparte estrangeira não possui CNPJ brasileiro.">
+          <TooltipGlobal descricao={t('pedido.coluna_pai.cnpj_exportador_nao_aplica')}>
             <span style={{ color: 'var(--text-disabled, #666)', cursor: 'not-allowed' }}>—</span>
           </TooltipGlobal>
         )
@@ -670,7 +671,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       if (!formatted) {
         const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
         return (
-          <TooltipGlobal descricao="CNPJ não cadastrado no Workspace. Clique para cadastrar">
+          <TooltipGlobal descricao={t('pedido.coluna_pai.cnpj_nao_cadastrado')}>
             <span
               role="link"
               tabIndex={0}
@@ -679,7 +680,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
               style={{ color: 'var(--accent, #f0c040)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
             >
               <PencilSimpleLine size={12} weight="bold" />
-              Cadastrar CNPJ
+              {t('pedido.coluna_pai.cadastrar_cnpj')}
             </span>
           </TooltipGlobal>
         )
@@ -699,7 +700,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.nome_fabricante_desc'),
     grupo: 'Partes',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(truncarParaAgregado(row.nome_fabricante, t('pedido.coluna_pai.nome_fabricante')), row.nome_fabricante_divergente, 'Fabricantes divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.nome_fabricante, t('pedido.coluna_pai.nome_fabricante')), row.nome_fabricante_divergente, t('pedido.coluna_pai.fabricantes_divergentes')),
   },
   {
     key: 'referencia_importador',
@@ -711,7 +712,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.referencia_importador_desc'),
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(truncarParaAgregado(row.referencia_importador, t('pedido.coluna_pai.referencia_importador')), row.referencia_importador_divergente, 'Referências divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.referencia_importador, t('pedido.coluna_pai.referencia_importador')), row.referencia_importador_divergente, t('pedido.coluna_pai.referencias_divergentes')),
   },
   {
     key: 'referencia_exportador',
@@ -723,7 +724,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.referencia_exportador_desc'),
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(truncarParaAgregado(row.referencia_exportador, t('pedido.coluna_pai.referencia_exportador')), row.referencia_exportador_divergente, 'Referências divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.referencia_exportador, t('pedido.coluna_pai.referencia_exportador')), row.referencia_exportador_divergente, t('pedido.coluna_pai.referencias_divergentes')),
   },
   {
     key: 'ncm',
@@ -742,7 +743,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       // Quando divergente, label informa quantos NCMs distintos existem nos itens.
       // Usa renderAgregado para padronizar com as demais colunas (valor + ícone
       // de alerta lado a lado). Sem ⚠ na string — o ícone SVG já sinaliza.
-      const labelDivergente = `${row.ncms_distintos_count ?? '?'} NCMs diferentes nos itens`
+      const labelDivergente = t('pedido.coluna_pai.ncms_distintos', { count: row.ncms_distintos_count ?? '?' })
       return renderAgregado(fmt, row.ncm_divergente, labelDivergente, { fontMono: true })
     },
   },
@@ -795,7 +796,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Financeiro',
     align: 'center',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(row.incoterm, row.incoterm_divergente, 'Incoterms divergentes entre itens'),
+      renderAgregado(row.incoterm, row.incoterm_divergente, t('pedido.coluna_pai.incoterms_divergentes')),
   },
   {
     key: 'valor_total_pedido',
@@ -828,7 +829,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       return (
         <TooltipGlobal titulo={t('pedido.coluna_pai.valor_total_pedido_titulo')} descricao={t('pedido.coluna_pai.valor_total_pedido_desc')}>
           <span style={{ display: 'contents' }}>
-            {renderAgregado(valorJsx, row.moeda_item_divergente, 'Moedas divergentes entre itens')}
+            {renderAgregado(valorJsx, row.moeda_item_divergente, t('pedido.coluna_pai.moedas_divergentes'))}
           </span>
         </TooltipGlobal>
       )
@@ -836,11 +837,11 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   },
   {
     key: 'moeda_pedido',
-    label: 'Moeda do Pedido/Item',
+    label: t('pedido.coluna_pai.moeda_pedido_item'),
     tipo: 'select',
     opcoes: moedasOpcoes ?? [],
     filtravel: true,
-    avisoImpacto: 'A alteração da moeda irá alterar também Valor Total do Pedido/Item e Valor do Item',
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_moeda'),
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
       const moeda = row.moeda_pedido
@@ -849,7 +850,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       // fluxo — assim a célula centraliza apenas o badge e ele fica alinhado
       // verticalmente com os badges das linhas filhas (que não têm ⚠).
       return (
-        <span style={{ position: 'relative', display: 'inline-block' }} title={row.moeda_item_divergente ? 'Moedas divergentes entre itens' : undefined}>
+        <span style={{ position: 'relative', display: 'inline-block' }} title={row.moeda_item_divergente ? t('pedido.coluna_pai.moedas_divergentes') : undefined}>
           <span className="gtv-celula-moeda">
             <span className={classeMoedaBadge(moeda)}>{moeda}</span>
           </span>
@@ -876,22 +877,21 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     // `calcularDivergencias` em Pedidos.tsx ao expandir o pedido.
     render: (_val: unknown, row: Pedido) =>
       row.moeda_item_divergente
-        ? renderAgregado(null, true, 'Moedas divergentes entre itens')
+        ? renderAgregado(null, true, t('pedido.coluna_pai.moedas_divergentes'))
         : <span style={{ color: 'var(--text-muted)' }}>—</span>,
   },
   {
     key: 'unidade_comercializada_pedido',
-    label: 'Unidade Comercializada',
+    label: t('pedido.coluna_pai.unidade_comercializada'),
     tipo: 'unidade',
-    apenasUnidade: true,
     filtravel: true,
     grupo: 'Quantidades',
-    avisoImpacto: 'A alteração da unidade irá alterar também Qtd. Inicial, Qtd. Pronta, Qtd. Transferida, Saldo e Qtd. Cancelada',
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_full'),
     render: (_val: unknown, row: Pedido) =>
       renderAgregado(
         row.unidade_comercializada_pedido,
         row.unidade_comercializada_item_divergente,
-        'Unidades divergentes entre itens',
+        t('pedido.coluna_pai.unidades_divergentes'),
       ),
   },
   {
@@ -899,7 +899,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     label: t('pedido.coluna_pai.quantidade_total_inicial_pedido'),
     tipo: 'unidade',
     align: 'right',
-    avisoImpacto: 'A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Pronta, Qtd. Transferida, Saldo e Qtd. Cancelada',
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_inicial'),
     tooltipTitulo: t('pedido.coluna_pai.quantidade_total_inicial_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_total_inicial_pedido_desc'),
     grupo: 'Quantidades',
@@ -910,7 +910,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     label: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total'),
     tipo: 'unidade',
     align: 'right',
-    avisoImpacto: 'A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Inicial, Qtd. Transferida, Saldo e Qtd. Cancelada',
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_pronta'),
     tooltipTitulo: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_desc'),
     grupo: 'Quantidades',
@@ -924,9 +924,9 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     // de renderQtdPedido. Decisão UX 2026-05-13.
     tipo: 'unidade',
     align: 'right',
-    avisoImpacto: 'A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Inicial, Qtd. Pronta, Qtd. Transferida e Qtd. Cancelada',
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_saldo'),
     tooltipTitulo: t('pedido.coluna_pai.saldo_itens_do_pedido_titulo'),
-    tooltipDescricao: <span>Calculado com base nos itens — não editável. <a href="/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>,
+    tooltipDescricao: <span><Trans i18nKey="pedido.coluna_pai.calculado_itens_editar_formula" components={{ a: <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados" /> }} /></span>,
     tooltipInterativo: true,
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => {
@@ -941,7 +941,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         return (
           <TooltipGlobal
             titulo={t('pedido.coluna_pai.saldo_itens_do_pedido_titulo')}
-            descricao={<span>Calculado com base nos itens — não editável. <a href="/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+            descricao={<span><Trans i18nKey="pedido.coluna_pai.calculado_itens_editar_formula" components={{ a: <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados" /> }} /></span>}
             interativo
           >
             <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
@@ -969,7 +969,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       const tooltipWrap = (node: React.ReactNode) => (
         <TooltipGlobal
           titulo={t('pedido.coluna_pai.saldo_itens_do_pedido_titulo')}
-          descricao={<span>Calculado com base nos itens — não editável. <a href="/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+          descricao={<span><Trans i18nKey="pedido.coluna_pai.calculado_itens_editar_formula" components={{ a: <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados" /> }} /></span>}
           interativo
         >
           <span style={{ display: 'contents' }}>{node}</span>
@@ -977,7 +977,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       )
 
       if (unidadesEfetivas.size > 1) {
-        return tooltipWrap(renderAgregado(null, true, 'Unidades divergentes entre itens'))
+        return tooltipWrap(renderAgregado(null, true, t('pedido.coluna_pai.unidades_divergentes')))
       }
 
       const unidade = [...unidadesEfetivas][0] ?? 'UN'
@@ -998,10 +998,10 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     // têm unidade_comercializada_item diferente. Decisão UX 2026-05-13.
     tipo: 'unidade',
     align: 'right',
-    avisoImpacto: 'A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Inicial, Qtd. Pronta, Saldo e Qtd. Cancelada',
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_transferida'),
     tooltipTitulo: t('pedido.coluna_pai.quantidade_transferida_total_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_transferida_total_desc'),
-    tooltipBloqueado: 'Campo calculado — soma de quantidade_transferida_pedido de todos os itens. Alterado apenas por operações de transferência.',
+    tooltipBloqueado: t('pedido.coluna_pai.quantidade_transferida_bloqueado'),
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_transferida_pedido', 0, { titulo: t('pedido.coluna_pai.quantidade_transferida_total_titulo'), descricao: t('pedido.coluna_pai.quantidade_transferida_total_desc') }),
   },
@@ -1011,7 +1011,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     // tipo: 'unidade' (espelhado com QTD inicial/pronta) — usa renderQtdPedido.
     tipo: 'unidade',
     align: 'right',
-    avisoImpacto: 'A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Inicial, Qtd. Pronta, Qtd. Transferida e Saldo',
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_cancelada'),
     tooltipTitulo: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_desc'),
     grupo: 'Quantidades',
@@ -1059,7 +1059,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       return renderAgregado(
         row.data_emissao_pedido ? fmtData(row.data_emissao_pedido) : null,
         divergente,
-        'Datas de emissão divergentes entre itens',
+        t('pedido.coluna_pai.datas_emissao_divergentes'),
       )
     },
   },
@@ -1098,7 +1098,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.referencia_fabricante_desc'),
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(truncarParaAgregado(row.referencia_fabricante, t('pedido.coluna_pai.referencia_fabricante')), row.referencia_fabricante_divergente, 'Referências divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.referencia_fabricante, t('pedido.coluna_pai.referencia_fabricante')), row.referencia_fabricante_divergente, t('pedido.coluna_pai.referencias_divergentes')),
   },
   {
     key: 'cobertura_cambial',
@@ -1111,12 +1111,12 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.cobertura_cambial_desc'),
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(truncarParaAgregado(row.cobertura_cambial_valor_unico, t('pedido.coluna_pai.cobertura_cambial')), row.cobertura_cambial_divergente, 'Coberturas cambiais divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.cobertura_cambial_valor_unico, t('pedido.coluna_pai.cobertura_cambial')), row.cobertura_cambial_divergente, t('pedido.coluna_pai.coberturas_cambiais_divergentes')),
   },
   // ── Câmbio ────────────────────────────────────────────────────────────────────
   {
     key: 'moeda_cambio_pedido',
-    label: 'Moeda Câmbio',
+    label: t('pedido.coluna_pai.moeda_cambio'),
     tipo: 'texto',
     filtravel: true,
     grupo: 'Câmbio',
@@ -1132,7 +1132,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   },
   {
     key: 'taxa_cambio_estimada',
-    label: 'Taxa Câmbio Estimada',
+    label: t('pedido.coluna_pai.taxa_cambio_estimada'),
     tipo: 'numero',
     align: 'right',
     casasDecimais: 4,
@@ -1145,7 +1145,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   },
   {
     key: 'valor_total_cambio_pedido',
-    label: 'Valor Total Câmbio',
+    label: t('pedido.coluna_pai.valor_total_cambio'),
     tipo: 'numero',
     align: 'left',
     casasDecimais: 2,
@@ -1164,7 +1164,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   },
   {
     key: 'contrato_cambio_id_pedido',
-    label: 'Contrato de Câmbio',
+    label: t('pedido.coluna_pai.contrato_cambio_label'),
     tipo: 'texto',
     filtravel: true,
     grupo: 'Câmbio',
@@ -1180,7 +1180,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.condicao_pagamento_pedido_desc'),
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(truncarParaAgregado(row.condicao_pagamento, t('pedido.coluna_pai.condicao_pagamento')), row.condicao_pagamento_divergente, 'Condições de pagamento divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.condicao_pagamento, t('pedido.coluna_pai.condicao_pagamento')), row.condicao_pagamento_divergente, t('pedido.coluna_pai.condicoes_pagamento_divergentes')),
   },
   // ── Dados físicos ───────────────────────────────────────────────────────────
   {
@@ -1192,7 +1192,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     align: 'right',
     casasDecimais: getCasas('peso_liquido_total_pedido', 3),
     unidades: unidadesPeso,
-    avisoImpacto: 'A alteração da unidade irá alterar também Peso Bruto Total',
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_peso_bruto'),
     tooltipTitulo: t('pedido.coluna_pai.peso_liquido_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.peso_liquido_total_pedido_desc'),
     grupo: 'Dados Físicos',
@@ -1215,7 +1215,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         if (unidadesEfetivas.size > 1) {
           return (
             <TooltipGlobal titulo={t('pedido.coluna_pai.peso_liquido_total_pedido_titulo')} descricao={t('pedido.coluna_pai.peso_liquido_total_pedido_desc')}>
-              <span style={{ display: 'contents' }}>{renderAgregado(null, true, 'Unidades de peso líquido divergentes entre itens')}</span>
+              <span style={{ display: 'contents' }}>{renderAgregado(null, true, t('pedido.coluna_pai.unidades_peso_liquido_divergentes'))}</span>
             </TooltipGlobal>
           )
         }
@@ -1239,7 +1239,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     align: 'right',
     casasDecimais: getCasas('peso_bruto_total_pedido', 3),
     unidades: unidadesPeso,
-    avisoImpacto: 'A alteração da unidade irá alterar também Peso Líquido Total',
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_peso_liquido'),
     tooltipTitulo: t('pedido.coluna_pai.peso_bruto_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.peso_bruto_total_pedido_desc'),
     grupo: 'Dados Físicos',
@@ -1261,7 +1261,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         if (unidadesEfetivas.size > 1) {
           return (
             <TooltipGlobal titulo={t('pedido.coluna_pai.peso_bruto_total_pedido_titulo')} descricao={t('pedido.coluna_pai.peso_bruto_total_pedido_desc')}>
-              <span style={{ display: 'contents' }}>{renderAgregado(null, true, 'Unidades de peso bruto divergentes entre itens')}</span>
+              <span style={{ display: 'contents' }}>{renderAgregado(null, true, t('pedido.coluna_pai.unidades_peso_bruto_divergentes'))}</span>
             </TooltipGlobal>
           )
         }
@@ -1309,7 +1309,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         if (unidadesEfetivas.size > 1) {
           return (
             <TooltipGlobal titulo={t('pedido.coluna_pai.cubagem_total_pedido_titulo')} descricao={t('pedido.coluna_pai.cubagem_total_pedido_desc')}>
-              <span style={{ display: 'contents' }}>{renderAgregado(null, true, 'Unidades de cubagem divergentes entre itens')}</span>
+              <span style={{ display: 'contents' }}>{renderAgregado(null, true, t('pedido.coluna_pai.unidades_cubagem_divergentes'))}</span>
             </TooltipGlobal>
           )
         }
@@ -1326,17 +1326,17 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   },
   // ── Datas de progresso (Decisão UX 2026-05-13: todas usam pattern unificado
   // com renderAgregado + replicar-em-itens via checkbox no popover) ──────────
-  criarColunaDataReplicavel(t, 'data_prevista_pedido_pronto',    'Datas previstas de pedido pronto divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_confirmada_pedido_pronto',  'Datas confirmadas de pedido pronto divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_meta_pedido_pronto',        'Datas meta de pedido pronto divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_prevista_inspecao_pedido',  'Datas previstas de inspeção divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_confirmada_inspecao_pedido','Datas confirmadas de inspeção divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_meta_inspecao_pedido',      'Datas meta de inspeção divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_prevista_coleta_pedido',    'Datas previstas de coleta divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_confirmada_coleta_pedido',  'Datas confirmadas de coleta divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_meta_coleta_pedido',        'Datas meta de coleta divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_consolidacao_pedido',       'Datas de consolidação divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_transferencia_saldo_pedido','Datas de transferência de saldo divergentes entre itens'),
+  criarColunaDataReplicavel(t, 'data_prevista_pedido_pronto',    t('pedido.coluna_pai.divergente_data_prevista_pedido_pronto')),
+  criarColunaDataReplicavel(t, 'data_confirmada_pedido_pronto',  t('pedido.coluna_pai.divergente_data_confirmada_pedido_pronto')),
+  criarColunaDataReplicavel(t, 'data_meta_pedido_pronto',        t('pedido.coluna_pai.divergente_data_meta_pedido_pronto')),
+  criarColunaDataReplicavel(t, 'data_prevista_inspecao_pedido',  t('pedido.coluna_pai.divergente_data_prevista_inspecao')),
+  criarColunaDataReplicavel(t, 'data_confirmada_inspecao_pedido',t('pedido.coluna_pai.divergente_data_confirmada_inspecao')),
+  criarColunaDataReplicavel(t, 'data_meta_inspecao_pedido',      t('pedido.coluna_pai.divergente_data_meta_inspecao')),
+  criarColunaDataReplicavel(t, 'data_prevista_coleta_pedido',    t('pedido.coluna_pai.divergente_data_prevista_coleta')),
+  criarColunaDataReplicavel(t, 'data_confirmada_coleta_pedido',  t('pedido.coluna_pai.divergente_data_confirmada_coleta')),
+  criarColunaDataReplicavel(t, 'data_meta_coleta_pedido',        t('pedido.coluna_pai.divergente_data_meta_coleta')),
+  criarColunaDataReplicavel(t, 'data_consolidacao_pedido',       t('pedido.coluna_pai.divergente_data_consolidacao')),
+  criarColunaDataReplicavel(t, 'data_transferencia_saldo_pedido',t('pedido.coluna_pai.divergente_data_transferencia_saldo')),
   // ── Exportador (detalhes) ───────────────────────────────────────────────────
   {
     key: 'pais_exportador',
@@ -1661,43 +1661,43 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   // todas seguem pattern unificado com replicar-em-itens via checkbox) ────────
 
   // Draft do Pedido (7)
-  criarColunaDataReplicavel(t, 'data_prevista_recebimento_rascunho_pedido',   'Datas previstas de recebimento do draft do pedido divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_confirmada_recebimento_rascunho_pedido', 'Datas confirmadas de recebimento do draft do pedido divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_meta_recebimento_rascunho_pedido',       'Datas meta de recebimento do draft do pedido divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_prevista_aprovacao_rascunho_pedido',     'Datas previstas de aprovação do draft do pedido divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_confirmada_aprovacao_rascunho_pedido',   'Datas confirmadas de aprovação do draft do pedido divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_meta_aprovacao_rascunho_pedido',         'Datas meta de aprovação do draft do pedido divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_documento_pedido',                      'Datas de documento do pedido divergentes entre itens'),
+  criarColunaDataReplicavel(t, 'data_prevista_recebimento_rascunho_pedido',   t('pedido.coluna_pai.divergente_data_prevista_recebimento_rascunho_pedido')),
+  criarColunaDataReplicavel(t, 'data_confirmada_recebimento_rascunho_pedido', t('pedido.coluna_pai.divergente_data_confirmada_recebimento_rascunho_pedido')),
+  criarColunaDataReplicavel(t, 'data_meta_recebimento_rascunho_pedido',       t('pedido.coluna_pai.divergente_data_meta_recebimento_rascunho_pedido')),
+  criarColunaDataReplicavel(t, 'data_prevista_aprovacao_rascunho_pedido',     t('pedido.coluna_pai.divergente_data_prevista_aprovacao_rascunho_pedido')),
+  criarColunaDataReplicavel(t, 'data_confirmada_aprovacao_rascunho_pedido',   t('pedido.coluna_pai.divergente_data_confirmada_aprovacao_rascunho_pedido')),
+  criarColunaDataReplicavel(t, 'data_meta_aprovacao_rascunho_pedido',         t('pedido.coluna_pai.divergente_data_meta_aprovacao_rascunho_pedido')),
+  criarColunaDataReplicavel(t, 'data_documento_pedido',                       t('pedido.coluna_pai.divergente_data_documento_pedido')),
 
-  criarColunaDataReplicavel(t, 'data_documento_proforma',                      'Datas de documento proforma divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_documento_invoice',                       'Datas de documento invoice divergentes entre itens'),
+  criarColunaDataReplicavel(t, 'data_documento_proforma',                     t('pedido.coluna_pai.divergente_data_documento_proforma')),
+  criarColunaDataReplicavel(t, 'data_documento_invoice',                      t('pedido.coluna_pai.divergente_data_documento_invoice')),
 
   // Proforma (13)
-  criarColunaDataReplicavel(t, 'data_prevista_recebimento_rascunho_proforma',    'Datas previstas de recebimento do draft da proforma divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_confirmada_recebimento_rascunho_proforma',  'Datas confirmadas de recebimento do draft da proforma divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_meta_recebimento_rascunho_proforma',        'Datas meta de recebimento do draft da proforma divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_prevista_aprovacao_rascunho_proforma',      'Datas previstas de aprovação do draft da proforma divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_confirmada_aprovacao_rascunho_proforma',    'Datas confirmadas de aprovação do draft da proforma divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_meta_aprovacao_rascunho_proforma',          'Datas meta de aprovação do draft da proforma divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_prevista_envio_original_proforma',          'Datas previstas de envio original da proforma divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_confirmada_envio_original_proforma',        'Datas confirmadas de envio original da proforma divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_meta_envio_original_proforma',              'Datas meta de envio original da proforma divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_prevista_recebimento_original_proforma',    'Datas previstas de recebimento original da proforma divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_confirmada_recebimento_original_proforma',  'Datas confirmadas de recebimento original da proforma divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_meta_recebimento_original_proforma',        'Datas meta de recebimento original da proforma divergentes entre itens'),
+  criarColunaDataReplicavel(t, 'data_prevista_recebimento_rascunho_proforma',    t('pedido.coluna_pai.divergente_data_prevista_recebimento_rascunho_proforma')),
+  criarColunaDataReplicavel(t, 'data_confirmada_recebimento_rascunho_proforma',  t('pedido.coluna_pai.divergente_data_confirmada_recebimento_rascunho_proforma')),
+  criarColunaDataReplicavel(t, 'data_meta_recebimento_rascunho_proforma',        t('pedido.coluna_pai.divergente_data_meta_recebimento_rascunho_proforma')),
+  criarColunaDataReplicavel(t, 'data_prevista_aprovacao_rascunho_proforma',      t('pedido.coluna_pai.divergente_data_prevista_aprovacao_rascunho_proforma')),
+  criarColunaDataReplicavel(t, 'data_confirmada_aprovacao_rascunho_proforma',    t('pedido.coluna_pai.divergente_data_confirmada_aprovacao_rascunho_proforma')),
+  criarColunaDataReplicavel(t, 'data_meta_aprovacao_rascunho_proforma',          t('pedido.coluna_pai.divergente_data_meta_aprovacao_rascunho_proforma')),
+  criarColunaDataReplicavel(t, 'data_prevista_envio_original_proforma',          t('pedido.coluna_pai.divergente_data_prevista_envio_original_proforma')),
+  criarColunaDataReplicavel(t, 'data_confirmada_envio_original_proforma',        t('pedido.coluna_pai.divergente_data_confirmada_envio_original_proforma')),
+  criarColunaDataReplicavel(t, 'data_meta_envio_original_proforma',              t('pedido.coluna_pai.divergente_data_meta_envio_original_proforma')),
+  criarColunaDataReplicavel(t, 'data_prevista_recebimento_original_proforma',    t('pedido.coluna_pai.divergente_data_prevista_recebimento_original_proforma')),
+  criarColunaDataReplicavel(t, 'data_confirmada_recebimento_original_proforma',  t('pedido.coluna_pai.divergente_data_confirmada_recebimento_original_proforma')),
+  criarColunaDataReplicavel(t, 'data_meta_recebimento_original_proforma',        t('pedido.coluna_pai.divergente_data_meta_recebimento_original_proforma')),
 
   // Invoice (12)
-  criarColunaDataReplicavel(t, 'data_prevista_recebimento_rascunho_invoice',    'Datas previstas de recebimento do draft da invoice divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_confirmada_recebimento_rascunho_invoice',  'Datas confirmadas de recebimento do draft da invoice divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_meta_recebimento_rascunho_invoice',        'Datas meta de recebimento do draft da invoice divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_prevista_aprovacao_rascunho_invoice',      'Datas previstas de aprovação do draft da invoice divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_confirmada_aprovacao_rascunho_invoice',    'Datas confirmadas de aprovação do draft da invoice divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_meta_aprovacao_rascunho_invoice',          'Datas meta de aprovação do draft da invoice divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_prevista_envio_original_invoice',          'Datas previstas de envio original da invoice divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_confirmada_envio_original_invoice',        'Datas confirmadas de envio original da invoice divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_meta_envio_original_invoice',              'Datas meta de envio original da invoice divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_prevista_recebimento_original_invoice',    'Datas previstas de recebimento original da invoice divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_confirmada_recebimento_original_invoice',  'Datas confirmadas de recebimento original da invoice divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_meta_recebimento_original_invoice',        'Datas meta de recebimento original da invoice divergentes entre itens'),
+  criarColunaDataReplicavel(t, 'data_prevista_recebimento_rascunho_invoice',    t('pedido.coluna_pai.divergente_data_prevista_recebimento_rascunho_invoice')),
+  criarColunaDataReplicavel(t, 'data_confirmada_recebimento_rascunho_invoice',  t('pedido.coluna_pai.divergente_data_confirmada_recebimento_rascunho_invoice')),
+  criarColunaDataReplicavel(t, 'data_meta_recebimento_rascunho_invoice',        t('pedido.coluna_pai.divergente_data_meta_recebimento_rascunho_invoice')),
+  criarColunaDataReplicavel(t, 'data_prevista_aprovacao_rascunho_invoice',      t('pedido.coluna_pai.divergente_data_prevista_aprovacao_rascunho_invoice')),
+  criarColunaDataReplicavel(t, 'data_confirmada_aprovacao_rascunho_invoice',    t('pedido.coluna_pai.divergente_data_confirmada_aprovacao_rascunho_invoice')),
+  criarColunaDataReplicavel(t, 'data_meta_aprovacao_rascunho_invoice',          t('pedido.coluna_pai.divergente_data_meta_aprovacao_rascunho_invoice')),
+  criarColunaDataReplicavel(t, 'data_prevista_envio_original_invoice',          t('pedido.coluna_pai.divergente_data_prevista_envio_original_invoice')),
+  criarColunaDataReplicavel(t, 'data_confirmada_envio_original_invoice',        t('pedido.coluna_pai.divergente_data_confirmada_envio_original_invoice')),
+  criarColunaDataReplicavel(t, 'data_meta_envio_original_invoice',              t('pedido.coluna_pai.divergente_data_meta_envio_original_invoice')),
+  criarColunaDataReplicavel(t, 'data_prevista_recebimento_original_invoice',    t('pedido.coluna_pai.divergente_data_prevista_recebimento_original_invoice')),
+  criarColunaDataReplicavel(t, 'data_confirmada_recebimento_original_invoice',  t('pedido.coluna_pai.divergente_data_confirmada_recebimento_original_invoice')),
+  criarColunaDataReplicavel(t, 'data_meta_recebimento_original_invoice',        t('pedido.coluna_pai.divergente_data_meta_recebimento_original_invoice')),
   ]
 }

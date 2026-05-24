@@ -138,77 +138,83 @@ model FreteIntBidFornecedores {
 // ─── COTACAO ───────────────────────────────────────────────────────────────────
 
 model FreteIntBidCotacoes {
-  id                  String              @id @default(cuid())
-  id_organizacao           String              // OBRIGATORIO
-  product_id          String?             // "bid-frete"
-  user_id             String              // clerk_id do solicitante
-  company_id          String?             // workspace/filial
+  id_cotacao_bid_frete                       String              @id @default(cuid())
+  id_organizacao                             String
+  id_produto_gravity                         String?             // ref Configurador.produto_gravity_workspace
+  id_usuario                                 String              // clerk_id do solicitante
+  id_workspace                               String?             // workspace/filial
 
   // Referencia
-  numero              String              // auto-gerado: BID-YYYYMMDD-NNNN
-  referencia_interna  String?             // PO do cliente (ex: IMP023/22)
+  numero_cotacao_bid_frete                   String              // auto-gerado: BID-YYYYMMDD-NNNN
+  referencia_interna_cotacao_bid_frete       String?             // PO do cliente (ex: IMP023/22)
 
   // Operacao
-  tipo_operacao       BidFreteTipoOperacao
-  modal               BidFreteModalidade
-  modalidade          BidFreteCargaModalidade
+  tipo_operacao                              BidFreteTipoOperacao
+  modal                                      BidFreteModalidade
+  modalidade                                 BidFreteCargaModalidade
 
-  // Rota
-  origem_codigo       String              // UN/LOCODE ou IATA
-  origem_nome         String              // Nome legivel (ex: Shanghai)
-  origem_pais         String
-  destino_codigo      String
-  destino_nome        String              // ex: Santos
-  destino_pais        String
+  // Rota Origem
+  pais_origem_cotacao_bid_frete              String              // ref Cadastros/Pais
+  estado_provincia_origem_cotacao_bid_frete  String?             // enum UF se BR / livre se exterior
+  porto_origem_cotacao_bid_frete             String?             // ref Cadastros/Porto (maritimo)
+  aeroporto_origem_cotacao_bid_frete         String?             // ref Cadastros/Aeroporto (aereo)
+
+  // Rota Destino
+  pais_destino_cotacao_bid_frete             String              // ref Cadastros/Pais
+  estado_provincia_destino_cotacao_bid_frete String?             // enum UF se BR / livre se exterior
+  porto_destino_cotacao_bid_frete            String?             // ref Cadastros/Porto (maritimo)
+  aeroporto_destino_cotacao_bid_frete        String?             // ref Cadastros/Aeroporto (aereo)
 
   // Mercadoria
-  descricao_mercadoria String
-  ncm                 String?
-  quantidade          Int                 @default(1)
-  tipo_container      String?             // ex: 20' DRY, 40' HC
-  peso_kg             Float?
-  cubagem_m3          Float?
+  descricao_mercadoria_cotacao_bid_frete     String
+  ncm_cotacao_bid_frete                      String?
+  hs_code_cotacao_bid_frete                  String?
+  quantidade_volumes_cotacao_bid_frete       Int                 @default(1)
+  id_container                               String?             // ref Cadastros/Container (sem FK fisica)
+  peso_kg_cotacao_bid_frete                  Float?
+  peso_ton_cotacao_bid_frete                 Float?
+  cubagem_m3_cotacao_bid_frete               Float?
 
   // Termos
-  incoterm            String              // FOB, EXW, CIF, etc.
-  zip_code_origem     String?             // para EXW
-  zip_code_destino    String?
+  incoterm_cotacao_bid_frete                 String              // ref Cadastros/Incoterm
+  cep_origem_cotacao_bid_frete               String?             // para EXW
+  cep_destino_cotacao_bid_frete              String?
 
   // Target
-  valor_target        Float?              // valor referencial que quer atingir
-  moeda_target        String?             @default("USD")
+  valor_alvo_cotacao_bid_frete               Float?              // valor referencial que quer atingir
+  moeda_alvo_cotacao_bid_frete               String?             @default("USD") // ref Cadastros/Moeda
 
   // Visibilidade
-  visibilidade        BidFreteCotacaoVisibilidade @default(DIRECIONADA)
-  ocultar_nome_empresa Boolean            @default(false)  // anonimato
+  visibilidade_cotacao_bid_frete             BidFreteCotacaoVisibilidade @default(DIRECIONADA)
+  anonima_cotacao_bid_frete                  Boolean             @default(false)
 
   // Status e datas
-  status              BidFreteCotacaoStatus       @default(RASCUNHO)
-  data_limite_resposta DateTime?
-  data_aprovacao      DateTime?
-  data_cancelamento   DateTime?
-  motivo_reprovacao   String?
-  motivo_cancelamento String?
+  status_cotacao_bid_frete                   BidFreteCotacaoStatus       @default(RASCUNHO)
+  data_limite_resposta_cotacao_bid_frete     DateTime?
+  data_aprovacao_cotacao_bid_frete           DateTime?
+  data_cancelamento_cotacao_bid_frete        DateTime?
+  motivo_reprovacao_cotacao_bid_frete        String?
+  motivo_cancelamento_cotacao_bid_frete      String?
 
   // Fornecedor vencedor
-  fornecedor_vencedor_id String?
-  saving_valor        Float?              // economia vs target ou media
-  saving_percentual   Float?
+  id_fornecedor_vencedor_cotacao_bid_frete   String?
+  saving_valor_cotacao_bid_frete             Float?              // economia vs target ou media
+  saving_percentual_cotacao_bid_frete        Float?
 
-  created_at          DateTime            @default(now())
-  updated_at          DateTime            @updatedAt
+  criado_em_cotacao_bid_frete                DateTime            @default(now())
+  atualizado_em_cotacao_bid_frete            DateTime            @updatedAt
 
   // Relacoes
   bid_requests        FreteIntBidPedidoCotacoes[]
   bid_responses       FreteIntBidPropostas[]
 
   @@index([id_organizacao])
-  @@index([id_organizacao, product_id])
-  @@index([id_organizacao, user_id])
-  @@index([id_organizacao, status])
-  @@index([id_organizacao, company_id])
-  @@index([id_organizacao, created_at])
-  @@index([numero])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, status_cotacao_bid_frete])
+  @@index([id_organizacao, id_workspace])
+  @@index([id_organizacao, criado_em_cotacao_bid_frete])
+  @@index([numero_cotacao_bid_frete])
   @@map("bid_cotacoes")
 }
 
@@ -242,7 +248,7 @@ model FreteIntBidPedidoCotacoes {
   updated_at      DateTime          @updatedAt
 
   // Relacoes
-  cotacao         FreteIntBidCotacoes           @relation(fields: [cotacao_id], references: [id], onDelete: Cascade)
+  cotacao         FreteIntBidCotacoes           @relation(fields: [cotacao_id], references: [id_cotacao_bid_frete], onDelete: Cascade)
   fornecedor      FreteIntBidFornecedores        @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
   response        FreteIntBidPropostas?
 
@@ -301,7 +307,7 @@ model FreteIntBidPropostas {
 
   // Relacoes
   bid_request         FreteIntBidPedidoCotacoes        @relation(fields: [bid_request_id], references: [id], onDelete: Cascade)
-  cotacao             FreteIntBidCotacoes           @relation(fields: [cotacao_id], references: [id], onDelete: Cascade)
+  cotacao             FreteIntBidCotacoes           @relation(fields: [cotacao_id], references: [id_cotacao_bid_frete], onDelete: Cascade)
   fornecedor          FreteIntBidFornecedores        @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
   detalhes_taxas      FreteIntBidPropostasTaxasCambio[]
 
@@ -510,6 +516,27 @@ model FreteIntBidIntegracoes {
   @@index([id_organizacao, user_id])
   @@index([id_organizacao, fornecedor_id])
   @@map("bid_connector_configs")
+}
+
+// ─── STATUS DE COTAÇÃO (Configuração dinâmica por organização) ──────────────────
+
+model StatusCotacaoBidFrete {
+  id_status_cotacao_bid_frete                  String   @id @default(cuid())
+  id_organizacao                               String
+  nome_status_cotacao_bid_frete                String
+  rotulo_status_cotacao_bid_frete              String
+  cor_status_cotacao_bid_frete                 String
+  icone_status_cotacao_bid_frete               String?
+  ordem_status_cotacao_bid_frete               Int      @default(0)
+  padrao_status_cotacao_bid_frete              Boolean  @default(false)
+  gerenciado_sistema_status_cotacao_bid_frete  Boolean  @default(false)
+  data_criacao_status_cotacao_bid_frete        DateTime @default(now())
+  data_atualizacao_status_cotacao_bid_frete    DateTime @updatedAt
+
+  @@unique([id_organizacao, nome_status_cotacao_bid_frete])
+  @@index([id_organizacao])
+  @@index([id_organizacao, ordem_status_cotacao_bid_frete])
+  @@map("status_cotacao_bid_frete")
 }
 
 // ─── CACHE DE PORTOS E AEROPORTOS ──────────────────────────────────────────────

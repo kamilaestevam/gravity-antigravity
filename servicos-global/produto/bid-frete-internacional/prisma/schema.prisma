@@ -1,0 +1,586 @@
+// ──────────────────────────────────────────────────────────────────────────────
+// schema.prisma — ARQUIVO AUTO-GERADO
+// NÃO EDITAR MANUALMENTE. Edite schema.base.prisma ou fragment.prisma
+// Gerado por: node prisma/compose-schema.js
+// ──────────────────────────────────────────────────────────────────────────────
+
+// schema.base.prisma — BID Frete Internacional
+// Skill: antigravity-criar-produto (Passo 8)
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../server/src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelos específicos do BID Frete são definidos em fragment.prisma
+
+
+// ─── Fragment: BID Frete Internacional ──────────────────────────────────────────
+
+// fragment.prisma — BID Frete Internacional
+// REGRA: todo model DEVE ter id_organizacao (snake_case) e os 3 índices obrigatórios.
+// Skill: antigravity-tenant-isolation, antigravity-schema-composition
+
+// ─── ENUMS ─────────────────────────────────────────────────────────────────────
+
+enum BidFreteInternacionalTipoOperacao {
+  IMPORTACAO
+  EXPORTACAO
+  @@map("bid_frete_internacional_tipo_operacao")
+}
+
+enum BidFreteInternacionalModalidade {
+  MARITIMO
+  AEREO
+  RODOVIARIO
+  @@map("bid_frete_internacional_modalidade")
+}
+
+enum BidFreteInternacionalModalidadeCarga {
+  FCL
+  LCL
+  AEREO_GERAL
+  RODOVIARIO_FTL
+  RODOVIARIO_LTL
+  @@map("bid_frete_internacional_modalidade_carga")
+}
+
+enum BidFreteInternacionalStatusCotacao {
+  RASCUNHO
+  ENVIADA_FORNECEDORES
+  EM_COTACAO
+  AGUARDANDO_APROVACAO
+  APROVADA
+  REPROVADA
+  CANCELADA
+  FALTA_INFORMACAO
+  EXPIRADA
+  @@map("bid_frete_internacional_status_cotacao")
+}
+
+enum BidFreteInternacionalCanalDisparo {
+  EMAIL
+  WHATSAPP
+  API
+  PORTAL
+  @@map("bid_frete_internacional_canal_disparo")
+}
+
+enum BidFreteInternacionalStatusPedidoCotacao {
+  PENDENTE
+  ENVIADO
+  VISUALIZADO
+  RESPONDIDO
+  EXPIRADO
+  ERRO_ENVIO
+  @@map("bid_frete_internacional_status_pedido_cotacao")
+}
+
+enum BidFreteInternacionalStatusProposta {
+  RECEBIDA
+  EM_ANALISE
+  MELHOR_PRECO
+  MELHOR_TRANSIT
+  MELHOR_AVALIACAO
+  APROVADA
+  REPROVADA
+  @@map("bid_frete_internacional_status_proposta")
+}
+
+enum BidFreteInternacionalTipoFornecedor {
+  AGENTE_CARGA
+  ARMADOR
+  CIA_AEREA
+  TRANSPORTADORA
+  @@map("bid_frete_internacional_tipo_fornecedor")
+}
+
+enum BidFreteInternacionalStatusFornecedor {
+  ATIVO
+  INATIVO
+  PENDENTE_APROVACAO
+  BLOQUEADO
+  @@map("bid_frete_internacional_status_fornecedor")
+}
+
+enum BidFreteInternacionalVisibilidade {
+  DIRECIONADA
+  ABERTA
+  @@map("bid_frete_internacional_visibilidade")
+}
+
+enum BidFreteInternacionalTipoIntegracao {
+  API_REST
+  API_SOAP
+  ODATA
+  MANUAL
+  @@map("bid_frete_internacional_tipo_integracao")
+}
+
+// ─── FORNECEDOR ────────────────────────────────────────────────────────────────
+
+model BidFreteInternacionalFornecedor {
+  id_fornecedor_bid_frete_internacional              String            @id @default(cuid())
+  id_organizacao       String            // OBRIGATORIO — nunca nullable
+  id_produto_gravity      String?           // "bid-frete-internacional"
+  id_usuario         String?           // clerk_id se fornecedor logado (SUPPLIER)
+
+  // Dados cadastrais
+  nome_fornecedor_bid_frete_internacional            String
+  nome_fantasia_fornecedor_bid_frete_internacional   String?
+  tipo_fornecedor_bid_frete_internacional            BidFreteInternacionalTipoFornecedor
+  cnpj_fornecedor_bid_frete_internacional            String?
+  email_fornecedor_bid_frete_internacional           String
+  telefone_fornecedor_bid_frete_internacional        String?
+  whatsapp_fornecedor_bid_frete_internacional        String?
+  website_fornecedor_bid_frete_internacional         String?
+  pais_fornecedor_bid_frete_internacional            String?
+  cidade_fornecedor_bid_frete_internacional          String?
+  status_fornecedor_bid_frete_internacional          BidFreteInternacionalStatusFornecedor  @default(ATIVO)
+
+  // Vinculo com usuario SUPPLIER no Gravity
+  id_clerk_usuario   String?           // link com User.clerk_user_id do Configurador
+
+  // Flags
+  aceita_cotacao_aberta_fornecedor_bid_frete_internacional  Boolean    @default(true)
+  cotacao_automatica_fornecedor_bid_frete_internacional     Boolean    @default(false)  // usa tabela padrao automaticamente
+
+  data_criacao_fornecedor_bid_frete_internacional      DateTime          @default(now())
+  data_atualizacao_fornecedor_bid_frete_internacional      DateTime          @updatedAt
+
+  // Relacoes
+  tabelas_valor   BidFreteInternacionalTabelaValor[]
+  pedidos_cotacao    BidFreteInternacionalPedidoCotacao[]
+  propostas   BidFreteInternacionalProposta[]
+  avaliacoes      BidFreteInternacionalAvaliacao[]
+  integracoes      BidFreteInternacionalIntegracao[]
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, tipo_fornecedor_bid_frete_internacional])
+  @@index([id_organizacao, status_fornecedor_bid_frete_internacional])
+  @@index([email_fornecedor_bid_frete_internacional])
+  @@unique([id_organizacao, email_fornecedor_bid_frete_internacional])
+  @@map("bid_frete_internacional_fornecedores")
+}
+
+// ─── COTACAO ───────────────────────────────────────────────────────────────────
+
+model BidFreteInternacionalCotacao {
+  id_cotacao_bid_frete_internacional                  String              @id @default(cuid())
+  id_organizacao           String              // OBRIGATORIO
+  id_produto_gravity          String?             // "bid-frete-internacional"
+  id_usuario             String              // clerk_id do solicitante
+  id_workspace          String?             // workspace/filial
+
+  // Referencia
+  numero_cotacao_bid_frete_internacional              String              // auto-gerado: BID-YYYYMMDD-NNNN
+  referencia_interna_cotacao_bid_frete_internacional  String?             // PO do cliente (ex: IMP023/22)
+
+  // Operacao
+  tipo_operacao_cotacao_bid_frete_internacional       BidFreteInternacionalTipoOperacao
+  modal_cotacao_bid_frete_internacional               BidFreteInternacionalModalidade
+  modalidade_cotacao_bid_frete_internacional          BidFreteInternacionalModalidadeCarga
+
+  // Rota
+  origem_codigo_cotacao_bid_frete_internacional       String              // UN/LOCODE ou IATA
+  origem_nome_cotacao_bid_frete_internacional         String              // Nome legivel (ex: Shanghai)
+  origem_pais_cotacao_bid_frete_internacional         String
+  destino_codigo_cotacao_bid_frete_internacional      String
+  destino_nome_cotacao_bid_frete_internacional        String              // ex: Santos
+  destino_pais_cotacao_bid_frete_internacional        String
+
+  // Mercadoria
+  descricao_mercadoria_cotacao_bid_frete_internacional String
+  ncm_cotacao_bid_frete_internacional                 String?
+  quantidade_cotacao_bid_frete_internacional          Int                 @default(1)
+  tipo_container_cotacao_bid_frete_internacional      String?             // ex: 20' DRY, 40' HC
+  peso_kg_cotacao_bid_frete_internacional             Float?
+  cubagem_m3_cotacao_bid_frete_internacional          Float?
+
+  // Termos
+  incoterm_cotacao_bid_frete_internacional            String              // FOB, EXW, CIF, etc.
+  zipcode_origem_cotacao_bid_frete_internacional     String?             // para EXW
+  zipcode_destino_cotacao_bid_frete_internacional    String?
+
+  // Target
+  valor_meta_cotacao_bid_frete_internacional        Float?              // valor referencial que quer atingir
+  moeda_meta_cotacao_bid_frete_internacional        String?             @default("USD")
+
+  // Visibilidade
+  visibilidade_cotacao_bid_frete_internacional        BidFreteInternacionalVisibilidade @default(DIRECIONADA)
+  anonima_cotacao_bid_frete_internacional Boolean            @default(false)  // anonimato
+
+  // Status e datas
+  status_cotacao_bid_frete_internacional              BidFreteInternacionalStatusCotacao       @default(RASCUNHO)
+  data_limite_resposta_cotacao_bid_frete_internacional DateTime?
+  data_aprovacao_cotacao_bid_frete_internacional      DateTime?
+  data_cancelamento_cotacao_bid_frete_internacional   DateTime?
+  motivo_reprovacao_cotacao_bid_frete_internacional   String?
+  motivo_cancelamento_cotacao_bid_frete_internacional String?
+
+  // Fornecedor vencedor
+  id_fornecedor_vencedor_cotacao_bid_frete_internacional String?
+  ganho_valor_cotacao_bid_frete_internacional        Float?              // economia vs target ou media
+  ganho_percentual_cotacao_bid_frete_internacional   Float?
+
+  data_criacao_cotacao_bid_frete_internacional          DateTime            @default(now())
+  data_atualizacao_cotacao_bid_frete_internacional          DateTime            @updatedAt
+
+  // Relacoes
+  pedidos_cotacao        BidFreteInternacionalPedidoCotacao[]
+  propostas       BidFreteInternacionalProposta[]
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, status_cotacao_bid_frete_internacional])
+  @@index([id_organizacao, id_workspace])
+  @@index([id_organizacao, data_criacao_cotacao_bid_frete_internacional])
+  @@index([numero_cotacao_bid_frete_internacional])
+  @@map("bid_frete_internacional_cotacoes")
+}
+
+// ─── BID REQUEST (Disparo para fornecedor) ─────────────────────────────────────
+
+model BidFreteInternacionalPedidoCotacao {
+  id_pedido_cotacao_bid_frete_internacional              String            @id @default(cuid())
+  id_organizacao       String            // OBRIGATORIO
+  id_produto_gravity      String?           // "bid-frete-internacional"
+  id_usuario         String            // quem disparou
+
+  id_cotacao_bid_frete_internacional      String
+  id_fornecedor_bid_frete_internacional   String
+
+  // Disparo
+  canal_pedido_cotacao_bid_frete_internacional           BidFreteInternacionalCanalDisparo      @default(EMAIL)
+  status_pedido_cotacao_bid_frete_internacional          BidFreteInternacionalStatusPedidoCotacao  @default(PENDENTE)
+  data_envio_pedido_cotacao_bid_frete_internacional      DateTime?
+  data_visualizacao_pedido_cotacao_bid_frete_internacional  DateTime?
+  data_resposta_pedido_cotacao_bid_frete_internacional   DateTime?
+
+  // Link seguro para resposta externa (sem login)
+  token_resposta_pedido_cotacao_bid_frete_internacional  String?           @unique  // UUID para link publico
+  data_expiracao_token_pedido_cotacao_bid_frete_internacional DateTime?
+
+  // Mensagem enviada
+  id_mensagem_pedido_cotacao_bid_frete_internacional     String?           // ID da mensagem no Resend/WhatsApp
+  erro_envio_pedido_cotacao_bid_frete_internacional      String?
+
+  data_criacao_pedido_cotacao_bid_frete_internacional      DateTime          @default(now())
+  data_atualizacao_pedido_cotacao_bid_frete_internacional      DateTime          @updatedAt
+
+  // Relacoes
+  cotacao         BidFreteInternacionalCotacao           @relation(fields: [id_cotacao_bid_frete_internacional], references: [id_cotacao_bid_frete_internacional], onDelete: Cascade)
+  fornecedor      BidFreteInternacionalFornecedor        @relation(fields: [id_fornecedor_bid_frete_internacional], references: [id_fornecedor_bid_frete_internacional], onDelete: Cascade)
+  proposta        BidFreteInternacionalProposta?
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_cotacao_bid_frete_internacional])
+  @@index([id_organizacao, id_fornecedor_bid_frete_internacional])
+  @@index([token_resposta_pedido_cotacao_bid_frete_internacional])
+  @@map("bid_frete_internacional_pedidos_cotacao")
+}
+
+// ─── BID RESPONSE (Resposta do fornecedor) ─────────────────────────────────────
+
+model BidFreteInternacionalProposta {
+  id_proposta_bid_frete_internacional                  String            @id @default(cuid())
+  id_organizacao           String            // OBRIGATORIO
+  id_produto_gravity          String?           // "bid-frete-internacional"
+  id_usuario             String?           // clerk_id do fornecedor (se logado)
+
+  id_pedido_cotacao_bid_frete_internacional      String            @unique
+  id_cotacao_bid_frete_internacional          String
+  id_fornecedor_bid_frete_internacional       String
+
+  // Valores cotados
+  moeda_proposta_bid_frete_internacional               String            @default("USD")
+  valor_frete_proposta_bid_frete_internacional         Float             // frete internacional
+  taxas_origem_proposta_bid_frete_internacional        Float             @default(0)
+  taxas_destino_proposta_bid_frete_internacional       Float             @default(0)
+  valor_total_proposta_bid_frete_internacional         Float             // frete + taxas origem + taxas destino
+
+  // Prazos
+  dias_transito_proposta_bid_frete_internacional   Int               // tempo de transito em dias
+  dias_free_time_proposta_bid_frete_internacional      Int?              // free time demurrage
+  validade_proposta_bid_frete_internacional    DateTime          // data limite de validade da proposta
+
+  // Logistica
+  transbordos_proposta_bid_frete_internacional         Int               @default(0)
+  escalas_proposta_bid_frete_internacional             String?           // descricao das escalas
+  observacoes_proposta_bid_frete_internacional         String?
+
+  // Status e ranking
+  status_proposta_bid_frete_internacional              BidFreteInternacionalStatusProposta @default(RECEBIDA)
+  classificacao_valor_proposta_bid_frete_internacional       Int?              // posicao no ranking de preco
+  classificacao_transito_proposta_bid_frete_internacional     Int?              // posicao no ranking de transit time
+  classificacao_avaliacao_proposta_bid_frete_internacional   Int?              // posicao no ranking de avaliacao do fornecedor
+
+  // Origem da resposta
+  via_tabela_valor_proposta_bid_frete_internacional   Boolean           @default(false)  // veio da tabela de precos
+  via_api_proposta_bid_frete_internacional             Boolean           @default(false)   // veio de API do fornecedor
+  via_portal_proposta_bid_frete_internacional          Boolean           @default(false)   // fornecedor preencheu no portal
+  via_email_proposta_bid_frete_internacional           Boolean           @default(false)   // parseado do email
+
+  data_criacao_proposta_bid_frete_internacional          DateTime          @default(now())
+  data_atualizacao_proposta_bid_frete_internacional          DateTime          @updatedAt
+
+  // Relacoes
+  pedido_cotacao         BidFreteInternacionalPedidoCotacao        @relation(fields: [id_pedido_cotacao_bid_frete_internacional], references: [id_pedido_cotacao_bid_frete_internacional], onDelete: Cascade)
+  cotacao             BidFreteInternacionalCotacao           @relation(fields: [id_cotacao_bid_frete_internacional], references: [id_cotacao_bid_frete_internacional], onDelete: Cascade)
+  fornecedor          BidFreteInternacionalFornecedor        @relation(fields: [id_fornecedor_bid_frete_internacional], references: [id_fornecedor_bid_frete_internacional], onDelete: Cascade)
+  taxas      BidFreteInternacionalTaxa[]
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_cotacao_bid_frete_internacional])
+  @@index([id_organizacao, id_fornecedor_bid_frete_internacional])
+  @@index([id_organizacao, valor_total_proposta_bid_frete_internacional])
+  @@map("bid_frete_internacional_propostas")
+}
+
+// ─── DETALHE TAXA (breakdown de custos) ────────────────────────────────────────
+
+model BidFreteInternacionalTaxa {
+  id_taxa_bid_frete_internacional              String        @id @default(cuid())
+  id_organizacao       String        // OBRIGATORIO
+  id_proposta_bid_frete_internacional     String
+
+  tipo_taxa_bid_frete_internacional            String        // "origem" | "destino" | "frete"
+  nome_taxa_bid_frete_internacional            String        // ex: "THC", "BL Fee", "ISPS", "Bunker"
+  valor_taxa_bid_frete_internacional           Float
+  moeda_taxa_bid_frete_internacional           String        @default("USD")
+
+  proposta        BidFreteInternacionalProposta   @relation(fields: [id_proposta_bid_frete_internacional], references: [id_proposta_bid_frete_internacional], onDelete: Cascade)
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_proposta_bid_frete_internacional])
+  @@map("bid_frete_internacional_taxas")
+}
+
+// ─── TABELA DE PRECOS PADRAO ───────────────────────────────────────────────────
+
+model BidFreteInternacionalTabelaValor {
+  id_tabela_valor_bid_frete_internacional              String          @id @default(cuid())
+  id_organizacao       String          // OBRIGATORIO (tenant do fornecedor)
+  id_produto_gravity      String?         // "bid-frete-internacional"
+  id_usuario         String?         // clerk_id do fornecedor
+
+  id_fornecedor_bid_frete_internacional   String
+
+  // Rota
+  origem_codigo_tabela_valor_bid_frete_internacional   String
+  origem_nome_tabela_valor_bid_frete_internacional     String
+  destino_codigo_tabela_valor_bid_frete_internacional  String
+  destino_nome_tabela_valor_bid_frete_internacional    String
+  modal_tabela_valor_bid_frete_internacional           BidFreteInternacionalModalidade
+  modalidade_tabela_valor_bid_frete_internacional      BidFreteInternacionalModalidadeCarga
+
+  // Valores
+  moeda_tabela_valor_bid_frete_internacional           String          @default("USD")
+  valor_frete_tabela_valor_bid_frete_internacional     Float
+  taxas_origem_tabela_valor_bid_frete_internacional    Float           @default(0)
+  taxas_destino_tabela_valor_bid_frete_internacional   Float           @default(0)
+  valor_total_tabela_valor_bid_frete_internacional     Float
+
+  // Prazos
+  dias_transito_tabela_valor_bid_frete_internacional Int
+  dias_free_time_tabela_valor_bid_frete_internacional    Int?
+
+  // Validade
+  validade_inicio_tabela_valor_bid_frete_internacional DateTime
+  validade_fim_tabela_valor_bid_frete_internacional    DateTime
+  ativa_tabela_valor_bid_frete_internacional           Boolean         @default(true)
+
+  data_criacao_tabela_valor_bid_frete_internacional      DateTime        @default(now())
+  data_atualizacao_tabela_valor_bid_frete_internacional      DateTime        @updatedAt
+
+  fornecedor      BidFreteInternacionalFornecedor      @relation(fields: [id_fornecedor_bid_frete_internacional], references: [id_fornecedor_bid_frete_internacional], onDelete: Cascade)
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_fornecedor_bid_frete_internacional])
+  @@index([origem_codigo_tabela_valor_bid_frete_internacional, destino_codigo_tabela_valor_bid_frete_internacional, modal_tabela_valor_bid_frete_internacional])
+  @@index([validade_fim_tabela_valor_bid_frete_internacional])
+  @@map("bid_frete_internacional_tabelas_valor")
+}
+
+// ─── AVALIACAO (Rating manual + automatico) ────────────────────────────────────
+
+model BidFreteInternacionalAvaliacao {
+  id_avaliacao_bid_frete_internacional              String        @id @default(cuid())
+  id_organizacao       String        // OBRIGATORIO
+  id_produto_gravity      String?       // "bid-frete-internacional"
+  id_usuario         String        // quem avaliou
+
+  id_fornecedor_bid_frete_internacional   String
+  id_cotacao_bid_frete_internacional      String?       // cotacao vinculada (opcional)
+
+  // Notas manuais (1-5)
+  nota_frete_avaliacao_bid_frete_internacional      Int?          // qualidade do preco
+  nota_atendimento_avaliacao_bid_frete_internacional Int?         // qualidade do atendimento
+  nota_resposta_avaliacao_bid_frete_internacional   Int?          // velocidade de resposta
+  nota_confiabilidade_avaliacao_bid_frete_internacional Int?      // cumpriu o combinado
+  nota_geral_avaliacao_bid_frete_internacional      Float?        // media calculada
+
+  comentario_avaliacao_bid_frete_internacional      String?
+
+  data_criacao_avaliacao_bid_frete_internacional      DateTime      @default(now())
+  data_atualizacao_avaliacao_bid_frete_internacional      DateTime      @updatedAt
+
+  fornecedor      BidFreteInternacionalFornecedor    @relation(fields: [id_fornecedor_bid_frete_internacional], references: [id_fornecedor_bid_frete_internacional], onDelete: Cascade)
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_fornecedor_bid_frete_internacional])
+  @@map("bid_frete_internacional_avaliacoes")
+}
+
+// ─── RATING AUTOMATICO (Calculado pelo sistema — GLOBAL cross-tenant) ──────────
+
+model BidFreteInternacionalClassificacao {
+  id_classificacao_bid_frete_internacional                    String    @id @default(cuid())
+  email_fornecedor_classificacao_bid_frete_internacional      String    @unique  // chave global (cross-tenant)
+
+  // Metricas agregadas
+  total_cotacoes_recebidas_classificacao_bid_frete_internacional  Int   @default(0)
+  total_cotacoes_respondidas_classificacao_bid_frete_internacional Int  @default(0)
+  total_cotacoes_aprovadas_classificacao_bid_frete_internacional  Int   @default(0)
+  taxa_resposta_classificacao_bid_frete_internacional             Float @default(0)  // % respondidas
+  taxa_aprovacao_classificacao_bid_frete_internacional            Float @default(0)  // % aprovadas
+  tempo_medio_resposta_horas_classificacao_bid_frete_internacional Float @default(0)
+  aderencia_meta_classificacao_bid_frete_internacional          Float @default(0)  // % dentro do target
+
+  // Rating consolidado (0-5)
+  nota_global_classificacao_bid_frete_internacional             Float @default(0)
+
+  // Notas manuais agregadas (media de todos os tenants)
+  media_frete_classificacao_bid_frete_internacional               Float @default(0)
+  media_atendimento_classificacao_bid_frete_internacional         Float @default(0)
+  media_resposta_classificacao_bid_frete_internacional            Float @default(0)
+  media_confiabilidade_classificacao_bid_frete_internacional      Float @default(0)
+  total_avaliacoes_classificacao_bid_frete_internacional          Int   @default(0)
+
+  data_atualizacao_classificacao_bid_frete_internacional                DateTime @updatedAt
+
+  @@index([nota_global_classificacao_bid_frete_internacional])
+  @@index([email_fornecedor_classificacao_bid_frete_internacional])
+  @@map("bid_frete_internacional_classificacoes")
+}
+
+// ─── SAVING (Registro de economia por cotacao) ─────────────────────────────────
+
+model BidFreteInternacionalGanho {
+  id_ganho_bid_frete_internacional              String    @id @default(cuid())
+  id_organizacao       String    // OBRIGATORIO
+  id_produto_gravity      String?   // "bid-frete-internacional"
+  id_usuario         String
+
+  id_cotacao_bid_frete_internacional      String
+  id_workspace      String?
+
+  // Valores
+  valor_meta_ganho_bid_frete_internacional    Float?    // valor referencial
+  valor_aprovado_ganho_bid_frete_internacional  Float     // valor do fornecedor aprovado
+  valor_medio_ganho_bid_frete_internacional     Float?    // media de todas as respostas
+  ganho_vs_meta_ganho_bid_frete_internacional    Float?  // economia vs target
+  ganho_vs_media_ganho_bid_frete_internacional     Float?  // economia vs media
+  ganho_percentual_ganho_bid_frete_internacional   Float?
+  moeda_ganho_bid_frete_internacional           String    @default("USD")
+
+  data_criacao_ganho_bid_frete_internacional      DateTime  @default(now())
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_workspace])
+  @@index([id_organizacao, data_criacao_ganho_bid_frete_internacional])
+  @@map("bid_frete_internacional_ganhos")
+}
+
+// ─── CONNECTOR CONFIG (Integracao com APIs externas) ───────────────────────────
+
+model BidFreteInternacionalIntegracao {
+  id_integracao_bid_frete_internacional              String        @id @default(cuid())
+  id_organizacao       String        // OBRIGATORIO
+  id_produto_gravity      String?       // "bid-frete-internacional"
+  id_usuario         String?
+
+  id_fornecedor_bid_frete_internacional   String?       // null = conector ERP/SAP do cliente
+  nome_integracao_bid_frete_internacional            String        // ex: "MSC API", "Maersk Spot", "SAP OData"
+  tipo_integracao_bid_frete_internacional            BidFreteInternacionalTipoIntegracao
+  ativo_integracao_bid_frete_internacional           Boolean       @default(false)
+
+  // Configuracao (criptografada)
+  base_url_integracao_bid_frete_internacional        String?
+  api_key_hash_integracao_bid_frete_internacional    String?       // AES-256-GCM
+  tipo_autenticacao_integracao_bid_frete_internacional       String?       // "bearer" | "basic" | "oauth2" | "api_key"
+  headers_extra_integracao_bid_frete_internacional   String?       // JSON de headers adicionais
+  config_extra_integracao_bid_frete_internacional    String?       // JSON livre para configs especificas
+
+  // Health
+  data_ultimo_teste_integracao_bid_frete_internacional   DateTime?
+  ultimo_teste_ok_integracao_bid_frete_internacional   Boolean?
+  erro_ultimo_teste_integracao_bid_frete_internacional String?
+
+  data_criacao_integracao_bid_frete_internacional      DateTime      @default(now())
+  data_atualizacao_integracao_bid_frete_internacional      DateTime      @updatedAt
+
+  fornecedor      BidFreteInternacionalFornecedor?   @relation(fields: [id_fornecedor_bid_frete_internacional], references: [id_fornecedor_bid_frete_internacional], onDelete: SetNull)
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_fornecedor_bid_frete_internacional])
+  @@map("bid_frete_internacional_integracoes")
+}
+
+// ─── CACHE DE PORTOS E AEROPORTOS ──────────────────────────────────────────────
+
+model BidFreteInternacionalPorto {
+  codigo_porto_bid_frete_internacional      String    @id        // UN/LOCODE (ex: BRSSZ, CNSHA)
+  nome_porto_bid_frete_internacional        String               // Santos, Shanghai
+  pais_porto_bid_frete_internacional        String
+  pais_codigo_porto_bid_frete_internacional String               // BR, CN
+  tipo_porto_bid_frete_internacional        String               // "porto" | "aeroporto" | "rodoviario"
+  latitude_porto_bid_frete_internacional    Float?
+  longitude_porto_bid_frete_internacional   Float?
+  ativo_porto_bid_frete_internacional       Boolean   @default(true)
+
+  @@index([pais_codigo_porto_bid_frete_internacional])
+  @@index([tipo_porto_bid_frete_internacional])
+  @@index([nome_porto_bid_frete_internacional])
+  @@map("bid_frete_internacional_portos")
+}
+
+// ─── DASHBOARD PANEL GLOBAL (Compartilhado com outros produtos no mesmo banco) ───
+
+model DashboardPainelUsuarioGlobal {
+  id_dashboard_painel_usuario_global               String   @id @default(cuid())
+  id_organizacao                                   String
+  id_usuario                                       String
+  nome_dashboard_painel_usuario_global             String
+  ordem_dashboard_painel_usuario_global            Int      @default(0)
+  visivel_dashboard_painel_usuario_global          Boolean  @default(true)
+  widgets_json_dashboard_painel_usuario_global     String   @default("[]") @db.Text
+  data_criacao_dashboard_painel_usuario_global     DateTime @default(now())
+  data_atualizacao_dashboard_painel_usuario_global DateTime @updatedAt
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_usuario])
+  @@map("dashboard_painel_usuario_global")
+}
+
+

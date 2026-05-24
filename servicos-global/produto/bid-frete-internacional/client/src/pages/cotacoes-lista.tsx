@@ -6,7 +6,7 @@
  * persistência de colunas, edição inline e precisão numérica reativa.
  */
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
@@ -51,14 +51,54 @@ import {
   RenderModalIcon,
 } from './colunas-cotacoes'
 
-// ─── Tabs de filtro ───
+// ─── Status Config (localStorage) ───
 
-const abas = [
-  { valor: 'TODAS', label: 'Todas as cotações' },
-  { valor: 'DATA_LIMITE', label: 'Data limite para resposta' },
-  { valor: 'PROXIMO_VENCIMENTO', label: 'Próximos ao vencimento' },
-  { valor: 'FALTA_INFORMACAO', label: 'Falta de informação' },
+interface StatusConfig {
+  id: string
+  nome: string
+  rotulo: string
+  cor: string
+  ordem: number
+  is_sistema: boolean
+}
+
+const STATUS_CONFIG_KEY = 'bid-frete:config:status'
+
+/** 9 status canônicos como fallback quando localStorage está vazio */
+const STATUS_CANONICOS: StatusConfig[] = [
+  { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
+  { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
+  { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
+  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
+  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: false },
+  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: false },
+  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: false },
+  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, is_sistema: false },
+  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, is_sistema: false },
 ]
+
+/** Lê status do localStorage (sincronizado pelo Configurações) */
+function lerStatusConfig(): StatusConfig[] {
+  try {
+    const raw = localStorage.getItem(STATUS_CONFIG_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch { /* storage indisponível */ }
+  return STATUS_CANONICOS
+}
+
+/** Gera abas dinâmicas a partir da lista de status config */
+function gerarAbasDinamicas(statusList: StatusConfig[]): Array<{ valor: string; label: string }> {
+  const abas: Array<{ valor: string; label: string }> = [
+    { valor: 'TODAS', label: 'Todas as cotações' },
+  ]
+  for (const s of statusList) {
+    abas.push({ valor: s.nome, label: s.rotulo })
+  }
+  return abas
+}
 
 // ─── Campos Editáveis Inline ───
 
@@ -134,6 +174,21 @@ export default function Cotacoes() {
   }, [searchParams, setSearchParams, isNovaCotacao])
 
   const [filtroTab, setFiltroTab] = useState('TODAS')
+
+  // ─── Status Config dinâmico (sincronizado com Configurações via localStorage) ───
+  const [statusConfig, setStatusConfig] = useState<StatusConfig[]>(lerStatusConfig)
+
+  useEffect(() => {
+    const handleStorage = () => setStatusConfig(lerStatusConfig())
+    window.addEventListener('storage', handleStorage)
+    window.addEventListener('focus', handleStorage)
+    return () => {
+      window.removeEventListener('storage', handleStorage)
+      window.removeEventListener('focus', handleStorage)
+    }
+  }, [])
+
+  const abas = useMemo(() => gerarAbasDinamicas(statusConfig), [statusConfig])
 
   // Carrega configurações de cards do Configurador (Internacional)
   const [cardsPref, setCardsPref] = useState<{ id: string; visible: boolean }[]>(() => {
@@ -261,13 +316,9 @@ export default function Cotacoes() {
   const cotacoesFiltradas = useMemo(() => {
     let result = cotacoes
 
-    // Filtro por abas
-    if (filtroTab === 'DATA_LIMITE') {
-      result = result.filter(c => c.status === 'AGUARDANDO_APROVACAO')
-    } else if (filtroTab === 'PROXIMO_VENCIMENTO') {
-      result = result.filter(c => c.status === 'EM_COTACAO')
-    } else if (filtroTab === 'FALTA_INFORMACAO') {
-      result = result.filter(c => c.status === 'FALTA_INFORMACAO')
+    // Filtro por abas dinâmicas (nome do status ou "TODAS")
+    if (filtroTab !== 'TODAS') {
+      result = result.filter(c => c.status === filtroTab)
     }
 
     // Filtro por busca
@@ -291,7 +342,7 @@ export default function Cotacoes() {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: 'Ver detalhes',
-      onClick: (item: Cotacao) => navigate(`/cotacoes/${item.id}`),
+      onClick: (item: Cotacao) => navigate(`/produto/bid-frete/cotacoes/${item.id}`),
     },
   ], [navigate])
 
@@ -332,7 +383,7 @@ export default function Cotacoes() {
             type="button"
             className="lp-dropdown-btn"
             onClick={() => {
-              navigate('/cotacoes/nova')
+              navigate('/produto/bid-frete/cotacoes/nova')
               setNovoDropdownAberto(false)
             }}
           >
@@ -349,7 +400,7 @@ export default function Cotacoes() {
             type="button"
             className="lp-dropdown-btn"
             onClick={() => {
-              navigate('/cotacoes/importar')
+              navigate('/produto/bid-frete/cotacoes/importar')
               setNovoDropdownAberto(false)
             }}
           >
@@ -702,12 +753,6 @@ export default function Cotacoes() {
   return (
     <PaginaGlobal
       className="bf-cotacoes"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<FileText weight="duotone" size={22} />}
-          titulo={visao === 'kanban' ? 'Kanban' : t('bidfrete.cotacoes.titulo')}
-        />
-      }
     >
       {/* ── KPI cards (Configuração dinâmica com sincronização do local storage) ── */}
       {visao === 'lista' && (

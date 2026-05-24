@@ -26,6 +26,7 @@ import {
   ChartBar, TrendUp, TrendDown, Percent, Target, Lightning, Star,
   Heart, Fire, Trophy, Medal, Crown, Diamond,
 } from '@phosphor-icons/react'
+import type { TFunction } from 'i18next'
 import type { Pedido, PedidoItem } from './types'
 import { fmtMoeda, fmtQuantidade } from './types'
 
@@ -103,9 +104,9 @@ export interface CardRegistryEntry {
   /** Formata o valor para exibição (string ou number) */
   format: (value: number) => string | number
   /** Subtexto abaixo do valor */
-  subtexto: (stats: CardComputedStats) => string
+  subtexto: (t: TFunction, stats: CardComputedStats) => string
   /** Conteúdo JSX do tooltip hover */
-  tooltip: (pedidos: Pedido[], stats: CardComputedStats) => React.ReactNode
+  tooltip: (t: TFunction, pedidos: Pedido[], stats: CardComputedStats) => React.ReactNode
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -133,11 +134,11 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     icone:    ic(Package, 'var(--ws-accent, #818cf8)'),
     getValue: s => s.total,
     format:   v => v,
-    subtexto: s => `${s.nItens} itens no total`,
-    tooltip:  (pedidos) => <>
-      {row('Abertos',      pedidos.filter(p => p.status === 'aberto').length)}
-      {row('Em andamento', pedidos.filter(p => p.status === 'transferencia').length)}
-      {row('Concluídos',   pedidos.filter(p => p.status === 'consolidado').length)}
+    subtexto: (t, s) => t('pedido.cards.total_pedidos.subtexto', { count: s.nItens }),
+    tooltip:  (t, pedidos) => <>
+      {row(t('pedido.cards.total_pedidos.row.abertos'),      pedidos.filter(p => p.status === 'aberto').length)}
+      {row(t('pedido.cards.total_pedidos.row.em_andamento'), pedidos.filter(p => p.status === 'transferencia').length)}
+      {row(t('pedido.cards.total_pedidos.row.concluidos'),   pedidos.filter(p => p.status === 'consolidado').length)}
     </>,
   },
 
@@ -146,10 +147,10 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     variante: 'sucesso',
     getValue: s => s.valorTotal,
     format:   v => fmtMoeda(v),
-    subtexto: () => 'Soma de todos os pedidos',
-    tooltip:  (pedidos, s) => <>
-      {row('Moeda',          'USD')}
-      {row('Média por pedido', fmtMoeda(pedidos.length ? s.valorTotal / pedidos.length : 0))}
+    subtexto: (t) => t('pedido.cards.valor_total.subtexto'),
+    tooltip:  (t, pedidos, s) => <>
+      {row(t('pedido.cards.valor_total.row.moeda'),            'USD')}
+      {row(t('pedido.cards.valor_total.row.media_por_pedido'), fmtMoeda(pedidos.length ? s.valorTotal / pedidos.length : 0))}
     </>,
   },
 
@@ -158,10 +159,10 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     variante: 'aviso',
     getValue: s => s.qtdTotal,
     format:   v => fmtQuantidade(v),
-    subtexto: s => `${fmtQuantidade(s.qtdAtualTotal)} saldo atual`,
-    tooltip:  (_, s) => <>
-      {row('Pronto',       fmtQuantidade(s.itensProntos))}
-      {row('Saldo vivo',   fmtQuantidade(s.qtdAtualTotal))}
+    subtexto: (t, s) => t('pedido.cards.qtd_total.subtexto', { saldo: fmtQuantidade(s.qtdAtualTotal) }),
+    tooltip:  (t, _, s) => <>
+      {row(t('pedido.cards.qtd_total.row.pronto'),     fmtQuantidade(s.itensProntos))}
+      {row(t('pedido.cards.qtd_total.row.saldo_vivo'), fmtQuantidade(s.qtdAtualTotal))}
     </>,
   },
 
@@ -170,24 +171,24 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     variante: 'perigo',
     getValue: s => s.pedidosAtrasados,
     format:   v => v,
-    subtexto: () => 'Pedidos com prazo vencido',
-    tooltip:  (_, s) => row('Atrasados', s.pedidosAtrasados),
+    subtexto: (t) => t('pedido.cards.pedidos_atrasados.subtexto'),
+    tooltip:  (t, _, s) => row(t('pedido.cards.pedidos_atrasados.row.atrasados'), s.pedidosAtrasados),
   },
 
   pedidos_abertos: {
     icone:    ic(ClipboardText, '#60a5fa'),
     getValue: s => s.pedidosAbertos,
     format:   v => v,
-    subtexto: () => 'Pedidos com status aberto',
-    tooltip:  (_, s) => row('Abertos', s.pedidosAbertos),
+    subtexto: (t) => t('pedido.cards.pedidos_abertos.subtexto'),
+    tooltip:  (t, _, s) => row(t('pedido.cards.pedidos_abertos.row.abertos'), s.pedidosAbertos),
   },
 
   pedidos_em_andamento: {
     icone:    ic(ArrowRight, '#a78bfa'),
     getValue: s => s.pedidosEmAndamento,
     format:   v => v,
-    subtexto: () => 'Pedidos em andamento',
-    tooltip:  (_, s) => row('Em andamento', s.pedidosEmAndamento),
+    subtexto: (t) => t('pedido.cards.pedidos_em_andamento.subtexto'),
+    tooltip:  (t, _, s) => row(t('pedido.cards.pedidos_em_andamento.row.em_andamento'), s.pedidosEmAndamento),
   },
 
   cobertura_pendente: {
@@ -195,9 +196,9 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     variante: 'perigo',
     getValue: s => s.coberturaPend,
     format:   v => fmtMoeda(v),
-    subtexto: () => 'Sem cobertura cambial',
-    tooltip:  (pedidos) => row(
-      'Aguardando cobertura',
+    subtexto: (t) => t('pedido.cards.cobertura_pendente.subtexto'),
+    tooltip:  (t, pedidos) => row(
+      t('pedido.cards.cobertura_pendente.row.aguardando_cobertura'),
       pedidos.filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'sem_cobertura')).length,
     ),
   },
@@ -209,19 +210,19 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     variante: 'sucesso',
     getValue: s => s.itensProntos,
     format:   v => fmtQuantidade(v),
-    subtexto: () => 'Itens com produção concluída',
-    tooltip:  (_, s) => row('Prontos', fmtQuantidade(s.itensProntos)),
+    subtexto: (t) => t('pedido.cards.itens_prontos.subtexto'),
+    tooltip:  (t, _, s) => row(t('pedido.cards.itens_prontos.row.prontos'), fmtQuantidade(s.itensProntos)),
   },
 
   qtd_atual_total: {
     icone:    ic(Gauge, '#38bdf8'),
     getValue: s => s.qtdAtualTotal,
     format:   v => fmtQuantidade(v),
-    subtexto: () => 'Saldo disponível de todos os itens',
-    tooltip:  (_, s) => <>
-      {row('Saldo atual',    fmtQuantidade(s.qtdAtualTotal))}
-      {row('Qtd inicial',    fmtQuantidade(s.qtdInicial))}
-      {row('Transferido',    fmtQuantidade(s.qtdTransferida))}
+    subtexto: (t) => t('pedido.cards.qtd_atual_total.subtexto'),
+    tooltip:  (t, _, s) => <>
+      {row(t('pedido.cards.qtd_atual_total.row.saldo_atual'),  fmtQuantidade(s.qtdAtualTotal))}
+      {row(t('pedido.cards.qtd_atual_total.row.qtd_inicial'),  fmtQuantidade(s.qtdInicial))}
+      {row(t('pedido.cards.qtd_atual_total.row.transferido'),  fmtQuantidade(s.qtdTransferida))}
     </>,
   },
 
@@ -229,10 +230,10 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     icone:    ic(ArrowsLeftRight, '#a3e635'),
     getValue: s => s.qtdTransferida,
     format:   v => fmtQuantidade(v),
-    subtexto: () => 'Já alocado em processos logísticos',
-    tooltip:  (_, s) => <>
-      {row('Transferido',  fmtQuantidade(s.qtdTransferida))}
-      {row('% do total',   s.qtdInicial > 0 ? `${((s.qtdTransferida / s.qtdInicial) * 100).toFixed(1)}%` : '—')}
+    subtexto: (t) => t('pedido.cards.qtd_transferida_total.subtexto'),
+    tooltip:  (t, _, s) => <>
+      {row(t('pedido.cards.qtd_transferida_total.row.transferido'), fmtQuantidade(s.qtdTransferida))}
+      {row(t('pedido.cards.qtd_transferida_total.row.percentual'),  s.qtdInicial > 0 ? `${((s.qtdTransferida / s.qtdInicial) * 100).toFixed(1)}%` : '—')}
     </>,
   },
 
@@ -240,10 +241,10 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     icone:    ic(StackSimple, '#94a3b8'),
     getValue: s => s.qtdInicial,
     format:   v => fmtQuantidade(v),
-    subtexto: () => 'Soma das quantidades originais dos itens',
-    tooltip:  (_, s) => <>
-      {row('Qtd inicial',  fmtQuantidade(s.qtdInicial))}
-      {row('Saldo vivo',   fmtQuantidade(s.qtdAtualTotal))}
+    subtexto: (t) => t('pedido.cards.qtd_inicial_total.subtexto'),
+    tooltip:  (t, _, s) => <>
+      {row(t('pedido.cards.qtd_inicial_total.row.qtd_inicial'), fmtQuantidade(s.qtdInicial))}
+      {row(t('pedido.cards.qtd_inicial_total.row.saldo_vivo'),  fmtQuantidade(s.qtdAtualTotal))}
     </>,
   },
 
@@ -252,10 +253,10 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     variante: 'aviso',
     getValue: s => s.valorItens,
     format:   v => fmtMoeda(v),
-    subtexto: () => 'Soma do valor de todos os itens',
-    tooltip:  (pedidos, s) => <>
-      {row('Total itens',    fmtMoeda(s.valorItens))}
-      {row('Média por item', fmtMoeda(s.nItens > 0 ? s.valorItens / s.nItens : 0))}
+    subtexto: (t) => t('pedido.cards.valor_itens_total.subtexto'),
+    tooltip:  (t, _pedidos, s) => <>
+      {row(t('pedido.cards.valor_itens_total.row.total_itens'),    fmtMoeda(s.valorItens))}
+      {row(t('pedido.cards.valor_itens_total.row.media_por_item'), fmtMoeda(s.nItens > 0 ? s.valorItens / s.nItens : 0))}
     </>,
   },
 }
@@ -336,7 +337,7 @@ export function buildCustomCardEntry(card: CardUsuario): CardRegistryEntry {
     getValue: (stats) => avaliarFormulaCustom(card.formula_expressao, stats),
     format: (v) => fmtQuantidade(v),
     subtexto: () => card.nome,
-    tooltip: (_, stats) => row('Valor', fmtQuantidade(avaliarFormulaCustom(card.formula_expressao, stats))),
+    tooltip: (t, _, stats) => row(t('pedido.cards.custom.row.valor'), fmtQuantidade(avaliarFormulaCustom(card.formula_expressao, stats))),
   }
 }
 

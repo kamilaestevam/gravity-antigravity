@@ -48,7 +48,7 @@ import {
 } from '@phosphor-icons/react'
 
 import { DEMO_KPIS, DEMO_CALENDARIO, DEMO_MENSAL, DEMO_MODAL, DEMO_MELHOR_COTACAO, DEMO_INCOTERMS } from '../shared/demo-data'
-import { STATUS_LABELS, MODAL_LABELS } from '../shared/types'
+import { STATUS_LABELS, MODAL_LABELS, CalendarioAlerta } from '../shared/types'
 import type { StatusCotacao } from '../shared/types'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -905,20 +905,22 @@ interface ArcRoute {
   color: string
   heightFactor?: number // Custom height factor to avoid overlapping curves
   mode: 'MARITIMO' | 'AEREO'
+  transitTime?: number
+  marketTransitTime?: number
 }
 
 const GLOBE_ROUTES: ArcRoute[] = [
   // 70% China (Shanghai) -> Guarulhos (São Paulo)
-  { fromId: 1, toId: 2, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.14, mode: 'MARITIMO' }, // Maritime route (emerald green, slow)
-  { fromId: 1, toId: 2, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.22, mode: 'AEREO' }, // Air route (purple, fast)
+  { fromId: 1, toId: 2, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.14, mode: 'MARITIMO', transitTime: 28, marketTransitTime: 31 }, // Maritime route (emerald green, slow)
+  { fromId: 1, toId: 2, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.22, mode: 'AEREO', transitTime: 3, marketTransitTime: 5 }, // Air route (purple, fast)
 
   // 20% USA (Miami) -> Itajaí
-  { fromId: 4, toId: 3, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.20, mode: 'AEREO' }, // Air route (purple, fast)
-  { fromId: 4, toId: 3, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.13, mode: 'MARITIMO' }, // Maritime route (emerald green, slow)
+  { fromId: 4, toId: 3, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.20, mode: 'AEREO', transitTime: 2, marketTransitTime: 4 }, // Air route (purple, fast)
+  { fromId: 4, toId: 3, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.13, mode: 'MARITIMO', transitTime: 18, marketTransitTime: 21 }, // Maritime route (emerald green, slow)
 
   // 10% Argentina (Buenos Aires) -> Recife
-  { fromId: 5, toId: 6, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.15, mode: 'MARITIMO' }, // Maritime route (emerald green, slow)
-  { fromId: 5, toId: 6, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.24, mode: 'AEREO' }, // Air route (purple, fast)
+  { fromId: 5, toId: 6, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.15, mode: 'MARITIMO', transitTime: 8, marketTransitTime: 11 }, // Maritime route (emerald green, slow)
+  { fromId: 5, toId: 6, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.24, mode: 'AEREO', transitTime: 3, marketTransitTime: 4 }, // Air route (purple, fast)
 ]
 
 interface RouteDetail {
@@ -1005,7 +1007,8 @@ interface VisaoGeralMapaProps {
 function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
   const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modal_cotacao_bid_frete_internacional'>('origens')
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
-  const [selectedPinForModalResumido, setSelectedPinForModalResumido] = useState<number | null>(null)
+  const [selectedPinForDialogoResumido, setSelectedPinForDialogoResumido] = useState<number | null>(null)
+  const [mapaModo, setMapaModo] = useState<'bids' | 'transit'>('bids')
   
   const hoveredPinRef = useRef<number | null>(null)
   useEffect(() => {
@@ -1313,7 +1316,20 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
         
         // Draw the arc path
         const isBack = avgDepth < -0.05
-        ctx.strokeStyle = route.color
+        
+        let routeStrokeColor = route.color
+        if (mapaModo === 'transit') {
+          const tClient = route.transitTime || 20
+          const tMarket = route.marketTransitTime || 23
+          if (tClient < tMarket) {
+            routeStrokeColor = 'rgba(52, 211, 153, 0.85)' // emerald green (efficient)
+          } else if (tClient === tMarket) {
+            routeStrokeColor = 'rgba(251, 191, 36, 0.85)' // amber (same)
+          } else {
+            routeStrokeColor = 'rgba(248, 113, 113, 0.85)' // red (slow)
+          }
+        }
+        ctx.strokeStyle = routeStrokeColor
         
         const currentHovered = hoveredPinRef.current
         const isRouteDirectSource = currentHovered !== null && (route.fromId === currentHovered || route.toId === currentHovered)
@@ -1341,12 +1357,17 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
         
         // Draw animated marching-ants dashed line on top for clear flow direction
         if (!isBack && (currentHovered === null || isRouteDirectSource)) {
-          ctx.strokeStyle = route.color
+          ctx.strokeStyle = routeStrokeColor
           ctx.lineWidth = isRouteDirectSource ? 3.5 : 2.0
           ctx.setLineDash([5, 8])
           // Negative offset moves the dash pattern from start to end (fromId -> toId)
           const isMaritime = route.mode === 'MARITIMO'
-          ctx.lineDashOffset = -(Date.now() / (isMaritime ? 320 : 32)) % 100
+          let pulseSpeedDivider = isMaritime ? 320 : 32
+          if (mapaModo === 'transit') {
+            const tClient = route.transitTime || 20
+            pulseSpeedDivider = isMaritime ? (tClient * 12) : (tClient * 10)
+          }
+          ctx.lineDashOffset = -(Date.now() / pulseSpeedDivider) % 100
           
           ctx.beginPath()
           ctx.moveTo(pathPoints[0].sx, pathPoints[0].sy)
@@ -1368,7 +1389,21 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
               ctx.save()
               ctx.translate(p1.sx, p1.sy)
               ctx.rotate(angle)
-              ctx.strokeStyle = route.mode === 'AEREO' ? '#c084fc' : '#34d399'
+              
+              let chevronColor = route.mode === 'AEREO' ? '#c084fc' : '#34d399'
+              if (mapaModo === 'transit') {
+                const tClient = route.transitTime || 20
+                const tMarket = route.marketTransitTime || 23
+                if (tClient < tMarket) {
+                  chevronColor = '#34d399'
+                } else if (tClient === tMarket) {
+                  chevronColor = '#fbbf24'
+                } else {
+                  chevronColor = '#f87171'
+                }
+              }
+              ctx.strokeStyle = chevronColor
+              
               ctx.lineWidth = isRouteDirectSource ? 3.0 : 2.0
               ctx.lineCap = 'round'
               ctx.lineJoin = 'round'
@@ -1389,7 +1424,12 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
           // Draw 2 staggered pulses per route so direction is immediately obvious
           [0.0, 0.5].forEach((offset) => {
             const isMaritime = route.mode === 'MARITIMO'
-            const routePulseTime = Date.now() / (isMaritime ? 24000 : 2400)
+            let pulseSpeedDivider = isMaritime ? 24000 : 2400
+            if (mapaModo === 'transit') {
+              const tClient = route.transitTime || 20
+              pulseSpeedDivider = isMaritime ? (tClient * 900) : (tClient * 800)
+            }
+            const routePulseTime = Date.now() / pulseSpeedDivider
             const tPulse = (routePulseTime + routeIdx * 0.22 + offset) % 1.0
             const rawIdx = tPulse * segmentsCount
             
@@ -1454,17 +1494,34 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                     
                     ctx.fillStyle = '#ffffff'
                     ctx.shadowBlur = isRouteDirectSource ? 16 : 12
-                    ctx.shadowColor = isMaritime ? '#34d399' : '#c084fc'
+                    
+                    let shadowCol = isMaritime ? '#34d399' : '#c084fc'
+                    let coreCol = isMaritime ? '#34d399' : '#a78bfa'
+                    if (mapaModo === 'transit') {
+                      const tClient = route.transitTime || 20
+                      const tMarket = route.marketTransitTime || 23
+                      if (tClient < tMarket) {
+                        shadowCol = '#34d399'
+                        coreCol = '#10b981'
+                      } else if (tClient === tMarket) {
+                        shadowCol = '#fbbf24'
+                        coreCol = '#d97706'
+                      } else {
+                        shadowCol = '#f87171'
+                        coreCol = '#dc2626'
+                      }
+                    }
+                    ctx.shadowColor = shadowCol
                     ctx.fill()
                     
                     // Draw a tiny colorful inner core/cabin for maximum luxury detail
                     ctx.beginPath()
                     if (isMaritime) {
                       ctx.rect(-2, -1.5, 3, 3)
-                      ctx.fillStyle = '#34d399' // green core for ship containers
+                      ctx.fillStyle = coreCol // green core for ship containers
                     } else {
                       ctx.arc(1, 0, 1.5, 0, Math.PI * 2)
-                      ctx.fillStyle = '#a78bfa' // purple core for plane cockpit
+                      ctx.fillStyle = coreCol // purple core for plane cockpit
                     }
                     ctx.shadowBlur = 0
                     ctx.fill()
@@ -1473,7 +1530,7 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                   } else {
                     ctx.beginPath()
                     ctx.arc(pulseSx, pulseSy, size, 0, Math.PI * 2)
-                    ctx.fillStyle = route.color.replace('0.8', (opacity * 0.85).toString())
+                    ctx.fillStyle = routeStrokeColor.replace('0.85', (opacity * 0.85).toString()).replace('0.8', (opacity * 0.85).toString())
                     ctx.shadowBlur = 0
                     ctx.globalAlpha = opacity
                     ctx.fill()
@@ -1533,7 +1590,7 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
     
     animId = requestAnimationFrame(renderFrame)
     return () => cancelAnimationFrame(animId)
-  }, [activePoints])
+  }, [activePoints, mapaModo])
   
   // Drag physics mouse handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -1589,7 +1646,7 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
   
   return (
     <div className="bfd-card bfd-map-card bfd-card--accent-amber">
-      <div className="bfd-map-card__header" style={{ marginBottom: '0.4rem' }}>
+      <div className="bfd-map-card__header" style={{ marginBottom: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <div className="cg-card__header" style={{ marginBottom: '0.4rem' }}>
             <div className="cg-card__icon-wrap">
@@ -1597,7 +1654,64 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
             </div>
             <p className="cg-card__label" style={{ margin: 0 }}>Visão Geral Global de Cotações</p>
           </div>
-          <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }}>Localizações estratégicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)</span>
+          <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }}>
+            {mapaModo === 'transit' 
+              ? 'Benchmarking de Transit Time global (Sua Empresa vs. Média de Mercado)'
+              : 'Localizações estratégicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)'}
+          </span>
+        </div>
+        
+        {/* Mode Switcher pills */}
+        <div style={{
+          display: 'inline-flex',
+          background: 'rgba(255, 255, 255, 0.04)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '20px',
+          padding: '2px',
+          backdropFilter: 'blur(8px)',
+        }}>
+          <button
+            onClick={() => setMapaModo('bids')}
+            style={{
+              background: mapaModo === 'bids' ? 'rgba(251, 191, 36, 0.15)' : 'transparent',
+              border: 'none',
+              color: mapaModo === 'bids' ? '#fbbf24' : '#cbd5e1',
+              padding: '6px 14px',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              borderRadius: '18px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: mapaModo === 'bids' ? '0 0 10px rgba(251, 191, 36, 0.1)' : 'none',
+            }}
+          >
+            <MapPin size={13} weight="bold" />
+            <span>Bids Ativos</span>
+          </button>
+          <button
+            onClick={() => setMapaModo('transit')}
+            style={{
+              background: mapaModo === 'transit' ? 'rgba(52, 211, 153, 0.15)' : 'transparent',
+              border: 'none',
+              color: mapaModo === 'transit' ? '#34d399' : '#cbd5e1',
+              padding: '6px 14px',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              borderRadius: '18px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: mapaModo === 'transit' ? '0 0 10px rgba(52, 211, 153, 0.1)' : 'none',
+            }}
+          >
+            <Clock size={13} weight="bold" />
+            <span>Transit Time</span>
+          </button>
         </div>
       </div>
       
@@ -1618,13 +1732,38 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
           <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
           
           {/* Floating Legend */}
-          <div className="bfd-map-legend-floating">
-            <span className="bfd-map-legend__item">
-              <Anchor size={15} weight="bold" style={{ color: '#34d399' }} /> Marítimo
-            </span>
-            <span className="bfd-map-legend__item">
-              <AirplaneTilt size={15} weight="bold" style={{ color: '#a78bfa' }} /> Aéreo
-            </span>
+          <div className="bfd-map-legend-floating" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.35rem',
+            alignItems: 'flex-start',
+          }}>
+            {mapaModo === 'transit' ? (
+              <>
+                <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.15rem' }}>Eficiência (Cliente vs. Mercado)</div>
+                <span className="bfd-map-legend__item" style={{ fontSize: '0.72rem', fontWeight: 600 }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#34d399', display: 'inline-block', marginRight: '6px', boxShadow: '0 0 6px rgba(52, 211, 153, 0.6)' }} /> 
+                  Empresa mais rápida (Verde)
+                </span>
+                <span className="bfd-map-legend__item" style={{ fontSize: '0.72rem', fontWeight: 600 }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#fbbf24', display: 'inline-block', marginRight: '6px', boxShadow: '0 0 6px rgba(251, 191, 36, 0.6)' }} /> 
+                  Dentro do mercado (Amarelo)
+                </span>
+                <span className="bfd-map-legend__item" style={{ fontSize: '0.72rem', fontWeight: 600 }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#f87171', display: 'inline-block', marginRight: '6px', boxShadow: '0 0 6px rgba(248, 113, 113, 0.6)' }} /> 
+                  Gargalo / Lenta (Vermelho)
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="bfd-map-legend__item">
+                  <Anchor size={15} weight="bold" style={{ color: '#34d399' }} /> Marítimo
+                </span>
+                <span className="bfd-map-legend__item">
+                  <AirplaneTilt size={15} weight="bold" style={{ color: '#a78bfa' }} /> Aéreo
+                </span>
+              </>
+            )}
           </div>
           
           {/* Floating Zoom & Control Panel */}
@@ -1690,7 +1829,7 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                 onClick={(e) => {
                   e.stopPropagation() // Avoid triggering map drag
                   isRotationPausedRef.current = true
-                  setSelectedPinForModalResumido(pin.id)
+                  setSelectedPinForDialogoResumido(pin.id)
                 }}
               >
                 {/* Outer pulsing ring */}
@@ -1753,172 +1892,326 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
           })}
         </div>
 
-        {/* Right Side: HUD de Cotações Globais */}
+        {/* Right Side: HUD de Cotações Globais / Transit Benchmark Hub */}
         <div className="bfd-hud-container">
-          {/* HUD de Cotações Globais */}
-          <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
-            <div className="bfd-map-panel__header">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="bfd-map-panel__title">Rankings Globais</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <span className="bfd-map-panel__live-dot" />
-                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
+          {mapaModo === 'transit' ? (
+            <div className="bfd-map-right-panel bfd-map-right-panel--transit" style={{ background: 'rgba(11, 14, 20, 0.45)', border: '1px solid rgba(52, 211, 153, 0.15)', boxShadow: '0 8px 32px 0 rgba(0,0,0,0.5), 0 0 16px rgba(52, 211, 153, 0.08)' }}>
+              <div className="bfd-map-panel__header">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span className="bfd-map-panel__title" style={{ color: '#34d399', textShadow: '0 0 10px rgba(52, 211, 153, 0.2)' }}>Transit Benchmark</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span className="bfd-map-panel__live-dot" style={{ backgroundColor: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+                    <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.06em' }}>ATIVO</span>
+                  </div>
                 </div>
+                <span className="bfd-map-panel__subtitle">Sua Empresa vs. Média de Mercado</span>
               </div>
-              <span className="bfd-map-panel__subtitle">Rankings em tempo real • 200 bids</span>
-            </div>
-            
-            {/* Tabs */}
-            <div className="bfd-map-panel__tabs">
-              <button 
-                className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
-                onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
-              >
-                <Globe size={13} weight="bold" /> Origens
-              </button>
-              <button 
-                className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
-                onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
-              >
-                <MapPin size={13} weight="bold" /> Destinos
-              </button>
-              <button 
-                className={`bfd-map-panel__tab tab-modal_cotacao_bid_frete_internacional ${activeTab === 'modal_cotacao_bid_frete_internacional' ? 'is-active' : ''}`}
-                onClick={(e) => { e.stopPropagation(); setActiveTab('modal_cotacao_bid_frete_internacional'); }}
-              >
-                <List size={13} weight="bold" /> Modais
-              </button>
-            </div>
-            
-            {/* List Content */}
-            <div className="bfd-map-panel__list">
-              {activeTab === 'origens' && TOP_ORIGENS.map(item => {
-                const hasLink = item.pinId !== null
-                const isHighlighted = hoveredPin === item.pinId && hasLink
-                
-                return (
-                  <div 
-                    key={item.rank}
-                    className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
-                    onMouseEnter={() => {
-                      if (item.pinId) {
-                        setHoveredPin(item.pinId)
+
+              {/* Transit Performance Overview Card */}
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.06)',
+                borderRadius: '8px',
+                padding: '0.65rem',
+                margin: '0 0.75rem 0.75rem',
+                fontSize: '0.78rem',
+                color: '#cbd5e1'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontWeight: 700 }}>
+                  <span>Eficiência Média Geral</span>
+                  <span style={{ color: '#34d399' }}>+14.2% mais rápido</span>
+                </div>
+                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
+                  Suas rotas ativas estão em média <strong>3.1 dias</strong> à frente do benchmark logístico internacional.
+                </span>
+              </div>
+
+              <div className="bfd-map-panel__list" style={{ padding: '0 0.75rem 0.75rem', height: 'calc(100% - 100px)', overflowY: 'auto' }}>
+                {GLOBE_ROUTES.map((route, idx) => {
+                  const fromPin = MAP_PINS.find(p => p.id === route.fromId) || { label: 'Shanghai', flag: '🇨🇳', portCode: 'CNSHA' }
+                  const toPin = MAP_PINS.find(p => p.id === route.toId) || { label: 'Santos', flag: '🇧🇷', portCode: 'BRSSZ' }
+                  
+                  const isAir = route.mode === 'AEREO'
+                  const tClient = route.transitTime || 20
+                  const tMarket = route.marketTransitTime || 23
+                  const delta = tMarket - tClient
+                  
+                  let statusColor = '#34d399'
+                  let statusBg = 'rgba(52, 211, 153, 0.1)'
+                  let statusText = `+${delta}d mais rápido`
+                  
+                  if (delta === 0) {
+                    statusColor = '#fbbf24'
+                    statusBg = 'rgba(251, 191, 36, 0.1)'
+                    statusText = 'Dentro da média'
+                  } else if (delta < 0) {
+                    statusColor = '#f87171'
+                    statusBg = 'rgba(248, 113, 113, 0.1)'
+                    statusText = `${Math.abs(delta)}d atrasado`
+                  }
+
+                  const isHighlighted = hoveredPin === route.fromId || hoveredPin === route.toId
+                  
+                  return (
+                    <div 
+                      key={idx}
+                      className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted' : ''}`}
+                      style={{
+                        flexDirection: 'column',
+                        alignItems: 'stretch',
+                        gap: '0.4rem',
+                        padding: '0.6rem 0.5rem',
+                        marginBottom: '0.5rem',
+                        background: isHighlighted ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.01)',
+                        border: isHighlighted ? '1px solid rgba(52, 211, 153, 0.2)' : '1px solid rgba(255,255,255,0.04)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        height: 'auto'
+                      }}
+                      onMouseEnter={() => {
+                        setHoveredPin(route.fromId)
                         isRotationPausedRef.current = true
-                      }
-                    }}
-                    onMouseLeave={() => {
-                      if (item.pinId) {
+                      }}
+                      onMouseLeave={() => {
                         setHoveredPin(null)
                         isRotationPausedRef.current = false
-                      }
-                    }}
-                    onClick={(e) => {
-                      if (item.pinId) {
-                        e.stopPropagation()
-                        setSelectedPinForModalResumido(item.pinId)
-                      }
-                    }}
-                  >
-                    <span className="bfd-map-panel__row-rank">{item.rank}</span>
-                    <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                    <div className="bfd-map-panel__row-info">
-                      <span className="bfd-map-panel__row-city">{item.name}</span>
-                      <span className="bfd-map-panel__row-code">{item.code}</span>
+                      }}
+                      onClick={() => {
+                        setSelectedPinForDialogoResumido(route.fromId)
+                      }}
+                    >
+                      {/* Top Row: Ports and Mode */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ fontSize: '0.85rem' }}>{fromPin.flag}</span>
+                          <strong style={{ fontSize: '0.78rem', color: '#ffffff' }}>{fromPin.portCode}</strong>
+                          <span style={{ fontSize: '0.65rem', color: '#64748b' }}>➔</span>
+                          <span style={{ fontSize: '0.85rem' }}>{toPin.flag}</span>
+                          <strong style={{ fontSize: '0.78rem', color: '#ffffff' }}>{toPin.portCode}</strong>
+                        </div>
+                        
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '3px',
+                          fontSize: '0.62rem',
+                          fontWeight: 800,
+                          padding: '2px 6px',
+                          borderRadius: '12px',
+                          background: isAir ? 'rgba(167, 139, 250, 0.12)' : 'rgba(52, 211, 153, 0.12)',
+                          color: isAir ? '#c084fc' : '#34d399',
+                          border: `1px solid ${isAir ? 'rgba(167, 139, 250, 0.15)' : 'rgba(52, 211, 153, 0.15)'}`,
+                          textTransform: 'uppercase',
+                        }}>
+                          {isAir ? <AirplaneTilt size={9} weight="bold" /> : <Anchor size={9} weight="bold" />}
+                          {isAir ? 'Aéreo' : 'Marítimo'}
+                        </span>
+                      </div>
+
+                      {/* Info Row: Client vs Market */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }}>
+                        <span style={{ color: '#94a3b8' }}>
+                          Sua Empresa: <strong style={{ color: '#ffffff' }}>{tClient}d</strong> vs Mercado: <span style={{ color: '#cbd5e1' }}>{tMarket}d</span>
+                        </span>
+                        <span style={{
+                          fontSize: '0.68rem',
+                          fontWeight: 700,
+                          color: statusColor,
+                          padding: '1px 5px',
+                          borderRadius: '4px',
+                          background: statusBg,
+                          boxShadow: `0 0 6px ${statusColor}15`
+                        }}>
+                          {statusText}
+                        </span>
+                      </div>
+
+                      {/* Performance Bar */}
+                      <div style={{ height: '4px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '2px', overflow: 'hidden', position: 'relative', marginTop: '0.1rem' }}>
+                        <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '100%', background: 'rgba(255,255,255,0.06)' }} />
+                        <div
+                          style={{
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            height: '100%',
+                            width: `${Math.min(100, (tClient / Math.max(tClient, tMarket)) * 100)}%`,
+                            background: `linear-gradient(90deg, ${statusColor}dd, ${statusColor})`,
+                            boxShadow: `0 0 4px ${statusColor}60`,
+                            borderRadius: '2px',
+                          }}
+                        />
+                      </div>
                     </div>
-                    <span className="bfd-map-panel__row-bids">{item.count} bids</span>
-                  </div>
-                )
-              })}
-              
-              {activeTab === 'destinos' && TOP_DESTINOS.map(item => {
-                const hasLink = item.pinId !== null
-                const isHighlighted = hoveredPin === item.pinId && hasLink
-                
-                return (
-                  <div 
-                    key={item.rank}
-                    className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
-                    onMouseEnter={() => {
-                      if (item.pinId) {
-                        setHoveredPin(item.pinId)
-                        isRotationPausedRef.current = true
-                      }
-                    }}
-                    onMouseLeave={() => {
-                      if (item.pinId) {
-                        setHoveredPin(null)
-                        isRotationPausedRef.current = false
-                      }
-                    }}
-                    onClick={(e) => {
-                      if (item.pinId) {
-                        e.stopPropagation()
-                        setSelectedPinForModalResumido(item.pinId)
-                      }
-                    }}
-                  >
-                    <span className="bfd-map-panel__row-rank">{item.rank}</span>
-                    <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                    <div className="bfd-map-panel__row-info">
-                      <span className="bfd-map-panel__row-city">{item.name}</span>
-                      <span className="bfd-map-panel__row-code">{item.code}</span>
-                    </div>
-                    <span className="bfd-map-panel__row-bids">{item.count} bids</span>
-                  </div>
-                )
-              })}
-              
-              {activeTab === 'modal_cotacao_bid_frete_internacional' && MODAIS_INFO.map((item, idx) => {
-                return (
-                  <div key={idx} className="bfd-map-panel__row">
-                    <span className="bfd-map-panel__row-rank">{idx + 1}</span>
-                    <span className="bfd-map-panel__modal-icon-wrap" style={{ color: item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '#a78bfa' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '#34d399' : '#fbbf24' }}>
-                      {MODAL_ICONS[item.modal_cotacao_bid_frete_internacional] || <Anchor size={14} />}
-                    </span>
-                    <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
-                      <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
-                        {item.label}
-                      </span>
-                      <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
-                        {item.count} bids
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-                      <span className="bfd-map-panel__row-bids" style={{ fontWeight: 800, color: '#ffffff' }}>
-                        {item.pct}%
-                      </span>
-                      <span className="bfd-map-panel__modal-stat-num" style={{ color: '#60a5fa' }}>
-                        {item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '+23.4%' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '+19.1%' : '+12.5%'}
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
+              <div className="bfd-map-panel__header">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span className="bfd-map-panel__title">Rankings Globais</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span className="bfd-map-panel__live-dot" />
+                    <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
+                  </div>
+                </div>
+                <span className="bfd-map-panel__subtitle">Rankings em tempo real • 200 bids</span>
+              </div>
+              
+              {/* Tabs */}
+              <div className="bfd-map-panel__tabs">
+                <button 
+                  className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
+                  onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
+                >
+                  <Globe size={13} weight="bold" /> Origens
+                </button>
+                <button 
+                  className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
+                  onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
+                >
+                  <MapPin size={13} weight="bold" /> Destinos
+                </button>
+                <button 
+                  className={`bfd-map-panel__tab tab-modal_cotacao_bid_frete_internacional ${activeTab === 'modal_cotacao_bid_frete_internacional' ? 'is-active' : ''}`}
+                  onClick={(e) => { e.stopPropagation(); setActiveTab('modal_cotacao_bid_frete_internacional'); }}
+                >
+                  <List size={13} weight="bold" /> Modais
+                </button>
+              </div>
+              
+              {/* List Content */}
+              <div className="bfd-map-panel__list">
+                {activeTab === 'origens' && TOP_ORIGENS.map(item => {
+                  const hasLink = item.pinId !== null
+                  const isHighlighted = hoveredPin === item.pinId && hasLink
+                  
+                  return (
+                    <div 
+                      key={item.rank}
+                      className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
+                      onMouseEnter={() => {
+                        if (item.pinId) {
+                          setHoveredPin(item.pinId)
+                          isRotationPausedRef.current = true
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        if (item.pinId) {
+                          setHoveredPin(null)
+                          isRotationPausedRef.current = false
+                        }
+                      }}
+                      onClick={(e) => {
+                        if (item.pinId) {
+                          e.stopPropagation()
+                          setSelectedPinForDialogoResumido(item.pinId)
+                        }
+                      }}
+                    >
+                      <span className="bfd-map-panel__row-rank">{item.rank}</span>
+                      <span className="bfd-map-panel__row-flag">{item.flag}</span>
+                      <div className="bfd-map-panel__row-info">
+                        <span className="bfd-map-panel__row-city">{item.name}</span>
+                        <span className="bfd-map-panel__row-code">{item.code}</span>
+                      </div>
+                      <span className="bfd-map-panel__row-bids">{item.count} bids</span>
+                    </div>
+                  )
+                })}
+                
+                {activeTab === 'destinos' && TOP_DESTINOS.map(item => {
+                  const hasLink = item.pinId !== null
+                  const isHighlighted = hoveredPin === item.pinId && hasLink
+                  
+                  return (
+                    <div 
+                      key={item.rank}
+                      className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
+                      onMouseEnter={() => {
+                        if (item.pinId) {
+                          setHoveredPin(item.pinId)
+                          isRotationPausedRef.current = true
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        if (item.pinId) {
+                          setHoveredPin(null)
+                          isRotationPausedRef.current = false
+                        }
+                      }}
+                      onClick={(e) => {
+                        if (item.pinId) {
+                          e.stopPropagation()
+                          setSelectedPinForDialogoResumido(item.pinId)
+                        }
+                      }}
+                    >
+                      <span className="bfd-map-panel__row-rank">{item.rank}</span>
+                      <span className="bfd-map-panel__row-flag">{item.flag}</span>
+                      <div className="bfd-map-panel__row-info">
+                        <span className="bfd-map-panel__row-city">{item.name}</span>
+                        <span className="bfd-map-panel__row-code">{item.code}</span>
+                      </div>
+                      <span className="bfd-map-panel__row-bids">{item.count} bids</span>
+                    </div>
+                  )
+                })}
+                
+                {activeTab === 'modal_cotacao_bid_frete_internacional' && MODAIS_INFO.map((item, idx) => {
+                  return (
+                    <div key={idx} className="bfd-map-panel__row">
+                      <span className="bfd-map-panel__row-rank">{idx + 1}</span>
+                      <span className="bfd-map-panel__modal-icon-wrap" style={{ color: item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '#a78bfa' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '#34d399' : '#fbbf24' }}>
+                        {MODAL_ICONS[item.modal_cotacao_bid_frete_internacional] || <Anchor size={14} />}
+                      </span>
+                      <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
+                        <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
+                          {item.label}
+                        </span>
+                        <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
+                          {item.count} bids
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                        <span className="bfd-map-panel__row-bids" style={{ fontWeight: 800, color: '#ffffff' }}>
+                          {item.pct}%
+                        </span>
+                        <span className="bfd-map-panel__modal-stat-num" style={{ color: '#60a5fa' }}>
+                          {item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '+23.4%' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '+19.1%' : '+12.5%'}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Premium Detail Modal Overlay */}
-        {selectedPinForModalResumido !== null && (() => {
-          const pin = MAP_PINS.find(p => p.id === selectedPinForModalResumido)
+        {selectedPinForDialogoResumido !== null && (() => {
+          const pin = MAP_PINS.find(p => p.id === selectedPinForDialogoResumido)
           if (!pin) return null
-          const connections = PORT_CONNECTIONS[selectedPinForModalResumido] || []
+          const connections = PORT_CONNECTIONS[selectedPinForDialogoResumido] || []
           
           return (
-            <div className="modal_resumido_cotacao_bid_frete_internacional-overlay" onClick={() => setSelectedPinForModalResumido(null)}>
-              <div className="modal_resumido_cotacao_bid_frete_internacional-card" onClick={e => e.stopPropagation()}>
-                <div className="modal_resumido_cotacao_bid_frete_internacional-header">
-                  <div className="modal_resumido_cotacao_bid_frete_internacional-title-group">
-                    <span className="modal_resumido_cotacao_bid_frete_internacional-flag-large">{pin.flag}</span>
+            <div className="dialogo-cotacao-resumida-bid-frete-internacional-overlay" onClick={() => setSelectedPinForDialogoResumido(null)}>
+              <div className="dialogo-cotacao-resumida-bid-frete-internacional-card" onClick={e => e.stopPropagation()}>
+                <div className="dialogo-cotacao-resumida-bid-frete-internacional-header">
+                  <div className="dialogo-cotacao-resumida-bid-frete-internacional-title-group">
+                    <span className="dialogo-cotacao-resumida-bid-frete-internacional-flag-large">{pin.flag}</span>
                     <div>
-                      <h2 className="modal_resumido_cotacao_bid_frete_internacional-title">Rotas Ativas: {pin.label}</h2>
-                      <span className="modal_resumido_cotacao_bid_frete_internacional-subtitle">{pin.portCode} • {pin.country}</span>
+                      <h2 className="dialogo-cotacao-resumida-bid-frete-internacional-title">Rotas Ativas: {pin.label}</h2>
+                      <span className="dialogo-cotacao-resumida-bid-frete-internacional-subtitle">{pin.portCode} • {pin.country}</span>
                     </div>
                   </div>
-                  <button className="modal_resumido_cotacao_bid_frete_internacional-close-btn" onClick={() => setSelectedPinForModalResumido(null)}>✕</button>
+                  <button className="dialogo-cotacao-resumida-bid-frete-internacional-close-btn" onClick={() => setSelectedPinForDialogoResumido(null)}>✕</button>
                 </div>
                 
-                <div className="modal_resumido_cotacao_bid_frete_internacional-body">
+                <div className="dialogo-cotacao-resumida-bid-frete-internacional-body">
                   {connections.length === 0 ? (
                     <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
                       Nenhuma rota ativa cadastrada para este terminal.
@@ -2023,6 +2316,32 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                               <span className="bfd-route-stat-value">{route.transitTime} dias</span>
                             </div>
                           </div>
+
+                          {/* Visual Transit Time Comparison Bar (Benchmark vs Client) */}
+                          <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', fontWeight: 600 }}>
+                              <span style={{ color: '#94a3b8' }}>Benchmarking Transit Time</span>
+                              <span style={{ color: isAir ? '#c084fc' : '#34d399' }}>Sua Empresa: {route.transitTime}d vs Mercado: {route.transitTime + 3}d</span>
+                            </div>
+                            <div style={{ height: '4px', background: 'rgba(255, 255, 255, 0.06)', borderRadius: '2px', overflow: 'hidden', position: 'relative' }}>
+                              <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '100%', background: 'rgba(255,255,255,0.12)' }} />
+                              <div
+                                style={{
+                                  position: 'absolute',
+                                  left: 0,
+                                  top: 0,
+                                  height: '100%',
+                                  width: `${(route.transitTime / (route.transitTime + 3)) * 100}%`,
+                                  background: isAir ? 'linear-gradient(90deg, #8b5cf6, #c084fc)' : 'linear-gradient(90deg, #10b981, #34d399)',
+                                  boxShadow: `0 0 4px ${isAir ? '#c084fc' : '#34d399'}60`,
+                                  borderRadius: '2px',
+                                }}
+                              />
+                            </div>
+                            <div style={{ fontSize: '0.62rem', color: '#94a3b8', textAlign: 'right', fontStyle: 'italic' }}>
+                              Ganho de eficiência de +{(((route.transitTime + 3) - route.transitTime) / (route.transitTime + 3) * 100).toFixed(0)}% (+3 dias mais rápido que a média geral)
+                            </div>
+                          </div>
                           
                           <div style={{ fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }}>
                             <span>Forn. Líder: <strong>{route.supplier}</strong></span>
@@ -2030,7 +2349,7 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                               className="bfd-route-btn-completo"
                               onClick={(e) => {
                                 e.stopPropagation()
-                                setSelectedPinForModalResumido(null)
+                                setSelectedPinForDialogoResumido(null)
                                 if (onOpenCompleto) {
                                   onOpenCompleto(route)
                                 }
@@ -2073,8 +2392,8 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
                   )}
                 </div>
                 
-                <div className="modal_resumido_cotacao_bid_frete_internacional-footer">
-                  <button className="modal_resumido_cotacao_bid_frete_internacional-close-action" onClick={() => setSelectedPinForModalResumido(null)}>Fechar</button>
+                <div className="dialogo-cotacao-resumida-bid-frete-internacional-footer">
+                  <button className="dialogo-cotacao-resumida-bid-frete-internacional-close-action" onClick={() => setSelectedPinForDialogoResumido(null)}>Fechar</button>
                 </div>
               </div>
             </div>
@@ -2087,9 +2406,9 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
 
 export default function VisaoGeral() {
   const navigate = useNavigate()
-  const [isModalCompletoOpen, setIsModalCompletoOpen] = useState(false)
+  const [isDialogoCompletoOpen, setIsDialogoCompletoOpen] = useState(false)
   const [alertModalTab, setAlertModalTab] = useState<'geral' | 'itens' | 'propostas' | 'historico'>('geral')
-  const [selectedAlertContextCompleto, setSelectedAlertContextCompleto] = useState<any>(null)
+  const [selectedAlertContextCompleto, setSelectedAlertContextCompleto] = useState<CalendarioAlerta | (RouteDetail & { tipo: 'route' }) | null>(null)
 
   // Interactive exchange rate & spread states (DDD nomenclature, PT-BR without accents)
   const [cambioModo, setCambioModo] = useState<'hoje' | 'historico' | 'futuro'>('hoje')
@@ -2238,7 +2557,6 @@ export default function VisaoGeral() {
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           border: 1px solid rgba(255, 255, 255, 0.06);
-          border-left: 3px solid #3b82f6 !important; /* Unified native blue left accent border */
           border-radius: 14px;
           padding: 1.5rem 1.75rem;
           display: flex;
@@ -2863,7 +3181,7 @@ export default function VisaoGeral() {
         }
 
         /* ── Premium Modal overlay ───────────────────────────────── */
-        .modal_resumido_cotacao_bid_frete_internacional-overlay {
+        .dialogo-cotacao-resumida-bid-frete-internacional-overlay {
           position: fixed;
           inset: 0;
           background: rgba(8, 10, 18, 0.75);
@@ -2881,7 +3199,7 @@ export default function VisaoGeral() {
           to { opacity: 1; }
         }
         
-        .modal_resumido_cotacao_bid_frete_internacional-card {
+        .dialogo-cotacao-resumida-bid-frete-internacional-card {
           width: 100%;
           max-width: 620px;
           max-height: 90vh;
@@ -2901,37 +3219,37 @@ export default function VisaoGeral() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        .modal_resumido_cotacao_bid_frete_internacional-header {
+        .dialogo-cotacao-resumida-bid-frete-internacional-header {
           padding: 1.25rem 1.5rem;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-title-group {
+        .dialogo-cotacao-resumida-bid-frete-internacional-title-group {
           display: flex;
           align-items: center;
           gap: 0.75rem;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-flag-large {
+        .dialogo-cotacao-resumida-bid-frete-internacional-flag-large {
           font-size: 2.2rem;
           line-height: 1;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-title {
+        .dialogo-cotacao-resumida-bid-frete-internacional-title {
           font-size: 1.25rem;
           font-weight: 800;
           color: #ffffff;
           letter-spacing: -0.01em;
           margin: 0;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-subtitle {
+        .dialogo-cotacao-resumida-bid-frete-internacional-subtitle {
           font-size: 0.82rem;
           color: #cbd5e1;
           margin-top: 0.15rem;
           display: block;
           font-weight: 500;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-close-btn {
+        .dialogo-cotacao-resumida-bid-frete-internacional-close-btn {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.08);
           color: #94a3b8;
@@ -2944,19 +3262,21 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-close-btn:hover {
+        .dialogo-cotacao-resumida-bid-frete-internacional-close-btn:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
           color: #ffffff;
           transform: rotate(90deg);
         }
 
-        .modal_resumido_cotacao_bid_frete_internacional-body {
+        .dialogo-cotacao-resumida-bid-frete-internacional-body {
           padding: 1.5rem;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
           gap: 1.25rem;
+          flex: 1;
+          min-height: 0;
         }
         
         .bfd-route-card {
@@ -2970,6 +3290,8 @@ export default function VisaoGeral() {
           position: relative;
           overflow: hidden;
           transition: all 0.3s ease;
+          flex-shrink: 0;
+          min-height: max-content;
         }
         .bfd-route-card:hover {
           background: rgba(255, 255, 255, 0.05);
@@ -2978,12 +3300,7 @@ export default function VisaoGeral() {
           transform: translateY(-2px);
         }
 
-        .bfd-route-card--maritimo {
-          border-left: 3px solid #34d399;
-        }
-        .bfd-route-card--aereo {
-          border-left: 3px solid #a78bfa;
-        }
+
 
         .bfd-route-header {
           display: flex;
@@ -3062,14 +3379,14 @@ export default function VisaoGeral() {
           color: #ffffff;
         }
 
-        .modal_resumido_cotacao_bid_frete_internacional-footer {
+        .dialogo-cotacao-resumida-bid-frete-internacional-footer {
           padding: 1rem 1.5rem;
           border-top: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           justify-content: flex-end;
           background: rgba(11, 15, 28, 0.5);
         }
-        .modal_resumido_cotacao_bid_frete_internacional-close-action {
+        .dialogo-cotacao-resumida-bid-frete-internacional-close-action {
           padding: 0.5rem 1.25rem;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.1);
@@ -3080,7 +3397,7 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .modal_resumido_cotacao_bid_frete_internacional-close-action:hover {
+        .dialogo-cotacao-resumida-bid-frete-internacional-close-action:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
         }
@@ -3239,21 +3556,15 @@ export default function VisaoGeral() {
         }
       `}</style>
 
-      {/* Header */}
-      <div className="bfd-header">
-        <div className="bfd-header__left">
-          <h1>Dashboard BID Frete</h1>
-          <p>Visão geral das cotações de frete</p>
-        </div>
-        <div className="bfd-header__actions">
-          <BotaoGlobal
-            variante="primario"
-            icone={<MagnifyingGlass weight="bold" size={15} />}
-            onClick={() => navigate('/bid-frete/cotacoes/nova')}
-          >
-            Buscar frete
-          </BotaoGlobal>
-        </div>
+      {/* Ação da página (Buscar frete) — cabeçalho agora vive no top bar */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <BotaoGlobal
+          variante="primario"
+          icone={<MagnifyingGlass weight="bold" size={15} />}
+          onClick={() => navigate('/produto/bid-frete/cotacoes/nova')}
+        >
+          Buscar frete
+        </BotaoGlobal>
       </div>
 
       {/* KPIs Grid (5 columns now) */}
@@ -3382,7 +3693,7 @@ export default function VisaoGeral() {
               ...route
             })
             setAlertModalTab('geral')
-            setIsModalCompletoOpen(true)
+            setIsDialogoCompletoOpen(true)
           }}
         />
 
@@ -3438,7 +3749,7 @@ export default function VisaoGeral() {
                     onClick={() => {
                       setSelectedAlertContextCompleto(a)
                       setAlertModalTab('geral')
-                      setIsModalCompletoOpen(true)
+                      setIsDialogoCompletoOpen(true)
                     }}
                     style={{
                       display: 'flex',
@@ -3790,8 +4101,8 @@ export default function VisaoGeral() {
       </div>
 
       {/* Tabbed Quotation Modal Overlay */}
-      {isModalCompletoOpen && selectedAlertContextCompleto && (() => {
-         const alert = selectedAlertContextCompleto;
+      {isDialogoCompletoOpen && selectedAlertContextCompleto && (() => {
+         const context = selectedAlertContextCompleto;
          // Generate mock data for the selected alert type
          let modalTitle = 'Detalhes da Cotação';
          let quoteId = 'COT-2026-F401';
@@ -3813,27 +4124,32 @@ export default function VisaoGeral() {
            { data: '15/05/2026 10:14', texto: 'Cotação criada e homologada', autor: 'Daniel' }
          ];
 
-         if (alert.tipo === 'route') {
+         const dotColor = context.tipo === 'route'
+           ? ((context as RouteDetail).mode === 'AEREO' ? '#a78bfa' : '#34d399')
+           : ((context as CalendarioAlerta).cor === 'red' ? '#f87171' : (context as CalendarioAlerta).cor === 'orange' ? '#fbbf24' : (context as CalendarioAlerta).cor === 'green' ? '#34d399' : '#60a5fa');
+
+         if (context.tipo === 'route') {
+           const route = context as RouteDetail;
            modalTitle = 'Detalhes da Rota Ativa';
-           quoteId = alert.quoteId || 'COT-2026-R' + Math.floor(100 + Math.random() * 900);
-           origin = alert.fromPort;
-           destination = alert.toPort;
-           goods = alert.goods || 'Componentes de Alta Tecnologia e Cargas Premium';
-           weight = alert.weight || '14.800 Kg';
-           volume = alert.volume || '32.4 m³';
-           incoterm = alert.incoterm || (alert.mode === 'AEREO' ? 'FCA' : 'FOB');
-           value = 'USD ' + fmtMoeda(alert.bestPrice);
-           category = alert.mode === 'AEREO' ? "Aéreo (Geral)" : "Marítimo (FCL 40' HC)";
+           quoteId = 'COT-2026-R' + Math.floor(100 + Math.random() * 900);
+           origin = route.fromPort;
+           destination = route.toPort;
+           goods = 'Componentes de Alta Tecnologia e Cargas Premium';
+           weight = '14.800 Kg';
+           volume = '32.4 m³';
+           incoterm = route.mode === 'AEREO' ? 'FCA' : 'FOB';
+           value = 'USD ' + fmtMoeda(route.bestPrice);
+           category = route.mode === 'AEREO' ? "Aéreo (Geral)" : "Marítimo (FCL 40' HC)";
            proposals = [
-             { fornecedor: alert.supplier, valor: 'USD ' + fmtMoeda(alert.bestPrice), transit: alert.transitTime + ' dias', status: 'Melhor Preço', cor: alert.mode === 'AEREO' ? '#a78bfa' : '#34d399' },
-             { fornecedor: 'Apex Global forwarders', valor: 'USD ' + fmtMoeda(alert.bestPrice * 1.08), transit: (alert.transitTime + 3) + ' dias', status: 'Em Análise', cor: '#60a5fa' }
+             { fornecedor: route.supplier, valor: 'USD ' + fmtMoeda(route.bestPrice), transit: route.transitTime + ' dias', status: 'Melhor Preço', cor: route.mode === 'AEREO' ? '#a78bfa' : '#34d399' },
+             { fornecedor: 'Apex Global forwarders', valor: 'USD ' + fmtMoeda(route.bestPrice * 1.08), transit: (route.transitTime + 3) + ' dias', status: 'Em Análise', cor: '#60a5fa' }
            ];
            history = [
-             { data: '21/05/2026 10:00', texto: 'Melhor proposta validada de ' + alert.supplier, autor: 'Sistema' },
+             { data: '21/05/2026 10:00', texto: 'Melhor proposta validada de ' + route.supplier, autor: 'Sistema' },
              { data: '18/05/2026 14:30', texto: 'Resposta de Apex Global forwarders recebida', autor: 'Portal' },
              { data: '15/05/2026 09:00', texto: 'Cotação disparada para 4 fornecedores homologados', autor: 'Daniel' }
            ];
-         } else if (alert.tipo === 'resposta') {
+         } else if (context.tipo === 'resposta') {
            modalTitle = 'Respostas Pendentes';
            quoteId = 'COT-2026-A228';
            origin = 'Frankfurt (FRA)';
@@ -3853,7 +4169,7 @@ export default function VisaoGeral() {
              { data: '20/05/2026 14:00', texto: 'Resposta recebida de Lufthansa Cargo', autor: 'Portal' },
              { data: '19/05/2026 14:15', texto: 'Disparada via e-mail e portal', autor: 'Daniel' }
            ];
-         } else if (alert.tipo === 'aprovacao') {
+         } else if (context.tipo === 'aprovacao') {
            modalTitle = 'Aguardando Aprovação';
            quoteId = 'COT-2026-M892';
            origin = 'Miami (MIA)';
@@ -3873,7 +4189,7 @@ export default function VisaoGeral() {
              { data: '16/05/2026 15:45', texto: 'Proposta consolidada de Panalpina selecionada', autor: 'Sistema' },
              { data: '14/05/2026 11:30', texto: 'Criada e disparada para 4 fornecedores', autor: 'Daniel' }
            ];
-         } else if (alert.tipo === 'nova') {
+         } else if (context.tipo === 'nova') {
            modalTitle = 'Novas Cotações (7 dias)';
            quoteId = 'COT-2026-R115';
            origin = 'Buenos Aires (BUE)';
@@ -3894,7 +4210,7 @@ export default function VisaoGeral() {
          }
 
          return (
-            <div className="bfd-modal-overlay" style={{
+            <div className="bfd-dialogo-overlay" style={{
               position: 'fixed',
               top: 0,
               left: 0,
@@ -3907,7 +4223,7 @@ export default function VisaoGeral() {
               alignItems: 'center',
               justifyContent: 'center',
               animation: 'fadeIn 0.25s ease-out'
-            }} onClick={() => setIsModalCompletoOpen(false)}>
+            }} onClick={() => setIsDialogoCompletoOpen(false)}>
               <style>{`
                 @keyframes fadeIn {
                   from { opacity: 0; }
@@ -3918,7 +4234,7 @@ export default function VisaoGeral() {
                   to { transform: scale(1); opacity: 1; }
                 }
               `}</style>
-              <div className="bfd-modal-card" style={{
+              <div className="bfd-dialogo-card" style={{
                 background: 'rgba(30, 41, 59, 0.85)',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4)',
@@ -3935,13 +4251,13 @@ export default function VisaoGeral() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
                   <div>
                     <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ color: alert.cor === 'red' ? '#f87171' : alert.cor === 'orange' ? '#fbbf24' : alert.cor === 'green' ? '#34d399' : '#60a5fa' }}>●</span>
+                      <span style={{ color: dotColor }}>●</span>
                       {modalTitle}
                     </h2>
                     <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0' }}>Referência: {quoteId}</p>
                   </div>
                   <button style={{ background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', transition: 'all 0.2s' }}
-                    onClick={() => setIsModalCompletoOpen(false)}
+                    onClick={() => setIsDialogoCompletoOpen(false)}
                   >✕</button>
                 </div>
 
@@ -3970,35 +4286,35 @@ export default function VisaoGeral() {
                 <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', minHeight: '300px' }}>
                   {alertModalTab === 'geral' && (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }}>
-                      <div className="bfd-modal-field">
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Origem</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{origin}</div>
                       </div>
-                      <div className="bfd-modal-field">
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Destino</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{destination}</div>
                       </div>
-                      <div className="bfd-modal-field" style={{ gridColumn: 'span 2' }}>
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field" style={{ gridColumn: 'span 2' }}>
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Mercadoria / Descrição</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{goods}</div>
                       </div>
-                      <div className="bfd-modal-field">
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Peso Total</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{weight}</div>
                       </div>
-                      <div className="bfd-modal-field">
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Cubagem (M³)</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{volume}</div>
                       </div>
-                      <div className="bfd-modal-field">
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Incoterm</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{incoterm}</div>
                       </div>
-                      <div className="bfd-modal-field">
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Valor Limite / Estimado</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{value}</div>
                       </div>
-                      <div className="bfd-modal-field" style={{ gridColumn: 'span 2' }}>
+                      <div className="modal_completo_cotação_bid_frete_iternacional-field" style={{ gridColumn: 'span 2' }}>
                         <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Modalidade</label>
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{category}</div>
                       </div>
@@ -4083,7 +4399,7 @@ export default function VisaoGeral() {
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
-                    onClick={() => setIsModalCompletoOpen(false)}
+                    onClick={() => setIsDialogoCompletoOpen(false)}
                   >Fechar</button>
                   <button style={{
                     background: '#2563eb',

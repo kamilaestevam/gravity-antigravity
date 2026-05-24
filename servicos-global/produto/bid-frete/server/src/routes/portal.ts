@@ -108,17 +108,19 @@ router.get('/cotacoes-pendentes', async (req: Request, res: Response, next: Next
       include: {
         cotacao: {
           select: {
-            id: true, numero: true, modal: true, modalidade: true,
-            origem_nome: true, origem_pais: true,
-            destino_nome: true, destino_pais: true,
-            descricao_mercadoria: true, ncm: true, incoterm: true,
-            quantidade: true, tipo_container: true, peso_kg: true,
-            data_limite_resposta: true, ocultar_nome_empresa: true,
-            valor_target: true,
+            id_cotacao_bid_frete: true, numero_cotacao_bid_frete: true, modal: true, modalidade: true,
+            // TODO: lookup from Cadastros
+            pais_origem_cotacao_bid_frete: true,
+            // TODO: lookup from Cadastros
+            pais_destino_cotacao_bid_frete: true,
+            descricao_mercadoria_cotacao_bid_frete: true, ncm_cotacao_bid_frete: true, incoterm_cotacao_bid_frete: true,
+            quantidade_volumes_cotacao_bid_frete: true, tipo_container: true, peso_kg_cotacao_bid_frete: true,
+            data_limite_resposta_cotacao_bid_frete: true, anonima_cotacao_bid_frete: true,
+            valor_alvo_cotacao_bid_frete: true,
           },
         },
       },
-      orderBy: { created_at: 'desc' },
+      orderBy: { criado_em_cotacao_bid_frete: 'desc' },
     })
 
     // Marcar como visualizado
@@ -158,7 +160,8 @@ router.get('/respostas', async (req: Request, res: Response, next: NextFunction)
         where: { fornecedor_id: fornecedor.id },
         include: {
           cotacao: {
-            select: { id: true, numero: true, origem_nome: true, destino_nome: true, modal: true, status: true },
+            select: { id_cotacao_bid_frete: true, numero_cotacao_bid_frete: true, modal: true, status_cotacao_bid_frete: true },
+            // TODO: lookup from Cadastros for porto names
           },
           detalhes_taxas: true,
         },
@@ -235,25 +238,25 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
     })
 
     // Buscar cotacao para dados de notificação
-    const cotacao = await (req.prisma as any).freteIntBidCotacoes.findFirst({ where: { id: bidRequest.cotacao_id } })
+    const cotacao = await (req.prisma as any).freteIntBidCotacoes.findFirst({ where: { id_cotacao_bid_frete: bidRequest.cotacao_id } })
 
     if (totalRespondidos >= totalRequests) {
       await (req.prisma as any).freteIntBidCotacoes.update({
-        where: { id: bidRequest.cotacao_id },
-        data: { status: 'AGUARDANDO_APROVACAO' },
+        where: { id_cotacao_bid_frete: bidRequest.cotacao_id },
+        data: { status_cotacao_bid_frete: 'AGUARDANDO_APROVACAO' },
       })
       // Notificar que todas as respostas chegaram
       if (cotacao) {
         const tenantId = (req as any).tenantId
-        atividadesIntegration.aguardandoAprovacao(tenantId, cotacao.user_id, {
-          numero: cotacao.numero,
+        atividadesIntegration.aguardandoAprovacao(tenantId, cotacao.id_usuario, {
+          numero: cotacao.numero_cotacao_bid_frete,
           total_respostas: totalRespondidos,
         })
       }
     } else {
       await (req.prisma as any).freteIntBidCotacoes.update({
-        where: { id: bidRequest.cotacao_id },
-        data: { status: 'EM_COTACAO' },
+        where: { id_cotacao_bid_frete: bidRequest.cotacao_id },
+        data: { status_cotacao_bid_frete: 'EM_COTACAO' },
       })
     }
 
@@ -261,14 +264,14 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
     if (cotacao) {
       const tenantId = (req as any).tenantId
       const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({ where: { id: bidRequest.fornecedor_id }, select: { nome: true } })
-      notificacoesIntegration.fornecedorRespondeu(tenantId, cotacao.user_id, {
-        cotacao_numero: cotacao.numero,
+      notificacoesIntegration.fornecedorRespondeu(tenantId, cotacao.id_usuario, {
+        cotacao_numero: cotacao.numero_cotacao_bid_frete,
         fornecedor_nome: fornecedor?.nome ?? 'Fornecedor',
-        cotacao_id: cotacao.id,
+        cotacao_id: cotacao.id_cotacao_bid_frete,
       })
       historicoIntegration.fornecedorRespondeu(tenantId, fornecedor?.nome ?? 'Fornecedor', {
-        id: cotacao.id,
-        numero: cotacao.numero,
+        id_cotacao_bid_frete: cotacao.id_cotacao_bid_frete,
+        numero_cotacao_bid_frete: cotacao.numero_cotacao_bid_frete,
       }, valorTotal)
     }
 

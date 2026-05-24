@@ -21,6 +21,10 @@ export interface MenuTopoLocalizadorConfig {
   currentProductLabel: string
   currentProductColor: string
   currentPageLabel: string
+  /** Ícone da página atual (Phosphor) — renderizado à esquerda do título no top bar */
+  currentPageIcon?: React.ReactNode
+  /** Subtítulo descritivo da página atual — renderizado abaixo do título no top bar */
+  currentPageSubtitle?: string
   history: LocalizadorEntry[]
   nodes: EcosystemNode[]
   onNavigate: (node: EcosystemNode) => void
@@ -114,15 +118,27 @@ export function MenuTopoGlobal({
   return (
     <header className="mtg-header" style={cssVars} role="banner">
 
-      {/* ── ESQUERDA: nome do produto (collapsed) ou produto › view (expanded) ── */}
+      {/* ── ESQUERDA: nome do produto (collapsed) ou cabeçalho da página (expanded) ── */}
       <div className="mtg-left">
         {viewToggle
           ? viewToggle
-          : (
-            <span className="mtg-left__page-title">
-              {sidebarCollapsed ? productName : localizador.currentPageLabel}
-            </span>
-          )
+          : sidebarCollapsed
+            ? <span className="mtg-left__page-title">{productName}</span>
+            : (
+              <div className="mtg-left__page-header">
+                {localizador.currentPageIcon && (
+                  <span className="mtg-left__page-icon" aria-hidden="true">
+                    {localizador.currentPageIcon}
+                  </span>
+                )}
+                <div className="mtg-left__page-titles">
+                  <span className="mtg-left__page-title">{localizador.currentPageLabel}</span>
+                  {localizador.currentPageSubtitle && (
+                    <span className="mtg-left__page-subtitle">{localizador.currentPageSubtitle}</span>
+                  )}
+                </div>
+              </div>
+            )
         }
       </div>
 

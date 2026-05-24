@@ -9,6 +9,7 @@
  */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { Eye, Plus, SquaresFour, X, Info } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -39,6 +40,7 @@ export function SecaoKanbanColunas({
   onSalvar,
   onDescartar,
 }: SecaoKanbanColunasProps) {
+  const { t } = useTranslation()
   const ordenados   = [...statusConfig].sort((a, b) => a.ordem - b.ordem)
   const ativos      = ordenados.filter(s => !colunasOcultas.includes(s.nome))
   const disponiveis = ordenados.filter(s =>  colunasOcultas.includes(s.nome))
@@ -47,10 +49,9 @@ export function SecaoKanbanColunas({
     <section className="cfg-secao">
       <div className="cfg-secao__header">
         <div>
-          <h2 className="cfg-secao__titulo">Colunas do Kanban</h2>
+          <h2 className="cfg-secao__titulo">{t('pedido.kanban_colunas.titulo')}</h2>
           <p className="cfg-secao__desc">
-            Selecione quais colunas de status aparecem no Kanban.
-            Novos status criados aparecem automaticamente.
+            {t('pedido.kanban_colunas.descricao')}
           </p>
         </div>
       </div>
@@ -63,7 +64,7 @@ export function SecaoKanbanColunas({
 
       {!loading && statusConfig.length === 0 && (
         <p className="cfg-hint" style={{ textAlign: 'center', padding: '2rem 0' }}>
-          Nenhum status configurado
+          {t('pedido.kanban_colunas.nenhum_status')}
         </p>
       )}
 
@@ -73,12 +74,12 @@ export function SecaoKanbanColunas({
           <div className="cfg-cards-preview-wrap">
             <p className="cfg-cards-preview-label">
               <SquaresFour size={12} weight="fill" />
-              Preview — colunas visíveis no Kanban
+              {t('pedido.kanban_colunas.preview_label')}
             </p>
             <div className="cfg-kanban-colunas-preview">
               {ativos.length === 0 && (
                 <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', padding: '0.25rem 0' }}>
-                  Nenhuma coluna visível
+                  {t('pedido.kanban_colunas.nenhuma_coluna_visivel')}
                 </p>
               )}
               {ativos.map(s => (
@@ -91,12 +92,12 @@ export function SecaoKanbanColunas({
           </div>
 
           {/* ── Ativos ── */}
-          <ConfiguracaoSecaoGlobal label="ATIVOS" count={`${ativos.length} coluna${ativos.length !== 1 ? 's' : ''}`} />
-          <p className="cfg-hint">Olho para ocultar a coluna no Kanban</p>
+          <ConfiguracaoSecaoGlobal label={t('pedido.kanban_colunas.ativos')} count={t('pedido.kanban_colunas.contador_colunas', { count: ativos.length })} />
+          <p className="cfg-hint">{t('pedido.kanban_colunas.hint_olho_ocultar')}</p>
           <div className="cfg-kanban-campos-lista">
             {ativos.length === 0 && (
               <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
-                Nenhuma coluna visível — adicione abaixo
+                {t('pedido.kanban_colunas.nenhuma_coluna_adicione')}
               </p>
             )}
             {ativos.map(s => (
@@ -104,22 +105,22 @@ export function SecaoKanbanColunas({
                 <span className="cfg-kanban-campo-dot" style={{ background: s.cor }} />
                 <span className="cfg-kanban-campo-label">{s.rotulo}</span>
                 {s.is_sistema && (
-                  <span className="cfg-kanban-aba-fixa-badge">sistema</span>
+                  <span className="cfg-kanban-aba-fixa-badge">{t('pedido.kanban_colunas.badge_sistema')}</span>
                 )}
                 {s.is_sistema ? (
-                  <TooltipGlobal descricao="Coluna obrigatória — status de sistema sempre visível no Kanban">
-                    <span className="cfg-kanban-sistema-info" aria-label="Coluna obrigatória">
+                  <TooltipGlobal descricao={t('pedido.kanban_colunas.tooltip_sistema')}>
+                    <span className="cfg-kanban-sistema-info" aria-label={t('pedido.kanban_colunas.aria_coluna_obrigatoria')}>
                       <Info size={14} weight="duotone" />
                     </span>
                   </TooltipGlobal>
                 ) : (
                   <>
-                    <TooltipGlobal descricao="Ocultar coluna">
+                    <TooltipGlobal descricao={t('pedido.kanban_colunas.tooltip_ocultar')}>
                       <button
                         type="button"
                         className="cfg-eye-btn cfg-eye-btn--on"
                         onClick={() => onToggle(s.nome)}
-                        aria-label="Ocultar coluna"
+                        aria-label={t('pedido.kanban_colunas.aria_ocultar')}
                       >
                         <Eye size={14} weight="bold" />
                       </button>
@@ -128,7 +129,7 @@ export function SecaoKanbanColunas({
                       type="button"
                       className="cfg-remove-btn"
                       onClick={() => onToggle(s.nome)}
-                      aria-label="Mover para disponíveis"
+                      aria-label={t('pedido.kanban_colunas.aria_mover_disponiveis')}
                     >
                       <X size={12} weight="bold" />
                     </button>
@@ -140,20 +141,20 @@ export function SecaoKanbanColunas({
 
           {/* ── Disponíveis para adicionar ── */}
           <ConfiguracaoSecaoGlobal
-            label="DISPONÍVEIS PARA ADICIONAR"
-            hint="clique em + para adicionar"
+            label={t('pedido.kanban_colunas.disponiveis_adicionar')}
+            hint={t('pedido.kanban_colunas.hint_clique_mais')}
             style={{ marginTop: '1.5rem' }}
           />
           <div className="cfg-kanban-disponivel-lista">
             {disponiveis.length > 0 && (
               <div className="cfg-kanban-disponivel-header">
-                <span>Coluna</span>
+                <span>{t('pedido.kanban_colunas.coluna')}</span>
                 <span></span>
               </div>
             )}
             {disponiveis.length === 0 && (
               <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
-                Todas as colunas estão visíveis
+                {t('pedido.kanban_colunas.todas_visiveis')}
               </p>
             )}
             {disponiveis.map(s => (
@@ -162,12 +163,12 @@ export function SecaoKanbanColunas({
                   <span className="cfg-kanban-campo-dot" style={{ background: s.cor }} />
                   <span className="cfg-kanban-disponivel-label">{s.rotulo}</span>
                 </span>
-                <TooltipGlobal descricao="Exibir coluna no Kanban">
+                <TooltipGlobal descricao={t('pedido.kanban_colunas.tooltip_exibir')}>
                   <button
                     type="button"
                     className="cfg-kanban-add-btn"
                     onClick={() => onToggle(s.nome)}
-                    aria-label="Exibir coluna"
+                    aria-label={t('pedido.kanban_colunas.aria_exibir')}
                   >
                     <Plus size={13} weight="bold" />
                   </button>
@@ -180,7 +181,7 @@ export function SecaoKanbanColunas({
           <div className="cfg-campo-calc-item__footer" style={{ display: 'flex', alignItems: 'center' }}>
             <p className="cfg-hint" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.35rem', flex: 1 }}>
               <Info size={13} weight="duotone" />
-              Estas são as colunas padrão. Para criar novos status, acesse a seção <strong>Status</strong> no menu lateral.
+              <span dangerouslySetInnerHTML={{ __html: t('pedido.kanban_colunas.rodape_info') }} />
             </p>
             <BotaoCancelar onClick={onDescartar} dirty={dirty} />
             <BotaoSalvar   onClick={onSalvar}    dirty={dirty} />

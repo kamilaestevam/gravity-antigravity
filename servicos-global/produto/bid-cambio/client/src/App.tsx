@@ -25,6 +25,12 @@ import {
   Envelope,
   ArrowsLeftRight,
   Kanban,
+  Compass,
+  Ranking,
+  CurrencyDollar,
+  PencilSimple,
+  PaperPlaneTilt,
+  Star,
 } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import type { NavItem } from '@nucleo/tela-produto-global'
@@ -118,6 +124,23 @@ const ROUTE_LABELS: Record<string, string> = {
   'portal/desempenho':                  'Desempenho',
 }
 
+// ── Cabeçalho da página por rota (ícone + subtítulo) — renderizado no top bar ──
+const ROUTE_HEADERS: Record<string, { icone: React.ReactNode; subtitulo: string }> = {
+  'visao-geral':       { icone: <Compass          weight="duotone" size={22} />, subtitulo: 'Resumo das operações de câmbio' },
+  'dashboard':         { icone: <ChartBar         weight="duotone" size={22} />, subtitulo: 'KPIs e widgets configuráveis' },
+  'lista':             { icone: <ListBullets      weight="duotone" size={22} />, subtitulo: 'Todas as operações de câmbio em tabela' },
+  'kanban':            { icone: <Kanban           weight="duotone" size={22} />, subtitulo: 'Operações de câmbio organizadas por status' },
+  'cambios':           { icone: <CurrencyDollar   weight="duotone" size={22} />, subtitulo: 'Pagamentos e recebimentos em moeda estrangeira' },
+  'cotacoes':          { icone: <FileText         weight="duotone" size={22} />, subtitulo: 'Cotações de câmbio recebidas das corretoras' },
+  'cotacoes/nova':     { icone: <ArrowsLeftRight  weight="duotone" size={22} />, subtitulo: 'Crie uma nova cotação de câmbio' },
+  'corretoras':        { icone: <Buildings        weight="duotone" size={22} />, subtitulo: 'Corretoras de câmbio cadastradas' },
+  'configuracoes':     { icone: <GearSix          weight="duotone" size={22} />, subtitulo: 'Personalize cards, colunas e status do produto' },
+  'portal/dashboard':  { icone: <ChartPieSlice    weight="duotone" size={22} />, subtitulo: 'Visão geral das suas cotações e desempenho' },
+  'portal/pendentes':  { icone: <Envelope         weight="duotone" size={22} />, subtitulo: 'Cotações aguardando sua resposta' },
+  'portal/respostas':  { icone: <PaperPlaneTilt   weight="duotone" size={22} />, subtitulo: 'Propostas que você enviou' },
+  'portal/desempenho': { icone: <Star             weight="duotone" size={22} />, subtitulo: 'Métricas das suas propostas' },
+}
+
 function LoadingFallback() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '2rem' }}>
@@ -156,11 +179,12 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname])
 
-  const segments    = location.pathname.split('/').filter(Boolean)
-  const productIdx  = segments.findIndex(s => s === PRODUCT_ID)
-  const relSegments = productIdx >= 0 ? segments.slice(productIdx + 1) : segments
-  const routeKey    = relSegments.join('/')
-  const pageLabel   = ROUTE_LABELS[routeKey] ?? 'Visão Geral'
+  const segments     = location.pathname.split('/').filter(Boolean)
+  const productIdx   = segments.findIndex(s => s === PRODUCT_ID)
+  const relSegments  = productIdx >= 0 ? segments.slice(productIdx + 1) : segments
+  const routeKey     = relSegments.join('/')
+  const pageLabel    = ROUTE_LABELS[routeKey] ?? 'Visão Geral'
+  const pageHeader   = ROUTE_HEADERS[routeKey]
 
   const initials = currentUser.name
     ? currentUser.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -204,8 +228,10 @@ export default function App() {
       onNavigateCore={() => { window.location.href = '/core' }}
       onNavigateSettings={() => { navigate('/bid-cambio/configuracoes') }}
       localizador={{
-        workspaceName:    nomeWorkspaceAtivo,
-        currentPageLabel: pageLabel,
+        workspaceName:       nomeWorkspaceAtivo,
+        currentPageLabel:    pageLabel,
+        currentPageIcon:     pageHeader?.icone,
+        currentPageSubtitle: pageHeader?.subtitulo,
         history,
         nodes: ECOSYSTEM_NODES,
         visitedNodeIds: visitedIds,

@@ -1,10 +1,10 @@
 // Re-export helpers do processos-core usados pelo init.ts
-// Path de 4 níveis a partir de src/ — padrão validado no projeto
+// Path relativo a partir de server/src/ — mesmo padrão de index.ts
 export {
   mapPedido,
   encodeCursor,
   CURSOR_SORT_FIELDS,
   injetarValoresColunasUsuario,
   injetarColunasPedidoEItens,
-} from '../../../../../servicos-global/produto/processos-core/src/routes/pedidos.js'
-export type { CursorSortField } from '../../../../../servicos-global/produto/processos-core/src/routes/pedidos.js'
+} from '../../../processos-core/src/routes/pedidos.js'
+export type { CursorSortField } from '../../../processos-core/src/routes/pedidos.js'

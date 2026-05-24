@@ -21,7 +21,7 @@ import {
   CAMPO_POR_NOME_INTERNO,
   CAMPO_POR_ALIAS_LEGADO,
 } from '../../../shared/campos-pedido-ddd.js'
-import { recalcularAgregadosPedido } from '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js'
+import { recalcularAgregadosPedido } from '../../../../processos-core/src/services/recalcularAgregadosPedido.js'
 
 const CAMPOS_BLOQ_PARA_ITEM: ReadonlySet<string> = new Set([
   // NOTA: 'numero_pedido' NAO entra aqui — é o campo de vinculo que liga ITEM ao PEDIDO pai.

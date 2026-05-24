@@ -15,6 +15,7 @@ description: "Use esta skill para entender, configurar ou estender o linter cust
 > | Script | Regra | O que bloqueia |
 > |:---|:---|:---|
 > | `scripts/ativamente/check-env-toplevel.ts` | Regra 7 | `process.env.X!` top-level fora de `index.ts` |
+> | `scripts/ativamente/check-imports-produto-irmao.ts` | Regra 8 | Import com `servicos-global/produto/` repetido entre produtos irmãos |
 > | `scripts/ativamente/check-secrets.ts` | — | Credenciais hardcoded (DB URLs, API keys Stripe/Clerk/Resend, hex keys) |
 > | `scripts/ativamente/check-deps.ts` | — | Versões, `require()`, `@ts-ignore`, `any` |
 >

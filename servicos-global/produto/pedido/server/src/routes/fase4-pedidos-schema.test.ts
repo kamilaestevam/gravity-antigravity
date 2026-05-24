@@ -10,8 +10,8 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { criarPedidoSchema } from '../../../../../../servicos-global/produto/processos-core/src/routes/pedidos.js'
-import { confirmarSchema } from '../../../../../../servicos-global/produto/processos-core/src/routes/importacao.js'
+import { criarPedidoSchema } from '../../../../processos-core/src/routes/pedidos.js'
+import { confirmarSchema } from '../../../../processos-core/src/routes/importacao.js'
 
 const pedidoBase = {
   numero_pedido: 'PO-001',

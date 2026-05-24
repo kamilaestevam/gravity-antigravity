@@ -159,6 +159,58 @@ Não toca em banco, `.env`, ou código. Higiene de PM2 + processos + caches.
 
 ---
 
+## 1.ter. Imports relativos entre produtos irmãos (`servicos-global/produto/`) — 2026-05-24
+
+Produtos em `servicos-global/produto/` (Pedido, Processo, LPCO, etc.) compartilham código via **`processos-core`** e outros pacotes **no mesmo nível de pasta**. Imports entre irmãos usam caminho **relativo curto** — nunca repetem `servicos-global/produto/` no meio do string.
+
+### Por quê
+
+Em ESM, o caminho é resolvido a partir do **arquivo que importa**. Se o agente copia um import de `server/src/index.ts` (3 níveis até `produto/`) para `server/src/routes/foo.ts` (4 níveis), o Node pode montar `servicos-global/servicos-global/produto/...` → `ERR_MODULE_NOT_FOUND` → serviço “online” no PM2 mas porta morta (Pedido 8030, 2026-05-24).
+
+### Tabela de profundidade (até `servicos-global/produto/`)
+
+| Arquivo em | `../` até `produto/` | Import para `processos-core` |
+|:---|:---:|:---|
+| `.../pedido/server/src/index.ts` | 3× | `../../../processos-core/src/...` |
+| `.../pedido/server/src/routes/*.ts` | 4× | `../../../../processos-core/src/...` |
+| `.../pedido/server/src/services/*.ts` | 4× | `../../../../processos-core/src/...` |
+
+**Referência viva (copiar antes de inventar):**  
+`servicos-global/produto/pedido/server/src/routes/importacao-pedido-wrapper.ts`
+
+### ✅ Correto
+
+```typescript
+// server/src/routes/lista-pedido-kpis.ts
+import { mapItem } from '../../../../processos-core/src/routes/pedidos.js'
+
+// server/src/index.ts
+import { pedidosRouter } from '../../../processos-core/src/routes/pedidos.js'
+```
+
+### ❌ Proibido (dentro de `servicos-global/produto/<qualquer-produto>/`)
+
+```typescript
+// ❌ Repete servicos-global — quebra a partir de server/src/routes/
+import { mapItem } from '../../../../../servicos-global/produto/processos-core/src/routes/pedidos.js'
+
+// ❌ Duplicação explícita
+import { x } from '../../../servicos-global/servicos-global/produto/...'
+```
+
+### Import para **fora** de `produto/` (ex: `servicos-plataforma`)
+
+Subir até a **raiz do repo** e então `servicos-global/...` é válido — conte os `../` a partir do arquivo. Não confundir com import entre irmãos em `produto/`.
+
+### Enforcement
+
+- Pre-commit: `scripts/ativamente/check-imports-produto-irmao.ts` (lint-staged em `.ts/.tsx`)
+- Manual: `npm run check:imports-produto-irmao`
+
+> ⚠️ REGRA ABSOLUTA: Ver [monorepo §1.ter](SKILL.md#1ter-imports-relativos-entre-produtos-irmãos-servicos-globalproduto--2026-05-24) antes de importar de `processos-core` ou outro produto irmão.
+
+---
+
 ## 2. Aliases do Vite — Automáticos via `vite-aliases.ts`
 
 O arquivo `nucleo-global/vite-aliases.ts` escaneia automaticamente todas as categorias do `nucleo-global/` e gera aliases `@nucleo/*` em runtime.
@@ -368,6 +420,7 @@ Todo commit passa por verificação automática via Husky + lint-staged:
 - `.ts/.tsx` alterado → `check-deps.ts` verifica require(), @ts-ignore, any
 - `.ts/.tsx` alterado → `check-secrets.ts` detecta credenciais hardcoded (DB URLs com senha, API keys Stripe/Clerk/Resend/Google, hex keys ≥32 chars)
 - `.ts/.tsx` alterado → `check-env-toplevel.ts` bloqueia `process.env.X!` top-level fora de `index.ts`
+- `.ts/.tsx` alterado → `check-imports-produto-irmao.ts` bloqueia imports com `servicos-global/produto/` repetido entre produtos irmãos
 - `.env/.json/.yml/.yaml/.toml` alterado → `check-secrets.ts` varre configs por segredos
 
 ### ❌ Proibido
@@ -387,6 +440,7 @@ Todo commit passa por verificação automática via Husky + lint-staged:
 - [ ] Se vou criar vite.config.ts → usa `createNucleoAliases` e `createServiceAliases`?
 - [ ] Se vou criar tsconfig.json → usa `extends` do arquivo base?
 - [ ] Não estou instalando versão diferente de uma lib travada nos overrides?
+- [ ] Se vou importar de `processos-core` ou outro produto irmão → usei caminho relativo curto (§1.ter) e copiei de `importacao-pedido-wrapper.ts`?
 - [ ] Se bloqueado → parar e notificar o Líder?
 
 ---

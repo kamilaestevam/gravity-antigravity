@@ -23,7 +23,7 @@ import {
   atualizarItemSchema,
   injetarValoresColunasUsuario,
   injetarColunasPedidoEItens,
-} from '../../../../../../servicos-global/produto/processos-core/src/routes/pedidos.js'
+} from '../../../../processos-core/src/routes/pedidos.js'
 
 // ── Schemas .strict() ────────────────────────────────────────────────────────
 

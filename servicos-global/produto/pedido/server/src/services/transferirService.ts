@@ -7,7 +7,7 @@
 
 import { PrismaClient, Prisma } from '@prisma/client'
 import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
-import { recalcularAgregadosPedido as recalcularAgregadosCanonico } from '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js'
+import { recalcularAgregadosPedido as recalcularAgregadosCanonico } from '../../../../processos-core/src/services/recalcularAgregadosPedido.js'
 
 type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 

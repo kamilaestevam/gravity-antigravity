@@ -21,7 +21,7 @@
 import { PrismaClient, Prisma } from '@prisma/client'
 import { obterWorkspaces, type WorkspaceLookupItem } from '@gravity/resolver-organizacao'
 import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
-import { recalcularAgregadosPedido as recalcularAgregadosCanonico } from '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js'
+import { recalcularAgregadosPedido as recalcularAgregadosCanonico } from '../../../../processos-core/src/services/recalcularAgregadosPedido.js'
 import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../shared/mapaPropagacaoPedidoItem.js'
 
 // Workaround Prisma 5.22: TransactionClient (Omit em classe genérica) perde delegates

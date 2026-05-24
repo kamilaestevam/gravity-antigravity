@@ -21,7 +21,7 @@ import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-org
 import { detectarTiposMistos } from '../shared/bulkSchemas.js'
 import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
 import { resolverIdStatusPedidoOpcional } from '../services/statusPedidoLookup.js'
-import { recalcularAgregadosPedido } from '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js'
+import { recalcularAgregadosPedido } from '../../../../processos-core/src/services/recalcularAgregadosPedido.js'
 
 function gerarId(prefixo: string): string {
   const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')

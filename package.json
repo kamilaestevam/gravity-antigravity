@@ -69,6 +69,7 @@
     "check:deps": "npx tsx scripts/ativamente/check-deps.ts",
     "check:audit-coverage": "npx tsx scripts/ativamente/check-audit-coverage.ts",
     "check:env-toplevel": "npx tsx scripts/ativamente/check-env-toplevel.ts",
+    "check:imports-produto-irmao": "npx tsx scripts/ativamente/check-imports-produto-irmao.ts",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -76,6 +77,7 @@
     "*.{ts,tsx}": [
       "npx tsx scripts/ativamente/check-deps.ts",
       "npx tsx scripts/ativamente/check-env-toplevel.ts",
+      "npx tsx scripts/ativamente/check-imports-produto-irmao.ts",
       "npx tsx scripts/ativamente/check-secrets.ts"
     ],
     "*.{env,json,yml,yaml,toml,cfg,conf,ini}": "npx tsx scripts/ativamente/check-secrets.ts"

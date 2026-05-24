@@ -28,6 +28,11 @@ export interface TelaProdutoGlobalProps {
   navItems:    NavItem[]
   workspaces?:        WorkspaceItem[]
   onSwitchWorkspace?: (id: string) => void
+  modoWorkspace?: 'unico' | 'multiplo'
+  workspacesEscopoIds?: string[]
+  onAlternarWorkspaceEscopo?: (id: string) => void
+  onDefinirEscopoWorkspaces?: (ids: string[]) => void
+  sinalAbrirMenuWorkspaces?: number
   onCreateWorkspace?: () => void
   onManageWorkspace?: () => void
   tooltipsDisabled:   boolean
@@ -53,6 +58,11 @@ function TelaProdutoLayout({
   navItems,
   workspaces,
   onSwitchWorkspace,
+  modoWorkspace,
+  workspacesEscopoIds,
+  onAlternarWorkspaceEscopo,
+  onDefinirEscopoWorkspaces,
+  sinalAbrirMenuWorkspaces,
   onCreateWorkspace,
   onManageWorkspace,
   tooltipsDisabled,
@@ -96,6 +106,11 @@ function TelaProdutoLayout({
           onToggleCollapse={() => setSidebarCollapsed(p => !p)}
           workspaces={workspaces}
           onSwitchWorkspace={onSwitchWorkspace}
+          modoWorkspace={modoWorkspace}
+          workspacesEscopoIds={workspacesEscopoIds}
+          onAlternarWorkspaceEscopo={onAlternarWorkspaceEscopo}
+          onDefinirEscopoWorkspaces={onDefinirEscopoWorkspaces}
+          sinalAbrirMenuWorkspaces={sinalAbrirMenuWorkspaces}
           onCreateWorkspace={onCreateWorkspace}
           onManageWorkspace={onManageWorkspace}
         />

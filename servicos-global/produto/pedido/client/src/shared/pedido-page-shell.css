@@ -23,3 +23,25 @@
 .pedido-page-shell.pg-container .pg-conteudo-area.pg-layout-formulario {
   padding-top: 0;
 }
+
+/* Chip de escopo de workspaces — abre menu lateral ao clicar */
+.fc-chip--escopo-btn {
+  cursor: pointer;
+  font: inherit;
+  border: none;
+  background: inherit;
+  padding: inherit;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+}
+
+.fc-chip--escopo-btn:hover {
+  filter: brightness(1.08);
+}
+
+.fc-chip--escopo-btn:focus-visible {
+  outline: 2px solid var(--ws-accent, #818cf8);
+  outline-offset: 2px;
+}

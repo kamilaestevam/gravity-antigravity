@@ -290,6 +290,45 @@ function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
 const getUnidadeSigla  = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.sigla
 const getUnidadeRotulo = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.rotulo
 
+/** Tooltip de regra da coluna em células (pedido e item), respeitando tooltips-disabled no body. */
+function resolverTooltipRegraCelula(
+  col: GTColuna<unknown>,
+  item: unknown,
+  isFilho: boolean,
+): { titulo: string; descricao: React.ReactNode; interativo?: boolean } | null {
+  const descricaoOverride = col.tooltipDescricaoCelula?.(item)
+  const descricaoBase = isFilho
+    ? (col.tooltipDescricaoItem ?? col.tooltipDescricao)
+    : col.tooltipDescricao
+  const descricao = descricaoOverride ?? descricaoBase
+  if (descricao == null || descricao === '') return null
+  return {
+    titulo: col.tooltipTitulo ?? col.label,
+    descricao,
+    interativo: col.tooltipInterativo,
+  }
+}
+
+function wrapTooltipRegraCelula(
+  col: GTColuna<unknown>,
+  conteudo: React.ReactNode,
+  item: unknown,
+  isFilho: boolean,
+  ativo: boolean,
+): React.ReactNode {
+  if (!ativo) return conteudo
+  if (typeof document !== 'undefined' && document.body.classList.contains('tooltips-disabled')) {
+    return conteudo
+  }
+  const regra = resolverTooltipRegraCelula(col, item, isFilho)
+  if (!regra) return conteudo
+  return (
+    <TooltipGlobal titulo={regra.titulo} descricao={regra.descricao} interativo={regra.interativo}>
+      <span style={{ display: 'contents' }}>{conteudo}</span>
+    </TooltipGlobal>
+  )
+}
+
 function formatarOverlayValor(val: unknown, tipo?: string, casasDecimais?: number): string {
   if (tipo === 'moeda' && val != null && typeof val === 'object') {
     const v = val as GTValorMoeda
@@ -2434,10 +2473,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const valorTruncado = valorStr.length > 150 ? valorStr.slice(0, 150) + '…' : valorStr
     const innerContent = col.render ? col.render(valor, item) : valorTruncado
 
-    // Tooltip: só para células sem render customizado (texto puro).
-    // Células com render (badges, ícones) já são auto-descritivas.
-    // Quando conteúdo > 150 chars, tooltip mostra valor completo; abaixo, idem (ou dica de edição).
-    const tooltipDescr = !col.render && !estaEditando && !overlayAtivo
+    const tooltipCelulaAtivo = !estaEditando && !overlayAtivo
+    const colRegra = col as GTColuna<unknown>
+    const temRegraColuna = tooltipCelulaAtivo && resolverTooltipRegraCelula(colRegra, item, false) != null
+
+    // Fallback: valor truncado ou "Clique para editar" só sem render e sem regra de coluna
+    const tooltipDescr = !col.render && !temRegraColuna && tooltipCelulaAtivo
       ? (valor != null && valor !== ''
           ? valorStr
           : podeEditar ? 'Clique para editar' : undefined)
@@ -2445,31 +2486,35 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     // Tooltip de célula bloqueada (editavel retornou false para esta linha)
     const colU0 = col as GTColuna<unknown>
-    const tooltipBloqueadoMsg = !podeEditar && colU0.tooltipBloqueado && !col.render
+    const tooltipBloqueadoMsg = !podeEditar && colU0.tooltipBloqueado && tooltipCelulaAtivo
       ? (typeof colU0.tooltipBloqueado === 'function' ? colU0.tooltipBloqueado(item) : colU0.tooltipBloqueado)
       : undefined
 
     // Tooltip de permissão: célula SERIA editável mas o handler está ausente
     const tooltipPermissaoMsg = semPermissaoEditar ? mensagemSemPermissaoEditar : undefined
 
-    // Para células com tooltip: o TooltipGlobal envolve um <span> simples.
-    // Para células sem tooltip: renderiza o conteúdo diretamente.
-    // Não usamos gtv-celula-conteudo (evita dependência circular de width).
-    const celConteudo = tooltipPermissaoMsg ? (
-      <TooltipGlobal titulo={col.label} descricao={tooltipPermissaoMsg}>
-        <span style={{ display: 'contents' }}>{innerContent}</span>
-      </TooltipGlobal>
-    ) : tooltipDescr ? (
-      <TooltipGlobal titulo={col.label} descricao={tooltipDescr}>
-        <span className="gtv-celula-text">{innerContent as string}</span>
-      </TooltipGlobal>
-    ) : tooltipBloqueadoMsg ? (
-      <TooltipGlobal titulo={col.label} descricao={tooltipBloqueadoMsg}>
-        <span style={{ display: 'contents' }}>{innerContent}</span>
-      </TooltipGlobal>
-    ) : (
-      <>{innerContent}</>
-    )
+    let celInner: React.ReactNode = innerContent
+    if (tooltipPermissaoMsg) {
+      celInner = (
+        <TooltipGlobal titulo={col.label} descricao={tooltipPermissaoMsg}>
+          <span style={{ display: 'contents' }}>{innerContent}</span>
+        </TooltipGlobal>
+      )
+    } else if (tooltipBloqueadoMsg) {
+      celInner = (
+        <TooltipGlobal titulo={col.label} descricao={tooltipBloqueadoMsg}>
+          <span style={{ display: 'contents' }}>{innerContent}</span>
+        </TooltipGlobal>
+      )
+    } else if (tooltipDescr) {
+      celInner = (
+        <TooltipGlobal titulo={col.label} descricao={tooltipDescr}>
+          <span className="gtv-celula-text">{innerContent as string}</span>
+        </TooltipGlobal>
+      )
+    }
+
+    const celConteudo = wrapTooltipRegraCelula(colRegra, celInner, item, false, tooltipCelulaAtivo)
 
     return (
       <div
@@ -2815,14 +2860,25 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     if (typeof v === 'object') return formatarOverlayValor(v, col.tipo, (col as GTColuna<unknown>).casasDecimais)
                     return String(v)
                   })()
+                  const tooltipFilhoAtivo = !estaEditando && !overlayAtivo
+                  let celFilhoInner: React.ReactNode = conteudoFilho
                   if (semPermissaoFilho && mensagemSemPermissaoEditar) {
-                    return <TooltipGlobal titulo={col.label} descricao={mensagemSemPermissaoEditar}><span style={{ display: 'contents' }}>{conteudoFilho}</span></TooltipGlobal>
-                  }
-                  if (!podeEditar && mapa?.tooltipBloqueado && !mapa?.render) {
+                    celFilhoInner = (
+                      <TooltipGlobal titulo={col.label} descricao={mensagemSemPermissaoEditar}>
+                        <span style={{ display: 'contents' }}>{conteudoFilho}</span>
+                      </TooltipGlobal>
+                    )
+                  } else if (!podeEditar && mapa?.tooltipBloqueado && tooltipFilhoAtivo) {
                     const msg = typeof mapa.tooltipBloqueado === 'function' ? mapa.tooltipBloqueado(item) : mapa.tooltipBloqueado
-                    if (msg) return <TooltipGlobal titulo={col.label} descricao={msg}><span style={{ display: 'contents' }}>{conteudoFilho}</span></TooltipGlobal>
+                    if (msg) {
+                      celFilhoInner = (
+                        <TooltipGlobal titulo={col.label} descricao={msg}>
+                          <span style={{ display: 'contents' }}>{conteudoFilho}</span>
+                        </TooltipGlobal>
+                      )
+                    }
                   }
-                  return <>{conteudoFilho}</>
+                  return wrapTooltipRegraCelula(col as GTColuna<unknown>, celFilhoInner, item, true, tooltipFilhoAtivo)
                 })()}
               </div>
             )

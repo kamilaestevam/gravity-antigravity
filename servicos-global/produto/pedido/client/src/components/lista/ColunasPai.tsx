@@ -18,6 +18,7 @@ import type { RegrasConfigBackend } from '../../shared/api'
 import { LABELS_FILTRO_INVERSO } from './filtros'
 import type { GTUnidadeOpcao } from '../../shared/useUnidadesPedido'
 import { getEditavel } from '../../shared/columnBehaviorConfig'
+import { enriquecerColunasComRegraTooltip } from '../../shared/buildTooltipRegraLista'
 import { obterDescricaoExibicaoPedido } from '../../../../shared/pedidoDivergencias'
 import { renderBadgeParteWorkspace } from './renderBadgeParteWorkspace'
 import {
@@ -299,7 +300,7 @@ export interface OpcoesUnidadesColunas {
 export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GTColuna<Pedido>[] {
   const { unidadesPeso, unidadesCubagem, incotermsOpcoes, moedasOpcoes, workspacesMap } = opcoes
 
-  return [
+  const colunas: GTColuna<Pedido>[] = [
   {
     key: 'numero_pedido',
     label: t('pedido.coluna_pai.numero_pedido'),
@@ -310,6 +311,17 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     campo: 'numero_pedido',
     tooltipTitulo: t('pedido.coluna_pai.numero_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.numero_pedido_desc'),
+    tooltipDescricaoCelula: (row: Pedido) => {
+      if (!row.part_number_duplicado_no_pedido) return undefined
+      return (
+        <span>
+          {t('pedido.coluna_filho.part_number.duplicado_tooltip')}
+          <br />
+          <br />
+          {t('pedido.lista.regras_coluna.pai_numero_pedido')}
+        </span>
+      )
+    },
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) => {
       const numero = row.numero_pedido || null
@@ -317,15 +329,10 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         return numero ? <span>{numero}</span> : renderAgregado(null, false)
       }
       return (
-        <TooltipGlobal
-          titulo={t('pedido.coluna_pai.numero_pedido_titulo')}
-          descricao={t('pedido.coluna_filho.part_number.duplicado_tooltip')}
-        >
-          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-            {numero ? <span>{numero}</span> : <span>—</span>}
-            <span style={{ display: 'inline-flex', color: '#F59E0B', flexShrink: 0 }}><WarnIcon /></span>
-          </span>
-        </TooltipGlobal>
+        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+          {numero ? <span>{numero}</span> : <span>—</span>}
+          <span style={{ display: 'inline-flex', color: '#F59E0B', flexShrink: 0 }}><WarnIcon /></span>
+        </span>
       )
     },
   },
@@ -344,6 +351,17 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.tipo_operacao_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.tipo_operacao_desc'),
     grupo: 'Identificação',
+    tooltipDescricaoCelula: (row: Pedido) => {
+      if (!row.tipo_operacao_divergente) return undefined
+      return (
+        <span>
+          {t('pedido.coluna_pai.tipo_operacao_divergente')}
+          <br />
+          <br />
+          {t('pedido.lista.regras_coluna.pai_editavel_replicar_alerta')}
+        </span>
+      )
+    },
     render: (_val: unknown, row: Pedido) => {
       const badge = (
         <StatusBadgeGlobal
@@ -357,8 +375,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       )
       if (row.tipo_operacao_divergente) {
         return (
-          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
-            title={t('pedido.coluna_pai.tipo_operacao_divergente')}>
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
             {badge}
             <span style={{ color: '#F59E0B' }}><WarnIcon /></span>
           </span>
@@ -1695,4 +1712,6 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   criarColunaDataReplicavel(t, 'data_confirmada_recebimento_original_invoice',  t('pedido.coluna_pai.divergente_data_confirmada_recebimento_original_invoice')),
   criarColunaDataReplicavel(t, 'data_meta_recebimento_original_invoice',        t('pedido.coluna_pai.divergente_data_meta_recebimento_original_invoice')),
   ]
+
+  return enriquecerColunasComRegraTooltip(colunas, t, 'pai')
 }

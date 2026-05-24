@@ -129,6 +129,27 @@ describe('buildVisaoGeralMapa', () => {
     expect(detalhe.rotas.length).toBeGreaterThan(0)
   })
 
+  it('agrega vencimentos por rota a partir de condição de pagamento', () => {
+    const mapa = buildVisaoGeralMapa([
+      pedidoBase({
+        data_emissao_pedido: '2026-01-15',
+        condicao_pagamento: 'NET 45',
+        valor_total_cambio_pedido: 5000,
+      }),
+    ])
+
+    const detalhe = Object.values(mapa.detalhesPorLocKey).find(d => d.rotas.length > 0)
+    expect(detalhe?.rotas[0]?.vencimentosPagar.length).toBeGreaterThan(0)
+    expect(detalhe?.rotas[0]?.vencimentosPagar[0]?.data).toBe('2026-03-01')
+    expect(detalhe?.rotas[0]?.timelineVencimentos.length).toBeGreaterThan(0)
+
+    const resumoPagar = detalhe?.rotas[0]?.resumoVencimentosPagar
+    expect(resumoPagar?.quantidade).toBe(1)
+    expect(resumoPagar?.valorTotal).toBe(5000)
+    expect(resumoPagar?.proximoData).toBe('2026-03-01')
+    expect(resumoPagar?.moeda).toBe('USD')
+  })
+
   it('classifica exportação com origem Brasil', () => {
     const mapa = buildVisaoGeralMapa([
       pedidoBase({

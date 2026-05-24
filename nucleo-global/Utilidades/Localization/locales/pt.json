@@ -3504,6 +3504,12 @@
     "aguardando_cobertura": "Aguardando cobertura",
     "cobertura_pendente": "Cobertura Pendente",
     "cobertura_pendente_desc": "Valor aguardando cobertura cambial",
+    "alertas_total": "Alertas Total",
+    "alertas_total_desc": "Quantidade total de alertas em pedidos e itens",
+    "alertas_pedido": "Alertas Pedido",
+    "alertas_pedido_desc": "Alertas no nível do pedido (divergências e inconsistências)",
+    "alertas_item": "Alertas Item",
+    "alertas_item_desc": "Alertas no nível do item (Part Number duplicado)",
     "itens_prontos": "Itens Prontos",
     "itens_prontos_desc": "Itens com produção concluída",
     "qtd_atual_total": "Saldo Atual",
@@ -5562,6 +5568,7 @@
       "tipo_operacao_exportacao": "Exportação",
       "tipo_operacao_divergente": "Tipo de operação divergente entre itens",
       "workspace_label": "Workspace",
+      "workspace_divergente": "Workspaces divergentes entre itens",
       "nome_exportador_bloqueado": "Exportador vinculado via Cadastros — clique para editar",
       "exportador_e_workspace": "Exportador é o próprio Workspace. Clique para editar dados no Configurador",
       "workspace_sem_nome": "Nome do Workspace não cadastrado. Clique para cadastrar no Configurador",
@@ -6093,6 +6100,8 @@
       "ph_nome": "Ex: Saldo Financeiro",
       "label_icone": "Ícone",
       "label_cor": "Cor",
+      "label_metrica": "O que medir",
+      "hint_metrica": "Escolha a métrica que este card exibe na lista (mesmas opções dos cards nativos).",
       "label_formula": "Fórmula",
       "ph_formula": "Adicione campos e operadores abaixo",
       "btn_limpar": "Limpar",
@@ -6460,6 +6469,16 @@
         "contratos_cambio_count_other": "{{count}} contratos",
         "total_a_receber": "Total a Receber",
         "total_a_pagar": "Total a Pagar",
+        "vencimentos_receber": "Vencimentos a Receber",
+        "vencimentos_pagar": "Vencimentos a Pagar",
+        "sem_vencimentos": "Sem vencimentos",
+        "ver_todos_vencimentos": "Ver todos os vencimentos ({{count}})",
+        "total_vencimentos_count": "{{count}} vencimentos",
+        "proximo_vencimento": "Próximo vencimento",
+        "vencidos_count": "{{count}} vencidos",
+        "proximos_7_dias_count": "{{count}} nos próximos 7 dias",
+        "mais_vencimentos": "+{{count}} mais",
+        "voltar_rotas": "Voltar às rotas",
         "maior_valor": "Maior Valor",
         "participacao_volume": "Participação no Volume",
         "valor_total": "Valor Total",
@@ -6643,6 +6662,25 @@
         "row": {
           "total_itens": "Total itens",
           "media_por_item": "Média por item"
+        }
+      },
+      "alertas_total": {
+        "subtexto": "{{pedido}} pedido · {{item}} item",
+        "row": {
+          "pedido": "Alertas pedido",
+          "item": "Alertas item"
+        }
+      },
+      "alertas_pedido": {
+        "subtexto": "Divergências e inconsistências no pedido",
+        "row": {
+          "total": "Total"
+        }
+      },
+      "alertas_item": {
+        "subtexto": "Part Number duplicado nos itens",
+        "row": {
+          "total": "Total"
         }
       },
       "custom": {

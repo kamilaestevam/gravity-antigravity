@@ -7,7 +7,6 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   ChartPieSlice,
@@ -68,36 +67,27 @@ export default function PortalDashboard() {
       titulo: t('bidfrete.portal.dashboard.card_pendentes_titulo'),
       descricao: t('bidfrete.portal.dashboard.card_pendentes_desc'),
       icone: <Envelope weight="duotone" size={24} />,
-      rota: '/produto/bid-frete/portal/pendentes',
+      rota: '/bid-frete/portal/pendentes',
       cor: 'var(--accent, #6366f1)',
     },
     {
       titulo: t('bidfrete.portal.dashboard.card_respostas_titulo'),
       descricao: t('bidfrete.portal.dashboard.card_respostas_desc'),
       icone: <PaperPlaneTilt weight="duotone" size={24} />,
-      rota: '/produto/bid-frete/portal/respostas',
+      rota: '/bid-frete/portal/respostas',
       cor: 'var(--warning, #f59e0b)',
     },
     {
       titulo: t('bidfrete.portal.dashboard.card_desempenho_titulo'),
       descricao: t('bidfrete.portal.dashboard.card_desempenho_desc'),
       icone: <ChartBar weight="duotone" size={24} />,
-      rota: '/produto/bid-frete/portal/desempenho',
+      rota: '/bid-frete/portal/desempenho',
       cor: 'var(--success, #22c55e)',
     },
   ]
 
   return (
-    <PaginaGlobal
-      className="portal-dash"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<ChartPieSlice weight="duotone" size={22} />}
-          titulo={t('bidfrete.portal.dashboard.titulo')}
-          subtitulo={t('bidfrete.portal.dashboard.subtitulo')}
-        />
-      }
-    >
+    <PaginaGlobal className="portal-dash">
       {/* KPI Cards */}
       <div className="pd-kpis">
         <CardBasicoGlobal

@@ -6,7 +6,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import {
   Star,
   ChartBar,
@@ -103,9 +102,7 @@ export default function MeuDesempenho() {
 
   if (carregando) {
     return (
-      <PaginaGlobal
-        cabecalho={<CabecalhoGlobal icone={<Star weight="duotone" size={22} />} titulo={t('bidfrete.portal.meu_desempenho.titulo')} />}
-      >
+      <PaginaGlobal>
         <div className="md-loading">
           <ChartBar weight="duotone" size={48} style={{ opacity: 0.3 }} />
           <p>{t('comum.carregando')}</p>
@@ -119,16 +116,7 @@ export default function MeuDesempenho() {
   const cats = dados?.categorias ?? { frete: 0, atendimento: 0, prazo: 0, confiabilidade: 0 }
 
   return (
-    <PaginaGlobal
-      className="md-page"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Star weight="duotone" size={22} />}
-          titulo={t('bidfrete.portal.meu_desempenho.titulo')}
-          subtitulo={t('bidfrete.portal.meu_desempenho.subtitulo')}
-        />
-      }
-    >
+    <PaginaGlobal className="md-page">
       {/* Rating Global */}
       <div className="md-rating-hero">
         <div className="md-rating-number">{rating.toFixed(1)}</div>

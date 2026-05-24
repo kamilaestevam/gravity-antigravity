@@ -6,7 +6,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import {
   CurrencyDollar,
@@ -150,13 +149,13 @@ export default function TabelaPrecos() {
     carregar()
   }
 
-  const colunas: TabelaGlobalColuna<any>[] = [
+  const colunas: TabelaGlobalColuna<TabelaPreco>[] = [
     {
       key: 'rota',
       label: t('bidfrete.portal.tabela_precos.col_rota'),
       tipo: 'texto',
       largura: 220,
-      render: (_val: any, row: any) => (
+      render: (_val: unknown, row: TabelaPreco) => (
         <span style={{ fontSize: '0.8125rem' }}>
           {row.origem_nome_cotacao_bid_frete_internacional} &rarr; {row.destino_nome_cotacao_bid_frete_internacional}
         </span>
@@ -167,7 +166,7 @@ export default function TabelaPrecos() {
       label: t('bidfrete.portal.tabela_precos.col_modal'),
       tipo: 'texto',
       largura: 120,
-      render: (val: any) => (
+      render: (val: unknown) => (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8125rem' }}>
           {MODAL_ICON_MAP[val as ModalFrete]}
           {MODAL_LABELS[val as ModalFrete]}
@@ -179,8 +178,8 @@ export default function TabelaPrecos() {
       label: t('bidfrete.portal.tabela_precos.col_moeda'),
       tipo: 'texto',
       largura: 80,
-      render: (val: any) => (
-        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem' }}>{val}</span>
+      render: (val: unknown) => (
+        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem' }}>{String(val ?? '')}</span>
       ),
     },
     {
@@ -189,7 +188,7 @@ export default function TabelaPrecos() {
       tipo: 'numero',
       largura: 130,
       align: 'right',
-      render: (_val: any, row: any) => {
+      render: (_val: unknown, row: TabelaPreco) => {
         const total = (row.valor_frete_proposta_bid_frete_internacional ?? 0) + (row.taxas_origem_proposta_bid_frete_internacional ?? 0) + (row.taxas_destino_proposta_bid_frete_internacional ?? 0)
         return (
           <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem', fontWeight: 600 }}>
@@ -204,8 +203,8 @@ export default function TabelaPrecos() {
       tipo: 'numero',
       largura: 90,
       align: 'center',
-      render: (val: any) => (
-        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem' }}>{val}d</span>
+      render: (val: unknown) => (
+        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem' }}>{String(val ?? '')}d</span>
       ),
     },
     {
@@ -213,7 +212,7 @@ export default function TabelaPrecos() {
       label: t('bidfrete.portal.tabela_precos.col_validade'),
       tipo: 'periodo',
       largura: 110,
-      render: (val: any) => fmtData(val as string),
+      render: (val: unknown) => fmtData(val as string),
     },
   ]
 
@@ -233,22 +232,13 @@ export default function TabelaPrecos() {
   ]
 
   return (
-    <PaginaGlobal
-      className="tp-page"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<CurrencyDollar weight="duotone" size={22} />}
-          titulo={t('bidfrete.portal.tabela_precos.titulo')}
-          subtitulo={t('bidfrete.portal.tabela_precos.subtitulo')}
-          acoes={
-            <button className="tp-btn tp-btn--primary" onClick={abrirNovo}>
-              <Plus weight="bold" size={14} />
-              {t('bidfrete.portal.tabela_precos.nova_rota')}
-            </button>
-          }
-        />
-      }
-    >
+    <PaginaGlobal className="tp-page">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <button className="tp-btn tp-btn--primary" type="button" onClick={abrirNovo}>
+          <Plus weight="bold" size={14} />
+          {t('bidfrete.portal.tabela_precos.nova_rota')}
+        </button>
+      </div>
       {/* Form inline */}
       {formAberto && (
         <div className="tp-form-wrapper">

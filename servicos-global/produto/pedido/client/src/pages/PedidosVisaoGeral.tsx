@@ -10,17 +10,17 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   MagnifyingGlass,
   Export,
   DownloadSimple,
+  CurrencyCircleDollar,
   TrendUp,
   TrendDown,
   Timer,
-  Anchor,
-  AirplaneTilt,
   Trophy,
   ArrowRight,
   CaretLeft,
@@ -46,7 +46,12 @@ import {
 } from '@phosphor-icons/react'
 
 import { useVisaoGeralPedido } from '../shared/useVisaoGeralPedido'
-import type { VisaoGeralMapPin } from '../shared/visaoGeralMapaPedido'
+import type {
+  VisaoGeralMapPin,
+  VisaoGeralRotaDetalhe,
+  VisaoGeralResumoVencimentos,
+  VisaoGeralVencimentoCambio,
+} from '../shared/visaoGeralMapaPedido'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -56,9 +61,237 @@ const fmtMoeda = (v: number) =>
 const fmtMoedaSafe = (v: number) =>
   Number.isFinite(v) && v > 0 ? fmtMoeda(v) : '—'
 
+const fmtDataPt = (iso: string) => {
+  const [y, m, d] = iso.split('-')
+  if (!y || !m || !d) return iso
+  return `${d}/${m}/${y}`
+}
+
+function MiniTimelineVencimentos({ timeline }: { timeline: import('../shared/visaoGeralMapaPedido').VisaoGeralTimelineVencimento[] }) {
+  if (timeline.length === 0) return null
+  const max = Math.max(1, ...timeline.flatMap(t => [t.receber, t.pagar]))
+
+  return (
+    <div className="bfd-route-mini-timeline" aria-hidden="true">
+      <svg width="100%" height="100%" viewBox={`0 0 ${timeline.length * 14} 36`} preserveAspectRatio="xMidYMid meet">
+        {timeline.map((mes, idx) => {
+          const hRec = mes.receber > 0 ? Math.max(3, (mes.receber / max) * 22) : 0
+          const hPag = mes.pagar > 0 ? Math.max(3, (mes.pagar / max) * 22) : 0
+          const x = idx * 14 + 2
+          return (
+            <g key={mes.chave}>
+              {hPag > 0 && (
+                <rect x={x} y={18 - hPag} width={4} height={hPag} rx={1} fill="#f59e0b" opacity={0.9} />
+              )}
+              {hRec > 0 && (
+                <rect x={x + 5} y={18 - hRec} width={4} height={hRec} rx={1} fill="#34d399" opacity={0.9} />
+              )}
+            </g>
+          )
+        })}
+      </svg>
+    </div>
+  )
+}
+
+function MiniArcoCambio({ color }: { color: string }) {
+  const pathD = 'M 2,14 Q 36,2 70,14'
+  return (
+    <div className="bfd-route-mini-arco" aria-hidden="true">
+      <svg width="72" height="24" viewBox="0 0 72 24" style={{ overflow: 'visible' }}>
+        <path d={pathD} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" strokeDasharray="3,3" />
+        <path d={pathD} fill="none" stroke={color} strokeWidth="1.2" strokeDasharray="14, 120" opacity="0.85">
+          <animate attributeName="stroke-dashoffset" values="134;0" dur="5s" repeatCount="indefinite" />
+        </path>
+      </svg>
+      <div className="bfd-route-mini-arco__icon">
+        <CurrencyCircleDollar size={12} weight="duotone" color="#fbbf24" />
+      </div>
+    </div>
+  )
+}
+
+const PREVIEW_VENCIMENTOS = 3
+
+function ResumoVencimentosCol({
+  titulo,
+  resumo,
+  preview,
+  corValor,
+}: {
+  titulo: string
+  resumo: VisaoGeralResumoVencimentos
+  preview: VisaoGeralVencimentoCambio[]
+  corValor: string
+}) {
+  const { t } = useTranslation()
+
+  if (resumo.quantidade === 0) {
+    return (
+      <div className="bfd-route-vencimentos__col">
+        <span className="bfd-route-vencimentos__titulo">{titulo}</span>
+        <span className="bfd-route-vencimentos__vazio">{t('pedido.visao_geral.mapa.sem_vencimentos')}</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="bfd-route-vencimentos__col">
+      <span className="bfd-route-vencimentos__titulo">{titulo}</span>
+      <div className="bfd-route-vencimentos__resumo">
+        <strong style={{ color: corValor }}>{resumo.moeda} {fmtMoedaSafe(resumo.valorTotal)}</strong>
+        <span>{t('pedido.visao_geral.mapa.total_vencimentos_count', { count: resumo.quantidade })}</span>
+      </div>
+      {resumo.proximoData && (
+        <div className="bfd-route-vencimentos__proximo">
+          {t('pedido.visao_geral.mapa.proximo_vencimento')}: <strong>{fmtDataPt(resumo.proximoData)}</strong>
+        </div>
+      )}
+      {(resumo.vencidos > 0 || resumo.proximos7Dias > 0) && (
+        <div className="bfd-route-vencimentos__alertas">
+          {resumo.vencidos > 0 && (
+            <span className="bfd-route-venc-alert bfd-route-venc-alert--red">
+              {t('pedido.visao_geral.mapa.vencidos_count', { count: resumo.vencidos })}
+            </span>
+          )}
+          {resumo.proximos7Dias > 0 && (
+            <span className="bfd-route-venc-alert bfd-route-venc-alert--orange">
+              {t('pedido.visao_geral.mapa.proximos_7_dias_count', { count: resumo.proximos7Dias })}
+            </span>
+          )}
+        </div>
+      )}
+      {preview.slice(0, PREVIEW_VENCIMENTOS).map(v => (
+        <div key={`${v.data}-${v.valor}-${v.moeda}`} className="bfd-route-vencimentos__linha">
+          <span>{fmtDataPt(v.data)}</span>
+          <strong style={{ color: corValor }}>{v.moeda} {fmtMoedaSafe(v.valor)}</strong>
+        </div>
+      ))}
+      {resumo.quantidade > PREVIEW_VENCIMENTOS && (
+        <span className="bfd-route-vencimentos__mais">
+          {t('pedido.visao_geral.mapa.mais_vencimentos', { count: resumo.quantidade - PREVIEW_VENCIMENTOS })}
+        </span>
+      )}
+    </div>
+  )
+}
+
+function ListaVencimentosVirtualizada({
+  items,
+  corValor,
+}: {
+  items: VisaoGeralVencimentoCambio[]
+  corValor: string
+}) {
+  const parentRef = useRef<HTMLDivElement>(null)
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 36,
+    overscan: 10,
+  })
+
+  if (items.length === 0) {
+    return (
+      <div className="bfd-venc-expandido__vazio">
+        {/* preenchido pelo pai */}
+      </div>
+    )
+  }
+
+  return (
+    <div ref={parentRef} className="bfd-venc-expandido__lista">
+      <div style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative', width: '100%' }}>
+        {virtualizer.getVirtualItems().map(vItem => {
+          const v = items[vItem.index]
+          return (
+            <div
+              key={`${v.data}-${v.valor}-${vItem.index}`}
+              className="bfd-venc-expandido__linha"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: `${vItem.size}px`,
+                transform: `translateY(${vItem.start}px)`,
+              }}
+            >
+              <span>{fmtDataPt(v.data)}</span>
+              <strong style={{ color: corValor }}>{v.moeda} {fmtMoedaSafe(v.valor)}</strong>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function PainelVencimentosExpandido({
+  route,
+  tabInicial,
+  onVoltar,
+}: {
+  route: VisaoGeralRotaDetalhe
+  tabInicial: 'pagar' | 'receber'
+  onVoltar: () => void
+}) {
+  const { t } = useTranslation()
+  const [tab, setTab] = useState<'pagar' | 'receber'>(tabInicial)
+  const items = tab === 'pagar' ? route.vencimentosPagar : route.vencimentosReceber
+  const resumo = tab === 'pagar' ? route.resumoVencimentosPagar : route.resumoVencimentosReceber
+  const corValor = tab === 'pagar' ? '#f59e0b' : '#34d399'
+
+  return (
+    <div className="bfd-venc-expandido">
+      <div className="bfd-venc-expandido__header">
+        <button type="button" className="bfd-venc-expandido__voltar" onClick={onVoltar}>
+          ← {t('pedido.visao_geral.mapa.voltar_rotas')}
+        </button>
+        <span className="bfd-venc-expandido__rota">
+          {route.fromPort} ➔ {route.toPort}
+        </span>
+      </div>
+
+      <div className="bfd-venc-expandido__tabs">
+        <button
+          type="button"
+          className={`bfd-venc-expandido__tab ${tab === 'pagar' ? 'is-active' : ''}`}
+          onClick={() => setTab('pagar')}
+        >
+          {t('pedido.visao_geral.mapa.vencimentos_pagar')}
+          <span className="bfd-venc-expandido__tab-count">{route.resumoVencimentosPagar.quantidade}</span>
+        </button>
+        <button
+          type="button"
+          className={`bfd-venc-expandido__tab ${tab === 'receber' ? 'is-active' : ''}`}
+          onClick={() => setTab('receber')}
+        >
+          {t('pedido.visao_geral.mapa.vencimentos_receber')}
+          <span className="bfd-venc-expandido__tab-count">{route.resumoVencimentosReceber.quantidade}</span>
+        </button>
+      </div>
+
+      <div className="bfd-venc-expandido__resumo-bar">
+        <span><strong style={{ color: corValor }}>{resumo.moeda} {fmtMoedaSafe(resumo.valorTotal)}</strong></span>
+        <span>{t('pedido.visao_geral.mapa.total_vencimentos_count', { count: resumo.quantidade })}</span>
+        {resumo.proximoData && (
+          <span>{t('pedido.visao_geral.mapa.proximo_vencimento')}: {fmtDataPt(resumo.proximoData)}</span>
+        )}
+      </div>
+
+      {items.length === 0 ? (
+        <div className="bfd-venc-expandido__vazio">{t('pedido.visao_geral.mapa.sem_vencimentos')}</div>
+      ) : (
+        <ListaVencimentosVirtualizada items={items} corValor={corValor} />
+      )}
+    </div>
+  )
+}
+
 const TIPO_OPERACAO_ICONS: Record<string, React.ReactNode> = {
-  importacao: <Anchor weight="duotone" size={16} />,
-  exportacao: <AirplaneTilt weight="duotone" size={16} />,
+  importacao: <DownloadSimple weight="duotone" size={16} />,
+  exportacao: <Export weight="duotone" size={16} />,
 }
 
 // ─── Gráfico de Barras Mensal (SVG) ─────────────────────────────────────────
@@ -795,6 +1028,11 @@ function VisaoGeralMapa() {
   const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modais'>('origens')
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
   const [selectedLocKey, setSelectedLocKey] = useState<string | null>(null)
+  const [vencimentosExpandido, setVencimentosExpandido] = useState<{ routeIdx: number; tab: 'pagar' | 'receber' } | null>(null)
+
+  useEffect(() => {
+    setVencimentosExpandido(null)
+  }, [selectedLocKey])
 
   const pinsRef = useRef(pins)
   const globeRoutesRef = useRef(globeRoutes)
@@ -1224,26 +1462,23 @@ function VisaoGeralMapa() {
                     
                     ctx.beginPath()
                     if (isImportacao) {
-                      // Draw sleek top-down cargo ship hull
-                      ctx.moveTo(8, 0)
-                      ctx.lineTo(4, 3)
-                      ctx.lineTo(-6, 3)
-                      ctx.lineTo(-7, 1.5)
-                      ctx.lineTo(-7, -1.5)
-                      ctx.lineTo(-6, -3)
-                      ctx.lineTo(4, -3)
-                      ctx.closePath()
+                      // Entrada (importação) — seta para dentro
+                      ctx.moveTo(6, -5)
+                      ctx.lineTo(-2, 3)
+                      ctx.lineTo(1, 3)
+                      ctx.lineTo(1, 6)
+                      ctx.lineTo(-5, 6)
+                      ctx.lineTo(-5, 3)
+                      ctx.lineTo(-2, 3)
                     } else {
-                      // Draw sleek top-down airplane fuselage & wings
-                      ctx.moveTo(8, 0)
-                      ctx.lineTo(-4, 6)
-                      ctx.lineTo(-2, 2)
-                      ctx.lineTo(-8, 3)
-                      ctx.lineTo(-6, 0)
-                      ctx.lineTo(-8, -3)
-                      ctx.lineTo(-2, -2)
-                      ctx.lineTo(-4, -6)
-                      ctx.closePath()
+                      // Saída (exportação) — seta para fora
+                      ctx.moveTo(-6, 5)
+                      ctx.lineTo(2, -3)
+                      ctx.lineTo(-1, -3)
+                      ctx.lineTo(-1, -6)
+                      ctx.lineTo(5, -6)
+                      ctx.lineTo(5, -3)
+                      ctx.lineTo(2, -3)
                     }
                     
                     ctx.fillStyle = '#ffffff'
@@ -1251,15 +1486,9 @@ function VisaoGeralMapa() {
                     ctx.shadowColor = isImportacao ? '#f59e0b' : '#c084fc'
                     ctx.fill()
                     
-                    // Draw a tiny colorful inner core/cabin for maximum luxury detail
                     ctx.beginPath()
-                    if (isImportacao) {
-                      ctx.rect(-2, -1.5, 3, 3)
-                      ctx.fillStyle = '#f59e0b'
-                    } else {
-                      ctx.arc(1, 0, 1.5, 0, Math.PI * 2)
-                      ctx.fillStyle = '#a78bfa' // purple core for plane cockpit
-                    }
+                    ctx.arc(0, 0, 2.2, 0, Math.PI * 2)
+                    ctx.fillStyle = isImportacao ? '#f59e0b' : '#a78bfa'
                     ctx.shadowBlur = 0
                     ctx.fill()
                     
@@ -1414,10 +1643,10 @@ function VisaoGeralMapa() {
           {/* Floating Legend */}
           <div className="bfd-map-legend-floating">
             <span className="bfd-map-legend__item">
-              <Anchor size={15} weight="bold" style={{ color: '#f59e0b' }} /> {t('pedido.visao_geral.mapa.legenda_importacao')}
+              <DownloadSimple size={15} weight="bold" style={{ color: '#f59e0b' }} /> {t('pedido.visao_geral.mapa.legenda_importacao')}
             </span>
             <span className="bfd-map-legend__item">
-              <AirplaneTilt size={15} weight="bold" style={{ color: '#a78bfa' }} /> {t('pedido.visao_geral.mapa.legenda_exportacao')}
+              <Export size={15} weight="bold" style={{ color: '#a78bfa' }} /> {t('pedido.visao_geral.mapa.legenda_exportacao')}
             </span>
           </div>
           
@@ -1462,7 +1691,7 @@ function VisaoGeralMapa() {
             
             const isHovered = hoveredPin === pin.id
             const isExportacao = pin.tipoOperacao === 'exportacao'
-            const Icon = TIPO_OPERACAO_ICONS[pin.tipoOperacao] || <Anchor size={12} />
+            const Icon = TIPO_OPERACAO_ICONS[pin.tipoOperacao] || <DownloadSimple size={12} />
             
             return (
               <div
@@ -1680,7 +1909,7 @@ function VisaoGeralMapa() {
                   >
                     <span className="bfd-map-panel__row-rank">{idx + 1}</span>
                     <span className="bfd-map-panel__modal-icon-wrap" style={{ color: isExportacao ? '#a78bfa' : '#f59e0b' }}>
-                      {TIPO_OPERACAO_ICONS[item.key] || <Anchor size={14} />}
+                      {TIPO_OPERACAO_ICONS[item.key] || <DownloadSimple size={14} />}
                     </span>
                     <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
                       <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
@@ -1756,22 +1985,32 @@ function VisaoGeralMapa() {
                 </div>
                 
                 <div className="bfd-modal-mapa-body">
-                  {connections.length === 0 ? (
+                  {vencimentosExpandido !== null && connections[vencimentosExpandido.routeIdx] ? (
+                    <PainelVencimentosExpandido
+                      route={connections[vencimentosExpandido.routeIdx]}
+                      tabInicial={vencimentosExpandido.tab}
+                      onVoltar={() => setVencimentosExpandido(null)}
+                    />
+                  ) : connections.length === 0 ? (
                     <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
                       {t('pedido.visao_geral.mapa.sem_rotas')}
                     </div>
                   ) : (
                     connections.map((route, idx) => {
                       const isExportacao = route.tipoOperacao === 'exportacao'
-                      const modeColor = isExportacao ? '#a78bfa' : '#f59e0b'
-                      const modeIcon = isExportacao ? <AirplaneTilt size={14} weight="bold" /> : <Anchor size={14} weight="bold" />
-                      const badgeClass = isExportacao ? 'bfd-route-badge bfd-route-badge--aereo' : 'bfd-route-badge bfd-route-badge--maritimo'
-                      const cardClass = isExportacao ? 'bfd-route-card bfd-route-card--aereo' : 'bfd-route-card bfd-route-card--maritimo'
-                      const pathD = "M 10,15 Q 120,-5 230,15"
-                      const speed = isExportacao ? "3.2s" : "6.5s"
+                      const tipoColor = isExportacao ? '#a78bfa' : '#f59e0b'
+                      const tipoIcon = isExportacao
+                        ? <Export size={14} weight="bold" />
+                        : <DownloadSimple size={14} weight="bold" />
+                      const badgeClass = isExportacao ? 'bfd-route-badge bfd-route-badge--exportacao' : 'bfd-route-badge bfd-route-badge--importacao'
+                      const cardClass = isExportacao ? 'bfd-route-card bfd-route-card--exportacao' : 'bfd-route-card bfd-route-card--importacao'
+                      const totalVencimentos =
+                        route.resumoVencimentosPagar.quantidade + route.resumoVencimentosReceber.quantidade
                       
                       return (
                         <div key={idx} className={cardClass}>
+                          <MiniArcoCambio color={tipoColor} />
+
                           <div className="bfd-route-header">
                             <div className="bfd-route-ports">
                               <span className="bfd-route-port-flag">{route.fromFlag}</span>
@@ -1782,26 +2021,43 @@ function VisaoGeralMapa() {
                             </div>
                             
                             <span className={badgeClass} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              {modeIcon} {t(`pedido.visao_geral.modal.${route.tipoOperacao}`, { defaultValue: route.tipoOperacao })}
+                              {tipoIcon} {t(`pedido.visao_geral.modal.${route.tipoOperacao}`, { defaultValue: route.tipoOperacao })}
                             </span>
                           </div>
-                          
-                          <div className="bfd-route-svg-container">
-                            <svg width="100%" height="30" viewBox="0 0 240 30" style={{ overflow: 'visible' }}>
-                              <path d={pathD} fill="none" stroke="rgba(255, 255, 255, 0.12)" strokeWidth="2" strokeDasharray="4,4" />
-                              <path d={pathD} fill="none" stroke={modeColor} strokeWidth="1.5" strokeDasharray="20, 220" opacity="0.8">
-                                <animate attributeName="stroke-dashoffset" values="240;0" dur={speed} repeatCount="indefinite" />
-                              </path>
-                              <g>
-                                {isExportacao ? (
-                                  <path d="M-7,-2 L-2,-2 L1,-6 L3,-6 L2,-2 L6,-1 L8,0 L6,1 L2,2 L3,6 L1,6 L-2,2 L-7,2 Z" fill="#a78bfa" style={{ filter: 'drop-shadow(0 0 3px rgba(167, 139, 250, 0.6))' }} />
-                                ) : (
-                                  <path d="M-8,-2 L4,-2 L8,0 L4,2 L-8,2 Z M-5,-2 L-5,-4 L-2,-4 L-2,-2 Z" fill="#f59e0b" style={{ filter: 'drop-shadow(0 0 3px rgba(245, 158, 11, 0.6))' }} />
-                                )}
-                                <animateMotion path={pathD} dur={speed} repeatCount="indefinite" rotate="auto" />
-                              </g>
-                            </svg>
+
+                          <div className="bfd-route-vencimentos">
+                            <div className="bfd-route-vencimentos__cols">
+                              <ResumoVencimentosCol
+                                titulo={t('pedido.visao_geral.mapa.vencimentos_pagar')}
+                                resumo={route.resumoVencimentosPagar}
+                                preview={route.vencimentosPagar}
+                                corValor="#f59e0b"
+                              />
+                              <ResumoVencimentosCol
+                                titulo={t('pedido.visao_geral.mapa.vencimentos_receber')}
+                                resumo={route.resumoVencimentosReceber}
+                                preview={route.vencimentosReceber}
+                                corValor="#34d399"
+                              />
+                            </div>
+                            <MiniTimelineVencimentos timeline={route.timelineVencimentos} />
                           </div>
+
+                          {totalVencimentos > 0 && (
+                            <button
+                              type="button"
+                              className="bfd-route-ver-todos-btn"
+                              onClick={e => {
+                                e.stopPropagation()
+                                setVencimentosExpandido({
+                                  routeIdx: idx,
+                                  tab: route.resumoVencimentosPagar.quantidade > 0 ? 'pagar' : 'receber',
+                                })
+                              }}
+                            >
+                              {t('pedido.visao_geral.mapa.ver_todos_vencimentos', { count: totalVencimentos })}
+                            </button>
+                          )}
                           
                           <div className="bfd-route-stats">
                             <div className="bfd-route-stat-item">
@@ -1814,7 +2070,7 @@ function VisaoGeralMapa() {
                             </div>
                             <div className="bfd-route-stat-item">
                               <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.incoterm')}</span>
-                              <span className="bfd-route-stat-value" style={{ color: modeColor }}>{route.incoterm}</span>
+                              <span className="bfd-route-stat-value" style={{ color: tipoColor }}>{route.incoterm}</span>
                             </div>
                           </div>
                           
@@ -2657,6 +2913,8 @@ export default function VisaoGeral() {
         }
 
         .bfd-modal-mapa-body {
+          flex: 1;
+          min-height: 0;
           padding: 1.5rem;
           overflow-y: auto;
           display: flex;
@@ -2669,11 +2927,13 @@ export default function VisaoGeral() {
           border: 1px solid rgba(255, 255, 255, 0.06);
           border-radius: 12px;
           padding: 1.25rem;
+          padding-right: 5.5rem;
           display: flex;
           flex-direction: column;
           gap: 0.85rem;
           position: relative;
-          overflow: hidden;
+          overflow: visible;
+          flex-shrink: 0;
           transition: all 0.3s ease;
         }
         .bfd-route-card:hover {
@@ -2683,10 +2943,10 @@ export default function VisaoGeral() {
           transform: translateY(-2px);
         }
 
-        .bfd-route-card--maritimo {
-          border-left: 3px solid #34d399;
+        .bfd-route-card--importacao {
+          border-left: 3px solid #f59e0b;
         }
-        .bfd-route-card--aereo {
+        .bfd-route-card--exportacao {
           border-left: 3px solid #a78bfa;
         }
 
@@ -2724,21 +2984,300 @@ export default function VisaoGeral() {
           letter-spacing: 0.05em;
           text-transform: uppercase;
         }
-        .bfd-route-badge--maritimo {
-          background: rgba(52, 211, 153, 0.12);
-          color: #34d399;
-          border: 1px solid rgba(52, 211, 153, 0.2);
+        .bfd-route-badge--importacao {
+          background: rgba(245, 158, 11, 0.12);
+          color: #f59e0b;
+          border: 1px solid rgba(245, 158, 11, 0.2);
         }
-        .bfd-route-badge--aereo {
+        .bfd-route-badge--exportacao {
           background: rgba(167, 139, 250, 0.12);
           color: #a78bfa;
           border: 1px solid rgba(167, 139, 250, 0.2);
         }
 
         .bfd-route-svg-container {
+          position: relative;
           margin: 0.25rem 0;
           width: 100%;
           height: 30px;
+        }
+
+        .bfd-route-mini-arco {
+          position: absolute;
+          top: 0.55rem;
+          right: 0.65rem;
+          width: 72px;
+          height: 24px;
+          z-index: 2;
+        }
+
+        .bfd-route-mini-arco__icon {
+          position: absolute;
+          left: 50%;
+          top: 55%;
+          transform: translate(-50%, -50%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: rgba(15, 23, 42, 0.95);
+          border: 1px solid rgba(251, 191, 36, 0.35);
+        }
+
+        .bfd-route-vencimentos {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          padding: 0.55rem 0.65rem;
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          overflow: visible;
+          flex-shrink: 0;
+        }
+
+        .bfd-route-vencimentos__cols {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+          align-items: start;
+        }
+
+        .bfd-route-vencimentos__col {
+          display: flex;
+          flex-direction: column;
+          gap: 0.28rem;
+          min-width: 0;
+          overflow: visible;
+        }
+
+        .bfd-route-vencimentos__titulo {
+          font-size: 0.68rem;
+          font-weight: 800;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+          color: #94a3b8;
+          margin-bottom: 0.15rem;
+        }
+
+        .bfd-route-vencimentos__linha {
+          display: flex;
+          justify-content: space-between;
+          gap: 0.5rem;
+          font-size: 0.72rem;
+          color: #cbd5e1;
+        }
+
+        .bfd-route-vencimentos__linha strong {
+          color: #ffffff;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+
+        .bfd-route-vencimentos__vazio {
+          font-size: 0.72rem;
+          color: #64748b;
+          font-style: italic;
+        }
+
+        .bfd-route-vencimentos__resumo {
+          display: flex;
+          flex-direction: column;
+          gap: 0.1rem;
+          font-size: 0.72rem;
+          color: #94a3b8;
+        }
+
+        .bfd-route-vencimentos__resumo strong {
+          font-size: 0.82rem;
+        }
+
+        .bfd-route-vencimentos__proximo {
+          font-size: 0.68rem;
+          color: #94a3b8;
+        }
+
+        .bfd-route-vencimentos__alertas {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.35rem;
+        }
+
+        .bfd-route-venc-alert {
+          font-size: 0.62rem;
+          font-weight: 700;
+          padding: 0.12rem 0.4rem;
+          border-radius: 999px;
+          letter-spacing: 0.02em;
+        }
+
+        .bfd-route-venc-alert--red {
+          background: rgba(239, 68, 68, 0.15);
+          color: #fca5a5;
+          border: 1px solid rgba(239, 68, 68, 0.35);
+        }
+
+        .bfd-route-venc-alert--orange {
+          background: rgba(245, 158, 11, 0.15);
+          color: #fcd34d;
+          border: 1px solid rgba(245, 158, 11, 0.35);
+        }
+
+        .bfd-route-vencimentos__mais {
+          font-size: 0.68rem;
+          color: #64748b;
+          font-style: italic;
+        }
+
+        .bfd-route-ver-todos-btn {
+          width: 100%;
+          margin-top: 0.35rem;
+          padding: 0.45rem 0.75rem;
+          border-radius: 8px;
+          border: 1px solid rgba(56, 189, 248, 0.35);
+          background: rgba(56, 189, 248, 0.08);
+          color: #7dd3fc;
+          font-size: 0.72rem;
+          font-weight: 700;
+          cursor: pointer;
+          transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .bfd-route-ver-todos-btn:hover {
+          background: rgba(56, 189, 248, 0.16);
+          border-color: rgba(56, 189, 248, 0.55);
+        }
+
+        .bfd-venc-expandido {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          min-height: 320px;
+        }
+
+        .bfd-venc-expandido__header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+        }
+
+        .bfd-venc-expandido__voltar {
+          background: none;
+          border: none;
+          color: #7dd3fc;
+          font-size: 0.78rem;
+          font-weight: 600;
+          cursor: pointer;
+          padding: 0;
+        }
+
+        .bfd-venc-expandido__rota {
+          font-size: 0.82rem;
+          color: #e2e8f0;
+          font-weight: 600;
+        }
+
+        .bfd-venc-expandido__tabs {
+          display: flex;
+          gap: 0.5rem;
+        }
+
+        .bfd-venc-expandido__tab {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.4rem;
+          padding: 0.5rem 0.75rem;
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(255, 255, 255, 0.03);
+          color: #94a3b8;
+          font-size: 0.72rem;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        .bfd-venc-expandido__tab.is-active {
+          border-color: rgba(56, 189, 248, 0.45);
+          background: rgba(56, 189, 248, 0.1);
+          color: #e2e8f0;
+        }
+
+        .bfd-venc-expandido__tab-count {
+          font-size: 0.65rem;
+          padding: 0.1rem 0.35rem;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.08);
+        }
+
+        .bfd-venc-expandido__resumo-bar {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+          font-size: 0.72rem;
+          color: #94a3b8;
+          padding: 0.5rem 0.65rem;
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .bfd-venc-expandido__lista {
+          flex: 1;
+          max-height: 360px;
+          overflow-y: auto;
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: rgba(0, 0, 0, 0.15);
+          padding: 0.35rem 0.5rem;
+        }
+
+        .bfd-venc-expandido__linha {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.35rem 0.25rem;
+          font-size: 0.74rem;
+          color: #cbd5e1;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .bfd-venc-expandido__vazio {
+          font-size: 0.78rem;
+          color: #64748b;
+          font-style: italic;
+          padding: 1.5rem;
+          text-align: center;
+        }
+
+        .bfd-route-mini-timeline {
+          width: 84px;
+          height: 38px;
+          align-self: flex-end;
+          flex-shrink: 0;
+          opacity: 0.95;
+        }
+
+        .bfd-route-cambio-icon {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: rgba(15, 23, 42, 0.92);
+          border: 1px solid rgba(251, 191, 36, 0.35);
+          box-shadow: 0 0 10px rgba(251, 191, 36, 0.25);
+          pointer-events: none;
         }
 
         .bfd-route-stats {

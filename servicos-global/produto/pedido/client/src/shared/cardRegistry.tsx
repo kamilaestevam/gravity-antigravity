@@ -13,6 +13,7 @@ import React from 'react'
 import {
   Package,
   CurrencyDollar,
+  CurrencyCircleDollar,
   Scales,
   Warning,
   ClipboardText,
@@ -31,6 +32,8 @@ import type { Pedido, PedidoItem, CardUsuario } from './types'
 import { fmtMoeda, fmtQuantidade } from './types'
 import type { CardComputedStats } from './listaCardStats'
 import { computeCardStats, isEmAndamento } from './listaCardStats'
+import { decodeMetricaCard } from './cardMetricaCatalog'
+import { CARDS_CATALOGO } from './columnCatalog'
 
 export type { CardComputedStats }
 export { computeCardStats }
@@ -127,6 +130,15 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
       {row(t('pedido.cards.valor_total.row.moeda'),            'USD')}
       {row(t('pedido.cards.valor_total.row.media_por_pedido'), fmtMoeda(pedidos.length ? s.valorTotal / pedidos.length : 0))}
     </>,
+  },
+
+  valor_total_brl: {
+    icone:    ic(CurrencyCircleDollar, '#34d399'),
+    variante: 'sucesso',
+    getValue: s => s.valorTotalBrl ?? 0,
+    format:   v => fmtMoeda(v),
+    subtexto: (t) => t('pedido.lista.card.total_brl_subtexto'),
+    tooltip:  (t, _, s) => row(t('pedido.lista.card.total_brl_titulo'), fmtMoeda(s.valorTotalBrl ?? 0)),
   },
 
   qtd_total: {
@@ -234,6 +246,39 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
       {row(t('pedido.cards.valor_itens_total.row.media_por_item'), fmtMoeda(s.nItens > 0 ? s.valorItens / s.nItens : 0))}
     </>,
   },
+
+  alertas_total: {
+    icone:    ic(Warning, '#f59e0b'),
+    variante: 'aviso',
+    getValue: s => s.alertasTotal,
+    format:   v => v,
+    subtexto: (t, s) => t('pedido.cards.alertas_total.subtexto', {
+      pedido: s.alertasPedido,
+      item: s.alertasItem,
+    }),
+    tooltip:  (t, _, s) => <>
+      {row(t('pedido.cards.alertas_total.row.pedido'), s.alertasPedido)}
+      {row(t('pedido.cards.alertas_total.row.item'), s.alertasItem)}
+    </>,
+  },
+
+  alertas_pedido: {
+    icone:    ic(Warning, '#f59e0b'),
+    variante: 'aviso',
+    getValue: s => s.alertasPedido,
+    format:   v => v,
+    subtexto: (t) => t('pedido.cards.alertas_pedido.subtexto'),
+    tooltip:  (t, _, s) => row(t('pedido.cards.alertas_pedido.row.total'), s.alertasPedido),
+  },
+
+  alertas_item: {
+    icone:    ic(Warning, '#fbbf24'),
+    variante: 'aviso',
+    getValue: s => s.alertasItem,
+    format:   v => v,
+    subtexto: (t) => t('pedido.cards.alertas_item.subtexto'),
+    tooltip:  (t, _, s) => row(t('pedido.cards.alertas_item.row.total'), s.alertasItem),
+  },
 }
 
 // ─── Cards customizados (gerados dinamicamente) ──────────────────────────────
@@ -307,6 +352,24 @@ function evalNode(node: FormulaAST, stats: CardComputedStats): number {
 }
 
 export function buildCustomCardEntry(card: CardUsuario): CardRegistryEntry {
+  const metricaId = decodeMetricaCard(card.formula_expressao)
+  const base = metricaId ? CARD_REGISTRY[metricaId] : undefined
+
+  if (base && metricaId) {
+    const def = CARDS_CATALOGO.find(c => c.id === metricaId)
+    return {
+      icone: ICONE_CUSTOM_MAP[card.icone] ?? base.icone,
+      variante: base.variante,
+      getValue: base.getValue,
+      format: base.format,
+      subtexto: (t) => {
+        if (!def) return card.nome
+        return `${t(def.labelKey)} · ${def.origem} · ${def.tipoAgg}`
+      },
+      tooltip: base.tooltip,
+    }
+  }
+
   return {
     icone: ICONE_CUSTOM_MAP[card.icone] ?? <Package size={16} weight="duotone" />,
     getValue: (stats) => avaliarFormulaCustom(card.formula_expressao, stats),

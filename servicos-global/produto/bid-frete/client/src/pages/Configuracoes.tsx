@@ -33,7 +33,6 @@ import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-glo
 import { ConfiguracaoSecaoGlobal } from '@nucleo/cabecalho-secao-global'
 import { useShellStore } from '@gravity/shell'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { SwitchGlobal } from '@nucleo/switch-global'
 import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
 import {
@@ -178,6 +177,12 @@ const CARD_VISUAL: Record<string, { icone: React.ReactNode; cor: string }> = {
   cotacoes_expiradas:    { icone: <Warning           weight="duotone" size={18} />, cor: '#f87171' },
 }
 
+const CARD_VISUAL_FALLBACK = { icone: <Warning weight="duotone" size={18} />, cor: '#f59e0b' }
+
+function resolveCardVisual(id: string) {
+  return CARD_VISUAL[id] ?? CARD_VISUAL_FALLBACK
+}
+
 const NOME_EXIBICAO_CARDS_KEYS: Record<string, string> = {
   total_cotacoes: 'bidfrete.configuracoes.card_total_cotacoes',
   valor_total_frete: 'bidfrete.configuracoes.card_valor_total_frete',
@@ -266,7 +271,7 @@ function CardSortavel({
 }) {
   const { t } = useTranslation()
   const def = CARDS_CATALOGO.find(c => c.id === pref.id)!
-  const visual = CARD_VISUAL[pref.id]
+  const visual = resolveCardVisual(pref.id)
   const [detalheAberto, setDetalheAberto] = useState(false)
 
   const {
@@ -381,7 +386,7 @@ function CardDisponivel({
   periodoAtivo: string
 }) {
   const { t } = useTranslation()
-  const visual = CARD_VISUAL[def.id]
+  const visual = resolveCardVisual(def.id)
   const [detalheAberto, setDetalheAberto] = useState(false)
   const periodoLabel = PERIODOS_KEYS.find(p => p.id === periodoAtivo)
     ? t(PERIODOS_KEYS.find(p => p.id === periodoAtivo)!.labelKey)
@@ -990,6 +995,11 @@ export default function Configuracoes() {
   // Global save trigger detection
   const isDirtyGlobal = cardsDirty || tabelaDirty || casasDirty || formatoDataDirty || colunasDirty || saldoDirty || statusDirty || numeracaoDirty || templatesDirty || regrasDirty || anexosDirty || taxasDirty || notifDirty || exportDirty || kanbanColunasDirty || kanbanCardDirty
 
+  const formulaFields = useMemo(
+    () => FORMULA_FIELDS_KEYS.map(f => ({ chave: f.chave, label: t(f.labelKey) })),
+    [t],
+  )
+
   // ─── Drag & Drop Event Handlers ────────────────────────────────────────────────
 
   const handleDragEndCards = (event: DragEndEvent) => {
@@ -1072,15 +1082,8 @@ export default function Configuracoes() {
   return (
     <PaginaGlobal
       className="bf-configuracoes"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<GearSixWrapper />}
-          titulo={t('bidfrete.configuracoes.titulo')}
-          subtitulo={t('bidfrete.configuracoes.subtitulo')}
-        />
-      }
     >
-      <div className="cfg-page">
+      <div className={`cfg-page${isDirtyGlobal ? ' bf-cfg-page--dirty' : ''}`}>
         {/* ── Sidebar ── */}
         <aside className="cfg-sidebar">
         <nav className="cfg-sidebar__nav">
@@ -1155,15 +1158,21 @@ export default function Configuracoes() {
                   <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.meus_cards_titulo')}</h2>
                   <p className="cfg-secao__desc">{t('bidfrete.configuracoes.meus_cards_desc')}</p>
                 </div>
-                <button type="button" className="cfg-btn-header--restaurar" onClick={() => setCardsPref(CARDS_CATALOGO.map(c => ({ id: c.id, visible: true })))}>
-                  <ArrowCounterClockwise size={13} weight="bold" />
-                  {t('bidfrete.configuracoes.restaurar_padrao')}
-                </button>
+                <div className="cfg-secao__header-actions">
+                  <button type="button" className="cfg-add-row-btn" onClick={() => setCriandoCard(true)}>
+                    <Plus size={13} weight="bold" />
+                    {t('bidfrete.configuracoes.adicionar_card_kpi')}
+                  </button>
+                  <button type="button" className="cfg-btn-header--restaurar" onClick={() => setCardsPref(CARDS_CATALOGO.map(c => ({ id: c.id, visible: true })))}>
+                    <ArrowCounterClockwise size={13} weight="bold" />
+                    {t('bidfrete.configuracoes.restaurar_padrao')}
+                  </button>
+                </div>
               </div>
 
               {/* Período */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <p className="cfg-list-section-label" style={{ marginBottom: '0.5rem' }}>{t('bidfrete.configuracoes.periodo_comparacao')}</p>
+              <ConfiguracaoSecaoGlobal label={t('bidfrete.configuracoes.periodo_comparacao')} />
+              <div className="cfg-periodo-row">
                 <div className="cfg-periodo-pills">
                   {PERIODOS_KEYS.map(p => (
                     <button key={p.id} type="button" className={`cfg-periodo-pill ${periodoAtivo === p.id ? 'cfg-periodo-pill--ativo' : ''}`} onClick={() => setPeriodoAtivo(p.id)}>
@@ -1186,10 +1195,10 @@ export default function Configuracoes() {
                     return (
                       <div key={card.id} className={`cfg-kpi-preview-card ${!pref.visible ? 'cfg-kpi-preview-card--oculto' : ''}`}>
                         <span className="cfg-kpi-preview-card__pos">{i + 1}</span>
-                        <div className="cfg-kpi-preview-card__icon" style={{ color: CARD_VISUAL[card.id]?.cor }}>
-                          {CARD_VISUAL[card.id]?.icone}
+                        <div className="cfg-kpi-preview-card__icon" style={{ color: resolveCardVisual(card.id).cor }}>
+                          {resolveCardVisual(card.id).icone}
                         </div>
-                        <div className="cfg-kpi-preview-card__line" style={{ background: CARD_VISUAL[card.id]?.cor }} />
+                        <div className="cfg-kpi-preview-card__line" style={{ background: resolveCardVisual(card.id).cor }} />
                         <p className="cfg-kpi-preview-card__label">{obterNomeExibicaoCard(card, t)}</p>
                       </div>
                     )
@@ -1230,11 +1239,6 @@ export default function Configuracoes() {
                 ))}
               </div>
 
-              <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-start' }}>
-                <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={() => setCriandoCard(true)}>
-                  <Plus size={14} weight="bold" /> {t('bidfrete.configuracoes.adicionar_card_kpi')}
-                </BotaoGlobal>
-              </div>
             </section>
           </div>
         )}
@@ -1340,6 +1344,12 @@ export default function Configuracoes() {
                 <h2 className="cfg-secao__titulo">{t('bidfrete.configuracoes.colunas_personalizadas_titulo')}</h2>
                 <p className="cfg-secao__desc">{t('bidfrete.configuracoes.colunas_personalizadas_desc')}</p>
               </div>
+              <div className="cfg-secao__header-actions">
+                <button type="button" className="cfg-add-row-btn" onClick={() => setCriandoColuna(true)}>
+                  <Plus size={13} weight="bold" />
+                  {t('bidfrete.configuracoes.criar_coluna_personalizada')}
+                </button>
+              </div>
             </div>
 
             <ConfiguracaoSecaoGlobal label={t('bidfrete.configuracoes.suas_colunas_label')} count={`${colunasPersonalizadas.length} ${t('bidfrete.configuracoes.colunas_count')}`} />
@@ -1374,11 +1384,6 @@ export default function Configuracoes() {
               </div>
             )}
 
-            <div style={{ marginTop: '1.5rem' }}>
-              <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={() => setCriandoColuna(true)}>
-                <Plus size={14} weight="bold" /> {t('bidfrete.configuracoes.criar_coluna_personalizada')}
-              </BotaoGlobal>
-            </div>
           </section>
         )}
 
@@ -1392,39 +1397,61 @@ export default function Configuracoes() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{t('bidfrete.configuracoes.custo_total_estimado')}</p>
-              <div className="mcu-formula-area mcu-formula-area--ok" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', padding: '10px', background: '#0f172a', borderRadius: '8px', border: '1px solid #818cf8' }}>
-                {saldoTokens.map((tk, idx) => (
-                  <span key={idx} className={`mcu-token ${tk.tipo === 'campo' ? 'mcu-token--campo' : 'mcu-token--op'}`}>
-                    <span>{tk.tipo === 'campo' ? tk.label : tk.valor}</span>
-                    <button type="button" className="mcu-token__remove" onClick={() => setSaldoTokens(prev => prev.filter((_, i) => i !== idx))}>
-                      <X size={9} weight="bold" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-
-              <div className="mcu-ops">
-                {['+', '-', '*', '/'].map(op => (
-                  <button key={op} type="button" className="mcu-op-btn" onClick={() => setSaldoTokens(prev => [...prev, { tipo: 'op', valor: op }])}>{op}</button>
-                ))}
-              </div>
-
-              <div>
-                <span className="cfg-list-section-label" style={{ marginBottom: '0.5rem' }}>{t('bidfrete.configuracoes.campos_disponiveis')}</span>
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                  {FORMULA_FIELDS.map(f => (
-                    <button
-                      key={f.chave}
-                      type="button"
-                      className="mcu-chip-campo"
-                      onClick={() => setSaldoTokens(prev => [...prev, { tipo: 'campo', chave: f.chave, label: f.label }])}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
+            <div className="cfg-campo-calc-item">
+              <div className="cfg-campo-calc-item__header">
+                <div className="cfg-campo-calc-item__id">
+                  <MathOperations size={14} weight="duotone" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
+                  <span className="cfg-campo-calc-item__nome">{t('bidfrete.configuracoes.custo_total_estimado')}</span>
                 </div>
+              </div>
+
+              <div className="cfg-campo-calc-item__formula">
+                <div className={`cfg-saldo-tokens${saldoTokens.length > 0 ? ' cfg-saldo-tokens--ok' : ''}`}>
+                  <span className="cfg-saldo-tokens__label-fixo">{t('bidfrete.configuracoes.custo_total_estimado')}&nbsp;=</span>
+                  {saldoTokens.length === 0 ? (
+                    <span className="cfg-saldo-tokens__placeholder">{t('bidfrete.configuracoes.campos_disponiveis')}</span>
+                  ) : (
+                    saldoTokens.map((tk, idx) =>
+                      tk.tipo === 'campo' ? (
+                        <span key={idx} className="cfg-saldo-token cfg-saldo-token--campo">
+                          <span className="cfg-saldo-token__label">{tk.label}</span>
+                          <button type="button" className="cfg-saldo-token__remove" onClick={() => setSaldoTokens(prev => prev.filter((_, i) => i !== idx))} aria-label={t('bidfrete.configuracoes.remover')}>
+                            <X size={9} weight="bold" />
+                          </button>
+                        </span>
+                      ) : (
+                        <button key={idx} type="button" className="cfg-saldo-token cfg-saldo-token--op" onClick={() => setSaldoTokens(prev => prev.filter((_, i) => i !== idx))}>
+                          {tk.valor}
+                        </button>
+                      ),
+                    )
+                  )}
+                </div>
+
+                <div className="cfg-saldo-ops">
+                  {(['+', '-', '*', '/'] as const).map(op => (
+                    <button key={op} type="button" className="cfg-saldo-op-btn" onClick={() => setSaldoTokens(prev => [...prev, { tipo: 'op', valor: op }])}>{op}</button>
+                  ))}
+                  {saldoTokens.length > 0 && (
+                    <button type="button" className="cfg-saldo-op-btn cfg-saldo-op-btn--clear" onClick={() => setSaldoTokens([])}>
+                      {t('bidfrete.configuracoes.descartar')}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="cfg-campo-calc-item__campos">
+                <span className="cfg-campo-calc-item__campos-label">{t('bidfrete.configuracoes.campos_disponiveis')}</span>
+                {formulaFields.map(f => (
+                  <button
+                    key={f.chave}
+                    type="button"
+                    className="cfg-formula-chip"
+                    onClick={() => setSaldoTokens(prev => [...prev, { tipo: 'campo', chave: f.chave, label: f.label }])}
+                  >
+                    {f.label}
+                  </button>
+                ))}
               </div>
             </div>
           </section>
@@ -1934,21 +1961,17 @@ export default function Configuracoes() {
       <div className={`bf-cfg-savebar ${isDirtyGlobal ? 'bf-cfg-savebar--visible' : ''}`}>
         <div className="bf-cfg-savebar-inner">
           <span className="bf-cfg-dirty-msg">{t('bidfrete.configuracoes.alteracoes_nao_salvas')}</span>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              className="cfg-btn-secundario"
-              style={{ padding: '0.5rem 1rem', borderRadius: '9999px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#fff' }}
+          <div className="bf-cfg-savebar-actions">
+            <BotaoCancelar
+              dirty={isDirtyGlobal}
+              rotulo={t('bidfrete.configuracoes.descartar')}
               onClick={handleDescartarTudo}
-            >
-              {t('bidfrete.configuracoes.descartar')}
-            </button>
-            <button
-              className="bf-cfg-btn-save"
+            />
+            <BotaoSalvar
+              dirty={isDirtyGlobal}
+              rotulo={t('bidfrete.configuracoes.salvar_alteracoes')}
               onClick={handleSalvarTudo}
-            >
-              <FloppyDisk weight="bold" size={16} />
-              {t('bidfrete.configuracoes.salvar_alteracoes')}
-            </button>
+            />
           </div>
         </div>
       </div>

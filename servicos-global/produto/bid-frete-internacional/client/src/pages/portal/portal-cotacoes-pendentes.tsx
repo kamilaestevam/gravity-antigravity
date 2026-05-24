@@ -3,11 +3,11 @@
  * Cards com dados da cotacao, countdown, botao responder
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
 import {
   Envelope,
   Anchor,
@@ -85,17 +85,14 @@ export default function CotacoesPendentes() {
 
   useEffect(() => { carregar() }, [carregar])
 
+  useSincronizarTituloPaginaTopo(useMemo(() => ({
+    label:     t('bidfrete.portal.cotacoes_pendentes.titulo'),
+    icone:     <Envelope weight="duotone" size={22} />,
+    subtitulo: `${bids.length} cotação(ões) aguardando sua resposta`,
+  }), [t, bids.length]))
+
   return (
-    <PaginaGlobal
-      className="cp-page"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Envelope weight="duotone" size={22} />}
-          titulo={t('bidfrete.portal.cotacoes_pendentes.titulo')}
-          subtitulo={`${bids.length} cotação(ões) aguardando sua resposta`}
-        />
-      }
-    >
+    <PaginaGlobal className="cp-page">
       {carregando ? (
         <div className="cp-loading">
           <ClockCountdown weight="duotone" size={48} style={{ opacity: 0.3 }} />

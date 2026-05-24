@@ -8,21 +8,21 @@ import {
   Package, CurrencyDollar, CurrencyCircleDollar, Scales, Warning,
 } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
-import type { Pedido, PedidoItem, CardUsuario } from '../shared/types'
+import type { Pedido, PedidoItem } from '../shared/types'
 import { fmtQuantidade } from '../shared/types'
 import type { CardPreferencia } from '../shared/useCardPreferences'
 import { CARDS_CATALOGO } from '../shared/useCardPreferences'
-import { CARD_REGISTRY, buildCustomCardEntry } from '../shared/cardRegistry'
+import { CARD_REGISTRY } from '../shared/cardRegistry'
 import {
   computeCardStats,
   kpisApiToCardStats,
   type CardComputedStats,
 } from '../shared/listaCardStats'
 import { useListaCardKpis } from '../shared/useListaCardKpis'
+import { useConfigRegras } from '../shared/queries'
 import type { CardPeriodoCodigo } from '../shared/lista-card-schemas'
 export interface ListaPedidoCardsProps {
   cardsVisiveis: CardPreferencia[]
-  cardsCustom: CardUsuario[]
   pedidos: Pedido[]
   pedidosFiltrados: Pedido[]
   total: number
@@ -42,7 +42,6 @@ function fmtMoedaCard(v: number): string {
 
 export function ListaPedidoCards({
   cardsVisiveis,
-  cardsCustom,
   pedidos,
   pedidosFiltrados,
   total,
@@ -71,6 +70,21 @@ export function ListaPedidoCards({
     enabled: !temFiltroColunaCliente,
   })
 
+  const { data: regrasConfig } = useConfigRegras()
+
+  const regrasAlertas = useMemo(() => {
+    if (!regrasConfig) return undefined
+    return {
+      alerta_numero_duplicado: regrasConfig.alerta_numero_duplicado,
+      alerta_valor_total_divergente: regrasConfig.alerta_valor_total_divergente,
+      alerta_quantidade_total_divergente: regrasConfig.alerta_quantidade_total_divergente,
+      alerta_quantidade_pronta_divergente: regrasConfig.alerta_quantidade_pronta_divergente,
+      alerta_peso_liquido_divergente: regrasConfig.alerta_peso_liquido_divergente,
+      alerta_peso_bruto_divergente: regrasConfig.alerta_peso_bruto_divergente,
+      alerta_cubagem_divergente: regrasConfig.alerta_cubagem_divergente,
+    }
+  }, [regrasConfig])
+
   const pedidosBase = temFiltroColunaCliente ? pedidosFiltrados : pedidos
   const todosItens = useMemo(
     () => pedidosBase.flatMap(p => p.itens ?? []) as PedidoItem[],
@@ -90,23 +104,16 @@ export function ListaPedidoCards({
         hoje,
         temFiltroColunaCliente ? itensLocal.length : totalItensBanco,
         taxasVenda,
+        regrasAlertas,
       )
     }
     return kpisApiToCardStats(kpis)
   }, [
     temFiltroColunaCliente, kpis, pedidosBase, pedidosFiltrados, total,
-    todosItens, hoje, totalItensBanco, taxasVenda,
+    todosItens, hoje, totalItensBanco, taxasVenda, regrasAlertas,
   ])
 
-  const cardsParaRender = useMemo(() => {
-    const customVisiveis = cardsCustom
-      .filter(c => c.ativo)
-      .map(c => ({ pref: { id: `custom:${c.id}`, visible: true }, custom: c }))
-    return [
-      ...cardsVisiveis.map(pref => ({ pref, custom: null as CardUsuario | null })),
-      ...customVisiveis,
-    ]
-  }, [cardsVisiveis, cardsCustom])
+  const cardsParaRender = cardsVisiveis
 
   const qtdPorUnidade: Record<string, number> = {}
   const qtdSaldoPorUnidade: Record<string, number> = {}
@@ -123,24 +130,7 @@ export function ListaPedidoCards({
   return (
     <div className="lp-stats-row">
       <div className="lp-cards">
-        {cardsParaRender.map(({ pref, custom }) => {
-          if (custom) {
-            const entry = buildCustomCardEntry(custom)
-            const valor = entry.format(entry.getValue(cardStats))
-            return (
-              <CardBasicoGlobal
-                key={pref.id}
-                titulo={custom.nome}
-                icone={entry.icone}
-                valor={valor}
-                variante={entry.variante}
-                subtexto={entry.subtexto(t, cardStats)}
-                tooltip={entry.tooltip(t, pedidosBase, cardStats)}
-                {...tooltipProps}
-              />
-            )
-          }
-
+        {cardsParaRender.map((pref) => {
           if (pref.id === 'total_pedidos') {
             return (
               <CardBasicoGlobal

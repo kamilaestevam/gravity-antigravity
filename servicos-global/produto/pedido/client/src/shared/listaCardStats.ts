@@ -3,6 +3,11 @@
  */
 
 import type { Pedido, PedidoItem } from './types'
+import {
+  aggregateAlertasKpis,
+  REGRAS_ALERTAS_DEFAULT,
+  type RegrasAlertasConfig,
+} from '../../../shared/pedidoAlertasAggregate'
 
 export function safeNum(v: unknown): number {
   if (v == null) return 0
@@ -88,6 +93,9 @@ export interface CardComputedStats {
   valorItens: number
   nItens: number
   valorTotalBrl?: number
+  alertasTotal: number
+  alertasPedido: number
+  alertasItem: number
 }
 
 export function computeCardStats(
@@ -97,6 +105,7 @@ export function computeCardStats(
   hoje: string,
   totalItensBanco?: number,
   taxasVenda?: Record<string, number>,
+  regrasAlertas: RegrasAlertasConfig = REGRAS_ALERTAS_DEFAULT,
 ): CardComputedStats {
   const itensPorPedido = new Map<string, PedidoItem[]>()
   for (const i of itens) {
@@ -133,6 +142,22 @@ export function computeCardStats(
     .filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'sem_cobertura'))
     .reduce((acc, p) => acc + safeNum(p.valor_total_pedido), 0)
 
+  const itensByPedido = new Map<string, Record<string, unknown>[]>()
+  for (const p of pedidos) {
+    const pid = p.id ?? ''
+    if (!pid) continue
+    const itensP = (p.itens ?? itensPorPedido.get(pid) ?? []) as PedidoItem[]
+    itensByPedido.set(pid, itensP as unknown as Record<string, unknown>[])
+  }
+
+  const pedidosParaAlertas = pedidos.map(p => ({
+    ...(p as unknown as Record<string, unknown>),
+    id_pedido: p.id,
+    id: p.id,
+  }))
+
+  const alertas = aggregateAlertasKpis(pedidosParaAlertas, itensByPedido, regrasAlertas)
+
   return {
     total,
     valorTotal,
@@ -148,6 +173,9 @@ export function computeCardStats(
     valorItens,
     nItens: totalItensBanco != null && totalItensBanco > 0 ? totalItensBanco : itens.length,
     ...(taxasVenda ? { valorTotalBrl } : {}),
+    alertasTotal: alertas.alertas_total,
+    alertasPedido: alertas.alertas_pedido,
+    alertasItem: alertas.alertas_item,
   }
 }
 
@@ -166,6 +194,9 @@ export function kpisApiToCardStats(kpis: {
   qtd_transferida_total: number
   qtd_inicial_total: number
   valor_itens_total: number
+  alertas_total: number
+  alertas_pedido: number
+  alertas_item: number
 }): CardComputedStats {
   return {
     total: kpis.total_pedidos,
@@ -182,5 +213,8 @@ export function kpisApiToCardStats(kpis: {
     valorItens: kpis.valor_itens_total,
     nItens: kpis.total_itens,
     valorTotalBrl: kpis.valor_total_brl,
+    alertasTotal: kpis.alertas_total,
+    alertasPedido: kpis.alertas_pedido,
+    alertasItem: kpis.alertas_item,
   }
 }

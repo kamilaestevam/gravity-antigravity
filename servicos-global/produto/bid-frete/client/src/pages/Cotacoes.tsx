@@ -15,7 +15,6 @@ import { useShellStore } from '@gravity/shell'
 const NovaCotacao = React.lazy(() => import('./NovaCotacao'))
 // CotacoesKanban removido — arquivo nao commitado (bid-frete descontinuado)
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
@@ -323,7 +322,7 @@ export default function Cotacoes() {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: t('bidfrete.cotacoes.acoes.verDetalhes'),
-      onClick: (item: Cotacao) => navigate(`/produto/bid-frete/cotacoes/${item.id_cotacao_bid_frete}`),
+      onClick: (item: Cotacao) => navigate(`/bid-frete/cotacoes/${item.id_cotacao_bid_frete}`),
     },
   ], [navigate])
 
@@ -364,7 +363,7 @@ export default function Cotacoes() {
             type="button"
             className="lp-dropdown-btn"
             onClick={() => {
-              navigate('/produto/bid-frete/cotacoes/nova')
+              navigate('/bid-frete/cotacoes/nova')
               setNovoDropdownAberto(false)
             }}
           >
@@ -381,7 +380,7 @@ export default function Cotacoes() {
             type="button"
             className="lp-dropdown-btn"
             onClick={() => {
-              navigate('/produto/bid-frete/cotacoes/importar')
+              navigate('/bid-frete/cotacoes/importar')
               setNovoDropdownAberto(false)
             }}
           >
@@ -732,12 +731,6 @@ export default function Cotacoes() {
   return (
     <PaginaGlobal
       className="bf-cotacoes"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<FileText weight="duotone" size={22} />}
-          titulo={visao === 'kanban' ? t('bidfrete.cotacoes.tituloKanban') : t('bidfrete.cotacoes.titulo')}
-        />
-      }
     >
       {/* ── KPI cards (Configuração dinâmica com sincronização do local storage) ── */}
       {visao === 'lista' && (

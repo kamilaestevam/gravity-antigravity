@@ -42,10 +42,6 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia, type CardDefinicao } from '../shared/useCardPreferences'
-import { ICONE_CUSTOM_MAP } from '../shared/cardRegistry'
-import { useCardsUsuario } from '../shared/useCardsUsuario'
-import { ModalNovoCardUsuario } from '../components/ConfiguracaoCards/ModalNovoCardUsuario'
-import type { CardUsuario } from '../shared/types'
 import { TaxasMoedaResponseSchema, HistoricoTaxasResponseSchema, SyncTaxasResponseSchema, type BoletimCambio } from '../shared/useTaxasCambio'
 import { templatePedidoApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, saldoFormulaApi, obterSnapshotAtualizacaoPolicy, salvarSnapshotAtualizacaoPolicy, SNAPSHOT_ATUALIZACAO_DEFAULT, type TemplateLocal } from '../shared/api'
 import type { SnapshotAtualizacaoPolicy } from '../shared/types'
@@ -93,6 +89,15 @@ const CARD_VISUAL: Record<string, { icone: React.ReactNode; cor: string }> = {
   qtd_transferida_total:{ icone: <ArrowsLeftRight   weight="duotone" size={18} />, cor: '#a3e635' },
   qtd_inicial_total:    { icone: <StackSimple       weight="duotone" size={18} />, cor: '#94a3b8' },
   valor_itens_total:    { icone: <Money             weight="duotone" size={18} />, cor: '#f59e0b' },
+  alertas_total:        { icone: <Warning           weight="duotone" size={18} />, cor: '#f59e0b' },
+  alertas_pedido:       { icone: <Warning           weight="duotone" size={18} />, cor: '#f59e0b' },
+  alertas_item:         { icone: <Warning           weight="duotone" size={18} />, cor: '#fbbf24' },
+}
+
+const CARD_VISUAL_FALLBACK = { icone: <Warning weight="duotone" size={18} />, cor: '#f59e0b' }
+
+function resolveCardVisual(id: string) {
+  return CARD_VISUAL[id] ?? CARD_VISUAL_FALLBACK
 }
 
 const PERIODOS = [
@@ -115,7 +120,7 @@ function CardSortavel({
 }) {
   const { t } = useTranslation()
   const def    = CARDS_CATALOGO.find(c => c.id === pref.id)!
-  const visual = CARD_VISUAL[pref.id]
+  const visual = resolveCardVisual(pref.id)
   const [detalheAberto, setDetalheAberto] = useState(false)
 
   const {
@@ -233,7 +238,7 @@ function CardDisponivel({
   periodoAtivo: string
 }) {
   const { t } = useTranslation()
-  const visual = CARD_VISUAL[def.id]
+  const visual = resolveCardVisual(def.id)
   const [detalheAberto, setDetalheAberto] = useState(false)
   const periodoLabel = t(`pedido.config.cards.periodo_${periodoAtivo}`, { defaultValue: PERIODOS.find(p => p.id === periodoAtivo)?.label ?? periodoAtivo })
 
@@ -1597,8 +1602,6 @@ export default function Configuracoes() {
   }
 
   const { prefs, disponiveis, periodo, setPeriodo, adicionar, remover, toggle, reordenar, resetar } = useCardPreferences()
-  const { cards: cardsCustom, criar: criarCardCustom, excluir: excluirCardCustom, toggleAtivo: toggleCardCustom, carregando: carregandoCardsCustom } = useCardsUsuario()
-  const [modalCardAberto, setModalCardAberto] = useState(false)
 
   const sensors = useSensors(useSensor(PointerSensor, {
     activationConstraint: { distance: 5 },
@@ -2453,16 +2456,6 @@ export default function Configuracoes() {
                     </button>
                   ))}
                 </div>
-                {podeEditarConfig && (
-                  <button
-                    type="button"
-                    className="cfg-add-row-btn"
-                    onClick={() => setModalCardAberto(true)}
-                  >
-                    <Plus size={13} weight="bold" />
-                    {t('pedido.config.cards.criar_personalizado')}
-                  </button>
-                )}
               </div>
 
               {/* ── Preview ao vivo ── */}
@@ -2474,7 +2467,7 @@ export default function Configuracoes() {
                   </p>
                   <div className="cfg-cards-preview-grid">
                     {prefs.map((pref, i) => {
-                      const visual = CARD_VISUAL[pref.id]
+                      const visual = resolveCardVisual(pref.id)
                       const def    = CARDS_CATALOGO.find(c => c.id === pref.id)!
                       return (
                         <div
@@ -2491,20 +2484,6 @@ export default function Configuracoes() {
                         </div>
                       )
                     })}
-                    {cardsCustom.filter(c => c.ativo).map((card, i) => (
-                      <div
-                        key={card.id}
-                        className="cfg-kpi-preview-card"
-                        style={{ borderTopColor: card.cor }}
-                      >
-                        <span className="cfg-kpi-preview-card__pos">{prefs.length + i + 1}</span>
-                        <span className="cfg-kpi-preview-card__icon" style={{ color: card.cor }}>
-                          {ICONE_CUSTOM_MAP[card.icone] ?? <Package size={16} weight="duotone" />}
-                        </span>
-                        <div className="cfg-kpi-preview-card__line" style={{ background: card.cor }} />
-                        <p className="cfg-kpi-preview-card__label">{card.nome}</p>
-                      </div>
-                    ))}
                   </div>
                 </div>
               )}
@@ -2557,78 +2536,6 @@ export default function Configuracoes() {
                   </p>
                 )}
               </div>
-
-              {/* ── Cards Personalizados ── */}
-              <ConfiguracaoSecaoGlobal
-                label={t('pedido.config.cards.personalizados_titulo')}
-                count={cardsCustom.length > 0 ? t('pedido.config.cards.count_card', { count: cardsCustom.length }) : undefined}
-                style={{ marginTop: '1.5rem' }}
-              />
-
-              {carregandoCardsCustom ? (
-                <div style={{ padding: '1rem 0', textAlign: 'center' }}>
-                  <GravityLoader tamanho="sm" />
-                </div>
-              ) : (
-                <>
-                  {cardsCustom.length > 0 && (
-                    <div className="cfg-cards-lista">
-                      {cardsCustom.map(card => (
-                        <div key={card.id} className={`cfg-card-row${!card.ativo ? ' cfg-card-row--oculto' : ''}`}>
-                          <span className="cfg-drag-handle cfg-drag-handle--ghost">
-                            <DotsSixVertical size={16} weight="bold" />
-                          </span>
-                          <div className="cfg-card-row__info">
-                            <span className="cfg-card-row__icone" style={{ color: card.cor }}>
-                              {ICONE_CUSTOM_MAP[card.icone] ?? <Package size={16} weight="duotone" />}
-                            </span>
-                            <div>
-                              <p className="cfg-card-row__nome">{card.nome}</p>
-                              <p className="cfg-card-row__desc">{t('pedido.config.cards.formula_personalizado')}</p>
-                            </div>
-                          </div>
-                          <span className="cfg-origem-badge cfg-origem-badge--meus">{t('pedido.config.cards.badge_custom')}</span>
-                          <TooltipGlobal descricao={card.ativo ? t('pedido.config.cards.tooltip_ocultar_card') : t('pedido.config.cards.tooltip_exibir_card')}>
-                            <button
-                              type="button"
-                              className={`cfg-eye-btn${card.ativo ? ' cfg-eye-btn--on' : ''}`}
-                              onClick={() => toggleCardCustom(card.id)}
-                              aria-label={card.ativo ? t('pedido.config.colunas.personalizadas.aria_ocultar') : t('pedido.config.colunas.personalizadas.aria_exibir')}
-                            >
-                              {card.ativo ? <Eye size={15} weight="bold" /> : <EyeSlash size={15} weight="bold" />}
-                            </button>
-                          </TooltipGlobal>
-                          <TooltipGlobal descricao={t('pedido.config.cards.tooltip_excluir_personalizado')}>
-                            <button
-                              type="button"
-                              className="cfg-remove-btn"
-                              onClick={() => excluirCardCustom(card.id)}
-                              aria-label={t('pedido.config.cards.aria_excluir_card')}
-                            >
-                              <X size={13} weight="bold" />
-                            </button>
-                          </TooltipGlobal>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                </>
-              )}
-
-              {modalCardAberto && (
-                <ModalNovoCardUsuario
-                  onFechar={() => setModalCardAberto(false)}
-                  onSalvo={async (data) => {
-                    try {
-                      await criarCardCustom(data)
-                      setModalCardAberto(false)
-                    } catch {
-                      // backend indisponível — botão sai do loading via catch do modal
-                    }
-                  }}
-                />
-              )}
 
             </section>
           </div>

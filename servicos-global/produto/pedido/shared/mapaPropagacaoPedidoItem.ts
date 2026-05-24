@@ -33,6 +33,11 @@
  * Estrutura agrupada por domínio comercial — facilita revisão e auditoria.
  */
 export const MAPA_PROPAGACAO_PEDIDO_ITEM: Readonly<Record<string, string>> = Object.freeze({
+  // ── Isolamento — workspace (1) ───────────────────────────────────────────
+  // Mesmo nome Prisma em Pedido e PedidoItem. No JSON público do item o ACL
+  // expõe `company_id` (legado) — o front traduz na atualização do cache.
+  id_workspace:                     'id_workspace',
+
   // ── Identidade comercial (5) ─────────────────────────────────────────────
   incoterm_pedido:                  'incoterm_item',
   moeda_pedido:                     'moeda_item',

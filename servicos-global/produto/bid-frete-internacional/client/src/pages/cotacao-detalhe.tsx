@@ -6,11 +6,11 @@
  * Layout: Header + Timeline + Dados + BidRequests + BidResponses
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import {
   FileText,
@@ -168,6 +168,46 @@ export default function DetalheCotacao() {
 
   useEffect(() => { carregar() }, [carregar])
 
+  const tituloTopo = useMemo(() => {
+    if (carregando || !cotacao) {
+      return {
+        label: t('comum.carregando'),
+        icone: <FileText weight="duotone" size={22} />,
+      }
+    }
+    return {
+      label:     `Cotação ${cotacao.numero_cotacao_bid_frete_internacional}`,
+      icone:     <FileText weight="duotone" size={22} />,
+      subtitulo: cotacao.referencia_interna_cotacao_bid_frete_internacional
+        ? `Ref: ${cotacao.referencia_interna_cotacao_bid_frete_internacional}`
+        : undefined,
+    }
+  }, [carregando, cotacao, t])
+
+  useSincronizarTituloPaginaTopo(tituloTopo)
+
+  const acoesToolbar = cotacao ? (
+    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+      <button className="dc-btn dc-btn--secondary" type="button" onClick={() => navigate('/bid-frete/cotacoes')}>
+        <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
+      </button>
+      {cotacao.status === 'AGUARDANDO_APROVACAO' && (
+        <button className="dc-btn dc-btn--primary" type="button" onClick={() => navigate(`/bid-frete/cotacoes/${id}/comparativo`)}>
+          <Ranking weight="bold" size={14} /> {t('bidfrete.detalhe_cotacao.comparativo')}
+        </button>
+      )}
+      {cotacao.status === 'RASCUNHO' && (
+        <button
+          className="dc-btn dc-btn--danger"
+          type="button"
+          onClick={async () => { await excluirCotacao(cotacao.id); navigate('/bid-frete/cotacoes') }}
+        >
+          <Trash weight="bold" size={14} /> {t('comum.excluir')}
+        </button>
+      )}
+    </div>
+  ) : null
+
   // ─── Tabela de Bids ───────────────────────────────────────────────────
 
   const bidColunas: TabelaGlobalColuna<BidRequest>[] = [
@@ -226,9 +266,7 @@ export default function DetalheCotacao() {
 
   if (carregando || !cotacao) {
     return (
-      <PaginaGlobal
-        cabecalho={<CabecalhoGlobal icone={<FileText weight="duotone" size={22} />} titulo={t('comum.carregando')} />}
-      >
+      <PaginaGlobal>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)' }}>
           <Clock weight="duotone" size={32} style={{ animation: 'spin 1s linear infinite' }} />
         </div>
@@ -239,33 +277,8 @@ export default function DetalheCotacao() {
   // ─── Render ───────────────────────────────────────────────────────────
 
   return (
-    <PaginaGlobal
-      className="dc-page"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<FileText weight="duotone" size={22} />}
-          titulo={`Cotação ${cotacao.numero_cotacao_bid_frete_internacional}`}
-          subtitulo={cotacao.referencia_interna_cotacao_bid_frete_internacional ? `Ref: ${cotacao.referencia_interna_cotacao_bid_frete_internacional}` : undefined}
-          acoes={
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button className="dc-btn dc-btn--secondary" onClick={() => navigate('/produto/bid-frete/cotacoes')}>
-                <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
-              </button>
-              {cotacao.status === 'AGUARDANDO_APROVACAO' && (
-                <button className="dc-btn dc-btn--primary" onClick={() => navigate(`/produto/bid-frete/cotacoes/${id}/comparativo`)}>
-                  <Ranking weight="bold" size={14} /> {t('bidfrete.detalhe_cotacao.comparativo')}
-                </button>
-              )}
-              {cotacao.status === 'RASCUNHO' && (
-                <button className="dc-btn dc-btn--danger" onClick={async () => { await excluirCotacao(cotacao.id); navigate('/produto/bid-frete/cotacoes') }}>
-                  <Trash weight="bold" size={14} /> {t('comum.excluir')}
-                </button>
-              )}
-            </div>
-          }
-        />
-      }
-    >
+    <PaginaGlobal className="dc-page">
+      {acoesToolbar}
       {/* Status Badge */}
       <div className="dc-status-bar">
         <Badge label={STATUS_LABELS[cotacao.status]} variante={STATUS_BADGE[cotacao.status]} />

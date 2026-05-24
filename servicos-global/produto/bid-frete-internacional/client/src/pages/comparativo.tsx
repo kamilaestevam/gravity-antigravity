@@ -6,12 +6,12 @@
  * rejeicao com motivo, sort por score/preco/transit/rating.
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import {
   Ranking,
   ArrowLeft,
@@ -182,6 +182,38 @@ export default function Comparativo() {
   }, [id])
 
   useEffect(() => { carregar() }, [carregar])
+
+  const tituloTopo = useMemo(() => {
+    if (resultadoAprovacao) {
+      return {
+        label:     t('bidfrete.comparativo.titulo_aprovada'),
+        icone:     <Confetti weight="duotone" size={22} />,
+        subtitulo: `${t('bidfrete.cotacoes.titulo')} ${resultadoAprovacao.numero_cotacao_bid_frete_internacional}`,
+      }
+    }
+    return {
+      label:     t('bidfrete.comparativo.titulo'),
+      icone:     <Ranking weight="duotone" size={22} />,
+      subtitulo: cotacao
+        ? `${cotacao.numero_cotacao_bid_frete_internacional} — ${cotacao.origem_nome_cotacao_bid_frete_internacional} → ${cotacao.destino_nome_cotacao_bid_frete_internacional}`
+        : t('bidfrete.comparativo.subtitulo'),
+    }
+  }, [resultadoAprovacao, cotacao, t])
+
+  useSincronizarTituloPaginaTopo(tituloTopo)
+
+  const acoesComparativo = !resultadoAprovacao ? (
+    <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
+      <button className="btn btn-danger-outline" type="button" onClick={() => setModalReprovar(true)} disabled={respostas.length === 0}>
+        <XCircle weight="duotone" size={16} />
+        {t('bidfrete.comparativo.reprovar')}
+      </button>
+      <button className="btn btn-secondary" type="button" onClick={() => navigate(`/bid-frete/cotacoes/${id}`)}>
+        <ArrowLeft weight="bold" size={14} />
+        {t('comum.voltar')}
+      </button>
+    </div>
+  ) : null
 
   // ─── Sort Logic ───────────────────────────────────────────────────────────
 
@@ -398,16 +430,7 @@ export default function Comparativo() {
   // Se acabou de aprovar, mostra tela de confirmacao
   if (resultadoAprovacao) {
     return (
-      <PaginaGlobal
-        className="bf-comparativo"
-        cabecalho={
-          <CabecalhoGlobal
-            icone={<Confetti weight="duotone" size={22} />}
-            titulo={t('bidfrete.comparativo.titulo_aprovada')}
-            subtitulo={`${t('bidfrete.cotacoes.titulo')} ${resultadoAprovacao.numero_cotacao_bid_frete_internacional}`}
-          />
-        }
-      >
+      <PaginaGlobal className="bf-comparativo">
         <div className="bf-aprovacao-result">
           <div className="bf-aprovacao-result-icon">
             <CheckCircle weight="duotone" size={64} />
@@ -453,28 +476,8 @@ export default function Comparativo() {
   }
 
   return (
-    <PaginaGlobal
-      className="bf-comparativo"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Ranking weight="duotone" size={22} />}
-          titulo={t('bidfrete.comparativo.titulo')}
-          subtitulo={cotacao ? `${cotacao.numero_cotacao_bid_frete_internacional} — ${cotacao.origem_nome_cotacao_bid_frete_internacional} → ${cotacao.destino_nome_cotacao_bid_frete_internacional}` : t('bidfrete.comparativo.subtitulo')}
-          acoes={
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              <button className="btn btn-danger-outline" onClick={() => setModalReprovar(true)} disabled={respostas.length === 0}>
-                <XCircle weight="duotone" size={16} />
-                {t('bidfrete.comparativo.reprovar')}
-              </button>
-              <button className="btn btn-secondary" onClick={() => navigate(`/produto/bid-frete/cotacoes/${id}`)}>
-                <ArrowLeft weight="bold" size={14} />
-                {t('comum.voltar')}
-              </button>
-            </div>
-          }
-        />
-      }
-    >
+    <PaginaGlobal className="bf-comparativo">
+      {acoesComparativo}
       {/* ════════ Sort Buttons ════════ */}
       <div className="bf-sort-bar">
         <span className="bf-sort-label">{t('bidfrete.comparativo.ordenar_por')}:</span>

@@ -7,7 +7,6 @@
 
 import React, { lazy, Suspense, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import i18next from 'i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
 import { useAuth, useClerk } from '@clerk/clerk-react'
@@ -29,6 +28,7 @@ import {
   Kanban,
 } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
+import { resolverPageMetaTopo } from './shared/page-meta-topo'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
@@ -108,25 +108,6 @@ const ECOSYSTEM_NODES: EcosystemNode[] = [
   { id: PRODUCT_ID,     label: PRODUCT_NAME,   sublabel: PRODUTO.sublabel, color: PRODUCT_COLOR, type: 'produto',      status: 'current' },
 ]
 
-// ── Labels de rota para título de página ──────────────────────────────────────
-function getRouteLabels(): Record<string, string> {
-  const t = i18next.t.bind(i18next)
-  return {
-    'visao-geral':                        t('bidfrete.app.rota_visao_geral'),
-    'dashboard':                          'Dashboard',
-    'cotacoes':                           t('bidfrete.app.rota_cotacoes'),
-    'cotacoes/nova':                      t('bidfrete.app.rota_nova_cotacao'),
-    'cotacoes/importar':                  t('bidfrete.app.rota_importar_cotacoes'),
-    'fornecedores':                       t('bidfrete.app.rota_fornecedores'),
-    'configuracoes':                      t('bidfrete.app.rota_configuracoes'),
-    'portal/dashboard':                   t('bidfrete.app.rota_portal_dashboard'),
-    'portal/pendentes':                   t('bidfrete.app.rota_cotacoes_pendentes'),
-    'portal/respostas':                   t('bidfrete.app.rota_respostas'),
-    'portal/tabela-precos':               t('bidfrete.app.rota_tabela_precos'),
-    'portal/desempenho':                  t('bidfrete.app.rota_desempenho'),
-  }
-}
-
 function LoadingFallback() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '2rem' }}>
@@ -167,13 +148,10 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname])
 
-  // Resolve título da página a partir dos segmentos relativos ao produto
-  const segments    = location.pathname.split('/').filter(Boolean)
-  const productIdx  = segments.findIndex(s => s === PRODUCT_ID)
-  const relSegments = productIdx >= 0 ? segments.slice(productIdx + 1) : segments
-  const routeKey    = relSegments.join('/')
-  const routeLabels = useMemo(() => getRouteLabels(), [t])
-  const pageLabel   = routeKey === 'configuracoes' ? '' : (routeLabels[routeKey] ?? t('bidfrete.app.rota_visao_geral'))
+  const pageMeta = useMemo(
+    () => resolverPageMetaTopo(location.pathname, location.search),
+    [location.pathname, location.search],
+  )
 
   // Dados do usuário
   const initials = currentUser.name
@@ -217,10 +195,12 @@ export default function App() {
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
       onNavigateCore={() => { window.location.href = '/core' }}
-      onNavigateSettings={() => { navigate('/configuracoes') }}
+      onNavigateSettings={() => { navigate('/bid-frete/configuracoes') }}
       localizador={{
-        workspaceName:    nomeWorkspaceAtivo,
-        currentPageLabel: pageLabel,
+        workspaceName:       nomeWorkspaceAtivo,
+        currentPageLabel:    pageMeta.label,
+        currentPageIcon:     pageMeta.icone,
+        currentPageSubtitle: pageMeta.subtitulo,
         history,
         nodes: ECOSYSTEM_NODES,
         onNavigate: (node: EcosystemNode) => {

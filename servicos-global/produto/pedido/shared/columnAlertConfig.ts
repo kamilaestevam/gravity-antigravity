@@ -23,6 +23,9 @@
  */
 
 const CAMPOS_ALERTAVEIS = new Set([
+  // Workspace — divergência calculada em pedidoDivergencias.ts (item.company_id vs pai.id_workspace)
+  'id_workspace',
+
   // Tipo de operação — alerta quando itens divergem do pedido (importação vs exportação)
   'tipo_operacao',
 

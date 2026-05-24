@@ -413,18 +413,27 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     sortavel: false,         // backend ordena por id_workspace, não nome — manter simples
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) => {
-      const id = (row as unknown as { id_workspace?: string }).id_workspace ?? ''
+      const rowAny = row as unknown as Record<string, unknown>
+      const id = String(rowAny.id_workspace ?? rowAny.company_id ?? '')
       const nome = workspacesMap?.get(id)?.nome ?? id
-      if (!nome) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
-      if (nome.length <= 50) return <span style={{ display: 'block', textAlign: 'left' }}>{nome}</span>
-      return (
-        <TooltipGlobal titulo={t('pedido.coluna_pai.workspace_label')} descricao={nome}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-            {nome.slice(0, 50) + '…'}
-            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
-          </span>
-        </TooltipGlobal>
-      )
+      const divergente = rowAny.id_workspace_divergente === true
+      const labelDivergente = t('pedido.coluna_pai.workspace_divergente', 'Workspaces divergentes entre itens')
+      if (!nome) {
+        return divergente
+          ? renderAgregado(null, true, labelDivergente)
+          : <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      }
+      const conteudo = nome.length <= 50
+        ? <span style={{ display: 'block', textAlign: 'left' }}>{nome}</span>
+        : (
+          <TooltipGlobal titulo={t('pedido.coluna_pai.workspace_label')} descricao={nome}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              {nome.slice(0, 50) + '…'}
+              <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+            </span>
+          </TooltipGlobal>
+        )
+      return renderAgregado(conteudo, divergente, labelDivergente)
     },
   },
   // ── Nome Exportador ────────────────────────────────────────────────────────

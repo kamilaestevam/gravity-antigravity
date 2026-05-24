@@ -1,15 +1,10 @@
 /**
  * ModalNovoCardUsuario.tsx — Modal para criar/editar card KPI customizado
  *
- * Features:
- *  - Campo nome
- *  - Grid de ícones Phosphor (seleção visual)
- *  - Paleta de cores
- *  - Editor tokenizado (pill-based) para fórmulas — reutiliza formulaUtils
- *  - Campos disponíveis como chips clicáveis
+ * Campos: nome, ícone, cor e métrica do catálogo (obrigatória).
  */
 
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -21,13 +16,10 @@ import {
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { CardUsuario } from '../../shared/types'
 import {
-  FORMULA_ALIAS_MAP,
-  tokensParaAliasFormula,
-  aliasFormulaParaTokens,
-  CAMPOS_FORMULA_BASE,
-  type FormulaToken,
-} from '../../shared/formulaUtils'
-import { parsearFormula } from '../../shared/formulaEngine'
+  METRICAS_CARD_DISPONIVEIS,
+  encodeMetricaCard,
+  decodeMetricaCard,
+} from '../../shared/cardMetricaCatalog'
 import './ModalNovoCardUsuario.css'
 
 // ── Ícones disponíveis ──────────────────────────────────────────────────────
@@ -78,32 +70,15 @@ interface ModalNovoCardProps {
 export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNovoCardProps) {
   const { t } = useTranslation()
 
-  const [nome, setNome]     = useState(cardEdicao?.nome ?? '')
-  const [icone, setIcone]   = useState(cardEdicao?.icone ?? 'Package')
-  const [cor, setCor]       = useState(cardEdicao?.cor ?? '#818cf8')
-  const [tokens, setTokens] = useState<FormulaToken[]>(() =>
-    cardEdicao?.formula_expressao ? aliasFormulaParaTokens(cardEdicao.formula_expressao) : [],
+  const [nome, setNome] = useState(cardEdicao?.nome ?? '')
+  const [icone, setIcone] = useState(cardEdicao?.icone ?? 'Package')
+  const [cor, setCor] = useState(cardEdicao?.cor ?? '#818cf8')
+  const [metricaId, setMetricaId] = useState(
+    () => decodeMetricaCard(cardEdicao?.formula_expressao ?? '') ?? '',
   )
 
-  const formulaStr = tokensParaAliasFormula(tokens)
-  const ast        = tokens.length > 0 ? (() => { try { return parsearFormula(formulaStr) } catch { return null } })() : null
-  const formulaOk  = tokens.length > 0 && ast !== null
-  const formulaErro = tokens.length > 0 && ast === null
-
-  const adicionarCampo = useCallback((chave: string, label: string) => {
-    setTokens(prev => [...prev, { tipo: 'campo', chave, label }])
-  }, [])
-
-  const adicionarOp = useCallback((op: string) => {
-    setTokens(prev => [...prev, { tipo: 'op', valor: op }])
-  }, [])
-
-  const removerToken = useCallback((idx: number) => {
-    setTokens(prev => prev.filter((_, i) => i !== idx))
-  }, [])
-
   const [salvando, setSalvando] = useState(false)
-  const podeSubmeter = nome.trim().length > 0 && formulaOk && !salvando
+  const podeSubmeter = nome.trim().length > 0 && metricaId.length > 0 && !salvando
 
   async function handleSubmit() {
     if (!podeSubmeter) return
@@ -113,10 +88,8 @@ export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNov
         nome: nome.trim(),
         icone,
         cor,
-        formula_expressao: formulaStr,
-        formula_dependencias: tokens
-          .filter(t => t.tipo === 'campo')
-          .map(t => (t as { tipo: 'campo'; chave: string }).chave),
+        formula_expressao: encodeMetricaCard(metricaId),
+        formula_dependencias: [metricaId],
         ordem: cardEdicao?.ordem ?? 0,
         ativo: cardEdicao?.ativo ?? true,
       })
@@ -129,7 +102,6 @@ export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNov
     <div className="mcu-overlay" onClick={onFechar}>
       <div className="mcu-modal" onClick={e => e.stopPropagation()}>
 
-        {/* Header */}
         <div className="mcu-header">
           <h3 className="mcu-header__titulo">
             {cardEdicao ? t('pedido.card_usuario.titulo_editar') : t('pedido.card_usuario.titulo_novo')}
@@ -139,10 +111,8 @@ export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNov
           </button>
         </div>
 
-        {/* Body */}
         <div className="mcu-body">
 
-          {/* Nome */}
           <div className="mcu-campo">
             <span className="mcu-campo__label">{t('pedido.card_usuario.label_nome')}</span>
             <input
@@ -156,7 +126,6 @@ export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNov
             />
           </div>
 
-          {/* Ícone */}
           <div className="mcu-campo">
             <span className="mcu-campo__label">{t('pedido.card_usuario.label_icone')}</span>
             <div className="mcu-icone-grid">
@@ -174,7 +143,6 @@ export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNov
             </div>
           </div>
 
-          {/* Cor */}
           <div className="mcu-campo">
             <span className="mcu-campo__label">{t('pedido.card_usuario.label_cor')}</span>
             <div className="mcu-cor-grid">
@@ -191,60 +159,29 @@ export function ModalNovoCardUsuario({ cardEdicao, onFechar, onSalvo }: ModalNov
             </div>
           </div>
 
-          {/* Fórmula */}
           <div className="mcu-campo">
-            <span className="mcu-campo__label">{t('pedido.card_usuario.label_formula')}</span>
-            <div className={`mcu-formula-area${formulaOk ? ' mcu-formula-area--ok' : ''}${formulaErro ? ' mcu-formula-area--erro' : ''}`}>
-              {tokens.length === 0 ? (
-                <span className="mcu-placeholder">{t('pedido.card_usuario.ph_formula')}</span>
-              ) : (
-                tokens.map((token, i) =>
-                  token.tipo === 'campo' ? (
-                    <span key={i} className="mcu-token mcu-token--campo">
-                      <span>{token.label}</span>
-                      <button type="button" className="mcu-token__remove" onClick={() => removerToken(i)}>
-                        <X size={9} weight="bold" />
-                      </button>
-                    </span>
-                  ) : (
-                    <button key={i} type="button" className="mcu-token mcu-token--op" onClick={() => removerToken(i)}>
-                      {token.valor}
-                    </button>
-                  ),
-                )
-              )}
-            </div>
-
-            {/* Operadores */}
-            <div className="mcu-ops" style={{ marginTop: '0.5rem' }}>
-              {['+', '-', '*', '/', '(', ')'].map(op => (
-                <button key={op} type="button" className="mcu-op-btn" onClick={() => adicionarOp(op)}>{op}</button>
-              ))}
-              {tokens.length > 0 && (
-                <button type="button" className="mcu-op-btn mcu-op-btn--clear" onClick={() => setTokens([])}>{t('pedido.card_usuario.btn_limpar')}</button>
-              )}
-            </div>
-          </div>
-
-          {/* Campos disponíveis */}
-          <div className="mcu-campo">
-            <span className="mcu-campo__label">{t('pedido.card_usuario.label_campos_disponiveis')}</span>
-            <div className="mcu-campos-disponiveis">
-              {CAMPOS_FORMULA_BASE.flatMap(g => g.campos).map(campo => (
+            <span className="mcu-campo__label">
+              {t('pedido.card_usuario.label_metrica')} <span className="mcu-obrigatorio">*</span>
+            </span>
+            <p className="mcu-campo__hint">{t('pedido.card_usuario.hint_metrica')}</p>
+            <div className="mcu-metrica-lista" role="listbox" aria-label={t('pedido.card_usuario.label_metrica')}>
+              {METRICAS_CARD_DISPONIVEIS.map(def => (
                 <button
-                  key={campo.chave}
+                  key={def.id}
                   type="button"
-                  className="mcu-chip-campo"
-                  onClick={() => adicionarCampo(campo.chave, campo.label)}
+                  role="option"
+                  aria-selected={metricaId === def.id}
+                  className={`mcu-metrica-opcao${metricaId === def.id ? ' mcu-metrica-opcao--ativa' : ''}`}
+                  onClick={() => setMetricaId(def.id)}
                 >
-                  {campo.label}
+                  <span className="mcu-metrica-opcao__nome">{t(def.labelKey)}</span>
+                  <span className="mcu-metrica-opcao__meta">{def.origem} · {def.tipoAgg}</span>
                 </button>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Footer */}
         <div className="mcu-footer">
           <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={onFechar}>
             {t('comum.cancelar')}

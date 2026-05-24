@@ -11,7 +11,6 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import {
   Buildings,
@@ -218,7 +217,7 @@ export default function Fornecedores() {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: t('bidfrete.fornecedores.ver_detalhes'),
-      onClick: (item: Fornecedor) => navigate(`/produto/bid-frete/fornecedores/${item.id}`),
+      onClick: (item: Fornecedor) => navigate(`/bid-frete/fornecedores/${item.id}`),
     },
   ]
 
@@ -227,18 +226,11 @@ export default function Fornecedores() {
   return (
     <PaginaGlobal
       className="bf-fornecedores"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Buildings weight="duotone" size={22} />}
-          titulo={t('bidfrete.fornecedores.titulo')}
-          subtitulo={t('bidfrete.fornecedores.subtitulo')}
-          acoes={
-            <button className="btn btn-primary">
-              <Plus weight="bold" size={16} />
-              {t('bidfrete.fornecedores.novo_fornecedor')}
-            </button>
-          }
-        />
+      acoes={
+        <button className="btn btn-primary" type="button">
+          <Plus weight="bold" size={16} />
+          {t('bidfrete.fornecedores.novo_fornecedor')}
+        </button>
       }
     >
       {/* ════════ LINHA 1: KPIs + Donut ════════ */}
@@ -335,7 +327,7 @@ export default function Fornecedores() {
           carregando={carregando}
           mensagemVazio={t('bidfrete.fornecedores.vazio')}
           tooltipBusca={t('bidfrete.fornecedores.buscar_tabela')}
-          aoClicarLinha={(item: Fornecedor) => navigate(`/produto/bid-frete/fornecedores/${item.id}`)}
+          aoClicarLinha={(item: Fornecedor) => navigate(`/bid-frete/fornecedores/${item.id}`)}
         />
       </div>
 

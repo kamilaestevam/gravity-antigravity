@@ -7,7 +7,6 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   ChartPieSlice,
@@ -88,16 +87,7 @@ export default function PortalDashboard() {
   ]
 
   return (
-    <PaginaGlobal
-      className="portal-dash"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<ChartPieSlice weight="duotone" size={22} />}
-          titulo={t('bidfrete.portal.dashboard.titulo')}
-          subtitulo={t('bidfrete.portal.dashboard.subtitulo')}
-        />
-      }
-    >
+    <PaginaGlobal className="portal-dash">
       {/* KPI Cards */}
       <div className="pd-kpis">
         <CardBasicoGlobal

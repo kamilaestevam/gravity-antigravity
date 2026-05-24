@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import {
   Truck,
   ArrowLeft,
@@ -1090,13 +1089,13 @@ export default function NovaCotacao() {
   if (sucesso) {
     const handleOverlayClick = (e: React.MouseEvent) => {
       if (e.target === e.currentTarget) {
-        navigate('/produto/bid-frete/cotacoes')
+        navigate('/bid-frete/cotacoes')
       }
     }
     return (
       <div className="nc-modal-overlay" onClick={handleOverlayClick}>
         <div className="nc-modal-container nc-fade-in" style={{ maxWidth: '520px', padding: '3rem 2rem' }} onClick={e => e.stopPropagation()}>
-          <button className="nc-modal-close" onClick={() => navigate('/produto/bid-frete/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
+          <button className="nc-modal-close" onClick={() => navigate('/bid-frete/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
             <X weight="bold" size={20} />
           </button>
           <div className="nc-sucesso nc-fade-in">
@@ -1106,8 +1105,8 @@ export default function NovaCotacao() {
             <h2 className="nc-sucesso-title">{t('bidfrete.nova_cotacao.criado_sucesso')}</h2>
             <p className="nc-sucesso-desc">{t('bidfrete.nova_cotacao.criado_desc')}</p>
             <div className="nc-sucesso-actions">
-              <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/produto/bid-frete/cotacoes')}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
-              {cotacaoId && <button className="nc-btn nc-btn--primary" onClick={() => navigate(`/produto/bid-frete/cotacoes/${cotacaoId}`)}>{t('bidfrete.nova_cotacao.ver_detalhes')}</button>}
+              <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/bid-frete/cotacoes')}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
+              {cotacaoId && <button className="nc-btn nc-btn--primary" onClick={() => navigate(`/bid-frete/cotacoes/${cotacaoId}`)}>{t('bidfrete.nova_cotacao.ver_detalhes')}</button>}
             </div>
           </div>
         </div>
@@ -1117,7 +1116,7 @@ export default function NovaCotacao() {
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      navigate('/produto/bid-frete/cotacoes')
+      navigate('/bid-frete/cotacoes')
     }
   }
 
@@ -1140,7 +1139,7 @@ export default function NovaCotacao() {
           <div className="nc-modal-header-step-badge">
             {t('bidfrete.nova_cotacao.etapaDe', { step, total: 7 })} • <span className="nc-modal-header-step-name">{STEPS[step - 1].label}</span>
           </div>
-          <button className="nc-modal-close" onClick={() => navigate('/produto/bid-frete/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
+          <button className="nc-modal-close" onClick={() => navigate('/bid-frete/cotacoes')} aria-label={t('bidfrete.nova_cotacao.fechar')}>
             <X weight="bold" size={20} />
           </button>
         </div>
@@ -1228,7 +1227,7 @@ export default function NovaCotacao() {
             <button
               type="button"
               className="nc-btn nc-btn--secondary nc-btn-cancelar"
-              onClick={() => navigate('/produto/bid-frete/cotacoes')}
+              onClick={() => navigate('/bid-frete/cotacoes')}
             >
               {t('bidfrete.nova_cotacao.cancelar')}
             </button>

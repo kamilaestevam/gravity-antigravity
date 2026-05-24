@@ -204,6 +204,24 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   margin-bottom: 1.25rem;
 }
 
+.cfg-secao__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.cfg-periodo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
 .cfg-secao__titulo {
   font-size: 0.875rem;
   font-weight: 600;
@@ -2938,12 +2956,33 @@ body.bf-configuracoes-page .pg-cabecalho-wrapper .cg-header__subtitle {
 .bf-cfg-savebar-inner {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 1rem;
   padding: 0.75rem 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
   background: var(--bg-elevated, #1e293b);
   border-top: 1px solid var(--border-default, rgba(255,255,255,0.08));
   backdrop-filter: blur(12px);
+}
+
+.bf-cfg-savebar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.bf-cfg-savebar .bs-barra {
+  margin-top: 0;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.bf-cfg-page--dirty {
+  padding-bottom: 4.5rem;
 }
 
 .bf-cfg-dirty-msg {

@@ -3443,6 +3443,12 @@
     "aguardando_cobertura": "Awaiting coverage",
     "cobertura_pendente": "Pending Coverage",
     "cobertura_pendente_desc": "Amount awaiting exchange coverage",
+    "alertas_total": "Total Alerts",
+    "alertas_total_desc": "Total number of alerts on orders and items",
+    "alertas_pedido": "Order Alerts",
+    "alertas_pedido_desc": "Order-level alerts (divergences and inconsistencies)",
+    "alertas_item": "Item Alerts",
+    "alertas_item_desc": "Item-level alerts (duplicate Part Number)",
     "itens_prontos": "Ready Items",
     "itens_prontos_desc": "Items with completed production",
     "qtd_atual_total": "Current Balance",
@@ -4103,6 +4109,7 @@
       "tipo_operacao_exportacao": "Export",
       "tipo_operacao_divergente": "Divergent operation type between items",
       "workspace_label": "Workspace",
+      "workspace_divergente": "Workspaces diverge between items",
       "nome_exportador_bloqueado": "Exporter linked via Registrations — click to edit",
       "exportador_e_workspace": "Exporter is the Workspace itself. Click to edit data in the Configurator",
       "workspace_sem_nome": "Workspace name not registered. Click to register in the Configurator",
@@ -6176,6 +6183,8 @@
       "ph_nome": "Ex: Financial Balance",
       "label_icone": "Icon",
       "label_cor": "Color",
+      "label_metrica": "What to measure",
+      "hint_metrica": "Choose the metric this card displays in the list (same options as native cards).",
       "label_formula": "Formula",
       "ph_formula": "Add fields and operators below",
       "btn_limpar": "Clear",
@@ -6398,6 +6407,16 @@
         "contratos_cambio_count_other": "{{count}} contracts",
         "total_a_receber": "Total Receivable",
         "total_a_pagar": "Total Payable",
+        "vencimentos_receber": "Due Dates (Receivable)",
+        "vencimentos_pagar": "Due Dates (Payable)",
+        "sem_vencimentos": "No due dates",
+        "ver_todos_vencimentos": "View all due dates ({{count}})",
+        "total_vencimentos_count": "{{count}} due dates",
+        "proximo_vencimento": "Next due date",
+        "vencidos_count": "{{count}} overdue",
+        "proximos_7_dias_count": "{{count}} in the next 7 days",
+        "mais_vencimentos": "+{{count}} more",
+        "voltar_rotas": "Back to routes",
         "maior_valor": "Highest Value",
         "participacao_volume": "Volume Share",
         "valor_total": "Total Value",
@@ -6581,6 +6600,25 @@
         "row": {
           "total_itens": "Total items",
           "media_por_item": "Average per item"
+        }
+      },
+      "alertas_total": {
+        "subtexto": "{{pedido}} order · {{item}} item",
+        "row": {
+          "pedido": "Order alerts",
+          "item": "Item alerts"
+        }
+      },
+      "alertas_pedido": {
+        "subtexto": "Divergences and inconsistencies on the order",
+        "row": {
+          "total": "Total"
+        }
+      },
+      "alertas_item": {
+        "subtexto": "Duplicate Part Number on items",
+        "row": {
+          "total": "Total"
         }
       },
       "custom": {

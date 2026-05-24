@@ -138,6 +138,15 @@ describe('buildCustomCardEntry', () => {
     const stats = criarStats({ qtdAtualTotal: 777 })
     expect(entry.getValue(stats)).toBe(777)
   })
+
+  it('card com metric:pedidos_abertos usa valor do registry', () => {
+    const card = criarCardUsuario({
+      formula_expressao: 'metric:pedidos_abertos',
+    })
+    const entry = buildCustomCardEntry(card)
+    const stats = criarStats({ pedidosAbertos: 12 })
+    expect(entry.getValue(stats)).toBe(12)
+  })
 })
 
 // ── computeCardStats ─────────────────────────────────────────────────────────

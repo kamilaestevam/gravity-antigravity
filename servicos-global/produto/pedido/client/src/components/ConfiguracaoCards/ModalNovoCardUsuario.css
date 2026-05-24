@@ -245,6 +245,68 @@
 }
 .mcu-chip-campo:hover { background: rgba(129,140,248,0.1); border-color: rgba(129,140,248,0.25); }
 
+.mcu-campo__hint {
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.mcu-obrigatorio {
+  color: #f87171;
+}
+
+/* ── Seletor de métrica ── */
+
+.mcu-metrica-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 0.25rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.02);
+}
+
+.mcu-metrica-opcao {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+
+.mcu-metrica-opcao:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.06);
+}
+
+.mcu-metrica-opcao--ativa {
+  background: rgba(129,140,248,0.12);
+  border-color: rgba(129,140,248,0.35);
+}
+
+.mcu-metrica-opcao__nome {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.mcu-metrica-opcao__meta {
+  font-size: 0.72rem;
+  color: var(--text-muted, #64748b);
+}
+
 /* ── Footer ── */
 
 .mcu-footer {

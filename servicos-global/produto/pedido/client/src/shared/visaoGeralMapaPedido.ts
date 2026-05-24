@@ -61,6 +61,28 @@ export interface VisaoGeralDetalheLocal {
   rotas: VisaoGeralRotaDetalhe[]
 }
 
+export interface VisaoGeralVencimentoCambio {
+  data: string
+  valor: number
+  moeda: string
+}
+
+export interface VisaoGeralTimelineVencimento {
+  chave: string
+  label: string
+  receber: number
+  pagar: number
+}
+
+export interface VisaoGeralResumoVencimentos {
+  quantidade: number
+  valorTotal: number
+  moeda: string
+  proximoData: string | null
+  vencidos: number
+  proximos7Dias: number
+}
+
 export interface VisaoGeralRotaDetalhe {
   fromPort: string
   fromFlag: string
@@ -72,6 +94,11 @@ export interface VisaoGeralRotaDetalhe {
   moeda: string
   incoterm: string
   parceiro: string
+  vencimentosReceber: VisaoGeralVencimentoCambio[]
+  vencimentosPagar: VisaoGeralVencimentoCambio[]
+  resumoVencimentosReceber: VisaoGeralResumoVencimentos
+  resumoVencimentosPagar: VisaoGeralResumoVencimentos
+  timelineVencimentos: VisaoGeralTimelineVencimento[]
 }
 
 export interface VisaoGeralArcRoute {
@@ -438,6 +465,180 @@ function acumularHub(map: Map<string, LocAgg>, hub: (typeof HUBS_BR_DESTINO)[num
   })
 }
 
+interface RotaAggInterna {
+  fromKey: string
+  toKey: string
+  fromPort: string
+  fromFlag: string
+  toPort: string
+  toFlag: string
+  tipoOperacao: TipoOperacaoMapa
+  pedidos: number
+  valorTotal: number
+  moeda: string
+  incoterm: string
+  parceiro: string
+  vencimentosReceber: VisaoGeralVencimentoCambio[]
+  vencimentosPagar: VisaoGeralVencimentoCambio[]
+}
+
+const MESES_CURTOS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+
+function extrairDiasCondicaoPagamento(condicao: string | null | undefined): number | null {
+  if (!condicao?.trim()) return null
+  const texto = condicao.trim()
+  const net = texto.match(/net\s*(\d+)/i)
+  if (net) return Number(net[1])
+  const dias = texto.match(/(\d+)\s*(?:dias?|days?|dd\b)/i)
+  if (dias) return Number(dias[1])
+  const aposPct = texto.match(/\d+\s*%\s*[^0-9]*(\d+)\s*(?:dias?|days?)/i)
+  if (aposPct) return Number(aposPct[1])
+  return null
+}
+
+function resolverDataBaseVencimento(p: Pedido): Date | null {
+  const candidatas = [
+    p.data_invoice,
+    p.data_documento_invoice,
+    p.data_prevista_recebimento_original_invoice,
+    p.data_emissao_pedido,
+  ]
+  for (const raw of candidatas) {
+    if (!raw) continue
+    const d = new Date(raw)
+    if (!Number.isNaN(d.getTime())) return d
+  }
+  return null
+}
+
+function formatDataIso(d: Date): string {
+  const y = d.getUTCFullYear()
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(d.getUTCDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
+function inferirVencimentoPedido(p: Pedido): VisaoGeralVencimentoCambio & { tipo: 'receber' | 'pagar' } | null {
+  const base = resolverDataBaseVencimento(p)
+  if (!base) return null
+
+  const dias = extrairDiasCondicaoPagamento(p.condicao_pagamento) ?? 30
+  const venc = new Date(Date.UTC(base.getUTCFullYear(), base.getUTCMonth(), base.getUTCDate() + dias))
+
+  const valor = toNumero(p.valor_total_cambio_pedido) || toNumero(p.valor_total_pedido)
+  if (valor <= 0) return null
+
+  const moeda = p.moeda_cambio_pedido?.trim() || p.moeda_pedido?.trim() || 'USD'
+  return {
+    data: formatDataIso(venc),
+    valor,
+    moeda,
+    tipo: p.tipo_operacao === 'importacao' ? 'pagar' : 'receber',
+  }
+}
+
+function montarTimelineVencimentos(
+  receber: VisaoGeralVencimentoCambio[],
+  pagar: VisaoGeralVencimentoCambio[],
+): VisaoGeralTimelineVencimento[] {
+  const map = new Map<string, { receber: number; pagar: number }>()
+
+  for (const v of receber) {
+    const chave = v.data.slice(0, 7)
+    const agg = map.get(chave) ?? { receber: 0, pagar: 0 }
+    agg.receber += v.valor
+    map.set(chave, agg)
+  }
+  for (const v of pagar) {
+    const chave = v.data.slice(0, 7)
+    const agg = map.get(chave) ?? { receber: 0, pagar: 0 }
+    agg.pagar += v.valor
+    map.set(chave, agg)
+  }
+
+  return [...map.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(0, 6)
+    .map(([chave, vals]) => {
+      const [ano, mes] = chave.split('-').map(Number)
+      return {
+        chave,
+        label: `${MESES_CURTOS[(mes ?? 1) - 1]}/${String(ano ?? '').slice(-2)}`,
+        receber: vals.receber,
+        pagar: vals.pagar,
+      }
+    })
+}
+
+function diasEntreIso(iso: string, hojeIso: string): number {
+  const a = new Date(`${iso}T00:00:00Z`).getTime()
+  const b = new Date(`${hojeIso}T00:00:00Z`).getTime()
+  return Math.round((a - b) / 86_400_000)
+}
+
+function montarResumoVencimentos(
+  lista: VisaoGeralVencimentoCambio[],
+  hojeIso: string,
+): VisaoGeralResumoVencimentos {
+  if (lista.length === 0) {
+    return {
+      quantidade: 0,
+      valorTotal: 0,
+      moeda: 'USD',
+      proximoData: null,
+      vencidos: 0,
+      proximos7Dias: 0,
+    }
+  }
+
+  const ordenada = [...lista].sort((a, b) => a.data.localeCompare(b.data))
+  let valorTotal = 0
+  let vencidos = 0
+  let proximos7Dias = 0
+  const moeda = ordenada[0]?.moeda ?? 'USD'
+
+  for (const v of ordenada) {
+    valorTotal += v.valor
+    const diff = diasEntreIso(v.data, hojeIso)
+    if (diff < 0) vencidos += 1
+    else if (diff <= 7) proximos7Dias += 1
+  }
+
+  const proximoFuturo = ordenada.find(v => diasEntreIso(v.data, hojeIso) >= 0)
+  const proximoData = proximoFuturo?.data ?? ordenada[ordenada.length - 1]?.data ?? null
+
+  return {
+    quantidade: ordenada.length,
+    valorTotal,
+    moeda,
+    proximoData,
+    vencidos,
+    proximos7Dias,
+  }
+}
+
+function finalizarRotaDetalhe(rota: RotaAggInterna, hojeIso: string): VisaoGeralRotaDetalhe {
+  const vencimentosReceber = [...rota.vencimentosReceber].sort((a, b) => a.data.localeCompare(b.data))
+  const vencimentosPagar = [...rota.vencimentosPagar].sort((a, b) => a.data.localeCompare(b.data))
+  const { fromKey: _f, toKey: _t, ...resto } = rota
+  return {
+    ...resto,
+    vencimentosReceber,
+    vencimentosPagar,
+    resumoVencimentosReceber: montarResumoVencimentos(vencimentosReceber, hojeIso),
+    resumoVencimentosPagar: montarResumoVencimentos(vencimentosPagar, hojeIso),
+    timelineVencimentos: montarTimelineVencimentos(vencimentosReceber, vencimentosPagar),
+  }
+}
+
+function acumularVencimentoRota(rota: RotaAggInterna, p: Pedido) {
+  const venc = inferirVencimentoPedido(p)
+  if (!venc) return
+  const item = { data: venc.data, valor: venc.valor, moeda: venc.moeda }
+  if (venc.tipo === 'pagar') rota.vencimentosPagar.push(item)
+  else rota.vencimentosReceber.push(item)
+}
+
 function montarRanking(lista: LocAgg[], total: number, pinByKey: Map<string, number>): VisaoGeralRankingLocal[] {
   return [...lista]
     .sort((a, b) => b.count - a.count)
@@ -456,20 +657,22 @@ function montarRanking(lista: LocAgg[], total: number, pinByKey: Map<string, num
 
 function rotasParaLoc(
   locKey: string,
-  rotasMap: Map<string, VisaoGeralRotaDetalhe & { fromKey: string; toKey: string }>,
+  rotasMap: Map<string, RotaAggInterna>,
+  hojeIso: string,
 ): VisaoGeralRotaDetalhe[] {
   return [...rotasMap.values()]
     .filter(r => r.fromKey === locKey || r.toKey === locKey)
     .sort((a, b) => b.pedidos - a.pedidos)
     .slice(0, 12)
-    .map(({ fromKey: _f, toKey: _t, ...rest }) => rest)
+    .map(r => finalizarRotaDetalhe(r, hojeIso))
 }
 
 function montarDetalheLoc(
   loc: LocAgg,
   cambio: CambioLocAgg | undefined,
   pinId: number | null,
-  rotasMap: Map<string, VisaoGeralRotaDetalhe & { fromKey: string; toKey: string }>,
+  rotasMap: Map<string, RotaAggInterna>,
+  hojeIso: string,
 ): VisaoGeralDetalheLocal {
   return {
     locKey: loc.key,
@@ -483,14 +686,15 @@ function montarDetalheLoc(
     totalAPagar: cambio?.totalAPagar ?? 0,
     moedaCambio: cambio?.moedaCambio ?? loc.moeda,
     pinId,
-    rotas: rotasParaLoc(loc.key, rotasMap),
+    rotas: rotasParaLoc(loc.key, rotasMap, hojeIso),
   }
 }
 
 function montarDetalheModal(
   tipo: TipoOperacaoMapa,
   pedidos: Pedido[],
-  rotasMap: Map<string, VisaoGeralRotaDetalhe & { fromKey: string; toKey: string }>,
+  rotasMap: Map<string, RotaAggInterna>,
+  hojeIso: string,
 ): VisaoGeralDetalheLocal {
   const locKey = `modal|${tipo}`
   const filtrados = pedidos.filter(p => p.tipo_operacao === tipo)
@@ -525,7 +729,7 @@ function montarDetalheModal(
       .filter(r => r.tipoOperacao === tipo)
       .sort((a, b) => b.pedidos - a.pedidos)
       .slice(0, 12)
-      .map(({ fromKey: _f, toKey: _t, ...rest }) => rest),
+      .map(r => finalizarRotaDetalhe(r, hojeIso)),
   }
 }
 
@@ -634,11 +838,12 @@ export function buildVisaoGeralMapa(pedidos: Pedido[]): VisaoGeralMapaData {
   const origensMap = new Map<string, LocAgg>()
   const destinosMap = new Map<string, LocAgg>()
   const cambioPorLoc = new Map<string, CambioLocAgg>()
-  const rotasMap = new Map<string, VisaoGeralRotaDetalhe & { fromKey: string; toKey: string }>()
+  const rotasMap = new Map<string, RotaAggInterna>()
 
   let valorGlobal = 0
   let importIdx = 0
   const temImportacao = pedidos.some(p => p.tipo_operacao === 'importacao')
+  const hojeIso = formatDataIso(new Date())
 
   for (const p of pedidos) {
     const valor = toNumero(p.valor_total_pedido)
@@ -671,8 +876,9 @@ export function buildVisaoGeralMapa(pedidos: Pedido[]): VisaoGeralMapaData {
     if (existente) {
       existente.pedidos += 1
       existente.valorTotal += valor
+      acumularVencimentoRota(existente, p)
     } else {
-      rotasMap.set(rotaKey, {
+      const nova: RotaAggInterna = {
         fromKey: orig.key,
         toKey: dest.key,
         fromPort: `${orig.label} (${geoOrig.code})`,
@@ -685,7 +891,11 @@ export function buildVisaoGeralMapa(pedidos: Pedido[]): VisaoGeralMapaData {
         moeda,
         incoterm: (p.incoterm ?? '—').toUpperCase(),
         parceiro: orig.parceiro,
-      })
+        vencimentosReceber: [],
+        vencimentosPagar: [],
+      }
+      acumularVencimentoRota(nova, p)
+      rotasMap.set(rotaKey, nova)
     }
   }
 
@@ -742,10 +952,11 @@ export function buildVisaoGeralMapa(pedidos: Pedido[]): VisaoGeralMapaData {
       cambioPorLoc.get(loc.key),
       pinByKey.get(loc.key) ?? null,
       rotasMap,
+      hojeIso,
     )
   }
-  detalhesPorLocKey['modal|importacao'] = montarDetalheModal('importacao', pedidos, rotasMap)
-  detalhesPorLocKey['modal|exportacao'] = montarDetalheModal('exportacao', pedidos, rotasMap)
+  detalhesPorLocKey['modal|importacao'] = montarDetalheModal('importacao', pedidos, rotasMap, hojeIso)
+  detalhesPorLocKey['modal|exportacao'] = montarDetalheModal('exportacao', pedidos, rotasMap, hojeIso)
 
   const conexoesPorPin: Record<number, VisaoGeralRotaDetalhe[]> = {}
   for (const pin of pins) {

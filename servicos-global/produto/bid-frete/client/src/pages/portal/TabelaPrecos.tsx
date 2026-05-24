@@ -6,7 +6,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import {
   CurrencyDollar,
@@ -233,22 +232,13 @@ export default function TabelaPrecos() {
   ]
 
   return (
-    <PaginaGlobal
-      className="tp-page"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<CurrencyDollar weight="duotone" size={22} />}
-          titulo={t('bidfrete.portal.tabela_precos.titulo')}
-          subtitulo={t('bidfrete.portal.tabela_precos.subtitulo')}
-          acoes={
-            <button className="tp-btn tp-btn--primary" onClick={abrirNovo}>
-              <Plus weight="bold" size={14} />
-              {t('bidfrete.portal.tabela_precos.nova_rota')}
-            </button>
-          }
-        />
-      }
-    >
+    <PaginaGlobal className="tp-page">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <button className="tp-btn tp-btn--primary" type="button" onClick={abrirNovo}>
+          <Plus weight="bold" size={14} />
+          {t('bidfrete.portal.tabela_precos.nova_rota')}
+        </button>
+      </div>
       {/* Form inline */}
       {formAberto && (
         <div className="tp-form-wrapper">

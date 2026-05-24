@@ -88,6 +88,30 @@ export const CARDS_CATALOGO: CardDefinicao[] = [
     campoBase: 'Valor Total do Pedido',
     descricao: 'Soma do valor total dos pedidos que possuem ao menos um item com cobertura cambial pendente nos últimos 30 dias',
   },
+  {
+    id: 'alertas_total',
+    labelKey: 'pedido.alertas_total', descKey: 'pedido.alertas_total_desc',
+    iconeKey: 'warning',               cor: '#f59e0b',
+    origem: 'Pedido',                  tipoAgg: 'Contagem',
+    campoBase: 'Alertas',
+    descricao: 'Quantidade total de alertas (divergências e inconsistências) em pedidos e itens no período',
+  },
+  {
+    id: 'alertas_pedido',
+    labelKey: 'pedido.alertas_pedido', descKey: 'pedido.alertas_pedido_desc',
+    iconeKey: 'warning',               cor: '#f59e0b',
+    origem: 'Pedido',                  tipoAgg: 'Contagem',
+    campoBase: 'Alertas do Pedido',
+    descricao: 'Alertas no nível do pedido: divergências pai/filho, número duplicado, agregados inconsistentes',
+  },
+  {
+    id: 'alertas_item',
+    labelKey: 'pedido.alertas_item', descKey: 'pedido.alertas_item_desc',
+    iconeKey: 'warning',               cor: '#fbbf24',
+    origem: 'Item',                    tipoAgg: 'Contagem',
+    campoBase: 'Alertas do Item',
+    descricao: 'Alertas no nível do item: Part Number duplicado no mesmo pedido',
+  },
 
   // ── Item (colunasFilha) ───────────────────────────────────────────────────
 

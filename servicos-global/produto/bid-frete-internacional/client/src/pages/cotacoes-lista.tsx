@@ -14,7 +14,6 @@ import { useShellStore } from '@gravity/shell'
 const NovaCotacao = React.lazy(() => import('./cotacao-nova'))
 import CotacoesKanban from './cotacoes-kanban'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'

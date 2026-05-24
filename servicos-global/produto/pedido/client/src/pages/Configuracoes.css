@@ -204,6 +204,15 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   margin-bottom: 1.25rem;
 }
 
+.cfg-secao__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .cfg-secao__titulo {
   font-size: 0.875rem;
   font-weight: 600;

@@ -1,88 +1,97 @@
 // ecosystem.config.cjs — PM2 local dev orchestration for Gravity
 //
-// Substitui o `npm run dev` (concurrently -k) por 14 processos independentes:
+// 14 processos independentes via PM2 (substitui concurrently -k):
 //   - cada serviço reinicia sozinho sem derrubar os outros
 //   - PORT explícito em cada entry evita conflito de herança de variável
 //   - backoff exponencial evita loops de crash em falha de banco
 //
-// Uso (via scripts do package.json):
-//   npm run pm2:start         — inicia todos os 14 serviços
-//   npm run pm2:start:safe    — aguarda cfg-back /health antes de subir cfg-front
-//   npm run pm2:stop          — para todos
-//   npm run pm2:restart       — reinicia todos
-//   npm run pm2:status        — lista status + restarts
-//   npm run pm2:logs          — tail de todos os logs
-//   npm run pm2:delete        — remove todos do daemon (dev:reset usa isso)
+// Windows: backends usam scripts/pm2-dev-launcher.cjs — re-spawna tsx watch
+// com windowsHide: true para evitar dezenas de janelas de terminal visíveis.
+//
+// Uso:
+//   npx pm2 start ecosystem.config.cjs   — inicia todos os 14 serviços
+//   npx pm2 stop ecosystem.config.cjs     — para todos
+//   npx pm2 restart ecosystem.config.cjs  — reinicia todos
+//   npx pm2 status                        — lista status + restarts
+//   npx pm2 logs                          — tail de todos os logs
+//   npm run dev:reset                     — reset total (PM2 + portas + cache Vite)
 
 'use strict'
 
 const path = require('path')
 const ROOT = path.resolve(__dirname)
 
-// Windows: PM2 não consegue executar npm.cmd diretamente via Node — usa cmd.exe
-// Linux/Mac: usa sh -c
-const isWin = process.platform === 'win32'
-const shellExe = isWin ? 'cmd' : 'sh'
-const shellRun = (cmd) => isWin ? `/c ${cmd}` : `-c "${cmd}"`
+const LAUNCHER = path.join(ROOT, 'scripts/pm2-dev-launcher.cjs')
+const VITE = path.join(ROOT, 'node_modules/vite/bin/vite.js')
 
-function svc(name, relCwd, port, overrides = {}) {
+const PM2_DEFAULTS = {
+  autorestart: true,
+  max_restarts: 10,
+  restart_delay: 2000,
+  exp_backoff_restart_delay: 100,
+  kill_timeout: 5000,
+  watch: false,
+  windowsHide: true,
+}
+
+function svc(name, relCwd, port, envFiles, entry) {
   return {
     name,
-    script: shellExe,
-    args: shellRun('npm run dev'),
+    script: LAUNCHER,
     cwd: path.join(ROOT, relCwd),
-    autorestart: true,
-    max_restarts: 10,
-    restart_delay: 2000,
-    exp_backoff_restart_delay: 100,
-    kill_timeout: 5000,
-    watch: false,
-    env: { PORT: String(port), NODE_ENV: 'development' },
-    ...overrides,
+    ...PM2_DEFAULTS,
+    env: {
+      PORT: String(port),
+      NODE_ENV: 'development',
+      PM2_DEV_ENTRY: entry,
+      PM2_DEV_ENV_FILES: envFiles.join('|'),
+    },
   }
 }
+
+// Profundidade do --env-file relativo ao cwd (ver monorepo SKILL §1.bis)
+const ENV_SERVICO = ['../../.env.local', '.env']       // servicos-global/<x>/
+const ENV_PLATAFORMA = ['../../../.env.local', '.env'] // servicos-plataforma/<x>/ ou produto/<x>/
 
 module.exports = {
   apps: [
 
     // ── Configurador ─────────────────────────────────────────────────────────
-    svc('cfg-back',  'servicos-global/configurador', 8005),
+    svc('cfg-back', 'servicos-global/configurador', 8005, ENV_SERVICO, 'server/index.ts'),
 
     {
-      // Frontend Vite — chama o binário Node diretamente para que o PM2 tenha
-      // controle real sobre o processo e não deixe Vite órfão na porta 8000
-      // quando `pm2 stop/restart` é executado (problema Windows: cmd→npm→vite
-      // criava 3 camadas de processo; PM2 só matava a primeira).
+      // Vite direto — PM2 controla o processo real (sem cmd→npm→vite no Windows)
       name: 'cfg-front',
-      script: path.join(ROOT, 'node_modules/vite/bin/vite.js'),
+      script: VITE,
       cwd: path.join(ROOT, 'servicos-global/configurador'),
       autorestart: true,
       max_restarts: 10,
       restart_delay: 3000,
       kill_timeout: 8000,
       watch: false,
+      windowsHide: true,
       env: { PORT: '8000', NODE_ENV: 'development' },
     },
 
     // ── Plataforma super-server ───────────────────────────────────────────────
-    svc('org',         'servicos-global/servicos-plataforma',                3001),
+    svc('org', 'servicos-global/servicos-plataforma', 3001, ENV_SERVICO, 'server/index.ts'),
 
     // ── Serviços de plataforma independentes ─────────────────────────────────
-    svc('cockpit',     'servicos-global/servicos-plataforma/api-cockpit',   8016),
-    svc('conector-erp','servicos-global/servicos-plataforma/conector-erp',  8017),
+    svc('cockpit', 'servicos-global/servicos-plataforma/api-cockpit', 8016, ENV_PLATAFORMA, 'server/src/index.ts'),
+    svc('conector-erp', 'servicos-global/servicos-plataforma/conector-erp', 8017, ENV_PLATAFORMA, 'server/index.ts'),
 
     // ── Produtos ─────────────────────────────────────────────────────────────
-    svc('sc-back',     'servicos-global/produto/simula-custo',              8020),
-    svc('bid-frete',   'servicos-global/produto/bid-frete',                 8023),
-    svc('bid-cambio',  'servicos-global/produto/bid-cambio',                8025),
-    svc('proc-back',   'servicos-global/produto/processo',                  8026),
-    svc('lpco',        'servicos-global/produto/lpco',                      8027),
-    svc('nf-importacao','servicos-global/produto/nf-importacao',            8028),
-    svc('fin-comex',   'servicos-global/produto/financeiro-comex',          8029),
-    svc('pedido',      'servicos-global/produto/pedido',                    8030),
+    svc('sc-back', 'servicos-global/produto/simula-custo', 8020, ENV_PLATAFORMA, 'server/src/index.ts'),
+    svc('bid-frete', 'servicos-global/produto/bid-frete', 8023, ENV_PLATAFORMA, 'server/src/index.ts'),
+    svc('bid-cambio', 'servicos-global/produto/bid-cambio', 8025, ENV_PLATAFORMA, 'server/src/index.ts'),
+    svc('proc-back', 'servicos-global/produto/processo', 8026, ENV_PLATAFORMA, 'server/src/index.ts'),
+    svc('lpco', 'servicos-global/produto/lpco', 8027, ENV_PLATAFORMA, 'server/src/index.ts'),
+    svc('nf-importacao', 'servicos-global/produto/nf-importacao', 8028, ENV_PLATAFORMA, 'server/src/index.ts'),
+    svc('fin-comex', 'servicos-global/produto/financeiro-comex', 8029, ENV_PLATAFORMA, 'server/src/index.ts'),
+    svc('pedido', 'servicos-global/produto/pedido', 8030, ENV_PLATAFORMA, 'server/src/index.ts'),
 
     // ── Cadastros ─────────────────────────────────────────────────────────────
-    svc('cadastros',   'servicos-global/cadastros',                         8031),
+    svc('cadastros', 'servicos-global/cadastros', 8031, ENV_SERVICO, 'server/src/index.ts'),
 
   ],
 }

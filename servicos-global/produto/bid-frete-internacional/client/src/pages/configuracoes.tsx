@@ -33,7 +33,6 @@ import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-glo
 import { ConfiguracaoSecaoGlobal } from '@nucleo/cabecalho-secao-global'
 import { useShellStore } from '@gravity/shell'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { SwitchGlobal } from '@nucleo/switch-global'
 import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
 import './configuracoes.css'

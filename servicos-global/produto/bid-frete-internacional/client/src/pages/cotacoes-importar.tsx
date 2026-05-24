@@ -6,12 +6,12 @@
  * Phosphor icons (duotone), CSS vars, pill buttons, Plus Jakarta Sans + DM Mono
  */
 
-import React, { useState, useCallback, useRef } from 'react'
+import React, { useState, useCallback, useRef, useMemo } from 'react'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import {
   Upload,
@@ -182,6 +182,21 @@ export default function ImportarBloco() {
 
   const validCount = rows.filter((r) => r.status === 'OK').length
   const errorCount = rows.filter((r) => r.status === 'Erro').length
+
+  const subtituloImportar =
+    phase === 'upload'
+      ? t('bidfrete.importar.subtitulo_upload')
+      : phase === 'preview'
+        ? `${fileName} — ${rows.length} ${t('bidfrete.importar.linhas_carregadas')}`
+        : phase === 'creating'
+          ? t('bidfrete.importar.criando')
+          : t('bidfrete.importar.concluida')
+
+  useSincronizarTituloPaginaTopo(useMemo(() => ({
+    label:     t('bidfrete.importar.titulo'),
+    icone:     <Upload weight="duotone" size={22} />,
+    subtitulo: subtituloImportar,
+  }), [t, subtituloImportar]))
 
   // ─── File handling ──────────────────────────────────────────────────────
 
@@ -388,6 +403,27 @@ export default function ImportarBloco() {
 
   // ─── Render ───────────────────────────────────────────────────────────
 
+  const acoesImportar = (
+    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+      {phase === 'preview' && (
+        <button
+          className="importar-bloco-pill-btn importar-bloco-pill-btn--danger"
+          type="button"
+          onClick={handleReset}
+        >
+          <Trash weight="duotone" size={14} /> {t('bidfrete.importar.limpar')}
+        </button>
+      )}
+      <button
+        className="importar-bloco-pill-btn importar-bloco-pill-btn--secondary"
+        type="button"
+        onClick={() => navigate('/bid-frete/cotacoes')}
+      >
+        <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
+      </button>
+    </div>
+  )
+
   return (
     <>
       <style>{`
@@ -513,42 +549,9 @@ export default function ImportarBloco() {
         }
       `}</style>
 
-      <PaginaGlobal
-        cabecalho={
-          <CabecalhoGlobal
-            icone={<Upload weight="duotone" size={22} />}
-            titulo={t('bidfrete.importar.titulo')}
-            subtitulo={
-              phase === 'upload'
-                ? t('bidfrete.importar.subtitulo_upload')
-                : phase === 'preview'
-                  ? `${fileName} — ${rows.length} ${t('bidfrete.importar.linhas_carregadas')}`
-                  : phase === 'creating'
-                    ? t('bidfrete.importar.criando')
-                    : t('bidfrete.importar.concluida')
-            }
-            acoes={
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                {phase === 'preview' && (
-                  <button
-                    className="importar-bloco-pill-btn importar-bloco-pill-btn--danger"
-                    onClick={handleReset}
-                  >
-                    <Trash weight="duotone" size={14} /> {t('bidfrete.importar.limpar')}
-                  </button>
-                )}
-                <button
-                  className="importar-bloco-pill-btn importar-bloco-pill-btn--secondary"
-                  onClick={() => navigate('/produto/bid-frete/cotacoes')}
-                >
-                  <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
-                </button>
-              </div>
-            }
-          />
-        }
-      >
+      <PaginaGlobal>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {acoesImportar}
 
           {/* ─── Phase: Upload ──────────────────────────────────────────── */}
           {phase === 'upload' && (

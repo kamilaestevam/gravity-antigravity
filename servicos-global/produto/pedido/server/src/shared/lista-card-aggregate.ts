@@ -100,6 +100,9 @@ export interface ListaCardKpisPayload {
   pedidos_abertos: number
   pedidos_em_andamento: number
   cobertura_pendente: number
+  alertas_total: number
+  alertas_pedido: number
+  alertas_item: number
 }
 
 export function aggregateListaCardKpis(
@@ -168,6 +171,9 @@ export function aggregateListaCardKpis(
       isEmAndamento(p.status_pedido ?? p.status),
     ).length,
     cobertura_pendente,
+    alertas_total: 0,
+    alertas_pedido: 0,
+    alertas_item: 0,
   }
 }
 

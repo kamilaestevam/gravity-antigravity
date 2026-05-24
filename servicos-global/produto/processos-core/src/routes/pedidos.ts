@@ -1658,6 +1658,7 @@ pedidosRouter.patch('/:id/status', async (req: Request, res: Response, next: Nex
 
 // Campos editados diretamente no banco via PATCH /:id/campo
 const CAMPOS_EDITAVEIS = new Set([
+  'id_workspace',
   'numero_pedido',
   'numero_proforma',
   'numero_invoice',

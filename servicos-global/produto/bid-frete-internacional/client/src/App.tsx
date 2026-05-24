@@ -25,20 +25,13 @@ import {
   Envelope,
   WhatsappLogo,
   Kanban,
-  Compass,
-  Truck,
-  Upload,
-  PaperPlaneTilt,
-  Star,
-  CurrencyDollar,
-  PencilSimple,
 } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
+import { resolverPageMetaTopo } from './shared/page-meta-topo'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 
-// Páginas do Cliente (Importador/Exportador)
 const VisaoGeral = lazy(() => import('./pages/visao-geral'))
 const Dashboard = lazy(() => import('./pages/dashboard'))
 const Cotacoes = lazy(() => import('./pages/cotacoes-lista'))
@@ -50,18 +43,14 @@ const Fornecedores = lazy(() => import('./pages/fornecedores-lista'))
 const DetalheFornecedor = lazy(() => import('./pages/fornecedor-detalhe'))
 const Configuracoes = lazy(() => import('./pages/configuracoes'))
 
-// Portal do Fornecedor (logado)
 const PortalDashboard = lazy(() => import('./pages/portal/portal-dashboard'))
 const CotacoesPendentes = lazy(() => import('./pages/portal/portal-cotacoes-pendentes'))
 const Respostas = lazy(() => import('./pages/portal/portal-propostas'))
 const TabelaPrecos = lazy(() => import('./pages/portal/portal-tabelas-valor'))
 const Desempenho = lazy(() => import('./pages/portal/portal-desempenho'))
 const ResponderCotacao = lazy(() => import('./pages/portal/portal-responder-cotacao'))
-
-// Portal Público (sem login — via token)
 const ResponderPublico = lazy(() => import('./pages/portal/portal-responder-publico'))
 
-// ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('bid-frete-internacional')
 const PRODUCT_ID    = 'bid-frete-internacional'
 const PRODUCT_NAME  = 'BID Frete'
@@ -99,51 +88,17 @@ function mapNavItem(item: NavigationItem): NavItem {
   }
 }
 
-// ── Workspaces demo ───────────────────────────────────────────────────────────
 const DEMO_WORKSPACES = [
   { id: 'ws-1',  name: 'Gravity Soluções',     plan: 'Pro' },
   { id: 'ws-2',  name: 'Acme Importações',     plan: 'Enterprise' },
   { id: 'ws-3',  name: 'Comex Express',        plan: 'Starter' },
 ]
 
-// ── Nós do ecossistema ───────────────────────────────────────────────────────
 const ECOSYSTEM_NODES: EcosystemNode[] = [
   { id: 'hub',          label: 'Hub',          sublabel: 'workspaces',     color: '#818cf8',     type: 'hub',          status: 'accessible' },
   { id: 'configurador', label: 'Configurador', sublabel: 'auth · billing', color: '#f472b6',     type: 'configurador', status: 'accessible' },
   { id: PRODUCT_ID,     label: PRODUCT_NAME,   sublabel: PRODUTO.sublabel, color: PRODUCT_COLOR, type: 'produto',      status: 'current' },
 ]
-
-// ── Labels de rota para título de página ──────────────────────────────────────
-const ROUTE_LABELS: Record<string, string> = {
-  'visao-geral':                        'Visão Geral',
-  'dashboard':                          'Dashboard',
-  'cotacoes':                           'Cotações',
-  'cotacoes/nova':                      'Nova Cotação',
-  'cotacoes/importar':                  'Importar Cotações',
-  'fornecedores':                       'Fornecedores',
-  'configuracoes':                      'Configurações',
-  'portal/dashboard':                   'Portal — Dashboard',
-  'portal/pendentes':                   'Cotações Pendentes',
-  'portal/respostas':                   'Respostas',
-  'portal/tabela-precos':               'Tabela de Preços',
-  'portal/desempenho':                  'Desempenho',
-}
-
-// ── Cabeçalho da página por rota (ícone + subtítulo) — renderizado no top bar ──
-const ROUTE_HEADERS: Record<string, { icone: React.ReactNode; subtitulo: string }> = {
-  'visao-geral':         { icone: <Compass         weight="duotone" size={22} />, subtitulo: 'Resumo das cotações de frete internacional' },
-  'dashboard':           { icone: <ChartBar        weight="duotone" size={22} />, subtitulo: 'KPIs e widgets configuráveis' },
-  'cotacoes':            { icone: <FileText        weight="duotone" size={22} />, subtitulo: 'Cotações de frete internacional' },
-  'cotacoes/nova':       { icone: <Truck           weight="duotone" size={22} />, subtitulo: 'Crie uma nova cotação de frete' },
-  'cotacoes/importar':   { icone: <Upload          weight="duotone" size={22} />, subtitulo: 'Importar cotações em massa via planilha' },
-  'fornecedores':        { icone: <Buildings       weight="duotone" size={22} />, subtitulo: 'Transportadores e agentes de carga cadastrados' },
-  'configuracoes':       { icone: <GearSix         weight="duotone" size={22} />, subtitulo: 'Personalize cards, colunas e status do produto' },
-  'portal/dashboard':    { icone: <ChartPieSlice   weight="duotone" size={22} />, subtitulo: 'Visão geral das suas cotações e desempenho' },
-  'portal/pendentes':    { icone: <Envelope        weight="duotone" size={22} />, subtitulo: 'Cotações aguardando sua resposta' },
-  'portal/respostas':    { icone: <PaperPlaneTilt  weight="duotone" size={22} />, subtitulo: 'Propostas que você enviou' },
-  'portal/tabela-precos':{ icone: <CurrencyDollar  weight="duotone" size={22} />, subtitulo: 'Sua tabela de preços e fretes' },
-  'portal/desempenho':   { icone: <Star            weight="duotone" size={22} />, subtitulo: 'Métricas das suas propostas' },
-}
 
 function LoadingFallback() {
   return (
@@ -171,7 +126,6 @@ export default function App() {
 
   const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
-  // Registra navegação no localizador
   useEffect(() => {
     const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'BID Frete'
     addEntry({
@@ -184,24 +138,11 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname])
 
-  // Resolve título da página a partir dos segmentos relativos ao produto
-  const segments     = location.pathname.split('/').filter(Boolean)
-  // URL usa slug 'bid-frete' enquanto PRODUCT_ID é 'bid-frete-internacional'.
-  // Localizamos via segmento 'produto' e pulamos 2 (produto + slug).
-  const produtoIdx   = segments.findIndex(s => s === 'produto')
-  const relSegments  = produtoIdx >= 0 ? segments.slice(produtoIdx + 2) : segments
-  const routeKey     = relSegments.join('/')
+  const pageMeta = useMemo(
+    () => resolverPageMetaTopo(location.pathname, location.search),
+    [location.pathname, location.search],
+  )
 
-  // Sub-view via query param (ex: /cotacoes?visao=kanban → cabeçalho "Kanban")
-  const visao        = new URLSearchParams(location.search).get('visao')
-  const isKanbanView = routeKey === 'cotacoes' && visao === 'kanban'
-
-  const pageLabel    = isKanbanView ? 'Kanban' : (ROUTE_LABELS[routeKey] ?? 'Visão Geral')
-  const pageHeader   = isKanbanView
-    ? { icone: <Kanban weight="duotone" size={22} />, subtitulo: 'Cotações organizadas por status' }
-    : ROUTE_HEADERS[routeKey]
-
-  // Dados do usuário
   const initials = currentUser.name
     ? currentUser.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : currentUser.email?.[0]?.toUpperCase() ?? '?'
@@ -210,7 +151,6 @@ export default function App() {
     currentUser.role === 'Super Admin' || currentUser.role === 'Admin' ||
     currentUser.role === 'SUPER_ADMIN'  || currentUser.role === 'ADMIN'
 
-  // Workspace ativo
   const wsAtivo = workspacesStore.find(ws => ws.id === idWorkspaceAtivo)
   const nomeWorkspaceAtivo = wsAtivo?.nome_workspace ?? currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa'
 
@@ -220,7 +160,7 @@ export default function App() {
 
   const navItems = useMemo(
     () => PRODUCT_CONFIG.navigation.map(item => mapNavItem(item)),
-    []
+    [],
   )
 
   return (
@@ -246,9 +186,9 @@ export default function App() {
       onNavigateSettings={() => { navigate('/bid-frete/configuracoes') }}
       localizador={{
         workspaceName:       nomeWorkspaceAtivo,
-        currentPageLabel:    pageLabel,
-        currentPageIcon:     pageHeader?.icone,
-        currentPageSubtitle: pageHeader?.subtitulo,
+        currentPageLabel:    pageMeta.label,
+        currentPageIcon:     pageMeta.icone,
+        currentPageSubtitle: pageMeta.subtitulo,
         history,
         nodes: ECOSYSTEM_NODES,
         onNavigate: (node: EcosystemNode) => {
@@ -274,7 +214,6 @@ export default function App() {
       <ToastContainer />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          {/* Rotas do Cliente */}
           <Route path="/"              element={<Navigate to="visao-geral" replace />} />
           <Route path="visao-geral"    element={<VisaoGeral />} />
           <Route path="dashboard"      element={<Dashboard />} />
@@ -287,7 +226,6 @@ export default function App() {
           <Route path="fornecedores/:id_fornecedor" element={<DetalheFornecedor />} />
           <Route path="configuracoes"  element={<Configuracoes />} />
 
-          {/* Portal do Fornecedor (logado) */}
           <Route path="portal"                  element={<Navigate to="portal/dashboard" replace />} />
           <Route path="portal/dashboard"        element={<PortalDashboard />} />
           <Route path="portal/pendentes"        element={<CotacoesPendentes />} />
@@ -296,7 +234,6 @@ export default function App() {
           <Route path="portal/desempenho"       element={<Desempenho />} />
           <Route path="portal/responder/:id_cotacao" element={<ResponderCotacao />} />
 
-          {/* Portal Público */}
           <Route path="portal/public/responder/:token_resposta_pedido_cotacao_bid_frete_internacional" element={<ResponderPublico />} />
 
           <Route path="*" element={<Navigate to="visao-geral" replace />} />

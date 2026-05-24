@@ -6,12 +6,12 @@
  * Rating summary cards + star displays
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import {
   Buildings,
   ArrowLeft,
@@ -147,6 +147,14 @@ export default function DetalheFornecedor() {
 
   useEffect(() => { carregar() }, [carregar])
 
+  const tituloTopo = useMemo(() => ({
+    label:     fornecedor?.nome ?? t('bidfrete.detalhe_fornecedor.carregando'),
+    icone:     <Buildings weight="duotone" size={22} />,
+    subtitulo: fornecedor?.nome_fantasia ?? undefined,
+  }), [fornecedor, t])
+
+  useSincronizarTituloPaginaTopo(tituloTopo)
+
   // ─── Tabela de Precos columns ─────────────────────────────────────────
 
   const colunasPrecos: TabelaGlobalColuna<TabelaPreco>[] = [
@@ -247,24 +255,16 @@ export default function DetalheFornecedor() {
   ]
 
   return (
-    <PaginaGlobal
-      className="bf-detalhe-forn"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Buildings weight="duotone" size={22} />}
-          titulo={fornecedor?.nome ?? t('bidfrete.detalhe_fornecedor.carregando')}
-          subtitulo={fornecedor?.nome_fantasia ?? undefined}
-          acoes={
-            <button
-              className="btn btn-secondary"
-              onClick={() => navigate('/produto/bid-frete/fornecedores')}
-            >
-              <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
-            </button>
-          }
-        />
-      }
-    >
+    <PaginaGlobal className="bf-detalhe-forn">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <button
+          className="btn btn-secondary"
+          type="button"
+          onClick={() => navigate('/bid-frete/fornecedores')}
+        >
+          <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
+        </button>
+      </div>
       {carregando && !fornecedor ? (
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',

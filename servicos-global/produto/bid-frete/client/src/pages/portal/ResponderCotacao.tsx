@@ -8,7 +8,7 @@ import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
 import {
   PencilSimple,
   ArrowLeft,
@@ -103,6 +103,27 @@ export default function ResponderCotacao() {
 
   const cotacao = bid ? (bid as unknown as { cotacao: CotacaoInfo }).cotacao : null
 
+  useSincronizarTituloPaginaTopo(useMemo(() => {
+    if (sucesso) {
+      return {
+        label: t('bidfrete.portal.responder.titulo_enviada'),
+        icone: <CheckCircle weight="duotone" size={22} />,
+      }
+    }
+    if (carregando || !cotacao) {
+      return {
+        label: t('bidfrete.portal.responder.titulo'),
+        icone: <PencilSimple weight="duotone" size={22} />,
+        subtitulo: t('comum.carregando'),
+      }
+    }
+    return {
+      label:     t('bidfrete.portal.responder.titulo'),
+      icone:     <PencilSimple weight="duotone" size={22} />,
+      subtitulo: cotacao.numero_cotacao_bid_frete,
+    }
+  }, [sucesso, carregando, cotacao, t]))
+
   const total = useMemo(() => {
     const frete = parseFloat(form.valor_frete) || 0
     const orig = parseFloat(form.taxas_origem) || 0
@@ -153,19 +174,12 @@ export default function ResponderCotacao() {
 
   if (sucesso) {
     return (
-      <PaginaGlobal
-        cabecalho={
-          <CabecalhoGlobal
-            icone={<CheckCircle weight="duotone" size={22} />}
-            titulo={t('bidfrete.portal.responder.titulo_enviada')}
-          />
-        }
-      >
+      <PaginaGlobal>
         <div className="rc-sucesso">
           <CheckCircle weight="duotone" size={64} style={{ color: 'var(--success, #22c55e)' }} />
           <h2 className="rc-sucesso-title">{t('bidfrete.portal.responder.sucesso')}</h2>
           <p className="rc-sucesso-desc">{t('bidfrete.portal.responder.sucesso_desc')}</p>
-          <button className="rc-btn rc-btn--primary" onClick={() => navigate('/produto/bid-frete/portal/pendentes')}>
+          <button className="rc-btn rc-btn--primary" type="button" onClick={() => navigate('/bid-frete/portal/pendentes')}>
             {t('bidfrete.portal.responder.voltar_pendentes')}
           </button>
         </div>
@@ -174,21 +188,17 @@ export default function ResponderCotacao() {
     )
   }
 
+  const acoesResponder = (
+    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+      <button className="rc-btn rc-btn--secondary" type="button" onClick={() => navigate('/bid-frete/portal/pendentes')}>
+        <ArrowLeft weight="bold" size={14} /> {t('bidfrete.portal.responder.voltar')}
+      </button>
+    </div>
+  )
+
   return (
-    <PaginaGlobal
-      className="rc-page"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<PencilSimple weight="duotone" size={22} />}
-          titulo={t('bidfrete.portal.responder.titulo')}
-          acoes={
-            <button className="rc-btn rc-btn--secondary" onClick={() => navigate('/produto/bid-frete/portal/pendentes')}>
-              <ArrowLeft weight="bold" size={14} /> {t('bidfrete.portal.responder.voltar')}
-            </button>
-          }
-        />
-      }
-    >
+    <PaginaGlobal className="rc-page">
+      {acoesResponder}
       {carregando ? (
         <div className="rc-loading">
           <GravityLoader texto={t('comum.carregando')} tamanho="sm" />

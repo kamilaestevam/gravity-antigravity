@@ -20,6 +20,9 @@ export const listaCardKpisSchema = z.object({
   pedidos_abertos: z.number(),
   pedidos_em_andamento: z.number(),
   cobertura_pendente: z.number(),
+  alertas_total: z.number(),
+  alertas_pedido: z.number(),
+  alertas_item: z.number(),
 })
 
 export type ListaCardKpis = z.infer<typeof listaCardKpisSchema>

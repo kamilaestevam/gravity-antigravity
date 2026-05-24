@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import {
   PaperPlaneTilt,
@@ -111,6 +111,12 @@ export default function MinhasRespostas() {
     REPROVADAS: respostas.filter(r => getRespostaStatus(r) === 'reprovada').length,
   }), [respostas])
 
+  useSincronizarTituloPaginaTopo(useMemo(() => ({
+    label:     t('bidfrete.portal.minhas_respostas.titulo'),
+    icone:     <PaperPlaneTilt weight="duotone" size={22} />,
+    subtitulo: t('bidfrete.portal.minhas_respostas.subtitulo', { count: respostas.length }),
+  }), [t, respostas.length]))
+
   const colunas: TabelaGlobalColuna<any>[] = [
     {
       key: 'cotacao',
@@ -155,7 +161,7 @@ export default function MinhasRespostas() {
       tipo: 'numero',
       largura: 140,
       align: 'right',
-      render: (val: any, row: any) => (
+      render: (val: unknown, row: RespostaComCotacao) => (
         <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem', fontWeight: 600 }}>
           {row.moeda_ganho_bid_frete_internacional} {fmtMoeda(val as number)}
         </span>
@@ -167,7 +173,7 @@ export default function MinhasRespostas() {
       tipo: 'numero',
       largura: 110,
       align: 'center',
-      render: (val: any) => (
+      render: (val: unknown) => (
         <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem' }}>
           {t('bidfrete.portal.minhas_respostas.dias', { val })}
         </span>
@@ -178,7 +184,7 @@ export default function MinhasRespostas() {
       label: t('bidfrete.portal.minhas_respostas.col_validade'),
       tipo: 'periodo',
       largura: 110,
-      render: (val: any) => fmtData(val as string),
+      render: (val: unknown) => fmtData(val as string),
     },
     {
       key: 'status',
@@ -211,16 +217,7 @@ export default function MinhasRespostas() {
   ]
 
   return (
-    <PaginaGlobal
-      className="mr-page"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<PaperPlaneTilt weight="duotone" size={22} />}
-          titulo={t('bidfrete.portal.minhas_respostas.titulo')}
-          subtitulo={t('bidfrete.portal.minhas_respostas.subtitulo', { count: respostas.length })}
-        />
-      }
-    >
+    <PaginaGlobal className="mr-page">
       {/* Tabs */}
       <div className="mr-tabs">
         {TABS.map(tab => (

@@ -73,7 +73,6 @@ import type {
   FiltroTipo,
 } from '@nucleo/tabela-virtual-global'
 import { useCardPreferences } from '../shared/useCardPreferences'
-import { useCardsUsuario } from '../shared/useCardsUsuario'
 import { ListaPedidoCards } from '../components/ListaPedidoCards'
 import { useTaxasCambio } from '../shared/useTaxasCambio'
 import { useTrackBehavior } from '../hooks/useTrackBehavior'
@@ -98,6 +97,7 @@ import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
 import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../shared/mapaPropagacaoPedidoItem'
 import { marcarPartNumbersDuplicados, pedidoTemPartNumberDuplicado } from '../../../shared/partNumberDuplicado'
+import { calcularDivergenciasPedido } from '../../../shared/pedidoDivergencias'
 import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
 import { inserirColunaAposAncora, moverColunaParaAposAncora } from '../shared/migracaoColunas'
@@ -2519,6 +2519,27 @@ type PedidoItemEnriquecido = PedidoItem & {
   }
 }
 
+/** Propaga valor do pai no item em memória — traduz id_workspace → company_id (ACL JSON). */
+function aplicarPropagacaoPedidoNoItem(
+  item: PedidoItem,
+  campoPedido: string,
+  valor: unknown,
+): PedidoItem {
+  const campoItem = MAPA_PROPAGACAO_PEDIDO_ITEM[campoPedido] ?? campoPedido
+  const patched = { ...item, [campoItem]: valor } as PedidoItem
+  if (campoPedido === 'id_workspace') {
+    patched.company_id = String(valor ?? '')
+    const enr = item as PedidoItemEnriquecido
+    if (enr._p) {
+      (patched as PedidoItemEnriquecido)._p = {
+        ...enr._p,
+        id_workspace: (valor as string | null | undefined) ?? null,
+      }
+    }
+  }
+  return patched
+}
+
 function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
   const { unidadesPeso, unidadesCubagem, workspacesMap } = opcoes
 
@@ -2566,6 +2587,38 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
             : { color: '#34d399', background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.2)' }
           }
         />
+      )
+    },
+  },
+  id_workspace: {
+    editavel: false,
+    render: (row: PedidoItem) => {
+      const enr = row as PedidoItemEnriquecido
+      const id = row.company_id ?? enr._p?.id_workspace ?? ''
+      if (!id) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      const nome = workspacesMap?.get(id)?.nome ?? id
+      const divergente = enr._p?.id_workspace != null && id !== enr._p.id_workspace
+      const conteudo = nome.length <= 50
+        ? <span>{nome}</span>
+        : (
+          <TooltipGlobal titulo={t('pedido.coluna_pai.workspace_label')} descricao={nome}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              {nome.slice(0, 50) + '…'}
+              <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+            </span>
+          </TooltipGlobal>
+        )
+      if (!divergente) return conteudo
+      return (
+        <TooltipGlobal
+          titulo={t('pedido.coluna_pai.workspace_label')}
+          descricao={t('pedido.coluna_pai.workspace_divergente', 'Workspace do item difere do pedido')}
+        >
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            {conteudo}
+            <Warning size={14} weight="fill" style={{ color: '#F59E0B', flexShrink: 0 }} />
+          </span>
+        </TooltipGlobal>
       )
     },
   },
@@ -3723,7 +3776,6 @@ export default function Pedidos() {
     return { ...base, ...custom }
   }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario])
   const { visiveis: cardsVisiveis, periodo: periodoCards } = useCardPreferences()
-  const { cards: cardsCustom } = useCardsUsuario()
   const navigate = useNavigate()
   const location = useLocation()
   const addNotification = useShellStore(s => s.addNotification)
@@ -3996,6 +4048,22 @@ export default function Pedidos() {
         }
       }
 
+      if (col.key === 'id_workspace') {
+        const WORKSPACE_OPTS = workspacesDisponiveis.map(w => ({
+          valor: w.id_workspace,
+          label: w.nome_workspace,
+        }))
+        return {
+          ...col,
+          editavel: true,
+          opcoes: WORKSPACE_OPTS,
+          getValorEditar: (row: Pedido) => {
+            const r = row as unknown as { id_workspace?: string; company_id?: string }
+            return r.id_workspace ?? r.company_id ?? ''
+          },
+        }
+      }
+
       const COLUNAS_DINAMICAS_PEDIDO_ITEM: Record<string, string> = {
         valor_total_pedido:                   t('pedido.lista.coluna_dinamica.valor_total'),
         quantidade_total_pedido:              t('pedido.lista.coluna_dinamica.qtd_inicial'),
@@ -4053,7 +4121,7 @@ export default function Pedidos() {
     })
 
     return [...colunasBase, ...custom]
-  }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido, t])
+  }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido, t, workspacesDisponiveis])
 
   // Campos editáveis em linhas filho — estáticos + chaves das colunas customizadas editáveis
   const camposEditaveisFilhosComCustom = useMemo(() => {
@@ -5031,15 +5099,13 @@ export default function Pedidos() {
     if (replicar && isPropagavel(campo)) {
       const itensCache = itensCarregadosRef.current.get(id) ?? []
       if (itensCache.length > 0) {
-        // O campo no item pode ter nome diferente (e.g. moeda_pedido →
-        // moeda_item). Usamos MAPA_PROPAGACAO_PEDIDO_ITEM para resolver o nome
-        // correto do campo no item. Fallback para o próprio nome se não mapeado.
-        const campoItem = MAPA_PROPAGACAO_PEDIDO_ITEM[campo] ?? campo
-        const itensAtualizados = itensCache.map(i => ({
-          ...i,
-          [campoItem]: valorEnviarPai,
-        }))
+        const itensAtualizados = itensCache.map(i =>
+          aplicarPropagacaoPedidoNoItem(i, campo, valorEnviarPai),
+        )
         itensCarregadosRef.current.set(id, itensAtualizados)
+        if (campo === 'id_workspace') {
+          setResetFilhos(prev => prev + 1)
+        }
       } else {
         // Sem cache (pedido nunca foi expandido) — só invalida para refetch quando expandir.
         itensCarregadosRef.current.delete(id)
@@ -5063,111 +5129,12 @@ export default function Pedidos() {
   }, [pedidos, colunasUsuario])
 
   // ── Recalcula flags de divergência a partir dos itens carregados ─────────────
-  // SSOT: getAlertavelKeys() vem de columnAlertConfig.ts (shared) — 76 campos.
-  // Convenção: {key}_divergente (boolean), {key}_valor_unico (string|null) para campos ghost.
-  const CAMPOS_GHOST = new Set(['ncm', 'cobertura_cambial', 'data_emissao_pedido'])
-
+  // SSOT: pedidoDivergencias.ts (shared) + getAlertavelKeys() em columnAlertConfig.ts
   function calcularDivergencias(itens: PedidoItem[], pedidoPai?: Pedido): Partial<Pedido> {
-    const result: Record<string, unknown> = {}
-    for (const campo of getAlertavelKeys()) {
-      const valores = itens
-        .map(i => (i as Record<string, unknown>)[campo])
-        .filter((v): v is string => v != null && v !== '')
-      const distintos = new Set(valores).size
-      result[`${campo}_divergente`] = distintos > 1
-      if (CAMPOS_GHOST.has(campo)) {
-        result[`${campo}_valor_unico`] = distintos === 1 ? valores[0] : null
-      }
-    }
-
-    // unidade_comercializada — além de itens divergirem entre si, alerta quando
-    // unidade_comercializada_pedido ≠ unidade dos itens (Decisão UX 2026-05-24).
-    // Ex.: pedido=DUZIA, todos itens=UN → deve mostrar DUZIA + ⚠ (não silencioso).
-    // Espelha a regra de data_emissao_pedido (pai vs filhos + filhos entre si).
-    {
-      const unidadesItens = itens
-        .map(i => i.unidade_comercializada_item)
-        .filter((u): u is string => u != null && u !== '')
-      const unidadesUnicas = new Set(unidadesItens)
-      const unidadePai = pedidoPai?.unidade_comercializada_pedido ?? null
-      let unidadeDivergente = unidadesUnicas.size > 1
-      if (!unidadeDivergente && unidadePai && unidadesItens.length > 0) {
-        unidadeDivergente = unidadesItens.some(u => u !== unidadePai)
-      }
-      result.unidade_comercializada_item_divergente = unidadeDivergente
-    }
-
-    // NCM (campo ghost) — recomputa flag + valor único + contagem juntos.
-    // Espelha a regra do backend (mapPedido em processos-core/routes/pedidos.ts):
-    // ncm_divergente quando há mais de 1 NCM distinto entre os itens.
-    // Sem isso, `ncm_divergente` ficaria stale (vindo do payload anterior) e o badge
-    // mostraria "⚠ 1 NCMs diferentes nos itens" mesmo com itens homogêneos.
-    const ncms = itens.map(i => i.ncm).filter((v): v is string => v != null && v !== '')
-    const ncmsUnicos = new Set(ncms)
-    result.ncms_distintos_count = ncmsUnicos.size
-    result.ncm_divergente = ncmsUnicos.size > 1
-    result.ncm_valor_unico = ncmsUnicos.size === 1 ? [...ncmsUnicos][0] : null
-
-    // data_emissao_pedido (campo ghost) — decisão UX 2026-05-13:
-    // alerta no pai quando algum item tem data ≠ pai (ou itens divergem entre si).
-    // O pai pode ter sido editado pelo usuário com uma data diferente da dos itens
-    // (e vice-versa). Padrão: mostra o valor + ⚠ ao lado, não esconde o valor.
-    //
-    // Normalização: backend pode devolver date em formatos diferentes para pai vs
-    // filhos (Date object via Prisma, ISO completo `2026-05-12T00:00:00.000Z`, ou
-    // date-only `2026-05-12` se recém-editado). Usamos `new Date().toISOString()`
-    // para canonizar antes de comparar — evita falsos positivos por timezone ou
-    // por formato. Falha silenciosa só se a data for inválida (volta a substring).
-    function dateKey(v: unknown): string | null {
-      if (v == null) return null
-      const s = String(v)
-      if (!s) return null
-      const d = new Date(s)
-      if (!isNaN(d.getTime())) {
-        const y = d.getUTCFullYear()
-        const m = String(d.getUTCMonth() + 1).padStart(2, '0')
-        const dd = String(d.getUTCDate()).padStart(2, '0')
-        return `${y}-${m}-${dd}`
-      }
-      return s.substring(0, 10) || null
-    }
-    const datasItens = itens
-      .map(i => dateKey(i.data_emissao_pedido))
-      .filter((v): v is string => v != null)
-    const datasUnicas = new Set(datasItens)
-    const dataPai = dateKey(pedidoPai?.data_emissao_pedido)
-    // Divergente se: (a) itens divergem entre si OU (b) pai tem valor e difere
-    // de algum item OU (c) algum item tem valor e o pai não (e os itens divergem).
-    let dataEmissaoDivergente = datasUnicas.size > 1
-    if (!dataEmissaoDivergente && dataPai && datasUnicas.size === 1) {
-      const dataUnicaItens = [...datasUnicas][0]
-      if (dataUnicaItens !== dataPai) dataEmissaoDivergente = true
-    }
-    result.data_emissao_pedido_divergente = dataEmissaoDivergente
-    result.data_emissao_pedido_valor_unico = datasUnicas.size === 1 ? [...datasUnicas][0] : null
-
-    // Colunas customizadas: compara _colunas_usuario entre itens e com o pai
-    const colIdsSet = new Set<string>()
-    for (const item of itens) {
-      const cu = (item as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined
-      if (cu) for (const k of Object.keys(cu)) colIdsSet.add(k)
-    }
-    const paiCu = pedidoPai ? (pedidoPai as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined : undefined
-    const divergenciasCustom: Record<string, boolean> = {}
-    for (const colId of colIdsSet) {
-      const valoresItens = itens
-        .map(i => ((i as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined)?.[colId])
-        .filter((v): v is string => v != null && v !== '')
-      const distintos = new Set(valoresItens)
-      let div = distintos.size > 1
-      if (!div && paiCu?.[colId] && distintos.size === 1) {
-        div = [...distintos][0] !== paiCu[colId]
-      }
-      divergenciasCustom[colId] = div
-    }
-    result['_colunas_usuario_divergentes'] = divergenciasCustom
-
-    return result as Partial<Pedido>
+    return calcularDivergenciasPedido(
+      itens as unknown as Record<string, unknown>[],
+      pedidoPai as unknown as Record<string, unknown> | undefined,
+    ) as Partial<Pedido>
   }
 
   /** Marca PN duplicado nos itens + recalcula divergências pai/filho (SSOT local). */
@@ -6032,7 +5999,6 @@ export default function Pedidos() {
       {/* ── KPI cards ── */}
       <ListaPedidoCards
         cardsVisiveis={cardsVisiveis}
-        cardsCustom={cardsCustom}
         pedidos={pedidos}
         pedidosFiltrados={pedidosFiltrados}
         total={total}

@@ -1,5 +1,12 @@
 import React, { cloneElement, useState } from 'react'
-import { MenuTopoGlobal, type MenuTopoLocalizadorConfig, type MenuTopoUsuarioConfig } from '@nucleo/menu-topo-global'
+import {
+  MenuTopoGlobal,
+  type MenuTopoLocalizadorConfig,
+  type MenuTopoUsuarioConfig,
+  TituloPaginaTopoProvider,
+  useTituloPaginaTopoOverride,
+  mesclarTituloPaginaTopo,
+} from '@nucleo/menu-topo-global'
 import { MenuLateralGlobal, type NavItem, type WorkspaceItem } from '@nucleo/menu-lateral-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import './tela-produto-global.css'
@@ -36,7 +43,7 @@ export interface TelaProdutoGlobalProps {
   children:    React.ReactNode
 }
 
-export function TelaProdutoGlobal({
+function TelaProdutoLayout({
   productId,
   productName,
   tenantName,
@@ -60,11 +67,20 @@ export function TelaProdutoGlobal({
   const sidebarIcon = cloneElement(meta.icon, { size: 26 })
   const topoIcon    = cloneElement(meta.icon, { size: 18, weight: 'duotone' })
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const tituloOverride = useTituloPaginaTopoOverride()
+
+  const tituloMesclado = mesclarTituloPaginaTopo(
+    {
+      label:     localizador.currentPageLabel,
+      icone:     localizador.currentPageIcon,
+      subtitulo: localizador.currentPageSubtitle,
+    },
+    tituloOverride,
+  )
 
   return (
     <div className="tpg-layout">
 
-      {/* Lateral — ocupa toda a altura da grid */}
       <div className="tpg-lateral">
         <MenuLateralGlobal
           tenantName={tenantName}
@@ -82,10 +98,8 @@ export function TelaProdutoGlobal({
         />
       </div>
 
-      {/* Coluna de conteúdo — flex-column: topo fixo + área rolável */}
       <div className="tpg-conteudo">
 
-        {/* Menu topo ancorado ao topo da coluna de conteúdo */}
         <div className="tpg-topo">
           <MenuTopoGlobal
             productName={productName}
@@ -99,6 +113,9 @@ export function TelaProdutoGlobal({
               currentProductId:    productId,
               currentProductLabel: productName,
               currentProductColor: meta.color,
+              currentPageLabel:    tituloMesclado.label,
+              currentPageIcon:     tituloMesclado.icone,
+              currentPageSubtitle: tituloMesclado.subtitulo,
             }}
             usuario={usuario}
             onNavigateHub={onNavigateHub}
@@ -108,7 +125,6 @@ export function TelaProdutoGlobal({
           />
         </div>
 
-        {/* Área de conteúdo rolável */}
         <main className="tpg-main" role="main">
           {children}
         </main>
@@ -116,5 +132,13 @@ export function TelaProdutoGlobal({
       </div>
 
     </div>
+  )
+}
+
+export function TelaProdutoGlobal(props: TelaProdutoGlobalProps) {
+  return (
+    <TituloPaginaTopoProvider>
+      <TelaProdutoLayout {...props} />
+    </TituloPaginaTopoProvider>
   )
 }

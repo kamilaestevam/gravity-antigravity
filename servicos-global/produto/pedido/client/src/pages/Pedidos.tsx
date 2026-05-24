@@ -4950,16 +4950,25 @@ export default function Pedidos() {
     }
     if (campo === 'status') {
       const pedidoAtual = pedidos.find(p => p.id === id)
+      if (!pedidoAtual) throw new Error(t('pedido.lista.erro.pedido_nao_encontrado'))
       const novoStatus = String(valor)
-      const atualizado = { ...pedidoAtual!, status: novoStatus } as Pedido
+      const replicar = opts?.replicar_em_itens ?? false
+      const atualizado = {
+        ...pedidoAtual,
+        status: novoStatus as Pedido['status'],
+      } as Pedido
       await pedidoLoteApi.mudarStatusConfirmar([id], novoStatus).catch(err => {
         if (!import.meta.env.DEV) throw err
         // DEV: sem servidor → aplica localmente mesmo assim
       })
-      if (!STATUS_SEM_ESPELHAMENTO.has(novoStatus)) {
+      if (replicar && !STATUS_SEM_ESPELHAMENTO.has(novoStatus)) {
         const itensCache = itensCarregadosRef.current.get(id)
         if (itensCache && itensCache.length > 0) {
-          const itensAtualizados = itensCache.map(i => ({ ...i, status: novoStatus }))
+          const itensAtualizados = itensCache.map(i => {
+            const enr = i as PedidoItemEnriquecido
+            if (!enr._p) return i
+            return { ...i, _p: { ...enr._p, status: novoStatus } } as PedidoItem
+          })
           itensCarregadosRef.current.set(id, itensAtualizados)
         }
       }
@@ -4967,6 +4976,10 @@ export default function Pedidos() {
         ? { ...atualizado, itens: itensCarregadosRef.current.get(id) ?? p.itens }
         : p
       ))
+      // filhosCache da TabelaVirtual é Map separado — força reload dos itens expandidos
+      if (replicar && !STATUS_SEM_ESPELHAMENTO.has(novoStatus)) {
+        setResetFilhos(prev => prev + 1)
+      }
       return atualizado
     }
     // ── Ghost: campos que existem no item mas NÃO como coluna directa no pai ────
@@ -5186,27 +5199,17 @@ export default function Pedidos() {
 
     if (campo === 'status') {
       const novoStatus = String(valor)
-      if (STATUS_SEM_ESPELHAMENTO.has(novoStatus)) {
-        const item = getItensCache().find(i => i.id === id)!
-        const itemAtualizado = { ...item, _p: { ...(item as PedidoItemEnriquecido)._p, status: novoStatus } } as PedidoItem
-        const itensCache = getItensCache().map(i => i.id === id ? itemAtualizado : i)
-        itensCarregadosRef.current.set(pedido.id, itensCache)
-        setPedidos(prev => prev.map(p => p.id !== pedido.id ? p : { ...p, itens: itensCache }))
-        return itemAtualizado
-      }
-      await pedidoLoteApi.mudarStatusConfirmar([pedido.id], novoStatus).catch(err => {
-        if (!import.meta.env.DEV) throw err
-      })
-      const pedidoAtualizado = { ...pedido, status: novoStatus as Pedido['status'] }
-      setPedidos(prev => prev.map(p => {
-        if (p.id !== pedido.id) return p
-        return {
-          ...pedidoAtualizado,
-          itens: p.itens?.map(i => ({ ...i, _p: { ...(i as PedidoItemEnriquecido)._p, status: novoStatus } })),
-        }
-      }))
-      const item = getItensCache().find(i => i.id === id)!
-      return { ...item, _p: { ...(item as PedidoItemEnriquecido)._p, status: novoStatus } } as PedidoItem
+      const item = getItensCache().find(i => i.id === id)
+      if (!item) throw new Error(t('pedido.lista.erro.pedido_item_nao_localizado'))
+      const itemAtualizado = {
+        ...item,
+        _p: { ...(item as PedidoItemEnriquecido)._p, status: novoStatus },
+      } as PedidoItem
+      const itensCache = getItensCache().map(i => i.id === id ? itemAtualizado : i)
+      itensCarregadosRef.current.set(pedido.id, itensCache)
+      setPedidos(prev => prev.map(p => p.id !== pedido.id ? p : { ...p, itens: itensCache }))
+      // atualizarFilhoNoCache (TabelaVirtual) atualiza só esta linha — sem setResetFilhos
+      return itemAtualizado
     }
 
     // Campos do pedido pai → atualiza o pedido, não o item

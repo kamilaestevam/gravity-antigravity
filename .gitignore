@@ -66,3 +66,7 @@ servicos-global/organizacao/pedido/server/backups/
 .claude/*.tmp.*
 scratch/
 vite_fetch.html
+
+# ── Cowork worktree management (interno, não commitar) ───────
+.antigravity/
+.claude/worktrees/

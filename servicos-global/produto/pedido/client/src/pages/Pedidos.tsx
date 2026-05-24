@@ -50,6 +50,12 @@ import {
 } from '@phosphor-icons/react'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { renderBadgeParteWorkspace } from '../components/lista/renderBadgeParteWorkspace'
+import { renderBadgeParteVinculada, renderLinkVincularParte } from '../components/lista/renderBadgeParteVinculada'
+import {
+  urlEditarCnpjWorkspace,
+  urlVincularExportador,
+  urlVincularImportador,
+} from '../components/lista/urlsDeepLinkConfigurador'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
@@ -2517,6 +2523,31 @@ type PedidoItemEnriquecido = PedidoItem & {
     data_emissao_pedido: string | null
     status: string
     moeda_pedido: string
+    importacao_exportador_id: string | null
+    exportacao_importador_id: string | null
+  }
+}
+
+function montarContextoPaiItem(pedido: Pedido, item: PedidoItem): PedidoItemEnriquecido['_p'] {
+  return {
+    id: pedido.id,
+    id_workspace: pedido.id_workspace ?? null,
+    tipo_operacao: pedido.tipo_operacao,
+    nome_exportador: item.nome_exportador ?? pedido.nome_exportador ?? null,
+    nome_importador: item.nome_importador ?? pedido.nome_importador ?? null,
+    nome_fabricante: pedido.nome_fabricante ?? null,
+    referencia_importador: item.referencia_importador ?? pedido.referencia_importador ?? null,
+    referencia_exportador: item.referencia_exportador ?? pedido.referencia_exportador ?? null,
+    referencia_fabricante: item.referencia_fabricante ?? pedido.referencia_fabricante ?? null,
+    numero_proforma: pedido.numero_proforma ?? null,
+    numero_invoice: pedido.numero_invoice ?? null,
+    incoterm: pedido.incoterm ?? null,
+    condicao_pagamento: pedido.condicao_pagamento ?? null,
+    data_emissao_pedido: pedido.data_emissao_pedido ?? null,
+    status: pedido.status,
+    moeda_pedido: pedido.moeda_pedido ?? 'USD',
+    importacao_exportador_id: pedido.importacao_exportador_id ?? null,
+    exportacao_importador_id: pedido.exportacao_importador_id ?? null,
   }
 }
 
@@ -2598,15 +2629,6 @@ function aplicarPropagacaoPedidoNoItem(
 
 function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
   const { unidadesPeso, unidadesCubagem, workspacesMap } = opcoes
-
-  /** Monta URL deep-link para editar CNPJ do workspace no Configurador, com retorno automático */
-  const urlEditarCnpjWorkspace = (idWorkspace: string, pedidoId?: string) => {
-    const urlAtual = new URL(window.location.href)
-    if (pedidoId) urlAtual.searchParams.set('expandir', pedidoId)
-    const retorno = encodeURIComponent(urlAtual.toString())
-    const base = import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
-    return `${base}/workspace/workspaces?id=${idWorkspace}&foco=cnpj&retorno=${retorno}`
-  }
 
   /** Nome do workspace do pedido pai — espelha ColunasPai (importação/exportação). */
   const resolverNomeWorkspacePedidoPai = (row: PedidoItem): string | null => {
@@ -2698,7 +2720,10 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
         : undefined,
     campo: 'nome_exportador',
     render: (row: PedidoItem) => {
-      const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
+      const enr = row as PedidoItemEnriquecido
+      const tipoOp = enr._p?.tipo_operacao
+      const pedidoId = enr._p?.id
+
       if (tipoOp === 'exportacao') {
         const nomeWs = resolverNomeWorkspacePedidoPai(row)
         if (nomeWs) {
@@ -2710,7 +2735,26 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
           })
         }
       }
-      const v = row.nome_exportador ?? (row as PedidoItemEnriquecido)._p?.nome_exportador ?? null
+
+      if (tipoOp === 'importacao') {
+        const nome = row.nome_exportador ?? enr._p?.nome_exportador ?? null
+        const idExportador = enr._p?.importacao_exportador_id ?? null
+        if (nome?.trim()) {
+          return renderBadgeParteVinculada({
+            nome,
+            titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
+            descricao: t('pedido.coluna_pai.clique_editar_exportador'),
+            href: urlVincularExportador(idExportador, pedidoId),
+          })
+        }
+        return renderLinkVincularParte({
+          label: t('pedido.coluna_pai.vincular_exportador'),
+          descricao: t('pedido.coluna_pai.nenhum_exportador_vinculado'),
+          href: urlVincularExportador(null, pedidoId),
+        })
+      }
+
+      const v = row.nome_exportador ?? enr._p?.nome_exportador ?? null
       if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
       if (v.length <= 50) return <span>{v}</span>
       return (
@@ -2731,7 +2775,10 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
         : undefined,
     campo: 'nome_importador',
     render: (row: PedidoItem) => {
-      const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
+      const enr = row as PedidoItemEnriquecido
+      const tipoOp = enr._p?.tipo_operacao
+      const pedidoId = enr._p?.id
+
       if (tipoOp === 'importacao') {
         const nomeWs = resolverNomeWorkspacePedidoPai(row)
         if (nomeWs) {
@@ -2743,7 +2790,26 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
           })
         }
       }
-      const v = row.nome_importador ?? (row as PedidoItemEnriquecido)._p?.nome_importador ?? null
+
+      if (tipoOp === 'exportacao') {
+        const nome = row.nome_importador ?? enr._p?.nome_importador ?? null
+        const idImportador = enr._p?.exportacao_importador_id ?? null
+        if (nome?.trim()) {
+          return renderBadgeParteVinculada({
+            nome,
+            titulo: t('pedido.coluna_pai.parte_importador_titulo'),
+            descricao: t('pedido.coluna_pai.clique_editar_importador'),
+            href: urlVincularImportador(idImportador, pedidoId),
+          })
+        }
+        return renderLinkVincularParte({
+          label: t('pedido.coluna_pai.vincular_importador'),
+          descricao: t('pedido.coluna_pai.nenhum_importador_vinculado'),
+          href: urlVincularImportador(null, pedidoId),
+        })
+      }
+
+      const v = row.nome_importador ?? enr._p?.nome_importador ?? null
       if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
       if (v.length <= 50) return <span>{v}</span>
       return (
@@ -5917,24 +5983,7 @@ export default function Pedidos() {
     // Re-enriquece o item com os dados do pedido pai (_p) para manter o cache íntegro
     const enriquecido: PedidoItemEnriquecido = {
       ...atualizado,
-      _p: {
-        id: pedido.id,
-        id_workspace: pedido.id_workspace ?? null,
-        tipo_operacao: pedido.tipo_operacao,
-        nome_exportador: pedido.nome_exportador ?? null,
-        nome_importador: pedido.nome_importador ?? null,
-        nome_fabricante: pedido.nome_fabricante ?? null,
-        referencia_importador: pedido.referencia_importador ?? null,
-        referencia_exportador: pedido.referencia_exportador ?? null,
-        referencia_fabricante: pedido.referencia_fabricante ?? null,
-        numero_proforma: pedido.numero_proforma ?? null,
-        numero_invoice: pedido.numero_invoice ?? null,
-        incoterm: pedido.incoterm ?? null,
-        condicao_pagamento: pedido.condicao_pagamento ?? null,
-        data_emissao_pedido: pedido.data_emissao_pedido ?? null,
-        status: pedido.status,
-        moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
-      },
+      _p: montarContextoPaiItem(pedido, atualizado),
     }
 
     // Atualiza cache e recalcula os aggregates do pedido pai
@@ -5975,24 +6024,7 @@ export default function Pedidos() {
       : await pedidoItemApi.listar(pedido.id)
     const itensEnriquecidos = rawItens.map(item => ({
       ...item,
-      _p: {
-        id: pedido.id,
-        id_workspace: pedido.id_workspace ?? null,
-        tipo_operacao: pedido.tipo_operacao,
-        nome_exportador: item.nome_exportador ?? pedido.nome_exportador ?? null,
-        nome_importador: item.nome_importador ?? pedido.nome_importador ?? null,
-        nome_fabricante: pedido.nome_fabricante ?? null,
-        referencia_importador: item.referencia_importador ?? pedido.referencia_importador ?? null,
-        referencia_exportador: item.referencia_exportador ?? pedido.referencia_exportador ?? null,
-        referencia_fabricante: item.referencia_fabricante ?? pedido.referencia_fabricante ?? null,
-        numero_proforma: pedido.numero_proforma ?? null,
-        numero_invoice: pedido.numero_invoice ?? null,
-        incoterm: pedido.incoterm ?? null,
-        condicao_pagamento: pedido.condicao_pagamento ?? null,
-        data_emissao_pedido: pedido.data_emissao_pedido ?? null,
-        status: pedido.status,
-        moeda_pedido: pedido.moeda_pedido ?? 'USD',
-      },
+      _p: montarContextoPaiItem(pedido, item),
     }))
     // Popula cache para handleEditarFilho (não-reativo, evita re-loads em useGTExpandir)
     const { itens: itensComAlertas, divergencias } = sincronizarItensPedido(itensEnriquecidos, pedido)

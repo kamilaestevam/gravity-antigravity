@@ -19,6 +19,11 @@ import { LABELS_FILTRO_INVERSO } from './filtros'
 import type { GTUnidadeOpcao } from '../../shared/useUnidadesPedido'
 import { getEditavel } from '../../shared/columnBehaviorConfig'
 import { renderBadgeParteWorkspace } from './renderBadgeParteWorkspace'
+import {
+  urlEditarCnpjWorkspace,
+  urlVincularExportador,
+  urlVincularImportador,
+} from './urlsDeepLinkConfigurador'
 
 // Re-export so callers that used to import from ListaPedidos still work
 export { LABELS_FILTRO_INVERSO }
@@ -292,39 +297,6 @@ export interface OpcoesUnidadesColunas {
 
 export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GTColuna<Pedido>[] {
   const { unidadesPeso, unidadesCubagem, incotermsOpcoes, moedasOpcoes, workspacesMap } = opcoes
-
-  /** Monta URL deep-link para editar CNPJ do workspace no Configurador, com retorno automático */
-  const urlEditarCnpjWorkspace = (idWorkspace: string, pedidoId?: string) => {
-    const urlAtual = new URL(window.location.href)
-    if (pedidoId) urlAtual.searchParams.set('expandir', pedidoId)
-    const retorno = encodeURIComponent(urlAtual.toString())
-    const base = import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
-    return `${base}/workspace/workspaces?id=${idWorkspace}&foco=cnpj&retorno=${retorno}`
-  }
-
-  /** Monta URL deep-link para vincular/editar Exportador no Configurador (tela Empresas e Parceiros) */
-  const urlVincularExportador = (idExportador: string | null, pedidoId?: string) => {
-    const urlAtual = new URL(window.location.href)
-    if (pedidoId) urlAtual.searchParams.set('expandir', pedidoId)
-    const retorno = encodeURIComponent(urlAtual.toString())
-    const base = import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
-    if (idExportador) {
-      return `${base}/workspace/empresas-e-parceiros?id=${idExportador}&tipo=exportador-quando-importacao&retorno=${retorno}`
-    }
-    return `${base}/workspace/empresas-e-parceiros?criar=exportador-quando-importacao&retorno=${retorno}`
-  }
-
-  /** Monta URL deep-link para vincular/editar Importador no Configurador (tela Empresas e Parceiros) */
-  const urlVincularImportador = (idImportador: string | null, pedidoId?: string) => {
-    const urlAtual = new URL(window.location.href)
-    if (pedidoId) urlAtual.searchParams.set('expandir', pedidoId)
-    const retorno = encodeURIComponent(urlAtual.toString())
-    const base = import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
-    if (idImportador) {
-      return `${base}/workspace/empresas-e-parceiros?id=${idImportador}&tipo=importador-quando-exportacao&retorno=${retorno}`
-    }
-    return `${base}/workspace/empresas-e-parceiros?criar=importador-quando-exportacao&retorno=${retorno}`
-  }
 
   return [
   {

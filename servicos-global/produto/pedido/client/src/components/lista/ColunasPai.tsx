@@ -888,6 +888,10 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     filtravel: true,
     grupo: 'Quantidades',
     avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_full'),
+    getValorEditar: (row: Pedido) => ({
+      unit: row.unidade_comercializada_pedido ?? 'UN',
+      quantity: 0,
+    }),
     render: (_val: unknown, row: Pedido) =>
       renderAgregado(
         row.unidade_comercializada_pedido,

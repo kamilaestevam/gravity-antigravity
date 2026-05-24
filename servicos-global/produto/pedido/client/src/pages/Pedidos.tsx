@@ -4975,15 +4975,19 @@ export default function Pedidos() {
     // GTValorUnidade { unit, quantity } → extrai quantity, aplica conversão para KG em campos de peso
     const FATOR_PARA_KG_PAI: Record<string, number> = { KG: 1, G: 0.001, TON: 1000, KGBR: 1 }
     const CAMPOS_PESO_PAI = new Set(['peso_liquido_total_pedido', 'peso_bruto_total_pedido'])
+    // apenasUnidade: true — grava só a sigla (string), não quantity
+    const CAMPOS_UNIDADE_CODIGO_PAI = new Set(['unidade_comercializada_pedido'])
     const isUnidadePai = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
     const valorEnviarPai: unknown = isMoedaObj && CAMPOS_MOEDA_CODIGO.has(campo)
       ? (valor as { currency: string }).currency
-      : isUnidadePai
-        ? (() => {
-            const { unit, quantity } = valor as { unit: string; quantity: number }
-            return CAMPOS_PESO_PAI.has(campo) ? quantity * (FATOR_PARA_KG_PAI[unit] ?? 1) : quantity
-          })()
-        : valor
+      : isUnidadePai && CAMPOS_UNIDADE_CODIGO_PAI.has(campo)
+        ? (valor as { unit: string }).unit
+        : isUnidadePai
+          ? (() => {
+              const { unit, quantity } = valor as { unit: string; quantity: number }
+              return CAMPOS_PESO_PAI.has(campo) ? quantity * (FATOR_PARA_KG_PAI[unit] ?? 1) : quantity
+            })()
+          : valor
     // replicar_em_itens vem do checkbox "Aplicar a todos os itens" no popover
     // do pai (Decisão UX 2026-05-13). Default false — comportamento divergente.
     const replicar = opts?.replicar_em_itens ?? false

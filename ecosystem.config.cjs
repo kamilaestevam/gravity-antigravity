@@ -49,15 +49,17 @@ module.exports = {
     svc('cfg-back',  'servicos-global/configurador', 8005),
 
     {
-      // Frontend Vite — npm run dev:client
+      // Frontend Vite — chama o binário Node diretamente para que o PM2 tenha
+      // controle real sobre o processo e não deixe Vite órfão na porta 8000
+      // quando `pm2 stop/restart` é executado (problema Windows: cmd→npm→vite
+      // criava 3 camadas de processo; PM2 só matava a primeira).
       name: 'cfg-front',
-      script: shellExe,
-      args: shellRun('npm run dev:client'),
+      script: path.join(ROOT, 'node_modules/vite/bin/vite.js'),
       cwd: path.join(ROOT, 'servicos-global/configurador'),
       autorestart: true,
       max_restarts: 10,
       restart_delay: 3000,
-      kill_timeout: 5000,
+      kill_timeout: 8000,
       watch: false,
       env: { PORT: '8000', NODE_ENV: 'development' },
     },

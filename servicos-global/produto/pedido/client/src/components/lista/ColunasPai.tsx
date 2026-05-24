@@ -884,6 +884,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     key: 'unidade_comercializada_pedido',
     label: t('pedido.coluna_pai.unidade_comercializada'),
     tipo: 'unidade',
+    apenasUnidade: true,
     filtravel: true,
     grupo: 'Quantidades',
     avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_full'),

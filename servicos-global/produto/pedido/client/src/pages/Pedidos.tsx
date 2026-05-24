@@ -5045,6 +5045,24 @@ export default function Pedidos() {
         result[`${campo}_valor_unico`] = distintos === 1 ? valores[0] : null
       }
     }
+
+    // unidade_comercializada — além de itens divergirem entre si, alerta quando
+    // unidade_comercializada_pedido ≠ unidade dos itens (Decisão UX 2026-05-24).
+    // Ex.: pedido=DUZIA, todos itens=UN → deve mostrar DUZIA + ⚠ (não silencioso).
+    // Espelha a regra de data_emissao_pedido (pai vs filhos + filhos entre si).
+    {
+      const unidadesItens = itens
+        .map(i => i.unidade_comercializada_item)
+        .filter((u): u is string => u != null && u !== '')
+      const unidadesUnicas = new Set(unidadesItens)
+      const unidadePai = pedidoPai?.unidade_comercializada_pedido ?? null
+      let unidadeDivergente = unidadesUnicas.size > 1
+      if (!unidadeDivergente && unidadePai && unidadesItens.length > 0) {
+        unidadeDivergente = unidadesItens.some(u => u !== unidadePai)
+      }
+      result.unidade_comercializada_item_divergente = unidadeDivergente
+    }
+
     // NCM (campo ghost) — recomputa flag + valor único + contagem juntos.
     // Espelha a regra do backend (mapPedido em processos-core/routes/pedidos.ts):
     // ncm_divergente quando há mais de 1 NCM distinto entre os itens.

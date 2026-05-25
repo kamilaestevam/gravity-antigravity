@@ -50,11 +50,13 @@ reordenacaoItensPedidoRouter.patch('/reordenar', async (req: Request, res: Respo
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
       const { idOrganizacao } = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const idWorkspace = (req.headers['x-id-workspace'] as string | undefined) ?? idOrganizacao
 
-      // 1. Validar que o pedido existe e pertence à organização
+      // 1. Validar que o pedido existe e pertence à organização.
+      // Sem filtro por x-id-workspace — mesmo contrato de PATCH /itens/:id_item/campo
+      // e POST /exclusoes/*: o usuário pode reordenar itens de pedidos visíveis na
+      // lista multi-workspace mesmo quando o header aponta outro workspace ativo.
       const pedido = await db.pedido.findFirst({
-        where: { id_pedido: idPedido, id_organizacao: idOrganizacao, id_workspace: idWorkspace },
+        where: { id_pedido: idPedido, id_organizacao: idOrganizacao },
         select: { id_pedido: true },
       })
       if (!pedido) {

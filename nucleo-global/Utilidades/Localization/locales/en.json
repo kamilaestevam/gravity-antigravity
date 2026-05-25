@@ -6395,6 +6395,7 @@
         "rotulo_pedido": "Order",
         "rotulo_item": "Item",
         "editavel_pedido": "Editable on order",
+        "editavel_pedido_numero": "Editable on order (unique per org)",
         "editavel_item": "Editable on item",
         "somente_leitura": "Read-only",
         "replica_itens": "Apply to all items",

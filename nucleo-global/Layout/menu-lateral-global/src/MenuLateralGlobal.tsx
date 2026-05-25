@@ -352,6 +352,7 @@ export function MenuLateralGlobal({
                 </button>
               </div>
             )}
+            <div className="mlg-ws-dropdown__list">
             {filteredWorkspaces.map(ws => {
               const isMulti = modoWorkspace === 'multiplo'
               const isSelected = isMulti
@@ -392,7 +393,9 @@ export function MenuLateralGlobal({
                 </button>
               )
             })}
+            </div>
 
+            <div className="mlg-ws-dropdown__footer">
             <div className="mlg-ws-divider" />
 
             {onCreateWorkspace && (
@@ -407,6 +410,7 @@ export function MenuLateralGlobal({
                 {dropdownManageLabel}
               </button>
             )}
+            </div>
           </div>
         )}
       </div>

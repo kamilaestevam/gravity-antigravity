@@ -31,7 +31,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import {
   type OrganizacaoOpcao,
 } from '@nucleo/select-organizacao-admin-global'
-import { listaEmpresasAdminSchema, type EmpresaAdmin } from '@cadastros/shared/schemas'
+import { listaFornecedoresAdminSchema, type FornecedorAdmin } from '@cadastros/shared/schemas'
 import { buscarOrganizacoesAdmin } from '@gravity/shell'
 
 // ─── Tipos auxiliares ────────────────────────────────────────────────────────
@@ -53,9 +53,9 @@ const TIPOS_PARCEIRO = [
   { key: 'seguradora_corretora_cambio',               label: 'Seguradora/Corretora Câmbio' },
 ] as const
 
-function derivarTiposEmpresa(e: EmpresaAdmin): string {
+function derivarTiposEmpresa(e: FornecedorAdmin): string {
   return TIPOS_PARCEIRO
-    .filter((t) => (e as unknown as Record<string, boolean>)[`pode_ser_${t.key}_empresa`])
+    .filter((t) => (e as unknown as Record<string, boolean>)[`pode_ser_${t.key}_fornecedor`])
     .map((t) => t.label)
     .join(' + ') || '—'
 }
@@ -64,7 +64,7 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
   const { getToken } = useAuth()
   const navigate = useNavigate()
 
-  const [empresas, setEmpresas] = useState<EmpresaAdmin[]>([])
+  const [empresas, setEmpresas] = useState<FornecedorAdmin[]>([])
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [totalGeral, setTotalGeral] = useState(0)
@@ -93,7 +93,7 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
         throw new Error(corpo?.error?.message ?? `Falha (${res.status})`)
       }
       const raw = await res.json()
-      const data = listaEmpresasAdminSchema.parse(raw)
+      const data = listaFornecedoresAdminSchema.parse(raw)
       setEmpresas(data.itens)
       setTotalGeral(data.total)
       setAlertaVolume(data.alerta_volume === true)
@@ -119,7 +119,7 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
   // row completa. Anteriormente todas as renders pegavam só o primeiro
   // como se fosse a row — quebrava em qualquer coluna onde a key não
   // existia diretamente em EmpresaAdmin (ex: 'documento', 'tipos_parceiro').
-  const colunas: TabelaGlobalColuna<EmpresaAdmin>[] = useMemo(() => [
+  const colunas: TabelaGlobalColuna<FornecedorAdmin>[] = useMemo(() => [
     {
       key:    'nome_organizacao',
       label:  'Organização',
@@ -249,7 +249,7 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
 
       {/* ── Tabela ───────────────────────────────────────────────────────── */}
       {!carregando && !erro && (
-        <TabelaGlobal<EmpresaAdmin>
+        <TabelaGlobal<FornecedorAdmin>
           dados={empresas}
           colunas={colunas}
           idKey="id_fornecedor"

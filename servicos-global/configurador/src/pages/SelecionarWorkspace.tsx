@@ -50,12 +50,11 @@ import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import '../../../../nucleo-global/Campos/campo-geral-global/src/campo-geral.css'
 import {
   escopoPedidoDivergeDoWorkspace,
-  formatarResumoWorkspacesEscopo,
-  lerEscopoPedidoSessionStorage,
-  obterEscopoPedidoSalvo,
-  salvarEscopoPedidoApenasWorkspace,
+  obterPreferenciaEscopoHubPedido,
+  salvarSuprimirAvisoEscopoHubPedido,
 } from '../utils/pedido-escopo-hub'
 import './selecionar-workspace.css'
 
@@ -206,6 +205,28 @@ function getProdutoIcon(slug: string): { icon: React.ReactElement; color: string
   return PRODUCT_ICON_MAP[slug] ?? { icon: <Star size={18} weight="regular" />, color: 'var(--sw-accent-2)', bg: 'var(--sw-accent-dim)' }
 }
 
+function LegendaEscopoWorkspacesHub({ nomes }: { nomes: readonly string[] }) {
+  const { t } = useTranslation()
+
+  if (nomes.length === 0) return null
+
+  return (
+    <div className="sw-escopo-ws-legenda-wrap">
+      <div className="sw-escopo-ws-legenda-titulo">
+        {t('sw.modal_escopo_pedido_legenda_titulo', { count: nomes.length })}
+      </div>
+      <ul className="sw-escopo-ws-legenda">
+        {nomes.map((nome, indice) => (
+          <li key={`${indice}-${nome}`} className="sw-escopo-ws-legenda-item">
+            <span className="sw-escopo-ws-legenda-num" aria-hidden="true">{indice + 1}</span>
+            <span className="sw-escopo-ws-legenda-nome">{nome}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 /* ══════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL — SelecionarWorkspace (Dashboard Core)
 ══════════════════════════════════════════════════════ */
@@ -229,8 +250,8 @@ export function SelecionarWorkspace() {
   const [modalSemProdutos, setModalSemProdutos] = useState(false)
   const [modalEscopoPedidoAberto, setModalEscopoPedidoAberto] = useState(false)
   const [workspaceEntradaPendente, setWorkspaceEntradaPendente] = useState<Workspace | null>(null)
-  const [escopoPedidoResumo, setEscopoPedidoResumo] = useState('')
-  const [salvandoEscopoPedido, setSalvandoEscopoPedido] = useState(false)
+  const [escopoPedidoNomes, setEscopoPedidoNomes] = useState<string[]>([])
+  const [naoExibirAvisoEscopo, setNaoExibirAvisoEscopo] = useState(false)
 
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -636,23 +657,21 @@ export function SelecionarWorkspace() {
       const temPedidoContratado = contratadosAtivos.some(p => p.product_key === 'pedido')
       if (temPedidoContratado) {
         const token = await getToken()
-        let idsEscopo: string[] | null = null
-
         if (token && idOrganizacao && idUsuarioPrisma) {
-          idsEscopo = await obterEscopoPedidoSalvo(token, {
-            idOrganizacao,
-            idUsuario: idUsuarioPrisma,
-          })
-        } else {
-          idsEscopo = lerEscopoPedidoSessionStorage()
-        }
+          const ctx = { idOrganizacao, idUsuario: idUsuarioPrisma }
+          const preferencia = await obterPreferenciaEscopoHubPedido(token, ctx)
 
-        if (idsEscopo && escopoPedidoDivergeDoWorkspace(ws.id, idsEscopo)) {
-          const resolverNome = (id: string) => workspaces.find(w => w.id === id)?.nome ?? id
-          setEscopoPedidoResumo(formatarResumoWorkspacesEscopo(idsEscopo, resolverNome))
-          setWorkspaceEntradaPendente(ws)
-          setModalEscopoPedidoAberto(true)
-          return
+          if (!preferencia.suprimirAvisoEscopoHub) {
+            const idsEscopo = preferencia.idsEscopo
+            if (idsEscopo && escopoPedidoDivergeDoWorkspace(ws.id, idsEscopo)) {
+              const resolverNome = (id: string) => workspaces.find(w => w.id === id)?.nome ?? id
+              setEscopoPedidoNomes(idsEscopo.map(resolverNome))
+              setNaoExibirAvisoEscopo(false)
+              setWorkspaceEntradaPendente(ws)
+              setModalEscopoPedidoAberto(true)
+              return
+            }
+          }
         }
       }
       executarEntradaWorkspace(ws)
@@ -672,47 +691,31 @@ export function SelecionarWorkspace() {
   const fecharModalEscopoPedido = useCallback(() => {
     setModalEscopoPedidoAberto(false)
     setWorkspaceEntradaPendente(null)
-    setEscopoPedidoResumo('')
+    setEscopoPedidoNomes([])
+    setNaoExibirAvisoEscopo(false)
   }, [])
 
-  const confirmarEntradaManterEscopoPedido = useCallback(() => {
+  const confirmarEntradaEscopoPedido = useCallback(async () => {
     const ws = workspaceEntradaPendente
+    const suprimir = naoExibirAvisoEscopo
     fecharModalEscopoPedido()
-    if (ws) executarEntradaWorkspace(ws)
-  }, [executarEntradaWorkspace, fecharModalEscopoPedido, workspaceEntradaPendente])
-
-  const confirmarEntradaApenasEsteWorkspace = useCallback(async () => {
-    const ws = workspaceEntradaPendente
-    if (!ws) return
-
-    setSalvandoEscopoPedido(true)
-    try {
+    if (suprimir) {
       const token = await getToken()
       if (token && idOrganizacao && idUsuarioPrisma) {
-        const ok = await salvarEscopoPedidoApenasWorkspace(token, {
+        void salvarSuprimirAvisoEscopoHubPedido(token, {
           idOrganizacao,
           idUsuario: idUsuarioPrisma,
-        }, ws.id)
-        if (!ok) {
-          addNotification({
-            type: 'warning',
-            message: t('sw.modal_escopo_pedido_erro_salvar'),
-          })
-        }
+        })
       }
-      fecharModalEscopoPedido()
-      executarEntradaWorkspace(ws)
-    } finally {
-      setSalvandoEscopoPedido(false)
     }
+    if (ws) executarEntradaWorkspace(ws)
   }, [
-    addNotification,
     executarEntradaWorkspace,
     fecharModalEscopoPedido,
     getToken,
     idOrganizacao,
     idUsuarioPrisma,
-    t,
+    naoExibirAvisoEscopo,
     workspaceEntradaPendente,
   ])
 
@@ -1020,7 +1023,7 @@ export function SelecionarWorkspace() {
                             e.stopPropagation()
                             void tentarEntrarNoWorkspace(ws)
                           }}
-                          disabled={entrando || salvandoEscopoPedido}
+                          disabled={entrando}
                         >
                           {entrando ? t('sw.entrando') : t('sw.entrar_btn')}
                           <ArrowRight size={14} />
@@ -1232,132 +1235,51 @@ export function SelecionarWorkspace() {
       <ModalOverlay
         aberto={modalEscopoPedidoAberto}
         aoFechar={fecharModalEscopoPedido}
-        tamanho="md"
+        tamanho="lg"
         titulo=""
         cabecalhoPersonalizado={
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            padding: '2rem 2rem 0.75rem',
-            gap: '1rem',
-          }}>
-            <div style={{
-              width: 56,
-              height: 56,
-              borderRadius: '50%',
-              background: 'linear-gradient(180deg, rgba(52,211,153,0.15) 0%, rgba(52,211,153,0.05) 100%)',
-              border: '1px solid rgba(52,211,153,0.2)',
-              boxShadow: '0 0 0 8px rgba(52,211,153,0.04), inset 0 2px 8px rgba(52,211,153,0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#34d399',
-              position: 'relative',
-            }}>
+          <div className="sw-modal-escopo-pedido">
+            <div className="sw-modal-escopo-pedido-icone">
               <ClipboardText size={28} weight="duotone" />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', width: '100%', marginTop: '0.25rem' }}>
-              <h2 style={{
-                fontSize: '1.125rem',
-                fontWeight: 700,
-                color: 'var(--text-primary, #f1f5f9)',
-                margin: 0,
-                letterSpacing: '-0.02em',
-                lineHeight: 1.2,
-              }}>
+            <div className="sw-modal-escopo-pedido-corpo">
+              <h2 className="sw-modal-escopo-pedido-titulo">
                 {t('sw.modal_escopo_pedido_titulo')}
               </h2>
-              <p style={{
-                fontSize: '0.875rem',
-                color: 'var(--text-secondary, #94a3b8)',
-                lineHeight: 1.5,
-                margin: 0,
-                width: '100%',
-                textAlign: 'center',
-              }}>
+              <p className="sw-modal-escopo-pedido-desc">
                 {t('sw.modal_escopo_pedido_desc', {
                   workspaceAlvo: workspaceEntradaPendente?.nome ?? '',
-                  escopoResumo: escopoPedidoResumo,
                 })}
               </p>
-              <p style={{
-                fontSize: '0.8125rem',
-                color: 'var(--text-secondary, #64748b)',
-                lineHeight: 1.5,
-                margin: 0,
-                width: '100%',
-                textAlign: 'center',
-              }}>
+              <LegendaEscopoWorkspacesHub nomes={escopoPedidoNomes} />
+              <span className="cg-hint-contextual cg-hint-contextual--centro">
+                <Info size={14} weight="fill" className="cg-hint-contextual__icone" aria-hidden="true" />
                 {t('sw.modal_escopo_pedido_dica')}
-              </p>
+              </span>
             </div>
           </div>
         }
         renderizarFooter={() => (
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '0.75rem',
-            width: '100%',
-            padding: '0 2rem 2rem',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', width: '100%', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                style={{
-                  minWidth: '180px', height: '38px',
-                  display: 'flex', justifyContent: 'center', alignItems: 'center',
-                  fontWeight: 600, fontSize: '0.875rem',
-                  background: 'linear-gradient(180deg, #34d399 0%, #10b981 100%)',
-                  color: '#ffffff',
-                  border: '1px solid #059669',
-                  borderRadius: '8px',
-                  cursor: salvandoEscopoPedido ? 'wait' : 'pointer',
-                  opacity: salvandoEscopoPedido ? 0.7 : 1,
-                }}
-                disabled={salvandoEscopoPedido}
-                onClick={() => { void confirmarEntradaApenasEsteWorkspace() }}
-              >
-                {salvandoEscopoPedido ? t('sw.entrando') : t('sw.modal_escopo_btn_apenas_este')}
-              </button>
-
-              <button
-                type="button"
-                style={{
-                  minWidth: '180px', height: '38px',
-                  display: 'flex', justifyContent: 'center', alignItems: 'center',
-                  fontWeight: 600, fontSize: '0.875rem',
-                  background: '#f8fafc', color: '#0f172a',
-                  border: '1px solid transparent', borderRadius: '8px',
-                  cursor: salvandoEscopoPedido ? 'not-allowed' : 'pointer',
-                  opacity: salvandoEscopoPedido ? 0.6 : 1,
-                }}
-                disabled={salvandoEscopoPedido}
-                onClick={confirmarEntradaManterEscopoPedido}
-              >
-                {t('sw.modal_escopo_btn_manter')}
-              </button>
-            </div>
-
+          <div className="sw-modal-escopo-pedido-footer">
+            <span className="cg-hint-contextual cg-hint-contextual--centro">
+              <Info size={14} weight="fill" className="cg-hint-contextual__icone" aria-hidden="true" />
+              {t('sw.modal_escopo_pedido_como_mudar')}
+            </span>
+            <label className="sw-modal-escopo-pedido-checkbox">
+              <input
+                type="checkbox"
+                checked={naoExibirAvisoEscopo}
+                onChange={e => setNaoExibirAvisoEscopo(e.target.checked)}
+              />
+              <span>{t('sw.modal_escopo_nao_exibir')}</span>
+            </label>
             <button
               type="button"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#94a3b8',
-                fontSize: '0.8125rem',
-                cursor: salvandoEscopoPedido ? 'not-allowed' : 'pointer',
-                textDecoration: 'underline',
-                padding: '0.25rem 0.5rem',
-              }}
-              disabled={salvandoEscopoPedido}
-              onClick={confirmarEntradaManterEscopoPedido}
+              className="sw-modal-escopo-pedido-btn-acordo"
+              onClick={() => { void confirmarEntradaEscopoPedido() }}
             >
-              {t('sw.modal_escopo_btn_depois')}
+              {t('sw.modal_escopo_btn_acordo')}
             </button>
           </div>
         )}

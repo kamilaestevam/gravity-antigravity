@@ -19,8 +19,10 @@ import { AppError } from '../errors/AppError.js'
 import {
   colunasLarguraParaCliente,
   extrairEscopoWorkspacesDeColunasLargura,
+  extrairSuprimirAvisoEscopoHubDeColunasLargura,
   mesclarEscopoEmColunasLargura,
   mesclarLargurasNumericas,
+  mesclarSuprimirAvisoEscopoHubEmColunasLargura,
   type ColunasLarguraGravacao,
 } from '../../../shared/preferenciasUsuarioColunaPedido.js'
 
@@ -32,11 +34,13 @@ const PreferenciaPutSchema = z.object({
   colunas_visiveis:      z.array(z.string()).optional(),
   colunas_largura:       z.record(z.number()).optional(),
   ids_workspaces_escopo: z.array(z.string()).optional(),
+  suprimir_aviso_escopo_hub_pedido: z.boolean().optional(),
 }).refine(
   data =>
     data.colunas_visiveis !== undefined
     || data.colunas_largura !== undefined
-    || data.ids_workspaces_escopo !== undefined,
+    || data.ids_workspaces_escopo !== undefined
+    || data.suprimir_aviso_escopo_hub_pedido !== undefined,
   { message: 'Informe ao menos um campo para atualizar' },
 )
 
@@ -44,6 +48,7 @@ export interface PreferenciaResponse {
   colunas_visiveis: string[]
   colunas_largura?: Record<string, number>
   ids_workspaces_escopo?: string[]
+  suprimir_aviso_escopo_hub_pedido?: boolean
 }
 
 type PreferenciaPutPayload = z.infer<typeof PreferenciaPutSchema>
@@ -64,10 +69,12 @@ function mapPrismaParaJson(row: PreferenciaPrismaRow | null): PreferenciaRespons
   if (!row) return null
   const larguraBruta = row.colunas_largura_preferencia_usuario_coluna_pedido
   const idsEscopo = extrairEscopoWorkspacesDeColunasLargura(larguraBruta)
+  const suprimirAviso = extrairSuprimirAvisoEscopoHubDeColunasLargura(larguraBruta)
   return {
     colunas_visiveis: row.colunas_visiveis_preferencia_usuario_coluna_pedido,
     colunas_largura:  colunasLarguraParaCliente(larguraBruta),
     ...(idsEscopo !== undefined ? { ids_workspaces_escopo: idsEscopo } : {}),
+    ...(suprimirAviso === true ? { suprimir_aviso_escopo_hub_pedido: true } : {}),
   }
 }
 
@@ -89,6 +96,12 @@ function mesclarPreferenciaGravacao(
   }
   if (body.ids_workspaces_escopo !== undefined) {
     colunasLargura = mesclarEscopoEmColunasLargura(colunasLargura, body.ids_workspaces_escopo)
+  }
+  if (body.suprimir_aviso_escopo_hub_pedido !== undefined) {
+    colunasLargura = mesclarSuprimirAvisoEscopoHubEmColunasLargura(
+      colunasLargura,
+      body.suprimir_aviso_escopo_hub_pedido,
+    )
   }
 
   return {

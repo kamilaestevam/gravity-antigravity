@@ -3,7 +3,19 @@
  */
 
 import type { DashboardDistributionGroup, DashboardKpis } from './api'
+import type { PedidoStatusConfig } from './types'
 import { DASHBOARD_TOP_KPI_STATUS_ESPECIAL } from './useDashboardTopKpiStatus'
+
+export function mapaRotulosStatusConfig(
+  lista: PedidoStatusConfig[] | undefined,
+): Record<string, { label: string; cor: string }> {
+  const map: Record<string, { label: string; cor: string }> = {}
+  for (const s of lista ?? []) {
+    if (!s.nome?.trim()) continue
+    map[s.nome] = { label: s.rotulo, cor: s.cor }
+  }
+  return map
+}
 
 const KPI_POR_STATUS: Record<string, keyof DashboardKpis> = {
   aberto:        'pedidos_abertos',

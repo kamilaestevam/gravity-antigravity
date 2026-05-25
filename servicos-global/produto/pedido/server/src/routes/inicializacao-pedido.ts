@@ -28,6 +28,10 @@ import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-org
 
 import { ColunasUsuarioService } from '../services/colunasUsuarioService.js'
 import {
+  colunasLarguraParaCliente,
+  extrairEscopoWorkspacesDeColunasLargura,
+} from '../../../shared/preferenciasUsuarioColunaPedido.js'
+import {
   mapPedido,
   encodeCursor,
   injetarColunasPedidoEItens,
@@ -126,10 +130,17 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
           is_padrao:  s.padrao_pedido_status,
           is_sistema: s.gerenciado_sistema_pedido_status,
         })) },
-        preferencias: preferencia ? {
-          colunas_visiveis: (preferencia as { colunas_visiveis_preferencia_usuario_coluna_pedido: string[] }).colunas_visiveis_preferencia_usuario_coluna_pedido,
-          colunas_largura:  (preferencia as { colunas_largura_preferencia_usuario_coluna_pedido: Record<string, number> | null }).colunas_largura_preferencia_usuario_coluna_pedido,
-        } : null,
+        preferencias: preferencia ? (() => {
+          const larguraBruta = (preferencia as {
+            colunas_largura_preferencia_usuario_coluna_pedido: unknown
+          }).colunas_largura_preferencia_usuario_coluna_pedido
+          const idsEscopo = extrairEscopoWorkspacesDeColunasLargura(larguraBruta)
+          return {
+            colunas_visiveis: (preferencia as { colunas_visiveis_preferencia_usuario_coluna_pedido: string[] }).colunas_visiveis_preferencia_usuario_coluna_pedido,
+            colunas_largura:  colunasLarguraParaCliente(larguraBruta),
+            ...(idsEscopo !== undefined ? { ids_workspaces_escopo: idsEscopo } : {}),
+          }
+        })() : null,
         colunas,
       })
     })

@@ -19,6 +19,7 @@ import {
   type CardComputedStats,
 } from '../shared/listaCardStats'
 import { useListaCardKpis } from '../shared/useListaCardKpis'
+import { resolverIdsWorkspacesParaApi } from '../shared/useEscopoWorkspacesPedido'
 import { useConfigRegras } from '../shared/queries'
 import type { CardPeriodoCodigo } from '../shared/lista-card-schemas'
 export interface ListaPedidoCardsProps {
@@ -57,10 +58,7 @@ export function ListaPedidoCards({
   const { t } = useTranslation()
   const hoje = useMemo(() => new Date().toISOString().slice(0, 10), [])
 
-  const ehSelecaoDefault =
-    workspacesSelecionados.length === 1 &&
-    workspacesSelecionados[0] === workspaceAtivo
-  const idsWorkspacesFiltro = ehSelecaoDefault ? undefined : workspacesSelecionados
+  const idsWorkspacesFiltro = resolverIdsWorkspacesParaApi(workspacesSelecionados, workspaceAtivo)
 
   const { kpis } = useListaCardKpis({
     period: periodo,

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useMemo } from 'react'
+import React, { lazy, Suspense, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
@@ -12,9 +12,10 @@ import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { resolverPageMetaTopo } from './shared/page-meta-topo'
 import './shared/pedido-page-shell.css'
 import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
-import { setApiContext, injectTenantGetter, injectTokenGetter, injectWorkspaceGetter } from './shared/api'
+import { setApiContext, injectTenantGetter, injectTokenGetter, injectWorkspaceGetter, pedidoConfigApi } from './shared/api'
 import { usePermissoesPedido, type SecaoPedido } from './shared/permissoes/usePermissoesPedido'
 import { BloqueioPermissaoOpaco } from './shared/permissoes/BloqueioPermissaoOpaco'
+import { useEscopoWorkspacesPedido } from './shared/useEscopoWorkspacesPedido'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 /**
@@ -173,14 +174,67 @@ function AppInner() {
   const currentTheme     = useShellStore(s => s.currentTheme)
   const workspacesStore  = useShellStore(s => s.workspaces)
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
-  const setWorkspaceAtivo = useShellStore(s => s.setWorkspaceAtivo)
+
+  const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
+  const hidratadoEscopo = useEscopoWorkspacesPedido(s => s.hidratado)
+  const hidratarEscopo = useEscopoWorkspacesPedido(s => s.hidratar)
+  const reiniciarHidratacaoEscopo = useEscopoWorkspacesPedido(s => s.reiniciarHidratacao)
+  const alternarWorkspaceEscopo = useEscopoWorkspacesPedido(s => s.alternarWorkspace)
+  const definirEscopoWorkspaces = useEscopoWorkspacesPedido(s => s.definirEscopo)
+  const sinalAbrirMenuWorkspaces = useEscopoWorkspacesPedido(s => s.sinalAbrirMenuWorkspaces)
+  const sessaoEscopoHidratadaRef = useRef<string | null>(null)
+  const qtdWorkspaces = workspacesStore.length
+
+  useEffect(() => {
+    if (currentUser.id) {
+      setApiContext({
+        idOrganizacao: currentUser.idOrganizacao ?? '',
+        userId: currentUser.id,
+        userName: currentUser.name ?? '',
+      })
+    }
+  }, [currentUser.id, currentUser.idOrganizacao, currentUser.name])
+
+  useEffect(() => {
+    if (qtdWorkspaces === 0 || !idWorkspaceAtivo || !currentUser?.idOrganizacao || !currentUser.id) return
+
+    const sessao = `${currentUser.idOrganizacao}:${currentUser.id}`
+    if (sessaoEscopoHidratadaRef.current === sessao) return
+
+    reiniciarHidratacaoEscopo()
+
+    let cancelled = false
+    const idsDisponiveis = workspacesStore.map(ws => ws.id)
+
+    void pedidoConfigApi.obterPreferenciaUsuarioColunaPedido()
+      .then(res => {
+        if (cancelled) return
+        const idsSalvos = res.data?.ids_workspaces_escopo
+        hidratarEscopo(
+          idsDisponiveis,
+          idWorkspaceAtivo,
+          idsSalvos !== undefined ? idsSalvos : null,
+        )
+        sessaoEscopoHidratadaRef.current = sessao
+      })
+      .catch(() => {
+        if (cancelled) return
+        hidratarEscopo(idsDisponiveis, idWorkspaceAtivo, null)
+        sessaoEscopoHidratadaRef.current = sessao
+      })
+
+    return () => { cancelled = true }
+  }, [
+    qtdWorkspaces,
+    idWorkspaceAtivo,
+    currentUser?.idOrganizacao,
+    currentUser?.id,
+    hidratarEscopo,
+    reiniciarHidratacaoEscopo,
+    workspacesStore,
+  ])
 
   const { history, visitedIds, addEntry } = useLocalizadorHistory(PRODUCT_ID)
-
-  // userId/userName não são críticos para auth — atualizados via context quando disponíveis
-  useEffect(() => {
-    if (currentUser.id) setApiContext({ idOrganizacao: '', userId: currentUser.id, userName: currentUser.name ?? '' })
-  }, [currentUser.id, currentUser.name])
 
   useEffect(() => {
     const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'Pedidos'
@@ -210,6 +264,27 @@ function AppInner() {
   const wsAtivo = workspacesStore.find(ws => ws.id === idWorkspaceAtivo)
   const nomeWorkspaceAtivo = wsAtivo?.nome_workspace ?? currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa'
 
+  const escopoWorkspaces = useMemo(() => {
+    if (!hidratadoEscopo || idsWorkspacesEscopo.length === 0) {
+      return { tenantName: nomeWorkspaceAtivo, tenantPlan: currentUser.nomeOrganizacao ?? '' }
+    }
+    const nomes = idsWorkspacesEscopo
+      .map(id => workspacesStore.find(ws => ws.id === id)?.nome_workspace)
+      .filter((n): n is string => Boolean(n))
+    if (nomes.length === 0) {
+      return { tenantName: nomeWorkspaceAtivo, tenantPlan: currentUser.nomeOrganizacao ?? '' }
+    }
+    if (nomes.length === 1) {
+      return { tenantName: nomes[0], tenantPlan: currentUser.nomeOrganizacao ?? '' }
+    }
+    const preview = nomes.slice(0, 2).join(', ')
+    const suffix = nomes.length > 2 ? '…' : ''
+    return {
+      tenantName: `${nomes.length} workspaces`,
+      tenantPlan: `${preview}${suffix}`,
+    }
+  }, [hidratadoEscopo, idsWorkspacesEscopo, workspacesStore, nomeWorkspaceAtivo, currentUser.nomeOrganizacao])
+
   // Workspaces reais do shell store (populado por GET /api/v1/me).
   // SEM fallback de demonstração (Mandamento 05 — proibido mock preguiçoso;
   // Mandamento 08 — proibido fallback silencioso): store vazio → lista vazia.
@@ -221,14 +296,20 @@ function AppInner() {
     <TelaProdutoGlobal
       productId={PRODUCT_ID}
       productName={PRODUCT_NAME}
-      tenantName={nomeWorkspaceAtivo}
-      tenantPlan={currentUser.nomeOrganizacao ?? ''}
+      tenantName={escopoWorkspaces.tenantName}
+      tenantPlan={escopoWorkspaces.tenantPlan}
       navItems={navItems}
       workspaces={workspacesSidebar}
+      modoWorkspace="multiplo"
+      workspacesEscopoIds={idsWorkspacesEscopo}
+      onAlternarWorkspaceEscopo={alternarWorkspaceEscopo}
+      onDefinirEscopoWorkspaces={definirEscopoWorkspaces}
+      sinalAbrirMenuWorkspaces={sinalAbrirMenuWorkspaces}
       onSwitchWorkspace={(id: string) => {
         const ws = workspacesStore.find(w => w.id === id)
         sessionStorage.setItem('gravity_company_id', id)
         if (ws) sessionStorage.setItem('gravity_company_name', ws.nome_workspace)
+        definirEscopoWorkspaces([id])
         window.location.reload()
       }}
       onCreateWorkspace={() => { window.location.href = '/configurador/workspace/novo' }}
@@ -240,7 +321,7 @@ function AppInner() {
       onNavigateSettings={() => { navigate('/pedido/configuracoes') }}
       headerActions={<Notificacoes />}
       localizador={{
-        workspaceName:       nomeWorkspaceAtivo,
+        workspaceName:       escopoWorkspaces.tenantName,
         currentPageLabel:    pageMeta.label,
         currentPageIcon:     pageMeta.icone,
         currentPageSubtitle: pageMeta.subtitulo,

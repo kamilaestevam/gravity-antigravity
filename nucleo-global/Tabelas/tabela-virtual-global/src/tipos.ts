@@ -44,7 +44,11 @@ export interface GTColuna<T = unknown> {
   tipo?: GTTipo
   align?: GTAlign
   tooltipTitulo?: string
-  tooltipDescricao?: string
+  tooltipDescricao?: string | React.ReactNode
+  /** Regra/descrição ao passar o mouse na célula de linha filho (quando diferente do pedido). */
+  tooltipDescricaoItem?: string | React.ReactNode
+  /** Sobrescreve tooltipDescricao por linha (ex.: mensagem de divergência). Retornar undefined usa o padrão da coluna. */
+  tooltipDescricaoCelula?: (item: T) => string | React.ReactNode | undefined
   /** Se true, o tooltip permanece aberto enquanto o mouse está sobre ele (permite clicar em links/botões dentro). */
   tooltipInterativo?: boolean
   /** Função de renderização customizada */

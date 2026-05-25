@@ -16,6 +16,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
+import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
 import { useSelecaoStore, usePedidosSelecionados, useItensSelecionados, useHasMixedTipos } from '../shared/state/selecaoStore'
 import { useLinkContextualSync } from '../shared/state/useLinkContextualSync'
 import {
@@ -110,6 +111,10 @@ import {
   mesclarDivergenciasPreservandoDescricaoPedido,
 } from '../../../shared/pedidoDivergencias'
 import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
+import {
+  enriquecerColunaComRegraTooltip,
+  enriquecerMapaColunasFilhoComRegraTooltip,
+} from '../shared/buildTooltipRegraLista'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
 import { inserirColunaAposAncora, moverColunaParaAposAncora } from '../shared/migracaoColunas'
 import { ModalConsolidarPedidos } from '../components/ModalPedidosConsolidar'
@@ -2567,49 +2572,6 @@ function extrairIdWorkspaceDeItem(item: PedidoItem): string {
   return String(item.company_id ?? enr._p?.id_workspace ?? '').trim()
 }
 
-/** Coleta todos os IDs de workspace visíveis em pedidos + itens embutidos. */
-function coletarIdsWorkspaceDePedidos(lista: ReadonlyArray<Pedido>): string[] {
-  const ids: string[] = []
-  for (const p of lista) {
-    const idPai = extrairIdWorkspaceDePedido(p)
-    if (idPai) ids.push(idPai)
-    for (const item of p.itens ?? []) {
-      const idItem = extrairIdWorkspaceDeItem(item)
-      if (idItem) ids.push(idItem)
-    }
-  }
-  return ids
-}
-
-type ExpansaoFiltroWorkspace = {
-  novosIds: string[]
-  nomesAdicionados: string[]
-  nomesFiltro: Set<string>
-}
-
-/** Calcula expansão do filtro multi-workspace quando há IDs visíveis fora da seleção. */
-function calcularExpansaoFiltroWorkspace(
-  idsVisiveis: ReadonlyArray<string>,
-  workspacesSelecionados: ReadonlyArray<string>,
-  workspacesMap: ReadonlyMap<string, { nome: string; cnpj?: string | null }>,
-): ExpansaoFiltroWorkspace | null {
-  const idsUnicos = [...new Set(idsVisiveis.map(id => id.trim()).filter(Boolean))]
-  const faltando = idsUnicos.filter(id => !workspacesSelecionados.includes(id))
-  if (faltando.length === 0) return null
-
-  const novosIds = [...new Set([...workspacesSelecionados, ...faltando])]
-  const nomesFiltro = new Set<string>()
-  const nomesAdicionados: string[] = []
-  for (const id of novosIds) {
-    const nome = workspacesMap.get(id)?.nome
-    if (!nome) continue
-    nomesFiltro.add(nome)
-    if (faltando.includes(id)) nomesAdicionados.push(nome)
-  }
-  if (nomesAdicionados.length === 0) return null
-  return { novosIds, nomesAdicionados, nomesFiltro }
-}
-
 /** Propaga valor do pai no item em memória — traduz id_workspace → company_id (ACL JSON). */
 function aplicarPropagacaoPedidoNoItem(
   item: PedidoItem,
@@ -3483,6 +3445,10 @@ interface BarraAcoesPedidoProps {
   handleLimparTodosFiltros: () => void
   busca: string
   onLimparBusca: () => void
+  /** Rótulo do escopo de workspaces (menu lateral) — chip informativo */
+  rotuloEscopoWorkspaces?: string | null
+  /** Abre o menu de workspaces no sidebar */
+  onAbrirMenuWorkspaces?: () => void
   /** Abre o popover de filtro da coluna ao clicar no body do chip — UX 2026-05-13 */
   onFiltroColuna?: (key: string, anchor: HTMLElement) => void
   podeEditarLista: boolean
@@ -3513,6 +3479,8 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   handleLimparTodosFiltros,
   busca,
   onLimparBusca,
+  rotuloEscopoWorkspaces,
+  onAbrirMenuWorkspaces,
   onFiltroColuna,
   podeEditarLista,
 }: BarraAcoesPedidoProps) {
@@ -3806,7 +3774,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
        * Refactor D9 (2026-05-13): JSX inline substituído por <FiltroChips> do
        * nucleo-global. O chip de BUSCA fica como `prefixo` (composição), porque
        * busca é responsabilidade do produto Pedido — não do framework de chips. */}
-      {(Object.keys(filtrosAtivos).length > 0 || busca) && (
+      {(Object.keys(filtrosAtivos).length > 0 || busca || rotuloEscopoWorkspaces) && (
         <FiltroChips
           colunas={COLUNAS_PAI}
           filtrosAtivos={filtrosAtivos}
@@ -3814,19 +3782,34 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           onLimparTodos={handleLimparTodosFiltros}
           onEditarFiltro={onFiltroColuna}
           thresholdConsolidar={2}
-          prefixo={busca ? (
-            <span className="fc-chip">
-              <span className="fc-chip-label">{t('pedido.barra.chip_busca', { defaultValue: 'Busca' })}:</span>
-              <span className="fc-chip-valor">{busca}</span>
-              <button
-                className="fc-chip-remove"
-                onClick={onLimparBusca}
-                aria-label={t('pedido.barra.remover_busca', { defaultValue: 'Remover busca' })}
-              >
-                <X size={10} weight="bold" />
-              </button>
-            </span>
-          ) : null}
+          prefixo={(
+            <>
+              {rotuloEscopoWorkspaces ? (
+                <button
+                  type="button"
+                  className="fc-chip fc-chip--escopo fc-chip--escopo-btn"
+                  onClick={onAbrirMenuWorkspaces}
+                  title={t('pedido.lista.chip_escopo_workspaces_hint', { defaultValue: 'Alterar workspaces selecionados' })}
+                >
+                  <span className="fc-chip-label">{t('pedido.lista.chip_escopo_workspaces', { defaultValue: 'Workspaces' })}:</span>
+                  <span className="fc-chip-valor">{rotuloEscopoWorkspaces}</span>
+                </button>
+              ) : null}
+              {busca ? (
+                <span className="fc-chip">
+                  <span className="fc-chip-label">{t('pedido.barra.chip_busca', { defaultValue: 'Busca' })}:</span>
+                  <span className="fc-chip-valor">{busca}</span>
+                  <button
+                    className="fc-chip-remove"
+                    onClick={onLimparBusca}
+                    aria-label={t('pedido.barra.remover_busca', { defaultValue: 'Remover busca' })}
+                  >
+                    <X size={10} weight="bold" />
+                  </button>
+                </span>
+              ) : null}
+            </>
+          )}
         />
       )}
     </>
@@ -3933,7 +3916,7 @@ export default function Pedidos() {
         },
       }
     }
-    return { ...base, ...custom }
+    return enriquecerMapaColunasFilhoComRegraTooltip({ ...base, ...custom }, t)
   }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario])
   const { visiveis: cardsVisiveis, periodo: periodoCards } = useCardPreferences()
   const navigate = useNavigate()
@@ -3941,35 +3924,15 @@ export default function Pedidos() {
   const addNotification = useShellStore(s => s.addNotification)
   const idOrganizacao = useShellStore(s => s.currentUser.idOrganizacao ?? (import.meta.env.VITE_DEV_ID_ORGANIZACAO as string | undefined) ?? '')
 
-  // ── Filtro multi-workspace ──────────────────────────────────────────────────
-  // Default = workspace ativo (lido do sessionStorage 'gravity_company_id').
-  // Lista de workspaces e workspacesMap já carregados acima.
+  // ── Escopo multi-workspace (menu lateral — SSOT do produto) ─────────────────
+  const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
+  const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
   const workspaceAtivo = useMemo(() => {
     if (typeof sessionStorage === 'undefined') return ''
     return sessionStorage.getItem('gravity_company_id') ?? ''
   }, [])
-  const [workspacesSelecionados, setWorkspacesSelecionados] = useState<string[]>(() =>
-    workspaceAtivo ? [workspaceAtivo] : [],
-  )
-
-  // ── Filtro multi-workspace — sincronização filtro-da-coluna → backend ──────
-  //
-  // EXCEÇÃO AO PADRÃO. Os demais filtros de coluna são CLIENT-SIDE: aplicam
-  // sobre o array `pedidos` já carregado. Para `id_workspace` isso não basta,
-  // pois os pedidos de outros workspaces ainda não foram trazidos do backend.
-  //
-  // Fluxo:
-  //   1. Usuário marca/desmarca workspaces no popover do header da coluna
-  //   2. filtrosAtivos['id_workspace'] = { tipo: 'enum', valor: Set<nome> }
-  //   3. Este useEffect converte NOMES → IDs (via workspacesMap)
-  //   4. Atualiza workspacesSelecionados
-  //   5. Outro useEffect (já existente) detecta a mudança e re-fetch o backend
-  //      passando ?ids_workspaces=...
-  //
-  // Quando o filtro é limpo (filtrosAtivos['id_workspace'] === undefined),
-  // volta ao default (somente workspaceAtivo). Isso evita estado vazio que
-  // dispararia "ver tudo" indesejado.
-  // (definido abaixo, após filtrosAtivos ser declarado)
+  const pedirAbrirMenuWorkspaces = useEscopoWorkspacesPedido(s => s.pedirAbrirMenuWorkspaces)
+  const workspacesSelecionados = idsWorkspacesEscopo
 
   // ── GABI quota badge ────────────────────────────────────────────────────────
   // useGabiQuota faz fetch direto sem passar pelo request() do api.ts —
@@ -4209,17 +4172,22 @@ export default function Pedidos() {
       }
 
       if (col.key === 'id_workspace') {
-        const WORKSPACE_OPTS = workspacesDisponiveis.map(w => ({
-          valor: w.id_workspace,
-          label: w.nome_workspace,
-        }))
+        const idsNaLista = new Set(
+          pedidos.map(p => extrairIdWorkspaceDePedido(p)).filter(Boolean),
+        )
+        const WORKSPACE_OPTS = workspacesDisponiveis
+          .filter(w => idsNaLista.has(w.id_workspace))
+          .map(w => ({
+            valor: w.nome_workspace,
+            label: w.nome_workspace,
+          }))
         return {
           ...col,
           editavel: true,
           opcoes: WORKSPACE_OPTS,
           getValorEditar: (row: Pedido) => {
-            const r = row as unknown as { id_workspace?: string; company_id?: string }
-            return r.id_workspace ?? r.company_id ?? ''
+            const id = extrairIdWorkspaceDePedido(row)
+            return workspacesMap.get(id)?.nome ?? id
           },
         }
       }
@@ -4237,7 +4205,12 @@ export default function Pedidos() {
       }
       if (temExpandido && col.key in COLUNAS_DINAMICAS_PEDIDO_ITEM) {
         const label = COLUNAS_DINAMICAS_PEDIDO_ITEM[col.key]
-        return { ...col, label, tooltipTitulo: label }
+        return enriquecerColunaComRegraTooltip(
+          { ...col, label },
+          t,
+          'pai',
+          { modoDinamicoPedidoItem: true },
+        )
       }
 
       if (col.key === 'saldo_itens_do_pedido') {
@@ -4280,8 +4253,16 @@ export default function Pedidos() {
       return col
     })
 
-    return [...colunasBase, ...custom]
-  }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido, t, workspacesDisponiveis])
+    const customEnriquecidas = custom.map(c => {
+      const origem = colunasUsuario.find(u => u.chave === String(c.key))
+      return enriquecerColunaComRegraTooltip(c, t, 'pai', {
+        colunaPersonalizada: true,
+        descricaoUsuario: origem?.descricao ?? undefined,
+      })
+    })
+
+    return [...colunasBase, ...customEnriquecidas]
+  }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido, t, workspacesDisponiveis, pedidos, workspacesMap])
 
   // Campos editáveis em linhas filho — estáticos + chaves das colunas customizadas editáveis
   const camposEditaveisFilhosComCustom = useMemo(() => {
@@ -4298,83 +4279,6 @@ export default function Pedidos() {
   const filtrosAtivosKeys = useMemo(() => new Set(Object.keys(filtrosAtivos)), [filtrosAtivos])
   const [popoverAberto, setPopoverAberto]   = useState<string | null>(null)
   const [popoverPos, setPopoverPos]         = useState({ top: 0, left: 0 })
-
-  // ── Inicialização (UMA VEZ): popover abre com workspace ativo marcado ─────
-  // No mount, populamos `filtrosAtivos['id_workspace']` com o workspace ativo
-  // para que o popover já apareça refletindo a realidade (lista filtrada por
-  // ele via header). Roda UMA vez (initializedFilterRef) — depois o usuário
-  // tem controle TOTAL: pode desmarcar tudo e ver lista vazia (intencional).
-  const initializedFilterRef = useRef(false)
-  useEffect(() => {
-    if (initializedFilterRef.current) return
-    if (workspacesMap.size === 0) return                 // mapa ainda carregando
-    if (!workspaceAtivo) return                          // sem ativo, nada a fazer
-    if (filtrosAtivos['id_workspace']) return            // filtro já presente (ex: deep-link)
-    const w = workspacesMap.get(workspaceAtivo)
-    if (!w) return                                       // ativo não está em workspacesMap (?)
-    initializedFilterRef.current = true
-    setFiltrosAtivos(prev => ({
-      ...prev,
-      id_workspace: { tipo: 'enum', valor: new Set([w.nome]) },
-    }))
-  }, [workspacesMap, workspaceAtivo, filtrosAtivos])
-
-  // ── Sincronia: filtrosAtivos['id_workspace'] → workspacesSelecionados ─────
-  //
-  // Casos:
-  //   - Mount inicial, antes da inicialização: filtro undefined →
-  //     initializedFilterRef.current = false → não toca (espera init).
-  //   - Após init, usuário clicou "× Limpar filtro" ou desmarcou último item:
-  //     filtro undefined → workspacesSelecionados = [] → lista vazia (intencional).
-  //   - Filtro presente com Set não vazio: resolve nomes em ids.
-  //   - Filtro presente com Set vazio: workspacesSelecionados = [] → lista vazia.
-  useEffect(() => {
-    const filtro = filtrosAtivos['id_workspace']
-    if (!filtro || filtro.tipo !== 'enum') {
-      if (!initializedFilterRef.current) return  // mount — aguarda init
-      setWorkspacesSelecionados(prev => (prev.length === 0 ? prev : []))
-      return
-    }
-    const nomes = filtro.valor
-    // Converte nomes em ids via workspacesMap
-    const idsSelecionados: string[] = []
-    for (const [id, w] of workspacesMap.entries()) {
-      if (nomes.has(w.nome)) idsSelecionados.push(id)
-    }
-    setWorkspacesSelecionados(prev =>
-      prev.length === idsSelecionados.length && prev.every((v, i) => v === idsSelecionados[i]) ? prev : idsSelecionados,
-    )
-  }, [filtrosAtivos, workspacesMap])
-
-
-  // ── Expansão automática do filtro workspace ─────────────────────────────────
-  // Quando a lista/expansão/edição revela um workspace que não está no filtro
-  // ativo, incluímos automaticamente para o usuário não ficar "cego" (chip ≠ dados).
-  const aplicarExpansaoFiltroWorkspace = useCallback((
-    idsVisiveis: ReadonlyArray<string>,
-    opcoes?: { notificar?: boolean },
-  ): string[] | null => {
-    const expansao = calcularExpansaoFiltroWorkspace(idsVisiveis, workspacesSelecionados, workspacesMap)
-    if (!expansao) return null
-
-    setFiltrosAtivos(prev => ({
-      ...prev,
-      id_workspace: { tipo: 'enum', valor: expansao.nomesFiltro },
-    }))
-    initializedFilterRef.current = true
-
-    if (opcoes?.notificar !== false && expansao.nomesAdicionados.length > 0) {
-      addNotification({
-        type: 'info',
-        message: t('pedido.lista.filtro_workspace_auto_expandido', {
-          nomes: expansao.nomesAdicionados.join(', '),
-          defaultValue: `Filtro de workspace atualizado: ${expansao.nomesAdicionados.join(', ')}`,
-        }),
-      })
-    }
-
-    return expansao.novosIds
-  }, [workspacesSelecionados, workspacesMap, addNotification, t])
 
   // ── Pedidos filtrados (client-side) ───────────────────────────────────────────
   const pedidosFiltrados = useMemo<Pedido[]>(() => {
@@ -4397,10 +4301,11 @@ export default function Pedidos() {
     return resultado.filter(p => {
       const row = p as Record<string, unknown>
       for (const [campo, filtro] of Object.entries(filtrosAtivos)) {
-        // Exceção: id_workspace é aplicado server-side via workspacesSelecionados
-        // (sincronizado por useEffect adiante). Não filtra client-side.
-        if (campo === 'id_workspace') continue
-        const val = row[campo]
+        let val: unknown = row[campo]
+        if (campo === 'id_workspace') {
+          const idWs = extrairIdWorkspaceDePedido(p)
+          val = workspacesMap.get(idWs)?.nome ?? idWs
+        }
         if (filtro.tipo === 'texto') {
           if (!String(val ?? '').toLowerCase().includes(filtro.valor.toLowerCase())) return false
         } else if (filtro.tipo === 'enum') {
@@ -4418,12 +4323,26 @@ export default function Pedidos() {
       }
       return true
     })
-  }, [pedidos, filtrosAtivos, abaAtiva, busca])
+  }, [pedidos, filtrosAtivos, abaAtiva, busca, workspacesMap, t])
 
   const temFiltroColunaCliente = useMemo(
-    () => Object.keys(filtrosAtivos).some(k => k !== 'id_workspace'),
+    () => Object.keys(filtrosAtivos).length > 0,
     [filtrosAtivos],
   )
+
+  const rotuloEscopoWorkspaces = useMemo(() => {
+    if (!escopoHidratado || workspacesSelecionados.length === 0) return null
+    const nomes = workspacesSelecionados
+      .map(id => workspacesMap.get(id)?.nome)
+      .filter((n): n is string => Boolean(n))
+    if (nomes.length === 0) return null
+    if (nomes.length === 1) return nomes[0]
+    if (nomes.length === 2) return nomes.join(', ')
+    return t('pedido.lista.escopo_workspaces_resumo', {
+      count: nomes.length,
+      defaultValue: `${nomes.length} selecionados`,
+    })
+  }, [escopoHidratado, workspacesSelecionados, workspacesMap, t])
 
   // ── Handlers de filtro ────────────────────────────────────────────────────────
   const handleAplicarFiltro = useCallback((campo: string, filtro: FiltroAtivo) => {
@@ -4571,10 +4490,7 @@ export default function Pedidos() {
       //  - usuário escolheu OUTRO workspace único (ex: ativo=CDE, filtro=ABC)
       //  - usuário escolheu múltiplos workspaces
       // Quando seleção == [workspaceAtivo] o header x-id-workspace cuida sozinho.
-      const ehSelecaoDefault =
-        workspacesSelecionados.length === 1 &&
-        workspacesSelecionados[0] === workspaceAtivo
-      const idsWorkspacesFiltro = ehSelecaoDefault ? undefined : workspacesSelecionados
+      const idsWorkspacesFiltro = resolverIdsWorkspacesParaApi(workspacesSelecionados, workspaceAtivo)
 
       const res = await pedidoVirtualApi.listar({
         sort: novaOrdem,
@@ -4593,31 +4509,6 @@ export default function Pedidos() {
         return { ...p, itens, ...divergencias }
       })
 
-      // Workspace visível fora do filtro → expande filtro + refetch atômico
-      // (evita race com carregandoRef quando o useEffect de workspaces dispara).
-      const idsVisiveis = coletarIdsWorkspaceDePedidos(pedidosComDivergencias)
-      const novosIdsFiltro = aplicarExpansaoFiltroWorkspace(idsVisiveis)
-      if (novosIdsFiltro) {
-        const resExpandido = await pedidoVirtualApi.listar({
-          sort: novaOrdem,
-          dir: novaDir,
-          limit: ITENS_POR_PAGINA,
-          page: novaPagina,
-          status: novaAba !== 'todos' ? novaAba : undefined,
-          busca: novaBusca || undefined,
-          idsWorkspacesFiltro: novosIdsFiltro,
-        })
-        const pedidosExpandidos = resExpandido.data.map(p => {
-          if (!p.itens || p.itens.length === 0) return p
-          const { itens, divergencias } = sincronizarItensPedido(p.itens, p)
-          return { ...p, itens, ...divergencias }
-        })
-        setPedidos(pedidosExpandidos)
-        setTotal(resExpandido.total)
-        setTotalItensBanco(resExpandido.totalItens ?? 0)
-        return
-      }
-
       setPedidos(pedidosComDivergencias)
       setTotal(res.total)
       setTotalItensBanco(res.totalItens ?? 0)
@@ -4633,14 +4524,14 @@ export default function Pedidos() {
       setCarregando(false)
       carregandoRef.current = false
     }
-  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo, aplicarExpansaoFiltroWorkspace])
+  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo])
 
-  // Recarrega lista quando mudou seleção de workspaces (filtro multi-workspace)
+  // Recarrega lista quando mudou escopo de workspaces (menu lateral)
   useEffect(() => {
-    if (!idOrganizacao) return
+    if (!idOrganizacao || !escopoHidratado) return
     carregarInicial()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workspacesSelecionados])
+  }, [workspacesSelecionados, escopoHidratado])
 
   // Sincroniza com mudanças feitas em outras views (Kanban, Dashboard)
   useEffect(() => {
@@ -4920,7 +4811,7 @@ export default function Pedidos() {
 
   const acoesBarra = useMemo(() => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', flex: 1 }}>
-      {/* Filtro multi-workspace agora vive na COLUNA "Workspace" (header). */}
+      {/* Escopo de workspaces = menu lateral; filtros de coluna = client-side */}
       <BarraAcoesPedido
         novoDropdownRef={novoDropdownRef}
         novoDropdownAberto={novoDropdownAberto}
@@ -4946,12 +4837,14 @@ export default function Pedidos() {
         handleLimparTodosFiltros={handleLimparTodosFiltros}
         busca={busca}
         onLimparBusca={() => handleBuscar('')}
+        rotuloEscopoWorkspaces={rotuloEscopoWorkspaces}
+        onAbrirMenuWorkspaces={pedirAbrirMenuWorkspaces}
         onFiltroColuna={onFiltroColuna}
         podeEditarLista={podeEditarLista}
       />
     </div>
   ), [
-    novoDropdownAberto, novoSubmenu, pedidosSelecionados, itensSelecionados, excluindoLote, filtrosAtivos, busca,
+    novoDropdownAberto, novoSubmenu, pedidosSelecionados, itensSelecionados, excluindoLote, filtrosAtivos, busca, rotuloEscopoWorkspaces, pedirAbrirMenuWorkspaces,
     novoDropdownRef, setNovoDropdownAberto, setNovoSubmenu, setSmartImportAberto,
     setModalCockpitAberto, setModalNovoPedidoAberto, setModalNovoItemAberto,
     setModalTransferirAberto, setModalConsolidarAberto, setModalEdicaoMassaAberto,
@@ -5113,8 +5006,6 @@ export default function Pedidos() {
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [novoDropdownAberto])
-
-  useEffect(() => { if (!idOrganizacao) return; carregarInicial() }, [idOrganizacao]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!idOrganizacao) return
@@ -5405,11 +5296,8 @@ export default function Pedidos() {
         : { itens: itensFallback, divergencias: {} as Partial<Pedido> }
       return { ...updatedPedido, itens: sinc.itens.length > 0 ? sinc.itens : p.itens, ...sinc.divergencias }
     }))
-    if (campo === 'id_workspace') {
-      aplicarExpansaoFiltroWorkspace([String(valorEnviarPai ?? '')])
-    }
     return updatedPedido
-  }, [pedidos, colunasUsuario, aplicarExpansaoFiltroWorkspace])
+  }, [pedidos, colunasUsuario])
 
   // ── Recalcula flags de divergência a partir dos itens carregados ─────────────
   // SSOT: pedidoDivergencias.ts (shared) + getAlertavelKeys() em columnAlertConfig.ts
@@ -6095,12 +5983,8 @@ export default function Pedidos() {
         cubagem_total_pedido:            itensComAlertas.reduce((s, i) => s + (Number(i.cubagem_unitaria) || 0), 0),
       }
     }))
-    aplicarExpansaoFiltroWorkspace([
-      extrairIdWorkspaceDePedido(pedido),
-      ...itensComAlertas.map(extrairIdWorkspaceDeItem),
-    ])
     return itensComAlertas
-  }, [aplicarExpansaoFiltroWorkspace])
+  }, [])
 
   // ── Salvar preferências ──────────────────────────────────────────────────────
   const pedidoItemVersion = useCallback((p: Pedido) => p.updated_at, [])

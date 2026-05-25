@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { SidebarSimple, CaretDown, Lock, Check, Plus, Gear } from '@phosphor-icons/react'
+import { SidebarSimple, CaretDown, Check, Plus, Gear, Square, CheckSquare } from '@phosphor-icons/react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './menu-lateral.css'
@@ -37,8 +37,18 @@ export interface MenuLateralGlobalProps {
   moduleIcon?: React.ReactNode
   /** Lista de workspaces disponíveis para troca */
   workspaces?: WorkspaceItem[]
-  /** Callback ao selecionar outro workspace */
+  /** Callback ao selecionar outro workspace (modo `unico`) */
   onSwitchWorkspace?: (id: string) => void
+  /** `multiplo` = checkboxes (escopo do produto); `unico` = troca de contexto com reload */
+  modoWorkspace?: 'unico' | 'multiplo'
+  /** IDs selecionados no modo multiplo */
+  workspacesEscopoIds?: string[]
+  /** Toggle de workspace no modo multiplo */
+  onAlternarWorkspaceEscopo?: (id: string) => void
+  /** Define escopo completo (ex.: selecionar tudo) */
+  onDefinirEscopoWorkspaces?: (ids: string[]) => void
+  /** Sinal externo para abrir o dropdown de workspaces (ex.: chip na Lista) */
+  sinalAbrirMenuWorkspaces?: number
   /** Callback para criar novo workspace */
   onCreateWorkspace?: () => void
   /** Callback para ir às configurações do workspace */
@@ -63,6 +73,11 @@ export function MenuLateralGlobal({
   moduleIcon,
   workspaces = [],
   onSwitchWorkspace,
+  modoWorkspace = 'unico',
+  workspacesEscopoIds = [],
+  onAlternarWorkspaceEscopo,
+  onDefinirEscopoWorkspaces,
+  sinalAbrirMenuWorkspaces = 0,
   onCreateWorkspace,
   onManageWorkspace,
   dropdownSearchPlaceholder = 'Buscar workspace…',
@@ -77,6 +92,7 @@ export function MenuLateralGlobal({
   const [wsOpen, setWsOpen] = useState(false)
   const [wsSearch, setWsSearch] = useState('')
   const wsRef = useRef<HTMLDivElement>(null)
+  const tenantBtnRef = useRef<HTMLButtonElement>(null)
   const location = useLocation()
 
   // Fecha dropdown ao clicar fora
@@ -94,6 +110,10 @@ export function MenuLateralGlobal({
     ws.name.toLowerCase().includes(wsSearch.toLowerCase())
   )
 
+  const idsFiltrados = filteredWorkspaces.map(w => w.id)
+  const todosFiltradosSelecionados =
+    idsFiltrados.length > 0 && idsFiltrados.every(id => workspacesEscopoIds.includes(id))
+
   const isCollapsed = controlledIsCollapsed !== undefined ? controlledIsCollapsed : internalCollapsed
   
   const toggleCollapse = () => {
@@ -110,6 +130,26 @@ export function MenuLateralGlobal({
       [label]: !currentExpandedState
     }))
   }
+
+  // Abre dropdown quando outro componente pede (chip Workspaces na Lista).
+  useEffect(() => {
+    if (sinalAbrirMenuWorkspaces <= 0) return
+    const abrir = () => {
+      setWsOpen(true)
+      setWsSearch('')
+      requestAnimationFrame(() => {
+        tenantBtnRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+        tenantBtnRef.current?.focus()
+      })
+    }
+    if (isCollapsed) {
+      toggleCollapse()
+      window.setTimeout(abrir, 180)
+      return
+    }
+    abrir()
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- só reage ao sinal
+  }, [sinalAbrirMenuWorkspaces])
 
   const cssVars = {
     '--mlg-accent': moduleColor,
@@ -262,6 +302,8 @@ export function MenuLateralGlobal({
           </TooltipGlobal>
         ) : (
           <button
+            ref={tenantBtnRef}
+            type="button"
             className={`mlg-tenant mlg-tenant--btn ${wsOpen ? 'mlg-tenant--open' : ''}`}
             onClick={() => setWsOpen(o => !o)}
             aria-expanded={wsOpen}
@@ -293,19 +335,50 @@ export function MenuLateralGlobal({
                 />
               </div>
             )}
+            {modoWorkspace === 'multiplo' && filteredWorkspaces.length > 1 && (
+              <div className="mlg-ws-toolbar">
+                <button
+                  type="button"
+                  className="mlg-ws-toolbar__btn"
+                  onClick={() => {
+                    if (todosFiltradosSelecionados) {
+                      onDefinirEscopoWorkspaces?.([])
+                    } else {
+                      onDefinirEscopoWorkspaces?.(idsFiltrados)
+                    }
+                  }}
+                >
+                  {todosFiltradosSelecionados ? 'Desmarcar tudo' : 'Selecionar tudo'}
+                </button>
+              </div>
+            )}
             {filteredWorkspaces.map(ws => {
-              const isCurrent = ws.name === tenantName
+              const isMulti = modoWorkspace === 'multiplo'
+              const isSelected = isMulti
+                ? workspacesEscopoIds.includes(ws.id)
+                : ws.name === tenantName
               return (
                 <button
                   key={ws.id}
-                  className={`mlg-ws-item ${isCurrent ? 'mlg-ws-item--current' : ''}`}
+                  className={`mlg-ws-item ${isSelected ? 'mlg-ws-item--current' : ''}`}
                   role="option"
-                  aria-selected={isCurrent}
+                  aria-selected={isSelected}
                   onClick={() => {
-                    if (!isCurrent) onSwitchWorkspace?.(ws.id)
+                    if (isMulti) {
+                      onAlternarWorkspaceEscopo?.(ws.id)
+                      return
+                    }
+                    if (!isSelected) onSwitchWorkspace?.(ws.id)
                     setWsOpen(false)
                   }}
                 >
+                  {isMulti && (
+                    <span className="mlg-ws-item-check" style={{ color: moduleColor }}>
+                      {isSelected
+                        ? <CheckSquare size={16} weight="fill" />
+                        : <Square size={16} weight="regular" />}
+                    </span>
+                  )}
                   <div className="mlg-ws-item-avatar" style={{ color: moduleColor, borderColor: `${moduleColor}40`, backgroundColor: `${moduleColor}2e` }}>
                     {ws.name.charAt(0)}
                   </div>
@@ -313,7 +386,9 @@ export function MenuLateralGlobal({
                     <span className="mlg-ws-item-name">{ws.name}</span>
                     <span className="mlg-ws-item-plan">{ws.plan}</span>
                   </div>
-                  {isCurrent && <Check size={13} weight="bold" style={{ color: moduleColor, flexShrink: 0 }} />}
+                  {!isMulti && isSelected && (
+                    <Check size={13} weight="bold" style={{ color: moduleColor, flexShrink: 0 }} />
+                  )}
                 </button>
               )
             })}

@@ -549,7 +549,14 @@ export interface PedidoColunaConfig {
 export interface PedidoPreferenciasColunas {
   colunas_visiveis: string[]
   colunas_largura?: Record<string, number>
+  /** Escopo multi-workspace — persistido em colunas_largura (meta key reservada). */
+  ids_workspaces_escopo?: string[]
 }
+
+/** Payload parcial para PUT de preferências (merge no servidor). */
+export type PedidoPreferenciasColunasPut = Partial<
+  Pick<PedidoPreferenciasColunas, 'colunas_visiveis' | 'colunas_largura' | 'ids_workspaces_escopo'>
+>
 
 export interface PedidosListResponse {
   data: Pedido[]

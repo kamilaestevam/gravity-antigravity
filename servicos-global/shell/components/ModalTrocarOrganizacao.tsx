@@ -1,31 +1,16 @@
 /**
  * ModalTrocarOrganizacao — Pendência #4 (Org switcher admin).
- *
- * Vive no shell para ser consumido por Configurador e produtos (Pedido etc.)
- * sem acoplamento produto → configurador.
  */
 
-import React, { useEffect, useState } from 'react'
-import { z } from 'zod'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '@clerk/clerk-react'
-import { useNavigate } from 'react-router-dom'
 import { ModalOverlay } from '@nucleo/modal-global'
 import {
   SelectOrganizacaoAdminGlobal,
   type OrganizacaoOpcao,
 } from '@nucleo/select-organizacao-admin-global'
 import { useOrganizacaoOverride } from '../hooks/useOrganizacaoOverride'
-
-const CONFIGURADOR_URL = import.meta.env.VITE_CONFIGURADOR_URL ?? ''
-
-const organizacoesListaSchema = z.object({
-  itens: z.array(
-    z.object({
-      id_organizacao:   z.string(),
-      nome_organizacao: z.string(),
-    }),
-  ),
-})
+import { buscarOrganizacoesAdmin } from '../utils/buscar-organizacoes-admin'
 
 export interface ModalTrocarOrganizacaoProps {
   aberto: boolean
@@ -37,7 +22,6 @@ export function ModalTrocarOrganizacao({
   aoFechar,
 }: ModalTrocarOrganizacaoProps): JSX.Element {
   const { getToken } = useAuth()
-  const navigate = useNavigate()
   const { definirOverride, podeAtivarOverride } = useOrganizacaoOverride()
 
   const [idOrganizacaoSelecionada, setIdOrganizacaoSelecionada] = useState('')
@@ -52,32 +36,11 @@ export function ModalTrocarOrganizacao({
     }
   }, [aberto])
 
-  async function fetchOrganizacoes(busca: string): Promise<OrganizacaoOpcao[]> {
-    try {
-      const token = await getToken()
-      const qs = new URLSearchParams()
-      if (busca) qs.set('busca', busca)
-      const base = CONFIGURADOR_URL || ''
-      const res = await fetch(
-        `${base}/api/v1/admin/organizacoes${qs.toString() ? `?${qs}` : ''}`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      )
-      if (!res.ok) {
-        console.warn('[ModalTrocarOrganizacao] /admin/organizacoes retornou', res.status)
-        return []
-      }
-      const raw: unknown = await res.json()
-      const parsed = organizacoesListaSchema.safeParse(raw)
-      if (!parsed.success) {
-        console.warn('[ModalTrocarOrganizacao] resposta inválida', parsed.error.flatten())
-        return []
-      }
-      return parsed.data.itens
-    } catch (err) {
-      console.warn('[ModalTrocarOrganizacao] erro ao buscar organizações', err)
-      return []
-    }
-  }
+  const fetchOrganizacoes = useCallback(
+    async (busca: string): Promise<OrganizacaoOpcao[]> =>
+      buscarOrganizacoesAdmin(getToken, { busca, somenteAtivas: true }),
+    [getToken],
+  )
 
   function aoSelecionarOrganizacao(id: string, nome?: string): void {
     setIdOrganizacaoSelecionada(id)
@@ -93,7 +56,8 @@ export function ModalTrocarOrganizacao({
       nomeOrganizacao: nomeOrganizacaoSelecionada,
     })
     aoFechar()
-    navigate('/hub')
+    // Reload completo garante hub/init com override já hidratado do localStorage.
+    window.location.assign('/hub?select=1')
   }
 
   const podeConfirmar = !!idOrganizacaoSelecionada && !!nomeOrganizacaoSelecionada && !confirmando

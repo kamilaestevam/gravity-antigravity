@@ -2069,6 +2069,28 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onErroAoSalvar,
   )
 
+  const atualizarFilhoCacheCallback = useCallback(
+    (filho: C) => atualizarFilhoNoCache(filho, filhoId),
+    [atualizarFilhoNoCache, filhoId],
+  )
+
+  const {
+    editandoCelula: editandoCelulaFilho,
+    valorEditando: valorEditandoFilho,
+    salvando: salvandoFilho,
+    resultado: resultadoFilho,
+    celulaResultado: celulaResultadoFilho,
+    iniciarEdicao: iniciarEdicaoFilho,
+    atualizarValor: atualizarValorFilho,
+    confirmarEdicao: confirmarEdicaoFilho,
+    cancelarEdicao: cancelarEdicaoFilho,
+  } = useGTInlineEdit<C>(
+    onEditarFilho,
+    atualizarFilhoCacheCallback,
+    onSalvoComSucesso,
+    onErroAoSalvar,
+  )
+
   // Refs síncronas para o handle imperativo — evita stale closure sem
   // precisar declarar `dadosPagina` antes do useImperativeHandle.
   const dadosRef       = useRef<T[]>(dados)
@@ -2092,11 +2114,21 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       )
       if (celula) {
         celula.scrollIntoView({ block: 'center', behavior: 'instant' })
-        // Pequeno delay para o scroll terminar antes do clique
         requestAnimationFrame(() => celula.click())
       } else {
-        // Fallback quando célula não está no DOM (fora da janela virtual)
         iniciarEdicaoPai(id, campo, valorAtual)
+      }
+    },
+    iniciarEdicaoFilho: (id: string, campo: string, valorAtual: unknown, colunaPai?: string) => {
+      const colBusca = colunaPai ?? campo
+      const celula = document.querySelector<HTMLElement>(
+        `[data-gtv-filho-rowid="${id}"][data-gtv-campo="${colBusca}"]`
+      )
+      if (celula) {
+        celula.scrollIntoView({ block: 'center', behavior: 'instant' })
+        requestAnimationFrame(() => celula.click())
+      } else {
+        iniciarEdicaoFilho(id, campo, valorAtual)
       }
     },
     expandir: (id: string) => {
@@ -2105,29 +2137,17 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       if (!item) return
       void toggleRef.current(id, item)
     },
-  }), [iniciarEdicaoPai])
-
-  const atualizarFilhoCacheCallback = useCallback(
-    (filho: C) => atualizarFilhoNoCache(filho, filhoId),
-    [atualizarFilhoNoCache, filhoId],
-  )
-
-  const {
-    editandoCelula: editandoCelulaFilho,
-    valorEditando: valorEditandoFilho,
-    salvando: salvandoFilho,
-    resultado: resultadoFilho,
-    celulaResultado: celulaResultadoFilho,
-    iniciarEdicao: iniciarEdicaoFilho,
-    atualizarValor: atualizarValorFilho,
-    confirmarEdicao: confirmarEdicaoFilho,
-    cancelarEdicao: cancelarEdicaoFilho,
-  } = useGTInlineEdit<C>(
-    onEditarFilho,
-    atualizarFilhoCacheCallback,
-    onSalvoComSucesso,
-    onErroAoSalvar,
-  )
+    rolarParaCelula: (id: string, campo: string) => {
+      const celula = document.querySelector<HTMLElement>(
+        `[data-gtv-rowid="${id}"][data-gtv-campo="${campo}"]`
+      ) ?? document.querySelector<HTMLElement>(
+        `[data-gtv-filho-rowid="${id}"][data-gtv-campo="${campo}"]`
+      )
+      if (celula) {
+        celula.scrollIntoView({ block: 'center', behavior: 'instant' })
+      }
+    },
+  }), [iniciarEdicaoPai, iniciarEdicaoFilho])
 
   // ── Paginação ─────────────────────────────────────────────────────────────────
   const modoExterno = totalItens !== undefined
@@ -2825,6 +2845,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 key={col.key as string}
                 className={`gtv-celula${classeAlinhamento}${classeEditavel}${classeFindMatch}${classeFindAtivo}`}
                 style={styleCelula}
+                data-gtv-filho-rowid={podeEditar ? id : undefined}
+                data-gtv-campo={podeEditar ? (col.key as string) : undefined}
                 onClick={podeEditar && !estaEditando ? (e) => {
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()

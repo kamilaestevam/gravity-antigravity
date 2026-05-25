@@ -150,6 +150,7 @@ model Pedido {
   @@index([id_organizacao, tipo_operacao_pedido])
   @@index([id_organizacao, data_emissao_pedido])
   @@index([id_organizacao, data_exclusao_pedido])
+  @@index([id_organizacao, id_workspace, data_emissao_pedido])
   @@map("pedido")
 }
 

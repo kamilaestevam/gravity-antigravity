@@ -62,6 +62,7 @@ import { saldoFormulaRouter } from './routes/saldo-formula-pedido.js'
 import { initRouter } from './routes/inicializacao-pedido.js'
 import { internalCadastrosChangedRouter } from './routes/internal-cadastros-changed.js'
 import { listaPedidoKpisRouter } from './routes/lista-pedido-kpis.js'
+import { invalidarCacheDashboardAoMutarPedido } from './middleware/invalidar-cache-dashboard-pedido.js'
 import { pedidosRouter } from '../../../processos-core/src/routes/pedidos.js'
 import { pedidosConfigRouter } from '../../../processos-core/src/routes/pedidos-config.js'
 import { importacaoRouter } from '../../../processos-core/src/routes/importacao.js'
@@ -221,6 +222,9 @@ app.use(createProductAuditPlugin({
     }
   },
 }))
+
+// ── 7.2. Invalidação cache dashboard após mutações ───────────────────────────
+app.use('/api/v1/pedidos', invalidarCacheDashboardAoMutarPedido)
 
 // ── 8. Rotas de negócio ───────────────────────────────────────────────────────
 // Ordem: rotas estáticas específicas ANTES das genéricas (evita conflitos com /:id)

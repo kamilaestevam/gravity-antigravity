@@ -35,6 +35,11 @@ export interface WidgetContainerProps {
   clickable?: boolean
   /** Destaca o card com ring pulsante (widget recém-adicionado) */
   highlighted?: boolean
+  /** Período próprio do widget — exibe chip de filtro ativo (padrão Lista) */
+  periodoFiltroRotulo?: string
+  /** Controle de calendário/período no cabeçalho (dropdown do pai) */
+  periodoControle?: React.ReactNode
+  onLimparPeriodoWidget?: () => void
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -133,6 +138,9 @@ export function DashboardPainelContainer({
   onClick,
   clickable = false,
   highlighted = false,
+  periodoFiltroRotulo,
+  periodoControle,
+  onLimparPeriodoWidget,
 }: WidgetContainerProps) {
   const { t } = useTranslation()
   const isPartial = result?.partial === true
@@ -186,12 +194,30 @@ export function DashboardPainelContainer({
               {t('nucleo.dashboard.painel.cache')}
             </span>
           )}
+          {periodoFiltroRotulo && (
+            <span style={styles.badgePeriodo} title={t('nucleo.dashboard.painel.periodo_widget_tooltip')}>
+              {periodoFiltroRotulo}
+              {onLimparPeriodoWidget && (
+                <button
+                  type="button"
+                  style={styles.badgePeriodoClear}
+                  onClick={(e) => { e.stopPropagation(); onLimparPeriodoWidget() }}
+                  aria-label={t('nucleo.dashboard.painel.limpar_periodo_widget')}
+                >
+                  ×
+                </button>
+              )}
+            </span>
+          )}
         </div>
 
-        <OptionsMenu
+        <div style={styles.headerActions}>
+          {periodoControle}
+          <OptionsMenu
           onEdit={onEdit ? () => onEdit(widget) : undefined}
           onRemove={onRemove ? () => onRemove(widget.id) : undefined}
         />
+        </div>
       </div>
 
       {/* Corpo */}
@@ -324,6 +350,35 @@ const styles = {
     border: '1px solid var(--border-default)',
     borderRadius: 'var(--radius-sm)',
     padding: '1px 5px',
+  },
+  badgePeriodo: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    fontSize: '10px',
+    fontWeight: 600,
+    color: 'var(--accent)',
+    background: 'rgba(99,102,241,0.12)',
+    border: '1px solid rgba(99,102,241,0.35)',
+    borderRadius: '9999px',
+    padding: '2px 8px',
+    whiteSpace: 'nowrap' as const,
+  },
+  badgePeriodoClear: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    color: 'inherit',
+    fontSize: '12px',
+    lineHeight: 1,
+    padding: 0,
+    marginLeft: '2px',
+  },
+  headerActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    flexShrink: 0,
   },
   menuBtn: {
     background: 'none',

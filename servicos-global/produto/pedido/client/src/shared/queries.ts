@@ -41,6 +41,7 @@ export interface PedidosParams {
   status?: string
   busca?:  string
   cursor?: string
+  idsWorkspacesFiltro?: string[]
 }
 
 export function usePedidos(

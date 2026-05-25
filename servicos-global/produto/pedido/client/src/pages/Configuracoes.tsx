@@ -24,7 +24,7 @@ import {
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
   Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple, Tag,
   Columns, TextT, CalendarBlank, Percent, ListBullets, CheckSquare, MathOperations,
-  Paperclip, CurrencyCircleDollar, ArrowsClockwise, Clock, CaretDown, Info,
+  Paperclip, CurrencyCircleDollar, ArrowsClockwise, Clock, CaretDown, Info, ChartBar,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -42,6 +42,11 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia, type CardDefinicao } from '../shared/useCardPreferences'
+import {
+  DASHBOARD_TOP_KPI_WIDGET_IDS,
+  useDashboardTopKpiStatus,
+  type DashboardTopKpiWidgetId,
+} from '../shared/useDashboardTopKpiStatus'
 import { TaxasMoedaResponseSchema, HistoricoTaxasResponseSchema, SyncTaxasResponseSchema, type BoletimCambio } from '../shared/useTaxasCambio'
 import { templatePedidoApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, saldoFormulaApi, obterSnapshotAtualizacaoPolicy, salvarSnapshotAtualizacaoPolicy, SNAPSHOT_ATUALIZACAO_DEFAULT, type TemplateLocal } from '../shared/api'
 import type { SnapshotAtualizacaoPolicy } from '../shared/types'
@@ -516,6 +521,7 @@ const SIDEBAR_ITEMS: SidebarItemTipo[] = [
   // ── VISUALIZAÇÕES ──────────────────────────────────────────────────────────
   { tipo: 'grupo',  label: 'VISUALIZAÇÕES', labelKey: 'pedido.config.sidebar.grupo_visualizacoes' },
   { tipo: 'item',   id: 'cards',                          label: 'Cards',             labelKey: 'pedido.config.sidebar.cards',             icone: <SquaresFour          size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'dashboard-kpi',                  label: 'Dashboard',         labelKey: 'pedido.config.sidebar.dashboard_kpi',     icone: <ChartBar             size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'tabela',                         label: 'Tabela',            labelKey: 'pedido.config.sidebar.tabela',            icone: <Table                size={15} weight="duotone" />, ativo: true },
   { tipo: 'parent', id: 'colunas-casas-decimais',         label: 'Colunas',           labelKey: 'pedido.config.sidebar.colunas',           icone: <Columns              size={15} weight="duotone" />, ativo: true, filhos: COLUNAS_FILHOS },
   { tipo: 'sub',    id: 'colunas-casas-decimais',         label: 'Casas Decimais',    labelKey: 'pedido.config.sidebar.casas_decimais',    icone: <Hash                 size={15} weight="duotone" />, ativo: true },
@@ -1602,6 +1608,7 @@ export default function Configuracoes() {
   }
 
   const { prefs, disponiveis, periodo, setPeriodo, adicionar, remover, toggle, reordenar, resetar } = useCardPreferences()
+  const { mapa: dashboardTopKpiMapa, setStatusParaWidget: setDashboardTopKpiStatus, resetar: resetarDashboardTopKpi } = useDashboardTopKpiStatus()
 
   const sensors = useSensors(useSensor(PointerSensor, {
     activationConstraint: { distance: 5 },
@@ -2078,9 +2085,9 @@ export default function Configuracoes() {
   const [statusNovoLabel, setStatusNovoLabel] = useState('')
   const [statusNovoCor, setStatusNovoCor]     = useState('#818cf8')
 
-  // Carrega status da API quando entra na categoria 'status'
+  // Carrega status da API nas telas que consomem a lista (Status + KPIs do Dashboard)
   useEffect(() => {
-    if (categoria !== 'status') return
+    if (categoria !== 'status' && categoria !== 'dashboard-kpi') return
     setStatusLoading(true)
     setStatusErro(null)
     pedidoConfigApi.listarStatus()
@@ -2537,6 +2544,62 @@ export default function Configuracoes() {
                 )}
               </div>
 
+            </section>
+          </div>
+        )}
+
+        {/* ════════════════════════ DASHBOARD — KPIs fixos do topo ═══════════════ */}
+        {categoria === 'dashboard-kpi' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.dashboard_kpi.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.dashboard_kpi.descricao')}</p>
+                </div>
+                <TooltipGlobal descricao={t('pedido.config.dashboard_kpi.restaurar_tooltip')}>
+                  <button type="button" className="cfg-btn-header--restaurar" onClick={resetarDashboardTopKpi}>
+                    <ArrowCounterClockwise size={13} weight="bold" />
+                    {t('pedido.config.cards.restaurar_padrao')}
+                  </button>
+                </TooltipGlobal>
+              </div>
+
+              <ConfiguracaoSecaoGlobal label={t('pedido.config.dashboard_kpi.cards_topo')} count="4" />
+
+              {statusLoading ? (
+                <p className="cfg-empty">{t('pedido.config.status.carregando')}</p>
+              ) : statusList.length === 0 ? (
+                <p className="cfg-empty">{t('pedido.config.dashboard_kpi.sem_status')}</p>
+              ) : (
+                <div className="cfg-cards-lista" style={{ gap: '0.75rem' }}>
+                  {DASHBOARD_TOP_KPI_WIDGET_IDS.map((widgetId, index) => {
+                    const numero = String(index + 1).padStart(2, '0')
+                    const slugSalvo = dashboardTopKpiMapa[widgetId as DashboardTopKpiWidgetId]
+                    const slugValido = statusList.some(s => s.nome === slugSalvo)
+                      ? slugSalvo
+                      : (statusList[index]?.nome ?? statusList[0]?.nome ?? '')
+                    return (
+                      <div key={widgetId} className="cfg-toggle-row" style={{ alignItems: 'center' }}>
+                        <label className="cfg-toggle-row__label" htmlFor={`dash-kpi-${widgetId}`} style={{ flex: 1 }}>
+                          {t('pedido.config.dashboard_kpi.card_status', { n: numero, defaultValue: `Card ${numero} — Status` })}
+                        </label>
+                        <select
+                          id={`dash-kpi-${widgetId}`}
+                          className="cfg-input"
+                          style={{ maxWidth: '240px', flexShrink: 0 }}
+                          value={slugValido}
+                          onChange={e => setDashboardTopKpiStatus(widgetId as DashboardTopKpiWidgetId, e.target.value)}
+                        >
+                          {statusList.map(s => (
+                            <option key={s.id} value={s.nome}>{s.rotulo}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </section>
           </div>
         )}

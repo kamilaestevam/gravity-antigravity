@@ -104,6 +104,7 @@ import {
 import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
+import { resolverEdicaoKanbanParaLista } from '../shared/kanbanNavegacaoLista'
 import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../shared/mapaPropagacaoPedidoItem'
 import { marcarPartNumbersDuplicados, pedidoTemPartNumberDuplicado } from '../../../shared/partNumberDuplicado'
 import {
@@ -4079,6 +4080,7 @@ export default function Pedidos() {
   const [sortCampo, setSortCampo]           = useState('data_emissao_pedido')
   const [sortDir, setSortDir]               = useState<'asc' | 'desc'>('desc')
   const [busca, setBusca]                   = useState('')
+  const [pedidoFocoId, setPedidoFocoId]       = useState<string | null>(null)
   const [erroLote, setErroLote]             = useState<string | null>(null)
   const [modalConsolidarAberto, setModalConsolidarAberto] = useState(false)
   const [modalTransferirAberto, setModalTransferirAberto] = useState(false)
@@ -4283,6 +4285,9 @@ export default function Pedidos() {
   // ── Pedidos filtrados (client-side) ───────────────────────────────────────────
   const pedidosFiltrados = useMemo<Pedido[]>(() => {
     let resultado = pedidos
+    if (pedidoFocoId) {
+      resultado = resultado.filter(p => p.id === pedidoFocoId)
+    }
     // Filtro por aba de status (client-side para dev/mock; produção filtra no servidor)
     if (abaAtiva !== 'todos') {
       resultado = resultado.filter(p => p.status === abaAtiva)
@@ -4323,7 +4328,7 @@ export default function Pedidos() {
       }
       return true
     })
-  }, [pedidos, filtrosAtivos, abaAtiva, busca, workspacesMap, t])
+  }, [pedidos, filtrosAtivos, abaAtiva, busca, pedidoFocoId, workspacesMap, t])
 
   const temFiltroColunaCliente = useMemo(
     () => Object.keys(filtrosAtivos).length > 0,
@@ -4365,6 +4370,7 @@ export default function Pedidos() {
 
   const handleLimparTodosFiltros = useCallback(() => {
     setFiltrosAtivos({})
+    setPedidoFocoId(null)
     handleBuscar('')
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -4376,8 +4382,13 @@ export default function Pedidos() {
   const [drawerFocusField, setDrawerFocusField]   = useState<string | undefined>(undefined)
 
   // ── Ref imperativo da tabela + edição inline pendente (navegação via Kanban) ─
+  type PendingEdicaoKanban =
+    | { tipo: 'pai'; id: string; campo: string }
+    | { tipo: 'item'; idPedido: string; colunaPai: string; campoItem: string }
+    | { tipo: 'visualizar'; idPedido: string; colunaPai: string }
+
   const tabelaRef = useRef<GTVirtualHandle | null>(null)
-  const pendingInlineEditRef = useRef<{ id: string; campo: string } | null>(null)
+  const pendingInlineEditRef = useRef<PendingEdicaoKanban | null>(null)
   const pendingOpenDrawerRef = useRef<string | null>(null)
 
   // Navegação via Kanban / Visão Geral:
@@ -4396,14 +4407,25 @@ export default function Pedidos() {
 
     if (st.openPedidoId && st.abrirDrawer) {
       pendingOpenDrawerRef.current = st.openPedidoId
-      if (st.numeroPedido) {
-        handleBuscar(st.numeroPedido)
-      }
+      setPedidoFocoId(st.openPedidoId)
     } else if (st.openPedidoId && st.editCampo) {
-      // Fluxo inline: filtrar + abrir célula para edição
-      pendingInlineEditRef.current = { id: st.openPedidoId, campo: st.editCampo }
-      if (st.numeroPedido) {
-        handleBuscar(st.numeroPedido)
+      const destino = resolverEdicaoKanbanParaLista(st.editCampo, st.openPedidoId)
+      setPedidoFocoId(st.openPedidoId)
+      if (destino.nivel === 'pai') {
+        pendingInlineEditRef.current = { tipo: 'pai', id: st.openPedidoId, campo: destino.campo }
+      } else if (destino.nivel === 'item') {
+        pendingInlineEditRef.current = {
+          tipo: 'item',
+          idPedido: destino.idPedido,
+          colunaPai: destino.colunaPai,
+          campoItem: destino.campoItem,
+        }
+      } else {
+        pendingInlineEditRef.current = {
+          tipo: 'visualizar',
+          idPedido: destino.idPedido,
+          colunaPai: destino.colunaPai,
+        }
       }
     } else if (st.numeroPedido) {
       // Fluxo "Abrir pedido completo": apenas filtrar na lista
@@ -4427,15 +4449,64 @@ export default function Pedidos() {
   useEffect(() => {
     const pending = pendingInlineEditRef.current
     if (!pending || carregando) return
-    const pedido = pedidos.find(p => (p as Record<string, unknown>).id === pending.id)
+
+    if (pending.tipo === 'visualizar') {
+      const pedido = pedidos.find(p => p.id === pending.idPedido)
+      if (!pedido) return
+      pendingInlineEditRef.current = null
+      tabelaRef.current?.expandir(pending.idPedido)
+      for (const ms of [300, 700, 1200]) {
+        setTimeout(() => {
+          tabelaRef.current?.rolarParaCelula(pending.idPedido, pending.colunaPai)
+        }, ms)
+      }
+      return
+    }
+
+    if (pending.tipo === 'pai') {
+      const pedido = pedidos.find(p => p.id === pending.id)
+      if (!pedido) return
+      pendingInlineEditRef.current = null
+      const valorAtual = (pedido as Record<string, unknown>)[pending.campo] ?? null
+      setTimeout(() => {
+        tabelaRef.current?.iniciarEdicao(pending.id, pending.campo, valorAtual)
+      }, 200)
+      return
+    }
+
+    const pedido = pedidos.find(p => p.id === pending.idPedido)
     if (!pedido) return
-    pendingInlineEditRef.current = null
-    const valorAtual = (pedido as Record<string, unknown>)[pending.campo] ?? null
-    // Aguarda a tabela renderizar a linha antes de disparar a edição
-    setTimeout(() => {
-      tabelaRef.current?.iniciarEdicao(pending.id, pending.campo, valorAtual)
+    tabelaRef.current?.expandir(pending.idPedido)
+
+    let tentativas = 0
+    const timer = window.setInterval(() => {
+      tentativas += 1
+      const itens = itensCarregadosRef.current.get(pending.idPedido) ?? pedido.itens ?? []
+      const item = itens[0]
+      if (!item) {
+        if (tentativas >= 20) {
+          window.clearInterval(timer)
+          pendingInlineEditRef.current = null
+        }
+        return
+      }
+      pendingInlineEditRef.current = null
+      window.clearInterval(timer)
+      const mapaEntry = mapaColunasFilho[pending.colunaPai]
+      const valorAtual = mapaEntry?.getValorEditar
+        ? mapaEntry.getValorEditar(item)
+        : (item as Record<string, unknown>)[pending.campoItem] ?? null
+      setTimeout(() => {
+        tabelaRef.current?.iniciarEdicaoFilho(
+          item.id,
+          pending.campoItem,
+          valorAtual,
+          pending.colunaPai,
+        )
+      }, 200)
     }, 200)
-  }, [pedidos, carregando])
+    return () => window.clearInterval(timer)
+  }, [pedidos, carregando, mapaColunasFilho])
   const [modalNovoPedidoAberto, setModalNovoPedidoAberto] = useState(false)
   const [modalNovoItemAberto, setModalNovoItemAberto]     = useState(false)
   const [smartImportAberto, setSmartImportAberto] = useState(false)
@@ -5074,6 +5145,7 @@ export default function Pedidos() {
 
   // ── Busca ────────────────────────────────────────────────────────────────────
   const handleBuscar = useCallback((termo: string) => {
+    if (!termo.trim()) setPedidoFocoId(null)
     setBusca(termo)
     carregarInicial(abaAtiva, sortCampo, sortDir, termo)
   }, [carregarInicial, abaAtiva, sortCampo, sortDir])
@@ -6268,7 +6340,14 @@ export default function Pedidos() {
                const pedidoCerto = pedidosFiltrados.find(p => p.numero_pedido === idReal || (p as any)._idVirtual === idReal);
                if (pedidoCerto) idReal = pedidoCerto.id;
             }
-            return handleEditar(idReal, campo, valor, opts);
+            const pedidoAntes = pedidos.find(p => p.id === idReal)
+            const numeroAnterior = pedidoAntes?.numero_pedido
+            const resultado = await handleEditar(idReal, campo, valor, opts)
+            if (campo === 'numero_pedido' && numeroAnterior && busca.trim() === numeroAnterior) {
+              setBusca(String(resultado.numero_pedido ?? valor ?? ''))
+            }
+            setPedidoFocoId(prev => (prev === idReal ? null : prev))
+            return resultado
           } : undefined}
           permiteReplicacaoPaiEmItens={podeEditarLista ? (campo) => {
             const COLUNAS_SEM_REPLICACAO = new Set([
@@ -6285,7 +6364,16 @@ export default function Pedidos() {
             return !COLUNAS_SEM_REPLICACAO.has(campo)
           } : undefined}
           camposEditaveisFilhos={camposEditaveisFilhosComCustom}
-          onEditarFilho={podeEditarLista ? handleEditarFilho : undefined}
+          onEditarFilho={podeEditarLista ? async (id: string, campo: string, valor: unknown) => {
+            const resultado = await handleEditarFilho(id, campo, valor)
+            for (const [pId, itensCache] of itensCarregadosRef.current) {
+              if (itensCache.some(i => i.id === id)) {
+                setPedidoFocoId(prev => (prev === pId ? null : prev))
+                break
+              }
+            }
+            return resultado
+          } : undefined}
 
           onSalvoComSucesso={() => addNotification({ type: 'success', message: t('pedido.lista.notif.campo_atualizado') })}
           onErroAoSalvar={(msg) => addNotification({ type: 'error', message: mensagemErro(msg, t) })}

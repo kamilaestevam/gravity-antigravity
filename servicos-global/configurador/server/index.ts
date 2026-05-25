@@ -505,6 +505,22 @@ if (process.env.NODE_ENV !== 'test') {
   }
 
   // Sidecar 2: Pedido (porta 8030)
+  // Migrations do Pedido rodam no startup (runtime) — PEDIDO_DATABASE_URL existe aqui,
+  // mas frequentemente falta no build do Railway (build-site.sh pula migrate deploy).
+  if (process.env.PEDIDO_DATABASE_URL && process.env.PEDIDO_MIGRATIONS_ON_STARTUP !== '0') {
+    try {
+      const { execSync } = await import('node:child_process')
+      execSync('npx tsx scripts/ativamente/aplicar-migrations-pedido.ts', {
+        cwd: process.cwd(),
+        stdio: 'inherit',
+        env: process.env,
+      })
+    } catch (err) {
+      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+      console.error('[configurador] Falha ao aplicar migrations do Pedido no startup:', msg)
+    }
+  }
+
   // Protege contra process.exit() que o Pedido chama em validações de env —
   // em modo sidecar, exit() mataria o processo inteiro (Configurador incluso).
   if (process.env.PEDIDO_DATABASE_URL) {

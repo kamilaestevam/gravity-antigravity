@@ -105,6 +105,29 @@ function toSchemaName(tenantId: string): string {
   return name
 }
 
+/** Fallback: descobre tenant_* fisicamente no banco do produto quando o Configurador retorna 0 orgs. */
+async function descobrirTenantsDoBancoProduto(produtoUrl: string): Promise<Tenant[]> {
+  const client = new Client({ connectionString: produtoUrl })
+  await client.connect()
+  try {
+    const { rows } = await client.query<{ schema_name: string }>(`
+      SELECT schema_name
+      FROM information_schema.schemata
+      WHERE schema_name LIKE 'tenant_%'
+      ORDER BY schema_name
+    `)
+    return rows
+      .map(({ schema_name }) => {
+        const id = schema_name.replace(/^tenant_/, '')
+        if (!CUID_REGEX.test(id)) return null
+        return { id, name: schema_name }
+      })
+      .filter((t): t is Tenant => t !== null)
+  } finally {
+    await client.end()
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Migrations directory por produto
 // ─────────────────────────────────────────────────────────────────────────────
@@ -409,8 +432,13 @@ async function main(): Promise<void> {
   console.log(`⚡  Concorrência: ${concurrency}\n`)
 
   if (tenants.length === 0) {
-    console.warn('⚠️   Nenhum tenant ativo — nada a migrar.')
-    return
+    console.warn('⚠️   Nenhuma organização ATIVO no Configurador — tentando descobrir schemas tenant_* no banco do produto...')
+    tenants = await descobrirTenantsDoBancoProduto(PRODUTO_URL)
+    console.log(`📋  Schemas tenant_* encontrados no banco do produto: ${tenants.length}`)
+    if (tenants.length === 0) {
+      console.warn('⚠️   Nenhum schema tenant_* — nada a migrar.')
+      return
+    }
   }
 
   // 3. Rodar migrations em paralelo

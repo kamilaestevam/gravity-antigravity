@@ -31,20 +31,11 @@ npx prisma generate --schema=servicos-global/produto/pedido/prisma/schema.prisma
 
 # 2a. Pedido — migrations (public template + schemas tenant_*)
 if [ -n "$PEDIDO_DATABASE_URL" ]; then
-  echo "[build-site] Applying Pedido migrations (public template)..."
-  DATABASE_URL="$PEDIDO_DATABASE_URL" npx prisma migrate deploy \
-    --schema=servicos-global/produto/pedido/prisma/schema.prisma
-
-  CFG_URL="${CONFIGURADOR_DATABASE_URL:-$DATABASE_URL}"
-  if [ -n "$CFG_URL" ]; then
-    echo "[build-site] Applying Pedido migrations (tenant schemas)..."
-    CONFIGURADOR_DATABASE_URL="$CFG_URL" DATABASE_URL="$PEDIDO_DATABASE_URL" \
-      npx tsx scripts/ativamente/migrate-all-tenants.ts --product=pedido
-  else
-    echo "[build-site] WARN: CONFIGURADOR_DATABASE_URL ausente — skip tenant migrations do Pedido"
-  fi
+  echo "[build-site] Applying Pedido migrations..."
+  CONFIGURADOR_DATABASE_URL="${CONFIGURADOR_DATABASE_URL:-$DATABASE_URL}" \
+    npx tsx scripts/ativamente/aplicar-migrations-pedido.ts
 else
-  echo "[build-site] PEDIDO_DATABASE_URL ausente — skip Pedido migrations"
+  echo "[build-site] PEDIDO_DATABASE_URL ausente — skip Pedido migrations (roda no startup do servidor)"
 fi
 
 # 2b. Pedido's schema outputs to pedido/node_modules/.prisma/client/ but

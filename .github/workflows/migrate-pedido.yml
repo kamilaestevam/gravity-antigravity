@@ -1,0 +1,66 @@
+name: Migrate Pedido DB
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master, main]
+    paths:
+      - 'servicos-global/produto/pedido/prisma/migrations/**'
+      - 'scripts/ativamente/aplicar-migrations-pedido.ts'
+      - 'scripts/ativamente/migrate-all-tenants.ts'
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  migrate-production:
+    name: Migrate Pedido (Production)
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm install
+
+      - name: Aplicar migrations — Pedido DB (Produção)
+        if: ${{ secrets.PROD_PEDIDO_DATABASE_URL != '' }}
+        run: npx tsx scripts/ativamente/aplicar-migrations-pedido.ts
+        env:
+          PEDIDO_DATABASE_URL: ${{ secrets.PROD_PEDIDO_DATABASE_URL }}
+          CONFIGURADOR_DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
+
+      - name: Secret PROD_PEDIDO_DATABASE_URL ausente
+        if: ${{ secrets.PROD_PEDIDO_DATABASE_URL == '' }}
+        run: |
+          echo "::warning::PROD_PEDIDO_DATABASE_URL nao configurado — migration do Pedido nao rodou."
+          exit 1
+
+  migrate-staging:
+    name: Migrate Pedido (Staging)
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm install
+
+      - name: Aplicar migrations — Pedido DB (Staging)
+        if: ${{ secrets.STAGING_PEDIDO_DATABASE_URL != '' }}
+        run: npx tsx scripts/ativamente/aplicar-migrations-pedido.ts
+        env:
+          PEDIDO_DATABASE_URL: ${{ secrets.STAGING_PEDIDO_DATABASE_URL }}
+          CONFIGURADOR_DATABASE_URL: ${{ secrets.STAGING_CONFIGURADOR_DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.STAGING_CONFIGURADOR_DATABASE_URL }}
+
+      - name: Secret STAGING_PEDIDO_DATABASE_URL ausente
+        if: ${{ secrets.STAGING_PEDIDO_DATABASE_URL == '' }}
+        run: |
+          echo "::warning::STAGING_PEDIDO_DATABASE_URL nao configurado — migration do Pedido nao rodou."
+          exit 1

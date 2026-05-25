@@ -72,6 +72,11 @@ function getSpecialAliases(nucleoRoot: string): Record<string, string> {
     // `@nucleo/menu-topo-global/src/...` com alias apontando para index.ts.
     '@nucleo/menu-topo-global': path.resolve(nucleoRoot, 'Layout/menu-topo-global/src'),
 
+    // tabela-virtual-global — diretório src/ para sub-paths (CSS FiltrosColuna, hooks).
+    // Evita ENOENT `index.ts/FiltrosColuna.css` em imports como
+    // `@nucleo/tabela-virtual-global/FiltrosColuna/FiltrosColuna.css`.
+    '@nucleo/tabela-virtual-global': path.resolve(nucleoRoot, 'Tabelas/tabela-virtual-global/src'),
+
     // Sub-export do Dashboard (DashboardConstrutorConsulta isolado)
     '@nucleo/query-builder-global': path.resolve(nucleoRoot, 'Dashboard/dashboard-global/src/DashboardConstrutorConsulta/DashboardConstrutorConsulta.tsx'),
 

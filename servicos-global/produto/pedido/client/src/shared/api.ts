@@ -6,6 +6,7 @@
 
 import {
   dashboardKpisSchema,
+  dashboardBundleResponseSchema,
   dashboardTrendResponseSchema,
   dashboardDistributionResponseSchema,
   dashboardInsightsResponseSchema,
@@ -2061,49 +2062,99 @@ export interface DashboardInsightsResponse {
   insights: GabiInsightItem[]
 }
 
+export interface DashboardBundleResponse {
+  period: string
+  kpis: DashboardKpis
+  prev_kpis: DashboardKpis | null
+  trend: DashboardTrendResponse
+  cached: boolean
+  computed_at: string
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
+function appendIdsWorkspacesParam(params: URLSearchParams, idsWorkspaces?: string[]): void {
+  if (idsWorkspaces?.length) {
+    params.set('ids_workspaces', idsWorkspaces.join(','))
+  }
+}
+
 export const dashboardApi = {
-  kpis: async (period: string, range?: { from: string; to: string }): Promise<DashboardKpis> => {
+  bundle: async (
+    period: string,
+    range?: { from: string; to: string },
+    idsWorkspaces?: string[],
+    trendPeriod = '12m',
+    granularity = 'month',
+  ): Promise<DashboardBundleResponse> => {
+    const params = new URLSearchParams({ period, trend_period: trendPeriod, granularity })
+    if (range) { params.set('from', range.from); params.set('to', range.to) }
+    appendIdsWorkspacesParam(params, idsWorkspaces)
+    const raw = await request<unknown>(`/api/v1/pedidos/dashboard/bundle?${params}`)
+    return dashboardBundleResponseSchema.parse(raw) as unknown as DashboardBundleResponse
+  },
+
+  kpis: async (
+    period: string,
+    range?: { from: string; to: string },
+    idsWorkspaces?: string[],
+  ): Promise<DashboardKpis> => {
     const params = new URLSearchParams({ period })
     if (range) { params.set('from', range.from); params.set('to', range.to) }
+    appendIdsWorkspacesParam(params, idsWorkspaces)
     const raw = await request<unknown>(`/api/v1/pedidos/dashboard/kpis?${params}`)
     // Mandamento 06 + 09: contrato bilateral via Zod (ver dashboard-schemas.ts)
     return dashboardKpisSchema.parse(raw) as unknown as DashboardKpis
   },
 
-  trend: async (period: string, granularity = 'month'): Promise<DashboardTrendResponse> => {
-    const raw = await request<unknown>(
-      `/api/v1/pedidos/dashboard/tendencia?period=${encodeURIComponent(period)}&granularity=${granularity}`,
-    )
+  trend: async (
+    period: string,
+    granularity = 'month',
+    idsWorkspaces?: string[],
+  ): Promise<DashboardTrendResponse> => {
+    const params = new URLSearchParams({
+      period,
+      granularity,
+    })
+    appendIdsWorkspacesParam(params, idsWorkspaces)
+    const raw = await request<unknown>(`/api/v1/pedidos/dashboard/tendencia?${params}`)
     return dashboardTrendResponseSchema.parse(raw) as unknown as DashboardTrendResponse
   },
 
-  distribution: async (period: string): Promise<DashboardDistributionResponse> => {
-    const raw = await request<unknown>(
-      `/api/v1/pedidos/dashboard/distribuicao?period=${encodeURIComponent(period)}`,
-    )
+  distribution: async (period: string, idsWorkspaces?: string[]): Promise<DashboardDistributionResponse> => {
+    const params = new URLSearchParams({ period })
+    appendIdsWorkspacesParam(params, idsWorkspaces)
+    const raw = await request<unknown>(`/api/v1/pedidos/dashboard/distribuicao?${params}`)
     return dashboardDistributionResponseSchema.parse(raw) as unknown as DashboardDistributionResponse
   },
 
   /** Fase 1+2+3 — insights ranqueados por role + comportamento + LLM */
-  insights: async (period: string, range?: { from: string; to: string }): Promise<DashboardInsightsResponse> => {
+  insights: async (
+    period: string,
+    range?: { from: string; to: string },
+    idsWorkspaces?: string[],
+  ): Promise<DashboardInsightsResponse> => {
     const params = new URLSearchParams({ period })
     if (range) { params.set('from', range.from); params.set('to', range.to) }
+    appendIdsWorkspacesParam(params, idsWorkspaces)
     const raw = await request<unknown>(`/api/v1/pedidos/dashboard/insights?${params}`)
     return dashboardInsightsResponseSchema.parse(raw) as unknown as DashboardInsightsResponse
   },
 
   /** Status NCM — itens com NCM inválido segundo o Portal Único Siscomex */
-  ncmStatus: () =>
-    request<{
+  ncmStatus: (idsWorkspaces?: string[]) => {
+    const params = new URLSearchParams()
+    appendIdsWorkspacesParam(params, idsWorkspaces)
+    const qs = params.toString()
+    return request<{
       invalidos:         string[]
       total_invalidos:   number
       itens_invalidos:   number
       total_verificados: number
       sem_sync:          boolean
       ultima_sync:       string | null
-    }>('/api/v1/pedidos/dashboard/status-ncm'),
+    }>(`/api/v1/pedidos/dashboard/status-ncm${qs ? `?${qs}` : ''}`)
+  },
 }
 
 // ── Dashboard Painéis ─────────────────────────────────────────────────────────

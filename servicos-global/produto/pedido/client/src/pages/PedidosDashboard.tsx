@@ -20,7 +20,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { useShellStore } from '@shell'
+import { useShellStore } from '@gravity/shell'
 import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
 import {
   DashboardGrid,
@@ -32,7 +32,9 @@ import {
   DashboardPainelEditarModal,
   DashboardPainelSugestoes,
   DashboardValorKPI,
+  PeriodDropdown,
 } from '@nucleo/dashboard'
+import type { PeriodOption } from '@nucleo/dashboard'
 import { DashboardConstrutorConsulta } from '@nucleo/query-builder-global'
 import type {
   DashboardWidgetConfig,
@@ -63,7 +65,24 @@ import { buildDashboardCatalog, buildCatalogByKey } from '../shared/dashboardCat
 import { generateSuggestions } from '../shared/dashboardSuggestions'
 import { BUILT_IN_DERIVED, computeDerived } from '../shared/derivedMetrics'
 import { dashboardApi, paineisDashboardApi } from '../shared/api'
-import type { DashboardKpis, DashboardTrendBucket, GabiInsightItem, DashboardPainel } from '../shared/api'
+import type { DashboardKpis, DashboardTrendBucket, GabiInsightItem, DashboardPainel, DashboardDistributionGroup } from '../shared/api'
+import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
+import {
+  lerPeriodoCardsLista,
+  mapearPeriodoDashboardParaLista,
+  mapearPeriodoListaParaDashboard,
+  PERIODO_CARDS_SYNC_EVENT,
+  periodoDashboardEhSomenteDashboard,
+  salvarPeriodoCardsLista,
+} from '../shared/periodoPedidoSync'
+import {
+  DASHBOARD_TOP_KPI_WIDGET_IDS,
+  useDashboardTopKpiStatus,
+  type DashboardTopKpiWidgetId,
+} from '../shared/useDashboardTopKpiStatus'
+import { contagemPorStatusSlug, rotuloStatusSlug } from '../shared/dashboardStatusKpi'
+import { periodoEhPadrao, rotuloPeriodoDashboard, widgetUsaPeriodoProprio } from '../shared/dashboardPeriodoUtil'
+import '@nucleo/tabela-virtual-global/FiltrosColuna/FiltrosColuna.css'
 
 // ── Dados reais — converte resposta da API em WidgetResult ────────────────────
 
@@ -915,7 +934,112 @@ export default function PedidosDashboard() {
 
   const navigate = useNavigate()
   const { trackWidget, trackInsight } = useTrackBehavior()
+  const { mapa: topKpiStatusMapa } = useDashboardTopKpiStatus()
 
+  const [distribuicaoGlobal, setDistribuicaoGlobal] = useState<DashboardDistributionGroup[]>([])
+  const [kpisPorPeriodo, setKpisPorPeriodo] = useState<Record<string, DashboardKpis>>({})
+
+  const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
+  const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
+  const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
+  const idsWorkspacesFiltro = useMemo(
+    () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo ?? ''),
+    [idsWorkspacesEscopo, idWorkspaceAtivo],
+  )
+
+  const periodOptions = useMemo(() => [
+    { value: 'tudo',          label: t('pedido.config.cards.periodo_tudo', { defaultValue: 'Tudo' }) },
+    { value: '7d',            label: t('nucleo.dashboard.periodo.ultimos_7_dias') },
+    { value: '30d',           label: t('nucleo.dashboard.periodo.ultimos_30_dias') },
+    { value: '6m',            label: t('pedido.config.cards.periodo_6m', { defaultValue: '6 meses' }) },
+    { value: '1a',            label: t('pedido.config.cards.periodo_1a', { defaultValue: '1 ano' }) },
+    { value: '90d',           label: t('nucleo.dashboard.periodo.ultimos_90_dias') },
+    { value: '12m',           label: t('nucleo.dashboard.periodo.ultimos_12_meses') },
+    { value: 'current_month', label: t('nucleo.dashboard.periodo.mes_atual') },
+    { value: 'current_year',  label: t('nucleo.dashboard.periodo.ano_atual') },
+    { value: 'custom',        label: t('nucleo.dashboard.periodo.personalizado') },
+  ], [t])
+
+  const statusConfig = useMemo((): Record<string, { label: string; cor: string }> => {
+    try {
+      const raw = localStorage.getItem('pedido:status_config')
+      if (raw) return JSON.parse(raw) as Record<string, { label: string; cor: string }>
+    } catch { /* fallback */ }
+    return {}
+  }, [])
+
+  const handlePeriodChange = useCallback((period: string) => {
+    setPeriod(period)
+    if (!periodoDashboardEhSomenteDashboard(period)) {
+      const lista = mapearPeriodoDashboardParaLista(period)
+      if (lista) salvarPeriodoCardsLista(lista)
+    }
+  }, [setPeriod])
+
+  const periodosWidgets = useMemo(() => {
+    const set = new Set<string>([slicers.period])
+    for (const w of widgets) {
+      if (w.config?.periodLocked === true && w.query_spec.filters.period) {
+        set.add(w.query_spec.filters.period)
+      } else if (w.query_spec.filters.period === '12m') {
+        set.add('12m')
+      }
+    }
+    return [...set]
+  }, [widgets, slicers.period])
+
+  const resolverCustomRange = useCallback((period: string) => {
+    if (!period.startsWith('custom:')) return undefined
+    const [, s, e] = period.split(':')
+    return s && e ? { from: `${s}T00:00:00.000Z`, to: `${e}T23:59:59.999Z` } : undefined
+  }, [])
+
+  const handleWidgetPeriodChange = useCallback((widgetId: string, period: string) => {
+    const alvo = widgets.find(w => w.id === widgetId)
+    if (!alvo) return
+    updateWidget(widgetId, {
+      query_spec: {
+        ...alvo.query_spec,
+        filters: { ...alvo.query_spec.filters, period },
+      },
+      config: { ...alvo.config, periodLocked: true },
+    })
+  }, [updateWidget, widgets])
+
+  const handleClearWidgetPeriod = useCallback((widgetId: string) => {
+    const alvo = widgets.find(w => w.id === widgetId)
+    if (!alvo) return
+    updateWidget(widgetId, {
+      query_spec: {
+        ...alvo.query_spec,
+        filters: { ...alvo.query_spec.filters, period: slicers.period },
+      },
+      config: { ...alvo.config, periodLocked: false },
+    })
+  }, [updateWidget, widgets, slicers.period])
+
+  const handleClearFiltersComPeriodo = useCallback(() => {
+    clearFilters()
+    handlePeriodChange('30d')
+    for (const w of widgets) {
+      if (w.config?.periodLocked) handleClearWidgetPeriod(w.id)
+    }
+  }, [clearFilters, handlePeriodChange, widgets, handleClearWidgetPeriod])
+
+  useEffect(() => {
+    const syncPeriodoComLista = () => {
+      setPeriod(mapearPeriodoListaParaDashboard(lerPeriodoCardsLista()))
+    }
+
+    if (useDashboardStore.persist.hasHydrated()) {
+      syncPeriodoComLista()
+    } else {
+      useDashboardStore.persist.onFinishHydration(syncPeriodoComLista)
+    }
+
+    window.addEventListener(PERIODO_CARDS_SYNC_EVENT, syncPeriodoComLista)
+    return () => window.removeEventListener(PERIODO_CARDS_SYNC_EVENT, syncPeriodoComLista)
+  }, [setPeriod])
 
   const { addNotification } = useShellStore()
 
@@ -946,10 +1070,11 @@ export default function PedidosDashboard() {
   } | null>(null)
 
   useEffect(() => {
-    dashboardApi.ncmStatus()
+    if (!escopoHidratado) return
+    dashboardApi.ncmStatus(idsWorkspacesFiltro)
       .then(r => setNcmStatus(r))
       .catch(() => { /* silencioso — NCM offline não afeta o dashboard */ })
-  }, [])
+  }, [escopoHidratado, idsWorkspacesFiltro])
   const [novoNomePainel, setNovoNomePainel] = useState('')
   const [criandoPainel,  setCriandoPainel]  = useState(false)
   const [renamingId,     setRenamingId]     = useState<string | null>(null)
@@ -1106,49 +1231,106 @@ export default function PedidosDashboard() {
   }, [gabiPaused, loadingData, scrollGabi])
 
   useEffect(() => {
+    if (!escopoHidratado) return
     setLoadingData(true)
-    const prevRange = getPrevDateRange(slicers.period)
+    const customRangeGlobal = resolverCustomRange(slicers.period)
 
-    // Período customizado: custom:YYYY-MM-DD:YYYY-MM-DD → passa range explícito para a API
-    const customRange = slicers.period.startsWith('custom:')
-      ? (() => {
-          const [, s, e] = slicers.period.split(':')
-          return s && e ? { from: `${s}T00:00:00.000Z`, to: `${e}T23:59:59.999Z` } : undefined
-        })()
-      : undefined
+    const extraPeriodos = periodosWidgets.filter(p => p !== slicers.period)
 
     Promise.all([
-      dashboardApi.kpis(slicers.period, customRange),
-      dashboardApi.kpis(slicers.period, prevRange),
-      dashboardApi.trend('12m', 'month'),
-      // Insights isolados: falha não cancela KPIs nem gráficos
-      dashboardApi.insights(slicers.period, customRange).catch(() => ({ period: '', role: '', insights: [] as GabiInsightItem[] })),
+      dashboardApi.bundle(slicers.period, customRangeGlobal, idsWorkspacesFiltro, '12m', 'month'),
+      dashboardApi.distribution(slicers.period, idsWorkspacesFiltro),
+      Promise.all(
+        extraPeriodos.map(async (period) => {
+          const kpis = await dashboardApi.kpis(period, resolverCustomRange(period), idsWorkspacesFiltro)
+          return [period, kpis] as const
+        }),
+      ),
     ])
-      .then(([kpis, prevKpis, trend, insightsRes]) => {
-        setKpisData(kpis)
-        setPrevKpisData(prevKpis)
-        setTrendData(trend.value)
-        setInsightsData(insightsRes.insights)
+      .then(([bundle, dist, extras]) => {
+        setKpisData(bundle.kpis)
+        setPrevKpisData(bundle.prev_kpis)
+        setTrendData(bundle.trend.value)
+        setDistribuicaoGlobal(dist.value)
+        const mapa: Record<string, DashboardKpis> = { [slicers.period]: bundle.kpis }
+        for (const [period, dados] of extras) mapa[period] = dados
+        setKpisPorPeriodo(mapa)
       })
       .catch(err => console.error('[Dashboard] Erro ao carregar dados:', err))
       .finally(() => setLoadingData(false))
-  }, [slicers.period])
+  }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, periodosWidgets, resolverCustomRange])
+
+  useEffect(() => {
+    if (!escopoHidratado) return
+    const customRangeGlobal = resolverCustomRange(slicers.period)
+    dashboardApi.insights(slicers.period, customRangeGlobal, idsWorkspacesFiltro)
+      .then(insightsRes => setInsightsData(insightsRes.insights))
+      .catch(() => setInsightsData([]))
+  }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, resolverCustomRange])
 
   const activeWidgets = useMemo(() =>
-    widgets.map(w => ({
-      ...w,
-      title: translateWidgetTitle(w, t),
-      query_spec: {
-        ...w.query_spec,
-        filters: w.query_spec.filters.period === '12m'
+    widgets.map(w => {
+      const locked = w.config?.periodLocked === true
+      const filters = locked
+        ? w.query_spec.filters
+        : w.query_spec.filters.period === '12m'
           ? w.query_spec.filters
-          : { ...w.query_spec.filters, period: slicers.period },
-      },
-    })), [widgets, slicers.period, t],
+          : { ...w.query_spec.filters, period: slicers.period }
+      return {
+        ...w,
+        title: translateWidgetTitle(w, t),
+        query_spec: { ...w.query_spec, filters },
+      }
+    }), [widgets, slicers.period, t],
   )
+
+  const filtrosPeriodoAtivos = useMemo(() => {
+    const chips: Array<{ id: string; label: string; onClear: () => void }> = []
+    if (!periodoEhPadrao(slicers.period)) {
+      chips.push({
+        id: 'periodo-global',
+        label: `${t('nucleo.dashboard.barra.periodo')}: ${rotuloPeriodoDashboard(slicers.period, periodOptions, t('nucleo.dashboard.periodo.personalizado'))}`,
+        onClear: () => handlePeriodChange('30d'),
+      })
+    }
+    for (const w of activeWidgets) {
+      if (w.chart_type === 'SECTION_LABEL' || w.chart_type === 'GABI_INSIGHTS') continue
+      const locked = w.config?.periodLocked === true
+      const periodoWidget = w.query_spec.filters.period
+      if (!widgetUsaPeriodoProprio(periodoWidget, slicers.period, locked)) continue
+      chips.push({
+        id: `periodo-${w.id}`,
+        label: `${w.title}: ${rotuloPeriodoDashboard(periodoWidget, periodOptions, t('nucleo.dashboard.periodo.personalizado'))}`,
+        onClear: () => handleClearWidgetPeriod(w.id),
+      })
+    }
+    return chips
+  }, [activeWidgets, slicers.period, periodOptions, t, handlePeriodChange, handleClearWidgetPeriod])
+
+  const renderPeriodoControleWidget = useCallback((widget: DashboardWidgetConfig) => (
+    <PeriodDropdown
+      value={widget.query_spec.filters.period}
+      options={periodOptions as PeriodOption[]}
+      onChange={(p) => handleWidgetPeriodChange(widget.id, p)}
+    />
+  ), [periodOptions, handleWidgetPeriodChange])
 
   const renderWidget = useCallback((widget: DashboardWidgetConfig) => {
     const chartType = widget.chart_type
+    const widgetPeriod = widget.query_spec.filters.period
+    const kpisWidget = (kpisPorPeriodo[widgetPeriod] ?? kpisData) as DashboardKpis | null
+    const locked = widget.config?.periodLocked === true
+    const periodoProprio = widgetUsaPeriodoProprio(widgetPeriod, slicers.period, locked)
+    const periodoRotuloWidget = periodoProprio
+      ? rotuloPeriodoDashboard(widgetPeriod, periodOptions, t('nucleo.dashboard.periodo.personalizado'))
+      : undefined
+    const painelPeriodoProps = chartType === 'SECTION_LABEL' || chartType === 'GABI_INSIGHTS'
+      ? {}
+      : {
+          periodoFiltroRotulo: periodoRotuloWidget,
+          periodoControle: renderPeriodoControleWidget(widget),
+          onLimparPeriodoWidget: periodoProprio ? () => handleClearWidgetPeriod(widget.id) : undefined,
+        }
 
     // ── GABI_INSIGHTS — grid responsivo de insights da Gabi AI ─────────────
     if (chartType === 'GABI_INSIGHTS') {
@@ -1262,14 +1444,14 @@ export default function PedidosDashboard() {
       )
     }
 
-    const result = kpisData
-      ? buildWidgetResult(widget, kpisData, trendData, allDerived, catalogByKey)
+    const result = kpisWidget
+      ? buildWidgetResult(widget, kpisWidget, trendData, allDerived, catalogByKey)
       : { data: {}, chartType: widget.chart_type, partial: true, cached: false, computed_at: new Date().toISOString() }
     const fields = widget.query_spec.fields
     const isDerived = !!widget.config?.derivedMetricId
 
     // ── Estado vazio detectado pela GABI ─────────────────────────────────────
-    if (!loadingData && kpisData && isResultEmpty(result, isDerived)) {
+    if (!loadingData && kpisWidget && isResultEmpty(result, isDerived)) {
       return (
         <DashboardPainelContainer
           key={widget.id}
@@ -1280,12 +1462,13 @@ export default function PedidosDashboard() {
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
+          {...painelPeriodoProps}
         >
           <WidgetEmptyGabi
             widget={widget}
             fieldNames={fields.map((f: { key: string }) => fieldLabels[f.key] ?? f.key)}
             currentPeriod={slicers.period}
-            onExpandPeriod={setPeriod}
+            onExpandPeriod={handlePeriodChange}
             onEdit={() => { setEditingWidget(widget); setEditModalOpen(true) }}
             onRemove={() => removeWidget(widget.id)}
           />
@@ -1300,7 +1483,7 @@ export default function PedidosDashboard() {
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
-
+          {...painelPeriodoProps}
         >
           <DashboardWidgetDistribuicao slices={result.slices ?? []} />
         </DashboardPainelContainer>
@@ -1331,7 +1514,7 @@ export default function PedidosDashboard() {
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
-
+          {...painelPeriodoProps}
         >
           <DashboardWidgetLinha
             series={series}
@@ -1368,7 +1551,7 @@ export default function PedidosDashboard() {
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
-
+          {...painelPeriodoProps}
         >
           <DashboardWidgetBarras
             series={series}
@@ -1391,15 +1574,33 @@ export default function PedidosDashboard() {
       const fieldType: FieldUnitType = dm?.fieldType ?? (cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number')
       const visual   = WIDGET_VISUAL[widget.id] ?? {}
       const navRoute = WIDGET_NAV_ROUTE[widget.id]
-      const currentVal = Number(kpisData?.[fieldKey] ?? 0)
-      const prevVal    = Number(prevKpisData?.[fieldKey] ?? 0)
+
+      const isTopKpi = (DASHBOARD_TOP_KPI_WIDGET_IDS as readonly string[]).includes(widget.id)
+      let widgetRender = widget
+      let kpiData = result.data
+      let kpiFieldKey = fieldKey
+      let kpiFieldType: FieldUnitType = fieldType
+      let currentVal = Number(kpisWidget?.[fieldKey] ?? 0)
+      let prevVal    = Number(prevKpisData?.[fieldKey] ?? 0)
+
+      if (isTopKpi && kpisWidget) {
+        const statusSlug = topKpiStatusMapa[widget.id as DashboardTopKpiWidgetId]
+        const count = contagemPorStatusSlug(statusSlug, kpisWidget, distribuicaoGlobal)
+        const tituloStatus = rotuloStatusSlug(statusSlug, statusConfig, t)
+        widgetRender = { ...widget, title: tituloStatus }
+        kpiData = { [fieldKey]: count }
+        kpiFieldKey = fieldKey
+        kpiFieldType = 'number'
+        currentVal = count
+        prevVal = count
+      }
+
       const deltaInfo  = computeDelta(currentVal, prevVal)
       return (
-        <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
+        <DashboardPainelContainer key={widget.id} widget={widgetRender} result={result} loading={loadingData} error={null}
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
-
           accentColor={visual.accentColor}
           icone={visual.icone}
           clickable={!!navRoute}
@@ -1407,14 +1608,15 @@ export default function PedidosDashboard() {
             trackWidget(widget.id)
             if (navRoute && !editMode) navigate(navRoute)
           }}
+          {...painelPeriodoProps}
         >
           <DashboardValorKPI
-            data={result.data}
-            fieldKey={fieldKey}
-            fieldType={fieldType}
-            delta={deltaInfo.delta}
-            deltaPercent={deltaInfo.percent}
-            deltaDirection={deltaInfo.direction}
+            data={kpiData}
+            fieldKey={kpiFieldKey}
+            fieldType={kpiFieldType}
+            delta={isTopKpi ? undefined : deltaInfo.delta}
+            deltaPercent={isTopKpi ? undefined : deltaInfo.percent}
+            deltaDirection={isTopKpi ? undefined : deltaInfo.direction}
           />
         </DashboardPainelContainer>
       )
@@ -1427,12 +1629,12 @@ export default function PedidosDashboard() {
         editMode={editMode}
         onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
         onRemove={removeWidget}
-
+        {...painelPeriodoProps}
       >
         <DashboardValorKPI data={result.data} fieldKey={fieldKey} fieldType="number" />
       </DashboardPainelContainer>
     )
-  }, [editMode, removeWidget, allDerived, kpisData, prevKpisData, trendData, loadingData, slicers, setPeriod, fieldLabels, catalogByKey, t])
+  }, [editMode, removeWidget, allDerived, kpisData, kpisPorPeriodo, prevKpisData, trendData, loadingData, slicers, setPeriod, fieldLabels, catalogByKey, t, topKpiStatusMapa, statusConfig, distribuicaoGlobal, periodOptions, handleClearWidgetPeriod, renderPeriodoControleWidget, navigate, trackWidget, handlePeriodChange, insightsData])
 
   function handleQueryBuilderSave(spec: WidgetQuerySpec, title: string, chartType: ChartType) {
     const id = `custom_${Date.now()}`
@@ -1450,16 +1652,6 @@ export default function PedidosDashboard() {
   const STATUS_OPTIONS = ['abertos', 'em_andamento', 'atrasados', 'concluidos']
 
   // Lê cores e labels definidas pelo usuário em Configurações (pedido:status_config)
-  // Mesma fonte usada pela Lista e pelo Kanban — nunca hardcoded.
-  const statusConfig = useMemo((): Record<string, { label: string; cor: string }> => {
-    try {
-      const raw = localStorage.getItem('pedido:status_config')
-      if (raw) return JSON.parse(raw)
-    } catch { /* fallback */ }
-    return {}
-  }, [])
-
-  // Converte hex → rgba para o background dos chips ativos
   function hexToRgba(hex: string, alpha: number): string {
     const r = parseInt(hex.slice(1, 3), 16)
     const g = parseInt(hex.slice(3, 5), 16)
@@ -1526,10 +1718,11 @@ export default function PedidosDashboard() {
       {/* T-07/08: statusCounts do kpisData em memória | T-10: compactStatus responsivo */}
       <DashboardBarraFerramentas
         slicers={slicers}
-        onPeriodChange={setPeriod}
+        onPeriodChange={handlePeriodChange}
+        periodOptions={periodOptions}
         onStatusChange={setStatusFilter}
         activeFilters={activeFilters}
-        onClearFilters={clearFilters}
+        onClearFilters={handleClearFiltersComPeriodo}
         editMode={editMode}
         onEditModeChange={setEditMode}
         statusOptions={STATUS_OPTIONS}
@@ -1546,6 +1739,21 @@ export default function PedidosDashboard() {
         onAddWidget={undefined}
         onSuggestionsOpen={() => setSuggestionsOpen(true)}
       />
+
+      {filtrosPeriodoAtivos.length > 0 && (
+        <div className="fc-chips-container" role="status" aria-label={t('pedido.dashboard.filtros_periodo_aria', { defaultValue: 'Filtros de período ativos' })}>
+          {filtrosPeriodoAtivos.map(f => (
+            <span key={f.id} className="fc-chip">
+              <span className="fc-chip-body">
+                <span className="fc-chip-valor">{f.label}</span>
+              </span>
+              <button type="button" className="fc-chip-remove" onClick={f.onClear} aria-label={t('pedido.dashboard.remover_filtro_periodo', { defaultValue: 'Remover filtro de período' })}>
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Seletor de Painéis */}
       {paineis.length > 0 && (

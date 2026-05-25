@@ -8,6 +8,7 @@
  * Origem dos campos: servicos-global/produto/pedido/server/src/routes/dashboard-pedido-dados.ts
  *
  * Endpoints cobertos:
+ *   GET /api/v1/pedidos/dashboard/bundle          -> dashboardBundleResponseSchema
  *   GET /api/v1/pedidos/dashboard/kpis          -> dashboardKpisSchema
  *   GET /api/v1/pedidos/dashboard/tendencia     -> dashboardTrendResponseSchema
  *   GET /api/v1/pedidos/dashboard/distribuicao  -> dashboardDistributionResponseSchema
@@ -97,6 +98,19 @@ export const dashboardTrendResponseSchema = z.object({
 })
 
 export type DashboardTrendResponseParsed = z.infer<typeof dashboardTrendResponseSchema>
+
+// ── /bundle ───────────────────────────────────────────────────────────────────
+
+export const dashboardBundleResponseSchema = z.object({
+  period:      z.string(),
+  kpis:        dashboardKpisSchema,
+  prev_kpis:   dashboardKpisSchema.nullable(),
+  trend:       dashboardTrendResponseSchema,
+  cached:      z.boolean(),
+  computed_at: z.string(),
+})
+
+export type DashboardBundleResponseParsed = z.infer<typeof dashboardBundleResponseSchema>
 
 // ── /distribuicao ─────────────────────────────────────────────────────────────
 

@@ -25,7 +25,7 @@ export type { DonutWidgetProps } from './widgets/DashboardWidgetDonut/index.js'
 export { DashboardWidgetTabela } from './widgets/DashboardWidgetTabela/index.js'
 export type { TableWidgetProps } from './widgets/DashboardWidgetTabela/index.js'
 
-export { DashboardBarraFerramentas } from './DashboardBarraFerramentas/index.js'
+export { DashboardBarraFerramentas, PeriodDropdown } from './DashboardBarraFerramentas/index.js'
 export type { DashboardToolbarProps, PeriodOption } from './DashboardBarraFerramentas/index.js'
 
 export { DashboardValorKPI } from './DashboardValorKPI/index.js'

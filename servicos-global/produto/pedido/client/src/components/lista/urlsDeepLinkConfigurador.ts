@@ -7,7 +7,11 @@
  */
 
 function urlBaseConfigurador(): string {
-  return import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
+  if (import.meta.env.DEV) {
+    const origin = import.meta.env.VITE_CONFIGURADOR_URL ?? 'http://localhost:8000'
+    return `${origin}/configurador`
+  }
+  return '/configurador'
 }
 
 function urlRetornoListaPedido(pedidoId?: string): string {

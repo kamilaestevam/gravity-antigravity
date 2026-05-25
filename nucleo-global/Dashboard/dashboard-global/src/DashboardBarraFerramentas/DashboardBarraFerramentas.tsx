@@ -47,10 +47,7 @@ interface PeriodDropdownProps {
   onChange: (value: string) => void
 }
 
-// PeriodDropdown excede 50 linhas por necessidade: gerencia dois modos mutuamente
-// exclusivos (lista de opções e calendário inline) com estado compartilhado. Decompor
-// quebraria o closure que une open/showCal/ref sem prop drilling desnecessário.
-function PeriodDropdown({ value, options, onChange }: PeriodDropdownProps) {
+export function PeriodDropdown({ value, options, onChange }: PeriodDropdownProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [showCal, setShowCal] = useState(false)

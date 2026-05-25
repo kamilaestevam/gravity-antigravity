@@ -8,10 +8,12 @@
 
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useShellStore } from '@gravity/shell'
 import { usePedidos } from './queries'
 import { workspacesDisponiveisApi } from './api'
 import type { Pedido } from './types'
 import { buildVisaoGeralMapa, type VisaoGeralMapaData } from './visaoGeralMapaPedido'
+import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from './useEscopoWorkspacesPedido'
 
 const BUCKET_CONCLUIDO = new Set(['aprovado', 'transferencia', 'consolidado'])
 const BUCKET_CANCELADO = new Set(['cancelado'])
@@ -129,7 +131,18 @@ function estaAtrasado(p: Pedido, hoje: Date): boolean {
 }
 
 export function useVisaoGeralPedido(): VisaoGeralPedido {
-  const { data, isLoading } = usePedidos({ limit: 1000 })
+  const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
+  const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
+  const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
+  const idsWorkspacesFiltro = useMemo(
+    () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo ?? ''),
+    [idsWorkspacesEscopo, idWorkspaceAtivo],
+  )
+
+  const { data, isLoading } = usePedidos(
+    { limit: 1000, idsWorkspacesFiltro },
+    { enabled: escopoHidratado },
+  )
   const { data: workspaces = [] } = useQuery({
     queryKey: ['workspaces-disponiveis'],
     queryFn: () => workspacesDisponiveisApi.listar(),

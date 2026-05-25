@@ -3164,6 +3164,8 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   },
   // ── Descrição Item ───────────────────────────────────────────────────────
   descricao_item: {
+    editavel: true,
+    campo: 'descricao_item',
     render: (row: PedidoItem) => {
       const v = row.descricao_item
       if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>

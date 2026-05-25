@@ -28,6 +28,7 @@ import { useUnidades } from '@nucleo/modal-tabela-unidades'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useNcmValidation } from '@nucleo/campo-ncm-global'
+import { lerTextoClipboard, resolverColagemPopover } from './utils/colagemPopover.js'
 import './tabela-virtual.css'
 import type {
   GTVirtualTableProps,
@@ -696,6 +697,8 @@ const GTEditPopover = memo(function GTEditPopover({
 
   function confirmarBlurPopover(e: React.FocusEvent<HTMLInputElement>) {
     if (ignorarBlurConfirmacaoRef.current) return
+    // Texto livre: blur ao abrir menu de contexto quebrava colar — salvar só via Enter/Confirmar.
+    if (isTextoLivre) return
     if (isMoeda) {
       const parsed = parseBRNum(displayMoedaAmt)
       setDisplayMoedaAmt(fmtBR(parsed, 2))
@@ -718,36 +721,43 @@ const GTEditPopover = memo(function GTEditPopover({
     }, 250)
   }
 
-  function lerTextoColagem(data: DataTransfer): string {
-    return (
-      data.getData('text/plain') ||
-      data.getData('Text') ||
-      data.getData('text') ||
-      ''
-    )
-  }
-
-  // Handler de paste — inputs controlados não propagam colar nativo para o React
-  // state; tratamos explicitamente. Multi-linha aciona smart paste (Excel).
-  const handleSmartPasteDetect = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const texto = lerTextoColagem(e.clipboardData)
-    if (!texto) return
-
+  function processarColagemPopover(texto: string) {
+    const res = resolverColagemPopover(texto, { textoLivre: isTextoLivre })
+    if (!res) return
     cancelarBlurConfirmAgendado()
     ignorarBlurConfirmacaoRef.current = true
-    const linhas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
-
-    if (linhas.length > 1) {
-      e.preventDefault()
-      onSmartPaste?.(linhas)
-      liberarIgnorarBlurConfirmacao()
-      return
+    if (res.tipo === 'smart_paste') {
+      onSmartPaste?.(res.linhas)
+    } else {
+      aplicarTextoInput(res.valor)
     }
-
-    e.preventDefault()
-    aplicarTextoInput(linhas.length === 1 ? linhas[0] : texto.trim())
     liberarIgnorarBlurConfirmacao()
   }
+
+  // Handler de paste — inputs controlados não propagam colar nativo para o React state.
+  const handleSmartPasteDetect = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const texto = lerTextoClipboard(e.clipboardData)
+    if (!texto) return
+    e.preventDefault()
+    e.stopPropagation()
+    processarColagemPopover(texto)
+  }
+
+  // Menu de contexto (Colar) pode perder foco do input — captura paste no documento.
+  useEffect(() => {
+    if (!isTextoLivre && !isNCM) return
+    const onDocPaste = (e: ClipboardEvent) => {
+      const texto = lerTextoClipboard(e.clipboardData)
+      if (!texto) return
+      e.preventDefault()
+      e.stopPropagation()
+      processarColagemPopover(texto)
+      inputRef.current?.focus()
+    }
+    document.addEventListener('paste', onDocPaste, true)
+    return () => document.removeEventListener('paste', onDocPaste, true)
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- processarColagemPopover escopo do popover ativo
+  }, [isTextoLivre, isNCM, overlayInfo.id, overlayInfo.campo])
 
   // Estado local para campos de data: texto em formato DD/MM/AAAA
   const [periodoText, setPeriodoText] = useState<string>(() => isoToBR(valorEditando))

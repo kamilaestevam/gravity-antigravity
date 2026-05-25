@@ -11,7 +11,6 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
@@ -26,6 +25,7 @@ import {
 } from '@nucleo/banner-requisitos-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
+import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
 import { useHistoricoLogger } from '../../hooks/use-historico-logger'
 import {
   adminBillingApi,
@@ -626,18 +626,15 @@ export function FinanceiroAdmin() {
 
   // ─── Render ──────────────────────────────────────────────────────────────
 
+  useSincronizarTituloPaginaTopo(useMemo(() => ({
+    subtitulo: `${t('admin.financeiro-admin.subtitulo')} · Provider: ${provider}`,
+  }), [t, provider]))
+
   return (
     <>
       <PaginaGlobal
         className="ws-fade-up"
         layout="lista"
-        cabecalho={
-          <CabecalhoGlobal
-            titulo={t('admin.financeiro-admin.titulo')}
-            subtitulo={`${t('admin.financeiro-admin.subtitulo')} · Provider: ${provider}`}
-            icone={<Receipt weight="duotone" size={22} color="#818cf8" />}
-          />
-        }
         stats={
           <>
             <CardBasicoGlobal

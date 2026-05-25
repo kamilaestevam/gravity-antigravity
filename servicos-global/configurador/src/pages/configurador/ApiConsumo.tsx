@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { z } from 'zod'
 import { Pulse, ArrowClockwise } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
@@ -162,13 +161,6 @@ export function ApiConsumo() {
 
   return (
     <PaginaGlobal
-      cabecalho={
-        <CabecalhoGlobal
-          titulo="Consumo da API"
-          subtitulo="Historico detalhado de cada requisicao recebida pela API Gravity desta organizacao"
-          icone={<Pulse size={32} weight="duotone" />}
-        />
-      }
     >
       {erro && (
         <div role="alert" style={{

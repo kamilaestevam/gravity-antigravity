@@ -4,7 +4,6 @@ import { useUser } from '@clerk/clerk-react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Users, UserCircleCheck, PauseCircle, PlayCircle, PencilSimple, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, User, EnvelopeSimple, ShieldCheck, Crown, Buildings, ArrowClockwise } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
@@ -808,13 +807,6 @@ export function Usuarios() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Users weight="duotone" size={22} />}
-          titulo={t('workspace.users.titulo')}
-          subtitulo={t('workspace.users.subtitulo')}
-        />
-      }
       stats={
         <>
           <CardBasicoGlobal

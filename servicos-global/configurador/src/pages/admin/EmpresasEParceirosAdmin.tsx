@@ -24,7 +24,6 @@ import { Warning, Buildings, Globe, UsersThree, GlobeHemisphereWest, ChartPieSli
 import { useAuth } from '@clerk/clerk-react'
 import { z } from 'zod'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import { ModalOverlay } from '@nucleo/modal-global'
@@ -60,14 +59,7 @@ function derivarTiposEmpresa(e: EmpresaAdmin): string {
     .join(' + ') || '—'
 }
 
-const organizacoesListaSchema = z.object({
-  itens: z.array(z.object({
-    id_organizacao:   z.string(),
-    nome_organizacao: z.string(),
-  })),
-})
-
-// ─── Componente ──────────────────────────────────────────────────────────────
+import { buscarOrganizacoesAdmin } from '@gravity/shell'
 
 export function EmpresasEParceirosAdmin(): JSX.Element {
   const { getToken } = useAuth()
@@ -119,17 +111,7 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
 
   // ── Autocomplete de organizações ────────────────────────────────────────
   async function fetchOrganizacoes(busca: string): Promise<OrganizacaoOpcao[]> {
-    const token = await getToken()
-    const qs = new URLSearchParams()
-    if (busca) qs.set('busca', busca)
-    const res = await fetch(`/api/v1/admin/organizacoes${qs.toString() ? `?${qs}` : ''}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    if (!res.ok) return []
-    const raw = await res.json()
-    const parsed = organizacoesListaSchema.safeParse(raw)
-    if (!parsed.success) return []
-    return parsed.data.itens
+    return buscarOrganizacoesAdmin(getToken, { busca, somenteAtivas: false })
   }
 
   // ── Colunas (nome_organizacao sticky-left, clicável → /admin/organizacoes/:id)
@@ -195,13 +177,6 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
 
   return (
     <PaginaGlobal
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Buildings weight="duotone" size={20} />}
-          titulo="Empresas e Parceiros"
-          subtitulo="Visão cross-organização (SUPER_ADMIN / ADMIN Gravity)"
-        />
-      }
       stats={
         <>
           <CardBasicoGlobal

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { z } from 'zod'
 import { Plus, Trash, Copy, Key, Pulse } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
@@ -238,13 +237,6 @@ export function ApiTokens() {
 
   return (
     <PaginaGlobal
-      cabecalho={
-        <CabecalhoGlobal
-          titulo="Tokens de API"
-          subtitulo="Gere e gerencie tokens para integrar seus sistemas com a API Gravity"
-          icone={<Pulse size={32} weight="duotone" />}
-        />
-      }
     >
       {erro && (
         <div role="alert" style={{

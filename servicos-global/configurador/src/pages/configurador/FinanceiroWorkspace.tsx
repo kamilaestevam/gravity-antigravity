@@ -9,7 +9,6 @@ import {
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormulario } from '@nucleo/modal-formulario-global'
@@ -533,13 +532,6 @@ export function FinanceiroWorkspace() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          titulo={t('workspace.financial.titulo')}
-          subtitulo={t('workspace.financial.subtitulo')}
-          icone={<Receipt weight="duotone" size={22} color="#818cf8" />}
-        />
-      }
       stats={
         <>
           <CardBasicoGlobal

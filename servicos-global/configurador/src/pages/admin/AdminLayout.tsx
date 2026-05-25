@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom'
+import { NavLink, useNavigate, Navigate, useLocation } from 'react-router-dom'
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { LogoGlobal } from '@nucleo/logo-global'
@@ -38,10 +38,17 @@ import {
 import '../configurador/workspace.css'
 import '../configurador/gabi.css'
 import './admin.css'
+import { WsAreaConteudo } from '../../shared/WsAreaConteudo'
+import { resolverPageLabelTopo } from '../../shared/page-meta-topo'
 
 export function AdminLayout() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const pageLabel = useMemo(
+    () => resolverPageLabelTopo(pathname, t, 'admin'),
+    [pathname, t],
+  )
   const { user } = useUser()
   const { getToken } = useAuth()
 
@@ -217,7 +224,7 @@ export function AdminLayout() {
             currentProductId="admin"
             currentProductLabel="Admin Panel"
             currentProductColor="#10b981"
-            currentPageLabel="Admin Panel"
+            currentPageLabel={pageLabel}
             history={locHistory}
             nodes={adminEcosystemNodes}
             onNavigate={(node) => {
@@ -257,10 +264,7 @@ export function AdminLayout() {
           />
         </div>
 
-        {/* Page content rendered by child routes */}
-        <div className="ws-content">
-          <Outlet />
-        </div>
+        <WsAreaConteudo accentColor="#10b981" area="admin" />
       </div>
 
       <ModalTrocarOrganizacao

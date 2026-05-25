@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react'
+import React, { useState, useEffect, useCallback, useRef, lazy, Suspense, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ShieldCheck, ShieldWarning, ShieldSlash,
@@ -7,12 +7,12 @@ import {
   ClockCounterClockwise, Database, Certificate, HardDrives,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
+import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
 
 import type { AuditTrailStats } from './seguranca/AbaAuditTrail'
 
@@ -431,19 +431,15 @@ export function SegurancaAdmin() {
 
   const overallOk = health?.overall === 'OK'
 
+  useSincronizarTituloPaginaTopo(useMemo(() => ({
+    subtitulo: loading
+      ? t('admin.seguranca-admin.carregando')
+      : t('admin.seguranca-admin.subtitulo_template', { time: lastUpdate, interval: POLL_INTERVAL / 1000 }),
+  }), [loading, lastUpdate, t]))
+
   return (
     <PaginaGlobal
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          titulo={t('admin.seguranca-admin.titulo')}
-          subtitulo={
-            loading ? t('admin.seguranca-admin.carregando') :
-            t('admin.seguranca-admin.subtitulo_template', { time: lastUpdate, interval: POLL_INTERVAL / 1000 })
-          }
-          icone={<ShieldCheck weight="duotone" size={24} />}
-        />
-      }
       stats={
         <>
           {(() => {

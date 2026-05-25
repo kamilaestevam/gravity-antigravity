@@ -8,7 +8,6 @@ import {
   Pulse,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
@@ -232,13 +231,6 @@ export function MonitorLlmAdmin() {
 
   return (
     <PaginaGlobal
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Pulse weight="duotone" size={24} />}
-          titulo={t('admin.api-cockpit.titulo')}
-          subtitulo={t('admin.monitor-llm.subtitulo')}
-        />
-      }
       stats={
         <>
           <CardEstatisticaGlobal

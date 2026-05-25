@@ -882,13 +882,9 @@ body.light-theme .ws-profile-dropdown {
 }
 /* Override for light theme is handled in the light-theme block above */
 
-/* ws-page-header* removido — use @nucleo/cabecalho-global */
+/* ws-content — padding canônico em configurador-page-shell.css */
 
-/* Previne que as ações inseridas pelo CabecalhoGlobal nas páginas de conteúdo (como o Botão Salvar)
-   sejam sobrepostas pelas ações flutuantes da plataforma (Buscar, Perfil, etc) */
-.cg-header {
-  padding-right: 380px !important; 
-}
+/* cg-header removido — título migrado para ws-titulo-pagina (MenuTopoGlobal pattern) */
 
 
 /* ── Tenant chip ──────────────────────────────────────── */
@@ -959,12 +955,11 @@ body.light-theme .ws-profile-dropdown {
 }
 
 .ws-content {
-  padding: 24px 2rem 2rem;
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow-y: hidden; /* Cortamos o scroll daqui! Ele joga pro filho. */
+  overflow-y: hidden;
   overflow-x: clip;
 }
 
@@ -1025,9 +1020,9 @@ body.light-theme .ws-profile-dropdown {
   display: flex;
   align-items: flex-end;
   gap: 1rem;
-  /* Sticky abaixo do CabecalhoGlobal (74px) */
+  /* Sticky no topo da área de scroll (título já está fora, em ws-titulo-pagina) */
   position: sticky;
-  top: 74px;
+  top: 0;
   z-index: 40;
   /* Fundo cobre conteúdo que rola por baixo */
   background: var(--ws-bg-body);

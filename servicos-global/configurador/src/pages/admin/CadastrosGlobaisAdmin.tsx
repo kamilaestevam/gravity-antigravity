@@ -28,7 +28,6 @@ import {
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { z } from 'zod'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import {
   TabelaGlobal,
@@ -184,13 +183,6 @@ export default function CadastrosGlobaisAdmin() {
   return (
     <PaginaGlobal
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          titulo="Cadastros Globais"
-          subtitulo="Catálogos compartilhados por todas as organizações (NCM, Moedas, Unidades). Somente leitura nesta onda."
-          icone={<Database weight="duotone" size={22} />}
-        />
-      }
       toolbar={
         <>
           {/* ── Abas ── */}

@@ -15,7 +15,6 @@ import {
 } from '../services/api-client'
 
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -468,13 +467,8 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Buildings weight="duotone" size={24} />}
           titulo="Organizações"
           subtitulo="Gerencie as organizações e seus workspaces e usuários."
-        />
-      }
       stats={
         stats ? (
           <>

@@ -9,7 +9,6 @@ import {
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
@@ -711,13 +710,6 @@ export function UsuariosAdmin() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Users weight="duotone" size={22} />}
-          titulo={t('admin.usuarios-globais.titulo')}
-          subtitulo={t('admin.usuarios-globais.subtitulo')}
-        />
-      }
       stats={
         <>
           <CardBasicoGlobal

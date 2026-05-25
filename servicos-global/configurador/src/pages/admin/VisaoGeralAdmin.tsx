@@ -12,7 +12,6 @@ import {
 import { useTranslation } from 'react-i18next'
 import { useUser } from '@clerk/clerk-react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
 import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
@@ -171,13 +170,6 @@ export function VisaoGeralAdmin() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="formulario"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Crown weight="duotone" size={22} />}
-          titulo={t('admin.visao-geral.titulo')}
-          subtitulo={t('admin.visao-geral.subtitulo')}
-        />
-      }
     >
       {/* ── Identity card ─────── */}
       <div className="em-identity ws-fade-up">

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Brain, Coin, Clock, ChartBar } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { adminMetricasLlmApi } from '../../services/api-client'
@@ -69,13 +68,6 @@ export function MetricasLLMAdmin() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Brain weight="duotone" size={22} />}
-          titulo={t('admin.gemini.titulo')}
-          subtitulo={t('admin.gemini.subtitulo')}
-        />
-      }
       stats={
         <>
           <CardBasicoGlobal

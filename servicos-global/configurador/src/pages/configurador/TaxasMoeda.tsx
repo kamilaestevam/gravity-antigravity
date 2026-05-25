@@ -11,7 +11,6 @@ import {
 } from '@phosphor-icons/react'
 import { z } from 'zod'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
@@ -487,13 +486,6 @@ export function TaxasMoeda() {
       `}</style>
       <PaginaGlobal
         layout="lista"
-        cabecalho={
-          <CabecalhoGlobal
-            titulo="Taxas de Moeda"
-            subtitulo="Cotações PTAX oficiais e projeções de câmbio do BACEN Focus"
-            icone={<CurrencyCircleDollar weight="duotone" size={22} color="#818cf8" />}
-          />
-        }
         stats={
           abaAtiva === 'atual' ? (
             <>

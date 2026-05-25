@@ -2,7 +2,7 @@ name: Gravity Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [master, main]
 
 env:
   NODE_VERSION: "20"

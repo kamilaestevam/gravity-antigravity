@@ -55,7 +55,7 @@
     "dev:reset": "npx tsx scripts/ativamente/dev-reset.ts",
     "db:compose": "npx ts-node scripts/ativamente/compose-plataforma-schema.ts",
     "db:migrate:dev": "npm run db:compose && npx prisma migrate dev --schema=configurador/prisma/schema.prisma && npx prisma migrate dev --schema=servicos-global/servicos-plataforma/prisma/schema.prisma",
-    "db:migrate:deploy": "npx prisma migrate deploy --schema=configurador/prisma/schema.prisma && npx prisma migrate deploy --schema=servicos-global/servicos-plataforma/prisma/schema.prisma",
+    "db:migrate:deploy": "npx tsx scripts/ativamente/compose-cadastros-schema.ts && npx prisma migrate deploy --schema=servicos-global/cadastros/prisma/schema.prisma && npx prisma migrate deploy --schema=configurador/prisma/schema.prisma && npx prisma migrate deploy --schema=servicos-global/servicos-plataforma/prisma/schema.prisma",
     "db:seed:staging": "npx ts-node scripts/ativamente/seed-staging.ts",
     "db:apply-rls": "railway run psql $ORGANIZACAO_DATABASE_URL -f scripts/ativamente/apply-rls.sql",
     "translate": "npx tsx scripts/ativamente/translate.ts",

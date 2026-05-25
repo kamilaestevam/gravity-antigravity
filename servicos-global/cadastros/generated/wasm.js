@@ -122,6 +122,39 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.EmpresaScalarFieldEnum = {
+  id_empresa: 'id_empresa',
+  id_organizacao_empresa: 'id_organizacao_empresa',
+  nome_empresa: 'nome_empresa',
+  cnpj_empresa: 'cnpj_empresa',
+  tin_empresa: 'tin_empresa',
+  pais_empresa: 'pais_empresa',
+  estado_provincia_empresa: 'estado_provincia_empresa',
+  cidade_empresa: 'cidade_empresa',
+  endereco_empresa: 'endereco_empresa',
+  cep_zipcode_empresa: 'cep_zipcode_empresa',
+  email_principal_empresa: 'email_principal_empresa',
+  telefone_principal_empresa: 'telefone_principal_empresa',
+  whatsapp_principal_empresa: 'whatsapp_principal_empresa',
+  pode_ser_importador_empresa: 'pode_ser_importador_empresa',
+  pode_ser_exportador_empresa: 'pode_ser_exportador_empresa',
+  pode_ser_fabricante_empresa: 'pode_ser_fabricante_empresa',
+  pode_ser_agente_empresa: 'pode_ser_agente_empresa',
+  pode_ser_despachante_empresa: 'pode_ser_despachante_empresa',
+  pode_ser_armador_empresa: 'pode_ser_armador_empresa',
+  pode_ser_cia_aerea_empresa: 'pode_ser_cia_aerea_empresa',
+  pode_ser_transportadora_rodoviaria_nacional_empresa: 'pode_ser_transportadora_rodoviaria_nacional_empresa',
+  pode_ser_transportadora_rodoviaria_internacional_empresa: 'pode_ser_transportadora_rodoviaria_internacional_empresa',
+  pode_ser_armazem_alfandegado_empresa: 'pode_ser_armazem_alfandegado_empresa',
+  pode_ser_armazem_nacional_empresa: 'pode_ser_armazem_nacional_empresa',
+  pode_ser_banco_empresa: 'pode_ser_banco_empresa',
+  pode_ser_seguradora_internacional_empresa: 'pode_ser_seguradora_internacional_empresa',
+  pode_ser_seguradora_corretora_cambio_empresa: 'pode_ser_seguradora_corretora_cambio_empresa',
+  ativo_empresa: 'ativo_empresa',
+  criado_em_empresa: 'criado_em_empresa',
+  atualizado_em_empresa: 'atualizado_em_empresa'
+};
+
 exports.Prisma.FornecedorScalarFieldEnum = {
   id_fornecedor: 'id_fornecedor',
   id_organizacao_cadastro_fornecedor: 'id_organizacao_cadastro_fornecedor',
@@ -384,6 +417,7 @@ exports.NcmSyncOrigemSincronizacao = exports.$Enums.NcmSyncOrigemSincronizacao =
 };
 
 exports.Prisma.ModelName = {
+  Empresa: 'Empresa',
   Fornecedor: 'Fornecedor',
   FornecedorOrganizacao: 'FornecedorOrganizacao',
   Pais: 'Pais',

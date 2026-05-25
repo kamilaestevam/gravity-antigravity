@@ -14,6 +14,11 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
 
 
 /**
+ * Model Empresa
+ * 
+ */
+export type Empresa = $Result.DefaultSelection<Prisma.$EmpresaPayload>
+/**
  * Model Fornecedor
  * 
  */
@@ -178,8 +183,8 @@ export const NcmSyncOrigemSincronizacao: typeof $Enums.NcmSyncOrigemSincronizaca
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Fornecedors
- * const fornecedors = await prisma.fornecedor.findMany()
+ * // Fetch zero or more Empresas
+ * const empresas = await prisma.empresa.findMany()
  * ```
  *
  * 
@@ -199,8 +204,8 @@ export class PrismaClient<
    * @example
    * ```
    * const prisma = new PrismaClient()
-   * // Fetch zero or more Fornecedors
-   * const fornecedors = await prisma.fornecedor.findMany()
+   * // Fetch zero or more Empresas
+   * const empresas = await prisma.empresa.findMany()
    * ```
    *
    * 
@@ -295,6 +300,16 @@ export class PrismaClient<
   $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb, ExtArgs>
 
       /**
+   * `prisma.empresa`: Exposes CRUD operations for the **Empresa** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Empresas
+    * const empresas = await prisma.empresa.findMany()
+    * ```
+    */
+  get empresa(): Prisma.EmpresaDelegate<ExtArgs>;
+
+  /**
    * `prisma.fornecedor`: Exposes CRUD operations for the **Fornecedor** model.
     * Example usage:
     * ```ts
@@ -874,6 +889,7 @@ export namespace Prisma {
 
 
   export const ModelName: {
+    Empresa: 'Empresa',
     Fornecedor: 'Fornecedor',
     FornecedorOrganizacao: 'FornecedorOrganizacao',
     Pais: 'Pais',
@@ -903,10 +919,80 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "fornecedor" | "fornecedorOrganizacao" | "pais" | "moeda" | "unidade" | "incoterm" | "porto" | "aeroporto" | "container" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
+      modelProps: "empresa" | "fornecedor" | "fornecedorOrganizacao" | "pais" | "moeda" | "unidade" | "incoterm" | "porto" | "aeroporto" | "container" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
+      Empresa: {
+        payload: Prisma.$EmpresaPayload<ExtArgs>
+        fields: Prisma.EmpresaFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmpresaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmpresaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+          }
+          findFirst: {
+            args: Prisma.EmpresaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmpresaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+          }
+          findMany: {
+            args: Prisma.EmpresaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>[]
+          }
+          create: {
+            args: Prisma.EmpresaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+          }
+          createMany: {
+            args: Prisma.EmpresaCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmpresaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>[]
+          }
+          delete: {
+            args: Prisma.EmpresaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+          }
+          update: {
+            args: Prisma.EmpresaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+          }
+          deleteMany: {
+            args: Prisma.EmpresaDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmpresaUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.EmpresaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+          }
+          aggregate: {
+            args: Prisma.EmpresaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmpresa>
+          }
+          groupBy: {
+            args: Prisma.EmpresaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmpresaGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmpresaCountArgs<ExtArgs>
+            result: $Utils.Optional<EmpresaCountAggregateOutputType> | number
+          }
+        }
+      }
       Fornecedor: {
         payload: Prisma.$FornecedorPayload<ExtArgs>
         fields: Prisma.FornecedorFieldRefs
@@ -2077,6 +2163,1184 @@ export namespace Prisma {
   /**
    * Models
    */
+
+  /**
+   * Model Empresa
+   */
+
+  export type AggregateEmpresa = {
+    _count: EmpresaCountAggregateOutputType | null
+    _min: EmpresaMinAggregateOutputType | null
+    _max: EmpresaMaxAggregateOutputType | null
+  }
+
+  export type EmpresaMinAggregateOutputType = {
+    id_empresa: string | null
+    id_organizacao_empresa: string | null
+    nome_empresa: string | null
+    cnpj_empresa: string | null
+    tin_empresa: string | null
+    pais_empresa: string | null
+    estado_provincia_empresa: string | null
+    cidade_empresa: string | null
+    endereco_empresa: string | null
+    cep_zipcode_empresa: string | null
+    email_principal_empresa: string | null
+    telefone_principal_empresa: string | null
+    whatsapp_principal_empresa: string | null
+    pode_ser_importador_empresa: boolean | null
+    pode_ser_exportador_empresa: boolean | null
+    pode_ser_fabricante_empresa: boolean | null
+    pode_ser_agente_empresa: boolean | null
+    pode_ser_despachante_empresa: boolean | null
+    pode_ser_armador_empresa: boolean | null
+    pode_ser_cia_aerea_empresa: boolean | null
+    pode_ser_transportadora_rodoviaria_nacional_empresa: boolean | null
+    pode_ser_transportadora_rodoviaria_internacional_empresa: boolean | null
+    pode_ser_armazem_alfandegado_empresa: boolean | null
+    pode_ser_armazem_nacional_empresa: boolean | null
+    pode_ser_banco_empresa: boolean | null
+    pode_ser_seguradora_internacional_empresa: boolean | null
+    pode_ser_seguradora_corretora_cambio_empresa: boolean | null
+    ativo_empresa: boolean | null
+    criado_em_empresa: Date | null
+    atualizado_em_empresa: Date | null
+  }
+
+  export type EmpresaMaxAggregateOutputType = {
+    id_empresa: string | null
+    id_organizacao_empresa: string | null
+    nome_empresa: string | null
+    cnpj_empresa: string | null
+    tin_empresa: string | null
+    pais_empresa: string | null
+    estado_provincia_empresa: string | null
+    cidade_empresa: string | null
+    endereco_empresa: string | null
+    cep_zipcode_empresa: string | null
+    email_principal_empresa: string | null
+    telefone_principal_empresa: string | null
+    whatsapp_principal_empresa: string | null
+    pode_ser_importador_empresa: boolean | null
+    pode_ser_exportador_empresa: boolean | null
+    pode_ser_fabricante_empresa: boolean | null
+    pode_ser_agente_empresa: boolean | null
+    pode_ser_despachante_empresa: boolean | null
+    pode_ser_armador_empresa: boolean | null
+    pode_ser_cia_aerea_empresa: boolean | null
+    pode_ser_transportadora_rodoviaria_nacional_empresa: boolean | null
+    pode_ser_transportadora_rodoviaria_internacional_empresa: boolean | null
+    pode_ser_armazem_alfandegado_empresa: boolean | null
+    pode_ser_armazem_nacional_empresa: boolean | null
+    pode_ser_banco_empresa: boolean | null
+    pode_ser_seguradora_internacional_empresa: boolean | null
+    pode_ser_seguradora_corretora_cambio_empresa: boolean | null
+    ativo_empresa: boolean | null
+    criado_em_empresa: Date | null
+    atualizado_em_empresa: Date | null
+  }
+
+  export type EmpresaCountAggregateOutputType = {
+    id_empresa: number
+    id_organizacao_empresa: number
+    nome_empresa: number
+    cnpj_empresa: number
+    tin_empresa: number
+    pais_empresa: number
+    estado_provincia_empresa: number
+    cidade_empresa: number
+    endereco_empresa: number
+    cep_zipcode_empresa: number
+    email_principal_empresa: number
+    telefone_principal_empresa: number
+    whatsapp_principal_empresa: number
+    pode_ser_importador_empresa: number
+    pode_ser_exportador_empresa: number
+    pode_ser_fabricante_empresa: number
+    pode_ser_agente_empresa: number
+    pode_ser_despachante_empresa: number
+    pode_ser_armador_empresa: number
+    pode_ser_cia_aerea_empresa: number
+    pode_ser_transportadora_rodoviaria_nacional_empresa: number
+    pode_ser_transportadora_rodoviaria_internacional_empresa: number
+    pode_ser_armazem_alfandegado_empresa: number
+    pode_ser_armazem_nacional_empresa: number
+    pode_ser_banco_empresa: number
+    pode_ser_seguradora_internacional_empresa: number
+    pode_ser_seguradora_corretora_cambio_empresa: number
+    ativo_empresa: number
+    criado_em_empresa: number
+    atualizado_em_empresa: number
+    _all: number
+  }
+
+
+  export type EmpresaMinAggregateInputType = {
+    id_empresa?: true
+    id_organizacao_empresa?: true
+    nome_empresa?: true
+    cnpj_empresa?: true
+    tin_empresa?: true
+    pais_empresa?: true
+    estado_provincia_empresa?: true
+    cidade_empresa?: true
+    endereco_empresa?: true
+    cep_zipcode_empresa?: true
+    email_principal_empresa?: true
+    telefone_principal_empresa?: true
+    whatsapp_principal_empresa?: true
+    pode_ser_importador_empresa?: true
+    pode_ser_exportador_empresa?: true
+    pode_ser_fabricante_empresa?: true
+    pode_ser_agente_empresa?: true
+    pode_ser_despachante_empresa?: true
+    pode_ser_armador_empresa?: true
+    pode_ser_cia_aerea_empresa?: true
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: true
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: true
+    pode_ser_armazem_alfandegado_empresa?: true
+    pode_ser_armazem_nacional_empresa?: true
+    pode_ser_banco_empresa?: true
+    pode_ser_seguradora_internacional_empresa?: true
+    pode_ser_seguradora_corretora_cambio_empresa?: true
+    ativo_empresa?: true
+    criado_em_empresa?: true
+    atualizado_em_empresa?: true
+  }
+
+  export type EmpresaMaxAggregateInputType = {
+    id_empresa?: true
+    id_organizacao_empresa?: true
+    nome_empresa?: true
+    cnpj_empresa?: true
+    tin_empresa?: true
+    pais_empresa?: true
+    estado_provincia_empresa?: true
+    cidade_empresa?: true
+    endereco_empresa?: true
+    cep_zipcode_empresa?: true
+    email_principal_empresa?: true
+    telefone_principal_empresa?: true
+    whatsapp_principal_empresa?: true
+    pode_ser_importador_empresa?: true
+    pode_ser_exportador_empresa?: true
+    pode_ser_fabricante_empresa?: true
+    pode_ser_agente_empresa?: true
+    pode_ser_despachante_empresa?: true
+    pode_ser_armador_empresa?: true
+    pode_ser_cia_aerea_empresa?: true
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: true
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: true
+    pode_ser_armazem_alfandegado_empresa?: true
+    pode_ser_armazem_nacional_empresa?: true
+    pode_ser_banco_empresa?: true
+    pode_ser_seguradora_internacional_empresa?: true
+    pode_ser_seguradora_corretora_cambio_empresa?: true
+    ativo_empresa?: true
+    criado_em_empresa?: true
+    atualizado_em_empresa?: true
+  }
+
+  export type EmpresaCountAggregateInputType = {
+    id_empresa?: true
+    id_organizacao_empresa?: true
+    nome_empresa?: true
+    cnpj_empresa?: true
+    tin_empresa?: true
+    pais_empresa?: true
+    estado_provincia_empresa?: true
+    cidade_empresa?: true
+    endereco_empresa?: true
+    cep_zipcode_empresa?: true
+    email_principal_empresa?: true
+    telefone_principal_empresa?: true
+    whatsapp_principal_empresa?: true
+    pode_ser_importador_empresa?: true
+    pode_ser_exportador_empresa?: true
+    pode_ser_fabricante_empresa?: true
+    pode_ser_agente_empresa?: true
+    pode_ser_despachante_empresa?: true
+    pode_ser_armador_empresa?: true
+    pode_ser_cia_aerea_empresa?: true
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: true
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: true
+    pode_ser_armazem_alfandegado_empresa?: true
+    pode_ser_armazem_nacional_empresa?: true
+    pode_ser_banco_empresa?: true
+    pode_ser_seguradora_internacional_empresa?: true
+    pode_ser_seguradora_corretora_cambio_empresa?: true
+    ativo_empresa?: true
+    criado_em_empresa?: true
+    atualizado_em_empresa?: true
+    _all?: true
+  }
+
+  export type EmpresaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Empresa to aggregate.
+     */
+    where?: EmpresaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Empresas to fetch.
+     */
+    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmpresaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Empresas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Empresas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Empresas
+    **/
+    _count?: true | EmpresaCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmpresaMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmpresaMaxAggregateInputType
+  }
+
+  export type GetEmpresaAggregateType<T extends EmpresaAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmpresa]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmpresa[P]>
+      : GetScalarType<T[P], AggregateEmpresa[P]>
+  }
+
+
+
+
+  export type EmpresaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmpresaWhereInput
+    orderBy?: EmpresaOrderByWithAggregationInput | EmpresaOrderByWithAggregationInput[]
+    by: EmpresaScalarFieldEnum[] | EmpresaScalarFieldEnum
+    having?: EmpresaScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmpresaCountAggregateInputType | true
+    _min?: EmpresaMinAggregateInputType
+    _max?: EmpresaMaxAggregateInputType
+  }
+
+  export type EmpresaGroupByOutputType = {
+    id_empresa: string
+    id_organizacao_empresa: string
+    nome_empresa: string
+    cnpj_empresa: string | null
+    tin_empresa: string | null
+    pais_empresa: string
+    estado_provincia_empresa: string | null
+    cidade_empresa: string | null
+    endereco_empresa: string | null
+    cep_zipcode_empresa: string | null
+    email_principal_empresa: string | null
+    telefone_principal_empresa: string | null
+    whatsapp_principal_empresa: string | null
+    pode_ser_importador_empresa: boolean
+    pode_ser_exportador_empresa: boolean
+    pode_ser_fabricante_empresa: boolean
+    pode_ser_agente_empresa: boolean
+    pode_ser_despachante_empresa: boolean
+    pode_ser_armador_empresa: boolean
+    pode_ser_cia_aerea_empresa: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa: boolean
+    pode_ser_armazem_alfandegado_empresa: boolean
+    pode_ser_armazem_nacional_empresa: boolean
+    pode_ser_banco_empresa: boolean
+    pode_ser_seguradora_internacional_empresa: boolean
+    pode_ser_seguradora_corretora_cambio_empresa: boolean
+    ativo_empresa: boolean
+    criado_em_empresa: Date
+    atualizado_em_empresa: Date
+    _count: EmpresaCountAggregateOutputType | null
+    _min: EmpresaMinAggregateOutputType | null
+    _max: EmpresaMaxAggregateOutputType | null
+  }
+
+  type GetEmpresaGroupByPayload<T extends EmpresaGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmpresaGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmpresaGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmpresaGroupByOutputType[P]>
+            : GetScalarType<T[P], EmpresaGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmpresaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_empresa?: boolean
+    id_organizacao_empresa?: boolean
+    nome_empresa?: boolean
+    cnpj_empresa?: boolean
+    tin_empresa?: boolean
+    pais_empresa?: boolean
+    estado_provincia_empresa?: boolean
+    cidade_empresa?: boolean
+    endereco_empresa?: boolean
+    cep_zipcode_empresa?: boolean
+    email_principal_empresa?: boolean
+    telefone_principal_empresa?: boolean
+    whatsapp_principal_empresa?: boolean
+    pode_ser_importador_empresa?: boolean
+    pode_ser_exportador_empresa?: boolean
+    pode_ser_fabricante_empresa?: boolean
+    pode_ser_agente_empresa?: boolean
+    pode_ser_despachante_empresa?: boolean
+    pode_ser_armador_empresa?: boolean
+    pode_ser_cia_aerea_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
+    pode_ser_armazem_alfandegado_empresa?: boolean
+    pode_ser_armazem_nacional_empresa?: boolean
+    pode_ser_banco_empresa?: boolean
+    pode_ser_seguradora_internacional_empresa?: boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: boolean
+    atualizado_em_empresa?: boolean
+  }, ExtArgs["result"]["empresa"]>
+
+  export type EmpresaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_empresa?: boolean
+    id_organizacao_empresa?: boolean
+    nome_empresa?: boolean
+    cnpj_empresa?: boolean
+    tin_empresa?: boolean
+    pais_empresa?: boolean
+    estado_provincia_empresa?: boolean
+    cidade_empresa?: boolean
+    endereco_empresa?: boolean
+    cep_zipcode_empresa?: boolean
+    email_principal_empresa?: boolean
+    telefone_principal_empresa?: boolean
+    whatsapp_principal_empresa?: boolean
+    pode_ser_importador_empresa?: boolean
+    pode_ser_exportador_empresa?: boolean
+    pode_ser_fabricante_empresa?: boolean
+    pode_ser_agente_empresa?: boolean
+    pode_ser_despachante_empresa?: boolean
+    pode_ser_armador_empresa?: boolean
+    pode_ser_cia_aerea_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
+    pode_ser_armazem_alfandegado_empresa?: boolean
+    pode_ser_armazem_nacional_empresa?: boolean
+    pode_ser_banco_empresa?: boolean
+    pode_ser_seguradora_internacional_empresa?: boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: boolean
+    atualizado_em_empresa?: boolean
+  }, ExtArgs["result"]["empresa"]>
+
+  export type EmpresaSelectScalar = {
+    id_empresa?: boolean
+    id_organizacao_empresa?: boolean
+    nome_empresa?: boolean
+    cnpj_empresa?: boolean
+    tin_empresa?: boolean
+    pais_empresa?: boolean
+    estado_provincia_empresa?: boolean
+    cidade_empresa?: boolean
+    endereco_empresa?: boolean
+    cep_zipcode_empresa?: boolean
+    email_principal_empresa?: boolean
+    telefone_principal_empresa?: boolean
+    whatsapp_principal_empresa?: boolean
+    pode_ser_importador_empresa?: boolean
+    pode_ser_exportador_empresa?: boolean
+    pode_ser_fabricante_empresa?: boolean
+    pode_ser_agente_empresa?: boolean
+    pode_ser_despachante_empresa?: boolean
+    pode_ser_armador_empresa?: boolean
+    pode_ser_cia_aerea_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
+    pode_ser_armazem_alfandegado_empresa?: boolean
+    pode_ser_armazem_nacional_empresa?: boolean
+    pode_ser_banco_empresa?: boolean
+    pode_ser_seguradora_internacional_empresa?: boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: boolean
+    atualizado_em_empresa?: boolean
+  }
+
+
+  export type $EmpresaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Empresa"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_empresa: string
+      id_organizacao_empresa: string
+      nome_empresa: string
+      cnpj_empresa: string | null
+      tin_empresa: string | null
+      pais_empresa: string
+      estado_provincia_empresa: string | null
+      cidade_empresa: string | null
+      endereco_empresa: string | null
+      cep_zipcode_empresa: string | null
+      email_principal_empresa: string | null
+      telefone_principal_empresa: string | null
+      whatsapp_principal_empresa: string | null
+      pode_ser_importador_empresa: boolean
+      pode_ser_exportador_empresa: boolean
+      pode_ser_fabricante_empresa: boolean
+      pode_ser_agente_empresa: boolean
+      pode_ser_despachante_empresa: boolean
+      pode_ser_armador_empresa: boolean
+      pode_ser_cia_aerea_empresa: boolean
+      pode_ser_transportadora_rodoviaria_nacional_empresa: boolean
+      pode_ser_transportadora_rodoviaria_internacional_empresa: boolean
+      pode_ser_armazem_alfandegado_empresa: boolean
+      pode_ser_armazem_nacional_empresa: boolean
+      pode_ser_banco_empresa: boolean
+      pode_ser_seguradora_internacional_empresa: boolean
+      pode_ser_seguradora_corretora_cambio_empresa: boolean
+      ativo_empresa: boolean
+      criado_em_empresa: Date
+      atualizado_em_empresa: Date
+    }, ExtArgs["result"]["empresa"]>
+    composites: {}
+  }
+
+  type EmpresaGetPayload<S extends boolean | null | undefined | EmpresaDefaultArgs> = $Result.GetResult<Prisma.$EmpresaPayload, S>
+
+  type EmpresaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<EmpresaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: EmpresaCountAggregateInputType | true
+    }
+
+  export interface EmpresaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Empresa'], meta: { name: 'Empresa' } }
+    /**
+     * Find zero or one Empresa that matches the filter.
+     * @param {EmpresaFindUniqueArgs} args - Arguments to find a Empresa
+     * @example
+     * // Get one Empresa
+     * const empresa = await prisma.empresa.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmpresaFindUniqueArgs>(args: SelectSubset<T, EmpresaFindUniqueArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Empresa that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {EmpresaFindUniqueOrThrowArgs} args - Arguments to find a Empresa
+     * @example
+     * // Get one Empresa
+     * const empresa = await prisma.empresa.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmpresaFindUniqueOrThrowArgs>(args: SelectSubset<T, EmpresaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Empresa that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpresaFindFirstArgs} args - Arguments to find a Empresa
+     * @example
+     * // Get one Empresa
+     * const empresa = await prisma.empresa.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmpresaFindFirstArgs>(args?: SelectSubset<T, EmpresaFindFirstArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Empresa that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpresaFindFirstOrThrowArgs} args - Arguments to find a Empresa
+     * @example
+     * // Get one Empresa
+     * const empresa = await prisma.empresa.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmpresaFindFirstOrThrowArgs>(args?: SelectSubset<T, EmpresaFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Empresas that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpresaFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Empresas
+     * const empresas = await prisma.empresa.findMany()
+     * 
+     * // Get first 10 Empresas
+     * const empresas = await prisma.empresa.findMany({ take: 10 })
+     * 
+     * // Only select the `id_empresa`
+     * const empresaWithId_empresaOnly = await prisma.empresa.findMany({ select: { id_empresa: true } })
+     * 
+     */
+    findMany<T extends EmpresaFindManyArgs>(args?: SelectSubset<T, EmpresaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Empresa.
+     * @param {EmpresaCreateArgs} args - Arguments to create a Empresa.
+     * @example
+     * // Create one Empresa
+     * const Empresa = await prisma.empresa.create({
+     *   data: {
+     *     // ... data to create a Empresa
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmpresaCreateArgs>(args: SelectSubset<T, EmpresaCreateArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Empresas.
+     * @param {EmpresaCreateManyArgs} args - Arguments to create many Empresas.
+     * @example
+     * // Create many Empresas
+     * const empresa = await prisma.empresa.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmpresaCreateManyArgs>(args?: SelectSubset<T, EmpresaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Empresas and returns the data saved in the database.
+     * @param {EmpresaCreateManyAndReturnArgs} args - Arguments to create many Empresas.
+     * @example
+     * // Create many Empresas
+     * const empresa = await prisma.empresa.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Empresas and only return the `id_empresa`
+     * const empresaWithId_empresaOnly = await prisma.empresa.createManyAndReturn({ 
+     *   select: { id_empresa: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmpresaCreateManyAndReturnArgs>(args?: SelectSubset<T, EmpresaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Empresa.
+     * @param {EmpresaDeleteArgs} args - Arguments to delete one Empresa.
+     * @example
+     * // Delete one Empresa
+     * const Empresa = await prisma.empresa.delete({
+     *   where: {
+     *     // ... filter to delete one Empresa
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmpresaDeleteArgs>(args: SelectSubset<T, EmpresaDeleteArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Empresa.
+     * @param {EmpresaUpdateArgs} args - Arguments to update one Empresa.
+     * @example
+     * // Update one Empresa
+     * const empresa = await prisma.empresa.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmpresaUpdateArgs>(args: SelectSubset<T, EmpresaUpdateArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Empresas.
+     * @param {EmpresaDeleteManyArgs} args - Arguments to filter Empresas to delete.
+     * @example
+     * // Delete a few Empresas
+     * const { count } = await prisma.empresa.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmpresaDeleteManyArgs>(args?: SelectSubset<T, EmpresaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Empresas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpresaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Empresas
+     * const empresa = await prisma.empresa.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmpresaUpdateManyArgs>(args: SelectSubset<T, EmpresaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Empresa.
+     * @param {EmpresaUpsertArgs} args - Arguments to update or create a Empresa.
+     * @example
+     * // Update or create a Empresa
+     * const empresa = await prisma.empresa.upsert({
+     *   create: {
+     *     // ... data to create a Empresa
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Empresa we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmpresaUpsertArgs>(args: SelectSubset<T, EmpresaUpsertArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Empresas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpresaCountArgs} args - Arguments to filter Empresas to count.
+     * @example
+     * // Count the number of Empresas
+     * const count = await prisma.empresa.count({
+     *   where: {
+     *     // ... the filter for the Empresas we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmpresaCountArgs>(
+      args?: Subset<T, EmpresaCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmpresaCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Empresa.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpresaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmpresaAggregateArgs>(args: Subset<T, EmpresaAggregateArgs>): Prisma.PrismaPromise<GetEmpresaAggregateType<T>>
+
+    /**
+     * Group by Empresa.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpresaGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmpresaGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmpresaGroupByArgs['orderBy'] }
+        : { orderBy?: EmpresaGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmpresaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmpresaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Empresa model
+   */
+  readonly fields: EmpresaFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Empresa.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmpresaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Empresa model
+   */ 
+  interface EmpresaFieldRefs {
+    readonly id_empresa: FieldRef<"Empresa", 'String'>
+    readonly id_organizacao_empresa: FieldRef<"Empresa", 'String'>
+    readonly nome_empresa: FieldRef<"Empresa", 'String'>
+    readonly cnpj_empresa: FieldRef<"Empresa", 'String'>
+    readonly tin_empresa: FieldRef<"Empresa", 'String'>
+    readonly pais_empresa: FieldRef<"Empresa", 'String'>
+    readonly estado_provincia_empresa: FieldRef<"Empresa", 'String'>
+    readonly cidade_empresa: FieldRef<"Empresa", 'String'>
+    readonly endereco_empresa: FieldRef<"Empresa", 'String'>
+    readonly cep_zipcode_empresa: FieldRef<"Empresa", 'String'>
+    readonly email_principal_empresa: FieldRef<"Empresa", 'String'>
+    readonly telefone_principal_empresa: FieldRef<"Empresa", 'String'>
+    readonly whatsapp_principal_empresa: FieldRef<"Empresa", 'String'>
+    readonly pode_ser_importador_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_exportador_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_fabricante_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_agente_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_despachante_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_armador_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_cia_aerea_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_transportadora_rodoviaria_nacional_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_transportadora_rodoviaria_internacional_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_armazem_alfandegado_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_armazem_nacional_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_banco_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_seguradora_internacional_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_seguradora_corretora_cambio_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly ativo_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly criado_em_empresa: FieldRef<"Empresa", 'DateTime'>
+    readonly atualizado_em_empresa: FieldRef<"Empresa", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Empresa findUnique
+   */
+  export type EmpresaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empresa
+     */
+    select?: EmpresaSelect<ExtArgs> | null
+    /**
+     * Filter, which Empresa to fetch.
+     */
+    where: EmpresaWhereUniqueInput
+  }
+
+  /**
+   * Empresa findUniqueOrThrow
+   */
+  export type EmpresaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empresa
+     */
+    select?: EmpresaSelect<ExtArgs> | null
+    /**
+     * Filter, which Empresa to fetch.
+     */
+    where: EmpresaWhereUniqueInput
+  }
+
+  /**
+   * Empresa findFirst
+   */
+  export type EmpresaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empresa
+     */
+    select?: EmpresaSelect<ExtArgs> | null
+    /**
+     * Filter, which Empresa to fetch.
+     */
+    where?: EmpresaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Empresas to fetch.
+     */
+    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Empresas.
+     */
+    cursor?: EmpresaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Empresas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Empresas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Empresas.
+     */
+    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
+  }
+
+  /**
+   * Empresa findFirstOrThrow
+   */
+  export type EmpresaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empresa
+     */
+    select?: EmpresaSelect<ExtArgs> | null
+    /**
+     * Filter, which Empresa to fetch.
+     */
+    where?: EmpresaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Empresas to fetch.
+     */
+    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Empresas.
+     */
+    cursor?: EmpresaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Empresas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Empresas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Empresas.
+     */
+    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
+  }
+
+  /**
+   * Empresa findMany
+   */
+  export type EmpresaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empresa
+     */
+    select?: EmpresaSelect<ExtArgs> | null
+    /**
+     * Filter, which Empresas to fetch.
+     */
+    where?: EmpresaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Empresas to fetch.
+     */
+    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Empresas.
+     */
+    cursor?: EmpresaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Empresas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Empresas.
+     */
+    skip?: number
+    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
+  }
+
+  /**
+   * Empresa create
+   */
+  export type EmpresaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empresa
+     */
+    select?: EmpresaSelect<ExtArgs> | null
+    /**
+     * The data needed to create a Empresa.
+     */
+    data: XOR<EmpresaCreateInput, EmpresaUncheckedCreateInput>
+  }
+
+  /**
+   * Empresa createMany
+   */
+  export type EmpresaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Empresas.
+     */
+    data: EmpresaCreateManyInput | EmpresaCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Empresa createManyAndReturn
+   */
+  export type EmpresaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empresa
+     */
+    select?: EmpresaSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Empresas.
+     */
+    data: EmpresaCreateManyInput | EmpresaCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Empresa update
+   */
+  export type EmpresaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empresa
+     */
+    select?: EmpresaSelect<ExtArgs> | null
+    /**
+     * The data needed to update a Empresa.
+     */
+    data: XOR<EmpresaUpdateInput, EmpresaUncheckedUpdateInput>
+    /**
+     * Choose, which Empresa to update.
+     */
+    where: EmpresaWhereUniqueInput
+  }
+
+  /**
+   * Empresa updateMany
+   */
+  export type EmpresaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Empresas.
+     */
+    data: XOR<EmpresaUpdateManyMutationInput, EmpresaUncheckedUpdateManyInput>
+    /**
+     * Filter which Empresas to update
+     */
+    where?: EmpresaWhereInput
+  }
+
+  /**
+   * Empresa upsert
+   */
+  export type EmpresaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empresa
+     */
+    select?: EmpresaSelect<ExtArgs> | null
+    /**
+     * The filter to search for the Empresa to update in case it exists.
+     */
+    where: EmpresaWhereUniqueInput
+    /**
+     * In case the Empresa found by the `where` argument doesn't exist, create a new Empresa with this data.
+     */
+    create: XOR<EmpresaCreateInput, EmpresaUncheckedCreateInput>
+    /**
+     * In case the Empresa was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmpresaUpdateInput, EmpresaUncheckedUpdateInput>
+  }
+
+  /**
+   * Empresa delete
+   */
+  export type EmpresaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empresa
+     */
+    select?: EmpresaSelect<ExtArgs> | null
+    /**
+     * Filter which Empresa to delete.
+     */
+    where: EmpresaWhereUniqueInput
+  }
+
+  /**
+   * Empresa deleteMany
+   */
+  export type EmpresaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Empresas to delete
+     */
+    where?: EmpresaWhereInput
+  }
+
+  /**
+   * Empresa without action
+   */
+  export type EmpresaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empresa
+     */
+    select?: EmpresaSelect<ExtArgs> | null
+  }
+
 
   /**
    * Model Fornecedor
@@ -15665,6 +16929,42 @@ export namespace Prisma {
   export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+  export const EmpresaScalarFieldEnum: {
+    id_empresa: 'id_empresa',
+    id_organizacao_empresa: 'id_organizacao_empresa',
+    nome_empresa: 'nome_empresa',
+    cnpj_empresa: 'cnpj_empresa',
+    tin_empresa: 'tin_empresa',
+    pais_empresa: 'pais_empresa',
+    estado_provincia_empresa: 'estado_provincia_empresa',
+    cidade_empresa: 'cidade_empresa',
+    endereco_empresa: 'endereco_empresa',
+    cep_zipcode_empresa: 'cep_zipcode_empresa',
+    email_principal_empresa: 'email_principal_empresa',
+    telefone_principal_empresa: 'telefone_principal_empresa',
+    whatsapp_principal_empresa: 'whatsapp_principal_empresa',
+    pode_ser_importador_empresa: 'pode_ser_importador_empresa',
+    pode_ser_exportador_empresa: 'pode_ser_exportador_empresa',
+    pode_ser_fabricante_empresa: 'pode_ser_fabricante_empresa',
+    pode_ser_agente_empresa: 'pode_ser_agente_empresa',
+    pode_ser_despachante_empresa: 'pode_ser_despachante_empresa',
+    pode_ser_armador_empresa: 'pode_ser_armador_empresa',
+    pode_ser_cia_aerea_empresa: 'pode_ser_cia_aerea_empresa',
+    pode_ser_transportadora_rodoviaria_nacional_empresa: 'pode_ser_transportadora_rodoviaria_nacional_empresa',
+    pode_ser_transportadora_rodoviaria_internacional_empresa: 'pode_ser_transportadora_rodoviaria_internacional_empresa',
+    pode_ser_armazem_alfandegado_empresa: 'pode_ser_armazem_alfandegado_empresa',
+    pode_ser_armazem_nacional_empresa: 'pode_ser_armazem_nacional_empresa',
+    pode_ser_banco_empresa: 'pode_ser_banco_empresa',
+    pode_ser_seguradora_internacional_empresa: 'pode_ser_seguradora_internacional_empresa',
+    pode_ser_seguradora_corretora_cambio_empresa: 'pode_ser_seguradora_corretora_cambio_empresa',
+    ativo_empresa: 'ativo_empresa',
+    criado_em_empresa: 'criado_em_empresa',
+    atualizado_em_empresa: 'atualizado_em_empresa'
+  };
+
+  export type EmpresaScalarFieldEnum = (typeof EmpresaScalarFieldEnum)[keyof typeof EmpresaScalarFieldEnum]
+
+
   export const FornecedorScalarFieldEnum: {
     id_fornecedor: 'id_fornecedor',
     id_organizacao_cadastro_fornecedor: 'id_organizacao_cadastro_fornecedor',
@@ -16089,6 +17389,185 @@ export namespace Prisma {
    * Deep Input Types
    */
 
+
+  export type EmpresaWhereInput = {
+    AND?: EmpresaWhereInput | EmpresaWhereInput[]
+    OR?: EmpresaWhereInput[]
+    NOT?: EmpresaWhereInput | EmpresaWhereInput[]
+    id_empresa?: StringFilter<"Empresa"> | string
+    id_organizacao_empresa?: StringFilter<"Empresa"> | string
+    nome_empresa?: StringFilter<"Empresa"> | string
+    cnpj_empresa?: StringNullableFilter<"Empresa"> | string | null
+    tin_empresa?: StringNullableFilter<"Empresa"> | string | null
+    pais_empresa?: StringFilter<"Empresa"> | string
+    estado_provincia_empresa?: StringNullableFilter<"Empresa"> | string | null
+    cidade_empresa?: StringNullableFilter<"Empresa"> | string | null
+    endereco_empresa?: StringNullableFilter<"Empresa"> | string | null
+    cep_zipcode_empresa?: StringNullableFilter<"Empresa"> | string | null
+    email_principal_empresa?: StringNullableFilter<"Empresa"> | string | null
+    telefone_principal_empresa?: StringNullableFilter<"Empresa"> | string | null
+    whatsapp_principal_empresa?: StringNullableFilter<"Empresa"> | string | null
+    pode_ser_importador_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_exportador_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_fabricante_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_agente_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_despachante_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_armador_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_cia_aerea_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_armazem_alfandegado_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_armazem_nacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_banco_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolFilter<"Empresa"> | boolean
+    ativo_empresa?: BoolFilter<"Empresa"> | boolean
+    criado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
+    atualizado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
+  }
+
+  export type EmpresaOrderByWithRelationInput = {
+    id_empresa?: SortOrder
+    id_organizacao_empresa?: SortOrder
+    nome_empresa?: SortOrder
+    cnpj_empresa?: SortOrderInput | SortOrder
+    tin_empresa?: SortOrderInput | SortOrder
+    pais_empresa?: SortOrder
+    estado_provincia_empresa?: SortOrderInput | SortOrder
+    cidade_empresa?: SortOrderInput | SortOrder
+    endereco_empresa?: SortOrderInput | SortOrder
+    cep_zipcode_empresa?: SortOrderInput | SortOrder
+    email_principal_empresa?: SortOrderInput | SortOrder
+    telefone_principal_empresa?: SortOrderInput | SortOrder
+    whatsapp_principal_empresa?: SortOrderInput | SortOrder
+    pode_ser_importador_empresa?: SortOrder
+    pode_ser_exportador_empresa?: SortOrder
+    pode_ser_fabricante_empresa?: SortOrder
+    pode_ser_agente_empresa?: SortOrder
+    pode_ser_despachante_empresa?: SortOrder
+    pode_ser_armador_empresa?: SortOrder
+    pode_ser_cia_aerea_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
+    pode_ser_armazem_alfandegado_empresa?: SortOrder
+    pode_ser_armazem_nacional_empresa?: SortOrder
+    pode_ser_banco_empresa?: SortOrder
+    pode_ser_seguradora_internacional_empresa?: SortOrder
+    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
+  }
+
+  export type EmpresaWhereUniqueInput = Prisma.AtLeast<{
+    id_empresa?: string
+    id_organizacao_empresa?: string
+    id_organizacao_empresa_cnpj_empresa?: EmpresaId_organizacao_empresaCnpj_empresaCompoundUniqueInput
+    id_organizacao_empresa_tin_empresa_pais_empresa?: EmpresaId_organizacao_empresaTin_empresaPais_empresaCompoundUniqueInput
+    AND?: EmpresaWhereInput | EmpresaWhereInput[]
+    OR?: EmpresaWhereInput[]
+    NOT?: EmpresaWhereInput | EmpresaWhereInput[]
+    nome_empresa?: StringFilter<"Empresa"> | string
+    cnpj_empresa?: StringNullableFilter<"Empresa"> | string | null
+    tin_empresa?: StringNullableFilter<"Empresa"> | string | null
+    pais_empresa?: StringFilter<"Empresa"> | string
+    estado_provincia_empresa?: StringNullableFilter<"Empresa"> | string | null
+    cidade_empresa?: StringNullableFilter<"Empresa"> | string | null
+    endereco_empresa?: StringNullableFilter<"Empresa"> | string | null
+    cep_zipcode_empresa?: StringNullableFilter<"Empresa"> | string | null
+    email_principal_empresa?: StringNullableFilter<"Empresa"> | string | null
+    telefone_principal_empresa?: StringNullableFilter<"Empresa"> | string | null
+    whatsapp_principal_empresa?: StringNullableFilter<"Empresa"> | string | null
+    pode_ser_importador_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_exportador_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_fabricante_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_agente_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_despachante_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_armador_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_cia_aerea_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_armazem_alfandegado_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_armazem_nacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_banco_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolFilter<"Empresa"> | boolean
+    ativo_empresa?: BoolFilter<"Empresa"> | boolean
+    criado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
+    atualizado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
+  }, "id_empresa" | "id_organizacao_empresa" | "id_organizacao_empresa_cnpj_empresa" | "id_organizacao_empresa_tin_empresa_pais_empresa">
+
+  export type EmpresaOrderByWithAggregationInput = {
+    id_empresa?: SortOrder
+    id_organizacao_empresa?: SortOrder
+    nome_empresa?: SortOrder
+    cnpj_empresa?: SortOrderInput | SortOrder
+    tin_empresa?: SortOrderInput | SortOrder
+    pais_empresa?: SortOrder
+    estado_provincia_empresa?: SortOrderInput | SortOrder
+    cidade_empresa?: SortOrderInput | SortOrder
+    endereco_empresa?: SortOrderInput | SortOrder
+    cep_zipcode_empresa?: SortOrderInput | SortOrder
+    email_principal_empresa?: SortOrderInput | SortOrder
+    telefone_principal_empresa?: SortOrderInput | SortOrder
+    whatsapp_principal_empresa?: SortOrderInput | SortOrder
+    pode_ser_importador_empresa?: SortOrder
+    pode_ser_exportador_empresa?: SortOrder
+    pode_ser_fabricante_empresa?: SortOrder
+    pode_ser_agente_empresa?: SortOrder
+    pode_ser_despachante_empresa?: SortOrder
+    pode_ser_armador_empresa?: SortOrder
+    pode_ser_cia_aerea_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
+    pode_ser_armazem_alfandegado_empresa?: SortOrder
+    pode_ser_armazem_nacional_empresa?: SortOrder
+    pode_ser_banco_empresa?: SortOrder
+    pode_ser_seguradora_internacional_empresa?: SortOrder
+    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
+    _count?: EmpresaCountOrderByAggregateInput
+    _max?: EmpresaMaxOrderByAggregateInput
+    _min?: EmpresaMinOrderByAggregateInput
+  }
+
+  export type EmpresaScalarWhereWithAggregatesInput = {
+    AND?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
+    OR?: EmpresaScalarWhereWithAggregatesInput[]
+    NOT?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
+    id_empresa?: StringWithAggregatesFilter<"Empresa"> | string
+    id_organizacao_empresa?: StringWithAggregatesFilter<"Empresa"> | string
+    nome_empresa?: StringWithAggregatesFilter<"Empresa"> | string
+    cnpj_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    tin_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    pais_empresa?: StringWithAggregatesFilter<"Empresa"> | string
+    estado_provincia_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    cidade_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    endereco_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    cep_zipcode_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    email_principal_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    telefone_principal_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    whatsapp_principal_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    pode_ser_importador_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_exportador_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_fabricante_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_agente_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_despachante_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_armador_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_cia_aerea_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_armazem_alfandegado_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_armazem_nacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_banco_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    ativo_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    criado_em_empresa?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
+    atualizado_em_empresa?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
+  }
 
   export type FornecedorWhereInput = {
     AND?: FornecedorWhereInput | FornecedorWhereInput[]
@@ -17248,6 +18727,237 @@ export namespace Prisma {
     origem_ope_historico_status?: StringWithAggregatesFilter<"OPEHistoricoStatus"> | string
     payload_ope_historico_status?: JsonWithAggregatesFilter<"OPEHistoricoStatus">
     registrado_em_ope_historico_status?: DateTimeWithAggregatesFilter<"OPEHistoricoStatus"> | Date | string
+  }
+
+  export type EmpresaCreateInput = {
+    id_empresa: string
+    id_organizacao_empresa: string
+    nome_empresa: string
+    cnpj_empresa?: string | null
+    tin_empresa?: string | null
+    pais_empresa: string
+    estado_provincia_empresa?: string | null
+    cidade_empresa?: string | null
+    endereco_empresa?: string | null
+    cep_zipcode_empresa?: string | null
+    email_principal_empresa?: string | null
+    telefone_principal_empresa?: string | null
+    whatsapp_principal_empresa?: string | null
+    pode_ser_importador_empresa?: boolean
+    pode_ser_exportador_empresa?: boolean
+    pode_ser_fabricante_empresa?: boolean
+    pode_ser_agente_empresa?: boolean
+    pode_ser_despachante_empresa?: boolean
+    pode_ser_armador_empresa?: boolean
+    pode_ser_cia_aerea_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
+    pode_ser_armazem_alfandegado_empresa?: boolean
+    pode_ser_armazem_nacional_empresa?: boolean
+    pode_ser_banco_empresa?: boolean
+    pode_ser_seguradora_internacional_empresa?: boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: Date | string
+    atualizado_em_empresa?: Date | string
+  }
+
+  export type EmpresaUncheckedCreateInput = {
+    id_empresa: string
+    id_organizacao_empresa: string
+    nome_empresa: string
+    cnpj_empresa?: string | null
+    tin_empresa?: string | null
+    pais_empresa: string
+    estado_provincia_empresa?: string | null
+    cidade_empresa?: string | null
+    endereco_empresa?: string | null
+    cep_zipcode_empresa?: string | null
+    email_principal_empresa?: string | null
+    telefone_principal_empresa?: string | null
+    whatsapp_principal_empresa?: string | null
+    pode_ser_importador_empresa?: boolean
+    pode_ser_exportador_empresa?: boolean
+    pode_ser_fabricante_empresa?: boolean
+    pode_ser_agente_empresa?: boolean
+    pode_ser_despachante_empresa?: boolean
+    pode_ser_armador_empresa?: boolean
+    pode_ser_cia_aerea_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
+    pode_ser_armazem_alfandegado_empresa?: boolean
+    pode_ser_armazem_nacional_empresa?: boolean
+    pode_ser_banco_empresa?: boolean
+    pode_ser_seguradora_internacional_empresa?: boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: Date | string
+    atualizado_em_empresa?: Date | string
+  }
+
+  export type EmpresaUpdateInput = {
+    id_empresa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_empresa?: StringFieldUpdateOperationsInput | string
+    nome_empresa?: StringFieldUpdateOperationsInput | string
+    cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_empresa?: StringFieldUpdateOperationsInput | string
+    estado_provincia_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    cep_zipcode_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    email_principal_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_principal_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_principal_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
+    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmpresaUncheckedUpdateInput = {
+    id_empresa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_empresa?: StringFieldUpdateOperationsInput | string
+    nome_empresa?: StringFieldUpdateOperationsInput | string
+    cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_empresa?: StringFieldUpdateOperationsInput | string
+    estado_provincia_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    cep_zipcode_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    email_principal_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_principal_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_principal_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
+    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmpresaCreateManyInput = {
+    id_empresa: string
+    id_organizacao_empresa: string
+    nome_empresa: string
+    cnpj_empresa?: string | null
+    tin_empresa?: string | null
+    pais_empresa: string
+    estado_provincia_empresa?: string | null
+    cidade_empresa?: string | null
+    endereco_empresa?: string | null
+    cep_zipcode_empresa?: string | null
+    email_principal_empresa?: string | null
+    telefone_principal_empresa?: string | null
+    whatsapp_principal_empresa?: string | null
+    pode_ser_importador_empresa?: boolean
+    pode_ser_exportador_empresa?: boolean
+    pode_ser_fabricante_empresa?: boolean
+    pode_ser_agente_empresa?: boolean
+    pode_ser_despachante_empresa?: boolean
+    pode_ser_armador_empresa?: boolean
+    pode_ser_cia_aerea_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
+    pode_ser_armazem_alfandegado_empresa?: boolean
+    pode_ser_armazem_nacional_empresa?: boolean
+    pode_ser_banco_empresa?: boolean
+    pode_ser_seguradora_internacional_empresa?: boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: Date | string
+    atualizado_em_empresa?: Date | string
+  }
+
+  export type EmpresaUpdateManyMutationInput = {
+    id_empresa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_empresa?: StringFieldUpdateOperationsInput | string
+    nome_empresa?: StringFieldUpdateOperationsInput | string
+    cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_empresa?: StringFieldUpdateOperationsInput | string
+    estado_provincia_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    cep_zipcode_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    email_principal_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_principal_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_principal_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
+    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmpresaUncheckedUpdateManyInput = {
+    id_empresa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_empresa?: StringFieldUpdateOperationsInput | string
+    nome_empresa?: StringFieldUpdateOperationsInput | string
+    cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_empresa?: StringFieldUpdateOperationsInput | string
+    estado_provincia_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    cep_zipcode_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    email_principal_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_principal_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_principal_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
+    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FornecedorCreateInput = {
@@ -18664,15 +20374,183 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
+  export type EmpresaId_organizacao_empresaCnpj_empresaCompoundUniqueInput = {
+    id_organizacao_empresa: string
+    cnpj_empresa: string
+  }
+
+  export type EmpresaId_organizacao_empresaTin_empresaPais_empresaCompoundUniqueInput = {
+    id_organizacao_empresa: string
+    tin_empresa: string
+    pais_empresa: string
+  }
+
+  export type EmpresaCountOrderByAggregateInput = {
+    id_empresa?: SortOrder
+    id_organizacao_empresa?: SortOrder
+    nome_empresa?: SortOrder
+    cnpj_empresa?: SortOrder
+    tin_empresa?: SortOrder
+    pais_empresa?: SortOrder
+    estado_provincia_empresa?: SortOrder
+    cidade_empresa?: SortOrder
+    endereco_empresa?: SortOrder
+    cep_zipcode_empresa?: SortOrder
+    email_principal_empresa?: SortOrder
+    telefone_principal_empresa?: SortOrder
+    whatsapp_principal_empresa?: SortOrder
+    pode_ser_importador_empresa?: SortOrder
+    pode_ser_exportador_empresa?: SortOrder
+    pode_ser_fabricante_empresa?: SortOrder
+    pode_ser_agente_empresa?: SortOrder
+    pode_ser_despachante_empresa?: SortOrder
+    pode_ser_armador_empresa?: SortOrder
+    pode_ser_cia_aerea_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
+    pode_ser_armazem_alfandegado_empresa?: SortOrder
+    pode_ser_armazem_nacional_empresa?: SortOrder
+    pode_ser_banco_empresa?: SortOrder
+    pode_ser_seguradora_internacional_empresa?: SortOrder
+    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
+  }
+
+  export type EmpresaMaxOrderByAggregateInput = {
+    id_empresa?: SortOrder
+    id_organizacao_empresa?: SortOrder
+    nome_empresa?: SortOrder
+    cnpj_empresa?: SortOrder
+    tin_empresa?: SortOrder
+    pais_empresa?: SortOrder
+    estado_provincia_empresa?: SortOrder
+    cidade_empresa?: SortOrder
+    endereco_empresa?: SortOrder
+    cep_zipcode_empresa?: SortOrder
+    email_principal_empresa?: SortOrder
+    telefone_principal_empresa?: SortOrder
+    whatsapp_principal_empresa?: SortOrder
+    pode_ser_importador_empresa?: SortOrder
+    pode_ser_exportador_empresa?: SortOrder
+    pode_ser_fabricante_empresa?: SortOrder
+    pode_ser_agente_empresa?: SortOrder
+    pode_ser_despachante_empresa?: SortOrder
+    pode_ser_armador_empresa?: SortOrder
+    pode_ser_cia_aerea_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
+    pode_ser_armazem_alfandegado_empresa?: SortOrder
+    pode_ser_armazem_nacional_empresa?: SortOrder
+    pode_ser_banco_empresa?: SortOrder
+    pode_ser_seguradora_internacional_empresa?: SortOrder
+    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
+  }
+
+  export type EmpresaMinOrderByAggregateInput = {
+    id_empresa?: SortOrder
+    id_organizacao_empresa?: SortOrder
+    nome_empresa?: SortOrder
+    cnpj_empresa?: SortOrder
+    tin_empresa?: SortOrder
+    pais_empresa?: SortOrder
+    estado_provincia_empresa?: SortOrder
+    cidade_empresa?: SortOrder
+    endereco_empresa?: SortOrder
+    cep_zipcode_empresa?: SortOrder
+    email_principal_empresa?: SortOrder
+    telefone_principal_empresa?: SortOrder
+    whatsapp_principal_empresa?: SortOrder
+    pode_ser_importador_empresa?: SortOrder
+    pode_ser_exportador_empresa?: SortOrder
+    pode_ser_fabricante_empresa?: SortOrder
+    pode_ser_agente_empresa?: SortOrder
+    pode_ser_despachante_empresa?: SortOrder
+    pode_ser_armador_empresa?: SortOrder
+    pode_ser_cia_aerea_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
+    pode_ser_armazem_alfandegado_empresa?: SortOrder
+    pode_ser_armazem_nacional_empresa?: SortOrder
+    pode_ser_banco_empresa?: SortOrder
+    pode_ser_seguradora_internacional_empresa?: SortOrder
+    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
+  }
+
+  export type StringWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
   export type FornecedorOrganizacaoListRelationFilter = {
     every?: FornecedorOrganizacaoWhereInput
     some?: FornecedorOrganizacaoWhereInput
     none?: FornecedorOrganizacaoWhereInput
-  }
-
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
   }
 
   export type FornecedorOrganizacaoOrderByRelationAggregateInput = {
@@ -18793,64 +20671,6 @@ export namespace Prisma {
     ativo_fornecedor?: SortOrder
     criado_em_fornecedor?: SortOrder
     atualizado_em_fornecedor?: SortOrder
-  }
-
-  export type StringWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedStringFilter<$PrismaModel>
-    _max?: NestedStringFilter<$PrismaModel>
-  }
-
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type EnumTipoFornecedorOrganizacaoFilter<$PrismaModel = never> = {
@@ -19599,20 +21419,6 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: SortOrder
   }
 
-  export type FornecedorOrganizacaoCreateNestedManyWithoutFornecedorInput = {
-    create?: XOR<FornecedorOrganizacaoCreateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput> | FornecedorOrganizacaoCreateWithoutFornecedorInput[] | FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput[]
-    connectOrCreate?: FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput | FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput[]
-    createMany?: FornecedorOrganizacaoCreateManyFornecedorInputEnvelope
-    connect?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
-  }
-
-  export type FornecedorOrganizacaoUncheckedCreateNestedManyWithoutFornecedorInput = {
-    create?: XOR<FornecedorOrganizacaoCreateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput> | FornecedorOrganizacaoCreateWithoutFornecedorInput[] | FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput[]
-    connectOrCreate?: FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput | FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput[]
-    createMany?: FornecedorOrganizacaoCreateManyFornecedorInputEnvelope
-    connect?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
-  }
-
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -19627,6 +21433,20 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type FornecedorOrganizacaoCreateNestedManyWithoutFornecedorInput = {
+    create?: XOR<FornecedorOrganizacaoCreateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput> | FornecedorOrganizacaoCreateWithoutFornecedorInput[] | FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput[]
+    connectOrCreate?: FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput | FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput[]
+    createMany?: FornecedorOrganizacaoCreateManyFornecedorInputEnvelope
+    connect?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
+  }
+
+  export type FornecedorOrganizacaoUncheckedCreateNestedManyWithoutFornecedorInput = {
+    create?: XOR<FornecedorOrganizacaoCreateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput> | FornecedorOrganizacaoCreateWithoutFornecedorInput[] | FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput[]
+    connectOrCreate?: FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput | FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput[]
+    createMany?: FornecedorOrganizacaoCreateManyFornecedorInputEnvelope
+    connect?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
   }
 
   export type FornecedorOrganizacaoUpdateManyWithoutFornecedorNestedInput = {
@@ -20284,6 +22104,10 @@ export namespace Prisma {
      * @deprecated Use FornecedorCountOutputTypeDefaultArgs instead
      */
     export type FornecedorCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = FornecedorCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use EmpresaDefaultArgs instead
+     */
+    export type EmpresaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EmpresaDefaultArgs<ExtArgs>
     /**
      * @deprecated Use FornecedorDefaultArgs instead
      */

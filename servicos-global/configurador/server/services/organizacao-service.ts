@@ -6,7 +6,7 @@ import { createId } from '@paralleldrive/cuid2'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 import { logger } from '../lib/logger.js'
-import { criarFornecedor, compensarFornecedor } from './cadastros-client.js'
+import { criarEmpresa, compensarEmpresa } from './cadastros-client.js'
 import { securityAudit } from '../../../servicos-plataforma/historico-global/server/lib/securityAuditLogger.js'
 import {
   aoHabilitarProdutoNoWorkspace,
@@ -106,7 +106,7 @@ export const organizacaoService = {
    *   3. POST /empresas em Cadastros → recebe SUID.
    *   4. Abre transação local ($transaction) e cria Organizacao (com id pré-gerado e
    *      id_fornecedor preenchido) + Usuario + Assinatura + Workspace inicial.
-   *   5. Se transação local falhar: chama compensarFornecedor(suid) para hard-delete a
+   *   5. Se transação local falhar: chama compensarEmpresa(suid) para hard-delete a
    *      Empresa órfã em Cadastros. Falha dupla → log estruturado de dead-letter.
    */
   async createOrganizacao(input: CreateOrganizacaoInput) {
@@ -153,31 +153,31 @@ export const organizacaoService = {
     })
 
     // 3. Chamada inter-serviço (FORA do $transaction — não segurar conexão durante HTTP)
-    const fornecedorCadastros = await criarFornecedor(
+    const empresaCadastros = await criarEmpresa(
       {
         id_organizacao: novoIdOrganizacao,
-        nome_fornecedor: nome_organizacao,
-        cnpj_fornecedor: pais === 'BR' ? cnpj_organizacao ?? null : null,
-        pais_fornecedor: pais,
-        pode_ser_importador_fornecedor: true,
-        pode_ser_exportador_fornecedor: false,
-        pode_ser_fabricante_fornecedor: false,
-        pode_ser_agente_fornecedor: false,
-        pode_ser_despachante_fornecedor: false,
-        pode_ser_armador_fornecedor: false,
-        pode_ser_cia_aerea_fornecedor: false,
-        pode_ser_transportadora_rodoviaria_nacional_fornecedor: false,
-        pode_ser_transportadora_rodoviaria_internacional_fornecedor: false,
-        pode_ser_armazem_alfandegado_fornecedor: false,
-        pode_ser_armazem_nacional_fornecedor: false,
-        pode_ser_banco_fornecedor: false,
-        pode_ser_seguradora_internacional_fornecedor: false,
-        pode_ser_seguradora_corretora_cambio_fornecedor: false,
-        ativo_fornecedor: true,
+        nome_empresa: nome_organizacao,
+        cnpj_empresa: pais === 'BR' ? cnpj_organizacao ?? null : null,
+        pais_empresa: pais,
+        pode_ser_importador_empresa: true,
+        pode_ser_exportador_empresa: false,
+        pode_ser_fabricante_empresa: false,
+        pode_ser_agente_empresa: false,
+        pode_ser_despachante_empresa: false,
+        pode_ser_armador_empresa: false,
+        pode_ser_cia_aerea_empresa: false,
+        pode_ser_transportadora_rodoviaria_nacional_empresa: false,
+        pode_ser_transportadora_rodoviaria_internacional_empresa: false,
+        pode_ser_armazem_alfandegado_empresa: false,
+        pode_ser_armazem_nacional_empresa: false,
+        pode_ser_banco_empresa: false,
+        pode_ser_seguradora_internacional_empresa: false,
+        pode_ser_seguradora_corretora_cambio_empresa: false,
+        ativo_empresa: true,
       },
       cadastrosCtx,
     )
-    const suid = fornecedorCadastros.id_fornecedor
+    const suid = empresaCadastros.id_empresa
 
     // 4. Transação local — se falhar, compensamos a Empresa em Cadastros.
     // Workspace inicial recebe seu próprio subdomínio cross-tabela único (probe
@@ -245,7 +245,7 @@ export const organizacaoService = {
         causa,
       })
       // Compensação — não lança mesmo em falha (dead-letter no próprio método)
-      await compensarFornecedor(suid, cadastrosCtx, causa)
+      await compensarEmpresa(suid, cadastrosCtx, causa)
       throw err
     }
   },

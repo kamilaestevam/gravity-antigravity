@@ -25,11 +25,20 @@ cp -r packages/resolver-organizacao/dist node_modules/@gravity/resolver-organiza
 # 2. Generate Prisma clients for all databases
 npx prisma generate --schema=configurador/prisma/schema.prisma
 npx prisma generate --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
+npx tsx scripts/ativamente/compose-cadastros-schema.ts
 npx prisma generate --schema=servicos-global/cadastros/prisma/schema.prisma
 npx tsx scripts/ativamente/compose-pedido-schema.ts
 npx prisma generate --schema=servicos-global/produto/pedido/prisma/schema.prisma
 
-# 2a. Pedido — migrations (public template + schemas tenant_*)
+# 2a. Cadastros — migrations (tabela empresa, fornecedor, catálogos globais)
+if [ -n "$CADASTROS_DATABASE_URL" ]; then
+  echo "[build-site] Applying Cadastros migrations..."
+  npx prisma migrate deploy --schema=servicos-global/cadastros/prisma/schema.prisma
+else
+  echo "[build-site] CADASTROS_DATABASE_URL ausente — skip Cadastros migrations"
+fi
+
+# 2b. Pedido — migrations (public template + schemas tenant_*)
 if [ -n "$PEDIDO_DATABASE_URL" ]; then
   echo "[build-site] Applying Pedido migrations..."
   CONFIGURADOR_DATABASE_URL="${CONFIGURADOR_DATABASE_URL:-$DATABASE_URL}" \
@@ -38,7 +47,7 @@ else
   echo "[build-site] PEDIDO_DATABASE_URL ausente — skip Pedido migrations (roda no startup do servidor)"
 fi
 
-# 2b. Pedido's schema outputs to pedido/node_modules/.prisma/client/ but
+# 2c. Pedido's schema outputs to pedido/node_modules/.prisma/client/ but
 #     @prisma/client at root does require('.prisma/client') from root.
 #     Other services use custom output="../generated" so root is free.
 mkdir -p node_modules/.prisma

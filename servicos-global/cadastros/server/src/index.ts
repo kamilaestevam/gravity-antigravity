@@ -13,6 +13,7 @@ import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import { fornecedoresRouter } from './routes/fornecedores.js'
+import { empresasRouter } from './routes/empresas.js'
 import { moedasRouter } from './routes/moedas.js'
 import { unidadesRouter } from './routes/unidades.js'
 import { incotermsRouter } from './routes/incoterms.js'
@@ -45,8 +46,8 @@ app.use((req, _res, next) => {
   next()
 })
 
+app.use('/api/v1/empresas', empresasRouter)
 app.use('/api/v1/fornecedores', fornecedoresRouter)
-app.use('/api/v1/empresas', fornecedoresRouter) // compat legado (Configurador proxy reescreve → /fornecedores)
 app.use('/api/v1/cadastros/moedas', moedasRouter)
 app.use('/api/v1/cadastros/unidades', unidadesRouter)
 app.use('/api/v1/cadastros/incoterms', incotermsRouter)

@@ -33,8 +33,9 @@ import {
   X,
   Bell,
 } from '@phosphor-icons/react'
-import { pedidoApi, pedidoConfigApi, kanbanConfigApi } from '../shared/api'
+import { pedidoApi, pedidoVirtualApi, pedidoConfigApi, kanbanConfigApi } from '../shared/api'
 import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
+import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
 import type { Pedido, PedidoStatus, PedidoStatusConfig, KanbanPreferencias, KanbanCardConfig } from '../shared/types'
 import { KANBAN_PADRAO, STATUS_PEDIDO_LABELS } from '../shared/types'
 import { computarColunasKanban, IS_READ_ONLY_MAP, COLUNAS_FALLBACK_SHAPE } from '../shared/kanbanUtils'
@@ -422,6 +423,13 @@ export default function PedidosKanban() {
   const { t } = useTranslation()
   const { podeEditar, carregando: carregandoPermissoes } = usePermissoesPedido()
   const podeEditarKanban = podeEditar('kanban')
+  const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
+  const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
+  const workspaceAtivo = useMemo(() => {
+    if (typeof sessionStorage === 'undefined') return ''
+    return sessionStorage.getItem('gravity_company_id') ?? ''
+  }, [])
+  const workspacesSelecionados = idsWorkspacesEscopo
   const [pedidos, setPedidos]           = useState<Pedido[]>([])
   const [statusConfig, setStatusConfig] = useState<PedidoStatusConfig[]>([])
   const [preferencias, setPreferencias] = useState<KanbanPreferencias | null>(null)
@@ -431,9 +439,18 @@ export default function PedidosKanban() {
   const { trackFilter } = useTrackBehavior()
 
   const carregar = useCallback(() => {
+    if (!escopoHidratado) return
+    if (workspacesSelecionados.length === 0) {
+      setPedidos([])
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
+    const idsWorkspacesFiltro = resolverIdsWorkspacesParaApi(workspacesSelecionados, workspaceAtivo)
+
     Promise.all([
-      pedidoApi.listar({ limit: '1000' }),
+      pedidoVirtualApi.listar({ limit: 1000, idsWorkspacesFiltro }),
       pedidoConfigApi.listarStatus().catch((err: unknown) => {
         console.error('[KANBAN] Falha ao carregar status config:', err instanceof Error ? err.message : err)
         return { data: [] as PedidoStatusConfig[] }
@@ -447,7 +464,7 @@ export default function PedidosKanban() {
       })
       .catch(() => setPedidos([]))
       .finally(() => setLoading(false))
-  }, [])
+  }, [escopoHidratado, workspacesSelecionados, workspaceAtivo])
 
   useEffect(() => { carregar() }, [carregar])
 

@@ -139,8 +139,8 @@ export function Onboarding() {
         throw new Error(mensagem)
       }
 
-      // Sucesso — redireciona para selecionar workspace (que agora tem 1 company)
-      window.location.href = '/selecionar-workspace'
+      // Sucesso — redireciona para o hub (workspace inicial já criado no backend)
+      window.location.href = '/hub'
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro inesperado. Verifique a conexao com o servidor.')

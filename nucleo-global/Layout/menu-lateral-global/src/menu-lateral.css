@@ -260,6 +260,20 @@
   min-width: 0;
 }
 
+.mlg-ws-item-info .tg-trigger {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.mlg-tenant-info .tg-trigger {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 .mlg-ws-item-name {
   font-size: 0.8125rem;
   font-weight: 600;

@@ -3450,11 +3450,30 @@ interface BarraAcoesPedidoProps {
   onLimparBusca: () => void
   /** Rótulo do escopo de workspaces (menu lateral) — chip informativo */
   rotuloEscopoWorkspaces?: string | null
+  /** Nomes completos para tooltip do chip de escopo */
+  tooltipEscopoWorkspaces?: React.ReactNode
   /** Abre o menu de workspaces no sidebar */
   onAbrirMenuWorkspaces?: () => void
   /** Abre o popover de filtro da coluna ao clicar no body do chip — UX 2026-05-13 */
   onFiltroColuna?: (key: string, anchor: HTMLElement) => void
   podeEditarLista: boolean
+}
+
+function ListaNumeradaWorkspacesTooltip({ nomes }: { nomes: readonly string[] }) {
+  if (nomes.length === 1) {
+    return <span>{nomes[0]}</span>
+  }
+
+  return (
+    <ul className="pedido-escopo-ws-tooltip-list">
+      {nomes.map((nome, indice) => (
+        <li key={`${indice}-${nome}`} className="pedido-escopo-ws-tooltip-item">
+          <span className="pedido-escopo-ws-tooltip-num" aria-hidden="true">{indice + 1}</span>
+          <span className="pedido-escopo-ws-tooltip-nome">{nome}</span>
+        </li>
+      ))}
+    </ul>
+  )
 }
 
 const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
@@ -3483,6 +3502,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   busca,
   onLimparBusca,
   rotuloEscopoWorkspaces,
+  tooltipEscopoWorkspaces,
   onAbrirMenuWorkspaces,
   onFiltroColuna,
   podeEditarLista,
@@ -3788,15 +3808,22 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           prefixo={(
             <>
               {rotuloEscopoWorkspaces ? (
-                <button
-                  type="button"
-                  className="fc-chip fc-chip--escopo fc-chip--escopo-btn"
-                  onClick={onAbrirMenuWorkspaces}
-                  title={t('pedido.lista.chip_escopo_workspaces_hint', { defaultValue: 'Alterar workspaces selecionados' })}
+                <TooltipGlobal
+                  titulo={t('pedido.lista.chip_escopo_workspaces', { defaultValue: 'Workspaces' })}
+                  descricao={tooltipEscopoWorkspaces ?? rotuloEscopoWorkspaces}
+                  interativo
+                  posicaoPreferida="abaixo"
                 >
-                  <span className="fc-chip-label">{t('pedido.lista.chip_escopo_workspaces', { defaultValue: 'Workspaces' })}:</span>
-                  <span className="fc-chip-valor">{rotuloEscopoWorkspaces}</span>
-                </button>
+                  <button
+                    type="button"
+                    className="fc-chip fc-chip--escopo fc-chip--escopo-btn"
+                    onClick={onAbrirMenuWorkspaces}
+                    aria-label={t('pedido.lista.chip_escopo_workspaces_hint', { defaultValue: 'Alterar workspaces selecionados' })}
+                  >
+                    <span className="fc-chip-label">{t('pedido.lista.chip_escopo_workspaces', { defaultValue: 'Workspaces' })}:</span>
+                    <span className="fc-chip-valor">{rotuloEscopoWorkspaces}</span>
+                  </button>
+                </TooltipGlobal>
               ) : null}
               {busca ? (
                 <span className="fc-chip">
@@ -4350,6 +4377,15 @@ export default function Pedidos() {
       defaultValue: `${nomes.length} selecionados`,
     })
   }, [escopoHidratado, workspacesSelecionados, workspacesMap, t])
+
+  const tooltipEscopoWorkspaces = useMemo(() => {
+    if (!escopoHidratado || workspacesSelecionados.length === 0) return null
+    const nomes = workspacesSelecionados
+      .map(id => workspacesMap.get(id)?.nome)
+      .filter((n): n is string => Boolean(n))
+    if (nomes.length === 0) return null
+    return <ListaNumeradaWorkspacesTooltip nomes={nomes} />
+  }, [escopoHidratado, workspacesSelecionados, workspacesMap])
 
   // ── Handlers de filtro ────────────────────────────────────────────────────────
   const handleAplicarFiltro = useCallback((campo: string, filtro: FiltroAtivo) => {
@@ -4924,13 +4960,14 @@ export default function Pedidos() {
         busca={busca}
         onLimparBusca={() => handleBuscar('')}
         rotuloEscopoWorkspaces={rotuloEscopoWorkspaces}
+        tooltipEscopoWorkspaces={tooltipEscopoWorkspaces}
         onAbrirMenuWorkspaces={pedirAbrirMenuWorkspaces}
         onFiltroColuna={onFiltroColuna}
         podeEditarLista={podeEditarLista}
       />
     </div>
   ), [
-    novoDropdownAberto, novoSubmenu, pedidosSelecionados, itensSelecionados, excluindoLote, filtrosAtivos, busca, rotuloEscopoWorkspaces, pedirAbrirMenuWorkspaces,
+    novoDropdownAberto, novoSubmenu, pedidosSelecionados, itensSelecionados, excluindoLote, filtrosAtivos, busca, rotuloEscopoWorkspaces, tooltipEscopoWorkspaces, pedirAbrirMenuWorkspaces,
     novoDropdownRef, setNovoDropdownAberto, setNovoSubmenu, setSmartImportAberto,
     setModalCockpitAberto, setModalNovoPedidoAberto, setModalNovoItemAberto,
     setModalTransferirAberto, setModalConsolidarAberto, setModalEdicaoMassaAberto,

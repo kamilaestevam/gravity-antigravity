@@ -59,6 +59,8 @@ export interface MenuLateralGlobalProps {
   dropdownCreateLabel?: string
   /** Label do botão gerenciar (padrão: "Gerenciar workspace") */
   dropdownManageLabel?: string
+  /** Título da tooltip do nome no dropdown (padrão: "Workspace") */
+  dropdownWorkspaceTooltipTitulo?: string
   defaultCollapsed?: boolean
   isCollapsed?: boolean
   onToggleCollapse?: () => void
@@ -83,6 +85,7 @@ export function MenuLateralGlobal({
   dropdownSearchPlaceholder = 'Buscar workspace…',
   dropdownCreateLabel = 'Criar workspace',
   dropdownManageLabel = 'Gerenciar workspace',
+  dropdownWorkspaceTooltipTitulo = 'Workspace',
   defaultCollapsed = false,
   isCollapsed: controlledIsCollapsed,
   onToggleCollapse,
@@ -113,6 +116,9 @@ export function MenuLateralGlobal({
   const idsFiltrados = filteredWorkspaces.map(w => w.id)
   const todosFiltradosSelecionados =
     idsFiltrados.length > 0 && idsFiltrados.every(id => workspacesEscopoIds.includes(id))
+
+  const descricaoTooltipWorkspace = (ws: WorkspaceItem) =>
+    ws.plan ? `${ws.name} · ${ws.plan}` : ws.name
 
   const isCollapsed = controlledIsCollapsed !== undefined ? controlledIsCollapsed : internalCollapsed
   
@@ -313,7 +319,12 @@ export function MenuLateralGlobal({
               {tenantName.charAt(0)}
             </div>
             <div className="mlg-tenant-info">
-              <span className="mlg-tenant-name">{tenantName}</span>
+              <TooltipGlobal
+                titulo={dropdownWorkspaceTooltipTitulo}
+                descricao={tenantPlan ? `${tenantName} · ${tenantPlan}` : tenantName}
+              >
+                <span className="mlg-tenant-name">{tenantName}</span>
+              </TooltipGlobal>
               <span className="mlg-tenant-plan">{tenantPlan}</span>
             </div>
             <CaretDown className={`mlg-tenant-chevron ${wsOpen ? 'open' : ''}`} size={13} weight="bold" />
@@ -384,8 +395,15 @@ export function MenuLateralGlobal({
                     {ws.name.charAt(0)}
                   </div>
                   <div className="mlg-ws-item-info">
-                    <span className="mlg-ws-item-name">{ws.name}</span>
-                    <span className="mlg-ws-item-plan">{ws.plan}</span>
+                    <TooltipGlobal
+                      titulo={dropdownWorkspaceTooltipTitulo}
+                      descricao={descricaoTooltipWorkspace(ws)}
+                    >
+                      <span className="mlg-ws-item-name">{ws.name}</span>
+                    </TooltipGlobal>
+                    {ws.plan ? (
+                      <span className="mlg-ws-item-plan">{ws.plan}</span>
+                    ) : null}
                   </div>
                   {!isMulti && isSelected && (
                     <Check size={13} weight="bold" style={{ color: moduleColor, flexShrink: 0 }} />

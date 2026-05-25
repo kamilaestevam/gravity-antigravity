@@ -80,9 +80,10 @@ import {
   useDashboardTopKpiStatus,
   type DashboardTopKpiWidgetId,
 } from '../shared/useDashboardTopKpiStatus'
-import { contagemPorStatusSlug, rotuloStatusSlug } from '../shared/dashboardStatusKpi'
+import { contagemPorStatusSlug, mapaRotulosStatusConfig, rotuloStatusSlug } from '../shared/dashboardStatusKpi'
+import { usePedidoStatus } from '../shared/queries'
 import { periodoEhPadrao, rotuloPeriodoDashboard, widgetUsaPeriodoProprio } from '../shared/dashboardPeriodoUtil'
-import '@nucleo/tabela-virtual-global/FiltrosColuna/FiltrosColuna.css'
+import '../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
 
 // ── Dados reais — converte resposta da API em WidgetResult ────────────────────
 
@@ -960,13 +961,12 @@ export default function PedidosDashboard() {
     { value: 'custom',        label: t('nucleo.dashboard.periodo.personalizado') },
   ], [t])
 
-  const statusConfig = useMemo((): Record<string, { label: string; cor: string }> => {
-    try {
-      const raw = localStorage.getItem('pedido:status_config')
-      if (raw) return JSON.parse(raw) as Record<string, { label: string; cor: string }>
-    } catch { /* fallback */ }
-    return {}
-  }, [])
+  const { data: statusApiRes } = usePedidoStatus({ staleTime: 0, refetchOnMount: 'always' })
+
+  const statusConfig = useMemo(
+    (): Record<string, { label: string; cor: string }> => mapaRotulosStatusConfig(statusApiRes?.data),
+    [statusApiRes],
+  )
 
   const handlePeriodChange = useCallback((period: string) => {
     setPeriod(period)

@@ -19,6 +19,8 @@ import { incotermsRouter } from './routes/incoterms.js'
 import { ncmRouter } from './routes/ncm.js'
 import { opeRouter } from './routes/ope.js'
 import { paisesRouter } from './routes/paises.js'
+import { portosRouter } from './routes/portos.js'
+import { aeroportosRouter } from './routes/aeroportos.js'
 import { adminNcmSyncRouter } from './routes/adminNcmSync.js'
 import { adminCertificadosRouter } from './routes/adminCertificados.js'
 import { adminFornecedoresRouter } from './routes/admin-fornecedores.js'
@@ -51,6 +53,8 @@ app.use('/api/v1/cadastros/incoterms', incotermsRouter)
 app.use('/api/v1/cadastros/ncm', ncmRouter)
 app.use('/api/v1/cadastros/operacoes-comex', opeRouter)
 app.use('/api/v1/cadastros/paises', paisesRouter)
+app.use('/api/v1/cadastros/portos', portosRouter)
+app.use('/api/v1/cadastros/aeroportos', aeroportosRouter)
 app.use('/api/v1/cadastros/fornecedores-organizacao', fornecedorOrganizacaoRouter)
 
 // Admin NCM Sync — chamado pelo configurador via S2S (x-internal-key).

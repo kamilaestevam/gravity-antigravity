@@ -16,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: test
-      CONFIGURADOR_DATABASE_URL: postgresql://test:test@localhost:5432/configurador_test
-      ORGANIZACAO_DATABASE_URL: postgresql://test:test@localhost:5432/organizacao_test
-      CLERK_SECRET_KEY: sk_test_placeholder
+      CONFIGURADOR_DATABASE_URL: postgresql://localhost:5432/configurador_test
+      ORGANIZACAO_DATABASE_URL: postgresql://localhost:5432/organizacao_test
+      CLERK_SECRET_KEY: ci_clerk_placeholder
       CHAVE_INTERNA_SERVICO: ci-internal-key
     steps:
       - uses: actions/checkout@v4
@@ -72,6 +72,7 @@ jobs:
           missing=""
           if [ -z "${{ secrets.STAGING_CONFIGURADOR_DATABASE_URL }}" ]; then missing="$missing STAGING_CONFIGURADOR_DATABASE_URL"; fi
           if [ -z "${{ secrets.STAGING_ORGANIZACAO_DATABASE_URL }}" ]; then missing="$missing STAGING_ORGANIZACAO_DATABASE_URL"; fi
+          if [ -z "${{ secrets.STAGING_PEDIDO_DATABASE_URL }}" ]; then missing="$missing STAGING_PEDIDO_DATABASE_URL"; fi
           if [ -z "${{ secrets.RAILWAY_TOKEN_STAGING }}" ]; then missing="$missing RAILWAY_TOKEN_STAGING"; fi
           if [ -z "${{ secrets.CLERK_SECRET_KEY }}" ]; then missing="$missing CLERK_SECRET_KEY"; fi
           if [ -n "$missing" ]; then echo "Missing required secrets:$missing"; exit 1; fi
@@ -96,6 +97,16 @@ jobs:
             --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
         env:
           DATABASE_URL: ${{ secrets.STAGING_ORGANIZACAO_DATABASE_URL }}
+
+      - name: Aplicar migrations — Pedido DB (Staging)
+        run: |
+          npx tsx scripts/ativamente/compose-pedido-schema.ts
+          npx prisma migrate deploy \
+            --schema=servicos-global/produto/pedido/prisma/schema.prisma
+          npx tsx scripts/ativamente/migrate-all-tenants.ts --product=pedido
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_PEDIDO_DATABASE_URL }}
+          CONFIGURADOR_DATABASE_URL: ${{ secrets.STAGING_CONFIGURADOR_DATABASE_URL }}
 
       - name: Registrar versão de staging (T26000001)
         run: |
@@ -198,10 +209,16 @@ jobs:
           missing=""
           if [ -z "${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}" ]; then missing="$missing PROD_CONFIGURADOR_DATABASE_URL"; fi
           if [ -z "${{ secrets.PROD_ORGANIZACAO_DATABASE_URL }}" ]; then missing="$missing PROD_ORGANIZACAO_DATABASE_URL"; fi
+          if [ -z "${{ secrets.PROD_PEDIDO_DATABASE_URL }}" ]; then missing="$missing PROD_PEDIDO_DATABASE_URL"; fi
           if [ -z "${{ secrets.RAILWAY_TOKEN_PRODUCTION }}" ]; then missing="$missing RAILWAY_TOKEN_PRODUCTION"; fi
           if [ -z "${{ secrets.CLERK_SECRET_KEY }}" ]; then missing="$missing CLERK_SECRET_KEY"; fi
           if [ -n "$missing" ]; then echo "Missing required secrets:$missing"; exit 1; fi
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm install
 
       - name: Aplicar migrations — Configurador DB (Produção)
         run: |
@@ -216,6 +233,16 @@ jobs:
             --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
         env:
           DATABASE_URL: ${{ secrets.PROD_ORGANIZACAO_DATABASE_URL }}
+
+      - name: Aplicar migrations — Pedido DB (Produção)
+        run: |
+          npx tsx scripts/ativamente/compose-pedido-schema.ts
+          npx prisma migrate deploy \
+            --schema=servicos-global/produto/pedido/prisma/schema.prisma
+          npx tsx scripts/ativamente/migrate-all-tenants.ts --product=pedido
+        env:
+          DATABASE_URL: ${{ secrets.PROD_PEDIDO_DATABASE_URL }}
+          CONFIGURADOR_DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
 
       - name: Health check — Configurador (Produção)
         run: |

@@ -339,3 +339,66 @@ export async function buscarIncotermPorCodigo(
   const raw = await response.json()
   return incotermSchema.parse(raw)
 }
+
+async function buscarCadastroPorCodigo(
+  url: string,
+  ctx: CadastrosRequestContext,
+  rotulo: string,
+): Promise<Record<string, unknown> | null> {
+  let response: Response
+  try {
+    response = await fetch(url, {
+      method: 'GET',
+      headers: headersPadrao(ctx),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    })
+  } catch {
+    throw new AppError(503, 'Serviço Cadastros indisponível (rede/timeout)')
+  }
+
+  if (response.status === 404) return null
+
+  if (!response.ok) {
+    const corpo = await lerCorpoErro(response)
+    if (response.status >= 400 && response.status < 500) {
+      throw new AppError(response.status, `Cadastros rejeitou busca de ${rotulo}: ${corpo}`)
+    }
+    throw new AppError(503, `Cadastros falhou com status ${response.status}`)
+  }
+
+  const raw = await response.json()
+  return typeof raw === 'object' && raw !== null ? raw as Record<string, unknown> : null
+}
+
+export async function buscarPaisPorCodigo(
+  codigoPais: string,
+  ctx: CadastrosRequestContext,
+): Promise<Record<string, unknown> | null> {
+  return buscarCadastroPorCodigo(
+    `${getCadastrosUrl()}/api/v1/cadastros/paises/${encodeURIComponent(codigoPais)}`,
+    ctx,
+    'País',
+  )
+}
+
+export async function buscarPortoPorUnlocode(
+  codigoUnlocode: string,
+  ctx: CadastrosRequestContext,
+): Promise<Record<string, unknown> | null> {
+  return buscarCadastroPorCodigo(
+    `${getCadastrosUrl()}/api/v1/cadastros/portos/${encodeURIComponent(codigoUnlocode)}`,
+    ctx,
+    'Porto',
+  )
+}
+
+export async function buscarAeroportoPorCodigo(
+  codigoAeroporto: string,
+  ctx: CadastrosRequestContext,
+): Promise<Record<string, unknown> | null> {
+  return buscarCadastroPorCodigo(
+    `${getCadastrosUrl()}/api/v1/cadastros/aeroportos/${encodeURIComponent(codigoAeroporto)}`,
+    ctx,
+    'Aeroporto',
+  )
+}

@@ -150,6 +150,7 @@ import { setFormatoData, getPlaceholderData } from '../shared/useFormatoData'
 import { useUnidadesPedido } from '../shared/useUnidadesPedido'
 import { useIncotermsPedido } from '../shared/useIncotermsPedido'
 import { useMoedasPedido } from '../shared/useMoedasPedido'
+import { useLogisticaCadastrosPedido } from '../shared/useLogisticaCadastrosPedido'
 import type { OpcoesUnidadesColunas } from '../components/lista/ColunasPai'
 import './Pedidos.css'
 
@@ -430,6 +431,12 @@ const _COLUNAS_PADRAO_SEQUENCIA: string[] = [
   'referencia_importador',
   'referencia_exportador',
   'incoterm',
+  'porto_origem',
+  'porto_destino',
+  'local_de_origem',
+  'local_de_destino',
+  'aeroporto_origem',
+  'aeroporto_destino',
   'descricao_item',
   'ncm',
   'moeda_pedido',
@@ -3862,6 +3869,11 @@ export default function Pedidos() {
   const { incotermsOpcoes } = useIncotermsPedido()
   // Moedas — SSOT cadastros.moeda via hook (select inline em moeda_pedido).
   const { moedasOpcoes } = useMoedasPedido()
+  const {
+    paisesOpcoes: paisesLogisticaOpcoes,
+    portosOpcoes,
+    aeroportosOpcoes,
+  } = useLogisticaCadastrosPedido()
   // Workspaces disponíveis ao usuário — carregados de /api/v1/hub/init.
   // Usado em (i) FiltroMultiWorkspace e (ii) coluna "Workspace" da Lista.
   // Carregamento elevado aqui para evitar fetch duplicado.
@@ -3887,8 +3899,17 @@ export default function Pedidos() {
   }, [workspacesDisponiveis])
 
   const opcoesUnidadesColunas = useMemo<OpcoesUnidadesColunas>(
-    () => ({ unidadesPeso, unidadesCubagem, incotermsOpcoes, moedasOpcoes, workspacesMap }),
-    [unidadesPeso, unidadesCubagem, incotermsOpcoes, moedasOpcoes, workspacesMap],
+    () => ({
+      unidadesPeso,
+      unidadesCubagem,
+      incotermsOpcoes,
+      moedasOpcoes,
+      workspacesMap,
+      paisesOpcoes: paisesLogisticaOpcoes,
+      portosOpcoes,
+      aeroportosOpcoes,
+    }),
+    [unidadesPeso, unidadesCubagem, incotermsOpcoes, moedasOpcoes, workspacesMap, paisesLogisticaOpcoes, portosOpcoes, aeroportosOpcoes],
   )
   // Colunas pai reativas — rebuild quando o idioma muda OU quando o catálogo
   // de unidades do Cadastros termina de carregar (primeiro render: vazio).
@@ -3957,10 +3978,7 @@ export default function Pedidos() {
   // ── Escopo multi-workspace (menu lateral — SSOT do produto) ─────────────────
   const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
-  const workspaceAtivo = useMemo(() => {
-    if (typeof sessionStorage === 'undefined') return ''
-    return sessionStorage.getItem('gravity_company_id') ?? ''
-  }, [])
+  const workspaceAtivo = useShellStore(s => s.idWorkspaceAtivo ?? '')
   const pedirAbrirMenuWorkspaces = useEscopoWorkspacesPedido(s => s.pedirAbrirMenuWorkspaces)
   const workspacesSelecionados = idsWorkspacesEscopo
 
@@ -4555,6 +4573,8 @@ export default function Pedidos() {
 
   // ── Refs para evitar duplo carregamento ──────────────────────────────────────
   const carregandoRef = useRef(false)
+  /** Descarta respostas obsoletas quando escopo/filtros mudam durante fetch in-flight. */
+  const cargaListaSeqRef = useRef(0)
   // Cache de itens carregados por pedido: pedidoId → PedidoItem[]
   // Não-reativo: evita que setPedidos dispare re-loads em useGTExpandir
   const itensCarregadosRef = useRef<Map<string, PedidoItem[]>>(new Map())
@@ -4590,16 +4610,14 @@ export default function Pedidos() {
     }
 
     if (carregandoRef.current && !forcar) return
+    const seq = ++cargaListaSeqRef.current
     carregandoRef.current = true
     setCarregando(true)
     setErroCarga(null)
     setPaginaAtual(novaPagina)
     try {
-      // Filtro multi-workspace: envia query param sempre que a seleção do usuário
-      // diferir do default (= apenas o workspace ativo). Isso inclui:
-      //  - usuário escolheu OUTRO workspace único (ex: ativo=CDE, filtro=ABC)
-      //  - usuário escolheu múltiplos workspaces
-      // Quando seleção == [workspaceAtivo] o header x-id-workspace cuida sozinho.
+      // Filtro multi-workspace: envia query param quando a seleção difere do
+      // default (= só o workspace ativo) e quando NÃO são todos os disponíveis.
       const idsWorkspacesFiltro = resolverIdsWorkspacesParaApi(workspacesSelecionados, workspaceAtivo)
 
       const res = await pedidoVirtualApi.listar({
@@ -4611,6 +4629,7 @@ export default function Pedidos() {
         busca: novaBusca || undefined,
         idsWorkspacesFiltro,
       })
+      if (seq !== cargaListaSeqRef.current) return
       // Pré-computa flags de divergência no carregamento inicial — pedidos vem
       // com itens populados do backend (include itens_pedido na rota /listar).
       const pedidosComDivergencias = res.data.map(p => {
@@ -4623,6 +4642,7 @@ export default function Pedidos() {
       setTotal(res.total)
       setTotalItensBanco(res.totalItens ?? 0)
     } catch (err) {
+      if (seq !== cargaListaSeqRef.current) return
       // keepPreviousData: mantém os pedidos atualmente exibidos caso o fetch falhe
       // (ex: token Clerk expirando após idle timeout, race condition de refresh).
       // Sem isso, qualquer falha transitória zera a tela e mostra Empty State
@@ -4631,10 +4651,12 @@ export default function Pedidos() {
       // diferenciar "vazio legítimo" de "falhou ao carregar" (sem fallback silencioso).
       setErroCarga(err instanceof Error ? err.message : t('pedido.lista.erro.desconhecido'))
     } finally {
-      setCarregando(false)
-      carregandoRef.current = false
+      if (seq === cargaListaSeqRef.current) {
+        setCarregando(false)
+        carregandoRef.current = false
+      }
     }
-  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo])
+  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo, t])
 
   /** Mesmo padrão de Edição em Massa / Consolidar — limpa cache de filhos antes de listar. */
   const recarregarListaPosImportacao = useCallback(async () => {
@@ -4644,10 +4666,11 @@ export default function Pedidos() {
     await carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
   }, [carregarInicial, abaAtiva, sortCampo, sortDir, busca])
 
-  // Recarrega lista quando mudou escopo de workspaces (menu lateral)
+  // Recarrega lista quando mudou escopo de workspaces (menu lateral).
+  // forcar=true evita que um fetch in-flight (escopo antigo) bloqueie o reload.
   useEffect(() => {
     if (!idOrganizacao || !escopoHidratado) return
-    carregarInicial()
+    carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workspacesSelecionados, escopoHidratado])
 

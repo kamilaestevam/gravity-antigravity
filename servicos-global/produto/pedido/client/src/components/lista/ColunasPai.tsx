@@ -26,6 +26,7 @@ import {
   urlVincularExportador,
   urlVincularImportador,
 } from './urlsDeepLinkConfigurador'
+import { renderRotuloCadastro, type GTOpcaoCadastro } from '../../shared/useLogisticaCadastrosPedido'
 
 // Re-export so callers that used to import from ListaPedidos still work
 export { LABELS_FILTRO_INVERSO }
@@ -299,10 +300,22 @@ export interface OpcoesUnidadesColunas {
    * a coluna mostra o próprio id_workspace como fallback.
    */
   workspacesMap?: Map<string, { nome: string; cnpj?: string | null }>
+  paisesOpcoes?: GTOpcaoCadastro[]
+  portosOpcoes?: GTOpcaoCadastro[]
+  aeroportosOpcoes?: GTOpcaoCadastro[]
 }
 
 export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GTColuna<Pedido>[] {
-  const { unidadesPeso, unidadesCubagem, incotermsOpcoes, moedasOpcoes, workspacesMap } = opcoes
+  const {
+    unidadesPeso,
+    unidadesCubagem,
+    incotermsOpcoes,
+    moedasOpcoes,
+    workspacesMap,
+    paisesOpcoes = [],
+    portosOpcoes = [],
+    aeroportosOpcoes = [],
+  } = opcoes
 
   const colunas: GTColuna<Pedido>[] = [
   {
@@ -802,6 +815,108 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     align: 'center',
     render: (_val: unknown, row: Pedido) =>
       renderAgregado(row.incoterm, row.incoterm_divergente, t('pedido.coluna_pai.incoterms_divergentes')),
+  },
+  {
+    key: 'porto_origem',
+    label: t('pedido.coluna_pai.porto_origem'),
+    tipo: 'select',
+    opcoes: portosOpcoes,
+    filtravel: true,
+    editavel: getEditavel('porto_origem'),
+    campo: 'porto_origem',
+    tooltipTitulo: t('pedido.coluna_pai.porto_origem_titulo'),
+    tooltipDescricao: t('pedido.coluna_pai.porto_origem_desc'),
+    grupo: 'Logística',
+    render: (_val: unknown, row: Pedido) =>
+      renderTextoTruncado(
+        renderRotuloCadastro(row.porto_origem, portosOpcoes, t('pedido.coluna_pai.porto_origem')),
+        t('pedido.coluna_pai.porto_origem'),
+      ),
+  },
+  {
+    key: 'porto_destino',
+    label: t('pedido.coluna_pai.porto_destino'),
+    tipo: 'select',
+    opcoes: portosOpcoes,
+    filtravel: true,
+    editavel: getEditavel('porto_destino'),
+    campo: 'porto_destino',
+    tooltipTitulo: t('pedido.coluna_pai.porto_destino_titulo'),
+    tooltipDescricao: t('pedido.coluna_pai.porto_destino_desc'),
+    grupo: 'Logística',
+    render: (_val: unknown, row: Pedido) =>
+      renderTextoTruncado(
+        renderRotuloCadastro(row.porto_destino, portosOpcoes, t('pedido.coluna_pai.porto_destino')),
+        t('pedido.coluna_pai.porto_destino'),
+      ),
+  },
+  {
+    key: 'local_de_origem',
+    label: t('pedido.coluna_pai.local_de_origem'),
+    tipo: 'select',
+    opcoes: paisesOpcoes,
+    filtravel: true,
+    editavel: getEditavel('local_de_origem'),
+    campo: 'local_de_origem',
+    tooltipTitulo: t('pedido.coluna_pai.local_de_origem_titulo'),
+    tooltipDescricao: t('pedido.coluna_pai.local_de_origem_desc'),
+    grupo: 'Logística',
+    render: (_val: unknown, row: Pedido) =>
+      renderTextoTruncado(
+        renderRotuloCadastro(row.local_de_origem, paisesOpcoes, t('pedido.coluna_pai.local_de_origem')),
+        t('pedido.coluna_pai.local_de_origem'),
+      ),
+  },
+  {
+    key: 'local_de_destino',
+    label: t('pedido.coluna_pai.local_de_destino'),
+    tipo: 'select',
+    opcoes: paisesOpcoes,
+    filtravel: true,
+    editavel: getEditavel('local_de_destino'),
+    campo: 'local_de_destino',
+    tooltipTitulo: t('pedido.coluna_pai.local_de_destino_titulo'),
+    tooltipDescricao: t('pedido.coluna_pai.local_de_destino_desc'),
+    grupo: 'Logística',
+    render: (_val: unknown, row: Pedido) =>
+      renderTextoTruncado(
+        renderRotuloCadastro(row.local_de_destino, paisesOpcoes, t('pedido.coluna_pai.local_de_destino')),
+        t('pedido.coluna_pai.local_de_destino'),
+      ),
+  },
+  {
+    key: 'aeroporto_origem',
+    label: t('pedido.coluna_pai.aeroporto_origem'),
+    tipo: 'select',
+    opcoes: aeroportosOpcoes,
+    filtravel: true,
+    editavel: getEditavel('aeroporto_origem'),
+    campo: 'aeroporto_origem',
+    tooltipTitulo: t('pedido.coluna_pai.aeroporto_origem_titulo'),
+    tooltipDescricao: t('pedido.coluna_pai.aeroporto_origem_desc'),
+    grupo: 'Logística',
+    render: (_val: unknown, row: Pedido) =>
+      renderTextoTruncado(
+        renderRotuloCadastro(row.aeroporto_origem, aeroportosOpcoes, t('pedido.coluna_pai.aeroporto_origem')),
+        t('pedido.coluna_pai.aeroporto_origem'),
+      ),
+  },
+  {
+    key: 'aeroporto_destino',
+    label: t('pedido.coluna_pai.aeroporto_destino'),
+    tipo: 'select',
+    opcoes: aeroportosOpcoes,
+    filtravel: true,
+    editavel: getEditavel('aeroporto_destino'),
+    campo: 'aeroporto_destino',
+    tooltipTitulo: t('pedido.coluna_pai.aeroporto_destino_titulo'),
+    tooltipDescricao: t('pedido.coluna_pai.aeroporto_destino_desc'),
+    grupo: 'Logística',
+    render: (_val: unknown, row: Pedido) =>
+      renderTextoTruncado(
+        renderRotuloCadastro(row.aeroporto_destino, aeroportosOpcoes, t('pedido.coluna_pai.aeroporto_destino')),
+        t('pedido.coluna_pai.aeroporto_destino'),
+      ),
   },
   {
     key: 'valor_total_pedido',

@@ -52,6 +52,7 @@ import {
 } from '../services/cadastrosClient.js'
 import { validarUnidadesItem } from '../services/validarUnidadesItem.js'
 import { validarIncotermPedidoItem } from '../services/validarIncotermPedidoItem.js'
+import { validarLogisticaPedidoCampo } from '../services/validarLogisticaPedidoCampo.js'
 import {
   montarSnapshotEmpresa,
   montarSnapshotOpe,
@@ -923,26 +924,42 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       // Contagem de itens: SQL raw para evitar bug do Prisma 5.22 com filtro relation
       // aninhado (`{ pedido_item: where }` retornava 539 em vez dos ~57k reais).
       // O filtro raw garante que conta APENAS itens cujo pedido pai bate id_organizacao
-      // (e id_workspace se vier) E não está excluído.
+      // (e id_workspace / ids_workspaces quando vier) E não está excluído.
       // OWASP A01: whitelist validada — wsCondicao é branch estático (não interpola user input),
       // wsParam são params posicionais ($1, $2). Sem nomes dinâmicos de coluna/tabela.
-      const wsCondicao = idWorkspace ? 'AND p.id_workspace = $2' : ''
-      const wsParam: unknown[] = idWorkspace ? [idOrganizacao, idWorkspace] : [idOrganizacao]
-      // IMPORTANTE: qualificar com `public.` porque withOrganizacao faz
-      // SET LOCAL search_path TO tenant_<id>, public — sem qualifier, o
-      // raw query buscaria primeiro em tenant_xxx (que está vazio após
-      // descoberta arquitetural — Prisma usa public, search_path é fantasma).
-      // Tabela é `pedido_item` (singular) — Prisma model `PedidoItem` mapeia
-      // via `@@map("pedido_item")`. Plural (`pedido_itens`) não existe e causa
-      // 500 (relation does not exist).
-      const totalItensSql = `
+      let totalItensSql: string
+      let totalItensParams: unknown[]
+      if (idsWorkspacesQuery && idsWorkspacesQuery.length > 0) {
+        const placeholders = idsWorkspacesQuery.map((_, i) => `$${i + 2}`).join(', ')
+        totalItensSql = `
         SELECT COUNT(*)::int AS n
         FROM "public"."pedido_item" i
         JOIN "public"."pedido" p ON p.id_pedido = i.id_pedido
         WHERE p.id_organizacao = $1
-          ${wsCondicao}
+          AND p.id_workspace IN (${placeholders})
           AND p.data_exclusao_pedido IS NULL
       `
+        totalItensParams = [idOrganizacao, ...idsWorkspacesQuery]
+      } else if (idWorkspace) {
+        totalItensSql = `
+        SELECT COUNT(*)::int AS n
+        FROM "public"."pedido_item" i
+        JOIN "public"."pedido" p ON p.id_pedido = i.id_pedido
+        WHERE p.id_organizacao = $1
+          AND p.id_workspace = $2
+          AND p.data_exclusao_pedido IS NULL
+      `
+        totalItensParams = [idOrganizacao, idWorkspace]
+      } else {
+        totalItensSql = `
+        SELECT COUNT(*)::int AS n
+        FROM "public"."pedido_item" i
+        JOIN "public"."pedido" p ON p.id_pedido = i.id_pedido
+        WHERE p.id_organizacao = $1
+          AND p.data_exclusao_pedido IS NULL
+      `
+        totalItensParams = [idOrganizacao]
+      }
 
       const [dataRaw, total, totalItensRaw] = await Promise.all([
         db.pedido.findMany({
@@ -963,7 +980,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
           take: limitNum,
         }),
         db.pedido.count({ where }),
-        db.$queryRawUnsafe(totalItensSql, ...wsParam) as Promise<Array<{ n: number | bigint | string }>>,
+        db.$queryRawUnsafe(totalItensSql, ...totalItensParams) as Promise<Array<{ n: number | bigint | string }>>,
       ])
       // Number(...) cobre bigint/string que Prisma raw pode retornar para COUNT.
       const totalItens = Number(totalItensRaw[0]?.n ?? 0)
@@ -1749,6 +1766,12 @@ const CAMPOS_EDITAVEIS = new Set([
   'nome_importador',
   'nome_fabricante',
   'incoterm',
+  'porto_origem',
+  'porto_destino',
+  'local_de_origem',
+  'local_de_destino',
+  'aeroporto_origem',
+  'aeroporto_destino',
   'moeda_pedido',
   'condicao_pagamento',
   'importacao_exportador_id',
@@ -1912,6 +1935,13 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
       if (campo === 'nome_importador' && pedido.tipo_operacao_pedido === 'importacao') {
         throw new AppError(400, 'nome_importador nao pode ser editado em pedidos de importacao — vem do Configurador')
       }
+
+      const correlation_id =
+        (req.headers['x-correlation-id'] as string | undefined) ?? randomUUID()
+      await validarLogisticaPedidoCampo(campo, valor, {
+        id_organizacao: idOrganizacao,
+        correlation_id,
+      })
 
       // ── Campos recalculados a partir dos itens (valor do cliente ignorado) ──────
       // Os 5 agregados oficiais (valor/qty/peso_liq/peso_br/cubagem) são

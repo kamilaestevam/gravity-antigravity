@@ -73,6 +73,21 @@ export interface Pais {
   ativo_pais: boolean
 }
 
+export interface PortoCadastro {
+  codigo_unlocode_porto: string
+  nome_porto: string
+  codigo_pais_porto?: string | null
+  ativo_porto: boolean
+}
+
+export interface AeroportoCadastro {
+  codigo_unlocode_aeroporto: string
+  codigo_iata_aeroporto?: string | null
+  nome_aeroporto: string
+  codigo_pais_aeroporto?: string | null
+  ativo_aeroporto: boolean
+}
+
 // ── Payload de criação rápida — papel definido pelo contexto do modal ────────
 
 export type PapelEmpresaRapido =
@@ -169,4 +184,22 @@ export const cadastrosApi = {
    */
   listarPaises: (): Promise<{ itens: Pais[] }> =>
     request<{ itens: Pais[] }>('/api/v1/cadastros/paises'),
+
+  listarPortos: (params?: { q?: string; pais?: string; limit?: number }): Promise<{ itens: PortoCadastro[]; total: number }> => {
+    const search = new URLSearchParams()
+    if (params?.q) search.set('q', params.q)
+    if (params?.pais) search.set('pais', params.pais)
+    if (params?.limit) search.set('limit', String(params.limit))
+    const qs = search.toString()
+    return request<{ itens: PortoCadastro[]; total: number }>(`/api/v1/cadastros/portos${qs ? `?${qs}` : ''}`)
+  },
+
+  listarAeroportos: (params?: { q?: string; pais?: string; limit?: number }): Promise<{ itens: AeroportoCadastro[]; total: number }> => {
+    const search = new URLSearchParams()
+    if (params?.q) search.set('q', params.q)
+    if (params?.pais) search.set('pais', params.pais)
+    if (params?.limit) search.set('limit', String(params.limit))
+    const qs = search.toString()
+    return request<{ itens: AeroportoCadastro[]; total: number }>(`/api/v1/cadastros/aeroportos${qs ? `?${qs}` : ''}`)
+  },
 }

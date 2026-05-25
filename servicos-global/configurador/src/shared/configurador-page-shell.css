@@ -1,0 +1,43 @@
+/**
+ * Distância canônica entre título no topo e conteúdo — Admin e Configurador.
+ * Alinhado ao padrão dos produtos (Pedido / BID Frete): 1.5rem / 2rem / 2rem.
+ */
+:root {
+  --config-page-pt: 1.5rem;
+  --config-page-px: 2rem;
+  --config-page-pb: 2rem;
+}
+
+.configurador-page-shell {
+  box-sizing: border-box;
+  padding: var(--config-page-pt) var(--config-page-px) var(--config-page-pb);
+}
+
+/* PaginaGlobal — título no topo; ajustes de camadas internas */
+.configurador-page-shell .pg-container .pg-contexto-row.pg-no-header {
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 1rem;
+}
+
+.configurador-page-shell .pg-container .pg-conteudo-area.pg-layout-formulario {
+  padding-top: 0;
+}
+
+/* Barra de título fixa (equivalente ao MenuTopoGlobal nos produtos) */
+.ws-titulo-pagina {
+  height: 74px;
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+  padding-right: 380px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  background: var(--ws-bg-body, #0f172a);
+}
+
+body.light-theme .ws-titulo-pagina {
+  background: var(--ws-bg-body, #f1f5f9);
+}

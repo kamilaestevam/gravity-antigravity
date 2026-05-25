@@ -18,7 +18,7 @@ import type { RegrasConfigBackend } from '../../shared/api'
 import { LABELS_FILTRO_INVERSO } from './filtros'
 import type { GTUnidadeOpcao } from '../../shared/useUnidadesPedido'
 import { getEditavel } from '../../shared/columnBehaviorConfig'
-import { enriquecerColunasComRegraTooltip } from '../../shared/buildTooltipRegraLista'
+import { enriquecerColunasComRegraTooltip, montarTooltipCelulaComAviso } from '../../shared/buildTooltipRegraLista'
 import { obterDescricaoExibicaoPedido } from '../../../../shared/pedidoDivergencias'
 import { renderBadgeParteWorkspace } from './renderBadgeParteWorkspace'
 import {
@@ -313,13 +313,10 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.numero_pedido_desc'),
     tooltipDescricaoCelula: (row: Pedido) => {
       if (!row.part_number_duplicado_no_pedido) return undefined
-      return (
-        <span>
-          {t('pedido.coluna_filho.part_number.duplicado_tooltip')}
-          <br />
-          <br />
-          {t('pedido.lista.regras_coluna.pai_numero_pedido')}
-        </span>
+      return montarTooltipCelulaComAviso(
+        t,
+        'numero_pedido',
+        t('pedido.coluna_filho.part_number.duplicado_tooltip'),
       )
     },
     grupo: 'Identificação',
@@ -353,13 +350,10 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Identificação',
     tooltipDescricaoCelula: (row: Pedido) => {
       if (!row.tipo_operacao_divergente) return undefined
-      return (
-        <span>
-          {t('pedido.coluna_pai.tipo_operacao_divergente')}
-          <br />
-          <br />
-          {t('pedido.lista.regras_coluna.pai_editavel_replicar_alerta')}
-        </span>
+      return montarTooltipCelulaComAviso(
+        t,
+        'tipo_operacao',
+        t('pedido.coluna_pai.tipo_operacao_divergente'),
       )
     },
     render: (_val: unknown, row: Pedido) => {

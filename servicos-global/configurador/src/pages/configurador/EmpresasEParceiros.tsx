@@ -28,7 +28,6 @@ import {
   ChartPieSlice,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import {
   TabelaGlobal,
@@ -463,13 +462,8 @@ export function EmpresasEParceiros() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Buildings weight="duotone" size={22} />}
           titulo="Empresas e Parceiros"
           subtitulo="Cadastre e gerencie os parceiros da sua jornada COMEX"
-        />
-      }
       stats={
         <>
           <CardBasicoGlobal

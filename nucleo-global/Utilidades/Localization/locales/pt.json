@@ -6457,6 +6457,7 @@
         "rotulo_pedido": "Pedido",
         "rotulo_item": "Item",
         "editavel_pedido": "Editável no pedido",
+        "editavel_pedido_numero": "Editável no pedido (único na org.)",
         "editavel_item": "Editável no item",
         "somente_leitura": "Somente leitura",
         "replica_itens": "Aplicar em todos os itens",

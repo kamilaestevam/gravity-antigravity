@@ -8,7 +8,6 @@ import {
   Pulse,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
@@ -183,13 +182,6 @@ export function ApiCockpit() {
 
   return (
     <PaginaGlobal
-      cabecalho={
-        <CabecalhoGlobal
-          titulo={t('admin.cockpit.titulo')}
-          subtitulo={t('admin.cockpit.subtitulo')}
-          icone={<Pulse size={32} weight="duotone" />}
-        />
-      }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1.5rem' }}>
         {/* Cards especificos da aba Servidores (saude da infraestrutura) */}

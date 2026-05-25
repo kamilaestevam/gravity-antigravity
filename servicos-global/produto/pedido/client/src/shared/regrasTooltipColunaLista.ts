@@ -31,6 +31,8 @@ export type RegraTooltipId =
   | 'pai_workspace'
   | 'pai_status'
   | 'pai_numero_pedido'
+  | 'pai_numero_pedido_item'
+  | 'pai_tipo_operacao'
   | 'dinamico_valor_total'
   | 'dinamico_qtd_inicial'
   | 'dinamico_qtd_pronta'
@@ -130,7 +132,7 @@ function isCampoSomenteLeituraCadastro(key: string): boolean {
     || key.startsWith('cidade_')
     || key.startsWith('endereco_')
     || key.startsWith('zip_code_')
-    || key.includes('_ope')
+    || key.endsWith('_ope')
     || key.includes('contato_')
     || key === 'exportador_ou_fabricante'
     || key === 'relacao_exportador_fabricante'
@@ -182,7 +184,8 @@ export function classificarRegraTooltipColuna(
   }
 
   if (key === 'saldo_itens_do_pedido') return 'pai_saldo_formula'
-  if (key === 'numero_pedido') return 'pai_numero_pedido'
+  if (key === 'numero_pedido') return 'pai_numero_pedido_item'
+  if (key === 'tipo_operacao') return 'pai_tipo_operacao'
   if (key === 'status') return 'pai_status'
   if (key === 'id_workspace') return 'pai_workspace'
   if (key === 'nome_exportador') return 'pai_cond_exportador'

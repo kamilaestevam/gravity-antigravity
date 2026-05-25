@@ -1,7 +1,7 @@
 // src/pages/OrganizacaoDetalheAdmin.tsx
 // Painel de Auditoria de uma Organização — visão forense completa: dados + logs de atividade
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft, Buildings, TreeStructure, UsersThree, ShieldCheck,
@@ -9,7 +9,7 @@ import {
   ClockCounterClockwise, Package, CreditCard, Info
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -148,6 +148,15 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
     }
     loadOrganizacao()
   }, [id_organizacao])
+
+  useSincronizarTituloPaginaTopo(useMemo(() => {
+    if (!organizacao) return null
+    return {
+      label:     `Painel de Auditoria — ${organizacao.nome_organizacao}`,
+      icone:     <ShieldCheck weight="duotone" size={22} color="#34d399" />,
+      subtitulo: `Visão forense completa da organização ${organizacao.subdominio_organizacao}.usegravity.com.br • ID: ${organizacao.id_organizacao}`,
+    }
+  }, [organizacao]))
 
   if (loading) {
     return (
@@ -304,28 +313,21 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<ShieldCheck weight="duotone" size={22} color="#34d399" />}
-          titulo={`Painel de Auditoria — ${organizacao.nome_organizacao}`}
-          subtitulo={`Visão forense completa da organização ${organizacao.subdominio_organizacao}.usegravity.com.br • ID: ${organizacao.id_organizacao}`}
-          acoes={
-            <button
-              onClick={onBack}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '6px',
-                background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.2)',
-                borderRadius: '8px', padding: '8px 16px', color: '#818cf8', cursor: 'pointer',
-                fontWeight: 600, fontFamily: 'inherit', fontSize: '0.8125rem', transition: 'all 0.15s',
-              }}
-              onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(129,140,248,0.15)' }}
-              onMouseLeave={ev => { ev.currentTarget.style.background = 'rgba(129,140,248,0.08)' }}
-            >
-              <ArrowLeft size={15} weight="bold" />
-              Voltar
-            </button>
-          }
-        />
+      acoes={
+        <button
+          onClick={onBack}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '6px',
+            background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.2)',
+            borderRadius: '8px', padding: '8px 16px', color: '#818cf8', cursor: 'pointer',
+            fontWeight: 600, fontFamily: 'inherit', fontSize: '0.8125rem', transition: 'all 0.15s',
+          }}
+          onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(129,140,248,0.15)' }}
+          onMouseLeave={ev => { ev.currentTarget.style.background = 'rgba(129,140,248,0.08)' }}
+        >
+          <ArrowLeft size={15} weight="bold" />
+          Voltar
+        </button>
       }
       stats={
         <>

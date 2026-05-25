@@ -12,7 +12,6 @@ import {
   SpinnerGap,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
@@ -259,13 +258,6 @@ export function NcmIntegracaoAdmin() {
   return (
     <PaginaGlobal
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          titulo={t('admin.ncm.titulo')}
-          subtitulo={t('admin.ncm.subtitulo')}
-          icone={<ArrowsClockwise size={22} weight="duotone" />}
-        />
-      }
       stats={
         <>
           <CardBasicoGlobal

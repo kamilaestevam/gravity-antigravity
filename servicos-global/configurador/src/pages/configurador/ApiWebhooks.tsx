@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { z } from 'zod'
 import { Plus, Trash, Copy, WebhooksLogo, PaperPlaneTilt, ClockCounterClockwise, Pulse } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
@@ -293,13 +292,6 @@ export function ApiWebhooks() {
 
   return (
     <PaginaGlobal
-      cabecalho={
-        <CabecalhoGlobal
-          titulo="Webhooks"
-          subtitulo="Receba notificacoes em tempo real dos eventos do Gravity em sua aplicacao"
-          icone={<Pulse size={32} weight="duotone" />}
-        />
-      }
     >
       {erro && (
         <div role="alert" style={{

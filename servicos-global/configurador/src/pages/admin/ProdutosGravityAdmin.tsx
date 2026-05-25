@@ -5,7 +5,6 @@ import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, Wrench, 
 import { ModalExclusao } from '../configurador/ModalConfirmarExclusao'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
@@ -589,13 +588,6 @@ export function ProdutosGravityAdmin() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          titulo={t('admin.produtos-gravity.titulo')}
-          subtitulo={t('admin.produtos-gravity.subtitulo')}
-          icone={<ShoppingBagOpen weight="duotone" size={22} color="#818cf8" />}
-        />
-      }
       stats={
         <>
           <CardBasicoGlobal

@@ -1,10 +1,8 @@
 /**
- * buildTooltipRegraLista.tsx — Textos de tooltip com regras de edição/alerta/cálculo.
- * Toda coluna da lista recebe tooltipTitulo + tooltipDescricao (desligável via shell).
+ * buildTooltipRegraLista.tsx — Tooltips da lista com pílulas de regra (ícone + cor + texto).
  */
 
 import React from 'react'
-import { Trans } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import type { GTColuna, GTMapaColunasFilho } from '@nucleo/tabela-virtual-global'
 import {
@@ -13,85 +11,38 @@ import {
   type NivelColunaLista,
   type RegraTooltipId,
 } from './regrasTooltipColunaLista'
+import { obterPillsTooltipColuna, pillsParaNivelColuna } from './pillsTooltipColunaLista'
+import type { RegraPillId } from './pillsTooltipColunaLista'
+import { TooltipRegrasColuna } from './TooltipRegrasColuna'
 
-const URL_FORMULA = '/produto/pedido/configuracoes?tab=colunas-campos-calculados'
-
-const REGRAS_INTERATIVAS = new Set<RegraTooltipId>([
-  'pai_saldo_formula',
-  'item_nao_editavel_saldo',
-  'dinamico_saldo',
-])
-
-function chaveI18nExiste(t: TFunction, key: string): boolean {
-  const v = t(key, { defaultValue: '__missing__' })
-  return v !== '__missing__' && v !== key
-}
-
-function descricaoRegra(t: TFunction, id: RegraTooltipId): React.ReactNode {
-  const key = `pedido.lista.regras_coluna.${id}`
-  if (REGRAS_INTERATIVAS.has(id)) {
-    return (
-      <span>
-        <Trans i18nKey={key} components={{ a: <a href={URL_FORMULA} /> }} />
-      </span>
-    )
-  }
-  return <span>{t(key)}</span>
-}
-
-/** Textos legados (coluna_pai / coluna_filho) — cobertura total enquanto regras novas expandem. */
-export function descricaoLegadaColuna(
+function montarTooltipPills(
   t: TFunction,
   key: string,
-  _nivel: NivelColunaLista,
-): string | null {
-  const candidatos = [
-    `pedido.coluna_pai.${key}_desc`,
-    `pedido.coluna_filho.${key}.tooltip_descricao`,
-    `pedido.coluna_filho.mapa_${key}.tooltip_descricao`,
-  ]
-  for (const k of candidatos) {
-    if (chaveI18nExiste(t, k)) return t(k)
-  }
-  return null
-}
-
-function resolverDescricaoTooltip<T>(
-  col: GTColuna<T>,
-  t: TFunction,
-  key: string,
-  nivel: NivelColunaLista,
-  regraId: RegraTooltipId,
-  opts?: { descricaoUsuario?: string },
+  opts?: {
+    modoDinamicoPedidoItem?: boolean
+    colunaPersonalizada?: boolean
+    descricaoUsuario?: string
+    aviso?: React.ReactNode
+  },
 ): React.ReactNode {
-  const descricaoUsuario = opts?.descricaoUsuario?.trim()
-    ?? (typeof col.tooltipDescricao === 'string' ? col.tooltipDescricao.trim() : '')
+  const res = obterPillsTooltipColuna(key, {
+    modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
+    colunaPersonalizada: opts?.colunaPersonalizada,
+  })
 
-  const usarRegra = regraId !== 'generico' && chaveI18nExiste(t, `pedido.lista.regras_coluna.${regraId}`)
-  if (usarRegra) {
-    const base = descricaoRegra(t, regraId)
-    if (descricaoUsuario && regraId === 'pai_coluna_personalizada') {
-      return (
-        <span>
-          {base} — {descricaoUsuario}
-        </span>
-      )
-    }
-    return base
-  }
-
-  const legado = descricaoLegadaColuna(t, key, nivel)
-  if (legado) return legado
-
-  if (descricaoUsuario) {
-    return (
-      <span>
-        {t('pedido.lista.regras_coluna.pai_coluna_personalizada')} — {descricaoUsuario}
-      </span>
-    )
-  }
-
-  return descricaoRegra(t, 'generico')
+  return (
+    <TooltipRegrasColuna
+      t={t}
+      dual={res.dual}
+      pillsPedido={res.pedido}
+      pillsItem={res.item}
+      linkFormula={res.linkFormula}
+      ghostSemCheckbox={res.ghostSemCheckbox}
+      numeroUnicoOrg={res.numeroUnicoOrg}
+      aviso={opts?.aviso}
+      descricaoExtra={opts?.descricaoUsuario?.trim() || undefined}
+    />
+  )
 }
 
 /** Título padrão: label da coluna ou i18n legado. */
@@ -113,46 +64,43 @@ export function tituloTooltipColuna(
 
 export type OpcoesEnriquecerTooltip = {
   modoDinamicoPedidoItem?: boolean
-  /** Descrição da coluna personalizada (Configurador). */
   descricaoUsuario?: string
-  /** Coluna criada pelo usuário — prioriza regra de coluna personalizada. */
   colunaPersonalizada?: boolean
 }
 
-/** Aplica tooltip de regras UX na coluna (cabeçalho — vale para pedido e itens alinhados). */
+/** Aplica tooltip de regras UX na coluna (cabeçalho e células alinhadas). */
 export function enriquecerColunaComRegraTooltip<T>(
   col: GTColuna<T>,
   t: TFunction,
-  nivel: NivelColunaLista,
+  _nivel: NivelColunaLista,
   opts?: OpcoesEnriquecerTooltip,
 ): GTColuna<T> {
   const key = String(col.key)
-  const regraId = classificarRegraTooltipColuna(key, nivel, {
-    modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
-  })
-  const idFinal: RegraTooltipId = opts?.colunaPersonalizada ? 'pai_coluna_personalizada' : regraId
-
   const titulo = col.tooltipTitulo?.trim()
     ? col.tooltipTitulo
-    : tituloTooltipColuna(t, key, nivel, col.label)
+    : tituloTooltipColuna(t, key, 'pai', col.label)
 
-  const regraIdItem = classificarRegraTooltipColuna(key, 'item', {
-    modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
-  })
+  const pillsRes = obterPillsTooltipColuna(key, opts)
+  const regraId = classificarRegraTooltipColuna(key, 'pai', opts)
 
   return {
     ...col,
     tooltipTitulo: titulo,
-    tooltipDescricao: resolverDescricaoTooltip(col, t, key, nivel, idFinal, {
+    tooltipDescricao: montarTooltipPills(t, key, {
+      modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
+      colunaPersonalizada: opts?.colunaPersonalizada,
       descricaoUsuario: opts?.descricaoUsuario,
     }),
-    tooltipDescricaoItem: resolverDescricaoTooltip(col, t, key, 'item', regraIdItem, {
-      descricaoUsuario: opts?.descricaoUsuario,
-    }),
-    tooltipInterativo:
-      regraTooltipEhInterativa(idFinal)
-      || regraTooltipEhInterativa(regraIdItem)
-      || col.tooltipInterativo,
+    tooltipDescricaoItem: pillsRes.dual
+      ? (
+        <TooltipRegrasColuna
+          t={t}
+          pillsPedido={pillsRes.item}
+          linkFormula={pillsRes.linkFormula}
+        />
+      )
+      : montarTooltipPills(t, key, { ...opts, modoDinamicoPedidoItem: false }),
+    tooltipInterativo: regraTooltipEhInterativa(regraId) || col.tooltipInterativo,
   }
 }
 
@@ -165,9 +113,10 @@ export function enriquecerColunasComRegraTooltip<T>(
   return colunas.map(c => enriquecerColunaComRegraTooltip(c, t, nivel, opts))
 }
 
-/** Texto plano da regra (sem HTML) — para tooltipBloqueado em células de item. */
-export function textoRegraTooltipPlain(t: TFunction, id: RegraTooltipId): string {
-  return t(`pedido.lista.regras_coluna.${id}`).replace(/<[^>]+>/g, '').trim()
+/** Texto plano para tooltipBloqueado em células de item. */
+export function textoRegraTooltipPlain(t: TFunction, key: string, nivel: NivelColunaLista = 'item'): string {
+  const pills = pillsParaNivelColuna(key, nivel)
+  return pills.map(id => t(`pedido.lista.regras_pill.${id}`)).join(' · ')
 }
 
 const REGRAS_BLOQUEIO_ITEM = new Set<RegraTooltipId>([
@@ -179,7 +128,7 @@ const REGRAS_BLOQUEIO_ITEM = new Set<RegraTooltipId>([
   'item_cond_importador',
 ])
 
-/** Mensagem extra em células de item bloqueadas (prioridade no núcleo sobre tooltipDescricaoItem). */
+/** Mensagem em células de item bloqueadas. */
 export function enriquecerMapaColunasFilhoComRegraTooltip<C>(
   mapa: Record<string, GTMapaColunasFilho<C>>,
   t: TFunction,
@@ -190,11 +139,20 @@ export function enriquecerMapaColunasFilhoComRegraTooltip<C>(
     if (!entry || entry.tooltipBloqueado != null) continue
     const regraId = classificarRegraTooltipColuna(key, 'item')
     if (!REGRAS_BLOQUEIO_ITEM.has(regraId)) continue
-    const legado = descricaoLegadaColuna(t, key, 'item')
     out[key] = {
       ...entry,
-      tooltipBloqueado: legado ?? textoRegraTooltipPlain(t, regraId),
+      tooltipBloqueado: textoRegraTooltipPlain(t, key, 'item'),
     }
   }
   return out
+}
+
+/** Monta tooltip de célula com aviso de divergência + pílulas. */
+export function montarTooltipCelulaComAviso(
+  t: TFunction,
+  key: string,
+  aviso: React.ReactNode,
+  opts?: OpcoesEnriquecerTooltip,
+): React.ReactNode {
+  return montarTooltipPills(t, key, { ...opts, aviso })
 }

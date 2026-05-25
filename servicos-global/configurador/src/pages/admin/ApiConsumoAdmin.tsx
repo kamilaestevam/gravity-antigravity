@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { z } from 'zod'
 import { Pulse, ArrowClockwise } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
@@ -10,6 +9,7 @@ import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitAdminTabs } from './ApiCockpitAdminTabs'
 import { ApiCockpitAdminKpis } from './ApiCockpitAdminKpis'
 import { SeletorOrganizacaoAdmin } from './SeletorOrganizacaoAdmin'
+import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
 
 // ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
 
@@ -169,17 +169,14 @@ export function ApiConsumoAdmin() {
     },
   ]
 
+  useSincronizarTituloPaginaTopo(useMemo(() => ({
+    subtitulo: idOrganizacao
+      ? 'Consumo da API filtrado por organização'
+      : 'Consumo da API — visão global de todas as organizações',
+  }), [idOrganizacao]))
+
   return (
     <PaginaGlobal
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Pulse weight="duotone" size={24} />}
-          titulo="API Cockpit"
-          subtitulo={idOrganizacao
-            ? 'Consumo da API filtrado por organização'
-            : 'Consumo da API — visão global de todas as organizações'}
-        />
-      }
       stats={<ApiCockpitAdminKpis />}
       toolbar={
         <div style={{

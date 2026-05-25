@@ -10,7 +10,6 @@ import {
   Globe, Cpu, Gear, Hash, ListBullets, CalendarBlank, ChartPieSlice,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -779,43 +778,35 @@ export function HistoricoGlobalAdmin() {
             />
           </>
         }
-        cabecalho={
-          <CabecalhoGlobal
-            icone={<Desktop weight="duotone" size={22} />}
-            titulo={t('admin.historico-global.titulo')}
-            subtitulo={t('admin.historico-global.subtitulo')}
-            acoes={
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {/* Botão alertas */}
-                <button
-                  onClick={() => setAlertasAbertos(true)}
-                  aria-label={`Ver alertas pendentes${alertasPendentes > 0 ? ` (${alertasPendentes})` : ''}`}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '6px',
-                    padding: '6px 12px', borderRadius: '8px', cursor: 'pointer',
-                    background: alertasPendentes > 0 ? 'rgba(251,191,36,0.1)' : 'var(--bg-surface, #1e293b)',
-                    border: `1px solid ${alertasPendentes > 0 ? 'rgba(251,191,36,0.3)' : 'var(--ws-border, #334155)'}`,
-                    color: alertasPendentes > 0 ? '#fbbf24' : 'var(--color-text-secondary, #94a3b8)',
-                    fontSize: '0.8rem', fontWeight: 600,
-                  }}
-                >
-                  <Warning size={16} weight="duotone" />
-                  Alertas
-                  {alertasPendentes > 0 && (
-                    <span style={{ background: '#fbbf24', color: '#0f172a', borderRadius: '9999px', padding: '1px 6px', fontSize: '0.65rem', fontWeight: 800 }}>
-                      {alertasPendentes}
-                    </span>
-                  )}
-                </button>
+        acoes={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              onClick={() => setAlertasAbertos(true)}
+              aria-label={`Ver alertas pendentes${alertasPendentes > 0 ? ` (${alertasPendentes})` : ''}`}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                padding: '6px 12px', borderRadius: '8px', cursor: 'pointer',
+                background: alertasPendentes > 0 ? 'rgba(251,191,36,0.1)' : 'var(--bg-surface, #1e293b)',
+                border: `1px solid ${alertasPendentes > 0 ? 'rgba(251,191,36,0.3)' : 'var(--ws-border, #334155)'}`,
+                color: alertasPendentes > 0 ? '#fbbf24' : 'var(--color-text-secondary, #94a3b8)',
+                fontSize: '0.8rem', fontWeight: 600,
+              }}
+            >
+              <Warning size={16} weight="duotone" />
+              Alertas
+              {alertasPendentes > 0 && (
+                <span style={{ background: '#fbbf24', color: '#0f172a', borderRadius: '9999px', padding: '1px 6px', fontSize: '0.65rem', fontWeight: 800 }}>
+                  {alertasPendentes}
+                </span>
+              )}
+            </button>
 
-                <TooltipGlobal titulo="Processamento assíncrono" descricao="Os logs são gravados em fila — pode haver latência de até 1s na exibição.">
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '6px', borderRadius: '6px', cursor: 'help' }}>
-                    <Info size={18} weight="duotone" color="#3b82f6" />
-                  </div>
-                </TooltipGlobal>
+            <TooltipGlobal titulo="Processamento assíncrono" descricao="Os logs são gravados em fila — pode haver latência de até 1s na exibição.">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '6px', borderRadius: '6px', cursor: 'help' }}>
+                <Info size={18} weight="duotone" color="#3b82f6" />
               </div>
-            }
-          />
+            </TooltipGlobal>
+          </div>
         }
       >
         <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', marginTop: '16px', position: 'relative', zIndex: 10 }}>

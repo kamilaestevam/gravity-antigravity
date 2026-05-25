@@ -13,6 +13,9 @@ describe('classificarRegraTooltipColuna', () => {
     expect(classificarRegraTooltipColuna('moeda_cambio_pedido', 'pai')).toBe('pai_moeda_cambio')
     expect(classificarRegraTooltipColuna('anexo_pedido', 'pai')).toBe('pai_anexo')
     expect(classificarRegraTooltipColuna('cnpj_exportador', 'pai')).toBe('pai_somente_leitura')
+    expect(classificarRegraTooltipColuna('tipo_operacao', 'pai')).toBe('pai_tipo_operacao')
+    expect(classificarRegraTooltipColuna('numero_pedido', 'pai')).toBe('pai_numero_pedido_item')
+    expect(classificarRegraTooltipColuna('tipo_operacao', 'pai')).not.toBe('pai_somente_leitura')
   })
 
   it('classifica colunas item conhecidas', () => {

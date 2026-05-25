@@ -4,7 +4,6 @@ import {
   Plus, Trash, Copy, WebhooksLogo, PaperPlaneTilt, ClockCounterClockwise, Info, Pulse,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
@@ -326,13 +325,6 @@ export function ApiWebhooksAdmin() {
 
   return (
     <PaginaGlobal
-      cabecalho={
-        <CabecalhoGlobal
-          titulo="API Cockpit"
-          subtitulo="Webhooks por organização — visão administrativa com CRUD completo"
-          icone={<Pulse size={24} weight="duotone" />}
-        />
-      }
       stats={<ApiCockpitAdminKpis />}
       toolbar={
         <div style={{

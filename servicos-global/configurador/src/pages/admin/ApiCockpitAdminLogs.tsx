@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { Pulse, ArrowClockwise } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
@@ -156,13 +155,6 @@ export function ApiCockpitAdminLogs() {
 
   return (
     <PaginaGlobal
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Pulse weight="duotone" size={24} />}
-          titulo={t('admin.api-cockpit.titulo')}
-          subtitulo={t('admin.api-cockpit.subtitulo')}
-        />
-      }
       stats={<ApiCockpitAdminKpis />}
       toolbar={
         <div style={{

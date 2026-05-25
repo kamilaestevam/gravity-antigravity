@@ -26,7 +26,6 @@ import {
   type TabelaGlobalAcao,
 } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalExclusao } from './ModalConfirmarExclusao'
 import { ModalEditarAssinatura } from './ModalEditarAssinatura'
@@ -691,13 +690,6 @@ export function Assinaturas() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<CreditCard weight="duotone" size={22} color="#818cf8" />}
-          titulo={t('workspace.subscriptions.titulo')}
-          subtitulo={t('workspace.subscriptions.subtitulo')}
-        />
-      }
       stats={
         <>
           <CardBasicoGlobal

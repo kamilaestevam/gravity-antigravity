@@ -17,7 +17,6 @@ import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import { formatarDataHistorico, rotuloAcao } from '../../utils/historico-helpers'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import {
   TabelaGlobal,
@@ -310,13 +309,8 @@ export function HistoricoOrganizacao() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<ClockCounterClockwise weight="duotone" size={22} />}
           titulo={t('workspace.layout.historico-organizacao')}
           subtitulo="Registro de alterações na organização e workspaces"
-        />
-      }
       stats={
         <>
           <CardBasicoGlobal

@@ -10,7 +10,6 @@ import {
   Lightning,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
@@ -184,13 +183,6 @@ export default function CertificadosAdmin() {
 
   return (
     <PaginaGlobal
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Certificate weight="duotone" size={22} />}
-          titulo={t('admin.certificados.titulo', 'Certificados Digitais Siscomex')}
-          subtitulo={t('admin.certificados.subtitulo', 'Upload e gestão de e-CNPJ para autenticação no Portal Único')}
-        />
-      }
       stats={
         <>
           <CardBasicoGlobal

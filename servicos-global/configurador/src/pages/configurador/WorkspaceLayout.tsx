@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react'
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -42,9 +42,16 @@ import { HubBotao } from '../../components/HubBotao'
 import GabiChat from '@plataforma/gabi/src/Gabi'
 import './workspace.css'
 import './gabi.css'
+import { WsAreaConteudo } from '../../shared/WsAreaConteudo'
+import { resolverPageLabelTopo } from '../../shared/page-meta-topo'
 
 export function WorkspaceLayout() {
   const { t } = useTranslation()
+  const { pathname } = useLocation()
+  const pageLabel = useMemo(
+    () => resolverPageLabelTopo(pathname, t, 'configurador'),
+    [pathname, t],
+  )
 
   const navItems = [
     { to: '/configurador/organizacao',  label: t('workspace.layout.organizacao'),    icon: <Crown       weight="duotone" size={18} /> },
@@ -263,7 +270,7 @@ export function WorkspaceLayout() {
             currentProductId="configurador"
             currentProductLabel="Configurador"
             currentProductColor="#7dd3fc"
-            currentPageLabel="Configurador"
+            currentPageLabel={pageLabel}
             history={locHistory}
             nodes={wsEcosystemNodes}
             onNavigate={(node) => {
@@ -301,10 +308,7 @@ export function WorkspaceLayout() {
           />
         </div>
 
-        {/* Page content rendered by child routes */}
-        <div className="ws-content">
-          <Outlet />
-        </div>
+        <WsAreaConteudo accentColor="#7dd3fc" area="configurador" />
       </div>
 
       <ModalTrocarOrganizacao

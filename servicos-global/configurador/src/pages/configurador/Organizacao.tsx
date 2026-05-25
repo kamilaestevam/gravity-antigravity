@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   Crown,
   Buildings,
@@ -10,12 +10,12 @@ import {
 import { useUser } from '@clerk/clerk-react'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
 import { BotaoSalvar, BotaoCancelar, useDirty } from '@nucleo/botoes-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { useShellStore } from '@gravity/shell'
+import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
+import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
 import { ModalSelectGlobal } from '@nucleo/modal-campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { useCidadesIBGE } from '../../hooks/use-cidades-ibge'
@@ -128,6 +128,7 @@ export function Organizacao() {
   const { t } = useTranslation()
   const { user, isLoaded: userLoaded } = useUser()
   const addNotification = useShellStore((state) => state.addNotification)
+  const organizacaoOverride = useShellStore((state) => state.organizacaoOverride)
 
   // Workspaces da organização carregados da API
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([])
@@ -161,9 +162,14 @@ export function Organizacao() {
           } catch { /* sem token — backend tentará DEMO_MODE */ }
         }
 
+        const headersComOverride = {
+          ...headers,
+          ...injetarHeaderOverride(),
+        }
+
         const [orgRes, workspacesRes] = await Promise.all([
-          fetch('/api/v1/organizacoes/me', { headers }),
-          fetch('/api/v1/me/workspaces', { headers }),
+          fetch('/api/v1/organizacoes/me', { headers: headersComOverride }),
+          fetch('/api/v1/me/workspaces', { headers: headersComOverride }),
         ])
 
         if (orgRes.ok) {
@@ -200,7 +206,7 @@ export function Organizacao() {
     }
 
     fetchDados()
-  }, [userLoaded])
+  }, [userLoaded, organizacaoOverride?.idOrganizacao])
 
   // detecção de alterações para habilitar Salvar / Cancelar
   const { dirty, resetDirty } = useDirty(dadosIniciaisLocal, dados)
@@ -303,17 +309,14 @@ export function Organizacao() {
 
   const workspacePreferido = workspaces.find(w => w.id_workspace === idWorkspacePreferido)
 
+  useSincronizarTituloPaginaTopo(useMemo(() => (
+    carregando ? { subtitulo: t('workspace.organizacao.subtitulo_carregando') } : null
+  ), [carregando, t]))
+
   if (carregando) {
     return (
       <PaginaGlobal
         layout="formulario"
-        cabecalho={
-          <CabecalhoGlobal
-            icone={<Crown weight="duotone" size={22} />}
-            titulo={t('workspace.organizacao.titulo')}
-            subtitulo={t('workspace.organizacao.subtitulo_carregando')}
-          />
-        }
       >
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '40vh', color: 'var(--color-text-muted)' }}>
           Carregando...
@@ -326,13 +329,6 @@ export function Organizacao() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="formulario"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Crown weight="duotone" size={22} />}
-          titulo={t('workspace.organizacao.titulo')}
-          subtitulo={t('workspace.organizacao.subtitulo')}
-        />
-      }
     >
 
       {/* ── Identity card — atualiza em tempo real conforme edição ─────── */}

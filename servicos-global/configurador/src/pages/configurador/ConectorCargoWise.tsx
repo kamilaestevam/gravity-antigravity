@@ -24,7 +24,6 @@ import {
   CircleDashed,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
@@ -160,13 +159,6 @@ export function ConectorCargoWise() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Truck weight="duotone" size={24} color="#818cf8" />}
-          titulo={t('workspace.cargowise.titulo')}
-          subtitulo={t('workspace.cargowise.subtitulo')}
-        />
-      }
       stats={
         <>
           <CardEstatisticaGlobal

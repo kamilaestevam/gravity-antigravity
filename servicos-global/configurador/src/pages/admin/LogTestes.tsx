@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Bug, Sparkle, XCircle, CheckCircle, Warning, PlayCircle, CalendarBlank, Clock, SpinnerGap } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { ModalAgendamentoTestes } from './ModalTestesAgendamento'
@@ -467,25 +466,6 @@ export function LogTestes() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={
-            <div style={{ position: 'relative' }}>
-              <Bug weight="duotone" size={22} />
-              {agendamentoAtivo && (
-                <div style={{ 
-                  position: 'absolute', top: -3, right: -3, 
-                  width: 10, height: 10, borderRadius: '50%', 
-                  background: '#10b981', border: '2px solid #0f172a',
-                  animation: 'ws-pulse-active 2s infinite' 
-                }} />
-              )}
-            </div>
-          }
-          titulo={t('admin.testes-gerais.titulo')}
-          subtitulo={t('admin.testes-gerais.subtitulo')}
-        />
-      }
       toolbar={
         <>
           <style>{`

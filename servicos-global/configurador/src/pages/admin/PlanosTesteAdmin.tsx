@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ListChecks, MagnifyingGlass, FilePlus } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { adminPlanosTesteApi } from '../../services/api-client'
@@ -84,13 +83,8 @@ export function PlanosTesteAdmin() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<ListChecks weight="duotone" size={22} />}
           titulo="Planos de Teste"
           subtitulo="Planos 20/20 gerados pelo agente — cobertura, passos e status"
-        />
-      }
       stats={
         <>
           <CardBasicoGlobal

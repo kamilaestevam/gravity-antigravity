@@ -8,7 +8,6 @@ import {
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { ModalExclusao } from '../configurador/ModalConfirmarExclusao'
@@ -472,13 +471,6 @@ export function DeployAdmin() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<CloudArrowUp weight="duotone" size={22} color="#818cf8" />}
-          titulo={t('admin.deploy.titulo') ?? 'Deploy Railway'}
-          subtitulo={t('admin.deploy.subtitulo') ?? 'Histórico de versões, status de implantação e controle de CI/CD em todos os ambientes'}
-        />
-      }
       stats={
         stats ? (
           <>

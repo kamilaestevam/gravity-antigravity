@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useUser } from '@clerk/clerk-react'
 import { Buildings, TreeStructure, CheckCircle, ChartPieSlice, FileXls, FileCsv, FileText, FilePdf, Code, PauseCircle, PlayCircle, PencilSimple, Trash, Plus, X } from '@phosphor-icons/react'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -351,13 +350,6 @@ export function Workspaces() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Buildings weight="duotone" size={22} />}
-          titulo={t('workspace.workspaces.titulo')}
-          subtitulo={t('workspace.workspaces.subtitulo')}
-        />
-      }
       stats={
         <>
           <CardBasicoGlobal

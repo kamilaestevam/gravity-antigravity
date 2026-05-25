@@ -124,10 +124,17 @@ model Pedido {
   data_meta_recebimento_original_invoice_pedido               DateTime?
 
   // ============================================================
-  // Edição em Massa — colunas novas (Líder Técnico, 2026-05-12)
+  // Logística — lookup lógico Cadastros (sem FK cross-banco)
+  // porto_*       → cadastros.porto.codigo_unlocode_porto
+  // local_de_*    → cadastros.pais.codigo_pais_iso_alpha2
+  // aeroporto_*   → cadastros.aeroporto.codigo_iata_aeroporto (fallback UN/LOCODE)
   // ============================================================
   porto_origem                                                String?
   porto_destino                                               String?
+  local_de_origem                                             String?
+  local_de_destino                                            String?
+  aeroporto_origem                                            String?
+  aeroporto_destino                                           String?
   data_embarque_origem                                        DateTime?
   data_proforma_invoice                                       DateTime?
   data_invoice                                                DateTime?

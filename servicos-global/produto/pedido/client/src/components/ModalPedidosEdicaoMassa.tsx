@@ -28,6 +28,7 @@ import { useHasMixedTipos } from '../shared/state/selecaoStore'
 import { useIncotermsPedido } from '../shared/useIncotermsPedido'
 import { useMoedasPedido } from '../shared/useMoedasPedido'
 import { useUnidadesPedido } from '../shared/useUnidadesPedido'
+import { useLogisticaCadastrosPedido } from '../shared/useLogisticaCadastrosPedido'
 import type {
   Pedido,
   CampoEdicaoMassa,
@@ -159,8 +160,12 @@ function construirCamposPedidoEditaveis(t: TFunc): DefinicaoCampo[] { return [
   { campo: 'referencia_fabricante_pedido', rotulo: t('pedido.massa_campos.referencia_fabricante_pedido'),                  tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_documentos') },
 
   // Portos / Logística
-  { campo: 'porto_origem', rotulo: t('pedido.massa_campos.porto_origem'),                           tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
-  { campo: 'porto_destino', rotulo: t('pedido.massa_campos.porto_destino'),                          tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
+  { campo: 'porto_origem', rotulo: t('pedido.massa_campos.porto_origem'),                           tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
+  { campo: 'porto_destino', rotulo: t('pedido.massa_campos.porto_destino'),                          tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
+  { campo: 'local_de_origem', rotulo: t('pedido.massa_campos.local_de_origem'),                      tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
+  { campo: 'local_de_destino', rotulo: t('pedido.massa_campos.local_de_destino'),                   tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
+  { campo: 'aeroporto_origem', rotulo: t('pedido.massa_campos.aeroporto_origem'),                  tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
+  { campo: 'aeroporto_destino', rotulo: t('pedido.massa_campos.aeroporto_destino'),                 tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
 
   // Datas principais
   { campo: 'data_emissao_pedido', rotulo: t('pedido.massa_campos.data_emissao_pedido'),                        tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
@@ -413,12 +418,18 @@ function inputPlaceholder(campo: CampoEmEdicao, pedidos: Pedido[], t: TFunc): st
 interface OpcoesDinamicas {
   incoterms?: { valor: string; rotulo: string }[]
   paises?: { valor: string; rotulo: string }[]
+  paisesLogistica?: { valor: string; rotulo: string }[]
+  portos?: { valor: string; rotulo: string }[]
+  aeroportos?: { valor: string; rotulo: string }[]
   moedas?: { valor: string; rotulo: string }[]
   unidades?: { valor: string; rotulo: string }[]
   status?: { valor: string; rotulo: string }[]
 }
 
 const CAMPOS_PAIS = new Set(['pais_exportador', 'pais_fabricante', 'pais_ope'])
+const CAMPOS_PAIS_LOGISTICA = new Set(['local_de_origem', 'local_de_destino'])
+const CAMPOS_PORTO = new Set(['porto_origem', 'porto_destino'])
+const CAMPOS_AEROPORTO = new Set(['aeroporto_origem', 'aeroporto_destino'])
 const CAMPOS_MOEDA = new Set(['moeda_pedido', 'moeda_item', 'moeda_cambio_pedido'])
 const CAMPOS_UNIDADE = new Set(['unidade_comercializada_pedido', 'unidade_comercializada_item'])
 
@@ -429,6 +440,15 @@ function injetarOpcoesDinamicas(campos: DefinicaoCampo[], opcoes: OpcoesDinamica
     }
     if (CAMPOS_PAIS.has(d.campo) && opcoes.paises?.length) {
       return { ...d, opcoes: opcoes.paises }
+    }
+    if (CAMPOS_PAIS_LOGISTICA.has(d.campo) && opcoes.paisesLogistica?.length) {
+      return { ...d, opcoes: opcoes.paisesLogistica }
+    }
+    if (CAMPOS_PORTO.has(d.campo) && opcoes.portos?.length) {
+      return { ...d, opcoes: opcoes.portos }
+    }
+    if (CAMPOS_AEROPORTO.has(d.campo) && opcoes.aeroportos?.length) {
+      return { ...d, opcoes: opcoes.aeroportos }
     }
     if (CAMPOS_MOEDA.has(d.campo) && opcoes.moedas?.length) {
       return { ...d, opcoes: opcoes.moedas }
@@ -995,6 +1015,11 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
   const { incotermsOpcoes, loading: incotermLoading, erro: incotermErro } = useIncotermsPedido()
   const { moedasOpcoes } = useMoedasPedido()
   const { unidadesComercializadas } = useUnidadesPedido()
+  const {
+    paisesOpcoes: paisesLogisticaOpcoes,
+    portosOpcoes,
+    aeroportosOpcoes,
+  } = useLogisticaCadastrosPedido()
   const [paisesOpcoes, setPaisesOpcoes] = useState<{ valor: string; rotulo: string }[]>([])
   const [statusOpcoes, setStatusOpcoes] = useState<{ valor: string; rotulo: string }[]>([])
   useEffect(() => {
@@ -1011,6 +1036,9 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
   const opcoesDinamicas: OpcoesDinamicas = {
     incoterms: incotermsOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
     paises: paisesOpcoes,
+    paisesLogistica: paisesLogisticaOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
+    portos: portosOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
+    aeroportos: aeroportosOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
     moedas: moedasOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
     unidades: unidadesComercializadas.map(o => ({ valor: o.sigla, rotulo: o.rotulo })),
     status: statusOpcoes,
@@ -1288,7 +1316,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
                     const opcoes = def?.opcoes ?? []
                     const semOpcoesDinamicas = opcoes.length === 0 && (
                       campo.campo === 'incoterm_pedido' || campo.campo === 'incoterm_item' ||
-                      CAMPOS_PAIS.has(campo.campo) || CAMPOS_MOEDA.has(campo.campo) || CAMPOS_UNIDADE.has(campo.campo)
+                      CAMPOS_PAIS.has(campo.campo) || CAMPOS_PAIS_LOGISTICA.has(campo.campo) || CAMPOS_PORTO.has(campo.campo) || CAMPOS_AEROPORTO.has(campo.campo) || CAMPOS_MOEDA.has(campo.campo) || CAMPOS_UNIDADE.has(campo.campo)
                     )
                     if (opcoes.length > 10) {
                       return (

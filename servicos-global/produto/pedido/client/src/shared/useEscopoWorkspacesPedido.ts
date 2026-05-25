@@ -148,6 +148,7 @@ export const useEscopoWorkspacesPedido = create<EscopoWorkspacesPedidoState>((se
 export function resolverIdsWorkspacesParaApi(
   idsEscopo: readonly string[],
   idWorkspaceAtivo: string,
+  _idsDisponiveis?: readonly string[],
 ): string[] | undefined {
   if (idsEscopo.length === 0) return undefined
   const ehPadrao = idsEscopo.length === 1 && idsEscopo[0] === idWorkspaceAtivo

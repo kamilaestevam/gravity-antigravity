@@ -382,17 +382,22 @@ async function main(): Promise<void> {
   try {
     if (singleTenant) {
       const { rows } = await cfgClient.query<Tenant>(
-        `SELECT id, name FROM "Tenant" WHERE id = $1 AND status = 'ACTIVE'`,
+        `SELECT id_organizacao AS id, nome_organizacao AS name
+         FROM organizacao
+         WHERE id_organizacao = $1 AND status_organizacao = 'ATIVO'`,
         [singleTenant],
       )
       if (rows.length === 0) {
-        console.error(`❌  Tenant "${singleTenant}" não encontrado ou não está ACTIVE.`)
+        console.error(`❌  Organização "${singleTenant}" não encontrada ou não está ATIVO.`)
         process.exit(1)
       }
       tenants = rows
     } else {
       const { rows } = await cfgClient.query<Tenant>(
-        `SELECT id, name FROM "Tenant" WHERE status = 'ACTIVE' ORDER BY created_at ASC`,
+        `SELECT id_organizacao AS id, nome_organizacao AS name
+         FROM organizacao
+         WHERE status_organizacao = 'ATIVO'
+         ORDER BY data_criacao_organizacao ASC`,
       )
       tenants = rows
     }

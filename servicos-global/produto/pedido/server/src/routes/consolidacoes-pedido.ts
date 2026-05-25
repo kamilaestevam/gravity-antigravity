@@ -136,6 +136,10 @@ const CAMPOS_COMPARAR: CampoComparar[] = [
   // ── Logística ──
   { campo: 'porto_origem',                  rotulo: 'Porto Origem',               grupo: 'Logística',     fonte: 'direto' },
   { campo: 'porto_destino',                 rotulo: 'Porto Destino',              grupo: 'Logística',     fonte: 'direto' },
+  { campo: 'local_de_origem',               rotulo: 'Local de Origem',            grupo: 'Logística',     fonte: 'direto' },
+  { campo: 'local_de_destino',              rotulo: 'Local de Destino',           grupo: 'Logística',     fonte: 'direto' },
+  { campo: 'aeroporto_origem',              rotulo: 'Aeroporto Origem',           grupo: 'Logística',     fonte: 'direto' },
+  { campo: 'aeroporto_destino',             rotulo: 'Aeroporto Destino',          grupo: 'Logística',     fonte: 'direto' },
   { campo: 'quantidade_volumes_pedido',     rotulo: 'Qtd. Volumes',              grupo: 'Logística',     fonte: 'direto' },
   { campo: 'peso_liquido_total_pedido',     rotulo: 'Peso Líquido Total',        grupo: 'Logística',     fonte: 'direto' },
   { campo: 'peso_bruto_total_pedido',       rotulo: 'Peso Bruto Total',          grupo: 'Logística',     fonte: 'direto' },

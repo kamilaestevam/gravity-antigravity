@@ -41,4 +41,25 @@ router.get('/', async (req, res, next) => {
   }
 })
 
+router.get('/:codigo', async (req, res, next) => {
+  try {
+    const codigo = req.params.codigo.toUpperCase()
+    const apenasAtivos = req.query.apenas_ativos !== 'false'
+    const pais = await prisma.pais.findFirst({
+      where: {
+        OR: [
+          { codigo_pais_iso_alpha2: codigo },
+          { codigo_pais_iso_alpha3: codigo },
+        ],
+      },
+    })
+    if (!pais || (apenasAtivos && !pais.ativo_pais)) {
+      return res.status(404).json({ error: { message: 'País não encontrado' } })
+    }
+    res.status(200).json(pais)
+  } catch (err) {
+    next(err)
+  }
+})
+
 export { router as paisesRouter }

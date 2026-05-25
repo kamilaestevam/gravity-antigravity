@@ -26,7 +26,26 @@ cp -r packages/resolver-organizacao/dist node_modules/@gravity/resolver-organiza
 npx prisma generate --schema=configurador/prisma/schema.prisma
 npx prisma generate --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
 npx prisma generate --schema=servicos-global/cadastros/prisma/schema.prisma
+npx tsx scripts/ativamente/compose-pedido-schema.ts
 npx prisma generate --schema=servicos-global/produto/pedido/prisma/schema.prisma
+
+# 2a. Pedido — migrations (public template + schemas tenant_*)
+if [ -n "$PEDIDO_DATABASE_URL" ]; then
+  echo "[build-site] Applying Pedido migrations (public template)..."
+  DATABASE_URL="$PEDIDO_DATABASE_URL" npx prisma migrate deploy \
+    --schema=servicos-global/produto/pedido/prisma/schema.prisma
+
+  CFG_URL="${CONFIGURADOR_DATABASE_URL:-$DATABASE_URL}"
+  if [ -n "$CFG_URL" ]; then
+    echo "[build-site] Applying Pedido migrations (tenant schemas)..."
+    CONFIGURADOR_DATABASE_URL="$CFG_URL" DATABASE_URL="$PEDIDO_DATABASE_URL" \
+      npx tsx scripts/ativamente/migrate-all-tenants.ts --product=pedido
+  else
+    echo "[build-site] WARN: CONFIGURADOR_DATABASE_URL ausente — skip tenant migrations do Pedido"
+  fi
+else
+  echo "[build-site] PEDIDO_DATABASE_URL ausente — skip Pedido migrations"
+fi
 
 # 2b. Pedido's schema outputs to pedido/node_modules/.prisma/client/ but
 #     @prisma/client at root does require('.prisma/client') from root.

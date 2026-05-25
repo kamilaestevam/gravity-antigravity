@@ -328,6 +328,12 @@ export interface Pedido {
 
   // Dados comerciais
   incoterm: string | null
+  porto_origem?: string | null
+  porto_destino?: string | null
+  local_de_origem?: string | null
+  local_de_destino?: string | null
+  aeroporto_origem?: string | null
+  aeroporto_destino?: string | null
   moeda_pedido: string
   valor_total_pedido: number | null
   casas_decimais_valor_pedido: number

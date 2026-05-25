@@ -1455,8 +1455,12 @@ export class SmartImportService {
     if (dados['cnpj_importador_pedido']) result.cnpj_importador_pedido = String(dados['cnpj_importador_pedido'])
     if (dados['cobertura_cambial_pedido']) result.cobertura_cambial_pedido = String(dados['cobertura_cambial_pedido'])
     // Logística — SSOT usa 'porto_origem_pedido', Prisma usa 'porto_origem'
-    if (dados['porto_origem_pedido'] ?? dados['porto_origem']) result.porto_origem = String(dados['porto_origem_pedido'] ?? dados['porto_origem'])
-    if (dados['porto_destino_pedido'] ?? dados['porto_destino']) result.porto_destino = String(dados['porto_destino_pedido'] ?? dados['porto_destino'])
+    if (dados['porto_origem_pedido'] ?? dados['porto_origem']) result.porto_origem = String(dados['porto_origem_pedido'] ?? dados['porto_origem']).toUpperCase()
+    if (dados['porto_destino_pedido'] ?? dados['porto_destino']) result.porto_destino = String(dados['porto_destino_pedido'] ?? dados['porto_destino']).toUpperCase()
+    if (dados['local_de_origem_pedido'] ?? dados['local_de_origem']) result.local_de_origem = String(dados['local_de_origem_pedido'] ?? dados['local_de_origem']).toUpperCase()
+    if (dados['local_de_destino_pedido'] ?? dados['local_de_destino']) result.local_de_destino = String(dados['local_de_destino_pedido'] ?? dados['local_de_destino']).toUpperCase()
+    if (dados['aeroporto_origem_pedido'] ?? dados['aeroporto_origem']) result.aeroporto_origem = String(dados['aeroporto_origem_pedido'] ?? dados['aeroporto_origem']).toUpperCase()
+    if (dados['aeroporto_destino_pedido'] ?? dados['aeroporto_destino']) result.aeroporto_destino = String(dados['aeroporto_destino_pedido'] ?? dados['aeroporto_destino']).toUpperCase()
 
     // ── Campos numéricos (Decimal) opcionais ────────────────────────────────
     if (dados['taxa_cambio_estimada_pedido']) result.taxa_cambio_estimada_pedido = Number(dados['taxa_cambio_estimada_pedido'])

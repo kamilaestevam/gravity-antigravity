@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-17T21:05:05.063Z
+// Gerado em: 2026-05-25T21:57:07.496Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/produto/pedido
 // ============================================================================
@@ -153,10 +153,17 @@ model Pedido {
   data_meta_recebimento_original_invoice_pedido               DateTime?
 
   // ============================================================
-  // Edição em Massa — colunas novas (Líder Técnico, 2026-05-12)
+  // Logística — lookup lógico Cadastros (sem FK cross-banco)
+  // porto_*       → cadastros.porto.codigo_unlocode_porto
+  // local_de_*    → cadastros.pais.codigo_pais_iso_alpha2
+  // aeroporto_*   → cadastros.aeroporto.codigo_iata_aeroporto (fallback UN/LOCODE)
   // ============================================================
   porto_origem                                                String?
   porto_destino                                               String?
+  local_de_origem                                             String?
+  local_de_destino                                            String?
+  aeroporto_origem                                            String?
+  aeroporto_destino                                           String?
   data_embarque_origem                                        DateTime?
   data_proforma_invoice                                       DateTime?
   data_invoice                                                DateTime?
@@ -171,7 +178,7 @@ model Pedido {
   snapshots_moeda_pedido                                      PedidoSnapshotMoeda[]
   snapshots_unidade_pedido                                    PedidoSnapshotUnidade[]
 
-  @@unique([id_organizacao, numero_pedido])
+  @@index([id_organizacao, numero_pedido])
   @@index([id_organizacao])
   @@index([id_organizacao, id_workspace])
   @@index([id_organizacao, status_pedido])
@@ -179,6 +186,7 @@ model Pedido {
   @@index([id_organizacao, tipo_operacao_pedido])
   @@index([id_organizacao, data_emissao_pedido])
   @@index([id_organizacao, data_exclusao_pedido])
+  @@index([id_organizacao, id_workspace, data_emissao_pedido])
   @@map("pedido")
 }
 

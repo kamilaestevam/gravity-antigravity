@@ -6390,6 +6390,7 @@ export default function Pedidos() {
           colunasPadrao={COLUNAS_PADRAO_VISIVEIS}
 
           carregando={carregando}
+          exibirCabecalhoQuandoVazio
           emptyIcon={
             erroCarga
               ? <Warning size={40} weight="duotone" style={{ color: 'var(--color-error, #ef4444)' }} />

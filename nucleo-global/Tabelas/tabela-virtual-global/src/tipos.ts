@@ -415,6 +415,8 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
 
   // ── Visual ─────────────────────────────────────────────────────────────────
   carregando?: boolean
+  /** Quando true, mantém o cabeçalho de colunas visível mesmo sem linhas (estado vazio abaixo do header). */
+  exibirCabecalhoQuandoVazio?: boolean
   emptyIcon?: ReactNode
   emptyTitle?: string
   emptyDescription?: string

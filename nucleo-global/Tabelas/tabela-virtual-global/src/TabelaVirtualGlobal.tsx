@@ -481,12 +481,6 @@ const GTEditPopover = memo(function GTEditPopover({
   useEffect(() => {
     setReplicarEmItens(replicarEmItensInicial)
   }, [overlayInfo.id, overlayInfo.campo, replicarEmItensInicial])
-  // Helper único — todos os caminhos de confirmação propagam o estado do checkbox.
-  // Quando mostrarCheckboxReplicar=false, replicarEmItens é sempre false (estado
-  // inicial), entao o backend recebe replicar_em_itens=false (padrão divergente).
-  const confirmarComOpts = useCallback(() => {
-    onConfirmar({ replicar_em_itens: replicarEmItens })
-  }, [onConfirmar, replicarEmItens])
   const { rect, colLabel } = overlayInfo
   const isPeriodo = overlayInfo.colTipo === 'periodo'
   const isOpcoes  = Array.isArray(overlayInfo.opcoes) && overlayInfo.opcoes!.length > 0
@@ -494,6 +488,7 @@ const GTEditPopover = memo(function GTEditPopover({
   const isUnidade = overlayInfo.colTipo === 'unidade'
   const isNumero  = overlayInfo.colTipo === 'numero'
   const isNCM     = overlayInfo.campo === 'ncm'
+  const isTextoLivre = !isPeriodo && !isOpcoes && !isMoeda && !isUnidade && !isNumero && !isNCM
 
   // Validação NCM com alíquotas TEC (debounce 600ms, não bloqueante)
   const { status: ncmStatus, resultado: ncmResultado, validar: ncmValidar } = useNcmValidation()
@@ -539,6 +534,40 @@ const GTEditPopover = memo(function GTEditPopover({
   const unidadeTriggerRef  = useRef<HTMLButtonElement>(null)
   // Flag síncrona: true durante o mousedown do trigger antes do blur do input
   const dropdownAbrindoRef = useRef(false)
+  // Colar / menu de contexto disparam blur antes do onPaste em inputs controlados.
+  const ignorarBlurConfirmacaoRef = useRef(false)
+  const blurConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [textoLocal, setTextoLocal] = useState(() => String(valorEditando ?? ''))
+  const textoLocalRef = useRef(String(valorEditando ?? ''))
+
+  useEffect(() => {
+    const v = String(valorEditando ?? '')
+    setTextoLocal(v)
+    textoLocalRef.current = v
+  }, [overlayInfo.id, overlayInfo.campo])
+
+  useEffect(() => () => {
+    if (blurConfirmTimerRef.current) clearTimeout(blurConfirmTimerRef.current)
+  }, [])
+
+  function cancelarBlurConfirmAgendado() {
+    if (blurConfirmTimerRef.current) {
+      clearTimeout(blurConfirmTimerRef.current)
+      blurConfirmTimerRef.current = null
+    }
+  }
+
+  function liberarIgnorarBlurConfirmacao() {
+    setTimeout(() => { ignorarBlurConfirmacaoRef.current = false }, 300)
+  }
+
+  // Helper único — todos os caminhos de confirmação propagam o estado do checkbox.
+  // Quando mostrarCheckboxReplicar=false, replicarEmItens é sempre false (estado
+  // inicial), entao o backend recebe replicar_em_itens=false (padrão divergente).
+  const confirmarComOpts = useCallback(() => {
+    if (isTextoLivre) onAtualizar(textoLocalRef.current)
+    onConfirmar({ replicar_em_itens: replicarEmItens })
+  }, [onConfirmar, replicarEmItens, isTextoLivre, onAtualizar])
   const [moedaAberta, setMoedaAberta] = useState(false)
   const [unidadeAberta, setUnidadeAberta] = useState(false)
   // Calendário inicia fechado — abre quando usuário clica no icone à direita do input.
@@ -613,14 +642,111 @@ const GTEditPopover = memo(function GTEditPopover({
     erroTimerRef.current = setTimeout(() => setErroInput(null), 3000)
   }
 
-  // Handler de paste compartilhado — detecta multi-linha e aciona smart paste
+  /** Aplica valor digitado/colado ao estado controlado do popover (SSOT do onChange). */
+  function aplicarTextoInput(raw: string) {
+    if (isMoeda) {
+      if (raw !== '' && !/^-?[\d.,]*$/.test(raw)) {
+        mostrarErroInput('Apenas números são permitidos neste campo')
+        return
+      }
+      setErroInput(null)
+      setDisplayMoedaAmt(raw)
+      onAtualizar({ ...mv, amount: parseBRNum(raw) })
+      return
+    }
+    if (isUnidade && !overlayInfo.apenasUnidade) {
+      if (raw !== '' && !/^-?[\d.,]*$/.test(raw)) {
+        mostrarErroInput('Apenas números são permitidos neste campo')
+        return
+      }
+      setErroInput(null)
+      setDisplayQty(raw)
+      onAtualizar({ ...uv, quantity: parseBRNum(raw) })
+      return
+    }
+    if (isNumero) {
+      if (raw !== '' && !/^-?[\d.,]*$/.test(raw)) {
+        mostrarErroInput('Apenas números são permitidos neste campo')
+        return
+      }
+      setErroInput(null)
+      setDisplayNumero(raw)
+      onAtualizar(parseBRNum(raw))
+      return
+    }
+    if (isNCM) {
+      const isDigitsOnly = /^\d*$/.test(raw.replace(/\./g, ''))
+      if (isDigitsOnly) {
+        const digits = raw.replace(/\D/g, '').slice(0, 8)
+        let masked = digits
+        if (digits.length > 6) masked = `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6)}`
+        else if (digits.length > 4) masked = `${digits.slice(0, 4)}.${digits.slice(4)}`
+        onAtualizar(masked)
+      } else {
+        onAtualizar(raw)
+      }
+      return
+    }
+    if (isTextoLivre) {
+      setTextoLocal(raw)
+      textoLocalRef.current = raw
+    }
+    onAtualizar(raw)
+  }
+
+  function confirmarBlurPopover(e: React.FocusEvent<HTMLInputElement>) {
+    if (ignorarBlurConfirmacaoRef.current) return
+    if (isMoeda) {
+      const parsed = parseBRNum(displayMoedaAmt)
+      setDisplayMoedaAmt(fmtBR(parsed, 2))
+    } else if (isUnidade && !overlayInfo.apenasUnidade) {
+      const parsed = parseBRNum(displayQty)
+      setDisplayQty(fmtBR(parsed, casas))
+    } else if (isNumero) {
+      const parsed = parseBRNum(displayNumero)
+      setDisplayNumero(fmtBR(parsed, casas))
+    }
+    if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
+    if (popoverRef.current?.contains(e.relatedTarget as Node)) return
+
+    cancelarBlurConfirmAgendado()
+    blurConfirmTimerRef.current = setTimeout(() => {
+      blurConfirmTimerRef.current = null
+      if (ignorarBlurConfirmacaoRef.current) return
+      if (inputRef.current && document.activeElement === inputRef.current) return
+      confirmarComOpts()
+    }, 250)
+  }
+
+  function lerTextoColagem(data: DataTransfer): string {
+    return (
+      data.getData('text/plain') ||
+      data.getData('Text') ||
+      data.getData('text') ||
+      ''
+    )
+  }
+
+  // Handler de paste — inputs controlados não propagam colar nativo para o React
+  // state; tratamos explicitamente. Multi-linha aciona smart paste (Excel).
   const handleSmartPasteDetect = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const texto = e.clipboardData.getData('text')
+    const texto = lerTextoColagem(e.clipboardData)
+    if (!texto) return
+
+    cancelarBlurConfirmAgendado()
+    ignorarBlurConfirmacaoRef.current = true
     const linhas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+
     if (linhas.length > 1) {
       e.preventDefault()
       onSmartPaste?.(linhas)
+      liberarIgnorarBlurConfirmacao()
+      return
     }
+
+    e.preventDefault()
+    aplicarTextoInput(linhas.length === 1 ? linhas[0] : texto.trim())
+    liberarIgnorarBlurConfirmacao()
   }
 
   // Estado local para campos de data: texto em formato DD/MM/AAAA
@@ -823,12 +949,7 @@ const GTEditPopover = memo(function GTEditPopover({
                   if (e.key === 'Enter')  { e.preventDefault(); confirmarComOpts() }
                   if (e.key === 'Escape') { e.preventDefault(); setMoedaAberta(false); onCancelar() }
                 }}
-                onBlur={e => {
-                  const parsed = parseBRNum(displayMoedaAmt)
-                  setDisplayMoedaAmt(fmtBR(parsed, 2))
-                  if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
-                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) confirmarComOpts()
-                }}
+                onBlur={confirmarBlurPopover}
                 onPaste={handleSmartPasteDetect}
               />
             </div>
@@ -858,12 +979,7 @@ const GTEditPopover = memo(function GTEditPopover({
                     if (e.key === 'Enter')  { e.preventDefault(); confirmarComOpts() }
                     if (e.key === 'Escape') { e.preventDefault(); setUnidadeAberta(false); onCancelar() }
                   }}
-                  onBlur={e => {
-                    const parsed = parseBRNum(displayQty)
-                    setDisplayQty(fmtBR(parsed, casas))
-                    if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
-                    if (!popoverRef.current?.contains(e.relatedTarget as Node)) confirmarComOpts()
-                  }}
+                  onBlur={confirmarBlurPopover}
                   onPaste={handleSmartPasteDetect}
                 />
               )}
@@ -970,34 +1086,18 @@ const GTEditPopover = memo(function GTEditPopover({
                 isNCM && ncmEhCodigo && ncmStatus === 'valido' ? 'gtv-edit-popover-input--ncm-ok' : '',
                 isNCM && ncmEhCodigo && (ncmStatus === 'invalido' || ncmStatus === 'sem_sync') ? 'gtv-edit-popover-input--ncm-warn' : '',
               ].filter(Boolean).join(' ')}
-              value={isNumero ? displayNumero : String(valorEditando ?? '')}
+              value={isNumero ? displayNumero : isTextoLivre ? textoLocal : String(valorEditando ?? '')}
               disabled={salvando}
               placeholder={isNCM ? 'Código ou descrição…' : undefined}
-              onChange={e => {
-                const raw = e.target.value
-                if (isNumero) {
-                  // Bloqueia caracteres não-numéricos (aceita dígitos, vírgula, ponto, sinal negativo)
-                  if (raw !== '' && !/^-?[\d.,]*$/.test(raw)) {
-                    mostrarErroInput('Apenas números são permitidos neste campo')
-                    return
-                  }
-                  setErroInput(null)
-                  setDisplayNumero(raw)
-                  onAtualizar(parseBRNum(raw))
-                } else if (isNCM) {
-                  const isDigitsOnly = /^\d*$/.test(raw.replace(/\./g, ''))
-                  if (isDigitsOnly) {
-                    const digits = raw.replace(/\D/g, '').slice(0, 8)
-                    let masked = digits
-                    if (digits.length > 6) masked = `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6)}`
-                    else if (digits.length > 4) masked = `${digits.slice(0, 4)}.${digits.slice(4)}`
-                    onAtualizar(masked)
-                  } else {
-                    onAtualizar(raw)
-                  }
-                } else {
-                  onAtualizar(raw)
-                }
+              onChange={e => aplicarTextoInput(e.target.value)}
+              onInput={e => {
+                if (!isTextoLivre) return
+                const raw = (e.target as HTMLInputElement).value
+                if (raw === textoLocalRef.current) return
+                cancelarBlurConfirmAgendado()
+                setTextoLocal(raw)
+                textoLocalRef.current = raw
+                onAtualizar(raw)
               }}
               onKeyDown={e => {
                 if (e.key === 'Enter')  {
@@ -1014,13 +1114,7 @@ const GTEditPopover = memo(function GTEditPopover({
                 }
                 if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
               }}
-              onBlur={e => {
-                if (isNumero) {
-                  const parsed = parseBRNum(displayNumero)
-                  setDisplayNumero(fmtBR(parsed, casas))
-                }
-                if (!popoverRef.current?.contains(e.relatedTarget as Node)) confirmarComOpts()
-              }}
+              onBlur={confirmarBlurPopover}
               onPaste={handleSmartPasteDetect}
             />
           )}
@@ -1393,6 +1487,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   colunasPadrao,
   imperativeRef,
   carregando,
+  exibirCabecalhoQuandoVazio = false,
   emptyIcon,
   emptyTitle,
   emptyDescription,
@@ -3259,7 +3354,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           role="rowgroup"
           aria-label="Linhas da tabela"
         >
-          {dados.length === 0 ? (
+          {dados.length === 0 && !exibirCabecalhoQuandoVazio ? (
             <GTVazio
               emptyIcon={emptyIcon}
               emptyTitle={emptyTitle}
@@ -3357,14 +3452,25 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 )}
               </div>
 
-              {/* Linhas da página atual */}
-              {linhasPagina.map((linha, idx) => (
-                <React.Fragment key={`${linha.tipo}-${linha.id}`}>
-                  {linha.tipo === 'pai'
-                    ? renderLinhaPai(linha as GTLinhaVirtual<T, C> & { tipo: 'pai' }, idx)
-                    : renderLinhaFilha(linha as GTLinhaVirtual<T, C> & { tipo: 'filho' }, idx)}
-                </React.Fragment>
-              ))}
+              {/* Linhas da página atual — ou estado vazio abaixo do cabeçalho */}
+              {dados.length === 0 ? (
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <GTVazio
+                    emptyIcon={emptyIcon}
+                    emptyTitle={emptyTitle}
+                    emptyDescription={emptyDescription}
+                    emptyAction={emptyAction}
+                  />
+                </div>
+              ) : (
+                linhasPagina.map((linha, idx) => (
+                  <React.Fragment key={`${linha.tipo}-${linha.id}`}>
+                    {linha.tipo === 'pai'
+                      ? renderLinhaPai(linha as GTLinhaVirtual<T, C> & { tipo: 'pai' }, idx)
+                      : renderLinhaFilha(linha as GTLinhaVirtual<T, C> & { tipo: 'filho' }, idx)}
+                  </React.Fragment>
+                ))
+              )}
             </div>
           )}
         </div>

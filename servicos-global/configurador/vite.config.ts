@@ -187,7 +187,6 @@ export default defineConfig(({ command }) => {
       '/api/v1/empresas': {
         target: 'http://localhost:8031',
         changeOrigin: true,
-        rewrite: (path: string) => path.replace(/^\/api\/v1\/empresas/, '/api/v1/fornecedores'),
         configure(proxy) {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')

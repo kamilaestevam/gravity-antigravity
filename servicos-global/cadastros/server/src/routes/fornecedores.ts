@@ -26,6 +26,8 @@ import {
 import { gerarSuid } from '../utils/gerar-suid.js'
 import { consultarImpacto } from '../services/preview-impacto.js'
 import { notificarMudancaEntidade } from '../services/notifyPedido.js'
+import { obterEmpresaDaOrganizacao } from '../services/empresa-org.service.js'
+import { empresaParaFornecedorCompatDto } from '../services/empresa-dto.js'
 
 const router = Router()
 router.use(requireInternalKey)
@@ -176,8 +178,36 @@ router.get('/', async (req, res, next) => {
     const pais_fornecedor = typeof req.query.pais_fornecedor === 'string' ? req.query.pais_fornecedor : undefined
     const busca = typeof req.query.busca === 'string' ? req.query.busca : undefined
 
+    const escopo = typeof req.query.escopo === 'string' ? req.query.escopo : undefined
+
+    const idsExcluir: string[] = []
+    if (escopo === 'parceiros') {
+      const empresaOrg = await obterEmpresaDaOrganizacao(idOrganizacao)
+      if (empresaOrg) idsExcluir.push(empresaOrg.id_empresa)
+      const baseUrlConfigurador = process.env.CONFIGURADOR_BASE_URL ?? 'http://localhost:8005'
+      const internalKey = process.env.CHAVE_INTERNA_SERVICO
+      if (internalKey) {
+        try {
+          const resOrg = await fetch(
+            `${baseUrlConfigurador.replace(/\/$/, '')}/api/v1/internal/organizacoes/${encodeURIComponent(idOrganizacao)}`,
+            {
+              headers: { 'x-chave-interna-servico': internalKey, 'x-internal-key': internalKey },
+              signal: AbortSignal.timeout(5000),
+            },
+          )
+          if (resOrg.ok) {
+            const org = await resOrg.json() as { suid_empresa_organizacao?: string | null }
+            if (org.suid_empresa_organizacao) idsExcluir.push(org.suid_empresa_organizacao)
+          }
+        } catch {
+          /* mantém filtro parcial */
+        }
+      }
+    }
+
     const where: Prisma.FornecedorWhereInput = {
       id_organizacao_cadastro_fornecedor: idOrganizacao,
+      ...(idsExcluir.length > 0 ? { id_fornecedor: { notIn: [...new Set(idsExcluir)] } } : {}),
       ...(podeSerImportador !== undefined ? { pode_ser_importador_fornecedor: true } : {}),
       ...(pais_fornecedor ? { pais_fornecedor } : {}),
       ...(busca ? { nome_fornecedor: { contains: busca, mode: 'insensitive' } } : {}),
@@ -199,123 +229,19 @@ router.get('/', async (req, res, next) => {
   }
 })
 
-// ---------------------------------------------------------------------------
-// GET /fornecedores/da-organizacao — resolve a fornecedor-da-organização (1:1)
-//
-// Distingue a fornecedor-da-org das demais (parceiros importadores/exportadores
-// estrangeiros, fabricantes etc.) via lookup cross-banco no Configurador:
-// Organizacao.id_fornecedor_organizacao aponta para a empresa "de si mesma"
-// no Cadastros.
-//
-// Caminho oficial pra:
-//   - Auto-fill do lado-da-organização no ModalPedidoNovo (Importador em
-//     IMPORTACAO, Exportador em EXPORTACAO).
-//
-// Falha alta (Mand. 08):
-//   - 404 com código FORNECEDOR_DA_ORG_AUSENTE se a Organizacao não tem
-//     id_fornecedor_organizacao (onboarding incompleto)
-//   - 404 com código FORNECEDOR_NAO_CADASTRADO se o suid existe na Organizacao
-//     mas a Empresa não está em cadastros (drift cross-banco)
-//
-// IMPORTANTE: rota declarada ANTES de `/:id_fornecedor` para evitar shadowing.
-// ---------------------------------------------------------------------------
+// GET /fornecedores/da-organizacao — compat Pedido: lê tabela empresa (SSOT §4.1).
 router.get('/da-organizacao', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
-
-    // Resolve id_fornecedor_organizacao consultando o Configurador (S2S).
-    const baseUrlConfigurador = process.env.CONFIGURADOR_BASE_URL ?? 'http://localhost:8005'
-    // Mand. 08 — sem fallback silencioso. Sem chave configurada, falha alto
-    // com 500 explícito em vez de mandar string vazia e receber 401 indistinguível.
-    const internalKey = process.env.CHAVE_INTERNA_SERVICO
-    if (!internalKey) {
+    const empresa = await obterEmpresaDaOrganizacao(idOrganizacao)
+    if (!empresa) {
       throw new AppError(
-        'CHAVE_INTERNA_SERVICO ausente no .env do Cadastros',
-        500,
-        'CONFIG_ERROR',
-      )
-    }
-    const url = `${baseUrlConfigurador.replace(/\/$/, '')}/api/v1/internal/organizacoes/${encodeURIComponent(idOrganizacao)}`
-    const respostaConfigurador = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'x-chave-interna-servico': internalKey,
-        'x-internal-key': internalKey, // compat com middleware do Configurador
-        'content-type': 'application/json',
-      },
-      signal: AbortSignal.timeout(5000),
-    })
-    if (!respostaConfigurador.ok) {
-      throw new AppError(
-        `Falha ao resolver organização no Configurador (status ${respostaConfigurador.status})`,
-        502,
-        'CONFIGURADOR_INDISPONIVEL',
-      )
-    }
-    const dadosOrg = await respostaConfigurador.json() as {
-      suid_empresa_organizacao?: string | null
-      nome?: string | null
-      cnpj_organizacao?: string | null
-    }
-    const suid = dadosOrg.suid_empresa_organizacao
-    if (!suid) {
-      throw new AppError(
-        'Organização não tem fornecedor-da-org cadastrada (onboarding incompleto). Conclua o cadastro da empresa nos Cadastros antes de criar pedidos.',
+        'Organização não tem Empresa cadastrada (onboarding incompleto).',
         404,
-        'FORNECEDOR_DA_ORG_AUSENTE',
+        'EMPRESA_DA_ORG_AUSENTE',
       )
     }
-
-    // Busca a Empresa local pelo SUID + tenant isolation.
-    let fornecedor = await prisma.fornecedor.findFirst({
-      where: { id_fornecedor: suid, id_organizacao_cadastro_fornecedor: idOrganizacao },
-    })
-
-    // Self-healing: drift cross-banco — Empresa foi perdida (DB reset, migration).
-    // Recria com SUID original para manter consistência com o Configurador.
-    if (!fornecedor) {
-      const nomeEmpresa = dadosOrg.nome ?? 'Fornecedor da Organização'
-      const cnpj = dadosOrg.cnpj_organizacao ?? null
-      const pais = cnpj ? 'BR' : 'BR'
-      console.warn(
-        `[self-healing] Empresa ${suid} ausente no Cadastros — recriando a partir dos dados do Configurador (nome=${nomeEmpresa}, cnpj=${cnpj ?? 'N/A'})`,
-      )
-      try {
-        fornecedor = await prisma.fornecedor.create({
-          data: {
-            id_fornecedor: suid,
-            id_organizacao_cadastro_fornecedor: idOrganizacao,
-            nome_fornecedor: nomeEmpresa,
-            cnpj_fornecedor: cnpj,
-            pais_fornecedor: pais,
-            pode_ser_importador_fornecedor: true,
-            pode_ser_exportador_fornecedor: false,
-            pode_ser_fabricante_fornecedor: false,
-            pode_ser_agente_fornecedor: false,
-            pode_ser_despachante_fornecedor: false,
-            pode_ser_armador_fornecedor: false,
-            pode_ser_cia_aerea_fornecedor: false,
-            pode_ser_transportadora_rodoviaria_nacional_fornecedor: false,
-            pode_ser_armazem_alfandegado_fornecedor: false,
-            ativo_fornecedor: true,
-          },
-        })
-      } catch (createErr) {
-        // Race condition: outro request já recriou — tenta buscar de novo.
-        fornecedor = await prisma.fornecedor.findFirst({
-          where: { id_fornecedor: suid, id_organizacao_cadastro_fornecedor: idOrganizacao },
-        })
-        if (!fornecedor) {
-          throw new AppError(
-            `Configurador aponta suid_empresa_organizacao=${suid}, mas Fornecedor não foi encontrado no Cadastros e a recriação falhou (contate o suporte).`,
-            404,
-            'FORNECEDOR_NAO_CADASTRADO',
-          )
-        }
-      }
-    }
-
-    res.status(200).json(toFornecedorDto(fornecedor))
+    res.status(200).json(empresaParaFornecedorCompatDto(empresa))
   } catch (err) {
     next(err)
   }

@@ -378,11 +378,11 @@ app.use('/api/v1/pedidos', (req, res) => {
 })
 
 // ─── Proxy reverso: Cadastros sidecar (porta 8031) ──────────────────────────
-// O sidecar Cadastros expõe `/api/v1/fornecedores` (alias `/api/v1/empresas`) e `/api/v1/cadastros/*`
+// O sidecar Cadastros expõe `/api/v1/empresas` (1:1 org), `/api/v1/fornecedores` (parceiros) e `/api/v1/cadastros/*`
 // (moedas, unidades, incoterms, ncm, operacoes-comex, paises...).
 // Sem este proxy, as chamadas relativas do frontend caem no catch-all → 404.
 const _proxyCadastros = (req: express.Request, res: express.Response) => {
-  const cadastrosPath = req.originalUrl.replace(/^\/api\/v1\/empresas/, '/api/v1/fornecedores')
+  const cadastrosPath = req.originalUrl
   const targetUrl = `http://127.0.0.1:8031${cadastrosPath}`
   // Tipado explicitamente: o spread de req.headers (IncomingHttpHeaders) perde
   // o index signature, e atribuir chaves custom (x-internal-key) viraria TS7053.
@@ -418,7 +418,7 @@ const _proxyCadastros = (req: express.Request, res: express.Response) => {
   }
 }
 app.use('/api/v1/fornecedores', _proxyCadastros)
-app.use('/api/v1/empresas', _proxyCadastros) // compat legado → Cadastros /fornecedores
+app.use('/api/v1/empresas', _proxyCadastros)
 app.use('/api/v1/cadastros', _proxyCadastros)
 
 // ─── Servir frontend Vite em produção ────────────────────────────────────────

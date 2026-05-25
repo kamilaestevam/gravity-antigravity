@@ -6,7 +6,6 @@
  */
 
 export * from './fornecedor.schema.js'
-/** @deprecated aliases empresa* — manter até consumidores migrarem para fornecedor* */
 export * from './empresa.schema.js'
 export * from './moeda.schema.js'
 export * from './unidade.schema.js'

@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-24T19:43:03.216Z
+// Gerado em: 2026-05-25T22:27:40.504Z
 // Banco: gravity-cadastros-* (Railway)
 // Serviço: @gravity/cadastros
 // Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
@@ -49,6 +49,53 @@ datasource db {
 // - DTO/ACL nas rotas: API expõe `id_organizacao` (sem sufixo); banco usa
 //   `id_organizacao_cadastro_fornecedor`.
 // =====================================================================
+
+// ---------------------------------------------------------------------
+// Empresa — identidade 1:1 da organização (Cadastros §4.1)
+// Separada de Fornecedor (parceiros/contrapartes).
+// ---------------------------------------------------------------------
+model Empresa {
+  id_empresa String @id
+
+  id_organizacao_empresa String @unique(map: "empresa_id_organizacao_empresa_key")
+
+  nome_empresa              String
+  cnpj_empresa              String?
+  tin_empresa               String?
+  pais_empresa              String
+  estado_provincia_empresa  String?
+  cidade_empresa            String?
+  endereco_empresa          String?
+  cep_zipcode_empresa       String?
+  email_principal_empresa   String?
+  telefone_principal_empresa String?
+  whatsapp_principal_empresa String?
+
+  pode_ser_importador_empresa                              Boolean @default(false)
+  pode_ser_exportador_empresa                              Boolean @default(false)
+  pode_ser_fabricante_empresa                              Boolean @default(false)
+  pode_ser_agente_empresa                                  Boolean @default(false)
+  pode_ser_despachante_empresa                             Boolean @default(false)
+  pode_ser_armador_empresa                                 Boolean @default(false)
+  pode_ser_cia_aerea_empresa                               Boolean @default(false)
+  pode_ser_transportadora_rodoviaria_nacional_empresa      Boolean @default(false)
+  pode_ser_transportadora_rodoviaria_internacional_empresa Boolean @default(false)
+  pode_ser_armazem_alfandegado_empresa                     Boolean @default(false)
+  pode_ser_armazem_nacional_empresa                        Boolean @default(false)
+  pode_ser_banco_empresa                                   Boolean @default(false)
+  pode_ser_seguradora_internacional_empresa                Boolean @default(false)
+  pode_ser_seguradora_corretora_cambio_empresa             Boolean @default(false)
+
+  ativo_empresa         Boolean  @default(true)
+  criado_em_empresa     DateTime @default(now())
+  atualizado_em_empresa DateTime @updatedAt
+
+  @@unique([id_organizacao_empresa, cnpj_empresa],                 map: "emp_unq_org_cnpj")
+  @@unique([id_organizacao_empresa, tin_empresa, pais_empresa],    map: "emp_unq_org_tin_pais")
+  @@index([id_organizacao_empresa],                                map: "emp_org_idx")
+  @@index([id_organizacao_empresa, nome_empresa],                  map: "emp_org_nome_idx")
+  @@map("empresa")
+}
 
 // ---------------------------------------------------------------------
 // Fornecedor — cartório de identidades COMEX (per-tenant)

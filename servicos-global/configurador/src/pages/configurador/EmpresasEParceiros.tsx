@@ -40,7 +40,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   listaFornecedoresSchema,
   fornecedorSchema,
-  type Empresa,
+  type Fornecedor,
 } from '@cadastros/shared/schemas'
 import { useShellStore } from '@gravity/shell'
 import {
@@ -73,9 +73,9 @@ async function getAuthHeaders(idOrganizacao: string | undefined): Promise<Record
 
 // Empresa enriquecida com campo derivado `tipos_empresa` para suportar
 // filtro/ordenacao do TabelaGlobal sem duplicar 14 colunas booleanas.
-type EmpresaComTipos = Empresa & { tipos_empresa: string }
+type EmpresaComTipos = Fornecedor & { tipos_empresa: string }
 
-const PAPEIS: Array<{ key: keyof Empresa; label: string; cor: string }> = [
+const PAPEIS: Array<{ key: keyof Fornecedor; label: string; cor: string }> = [
   { key: 'pode_ser_importador_fornecedor', label: 'Importador', cor: '#60a5fa' },
   { key: 'pode_ser_exportador_fornecedor', label: 'Exportador', cor: '#34d399' },
   { key: 'pode_ser_fabricante_fornecedor', label: 'Fabricante', cor: '#fbbf24' },
@@ -92,12 +92,12 @@ const PAPEIS: Array<{ key: keyof Empresa; label: string; cor: string }> = [
   { key: 'pode_ser_seguradora_corretora_cambio_fornecedor', label: 'Seguradora / Corretora Câmbio', cor: '#14b8a6' },
 ]
 
-function derivarTiposEmpresa(empresa: Empresa): string {
+function derivarTiposEmpresa(empresa: Fornecedor): string {
   const ativos = PAPEIS.filter(p => Boolean(empresa[p.key])).map(p => p.label)
   return ativos.length === 0 ? '—' : ativos.join(' + ')
 }
 
-function ChipsPapeis({ empresa }: { empresa: EmpresaComTipos | Empresa }) {
+function ChipsPapeis({ empresa }: { empresa: EmpresaComTipos | Fornecedor }) {
   const ativos = PAPEIS.filter((p) => Boolean(empresa[p.key]))
   if (ativos.length === 0) {
     return <span style={{ color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>—</span>
@@ -127,7 +127,7 @@ function ChipsPapeis({ empresa }: { empresa: EmpresaComTipos | Empresa }) {
   )
 }
 
-function DocumentoCell({ empresa }: { empresa: Empresa }) {
+function DocumentoCell({ empresa }: { empresa: Fornecedor }) {
   const ehBr = empresa.pais_fornecedor === 'BR'
   const doc = ehBr ? empresa.cnpj_fornecedor : empresa.tin_fornecedor
   const tipo = ehBr ? 'CNPJ' : 'TIN'
@@ -177,9 +177,9 @@ export function EmpresasEParceiros() {
   const idOrganizacao = currentUser.idOrganizacao
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const [empresas, setEmpresas] = useState<Empresa[]>([])
+  const [empresas, setEmpresas] = useState<Fornecedor[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [empresaEditando, setEmpresaEditando] = useState<Empresa | null>(null)
+  const [empresaEditando, setEmpresaEditando] = useState<Fornecedor | null>(null)
   const [criandoNova, setCriandoNova] = useState(false)
 
   // Deep-link: ?criar=exportador-quando-importacao ou importador-quando-exportacao
@@ -202,7 +202,7 @@ export function EmpresasEParceiros() {
     try {
       setCarregando(true)
       const headers = await getAuthHeaders(idOrganizacao)
-      const res = await fetch('/api/v1/fornecedores?pagina=1&por_pagina=200', { headers })
+      const res = await fetch('/api/v1/fornecedores?pagina=1&por_pagina=200&escopo=parceiros', { headers })
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
         addNotification({
@@ -230,7 +230,7 @@ export function EmpresasEParceiros() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idOrganizacao])
 
-  async function alternarAtivacao(empresa: Empresa) {
+  async function alternarAtivacao(empresa: Fornecedor) {
     try {
       const headers = await getAuthHeaders(idOrganizacao)
       // Soft delete (DELETE) desativa; para reativar usamos PUT com { ativo_fornecedor: true }.

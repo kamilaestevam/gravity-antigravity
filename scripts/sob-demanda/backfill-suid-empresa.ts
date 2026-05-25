@@ -1,43 +1,11 @@
 /**
- * backfill-suid-empresa.ts — Fase 3 do PASSO 06 DDD
- *
- * Para Organizacoes existentes com `suid_empresa = NULL`, cria a Empresa
- * correspondente no serviço Cadastros e popula o SUID no Configurador.
- *
- * ESCOPO ESTRITO (decisão da Fase 3):
- *   - Apenas Organizacoes do banco do Configurador com suid_empresa IS NULL
- *   - NÃO toca linhas órfãs do banco monolítico legado
- *
- * IDEMPOTÊNCIA:
- *   - Se a Empresa já existe em Cadastros para a Organizacao (tentativa anterior
- *     bem-sucedida no lado Cadastros mas com falha no UPDATE local), o script
- *     reaproveita o SUID em vez de duplicar.
- *
- * MODOS:
- *   - --dry-run       : só lista o que faria, sem gravar nada
- *   - --org-id=<cuid> : processa apenas 1 Organizacao (validação piloto)
- *   - (sem flags)     : processa todas as Organizacoes pendentes
- *
- * USO:
- *   cd servicos-global/configurador && npx tsx ../../scripts/sob-demanda/backfill-suid-empresa.ts --dry-run
- *   cd servicos-global/configurador && npx tsx ../../scripts/sob-demanda/backfill-suid-empresa.ts --org-id=<cuid>
- *   cd servicos-global/configurador && npx tsx ../../scripts/sob-demanda/backfill-suid-empresa.ts
- *
- * PRÉ-REQUISITOS:
- *   - Serviço Cadastros rodando (CADASTROS_SERVICE_URL alcançável)
- *   - CHAVE_INTERNA_SERVICO configurada
- *   - Configurador apontando para o banco correto (CONFIGURADOR_DATABASE_URL)
- *
- * Observação: CNPJ vem do próprio Organizacao (coluna `cnpj` legada) quando
- * existe. Para orgs sem CNPJ e país=BR, o script loga WARN e pula — não
- * adivinha dados ausentes.
+ * backfill-suid-empresa.ts — popula suid_empresa_organizacao via POST /empresas
  */
-
 import { randomUUID } from 'crypto'
 import { PrismaClient } from '../../configurador/generated/index.js'
 import {
   criarEmpresa,
-  listarEmpresasPorOrganizacao,
+  obterEmpresaDaOrganizacao,
 } from '../../servicos-global/configurador/server/services/cadastros-client.js'
 
 interface BackfillArgs {
@@ -63,161 +31,82 @@ function parseArgs(): BackfillArgs {
 
 async function processarOrganizacao(
   prisma: PrismaClient,
-  org: { id: string; name: string; cnpj_organizacao: string | null },
+  org: { id_organizacao: string; nome_organizacao: string; cnpj_organizacao: string | null },
   dryRun: boolean,
   result: BackfillResult,
 ): Promise<void> {
   const correlationId = randomUUID()
-  const ctx = { id_organizacao: org.id, correlation_id: correlationId }
+  const ctx = { id_organizacao: org.id_organizacao, correlation_id: correlationId }
 
-  // Sem CNPJ: assume país = BR no legado. Sem CNPJ + BR = regra de Cadastros bloqueia.
-  // Aqui não adivinhamos — pulamos e alertamos.
   if (!org.cnpj_organizacao) {
-    console.warn(
-      `⚠️  [${correlationId}] ${org.id} "${org.name}" — sem CNPJ, país=BR presumido → PULADO. Preencha o CNPJ antes de rodar o backfill para esta org.`,
-    )
+    console.warn(`⚠️  [${correlationId}] ${org.id_organizacao} "${org.nome_organizacao}" — sem CNPJ → PULADO`)
     result.puladas += 1
     return
   }
 
   try {
-    // 1. Verifica se Empresa já existe (idempotência)
-    const existentes = await listarEmpresasPorOrganizacao(ctx)
-    const matchCnpj = existentes.find((e) => e.cnpj === org.cnpj_organizacao)
-
+    const existente = await obterEmpresaDaOrganizacao(ctx)
     let suid: string
-    if (matchCnpj) {
-      suid = matchCnpj.suid
-      console.log(
-        `♻️  [${correlationId}] ${org.id} "${org.name}" — Empresa já existe em Cadastros (SUID=${suid}) → reaproveitando`,
-      )
+    if (existente) {
+      suid = existente.id_empresa
+      console.log(`♻️  [${correlationId}] ${org.id_organizacao} — Empresa já existe (SUID=${suid})`)
       result.reaproveitadas += 1
     } else {
       if (dryRun) {
-        console.log(
-          `🔍 [DRY] [${correlationId}] ${org.id} "${org.name}" — criaria Empresa em Cadastros (cnpj=${org.cnpj_organizacao})`,
-        )
+        console.log(`🔍 [DRY] [${correlationId}] ${org.id_organizacao} — criaria Empresa em Cadastros`)
         result.criadas += 1
         return
       }
       const nova = await criarEmpresa(
         {
-          id_organizacao: org.id,
-          nome_empresa: org.name,
-          cnpj: org.cnpj_organizacao,
-          pais: 'BR',
-          pode_ser_importador: true,
-          pode_ser_exportador: false,
-          pode_ser_fabricante: false,
-          pode_ser_agente: false,
-          pode_ser_despachante: false,
-          pode_ser_armador: false,
-          ativo: true,
+          id_organizacao: org.id_organizacao,
+          nome_empresa: org.nome_organizacao,
+          cnpj_empresa: org.cnpj_organizacao,
+          pais_empresa: 'BR',
+          pode_ser_importador_empresa: true,
+          ativo_empresa: true,
         },
         ctx,
       )
-      suid = nova.suid
-      console.log(
-        `✅ [${correlationId}] ${org.id} "${org.name}" — Empresa criada em Cadastros (SUID=${suid})`,
-      )
+      suid = nova.id_empresa
+      console.log(`✅ [${correlationId}] ${org.id_organizacao} — Empresa criada (SUID=${suid})`)
       result.criadas += 1
     }
 
-    // 2. Persiste SUID no Configurador
-    if (dryRun) {
-      console.log(
-        `🔍 [DRY] [${correlationId}] ${org.id} — atualizaria Organizacao.suid_empresa_organizacao=${suid}`,
-      )
-      return
-    }
+    if (dryRun) return
 
     await prisma.organizacao.update({
-      where: { id: org.id },
+      where: { id_organizacao: org.id_organizacao },
       data: { suid_empresa_organizacao: suid },
     })
-    console.log(
-      `💾 [${correlationId}] ${org.id} — Organizacao.suid_empresa_organizacao gravado`,
-    )
+    console.log(`💾 [${correlationId}] ${org.id_organizacao} — suid_empresa_organizacao gravado`)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    console.error(
-      `❌ [${correlationId}] ${org.id} "${org.name}" — FALHOU: ${msg}`,
-    )
+    console.error(`❌ [${correlationId}] ${org.id_organizacao} — FALHOU: ${msg}`)
     result.erros += 1
   }
 }
 
 async function main(): Promise<void> {
   const { dryRun, orgId } = parseArgs()
-
   const dbUrl = process.env.CONFIGURADOR_DATABASE_URL
-  if (!dbUrl) {
-    console.error('❌ CONFIGURADOR_DATABASE_URL não definida.')
-    process.exit(1)
-  }
-  if (!process.env.CADASTROS_SERVICE_URL) {
-    console.warn('⚠️  CADASTROS_SERVICE_URL não definida — usando default http://localhost:8030')
-  }
-  if (!process.env.CHAVE_INTERNA_SERVICO) {
-    console.error('❌ CHAVE_INTERNA_SERVICO não definida — Cadastros rejeitará todas as chamadas.')
+  if (!dbUrl || !process.env.CHAVE_INTERNA_SERVICO) {
+    console.error('❌ CONFIGURADOR_DATABASE_URL e CHAVE_INTERNA_SERVICO são obrigatórias.')
     process.exit(1)
   }
 
-  console.log('\n🔄  backfill-suid-empresa — Fase 3')
-  console.log(`   Modo:       ${dryRun ? 'DRY-RUN (sem gravar)' : 'EXECUÇÃO REAL'}`)
-  console.log(`   Filtro:     ${orgId ? `apenas org ${orgId}` : 'todas as pendentes'}`)
-  console.log(`   Banco:      ${dbUrl.split('@')[1]?.split('/')[0] ?? dbUrl}`)
-  console.log(`   Cadastros:  ${process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8030'}`)
-  console.log()
-
-  const prisma = new PrismaClient({
-    datasources: { db: { url: dbUrl } },
-    log: [],
-  })
-
+  const prisma = new PrismaClient({ datasources: { db: { url: dbUrl } } })
   try {
     const organizacoes = await prisma.organizacao.findMany({
-      where: {
-        suid_empresa_organizacao: null,
-        ...(orgId ? { id: orgId } : {}),
-      },
-      select: { id: true, name: true, cnpj_organizacao: true },
-      orderBy: { created_at: 'asc' },
+      where: { suid_empresa_organizacao: null, ...(orgId ? { id_organizacao: orgId } : {}) },
+      select: { id_organizacao: true, nome_organizacao: true, cnpj_organizacao: true },
     })
 
-    if (organizacoes.length === 0) {
-      console.log('✅ Nenhuma Organizacao pendente de backfill.')
-      return
-    }
+    const result: BackfillResult = { total: organizacoes.length, criadas: 0, reaproveitadas: 0, puladas: 0, erros: 0 }
+    for (const org of organizacoes) await processarOrganizacao(prisma, org, dryRun, result)
 
-    console.log(`📋 ${organizacoes.length} Organizacao(oes) a processar`)
-    console.log()
-
-    const result: BackfillResult = {
-      total: organizacoes.length,
-      criadas: 0,
-      reaproveitadas: 0,
-      puladas: 0,
-      erros: 0,
-    }
-
-    // Sequencial (evita sobrecarregar Cadastros)
-    for (const org of organizacoes) {
-      await processarOrganizacao(prisma, org, dryRun, result)
-    }
-
-    console.log()
-    console.log('───────────── RESUMO ─────────────')
-    console.log(`  Total:         ${result.total}`)
-    console.log(`  Criadas:       ${result.criadas}`)
-    console.log(`  Reaproveitadas:${result.reaproveitadas}`)
-    console.log(`  Puladas:       ${result.puladas}`)
-    console.log(`  Erros:         ${result.erros}`)
-    console.log('──────────────────────────────────')
-
-    if (result.erros > 0) {
-      process.exit(2)
-    }
+    console.log(`\nTotal: ${result.total} | Criadas: ${result.criadas} | Reaproveitadas: ${result.reaproveitadas} | Puladas: ${result.puladas} | Erros: ${result.erros}`)
+    if (result.erros > 0) process.exit(2)
   } finally {
     await prisma.$disconnect()
   }

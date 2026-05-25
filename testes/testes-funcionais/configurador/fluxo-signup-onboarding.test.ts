@@ -69,14 +69,14 @@ describe('guard do hub (SelecionarWorkspace)', () => {
   })
 })
 
-// ─── 6. organizacao-service importa funções renomeadas (fornecedor) ───────────
+// ─── 6. organizacao-service importa criarEmpresa (tabela empresa Cadastros) ───
 describe('organizacao-service — saga onboarding Cadastros', () => {
-  it('deve importar criarFornecedor/compensarFornecedor (não só aliases deprecated)', () => {
+  it('deve importar criarEmpresa/compensarEmpresa para POST /empresas', () => {
     const conteudo = lerArquivo('servicos-global/configurador/server/services/organizacao-service.ts')
-    expect(conteudo).toMatch(/import\s*\{\s*criarFornecedor,\s*compensarFornecedor\s*\}/)
-    expect(conteudo).toContain('await criarFornecedor(')
-    expect(conteudo).toContain('await compensarFornecedor(')
-    expect(conteudo).not.toMatch(/await criarEmpresa\(/)
+    expect(conteudo).toMatch(/import\s*\{\s*criarEmpresa,\s*compensarEmpresa\s*\}/)
+    expect(conteudo).toContain('await criarEmpresa(')
+    expect(conteudo).toContain('await compensarEmpresa(')
+    expect(conteudo).not.toMatch(/await criarFornecedor\(/)
   })
 })
 
@@ -87,9 +87,10 @@ describe('cadastros-client URL com prefixo /api/v1', () => {
     expect(conteudo).toMatch(/return\s+`\$\{base\}\/api\/v1`/)
   })
 
-  it('chamadas a /fornecedores devem estar corretas com o prefixo', () => {
+  it('chamadas a /empresas e /fornecedores devem estar corretas com o prefixo', () => {
     const conteudo = lerArquivo('servicos-global/configurador/server/services/cadastros-client.ts')
     expect(conteudo).not.toContain("'http://localhost:8031/fornecedores'")
+    expect(conteudo).toContain('/empresas')
     expect(conteudo).toContain('/fornecedores')
   })
 })

@@ -28,6 +28,8 @@ export { useShellStore }   from './store'
 export { buildEntityLink } from './entityLinkFactory'
 export type { KnownEntity } from './entityLinkFactory'
 export { injetarHeaderOverride } from './utils/inject-override-header'
+export { buscarOrganizacoesAdmin } from './utils/buscar-organizacoes-admin'
+export type { OrganizacaoAdminOpcao, BuscarOrganizacoesAdminOpts } from './utils/buscar-organizacoes-admin'
 
 // Hooks
 export { useUserPreferences } from './hooks/useUserPreferences'

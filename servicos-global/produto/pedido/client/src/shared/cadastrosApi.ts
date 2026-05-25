@@ -119,6 +119,14 @@ function toCriarEmpresaPayload(input: CriarEmpresaRapidoInput): Record<string, u
 
 // ── API público ───────────────────────────────────────────────────────────────
 
+async function criarFornecedorRapido(input: CriarEmpresaRapidoInput): Promise<Empresa> {
+  const payload = toCriarEmpresaPayload(input)
+  return request<Empresa>('/api/v1/fornecedores', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
 export const cadastrosApi = {
   /**
    * Lista empresas da organização. Suporta filtro por busca textual no nome.
@@ -147,17 +155,14 @@ export const cadastrosApi = {
     request<Empresa>('/api/v1/fornecedores/da-organizacao'),
 
   /**
-   * Cria empresa via fluxo rápido do modal de Pedido. Apenas nome+país+papel
+   * Cria fornecedor via fluxo rápido do modal de Pedido. Apenas nome+país+papel
    * são preenchidos — usuário completa demais dados depois no Cadastros.
    * Lança erro com mensagem específica para 401/403/409/422 (Mandamento 08).
    */
-  criarEmpresa: async (input: CriarEmpresaRapidoInput): Promise<Empresa> => {
-    const payload = toCriarEmpresaPayload(input)
-    return request<Empresa>('/api/v1/fornecedores', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    })
-  },
+  criarFornecedor: criarFornecedorRapido,
+
+  /** @deprecated Use criarFornecedor */
+  criarEmpresa: criarFornecedorRapido,
 
   /**
    * Lista países (fonte única — já vem ordenado: Brasil primeiro).

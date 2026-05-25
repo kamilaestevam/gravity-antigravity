@@ -18,17 +18,40 @@ import ReactDOM from 'react-dom'
 import './tooltip.css'
 import type { TooltipProps } from './tipos.js'
 
-export function TooltipGlobal({ titulo, descricao, children, interativo }: TooltipProps) {
+const DELAY_ESCONDER_INTERATIVO_MS = 120
+
+export function TooltipGlobal({
+  titulo,
+  descricao,
+  children,
+  interativo,
+  posicaoPreferida = 'auto',
+}: TooltipProps) {
   const [show, setShow] = useState(false)
   const [pos,  setPos]  = useState({ top: 0, bottom: 0, left: 0, usaBottom: false })
   const ref        = useRef<HTMLSpanElement>(null)
   const cardRef    = useRef<HTMLDivElement>(null)
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const tooltipId  = useId()
 
-  const calcularPos = () => {
+  const limparTimerEsconder = useCallback(() => {
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current)
+      hideTimerRef.current = null
+    }
+  }, [])
+
+  const calcularPos = useCallback(() => {
     if (ref.current) {
       const r = ref.current.getBoundingClientRect()
-      const usaBottom = r.top > 80
+      let usaBottom: boolean
+      if (posicaoPreferida === 'abaixo') {
+        usaBottom = false
+      } else if (posicaoPreferida === 'acima') {
+        usaBottom = true
+      } else {
+        usaBottom = r.top > 80
+      }
       const pxLeft = Math.max(138, Math.min(r.left + r.width / 2, window.innerWidth - 138))
       setPos({
         usaBottom,
@@ -37,26 +60,32 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
         left: pxLeft,
       })
     }
-  }
+  }, [posicaoPreferida])
 
   const mostra = useCallback(() => {
     if (document.body.classList.contains('tooltips-disabled')) return
+    limparTimerEsconder()
     calcularPos()
     setShow(true)
-  }, [])
+  }, [calcularPos, limparTimerEsconder])
 
-  const esconde = useCallback(() => setShow(false), [])
+  const esconde = useCallback(() => {
+    limparTimerEsconder()
+    if (interativo) {
+      hideTimerRef.current = setTimeout(() => setShow(false), DELAY_ESCONDER_INTERATIVO_MS)
+      return
+    }
+    setShow(false)
+  }, [interativo, limparTimerEsconder])
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') setShow(false)
+    if (e.key === 'Escape') {
+      limparTimerEsconder()
+      setShow(false)
+    }
   }
 
-  // interativo reservado para uso futuro quando a causa raiz for identificada
-  // (interferência ambiental impede fechamento confiável via eventos no card)
-  useEffect(() => {
-    if (!show || !interativo) return
-    // placeholder — não implementado
-  }, [show, interativo])
+  useEffect(() => () => limparTimerEsconder(), [limparTimerEsconder])
 
   return (
     <>
@@ -81,11 +110,14 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
           role="tooltip"
           className="tg-card"
           data-start={pos.usaBottom ? 'bottom' : 'top'}
+          data-interativo={interativo ? 'true' : undefined}
           style={{
             bottom: pos.usaBottom ? pos.bottom : 'auto',
             top:    pos.usaBottom ? 'auto'   : pos.top,
             left:   pos.left,
           }}
+          onMouseEnter={interativo ? mostra : undefined}
+          onMouseLeave={interativo ? esconde : undefined}
         >
           {titulo && <p className="tg-titulo">{titulo}</p>}
           <div className="tg-descricao">{descricao}</div>

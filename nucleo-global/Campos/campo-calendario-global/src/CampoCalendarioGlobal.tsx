@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { CampoGeralGlobal, type CampoGeralGlobalProps } from '@nucleo/campo-geral-global'
 import { CalendarBlank, CaretLeft, CaretRight } from '@phosphor-icons/react'
@@ -96,12 +97,10 @@ export function CampoCalendarioGlobal({
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       const target = e.target as Node
-      if (containerRef.current && !containerRef.current.contains(target)) {
-        // Não fechar se o clique foi dentro de um portal do SelectGlobal (dropdown de mês/ano)
-        const portal = (target as Element).closest?.('[id$="-portal"]')
-        if (portal) return
-        setIsOpen(false)
-      }
+      if (containerRef.current?.contains(target)) return
+      if (target instanceof Element && target.closest('.ws-calendario-panel')) return
+      if (target instanceof Element && target.closest('[id$="-portal"]')) return
+      setIsOpen(false)
     }
     // Fechar calendário ao scroll da página (evita painel flutuante desalinhado)
     // Ignora scroll interno de componentes (dropdown mês/ano, lista do calendário, etc.)
@@ -135,6 +134,7 @@ export function CampoCalendarioGlobal({
       setInicio(d)
       setFim(d)
       aoMudarValor?.({ inicio: d, fim: d })
+      setIsOpen(false)
       return
     }
     if (etapa === 'inicio' || (inicio && d < inicio && (!fim || fim === inicio))) {
@@ -199,13 +199,14 @@ export function CampoCalendarioGlobal({
     setEtapa('inicio')
   }
 
-  // Calcula posição do painel relativa ao viewport (position: fixed).
+  // Calcula posição do painel relativa ao viewport (position: fixed via portal).
   // Faz "flip" automático: se não couber abaixo do trigger e couber melhor
   // acima, abre para cima — evita painel cortado pelo viewport (modal/scroll).
   const calcularPosicao = useCallback(() => {
     if (!containerRef.current) return
     const rect = containerRef.current.getBoundingClientRect()
-    const ALTURA_ESTIMADA_PAINEL = 440 // altura típica do calendar panel (sidebar + grid + footer)
+    const ALTURA_ESTIMADA_PAINEL = modoUnico ? 320 : 440
+    const LARGURA_MINIMA_PAINEL = modoUnico ? 300 : 380
     const MARGEM = 8
     const espacoAbaixo = window.innerHeight - rect.bottom
     const espacoAcima  = rect.top
@@ -228,7 +229,7 @@ export function CampoCalendarioGlobal({
     }
 
     // Ajusta horizontal para não estourar à direita
-    const larguraPainel = Math.max(rect.width, 380)
+    const larguraPainel = Math.max(rect.width, LARGURA_MINIMA_PAINEL)
     const left = Math.min(rect.left, window.innerWidth - larguraPainel - MARGEM)
 
     setPanelPos({
@@ -236,7 +237,24 @@ export function CampoCalendarioGlobal({
       left: Math.max(MARGEM, left),
       width: larguraPainel,
     })
-  }, [])
+  }, [modoUnico])
+
+  useLayoutEffect(() => {
+    if (!isOpen || semTrigger) {
+      if (!isOpen) setPanelPos(null)
+      return
+    }
+    calcularPosicao()
+  }, [isOpen, semTrigger, calcularPosicao])
+
+  useEffect(() => {
+    if (!isOpen || semTrigger) return
+    function handleResize() {
+      calcularPosicao()
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [isOpen, semTrigger, calcularPosicao])
 
   function doConfirm() {
     aoMudarValor?.({ inicio, fim })
@@ -307,8 +325,14 @@ export function CampoCalendarioGlobal({
           position: 'fixed',
           top: panelPos.top,
           left: panelPos.left,
+          width: panelPos.width,
+          minWidth: panelPos.width,
           zIndex: 10001,
-        } : undefined}
+        } : {
+          // Evita flash com position:absolute (cortado por overflow:hidden de modais)
+          visibility: 'hidden',
+          pointerEvents: 'none',
+        }}
       >
         {/* Sidebar Periods — escondido em modoUnico (sem "Últimos 7 dias" etc.) */}
         {!modoUnico && (
@@ -515,7 +539,9 @@ export function CampoCalendarioGlobal({
           </div>
         )}
 
-        {isOpen && renderPanel()}
+        {isOpen && panelPos && typeof document !== 'undefined'
+          ? createPortal(renderPanel(), document.body)
+          : null}
       </div>
     </CampoGeralGlobal>
   )

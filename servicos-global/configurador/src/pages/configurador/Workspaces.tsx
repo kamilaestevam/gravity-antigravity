@@ -113,6 +113,16 @@ export function Workspaces() {
     }
   }, [searchParams, workspaces])
 
+  // Deep-link: ?criar=1 — abre modal de novo workspace (menu lateral dos produtos)
+  useEffect(() => {
+    if (searchParams.get('criar') !== '1') return
+    setWorkspaceEditando(null)
+    setShowForm(true)
+    const newParams = new URLSearchParams(searchParams)
+    newParams.delete('criar')
+    setSearchParams(newParams, { replace: true })
+  }, [searchParams, setSearchParams])
+
   const ativos = workspaces.filter(w => w.status_workspace === 'ATIVO').length
   const suspensos = workspaces.filter(w => w.status_workspace === 'INATIVO').length
 

@@ -47,6 +47,7 @@ const reps = [
   ['criado_em_empresa', 'criado_em_fornecedor'],
   ['atualizado_em_empresa', 'atualizado_em_fornecedor'],
   ['/:id_empresa', '/:id_fornecedor'],
+  ['req.params.id_empresa', 'req.params.id_fornecedor'],
   ["'empresa'", "'fornecedor'"],
   ['/empresas', '/fornecedores'],
   ['Empresa duplicada', 'Fornecedor duplicado'],

@@ -16,6 +16,7 @@ import { setApiContext, injectTenantGetter, injectTokenGetter, injectWorkspaceGe
 import { usePermissoesPedido, type SecaoPedido } from './shared/permissoes/usePermissoesPedido'
 import { BloqueioPermissaoOpaco } from './shared/permissoes/BloqueioPermissaoOpaco'
 import { useEscopoWorkspacesPedido } from './shared/useEscopoWorkspacesPedido'
+import { urlCriarWorkspace, urlGerenciarWorkspaces } from './components/lista/urlsDeepLinkConfigurador'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 /**
@@ -312,8 +313,8 @@ function AppInner() {
         definirEscopoWorkspaces([id])
         window.location.reload()
       }}
-      onCreateWorkspace={() => { window.location.href = '/configurador/workspace/novo' }}
-      onManageWorkspace={() => { window.location.href = '/configurador/workspace' }}
+      onCreateWorkspace={() => { window.location.href = urlCriarWorkspace() }}
+      onManageWorkspace={() => { window.location.href = urlGerenciarWorkspaces() }}
       tooltipsDisabled={tooltipsDisabled}
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}

@@ -4527,6 +4527,14 @@ export default function Pedidos() {
     }
   }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo])
 
+  /** Mesmo padrão de Edição em Massa / Consolidar — limpa cache de filhos antes de listar. */
+  const recarregarListaPosImportacao = useCallback(async () => {
+    itensCarregadosRef.current.clear()
+    setPedidos(prev => prev.map(p => ({ ...p, itens: [] })))
+    setResetFilhos(prev => prev + 1)
+    await carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
+  }, [carregarInicial, abaAtiva, sortCampo, sortDir, busca])
+
   // Recarrega lista quando mudou escopo de workspaces (menu lateral)
   useEffect(() => {
     if (!idOrganizacao || !escopoHidratado) return
@@ -4538,13 +4546,15 @@ export default function Pedidos() {
   useEffect(() => {
     const handler = (e: Event) => {
       const { origem } = (e as CustomEvent<{ origem: string }>).detail ?? {}
-      if (origem !== 'lista') {
-        carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, origem === 'smart-import')
+      if (origem === 'smart-import') {
+        void recarregarListaPosImportacao()
+        return
       }
+      if (origem !== 'lista') carregarInicial()
     }
     window.addEventListener('pedido:atualizado', handler)
     return () => window.removeEventListener('pedido:atualizado', handler)
-  }, [carregarInicial])
+  }, [carregarInicial, recarregarListaPosImportacao])
 
   // ── Deep-link: auto-expandir pedido ao retornar do Configurador ────────────
   // URL param ?expandir=<pedidoId> — expande o pedido e limpa o param.
@@ -6395,9 +6405,10 @@ export default function Pedidos() {
       <ModalSmartImportPedido
         aberto={smartImportAberto}
         onFechar={() => setSmartImportAberto(false)}
+        onListaAlterada={recarregarListaPosImportacao}
         onConcluido={async (idsCriados) => {
           setSmartImportAberto(false)
-          await carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
+          await recarregarListaPosImportacao()
           // Abre o(s) pedido(s) recém-importado(s) para conferência. Se mais
           // de um, expande todos — vêm no topo via orderBy data_criacao desc.
           requestAnimationFrame(() => {

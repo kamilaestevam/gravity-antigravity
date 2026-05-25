@@ -43,6 +43,8 @@ export interface ModalSmartImportPedidoProps {
   aberto: boolean
   onFechar: () => void
   onConcluido: (idsCriados: string[]) => void
+  /** Recarrega a lista sem fechar o modal (chamado logo após confirmar importação). */
+  onListaAlterada?: () => void | Promise<void>
 }
 
 // ── Tipos internos ────────────────────────────────────────────────────────────
@@ -388,7 +390,7 @@ function etapaParaId(e: Etapa): number {
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalSmartImportPedidoProps) {
+export function ModalSmartImportPedido({ aberto, onFechar, onConcluido, onListaAlterada }: ModalSmartImportPedidoProps) {
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
   const { getToken } = useAuth()
@@ -606,9 +608,11 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
       setResultado(dados)
       setEtapa('confirmacao')
       if (dados.criados > 0 || dados.atualizados > 0) {
+        void onListaAlterada?.()
         notificarPedidosAtualizados()
       }
-      addNotification({ type: 'success', message: t('pedido.smart_import.toast_sucesso', { count: dados.ids_criados?.length ?? 0 }), duration: 4000 })
+      const totalProcessados = dados.criados + dados.atualizados
+      addNotification({ type: 'success', message: t('pedido.smart_import.toast_sucesso', { count: totalProcessados }), duration: 4000 })
     } catch (err: unknown) {
       const codeBackend = (err as { codeBackend?: string })?.codeBackend
       const detalhado = traduzirErroDetalhado(err, 'confirmar', t, codeBackend)
@@ -617,7 +621,7 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
     } finally {
       setConfirmando(false)
     }
-  }, [preview, mapeamento, decisoesDuplicatas, linhasSelecionadas, lembrarMapeamento, numerosEditados, addNotification])
+  }, [preview, mapeamento, decisoesDuplicatas, linhasSelecionadas, lembrarMapeamento, numerosEditados, addNotification, onListaAlterada, t])
 
   function handleDecisaoDuplicata(numeroPedido: string, decisao: DecisaoDuplicata) {
     setDecisoesDuplicatas(prev => ({ ...prev, [numeroPedido]: decisao }))

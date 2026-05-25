@@ -3,7 +3,6 @@ import { Outlet } from 'react-router-dom'
 import { TituloPaginaTopoProvider } from '@nucleo/menu-topo-global'
 import { WsTituloPaginaTopo } from './WsTituloPaginaTopo'
 import './configurador-page-shell.css'
-import '@nucleo/menu-topo-global/src/menu-topo-global.css'
 
 export interface WsAreaConteudoProps {
   accentColor: string

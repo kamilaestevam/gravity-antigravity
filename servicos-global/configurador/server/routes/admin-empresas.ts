@@ -33,7 +33,7 @@ import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
-import { listaEmpresasAdminSchema } from '@cadastros/shared/schemas'
+import { listaFornecedoresAdminSchema } from '@cadastros/shared/schemas'
 
 export const adminEmpresasRouter = Router()
 
@@ -166,14 +166,14 @@ adminEmpresasRouter.get('/', async (req: Request, res: Response, next: NextFunct
     // ─── Mand. 06 + 09 — valida payload do Cadastros com schema bilateral.
     // Quebra de contrato vira 502 explícito (não engole o problema).
     const raw = await response.json()
-    const parsed = listaEmpresasAdminSchema.safeParse(raw)
+    const parsed = listaFornecedoresAdminSchema.safeParse(raw)
     if (!parsed.success) {
       console.error(
         '[admin-empresas] resposta do Cadastros fora do contrato',
         { issues: parsed.error.issues, correlation_id: req.headers['x-correlation-id'] },
       )
       throw new AppError(
-        'Resposta do Cadastros não bate com listaEmpresasAdminSchema',
+        'Resposta do Cadastros não bate com listaFornecedoresAdminSchema',
         502,
         'CADASTROS_CONTRATO_QUEBRADO',
       )

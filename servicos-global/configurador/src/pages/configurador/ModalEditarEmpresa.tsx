@@ -54,7 +54,7 @@ import {
   criarFornecedorSchema,
   atualizarFornecedorSchema,
   fornecedorSchema,
-  type Empresa,
+  type Fornecedor,
 } from '@cadastros/shared/schemas'
 
 // ── Constantes de localização (BR) ───────────────────────────────────────────
@@ -150,7 +150,7 @@ interface FormState {
   ativo: boolean
 }
 
-function empresaParaForm(empresa: Empresa | null): FormState {
+function empresaParaForm(empresa: Fornecedor | null): FormState {
   return {
     nome_fornecedor: empresa?.nome_fornecedor ?? '',
     pais: empresa?.pais_fornecedor ?? 'BR',
@@ -335,10 +335,10 @@ function PapelCheckbox({
 // ── Modal principal ──────────────────────────────────────────────────────────
 
 interface Props {
-  empresa: Empresa | null
+  empresa: Fornecedor | null
   idOrganizacao: string
   aoFechar: () => void
-  aoSalvar: (empresa: Empresa) => void
+  aoSalvar: (empresa: Fornecedor) => void
   /** Papel pré-selecionado ao criar nova empresa (deep-link do Pedido) */
   papelInicial?: PapelFlag
   /** URL de retorno (deep-link do Pedido). Exibe banner "Voltar para Pedidos" */

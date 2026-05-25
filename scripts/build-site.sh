@@ -42,8 +42,18 @@ cd ../..
 # 4. Fix Vite nested index.html
 # When root=monorepoRoot, Vite preserves the input path structure in outDir.
 # Move index.html from nested path to dist root where Express expects it.
-mv servicos-global/configurador/dist/servicos-global/configurador/index.html servicos-global/configurador/dist/index.html
-rm -rf servicos-global/configurador/dist/servicos-global
+DIST_NESTED="servicos-global/configurador/dist/servicos-global/configurador/index.html"
+DIST_ROOT="servicos-global/configurador/dist/index.html"
+if [ -f "$DIST_NESTED" ]; then
+  mv "$DIST_NESTED" "$DIST_ROOT"
+  rm -rf servicos-global/configurador/dist/servicos-global
+elif [ -f "$DIST_ROOT" ]; then
+  echo "[build-site] index.html already at dist root"
+else
+  echo "[build-site] ERROR: index.html not found after vite build"
+  ls -la servicos-global/configurador/dist/ || true
+  exit 1
+fi
 
 # 5. Build all backend servers
 # Configurador — tsx loader (cross-service imports + custom Prisma paths)

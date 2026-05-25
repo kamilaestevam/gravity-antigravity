@@ -32,6 +32,7 @@ import {
   type OrganizacaoOpcao,
 } from '@nucleo/select-organizacao-admin-global'
 import { listaEmpresasAdminSchema, type EmpresaAdmin } from '@cadastros/shared/schemas'
+import { buscarOrganizacoesAdmin } from '@gravity/shell'
 
 // ─── Tipos auxiliares ────────────────────────────────────────────────────────
 
@@ -58,8 +59,6 @@ function derivarTiposEmpresa(e: EmpresaAdmin): string {
     .map((t) => t.label)
     .join(' + ') || '—'
 }
-
-import { buscarOrganizacoesAdmin } from '@gravity/shell'
 
 export function EmpresasEParceirosAdmin(): JSX.Element {
   const { getToken } = useAuth()

@@ -49,6 +49,13 @@ export interface ModalSmartImportPedidoProps {
 
 type Etapa = 'upload' | 'mapeamento' | 'preview' | 'confirmacao'
 
+/** Sincroniza a lista de pedidos (Kanban/lista) sem fechar o modal de confirmação. */
+function notificarPedidosAtualizados() {
+  window.dispatchEvent(
+    new CustomEvent('pedido:atualizado', { detail: { origem: 'smart-import' } }),
+  )
+}
+
 type TFunc = (key: string, opts?: Record<string, unknown>) => string
 
 /**
@@ -598,6 +605,9 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
       const dados = await smartImportApi.confirmar(payload)
       setResultado(dados)
       setEtapa('confirmacao')
+      if (dados.criados > 0 || dados.atualizados > 0) {
+        notificarPedidosAtualizados()
+      }
       addNotification({ type: 'success', message: t('pedido.smart_import.toast_sucesso', { count: dados.ids_criados?.length ?? 0 }), duration: 4000 })
     } catch (err: unknown) {
       const codeBackend = (err as { codeBackend?: string })?.codeBackend
@@ -715,6 +725,19 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
     onConcluido(resultado?.ids_criados ?? [])
   }
 
+  /** Fechar/X na confirmação também recarrega a lista (antes só "Ver pedidos importados" fazia isso). */
+  function handleFecharModal() {
+    if (
+      etapa === 'confirmacao'
+      && resultado
+      && (resultado.criados > 0 || resultado.atualizados > 0)
+    ) {
+      onConcluido(resultado.ids_criados ?? [])
+      return
+    }
+    onFechar()
+  }
+
   // Tipo auxiliar para preview com campos opcionais da Onda 2
   const previewExt = preview as (SmartImportPreview & { limite_excedido?: boolean }) | null
 
@@ -787,7 +810,7 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
       passoAtual={etapaParaId(etapa)}
       onProximo={() => {}}
       onVoltar={() => {}}
-      onFechar={onFechar}
+      onFechar={handleFecharModal}
       tamanho="xl"
       ocultarStepper={etapa === 'confirmacao'}
       ocultarFooter={etapa === 'confirmacao'}
@@ -934,7 +957,7 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
             <EtapaConfirmacao
               resultado={resultado}
               onVerPedidos={handleVerPedidos}
-              onFechar={onFechar}
+              onFechar={handleFecharModal}
             />
           )}
 

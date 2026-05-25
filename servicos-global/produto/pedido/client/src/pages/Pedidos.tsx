@@ -4461,6 +4461,7 @@ export default function Pedidos() {
     novaDir: 'asc' | 'desc' = sortDir,
     novaBusca: string = busca,
     novaPagina = 1,
+    forcar = false,
   ) => {
     // Curto-circuito ANTES do guard carregandoRef:
     // 0 workspaces selecionados = usuário desmarcou tudo intencionalmente →
@@ -4479,7 +4480,7 @@ export default function Pedidos() {
       return
     }
 
-    if (carregandoRef.current) return
+    if (carregandoRef.current && !forcar) return
     carregandoRef.current = true
     setCarregando(true)
     setErroCarga(null)
@@ -4537,7 +4538,9 @@ export default function Pedidos() {
   useEffect(() => {
     const handler = (e: Event) => {
       const { origem } = (e as CustomEvent<{ origem: string }>).detail ?? {}
-      if (origem !== 'lista') carregarInicial()
+      if (origem !== 'lista') {
+        carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, origem === 'smart-import')
+      }
     }
     window.addEventListener('pedido:atualizado', handler)
     return () => window.removeEventListener('pedido:atualizado', handler)
@@ -6394,7 +6397,7 @@ export default function Pedidos() {
         onFechar={() => setSmartImportAberto(false)}
         onConcluido={async (idsCriados) => {
           setSmartImportAberto(false)
-          await carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1)
+          await carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
           // Abre o(s) pedido(s) recém-importado(s) para conferência. Se mais
           // de um, expande todos — vêm no topo via orderBy data_criacao desc.
           requestAnimationFrame(() => {

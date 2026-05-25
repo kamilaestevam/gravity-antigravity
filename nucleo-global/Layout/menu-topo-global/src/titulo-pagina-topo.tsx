@@ -6,6 +6,7 @@ import React, {
   useState,
   type ReactNode,
 } from 'react'
+import './menu-topo-global.css'
 
 /** Override dinâmico do título de página no MenuTopoGlobal (ex: detalhe com nome da entidade). */
 export interface TituloPaginaTopoOverride {

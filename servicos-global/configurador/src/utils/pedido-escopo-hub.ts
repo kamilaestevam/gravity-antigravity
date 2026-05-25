@@ -14,6 +14,7 @@ const preferenciaPedidoDataSchema = z.object({
   colunas_visiveis: z.array(z.string()).optional(),
   colunas_largura: z.record(z.number()).optional(),
   ids_workspaces_escopo: z.array(z.string()).optional(),
+  suprimir_aviso_escopo_hub_pedido: z.boolean().optional(),
 }).nullable()
 
 const preferenciaPedidoResponseSchema = z.object({
@@ -25,6 +26,11 @@ export type PreferenciaPedidoEscopo = z.infer<typeof preferenciaPedidoDataSchema
 export interface ContextoPedidoHub {
   idOrganizacao: string
   idUsuario: string
+}
+
+export interface PreferenciaEscopoHubPedido {
+  idsEscopo: string[] | null
+  suprimirAvisoEscopoHub: boolean
 }
 
 const PREFERENCIA_PEDIDO_URL = '/api/v1/pedidos/config/preferencia-usuario-coluna-pedido'
@@ -39,6 +45,28 @@ function montarHeadersPedidoHub(
     Authorization: `Bearer ${token}`,
     'x-id-organizacao': ctx.idOrganizacao,
     'x-id-usuario': ctx.idUsuario,
+  }
+}
+
+function chaveSuprimirAvisoLocal(ctx: ContextoPedidoHub): string {
+  return `pedido:suprimir_aviso_escopo_hub:${ctx.idOrganizacao}:${ctx.idUsuario}`
+}
+
+export function lerSuprimirAvisoEscopoHubLocal(ctx: ContextoPedidoHub): boolean {
+  try {
+    return localStorage.getItem(chaveSuprimirAvisoLocal(ctx)) === '1'
+  } catch {
+    return false
+  }
+}
+
+function gravarSuprimirAvisoEscopoHubLocal(ctx: ContextoPedidoHub, suprimir: boolean): void {
+  try {
+    const chave = chaveSuprimirAvisoLocal(ctx)
+    if (suprimir) localStorage.setItem(chave, '1')
+    else localStorage.removeItem(chave)
+  } catch {
+    /* quota / private mode */
   }
 }
 
@@ -80,10 +108,10 @@ export function lerEscopoPedidoSessionStorage(): string[] | null {
   }
 }
 
-export async function buscarEscopoPedidoSalvo(
+async function buscarPreferenciaPedidoHub(
   token: string,
   ctx: ContextoPedidoHub,
-): Promise<string[] | null> {
+): Promise<PreferenciaPedidoEscopo> {
   const res = await fetch(PREFERENCIA_PEDIDO_URL, {
     headers: montarHeadersPedidoHub(token, ctx),
     signal: AbortSignal.timeout(8_000),
@@ -94,41 +122,43 @@ export async function buscarEscopoPedidoSalvo(
   const raw: unknown = await res.json()
   const parsed = preferenciaPedidoResponseSchema.safeParse(raw)
   if (!parsed.success) return null
-
-  const ids = parsed.data.data?.ids_workspaces_escopo
-  if (!ids || ids.length === 0) return null
-  return ids
+  return parsed.data.data
 }
 
-/** Backend primeiro; sessionStorage do Pedido como fallback (escopo ainda não persistido). */
-export async function obterEscopoPedidoSalvo(
+/** Backend primeiro; sessionStorage do Pedido como fallback para escopo. */
+export async function obterPreferenciaEscopoHubPedido(
   token: string,
   ctx: ContextoPedidoHub,
-): Promise<string[] | null> {
-  const doBackend = await buscarEscopoPedidoSalvo(token, ctx)
-  if (doBackend && doBackend.length > 0) return doBackend
-  return lerEscopoPedidoSessionStorage()
+): Promise<PreferenciaEscopoHubPedido> {
+  const preferencia = await buscarPreferenciaPedidoHub(token, ctx)
+  const suprimirBackend = preferencia?.suprimir_aviso_escopo_hub_pedido === true
+  const suprimirLocal = lerSuprimirAvisoEscopoHubLocal(ctx)
+
+  if (suprimirBackend) gravarSuprimirAvisoEscopoHubLocal(ctx, true)
+
+  const idsBackend = preferencia?.ids_workspaces_escopo
+  const idsEscopo = (idsBackend && idsBackend.length > 0)
+    ? idsBackend
+    : lerEscopoPedidoSessionStorage()
+
+  return {
+    idsEscopo,
+    suprimirAvisoEscopoHub: suprimirBackend || suprimirLocal,
+  }
 }
 
-export async function salvarEscopoPedidoApenasWorkspace(
+export async function salvarSuprimirAvisoEscopoHubPedido(
   token: string,
   ctx: ContextoPedidoHub,
-  idWorkspace: string,
 ): Promise<boolean> {
+  gravarSuprimirAvisoEscopoHubLocal(ctx, true)
+
   const res = await fetch(PREFERENCIA_PEDIDO_URL, {
     method: 'PUT',
     headers: montarHeadersPedidoHub(token, ctx, true),
-    body: JSON.stringify({ ids_workspaces_escopo: [idWorkspace] }),
+    body: JSON.stringify({ suprimir_aviso_escopo_hub_pedido: true }),
     signal: AbortSignal.timeout(8_000),
   })
 
-  if (!res.ok) return false
-
-  try {
-    sessionStorage.setItem(PEDIDO_SESSION_KEY_ESCOPO, JSON.stringify([idWorkspace]))
-  } catch {
-    /* quota / private mode */
-  }
-
-  return true
+  return res.ok
 }

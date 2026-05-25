@@ -551,11 +551,13 @@ export interface PedidoPreferenciasColunas {
   colunas_largura?: Record<string, number>
   /** Escopo multi-workspace — persistido em colunas_largura (meta key reservada). */
   ids_workspaces_escopo?: string[]
+  /** Hub: usuário optou por não ver aviso de divergência de escopo ao entrar. */
+  suprimir_aviso_escopo_hub_pedido?: boolean
 }
 
 /** Payload parcial para PUT de preferências (merge no servidor). */
 export type PedidoPreferenciasColunasPut = Partial<
-  Pick<PedidoPreferenciasColunas, 'colunas_visiveis' | 'colunas_largura' | 'ids_workspaces_escopo'>
+  Pick<PedidoPreferenciasColunas, 'colunas_visiveis' | 'colunas_largura' | 'ids_workspaces_escopo' | 'suprimir_aviso_escopo_hub_pedido'>
 >
 
 export interface PedidosListResponse {

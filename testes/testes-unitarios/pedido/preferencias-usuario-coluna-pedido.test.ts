@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
+  AVISO_ESCOPO_HUB_META_KEY,
   ESCOPO_WORKSPACES_META_KEY,
   colunasLarguraParaCliente,
   extrairEscopoWorkspacesDeColunasLargura,
+  extrairSuprimirAvisoEscopoHubDeColunasLargura,
   mesclarEscopoEmColunasLargura,
   mesclarLargurasNumericas,
+  mesclarSuprimirAvisoEscopoHubEmColunasLargura,
 } from '../../../servicos-global/produto/pedido/shared/preferenciasUsuarioColunaPedido'
 
 describe('preferenciasUsuarioColunaPedido — escopo em colunas_largura', () => {
@@ -55,5 +58,23 @@ describe('preferenciasUsuarioColunaPedido — escopo em colunas_largura', () => 
     const semEscopoNoBody = mesclarEscopoEmColunasLargura(soLargura, undefined)
     expect(extrairEscopoWorkspacesDeColunasLargura(semEscopoNoBody)).toEqual(['ws-salvo'])
     expect(colunasLarguraParaCliente(semEscopoNoBody)).toEqual({ numero_pedido: 100, status: 90 })
+  })
+})
+
+describe('preferenciasUsuarioColunaPedido — aviso escopo Hub', () => {
+  it('extrai suprimir da meta key', () => {
+    const gravacao = {
+      [AVISO_ESCOPO_HUB_META_KEY]: { _v: 1, suprimir: true },
+    }
+    expect(extrairSuprimirAvisoEscopoHubDeColunasLargura(gravacao)).toBe(true)
+  })
+
+  it('mescla suprimir sem apagar escopo existente', () => {
+    const existente = {
+      [ESCOPO_WORKSPACES_META_KEY]: { _v: 1, ids_workspaces: ['ws-a'] },
+    }
+    const mesclado = mesclarSuprimirAvisoEscopoHubEmColunasLargura(existente, true)
+    expect(extrairEscopoWorkspacesDeColunasLargura(mesclado)).toEqual(['ws-a'])
+    expect(extrairSuprimirAvisoEscopoHubDeColunasLargura(mesclado)).toBe(true)
   })
 })

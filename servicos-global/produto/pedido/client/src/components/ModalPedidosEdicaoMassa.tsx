@@ -325,9 +325,8 @@ const OP_LABEL_KEYS: Record<OperacaoCampo, string> = {
 //
 // **Convenção:** ao expor novo campo `@@unique` em CAMPOS_*_EDITAVEIS,
 // adicionar a entrada aqui também.
-const CAMPOS_UNIQUE = new Set<string>([
-  'numero_pedido',
-])
+// numero_pedido removido em 2026-05-25 — duplicatas permitidas com confirmação.
+const CAMPOS_UNIQUE = new Set<string>([])
 
 // Campos que exigem processamento individual por pedido (merge JSON no backend)
 // Deve espelhar CAMPOS_DETALHES_OPERACIONAIS em edicaoEmMassaService.ts

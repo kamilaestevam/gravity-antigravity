@@ -12,6 +12,7 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Package, Tag, Plus, Trash, Warning, Lock, Info, X } from '@phosphor-icons/react'
 import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-passo-global'
+import { ModalOverlay } from '@nucleo/modal-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
@@ -318,6 +319,9 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   const [itens, setItens]       = useState<ItemForm[]>([ITEM_VAZIO()])
   const [salvando, setSalvando] = useState(false)
   const [erros, setErros]       = useState<ErrosValidacao>({})
+  const [confirmarDuplicataAberto, setConfirmarDuplicataAberto] = useState(false)
+  const [pedidosDuplicadosExistentes, setPedidosDuplicadosExistentes] = useState<Array<{ id_pedido: string; numero_pedido: string }>>([])
+  const [payloadPendente, setPayloadPendente] = useState<Record<string, unknown> | null>(null)
   const { addNotification } = useShellStore()
 
   // ── Empresas (B3) — pré-carrega ao abrir e refresh quando cria nova ────────
@@ -441,6 +445,9 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
     setForm(FORM_VAZIO)
     setItens([ITEM_VAZIO()])
     setErros({})
+    setConfirmarDuplicataAberto(false)
+    setPedidosDuplicadosExistentes([])
+    setPayloadPendente(null)
     onFechar()
   }, [onFechar, salvando])
 
@@ -585,6 +592,36 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
     ? requisitosPasso1.every((r) => r.ok)
     : true
 
+  async function executarCriacao(
+    payload: Record<string, unknown>,
+    confirmarNumeroDuplicado = false,
+  ) {
+    setSalvando(true)
+    setErros({})
+    try {
+      const resultado = await pedidoApi.criar({
+        ...payload,
+        confirmar_numero_duplicado: confirmarNumeroDuplicado || undefined,
+      } as Parameters<typeof pedidoApi.criar>[0])
+      addNotification({
+        type: 'success',
+        message: t('pedido.modal_novo.notif_criado', { numero: resultado.numero_pedido }),
+      })
+      onSalvo(resultado)
+      handleFechar()
+    } catch (err: unknown) {
+      console.error('[ModalNovoPedido] erro ao criar pedido:', err)
+      const msg = traduzirErroApi(err, t)
+      setErros({ geral: msg })
+      addNotification({ type: 'error', message: msg })
+    } finally {
+      setSalvando(false)
+      setConfirmarDuplicataAberto(false)
+      setPayloadPendente(null)
+      setPedidosDuplicadosExistentes([])
+    }
+  }
+
   async function handleProximo() {
     if (passo === 1) {
       // Validar passo 1 antes de avançar
@@ -605,7 +642,6 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       return
     }
 
-    setSalvando(true)
     setErros({})
     try {
       const itensMapped = itens
@@ -646,20 +682,29 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
         itens: itensMapped as unknown as PedidoItem[],
       }
 
-      const resultado = await pedidoApi.criar(payload)
-      addNotification({
-        type: 'success',
-        message: t('pedido.modal_novo.notif_criado', { numero: resultado.numero_pedido }),
-      })
-      onSalvo(resultado)
-      handleFechar()
+      const numeroTrim = form.numero_pedido.trim()
+      try {
+        const { pedidos_existentes } = await pedidoApi.buscarDuplicatasNumero(numeroTrim)
+        if (pedidos_existentes.length > 0) {
+          setPayloadPendente(payload)
+          setPedidosDuplicadosExistentes(pedidos_existentes)
+          setConfirmarDuplicataAberto(true)
+          return
+        }
+      } catch (err: unknown) {
+        console.error('[ModalNovoPedido] erro ao verificar duplicata:', err)
+        const msg = traduzirErroApi(err, t)
+        setErros({ geral: msg })
+        addNotification({ type: 'error', message: msg })
+        return
+      }
+
+      await executarCriacao(payload)
     } catch (err: unknown) {
-      console.error('[ModalNovoPedido] erro ao criar pedido:', err)
+      console.error('[ModalNovoPedido] erro ao preparar pedido:', err)
       const msg = traduzirErroApi(err, t)
       setErros({ geral: msg })
       addNotification({ type: 'error', message: msg })
-    } finally {
-      setSalvando(false)
     }
   }
 
@@ -732,6 +777,45 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
         onFechar={() => setCadastroEmpresaPapel(null)}
         onCriado={aoCriarEmpresa}
       />
+      <ModalOverlay
+        aberto={confirmarDuplicataAberto}
+        aoFechar={() => {
+          if (salvando) return
+          setConfirmarDuplicataAberto(false)
+          setPayloadPendente(null)
+          setPedidosDuplicadosExistentes([])
+        }}
+        titulo={t('pedido.modal_novo.confirm_duplicata_titulo')}
+        tamanho="sm"
+        botoes={[
+          {
+            rotulo: t('pedido.modal_novo.confirm_duplicata_cancelar'),
+            variante: 'secondary',
+            ao_clicar: () => {
+              setConfirmarDuplicataAberto(false)
+              setPayloadPendente(null)
+              setPedidosDuplicadosExistentes([])
+            },
+          },
+          {
+            rotulo: salvando
+              ? t('pedido.modal_novo.criando')
+              : t('pedido.modal_novo.confirm_duplicata_confirmar'),
+            variante: 'primary',
+            ao_clicar: () => {
+              if (!payloadPendente || salvando) return
+              void executarCriacao(payloadPendente, true)
+            },
+          },
+        ]}
+      >
+        <p style={{ margin: 0, color: 'var(--text-secondary, #94a3b8)', fontSize: '0.875rem' }}>
+          {t('pedido.modal_novo.confirm_duplicata_msg', {
+            numero: form.numero_pedido.trim(),
+            count: pedidosDuplicadosExistentes.length,
+          })}
+        </p>
+      </ModalOverlay>
     </>
   )
 }

@@ -127,6 +127,8 @@ const criarPedidoObjectSchema = z.object({
   data_emissao_pedido:              z.string().datetime().optional(),
   detalhes_operacionais_pedido:     z.any().optional().nullable(),
   itens:                            z.array(criarItemSchema).optional().default([]),
+  /** Quando true, autoriza criar pedido mesmo com numero_pedido já existente na org. */
+  confirmar_numero_duplicado:       z.boolean().optional(),
 })
 
 /**
@@ -1128,6 +1130,44 @@ pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFu
   }
 })
 
+// ── GET /duplicatas-numero — Pedidos existentes com mesmo numero_pedido (org) ─
+// Deve ficar ANTES de /:id para que Express não interprete como param.
+
+const duplicatasNumeroSchema = z.object({
+  numero_pedido: z.string().min(1).max(100),
+})
+
+pedidosRouter.get('/duplicatas-numero', async (req: Request, res: Response, next: NextFunction) => {
+  const result = duplicatasNumeroSchema.safeParse(req.query)
+  if (!result.success) {
+    return res.status(400).json({ error: { message: 'Parametros invalidos', details: result.error.flatten() } })
+  }
+
+  try {
+    await withOrganizacao(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+      const ctx = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const idOrganizacao = ctx.idOrganizacao
+
+      const pedidos_existentes = await db.pedido.findMany({
+        where: {
+          id_organizacao: idOrganizacao,
+          numero_pedido: result.data.numero_pedido,
+          data_exclusao_pedido: null,
+        },
+        select: { id_pedido: true, numero_pedido: true },
+        orderBy: { data_criacao_pedido: 'desc' },
+        take: 20,
+      })
+
+      res.json({ pedidos_existentes })
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
 // ── GET /:id — Detalhe do pedido ──────────────────────────────────────────────
 
 pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
@@ -1224,6 +1264,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
     suid_exportador,
     suid_fabricante,
     suid_ope,
+    confirmar_numero_duplicado,
     ...pedidoData
   } = result.data
 
@@ -1336,6 +1377,26 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
       const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const pedidoId = gerarId('pedi')
+
+      const pedidosComMesmoNumero = await db.pedido.findMany({
+        where: {
+          id_organizacao: tenant_id,
+          numero_pedido: pedidoData.numero_pedido,
+          data_exclusao_pedido: null,
+        },
+        select: { id_pedido: true, numero_pedido: true },
+        take: 20,
+      })
+
+      if (pedidosComMesmoNumero.length > 0 && !confirmar_numero_duplicado) {
+        return res.status(409).json({
+          error: {
+            message: 'Ja existem pedidos com este numero na organizacao',
+            code: 'DUPLICATE_NUMERO_PEDIDO_CONFIRM_REQUIRED',
+            pedidos_existentes: pedidosComMesmoNumero,
+          },
+        })
+      }
 
       // Calcular totais para o INSERT inicial (placeholder). O valor real é
       // gravado pelo `recalcularAgregadosPedido` logo após o create — fonte

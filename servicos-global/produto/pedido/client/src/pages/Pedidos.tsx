@@ -105,7 +105,6 @@ import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
 import { resolverEdicaoKanbanParaLista } from '../shared/kanbanNavegacaoLista'
-import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../shared/mapaPropagacaoPedidoItem'
 import { marcarPartNumbersDuplicados, pedidoTemPartNumberDuplicado } from '../../../shared/partNumberDuplicado'
 import {
   calcularDivergenciasPedido,
@@ -2579,8 +2578,9 @@ function aplicarPropagacaoPedidoNoItem(
   campoPedido: string,
   valor: unknown,
 ): PedidoItem {
-  const campoItem = MAPA_PROPAGACAO_PEDIDO_ITEM[campoPedido] ?? campoPedido
-  const patched = { ...item, [campoItem]: valor } as PedidoItem
+  // Contrato JSON (mapItem): campos propagáveis expõem o mesmo nome do pai
+  // (ex: data_confirmada_pedido_pronto), não a coluna Prisma do item.
+  const patched = { ...item, [campoPedido]: valor } as PedidoItem
   if (campoPedido === 'id_workspace') {
     patched.company_id = String(valor ?? '')
     const enr = item as PedidoItemEnriquecido
@@ -5369,7 +5369,7 @@ export default function Pedidos() {
     // apenasUnidade: true — grava só a sigla (string), não quantity
     const CAMPOS_UNIDADE_CODIGO_PAI = new Set(['unidade_comercializada_pedido'])
     const isUnidadePai = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
-    const valorEnviarPai: unknown = isMoedaObj && CAMPOS_MOEDA_CODIGO.has(campo)
+    const valorEnviarPaiBruto: unknown = isMoedaObj && CAMPOS_MOEDA_CODIGO.has(campo)
       ? (valor as { currency: string }).currency
       : isUnidadePai && CAMPOS_UNIDADE_CODIGO_PAI.has(campo)
         ? (valor as { unit: string }).unit
@@ -5379,6 +5379,9 @@ export default function Pedidos() {
               return CAMPOS_PESO_PAI.has(campo) ? quantity * (FATOR_PARA_KG_PAI[unit] ?? 1) : quantity
             })()
           : valor
+    const valorEnviarPai: unknown = campo.startsWith('data_')
+      ? (normalizarDataISO(valorEnviarPaiBruto) ?? valorEnviarPaiBruto)
+      : valorEnviarPaiBruto
     // replicar_em_itens vem do checkbox "Aplicar a todos os itens" no popover
     // do pai (Decisão UX 2026-05-13). Default false — comportamento divergente.
     // Exceção: id_workspace SEMPRE replica — item não pode ter workspace distinto.
@@ -5396,9 +5399,7 @@ export default function Pedidos() {
       const itensCache = itensCarregadosRef.current.get(id) ?? []
       if (itensCache.length > 0) {
         itensCarregadosRef.current.set(id, patchItens(itensCache))
-        if (campo === 'id_workspace') {
-          setResetFilhos(prev => prev + 1)
-        }
+        setResetFilhos(prev => prev + 1)
       } else {
         itensCarregadosRef.current.delete(id)
       }
@@ -5965,22 +5966,29 @@ export default function Pedidos() {
 
     let payload: Partial<PedidoItem>
     {
-      // Normaliza datas para ISO antes de enviar ao servidor
-      if (campo === 'data_emissao_pedido') {
+      // Datas replicáveis — PATCH /itens/:id/campo (PUT strict não aceita data_*).
+      if (campo.startsWith('data_')) {
         const isoData = normalizarDataISO(valor)
         const itemAtualData = getItensCache().find(i => i.id === id)
         const atualizadoData = await pedidoItemApi.editarCampo(pedido.id, id, campo, isoData)
           .catch(() => {
-            if (import.meta.env.DEV && itemAtualData) return { ...itemAtualData, data_emissao_pedido: isoData } as PedidoItem
-            throw new Error(t('pedido.lista.erro.salvar_data'))
+            if (import.meta.env.DEV && itemAtualData) {
+              return { ...itemAtualData, [campo]: isoData } as PedidoItem
+            }
+            throw new Error(t('pedido.lista.erro.editar_campo', { campo }))
           })
         const enriquecidoData: PedidoItemEnriquecido = {
           ...atualizadoData,
-          _p: (getItensCache().find(i => i.id === id) as PedidoItemEnriquecido)?._p ?? (atualizadoData as PedidoItemEnriquecido)._p,
+          _p: montarContextoPaiItem(pedido, atualizadoData),
         }
+        const { itens: itensAposEdicaoData, divergencias: divergenciasData } = sincronizarItensPedido(
+          getItensCache().map(i => i.id === id ? enriquecidoData : i),
+          pedido,
+        )
+        itensCarregadosRef.current.set(pedido.id, itensAposEdicaoData)
         setPedidos(prev => prev.map(p => {
           if (p.id !== pedido.id) return p
-          return { ...p, itens: p.itens?.map(i => i.id === id ? enriquecidoData : i) }
+          return { ...p, ...divergenciasData, itens: itensAposEdicaoData }
         }))
         return enriquecidoData
       }

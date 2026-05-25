@@ -142,7 +142,7 @@ model Pedido {
   snapshots_moeda_pedido                                      PedidoSnapshotMoeda[]
   snapshots_unidade_pedido                                    PedidoSnapshotUnidade[]
 
-  @@unique([id_organizacao, numero_pedido])
+  @@index([id_organizacao, numero_pedido])
   @@index([id_organizacao])
   @@index([id_organizacao, id_workspace])
   @@index([id_organizacao, status_pedido])

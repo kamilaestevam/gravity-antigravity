@@ -10,16 +10,18 @@ function calcVariante(percentual: number): string {
 }
 
 export function GabiTokenBadge({ tokensUsados, quotaMensal, className = '' }: GabiTokenBadgeProps) {
-  const percentual = quotaMensal > 0 ? Math.round((tokensUsados / quotaMensal) * 100) : 0
+  const contratados = quotaMensal
+  const saldo = Math.max(0, contratados - tokensUsados)
+  const percentual = contratados > 0 ? Math.round((tokensUsados / contratados) * 100) : 0
   const variante   = calcVariante(percentual)
 
   return (
     <span
       className={`gabi-token-badge gabi-token-badge--${variante} ${className}`}
-      title={`${percentual}% da quota GABI usada este mês`}
-      aria-label={`GABI: ${tokensUsados} de ${quotaMensal} tokens usados`}
+      title={`Organizacao: ${tokensUsados.toLocaleString('pt-BR')} consumidos · ${saldo.toLocaleString('pt-BR')} saldo · ${contratados.toLocaleString('pt-BR')} contratados no mes (${percentual}%)`}
+      aria-label={`GABI tokens: ${tokensUsados} usados, ${saldo} saldo, ${contratados} contratados`}
     >
-      ✦ {tokensUsados.toLocaleString('pt-BR')} / {quotaMensal.toLocaleString('pt-BR')}
+      ✦ {tokensUsados.toLocaleString('pt-BR')} usados · {saldo.toLocaleString('pt-BR')} saldo · {contratados.toLocaleString('pt-BR')} contratados
     </span>
   )
 }

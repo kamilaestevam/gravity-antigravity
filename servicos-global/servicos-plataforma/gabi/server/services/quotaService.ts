@@ -11,11 +11,31 @@ function mesAtual(): string {
 }
 
 export interface QuotaStatus {
+  /** Total contratado no mes (plano do produto + extras ja creditados na org). */
+  tokens_contratados: number
+  /** Soma de input+output de todos os usuarios da organizacao neste produto. */
   tokens_usados: number
+  /** Saldo disponivel no mes (contratado - usado, minimo 0). */
+  tokens_saldo: number
+  /** Alias legado — mesmo valor que tokens_contratados. */
   quota_mensal: number
   esgotado: boolean
   percentual: number  // 0–100
   mes_ref: string
+}
+
+function montarQuotaStatus(usados: number, contratados: number, mes_ref: string): QuotaStatus {
+  const tokens_saldo = Math.max(0, contratados - usados)
+  const percentual = contratados > 0 ? Math.round((usados / contratados) * 100) : 100
+  return {
+    tokens_contratados: contratados,
+    tokens_usados: usados,
+    tokens_saldo,
+    quota_mensal: contratados,
+    esgotado: usados >= contratados && contratados > 0,
+    percentual,
+    mes_ref,
+  }
 }
 
 /**
@@ -47,17 +67,11 @@ export async function checkQuota(
     update: {},  // não atualiza se já existe — preserva uso acumulado
   })
 
-  const quotaTotal = quota.quota_mensal_gabi_token_workspace
-  const usados = quota.tokens_usados_gabi_token_workspace
-  const percentual = quotaTotal > 0 ? Math.round((usados / quotaTotal) * 100) : 100
-
-  return {
-    tokens_usados: usados,
-    quota_mensal: quotaTotal,
-    esgotado: usados >= quotaTotal && quotaTotal > 0,
-    percentual,
+  return montarQuotaStatus(
+    quota.tokens_usados_gabi_token_workspace,
+    quota.quota_mensal_gabi_token_workspace,
     mes_ref,
-  }
+  )
 }
 
 /**

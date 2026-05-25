@@ -27,11 +27,13 @@ export interface GabiTokenBadgeProps {
 }
 
 export interface QuotaInfo {
-  tokens_usados:     number
-  quota_mensal:      number
-  percentual:        number
-  mes_ref:           string
-  dias_para_renovar: number
+  tokens_usados:       number
+  tokens_contratados?: number
+  tokens_saldo?:       number
+  quota_mensal:        number
+  percentual:          number
+  mes_ref:             string
+  dias_para_renovar?:  number
 }
 
 export interface UseGabiOnDemandResult {

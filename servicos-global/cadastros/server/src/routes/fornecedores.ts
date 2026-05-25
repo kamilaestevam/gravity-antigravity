@@ -328,7 +328,7 @@ router.get('/:id_fornecedor', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const fornecedor = await prisma.fornecedor.findFirst({
-      where: { id_fornecedor: req.params.id_empresa, id_organizacao_cadastro_fornecedor: idOrganizacao },
+      where: { id_fornecedor: req.params.id_fornecedor, id_organizacao_cadastro_fornecedor: idOrganizacao },
     })
     if (!fornecedor) throw AppError.naoEncontrado('Fornecedor')
     res.status(200).json(toFornecedorDto(fornecedor))
@@ -344,11 +344,11 @@ router.get('/:id_fornecedor/preview-impacto', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const existe = await prisma.fornecedor.findFirst({
-      where: { id_fornecedor: req.params.id_empresa, id_organizacao_cadastro_fornecedor: idOrganizacao },
+      where: { id_fornecedor: req.params.id_fornecedor, id_organizacao_cadastro_fornecedor: idOrganizacao },
       select: { id_fornecedor: true },
     })
     if (!existe) throw AppError.naoEncontrado('Fornecedor')
-    const resultado = await consultarImpacto(req.params.id_empresa, idOrganizacao)
+    const resultado = await consultarImpacto(req.params.id_fornecedor, idOrganizacao)
     res.status(200).json(resultado)
   } catch (err) {
     next(err)
@@ -365,7 +365,7 @@ router.put('/:id_fornecedor', async (req, res, next) => {
 
     // Busca primeiro pra garantir tenant ownership (404 se alheio).
     const existente = await prisma.fornecedor.findFirst({
-      where: { id_fornecedor: req.params.id_empresa, id_organizacao_cadastro_fornecedor: idOrganizacao },
+      where: { id_fornecedor: req.params.id_fornecedor, id_organizacao_cadastro_fornecedor: idOrganizacao },
     })
     if (!existente) throw AppError.naoEncontrado('Fornecedor')
 
@@ -425,7 +425,7 @@ router.delete('/:id_fornecedor/compensacao', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const existente = await prisma.fornecedor.findFirst({
-      where: { id_fornecedor: req.params.id_empresa, id_organizacao_cadastro_fornecedor: idOrganizacao },
+      where: { id_fornecedor: req.params.id_fornecedor, id_organizacao_cadastro_fornecedor: idOrganizacao },
       select: { id_fornecedor: true },
     })
     if (!existente) throw AppError.naoEncontrado('Fornecedor')
@@ -444,7 +444,7 @@ router.delete('/:id_fornecedor', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const existente = await prisma.fornecedor.findFirst({
-      where: { id_fornecedor: req.params.id_empresa, id_organizacao_cadastro_fornecedor: idOrganizacao },
+      where: { id_fornecedor: req.params.id_fornecedor, id_organizacao_cadastro_fornecedor: idOrganizacao },
     })
     if (!existente) throw AppError.naoEncontrado('Fornecedor')
 

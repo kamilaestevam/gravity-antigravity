@@ -103,7 +103,11 @@ export function lerCasasDecimaisConfig(): Record<string, number> {
 
 /** Retorna casas decimais para um campo, respeitando config do usuário em Configurações */
 export function getCasas(campo: string, padrao: number): number {
-  return _lerCasasConfig()[campo] ?? padrao
+  const aliases: Record<string, string> = {
+    quantidade_pronta_itens_pedido_total: 'quantidade_pronta_pedido_total',
+  }
+  const key = aliases[campo] ?? campo
+  return _lerCasasConfig()[key] ?? padrao
 }
 
 // ── Ref de alertas: carregado uma vez no mount, acessível pelos renders estáticos ──
@@ -806,11 +810,12 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     filtravel: true,
     sortavel: true,
     align: 'left',
-    casasDecimais: 2,
+    casasDecimais: getCasas('valor_total_pedido', 2),
     tooltipTitulo: t('pedido.coluna_pai.valor_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.valor_total_pedido_desc'),
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
+      const casas = getCasas('valor_total_pedido', 2)
       // Onda A8 — homogeneidade de moeda. Quando itens divergem em moeda,
       // o helper recalcularAgregadosPedido grava `valor_total_pedido = null`
       // e o front (via calcularDivergencias em Pedidos.tsx) seta a flag
@@ -823,7 +828,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         ? (
           <span className="gtv-celula-moeda">
             <span className={classeMoedaBadge(moeda)}>{moeda}</span>
-            {fmtQuantidade(num, 2)}
+            {fmtQuantidade(num, casas)}
           </span>
         )
         : null
@@ -909,7 +914,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.quantidade_total_inicial_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_total_inicial_pedido_desc'),
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_inicial_pedido', 0, { titulo: t('pedido.coluna_pai.quantidade_total_inicial_pedido_titulo'), descricao: t('pedido.coluna_pai.quantidade_total_inicial_pedido_desc') }),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_inicial_pedido', getCasas('quantidade_total_pedido', 2), { titulo: t('pedido.coluna_pai.quantidade_total_inicial_pedido_titulo'), descricao: t('pedido.coluna_pai.quantidade_total_inicial_pedido_desc') }),
   },
   {
     key: 'quantidade_pronta_itens_pedido_total',
@@ -920,7 +925,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_desc'),
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido', 0, { titulo: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_titulo'), descricao: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_desc') }),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido', getCasas('quantidade_pronta_itens_pedido_total', 2), { titulo: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_titulo'), descricao: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_desc') }),
   },
   {
     key: 'saldo_itens_do_pedido',
@@ -951,7 +956,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
             interativo
           >
             <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-              {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_pedido', 0)) : '—'}
+              {qtd != null ? fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 2)) : '—'}
             </span>
           </TooltipGlobal>
         )
@@ -990,7 +995,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       const soma = itens.reduce((s, i) => s + saldoPorItem(i), 0)
       return tooltipWrap(
         <span className="gtv-celula-moeda" style={{ color: soma > 0 ? '#60a5fa' : undefined }}>
-          {fmtQuantidade(soma, getCasas('quantidade_total_pedido', 0))}
+          {fmtQuantidade(soma, getCasas('saldo_itens_do_pedido', 2))}
           <span className="gtv-celula-unidade-badge">{unidade}</span>
         </span>
       )
@@ -1009,7 +1014,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.quantidade_transferida_total_desc'),
     tooltipBloqueado: t('pedido.coluna_pai.quantidade_transferida_bloqueado'),
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_transferida_pedido', 0, { titulo: t('pedido.coluna_pai.quantidade_transferida_total_titulo'), descricao: t('pedido.coluna_pai.quantidade_transferida_total_desc') }),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_transferida_pedido', getCasas('quantidade_transferida_total', 2), { titulo: t('pedido.coluna_pai.quantidade_transferida_total_titulo'), descricao: t('pedido.coluna_pai.quantidade_transferida_total_desc') }),
   },
   {
     key: 'quantidade_cancelada_total_pedido',
@@ -1021,7 +1026,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_desc'),
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_cancelada_pedido', 0, { titulo: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_titulo'), descricao: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_desc') }),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_cancelada_pedido', getCasas('quantidade_cancelada_total_pedido', 2), { titulo: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_titulo'), descricao: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_desc') }),
   },
   {
     key: 'data_emissao_pedido',

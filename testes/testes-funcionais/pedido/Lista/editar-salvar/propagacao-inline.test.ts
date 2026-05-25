@@ -178,6 +178,22 @@ describe('F-PROP: PATCH /api/v1/pedidos/:id/campo — replicar_em_itens=true', (
 
     expect(res.status).toBe(200)
   })
+
+  it('F-PROP-04: data_confirmada_pedido_pronto com replicar_em_itens=true → updateMany no item', async () => {
+    mockIsPropagavel.mockReturnValue(true)
+    mockObterCampoItemPropagado.mockReturnValue('data_confirmada_item_pronto')
+
+    const res = await request(app)
+      .patch('/api/v1/pedidos/ped-prop-001/campo')
+      .send({ campo: 'data_confirmada_pedido_pronto', valor: '2026-02-13', replicar_em_itens: true })
+
+    expect(res.status).toBe(200)
+    expect(mockPrisma.pedidoItem.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ data_confirmada_item_pronto: expect.any(Date) }),
+      }),
+    )
+  })
 })
 
 // ── Testes — replicar_em_itens=false ────────────────────────────────────────

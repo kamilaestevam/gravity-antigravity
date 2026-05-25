@@ -12,6 +12,10 @@ import { consultarErrosRecentes, diagnosticarProblema } from '../services/servic
 import { avaliarLimite, invalidarCacheGastoMtd } from '../services/limiteMonetarioService.js'
 import { auditGabiAction } from '../services/audit.js'
 import { filtrarToolsPorPermissao } from '../services/catalogo-ferramentas.js'
+import {
+  garantirIdConversaGabi,
+  persistirTurnoConversa,
+} from '../services/servico-persistencia-conversa.js'
 
 export const agenteRouter = Router()
 
@@ -62,8 +66,15 @@ agenteRouter.post('/api/v1/gabi/agente/chat', async (req, res, next) => {
       })
     }
 
+    const conversationIdEfetivo = await garantirIdConversaGabi(
+      conversationId,
+      tenantId,
+      userId,
+      message,
+    )
+
     const [history, memorias, errosRecentes] = await Promise.all([
-      (conversationId !== 'new' ? getConversationContext(conversationId) : Promise.resolve([])).catch(() => []),
+      getConversationContext(conversationIdEfetivo).catch(() => []),
       carregarMemorias({ id_organizacao: tenantId, id_usuario: userId }).catch(() => []),
       consultarErrosRecentes(tenantId, userId, 3, 1).catch(() => []),
     ])
@@ -93,7 +104,7 @@ agenteRouter.post('/api/v1/gabi/agente/chat', async (req, res, next) => {
       {
         id_organizacao: tenantId,
         id_usuario: userId,
-        id_conversa: conversationId,
+        id_conversa: conversationIdEfetivo,
         tipo_usuario: tipoUsuario,
       },
       emitSse,
@@ -123,7 +134,26 @@ agenteRouter.post('/api/v1/gabi/agente/chat', async (req, res, next) => {
 
     const { cleanText, suggestions } = extractSuggestions(resultado.texto)
 
+    await persistirTurnoConversa({
+      conversationId: conversationIdEfetivo,
+      id_organizacao: tenantId,
+      id_usuario: userId,
+      mensagem_usuario: message,
+      resposta_assistente: cleanText,
+      metadados_assistente: {
+        modelo: resultado.modelo_usado,
+        custo_usd: resultado.custo_usd,
+        tokens: {
+          input: resultado.tokens_input,
+          output: resultado.tokens_output,
+          cached: resultado.tokens_cached,
+        },
+        tools_chamadas: resultado.tools_chamadas,
+      },
+    })
+
     res.json({
+      conversationId: conversationIdEfetivo,
       response: cleanText,
       suggestions,
       modelo: resultado.modelo_usado,

@@ -37,13 +37,10 @@ const CampoSchema = z.object({
 // Edição em massa de um campo unique com operação "substituir" e >1 pedido
 // causa colisão garantida (P2002). Rejeitamos no Zod antes de tocar o banco.
 // Convenção: ao expor novo campo com @@unique, adicionar aqui.
-const CAMPOS_UNIQUE_PEDIDO = new Set<string>([
-  'numero_pedido',
-])
+// numero_pedido removido em 2026-05-25 — duplicatas permitidas com confirmação.
+const CAMPOS_UNIQUE_PEDIDO = new Set<string>([])
 
-const ROTULOS_UNIQUE: Record<string, string> = {
-  numero_pedido: 'Número do Pedido',
-}
+const ROTULOS_UNIQUE: Record<string, string> = {}
 function rotuloUnico(campo: string): string {
   return ROTULOS_UNIQUE[campo] ?? campo
 }

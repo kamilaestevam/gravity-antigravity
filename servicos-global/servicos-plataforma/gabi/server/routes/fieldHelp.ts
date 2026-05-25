@@ -220,8 +220,11 @@ fieldHelpRouter.post('/api/v1/gabi/ajuda-campo', fieldHelpRateLimit, async (req,
       exemplo: gabiResponse.exemplo,
       quota: {
         tokens_usados: quotaAtualizada.tokens_usados,
-        quota_mensal:  quotaAtualizada.quota_mensal,
-        percentual:    quotaAtualizada.percentual,
+        tokens_contratados: quotaAtualizada.tokens_contratados,
+        tokens_saldo: quotaAtualizada.tokens_saldo,
+        quota_mensal: quotaAtualizada.quota_mensal,
+        percentual: quotaAtualizada.percentual,
+        mes_ref: quotaAtualizada.mes_ref,
       },
     })
   } catch (err) {

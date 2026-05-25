@@ -50,6 +50,13 @@ import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import {
+  escopoPedidoDivergeDoWorkspace,
+  formatarResumoWorkspacesEscopo,
+  lerEscopoPedidoSessionStorage,
+  obterEscopoPedidoSalvo,
+  salvarEscopoPedidoApenasWorkspace,
+} from '../utils/pedido-escopo-hub'
 import './selecionar-workspace.css'
 
 /* ── Tipos ── */
@@ -220,6 +227,10 @@ export function SelecionarWorkspace() {
     }
   }, [isLight])
   const [modalSemProdutos, setModalSemProdutos] = useState(false)
+  const [modalEscopoPedidoAberto, setModalEscopoPedidoAberto] = useState(false)
+  const [workspaceEntradaPendente, setWorkspaceEntradaPendente] = useState<Workspace | null>(null)
+  const [escopoPedidoResumo, setEscopoPedidoResumo] = useState('')
+  const [salvandoEscopoPedido, setSalvandoEscopoPedido] = useState(false)
 
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -273,7 +284,7 @@ export function SelecionarWorkspace() {
   }, [])
 
   // Role canônico vem do banco (via /api/v1/me) — Mandamento 01: Clerk só autentica.
-  const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole, pronto: roleReady } = useCarregarTipoUsuario()
+  const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole, pronto: roleReady, idOrganizacao, idUsuarioPrisma } = useCarregarTipoUsuario()
   // Popula currentUser.tipoUsuario no ShellStore (Pendência #4 — sem
   // isso o item "Trocar Organização" não aparece nesta tela).
   useMeSync()
@@ -608,6 +619,103 @@ export function SelecionarWorkspace() {
     navigate('/configurador/workspaces')
   }, [navigate])
 
+  const executarEntradaWorkspace = useCallback((ws: Workspace) => {
+    sessionStorage.setItem('gravity_company_id', ws.id)
+    sessionStorage.setItem('gravity_company_name', ws.nome)
+    if (contratadosAtivos.length > 0) {
+      navigate('/core')
+    } else {
+      setModalSemProdutos(true)
+    }
+  }, [contratadosAtivos.length, navigate])
+
+  const tentarEntrarNoWorkspace = useCallback(async (ws: Workspace) => {
+    handleSelectWs(ws.id)
+    setEntrando(true)
+    try {
+      const temPedidoContratado = contratadosAtivos.some(p => p.product_key === 'pedido')
+      if (temPedidoContratado) {
+        const token = await getToken()
+        let idsEscopo: string[] | null = null
+
+        if (token && idOrganizacao && idUsuarioPrisma) {
+          idsEscopo = await obterEscopoPedidoSalvo(token, {
+            idOrganizacao,
+            idUsuario: idUsuarioPrisma,
+          })
+        } else {
+          idsEscopo = lerEscopoPedidoSessionStorage()
+        }
+
+        if (idsEscopo && escopoPedidoDivergeDoWorkspace(ws.id, idsEscopo)) {
+          const resolverNome = (id: string) => workspaces.find(w => w.id === id)?.nome ?? id
+          setEscopoPedidoResumo(formatarResumoWorkspacesEscopo(idsEscopo, resolverNome))
+          setWorkspaceEntradaPendente(ws)
+          setModalEscopoPedidoAberto(true)
+          return
+        }
+      }
+      executarEntradaWorkspace(ws)
+    } finally {
+      setEntrando(false)
+    }
+  }, [
+    contratadosAtivos,
+    executarEntradaWorkspace,
+    getToken,
+    handleSelectWs,
+    idOrganizacao,
+    idUsuarioPrisma,
+    workspaces,
+  ])
+
+  const fecharModalEscopoPedido = useCallback(() => {
+    setModalEscopoPedidoAberto(false)
+    setWorkspaceEntradaPendente(null)
+    setEscopoPedidoResumo('')
+  }, [])
+
+  const confirmarEntradaManterEscopoPedido = useCallback(() => {
+    const ws = workspaceEntradaPendente
+    fecharModalEscopoPedido()
+    if (ws) executarEntradaWorkspace(ws)
+  }, [executarEntradaWorkspace, fecharModalEscopoPedido, workspaceEntradaPendente])
+
+  const confirmarEntradaApenasEsteWorkspace = useCallback(async () => {
+    const ws = workspaceEntradaPendente
+    if (!ws) return
+
+    setSalvandoEscopoPedido(true)
+    try {
+      const token = await getToken()
+      if (token && idOrganizacao && idUsuarioPrisma) {
+        const ok = await salvarEscopoPedidoApenasWorkspace(token, {
+          idOrganizacao,
+          idUsuario: idUsuarioPrisma,
+        }, ws.id)
+        if (!ok) {
+          addNotification({
+            type: 'warning',
+            message: t('sw.modal_escopo_pedido_erro_salvar'),
+          })
+        }
+      }
+      fecharModalEscopoPedido()
+      executarEntradaWorkspace(ws)
+    } finally {
+      setSalvandoEscopoPedido(false)
+    }
+  }, [
+    addNotification,
+    executarEntradaWorkspace,
+    fecharModalEscopoPedido,
+    getToken,
+    idOrganizacao,
+    idUsuarioPrisma,
+    t,
+    workspaceEntradaPendente,
+  ])
+
   /* ── Carrossel scroll ── */
   const scrollCarousel = useCallback((ref: React.RefObject<HTMLDivElement | null>, dir: 'left' | 'right') => {
     if (!ref.current) return
@@ -910,18 +1018,9 @@ export function SelecionarWorkspace() {
                           type="button"
                           onClick={e => {
                             e.stopPropagation()
-                            handleSelectWs(ws.id)
-                            setTimeout(() => {
-                              sessionStorage.setItem('gravity_company_id', ws.id)
-                              sessionStorage.setItem('gravity_company_name', ws.nome)
-                              if (contratadosAtivos.length > 0) {
-                                navigate('/core')
-                              } else {
-                                setModalSemProdutos(true)
-                              }
-                            }, 300)
+                            void tentarEntrarNoWorkspace(ws)
                           }}
-                          disabled={entrando}
+                          disabled={entrando || salvandoEscopoPedido}
                         >
                           {entrando ? t('sw.entrando') : t('sw.entrar_btn')}
                           <ArrowRight size={14} />
@@ -1130,6 +1229,142 @@ export function SelecionarWorkspace() {
           )}
         </div>
       </div>
+      <ModalOverlay
+        aberto={modalEscopoPedidoAberto}
+        aoFechar={fecharModalEscopoPedido}
+        tamanho="md"
+        titulo=""
+        cabecalhoPersonalizado={
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            padding: '2rem 2rem 0.75rem',
+            gap: '1rem',
+          }}>
+            <div style={{
+              width: 56,
+              height: 56,
+              borderRadius: '50%',
+              background: 'linear-gradient(180deg, rgba(52,211,153,0.15) 0%, rgba(52,211,153,0.05) 100%)',
+              border: '1px solid rgba(52,211,153,0.2)',
+              boxShadow: '0 0 0 8px rgba(52,211,153,0.04), inset 0 2px 8px rgba(52,211,153,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#34d399',
+              position: 'relative',
+            }}>
+              <ClipboardText size={28} weight="duotone" />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', width: '100%', marginTop: '0.25rem' }}>
+              <h2 style={{
+                fontSize: '1.125rem',
+                fontWeight: 700,
+                color: 'var(--text-primary, #f1f5f9)',
+                margin: 0,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.2,
+              }}>
+                {t('sw.modal_escopo_pedido_titulo')}
+              </h2>
+              <p style={{
+                fontSize: '0.875rem',
+                color: 'var(--text-secondary, #94a3b8)',
+                lineHeight: 1.5,
+                margin: 0,
+                width: '100%',
+                textAlign: 'center',
+              }}>
+                {t('sw.modal_escopo_pedido_desc', {
+                  workspaceAlvo: workspaceEntradaPendente?.nome ?? '',
+                  escopoResumo: escopoPedidoResumo,
+                })}
+              </p>
+              <p style={{
+                fontSize: '0.8125rem',
+                color: 'var(--text-secondary, #64748b)',
+                lineHeight: 1.5,
+                margin: 0,
+                width: '100%',
+                textAlign: 'center',
+              }}>
+                {t('sw.modal_escopo_pedido_dica')}
+              </p>
+            </div>
+          </div>
+        }
+        renderizarFooter={() => (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.75rem',
+            width: '100%',
+            padding: '0 2rem 2rem',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', width: '100%', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                style={{
+                  minWidth: '180px', height: '38px',
+                  display: 'flex', justifyContent: 'center', alignItems: 'center',
+                  fontWeight: 600, fontSize: '0.875rem',
+                  background: 'linear-gradient(180deg, #34d399 0%, #10b981 100%)',
+                  color: '#ffffff',
+                  border: '1px solid #059669',
+                  borderRadius: '8px',
+                  cursor: salvandoEscopoPedido ? 'wait' : 'pointer',
+                  opacity: salvandoEscopoPedido ? 0.7 : 1,
+                }}
+                disabled={salvandoEscopoPedido}
+                onClick={() => { void confirmarEntradaApenasEsteWorkspace() }}
+              >
+                {salvandoEscopoPedido ? t('sw.entrando') : t('sw.modal_escopo_btn_apenas_este')}
+              </button>
+
+              <button
+                type="button"
+                style={{
+                  minWidth: '180px', height: '38px',
+                  display: 'flex', justifyContent: 'center', alignItems: 'center',
+                  fontWeight: 600, fontSize: '0.875rem',
+                  background: '#f8fafc', color: '#0f172a',
+                  border: '1px solid transparent', borderRadius: '8px',
+                  cursor: salvandoEscopoPedido ? 'not-allowed' : 'pointer',
+                  opacity: salvandoEscopoPedido ? 0.6 : 1,
+                }}
+                disabled={salvandoEscopoPedido}
+                onClick={confirmarEntradaManterEscopoPedido}
+              >
+                {t('sw.modal_escopo_btn_manter')}
+              </button>
+            </div>
+
+            <button
+              type="button"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#94a3b8',
+                fontSize: '0.8125rem',
+                cursor: salvandoEscopoPedido ? 'not-allowed' : 'pointer',
+                textDecoration: 'underline',
+                padding: '0.25rem 0.5rem',
+              }}
+              disabled={salvandoEscopoPedido}
+              onClick={confirmarEntradaManterEscopoPedido}
+            >
+              {t('sw.modal_escopo_btn_depois')}
+            </button>
+          </div>
+        )}
+      >
+        <div style={{ display: 'none' }} />
+      </ModalOverlay>
+
       <ModalOverlay
         aberto={modalSemProdutos}
         aoFechar={() => setModalSemProdutos(false)}

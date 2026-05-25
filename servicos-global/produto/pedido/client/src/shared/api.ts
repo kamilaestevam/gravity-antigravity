@@ -254,11 +254,16 @@ export const pedidoApi = {
   buscarPorId: (id: string) =>
     request<Pedido>(`/api/v1/pedidos/${pid(id)}`),
 
-  criar: (data: Partial<Pedido>) =>
+  criar: (data: Partial<Pedido> & { confirmar_numero_duplicado?: boolean }) =>
     request<Pedido>('/api/v1/pedidos', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  buscarDuplicatasNumero: (numero_pedido: string) =>
+    request<{ pedidos_existentes: Array<{ id_pedido: string; numero_pedido: string }> }>(
+      `/api/v1/pedidos/duplicatas-numero?${new URLSearchParams({ numero_pedido })}`,
+    ),
 
   atualizar: (id: string, data: Partial<Pedido>) =>
     request<Pedido>(`/api/v1/pedidos/${pid(id)}`, {

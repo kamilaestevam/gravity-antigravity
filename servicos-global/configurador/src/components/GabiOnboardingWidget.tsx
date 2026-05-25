@@ -440,6 +440,7 @@ const MIN_W = 340
 const MIN_H = 400
 const DEFAULT_W = 420
 const DEFAULT_H = 560
+const STORAGE_CONVERSA_GABI = 'gravity_gabi_conversa_id'
 
 export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidgetProps) {
   const { t } = useTranslation()
@@ -450,6 +451,10 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
   const [isTyping, setIsTyping] = useState(false)
   const [pulse, setPulse] = useState(true)
   const [maximized, setMaximized] = useState(false)
+  const [conversationId, setConversationId] = useState(() => {
+    if (typeof sessionStorage === 'undefined') return 'new'
+    return sessionStorage.getItem(STORAGE_CONVERSA_GABI) ?? 'new'
+  })
   const chatEndRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -684,17 +689,28 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
           ...(idUsuarioPrisma ? { 'x-id-usuario': idUsuarioPrisma } : {}),
           ...(tipoUsuario ? { 'x-tipo-usuario': tipoUsuario } : {}),
         },
-        body: JSON.stringify({ conversationId: 'new', message: msg, page: pathname }),
+        body: JSON.stringify({ conversationId, message: msg, page: pathname }),
       })
 
-      if (!res.ok) throw new Error('API indisponivel')
+      if (!res.ok) {
+        const detalhe = await res.text().catch(() => '')
+        throw new Error(`API ${res.status}${detalhe ? `: ${detalhe.slice(0, 200)}` : ''}`)
+      }
       const data = await res.json()
+      if (data.conversationId) {
+        setConversationId(data.conversationId)
+        sessionStorage.setItem(STORAGE_CONVERSA_GABI, data.conversationId)
+      }
       fullText = data.response
       if (Array.isArray(data.suggestions) && data.suggestions.length > 0) {
         suggestions = data.suggestions
       }
-    } catch {
-      fullText = MOCK_RESPONSES[msg] || 'Nao consegui me conectar ao servidor da IA no momento. Verifique se o servico Gabi esta ativo e tente novamente em instantes.'
+    } catch (err) {
+      const motivo = err instanceof Error ? err.message : 'erro de rede'
+      console.warn('[GabiOnboardingWidget] falha no chat:', motivo)
+      fullText =
+        MOCK_RESPONSES[msg] ||
+        `Nao consegui falar com a Gabi (${motivo}). Confirme: Configurador em http://localhost:8000, servico plataforma na porta 3001 (npm run dev em servicos-plataforma).`
     }
 
     // Phase 2: Thinking done — start typewriter

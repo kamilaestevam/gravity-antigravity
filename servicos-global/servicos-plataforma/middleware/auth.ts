@@ -45,6 +45,12 @@ export function authMiddleware(
   const receivedBuf = Buffer.from(typeof internalKey === 'string' ? internalKey : '')
   const keyIsValid = !!expected && !!internalKey && expectedBuf.length === receivedBuf.length && timingSafeEqual(expectedBuf, receivedBuf)
   if (keyIsValid) {
+    const tenantId = req.headers['x-id-organizacao'] as string | undefined
+    const userId = req.headers['x-id-usuario'] as string | undefined
+    if (tenantId) {
+      req.auth = { id_organizacao: tenantId, id_usuario: userId ?? '' }
+      return next()
+    }
     req.auth = { id_organizacao: '__internal__', id_usuario: 'system' }
     return next()
   }

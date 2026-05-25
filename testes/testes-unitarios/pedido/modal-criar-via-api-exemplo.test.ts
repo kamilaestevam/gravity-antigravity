@@ -73,4 +73,15 @@ describe('Modal "Criar Pedido via API" — exemplo de payload', () => {
       expect(todasChaves).not.toContain(legado)
     }
   })
+
+  it('aceita confirmar_numero_duplicado quando usuario confirma criacao duplicada', () => {
+    const result = criarPedidoSchema.safeParse({
+      ...exemploPayloadModal,
+      confirmar_numero_duplicado: true,
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.confirmar_numero_duplicado).toBe(true)
+    }
+  })
 })

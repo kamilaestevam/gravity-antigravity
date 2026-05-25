@@ -228,3 +228,20 @@ describe('F-ITM: PUT item — pedido pai inexistente', () => {
     expect([404, 500]).toContain(res.status)
   })
 })
+
+// ── Testes — PATCH item campo único (datas replicáveis) ─────────────────────
+
+describe('F-ITM: PATCH /api/v1/pedidos/:id/itens/:itemId/campo — datas', () => {
+  it('F-ITM-40: data_confirmada_pedido_pronto → 200 e coluna Prisma correta', async () => {
+    const res = await request(app)
+      .patch('/api/v1/pedidos/ped-itm-001/itens/itm-001/campo')
+      .send({ campo: 'data_confirmada_pedido_pronto', valor: '2026-02-13' })
+
+    expect(res.status).toBe(200)
+    expect(mockPrisma.pedidoItem.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ data_confirmada_item_pronto: expect.any(Date) }),
+      }),
+    )
+  })
+})

@@ -92,6 +92,8 @@ export default defineConfig(({ command }) => {
   },
   server: {
     port: 8000,
+    // Permite http://127.0.0.1:8000 (Windows: localhost ≠ 127.0.0.1 quando só [::1] escuta)
+    host: true,
     fs: {
       allow: [monorepoRoot],
     },

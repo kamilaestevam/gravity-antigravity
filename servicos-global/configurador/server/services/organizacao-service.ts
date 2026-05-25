@@ -6,7 +6,7 @@ import { createId } from '@paralleldrive/cuid2'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 import { logger } from '../lib/logger.js'
-import { criarEmpresa, compensarEmpresa } from './cadastros-client.js'
+import { criarFornecedor, compensarFornecedor } from './cadastros-client.js'
 import { securityAudit } from '../../../servicos-plataforma/historico-global/server/lib/securityAuditLogger.js'
 import {
   aoHabilitarProdutoNoWorkspace,

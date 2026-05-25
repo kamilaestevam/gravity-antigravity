@@ -17,6 +17,7 @@ import type {
   PedidoStatusConfig,
   PedidoColunaConfig,
   PedidoPreferenciasColunas,
+  PedidoPreferenciasColunasPut,
   ConsolidacaoPreview,
   ConsolidacaoPayload,
   CampoDivergente,
@@ -491,7 +492,7 @@ export const pedidoConfigApi = {
   obterPreferenciaUsuarioColunaPedido: () =>
     request<{ data: PedidoPreferenciasColunas | null }>('/api/v1/pedidos/config/preferencia-usuario-coluna-pedido'),
 
-  salvarPreferenciaUsuarioColunaPedido: (prefs: PedidoPreferenciasColunas) =>
+  salvarPreferenciaUsuarioColunaPedido: (prefs: PedidoPreferenciasColunasPut) =>
     request<{ data: PedidoPreferenciasColunas }>('/api/v1/pedidos/config/preferencia-usuario-coluna-pedido', {
       method: 'PUT',
       body: JSON.stringify(prefs),

@@ -1,41 +1,103 @@
 /**
  * Escopo de workspaces do produto Pedido — SSOT para Lista, Kanban, Dashboard e Visão Geral.
- * Persistido em sessionStorage (sessão do browser); default = workspace ativo do Hub.
+ * Persistido em preferencia_usuario_coluna_pedido (meta em colunas_largura); default = workspace ativo.
  */
 
 import { create } from 'zustand'
-import { z } from 'zod'
+import { getApiContext, pedidoConfigApi } from './api'
 
 const SESSION_KEY = 'pedido:workspaces_escopo'
-
-const idsSchema = z.array(z.string().min(1))
-
-function lerPersistido(): string[] | null {
-  try {
-    const raw = sessionStorage.getItem(SESSION_KEY)
-    if (!raw) return null
-    const parsed = idsSchema.safeParse(JSON.parse(raw))
-    return parsed.success && parsed.data.length > 0 ? parsed.data : null
-  } catch {
-    return null
-  }
-}
-
-function persistir(ids: string[]): void {
-  try {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(ids))
-  } catch { /* quota / private mode */ }
-}
 
 interface EscopoWorkspacesPedidoState {
   idsWorkspacesEscopo: string[]
   hidratado: boolean
   /** Incrementa a cada pedido de abertura do menu lateral de workspaces. */
   sinalAbrirMenuWorkspaces: number
-  hidratar: (idsDisponiveis: readonly string[], idWorkspacePreferido: string) => void
+  hidratar: (
+    idsDisponiveis: readonly string[],
+    idWorkspacePreferido: string,
+    idsPreferenciaBackend?: string[] | null,
+  ) => void
   definirEscopo: (ids: readonly string[]) => void
   alternarWorkspace: (id: string) => void
   pedirAbrirMenuWorkspaces: () => void
+  reiniciarHidratacao: () => void
+}
+
+let persistTimer: ReturnType<typeof setTimeout> | null = null
+let idsPendentesPersistencia: string[] | null = null
+
+function lerSessionStorage(): string[] | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as unknown
+    if (!Array.isArray(parsed)) return null
+    const ids = parsed.filter((id): id is string => typeof id === 'string' && id.length > 0)
+    return ids.length > 0 ? ids : null
+  } catch {
+    return null
+  }
+}
+
+function gravarSessionStorage(ids: string[]): void {
+  try {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(ids))
+  } catch { /* quota / private mode */ }
+}
+
+function podePersistirNoBackend(): boolean {
+  const ctx = getApiContext()
+  return Boolean(ctx.idOrganizacao && ctx.userId)
+}
+
+function persistirEscopoNoBackend(ids: string[]): void {
+  idsPendentesPersistencia = ids
+  if (persistTimer) clearTimeout(persistTimer)
+
+  const executar = () => {
+    if (!podePersistirNoBackend()) return
+    const payload = idsPendentesPersistencia
+    if (!payload) return
+    idsPendentesPersistencia = null
+
+    void pedidoConfigApi
+      .salvarPreferenciaUsuarioColunaPedido({ ids_workspaces_escopo: payload })
+      .then(() => {
+        gravarSessionStorage(payload)
+      })
+      .catch(err => {
+        console.warn('[useEscopoWorkspacesPedido] falha ao persistir escopo de workspaces', err)
+        idsPendentesPersistencia = payload
+        persistTimer = setTimeout(executar, 1_500)
+      })
+  }
+
+  persistTimer = setTimeout(executar, 150)
+}
+
+function flushPersistenciaEscopo(): void {
+  if (persistTimer) {
+    clearTimeout(persistTimer)
+    persistTimer = null
+  }
+  if (idsPendentesPersistencia && podePersistirNoBackend()) {
+    const payload = idsPendentesPersistencia
+    idsPendentesPersistencia = null
+    void pedidoConfigApi
+      .salvarPreferenciaUsuarioColunaPedido({ ids_workspaces_escopo: payload })
+      .then(() => gravarSessionStorage(payload))
+      .catch(() => {
+        idsPendentesPersistencia = payload
+      })
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('pagehide', flushPersistenciaEscopo)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushPersistenciaEscopo()
+  })
 }
 
 export const useEscopoWorkspacesPedido = create<EscopoWorkspacesPedidoState>((set, get) => ({
@@ -43,25 +105,31 @@ export const useEscopoWorkspacesPedido = create<EscopoWorkspacesPedidoState>((se
   hidratado: false,
   sinalAbrirMenuWorkspaces: 0,
 
-  hidratar: (idsDisponiveis, idWorkspacePreferido) => {
+  reiniciarHidratacao: () => {
+    set({ hidratado: false, idsWorkspacesEscopo: [] })
+  },
+
+  hidratar: (idsDisponiveis, idWorkspacePreferido, idsPreferenciaBackend = null) => {
     if (get().hidratado) return
     const permitidos = new Set(idsDisponiveis)
-    const salvo = lerPersistido()
-    let ids = (salvo ?? []).filter(id => permitidos.has(id))
+    const backend = idsPreferenciaBackend ?? undefined
+    const fallbackLocal = backend === undefined ? lerSessionStorage() : null
+    let ids = (backend ?? fallbackLocal ?? []).filter(id => permitidos.has(id))
     if (ids.length === 0 && idWorkspacePreferido && permitidos.has(idWorkspacePreferido)) {
       ids = [idWorkspacePreferido]
     }
     if (ids.length === 0 && idsDisponiveis.length > 0) {
       ids = [idsDisponiveis[0]]
     }
-    persistir(ids)
+    gravarSessionStorage(ids)
     set({ idsWorkspacesEscopo: ids, hidratado: true })
   },
 
   definirEscopo: (ids) => {
     const dedup = [...new Set(ids.filter(Boolean))]
-    persistir(dedup)
+    gravarSessionStorage(dedup)
     set({ idsWorkspacesEscopo: dedup, hidratado: true })
+    persistirEscopoNoBackend(dedup)
   },
 
   alternarWorkspace: (id) => {

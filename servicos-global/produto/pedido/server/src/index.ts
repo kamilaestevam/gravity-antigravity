@@ -250,8 +250,10 @@ app.use('/api/v1/pedidos/template-pedido',             exigirPermissao('configur
 app.use('/api/v1/pedidos/alteracoes-status-lote',      exigirPermissao('lista', 'editar'), loteRouter)
 app.use('/api/v1/pedidos/kanban',                      exigirPorMetodo('kanban'), kanbanPreferenciasRouter)
 app.use('/api/v1/pedidos/configuracoes',               exigirPorMetodo('configuracao'), casasDecimaisRouter)
-app.use('/api/v1/pedidos/config',                      exigirPorMetodo('configuracao'), pedidosConfigRouter)
+// Preferências de colunas/escopo — montar ANTES do pedidosConfigRouter para não exigir
+// permissão `configuracao:*` em GET/PUT de escopo multi-workspace (só `lista:*`).
 app.use('/api/v1/pedidos/config',                      exigirPorMetodo('lista'), preferenciaUsuarioColunaPedidoRouter)
+app.use('/api/v1/pedidos/config',                      exigirPorMetodo('configuracao'), pedidosConfigRouter)
 app.use('/api/v1/pedidos/config',                      exigirPermissao('lista', 'editar'), snapshotAtualizacaoPedidoRouter)
 app.use('/api/v1/pedidos',                             exigirPermissao('lista', 'ver'), snapshotStatusPedidoRouter)
 app.use('/api/v1/pedidos/configuracoes',               exigirPorMetodo('configuracao'), saldoFormulaRouter)

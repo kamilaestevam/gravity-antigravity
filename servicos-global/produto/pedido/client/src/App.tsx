@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useMemo } from 'react'
+import React, { lazy, Suspense, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
@@ -12,7 +12,7 @@ import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { resolverPageMetaTopo } from './shared/page-meta-topo'
 import './shared/pedido-page-shell.css'
 import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
-import { setApiContext, injectTenantGetter, injectTokenGetter, injectWorkspaceGetter } from './shared/api'
+import { setApiContext, injectTenantGetter, injectTokenGetter, injectWorkspaceGetter, pedidoConfigApi } from './shared/api'
 import { usePermissoesPedido, type SecaoPedido } from './shared/permissoes/usePermissoesPedido'
 import { BloqueioPermissaoOpaco } from './shared/permissoes/BloqueioPermissaoOpaco'
 import { useEscopoWorkspacesPedido } from './shared/useEscopoWorkspacesPedido'
@@ -178,24 +178,63 @@ function AppInner() {
   const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
   const hidratadoEscopo = useEscopoWorkspacesPedido(s => s.hidratado)
   const hidratarEscopo = useEscopoWorkspacesPedido(s => s.hidratar)
+  const reiniciarHidratacaoEscopo = useEscopoWorkspacesPedido(s => s.reiniciarHidratacao)
   const alternarWorkspaceEscopo = useEscopoWorkspacesPedido(s => s.alternarWorkspace)
   const definirEscopoWorkspaces = useEscopoWorkspacesPedido(s => s.definirEscopo)
   const sinalAbrirMenuWorkspaces = useEscopoWorkspacesPedido(s => s.sinalAbrirMenuWorkspaces)
+  const sessaoEscopoHidratadaRef = useRef<string | null>(null)
+  const qtdWorkspaces = workspacesStore.length
 
   useEffect(() => {
-    if (workspacesStore.length === 0 || !idWorkspaceAtivo) return
-    hidratarEscopo(
-      workspacesStore.map(ws => ws.id),
-      idWorkspaceAtivo,
-    )
-  }, [workspacesStore, idWorkspaceAtivo, hidratarEscopo])
+    if (currentUser.id) {
+      setApiContext({
+        idOrganizacao: currentUser.idOrganizacao ?? '',
+        userId: currentUser.id,
+        userName: currentUser.name ?? '',
+      })
+    }
+  }, [currentUser.id, currentUser.idOrganizacao, currentUser.name])
+
+  useEffect(() => {
+    if (qtdWorkspaces === 0 || !idWorkspaceAtivo || !currentUser?.idOrganizacao || !currentUser.id) return
+
+    const sessao = `${currentUser.idOrganizacao}:${currentUser.id}`
+    if (sessaoEscopoHidratadaRef.current === sessao) return
+
+    reiniciarHidratacaoEscopo()
+
+    let cancelled = false
+    const idsDisponiveis = workspacesStore.map(ws => ws.id)
+
+    void pedidoConfigApi.obterPreferenciaUsuarioColunaPedido()
+      .then(res => {
+        if (cancelled) return
+        const idsSalvos = res.data?.ids_workspaces_escopo
+        hidratarEscopo(
+          idsDisponiveis,
+          idWorkspaceAtivo,
+          idsSalvos !== undefined ? idsSalvos : null,
+        )
+        sessaoEscopoHidratadaRef.current = sessao
+      })
+      .catch(() => {
+        if (cancelled) return
+        hidratarEscopo(idsDisponiveis, idWorkspaceAtivo, null)
+        sessaoEscopoHidratadaRef.current = sessao
+      })
+
+    return () => { cancelled = true }
+  }, [
+    qtdWorkspaces,
+    idWorkspaceAtivo,
+    currentUser?.idOrganizacao,
+    currentUser?.id,
+    hidratarEscopo,
+    reiniciarHidratacaoEscopo,
+    workspacesStore,
+  ])
 
   const { history, visitedIds, addEntry } = useLocalizadorHistory(PRODUCT_ID)
-
-  // userId/userName não são críticos para auth — atualizados via context quando disponíveis
-  useEffect(() => {
-    if (currentUser.id) setApiContext({ idOrganizacao: '', userId: currentUser.id, userName: currentUser.name ?? '' })
-  }, [currentUser.id, currentUser.name])
 
   useEffect(() => {
     const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'Pedidos'

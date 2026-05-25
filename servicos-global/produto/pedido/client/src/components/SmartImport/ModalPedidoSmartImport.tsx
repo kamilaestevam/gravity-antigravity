@@ -318,6 +318,21 @@ function traduzirErroDetalhado(
     }
   }
 
+  if (codeBackend === 'HTTP_408' || msg === 'HTTP 408' || msg.includes('408')) {
+    return {
+      code: 'HTTP_408',
+      titulo: t('pedido.smart_import.err_http408_titulo'),
+      mensagem: t('pedido.smart_import.err_http408_msg'),
+      causa: t('pedido.smart_import.err_http408_causa'),
+      sugestoes: [
+        t('pedido.smart_import.err_http408_sug1'),
+        t('pedido.smart_import.err_http408_sug2'),
+        t('pedido.smart_import.err_http408_sug3'),
+      ],
+      retryable: true,
+    }
+  }
+
   // ── Fallback: erro com mensagem do backend mas sem code conhecido ──────
   if (msg && msg.length > 0 && !msg.startsWith('HTTP ')) {
     return {
@@ -398,6 +413,16 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
   const [arquivoAtual, setArquivoAtual]               = useState<File | null>(null)
 
   const [msgProgresso, setMsgProgresso] = React.useState(() => t('pedido.smart_import.analisando'))
+  const [analiseDemorada, setAnaliseDemorada] = React.useState(false)
+
+  React.useEffect(() => {
+    if (!analisando) {
+      setAnaliseDemorada(false)
+      return
+    }
+    const timerDemorada = setTimeout(() => setAnaliseDemorada(true), 30_000)
+    return () => clearTimeout(timerDemorada)
+  }, [analisando])
 
   React.useEffect(() => {
     if (!analisando) return
@@ -443,6 +468,7 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
         setPlanilhaSelecionada(undefined)
         setArquivoAtual(null)
         setMsgProgresso(t('pedido.smart_import.analisando'))
+        setAnaliseDemorada(false)
       }, 300)
     }
   }, [aberto])
@@ -836,6 +862,20 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
                   ? t('pedido.smart_import.pdf_aguarde')
                   : t('pedido.smart_import.xlsx_aguarde')}
               </span>
+              {analiseDemorada && (
+                <span
+                  style={{
+                    fontSize: '0.8125rem',
+                    color: 'var(--ws-accent, #a5b4fc)',
+                    marginTop: '0.5rem',
+                    maxWidth: '28rem',
+                    textAlign: 'center',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {t('pedido.smart_import.analise_demorada')}
+                </span>
+              )}
             </div>
           )}
 

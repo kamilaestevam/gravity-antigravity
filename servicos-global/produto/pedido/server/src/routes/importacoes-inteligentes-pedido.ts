@@ -662,7 +662,7 @@ smartImportRouter.post('/analisar', upload.single('arquivo'), async (req: Reques
       // imediatamente em vez de bug silencioso no client.
       const validated = smartImportPreviewSchema.parse(preview)
       res.json(validated)
-    })
+    }, { timeoutMs: 120_000 })
   } catch (err) {
     next(err)
   }

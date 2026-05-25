@@ -76,6 +76,9 @@ export const smartImportPreviewSchema = z.object({
   limite_excedido:      z.boolean().optional(),
   /** P2.4 — Lista de conflitos onde 2+ colunas apontam para o mesmo campo_sistema. */
   conflitos_mapeamento: z.array(conflitoMapeamentoSchema).optional(),
+  pipeline_importacao: z.enum(['deterministico', 'gemini_mapeamento', 'gemini_extracao']).optional(),
+  score_essenciais: z.number().min(0).max(1).optional(),
+  template_detectado: z.boolean().optional(),
 })
 
 export type SmartImportPreviewParsed = z.infer<typeof smartImportPreviewSchema>

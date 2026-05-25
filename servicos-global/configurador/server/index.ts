@@ -336,6 +336,9 @@ app.use('/api/v1/pedidos', (req, res) => {
   const headers = { ...req.headers, host: '127.0.0.1:8030' }
   headers['x-chave-interna-servico'] = process.env.CHAVE_INTERNA_SERVICO!
 
+  const ehImportacaoInteligente = req.originalUrl.includes('/importacoes-inteligentes/')
+  const proxyTimeoutMs = ehImportacaoInteligente ? 120_000 : 60_000
+
   let bodyBuf: Buffer | undefined
   if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
     bodyBuf = Buffer.from(JSON.stringify(req.body))
@@ -345,6 +348,17 @@ app.use('/api/v1/pedidos', (req, res) => {
   const proxyReq = httpRequest(targetUrl, { method: req.method, headers }, (proxyRes) => {
     res.writeHead(proxyRes.statusCode ?? 502, proxyRes.headers)
     proxyRes.pipe(res)
+  })
+  proxyReq.setTimeout(proxyTimeoutMs, () => {
+    proxyReq.destroy()
+    if (!res.headersSent) {
+      res.status(408).json({
+        error: {
+          code: 'HTTP_408',
+          message: 'Tempo limite excedido ao processar a importacao. Tente novamente ou divida o arquivo em lotes menores.',
+        },
+      })
+    }
   })
   proxyReq.on('error', (err) => {
     console.error('[proxy-pedido] erro ao conectar com sidecar', {
@@ -359,7 +373,7 @@ app.use('/api/v1/pedidos', (req, res) => {
   if (bodyBuf) {
     proxyReq.end(bodyBuf)
   } else {
-    proxyReq.end()
+    req.pipe(proxyReq)
   }
 })
 

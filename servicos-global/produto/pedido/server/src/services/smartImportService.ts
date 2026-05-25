@@ -21,6 +21,12 @@ import {
   CAMPO_POR_NOME_INTERNO,
   CAMPO_POR_ALIAS_LEGADO,
 } from '../../../shared/campos-pedido-ddd.js'
+import {
+  calcularScoreEssenciais,
+  classificarPipelineImportacao,
+  ehPlanilhaTemplateGravity,
+  type PipelineImportacao,
+} from '../../../shared/classificarImportacao.js'
 import { recalcularAgregadosPedido } from '../../../../processos-core/src/services/recalcularAgregadosPedido.js'
 
 const CAMPOS_BLOQ_PARA_ITEM: ReadonlySet<string> = new Set([
@@ -200,6 +206,12 @@ export interface SmartImportPreview {
   dados_brutos: Array<{ linha: number; valores: Record<string, string> }>
   /** P2.4 — Lista de conflitos onde 2+ colunas apontam para o mesmo campo_sistema. */
   conflitos_mapeamento: ConflitoMapeamento[]
+  /** Roteador de pipeline — deterministico evita Gemini. */
+  pipeline_importacao?: PipelineImportacao
+  /** Proporcao (0–1) de campos essenciais mapeados. */
+  score_essenciais?: number
+  /** Planilha oficial Gravity detectada (super-header + colunas template). */
+  template_detectado?: boolean
 }
 
 export interface SmartImportConfirmar {
@@ -413,6 +425,23 @@ export class SmartImportService {
 
     const confiancaGlobal = mapeamento.reduce((sum, m) => sum + m.confianca, 0) / mapeamento.length
 
+    const extensaoArquivo = nomeArquivo.split('.').pop()?.toLowerCase() ?? ''
+    const templateDetectado = ehPlanilhaTemplateGravity(cabecalhos, linhas_cabecalho, hashColunas)
+    const scoreEssenciais = calcularScoreEssenciais(mapeamento)
+    const pipelineImportacao = classificarPipelineImportacao({
+      memoriaAplicada,
+      templateDetectado,
+      scoreEssenciais,
+      extratorUsado: extrator_usado,
+      extensaoArquivo,
+    })
+
+    if (pipelineImportacao !== 'deterministico') {
+      console.info(
+        `[SmartImport] tenant=${tenantId} pipeline=${pipelineImportacao} score=${scoreEssenciais.toFixed(2)} template=${templateDetectado} — reservado para Gemini; usando heuristica`,
+      )
+    }
+
     // P2.4 — Detecta conflitos: 2+ colunas mapeadas para o mesmo campo_sistema.
     // O usuario precisa decidir qual coluna mantem e qual ignora antes de avancar.
     const conflitos_mapeamento = this.detectarConflitosMapeamento(mapeamento)
@@ -437,6 +466,9 @@ export class SmartImportService {
       extrator_usado,
       dados_brutos,
       conflitos_mapeamento,
+      pipeline_importacao: pipelineImportacao,
+      score_essenciais: Math.round(scoreEssenciais * 1000) / 1000,
+      template_detectado: templateDetectado,
     }
   }
 

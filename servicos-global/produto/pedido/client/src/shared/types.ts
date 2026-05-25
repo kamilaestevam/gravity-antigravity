@@ -830,6 +830,9 @@ export interface SmartImportPreview {
   extrator_usado?: string
   /** P2.4 — Conflitos onde 2+ colunas mapeiam para o mesmo campo_sistema. */
   conflitos_mapeamento?: ConflitoMapeamento[]
+  pipeline_importacao?: 'deterministico' | 'gemini_mapeamento' | 'gemini_extracao'
+  score_essenciais?: number
+  template_detectado?: boolean
 }
 
 /** Uma linha do arquivo apos mapeamento e validacao */

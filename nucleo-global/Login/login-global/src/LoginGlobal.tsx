@@ -272,8 +272,10 @@ function SignUpFlow() {
   const [codigo, setCodigo] = useState('')
 
   const { forca, requisitos } = avaliarSenha(senha)
+  const senhasConferem = senha.length > 0 && senha === confirmacao
   const requisitosFormulario = [
     ...requisitos,
+    { chave: 'confirma', ok: senhasConferem, mensagem: 'A confirmação de senha confere' },
     { chave: 'termos', ok: aceiteTermos, mensagem: 'Aceite dos Termos de Uso e Política de Privacidade' },
   ]
   const senhasDiferentes = confirmacao.length > 0 && senha !== confirmacao

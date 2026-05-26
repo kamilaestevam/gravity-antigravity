@@ -34,9 +34,9 @@ async function main() {
 
     await page.screenshot({ path: resolve(OUT, '02-checklist-termos-ok.png'), fullPage: true })
 
-    const passou = itens.length === 6 && termosVisivel === 1 && termosOk === 1
+    const passou = itens.length === 7 && termosVisivel === 1 && termosOk === 1
 
-    linhas.push(`Total itens checklist: ${itens.length} (esperado: 6)`)
+    linhas.push(`Total itens checklist: ${itens.length} (esperado: 7)`)
     linhas.push(...itens.map((t, i) => `  ${i + 1}. ${t.trim()}`))
     linhas.push(`Item termos visível: ${termosVisivel === 1 ? 'SIM' : 'NAO'}`)
     linhas.push(`Botão Continuar (sem aceite): ${btnDisabledAntes ? 'desabilitado OK' : 'HABILITADO — ERRO'}`)

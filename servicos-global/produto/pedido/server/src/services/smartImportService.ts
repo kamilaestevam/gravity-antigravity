@@ -159,6 +159,29 @@ async function executarSavepointSql(db: unknown, sql: string): Promise<void> {
   }
 }
 
+/**
+ * Mesmo critério da Lista (`GET /pedidos`) e de `/duplicatas-numero`:
+ * pedido visível no workspace atual, não soft-deleted.
+ */
+export function wherePedidoVisivelImportacao(
+  tenantId: string,
+  companyId: string | undefined,
+  extra?: Record<string, unknown>,
+): Record<string, unknown> {
+  return {
+    id_organizacao: tenantId,
+    data_exclusao_pedido: null,
+    ...(companyId ? { id_workspace: companyId } : {}),
+    ...extra,
+  }
+}
+
+/** Update não pode regenerar `id_pedido` nem deixar pedido soft-deleted invisível na Lista. */
+function dadosPedidoParaUpdate(dadosPedido: Record<string, unknown>): Record<string, unknown> {
+  const { id_pedido: _omitId, ...rest } = dadosPedido
+  return { ...rest, data_exclusao_pedido: null }
+}
+
 function traduzirErroPrisma(err: unknown): string {
   if (!(err instanceof Error)) return 'Erro desconhecido ao processar linha'
   const msg = err.message
@@ -432,7 +455,13 @@ export class SmartImportService {
     }
   }
 
-  async analisar(tenantId: string, buffer: Buffer, nomeArquivo: string, nomePlanilha?: string): Promise<SmartImportPreview> {
+  async analisar(
+    tenantId: string,
+    buffer: Buffer,
+    nomeArquivo: string,
+    nomePlanilha?: string,
+    companyId?: string,
+  ): Promise<SmartImportPreview> {
     // 1. Parse do arquivo
     const { linhas: linhasBrutas, extrator_usado, linhas_cabecalho } = await parseArquivo(buffer, nomeArquivo, nomePlanilha)
     if (linhasBrutas.length === 0) {
@@ -532,7 +561,7 @@ export class SmartImportService {
 
     // 7. Verificar duplicatas no banco
     const numerosArquivo = Array.from(pedidosUnicos).filter(Boolean) as string[]
-    const duplicatasNoSistema = await this.buscarDuplicatasNoSistema(tenantId, numerosArquivo)
+    const duplicatasNoSistema = await this.buscarDuplicatasNoSistema(tenantId, numerosArquivo, companyId)
 
     // 8. Marcar duplicatas nas linhas
     const linhasComDuplicatas = linhasMapeadas.map(l => {
@@ -936,12 +965,12 @@ export class SmartImportService {
 
           if (tipoLinha !== 'ITEM' && numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'sobrescrever') {
             const existente = await (this.db as Record<string, any>)['pedido'].findFirst({
-              where: { numero_pedido: numeroPedido, id_organizacao: tenantId },
+              where: wherePedidoVisivelImportacao(tenantId, companyId, { numero_pedido: numeroPedido }),
             })
             if (existente) {
               await (this.db as Record<string, any>)['pedido'].update({
                 where: { id_pedido: existente.id_pedido },
-                data:  dadosPedido,
+                data: dadosPedidoParaUpdate(dadosPedido),
               })
               if (parceirosNumero) {
                 await aplicarParceirosResolvidosNoPedido(this.db, existente.id_pedido, tenantId, parceirosNumero)
@@ -957,7 +986,10 @@ export class SmartImportService {
           // Verificar se já existe pedido com este número (para importação incremental de itens)
           if (numeroPedidoFinal && (tipoLinha === 'ITEM' || !payload.decisoes_duplicatas[numeroPedidoFinal])) {
             const pedidoExistente = await (this.db as Record<string, any>)['pedido'].findFirst({
-              where: { numero_pedido: numeroPedidoFinal, id_organizacao: tenantId, status_pedido: { not: 'cancelado' } },
+              where: {
+                ...wherePedidoVisivelImportacao(tenantId, companyId, { numero_pedido: numeroPedidoFinal }),
+                status_pedido: { not: 'cancelado' },
+              },
               select: { id_pedido: true },
             })
 
@@ -2071,11 +2103,18 @@ export class SmartImportService {
     }
   }
 
-  private async buscarDuplicatasNoSistema(tenantId: string, numeros: string[]): Promise<Set<string>> {
+  private async buscarDuplicatasNoSistema(
+    tenantId: string,
+    numeros: string[],
+    companyId?: string,
+  ): Promise<Set<string>> {
     if (numeros.length === 0) return new Set()
     try {
       const existentes = await this.db['pedido'].findMany({
-        where: { id_organizacao: tenantId, numero_pedido: { in: numeros } },
+        where: {
+          ...wherePedidoVisivelImportacao(tenantId, companyId),
+          numero_pedido: { in: numeros },
+        },
         select: { numero_pedido: true },
       })
       return new Set((existentes as { numero_pedido: string }[]).map(p => p.numero_pedido))

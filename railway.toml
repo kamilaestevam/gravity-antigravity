@@ -2,4 +2,4 @@
 buildCommand = "bash scripts/build-site.sh"
 
 [deploy]
-startCommand = "node servicos-global/configurador/dist/server.mjs"
+startCommand = "bash scripts/start-site.sh"

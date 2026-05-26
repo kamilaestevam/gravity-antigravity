@@ -8,6 +8,7 @@ on:
       - 'servicos-global/produto/pedido/prisma/migrations/**'
       - 'scripts/ativamente/aplicar-migrations-pedido.ts'
       - 'scripts/ativamente/migrate-all-tenants.ts'
+      - 'scripts/start-site.sh'
 
 env:
   NODE_VERSION: "20"
@@ -17,6 +18,10 @@ jobs:
     name: Migrate Pedido (Production)
     runs-on: ubuntu-latest
     environment: production
+    env:
+      PEDIDO_DATABASE_URL: ${{ secrets.PROD_PEDIDO_DATABASE_URL }}
+      CONFIGURADOR_DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
+      DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,24 +30,24 @@ jobs:
           cache: npm
       - run: npm install
 
-      - name: Aplicar migrations — Pedido DB (Produção)
-        if: ${{ secrets.PROD_PEDIDO_DATABASE_URL != '' }}
-        run: npx tsx scripts/ativamente/aplicar-migrations-pedido.ts
-        env:
-          PEDIDO_DATABASE_URL: ${{ secrets.PROD_PEDIDO_DATABASE_URL }}
-          CONFIGURADOR_DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
-          DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
-
-      - name: Secret PROD_PEDIDO_DATABASE_URL ausente
-        if: ${{ secrets.PROD_PEDIDO_DATABASE_URL == '' }}
+      - name: Verificar PROD_PEDIDO_DATABASE_URL
         run: |
-          echo "::warning::PROD_PEDIDO_DATABASE_URL nao configurado — migration do Pedido nao rodou."
-          exit 1
+          if [ -z "$PEDIDO_DATABASE_URL" ]; then
+            echo "::error::Secret PROD_PEDIDO_DATABASE_URL nao configurado no GitHub (environment production)."
+            exit 1
+          fi
+
+      - name: Aplicar migrations — Pedido DB (Produção)
+        run: npx tsx scripts/ativamente/aplicar-migrations-pedido.ts
 
   migrate-staging:
     name: Migrate Pedido (Staging)
     runs-on: ubuntu-latest
     environment: staging
+    env:
+      PEDIDO_DATABASE_URL: ${{ secrets.STAGING_PEDIDO_DATABASE_URL }}
+      CONFIGURADOR_DATABASE_URL: ${{ secrets.STAGING_CONFIGURADOR_DATABASE_URL }}
+      DATABASE_URL: ${{ secrets.STAGING_CONFIGURADOR_DATABASE_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -51,16 +56,12 @@ jobs:
           cache: npm
       - run: npm install
 
-      - name: Aplicar migrations — Pedido DB (Staging)
-        if: ${{ secrets.STAGING_PEDIDO_DATABASE_URL != '' }}
-        run: npx tsx scripts/ativamente/aplicar-migrations-pedido.ts
-        env:
-          PEDIDO_DATABASE_URL: ${{ secrets.STAGING_PEDIDO_DATABASE_URL }}
-          CONFIGURADOR_DATABASE_URL: ${{ secrets.STAGING_CONFIGURADOR_DATABASE_URL }}
-          DATABASE_URL: ${{ secrets.STAGING_CONFIGURADOR_DATABASE_URL }}
-
-      - name: Secret STAGING_PEDIDO_DATABASE_URL ausente
-        if: ${{ secrets.STAGING_PEDIDO_DATABASE_URL == '' }}
+      - name: Verificar STAGING_PEDIDO_DATABASE_URL
         run: |
-          echo "::warning::STAGING_PEDIDO_DATABASE_URL nao configurado — migration do Pedido nao rodou."
-          exit 1
+          if [ -z "$PEDIDO_DATABASE_URL" ]; then
+            echo "::error::Secret STAGING_PEDIDO_DATABASE_URL nao configurado no GitHub (environment staging)."
+            exit 1
+          fi
+
+      - name: Aplicar migrations — Pedido DB (Staging)
+        run: npx tsx scripts/ativamente/aplicar-migrations-pedido.ts

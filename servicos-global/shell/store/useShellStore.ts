@@ -66,8 +66,21 @@ export const useShellStore = create<ShellState>()(
         })
       },
       
+      setTooltipsDisabled: (disabled: boolean) => {
+        if (typeof document !== 'undefined') {
+          document.body.classList.toggle('tooltips-disabled', disabled)
+        }
+        set({ tooltipsDisabled: disabled })
+      },
+
       toggleTooltips: () => {
-        set((state) => ({ tooltipsDisabled: !state.tooltipsDisabled }))
+        set((state) => {
+          const next = !state.tooltipsDisabled
+          if (typeof document !== 'undefined') {
+            document.body.classList.toggle('tooltips-disabled', next)
+          }
+          return { tooltipsDisabled: next }
+        })
       },
 
       // ─── Usuário ──────────────────────────────────────────────────────────
@@ -213,13 +226,22 @@ export const useShellStore = create<ShellState>()(
         } else {
           document.body.classList.remove('light-theme')
         }
-        if (state?.tooltipsDisabled) {
-          document.body.classList.add('tooltips-disabled')
+        if (typeof document !== 'undefined') {
+          document.body.classList.toggle('tooltips-disabled', !!state?.tooltipsDisabled)
         }
       },
     }
   )
 )
+
+// Mantém <body> alinhado ao store em qualquer mudança (toggle, rehydrate, setState direto).
+if (typeof document !== 'undefined') {
+  useShellStore.subscribe((state, prev) => {
+    if (state.tooltipsDisabled !== prev.tooltipsDisabled) {
+      document.body.classList.toggle('tooltips-disabled', state.tooltipsDisabled)
+    }
+  })
+}
 
 // DEV: expõe o store em window.__shellStore para inspeção manual via DevTools.
 // Útil para depurar fluxos assíncronos (ex: aviso do motor de testes chegando

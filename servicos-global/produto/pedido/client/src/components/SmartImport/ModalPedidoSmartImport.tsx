@@ -327,7 +327,8 @@ function traduzirErroDetalhado(
     }
   }
 
-  if (codeBackend === 'HTTP_408' || msg === 'HTTP 408' || msg.includes('408')) {
+  if (codeBackend === 'HTTP_408' || msg === 'HTTP 408' || msg.includes('408')
+      || /Transaction.*not found|Transaction.*timed?\s*out|P2024|Transaction API error/i.test(msg)) {
     return {
       code: 'HTTP_408',
       titulo: t('pedido.smart_import.err_http408_titulo'),

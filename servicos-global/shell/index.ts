@@ -33,6 +33,7 @@ export type { OrganizacaoAdminOpcao, BuscarOrganizacoesAdminOpts } from './utils
 
 // Hooks
 export { useUserPreferences } from './hooks/useUserPreferences'
+export { useShellBodyClasses } from './hooks/useShellBodyClasses'
 export { useMeSync }           from './hooks/useMeSync'
 export { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
 export { useOrganizacaoOverride } from './hooks/useOrganizacaoOverride'

@@ -2588,6 +2588,9 @@ function aplicarPropagacaoPedidoNoItem(
   // Contrato JSON (mapItem): campos propagáveis expõem o mesmo nome do pai
   // (ex: data_confirmada_pedido_pronto), não a coluna Prisma do item.
   const patched = { ...item, [campoPedido]: valor } as PedidoItem
+  if (campoPedido === 'tipo_operacao' || campoPedido === 'tipo_operacao_pedido') {
+    patched.tipo_operacao_item = valor as string | null | undefined
+  }
   if (campoPedido === 'id_workspace') {
     patched.company_id = String(valor ?? '')
     const enr = item as PedidoItemEnriquecido

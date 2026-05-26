@@ -174,9 +174,14 @@ export async function request<T>(endpoint: string, options?: RequestInit): Promi
     // BUG-C (Mand. 08): preservar `details` no Error para que a UI possa exibir
     // o(s) campo(s) realmente inválidos em vez de uma mensagem genérica.
     const msg = raw?.error?.message || raw?.erro?.mensagem || (typeof raw?.error === 'string' ? raw.error : null)
-    const err = new Error(msg || `HTTP ${response.status}`) as Error & { details?: unknown }
-    if (raw?.error && typeof raw.error === 'object' && 'details' in raw.error) {
-      err.details = (raw.error as { details?: unknown }).details
+    const err = new Error(msg || `HTTP ${response.status}`) as Error & { details?: unknown; codeBackend?: string }
+    if (raw?.error && typeof raw.error === 'object') {
+      if ('details' in raw.error) {
+        err.details = (raw.error as { details?: unknown }).details
+      }
+      if ('code' in raw.error && typeof (raw.error as { code?: unknown }).code === 'string') {
+        err.codeBackend = (raw.error as { code: string }).code
+      }
     }
     throw err
   }

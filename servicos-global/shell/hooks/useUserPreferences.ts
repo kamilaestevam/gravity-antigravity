@@ -124,8 +124,7 @@ export function useUserPreferences({ id_usuario, id_organizacao }: UseUserPrefer
         prefs.tooltips_disabled !== undefined &&
         prefs.tooltips_disabled !== store.tooltipsDisabled
       ) {
-        // toggleTooltips alterna — precisamos checar diferença antes de chamar
-        store.toggleTooltips()
+        store.setTooltipsDisabled(prefs.tooltips_disabled)
       }
 
       // Aplica sidebar se diferente

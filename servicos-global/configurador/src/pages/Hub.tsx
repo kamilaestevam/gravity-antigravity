@@ -23,7 +23,7 @@ import {
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import './hub.css'
-import { useShellStore, useOrganizacaoOverride, useMeSync } from '@gravity/shell'
+import { useShellStore, useOrganizacaoOverride, useMeSync, useShellBodyClasses } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { produtosWorkspaceApi, type ProdutoWorkspaceItem } from '../services/api-client'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
@@ -124,9 +124,7 @@ export function Hub() {
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, currentUser } = useShellStore()
   const allowedProducts = useShellStore((s) => s.allowedProducts) ?? []
 
-  useEffect(() => {
-    document.body.classList.toggle('light-theme', currentTheme === 'light')
-  }, [currentTheme])
+  useShellBodyClasses()
 
   const [products, setProducts] = useState<ProdutoWorkspaceItem[]>([])
   const [loading, setLoading] = useState(true)

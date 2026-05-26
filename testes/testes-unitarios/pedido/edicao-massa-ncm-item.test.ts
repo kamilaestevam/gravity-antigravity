@@ -66,7 +66,6 @@ describe('NCM na edição em massa — roteamento correto item vs pedido', () =>
   it('NCM no modo Combinado NÃO ativa cascade (ncm_item não está no PARES_CASCADE)', () => {
     const PARES_CASCADE: Record<string, string> = {
       ...MAPA_PROPAGACAO_PEDIDO_ITEM,
-      tipo_operacao_pedido: 'tipo_operacao_item',
       nome_exportador:      'nome_exportador_item',
       nome_importador:      'nome_importador_item',
       nome_fabricante:       'nome_fabricante_item',

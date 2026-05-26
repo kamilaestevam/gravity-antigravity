@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
+import { useShellStore, ToastContainer, useMeSync, useShellBodyClasses } from '@gravity/shell'
 import { useAuth, useClerk } from '@clerk/clerk-react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
@@ -124,6 +124,7 @@ const queryClient = new QueryClient({
 
 function AppInner() {
   useMeSync()
+  useShellBodyClasses()
   const { t } = useTranslation()
   const { getToken } = useAuth()
   const { signOut } = useClerk()

@@ -39,7 +39,8 @@ export const MAPA_PROPAGACAO_PEDIDO_ITEM: Readonly<Record<string, string>> = Obj
   // público do item o ACL expõe `company_id` (legado).
   id_workspace:                     'id_workspace',
 
-  // ── Identidade comercial (5) ─────────────────────────────────────────────
+  // ── Identidade comercial (6) ─────────────────────────────────────────────
+  tipo_operacao_pedido:             'tipo_operacao_item',
   incoterm_pedido:                  'incoterm_item',
   moeda_pedido:                     'moeda_item',
   unidade_comercializada_pedido:    'unidade_comercializada_item',

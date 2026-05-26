@@ -265,7 +265,7 @@ Após sessão Clerk, **nunca** assumir destino `/hub` só por `isSignedIn`. O po
 
 **Defesa redundante:** OTP → `navigate('/trial')`; Hub `hub/init` 401 → `/trial`.
 
-**Testes:** `destino-pos-autenticacao.test.ts`, `fluxo-signup-onboarding.test.ts`.
+**Testes (escopo LOGIN — FONTE PRIMARIA):** plano [`testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json`](../../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json) · specs em `testes/testes-unitarios/login/`, `testes/testes-funcionais/login/`, `testes/testes-e2e/login/`, `testes/testes-em-tela/login/` · registry `TST-UNI-LOGIN-000001` … `TST-EMT-LOGIN-000001`.
 
 ---
 

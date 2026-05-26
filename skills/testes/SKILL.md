@@ -123,22 +123,28 @@ Mudança em SDK resolver-organizacao         → Unitário + anti-cross-org + po
 testes/
 ├── testes-unitarios/
 │   ├── plano-de-testes/           ← planos .md (padrão ULTIMATE Auditor)
+│   ├── login/                     ← escopo LOGIN (ex.: porteiro pós-auth)
 │   ├── nucleo-global/             ← espelha estrutura do código
 │   ├── servicos-global/
 │   ├── produtos/
 │   └── packages/
 ├── testes-funcionais/
 │   ├── plano-de-testes/
+│   ├── login/                     ← wiring App/guards Clerk (escopo LOGIN)
 │   ├── configurador/
 │   ├── organizacao/
 │   └── produtos/
 ├── testes-e2e/
 │   ├── plano-de-testes/
+│   ├── login/                     ← fluxos signup/login Playwright
 │   ├── configurador/
 │   └── produtos/
 ├── testes-em-tela/                ← screenshots numerados (skill teste-em-tela)
+│   ├── login/
 │   ├── produto/
 │   └── servico/
+├── testes-cross-organizacao/      ← isolamento tenant (NÃO substitui login/)
+│   └── {servico}/
 └── security/
     ├── cross-tenant-isolation.test.ts
     └── pool-leak.test.ts

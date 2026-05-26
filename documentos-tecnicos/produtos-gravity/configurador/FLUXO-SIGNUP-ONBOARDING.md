@@ -89,18 +89,21 @@ Callbacks SSO em `App.tsx` repetem os mesmos valores em `<AuthenticateWithRedire
 
 ## Testes
 
-| Arquivo | Escopo |
-|---------|--------|
-| `testes/testes-unitarios/configurador/destino-pos-autenticacao.test.ts` | Resolver + schema Zod |
-| `testes/testes-funcionais/configurador/fluxo-signup-onboarding.test.ts` | Wiring App.tsx, Clerk fallbacks, guards |
+> **Plano mestre (FONTE PRIMARIA):** [`testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md`](../../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md)
+
+| Camada | Spec |
+|--------|------|
+| Unitário | `testes/testes-unitarios/login/porteiro-resolver.test.ts`, `use-destino-pos-autenticacao.test.ts` |
+| Funcional | `testes/testes-funcionais/login/porteiro-pos-autenticacao.test.ts` |
+| E2E | `testes/testes-e2e/login/TST-E2E-LOGIN-000001.spec.ts` (aguarda aprovação dono) |
+| Em tela | `testes/testes-em-tela/login/2026-05-26-porteiro-signup/PLANO-EM-TELA.md` |
 
 ```bash
-npx vitest run testes/testes-unitarios/configurador/destino-pos-autenticacao.test.ts \
-  --config testes/testes-unitarios/configurador/vitest.config.ts
-
-npx vitest run testes/testes-funcionais/configurador/fluxo-signup-onboarding.test.ts \
-  --config testes/testes-funcionais/configurador/vitest.config.ts
+npx vitest run testes/testes-unitarios/login --config testes/testes-unitarios/login/vitest.config.ts
+npx vitest run testes/testes-funcionais/login --config testes/testes-funcionais/login/vitest.config.ts
 ```
+
+Registry: `TST-UNI-LOGIN-000001`, `TST-FUN-LOGIN-000001`, `TST-E2E-LOGIN-000001`, `TST-EMT-LOGIN-000001` em `testes/test-plans-registry.json`.
 
 ---
 

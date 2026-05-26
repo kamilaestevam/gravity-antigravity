@@ -1,18 +1,19 @@
 {
   "$schema": "./test-plans-registry.schema.json",
   "versao": "1.0.0",
-  "atualizadoEm": "2026-05-17T22:00:00.000Z",
-  "totalPlanos": 37,
+  "atualizadoEm": "2026-05-26T00:00:00.000Z",
+  "totalPlanos": 41,
   "totalPorTipo": {
-    "UNI": 11,
+    "UNI": 12,
     "CON": 0,
-    "FUN": 8,
+    "FUN": 9,
     "CRO": 1,
-    "E2E": 17,
-    "PEN": 0
+    "E2E": 18,
+    "PEN": 0,
+    "EMT": 1
   },
   "totalPorEscopo": {
-    "LOGIN": 0,
+    "LOGIN": 4,
     "CONFIG": 13,
     "ADMIN": 4,
     "HUB": 1,
@@ -29,7 +30,14 @@
     "FINCOM": 0,
     "PROCSO": 0
   },
-  "deletados": [],
+  "deletados": [
+    {
+      "arquivo": "testes/testes-funcionais/configurador/fluxo-signup-onboarding.test.ts",
+      "substituidoPor": "testes/testes-funcionais/login/porteiro-pos-autenticacao.test.ts",
+      "data": "2026-05-26",
+      "motivo": "FONTE PRIMARIA pipeline multi-agente — escopo LOGIN porteiro SSOT"
+    }
+  ],
   "planos": [
     {
       "id": "TST-UNI-PEDIDO-000001",
@@ -802,6 +810,80 @@
       "coberturaPercentual": 0,
       "status": "pendente_validacao",
       "criadoEm": "2026-05-17T00:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-UNI-LOGIN-000001",
+      "tipo": "UNI",
+      "escopo": "LOGIN",
+      "sublocal": "porteiro-pos-autenticacao",
+      "modulo": "resolverDestinoPosAutenticacao + cache + useDestinoPosAutenticacao",
+      "criticidade": "critica",
+      "planoFile": "testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json",
+      "specFile": "testes/testes-unitarios/login/porteiro-resolver.test.ts",
+      "specFiles": [
+        "testes/testes-unitarios/login/porteiro-resolver.test.ts",
+        "testes/testes-unitarios/login/use-destino-pos-autenticacao.test.ts"
+      ],
+      "componenteFile": "servicos-global/configurador/src/routing/destino-pos-autenticacao.ts",
+      "casosTotal": 18,
+      "coberturaPercentual": 100,
+      "status": "aprovado",
+      "criadoEm": "2026-05-26T00:00:00Z",
+      "ultimaExecucao": "2026-05-26T11:53:26Z",
+      "ultimoResultado": "18/18 passou"
+    },
+    {
+      "id": "TST-FUN-LOGIN-000001",
+      "tipo": "FUN",
+      "escopo": "LOGIN",
+      "sublocal": "porteiro-pos-autenticacao",
+      "modulo": "App.tsx guards + Clerk fallbacks + guards defensivos",
+      "criticidade": "critica",
+      "planoFile": "testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json",
+      "specFile": "testes/testes-funcionais/login/porteiro-pos-autenticacao.test.ts",
+      "componenteFile": "servicos-global/configurador/src/App.tsx",
+      "casosTotal": 10,
+      "coberturaPercentual": 100,
+      "status": "aprovado",
+      "criadoEm": "2026-05-26T00:00:00Z",
+      "ultimaExecucao": "2026-05-26T11:53:11Z",
+      "ultimoResultado": "10/10 passou"
+    },
+    {
+      "id": "TST-E2E-LOGIN-000001",
+      "tipo": "E2E",
+      "escopo": "LOGIN",
+      "sublocal": "porteiro-pos-autenticacao",
+      "tela": "Signup / Login / Porteiro",
+      "rota": "/trial",
+      "criticidade": "critica",
+      "ambientes": ["Local", "Staging"],
+      "planoFile": "testes/testes-e2e/login/plano-teste/TST-E2E-LOGIN-000001.json",
+      "specFile": "testes/testes-e2e/login/TST-E2E-LOGIN-000001.spec.ts",
+      "componenteFile": "servicos-global/configurador/src/routing/destino-pos-autenticacao.ts",
+      "passosTotal": 10,
+      "coberturaPercentual": 0,
+      "status": "aguardando_aprovacao_dono",
+      "criadoEm": "2026-05-26T00:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-EMT-LOGIN-000001",
+      "tipo": "EMT",
+      "escopo": "LOGIN",
+      "sublocal": "porteiro-signup",
+      "modulo": "Validacao visual signup/hub",
+      "criticidade": "alta",
+      "planoFile": "testes/testes-em-tela/login/2026-05-26-porteiro-signup/PLANO-EM-TELA.md",
+      "specFile": "testes/testes-em-tela/login/run-porteiro-signup.ts",
+      "componenteFile": "servicos-global/configurador/src/pages/Onboarding.tsx",
+      "casosTotal": 5,
+      "coberturaPercentual": 0,
+      "status": "pendente_validacao",
+      "criadoEm": "2026-05-26T00:00:00Z",
       "ultimaExecucao": null,
       "ultimoResultado": null
     }

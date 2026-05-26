@@ -12,7 +12,8 @@ Após autenticar no Clerk, o **porteiro SSOT** (`GET /api/v1/me`) envia o usuár
 - **`/trial`** — sem organização no Prisma (signup / onboarding)
 - **`/hub`** — cliente com organização ativa
 
-Documentação completa do signup: [`FLUXO-SIGNUP-ONBOARDING.md`](./FLUXO-SIGNUP-ONBOARDING.md).
+Documentação completa do signup: [`FLUXO-SIGNUP-ONBOARDING.md`](./FLUXO-SIGNUP-ONBOARDING.md).  
+Plano de testes LOGIN: [`PLANO-LOGIN-PORTEIRO-SSOT.md`](../../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md).
 
 Na rota `/hub`, `<SelecionarWorkspace />` decide se mantém o usuário ali ou redireciona para `/core` (skip pós-login) com base em 4 condições.
 

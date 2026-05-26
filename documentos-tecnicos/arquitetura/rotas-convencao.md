@@ -68,7 +68,7 @@ A `{área}` vem **direto** após o domínio.
 
 | Área | URL raiz | Para que serve |
 |------|---------|----------------|
-| `hub` | `/hub` | Seletor de workspace + cards de acesso rápido. Tela inicial pós-login. |
+| `hub` | `/hub` | Seletor de workspace (cliente **com** `organizacao` em `/api/v1/me`). Não é destino de signup novo — ver porteiro abaixo. |
 | `core` | `/core` | Serviços transversais (notificações, e-mail, WhatsApp, conector-erp, atividades) |
 | `configurador` | `/configurador` | Gestão da organização do cliente (workspaces, usuários, empresas, assinaturas, financeiro, api-cockpit, taxas, certificados) |
 | `admin` | `/admin` | Painel interno Gravity (`gravity_admin` only). Visão cross-organização. |
@@ -95,7 +95,38 @@ A `{área}` vem **direto** após o domínio.
 | Landing | `/` |
 | Autenticação | `/login`, `/cadastro`, `/recuperar-senha` |
 | Legais | `/termos-de-uso`, `/politica-de-privacidade` |
-| Marketing | `/trial`, `/contato`, `/waitlist` |
+| Onboarding (auth) | `/trial` | Criação de organização pós-signup (requer sessão Clerk). **Não** é landing pública do Marketplace. |
+| Marketing | `/contato`, `/waitlist` |
+
+---
+
+## Porteiro SSOT pós-autenticação (2026-05-25)
+
+> **Não confundir** “sessão Clerk ativa” com “cliente Gravity ativo”. O destino após login/cadastro vem de **`GET /api/v1/me`**, não de `isSignedIn` sozinho.
+
+| Documentação | Conteúdo |
+|--------------|----------|
+| [`FLUXO-SIGNUP-ONBOARDING.md`](../produtos-gravity/configurador/FLUXO-SIGNUP-ONBOARDING.md) | Signup → `/trial` → onboarding → `/hub` (fluxograma mermaid) |
+| [`FLUXO-POS-LOGIN.md`](../produtos-gravity/configurador/FLUXO-POS-LOGIN.md) | Skip `/hub → /core`, `?select=1` |
+| [`PLANO-LOGIN-PORTEIRO-SSOT.md`](../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md) | Testes unitário / funcional / E2E / em tela |
+
+### Regra de destino (frontend)
+
+| Resposta `/api/v1/me` | Rota canônica |
+|----------------------|---------------|
+| 401 / 404, ou 200 sem `organizacao` | `/trial` |
+| 200 com `organizacao` | `/hub` (depois skip pode ir a `/core`) |
+
+### Onde está no código
+
+- SSOT: `servicos-global/configurador/src/routing/destino-pos-autenticacao.ts`
+- Guards: `App.tsx` — `RootRedirect`, `PublicRoute`, `ProtectedRoute` → `NavigateDestinoPosAutenticacao` / `useDestinoPosAutenticacao`
+- Clerk (`main.tsx`): `signUpFallbackRedirectUrl="/trial"`, `signInFallbackRedirectUrl="/hub"` (alinhamento; porteiro confirma via `/me`)
+
+### Anti-padrão
+
+❌ `isSignedIn ? <Navigate to="/hub" />` sem consultar `/me`  
+❌ Assumir que `/trial` é rota pública sem auth (onboarding exige sessão)
 
 ---
 
@@ -217,7 +248,7 @@ Implementação: middleware Express em `server/index.ts` antes do catch-all SPA.
 | Trocar filtro/aba/ordenação | `replace` |
 | Fechar modal | `navigate(-1)` ou `navigate('/rota-pai', { replace: true })` |
 | Redirect de transição | `replace` |
-| Auth redirect (login → hub) | `replace` |
+| Auth redirect (porteiro → trial ou hub) | `replace` |
 
 ### Frontend ↔ API
 
@@ -285,11 +316,13 @@ CI valida: toda nova rota no `App.tsx` precisa de entrada em `contracts.json`.
 
 | Área | Guard | Quem entra |
 |---|---|---|
-| `/hub`, `/store`, `/core/*` | `<ProtectedRoute>` | autenticado |
+| `/hub`, `/store`, `/core/*` | `<ProtectedRoute>` | autenticado **e** `organizacao` em `/me` (senão → `/trial`) |
+| `/trial` | sem `ProtectedRoute` | autenticado; guard interno em `Onboarding.tsx` |
+| `/login`, `/cadastro` | `<PublicRoute>` | deslogado vê form; logado → porteiro `/me` |
 | `/configurador/*` | `<ConfiguradorRoute>` | SUPER_ADMIN, ADMIN, MASTER |
 | `/admin/*` | `<AdminRoute>` | `gravity_admin = true` |
 | `/{produto}/*` | `<ProtectedRoute>` + permissão | quem contratou |
-| Públicas | `<PublicRoute>` ou sem guard | qualquer |
+| `/termos-de-uso`, `/politica-de-privacidade`, `/contato`, `/waitlist` | sem guard | qualquer (sem auth) |
 
 ---
 
@@ -382,7 +415,8 @@ Durante 90 dias, todas as URLs antigas respondem com 301 para a nova:
 - [ ] Testes E2E atualizados (URLs hardcoded)
 - [ ] Middleware Express adicionado (trailing slash + case + legacy)
 - [ ] CI roda OK: lint, type-check, testes
-- [ ] Smoke manual: login → /hub → cada produto → menu avatar → "Configurador" abre sem 404
+- [ ] Smoke manual: signup novo → `/trial` → criar org → `/hub` com UI (não tela vazia)
+- [ ] Smoke manual: login cliente existente → `/hub` → cada produto → menu avatar → "Configurador" abre sem 404
 - [ ] Cross-tipo de usuário: SUPER_ADMIN, ADMIN, MASTER, PADRAO, FORNECEDOR todos OK
 - [ ] Dashboard de 404 monitorado por 7 dias pós-deploy
 
@@ -427,3 +461,5 @@ Durante 90 dias, todas as URLs antigas respondem com 301 para a nova:
 - Criação de telas: `skills/ux/criacao-telas/SKILL.md`
 - Workspaces acessíveis SSOT: `documentos-tecnicos/arquitetura/workspaces-acessiveis-ssot.md`
 - Bug que originou este doc: PR #21 (botão "Configurador" cai em 404)
+- Porteiro signup: PR #79 — [`FLUXO-SIGNUP-ONBOARDING.md`](../produtos-gravity/configurador/FLUXO-SIGNUP-ONBOARDING.md)
+- Atlas FE (suplemento manual): [`ddd-atlas/apendice-rotas-auth-signup.md`](../ddd-atlas/apendice-rotas-auth-signup.md)

@@ -143,6 +143,21 @@ if (!productPermissions || productPermissions.length === 0) {
 
 ---
 
+## Cadastros — Empresa da org vs Parceiros (entregue 2026-05-25)
+
+> SSOT: [cadastros-arquitetura.md](../../../documentos-tecnicos/produtos-gravity/cadastros/cadastros-arquitetura.md) · Skill: [cadastros/SKILL.md](../cadastros/SKILL.md)
+
+| Conceito | Onde vive | Como o Configurador usa |
+|----------|-----------|-------------------------|
+| Empresa da **organização** (1:1) | Cadastros.`empresa` + espelho `Organizacao.suid_empresa_organizacao` | Saga onboarding: `POST /api/v1/empresas` via `cadastros-client` |
+| **Parceiros** COMEX | Cadastros.`fornecedor` | Tela `/configurador/empresas-e-parceiros` — `GET /fornecedores?escopo=parceiros`, CRUD `/fornecedores` |
+
+**Proxy** (`server/index.ts`): `/api/v1/empresas` e `/api/v1/fornecedores` são rotas **separadas** (sem rewrite). Chave S2S injetada server-side no proxy.
+
+**Saga onboarding** (`organizacao-service.createOrganizacao`): Cadastros primeiro → SUID em `suid_empresa_organizacao` → compensação `compensarEmpresa` se transação local falhar.
+
+---
+
 ## Modelo Especial — Fornecedor Cross-Organização
 
 Um fornecedor pode prestar serviços para várias organizações da Gravity.
@@ -229,6 +244,29 @@ model UsuarioWorkspace {
 
 ---
 
+## Porteiro pós-autenticação — Signup / Onboarding (SSOT 2026-05-25)
+
+> **Doc completa + fluxogramas:** [`FLUXO-SIGNUP-ONBOARDING.md`](../../../documentos-tecnicos/produtos-gravity/configurador/FLUXO-SIGNUP-ONBOARDING.md) · Pós-login hub→core: [`FLUXO-POS-LOGIN.md`](../../../documentos-tecnicos/produtos-gravity/configurador/FLUXO-POS-LOGIN.md)
+
+Após sessão Clerk, **nunca** assumir destino `/hub` só por `isSignedIn`. O porteiro consulta **`GET /api/v1/me`**:
+
+| Resultado `/me` | Destino |
+|-----------------|---------|
+| 401 / sem `organizacao` | `/trial` (Onboarding) |
+| 200 + `organizacao` | `/hub` |
+
+**Código SSOT:** `src/routing/destino-pos-autenticacao.ts` (`resolverDestinoPosAutenticacao`) · hook `use-destino-pos-autenticacao.ts` · componente `NavigateDestinoPosAutenticacao.tsx`.
+
+**Aplicado em:** `RootRedirect`, `PublicRoute`, `ProtectedRoute` (`App.tsx`).
+
+**Clerk (alinhado, não substitui):** `signUpFallbackRedirectUrl="/trial"`, `signInFallbackRedirectUrl="/hub"` em `main.tsx`.
+
+**Defesa redundante:** OTP → `navigate('/trial')`; Hub `hub/init` 401 → `/trial`.
+
+**Testes (escopo LOGIN — FONTE PRIMARIA):** plano [`testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json`](../../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json) · specs em `testes/testes-unitarios/login/`, `testes/testes-funcionais/login/`, `testes/testes-e2e/login/`, `testes/testes-em-tela/login/` · registry `TST-UNI-LOGIN-000001` … `TST-EMT-LOGIN-000001`.
+
+---
+
 ## Identidade — Endpoint Canônico (pós-DDD 2026-04-19)
 
 > O Clerk é apenas o **porteiro JWT**. Toda identidade real vem do Prisma via este endpoint.
@@ -304,11 +342,80 @@ Retorna campos com nomes DDD em Português:
 
 ```bash
 DATABASE_URL=postgresql://...
-CLERK_SECRET_KEY=sk_live_...
+CLERK_SECRET_KEY=sk_live_...        # Diferente entre Development e Production
+VITE_CLERK_PUBLISHABLE_KEY=pk_...   # Build arg — embutida no Vite em build time
 # Provedor de pagamento: definido pelo dono — Stripe NÃO é mais dependência
 CHAVE_INTERNA_SERVICO=...
-PORT=3000
+PORT=8080                           # Railway define automaticamente; local usa 8005
 ```
+
+---
+
+## Clerk — Instâncias Development vs Production
+
+O Clerk possui **duas instâncias completamente separadas**:
+
+| Instância | Domínio | Uso |
+|:---|:---|:---|
+| **Development** | `*.clerk.accounts.dev` | Apenas localhost (`http://localhost:*`) |
+| **Production** | `clerk.usegravity.com.br` / `accounts.usegravity.com.br` | Domínio público `usegravity.com.br` |
+
+**Chaves são diferentes entre instâncias.** `CLERK_SECRET_KEY` e `VITE_CLERK_PUBLISHABLE_KEY` de Development NÃO funcionam em Production e vice-versa.
+
+### Google OAuth (Production)
+
+- Configurado no Google Cloud Console (projeto: journey-google-meeting)
+- Redirect URI: `https://clerk.usegravity.com.br/v1/oauth_callback`
+- Client ID e Client Secret configurados no Clerk Dashboard → SSO connections
+
+### DNS do Clerk (Production)
+
+5 registros CNAME obrigatórios no DNS (atualmente no Cloudflare):
+- `accounts.usegravity.com.br` → `accounts.clerk.services`
+- `clerk.usegravity.com.br` → `frontend-api.clerk.services`
+- `clkmail.usegravity.com.br` → `mail.qop3hdfnkx4f.clerk.services`
+- `clk._domainkey.usegravity.com.br` → `dkim1.qop3hdfnkx4f.clerk.services`
+- `clk2._domainkey.usegravity.com.br` → `dkim2.qop3hdfnkx4f.clerk.services`
+
+---
+
+## CSP (Content Security Policy) — Helmet
+
+O Configurador serve o frontend SPA e precisa de CSP configurada para permitir Clerk, Cloudflare CAPTCHA e Google Fonts.
+
+```typescript
+// servicos-global/configurador/server/index.ts
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'",
+        "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br",
+        "https://*.clerk.com", "https://challenges.cloudflare.com"],
+      scriptSrcElem: ["'self'", "'unsafe-inline'",
+        "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br",
+        "https://*.clerk.com", "https://challenges.cloudflare.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https://*.clerk.com", "https://img.clerk.com"],
+      connectSrc: ["'self'",
+        "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br",
+        "https://*.clerk.com", "https://challenges.cloudflare.com", "ws://localhost:*"],
+      frameSrc: ["'self'",
+        "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br",
+        "https://accounts.usegravity.com.br", "https://challenges.cloudflare.com"],
+      workerSrc: ["'self'", "blob:"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}))
+```
+
+> **`scriptSrcElem` obrigatório:** sem ele, o browser usa `script-src` como fallback e pode bloquear scripts do Clerk injetados via `<script>`.
+> **`challenges.cloudflare.com` obrigatório:** o Clerk usa Cloudflare Turnstile CAPTCHA em produção.
+> **`workerSrc: blob:` obrigatório:** Clerk cria web workers via blob URLs.
 
 ---
 
@@ -478,6 +585,40 @@ function requireGravityAdmin(req, res, next) {
 
 ---
 
+### Edição de Organização (PATCH /admin/organizacoes/:id)
+
+Endpoint admin pra editar dados cadastrais da organização.
+
+- **Campos suportados:** `nome_organizacao`, `subdominio_organizacao`, `status_organizacao`, `cnpj_organizacao`, `estado_organizacao` (UF maiúscula), `cidade_organizacao`, `segmento_organizacao`, `tipo_organizacao`. Todos opcionais. String vazia `""` significa "limpar campo" (vira `null` no banco — usar helper `vazioParaNull`).
+- **Validação:** regex CNPJ `XX.XXX.XXX/XXXX-XX`, estado obrigatório UF (2 chars maiúsculas).
+- **Auditoria:** `AuditService.log` captura diff de TODOS os campos alterados em `estado_anterior` e `estado_posterior_historico_log`.
+- **Auto-edição** da própria org HQ (status) bloqueada — preserva integridade do tenant da plataforma.
+- **Modal frontend:** `ModalEditarOrganizacao.tsx`. Popula state com valores existentes ao abrir (não limpa).
+- **Histórico:** bug detectado em 2026-05-06 — 5 campos cadastrais (CNPJ, estado, cidade, segmento, tipo) eram silenciosamente ignorados. Correção alinhou os 5 elos da cadeia (Prisma/Zod req/rota/tipo TS/Zod resp) — ver REGRA "Paridade de Cadeia" em `database-governance`.
+
+---
+
+### Desativação de Usuário (PATCH /api/v1/usuarios/:id/status)
+
+Endpoint admin pra desativar/reativar usuário com campo **persistido** `status_usuario` (enum `StatusUsuario { ATIVO, INATIVO }`).
+
+- **Quem pode:** SUPER_ADMIN/ADMIN (cross-org), MASTER (intra-org). Whitelist via `requireUserManagementRole`.
+- **Body:** `{ status_usuario: 'ATIVO' | 'INATIVO' }` (Zod `.strict()`).
+- **5 validações:**
+  1. Auto-proteção — ator não pode inativar a si mesmo (`403 AUTO_ALTERACAO_BLOQUEADA`).
+  2. CONVIDADO não é inativável (`409 USUARIO_CONVIDADO_NAO_PODE_INATIVAR`) — usar `cancelarConvite`.
+  3. Anti-bricking: bloqueia inativação do último MASTER ativo da org (`409 ULTIMO_MASTER_ATIVO_ORGANIZACAO`).
+  4. Alvo cross-org só pra SAdmin/Admin; MASTER fica restrito ao próprio `id_organizacao`.
+  5. Idempotência (mesmo status atual não regrava) + `404 NOT_FOUND` sem vazar existência.
+- **Side-effects:**
+  - `AuditService.log` / `securityAudit.roleChanged` com diff completo (Mand. 08 — sem fallback silencioso).
+  - `invalidarCacheRequireAuth(idClerkUsuario)` — kick-out efetivo em ms no próximo request.
+  - `requireAuth.ts` retorna `401 USUARIO_INATIVO` para sessão inativada. **Mand. 01 — sem chamada a Clerk.**
+- **Modal frontend:** `Usuarios.tsx` (workspace) e `UsuariosAdmin.tsx` (admin). Toggle dispara HTTP real.
+- **Bug histórico:** até 2026-05-12 o toggle era UI-only — Configurador mostrava INATIVO temporário e Admin sempre mostrava ATIVO (Mand. 08 — fallback silencioso). Corrigido com migration `20260512_status_usuario` (enum + coluna + índice) e 10 testes funcionais em `testes/testes-funcionais/configurador/usuarios/atualizar-status.test.ts`.
+
+---
+
 ## Tela 2 — Produtos Contratados
 
 Visão de quais produtos cada organização tem ativo.
@@ -511,6 +652,42 @@ Decisão dono **2026-05-05**: a linha expandida da tabela usa o **padrão Assina
 - **Gating UI — opção α (decisão dono):** **apenas SUPER_ADMIN** edita vínculos via Admin Panel. ADMIN logado vê o editor em modo read-only (sem checkboxes, sem botões de ação). Para abrir esse poder ao ADMIN no futuro, mudar `podeEditar` em [UsuariosAdmin.tsx](../../../../servicos-global/configurador/src/pages/admin/UsuariosAdmin.tsx) e revisar [seguranca/permissoes](../../../seguranca/permissoes/SKILL.md).
 - **Componente compartilhado:** [src/components/expandido-editor-vinculos](../../../../servicos-global/configurador/src/components/expandido-editor-vinculos/index.tsx) — mesmo componente usado em `/configurador/usuarios` (Configurador).
 - **Audit:** `securityAudit.permissionChanged` continua sendo emitido na org do **alvo** (não do ator), com `acao_permissao: 'GRANTED' | 'REVOKED'`.
+
+### Convite Cross-Org (Admin) — 2026-05-12
+
+`POST /api/v1/admin/usuarios/convidar` (SUPER_ADMIN apenas) permite criar usuário **em qualquer organização** da plataforma. Diferente do convite regular `/v1/usuarios/convidar` (Master da própria org).
+
+**Body obrigatório:**
+```ts
+{
+  id_organizacao_alvo: string  // CUID — org onde será criado
+  email_usuario: string
+  nome_usuario: string
+  tipo_usuario: 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR'
+  workspaces_alvo?: 'all' | string[]  // obrigatório para PADRAO/FORNECEDOR
+}
+```
+
+**Fluxo UI (`UsuariosAdmin.tsx`):**
+1. `adminOrganizacoesApi.list({ limit: 200 })` carrega lista de orgs (CUID + nome)
+2. Select de organização — `SelectGlobal` com `buscavel` habilitado
+3. Ao escolher org, lazy-load workspaces via `adminOrganizacoesApi.listarWorkspaces(id)` (cache compartilhado com editor de vínculos)
+4. Multiselect de workspaces (só aparece para PADRAO/FORNECEDOR): checkbox "Todos os workspaces ATIVOs" OU lista individual
+5. Submit: `aoConvidarUsuario()` chama `adminUsuariosApi.convidar({...})`
+
+**Regras de segurança** (validadas no service):
+- ADMIN é read-only — 403 `ADMIN_SOMENTE_LEITURA`
+- Org alvo existe e ATIVA — 404 `ORG_NOT_FOUND`
+- SUPER_ADMIN/ADMIN exige `hospeda_colaboradores_gravity=true` na **org ALVO** — 403 `TIPO_GRAVITY_EXIGE_ORG_GRAVITY`
+- Workspaces devem pertencer à org alvo — 403 `WORKSPACE_FORA_DA_ORG_ALVO`
+- Email duplicado na org alvo — 409 `CONFLICT`
+- Clerk recusa email duplicado — 409 `INVITATION_OR_USER_ALREADY_EXISTS`
+
+**Service compartilhado:** `convidar-usuario-service.ts` (consumido por ambas as rotas).
+
+**Audit:** `id_organizacao = id_organizacao_alvo` + `metadata_ator_historico_log.id_organizacao_ator` + `metadata.cross_org: boolean`.
+
+**Documentação completa:** `documentos-tecnicos/arquitetura/convite-admin-cross-org.md`.
 
 ---
 
@@ -720,6 +897,47 @@ A Opção A (tab "Empresas e Parceiros" dentro de `OrganizacaoDetalheAdmin`, vis
 ### Skill relacionada
 - `skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md` (seção "Exceções permitidas") — autorização da rota Cadastros sem `extrairIdOrganizacao`.
 
+---
+
+## Override de Organização Ativa (Admin Gravity)
+
+Feature exclusiva de SUPER_ADMIN e ADMIN: ativar 🔑 "Trocar Organização" no menu do avatar permite visualizar **qualquer organização ativa** da plataforma como se fosse Master dela, dentro da mesma sessão. Documentação técnica completa: [documentos-tecnicos/arquitetura/organizacao-override-admin.md](../../../../documentos-tecnicos/arquitetura/organizacao-override-admin.md).
+
+### Como funciona resumidamente
+1. Admin clica 🔑 no menu do avatar (item disponível só quando `tipo_usuario ∈ {SUPER_ADMIN, ADMIN}`).
+2. Modal lista orgs ATIVAS via `GET /api/v1/admin/organizacoes`. Admin escolhe.
+3. `useOrganizacaoOverride().definirOverride({ id, nome })` grava em `ShellStore` + `localStorage` e navega para `/hub`.
+4. Todo `fetch` subsequente injeta `x-organizacao-override: <id>` via `injetarHeaderOverride()`.
+5. Middleware do SDK valida ator (JWT do Clerk), valida org alvo (Configurador), troca `idOrganizacao` + `nomeSchema`. Admin opera como Master daquela org até "Voltar para Gravity".
+
+### Marca visual obrigatória durante override
+- Banner âmbar fixo no topo (`BannerOrganizacaoOverride`).
+- Borda dourada inset ao redor do shell (classe `.layout--override-ativo`).
+- Item de menu vira "Voltar para Gravity" (estilo dourado).
+
+### Audit log persistente (obrigatório)
+Cada troca aceita pelo middleware dispara `POST /api/v1/internal/admin/audit-organizacao-override` no Configurador. Grava 1 row em `AuditLogAdmin` com:
+- `acao = 'admin.organizacao_override.trocar'`
+- `recurso = 'organizacao'`
+- `filtros = { id_organizacao_origem, id_organizacao_destino, cross_org: true }`
+- `id_usuario`, `tipo_usuario`, `ip_origem`, `correlation_id`
+
+Fire-and-forget no SDK: falha do pipeline NÃO bloqueia a troca, mas é logada via `getLogger().warn()` (Mand. 08 — log alto sem derrubar a feature).
+
+### Limitações conhecidas
+- **Produtos legados sem SDK** (bid-frete, bid-cambio, bid-frete-internacional, simula-custo) usam `x-internal-key` + `x-id-organizacao` direto fora do middleware. Override é no-op neles até migrarem para `withOrganizacao`.
+- **Workers / CRON** não recebem override (não há header HTTP). Background jobs continuam usando `withOrganizacaoContext(idOrganizacao, ...)` com a org concreta passada na tarefa.
+
+### Anti-padrões proibidos
+- ❌ Confiar no header sem validar JWT do Clerk.
+- ❌ Persistir override fora do `localStorage` (cookies vazariam para subdomain).
+- ❌ Audit log síncrono (bloqueia request crítica).
+- ❌ Cache cruzado entre `id_organizacao` original e alvo.
+
+### Skills relacionadas
+- `skills/governanca/lei/sdk-resolvedor-organizacao/SKILL.md` — contrato do middleware.
+- `skills/governanca/convencao-tecnica/observabilidade-minima/SKILL.md` — `AuditLogAdmin` é uma das fontes obrigatórias de log estruturado.
+
 --- documentos-tecnicos/produtos-gravity/cadastros/TIPO-DE-OPERACAO.md ---
 # Tipo de Operação — Documentação Técnica Completa
 
@@ -905,9 +1123,29 @@ export interface Pedido {
 }
 ```
 
-### 6.2 Colunas na tabela — ListaPedidos.tsx
+### 6.2 Colunas na tabela — ColunasPai.tsx (atualizado 2026-05-16)
 
-As colunas `exportador_nome` e `importador_nome` são definidas com labels fixos. A editabilidade é controlada por `MAPA_COLUNAS_FILHO` via `editavel` condicional.
+As colunas `nome_exportador` e `nome_importador` são **campos-link** (não editáveis inline). Renderizam como badges clicáveis que navegam ao Configurador ou à tela de Empresas e Parceiros.
+
+**Regra de renderização por tipo_operacao:**
+
+| tipo_operacao | Importador | Exportador |
+|---|---|---|
+| `importacao` | Badge workspace (auto-preenchido via `workspacesMap`) + ícone `Buildings` | "Vincular Exportador" (vazio) ou badge contraparte + ícone `LinkSimple` |
+| `exportacao` | "Vincular Importador" (vazio) ou badge contraparte + ícone `LinkSimple` | Badge workspace (auto-preenchido via `workspacesMap`) + ícone `Buildings` |
+
+**Padrão visual permanente — Gravity Indigo (`#818cf8`):**
+- **Modelo 01 (preenchido):** badge com `background: rgba(129, 140, 248, 0.12)`, `border: rgba(129, 140, 248, 0.28)`, `color: #818cf8`
+- **Modelo 02 (vazio):** texto sublinhado pontilhado `color: #818cf8`
+- Cores idênticas ao chip de filtro da tabela (`FiltrosColuna.css`)
+
+**Deep-links:**
+- Workspace → `urlEditarCnpjWorkspace()` (Configurador, modal de edição do workspace com "Voltar para Pedidos")
+- Contraparte → `urlVincularExportador()` / `urlVincularImportador()` (Configurador, tela Empresas e Parceiros)
+
+**Fonte de dados:**
+- Workspace: `workspacesMap.get(row.id_workspace)?.nome` (carregado via `/api/v1/hub/init`)
+- Contraparte: `cadastrosApi.listarExportadoresQuandoImportacao()` / `cadastrosApi.listarImportadoresQuandoExportacao()` (Cadastros, porta 8031)
 
 ### 6.3 `CAMPOS_PAI_TEXTO` — controla edição inline de filhos
 ```typescript
@@ -1248,6 +1486,70 @@ model OpeHistoricoStatus {
 
 OPE é sincronizado via job que consome Portal Único. Portal Único é a fonte da verdade — edições manuais são tecnicamente possíveis, mas serão sobrescritas na próxima sincronização.
 
+### 4.4 Contrapartes estrangeiras (ExportadorQuandoImportacao / ImportadorQuandoExportacao)
+
+Entidades que representam contrapartes estrangeiras em operações COMEX. Diferem de Empresa porque não são parceiros genéricos — são especificamente o **fornecedor estrangeiro** (em importação) ou o **comprador estrangeiro** (em exportação).
+
+```prisma
+model ExportadorQuandoImportacao {
+  id_exportador_quando_importacao   String   @id @default(cuid())
+  id_organizacao_exportador         String
+  id_workspace_exportador           String
+  nome_exportador                   String
+  endereco_exportador               String?
+  cidade_exportador                 String?
+  estado_provincia_exportador       String?
+  pais_exportador                   String   // ISO-2
+  zipcode_exportador                String?
+  criado_em_exportador              DateTime @default(now())
+  atualizado_em_exportador          DateTime @updatedAt
+
+  @@index([id_organizacao_exportador])
+  @@index([id_organizacao_exportador, id_workspace_exportador])
+  @@map("exportador_quando_importacao")
+}
+
+model ImportadorQuandoExportacao {
+  id_importador_quando_exportacao   String   @id @default(cuid())
+  id_organizacao_importador         String
+  id_workspace_importador           String
+  nome_importador                   String
+  endereco_importador               String?
+  cidade_importador                 String?
+  estado_provincia_importador       String?
+  pais_importador                   String   // ISO-2
+  zipcode_importador                String?
+  criado_em_importador              DateTime @default(now())
+  atualizado_em_importador          DateTime @updatedAt
+
+  @@index([id_organizacao_importador])
+  @@index([id_organizacao_importador, id_workspace_importador])
+  @@map("importador_quando_exportacao")
+}
+```
+
+**Rotas REST (Cadastros, porta 8031):**
+- `GET /api/v1/cadastros/exportadores-quando-importacao` — lista com filtros (org, workspace, busca)
+- `GET /api/v1/cadastros/exportadores-quando-importacao/:id` — detalhe
+- `POST /api/v1/cadastros/exportadores-quando-importacao` — criação
+- `PUT /api/v1/cadastros/exportadores-quando-importacao/:id` — atualização
+- Mesmas 4 rotas para `/importadores-quando-exportacao`
+
+**Consumo pelo Pedido:** o Pedido armazena `importacao_exportador_id` e `exportacao_importador_id` como FK lógica (String?, sem FK física cross-database). O cliente do Pedido consome via `cadastrosApi` em `pedido/client/src/shared/cadastrosApi.ts`.
+
+**Regra de exibição na lista de Pedidos (ColunasPai.tsx):**
+- Tipo operação = importação → Importador = workspace (auto-preenchido), Exportador = contraparte (vincular)
+- Tipo operação = exportação → Exportador = workspace (auto-preenchido), Importador = contraparte (vincular)
+
+**Padrão visual de campos-link (regra permanente — Gravity Indigo `#818cf8`):**
+
+| Estado | Visual | Tokens |
+|--------|--------|--------|
+| **Preenchido (Modelo 01)** | Badge com borda + fundo sutil + ícone | `background: rgba(129, 140, 248, 0.12)`, `border: rgba(129, 140, 248, 0.28)`, `color: #818cf8` |
+| **Vazio (Modelo 02)** | Texto sublinhado pontilhado + ícone lápis | `color: #818cf8`, `textDecorationStyle: dotted` |
+
+Workspace usa ícone `Buildings`, contraparte usa `LinkSimple`, vazio usa `PencilSimpleLine`. Cores idênticas ao chip de filtro da tabela (`FiltrosColuna.css`).
+
 ---
 
 ## 5. Validações aplicacionais (Zod backend + Zod frontend)
@@ -1275,6 +1577,20 @@ NCM:
 - codigo_ncm: obrigatório, 8 dígitos numéricos
 - descricao_ncm: obrigatório
 - ipi_ncm / ii_ncm / pis_ncm / cofins_ncm: opcionais, quando preenchidos >= 0
+
+ExportadorQuandoImportacao:
+- id_organizacao: obrigatório, min 1 char
+- id_workspace: obrigatório, min 1 char
+- nome_exportador: obrigatório, mínimo 2 caracteres
+- pais_exportador: obrigatório, ISO-2 (regex /^[A-Z]{2}$/)
+- endereco/cidade/estado_provincia/zipcode: opcionais, nullable
+
+ImportadorQuandoExportacao:
+- id_organizacao: obrigatório, min 1 char
+- id_workspace: obrigatório, min 1 char
+- nome_importador: obrigatório, mínimo 2 caracteres
+- pais_importador: obrigatório, ISO-2 (regex /^[A-Z]{2}$/)
+- endereco/cidade/estado_provincia/zipcode: opcionais, nullable
 ```
 
 ---
@@ -1509,9 +1825,15 @@ Campos identificados como faltantes no schema atual de Pedido:
 
 ## Visão Geral
 
-Após autenticar com sucesso no Clerk, o usuário cai em `/hub` (rota canônica DDD).
+Após autenticar no Clerk, o **porteiro SSOT** (`GET /api/v1/me`) envia o usuário para:
 
-A tela `<SelecionarWorkspace />` decide se mantém o usuário ali (mostrando os workspaces da organização) ou redireciona automaticamente para `/core` (workspace de trabalho) com base em 4 condições.
+- **`/trial`** — sem organização no Prisma (signup / onboarding)
+- **`/hub`** — cliente com organização ativa
+
+Documentação completa do signup: [`FLUXO-SIGNUP-ONBOARDING.md`](./FLUXO-SIGNUP-ONBOARDING.md).  
+Plano de testes LOGIN: [`PLANO-LOGIN-PORTEIRO-SSOT.md`](../../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md).
+
+Na rota `/hub`, `<SelecionarWorkspace />` decide se mantém o usuário ali ou redireciona para `/core` (skip pós-login) com base em 4 condições.
 
 ---
 
@@ -1536,9 +1858,16 @@ A tela `<SelecionarWorkspace />` decide se mantém o usuário ali (mostrando os 
             [Clerk autentica]
                     │
                     ▼
-   ┌──────[ signInFallbackRedirectUrl="/hub" ]──────┐
-   │                                                 │
-   ▼                                                 ▼
+        [Porteiro SSOT: GET /api/v1/me]
+                    │
+        ┌───────────┴───────────┐
+        │                       │
+   sem organizacao          com organizacao
+        │                       │
+        ▼                       ▼
+     /trial                    /hub
+                                  │
+                                  ▼
 [GET /api/v1/hub/init]                  [Componente <SelecionarWorkspace>]
    │                                                 │
    │ retorna: companies[], products[],               │
@@ -1598,7 +1927,7 @@ Sem o parâmetro, qualquer botão "Voltar ao Hub" entraria em loop para usuário
 | Item de menu na sidebar de produto | `to: '/hub?select=1'` |
 | Click no nó "hub" do `<LocalizadorGlobal>` | `navigate('/hub?select=1')` |
 
-**Exceção:** `App.tsx > RootRedirect` (rota `/`) mantém `Navigate to="/hub"` sem `?select=1` — quem digita `/` na URL espera "home", não "trocar workspace". O skip é desejado neste caso.
+**Exceção:** `App.tsx > RootRedirect` (rota `/`) usa o porteiro → `/hub` **sem** `?select=1` quando o usuário já tem org — quem digita `/` espera "home". O skip é desejado neste caso.
 
 ---
 
@@ -1687,6 +2016,9 @@ grep -rE "navigate\\('/hub'\\)|window\\.location\\.href\\s*=\\s*'/hub'" servicos
 | 2026-04-30 | Rotas `/sign-in` e `/sign-up` órfãs após refactor DDD; `signInUrl` do Clerk apontava para rota inexistente. | Commit `eb87bf01` |
 | 2026-04-30 | Render inline `<AutenticacaoPage />` em `RootRedirect` para deslogados deixava URL `/` sem refletir estado. Migrado para redirect explícito para `/login`. | Commit `eb87bf01` |
 | 2026-04-30 | Props Clerk `afterSignInUrl` / `afterSignUpUrl` deprecated. Migradas para `signInFallbackRedirectUrl` / `signUpFallbackRedirectUrl`. | Commit `eb87bf01` |
+| 2026-05-13 | Layout do `<SignIn>` Clerk em `/login` virou 2-passos (email → senha em telas separadas) por mudança no Clerk Dashboard. Substituído por form custom `<SignInFlow>` em `nucleo-global/Login/login-global/src/LoginGlobal.tsx` usando hook `useSignIn()`. Inclui botão Google via `signIn.authenticateWithRedirect` + nova rota `/login/sso-callback` (`AuthenticateWithRedirectCallback`). Email + senha empilhados no mesmo card. Cadeia pós-login intacta (`setActive` → `/hub` → hook `useCarregarTipoUsuario` → banner USUARIO_INATIVO). Ponto seguro: tag `seguro-pre-login-custom-2026-05-13`. | Esta sessão |
+| 2026-05-19 | Signup redirecionava para `/hub`; fallback Clerk era `/hub`. | `7ab7b5c0` — fallback `/trial`, guard 401 no Hub |
+| 2026-05-25 | Signup em prod caía em `/hub` vazio (porteiro ausente em `RootRedirect`/`PublicRoute`). | Porteiro SSOT `useDestinoPosAutenticacao` — ver `FLUXO-SIGNUP-ONBOARDING.md` |
 
 ---
 
@@ -1696,7 +2028,7 @@ grep -rE "navigate\\('/hub'\\)|window\\.location\\.href\\s*=\\s*'/hub'" servicos
 App.tsx (Routes)
 ├── /                              → <RootRedirect />
 │                                     │
-│                                     ├─ logado:    Navigate to="/hub" (skip pode disparar)
+│                                     ├─ logado:    <NavigateDestinoPosAutenticacao /> (/me → trial|hub)
 │                                     └─ deslogado: Navigate to="/login"
 │
 ├── /login/*                       → <PublicRoute><AutenticacaoPage /></PublicRoute>
@@ -1706,7 +2038,10 @@ App.tsx (Routes)
 ├── /recuperar-senha/redefinir     → <PublicRoute><RecuperarSenhaRedefinirPage /></PublicRoute> (codigo + nova senha)
 ├── /recuperar-senha/*             → <PublicRoute><AutenticacaoPage /></PublicRoute>
 │
+├── /trial                         → <Onboarding /> (sem ProtectedRoute — porteiro interno)
+│
 ├── /hub                           → <ProtectedRoute><SelecionarWorkspace /></ProtectedRoute>
+│                                     │  (ProtectedRoute: sem org → /trial)
 │                                     │
 │                                     └─ avalia 4 condições do skip
 │                                        ├─ TODAS true: navigate('/core', replace)
@@ -1728,10 +2063,10 @@ App.tsx (Routes)
 <ClerkProvider
   publishableKey={PUBLISHABLE_KEY}
   localization={ptBR}
-  signUpFallbackRedirectUrl="/hub"   // após cadastro: vai para /hub (skip pode disparar)
-  signInFallbackRedirectUrl="/hub"   // após login:    idem
-  signInUrl="/login"                 // rota local de login (DDD canônica)
-  signUpUrl="/cadastro"              // rota local de cadastro (DDD canônica)
+  signUpFallbackRedirectUrl="/trial"  // cadastro — alinhado ao porteiro (não substitui /me)
+  signInFallbackRedirectUrl="/hub"  // login existente
+  signInUrl="/login"
+  signUpUrl="/cadastro"
 >
   ...
 </ClerkProvider>
@@ -1780,5 +2115,126 @@ Etapa 2 — `/recuperar-senha/redefinir` (`RecuperarSenhaRedefinirPage`):
 
 ---
 
-**Última revisão:** 2026-04-30
-**Commits relevantes:** `78eb5cae`, `2a112a65`, `eb87bf01`, `16840c71`
+**Última revisão:** 2026-05-25
+**Commits relevantes:** `78eb5cae`, `2a112a65`, `eb87bf01`, `16840c71`, `7ab7b5c0`, porteiro SSOT 2026-05-25
+
+--- documentos-tecnicos/produtos-gravity/configurador/FLUXO-SIGNUP-ONBOARDING.md ---
+# Configurador — Fluxo Signup → Onboarding → Hub
+
+> Porteiro SSOT pós-autenticação: `GET /api/v1/me` decide `/trial` vs `/hub`.
+> Skill: [`antigravity-configurador`](../../../skills/produtos-gravity/configurador/SKILL.md).
+> Pós-login (skip `/hub → /core`): [`FLUXO-POS-LOGIN.md`](./FLUXO-POS-LOGIN.md).
+
+---
+
+## Princípio
+
+| Camada | Responsabilidade |
+|--------|------------------|
+| **Clerk** | Autenticação (sessão JWT) — **não** sabe se o usuário tem organização no Gravity |
+| **Porteiro (frontend)** | `GET /api/v1/me` → destino canônico |
+| **Backend (`/me`)** | Fonte da verdade: `usuario` + `organizacao` no Prisma |
+
+**Regra:** sessão Clerk **≠** cliente ativo. Cliente ativo = `organizacao` presente em `/me`.
+
+---
+
+## Fluxograma — Porteiro SSOT
+
+```mermaid
+flowchart TD
+  A[Sessão Clerk ativa] --> B[GET /api/v1/me]
+  B -->|401 ou 404| C[/trial — Onboarding]
+  B -->|200 sem organizacao| C
+  B -->|200 com organizacao| D[/hub — SelecionarWorkspace]
+  C --> E[POST /api/v1/organizacoes]
+  E --> F[limparCacheDestino + reload /hub]
+  F --> D
+  D --> G{Skip 4 condições?}
+  G -->|sim| H[/core]
+  G -->|não| I[Cards workspace]
+```
+
+---
+
+## Onde o porteiro está aplicado
+
+| Ponto | Arquivo | Comportamento |
+|-------|---------|---------------|
+| Rota `/` | `App.tsx` → `RootRedirect` | Logado → `<NavigateDestinoPosAutenticacao />` |
+| `/login`, `/cadastro` | `PublicRoute` | Logado → porteiro (não `/hub` fixo) |
+| Rotas autenticadas | `ProtectedRoute` | Sem org → `/trial`; com org → `children` |
+| `/trial` | `Onboarding.tsx` | Se já tem org → `/hub`; senão formulário |
+| `/hub` (defesa) | `SelecionarWorkspace.tsx` | `hub/init` 401 → `/trial` (redundância) |
+| OTP cadastro | `LoginGlobal.tsx` | `navigate('/trial')` após verificação (UX imediata) |
+
+**SSOT:** `servicos-global/configurador/src/routing/destino-pos-autenticacao.ts` — `resolverDestinoPosAutenticacao()`.
+
+**Hook:** `src/hooks/use-destino-pos-autenticacao.ts` — cache por `userId` Clerk; limpo no logout (`limparCacheTipoUsuario`).
+
+---
+
+## Clerk — alinhamento (não substitui o porteiro)
+
+```tsx
+// main.tsx
+signUpFallbackRedirectUrl="/trial"   // cadastro OAuth / reload Clerk
+signInFallbackRedirectUrl="/hub"     // login existente
+```
+
+Callbacks SSO em `App.tsx` repetem os mesmos valores em `<AuthenticateWithRedirectCallback />`.
+
+> Fallback = plano B quando o **Clerk** redireciona a página inteira. O porteiro em `RootRedirect` / `PublicRoute` / `ProtectedRoute` é obrigatório.
+
+---
+
+## Critérios de destino (`resolverDestinoPosAutenticacao`)
+
+| HTTP | `organizacao` no body | Destino |
+|------|------------------------|---------|
+| 401, 404 | — | `trial` |
+| 5xx, rede | — | `trial` (fail-safe signup) |
+| 200 | `null` | `trial` |
+| 200 | objeto com `id_organizacao` | `hub` |
+| 200 | payload fora do contrato Zod | `trial` + `console.warn` (Mand. 08) |
+
+---
+
+## Onboarding (`/trial`)
+
+1. Nome da empresa → CNPJ
+2. `POST /api/v1/organizacoes` (saga Cadastros → org + workspace)
+3. `limparCacheDestinoPosAutenticacao()` + `window.location.href = '/hub'`
+
+---
+
+## Testes
+
+> **Plano mestre (FONTE PRIMARIA):** [`testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md`](../../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md)
+
+| Camada | Spec |
+|--------|------|
+| Unitário | `testes/testes-unitarios/login/porteiro-resolver.test.ts`, `use-destino-pos-autenticacao.test.ts` |
+| Funcional | `testes/testes-funcionais/login/porteiro-pos-autenticacao.test.ts` |
+| E2E | `testes/testes-e2e/login/TST-E2E-LOGIN-000001.spec.ts` (aguarda aprovação dono) |
+| Em tela | `testes/testes-em-tela/login/2026-05-26-porteiro-signup/PLANO-EM-TELA.md` |
+
+```bash
+npx vitest run testes/testes-unitarios/login --config testes/testes-unitarios/login/vitest.config.ts
+npx vitest run testes/testes-funcionais/login --config testes/testes-funcionais/login/vitest.config.ts
+```
+
+Registry: `TST-UNI-LOGIN-000001`, `TST-FUN-LOGIN-000001`, `TST-E2E-LOGIN-000001`, `TST-EMT-LOGIN-000001` em `testes/test-plans-registry.json`.
+
+---
+
+## Bugs históricos
+
+| Data | Sintoma | Causa | Correção |
+|------|---------|-------|----------|
+| até 2026-05-19 | Signup ia para `/hub` | `signUpFallbackRedirectUrl="/hub"` + `RootRedirect` sem `/me` | Commit `7ab7b5c0` + guard 401 no Hub |
+| 2026-05-25 | Prod: `/hub` vazio após signup | Porteiro ausente em `RootRedirect`/`PublicRoute`; race Clerk vs SPA | Porteiro SSOT (este doc) |
+
+---
+
+**Última revisão:** 2026-05-25

@@ -773,53 +773,90 @@ testes/unitarios/pedido/colunasUsuarioService.test.ts
 # Duplicar e Excluir Pedidos — Regras de Negócio
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
-> **Data:** Abril 2026
-> **Status:** Definido — aguardando implementação
+> **Versão:** 2.0
+> **Última atualização:** 2026-05-13
+> **Status:** Implementado (commit `0ab3cc99`)
 
 ---
 
 ## Duplicar
 
 ### O que é
-Cria uma cópia exata de um ou mais pedidos (ou itens), respeitando as configurações do tenant.
+Cria cópia(s) de pedidos e/ou itens, respeitando configurações da organização e a regra arquitetural de sincronização pai↔filhos do `nucleo-global`.
 
-### Escopo
-- Usuário pode selecionar **1 ou mais pedidos** → duplica todos
-- Usuário pode selecionar **1 ou mais itens** dentro de um pedido → duplica só os itens selecionados dentro do mesmo pedido
-- Pode duplicar pedidos em **qualquer status** (rascunho, aberto, transferencia, consolidado, cancelado)
+### Escopo — 3 cenários no mesmo modal
+
+| Seleção | O que acontece | Endpoint backend |
+|---|---|---|
+| **Só pedidos** | N pedidos novos são criados (cada um com todos seus itens via cascade) | `POST /api/v1/pedidos/duplicacoes/confirmar` |
+| **Só itens** | M itens duplicados DENTRO do(s) pedido(s) pai(s), sem criar pedido novo | `POST /api/v1/pedidos/duplicacoes/itens` (1× por pedido pai) |
+| **Misto** (pedido + item) | Ambos em paralelo via `Promise.all` — toast consolidado: "N pedidos e M itens duplicados" | Os 2 endpoints |
+
+Pode duplicar pedidos em **qualquer status** (rascunho, aberto, em_andamento, aprovado, transferencia, consolidado, cancelado).
+
+### Regra universal de sync pai↔filhos (nucleo-global)
+
+> Documentada em `skills/arquitetura/nucleo-global/SKILL.md` — não é específica do Pedido.
+
+A `TabelaVirtualGlobal` sincroniza pais e filhos automaticamente: **pai marcado ⟺ todos os filhos do pai marcados**. Marcar o checkbox do pedido marca todos os itens; marcar o último item que faltava marca o pai. Sem prop opcional — comportamento fixo.
+
+**Para evitar duplicação dupla** (item seria criado 2 vezes — uma via cascade do pai, outra via `/duplicacoes/itens`), o modal **filtra** os itens cujo `pedido_id` já está em `pedidos` selecionados. O cascade do pai cuida deles.
+
+### Regra de ordenação após duplicação (invioláveis)
+
+| Tipo de duplicado | Posição na Lista | Como é garantido |
+|---|---|---|
+| **Pedido novo** | Primeira linha | `orderBy: data_criacao_pedido DESC` no GET /pedidos + `data_criacao_pedido @default(now())` no INSERT |
+| **Item novo** (dentro do pedido pai) | Linha imediatamente abaixo do original | Algoritmo "renumerar limpo" em `duplicarExcluirService.ts:duplicarItens` |
 
 ### Configurações
 
 | Configuração | Descrição | Default |
 |---|---|---|
-| `duplicar_numero_auto` | Se true: gera número automaticamente pela regra de numeração configurada. Se false: usuário digita o número | `false` (usuário digita) |
-| `duplicar_copiar_datas` | Se true: copia as datas do pedido original. Se false: reseta datas (ficam em branco) | `false` (reseta datas) |
-| `duplicar_status_inicial` | Status com que o pedido duplicado começa: `'copiar'` (mesmo do original) ou qualquer status válido | `'copiar'` |
+| `duplicar_numero_auto` | Se true: gera número automaticamente pela regra de numeração. Se false: usuário digita o número | `false` (usuário digita) |
+| `duplicar_copiar_datas` | Se true: copia datas do original. Se false: reseta datas (ficam em branco). **NÃO afeta `data_emissao_pedido`** — ver exceção abaixo | `false` |
+| `duplicar_status_inicial` | `'copiar'` (mesmo do original) ou qualquer status válido | `'copiar'` |
 
-### Campos sempre copiados
+**Exceção arquitetural** — `data_emissao_pedido` é regra fixa, não respeita `duplicar_copiar_datas`. Razão: é chave de ordenação da Lista. Pedido duplicado sempre nasce com `new Date()` para garantir que apareça no topo.
+
+### Campos sempre copiados (pedido novo)
+
 - Todos os campos do pedido (incoterm, moeda, exportador, referências, etc.)
-- Todos os itens (part_number, NCM, descrição, quantidades, valores)
+- Todos os itens via cascade (part_number, NCM, descrição, etc.)
 - Colunas customizadas do usuário
+- Snapshots de empresa congelados do original (não re-consulta Cadastros — duplicar não é re-emissão)
 
-### Campos nunca copiados
-- `id` — novo ID gerado
-- `created_at`, `updated_at` — timestamps da cópia
-- `pedidos_origem` — não é uma consolidação, começa limpo
-- Histórico de transferências
+### Campos NUNCA copiados
 
-### Campos condicionais (por configuração)
-- `numero_pedido` — auto ou usuário digita
-- `data_emissao_pedido`, `data_embarque` — copia ou reseta
-- `status` — copia ou começa em outro status
+| Campo | Razão |
+|---|---|
+| `id_pedido` | Novo ID gerado |
+| `data_criacao_pedido`, `data_atualizacao_pedido` | Timestamps da cópia |
+| `ids_origem_consolidacao_pedido` | Pedido novo não é consolidação |
+| `data_consolidacao_pedido`, `data_transferencia_saldo_pedido` | Histórico não é herdado |
+
+### Quantidades de execução SEMPRE zeradas no item duplicado
+
+| Campo do `pedido_item` | Por que é zerado |
+|---|---|
+| `quantidade_pronta_item` | Representa marcação real de "pronto" — não pode ser copiada sem ação correspondente |
+| `quantidade_transferida_item` | Representa transferência para processo de embarque — copiar geraria saldo fantasma sem processo correspondente |
+| `quantidade_cancelada_item` | Representa cancelamento real — não faz sentido herdar |
+
+`quantidade_atual_item` recebe `quantidade_inicial_item` (item nasce íntegro). Sem essa regra, soma do dashboard ficaria inflada por execução fantasma.
+
+### Aviso pré-duplicação (transparência com o usuário)
+
+Se algum item selecionado tem qualquer das 3 quantidades de execução > 0, o modal exibe um banner amarelo **antes do botão Duplicar**, listando que esses campos serão zerados e o motivo (evita saldo fantasma).
 
 ### Fluxo UX
-1. Usuário seleciona pedido(s) ou item(s)
-2. Clica em "Duplicar"
-3. Se `duplicar_numero_auto = false`: modal pede o número (ou números, um por pedido)
-4. Se `duplicar_numero_auto = true`: modal exibe o(s) número(s) gerado(s) (editável)
-5. Preview com campos que serão copiados vs resetados
-6. Confirmar → pedidos/itens criados
+1. Usuário seleciona pedido(s), item(s), ou mistura
+2. Clica em "Duplicar" (toolbar) ou ação "Duplicar" do dropdown da linha
+3. Modal abre com título dinâmico ("Duplicar 1 pedido e 2 itens")
+4. Se há pedidos: usuário digita o número da cópia de cada um (ou aceita o auto-gerado)
+5. Se há itens com execução > 0: banner amarelo de aviso aparece
+6. Confirma → backend processa em paralelo, toast consolidado
+7. Modal final mostra resumo dos novos pedidos + itens criados
 
 ---
 
@@ -833,17 +870,17 @@ Remove definitivamente um ou mais pedidos (ou itens). **Hard delete** — não h
 - Usuário pode selecionar **1 ou mais itens** dentro de um pedido → exclui só os itens
 
 ### Regras fixas (sempre válidas)
-- Excluir um pedido **remove todos os seus itens** automaticamente
-- Excluir um item **mantém o pedido pai** — verificar configuração `excluir_pedido_sem_item`
+- Excluir um pedido **remove todos os seus itens** automaticamente (cascade do schema Prisma)
+- Excluir um item **mantém o pedido pai** — verificar configuração `excluir_pedido_sem_item_permitido`
 - Requer permissão de exclusão configurada
-- Auditoria obrigatória: registra o que foi excluído, por quem e quando
+- Auditoria obrigatória via `auditLog`: registra o que foi excluído, por quem e quando
 
 ### Configurações
 
 | Configuração | Descrição | Default |
 |---|---|---|
-| `excluir_status_permitidos` | Lista de status que podem ser excluídos | `['rascunho']` |
-| `excluir_pedido_sem_item_permitido` | Se false: ao excluir o último item, exclui o pedido pai também | `false` |
+| `excluir_status_permitidos` | Lista de status que podem ser excluídos | `['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado']` |
+| `excluir_pedido_sem_item_permitido` | Se false: ao excluir o último item, exclui o pedido pai também | `true` |
 
 ### Fluxo de restrição por status
 - Se pedido não está em um status da lista `excluir_status_permitidos` → bloqueia com mensagem explicando quais status permitem exclusão
@@ -857,14 +894,14 @@ Remove definitivamente um ou mais pedidos (ou itens). **Hard delete** — não h
 6. Confirmar → exclusão permanente
 
 ### Regra `excluir_pedido_sem_item_permitido`
-- `false` (default): ao excluir o último item de um pedido, o pedido é excluído junto automaticamente
-- `true`: pedido pode existir sem itens — ao excluir o último item, o pedido permanece vazio
+- `true` (default): pedido pode existir sem itens — ao excluir o último item, o pedido permanece vazio
+- `false`: ao excluir o último item de um pedido, o pedido é excluído junto automaticamente
 
 ---
 
 ## Configurações Consolidadas (Duplicar + Excluir)
 
-Adicionar ao model `ConfiguracaoPedido`:
+Tabela `configuracao_pedido` (model `ConfiguracaoPedido`):
 
 ```prisma
 // Duplicar
@@ -873,49 +910,73 @@ duplicar_copiar_datas             Boolean  @default(false)
 duplicar_status_inicial           String   @default("copiar")
 
 // Excluir
-excluir_status_permitidos         String[] @default(["rascunho"])
-excluir_pedido_sem_item_permitido Boolean  @default(false)
+excluir_status_permitidos         String[] @default(["rascunho", "aberto", "em_andamento", "aprovado", "transferencia", "consolidado", "cancelado"])
+excluir_pedido_sem_item_permitido Boolean  @default(true)
 ```
+
+---
+
+## Referências cruzadas
+
+- **Documento técnico:** [`DUPLICAR-EXCLUIR-TECNICO.md`](./DUPLICAR-EXCLUIR-TECNICO.md) — arquitetura, endpoints, algoritmo de shift
+- **Skill do produto:** [`skills/produtos-gravity/pedido/SKILL.md`](../../../skills/produtos-gravity/pedido/SKILL.md) — Parte 4
+- **Skill do componente:** [`skills/arquitetura/nucleo-global/SKILL.md`](../../../skills/arquitetura/nucleo-global/SKILL.md) — seção "Tabelas hierárquicas — sync pai↔filhos"
 
 --- documentos-tecnicos/produtos-gravity/pedido/DUPLICAR-EXCLUIR-TECNICO.md ---
 # Duplicar e Excluir Pedidos — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
-> **Data:** Abril 2026
-> **Status:** Aguardando implementação
+> **Versão:** 2.0
+> **Última atualização:** 2026-05-13
+> **Status:** Implementado (commits `efa03ca0`, `0ab3cc99`)
 
 ---
 
-## Estrutura de Arquivos
+## Estrutura de Arquivos (atual)
 
 ```
-produto/pedido/
+servicos-global/pedido/
 ├── client/
 │   └── src/
 │       ├── components/
-│       │   ├── ModalDuplicar.tsx         ← Modal de duplicação
-│       │   └── ModalDuplicar.css
+│       │   ├── ModalPedidosDuplicar.tsx         ← Modal de duplicação (misto pedido + item)
+│       │   ├── ModalPedidosDuplicar.css
+│       │   ├── ModalPedidosExcluir.tsx          ← Modal de exclusão (substitui window.confirm)
+│       │   └── ModalPedidosExcluir.css
 │       ├── shared/
-│       │   ├── types.ts                  ← Tipos de duplicar/excluir
-│       │   └── api.ts                    ← pedidoDuplicarApi, pedidoExcluirApi
+│       │   ├── types.ts                          ← DuplicarPayload, DuplicarItemPayload, etc.
+│       │   └── api.ts                            ← pedidoDuplicarApi, pedidoExcluirApi
 │       └── pages/
-│           └── ListaPedidos.tsx          ← Botões integrados
+│           └── Pedidos.tsx                       ← Toolbar, dropdown da linha, renderiza modais
 └── server/
     └── src/
         ├── routes/
-        │   └── duplicarExcluir.ts        ← Rotas
+        │   ├── duplicacoes-pedido.ts             ← POST /duplicacoes/{preview,confirmar,itens}
+        │   └── exclusoes-pedido.ts               ← POST /exclusoes/{preview,confirmar,itens}
         └── services/
-            └── duplicarExcluirService.ts ← Lógica de negócio
+            └── duplicarExcluirService.ts         ← DuplicarService + ExcluirService
 ```
+
+---
+
+## Endpoints (estado real)
+
+| Método | Rota | Função |
+|---|---|---|
+| POST | `/api/v1/pedidos/duplicacoes/preview` | Retorna config (`numero_auto`, `copiar_datas`, `status_inicial`) + lista de pedidos para o modal montar |
+| POST | `/api/v1/pedidos/duplicacoes/confirmar` | Cria N pedidos novos (cascade dos itens) |
+| POST | `/api/v1/pedidos/duplicacoes/itens` | Duplica M itens dentro de 1 pedido pai |
+| POST | `/api/v1/pedidos/exclusoes/preview` | Separa permitidos / bloqueados por status |
+| POST | `/api/v1/pedidos/exclusoes/confirmar` | Hard delete + audit trail |
+| POST | `/api/v1/pedidos/exclusoes/itens` | Remove itens; aplica regra `excluir_pedido_sem_item_permitido` |
+
+> Também existe `POST /api/v1/pedidos/:id_pedido/duplicar` (single-pedido), usado por outros fluxos. Não é o caminho do modal de duplicar em massa.
 
 ---
 
 ## Tipos (`client/src/shared/types.ts`)
 
 ```ts
-// ── Duplicar ──────────────────────────────────────────────
-
 export interface DuplicarPayload {
   ids: string[]                         // pedido_ids a duplicar
   numeros?: Record<string, string>      // pedido_id → numero_pedido novo (quando não é auto)
@@ -931,8 +992,6 @@ export interface DuplicarResultado {
   erros: { id: string; motivo: string }[]
 }
 
-// ── Excluir ───────────────────────────────────────────────
-
 export interface ExcluirPreview {
   permitidos: { id: string; numero_pedido: string; total_itens: number }[]
   bloqueados: { id: string; numero_pedido: string; status: string; motivo: string }[]
@@ -941,285 +1000,202 @@ export interface ExcluirPreview {
 export interface ExcluirResultado {
   excluidos: number
   itens_excluidos: number
-  pedidos_excluidos_por_sem_item: number   // pedidos removidos por ficar sem item
+  pedidos_excluidos_por_sem_item: number
 }
 ```
 
 ---
 
-## API Client (`client/src/shared/api.ts`)
+## Backend — `duplicarExcluirService.ts`
+
+### `DuplicarService.confirmar()`
+
+Cria pedidos novos via nested-create do Prisma com cascade dos itens. Pontos críticos:
+
+1. **Header `x-id-workspace` é conditional** — quando ausente, filtro `id_workspace` é omitido (alinhado com GET /pedidos). Forçar workspace estrito causa 404 quando pedido pai não tem workspace marcado.
+2. **Não abrir `$transaction` aninhada** — `db` (vindo de `withOrganizacao`) já é `Prisma.TransactionClient`. Aninhar dispara `TypeError: db.$transaction is not a function`.
+3. **Relação Prisma é `itens_pedido`** (não `itens`). Schema Prisma:
+   ```prisma
+   itens_pedido    PedidoItem[]
+   ```
+4. **`data_emissao_pedido` é exceção arquitetural** — sempre `new Date()` na duplicação, independente da config `duplicar_copiar_datas`. Razão: é critério de ordenação implícita.
+
+### `DuplicarService.duplicarItens()` — algoritmo "renumerar limpo"
+
+Item duplicado deve aparecer **abaixo do original** na lista expandida. Estratégia (mesma já usada em `consolidacoes-pedido.ts:269-270`):
+
+```
+1. Carregar TODOS os itens do pedido pai (orderBy: sequencia_item_pedido ASC)
+2. Criar os novos itens com sequencia_item_pedido = null (temporário)
+3. Construir ordem final: para cada item original, se ele está em payload.item_ids,
+   adiciona ele seguido da sua cópia. Senão, só ele.
+4. UPDATE sequencial: para cada item da ordem final, sequencia_item_pedido = i + 1
+5. Tocar pedido pai: tx.pedido.update({ data: { data_atualizacao_pedido: new Date() } })
+```
+
+**Por que o passo 5?** O `useGTExpandir` (nucleo-global) cacheia filhos por pai. Sem mudança de `itemVersion(pai)`, o cache fica stale e o item duplicado não aparece na linha expandida. Como o frontend usa `pedidoItemVersion = p => p.updated_at` (mapeado de `data_atualizacao_pedido`), tocar esse campo força o invalidate.
+
+### Quantidades de execução zeradas
 
 ```ts
-export const pedidoDuplicarApi = {
-  // Preview: verifica o que será copiado/resetado conforme config
-  preview: (ids: string[]) =>
-    request<{
-      config: { numero_auto: boolean; copiar_datas: boolean; status_inicial: string }
-      pedidos: { id: string; numero_pedido: string; total_itens: number }[]
-    }>('/api/v1/pedidos/duplicar/preview', { method: 'POST', body: JSON.stringify({ ids }) }),
+quantidade_atual_item: item.quantidade_inicial_item,  // item nasce íntegro
+quantidade_pronta_item: 0,
+quantidade_transferida_item: 0,
+quantidade_cancelada_item: 0,
+```
 
-  // Confirmar duplicação de pedidos
-  confirmar: (payload: DuplicarPayload) =>
-    request<DuplicarResultado>('/api/v1/pedidos/duplicar/confirmar', {
-      method: 'POST', body: JSON.stringify(payload),
-    }),
+Sem isso, o item duplicado herdaria "50 transferidas" sem nenhum processo de embarque correspondente — saldo fantasma. Aviso pré-duplicação no modal alerta quando isso acontece.
 
-  // Duplicar itens dentro de um pedido
-  duplicarItens: (payload: DuplicarItemPayload) =>
-    request<DuplicarResultado>('/api/v1/pedidos/duplicar/itens', {
-      method: 'POST', body: JSON.stringify(payload),
-    }),
+### `ExcluirService.confirmar()` e `ExcluirService.excluirItens()`
+
+Sem mudanças relevantes desta entrega — hard delete com `auditLog` antes via `historico-global` (fire-and-forget).
+
+---
+
+## Frontend — `ModalPedidosDuplicar.tsx`
+
+### Props
+
+```ts
+interface ModalDuplicarPedidosProps {
+  pedidos: Pedido[]              // selecionados via checkbox de linha pai
+  itens?: PedidoItem[]           // selecionados via checkbox de filho (default [])
+  todosPedidos?: Pedido[]        // lista completa da página — usado para lookup do pedido pai
+                                 // quando usuário marca SÓ filho, sem marcar o pai
+  onFechar: () => void
+  onConcluido: () => void
 }
-
-export const pedidoExcluirApi = {
-  // Preview: quais podem ser excluídos, quais bloqueados
-  preview: (ids: string[]) =>
-    request<ExcluirPreview>('/api/v1/pedidos/excluir/preview', {
-      method: 'POST', body: JSON.stringify({ ids }),
-    }),
-
-  // Confirmar exclusão de pedidos
-  confirmar: (ids: string[]) =>
-    request<ExcluirResultado>('/api/v1/pedidos/excluir/confirmar', {
-      method: 'POST', body: JSON.stringify({ ids }),
-    }),
-
-  // Excluir itens de um pedido
-  excluirItens: (pedido_id: string, item_ids: string[]) =>
-    request<ExcluirResultado>('/api/v1/pedidos/excluir/itens', {
-      method: 'POST', body: JSON.stringify({ pedido_id, item_ids }),
-    }),
-}
 ```
 
----
+### 3 cenários de seleção
 
-## Backend — Rotas (`server/src/routes/duplicarExcluir.ts`)
+| Seleção | Dispatch backend |
+|---|---|
+| Só `pedidos` | 1 chamada `pedidoDuplicarApi.confirmar({ ids, numeros })` |
+| Só `itens` | 1 chamada `pedidoDuplicarApi.duplicarItens({ pedido_id, item_ids })` **por pedido pai distinto** |
+| Misto | `Promise.all([...])` — ambos endpoints em paralelo, toast consolidado |
 
-### `POST /api/v1/pedidos/duplicar/preview`
-- Busca pedidos pelo `ids` com `tenant_id`
-- Lê configurações do tenant (`duplicar_numero_auto`, `duplicar_copiar_datas`, `duplicar_status_inicial`)
-- Retorna lista de pedidos + config para o frontend montar o modal
+### Filtragem de duplicação dupla
 
-### `POST /api/v1/pedidos/duplicar/confirmar`
+Quando o usuário marca o pai, o **sync pai↔filhos universal do nucleo-global** marca todos os filhos automaticamente. Isso popularia `itensSelecionados` E `pedidosSelecionados`. Sem filtragem, cada item seria duplicado 2 vezes:
+- 1× no pedido novo (via cascade do `/duplicacoes/confirmar`)
+- 1× no pedido original (via `/duplicacoes/itens`)
 
-**Zod schema:**
+**Solução:**
+
 ```ts
-z.object({
-  ids: z.array(z.string().uuid()).min(1),
-  numeros: z.record(z.string()).optional(),
-})
+const idsPedidosSelecionados = useMemo(() => new Set(ids), [ids])
+const itensFiltrados = useMemo(
+  () => itens.filter(it => !idsPedidosSelecionados.has(it.pedido_id)),
+  [itens, idsPedidosSelecionados],
+)
 ```
 
-**Lógica em `$transaction`:**
-```
-Para cada pedido_id:
-  1. Buscar pedido + itens com tenant_id
-  2. Gerar novo ID
-  3. Definir numero_pedido:
-     - Se config.numero_auto: gerar pela regra de numeração
-     - Senão: usar payload.numeros[id] (obrigatório se !numero_auto)
-  4. Definir status:
-     - Se config.status_inicial = 'copiar': usar status do original
-     - Senão: usar config.status_inicial
-  5. Definir datas:
-     - Se config.copiar_datas: copiar do original
-     - Senão: null
-  6. tx.pedido.create({ ...campos, itens: { create: [...itens copiados] } })
-  7. Registrar audit trail: canal = 'duplicacao', original_id
-```
+O array de itens efetivamente processado é `itensFiltrados`, não `itens`. Os filhos do pai já vêm via cascade.
 
-**Resposta:** `201 DuplicarResultado`
+### Aviso pré-duplicação
 
----
+Banner amarelo aparece quando algum item de `itensFiltrados` tem qualquer das 3 quantidades de execução > 0:
 
-### `POST /api/v1/pedidos/duplicar/itens`
-
-**Zod schema:**
 ```ts
-z.object({
-  pedido_id: z.string().uuid(),
-  item_ids: z.array(z.string().uuid()).min(1),
-})
+const itensComExecucao = useMemo(() => {
+  return itensFiltrados.filter(it =>
+    Number(it.quantidade_pronta_total_item_pedido) > 0
+    || Number(it.quantidade_transferida_pedido) > 0
+    || Number(it.quantidade_cancelada_pedido) > 0
+  )
+}, [itensFiltrados])
 ```
 
-**Lógica:**
-```
-1. Verificar pedido pertence ao tenant
-2. Para cada item_id: clonar PedidoItem com novo ID
-   - quantidade_atual = quantidade_inicial (reset de saldo)
-   - quantidade_transferida = 0
-   - quantidade_cancelada = 0
-3. Recalcular agregados do pedido pai
-```
+> Decimal vem como string no JSON do Prisma — `Number(x) > 0` é safe contra string vazia.
+
+### Renderização visual
+
+- **Header com título dinâmico:** "Duplicar 1 pedido e 2 itens" / "Duplicar 3 pedidos" / "Duplicar 5 itens"
+- **2 seções com ícones:**
+  - 📁 NOVOS PEDIDOS SERÃO CRIADOS (ícone `Files` do Phosphor)
+  - 📦 ITENS SERÃO DUPLICADOS NESTES PEDIDOS (ícone `Package`)
+- **Chips individuais** para itens: cada item vira um chip `[#1 12345-001]` com seq destacado em peso 700; até 4 inline, resto vira `+N` com tooltip nativo
 
 ---
 
-### `POST /api/v1/pedidos/excluir/preview`
+## Sync pai↔filhos universal (nucleo-global)
 
-**Lógica:**
-```
-1. Buscar pedidos com tenant_id
-2. Ler config.excluir_status_permitidos
-3. Separar em permitidos (status na lista) e bloqueados (status fora da lista)
-4. Retornar ExcluirPreview
-```
+> Esta regra é **arquitetural do componente `TabelaVirtualGlobal`**, não do produto Pedido. Documentada em [`skills/arquitetura/nucleo-global/SKILL.md`](../../../skills/arquitetura/nucleo-global/SKILL.md) — seção "Tabelas hierárquicas — sync pai↔filhos".
 
----
+Comportamento fixo (sem prop opcional):
+- Marcar pai → todos os filhos cached marcam
+- Desmarcar pai → todos desmarcam
+- Marcar último filho que faltava → pai marca automaticamente
+- Desmarcar qualquer filho com pai marcado → pai desmarca
+- Header "selecionar todos" → propaga para filhos cached de todos os pais visíveis
 
-### `POST /api/v1/pedidos/excluir/confirmar`
-
-**Zod schema:**
-```ts
-z.object({
-  ids: z.array(z.string().uuid()).min(1),
-})
-```
-
-**Lógica em `$transaction`:**
-```
-1. Buscar pedidos + itens com tenant_id
-2. Validar todos na lista excluir_status_permitidos (rejeitar se algum não está)
-3. Registrar audit trail ANTES de excluir (dados que serão perdidos)
-4. tx.pedidoItem.deleteMany({ where: { pedido_id: { in: ids }, tenant_id } })
-5. tx.pedido.deleteMany({ where: { id: { in: ids }, tenant_id } })
-```
-
-**Resposta:** `200 ExcluirResultado`
+**Invariante:** pai marcado ⟺ todos os filhos do pai marcados.
 
 ---
 
-### `POST /api/v1/pedidos/excluir/itens`
-
-**Zod schema:**
-```ts
-z.object({
-  pedido_id: z.string().uuid(),
-  item_ids: z.array(z.string().uuid()).min(1),
-})
-```
-
-**Lógica:**
-```
-1. Verificar pedido pertence ao tenant
-2. Verificar pedido está em status permitido para excluir itens
-3. Registrar audit trail
-4. tx.pedidoItem.deleteMany({ where: { id: { in: item_ids }, pedido_id, tenant_id } })
-5. Verificar quantos itens restaram no pedido
-6. Se restaram 0:
-   - Se config.excluir_pedido_sem_item_permitido = false:
-     → tx.pedido.delete(pedido_id) + incrementar contador
-   - Se true: pedido fica vazio
-7. Se restaram > 0: recalcular agregados do pedido pai
-```
-
----
-
-## Frontend — ModalDuplicar.tsx
-
-### Fluxo (2 passos)
-
-**Passo 1 — Números (quando !config.numero_auto)**
-```
-┌──────────────────────────────────────────────┐
-│  Duplicar Pedidos (3 selecionados)           │
-├──────────────────────────────────────────────┤
-│  PO-2026/001  →  Número da cópia: [_______]  │
-│  PO-2026/002  →  Número da cópia: [_______]  │
-│  PO-2026/003  →  Número da cópia: [_______]  │
-│                                              │
-│  ℹ Datas: serão resetadas                   │
-│  ℹ Status: copiado do original              │
-│                                              │
-│       [Cancelar]       [Duplicar]            │
-└──────────────────────────────────────────────┘
-```
-
-**Passo 1 — Confirmação (quando config.numero_auto)**
-```
-┌──────────────────────────────────────────────┐
-│  Duplicar Pedidos (3 selecionados)           │
-├──────────────────────────────────────────────┤
-│  PO-2026/001  →  PO-2026/006 (gerado)       │
-│  PO-2026/002  →  PO-2026/007 (gerado)       │
-│  PO-2026/003  →  PO-2026/008 (gerado)       │
-│                                              │
-│  ℹ Datas: copiadas do original              │
-│  ℹ Status: rascunho                            │
-│                                              │
-│       [Cancelar]       [Duplicar]            │
-└──────────────────────────────────────────────┘
-```
-
----
-
-## Integração em ListaPedidos.tsx
+## Integração em `Pedidos.tsx`
 
 ```tsx
-// Estado
-const [modalDuplicarAberto, setModalDuplicarAberto] = useState(false)
-
-// Botão Duplicar (adicionar ao toolbar de ações em lote)
-<BotaoGlobal
-  variante="secundario"
-  tamanho="pequeno"
-  icone={<CopySimple size={14} weight="duotone" />}
-  disabled={pedidosSelecionados.length === 0}
-  onClick={() => setModalDuplicarAberto(true)}
->
-  Duplicar{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
-</BotaoGlobal>
-
-// Botão Excluir — já existe no código, substituir onClick por preview + modal de confirmação
-// (atualmente chama pedidoLoteApi.cancelarConfirmar — corrigir para excluirApi)
-
-// Modal
-{modalDuplicarAberto && (
-  <ModalDuplicar
+// Modal Duplicar Pedidos e/ou Itens (modal único, misto)
+{modalDuplicarAberto && (pedidosSelecionados.length > 0 || itensSelecionados.length > 0) && (
+  <ModalDuplicarPedidos
     pedidos={pedidosSelecionados}
+    itens={itensSelecionados}
+    todosPedidos={pedidos}            // ← lookup do pedido pai quando usuário marca só item
     onFechar={() => setModalDuplicarAberto(false)}
     onConcluido={() => {
       setModalDuplicarAberto(false)
       setPedidosSelecionados([])
+      setItensSelecionados([])
       carregarInicial()
     }}
   />
 )}
 ```
 
+Toolbar "Duplicar" tem `disabled={pedidosSelecionados.length === 0 && itensSelecionados.length === 0}` — ativa com qualquer seleção.
+
 ---
 
 ## Segurança
 
-- [x] `tenant_id` em todas as queries (origem e destino)
-- [x] Hard delete: audit trail obrigatório ANTES da exclusão
-- [x] Validação de status no backend (não confiar no frontend)
-- [x] Permissão separada: duplicar vs excluir
+- [x] `id_organizacao` em todas as queries (origem e destino) via `withOrganizacao`
+- [x] `id_workspace` conditional (não obrigatório quando header ausente)
+- [x] Hard delete: audit trail obrigatório ANTES da exclusão via `historico-global`
+- [x] Validação Zod em todas as rotas (DDD-puro, sem ACL legado)
+- [x] Permissão separada: duplicar vs excluir (governada por config do produto)
 
 ---
 
-## Testes
+## Testes (débito)
+
+> Estes testes ainda não foram criados — débito catalogado no QA de `0ab3cc99`.
 
 ```
-testes/unitarios/pedido/duplicarExcluirService.test.ts
-  ├── duplicar — copia todos os campos do pedido
-  ├── duplicar — copia todos os itens com saldo zerado
-  ├── duplicar — config numero_auto gera número correto
-  ├── duplicar — config copiar_datas = false reseta datas
-  ├── duplicar — config status_inicial = 'rascunho' ignora status original
-  ├── excluir — hard delete remove pedido e itens
-  ├── excluir — status não permitido é bloqueado
-  ├── excluir item — pedido sem item é excluído (config false)
-  ├── excluir item — pedido sem item permanece (config true)
-  └── cross-tenant — não duplica/exclui pedido de outro tenant
+testes/testes-funcionais/produto-pedido/duplicar.test.ts
+  ├── duplicar pedido — copia todos os campos + itens via cascade
+  ├── duplicar item — item nasce abaixo do original (shift correto)
+  ├── duplicar item — quantidade_pronta/transferida/cancelada são 0
+  ├── duplicar — config numero_auto gera número
+  ├── duplicar — data_emissao_pedido sempre new Date() (ignora copiar_datas)
+  ├── modal misto — filtra duplicação dupla (pai marcado descarta filhos do mesmo pai)
+  └── cross-tenant — não duplica/exclui pedido de outra organização
 
-testes/funcionais/pedido/duplicarExcluir.test.ts
-  ├── POST /duplicar/preview — retorna config e pedidos
-  ├── POST /duplicar/confirmar — cria cópias com novos IDs
-  ├── POST /excluir/preview — separa permitidos e bloqueados
-  ├── POST /excluir/confirmar — remove definitivamente
-  └── POST /excluir/itens — remove itens e aplica regra sem-item
+testes/testes-unitarios/nucleo-global/tabela-virtual-global/
+  ├── sync — marcar pai → filhos marcados
+  ├── sync — desmarcar 1 filho → pai desmarca
+  ├── sync — marcar último filho → pai marca
+  └── sync — selecionar todos no header → todos filhos cached marcados
 ```
+
+---
+
+## Referências cruzadas
+
+- **Regras de negócio:** [`DUPLICAR-EXCLUIR-REGRAS-NEGOCIO.md`](./DUPLICAR-EXCLUIR-REGRAS-NEGOCIO.md)
+- **Skill do produto:** [`skills/produtos-gravity/pedido/SKILL.md`](../../../skills/produtos-gravity/pedido/SKILL.md) — Parte 4
+- **Skill nucleo-global:** [`skills/arquitetura/nucleo-global/SKILL.md`](../../../skills/arquitetura/nucleo-global/SKILL.md) — Tabelas hierárquicas
 
 --- documentos-tecnicos/produtos-gravity/pedido/EDICAO-EM-MASSA-REGRAS-NEGOCIO.md ---
 # Edição em Massa — Regras de Negócio
@@ -1247,20 +1223,22 @@ Todos os campos são editáveis em massa, **exceto campos calculados automaticam
 |---|---|---|
 | `incoterm` | ✅ Sim | — |
 | `moeda_pedido` | ✅ Sim | — |
-| `data_embarque` | ✅ Sim | — |
+| `data_embarque_origem` | ✅ Sim | — |
 | `data_emissao_pedido` | ✅ Sim | — |
-| `cobertura_cambial` | ✅ Sim | — |
-| `condicao_pagamento` | ✅ Sim | — |
-| `exportador_nome` | ✅ Sim | — |
+| `condicao_pagamento_pedido` | ✅ Sim | — |
+| `nome_exportador` (JSON `detalhes_operacionais_pedido`) | ✅ Sim | — |
 | `porto_origem` | ✅ Sim | — |
 | `porto_destino` | ✅ Sim | — |
 | Colunas criadas pelo usuário | ✅ Sim (com permissão) | — |
 | `numero_pedido` | ✅ Sim (com permissão) | — |
 | `valor_total_pedido` | ❌ Não | Campo calculado (soma dos itens) |
-| `quantidade_inicial_total` | ❌ Não | Campo calculado (soma dos itens) |
-| `quantidade_transferida_total` | ❌ Não | Campo calculado (soma dos itens) |
-| `status` | ❌ Não | Gerenciado pelo saldoEngine / fluxo de status |
-| `id`, `tenant_id`, `created_at` | ❌ Não | Campos de sistema |
+| `quantidade_total_pedido` | ❌ Não | Campo calculado (soma dos itens) |
+| `peso_liquido_total_pedido` | ❌ Não | Campo calculado (soma dos itens) |
+| `peso_bruto_total_pedido` | ❌ Não | Campo calculado (soma dos itens) |
+| `cubagem_total_pedido` | ❌ Não | Campo calculado (soma dos itens) |
+| `status_pedido` | ❌ Não | Gerenciado pelo fluxo de status |
+| `data_consolidacao_pedido` | ❌ Não | Definido pelo fluxo de consolidação |
+| `id_pedido`, `id_organizacao`, `id_workspace`, `id_status_pedido`, `data_criacao_pedido`, `data_atualizacao_pedido`, `data_exclusao_pedido` | ❌ Não | Campos de sistema |
 
 ### Item (`PedidoItem`)
 
@@ -1268,14 +1246,17 @@ Mesma regra — todos editáveis exceto calculados:
 
 | Campo | Editável em massa? | Motivo bloqueio |
 |---|---|---|
-| `quantidade_inicial` | ✅ Sim | — |
-| `quantidade_transferida` | ✅ Sim | — |
-| `valor_unitario` | ✅ Sim | — |
+| `quantidade_inicial_item` | ✅ Sim | — |
+| `quantidade_pronta_item` | ✅ Sim | — |
+| `quantidade_cancelada_item` | ✅ Sim | — |
+| `valor_por_unidade_item` | ✅ Sim | — |
 | `data_embarque_item` | ✅ Sim | — |
-| `part_number` | ✅ Sim (com permissão) | — |
+| `part_number_item`, `ncm_item` | ✅ Sim (com permissão) | — |
 | Colunas criadas pelo usuário | ✅ Sim (com permissão) | — |
-| `valor_item` | ❌ Não | Campo calculado (qty × valor_unitario) |
-| `quantidade_atual` | ❌ Não | Campo calculado pelo saldoEngine |
+| `valor_total_item` | ❌ Não | Campo calculado (qty × valor_por_unidade) |
+| `quantidade_atual_item` | ❌ Não | Campo calculado pelo saldoEngine (inicial − transferida − cancelada) |
+| `quantidade_transferida_item` | ❌ Não | Gerenciado pelo fluxo de transferência (saldoEngine) |
+| `id_item`, `id_organizacao`, `id_workspace`, `id_pedido`, `data_criacao_item`, `data_atualizacao_item`, `data_exclusao_item` | ❌ Não | Campos de sistema |
 
 ---
 
@@ -1304,11 +1285,135 @@ Quando os pedidos selecionados têm **valores diferentes** no mesmo campo:
 
 ## Níveis de Edição
 
-| Nível | O que edita | Quando usar |
-|---|---|---|
-| **Pedido** | Campos do `Pedido` nos pedidos selecionados | Mudar incoterm, data, condições de vários pedidos |
-| **Item** | Campos do `PedidoItem` nos itens dos pedidos selecionados | Ajustar quantidades ou valores de itens |
-| **Combinado** | Pedido + Item na mesma operação | Alterar campos de ambos os níveis de uma vez |
+| Nível | O que edita | Cascade automático? | Quando usar |
+|---|---|---|---|
+| **Pedido** | Campos do `Pedido` nos pedidos selecionados | ❌ Não | Mudar incoterm/data/condições do pedido sem tocar nos itens |
+| **Item** | Campos do `PedidoItem` nos itens dos pedidos selecionados | ❌ Não | Ajustar quantidades ou valores dos itens |
+| **Combinado** | Pedido + Item na mesma operação, com cascade automático | ✅ Sim (~61 pares) | Mudar valor "oficial" do pedido propagando para os itens |
+
+---
+
+## Cascade Pedido → Item (aba Combinado)
+
+Na aba **Combinado**, alterações em campos do Pedido cujo conceito tem equivalente em PedidoItem **propagam automaticamente** para todos os itens dos pedidos selecionados.
+
+### Composição SSOT (~61 pares)
+
+**SSOT (57 pares)** em `shared/mapaPropagacaoPedidoItem.ts`: identidade comercial (5), casas decimais (4), câmbio (1), referências (3), datas pronto/inspeção/coleta (9), datas rascunho pedido (7), datas proforma (13), datas invoice (13), outras datas (2).
+
+**Exclusivos edição em massa (+4):** `tipo_operacao_pedido→tipo_operacao_item`, `nome_exportador→nome_exportador_item`, `nome_importador→nome_importador_item`, `nome_fabricante→nome_fabricante_item`.
+
+### Fora do cascade (não propagam)
+
+- `numero_pedido` (identificador único do pedido)
+- `porto_origem`, `porto_destino` (atributos do pedido apenas)
+- Endereço/país/cidade do exportador/importador/fabricante (JSON pedido sem coluna item equivalente)
+- Dados de OPE (JSON pedido sem coluna item equivalente)
+
+### Comportamento detalhado
+
+1. **Aba Pedido:** muda só o pedido. Items mantêm valor anterior (que pode divergir do novo do pedido).
+2. **Aba Item:** muda só os itens. Pedido mantém valor anterior.
+3. **Aba Combinado:**
+   - Campo na whitelist → muda pedido + propaga para todos os itens (sobrescreve overrides individuais).
+   - Campo fora da whitelist → muda só o pedido (idêntico ao comportamento da aba Pedido).
+   - Se o usuário adicionar `incoterm_pedido` + `incoterm_item` explicitamente, o **explícito vence** sobre o cascade.
+4. **Preview avisa:** quando houver overrides individuais sendo sobrescritos pelo cascade, o preview mostra "N itens serão sobrescritos".
+
+### Contadores no preview
+
+A aba **Combinado** mostra 4 contadores: pedidos afetados / itens afetados / campos pedido alterados / campos item alterados. Exemplo: 2 pedidos × 1 campo (`incoterm_pedido`) com 19 itens → "2 pedidos · 19 itens · 2 campos pedido · 19 campos item".
+
+---
+
+## Divergência Pedido vs Itens na Lista
+
+Quando o valor do Pedido difere dos itens (ex: pedido `FOB`, itens variam entre `CIF`/`EXW`/`FCA`), a lista mostra:
+
+- **Valor do pedido visível** (FOB) — não é mais escondido
+- **Ícone de alerta ⚠ laranja** ao lado do valor
+- **Tooltip** descrevendo a divergência ("Itens divergem do pedido")
+
+Comportamento por estado da célula:
+
+| Estado | Renderização |
+|--------|--------------|
+| Pedido tem valor + itens iguais | `FOB` (texto normal) |
+| Pedido tem valor + itens divergem | `FOB ⚠` (valor + ícone) |
+| Pedido sem valor + agregado impossível (ex: unidades incomparáveis) | `⚠ Unidades divergentes entre itens` (só alerta) |
+| Pedido sem valor + sem divergência | `—` |
+
+Para resolver a divergência, o usuário pode usar a **aba Combinado** para forçar o valor do pedido em todos os itens.
+
+---
+
+## Tipo de Operação — auto-fill do lado nacional
+
+Quando o usuário altera **Tipo de Operação** (`tipo_operacao_pedido`) em massa, o sistema preenche automaticamente o lado nacional com **nome + CNPJ do Workspace** de cada pedido.
+
+### Regra
+
+- **Workspace = empresa nacional** (importador em IMP, exportador em EXP). Cada workspace tem nome + CNPJ próprios cadastrados no Configurador.
+- Ao trocar tipo, o sistema:
+  1. Preenche o lado nacional com `workspace.nome_workspace` + `workspace.cnpj_workspace`
+  2. Limpa o lado oposto (nome+CNPJ do tipo anterior viram vazios)
+  3. Cascadeia para todos os itens do pedido (coluna `nome_*_item` na PedidoItem)
+
+### Cada pedido usa o seu próprio workspace
+
+Se o usuário seleciona pedidos de **workspaces diferentes** (ex: 5 do CDE EXPORTADOR + 3 do AMSTED LTDA) e troca tipo em massa, cada pedido pega o seu workspace:
+- Pedidos do CDE → `nome_exportador = "CDE EXPORTADOR"`
+- Pedidos do AMSTED → `nome_exportador = "AMSTED LTDA"`
+
+### Edição manual sobrescreve auto-fill
+
+Se o usuário, **no mesmo batch**, troca `Tipo de Operação` E também edita manualmente o `Exportador — Nome`, o valor digitado pelo usuário vence sobre o auto-fill. O sistema avisa no Passo 2 com banner amarelo "Edição manual sobrescreve auto-fill".
+
+### Avisos no Passo 2
+
+3 banners podem aparecer ao confirmar:
+
+| Cor | Quando | Comportamento |
+|-----|--------|--------------|
+| **Azul informativo** | Sempre que troca tipo_operacao | Mostra workspaces que serão aplicados (nome + CNPJ) |
+| **Amarelo "sem CNPJ"** | Algum workspace tem `cnpj_workspace = NULL` | Avisa; não bloqueia. CNPJ ficará vazio. Usuário pode preencher no Cadastros depois. |
+| **Laranja "status crítico"** | Algum pedido tem status diferente de `rascunho` ou `aberto` | Avisa que pode causar inconsistência com documentos legais. Não bloqueia. |
+| **Amarelo "override manual"** | Usuário editou manualmente `nome_exportador`/`nome_importador`/`cnpj_*` no mesmo batch | Avisa que manual vence sobre auto-fill |
+
+### Comportamento se Configurador estiver offline
+
+Falha ruidosa (Mand. 08). O sistema retorna erro 503 com mensagem "Configurador indisponível". Operação não pôde ser concluída — usuário tenta novamente.
+
+---
+
+## Campos Únicos (não permitem multi-seleção)
+
+Alguns campos do Pedido são **únicos por organização** — não podem ter o mesmo valor em dois pedidos diferentes. Exemplo: `numero_pedido` (você não pode ter dois pedidos `PO-001` na mesma organização).
+
+**Regra:** quando >1 pedido está selecionado, esses campos ficam **bloqueados** para edição em massa:
+- Input desabilitado
+- Tooltip explicando o porquê
+- Badge "Único por organização — selecione 1 pedido"
+- Botão "Revisar alterações" desabilitado se algum campo unique está bloqueado
+
+Para editar um campo único, o usuário precisa **reduzir a seleção para 1 pedido**.
+
+**Campos atualmente protegidos:** `numero_pedido` (mais podem ser adicionados quando expostos).
+
+---
+
+## Máscara de Entrada por Tipo de Campo
+
+| Tipo | Renderização |
+|------|--------------|
+| **Texto** | Input livre |
+| **Número** | Input numérico |
+| **Data** | Date picker |
+| **Select (enum)** | Dropdown com opções válidas (ex: Incoterm, Tipo de Operação, Cobertura Cambial) |
+| **NCM** | Input com máscara automática `0000.00.00`, limite 8 dígitos, ignora não-numéricos |
+| **Coluna do usuário** | Conforme tipo definido na criação |
+
+Os enums Incoterm, Tipo de Operação e Cobertura Cambial **não aceitam digitação livre** — só seleção do dropdown.
 
 ---
 
@@ -1369,9 +1474,760 @@ Quando os pedidos selecionados têm **valores diferentes** no mesmo campo:
 # Edição em Massa — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
+> **Versão:** 2.0 (DDD-puro + Cascade Combinado)
+> **Última atualização:** 2026-05-12
+> **Status:** Implementado em produção
+
+---
+
+## Stack
+
+| Camada | Tecnologia |
+|---|---|
+| Frontend | React + TypeScript strict, Vite, react-i18next |
+| Backend | Express + TypeScript, Prisma 5.22, `withOrganizacao` (resolver-organizacao) |
+| Banco | PostgreSQL (isolamento por `id_organizacao` em todas as queries) |
+| Validação | Zod em todas as rotas |
+| Auth | Clerk JWT + `x-chave-interna-servico` para chamadas S2S |
+| Erros | `AppError` — nunca `res.status().json()` direto |
+
+---
+
+## Estrutura de arquivos (DDD pós-refactor)
+
+```
+produto/pedido/
+├── client/
+│   └── src/
+│       ├── components/
+│       │   ├── ModalPedidosEdicaoMassa.tsx          ← Modal principal
+│       │   └── ModalPedidosEdicaoMassa.css
+│       ├── shared/
+│       │   ├── types.ts                              ← TipoCampoEdicao, EdicaoMassa*
+│       │   └── api.ts                                ← pedidoEdicaoMassaApi
+│       └── pages/
+│           └── Pedidos.tsx                           ← Botão "Editar em Massa"
+└── server/
+    └── src/
+        ├── routes/
+        │   └── edicoes-em-massa-pedido.ts           ← Rotas REST
+        ├── services/
+        │   └── edicaoEmMassaService.ts              ← Lógica + cascade
+        └── shared/
+            └── bulkSchemas.ts                        ← Zod compartilhado
+```
+
+---
+
+## Endpoints
+
+| Método | Caminho | Função |
+|--------|---------|--------|
+| `POST` | `/api/v1/pedidos/edicoes-em-massa/preview` | Calcula impacto sem alterar banco |
+| `POST` | `/api/v1/pedidos/edicoes-em-massa/confirmar` | Executa edição em `$transaction` |
+
+---
+
+## Tipos TypeScript (`client/src/shared/types.ts`)
+
+```ts
+// Tipos de campo suportados (frontend)
+export type TipoCampoEdicao =
+  | 'texto'
+  | 'numero'
+  | 'data'
+  | 'select'      // enum com opcoes pré-definidas
+  | 'usuario'
+  | 'ncm'         // NCM com máscara 0000.00.00
+
+export type OperacaoCampo =
+  | 'substituir'      // todos os tipos
+  | 'somar'           // numero
+  | 'subtrair'        // numero
+  | 'percentual'      // numero (ex: +10% → ×1.1)
+  | 'avancar_dias'    // data
+  | 'recuar_dias'     // data
+
+export interface CampoEdicaoMassa {
+  campo: string                 // nome EXATO da coluna DDD (ex: 'incoterm_pedido', 'ncm_item')
+  tipo: TipoCampoEdicao
+  nivel: 'pedido' | 'item'
+  operacao: OperacaoCampo
+  valor: string | number
+}
+
+export interface EdicaoMassaPayload {
+  pedido_ids: string[]
+  campos: CampoEdicaoMassa[]
+  nivel: 'pedido' | 'item' | 'combinado'    // aba selecionada
+}
+
+export interface EdicaoMassaPreview {
+  pedidos_afetados: number
+  itens_afetados: number
+  campos_pedido_alterados: number    // pedidos × campos pedido
+  campos_item_alterados: number      // itens × (campos item + cascade)
+  campos: {
+    campo: string
+    nivel: 'pedido' | 'item'
+    operacao: OperacaoCampo
+    valor: string | number
+    multiplos_valores: boolean
+    valores_distintos?: string[]
+    alertas: string[]
+    cascade_para?: string            // coluna item-alvo (Combinado)
+    overrides_sobrescritos?: number  // itens com valor pré-divergente
+  }[]
+  alertas_globais: string[]
+  por_pedido?: Array<{ ... }>
+}
+
+export interface EdicaoMassaResultado {
+  pedidos_atualizados: number
+  itens_atualizados: number
+  campos_pedido_alterados: number
+  campos_item_alterados: number
+  campos_alterados: string[]
+  erros: { pedido_id: string; motivo: string }[]
+}
+```
+
+---
+
+## Regra Inviolável — Frontend = Banco (DDD-puro, sem ACL)
+
+**O frontend envia o nome EXATO da coluna do Prisma.** Não há ACL legado→DDD no backend.
+
+| ✅ Correto (DDD) | ❌ Errado (legado abandonado) |
+|------------------|-------------------------------|
+| `campo: 'incoterm_pedido'` | `campo: 'incoterm'` |
+| `campo: 'tipo_operacao_pedido'` | `campo: 'tipo_operacao'` |
+| `campo: 'quantidade_inicial_item'` | `campo: 'quantidade_inicial_pedido'` |
+| `campo: 'ncm_item'` | `campo: 'ncm'` |
+| `id_organizacao` | `tenant_id` |
+| `id_workspace` | `company_id` |
+| `id_pedido` | `id` |
+
+A definição (`DefinicaoCampo`) em `ModalPedidosEdicaoMassa.tsx` tem `campo` com o nome DDD exato + `rotulo` com label canonical PT-BR (skill `ddd-nomenclatura` REGRA 9).
+
+---
+
+## Cascade Pedido → Item (aba "Combinado")
+
+Na aba **Combinado**, alterações em campos de Pedido que têm equivalente em Item **propagam automaticamente** para todos os itens dos pedidos selecionados.
+
+**Composição SSOT** — `PARES_CASCADE_PEDIDO_ITEM` em `edicaoEmMassaService.ts` compõe **~61 pares**:
+
+```
+MAPA_PROPAGACAO_PEDIDO_ITEM (57 pares — shared/mapaPropagacaoPedidoItem.ts)
+  + tipo_operacao_pedido → tipo_operacao_item           (exclusivo massa)
+  + nome_exportador → nome_exportador_item              (JSON→coluna, exclusivo massa)
+  + nome_importador → nome_importador_item              (idem)
+  + nome_fabricante → nome_fabricante_item               (idem)
+```
+
+Os 57 pares SSOT cobrem: identidade comercial (5), casas decimais (4), câmbio (1), referências (3), datas pronto/inspeção/coleta (9), datas rascunho pedido (7), datas proforma (13), datas invoice (13), outras datas (2).
+
+### Fora da whitelist (não cascadeiam)
+- Identificadores específicos do Pedido (`porto_origem`, `porto_destino`, `numero_pedido`, etc.)
+- Campos em JSON sem equivalente em Item (endereço, país, OPE, etc.)
+
+### Prioridade quando o usuário adiciona ambos
+Se o usuário adiciona `incoterm_pedido` + `incoterm_item` explicitamente na aba Combinado, o campo item **explícito vence sobre o cascade**.
+
+---
+
+## Campos em JSON `detalhes_operacionais_pedido`
+
+31 chaves não-coluna do Pedido vivem como propriedades JSON dentro da coluna `detalhes_operacionais_pedido` (Json?):
+
+- **Exportador (13):** `nome_exportador`, `endereco_exportador`, `pais_exportador`, `estado_exportador`, `cidade_exportador`, `zip_code_exportador`, `exportador_ou_fabricante`, `relacao_exportador_fabricante`, `nome_contato_exportador`, `email_contato_exportador`, `whatsapp_contato_exportador`, `cargo_contato_exportador`, `departamento_contato_exportador`
+- **Importador (1):** `nome_importador`
+- **Fabricante (6):** `nome_fabricante`, `endereco_fabricante`, `pais_fabricante`, `estado_fabricante`, `cidade_fabricante`, `zip_code_fabricante`
+- **OPE (12):** `codigo_ope`, `nome_ope`, `endereco_ope`, `pais_ope`, `estado_ope`, `cidade_ope`, `zip_code_ope`, `tin_ope`, `email_ope`, `situacao_ope`, `versao_ope`, `cnpj_raiz_empresa_responsavel`
+
+Lista mantida em `CAMPOS_DETALHES_OPERACIONAIS` no service. O preview e o confirmar fazem **merge JSON** (preservam outras chaves do JSON existentes).
+
+---
+
+## Campos bloqueados (calculados — nunca editáveis)
+
+```ts
+const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
+  // Agregados calculados pelo recalcularAgregadosPedido
+  'valor_total_pedido',
+  'quantidade_total_pedido',
+  'peso_liquido_total_pedido',
+  'peso_bruto_total_pedido',
+  'cubagem_total_pedido',
+  // Sistema / identidade
+  'id_pedido',
+  'id_organizacao',
+  'id_workspace',
+  'id_status_pedido',
+  'data_criacao_pedido',
+  'data_atualizacao_pedido',
+  'data_exclusao_pedido',
+  'data_consolidacao_pedido',
+  'ids_origem_consolidacao_pedido',
+])
+
+const CAMPOS_BLOQUEADOS_ITEM = new Set([
+  'valor_total_item',
+  'quantidade_atual_item',
+  'quantidade_transferida_item',   // saldoEngine
+  'id_item',
+  'id_organizacao',
+  'id_workspace',
+  'id_pedido',
+  'data_criacao_item',
+  'data_atualizacao_item',
+  'data_exclusao_item',
+])
+```
+
+**Defesa em profundidade:** validação server-side rejeita campos bloqueados mesmo se o frontend tentar contornar. Cross-org attack mitigado — não é possível mudar `id_organizacao` via edição em massa.
+
+---
+
+## Backend — Rotas
+
+### `POST /api/v1/pedidos/edicoes-em-massa/preview`
+
+**Zod schema** (`edicoes-em-massa-pedido.ts`):
+```ts
+const CampoSchema = z.object({
+  campo: z.string().min(1),
+  tipo: z.enum(['texto', 'numero', 'data', 'select', 'usuario', 'ncm']),
+  nivel: z.enum(['pedido', 'item']),
+  operacao: z.enum(['substituir', 'somar', 'subtrair', 'percentual', 'avancar_dias', 'recuar_dias']),
+  valor: z.union([z.string(), z.number()]),
+})
+
+const EdicaoMassaSchema = z.object({
+  pedido_ids: z.array(z.string().min(1)).min(1),
+  campos: z.array(CampoSchema).min(1),
+  nivel: z.enum(['pedido', 'item', 'combinado']),
+})
+```
+
+**Fluxo:**
+1. Valida Zod
+2. `withOrganizacao(req, async db => ...)` injeta `id_organizacao` no contexto
+3. Service rejeita campos bloqueados (`validarCamposEditaveis`)
+4. Busca pedidos com `id_organizacao` + `include: { itens_pedido }`
+5. Calcula `itens_afetados` condicional (só se há campos item OU cascade ativo)
+6. Calcula contadores granulares: `campos_pedido_alterados`, `campos_item_alterados`
+7. Para cada campo: detecta múltiplos valores, calcula `cascade_para` e `overrides_sobrescritos`
+8. Retorna `EdicaoMassaPreview` sem alterar o banco
+
+### `POST /api/v1/pedidos/edicoes-em-massa/confirmar`
+
+**Caminho rápido** (`updateMany`):
+- Condições: todos campos são `substituir`, todos nivel='pedido', nenhum em `detalhes_operacionais_pedido`, sem cascade pendente
+- Uma única SQL atualiza todos os pedidos independente do volume
+
+**Caminho lento** (`$transaction`, timeout 60s):
+- Loop por pedido:
+  - Aplica campos pedido (incluindo merge JSON em `detalhes_operacionais_pedido`)
+  - Aplica campos item explícitos (`tx.pedidoItem.update`) + cascade Pedido→Item se Combinado
+  - Recalcula agregados (`recalcularAgregadosPedido`) se campos de quantidade foram alterados
+- Audit trail via `historico-global` (fire-and-forget)
+
+---
+
+## Frontend — Modal (`ModalPedidosEdicaoMassa.tsx`)
+
+### Fluxo UX (2 passos)
+
+```
+Passo 1 — Selecionar campos e valores
+  ├── Toggle: Pedido / Item / Combinado
+  ├── Combobox de campo (com busca por rotulo + grupo)
+  ├── Select de operação (filtrada por TipoCampoEdicao)
+  ├── Input de valor — RENDER POR TIPO:
+  │   ├── select  → <select> com opcoes[] da definição
+  │   ├── data    → <input type="date">
+  │   ├── numero  → <input type="number">
+  │   ├── ncm     → <input> com máscara 0000.00.00 + maxLength 10
+  │   └── texto   → <input type="text">
+  ├── + Adicionar campo
+  └── Preview em tempo real (debounce 300ms → /preview)
+
+Passo 2 — Confirmar
+  ├── Resumo: X pedidos · Y itens · A campos pedido · B campos item
+  ├── Lista campo→valor com alertas (multiplos_valores, overrides_sobrescritos)
+  ├── Detalhe de/para por pedido
+  └── Botão "Aplicar em Massa"
+```
+
+### Labels (sem i18n para PT-BR)
+
+Por skill `ddd-nomenclatura/SKILL.md` REGRA 9, o label canonical em PT-BR vive no campo `rotulo` da `DefinicaoCampo`. O frontend usa `defAtual.rotulo` direto.
+
+i18n só para EN/ES (futura). NÃO usar `t('pedido.massa_campos.*')` (antipadrão removido em 2026-05-12).
+
+### Selects com `opcoes`
+
+Definição extra em `DefinicaoCampo`:
+```ts
+opcoes?: { valor: string; rotulo: string }[]
+```
+
+Atualmente populado em 3 campos enum:
+- `tipo_operacao_pedido` → Importação / Exportação
+- `incoterm_pedido` → 11 incoterms (EXW...DDP)
+- `cobertura_cambial_item` → Com Cobertura / Sem Cobertura
+
+Outros campos com listas dinâmicas (moeda, unidade, NCM autocomplete) ficam para Fase 2.
+
+---
+
+## Auto-fill ao trocar `tipo_operacao_pedido` (v2.2 — 2026-05-12)
+
+Quando o usuário altera `tipo_operacao_pedido` em massa (substituir), o sistema **automaticamente preenche o lado nacional do pedido** com nome e CNPJ do **Workspace do pedido** (não da empresa-da-org do Cadastros).
+
+### Decisão arquitetural
+
+> **Workspace é a empresa real importadora/exportadora.** Cada workspace tem `nome_workspace` + `cnpj_workspace` próprios (`configurador/prisma/schema.prisma` model `Workspace`). Esse modelo difere do `ModalPedidoNovo`, que ainda usa `obterEmpresaDaOrganizacao` — dívida arquitetural sinalizada.
+
+### Mapping conceitual
+
+| Tipo novo | Lado nacional (auto-fill) | Lado oposto (limpa) |
+|-----------|---------------------------|---------------------|
+| `importacao` | `nome_importador`, `cnpj_importador` (JSON pedido), `nome_importador_item` (coluna item, cascade) | `nome_exportador`, `cnpj_exportador`, `nome_exportador_item` viram NULL |
+| `exportacao` | `nome_exportador`, `cnpj_exportador` (JSON), `nome_exportador_item` (item) | `nome_importador`, `cnpj_importador`, `nome_importador_item` viram NULL |
+
+### Fluxo S2S — busca de workspace data
+
+1. Service detecta `tipo_operacao_pedido` no payload com `substituir`
+2. Coleta `idsWorkspaceUnicos = [...new Set(pedidos.map(p => p.id_workspace))]`
+3. **1 chamada batch** `obterWorkspaces(ids)` ao Configurador (`GET /api/v1/internal/workspaces?ids=...`)
+4. Cache via `Map<id_workspace, Workspace>` para o loop
+5. Cada pedido aplica auto-fill com **seu próprio** workspace (T3)
+6. Configurador offline → propaga `AppError(503, 'CONFIGURADOR_UNAVAILABLE')` (Mand. 08)
+7. Workspace órfão (não retornado pelo batch) → erro entra em `resultado.erros[]` (não propaga)
+
+### Prioridade: edição manual vence sobre auto-fill (T1)
+
+Se o usuário edita `nome_exportador` manualmente no MESMO batch que troca para `exportacao`:
+- `nome_exportador` → valor manual (vence)
+- `cnpj_exportador` → workspace.cnpj (auto-fill, pois usuário não editou)
+- Banner amarelo "Edição manual sobrescreve auto-fill" aparece no Passo 2
+
+### Fast path desabilitado quando troca tipo (LT1)
+
+Auto-fill exige merge JSON + cascade item, incompatível com `updateMany`. A flag `todosCamposPedidoSaoRapidos` retorna `false` quando há `tipo_operacao_pedido` no batch — sempre cai no slow path.
+
+### Audit trail inclui auto-fill (Co2)
+
+`auditLog.estado_posterior_historico_log.campos_auto_fill` lista os campos auto-preenchidos por pedido. Compliance vê TODAS as alterações, não só as do payload.
+
+### Avisos no preview (UI)
+
+`EdicaoMassaPreview` expõe 3 campos extras quando troca tipo:
+- `workspaces_auto_fill` — lista de `{id_workspace, nome_workspace, cnpj_workspace}` (banner azul informativo)
+- `aviso_workspace_sem_cnpj` — pedidos com workspace sem CNPJ (banner amarelo, não bloqueia)
+- `aviso_status_critico` — pedidos com status ≠ rascunho/aberto (banner laranja)
+
+### Endpoint S2S novo
+
+**`GET /api/v1/internal/workspaces?ids=ws1,ws2,...`** (Configurador, batch lookup)
+
+- Auth: `x-chave-interna-servico` (padrão do sistema)
+- Resposta: `{ workspaces: [{ id_workspace, id_organizacao, nome_workspace, cnpj_workspace }] }`
+- IDs ausentes simplesmente não aparecem (Mand. 08: chamador decide tratamento)
+
+### ⚠️ Dívida arquitetural sinalizada
+
+| # | Dívida | Próxima entrega |
+|---|--------|-----------------|
+| 1 | `ModalPedidoNovo` continua usando `obterEmpresaDaOrganizacao` (1:1 com Organização) — inconsistente com Edição em Massa | Refactor da criação de pedido |
+| 2 | `Organizacao.suid_empresa_organizacao` é desnecessário pelo novo modelo (Workspace = empresa nacional) | Remover via script controlado |
+| 3 | Snapshots `PedidoSnapshotEmpresa` capturam empresa-da-org — incompatível com novo modelo | Refactor do snapshot system |
+| 4 | Visualização cross-workspace na Lista — usuário com permissão não consegue ver pedidos de múltiplos workspaces | Entrega arquitetural transversal (todos os produtos) |
+
+---
+
+## Convenção — Campos `@@unique` (auditoria 2026-05-12)
+
+Edição em massa de um campo com `@@unique` no schema usando operação `substituir` com **mais de 1 pedido** causa colisão garantida no Postgres (erro P2002). Por design é impossível atribuir o mesmo valor único a múltiplos registros.
+
+### Defesa em 3 camadas
+
+1. **Frontend (`ModalPedidosEdicaoMassa.tsx`)**
+   - Set `CAMPOS_UNIQUE` lista os campos protegidos
+   - Quando `>1 pedido + operação substituir + campo ∈ CAMPOS_UNIQUE`:
+     - Input `disabled`
+     - Tooltip explicativo na linha do campo
+     - Badge `"Único por organização — selecione 1 pedido"`
+     - Botão "Revisar alterações" desabilitado
+
+2. **Backend Zod custom (`edicoes-em-massa-pedido.ts`)**
+   - `EdicaoMassaSchema.superRefine(...)` rejeita com 400 + mensagem amigável quando `pedido_ids.length > 1` e há campo unique em `substituir`
+   - Set espelhado `CAMPOS_UNIQUE_PEDIDO` (manter sincronizado com frontend)
+
+3. **Backend try/catch P2002 (`edicaoEmMassaService.ts`)**
+   - Fast path (`updateMany`) envolvido em try/catch
+   - Captura erro Prisma com `code === 'P2002'`
+   - Converte em `AppError(422, 'UNIQUE_VIOLATION')` com mensagem clara
+
+### Auditoria atual
+
+Único campo editável em massa com `@@unique`: **`numero_pedido`**.
+
+Outros 10 `@@unique` no schema do Pedido estão em models de sistema/config não expostos em edição em massa (StatusPedido, PreferenciaUsuarioColunaPedido, KanbanPreferenciasGlobal, etc.).
+
+### Convenção para o futuro
+
+Ao expor novo campo `@@unique` em `CAMPOS_PEDIDO_EDITAVEIS` ou `CAMPOS_ITEM_EDITAVEIS`:
+1. Adicionar a `CAMPOS_UNIQUE` no frontend
+2. Adicionar a `CAMPOS_UNIQUE_PEDIDO` no Zod custom do backend
+3. Sem isso, o usuário recebe erro confuso (P2002 ou 500)
+
+---
+
+## ⚠️ Anti-padrão proibido — Mock fallback silencioso
+
+**NUNCA** mascarar erro da API com mock em DEV. Viola Mandamento 08.
+
+### Caso real (corrigido em 2026-05-12)
+
+```ts
+// ❌ Versão antiga (api.ts) — gerou bug "5 itens afetados" mockado quando a API retornou 400
+preview: (payload) =>
+  request<EdicaoMassaPreview>('/api/v1/pedidos/edicoes-em-massa/preview', { ... })
+    .catch(err => {
+      if (import.meta.env.DEV) {
+        return mockEdicaoMassaPreview(payload)  // BUG — mascara erro real
+      }
+    }),
+
+// ✅ Versão atual — falha ruidosa
+preview: (payload) =>
+  request<EdicaoMassaPreview>('/api/v1/pedidos/edicoes-em-massa/preview', { ... }),
+```
+
+**Diagnóstico do bug original:** Zod schema desatualizado (sem `'ncm'`) → backend retornava 400 → frontend caía no mock que retornava 5 itens hardcoded de `MOCK_PEDIDOS_RESPONSE`. Usuário via dados falsos sem ser avisado.
+
+---
+
+## Segurança — Checklist 5 Camadas
+
+- [x] **Rede:** rotas registradas após `withOrganizacao` middleware
+- [x] **Autenticação:** Clerk JWT validado
+- [x] **Autorização:** `id_organizacao` lido do contexto (não de payload)
+- [x] **Isolamento:** `id_organizacao` obrigatório em TODAS as queries Prisma
+- [x] **Auditoria:** histórico com campos, valores anteriores/novos, usuário e timestamp
+- [x] **Campos bloqueados:** validação server-side rejeita calculados/sistema **incluindo `id_organizacao`, `id_workspace`** (fecha vetor cross-org)
+- [x] **Falha ruidosa:** sem mock fallback (Mand. 08)
+
+---
+
+## Testes
+
+```
+server/src/services/edicaoEmMassaService.test.ts  (18 unitários)
+  Fast path:
+    ├── atualiza pedido com nome DDD via updateMany
+  Slow path:
+    ├── atualiza item com nome DDD direto (sem ACL)
+    └── aplica operação somar usando valor atual da coluna DDD
+  detalhes_operacionais_pedido:
+    ├── grava chave JSON (nome_exportador)
+    └── grava chave OPE (codigo_ope)
+  Campos bloqueados:
+    ├── rejeita valor_total_pedido
+    ├── rejeita id_organizacao (cross-org)
+    └── rejeita quantidade_transferida_item (saldoEngine)
+  Preview:
+    ├── lê valor direto da coluna do pedido
+    ├── lê valor de detalhes_operacionais_pedido para chaves JSON
+    └── lê valor de coluna DDD do item
+  Cascade Combinado:
+    ├── NÃO faz cascade na aba Pedido (mesmo com campo cascadeável)
+    ├── faz cascade na aba Combinado para campo na whitelist
+    ├── NÃO faz cascade para campo fora da whitelist
+    ├── campo item explícito sobrescreve cascade do mesmo destino
+    ├── preview Combinado retorna campos_pedido_alterados e campos_item_alterados
+    ├── preview aba Pedido: itens_afetados=0
+    └── cascade JSON pedido → coluna item (nome_exportador → nome_exportador_item)
+
+server/src/services/edicaoEmMassaService.integration.test.ts  (11 integração — banco real)
+  ├── preview lê quantidade_inicial_item direto da coluna DDD
+  ├── persiste quantidade_inicial_item via nome DDD
+  ├── persiste quantidade_pronta_item via nome DDD
+  ├── persiste quantidade_cancelada_item via nome DDD
+  ├── operação somar usa valor atual do banco
+  ├── retorna contadores reais
+  ├── recalcularAgregados atualiza quantidade_total_pedido
+  ├── UPDATE de item respeita id_organizacao (org isolation)
+  ├── rejeita campo bloqueado (quantidade_atual_item)
+  └── rejeita id_organizacao no payload (cross-org)
+```
+
+---
+
+## Skills de referência
+
+- `skills/governanca/lei/9-mandamentos/SKILL.md` (Mand. 02 schema intocável; Mand. 03 DDD; Mand. 07 sincronia front+back; Mand. 08 sem fallback silencioso; Mand. 09 Zod bilateral)
+- `skills/governanca/lei/ddd-nomenclatura/SKILL.md` (REGRA 1 sufixo; REGRA 9 label canonical)
+- `skills/governanca/lei/isolamento-organizacao/SKILL.md` (`withOrganizacao`)
+- `skills/governanca/lei/sdk-resolvedor-organizacao/SKILL.md` (contexto da organização)
+- `skills/seguranca/seguranca-5-camadas/SKILL.md` (defesa em profundidade)
+- `skills/seguranca/cross-boundary/SKILL.md` (rejeitar `id_organizacao` em payload)
+
+---
+
+## Histórico de versões
+
+- **v2.2 (2026-05-12)** — Auto-fill ao trocar `tipo_operacao_pedido` em massa
+  - Endpoint novo `GET /api/v1/internal/workspaces?ids=...` (Configurador) — batch lookup S2S
+  - Cliente `obterWorkspaces()` em `@gravity/resolver-organizacao`
+  - Service `confirmar()` aplica auto-fill JSON pedido + cascade nome_*_item nos itens
+  - Service `preview()` retorna 3 avisos: workspaces_auto_fill, aviso_workspace_sem_cnpj, aviso_status_critico
+  - Fast path desabilitado quando há `tipo_operacao_pedido` no batch (LT1)
+  - Edição manual vence sobre auto-fill (T1)
+  - Audit trail inclui `campos_auto_fill` (Co2)
+  - +11 testes unitários (31/31 passing) + 2 integração condicional
+  - Frontend: 3-4 banners no Passo 2 (azul informativo, amarelo CNPJ ausente, laranja status crítico, amarelo override manual)
+  - Decisão: Workspace = lado nacional (não empresa-da-org)
+  - Dívidas arquiteturais sinalizadas: ModalPedidoNovo, Snapshots, visualização cross-workspace
+
+- **v2.1 (2026-05-12)** — Proteção contra `@@unique` + alerta tipos mistos reforçado
+  - Auditoria de 10 `@@unique` no schema; `numero_pedido` é o único exposto
+  - Frontend: Set `CAMPOS_UNIQUE` + input disabled + tooltip + botão Revisar disabled
+  - Backend: Zod `superRefine` rejeita campo unique + substituir + >1 pedido (400)
+  - Backend: try/catch P2002 no fast path → `AppError 422 UNIQUE_VIOLATION`
+  - Passo 2 do modal: banner laranja reforçado quando tipos de operação mistos
+  - +1 teste unitário (19/19 passing)
+
+- **v4.0 (2026-05-14)** — Cascade SSOT + Incoterm dinâmico
+  - `PARES_CASCADE_PEDIDO_ITEM` agora compõe SSOT (57 pares de `shared/mapaPropagacaoPedidoItem.ts`) + 4 exclusivos massa (~61 total)
+  - Remove duplicação local de 25 pares — SSOT garante sincronia com create/patch
+  - Incoterm: opcoes dinâmicas via `useIncotermsPedido()` (leitura ao vivo do Cadastros)
+  - Remove 11 opcoes hardcoded de incoterm — respeita `cadastros-snapshot-policy`
+  - Select desabilitado + banner quando incoterms indisponíveis (Mand. 08 — sem fallback silencioso)
+
+- **v2.0 (2026-05-12)** — DDD-puro + cascade Combinado + fix mock silencioso
+  - Adiciona 21 colunas (6 Pedido + 14 PedidoItem + tipo_operacao_item)
+  - Apaga ACL `legacyKeyToDddPedidoItem`
+  - Adiciona `PARES_CASCADE_PEDIDO_ITEM` (25 pares)
+  - `tenant_id` → `id_organizacao`, `incoterm` → `incoterm_pedido`, etc.
+  - Selects para enums + máscara NCM
+  - Remove mock fallback em DEV (Mand. 08)
+  - Adiciona `campos_pedido_alterados` e `campos_item_alterados` no preview/resultado
+
+- **v1.0 (Abril 2026)** — implementação inicial (substituída pela v2.0)
+
+--- documentos-tecnicos/produtos-gravity/pedido/FILTRO-MULTI-WORKSPACE-REGRAS-NEGOCIO.md ---
+# Filtro Multi-Workspace — Regras de Negócio
+
+> **Produto:** Pedido (COMEX)
 > **Versão:** 1.0
-> **Data:** Abril 2026
-> **Status:** Aguardando implementação
+> **Data:** Maio 2026
+> **Status:** ✅ Em produção (commit `4bafb1b6`)
+
+---
+
+## Por que existe
+
+Usuários MASTER, SUPER_ADMIN e ADMIN de uma organização frequentemente operam **múltiplas filiais (workspaces)** simultaneamente — ex: importadora que opera CDE, ABC e FGH como CNPJs separados mas compartilha COMEX/contabilidade. Antes desta entrega, a Lista de Pedidos só mostrava o workspace **ativo** (selecionado no Hub), forçando troca de workspace para ver pedidos de outra filial.
+
+A entrega traz:
+1. Coluna **Workspace** sempre visível na Lista (identifica o dono de cada pedido).
+2. **Filtro multi-seleção** no header da coluna (popover com checkbox por workspace).
+3. **Defesa de autorização** em 3 camadas (UI + backend + Portão 3).
+
+---
+
+## Visibilidade — quem vê o quê
+
+### Lista de workspaces no popover de filtro
+
+A lista é alimentada pelo endpoint `/api/v1/hub/init` do Configurador, que **filtra workspaces INATIVOS** e cruza com permissões do tipo de usuário.
+
+| Tipo do usuário | Workspaces que aparecem no popover |
+|---|---|
+| `SUPER_ADMIN` | Todos os workspaces **ATIVO** da organização |
+| `ADMIN` | Todos os workspaces **ATIVO** da organização |
+| `MASTER` | Todos os workspaces **ATIVO** da organização |
+| `PADRAO` | Apenas workspaces **ATIVO** onde existe `UsuarioWorkspace.ativo = true` |
+| `FORNECEDOR` | Apenas workspaces **ATIVO** onde existe `UsuarioWorkspace.ativo = true` (pode ser cross-organização — fornecedor de plataforma vinculado a clientes) |
+
+**Regra crítica para PADRAO/FORNECEDOR:** AND entre `UsuarioWorkspace.ativo_usuario_workspace = true` **E** `Workspace.status_workspace = 'ATIVO'`. Se o workspace for inativado pelo Master, o usuário PADRAO/FORNECEDOR deixa de vê-lo no popover automaticamente.
+
+### Workspaces vazios
+
+Workspaces sem pedidos aparecem normalmente no popover (o filtro não esconde "vazios"). Se o usuário marcar apenas workspaces vazios, a Lista exibe Empty State.
+
+---
+
+## Comportamento da Lista
+
+### Coluna "Workspace"
+
+- **Posição:** após "Tipo de Operação" (3ª coluna, parte do grupo "Identificação").
+- **Sempre visível** — mesmo para usuários com preferências de coluna antigas (migração automática persiste a posição correta no backend).
+- **Conteúdo:** nome do workspace dono do pedido (`Workspace.nome_workspace`).
+- **Ordenação:** desabilitada nesta versão (ver dívida D8 no doc técnico).
+
+### Estado inicial ao abrir a Lista
+
+1. Workspace ATIVO (Hub) é automaticamente marcado no filtro.
+2. Chip "Workspace: \<nome\>" aparece na toolbar.
+3. Lista mostra pedidos do workspace ATIVO (via header `x-id-workspace`).
+
+### Ações do usuário
+
+| Ação | Resultado |
+|---|---|
+| **Marcar workspace adicional** | Backend retorna pedidos dos workspaces marcados (soma). |
+| **Desmarcar workspace** | Backend re-retorna apenas os workspaces restantes. |
+| **"Selecionar tudo"** no popover | Marca todos os workspaces visíveis (respeitando busca atual se houver). |
+| **"Limpar seleção"** (mesmo botão quando tudo está marcado) | Desmarca todos. **Lista fica vazia** (sem fetch). |
+| **`× Limpar filtro`** no popover footer | Mesmo efeito de desmarcar tudo. Lista vazia. |
+| **`×` no chip da toolbar** | Mesmo efeito. Lista vazia. |
+| **"Limpar tudo"** na toolbar | Limpa todos os filtros (busca + colunas). Workspace também volta a vazio. |
+| **Clicar no corpo do chip** | Reabre o popover ancorado no chip — usuário vê os marcados, pode desmarcar individualmente. |
+| **Re-marcar qualquer workspace** após esvaziar | Refetch normal. |
+
+### Empty selection (regra explícita)
+
+**Desmarcar tudo deixa a Lista vazia.** Não há fallback automático para o workspace ATIVO — é uma escolha consciente do usuário ("não quero ver nada agora"). Diferente da inicialização (1º mount), onde o workspace ATIVO é pré-marcado para evitar abertura confusa.
+
+### Chip de filtro ativo
+
+Aparece SEMPRE que há ao menos 1 workspace marcado. Texto híbrido:
+
+| Quantidade | Exibição do chip |
+|---|---|
+| 1 | `Workspace: CDE EXPORTADOR` |
+| 2 | `Workspace: CDE EXPORTADOR, ABC` |
+| 3+ | `Workspace: 6 selecionados` |
+
+**Tooltip do chip (hover):** lista numerada de TODOS os selecionados (`1. CDE EXPORTADOR / 2. ABC / 3. HIJ IMPORTADOR / ...`). Padrão `TooltipGlobal` do design system.
+
+---
+
+## Autorização — defesa em 3 camadas
+
+### Camada 1 — UI (visibilidade)
+
+Popover só mostra workspaces que o usuário pode acessar (regra de visibilidade acima). Evita que o usuário tente filtrar por algo impossível.
+
+### Camada 2 — Backend (validarMultiWorkspace)
+
+Para cada request com `?ids_workspaces=<csv>`, o backend do Pedido valida via S2S contra o Configurador:
+
+- Se algum id solicitado NÃO está na lista de workspaces habilitados do usuário → **403 com lista de bloqueados explícita** (Mand. 08 — falha ruidosa, sem fallback silencioso).
+- Cross-organização (não-FORNECEDOR) → automaticamente bloqueado (workspace fora da org não aparece na lista de habilitados).
+
+Mesmo se o frontend for adulterado (DevTools, request custom), a Camada 2 garante a integridade.
+
+### Camada 3 — Portão 3 (header)
+
+O middleware `verificarAcessoProduto` continua validando o workspace ATIVO no header `x-id-workspace`. Garante que o usuário tem o produto Pedido habilitado para o workspace base. **Não foi alterado** nesta entrega.
+
+---
+
+## Workspaces inativos
+
+### Comportamento esperado
+
+- **INATIVO no `/hub/init`:** NÃO aparece no popover de nenhum tipo de usuário (filtro `status_workspace='ATIVO'` aplicado em ambos os branches do endpoint).
+- **INATIVO no backend de validação:** se o usuário tentar forjar request com workspace inativado, a S2S retorna 403 (workspace não está em `workspaces_habilitados`).
+- **Pedidos antigos de workspace agora INATIVO:** continuam no banco. Só não são exibidos via filtro normal. Para auditoria, usar o script `auditar-workspaces-pedidos.mjs`.
+
+### Workspace ATIVO foi inativado durante a sessão
+
+- O usuário verá menos opções no popover no próximo `/hub/init`.
+- Se o header `x-id-workspace` ainda apontar para o workspace inativado, o backend pode retornar 403 — o usuário precisará trocar de workspace no Hub.
+- Comportamento aceitável (caso raro, normalmente o Master notifica antes).
+
+---
+
+## Criação/edição de pedidos sob filtro multi
+
+### Criar novo pedido
+
+O botão "Novo Pedido" continua criando no workspace ATIVO (via header). **Não é afetado pelo filtro multi-workspace.** Após criar, o pedido aparece na Lista se o workspace ATIVO estiver entre os marcados.
+
+### Editar pedido inline
+
+Edição inline (célula, dropdown) e edição via drawer também usam o workspace ATIVO. Pedidos de OUTROS workspaces ainda são editáveis (a Lista mostra todos os marcados), mas a request de update vai com o `x-id-workspace` = ativo. O backend valida a posse pelo `id_workspace` do registro (já filtrado por organização).
+
+### Edição em massa, transferência, consolidação
+
+Ações em lote continuam considerando os pedidos selecionados, **independente do filtro de workspace na Lista**. O backend valida cada pedido individualmente via `id_organizacao`. Workspace é parte da identidade do pedido, não restringe ações em si.
+
+---
+
+## Tabelas de exemplo (baseado em dados reais)
+
+### Cenário: org `cmoarq22a000l1358c1p2qfqt`
+
+Auditoria mostra 14 workspaces (11 ATIVO + 3 INATIVO). Apenas 1 (`CDE EXPORTADOR`) tem pedidos no banco.
+
+| Filtro selecionado | Resultado |
+|---|---|
+| Só CDE EXPORTADOR (default ao abrir) | 108 pedidos / 579 itens |
+| Só ABC (sem dados) | 0 pedidos (lista vazia) |
+| CDE + ABC | 108 pedidos (CDE contribui) |
+| Todos os ATIVO (11) | 108 pedidos |
+| Tudo desmarcado | 0 pedidos |
+| Tentar marcar workspace INATIVO | Não aparece no popover |
+
+---
+
+## Limitações conhecidas (esta versão)
+
+1. **Sem ordenação por nome de workspace** — coluna `sortavel:false`. Ordenação requer JOIN com tabela `Workspace` ou cache cliente (dívida D8).
+2. **Sem agrupamento visual** — pedidos de workspaces diferentes aparecem misturados, identificados pela coluna "Workspace". Não há separadores visuais entre grupos.
+3. **Total de pedidos no header da Lista** soma todos os workspaces marcados. Não há quebra por workspace.
+
+---
+
+## Referências
+
+- Documento técnico: `FILTRO-MULTI-WORKSPACE-TECNICO.md` (este diretório)
+- Skill do produto: `skills/produtos-gravity/pedido/SKILL.md` — seção "Filtro Multi-Workspace"
+- Skill de S2S: `skills/seguranca/autenticacao-s2s/SKILL.md` — endpoint workspaces-habilitados
+- Skill de permissões: `skills/seguranca/permissoes/SKILL.md` — regra de visibilidade workspace
+- Auditoria DB: `scripts/auditar-workspaces-pedidos.mjs`
+
+--- documentos-tecnicos/produtos-gravity/pedido/FILTRO-MULTI-WORKSPACE-TECNICO.md ---
+# Filtro Multi-Workspace — Documento Técnico
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Maio 2026
+> **Status:** ✅ Em produção (commit `4bafb1b6`)
+> **Tracking:** Filtro multi-workspace na Lista, coluna "Workspace" sempre visível, popover com seleção interativa, defesa em 3 camadas
+
+---
+
+## Sumário
+
+1. [Visão geral](#visão-geral)
+2. [Stack](#stack)
+3. [Arquivos modificados](#arquivos-modificados)
+4. [Backend — endpoint S2S de habilitação](#backend--endpoint-s2s-de-habilitação)
+5. [Backend — validação no produto Pedido](#backend--validação-no-produto-pedido)
+6. [Frontend — coluna, popover e chip](#frontend--coluna-popover-e-chip)
+7. [Estado e sincronização](#estado-e-sincronização)
+8. [Autorização — 3 camadas](#autorização--3-camadas)
+9. [Casos de borda](#casos-de-borda)
+10. [Testes](#testes)
+11. [Dívidas conhecidas](#dívidas-conhecidas)
+
+---
+
+## Visão geral
+
+A Lista de Pedidos suporta filtro multi-workspace: o usuário pode selecionar 1 ou N workspaces da sua organização e ver pedidos+itens de todos juntos. A coluna "Workspace" mostra o dono de cada pedido. O filtro vive no popover do header da coluna (UX consistente com outros filtros enum).
+
+**Caminho B (adotado):** o header `x-id-workspace` permanece single para não romper o Portão 3. O filtro multi-workspace é exposto via query param `?ids_workspaces=<csv>` que sobrepõe o header quando vem com ≥1 valor.
 
 ---
 
@@ -1380,368 +2236,393 @@ Quando os pedidos selecionados têm **valores diferentes** no mesmo campo:
 | Camada | Tecnologia |
 |---|---|
 | Frontend | React + TypeScript strict, Vite |
-| Backend | Express + TypeScript, Prisma ORM |
-| Banco | PostgreSQL (tenant isolado via Prisma Extensions + RLS) |
+| Backend produto | Express + TypeScript, Prisma (banco do Pedido) |
+| Backend autorização | Configurador (Express + Prisma) |
+| Comunicação inter-serviços | S2S com `x-chave-interna-servico` |
 | Validação | Zod em todas as rotas |
-| Auth | Clerk JWT + `x-internal-key` S2S |
 | Erros | `AppError` — nunca `res.status().json()` direto |
 
 ---
 
-## Estrutura de Arquivos
+## Arquivos modificados
 
-```
-produto/pedido/
-├── client/
-│   └── src/
-│       ├── components/
-│       │   ├── ModalEdicaoEmMassa.tsx       ← Modal principal
-│       │   └── ModalEdicaoEmMassa.css
-│       ├── shared/
-│       │   ├── types.ts                     ← Tipos de edição em massa
-│       │   └── api.ts                       ← pedidoEdicaoMassaApi
-│       └── pages/
-│           └── ListaPedidos.tsx             ← Botão "Editar em Massa" integrado
-└── server/
-    └── src/
-        ├── routes/
-        │   └── edicaoEmMassa.ts             ← Rotas
-        └── services/
-            └── edicaoEmMassaService.ts      ← Lógica de negócio
-```
+### Backend
 
----
+| Arquivo | Tipo | Mudança |
+|---|---|---|
+| `servicos-global/configurador/server/routes/workspaces-habilitados-internal.ts` | NOVO | Endpoint S2S |
+| `servicos-global/configurador/server/__tests__/workspaces-habilitados-internal.test.ts` | NOVO | 6 testes funcionais |
+| `servicos-global/configurador/server/index.ts` | mod | Registra router |
+| `servicos-global/configurador/server/routes/hub-init.ts` | mod | Filtro `status_workspace='ATIVO'` em ambos branches |
+| `servicos-global/processos-core/src/routes/pedidos.ts` | mod | `parseCsvQueryParam` + `validarMultiWorkspace` |
+| `packages/resolver-organizacao/src/configurador-client.ts` | mod | Método `obterWorkspacesHabilitadosDoUsuario` |
+| `packages/resolver-organizacao/src/obter-workspaces-habilitados.ts` | NOVO | Helper público |
+| `packages/resolver-organizacao/src/index.ts` | mod | Export do helper |
 
-## Tipos TypeScript (`client/src/shared/types.ts`)
+### Frontend (Pedido)
 
-```ts
-// Tipos de campo suportados
-export type TipoCampoEdicao = 'texto' | 'numero' | 'data' | 'select' | 'usuario'
+| Arquivo | Tipo | Mudança |
+|---|---|---|
+| `servicos-global/pedido/client/src/pages/Pedidos.tsx` | mod | Estado, useEffects de sincronia, popover clicável a partir do chip, lista numerada no tooltip |
+| `servicos-global/pedido/client/src/shared/api.ts` | mod | `workspacesDisponiveisApi.listar()` + param `idsWorkspacesFiltro` |
+| `servicos-global/pedido/client/src/components/lista/ColunasPai.tsx` | mod | Coluna "Workspace" com `key='id_workspace'` |
 
-// Operação aplicada ao campo
-export type OperacaoCampo =
-  | 'substituir'       // todos os tipos
-  | 'somar'            // numero
-  | 'subtrair'         // numero
-  | 'percentual'       // numero (ex: +10% → ×1.1)
-  | 'avancar_dias'     // data
-  | 'recuar_dias'      // data
+### Tooling
 
-// Um campo a ser editado
-export interface CampoEdicaoMassa {
-  campo: string                 // key do campo (ex: 'incoterm', 'data_embarque')
-  tipo: TipoCampoEdicao
-  nivel: 'pedido' | 'item'
-  operacao: OperacaoCampo
-  valor: string | number        // novo valor ou delta (para somar/percentual/dias)
-}
-
-// Payload enviado ao backend
-export interface EdicaoMassaPayload {
-  pedido_ids: string[]
-  campos: CampoEdicaoMassa[]
-  nivel: 'pedido' | 'item' | 'combinado'
-}
-
-// Resposta do preview
-export interface EdicaoMassaPreview {
-  pedidos_afetados: number
-  itens_afetados: number
-  campos: {
-    campo: string
-    nivel: 'pedido' | 'item'
-    operacao: OperacaoCampo
-    valor: string | number
-    multiplos_valores: boolean    // true se pedidos selecionados têm valores diferentes
-    valores_distintos?: string[]  // lista de valores atuais distintos (para exibir no UI)
-    alertas: string[]
-  }[]
-  alertas_globais: string[]
-}
-
-// Resposta do confirmar
-export interface EdicaoMassaResultado {
-  pedidos_atualizados: number
-  itens_atualizados: number
-  campos_alterados: string[]
-  erros: { pedido_id: string; motivo: string }[]
-}
-
-// Campos bloqueados (calculados — nunca editáveis em massa)
-export const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
-  'valor_total_pedido',
-  'quantidade_inicial_total',
-  'quantidade_transferida_total',
-  'status',
-  'id',
-  'tenant_id',
-  'product_id',
-  'created_at',
-  'updated_at',
-  'deleted_at',
-])
-
-export const CAMPOS_BLOQUEADOS_ITEM = new Set([
-  'valor_item',
-  'quantidade_atual',
-  'id',
-  'tenant_id',
-  'pedido_id',
-  'created_at',
-  'updated_at',
-])
-```
+| Arquivo | Tipo | Mudança |
+|---|---|---|
+| `scripts/auditar-workspaces-pedidos.mjs` | NOVO | Auditoria DB cross-banco |
 
 ---
 
-## API Client (`client/src/shared/api.ts`)
+## Backend — endpoint S2S de habilitação
 
-```ts
-export const pedidoEdicaoMassaApi = {
-  // Preview — mostra impacto antes de confirmar
-  preview: (payload: EdicaoMassaPayload) =>
-    request<EdicaoMassaPreview>('/api/v1/pedidos/edicao-em-massa/preview', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+### Especificação
 
-  // Confirmar — executa a edição
-  confirmar: (payload: EdicaoMassaPayload) =>
-    request<EdicaoMassaResultado>('/api/v1/pedidos/edicao-em-massa/confirmar', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+```
+GET /api/v1/internal/usuarios/:id_usuario/workspaces-habilitados?id_organizacao=X
+Headers:
+  x-chave-interna-servico: <CHAVE_INTERNA_SERVICO>
+
+Response 200:
+{
+  "tipo_usuario": "SUPER_ADMIN" | "ADMIN" | "MASTER" | "PADRAO" | "FORNECEDOR",
+  "workspaces_habilitados": ["cmo...", "cmo...", ...]
 }
+
+Erros:
+  400 VALIDATION_ERROR         — id_organizacao ausente
+  401 NO_INTERNAL_KEY          — sem header x-chave-interna-servico
+  403 ORGANIZACAO_MISMATCH     — usuário não pertence à org (exceto FORNECEDOR cross-tenant)
+  404 USUARIO_NAO_ENCONTRADO   — id_usuario inexistente
 ```
 
-### Mock DEV
+### Regras de cálculo (`workspaces_habilitados`)
 
-```ts
-function mockEdicaoMassaPreview(payload: EdicaoMassaPayload): EdicaoMassaPreview {
-  const pedidos = MOCK_PEDIDOS.filter(p => payload.pedido_ids.includes(p.id))
-  return {
-    pedidos_afetados: pedidos.length,
-    itens_afetados: pedidos.reduce((s, p) => s + (p.itens?.length ?? 0), 0),
-    campos: payload.campos.map(c => {
-      const valores = pedidos.map(p => String((p as Record<string,unknown>)[c.campo] ?? ''))
-      const distintos = [...new Set(valores)]
-      return {
-        campo: c.campo,
-        nivel: c.nivel,
-        operacao: c.operacao,
-        valor: c.valor,
-        multiplos_valores: distintos.length > 1,
-        valores_distintos: distintos,
-        alertas: [],
-      }
-    }),
-    alertas_globais: [],
-  }
-}
+| Tipo Usuário | Filtro Prisma |
+|---|---|
+| MASTER / SUPER_ADMIN / ADMIN | `Workspace { id_organizacao, status_workspace: 'ATIVO' }` |
+| PADRAO / FORNECEDOR | `UsuarioWorkspace { id_usuario, id_organizacao, ativo_usuario_workspace: true, company: { status_workspace: 'ATIVO' } }` |
 
-function mockEdicaoMassaConfirmar(payload: EdicaoMassaPayload): EdicaoMassaResultado {
-  // Aplica alterações nos mocks em memória
-  payload.pedido_ids.forEach(id => {
-    const pedido = MOCK_PEDIDOS.find(p => p.id === id)
-    if (!pedido) return
-    payload.campos.forEach(c => {
-      if (c.nivel === 'pedido') {
-        aplicarOperacao(pedido, c)
-      } else {
-        pedido.itens?.forEach(item => aplicarOperacao(item, c))
-      }
-    })
-  })
-  return {
-    pedidos_atualizados: payload.pedido_ids.length,
-    itens_afetados: 0,
-    campos_alterados: payload.campos.map(c => c.campo),
-    erros: [],
-  }
-}
+**Importante:** PADRAO/FORNECEDOR exigem **AND** entre `UsuarioWorkspace.ativo` e `Workspace.status_workspace='ATIVO'`. Workspace inativado mesmo com vínculo ativo → NÃO aparece. Mand. 04 não cobre PADRAO (que não tem bypass).
 
-function aplicarOperacao(obj: Record<string, unknown>, c: CampoEdicaoMassa): void {
-  const atual = obj[c.campo]
-  switch (c.operacao) {
-    case 'substituir':   obj[c.campo] = c.valor; break
-    case 'somar':        obj[c.campo] = Number(atual || 0) + Number(c.valor); break
-    case 'subtrair':     obj[c.campo] = Number(atual || 0) - Number(c.valor); break
-    case 'percentual':   obj[c.campo] = Number(atual || 0) * (1 + Number(c.valor) / 100); break
-    case 'avancar_dias': obj[c.campo] = adicionarDias(String(atual), Number(c.valor)); break
-    case 'recuar_dias':  obj[c.campo] = adicionarDias(String(atual), -Number(c.valor)); break
+### Cross-tenant (FORNECEDOR)
+
+Único tipo que pode ter `UsuarioWorkspace` em organização diferente da `Usuario.id_organizacao`. A validação de org-match (linha 82-91 do endpoint) só aplica para tipos não-FORNECEDOR. Útil para fornecedores externos cadastrados como usuário de uma org de plataforma e vinculados aos workspaces dos clientes que atendem.
+
+### SSOT
+
+Replica a regra de visibilidade do `/api/v1/hub/init` (linhas 66-117) para evitar drift. Se a regra mudar, mudar nos DOIS endpoints (TODO: extrair para `organizacaoService.workspacesAcessiveis(idUsuario, idOrganizacao, tipo_usuario)`).
+
+---
+
+## Backend — validação no produto Pedido
+
+### Parser CSV defensivo (`parseCsvQueryParam`)
+
+Express expõe `req.query[chave]` como `string | string[] | ParsedQs | undefined`. O parser aceita:
+
+- `?ids_workspaces=a,b,c` → `['a', 'b', 'c']`
+- `?ids_workspaces=a&ids_workspaces=b` → `['a', 'b']` (Express array)
+- Ausente / vazio / só vírgulas → `undefined`
+
+Aplica trim, dedup via `Set`, ignora vazios.
+
+### Validação multi-workspace (`validarMultiWorkspace`)
+
+```
+async function validarMultiWorkspace(
+  ctx: ContextoOrganizacao,
+  idsSolicitados: string[],
+): Promise<{ valido: true } | { valido: false; bloqueados: string[] }>
+```
+
+1. Chama `obterWorkspacesHabilitadosDoUsuario` via S2S
+2. `habilitadosSet = new Set(workspacesHabilitados)`
+3. `bloqueados = idsSolicitados.filter(id => !habilitadosSet.has(id))`
+4. `bloqueados.length > 0` → `{ valido: false, bloqueados }`
+5. Caso contrário → `{ valido: true }`
+
+Cross-org coberto: workspace de outra org NÃO aparece em `habilitados` → cai automaticamente em `bloqueados`. **Não há código defensivo extra de cross-org** — a regra emerge da intersecção.
+
+### Resposta 403 (Mand. 08 — falha ruidosa)
+
+```json
+{
+  "error": {
+    "code": "WORKSPACE_NAO_AUTORIZADO",
+    "message": "N workspace(s) não autorizado(s) para este usuário",
+    "workspaces_bloqueados": ["id1", "id2"]
   }
 }
 ```
 
----
+Cliente decide tratamento. O produto Pedido mantém pedidos antigos visíveis (`keepPreviousData`) e registra `setErroCarga(err.message)` — visível no empty state.
 
-## Backend — Rotas (`server/src/routes/edicaoEmMassa.ts`)
-
-### `POST /api/v1/pedidos/edicao-em-massa/preview`
-
-**Zod schema:**
-```ts
-const CampoSchema = z.object({
-  campo: z.string().min(1),
-  tipo: z.enum(['texto', 'numero', 'data', 'select', 'usuario']),
-  nivel: z.enum(['pedido', 'item']),
-  operacao: z.enum(['substituir', 'somar', 'subtrair', 'percentual', 'avancar_dias', 'recuar_dias']),
-  valor: z.union([z.string(), z.number()]),
-})
-
-const EdicaoMassaSchema = z.object({
-  pedido_ids: z.array(z.string().uuid()).min(1),
-  campos: z.array(CampoSchema).min(1),
-  nivel: z.enum(['pedido', 'item', 'combinado']),
-})
-```
-
-**Lógica:**
-1. Valida Zod
-2. Rejeita se `campo` está em `CAMPOS_BLOQUEADOS_PEDIDO` ou `CAMPOS_BLOQUEADOS_ITEM`
-3. Busca pedidos com `tenant_id` obrigatório
-4. Para cada campo, detecta se há múltiplos valores entre os pedidos selecionados
-5. Retorna `EdicaoMassaPreview` sem alterar o banco
-
----
-
-### `POST /api/v1/pedidos/edicao-em-massa/confirmar`
-
-**Lógica em `$transaction`:**
-```
-1. Valida Zod + campos bloqueados
-2. Busca todos os pedidos com tenant_id
-3. Para cada pedido:
-   a. Aplica campos de nível 'pedido' via prisma.pedido.update()
-   b. Para campos de nível 'item': aplica em todos os PedidoItem do pedido
-4. Aplica operação conforme tipo:
-   - substituir → value direto
-   - somar/subtrair → campo atual ± valor
-   - percentual → campo atual × (1 + valor/100)
-   - avancar_dias/recuar_dias → data atual ± N dias
-5. Recalcula campos agregados (valor_total_pedido, quantidade_inicial_total, etc.)
-6. Recalcula status via saldoEngine se campos de quantidade foram alterados
-7. Registra audit trail: campos alterados, valores anteriores, valores novos, usuário
-```
-
-**Resposta:** `200 { EdicaoMassaResultado }`
-
----
-
-## Backend — Serviço (`server/src/services/edicaoEmMassaService.ts`)
+### Aplicação no WHERE Prisma
 
 ```ts
-export class EdicaoEmMassaService {
-  async preview(tenantId: string, payload: EdicaoMassaPayload): Promise<EdicaoMassaPreview>
-  async confirmar(tenantId: string, userId: string, payload: EdicaoMassaPayload): Promise<EdicaoMassaResultado>
-
-  // Privados
-  private aplicarOperacao(valorAtual: unknown, operacao: OperacaoCampo, valor: string | number): unknown
-  private recalcularAgregados(tenantId: string, pedidoId: string): Promise<void>
-  private validarCamposEditaveis(campos: CampoEdicaoMassa[]): void  // rejeita CAMPOS_BLOQUEADOS
+if (idsWorkspacesQuery && idsWorkspacesQuery.length > 0) {
+  where.id_workspace = { in: idsWorkspacesQuery }
+} else if (idWorkspace) {        // x-id-workspace header
+  where.id_workspace = idWorkspace
 }
 ```
 
+Query param **sobrepõe** header. Header continua sendo validado pelo Portão 3 (workspace ativo do usuário no produto).
+
 ---
 
-## Frontend — Modal (`ModalEdicaoEmMassa.tsx`)
+## Frontend — coluna, popover e chip
 
-### Fluxo UX (2 passos)
-
-```
-Passo 1 — Selecionar campos e valores
-  ├── Toggle: Pedido / Item / Combinado
-  ├── Lista de campos disponíveis (exceto bloqueados)
-  │   ├── Cada campo: label + tipo de operação + input de valor
-  │   ├── Campos com múltiplos valores: placeholder "Múltiplos valores"
-  │   └── + Adicionar campo (para colunas do usuário)
-  └── Preview em tempo real (debounce 300ms → chama /preview)
-
-Passo 2 — Confirmar
-  ├── Resumo: X pedidos · Y itens · Z campos alterados
-  ├── Lista de campos com valor anterior → valor novo
-  ├── Alertas se houver
-  └── Botão "Aplicar em Massa"
-```
-
-### Props
+### Coluna "Workspace" (`ColunasPai.tsx`)
 
 ```ts
-interface ModalEdicaoEmMassaProps {
-  pedidos: Pedido[]
-  onFechar: () => void
-  onConcluido: () => void
+{
+  key: 'id_workspace',          // DDD-puro
+  label: 'Workspace',
+  tipo: 'texto',                // promovido para 'enum' em detectarTipoColuna
+  filtravel: true,
+  sortavel: false,              // ordenação só por id (backend); ver dívida D8
+  grupo: 'Identificação',
+  render: (_, row) => {
+    const id = (row as { id_workspace?: string }).id_workspace ?? ''
+    const nome = workspacesMap?.get(id)?.nome ?? id
+    return <span style={{ display: 'block', textAlign: 'left' }}>{nome}</span>
+  },
 }
 ```
 
----
+**Posição:** imediatamente após "Tipo de Operação" (`_COLUNAS_PADRAO_SEQUENCIA[2]`). Migração para usuários com prefs antigas (workspace após `numero_pedido`) move automaticamente para a posição nova e persiste no backend (`pedidoConfigApi.salvarPreferenciaUsuarioColunaPedido`).
 
-## Integração em ListaPedidos.tsx
+### Popover (filtro enum genérico)
 
-```tsx
-// Estado
-const [modalEdicaoMassaAberto, setModalEdicaoMassaAberto] = useState(false)
+Reusa o `FiltroPopoverColuna` existente. Mudanças:
 
-// Botão (substituir o onClick atual que tem console.info)
-<BotaoGlobal
-  variante="secundario"
-  tamanho="pequeno"
-  icone={<PencilLine size={14} weight="duotone" />}
-  disabled={pedidosSelecionados.length === 0}
-  onClick={() => setModalEdicaoMassaAberto(true)}
->
-  Editar em Massa{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
-</BotaoGlobal>
+1. **`Selecionar tudo` no topo** — checkbox com 3 estados (vazio / indeterminado / marcado). Texto alterna "Selecionar tudo" ↔ "Limpar seleção". Respeita busca atual (opera só sobre `valoresFiltrados`).
 
-// Modal
-{modalEdicaoMassaAberto && (
-  <ModalEdicaoEmMassa
-    pedidos={pedidosSelecionados}
-    onFechar={() => setModalEdicaoMassaAberto(false)}
-    onConcluido={() => {
-      setModalEdicaoMassaAberto(false)
-      setPedidosSelecionados([])
-      carregarInicial()
-    }}
-  />
-)}
+2. **`valoresUnicosPorCampo` special-case `id_workspace`** — em vez de derivar valores únicos da página atual, usa `workspacesDisponiveis` completo (já filtrado por tipo de usuário pelo `/hub/init`).
+
+3. **`detectarTipoColuna`** — `id_workspace` cai em 'enum'.
+
+### Chip de filtro ativo
+
+Layout: `[Label]: [Valor] [×]`.
+
+- **Body do chip clicável** — abre o mesmo popover do header da coluna, ancorado no chip (`onFiltroColuna(col.key, chipElement)`).
+- **`×` separado** — limpa o filtro inteiro.
+- **Tooltip `TooltipGlobal`** (padrão UX) com lista numerada dos selecionados:
+
+```jsx
+<TooltipGlobal titulo={col.label} descricao={
+  <ol style={{...}}>
+    {valores.map((v, i) => (
+      <li key={v}>
+        <span style={{ opacity: 0.55 }}>{i+1}.</span>
+        <span>{v}</span>
+      </li>
+    ))}
+  </ol>
+}>
+  <chipBody />
+</TooltipGlobal>
 ```
 
+### Híbrido de exibição (`rotulofiltro`)
+
+| Valores | Exibição |
+|---|---|
+| 0 | `(nenhum)` |
+| 1 | `Workspace: CDE` |
+| 2 | `Workspace: CDE, ABC` |
+| 3+ | `Workspace: N selecionados` |
+
+Threshold em 2 segue padrão `tabela-global` (i18n `tabela.selecionado_singular/_plural`). Aplica-se a todos os filtros enum (workspace, status, incoterm, tipo_operacao).
+
 ---
 
-## Segurança — Checklist 5 Camadas
+## Estado e sincronização
 
-- [x] **Rede**: rotas registradas após `tenantIsolationMiddleware`
-- [x] **Autenticação**: Clerk JWT validado em todas as rotas
-- [x] **Autorização**: verificar permissão de edição em massa antes de executar
-- [x] **Isolamento**: `tenant_id` em todas as queries Prisma
-- [x] **Auditoria**: histórico com campos, valores anteriores/novos, usuário e timestamp
-- [x] **Campos bloqueados**: validação server-side rejeita campos calculados mesmo se contornado no frontend
+### Fontes de verdade
+
+| Estado | Tipo | Origem |
+|---|---|---|
+| `workspacesDisponiveis` | `WorkspaceDisponivel[]` | `/api/v1/hub/init` |
+| `workspacesMap` | `Map<id, { nome, cnpj }>` | derivado de `workspacesDisponiveis` (useMemo) |
+| `workspaceAtivo` | `string` | `sessionStorage.getItem('gravity_company_id')` |
+| `filtrosAtivos['id_workspace']` | `{ tipo:'enum', valor:Set<nome> }` | controlado pelo popover |
+| `workspacesSelecionados` | `string[]` | derivado de `filtrosAtivos` via useEffect |
+
+### useEffects
+
+#### 1. Inicialização (UMA vez, after mount + workspacesMap loaded)
+
+```
+Aguarda: workspacesMap.size > 0 && workspaceAtivo && filtrosAtivos['id_workspace'] undefined
+Ação: setFiltrosAtivos({ id_workspace: { tipo:'enum', valor: Set([nome_do_ativo]) } })
+Flag: initializedFilterRef = true (não roda mais)
+```
+
+Garante que o popover abre com o workspace ativo já marcado (UX consistente: o que está marcado = o que está sendo exibido).
+
+#### 2. Sincronia `filtrosAtivos → workspacesSelecionados`
+
+```
+filtro presente, Set não vazio → converte nomes → ids via workspacesMap → setWorkspacesSelecionados([ids])
+filtro presente, Set vazio     → setWorkspacesSelecionados([])
+filtro undefined + init=true   → setWorkspacesSelecionados([])  (usuário limpou)
+filtro undefined + init=false  → não toca (aguarda init no mount)
+```
+
+Comparação por conteúdo (`prev.every((v, i) => v === target[i])`) evita re-render desnecessário quando o resultado é idêntico ao anterior.
+
+#### 3. Sincronia `workspacesSelecionados → fetch`
+
+```
+useEffect [workspacesSelecionados]:
+  carregarInicial()
+```
+
+#### 4. Decisão de envio do query param (`carregarInicial`)
+
+```ts
+// Curto-circuito ANTES do carregandoRef guard:
+if (workspacesSelecionados.length === 0) {
+  setPedidos([])  // sem fetch
+  setTotal(0)
+  setTotalItensBanco(0)
+  carregandoRef.current = false  // libera lock se estava preso
+  return
+}
+
+if (carregandoRef.current) return
+carregandoRef.current = true
+
+const ehSelecaoDefault = workspacesSelecionados.length === 1
+  && workspacesSelecionados[0] === workspaceAtivo
+const idsWorkspacesFiltro = ehSelecaoDefault ? undefined : workspacesSelecionados
+
+// fetch com ?ids_workspaces=<csv> se idsWorkspacesFiltro presente
+```
+
+**Por que o curto-circuito vem antes do guard:** se outro fetch está em vôo quando o usuário desmarca tudo, o guard bloquearia a nova chamada e a UI ficaria presa mostrando dados antigos. O curto-circuito é instantâneo (sem rede) e força o estado a refletir a UI imediatamente.
+
+---
+
+## Autorização — 3 camadas
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ Camada 1 — Frontend (UI)                                        │
+│ /hub/init aplica regra de visibilidade no Configurador.         │
+│ Popover só mostra workspaces que o usuário PODE ver.            │
+│ Defesa contra confusão (usuário não tenta filtrar o impossível) │
+└─────────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ Camada 2 — Backend Pedido (validarMultiWorkspace)               │
+│ S2S → Configurador retorna lista habilitada.                    │
+│ Ids fora da lista → 403 com workspaces_bloqueados[].            │
+│ Defesa contra forjamento (mesmo se UI for tampered, falha aqui) │
+└─────────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ Camada 3 — Portão 3 (header x-id-workspace)                     │
+│ verificarAcessoProduto valida acesso ao workspace ATIVO         │
+│ (single, do header). NÃO toca query param.                      │
+│ Defesa estrutural: produto Pedido habilitado no workspace base. │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Por que essas 3 camadas
+
+| Ameaça | Camada que protege |
+|---|---|
+| Usuário sem ideia do que pode ver | 1 (popover não mostra inacessíveis) |
+| Usuário malicioso forjando request | 2 (validação S2S no backend) |
+| Bug que envia ids errados | 2 (validação S2S) |
+| Produto Pedido não habilitado pro workspace ativo | 3 (Portão 3 nega antes da rota rodar) |
+| Workspace inativado durante a sessão | 1 (próximo /hub/init não retorna) + 2 (validação rejeita) |
+
+---
+
+## Casos de borda
+
+| Cenário | Comportamento |
+|---|---|
+| `workspacesMap` ainda carregando | Popover sem opções; init useEffect aguarda |
+| `workspaceAtivo` vazio (sessionStorage ausente) | `workspacesSelecionados=[]`; sem fetch automático |
+| Usuário desmarca o último workspace | `workspacesSelecionados=[]` → lista vazia (intencional, **sem fetch**) |
+| Usuário re-marca após esvaziar | Refetch normal |
+| Backend retorna 403 (workspace bloqueado) | `catch` em `carregarInicial` → `setErroCarga`; pedidos antigos persistem (`keepPreviousData`); erro acessível no empty state |
+| Workspace ATIVO foi inativado entre fetches | Não aparece mais no popover; mas o header ainda envia o id antigo; backend pode 403 → usuário precisa trocar workspace ativo no Hub |
+| PADRAO acessa workspace fora do membership | 403 explícito + `workspaces_bloqueados[]` |
+| Pedido criado por edit/drawer | Continua usando workspace ATIVO via header — não afetado pelo filtro |
+| Cross-org não-FORNECEDOR | 403 ORGANIZACAO_MISMATCH no S2S |
+| FORNECEDOR cross-org | Permitido (exceção codificada no endpoint S2S) |
 
 ---
 
 ## Testes
 
-```
-testes/unitarios/pedido/edicaoEmMassaService.test.ts
-  ├── substituir texto — campo atualizado em todos os pedidos
-  ├── somar numero — 1000 + 100 = 1100
-  ├── subtrair numero — 1000 - 100 = 900
-  ├── percentual — 1000 + 10% = 1100
-  ├── avancar_dias — 10/04 + 5 = 15/04
-  ├── recuar_dias — 10/04 - 5 = 05/04
-  ├── campo bloqueado — rejeita valor_total_pedido
-  ├── multiplos_valores — detecta corretamente campos com valores distintos
-  ├── nivel item — aplica em todos os itens dos pedidos selecionados
-  ├── campo nao tocado — mantém valor original
-  └── cross-tenant — rejeita pedidos de outro tenant
+### Funcionais (Configurador — endpoint S2S)
 
-testes/funcionais/pedido/edicaoEmMassa.test.ts
-  ├── POST /preview — retorna multiplos_valores corretamente
-  ├── POST /confirmar — aplica alterações e retorna resultado
-  ├── POST /confirmar — rejeita campo bloqueado
-  └── POST /confirmar — rejeita pedidos de outro tenant
+`servicos-global/configurador/server/__tests__/workspaces-habilitados-internal.test.ts` — 6 testes:
+
+1. MASTER → todos workspaces ATIVO da org
+2. PADRAO → apenas habilitados via `UsuarioWorkspace.ativo`
+3. FORNECEDOR → idem PADRAO, ignora cross-tenant mismatch
+4. Usuário inexistente → 404 `USUARIO_NAO_ENCONTRADO`
+5. Sem header `x-chave-interna-servico` → 401
+6. PADRAO com `id_organizacao` diferente → 403 `ORGANIZACAO_MISMATCH`
+
+### Auditoria DB
+
+`scripts/auditar-workspaces-pedidos.mjs` cruza:
+- Banco do Configurador (`CONFIGURADOR_DATABASE_URL`) → `public.workspace`
+- Banco do Pedido (`DATABASE_URL` em `produto/pedido/.env`) → `public.pedido` + `public.pedido_item`
+
+Output: por organização, workspaces COM dados vs SEM dados + contagem total.
+
+```bash
+node scripts/auditar-workspaces-pedidos.mjs
+# OU específica:
+node scripts/auditar-workspaces-pedidos.mjs cmoarq22a000l1358c1p2qfqt
 ```
+
+### E2E (não criado nesta entrega — pendente)
+
+Sugestão de plano:
+1. Login MASTER → abre Lista → workspace ativo marcado, chip visível
+2. Marca workspace adicional → URL contém `?ids_workspaces=<csv>` → pedidos somados
+3. Desmarca tudo → lista vazia, sem request adicional ao backend
+4. Login PADRAO sem acesso a workspace X → workspace X não aparece no popover
+5. Forge request com workspace X via DevTools → backend retorna 403
+
+---
+
+## Dívidas conhecidas
+
+| ID | Item | Status |
+|---|---|---|
+| D7 | `GTColuna.label` / `opcoes[].label` (nucleo-global) → `rotulo` | 🟡 Aberta — refactor multi-arquivo, entrega dedicada |
+| D8 | Coluna Workspace `sortavel:false` | 🟡 Aberta — exige JOIN ou cache client |
+| D9 | Híbrido + chip clicável + tooltip numerado vivem só no Pedido | 🟡 Aberta — promover para `nucleo-global/tabela-virtual-global` |
+| D10 | `workspacesDisponiveisApi` faz fetch dedicado | 🟡 Aberta — exige design decision (A/B/C/D, ver análise Líder Técnico) |
+| D11 | SSOT da regra de visibilidade duplicada (`/hub/init` + S2S habilitados) | ✅ **Resolvida** — `organizacaoService.workspacesAcessiveis()` (2026-05-13) |
+| D12 | Lógica de migração de coluna inline em Pedidos.tsx | ✅ **Resolvida** — `shared/migracaoColunas.ts` com 16 testes (2026-05-13) |
+| D13 | Admin Panel `/admin/organizacoes` retorna preview de 5 workspaces sem lazy-load completo | 🟡 Aberta — delegada para outro agente |
+
+---
+
+## Referências cruzadas
+
+- Regras de negócio: `FILTRO-MULTI-WORKSPACE-REGRAS-NEGOCIO.md` (este diretório)
+- Skill do produto: `skills/produtos-gravity/pedido/SKILL.md`
+- Skill de S2S: `skills/seguranca/autenticacao-s2s/SKILL.md`
+- Skill de permissões: `skills/seguranca/permissoes/SKILL.md`
+- SDK helper: `packages/resolver-organizacao/src/obter-workspaces-habilitados.ts`
+- Commit: `4bafb1b6` — `feat(pedido/filtro-multi-workspace): coluna Workspace + filtro por seleção`
 
 --- documentos-tecnicos/produtos-gravity/pedido/HANDOFF.md ---
 # HANDOFF — Pedido (Gestao de Pedidos COMEX)
@@ -2087,7 +2968,13 @@ export const PRODUCT_CONFIG = {
 | PUT | `/api/v1/pedidos/:id` | Atualizar pedido (so Draft/Aberto) |
 | DELETE | `/api/v1/pedidos/:id` | Deletar pedido (so Draft) |
 | PATCH | `/api/v1/pedidos/:id/status` | Transicao de status (Draft->Aberto, etc.) |
-| POST | `/api/v1/pedidos/:id/duplicar` | Duplicar pedido completo |
+| POST | `/api/v1/pedidos/:id/duplicar` | Duplicar pedido completo (single, usado por outros fluxos) |
+| POST | `/api/v1/pedidos/duplicacoes/preview` | Preview do modal de duplicar em massa |
+| POST | `/api/v1/pedidos/duplicacoes/confirmar` | Duplicar N pedidos (cascade dos itens) |
+| POST | `/api/v1/pedidos/duplicacoes/itens` | Duplicar M itens dentro de 1 pedido pai (sequência abaixo do original) |
+| POST | `/api/v1/pedidos/exclusoes/preview` | Preview de exclusão (permitidos/bloqueados por status) |
+| POST | `/api/v1/pedidos/exclusoes/confirmar` | Hard delete + audit trail |
+| POST | `/api/v1/pedidos/exclusoes/itens` | Remove itens; aplica `excluir_pedido_sem_item_permitido` |
 
 #### Itens do Pedido
 
@@ -2347,6 +3234,178 @@ Depois:
 - [x] Arquitetura 3-Tier validada (documento existente)
 - [x] Fragment.prisma validado (em producao no processos-core)
 - [x] Product Owner aprovou escopo
+
+--- documentos-tecnicos/produtos-gravity/pedido/INCOTERM-TECNICO.md ---
+# Pedido — Incoterm (Técnico)
+
+> SSOT: `cadastros.incoterm` (banco do serviço Cadastros).
+> Esta página documenta como o produto Pedido consome Incoterms, valida cruzado contra Cadastros e renderiza o select com formato `SIGLA — Nome`.
+
+---
+
+## 1. Visão de alto nível
+
+Cada **Pedido** tem `incoterm_pedido` (campo do pai) e cada **PedidoItem** tem `incoterm` (campo do filho). Ambos validam contra `cadastros.incoterm` (lista canônica Incoterms 2020 da ICC). Se itens divergem do pedido pai, o pai mostra alerta `⚠ Incoterms divergentes entre itens`.
+
+| Onde | Coluna no banco | Onde edita | Validação |
+|---|---|---|---|
+| Pedido | `incoterm_pedido` | PUT `/api/v1/pedidos/:id` | `validarIncotermPedidoItem` |
+| Item | `incoterm_item` | PUT `/api/v1/pedidos/:id/itens/:item` | `validarIncotermPedidoItem` |
+
+---
+
+## 2. Fonte da Verdade — `cadastros.incoterm`
+
+Tabela `incoterm` em `gravity-cadastros-*` (catálogo global, sem `id_organizacao`):
+
+```prisma
+model Incoterm {
+  codigo_incoterm    String  @id   // FOB, CIF, EXW, ...
+  nome_incoterm      String
+  descricao_incoterm String?
+  modal_transporte   String        // "maritimo" | "qualquer"
+  versao_incoterm    String  @default("2020")
+  ativo_incoterm     Boolean @default(true)
+  @@map("incoterm")
+}
+```
+
+### Seed
+
+`servicos-global/cadastros/prisma/data/incoterms-canonicos.ts` — 11 termos do Incoterms 2020:
+- Marítimos (`modal_transporte = 'maritimo'`): FAS, FOB, CFR, CIF
+- Multimodais (`modal_transporte = 'qualquer'`): EXW, FCA, CPT, CIP, DAP, DPU, DDP
+
+Aplicar/atualizar via:
+```bash
+DATABASE_URL=<url_cadastros> npx tsx servicos-global/cadastros/prisma/seed-incoterms.ts
+```
+
+### Versões futuras
+
+Quando a ICC publicar Incoterms 2030, **NÃO** sobrescrever as linhas existentes. Adicionar novas linhas com `versao_incoterm = '2030'` e manter as 2020 ativas — pedidos históricos podem continuar referenciando as antigas.
+
+---
+
+## 3. API REST (Cadastros)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/api/v1/cadastros/incoterms` | Lista todos. Query: `apenas_ativos`, `modal_transporte` |
+| GET | `/api/v1/cadastros/incoterms/:codigo` | Busca por sigla |
+| POST | `/api/v1/cadastros/incoterms` | Cria (admin) |
+| PUT | `/api/v1/cadastros/incoterms/:codigo` | Atualiza (admin) |
+| DELETE | `/api/v1/cadastros/incoterms/:codigo` | Soft delete (ativo_incoterm = false) |
+
+Autenticação: header `x-internal-key`.
+
+---
+
+## 4. Frontend — hook canônico
+
+### nucleo-global
+
+`@nucleo/modal-tabela-incoterm` expõe `useIncoterms()`:
+
+```ts
+const { incoterms, loading, erro, recarregar } = useIncoterms()
+```
+
+Cache singleton em memória + Zod parse + ordenação canônica (marítimos primeiro, depois multimodal; dentro de cada grupo, alfabético).
+
+### produto Pedido
+
+`pedido/client/src/shared/useIncotermsPedido.ts` envelopa `useIncoterms()` e formata como `SIGLA — Nome`:
+
+```ts
+const { incotermsOpcoes, incotermsMaritimos, incotermsMultimodais } = useIncotermsPedido()
+
+// incotermsOpcoes[0] = { valor: 'FOB', label: 'FOB — Free On Board' }
+```
+
+---
+
+## 5. Backend Pedido — validação cruzada
+
+`processos-core/services/validarIncotermPedidoItem.ts` valida ambos `incoterm` (PedidoItem) e `incoterm_pedido` (Pedido) contra Cadastros antes do update:
+
+```ts
+await validarIncotermPedidoItem(payload, ctxCadastros)
+```
+
+Falha alta (HTTP 400) — Mandamento 08:
+- Sigla inexistente → `Incoterm "XYZ" nao existe em cadastros.incoterm`
+- Sigla inativa → `Incoterm "OLD" esta inativo em cadastros.incoterm`
+
+Chamado em:
+- `PUT /api/v1/pedidos/:id` (linha ~1324 de `routes/pedidos.ts`)
+- `PUT /api/v1/pedidos/:id/itens/:item` (linha ~2078)
+
+---
+
+## 6. UI — coluna pai + filho
+
+### Coluna pai (Pedido) — `ColunasPai.tsx:396`
+
+```ts
+{
+  key: 'incoterm',
+  tipo: 'select',
+  opcoes: incotermsOpcoes,
+  editavel: getEditavel('incoterm'),
+  render: (_val, row) => renderAgregado(
+    row.incoterm,
+    row.incoterm_divergente,
+    'Incoterms divergentes entre itens'
+  ),
+}
+```
+
+`incoterm_divergente` é populado por `calcularDivergencias` em `Pedidos.tsx` (campo está em `CAMPOS_ALERTAVEIS`). Quando os itens têm Incoterms diferentes do pedido pai → alerta visual à direita.
+
+### Coluna filho (PedidoItem) — `ColunasFilho.tsx`
+
+Filho herda `tipo: 'select'` e `opcoes` da coluna pai automaticamente via `MAPA_COLUNAS_FILHO`. Não precisa duplicar a definição.
+
+### Permissão de edição
+
+`getEditavel('incoterm')` lê do `columnBehaviorConfig.ts` → permite editar apenas se o usuário tiver permissão (Mandamento 01).
+
+---
+
+## 7. Migrations e aplicação
+
+Migration: `cadastros/prisma/migrations/20260513000000_add_incoterm_table/migration.sql`
+
+Script de aplicação ad-hoc (3 ambientes):
+```bash
+DATABASE_URL=<url> node scripts/sob-demanda/aplicar-migration-cadastros-incoterm.mjs
+```
+
+---
+
+## 8. Testes
+
+| Arquivo | Cobertura |
+|---|---|
+| `cadastros/__tests__/functional/incoterms.test.ts` | CRUD + filtro modal + validação enum |
+| `testes/testes-unitarios/pedido/validar-incoterm.test.ts` | 10 testes — validação cruzada Pedido/Item |
+
+---
+
+## 9. Pontos de atenção (futuros agentes)
+
+1. **NÃO hardcoded** lista de Incoterms no produto. Use `useIncotermsPedido()` ou estenda-o.
+2. **Versionamento:** quando a ICC publicar nova versão, adicionar linhas com `versao_incoterm = 'YYYY'`. Não sobrescrever as antigas.
+3. **Modal de transporte** está disponível para filtrar dropdowns contextualmente (`useIncotermsPedido().incotermsMaritimos`) — útil em flows que aceitam só FOB/CIF/CFR/FAS.
+4. **`smartImportService.ts:797`** ainda tem lista local de cache para heurística de detecção. SSOT continua sendo Cadastros — flag para refatorar com lazy-load cacheado se a lista mudar.
+5. **`seed.ts` / `auditarSeed.ts`** mantêm a lista hardcoded — são scripts internos de dev/teste, não runtime do produto. OK manter.
+
+---
+
+## 10. Histórico
+
+- **2026-05-13** — Criação da tabela `cadastros.incoterm` + migration + 11 incoterms canônicos. Hook `useIncoterms()` em nucleo-global + `useIncotermsPedido()` no produto. Coluna `incoterm` migrada de `tipo: 'texto'` para `tipo: 'select'`. Validação cruzada nas rotas PUT do Pedido e PUT do Item. Deletadas 5 cópias hardcoded (kind-ui-pedido.ts, ModalPedidoNovo.tsx, CampoSmartImport.tsx; mantidas em seed.ts/auditarSeed.ts).
 
 --- documentos-tecnicos/produtos-gravity/pedido/NOVO-PEDIDO-REGRAS-NEGOCIO.md ---
 # Novo Pedido — Regras de Negócio
@@ -2981,90 +4040,358 @@ testes/funcionais/pedido/
     └── GET /mapeamento/:hash — retorna mapeamento salvo
 ```
 
+--- documentos-tecnicos/produtos-gravity/pedido/REPLICAR-PAI-EM-ITENS-TECNICO.md ---
+# Pedido — Replicar valor do Pai em todos os Itens (Técnico)
+
+> Feature UX para edição inline na linha pai: usuário marca um checkbox no
+> popover de edição e o valor do campo é **replicado em todos os itens** do
+> pedido na mesma transação backend. Sem o checkbox, mantém comportamento
+> divergente (pai diverge dos itens → coluna pai mostra alerta).
+>
+> **Status:** entregue em 2026-05-13 (commits `8568d412` → `827064e6`).
+> Aprovação: Coordenador + Líder Técnico + QA + dono.
+
+---
+
+## 1. Visão geral
+
+```
+┌───────────────────────────────────────────────────┐
+│ ✏ DATA DO PEDIDO                              ×  │
+│                                                   │
+│ [09/05/2026                              📅 ]    │
+│                                                   │
+│ ☐ Aplicar a todos os itens deste pedido          │ ← novo
+│                                                   │
+│ [Cancelar]  [✓ Confirmar]                         │
+└───────────────────────────────────────────────────┘
+```
+
+- **Sem o checkbox** (default) → atualiza só o Pedido pai. Os itens mantêm
+  seus valores; coluna pai mostra `⚠` se diverge dos itens.
+- **Com o checkbox** → atualiza Pedido + **bulk-update em todos os itens**
+  na mesma transação. Resultado: pai e itens homogêneos, `⚠` desaparece.
+
+A checkbox aparece **apenas**:
+- Na linha **PAI** (não em filho/item)
+- Em campos **propagáveis** (whitelist em `mapaPropagacaoPedidoItem.ts`)
+
+---
+
+## 2. Whitelist de campos elegíveis (57 campos)
+
+> **Atualização 2026-05-13 (2ª onda):** whitelist subiu de 22 → 57 campos. Migration `20260513120000_pedido_item_datas_replicaveis` adicionou 35 colunas novas no `PedidoItem` para permitir replicar **TODAS** as datas do Pedido (rascunho, proforma, invoice, etc.).
+
+SSOT: `pedido/shared/mapaPropagacaoPedidoItem.ts` exporta
+`MAPA_PROPAGACAO_PEDIDO_ITEM` e `CAMPOS_PEDIDO_PROPAGAVEIS`.
+
+Critério: campo precisa existir **tanto** em `Pedido` quanto em `PedidoItem`
+(o item precisa de coluna para receber o valor). Campos pedido-only
+(`numero_proforma_pedido`, agregados, IDs) **não** entram.
+
+| Grupo | Pedido → Item |
+|---|---|
+| **Identidade comercial (5)** | `incoterm_pedido` → `incoterm_item`, `moeda_pedido` → `moeda_item`, `unidade_comercializada_pedido` → `unidade_comercializada_item`, `condicao_pagamento_pedido` → `condicao_pagamento_item`, `data_emissao_pedido` → `data_emissao_item` |
+| **Casas decimais (4)** | `casas_decimais_valor_pedido` → `casas_decimais_valor_item`, `casas_decimais_quantidade_pedido` → `casas_decimais_quantidade_item`, `casas_decimais_peso_pedido` → `casas_decimais_peso_item`, `casas_decimais_cubagem_pedido` → `casas_decimais_cubagem_item` |
+| **Câmbio (1)** | `cobertura_cambial_pedido` → `cobertura_cambial_item` |
+| **Referências (3)** | `referencia_importador_pedido` → `referencia_importador_item`, `referencia_exportador_pedido` → `referencia_exportador_item`, `referencia_fabricante_pedido` → `referencia_fabricante_item` |
+| **Datas Pedido Pronto (3)** | `data_prevista/confirmada/meta_pedido_pronto` → `data_prevista/confirmada/meta_item_pronto` |
+| **Datas Inspeção (3)** | `data_prevista/confirmada/meta_inspecao_pedido` → `data_prevista/confirmada/meta_inspecao_item` |
+| **Datas Coleta (3)** | `data_prevista/confirmada/meta_coleta_pedido` → `data_prevista/confirmada/meta_coleta_item` |
+| **Datas Rascunho Pedido (6)** | `data_previsao/confirmacao/meta_recebimento+aprovacao_rascunho_pedido` → `..._item` |
+| **Documento Pedido (1)** | `data_documento_pedido` → `data_documento_item` |
+| **Datas Proforma (13)** | `data_..._proforma_pedido` → `data_..._proforma_item` (recebimento + aprovação + envio + documento) |
+| **Datas Invoice (13)** | `data_..._invoice_pedido` → `data_..._invoice_item` (mesma estrutura da proforma) |
+| **Consolidação Pedido (1)** | `data_consolidacao_pedido` → `data_consolidacao_pedido_replicada_item` (coluna separada: `data_consolidacao_item` já tem semântica própria) |
+| **Transferência Saldo (1)** | `data_transferencia_saldo_pedido` → `data_transferencia_saldo_item` |
+| **TOTAL** | **57 campos** |
+
+**Para escalar a whitelist:** adicionar nova entry em
+`MAPA_PROPAGACAO_PEDIDO_ITEM` (e a coluna correspondente já existir em
+ambos os models). Nenhuma mudança em código de aplicação necessária.
+
+---
+
+## 3. Arquitetura
+
+### Backend (`processos-core/src/routes/pedidos.ts`)
+
+`editarCampoSchema` aceita campo novo:
+
+```ts
+const editarCampoSchema = z.object({
+  campo: z.string().min(1),
+  valor: z.unknown(),
+  replicar_em_itens: z.boolean().optional().default(false),
+})
+```
+
+`PATCH /api/v1/pedidos/:id/campo` handler:
+1. Parse Zod (`replicar_em_itens` default `false`)
+2. Valida `campo` na whitelist `CAMPOS_EDITAVEIS`
+3. `withOrganizacao(req, async (db) => { ... })` (transação implícita)
+4. Atualiza pedido pai (com conversão `String YYYY-MM-DD` → `Date` para campos data — fix 2026-05-13)
+5. **Se `replicar_em_itens=true`:**
+   - Traduz `campo` legado → DDD pedido → DDD item via `obterCampoItemPropagado()`
+   - Se traduzido for `null` → `AppError(400)` (Mandamento 08, sem fallback)
+   - `db.pedidoItem.updateMany({ where: {id_pedido, id_organizacao}, data: {[campoItem]: valor} })`
+   - Audit log agregado:
+     ```json
+     { "event": "PEDIDO_FIELD_REPLICATED_TO_ITEMS",
+       "id_organizacao", "id_pedido",
+       "campo_pedido", "campo_item",
+       "itens_afetados", "valor_novo", "ts" }
+     ```
+6. Catch handler devolve detalhe completo no response (DEV) para debug
+
+### Frontend (`pedido/client/`)
+
+**`shared/api.ts`** — `pedidoVirtualApi.editarCampo` aceita 4° param:
+```ts
+editarCampo(id, campo, valor, replicar_em_itens = false)
+```
+Inclui `console.log` diagnóstico (request + response).
+
+**`pages/Pedidos.tsx`** — `handleEditar` propaga opts e atualiza cache local:
+- Recebe `opts?: { replicar_em_itens?: boolean }`
+- Quando `replicar=true && isPropagavel(campo)`:
+  - **Atualiza cada item no cache** (`itensCarregadosRef`) com o novo valor
+  - `calcularDivergencias` recomputa → `_divergente=false`
+  - `setPedidos` propaga itens atualizados na linha
+- Passa `permiteReplicacaoPaiEmItens={isPropagavel}` ao `TabelaVirtualGlobal`
+
+### Núcleo global (`nucleo-global/Tabelas/tabela-virtual-global/`)
+
+**`hooks/useGTInlineEdit.ts`** — `confirmarEdicao(opts?)` recebe opts e propaga para `onEditar`.
+
+**`tipos.ts`:**
+- `onEditar` tipado com `opts?: { replicar_em_itens?: boolean }`
+- Nova prop `permiteReplicacaoPaiEmItens?: (campo: string) => boolean`
+
+**`TabelaVirtualGlobal.tsx`** — `GTEditPopover`:
+- Estado local `replicarEmItens` (default `false`)
+- Helper `confirmarComOpts = () => onConfirmar({ replicar_em_itens: replicarEmItens })`
+- Substitui `onConfirmar()` por `confirmarComOpts()` em todas as chamadas
+- Checkbox renderizado quando `mostrarCheckboxReplicar` (linha pai + permite(campo))
+- Footer Cancelar/Confirmar visível mesmo em `isOpcoes` quando há checkbox
+- Click em opção (modo `isOpcoes`) **apenas seleciona** quando há checkbox — usuário decide se replica e confirma manualmente
+
+---
+
+## 4. Mandamentos atendidos
+
+| Mand. | Como |
+|---|---|
+| **02** (schema intocável) | Zero mudança em `schema.prisma` |
+| **06** (Zod) | `editarCampoSchema` estendido bilateral (front + back) |
+| **07** (sincronia front+back) | 1 commit cobre Zod + ACL + hook + popover |
+| **08** (sem fallback silencioso) | Campo fora da whitelist → `AppError(400)` ruidoso |
+| **09** (Zod bilateral) | API client envia `replicar_em_itens`; Zod backend espelha |
+
+---
+
+## 5. Testes
+
+`testes/testes-unitarios/pedido/replicar-pai-em-itens.test.ts` — **26 testes**:
+
+- `obterCampoItemPropagado`: 9 casos (DDD ok, pedido-only null, agregados null, ID null, inexistente null)
+- `isPropagavel`: 6 casos (DDD aceito, legado aceito, pedido-only rejeitado, agregados rejeitados, IDs rejeitados, vazio rejeitado)
+- `CAMPOS_PEDIDO_PROPAGAVEIS` contrato: 4 casos (consistência com mapa, sufixos `_item`, sem `_pedido` em destinos, cobertura 5 críticos)
+- Cenários end-to-end simulados: 7 casos (incoterm, condicao_pagamento, referencias, valor null, data, milestones)
+
+---
+
+## 6. Bugs pré-existentes corrigidos de quebra
+
+### Bug 1 — `updateMany` nunca funcionou (silencioso)
+Antes:
+```ts
+if (isPropagavel(campo)) {
+  await db.pedidoItem.updateMany({
+    where: { id_pedido, id_organizacao },
+    data: { [campo]: valor },  // ← BUG: 'incoterm' não é coluna do item
+  })
+}
+```
+A coluna real é `incoterm_item`. Prisma rejeitava silenciosamente; propagação nunca aconteceu apesar de `isPropagavel` retornar `true`.
+
+Agora a tradução `obterCampoItemPropagado()` gera o nome correto.
+
+### Bug 2 — Date-only crashava o Prisma
+Frontend envia `'YYYY-MM-DD'`, Prisma `DateTime` exige ISO-8601 completo:
+> `Invalid db.pedido.update() invocation: Premature end of input. Expected ISO-8601 DateTime.`
+
+Manifestava-se em qualquer edição de campo de data. Backend agora converte `string YYYY-MM-DD` → `new Date(valor)` antes de passar pro Prisma (com validação `isNaN` que lança `AppError 400`).
+
+### Bug 3 — Cache local stale após replicação
+Backend atualizava items via `updateMany`, mas o frontend cache (`itensCarregadosRef`) mantinha valores antigos. Resultado: a flag `⚠ divergente` persistia visualmente até o user expandir + refetch.
+
+Frontend agora atualiza cada item no cache com o novo valor após `replicar=true && isPropagavel(campo)`.
+
+---
+
+## 7. Ressalvas e bandeiras
+
+1. **Sem suite funcional HTTP do `processos-core`** — testes funcionais da rota PATCH `/campo` seriam ideais mas a suite não existe. Mesmo gap que existe em outras entregas. Recomendação: criar a suite separadamente.
+2. **Sem modal de confirmação para >5 itens** — Coordenadora sugeriu mas não foi implementado nesta entrega. Pode ser melhoria iterativa.
+3. **Sem undo nativo** — após replicação, não há "desfazer em lote". Usuário precisaria editar 1-a-1 cada item. UX explícito: tooltip no checkbox poderia avisar.
+4. **Audit log via `console.log`** — funcional mas não estruturado em tabela de audit. Trade-off conhecido; pode evoluir.
+5. **PATCH `/campo` ainda não valida Incoterm contra `cadastros.incoterm`** — a validação cruzada (Mandamento 06+09) existe em PUT `/pedidos/:id` e PUT `/itens/:id` mas não no PATCH inline. Pode ser adicionada como tarefa pequena.
+
+---
+
+## 8. Como escalar para novos campos
+
+1. Adicionar entry em `MAPA_PROPAGACAO_PEDIDO_ITEM` (`pedido/shared/mapaPropagacaoPedidoItem.ts`)
+2. Garantir que a coluna existe **tanto** em `Pedido` quanto em `PedidoItem` no schema
+3. Pronto. O front (via `isPropagavel(campo)`) e backend (via `obterCampoItemPropagado()`) reconhecem automaticamente. Sem outra mudança necessária.
+
+---
+
+## 9. Histórico
+
+- **2026-05-13** — Entrega inicial (commit `8568d412`) + 4 fixes:
+  - `c7695527` log diag frontend
+  - `db94e7fb` log diag backend
+  - `7331a4f9` date-only → Date object
+  - `827064e6` atualiza cache local após replicar
+- **2026-05-13 (2ª onda)** — Escalada para TODAS as datas:
+  - Migration `20260513120000_pedido_item_datas_replicaveis`: +35 colunas em `PedidoItem`
+  - Mapa estendido (+35 entries), aliases legados atualizados
+  - Helper `criarColunaDataReplicavel(t, campo, label)` em `ColunasPai.tsx`: 43 datas migradas para pattern unificado (`renderAgregado` + checkbox replicar)
+  - Whitelist: 22 → 57 campos
+  - Testes: 26 → 32 (cobertura das 35 novas entries)
+- Aprovação: Coordenador + Líder Técnico + QA + dono visual.
+
 --- documentos-tecnicos/produtos-gravity/pedido/SELECAO-ITENS-TECNICO.md ---
 # Seleção e Ações em Itens (Linhas Filho) — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
-> **Data:** Abril 2026
+> **Versão:** 2.0
+> **Última atualização:** 2026-05-13
+> **Status:** Implementado (selecionável + sync universal pai↔filhos)
 
 ---
 
 ## Contexto
 
-A tabela de pedidos tem hierarquia pai (Pedido) / filho (PedidoItem). Hoje apenas os pedidos têm checkbox e ações. Os itens precisam ter o mesmo suporte.
+A tabela de pedidos tem hierarquia pai (Pedido) / filho (PedidoItem). A seleção de itens (linhas filho) está habilitada via `selecionavelFilhos={true}` no `TabelaVirtualGlobal`, e segue a **regra universal de sincronização pai↔filhos** do `nucleo-global` (aprovada 2026-05-11).
 
 O usuário pode selecionar itens de **pedidos diferentes** ao mesmo tempo — cada item carrega seu `pedido_id` para o backend saber a origem.
 
 ---
 
-## Mudanças no TabelaVirtualGlobal (`nucleo-global`)
+## Regra universal de sync pai↔filhos
 
-### Novas props em `GTVirtualTableProps`
+> Documentada em [`skills/arquitetura/nucleo-global/SKILL.md`](../../../skills/arquitetura/nucleo-global/SKILL.md) — seção "Tabelas hierárquicas — sync pai↔filhos".
 
-```ts
-// Habilita checkbox e seleção nas linhas filho
-selecionavelFilhos?: boolean
+**Invariante:** pai marcado ⟺ todos os filhos do pai marcados. Sem prop opcional — comportamento fixo do componente.
 
-// Callback chamado quando seleção de itens muda
-onSelecaoFilho?: (itensSelecionados: C[]) => void
-
-// Ações inline na linha filho (menu de três pontos)
-acoesFilho?: (item: C) => GTAcaoLinha[]
-```
-
-### Comportamento
-
-- Checkbox aparece na primeira célula da linha filho quando `selecionavelFilhos=true`
-- Seleção de filho é **independente** da seleção do pai — selecionar o pedido não seleciona seus itens automaticamente
-- "Selecionar tudo" na linha pai seleciona todos os itens daquele pedido (opcional, configurável)
-- Itens de pedidos diferentes podem ser selecionados ao mesmo tempo
+| Ação | Resultado automático |
+|---|---|
+| Marca pai | Todos os filhos cached do pai marcam |
+| Desmarca pai | Todos desmarcam |
+| Marca último filho que faltava | Pai marca automaticamente |
+| Desmarca qualquer filho com pai marcado | Pai desmarca |
+| Header "selecionar todos" | Todos pais visíveis + todos os filhos cached |
 
 ---
 
-## Mudanças no ListaPedidos
-
-### Novo estado
+## Props ativas no `TabelaVirtualGlobal`
 
 ```ts
-const [itensSelecionados, setItensSelecionados] = useState<PedidoItem[]>([])
+selecionavelFilhos: boolean           // habilita checkbox nas linhas filho (true no Pedido)
+onSelecaoFilho?: (itens: C[]) => void  // callback ao mudar seleção de filhos
+acoesFilho?: (item: C) => GTAcaoLinha[] // dropdown de ações inline na linha filho
+filhoId?: (filho: C) => string         // extrai id do filho (default: `(f) => f.id`)
 ```
 
-### Toolbar contextual
+A `TabelaVirtualGlobal` mantém internamente:
+- `selecionados: Set<string>` — ids dos pedidos pais marcados (hook `useGTSelecao`)
+- `filhosSelecionados: Set<string>` — ids dos itens marcados (`useState` local)
+- `filhosCacheMap: Map<string, C>` — objetos dos filhos marcados (ref local)
 
-Quando `itensSelecionados.length > 0`, mostrar toolbar de itens com:
-
-| Botão | Ação | Ícone |
-|---|---|---|
-| Transferir (N itens) | Abre ModalTransferir com itens pré-selecionados | ArrowsLeftRight |
-| Duplicar (N itens) | Abre ModalDuplicar em modo item | CopySimple |
-| Editar em Massa (N itens) | Abre ModalEdicaoEmMassa em modo item | PencilLine |
-| Excluir (N itens) | Preview + confirmação de exclusão de itens | Trash |
-
-Quando há **mix** (pedidos E itens selecionados), mostrar os dois toolbars separados:
-```
-[Pedidos: Consolidar · Transferir · Duplicar · Excluir]
-[Itens:   Transferir · Duplicar · Editar em Massa · Excluir]
-```
-
-### Passagem para os modais
-
-Cada `PedidoItem` selecionado já contém `pedido_id` — passado diretamente para os modais sem necessidade de lookup adicional.
+Os 2 estados são sincronizados automaticamente pela lógica do componente (não pelo consumidor).
 
 ---
 
-## Menu de ação inline na linha filho
+## Estado no `Pedidos.tsx` (`selecaoStore`)
 
-Botão de três pontos (ou ícones rápidos) ao hover na linha filho:
-
+```ts
+// store Zustand em produto/pedido/client/src/shared/state/selecaoStore.ts
+interface SelecaoState {
+  pedidosSelecionados: Pedido[]
+  itensSelecionados: PedidoItem[]
+  hasMixedTipos: boolean    // true quando há importação + exportação juntos
+}
 ```
-PedidoItem row: [...] ⠿  ABC-001  100 un  $500  [→ Transferir] [⧉ Duplicar] [🗑]
+
+Consumido pela página via `usePedidosSelecionados()` e `useItensSelecionados()` (selectors estáveis).
+
+---
+
+## Toolbar contextual (compartilhada)
+
+Os botões da toolbar aceitam **pedido OU item OU mistura** — não há toolbars separadas. Label e tooltip são dinâmicos.
+
+Exemplo do botão **Duplicar**:
+
+```tsx
+disabled={pedidosSelecionados.length === 0 && itensSelecionados.length === 0}
+titulo={
+  pedidosSelecionados.length > 0 && itensSelecionados.length > 0
+    ? `Duplicar · ${nP} pedido(s) + ${nI} item(ns)`
+    : pedidosSelecionados.length > 0
+      ? `Duplicar · ${nP} pedido(s)`
+      : `Duplicar · ${nI} item(ns)`
+}
 ```
 
-Ações inline (sem seleção em massa):
-- **Transferir** — abre ModalTransferir com esse item pré-selecionado
-- **Duplicar** — duplica o item imediatamente (confirma inline)
-- **Excluir** — confirma inline e exclui
+Botões que se comportam assim hoje: **Duplicar**, **Transferir**.
+
+| Botão | Aceita só pedido | Aceita só item | Aceita misto |
+|---|:-:|:-:|:-:|
+| Transferir | ✅ | ✅ | ✅ |
+| Duplicar | ✅ | ✅ | ✅ |
+| Consolidar | ✅ (≥2) | ❌ | ❌ |
+| Editar em Massa | ✅ | — | — |
+| Gerar Documento | ✅ | — | — |
+| Excluir | ✅ | (via dropdown da linha) | — |
+
+---
+
+## Dropdown de ações da linha filho
+
+Botão de três pontos ao hover. Implementado via prop `acoesFilho` da `TabelaVirtualGlobal`:
+
+```ts
+const acoesFilhoEstavel = useCallback((item: PedidoItem) => ([
+  {
+    label: 'Transferir',
+    icone: <ArrowsLeftRight size={13} weight="duotone" />,
+    onClick: () => {
+      setItensSelecionados([item])
+      setModalTransferirAberto(true)
+    },
+  },
+  {
+    label: 'Duplicar',
+    icone: <CopySimple size={13} weight="duotone" />,
+    onClick: () => {
+      setItensSelecionados([item])
+      setModalDuplicarAberto(true)
+    },
+  },
+  {
+    label: 'Excluir',
+    icone: <Trash size={13} weight="duotone" />,
+    perigo: true,
+    onClick: async () => { /* excluirApi.excluirItens(...) */ },
+  },
+]), [/* deps */])
+```
+
+Quando o usuário clica em "Duplicar" no dropdown, o handler popula `itensSelecionados` com aquele item e abre o modal — que então trata o cenário "só item" do fluxo misto.
 
 ---
 
@@ -3072,17 +4399,29 @@ Ações inline (sem seleção em massa):
 
 ```
 PO-001 [expandido]
-  ├── [✓] Item ABC-001  100 un
+  ├── [✓] Item ABC-001  100 un      ← seq 1, marcado
   └── [ ] Item DEF-002   50 un
 
 PO-002 [expandido]
-  ├── [✓] Item ABC-001   30 un   ← mesmo part_number, pedido diferente
+  ├── [✓] Item ABC-001   30 un      ← mesmo part_number, pedido diferente
   └── [ ] Item XYZ-003   20 un
-
-Toolbar itens: Transferir (2) · Duplicar (2) · Excluir (2)
 ```
 
-Cada item selecionado carrega: `{ id, pedido_id, part_number, quantidade_atual, ... }`
+`itensSelecionados` = `[item1_PO001, item1_PO002]`. Toolbar mostra "Duplicar (2 itens)".
+
+Quando o usuário confirma Duplicar:
+- Modal agrupa por `pedido_id` (`itensPorPedido` no `ModalPedidosDuplicar.tsx`)
+- Faz **1 chamada `duplicarItens` por pedido pai distinto** — 2 chamadas em paralelo
+- Backend renumera filhos do pai (cada cópia abaixo do original)
+
+---
+
+## Referências cruzadas
+
+- [`DUPLICAR-EXCLUIR-REGRAS-NEGOCIO.md`](./DUPLICAR-EXCLUIR-REGRAS-NEGOCIO.md) e [`DUPLICAR-EXCLUIR-TECNICO.md`](./DUPLICAR-EXCLUIR-TECNICO.md)
+- [`TRANSFERIR-REGRAS-NEGOCIO.md`](./TRANSFERIR-REGRAS-NEGOCIO.md)
+- [`skills/arquitetura/nucleo-global/SKILL.md`](../../../skills/arquitetura/nucleo-global/SKILL.md) — Sync pai↔filhos
+- [`skills/produtos-gravity/pedido/SKILL.md`](../../../skills/produtos-gravity/pedido/SKILL.md) — Parte 4 (Duplicar) + Parte 3 (Transferir)
 
 --- documentos-tecnicos/produtos-gravity/pedido/SMART-IMPORT-REGRAS-NEGOCIO.md ---
 # Smart Import — Regras de Negócio
@@ -4498,3 +5837,179 @@ testes/
             ├── POST /confirmar — rejeita qty > disponível
             └── POST /reverter — restaura estado anterior
 ```
+
+--- documentos-tecnicos/produtos-gravity/pedido/UNIDADES-TECNICO.md ---
+# Pedido — Unidades de medida (Técnico)
+
+> SSOT: `cadastros.unidade` (banco do serviço Cadastros).
+> Esta página documenta como o produto Pedido consome unidades, persiste a unidade de exibição por campo, valida cruzado contra Cadastros e renderiza dropdown no formato `SIGLA — Nome`.
+
+---
+
+## 1. Visão de alto nível
+
+Cada item do Pedido (`PedidoItem`) tem **4 unidades semânticas** independentes:
+
+| Campo | Coluna no banco | Categorias aceitas (Cadastros) | Default |
+|---|---|---|---|
+| Unidade comercializada | `unidade_comercializada_item` | qualquer categoria (peso/contagem/volume/etc.) | — |
+| Peso líquido | `peso_liquido_unidade_item` | `peso` (KG, G, TON) | `KG` |
+| Peso bruto | `peso_bruto_unidade_item` | `peso` (KG, G, TON) | `KG` |
+| Cubagem | `cubagem_unidade_item` | `comprimento`, `area`, `volume` (CM, M, CM2, M2, ML, LT, M3) | `M3` |
+
+A unidade comercializada governa **5 campos numéricos** do item: `quantidade_inicial`, `quantidade_atual` (saldo), `quantidade_pronta`, `quantidade_transferida`, `quantidade_cancelada`. Os 3 campos `*_unidade_item` governam apenas seus respectivos `*_unitario`/`unitaria`.
+
+**Cubagem aceita 1D/2D/3D** (decisão UX 2026-05-12 do dono do produto). O valor numérico é persistido como digitado — sem conversão entre dimensões, ao contrário do peso (que sempre persiste em KG e converte para a unidade de exibição via fator).
+
+---
+
+## 2. Fonte da Verdade — `cadastros.unidade`
+
+A tabela `cadastros.unidade` (catálogo global, sem `id_organizacao`) é a única fonte de verdade. O produto Pedido **não pode** ter lista hardcoded de unidades em nenhuma camada.
+
+### Hook canônico
+
+`useUnidadesPedido()` em `servicos-global/pedido/client/src/shared/useUnidadesPedido.ts` envelopa `useUnidades()` do `nucleo-global/Modais/modal-tabela-unidades` e expõe 3 listas pré-filtradas + formatadas:
+
+```ts
+const { unidadesComercializadas, unidadesPeso, unidadesCubagem, loading, erro } = useUnidadesPedido()
+```
+
+- `unidadesComercializadas` — todas as unidades ativas (qualquer categoria) — usado em `DrawerPedido.tsx` no `<select>` da unidade do item
+- `unidadesPeso` — apenas `tipo_unidade='peso'` — usado em colunas peso líquido e peso bruto
+- `unidadesCubagem` — `tipo_unidade in ['comprimento','area','volume']` — usado em coluna cubagem
+
+Formato dos rótulos: **`SIGLA — Nome`** (decisão UX 2026-05-12, padrão global em todos os dropdowns de unidade Gravity — ver `TabelaVirtualGlobal.unidadesPadrao`).
+
+### Cache
+
+`useUnidades` do nucleo-global usa cache singleton em memória (uma única requisição HTTP por sessão de browser, compartilhada entre todos os componentes). Invalidação manual via `invalidarCacheUnidades()`.
+
+---
+
+## 3. Fluxo de edição inline (PUT /api/v1/pedidos/:id/itens/:item)
+
+### Frontend
+
+`handleEditarFilho` em `Pedidos.tsx`:
+
+```ts
+const isUnidade = valor && typeof valor === 'object' && 'unit' in valor && 'quantity' in valor
+
+// Persiste a quantidade (em kg quando peso, ou valor digitado quando outro)
+const FATOR_PARA_KG = { 'KG': 1, 'G': 0.001, 'TON': 1000 }
+const CAMPOS_PESO_ITEM = new Set(['peso_liquido_unitario', 'peso_bruto_unitario'])
+
+// Persiste a unidade junto:
+//   - unidade_comercializada_item para quantidade_*
+//   - peso_liquido_unidade_item / peso_bruto_unidade_item para peso
+//   - cubagem_unidade_item para cubagem
+```
+
+### Backend
+
+`atualizarItemSchema` (`processos-core/routes/pedidos.ts:192`) aceita os 4 campos de unidade:
+
+```ts
+unidade_comercializada_item: z.string().optional().nullable(),
+peso_liquido_unidade_item:   z.string().min(1).max(8).optional().nullable(),
+peso_bruto_unidade_item:     z.string().min(1).max(8).optional().nullable(),
+cubagem_unidade_item:        z.string().min(1).max(8).optional().nullable(),
+```
+
+`publicToDddItem` mapeia chaves públicas → colunas DDD (sem renomeação aqui — chaves já são DDD).
+
+`mapItem` (linha 250) devolve as 4 unidades no contrato JSON com defaults (`KG`, `KG`, `M3`).
+
+### Validação cruzada (Mandamento 06 + 09)
+
+Antes do `prisma.update`, o handler chama `validarUnidadesItem` (`services/validarUnidadesItem.ts`):
+
+```ts
+UNIDADES_CATEGORIAS_VALIDAS = {
+  peso_liquido_unidade_item:   ['peso'],
+  peso_bruto_unidade_item:     ['peso'],
+  cubagem_unidade_item:        ['comprimento', 'area', 'volume'],
+  unidade_comercializada_item: [],  // qualquer categoria
+}
+```
+
+Para cada campo de unidade presente no payload:
+1. `buscarUnidadePorCodigo` (do `cadastrosClient`) busca a unidade em `cadastros.unidade`
+2. Se não existe → `AppError(400, "Unidade X nao existe em cadastros.unidade")`
+3. Se a categoria não bate → `AppError(400, "Unidade X tem categoria Y, mas campo aceita Z")`
+
+Falha alta — Mandamento 08 (sem fallback silencioso). Mensagens incluem `correlation_id` para rastreio.
+
+---
+
+## 4. Render — coluna pai vs coluna filho
+
+### Coluna pai (agregado do pedido)
+
+`peso_liquido_total_pedido`, `peso_bruto_total_pedido`, `cubagem_total_pedido` — sempre exibidos em **kg** (peso) e **m³** (cubagem). Valor armazenado é a soma dos itens já convertida; badge é fixo.
+
+`quantidade_total_pedido` (e variantes pronta/transferida/cancelada) — agregado segue a regra `renderQtdPedido`:
+- Se todas as unidades dos itens contribuintes (qty > 0) são iguais → soma + badge
+- Se qty=0 em todos → fallback para unidades declaradas (`unidade_comercializada_item`)
+- Se divergem → alerta `⚠ Unidades divergentes entre itens` (sem soma)
+
+### Coluna filho (item)
+
+- Peso/cubagem: badge mostra `row.peso_liquido_unidade_item ?? 'KG'` etc.
+- Quantidade: badge mostra `row.unidade_comercializada_item ?? 'UN'`
+
+### Editor (popover)
+
+Quando o usuário clica para editar uma célula `tipo: 'unidade'`, o `TabelaVirtualGlobal` abre um popover com:
+- Campo numérico
+- Dropdown de unidade
+
+A lista do dropdown vem de:
+1. Se a coluna passar `unidades: [...]` → essa lista é usada (Pedido faz isso para peso e cubagem via `useUnidadesPedido`)
+2. Senão → `unidadesPadrao` = lista completa de `cadastros.unidade`, formatada `SIGLA — Nome`
+
+Formato sempre `SIGLA — Nome` em qualquer cenário — ver `TabelaVirtualGlobal.tsx` (2 cópias: `tabela-virtual-global/` e `tabelas-componentes/tabela-virtual-global/`).
+
+---
+
+## 5. Migration
+
+`servicos-global/pedido/prisma/migrations/20260512000000_pedido_item_unidades_peso_cubagem/migration.sql`:
+
+```sql
+ALTER TABLE "pedido_item" ADD COLUMN "peso_liquido_unidade_item" TEXT DEFAULT 'KG';
+ALTER TABLE "pedido_item" ADD COLUMN "peso_bruto_unidade_item"   TEXT DEFAULT 'KG';
+ALTER TABLE "pedido_item" ADD COLUMN "cubagem_unidade_item"      TEXT DEFAULT 'M3';
+```
+
+Defaults populam o histórico (todo registro existente assumia KG/M3). Sem backfill explícito.
+
+Sem FK para `cadastros.unidade` — produtos não fazem FK física pra Cadastros (regra arquitetural). Validação é em runtime via `validarUnidadesItem`.
+
+---
+
+## 6. Testes
+
+| Arquivo | Cobertura |
+|---|---|
+| `testes/testes-unitarios/pedido/use-unidades-pedido.test.ts` | 7 testes — filtro por categoria + formato `SIGLA — Nome` |
+| `testes/testes-unitarios/pedido/validar-unidades-item.test.ts` | 18 testes — validação cruzada (categoria certa/errada, sigla inexistente, ctx correlation_id, no-op, etc.) |
+
+---
+
+## 7. Pontos de atenção (para futuros agentes)
+
+1. **NUNCA hardcoded** lista de unidades no produto. Use `useUnidadesPedido()` ou estenda-o.
+2. **Cubagem aceita 1D/2D/3D** — diferente de peso. Não tente converter CM para M3.
+3. **Peso é sempre persistido em KG**. Frontend converte para a unidade de exibição via `KG_PARA_UNIDADE` no render. Backend recebe em KG.
+4. **Validar no PUT, não confiar só em Zod**. Zod aceita string; runtime cruza com Cadastros.
+5. **Editar a unidade comercializada** afeta o badge das 5 colunas de quantidade do item — todas elas leem `unidade_comercializada_item`.
+6. **`PATCH /campo`** ainda não aceita campos de unidade (não estão em `CAMPOS_EDITAVEIS_ITEM`) — o front usa apenas PUT para edição que envolve `{unit, quantity}`. Se precisar editar unidade via PATCH inline no futuro, adicionar à whitelist + validação cruzada.
+
+---
+
+## 8. Histórico
+
+- **2026-05-12** — Migration + ACL + mapItem + Zod + hook `useUnidadesPedido` + factory pattern em colunas. Decisão UX: cubagem 1D/2D/3D, formato `SIGLA — Nome` global em todos os dropdowns Gravity.
+- **Antes:** unidade de peso/cubagem era ignorada silenciosamente pela ACL (Zod aceitava, mas não persistia). Bug visível: usuário trocava unidade, "salvava", recarregava e voltava ao default.

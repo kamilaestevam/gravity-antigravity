@@ -894,27 +894,20 @@ function mockConsolidarConfirmar(payload: ConsolidacaoPayload): Pedido {
 // ── Transferência de Pedidos ──────────────────────────────────────────────────
 
 export const pedidoTransferirApi = {
-  /** Pré-visualização — retorna impacto sem alterar o banco */
   preview: (payload: Omit<TransferPayload, 'numero_pedido_novo'>) =>
-    request<TransferPreview>(`/api/v1/pedidos/${payload.pedido_id}/transferencias/preview`, {
+    request<TransferPreview>(`/api/v1/pedidos/${pid(payload.pedido_id)}/transferencias/preview`, {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
-
-  /** Confirmação — executa a transferência */
   confirmar: (payload: TransferPayload) =>
-    request<TransferResultado>(`/api/v1/pedidos/${payload.pedido_id}/transferencias/confirmar`, {
+    request<TransferResultado>(`/api/v1/pedidos/${pid(payload.pedido_id)}/transferencias/confirmar`, {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
-
-  /** Lista histórico de transferências de um pedido (para reversão) */
   historico: (pedido_id: string) =>
-    request<TransferHistorico[]>(`/api/v1/pedidos/${pedido_id}/transferencias`),
-
-  /** Reverter uma transferência específica */
+    request<TransferHistorico[]>(`/api/v1/pedidos/${pid(pedido_id)}/transferencias`),
   reverter: (pedido_id: string, transfer_id: string) =>
-    request<TransferResultado>(`/api/v1/pedidos/${pedido_id}/transferencias/${transfer_id}/reverter`, {
+    request<TransferResultado>(`/api/v1/pedidos/${pid(pedido_id)}/transferencias/${pid(transfer_id)}/reverter`, {
       method: 'POST',
     }),
 }
@@ -1598,7 +1591,7 @@ const REGRAS_CONFIG_DEFAULT: RegrasConfigBackend = {
   duplicar_numero_auto: false,
   duplicar_copiar_datas: false,
   duplicar_status_inicial: 'copiar',
-  excluir_status_permitidos: ['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'],
+  excluir_status_permitidos: [],
   excluir_pedido_sem_item_permitido: true,
   excluir_confirmar_com_preview: true,
   alerta_numero_duplicado: true,

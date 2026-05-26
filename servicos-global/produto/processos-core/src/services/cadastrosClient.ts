@@ -5,8 +5,8 @@
  * Empresas envolvidas pelo SUID e grava um PedidoSnapshotEmpresa por papel
  * (importador/exportador/fabricante). Sem FK física — SUID é referência lógica.
  *
- * Contratos bilaterais (Mandamento 09): `empresaSchema` importado de
- * `tenant/cadastros/shared/schemas`. Nunca duplicar o schema Zod aqui.
+ * Contratos bilaterais (Mandamento 09): `fornecedorSchema` importado de
+ * `cadastros/shared/schemas`. Nunca duplicar o schema Zod aqui.
  *
  * Autenticação: `x-internal-key` (CHAVE_INTERNA_SERVICO).
  * Tenant context: `x-organizacao-id` (id da Organizacao dona do Pedido).
@@ -15,14 +15,16 @@
  * Timeout: 5s — o POST /pedidos é síncrono, não pode segurar o usuário.
  */
 
+import { z } from 'zod'
 import {
-  empresaSchema,
+  fornecedorSchema,
+  criarFornecedorSchema,
   incotermSchema,
   moedaSchema,
   ncmSchema,
   opeSchema,
   unidadeSchema,
-  type Empresa,
+  type Fornecedor,
   type Incoterm,
   type Moeda,
   type NCM,
@@ -81,12 +83,12 @@ async function lerCorpoErro(response: Response): Promise<string> {
  *
  * - 404 → erro de contrato do chamador (SUID inválido): `AppError(400)`
  * - 5xx / rede / timeout → `AppError(503)` para o caller decidir retry
- * - 2xx → valida resposta com `empresaSchema` (contrato bilateral)
+ * - 2xx → valida resposta com `fornecedorSchema` (contrato bilateral)
  */
 export async function buscarEmpresaPorSuid(
   suid: string,
   ctx: CadastrosRequestContext,
-): Promise<Empresa> {
+): Promise<Fornecedor> {
   let response: Response
   try {
     response = await fetch(
@@ -114,7 +116,7 @@ export async function buscarEmpresaPorSuid(
   }
 
   const raw = await response.json()
-  return empresaSchema.parse(raw)
+  return fornecedorSchema.parse(raw)
 }
 
 /**
@@ -128,7 +130,7 @@ export async function buscarEmpresaPorSuid(
 export async function buscarEmpresasPorSuids(
   suids: readonly string[],
   ctx: CadastrosRequestContext,
-): Promise<Map<string, Empresa>> {
+): Promise<Map<string, Fornecedor>> {
   const unicos = Array.from(new Set(suids.filter((s) => s.length > 0)))
   if (unicos.length === 0) return new Map()
 
@@ -401,4 +403,91 @@ export async function buscarAeroportoPorCodigo(
     ctx,
     'Aeroporto',
   )
+}
+
+/** Lista fornecedores por busca textual (Smart Import — resolver parceiros). */
+export async function listarFornecedoresPorBusca(
+  busca: string,
+  ctx: CadastrosRequestContext,
+): Promise<Fornecedor[]> {
+  const params = new URLSearchParams({
+    busca,
+    por_pagina: '20',
+    pagina: '1',
+  })
+  let response: Response
+  try {
+    response = await fetch(
+      `${getCadastrosUrl()}/api/v1/fornecedores?${params.toString()}`,
+      {
+        method: 'GET',
+        headers: headersPadrao(ctx),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      },
+    )
+  } catch {
+    throw new AppError(503, 'Serviço Cadastros indisponível (rede/timeout)')
+  }
+
+  if (!response.ok) {
+    const corpo = await lerCorpoErro(response)
+    throw new AppError(response.status >= 500 ? 503 : response.status, `Cadastros rejeitou busca de fornecedores: ${corpo}`)
+  }
+
+  const raw = await response.json() as { itens?: unknown[] }
+  const itens = Array.isArray(raw.itens) ? raw.itens : []
+  return itens.map((item) => fornecedorSchema.parse(item))
+}
+
+/** Cria fornecedor no Cadastros (Smart Import — parceiro ausente). */
+export async function criarFornecedor(
+  payload: z.infer<typeof criarFornecedorSchema>,
+  ctx: CadastrosRequestContext,
+): Promise<Fornecedor> {
+  const dados = criarFornecedorSchema.parse(payload)
+  let response: Response
+  try {
+    response = await fetch(`${getCadastrosUrl()}/api/v1/fornecedores`, {
+      method: 'POST',
+      headers: headersPadrao(ctx),
+      body: JSON.stringify(dados),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    })
+  } catch {
+    throw new AppError(503, 'Serviço Cadastros indisponível (rede/timeout)')
+  }
+
+  if (!response.ok) {
+    const corpo = await lerCorpoErro(response)
+    throw new AppError(response.status >= 500 ? 503 : response.status, `Cadastros rejeitou criação de fornecedor: ${corpo}`)
+  }
+
+  const raw = await response.json()
+  return fornecedorSchema.parse(raw)
+}
+
+/** Empresa da organização (importador em importação / exportador em exportação). */
+export async function obterEmpresaDaOrganizacao(
+  ctx: CadastrosRequestContext,
+): Promise<Fornecedor | null> {
+  let response: Response
+  try {
+    response = await fetch(`${getCadastrosUrl()}/api/v1/fornecedores/da-organizacao`, {
+      method: 'GET',
+      headers: headersPadrao(ctx),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    })
+  } catch {
+    throw new AppError(503, 'Serviço Cadastros indisponível (rede/timeout)')
+  }
+
+  if (response.status === 404) return null
+
+  if (!response.ok) {
+    const corpo = await lerCorpoErro(response)
+    throw new AppError(response.status >= 500 ? 503 : response.status, `Cadastros rejeitou empresa da organização: ${corpo}`)
+  }
+
+  const raw = await response.json()
+  return fornecedorSchema.parse(raw)
 }

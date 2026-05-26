@@ -596,7 +596,7 @@ interface RegrasConfig {
     copiarDados: boolean
   }
   excluir: {
-    statusPermitidos: string[]
+    statusBloqueados: string[]
     semItensPermitido: boolean
     confirmarComPreview: boolean
   }
@@ -1766,6 +1766,21 @@ export default function Configuracoes() {
   }
 
   // ── Regras state ──
+  const LEGACY_EXCLUIR_WHITELIST_UI = [
+    'rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado',
+  ] as const
+
+  function migrarStatusBloqueadosUi(raw: string[] | undefined): string[] {
+    if (!raw?.length) return []
+    if (
+      raw.length === LEGACY_EXCLUIR_WHITELIST_UI.length &&
+      LEGACY_EXCLUIR_WHITELIST_UI.every((s) => raw.includes(s))
+    ) {
+      return []
+    }
+    return raw
+  }
+
   const [regrasAlterados, setRegrasAlterados] = useState(false)
   const regrasInicialRef = useRef<RegrasConfig | null>(null)
 
@@ -1782,7 +1797,7 @@ export default function Configuracoes() {
       copiarDados: true,
     },
     excluir: {
-      statusPermitidos: ['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'],
+      statusBloqueados: [],
       semItensPermitido: true,
       confirmarComPreview: true,
     },
@@ -1824,7 +1839,7 @@ export default function Configuracoes() {
         },
         excluir: {
           ...prev.excluir,
-          statusPermitidos: backend.excluir_status_permitidos,
+          statusBloqueados: migrarStatusBloqueadosUi(backend.excluir_status_permitidos),
           semItensPermitido: backend.excluir_pedido_sem_item_permitido,
           confirmarComPreview: backend.excluir_confirmar_com_preview,
         },
@@ -1867,7 +1882,7 @@ export default function Configuracoes() {
         duplicar_numero_auto: regrasConfig.duplicar.numeracaoAutomatica,
         duplicar_copiar_datas: regrasConfig.duplicar.copiarDatas,
         duplicar_status_inicial: regrasConfig.duplicar.statusInicial,
-        excluir_status_permitidos: regrasConfig.excluir.statusPermitidos,
+        excluir_status_permitidos: regrasConfig.excluir.statusBloqueados,
         excluir_pedido_sem_item_permitido: regrasConfig.excluir.semItensPermitido,
         excluir_confirmar_com_preview: regrasConfig.excluir.confirmarComPreview,
         alerta_numero_duplicado: regrasConfig.alertas.numeroDuplicado,
@@ -1883,13 +1898,13 @@ export default function Configuracoes() {
     } catch { /* silenciar erros */ }
   }
 
-  function toggleStatusExcluir(statusId: string) {
+  function toggleStatusBloqueadoExcluir(statusNome: string) {
     setRegrasConfig(prev => {
-      const atual = prev.excluir.statusPermitidos
-      const novo = atual.includes(statusId)
-        ? atual.filter(s => s !== statusId)
-        : [...atual, statusId]
-      return { ...prev, excluir: { ...prev.excluir, statusPermitidos: novo } }
+      const atual = prev.excluir.statusBloqueados
+      const novo = atual.includes(statusNome)
+        ? atual.filter(s => s !== statusNome)
+        : [...atual, statusNome]
+      return { ...prev, excluir: { ...prev.excluir, statusBloqueados: novo } }
     })
   }
 
@@ -2247,6 +2262,7 @@ export default function Configuracoes() {
   }
 
   function excluirStatus(id: string) {
+    const statusRemovido = statusList.find(s => s.id === id)
     const novaLista = statusList.filter(s => s.id !== id)
     setStatusList(novaLista)
     sincronizarStatusLocal(novaLista)
@@ -2254,7 +2270,9 @@ export default function Configuracoes() {
       ...prev,
       excluir: {
         ...prev.excluir,
-        statusPermitidos: prev.excluir.statusPermitidos.filter(s => s !== id),
+        statusBloqueados: statusRemovido
+          ? prev.excluir.statusBloqueados.filter(n => n !== statusRemovido.nome)
+          : prev.excluir.statusBloqueados,
       },
     }))
     pedidoConfigApi.deletarStatus(id).catch(() => {
@@ -3579,8 +3597,8 @@ export default function Configuracoes() {
                       <input
                         type="checkbox"
                         className="cfg-check-item__input"
-                        checked={regrasConfig.excluir.statusPermitidos.includes(s.nome)}
-                        onChange={() => toggleStatusExcluir(s.nome)}
+                        checked={regrasConfig.excluir.statusBloqueados.includes(s.nome)}
+                        onChange={() => toggleStatusBloqueadoExcluir(s.nome)}
                       />
                       <span className="cfg-check-item__label">{s.rotulo}</span>
                     </label>

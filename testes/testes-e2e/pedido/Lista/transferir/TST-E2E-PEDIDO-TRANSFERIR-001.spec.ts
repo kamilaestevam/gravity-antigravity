@@ -241,3 +241,19 @@ test.describe.skip('Fluxo 11 — Validações de interface', () => {
     await expect(input).toHaveValue('')
   })
 })
+
+// ── Hotfix 2026-05 — pid com barra na URL ───────────────────────────────────
+
+test.describe.skip('Hotfix — pedido id com / (encodeURIComponent)', () => {
+  test('F12-01: preview transferência não retorna 404 quando id contém barra', async ({ page }) => {
+    await navegarParaLista(page)
+    await abrirDetalhePedido(page, 'BR/PO-2026/001')
+    await abrirModalTransferir(page, 'itm-001')
+
+    await page.selectOption('[data-testid="select-cenario"]', 'split_novo_pedido')
+    await page.fill('[data-testid="input-quantidade-origem"]', '10')
+    await page.click('[data-testid="btn-preview"]')
+
+    await expect(page.locator('[data-testid="preview-resultado"]')).toBeVisible({ timeout: 10_000 })
+  })
+})

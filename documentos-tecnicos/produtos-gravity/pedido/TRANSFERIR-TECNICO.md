@@ -1,9 +1,10 @@
 # Transferir Pedidos — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
+> **Versão:** 1.1
 > **Data:** Abril 2026
-> **Status:** Aguardando implementação
+> **Última atualização:** 2026-05-26
+> **Status:** Implementado (client + server + testes funcionais)
 
 ---
 
@@ -137,37 +138,38 @@ export interface TransferHistorico {
 
 ## API Client (`client/src/shared/api.ts`)
 
+IDs legados de pedido podem conter `/` (ex: `pedi_id_1234567/26`). **Todo** segmento de path
+(`id_pedido`, `id_transferencia_pedido`) deve passar por `pid()` = `encodeURIComponent`
+antes de montar a URL — senão Express interpreta a barra como separador de rota → **404 Rota não encontrada**.
+
 ```ts
+/** Codifica IDs legados que contêm '/' para uso em URLs */
+function pid(id: string): string {
+  return encodeURIComponent(id)
+}
+
 export const pedidoTransferirApi = {
-  // Pré-visualização — mostra impacto antes de confirmar
-  preview: (payload: Omit<TransferPayload, 'numero_pedido_novo'>) =>
-    request<TransferPreview>('/api/v1/pedidos/transferir/preview', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+  preview: (payload) =>
+    request(`/api/v1/pedidos/${pid(payload.pedido_id)}/transferencias/preview`, { method: 'POST', ... }),
 
-  // Confirmação — executa a transferência
-  confirmar: (payload: TransferPayload) =>
-    request<TransferResultado>('/api/v1/pedidos/transferir/confirmar', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+  confirmar: (payload) =>
+    request(`/api/v1/pedidos/${pid(payload.pedido_id)}/transferencias/confirmar`, { method: 'POST', ... }),
 
-  // Lista histórico de transferências de um pedido (para reversão)
-  historico: (pedido_id: string) =>
-    request<TransferHistorico[]>(`/api/v1/pedidos/${pedido_id}/transferencias`),
+  historico: (pedido_id) =>
+    request(`/api/v1/pedidos/${pid(pedido_id)}/transferencias`),
 
-  // Reverter uma transferência específica
-  reverter: (transfer_id: string) =>
-    request<TransferResultado>(`/api/v1/pedidos/transferir/${transfer_id}/reverter`, {
-      method: 'POST',
-    }),
+  reverter: (pedido_id, transfer_id) =>
+    request(`/api/v1/pedidos/${pid(pedido_id)}/transferencias/${pid(transfer_id)}/reverter`, { method: 'POST', ... }),
 }
 ```
 
+> **Regressão corrigida (2026-05-26):** preview/confirmar/historico/reverter passaram a usar `pid()`.
+> Testes: `testes-unitarios/pedido/lista/transferir/pid-url-encoding.test.ts` e
+> `testes-funcionais/pedido/Lista/transferir/url-pid-encoding.test.ts`.
+
 ---
 
-## Backend — Rotas (`server/src/routes/transferir.ts`)
+## Backend — Rotas (`server/src/routes/transferencias-pedido.ts`)
 
 ### `POST /api/v1/pedidos/transferir/preview`
 

@@ -372,8 +372,15 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       })
       .catch((err: unknown) => {
         if (cancelado) return
-        const msg =
-          err instanceof Error ? err.message : t('pedido.modal_novo.erro_inesperado')
+        const bruto = err instanceof Error ? err.message : ''
+        let msg = bruto || t('pedido.modal_novo.erro_inesperado')
+        if (bruto.includes('Organização não tem Empresa cadastrada') || bruto.includes('onboarding incompleto')) {
+          msg = t('pedido.modal_novo.erro_empresa_da_org_onboarding')
+        } else if (bruto.includes('Cadastros indisponível') || bruto.includes('BANCO_INDISPONIVEL')) {
+          msg = t('pedido.modal_novo.erro_empresa_da_org_cadastros_off')
+        } else if (bruto.includes('Ocorreu um erro interno')) {
+          msg = t('pedido.modal_novo.erro_empresa_da_org_cadastros_off')
+        }
         setErroEmpresaDaOrg(msg)
         setEmpresaDaOrg(null)
       })

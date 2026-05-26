@@ -2,7 +2,7 @@
 
 > **Produto:** Pedido (COMEX)
 > **Versão:** 2.0
-> **Última atualização:** 2026-05-13
+> **Última atualização:** 2026-05-26
 > **Status:** Implementado (commit `0ab3cc99`)
 
 ---
@@ -107,11 +107,15 @@ Remove definitivamente um ou mais pedidos (ou itens). **Hard delete** — não h
 
 | Configuração | Descrição | Default |
 |---|---|---|
-| `excluir_status_permitidos` | Lista de status que podem ser excluídos | `['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado']` |
+| `excluir_status_permitidos` | **Blacklist opt-out** — status **bloqueados** para exclusão (nome de coluna legado; semântica invertida em 2026-05-26) | `[]` (= todos os status permitidos, inclusive custom como `pagamento_aprovado`) |
 | `excluir_pedido_sem_item_permitido` | Se false: ao excluir o último item, exclui o pedido pai também | `true` |
 
+> **Migração (2026-05-26):** orgs com a whitelist legada dos 7 status canônicos são normalizadas para `[]` no backend e na UI de Configurações — comportamento equivalente a “liberar todos”. Orgs que tinham whitelist **custom** (subset dos 7) mantêm a lista como blacklist explícita; revisar manualmente se algum status custom legítimo ficou bloqueado por engano.
+
 ### Fluxo de restrição por status
-- Se pedido não está em um status da lista `excluir_status_permitidos` → bloqueia com mensagem explicando quais status permitem exclusão
+- **Default (`[]`):** qualquer status pode ser excluído — inclusive status custom criados pela organização
+- Se o status do pedido está na blacklist `excluir_status_permitidos` → bloqueia com mensagem: *"Status \"X\" está bloqueado para exclusão nas configurações da organização"*
+- Na UI de Configurações, checkbox **marcado** = status **bloqueado** (opt-out)
 
 ### Fluxo UX
 1. Usuário seleciona pedido(s) ou item(s)
@@ -137,8 +141,8 @@ duplicar_numero_auto              Boolean  @default(false)
 duplicar_copiar_datas             Boolean  @default(false)
 duplicar_status_inicial           String   @default("copiar")
 
-// Excluir
-excluir_status_permitidos         String[] @default(["rascunho", "aberto", "em_andamento", "aprovado", "transferencia", "consolidado", "cancelado"])
+// Excluir — coluna excluir_status_permitidos guarda BLACKLIST (nome legado)
+excluir_status_permitidos         String[] @default([])   // [] = todos permitidos
 excluir_pedido_sem_item_permitido Boolean  @default(true)
 ```
 

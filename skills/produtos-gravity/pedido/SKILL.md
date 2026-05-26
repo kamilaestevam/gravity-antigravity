@@ -286,6 +286,13 @@ FORNECEDOR pode ser cross-organização (não exige org match). Mand. 04 NÃO se
 - **Empty selection**: usuário desmarcar tudo = lista vazia (curto-circuito local, **sem fetch**). Coerência popover ↔ dados.
 - **Chip híbrido**: 1-2 nomes diretos, 3+ "N selecionados". Clicável (reabre popover ancorado no chip). Tooltip `TooltipGlobal` com lista numerada.
 
+### Cache local do escopo (PR #80)
+
+- **`sessionStorage` por org:** `pedido:workspaces_escopo:{id_organizacao}` — SSOT alinhado com `useEscopoWorkspacesPedido` e `pedido-escopo-hub.ts`.
+- **Legado:** chave global `pedido:workspaces_escopo` — só leitura; **nunca gravar** em código novo.
+- **Hidratação:** IDs fora de `idsDisponiveis` são descartados antes de usar escopo (Mand. 08 — sem fallback silencioso para outra org).
+- **Hub:** modal de divergência resolve nomes via `GET /api/v1/me/workspaces`, não pelo carousel do Hub.
+
 ### Quando mexer aqui — checklist
 
 - [ ] Mudou regra de visibilidade? Atualizar **DOIS** lugares: `/hub/init` E `workspaces-habilitados-internal.ts`. Dívida D11 pede extração para serviço comum.

@@ -231,6 +231,22 @@ model UsuarioWorkspace {
 
 ---
 
+## Hub — modal escopo Pedido (PR #80)
+
+Ao clicar **Entrar no Workspace** com Pedido contratado, se o filtro salvo no Pedido difere do workspace selecionado, exibe modal **"Filtro de workspaces no Pedido"**.
+
+| Regra | Detalhe |
+|-------|---------|
+| SSOT código | `src/utils/pedido-escopo-hub.ts` + `pages/SelecionarWorkspace.tsx` |
+| Preferência | Backend `preferencia_usuario_coluna_pedido` primeiro; fallback `sessionStorage` **por org** (`pedido:workspaces_escopo:{id_organizacao}`) |
+| Nomes na UI | `GET /api/v1/me/workspaces` — nunca fallback para CUID |
+| IDs inválidos | Descartar antes de exibir (`filtrarIdsEscopoWorkspacesValidos`) |
+| Cross-tenant | IDs stale de outra org no mesmo browser = cache local enganoso, **não** vazamento de dados |
+
+Doc: [`FILTRO-MULTI-WORKSPACE-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/FILTRO-MULTI-WORKSPACE-TECNICO.md) — seção "Persistência do escopo".
+
+---
+
 ## Identidade — Endpoint Canônico (pós-DDD 2026-04-19)
 
 > O Clerk é apenas o **porteiro JWT**. Toda identidade real vem do Prisma via este endpoint.

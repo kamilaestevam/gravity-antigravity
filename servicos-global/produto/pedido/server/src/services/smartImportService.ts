@@ -29,6 +29,11 @@ import {
 } from '../../../shared/classificarImportacao.js'
 import { recalcularAgregadosPedido } from '../../../../processos-core/src/services/recalcularAgregadosPedido.js'
 import { parseNumeroBr, parseNumeroBrOpcional } from '../../../shared/formatadores.js'
+import {
+  aplicarParceirosResolvidosNoPedido,
+  type ParceirosResolvidosPedido,
+} from './smartImportParceirosService.js'
+import type { NomesEmpresaItem } from '../../../shared/mapaPropagacaoPedidoItem.js'
 
 export { parseNumeroBr, parseNumeroBrOpcional } from '../../../shared/formatadores.js'
 
@@ -122,9 +127,44 @@ const CAMPOS_PRISMA_EXTRAS_MAPEAMENTO = new Map<string, string>([
   ['data embarque item', 'data_embarque_item'],
 ])
 
+/** Prisma encerrou a transação (timeout P2024, desconexão, etc.). */
+export function transacaoPrismaExpiradaOuEncerrada(err: unknown): boolean {
+  if (!(err instanceof Error)) return false
+  const msg = err.message
+  return (
+    msg.includes('Transaction not found')
+    || msg.includes('Transaction API error')
+    || msg.includes('Transaction already closed')
+    || msg.includes('P2024')
+    || /transaction.*timed?\s*out/i.test(msg)
+  )
+}
+
+const MSG_IMPORT_TX_TIMEOUT =
+  'A importacao demorou mais que o limite do servidor e foi interrompida. Divida a planilha em lotes menores e tente novamente.'
+
+function lancarSeTransacaoEncerrada(err: unknown): void {
+  if (transacaoPrismaExpiradaOuEncerrada(err)) {
+    throw new AppError(MSG_IMPORT_TX_TIMEOUT, 408, 'HTTP_408')
+  }
+}
+
+async function executarSavepointSql(db: unknown, sql: string): Promise<void> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (db as any).$executeRawUnsafe(sql)
+  } catch (err) {
+    lancarSeTransacaoEncerrada(err)
+    throw err
+  }
+}
+
 function traduzirErroPrisma(err: unknown): string {
   if (!(err instanceof Error)) return 'Erro desconhecido ao processar linha'
   const msg = err.message
+  if (transacaoPrismaExpiradaOuEncerrada(err)) {
+    return MSG_IMPORT_TX_TIMEOUT
+  }
   // Prisma P2002 — unique constraint
   if (msg.includes('Unique constraint failed')) {
     const camposMatch = msg.match(/fields:\s*\(([^)]+)\)/)
@@ -295,6 +335,64 @@ const PREVIEW_TTL_MS = 30 * 60 * 1000
 
 export function criarSmartImportService(prismaClient: Record<string, unknown>): SmartImportService {
   return new SmartImportService(prismaClient)
+}
+
+/** Preenche nomes de parceiro do pedido no item sem sobrescrever valor já vindo da linha. */
+function mesclarNomesItemParceiros(
+  itemData: Record<string, unknown>,
+  nomesItem: NomesEmpresaItem | undefined,
+): Record<string, unknown> {
+  if (!nomesItem) return itemData
+  const out = { ...itemData }
+  if (nomesItem.nome_exportador_item && !out.nome_exportador_item) {
+    out.nome_exportador_item = nomesItem.nome_exportador_item
+  }
+  if (nomesItem.nome_importador_item && !out.nome_importador_item) {
+    out.nome_importador_item = nomesItem.nome_importador_item
+  }
+  if (nomesItem.nome_fabricante_item && !out.nome_fabricante_item) {
+    out.nome_fabricante_item = nomesItem.nome_fabricante_item
+  }
+  return out
+}
+
+function aplicarFksParceirosNoPedido(
+  dadosPedido: Record<string, unknown>,
+  parceiros: ParceirosResolvidosPedido | undefined,
+): void {
+  if (!parceiros) return
+  if (parceiros.tipo_operacao === 'importacao' && parceiros.suid_exportador) {
+    dadosPedido.id_importacao_exportador_pedido = parceiros.suid_exportador
+  }
+  if (parceiros.tipo_operacao === 'exportacao' && parceiros.suid_importador) {
+    dadosPedido.id_exportacao_importador_pedido = parceiros.suid_importador
+  }
+  if (parceiros.suid_fabricante) {
+    dadosPedido.id_fabricante_pedido = parceiros.suid_fabricante
+  }
+}
+
+/** Monta linhas filtradas do payload de confirmar (cache ou stateless). */
+export function prepararLinhasFiltradasConfirmacao(
+  tenantId: string,
+  payload: SmartImportConfirmar,
+): SmartImportLinha[] {
+  if (!payload.preview_id.startsWith(tenantId + '-')) {
+    throw new AppError('Preview nao pertence a este tenant', 403, 'UNAUTHORIZED_PREVIEW')
+  }
+  const cached = previewCache.get(payload.preview_id)
+  const linhasParaUsar: SmartImportLinha[] = cached
+    ? cached.data
+    : (payload.linhas ?? []).length > 0
+      ? payload.linhas as unknown as SmartImportLinha[]
+      : payload.linhas_incluidas.map((n) => ({
+          linha_arquivo: n,
+          numero_pedido: null,
+          status: 'ok' as const,
+          alertas: [],
+          dados: {},
+        }))
+  return linhasParaUsar.filter((l) => payload.linhas_incluidas.includes(l.linha_arquivo))
 }
 
 // Defaults alinhados com PedidoCasasDecimais (schema Prisma)
@@ -694,29 +792,15 @@ export class SmartImportService {
     userId: string,
     payload: SmartImportConfirmar,
     companyId?: string,
+    parceirosPorNumero: Map<string, ParceirosResolvidosPedido> = new Map(),
   ): Promise<SmartImportResultado> {
     // SEC — Garantir que o preview pertence ao tenant (defense in depth além da rota)
     if (!payload.preview_id.startsWith(tenantId + '-')) {
       throw new AppError('Preview nao pertence a este tenant', 403, 'UNAUTHORIZED_PREVIEW')
     }
+
+    const linhasFiltradas = prepararLinhasFiltradasConfirmacao(tenantId, payload)
     const cached = previewCache.get(payload.preview_id)
-
-    // Usar linhas do cache; fallback stateless para multi-instancia (P0.3)
-    const linhasParaUsar: SmartImportLinha[] = cached
-      ? cached.data
-      : (payload.linhas ?? []).length > 0
-        ? payload.linhas as unknown as SmartImportLinha[]
-        : payload.linhas_incluidas.map(n => ({
-            linha_arquivo: n,
-            numero_pedido: null,
-            status: 'ok' as const,
-            alertas: [],
-            dados: {},
-          }))
-
-    const linhasFiltradas = linhasParaUsar.filter(l =>
-      payload.linhas_incluidas.includes(l.linha_arquivo)
-    )
 
     const criados:    string[] = []
     const atualizados: number[] = []  // numeros de linha do arquivo (resposta ao cliente)
@@ -789,8 +873,7 @@ export class SmartImportService {
         // Savepoint PG por linha: se uma linha falhar (ex: unique constraint),
         // o rollback é apenas dessa linha, sem abortar a transação inteira.
         const spName = `sp_linha_${linha.linha_arquivo}`
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (this.db as any).$executeRawUnsafe(`SAVEPOINT ${spName}`)
+        await executarSavepointSql(this.db, `SAVEPOINT ${spName}`)
         try {
           // Aplicar numero editado pelo usuario (SEC.1 / Problema 6)
           const numeroEditado = payload.numeros_editados?.[linha.linha_arquivo]
@@ -811,8 +894,7 @@ export class SmartImportService {
             const valorUnit = parseNumeroBr(valorUnitRaw, NaN)
             if (Number.isFinite(valorUnit) && valorUnit < 0) {
               erros.push({ linha: linha.linha_arquivo, motivo: 'Valor unitario do item nao pode ser negativo' })
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
+              await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
               continue
             }
           }
@@ -821,8 +903,7 @@ export class SmartImportService {
           const erroNumeros = this.validarNumerosParaGravar(dados, tipoLinha)
           if (erroNumeros) {
             erros.push({ linha: linha.linha_arquivo, motivo: erroNumeros })
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
+            await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
             continue
           }
 
@@ -832,10 +913,14 @@ export class SmartImportService {
           // Linhas ITEM sempre devem seguir para o caminho de "adicionar item ao pedido existente".
           if (tipoLinha !== 'ITEM' && numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'pular') {
             pulados.push(linha.linha_arquivo)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
+            await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
             continue
           }
+
+          const numeroPedidoFinal = payload.numeros_editados?.[linha.linha_arquivo] ?? numeroPedido
+          const parceirosNumero = numeroPedidoFinal
+            ? parceirosPorNumero.get(numeroPedidoFinal)
+            : undefined
 
           const dadosPedido = {
             ...this.montarDadosPedido(
@@ -843,10 +928,11 @@ export class SmartImportService {
               tenantId,
               companyId ?? tenantId,
               casasConfig,
-              optsOrdemPlanilha(numeroPedido),
+              optsOrdemPlanilha(numeroPedidoFinal ?? numeroPedido),
             ),
             id_status_pedido: idStatusRascunho,
           }
+          aplicarFksParceirosNoPedido(dadosPedido, parceirosNumero)
 
           if (tipoLinha !== 'ITEM' && numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'sobrescrever') {
             const existente = await (this.db as Record<string, any>)['pedido'].findFirst({
@@ -857,18 +943,18 @@ export class SmartImportService {
                 where: { id_pedido: existente.id_pedido },
                 data:  dadosPedido,
               })
+              if (parceirosNumero) {
+                await aplicarParceirosResolvidosNoPedido(this.db, existente.id_pedido, tenantId, parceirosNumero)
+              }
               registrarOrdemPlanilhaPedido(existente.id_pedido, numeroPedido)
               atualizados.push(linha.linha_arquivo)
               idsPedidosParaRecalcular.add(existente.id_pedido)
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
+              await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
               continue
             }
           }
 
           // Verificar se já existe pedido com este número (para importação incremental de itens)
-          const numeroPedidoFinal = payload.numeros_editados?.[linha.linha_arquivo] ?? numeroPedido
-
           if (numeroPedidoFinal && (tipoLinha === 'ITEM' || !payload.decisoes_duplicatas[numeroPedidoFinal])) {
             const pedidoExistente = await (this.db as Record<string, any>)['pedido'].findFirst({
               where: { numero_pedido: numeroPedidoFinal, id_organizacao: tenantId, status_pedido: { not: 'cancelado' } },
@@ -878,29 +964,32 @@ export class SmartImportService {
             if (pedidoExistente && (dados['part_number_item'] || dados['descricao_item'])) {
               try {
                 const seqItem = await obterProximaSequenciaItem(pedidoExistente.id_pedido)
-                const itemData = this.montarDadosItem(dados, tenantId, companyId ?? tenantId, casasConfig, seqItem)
+                const itemData = mesclarNomesItemParceiros(
+                  this.montarDadosItem(dados, tenantId, companyId ?? tenantId, casasConfig, seqItem),
+                  parceirosNumero?.nomesItem,
+                )
                 itemData.pedido_item = { connect: { id_pedido: pedidoExistente.id_pedido } }
                 await (this.db as Record<string, any>)['pedidoItem'].create({ data: itemData })
+                if (parceirosNumero) {
+                  await aplicarParceirosResolvidosNoPedido(this.db, pedidoExistente.id_pedido, tenantId, parceirosNumero)
+                }
                 registrarOrdemPlanilhaPedido(pedidoExistente.id_pedido, numeroPedidoFinal)
                 atualizados.push(linha.linha_arquivo)
                 idsPedidosParaRecalcular.add(pedidoExistente.id_pedido)
               } catch (errInsert: unknown) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                await (this.db as any).$executeRawUnsafe(`ROLLBACK TO SAVEPOINT ${spName}`)
+                await executarSavepointSql(this.db, `ROLLBACK TO SAVEPOINT ${spName}`)
                 erros.push({
                   linha: linha.linha_arquivo,
                   motivo: `Falha ao adicionar item ao pedido "${numeroPedidoFinal}": ${traduzirErroPrisma(errInsert)}`,
                 })
               }
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
+              await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
               continue
             }
 
             if (pedidoExistente) {
               // Pedido existe mas linha não tem dados de item — pular silenciosamente
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
+              await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
               atualizados.push(linha.linha_arquivo)
               idsPedidosParaRecalcular.add(pedidoExistente.id_pedido)
               continue
@@ -913,12 +1002,21 @@ export class SmartImportService {
           // Usa montarDadosItem para mapeamento completo (100% cobertura).
           const itemPayload = (dados['part_number_item'] || dados['descricao_item']) ? {
             itens_pedido: {
-              create: [this.montarDadosItemInline(dados, tenantId, companyId ?? tenantId, casasConfig, 1)],
+              create: [
+                mesclarNomesItemParceiros(
+                  this.montarDadosItemInline(dados, tenantId, companyId ?? tenantId, casasConfig, 1),
+                  parceirosNumero?.nomesItem,
+                ),
+              ],
             },
           } : {}
 
+          const snapshotsPayload = parceirosNumero?.snapshots.length
+            ? { snapshots_empresa_pedido: { create: parceirosNumero.snapshots } }
+            : {}
+
           const novo = await (this.db as Record<string, any>)['pedido'].create({
-            data: { ...dadosPedido, ...itemPayload },
+            data: { ...dadosPedido, ...itemPayload, ...snapshotsPayload },
           })
           if (itemPayload.itens_pedido) {
             proximaSequenciaPorPedido.set(novo.id_pedido, 2)
@@ -926,11 +1024,9 @@ export class SmartImportService {
           registrarOrdemPlanilhaPedido(novo.id_pedido, numeroPedidoFinal ?? numeroPedido)
           criados.push(novo.id_pedido)
           idsPedidosParaRecalcular.add(novo.id_pedido)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
+          await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
         } catch (err: unknown) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (this.db as any).$executeRawUnsafe(`ROLLBACK TO SAVEPOINT ${spName}`)
+          await executarSavepointSql(this.db, `ROLLBACK TO SAVEPOINT ${spName}`)
           erros.push({
             linha: linha.linha_arquivo,
             motivo: traduzirErroPrisma(err),
@@ -953,16 +1049,13 @@ export class SmartImportService {
       // arquivo (bug que abortava toda a transacao).
       for (const pedidoId of idsPedidosParaRecalcular) {
         const spRecalc = `sp_recalc_${pedidoId.replace(/[^a-zA-Z0-9_]/g, '_')}`
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (this.db as any).$executeRawUnsafe(`SAVEPOINT ${spRecalc}`)
+        await executarSavepointSql(this.db, `SAVEPOINT ${spRecalc}`)
         try {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await recalcularAgregadosPedido(this.db as any, pedidoId, tenantId)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spRecalc}`)
+          await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spRecalc}`)
         } catch (errRecalc: unknown) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (this.db as any).$executeRawUnsafe(`ROLLBACK TO SAVEPOINT ${spRecalc}`)
+          await executarSavepointSql(this.db, `ROLLBACK TO SAVEPOINT ${spRecalc}`)
           const msgInterna = errRecalc instanceof Error ? errRecalc.message : 'Erro desconhecido'
           console.warn(`[smartImport:confirmar] recalcularAgregadosPedido falhou pedido=${pedidoId}: ${msgInterna}`)
           erros.push({ linha: 0, motivo: `Pedido importado, mas o cálculo dos totais falhou. Abra o pedido e salve novamente para recalcular.` })
@@ -972,15 +1065,12 @@ export class SmartImportService {
       // Normalizar sequencia_item_pedido → 1..N na ordem do arquivo (ignora coluna da planilha).
       for (const pedidoId of idsPedidosParaRecalcular) {
         const spSeq = `sp_seq_${pedidoId.replace(/[^a-zA-Z0-9_]/g, '_')}`
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (this.db as any).$executeRawUnsafe(`SAVEPOINT ${spSeq}`)
+        await executarSavepointSql(this.db, `SAVEPOINT ${spSeq}`)
         try {
           await this.resequenciarItensPedido(tenantId, pedidoId)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spSeq}`)
+          await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spSeq}`)
         } catch (errSeq: unknown) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (this.db as any).$executeRawUnsafe(`ROLLBACK TO SAVEPOINT ${spSeq}`)
+          await executarSavepointSql(this.db, `ROLLBACK TO SAVEPOINT ${spSeq}`)
           const msgSeq = errSeq instanceof Error ? errSeq.message : 'Erro desconhecido'
           console.warn(`[smartImport:confirmar] resequenciarItensPedido falhou pedido=${pedidoId}: ${msgSeq}`)
         }
@@ -989,8 +1079,7 @@ export class SmartImportService {
       // Ordem dos pedidos na lista = ordem de 1a aparicao na planilha (sort data_emissao DESC).
       for (const [pedidoId, primeiraLinha] of ordemPlanilhaPorIdPedido) {
         const spOrdem = `sp_ordem_${pedidoId.replace(/[^a-zA-Z0-9_]/g, '_')}`
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (this.db as any).$executeRawUnsafe(`SAVEPOINT ${spOrdem}`)
+        await executarSavepointSql(this.db, `SAVEPOINT ${spOrdem}`)
         try {
           await (this.db as Record<string, any>)['pedido'].update({
             where: { id_pedido: pedidoId },
@@ -998,11 +1087,9 @@ export class SmartImportService {
               data_emissao_pedido: dataEmissaoPorOrdemPlanilha(primeiraLinha, anchorImportacaoMs),
             },
           })
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spOrdem}`)
+          await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spOrdem}`)
         } catch (errOrdem: unknown) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (this.db as any).$executeRawUnsafe(`ROLLBACK TO SAVEPOINT ${spOrdem}`)
+          await executarSavepointSql(this.db, `ROLLBACK TO SAVEPOINT ${spOrdem}`)
           const msgOrdem = errOrdem instanceof Error ? errOrdem.message : 'Erro desconhecido'
           console.warn(`[smartImport:confirmar] ordem planilha falhou pedido=${pedidoId}: ${msgOrdem}`)
         }

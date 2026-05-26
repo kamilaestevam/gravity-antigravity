@@ -14,6 +14,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   obterCampoItemPropagado,
+  obterCampoItemComLegado,
   isPropagavel,
   CAMPOS_PEDIDO_PROPAGAVEIS,
   MAPA_PROPAGACAO_PEDIDO_ITEM,
@@ -34,6 +35,10 @@ describe('obterCampoItemPropagado — tradução pedido → item', () => {
 
   it('data_emissao_pedido traduz para data_emissao_item', () => {
     expect(obterCampoItemPropagado('data_emissao_pedido')).toBe('data_emissao_item')
+  })
+
+  it('tipo_operacao_pedido traduz para tipo_operacao_item', () => {
+    expect(obterCampoItemPropagado('tipo_operacao_pedido')).toBe('tipo_operacao_item')
   })
 
   it('data_prevista_pedido_pronto traduz para data_prevista_item_pronto', () => {
@@ -71,6 +76,7 @@ describe('isPropagavel — whitelist de campos elegíveis', () => {
     expect(isPropagavel('incoterm')).toBe(true)
     expect(isPropagavel('condicao_pagamento')).toBe(true)
     expect(isPropagavel('referencia_importador')).toBe(true)
+    expect(isPropagavel('tipo_operacao')).toBe(true)
   })
 
   it('rejeita campos pedido-only', () => {
@@ -101,8 +107,9 @@ describe('CAMPOS_PEDIDO_PROPAGAVEIS — contrato', () => {
     expect(CAMPOS_PEDIDO_PROPAGAVEIS).toEqual(keysMapa)
   })
 
-  it('todos os destinos do mapa terminam em _item ou _item_*', () => {
+  it('todos os destinos do mapa terminam em _item ou _item_* (exceto id_workspace)', () => {
     for (const dest of Object.values(MAPA_PROPAGACAO_PEDIDO_ITEM)) {
+      if (dest === 'id_workspace') continue
       expect(dest).toMatch(/_item(_|$)/)
     }
   })
@@ -116,7 +123,8 @@ describe('CAMPOS_PEDIDO_PROPAGAVEIS — contrato', () => {
     }
   })
 
-  it('cobre os 5 campos críticos de identidade comercial', () => {
+  it('cobre os 6 campos críticos de identidade comercial', () => {
+    expect(CAMPOS_PEDIDO_PROPAGAVEIS.has('tipo_operacao_pedido')).toBe(true)
     expect(CAMPOS_PEDIDO_PROPAGAVEIS.has('incoterm_pedido')).toBe(true)
     expect(CAMPOS_PEDIDO_PROPAGAVEIS.has('moeda_pedido')).toBe(true)
     expect(CAMPOS_PEDIDO_PROPAGAVEIS.has('condicao_pagamento_pedido')).toBe(true)
@@ -178,8 +186,8 @@ describe('CAMPOS_PEDIDO_PROPAGAVEIS — contrato', () => {
     expect(CAMPOS_PEDIDO_PROPAGAVEIS.has('data_transferencia_saldo_pedido')).toBe(true)
   })
 
-  it('whitelist subiu de 22 para 57 campos (Decisão 2026-05-13)', () => {
-    expect(CAMPOS_PEDIDO_PROPAGAVEIS.size).toBe(57)
+  it('whitelist subiu de 22 para 59 campos (datas + workspace + tipo_operacao)', () => {
+    expect(CAMPOS_PEDIDO_PROPAGAVEIS.size).toBe(59)
   })
 
   it('data_consolidacao_pedido NAO mapeia para data_consolidacao_item (semantica diferente)', () => {
@@ -205,7 +213,7 @@ describe('Cenários de replicação pai → itens (simulados)', () => {
     }
     const campoPedido = aliasLegadoParaPedido[campoLegado] ?? campoLegado
     if (!isPropagavel(campoPedido)) return { campoItem: null, payload: null }
-    const campoItem = obterCampoItemPropagado(campoPedido)
+    const campoItem = obterCampoItemComLegado(campoPedido)
     if (!campoItem) return { campoItem: null, payload: null }
     return {
       campoItem,
@@ -247,5 +255,11 @@ describe('Cenários de replicação pai → itens (simulados)', () => {
     const r = simularReplicacao('data_emissao_pedido', '2026-05-13')
     expect(r.campoItem).toBe('data_emissao_item')
     expect(r.payload).toEqual({ data_emissao_item: '2026-05-13' })
+  })
+
+  it('replicar tipo_operacao=exportacao gera payload { tipo_operacao_item: "exportacao" }', () => {
+    const r = simularReplicacao('tipo_operacao', 'exportacao')
+    expect(r.campoItem).toBe('tipo_operacao_item')
+    expect(r.payload).toEqual({ tipo_operacao_item: 'exportacao' })
   })
 })

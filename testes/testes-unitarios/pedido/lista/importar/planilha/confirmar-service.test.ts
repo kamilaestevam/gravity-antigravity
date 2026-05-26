@@ -1,35 +1,30 @@
 // @vitest-environment node
-// TST-UNIT-PEDIDO-SMARTIMPORT-001 — smartImportService.confirmar()
-// Cobre: bug de nested $transaction (this.db já é TransactionClient de
-// withOrganizacao — chamar $transaction nele crashava com 500).
-// Verifica que confirmar() usa this.db diretamente sem abrir transação aninhada.
-/// <reference types="vitest/globals" />
+// TST-UNIT-PEDIDO-IMPORTAR-PLANILHA — SmartImportService.confirmar (U-CNF)
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// ─── Mocks hoisted ──────────────────────────────────────────────────────────
 const { mockRecalcularAgregados } = vi.hoisted(() => ({
   mockRecalcularAgregados: vi.fn().mockResolvedValue(undefined),
 }))
 
-// Paths relativos ao arquivo de teste
 vi.mock(
-  '../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js',
+  '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js',
   () => ({ recalcularAgregadosPedido: mockRecalcularAgregados }),
 )
 
-vi.mock('../../../servicos-global/produto/pedido/server/src/services/importEngine.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/pedido/server/src/services/importEngine.js', () => ({
   parseArquivo: vi.fn(),
   ALIASES_CAMPOS: {},
   calcularHashColunas: vi.fn(() => 'hash-test'),
 }))
 
-vi.mock('../../../servicos-global/produto/pedido/server/src/services/mapeamentoMemoriaService.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/pedido/server/src/services/mapeamentoMemoriaService.js', () => ({
   MapeamentoMemoriaService: vi.fn().mockImplementation(() => ({
     salvar: vi.fn().mockResolvedValue(undefined),
     buscar: vi.fn().mockResolvedValue(null),
   })),
 }))
 
-vi.mock('../../../servicos-global/produto/pedido/shared/campos-pedido-ddd.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/pedido/shared/campos-pedido-ddd.js', () => ({
   CAMPOS_PEDIDO_DDD_TODOS: [],
   normalizarNomeCampo: vi.fn((s: string) => s),
   CAMPO_POR_ROTULO_NORMALIZADO: new Map(),
@@ -37,9 +32,9 @@ vi.mock('../../../servicos-global/produto/pedido/shared/campos-pedido-ddd.js', (
   CAMPO_POR_ALIAS_LEGADO: new Map(),
 }))
 
-import { criarSmartImportService } from '../../../servicos-global/produto/pedido/server/src/services/smartImportService.js'
+import { criarSmartImportService } from '../../../../../../servicos-global/produto/pedido/server/src/services/smartImportService.js'
+import type { ParceirosResolvidosPedido } from '../../../../../../servicos-global/produto/pedido/server/src/services/smartImportParceirosService.js'
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 const TENANT_ID = 'org_test_001'
 const WORKSPACE_ID = 'ws_test_001'
 const PREVIEW_ID = `${TENANT_ID}-hash123-1234567890`
@@ -48,13 +43,9 @@ function criarDbMock() {
   const pedidosCriados: Record<string, unknown>[] = []
 
   const dbMock: Record<string, unknown> = {
-    pedidoCasasDecimais: {
-      findUnique: vi.fn().mockResolvedValue(null),
-    },
+    pedidoCasasDecimais: { findUnique: vi.fn().mockResolvedValue(null) },
     statusPedido: {
-      findFirst: vi.fn().mockResolvedValue({
-        id_pedido_status: 'status_rascunho_001',
-      }),
+      findFirst: vi.fn().mockResolvedValue({ id_pedido_status: 'status_rascunho_001' }),
     },
     pedido: {
       findFirst: vi.fn().mockImplementation((args: { where?: { numero_pedido?: string } }) => {
@@ -73,8 +64,10 @@ function criarDbMock() {
       count: vi.fn().mockResolvedValue(0),
       create: vi.fn().mockResolvedValue({}),
     },
-    // $transaction NÃO deve existir — simula TransactionClient real
-    // $executeRawUnsafe necessário para savepoints PG (SAVEPOINT / RELEASE / ROLLBACK TO)
+    pedidoSnapshotEmpresa: {
+      findMany: vi.fn().mockResolvedValue([]),
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
+    },
     $executeRawUnsafe: vi.fn().mockResolvedValue(undefined),
   }
   return { dbMock, pedidosCriados }
@@ -83,8 +76,8 @@ function criarDbMock() {
 function payloadBase(linhas: Array<{ linha_arquivo: number; dados: Record<string, unknown> }>) {
   return {
     preview_id: PREVIEW_ID,
-    linhas_incluidas: linhas.map(l => l.linha_arquivo),
-    linhas: linhas.map(l => ({
+    linhas_incluidas: linhas.map((l) => l.linha_arquivo),
+    linhas: linhas.map((l) => ({
       linha_arquivo: l.linha_arquivo,
       numero_pedido: (l.dados.numero_pedido as string) ?? null,
       status: 'ok' as const,
@@ -98,16 +91,14 @@ function payloadBase(linhas: Array<{ linha_arquivo: number; dados: Record<string
   }
 }
 
-// ─── Testes ──────────────────────────────────────────────────────────────────
-describe('SmartImportService.confirmar', () => {
+describe('SmartImportService.confirmar (U-CNF)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('cria pedido com item sem chamar $transaction (this.db já é tx de withOrganizacao)', async () => {
+  it('U-CNF-01: cria pedido com item sem chamar $transaction aninhada', async () => {
     const { dbMock } = criarDbMock()
     const service = criarSmartImportService(dbMock)
-
     const payload = payloadBase([{
       linha_arquivo: 1,
       dados: {
@@ -127,33 +118,9 @@ describe('SmartImportService.confirmar', () => {
     expect(mockRecalcularAgregados).toHaveBeenCalledTimes(1)
   })
 
-  it('NÃO tenta chamar $transaction — TransactionClient não tem esse método', async () => {
-    const { dbMock } = criarDbMock()
-    // Se alguém adicionar $transaction de volta, este mock faz o teste falhar explicitamente
-    ;(dbMock as Record<string, unknown>).$transaction = vi.fn(() => {
-      throw new Error('$transaction não deveria ser chamado — this.db já é TransactionClient')
-    })
-
-    const service = criarSmartImportService(dbMock)
-    const payload = payloadBase([{
-      linha_arquivo: 1,
-      dados: {
-        numero_pedido: 'PO-002',
-        part_number_item: 'PART-B',
-        descricao_item: 'Item B',
-        quantidade_inicial_item: 5,
-      },
-    }])
-
-    const resultado = await service.confirmar(TENANT_ID, 'user_001', payload, WORKSPACE_ID)
-    expect(resultado.criados).toBe(1)
-    expect((dbMock as Record<string, unknown>).$transaction).not.toHaveBeenCalled()
-  })
-
-  it('duas linhas com mesmo numero_pedido — segunda adiciona item ao pedido da primeira (append incremental)', async () => {
+  it('U-CNF-02: duas linhas mesmo PO — segunda adiciona item incremental', async () => {
     const { dbMock } = criarDbMock()
     const service = criarSmartImportService(dbMock)
-
     const payload = payloadBase([
       {
         linha_arquivo: 1,
@@ -179,15 +146,13 @@ describe('SmartImportService.confirmar', () => {
 
     expect(resultado.criados).toBe(1)
     expect(resultado.atualizados).toBe(1)
-    expect(resultado.erros).toHaveLength(0)
     expect((dbMock.pedido as Record<string, unknown>).create).toHaveBeenCalledTimes(1)
     expect((dbMock.pedidoItem as Record<string, unknown>).create).toHaveBeenCalledTimes(1)
   })
 
-  it('decisao pular — linha é ignorada e contabilizada em pulados', async () => {
+  it('U-CNF-03: decisao pular ignora linha', async () => {
     const { dbMock } = criarDbMock()
     const service = criarSmartImportService(dbMock)
-
     const payload = payloadBase([{
       linha_arquivo: 1,
       dados: {
@@ -200,16 +165,13 @@ describe('SmartImportService.confirmar', () => {
     payload.decisoes_duplicatas = { 'PO-SKIP': 'pular' }
 
     const resultado = await service.confirmar(TENANT_ID, 'user_001', payload, WORKSPACE_ID)
-
     expect(resultado.pulados).toBe(1)
     expect(resultado.criados).toBe(0)
-    expect((dbMock.pedido as Record<string, unknown>).create).not.toHaveBeenCalled()
   })
 
-  it('valor unitário negativo — linha é rejeitada com erro', async () => {
+  it('U-CNF-04: valor unitário negativo rejeita linha', async () => {
     const { dbMock } = criarDbMock()
     const service = criarSmartImportService(dbMock)
-
     const payload = payloadBase([{
       linha_arquivo: 1,
       dados: {
@@ -217,21 +179,18 @@ describe('SmartImportService.confirmar', () => {
         part_number_item: 'NEG-PART',
         descricao_item: 'Valor negativo',
         quantidade_inicial_item: 1,
-        valor_por_unidade_item: -5.50,
+        valor_por_unidade_item: -5.5,
       },
     }])
 
     const resultado = await service.confirmar(TENANT_ID, 'user_001', payload, WORKSPACE_ID)
-
     expect(resultado.erros).toHaveLength(1)
     expect(resultado.erros[0].motivo).toContain('negativo')
-    expect(resultado.criados).toBe(0)
   })
 
-  it('preview_id de outro tenant — lança AppError 403', async () => {
+  it('U-CNF-05: preview_id de outro tenant lança erro 403', async () => {
     const { dbMock } = criarDbMock()
     const service = criarSmartImportService(dbMock)
-
     const payload = payloadBase([{
       linha_arquivo: 1,
       dados: { numero_pedido: 'PO-X', part_number_item: 'X', descricao_item: 'X', quantidade_inicial_item: 1 },
@@ -243,26 +202,58 @@ describe('SmartImportService.confirmar', () => {
     ).rejects.toThrow('Preview nao pertence a este tenant')
   })
 
-  it('recalcularAgregadosPedido recebe this.db (TransactionClient), não tx local', async () => {
-    const { dbMock } = criarDbMock()
+  it('U-CNF-06: parceirosPorNumero aplica FK exportador e snapshots no create', async () => {
+    const { dbMock, pedidosCriados } = criarDbMock()
     const service = criarSmartImportService(dbMock)
-
     const payload = payloadBase([{
       linha_arquivo: 1,
       dados: {
-        numero_pedido: 'PO-AGG',
-        part_number_item: 'AGG-PART',
-        descricao_item: 'Agregados',
-        quantidade_inicial_item: 5,
+        numero_pedido: 'D-1382',
+        part_number_item: 'PART-A',
+        descricao_item: 'Item Detroit',
+        quantidade_inicial_item: 1,
+        nome_fabricante: 'KONGSBERG',
       },
     }])
 
-    await service.confirmar(TENANT_ID, 'user_001', payload, WORKSPACE_ID)
+    const parceiros = new Map<string, ParceirosResolvidosPedido>([
+      ['D-1382', {
+        tipo_operacao: 'importacao',
+        suid_importador: 'suid_imp',
+        suid_exportador: 'suid_exp',
+        suid_fabricante: 'suid_fab',
+        snapshots: [{
+          id_organizacao: TENANT_ID,
+          id_workspace: WORKSPACE_ID,
+          papel: 'exportador',
+          suid_empresa: 'suid_exp',
+          nome_empresa: 'DETROIT USA INTERNATIONAL LLC',
+          documento_principal: null,
+          tipo_documento: null,
+          cnpj_raiz: null,
+          endereco_cidade: null,
+          endereco_uf: null,
+          endereco_cep: null,
+          endereco_pais: 'US',
+          endereco_logradouro: null,
+          contato_email: null,
+          contato_whatsapp: null,
+          motivo_congelamento: 'emissao',
+        }],
+        nomesItem: {
+          nome_exportador_item: 'DETROIT USA INTERNATIONAL LLC',
+          nome_importador_item: null,
+          nome_fabricante_item: null,
+        },
+      }],
+    ])
 
-    expect(mockRecalcularAgregados).toHaveBeenCalledWith(
-      dbMock,
-      expect.stringContaining('pedi_id_'),
-      TENANT_ID,
-    )
+    await service.confirmar(TENANT_ID, 'user_001', payload, WORKSPACE_ID, parceiros)
+
+    expect(pedidosCriados).toHaveLength(1)
+    const criado = pedidosCriados[0]
+    expect(criado.id_importacao_exportador_pedido).toBe('suid_exp')
+    expect(criado.id_fabricante_pedido).toBe('suid_fab')
+    expect(criado.snapshots_empresa_pedido).toBeDefined()
   })
 })

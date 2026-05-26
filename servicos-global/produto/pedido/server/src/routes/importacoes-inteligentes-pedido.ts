@@ -24,7 +24,8 @@ import multer from 'multer'
 import { z } from 'zod'
 import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { AppError } from '../errors/AppError.js'
-import { SmartImportService, criarSmartImportService } from '../services/smartImportService.js'
+import { SmartImportService, criarSmartImportService, prepararLinhasFiltradasConfirmacao, transacaoPrismaExpiradaOuEncerrada } from '../services/smartImportService.js'
+import { resolverParceirosSmartImport } from '../services/smartImportParceirosService.js'
 import { MapeamentoMemoriaService } from '../services/mapeamentoMemoriaService.js'
 import { smartImportPreviewSchema } from '../../../shared/smart-import-schemas.js'
 import {
@@ -693,19 +694,41 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
   }
 
   try {
+    const linhasFiltradas = prepararLinhasFiltradasConfirmacao(tenantId, parse.data)
+    const correlationId = (req.headers['x-correlation-id'] as string | undefined) ?? `smart-import-${Date.now()}`
+    const parceirosPorNumero = await resolverParceirosSmartImport(
+      linhasFiltradas,
+      parse.data.numeros_editados ?? {},
+      { id_organizacao: tenantId, correlation_id: correlationId },
+      companyId,
+    )
+
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db     = rawDb as any
       const userId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idUsuario ?? 'system'
 
       const service   = criarSmartImportService(db)
-      const resultado = await service.confirmar(tenantId, userId, parse.data, companyId)
+      const resultado = await service.confirmar(tenantId, userId, parse.data, companyId, parceirosPorNumero)
       res.json(resultado)
-    }, { timeoutMs: 60_000 })
+    }, { timeoutMs: 120_000 })
   } catch (err) {
     console.error('[smart-import:confirmar] ERRO 500:', err instanceof Error ? err.stack : err)
     if (err instanceof Error && 'meta' in err) {
       console.error('[smart-import:confirmar] Prisma meta:', (err as Error & { meta?: unknown }).meta)
+    }
+    if (
+      (err instanceof AppError && err.code === 'HTTP_408')
+      || transacaoPrismaExpiradaOuEncerrada(err)
+    ) {
+      return res.status(408).json({
+        error: {
+          code: 'HTTP_408',
+          message: err instanceof Error
+            ? err.message
+            : 'A importacao demorou mais que o limite do servidor e foi interrompida.',
+        },
+      })
     }
     next(err)
   }

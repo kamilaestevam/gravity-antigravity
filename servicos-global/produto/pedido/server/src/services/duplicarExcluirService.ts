@@ -38,7 +38,8 @@ export interface ConfigDuplicar {
 }
 
 export interface ConfigExcluir {
-  excluir_status_permitidos: string[]
+  /** Slugs de status_pedido que bloqueiam exclusão. Vazio = todos liberados. */
+  excluir_status_bloqueados: string[]
   excluir_pedido_sem_item_permitido: boolean
 }
 
@@ -86,9 +87,29 @@ const CONFIG_DUPLICAR_DEFAULT: ConfigDuplicar = {
   duplicar_status_inicial: 'copiar',
 }
 
+const LEGACY_EXCLUIR_WHITELIST = [
+  'rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado',
+] as const
+
 const CONFIG_EXCLUIR_DEFAULT: ConfigExcluir = {
-  excluir_status_permitidos: ['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'],
+  excluir_status_bloqueados: [],
   excluir_pedido_sem_item_permitido: true,
+}
+
+/** Coluna DB `excluir_status_permitidos`: era whitelist; hoje = blacklist. */
+function normalizarStatusBloqueadosExclusao(raw: string[] | null | undefined): string[] {
+  if (!raw || raw.length === 0) return []
+  if (
+    raw.length === LEGACY_EXCLUIR_WHITELIST.length &&
+    LEGACY_EXCLUIR_WHITELIST.every((s) => raw.includes(s))
+  ) {
+    return []
+  }
+  return raw
+}
+
+function statusBloqueiaExclusao(statusPedido: string, bloqueados: string[]): boolean {
+  return bloqueados.includes(statusPedido)
 }
 
 // ── Defaults de opções de duplicação (retrocompat: tudo true = copia tudo) ───
@@ -199,7 +220,9 @@ async function buscarConfig(
         duplicar_status_inicial: config.duplicar_status_inicial ?? CONFIG_DUPLICAR_DEFAULT.duplicar_status_inicial,
       },
       excluir: {
-        excluir_status_permitidos: config.excluir_status_permitidos ?? CONFIG_EXCLUIR_DEFAULT.excluir_status_permitidos,
+        excluir_status_bloqueados: normalizarStatusBloqueadosExclusao(
+          config.excluir_status_permitidos as string[] | null | undefined,
+        ),
         excluir_pedido_sem_item_permitido: config.excluir_pedido_sem_item_permitido ?? CONFIG_EXCLUIR_DEFAULT.excluir_pedido_sem_item_permitido,
       },
     }
@@ -676,7 +699,7 @@ export class ExcluirService {
     for (const pedidoRaw of pedidos) {
       const pedido = pedidoRaw as Record<string, unknown>
       const statusPed = pedido.status_pedido as string
-      if (config.excluir_status_permitidos.includes(statusPed)) {
+      if (!statusBloqueiaExclusao(statusPed, config.excluir_status_bloqueados)) {
         permitidos.push({
           id: pedido.id_pedido as string,
           numero_pedido: pedido.numero_pedido as string,
@@ -684,12 +707,11 @@ export class ExcluirService {
           total_transferencias: transferenciasPorPedido.get(pedido.id_pedido as string) ?? 0,
         })
       } else {
-        const statusPermitidosLabel = config.excluir_status_permitidos.join(', ')
         bloqueados.push({
           id: pedido.id_pedido as string,
           numero_pedido: pedido.numero_pedido as string,
           status: statusPed,
-          motivo: `Status "${statusPed}" não permite exclusão. Permitidos: ${statusPermitidosLabel}`,
+          motivo: `Status "${statusPed}" está bloqueado para exclusão nas configurações da organização`,
         })
       }
     }
@@ -716,14 +738,13 @@ export class ExcluirService {
       throw new AppError('Um ou mais pedidos não encontrados', 404, 'NOT_FOUND')
     }
 
-    // Validar todos os status no backend (nunca confiar no frontend)
-    const bloqueados = pedidos.filter(
-      (p: Record<string, unknown>) => !config.excluir_status_permitidos.includes(p.status_pedido as string),
+    const pedidosComStatusBloqueado = pedidos.filter((p: Record<string, unknown>) =>
+      statusBloqueiaExclusao(p.status_pedido as string, config.excluir_status_bloqueados),
     )
-    if (bloqueados.length > 0) {
-      const numeros = bloqueados.map((p: Record<string, unknown>) => p.numero_pedido).join(', ')
+    if (pedidosComStatusBloqueado.length > 0) {
+      const numeros = pedidosComStatusBloqueado.map((p: Record<string, unknown>) => p.numero_pedido).join(', ')
       throw new AppError(
-        `Pedidos com status não permitido para exclusão: ${numeros}`,
+        `Pedidos com status bloqueado para exclusão: ${numeros}`,
         400,
         'STATUS_NAO_PERMITIDO',
       )
@@ -800,9 +821,9 @@ export class ExcluirService {
       throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')
     }
 
-    if (!config.excluir_status_permitidos.includes(pedido.status_pedido)) {
+    if (statusBloqueiaExclusao(pedido.status_pedido as string, config.excluir_status_bloqueados)) {
       throw new AppError(
-        `Status "${pedido.status_pedido}" não permite exclusão de itens`,
+        `Status "${pedido.status_pedido}" está bloqueado para exclusão de itens`,
         400,
         'STATUS_NAO_PERMITIDO',
       )
@@ -854,14 +875,19 @@ export class ExcluirService {
       select: { id_item: true, sequencia_item_pedido: true },
     })
 
-    for (let i = 0; i < itensRestantesOrdenados.length; i++) {
-      const novaSequencia = i + 1
-      if (itensRestantesOrdenados[i].sequencia_item_pedido !== novaSequencia) {
-        await tx.pedidoItem.update({
-          where: { id_item: itensRestantesOrdenados[i].id_item },
+    const renumeracoes = itensRestantesOrdenados
+      .map((item, i) => {
+        const novaSequencia = i + 1
+        if (item.sequencia_item_pedido === novaSequencia) return null
+        return tx.pedidoItem.update({
+          where: { id_item: item.id_item },
           data: { sequencia_item_pedido: novaSequencia },
         })
-      }
+      })
+      .filter((op): op is ReturnType<typeof tx.pedidoItem.update> => op !== null)
+
+    if (renumeracoes.length > 0) {
+      await Promise.all(renumeracoes)
     }
 
     const itensRestantes = itensRestantesOrdenados.length

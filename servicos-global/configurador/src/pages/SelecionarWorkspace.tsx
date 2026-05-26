@@ -45,7 +45,7 @@ import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { podeMutarConfigurador } from '../routing/route-policy'
-import { ToastContainer, useShellStore, useOrganizacaoOverride, useMeSync } from '@gravity/shell'
+import { ToastContainer, useShellStore, useOrganizacaoOverride, useMeSync, useShellBodyClasses } from '@gravity/shell'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
 import { ModalOverlay } from '@nucleo/modal-global'
@@ -243,13 +243,7 @@ export function SelecionarWorkspace() {
   const [searchParams] = useSearchParams()
   const isLight = currentTheme === 'light'
 
-  useEffect(() => {
-    if (isLight) {
-      document.body.classList.add('light-theme')
-    } else {
-      document.body.classList.remove('light-theme')
-    }
-  }, [isLight])
+  useShellBodyClasses()
   const [modalSemProdutos, setModalSemProdutos] = useState(false)
   const [modalEscopoPedidoAberto, setModalEscopoPedidoAberto] = useState(false)
   const [workspaceEntradaPendente, setWorkspaceEntradaPendente] = useState<Workspace | null>(null)

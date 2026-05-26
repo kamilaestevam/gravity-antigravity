@@ -105,3 +105,16 @@ Consolidar é a operação de **juntar dois ou mais pedidos em um só** (diferen
 - Campos divergentes: exibem valor escolhido + badge "N origens ⚠" + tooltip com todos os valores por pedido
 - Datas divergentes: exibem como intervalo `10/04–20/04` + tooltip com detalhe
 - Mínimo de 2 pedidos selecionados para habilitar o botão
+
+---
+
+## API — encoding de `id_pedido` (hotfix 2026-05)
+
+IDs de pedido podem conter `/` (ex.: `BR/PO-2026/001`). Todas as chamadas REST de transferência devem usar `encodeURIComponent` no segmento de path:
+
+- `GET .../pedidos/{id}/transferir/preview`
+- `POST .../pedidos/{id}/transferir/confirmar`
+- `GET .../pedidos/{id}/transferir/historico`
+- `POST .../pedidos/{id}/transferir/reverter`
+
+Sem encoding, o Express interpreta barras como novos segmentos → **404**. Ver `pedidoTransferirApi.pid()` em `client/src/shared/api.ts` e testes `pid-url-encoding.test.ts`.

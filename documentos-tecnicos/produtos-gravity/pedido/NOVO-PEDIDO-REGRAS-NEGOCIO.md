@@ -1,9 +1,10 @@
 # Novo Pedido — Regras de Negócio
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
+> **Versão:** 1.1
 > **Data:** Abril 2026
-> **Status:** Definido — aguardando implementação
+> **Última atualização:** 2026-05-26
+> **Status:** Implementado (drawer manual + snapshot Cadastros)
 
 ---
 
@@ -36,6 +37,18 @@ Drawer (painel lateral deslizante) que abre pela direita. O usuário mantém o c
 - Grade dinâmica de itens dentro do drawer
 - Botão "+ Adicionar item" adiciona nova linha inline
 - Cada item: `part_number`, `ncm`, `descricao`, `quantidade_inicial`, `unidade`, `valor_unitario`
+
+### Snapshot Cadastros ao salvar (2026-05-26)
+
+Ao criar pedido manual, o backend busca parceiros no Cadastros pelo SUID via
+`processos-core/services/cadastrosClient.ts`:
+
+- Endpoint: `GET /api/v1/fornecedores/:suid` (não `/empresas`)
+- Contrato bilateral: **`fornecedorSchema`** (`cadastros/shared/schemas/fornecedor.schema.ts`)
+- Resposta validada antes de montar `PedidoSnapshotEmpresa` em `pedidoSnapshots.ts`
+
+> **Bug corrigido:** parse com `empresaSchema` falhava em campos exclusivos de fornecedor
+> (`pode_ser_importador_fornecedor`, etc.) e quebrava o POST `/pedidos` no browser (ZodError no console).
 
 ---
 

@@ -122,9 +122,9 @@ const CAMPOS_QUANTIDADE_ITEM = new Set([
 // Regra de negócio: quando o usuário usa a aba **Combinado**, a alteração de
 // um campo de pedido também é propagada para o campo equivalente de cada item.
 //
-// SSOT: MAPA_PROPAGACAO_PEDIDO_ITEM (shared/) contém os 57 pares diretos
-// Pedido→Item. Aqui compomos com 4 pares exclusivos da edição em massa:
-//   - tipo_operacao_pedido → tipo_operacao_item (não propaga em create/patch)
+// SSOT: MAPA_PROPAGACAO_PEDIDO_ITEM (shared/) contém os pares diretos
+// Pedido→Item (incl. tipo_operacao_pedido → tipo_operacao_item).
+// Aqui compomos com 3 pares exclusivos da edição em massa:
 //   - 3× JSON nome_* → coluna nome_*_item (derivativos de snapshot)
 //
 // Atenção: o cascade SOBRESCREVE overrides individuais nos itens. O preview
@@ -132,7 +132,6 @@ const CAMPOS_QUANTIDADE_ITEM = new Set([
 
 const PARES_CASCADE_PEDIDO_ITEM: Record<string, string> = {
   ...MAPA_PROPAGACAO_PEDIDO_ITEM,
-  tipo_operacao_pedido: 'tipo_operacao_item',
   nome_exportador:      'nome_exportador_item',
   nome_importador:      'nome_importador_item',
   nome_fabricante:       'nome_fabricante_item',

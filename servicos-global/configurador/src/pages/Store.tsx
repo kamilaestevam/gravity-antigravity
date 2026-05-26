@@ -31,7 +31,7 @@ import {
   type EcosystemNode,
 } from '@nucleo/localizador-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
-import { ToastContainer, useShellStore, useOrganizacaoOverride, useMeSync } from '@gravity/shell'
+import { ToastContainer, useShellStore, useOrganizacaoOverride, useMeSync, useShellBodyClasses } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { podeComprarNoStore } from '../routing/route-policy'
@@ -85,13 +85,7 @@ export function Store() {
 
   const userRoleLabel = mapRole(dbRole)
 
-  useEffect(() => {
-    if (isLight) {
-      document.body.classList.add('light-theme')
-    } else {
-      document.body.classList.remove('light-theme')
-    }
-  }, [isLight])
+  useShellBodyClasses()
 
   const userName = currentUser.name || user?.fullName || user?.firstName || t('shell.usuario_padrao')
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()

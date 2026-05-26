@@ -37,6 +37,11 @@ describe('isPropagavel — campos com par no MAPA_PROPAGACAO_PEDIDO_ITEM', () =>
   it('U-PROP-06: valor_total_pedido → false (calculado)', () => {
     expect(isPropagavel('valor_total_pedido')).toBe(false)
   })
+
+  it('U-PROP-07: tipo_operacao (legado) → true via tipo_operacao_pedido', () => {
+    expect(isPropagavel('tipo_operacao')).toBe(true)
+    expect(isPropagavel('tipo_operacao_pedido')).toBe(true)
+  })
 })
 
 // ── 14b. isAlertavel ─────────────────────────────────────────────────────────

@@ -4,38 +4,36 @@
  * na edição em massa é um superset correto do SSOT + 4 exclusivos.
  *
  * O PARES_CASCADE_PEDIDO_ITEM é interno ao edicaoEmMassaService.ts (não exportado).
- * Aqui testamos o contrato: SSOT (57) + 4 exclusivos = 61, e os 4 exclusivos
+ * Aqui testamos o contrato: SSOT (59) + 3 exclusivos = 62, e os 3 exclusivos
  * não colidem com o SSOT.
  */
 import { describe, it, expect } from 'vitest'
 import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../../../servicos-global/produto/pedido/shared/mapaPropagacaoPedidoItem'
 
 const EXCLUSIVOS_EDICAO_MASSA: Record<string, string> = {
-  tipo_operacao_pedido: 'tipo_operacao_item',
   nome_exportador:      'nome_exportador_item',
   nome_importador:      'nome_importador_item',
   nome_fabricante:       'nome_fabricante_item',
 }
 
 describe('Cascade composição — SSOT + exclusivos edição em massa', () => {
-  it('SSOT contém exatamente 57 pares', () => {
-    expect(Object.keys(MAPA_PROPAGACAO_PEDIDO_ITEM).length).toBe(57)
+  it('SSOT contém exatamente 59 pares', () => {
+    expect(Object.keys(MAPA_PROPAGACAO_PEDIDO_ITEM).length).toBe(59)
   })
 
-  it('os 4 campos exclusivos da edição em massa NÃO existem no SSOT', () => {
+  it('os 3 campos exclusivos da edição em massa NÃO existem no SSOT', () => {
     for (const campo of Object.keys(EXCLUSIVOS_EDICAO_MASSA)) {
       expect(MAPA_PROPAGACAO_PEDIDO_ITEM).not.toHaveProperty(campo)
     }
   })
 
-  it('composição SSOT + exclusivos resulta em 61 pares sem colisão', () => {
+  it('composição SSOT + exclusivos resulta em 62 pares sem colisão', () => {
     const composto = { ...MAPA_PROPAGACAO_PEDIDO_ITEM, ...EXCLUSIVOS_EDICAO_MASSA }
-    expect(Object.keys(composto).length).toBe(61)
+    expect(Object.keys(composto).length).toBe(62)
   })
 
-  it('tipo_operacao_pedido mapeia para tipo_operacao_item (exclusivo massa, não propaga em create/patch)', () => {
-    expect(EXCLUSIVOS_EDICAO_MASSA.tipo_operacao_pedido).toBe('tipo_operacao_item')
-    expect(MAPA_PROPAGACAO_PEDIDO_ITEM).not.toHaveProperty('tipo_operacao_pedido')
+  it('tipo_operacao_pedido mapeia para tipo_operacao_item no SSOT (lista + massa + create)', () => {
+    expect(MAPA_PROPAGACAO_PEDIDO_ITEM.tipo_operacao_pedido).toBe('tipo_operacao_item')
   })
 
   it('nome_exportador/importador/fabricante são derivativos JSON→coluna (exclusivos massa)', () => {

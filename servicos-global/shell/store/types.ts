@@ -141,6 +141,7 @@ export interface ShellState {
   setSidebarOpen: (open: boolean) => void
   setTheme: (theme: Theme) => void
   toggleTheme: () => void
+  setTooltipsDisabled: (disabled: boolean) => void
   toggleTooltips: () => void
   setCurrentUser: (user: CurrentUser) => void
   clearCurrentUser: () => void

@@ -3965,6 +3965,7 @@
         "grupo_pedido": "PEDIDO",
         "grupo_sistema": "SISTEMA",
         "cards": "Cards",
+        "dashboard_kpi": "Dashboard",
         "tabela": "Tabela",
         "colunas": "Colunas",
         "casas_decimais": "Casas Decimais",
@@ -4266,7 +4267,7 @@
         "excluir": {
           "titulo": "Excluir pedido",
           "desc": "Permissões e comportamentos ao excluir pedidos",
-          "status_permitidos_label": "Status que permitem exclusão",
+          "status_permitidos_label": "Status bloqueados para exclusão",
           "sem_itens": "Pedido pode ficar sem itens",
           "sem_itens_desc": "Se desmarcado, excluir o último item exclui o pedido automaticamente",
           "confirmar_preview": "Solicitar confirmação com preview antes de excluir"
@@ -4517,6 +4518,8 @@
       "tooltip_lado_da_org_importador": "Sua organização é o importador desta operação. Este campo é preenchido automaticamente e não pode ser alterado.",
       "tooltip_lado_da_org_exportador": "Sua organização é o exportador desta operação. Este campo é preenchido automaticamente e não pode ser alterado.",
       "erro_empresa_da_org": "Não foi possível carregar a empresa da sua organização. {{detalhe}}",
+      "erro_empresa_da_org_onboarding": "Sua organização ainda não tem empresa cadastrada no Cadastros (onboarding incompleto). Conclua o cadastro ou peça ao administrador.",
+      "erro_empresa_da_org_cadastros_off": "Serviço Cadastros indisponível no momento. Verifique se o serviço está rodando (porta 8031) e tente novamente.",
       "pendencias_titulo": "Para avançar, ainda falta:",
       "legenda_obrigatorios": "Campos obrigatórios",
       "falta_numero_pedido": "Número do Pedido",

@@ -4666,7 +4666,7 @@
         "excluir": {
           "titulo": "Delete order",
           "desc": "Permissions and behaviors when deleting orders",
-          "status_permitidos_label": "Statuses that allow deletion",
+          "status_permitidos_label": "Statuses blocked for deletion",
           "sem_itens": "Order can have no items",
           "sem_itens_desc": "If unchecked, deleting the last item automatically deletes the order",
           "confirmar_preview": "Request confirmation with preview before deleting"
@@ -4917,6 +4917,8 @@
       "tooltip_lado_da_org_importador": "Your organization is the importer in this operation. This field is auto-filled and cannot be changed.",
       "tooltip_lado_da_org_exportador": "Your organization is the exporter in this operation. This field is auto-filled and cannot be changed.",
       "erro_empresa_da_org": "Could not load your organization's company. {{detalhe}}",
+      "erro_empresa_da_org_onboarding": "Your organization does not have a company registered in Cadastros yet (incomplete onboarding). Complete registration or ask your admin.",
+      "erro_empresa_da_org_cadastros_off": "Cadastros service is unavailable. Check that it is running (port 8031) and try again.",
       "pendencias_titulo": "To proceed, still missing:",
       "legenda_obrigatorios": "Required fields",
       "falta_numero_pedido": "Order Number",

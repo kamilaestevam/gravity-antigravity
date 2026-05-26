@@ -2,7 +2,7 @@
 
 > **Produto:** Pedido (COMEX)
 > **Versão:** 2.0
-> **Última atualização:** 2026-05-13
+> **Última atualização:** 2026-05-26
 > **Status:** Implementado (commits `efa03ca0`, `0ab3cc99`)
 
 ---
@@ -41,7 +41,7 @@ servicos-global/pedido/
 | POST | `/api/v1/pedidos/duplicacoes/preview` | Retorna config (`numero_auto`, `copiar_datas`, `status_inicial`) + lista de pedidos para o modal montar |
 | POST | `/api/v1/pedidos/duplicacoes/confirmar` | Cria N pedidos novos (cascade dos itens) |
 | POST | `/api/v1/pedidos/duplicacoes/itens` | Duplica M itens dentro de 1 pedido pai |
-| POST | `/api/v1/pedidos/exclusoes/preview` | Separa permitidos / bloqueados por status |
+| POST | `/api/v1/pedidos/exclusoes/preview` | Separa permitidos / bloqueados (blacklist opt-out em `excluir_status_permitidos`) |
 | POST | `/api/v1/pedidos/exclusoes/confirmar` | Hard delete + audit trail |
 | POST | `/api/v1/pedidos/exclusoes/itens` | Remove itens; aplica regra `excluir_pedido_sem_item_permitido` |
 
@@ -121,9 +121,32 @@ quantidade_cancelada_item: 0,
 
 Sem isso, o item duplicado herdaria "50 transferidas" sem nenhum processo de embarque correspondente — saldo fantasma. Aviso pré-duplicação no modal alerta quando isso acontece.
 
+### `ExcluirService.preview()` — blacklist opt-out (2026-05-26)
+
+Coluna Prisma `excluir_status_permitidos` **não é whitelist**. Guarda status **bloqueados**.
+
+```ts
+// duplicarExcluirService.ts
+function normalizarStatusBloqueadosExclusao(raw: string[] | null | undefined): string[] {
+  if (!raw || raw.length === 0) return []
+  // Whitelist legada (7 canônicos) → migra para [] (todos permitidos)
+  if (raw.length === 7 && LEGACY_EXCLUIR_WHITELIST.every((s) => raw.includes(s))) return []
+  return raw
+}
+
+function statusBloqueiaExclusao(statusPedido: string, bloqueados: string[]): boolean {
+  return bloqueados.includes(statusPedido)
+}
+```
+
+- `preview`: pedido em status **fora** da blacklist → `permitidos[]`; **dentro** → `bloqueados[]` com motivo explícito
+- UI Config (`Configuracoes.tsx`): checkbox marcado = status na blacklist; `migrarStatusBloqueadosUi()` espelha a normalização do backend
+
 ### `ExcluirService.confirmar()` e `ExcluirService.excluirItens()`
 
-Sem mudanças relevantes desta entrega — hard delete com `auditLog` antes via `historico-global` (fire-and-forget).
+Hard delete com `auditLog` antes via `historico-global` (fire-and-forget).
+
+**Timeout (2026-05-26):** rotas `/exclusoes/confirmar` e `/exclusoes/itens` usam `withOrganizacao(..., { timeoutMs: 30_000 })`. Renumeração de `sequencia_item_pedido` após delete de itens roda em paralelo (`Promise.all`) para evitar estouro do default de 10s em pedidos com muitos itens.
 
 ---
 

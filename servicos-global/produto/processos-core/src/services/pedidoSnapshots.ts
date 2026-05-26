@@ -18,7 +18,7 @@
  */
 
 import type {
-  Empresa,
+  Fornecedor,
   Moeda,
   NCM,
   OPE,
@@ -87,7 +87,7 @@ export interface SnapshotEmpresaData {
  * empresa BR precisa ter CNPJ pra existir legalmente). Aqui aceita o que vier.
  */
 export function montarSnapshotEmpresa(
-  empresa: Empresa,
+  empresa: Fornecedor,
   papel: PapelEmpresa,
   idOrganizacao: string,
   idWorkspace: string | null = null,

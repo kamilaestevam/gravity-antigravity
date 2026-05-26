@@ -20,6 +20,10 @@ import type { TooltipProps } from './tipos.js'
 
 const DELAY_ESCONDER_INTERATIVO_MS = 120
 
+function tooltipsGlobaisDesabilitados(): boolean {
+  return typeof document !== 'undefined' && document.body.classList.contains('tooltips-disabled')
+}
+
 export function TooltipGlobal({
   titulo,
   descricao,
@@ -28,6 +32,7 @@ export function TooltipGlobal({
   posicaoPreferida = 'auto',
 }: TooltipProps) {
   const [show, setShow] = useState(false)
+  const [bloqueado, setBloqueado] = useState(tooltipsGlobaisDesabilitados)
   const [pos,  setPos]  = useState({ top: 0, bottom: 0, left: 0, usaBottom: false })
   const ref        = useRef<HTMLSpanElement>(null)
   const cardRef    = useRef<HTMLDivElement>(null)
@@ -62,12 +67,24 @@ export function TooltipGlobal({
     }
   }, [posicaoPreferida])
 
+  useEffect(() => {
+    const sincronizar = () => {
+      const off = tooltipsGlobaisDesabilitados()
+      setBloqueado(off)
+      if (off) setShow(false)
+    }
+    sincronizar()
+    const obs = new MutationObserver(sincronizar)
+    obs.observe(document.body, { attributes: true, attributeFilter: ['class'] })
+    return () => obs.disconnect()
+  }, [])
+
   const mostra = useCallback(() => {
-    if (document.body.classList.contains('tooltips-disabled')) return
+    if (bloqueado || tooltipsGlobaisDesabilitados()) return
     limparTimerEsconder()
     calcularPos()
     setShow(true)
-  }, [calcularPos, limparTimerEsconder])
+  }, [bloqueado, calcularPos, limparTimerEsconder])
 
   const esconde = useCallback(() => {
     limparTimerEsconder()
@@ -103,7 +120,7 @@ export function TooltipGlobal({
         {children}
       </span>
 
-      {show && ReactDOM.createPortal(
+      {show && !bloqueado && ReactDOM.createPortal(
         <div
           ref={cardRef}
           id={tooltipId}

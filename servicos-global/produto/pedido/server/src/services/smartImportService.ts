@@ -110,10 +110,24 @@ function traduzirErroPrisma(err: unknown): string {
     const campoMatch = msg.match(/column\s+"?([^"]+)"?/)
     return `Campo obrigatório ausente: ${campoMatch?.[1] ?? 'verifique a planilha'}.`
   }
-  // Genérico: limpar stack trace do Prisma
-  const prismaCleaned = msg.replace(/\n.*invocation.*[\s\S]*?→\s*/m, '').trim()
-  const firstLine = prismaCleaned.split('\n')[0]
-  return firstLine.length > 200 ? firstLine.slice(0, 200) + '...' : firstLine
+  // Genérico — extrair linha útil do Prisma (evita mostrar só "Invalid invocation")
+  const linhas = msg.split('\n').map(l => l.trim()).filter(Boolean)
+  const linhaUtil = linhas.find(l =>
+    l.startsWith('Argument ')
+    || l.startsWith('Unknown argument')
+    || l.includes('Error converting field')
+    || l.includes('Invalid value')
+    || l.includes('Provided ')
+  )
+  if (linhaUtil) {
+    return linhaUtil.length > 220 ? `${linhaUtil.slice(0, 220)}...` : linhaUtil
+  }
+  if (linhas[0]?.includes('Invalid `prisma') && linhas.length > 1) {
+    const detalhe = linhas.slice(1).join(' — ')
+    return detalhe.length > 220 ? `${detalhe.slice(0, 220)}...` : detalhe
+  }
+  const primeira = linhas[0] ?? 'Erro ao gravar no banco'
+  return primeira.length > 200 ? `${primeira.slice(0, 200)}...` : primeira
 }
 
 function gerarId(prefixo: string): string {
@@ -167,6 +181,26 @@ export function extrairCodigoDropdown(valor: unknown): string {
   const s = String(valor).trim()
   const idx = s.indexOf(' — ')
   return idx > 0 ? s.slice(0, idx) : s
+}
+
+/** Converte numero BR (1.234,56 / 848,30) ou EN (848.30) para number. */
+export function parseNumeroBr(valor: unknown, fallback = 0): number {
+  if (valor === undefined || valor === null || valor === '') return fallback
+  if (typeof valor === 'number') return Number.isFinite(valor) ? valor : fallback
+  const s = String(valor).trim()
+  if (!s) return fallback
+  const normalizado = s.includes(',') && s.includes('.')
+    ? s.replace(/\./g, '').replace(',', '.')
+    : s.replace(',', '.')
+  const n = Number(normalizado)
+  return Number.isFinite(n) ? n : fallback
+}
+
+/** Como parseNumeroBr, mas retorna null quando vazio ou invalido (campos opcionais). */
+export function parseNumeroBrOpcional(valor: unknown): number | null {
+  if (valor === undefined || valor === null || valor === '') return null
+  const n = parseNumeroBr(valor, NaN)
+  return Number.isFinite(n) ? n : null
 }
 
 // ── Tipos locais (espelham os tipos do client) ────────────────────────────────
@@ -721,8 +755,8 @@ export class SmartImportService {
           // Validar valor_por_unidade_item não-negativo
           const valorUnitRaw = dados['valor_por_unidade_item']
           if (valorUnitRaw !== undefined && valorUnitRaw !== null && valorUnitRaw !== '') {
-            const valorUnit = Number(valorUnitRaw)
-            if (!isNaN(valorUnit) && valorUnit < 0) {
+            const valorUnit = parseNumeroBr(valorUnitRaw, NaN)
+            if (Number.isFinite(valorUnit) && valorUnit < 0) {
               erros.push({ linha: linha.linha_arquivo, motivo: 'Valor unitario do item nao pode ser negativo' })
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
@@ -1261,11 +1295,7 @@ export class SmartImportService {
     // evitar falsos positivos por arredondamento. Tudo nivel 'aviso' — usuario
     // pode estar importando dados legados com pequena divergencia.
 
-    const numFlex = (v: unknown): number | null => {
-      if (v === undefined || v === null || v === '') return null
-      const n = Number(String(v).replace(',', '.'))
-      return isNaN(n) ? null : n
-    }
+    const numFlex = (v: unknown): number | null => parseNumeroBrOpcional(v)
 
     // valor_total_item = quantidade_inicial × valor_por_unidade (tolerancia 1%)
     // P14 — quantidade_inicial_pedido (legado) -> quantidade_inicial_item
@@ -1463,13 +1493,13 @@ export class SmartImportService {
     if (dados['aeroporto_destino_pedido'] ?? dados['aeroporto_destino']) result.aeroporto_destino = String(dados['aeroporto_destino_pedido'] ?? dados['aeroporto_destino']).toUpperCase()
 
     // ── Campos numéricos (Decimal) opcionais ────────────────────────────────
-    if (dados['taxa_cambio_estimada_pedido']) result.taxa_cambio_estimada_pedido = Number(dados['taxa_cambio_estimada_pedido'])
-    if (dados['peso_liquido_total_pedido']) result.peso_liquido_total_pedido = Number(dados['peso_liquido_total_pedido'])
-    if (dados['peso_bruto_total_pedido']) result.peso_bruto_total_pedido = Number(dados['peso_bruto_total_pedido'])
-    if (dados['cubagem_total_pedido']) result.cubagem_total_pedido = Number(dados['cubagem_total_pedido'])
+    if (dados['taxa_cambio_estimada_pedido']) result.taxa_cambio_estimada_pedido = parseNumeroBr(dados['taxa_cambio_estimada_pedido'])
+    if (dados['peso_liquido_total_pedido']) result.peso_liquido_total_pedido = parseNumeroBr(dados['peso_liquido_total_pedido'])
+    if (dados['peso_bruto_total_pedido']) result.peso_bruto_total_pedido = parseNumeroBr(dados['peso_bruto_total_pedido'])
+    if (dados['cubagem_total_pedido']) result.cubagem_total_pedido = parseNumeroBr(dados['cubagem_total_pedido'])
 
     // ── Campos Int opcionais ────────────────────────────────────────────────
-    if (dados['quantidade_volumes_pedido']) result.quantidade_volumes_pedido = Math.round(Number(dados['quantidade_volumes_pedido']))
+    if (dados['quantidade_volumes_pedido']) result.quantidade_volumes_pedido = Math.round(parseNumeroBr(dados['quantidade_volumes_pedido']))
 
     // ── Campos DateTime opcionais — todas as datas do Pedido ────────────────
     const DATAS_PEDIDO: string[] = [
@@ -1581,12 +1611,14 @@ export class SmartImportService {
       id_item:                       gerarId('pite'),
       id_organizacao:                tenantId,
       id_workspace:                  companyId,
-      sequencia_item_pedido:         dados['sequencia_item_pedido'] ? Number(dados['sequencia_item_pedido']) : seqPadrao,
+      sequencia_item_pedido:         dados['sequencia_item_pedido']
+        ? Math.round(parseNumeroBr(dados['sequencia_item_pedido'], seqPadrao))
+        : seqPadrao,
       part_number_item:              String(dados['part_number_item'] ?? ''),
       ncm_item:                      formatarNcm(dados['ncm_item']),
       descricao_item:                String(dados['descricao_item'] ?? ''),
-      quantidade_inicial_item:       Number(dados['quantidade_inicial_item'] ?? 0),
-      quantidade_atual_item:         Number(dados['quantidade_inicial_item'] ?? 0),
+      quantidade_inicial_item:       parseNumeroBr(dados['quantidade_inicial_item'], 0),
+      quantidade_atual_item:         parseNumeroBr(dados['quantidade_inicial_item'], 0),
       casas_decimais_quantidade_item: casas.quantidade,
       moeda_item:                    extrairCodigoDropdown(dados['moeda_item'] ?? dados['moeda_pedido'] ?? 'USD'),
       casas_decimais_valor_item:     casas.valor,
@@ -1624,15 +1656,23 @@ export class SmartImportService {
     if (dados['numero_certificado_origem']) itemData.numero_certificado_origem = String(dados['numero_certificado_origem'])
 
     // ── Campos numéricos (Decimal) opcionais ──────────────────────────────
-    if (dados['valor_por_unidade_item']) itemData.valor_por_unidade_item = Number(dados['valor_por_unidade_item'])
-    if (dados['valor_total_item']) itemData.valor_total_item = Number(dados['valor_total_item'])
-    if (dados['peso_liquido_unitario_item']) itemData.peso_liquido_unitario_item = Number(dados['peso_liquido_unitario_item'])
-    if (dados['peso_bruto_unitario_item']) itemData.peso_bruto_unitario_item = Number(dados['peso_bruto_unitario_item'])
-    if (dados['cubagem_unitaria_item']) itemData.cubagem_unitaria_item = Number(dados['cubagem_unitaria_item'])
-    if (dados['quantidade_transferida_item']) itemData.quantidade_transferida_item = Number(dados['quantidade_transferida_item'])
+    const valorUnit = parseNumeroBrOpcional(dados['valor_por_unidade_item'])
+    if (valorUnit !== null) itemData.valor_por_unidade_item = valorUnit
+    const valorTotal = parseNumeroBrOpcional(dados['valor_total_item'])
+    if (valorTotal !== null) itemData.valor_total_item = valorTotal
+    const pesoLiq = parseNumeroBrOpcional(dados['peso_liquido_unitario_item'])
+    if (pesoLiq !== null) itemData.peso_liquido_unitario_item = pesoLiq
+    const pesoBruto = parseNumeroBrOpcional(dados['peso_bruto_unitario_item'])
+    if (pesoBruto !== null) itemData.peso_bruto_unitario_item = pesoBruto
+    const cubagem = parseNumeroBrOpcional(dados['cubagem_unitaria_item'])
+    if (cubagem !== null) itemData.cubagem_unitaria_item = cubagem
+    const qtdTransf = parseNumeroBrOpcional(dados['quantidade_transferida_item'])
+    if (qtdTransf !== null) itemData.quantidade_transferida_item = qtdTransf
     // SSOT usa 'quantidade_pronta_total_item', Prisma usa 'quantidade_pronta_item'
-    if (dados['quantidade_pronta_total_item'] ?? dados['quantidade_pronta_item']) itemData.quantidade_pronta_item = Number(dados['quantidade_pronta_total_item'] ?? dados['quantidade_pronta_item'])
-    if (dados['quantidade_cancelada_item']) itemData.quantidade_cancelada_item = Number(dados['quantidade_cancelada_item'])
+    const qtdPronta = parseNumeroBrOpcional(dados['quantidade_pronta_total_item'] ?? dados['quantidade_pronta_item'])
+    if (qtdPronta !== null) itemData.quantidade_pronta_item = qtdPronta
+    const qtdCancel = parseNumeroBrOpcional(dados['quantidade_cancelada_item'])
+    if (qtdCancel !== null) itemData.quantidade_cancelada_item = qtdCancel
 
     // ── Campos DateTime opcionais — todas as datas do Item ────────────────
     const DATAS_ITEM: string[] = [

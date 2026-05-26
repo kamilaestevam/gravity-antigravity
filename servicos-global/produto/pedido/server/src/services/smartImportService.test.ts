@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { SmartImportService } from './smartImportService.js'
+import { SmartImportService, parseNumeroBr, parseNumeroBrOpcional } from './smartImportService.js'
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -312,5 +312,27 @@ describe('filtro de linhas ITEM vazias', () => {
       )
     })
     expect(filtradas).toHaveLength(1)
+  })
+})
+
+describe('parseNumeroBr', () => {
+  it('converte decimal BR com virgula', () => {
+    expect(parseNumeroBr('848,30')).toBe(848.3)
+    expect(parseNumeroBr('1,00')).toBe(1)
+    expect(parseNumeroBr('46146,33')).toBe(46146.33)
+  })
+
+  it('converte milhar BR com ponto e decimal virgula', () => {
+    expect(parseNumeroBr('1.234,56')).toBe(1234.56)
+  })
+
+  it('aceita formato EN com ponto decimal', () => {
+    expect(parseNumeroBr('848.30')).toBe(848.3)
+  })
+
+  it('parseNumeroBrOpcional retorna null para vazio ou invalido', () => {
+    expect(parseNumeroBrOpcional('')).toBeNull()
+    expect(parseNumeroBrOpcional('abc')).toBeNull()
+    expect(parseNumeroBrOpcional('32,00')).toBe(32)
   })
 })

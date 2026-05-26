@@ -32,6 +32,40 @@ import { parseNumeroBr, parseNumeroBrOpcional } from '../../../shared/formatador
 
 export { parseNumeroBr, parseNumeroBrOpcional } from '../../../shared/formatadores.js'
 
+/** Linha do arquivo onde o numero_pedido aparece pela 1a vez (ordem master-detail). */
+export function calcularPrimeiraLinhaPorNumeroPedido(
+  linhas: Array<{ linha_arquivo: number; numero_pedido?: string | null; dados?: Record<string, unknown> }>,
+  numerosEditados: Record<number, string> = {},
+): Map<string, number> {
+  const map = new Map<string, number>()
+  for (const linha of linhas) {
+    const num =
+      numerosEditados[linha.linha_arquivo]
+      ?? (linha.dados?.['numero_pedido'] as string | undefined)
+      ?? linha.numero_pedido
+      ?? undefined
+    if (!num) continue
+    const atual = map.get(num)
+    if (atual === undefined || linha.linha_arquivo < atual) {
+      map.set(num, linha.linha_arquivo)
+    }
+  }
+  return map
+}
+
+/**
+ * data_emissao_pedido sintetica para a lista (sort padrao DESC).
+ * Pedido que aparece antes na planilha recebe timestamp mais recente.
+ */
+export function dataEmissaoPorOrdemPlanilha(primeiraLinhaArquivo: number, anchorImportacaoMs: number): string {
+  return new Date(anchorImportacaoMs - primeiraLinhaArquivo * 60_000).toISOString()
+}
+
+interface OpcoesOrdemPlanilhaImportacao {
+  primeiraLinhaPlanilha: number
+  anchorImportacaoMs: number
+}
+
 const CAMPOS_BLOQ_PARA_ITEM: ReadonlySet<string> = new Set([
   // NOTA: 'numero_pedido' NAO entra aqui — é o campo de vinculo que liga ITEM ao PEDIDO pai.
   // Apenas campos AGREGADOS de pedido sao bloqueados em linhas ITEM.
@@ -697,6 +731,28 @@ export class SmartImportService {
     const idsPedidosParaRecalcular: Set<string> = new Set()
     /** Próxima sequência por pedido — ordem do arquivo, ignorando coluna "Sequencia do Item" da planilha. */
     const proximaSequenciaPorPedido = new Map<string, number>()
+    /** Ordem dos pedidos na planilha → data_emissao sintetica para sort da lista. */
+    const anchorImportacaoMs = Date.now()
+    const primeiraLinhaPorNumero = calcularPrimeiraLinhaPorNumeroPedido(
+      linhasFiltradas,
+      payload.numeros_editados ?? {},
+    )
+    const ordemPlanilhaPorIdPedido = new Map<string, number>()
+
+    const registrarOrdemPlanilhaPedido = (idPedido: string, numero: string | null | undefined): void => {
+      if (!numero) return
+      const primeiraLinha = primeiraLinhaPorNumero.get(numero)
+      if (primeiraLinha !== undefined) {
+        ordemPlanilhaPorIdPedido.set(idPedido, primeiraLinha)
+      }
+    }
+
+    const optsOrdemPlanilha = (numero: string | null | undefined): OpcoesOrdemPlanilhaImportacao | undefined => {
+      if (!numero) return undefined
+      const primeiraLinha = primeiraLinhaPorNumero.get(numero)
+      if (primeiraLinha === undefined) return undefined
+      return { primeiraLinhaPlanilha: primeiraLinha, anchorImportacaoMs }
+    }
 
     const obterProximaSequenciaItem = async (idPedido: string): Promise<number> => {
       let proxima = proximaSequenciaPorPedido.get(idPedido)
@@ -782,7 +838,13 @@ export class SmartImportService {
           }
 
           const dadosPedido = {
-            ...this.montarDadosPedido(dados, tenantId, companyId ?? tenantId, casasConfig),
+            ...this.montarDadosPedido(
+              dados,
+              tenantId,
+              companyId ?? tenantId,
+              casasConfig,
+              optsOrdemPlanilha(numeroPedido),
+            ),
             id_status_pedido: idStatusRascunho,
           }
 
@@ -795,6 +857,7 @@ export class SmartImportService {
                 where: { id_pedido: existente.id_pedido },
                 data:  dadosPedido,
               })
+              registrarOrdemPlanilhaPedido(existente.id_pedido, numeroPedido)
               atualizados.push(linha.linha_arquivo)
               idsPedidosParaRecalcular.add(existente.id_pedido)
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -818,6 +881,7 @@ export class SmartImportService {
                 const itemData = this.montarDadosItem(dados, tenantId, companyId ?? tenantId, casasConfig, seqItem)
                 itemData.pedido_item = { connect: { id_pedido: pedidoExistente.id_pedido } }
                 await (this.db as Record<string, any>)['pedidoItem'].create({ data: itemData })
+                registrarOrdemPlanilhaPedido(pedidoExistente.id_pedido, numeroPedidoFinal)
                 atualizados.push(linha.linha_arquivo)
                 idsPedidosParaRecalcular.add(pedidoExistente.id_pedido)
               } catch (errInsert: unknown) {
@@ -859,6 +923,7 @@ export class SmartImportService {
           if (itemPayload.itens_pedido) {
             proximaSequenciaPorPedido.set(novo.id_pedido, 2)
           }
+          registrarOrdemPlanilhaPedido(novo.id_pedido, numeroPedidoFinal ?? numeroPedido)
           criados.push(novo.id_pedido)
           idsPedidosParaRecalcular.add(novo.id_pedido)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -918,6 +983,28 @@ export class SmartImportService {
           await (this.db as any).$executeRawUnsafe(`ROLLBACK TO SAVEPOINT ${spSeq}`)
           const msgSeq = errSeq instanceof Error ? errSeq.message : 'Erro desconhecido'
           console.warn(`[smartImport:confirmar] resequenciarItensPedido falhou pedido=${pedidoId}: ${msgSeq}`)
+        }
+      }
+
+      // Ordem dos pedidos na lista = ordem de 1a aparicao na planilha (sort data_emissao DESC).
+      for (const [pedidoId, primeiraLinha] of ordemPlanilhaPorIdPedido) {
+        const spOrdem = `sp_ordem_${pedidoId.replace(/[^a-zA-Z0-9_]/g, '_')}`
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (this.db as any).$executeRawUnsafe(`SAVEPOINT ${spOrdem}`)
+        try {
+          await (this.db as Record<string, any>)['pedido'].update({
+            where: { id_pedido: pedidoId },
+            data: {
+              data_emissao_pedido: dataEmissaoPorOrdemPlanilha(primeiraLinha, anchorImportacaoMs),
+            },
+          })
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spOrdem}`)
+        } catch (errOrdem: unknown) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (this.db as any).$executeRawUnsafe(`ROLLBACK TO SAVEPOINT ${spOrdem}`)
+          const msgOrdem = errOrdem instanceof Error ? errOrdem.message : 'Erro desconhecido'
+          console.warn(`[smartImport:confirmar] ordem planilha falhou pedido=${pedidoId}: ${msgOrdem}`)
         }
       }
     }
@@ -1491,7 +1578,13 @@ export class SmartImportService {
    *   incoterm_pedido, moeda_pedido, data_emissao_pedido, casas_decimais_*.
    * Tambem leu data_emissao do nome legado `data_emissao_pedido` (idem).
    */
-  private montarDadosPedido(dados: Record<string, unknown>, tenantId: string, companyId: string, casas = CASAS_DECIMAIS_PADRAO): Record<string, unknown> {
+  private montarDadosPedido(
+    dados: Record<string, unknown>,
+    tenantId: string,
+    companyId: string,
+    casas = CASAS_DECIMAIS_PADRAO,
+    ordemPlanilha?: OpcoesOrdemPlanilhaImportacao,
+  ): Record<string, unknown> {
     // P1.3 — validar enum tipo_operacao_pedido para evitar valores arbitrarios.
     // SSOT (campos-pedido-ddd.ts) usa `tipo_operacao` como nome do campo no
     // upload; schema usa `tipo_operacao_pedido`. Aceitamos ambos no `dados[]`
@@ -1502,6 +1595,8 @@ export class SmartImportService {
       ? tipoOperacaoRaw as string
       : 'importacao'
 
+    const dataEmissaoPlanilha = normalizarData(dados['data_emissao_pedido'])
+
     // ── Campos obrigatórios (sempre incluídos) ──────────────────────────────
     const result: Record<string, unknown> = {
       id_pedido:                        gerarId('pedi'),
@@ -1511,7 +1606,9 @@ export class SmartImportService {
       tipo_operacao_pedido:             tipoOperacao,
       status_pedido:                    'rascunho',
       moeda_pedido:                     extrairCodigoDropdown(dados['moeda_pedido'] ?? 'USD'),
-      data_emissao_pedido:              normalizarData(dados['data_emissao_pedido']) ?? new Date().toISOString(),
+      data_emissao_pedido:              ordemPlanilha
+        ? dataEmissaoPorOrdemPlanilha(ordemPlanilha.primeiraLinhaPlanilha, ordemPlanilha.anchorImportacaoMs)
+        : (dataEmissaoPlanilha ?? new Date().toISOString()),
       casas_decimais_valor_pedido:      casas.valor,
       casas_decimais_quantidade_pedido: casas.quantidade,
       casas_decimais_peso_pedido:       casas.peso ?? 3,
@@ -1645,6 +1742,9 @@ export class SmartImportService {
     const extras: Record<string, string> = {}
     for (const campo of CAMPOS_EXTRAS_PEDIDO) {
       if (dados[campo]) extras[campo] = String(dados[campo])
+    }
+    if (ordemPlanilha && dataEmissaoPlanilha) {
+      extras._data_emissao_planilha = dataEmissaoPlanilha
     }
     // Merge com _campos_extras existentes (campos que não mapearam para nenhum nome conhecido)
     if (dados['_campos_extras'] && typeof dados['_campos_extras'] === 'object') {

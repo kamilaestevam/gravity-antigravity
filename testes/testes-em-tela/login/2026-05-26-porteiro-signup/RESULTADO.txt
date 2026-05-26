@@ -1,0 +1,1 @@
+Pendente execução manual ou via run-porteiro-signup.ts

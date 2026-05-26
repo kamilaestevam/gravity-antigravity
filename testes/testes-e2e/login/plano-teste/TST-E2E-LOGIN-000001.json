@@ -1,0 +1,86 @@
+{
+  "id": "TST-E2E-LOGIN-000001",
+  "versao": "1.0.0",
+  "geradoEm": "2026-05-26T00:00:00Z",
+  "escopo": "LOGIN",
+  "sublocal": "porteiro-pos-autenticacao",
+  "tela": "Signup / Login / Porteiro pós-auth",
+  "rotas": ["/", "/cadastro", "/login", "/trial", "/hub"],
+  "planoMestre": "testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json",
+  "specFilePath": "testes/testes-e2e/login/TST-E2E-LOGIN-000001.spec.ts",
+  "componenteFilePath": "servicos-global/configurador/src/routing/destino-pos-autenticacao.ts",
+  "ambientes": ["Local", "Staging"],
+  "criticidade": "critica",
+  "status": "aguardando_aprovacao_dono",
+  "totalPassos": 10,
+  "passos": [
+    {
+      "numero": 1,
+      "id": "E2E-001",
+      "acao": "Navegar /cadastro, criar conta e-mail novo, OTP → assert URL /trial",
+      "preCondicao": "E-mail nunca cadastrado no Gravity",
+      "assercao": { "urlContem": "/trial" },
+      "screenshot": "01-signup-trial.png"
+    },
+    {
+      "numero": 2,
+      "id": "E2E-002",
+      "acao": "Verificar modal onboarding (campo nome empresa visivel)",
+      "assercao": { "textoVisivel": "NOME DA EMPRESA" },
+      "screenshot": "02-onboarding-modal.png"
+    },
+    {
+      "numero": 3,
+      "id": "E2E-003",
+      "acao": "Login cliente existente → /hub com texto Acessar Workspace",
+      "preCondicao": "Usuario com organizacao no Prisma",
+      "assercao": { "textoVisivel": "Acessar Workspace" },
+      "screenshot": "03-hub-cliente.png"
+    },
+    {
+      "numero": 4,
+      "id": "E2E-004",
+      "acao": "Sessao signup sem org: goto /hub → redirect /trial",
+      "assercao": { "urlContem": "/trial" },
+      "screenshot": "04-hub-redirect-trial.png"
+    },
+    {
+      "numero": 5,
+      "id": "E2E-005",
+      "acao": "Sessao signup sem org: goto / → porteiro → /trial",
+      "assercao": { "urlContem": "/trial" }
+    },
+    {
+      "numero": 6,
+      "id": "E2E-006",
+      "acao": "Logado sem org: /cadastro → porteiro (nao formulario cadastro)",
+      "assercao": { "urlContem": "/trial" }
+    },
+    {
+      "numero": 7,
+      "id": "E2E-007",
+      "acao": "Completar onboarding (nome + CNPJ) → /hub",
+      "assercao": { "urlContem": "/hub" },
+      "screenshot": "05-hub-pos-onboarding.png"
+    },
+    {
+      "numero": 8,
+      "id": "E2E-008",
+      "acao": "Google signup (staging) sem org → /trial",
+      "notas": "Requer Clerk OAuth test + continueSignUpUrl",
+      "status": "opcional_staging"
+    },
+    {
+      "numero": 9,
+      "id": "E2E-009",
+      "acao": "Loader GravityLoader visivel brevemente pos-auth",
+      "categoria": 11
+    },
+    {
+      "numero": 10,
+      "id": "E2E-010",
+      "acao": "Logout + novo signup → repete fluxo /trial",
+      "categoria": 20
+    }
+  ]
+}

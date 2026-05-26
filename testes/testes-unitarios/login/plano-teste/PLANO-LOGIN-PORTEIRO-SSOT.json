@@ -1,0 +1,92 @@
+{
+  "id": "PLANO-LOGIN-PORTEIRO-SSOT",
+  "versao": "1.0.0",
+  "geradoEm": "2026-05-26T00:00:00Z",
+  "geradoPor": "pipeline-multi-agente-plano-teste",
+  "escopo": "LOGIN",
+  "sublocal": "porteiro-pos-autenticacao",
+  "feature": "Porteiro SSOT — GET /api/v1/me → /trial | /hub",
+  "criticidade": "critica",
+  "temDinheiro": false,
+  "resumoExecutivo": "Garante que usuário autenticado no Clerk só acessa /hub quando existe organizacao no Prisma. Signup novo deve ir para /trial (onboarding). Corrige bug de producao: /hub vazio apos cadastro. SSOT: resolverDestinoPosAutenticacao + guards App.tsx.",
+  "artefatosCodigo": [
+    "servicos-global/configurador/src/routing/destino-pos-autenticacao.ts",
+    "servicos-global/configurador/src/hooks/use-destino-pos-autenticacao.ts",
+    "servicos-global/configurador/src/routing/NavigateDestinoPosAutenticacao.tsx",
+    "servicos-global/configurador/src/App.tsx",
+    "servicos-global/configurador/src/pages/Onboarding.tsx",
+    "servicos-global/configurador/src/pages/SelecionarWorkspace.tsx",
+    "nucleo-global/Login/login-global/src/LoginGlobal.tsx",
+    "servicos-global/configurador/src/main.tsx"
+  ],
+  "legadoSubstituido": [
+    {
+      "arquivo": "testes/testes-funcionais/configurador/fluxo-signup-onboarding.test.ts",
+      "motivo": "FONTE PRIMARIA — escopo LOGIN migrado para testes-funcionais/login/",
+      "substituidoPor": "testes/testes-funcionais/login/porteiro-pos-autenticacao.test.ts"
+    }
+  ],
+  "casosUnitarios": [
+    { "id": "UNI-001", "descricao": "Schema aceita organizacao com id_organizacao", "arquivo": "porteiro-resolver.test.ts", "status": "implementado" },
+    { "id": "UNI-002", "descricao": "Schema aceita organizacao null", "status": "implementado" },
+    { "id": "UNI-003", "descricao": "Schema rejeita organizacao sem id", "status": "implementado" },
+    { "id": "UNI-010", "descricao": "401 → trial", "status": "implementado" },
+    { "id": "UNI-011", "descricao": "404 → trial", "status": "implementado" },
+    { "id": "UNI-012", "descricao": "200 com org → hub", "status": "implementado" },
+    { "id": "UNI-013", "descricao": "200 org null → trial", "status": "implementado" },
+    { "id": "UNI-014", "descricao": "500 → trial fail-safe", "status": "implementado" },
+    { "id": "UNI-015", "descricao": "Payload Zod invalido → trial + warn", "status": "implementado" },
+    { "id": "UNI-016", "descricao": "Status 0 rede → trial", "status": "implementado" },
+    { "id": "UNI-020", "descricao": "Cache gravar/obter", "status": "implementado" },
+    { "id": "UNI-021", "descricao": "limparCacheDestinoPosAutenticacao", "status": "implementado" },
+    { "id": "UNI-022", "descricao": "invalidarCacheDestinoPosAutenticacao", "status": "implementado" },
+    { "id": "UNI-030", "descricao": "Hook inicia carregando", "status": "implementado" },
+    { "id": "UNI-031", "descricao": "Hook /me 401 → trial", "status": "implementado" },
+    { "id": "UNI-032", "descricao": "Hook /me 200 org → hub", "status": "implementado" },
+    { "id": "UNI-033", "descricao": "Hook cache hit sem segundo fetch", "status": "implementado" },
+    { "id": "UNI-034", "descricao": "Token null → trial sem fetch", "status": "implementado" }
+  ],
+  "casosFuncionais": [
+    { "id": "FUN-001", "descricao": "App importa porteiro SSOT", "status": "implementado" },
+    { "id": "FUN-002", "descricao": "RootRedirect/PublicRoute sem Navigate fixo /hub", "status": "implementado" },
+    { "id": "FUN-003", "descricao": "ProtectedRoute trial redirect", "status": "implementado" },
+    { "id": "FUN-004", "descricao": "Arquivo resolver SSOT existe", "status": "implementado" },
+    { "id": "FUN-010", "descricao": "Clerk signUpFallback /trial", "status": "implementado" },
+    { "id": "FUN-011", "descricao": "SSO callbacks trial/hub", "status": "implementado" },
+    { "id": "FUN-020", "descricao": "Onboarding guard /me + limpar cache", "status": "implementado" },
+    { "id": "FUN-021", "descricao": "Hub guard 401 → trial", "status": "implementado" },
+    { "id": "FUN-022", "descricao": "OTP navigate /trial", "status": "implementado" },
+    { "id": "FUN-023", "descricao": "Logout limpa cache porteiro", "status": "implementado" }
+  ],
+  "passosE2e": [
+    { "numero": 1, "id": "E2E-001", "acao": "Signup e-mail novo + OTP → URL /trial", "categoria": 1, "prioridade": "P0", "status": "pendente_spec" },
+    { "numero": 2, "id": "E2E-002", "acao": "Modal onboarding visivel (nome empresa)", "categoria": 1, "prioridade": "P0", "status": "pendente_spec" },
+    { "numero": 3, "id": "E2E-003", "acao": "Login cliente existente → /hub com topbar", "categoria": 1, "prioridade": "P0", "status": "pendente_spec" },
+    { "numero": 4, "id": "E2E-004", "acao": "Digitar / hub logado sem org → redirect /trial", "categoria": 14, "prioridade": "P0", "status": "pendente_spec" },
+    { "numero": 5, "id": "E2E-005", "acao": "Digitar / logado sem org → porteiro → /trial", "categoria": 14, "prioridade": "P0", "status": "pendente_spec" },
+    { "numero": 6, "id": "E2E-006", "acao": "Cadastro logado redireciona via porteiro (nao fica /cadastro)", "categoria": 14, "prioridade": "P1", "status": "pendente_spec" },
+    { "numero": 7, "id": "E2E-007", "acao": "Completar onboarding → /hub com workspace", "categoria": 20, "prioridade": "P0", "status": "pendente_spec" },
+    { "numero": 8, "id": "E2E-008", "acao": "Google signup callback → /trial se sem org", "categoria": 14, "prioridade": "P1", "status": "pendente_spec" },
+    { "numero": 9, "id": "E2E-009", "acao": "Loader porteiro visivel antes de redirect", "categoria": 11, "prioridade": "P2", "status": "pendente_spec" },
+    { "numero": 10, "id": "E2E-010", "acao": "Logout → login → signup novo repete /trial", "categoria": 20, "prioridade": "P1", "status": "pendente_spec" }
+  ],
+  "passosEmTela": [
+    { "numero": 1, "id": "EMT-001", "screenshot": "01-signup-otp-trial.png", "descricao": "Pos OTP URL /trial + modal onboarding", "status": "pendente" },
+    { "numero": 2, "id": "EMT-002", "screenshot": "02-hub-cliente-existente.png", "descricao": "Login existente — hub com topbar", "status": "pendente" },
+    { "numero": 3, "id": "EMT-003", "screenshot": "03-hub-vazio-NAO.png", "descricao": "Regressao: NAO deve aparecer tela azul sem UI", "status": "pendente" },
+    { "numero": 4, "id": "EMT-004", "screenshot": "04-onboarding-cnpj.png", "descricao": "Passo 2 CNPJ onboarding", "status": "pendente" },
+    { "numero": 5, "id": "EMT-005", "screenshot": "05-hub-pos-org.png", "descricao": "Hub apos criar organizacao", "status": "pendente" }
+  ],
+  "preRequisitos": {
+    "ambiente": ["Local :8000", "Staging usegravity.com.br"],
+    "servicos": ["configurador front", "configurador API", "Clerk test instance"],
+    "fixtures": ["e-mail signup novo nunca usado", "e-mail cliente com org existente"],
+    "notas": "E2E e em-tela exigem aprovacao explicita do dono antes de rodar em Producao."
+  },
+  "coberturaPercentual": {
+    "unitario": 100,
+    "funcionalWiring": 100,
+    "e2e": 0,
+    "emTela": 0
+  }
+}

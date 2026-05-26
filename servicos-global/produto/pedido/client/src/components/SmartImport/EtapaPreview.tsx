@@ -434,7 +434,7 @@ function CardPedido({
               { valor: 'criar', rotulo: t('pedido.smart_preview.decisao_criar') },
               { valor: 'pular', rotulo: t('pedido.smart_preview.decisao_pular') },
             ]}
-            valor={decisao ?? 'pular'}
+            valor={decisao ?? 'sobrescrever'}
             aoMudarValor={v => v != null && onDecisao(v as DecisaoDuplicata)}
             aria-label={t('pedido.smart_preview.aria_decisao_duplicado')}
           />

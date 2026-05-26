@@ -551,10 +551,19 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido, onListaA
       )
       setLinhasSelecionadas(validas)
 
-      // Duplicatas detectadas ficam SEM decisão por default — backend faz
-      // append incremental (adiciona itens ao pedido existente). Usuário pode
-      // mudar para 'sobrescrever' ou 'pular' na UI de preview.
-      setDecisoesDuplicatas({})
+      // Duplicatas visíveis na Lista → padrão sobrescrever (evita "Pular" silencioso
+      // quando o dropdown mostra pular mas o payload ia vazio).
+      const duplicatasIniciais: Record<string, DecisaoDuplicata> = {}
+      for (const linha of previewDados.linhas) {
+        if (
+          linha.numero_pedido
+          && linha.alertas?.some(a => a.tipo === 'duplicado_sistema')
+          && !duplicatasIniciais[linha.numero_pedido]
+        ) {
+          duplicatasIniciais[linha.numero_pedido] = 'sobrescrever'
+        }
+      }
+      setDecisoesDuplicatas(duplicatasIniciais)
 
       setEtapa('mapeamento')
     } catch (err: unknown) {

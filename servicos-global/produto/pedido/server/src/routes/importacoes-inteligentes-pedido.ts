@@ -653,11 +653,13 @@ smartImportRouter.post('/analisar', upload.single('arquivo'), async (req: Reques
       return res.json({ multiplas_planilhas: true, planilhas, preview: null })
     }
 
+    const companyId = (req.headers['x-id-workspace'] as string | undefined) ?? tenantId
+
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db      = rawDb as any
       const service = criarSmartImportService(db)
-      const preview = await service.analisar(tenantId, buffer, nomeArquivo, nomePlanilha)
+      const preview = await service.analisar(tenantId, buffer, nomeArquivo, nomePlanilha, companyId)
       // REGRA 06/09 — valida contrato bilateral antes de devolver (defensive
       // serialization). Se o backend acrescentar campo novo, .parse() avisa
       // imediatamente em vez de bug silencioso no client.

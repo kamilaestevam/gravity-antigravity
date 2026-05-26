@@ -7,9 +7,14 @@
 
 ## Visão Geral
 
-Após autenticar com sucesso no Clerk, o usuário cai em `/hub` (rota canônica DDD).
+Após autenticar no Clerk, o **porteiro SSOT** (`GET /api/v1/me`) envia o usuário para:
 
-A tela `<SelecionarWorkspace />` decide se mantém o usuário ali (mostrando os workspaces da organização) ou redireciona automaticamente para `/core` (workspace de trabalho) com base em 4 condições.
+- **`/trial`** — sem organização no Prisma (signup / onboarding)
+- **`/hub`** — cliente com organização ativa
+
+Documentação completa do signup: [`FLUXO-SIGNUP-ONBOARDING.md`](./FLUXO-SIGNUP-ONBOARDING.md).
+
+Na rota `/hub`, `<SelecionarWorkspace />` decide se mantém o usuário ali ou redireciona para `/core` (skip pós-login) com base em 4 condições.
 
 ---
 
@@ -34,9 +39,16 @@ A tela `<SelecionarWorkspace />` decide se mantém o usuário ali (mostrando os 
             [Clerk autentica]
                     │
                     ▼
-   ┌──────[ signInFallbackRedirectUrl="/hub" ]──────┐
-   │                                                 │
-   ▼                                                 ▼
+        [Porteiro SSOT: GET /api/v1/me]
+                    │
+        ┌───────────┴───────────┐
+        │                       │
+   sem organizacao          com organizacao
+        │                       │
+        ▼                       ▼
+     /trial                    /hub
+                                  │
+                                  ▼
 [GET /api/v1/hub/init]                  [Componente <SelecionarWorkspace>]
    │                                                 │
    │ retorna: companies[], products[],               │
@@ -96,7 +108,7 @@ Sem o parâmetro, qualquer botão "Voltar ao Hub" entraria em loop para usuário
 | Item de menu na sidebar de produto | `to: '/hub?select=1'` |
 | Click no nó "hub" do `<LocalizadorGlobal>` | `navigate('/hub?select=1')` |
 
-**Exceção:** `App.tsx > RootRedirect` (rota `/`) mantém `Navigate to="/hub"` sem `?select=1` — quem digita `/` na URL espera "home", não "trocar workspace". O skip é desejado neste caso.
+**Exceção:** `App.tsx > RootRedirect` (rota `/`) usa o porteiro → `/hub` **sem** `?select=1` quando o usuário já tem org — quem digita `/` espera "home". O skip é desejado neste caso.
 
 ---
 
@@ -186,6 +198,8 @@ grep -rE "navigate\\('/hub'\\)|window\\.location\\.href\\s*=\\s*'/hub'" servicos
 | 2026-04-30 | Render inline `<AutenticacaoPage />` em `RootRedirect` para deslogados deixava URL `/` sem refletir estado. Migrado para redirect explícito para `/login`. | Commit `eb87bf01` |
 | 2026-04-30 | Props Clerk `afterSignInUrl` / `afterSignUpUrl` deprecated. Migradas para `signInFallbackRedirectUrl` / `signUpFallbackRedirectUrl`. | Commit `eb87bf01` |
 | 2026-05-13 | Layout do `<SignIn>` Clerk em `/login` virou 2-passos (email → senha em telas separadas) por mudança no Clerk Dashboard. Substituído por form custom `<SignInFlow>` em `nucleo-global/Login/login-global/src/LoginGlobal.tsx` usando hook `useSignIn()`. Inclui botão Google via `signIn.authenticateWithRedirect` + nova rota `/login/sso-callback` (`AuthenticateWithRedirectCallback`). Email + senha empilhados no mesmo card. Cadeia pós-login intacta (`setActive` → `/hub` → hook `useCarregarTipoUsuario` → banner USUARIO_INATIVO). Ponto seguro: tag `seguro-pre-login-custom-2026-05-13`. | Esta sessão |
+| 2026-05-19 | Signup redirecionava para `/hub`; fallback Clerk era `/hub`. | `7ab7b5c0` — fallback `/trial`, guard 401 no Hub |
+| 2026-05-25 | Signup em prod caía em `/hub` vazio (porteiro ausente em `RootRedirect`/`PublicRoute`). | Porteiro SSOT `useDestinoPosAutenticacao` — ver `FLUXO-SIGNUP-ONBOARDING.md` |
 
 ---
 
@@ -195,7 +209,7 @@ grep -rE "navigate\\('/hub'\\)|window\\.location\\.href\\s*=\\s*'/hub'" servicos
 App.tsx (Routes)
 ├── /                              → <RootRedirect />
 │                                     │
-│                                     ├─ logado:    Navigate to="/hub" (skip pode disparar)
+│                                     ├─ logado:    <NavigateDestinoPosAutenticacao /> (/me → trial|hub)
 │                                     └─ deslogado: Navigate to="/login"
 │
 ├── /login/*                       → <PublicRoute><AutenticacaoPage /></PublicRoute>
@@ -205,7 +219,10 @@ App.tsx (Routes)
 ├── /recuperar-senha/redefinir     → <PublicRoute><RecuperarSenhaRedefinirPage /></PublicRoute> (codigo + nova senha)
 ├── /recuperar-senha/*             → <PublicRoute><AutenticacaoPage /></PublicRoute>
 │
+├── /trial                         → <Onboarding /> (sem ProtectedRoute — porteiro interno)
+│
 ├── /hub                           → <ProtectedRoute><SelecionarWorkspace /></ProtectedRoute>
+│                                     │  (ProtectedRoute: sem org → /trial)
 │                                     │
 │                                     └─ avalia 4 condições do skip
 │                                        ├─ TODAS true: navigate('/core', replace)
@@ -227,10 +244,10 @@ App.tsx (Routes)
 <ClerkProvider
   publishableKey={PUBLISHABLE_KEY}
   localization={ptBR}
-  signUpFallbackRedirectUrl="/hub"   // após cadastro: vai para /hub (skip pode disparar)
-  signInFallbackRedirectUrl="/hub"   // após login:    idem
-  signInUrl="/login"                 // rota local de login (DDD canônica)
-  signUpUrl="/cadastro"              // rota local de cadastro (DDD canônica)
+  signUpFallbackRedirectUrl="/trial"  // cadastro — alinhado ao porteiro (não substitui /me)
+  signInFallbackRedirectUrl="/hub"  // login existente
+  signInUrl="/login"
+  signUpUrl="/cadastro"
 >
   ...
 </ClerkProvider>
@@ -279,5 +296,5 @@ Etapa 2 — `/recuperar-senha/redefinir` (`RecuperarSenhaRedefinirPage`):
 
 ---
 
-**Última revisão:** 2026-04-30
-**Commits relevantes:** `78eb5cae`, `2a112a65`, `eb87bf01`, `16840c71`
+**Última revisão:** 2026-05-25
+**Commits relevantes:** `78eb5cae`, `2a112a65`, `eb87bf01`, `16840c71`, `7ab7b5c0`, porteiro SSOT 2026-05-25

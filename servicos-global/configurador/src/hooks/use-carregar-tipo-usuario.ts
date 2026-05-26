@@ -9,6 +9,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth, useClerk } from '@clerk/clerk-react'
 import { z } from 'zod'
+import { limparCacheDestinoPosAutenticacao } from '../routing/destino-pos-autenticacao.js'
 
 /** Chave no sessionStorage usada pra carregar mensagem de erro na tela de
  *  login. Lida pelo LoginGlobal no mount e limpa após exibir. */
@@ -58,6 +59,8 @@ export function limparCacheTipoUsuario(): void {
   cacheTipoUsuario.clear()
   cacheHospedaColaboradoresGravity.clear()
   cacheIdOrganizacao.clear()
+  cacheIdUsuarioPrisma.clear()
+  limparCacheDestinoPosAutenticacao()
 }
 
 export function useCarregarTipoUsuario() {

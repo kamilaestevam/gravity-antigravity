@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useUser, SignIn, useAuth, useClerk } from '@clerk/clerk-react'
+import { limparCacheDestinoPosAutenticacao } from '../routing/destino-pos-autenticacao'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -139,7 +140,8 @@ export function Onboarding() {
         throw new Error(mensagem)
       }
 
-      // Sucesso — redireciona para o hub (workspace inicial já criado no backend)
+      // Sucesso — invalida porteiro (cache /me) e recarrega no hub
+      limparCacheDestinoPosAutenticacao()
       window.location.href = '/hub'
 
     } catch (err) {

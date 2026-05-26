@@ -384,7 +384,7 @@ const meResponseSchema = z.object({
 
 | Skill | Caminho | Quando Consultar |
 |-------|---------|-----------------|
-| Configurador | `skills/produtos-gravity/configurador/SKILL.md` | Auth/Clerk, billing/Stripe, permissões, multi-workspace |
+| Configurador | `skills/produtos-gravity/configurador/SKILL.md` | Auth/Clerk, billing, permissões, multi-workspace. Docs: `documentos-tecnicos/produtos-gravity/configurador/FLUXO-SIGNUP-ONBOARDING.md` (porteiro `/me` → trial/hub), `FLUXO-POS-LOGIN.md` (skip hub→core) |
 | Configurador › Admin | `skills/produtos-gravity/configurador/admin/SKILL.md` | Painel admin interno (impersonação, deploy Railway, monitor de APIs) |
 | API Cockpit | `skills/produtos-gravity/api-cockpit/SKILL.md` | Tokens, playground, webhooks, conector ERP/SAP, fluxo Gabi OData |
 | Marketplace | `skills/produtos-gravity/marketplace/SKILL.md` | Landing pública, pricing, onboarding (sem auth, sem backend) |

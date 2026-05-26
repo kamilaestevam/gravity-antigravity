@@ -17,7 +17,7 @@ Sistema que permite que clientes do Gravity consumam os produtos sem precisar de
 
 ```text
 servicos-global/configurador/
-  └── src/pages/workspace/
+  └── src/pages/configurador/
       └── api-cockpit/      ← central de APIs (visão consolidada)
 
 produtos/[nome-do-produto]/

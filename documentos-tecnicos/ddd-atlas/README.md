@@ -25,6 +25,12 @@ Ele nao substitui a skill [`ddd-nomenclatura`](../../skills/governanca/lei/ddd-n
 
 **Total acionavel:** 3322 linhas. **Total exempt** (no apendice de cada arquivo): 241.
 
+### Suplementos manuais (fora da planilha)
+
+| Arquivo | Motivo |
+|---------|--------|
+| [`apendice-rotas-auth-signup.md`](./apendice-rotas-auth-signup.md) | Rotas FE `/trial`, porteiro `/me`, guards pós-PR #79 — até entrar na planilha |
+
 ---
 
 ## Como usar

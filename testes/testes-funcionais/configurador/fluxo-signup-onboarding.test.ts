@@ -1,9 +1,10 @@
 // @vitest-environment node
 // TST-FUNC-CONF-SIGNUP-001 — Fluxo signup → onboarding → hub
 // Valida: (1) signUpFallbackRedirectUrl aponta para /trial,
-//         (2) guard do Onboarding redireciona para /hub se usuário já tem org,
-//         (3) guard do hub redireciona para /trial se /api/v1/hub/init retorna 401,
-//         (4) label de role não exibe "Standard" como fallback silencioso (Mand. 08).
+//         (2) porteiro SSOT (GET /me) em RootRedirect, PublicRoute e ProtectedRoute,
+//         (3) guard do Onboarding redireciona para /hub se usuário já tem org,
+//         (4) guard do hub redireciona para /trial se /api/v1/hub/init retorna 401,
+//         (5) label de role não exibe "Standard" como fallback silencioso (Mand. 08).
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
@@ -42,7 +43,35 @@ describe('SSO callbacks em App.tsx', () => {
   })
 })
 
-// ─── 3. Fallback "Standard" removido (Mand. 08) ───────────────────────────────
+// ─── 3. Porteiro SSOT pós-autenticação ────────────────────────────────────────
+describe('porteiro SSOT (destino-pos-autenticacao)', () => {
+  it('deve existir resolver e hook do porteiro', () => {
+    const resolver = lerArquivo('servicos-global/configurador/src/routing/destino-pos-autenticacao.ts')
+    expect(resolver).toContain('resolverDestinoPosAutenticacao')
+    expect(resolver).toContain('meDestinoPorteiroSchema')
+
+    const hook = lerArquivo('servicos-global/configurador/src/hooks/use-destino-pos-autenticacao.ts')
+    expect(hook).toContain('/api/v1/me')
+  })
+
+  it('App.tsx não deve mandar logado direto para /hub sem porteiro', () => {
+    const app = lerArquivo('servicos-global/configurador/src/App.tsx')
+    expect(app).toContain('NavigateDestinoPosAutenticacao')
+    expect(app).toContain('useDestinoPosAutenticacao')
+    // RootRedirect e PublicRoute usam porteiro — não Navigate fixo para hub quando signed in
+    expect(app).not.toMatch(
+      /return isSignedIn \?\s*\(\s*<Navigate to="\/hub"/,
+    )
+  })
+
+  it('ProtectedRoute deve redirecionar para /trial quando destino é trial', () => {
+    const app = lerArquivo('servicos-global/configurador/src/App.tsx')
+    expect(app).toContain("destino === 'trial'")
+    expect(app).toContain('ROTAS_POS_AUTH.trial')
+  })
+})
+
+// ─── 4. Fallback "Standard" removido (Mand. 08) ───────────────────────────────
 describe('fallback de role no SelecionarWorkspace', () => {
   it('não deve exibir "Standard" como fallback quando tipo_usuario é nulo', () => {
     const conteudo = lerArquivo('servicos-global/configurador/src/pages/SelecionarWorkspace.tsx')
@@ -50,7 +79,7 @@ describe('fallback de role no SelecionarWorkspace', () => {
   })
 })
 
-// ─── 4. Guard do Onboarding redireciona se já tem org ──────────────────────────
+// ─── 5. Guard do Onboarding redireciona se já tem org ──────────────────────────
 describe('guard do Onboarding (/trial)', () => {
   it('componente Onboarding deve verificar /api/v1/me e redirecionar se org existe', () => {
     const conteudo = lerArquivo('servicos-global/configurador/src/pages/Onboarding.tsx')
@@ -60,7 +89,7 @@ describe('guard do Onboarding (/trial)', () => {
   })
 })
 
-// ─── 5. Guard do hub redireciona para /trial se 401 ───────────────────────────
+// ─── 6. Guard do hub redireciona para /trial se 401 ───────────────────────────
 describe('guard do hub (SelecionarWorkspace)', () => {
   it('deve redirecionar para /trial quando hub/init retorna 401', () => {
     const conteudo = lerArquivo('servicos-global/configurador/src/pages/SelecionarWorkspace.tsx')
@@ -69,7 +98,7 @@ describe('guard do hub (SelecionarWorkspace)', () => {
   })
 })
 
-// ─── 6. organizacao-service importa criarEmpresa (tabela empresa Cadastros) ───
+// ─── 7. organizacao-service importa criarEmpresa (tabela empresa Cadastros) ───
 describe('organizacao-service — saga onboarding Cadastros', () => {
   it('deve importar criarEmpresa/compensarEmpresa para POST /empresas', () => {
     const conteudo = lerArquivo('servicos-global/configurador/server/services/organizacao-service.ts')
@@ -80,7 +109,7 @@ describe('organizacao-service — saga onboarding Cadastros', () => {
   })
 })
 
-// ─── 7. cadastros-client usa prefixo /api/v1 ──────────────────────────────────
+// ─── 8. cadastros-client usa prefixo /api/v1 ──────────────────────────────────
 describe('cadastros-client URL com prefixo /api/v1', () => {
   it('getCadastrosUrl() deve incluir /api/v1 no retorno', () => {
     const conteudo = lerArquivo('servicos-global/configurador/server/services/cadastros-client.ts')

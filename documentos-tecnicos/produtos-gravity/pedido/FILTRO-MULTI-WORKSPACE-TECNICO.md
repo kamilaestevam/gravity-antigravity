@@ -1,9 +1,9 @@
 # Filtro Multi-Workspace — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
+> **Versão:** 1.1
 > **Data:** Maio 2026
-> **Status:** ✅ Em produção (commit `4bafb1b6`)
+> **Status:** ✅ Em produção — v1.0 commit `4bafb1b6`; v1.1 escopo por org + modal Hub PR #80
 > **Tracking:** Filtro multi-workspace na Lista, coluna "Workspace" sempre visível, popover com seleção interativa, defesa em 3 camadas
 
 ---
@@ -18,9 +18,10 @@
 6. [Frontend — coluna, popover e chip](#frontend--coluna-popover-e-chip)
 7. [Estado e sincronização](#estado-e-sincronização)
 8. [Autorização — 3 camadas](#autorização--3-camadas)
-9. [Casos de borda](#casos-de-borda)
-10. [Testes](#testes)
-11. [Dívidas conhecidas](#dívidas-conhecidas)
+9. [Persistência do escopo (Pedido + Hub)](#persistência-do-escopo-pedido--hub)
+10. [Casos de borda](#casos-de-borda)
+11. [Testes](#testes)
+12. [Dívidas conhecidas](#dívidas-conhecidas)
 
 ---
 
@@ -347,6 +348,46 @@ const idsWorkspacesFiltro = ehSelecaoDefault ? undefined : workspacesSelecionado
 
 ---
 
+## Persistência do escopo (Pedido + Hub)
+
+Além do popover da Lista, o **menu lateral do Pedido** (Lista, Kanban, Dashboard, Visão Geral) compartilha um escopo multi-workspace via Zustand (`useEscopoWorkspacesPedido`).
+
+### Fontes (prioridade)
+
+| Camada | Onde | Chave / contrato |
+|---|---|---|
+| Backend (SSOT) | `preferencia_usuario_coluna_pedido.colunas_largura` | Meta `__workspaces_escopo_v1__` → `ids_workspaces` (ver `preferenciasUsuarioColunaPedido.ts`) |
+| Cliente (cache) | `sessionStorage` | **`pedido:workspaces_escopo:{id_organizacao}`** (desde PR #80) |
+| Legado (somente leitura) | `sessionStorage` | `pedido:workspaces_escopo` — global, pré-2026-05; **não gravar** |
+
+### Hidratação (`useEscopoWorkspacesPedido.hidratar`)
+
+1. Preferência backend (se existir) **ou** fallback `sessionStorage` (chave da org, depois legado).
+2. **Filtro obrigatório:** `ids.filter(id => idsDisponiveis.has(id))` — descarta IDs de outra org ou workspace inacessível.
+3. Default: workspace ativo da sessão (`gravity_company_id`).
+
+### Modal do Hub — aviso de divergência
+
+Ao clicar **Entrar no Workspace** com Pedido contratado, `SelecionarWorkspace` consulta `pedido-escopo-hub.ts`:
+
+- `GET /api/v1/pedidos/config/preferencia-usuario-coluna-pedido` (backend primeiro).
+- Fallback `sessionStorage` com **`lerEscopoPedidoSessionStorage({ idOrganizacao, idUsuario })`**.
+- Nomes exibidos via **`GET /api/v1/me/workspaces`** (mapa id → `nome_workspace`), **não** só o carousel do Hub.
+- IDs que não existem na org atual são **descartados** antes do modal (`filtrarIdsEscopoWorkspacesValidos`).
+
+**Não é vazamento cross-tenant:** IDs stale de outra org no mesmo browser eram metadado local; queries Pedido rodam no schema da org autenticada (`withOrganizacao`). Fix #80 elimina exibição enganosa de CUIDs.
+
+### Arquivos SSOT (v1.1)
+
+| Arquivo | Papel |
+|---|---|
+| `produto/pedido/client/src/shared/useEscopoWorkspacesPedido.ts` | Zustand + sessionStorage por org |
+| `configurador/src/utils/pedido-escopo-hub.ts` | Divergência Hub ↔ escopo Pedido + modal |
+| `produto/pedido/shared/preferenciasUsuarioColunaPedido.ts` | Meta em `colunas_largura` |
+| `testes/testes-unitarios/configurador/pedido-escopo-hub.test.ts` | Filtro + chave por org |
+
+---
+
 ## Casos de borda
 
 | Cenário | Comportamento |
@@ -361,6 +402,8 @@ const idsWorkspacesFiltro = ehSelecaoDefault ? undefined : workspacesSelecionado
 | Pedido criado por edit/drawer | Continua usando workspace ATIVO via header — não afetado pelo filtro |
 | Cross-org não-FORNECEDOR | 403 ORGANIZACAO_MISMATCH no S2S |
 | FORNECEDOR cross-org | Permitido (exceção codificada no endpoint S2S) |
+| Mesmo browser, org nova após operar outra org | Escopo legado em `sessionStorage` global ignorado após filtro por org + `/me/workspaces` (PR #80) |
+| Modal Hub lista CUID em vez de nome | Bug corrigido #80 — resolver nomes via `/me/workspaces`, não fallback `?? id` |
 
 ---
 
@@ -400,6 +443,10 @@ Sugestão de plano:
 4. Login PADRAO sem acesso a workspace X → workspace X não aparece no popover
 5. Forge request com workspace X via DevTools → backend retorna 403
 
+### Unitários (Configurador — escopo Hub ↔ Pedido, PR #80)
+
+`testes/testes-unitarios/configurador/pedido-escopo-hub.test.ts` — chave `sessionStorage` por org, filtro de IDs stale, resolução de nomes.
+
 ---
 
 ## Dívidas conhecidas
@@ -413,6 +460,7 @@ Sugestão de plano:
 | D11 | SSOT da regra de visibilidade duplicada (`/hub/init` + S2S habilitados) | ✅ **Resolvida** — `organizacaoService.workspacesAcessiveis()` (2026-05-13) |
 | D12 | Lógica de migração de coluna inline em Pedidos.tsx | ✅ **Resolvida** — `shared/migracaoColunas.ts` com 16 testes (2026-05-13) |
 | D13 | Admin Panel `/admin/organizacoes` retorna preview de 5 workspaces sem lazy-load completo | 🟡 Aberta — delegada para outro agente |
+| D14 | `sessionStorage` global `pedido:workspaces_escopo` vazava IDs entre orgs no mesmo browser (modal Hub) | ✅ **Resolvida** — chave por `id_organizacao` + filtro + nomes via `/me/workspaces` (PR #80) |
 
 ---
 

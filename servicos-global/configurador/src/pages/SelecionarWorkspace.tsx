@@ -52,8 +52,11 @@ import { ModalOverlay } from '@nucleo/modal-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import '../../../../nucleo-global/Campos/campo-geral-global/src/campo-geral.css'
 import {
+  buscarMapaNomesWorkspacesOrg,
   escopoPedidoDivergeDoWorkspace,
+  filtrarIdsEscopoWorkspacesValidos,
   obterPreferenciaEscopoHubPedido,
+  resolverNomesWorkspacesEscopo,
   salvarSuprimirAvisoEscopoHubPedido,
 } from '../utils/pedido-escopo-hub'
 import './selecionar-workspace.css'
@@ -660,16 +663,19 @@ export function SelecionarWorkspace() {
         if (token && idOrganizacao && idUsuarioPrisma) {
           const ctx = { idOrganizacao, idUsuario: idUsuarioPrisma }
           const preferencia = await obterPreferenciaEscopoHubPedido(token, ctx)
+          const mapaNomesWorkspaces = await buscarMapaNomesWorkspacesOrg(token)
 
           if (!preferencia.suprimirAvisoEscopoHub) {
-            const idsEscopo = preferencia.idsEscopo
-            if (idsEscopo && escopoPedidoDivergeDoWorkspace(ws.id, idsEscopo)) {
-              const resolverNome = (id: string) => workspaces.find(w => w.id === id)?.nome ?? id
-              setEscopoPedidoNomes(idsEscopo.map(resolverNome))
-              setNaoExibirAvisoEscopo(false)
-              setWorkspaceEntradaPendente(ws)
-              setModalEscopoPedidoAberto(true)
-              return
+            const idsEscopoBrutos = preferencia.idsEscopo
+            if (idsEscopoBrutos) {
+              const idsEscopo = filtrarIdsEscopoWorkspacesValidos(idsEscopoBrutos, mapaNomesWorkspaces)
+              if (idsEscopo.length > 0 && escopoPedidoDivergeDoWorkspace(ws.id, idsEscopo)) {
+                setEscopoPedidoNomes(resolverNomesWorkspacesEscopo(idsEscopo, mapaNomesWorkspaces))
+                setNaoExibirAvisoEscopo(false)
+                setWorkspaceEntradaPendente(ws)
+                setModalEscopoPedidoAberto(true)
+                return
+              }
             }
           }
         }
@@ -685,7 +691,6 @@ export function SelecionarWorkspace() {
     handleSelectWs,
     idOrganizacao,
     idUsuarioPrisma,
-    workspaces,
   ])
 
   const fecharModalEscopoPedido = useCallback(() => {

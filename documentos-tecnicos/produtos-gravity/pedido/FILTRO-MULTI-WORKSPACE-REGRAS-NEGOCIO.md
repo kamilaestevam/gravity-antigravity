@@ -1,9 +1,9 @@
 # Filtro Multi-Workspace — Regras de Negócio
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
+> **Versão:** 1.1
 > **Data:** Maio 2026
-> **Status:** ✅ Em produção (commit `4bafb1b6`)
+> **Status:** ✅ Em produção — v1.0 commit `4bafb1b6`; v1.1 escopo por org PR #80
 
 ---
 
@@ -162,6 +162,25 @@ Auditoria mostra 14 workspaces (11 ATIVO + 3 INATIVO). Apenas 1 (`CDE EXPORTADOR
 1. **Sem ordenação por nome de workspace** — coluna `sortavel:false`. Ordenação requer JOIN com tabela `Workspace` ou cache cliente (dívida D8).
 2. **Sem agrupamento visual** — pedidos de workspaces diferentes aparecem misturados, identificados pela coluna "Workspace". Não há separadores visuais entre grupos.
 3. **Total de pedidos no header da Lista** soma todos os workspaces marcados. Não há quebra por workspace.
+
+---
+
+## Cache local do escopo (menu lateral + Hub)
+
+O escopo multi-workspace do menu lateral Pedido persiste em:
+
+1. **Backend** — `preferencia_usuario_coluna_pedido` (por `id_organizacao` + `id_usuario`).
+2. **`sessionStorage`** — chave **`pedido:workspaces_escopo:{id_organizacao}`** (PR #80).
+
+### Regra de negócio — mesmo browser, org diferente
+
+| Situação | Comportamento esperado |
+|---|---|
+| Usuário operou org A e depois entra na org B (signup ou troca) | Escopo da org A **não** deve aparecer no modal do Hub nem afetar listagens da org B |
+| Chave legado `pedido:workspaces_escopo` ainda no browser | Pode ser lida uma vez como fallback, mas IDs são **filtrados** contra workspaces da org B |
+| Modal "Filtro de workspaces no Pedido" no Hub | Exibe **nomes** (`nome_workspace`), nunca CUID como label |
+
+**Importante:** isso corrige **metadado local enganoso** — não implica acesso a dados de outra organização (isolamento por schema/banco permanece).
 
 ---
 

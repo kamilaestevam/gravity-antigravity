@@ -145,6 +145,21 @@ if (!productPermissions || productPermissions.length === 0) {
 
 ---
 
+## Cadastros — Empresa da org vs Parceiros (entregue 2026-05-25)
+
+> SSOT: [cadastros-arquitetura.md](../../../documentos-tecnicos/produtos-gravity/cadastros/cadastros-arquitetura.md) · Skill: [cadastros/SKILL.md](../cadastros/SKILL.md)
+
+| Conceito | Onde vive | Como o Configurador usa |
+|----------|-----------|-------------------------|
+| Empresa da **organização** (1:1) | Cadastros.`empresa` + espelho `Organizacao.suid_empresa_organizacao` | Saga onboarding: `POST /api/v1/empresas` via `cadastros-client` |
+| **Parceiros** COMEX | Cadastros.`fornecedor` | Tela `/configurador/empresas-e-parceiros` — `GET /fornecedores?escopo=parceiros`, CRUD `/fornecedores` |
+
+**Proxy** (`server/index.ts`): `/api/v1/empresas` e `/api/v1/fornecedores` são rotas **separadas** (sem rewrite). Chave S2S injetada server-side no proxy.
+
+**Saga onboarding** (`organizacao-service.createOrganizacao`): Cadastros primeiro → SUID em `suid_empresa_organizacao` → compensação `compensarEmpresa` se transação local falhar.
+
+---
+
 ## Modelo Especial — Fornecedor Cross-Organização
 
 Um fornecedor pode prestar serviços para várias organizações da Gravity.
@@ -228,6 +243,29 @@ model UsuarioWorkspace {
 **Testes:** [`server/__tests__/subdominio.helper.test.ts`](../../../servicos-global/configurador/server/__tests__/subdominio.helper.test.ts) — 11 casos cobrindo slugify, cross-tabela, auto-suffix, teto, edge cases.
 
 **Ver:** [ADR 0002](../../../documentos-tecnicos/decisoes-arquiteturais/0002-subdominio-system-generated-cross-tabela.md) para detalhes da decisão e pareceres.
+
+---
+
+## Porteiro pós-autenticação — Signup / Onboarding (SSOT 2026-05-25)
+
+> **Doc completa + fluxogramas:** [`FLUXO-SIGNUP-ONBOARDING.md`](../../../documentos-tecnicos/produtos-gravity/configurador/FLUXO-SIGNUP-ONBOARDING.md) · Pós-login hub→core: [`FLUXO-POS-LOGIN.md`](../../../documentos-tecnicos/produtos-gravity/configurador/FLUXO-POS-LOGIN.md)
+
+Após sessão Clerk, **nunca** assumir destino `/hub` só por `isSignedIn`. O porteiro consulta **`GET /api/v1/me`**:
+
+| Resultado `/me` | Destino |
+|-----------------|---------|
+| 401 / sem `organizacao` | `/trial` (Onboarding) |
+| 200 + `organizacao` | `/hub` |
+
+**Código SSOT:** `src/routing/destino-pos-autenticacao.ts` (`resolverDestinoPosAutenticacao`) · hook `use-destino-pos-autenticacao.ts` · componente `NavigateDestinoPosAutenticacao.tsx`.
+
+**Aplicado em:** `RootRedirect`, `PublicRoute`, `ProtectedRoute` (`App.tsx`).
+
+**Clerk (alinhado, não substitui):** `signUpFallbackRedirectUrl="/trial"`, `signInFallbackRedirectUrl="/hub"` em `main.tsx`.
+
+**Defesa redundante:** OTP → `navigate('/trial')`; Hub `hub/init` 401 → `/trial`.
+
+**Testes (escopo LOGIN — FONTE PRIMARIA):** plano [`testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json`](../../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json) · specs em `testes/testes-unitarios/login/`, `testes/testes-funcionais/login/`, `testes/testes-e2e/login/`, `testes/testes-em-tela/login/` · registry `TST-UNI-LOGIN-000001` … `TST-EMT-LOGIN-000001`.
 
 ---
 

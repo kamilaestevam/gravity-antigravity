@@ -4,6 +4,9 @@ import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser, AuthenticateWi
 import { useCarregarTipoUsuario } from './hooks/use-carregar-tipo-usuario'
 import { ConfiguradorRoute } from './routing/guards'
 import { NavigateComPrefixo } from './routing/NavigateComPrefixo'
+import { NavigateDestinoPosAutenticacao, TelaCarregandoPorteiro } from './routing/NavigateDestinoPosAutenticacao'
+import { useDestinoPosAutenticacao } from './hooks/use-destino-pos-autenticacao'
+import { ROTAS as ROTAS_POS_AUTH } from './routing/destino-pos-autenticacao'
 import { useServerHealth } from './hooks/use-server-health'
 import { AutenticacaoPage } from './pages/AutenticacaoPage'
 import { CadastroContinuarPage } from './pages/CadastroContinuarPage'
@@ -162,7 +165,7 @@ function OrganizacaoDetalheWrapper() {
   return <OrganizacaoDetalheAdmin id_organizacao={id_organizacao!} onBack={() => navigate('/admin/organizacoes')} />
 }
 
-/** Rota raiz: se logado → /hub, se não → /login (URL canônica) */
+/** Rota raiz: deslogado → /login; logado → porteiro /me → /trial ou /hub */
 function RootRedirect() {
   const { isLoaded, isSignedIn } = useAuth()
   const [clerkTimeout, setClerkTimeout] = React.useState(false)
@@ -175,52 +178,54 @@ function RootRedirect() {
 
   // Se Clerk não carregou após timeout (ex: cookies bloqueados em anônima), mostra login direto
   if (!isLoaded && !clerkTimeout) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-body)' }}>
-        <GravityLoader texto="Carregando" tamanho="lg" />
-      </div>
-    )
+    return <TelaCarregandoPorteiro />
   }
 
   return isSignedIn ? (
-    <Navigate to="/hub" replace />
+    <NavigateDestinoPosAutenticacao replace />
   ) : (
-    <Navigate to="/login" replace />
+    <Navigate to={ROTAS_POS_AUTH.login} replace />
   )
 }
 
-/** Guarda para rotas públicas (Login/Cadastro). Se logado, expulsa para o sistema. */
+/** Guarda para rotas públicas (Login/Cadastro). Logado → porteiro /me (trial ou hub). */
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth()
 
   if (!isLoaded) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-body)' }}>
-        <GravityLoader texto="Carregando" tamanho="lg" />
-      </div>
-    )
+    return <TelaCarregandoPorteiro />
   }
 
   return isSignedIn ? (
-    <Navigate to="/hub" replace />
+    <NavigateDestinoPosAutenticacao replace />
   ) : (
     <>{children}</>
   )
 }
 
-/** Wrapper para rotas que exigem autenticação — otimizado para evitar round-trip ao Clerk */
+/**
+ * Rotas autenticadas — exige sessão Clerk e organização no Prisma (/api/v1/me).
+ * Sem org → /trial (onboarding). Com org → renderiza children.
+ */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth()
+  const { destino, pronto } = useDestinoPosAutenticacao()
 
-  // Enquanto Clerk não carregou, mostra loader (evita flash branco)
-  if (!isLoaded) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-body)' }}>
-      <GravityLoader tamanho="lg" />
-    </div>
-  )
+  if (!isLoaded) {
+    return <TelaCarregandoPorteiro />
+  }
 
-  // Se não autenticado, redireciona para /login local (sem round-trip ao Clerk hosted)
-  if (!isSignedIn) return <Navigate to="/login" replace />
+  if (!isSignedIn) {
+    return <Navigate to={ROTAS_POS_AUTH.login} replace />
+  }
+
+  if (!pronto) {
+    return <TelaCarregandoPorteiro />
+  }
+
+  if (destino === 'trial') {
+    return <Navigate to={ROTAS_POS_AUTH.trial} replace />
+  }
 
   return <>{children}</>
 }

@@ -28,6 +28,9 @@ import {
   type PipelineImportacao,
 } from '../../../shared/classificarImportacao.js'
 import { recalcularAgregadosPedido } from '../../../../processos-core/src/services/recalcularAgregadosPedido.js'
+import { parseNumeroBr, parseNumeroBrOpcional } from '../../../shared/formatadores.js'
+
+export { parseNumeroBr, parseNumeroBrOpcional } from '../../../shared/formatadores.js'
 
 const CAMPOS_BLOQ_PARA_ITEM: ReadonlySet<string> = new Set([
   // NOTA: 'numero_pedido' NAO entra aqui — é o campo de vinculo que liga ITEM ao PEDIDO pai.
@@ -181,26 +184,6 @@ export function extrairCodigoDropdown(valor: unknown): string {
   const s = String(valor).trim()
   const idx = s.indexOf(' — ')
   return idx > 0 ? s.slice(0, idx) : s
-}
-
-/** Converte numero BR (1.234,56 / 848,30) ou EN (848.30) para number. */
-export function parseNumeroBr(valor: unknown, fallback = 0): number {
-  if (valor === undefined || valor === null || valor === '') return fallback
-  if (typeof valor === 'number') return Number.isFinite(valor) ? valor : fallback
-  const s = String(valor).trim()
-  if (!s) return fallback
-  const normalizado = s.includes(',') && s.includes('.')
-    ? s.replace(/\./g, '').replace(',', '.')
-    : s.replace(',', '.')
-  const n = Number(normalizado)
-  return Number.isFinite(n) ? n : fallback
-}
-
-/** Como parseNumeroBr, mas retorna null quando vazio ou invalido (campos opcionais). */
-export function parseNumeroBrOpcional(valor: unknown): number | null {
-  if (valor === undefined || valor === null || valor === '') return null
-  const n = parseNumeroBr(valor, NaN)
-  return Number.isFinite(n) ? n : null
 }
 
 // ── Tipos locais (espelham os tipos do client) ────────────────────────────────
@@ -764,6 +747,15 @@ export class SmartImportService {
             }
           }
 
+          // Validar numeros antes de falar com o Prisma (mensagem clara vs "Invalid invocation")
+          const erroNumeros = this.validarNumerosParaGravar(dados, tipoLinha)
+          if (erroNumeros) {
+            erros.push({ linha: linha.linha_arquivo, motivo: erroNumeros })
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
+            continue
+          }
+
           const numeroPedido = (dados['numero_pedido'] as string) || linha.numero_pedido
 
           // Aplicar decisao de duplicata — SOMENTE para linhas PEDIDO (não ITEM).
@@ -1132,6 +1124,38 @@ export class SmartImportService {
     }
   }
 
+  private validarNumerosParaGravar(dados: Record<string, unknown>, tipoLinha: string): string | null {
+    const ehItem = tipoLinha === 'ITEM'
+      || Boolean(dados['part_number_item'] || dados['descricao_item'])
+
+    if (!ehItem) return null
+
+    if (dados['quantidade_inicial_item'] !== undefined && dados['quantidade_inicial_item'] !== '') {
+      const qty = parseNumeroBrOpcional(dados['quantidade_inicial_item'])
+      if (qty === null || qty <= 0) {
+        return `Quantidade invalida ("${dados['quantidade_inicial_item']}"). Use numero com virgula ou ponto decimal (ex: 1,00 ou 1.00).`
+      }
+    }
+
+    const camposNumericos: Array<[string, string]> = [
+      ['valor_por_unidade_item', 'Valor por unidade'],
+      ['valor_total_item', 'Valor total do item'],
+      ['sequencia_item_pedido', 'Sequencia do item'],
+      ['peso_liquido_unitario_item', 'Peso liquido unitario'],
+      ['peso_bruto_unitario_item', 'Peso bruto unitario'],
+      ['cubagem_unitaria_item', 'Cubagem unitaria'],
+    ]
+
+    for (const [campo, rotulo] of camposNumericos) {
+      if (dados[campo] === undefined || dados[campo] === '') continue
+      if (parseNumeroBrOpcional(dados[campo]) === null) {
+        return `${rotulo} invalido ("${dados[campo]}"). Use numero com virgula ou ponto decimal.`
+      }
+    }
+
+    return null
+  }
+
   private validarLinha(dados: Record<string, unknown>): SmartImportAlerta[] {
     const alertas: SmartImportAlerta[] = []
 
@@ -1208,15 +1232,19 @@ export class SmartImportService {
 
     // Quantidade inicial (campo do Item)
     if (ehLinhaItem || ehFormatoFlat) {
-      const qty = Number(dados['quantidade_inicial_item'])
-      if (dados['quantidade_inicial_item'] !== undefined && (isNaN(qty) || qty <= 0)) {
+      const qty = parseNumeroBrOpcional(dados['quantidade_inicial_item'])
+      if (
+        dados['quantidade_inicial_item'] !== undefined
+        && dados['quantidade_inicial_item'] !== ''
+        && (qty === null || qty <= 0)
+      ) {
         alertas.push({ campo: 'quantidade_inicial_item', tipo: 'valor_negativo', mensagem: 'Quantidade deve ser maior que zero', nivel: 'erro' })
       }
     }
 
     // Valor por unidade (campo do Item)
-    const val = Number(dados['valor_por_unidade_item'])
-    if (dados['valor_por_unidade_item'] !== undefined && !isNaN(val) && val < 0) {
+    const val = parseNumeroBrOpcional(dados['valor_por_unidade_item'])
+    if (dados['valor_por_unidade_item'] !== undefined && dados['valor_por_unidade_item'] !== '' && val !== null && val < 0) {
       alertas.push({ campo: 'valor_por_unidade_item', tipo: 'valor_negativo', mensagem: 'Valor unitario nao pode ser negativo', nivel: 'erro' })
     }
 
@@ -1266,9 +1294,7 @@ export class SmartImportService {
           })
         }
       } else if (def.tipo === 'numero') {
-        // Aceita virgula como decimal (cultura BR) — converte antes de Number()
-        const normalizado = valorStr.replace(',', '.')
-        if (isNaN(Number(normalizado))) {
+        if (parseNumeroBrOpcional(valor) === null) {
           alertas.push({
             campo: def.campo,
             tipo: 'formato_invalido',
@@ -1277,9 +1303,10 @@ export class SmartImportService {
           })
         }
       } else if (def.tipo === 'select' && def.opcoesSelect && def.opcoesSelect.length > 0) {
-        const valorLower = valorStr.toLowerCase()
+        const valorCodigo = extrairCodigoDropdown(valorStr)
+        const valorLower = valorCodigo.toLowerCase()
         const opcoesLower = def.opcoesSelect.map(o => o.toLowerCase())
-        if (!opcoesLower.includes(valorLower)) {
+        if (!opcoesLower.includes(valorLower) && !opcoesLower.includes(valorStr.toLowerCase())) {
           alertas.push({
             campo: def.campo,
             tipo: 'formato_invalido',
@@ -1500,6 +1527,10 @@ export class SmartImportService {
 
     // ── Campos Int opcionais ────────────────────────────────────────────────
     if (dados['quantidade_volumes_pedido']) result.quantidade_volumes_pedido = Math.round(parseNumeroBr(dados['quantidade_volumes_pedido']))
+    const valorTotalPed = parseNumeroBrOpcional(dados['valor_total_pedido'] ?? dados['valor_total_item'])
+    if (valorTotalPed !== null && !dados['part_number_item']) {
+      result.valor_total_pedido = valorTotalPed
+    }
 
     // ── Campos DateTime opcionais — todas as datas do Pedido ────────────────
     const DATAS_PEDIDO: string[] = [

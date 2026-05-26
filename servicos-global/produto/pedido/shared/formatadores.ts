@@ -52,3 +52,26 @@ export function ehCampoNcm(campoSistema: string | null | undefined): boolean {
   if (!campoSistema) return false
   return CAMPOS_NCM.has(campoSistema)
 }
+
+/**
+ * Converte numero BR (1.234,56 / 848,30) ou EN (848.30) para number.
+ * Usado no Smart Import confirmar e validacao de preview.
+ */
+export function parseNumeroBr(valor: unknown, fallback = 0): number {
+  if (valor === undefined || valor === null || valor === '') return fallback
+  if (typeof valor === 'number') return Number.isFinite(valor) ? valor : fallback
+  const s = String(valor).trim()
+  if (!s) return fallback
+  const normalizado = s.includes(',') && s.includes('.')
+    ? s.replace(/\./g, '').replace(',', '.')
+    : s.replace(',', '.')
+  const n = Number(normalizado)
+  return Number.isFinite(n) ? n : fallback
+}
+
+/** Como parseNumeroBr, mas retorna null quando vazio ou invalido (campos opcionais). */
+export function parseNumeroBrOpcional(valor: unknown): number | null {
+  if (valor === undefined || valor === null || valor === '') return null
+  const n = parseNumeroBr(valor, NaN)
+  return Number.isFinite(n) ? n : null
+}

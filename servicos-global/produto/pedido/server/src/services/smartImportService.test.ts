@@ -8,7 +8,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { SmartImportService, parseNumeroBr, parseNumeroBrOpcional } from './smartImportService.js'
+import { SmartImportService } from './smartImportService.js'
+import { parseNumeroBr, parseNumeroBrOpcional } from '../../../shared/formatadores.js'
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 

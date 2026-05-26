@@ -272,6 +272,10 @@ function SignUpFlow() {
   const [codigo, setCodigo] = useState('')
 
   const { forca, requisitos } = avaliarSenha(senha)
+  const requisitosFormulario = [
+    ...requisitos,
+    { chave: 'termos', ok: aceiteTermos, mensagem: 'Aceite dos Termos de Uso e Política de Privacidade' },
+  ]
   const senhasDiferentes = confirmacao.length > 0 && senha !== confirmacao
   const carregando = status === 'loading' || status === 'oauth_loading'
 
@@ -633,9 +637,9 @@ function SignUpFlow() {
 
           {senha.length > 0 && (
             <div className="signup-requisitos">
-              {requisitos.map((r) => (
+              {requisitosFormulario.map((r) => (
                 <div key={r.chave} className={`signup-requisito ${r.ok ? 'signup-requisito--ok' : 'signup-requisito--pendente'}`}>
-                  {r.ok ? <CheckCircle size={14} weight="fill" /> : <span className="signup-requisito-bullet">○</span>}
+                  {r.ok ? <CheckCircle size={14} weight="fill" /> : <WarningCircle size={14} weight="fill" />}
                   <span>{r.mensagem}</span>
                 </div>
               ))}

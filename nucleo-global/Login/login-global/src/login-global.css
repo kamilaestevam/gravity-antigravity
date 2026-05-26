@@ -929,7 +929,7 @@ body.light-theme .signin-forgot-link a:hover {
 }
 
 .signup-requisito--pendente {
-  color: #64748b;
+  color: #f87171;
 }
 
 .signup-requisito-bullet {
@@ -1248,7 +1248,7 @@ body.light-theme .signup-requisito--ok {
 }
 
 body.light-theme .signup-requisito--pendente {
-  color: #94a3b8;
+  color: #dc2626;
 }
 
 body.light-theme .signup-otp-input {

@@ -98,8 +98,12 @@ jobs:
           DATABASE_URL: ${{ secrets.STAGING_ORGANIZACAO_DATABASE_URL }}
 
       - name: Aplicar migrations — Pedido DB (Staging)
-        if: ${{ secrets.STAGING_PEDIDO_DATABASE_URL != '' }}
-        run: npx tsx scripts/ativamente/aplicar-migrations-pedido.ts
+        run: |
+          if [ -z "$PEDIDO_DATABASE_URL" ]; then
+            echo "STAGING_PEDIDO_DATABASE_URL ausente — pulando migrations do Pedido."
+            exit 0
+          fi
+          npx tsx scripts/ativamente/aplicar-migrations-pedido.ts
         env:
           PEDIDO_DATABASE_URL: ${{ secrets.STAGING_PEDIDO_DATABASE_URL }}
           CONFIGURADOR_DATABASE_URL: ${{ secrets.STAGING_CONFIGURADOR_DATABASE_URL }}
@@ -231,8 +235,12 @@ jobs:
           DATABASE_URL: ${{ secrets.PROD_ORGANIZACAO_DATABASE_URL }}
 
       - name: Aplicar migrations — Pedido DB (Produção)
-        if: ${{ secrets.PROD_PEDIDO_DATABASE_URL != '' }}
-        run: npx tsx scripts/ativamente/aplicar-migrations-pedido.ts
+        run: |
+          if [ -z "$PEDIDO_DATABASE_URL" ]; then
+            echo "PROD_PEDIDO_DATABASE_URL ausente — pulando migrations do Pedido."
+            exit 0
+          fi
+          npx tsx scripts/ativamente/aplicar-migrations-pedido.ts
         env:
           PEDIDO_DATABASE_URL: ${{ secrets.PROD_PEDIDO_DATABASE_URL }}
           CONFIGURADOR_DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}

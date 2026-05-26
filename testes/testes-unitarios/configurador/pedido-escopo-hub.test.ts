@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  chaveEscopoPedidoSessionStorage,
   escopoPedidoDivergeDoWorkspace,
+  filtrarIdsEscopoWorkspacesValidos,
   formatarResumoWorkspacesEscopo,
+  resolverNomesWorkspacesEscopo,
 } from '../../../servicos-global/configurador/src/utils/pedido-escopo-hub'
 
 describe('escopoPedidoDivergeDoWorkspace', () => {
@@ -37,5 +40,26 @@ describe('formatarResumoWorkspacesEscopo', () => {
   it('trunca lista longa com contador', () => {
     const ids = ['ws-a', 'ws-b', 'ws-c', 'ws-d']
     expect(formatarResumoWorkspacesEscopo(ids, id => nomes[id] ?? id, 2)).toBe('ABC, CDE +2')
+  })
+})
+
+describe('chaveEscopoPedidoSessionStorage', () => {
+  it('inclui id_organizacao na chave', () => {
+    expect(chaveEscopoPedidoSessionStorage('org-123')).toBe('pedido:workspaces_escopo:org-123')
+  })
+})
+
+describe('filtrarIdsEscopoWorkspacesValidos', () => {
+  const mapa = new Map([
+    ['ws-a', 'Empresa A'],
+    ['ws-b', 'Empresa B'],
+  ])
+
+  it('remove IDs que não existem na org atual', () => {
+    expect(filtrarIdsEscopoWorkspacesValidos(['ws-a', 'stale-id'], mapa)).toEqual(['ws-a'])
+  })
+
+  it('resolverNomesWorkspacesEscopo retorna nomes legíveis', () => {
+    expect(resolverNomesWorkspacesEscopo(['ws-a', 'ws-b'], mapa)).toEqual(['Empresa A', 'Empresa B'])
   })
 })

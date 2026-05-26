@@ -7,8 +7,23 @@
 
 import { z } from 'zod'
 
-/** Mesma chave usada em useEscopoWorkspacesPedido (produto Pedido). */
-export const PEDIDO_SESSION_KEY_ESCOPO = 'pedido:workspaces_escopo'
+/** Legado global (pré-2026-05) — não gravar nesta chave. */
+export const PEDIDO_SESSION_KEY_ESCOPO_LEGACY = 'pedido:workspaces_escopo'
+
+/** @deprecated alias do legado — preferir {@link chaveEscopoPedidoSessionStorage}. */
+export const PEDIDO_SESSION_KEY_ESCOPO = PEDIDO_SESSION_KEY_ESCOPO_LEGACY
+
+/** Mesma convenção de chave usada em useEscopoWorkspacesPedido (produto Pedido). */
+export function chaveEscopoPedidoSessionStorage(idOrganizacao: string): string {
+  return `pedido:workspaces_escopo:${idOrganizacao}`
+}
+
+const meWorkspacesListaSchema = z.object({
+  workspaces: z.array(z.object({
+    id_workspace: z.string(),
+    nome_workspace: z.string(),
+  })),
+})
 
 const preferenciaPedidoDataSchema = z.object({
   colunas_visiveis: z.array(z.string()).optional(),
@@ -95,9 +110,12 @@ export function formatarResumoWorkspacesEscopo(
   return `${visiveis} +${restantes}`
 }
 
-export function lerEscopoPedidoSessionStorage(): string[] | null {
+export function lerEscopoPedidoSessionStorage(ctx: ContextoPedidoHub): string[] | null {
   try {
-    const raw = sessionStorage.getItem(PEDIDO_SESSION_KEY_ESCOPO)
+    const chaveOrg = chaveEscopoPedidoSessionStorage(ctx.idOrganizacao)
+    const raw =
+      sessionStorage.getItem(chaveOrg)
+      ?? sessionStorage.getItem(PEDIDO_SESSION_KEY_ESCOPO_LEGACY)
     if (!raw) return null
     const parsed: unknown = JSON.parse(raw)
     if (!Array.isArray(parsed)) return null
@@ -106,6 +124,43 @@ export function lerEscopoPedidoSessionStorage(): string[] | null {
   } catch {
     return null
   }
+}
+
+/** Mantém só IDs que existem na organização atual (descarta escopo stale de outra org). */
+export function filtrarIdsEscopoWorkspacesValidos(
+  ids: readonly string[],
+  mapaNomes: ReadonlyMap<string, string>,
+): string[] {
+  return ids.filter(id => mapaNomes.has(id))
+}
+
+export function resolverNomesWorkspacesEscopo(
+  ids: readonly string[],
+  mapaNomes: ReadonlyMap<string, string>,
+): string[] {
+  return ids.map(id => mapaNomes.get(id)!)
+}
+
+/** Lista completa de workspaces da org — usada para resolver nomes no modal do Hub. */
+export async function buscarMapaNomesWorkspacesOrg(token: string): Promise<Map<string, string>> {
+  const res = await fetch('/api/v1/me/workspaces', {
+    headers: { Authorization: `Bearer ${token}` },
+    signal: AbortSignal.timeout(8_000),
+  })
+
+  if (!res.ok) return new Map()
+
+  const raw: unknown = await res.json()
+  const parsed = meWorkspacesListaSchema.safeParse(raw)
+  if (!parsed.success) {
+    console.warn(
+      '[buscarMapaNomesWorkspacesOrg] payload /me/workspaces fora do contrato',
+      parsed.error.issues,
+    )
+    return new Map()
+  }
+
+  return new Map(parsed.data.workspaces.map(w => [w.id_workspace, w.nome_workspace]))
 }
 
 async function buscarPreferenciaPedidoHub(
@@ -139,7 +194,7 @@ export async function obterPreferenciaEscopoHubPedido(
   const idsBackend = preferencia?.ids_workspaces_escopo
   const idsEscopo = (idsBackend && idsBackend.length > 0)
     ? idsBackend
-    : lerEscopoPedidoSessionStorage()
+    : lerEscopoPedidoSessionStorage(ctx)
 
   return {
     idsEscopo,

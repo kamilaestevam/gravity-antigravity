@@ -6,7 +6,12 @@
 import { create } from 'zustand'
 import { getApiContext, pedidoConfigApi } from './api'
 
-const SESSION_KEY = 'pedido:workspaces_escopo'
+const SESSION_KEY_LEGACY = 'pedido:workspaces_escopo'
+
+function chaveSessionEscopo(idOrganizacao: string | null | undefined): string {
+  if (idOrganizacao) return `pedido:workspaces_escopo:${idOrganizacao}`
+  return SESSION_KEY_LEGACY
+}
 
 interface EscopoWorkspacesPedidoState {
   idsWorkspacesEscopo: string[]
@@ -29,7 +34,11 @@ let idsPendentesPersistencia: string[] | null = null
 
 function lerSessionStorage(): string[] | null {
   try {
-    const raw = sessionStorage.getItem(SESSION_KEY)
+    const ctx = getApiContext()
+    const orgId = ctx.idOrganizacao
+    const raw =
+      (orgId ? sessionStorage.getItem(chaveSessionEscopo(orgId)) : null)
+      ?? sessionStorage.getItem(SESSION_KEY_LEGACY)
     if (!raw) return null
     const parsed = JSON.parse(raw) as unknown
     if (!Array.isArray(parsed)) return null
@@ -42,7 +51,13 @@ function lerSessionStorage(): string[] | null {
 
 function gravarSessionStorage(ids: string[]): void {
   try {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(ids))
+    const ctx = getApiContext()
+    const orgId = ctx.idOrganizacao
+    if (!orgId) {
+      sessionStorage.setItem(SESSION_KEY_LEGACY, JSON.stringify(ids))
+      return
+    }
+    sessionStorage.setItem(chaveSessionEscopo(orgId), JSON.stringify(ids))
   } catch { /* quota / private mode */ }
 }
 

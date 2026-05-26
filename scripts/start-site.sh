@@ -1,21 +1,26 @@
 #!/usr/bin/env bash
 # start-site.sh — Railway startCommand (runtime)
-# OBRIGATÓRIO: falha o deploy se migrations do Pedido não rodarem.
+# Tenta migrations do Pedido antes do servidor; falha de migration NÃO derruba o site.
 set -euo pipefail
 
 echo "[start-site] Iniciando site-usegravity..."
 
 if [ -z "${PEDIDO_DATABASE_URL:-}" ]; then
-  echo "[start-site] ERRO FATAL: PEDIDO_DATABASE_URL ausente no serviço site-usegravity."
-  echo "[start-site] Railway → site-usegravity → Variables → adicionar PEDIDO_DATABASE_URL"
-  echo "[start-site] Valor: DATABASE_URL do serviço PostgreSQL gravity-pedido-producao (ou teste)."
-  exit 1
+  echo "[start-site] AVISO: PEDIDO_DATABASE_URL ausente — migrations Pedido ignoradas."
+  echo "[start-site] Sidecar Pedido ficará desativado até configurar a variável em Railway."
+  echo "[start-site] Railway → site-usegravity → Variables → PEDIDO_DATABASE_URL"
+  echo "[start-site] Valor: DATABASE_URL do PostgreSQL gravity-pedido-producao."
+else
+  export CONFIGURADOR_DATABASE_URL="${CONFIGURADOR_DATABASE_URL:-${DATABASE_URL:-}}"
+
+  echo "[start-site] Aplicando migrations do Pedido (public + tenant_*)..."
+  if npx tsx scripts/ativamente/aplicar-migrations-pedido.ts; then
+    echo "[start-site] Migrations Pedido concluídas."
+  else
+    echo "[start-site] ERRO: migrations Pedido falharam — servidor sobe mesmo assim (ver logs acima)."
+    echo "[start-site] Smart Import / sidecar Pedido podem falhar até corrigir migrations ou variáveis."
+  fi
 fi
-
-export CONFIGURADOR_DATABASE_URL="${CONFIGURADOR_DATABASE_URL:-${DATABASE_URL:-}}"
-
-echo "[start-site] Aplicando migrations do Pedido (public + tenant_*)..."
-npx tsx scripts/ativamente/aplicar-migrations-pedido.ts
 
 echo "[start-site] Subindo Configurador + sidecars..."
 exec node servicos-global/configurador/dist/server.mjs

@@ -6,7 +6,7 @@
  * 3. migrate-all-tenants (demais migrations pendentes por tenant).
  */
 import { execSync } from 'node:child_process'
-import { createHash } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -62,7 +62,10 @@ async function aplicarLogisticaEmTodosSchemas(pedidoUrl: string): Promise<void> 
     `)
 
     if (rows.length === 0) {
-      throw new Error('[migrations-pedido] Nenhum schema com tabela pedido encontrado no banco.')
+      console.warn(
+        '[migrations-pedido] Nenhum schema com tabela pedido — skip Passo 1 (prisma migrate deploy cuidará do public).',
+      )
+      return
     }
 
     console.log(`[migrations-pedido] Schemas com tabela pedido: ${rows.map(r => r.table_schema).join(', ')}`)
@@ -86,7 +89,7 @@ async function aplicarLogisticaEmTodosSchemas(pedidoUrl: string): Promise<void> 
           continue
         }
 
-        const migrationId = crypto.randomUUID()
+        const migrationId = randomUUID()
         await client.query(
           `INSERT INTO "_prisma_migrations"
              (id, checksum, migration_name, started_at, applied_steps_count)

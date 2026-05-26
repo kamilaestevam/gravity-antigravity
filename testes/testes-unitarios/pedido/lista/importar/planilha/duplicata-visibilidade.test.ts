@@ -1,6 +1,9 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest'
-import { wherePedidoVisivelImportacao } from '../../../../../../servicos-global/produto/pedido/server/src/services/smartImportService.js'
+import {
+  wherePedidoVisivelImportacao,
+  wherePedidoPorNumeroOrganizacao,
+} from '../../../../../../servicos-global/produto/pedido/server/src/services/smartImportService.js'
 
 describe('wherePedidoVisivelImportacao (U-DUP)', () => {
   it('U-DUP-01: alinha com Lista — exige data_exclusao_pedido null e workspace', () => {
@@ -18,6 +21,25 @@ describe('wherePedidoVisivelImportacao (U-DUP)', () => {
     expect(wherePedidoVisivelImportacao('org_1', undefined)).toEqual({
       id_organizacao: 'org_1',
       data_exclusao_pedido: null,
+    })
+  })
+})
+
+describe('wherePedidoPorNumeroOrganizacao (U-DUP-ORG)', () => {
+  it('U-DUP-ORG-01: fallback org-wide sem workspace — alinha ao unique index', () => {
+    expect(wherePedidoPorNumeroOrganizacao('org_1', 'D-1375/03')).toEqual({
+      id_organizacao: 'org_1',
+      numero_pedido: 'D-1375/03',
+      data_exclusao_pedido: null,
+    })
+  })
+
+  it('U-DUP-ORG-02: incluirSoftDeleted omite filtro de exclusão', () => {
+    expect(
+      wherePedidoPorNumeroOrganizacao('org_1', 'D-1382', { incluirSoftDeleted: true }),
+    ).toEqual({
+      id_organizacao: 'org_1',
+      numero_pedido: 'D-1382',
     })
   })
 })

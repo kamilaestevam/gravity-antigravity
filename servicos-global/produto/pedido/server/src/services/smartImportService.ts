@@ -176,6 +176,22 @@ export function wherePedidoVisivelImportacao(
   }
 }
 
+/**
+ * Índice único do banco: `(id_organizacao, numero_pedido)` — org-wide, sem workspace.
+ * Usado como fallback quando o pedido não aparece na Lista do workspace atual.
+ */
+export function wherePedidoPorNumeroOrganizacao(
+  tenantId: string,
+  numeroPedido: string,
+  opts?: { incluirSoftDeleted?: boolean },
+): Record<string, unknown> {
+  return {
+    id_organizacao: tenantId,
+    numero_pedido: numeroPedido,
+    ...(opts?.incluirSoftDeleted ? {} : { data_exclusao_pedido: null }),
+  }
+}
+
 /** Update não pode regenerar `id_pedido` nem deixar pedido soft-deleted invisível na Lista. */
 function dadosPedidoParaUpdate(dadosPedido: Record<string, unknown>): Record<string, unknown> {
   const { id_pedido: _omitId, ...rest } = dadosPedido
@@ -947,6 +963,13 @@ export class SmartImportService {
           }
 
           const numeroPedidoFinal = payload.numeros_editados?.[linha.linha_arquivo] ?? numeroPedido
+          const numeroResolver = numeroPedidoFinal ?? numeroPedido ?? ''
+          const pedidoResolvido = numeroResolver
+            ? await this.resolverPedidoPorNumeroImportacao(tenantId, companyId, numeroResolver, {
+                incluirSoftDeleted: true,
+                excetoCancelado: true,
+              })
+            : null
           const parceirosNumero = numeroPedidoFinal
             ? parceirosPorNumero.get(numeroPedidoFinal)
             : undefined
@@ -963,21 +986,27 @@ export class SmartImportService {
           }
           aplicarFksParceirosNoPedido(dadosPedido, parceirosNumero)
 
-          if (tipoLinha !== 'ITEM' && numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'sobrescrever') {
-            const existente = await (this.db as Record<string, any>)['pedido'].findFirst({
-              where: wherePedidoVisivelImportacao(tenantId, companyId, { numero_pedido: numeroPedido }),
+          if (tipoLinha !== 'ITEM' && numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'criar' && pedidoResolvido) {
+            erros.push({
+              linha: linha.linha_arquivo,
+              motivo: `Nao e possivel criar o pedido "${numeroPedido}": ja existe registro com este numero na organizacao.`,
             })
-            if (existente) {
+            await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
+            continue
+          }
+
+          if (tipoLinha !== 'ITEM' && numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'sobrescrever') {
+            if (pedidoResolvido) {
               await (this.db as Record<string, any>)['pedido'].update({
-                where: { id_pedido: existente.id_pedido },
+                where: { id_pedido: pedidoResolvido.id_pedido },
                 data: dadosPedidoParaUpdate(dadosPedido),
               })
               if (parceirosNumero) {
-                await aplicarParceirosResolvidosNoPedido(this.db, existente.id_pedido, tenantId, parceirosNumero)
+                await aplicarParceirosResolvidosNoPedido(this.db, pedidoResolvido.id_pedido, tenantId, parceirosNumero)
               }
-              registrarOrdemPlanilhaPedido(existente.id_pedido, numeroPedido)
+              registrarOrdemPlanilhaPedido(pedidoResolvido.id_pedido, numeroPedido)
               atualizados.push(linha.linha_arquivo)
-              idsPedidosParaRecalcular.add(existente.id_pedido)
+              idsPedidosParaRecalcular.add(pedidoResolvido.id_pedido)
               await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
               continue
             }
@@ -985,29 +1014,22 @@ export class SmartImportService {
 
           // Verificar se já existe pedido com este número (para importação incremental de itens)
           if (numeroPedidoFinal && (tipoLinha === 'ITEM' || !payload.decisoes_duplicatas[numeroPedidoFinal])) {
-            const pedidoExistente = await (this.db as Record<string, any>)['pedido'].findFirst({
-              where: {
-                ...wherePedidoVisivelImportacao(tenantId, companyId, { numero_pedido: numeroPedidoFinal }),
-                status_pedido: { not: 'cancelado' },
-              },
-              select: { id_pedido: true },
-            })
-
-            if (pedidoExistente && (dados['part_number_item'] || dados['descricao_item'])) {
+            if (pedidoResolvido && (dados['part_number_item'] || dados['descricao_item'])) {
               try {
-                const seqItem = await obterProximaSequenciaItem(pedidoExistente.id_pedido)
+                await this.restaurarPedidoVisivelNoWorkspaceImportacao(pedidoResolvido.id_pedido, companyId)
+                const seqItem = await obterProximaSequenciaItem(pedidoResolvido.id_pedido)
                 const itemData = mesclarNomesItemParceiros(
                   this.montarDadosItem(dados, tenantId, companyId ?? tenantId, casasConfig, seqItem),
                   parceirosNumero?.nomesItem,
                 )
-                itemData.pedido_item = { connect: { id_pedido: pedidoExistente.id_pedido } }
+                itemData.pedido_item = { connect: { id_pedido: pedidoResolvido.id_pedido } }
                 await (this.db as Record<string, any>)['pedidoItem'].create({ data: itemData })
                 if (parceirosNumero) {
-                  await aplicarParceirosResolvidosNoPedido(this.db, pedidoExistente.id_pedido, tenantId, parceirosNumero)
+                  await aplicarParceirosResolvidosNoPedido(this.db, pedidoResolvido.id_pedido, tenantId, parceirosNumero)
                 }
-                registrarOrdemPlanilhaPedido(pedidoExistente.id_pedido, numeroPedidoFinal)
+                registrarOrdemPlanilhaPedido(pedidoResolvido.id_pedido, numeroPedidoFinal)
                 atualizados.push(linha.linha_arquivo)
-                idsPedidosParaRecalcular.add(pedidoExistente.id_pedido)
+                idsPedidosParaRecalcular.add(pedidoResolvido.id_pedido)
               } catch (errInsert: unknown) {
                 await executarSavepointSql(this.db, `ROLLBACK TO SAVEPOINT ${spName}`)
                 erros.push({
@@ -1019,13 +1041,22 @@ export class SmartImportService {
               continue
             }
 
-            if (pedidoExistente) {
+            if (pedidoResolvido) {
               // Pedido existe mas linha não tem dados de item — pular silenciosamente
               await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
               atualizados.push(linha.linha_arquivo)
-              idsPedidosParaRecalcular.add(pedidoExistente.id_pedido)
+              idsPedidosParaRecalcular.add(pedidoResolvido.id_pedido)
               continue
             }
+          }
+
+          if (pedidoResolvido) {
+            erros.push({
+              linha: linha.linha_arquivo,
+              motivo: `Ja existe um pedido com o numero "${numeroResolver}" na organizacao. Use "Sobrescrever" na tela anterior para atualizar.`,
+            })
+            await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
+            continue
           }
 
           // Criar pedido novo com o item da linha atual (P14 — nomes do SSOT)
@@ -2101,6 +2132,53 @@ export class SmartImportService {
         })
       }
     }
+  }
+
+  /**
+   * Resolve pedido por número: primeiro no workspace visível (Lista), depois org-wide.
+   * Evita P2002 quando o índice único `(id_organizacao, numero_pedido)` colide com registro
+   * fora do workspace atual ou soft-deleted pela consolidação.
+   */
+  private async resolverPedidoPorNumeroImportacao(
+    tenantId: string,
+    companyId: string | undefined,
+    numeroPedido: string,
+    opts?: { incluirSoftDeleted?: boolean; excetoCancelado?: boolean },
+  ): Promise<{ id_pedido: string } | null> {
+    const filtroCancelado = opts?.excetoCancelado
+      ? { status_pedido: { not: 'cancelado' } }
+      : {}
+
+    const visivel = await (this.db as Record<string, any>)['pedido'].findFirst({
+      where: {
+        ...wherePedidoVisivelImportacao(tenantId, companyId, { numero_pedido: numeroPedido }),
+        ...filtroCancelado,
+      },
+      select: { id_pedido: true },
+    })
+    if (visivel) return visivel as { id_pedido: string }
+
+    return (this.db as Record<string, any>)['pedido'].findFirst({
+      where: {
+        ...wherePedidoPorNumeroOrganizacao(tenantId, numeroPedido, {
+          incluirSoftDeleted: opts?.incluirSoftDeleted,
+        }),
+        ...filtroCancelado,
+      },
+      select: { id_pedido: true },
+    }) as Promise<{ id_pedido: string } | null>
+  }
+
+  /** Torna pedido visível na Lista do workspace após resolver colisão org-wide. */
+  private async restaurarPedidoVisivelNoWorkspaceImportacao(
+    pedidoId: string,
+    companyId: string | undefined,
+  ): Promise<void> {
+    if (!companyId) return
+    await (this.db as Record<string, any>)['pedido'].update({
+      where: { id_pedido: pedidoId },
+      data: { data_exclusao_pedido: null, id_workspace: companyId },
+    })
   }
 
   private async buscarDuplicatasNoSistema(

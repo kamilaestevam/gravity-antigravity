@@ -3520,7 +3520,7 @@
         "excluir": {
           "titulo": "Eliminar pedido",
           "desc": "Permisos y comportamientos al eliminar pedidos",
-          "status_permitidos_label": "Estados que permiten eliminación",
+          "status_permitidos_label": "Estados bloqueados para eliminación",
           "sem_itens": "El pedido puede quedar sin ítems",
           "sem_itens_desc": "Si está desmarcado, eliminar el último ítem elimina el pedido automáticamente",
           "confirmar_preview": "Solicitar confirmación con vista previa antes de eliminar"
@@ -3771,6 +3771,8 @@
       "tooltip_lado_da_org_importador": "Su organización es el importador en esta operación. Este campo se completa automáticamente y no puede modificarse.",
       "tooltip_lado_da_org_exportador": "Su organización es el exportador en esta operación. Este campo se completa automáticamente y no puede modificarse.",
       "erro_empresa_da_org": "No se pudo cargar la empresa de su organización. {{detalhe}}",
+      "erro_empresa_da_org_onboarding": "Su organización aún no tiene empresa registrada en Cadastros (onboarding incompleto). Complete el registro o pida ayuda al administrador.",
+      "erro_empresa_da_org_cadastros_off": "Servicio Cadastros no disponible. Verifique que esté en ejecución (puerto 8031) e intente de nuevo.",
       "pendencias_titulo": "Para continuar, aún falta:",
       "legenda_obrigatorios": "Campos obligatorios",
       "falta_numero_pedido": "Número del Pedido",

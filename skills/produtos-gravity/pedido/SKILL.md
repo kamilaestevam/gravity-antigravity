@@ -229,6 +229,41 @@ Itens cujo pai já está em `pedidos` ficam de fora do `duplicarItens` — o cas
 
 ---
 
+## Parte 4.1 — Excluir Pedido + Item
+
+> Regras de negócio: [`DUPLICAR-EXCLUIR-REGRAS-NEGOCIO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/DUPLICAR-EXCLUIR-REGRAS-NEGOCIO.md) · Técnico: [`DUPLICAR-EXCLUIR-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/DUPLICAR-EXCLUIR-TECNICO.md)
+
+### Blacklist opt-out (2026-05-26)
+
+Coluna DB `excluir_status_permitidos` guarda status **bloqueados** (nome legado — semântica invertida):
+
+| Valor config | Comportamento |
+|---|---|
+| `[]` (default) | **Todos** os status permitidos — inclusive custom (`pagamento_aprovado`, etc.) |
+| `['consolidado', ...]` | Apenas os listados são **bloqueados** |
+
+- Backend: `normalizarStatusBloqueadosExclusao()` + `statusBloqueiaExclusao()` em `duplicarExcluirService.ts`
+- UI Config: checkbox marcado = status bloqueado; whitelist legada (7 canônicos) migra para `[]`
+- Rotas `/exclusoes/confirmar` e `/exclusoes/itens`: timeout 30s; renumeração paralela pós-delete de itens
+
+### Endpoints
+
+| Seleção | Backend |
+|---|---|
+| Preview pedidos | `POST /exclusoes/preview` |
+| Hard delete pedidos | `POST /exclusoes/confirmar` |
+| Delete itens avulsos | `POST /exclusoes/itens` |
+
+---
+
+## Parte 4.2 — Transferir — encoding de URL
+
+> Técnico: [`TRANSFERIR-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/TRANSFERIR-TECNICO.md)
+
+`pedidoTransferirApi` usa `pid(id) = encodeURIComponent(id)` em **todos** os segmentos `:id_pedido` e `:id_transferencia_pedido`. Obrigatório para IDs legados com `/` — sem encode, modal de revisão retorna **404 Rota não encontrada**.
+
+---
+
 ## Anti-padrões proibidos
 
 ### A1 — Mock fallback silencioso em DEV
@@ -405,7 +440,10 @@ Hardcoded strings que ficaram fora do escopo i18n porque a função/módulo onde
 | 1 — Edição em Massa | ✅ Consolidada |
 | 2 — Lista de Pedidos | 🟡 Placeholder — a desenvolver |
 | 2.1 — Filtro Multi-Workspace | ✅ Consolidada (2026-05-13) |
-| 3 — Consolidar / Transferir | 🟡 Placeholder — a desenvolver |
+| 3 — Consolidar / Transferir | 🟡 Placeholder — regras de negócio em docs; transferir implementado |
+| 4 — Duplicar | ✅ Consolidada |
+| 4.1 — Excluir (blacklist opt-out) | ✅ Consolidada (2026-05-26) |
+| 4.2 — Transferir (pid URL) | ✅ Nota técnica (2026-05-26) |
 | 5 — Internacionalização (i18n) | ✅ Consolidada (2026-05-22) |
 
 ---

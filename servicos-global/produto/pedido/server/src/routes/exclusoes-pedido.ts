@@ -95,7 +95,7 @@ exclusoesPedidoRouter.post('/confirmar', async (req: Request, res: Response, nex
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
       return excluirService.confirmar(db, id_organizacao, id_usuario, nome_usuario, parse.data.ids)
-    })
+    }, { timeoutMs: 30_000 })
     res.json(resultado)
   } catch (err) {
     // Traduzir erros de FK para linguagem do usuário
@@ -139,7 +139,7 @@ exclusoesPedidoRouter.post('/itens', async (req: Request, res: Response, next: N
         parse.data.pedido_id,
         parse.data.item_ids,
       )
-    })
+    }, { timeoutMs: 30_000 })
     res.json(resultado)
   } catch (err) {
     // Traduzir erros de FK para linguagem do usuário

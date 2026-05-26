@@ -42,6 +42,7 @@ import {
   construirCamposPropagadosParaItem,
   derivarNomesEmpresaParaItem,
 } from '../../../pedido/shared/mapaPropagacaoPedidoItem.js'
+import { superficiarCamposJsonPedido } from '../../../pedido/shared/camposJsonPedidoLista.js'
 import {
   buscarEmpresasPorSuids,
   buscarMoedaPorCodigo,
@@ -377,6 +378,19 @@ function normDate(v: unknown): string | null {
   return s === '' ? null : s
 }
 
+function agregarValorUnicoItens(
+  itens: PedidoItemRaw[] | undefined,
+  campo: keyof PedidoItemRaw,
+): string | null {
+  if (!Array.isArray(itens) || itens.length === 0) return null
+  const valores = itens
+    .map((i) => i[campo])
+    .filter((v) => v != null && String(v).trim() !== '')
+    .map((v) => String(v).trim())
+  const unicos = new Set(valores)
+  return unicos.size === 1 ? [...unicos][0] : null
+}
+
 export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | null | undefined {
   if (!pedido) return pedido
   const rawItens = pedido.itens_pedido as PedidoItemRaw[] | undefined
@@ -384,6 +398,10 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
   const det = (pedido.detalhes_operacionais_pedido as Record<string, unknown> | null)
     ?? (pedido.detalhes_operacionais as Record<string, unknown> | null)
     ?? {}
+  const extras = (pedido.dados_extras_importacao_pedido as Record<string, unknown> | null)
+    ?? (pedido.campos_custom_pedido as Record<string, unknown> | null)
+    ?? {}
+  const jsonSuperficie = superficiarCamposJsonPedido(extras, det)
 
   // Nomes das contrapartes vêm dos snapshots (Fase 4 DDD: SUID + snapshot em vez
   // de FK direto). Front lê `row.nome_importador/exportador/fabricante` nas
@@ -393,6 +411,17 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     const s = snaps.find((x) => x.papel === papel)
     return s?.nome_empresa ?? null
   }
+
+  const resolveNomeParte = (
+    papel: 'importador' | 'exportador' | 'fabricante',
+    campoDet: string,
+    campoItem: keyof PedidoItemRaw,
+  ): string | null =>
+    findNome(papel)
+    ?? (det[campoDet] as string | null | undefined)
+    ?? jsonSuperficie[campoDet]
+    ?? agregarValorUnicoItens(itens, campoItem)
+    ?? null
 
   return {
     ...pedido,
@@ -475,15 +504,15 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     data_meta_recebimento_original_invoice:        normDate(pedido.data_meta_recebimento_original_invoice_pedido),
     data_invoice:                                   normDate(pedido.data_documento_invoice_pedido),
     itens,
-    // Nomes das contrapartes: prioriza snapshots (Fase 4 DDD — fonte canônica
-    // de empresas via SUID+snapshot), faz fallback pra detalhes_operacionais
-    // legado pra pedidos antigos que ainda não têm snapshot. Front consome
-    // via colunas Pai/Filho (ColunasPai.tsx:row.nome_exportador).
-    nome_exportador: findNome('exportador') ?? (det.nome_exportador as string | null | undefined) ?? null,
-    nome_importador: findNome('importador') ?? (det.nome_importador as string | null | undefined) ?? null,
-    nome_fabricante: findNome('fabricante') ?? (det.nome_fabricante as string | null | undefined) ?? null,
-    // CNPJ exportador vive no JSON detalhes_operacionais (auto-fill em EXP)
-    cnpj_exportador: (det.cnpj_exportador as string | null | undefined) ?? null,
+    ...jsonSuperficie,
+    // Nomes das contrapartes: snapshot → detalhes → extras import → item único.
+    nome_exportador: resolveNomeParte('exportador', 'nome_exportador', 'nome_exportador'),
+    nome_importador: resolveNomeParte('importador', 'nome_importador', 'nome_importador'),
+    nome_fabricante: resolveNomeParte('fabricante', 'nome_fabricante', 'nome_fabricante'),
+    // CNPJ exportador: detalhes legado ou extras do Smart Import
+    cnpj_exportador: (det.cnpj_exportador as string | null | undefined)
+      ?? jsonSuperficie.cnpj_exportador
+      ?? null,
     // Virtual: somatório de quantidade_pronta dos itens (não persistido no Pedido)
     quantidade_pronta_itens_pedido_total: Array.isArray(itens)
       ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_pronta_pedido ?? 0), 0)
@@ -1679,10 +1708,12 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
   }
 })
 
-// ── DELETE /:id — Deletar pedido ──────────────────────────────────────────────
+// ── DELETE /:id — Deletar pedido (legado — preferir POST /exclusoes/confirmar) ─
 
 pedidosRouter.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const idPedido = decodeURIComponent(req.params.id)
+
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
@@ -1691,18 +1722,23 @@ pedidosRouter.delete('/:id', async (req: Request, res: Response, next: NextFunct
       const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
-        where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
+        where: { id_pedido: idPedido, id_organizacao: tenant_id, id_workspace: company_id },
       })
 
       if (!pedido) {
         throw new AppError(404, 'Pedido nao encontrado')
       }
 
-      if (pedido.status !== 'rascunho') {
-        throw new AppError(400, 'Apenas pedidos com status Rascunho podem ser deletados')
+      const statusAtual = pedido.status_pedido as string | undefined
+      if (!statusAtual) {
+        throw new AppError(500, 'Pedido sem status_pedido — dado inconsistente no banco')
       }
 
-      await db.pedido.delete({ where: { id_pedido: req.params.id } })
+      if (statusAtual !== 'rascunho') {
+        throw new AppError(400, 'Apenas pedidos com status rascunho podem ser deletados por esta rota legada')
+      }
+
+      await db.pedido.delete({ where: { id_pedido: idPedido } })
       res.status(204).send()
     })
   } catch (err) {

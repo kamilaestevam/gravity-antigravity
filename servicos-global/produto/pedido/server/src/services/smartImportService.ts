@@ -695,6 +695,20 @@ export class SmartImportService {
     // crashava com "Pedido nao encontrado", abortando toda a transacao.
     // Resultado: nenhum pedido era persistido apesar da UI nao mostrar erro.
     const idsPedidosParaRecalcular: Set<string> = new Set()
+    /** Próxima sequência por pedido — ordem do arquivo, ignorando coluna "Sequencia do Item" da planilha. */
+    const proximaSequenciaPorPedido = new Map<string, number>()
+
+    const obterProximaSequenciaItem = async (idPedido: string): Promise<number> => {
+      let proxima = proximaSequenciaPorPedido.get(idPedido)
+      if (proxima === undefined) {
+        const itemCountExistente = await (this.db as Record<string, any>)['pedidoItem'].count({
+          where: { id_pedido: idPedido, id_organizacao: tenantId },
+        })
+        proxima = itemCountExistente + 1
+      }
+      proximaSequenciaPorPedido.set(idPedido, proxima + 1)
+      return proxima
+    }
 
     // Ler casas decimais do workspace para aplicar nos registros criados
     const casasConfig = await this.lerCasasDecimais(tenantId)
@@ -799,20 +813,9 @@ export class SmartImportService {
             })
 
             if (pedidoExistente && (dados['part_number_item'] || dados['descricao_item'])) {
-              // Q5 — Calcular próxima sequencia_item no pedido existente.
-              // pedido_id → id_pedido, tenant_id → id_organizacao.
-              const itemCountExistente = await (this.db as Record<string, any>)['pedidoItem'].count({
-                where: { id_pedido: pedidoExistente.id_pedido, id_organizacao: tenantId },
-              })
-              // Adicionar item ao pedido existente. P1.3 — REMOVIDO `.catch(() => null)`
-              // que silenciava erros de banco. Agora qualquer erro (FK violou, unique
-              // violou, NOT NULL faltando, trigger PG falhou) eh reportado em `erros[]`
-              // com o motivo real, ao inves de "graceful fallback" silencioso que
-              // mascarava bug em producao.
               try {
-                // Montar payload do item condicionalmente (omitir campos undefined
-                // para evitar conflito com Prisma client que trata nullable como required)
-                const itemData = this.montarDadosItem(dados, tenantId, companyId ?? tenantId, casasConfig, itemCountExistente + 1)
+                const seqItem = await obterProximaSequenciaItem(pedidoExistente.id_pedido)
+                const itemData = this.montarDadosItem(dados, tenantId, companyId ?? tenantId, casasConfig, seqItem)
                 itemData.pedido_item = { connect: { id_pedido: pedidoExistente.id_pedido } }
                 await (this.db as Record<string, any>)['pedidoItem'].create({ data: itemData })
                 atualizados.push(linha.linha_arquivo)
@@ -853,6 +856,9 @@ export class SmartImportService {
           const novo = await (this.db as Record<string, any>)['pedido'].create({
             data: { ...dadosPedido, ...itemPayload },
           })
+          if (itemPayload.itens_pedido) {
+            proximaSequenciaPorPedido.set(novo.id_pedido, 2)
+          }
           criados.push(novo.id_pedido)
           idsPedidosParaRecalcular.add(novo.id_pedido)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -895,6 +901,23 @@ export class SmartImportService {
           const msgInterna = errRecalc instanceof Error ? errRecalc.message : 'Erro desconhecido'
           console.warn(`[smartImport:confirmar] recalcularAgregadosPedido falhou pedido=${pedidoId}: ${msgInterna}`)
           erros.push({ linha: 0, motivo: `Pedido importado, mas o cálculo dos totais falhou. Abra o pedido e salve novamente para recalcular.` })
+        }
+      }
+
+      // Normalizar sequencia_item_pedido → 1..N na ordem do arquivo (ignora coluna da planilha).
+      for (const pedidoId of idsPedidosParaRecalcular) {
+        const spSeq = `sp_seq_${pedidoId.replace(/[^a-zA-Z0-9_]/g, '_')}`
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (this.db as any).$executeRawUnsafe(`SAVEPOINT ${spSeq}`)
+        try {
+          await this.resequenciarItensPedido(tenantId, pedidoId)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spSeq}`)
+        } catch (errSeq: unknown) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (this.db as any).$executeRawUnsafe(`ROLLBACK TO SAVEPOINT ${spSeq}`)
+          const msgSeq = errSeq instanceof Error ? errSeq.message : 'Erro desconhecido'
+          console.warn(`[smartImport:confirmar] resequenciarItensPedido falhou pedido=${pedidoId}: ${msgSeq}`)
         }
       }
     }
@@ -1642,9 +1665,9 @@ export class SmartImportService {
       id_item:                       gerarId('pite'),
       id_organizacao:                tenantId,
       id_workspace:                  companyId,
-      sequencia_item_pedido:         dados['sequencia_item_pedido']
-        ? Math.round(parseNumeroBr(dados['sequencia_item_pedido'], seqPadrao))
-        : seqPadrao,
+      // Sequencia vem da ordem das linhas no arquivo (seqPadrao), nunca da coluna da planilha
+      // (templates Detroit usam 174, 175… como referencia ERP — lista deve mostrar 1, 2, 3…).
+      sequencia_item_pedido:         seqPadrao,
       part_number_item:              String(dados['part_number_item'] ?? ''),
       ncm_item:                      formatarNcm(dados['ncm_item']),
       descricao_item:                String(dados['descricao_item'] ?? ''),
@@ -1840,6 +1863,25 @@ export class SmartImportService {
     const itemData = this.montarDadosItem(dados, tenantId, companyId, casas, seqPadrao)
     delete itemData.pedido_item
     return itemData
+  }
+
+  /** Renumera itens do pedido para 1..N contíguo, preservando ordem atual. */
+  private async resequenciarItensPedido(tenantId: string, pedidoId: string): Promise<void> {
+    const itens = await (this.db as Record<string, any>)['pedidoItem'].findMany({
+      where: { id_pedido: pedidoId, id_organizacao: tenantId },
+      orderBy: { sequencia_item_pedido: 'asc' },
+      select: { id_item: true, sequencia_item_pedido: true },
+    }) as Array<{ id_item: string; sequencia_item_pedido: number | null }>
+
+    for (let i = 0; i < itens.length; i++) {
+      const seqCorreta = i + 1
+      if (Number(itens[i].sequencia_item_pedido) !== seqCorreta) {
+        await (this.db as Record<string, any>)['pedidoItem'].update({
+          where: { id_item: itens[i].id_item },
+          data: { sequencia_item_pedido: seqCorreta },
+        })
+      }
+    }
   }
 
   private async buscarDuplicatasNoSistema(tenantId: string, numeros: string[]): Promise<Set<string>> {

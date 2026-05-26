@@ -50,3 +50,37 @@ describe('SmartImportService.validarLinha — numeros BR', () => {
     expect(msg).toMatch(/Quantidade invalida/i)
   })
 })
+
+describe('SmartImportService.montarDadosItem — sequencia do arquivo', () => {
+  const service = new SmartImportService({})
+
+  function montarDadosItem(dados: Record<string, unknown>, seqPadrao: number) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (service as any).montarDadosItem(dados, 'org_test', 'ws_test', undefined, seqPadrao) as {
+      sequencia_item_pedido: number
+      part_number_item: string
+    }
+  }
+
+  it('ignora sequencia_item_pedido da planilha e usa ordem do arquivo (seqPadrao)', () => {
+    const item = montarDadosItem(
+      {
+        sequencia_item_pedido: '174,00',
+        part_number_item: '5241800067',
+        quantidade_inicial_item: '1,00',
+      },
+      1,
+    )
+    expect(item.sequencia_item_pedido).toBe(1)
+    expect(item.part_number_item).toBe('5241800067')
+  })
+
+  it('atribui sequencias 1, 2, 3 conforme ordem das linhas importadas', () => {
+    const item1 = montarDadosItem({ sequencia_item_pedido: '174,00', part_number_item: '5241800067' }, 1)
+    const item2 = montarDadosItem({ sequencia_item_pedido: '175,00', part_number_item: 'B00E50200271' }, 2)
+    const item3 = montarDadosItem({ sequencia_item_pedido: '176,00', part_number_item: 'B00E50207350/S0001' }, 3)
+    expect(item1.sequencia_item_pedido).toBe(1)
+    expect(item2.sequencia_item_pedido).toBe(2)
+    expect(item3.sequencia_item_pedido).toBe(3)
+  })
+})

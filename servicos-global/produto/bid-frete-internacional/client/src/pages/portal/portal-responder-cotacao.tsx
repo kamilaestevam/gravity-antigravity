@@ -142,7 +142,7 @@ export default function ResponderCotacao() {
     e.preventDefault()
     if (!bidRequestId) return
 
-    if (!form.valor_frete_proposta_bid_frete_internacional || !form.dias_transito_proposta_bid_frete_internacional || !form.validade_proposta_bid_frete_internacional_proposta_bid_frete_internacional) {
+    if (!form.valor_frete_proposta_bid_frete_internacional || !form.dias_transito_proposta_bid_frete_internacional || !form.validade_proposta_bid_frete_internacional) {
       setErro(t('bidfrete.portal.publico.campos_obrigatorios'))
       return
     }
@@ -158,7 +158,7 @@ export default function ResponderCotacao() {
         valor_total_proposta_bid_frete_internacional: total,
         dias_transito_proposta_bid_frete_internacional: parseInt(form.dias_transito_proposta_bid_frete_internacional, 10),
         dias_free_time_proposta_bid_frete_internacional: form.dias_free_time_proposta_bid_frete_internacional ? parseInt(form.dias_free_time_proposta_bid_frete_internacional, 10) : null,
-        validade_proposta_bid_frete_internacional: form.validade_proposta_bid_frete_internacional_proposta_bid_frete_internacional,
+        validade_proposta_bid_frete_internacional: form.validade_proposta_bid_frete_internacional,
         quantidade_transbordo_proposta_bid_frete_internacional: parseInt(form.quantidade_transbordo_proposta_bid_frete_internacional, 10) || 0,
         quantidade_escala_proposta_bid_frete_internacional: parseInt(form.quantidade_escala_proposta_bid_frete_internacional, 10) || 0,
         observacoes_proposta_bid_frete_internacional: form.observacoes_proposta_bid_frete_internacional || null,

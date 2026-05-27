@@ -29,13 +29,15 @@ type FiltroTab = 'TODAS' | 'PENDENTES' | 'APROVADAS' | 'REPROVADAS'
 // Labels initialized in component since they need t()
 const TAB_KEYS: FiltroTab[] = ['TODAS', 'PENDENTES', 'APROVADAS', 'REPROVADAS']
 
-interface RespostaComCotacao extends PropostaBidFreteInternacional {
-  cotacao?: {
-    numero_cotacao_bid_frete_internacional: string
-    origem_nome_cotacao_bid_frete_internacional: string
-    destino_nome_cotacao_bid_frete_internacional: string
-    modal_cotacao_bid_frete_internacional: ModalFrete
-  }
+type CotacaoResumoPortal = {
+  numero_cotacao_bid_frete_internacional: string
+  origem_nome_cotacao_bid_frete_internacional: string
+  destino_nome_cotacao_bid_frete_internacional: string
+  modal_cotacao_bid_frete_internacional: ModalFrete
+}
+
+type RespostaComCotacao = Omit<PropostaBidFreteInternacional, 'cotacao'> & {
+  cotacao?: CotacaoResumoPortal
 }
 
 type RespostaStatus = 'aprovada' | 'reprovada' | 'pendente'
@@ -242,7 +244,7 @@ export default function MinhasRespostas() {
         <TabelaGlobal
           dados={filtradas}
           colunas={colunas}
-          idKey="id"
+          idKey="id_proposta_bid_frete_internacional"
           mensagemVazio={t('bidfrete.portal.minhas_respostas.vazio')}
           tooltipBusca={t('bidfrete.portal.minhas_respostas.buscar')}
         />

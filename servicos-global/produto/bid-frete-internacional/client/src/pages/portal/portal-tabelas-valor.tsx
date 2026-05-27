@@ -151,7 +151,7 @@ export default function TabelaPrecos() {
 
   const colunas: TabelaGlobalColuna<TabelaPreco>[] = [
     {
-      key: 'rota',
+      key: 'origem_nome_cotacao_bid_frete_internacional' as keyof TabelaPreco,
       label: t('bidfrete.portal.tabela_precos.col_rota'),
       tipo: 'texto',
       largura: 220,
@@ -183,7 +183,7 @@ export default function TabelaPrecos() {
       ),
     },
     {
-      key: 'total',
+      key: 'valor_total_proposta_bid_frete_internacional' as keyof TabelaPreco,
       label: t('bidfrete.portal.tabela_precos.col_total'),
       tipo: 'numero',
       largura: 130,

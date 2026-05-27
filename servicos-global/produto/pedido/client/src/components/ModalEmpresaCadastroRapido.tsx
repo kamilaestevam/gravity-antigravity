@@ -20,7 +20,7 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useShellStore } from '@gravity/shell'
 import {
   cadastrosApi,
-  type Empresa,
+  type Fornecedor,
   type Pais,
   type PapelEmpresaRapido,
 } from '../shared/cadastrosApi'
@@ -40,7 +40,7 @@ export interface ModalEmpresaCadastroRapidoProps {
    */
   forcarEstrangeiro?: boolean
   onFechar: () => void
-  onCriado: (empresa: Empresa) => void
+  onCriado: (fornecedor: Fornecedor) => void
 }
 
 type TFunc = (key: string, opts?: Record<string, unknown>) => string
@@ -163,7 +163,7 @@ export function ModalEmpresaCadastroRapido({
     setSalvando(true)
     setErro(null)
     try {
-      const empresa = await cadastrosApi.criarFornecedor({
+      const fornecedor = await cadastrosApi.criarFornecedor({
         nome_fornecedor: nome,
         pais_fornecedor: pais,
         cnpj_fornecedor: ehBr && cnpj.trim() ? cnpj.trim() : null,
@@ -172,10 +172,10 @@ export function ModalEmpresaCadastroRapido({
       })
       addNotification({
         type: 'success',
-        message: t('pedido.cadastro_empresa.sucesso_toast', { nome: empresa.nome_fornecedor }),
+        message: t('pedido.cadastro_empresa.sucesso_toast', { nome: fornecedor.nome_fornecedor }),
         duration: 5000,
       })
-      onCriado(empresa)
+      onCriado(fornecedor)
     } catch (err: unknown) {
       setErro(traduzirErroCadastro(err, t))
     } finally {

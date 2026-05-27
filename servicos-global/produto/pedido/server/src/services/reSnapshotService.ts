@@ -32,7 +32,7 @@ import { randomUUID } from 'node:crypto'
 // processos-core está excluido do tsconfig do pedido server — o TS não
 // type-checa esses arquivos aqui, mas o Node carrega normalmente em runtime.
 import {
-  buscarEmpresaPorSuid,
+  buscarIdentidadeComexPorSuid,
   buscarOpePorSuid,
   buscarNcmPorCodigo,
   buscarMoedaPorCodigo,
@@ -40,7 +40,7 @@ import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
 } from '../../../../processos-core/src/services/cadastrosClient.js'
 import {
-  montarSnapshotEmpresa,
+  montarSnapshotIdentidadeComex,
   montarSnapshotOpe,
   montarSnapshotNcm,
   montarSnapshotMoeda,
@@ -101,7 +101,7 @@ async function processarEmpresa(
   idOrganizacao: string,
 ): Promise<number> {
   const correlationId = randomUUID()
-  const empresa = await buscarEmpresaPorSuid(identificador, {
+  const identidade = await buscarIdentidadeComexPorSuid(identificador, {
     id_organizacao: idOrganizacao,
     correlation_id: correlationId,
   }).catch((err) => {
@@ -111,7 +111,7 @@ async function processarEmpresa(
     )
     return null
   })
-  if (!empresa) return 0
+  if (!identidade) return 0
 
   return withOrganizacaoContext(idOrganizacao, async (_ctx, rawDb) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -153,8 +153,8 @@ async function processarEmpresa(
       for (const lote of emLotes(snapshots, TAMANHO_LOTE)) {
         await Promise.all(
           lote.map(async (snap) => {
-            const dados = montarSnapshotEmpresa(
-              empresa,
+            const dados = montarSnapshotIdentidadeComex(
+              identidade,
               papel,
               idOrganizacao,
               snap.id_workspace ?? null,

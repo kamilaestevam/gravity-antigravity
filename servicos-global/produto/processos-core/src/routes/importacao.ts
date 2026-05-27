@@ -17,8 +17,8 @@ import { randomUUID } from 'node:crypto'
 import { importEngine } from '../services/importEngine.js'
 import type { PedidoImportado } from '../services/importEngine.js'
 import { AppError } from '../services/saldo-pedido.js'
-import { buscarEmpresasPorSuids } from '../services/cadastrosClient.js'
-import { montarSnapshotEmpresa, type PapelEmpresa } from '../services/pedidoSnapshots.js'
+import { buscarIdentidadesComexPorSuids } from '../services/cadastrosClient.js'
+import { montarSnapshotIdentidadeComex, type PapelEmpresa } from '../services/pedidoSnapshots.js'
 import { recalcularAgregadosPedido } from '../services/recalcularAgregadosPedido.js'
 import {
   construirCamposPropagadosParaItem,
@@ -121,7 +121,7 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
       if (p.suid_exportador) suidsUnicos.add(p.suid_exportador)
       if (p.suid_fabricante) suidsUnicos.add(p.suid_fabricante)
     }
-    const empresasMap = await buscarEmpresasPorSuids(
+    const identidadesMap = await buscarIdentidadesComexPorSuids(
       Array.from(suidsUnicos),
       { id_organizacao: tenant_id, correlation_id },
     )
@@ -160,9 +160,9 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
 
           const snapshotsData = papeisPedido
             .map(({ suid, papel }) => {
-              const empresa = empresasMap.get(suid)
-              if (!empresa) return null
-              return montarSnapshotEmpresa(empresa, papel, tenant_id, company_id)
+              const identidade = identidadesMap.get(suid)
+              if (!identidade) return null
+              return montarSnapshotIdentidadeComex(identidade, papel, tenant_id, company_id)
             })
             .filter((s): s is NonNullable<typeof s> => s !== null)
 

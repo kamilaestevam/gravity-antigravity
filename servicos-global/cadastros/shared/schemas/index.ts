@@ -7,6 +7,7 @@
 
 export * from './fornecedor.schema.js'
 export * from './empresa.schema.js'
+export * from './identidade-comex.schema.js'
 export * from './moeda.schema.js'
 export * from './unidade.schema.js'
 export * from './incoterm.schema.js'

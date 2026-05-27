@@ -1,16 +1,55 @@
 /**
- * montar-snapshot-empresa.test.ts — Mapeamento Fornecedor (Cadastros) →
- * PedidoSnapshotEmpresa após rename empresa → fornecedor.
+ * montarSnapshotIdentidadeComex — Empresa (1:1 org) e Fornecedor (parceiro).
  */
 import { describe, it, expect } from 'vitest'
-import { montarSnapshotEmpresa } from '../../../servicos-global/produto/processos-core/src/services/pedidoSnapshots'
-import type { Empresa } from '../../../servicos-global/cadastros/shared/schemas/fornecedor.schema'
+import {
+  montarSnapshotIdentidadeComex,
+  montarSnapshotDeEmpresa,
+  montarSnapshotDeFornecedor,
+} from '../../../servicos-global/produto/processos-core/src/services/pedidoSnapshots'
+import type { Empresa } from '../../../servicos-global/cadastros/shared/schemas/empresa.schema'
+import type { Fornecedor } from '../../../servicos-global/cadastros/shared/schemas/fornecedor.schema'
 
-function fornecedorBR(id: string, cnpj = '12.345.678/0001-99'): Empresa {
+function empresaBR(id: string, cnpj = '12.345.678/0001-99'): Empresa {
+  return {
+    id_empresa: id,
+    id_organizacao: 'org-test',
+    nome_empresa: 'Gravity Org',
+    cnpj_empresa: cnpj,
+    tin_empresa: null,
+    pais_empresa: 'BR',
+    estado_provincia_empresa: 'SP',
+    cidade_empresa: 'Sao Paulo',
+    endereco_empresa: 'Rua Teste, 100',
+    cep_zipcode_empresa: '01000-000',
+    email_principal_empresa: 'contato@acme.test',
+    telefone_principal_empresa: null,
+    whatsapp_principal_empresa: null,
+    pode_ser_importador_empresa: true,
+    pode_ser_exportador_empresa: false,
+    pode_ser_fabricante_empresa: false,
+    pode_ser_agente_empresa: false,
+    pode_ser_despachante_empresa: false,
+    pode_ser_armador_empresa: false,
+    pode_ser_cia_aerea_empresa: false,
+    pode_ser_transportadora_rodoviaria_nacional_empresa: false,
+    pode_ser_transportadora_rodoviaria_internacional_empresa: false,
+    pode_ser_armazem_alfandegado_empresa: false,
+    pode_ser_armazem_nacional_empresa: false,
+    pode_ser_banco_empresa: false,
+    pode_ser_seguradora_internacional_empresa: false,
+    pode_ser_seguradora_corretora_cambio_empresa: false,
+    ativo_empresa: true,
+    criado_em_empresa: '2026-04-22T00:00:00.000Z',
+    atualizado_em_empresa: '2026-04-22T00:00:00.000Z',
+  }
+}
+
+function fornecedorBR(id: string, cnpj = '12.345.678/0001-99'): Fornecedor {
   return {
     id_fornecedor: id,
     id_organizacao: 'org-test',
-    nome_fornecedor: 'ACME Importadora',
+    nome_fornecedor: 'ACME Parceiro',
     cnpj_fornecedor: cnpj,
     tin_fornecedor: null,
     pais_fornecedor: 'BR',
@@ -21,8 +60,8 @@ function fornecedorBR(id: string, cnpj = '12.345.678/0001-99'): Empresa {
     email_principal_fornecedor: 'contato@acme.test',
     telefone_principal_fornecedor: null,
     whatsapp_principal_fornecedor: null,
-    pode_ser_importador_fornecedor: true,
-    pode_ser_exportador_fornecedor: false,
+    pode_ser_importador_fornecedor: false,
+    pode_ser_exportador_fornecedor: true,
     pode_ser_fabricante_fornecedor: false,
     pode_ser_agente_fornecedor: false,
     pode_ser_despachante_fornecedor: false,
@@ -41,67 +80,52 @@ function fornecedorBR(id: string, cnpj = '12.345.678/0001-99'): Empresa {
   }
 }
 
-describe('montarSnapshotEmpresa — contrato fornecedor', () => {
-  it('mapeia id_fornecedor → suid_empresa e nome_fornecedor → nome_empresa', () => {
-    const snap = montarSnapshotEmpresa(
-      fornecedorBR('BR-ACME-00001'),
-      'exportador',
-      'org-test',
-      'ws-test',
-    )
-
-    expect(snap.suid_empresa).toBe('BR-ACME-00001')
-    expect(snap.nome_empresa).toBe('ACME Importadora')
+describe('montarSnapshotIdentidadeComex — DDD empresa × fornecedor', () => {
+  it('Empresa: id_empresa → suid_empresa no snapshot', () => {
+    const snap = montarSnapshotDeEmpresa(empresaBR('BR-ORG-00001'), 'importador', 'org-test', 'ws-test')
+    expect(snap.suid_empresa).toBe('BR-ORG-00001')
+    expect(snap.nome_empresa).toBe('Gravity Org')
     expect(snap.tipo_documento).toBe('CNPJ')
-    expect(snap.documento_principal).toBe('12.345.678/0001-99')
-    expect(snap.cnpj_raiz).toBe('12345678')
-    expect(snap.endereco_cidade).toBe('Sao Paulo')
-    expect(snap.endereco_uf).toBe('SP')
-    expect(snap.endereco_pais).toBe('BR')
-    expect(snap.papel).toBe('exportador')
-    expect(snap.id_workspace).toBe('ws-test')
   })
 
-  it('estrangeiro usa tin_fornecedor como documento TIN', () => {
-    const snap = montarSnapshotEmpresa(
+  it('Fornecedor: id_fornecedor → suid_empresa no snapshot', () => {
+    const snap = montarSnapshotDeFornecedor(fornecedorBR('BR-PAR-00002'), 'exportador', 'org-test')
+    expect(snap.suid_empresa).toBe('BR-PAR-00002')
+    expect(snap.nome_empresa).toBe('ACME Parceiro')
+  })
+
+  it('estrangeiro usa tin como documento TIN', () => {
+    const snap = montarSnapshotIdentidadeComex(
       {
         ...fornecedorBR('US-BUYER-00001'),
         cnpj_fornecedor: null,
         tin_fornecedor: 'US-EIN-123456789',
         pais_fornecedor: 'US',
-        estado_provincia_fornecedor: 'NY',
-        cidade_fornecedor: 'New York',
       },
       'importador',
       'org-test',
     )
-
     expect(snap.tipo_documento).toBe('TIN')
     expect(snap.documento_principal).toBe('US-EIN-123456789')
-    expect(snap.cnpj_raiz).toBeNull()
-    expect(snap.endereco_pais).toBe('US')
   })
 
-  it('fornecedor sem documento gera snapshot com identidade preenchida', () => {
-    const snap = montarSnapshotEmpresa(
-      { ...fornecedorBR('BR-X-00001'), cnpj_fornecedor: null },
+  it('identidade sem documento gera snapshot com suid e nome', () => {
+    const snap = montarSnapshotIdentidadeComex(
+      { ...empresaBR('BR-X-00001'), cnpj_empresa: null },
       'exportador',
       'org-test',
     )
-
-    expect(snap.suid_empresa).toBe('BR-X-00001')
-    expect(snap.nome_empresa).toBe('ACME Importadora')
     expect(snap.documento_principal).toBeNull()
     expect(snap.tipo_documento).toBeNull()
   })
 
-  it('fornecedor sem id_fornecedor lança erro explícito', () => {
+  it('identidade sem suid lança erro explícito', () => {
     expect(() =>
-      montarSnapshotEmpresa(
-        { ...fornecedorBR('BR-X-00001'), id_fornecedor: '' },
+      montarSnapshotIdentidadeComex(
+        { ...empresaBR('BR-X-00001'), id_empresa: '' },
         'exportador',
         'org-test',
       ),
-    ).toThrow(/Fornecedor incompleto para snapshot/)
+    ).toThrow(/Empresa incompleto para snapshot/)
   })
 })

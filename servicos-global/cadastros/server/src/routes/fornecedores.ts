@@ -229,7 +229,7 @@ router.get('/', async (req, res, next) => {
   }
 })
 
-// GET /fornecedores/da-organizacao — compat Pedido: lê tabela empresa (SSOT §4.1).
+// GET /fornecedores/da-organizacao — @deprecated Use GET /empresas/da-organizacao (SSOT §4.1).
 router.get('/da-organizacao', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
@@ -248,7 +248,7 @@ router.get('/da-organizacao', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /fornecedores/:id_fornecedor — busca uma
+// GET /fornecedores/:id_fornecedor — parceiro COMEX (tabela fornecedor apenas)
 // ---------------------------------------------------------------------------
 router.get('/:id_fornecedor', async (req, res, next) => {
   try {

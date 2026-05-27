@@ -65,7 +65,8 @@ export interface CadastrosClient {
     atualizar: (suid: string, id_organizacao: string, dados: AtualizarFornecedorInput) => Promise<Fornecedor>
     desativar: (suid: string, id_organizacao: string) => Promise<Fornecedor>
     previewImpacto: (suid: string, id_organizacao: string) => Promise<PreviewImpacto>
-    obterDaOrganizacao: (id_organizacao: string) => Promise<Fornecedor>
+    /** @deprecated Use `empresas.obterDaOrganizacao` — empresa-da-org não é fornecedor. */
+    obterDaOrganizacao: (id_organizacao: string) => Promise<Empresa>
   }
   /** Identidade 1:1 da org — GET/POST /api/v1/empresas */
   empresas: {
@@ -205,29 +206,28 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
       )
     },
 
-    obterDaOrganizacao: async (idOrganizacao: string) => {
-      return chamar(
-        'GET',
-        '/api/v1/fornecedores/da-organizacao',
-        fornecedorSchema,
-        { idOrganizacao },
-      )
-    },
+  }
+
+  async function obterEmpresaDaOrganizacaoImpl(idOrganizacao: string): Promise<Empresa> {
+    const chave = `org:${idOrganizacao}`
+    const cacheado = cacheEmpresa.get(chave)
+    if (cacheado) return cacheado
+    const empresa = await chamar('GET', '/api/v1/empresas/da-organizacao', empresaSchema, {
+      idOrganizacao,
+    })
+    cacheEmpresa.set(chave, empresa)
+    return empresa
+  }
+
+  const fornecedoresComCompat = {
+    ...fornecedores,
+    obterDaOrganizacao: obterEmpresaDaOrganizacaoImpl,
   }
 
   return {
-    fornecedores,
+    fornecedores: fornecedoresComCompat,
     empresas: {
-      obterDaOrganizacao: async (idOrganizacao: string) => {
-        const chave = `org:${idOrganizacao}`
-        const cacheado = cacheEmpresa.get(chave)
-        if (cacheado) return cacheado
-        const empresa = await chamar('GET', '/api/v1/empresas/da-organizacao', empresaSchema, {
-          idOrganizacao,
-        })
-        cacheEmpresa.set(chave, empresa)
-        return empresa
-      },
+      obterDaOrganizacao: obterEmpresaDaOrganizacaoImpl,
       criar: async (dados: CriarEmpresaInput) => {
         const empresa = await chamar('POST', '/api/v1/empresas', empresaSchema, {
           body: dados,

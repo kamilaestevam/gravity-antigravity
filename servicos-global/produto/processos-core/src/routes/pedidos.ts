@@ -44,7 +44,7 @@ import {
 } from '../../../pedido/shared/mapaPropagacaoPedidoItem.js'
 import { superficiarCamposJsonPedido } from '../../../pedido/shared/camposJsonPedidoLista.js'
 import {
-  buscarEmpresasPorSuids,
+  buscarIdentidadesComexPorSuids,
   buscarMoedaPorCodigo,
   buscarNcmPorCodigo,
   buscarOpePorSuid,
@@ -55,7 +55,7 @@ import { validarUnidadesItem } from '../services/validarUnidadesItem.js'
 import { validarIncotermPedidoItem } from '../services/validarIncotermPedidoItem.js'
 import { validarLogisticaPedidoCampo } from '../services/validarLogisticaPedidoCampo.js'
 import {
-  montarSnapshotEmpresa,
+  montarSnapshotIdentidadeComex,
   montarSnapshotOpe,
   montarSnapshotNcm,
   montarSnapshotMoeda,
@@ -1327,7 +1327,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
     if (suid_exportador) papeisPorSuid.push({ suid: suid_exportador, papel: 'exportador' })
     if (suid_fabricante) papeisPorSuid.push({ suid: suid_fabricante, papel: 'fabricante' })
 
-    const empresasMap = await buscarEmpresasPorSuids(
+    const identidadesMap = await buscarIdentidadesComexPorSuids(
       papeisPorSuid.map((p) => p.suid),
       { id_organizacao: ctxTenant.idOrganizacao, correlation_id },
     )
@@ -1458,9 +1458,9 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
 
       const snapshotsData = papeisPorSuid
         .map(({ suid, papel }) => {
-          const empresa = empresasMap.get(suid)
-          if (!empresa) return null
-          return montarSnapshotEmpresa(empresa, papel, tenant_id, company_id)
+          const identidade = identidadesMap.get(suid)
+          if (!identidade) return null
+          return montarSnapshotIdentidadeComex(identidade, papel, tenant_id, company_id)
         })
         .filter((s): s is NonNullable<typeof s> => s !== null)
 

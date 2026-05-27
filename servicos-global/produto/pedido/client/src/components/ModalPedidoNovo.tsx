@@ -25,7 +25,7 @@ import { useIncotermsPedido } from '../shared/useIncotermsPedido'
 import { useShellStore } from '@gravity/shell'
 import type { TipoOperacao, PedidoItem, Pedido } from '../shared/types'
 import { pedidoApi } from '../shared/api'
-import { cadastrosApi, type Empresa, type PapelEmpresaRapido } from '../shared/cadastrosApi'
+import { cadastrosApi, type Empresa, type Fornecedor, type PapelEmpresaRapido } from '../shared/cadastrosApi'
 import { ModalEmpresaCadastroRapido } from './ModalEmpresaCadastroRapido'
 import { getCasas } from './lista/ColunasPai'
 
@@ -47,7 +47,7 @@ function casasValorTotal()     { return getCasas('valor_total_pedido', 2) }
 interface PedidoForm {
   tipo_operacao_pedido: TipoOperacao
   numero_pedido: string
-  // SUIDs referenciam Empresas no serviço Cadastros (snapshot)
+  // SUIDs referenciam Empresa (org) ou Fornecedor (parceiro) no Cadastros (snapshot)
   suid_importador: string
   suid_exportador: string
   suid_fabricante: string
@@ -324,9 +324,9 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   const [payloadPendente, setPayloadPendente] = useState<Record<string, unknown> | null>(null)
   const { addNotification } = useShellStore()
 
-  // ── Empresas (B3) — pré-carrega ao abrir e refresh quando cria nova ────────
-  const [empresas, setEmpresas]                       = useState<Empresa[]>([])
-  const [carregandoEmpresas, setCarregandoEmpresas]   = useState(false)
+  // ── Fornecedores (parceiros COMEX) — lista para contraparte/fabricante ───
+  const [fornecedores, setFornecedores]               = useState<Fornecedor[]>([])
+  const [carregandoFornecedores, setCarregandoFornecedores] = useState(false)
   const [cadastroEmpresaPapel, setCadastroEmpresaPapel] = useState<PapelEmpresaRapido | null>(null)
 
   // ── Empresa-da-organização (auto-preenchida no lado correspondente) ───────
@@ -339,19 +339,17 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   useEffect(() => {
     if (!aberto) return
     let cancelado = false
-    setCarregandoEmpresas(true)
+    setCarregandoFornecedores(true)
     cadastrosApi
-      .listarEmpresas()
+      .listarFornecedores()
       .then((resp) => {
-        if (!cancelado) setEmpresas(resp.itens.filter((e) => e.ativo_fornecedor))
+        if (!cancelado) setFornecedores(resp.itens.filter((f) => f.ativo_fornecedor))
       })
       .catch(() => {
-        // Falha silenciosa só na pré-carga (o usuário ainda pode cadastrar
-        // nova empresa pelo atalho — esse fluxo trata erro com mensagem).
-        if (!cancelado) setEmpresas([])
+        if (!cancelado) setFornecedores([])
       })
       .finally(() => {
-        if (!cancelado) setCarregandoEmpresas(false)
+        if (!cancelado) setCarregandoFornecedores(false)
       })
     return () => {
       cancelado = true
@@ -400,16 +398,14 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       if (prev.tipo_operacao_pedido === 'importacao') {
         return {
           ...prev,
-          suid_importador: empresaDaOrg.id_fornecedor,
-          // Limpa exportador antigo se ele apontava para a empresa-da-org
-          // (por ex. mudou de exportacao→importacao e ficou inconsistente)
-          suid_exportador: prev.suid_exportador === empresaDaOrg.id_fornecedor ? '' : prev.suid_exportador,
+          suid_importador: empresaDaOrg.id_empresa,
+          suid_exportador: prev.suid_exportador === empresaDaOrg.id_empresa ? '' : prev.suid_exportador,
         }
       }
       return {
         ...prev,
-        suid_exportador: empresaDaOrg.id_fornecedor,
-        suid_importador: prev.suid_importador === empresaDaOrg.id_fornecedor ? '' : prev.suid_importador,
+        suid_exportador: empresaDaOrg.id_empresa,
+        suid_importador: prev.suid_importador === empresaDaOrg.id_empresa ? '' : prev.suid_importador,
       }
     })
   }, [form.tipo_operacao_pedido, empresaDaOrg])
@@ -424,19 +420,22 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       papel === 'importador' ? 'pode_ser_importador_fornecedor'
       : papel === 'exportador' ? 'pode_ser_exportador_fornecedor'
       : 'pode_ser_fabricante_fornecedor'
-    return empresas
-      .filter((e) => e[papelKey])
-      .map((e) => ({
-        valor: e.id_fornecedor,
-        rotulo: `${e.nome_fornecedor} (${e.pais_fornecedor})`,
+    return fornecedores
+      .filter((f) => f[papelKey])
+      .map((f) => ({
+        valor: f.id_fornecedor,
+        rotulo: `${f.nome_fornecedor} (${f.pais_fornecedor})`,
       }))
   }
 
-  function aoCriarEmpresa(empresa: Empresa) {
-    setEmpresas((prev) => [empresa, ...prev.filter((e) => e.id_fornecedor !== empresa.id_fornecedor)])
-    if (cadastroEmpresaPapel === 'importador') set('suid_importador', empresa.id_fornecedor)
-    if (cadastroEmpresaPapel === 'exportador') set('suid_exportador', empresa.id_fornecedor)
-    if (cadastroEmpresaPapel === 'fabricante') set('suid_fabricante', empresa.id_fornecedor)
+  function aoCriarFornecedor(fornecedor: Fornecedor) {
+    setFornecedores((prev) => [
+      fornecedor,
+      ...prev.filter((f) => f.id_fornecedor !== fornecedor.id_fornecedor),
+    ])
+    if (cadastroEmpresaPapel === 'importador') set('suid_importador', fornecedor.id_fornecedor)
+    if (cadastroEmpresaPapel === 'exportador') set('suid_exportador', fornecedor.id_fornecedor)
+    if (cadastroEmpresaPapel === 'fabricante') set('suid_fabricante', fornecedor.id_fornecedor)
     setCadastroEmpresaPapel(null)
   }
 
@@ -501,7 +500,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
     | { tipo: 'sem_cnpj'; nome: string }
   function diagnosticarEmpresa(suid: string, esperaEstrangeira: boolean): DiagnosticoEmpresa | null {
     if (!suid) return null
-    const e = empresas.find((x) => x.id_fornecedor === suid)
+    const e = fornecedores.find((x) => x.id_fornecedor === suid)
     if (!e) return null
     if (esperaEstrangeira && e.pais_fornecedor === 'BR') {
       return { tipo: 'pais_br', nome: e.nome_fornecedor }
@@ -743,11 +742,11 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
             form={form}
             erros={erros}
             onChange={set}
-            empresas={empresas}
+            fornecedores={fornecedores}
             opcoesImportador={opcoesEmpresaPara('importador')}
             opcoesExportador={opcoesEmpresaPara('exportador')}
             opcoesFabricante={opcoesEmpresaPara('fabricante')}
-            carregandoEmpresas={carregandoEmpresas}
+            carregandoFornecedores={carregandoFornecedores}
             empresaDaOrg={empresaDaOrg}
             carregandoEmpresaDaOrg={carregandoEmpresaDaOrg}
             erroEmpresaDaOrg={erroEmpresaDaOrg}
@@ -782,7 +781,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
           (cadastroEmpresaPapel === 'fabricante' && form.tipo_operacao_pedido === 'importacao')
         }
         onFechar={() => setCadastroEmpresaPapel(null)}
-        onCriado={aoCriarEmpresa}
+        onCriado={aoCriarFornecedor}
       />
       <ModalOverlay
         aberto={confirmarDuplicataAberto}
@@ -990,7 +989,7 @@ function CampoEmpresaDaOrg({
           {carregando
             ? '…'
             : empresa
-            ? `${empresa.nome_fornecedor}${empresa.cnpj_fornecedor ? ` — ${empresa.cnpj_fornecedor}` : ''}`
+            ? `${empresa.nome_empresa}${empresa.cnpj_empresa ? ` — ${empresa.cnpj_empresa}` : ''}`
             : '—'}
         </span>
       </div>
@@ -1002,11 +1001,11 @@ function Passo1Dados({
   form,
   erros,
   onChange,
-  empresas,
+  fornecedores,
   opcoesImportador,
   opcoesExportador,
   opcoesFabricante,
-  carregandoEmpresas,
+  carregandoFornecedores,
   empresaDaOrg,
   carregandoEmpresaDaOrg,
   erroEmpresaDaOrg,
@@ -1018,11 +1017,11 @@ function Passo1Dados({
   form: PedidoForm
   erros: ErrosValidacao
   onChange: (campo: keyof PedidoForm, valor: string) => void
-  empresas: Empresa[]
+  fornecedores: Fornecedor[]
   opcoesImportador: OpcaoEmpresaSelect[]
   opcoesExportador: OpcaoEmpresaSelect[]
   opcoesFabricante: OpcaoEmpresaSelect[]
-  carregandoEmpresas: boolean
+  carregandoFornecedores: boolean
   empresaDaOrg: Empresa | null
   carregandoEmpresaDaOrg: boolean
   erroEmpresaDaOrg: string | null
@@ -1049,20 +1048,21 @@ function Passo1Dados({
   // selecionar uma empresa BR que jamais geraria snapshot válido (CNPJ não
   // se aplica e snapshot exige documento por país).
   const suidsBr = useMemo(
-    () => new Set(empresas.filter((e) => e.pais_fornecedor === 'BR').map((e) => e.id_fornecedor)),
-    [empresas],
+    () => new Set(fornecedores.filter((f) => f.pais_fornecedor === 'BR').map((f) => f.id_fornecedor)),
+    [fornecedores],
   )
+  const suidEmpresaOrg = empresaDaOrg?.id_empresa ?? null
   const opcoesContraparteImportador = useMemo(
     () => opcoesImportador
-      .filter((o) => o.valor !== empresaDaOrg?.id_fornecedor)
+      .filter((o) => o.valor !== suidEmpresaOrg)
       .filter((o) => !suidsBr.has(String(o.valor))),
-    [opcoesImportador, empresaDaOrg, suidsBr],
+    [opcoesImportador, suidEmpresaOrg, suidsBr],
   )
   const opcoesContraparteExportador = useMemo(
     () => opcoesExportador
-      .filter((o) => o.valor !== empresaDaOrg?.id_fornecedor)
+      .filter((o) => o.valor !== suidEmpresaOrg)
       .filter((o) => !suidsBr.has(String(o.valor))),
-    [opcoesExportador, empresaDaOrg, suidsBr],
+    [opcoesExportador, suidEmpresaOrg, suidsBr],
   )
   // Fabricante em IMPORTAÇÃO é estrangeiro (estamos importando produção feita
   // fora). Em EXPORTAÇÃO o fabricante é BR (produção nacional sendo exportada).
@@ -1155,7 +1155,7 @@ function Passo1Dados({
                 obrigatorio
                 opcoes={opcoesContraparteExportador}
                 valor={form.suid_exportador || null}
-                carregando={carregandoEmpresas}
+                carregando={carregandoFornecedores}
                 desabilitado={camposBloqueados}
                 onSelecionar={(v) => onChange('suid_exportador', String(v ?? ''))}
                 onCadastrarNova={() => aoCadastrarNova('exportador')}
@@ -1175,7 +1175,7 @@ function Passo1Dados({
                 obrigatorio
                 opcoes={opcoesContraparteImportador}
                 valor={form.suid_importador || null}
-                carregando={carregandoEmpresas}
+                carregando={carregandoFornecedores}
                 desabilitado={camposBloqueados}
                 onSelecionar={(v) => onChange('suid_importador', String(v ?? ''))}
                 onCadastrarNova={() => aoCadastrarNova('importador')}
@@ -1199,7 +1199,7 @@ function Passo1Dados({
             label={t('pedido.drawer.label_fabricante')}
             opcoes={opcoesFabricanteFiltrado}
             valor={form.suid_fabricante || null}
-            carregando={carregandoEmpresas}
+            carregando={carregandoFornecedores}
             desabilitado={camposBloqueados}
             onSelecionar={(v) => onChange('suid_fabricante', String(v ?? ''))}
             onCadastrarNova={() => aoCadastrarNova('fabricante')}

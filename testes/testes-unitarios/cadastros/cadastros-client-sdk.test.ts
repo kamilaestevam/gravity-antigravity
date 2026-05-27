@@ -44,10 +44,42 @@ describe('criarCadastrosClient — fornecedorSchema em rotas /fornecedores', () 
     fetchMock = vi.fn()
   })
 
-  it('obterDaOrganizacao valida resposta com fornecedorSchema', async () => {
+  it('empresas.obterDaOrganizacao valida resposta com empresaSchema', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
-      text: async () => JSON.stringify(fornecedorJson()),
+      text: async () =>
+        JSON.stringify({
+          id_empresa: 'BR-ORG-001',
+          id_organizacao: 'org-sdk',
+          nome_empresa: 'Org SDK',
+          cnpj_empresa: '12.345.678/0001-99',
+          tin_empresa: null,
+          pais_empresa: 'BR',
+          estado_provincia_empresa: null,
+          cidade_empresa: null,
+          endereco_empresa: null,
+          cep_zipcode_empresa: null,
+          email_principal_empresa: null,
+          telefone_principal_empresa: null,
+          whatsapp_principal_empresa: null,
+          pode_ser_importador_empresa: true,
+          pode_ser_exportador_empresa: false,
+          pode_ser_fabricante_empresa: false,
+          pode_ser_agente_empresa: false,
+          pode_ser_despachante_empresa: false,
+          pode_ser_armador_empresa: false,
+          pode_ser_cia_aerea_empresa: false,
+          pode_ser_transportadora_rodoviaria_nacional_empresa: false,
+          pode_ser_transportadora_rodoviaria_internacional_empresa: false,
+          pode_ser_armazem_alfandegado_empresa: false,
+          pode_ser_armazem_nacional_empresa: false,
+          pode_ser_banco_empresa: false,
+          pode_ser_seguradora_internacional_empresa: false,
+          pode_ser_seguradora_corretora_cambio_empresa: false,
+          ativo_empresa: true,
+          criado_em_empresa: '2026-05-01T12:00:00.000Z',
+          atualizado_em_empresa: '2026-05-01T12:00:00.000Z',
+        }),
     })
 
     const client = criarCadastrosClient({
@@ -56,10 +88,10 @@ describe('criarCadastrosClient — fornecedorSchema em rotas /fornecedores', () 
       fetchImpl: fetchMock as typeof fetch,
     })
 
-    const fornecedor = await client.fornecedores.obterDaOrganizacao('org-sdk')
-    expect(fornecedor.id_fornecedor).toBe('forn-sdk-001')
+    const empresa = await client.empresas.obterDaOrganizacao('org-sdk')
+    expect(empresa.id_empresa).toBe('BR-ORG-001')
     expect(fetchMock).toHaveBeenCalledWith(
-      'http://cadastros.test/api/v1/fornecedores/da-organizacao',
+      'http://cadastros.test/api/v1/empresas/da-organizacao',
       expect.objectContaining({
         method: 'GET',
         headers: expect.objectContaining({

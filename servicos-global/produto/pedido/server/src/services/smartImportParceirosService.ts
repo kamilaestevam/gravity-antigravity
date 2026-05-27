@@ -6,7 +6,7 @@
  * Chamado ANTES de `withOrganizacao` — I/O de rede não pode segurar transação Prisma.
  */
 
-import type { Fornecedor } from '../../../../cadastros/shared/schemas/fornecedor.schema.js'
+import type { Empresa, Fornecedor } from '../../../../cadastros/shared/schemas/index.js'
 import type { CadastrosRequestContext } from '../../../../processos-core/src/services/cadastrosClient.js'
 import {
   criarFornecedor,
@@ -14,7 +14,7 @@ import {
   obterEmpresaDaOrganizacao,
 } from '../../../../processos-core/src/services/cadastrosClient.js'
 import {
-  montarSnapshotEmpresa,
+  montarSnapshotIdentidadeComex,
   type PapelEmpresa,
   type SnapshotEmpresaData,
 } from '../../../../processos-core/src/services/pedidoSnapshots.js'
@@ -266,19 +266,13 @@ function montarPayloadCriarFornecedor(
   }
 }
 
-function fornecedorParaSnapshot(
-  fornecedor: Fornecedor,
+function identidadeParaSnapshot(
+  identidade: Empresa | Fornecedor,
   papel: PapelEmpresa,
   idOrganizacao: string,
   idWorkspace: string,
 ): SnapshotEmpresaData {
-  return montarSnapshotEmpresa(
-    fornecedor as unknown as Parameters<typeof montarSnapshotEmpresa>[0],
-    papel,
-    idOrganizacao,
-    idWorkspace,
-    'emissao',
-  )
+  return montarSnapshotIdentidadeComex(identidade, papel, idOrganizacao, idWorkspace, 'emissao')
 }
 
 async function resolverFornecedorPlanilha(
@@ -318,7 +312,7 @@ export async function resolverParceirosSmartImport(
   if (agregados.size === 0) return resultado
 
   const cacheFornecedores = new Map<string, Fornecedor>()
-  let empresaOrg: Fornecedor | null = null
+  let empresaOrg: Empresa | null = null
 
   for (const [numero, { campos, tipo_operacao }] of agregados) {
     const dadosExportador = extrairDadosExportador(campos)
@@ -337,28 +331,28 @@ export async function resolverParceirosSmartImport(
         empresaOrg = await obterEmpresaDaOrganizacao(ctx)
       }
       if (empresaOrg) {
-        suidImportador = empresaOrg.id_fornecedor
-        snapshots.push(fornecedorParaSnapshot(empresaOrg, 'importador', ctx.id_organizacao, idWorkspace))
+        suidImportador = empresaOrg.id_empresa
+        snapshots.push(identidadeParaSnapshot(empresaOrg, 'importador', ctx.id_organizacao, idWorkspace))
       }
 
       if (dadosExportador) {
         const exportador = await resolverFornecedorPlanilha(dadosExportador, 'exportador', ctx, cacheFornecedores)
         suidExportador = exportador.id_fornecedor
-        snapshots.push(fornecedorParaSnapshot(exportador, 'exportador', ctx.id_organizacao, idWorkspace))
+        snapshots.push(identidadeParaSnapshot(exportador, 'exportador', ctx.id_organizacao, idWorkspace))
       }
     } else {
       if (!empresaOrg) {
         empresaOrg = await obterEmpresaDaOrganizacao(ctx)
       }
       if (empresaOrg) {
-        suidExportador = empresaOrg.id_fornecedor
-        snapshots.push(fornecedorParaSnapshot(empresaOrg, 'exportador', ctx.id_organizacao, idWorkspace))
+        suidExportador = empresaOrg.id_empresa
+        snapshots.push(identidadeParaSnapshot(empresaOrg, 'exportador', ctx.id_organizacao, idWorkspace))
       }
 
       if (dadosImportador) {
         const importador = await resolverFornecedorPlanilha(dadosImportador, 'importador', ctx, cacheFornecedores)
         suidImportador = importador.id_fornecedor
-        snapshots.push(fornecedorParaSnapshot(importador, 'importador', ctx.id_organizacao, idWorkspace))
+        snapshots.push(identidadeParaSnapshot(importador, 'importador', ctx.id_organizacao, idWorkspace))
       }
     }
 
@@ -385,7 +379,7 @@ export async function resolverParceirosSmartImport(
         } else {
           const fabricante = await resolverFornecedorPlanilha(dadosFabricante, 'fabricante', ctx, cacheFornecedores)
           suidFabricante = fabricante.id_fornecedor
-          snapshots.push(fornecedorParaSnapshot(fabricante, 'fabricante', ctx.id_organizacao, idWorkspace))
+          snapshots.push(identidadeParaSnapshot(fabricante, 'fabricante', ctx.id_organizacao, idWorkspace))
         }
       } else if (nomesDistintos.length > 1) {
         for (const nomeNorm of nomesDistintos) {

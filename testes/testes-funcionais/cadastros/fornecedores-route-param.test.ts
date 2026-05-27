@@ -29,4 +29,14 @@ describe('fornecedores.ts — param da rota :id_fornecedor', () => {
     const conteudo = lerArquivo('servicos-global/cadastros/scripts/gen-fornecedores-route.mjs')
     expect(conteudo).toContain("['req.params.id_empresa', 'req.params.id_fornecedor']")
   })
+
+  it('GET /:id_fornecedor consulta apenas tabela fornecedor (parceiros)', () => {
+    const conteudo = lerArquivo('servicos-global/cadastros/server/src/routes/fornecedores.ts')
+    const blocoGet = conteudo.slice(
+      conteudo.indexOf("router.get('/:id_fornecedor'"),
+      conteudo.indexOf("router.get('/:id_fornecedor/preview-impacto'"),
+    )
+    expect(blocoGet).toContain('prisma.fornecedor.findFirst')
+    expect(blocoGet).not.toContain('prisma.empresa.findFirst')
+  })
 })

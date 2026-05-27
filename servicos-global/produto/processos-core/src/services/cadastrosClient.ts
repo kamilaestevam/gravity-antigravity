@@ -5,8 +5,8 @@
  * Empresas envolvidas pelo SUID e grava um PedidoSnapshotEmpresa por papel
  * (importador/exportador/fabricante). Sem FK física — SUID é referência lógica.
  *
- * Contratos bilaterais (Mandamento 09): `fornecedorSchema` importado de
- * `cadastros/shared/schemas`. Nunca duplicar o schema Zod aqui.
+ * Contratos bilaterais (Mandamento 09): `empresaSchema` e `fornecedorSchema`
+ * importados de `cadastros/shared/schemas`. Nunca duplicar Zod aqui.
  *
  * Autenticação: `x-internal-key` (CHAVE_INTERNA_SERVICO).
  * Tenant context: `x-organizacao-id` (id da Organizacao dona do Pedido).
@@ -18,6 +18,7 @@
 import { z } from 'zod'
 import {
   fornecedorSchema,
+  empresaSchema,
   criarFornecedorSchema,
   incotermSchema,
   moedaSchema,
@@ -25,6 +26,8 @@ import {
   opeSchema,
   unidadeSchema,
   type Fornecedor,
+  type Empresa,
+  type IdentidadeComex,
   type Incoterm,
   type Moeda,
   type NCM,
@@ -78,30 +81,27 @@ async function lerCorpoErro(response: Response): Promise<string> {
   }
 }
 
-/**
- * Busca uma Empresa no Cadastros pelo SUID.
- *
- * - 404 → erro de contrato do chamador (SUID inválido): `AppError(400)`
- * - 5xx / rede / timeout → `AppError(503)` para o caller decidir retry
- * - 2xx → valida resposta com `fornecedorSchema` (contrato bilateral)
- */
-export async function buscarEmpresaPorSuid(
-  suid: string,
+async function fetchCadastrosGet(
+  path: string,
   ctx: CadastrosRequestContext,
-): Promise<Fornecedor> {
-  let response: Response
+): Promise<Response> {
   try {
-    response = await fetch(
-      `${getCadastrosUrl()}/api/v1/fornecedores/${encodeURIComponent(suid)}`,
-      {
-        method: 'GET',
-        headers: headersPadrao(ctx),
-        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      },
-    )
+    return await fetch(`${getCadastrosUrl()}${path}`, {
+      method: 'GET',
+      headers: headersPadrao(ctx),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    })
   } catch {
     throw new AppError(503, 'Serviço Cadastros indisponível (rede/timeout)')
   }
+}
+
+/** GET /empresas/:id_empresa — identidade 1:1 da organização. */
+export async function buscarEmpresaCadastrosPorSuid(
+  suid: string,
+  ctx: CadastrosRequestContext,
+): Promise<Empresa> {
+  const response = await fetchCadastrosGet(`/api/v1/empresas/${encodeURIComponent(suid)}`, ctx)
 
   if (response.status === 404) {
     throw new AppError(400, `Empresa nao encontrada no Cadastros (suid=${suid})`)
@@ -116,29 +116,87 @@ export async function buscarEmpresaPorSuid(
   }
 
   const raw = await response.json()
+  return empresaSchema.parse(raw)
+}
+
+/** GET /fornecedores/:id_fornecedor — parceiro COMEX. */
+export async function buscarFornecedorPorSuid(
+  suid: string,
+  ctx: CadastrosRequestContext,
+): Promise<Fornecedor> {
+  const response = await fetchCadastrosGet(`/api/v1/fornecedores/${encodeURIComponent(suid)}`, ctx)
+
+  if (response.status === 404) {
+    throw new AppError(400, `Fornecedor nao encontrado no Cadastros (suid=${suid})`)
+  }
+
+  if (!response.ok) {
+    const corpo = await lerCorpoErro(response)
+    if (response.status >= 400 && response.status < 500) {
+      throw new AppError(response.status, `Cadastros rejeitou busca de Fornecedor: ${corpo}`)
+    }
+    throw new AppError(503, `Cadastros falhou com status ${response.status}`)
+  }
+
+  const raw = await response.json()
   return fornecedorSchema.parse(raw)
 }
 
 /**
- * Busca várias Empresas em paralelo. SUIDs duplicados são deduplicados antes
- * de chamar a rede. Retorna um mapa { suid → Empresa } para o caller indexar
- * por papel sem amarrar ordem.
- *
- * IMPORTANTE: chamar SEMPRE fora de `$transaction` — I/O de rede não deve
- * segurar conexão Prisma.
+ * Resolve identidade COMEX por SUID: tenta `empresa` e depois `fornecedor`.
  */
-export async function buscarEmpresasPorSuids(
+export async function buscarIdentidadeComexPorSuid(
+  suid: string,
+  ctx: CadastrosRequestContext,
+): Promise<IdentidadeComex> {
+  const resEmpresa = await fetchCadastrosGet(`/api/v1/empresas/${encodeURIComponent(suid)}`, ctx)
+  if (resEmpresa.ok) {
+    return empresaSchema.parse(await resEmpresa.json())
+  }
+  if (resEmpresa.status !== 404) {
+    const corpo = await lerCorpoErro(resEmpresa)
+    if (resEmpresa.status >= 400 && resEmpresa.status < 500) {
+      throw new AppError(resEmpresa.status, `Cadastros rejeitou busca de Empresa: ${corpo}`)
+    }
+    throw new AppError(503, `Cadastros falhou com status ${resEmpresa.status}`)
+  }
+
+  const resFornecedor = await fetchCadastrosGet(`/api/v1/fornecedores/${encodeURIComponent(suid)}`, ctx)
+  if (resFornecedor.ok) {
+    return fornecedorSchema.parse(await resFornecedor.json())
+  }
+  if (resFornecedor.status === 404) {
+    throw new AppError(400, `Identidade COMEX nao encontrada no Cadastros (suid=${suid})`)
+  }
+  const corpo = await lerCorpoErro(resFornecedor)
+  if (resFornecedor.status >= 400 && resFornecedor.status < 500) {
+    throw new AppError(resFornecedor.status, `Cadastros rejeitou busca de Fornecedor: ${corpo}`)
+  }
+  throw new AppError(503, `Cadastros falhou com status ${resFornecedor.status}`)
+}
+
+/** @deprecated Use `buscarIdentidadeComexPorSuid`. */
+export const buscarEmpresaPorSuid = buscarIdentidadeComexPorSuid
+
+/**
+ * Busca identidades COMEX em paralelo (empresa ou fornecedor por SUID).
+ * IMPORTANTE: chamar SEMPRE fora de `$transaction`.
+ */
+export async function buscarIdentidadesComexPorSuids(
   suids: readonly string[],
   ctx: CadastrosRequestContext,
-): Promise<Map<string, Fornecedor>> {
+): Promise<Map<string, IdentidadeComex>> {
   const unicos = Array.from(new Set(suids.filter((s) => s.length > 0)))
   if (unicos.length === 0) return new Map()
 
   const resultados = await Promise.all(
-    unicos.map(async (suid) => [suid, await buscarEmpresaPorSuid(suid, ctx)] as const),
+    unicos.map(async (suid) => [suid, await buscarIdentidadeComexPorSuid(suid, ctx)] as const),
   )
   return new Map(resultados)
 }
+
+/** @deprecated Use `buscarIdentidadesComexPorSuids`. */
+export const buscarEmpresasPorSuids = buscarIdentidadesComexPorSuids
 
 // ────────────────────────────────────────────────────────────────────────────
 // FASE 06E — Frente 1 (Agente 4): Snapshot inicial das demais 4 entidades
@@ -466,20 +524,11 @@ export async function criarFornecedor(
   return fornecedorSchema.parse(raw)
 }
 
-/** Empresa da organização (importador em importação / exportador em exportação). */
+/** Empresa 1:1 da organização — `GET /empresas/da-organizacao` (SSOT §4.1). */
 export async function obterEmpresaDaOrganizacao(
   ctx: CadastrosRequestContext,
-): Promise<Fornecedor | null> {
-  let response: Response
-  try {
-    response = await fetch(`${getCadastrosUrl()}/api/v1/fornecedores/da-organizacao`, {
-      method: 'GET',
-      headers: headersPadrao(ctx),
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-    })
-  } catch {
-    throw new AppError(503, 'Serviço Cadastros indisponível (rede/timeout)')
-  }
+): Promise<Empresa | null> {
+  const response = await fetchCadastrosGet('/api/v1/empresas/da-organizacao', ctx)
 
   if (response.status === 404) return null
 
@@ -489,5 +538,5 @@ export async function obterEmpresaDaOrganizacao(
   }
 
   const raw = await response.json()
-  return fornecedorSchema.parse(raw)
+  return empresaSchema.parse(raw)
 }

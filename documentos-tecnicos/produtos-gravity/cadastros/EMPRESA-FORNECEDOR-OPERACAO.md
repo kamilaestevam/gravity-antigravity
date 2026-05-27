@@ -83,11 +83,12 @@ O client `@tenant/cadastros` expõe `fornecedores` e `empresas` separados — **
 
 ---
 
-## Pedido — consumo
+## Pedido — consumo (atualizado 27/05/2026)
 
-- **Novo Pedido:** `obterEmpresaDaOrganizacao` → Cadastros `/fornecedores/da-organizacao`
-- **Snapshot emissão:** `fornecedorSchema` via `cadastrosClient` (processos-core)
-- **Dívida arquitetural:** modal ainda fala "empresa da org" mas contrato é fornecedor-compat — evoluir para `/empresas/da-organizacao` + `empresaSchema` quando UI migrar
+- **Empresa-da-org:** `GET /api/v1/empresas/da-organizacao` + `empresaSchema` (client e `cadastrosClient.obterEmpresaDaOrganizacao`)
+- **Parceiros (select/cadastro rápido):** `GET/POST /api/v1/fornecedores` + `fornecedorSchema`
+- **Snapshot emissão:** `buscarIdentidadeComexPorSuid` → empresa primeiro, fornecedor depois; `montarSnapshotIdentidadeComex` aceita `Empresa | Fornecedor`
+- **Legado:** `GET /fornecedores/da-organizacao` permanece `@deprecated` (redireciona leitura para tabela `empresa`)
 
 ---
 

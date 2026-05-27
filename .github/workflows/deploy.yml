@@ -27,6 +27,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
       - run: npm install
+      - name: Generate Prisma Clients (query engines Linux)
+        run: bash scripts/ativamente/generate-prisma-clients-ci.sh
       - run: npx vitest run --reporter=verbose
         timeout-minutes: 10
 

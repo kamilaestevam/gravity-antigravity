@@ -70,6 +70,7 @@
     "check:audit-coverage": "npx tsx scripts/ativamente/check-audit-coverage.ts",
     "check:env-toplevel": "npx tsx scripts/ativamente/check-env-toplevel.ts",
     "check:imports-produto-irmao": "npx tsx scripts/ativamente/check-imports-produto-irmao.ts",
+    "generate:prisma-ci": "bash scripts/ativamente/generate-prisma-clients-ci.sh",
     "prepare": "husky"
   },
   "lint-staged": {

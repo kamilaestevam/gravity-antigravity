@@ -295,7 +295,10 @@ export function buildColunasCotacoes(t: unknown): GTColuna<Cotacao>[] {
       label: 'Valor Alvo',
       tipo: 'numero',
       align: 'right',
-      render: (val: unknown, item: Cotacao) => val != null ? `${item.moeda_alvo} ${fmtQuantidade(val as number, 2)}` : '—',
+      render: (val: unknown, item: Cotacao) =>
+        val != null
+          ? `${item.moeda_meta_cotacao_bid_frete_internacional ?? 'USD'} ${fmtQuantidade(val as number, 2)}`
+          : '—',
     },
     {
       key: 'prazo_resposta',

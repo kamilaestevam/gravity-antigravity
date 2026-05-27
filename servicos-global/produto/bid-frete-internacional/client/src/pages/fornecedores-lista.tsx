@@ -332,7 +332,7 @@ export default function Fornecedores() {
             dados={fornecedores}
             colunas={colunas}
             acoes={acoes}
-            idKey="id"
+            idKey="id_fornecedor_bid_frete_internacional"
             mensagemVazio={t('bidfrete.fornecedores.vazio')}
             tooltipBusca={t('bidfrete.fornecedores.buscar_tabela')}
           />

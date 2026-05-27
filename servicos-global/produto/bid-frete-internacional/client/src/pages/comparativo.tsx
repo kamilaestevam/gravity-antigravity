@@ -563,7 +563,7 @@ export default function Comparativo() {
             dados={respostasOrdenadas}
             colunas={colunas}
             acoes={acoes}
-            idKey="id"
+            idKey="id_proposta_bid_frete_internacional"
             mensagemVazio={t('bidfrete.comparativo.sem_respostas')}
             tooltipBusca={t('bidfrete.detalhe_cotacao.buscar_fornecedor')}
           />
@@ -601,7 +601,7 @@ export default function Comparativo() {
               </div>
               <div className="bf-modal_cotacao_bid_frete_internacional-detail">
                 <span className="bf-modal_cotacao_bid_frete_internacional-detail-label">{t('bidfrete.detalhe_cotacao.resp_validade')}</span>
-                <span className="bf-modal_cotacao_bid_frete_internacional-detail-valor">{dataBR(respostaSelecionada.validade)}</span>
+                <span className="bf-modal_cotacao_bid_frete_internacional-detail-valor">{dataBR(respostaSelecionada.validade_proposta_bid_frete_internacional)}</span>
               </div>
             </div>
             {respostaSelecionada.observacoes_proposta_bid_frete_internacional && (

@@ -150,7 +150,7 @@ export default function DetalheFornecedor() {
   const tituloTopo = useMemo(() => ({
     label:     fornecedor?.nome_fornecedor_bid_frete_internacional ?? t('bidfrete.detalhe_fornecedor.carregando'),
     icone:     <Buildings weight="duotone" size={22} />,
-    subtitulo: fornecedor?.nome_fantasia ?? undefined,
+    subtitulo: fornecedor?.nome_fantasia_fornecedor_bid_frete_internacional ?? undefined,
   }), [fornecedor, t])
 
   useSincronizarTituloPaginaTopo(tituloTopo)
@@ -288,7 +288,7 @@ export default function DetalheFornecedor() {
               <div className="bf-det-metric-value">
                 {fornecedor.nota_global_classificacao_bid_frete_internacional != null ? fornecedor.nota_global_classificacao_bid_frete_internacional.toFixed(1) : '—'}
               </div>
-              <Stars rating={fornecedor.nota_global_classificacao_bid_frete_internacional} size={16} />
+              <Stars rating={fornecedor.nota_global_classificacao_bid_frete_internacional ?? null} size={16} />
             </div>
             <div className="bf-det-metric">
               <div className="bf-det-metric-icon"><Percent weight="duotone" size={18} style={{ color: 'var(--accent, #6366f1)' }} /></div>
@@ -343,55 +343,55 @@ export default function DetalheFornecedor() {
                   label={t('bidfrete.detalhe_fornecedor.field_tipo')}
                   value={
                     <Badge
-                      label={TIPO_FORNECEDOR_LABELS[fornecedor.tipo]}
-                      bg={TIPO_FORNECEDOR_COLORS[fornecedor.tipo].bg}
-                      color={TIPO_FORNECEDOR_COLORS[fornecedor.tipo].color}
+                      label={TIPO_FORNECEDOR_LABELS[fornecedor.tipo_fornecedor_bid_frete_internacional]}
+                      bg={TIPO_FORNECEDOR_COLORS[fornecedor.tipo_fornecedor_bid_frete_internacional].bg}
+                      color={TIPO_FORNECEDOR_COLORS[fornecedor.tipo_fornecedor_bid_frete_internacional].color}
                     />
                   }
                 />
                 <InfoField
                   icon={<IdentificationCard weight="duotone" size={16} />}
                   label={t('bidfrete.detalhe_fornecedor.field_cnpj')}
-                  value={fornecedor.cnpj ?? '—'}
+                  value={fornecedor.cnpj_fornecedor_bid_frete_internacional ?? '—'}
                 />
                 <InfoField
                   icon={<EnvelopeSimple weight="duotone" size={16} />}
                   label={t('bidfrete.detalhe_fornecedor.field_email')}
-                  value={fornecedor.email}
+                  value={fornecedor.email_fornecedor_bid_frete_internacional}
                 />
                 <InfoField
                   icon={<Phone weight="duotone" size={16} />}
                   label={t('bidfrete.detalhe_fornecedor.field_telefone')}
-                  value={fornecedor.telefone ?? '—'}
+                  value={fornecedor.telefone_fornecedor_bid_frete_internacional ?? '—'}
                 />
                 <InfoField
                   icon={<WhatsappLogo weight="duotone" size={16} />}
                   label={t('bidfrete.detalhe_fornecedor.field_whatsapp')}
-                  value={fornecedor.whatsapp ?? '—'}
+                  value={fornecedor.whatsapp_fornecedor_bid_frete_internacional ?? '—'}
                 />
                 <InfoField
                   icon={<Globe weight="duotone" size={16} />}
                   label={t('bidfrete.detalhe_fornecedor.field_website')}
-                  value={fornecedor.website ? (
+                  value={fornecedor.website_fornecedor_bid_frete_internacional ? (
                     <a
-                      href={fornecedor.website}
+                      href={fornecedor.website_fornecedor_bid_frete_internacional}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color: 'var(--accent, #6366f1)', textDecoration: 'none' }}
                     >
-                      {fornecedor.website}
+                      {fornecedor.website_fornecedor_bid_frete_internacional}
                     </a>
                   ) : '—'}
                 />
                 <InfoField
                   icon={<Flag weight="duotone" size={16} />}
                   label={t('bidfrete.detalhe_fornecedor.field_pais')}
-                  value={fornecedor.pais ?? '—'}
+                  value={fornecedor.pais_fornecedor_bid_frete_internacional ?? '—'}
                 />
                 <InfoField
                   icon={<MapPin weight="duotone" size={16} />}
                   label={t('bidfrete.detalhe_fornecedor.field_cidade')}
-                  value={fornecedor.cidade ?? '—'}
+                  value={fornecedor.cidade_fornecedor_bid_frete_internacional ?? '—'}
                 />
                 <InfoField
                   icon={fornecedor.status_fornecedor_bid_frete_internacional === 'ATIVO'
@@ -431,7 +431,7 @@ export default function DetalheFornecedor() {
                 <TabelaGlobal
                   dados={tabela}
                   colunas={colunasPrecos}
-                  idKey="id"
+                  idKey="id_fornecedor_bid_frete_internacional"
                   mensagemVazio={t('bidfrete.detalhe_fornecedor.vazio_precos')}
                   tooltipBusca={t('bidfrete.detalhe_fornecedor.buscar_precos')}
                 />

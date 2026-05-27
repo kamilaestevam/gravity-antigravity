@@ -12,7 +12,7 @@
 //   emailAddress, redirectUrl: `${APP_BASE_URL}/cadastro/continuar`
 // }) — ver server/routes/usuario.ts e admin.ts.
 
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useSignUp } from '@clerk/clerk-react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -54,6 +54,73 @@ function avaliarSenha(senha: string): {
 const CORES_FORCA = ['#475569', '#ef4444', '#f59e0b', '#22c55e', '#34d399']
 const LABEL_FORCA = ['', 'Fraca', 'Razoável', 'Forte', 'Muito forte']
 
+/** Dados mínimos do signUp Clerk usados para pré-popular o formulário. */
+interface SignUpDadosConvite {
+  emailAddress?: string | null
+  firstName?: string | null
+  lastName?: string | null
+}
+
+/**
+ * Tickets Clerk são single-use. Em dev, React StrictMode remonta o componente
+ * e o useRef interno zera — a 2ª chamada queimava o ticket e mostrava falso
+ * "convite inválido" mesmo com o 1º create bem-sucedido (smoke dono 2026-05-27).
+ * Mapa no escopo do módulo deduplica a Promise entre montagens simultâneas.
+ */
+const promessasTicketConvite = new Map<string, Promise<SignUpDadosConvite>>()
+
+function preencherFormularioDoConvite(
+  dados: SignUpDadosConvite,
+  setEmailConvite: (v: string) => void,
+  setNome: (v: string) => void,
+) {
+  if (dados.emailAddress) setEmailConvite(dados.emailAddress)
+  const fn = (dados.firstName ?? '').trim()
+  const ln = (dados.lastName ?? '').trim()
+  const completo = [fn, ln].filter(Boolean).join(' ')
+  if (completo) setNome(completo)
+}
+
+function processarTicketConvite(
+  signUp: NonNullable<ReturnType<typeof useSignUp>['signUp']>,
+  ticket: string,
+): Promise<SignUpDadosConvite> {
+  const emCache = promessasTicketConvite.get(ticket)
+  if (emCache) return emCache
+
+  // Remount após sucesso: Clerk mantém signUp com e-mail — não chamar create de novo.
+  if (signUp.emailAddress) {
+    const resolvida = Promise.resolve(signUp)
+    promessasTicketConvite.set(ticket, resolvida)
+    return resolvida
+  }
+
+  const promessa = signUp
+    .create({ strategy: 'ticket', ticket })
+    .catch((err: unknown) => {
+      promessasTicketConvite.delete(ticket)
+      throw err
+    })
+  promessasTicketConvite.set(ticket, promessa)
+  return promessa
+}
+
+function traduzirErroTicket(err: unknown): string {
+  const erroClerk = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> }
+  const codigo = erroClerk?.errors?.[0]?.code
+  const msgOriginal = erroClerk?.errors?.[0]?.longMessage
+    ?? erroClerk?.errors?.[0]?.message
+    ?? (err instanceof Error ? err.message : '')
+
+  if (codigo === 'form_param_nil' || msgOriginal.toLowerCase().includes('ticket is invalid')) {
+    return 'O convite é inválido ou já foi utilizado. Solicite um novo convite ao administrador.'
+  }
+  if (codigo === 'form_identifier_not_found') {
+    return 'Conta não encontrada. Verifique se o link do convite está correto.'
+  }
+  return msgOriginal || 'Convite inválido ou expirado.'
+}
+
 export function CadastroContinuarPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -88,40 +155,29 @@ export function CadastroContinuarPage() {
 
   // ─── Pré-popula do ticket ────────────────────────────────────────────────
   // O Clerk preenche signUp.emailAddress / firstName / lastName quando o
-  // ticket é processado via signUp.create({ strategy: 'ticket', ticket })
-  // IMPORTANTE: signUp muda de referência entre renders — usar ref para
-  // garantir que o ticket é processado UMA ÚNICA VEZ (ticket é single-use).
-  const ticketProcessado = useRef(false)
+  // ticket é processado via signUp.create({ strategy: 'ticket', ticket }).
+  // Dedup via processarTicketConvite() — ticket é single-use (ver comentário acima).
   useEffect(() => {
-    if (!isLoaded || !signUp || !ticket || ticketProcessado.current) return
-    ticketProcessado.current = true
+    if (!isLoaded || !signUp || !ticket) return
 
-    void signUp
-      .create({ strategy: 'ticket', ticket })
+    void processarTicketConvite(signUp, ticket)
       .then((resultado) => {
-        if (resultado.emailAddress) setEmailConvite(resultado.emailAddress)
-        const fn = (resultado.firstName ?? '').trim()
-        const ln = (resultado.lastName ?? '').trim()
-        const completo = [fn, ln].filter(Boolean).join(' ')
-        if (completo) setNome(completo)
+        preencherFormularioDoConvite(resultado, setEmailConvite, setNome)
+        setErro(null)
       })
       .catch((err) => {
-        console.error('[CadastroContinuar] Erro ao processar ticket', { ticket, err, errors: (err as any)?.errors })
-        const erroClerk = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> }
-        const codigo = erroClerk?.errors?.[0]?.code
-        const msgOriginal = erroClerk?.errors?.[0]?.longMessage
-          ?? erroClerk?.errors?.[0]?.message
-          ?? (err instanceof Error ? err.message : '')
-
-        let msg: string
-        if (codigo === 'form_param_nil' || msgOriginal.toLowerCase().includes('ticket is invalid')) {
-          msg = 'O convite é inválido ou já foi utilizado. Solicite um novo convite ao administrador.'
-        } else if (codigo === 'form_identifier_not_found') {
-          msg = 'Conta não encontrada. Verifique se o link do convite está correto.'
-        } else {
-          msg = msgOriginal || 'Convite inválido ou expirado.'
+        // Strict Mode: 1ª montagem pode ter consumido o ticket; signUp já tem e-mail.
+        if (signUp.emailAddress) {
+          preencherFormularioDoConvite(signUp, setEmailConvite, setNome)
+          setErro(null)
+          return
         }
-        setErro(msg)
+        console.error('[CadastroContinuar] Erro ao processar ticket', {
+          ticket,
+          err,
+          errors: (err as { errors?: unknown })?.errors,
+        })
+        setErro(traduzirErroTicket(err))
       })
   }, [isLoaded, signUp, ticket])
 

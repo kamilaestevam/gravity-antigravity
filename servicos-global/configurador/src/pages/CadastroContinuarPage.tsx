@@ -12,7 +12,7 @@
 //   emailAddress, redirectUrl: `${APP_BASE_URL}/cadastro/continuar`
 // }) — ver server/routes/usuario.ts e admin.ts.
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useSignUp } from '@clerk/clerk-react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -62,12 +62,47 @@ interface SignUpDadosConvite {
 }
 
 /**
- * Tickets Clerk são single-use. Em dev, React StrictMode remonta o componente
- * e o useRef interno zera — a 2ª chamada queimava o ticket e mostrava falso
- * "convite inválido" mesmo com o 1º create bem-sucedido (smoke dono 2026-05-27).
- * Mapa no escopo do módulo deduplica a Promise entre montagens simultâneas.
+ * Tickets Clerk são single-use. Problemas que queimavam o ticket antes do cadastro:
+ * 1) React StrictMode (dev) remonta o componente
+ * 2) signUp muda de referência → useEffect reexecutava signUp.create (prod, smoke 2026-05-27)
+ * 3) Prefetch de links (Gmail) carregava a página e consumia o ticket no auto-create
  */
 const promessasTicketConvite = new Map<string, Promise<SignUpDadosConvite>>()
+const ticketsConviteComSucesso = new Set<string>()
+const ticketsConviteInvalidos = new Set<string>()
+
+function chaveCacheConvite(ticket: string): string {
+  return `gravity:convite:${ticket.slice(0, 64)}`
+}
+
+function lerCacheConvite(ticket: string): { email: string; nome: string } | null {
+  try {
+    const raw = sessionStorage.getItem(chaveCacheConvite(ticket))
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as { email?: string; nome?: string }
+    if (!parsed.email) return null
+    return { email: parsed.email, nome: parsed.nome ?? '' }
+  } catch {
+    return null
+  }
+}
+
+function gravarCacheConvite(ticket: string, email: string, nome: string): void {
+  try {
+    sessionStorage.setItem(chaveCacheConvite(ticket), JSON.stringify({ email, nome }))
+  } catch {
+    /* quota / modo privado — não bloqueia o fluxo */
+  }
+}
+
+function ticketInvalido(err: unknown): boolean {
+  const erroClerk = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> }
+  const codigo = erroClerk?.errors?.[0]?.code
+  const msgOriginal = erroClerk?.errors?.[0]?.longMessage
+    ?? erroClerk?.errors?.[0]?.message
+    ?? (err instanceof Error ? err.message : '')
+  return codigo === 'form_param_nil' || msgOriginal.toLowerCase().includes('ticket is invalid')
+}
 
 function preencherFormularioDoConvite(
   dados: SignUpDadosConvite,
@@ -85,20 +120,35 @@ function processarTicketConvite(
   signUp: NonNullable<ReturnType<typeof useSignUp>['signUp']>,
   ticket: string,
 ): Promise<SignUpDadosConvite> {
+  if (ticketsConviteInvalidos.has(ticket)) {
+    return Promise.reject(new Error('ticket is invalid'))
+  }
+  if (ticketsConviteComSucesso.has(ticket) && signUp.emailAddress) {
+    return Promise.resolve(signUp)
+  }
+
   const emCache = promessasTicketConvite.get(ticket)
   if (emCache) return emCache
 
-  // Remount após sucesso: Clerk mantém signUp com e-mail — não chamar create de novo.
   if (signUp.emailAddress) {
     const resolvida = Promise.resolve(signUp)
     promessasTicketConvite.set(ticket, resolvida)
+    ticketsConviteComSucesso.add(ticket)
     return resolvida
   }
 
   const promessa = signUp
     .create({ strategy: 'ticket', ticket })
+    .then((resultado) => {
+      ticketsConviteComSucesso.add(ticket)
+      return resultado
+    })
     .catch((err: unknown) => {
-      promessasTicketConvite.delete(ticket)
+      if (ticketInvalido(err)) {
+        ticketsConviteInvalidos.add(ticket)
+      } else {
+        promessasTicketConvite.delete(ticket)
+      }
       throw err
     })
   promessasTicketConvite.set(ticket, promessa)
@@ -143,6 +193,50 @@ export function CadastroContinuarPage() {
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [oauthCarregando, setOauthCarregando] = useState(false)
+  const [processandoTicket, setProcessandoTicket] = useState(false)
+  /** Evita auto-create no mount — prefetch de e-mail (Gmail) queimava o ticket. */
+  const [conviteConfirmado, setConviteConfirmado] = useState(false)
+
+  const signUpRef = useRef(signUp)
+  signUpRef.current = signUp
+
+  const aplicarDadosConvite = useCallback((dados: SignUpDadosConvite, ticketAtual?: string) => {
+    preencherFormularioDoConvite(dados, setEmailConvite, setNome)
+    if (ticketAtual && dados.emailAddress) {
+      const fn = (dados.firstName ?? '').trim()
+      const ln = (dados.lastName ?? '').trim()
+      gravarCacheConvite(ticketAtual, dados.emailAddress, [fn, ln].filter(Boolean).join(' '))
+    }
+    setErro(null)
+  }, [])
+
+  const executarProcessamentoTicket = useCallback(async (ticketAtual: string) => {
+    const signUpAtual = signUpRef.current
+    if (!signUpAtual || processandoTicket) return
+
+    setProcessandoTicket(true)
+    setErro(null)
+    try {
+      const resultado = await processarTicketConvite(signUpAtual, ticketAtual)
+      aplicarDadosConvite(resultado, ticketAtual)
+      setConviteConfirmado(true)
+    } catch (err) {
+      const signUpPosFalha = signUpRef.current
+      if (signUpPosFalha?.emailAddress) {
+        aplicarDadosConvite(signUpPosFalha, ticketAtual)
+        setConviteConfirmado(true)
+        return
+      }
+      console.error('[CadastroContinuar] Erro ao processar ticket', {
+        ticket: ticketAtual,
+        err,
+        errors: (err as { errors?: unknown })?.errors,
+      })
+      setErro(traduzirErroTicket(err))
+    } finally {
+      setProcessandoTicket(false)
+    }
+  }, [aplicarDadosConvite, processandoTicket])
 
   // ─── Detecção de fluxo ────────────────────────────────────────────────────
   // Dois caminhos chegam nesta tela:
@@ -154,32 +248,25 @@ export function CadastroContinuarPage() {
   const isOAuthMissing = !ticket && isLoaded && signUp?.status === 'missing_requirements'
 
   // ─── Pré-popula do ticket ────────────────────────────────────────────────
-  // O Clerk preenche signUp.emailAddress / firstName / lastName quando o
-  // ticket é processado via signUp.create({ strategy: 'ticket', ticket }).
-  // Dedup via processarTicketConvite() — ticket é single-use (ver comentário acima).
+  // NÃO chamar signUp.create no mount: signUp muda de referência (re-run) e
+  // prefetch de e-mail consome ticket antes do clique humano.
+  // Fluxo: cache sessionStorage → ou botão "Confirmar convite" → create once.
   useEffect(() => {
-    if (!isLoaded || !signUp || !ticket) return
+    if (!isLoaded || !ticket) return
 
-    void processarTicketConvite(signUp, ticket)
-      .then((resultado) => {
-        preencherFormularioDoConvite(resultado, setEmailConvite, setNome)
-        setErro(null)
-      })
-      .catch((err) => {
-        // Strict Mode: 1ª montagem pode ter consumido o ticket; signUp já tem e-mail.
-        if (signUp.emailAddress) {
-          preencherFormularioDoConvite(signUp, setEmailConvite, setNome)
-          setErro(null)
-          return
-        }
-        console.error('[CadastroContinuar] Erro ao processar ticket', {
-          ticket,
-          err,
-          errors: (err as { errors?: unknown })?.errors,
-        })
-        setErro(traduzirErroTicket(err))
-      })
-  }, [isLoaded, signUp, ticket])
+    const cache = lerCacheConvite(ticket)
+    if (cache) {
+      setEmailConvite(cache.email)
+      if (cache.nome) setNome(cache.nome)
+      setConviteConfirmado(true)
+      return
+    }
+
+    if (ticketsConviteComSucesso.has(ticket) && signUpRef.current?.emailAddress) {
+      aplicarDadosConvite(signUpRef.current, ticket)
+      setConviteConfirmado(true)
+    }
+  }, [isLoaded, ticket, aplicarDadosConvite])
 
   // ─── Pré-popula do OAuth (Google → missing fields) ────────────────────────
   // Sem ticket, mas o Clerk já tem signUp ativo com email/nome do Google.
@@ -204,11 +291,23 @@ export function CadastroContinuarPage() {
   ]
 
   const podeEnviar = requisitos.every((r) => r.ok) && !enviando && isLoaded
+    && (!isInvitation || !!emailConvite)
 
   // ─── Handlers ─────────────────────────────────────────────────────────────
+  async function handleConfirmarConvite() {
+    if (!ticket || conviteConfirmado || processandoTicket) return
+    await executarProcessamentoTicket(ticket)
+  }
+
   async function handleCriarConta(ev: React.FormEvent) {
     ev.preventDefault()
     if (!podeEnviar || !signUp || !setActive) return
+
+    if (isInvitation && !emailConvite && ticket) {
+      await executarProcessamentoTicket(ticket)
+      const cachePosProcesso = lerCacheConvite(ticket)
+      if (!signUpRef.current?.emailAddress && !cachePosProcesso?.email) return
+    }
 
     setEnviando(true)
     setErro(null)
@@ -231,10 +330,7 @@ export function CadastroContinuarPage() {
       // Estado intermediário (raro com ticket válido) — força reload no Clerk
       setErro('Não foi possível concluir o cadastro. Tente novamente.')
     } catch (err) {
-      const msg = (err as { errors?: Array<{ longMessage?: string; message?: string }> })?.errors?.[0]?.longMessage
-        ?? (err as { errors?: Array<{ message?: string }> })?.errors?.[0]?.message
-        ?? (err instanceof Error ? err.message : 'Falha ao criar conta. Tente novamente.')
-      setErro(msg)
+      setErro(traduzirErroTicket(err))
     } finally {
       setEnviando(false)
     }
@@ -343,11 +439,48 @@ export function CadastroContinuarPage() {
           </p>
         </div>
 
-        {/* Banner contextual — convite ou continuação OAuth.
-            Skeleton durante o round-trip ao Clerk (signUp.create com ticket
-            leva tempo perceptível — dono reportou em smoke 2026-05-12).
-            Mostra placeholder imediato em vez de "nada" durante a espera. */}
-        {(isInvitation || isOAuthMissing) && !emailConvite && !erro && (
+        {/* Banner contextual — convite (confirmação manual anti-prefetch) ou OAuth. */}
+        {isInvitation && !emailConvite && !erro && !conviteConfirmado && !processandoTicket && (
+          <div
+            role="region"
+            aria-label="Confirmar convite"
+            style={{
+              padding: '1rem', borderRadius: '10px',
+              background: 'rgba(129,140,248,0.06)', border: '1px solid rgba(129,140,248,0.18)',
+              marginBottom: '1.25rem', fontSize: '0.8125rem',
+            }}
+          >
+            <p style={{ color: '#c7d2fe', margin: '0 0 0.75rem', lineHeight: 1.5 }}>
+              Você abriu um link de convite. Clique abaixo para carregar seu e-mail e continuar o cadastro.
+            </p>
+            <BotaoGlobal
+              type="button"
+              variante="primario"
+              blocoCompleto
+              centralizado
+              onClick={() => { void handleConfirmarConvite() }}
+              disabled={!isLoaded}
+            >
+              Confirmar convite e continuar
+            </BotaoGlobal>
+          </div>
+        )}
+        {isInvitation && processandoTicket && !emailConvite && (
+          <div
+            role="status"
+            aria-live="polite"
+            style={{
+              padding: '0.75rem 1rem', borderRadius: '10px',
+              background: 'rgba(129,140,248,0.04)', border: '1px solid rgba(129,140,248,0.12)',
+              display: 'flex', alignItems: 'center', gap: '0.625rem',
+              marginBottom: '1.25rem', fontSize: '0.8125rem',
+            }}
+          >
+            <CircleNotch size={18} weight="bold" className="cadastro-spinner" style={{ color: '#818cf8', flexShrink: 0 }} />
+            <span style={{ color: 'rgba(199,210,254,0.8)' }}>Carregando dados do convite…</span>
+          </div>
+        )}
+        {isOAuthMissing && !emailConvite && !erro && (
           <div
             role="status"
             aria-live="polite"

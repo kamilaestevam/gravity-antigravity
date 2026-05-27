@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, useNavigate, useParams, Navigate, useLocation } from 'react-router-dom'
+import { Routes, Route, useNavigate, useParams, Navigate, useLocation, useSearchParams } from 'react-router-dom'
 import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser, AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
 import { useCarregarTipoUsuario } from './hooks/use-carregar-tipo-usuario'
 import { ConfiguradorRoute } from './routing/guards'
@@ -204,6 +204,36 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 }
 
 /**
+ * /cadastro/continuar — convite Clerk.
+ * Se o usuário já tem sessão ativa (ex.: admin testando no mesmo browser),
+ * faz sign-out antes de processar o ticket — sessão + ticket conflitam no Clerk.
+ */
+function ConviteContinuarRoute({ children }: { children: React.ReactNode }) {
+  const { isLoaded, isSignedIn, signOut } = useAuth()
+  const [searchParams] = useSearchParams()
+  const ticket = searchParams.get('__clerk_ticket')
+  const [encerrandoSessao, setEncerrandoSessao] = React.useState(false)
+  const tentouEncerrarSessao = React.useRef(false)
+
+  React.useEffect(() => {
+    if (!isLoaded || !ticket || !isSignedIn || tentouEncerrarSessao.current) return
+    tentouEncerrarSessao.current = true
+    setEncerrandoSessao(true)
+    void signOut().finally(() => setEncerrandoSessao(false))
+  }, [isLoaded, ticket, isSignedIn, signOut])
+
+  if (!isLoaded || (ticket && isSignedIn && encerrandoSessao)) {
+    return <TelaCarregandoPorteiro />
+  }
+
+  if (isSignedIn && !ticket) {
+    return <NavigateDestinoPosAutenticacao replace />
+  }
+
+  return <>{children}</>
+}
+
+/**
  * Rotas autenticadas — exige sessão Clerk e organização no Prisma (/api/v1/me).
  * Sem org → /trial (onboarding). Com org → renderiza children.
  */
@@ -298,7 +328,7 @@ export default function App() {
         } />
         <Route path="/login/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
         {/* /cadastro/continuar — fluxo de convite Clerk customizado (precede o catch-all /cadastro/*) */}
-        <Route path="/cadastro/continuar" element={<PublicRoute><CadastroContinuarPage /></PublicRoute>} />
+        <Route path="/cadastro/continuar" element={<ConviteContinuarRoute><CadastroContinuarPage /></ConviteContinuarRoute>} />
         {/* /cadastro/sso-callback — intercepta retorno do OAuth (Google) do <SignUp> embutido.
             Sem esta rota, o Clerk joga o usuario com 'missing_requirements' no Account Portal
             hospedado em *.accounts.dev (tela branca). continueSignUpUrl manda o usuario para

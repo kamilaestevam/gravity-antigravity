@@ -28,8 +28,8 @@ import {
   Package,
 } from '@phosphor-icons/react'
 
-import { getRanking, aprovarResposta, reprovarTodas, getCotacao } from '../shared/api'
-import type { BidResponse, Cotacao } from '../shared/types'
+import { rankingCotacoesBidFreteInternacional, aprovarResposta, reprovarTodas, getCotacao } from '../shared/api'
+import type { PropostaRankingBidFreteInternacional, Cotacao } from '../shared/types'
 
 // ─── Formatacao ─────────────────────────────────────────────────────────────
 
@@ -46,7 +46,7 @@ const dataBR = (iso: string) =>
 
 // ─── Sort Options ───────────────────────────────────────────────────────────
 
-type SortKey = 'score_total' | 'valor_total_proposta_bid_frete_internacional' | 'dias_transito_proposta_bid_frete_internacional' | 'rating'
+type SortKey = 'ranking_geral' | 'valor_total_proposta_bid_frete_internacional' | 'dias_transito_proposta_bid_frete_internacional' | 'rating'
 
 interface SortOption {
   key: SortKey
@@ -139,14 +139,14 @@ export default function Comparativo() {
   const { id_cotacao: id } = useParams<{ id_cotacao: string }>()
 
   const [cotacao, setCotacao] = useState<Cotacao | null>(null)
-  const [respostas, setRespostas] = useState<BidResponse[]>([])
+  const [respostas, setRespostas] = useState<PropostaRankingBidFreteInternacional[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [sortKey, setSortKey] = useState<SortKey>('score_total')
+  const [sortKey, setSortKey] = useState<SortKey>('ranking_geral')
   const [sortAsc, setSortAsc] = useState(false)
 
   // Modal de aprovacao
   const [modalAprovar, setModalAprovar] = useState(false)
-  const [respostaSelecionada, setRespostaSelecionada] = useState<BidResponse | null>(null)
+  const [respostaSelecionada, setRespostaSelecionada] = useState<PropostaRankingBidFreteInternacional | null>(null)
   const [aprovando, setAprovando] = useState(false)
 
   // Modal de reprovacao
@@ -158,7 +158,7 @@ export default function Comparativo() {
   const [resultadoAprovacao, setResultadoAprovacao] = useState<Cotacao | null>(null)
 
   const SORT_OPTIONS: SortOption[] = [
-    { key: 'score_total',       label: t('bidfrete.comparativo.score_total'),  icone: <Trophy weight="duotone" size={14} /> },
+    { key: 'ranking_geral',       label: t('bidfrete.comparativo.score_total'),  icone: <Trophy weight="duotone" size={14} /> },
     { key: 'valor_total_proposta_bid_frete_internacional',       label: t('bidfrete.comparativo.preco'),         icone: <CurrencyDollar weight="duotone" size={14} /> },
     { key: 'dias_transito_proposta_bid_frete_internacional', label: t('bidfrete.comparativo.transit_time'),  icone: <Timer weight="duotone" size={14} /> },
     { key: 'rating',            label: t('bidfrete.comparativo.rating'),         icone: <Star weight="duotone" size={14} /> },
@@ -170,7 +170,7 @@ export default function Comparativo() {
     try {
       const [cotRes, rankRes] = await Promise.all([
         getCotacao(id),
-        getRanking(id),
+        rankingCotacoesBidFreteInternacional(id),
       ])
       setCotacao(cotRes)
       setRespostas(rankRes)
@@ -226,9 +226,9 @@ export default function Comparativo() {
     }
   }
 
-  function getSortValue(r: BidResponse): number {
+  function getSortValue(r: PropostaRankingBidFreteInternacional): number {
     switch (sortKey) {
-      case 'score_total': return r.score_total ?? 0
+      case 'ranking_geral': return r.ranking_geral ?? 0
       case 'valor_total_proposta_bid_frete_internacional': return r.valor_total_proposta_bid_frete_internacional
       case 'dias_transito_proposta_bid_frete_internacional': return r.dias_transito_proposta_bid_frete_internacional
       case 'rating': return r.fornecedor?.nota_global_classificacao_bid_frete_internacional ?? 0
@@ -247,7 +247,7 @@ export default function Comparativo() {
     if (!id || !respostaSelecionada) return
     setAprovando(true)
     try {
-      const result = await aprovarResposta(id, respostaSelecionada.id)
+      const result = await aprovarResposta(id, respostaSelecionada.id_proposta_bid_frete_internacional)
       setResultadoAprovacao(result)
       setModalAprovar(false)
     } catch {
@@ -270,7 +270,7 @@ export default function Comparativo() {
     }
   }
 
-  function abrirModalAprovar(resposta: BidResponse) {
+  function abrirModalAprovar(resposta: PropostaRankingBidFreteInternacional) {
     setRespostaSelecionada(resposta)
     setModalAprovar(true)
   }
@@ -279,11 +279,11 @@ export default function Comparativo() {
 
   const colunas: TabelaGlobalColuna<any>[] = [
     {
-      key: 'score_total' as keyof BidResponse,
+      key: 'ranking_geral' as keyof PropostaRankingBidFreteInternacional,
       label: t('bidfrete.comparativo.rank'),
       tipo: 'numero',
       largura: 70,
-      render: (_val: unknown, _row: BidResponse, index?: number) => (
+      render: (_val: unknown, _row: PropostaRankingBidFreteInternacional, index?: number) => (
         <RankBadge posicao={(index ?? 0) + 1} />
       ),
     },
@@ -292,11 +292,11 @@ export default function Comparativo() {
       label: t('bidfrete.comparativo.fornecedor'),
       tipo: 'texto',
       largura: 180,
-      render: (_val: unknown, row: BidResponse) => (
+      render: (_val: unknown, row: PropostaRankingBidFreteInternacional) => (
         <div className="bf-fornecedor-cell">
-          <span className="bf-fornecedor-nome">{row.fornecedor?.nome ?? 'Fornecedor'}</span>
-          {row.fornecedor?.nome_fantasia && (
-            <span className="bf-fornecedor-fantasia">{row.fornecedor.nome_fantasia}</span>
+          <span className="bf-fornecedor-nome">{row.fornecedor_nome ?? row.fornecedor?.nome_fornecedor_bid_frete_internacional ?? 'Fornecedor'}</span>
+          {row.fornecedor?.nome_fantasia_fornecedor_bid_frete_internacional && (
+            <span className="bf-fornecedor-fantasia">{row.fornecedor.nome_fantasia_fornecedor_bid_frete_internacional}</span>
           )}
         </div>
       ),
@@ -307,10 +307,10 @@ export default function Comparativo() {
       tipo: 'numero',
       largura: 130,
       align: 'right',
-      render: (valor: unknown, row: BidResponse) => {
+      render: (valor: unknown, row: PropostaRankingBidFreteInternacional) => {
         const val = valor as number
         return (
-          <span className="bf-mono">{moeda_ganho_bid_frete_internacional(val, row.moeda_ganho_bid_frete_internacional)}</span>
+          <span className="bf-mono">{moeda_ganho_bid_frete_internacional(val, row.moeda_proposta_bid_frete_internacional)}</span>
         )
       },
     },
@@ -320,10 +320,10 @@ export default function Comparativo() {
       tipo: 'numero',
       largura: 120,
       align: 'right',
-      render: (valor: unknown, row: BidResponse) => {
+      render: (valor: unknown, row: PropostaRankingBidFreteInternacional) => {
         const val = valor as number
         return (
-          <span className="bf-mono">{moeda_ganho_bid_frete_internacional(val, row.moeda_ganho_bid_frete_internacional)}</span>
+          <span className="bf-mono">{moeda_ganho_bid_frete_internacional(val, row.moeda_proposta_bid_frete_internacional)}</span>
         )
       },
     },
@@ -333,10 +333,10 @@ export default function Comparativo() {
       tipo: 'numero',
       largura: 120,
       align: 'right',
-      render: (valor: unknown, row: BidResponse) => {
+      render: (valor: unknown, row: PropostaRankingBidFreteInternacional) => {
         const val = valor as number
         return (
-          <span className="bf-mono">{moeda_ganho_bid_frete_internacional(val, row.moeda_ganho_bid_frete_internacional)}</span>
+          <span className="bf-mono">{moeda_ganho_bid_frete_internacional(val, row.moeda_proposta_bid_frete_internacional)}</span>
         )
       },
     },
@@ -346,10 +346,10 @@ export default function Comparativo() {
       tipo: 'numero',
       largura: 130,
       align: 'right',
-      render: (valor: unknown, row: BidResponse) => {
+      render: (valor: unknown, row: PropostaRankingBidFreteInternacional) => {
         const val = valor as number
         return (
-          <span className="bf-mono bf-total">{moeda_ganho_bid_frete_internacional(val, row.moeda_ganho_bid_frete_internacional)}</span>
+          <span className="bf-mono bf-total">{moeda_ganho_bid_frete_internacional(val, row.moeda_proposta_bid_frete_internacional)}</span>
         )
       },
     },
@@ -383,7 +383,7 @@ export default function Comparativo() {
       },
     },
     {
-      key: 'transbordos_proposta_bid_frete_internacional',
+      key: 'quantidade_transbordo_proposta_bid_frete_internacional',
       label: t('bidfrete.detalhe_cotacao.resp_transbordos'),
       tipo: 'numero',
       largura: 100,
@@ -398,17 +398,17 @@ export default function Comparativo() {
       },
     },
     {
-      key: 'score_total' as keyof BidResponse,
+      key: 'ranking_geral' as keyof PropostaRankingBidFreteInternacional,
       label: t('bidfrete.comparativo.rating'),
       tipo: 'numero',
       largura: 90,
       align: 'center',
-      render: (_val: unknown, row: BidResponse) => (
+      render: (_val: unknown, row: PropostaRankingBidFreteInternacional) => (
         <RatingStars rating={row.fornecedor?.nota_global_classificacao_bid_frete_internacional ?? null} />
       ),
     },
     {
-      key: 'validade',
+      key: 'validade_proposta_bid_frete_internacional',
       label: t('bidfrete.detalhe_cotacao.resp_validade'),
       tipo: 'periodo',
       largura: 110,
@@ -416,12 +416,12 @@ export default function Comparativo() {
     },
   ]
 
-  const acoes: TabelaGlobalAcao<BidResponse>[] = [
+  const acoes: TabelaGlobalAcao<PropostaRankingBidFreteInternacional>[] = [
     {
       id: 'aprovar',
       icone: <CheckCircle weight="duotone" size={16} />,
       tooltip: t('bidfrete.comparativo.aprovar'),
-      onClick: (item: BidResponse) => abrirModalAprovar(item),
+      onClick: (item: PropostaRankingBidFreteInternacional) => abrirModalAprovar(item),
     },
   ]
 
@@ -437,7 +437,7 @@ export default function Comparativo() {
           </div>
           <h2 className="bf-aprovacao-result-titulo">{t('bidfrete.comparativo.aprovacao_confirmada')}</h2>
           <p className="bf-aprovacao-result-sub">
-            {t('bidfrete.comparativo.fornecedor_selecionado')}: <strong>{respostaSelecionada?.fornecedor?.nome ?? t('bidfrete.comparativo.fornecedor')}</strong>
+            {t('bidfrete.comparativo.fornecedor_selecionado')}: <strong>{respostaSelecionada?.fornecedor_nome ?? respostaSelecionada?.fornecedor?.nome_fornecedor_bid_frete_internacional ?? t('bidfrete.comparativo.fornecedor')}</strong>
           </p>
 
           {resultadoAprovacao.ganho_valor_cotacao_bid_frete_internacional != null && resultadoAprovacao.ganho_valor_cotacao_bid_frete_internacional > 0 && (
@@ -450,9 +450,9 @@ export default function Comparativo() {
                 <span className="bf-saving-valor">
                   {moeda_ganho_bid_frete_internacional(resultadoAprovacao.ganho_valor_cotacao_bid_frete_internacional, resultadoAprovacao.moeda_aprovada ?? 'USD')}
                 </span>
-                {resultadoAprovacao.ganho_percentual_ganho_bid_frete_internacional != null && (
+                {resultadoAprovacao.ganho_percentual_cotacao_bid_frete_internacional != null && (
                   <span className="bf-saving-pct">
-                    {resultadoAprovacao.ganho_percentual_ganho_bid_frete_internacional.toFixed(1)}%
+                    {resultadoAprovacao.ganho_percentual_cotacao_bid_frete_internacional.toFixed(1)}%
                   </span>
                 )}
               </div>
@@ -509,7 +509,7 @@ export default function Comparativo() {
             <div>
               <span className="bf-summary-label">{t('bidfrete.detalhe_cotacao.valor_alvo')}</span>
               <span className="bf-summary-valor bf-mono">
-                {cotacao.valor_alvo != null ? moeda_ganho_bid_frete_internacional(cotacao.valor_alvo, cotacao.moeda_alvo) : '—'}
+                {cotacao.valor_meta_cotacao_bid_frete_internacional != null ? moeda_ganho_bid_frete_internacional(cotacao.valor_meta_cotacao_bid_frete_internacional, cotacao.moeda_meta_cotacao_bid_frete_internacional ?? 'USD') : '—'}
               </span>
             </div>
           </div>
@@ -518,7 +518,7 @@ export default function Comparativo() {
             <div>
               <span className="bf-summary-label">{t('bidfrete.comparativo.melhor_oferta')}</span>
               <span className="bf-summary-valor bf-mono">
-                {moeda_ganho_bid_frete_internacional(respostasOrdenadas[0]?.valor_total_proposta_bid_frete_internacional ?? 0, respostasOrdenadas[0]?.moeda_ganho_bid_frete_internacional ?? 'USD')}
+                {moeda_ganho_bid_frete_internacional(respostasOrdenadas[0]?.valor_total_proposta_bid_frete_internacional ?? 0, respostasOrdenadas[0]?.moeda_proposta_bid_frete_internacional ?? 'USD')}
               </span>
             </div>
           </div>
@@ -580,13 +580,13 @@ export default function Comparativo() {
         {respostaSelecionada && (
           <>
             <p className="bf-modal_cotacao_bid_frete_internacional-text">
-              {t('bidfrete.comparativo.modal_aprovar_pergunta', { fornecedor: respostaSelecionada.fornecedor?.nome ?? t('bidfrete.comparativo.fornecedor') })}
+              {t('bidfrete.comparativo.modal_aprovar_pergunta', { fornecedor: respostaSelecionada.fornecedor_nome ?? respostaSelecionada.fornecedor?.nome_fornecedor_bid_frete_internacional ?? t('bidfrete.comparativo.fornecedor') })}
             </p>
             <div className="bf-modal_cotacao_bid_frete_internacional-detail-grid">
               <div className="bf-modal_cotacao_bid_frete_internacional-detail">
                 <span className="bf-modal_cotacao_bid_frete_internacional-detail-label">{t('bidfrete.detalhe_cotacao.resp_total')}</span>
                 <span className="bf-modal_cotacao_bid_frete_internacional-detail-valor bf-mono">
-                  {moeda_ganho_bid_frete_internacional(respostaSelecionada.valor_total_proposta_bid_frete_internacional, respostaSelecionada.moeda_ganho_bid_frete_internacional)}
+                  {moeda_ganho_bid_frete_internacional(respostaSelecionada.valor_total_proposta_bid_frete_internacional, respostaSelecionada.moeda_proposta_bid_frete_internacional)}
                 </span>
               </div>
               <div className="bf-modal_cotacao_bid_frete_internacional-detail">
@@ -596,7 +596,7 @@ export default function Comparativo() {
               <div className="bf-modal_cotacao_bid_frete_internacional-detail">
                 <span className="bf-modal_cotacao_bid_frete_internacional-detail-label">{t('bidfrete.detalhe_cotacao.resp_transbordos')}</span>
                 <span className="bf-modal_cotacao_bid_frete_internacional-detail-valor bf-mono">
-                  {respostaSelecionada.transbordos_proposta_bid_frete_internacional === 0 ? t('bidfrete.comparativo.direto') : respostaSelecionada.transbordos_proposta_bid_frete_internacional}
+                  {respostaSelecionada.quantidade_transbordo_proposta_bid_frete_internacional === 0 ? t('bidfrete.comparativo.direto') : respostaSelecionada.quantidade_transbordo_proposta_bid_frete_internacional}
                 </span>
               </div>
               <div className="bf-modal_cotacao_bid_frete_internacional-detail">

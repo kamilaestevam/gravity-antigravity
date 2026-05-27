@@ -21,8 +21,8 @@ import {
   CurrencyDollar,
 } from '@phosphor-icons/react'
 
-import { getPortalPendentes, responderBid } from '../../shared/api'
-import type { BidRequest, BidResponse, ModalFrete } from '../../shared/types'
+import { getCotacoesPendentesBidFreteInternacional, respostaPropostaBidFreteInternacional } from '../../shared/api'
+import type { DisparoCotacaoBidFreteInternacional, PropostaBidFreteInternacional, ModalFrete } from '../../shared/types'
 import { MODAL_LABELS } from '../../shared/types'
 
 // ─── Tipos locais ───────────────────────────────────────────────────────────
@@ -40,15 +40,15 @@ interface CotacaoInfo {
 }
 
 interface FormState {
-  moeda_ganho_bid_frete_internacional: string
+  moeda_proposta_bid_frete_internacional: string
   valor_frete_proposta_bid_frete_internacional: string
   taxas_origem_proposta_bid_frete_internacional: string
   taxas_destino_proposta_bid_frete_internacional: string
   dias_transito_proposta_bid_frete_internacional: string
   dias_free_time_proposta_bid_frete_internacional: string
-  validade: string
-  transbordos_proposta_bid_frete_internacional: string
-  escalas_proposta_bid_frete_internacional: string
+  validade_proposta_bid_frete_internacional: string
+  quantidade_transbordo_proposta_bid_frete_internacional: string
+  quantidade_escala_proposta_bid_frete_internacional: string
   observacoes_proposta_bid_frete_internacional: string
 }
 
@@ -67,30 +67,30 @@ export default function ResponderCotacao() {
   const navigate = useNavigate()
   const { t } = useTranslation()
 
-  const [bid, setBid] = useState<BidRequest | null>(null)
+  const [bid, setBid] = useState<DisparoCotacaoBidFreteInternacional | null>(null)
   const [carregando, setCarregando] = useState(true)
   const [enviando, setEnviando] = useState(false)
   const [sucesso, setSucesso] = useState(false)
   const [erro, setErro] = useState('')
 
   const [form, setForm] = useState<FormState>({
-    moeda_ganho_bid_frete_internacional: 'USD',
+    moeda_proposta_bid_frete_internacional: 'USD',
     valor_frete_proposta_bid_frete_internacional: '',
     taxas_origem_proposta_bid_frete_internacional: '',
     taxas_destino_proposta_bid_frete_internacional: '',
     dias_transito_proposta_bid_frete_internacional: '',
     dias_free_time_proposta_bid_frete_internacional: '',
-    validade: '',
-    transbordos_proposta_bid_frete_internacional: '0',
-    escalas_proposta_bid_frete_internacional: '',
+    validade_proposta_bid_frete_internacional: '',
+    quantidade_transbordo_proposta_bid_frete_internacional: '0',
+    quantidade_escala_proposta_bid_frete_internacional: '',
     observacoes_proposta_bid_frete_internacional: '',
   })
 
   const carregar = useCallback(async () => {
     setCarregando(true)
     try {
-      const pendentes = await getPortalPendentes()
-      const found = pendentes.find(b => b.id === bidRequestId)
+      const pendentes = await getCotacoesPendentesBidFreteInternacional()
+      const found = pendentes.find(b => b.id_disparo_cotacao_bid_frete_internacional === bidRequestId)
       if (found) setBid(found)
     } catch {
       // silencioso
@@ -142,7 +142,7 @@ export default function ResponderCotacao() {
     e.preventDefault()
     if (!bidRequestId) return
 
-    if (!form.valor_frete_proposta_bid_frete_internacional || !form.dias_transito_proposta_bid_frete_internacional || !form.validade) {
+    if (!form.valor_frete_proposta_bid_frete_internacional || !form.dias_transito_proposta_bid_frete_internacional || !form.validade_proposta_bid_frete_internacional_proposta_bid_frete_internacional) {
       setErro(t('bidfrete.portal.publico.campos_obrigatorios'))
       return
     }
@@ -150,20 +150,20 @@ export default function ResponderCotacao() {
     setEnviando(true)
     setErro('')
     try {
-      const payload: Partial<BidResponse> = {
-        moeda_ganho_bid_frete_internacional: form.moeda_ganho_bid_frete_internacional,
+      const payload: Partial<PropostaBidFreteInternacional> = {
+        moeda_proposta_bid_frete_internacional: form.moeda_proposta_bid_frete_internacional,
         valor_frete_proposta_bid_frete_internacional: parseFloat(form.valor_frete_proposta_bid_frete_internacional),
         taxas_origem_proposta_bid_frete_internacional: parseFloat(form.taxas_origem_proposta_bid_frete_internacional) || 0,
         taxas_destino_proposta_bid_frete_internacional: parseFloat(form.taxas_destino_proposta_bid_frete_internacional) || 0,
         valor_total_proposta_bid_frete_internacional: total,
         dias_transito_proposta_bid_frete_internacional: parseInt(form.dias_transito_proposta_bid_frete_internacional, 10),
         dias_free_time_proposta_bid_frete_internacional: form.dias_free_time_proposta_bid_frete_internacional ? parseInt(form.dias_free_time_proposta_bid_frete_internacional, 10) : null,
-        validade: form.validade,
-        transbordos_proposta_bid_frete_internacional: parseInt(form.transbordos_proposta_bid_frete_internacional, 10) || 0,
-        escalas_proposta_bid_frete_internacional: form.escalas_proposta_bid_frete_internacional || null,
+        validade_proposta_bid_frete_internacional: form.validade_proposta_bid_frete_internacional_proposta_bid_frete_internacional,
+        quantidade_transbordo_proposta_bid_frete_internacional: parseInt(form.quantidade_transbordo_proposta_bid_frete_internacional, 10) || 0,
+        quantidade_escala_proposta_bid_frete_internacional: parseInt(form.quantidade_escala_proposta_bid_frete_internacional, 10) || 0,
         observacoes_proposta_bid_frete_internacional: form.observacoes_proposta_bid_frete_internacional || null,
       }
-      await responderBid(bidRequestId, payload)
+      await respostaPropostaBidFreteInternacional(bidRequestId, payload)
       setSucesso(true)
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro ao enviar resposta')
@@ -255,8 +255,8 @@ export default function ResponderCotacao() {
                 <label className="rc-label">{t('bidfrete.portal.responder.campo_moeda')}</label>
                 <select
                   className="rc-input"
-                  value={form.moeda_ganho_bid_frete_internacional}
-                  onChange={e => handleChange('moeda_ganho_bid_frete_internacional', e.target.value)}
+                  value={form.moeda_proposta_bid_frete_internacional}
+                  onChange={e => handleChange('moeda_proposta_bid_frete_internacional', e.target.value)}
                 >
                   {MOEDAS.map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
@@ -306,7 +306,7 @@ export default function ResponderCotacao() {
                 <label className="rc-label">{t('bidfrete.portal.responder.campo_total')}</label>
                 <div className="rc-total-display">
                   <CurrencyDollar weight="duotone" size={18} />
-                  <span className="rc-total-valor">{form.moeda_ganho_bid_frete_internacional} {fmtTotal}</span>
+                  <span className="rc-total-valor">{form.moeda_proposta_bid_frete_internacional} {fmtTotal}</span>
                 </div>
               </div>
 
@@ -339,8 +339,8 @@ export default function ResponderCotacao() {
                 <input
                   className="rc-input"
                   type="date"
-                  value={form.validade}
-                  onChange={e => handleChange('validade', e.target.value)}
+                  value={form.validade_proposta_bid_frete_internacional}
+                  onChange={e => handleChange('validade_proposta_bid_frete_internacional', e.target.value)}
                 />
               </div>
 
@@ -351,8 +351,8 @@ export default function ResponderCotacao() {
                   type="number"
                   min="0"
                   placeholder="0"
-                  value={form.transbordos_proposta_bid_frete_internacional}
-                  onChange={e => handleChange('transbordos_proposta_bid_frete_internacional', e.target.value)}
+                  value={form.quantidade_transbordo_proposta_bid_frete_internacional}
+                  onChange={e => handleChange('quantidade_transbordo_proposta_bid_frete_internacional', e.target.value)}
                 />
               </div>
 
@@ -362,8 +362,8 @@ export default function ResponderCotacao() {
                   className="rc-input"
                   type="text"
                   placeholder="Ex: Singapore, Colombo"
-                  value={form.escalas_proposta_bid_frete_internacional}
-                  onChange={e => handleChange('escalas_proposta_bid_frete_internacional', e.target.value)}
+                  value={form.quantidade_escala_proposta_bid_frete_internacional}
+                  onChange={e => handleChange('quantidade_escala_proposta_bid_frete_internacional', e.target.value)}
                 />
               </div>
 

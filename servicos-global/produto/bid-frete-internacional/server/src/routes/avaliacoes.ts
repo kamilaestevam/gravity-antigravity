@@ -7,7 +7,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { motorClassificacao } from '../services/motor-classificacao.js'
+import { motorClassificacao } from '../services/motor-classificacao-bid-frete-internacional.js'
 import { AppError } from '../lib/erros.js'
 import { historicoIntegration } from '../services/integracoes-tenant.js'
 import { prisma as basePrisma } from '../middleware/isolamento-tenant.js'

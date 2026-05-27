@@ -19,7 +19,7 @@ import {
 } from '@phosphor-icons/react'
 
 import { getPortalRespostas } from '../../shared/api'
-import type { BidResponse, ModalFrete } from '../../shared/types'
+import type { PropostaBidFreteInternacional, ModalFrete } from '../../shared/types'
 import { MODAL_LABELS } from '../../shared/types'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -29,7 +29,7 @@ type FiltroTab = 'TODAS' | 'PENDENTES' | 'APROVADAS' | 'REPROVADAS'
 // Labels initialized in component since they need t()
 const TAB_KEYS: FiltroTab[] = ['TODAS', 'PENDENTES', 'APROVADAS', 'REPROVADAS']
 
-interface RespostaComCotacao extends BidResponse {
+interface RespostaComCotacao extends PropostaBidFreteInternacional {
   cotacao?: {
     numero_cotacao_bid_frete_internacional: string
     origem_nome_cotacao_bid_frete_internacional: string
@@ -40,9 +40,9 @@ interface RespostaComCotacao extends BidResponse {
 
 type RespostaStatus = 'aprovada' | 'reprovada' | 'pendente'
 
-function getRespostaStatus(r: BidResponse): RespostaStatus {
-  if (r.aprovada) return 'aprovada'
-  if (r.aprovada_em && !r.aprovada) return 'reprovada'
+function getRespostaStatus(r: PropostaBidFreteInternacional): RespostaStatus {
+  if (r.status_proposta_bid_frete_internacional === 'APROVADA') return 'aprovada'
+  if (r.status_proposta_bid_frete_internacional === 'REPROVADA') return 'reprovada'
   return 'pendente'
 }
 
@@ -163,7 +163,7 @@ export default function MinhasRespostas() {
       align: 'right',
       render: (val: unknown, row: RespostaComCotacao) => (
         <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem', fontWeight: 600 }}>
-          {row.moeda_ganho_bid_frete_internacional} {fmtMoeda(val as number)}
+          {row.moeda_proposta_bid_frete_internacional} {fmtMoeda(val as number)}
         </span>
       ),
     },
@@ -180,7 +180,7 @@ export default function MinhasRespostas() {
       ),
     },
     {
-      key: 'validade',
+      key: 'validade_proposta_bid_frete_internacional',
       label: t('bidfrete.portal.minhas_respostas.col_validade'),
       tipo: 'periodo',
       largura: 110,

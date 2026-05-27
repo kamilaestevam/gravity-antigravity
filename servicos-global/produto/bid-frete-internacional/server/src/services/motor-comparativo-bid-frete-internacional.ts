@@ -1,4 +1,4 @@
-/**
+﻿/**
  * motor-comparativo.ts — Motor de Comparativo e Ranking
  * Responsável por:
  * 1. Ranquear respostas por preço, transit time e avaliação
@@ -20,9 +20,9 @@ interface RankedResponse {
   dias_transito_proposta_bid_frete_internacional: number
   dias_free_time_proposta_bid_frete_internacional: number | null
   moeda_ganho_bid_frete_internacional: string
-  transbordos_proposta_bid_frete_internacional: number
+  quantidade_transbordo_proposta_bid_frete_internacional: number
   validade_proposta_bid_frete_internacional: Date
-  via_tabela_valor_proposta_bid_frete_internacional: boolean
+  via_tabela_proposta_bid_frete_internacional: boolean
   via_api_proposta_bid_frete_internacional: boolean
   classificacao_valor_proposta_bid_frete_internacional: number
   classificacao_transito_proposta_bid_frete_internacional: number
@@ -62,13 +62,13 @@ export const motorComparativo = {
     cotacao: CotacaoRow
   }> {
     // Buscar cotacao com respostas
-    const cotacao = await (prisma as any).bidFreteInternacionalCotacao.findFirst({
+    const cotacao = await (prisma as any).cotacaoBidFreteInternacional.findFirst({
       where: { id_cotacao_bid_frete_internacional },
     })
 
     if (!cotacao) throw new Error('Cotacao nao encontrada')
 
-    const responses = await (prisma as any).bidFreteInternacionalProposta.findMany({
+    const responses = await (prisma as any).propostaBidFreteInternacional.findMany({
       where: { id_cotacao_bid_frete_internacional },
       include: {
         fornecedor: {
@@ -79,7 +79,8 @@ export const motorComparativo = {
             email_fornecedor_bid_frete_internacional: true,
           },
         },
-        taxas: true,
+        taxas_origem: true,
+        taxas_destino: true,
       },
       orderBy: { valor_total_proposta_bid_frete_internacional: 'asc' },
     })
@@ -92,7 +93,7 @@ export const motorComparativo = {
     const emails = responses.map((r: ResponseRow) => r.fornecedor?.email_fornecedor_bid_frete_internacional).filter(Boolean)
     let ratings: RatingRow[] = []
     try {
-      ratings = await (prisma as any).bidFreteInternacionalClassificacao.findMany({
+      ratings = await (prisma as any).classificacaoBidFreteInternacional.findMany({
         where: { email_fornecedor_classificacao_bid_frete_internacional: { in: emails } },
       })
     } catch { /* tabela pode nao existir */ }
@@ -138,9 +139,9 @@ export const motorComparativo = {
         dias_transito_proposta_bid_frete_internacional: r.dias_transito_proposta_bid_frete_internacional,
         dias_free_time_proposta_bid_frete_internacional: r.dias_free_time_proposta_bid_frete_internacional,
         moeda_ganho_bid_frete_internacional: r.moeda_proposta_bid_frete_internacional,
-        transbordos_proposta_bid_frete_internacional: r.transbordos_proposta_bid_frete_internacional,
+        quantidade_transbordo_proposta_bid_frete_internacional: r.quantidade_transbordo_proposta_bid_frete_internacional,
         validade_proposta_bid_frete_internacional: r.validade_proposta_bid_frete_internacional,
-        via_tabela_valor_proposta_bid_frete_internacional: r.via_tabela_valor_proposta_bid_frete_internacional,
+        via_tabela_proposta_bid_frete_internacional: r.via_tabela_proposta_bid_frete_internacional,
         via_api_proposta_bid_frete_internacional: r.via_api_proposta_bid_frete_internacional,
         classificacao_valor_proposta_bid_frete_internacional: rankPreco,
         classificacao_transito_proposta_bid_frete_internacional: rankTransit,
@@ -148,7 +149,8 @@ export const motorComparativo = {
         ranking_geral: rankGeral,
         nota_global_classificacao_bid_frete_internacional: ratingGlobal,
         tags,
-        taxas: r.taxas,
+        taxas_origem: r.taxas_origem,
+        taxas_destino: r.taxas_destino,
       }
     })
 
@@ -170,7 +172,7 @@ export const motorComparativo = {
 
     // Atualizar rankings no banco
     for (const r of ranking) {
-      await (prisma as any).bidFreteInternacionalProposta.update({
+      await (prisma as any).propostaBidFreteInternacional.update({
         where: { id_proposta_bid_frete_internacional: r.id },
         data: {
           classificacao_valor_proposta_bid_frete_internacional: r.classificacao_valor_proposta_bid_frete_internacional,
@@ -191,29 +193,29 @@ export const motorComparativo = {
    * Aprova cotacao com fornecedor vencedor (2 cliques)
    */
   async aprovar(prisma: PrismaClient, id_cotacao_bid_frete_internacional: string, id_proposta_bid_frete_internacional: string, id_usuario: string) {
-    const response = await (prisma as any).bidFreteInternacionalProposta.findFirst({
+    const response = await (prisma as any).propostaBidFreteInternacional.findFirst({
       where: { id_proposta_bid_frete_internacional, id_cotacao_bid_frete_internacional },
     })
 
     if (!response) throw new Error('Resposta nao encontrada')
 
     // Buscar cotacao para saving
-    const cotacao = await (prisma as any).bidFreteInternacionalCotacao.findFirst({ where: { id_cotacao_bid_frete_internacional } })
+    const cotacao = await (prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional } })
 
     // Aprovar a resposta
-    await (prisma as any).bidFreteInternacionalProposta.update({
+    await (prisma as any).propostaBidFreteInternacional.update({
       where: { id_proposta_bid_frete_internacional },
       data: { status_proposta_bid_frete_internacional: 'APROVADA' },
     })
 
     // Reprovar todas as outras
-    await (prisma as any).bidFreteInternacionalProposta.updateMany({
+    await (prisma as any).propostaBidFreteInternacional.updateMany({
       where: { id_cotacao_bid_frete_internacional, id_proposta_bid_frete_internacional: { not: id_proposta_bid_frete_internacional } },
       data: { status_proposta_bid_frete_internacional: 'REPROVADA' },
     })
 
     // Atualizar cotacao
-    const allResponses = await (prisma as any).bidFreteInternacionalProposta.findMany({
+    const allResponses = await (prisma as any).propostaBidFreteInternacional.findMany({
       where: { id_cotacao_bid_frete_internacional },
     })
     const media = allResponses.reduce((acc: number, r: ResponseRow) => acc + r.valor_total_proposta_bid_frete_internacional, 0) / allResponses.length
@@ -224,7 +226,7 @@ export const motorComparativo = {
       ? ((cotacao.valor_meta_cotacao_bid_frete_internacional - response.valor_total_proposta_bid_frete_internacional) / cotacao.valor_meta_cotacao_bid_frete_internacional) * 100
       : media > 0 ? ((media - response.valor_total_proposta_bid_frete_internacional) / media) * 100 : null
 
-    await (prisma as any).bidFreteInternacionalCotacao.update({
+    await (prisma as any).cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional },
       data: {
         status_cotacao_bid_frete_internacional: 'APROVADA',
@@ -236,7 +238,7 @@ export const motorComparativo = {
     })
 
     // Registrar saving/ganho
-    await (prisma as any).bidFreteInternacionalGanho.create({
+    await (prisma as any).ganhoBidFreteInternacional.create({
       data: {
         id_produto_gravity: 'bid-frete-internacional',
         id_usuario,

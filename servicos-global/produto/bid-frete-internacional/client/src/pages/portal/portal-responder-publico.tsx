@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ResponderPublico.tsx — Formulario Publico de Resposta (sem login)
  * Standalone full-screen, token validation, same form as ResponderCotacao
  */
@@ -19,7 +19,7 @@ import {
 } from '@phosphor-icons/react'
 
 import { getPublicCotacao, responderPublico } from '../../shared/api'
-import type { BidResponse, ModalFrete } from '../../shared/types'
+import type { PropostaBidFreteInternacional, ModalFrete } from '../../shared/types'
 import { MODAL_LABELS } from '../../shared/types'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -37,15 +37,15 @@ interface CotacaoPublica {
 }
 
 interface FormState {
-  moeda_ganho_bid_frete_internacional: string
+  moeda_proposta_bid_frete_internacional: string
   valor_frete_proposta_bid_frete_internacional: string
   taxas_origem_proposta_bid_frete_internacional: string
   taxas_destino_proposta_bid_frete_internacional: string
   dias_transito_proposta_bid_frete_internacional: string
   dias_free_time_proposta_bid_frete_internacional: string
-  validade: string
-  transbordos_proposta_bid_frete_internacional: string
-  escalas_proposta_bid_frete_internacional: string
+  validade_proposta_bid_frete_internacional: string
+  quantidade_transbordo_proposta_bid_frete_internacional: string
+  quantidade_escala_proposta_bid_frete_internacional: string
   observacoes_proposta_bid_frete_internacional: string
 }
 
@@ -71,15 +71,15 @@ export default function ResponderPublico() {
   const [erro, setErro] = useState('')
 
   const [form, setForm] = useState<FormState>({
-    moeda_ganho_bid_frete_internacional: 'USD',
+    moeda_proposta_bid_frete_internacional: 'USD',
     valor_frete_proposta_bid_frete_internacional: '',
     taxas_origem_proposta_bid_frete_internacional: '',
     taxas_destino_proposta_bid_frete_internacional: '',
     dias_transito_proposta_bid_frete_internacional: '',
     dias_free_time_proposta_bid_frete_internacional: '',
-    validade: '',
-    transbordos_proposta_bid_frete_internacional: '0',
-    escalas_proposta_bid_frete_internacional: '',
+    validade_proposta_bid_frete_internacional: '',
+    quantidade_transbordo_proposta_bid_frete_internacional: '0',
+    quantidade_escala_proposta_bid_frete_internacional: '',
     observacoes_proposta_bid_frete_internacional: '',
   })
 
@@ -121,7 +121,7 @@ export default function ResponderPublico() {
     e.preventDefault()
     if (!token) return
 
-    if (!form.valor_frete_proposta_bid_frete_internacional || !form.dias_transito_proposta_bid_frete_internacional || !form.validade) {
+    if (!form.valor_frete_proposta_bid_frete_internacional || !form.dias_transito_proposta_bid_frete_internacional || !form.validade_proposta_bid_frete_internacional_proposta_bid_frete_internacional) {
       setErro(t('bidfrete.portal.publico.campos_obrigatorios'))
       return
     }
@@ -129,17 +129,17 @@ export default function ResponderPublico() {
     setEnviando(true)
     setErro('')
     try {
-      const payload: Partial<BidResponse> = {
-        moeda_ganho_bid_frete_internacional: form.moeda_ganho_bid_frete_internacional,
+      const payload: Partial<PropostaBidFreteInternacional> = {
+        moeda_proposta_bid_frete_internacional: form.moeda_proposta_bid_frete_internacional,
         valor_frete_proposta_bid_frete_internacional: parseFloat(form.valor_frete_proposta_bid_frete_internacional),
         taxas_origem_proposta_bid_frete_internacional: parseFloat(form.taxas_origem_proposta_bid_frete_internacional) || 0,
         taxas_destino_proposta_bid_frete_internacional: parseFloat(form.taxas_destino_proposta_bid_frete_internacional) || 0,
         valor_total_proposta_bid_frete_internacional: total,
         dias_transito_proposta_bid_frete_internacional: parseInt(form.dias_transito_proposta_bid_frete_internacional, 10),
         dias_free_time_proposta_bid_frete_internacional: form.dias_free_time_proposta_bid_frete_internacional ? parseInt(form.dias_free_time_proposta_bid_frete_internacional, 10) : null,
-        validade: form.validade,
-        transbordos_proposta_bid_frete_internacional: parseInt(form.transbordos_proposta_bid_frete_internacional, 10) || 0,
-        escalas_proposta_bid_frete_internacional: form.escalas_proposta_bid_frete_internacional || null,
+        validade_proposta_bid_frete_internacional: form.validade_proposta_bid_frete_internacional_proposta_bid_frete_internacional,
+        quantidade_transbordo_proposta_bid_frete_internacional: parseInt(form.quantidade_transbordo_proposta_bid_frete_internacional, 10) || 0,
+        quantidade_escala_proposta_bid_frete_internacional: parseInt(form.quantidade_escala_proposta_bid_frete_internacional, 10) || 0,
         observacoes_proposta_bid_frete_internacional: form.observacoes_proposta_bid_frete_internacional || null,
       }
       await responderPublico(token, payload)
@@ -252,7 +252,7 @@ export default function ResponderPublico() {
           <div className="rp-form-grid">
             <div className="rp-field">
               <label className="rp-label">{t('bidfrete.portal.responder.campo_moeda')}</label>
-              <select className="rp-input" value={form.moeda_ganho_bid_frete_internacional} onChange={e => handleChange('moeda_ganho_bid_frete_internacional', e.target.value)}>
+              <select className="rp-input" value={form.moeda_proposta_bid_frete_internacional} onChange={e => handleChange('moeda_proposta_bid_frete_internacional', e.target.value)}>
                 {MOEDAS.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
@@ -297,7 +297,7 @@ export default function ResponderPublico() {
               <label className="rp-label">{t('bidfrete.portal.responder.campo_total')}</label>
               <div className="rp-total-display">
                 <CurrencyDollar weight="duotone" size={18} />
-                <span className="rp-total-valor">{form.moeda_ganho_bid_frete_internacional} {fmtTotal}</span>
+                <span className="rp-total-valor">{form.moeda_proposta_bid_frete_internacional} {fmtTotal}</span>
               </div>
             </div>
 
@@ -328,8 +328,8 @@ export default function ResponderPublico() {
               <input
                 className="rp-input"
                 type="date"
-                value={form.validade}
-                onChange={e => handleChange('validade', e.target.value)}
+                value={form.validade_proposta_bid_frete_internacional}
+                onChange={e => handleChange('validade_proposta_bid_frete_internacional', e.target.value)}
               />
             </div>
             <div className="rp-field">
@@ -339,8 +339,8 @@ export default function ResponderPublico() {
                 type="number"
                 min="0"
                 placeholder="0"
-                value={form.transbordos_proposta_bid_frete_internacional}
-                onChange={e => handleChange('transbordos_proposta_bid_frete_internacional', e.target.value)}
+                value={form.quantidade_transbordo_proposta_bid_frete_internacional}
+                onChange={e => handleChange('quantidade_transbordo_proposta_bid_frete_internacional', e.target.value)}
               />
             </div>
             <div className="rp-field">
@@ -349,8 +349,8 @@ export default function ResponderPublico() {
                 className="rp-input"
                 type="text"
                 placeholder="Ex: Singapore, Colombo"
-                value={form.escalas_proposta_bid_frete_internacional}
-                onChange={e => handleChange('escalas_proposta_bid_frete_internacional', e.target.value)}
+                value={form.quantidade_escala_proposta_bid_frete_internacional}
+                onChange={e => handleChange('quantidade_escala_proposta_bid_frete_internacional', e.target.value)}
               />
             </div>
             <div className="rp-field rp-field--wide">

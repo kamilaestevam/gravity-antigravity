@@ -1,4 +1,4 @@
-/**
+﻿/**
  * motor-classificacao.ts — Motor de Classificação (Automático + Manual)
  * Classificação/Rating GLOBAL: cross-tenant, baseado no email do fornecedor
  * Classificação manual: por avaliação individual de cada tenant
@@ -13,24 +13,24 @@ export const motorClassificacao = {
    */
   async recalcular(prisma: PrismaClient, fornecedorEmail: string) {
     // Buscar todos os BidRequests deste fornecedor (cross-tenant, usa basePrisma)
-    const allRequests = await (prisma as any).bidFreteInternacionalPedidoCotacao.findMany({
+    const allRequests = await (prisma as any).disparoCotacaoBidFreteInternacional.findMany({
       where: { fornecedor: { email_fornecedor_bid_frete_internacional: fornecedorEmail } },
       include: { fornecedor: { select: { email_fornecedor_bid_frete_internacional: true } } },
     })
 
-    const allResponses = await (prisma as any).bidFreteInternacionalProposta.findMany({
+    const allResponses = await (prisma as any).propostaBidFreteInternacional.findMany({
       where: { fornecedor: { email_fornecedor_bid_frete_internacional: fornecedorEmail } },
     })
 
-    const allAvaliacoes = await (prisma as any).bidFreteInternacionalAvaliacao.findMany({
+    const allAvaliacoes = await (prisma as any).avaliacaoBidFreteInternacional.findMany({
       where: { fornecedor: { email_fornecedor_bid_frete_internacional: fornecedorEmail } },
     })
 
     // Metricas automáticas
-    type RequestRow = { status_pedido_cotacao_bid_frete_internacional?: string; data_envio_pedido_cotacao_bid_frete_internacional?: Date | string | null; data_resposta_pedido_cotacao_bid_frete_internacional?: Date | string | null }
+    type RequestRow = { status_disparo_cotacao_bid_frete_internacional?: string; data_envio_disparo_cotacao_bid_frete_internacional?: Date | string | null; data_resposta_disparo_cotacao_bid_frete_internacional?: Date | string | null }
     type ResponseRow = { status_proposta_bid_frete_internacional?: string }
     const totalRecebidas = allRequests.length
-    const totalRespondidas = allRequests.filter((r: RequestRow) => r.status_pedido_cotacao_bid_frete_internacional === 'RESPONDIDO').length
+    const totalRespondidas = allRequests.filter((r: RequestRow) => r.status_disparo_cotacao_bid_frete_internacional === 'RESPONDIDO').length
     const totalAprovadas = allResponses.filter((r: ResponseRow) => r.status_proposta_bid_frete_internacional === 'APROVADA').length
 
     const taxaResposta = totalRecebidas > 0 ? (totalRespondidas / totalRecebidas) * 100 : 0
@@ -38,8 +38,8 @@ export const motorClassificacao = {
 
     // Tempo médio de resposta
     const temposResposta = allRequests
-      .filter((r: RequestRow) => r.data_envio_pedido_cotacao_bid_frete_internacional && r.data_resposta_pedido_cotacao_bid_frete_internacional)
-      .map((r: RequestRow) => (new Date(r.data_resposta_pedido_cotacao_bid_frete_internacional as string).getTime() - new Date(r.data_envio_pedido_cotacao_bid_frete_internacional as string).getTime()) / (1000 * 60 * 60))
+      .filter((r: RequestRow) => r.data_envio_disparo_cotacao_bid_frete_internacional && r.data_resposta_disparo_cotacao_bid_frete_internacional)
+      .map((r: RequestRow) => (new Date(r.data_resposta_disparo_cotacao_bid_frete_internacional as string).getTime() - new Date(r.data_envio_disparo_cotacao_bid_frete_internacional as string).getTime()) / (1000 * 60 * 60))
     const tempoMedio = temposResposta.length > 0
       ? temposResposta.reduce((a: number, b: number) => a + b, 0) / temposResposta.length
       : 0
@@ -67,7 +67,7 @@ export const motorClassificacao = {
       : scoreAuto
 
     // Upsert na Classificação (tabela global)
-    await (prisma as any).bidFreteInternacionalClassificacao.upsert({
+    await (prisma as any).classificacaoBidFreteInternacional.upsert({
       where: { email_fornecedor_classificacao_bid_frete_internacional: fornecedorEmail },
       create: {
         email_fornecedor_classificacao_bid_frete_internacional: fornecedorEmail,

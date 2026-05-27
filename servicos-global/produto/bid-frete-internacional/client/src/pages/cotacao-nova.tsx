@@ -4,14 +4,13 @@
  * cards ricos em descrição, painel inteligente de Incoterms e resumo visual avançado.
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   Truck,
   ArrowLeft,
   ArrowRight,
-  Check,
   Anchor,
   AirplaneTilt,
   Van,
@@ -21,21 +20,19 @@ import {
   Users,
   FileText,
   CheckCircle,
-  Warning,
   Info,
-  X,
-  MagnifyingGlass,
 } from '@phosphor-icons/react'
 
-import { criarCotacao, getPaises, getPortos, getAeroportos, getContainers } from '../shared/api'
+import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
+import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
+
+import { criarCotacao, getContainers } from '../shared/api'
+import { useAeroportosPorPais, usePaisesCadastros, usePortosPorPais } from '../shared/useCadastrosLogistica'
 import type {
   TipoOperacao,
   ModalFrete,
   ModalidadeCarga,
   Visibilidade,
-  Pais,
-  Porto,
-  Aeroporto,
   ContainerOption,
 } from '../shared/types'
 import {
@@ -62,42 +59,10 @@ const UFS_BRASIL = [
   'PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO',
 ]
 
-// ─── Autocomplete Helper ────────────────────────────────────────────────────
-function useAutocomplete<T>(
-  fetchFn: (q: string) => Promise<T[]>,
-  delay = 300,
-) {
-  const [query, setQuery] = useState('')
-  const [options, setOptions] = useState<T[]>([])
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const timerRef = useRef<ReturnType<typeof setTimeout>>()
-  const wrapperRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!query || query.length < 2) { setOptions([]); return }
-    setLoading(true)
-    timerRef.current = setTimeout(async () => {
-      try {
-        const data = await fetchFn(query)
-        setOptions(data)
-        setOpen(true)
-      } catch { setOptions([]) }
-      finally { setLoading(false) }
-    }, delay)
-    return () => clearTimeout(timerRef.current)
-  }, [query])
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
-  return { query, setQuery, options, open, setOpen, loading, wrapperRef }
-}
+const OPCOES_ESTADOS_BR: SelectOpcao[] = [
+  { valor: '', rotulo: 'Selecione...' },
+  ...UFS_BRASIL.map((uf) => ({ valor: uf, rotulo: uf })),
+]
 
 // ─── Form State ──────────────────────────────────────────────────────────────
 interface FormState {
@@ -131,15 +96,16 @@ interface FormState {
   cubagem_m3_cotacao_bid_frete_internacional: string
   // Incoterm
   incoterm_cotacao_bid_frete_internacional: string
-  cep_origem: string
-  cep_destino: string
-  prazo_resposta: string
+  zipcode_origem_cotacao_bid_frete_internacional: string
+  endereco_origem_cotacao_bid_frete_internacional: string
+  zipcode_destino_cotacao_bid_frete_internacional: string
+  data_limite_resposta_cotacao_bid_frete_internacional: string
   // Fornecedores
   visibilidade_cotacao_bid_frete_internacional: Visibilidade
-  anonima: boolean
+  anonima_cotacao_bid_frete_internacional: boolean
   // Resumo
-  valor_alvo: string
-  moeda_alvo: string
+  valor_meta_cotacao_bid_frete_internacional: string
+  moeda_meta_cotacao_bid_frete_internacional: string
 }
 
 const INITIAL_FORM: FormState = {
@@ -169,13 +135,14 @@ const INITIAL_FORM: FormState = {
   peso_ton_cotacao_bid_frete_internacional: '',
   cubagem_m3_cotacao_bid_frete_internacional: '',
   incoterm_cotacao_bid_frete_internacional: '',
-  cep_origem: '',
-  cep_destino: '',
-  prazo_resposta: '',
+  zipcode_origem_cotacao_bid_frete_internacional: '',
+  endereco_origem_cotacao_bid_frete_internacional: '',
+  zipcode_destino_cotacao_bid_frete_internacional: '',
+  data_limite_resposta_cotacao_bid_frete_internacional: '',
   visibilidade_cotacao_bid_frete_internacional: 'DIRECIONADA',
-  anonima: false,
-  valor_alvo: '',
-  moeda_alvo: 'USD',
+  anonima_cotacao_bid_frete_internacional: false,
+  valor_meta_cotacao_bid_frete_internacional: '',
+  moeda_meta_cotacao_bid_frete_internacional: 'USD',
 }
 
 // ─── Descrições Enriquecidas de Opções ──────────────────────────────────────
@@ -185,9 +152,9 @@ const OPERACAO_DESCS: Record<TipoOperacao, string> = {
 }
 
 const MODAL_DESCS: Record<ModalFrete, string> = {
-  MARITIMO: 'Grandes volumes por vias oceânicas com custo altamente otimizado.',
-  AEREO: 'Agilidade máxima e trânsito expresso para mercadorias críticas.',
-  RODOVIARIO: 'Transporte flexível, direto e porta-a-porta por rodovias.',
+  MARITIMO: 'Alto volume, menor custo',
+  AEREO: 'Entrega rápida e expressa',
+  RODOVIARIO: 'Flexível e porta a porta',
 }
 
 const MODALIDADE_DESCS: Record<ModalidadeCarga, string> = {
@@ -294,13 +261,15 @@ function Field({
   label,
   required,
   children,
+  className,
 }: {
   label: string
   required?: boolean
   children: React.ReactNode
+  className?: string
 }) {
   return (
-    <div className="nc-field">
+    <div className={`nc-field${className ? ` ${className}` : ''}`}>
       <label className="nc-field-label">
         {label}
         {required && <span style={{ color: 'var(--danger, #ef4444)' }}> *</span>}
@@ -310,1395 +279,18 @@ function Field({
   )
 }
 
-// ─── Componente Principal ────────────────────────────────────────────────────
-export default function NovaCotacao() {
-  const navigate = useNavigate()
-  const { t } = useTranslation()
-  const [step, setStep] = useState(1)
-  const [form, setForm] = useState<FormState>(INITIAL_FORM)
-  const [salvando, setSalvando] = useState(false)
-  const [sucesso, setSucesso] = useState(false)
-  const [cotacaoId, setCotacaoId] = useState<string | null>(null)
-  const [containersList, setContainersList] = useState<ContainerOption[]>([])
 
-  // Autocompletes
-  const paisOrigem = useAutocomplete<Pais>((q) => getPaises(q))
-  const paisDestino = useAutocomplete<Pais>((q) => getPaises(q))
-  const portoOrigem = useAutocomplete<Porto>((q) => getPortos(q))
-  const portoDestino = useAutocomplete<Porto>((q) => getPortos(q))
-  const aeroportoOrigem = useAutocomplete<Aeroporto>((q) => getAeroportos(q, form.origem_pais_cotacao_bid_frete_internacional || undefined))
-  const aeroportoDestino = useAutocomplete<Aeroporto>((q) => getAeroportos(q, form.destino_pais_cotacao_bid_frete_internacional || undefined))
-
-  // Carregar containers ao montar
-  useEffect(() => {
-    getContainers().then(setContainersList).catch(() => {})
-  }, [])
-
-  const modal = form.modal_cotacao_bid_frete_internacional
-
-  const stepStatus = (passoId: number): 'pendente' | 'ativo' | 'feito' => {
-    if (passoId < step) return 'feito'
-    if (passoId === step) return 'ativo'
-    return 'pendente'
-  }
-
-  const set = <K extends keyof FormState>(key: K, val: FormState[K]) =>
-    setForm(prev => ({ ...prev, [key]: val }))
-
-  const canNext = (): boolean => {
-    switch (step) {
-      case 1: return !!form.tipo_operacao_cotacao_bid_frete_internacional && !!form.modal_cotacao_bid_frete_internacional && !!form.modalidade_cotacao_bid_frete_internacional
-      case 2: {
-        const temPais = !!form.origem_pais_cotacao_bid_frete_internacional
-        if (modal === 'MARITIMO') return temPais && !!form.origem_codigo_cotacao_bid_frete_internacional
-        if (modal === 'AEREO') return temPais && !!form.aeroporto_origem_cotacao_bid_frete_internacional
-        return temPais // RODOVIARIO: só país
-      }
-      case 3: {
-        const temPais = !!form.destino_pais_cotacao_bid_frete_internacional
-        if (modal === 'MARITIMO') return temPais && !!form.destino_codigo_cotacao_bid_frete_internacional
-        if (modal === 'AEREO') return temPais && !!form.aeroporto_destino_cotacao_bid_frete_internacional
-        return temPais
-      }
-      case 4: return !!form.descricao_mercadoria_cotacao_bid_frete_internacional && form.quantidade_cotacao_bid_frete_internacional > 0
-      case 5: return !!form.incoterm_cotacao_bid_frete_internacional
-      case 6: return true
-      case 7: return true
-      default: return false
-    }
-  }
-
-  const handleSubmit = async () => {
-    setSalvando(true)
-    try {
-      const cotacao = await criarCotacao({
-        tipo_operacao_cotacao_bid_frete_internacional: form.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao,
-        modal_cotacao_bid_frete_internacional: form.modal_cotacao_bid_frete_internacional as ModalFrete,
-        modalidade_cotacao_bid_frete_internacional: form.modalidade_cotacao_bid_frete_internacional as ModalidadeCarga,
-        origem_codigo_cotacao_bid_frete_internacional: form.origem_codigo_cotacao_bid_frete_internacional,
-        origem_nome_cotacao_bid_frete_internacional: form.origem_nome_cotacao_bid_frete_internacional || form.aeroporto_origem_nome,
-        origem_pais_cotacao_bid_frete_internacional: form.origem_pais_cotacao_bid_frete_internacional,
-        destino_codigo_cotacao_bid_frete_internacional: form.destino_codigo_cotacao_bid_frete_internacional,
-        destino_nome_cotacao_bid_frete_internacional: form.destino_nome_cotacao_bid_frete_internacional || form.aeroporto_destino_nome,
-        destino_pais_cotacao_bid_frete_internacional: form.destino_pais_cotacao_bid_frete_internacional,
-        descricao_mercadoria_cotacao_bid_frete_internacional: form.descricao_mercadoria_cotacao_bid_frete_internacional,
-        ncm_cotacao_bid_frete_internacional: form.ncm_cotacao_bid_frete_internacional || undefined,
-        quantidade_cotacao_bid_frete_internacional: form.quantidade_cotacao_bid_frete_internacional,
-        tipo_container_cotacao_bid_frete_internacional: form.tipo_container_cotacao_bid_frete_internacional || undefined,
-        peso_kg_cotacao_bid_frete_internacional: form.peso_kg_cotacao_bid_frete_internacional ? parseFloat(form.peso_kg_cotacao_bid_frete_internacional) : undefined,
-        cubagem_m3_cotacao_bid_frete_internacional: form.cubagem_m3_cotacao_bid_frete_internacional ? parseFloat(form.cubagem_m3_cotacao_bid_frete_internacional) : undefined,
-        incoterm_cotacao_bid_frete_internacional: form.incoterm_cotacao_bid_frete_internacional,
-        cep_destino: form.cep_destino || undefined,
-        visibilidade_cotacao_bid_frete_internacional: form.visibilidade_cotacao_bid_frete_internacional,
-        anonima: form.anonima,
-        valor_alvo: form.valor_alvo ? parseFloat(form.valor_alvo) : undefined,
-        moeda_alvo: form.moeda_alvo,
-        prazo_resposta: form.prazo_resposta || undefined,
-      } as any)
-      setCotacaoId(cotacao.id)
-      setSucesso(true)
-    } catch (err) {
-      console.error('Erro ao criar cotação:', err)
-      alert('Erro ao criar cotação: ' + (err instanceof Error ? err.message : String(err)))
-    } finally {
-      setSalvando(false)
-    }
-  }
-
-  // ─── Step Content ─────────────────────────────────────────────────────
-  const renderStep = () => {
-    switch (step) {
-      // STEP 1 — Modal e Operação
-      case 1:
-        return (
-          <div className="nc-step-content">
-            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.tipo_operacao')}</h3>
-            <div className="nc-options-grid-2">
-              {(['IMPORTACAO', 'EXPORTACAO'] as TipoOperacao[]).map(op => (
-                <OptionButton
-                  key={op}
-                  selected={form.tipo_operacao_cotacao_bid_frete_internacional === op}
-                  onClick={() => {
-                    set('tipo_operacao_cotacao_bid_frete_internacional', op)
-                  }}
-                  icon={op === 'IMPORTACAO' ? <ArrowLeft weight="duotone" size={24} /> : <ArrowRight weight="duotone" size={24} />}
-                  label={OPERACAO_LABELS[op]}
-                  description={OPERACAO_DESCS[op]}
-                />
-              ))}
-            </div>
-
-            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.modal_frete')}</h3>
-            <div className="nc-options-grid-3">
-              <OptionButton
-                selected={form.modal_cotacao_bid_frete_internacional === 'MARITIMO'}
-                onClick={() => {
-                  set('modal_cotacao_bid_frete_internacional', 'MARITIMO')
-                  set('modalidade_cotacao_bid_frete_internacional', '') // reseta para forçar escolha limpa
-                }}
-                icon={<Anchor weight="duotone" size={28} />}
-                label="Marítimo"
-                description={MODAL_DESCS.MARITIMO}
-              />
-              <OptionButton
-                selected={form.modal_cotacao_bid_frete_internacional === 'AEREO'}
-                onClick={() => {
-                  set('modal_cotacao_bid_frete_internacional', 'AEREO')
-                  set('modalidade_cotacao_bid_frete_internacional', '')
-                }}
-                icon={<AirplaneTilt weight="duotone" size={28} />}
-                label="Aéreo"
-                description={MODAL_DESCS.AEREO}
-              />
-              <OptionButton
-                selected={form.modal_cotacao_bid_frete_internacional === 'RODOVIARIO'}
-                onClick={() => {
-                  set('modal_cotacao_bid_frete_internacional', 'RODOVIARIO')
-                  set('modalidade_cotacao_bid_frete_internacional', '')
-                }}
-                icon={<Van weight="duotone" size={28} />}
-                label="Rodoviário"
-                description={MODAL_DESCS.RODOVIARIO}
-              />
-            </div>
-
-            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.modalidade')}</h3>
-            <div className="nc-options-grid-2">
-              {form.modal_cotacao_bid_frete_internacional === 'MARITIMO' && (
-                <>
-                  <OptionButton selected={form.modalidade_cotacao_bid_frete_internacional === 'FCL'} onClick={() => set('modalidade_cotacao_bid_frete_internacional', 'FCL')} icon={<Package weight="duotone" size={22} />} label="FCL — Container Completo" description={MODALIDADE_DESCS.FCL} />
-                  <OptionButton selected={form.modalidade_cotacao_bid_frete_internacional === 'LCL'} onClick={() => set('modalidade_cotacao_bid_frete_internacional', 'LCL')} icon={<Package weight="duotone" size={22} />} label="LCL — Carga Fracionada" description={MODALIDADE_DESCS.LCL} />
-                </>
-              )}
-              {form.modal_cotacao_bid_frete_internacional === 'AEREO' && (
-                <div style={{ gridColumn: 'span 2' }}>
-                  <OptionButton selected={form.modalidade_cotacao_bid_frete_internacional === 'AEREO_GERAL'} onClick={() => set('modalidade_cotacao_bid_frete_internacional', 'AEREO_GERAL')} icon={<AirplaneTilt weight="duotone" size={22} />} label="Aéreo Geral" description={MODALIDADE_DESCS.AEREO_GERAL} />
-                </div>
-              )}
-              {form.modal_cotacao_bid_frete_internacional === 'RODOVIARIO' && (
-                <>
-                  <OptionButton selected={form.modalidade_cotacao_bid_frete_internacional === 'RODOVIARIO_FTL'} onClick={() => set('modalidade_cotacao_bid_frete_internacional', 'RODOVIARIO_FTL')} icon={<Van weight="duotone" size={22} />} label="FTL — Carga Completa" description={MODALIDADE_DESCS.RODOVIARIO_FTL} />
-                  <OptionButton selected={form.modalidade_cotacao_bid_frete_internacional === 'RODOVIARIO_LTL'} onClick={() => set('modalidade_cotacao_bid_frete_internacional', 'RODOVIARIO_LTL')} icon={<Van weight="duotone" size={22} />} label="LTL — Carga Fracionada" description={MODALIDADE_DESCS.RODOVIARIO_LTL} />
-                </>
-              )}
-              {!form.modal_cotacao_bid_frete_internacional && (
-                <div className="nc-empty-hint">
-                  <Info size={18} weight="duotone" />
-                  <p>{t('bidfrete.nova_cotacao.selecionar_modal_primeiro')}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )
-
-      // STEP 2 — Origem
-      case 2:
-        return (
-          <div className="nc-step-content">
-            <div className="nc-location-visual-card nc-location-visual-card--origin">
-              <div className="nc-location-visual-header">
-                <div className="nc-location-visual-circle">
-                  <MapPin weight="duotone" size={26} className="nc-pulsing-icon" />
-                </div>
-                <div className="nc-location-visual-text">
-                  <h4>{modal === 'AEREO' ? 'Aeroporto de Origem' : modal === 'RODOVIARIO' ? 'Local de Origem' : t('bidfrete.nova_cotacao.porto_origem')}</h4>
-                  <p>{modal === 'AEREO' ? 'Selecione o país e o aeroporto de partida.' : modal === 'RODOVIARIO' ? 'Selecione o país e estado/província de coleta.' : 'Selecione o país e o porto de embarque.'}</p>
-                </div>
-              </div>
-
-              <div className="nc-fields-grid nc-fields-grid--location-new">
-                {/* País Origem — Autocomplete */}
-                <Field label="PAÍS" required>
-                  <div className="nc-autocomplete" ref={paisOrigem.wrapperRef}>
-                    <div className="nc-input-icon-wrap">
-                      <MagnifyingGlass size={14} className="nc-input-search-icon" />
-                      <input
-                        className="nc-input nc-input--search"
-                        placeholder="Buscar país..."
-                        value={form.origem_pais_nome || paisOrigem.query}
-                        onChange={e => { paisOrigem.setQuery(e.target.value); set('origem_pais_cotacao_bid_frete_internacional', ''); set('origem_pais_nome', '') }}
-                        onFocus={() => { if (paisOrigem.options.length > 0) paisOrigem.setOpen(true) }}
-                      />
-                    </div>
-                    {paisOrigem.open && paisOrigem.options.length > 0 && (
-                      <ul className="nc-autocomplete-list">
-                        {paisOrigem.options.map(p => (
-                          <li key={p.codigo_pais_iso_alpha2} className="nc-autocomplete-item" onClick={() => {
-                            set('origem_pais_cotacao_bid_frete_internacional', p.codigo_pais_iso_alpha2)
-                            set('origem_pais_nome', `${p.nome_pais_portugues} (${p.codigo_pais_iso_alpha2})`)
-                            paisOrigem.setQuery('')
-                            paisOrigem.setOpen(false)
-                          }}>
-                            <span className="nc-ac-code">{p.codigo_pais_iso_alpha2}</span>
-                            <span className="nc-ac-name">{p.nome_pais_portugues}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </Field>
-
-                {/* Estado/Província */}
-                <Field label="ESTADO / PROVÍNCIA">
-                  {form.origem_pais_cotacao_bid_frete_internacional === 'BR' ? (
-                    <select className="nc-input" value={form.estado_provincia_origem_cotacao_bid_frete_internacional} onChange={e => set('estado_provincia_origem_cotacao_bid_frete_internacional', e.target.value)}>
-                      <option value="">Selecione o UF</option>
-                      {UFS_BRASIL.map(uf => <option key={uf} value={uf}>{uf}</option>)}
-                    </select>
-                  ) : (
-                    <input className="nc-input" placeholder="Ex: Guangdong" value={form.estado_provincia_origem_cotacao_bid_frete_internacional} onChange={e => set('estado_provincia_origem_cotacao_bid_frete_internacional', e.target.value)} />
-                  )}
-                </Field>
-
-                {/* Porto — só MARITIMO */}
-                {modal === 'MARITIMO' && (
-                  <Field label="PORTO DE EMBARQUE" required>
-                    <div className="nc-autocomplete" ref={portoOrigem.wrapperRef}>
-                      <div className="nc-input-icon-wrap">
-                        <Anchor size={14} className="nc-input-search-icon" />
-                        <input
-                          className="nc-input nc-input--search"
-                          placeholder="Buscar porto..."
-                          value={form.origem_nome_cotacao_bid_frete_internacional || portoOrigem.query}
-                          onChange={e => { portoOrigem.setQuery(e.target.value); set('origem_codigo_cotacao_bid_frete_internacional', ''); set('origem_nome_cotacao_bid_frete_internacional', '') }}
-                          onFocus={() => { if (portoOrigem.options.length > 0) portoOrigem.setOpen(true) }}
-                        />
-                      </div>
-                      {portoOrigem.open && portoOrigem.options.length > 0 && (
-                        <ul className="nc-autocomplete-list">
-                          {portoOrigem.options.map(p => (
-                            <li key={p.codigo} className="nc-autocomplete-item" onClick={() => {
-                              set('origem_codigo_cotacao_bid_frete_internacional', p.codigo)
-                              set('origem_nome_cotacao_bid_frete_internacional', `${p.nome} (${p.codigo})`)
-                              portoOrigem.setQuery('')
-                              portoOrigem.setOpen(false)
-                            }}>
-                              <span className="nc-ac-code">{p.codigo}</span>
-                              <span className="nc-ac-name">{p.nome}</span>
-                              <span className="nc-ac-pais">{p.pais}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </Field>
-                )}
-
-                {/* Aeroporto — só AEREO */}
-                {modal === 'AEREO' && (
-                  <Field label="AEROPORTO DE EMBARQUE" required>
-                    <div className="nc-autocomplete" ref={aeroportoOrigem.wrapperRef}>
-                      <div className="nc-input-icon-wrap">
-                        <AirplaneTilt size={14} className="nc-input-search-icon" />
-                        <input
-                          className="nc-input nc-input--search"
-                          placeholder="Buscar aeroporto..."
-                          value={form.aeroporto_origem_nome || aeroportoOrigem.query}
-                          onChange={e => { aeroportoOrigem.setQuery(e.target.value); set('aeroporto_origem_cotacao_bid_frete_internacional', ''); set('aeroporto_origem_nome', '') }}
-                          onFocus={() => { if (aeroportoOrigem.options.length > 0) aeroportoOrigem.setOpen(true) }}
-                        />
-                      </div>
-                      {aeroportoOrigem.open && aeroportoOrigem.options.length > 0 && (
-                        <ul className="nc-autocomplete-list">
-                          {aeroportoOrigem.options.map(a => (
-                            <li key={a.id_aeroporto} className="nc-autocomplete-item" onClick={() => {
-                              set('aeroporto_origem_cotacao_bid_frete_internacional', a.codigo_iata_aeroporto)
-                              set('aeroporto_origem_nome', `${a.nome_aeroporto} (${a.codigo_iata_aeroporto})`)
-                              aeroportoOrigem.setQuery('')
-                              aeroportoOrigem.setOpen(false)
-                            }}>
-                              <span className="nc-ac-code">{a.codigo_iata_aeroporto}</span>
-                              <span className="nc-ac-name">{a.nome_aeroporto}</span>
-                              <span className="nc-ac-pais">{a.codigo_pais_aeroporto}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </Field>
-                )}
-              </div>
-            </div>
-          </div>
-        )
-
-      // STEP 3 — Destino
-      case 3:
-        return (
-          <div className="nc-step-content">
-            <div className="nc-location-visual-card nc-location-visual-card--destination">
-              <div className="nc-location-visual-header">
-                <div className="nc-location-visual-circle">
-                  <MapPin weight="duotone" size={26} className="nc-pulsing-icon-dest" />
-                </div>
-                <div className="nc-location-visual-text">
-                  <h4>{modal === 'AEREO' ? 'Aeroporto de Destino' : modal === 'RODOVIARIO' ? 'Local de Destino' : t('bidfrete.nova_cotacao.porto_destino')}</h4>
-                  <p>{modal === 'AEREO' ? 'Selecione o país e o aeroporto de chegada.' : modal === 'RODOVIARIO' ? 'Selecione o país e estado/província de entrega.' : 'Selecione o país e o porto de destino.'}</p>
-                </div>
-              </div>
-
-              <div className="nc-fields-grid nc-fields-grid--location-new">
-                {/* País Destino — Autocomplete */}
-                <Field label="PAÍS" required>
-                  <div className="nc-autocomplete" ref={paisDestino.wrapperRef}>
-                    <div className="nc-input-icon-wrap">
-                      <MagnifyingGlass size={14} className="nc-input-search-icon" />
-                      <input
-                        className="nc-input nc-input--search"
-                        placeholder="Buscar país..."
-                        value={form.destino_pais_nome || paisDestino.query}
-                        onChange={e => { paisDestino.setQuery(e.target.value); set('destino_pais_cotacao_bid_frete_internacional', ''); set('destino_pais_nome', '') }}
-                        onFocus={() => { if (paisDestino.options.length > 0) paisDestino.setOpen(true) }}
-                      />
-                    </div>
-                    {paisDestino.open && paisDestino.options.length > 0 && (
-                      <ul className="nc-autocomplete-list">
-                        {paisDestino.options.map(p => (
-                          <li key={p.codigo_pais_iso_alpha2} className="nc-autocomplete-item" onClick={() => {
-                            set('destino_pais_cotacao_bid_frete_internacional', p.codigo_pais_iso_alpha2)
-                            set('destino_pais_nome', `${p.nome_pais_portugues} (${p.codigo_pais_iso_alpha2})`)
-                            paisDestino.setQuery('')
-                            paisDestino.setOpen(false)
-                          }}>
-                            <span className="nc-ac-code">{p.codigo_pais_iso_alpha2}</span>
-                            <span className="nc-ac-name">{p.nome_pais_portugues}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </Field>
-
-                {/* Estado/Província */}
-                <Field label="ESTADO / PROVÍNCIA">
-                  {form.destino_pais_cotacao_bid_frete_internacional === 'BR' ? (
-                    <select className="nc-input" value={form.estado_provincia_destino_cotacao_bid_frete_internacional} onChange={e => set('estado_provincia_destino_cotacao_bid_frete_internacional', e.target.value)}>
-                      <option value="">Selecione o UF</option>
-                      {UFS_BRASIL.map(uf => <option key={uf} value={uf}>{uf}</option>)}
-                    </select>
-                  ) : (
-                    <input className="nc-input" placeholder="Ex: California" value={form.estado_provincia_destino_cotacao_bid_frete_internacional} onChange={e => set('estado_provincia_destino_cotacao_bid_frete_internacional', e.target.value)} />
-                  )}
-                </Field>
-
-                {/* Porto — só MARITIMO */}
-                {modal === 'MARITIMO' && (
-                  <Field label="PORTO DE DESTINO" required>
-                    <div className="nc-autocomplete" ref={portoDestino.wrapperRef}>
-                      <div className="nc-input-icon-wrap">
-                        <Anchor size={14} className="nc-input-search-icon" />
-                        <input
-                          className="nc-input nc-input--search"
-                          placeholder="Buscar porto..."
-                          value={form.destino_nome_cotacao_bid_frete_internacional || portoDestino.query}
-                          onChange={e => { portoDestino.setQuery(e.target.value); set('destino_codigo_cotacao_bid_frete_internacional', ''); set('destino_nome_cotacao_bid_frete_internacional', '') }}
-                          onFocus={() => { if (portoDestino.options.length > 0) portoDestino.setOpen(true) }}
-                        />
-                      </div>
-                      {portoDestino.open && portoDestino.options.length > 0 && (
-                        <ul className="nc-autocomplete-list">
-                          {portoDestino.options.map(p => (
-                            <li key={p.codigo} className="nc-autocomplete-item" onClick={() => {
-                              set('destino_codigo_cotacao_bid_frete_internacional', p.codigo)
-                              set('destino_nome_cotacao_bid_frete_internacional', `${p.nome} (${p.codigo})`)
-                              portoDestino.setQuery('')
-                              portoDestino.setOpen(false)
-                            }}>
-                              <span className="nc-ac-code">{p.codigo}</span>
-                              <span className="nc-ac-name">{p.nome}</span>
-                              <span className="nc-ac-pais">{p.pais}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </Field>
-                )}
-
-                {/* Aeroporto — só AEREO */}
-                {modal === 'AEREO' && (
-                  <Field label="AEROPORTO DE DESTINO" required>
-                    <div className="nc-autocomplete" ref={aeroportoDestino.wrapperRef}>
-                      <div className="nc-input-icon-wrap">
-                        <AirplaneTilt size={14} className="nc-input-search-icon" />
-                        <input
-                          className="nc-input nc-input--search"
-                          placeholder="Buscar aeroporto..."
-                          value={form.aeroporto_destino_nome || aeroportoDestino.query}
-                          onChange={e => { aeroportoDestino.setQuery(e.target.value); set('aeroporto_destino_cotacao_bid_frete_internacional', ''); set('aeroporto_destino_nome', '') }}
-                          onFocus={() => { if (aeroportoDestino.options.length > 0) aeroportoDestino.setOpen(true) }}
-                        />
-                      </div>
-                      {aeroportoDestino.open && aeroportoDestino.options.length > 0 && (
-                        <ul className="nc-autocomplete-list">
-                          {aeroportoDestino.options.map(a => (
-                            <li key={a.id_aeroporto} className="nc-autocomplete-item" onClick={() => {
-                              set('aeroporto_destino_cotacao_bid_frete_internacional', a.codigo_iata_aeroporto)
-                              set('aeroporto_destino_nome', `${a.nome_aeroporto} (${a.codigo_iata_aeroporto})`)
-                              aeroportoDestino.setQuery('')
-                              aeroportoDestino.setOpen(false)
-                            }}>
-                              <span className="nc-ac-code">{a.codigo_iata_aeroporto}</span>
-                              <span className="nc-ac-name">{a.nome_aeroporto}</span>
-                              <span className="nc-ac-pais">{a.codigo_pais_aeroporto}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </Field>
-                )}
-              </div>
-            </div>
-          </div>
-        )
-
-      // STEP 4 — Carga
-      case 4:
-        return (
-          <div className="nc-step-content">
-            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.dados_mercadoria')}</h3>
-            <div className="nc-fields-grid nc-fields-grid--cargo">
-              <div style={{ gridColumn: 'span 2' }}>
-                <Field label={t('bidfrete.nova_cotacao.descricao_mercadoria')} required>
-                  <input className="nc-input" placeholder="Ex: Peças automotivas, eletrônicos industriais..." value={form.descricao_mercadoria_cotacao_bid_frete_internacional} onChange={e => set('descricao_mercadoria_cotacao_bid_frete_internacional', e.target.value)} />
-                </Field>
-              </div>
-              <Field label="NCM">
-                <input className="nc-input" placeholder="Ex: 87089990" value={form.ncm_cotacao_bid_frete_internacional} onChange={e => set('ncm_cotacao_bid_frete_internacional', e.target.value.replace(/\D/g, '').slice(0, 8))} />
-              </Field>
-              <Field label="HS CODE">
-                <input className="nc-input" placeholder="Ex: 8708.99" value={form.hs_code_cotacao_bid_frete_internacional} onChange={e => set('hs_code_cotacao_bid_frete_internacional', e.target.value.slice(0, 10))} />
-              </Field>
-
-              <Field label={t('bidfrete.nova_cotacao.quantidade')} required>
-                <div className="nc-input-group">
-                  <input className="nc-input nc-input--with-suffix" type="number" min={1} value={form.quantidade_cotacao_bid_frete_internacional} onChange={e => set('quantidade_cotacao_bid_frete_internacional', parseInt(e.target.value) || 1)} />
-                  <span className="nc-input-suffix">un</span>
-                </div>
-              </Field>
-
-              {modal === 'MARITIMO' && (
-                <Field label="TIPO CONTAINER">
-                  <select className="nc-input" value={form.tipo_container_cotacao_bid_frete_internacional} onChange={e => set('tipo_container_cotacao_bid_frete_internacional', e.target.value)}>
-                    <option value="">Selecione</option>
-                    {containersList.map(c => (
-                      <option key={c.codigo} value={c.codigo}>{c.nome} ({c.teus} TEU)</option>
-                    ))}
-                  </select>
-                </Field>
-              )}
-
-              <Field label="PESO (KG)">
-                <div className="nc-input-group">
-                  <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 12000" value={form.peso_kg_cotacao_bid_frete_internacional} onChange={e => {
-                    const val = e.target.value
-                    set('peso_kg_cotacao_bid_frete_internacional', val)
-                    if (val) set('peso_ton_cotacao_bid_frete_internacional', (parseFloat(val) / 1000).toFixed(3))
-                    else set('peso_ton_cotacao_bid_frete_internacional', '')
-                  }} />
-                  <span className="nc-input-suffix">Kg</span>
-                </div>
-              </Field>
-
-              <Field label="PESO (TON)">
-                <div className="nc-input-group">
-                  <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 12.0" value={form.peso_ton_cotacao_bid_frete_internacional} onChange={e => {
-                    const val = e.target.value
-                    set('peso_ton_cotacao_bid_frete_internacional', val)
-                    if (val) set('peso_kg_cotacao_bid_frete_internacional', (parseFloat(val) * 1000).toFixed(0))
-                    else set('peso_kg_cotacao_bid_frete_internacional', '')
-                  }} />
-                  <span className="nc-input-suffix">TON</span>
-                </div>
-              </Field>
-
-              <Field label="CUBAGEM (M³)">
-                <div className="nc-input-group">
-                  <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 33.2" value={form.cubagem_m3_cotacao_bid_frete_internacional} onChange={e => set('cubagem_m3_cotacao_bid_frete_internacional', e.target.value)} />
-                  <span className="nc-input-suffix">m³</span>
-                </div>
-              </Field>
-            </div>
-          </div>
-        )
-
-      // STEP 5 — Incoterm
-      case 5: {
-        const explanation = form.incoterm_cotacao_bid_frete_internacional ? INCOTERM_EXPLANATIONS[form.incoterm_cotacao_bid_frete_internacional] : null
-
-        return (
-          <div className="nc-step-content">
-            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.incoterm')}</h3>
-            <div className="nc-incoterm-grid">
-              {INCOTERMS.map(inc => (
-                <button
-                  key={inc}
-                  type="button"
-                  className={`nc-incoterm-btn ${form.incoterm_cotacao_bid_frete_internacional === inc ? 'nc-incoterm-btn--selected' : ''}`}
-                  onClick={() => set('incoterm_cotacao_bid_frete_internacional', inc)}
-                >
-                  {inc}
-                </button>
-              ))}
-            </div>
-
-            {/* UX Helper: Painel Explicativo Dinâmico do Incoterm */}
-            {explanation && (
-              <div className="nc-incoterm-helper-card nc-fade-in">
-                <div className="nc-helper-header">
-                  <Scales size={20} weight="duotone" className="nc-helper-icon" />
-                  <h4>{explanation.title}</h4>
-                </div>
-                <p className="nc-helper-desc">{explanation.desc}</p>
-                <div className="nc-helper-footer">
-                  <strong>Responsabilidade:</strong> {explanation.responsabilidade}
-                </div>
-              </div>
-            )}
-
-            <div className="nc-fields-grid" style={{ marginTop: '1.5rem' }}>
-              <Field label="CEP ORIGEM">
-                <input className="nc-input" placeholder="Ex: 01310-100" value={form.cep_origem} onChange={e => set('cep_origem', e.target.value)} />
-              </Field>
-              <Field label="CEP DESTINO">
-                <input className="nc-input" placeholder="Ex: 90000-000" value={form.cep_destino} onChange={e => set('cep_destino', e.target.value)} />
-              </Field>
-            </div>
-
-            <div className="nc-fields-grid" style={{ marginTop: '1.5rem' }}>
-              <Field label={t('bidfrete.nova_cotacao.prazo_respostas')}>
-                <input className="nc-input nc-input--date" type="datetime-local" value={form.prazo_resposta} onChange={e => set('prazo_resposta', e.target.value)} />
-              </Field>
-            </div>
-          </div>
-        )
-      }
-
-      // STEP 6 — Fornecedores
-      case 6:
-        return (
-          <div className="nc-step-content">
-            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.visibilidade')}</h3>
-            
-            <div className="nc-visibilidade_cotacao_bid_frete_internacional-grid">
-              <button
-                type="button"
-                className={`nc-vis-card ${form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA' ? 'nc-vis-card--selected' : ''}`}
-                onClick={() => set('visibilidade_cotacao_bid_frete_internacional', 'DIRECIONADA')}
-              >
-                <div className="nc-vis-icon-wrap">
-                  <Users weight="duotone" size={24} />
-                </div>
-                <div className="nc-vis-info">
-                  <span className="nc-vis-title">{t('bidfrete.nova_cotacao.direcionada_label')}</span>
-                  <span className="nc-vis-desc">{t('bidfrete.nova_cotacao.hint_direcionada')}</span>
-                </div>
-              </button>
-              
-              <button
-                type="button"
-                className={`nc-vis-card ${form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA' ? 'nc-vis-card--selected' : ''}`}
-                onClick={() => set('visibilidade_cotacao_bid_frete_internacional', 'ABERTA')}
-              >
-                <div className="nc-vis-icon-wrap">
-                  <Users weight="duotone" size={24} />
-                </div>
-                <div className="nc-vis-info">
-                  <span className="nc-vis-title">{t('bidfrete.nova_cotacao.aberta_label')}</span>
-                  <span className="nc-vis-desc">{t('bidfrete.nova_cotacao.hint_aberta')}</span>
-                </div>
-              </button>
-            </div>
-
-            {/* Custom Premium Alternator Switch para Anônima */}
-            <div className="nc-switch-row">
-              <label className="nc-switch-label">
-                <div className="nc-switch-text">
-                  <span className="nc-switch-title">{t('bidfrete.nova_cotacao.anonima_label')}</span>
-                  <span className="nc-switch-desc">Ocultar o nome da sua empresa no mercado inicial de lances para total confidencialidade.</span>
-                </div>
-                <div className="nc-switch">
-                  <input type="checkbox" checked={form.anonima} onChange={e => set('anonima', e.target.checked)} />
-                  <span className="nc-switch-slider"></span>
-                </div>
-              </label>
-            </div>
-          </div>
-        )
-
-      // STEP 7 — Resumo
-      case 7: {
-        const origemCode = modal === 'AEREO' ? form.aeroporto_origem_cotacao_bid_frete_internacional : form.origem_codigo_cotacao_bid_frete_internacional
-        const origemName = modal === 'AEREO' ? form.aeroporto_origem_nome : (modal === 'RODOVIARIO' ? (form.estado_provincia_origem_cotacao_bid_frete_internacional || form.origem_pais_nome) : form.origem_nome_cotacao_bid_frete_internacional)
-        const destinoCode = modal === 'AEREO' ? form.aeroporto_destino_cotacao_bid_frete_internacional : form.destino_codigo_cotacao_bid_frete_internacional
-        const destinoName = modal === 'AEREO' ? form.aeroporto_destino_nome : (modal === 'RODOVIARIO' ? (form.estado_provincia_destino_cotacao_bid_frete_internacional || form.destino_pais_nome) : form.destino_nome_cotacao_bid_frete_internacional)
-
-        return (
-          <div className="nc-step-content">
-            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.resumo_cotacao')}</h3>
-
-            <div className="nc-fields-grid nc-fields-grid--summary-inputs">
-              <Field label={t('bidfrete.nova_cotacao.valor_alvo')}>
-                <input className="nc-input" type="number" placeholder="Ex: 5000" value={form.valor_alvo} onChange={e => set('valor_alvo', e.target.value)} />
-              </Field>
-              <Field label={t('bidfrete.nova_cotacao.moeda')}>
-                <select className="nc-input" value={form.moeda_alvo} onChange={e => set('moeda_alvo', e.target.value)}>
-                  <option value="USD">USD ($)</option>
-                  <option value="BRL">BRL (R$)</option>
-                  <option value="EUR">EUR (€)</option>
-                </select>
-              </Field>
-            </div>
-
-            {/* Receipt Premium Layout de Resumo de Embarque */}
-            <div className="nc-receipt-card">
-              <div className="nc-receipt-header">
-                <span className="nc-receipt-badge">{form.tipo_operacao_cotacao_bid_frete_internacional ? OPERACAO_LABELS[form.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao] : '—'}</span>
-                <span className="nc-receipt-modal">
-                  {form.modal_cotacao_bid_frete_internacional ? MODAL_LABELS[form.modal_cotacao_bid_frete_internacional as ModalFrete] : '—'} / {form.modalidade_cotacao_bid_frete_internacional ? MODALIDADE_LABELS[form.modalidade_cotacao_bid_frete_internacional as ModalidadeCarga] : '—'}
-                </span>
-              </div>
-
-              {/* Linha do tempo da rota visual */}
-              <div className="nc-route-timeline">
-                <div className="nc-timeline-node">
-                  <div className="nc-node-dot nc-node-dot--origin"></div>
-                  <div className="nc-node-text">
-                    <span className="nc-node-code">{origemCode || form.origem_pais_cotacao_bid_frete_internacional || '—'}</span>
-                    <span className="nc-node-name">{origemName || '—'}{form.origem_pais_nome && !origemName?.includes(form.origem_pais_cotacao_bid_frete_internacional) ? `, ${form.origem_pais_cotacao_bid_frete_internacional}` : ''}</span>
-                  </div>
-                </div>
-
-                <div className="nc-timeline-line">
-                  <div className="nc-timeline-icon-wrap">
-                    {modal === 'MARITIMO' && <Anchor weight="duotone" size={16} />}
-                    {modal === 'AEREO' && <AirplaneTilt weight="duotone" size={16} />}
-                    {modal === 'RODOVIARIO' && <Van weight="duotone" size={16} />}
-                    {!modal && <Truck weight="duotone" size={16} />}
-                  </div>
-                  <div className="nc-timeline-line-fill"></div>
-                </div>
-
-                <div className="nc-timeline-node">
-                  <div className="nc-node-dot nc-node-dot--destination"></div>
-                  <div className="nc-node-text">
-                    <span className="nc-node-code">{destinoCode || form.destino_pais_cotacao_bid_frete_internacional || '—'}</span>
-                    <span className="nc-node-name">{destinoName || '—'}{form.destino_pais_nome && !destinoName?.includes(form.destino_pais_cotacao_bid_frete_internacional) ? `, ${form.destino_pais_cotacao_bid_frete_internacional}` : ''}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="nc-receipt-details">
-                <div className="nc-receipt-row">
-                  <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_mercadoria')}</span>
-                  <span className="nc-receipt-value">{form.descricao_mercadoria_cotacao_bid_frete_internacional || '—'}</span>
-                </div>
-                {form.ncm_cotacao_bid_frete_internacional && (
-                  <div className="nc-receipt-row">
-                    <span className="nc-receipt-label">NCM</span>
-                    <span className="nc-receipt-value font-mono">{form.ncm_cotacao_bid_frete_internacional}</span>
-                  </div>
-                )}
-                {form.hs_code_cotacao_bid_frete_internacional && (
-                  <div className="nc-receipt-row">
-                    <span className="nc-receipt-label">HS Code</span>
-                    <span className="nc-receipt-value font-mono">{form.hs_code_cotacao_bid_frete_internacional}</span>
-                  </div>
-                )}
-                <div className="nc-receipt-row">
-                  <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_qtd_peso')}</span>
-                  <span className="nc-receipt-value">
-                    {form.quantidade_cotacao_bid_frete_internacional} un {form.peso_kg_cotacao_bid_frete_internacional ? `| ${form.peso_kg_cotacao_bid_frete_internacional} Kg` : ''} {form.peso_ton_cotacao_bid_frete_internacional ? `(${form.peso_ton_cotacao_bid_frete_internacional} TON)` : ''} {form.cubagem_m3_cotacao_bid_frete_internacional ? `| ${form.cubagem_m3_cotacao_bid_frete_internacional} m³` : ''}
-                  </span>
-                </div>
-                {form.tipo_container_cotacao_bid_frete_internacional && (
-                  <div className="nc-receipt-row">
-                    <span className="nc-receipt-label">Container</span>
-                    <span className="nc-receipt-value">{containersList.find(c => c.codigo === form.tipo_container_cotacao_bid_frete_internacional)?.nome || form.tipo_container_cotacao_bid_frete_internacional}</span>
-                  </div>
-                )}
-                <div className="nc-receipt-row">
-                  <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_incoterm')}</span>
-                  <span className="nc-receipt-value nc-receipt-value--incoterm">{form.incoterm_cotacao_bid_frete_internacional || '—'}</span>
-                </div>
-                <div className="nc-receipt-row">
-                  <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_visibilidade')}</span>
-                  <span className="nc-receipt-value">
-                    {form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA' ? 'Aberta' : 'Direcionada'}{form.anonima ? ' (Anônima)' : ''}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      }
-
-      default:
-        return null
-    }
-  }
-
-  // ─── Sucesso ──────────────────────────────────────────────────────────
-  if (sucesso) {
-    const handleOverlayClick = (e: React.MouseEvent) => {
-      if (e.target === e.currentTarget) {
-        navigate('/produto/bid-frete/cotacoes')
-      }
-    }
-    return (
-      <div className="nc-modal_cotacao_bid_frete_internacional-overlay" onClick={handleOverlayClick}>
-        <div className="nc-modal_cotacao_bid_frete_internacional-container nc-fade-in" style={{ maxWidth: '520px', padding: '3rem 2rem' }} onClick={e => e.stopPropagation()}>
-          <button className="nc-modal_cotacao_bid_frete_internacional-close" onClick={() => navigate('/produto/bid-frete/cotacoes')} aria-label="Fechar">
-            <X weight="bold" size={20} />
-          </button>
-          <div className="nc-sucesso nc-fade-in">
-            <div className="nc-sucesso-badge">
-              <CheckCircle weight="duotone" size={72} style={{ color: 'var(--success, #10b981)' }} />
-            </div>
-            <h2 className="nc-sucesso-title">{t('bidfrete.nova_cotacao.criado_sucesso')}</h2>
-            <p className="nc-sucesso-desc">{t('bidfrete.nova_cotacao.criado_desc')}</p>
-            <div className="nc-sucesso-actions">
-              <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/produto/bid-frete/cotacoes')}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
-              {cotacaoId && <button className="nc-btn nc-btn--primary" onClick={() => navigate(`/produto/bid-frete/cotacoes/${cotacaoId}`)}>{t('bidfrete.nova_cotacao.ver_detalhes')}</button>}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      navigate('/produto/bid-frete/cotacoes')
-    }
-  }
-
-  // ─── Render principal ──────────────────────────────────────────────────
-  return (
-    <div className="nc-modal_cotacao_bid_frete_internacional-overlay" onClick={handleOverlayClick}>
-      <div className="nc-modal_cotacao_bid_frete_internacional-container nc-fade-in" onClick={e => e.stopPropagation()}>
-        
-        {/* Header do Modal — Alinhado com a Imagem 02 */}
-        <div className="nc-modal_cotacao_bid_frete_internacional-header">
-          <div className="nc-modal_cotacao_bid_frete_internacional-header-left">
-            <div className="nc-modal_cotacao_bid_frete_internacional-header-icon-wrap">
-              <Truck weight="duotone" size={22} />
-            </div>
-            <div>
-              <h2 className="nc-modal_cotacao_bid_frete_internacional-title">Nova Cotação</h2>
-              <p className="nc-modal_cotacao_bid_frete_internacional-subtitle">Preencha as informações para buscar as melhores opções de frete</p>
-            </div>
-          </div>
-          <div className="nc-modal_cotacao_bid_frete_internacional-header-step-badge">
-            Etapa {step} de 7 • <span className="nc-modal_cotacao_bid_frete_internacional-header-step-name">{STEPS[step - 1].label}</span>
-          </div>
-          <button className="nc-modal_cotacao_bid_frete_internacional-close" onClick={() => navigate('/produto/bid-frete/cotacoes')} aria-label="Fechar">
-            <X weight="bold" size={20} />
-          </button>
-        </div>
-
-        {/* Linha do Stepper com customizações visuais intensas da Imagem 02 */}
-        <div className="nc-stepper-container">
-          <div className="mpg-stepper" role="list" aria-label="Passos">
-            {STEPS.map((passo, idx) => {
-              const status = stepStatus(passo.id)
-              const isClickable = status === 'feito'
-
-              return (
-                <React.Fragment key={passo.id}>
-                  <div
-                    className={`mpg-passo ${isClickable ? 'mpg-passo-feito' : ''}`}
-                    role="listitem"
-                    aria-current={status === 'ativo' ? 'step' : undefined}
-                    onClick={isClickable ? () => setStep(passo.id) : undefined}
-                    title={isClickable ? `Voltar para: ${passo.label}` : undefined}
-                    style={{ cursor: isClickable ? 'pointer' : 'default' }}
-                  >
-                    <div className="mpg-circulo-wrap">
-                      <div
-                        className={`mpg-circulo ${
-                          status === 'ativo' ? 'mpg-circulo-ativo' :
-                          status === 'feito' ? 'mpg-circulo-feito' : 'mpg-circulo-pendente'
-                        }`}
-                      >
-                        {status === 'feito' ? (
-                          <span className="mpg-check-icon"><Check size={14} weight="bold" /></span>
-                        ) : (
-                          passo.icone ?? passo.id
-                        )}
-                      </div>
-                      {/* Orbita 3D Gravity — apenas no passo ativo */}
-                      {status === 'ativo' && (
-                        <>
-                          <div className="mpg-orbita-3d" aria-hidden="true">
-                            <div className="mpg-orbita-ring mpg-orbita-ring--1">
-                              <div className="mpg-orbita-anel" />
-                              <div className="mpg-orbita-eletron mpg-orbita-eletron--1" />
-                            </div>
-                            <div className="mpg-orbita-ring mpg-orbita-ring--2">
-                              <div className="mpg-orbita-anel" />
-                              <div className="mpg-orbita-eletron mpg-orbita-eletron--2" />
-                            </div>
-                          </div>
-                          {/* Glow atras do circulo */}
-                          <div className="mpg-nucleo-glow" aria-hidden="true" />
-                        </>
-                      )}
-                    </div>
-                    <span className={`mpg-label ${
-                      status === 'ativo' ? 'mpg-label-ativo' :
-                      status === 'feito' ? 'mpg-label-feito' : ''
-                    }`}>
-                      {passo.label}
-                    </span>
-                  </div>
-                  {idx < STEPS.length - 1 && (
-                    <div className="mpg-conector" aria-hidden="true">
-                      <div
-                        className="mpg-conector-fill"
-                        style={{ width: status === 'feito' ? '100%' : '0%' }}
-                      />
-                    </div>
-                  )}
-                </React.Fragment>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Corpo do modal_cotacao_bid_frete_internacional com scroll individual */}
-        <div className="nc-modal_cotacao_bid_frete_internacional-body">
-          {/* Usar a chave no passo atual força a montagem do container disparando a animação .nc-fade-in */}
-          <div className="nc-step-wrapper nc-fade-in" key={step}>
-            {renderStep()}
-          </div>
-        </div>
-
-        {/* Footer do Modal — Separador por borda + Botão "Cancelar" na esquerda na etapa 1 */}
-        <div className="nc-footer">
-          {step === 1 ? (
-            <button
-              type="button"
-              className="nc-btn nc-btn--secondary nc-btn-cancelar"
-              onClick={() => navigate('/produto/bid-frete/cotacoes')}
-            >
-              Cancelar
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="nc-btn nc-btn--secondary nc-btn--navigation"
-              onClick={() => setStep(s => s - 1)}
-            >
-              <ArrowLeft weight="bold" size={14} /> {t('comum.anterior')}
-            </button>
-          )}
-          
-          <div className="nc-footer-spacer" />
-          
-          {step < 7 ? (
-            <button
-              type="button"
-              className="nc-btn nc-btn--primary nc-btn--navigation"
-              disabled={!canNext()}
-              onClick={() => setStep(s => s + 1)}
-            >
-              {t('comum.proximo')} <ArrowRight weight="bold" size={14} />
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="nc-btn nc-btn--primary nc-btn--navigation nc-btn--cta"
-              disabled={salvando}
-              onClick={handleSubmit}
-            >
-              {salvando ? t('bidfrete.nova_cotacao.criando') : t('bidfrete.nova_cotacao.criar')} <Check weight="bold" size={14} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      <style>{`
-        /* ── Modal Layout ── */
-        .nc-modal_cotacao_bid_frete_internacional-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(8, 10, 20, 0.7);
-          backdrop-filter: blur(12px) saturate(180%);
-          -webkit-backdrop-filter: blur(12px) saturate(180%);
-          z-index: 10000;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow-y: auto;
-          padding: 2rem 1.5rem;
+const NC_ESTILOS_CONTEUDO = `
+        .nc-root,
+        .nc-step-wrapper,
+        .nc-sucesso {
+          --nc-muted: var(--ws-muted, var(--text-secondary, #94a3b8));
         }
 
-        .nc-modal_cotacao_bid_frete_internacional-container {
-          background: rgba(15, 23, 42, 0.75);
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
-          border: 1px solid rgba(255, 255, 255, 0.10);
-          border-radius: 16px;
-          width: 100%;
-          max-width: 920px;
-          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
-          position: relative;
-          padding: 0; /* Full-bleed layout para cabeçalho e rodapé */
-          display: flex;
-          flex-direction: column;
-          gap: 0; /* Remove gap genérico */
-          animation: nc-modal_cotacao_bid_frete_internacional-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          max-height: 90vh;
-          overflow: hidden; /* Mantém as bordas arredondadas nos cantos */
+        /* Área scrollável — padding compacto para caber passo 1 sem scroll */
+        .mpg-content-wrap {
+          padding: 1.25rem 2rem 1.5rem !important;
         }
-
-        /* ── Cabeçalho do Modal — Inspirado na Imagem 02 ── */
-        .nc-modal_cotacao_bid_frete_internacional-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 1.25rem 2.5rem;
-          background: rgba(10, 15, 30, 0.45);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          position: relative;
-        }
-
-        .nc-modal_cotacao_bid_frete_internacional-header-left {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-
-        .nc-modal_cotacao_bid_frete_internacional-header-icon-wrap {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-          background: linear-gradient(135deg, rgba(79, 70, 229, 0.25) 0%, rgba(124, 58, 237, 0.25) 50%, rgba(99, 102, 241, 0.25) 100%);
-          border: 1px solid rgba(99, 102, 241, 0.45);
-          color: #a5b4fc;
-          box-shadow: 0 0 10px rgba(99, 102, 241, 0.25);
-        }
-
-        .nc-modal_cotacao_bid_frete_internacional-title {
-          font-size: 1.15rem;
-          font-weight: 600;
-          color: #ffffff;
-          margin: 0;
-          letter-spacing: -0.01em;
-        }
-
-        .nc-modal_cotacao_bid_frete_internacional-subtitle {
-          font-size: 0.8125rem;
-          color: rgba(255, 255, 255, 0.55);
-          margin: 0.15rem 0 0 0;
-          font-weight: 400;
-        }
-
-        .nc-modal_cotacao_bid_frete_internacional-header-step-badge {
-          font-size: 0.8125rem;
-          font-weight: 600;
-          color: rgba(255, 255, 255, 0.45);
-          background: rgba(255, 255, 255, 0.03);
-          padding: 0.4rem 0.875rem;
-          border-radius: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          margin-right: 2rem; /* Espaço para o X close */
-        }
-
-        .nc-modal_cotacao_bid_frete_internacional-header-step-name {
-          color: #a5b4fc;
-        }
-
-        .nc-modal_cotacao_bid_frete_internacional-close {
-          position: absolute;
-          top: 50%;
-          right: 1.5rem;
-          transform: translateY(-50%);
-          background: transparent;
-          border: none;
-          color: rgba(255, 255, 255, 0.45);
-          cursor: pointer;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-        }
-        .nc-modal_cotacao_bid_frete_internacional-close:hover {
-          background: rgba(255, 255, 255, 0.08);
-          color: #ffffff;
-        }
-
-        .nc-stepper-container {
-          padding: 1.5rem 2.5rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-          background: rgba(10, 15, 30, 0.25);
-        }
-
-        /* Stepper markup aligned with ModalPassoPassoGlobal */
-        .mpg-stepper {
-          display: flex;
-          align-items: flex-start;
-          gap: 0;
-          overflow-x: auto;
-          scrollbar-width: none;
-        }
-        .mpg-stepper::-webkit-scrollbar {
-          display: none;
-        }
-
-        .mpg-passo {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          flex: 1;
-          gap: 0.5rem;
-          flex-shrink: 0;
-        }
-
-        .mpg-circulo-wrap {
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 2.75rem;
-          height: 2.75rem;
-        }
-
-        .mpg-circulo {
-          position: relative;
-          z-index: 3;
-          width: 2.75rem;
-          height: 2.75rem;
-          min-width: 2.75rem;
-          flex-shrink: 0;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1.5px solid rgba(255, 255, 255, 0.1);
-          color: var(--text-muted, #64748b);
-          font-size: 0.875rem;
-          font-weight: 700;
-          letter-spacing: -0.01em;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Active Circle styling with exact linear-gradient and box-shadow */
-        .mpg-circulo-ativo {
-          background: linear-gradient(135deg, #c084fc 0%, #7c3aed 50%, #2563eb 100%) !important;
-          border: 1.5px solid rgba(192, 132, 252, 0.6) !important;
-          color: #fff !important;
-          font-size: 1rem !important;
-          font-weight: 800 !important;
-          box-shadow: 0 0 10px rgba(192, 132, 252, 0.5), 0 0 25px rgba(124, 58, 237, 0.35), 0 0 50px rgba(37, 99, 235, 0.2), inset 0 0 12px rgba(255, 255, 255, 0.2) !important;
-          animation: mpg-neon-pulse 2s ease-in-out infinite;
-        }
-
-        /* Completed Circle styling with exact success gradient and box-shadow */
-        .mpg-circulo-feito {
-          background: linear-gradient(135deg, #16a34a, #22c55e, #4ade80) !important;
-          border: 2px solid rgba(74, 222, 128, 0.4) !important;
-          color: #fff !important;
-          box-shadow: 0 0 8px rgba(34, 197, 94, 0.4), 0 0 20px rgba(34, 197, 94, 0.2), 0 0 35px rgba(34, 197, 94, 0.1) !important;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease !important;
-        }
-
-        .mpg-passo-feito:hover .mpg-circulo-feito {
-          transform: scale(1.1);
-          box-shadow: 0 0 10px rgba(34, 197, 94, 0.5), 0 0 25px rgba(34, 197, 94, 0.25), 0 0 50px rgba(34, 197, 94, 0.1) !important;
-        }
-
-        /* Stepper Labels */
-        .mpg-label {
-          font-size: 0.6875rem;
-          font-weight: 600;
-          text-align: center;
-          color: var(--text-muted, #64748b);
-          white-space: nowrap;
-          transition: color 0.3s, text-shadow 0.3s;
-        }
-
-        .mpg-label-ativo {
-          color: #c084fc !important;
-          text-shadow: 0 0 8px rgba(192, 132, 252, 0.5) !important;
-          font-weight: 700 !important;
-        }
-
-        .mpg-label-feito {
-          color: #86efac !important;
-          text-shadow: 0 0 6px rgba(34, 197, 94, 0.3) !important;
-        }
-
-        /* Connectors */
-        .mpg-conector {
-          position: relative;
-          flex: 1;
-          height: 2px;
-          background: rgba(255, 255, 255, 0.06);
-          min-width: 20px;
-          margin-top: 1.375rem;
-          border-radius: 1px;
-          overflow: hidden;
-        }
-
-        .mpg-conector-fill {
-          position: absolute;
-          top: 0;
-          left: 0;
-          height: 100%;
-          background: linear-gradient(90deg, #22c55e, #4ade80);
-          border-radius: 1px;
-          box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
-          transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Ambient Glow Behind Active Circle */
-        .mpg-nucleo-glow {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%,-50%);
-          width: 3.5rem;
-          height: 3.5rem;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(192, 132, 252, 0.2) 0%, transparent 70%);
-          animation: mpg-nucleo-glow 3s ease-in-out infinite;
-          pointer-events: none;
-          z-index: 0;
-        }
-
-        /* Keyframes for animations */
-        @keyframes mpg-neon-pulse {
-          0%, 100% {
-            box-shadow: 
-              0 0 0 1px rgba(192, 132, 252, 0.4),
-              0 0 15px 4px rgba(124, 58, 237, 0.6), 
-              0 0 35px 12px rgba(37, 99, 235, 0.35),
-              inset 0 0 8px rgba(255, 255, 255, 0.35);
-          }
-          50% {
-            box-shadow: 
-              0 0 0 2px rgba(192, 132, 252, 0.6),
-              0 0 22px 8px rgba(124, 58, 237, 0.85), 
-              0 0 45px 18px rgba(37, 99, 235, 0.5),
-              inset 0 0 12px rgba(255, 255, 255, 0.5);
-          }
-        }
-
-        @keyframes mpg-nucleo-glow {
-          0%, 100% { opacity: 0.4; transform: translate(-50%,-50%) scale(1); }
-          50%      { opacity: 0.8; transform: translate(-50%,-50%) scale(1.3); }
-        }
-
-        /* --- Orbita 3D ao redor do circulo ativo (identidade Gravity) --- */
-        @keyframes mpg-orbita-drift {
-          from { transform: rotateX(70deg) rotateZ(0deg); }
-          to   { transform: rotateX(70deg) rotateZ(360deg); }
-        }
-        @keyframes mpg-eletron-spin {
-          from { transform: translate(-50%,-50%) rotate(0deg); }
-          to   { transform: translate(-50%,-50%) rotate(360deg); }
-        }
-
-        .mpg-orbita-3d {
-          position: absolute;
-          top: 50%; left: 50%;
-          width: 130%; height: 130%;
-          transform: translate(-50%,-50%);
-          pointer-events: none;
-          perspective: 200px;
-          transform-style: preserve-3d;
-          z-index: 2;
-        }
-        .mpg-orbita-ring {
-          position: absolute;
-          top: 0; left: 0;
-          width: 100%; height: 100%;
-          transform-style: preserve-3d;
-        }
-        .mpg-orbita-ring--1 {
-          transform: rotateX(70deg) rotateZ(0deg);
-          animation: mpg-orbita-drift 3s linear infinite;
-        }
-        .mpg-orbita-ring--2 {
-          transform: rotateX(70deg) rotateZ(90deg);
-          animation: mpg-orbita-drift 4.5s linear infinite reverse;
-        }
-        .mpg-orbita-anel {
-          position: absolute;
-          top: 50%; left: 50%;
-          width: 100%; height: 100%;
-          transform: translate(-50%,-50%);
-          border-radius: 50%;
-          border: 1px solid rgba(192, 132, 252, 0.3) !important;
-          box-shadow: none !important;
-        }
-        .mpg-orbita-ring--2 .mpg-orbita-anel {
-          border: 1px dashed rgba(124, 58, 237, 0.2) !important;
-          box-shadow: none !important;
-        }
-        .mpg-orbita-eletron {
-          position: absolute;
-          top: 50%; left: 50%;
-          width: 100%; height: 100%;
-          transform: translate(-50%,-50%);
-          border-radius: 50%;
-          pointer-events: none;
-        }
-        .mpg-orbita-eletron--1 {
-          animation: mpg-eletron-spin 3s linear infinite;
-        }
-        .mpg-orbita-eletron--1::after {
-          content: '';
-          position: absolute;
-          width: 5px; height: 5px;
-          border-radius: 50%;
-          top: -2.5px; left: 50%;
-          transform: translateX(-50%);
-          background: #c084fc;
-          box-shadow: 0 0 8px 2px rgba(192, 132, 252, 0.8), 0 0 16px 4px rgba(192, 132, 252, 0.4);
-        }
-        .mpg-orbita-eletron--2 {
-          animation: mpg-eletron-spin 4.5s linear infinite reverse;
-        }
-        .mpg-orbita-eletron--2::after {
-          content: '';
-          position: absolute;
-          width: 4px; height: 4px;
-          border-radius: 50%;
-          top: -2px; left: 50%;
-          transform: translateX(-50%);
-          background: #7c3aed;
-          box-shadow: 0 0 8px 2px rgba(124, 58, 237, 0.8), 0 0 16px 4px rgba(124, 58, 237, 0.4);
-        }
-
-        .nc-modal_cotacao_bid_frete_internacional-body {
-          flex: 1;
-          overflow-y: auto;
-          padding: 2rem 2.5rem;
-          margin-bottom: 0;
-          /* Suavizar a barra de rolagem */
-          scrollbar-width: thin;
-          scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-        }
-        .nc-modal_cotacao_bid_frete_internacional-body::-webkit-scrollbar {
-          width: 6px;
-        }
-        .nc-modal_cotacao_bid_frete_internacional-body::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.15);
-          border-radius: 3px;
-        }
-
-        .nc-footer {
-          display: flex;
-          align-items: center;
-          padding: 1.25rem 2.5rem;
-          background: rgba(10, 15, 30, 0.45);
-          border-top: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        @keyframes nc-modal_cotacao_bid_frete_internacional-in {
-          from {
-            opacity: 0;
-            transform: scale(0.95) translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
-
-        .nc-modal_cotacao_bid_frete_internacional-close {
-          position: absolute;
-          top: 1.25rem;
-          right: 1.25rem;
-          background: transparent;
-          border: none;
-          color: var(--text-secondary, #94a3b8);
-          cursor: pointer;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-        }
-        .nc-modal_cotacao_bid_frete_internacional-close:hover {
-          background: rgba(255, 255, 255, 0.08);
-          color: var(--text-primary, #f8fafc);
-        }
-
-        .nc-modal_cotacao_bid_frete_internacional-body {
-          flex: 1;
-          overflow-y: auto;
-          padding-right: 0.5rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .nc-page {
-          padding: 0.5rem 2rem 1.5rem;
-          background: transparent;
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-          min-height: 0;
-          flex: 1;
-        }
-
-        /* ── Subheader ── */
-        .nc-subheader {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0.25rem 0;
-          margin-bottom: 0.25rem;
-        }
-
-        .nc-subheader-left {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        .nc-subheader-step {
-          font-size: 0.875rem;
-          font-weight: 700;
-          color: var(--text-secondary, #94a3b8);
-        }
-
-        .nc-subheader-separator {
-          color: var(--border-subtle, rgba(255, 255, 255, 0.08));
-          font-weight: bold;
-        }
-
-        .nc-subheader-name {
-          font-size: 0.875rem;
-          font-weight: 500;
-          color: var(--text-primary, #f8fafc);
-        }
-
-        .nc-subheader-right {
-          display: flex;
-          align-items: center;
-        }
-
-        .nc-btn-cancelar {
-          padding: 0.4rem 1rem;
-          font-size: 0.8125rem;
-          border-radius: 6px;
-        }
-
-        /* Removido duplicado .nc-stepper-container */
 
         /* Animação Suave entre Passos */
         @keyframes nc-fade-in-up {
@@ -1716,38 +308,36 @@ export default function NovaCotacao() {
         }
 
         .nc-step-content {
-          max-width: 840px;
-          margin: 0 auto;
+          width: 100%;
         }
 
         .nc-section-title {
-          font-size: 0.8125rem;
-          font-weight: 700;
-          color: var(--text-secondary, #94a3b8);
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: var(--nc-muted);
           text-transform: uppercase;
-          letter-spacing: 0.08em;
-          margin-bottom: 1.25rem;
-          margin-top: 2.5rem;
+          letter-spacing: 0.05em;
+          line-height: 1.3;
+          margin-bottom: 1rem;
+          margin-top: 1.75rem;
           display: flex;
           align-items: center;
           gap: 0.625rem;
         }
-        .nc-section-title:first-child { 
-          margin-top: 0; 
+        .nc-section-title:first-child {
+          margin-top: 0;
         }
 
         /* ── Grids de Cards de Opções ── */
         .nc-options-grid-2 {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 1.25rem;
-          margin-bottom: 2.25rem;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
         }
-        .nc-options-grid-3 {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          gap: 1.25rem;
-          margin-bottom: 2.25rem;
+        .nc-options-grid-2:last-child,
+        .nc-options-grid-3:last-child {
+          margin-bottom: 0;
         }
 
         /* Botão de Opção Enriquecido */
@@ -1762,7 +352,6 @@ export default function NovaCotacao() {
           cursor: pointer;
           transition: all 0.15s ease;
           font-family: inherit;
-          color: var(--text-secondary, #94a3b8);
           text-align: left;
           width: 100%;
           user-select: none;
@@ -1770,12 +359,10 @@ export default function NovaCotacao() {
         .nc-option-btn:hover {
           background: rgba(255, 255, 255, 0.05);
           border-color: rgba(255, 255, 255, 0.12);
-          color: var(--text-primary, #f8fafc);
         }
         .nc-option-btn--selected {
           background: rgba(99, 102, 241, 0.08);
           border: 1px solid rgba(99, 102, 241, 0.27);
-          color: var(--accent, #6366f1);
         }
         .nc-option-btn--selected:hover {
           background: rgba(99, 102, 241, 0.12);
@@ -1809,13 +396,11 @@ export default function NovaCotacao() {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: var(--text-secondary, #94a3b8);
+          color: var(--nc-muted);
           flex-shrink: 0;
-          transition: all 0.15s ease;
+          transition: color 0.15s ease;
         }
-        .nc-option-btn--selected .nc-option-icon {
-          color: var(--accent, #6366f1);
-        }
+        .nc-option-btn--selected .nc-option-icon,
         .nc-option-btn:hover .nc-option-icon {
           color: var(--accent, #6366f1);
         }
@@ -1823,33 +408,21 @@ export default function NovaCotacao() {
         .nc-option-text {
           display: flex;
           flex-direction: column;
+          gap: 5px;
           line-height: 1.3;
           flex: 1;
           min-width: 0;
         }
         .nc-option-label {
-          font-size: 0.875rem;
+          font-size: 14.5px;
           font-weight: 600;
-          color: var(--text-secondary, #94a3b8);
-          transition: all 0.15s ease;
-        }
-        .nc-option-btn--selected .nc-option-label {
-          color: var(--text-primary, #f8fafc);
-        }
-        .nc-option-btn:hover .nc-option-label {
-          color: var(--text-primary, #f8fafc);
+          color: #f1f5f9;
+          transition: color 0.15s ease;
         }
         .nc-option-desc {
-          font-size: 0.75rem;
-          color: var(--text-muted, #64748b);
-          opacity: 0.8;
-          transition: all 0.15s ease;
-        }
-        .nc-option-btn--selected .nc-option-desc {
-          color: var(--text-muted, #64748b);
-        }
-        .nc-option-btn:hover .nc-option-desc {
-          color: var(--text-secondary-light, #cbd5e1);
+          font-size: 13px;
+          color: var(--nc-muted);
+          transition: color 0.15s ease;
         }
 
         /* ── Dica Vazia Modalidade ── */
@@ -1861,8 +434,8 @@ export default function NovaCotacao() {
           border: 1px dashed rgba(255, 255, 255, 0.08);
           padding: 1.25rem 1.5rem;
           border-radius: 8px;
-          color: var(--text-secondary, #94a3b8);
-          font-size: 0.875rem;
+          color: var(--nc-muted);
+          font-size: 13px;
           grid-column: span 2;
         }
 
@@ -1888,7 +461,7 @@ export default function NovaCotacao() {
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.07em;
-          color: var(--text-secondary, #94a3b8);
+          color: var(--nc-muted);
         }
 
         .nc-input {
@@ -2595,7 +1168,859 @@ export default function NovaCotacao() {
           gap: 1.25rem;
           margin-top: 1.75rem;
         }
-      `}</style>
-    </div>
+
+        .nc-field--span-2 {
+          grid-column: span 2;
+        }
+        .nc-caption {
+          font-size: 13px;
+          color: var(--nc-muted, #94a3b8);
+          margin: 0;
+        }
+        .nc-location-visual-text h4 {
+          color: #f1f5f9;
+          font-weight: 600;
+        }
+`
+
+// ─── Componente Principal ────────────────────────────────────────────────────
+export default function NovaCotacao() {
+  const navigate = useNavigate()
+  const { t } = useTranslation()
+  const [step, setStep] = useState(1)
+  const [form, setForm] = useState<FormState>(INITIAL_FORM)
+  const [salvando, setSalvando] = useState(false)
+  const [sucesso, setSucesso] = useState(false)
+  const [cotacaoId, setCotacaoId] = useState<string | null>(null)
+  const [containersList, setContainersList] = useState<ContainerOption[]>([])
+
+  const ROTA_LISTA = '/bid-frete/cotacoes'
+
+  const { paises: paisesCadastro, opcoes: opcoesPaises, carregando: carregandoPaises } = usePaisesCadastros()
+  const paisOrigemCodigo = form.origem_pais_cotacao_bid_frete_internacional
+  const paisDestinoCodigo = form.destino_pais_cotacao_bid_frete_internacional
+  const {
+    portos: portosOrigem,
+    opcoes: opcoesPortosOrigem,
+    carregando: carregandoPortosOrigem,
+  } = usePortosPorPais(form.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? paisOrigemCodigo : '')
+  const {
+    portos: portosDestino,
+    opcoes: opcoesPortosDestino,
+    carregando: carregandoPortosDestino,
+  } = usePortosPorPais(form.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? paisDestinoCodigo : '')
+  const {
+    aeroportos: aeroportosOrigem,
+    opcoes: opcoesAeroportosOrigem,
+    carregando: carregandoAeroportosOrigem,
+  } = useAeroportosPorPais(form.modal_cotacao_bid_frete_internacional === 'AEREO' ? paisOrigemCodigo : '')
+  const {
+    aeroportos: aeroportosDestino,
+    opcoes: opcoesAeroportosDestino,
+    carregando: carregandoAeroportosDestino,
+  } = useAeroportosPorPais(form.modal_cotacao_bid_frete_internacional === 'AEREO' ? paisDestinoCodigo : '')
+
+  const rotuloPais = useCallback(
+    (codigo: string) => {
+      const pais = paisesCadastro.find((p) => p.codigo_pais_iso_alpha2 === codigo)
+      return pais ? `${pais.nome_pais_portugues} (${codigo})` : codigo
+    },
+    [paisesCadastro],
+  )
+
+  const rotuloPorto = useCallback(
+    (codigo: string, portos: typeof portosOrigem) => {
+      const porto = portos.find((p) => p.codigo_unlocode_porto === codigo)
+      return porto ? `${porto.nome_porto} (${codigo})` : codigo
+    },
+    [],
+  )
+
+  const rotuloAeroporto = useCallback(
+    (iata: string, aeroportos: typeof aeroportosOrigem) => {
+      const aeroporto = aeroportos.find((a) => a.codigo_iata_aeroporto === iata)
+      return aeroporto ? `${aeroporto.nome_aeroporto} (${iata})` : iata
+    },
+    [],
+  )
+
+  const aoMudarPaisOrigem = (valor: string | number | null) => {
+    const codigo = String(valor ?? '')
+    setForm((prev) => ({
+      ...prev,
+      origem_pais_cotacao_bid_frete_internacional: codigo,
+      origem_pais_nome: codigo ? rotuloPais(codigo) : '',
+      estado_provincia_origem_cotacao_bid_frete_internacional: '',
+      origem_codigo_cotacao_bid_frete_internacional: '',
+      origem_nome_cotacao_bid_frete_internacional: '',
+      aeroporto_origem_cotacao_bid_frete_internacional: '',
+      aeroporto_origem_nome: '',
+    }))
+  }
+
+  const aoMudarPaisDestino = (valor: string | number | null) => {
+    const codigo = String(valor ?? '')
+    setForm((prev) => ({
+      ...prev,
+      destino_pais_cotacao_bid_frete_internacional: codigo,
+      destino_pais_nome: codigo ? rotuloPais(codigo) : '',
+      estado_provincia_destino_cotacao_bid_frete_internacional: '',
+      destino_codigo_cotacao_bid_frete_internacional: '',
+      destino_nome_cotacao_bid_frete_internacional: '',
+      aeroporto_destino_cotacao_bid_frete_internacional: '',
+      aeroporto_destino_nome: '',
+    }))
+  }
+
+  const aoMudarPortoOrigem = (valor: string | number | null) => {
+    const codigo = String(valor ?? '')
+    setForm((prev) => ({
+      ...prev,
+      origem_codigo_cotacao_bid_frete_internacional: codigo,
+      origem_nome_cotacao_bid_frete_internacional: codigo ? rotuloPorto(codigo, portosOrigem) : '',
+    }))
+  }
+
+  const aoMudarPortoDestino = (valor: string | number | null) => {
+    const codigo = String(valor ?? '')
+    setForm((prev) => ({
+      ...prev,
+      destino_codigo_cotacao_bid_frete_internacional: codigo,
+      destino_nome_cotacao_bid_frete_internacional: codigo ? rotuloPorto(codigo, portosDestino) : '',
+    }))
+  }
+
+  const aoMudarAeroportoOrigem = (valor: string | number | null) => {
+    const iata = String(valor ?? '')
+    setForm((prev) => ({
+      ...prev,
+      aeroporto_origem_cotacao_bid_frete_internacional: iata,
+      aeroporto_origem_nome: iata ? rotuloAeroporto(iata, aeroportosOrigem) : '',
+    }))
+  }
+
+  const aoMudarAeroportoDestino = (valor: string | number | null) => {
+    const iata = String(valor ?? '')
+    setForm((prev) => ({
+      ...prev,
+      aeroporto_destino_cotacao_bid_frete_internacional: iata,
+      aeroporto_destino_nome: iata ? rotuloAeroporto(iata, aeroportosDestino) : '',
+    }))
+  }
+
+  // Carregar containers ao montar
+  useEffect(() => {
+    getContainers().then(setContainersList).catch(() => {})
+  }, [])
+
+  const modal = form.modal_cotacao_bid_frete_internacional
+
+  const stepStatus = (passoId: number): 'pendente' | 'ativo' | 'feito' => {
+    if (passoId < step) return 'feito'
+    if (passoId === step) return 'ativo'
+    return 'pendente'
+  }
+
+  const set = <K extends keyof FormState>(key: K, val: FormState[K]) =>
+    setForm(prev => ({ ...prev, [key]: val }))
+
+  const canNext = (): boolean => {
+    switch (step) {
+      case 1: return !!form.tipo_operacao_cotacao_bid_frete_internacional && !!form.modal_cotacao_bid_frete_internacional && !!form.modalidade_cotacao_bid_frete_internacional
+      case 2: {
+        const temPais = !!form.origem_pais_cotacao_bid_frete_internacional
+        if (modal === 'MARITIMO') return temPais && !!form.origem_codigo_cotacao_bid_frete_internacional
+        if (modal === 'AEREO') return temPais && !!form.aeroporto_origem_cotacao_bid_frete_internacional
+        return temPais // RODOVIARIO: só país
+      }
+      case 3: {
+        const temPais = !!form.destino_pais_cotacao_bid_frete_internacional
+        if (modal === 'MARITIMO') return temPais && !!form.destino_codigo_cotacao_bid_frete_internacional
+        if (modal === 'AEREO') return temPais && !!form.aeroporto_destino_cotacao_bid_frete_internacional
+        return temPais
+      }
+      case 4: return !!form.descricao_mercadoria_cotacao_bid_frete_internacional && form.quantidade_cotacao_bid_frete_internacional > 0
+      case 5: return !!form.incoterm_cotacao_bid_frete_internacional
+      case 6: return true
+      case 7: return true
+      default: return false
+    }
+  }
+
+  const handleSubmit = async () => {
+    setSalvando(true)
+    try {
+      const cotacao = await criarCotacao({
+        tipo_operacao_cotacao_bid_frete_internacional: form.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao,
+        modal_cotacao_bid_frete_internacional: form.modal_cotacao_bid_frete_internacional as ModalFrete,
+        modalidade_cotacao_bid_frete_internacional: form.modalidade_cotacao_bid_frete_internacional as ModalidadeCarga,
+        origem_codigo_cotacao_bid_frete_internacional: form.origem_codigo_cotacao_bid_frete_internacional,
+        origem_nome_cotacao_bid_frete_internacional: form.origem_nome_cotacao_bid_frete_internacional || form.aeroporto_origem_nome,
+        origem_pais_cotacao_bid_frete_internacional: form.origem_pais_cotacao_bid_frete_internacional,
+        destino_codigo_cotacao_bid_frete_internacional: form.destino_codigo_cotacao_bid_frete_internacional,
+        destino_nome_cotacao_bid_frete_internacional: form.destino_nome_cotacao_bid_frete_internacional || form.aeroporto_destino_nome,
+        destino_pais_cotacao_bid_frete_internacional: form.destino_pais_cotacao_bid_frete_internacional,
+        descricao_mercadoria_cotacao_bid_frete_internacional: form.descricao_mercadoria_cotacao_bid_frete_internacional,
+        ncm_cotacao_bid_frete_internacional: form.ncm_cotacao_bid_frete_internacional || undefined,
+        quantidade_cotacao_bid_frete_internacional: form.quantidade_cotacao_bid_frete_internacional,
+        tipo_container_cotacao_bid_frete_internacional: form.tipo_container_cotacao_bid_frete_internacional || undefined,
+        peso_kg_cotacao_bid_frete_internacional: form.peso_kg_cotacao_bid_frete_internacional ? parseFloat(form.peso_kg_cotacao_bid_frete_internacional) : undefined,
+        cubagem_m3_cotacao_bid_frete_internacional: form.cubagem_m3_cotacao_bid_frete_internacional ? parseFloat(form.cubagem_m3_cotacao_bid_frete_internacional) : undefined,
+        incoterm_cotacao_bid_frete_internacional: form.incoterm_cotacao_bid_frete_internacional,
+        zipcode_origem_cotacao_bid_frete_internacional: form.zipcode_origem_cotacao_bid_frete_internacional.trim() || undefined,
+        endereco_origem_cotacao_bid_frete_internacional: form.endereco_origem_cotacao_bid_frete_internacional.trim() || undefined,
+        zipcode_destino_cotacao_bid_frete_internacional: form.zipcode_destino_cotacao_bid_frete_internacional.trim() || undefined,
+        visibilidade_cotacao_bid_frete_internacional: form.visibilidade_cotacao_bid_frete_internacional,
+        anonima_cotacao_bid_frete_internacional: form.anonima_cotacao_bid_frete_internacional,
+        valor_meta_cotacao_bid_frete_internacional: form.valor_meta_cotacao_bid_frete_internacional
+          ? parseFloat(form.valor_meta_cotacao_bid_frete_internacional)
+          : undefined,
+        moeda_meta_cotacao_bid_frete_internacional: form.moeda_meta_cotacao_bid_frete_internacional,
+        data_limite_resposta_cotacao_bid_frete_internacional: form.data_limite_resposta_cotacao_bid_frete_internacional || undefined,
+      })
+      setCotacaoId(cotacao.id_cotacao_bid_frete_internacional)
+      setSucesso(true)
+    } catch (err) {
+      console.error('Erro ao criar cotação:', err)
+      alert('Erro ao criar cotação: ' + (err instanceof Error ? err.message : String(err)))
+    } finally {
+      setSalvando(false)
+    }
+  }
+
+  // ─── Step Content ─────────────────────────────────────────────────────
+  const renderStep = () => {
+    switch (step) {
+      // STEP 1 — Modal e Operação
+      case 1:
+        return (
+          <div className="nc-step-content">
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.tipo_operacao')}</h3>
+            <div className="nc-options-grid-2">
+              {(['IMPORTACAO', 'EXPORTACAO'] as TipoOperacao[]).map(op => (
+                <OptionButton
+                  key={op}
+                  selected={form.tipo_operacao_cotacao_bid_frete_internacional === op}
+                  onClick={() => {
+                    set('tipo_operacao_cotacao_bid_frete_internacional', op)
+                  }}
+                  icon={op === 'IMPORTACAO' ? <ArrowLeft weight="duotone" size={24} /> : <ArrowRight weight="duotone" size={24} />}
+                  label={OPERACAO_LABELS[op]}
+                  description={OPERACAO_DESCS[op]}
+                />
+              ))}
+            </div>
+
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.modal_frete')}</h3>
+            <div className="nc-options-grid-3">
+              <OptionButton
+                selected={form.modal_cotacao_bid_frete_internacional === 'MARITIMO'}
+                onClick={() => {
+                  set('modal_cotacao_bid_frete_internacional', 'MARITIMO')
+                  set('modalidade_cotacao_bid_frete_internacional', '') // reseta para forçar escolha limpa
+                }}
+                icon={<Anchor weight="duotone" size={28} />}
+                label="Marítimo"
+                description={MODAL_DESCS.MARITIMO}
+              />
+              <OptionButton
+                selected={form.modal_cotacao_bid_frete_internacional === 'AEREO'}
+                onClick={() => {
+                  set('modal_cotacao_bid_frete_internacional', 'AEREO')
+                  set('modalidade_cotacao_bid_frete_internacional', '')
+                }}
+                icon={<AirplaneTilt weight="duotone" size={28} />}
+                label="Aéreo"
+                description={MODAL_DESCS.AEREO}
+              />
+              <OptionButton
+                selected={form.modal_cotacao_bid_frete_internacional === 'RODOVIARIO'}
+                onClick={() => {
+                  set('modal_cotacao_bid_frete_internacional', 'RODOVIARIO')
+                  set('modalidade_cotacao_bid_frete_internacional', '')
+                }}
+                icon={<Van weight="duotone" size={28} />}
+                label="Rodoviário"
+                description={MODAL_DESCS.RODOVIARIO}
+              />
+            </div>
+
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.modalidade')}</h3>
+            <div className="nc-options-grid-2">
+              {form.modal_cotacao_bid_frete_internacional === 'MARITIMO' && (
+                <>
+                  <OptionButton selected={form.modalidade_cotacao_bid_frete_internacional === 'FCL'} onClick={() => set('modalidade_cotacao_bid_frete_internacional', 'FCL')} icon={<Package weight="duotone" size={22} />} label="FCL — Container Completo" description={MODALIDADE_DESCS.FCL} />
+                  <OptionButton selected={form.modalidade_cotacao_bid_frete_internacional === 'LCL'} onClick={() => set('modalidade_cotacao_bid_frete_internacional', 'LCL')} icon={<Package weight="duotone" size={22} />} label="LCL — Carga Fracionada" description={MODALIDADE_DESCS.LCL} />
+                </>
+              )}
+              {form.modal_cotacao_bid_frete_internacional === 'AEREO' && (
+                <div style={{ gridColumn: 'span 2' }}>
+                  <OptionButton selected={form.modalidade_cotacao_bid_frete_internacional === 'AEREO_GERAL'} onClick={() => set('modalidade_cotacao_bid_frete_internacional', 'AEREO_GERAL')} icon={<AirplaneTilt weight="duotone" size={22} />} label="Aéreo Geral" description={MODALIDADE_DESCS.AEREO_GERAL} />
+                </div>
+              )}
+              {form.modal_cotacao_bid_frete_internacional === 'RODOVIARIO' && (
+                <>
+                  <OptionButton selected={form.modalidade_cotacao_bid_frete_internacional === 'RODOVIARIO_FTL'} onClick={() => set('modalidade_cotacao_bid_frete_internacional', 'RODOVIARIO_FTL')} icon={<Van weight="duotone" size={22} />} label="FTL — Carga Completa" description={MODALIDADE_DESCS.RODOVIARIO_FTL} />
+                  <OptionButton selected={form.modalidade_cotacao_bid_frete_internacional === 'RODOVIARIO_LTL'} onClick={() => set('modalidade_cotacao_bid_frete_internacional', 'RODOVIARIO_LTL')} icon={<Van weight="duotone" size={22} />} label="LTL — Carga Fracionada" description={MODALIDADE_DESCS.RODOVIARIO_LTL} />
+                </>
+              )}
+              {!form.modal_cotacao_bid_frete_internacional && (
+                <div className="nc-empty-hint">
+                  <Info size={18} weight="duotone" />
+                  <p>{t('bidfrete.nova_cotacao.selecionar_modal_primeiro')}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+
+      // STEP 2 — Origem
+      case 2:
+        return (
+          <div className="nc-step-content">
+            <div className="nc-location-visual-card nc-location-visual-card--origin">
+              <div className="nc-location-visual-header">
+                <div className="nc-location-visual-circle">
+                  <MapPin weight="duotone" size={26} className="nc-pulsing-icon" />
+                </div>
+                <div className="nc-location-visual-text">
+                  <h4>{modal === 'AEREO' ? 'Aeroporto de Origem' : modal === 'RODOVIARIO' ? 'Local de Origem' : t('bidfrete.nova_cotacao.porto_origem')}</h4>
+                  <p className="nc-caption">{modal === 'AEREO' ? 'Selecione o país e o aeroporto de partida' : modal === 'RODOVIARIO' ? 'Selecione o país e estado/província de coleta' : 'Selecione o país e o porto de embarque'}</p>
+                </div>
+              </div>
+
+              <div className="nc-fields-grid nc-fields-grid--location-new">
+                <Field label="PAÍS" required>
+                  <SelectGlobal
+                    iconeEsquerda={<MapPin size={16} />}
+                    opcoes={opcoesPaises}
+                    valor={form.origem_pais_cotacao_bid_frete_internacional || null}
+                    aoMudarValor={aoMudarPaisOrigem}
+                    placeholder="Selecione o país..."
+                    buscavel
+                    carregando={carregandoPaises}
+                    posicao="auto"
+                  />
+                </Field>
+
+                <Field label="ESTADO / PROVÍNCIA">
+                  {form.origem_pais_cotacao_bid_frete_internacional === 'BR' ? (
+                    <SelectGlobal
+                      opcoes={OPCOES_ESTADOS_BR}
+                      valor={form.estado_provincia_origem_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={(v) => set('estado_provincia_origem_cotacao_bid_frete_internacional', String(v ?? ''))}
+                      placeholder="Selecione o UF"
+                      buscavel
+                      desabilitado={!form.origem_pais_cotacao_bid_frete_internacional}
+                      posicao="auto"
+                    />
+                  ) : (
+                    <input
+                      className="nc-input"
+                      placeholder="Ex: Guangdong"
+                      value={form.estado_provincia_origem_cotacao_bid_frete_internacional}
+                      onChange={(e) => set('estado_provincia_origem_cotacao_bid_frete_internacional', e.target.value)}
+                    />
+                  )}
+                </Field>
+
+                {modal === 'MARITIMO' && (
+                  <Field label="PORTO DE EMBARQUE" required className="nc-field--span-2">
+                    <SelectGlobal
+                      iconeEsquerda={<Anchor size={16} />}
+                      opcoes={opcoesPortosOrigem}
+                      valor={form.origem_codigo_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={aoMudarPortoOrigem}
+                      placeholder={
+                        form.origem_pais_cotacao_bid_frete_internacional
+                          ? 'Selecione o porto...'
+                          : 'Selecione o país primeiro'
+                      }
+                      buscavel
+                      carregando={carregandoPortosOrigem}
+                      desabilitado={!form.origem_pais_cotacao_bid_frete_internacional}
+                      posicao="auto"
+                    />
+                  </Field>
+                )}
+
+                {modal === 'AEREO' && (
+                  <Field label="AEROPORTO DE EMBARQUE" required className="nc-field--span-2">
+                    <SelectGlobal
+                      iconeEsquerda={<AirplaneTilt size={16} />}
+                      opcoes={opcoesAeroportosOrigem}
+                      valor={form.aeroporto_origem_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={aoMudarAeroportoOrigem}
+                      placeholder={
+                        form.origem_pais_cotacao_bid_frete_internacional
+                          ? 'Selecione o aeroporto...'
+                          : 'Selecione o país primeiro'
+                      }
+                      buscavel
+                      carregando={carregandoAeroportosOrigem}
+                      desabilitado={!form.origem_pais_cotacao_bid_frete_internacional}
+                      posicao="auto"
+                    />
+                  </Field>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+
+      // STEP 3 — Destino
+      case 3:
+        return (
+          <div className="nc-step-content">
+            <div className="nc-location-visual-card nc-location-visual-card--destination">
+              <div className="nc-location-visual-header">
+                <div className="nc-location-visual-circle">
+                  <MapPin weight="duotone" size={26} className="nc-pulsing-icon-dest" />
+                </div>
+                <div className="nc-location-visual-text">
+                  <h4>{modal === 'AEREO' ? 'Aeroporto de Destino' : modal === 'RODOVIARIO' ? 'Local de Destino' : t('bidfrete.nova_cotacao.porto_destino')}</h4>
+                  <p className="nc-caption">{modal === 'AEREO' ? 'Selecione o país e o aeroporto de chegada' : modal === 'RODOVIARIO' ? 'Selecione o país e estado/província de entrega' : 'Selecione o país e o porto de destino'}</p>
+                </div>
+              </div>
+
+              <div className="nc-fields-grid nc-fields-grid--location-new">
+                <Field label="PAÍS" required>
+                  <SelectGlobal
+                    iconeEsquerda={<MapPin size={16} />}
+                    opcoes={opcoesPaises}
+                    valor={form.destino_pais_cotacao_bid_frete_internacional || null}
+                    aoMudarValor={aoMudarPaisDestino}
+                    placeholder="Selecione o país..."
+                    buscavel
+                    carregando={carregandoPaises}
+                    posicao="auto"
+                  />
+                </Field>
+
+                <Field label="ESTADO / PROVÍNCIA">
+                  {form.destino_pais_cotacao_bid_frete_internacional === 'BR' ? (
+                    <SelectGlobal
+                      opcoes={OPCOES_ESTADOS_BR}
+                      valor={form.estado_provincia_destino_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={(v) => set('estado_provincia_destino_cotacao_bid_frete_internacional', String(v ?? ''))}
+                      placeholder="Selecione o UF"
+                      buscavel
+                      desabilitado={!form.destino_pais_cotacao_bid_frete_internacional}
+                      posicao="auto"
+                    />
+                  ) : (
+                    <input
+                      className="nc-input"
+                      placeholder="Ex: California"
+                      value={form.estado_provincia_destino_cotacao_bid_frete_internacional}
+                      onChange={(e) => set('estado_provincia_destino_cotacao_bid_frete_internacional', e.target.value)}
+                    />
+                  )}
+                </Field>
+
+                {modal === 'MARITIMO' && (
+                  <Field label="PORTO DE DESTINO" required className="nc-field--span-2">
+                    <SelectGlobal
+                      iconeEsquerda={<Anchor size={16} />}
+                      opcoes={opcoesPortosDestino}
+                      valor={form.destino_codigo_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={aoMudarPortoDestino}
+                      placeholder={
+                        form.destino_pais_cotacao_bid_frete_internacional
+                          ? 'Selecione o porto...'
+                          : 'Selecione o país primeiro'
+                      }
+                      buscavel
+                      carregando={carregandoPortosDestino}
+                      desabilitado={!form.destino_pais_cotacao_bid_frete_internacional}
+                      posicao="auto"
+                    />
+                  </Field>
+                )}
+
+                {modal === 'AEREO' && (
+                  <Field label="AEROPORTO DE DESTINO" required className="nc-field--span-2">
+                    <SelectGlobal
+                      iconeEsquerda={<AirplaneTilt size={16} />}
+                      opcoes={opcoesAeroportosDestino}
+                      valor={form.aeroporto_destino_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={aoMudarAeroportoDestino}
+                      placeholder={
+                        form.destino_pais_cotacao_bid_frete_internacional
+                          ? 'Selecione o aeroporto...'
+                          : 'Selecione o país primeiro'
+                      }
+                      buscavel
+                      carregando={carregandoAeroportosDestino}
+                      desabilitado={!form.destino_pais_cotacao_bid_frete_internacional}
+                      posicao="auto"
+                    />
+                  </Field>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+
+      // STEP 4 — Carga
+      case 4:
+        return (
+          <div className="nc-step-content">
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.dados_mercadoria')}</h3>
+            <div className="nc-fields-grid nc-fields-grid--cargo">
+              <div style={{ gridColumn: 'span 2' }}>
+                <Field label={t('bidfrete.nova_cotacao.descricao_mercadoria')} required>
+                  <input className="nc-input" placeholder="Ex: Peças automotivas, eletrônicos industriais..." value={form.descricao_mercadoria_cotacao_bid_frete_internacional} onChange={e => set('descricao_mercadoria_cotacao_bid_frete_internacional', e.target.value)} />
+                </Field>
+              </div>
+              <Field label="NCM">
+                <input className="nc-input" placeholder="Ex: 87089990" value={form.ncm_cotacao_bid_frete_internacional} onChange={e => set('ncm_cotacao_bid_frete_internacional', e.target.value.replace(/\D/g, '').slice(0, 8))} />
+              </Field>
+              <Field label="HS CODE">
+                <input className="nc-input" placeholder="Ex: 8708.99" value={form.hs_code_cotacao_bid_frete_internacional} onChange={e => set('hs_code_cotacao_bid_frete_internacional', e.target.value.slice(0, 10))} />
+              </Field>
+
+              <Field label={t('bidfrete.nova_cotacao.quantidade')} required>
+                <div className="nc-input-group">
+                  <input className="nc-input nc-input--with-suffix" type="number" min={1} value={form.quantidade_cotacao_bid_frete_internacional} onChange={e => set('quantidade_cotacao_bid_frete_internacional', parseInt(e.target.value) || 1)} />
+                  <span className="nc-input-suffix">un</span>
+                </div>
+              </Field>
+
+              {modal === 'MARITIMO' && (
+                <Field label="TIPO CONTAINER">
+                  <select className="nc-input" value={form.tipo_container_cotacao_bid_frete_internacional} onChange={e => set('tipo_container_cotacao_bid_frete_internacional', e.target.value)}>
+                    <option value="">Selecione</option>
+                    {containersList.map(c => (
+                      <option key={c.codigo} value={c.codigo}>{c.nome} ({c.teus} TEU)</option>
+                    ))}
+                  </select>
+                </Field>
+              )}
+
+              <Field label="PESO (KG)">
+                <div className="nc-input-group">
+                  <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 12000" value={form.peso_kg_cotacao_bid_frete_internacional} onChange={e => {
+                    const val = e.target.value
+                    set('peso_kg_cotacao_bid_frete_internacional', val)
+                    if (val) set('peso_ton_cotacao_bid_frete_internacional', (parseFloat(val) / 1000).toFixed(3))
+                    else set('peso_ton_cotacao_bid_frete_internacional', '')
+                  }} />
+                  <span className="nc-input-suffix">Kg</span>
+                </div>
+              </Field>
+
+              <Field label="PESO (TON)">
+                <div className="nc-input-group">
+                  <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 12.0" value={form.peso_ton_cotacao_bid_frete_internacional} onChange={e => {
+                    const val = e.target.value
+                    set('peso_ton_cotacao_bid_frete_internacional', val)
+                    if (val) set('peso_kg_cotacao_bid_frete_internacional', (parseFloat(val) * 1000).toFixed(0))
+                    else set('peso_kg_cotacao_bid_frete_internacional', '')
+                  }} />
+                  <span className="nc-input-suffix">TON</span>
+                </div>
+              </Field>
+
+              <Field label="CUBAGEM (M³)">
+                <div className="nc-input-group">
+                  <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 33.2" value={form.cubagem_m3_cotacao_bid_frete_internacional} onChange={e => set('cubagem_m3_cotacao_bid_frete_internacional', e.target.value)} />
+                  <span className="nc-input-suffix">m³</span>
+                </div>
+              </Field>
+            </div>
+          </div>
+        )
+
+      // STEP 5 — Incoterm
+      case 5: {
+        const explanation = form.incoterm_cotacao_bid_frete_internacional ? INCOTERM_EXPLANATIONS[form.incoterm_cotacao_bid_frete_internacional] : null
+
+        return (
+          <div className="nc-step-content">
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.incoterm')}</h3>
+            <div className="nc-incoterm-grid">
+              {INCOTERMS.map(inc => (
+                <button
+                  key={inc}
+                  type="button"
+                  className={`nc-incoterm-btn ${form.incoterm_cotacao_bid_frete_internacional === inc ? 'nc-incoterm-btn--selected' : ''}`}
+                  onClick={() => set('incoterm_cotacao_bid_frete_internacional', inc)}
+                >
+                  {inc}
+                </button>
+              ))}
+            </div>
+
+            {/* UX Helper: Painel Explicativo Dinâmico do Incoterm */}
+            {explanation && (
+              <div className="nc-incoterm-helper-card nc-fade-in">
+                <div className="nc-helper-header">
+                  <Scales size={20} weight="duotone" className="nc-helper-icon" />
+                  <h4>{explanation.title}</h4>
+                </div>
+                <p className="nc-helper-desc">{explanation.desc}</p>
+                <div className="nc-helper-footer">
+                  <strong>Responsabilidade:</strong> {explanation.responsabilidade}
+                </div>
+              </div>
+            )}
+
+            <div className="nc-fields-grid" style={{ marginTop: '1.5rem' }}>
+              <Field label="CEP ORIGEM">
+                <input className="nc-input" placeholder="Ex: 01310-100" value={form.zipcode_origem_cotacao_bid_frete_internacional} onChange={e => set('zipcode_origem_cotacao_bid_frete_internacional', e.target.value)} />
+              </Field>
+              <Field label="CEP DESTINO">
+                <input className="nc-input" placeholder="Ex: 90000-000" value={form.zipcode_destino_cotacao_bid_frete_internacional} onChange={e => set('zipcode_destino_cotacao_bid_frete_internacional', e.target.value)} />
+              </Field>
+            </div>
+
+            <div className="nc-fields-grid" style={{ marginTop: '1.5rem' }}>
+              <Field label={t('bidfrete.nova_cotacao.prazo_respostas')}>
+                <input className="nc-input nc-input--date" type="datetime-local" value={form.data_limite_resposta_cotacao_bid_frete_internacional} onChange={e => set('data_limite_resposta_cotacao_bid_frete_internacional', e.target.value)} />
+              </Field>
+            </div>
+          </div>
+        )
+      }
+
+      // STEP 6 — Fornecedores
+      case 6:
+        return (
+          <div className="nc-step-content">
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.visibilidade')}</h3>
+            
+            <div className="nc-visibilidade_cotacao_bid_frete_internacional-grid">
+              <button
+                type="button"
+                className={`nc-vis-card ${form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA' ? 'nc-vis-card--selected' : ''}`}
+                onClick={() => set('visibilidade_cotacao_bid_frete_internacional', 'DIRECIONADA')}
+              >
+                <div className="nc-vis-icon-wrap">
+                  <Users weight="duotone" size={24} />
+                </div>
+                <div className="nc-vis-info">
+                  <span className="nc-vis-title">{t('bidfrete.nova_cotacao.direcionada_label')}</span>
+                  <span className="nc-vis-desc">{t('bidfrete.nova_cotacao.hint_direcionada')}</span>
+                </div>
+              </button>
+              
+              <button
+                type="button"
+                className={`nc-vis-card ${form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA' ? 'nc-vis-card--selected' : ''}`}
+                onClick={() => set('visibilidade_cotacao_bid_frete_internacional', 'ABERTA')}
+              >
+                <div className="nc-vis-icon-wrap">
+                  <Users weight="duotone" size={24} />
+                </div>
+                <div className="nc-vis-info">
+                  <span className="nc-vis-title">{t('bidfrete.nova_cotacao.aberta_label')}</span>
+                  <span className="nc-vis-desc">{t('bidfrete.nova_cotacao.hint_aberta')}</span>
+                </div>
+              </button>
+            </div>
+
+            {/* Custom Premium Alternator Switch para Anônima */}
+            <div className="nc-switch-row">
+              <label className="nc-switch-label">
+                <div className="nc-switch-text">
+                  <span className="nc-switch-title">{t('bidfrete.nova_cotacao.anonima_label')}</span>
+                  <span className="nc-switch-desc">Ocultar o nome da sua empresa no mercado inicial de lances para total confidencialidade.</span>
+                </div>
+                <div className="nc-switch">
+                  <input type="checkbox" checked={form.anonima_cotacao_bid_frete_internacional} onChange={e => set('anonima_cotacao_bid_frete_internacional', e.target.checked)} />
+                  <span className="nc-switch-slider"></span>
+                </div>
+              </label>
+            </div>
+          </div>
+        )
+
+      // STEP 7 — Resumo
+      case 7: {
+        const origemCode = modal === 'AEREO' ? form.aeroporto_origem_cotacao_bid_frete_internacional : form.origem_codigo_cotacao_bid_frete_internacional
+        const origemName = modal === 'AEREO' ? form.aeroporto_origem_nome : (modal === 'RODOVIARIO' ? (form.estado_provincia_origem_cotacao_bid_frete_internacional || form.origem_pais_nome) : form.origem_nome_cotacao_bid_frete_internacional)
+        const destinoCode = modal === 'AEREO' ? form.aeroporto_destino_cotacao_bid_frete_internacional : form.destino_codigo_cotacao_bid_frete_internacional
+        const destinoName = modal === 'AEREO' ? form.aeroporto_destino_nome : (modal === 'RODOVIARIO' ? (form.estado_provincia_destino_cotacao_bid_frete_internacional || form.destino_pais_nome) : form.destino_nome_cotacao_bid_frete_internacional)
+
+        return (
+          <div className="nc-step-content">
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.resumo_cotacao')}</h3>
+
+            <div className="nc-fields-grid nc-fields-grid--summary-inputs">
+              <Field label={t('bidfrete.nova_cotacao.valor_alvo')}>
+                <input className="nc-input" type="number" placeholder="Ex: 5000" value={form.valor_meta_cotacao_bid_frete_internacional} onChange={e => set('valor_meta_cotacao_bid_frete_internacional', e.target.value)} />
+              </Field>
+              <Field label={t('bidfrete.nova_cotacao.moeda')}>
+                <select className="nc-input" value={form.moeda_meta_cotacao_bid_frete_internacional} onChange={e => set('moeda_meta_cotacao_bid_frete_internacional', e.target.value)}>
+                  <option value="USD">USD ($)</option>
+                  <option value="BRL">BRL (R$)</option>
+                  <option value="EUR">EUR (€)</option>
+                </select>
+              </Field>
+            </div>
+
+            {/* Receipt Premium Layout de Resumo de Embarque */}
+            <div className="nc-receipt-card">
+              <div className="nc-receipt-header">
+                <span className="nc-receipt-badge">{form.tipo_operacao_cotacao_bid_frete_internacional ? OPERACAO_LABELS[form.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao] : '—'}</span>
+                <span className="nc-receipt-modal">
+                  {form.modal_cotacao_bid_frete_internacional ? MODAL_LABELS[form.modal_cotacao_bid_frete_internacional as ModalFrete] : '—'} / {form.modalidade_cotacao_bid_frete_internacional ? MODALIDADE_LABELS[form.modalidade_cotacao_bid_frete_internacional as ModalidadeCarga] : '—'}
+                </span>
+              </div>
+
+              {/* Linha do tempo da rota visual */}
+              <div className="nc-route-timeline">
+                <div className="nc-timeline-node">
+                  <div className="nc-node-dot nc-node-dot--origin"></div>
+                  <div className="nc-node-text">
+                    <span className="nc-node-code">{origemCode || form.origem_pais_cotacao_bid_frete_internacional || '—'}</span>
+                    <span className="nc-node-name">{origemName || '—'}{form.origem_pais_nome && !origemName?.includes(form.origem_pais_cotacao_bid_frete_internacional) ? `, ${form.origem_pais_cotacao_bid_frete_internacional}` : ''}</span>
+                  </div>
+                </div>
+
+                <div className="nc-timeline-line">
+                  <div className="nc-timeline-icon-wrap">
+                    {modal === 'MARITIMO' && <Anchor weight="duotone" size={16} />}
+                    {modal === 'AEREO' && <AirplaneTilt weight="duotone" size={16} />}
+                    {modal === 'RODOVIARIO' && <Van weight="duotone" size={16} />}
+                    {!modal && <Truck weight="duotone" size={16} />}
+                  </div>
+                  <div className="nc-timeline-line-fill"></div>
+                </div>
+
+                <div className="nc-timeline-node">
+                  <div className="nc-node-dot nc-node-dot--destination"></div>
+                  <div className="nc-node-text">
+                    <span className="nc-node-code">{destinoCode || form.destino_pais_cotacao_bid_frete_internacional || '—'}</span>
+                    <span className="nc-node-name">{destinoName || '—'}{form.destino_pais_nome && !destinoName?.includes(form.destino_pais_cotacao_bid_frete_internacional) ? `, ${form.destino_pais_cotacao_bid_frete_internacional}` : ''}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="nc-receipt-details">
+                <div className="nc-receipt-row">
+                  <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_mercadoria')}</span>
+                  <span className="nc-receipt-value">{form.descricao_mercadoria_cotacao_bid_frete_internacional || '—'}</span>
+                </div>
+                {form.ncm_cotacao_bid_frete_internacional && (
+                  <div className="nc-receipt-row">
+                    <span className="nc-receipt-label">NCM</span>
+                    <span className="nc-receipt-value font-mono">{form.ncm_cotacao_bid_frete_internacional}</span>
+                  </div>
+                )}
+                {form.hs_code_cotacao_bid_frete_internacional && (
+                  <div className="nc-receipt-row">
+                    <span className="nc-receipt-label">HS Code</span>
+                    <span className="nc-receipt-value font-mono">{form.hs_code_cotacao_bid_frete_internacional}</span>
+                  </div>
+                )}
+                <div className="nc-receipt-row">
+                  <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_qtd_peso')}</span>
+                  <span className="nc-receipt-value">
+                    {form.quantidade_cotacao_bid_frete_internacional} un {form.peso_kg_cotacao_bid_frete_internacional ? `| ${form.peso_kg_cotacao_bid_frete_internacional} Kg` : ''} {form.peso_ton_cotacao_bid_frete_internacional ? `(${form.peso_ton_cotacao_bid_frete_internacional} TON)` : ''} {form.cubagem_m3_cotacao_bid_frete_internacional ? `| ${form.cubagem_m3_cotacao_bid_frete_internacional} m³` : ''}
+                  </span>
+                </div>
+                {form.tipo_container_cotacao_bid_frete_internacional && (
+                  <div className="nc-receipt-row">
+                    <span className="nc-receipt-label">Container</span>
+                    <span className="nc-receipt-value">{containersList.find(c => c.codigo === form.tipo_container_cotacao_bid_frete_internacional)?.nome || form.tipo_container_cotacao_bid_frete_internacional}</span>
+                  </div>
+                )}
+                <div className="nc-receipt-row">
+                  <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_incoterm')}</span>
+                  <span className="nc-receipt-value nc-receipt-value--incoterm">{form.incoterm_cotacao_bid_frete_internacional || '—'}</span>
+                </div>
+                <div className="nc-receipt-row">
+                  <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_visibilidade')}</span>
+                  <span className="nc-receipt-value">
+                    {form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA' ? 'Aberta' : 'Direcionada'}{form.anonima_cotacao_bid_frete_internacional ? ' (Anônima)' : ''}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      default:
+        return null
+    }
+  }
+
+  // ─── Sucesso ──────────────────────────────────────────────────────────
+  const handleFechar = () => navigate(ROTA_LISTA)
+
+  const handleProximo = () => {
+    if (step < 7) setStep((s) => s + 1)
+    else void handleSubmit()
+  }
+
+  const handleVoltar = () => {
+    if (step > 1) setStep((s) => s - 1)
+    else handleFechar()
+  }
+
+  if (sucesso) {
+    return (
+      <>
+        <ModalPassoPassoGlobal
+          titulo={t('bidfrete.nova_cotacao.criado_sucesso')}
+          aberto
+          passos={STEPS}
+          passoAtual={7}
+          onProximo={handleFechar}
+          onVoltar={handleFechar}
+          onFechar={handleFechar}
+          ocultarStepper
+          ocultarFooter
+          tamanho="md"
+        >
+          <div className="nc-root nc-sucesso nc-fade-in">
+            <div className="nc-sucesso-badge">
+              <CheckCircle weight="duotone" size={72} style={{ color: 'var(--success, #10b981)' }} />
+            </div>
+            <h2 className="nc-sucesso-title">{t('bidfrete.nova_cotacao.criado_sucesso')}</h2>
+            <p className="nc-sucesso-desc">{t('bidfrete.nova_cotacao.criado_desc')}</p>
+            <div className="nc-sucesso-actions">
+              <button type="button" className="nc-btn nc-btn--secondary" onClick={handleFechar}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
+              {cotacaoId && (
+                <button type="button" className="nc-btn nc-btn--primary" onClick={() => navigate(`${ROTA_LISTA}/${cotacaoId}`)}>
+                  {t('bidfrete.nova_cotacao.ver_detalhes')}
+                </button>
+              )}
+            </div>
+          </div>
+        </ModalPassoPassoGlobal>
+        <style>{NC_ESTILOS_CONTEUDO}</style>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <ModalPassoPassoGlobal
+        titulo="Nova Cotação"
+        icone={<Truck weight="duotone" size={22} />}
+        subtitulo="Preencha as informações para buscar as melhores opções de frete"
+        aberto
+        passos={STEPS}
+        passoAtual={step}
+        onProximo={handleProximo}
+        onVoltar={handleVoltar}
+        onFechar={handleFechar}
+        onIrParaPasso={(id) => setStep(id)}
+        podeAvancar={canNext()}
+        carregando={salvando}
+        textoCarregando={t('bidfrete.nova_cotacao.criando')}
+        labelBotaoFinal={t('bidfrete.nova_cotacao.criar')}
+        labelProximo={t('comum.proximo')}
+        tamanho="2xl"
+        altura="90vh"
+      >
+        <div className="nc-root nc-step-wrapper nc-fade-in">{renderStep()}</div>
+      </ModalPassoPassoGlobal>
+      <style>{NC_ESTILOS_CONTEUDO}</style>
+    </>
   )
 }

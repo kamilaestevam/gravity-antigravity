@@ -105,8 +105,8 @@ export default function Fornecedores() {
   // ─── KPI computations ─────────────────────────────────────────────────
 
   const total = fornecedores.length
-  const ativos = fornecedores.filter(f => f.status === 'ATIVO').length
-  const inativos = fornecedores.filter(f => f.status === 'INATIVO').length
+  const ativos = fornecedores.filter(f => f.status_fornecedor_bid_frete_internacional === 'ATIVO').length
+  const inativos = fornecedores.filter(f => f.status_fornecedor_bid_frete_internacional === 'INATIVO').length
   const ratingsValidos = fornecedores.filter(f => f.nota_global_classificacao_bid_frete_internacional != null)
   const ratingMedio = ratingsValidos.length > 0
     ? ratingsValidos.reduce((acc, f) => acc + (f.nota_global_classificacao_bid_frete_internacional ?? 0), 0) / ratingsValidos.length
@@ -116,28 +116,28 @@ export default function Fornecedores() {
 
   const porTipo = (Object.keys(TIPO_FORNECEDOR_LABELS) as TipoFornecedor[]).map(tipo => ({
     tipo,
-    count: fornecedores.filter(f => f.tipo === tipo).length,
+    count: fornecedores.filter(f => f.tipo_fornecedor_bid_frete_internacional === tipo).length,
   }))
 
   // ─── Colunas TabelaGlobal ─────────────────────────────────────────────
 
   const colunas: TabelaGlobalColuna<Fornecedor>[] = [
     {
-      key: 'nome',
+      key: 'nome_fornecedor_bid_frete_internacional',
       label: t('bidfrete.fornecedores.col_nome'),
       tipo: 'texto',
       largura: 220,
       render: (val: unknown, item: Fornecedor) => (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
           <span style={{ fontWeight: 600, color: 'var(--text-primary, #f1f5f9)', fontSize: '0.8125rem' }}>{String(val ?? '')}</span>
-          {item.nome_fantasia && (
-            <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>{item.nome_fantasia}</span>
+          {item.nome_fantasia_fornecedor_bid_frete_internacional && (
+            <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>{item.nome_fantasia_fornecedor_bid_frete_internacional}</span>
           )}
         </div>
       ),
     },
     {
-      key: 'email',
+      key: 'email_fornecedor_bid_frete_internacional',
       label: t('bidfrete.fornecedores.col_email'),
       tipo: 'texto',
       largura: 200,
@@ -146,7 +146,7 @@ export default function Fornecedores() {
       ),
     },
     {
-      key: 'tipo',
+      key: 'tipo_fornecedor_bid_frete_internacional',
       label: t('bidfrete.fornecedores.col_tipo'),
       tipo: 'texto',
       largura: 140,
@@ -170,7 +170,7 @@ export default function Fornecedores() {
       },
     },
     {
-      key: 'status',
+      key: 'status_fornecedor_bid_frete_internacional',
       label: t('comum.status'),
       tipo: 'texto',
       largura: 120,
@@ -219,7 +219,7 @@ export default function Fornecedores() {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: t('bidfrete.fornecedores.ver_detalhes'),
-      onClick: (item: Fornecedor) => navigate(`/produto/bid-frete/fornecedores/${item.id}`),
+      onClick: (item: Fornecedor) => navigate(`/produto/bid-frete/fornecedores/${item.id_fornecedor_bid_frete_internacional}`),
     },
   ]
 

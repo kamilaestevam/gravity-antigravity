@@ -1,4 +1,4 @@
-/**
+﻿/**
  * App.tsx — Raiz da SPA BID Frete
  *
  * Usa <TelaProdutoGlobal> (mesmo padrão do Pedido):
@@ -35,7 +35,7 @@ import type { NavItem } from '@nucleo/tela-produto-global'
 
 const VisaoGeral = lazy(() => import('./pages/visao-geral'))
 const Dashboard = lazy(() => import('./pages/dashboard'))
-const Cotacoes = lazy(() => import('./pages/cotacoes-lista'))
+const Cotacoes = lazy(() => import('./pages/lista-bid-frete-internacional'))
 const NovaCotacao = lazy(() => import('./pages/cotacao-nova'))
 const CotacoesImportar = lazy(() => import('./pages/cotacoes-importar'))
 const DetalheCotacao = lazy(() => import('./pages/cotacao-detalhe'))

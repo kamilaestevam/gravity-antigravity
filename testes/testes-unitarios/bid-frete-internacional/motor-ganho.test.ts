@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
-import { motorGanho } from '../../../servicos-global/produto/bid-frete-internacional/server/src/services/motor-ganho'
+﻿import { describe, it, expect, vi } from 'vitest'
+import { motorGanho } from '../../../servicos-global/produto/bid-frete-internacional/server/src/services/motor-ganho-bid-frete-internacional'
 import type { PrismaClient } from '@prisma/client'
 
 describe('motorGanho — Motor de Ganhos e Savings', () => {
@@ -27,9 +27,9 @@ describe('motorGanho — Motor de Ganhos e Savings', () => {
     ])
 
     const mockPrisma = {
-      bidFreteInternacionalGanho: {
-        findMany: mockFindMany
-      }
+      ganhoBidFreteInternacional: {
+        findMany: mockFindMany,
+      },
     } as unknown as PrismaClient
 
     // Act
@@ -44,10 +44,10 @@ describe('motorGanho — Motor de Ganhos e Savings', () => {
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         id_workspace: 'workspace-123',
-        created_at: {
+        data_criacao_ganho_bid_frete_internacional: {
           gte: expect.any(Date),
-          lte: expect.any(Date)
-        }
+          lte: expect.any(Date),
+        },
       }
     })
 
@@ -63,9 +63,9 @@ describe('motorGanho — Motor de Ganhos e Savings', () => {
     // Arrange
     const mockFindMany = vi.fn().mockResolvedValue([])
     const mockPrisma = {
-      bidFreteInternacionalGanho: {
-        findMany: mockFindMany
-      }
+      ganhoBidFreteInternacional: {
+        findMany: mockFindMany,
+      },
     } as unknown as PrismaClient
 
     // Act

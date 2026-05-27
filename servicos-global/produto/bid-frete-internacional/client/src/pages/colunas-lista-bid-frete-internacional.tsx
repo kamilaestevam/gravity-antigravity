@@ -151,19 +151,19 @@ export function buildColunasCotacoes(t: unknown): GTColuna<Cotacao>[] {
       render: (val: unknown) => RenderBadgeOperacao(val),
     },
     {
-      key: 'status',
+      key: 'status_cotacao_bid_frete_internacional',
       label: 'Status',
       tipo: 'texto',
       render: (val: unknown) => RenderBadgeStatus(val),
     },
     {
-      key: 'created_at',
+      key: 'data_criacao_cotacao_bid_frete_internacional',
       label: 'Data da cotação',
       tipo: 'periodo',
       render: (val: unknown) => fmtData(val as string),
     },
     {
-      key: 'updated_at',
+      key: 'data_atualizacao_cotacao_bid_frete_internacional',
       label: 'Última Atualização',
       tipo: 'periodo',
       render: (val: unknown) => fmtData(val as string),

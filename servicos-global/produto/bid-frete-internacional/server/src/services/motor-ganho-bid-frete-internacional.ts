@@ -1,4 +1,4 @@
-/**
+﻿/**
  * motor-ganho.ts — Motor de Calculo de Ganhos/Savings
  * Calcula e agrega ganhos por tenant, empresa, periodo
  */
@@ -18,10 +18,10 @@ export const motorGanho = {
 
     if (filtros?.id_workspace) where.id_workspace = filtros.id_workspace
     if (filtros?.data_inicio || filtros?.data_fim) {
-      const createdAt: Record<string, unknown> = {}
-      if (filtros.data_inicio) createdAt.gte = filtros.data_inicio
-      if (filtros.data_fim) createdAt.lte = filtros.data_fim
-      where.created_at = createdAt
+      const dataCriacao: Record<string, unknown> = {}
+      if (filtros.data_inicio) dataCriacao.gte = filtros.data_inicio
+      if (filtros.data_fim) dataCriacao.lte = filtros.data_fim
+      where.data_criacao_ganho_bid_frete_internacional = dataCriacao
     }
 
     type SavingRow = {
@@ -31,7 +31,7 @@ export const motorGanho = {
       ganho_percentual_ganho_bid_frete_internacional?: number | null
     }
 
-    const savings: SavingRow[] = await (prisma as any).bidFreteInternacionalGanho.findMany({ where })
+    const savings: SavingRow[] = await (prisma as any).ganhoBidFreteInternacional.findMany({ where })
 
     const totalSavingTarget = savings
       .filter((s: SavingRow) => s.ganho_vs_meta_ganho_bid_frete_internacional != null)

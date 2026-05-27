@@ -20,7 +20,8 @@ import { paisesRouter } from './routes/paises.js'
 import { aeroportosRouter } from './routes/aeroportos.js'
 import { cotacoesRouter } from './routes/cotacoes.js'
 import { fornecedoresRouter } from './routes/fornecedores.js'
-import { pedidosCotacaoRouter } from './routes/pedidos-cotacao.js'
+import { solicitacaoCotacaoBidFreteInternacionalRouter } from './routes/solicitacao-cotacao-bid-frete-internacional.js'
+import { configStatusRouter } from './routes/config-status.js'
 import { comparativoRouter } from './routes/comparativo.js'
 import { portalRouter } from './routes/portal.js'
 import { cotacoesPublicasRouter } from './routes/cotacoes-publicas.js'
@@ -129,7 +130,8 @@ app.use(createProductAuditPlugin({
 // --- 9. Rotas do Produto (protegidas) ---
 app.use('/api/v1/bid-frete-internacional/cotacoes', cotacoesRouter)
 app.use('/api/v1/bid-frete-internacional/fornecedores', fornecedoresRouter)
-app.use('/api/v1/bid-frete-internacional/pedidos-cotacao', pedidosCotacaoRouter)
+app.use('/api/v1/bid-frete-internacional/solicitacao-cotacao-bid-frete-internacional', solicitacaoCotacaoBidFreteInternacionalRouter)
+app.use('/api/v1/bid-frete-internacional/config/status', configStatusRouter)
 app.use('/api/v1/bid-frete-internacional/comparativo', comparativoRouter)
 app.use('/api/v1/bid-frete-internacional/portal', portalRouter)
 app.use('/api/v1/bid-frete-internacional/avaliacoes', avaliacoesRouter)

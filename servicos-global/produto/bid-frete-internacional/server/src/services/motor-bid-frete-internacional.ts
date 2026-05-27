@@ -1,4 +1,4 @@
-/**
+﻿/**
  * motor-bid.ts — Motor de Disparo de BIDs
  * Responsável por:
  * 1. Criar Pedidos de Cotação (BidRequests) para cada fornecedor selecionado
@@ -33,72 +33,72 @@ export const motorBid = {
     const { id_cotacao_bid_frete_internacional, fornecedor_ids, canais, id_usuario, id_organizacao } = options
 
     // Buscar cotacao
-    const cotacao = await (prisma as any).bidFreteInternacionalCotacao.findFirst({ where: { id_cotacao_bid_frete_internacional } })
+    const cotacao = await (prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional } })
     if (!cotacao) throw new Error('Cotacao nao encontrada')
 
     // Buscar fornecedores
-    const fornecedores = await (prisma as any).bidFreteInternacionalFornecedor.findMany({
+    const fornecedores = await (prisma as any).fornecedorBidFreteInternacional.findMany({
       where: {
         id_fornecedor_bid_frete_internacional: { in: fornecedor_ids },
         status_fornecedor_bid_frete_internacional: 'ATIVO',
       },
     })
 
-    const results: Array<{ id_fornecedor_bid_frete_internacional: string; canal_pedido_cotacao_bid_frete_internacional: string; id_pedido_cotacao_bid_frete_internacional: string }> = []
+    const results: Array<{ id_fornecedor_bid_frete_internacional: string; canal_disparo_cotacao_bid_frete_internacional: string; id_disparo_cotacao_bid_frete_internacional: string }> = []
 
     for (const fornecedor of fornecedores) {
       // Verificar tabela de preco padrao (cotacao automatica)
       const tabelaMatch = await this.verificarTabelaPadrao(prisma, cotacao, fornecedor)
 
-      for (const canal_pedido_cotacao_bid_frete_internacional of canais) {
+      for (const canal_disparo_cotacao_bid_frete_internacional of canais) {
         const token = randomUUID()
         const tokenExpira = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 dias
 
         // Criar BidRequest (Pedido de Cotacao)
-        const bidRequest = await (prisma as any).bidFreteInternacionalPedidoCotacao.create({
+        const bidRequest = await (prisma as any).disparoCotacaoBidFreteInternacional.create({
           data: {
             id_produto_gravity: 'bid-frete-internacional',
             id_usuario,
             id_organizacao,
             id_cotacao_bid_frete_internacional,
             id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
-            canal_pedido_cotacao_bid_frete_internacional,
-            status_pedido_cotacao_bid_frete_internacional: 'PENDENTE',
-            token_resposta_pedido_cotacao_bid_frete_internacional: token,
-            data_expiracao_token_pedido_cotacao_bid_frete_internacional: tokenExpira,
+            canal_disparo_cotacao_bid_frete_internacional,
+            status_disparo_cotacao_bid_frete_internacional: 'PENDENTE',
+            token_resposta_disparo_cotacao_bid_frete_internacional: token,
+            data_expiracao_token_disparo_cotacao_bid_frete_internacional: tokenExpira,
           },
         })
 
         // Disparar pelo canal correspondente
         try {
-          if (canal_pedido_cotacao_bid_frete_internacional === 'EMAIL') {
+          if (canal_disparo_cotacao_bid_frete_internacional === 'EMAIL') {
             await this.dispararEmail(cotacao, fornecedor, token, id_organizacao)
-          } else if (canal_pedido_cotacao_bid_frete_internacional === 'WHATSAPP') {
+          } else if (canal_disparo_cotacao_bid_frete_internacional === 'WHATSAPP') {
             await this.dispararWhatsApp(cotacao, fornecedor, token, id_organizacao)
           }
 
-          await (prisma as any).bidFreteInternacionalPedidoCotacao.update({
-            where: { id_pedido_cotacao_bid_frete_internacional: bidRequest.id_pedido_cotacao_bid_frete_internacional },
+          await (prisma as any).disparoCotacaoBidFreteInternacional.update({
+            where: { id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional },
             data: {
-              status_pedido_cotacao_bid_frete_internacional: 'ENVIADO',
-              data_envio_pedido_cotacao_bid_frete_internacional: new Date(),
+              status_disparo_cotacao_bid_frete_internacional: 'ENVIADO',
+              data_envio_disparo_cotacao_bid_frete_internacional: new Date(),
             },
           })
         } catch (err: unknown) {
           const errorMessage = err instanceof Error ? err.message : String(err)
-          await (prisma as any).bidFreteInternacionalPedidoCotacao.update({
-            where: { id_pedido_cotacao_bid_frete_internacional: bidRequest.id_pedido_cotacao_bid_frete_internacional },
+          await (prisma as any).disparoCotacaoBidFreteInternacional.update({
+            where: { id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional },
             data: {
-              status_pedido_cotacao_bid_frete_internacional: 'ERRO_ENVIO',
-              erro_envio_pedido_cotacao_bid_frete_internacional: errorMessage,
+              status_disparo_cotacao_bid_frete_internacional: 'ERRO_ENVIO',
+              erro_envio_disparo_cotacao_bid_frete_internacional: errorMessage,
             },
           })
         }
 
         results.push({
           id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
-          canal_pedido_cotacao_bid_frete_internacional,
-          id_pedido_cotacao_bid_frete_internacional: bidRequest.id_pedido_cotacao_bid_frete_internacional,
+          canal_disparo_cotacao_bid_frete_internacional,
+          id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional,
         })
       }
 
@@ -109,7 +109,7 @@ export const motorBid = {
     }
 
     // Atualizar status da cotacao
-    await (prisma as any).bidFreteInternacionalCotacao.update({
+    await (prisma as any).cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional },
       data: { status_cotacao_bid_frete_internacional: 'ENVIADA_FORNECEDORES' },
     })
@@ -125,17 +125,17 @@ export const motorBid = {
     const fornecedor = _fornecedor as any
     const agora = new Date()
 
-    const tabela = await (prisma as any).bidFreteInternacionalTabelaValor.findFirst({
+    const tabela = await (prisma as any).tabelaBidFreteInternacional.findFirst({
       where: {
         id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
-        origem_codigo_tabela_valor_bid_frete_internacional: cotacao.origem_codigo_cotacao_bid_frete_internacional,
-        destino_codigo_tabela_valor_bid_frete_internacional: cotacao.destino_codigo_cotacao_bid_frete_internacional,
-        modal_tabela_valor_bid_frete_internacional: cotacao.modal_cotacao_bid_frete_internacional,
-        ativa_tabela_valor_bid_frete_internacional: true,
-        validade_inicio_tabela_valor_bid_frete_internacional: { lte: agora },
-        validade_fim_tabela_valor_bid_frete_internacional: { gte: agora },
+        origem_codigo_tabela_bid_frete_internacional: cotacao.origem_codigo_cotacao_bid_frete_internacional,
+        destino_codigo_tabela_bid_frete_internacional: cotacao.destino_codigo_cotacao_bid_frete_internacional,
+        modal_tabela_bid_frete_internacional: cotacao.modal_cotacao_bid_frete_internacional,
+        ativa_tabela_bid_frete_internacional: true,
+        validade_inicio_tabela_bid_frete_internacional: { lte: agora },
+        validade_fim_tabela_bid_frete_internacional: { gte: agora },
       },
-      orderBy: { valor_total_tabela_valor_bid_frete_internacional: 'asc' },
+      orderBy: { valor_total_tabela_bid_frete_internacional: 'asc' },
     })
 
     return tabela
@@ -150,41 +150,41 @@ export const motorBid = {
     const tabela = _tabela as any
 
     // Buscar o bidRequest correspondente
-    const bidRequest = await (prisma as any).bidFreteInternacionalPedidoCotacao.findFirst({
+    const bidRequest = await (prisma as any).disparoCotacaoBidFreteInternacional.findFirst({
       where: {
         id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
         id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
       },
-      orderBy: { data_criacao_pedido_cotacao_bid_frete_internacional: 'desc' },
+      orderBy: { data_criacao_disparo_cotacao_bid_frete_internacional: 'desc' },
     })
 
     if (!bidRequest) return null
 
-    const response = await (prisma as any).bidFreteInternacionalProposta.create({
+    const response = await (prisma as any).propostaBidFreteInternacional.create({
       data: {
         id_produto_gravity: 'bid-frete-internacional',
         id_organizacao: cotacao.id_organizacao,
-        id_pedido_cotacao_bid_frete_internacional: bidRequest.id_pedido_cotacao_bid_frete_internacional,
+        id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional,
         id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
         id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
-        moeda_proposta_bid_frete_internacional: tabela.moeda_tabela_valor_bid_frete_internacional,
-        valor_frete_proposta_bid_frete_internacional: tabela.valor_frete_tabela_valor_bid_frete_internacional,
-        taxas_origem_proposta_bid_frete_internacional: tabela.taxas_origem_tabela_valor_bid_frete_internacional,
-        taxas_destino_proposta_bid_frete_internacional: tabela.taxas_destino_tabela_valor_bid_frete_internacional,
-        valor_total_proposta_bid_frete_internacional: tabela.valor_total_tabela_valor_bid_frete_internacional,
-        dias_transito_proposta_bid_frete_internacional: tabela.dias_transito_tabela_valor_bid_frete_internacional,
-        dias_free_time_proposta_bid_frete_internacional: tabela.dias_free_time_tabela_valor_bid_frete_internacional,
-        validade_proposta_bid_frete_internacional: tabela.validade_fim_tabela_valor_bid_frete_internacional,
-        via_tabela_valor_proposta_bid_frete_internacional: true,
+        moeda_proposta_bid_frete_internacional: tabela.moeda_tabela_bid_frete_internacional,
+        valor_frete_proposta_bid_frete_internacional: tabela.valor_frete_tabela_bid_frete_internacional,
+        taxas_origem_proposta_bid_frete_internacional: tabela.taxas_origem_tabela_bid_frete_internacional,
+        taxas_destino_proposta_bid_frete_internacional: tabela.taxas_destino_tabela_bid_frete_internacional,
+        valor_total_proposta_bid_frete_internacional: tabela.valor_total_tabela_bid_frete_internacional,
+        dias_transito_proposta_bid_frete_internacional: tabela.dias_transito_tabela_bid_frete_internacional,
+        dias_free_time_proposta_bid_frete_internacional: tabela.dias_free_time_tabela_bid_frete_internacional,
+        validade_proposta_bid_frete_internacional: tabela.validade_fim_tabela_bid_frete_internacional,
+        via_tabela_proposta_bid_frete_internacional: true,
       },
     })
 
     // Atualizar bidRequest como respondido
-    await (prisma as any).bidFreteInternacionalPedidoCotacao.update({
-      where: { id_pedido_cotacao_bid_frete_internacional: bidRequest.id_pedido_cotacao_bid_frete_internacional },
+    await (prisma as any).disparoCotacaoBidFreteInternacional.update({
+      where: { id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional },
       data: {
-        status_pedido_cotacao_bid_frete_internacional: 'RESPONDIDO',
-        data_resposta_pedido_cotacao_bid_frete_internacional: new Date(),
+        status_disparo_cotacao_bid_frete_internacional: 'RESPONDIDO',
+        data_resposta_disparo_cotacao_bid_frete_internacional: new Date(),
       },
     })
 

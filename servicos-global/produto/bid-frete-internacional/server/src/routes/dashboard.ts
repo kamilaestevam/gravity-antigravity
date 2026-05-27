@@ -6,7 +6,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
-import { motorGanho } from '../services/motor-ganho.js'
+import { motorGanho } from '../services/motor-ganho-bid-frete-internacional.js'
 
 const router = Router()
 

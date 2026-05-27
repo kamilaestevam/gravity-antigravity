@@ -148,7 +148,7 @@ export default function DetalheFornecedor() {
   useEffect(() => { carregar() }, [carregar])
 
   const tituloTopo = useMemo(() => ({
-    label:     fornecedor?.nome ?? t('bidfrete.detalhe_fornecedor.carregando'),
+    label:     fornecedor?.nome_fornecedor_bid_frete_internacional ?? t('bidfrete.detalhe_fornecedor.carregando'),
     icone:     <Buildings weight="duotone" size={22} />,
     subtitulo: fornecedor?.nome_fantasia ?? undefined,
   }), [fornecedor, t])
@@ -394,16 +394,16 @@ export default function DetalheFornecedor() {
                   value={fornecedor.cidade ?? '—'}
                 />
                 <InfoField
-                  icon={fornecedor.status === 'ATIVO'
+                  icon={fornecedor.status_fornecedor_bid_frete_internacional === 'ATIVO'
                     ? <CheckCircle weight="duotone" size={16} />
                     : <XCircle weight="duotone" size={16} />
                   }
                   label={t('bidfrete.detalhe_fornecedor.field_status')}
                   value={
                     <Badge
-                      label={STATUS_FORNECEDOR_LABELS[fornecedor.status]}
-                      bg={STATUS_FORNECEDOR_COLORS[fornecedor.status].bg}
-                      color={STATUS_FORNECEDOR_COLORS[fornecedor.status].color}
+                      label={STATUS_FORNECEDOR_LABELS[fornecedor.status_fornecedor_bid_frete_internacional]}
+                      bg={STATUS_FORNECEDOR_COLORS[fornecedor.status_fornecedor_bid_frete_internacional].bg}
+                      color={STATUS_FORNECEDOR_COLORS[fornecedor.status_fornecedor_bid_frete_internacional].color}
                     />
                   }
                 />
@@ -420,7 +420,7 @@ export default function DetalheFornecedor() {
                 <InfoField
                   icon={<FileText weight="duotone" size={16} />}
                   label={t('bidfrete.detalhe_fornecedor.field_cadastrado_em')}
-                  value={dataBR(fornecedor.created_at)}
+                  value={dataBR(fornecedor.data_criacao_fornecedor_bid_frete_internacional)}
                 />
               </div>
             )}

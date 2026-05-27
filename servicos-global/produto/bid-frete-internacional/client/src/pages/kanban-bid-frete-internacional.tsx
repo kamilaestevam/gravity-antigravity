@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import type { Cotacao, StatusCotacao } from '../shared/types'
 import { MODAL_LABELS, MODALIDADE_LABELS } from '../shared/types'
-import { RenderBadgeStatus, RenderModalIcon, fmtData } from './colunas-cotacoes'
+import { RenderBadgeStatus, RenderModalIcon, fmtData } from './colunas-lista-bid-frete-internacional'
 
 interface CotacoesKanbanProps {
   cotacoes: Cotacao[]
@@ -65,13 +65,13 @@ export default function CotacoesKanban({ cotacoes, carregando }: CotacoesKanbanP
     return (
       <div
         className="bf-kanban-card"
-        onClick={() => navigate(`/produto/bid-frete/cotacoes/${cotacao.id}`)}
+        onClick={() => navigate(`/produto/bid-frete/cotacoes/${cotacao.id_cotacao_bid_frete_internacional}`)}
       >
         <div className="bf-kanban-card-header">
           <span className="bf-kanban-card-numero">
             {cotacao.numero_cotacao_bid_frete_internacional}
           </span>
-          {RenderBadgeStatus(cotacao.status)}
+          {RenderBadgeStatus(cotacao.status_cotacao_bid_frete_internacional)}
         </div>
         <div className="bf-kanban-card-route">
           {RenderModalIcon(cotacao.modal_cotacao_bid_frete_internacional)}
@@ -92,10 +92,10 @@ export default function CotacoesKanban({ cotacoes, carregando }: CotacoesKanbanP
           </div>
         )}
         <div className="bf-kanban-card-footer">
-          <span>{fmtData(cotacao.created_at)}</span>
-          {cotacao.bid_responses && cotacao.bid_responses.length > 0 && (
+          <span>{fmtData(cotacao.data_criacao_cotacao_bid_frete_internacional)}</span>
+          {cotacao.propostas_bid_frete_internacional && cotacao.propostas_bid_frete_internacional.length > 0 && (
             <span style={{ color: 'var(--success)' }}>
-              {cotacao.bid_responses.length} {t('bidfrete.cotacoes.respostas')}
+              {cotacao.propostas_bid_frete_internacional.length} {t('bidfrete.cotacoes.respostas')}
             </span>
           )}
         </div>
@@ -137,7 +137,7 @@ export default function CotacoesKanban({ cotacoes, carregando }: CotacoesKanbanP
   return (
     <div className="bf-kanban-board">
       {kanbanCols.map(col => {
-        const cards = cotacoes.filter(c => c.status === col.status)
+        const cards = cotacoes.filter(c => c.status_cotacao_bid_frete_internacional === col.status)
         return (
           <div key={col.status} className="bf-kanban-col">
             <div className="bf-kanban-col-header" style={{ background: col.headerBg, color: col.headerColor }}>
@@ -149,7 +149,7 @@ export default function CotacoesKanban({ cotacoes, carregando }: CotacoesKanbanP
               {cards.length === 0 ? (
                 <div className="bf-kanban-empty">{t('bidfrete.cotacoes.vazio')}</div>
               ) : (
-                cards.map(c => <KanbanCard key={c.id} cotacao={c} />)
+                cards.map(c => <KanbanCard key={c.id_cotacao_bid_frete_internacional} cotacao={c} />)
               )}
             </div>
           </div>

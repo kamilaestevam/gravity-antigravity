@@ -1,26 +1,26 @@
 -- ============================================================
--- rls-policies.sql — Row-Level Security para o banco BID Frete
+-- rls-policies.sql — Row-Level Security para o banco BID Frete Internacional
 -- Executar APOS prisma migrate deploy no ambiente Railway.
 --
--- Segunda camada de defesa de isolamento de tenant.
+-- Segunda camada de defesa de isolamento de organizacao.
 -- A primeira camada e o middleware Prisma (withTenantIsolation).
 --
--- NOTA: RatingFornecedor e Porto NAO tem id_organizacao (dados globais/publicos).
+-- NOTA: Porto NAO tem id_organizacao (dados globais/publicos).
 -- ============================================================
 
 -- ============================================================
 -- Ativar RLS nas tabelas com id_organizacao
 -- ============================================================
 
-ALTER TABLE "bid_fornecedores"      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "bid_cotacoes"          ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "bid_requests"          ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "bid_responses"         ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "bid_detalhe_taxas"     ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "bid_tabelas_preco"     ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "bid_avaliacoes"        ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "bid_savings"           ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "bid_connector_configs" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "bid_frete_internacional_fornecedores"      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "bid_frete_internacional_cotacoes"          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "bid_frete_internacional_pedidos_cotacao"   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "bid_frete_internacional_propostas"         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "bid_frete_internacional_taxas"             ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "bid_frete_internacional_tabelas_valor"     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "bid_frete_internacional_avaliacoes"        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "bid_frete_internacional_ganhos"            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "bid_frete_internacional_integracoes"       ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================
 -- Politicas de Isolamento
@@ -28,35 +28,29 @@ ALTER TABLE "bid_connector_configs" ENABLE ROW LEVEL SECURITY;
 -- via SET app.current_tenant_id
 -- ============================================================
 
-CREATE POLICY tenant_isolation_policy ON "bid_fornecedores"
+CREATE POLICY tenant_isolation_policy ON "bid_frete_internacional_fornecedores"
   USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
-CREATE POLICY tenant_isolation_policy ON "bid_cotacoes"
+CREATE POLICY tenant_isolation_policy ON "bid_frete_internacional_cotacoes"
   USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
-CREATE POLICY tenant_isolation_policy ON "bid_requests"
+CREATE POLICY tenant_isolation_policy ON "bid_frete_internacional_pedidos_cotacao"
   USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
-CREATE POLICY tenant_isolation_policy ON "bid_responses"
+CREATE POLICY tenant_isolation_policy ON "bid_frete_internacional_propostas"
   USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
-CREATE POLICY tenant_isolation_policy ON "bid_detalhe_taxas"
+CREATE POLICY tenant_isolation_policy ON "bid_frete_internacional_taxas"
   USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
-CREATE POLICY tenant_isolation_policy ON "bid_tabelas_preco"
+CREATE POLICY tenant_isolation_policy ON "bid_frete_internacional_tabelas_valor"
   USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
-CREATE POLICY tenant_isolation_policy ON "bid_avaliacoes"
+CREATE POLICY tenant_isolation_policy ON "bid_frete_internacional_avaliacoes"
   USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
-CREATE POLICY tenant_isolation_policy ON "bid_savings"
+CREATE POLICY tenant_isolation_policy ON "bid_frete_internacional_ganhos"
   USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
-CREATE POLICY tenant_isolation_policy ON "bid_connector_configs"
+CREATE POLICY tenant_isolation_policy ON "bid_frete_internacional_integracoes"
   USING (id_organizacao = current_setting('app.current_tenant_id', true));
-
--- ============================================================
--- Tabelas SEM RLS (dados globais/publicos):
--- bid_rating_fornecedor_global — cross-tenant por design
--- bid_portos — dados publicos de referencia
--- ============================================================

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * portal.ts — Portal do Fornecedor (autenticado via x-internal-key + x-id-usuario)
  * Rotas para fornecedores logados no Gravity (role SUPPLIER)
  *
@@ -11,7 +11,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { motorClassificacao } from '../services/motor-classificacao.js'
+import { motorClassificacao } from '../services/motor-classificacao-bid-frete-internacional.js'
 import { AppError } from '../lib/erros.js'
 import { notificacoesIntegration, historicoIntegration, atividadesIntegration } from '../services/integracoes-tenant.js'
 import { monetizacao } from '../services/monetizacao.js'
@@ -133,7 +133,7 @@ router.get('/cotacoes-pendentes', async (req: Request, res: Response, next: Next
       })
     }
 
-    res.json({ requests })
+    res.json({ disparo_cotacao_bid_frete_internacional: requests })
   } catch (err) {
     next(err)
   }
@@ -168,7 +168,10 @@ router.get('/propostas', async (req: Request, res: Response, next: NextFunction)
       (req.prisma as any).bidFreteInternacionalProposta.count({ where: { id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional } }),
     ])
 
-    res.json({ respostas, pagination: { page: Number(page), limit: Number(limit), total, pages: Math.ceil(total / Number(limit)) } })
+    res.json({
+      propostas_bid_frete_internacional: respostas,
+      pagination: { page: Number(page), limit: Number(limit), total, pages: Math.ceil(total / Number(limit)) },
+    })
   } catch (err) {
     next(err)
   }
@@ -186,7 +189,7 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
       where: { id_pedido_cotacao_bid_frete_internacional: req.params.bidRequestId },
     })
 
-    if (!bidRequest) throw new AppError('BidRequest nao encontrado', 404)
+    if (!bidRequest) throw new AppError('Disparo de cotacao nao encontrado', 404)
     if (bidRequest.status_pedido_cotacao_bid_frete_internacional === 'RESPONDIDO') throw new AppError('Cotacao ja respondida', 400)
 
     const { taxas, ...responseData } = parsed.data

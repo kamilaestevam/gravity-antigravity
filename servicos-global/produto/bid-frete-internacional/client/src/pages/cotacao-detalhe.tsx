@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DetalheCotacao.tsx — Detalhe de Cotação (T4)
  * Skill: antigravity-design-system, antigravity-componentes
  *
@@ -33,8 +33,14 @@ import {
   XCircle,
 } from '@phosphor-icons/react'
 
-import { getCotacao, getBidsPorCotacao, mudarStatusCotacao, excluirCotacao } from '../shared/api'
-import type { Cotacao, BidRequest, StatusCotacao, StatusBidRequest } from '../shared/types'
+import { getCotacao, getDisparoPorCotacaoBidFreteInternacional, excluirCotacao } from '../shared/api'
+import type {
+  Cotacao,
+  DisparoCotacaoBidFreteInternacional,
+  PropostaBidFreteInternacional,
+  StatusCotacao,
+  StatusDisparoCotacaoBidFreteInternacional,
+} from '../shared/types'
 import {
   STATUS_LABELS,
   STATUS_BADGE,
@@ -42,7 +48,7 @@ import {
   MODALIDADE_LABELS,
   OPERACAO_LABELS,
   CANAL_LABELS,
-  STATUS_BID_LABELS,
+  STATUS_DISPARO_COTACAO_BID_FRETE_INTERNACIONAL_LABELS,
 } from '../shared/types'
 
 // ─── Formatação ──────────────────────────────────────────────────────────────
@@ -81,7 +87,7 @@ function Badge({ label, variante }: { label: string; variante: string }) {
 
 // ─── BidRequest Status Badge ─────────────────────────────────────────────────
 
-const BID_STATUS_VARIANTE: Record<StatusBidRequest, string> = {
+const BID_STATUS_VARIANTE: Record<StatusDisparoCotacaoBidFreteInternacional, string> = {
   PENDENTE: 'default',
   ENVIADO: 'info',
   VISUALIZADO: 'info',
@@ -145,7 +151,7 @@ export default function DetalheCotacao() {
   const navigate = useNavigate()
   const { id_cotacao: id } = useParams<{ id_cotacao: string }>()
   const [cotacao, setCotacao] = useState<Cotacao | null>(null)
-  const [bids, setBids] = useState<BidRequest[]>([])
+  const [bids, setBids] = useState<DisparoCotacaoBidFreteInternacional[]>([])
   const [carregando, setCarregando] = useState(true)
   const [tab, setTab] = useState<'dados' | 'bids' | 'respostas'>('dados')
 
@@ -155,7 +161,7 @@ export default function DetalheCotacao() {
     try {
       const [cot, bidList] = await Promise.all([
         getCotacao(id),
-        getBidsPorCotacao(id),
+        getDisparoPorCotacaoBidFreteInternacional(id),
       ])
       setCotacao(cot)
       setBids(bidList)
@@ -191,16 +197,16 @@ export default function DetalheCotacao() {
       <button className="dc-btn dc-btn--secondary" type="button" onClick={() => navigate('/bid-frete/cotacoes')}>
         <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
       </button>
-      {cotacao.status === 'AGUARDANDO_APROVACAO' && (
+      {cotacao.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO' && (
         <button className="dc-btn dc-btn--primary" type="button" onClick={() => navigate(`/bid-frete/cotacoes/${id}/comparativo`)}>
           <Ranking weight="bold" size={14} /> {t('bidfrete.detalhe_cotacao.comparativo')}
         </button>
       )}
-      {cotacao.status === 'RASCUNHO' && (
+      {cotacao.status_cotacao_bid_frete_internacional === 'RASCUNHO' && (
         <button
           className="dc-btn dc-btn--danger"
           type="button"
-          onClick={async () => { await excluirCotacao(cotacao.id); navigate('/bid-frete/cotacoes') }}
+          onClick={async () => { await excluirCotacao(cotacao.id_cotacao_bid_frete_internacional); navigate('/bid-frete/cotacoes') }}
         >
           <Trash weight="bold" size={14} /> {t('comum.excluir')}
         </button>
@@ -210,19 +216,19 @@ export default function DetalheCotacao() {
 
   // ─── Tabela de Bids ───────────────────────────────────────────────────
 
-  const bidColunas: TabelaGlobalColuna<BidRequest>[] = [
+  const bidColunas: TabelaGlobalColuna<DisparoCotacaoBidFreteInternacional>[] = [
     {
       key: 'id_fornecedor_bid_frete_internacional',
       label: t('bidfrete.comparativo.fornecedor'),
       tipo: 'texto',
       largura: 200,
-      render: (valor: unknown, row: BidRequest) => {
+      render: (valor: unknown, row: DisparoCotacaoBidFreteInternacional) => {
         const _val = valor as string
-        return row.fornecedor?.nome ?? _val.slice(0, 8)
+        return row.fornecedor?.nome_fornecedor_bid_frete_internacional ?? _val.slice(0, 8)
       },
     },
     {
-      key: 'canal_pedido_cotacao_bid_frete_internacional',
+      key: 'canal_disparo_cotacao_bid_frete_internacional',
       label: t('bidfrete.detalhe_cotacao.canal_pedido'),
       tipo: 'texto',
       largura: 100,
@@ -235,26 +241,26 @@ export default function DetalheCotacao() {
       },
     },
     {
-      key: 'status',
+      key: 'status_disparo_cotacao_bid_frete_internacional',
       label: t('comum.status'),
       tipo: 'texto',
       largura: 130,
       render: (valor: unknown) => {
-        const val = valor as StatusBidRequest
+        const val = valor as StatusDisparoCotacaoBidFreteInternacional
         return (
-          <Badge label={STATUS_BID_LABELS[val]} variante={BID_STATUS_VARIANTE[val]} />
+          <Badge label={STATUS_DISPARO_COTACAO_BID_FRETE_INTERNACIONAL_LABELS[val]} variante={BID_STATUS_VARIANTE[val]} />
         )
       },
     },
     {
-      key: 'data_envio_pedido_cotacao_bid_frete_internacional',
+      key: 'data_envio_disparo_cotacao_bid_frete_internacional',
       label: t('bidfrete.detalhe_cotacao.data_envio'),
       tipo: 'periodo',
       largura: 140,
       render: (valor: unknown) => dataHoraBR(valor as string | null),
     },
     {
-      key: 'data_resposta_pedido_cotacao_bid_frete_internacional',
+      key: 'data_resposta_disparo_cotacao_bid_frete_internacional',
       label: t('bidfrete.detalhe_cotacao.data_resposta'),
       tipo: 'periodo',
       largura: 140,
@@ -281,17 +287,17 @@ export default function DetalheCotacao() {
       {acoesToolbar}
       {/* Status Badge */}
       <div className="dc-status-bar">
-        <Badge label={STATUS_LABELS[cotacao.status]} variante={STATUS_BADGE[cotacao.status]} />
-        <span className="dc-status-date">{t('bidfrete.detalhe_cotacao.criada_em')} {dataBR(cotacao.created_at)}</span>
-        {cotacao.ganho_percentual_ganho_bid_frete_internacional != null && cotacao.ganho_percentual_ganho_bid_frete_internacional > 0 && (
+        <Badge label={STATUS_LABELS[cotacao.status_cotacao_bid_frete_internacional]} variante={STATUS_BADGE[cotacao.status_cotacao_bid_frete_internacional]} />
+        <span className="dc-status-date">{t('bidfrete.detalhe_cotacao.criada_em')} {dataBR(cotacao.data_criacao_cotacao_bid_frete_internacional)}</span>
+        {cotacao.ganho_percentual_cotacao_bid_frete_internacional != null && cotacao.ganho_percentual_cotacao_bid_frete_internacional > 0 && (
           <span className="dc-saving-badge">
-            Saving: {cotacao.ganho_percentual_ganho_bid_frete_internacional.toFixed(1)}%
+            Saving: {cotacao.ganho_percentual_cotacao_bid_frete_internacional.toFixed(1)}%
           </span>
         )}
       </div>
 
       {/* Timeline */}
-      <Timeline statusAtual={cotacao.status} />
+      <Timeline statusAtual={cotacao.status_cotacao_bid_frete_internacional} />
 
       {/* Tabs */}
       <div className="dc-tabs">
@@ -302,7 +308,7 @@ export default function DetalheCotacao() {
           {t('bidfrete.detalhe_cotacao.tab_disparos')} ({bids.length})
         </button>
         <button className={`dc-tab ${tab === 'respostas' ? 'dc-tab--ativo' : ''}`} onClick={() => setTab('respostas')}>
-          {t('bidfrete.detalhe_cotacao.tab_respostas')} ({cotacao.bid_responses?.length ?? 0})
+          {t('bidfrete.detalhe_cotacao.tab_respostas')} ({cotacao.propostas_bid_frete_internacional?.length ?? 0})
         </button>
       </div>
 
@@ -334,10 +340,10 @@ export default function DetalheCotacao() {
           </div>
 
           {/* Valor alvo */}
-          {cotacao.valor_alvo != null && (
+          {cotacao.valor_meta_cotacao_bid_frete_internacional != null && (
             <div className="dc-target">
               <span className="dc-target-label">{t('bidfrete.detalhe_cotacao.valor_alvo')}:</span>
-              <span className="dc-target-value">{cotacao.moeda_alvo} {cotacao.valor_alvo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+              <span className="dc-target-value">{cotacao.moeda_meta_cotacao_bid_frete_internacional} {cotacao.valor_meta_cotacao_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
             </div>
           )}
 
@@ -348,7 +354,7 @@ export default function DetalheCotacao() {
               <span>{t('bidfrete.detalhe_cotacao.aprovado')}: <strong>{cotacao.moeda_aprovada ?? 'USD'} {cotacao.valor_aprovado_ganho_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></span>
               {cotacao.ganho_valor_cotacao_bid_frete_internacional != null && (
                 <span style={{ color: 'var(--success)', fontWeight: 700 }}>
-                  Saving: {usd(cotacao.ganho_valor_cotacao_bid_frete_internacional)} ({cotacao.ganho_percentual_ganho_bid_frete_internacional?.toFixed(1)}%)
+                  Saving: {usd(cotacao.ganho_valor_cotacao_bid_frete_internacional)} ({cotacao.ganho_percentual_cotacao_bid_frete_internacional?.toFixed(1)}%)
                 </span>
               )}
             </div>
@@ -362,7 +368,7 @@ export default function DetalheCotacao() {
           <TabelaGlobal
             dados={bids}
             colunas={bidColunas}
-            idKey="id"
+            idKey="id_disparo_cotacao_bid_frete_internacional"
             mensagemVazio={t('bidfrete.detalhe_cotacao.vazio_disparos')}
             tooltipBusca={t('bidfrete.detalhe_cotacao.buscar_fornecedor')}
           />
@@ -372,35 +378,37 @@ export default function DetalheCotacao() {
       {/* Tab: Respostas */}
       {tab === 'respostas' && (
         <div className="dc-card">
-          {(!cotacao.bid_responses || cotacao.bid_responses.length === 0) ? (
+          {(!cotacao.propostas_bid_frete_internacional || cotacao.propostas_bid_frete_internacional.length === 0) ? (
             <div className="dc-empty">
               <PaperPlaneTilt weight="duotone" size={40} style={{ opacity: 0.3 }} />
               <p>{t('bidfrete.detalhe_cotacao.vazio_respostas')}</p>
             </div>
           ) : (
             <div className="dc-responses-list">
-              {cotacao.bid_responses.map(resp => (
-                <div key={resp.id} className={`dc-response-card ${resp.aprovada ? 'dc-response-card--aprovada' : ''}`}>
+              {cotacao.propostas_bid_frete_internacional.map((resp: PropostaBidFreteInternacional) => {
+                const aprovada = resp.status_proposta_bid_frete_internacional === 'APROVADA'
+                return (
+                <div key={resp.id_proposta_bid_frete_internacional} className={`dc-response-card ${aprovada ? 'dc-response-card--aprovada' : ''}`}>
                   <div className="dc-resp-header">
-                    <span className="dc-resp-fornecedor">{resp.fornecedor?.nome ?? 'Fornecedor'}</span>
-                    {resp.aprovada && <Badge label={t('bidfrete.comparativo.aprovar')} variante="success" />}
+                    <span className="dc-resp-fornecedor">{resp.fornecedor?.nome_fornecedor_bid_frete_internacional ?? 'Fornecedor'}</span>
+                    {aprovada && <Badge label={t('bidfrete.comparativo.aprovar')} variante="success" />}
                   </div>
                   <div className="dc-resp-grid">
                     <div className="dc-resp-item">
                       <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_frete')}</span>
-                      <span className="dc-resp-value">{resp.moeda_ganho_bid_frete_internacional} {resp.valor_frete_proposta_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                      <span className="dc-resp-value">{resp.moeda_proposta_bid_frete_internacional} {resp.valor_frete_proposta_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     </div>
                     <div className="dc-resp-item">
                       <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_taxas_origem')}</span>
-                      <span className="dc-resp-value">{resp.moeda_ganho_bid_frete_internacional} {resp.taxas_origem_proposta_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                      <span className="dc-resp-value">{resp.moeda_proposta_bid_frete_internacional} {resp.taxas_origem_proposta_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     </div>
                     <div className="dc-resp-item">
                       <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_taxas_destino')}</span>
-                      <span className="dc-resp-value">{resp.moeda_ganho_bid_frete_internacional} {resp.taxas_destino_proposta_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                      <span className="dc-resp-value">{resp.moeda_proposta_bid_frete_internacional} {resp.taxas_destino_proposta_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     </div>
                     <div className="dc-resp-item dc-resp-item--destaque">
                       <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_total')}</span>
-                      <span className="dc-resp-value">{resp.moeda_ganho_bid_frete_internacional} {resp.valor_total_proposta_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                      <span className="dc-resp-value">{resp.moeda_proposta_bid_frete_internacional} {resp.valor_total_proposta_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     </div>
                     <div className="dc-resp-item">
                       <span className="dc-resp-label">{t('bidfrete.comparativo.transit_time')}</span>
@@ -412,18 +420,19 @@ export default function DetalheCotacao() {
                     </div>
                     <div className="dc-resp-item">
                       <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_transbordos')}</span>
-                      <span className="dc-resp-value">{resp.transbordos_proposta_bid_frete_internacional}</span>
+                      <span className="dc-resp-value">{resp.quantidade_transbordo_proposta_bid_frete_internacional}</span>
                     </div>
                     <div className="dc-resp-item">
                       <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_validade')}</span>
-                      <span className="dc-resp-value">{dataBR(resp.validade)}</span>
+                      <span className="dc-resp-value">{dataBR(resp.validade_proposta_bid_frete_internacional)}</span>
                     </div>
                   </div>
                   {resp.observacoes_proposta_bid_frete_internacional && (
                     <p className="dc-resp-obs">{resp.observacoes_proposta_bid_frete_internacional}</p>
                   )}
                 </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>

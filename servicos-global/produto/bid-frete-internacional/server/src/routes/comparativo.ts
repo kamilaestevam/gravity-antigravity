@@ -1,4 +1,4 @@
-/**
+﻿/**
  * comparativo.ts — Rotas de Comparativo e Aprovacao
  * GET  /:cotacaoId           Ranking comparativo
  * POST /:cotacaoId/aprovar   Aprovar cotacao (2 cliques)
@@ -7,7 +7,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { motorComparativo } from '../services/motor-comparativo.js'
+import { motorComparativo } from '../services/motor-comparativo-bid-frete-internacional.js'
 import { AppError } from '../lib/erros.js'
 import { notificacoesIntegration, historicoIntegration, gabiIntegration } from '../services/integracoes-tenant.js'
 

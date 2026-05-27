@@ -12,7 +12,7 @@ import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
 
 const NovaCotacao = React.lazy(() => import('./cotacao-nova'))
-import CotacoesKanban from './cotacoes-kanban'
+import CotacoesKanban from './kanban-bid-frete-internacional'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
@@ -48,7 +48,7 @@ import {
   getCasas,
   RenderBadgeStatus,
   RenderModalIcon,
-} from './colunas-cotacoes'
+} from './colunas-lista-bid-frete-internacional'
 
 // ─── Status Config (localStorage) ───
 
@@ -103,7 +103,7 @@ function gerarAbasDinamicas(statusList: StatusConfig[]): Array<{ valor: string; 
 
 const CAMPOS_EDITAVEIS = [
   'referencia_interna_cotacao_bid_frete_internacional',
-  'prazo_resposta',
+  'data_limite_resposta_cotacao_bid_frete_internacional',
   'origem_nome_cotacao_bid_frete_internacional',
   'destino_nome_cotacao_bid_frete_internacional',
   'modal_cotacao_bid_frete_internacional',
@@ -112,7 +112,7 @@ const CAMPOS_EDITAVEIS = [
   'cubagem_m3_cotacao_bid_frete_internacional',
   'quantidade_cotacao_bid_frete_internacional',
   'incoterm_cotacao_bid_frete_internacional',
-  'valor_alvo',
+  'valor_meta_cotacao_bid_frete_internacional',
 ]
 
 // ─── Sequência de colunas padrão ───
@@ -121,14 +121,14 @@ const COLUNAS_PADRAO_VISIVEIS = [
   'numero_cotacao_bid_frete_internacional',
   'referencia_interna_cotacao_bid_frete_internacional',
   'status',
-  'created_at',
+  'data_criacao_cotacao_bid_frete_internacional',
   'modal_cotacao_bid_frete_internacional',
   'origem_nome_cotacao_bid_frete_internacional',
   'destino_nome_cotacao_bid_frete_internacional',
   'peso_kg_cotacao_bid_frete_internacional',
   'cubagem_m3_cotacao_bid_frete_internacional',
   'incoterm_cotacao_bid_frete_internacional',
-  'valor_alvo',
+  'valor_meta_cotacao_bid_frete_internacional',
   'ganho_valor_cotacao_bid_frete_internacional',
   'ganho_percentual_ganho_bid_frete_internacional',
 ]
@@ -291,22 +291,22 @@ export default function Cotacoes() {
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown) => {
     let updatedCotacao: Cotacao | undefined
     setCotacoes(prev => prev.map(c => {
-      if (c.id === id) {
+      if (c.id_cotacao_bid_frete_internacional === id) {
         updatedCotacao = { ...c, [campo as keyof Cotacao]: valor } as Cotacao
         return updatedCotacao
       }
       return c
     }))
-    const current = cotacoes.find(c => c.id === id)
+    const current = cotacoes.find(c => c.id_cotacao_bid_frete_internacional === id)
     if (!current) throw new Error('Cotação não encontrada')
     const updated = { ...current, [campo as keyof Cotacao]: valor } as Cotacao
     return updated
   }, [cotacoes])
 
   const handleReordenarCotacoes = useCallback((ids: string[]) => {
-    const mapa = new Map(cotacoes.map(c => [c.id, c]))
+    const mapa = new Map(cotacoes.map(c => [c.id_cotacao_bid_frete_internacional, c]))
     const reordenados = ids.map(id => mapa.get(id)).filter((c): c is Cotacao => c != null)
-    const restantes = cotacoes.filter(c => !ids.includes(c.id))
+    const restantes = cotacoes.filter(c => !ids.includes(c.id_cotacao_bid_frete_internacional))
     setCotacoes([...reordenados, ...restantes])
   }, [cotacoes])
 
@@ -317,7 +317,7 @@ export default function Cotacoes() {
 
     // Filtro por abas dinâmicas (nome do status ou "TODAS")
     if (filtroTab !== 'TODAS') {
-      result = result.filter(c => c.status === filtroTab)
+      result = result.filter(c => c.status_cotacao_bid_frete_internacional === filtroTab)
     }
 
     // Filtro por busca
@@ -341,7 +341,7 @@ export default function Cotacoes() {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: 'Ver detalhes',
-      onClick: (item: Cotacao) => navigate(`/produto/bid-frete/cotacoes/${item.id}`),
+      onClick: (item: Cotacao) => navigate(`/produto/bid-frete/cotacoes/${item.id_cotacao_bid_frete_internacional}`),
     },
   ], [navigate])
 
@@ -434,10 +434,10 @@ export default function Cotacoes() {
       return colunasExport.map(c => {
         const val = row[c.key as keyof Cotacao]
         if (val == null) return escape('')
-        if (c.key === 'created_at' || c.key === 'prazo_resposta' || c.key === 'updated_at') {
+        if (c.key === 'data_criacao_cotacao_bid_frete_internacional' || c.key === 'data_limite_resposta_cotacao_bid_frete_internacional' || c.key === 'data_atualizacao_cotacao_bid_frete_internacional') {
           return escape(fmtData(val as string))
         }
-        if (c.key === 'ganho_valor_cotacao_bid_frete_internacional' || c.key === 'valor_alvo' || c.key === 'valor_aprovado_ganho_bid_frete_internacional') {
+        if (c.key === 'ganho_valor_cotacao_bid_frete_internacional' || c.key === 'valor_meta_cotacao_bid_frete_internacional' || c.key === 'valor_aprovado_ganho_bid_frete_internacional') {
           return escape(val != null ? String(val) : '')
         }
         return escape(String(val))
@@ -471,18 +471,18 @@ export default function Cotacoes() {
 
   const stats = useMemo(() => {
     const total = cotacoes.length
-    const emAndamento = cotacoes.filter(c => c.status === 'EM_COTACAO' || c.status === 'ENVIADA_FORNECEDORES').length
-    const aguardandoAprovacao = cotacoes.filter(c => c.status === 'AGUARDANDO_APROVACAO').length
-    const expiradas = cotacoes.filter(c => c.status === 'EXPIRADA').length
+    const emAndamento = cotacoes.filter(c => c.status_cotacao_bid_frete_internacional === 'EM_COTACAO' || c.status_cotacao_bid_frete_internacional === 'ENVIADA_FORNECEDORES').length
+    const aguardandoAprovacao = cotacoes.filter(c => c.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO').length
+    const expiradas = cotacoes.filter(c => c.status_cotacao_bid_frete_internacional === 'EXPIRADA').length
     const savingTotal = cotacoesFiltradas.reduce((acc, c) => acc + (c.ganho_valor_cotacao_bid_frete_internacional ?? 0), 0)
     
     // Novas métricas para o catálogo do configurador
-    const valorTotalFrete = cotacoesFiltradas.reduce((acc, c) => acc + (c.valor_aprovado_ganho_bid_frete_internacional ?? c.valor_alvo ?? 0), 0)
+    const valorTotalFrete = cotacoesFiltradas.reduce((acc, c) => acc + (c.valor_aprovado_ganho_bid_frete_internacional ?? c.valor_meta_cotacao_bid_frete_internacional ?? 0), 0)
     const propostas = cotacoes.reduce((acc, c) => {
-      if (c.bid_responses && c.bid_responses.length > 0) {
-        return acc + c.bid_responses.length
+      if (c.propostas_bid_frete_internacional && c.propostas_bid_frete_internacional.length > 0) {
+        return acc + c.propostas_bid_frete_internacional.length
       }
-      return acc + (c.status === 'APROVADA' || c.status === 'AGUARDANDO_APROVACAO' ? 3 : c.status === 'EM_COTACAO' ? 1 : 0)
+      return acc + (c.status_cotacao_bid_frete_internacional === 'APROVADA' || c.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO' ? 3 : c.status_cotacao_bid_frete_internacional === 'EM_COTACAO' ? 1 : 0)
     }, 0)
     const tempoMedio = 18.5 // média em horas
 
@@ -770,7 +770,7 @@ export default function Cotacoes() {
           <TabelaVirtualGlobal<Cotacao, any>
             dados={cotacoesFiltradas}
             colunas={colunasTabela}
-            itemId={(item) => item.id}
+            itemId={(item) => item.id_cotacao_bid_frete_internacional}
             
             itensPorPagina={50}
             totalItens={cotacoesFiltradas.length}

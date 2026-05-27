@@ -19,9 +19,9 @@ import {
   MapPin,
 } from '@phosphor-icons/react'
 
-import { getPortalPendentes } from '../../shared/api'
-import type { BidRequest, ModalFrete, StatusBidRequest } from '../../shared/types'
-import { MODAL_LABELS, STATUS_BID_LABELS } from '../../shared/types'
+import { getCotacoesPendentesBidFreteInternacional } from '../../shared/api'
+import type { DisparoCotacaoBidFreteInternacional, ModalFrete, StatusDisparoCotacaoBidFreteInternacional } from '../../shared/types'
+import { MODAL_LABELS, STATUS_DISPARO_COTACAO_BID_FRETE_INTERNACIONAL_LABELS } from '../../shared/types'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -48,7 +48,7 @@ interface CotacaoInfo {
   incoterm_cotacao_bid_frete_internacional: string
   quantidade_cotacao_bid_frete_internacional: number
   peso_kg_cotacao_bid_frete_internacional: number | null
-  prazo_resposta: string | null
+  data_limite_resposta_cotacao_bid_frete_internacional: string | null
 }
 
 function calcCountdown(prazo: string | null): { label: string; urgente: boolean } {
@@ -68,13 +68,13 @@ function calcCountdown(prazo: string | null): { label: string; urgente: boolean 
 export default function CotacoesPendentes() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const [bids, setBids] = useState<BidRequest[]>([])
+  const [bids, setBids] = useState<DisparoCotacaoBidFreteInternacional[]>([])
   const [carregando, setCarregando] = useState(true)
 
   const carregar = useCallback(async () => {
     setCarregando(true)
     try {
-      const data = await getPortalPendentes()
+      const data = await getCotacoesPendentesBidFreteInternacional()
       setBids(data)
     } catch {
       // silencioso
@@ -109,11 +109,15 @@ export default function CotacoesPendentes() {
             const cotacao = (bid as unknown as { cotacao: CotacaoInfo }).cotacao
             const numero_cotacao_bid_frete_internacional = cotacao?.numero_cotacao_bid_frete_internacional ?? bid.id_cotacao_bid_frete_internacional.slice(0, 8).toUpperCase()
             const modal_cotacao_bid_frete_internacional = cotacao?.modal_cotacao_bid_frete_internacional ?? 'MARITIMO'
-            const countdown = calcCountdown(cotacao?.prazo_resposta ?? bid.expirado_em)
-            const statusCores = BID_STATUS_COLORS[bid.status] ?? BID_STATUS_COLORS.PENDENTE
+            const countdown = calcCountdown(
+              cotacao?.data_limite_resposta_cotacao_bid_frete_internacional ??
+                bid.data_expiracao_token_disparo_cotacao_bid_frete_internacional,
+            )
+            const statusCores =
+              BID_STATUS_COLORS[bid.status_disparo_cotacao_bid_frete_internacional] ?? BID_STATUS_COLORS.PENDENTE
 
             return (
-              <div key={bid.id} className="cp-card">
+              <div key={bid.id_disparo_cotacao_bid_frete_internacional} className="cp-card">
                 <div className="cp-card-header">
                   <div className="cp-modal_cotacao_bid_frete_internacional-icon" style={{ color: 'var(--accent, #6366f1)' }}>
                     {MODAL_ICONS[modal_cotacao_bid_frete_internacional] ?? MODAL_ICONS.MARITIMO}
@@ -124,7 +128,7 @@ export default function CotacoesPendentes() {
                       className="cp-status-badge"
                       style={{ background: statusCores.bg, color: statusCores.color }}
                     >
-                      {STATUS_BID_LABELS[bid.status]}
+                      {STATUS_DISPARO_COTACAO_BID_FRETE_INTERNACIONAL_LABELS[bid.status_disparo_cotacao_bid_frete_internacional]}
                     </span>
                   </div>
                 </div>
@@ -158,7 +162,7 @@ export default function CotacoesPendentes() {
 
                 <button
                   className="cp-btn-responder"
-                  onClick={() => navigate(`/produto/bid-frete/portal/responder/${bid.id}`)}
+                  onClick={() => navigate(`/produto/bid-frete/portal/responder/${bid.id_disparo_cotacao_bid_frete_internacional}`)}
                 >
                   {t('bidfrete.portal.responder.titulo')}
                   <ArrowRight weight="bold" size={14} />

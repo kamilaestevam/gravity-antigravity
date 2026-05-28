@@ -81,6 +81,21 @@ export default function CotacoesKanban({ cotacoes, carregando, onRefresh }: Cota
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [busca, setBusca] = useState('')
+  const [statusOtimista, setStatusOtimista] = useState<Record<string, StatusCotacao>>({})
+
+  useEffect(() => {
+    setStatusOtimista(prev => {
+      const next = { ...prev }
+      let mudou = false
+      for (const cotacao of cotacoes) {
+        if (next[cotacao.id_cotacao_bid_frete_internacional] === cotacao.status_cotacao_bid_frete_internacional) {
+          delete next[cotacao.id_cotacao_bid_frete_internacional]
+          mudou = true
+        }
+      }
+      return mudou ? next : prev
+    })
+  }, [cotacoes])
 
   // ─── Kanban Card ──────────────────────────────────────────────────────
   function KanbanCard({ cotacao }: { cotacao: Cotacao }) {
@@ -150,12 +165,17 @@ export default function CotacoesKanban({ cotacoes, carregando, onRefresh }: Cota
   )
 
   const itens = useMemo<CotacaoKanbanItem[]>(() =>
-    cotacoes.map(cotacao => ({
-      id: cotacao.id_cotacao_bid_frete_internacional,
-      colunaKey: cotacao.status_cotacao_bid_frete_internacional,
-      cotacao,
-    })),
-    [cotacoes]
+    cotacoes.map(cotacao => {
+      const statusEfetivo = statusOtimista[cotacao.id_cotacao_bid_frete_internacional] ?? cotacao.status_cotacao_bid_frete_internacional
+      return {
+        id: cotacao.id_cotacao_bid_frete_internacional,
+        colunaKey: statusEfetivo,
+        cotacao: statusEfetivo === cotacao.status_cotacao_bid_frete_internacional
+          ? cotacao
+          : { ...cotacao, status_cotacao_bid_frete_internacional: statusEfetivo },
+      }
+    }),
+    [cotacoes, statusOtimista]
   )
 
   const itensFiltrados = useMemo(() => {
@@ -178,7 +198,9 @@ export default function CotacoesKanban({ cotacoes, carregando, onRefresh }: Cota
   }, [busca, itens])
 
   const handleMoverCotacao = useCallback(async (itemId: string, novaColunaKey: string) => {
-    await mudarStatusCotacao(itemId, novaColunaKey as StatusCotacao)
+    const novoStatus = novaColunaKey as StatusCotacao
+    await mudarStatusCotacao(itemId, novoStatus)
+    setStatusOtimista(prev => ({ ...prev, [itemId]: novoStatus }))
     onRefresh()
   }, [onRefresh])
 

@@ -1002,63 +1002,99 @@ export default function Cotacoes() {
         }
 
         .bf-kanban-card {
-          background: var(--bg-base, #1e293b);
-          border-radius: var(--radius-md, 8px);
-          padding: 0.75rem;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid var(--dark-border, rgba(255, 255, 255, 0.08));
+          border-radius: 10px;
+          padding: 0.75rem 0.85rem;
           cursor: pointer;
-          transition: transform 0.1s, box-shadow 0.1s;
-          border: 1px solid var(--bg-elevated, #475569);
+          display: flex;
+          flex-direction: column;
+          gap: 0.35rem;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          user-select: none;
+          transition: background 0.18s, border-color 0.18s, transform 0.18s, box-shadow 0.18s;
         }
         .bf-kanban-card:hover {
-          transform: translateY(-1px);
-          box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.5));
+          background: rgba(255, 255, 255, 0.07);
+          border-color: rgba(96, 165, 250, 0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
         }
 
         .bf-kanban-card-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 0.5rem;
+          gap: 0.5rem;
+          min-width: 0;
         }
 
         .bf-kanban-card-numero {
-          font-family: 'DM Mono', monospace;
-          font-size: 0.75rem;
-          color: var(--text-muted, #64748b);
+          font-size: 0.8rem;
+          font-weight: 700;
+          letter-spacing: 0.01em;
+          color: var(--text-main, #e2e8f0);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .bf-kanban-card-route {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
-          font-size: 0.8125rem;
+          gap: 0.3rem;
+          min-width: 0;
+          font-size: 0.75rem;
+          line-height: 1.35;
           font-weight: 600;
           color: var(--text-primary, #f1f5f9);
-          margin-bottom: 0.35rem;
+        }
+
+        .bf-kanban-card-route span {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .bf-kanban-card-meta {
           display: flex;
-          gap: 0.5rem;
-          font-size: 0.75rem;
+          flex-wrap: wrap;
+          gap: 0.35rem;
+          font-size: 0.68rem;
+          line-height: 1.2;
+          font-weight: 600;
           color: var(--text-secondary, #94a3b8);
-          margin-bottom: 0.35rem;
+        }
+
+        .bf-kanban-card-meta span {
+          padding: 0.12rem 0.38rem;
+          border-radius: 9999px;
+          background: rgba(255, 255, 255, 0.04);
+          white-space: nowrap;
         }
 
         .bf-kanban-card-ref {
-          font-size: 0.6875rem;
-          color: var(--text-muted, #64748b);
-          margin-bottom: 0.35rem;
+          font-size: 0.7rem;
+          line-height: 1.3;
+          font-weight: 500;
+          color: var(--text-muted, #94a3b8);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .bf-kanban-card-footer {
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          font-size: 0.6875rem;
+          justify-content: space-between;
+          gap: 0.4rem;
+          font-size: 0.67rem;
+          line-height: 1.2;
+          font-weight: 600;
           color: var(--text-muted, #64748b);
           padding-top: 0.35rem;
-          border-top: 1px solid var(--bg-elevated, #475569);
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         /* ── Botões ── */

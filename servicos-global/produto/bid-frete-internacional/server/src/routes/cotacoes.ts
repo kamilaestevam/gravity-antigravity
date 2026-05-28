@@ -60,7 +60,17 @@ const FiltrosCotacaoSchema = z.object({
 })
 
 const AtualizarStatusSchema = z.object({
-  status: z.enum(['APROVADA', 'REPROVADA', 'CANCELADA']),
+  status: z.enum([
+    'RASCUNHO',
+    'ENVIADA_FORNECEDORES',
+    'EM_COTACAO',
+    'AGUARDANDO_APROVACAO',
+    'APROVADA',
+    'REPROVADA',
+    'CANCELADA',
+    'FALTA_INFORMACAO',
+    'EXPIRADA',
+  ]),
   id_fornecedor_vencedor_cotacao_bid_frete_internacional: z.string().optional(),
   motivo_reprovacao_cotacao_bid_frete_internacional: z.string().optional(),
   motivo_cancelamento_cotacao_bid_frete_internacional: z.string().optional(),

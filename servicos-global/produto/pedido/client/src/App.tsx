@@ -4,7 +4,7 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-
 import { useShellStore, ToastContainer, useMeSync, useShellBodyClasses } from '@gravity/shell'
 import { useAuth, useClerk } from '@clerk/clerk-react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
+import { TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import { ChartPieSlice, ChartBar, ListBullets, Kanban, ClockCounterClockwise, GearSix, UserCircle, CheckCircle, Envelope, WhatsappLogo } from '@phosphor-icons/react'
@@ -295,7 +295,7 @@ function AppInner() {
   const workspacesSidebar = workspacesStore.map(ws => ({ id: ws.id, name: ws.nome_workspace, plan: '' }))
 
   return (
-    <TelaProdutoGlobal
+    <TelaProdutoComOrganizacaoOverride
       productId={PRODUCT_ID}
       productName={PRODUCT_NAME}
       tenantName={escopoWorkspaces.tenantName}
@@ -401,7 +401,7 @@ function AppInner() {
           <Route path="*"                    element={<Navigate to="/pedido/pedidos/visao-geral" replace />} />
         </Routes>
       </Suspense>
-    </TelaProdutoGlobal>
+    </TelaProdutoComOrganizacaoOverride>
   )
 }
 

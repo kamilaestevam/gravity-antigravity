@@ -34,7 +34,7 @@ import { PRODUCT_META, RELACAO_ENTRE_PRODUTOS_GRAVITY } from '../../data/product
 import type { FaixaPreco } from '../../types/entidades'
 import { getSimboloMoeda } from '../../utils/formatters'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
-import { useShellStore } from '@gravity/shell'
+import { useShellStore, EVENTO_PRODUTOS_WORKSPACE_ATUALIZADOS } from '@gravity/shell'
 import {
   listaAssinaturasProdutoGravitySchema,
   type AssinaturaProdutoGravity,
@@ -267,6 +267,7 @@ export function Assinaturas() {
       })
       if (!res.ok) throw new Error(reativando ? 'Falha ao reativar' : 'Falha ao suspender')
       await recarregar()
+      window.dispatchEvent(new CustomEvent(EVENTO_PRODUTOS_WORKSPACE_ATUALIZADOS))
       addNotification({
         type: reativando ? 'success' : 'warning',
         message: `Assinatura "${a.produto.nome_produto_gravity}" ${reativando ? 'reativada' : 'suspensa'} com sucesso.`,

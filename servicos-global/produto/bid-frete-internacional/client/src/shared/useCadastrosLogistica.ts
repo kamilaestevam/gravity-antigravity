@@ -44,12 +44,13 @@ export function usePaisesCadastros() {
   return { paises, opcoes, carregando, erro }
 }
 
-export function usePortosPorPais(codigoPais: string, habilitado = true) {
+/** Portos: `ativo` controla o modal; país é filtro opcional (lista completa sem país). */
+export function usePortosPorPais(codigoPais: string, ativo = true) {
   const [portos, setPortos] = useState<PortoCadastro[]>([])
   const [carregando, setCarregando] = useState(false)
 
   useEffect(() => {
-    if (!habilitado) {
+    if (!ativo) {
       setPortos([])
       return
     }
@@ -72,7 +73,7 @@ export function usePortosPorPais(codigoPais: string, habilitado = true) {
     return () => {
       cancelado = true
     }
-  }, [codigoPais, habilitado])
+  }, [codigoPais, ativo])
 
   const opcoes = useMemo((): SelectOpcao[] =>
     portos.map((p) => ({
@@ -84,12 +85,13 @@ export function usePortosPorPais(codigoPais: string, habilitado = true) {
   return { portos, opcoes, carregando }
 }
 
-export function useAeroportosPorPais(codigoPais: string, habilitado = true) {
+/** Aeroportos: `ativo` controla o modal; país é filtro opcional (lista completa sem país). */
+export function useAeroportosPorPais(codigoPais: string, ativo = true) {
   const [aeroportos, setAeroportos] = useState<AeroportoCadastro[]>([])
   const [carregando, setCarregando] = useState(false)
 
   useEffect(() => {
-    if (!habilitado) {
+    if (!ativo) {
       setAeroportos([])
       return
     }
@@ -112,7 +114,7 @@ export function useAeroportosPorPais(codigoPais: string, habilitado = true) {
     return () => {
       cancelado = true
     }
-  }, [codigoPais, habilitado])
+  }, [codigoPais, ativo])
 
   const opcoes = useMemo((): SelectOpcao[] =>
     aeroportos

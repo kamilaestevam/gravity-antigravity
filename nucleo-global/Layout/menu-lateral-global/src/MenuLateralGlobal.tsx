@@ -11,6 +11,13 @@ export interface WorkspaceItem {
   plan: string
 }
 
+export interface ProductSwitcherItem {
+  slug: string
+  name: string
+  color: string
+  icon: React.ReactNode
+}
+
 export interface NavItem {
   id?: string
   to?: string
@@ -53,6 +60,14 @@ export interface MenuLateralGlobalProps {
   onCreateWorkspace?: () => void
   /** Callback para ir às configurações do workspace */
   onManageWorkspace?: () => void
+  /** Produtos acessíveis no workspace (seletor no topo, ao lado do logo) */
+  produtos?: ProductSwitcherItem[]
+  /** Slug do produto atualmente aberto */
+  produtoAtualSlug?: string
+  /** Troca de produto (navegação full page) */
+  onSwitchProduct?: (slug: string) => void
+  /** Compara slugs equivalentes (ex.: bid-frete ↔ bid-frete-internacional) */
+  produtoSlugEquivalente?: (a: string, b: string) => boolean
   /** Placeholder de busca no dropdown (padrão: "Buscar workspace…") */
   dropdownSearchPlaceholder?: string
   /** Label do botão criar (padrão: "Criar workspace") */
@@ -82,6 +97,10 @@ export function MenuLateralGlobal({
   sinalAbrirMenuWorkspaces = 0,
   onCreateWorkspace,
   onManageWorkspace,
+  produtos = [],
+  produtoAtualSlug,
+  onSwitchProduct,
+  produtoSlugEquivalente = (a, b) => a === b,
   dropdownSearchPlaceholder = 'Buscar workspace…',
   dropdownCreateLabel = 'Criar workspace',
   dropdownManageLabel = 'Gerenciar workspace',
@@ -94,20 +113,30 @@ export function MenuLateralGlobal({
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
   const [wsOpen, setWsOpen] = useState(false)
   const [wsSearch, setWsSearch] = useState('')
+  const [prodOpen, setProdOpen] = useState(false)
+  const [prodSearch, setProdSearch] = useState('')
   const wsRef = useRef<HTMLDivElement>(null)
+  const prodRef = useRef<HTMLDivElement>(null)
   const tenantBtnRef = useRef<HTMLButtonElement>(null)
+  const prodBtnRef = useRef<HTMLButtonElement>(null)
   const location = useLocation()
 
-  // Fecha dropdown ao clicar fora
+  const exibirSeletorProduto = produtos.length >= 1 && Boolean(onSwitchProduct)
+
+  // Fecha dropdowns ao clicar fora
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (wsRef.current && !wsRef.current.contains(e.target as Node)) {
-        setWsOpen(false)
-      }
+      const target = e.target as Node
+      if (wsRef.current && !wsRef.current.contains(target)) setWsOpen(false)
+      if (prodRef.current && !prodRef.current.contains(target)) setProdOpen(false)
     }
-    if (wsOpen) document.addEventListener('mousedown', handler)
+    if (wsOpen || prodOpen) document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
-  }, [wsOpen])
+  }, [wsOpen, prodOpen])
+
+  const filteredProdutos = produtos.filter(p =>
+    p.name.toLowerCase().includes(prodSearch.toLowerCase()),
+  )
 
   const filteredWorkspaces = workspaces.filter(ws =>
     ws.name.toLowerCase().includes(wsSearch.toLowerCase())
@@ -275,26 +304,98 @@ export function MenuLateralGlobal({
         </button>
       </TooltipGlobal>
 
-      {/* ── Logo + Nome do produto ── */}
-      {isCollapsed ? (
-        <TooltipGlobal descricao={moduleName}>
-          <div className="mlg-logo-area mlg-logo-area--collapsed">
+      {/* ── Logo + seletor de produto ── */}
+      <div className="mlg-logo-wrapper" ref={prodRef}>
+        {isCollapsed ? (
+          <TooltipGlobal descricao={moduleName}>
+            <div className="mlg-logo-area mlg-logo-area--collapsed">
+              <div className="mlg-logo-icon" style={{ color: moduleColor }}>
+                {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
+              </div>
+            </div>
+          </TooltipGlobal>
+        ) : exibirSeletorProduto ? (
+          <button
+            ref={prodBtnRef}
+            type="button"
+            className={`mlg-logo-area mlg-logo-area--btn ${prodOpen ? 'mlg-logo-area--open' : ''}`}
+            onClick={() => setProdOpen(o => !o)}
+            aria-expanded={prodOpen}
+            aria-haspopup="listbox"
+            aria-label={`Produto: ${moduleName}. Trocar produto`}
+          >
             <div className="mlg-logo-icon" style={{ color: moduleColor }}>
               {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
             </div>
+            <div className="mlg-logo-info">
+              <span className="mlg-logo-name" style={{ color: moduleColor }}>{moduleName}</span>
+              <span className="mlg-logo-gravity">by Gravity</span>
+            </div>
+            <CaretDown className={`mlg-logo-chevron ${prodOpen ? 'open' : ''}`} size={13} weight="bold" />
+          </button>
+        ) : (
+          <div className="mlg-logo-area">
+            <div className="mlg-logo-icon" style={{ color: moduleColor }}>
+              {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
+            </div>
+            <div className="mlg-logo-info">
+              <span className="mlg-logo-name" style={{ color: moduleColor }}>{moduleName}</span>
+              <span className="mlg-logo-gravity">by Gravity</span>
+            </div>
           </div>
-        </TooltipGlobal>
-      ) : (
-        <div className="mlg-logo-area">
-          <div className="mlg-logo-icon" style={{ color: moduleColor }}>
-            {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
+        )}
+
+        {prodOpen && !isCollapsed && exibirSeletorProduto && (
+          <div className="mlg-ws-dropdown mlg-prod-dropdown" role="listbox">
+            {produtos.length > 4 && (
+              <div className="mlg-ws-search">
+                <input
+                  className="mlg-ws-search__input"
+                  type="text"
+                  placeholder="Buscar produto…"
+                  value={prodSearch}
+                  onChange={e => setProdSearch(e.target.value)}
+                  autoFocus
+                />
+              </div>
+            )}
+            <div className="mlg-ws-dropdown__list">
+              {filteredProdutos.map(prod => {
+                const isCurrent = produtoAtualSlug
+                  ? produtoSlugEquivalente(prod.slug, produtoAtualSlug)
+                  : prod.name === moduleName
+                return (
+                  <button
+                    key={prod.slug}
+                    type="button"
+                    className={`mlg-ws-item ${isCurrent ? 'mlg-ws-item--current' : ''}`}
+                    role="option"
+                    aria-selected={isCurrent}
+                    onClick={() => {
+                      if (!isCurrent) onSwitchProduct?.(prod.slug)
+                      setProdOpen(false)
+                    }}
+                  >
+                    <div
+                      className="mlg-prod-item-icon"
+                      style={{ color: prod.color }}
+                      aria-hidden
+                    >
+                      {prod.icon}
+                    </div>
+                    <div className="mlg-ws-item-info">
+                      <span className="mlg-ws-item-name">{prod.name}</span>
+                    </div>
+                    {isCurrent && (
+                      <Check size={13} weight="bold" style={{ color: prod.color, flexShrink: 0 }} />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-          <div className="mlg-logo-info">
-            <span className="mlg-logo-name" style={{ color: moduleColor }}>{moduleName}</span>
-            <span className="mlg-logo-gravity">by Gravity</span>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* ── Workspace switcher ── */}
       <div className="mlg-tenant-wrapper" ref={wsRef}>

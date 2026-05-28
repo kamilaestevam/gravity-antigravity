@@ -78,9 +78,7 @@
   padding: 0 1.25rem;
   height: var(--header-height, 60px);
   min-height: var(--header-height, 60px);
-  border-bottom: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.20));
   overflow: hidden;
-  flex-shrink: 0;
 }
 
 .mlg-logo-area--collapsed {
@@ -117,6 +115,56 @@
   font-weight: 500;
   color: var(--text-secondary, #94a3b8);
   letter-spacing: 0.02em;
+}
+
+/* ── Product switcher (logo area) ── */
+.mlg-logo-wrapper {
+  position: relative;
+  border-bottom: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.20));
+  flex-shrink: 0;
+}
+
+.mlg-logo-area--btn {
+  width: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.mlg-logo-area--btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.mlg-logo-area--open {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.mlg-logo-chevron {
+  margin-left: auto;
+  color: var(--ws-muted, #94a3b8);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.mlg-logo-chevron.open {
+  transform: rotate(180deg);
+}
+
+.mlg-prod-dropdown {
+  top: calc(100% + 0.25rem);
+}
+
+.mlg-prod-item-icon {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 /* ── Workspace switcher ── */

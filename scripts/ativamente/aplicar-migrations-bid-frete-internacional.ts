@@ -1,0 +1,191 @@
+/**
+ * aplicar-migrations-bid-frete-internacional.ts
+ *
+ * Aplica migrations do BID Frete Internacional em gravity-bidfrete-producao.
+ * Banco legado (bid_cotacoes, etc.) sem _prisma_migrations → baseline (P3005).
+ * Banco já migrado ou vazio → prisma migrate deploy normal.
+ */
+import { execSync } from 'node:child_process'
+import { createHash, randomUUID } from 'node:crypto'
+import { readdirSync, readFileSync } from 'node:fs'
+import { join, resolve } from 'node:path'
+import { Client } from 'pg'
+
+const REPO_ROOT = resolve(import.meta.dirname, '../..')
+const BID_DIR = join(REPO_ROOT, 'servicos-global/produto/bid-frete-internacional')
+const BID_SCHEMA = join(BID_DIR, 'prisma/schema.prisma')
+const MIGRATIONS_DIR = join(BID_DIR, 'prisma/migrations')
+
+const CREATE_MIGRATIONS_TABLE = `
+CREATE TABLE IF NOT EXISTS "_prisma_migrations" (
+  id                   VARCHAR(36)  NOT NULL PRIMARY KEY,
+  checksum             VARCHAR(64)  NOT NULL,
+  finished_at          TIMESTAMPTZ,
+  migration_name       VARCHAR(255) NOT NULL,
+  logs                 TEXT,
+  rolled_back_at       TIMESTAMPTZ,
+  started_at           TIMESTAMPTZ  NOT NULL DEFAULT now(),
+  applied_steps_count  INTEGER      NOT NULL DEFAULT 0
+);
+`
+
+function mascararUrl(url: string): string {
+  try {
+    const host = url.split('@')[1]?.split('/')[0]
+    return host ? `***@${host}` : '(url invalida)'
+  } catch {
+    return '(url invalida)'
+  }
+}
+
+function listarMigrations(): string[] {
+  return readdirSync(MIGRATIONS_DIR, { withFileTypes: true })
+    .filter(d => d.isDirectory())
+    .map(d => d.name)
+    .sort()
+}
+
+async function tabelaExiste(client: Client, nome: string): Promise<boolean> {
+  const { rows } = await client.query<{ exists: boolean }>(
+    `SELECT EXISTS (
+      SELECT 1 FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = $1
+    ) AS exists`,
+    [nome],
+  )
+  return rows[0]?.exists === true
+}
+
+async function contarMigrationsAplicadas(client: Client): Promise<number> {
+  const existe = await tabelaExiste(client, '_prisma_migrations')
+  if (!existe) return 0
+  const { rows } = await client.query<{ count: string }>(
+    `SELECT COUNT(*)::text AS count FROM "_prisma_migrations" WHERE finished_at IS NOT NULL`,
+  )
+  return Number(rows[0]?.count ?? 0)
+}
+
+async function migrationJaRegistrada(client: Client, nome: string): Promise<boolean> {
+  const { rows } = await client.query<{ exists: boolean }>(
+    `SELECT EXISTS (
+      SELECT 1 FROM "_prisma_migrations"
+      WHERE migration_name = $1 AND finished_at IS NOT NULL
+    ) AS exists`,
+    [nome],
+  )
+  return rows[0]?.exists === true
+}
+
+async function colunaExiste(client: Client, tabela: string, coluna: string): Promise<boolean> {
+  const { rows } = await client.query<{ exists: boolean }>(
+    `SELECT EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = $1 AND column_name = $2
+    ) AS exists`,
+    [tabela, coluna],
+  )
+  return rows[0]?.exists === true
+}
+
+/** Pula SQL quando o estado alvo da migration já está no banco (produção parcialmente migrada). */
+async function migrationJaMaterializada(client: Client, nome: string): Promise<boolean> {
+  if (nome.startsWith('20260427000000')) {
+    if (!(await tabelaExiste(client, 'bid_cotacoes'))) return true
+    return !(await colunaExiste(client, 'bid_cotacoes', 'tenant_id'))
+  }
+  if (nome.startsWith('20260526120000')) {
+    return await tabelaExiste(client, 'cotacao_bid_frete_internacional')
+  }
+  return false
+}
+
+async function registrarMigration(client: Client, nome: string, sql: string): Promise<void> {
+  const checksum = createHash('sha256').update(sql).digest('hex')
+  await client.query(
+    `INSERT INTO "_prisma_migrations"
+      (id, checksum, finished_at, migration_name, started_at, applied_steps_count)
+     VALUES ($1, $2, NOW(), $3, NOW(), 1)`,
+    [randomUUID(), checksum, nome],
+  )
+}
+
+async function aplicarBaseline(client: Client): Promise<void> {
+  console.log('[migrations-bid] Baseline — banco legado sem histórico Prisma')
+  await client.query(CREATE_MIGRATIONS_TABLE)
+
+  for (const nome of listarMigrations()) {
+    if (await migrationJaRegistrada(client, nome)) {
+      console.log(`[migrations-bid]   ${nome} já registrada — skip`)
+      continue
+    }
+
+    const sqlPath = join(MIGRATIONS_DIR, nome, 'migration.sql')
+    const sql = readFileSync(sqlPath, 'utf-8')
+
+    if (await migrationJaMaterializada(client, nome)) {
+      console.log(`[migrations-bid]   ${nome} já materializada — só registrar`)
+      await registrarMigration(client, nome, sql)
+      continue
+    }
+
+    console.log(`[migrations-bid]   aplicando SQL: ${nome}`)
+    await client.query('BEGIN')
+    try {
+      await client.query(sql)
+      await registrarMigration(client, nome, sql)
+      await client.query('COMMIT')
+    } catch (err) {
+      await client.query('ROLLBACK')
+      throw err
+    }
+  }
+}
+
+async function precisaBaseline(client: Client): Promise<boolean> {
+  const aplicadas = await contarMigrationsAplicadas(client)
+  if (aplicadas > 0) return false
+
+  const legado =
+    (await tabelaExiste(client, 'bid_cotacoes')) ||
+    (await tabelaExiste(client, 'bid_fornecedores')) ||
+    (await tabelaExiste(client, 'cotacao_bid_frete_internacional'))
+
+  return legado
+}
+
+async function main(): Promise<void> {
+  const databaseUrl = process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL ?? process.env.DATABASE_URL
+  if (!databaseUrl) {
+    console.error('[migrations-bid] BID_FRETE_INTERNATIONAL_DATABASE_URL ausente')
+    process.exit(1)
+  }
+
+  console.log(`[migrations-bid] Banco: ${mascararUrl(databaseUrl)}`)
+
+  execSync('node prisma/compose-schema.js', { cwd: BID_DIR, stdio: 'inherit' })
+
+  const client = new Client({ connectionString: databaseUrl })
+  await client.connect()
+
+  try {
+    if (await precisaBaseline(client)) {
+      await aplicarBaseline(client)
+    }
+  } finally {
+    await client.end()
+  }
+
+  console.log('[migrations-bid] prisma migrate deploy...')
+  execSync(`npx prisma migrate deploy --schema=${BID_SCHEMA}`, {
+    cwd: REPO_ROOT,
+    stdio: 'inherit',
+    env: { ...process.env, DATABASE_URL: databaseUrl },
+  })
+
+  console.log('[migrations-bid] Concluído.')
+}
+
+main().catch(err => {
+  console.error('[migrations-bid] ERRO FATAL:', err)
+  process.exit(1)
+})

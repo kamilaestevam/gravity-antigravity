@@ -6,10 +6,8 @@ set -euo pipefail
 echo "[start-site] Iniciando site-usegravity..."
 
 if [ -n "${BID_FRETE_INTERNATIONAL_DATABASE_URL:-}" ]; then
-  BID_DIR="servicos-global/produto/bid-frete-internacional"
   echo "[start-site] Aplicando migrations BID Frete Internacional (gravity-bidfrete-producao)..."
-  node "$BID_DIR/prisma/compose-schema.js"
-  if DATABASE_URL="$BID_FRETE_INTERNATIONAL_DATABASE_URL" npx prisma migrate deploy --schema="$BID_DIR/prisma/schema.prisma"; then
+  if npx tsx scripts/ativamente/aplicar-migrations-bid-frete-internacional.ts; then
     echo "[start-site] Migrations BID Frete Internacional concluídas."
   else
     echo "[start-site] ERRO: migrations BID Frete Internacional falharam — ver logs acima."

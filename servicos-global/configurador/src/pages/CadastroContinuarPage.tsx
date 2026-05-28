@@ -277,8 +277,6 @@ export function CadastroContinuarPage() {
   const [erro, setErro] = useState<string | null>(null)
   const [oauthCarregando, setOauthCarregando] = useState(false)
   const [processandoTicket, setProcessandoTicket] = useState(false)
-  /** Evita auto-create no mount — prefetch de e-mail (Gmail) queimava o ticket. */
-  const [conviteConfirmado, setConviteConfirmado] = useState(false)
   const [etapaCadastro, setEtapaCadastro] = useState<'formulario' | 'verificacao_email'>('formulario')
   const [codigoVerificacao, setCodigoVerificacao] = useState('')
 
@@ -307,7 +305,6 @@ export function CadastroContinuarPage() {
       } else {
         aplicarDadosConvite(mesclarDadosSignUp(signUpAtual, signUpAtual), ticketAtual)
       }
-      setConviteConfirmado(true)
       setErro(null)
       return
     }
@@ -320,12 +317,10 @@ export function CadastroContinuarPage() {
     try {
       const resultado = await processarTicketConvite(signUpAtual, ticketAtual)
       aplicarDadosConvite(mesclarDadosSignUp(resultado, signUpRef.current), ticketAtual)
-      setConviteConfirmado(true)
     } catch (err) {
       const signUpPosFalha = signUpRef.current
       if (conviteJaProcessadoComDados(ticketAtual, signUpPosFalha)) {
         aplicarDadosConvite(mesclarDadosSignUp(signUpPosFalha ?? {}, signUpPosFalha), ticketAtual)
-        setConviteConfirmado(true)
         return
       }
       console.error('[CadastroContinuar] Erro ao processar ticket', {
@@ -352,9 +347,7 @@ export function CadastroContinuarPage() {
   const isOAuthMissing = !ticket && isLoaded && signUp?.status === 'missing_requirements'
 
   // ─── Pré-popula do ticket ────────────────────────────────────────────────
-  // NÃO chamar signUp.create no mount: signUp muda de referência (re-run) e
-  // prefetch de e-mail consome ticket antes do clique humano.
-  // Fluxo: cache sessionStorage → ou botão "Confirmar convite" → create once.
+  // signUp.create uma vez no mount (dedup via Map + lock síncrono).
   useEffect(() => {
     if (!isLoaded || !ticket) return
 
@@ -362,15 +355,16 @@ export function CadastroContinuarPage() {
     if (cache) {
       setEmailConvite(cache.email)
       if (cache.nome) setNome(cache.nome)
-      setConviteConfirmado(true)
       return
     }
 
-    if (ticketsConviteComSucesso.has(ticket) && signUpRef.current?.emailAddress) {
-      aplicarDadosConvite(signUpRef.current, ticket)
-      setConviteConfirmado(true)
+    if (conviteJaProcessadoComDados(ticket, signUpRef.current)) {
+      aplicarDadosConvite(mesclarDadosSignUp(signUpRef.current ?? {}, signUpRef.current), ticket)
+      return
     }
-  }, [isLoaded, ticket, aplicarDadosConvite])
+
+    void executarProcessamentoTicket(ticket)
+  }, [isLoaded, ticket, aplicarDadosConvite, executarProcessamentoTicket])
 
   // Autofill do browser às vezes joga o e-mail do convite no campo Nome.
   useEffect(() => {
@@ -408,15 +402,10 @@ export function CadastroContinuarPage() {
     { chave: 'termos',   ok: aceiteTermos,   mensagem: 'Aceite dos Termos de Uso e Política de Privacidade' },
   ]
 
-  const podeEnviar = requisitos.every((r) => r.ok) && !enviando && isLoaded
+  const podeEnviar = requisitos.every((r) => r.ok) && !enviando && isLoaded && !processandoTicket
     && (!isInvitation || !!emailConvite)
 
   // ─── Handlers ─────────────────────────────────────────────────────────────
-  async function handleConfirmarConvite() {
-    if (!ticket || conviteConfirmado || processandoTicket) return
-    await executarProcessamentoTicket(ticket)
-  }
-
   async function ativarSessaoCadastro(resultado: ResultadoSignUpClerk): Promise<boolean> {
     if (!setActive) return false
     const sessionId = resultado.createdSessionId ?? signUpRef.current?.createdSessionId ?? null
@@ -622,95 +611,6 @@ export function CadastroContinuarPage() {
           </p>
         </div>
 
-        {/* Banner contextual — convite (confirmação manual anti-prefetch) ou OAuth. */}
-        {isInvitation && !emailConvite && !erro && !conviteConfirmado && !processandoTicket && (
-          <div
-            role="region"
-            aria-label="Confirmar convite"
-            style={{
-              padding: '1rem', borderRadius: '10px',
-              background: 'rgba(129,140,248,0.06)', border: '1px solid rgba(129,140,248,0.18)',
-              marginBottom: '1.25rem', fontSize: '0.8125rem',
-            }}
-          >
-            <p style={{ color: '#c7d2fe', margin: '0 0 0.75rem', lineHeight: 1.5 }}>
-              Você abriu um link de convite. Clique abaixo para carregar seu e-mail e continuar o cadastro.
-            </p>
-            <BotaoGlobal
-              type="button"
-              variante="primario"
-              blocoCompleto
-              centralizado
-              onClick={() => { void handleConfirmarConvite() }}
-              disabled={!isLoaded}
-            >
-              Confirmar convite e continuar
-            </BotaoGlobal>
-          </div>
-        )}
-        {isInvitation && processandoTicket && !emailConvite && (
-          <div
-            role="status"
-            aria-live="polite"
-            style={{
-              padding: '0.75rem 1rem', borderRadius: '10px',
-              background: 'rgba(129,140,248,0.04)', border: '1px solid rgba(129,140,248,0.12)',
-              display: 'flex', alignItems: 'center', gap: '0.625rem',
-              marginBottom: '1.25rem', fontSize: '0.8125rem',
-            }}
-          >
-            <CircleNotch size={18} weight="bold" className="cadastro-spinner" style={{ color: '#818cf8', flexShrink: 0 }} />
-            <span style={{ color: 'rgba(199,210,254,0.8)' }}>Carregando dados do convite…</span>
-          </div>
-        )}
-        {isOAuthMissing && !emailConvite && !erro && (
-          <div
-            role="status"
-            aria-live="polite"
-            style={{
-              padding: '0.75rem 1rem', borderRadius: '10px',
-              background: 'rgba(129,140,248,0.04)', border: '1px solid rgba(129,140,248,0.12)',
-              display: 'flex', alignItems: 'center', gap: '0.625rem',
-              marginBottom: '1.25rem', fontSize: '0.8125rem',
-            }}
-          >
-            <CheckCircle size={18} weight="fill" style={{ color: 'rgba(129,140,248,0.4)', flexShrink: 0 }} />
-            <span style={{
-              color: 'rgba(199,210,254,0.6)',
-              display: 'inline-block',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.04) 100%)',
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 1.4s ease-in-out infinite',
-              borderRadius: 4,
-              padding: '0.125rem 0.5rem',
-              minWidth: '14rem',
-            }}>
-              Carregando dados do convite…
-            </span>
-            <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
-          </div>
-        )}
-        {emailConvite && (
-          <div
-            role="note"
-            style={{
-              padding: '0.75rem 1rem', borderRadius: '10px',
-              background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.2)',
-              display: 'flex', alignItems: 'center', gap: '0.625rem',
-              marginBottom: '1.25rem', fontSize: '0.8125rem',
-            }}
-          >
-            <CheckCircle size={18} weight="fill" style={{ color: '#818cf8', flexShrink: 0 }} />
-            <span style={{ color: '#c7d2fe' }}>
-              {isInvitation ? (
-                <>Convite recebido para <strong style={{ color: '#fff' }}>{emailConvite}</strong></>
-              ) : (
-                <>Quase lá — defina uma senha para <strong style={{ color: '#fff' }}>{emailConvite}</strong></>
-              )}
-            </span>
-          </div>
-        )}
-
         {/* Botão Google OAuth + Divisor
             Decisão dono 2026-05-12 — Opção A: esconder ambos quando o usuário
             vem de um convite Clerk (isInvitation === true). O convite já
@@ -791,7 +691,7 @@ export function CadastroContinuarPage() {
                 placeholder="Ex: Ana Paula Silva"
                 onChange={(e) => setNome(e.target.value)}
                 style={{ width: '100%' }}
-                disabled={enviando}
+                disabled={enviando || processandoTicket}
                 autoFocus
                 autoComplete="name"
               />
@@ -823,7 +723,7 @@ export function CadastroContinuarPage() {
                 placeholder="Mínimo 8 caracteres"
                 onChange={(e) => setSenha(e.target.value)}
                 style={{ width: '100%', paddingRight: '2.5rem' }}
-                disabled={enviando}
+                disabled={enviando || processandoTicket}
                 autoComplete="new-password"
               />
               <button
@@ -869,7 +769,7 @@ export function CadastroContinuarPage() {
                 placeholder="Digite a senha novamente"
                 onChange={(e) => setConfirmacao(e.target.value)}
                 style={{ width: '100%', paddingRight: '2.5rem' }}
-                disabled={enviando}
+                disabled={enviando || processandoTicket}
                 autoComplete="new-password"
               />
               <button
@@ -900,7 +800,7 @@ export function CadastroContinuarPage() {
               type="checkbox"
               checked={aceiteTermos}
               onChange={(e) => setAceiteTermos(e.target.checked)}
-              disabled={enviando}
+              disabled={enviando || processandoTicket}
               style={{ marginTop: 2, accentColor: '#818cf8', cursor: 'pointer' }}
             />
             <span style={{ fontSize: '0.8125rem', color: 'var(--ws-text)', lineHeight: 1.5 }}>

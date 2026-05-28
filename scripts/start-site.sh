@@ -6,7 +6,7 @@ set -euo pipefail
 echo "[start-site] Iniciando site-usegravity..."
 
 if [ -n "${BID_FRETE_INTERNATIONAL_DATABASE_URL:-}" ]; then
-  echo "[start-site] Aplicando migrations BID Frete Internacional (gravity-bidfrete-producao)..."
+  echo "[start-site] Aplicando migrations BID Frete Internacional (gravity-bid-frete-internacional-producao)..."
   if npx tsx scripts/ativamente/aplicar-migrations-bid-frete-internacional.ts; then
     echo "[start-site] Migrations BID Frete Internacional concluídas."
   else

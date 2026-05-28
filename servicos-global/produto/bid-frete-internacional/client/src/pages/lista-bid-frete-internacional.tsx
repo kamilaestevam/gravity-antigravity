@@ -9,6 +9,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 
 import CotacoesKanban from './kanban-bid-frete-internacional'
@@ -37,14 +38,18 @@ import {
   Gauge,
 } from '@phosphor-icons/react'
 
-import { getCotacoes } from '../shared/api'
+import { getCotacoes, listarUsuariosOrganizacao } from '../shared/api'
 import type { Cotacao, StatusCotacao } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, MODALIDADE_LABELS } from '../shared/types'
+import { calcularStatsListaBidFrete } from '../shared/lista-bid-frete-kpi-metrics'
+import { listarCardsCatalogo, useCardPreferencesBidFrete } from '../shared/use-card-preferences'
 import {
   buildColunasPaiLista,
   buildColunasCotacoes,
   buildMapaColunasFilho,
   CHAVES_COLUNAS_COTACAO,
+  CHAVES_COLUNAS_PADRAO_VISIVEIS,
+  type OpcoesColunasLista,
   fmtData,
   fmtQuantidade,
   getCasas,
@@ -124,31 +129,127 @@ const CAMPOS_EDITAVEIS = [
   'valor_meta_cotacao_bid_frete_internacional',
 ]
 
-// ─── Sequência de colunas padrão ───
+// ─── Colunas padrão = todas as colunas escalares do banco ───
 
-const COLUNAS_PADRAO_VISIVEIS = [
-  'numero_cotacao_bid_frete_internacional',
-  'referencia_interna_cotacao_bid_frete_internacional',
-  'status_cotacao_bid_frete_internacional',
-  'data_criacao_cotacao_bid_frete_internacional',
-  'modal_cotacao_bid_frete_internacional',
-  'origem_nome_cotacao_bid_frete_internacional',
-  'destino_nome_cotacao_bid_frete_internacional',
-  'peso_kg_cotacao_bid_frete_internacional',
-  'cubagem_m3_cotacao_bid_frete_internacional',
-  'incoterm_cotacao_bid_frete_internacional',
-  'valor_meta_cotacao_bid_frete_internacional',
-  'ganho_valor_cotacao_bid_frete_internacional',
-  'ganho_percentual_cotacao_bid_frete_internacional',
-]
+/** Incrementar quando adicionar colunas ao schema — força reset das prefs salvas. */
+const VERSAO_COLUNAS_LISTA = 3
+const STORAGE_COLUNAS_VERSAO = 'bid-frete-internacional:config:tabela_colunas_versao'
+const STORAGE_PREFS_INTL = 'bid-frete-internacional:config:tabela_preferencias'
+const STORAGE_PREFS_LEGADO = 'bid-frete:config:tabela_preferencias'
 
+const COLUNAS_PADRAO_VISIVEIS = CHAVES_COLUNAS_PADRAO_VISIVEIS
 
+function migrarPreferenciasColunasSeNecessario(): void {
+  try {
+    const versaoSalva = Number(localStorage.getItem(STORAGE_COLUNAS_VERSAO) ?? '1')
+    if (versaoSalva >= VERSAO_COLUNAS_LISTA) return
+    localStorage.removeItem(STORAGE_PREFS_INTL)
+    localStorage.removeItem(STORAGE_PREFS_LEGADO)
+    localStorage.setItem(STORAGE_COLUNAS_VERSAO, String(VERSAO_COLUNAS_LISTA))
+  } catch { /* storage indisponível */ }
+}
+
+function lerPreferenciasTabela(): GTPreferencias | undefined {
+  migrarPreferenciasColunasSeNecessario()
+  try {
+    let raw = localStorage.getItem(STORAGE_PREFS_INTL)
+    if (!raw) {
+      raw = localStorage.getItem(STORAGE_PREFS_LEGADO)
+    }
+    if (!raw) return undefined
+    const parsed = JSON.parse(raw) as GTPreferencias
+    if (!parsed || !Array.isArray(parsed.colunas_visiveis)) {
+      return undefined
+    }
+
+    const colunasValidas = parsed.colunas_visiveis
+      .filter(k => CHAVES_COLUNAS_COTACAO.includes(k))
+      .filter(k => k !== 'id_cotacao_bid_frete_internacional')
+    const faltantes = CHAVES_COLUNAS_PADRAO_VISIVEIS.filter(k => !colunasValidas.includes(k))
+
+    const hasIntlCore = colunasValidas.includes('numero_cotacao_bid_frete_internacional')
+    if (!hasIntlCore || colunasValidas.length < 3) {
+      return undefined
+    }
+
+    // Novas colunas do banco entram automaticamente ao final da lista visível
+    const colunasVisiveis = faltantes.length > 0
+      ? [...colunasValidas, ...faltantes]
+      : colunasValidas
+
+    return {
+      ...parsed,
+      colunas_visiveis: colunasVisiveis,
+    }
+  } catch {
+    return undefined
+  }
+}
 
 export default function Cotacoes() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const addNotification = useShellStore(s => s.addNotification)
+  const { getToken } = useAuth()
+  const currentUser = useShellStore(s => s.currentUser)
+  const workspacesStore = useShellStore(s => s.workspaces)
+  const organizacoesStore = useShellStore(s => s.organizacoes)
+  const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
+
+  const [usuariosOrganizacao, setUsuariosOrganizacao] = useState<Array<{ id_usuario: string; nome_usuario: string }>>([])
+
+  useEffect(() => {
+    let cancelado = false
+    listarUsuariosOrganizacao(getToken)
+      .then((lista) => { if (!cancelado) setUsuariosOrganizacao(lista) })
+      .catch(() => { if (!cancelado) setUsuariosOrganizacao([]) })
+    return () => { cancelado = true }
+  }, [getToken])
+
+  const organizacoesMap = useMemo(() => {
+    const mapa = new Map<string, string>()
+    if (currentUser.idOrganizacao && currentUser.nomeOrganizacao) {
+      mapa.set(currentUser.idOrganizacao, currentUser.nomeOrganizacao)
+    }
+    for (const org of organizacoesStore) {
+      mapa.set(org.id_organizacao, org.nome_organizacao)
+    }
+    return mapa
+  }, [currentUser.idOrganizacao, currentUser.nomeOrganizacao, organizacoesStore])
+
+  const workspacesMap = useMemo(() => {
+    const mapa = new Map<string, { nome: string }>()
+    for (const ws of workspacesStore) {
+      mapa.set(ws.id, { nome: ws.nome_workspace })
+    }
+    return mapa
+  }, [workspacesStore])
+
+  const usuariosMap = useMemo(() => {
+    const mapa = new Map<string, string>()
+    for (const u of usuariosOrganizacao) {
+      mapa.set(u.id_usuario, u.nome_usuario)
+    }
+    if (currentUser.id && currentUser.name) {
+      mapa.set(currentUser.id, currentUser.name)
+    }
+    return mapa
+  }, [usuariosOrganizacao, currentUser.id, currentUser.name])
+
+  const nomeWorkspaceAtivo = useMemo(() => {
+    if (!idWorkspaceAtivo) return undefined
+    return workspacesMap.get(idWorkspaceAtivo)?.nome
+  }, [idWorkspaceAtivo, workspacesMap])
+
+  const opcoesColunasLista = useMemo<OpcoesColunasLista>(() => ({
+    organizacoesMap,
+    workspacesMap,
+    usuariosMap,
+    idUsuarioAtual: currentUser.id,
+    nomeUsuarioAtual: currentUser.name || currentUser.email,
+    nomeWorkspaceFallback: nomeWorkspaceAtivo,
+  }), [organizacoesMap, workspacesMap, usuariosMap, currentUser.id, currentUser.name, currentUser.email, nomeWorkspaceAtivo])
 
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -195,49 +296,7 @@ export default function Cotacoes() {
   }, [])
 
   const abas = useMemo(() => gerarAbasDinamicas(statusConfig), [statusConfig])
-
-  // Carrega configurações de cards do Configurador (Internacional)
-  const [cardsPref, setCardsPref] = useState<{ id: string; visible: boolean }[]>(() => {
-    try {
-      const raw = localStorage.getItem('bid-frete:config:cards')
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed
-        }
-      }
-    } catch {}
-    // Padrão completo do configurador caso não configurado
-    return [
-      { id: 'total_cotacoes', visible: true },
-      { id: 'valor_total_frete', visible: true },
-      { id: 'propostas_recebidas', visible: true },
-      { id: 'saving_total', visible: true },
-      { id: 'tempo_medio_resposta', visible: true },
-      { id: 'cotacoes_expiradas', visible: true },
-    ]
-  })
-
-  // Sincronização em tempo real das preferências de cards
-  useEffect(() => {
-    const handleStorageChange = () => {
-      try {
-        const raw = localStorage.getItem('bid-frete:config:cards')
-        if (raw) {
-          const parsed = JSON.parse(raw)
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setCardsPref(parsed)
-          }
-        }
-      } catch {}
-    }
-    window.addEventListener('storage', handleStorageChange)
-    window.addEventListener('focus', handleStorageChange)
-    return () => {
-      window.removeEventListener('storage', handleStorageChange)
-      window.removeEventListener('focus', handleStorageChange)
-    }
-  }, [])
+  const { visiveis: cardsVisiveis } = useCardPreferencesBidFrete()
 
   // Carregar dados de cotações
   const carregar = useCallback(async () => {
@@ -256,40 +315,23 @@ export default function Cotacoes() {
 
   // ─── Tabela Virtual: Preferências, Colunas e Edição ───
 
-  const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(() => {
-    try {
-      let raw = localStorage.getItem('bid-frete-internacional:config:tabela_preferencias')
-      if (!raw) {
-        raw = localStorage.getItem('bid-frete:config:tabela_preferencias')
-      }
-      if (!raw) return undefined
-      const parsed = JSON.parse(raw) as GTPreferencias
-      if (!parsed || !Array.isArray(parsed.colunas_visiveis)) {
-        return undefined
-      }
+  const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(() => lerPreferenciasTabela())
 
-      // Validar contra as colunas realmente disponíveis no produto internacional
-      const colunasDisponiveis = CHAVES_COLUNAS_COTACAO
-      const colunasValidas = parsed.colunas_visiveis.filter(k => colunasDisponiveis.includes(k))
-
-      const hasIntlCore = colunasValidas.includes('numero_cotacao_bid_frete_internacional')
-      if (!hasIntlCore || colunasValidas.length < 3) {
-        return undefined
-      }
-
-      return {
-        ...parsed,
-        colunas_visiveis: colunasValidas,
-      }
-    } catch {
-      return undefined
+  useEffect(() => {
+    const prefs = lerPreferenciasTabela()
+    if (prefs) {
+      setPreferencias(prefs)
+      try {
+        localStorage.setItem(STORAGE_PREFS_INTL, JSON.stringify(prefs))
+      } catch { /* ignore */ }
     }
-  })
+  }, [])
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
     try {
-      localStorage.setItem('bid-frete-internacional:config:tabela_preferencias', JSON.stringify(prefs))
+      localStorage.setItem(STORAGE_COLUNAS_VERSAO, String(VERSAO_COLUNAS_LISTA))
+      localStorage.setItem(STORAGE_PREFS_INTL, JSON.stringify(prefs))
     } catch { /* ignore */ }
   }, [])
 
@@ -297,9 +339,18 @@ export default function Cotacoes() {
     navigate(`/produto/bid-frete/cotacoes/${item.id_cotacao_bid_frete_internacional}`)
   }, [navigate])
 
-  const colunasTabela = useMemo(() => buildColunasPaiLista(t, abrirDetalheCotacao), [t, abrirDetalheCotacao])
-  const mapaColunasFilho = useMemo(() => buildMapaColunasFilho(t, abrirDetalheCotacao), [t, abrirDetalheCotacao])
-  const colunasFilhoExport = useMemo(() => buildColunasCotacoes(t, abrirDetalheCotacao), [t, abrirDetalheCotacao])
+  const colunasTabela = useMemo(
+    () => buildColunasPaiLista(t, opcoesColunasLista, abrirDetalheCotacao),
+    [t, opcoesColunasLista, abrirDetalheCotacao],
+  )
+  const mapaColunasFilho = useMemo(
+    () => buildMapaColunasFilho(t, opcoesColunasLista, abrirDetalheCotacao),
+    [t, opcoesColunasLista, abrirDetalheCotacao],
+  )
+  const colunasFilhoExport = useMemo(
+    () => buildColunasCotacoes(t, opcoesColunasLista, abrirDetalheCotacao),
+    [t, opcoesColunasLista, abrirDetalheCotacao],
+  )
 
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown) => {
     let updatedCotacao: Cotacao | undefined
@@ -352,6 +403,18 @@ export default function Cotacoes() {
     return []
   }, [])
 
+  const handleReordenarCotacoes = useCallback((ids: string[]) => {
+    const mapa = new Map(linhasPaiFiltradas.map(l => [idLinhaPaiLista(l), l]))
+    const reordenados = ids.map(id => mapa.get(id)).filter((l): l is LinhaPaiLista => l != null)
+    const restantes = linhasPaiFiltradas.filter(l => !ids.includes(idLinhaPaiLista(l)))
+    const reordenadasCotacoes = [...reordenados, ...restantes].flatMap(l =>
+      isLinhaBidGrupo(l) ? l.cotacoes : [l],
+    )
+    const idsOrdenados = new Set(reordenadasCotacoes.map(c => c.id_cotacao_bid_frete_internacional))
+    const resto = cotacoes.filter(c => !idsOrdenados.has(c.id_cotacao_bid_frete_internacional))
+    setCotacoes([...reordenadasCotacoes, ...resto])
+  }, [cotacoes, linhasPaiFiltradas])
+
   // ─── Ações de Linha ───
 
   const acoes = useMemo(() => [
@@ -359,7 +422,20 @@ export default function Cotacoes() {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: 'Ver detalhes',
-      onClick: abrirDetalheCotacao,
+      onClick: (item: LinhaPaiLista) => {
+        const cotacao = cotacaoDaLinhaPai(item)
+        if (cotacao) abrirDetalheCotacao(cotacao)
+      },
+      visivel: (item: LinhaPaiLista) => !isLinhaBidGrupo(item),
+    },
+  ], [abrirDetalheCotacao])
+
+  const acoesFilho = useCallback((item: Cotacao) => [
+    {
+      id: 'ver-filho',
+      icone: <Eye weight="duotone" size={16} />,
+      tooltip: 'Ver detalhes',
+      onClick: () => abrirDetalheCotacao(item),
     },
   ], [abrirDetalheCotacao])
 
@@ -438,7 +514,7 @@ export default function Cotacoes() {
     const sep = formato === 'excel' ? ';' : ','
     const escape = (v: string) => `"${v.replace(/"/g, '""')}"`
     
-    const colunasExport = colunasTabela.filter(c => {
+    const colunasExport = colunasFilhoExport.filter(c => {
       if (!c.key) return false
       if (preferencias?.colunas_visiveis) {
         return preferencias.colunas_visiveis.includes(c.key as string)
@@ -452,10 +528,19 @@ export default function Cotacoes() {
       return colunasExport.map(c => {
         const val = row[c.key as keyof Cotacao]
         if (val == null) return escape('')
-        if (c.key === 'data_criacao_cotacao_bid_frete_internacional' || c.key === 'data_limite_resposta_cotacao_bid_frete_internacional' || c.key === 'data_atualizacao_cotacao_bid_frete_internacional') {
+        if (
+          c.key === 'data_criacao_cotacao_bid_frete_internacional' ||
+          c.key === 'data_limite_resposta_cotacao_bid_frete_internacional' ||
+          c.key === 'data_atualizacao_cotacao_bid_frete_internacional' ||
+          c.key === 'data_aprovacao_cotacao_bid_frete_internacional' ||
+          c.key === 'data_cancelamento_cotacao_bid_frete_internacional'
+        ) {
           return escape(fmtData(val as string))
         }
-        if (c.key === 'ganho_valor_cotacao_bid_frete_internacional' || c.key === 'valor_meta_cotacao_bid_frete_internacional' || c.key === 'valor_aprovado_ganho_bid_frete_internacional') {
+        if (
+          c.key === 'ganho_valor_cotacao_bid_frete_internacional' ||
+          c.key === 'valor_meta_cotacao_bid_frete_internacional'
+        ) {
           return escape(val != null ? String(val) : '')
         }
         return escape(String(val))
@@ -470,7 +555,7 @@ export default function Cotacoes() {
     a.download = `cotacoes_${formato === 'excel' ? 'excel' : 'csv'}_${new Date().toISOString().slice(0,10)}.csv`
     a.click()
     setTimeout(() => URL.revokeObjectURL(url), 5000)
-  }, [cotacoesFiltradas, colunasTabela, preferencias])
+  }, [cotacoesFiltradas, colunasFilhoExport, preferencias])
 
   const acoesExportacao = useMemo(() => [
     {
@@ -487,34 +572,10 @@ export default function Cotacoes() {
 
   // ─── KPI Metrics ───
 
-  const stats = useMemo(() => {
-    const total = cotacoes.length
-    const emAndamento = cotacoes.filter(c => c.status_cotacao_bid_frete_internacional === 'EM_COTACAO' || c.status_cotacao_bid_frete_internacional === 'ENVIADA_FORNECEDORES').length
-    const aguardandoAprovacao = cotacoes.filter(c => c.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO').length
-    const expiradas = cotacoes.filter(c => c.status_cotacao_bid_frete_internacional === 'EXPIRADA').length
-    const savingTotal = cotacoesFiltradas.reduce((acc, c) => acc + (c.ganho_valor_cotacao_bid_frete_internacional ?? 0), 0)
-    
-    // Novas métricas para o catálogo do configurador
-    const valorTotalFrete = cotacoesFiltradas.reduce((acc, c) => acc + (c.valor_aprovado_ganho_bid_frete_internacional ?? c.valor_meta_cotacao_bid_frete_internacional ?? 0), 0)
-    const propostas = cotacoes.reduce((acc, c) => {
-      if (c.propostas_bid_frete_internacional && c.propostas_bid_frete_internacional.length > 0) {
-        return acc + c.propostas_bid_frete_internacional.length
-      }
-      return acc + (c.status_cotacao_bid_frete_internacional === 'APROVADA' || c.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO' ? 3 : c.status_cotacao_bid_frete_internacional === 'EM_COTACAO' ? 1 : 0)
-    }, 0)
-    const tempoMedio = 18.5 // média em horas
-
-    return {
-      total,
-      emAndamento,
-      aguardandoAprovacao,
-      expiradas,
-      savingTotal,
-      valorTotalFrete,
-      propostas,
-      tempoMedio
-    }
-  }, [cotacoes, cotacoesFiltradas])
+  const stats = useMemo(
+    () => calcularStatsListaBidFrete(cotacoesFiltradas),
+    [cotacoesFiltradas],
+  )
 
   // ─── Renderizador de Cards Dinâmico ───
   const renderCard = useCallback((id: string) => {
@@ -681,12 +742,8 @@ export default function Cotacoes() {
                   <strong>USD {fmtQuantidade(stats.savingTotal / (stats.emAndamento || 1), 2)}</strong>
                 </div>
                 <div className="cg-tooltip__row">
-                  <span>{t('bidfrete.cotacoes.kpi.saving.tooltipMaritimo', 'Participação Marítimo')}</span>
-                  <strong style={{ color: '#34d399' }}>USD {fmtQuantidade(stats.savingTotal * 0.7, 2)}</strong>
-                </div>
-                <div className="cg-tooltip__row">
-                  <span>{t('bidfrete.cotacoes.kpi.saving.tooltipAereo', 'Participação Aéreo')}</span>
-                  <strong style={{ color: '#a78bfa' }}>USD {fmtQuantidade(stats.savingTotal * 0.3, 2)}</strong>
+                  <span>{t('bidfrete.cotacoes.kpi.saving.tooltipCotacoes', 'Cotações com saving')}</span>
+                  <strong>{stats.total > 0 ? stats.total : 0}</strong>
                 </div>
               </>
             }
@@ -698,7 +755,7 @@ export default function Cotacoes() {
             key="tempo_medio_resposta"
             titulo={t('bidfrete.config.cards.tempo_medio_resposta', 'Tempo Médio de Resposta')}
             icone={<Gauge weight="duotone" size={16} style={{ color: '#a78bfa' }} />}
-            valor={`${stats.tempoMedio} h`}
+            valor={stats.tempoMedioRespostaHoras == null ? '—' : `${fmtQuantidade(stats.tempoMedioRespostaHoras, 1)} h`}
             subtexto={t('bidfrete.config.cards.tempo_medio_resposta_desc', 'Tempo médio de resposta')}
             tooltip={
               <>
@@ -708,7 +765,9 @@ export default function Cotacoes() {
                 </div>
                 <div className="cg-tooltip__row">
                   <span>Tempo Médio Real</span>
-                  <strong style={{ color: '#a78bfa' }}>{stats.tempoMedio} h</strong>
+                  <strong style={{ color: '#a78bfa' }}>
+                    {stats.tempoMedioRespostaHoras == null ? 'Sem respostas' : `${fmtQuantidade(stats.tempoMedioRespostaHoras, 1)} h`}
+                  </strong>
                 </div>
               </>
             }
@@ -746,22 +805,24 @@ export default function Cotacoes() {
             }
           />
         )
-      default:
+      default: {
+        const defCustom = listarCardsCatalogo().find(c => c.id === id)
         return (
           <CardBasicoGlobal
             key={id}
-            titulo={id.startsWith('card_') ? 'Custom Card' : id}
-            icone={<Package weight="duotone" size={16} style={{ color: 'var(--ws-accent, #818cf8)' }} />}
-            valor="--"
-            subtexto="Métrica customizada"
+            titulo={defCustom?.labelKey ?? id}
+            icone={<Package weight="duotone" size={16} style={{ color: defCustom?.cor ?? 'var(--ws-accent, #818cf8)' }} />}
+            valor="—"
+            subtexto={defCustom?.descricao ?? t('bidfrete.cotacoes.kpi.custom.subtexto', 'Métrica customizada')}
             tooltip={
               <div className="cg-tooltip__row">
-                <span>Card Personalizado</span>
-                <strong>Fórmula em processamento</strong>
+                <span>{t('bidfrete.cotacoes.kpi.custom.tooltip', 'Card personalizado')}</span>
+                <strong>{defCustom?.descKey ?? t('bidfrete.cotacoes.kpi.custom.emBreve', 'Em breve')}</strong>
               </div>
             }
           />
         )
+      }
     }
   }, [stats, t])
 
@@ -775,9 +836,7 @@ export default function Cotacoes() {
       {visao === 'lista' && (
         <div className="lp-stats-row">
           <div className="lp-cards">
-            {cardsPref
-              .filter(pref => pref.visible !== false)
-              .map(pref => renderCard(pref.id))}
+            {cardsVisiveis.map(pref => renderCard(pref.id))}
           </div>
         </div>
       )}
@@ -785,22 +844,27 @@ export default function Cotacoes() {
       {/* Conteúdo da Visão */}
       {visao === 'lista' ? (
         <div className="bf-table-section">
-          <TabelaVirtualGlobal<Cotacao, any>
-            dados={cotacoesFiltradas}
+          <TabelaVirtualGlobal<LinhaPaiLista, Cotacao>
+            dados={linhasPaiFiltradas}
             colunas={colunasTabela}
-            itemId={(item) => item.id_cotacao_bid_frete_internacional}
+            itemId={idLinhaPaiLista}
+            mapaColunasFilho={mapaColunasFilho}
+            onCarregarFilhos={handleCarregarFilhos}
+            filhoId={(filho) => filho.id_cotacao_bid_frete_internacional}
             
             itensPorPagina={50}
-            totalItens={cotacoesFiltradas.length}
+            totalItens={linhasPaiFiltradas.length}
+            totalFilhos={totalCotacoesFiltradas}
             paginaAtual={1}
             onMudarPagina={() => {}}
-            labelPai={['cotação', 'cotações']}
+            labelPai={['registro', 'registros']}
             
             abas={abas}
             abaAtiva={filtroTab}
             onMudarAba={setFiltroTab}
             
             acoes={acoes}
+            acoesFilho={acoesFilho}
             acoesExportacao={acoesExportacao}
             acoesBarra={acoesBarra}
             

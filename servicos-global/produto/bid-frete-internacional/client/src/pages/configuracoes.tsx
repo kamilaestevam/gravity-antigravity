@@ -35,24 +35,17 @@ import { useShellStore } from '@gravity/shell'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { SwitchGlobal } from '@nucleo/switch-global'
 import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
+import {
+  CARD_PERIODOS as PERIODOS,
+  registrarCardCustomizado,
+  useCardPreferencesBidFrete,
+  type CardDefinicao,
+  type CardPeriodoCodigo,
+  type CardPreferencia,
+} from '../shared/use-card-preferences'
 import './configuracoes.css'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
-
-interface CardDefinicao {
-  id: string
-  campoBase: string
-  tipoAgg: 'Contagem' | 'Soma' | 'Média'
-  origem: 'Cotação' | 'Proposta'
-  labelKey: string
-  descKey: string
-  descricao: string
-}
-
-interface CardPreferencia {
-  id: string
-  visible: boolean
-}
 
 interface ColunaUsuario {
   id: string
@@ -150,15 +143,6 @@ type SaldoToken =
 
 // ─── Constants & Catalogs ────────────────────────────────────────────────────────
 
-const CARDS_CATALOGO: CardDefinicao[] = [
-  { id: 'total_cotacoes', campoBase: 'id', tipoAgg: 'Contagem', origem: 'Cotação', labelKey: 'bidfrete.config.cards.total_cotacoes', descKey: 'bidfrete.config.cards.total_cotacoes_desc', descricao: 'Total de cotações de frete iniciadas no período' },
-  { id: 'valor_total_frete', campoBase: 'valor_total_proposta_bid_frete_internacional', tipoAgg: 'Soma', origem: 'Cotação', labelKey: 'bidfrete.config.cards.valor_total_frete', descKey: 'bidfrete.config.cards.valor_total_frete_desc', descricao: 'Valor acumulado das propostas de frete aprovadas' },
-  { id: 'propostas_recebidas', campoBase: 'id', tipoAgg: 'Contagem', origem: 'Proposta', labelKey: 'bidfrete.config.cards.propostas_recebidas', descKey: 'bidfrete.config.cards.propostas_recebidas_desc', descricao: 'Quantidade total de respostas recebidas de fornecedores' },
-  { id: 'saving_total', campoBase: 'ganho_valor_cotacao_bid_frete_internacional', tipoAgg: 'Soma', origem: 'Cotação', labelKey: 'bidfrete.config.cards.saving_total', descKey: 'bidfrete.config.cards.saving_total_desc', descricao: 'Economia gerada comparando a proposta vencedora com o teto' },
-  { id: 'tempo_medio_resposta', campoBase: 'tempo_medio_resposta', tipoAgg: 'Média', origem: 'Proposta', labelKey: 'bidfrete.config.cards.tempo_medio_resposta', descKey: 'bidfrete.config.cards.tempo_medio_resposta_desc', descricao: 'Tempo médio de resposta dos armadores e agentes de carga' },
-  { id: 'cotacoes_expiradas', campoBase: 'id', tipoAgg: 'Contagem', origem: 'Cotação', labelKey: 'bidfrete.config.cards.cotacoes_expiradas', descKey: 'bidfrete.config.cards.cotacoes_expiradas_desc', descricao: 'Cotações de frete expiradas sem aprovação' },
-]
-
 const CARD_VISUAL: Record<string, { icone: React.ReactNode; cor: string }> = {
   total_cotacoes:        { icone: <Package           weight="duotone" size={18} />, cor: 'var(--ws-accent, #818cf8)' },
   valor_total_frete:     { icone: <CurrencyDollar    weight="duotone" size={18} />, cor: '#34d399' },
@@ -180,14 +164,6 @@ const NOME_EXIBICAO_CARDS: Record<string, string> = {
 function obterNomeExibicaoCard(card: CardDefinicao): string {
   return NOME_EXIBICAO_CARDS[card.id] || card.labelKey
 }
-
-const PERIODOS = [
-  { id: '7d',   label: '7 dias'  },
-  { id: '30d',  label: '30 dias' },
-  { id: '6m',   label: '6 meses' },
-  { id: '1a',   label: '1 ano'   },
-  { id: 'tudo', label: 'Tudo'    },
-]
 
 const SIDEBAR_ITEMS = [
   { tipo: 'grupo',  label: 'VISUALIZAÇÕES', labelKey: 'bidfrete.config.sidebar.grupo_visualizacoes' },
@@ -246,15 +222,18 @@ const FORMULA_FIELDS = [
 // ─── Sub-Components (Sortable and Helpers) ───────────────────────────────────────
 
 function CardSortavel({
-  pref, onToggle, onRemover, periodoAtivo,
+  pref, def, onToggle, onRemover, periodoAtivo,
 }: {
   pref: CardPreferencia
+  def: CardDefinicao
   onToggle: () => void
   onRemover: () => void
   periodoAtivo: string
 }) {
-  const def = CARDS_CATALOGO.find(c => c.id === pref.id)!
-  const visual = CARD_VISUAL[pref.id]
+  const visual = CARD_VISUAL[pref.id] ?? {
+    icone: <Package weight="duotone" size={18} />,
+    cor: def.cor ?? 'var(--ws-accent, #818cf8)',
+  }
   const [detalheAberto, setDetalheAberto] = useState(false)
 
   const {
@@ -768,8 +747,6 @@ export default function Configuracoes() {
     'kanban': ['kanban-colunas', 'kanban-card', 'kanban-modal'].includes(tabParam ?? ''),
   })
 
-  const [periodoAtivo, setPeriodoAtivo] = useState('30d')
-
   // ─── Mocks & Persistence Hook ─────────────────────────────────────────────────
 
   const useConfigState = <T,>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>, T, () => void, () => void, boolean] => {
@@ -800,11 +777,18 @@ export default function Configuracoes() {
 
   // ─── States declarations ──────────────────────────────────────────────────────
 
-  const [cardsPref, setCardsPref, , saveCards, resetCards, cardsDirty] = useConfigState<CardPreferencia[]>('cards', [
-    { id: 'total_cotacoes', visible: true },
-    { id: 'valor_total_frete', visible: true },
-    { id: 'propostas_recebidas', visible: true },
-  ])
+  const {
+    prefs: cardsPref,
+    catalogo: cardsCatalogo,
+    disponiveis: cardsDisponiveis,
+    periodo: periodoCards,
+    setPeriodo: setPeriodoCards,
+    adicionar: adicionarCard,
+    remover: removerCard,
+    toggle: toggleCard,
+    reordenar: reordenarCards,
+    resetar: resetarCards,
+  } = useCardPreferencesBidFrete()
 
   const [tabelaConfig, setTabelaConfig, , saveTabela, resetTabela, tabelaDirty] = useConfigState<TabelaConfig>('tabela', {
     linhasPorPagina: 100,
@@ -943,18 +927,17 @@ export default function Configuracoes() {
   const [novoAnexoNome, setNovoAnexoNome] = useState('')
 
   // Global save trigger detection
-  const isDirtyGlobal = cardsDirty || tabelaDirty || casasDirty || formatoDataDirty || colunasDirty || saldoDirty || statusDirty || numeracaoDirty || templatesDirty || regrasDirty || anexosDirty || taxasDirty || notifDirty || exportDirty || kanbanColunasDirty || kanbanCardDirty
+  const isDirtyGlobal = tabelaDirty || casasDirty || formatoDataDirty || colunasDirty || saldoDirty || statusDirty || numeracaoDirty || templatesDirty || regrasDirty || anexosDirty || taxasDirty || notifDirty || exportDirty || kanbanColunasDirty || kanbanCardDirty
 
   // ─── Drag & Drop Event Handlers ────────────────────────────────────────────────
 
   const handleDragEndCards = (event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
-    setCardsPref(prev => {
-      const oldIdx = prev.findIndex(p => p.id === active.id)
-      const newIdx = prev.findIndex(p => p.id === over.id)
-      return arrayMove(prev, oldIdx, newIdx)
-    })
+    const oldIdx = cardsPref.findIndex(p => p.id === active.id)
+    const newIdx = cardsPref.findIndex(p => p.id === over.id)
+    if (oldIdx < 0 || newIdx < 0) return
+    reordenarCards(arrayMove(cardsPref, oldIdx, newIdx))
   }
 
   const handleDragEndColunas = (event: DragEndEvent) => {
@@ -981,7 +964,6 @@ export default function Configuracoes() {
   // ─── Save All Strategy ────────────────────────────────────────────────────────
 
   const handleSalvarTudo = () => {
-    if (cardsDirty) saveCards()
     if (tabelaDirty) saveTabela()
     if (casasDirty) saveCasas()
     if (formatoDataDirty) saveFormatoData()
@@ -997,10 +979,12 @@ export default function Configuracoes() {
     if (exportDirty) saveExport()
     if (kanbanColunasDirty) saveKanbanColunas()
     if (kanbanCardDirty) saveKanbanCard()
+    if (kanbanColunasDirty || kanbanCardDirty) {
+      window.dispatchEvent(new CustomEvent('bid-frete:kanban-config:atualizado'))
+    }
   }
 
   const handleDescartarTudo = () => {
-    resetCards()
     resetTabela()
     resetCasas()
     resetFormatoData()
@@ -1098,7 +1082,7 @@ export default function Configuracoes() {
                   <h2 className="cfg-secao__titulo">Meus Cards</h2>
                   <p className="cfg-secao__desc">Defina quais cards numéricos aparecem no topo da tela, ordene e oculte os não utilizados.</p>
                 </div>
-                <button type="button" className="cfg-btn-header--restaurar" onClick={() => setCardsPref(CARDS_CATALOGO.map(c => ({ id: c.id, visible: true })))}>
+                <button type="button" className="cfg-btn-header--restaurar" onClick={resetarCards}>
                   <ArrowCounterClockwise size={13} weight="bold" />
                   Restaurar padrão
                 </button>
@@ -1109,7 +1093,12 @@ export default function Configuracoes() {
                 <p className="cfg-list-section-label" style={{ marginBottom: '0.5rem' }}>Período de Comparação</p>
                 <div className="cfg-periodo-pills">
                   {PERIODOS.map(p => (
-                    <button key={p.id} type="button" className={`cfg-periodo-pill ${periodoAtivo === p.id ? 'cfg-periodo-pill--ativo' : ''}`} onClick={() => setPeriodoAtivo(p.id)}>
+                    <button
+                      key={p.id}
+                      type="button"
+                      className={`cfg-periodo-pill ${periodoCards === p.id ? 'cfg-periodo-pill--ativo' : ''}`}
+                      onClick={() => setPeriodoCards(p.id)}
+                    >
                       {p.label}
                     </button>
                   ))}
@@ -1124,7 +1113,7 @@ export default function Configuracoes() {
                 </p>
                 <div className="cfg-cards-preview-grid">
                   {cardsPref.map((pref, i) => {
-                    const card = CARDS_CATALOGO.find(c => c.id === pref.id)
+                    const card = cardsCatalogo.find(c => c.id === pref.id)
                     if (!card) return null
                     return (
                       <div key={card.id} className={`cfg-kpi-preview-card ${!pref.visible ? 'cfg-kpi-preview-card--oculto' : ''}`}>
@@ -1145,15 +1134,20 @@ export default function Configuracoes() {
               <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEndCards}>
                 <SortableContext items={cardsPref.map(p => p.id)} strategy={verticalListSortingStrategy}>
                   <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
-                    {cardsPref.map(pref => (
-                      <CardSortavel
-                        key={pref.id}
-                        pref={pref}
-                        periodoAtivo={periodoAtivo}
-                        onToggle={() => setCardsPref(prev => prev.map(p => p.id === pref.id ? { ...p, visible: !p.visible } : p))}
-                        onRemover={() => setCardsPref(prev => prev.filter(p => p.id !== pref.id))}
-                      />
-                    ))}
+                    {cardsPref.map(pref => {
+                      const def = cardsCatalogo.find(c => c.id === pref.id)
+                      if (!def) return null
+                      return (
+                        <CardSortavel
+                          key={pref.id}
+                          pref={pref}
+                          def={def}
+                          periodoAtivo={periodoCards}
+                          onToggle={() => toggleCard(pref.id)}
+                          onRemover={() => removerCard(pref.id)}
+                        />
+                      )
+                    })}
                   </div>
                 </SortableContext>
               </DndContext>
@@ -1163,12 +1157,12 @@ export default function Configuracoes() {
                 <p className="cfg-list-section-label">Disponíveis para adicionar</p>
               </div>
               <div className="cfg-cards-lista">
-                {CARDS_CATALOGO.filter(c => !cardsPref.some(p => p.id === c.id)).map(def => (
+                {cardsDisponiveis.map(def => (
                   <CardDisponivel
                     key={def.id}
                     def={def}
-                    periodoAtivo={periodoAtivo}
-                    onAdicionar={() => setCardsPref(prev => [...prev, { id: def.id, visible: true }])}
+                    periodoAtivo={periodoCards}
+                    onAdicionar={() => adicionarCard(def.id)}
                   />
                 ))}
               </div>
@@ -1869,16 +1863,18 @@ export default function Configuracoes() {
           onFechar={() => setCriandoCard(false)}
           onSalvo={card => {
             const newId = `card_${Date.now()}`
-            CARDS_CATALOGO.push({
+            registrarCardCustomizado({
               id: newId,
               campoBase: 'valor_total_proposta_bid_frete_internacional',
               tipoAgg: 'Soma',
-              origem: 'Cotação',
-              labelKey: card.nome,
-              descKey: 'Custom card desc',
-              descricao: 'Card customizado pelo usuário'
+              origem: 'Proposta',
+              labelKey: card.nome.trim(),
+              descKey: card.formula_expressao.trim() || card.nome.trim(),
+              descricao: card.formula_expressao.trim() || 'Card customizado pelo usuário',
+              icone: card.icone,
+              cor: card.cor,
             })
-            setCardsPref(prev => [...prev, { id: newId, visible: true }])
+            adicionarCard(newId)
             setCriandoCard(false)
           }}
         />

@@ -6,6 +6,7 @@ import type { KanbanColunaDef, KanbanItem } from '@nucleo/kanban-global'
 import {
   CheckCircle,
   Clock,
+  MagnifyingGlass,
   PaperPlaneTilt,
   Package,
   PencilSimple,
@@ -79,6 +80,7 @@ const STATUS_ICONS: Partial<Record<StatusCotacao, React.ReactElement>> = {
 export default function CotacoesKanban({ cotacoes, carregando, onRefresh }: CotacoesKanbanProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [busca, setBusca] = useState('')
 
   // ─── Kanban Card ──────────────────────────────────────────────────────
   function KanbanCard({ cotacao }: { cotacao: Cotacao }) {
@@ -156,16 +158,72 @@ export default function CotacoesKanban({ cotacoes, carregando, onRefresh }: Cota
     [cotacoes]
   )
 
+  const itensFiltrados = useMemo(() => {
+    const termo = busca.trim().toLowerCase()
+    if (!termo) return itens
+
+    return itens.filter(({ cotacao }) =>
+      [
+        cotacao.numero_cotacao_bid_frete_internacional,
+        cotacao.referencia_interna_cotacao_bid_frete_internacional,
+        cotacao.origem_nome_cotacao_bid_frete_internacional,
+        cotacao.destino_nome_cotacao_bid_frete_internacional,
+        cotacao.status_cotacao_bid_frete_internacional,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .includes(termo),
+    )
+  }, [busca, itens])
+
   const handleMoverCotacao = useCallback(async (itemId: string, novaColunaKey: string) => {
     await mudarStatusCotacao(itemId, novaColunaKey as StatusCotacao)
     onRefresh()
   }, [onRefresh])
 
+  const toolbar = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <div style={{ position: 'relative', flex: 1, maxWidth: 360 }}>
+        <MagnifyingGlass
+          size={15}
+          style={{
+            position: 'absolute',
+            left: '0.75rem',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: 'var(--text-muted, #64748b)',
+            pointerEvents: 'none',
+          }}
+        />
+        <input
+          type="text"
+          value={busca}
+          onChange={event => setBusca(event.target.value)}
+          placeholder={t('bidfrete.kanban.localizar', 'Localizar cotação...')}
+          style={{
+            width: '100%',
+            padding: '0.5rem 0.75rem 0.5rem 2.25rem',
+            background: 'rgba(255, 255, 255, 0.04)',
+            border: '1px solid var(--dark-border, rgba(255, 255, 255, 0.1))',
+            borderRadius: 8,
+            color: 'var(--text-main, #e2e8f0)',
+            fontSize: '0.875rem',
+            outline: 'none',
+          }}
+        />
+      </div>
+      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted, #64748b)', whiteSpace: 'nowrap', marginLeft: 'auto' }}>
+        {t('bidfrete.kanban.totalCotacoes', '{{count}} cotações', { count: itensFiltrados.length })}
+      </span>
+    </div>
+  )
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
       <KanbanGlobal<CotacaoKanbanItem>
         colunas={kanbanCols}
-        itens={itens}
+        itens={itensFiltrados}
         renderCard={(item) => <KanbanCard cotacao={item.cotacao} />}
         onMoverItem={handleMoverCotacao}
         onCardClick={(item) => navigate(`/produto/bid-frete/cotacoes/${item.cotacao.id_cotacao_bid_frete_internacional}`)}
@@ -174,6 +232,7 @@ export default function CotacoesKanban({ cotacoes, carregando, onRefresh }: Cota
         emptyLabel={t('bidfrete.kanban.semCotacoes', 'Nenhuma cotação')}
         getItemLabel={(item) => item.cotacao.numero_cotacao_bid_frete_internacional}
         getItemDate={(item) => item.cotacao.data_criacao_cotacao_bid_frete_internacional}
+        toolbarSlot={toolbar}
         labels={{
           sortNewest: t('kanban.ordenacao.mais_recente', 'Mais recente primeiro'),
           sortOldest: t('kanban.ordenacao.mais_antigo', 'Mais antigo primeiro'),

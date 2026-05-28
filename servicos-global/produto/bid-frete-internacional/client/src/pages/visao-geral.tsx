@@ -6,8 +6,6 @@
  */
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   MagnifyingGlass,
@@ -2405,7 +2403,6 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
 }
 
 export default function VisaoGeral() {
-  const navigate = useNavigate()
   const [isDialogoCompletoOpen, setIsDialogoCompletoOpen] = useState(false)
   const [alertModalTab, setAlertModalTab] = useState<'geral' | 'itens' | 'propostas' | 'historico'>('geral')
   const [selectedAlertContextCompleto, setSelectedAlertContextCompleto] = useState<CalendarioAlerta | (RouteDetail & { tipo: 'route' }) | null>(null)
@@ -3555,17 +3552,6 @@ export default function VisaoGeral() {
           .bfd-kpi-grid { grid-template-columns: repeat(1, 1fr); }
         }
       `}</style>
-
-      {/* Ação da página (Buscar frete) — cabeçalho agora vive no top bar */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-        <BotaoGlobal
-          variante="primario"
-          icone={<MagnifyingGlass weight="bold" size={15} />}
-          onClick={() => navigate('/produto/bid-frete/cotacoes/nova')}
-        >
-          Buscar frete
-        </BotaoGlobal>
-      </div>
 
       {/* KPIs Grid (5 columns now) */}
       <div className="bfd-kpi-grid">

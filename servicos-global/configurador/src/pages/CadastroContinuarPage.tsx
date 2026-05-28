@@ -219,6 +219,41 @@ function traduzirErroTicket(err: unknown): string {
   return msgOriginal || 'Convite inválido ou expirado.'
 }
 
+type SignUpClerk = NonNullable<ReturnType<typeof useSignUp>['signUp']>
+
+type ResultadoSignUpClerk = {
+  status: string
+  createdSessionId?: string | null
+  missingFields?: string[]
+  unverifiedFields?: string[]
+}
+
+function camposPendentesSignUp(signUpAtual: SignUpClerk | null | undefined): {
+  missingFields: string[]
+  unverifiedFields: string[]
+} {
+  if (!signUpAtual) return { missingFields: [], unverifiedFields: [] }
+  const s = signUpAtual as SignUpClerk & { missingFields?: string[]; unverifiedFields?: string[] }
+  return {
+    missingFields: s.missingFields ?? [],
+    unverifiedFields: s.unverifiedFields ?? [],
+  }
+}
+
+function mensagemStatusSignUpIncompleto(signUpAtual: SignUpClerk | null | undefined): string {
+  const { missingFields, unverifiedFields } = camposPendentesSignUp(signUpAtual)
+  if (unverifiedFields.includes('email_address')) {
+    return 'Confirme o código enviado para o seu e-mail para concluir o cadastro.'
+  }
+  if (missingFields.includes('legal_accepted')) {
+    return 'Aceite os Termos de Uso e a Política de Privacidade para continuar.'
+  }
+  if (missingFields.length > 0) {
+    console.error('[CadastroContinuar] signUp missing_requirements', { missingFields, unverifiedFields })
+  }
+  return 'Não foi possível concluir o cadastro. Tente novamente.'
+}
+
 export function CadastroContinuarPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -244,6 +279,8 @@ export function CadastroContinuarPage() {
   const [processandoTicket, setProcessandoTicket] = useState(false)
   /** Evita auto-create no mount — prefetch de e-mail (Gmail) queimava o ticket. */
   const [conviteConfirmado, setConviteConfirmado] = useState(false)
+  const [etapaCadastro, setEtapaCadastro] = useState<'formulario' | 'verificacao_email'>('formulario')
+  const [codigoVerificacao, setCodigoVerificacao] = useState('')
 
   const signUpRef = useRef(signUp)
   signUpRef.current = signUp
@@ -380,6 +417,37 @@ export function CadastroContinuarPage() {
     await executarProcessamentoTicket(ticket)
   }
 
+  async function ativarSessaoCadastro(resultado: ResultadoSignUpClerk): Promise<boolean> {
+    if (!setActive) return false
+    const sessionId = resultado.createdSessionId ?? signUpRef.current?.createdSessionId ?? null
+    if (resultado.status !== 'complete' || !sessionId) return false
+    await setActive({ session: sessionId })
+    navigate('/hub', { replace: true })
+    return true
+  }
+
+  async function concluirSignUpComVerificacaoSeNecessario(
+    resultado: ResultadoSignUpClerk,
+    signUpAtual: SignUpClerk,
+  ): Promise<boolean> {
+    if (await ativarSessaoCadastro(resultado)) return true
+
+    const { unverifiedFields } = camposPendentesSignUp(signUpAtual)
+    if (resultado.status === 'missing_requirements' && unverifiedFields.includes('email_address')) {
+      await signUpAtual.prepareEmailAddressVerification({ strategy: 'email_code' })
+      setEtapaCadastro('verificacao_email')
+      setErro(null)
+      return true
+    }
+
+    console.error('[CadastroContinuar] signUp incompleto após update', {
+      status: resultado.status,
+      ...camposPendentesSignUp(signUpAtual),
+    })
+    setErro(mensagemStatusSignUpIncompleto(signUpAtual))
+    return false
+  }
+
   async function handleCriarConta(ev: React.FormEvent) {
     ev.preventDefault()
     if (!podeEnviar || !signUp || !setActive) return
@@ -404,20 +472,50 @@ export function CadastroContinuarPage() {
         firstName,
         lastName,
         password: senha,
-      })
+        legalAccepted: aceiteTermos,
+      }) as ResultadoSignUpClerk
 
-      if (resultado.status === 'complete' && resultado.createdSessionId) {
-        await setActive({ session: resultado.createdSessionId })
-        navigate('/hub', { replace: true })
-        return
-      }
-
-      // Estado intermediário (raro com ticket válido) — força reload no Clerk
-      setErro('Não foi possível concluir o cadastro. Tente novamente.')
+      await concluirSignUpComVerificacaoSeNecessario(resultado, signUp)
     } catch (err) {
       setErro(traduzirErroTicket(err))
     } finally {
       setEnviando(false)
+    }
+  }
+
+  async function handleVerificarCodigoEmail(ev: React.FormEvent) {
+    ev.preventDefault()
+    if (!signUp || !setActive || !codigoVerificacao.trim()) return
+
+    setEnviando(true)
+    setErro(null)
+    try {
+      const resultado = await signUp.attemptEmailAddressVerification({
+        code: codigoVerificacao.trim(),
+      }) as ResultadoSignUpClerk
+
+      if (!(await ativarSessaoCadastro(resultado))) {
+        setErro(mensagemStatusSignUpIncompleto(signUp))
+      }
+    } catch (err) {
+      const erroClerk = err as { errors?: Array<{ longMessage?: string; message?: string }> }
+      setErro(
+        erroClerk?.errors?.[0]?.longMessage
+          ?? erroClerk?.errors?.[0]?.message
+          ?? 'Código inválido. Verifique o e-mail e tente novamente.',
+      )
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  async function handleReenviarCodigoEmail() {
+    if (!signUp) return
+    setErro(null)
+    try {
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
+    } catch (err) {
+      console.error('[CadastroContinuar] Falha ao reenviar código', err)
     }
   }
 
@@ -645,7 +743,45 @@ export function CadastroContinuarPage() {
           </>
         )}
 
-        <form onSubmit={handleCriarConta} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <form onSubmit={etapaCadastro === 'verificacao_email' ? handleVerificarCodigoEmail : handleCriarConta} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {etapaCadastro === 'verificacao_email' ? (
+            <>
+              <div
+                role="note"
+                style={{
+                  padding: '0.75rem 1rem', borderRadius: '10px',
+                  background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.2)',
+                  fontSize: '0.8125rem', color: '#c7d2fe', lineHeight: 1.5,
+                }}
+              >
+                Enviamos um código para <strong style={{ color: '#fff' }}>{emailConvite}</strong>.
+                Digite abaixo para concluir o cadastro.
+              </div>
+              <CampoGeralGlobal label="Código de verificação" obrigatorio>
+                <input
+                  value={codigoVerificacao}
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="000000"
+                  onChange={(e) => setCodigoVerificacao(e.target.value)}
+                  style={{ width: '100%' }}
+                  disabled={enviando}
+                  autoFocus
+                />
+              </CampoGeralGlobal>
+              <button
+                type="button"
+                onClick={() => { void handleReenviarCodigoEmail() }}
+                style={{
+                  background: 'transparent', border: 'none', color: '#818cf8',
+                  fontSize: '0.8125rem', cursor: 'pointer', textAlign: 'left', padding: 0,
+                }}
+              >
+                Reenviar código
+              </button>
+            </>
+          ) : (
+            <>
           {/* Nome completo */}
           <CampoGeralGlobal label={t('cadastro.continuar.label_nome', 'Nome completo')} obrigatorio>
             <div className="ws-input-icon-wrap">
@@ -775,6 +911,9 @@ export function CadastroContinuarPage() {
             </span>
           </label>
 
+          {/* Clerk CAPTCHA — exigido em algumas instâncias dev/prod */}
+          <div id="clerk-captcha" />
+
           {/* Checklist de requisitos */}
           {senha.length > 0 && (
             <div className="signup-requisitos">
@@ -786,8 +925,10 @@ export function CadastroContinuarPage() {
               ))}
             </div>
           )}
+            </>
+          )}
 
-          {/* Erro */}
+          {/* Erro — comum às duas etapas */}
           {erro && (
             <div
               role="alert"
@@ -809,10 +950,14 @@ export function CadastroContinuarPage() {
             variante="primario"
             blocoCompleto
             centralizado
-            disabled={!podeEnviar}
+            disabled={etapaCadastro === 'verificacao_email' ? enviando || !codigoVerificacao.trim() : !podeEnviar}
             carregando={enviando}
           >
-            {enviando ? t('cadastro.continuar.criando', 'Criando conta…') : t('cadastro.continuar.submit', 'Criar conta')}
+            {enviando
+              ? t('cadastro.continuar.criando', 'Criando conta…')
+              : etapaCadastro === 'verificacao_email'
+                ? 'Verificar e entrar'
+                : t('cadastro.continuar.submit', 'Criar conta')}
           </BotaoGlobal>
         </form>
 

@@ -12,12 +12,15 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from '../lib/erros.js'
 import { atividadesIntegration, historicoIntegration } from '../services/integracoes-tenant.js'
+import { motorBid } from '../services/motor-bid-frete-internacional.js'
+import { sincronizarResumoBid } from '../services/agregar-resumo-bid-frete-internacional.js'
 
 const router = Router()
 
 // --- Schemas de validacao ---
 
 const CriarCotacaoSchema = z.object({
+  id_bid_bid_frete_internacional: z.string().optional(),
   referencia_interna_cotacao_bid_frete_internacional: z.string().optional(),
   tipo_operacao_cotacao_bid_frete_internacional: z.enum(['IMPORTACAO', 'EXPORTACAO']),
   modal_cotacao_bid_frete_internacional: z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO']),
@@ -42,7 +45,9 @@ const CriarCotacaoSchema = z.object({
   visibilidade_cotacao_bid_frete_internacional: z.enum(['DIRECIONADA', 'ABERTA']).default('DIRECIONADA'),
   anonima_cotacao_bid_frete_internacional: z.boolean().default(false),
   data_limite_resposta_cotacao_bid_frete_internacional: z.string().datetime().optional(),
-  fornecedor_ids: z.array(z.string()).optional(), // IDs dos fornecedores para cotacao direcionada
+  fornecedor_ids: z.array(z.string()).optional(),
+  disparar_ao_criar: z.boolean().default(true),
+  canais_disparo: z.array(z.enum(['EMAIL', 'WHATSAPP'])).default(['EMAIL']),
 })
 
 const FiltrosCotacaoSchema = z.object({
@@ -54,13 +59,26 @@ const FiltrosCotacaoSchema = z.object({
   data_inicio: z.string().optional(),
   data_fim: z.string().optional(),
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
+  // Paridade com COTACOES_LIMIT_LISTA (client) — KPIs e tabela filtram client-side
+  limit: z.coerce.number().int().positive().max(500).default(20),
   order_by: z.string().default('data_criacao_cotacao_bid_frete_internacional'),
   order_dir: z.enum(['asc', 'desc']).default('desc'),
+  /** Quando true, retorna só pedidos avulsos (sem BID pai) — paridade lista 2 camadas */
+  apenas_avulsas: z.coerce.boolean().optional(),
 })
 
 const AtualizarStatusSchema = z.object({
-  status: z.enum(['APROVADA', 'REPROVADA', 'CANCELADA']),
+  status: z.enum([
+    'RASCUNHO',
+    'ENVIADA_FORNECEDORES',
+    'EM_COTACAO',
+    'AGUARDANDO_APROVACAO',
+    'APROVADA',
+    'REPROVADA',
+    'CANCELADA',
+    'FALTA_INFORMACAO',
+    'EXPIRADA',
+  ]),
   id_fornecedor_vencedor_cotacao_bid_frete_internacional: z.string().optional(),
   motivo_reprovacao_cotacao_bid_frete_internacional: z.string().optional(),
   motivo_cancelamento_cotacao_bid_frete_internacional: z.string().optional(),
@@ -74,6 +92,12 @@ function gerarNumeroCotacao(): string {
   return `BID-${date}-${seq}`
 }
 
+function resolverIdWorkspace(req: Request): string | undefined {
+  const header = req.headers['x-id-workspace'] as string | undefined
+  const id = header?.trim()
+  return id || undefined
+}
+
 // --- POST / — Criar cotacao ---
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -85,17 +109,24 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.headers['x-id-usuario'] as string
     if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
 
-    const { fornecedor_ids, ...cotacaoData } = parsed.data
+    const idWorkspace = resolverIdWorkspace(req)
+    const { fornecedor_ids, disparar_ao_criar, canais_disparo, id_bid_bid_frete_internacional, ...cotacaoData } = parsed.data
 
-    const cotacao = await (req.prisma as any).bidFreteInternacionalCotacao.create({
+    const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.create({
       data: {
         ...cotacaoData,
         id_produto_gravity: 'bid-frete-internacional',
         id_usuario: userId,
+        ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
+        ...(id_bid_bid_frete_internacional ? { id_bid_bid_frete_internacional } : {}),
         numero_cotacao_bid_frete_internacional: gerarNumeroCotacao(),
         data_limite_resposta_cotacao_bid_frete_internacional: cotacaoData.data_limite_resposta_cotacao_bid_frete_internacional ? new Date(cotacaoData.data_limite_resposta_cotacao_bid_frete_internacional) : null,
       },
     })
+
+    if (id_bid_bid_frete_internacional) {
+      await sincronizarResumoBid(req.prisma, id_bid_bid_frete_internacional)
+    }
 
     // Integrações S2S (fire-and-forget)
     const tenantId = (req as any).tenantId
@@ -104,7 +135,28 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       historicoIntegration.cotacaoCriada(tenantId, userId, cotacao)
     }
 
-    res.status(201).json({ cotacao })
+    let disparo: Awaited<ReturnType<typeof motorBid.disparar>> | Awaited<ReturnType<typeof motorBid.dispararCotacaoAberta>> | null = null
+    if (disparar_ao_criar) {
+      const canais = canais_disparo.length > 0 ? canais_disparo : ['EMAIL']
+      if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
+        disparo = await motorBid.dispararCotacaoAberta(req.prisma!, {
+          id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+          canais,
+          id_usuario: userId,
+          id_organizacao: tenantId ?? req.tenantId!,
+        })
+      } else if (fornecedor_ids && fornecedor_ids.length > 0) {
+        disparo = await motorBid.disparar(req.prisma!, {
+          id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+          fornecedor_ids,
+          canais,
+          id_usuario: userId,
+          id_organizacao: tenantId ?? req.tenantId!,
+        })
+      }
+    }
+
+    res.status(201).json({ cotacao, disparo })
   } catch (err) {
     next(err)
   }
@@ -113,7 +165,15 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 // --- GET / — Listar cotacoes ---
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const filtros = FiltrosCotacaoSchema.parse(req.query)
+    const parsed = FiltrosCotacaoSchema.safeParse(req.query)
+    if (!parsed.success) {
+      throw new AppError(
+        `Dados invalidos: ${parsed.error.issues.map(i => i.message).join(', ')}`,
+        400,
+        'VALIDATION_ERROR',
+      )
+    }
+    const filtros = parsed.data
 
     const where: Record<string, unknown> = { id_produto_gravity: 'bid-frete-internacional' }
     if (filtros.status) where.status_cotacao_bid_frete_internacional = filtros.status
@@ -127,21 +187,32 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
       if (filtros.data_fim) createdAt.lte = new Date(filtros.data_fim)
       where.data_criacao_cotacao_bid_frete_internacional = createdAt
     }
+    if (filtros.apenas_avulsas) {
+      where.id_bid_bid_frete_internacional = null
+    }
 
     const skip = (filtros.page - 1) * filtros.limit
 
     const [cotacoes, total] = await Promise.all([
-      (req.prisma as any).bidFreteInternacionalCotacao.findMany({
+      (req.prisma as any).cotacaoBidFreteInternacional.findMany({
         where,
         skip,
         take: filtros.limit,
         orderBy: { [filtros.order_by]: filtros.order_dir },
         include: {
-          pedidos_cotacao: { select: { id_pedido_cotacao_bid_frete_internacional: true, id_fornecedor_bid_frete_internacional: true, status_pedido_cotacao_bid_frete_internacional: true } },
-          propostas: { select: { id_proposta_bid_frete_internacional: true, id_fornecedor_bid_frete_internacional: true, valor_total_proposta_bid_frete_internacional: true, dias_transito_proposta_bid_frete_internacional: true, status_proposta_bid_frete_internacional: true } },
+          bid_bid_frete_internacional: {
+            select: {
+              id_bid_bid_frete_internacional: true,
+              numero_bid_bid_frete_internacional: true,
+              referencia_interna_bid_bid_frete_internacional: true,
+              status_bid_bid_frete_internacional: true,
+            },
+          },
+          disparos_cotacao: { select: { id_disparo_cotacao_bid_frete_internacional: true, id_fornecedor_bid_frete_internacional: true, status_disparo_cotacao_bid_frete_internacional: true } },
+          propostas: { select: { id_proposta_bid_frete_internacional: true, id_fornecedor_bid_frete_internacional: true, valor_total_proposta_bid_frete_internacional: true, dias_transito_proposta_bid_frete_internacional: true, status_proposta_bid_frete_internacional: true, classificacao_valor_proposta_bid_frete_internacional: true, classificacao_transito_proposta_bid_frete_internacional: true } },
         },
       }),
-      (req.prisma as any).bidFreteInternacionalCotacao.count({ where }),
+      (req.prisma as any).cotacaoBidFreteInternacional.count({ where }),
     ])
 
     res.json({
@@ -161,10 +232,10 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 // --- GET /:id — Detalhe da cotacao ---
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const cotacao = await (req.prisma as any).bidFreteInternacionalCotacao.findFirst({
+    const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({
       where: { id_cotacao_bid_frete_internacional: req.params.id },
       include: {
-        pedidos_cotacao: {
+        disparos_cotacao: {
           include: {
             fornecedor: { select: { id_fornecedor_bid_frete_internacional: true, nome_fornecedor_bid_frete_internacional: true, tipo_fornecedor_bid_frete_internacional: true, email_fornecedor_bid_frete_internacional: true } },
           },
@@ -190,13 +261,13 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 // --- PATCH /:id — Atualizar cotacao ---
 router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const existing = await (req.prisma as any).bidFreteInternacionalCotacao.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
+    const existing = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
     if (existing.status_cotacao_bid_frete_internacional !== 'RASCUNHO' && existing.status_cotacao_bid_frete_internacional !== 'FALTA_INFORMACAO') {
       throw new AppError('So e possivel editar cotacoes em rascunho ou com falta de informacao', 400, 'INVALID_STATUS')
     }
 
-    const cotacao = await (req.prisma as any).bidFreteInternacionalCotacao.update({
+    const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional: req.params.id },
       data: req.body,
     })
@@ -213,7 +284,7 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
     const parsed = AtualizarStatusSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
-    const existing = await (req.prisma as any).bidFreteInternacionalCotacao.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
+    const existing = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
 
     const data: Record<string, unknown> = { status_cotacao_bid_frete_internacional: parsed.data.status }
@@ -228,7 +299,7 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
       data.motivo_cancelamento_cotacao_bid_frete_internacional = parsed.data.motivo_cancelamento_cotacao_bid_frete_internacional
     }
 
-    const cotacao = await (req.prisma as any).bidFreteInternacionalCotacao.update({
+    const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional: req.params.id },
       data,
     })
@@ -242,13 +313,13 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
 // --- DELETE /:id — Excluir rascunho ---
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const existing = await (req.prisma as any).bidFreteInternacionalCotacao.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
+    const existing = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
     if (existing.status_cotacao_bid_frete_internacional !== 'RASCUNHO') {
       throw new AppError('So e possivel excluir cotacoes em rascunho', 400, 'INVALID_STATUS')
     }
 
-    await (req.prisma as any).bidFreteInternacionalCotacao.delete({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
+    await (req.prisma as any).cotacaoBidFreteInternacional.delete({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
     res.json({ deleted: true })
   } catch (err) {
     next(err)
@@ -298,17 +369,19 @@ router.post('/bloco', async (req: Request, res: Response, next: NextFunction) =>
     const userId = req.headers['x-id-usuario'] as string
     if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
 
+    const idWorkspace = resolverIdWorkspace(req)
     const results: Array<{ linha: number; id?: string; numero_cotacao_bid_frete_internacional?: string; status: 'ok' | 'erro'; erro?: string }> = []
 
     for (let i = 0; i < parsed.data.itens.length; i++) {
       const item = parsed.data.itens[i]
       try {
         const numero_cotacao_bid_frete_internacional = gerarNumeroCotacao()
-        const cotacao = await (req.prisma as any).bidFreteInternacionalCotacao.create({
+        const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.create({
           data: {
             ...item,
             id_produto_gravity: 'bid-frete-internacional',
             id_usuario: userId,
+            ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
             numero_cotacao_bid_frete_internacional,
             visibilidade_cotacao_bid_frete_internacional: parsed.data.visibilidade_cotacao_bid_frete_internacional,
             data_limite_resposta_cotacao_bid_frete_internacional: parsed.data.data_limite_resposta_cotacao_bid_frete_internacional ? new Date(parsed.data.data_limite_resposta_cotacao_bid_frete_internacional) : null,

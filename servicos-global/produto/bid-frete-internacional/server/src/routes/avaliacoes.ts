@@ -38,7 +38,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       .filter((n): n is number => n != null)
     const notaGeral = notas.length > 0 ? notas.reduce((a, b) => a + b, 0) / notas.length : null
 
-    const avaliacao = await (req.prisma as any).bidFreteInternacionalAvaliacao.create({
+    const avaliacao = await (req.prisma as any).avaliacaoBidFreteInternacional.create({
       data: {
         ...parsed.data,
         id_produto_gravity: 'bid-frete-internacional',
@@ -48,7 +48,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     })
 
     // Recalcular rating global
-    const fornecedor = await (req.prisma as any).bidFreteInternacionalFornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
       where: { id_fornecedor_bid_frete_internacional: parsed.data.id_fornecedor_bid_frete_internacional },
       select: { email_fornecedor_bid_frete_internacional: true },
     })
@@ -74,7 +74,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 // GET /fornecedor/:id — Rating de um fornecedor
 router.get('/fornecedor/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const fornecedor = await (req.prisma as any).bidFreteInternacionalFornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
       where: { id_fornecedor_bid_frete_internacional: req.params.id },
       select: { email_fornecedor_bid_frete_internacional: true, nome_fornecedor_bid_frete_internacional: true },
     })
@@ -82,8 +82,8 @@ router.get('/fornecedor/:id', async (req: Request, res: Response, next: NextFunc
     if (!fornecedor) throw new AppError('Fornecedor nao encontrado', 404)
 
     const [rating, avaliacoes] = await Promise.all([
-      (req.prisma as any).bidFreteInternacionalClassificacao.findUnique({ where: { email_fornecedor_classificacao_bid_frete_internacional: fornecedor.email_fornecedor_bid_frete_internacional } }).catch(() => null),
-      (req.prisma as any).bidFreteInternacionalAvaliacao.findMany({
+      (req.prisma as any).classificacaoBidFreteInternacional.findUnique({ where: { email_fornecedor_classificacao_bid_frete_internacional: fornecedor.email_fornecedor_bid_frete_internacional } }).catch(() => null),
+      (req.prisma as any).avaliacaoBidFreteInternacional.findMany({
         where: { id_fornecedor_bid_frete_internacional: req.params.id },
         orderBy: { data_criacao_avaliacao_bid_frete_internacional: 'desc' },
         take: 20,
@@ -104,7 +104,7 @@ router.get('/ranking', async (req: Request, res: Response, next: NextFunction) =
     const where: Record<string, unknown> = {}
     if (tipo) where.tipo_fornecedor_bid_frete_internacional = tipo
 
-    const fornecedores = await (req.prisma as any).bidFreteInternacionalFornecedor.findMany({
+    const fornecedores = await (req.prisma as any).fornecedorBidFreteInternacional.findMany({
       where: { ...where, id_produto_gravity: 'bid-frete-internacional', status_fornecedor_bid_frete_internacional: 'ATIVO' },
       select: { id_fornecedor_bid_frete_internacional: true, nome_fornecedor_bid_frete_internacional: true, tipo_fornecedor_bid_frete_internacional: true, email_fornecedor_bid_frete_internacional: true },
     })
@@ -116,7 +116,7 @@ router.get('/ranking', async (req: Request, res: Response, next: NextFunction) =
     const emails = fornecedoresList.map((f) => f.email_fornecedor_bid_frete_internacional)
     let ratings: RatingLite[] = []
     try {
-      ratings = await (req.prisma as any).bidFreteInternacionalClassificacao.findMany({
+      ratings = await (req.prisma as any).classificacaoBidFreteInternacional.findMany({
         where: { email_fornecedor_classificacao_bid_frete_internacional: { in: emails } },
         orderBy: { nota_global_classificacao_bid_frete_internacional: 'desc' },
         take: Number(limit),

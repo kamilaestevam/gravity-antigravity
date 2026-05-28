@@ -13,7 +13,7 @@ import {
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
   Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple, Tag,
   Columns, TextT, CalendarBlank, Percent, ListBullets, CheckSquare, MathOperations,
-  Paperclip, CurrencyCircleDollar, ArrowsClockwise, Clock, CaretDown, Info,
+  Paperclip, CurrencyCircleDollar, ArrowsClockwise, Clock, CaretDown, Info, ChartBar,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -35,24 +35,50 @@ import { useShellStore } from '@gravity/shell'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { SwitchGlobal } from '@nucleo/switch-global'
 import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
+import {
+  carregarTabelaConfigBidFrete,
+  DEFAULT_TABELA_CONFIG_BID_FRETE,
+  salvarTabelaConfigBidFrete,
+  type TabelaConfigBidFrete,
+} from '../shared/tabela-config-bid-frete'
+import {
+  carregarCasasDecimaisBidFrete,
+  COLUNAS_NUMERICAS_BID_FRETE,
+  GRUPOS_CASAS_DECIMAIS_BID_FRETE,
+  PADRAO_CASAS_COLUNA_PERSONALIZADA,
+  salvarCasasDecimaisBidFrete,
+  tipoColunaUsaCasasDecimais,
+} from '../shared/casas-config-bid-frete'
+import {
+  carregarFormatoDataBidFrete,
+  FORMATOS_DATA_BID_FRETE,
+  previewFormatoDataBidFrete,
+  salvarFormatoDataBidFrete,
+  type FormatoDataBidFrete,
+} from '../shared/formato-data-bid-frete'
+import {
+  CARD_PERIODOS as PERIODOS,
+  registrarCardCustomizado,
+  useCardPreferencesBidFrete,
+  type CardDefinicao,
+  type CardPeriodoCodigo,
+  type CardPreferencia,
+} from '../shared/use-card-preferences'
+import {
+  BID_FRETE_DASHBOARD_TOP_KPI_WIDGET_IDS,
+  useDashboardTopKpiBidFrete,
+  type BidFreteDashboardTopKpiWidgetId,
+} from '../shared/use-dashboard-top-kpi-bid-frete'
+import {
+  KANBAN_BF_CARD_GRUPOS,
+  KANBAN_BF_CARD_PADRAO,
+  KANBAN_BF_DATAS_CRITICAS,
+  normalizarCardConfigBidFrete,
+  type KanbanCardConfigBidFrete,
+} from '../shared/kanban-bid-frete-card'
 import './configuracoes.css'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
-
-interface CardDefinicao {
-  id: string
-  campoBase: string
-  tipoAgg: 'Contagem' | 'Soma' | 'Média'
-  origem: 'Cotação' | 'Proposta'
-  labelKey: string
-  descKey: string
-  descricao: string
-}
-
-interface CardPreferencia {
-  id: string
-  visible: boolean
-}
 
 interface ColunaUsuario {
   id: string
@@ -82,11 +108,6 @@ type TipoColunaUsuario =
 
 type EscopoColunaUsuario = 'pedido' | 'item' | 'ambos'
 type VisibilidadeColunaUsuario = 'todos' | 'roles' | 'privado'
-
-interface TabelaConfig {
-  linhasPorPagina: 25 | 50 | 100 | 200
-  destacarAtrasados: boolean
-}
 
 interface NotificacoesConfig {
   respostaFornecedor: boolean
@@ -150,14 +171,12 @@ type SaldoToken =
 
 // ─── Constants & Catalogs ────────────────────────────────────────────────────────
 
-const CARDS_CATALOGO: CardDefinicao[] = [
-  { id: 'total_cotacoes', campoBase: 'id', tipoAgg: 'Contagem', origem: 'Cotação', labelKey: 'bidfrete.config.cards.total_cotacoes', descKey: 'bidfrete.config.cards.total_cotacoes_desc', descricao: 'Total de cotações de frete iniciadas no período' },
-  { id: 'valor_total_frete', campoBase: 'valor_total_proposta_bid_frete_internacional', tipoAgg: 'Soma', origem: 'Cotação', labelKey: 'bidfrete.config.cards.valor_total_frete', descKey: 'bidfrete.config.cards.valor_total_frete_desc', descricao: 'Valor acumulado das propostas de frete aprovadas' },
-  { id: 'propostas_recebidas', campoBase: 'id', tipoAgg: 'Contagem', origem: 'Proposta', labelKey: 'bidfrete.config.cards.propostas_recebidas', descKey: 'bidfrete.config.cards.propostas_recebidas_desc', descricao: 'Quantidade total de respostas recebidas de fornecedores' },
-  { id: 'saving_total', campoBase: 'ganho_valor_cotacao_bid_frete_internacional', tipoAgg: 'Soma', origem: 'Cotação', labelKey: 'bidfrete.config.cards.saving_total', descKey: 'bidfrete.config.cards.saving_total_desc', descricao: 'Economia gerada comparando a proposta vencedora com o teto' },
-  { id: 'tempo_medio_resposta', campoBase: 'tempo_medio_resposta', tipoAgg: 'Média', origem: 'Proposta', labelKey: 'bidfrete.config.cards.tempo_medio_resposta', descKey: 'bidfrete.config.cards.tempo_medio_resposta_desc', descricao: 'Tempo médio de resposta dos armadores e agentes de carga' },
-  { id: 'cotacoes_expiradas', campoBase: 'id', tipoAgg: 'Contagem', origem: 'Cotação', labelKey: 'bidfrete.config.cards.cotacoes_expiradas', descKey: 'bidfrete.config.cards.cotacoes_expiradas_desc', descricao: 'Cotações de frete expiradas sem aprovação' },
-]
+const BID_FRETE_DASHBOARD_TOP_KPI_PREVIEW_VISUAL: Record<BidFreteDashboardTopKpiWidgetId, { icone: React.ReactNode; cor: string }> = {
+  kpi_cotacoes_andamento: { icone: <ClipboardText     weight="duotone" size={15} />, cor: '#fbbf24' },
+  kpi_cotacoes_aprovadas: { icone: <CheckCircle       weight="duotone" size={15} />, cor: '#10b981' },
+  kpi_valor_em_aberto:    { icone: <CurrencyDollar    weight="duotone" size={15} />, cor: '#818cf8' },
+  kpi_cotacoes_expiradas: { icone: <Warning           weight="duotone" size={15} />, cor: '#d1d5db' },
+}
 
 const CARD_VISUAL: Record<string, { icone: React.ReactNode; cor: string }> = {
   total_cotacoes:        { icone: <Package           weight="duotone" size={18} />, cor: 'var(--ws-accent, #818cf8)' },
@@ -181,17 +200,10 @@ function obterNomeExibicaoCard(card: CardDefinicao): string {
   return NOME_EXIBICAO_CARDS[card.id] || card.labelKey
 }
 
-const PERIODOS = [
-  { id: '7d',   label: '7 dias'  },
-  { id: '30d',  label: '30 dias' },
-  { id: '6m',   label: '6 meses' },
-  { id: '1a',   label: '1 ano'   },
-  { id: 'tudo', label: 'Tudo'    },
-]
-
 const SIDEBAR_ITEMS = [
   { tipo: 'grupo',  label: 'VISUALIZAÇÕES', labelKey: 'bidfrete.config.sidebar.grupo_visualizacoes' },
   { tipo: 'item',   id: 'cards',                 label: 'Cards',             labelKey: 'bidfrete.config.sidebar.cards',             icone: <SquaresFour size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'dashboard-kpi',         label: 'Visão Geral',       labelKey: 'bidfrete.config.sidebar.dashboard_kpi',     icone: <ChartBar size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'tabela',                label: 'Tabela',            labelKey: 'bidfrete.config.sidebar.tabela',            icone: <Table size={15} weight="duotone" />, ativo: true },
   { tipo: 'parent', id: 'colunas-casas-decimais',label: 'Colunas',           labelKey: 'bidfrete.config.sidebar.colunas',           icone: <Columns size={15} weight="duotone" />, ativo: true, filhos: ['colunas-casas-decimais', 'colunas-formato-data', 'colunas-personalizadas', 'colunas-campos-calculados'] },
   { tipo: 'sub',    id: 'colunas-casas-decimais',label: 'Casas Decimais',    labelKey: 'bidfrete.config.sidebar.casas_decimais',    icone: <Hash size={15} weight="duotone" />, ativo: true },
@@ -204,7 +216,8 @@ const SIDEBAR_ITEMS = [
   { tipo: 'sub',    id: 'kanban-modal',          label: 'Modal',             labelKey: 'bidfrete.config.sidebar.modal',             icone: <Columns size={15} weight="duotone" />, ativo: true },
   
   { tipo: 'grupo',  label: 'BID FRETE',          labelKey: 'bidfrete.config.sidebar.grupo_bidfrete' },
-  { tipo: 'item',   id: 'status',                label: 'Status',            labelKey: 'bidfrete.config.sidebar.status',            icone: <Tag size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'status',                label: 'Status Cotação',    labelKey: 'bidfrete.config.sidebar.status',            icone: <Tag size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'status-bid-frete-internacional', label: 'Status BID', labelKey: 'bidfrete.config.sidebar.status_bid', icone: <Tag size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'numeracao',             label: 'Numeração',         labelKey: 'bidfrete.config.sidebar.numeracao',         icone: <Hash size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'templates-pdf',         label: 'Templates PDF',     labelKey: 'bidfrete.config.sidebar.templates_pdf',     icone: <FloppyDisk size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'regras',                label: 'Regras',            labelKey: 'bidfrete.config.sidebar.regras',            icone: <Sliders size={15} weight="duotone" />, ativo: true },
@@ -217,13 +230,12 @@ const SIDEBAR_ITEMS = [
   { tipo: 'item',   id: 'exportacao',            label: 'Exportação',        labelKey: 'bidfrete.config.sidebar.exportacao',        icone: <DownloadSimple size={15} weight="duotone" />, ativo: true },
 ]
 
-const COLUNAS_NUMERICAS_NATIVAS = [
-  { campo: 'valor_frete_proposta_bid_frete_internacional',         label: 'Valor do Frete',         categoria: 'Frete', padrao: 2 },
-  { campo: 'taxas_origem_proposta_bid_frete_internacional',        label: 'Taxas de Origem',        categoria: 'Frete', padrao: 2 },
-  { campo: 'taxas_destino_proposta_bid_frete_internacional',       label: 'Taxas de Destino',       categoria: 'Frete', padrao: 2 },
-  { campo: 'peso_kg_cotacao_bid_frete_internacional',             label: 'Peso da Mercadoria (KG)',categoria: 'Mercadoria', padrao: 2 },
-  { campo: 'cubagem_m3_cotacao_bid_frete_internacional',          label: 'Cubagem (M3)',           categoria: 'Mercadoria', padrao: 3 },
-]
+const COLUNAS_FILHOS = [
+  'colunas-casas-decimais',
+  'colunas-formato-data',
+  'colunas-personalizadas',
+  'colunas-campos-calculados',
+] as const
 
 const TIPOS_COLUNA = [
   { id: 'texto',          label: 'Texto',         icone: <TextT size={16} weight="duotone" /> },
@@ -246,15 +258,18 @@ const FORMULA_FIELDS = [
 // ─── Sub-Components (Sortable and Helpers) ───────────────────────────────────────
 
 function CardSortavel({
-  pref, onToggle, onRemover, periodoAtivo,
+  pref, def, onToggle, onRemover, periodoAtivo,
 }: {
   pref: CardPreferencia
+  def: CardDefinicao
   onToggle: () => void
   onRemover: () => void
   periodoAtivo: string
 }) {
-  const def = CARDS_CATALOGO.find(c => c.id === pref.id)!
-  const visual = CARD_VISUAL[pref.id]
+  const visual = CARD_VISUAL[pref.id] ?? {
+    icone: <Package weight="duotone" size={18} />,
+    cor: def.cor ?? 'var(--ws-accent, #818cf8)',
+  }
   const [detalheAberto, setDetalheAberto] = useState(false)
 
   const {
@@ -764,11 +779,9 @@ export default function Configuracoes() {
   const tabParam = searchParams.get('tab') as string | null
   const [categoria, setCategoria] = useState<string>(tabParam ?? 'cards')
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    'colunas-casas-decimais': ['colunas-casas-decimais', 'colunas-formato-data', 'colunas-personalizadas', 'colunas-campos-calculados'].includes(tabParam ?? ''),
+    'colunas-casas-decimais': COLUNAS_FILHOS.includes(tabParam as typeof COLUNAS_FILHOS[number]),
     'kanban': ['kanban-colunas', 'kanban-card', 'kanban-modal'].includes(tabParam ?? ''),
   })
-
-  const [periodoAtivo, setPeriodoAtivo] = useState('30d')
 
   // ─── Mocks & Persistence Hook ─────────────────────────────────────────────────
 
@@ -800,38 +813,124 @@ export default function Configuracoes() {
 
   // ─── States declarations ──────────────────────────────────────────────────────
 
-  const [cardsPref, setCardsPref, , saveCards, resetCards, cardsDirty] = useConfigState<CardPreferencia[]>('cards', [
-    { id: 'total_cotacoes', visible: true },
-    { id: 'valor_total_frete', visible: true },
-    { id: 'propostas_recebidas', visible: true },
-  ])
+  const {
+    prefs: cardsPref,
+    catalogo: cardsCatalogo,
+    disponiveis: cardsDisponiveis,
+    periodo: periodoCards,
+    setPeriodo: setPeriodoCards,
+    adicionar: adicionarCard,
+    remover: removerCard,
+    toggle: toggleCard,
+    reordenar: reordenarCards,
+    resetar: resetarCards,
+  } = useCardPreferencesBidFrete()
 
-  const [tabelaConfig, setTabelaConfig, , saveTabela, resetTabela, tabelaDirty] = useConfigState<TabelaConfig>('tabela', {
-    linhasPorPagina: 100,
-    destacarAtrasados: true,
-  })
+  const {
+    mapa: dashboardTopKpiSalvo,
+    persistirMapa: persistirDashboardTopKpi,
+    defaults: dashboardTopKpiDefaults,
+  } = useDashboardTopKpiBidFrete()
+  const [pendingDashboardTopKpi, setPendingDashboardTopKpi] = useState(dashboardTopKpiSalvo)
 
-  const [casasDecimais, setCasasDecimais, , saveCasas, resetCasas, casasDirty] = useConfigState<Record<string, number>>('casas-decimais', {
-    valor_frete_proposta_bid_frete_internacional: 2,
-    taxas_origem_proposta_bid_frete_internacional: 2,
-    taxas_destino_proposta_bid_frete_internacional: 2,
-    peso_kg_cotacao_bid_frete_internacional: 2,
-    cubagem_m3_cotacao_bid_frete_internacional: 3,
-  })
+  useEffect(() => {
+    setPendingDashboardTopKpi(dashboardTopKpiSalvo)
+  }, [dashboardTopKpiSalvo])
 
-  const [formatoData, setFormatoData, , saveFormatoData, resetFormatoData, formatoDataDirty] = useConfigState<string>('formato-data', 'DD/MM/AAAA')
+  const dashboardKpiDirty = JSON.stringify(pendingDashboardTopKpi) !== JSON.stringify(dashboardTopKpiSalvo)
 
-  const [colunasPersonalizadas, setColunasPersonalizadas, , saveColunas, resetColunas, colunasDirty] = useConfigState<ColunaUsuario[]>('colunas-personalizadas', [
+  const salvarDashboardTopKpiConfig = useCallback(() => {
+    persistirDashboardTopKpi(pendingDashboardTopKpi)
+    addNotification({ type: 'success', message: t('bidfrete.config.dashboard_kpi.msg_salvo') })
+  }, [pendingDashboardTopKpi, persistirDashboardTopKpi, addNotification, t])
+
+  const restaurarDashboardTopKpiPadrao = useCallback(() => {
+    setPendingDashboardTopKpi({ ...dashboardTopKpiDefaults })
+  }, [dashboardTopKpiDefaults])
+
+  const [tabelaConfig, setTabelaConfig] = useState<TabelaConfigBidFrete>(() => carregarTabelaConfigBidFrete())
+  const [tabelaConfigSalva, setTabelaConfigSalva] = useState<TabelaConfigBidFrete>(() => carregarTabelaConfigBidFrete())
+  const tabelaDirty = JSON.stringify(tabelaConfig) !== JSON.stringify(tabelaConfigSalva)
+
+  const salvarTabelaConfig = useCallback(() => {
+    salvarTabelaConfigBidFrete(tabelaConfig)
+    setTabelaConfigSalva(tabelaConfig)
+    addNotification({ type: 'success', message: 'Preferências da tabela salvas com sucesso!' })
+  }, [tabelaConfig, addNotification])
+
+  const restaurarTabelaConfig = useCallback(() => {
+    setTabelaConfig({ ...DEFAULT_TABELA_CONFIG_BID_FRETE })
+  }, [])
+
+  const [colunasPersonalizadas, setColunasPersonalizadas] = useConfigState<ColunaUsuario[]>('colunas-personalizadas', [
     { id: 'col_margem', chave: 'margem', nome: 'Margem Comercial', tipo: 'numero', escopo: 'pedido', visibilidade_cotacao_bid_frete_internacional: 'todos', obrigatorio: false, valor_padrao: '', descricao: 'Margem do frete', opcoes: [], formula_expressao: '', ativo: true }
   ])
 
-  const [saldoTokens, setSaldoTokens, , saveSaldoFormula, resetSaldoFormula, saldoDirty] = useConfigState<SaldoToken[]>('campos-calculados', [
+  const [casasDecimaisSalvas, setCasasDecimaisSalvas] = useState<Record<string, number>>(() => carregarCasasDecimaisBidFrete())
+  const [pendingCasas, setPendingCasas] = useState<Record<string, number>>(() => carregarCasasDecimaisBidFrete())
+  const casasDirty = JSON.stringify(pendingCasas) !== JSON.stringify(casasDecimaisSalvas)
+
+  const colunasNumericasPersonalizadas = useMemo(
+    () => colunasPersonalizadas.filter(col => tipoColunaUsaCasasDecimais(col.tipo)),
+    [colunasPersonalizadas],
+  )
+
+  useEffect(() => {
+    setPendingCasas(prev => {
+      let next: Record<string, number> | null = null
+      for (const col of colunasNumericasPersonalizadas) {
+        if (prev[col.id] === undefined) {
+          if (!next) next = { ...prev }
+          next[col.id] = PADRAO_CASAS_COLUNA_PERSONALIZADA
+        }
+      }
+      return next ?? prev
+    })
+  }, [colunasNumericasPersonalizadas])
+
+  const handleCasasDecimaisChange = useCallback((campo: string, valor: number) => {
+    setPendingCasas(prev => ({ ...prev, [campo]: valor }))
+  }, [])
+
+  const salvarCasasDecimaisConfig = useCallback(() => {
+    const payload: Record<string, number> = {}
+    for (const col of COLUNAS_NUMERICAS_BID_FRETE) {
+      payload[col.campo] = pendingCasas[col.campo] ?? col.padrao
+    }
+    for (const col of colunasNumericasPersonalizadas) {
+      payload[col.id] = pendingCasas[col.id] ?? PADRAO_CASAS_COLUNA_PERSONALIZADA
+    }
+    salvarCasasDecimaisBidFrete(payload)
+    setCasasDecimaisSalvas(payload)
+    setPendingCasas(payload)
+    addNotification({ type: 'success', message: 'Casas decimais salvas com sucesso!' })
+  }, [pendingCasas, colunasNumericasPersonalizadas, addNotification])
+
+  const restaurarCasasDecimaisConfig = useCallback(() => {
+    setPendingCasas(casasDecimaisSalvas)
+  }, [casasDecimaisSalvas])
+
+  const [formatoDataSalvo, setFormatoDataSalvo] = useState<FormatoDataBidFrete>(() => carregarFormatoDataBidFrete())
+  const [pendingFormato, setPendingFormato] = useState<FormatoDataBidFrete>(() => carregarFormatoDataBidFrete())
+  const formatoDirty = pendingFormato !== formatoDataSalvo
+
+  const salvarFormatoDataConfig = useCallback(() => {
+    salvarFormatoDataBidFrete(pendingFormato)
+    setFormatoDataSalvo(pendingFormato)
+    addNotification({ type: 'success', message: 'Formato de data salvo com sucesso!' })
+  }, [pendingFormato, addNotification])
+
+  const restaurarFormatoDataConfig = useCallback(() => {
+    setPendingFormato(formatoDataSalvo)
+  }, [formatoDataSalvo])
+
+  const [saldoTokens, setSaldoTokens] = useConfigState<SaldoToken[]>('campos-calculados', [
     { tipo: 'campo', chave: 'valor_frete_proposta_bid_frete_internacional', label: 'Valor do Frete' },
     { tipo: 'op', valor: '+' },
     { tipo: 'campo', chave: 'taxas_origem_proposta_bid_frete_internacional', label: 'Taxas Origem' }
   ])
 
-  const [statusList, setStatusList, , saveStatus, resetStatus, statusDirty] = useConfigState<PedidoStatusConfig[]>('status', [
+  const [statusList, setStatusList] = useConfigState<PedidoStatusConfig[]>('status', [
     { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
     { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
     { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
@@ -862,7 +961,15 @@ export default function Configuracoes() {
     }
   }, [statusList, setStatusList])
 
-  const [numeracaoConfig, setNumeracaoConfig, , saveNumeracao, resetNumeracao, numeracaoDirty] = useConfigState<NumeracaoConfig>('numeracao', {
+  const [statusBidList, setStatusBidList] = useConfigState<PedidoStatusConfig[]>('status-bid-frete-internacional', [
+    { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
+    { id: 'em_andamento', nome: 'EM_ANDAMENTO', rotulo: 'Em andamento', cor: '#60a5fa', ordem: 2, is_sistema: true },
+    { id: 'parcial', nome: 'PARCIALMENTE_CONCLUIDO', rotulo: 'Parcialmente concluído', cor: '#fbbf24', ordem: 3, is_sistema: false },
+    { id: 'concluido', nome: 'CONCLUIDO', rotulo: 'Concluído', cor: '#10b981', ordem: 4, is_sistema: false },
+    { id: 'cancelado', nome: 'CANCELADO', rotulo: 'Cancelado', cor: '#6b7280', ordem: 5, is_sistema: true },
+  ])
+
+  const [numeracaoConfig, setNumeracaoConfig] = useConfigState<NumeracaoConfig>('numeracao', {
     prefixo: 'BID-',
     incluirAno: true,
     digitosSequencia: 5,
@@ -870,28 +977,28 @@ export default function Configuracoes() {
     automaticoCriar: true,
   })
 
-  const [templatesPdf, setTemplatesPdf, , saveTemplates, resetTemplates, templatesDirty] = useConfigState<TemplateLocal[]>('templates-pdf', [
+  const [templatesPdf, setTemplatesPdf] = useConfigState<TemplateLocal[]>('templates-pdf', [
     { id: 'tpl_resumo', nome: 'Resumo do Bid de Frete', documento_tipo: 'pdf', codigo_fonte: '<h1>Bid de Frete {{numero_cotacao_bid_frete_internacional}}</h1>', created_at: new Date().toISOString() }
   ])
 
-  const [regrasConfig, setRegrasConfig, , saveRegras, resetRegras, regrasDirty] = useConfigState<RegrasConfig>('regras', {
+  const [regrasConfig, setRegrasConfig] = useConfigState<RegrasConfig>('regras', {
     respostaAutomatica: true,
     prazoPadraoHoras: 72,
     alertasDivergencia: true,
     aprovarAbaixoDoTeto: false,
   })
 
-  const [categoriasAnexos, setCategoriasAnexos, , saveAnexos, resetAnexos, anexosDirty] = useConfigState<CategoriaAnexo[]>('categorias-anexos', [
+  const [categoriasAnexos, setCategoriasAnexos] = useConfigState<CategoriaAnexo[]>('categorias-anexos', [
     { id: 'bl', nome: 'Bill of Lading (B/L)', sistema: true },
     { id: 'proposta', nome: 'Proposta do Fornecedor', sistema: false }
   ])
 
-  const [taxasCambio, setTaxasCambio, , saveTaxas, resetTaxas, taxasDirty] = useConfigState<Record<string, number>>('taxa-cambio', {
+  const [taxasCambio, setTaxasCambio] = useConfigState<Record<string, number>>('taxa-cambio', {
     USD: 5.25,
     EUR: 5.65,
   })
 
-  const [notificacoesConfig, setNotificacoesConfig, , saveNotif, resetNotif, notifDirty] = useConfigState<NotificacoesConfig>('notificacoes', {
+  const [notificacoesConfig, setNotificacoesConfig] = useConfigState<NotificacoesConfig>('notificacoes', {
     respostaFornecedor: true,
     novaCotacao: true,
     cotacaoExpirada: false,
@@ -899,7 +1006,7 @@ export default function Configuracoes() {
     erroIntegracao: true,
   })
 
-  const [exportConfig, setExportConfig, , saveExport, resetExport, exportDirty] = useConfigState<ExportacaoConfig>('exportacao', {
+  const [exportConfig, setExportConfig] = useConfigState<ExportacaoConfig>('exportacao', {
     formatoPadrao: 'xlsx',
     incluirPropostas: true,
     apenasAprovada: false,
@@ -908,13 +1015,18 @@ export default function Configuracoes() {
 
   // ─── Kanban Specific States ──────────────────────────────────────────────────
 
-  const [kanbanColunasOcultas, setKanbanColunasOcultas, , saveKanbanColunas, resetKanbanColunas, kanbanColunasDirty] = useConfigState<string[]>('kanban-colunas-ocultas', [])
-  const [kanbanCardConfig, setKanbanCardConfig, , saveKanbanCard, resetKanbanCard, kanbanCardDirty] = useConfigState<Record<string, boolean>>('kanban-card-config', {
-    exibirValor: true,
-    exibirIncoterm: true,
-    exibirArmador: false,
-    exibirDatas: true,
-  })
+  const [kanbanColunasOcultas, setKanbanColunasOcultas] = useConfigState<string[]>('kanban-colunas-ocultas', [])
+  const [kanbanCardConfig, setKanbanCardConfig] = useConfigState<KanbanCardConfigBidFrete>(
+    'kanban-card-config',
+    KANBAN_BF_CARD_PADRAO,
+  )
+
+  useEffect(() => {
+    const norm = normalizarCardConfigBidFrete(kanbanCardConfig)
+    if (JSON.stringify(norm) !== JSON.stringify(kanbanCardConfig)) {
+      setKanbanCardConfig(norm)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps -- migração legado uma vez no mount
 
   // ─── Active Sub-Tab/Group Controls ────────────────────────────────────────────
 
@@ -943,18 +1055,15 @@ export default function Configuracoes() {
   const [novoAnexoNome, setNovoAnexoNome] = useState('')
 
   // Global save trigger detection
-  const isDirtyGlobal = cardsDirty || tabelaDirty || casasDirty || formatoDataDirty || colunasDirty || saldoDirty || statusDirty || numeracaoDirty || templatesDirty || regrasDirty || anexosDirty || taxasDirty || notifDirty || exportDirty || kanbanColunasDirty || kanbanCardDirty
-
   // ─── Drag & Drop Event Handlers ────────────────────────────────────────────────
 
   const handleDragEndCards = (event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
-    setCardsPref(prev => {
-      const oldIdx = prev.findIndex(p => p.id === active.id)
-      const newIdx = prev.findIndex(p => p.id === over.id)
-      return arrayMove(prev, oldIdx, newIdx)
-    })
+    const oldIdx = cardsPref.findIndex(p => p.id === active.id)
+    const newIdx = cardsPref.findIndex(p => p.id === over.id)
+    if (oldIdx < 0 || newIdx < 0) return
+    reordenarCards(arrayMove(cardsPref, oldIdx, newIdx))
   }
 
   const handleDragEndColunas = (event: DragEndEvent) => {
@@ -967,6 +1076,24 @@ export default function Configuracoes() {
     })
   }
 
+  const kanbanCardCampos = useCallback(() => {
+    return (kanbanCardConfig.campos ?? KANBAN_BF_CARD_PADRAO.campos).map(c => ({
+      ...c,
+      grupo: c.grupo ?? KANBAN_BF_CARD_PADRAO.campos.find(d => d.campo === c.campo)?.grupo,
+    }))
+  }, [kanbanCardConfig])
+
+  const kanbanCardToggle = useCallback((campo: string) => {
+    setKanbanCardConfig(prev => ({
+      ...prev,
+      campos: prev.campos.map(c => (c.campo === campo ? { ...c, visivel: !c.visivel } : c)),
+    }))
+  }, [])
+
+  const kanbanCardSetDataCritica = useCallback((valor: string | null) => {
+    setKanbanCardConfig(prev => ({ ...prev, dataCritica: valor }))
+  }, [])
+
   const handleDragEndStatus = (event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
@@ -976,47 +1103,6 @@ export default function Configuracoes() {
       const reordered = arrayMove(prev, oldIdx, newIdx)
       return reordered.map((s, idx) => ({ ...s, ordem: idx + 1 }))
     })
-  }
-
-  // ─── Save All Strategy ────────────────────────────────────────────────────────
-
-  const handleSalvarTudo = () => {
-    if (cardsDirty) saveCards()
-    if (tabelaDirty) saveTabela()
-    if (casasDirty) saveCasas()
-    if (formatoDataDirty) saveFormatoData()
-    if (colunasDirty) saveColunas()
-    if (saldoDirty) saveSaldoFormula()
-    if (statusDirty) saveStatus()
-    if (numeracaoDirty) saveNumeracao()
-    if (templatesDirty) saveTemplates()
-    if (regrasDirty) saveRegras()
-    if (anexosDirty) saveAnexos()
-    if (taxasDirty) saveTaxas()
-    if (notifDirty) saveNotif()
-    if (exportDirty) saveExport()
-    if (kanbanColunasDirty) saveKanbanColunas()
-    if (kanbanCardDirty) saveKanbanCard()
-  }
-
-  const handleDescartarTudo = () => {
-    resetCards()
-    resetTabela()
-    resetCasas()
-    resetFormatoData()
-    resetColunas()
-    resetSaldoFormula()
-    resetStatus()
-    resetNumeracao()
-    resetTemplates()
-    resetRegras()
-    resetAnexos()
-    resetTaxas()
-    resetNotif()
-    resetExport()
-    resetKanbanColunas()
-    resetKanbanCard()
-    addNotification({ type: 'info', message: 'Modificações descartadas.' })
   }
 
   return (
@@ -1098,7 +1184,7 @@ export default function Configuracoes() {
                   <h2 className="cfg-secao__titulo">Meus Cards</h2>
                   <p className="cfg-secao__desc">Defina quais cards numéricos aparecem no topo da tela, ordene e oculte os não utilizados.</p>
                 </div>
-                <button type="button" className="cfg-btn-header--restaurar" onClick={() => setCardsPref(CARDS_CATALOGO.map(c => ({ id: c.id, visible: true })))}>
+                <button type="button" className="cfg-btn-header--restaurar" onClick={resetarCards}>
                   <ArrowCounterClockwise size={13} weight="bold" />
                   Restaurar padrão
                 </button>
@@ -1109,7 +1195,12 @@ export default function Configuracoes() {
                 <p className="cfg-list-section-label" style={{ marginBottom: '0.5rem' }}>Período de Comparação</p>
                 <div className="cfg-periodo-pills">
                   {PERIODOS.map(p => (
-                    <button key={p.id} type="button" className={`cfg-periodo-pill ${periodoAtivo === p.id ? 'cfg-periodo-pill--ativo' : ''}`} onClick={() => setPeriodoAtivo(p.id)}>
+                    <button
+                      key={p.id}
+                      type="button"
+                      className={`cfg-periodo-pill ${periodoCards === p.id ? 'cfg-periodo-pill--ativo' : ''}`}
+                      onClick={() => setPeriodoCards(p.id)}
+                    >
                       {p.label}
                     </button>
                   ))}
@@ -1124,7 +1215,7 @@ export default function Configuracoes() {
                 </p>
                 <div className="cfg-cards-preview-grid">
                   {cardsPref.map((pref, i) => {
-                    const card = CARDS_CATALOGO.find(c => c.id === pref.id)
+                    const card = cardsCatalogo.find(c => c.id === pref.id)
                     if (!card) return null
                     return (
                       <div key={card.id} className={`cfg-kpi-preview-card ${!pref.visible ? 'cfg-kpi-preview-card--oculto' : ''}`}>
@@ -1145,15 +1236,20 @@ export default function Configuracoes() {
               <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEndCards}>
                 <SortableContext items={cardsPref.map(p => p.id)} strategy={verticalListSortingStrategy}>
                   <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
-                    {cardsPref.map(pref => (
-                      <CardSortavel
-                        key={pref.id}
-                        pref={pref}
-                        periodoAtivo={periodoAtivo}
-                        onToggle={() => setCardsPref(prev => prev.map(p => p.id === pref.id ? { ...p, visible: !p.visible } : p))}
-                        onRemover={() => setCardsPref(prev => prev.filter(p => p.id !== pref.id))}
-                      />
-                    ))}
+                    {cardsPref.map(pref => {
+                      const def = cardsCatalogo.find(c => c.id === pref.id)
+                      if (!def) return null
+                      return (
+                        <CardSortavel
+                          key={pref.id}
+                          pref={pref}
+                          def={def}
+                          periodoAtivo={periodoCards}
+                          onToggle={() => toggleCard(pref.id)}
+                          onRemover={() => removerCard(pref.id)}
+                        />
+                      )
+                    })}
                   </div>
                 </SortableContext>
               </DndContext>
@@ -1163,12 +1259,12 @@ export default function Configuracoes() {
                 <p className="cfg-list-section-label">Disponíveis para adicionar</p>
               </div>
               <div className="cfg-cards-lista">
-                {CARDS_CATALOGO.filter(c => !cardsPref.some(p => p.id === c.id)).map(def => (
+                {cardsDisponiveis.map(def => (
                   <CardDisponivel
                     key={def.id}
                     def={def}
-                    periodoAtivo={periodoAtivo}
-                    onAdicionar={() => setCardsPref(prev => [...prev, { id: def.id, visible: true }])}
+                    periodoAtivo={periodoCards}
+                    onAdicionar={() => adicionarCard(def.id)}
                   />
                 ))}
               </div>
@@ -1182,100 +1278,338 @@ export default function Configuracoes() {
           </div>
         )}
 
-        {/* ── CATEGORIA: TABELA ── */}
+        {/* ── CATEGORIA: VISÃO GERAL — KPIs do topo ── */}
+        {categoria === 'dashboard-kpi' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">
+                    {t('bidfrete.config.dashboard_kpi.titulo')}
+                  </h2>
+                  <p className="cfg-secao__desc">
+                    {t('bidfrete.config.dashboard_kpi.descricao')}
+                  </p>
+                </div>
+              </div>
+
+              {statusList.length > 0 && (
+                <div className="cfg-cards-preview-wrap">
+                  <p className="cfg-cards-preview-label">
+                    <ChartBar size={12} weight="fill" />
+                    {t('bidfrete.config.dashboard_kpi.preview')}
+                  </p>
+                  <div className="cfg-cards-preview-grid">
+                    {BID_FRETE_DASHBOARD_TOP_KPI_WIDGET_IDS.map((widgetId, index) => {
+                      const slugPendente = pendingDashboardTopKpi[widgetId as BidFreteDashboardTopKpiWidgetId]
+                      const slugValido = statusList.some(s => s.nome === slugPendente)
+                        ? slugPendente
+                        : (statusList[index]?.nome ?? statusList[0]?.nome ?? '')
+                      const statusCfg = statusList.find(s => s.nome === slugValido)
+                      const visual = BID_FRETE_DASHBOARD_TOP_KPI_PREVIEW_VISUAL[widgetId as BidFreteDashboardTopKpiWidgetId]
+                      const cor = statusCfg?.cor ?? visual.cor
+                      return (
+                        <div
+                          key={widgetId}
+                          className="cfg-kpi-preview-card"
+                          style={{ borderTopColor: cor }}
+                        >
+                          <span className="cfg-kpi-preview-card__pos">{index + 1}</span>
+                          <span className="cfg-kpi-preview-card__icon" style={{ color: cor }}>
+                            {visual.icone}
+                          </span>
+                          <div className="cfg-kpi-preview-card__line" style={{ background: cor }} />
+                          <p className="cfg-kpi-preview-card__valor">0</p>
+                          <p className="cfg-kpi-preview-card__label">{statusCfg?.rotulo ?? '—'}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <ConfiguracaoSecaoGlobal label={t('bidfrete.config.dashboard_kpi.cards_topo')} count="4" />
+
+              {statusList.length === 0 ? (
+                <p className="cfg-empty">{t('bidfrete.config.dashboard_kpi.sem_status')}</p>
+              ) : (
+                <div className="cfg-cards-lista" style={{ gap: '0.75rem' }}>
+                  {BID_FRETE_DASHBOARD_TOP_KPI_WIDGET_IDS.map((widgetId, index) => {
+                    const numero = String(index + 1).padStart(2, '0')
+                    const slugPendente = pendingDashboardTopKpi[widgetId as BidFreteDashboardTopKpiWidgetId]
+                    const slugValido = statusList.some(s => s.nome === slugPendente)
+                      ? slugPendente
+                      : (statusList[index]?.nome ?? statusList[0]?.nome ?? '')
+                    return (
+                      <div key={widgetId} className="cfg-toggle-row" style={{ alignItems: 'center' }}>
+                        <label className="cfg-toggle-row__label" style={{ flex: 1 }}>
+                          {t('bidfrete.config.dashboard_kpi.card_status', { n: numero, defaultValue: `Card ${numero} — Status` })}
+                        </label>
+                        <div className="cfg-dashboard-kpi-select" style={{ maxWidth: '280px', flexShrink: 0, width: '100%' }}>
+                          <SelectGlobal
+                            buscavel
+                            placeholder={t('bidfrete.config.dashboard_kpi.selecionar_status')}
+                            opcoes={statusList.map(s => ({ valor: s.nome, rotulo: s.rotulo }))}
+                            valor={slugValido || null}
+                            aoMudarValor={v => setPendingDashboardTopKpi(prev => ({
+                              ...prev,
+                              [widgetId]: v != null ? String(v) : '',
+                            }))}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
+              <div className="cfg-secao__footer">
+                <BotaoCancelar
+                  dirty={dashboardKpiDirty}
+                  rotulo={t('bidfrete.config.acao.restaurar_padrao', 'Restaurar padrão')}
+                  onClick={restaurarDashboardTopKpiPadrao}
+                />
+                <BotaoSalvar
+                  dirty={dashboardKpiDirty}
+                  rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
+                  onClick={salvarDashboardTopKpiConfig}
+                />
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ── CATEGORIA: TABELA (padrão Pedido) ── */}
         {categoria === 'tabela' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">
+                    {t('bidfrete.config.tabela.titulo', 'Preferências da Tabela')}
+                  </h2>
+                  <p className="cfg-secao__desc">
+                    {t('bidfrete.config.tabela.descricao', 'Configure paginação e destaque visual na listagem de cotações.')}
+                  </p>
+                </div>
+              </div>
+
+              <ConfiguracaoSecaoGlobal
+                label={t('bidfrete.config.tabela.linhas_por_pagina', 'Linhas por página padrão')}
+              />
+              <div className="cfg-periodo-pills" style={{ marginBottom: '1.5rem' }}>
+                {([25, 50, 100, 200] as const).map(n => (
+                  <button
+                    key={n}
+                    type="button"
+                    className={`cfg-periodo-pill${tabelaConfig.linhasPorPagina === n ? ' cfg-periodo-pill--ativo' : ''}`}
+                    onClick={() => setTabelaConfig(prev => ({ ...prev, linhasPorPagina: n }))}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+
+              <ConfiguracaoSecaoGlobal
+                label={t('bidfrete.config.tabela.preferencias', 'Preferências de exibição')}
+              />
+              <div className="cfg-toggles-lista">
+                <ToggleRow
+                  id="tab-destaque"
+                  label={t('bidfrete.config.tabela.destacar_expirar', 'Destacar cotações prestes a expirar')}
+                  desc={t(
+                    'bidfrete.config.tabela.destacar_expirar_desc',
+                    'Aplica borda sutil avermelhada a cotações com menos de 2 horas restantes para expiração.',
+                  )}
+                  checked={tabelaConfig.destacarAtrasados}
+                  onChange={v => setTabelaConfig(prev => ({ ...prev, destacarAtrasados: v }))}
+                />
+              </div>
+
+              <div className="cfg-secao__footer">
+                <BotaoCancelar
+                  dirty={tabelaDirty}
+                  rotulo={t('bidfrete.config.acao.restaurar_padrao', 'Restaurar padrão')}
+                  onClick={restaurarTabelaConfig}
+                />
+                <BotaoSalvar
+                  dirty={tabelaDirty}
+                  rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
+                  onClick={salvarTabelaConfig}
+                />
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ── COLUNAS (padrão Pedido) ── */}
+        {COLUNAS_FILHOS.includes(categoria as typeof COLUNAS_FILHOS[number]) && (
+          <div className="cfg-cards-wrapper">
+
+        {categoria === 'colunas-casas-decimais' && (
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Preferências da Tabela</h2>
-                <p className="cfg-secao__desc">Configure as preferências de paginação e visualização para a listagem do BID Frete.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.config.colunas.casas_decimais.titulo', 'Casas decimais por coluna')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.config.colunas.casas_decimais.descricao', 'Define quantas casas decimais são exibidas em colunas numéricas. Padrão: 2.')}
+                </p>
               </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>Itens por Página</p>
-                  <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Selecione a quantidade_cotacao_bid_frete_internacional de registros exibidos em listas de cotação.</p>
-                </div>
-                <select
-                  value={tabelaConfig.linhasPorPagina}
-                  onChange={e => setTabelaConfig(prev => ({ ...prev, linhasPorPagina: Number(e.target.value) as 25 | 50 | 100 | 200 }))}
-                  style={{ padding: '6px 12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }}
-                >
-                  <option value={25}>25 linhas</option>
-                  <option value={50}>50 linhas</option>
-                  <option value={100}>100 linhas</option>
-                  <option value={200}>200 linhas</option>
-                </select>
-              </div>
-              <div className="cfg-divider" style={{ margin: '0.5rem 0' }} />
-              <ToggleRow
-                id="tab-destaque"
-                label="Destacar cotações prestes a expirar"
-                desc="Aplica borda sutil avermelhada a cotações com menos de 2 horas restantes para expiração."
-                checked={tabelaConfig.destacarAtrasados}
-                onChange={v => setTabelaConfig(prev => ({ ...prev, destacarAtrasados: v }))}
+
+            <div className="cfg-colunas-lista">
+              {GRUPOS_CASAS_DECIMAIS_BID_FRETE.map(grupo => (
+                <React.Fragment key={grupo}>
+                  <ConfiguracaoSecaoGlobal label={grupo.toUpperCase()} />
+                  {COLUNAS_NUMERICAS_BID_FRETE.filter(col => col.categoria === grupo).map(col => {
+                    const val = pendingCasas[col.campo] ?? col.padrao
+                    return (
+                      <div key={col.campo} className="cfg-coluna-row">
+                        <div className="cfg-coluna-row__info">
+                          <span className="cfg-coluna-row__label">{col.label}</span>
+                          {col.itemHint && (
+                            <span className="cfg-coluna-row__hint">{col.itemHint}</span>
+                          )}
+                        </div>
+                        <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.label}`}>
+                          <button
+                            type="button"
+                            className="cfg-casas-stepper__btn"
+                            disabled={val <= 0}
+                            onClick={() => handleCasasDecimaisChange(col.campo, val - 1)}
+                            aria-label="Diminuir casas decimais"
+                          >
+                            −
+                          </button>
+                          <span className="cfg-casas-stepper__value">{val}</span>
+                          <button
+                            type="button"
+                            className="cfg-casas-stepper__btn"
+                            disabled={val >= 8}
+                            onClick={() => handleCasasDecimaisChange(col.campo, val + 1)}
+                            aria-label="Aumentar casas decimais"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </React.Fragment>
+              ))}
+
+              {colunasNumericasPersonalizadas.length > 0 && (
+                <>
+                  <ConfiguracaoSecaoGlobal
+                    label={t('bidfrete.config.colunas.casas_decimais.grupo_personalizadas', 'Personalizadas')}
+                  />
+                  {colunasNumericasPersonalizadas.map(col => {
+                    const val = pendingCasas[col.id] ?? PADRAO_CASAS_COLUNA_PERSONALIZADA
+                    return (
+                      <div key={col.id} className="cfg-coluna-row">
+                        <span className="cfg-coluna-row__label">{col.nome}</span>
+                        <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.nome}`}>
+                          <button
+                            type="button"
+                            className="cfg-casas-stepper__btn"
+                            disabled={val <= 0}
+                            onClick={() => handleCasasDecimaisChange(col.id, val - 1)}
+                            aria-label="Diminuir casas decimais"
+                          >
+                            −
+                          </button>
+                          <span className="cfg-casas-stepper__value">{val}</span>
+                          <button
+                            type="button"
+                            className="cfg-casas-stepper__btn"
+                            disabled={val >= 8}
+                            onClick={() => handleCasasDecimaisChange(col.id, val + 1)}
+                            aria-label="Aumentar casas decimais"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </>
+              )}
+            </div>
+
+            <div className="cfg-secao__footer">
+              <BotaoCancelar
+                dirty={casasDirty}
+                rotulo={t('bidfrete.config.acao.descartar', 'Descartar')}
+                onClick={restaurarCasasDecimaisConfig}
+              />
+              <BotaoSalvar
+                dirty={casasDirty}
+                rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
+                onClick={salvarCasasDecimaisConfig}
               />
             </div>
           </section>
         )}
 
-        {/* ── CATEGORIA: COLUNAS - CASAS DECIMAIS ── */}
-        {categoria === 'colunas-casas-decimais' && (
-          <section className="cfg-secao">
-            <div className="cfg-secao__header">
-              <div>
-                <h2 className="cfg-secao__titulo">Casas Decimais</h2>
-                <p className="cfg-secao__desc">Configure as precisões numéricas de moedas, pesos e medidas em listas e visualizações do BID Frete.</p>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {COLUNAS_NUMERICAS_NATIVAS.map(item => (
-                <div key={item.campo} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{item.label}</span>
-                    <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Categoria: {item.categoria}</p>
-                  </div>
-                  <select
-                    value={casasDecimais[item.campo] ?? item.padrao}
-                    onChange={e => setCasasDecimais(prev => ({ ...prev, [item.campo]: Number(e.target.value) }))}
-                    style={{ padding: '4px 10px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }}
-                  >
-                    {[0, 1, 2, 3, 4].map(v => (
-                      <option key={v} value={v}>{v} casas</option>
-                    ))}
-                  </select>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ── CATEGORIA: COLUNAS - FORMATO DATA ── */}
         {categoria === 'colunas-formato-data' && (
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Formato de Data</h2>
-                <p className="cfg-secao__desc">Configure a exibição padrão de datas no sistema.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.config.colunas.formato_data.titulo', 'Formato de Data')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t(
+                    'bidfrete.config.colunas.formato_data.descricao',
+                    'Define como as datas são exibidas em todas as colunas da tabela, nos inputs de edição e nas exportações.',
+                  )}
+                </p>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              {['DD/MM/AAAA', 'MM/DD/AAAA', 'AAAA-MM-DD'].map(fmt => (
-                <button
-                  key={fmt}
-                  type="button"
-                  className={`cfg-periodo-pill ${formatoData === fmt ? 'cfg-periodo-pill--ativo' : ''}`}
-                  onClick={() => setFormatoData(fmt)}
-                >
-                  {fmt}
-                </button>
-              ))}
+
+            <div className="cfg-campo-linha" style={{ marginTop: 20 }}>
+              <div className="cfg-formato-data-grid">
+                {FORMATOS_DATA_BID_FRETE.map(fmt => (
+                  <button
+                    key={fmt.valor}
+                    type="button"
+                    className={`cfg-formato-data-opcao${pendingFormato === fmt.valor ? ' cfg-formato-data-opcao--ativo' : ''}`}
+                    onClick={() => setPendingFormato(fmt.valor)}
+                  >
+                    <span className="cfg-formato-data-label">{fmt.label}</span>
+                    <span className="cfg-formato-data-exemplo">{fmt.exemplo}</span>
+                    <span className="cfg-formato-data-regiao">{fmt.regiao}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="cfg-formato-data-preview" style={{ marginTop: 16 }}>
+              <span className="cfg-formato-data-preview__label">
+                {t('bidfrete.config.colunas.formato_data.preview_label', 'Preview com a data de hoje:')}
+              </span>
+              <strong className="cfg-formato-data-preview__valor">
+                {previewFormatoDataBidFrete(pendingFormato)}
+              </strong>
+            </div>
+
+            <div className="cfg-secao__footer" style={{ marginTop: 20 }}>
+              <BotaoCancelar
+                dirty={formatoDirty}
+                rotulo={t('bidfrete.config.acao.descartar', 'Cancelar')}
+                onClick={restaurarFormatoDataConfig}
+              />
+              <BotaoSalvar
+                dirty={formatoDirty}
+                rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
+                onClick={salvarFormatoDataConfig}
+              />
             </div>
           </section>
         )}
 
-        {/* ── CATEGORIA: COLUNAS - PERSONALIZADAS ── */}
         {categoria === 'colunas-personalizadas' && (
           <section className="cfg-secao">
             <div className="cfg-secao__header">
@@ -1325,7 +1659,6 @@ export default function Configuracoes() {
           </section>
         )}
 
-        {/* ── CATEGORIA: COLUNAS - CAMPOS CALCULADOS ── */}
         {categoria === 'colunas-campos-calculados' && (
           <section className="cfg-secao">
             <div className="cfg-secao__header">
@@ -1373,6 +1706,9 @@ export default function Configuracoes() {
           </section>
         )}
 
+          </div>
+        )}
+
         {/* ── CATEGORIA: KANBAN COLUNAS ── */}
         {categoria === 'kanban-colunas' && (
           <section className="cfg-secao">
@@ -1404,45 +1740,138 @@ export default function Configuracoes() {
           </section>
         )}
 
-        {/* ── CATEGORIA: KANBAN CARD ── */}
+        {/* ── CATEGORIA: KANBAN CARD (paridade Pedido) ── */}
         {categoria === 'kanban-card' && (
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Preferências do Card no Kanban</h2>
-                <p className="cfg-secao__desc">Selecione quais informações devem ser destacadas diretamente nos cards de cotação.</p>
+                <h2 className="cfg-secao__titulo">Card do Kanban</h2>
+                <p className="cfg-secao__desc">
+                  Defina quais campos aparecem nos cards de cotação — mesmo padrão visual do Kanban de Pedido.
+                </p>
               </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <ToggleRow
-                id="kcard-val"
-                label="Exibir Valor Estimado / Aprovado"
-                desc="Mostra valores financeiros de teto e proposta vencedora."
-                checked={kanbanCardConfig.exibirValor}
-                onChange={v => setKanbanCardConfig(prev => ({ ...prev, exibirValor: v }))}
-              />
-              <ToggleRow
-                id="kcard-inc"
-                label="Exibir Incoterm"
-                desc="Mostra a sigla do Incoterm (FOB, CIF, etc.) no card."
-                checked={kanbanCardConfig.exibirIncoterm}
-                onChange={v => setKanbanCardConfig(prev => ({ ...prev, exibirIncoterm: v }))}
-              />
-              <ToggleRow
-                id="kcard-arm"
-                label="Exibir Armador / Agente Comercial"
-                desc="Exibe a logo ou nome do fornecedor encarregado do frete."
-                checked={kanbanCardConfig.exibirArmador}
-                onChange={v => setKanbanCardConfig(prev => ({ ...prev, exibirArmador: v }))}
-              />
-              <ToggleRow
-                id="kcard-dat"
-                label="Exibir Datas de Fechamento"
-                desc="Mostra datas limites para envio de propostas."
-                checked={kanbanCardConfig.exibirDatas}
-                onChange={v => setKanbanCardConfig(prev => ({ ...prev, exibirDatas: v }))}
-              />
-            </div>
+
+            {(() => {
+              const todosCampos = kanbanCardCampos()
+              const ativos = todosCampos.filter(c => c.visivel)
+              const disponiveis = todosCampos.filter(c => !c.visivel)
+              const dataCritica = kanbanCardConfig.dataCritica
+              const dataCriticaLabel = KANBAN_BF_DATAS_CRITICAS.find(c => c.campo === dataCritica)?.label ?? null
+              return (
+                <>
+                  <div className="cfg-cards-preview-wrap">
+                    <p className="cfg-cards-preview-label">
+                      <SquaresFour size={12} weight="fill" />
+                      Preview — Como ficará no Kanban
+                    </p>
+                    <div className="cfg-card-preview">
+                      <div className="cfg-card-preview__header">
+                        <span className="cfg-card-preview__numero">BF-2025-0001</span>
+                        <span className="cfg-card-preview__fixo-badge">Fixo</span>
+                      </div>
+                      <div className="cfg-card-preview__campos">
+                        {ativos.map(c => (
+                          <div key={c.campo} className="cfg-card-preview__campo">
+                            <span className="cfg-card-preview__campo-label">{c.label}</span>
+                            <span className="cfg-card-preview__campo-valor">—</span>
+                          </div>
+                        ))}
+                        {ativos.length === 0 && (
+                          <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', padding: '0.25rem 0' }}>
+                            Nenhum campo ativo além do número da cotação.
+                          </p>
+                        )}
+                      </div>
+                      {dataCritica && (
+                        <div className="cfg-card-preview__data-critica">
+                          <CalendarBlank size={10} />
+                          {dataCriticaLabel ?? dataCritica}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <ConfiguracaoSecaoGlobal label="Ativos" count={`${ativos.length + 1} campos`} />
+                  <p className="cfg-hint">O número da cotação e o tipo de operação são sempre exibidos no topo do card.</p>
+                  <div className="cfg-kanban-campos-lista">
+                    <div className="cfg-kanban-campo-row cfg-kanban-campo-row--fixo">
+                      <span className="cfg-kanban-campo-label">Nº da Cotação + Tipo</span>
+                      <span className="cfg-kanban-aba-fixa-badge">Fixo</span>
+                    </div>
+                    {KANBAN_BF_CARD_GRUPOS.map(grupo => {
+                      const cols = ativos.filter(c => c.grupo === grupo.key)
+                      if (cols.length === 0) return null
+                      return (
+                        <React.Fragment key={grupo.key}>
+                          <div className="cfg-card-grupo-divider">{grupo.label}</div>
+                          {cols.map(cfg => (
+                            <div key={cfg.campo} className="cfg-kanban-campo-row">
+                              <span className="cfg-kanban-campo-label">{cfg.label}</span>
+                              <button
+                                type="button"
+                                className="cfg-eye-btn cfg-eye-btn--on"
+                                onClick={() => kanbanCardToggle(cfg.campo)}
+                                aria-label="Ocultar campo do card"
+                              >
+                                <Eye size={14} weight="bold" />
+                              </button>
+                            </div>
+                          ))}
+                        </React.Fragment>
+                      )
+                    })}
+                  </div>
+
+                  <ConfiguracaoSecaoGlobal label="Disponíveis para adicionar" hint="Clique em + para exibir no card" style={{ marginTop: '1.5rem' }} />
+                  <div className="cfg-kanban-disponivel-lista">
+                    <div className="cfg-kanban-disponivel-header">
+                      <span>Campo</span>
+                      <span>Grupo</span>
+                      <span></span>
+                    </div>
+                    {disponiveis.length === 0 && (
+                      <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
+                        Todos os campos estão ativos.
+                      </p>
+                    )}
+                    {disponiveis.map(cfg => (
+                      <div key={cfg.campo} className="cfg-kanban-disponivel-row">
+                        <span className="cfg-kanban-disponivel-label">{cfg.label}</span>
+                        <span className="cfg-origem-badge cfg-origem-badge--pedido">
+                          {KANBAN_BF_CARD_GRUPOS.find(g => g.key === cfg.grupo)?.label ?? '—'}
+                        </span>
+                        <TooltipGlobal descricao="Exibir no card">
+                          <button
+                            type="button"
+                            className="cfg-kanban-add-btn"
+                            onClick={() => kanbanCardToggle(cfg.campo)}
+                            aria-label="Exibir campo no card"
+                          >
+                            <Plus size={13} weight="bold" />
+                          </button>
+                        </TooltipGlobal>
+                      </div>
+                    ))}
+                  </div>
+
+                  <ConfiguracaoSecaoGlobal label="Data crítica" style={{ marginTop: '1.5rem' }} />
+                  <p className="cfg-hint">Badge colorido no card (verde / amarelo / vermelho conforme proximidade da data).</p>
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <SelectGlobal
+                      buscavel={false}
+                      placeholder="Não exibir data crítica"
+                      opcoes={[
+                        { valor: '', rotulo: 'Não exibir' },
+                        ...KANBAN_BF_DATAS_CRITICAS.map(c => ({ valor: c.campo, rotulo: c.label })),
+                      ]}
+                      valor={dataCritica ?? ''}
+                      aoMudarValor={v => kanbanCardSetDataCritica(v != null && String(v) !== '' ? String(v) : null)}
+                    />
+                  </div>
+                </>
+              )
+            })()}
           </section>
         )}
 
@@ -1523,6 +1952,30 @@ export default function Configuracoes() {
               }}>
                 <Plus size={14} /> Adicionar Status
               </BotaoGlobal>
+            </div>
+          </section>
+        )}
+
+        {/* ── CATEGORIA: STATUS BID ── */}
+        {categoria === 'status-bid-frete-internacional' && (
+          <section className="cfg-secao">
+            <div className="cfg-secao__header">
+              <div>
+                <h2 className="cfg-secao__titulo">Gerenciar Status do BID</h2>
+                <p className="cfg-secao__desc">Configure status do conjunto BID (agrupador de pedidos de cotação).</p>
+              </div>
+            </div>
+
+            <ConfiguracaoSecaoGlobal label="STATUS BID ATIVOS" count={`${statusBidList.length} status`} />
+
+            <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
+              {statusBidList.map(s => (
+                <div key={s.id} className="cfg-status-row">
+                  <span className="cfg-status-dot" style={{ background: s.cor }} />
+                  <span className="cfg-status-label">{s.rotulo}</span>
+                  {s.is_sistema && <span className="cfg-badge-sistema">Sistema</span>}
+                </div>
+              ))}
             </div>
           </section>
         )}
@@ -1840,45 +2293,24 @@ export default function Configuracoes() {
       </main>
       </div>
 
-      {/* ── Barra de Salvamento Flutuante ── */}
-      <div className={`bf-cfg-savebar ${isDirtyGlobal ? 'bf-cfg-savebar--visible' : ''}`}>
-        <div className="bf-cfg-savebar-inner">
-          <span className="bf-cfg-dirty-msg">Você possui alterações não salvas!</span>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              className="cfg-btn-secundario"
-              style={{ padding: '0.5rem 1rem', borderRadius: '9999px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#fff' }}
-              onClick={handleDescartarTudo}
-            >
-              Descartar
-            </button>
-            <button
-              className="bf-cfg-btn-save"
-              onClick={handleSalvarTudo}
-            >
-              <FloppyDisk weight="bold" size={16} />
-              Salvar Alterações
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* ── Modais Auxiliares ── */}
       {criandoCard && (
         <ModalNovoCardUsuario
           onFechar={() => setCriandoCard(false)}
           onSalvo={card => {
             const newId = `card_${Date.now()}`
-            CARDS_CATALOGO.push({
+            registrarCardCustomizado({
               id: newId,
               campoBase: 'valor_total_proposta_bid_frete_internacional',
               tipoAgg: 'Soma',
-              origem: 'Cotação',
-              labelKey: card.nome,
-              descKey: 'Custom card desc',
-              descricao: 'Card customizado pelo usuário'
+              origem: 'Proposta',
+              labelKey: card.nome.trim(),
+              descKey: card.formula_expressao.trim() || card.nome.trim(),
+              descricao: card.formula_expressao.trim() || 'Card customizado pelo usuário',
+              icone: card.icone,
+              cor: card.cor,
             })
-            setCardsPref(prev => [...prev, { id: newId, visible: true }])
+            adicionarCard(newId)
             setCriandoCard(false)
           }}
         />
@@ -1903,6 +2335,12 @@ export default function Configuracoes() {
               formula_expressao: '',
               ativo: true
             }])
+            if (tipoColunaUsaCasasDecimais(col.tipo)) {
+              setPendingCasas(prev => ({
+                ...prev,
+                [newId]: PADRAO_CASAS_COLUNA_PERSONALIZADA,
+              }))
+            }
             setCriandoColuna(false)
           }}
         />

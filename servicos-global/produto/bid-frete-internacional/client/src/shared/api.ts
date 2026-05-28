@@ -4,7 +4,10 @@
  * Skill: antigravity-criar-produto (Passo 1 — shared/api.ts)
  */
 
+import { z } from 'zod'
+import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import type {
+  BidFreteInternacional,
   Cotacao,
   CotacoesListResponse,
   Fornecedor,
@@ -12,6 +15,7 @@ import type {
   DisparoCotacaoBidFreteInternacional,
   PropostaBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
+  StatusBidConfigBidFreteInternacional,
   DashboardKPIs,
   CalendarioAlerta,
   TabelaPreco,
@@ -23,28 +27,55 @@ import type {
   ContainerOption,
   IncotermOption,
   StatusCotacao,
+  CanalDisparo,
 } from './types'
 
 const API_BASE = '/api/v1'
+const LS_ORG_KEY = 'gravity:idOrganizacao'
+
+/** Organização efetiva — shell (/me) > cache local > fallback dev (espelha Pedido). */
+function resolverIdOrganizacao(): string {
+  const state = useShellStore.getState()
+  const live =
+    state.organizacaoOverride?.idOrganizacao ??
+    state.currentUser.idOrganizacao
+
+  if (live) {
+    try { localStorage.setItem(LS_ORG_KEY, live) } catch { /* ignore */ }
+    return live
+  }
+
+  try {
+    const cached = localStorage.getItem(LS_ORG_KEY)
+    if (cached) return cached
+  } catch { /* ignore */ }
+
+  return (
+    sessionStorage.getItem('gravity_id_organizacao') ||
+    import.meta.env.VITE_ID_ORGANIZACAO ||
+    import.meta.env.VITE_DEV_TENANT_ID ||
+    'org_dev_default'
+  )
+}
 
 const headers = () => {
   const customHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
     'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
+    ...injetarHeaderOverride(),
   }
 
-  const orgId =
-    sessionStorage.getItem('gravity_id_organizacao') ||
-    import.meta.env.VITE_ID_ORGANIZACAO ||
-    import.meta.env.VITE_DEV_TENANT_ID ||
-    'org_dev_default'
+  const orgId = resolverIdOrganizacao()
 
   const idWorkspace =
     sessionStorage.getItem('gravity_id_workspace') ||
     sessionStorage.getItem('gravity_company_id') ||
     ''
 
+  const shellUserId = useShellStore.getState().currentUser.id
+
   const userId =
+    shellUserId ||
     sessionStorage.getItem('gravity_id_usuario') ||
     import.meta.env.VITE_USER_ID ||
     'user_dev_default'
@@ -297,6 +328,7 @@ export interface CotacoesListParams {
   page?: number
   limit?: number
   busca?: string
+  apenas_avulsas?: boolean
 }
 
 export async function getCotacoes(params: CotacoesListParams = {}): Promise<CotacoesListResponse> {
@@ -305,6 +337,7 @@ export async function getCotacoes(params: CotacoesListParams = {}): Promise<Cota
   if (params.page) query.set('page', String(params.page))
   if (params.limit) query.set('limit', String(params.limit))
   if (params.busca) query.set('busca', params.busca)
+  if (params.apenas_avulsas) query.set('apenas_avulsas', 'true')
   const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes?${query}`, { headers: headers() })
   const data = await handleResponse<CotacoesListResponse>(res)
   return {
@@ -319,8 +352,41 @@ export async function getCotacao(id: string): Promise<Cotacao> {
   return mapCotacaoFromServer(data.cotacao)
 }
 
-export async function criarCotacao(input: Partial<Cotacao>): Promise<Cotacao> {
+function mapBidFreteInternacionalFromServer(rawUnknown: unknown): BidFreteInternacional {
+  const raw = serializeValue(rawUnknown) as Record<string, unknown>
+  const cotacoesRaw = (raw.cotacoes as unknown[] | undefined) ?? []
+  return {
+    ...(raw as unknown as BidFreteInternacional),
+    id_bid_bid_frete_internacional: (raw.id_bid_bid_frete_internacional ?? raw.id) as string,
+    cotacoes: cotacoesRaw.map(mapCotacaoFromServer),
+  }
+}
+
+export async function getBidsFreteInternacional(): Promise<BidFreteInternacional[]> {
+  const res = await fetch(`${API_BASE}/bid-frete-internacional/bids-frete-internacional`, { headers: headers() })
+  const data = await handleResponse<{ bids_frete_internacional?: unknown[]; bids?: unknown[] }>(res)
+  const lista = data.bids_frete_internacional ?? data.bids ?? []
+  return lista.map(mapBidFreteInternacionalFromServer)
+}
+
+export async function getStatusBidConfigFreteInternacional(): Promise<StatusBidConfigBidFreteInternacional[]> {
+  const res = await fetch(`${API_BASE}/bid-frete-internacional/config/status-bid-frete-internacional`, { headers: headers() })
+  const data = await handleResponse<{ status_bid_frete_internacional?: unknown[]; status?: unknown[] }>(res)
+  const lista = data.status_bid_frete_internacional ?? data.status ?? []
+  return lista as StatusBidConfigBidFreteInternacional[]
+}
+
+export interface CriarCotacaoPayload extends Partial<Cotacao> {
+  fornecedor_ids?: string[]
+  disparar_ao_criar?: boolean
+  canais_disparo?: CanalDisparo[]
+}
+
+export async function criarCotacao(input: CriarCotacaoPayload): Promise<Cotacao> {
   const serverInput = mapCotacaoToServer(input)
+  if (input.fornecedor_ids) serverInput.fornecedor_ids = input.fornecedor_ids
+  if (input.disparar_ao_criar !== undefined) serverInput.disparar_ao_criar = input.disparar_ao_criar
+  if (input.canais_disparo) serverInput.canais_disparo = input.canais_disparo
   const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes`, {
     method: 'POST',
     headers: headers(),
@@ -363,17 +429,44 @@ export async function excluirCotacao(id: string): Promise<void> {
 
 const SOLICITACAO_COTACAO_BASE = `${API_BASE}/bid-frete-internacional/solicitacao-cotacao-bid-frete-internacional`
 
+const disparoResultadoSchema = z.object({
+  disparos: z.number(),
+  enviados: z.boolean().optional(),
+  message: z.string().optional(),
+  results: z.array(z.object({
+    id_fornecedor_bid_frete_internacional: z.string(),
+    canal_disparo_cotacao_bid_frete_internacional: z.string(),
+    id_disparo_cotacao_bid_frete_internacional: z.string(),
+  })).optional(),
+})
+
+export type DisparoResultadoBidFreteInternacional = z.infer<typeof disparoResultadoSchema>
+
 export async function dispararCotacaoBidFreteInternacional(
   id_cotacao_bid_frete_internacional: string,
   fornecedor_ids: string[],
-  canais: string[],
-): Promise<unknown> {
+  canais: CanalDisparo[],
+): Promise<DisparoResultadoBidFreteInternacional> {
   const res = await fetch(`${SOLICITACAO_COTACAO_BASE}/disparar`, {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ id_cotacao_bid_frete_internacional, fornecedor_ids, canais }),
   })
-  return handleResponse(res)
+  const raw = await handleResponse<unknown>(res)
+  return disparoResultadoSchema.parse(raw)
+}
+
+export async function dispararCotacaoAbertaBidFreteInternacional(
+  id_cotacao_bid_frete_internacional: string,
+  canais: CanalDisparo[],
+): Promise<DisparoResultadoBidFreteInternacional> {
+  const res = await fetch(`${SOLICITACAO_COTACAO_BASE}/cotacao-aberta`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ id_cotacao_bid_frete_internacional, canais }),
+  })
+  const raw = await handleResponse<unknown>(res)
+  return disparoResultadoSchema.parse(raw)
 }
 
 export async function getDisparoPorCotacaoBidFreteInternacional(
@@ -451,7 +544,8 @@ export async function getFornecedor(id_fornecedor_bid_frete_internacional: strin
     { headers: headers() },
   )
   const raw = await handleResponse<unknown>(res)
-  return mapFornecedorFromServer(raw)
+  const parsed = z.object({ fornecedor: z.unknown() }).parse(raw)
+  return mapFornecedorFromServer(parsed.fornecedor)
 }
 
 export async function getTabelaPrecos(fornecedorId: string): Promise<TabelaPreco[]> {
@@ -728,5 +822,34 @@ export const dashboardApi = {
       ultima_sync: null,
     }
   }
+}
+
+const CONFIGURADOR_URL = import.meta.env.VITE_CONFIGURADOR_URL ?? ''
+
+const listarUsuariosOrganizacaoResponseSchema = z.object({
+  usuarios: z.array(z.object({
+    id_usuario: z.string(),
+    nome_usuario: z.string(),
+  })),
+})
+
+/** Lista usuários da organização (Configurador) para resolver nomes na tabela. */
+export async function listarUsuariosOrganizacao(
+  getToken: () => Promise<string | null>,
+): Promise<Array<{ id_usuario: string; nome_usuario: string }>> {
+  const token = await getToken()
+  if (!token) return []
+
+  const res = await fetch(`${CONFIGURADOR_URL}/api/v1/usuarios`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) {
+    console.warn('[listarUsuariosOrganizacao] /api/v1/usuarios retornou', res.status)
+    return []
+  }
+
+  const raw = await res.json()
+  const parsed = listarUsuariosOrganizacaoResponseSchema.parse(raw)
+  return parsed.usuarios
 }
 

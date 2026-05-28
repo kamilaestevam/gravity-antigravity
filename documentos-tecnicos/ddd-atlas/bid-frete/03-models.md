@@ -30,3 +30,16 @@
 | FreteIntBidGanhoEstimado | BidFreteInternacionalGanho | `bid_frete_internacional_ganhos` | `bid_savings` | Sim | id (CUID) | Nao | created_at | produto/bid-frete/prisma/fragment.prisma | Registro de economia (saving) por cotacao aprovada |
 | FreteIntBidIntegracoes | BidFreteInternacionalIntegracao | `bid_frete_internacional_integracoes` | `bid_connector_configs` | Sim | id (CUID) | Nao | created_at + updated_at | produto/bid-frete/prisma/fragment.prisma | Configuracao de conector externo (API armador, ERP, SAP OData) |
 | FreteIntBidPortosCadastro | BidFreteInternacionalPorto | `bid_frete_internacional_portos` | `bid_portos` | Nao (cache global) | codigo (UN/LOCODE) | Nao | Nao | produto/bid-frete/prisma/fragment.prisma | Cache de portos, aeroportos e pontos rodoviarios |
+
+## Models adicionados (2026-05-29) — entidade BID opcional
+
+| Nome DDD (PascalCase) | @@map | PK | Descricao |
+|---|---|---|---|
+| `BidFreteInternacional` | `bid_frete_internacional` | `id_bid_bid_frete_internacional` | Conjunto opcional de pedidos de cotação |
+| `StatusBidConfigBidFreteInternacional` | `status_bid_config_bid_frete_internacional` | `id_status_bid_config_bid_frete_internacional` | Status configuráveis do BID por organização |
+
+**FK:** `cotacao_bid_frete_internacional.id_bid_bid_frete_internacional` → `bid_frete_internacional` (nullable).
+
+**Proposta:** `id_workspace` snapshot; sem `id_bid`.
+
+**Hierarquia:** BID → Cotação → Disparo → Proposta.

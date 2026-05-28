@@ -82,7 +82,7 @@ module.exports = {
 
     // ── Produtos ─────────────────────────────────────────────────────────────
     svc('sc-back', 'servicos-global/produto/simula-custo', 8020, ENV_PLATAFORMA, 'server/src/index.ts'),
-    svc('bid-frete', 'servicos-global/produto/bid-frete', 8023, ENV_PLATAFORMA, 'server/src/index.ts'),
+    svc('bid-frete', 'servicos-global/produto/bid-frete-internacional', 8023, ENV_PLATAFORMA, 'server/src/index.ts'),
     svc('bid-cambio', 'servicos-global/produto/bid-cambio', 8025, ENV_PLATAFORMA, 'server/src/index.ts'),
     svc('proc-back', 'servicos-global/produto/processo', 8026, ENV_PLATAFORMA, 'server/src/index.ts'),
     svc('lpco', 'servicos-global/produto/lpco', 8027, ENV_PLATAFORMA, 'server/src/index.ts'),

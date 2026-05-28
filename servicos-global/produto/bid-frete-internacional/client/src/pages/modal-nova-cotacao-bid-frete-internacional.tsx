@@ -27,14 +27,17 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
 
-import { criarCotacao } from '../shared/api'
+import { criarCotacao, getFornecedores } from '../shared/api'
 import { rotuloContainerCadastro } from '../shared/cadastrosApi'
 import { useAeroportosPorPais, useContainersCadastros, usePaisesCadastros, usePortosPorPais } from '../shared/useCadastrosLogistica'
+import { SelecaoFornecedoresDisparo } from './selecao-fornecedores-disparo-bid-frete-internacional'
 import type {
   TipoOperacao,
   ModalFrete,
   ModalidadeCarga,
   Visibilidade,
+  CanalDisparo,
+  Fornecedor,
 } from '../shared/types'
 import {
   OPERACAO_LABELS,
@@ -1264,6 +1267,33 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const [salvando, setSalvando] = useState(false)
   const [sucesso, setSucesso] = useState(false)
   const [cotacaoId, setCotacaoId] = useState<string | null>(null)
+  const [fornecedoresAtivos, setFornecedoresAtivos] = useState<Fornecedor[]>([])
+  const [carregandoFornecedores, setCarregandoFornecedores] = useState(false)
+  const [fornecedorIdsSelecionados, setFornecedorIdsSelecionados] = useState<string[]>([])
+  const [canaisDisparo, setCanaisDisparo] = useState<CanalDisparo[]>(['EMAIL'])
+
+  useEffect(() => {
+    if (step !== 6 || form.visibilidade_cotacao_bid_frete_internacional !== 'DIRECIONADA') return
+    let cancelado = false
+    setCarregandoFornecedores(true)
+    getFornecedores({ limit: 200, status: 'ATIVO' })
+      .then(res => {
+        if (!cancelado) setFornecedoresAtivos(res.fornecedores)
+      })
+      .catch(() => {
+        if (!cancelado) setFornecedoresAtivos([])
+      })
+      .finally(() => {
+        if (!cancelado) setCarregandoFornecedores(false)
+      })
+    return () => { cancelado = true }
+  }, [step, form.visibilidade_cotacao_bid_frete_internacional])
+
+  useEffect(() => {
+    if (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
+      setFornecedorIdsSelecionados([])
+    }
+  }, [form.visibilidade_cotacao_bid_frete_internacional])
 
   const { paises: paisesCadastro, opcoes: opcoesPaises, carregando: carregandoPaises } = usePaisesCadastros()
   const paisOrigemCodigo = form.origem_pais_cotacao_bid_frete_internacional
@@ -1469,7 +1499,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         return base && form.quantidade_cotacao_bid_frete_internacional > 0
       }
       case 5: return !!form.incoterm_cotacao_bid_frete_internacional
-      case 6: return true
+      case 6:
+        if (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') return true
+        return fornecedorIdsSelecionados.length > 0
       case 7: return true
       default: return false
     }
@@ -1525,6 +1557,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           : undefined,
         moeda_meta_cotacao_bid_frete_internacional: form.moeda_meta_cotacao_bid_frete_internacional,
         data_limite_resposta_cotacao_bid_frete_internacional: form.data_limite_resposta_cotacao_bid_frete_internacional || undefined,
+        fornecedor_ids: form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA' ? fornecedorIdsSelecionados : undefined,
+        disparar_ao_criar: true,
+        canais_disparo: canaisDisparo,
       })
       setCotacaoId(cotacao.id_cotacao_bid_frete_internacional)
       setSucesso(true)
@@ -2006,6 +2041,19 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   <span className="nc-switch-slider"></span>
                 </div>
               </label>
+            </div>
+
+            <div style={{ marginTop: '2rem' }}>
+              <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.fornecedores_disparo', 'Fornecedores e envio')}</h3>
+              <SelecaoFornecedoresDisparo
+                visibilidade={form.visibilidade_cotacao_bid_frete_internacional}
+                fornecedores={fornecedoresAtivos}
+                carregando={carregandoFornecedores}
+                selecionados={fornecedorIdsSelecionados}
+                onChangeSelecionados={setFornecedorIdsSelecionados}
+                canais={canaisDisparo}
+                onChangeCanais={setCanaisDisparo}
+              />
             </div>
           </div>
         )

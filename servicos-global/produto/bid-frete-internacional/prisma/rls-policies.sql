@@ -21,6 +21,8 @@ ALTER TABLE "bid_frete_internacional_tabelas_valor"     ENABLE ROW LEVEL SECURIT
 ALTER TABLE "bid_frete_internacional_avaliacoes"        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "bid_frete_internacional_ganhos"            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "bid_frete_internacional_integracoes"       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "bid_frete_internacional"                   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "status_bid_config_bid_frete_internacional" ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================
 -- Politicas de Isolamento
@@ -53,4 +55,10 @@ CREATE POLICY tenant_isolation_policy ON "bid_frete_internacional_ganhos"
   USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
 CREATE POLICY tenant_isolation_policy ON "bid_frete_internacional_integracoes"
+  USING (id_organizacao = current_setting('app.current_tenant_id', true));
+
+CREATE POLICY tenant_isolation_policy ON "bid_frete_internacional"
+  USING (id_organizacao = current_setting('app.current_tenant_id', true));
+
+CREATE POLICY tenant_isolation_policy ON "status_bid_config_bid_frete_internacional"
   USING (id_organizacao = current_setting('app.current_tenant_id', true));

@@ -715,6 +715,15 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   margin-bottom: 0.375rem;
 }
 
+.cfg-kpi-preview-card__valor {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary, #f1f5f9);
+  line-height: 1.15;
+  margin-bottom: 0.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .cfg-kpi-preview-card__label {
   font-size: 0.6875rem;
   color: var(--text-secondary, #94a3b8);
@@ -722,6 +731,13 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100px;
+}
+
+/* Select da aba Visão Geral — 4px abaixo do tamanho padrão */
+.cfg-dashboard-kpi-select .sg-campo {
+  min-height: calc(2.5rem - 4px);
+  padding-top: calc(0.5625rem - 2px);
+  padding-bottom: calc(0.5625rem - 2px);
 }
 
 /* ── Preview modal kanban ── */

@@ -15,6 +15,14 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from '../lib/erros.js'
+import {
+  listarParceirosFreteCadastros,
+  mapCadastrosParaBidFornecedor,
+  obterParceiroFreteCadastros,
+  sincronizarFornecedorCadastros,
+  sincronizarFornecedoresCadastros,
+} from '../services/sincronizar-fornecedores-cadastros.js'
+import { prisma as basePrisma } from '../middleware/isolamento-tenant.js'
 
 const router = Router()
 
@@ -79,10 +87,61 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   }
 })
 
-// --- GET / — Listar fornecedores ---
+// --- GET / — Listar fornecedores (espelho Cadastros + dados operacionais BID) ---
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const tenantId = req.tenantId
+    let parceirosCadastros: Awaited<ReturnType<typeof listarParceirosFreteCadastros>> = []
+    if (tenantId) {
+      try {
+        parceirosCadastros = await listarParceirosFreteCadastros(tenantId)
+        try {
+          await sincronizarFornecedoresCadastros(basePrisma, tenantId)
+        } catch (syncDbErr) {
+          console.warn('[fornecedores] persistência local falhou:', syncDbErr)
+        }
+      } catch (syncErr) {
+        console.warn('[fornecedores] sync Cadastros indisponível:', syncErr)
+      }
+    }
+
     const { tipo, status, busca, page = '1', limit = '20' } = req.query as { tipo?: string; status?: string; busca?: string; page?: string; limit?: string }
+
+    if (parceirosCadastros.length > 0 && tenantId) {
+      let fornecedores = parceirosCadastros.map((p) => ({
+        ...mapCadastrosParaBidFornecedor(p),
+        id_organizacao: tenantId,
+        nome_fantasia_fornecedor_bid_frete_internacional: null,
+        website_fornecedor_bid_frete_internacional: null,
+        data_criacao_fornecedor_bid_frete_internacional: new Date().toISOString(),
+        data_atualizacao_fornecedor_bid_frete_internacional: new Date().toISOString(),
+        _count: { disparos_cotacao: 0, propostas: 0, avaliacoes: 0 },
+      }))
+
+      if (tipo) fornecedores = fornecedores.filter(f => f.tipo_fornecedor_bid_frete_internacional === tipo)
+      if (status) fornecedores = fornecedores.filter(f => f.status_fornecedor_bid_frete_internacional === status)
+      if (busca) {
+        const q = busca.toLowerCase()
+        fornecedores = fornecedores.filter(f =>
+          f.nome_fornecedor_bid_frete_internacional.toLowerCase().includes(q)
+          || f.email_fornecedor_bid_frete_internacional.toLowerCase().includes(q),
+        )
+      }
+
+      fornecedores.sort((a, b) =>
+        a.nome_fornecedor_bid_frete_internacional.localeCompare(b.nome_fornecedor_bid_frete_internacional),
+      )
+
+      const skip = (Number(page) - 1) * Number(limit)
+      const pagina = fornecedores.slice(skip, skip + Number(limit))
+      const total = fornecedores.length
+
+      return res.json({
+        fornecedores: pagina,
+        pagination: { page: Number(page), limit: Number(limit), total, pages: Math.ceil(total / Number(limit)) },
+      })
+    }
+
     const where: Record<string, unknown> = { id_produto_gravity: 'bid-frete-internacional' }
 
     if (tipo) where.tipo_fornecedor_bid_frete_internacional = tipo
@@ -119,7 +178,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 // --- GET /:id — Detalhe ---
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
+    let fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
       where: { id_fornecedor_bid_frete_internacional: req.params.id },
       include: {
         tabelas_valor: { where: { ativa_tabela_valor_bid_frete_internacional: true }, orderBy: { origem_nome_tabela_valor_bid_frete_internacional: 'asc' } },
@@ -127,6 +186,21 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
         _count: { select: { disparos_cotacao: true, propostas: true, avaliacoes: true } },
       },
     })
+
+    if (!fornecedor && req.tenantId) {
+      const parceiro = await obterParceiroFreteCadastros(req.tenantId, req.params.id)
+      if (parceiro) {
+        await sincronizarFornecedorCadastros(basePrisma, req.tenantId, parceiro)
+        fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
+          where: { id_fornecedor_bid_frete_internacional: req.params.id },
+          include: {
+            tabelas_valor: { where: { ativa_tabela_valor_bid_frete_internacional: true }, orderBy: { origem_nome_tabela_valor_bid_frete_internacional: 'asc' } },
+            avaliacoes: { orderBy: { data_criacao_avaliacao_bid_frete_internacional: 'desc' }, take: 10 },
+            _count: { select: { disparos_cotacao: true, propostas: true, avaliacoes: true } },
+          },
+        })
+      }
+    }
 
     if (!fornecedor) throw new AppError('Fornecedor nao encontrado', 404, 'NOT_FOUND')
 

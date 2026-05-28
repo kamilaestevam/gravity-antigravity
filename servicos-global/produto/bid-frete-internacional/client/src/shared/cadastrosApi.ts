@@ -1,8 +1,15 @@
 /**
  * cadastrosApi.ts — Cliente HTTP do BID Frete Internacional para Cadastros (SSOT).
- * Países, portos, aeroportos e containers: /api/v1/cadastros/*
+ * Países, portos, aeroportos, containers e parceiros COMEX.
  */
 
+import { z } from 'zod'
+import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
+import {
+  ehParceiroFreteInternacional,
+  mapParceiroCadastrosParaFornecedorBid,
+} from './map-parceiro-cadastros-fornecedor-bid'
+import type { Fornecedor } from './types'
 export interface PaisCadastro {
   id_pais: string
   codigo_pais_iso_alpha2: string
@@ -89,6 +96,97 @@ function headers(): Record<string, string> {
   customHeaders['x-id-usuario'] = userId
 
   return customHeaders
+}
+
+function resolverIdOrganizacao(): string {
+  const state = useShellStore.getState()
+  const live =
+    state.organizacaoOverride?.idOrganizacao ??
+    state.currentUser.idOrganizacao
+
+  if (live) return live
+
+  return (
+    sessionStorage.getItem('gravity_id_organizacao') ||
+    sessionStorage.getItem('gravity_tenant_id') ||
+    import.meta.env.VITE_ID_ORGANIZACAO ||
+    import.meta.env.VITE_DEV_TENANT_ID ||
+    'org_dev_default'
+  )
+}
+
+async function authHeadersCadastros(): Promise<Record<string, string>> {
+  const idOrganizacao = resolverIdOrganizacao()
+  const customHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
+    'x-id-organizacao': idOrganizacao,
+    'x-organizacao-id': idOrganizacao,
+    ...injetarHeaderOverride(),
+  }
+
+  const shellUserId = useShellStore.getState().currentUser.id
+  const userId =
+    shellUserId ||
+    sessionStorage.getItem('gravity_id_usuario') ||
+    import.meta.env.VITE_USER_ID ||
+    'user_dev_default'
+  customHeaders['x-id-usuario'] = userId
+
+  try {
+    const clerk = (window as unknown as { Clerk?: { session?: { getToken(): Promise<string | null> } } }).Clerk
+    const token = clerk?.session ? await clerk.session.getToken() : null
+    if (token) customHeaders.Authorization = `Bearer ${token}`
+  } catch {
+    /* sem token Clerk */
+  }
+
+  return customHeaders
+}
+
+const parceiroCadastrosSchema = z.object({
+  id_fornecedor: z.string(),
+  id_organizacao: z.string(),
+  nome_fornecedor: z.string(),
+  cnpj_fornecedor: z.string().nullable().optional(),
+  pais_fornecedor: z.string(),
+  cidade_fornecedor: z.string().nullable().optional(),
+  email_principal_fornecedor: z.string().nullable().optional(),
+  telefone_principal_fornecedor: z.string().nullable().optional(),
+  whatsapp_principal_fornecedor: z.string().nullable().optional(),
+  pode_ser_agente_fornecedor: z.boolean(),
+  pode_ser_armador_fornecedor: z.boolean(),
+  pode_ser_cia_aerea_fornecedor: z.boolean(),
+  pode_ser_transportadora_rodoviaria_nacional_fornecedor: z.boolean(),
+  pode_ser_transportadora_rodoviaria_internacional_fornecedor: z.boolean(),
+  ativo_fornecedor: z.boolean(),
+  criado_em_fornecedor: z.string().optional(),
+  atualizado_em_fornecedor: z.string().optional(),
+})
+
+const listaParceirosCadastrosSchema = z.object({
+  itens: z.array(parceiroCadastrosSchema),
+  total: z.number(),
+})
+
+async function requestCadastros<T>(url: string): Promise<T> {
+  const res = await fetch(url, { headers: await authHeadersCadastros() })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error((err as { error?: { message?: string } }).error?.message ?? `Erro ${res.status}`)
+  }
+  return res.json() as Promise<T>
+}
+
+/** Parceiros de frete internacional — mesma fonte do modal Empresas e Parceiros. */
+export async function listarParceirosFreteCadastros(): Promise<Fornecedor[]> {
+  const raw = await requestCadastros<unknown>(
+    '/api/v1/fornecedores?escopo=parceiros&por_pagina=200&pagina=1',
+  )
+  const parsed = listaParceirosCadastrosSchema.parse(raw)
+  return parsed.itens
+    .filter(ehParceiroFreteInternacional)
+    .map(mapParceiroCadastrosParaFornecedorBid)
 }
 
 async function request<T>(url: string): Promise<T> {

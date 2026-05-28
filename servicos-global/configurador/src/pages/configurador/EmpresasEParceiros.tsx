@@ -169,6 +169,10 @@ function StatusCell({ ativo }: { ativo: boolean }) {
 const PARAM_PARA_PAPEL: Record<string, PapelFlag> = {
   'exportador-quando-importacao': 'pode_ser_exportador',
   'importador-quando-exportacao': 'pode_ser_importador',
+  'agente-carga': 'pode_ser_agente',
+  'armador': 'pode_ser_armador',
+  'cia-aerea': 'pode_ser_cia_aerea',
+  'transportadora-internacional': 'pode_ser_transportadora_rodoviaria_internacional',
 }
 
 export function EmpresasEParceiros() {
@@ -189,6 +193,10 @@ export function EmpresasEParceiros() {
 
   // Auto-abrir modal quando deep-link de criação é detectado
   useEffect(() => {
+    if (paramCriar === 'parceiro-frete-internacional' || paramCriar === 'novo') {
+      setCriandoNova(true)
+      return
+    }
     if (paramCriar && papelInicial) {
       setCriandoNova(true)
     }

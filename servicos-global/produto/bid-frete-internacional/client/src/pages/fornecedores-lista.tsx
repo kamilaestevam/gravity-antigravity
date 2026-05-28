@@ -22,6 +22,7 @@ import {
 } from '@phosphor-icons/react'
 
 import { getFornecedores } from '../shared/api'
+import { urlCriarParceiroFreteInternacional } from '../shared/urls-deep-link-configurador'
 import type { Fornecedor, TipoFornecedor, StatusFornecedor } from '../shared/types'
 import { TIPO_FORNECEDOR_LABELS, STATUS_FORNECEDOR_LABELS } from '../shared/types'
 
@@ -110,6 +111,16 @@ export default function Fornecedores() {
   }, [])
 
   useEffect(() => { void carregar() }, [carregar])
+
+  useEffect(() => {
+    const recarregarAoVoltar = () => { void carregar() }
+    window.addEventListener('focus', recarregarAoVoltar)
+    window.addEventListener('pageshow', recarregarAoVoltar)
+    return () => {
+      window.removeEventListener('focus', recarregarAoVoltar)
+      window.removeEventListener('pageshow', recarregarAoVoltar)
+    }
+  }, [carregar])
 
   const abas: GTAbaTipo[] = useMemo(() => [
     { valor: 'TODOS', label: t('bidfrete.fornecedores.todos_status', 'Todos') },
@@ -276,7 +287,7 @@ export default function Fornecedores() {
       tamanho="pequeno"
       icone={<Plus size={14} weight="bold" />}
       onClick={() => {
-        // TODO: modal/rota de cadastro de fornecedor
+        window.location.href = urlCriarParceiroFreteInternacional()
       }}
     >
       {t('bidfrete.fornecedores.novo_fornecedor')}

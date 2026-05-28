@@ -6,15 +6,17 @@ function getCadastrosUrl(): string {
 
 function getInternalServiceKey(): string {
   const key = process.env.CHAVE_INTERNA_SERVICO
-  if (!key?.trim()) {
-    throw new Error('CHAVE_INTERNA_SERVICO ausente — BID não pode chamar Cadastros')
+  if (key?.trim()) return key
+  if (process.env.NODE_ENV !== 'production') {
+    return process.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key'
   }
-  return key
+  throw new Error('CHAVE_INTERNA_SERVICO ausente — BID não pode chamar Cadastros')
 }
 
 export async function fetchCadastrosJson<T>(
   path: string,
   query?: Record<string, string | undefined>,
+  options?: { idOrganizacao?: string },
 ): Promise<T> {
   const params = new URLSearchParams()
   if (query) {
@@ -25,13 +27,18 @@ export async function fetchCadastrosJson<T>(
   const qs = params.toString()
   const url = `${getCadastrosUrl()}${path}${qs ? `?${qs}` : ''}`
 
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'x-internal-key': getInternalServiceKey(),
+    'x-correlation-id': crypto.randomUUID(),
+  }
+  if (options?.idOrganizacao) {
+    headers['x-id-organizacao'] = options.idOrganizacao
+  }
+
   const res = await fetch(url, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-internal-key': getInternalServiceKey(),
-      'x-correlation-id': crypto.randomUUID(),
-    },
+    headers,
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   })
 

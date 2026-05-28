@@ -70,6 +70,24 @@ interface SignUpDadosConvite {
 const promessasTicketConvite = new Map<string, Promise<SignUpDadosConvite>>()
 const ticketsConviteComSucesso = new Set<string>()
 const ticketsConviteInvalidos = new Set<string>()
+/** Lock síncrono — state React não impede double-call antes do re-render. */
+const ticketsConviteEmProcessamento = new Set<string>()
+
+const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function normalizarDadosConvite(dados: SignUpDadosConvite): { email: string; nome: string } {
+  let email = (dados.emailAddress ?? '').trim()
+  let fn = (dados.firstName ?? '').trim()
+  const ln = (dados.lastName ?? '').trim()
+
+  // Clerk às vezes devolve o e-mail do convite em firstName, não em emailAddress.
+  if (!email && REGEX_EMAIL.test(fn)) {
+    email = fn
+    fn = ''
+  }
+
+  return { email, nome: [fn, ln].filter(Boolean).join(' ') }
+}
 
 function chaveCacheConvite(ticket: string): string {
   return `gravity:convite:${ticket.slice(0, 64)}`
@@ -109,11 +127,28 @@ function preencherFormularioDoConvite(
   setEmailConvite: (v: string) => void,
   setNome: (v: string) => void,
 ) {
-  if (dados.emailAddress) setEmailConvite(dados.emailAddress)
-  const fn = (dados.firstName ?? '').trim()
-  const ln = (dados.lastName ?? '').trim()
-  const completo = [fn, ln].filter(Boolean).join(' ')
-  if (completo) setNome(completo)
+  const { email, nome } = normalizarDadosConvite(dados)
+  if (email) setEmailConvite(email)
+  if (nome) setNome(nome)
+}
+
+function mesclarDadosSignUp(
+  resultado: SignUpDadosConvite,
+  signUpAtual: SignUpDadosConvite | null | undefined,
+): SignUpDadosConvite {
+  return {
+    emailAddress: resultado.emailAddress ?? signUpAtual?.emailAddress,
+    firstName: resultado.firstName ?? signUpAtual?.firstName,
+    lastName: resultado.lastName ?? signUpAtual?.lastName,
+  }
+}
+
+function conviteJaProcessadoComDados(ticket: string, signUpAtual: SignUpDadosConvite | null | undefined): boolean {
+  if (ticketsConviteComSucesso.has(ticket)) return true
+  const cache = lerCacheConvite(ticket)
+  if (cache?.email) return true
+  const { email } = normalizarDadosConvite(signUpAtual ?? {})
+  return !!email
 }
 
 function processarTicketConvite(
@@ -123,25 +158,34 @@ function processarTicketConvite(
   if (ticketsConviteInvalidos.has(ticket)) {
     return Promise.reject(new Error('ticket is invalid'))
   }
-  if (ticketsConviteComSucesso.has(ticket) && signUp.emailAddress) {
-    return Promise.resolve(signUp)
-  }
 
   const emCache = promessasTicketConvite.get(ticket)
   if (emCache) return emCache
 
-  if (signUp.emailAddress) {
+  const { email: emailExistente } = normalizarDadosConvite(signUp)
+  if (ticketsConviteComSucesso.has(ticket) && emailExistente) {
+    const resolvida = Promise.resolve(signUp)
+    promessasTicketConvite.set(ticket, resolvida)
+    return resolvida
+  }
+
+  if (emailExistente) {
     const resolvida = Promise.resolve(signUp)
     promessasTicketConvite.set(ticket, resolvida)
     ticketsConviteComSucesso.add(ticket)
     return resolvida
   }
 
+  if (ticketsConviteEmProcessamento.has(ticket)) {
+    return promessasTicketConvite.get(ticket) ?? Promise.reject(new Error('ticket is processing'))
+  }
+
+  ticketsConviteEmProcessamento.add(ticket)
   const promessa = signUp
     .create({ strategy: 'ticket', ticket })
     .then((resultado) => {
       ticketsConviteComSucesso.add(ticket)
-      return resultado
+      return mesclarDadosSignUp(resultado, signUp)
     })
     .catch((err: unknown) => {
       if (ticketInvalido(err)) {
@@ -151,6 +195,10 @@ function processarTicketConvite(
       }
       throw err
     })
+    .finally(() => {
+      ticketsConviteEmProcessamento.delete(ticket)
+    })
+
   promessasTicketConvite.set(ticket, promessa)
   return promessa
 }
@@ -199,31 +247,47 @@ export function CadastroContinuarPage() {
 
   const signUpRef = useRef(signUp)
   signUpRef.current = signUp
+  const processamentoTicketRef = useRef<string | null>(null)
 
   const aplicarDadosConvite = useCallback((dados: SignUpDadosConvite, ticketAtual?: string) => {
     preencherFormularioDoConvite(dados, setEmailConvite, setNome)
-    if (ticketAtual && dados.emailAddress) {
-      const fn = (dados.firstName ?? '').trim()
-      const ln = (dados.lastName ?? '').trim()
-      gravarCacheConvite(ticketAtual, dados.emailAddress, [fn, ln].filter(Boolean).join(' '))
+    const { email, nome } = normalizarDadosConvite(dados)
+    if (ticketAtual && email) {
+      gravarCacheConvite(ticketAtual, email, nome)
     }
     setErro(null)
   }, [])
 
   const executarProcessamentoTicket = useCallback(async (ticketAtual: string) => {
     const signUpAtual = signUpRef.current
-    if (!signUpAtual || processandoTicket) return
+    if (!signUpAtual) return
 
+    if (conviteJaProcessadoComDados(ticketAtual, signUpAtual)) {
+      const cache = lerCacheConvite(ticketAtual)
+      if (cache) {
+        setEmailConvite(cache.email)
+        if (cache.nome) setNome(cache.nome)
+      } else {
+        aplicarDadosConvite(mesclarDadosSignUp(signUpAtual, signUpAtual), ticketAtual)
+      }
+      setConviteConfirmado(true)
+      setErro(null)
+      return
+    }
+
+    if (processamentoTicketRef.current === ticketAtual) return
+
+    processamentoTicketRef.current = ticketAtual
     setProcessandoTicket(true)
     setErro(null)
     try {
       const resultado = await processarTicketConvite(signUpAtual, ticketAtual)
-      aplicarDadosConvite(resultado, ticketAtual)
+      aplicarDadosConvite(mesclarDadosSignUp(resultado, signUpRef.current), ticketAtual)
       setConviteConfirmado(true)
     } catch (err) {
       const signUpPosFalha = signUpRef.current
-      if (signUpPosFalha?.emailAddress) {
-        aplicarDadosConvite(signUpPosFalha, ticketAtual)
+      if (conviteJaProcessadoComDados(ticketAtual, signUpPosFalha)) {
+        aplicarDadosConvite(mesclarDadosSignUp(signUpPosFalha ?? {}, signUpPosFalha), ticketAtual)
         setConviteConfirmado(true)
         return
       }
@@ -234,9 +298,12 @@ export function CadastroContinuarPage() {
       })
       setErro(traduzirErroTicket(err))
     } finally {
+      if (processamentoTicketRef.current === ticketAtual) {
+        processamentoTicketRef.current = null
+      }
       setProcessandoTicket(false)
     }
-  }, [aplicarDadosConvite, processandoTicket])
+  }, [aplicarDadosConvite])
 
   // ─── Detecção de fluxo ────────────────────────────────────────────────────
   // Dois caminhos chegam nesta tela:
@@ -268,6 +335,16 @@ export function CadastroContinuarPage() {
     }
   }, [isLoaded, ticket, aplicarDadosConvite])
 
+  // Autofill do browser às vezes joga o e-mail do convite no campo Nome.
+  useEffect(() => {
+    if (!isInvitation || emailConvite) return
+    const candidato = nome.trim()
+    if (REGEX_EMAIL.test(candidato)) {
+      setEmailConvite(candidato)
+      setNome('')
+    }
+  }, [isInvitation, emailConvite, nome])
+
   // ─── Pré-popula do OAuth (Google → missing fields) ────────────────────────
   // Sem ticket, mas o Clerk já tem signUp ativo com email/nome do Google.
   useEffect(() => {
@@ -284,7 +361,11 @@ export function CadastroContinuarPage() {
   const senhasConferem = senha.length > 0 && senha === confirmacao
 
   const requisitos: RequisitoSenha[] = [
-    { chave: 'nome', ok: nome.trim().length >= 2, mensagem: 'Nome completo (mínimo 2 caracteres)' },
+    {
+      chave: 'nome',
+      ok: nome.trim().length >= 2 && !REGEX_EMAIL.test(nome.trim()),
+      mensagem: 'Nome completo (mínimo 2 caracteres)',
+    },
     ...requisitosSenha,
     { chave: 'confirma', ok: senhasConferem, mensagem: 'A confirmação de senha confere' },
     { chave: 'termos',   ok: aceiteTermos,   mensagem: 'Aceite dos Termos de Uso e Política de Privacidade' },
@@ -306,14 +387,18 @@ export function CadastroContinuarPage() {
     if (isInvitation && !emailConvite && ticket) {
       await executarProcessamentoTicket(ticket)
       const cachePosProcesso = lerCacheConvite(ticket)
-      if (!signUpRef.current?.emailAddress && !cachePosProcesso?.email) return
+      const emailPosProcesso = cachePosProcesso?.email
+        ?? normalizarDadosConvite(signUpRef.current ?? {}).email
+      if (!emailPosProcesso) return
     }
 
     setEnviando(true)
     setErro(null)
     try {
-      // Atualiza signUp com nome + senha. emailAddress já veio do ticket.
-      const [firstName = '', ...resto] = nome.trim().split(' ')
+      const nomeParaCadastro = REGEX_EMAIL.test(nome.trim())
+        ? ''
+        : nome.trim()
+      const [firstName = '', ...resto] = nomeParaCadastro.split(' ')
       const lastName = resto.join(' ')
       const resultado = await signUp.update({
         firstName,

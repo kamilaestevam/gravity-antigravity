@@ -1,6 +1,6 @@
 import React from 'react'
 import { Routes, Route, useNavigate, useParams, Navigate, useLocation, useSearchParams } from 'react-router-dom'
-import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser, AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
+import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser } from '@clerk/clerk-react'
 import { useCarregarTipoUsuario } from './hooks/use-carregar-tipo-usuario'
 import { ConfiguradorRoute } from './routing/guards'
 import { NavigateComPrefixo } from './routing/NavigateComPrefixo'
@@ -10,6 +10,7 @@ import { ROTAS as ROTAS_POS_AUTH } from './routing/destino-pos-autenticacao'
 import { useServerHealth } from './hooks/use-server-health'
 import { AutenticacaoPage } from './pages/AutenticacaoPage'
 import { CadastroContinuarPage } from './pages/CadastroContinuarPage'
+import { SsoCallbackPage } from './pages/SsoCallbackPage'
 import { RecuperarSenhaRedefinirPage } from './pages/RecuperarSenhaRedefinirPage'
 
 // Harness E2E — dev-only, sem auth (import.meta.env.DEV === false em produção)
@@ -319,9 +320,11 @@ export default function App() {
         {/* Tela de login — clientes existentes */}
         <Route path="/" element={<RootRedirect />} />
         {/* /login/sso-callback — intercepta retorno do OAuth (Google) do form custom de SignIn.
-            DEVE preceder o catch-all /login/* para nao ser engolida pela AutenticacaoPage. */}
+            DEVE preceder o catch-all /login/* para nao ser engolida pela AutenticacaoPage.
+            continueSignUpUrl: login com Google pode virar sign-up (conta nova / senha obrigatoria). */}
         <Route path="/login/sso-callback" element={
-          <AuthenticateWithRedirectCallback
+          <SsoCallbackPage
+            continueSignUpUrl="/cadastro/continuar"
             signInFallbackRedirectUrl="/hub"
             signUpFallbackRedirectUrl="/trial"
           />
@@ -334,7 +337,7 @@ export default function App() {
             hospedado em *.accounts.dev (tela branca). continueSignUpUrl manda o usuario para
             a CadastroContinuarPage Gravity-styled quando faltam campos (ex: senha pos-Google). */}
         <Route path="/cadastro/sso-callback" element={
-          <AuthenticateWithRedirectCallback
+          <SsoCallbackPage
             continueSignUpUrl="/cadastro/continuar"
             signUpFallbackRedirectUrl="/trial"
             signInFallbackRedirectUrl="/hub"

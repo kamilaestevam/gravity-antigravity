@@ -122,18 +122,18 @@ jobs:
       # Valores de teste — não são segredos reais
       NODE_ENV: test
       CHAVE_INTERNA_SERVICO: ci-test-internal-key
-      CLERK_SECRET_KEY: sk_test_placeholder
-      CLERK_PUBLISHABLE_KEY: pk_test_placeholder
-      STRIPE_SECRET_KEY: sk_test_placeholder
-      STRIPE_WEBHOOK_SECRET: whsec_placeholder
-      CONFIGURADOR_DATABASE_URL: postgresql://test:test@localhost:5432/configurador_test
-      ORGANIZACAO_DATABASE_URL: postgresql://test:test@localhost:5432/organizacao_test
-      SIMULACUSTO_DATABASE_URL: postgresql://test:test@localhost:5432/simulacusto_test
-      RESEND_API_KEY: re_placeholder
-      WHATSAPP_ACCESS_TOKEN: wa_placeholder
+      CLERK_SECRET_KEY: ci_clerk_placeholder
+      CLERK_PUBLISHABLE_KEY: ci_clerk_publishable_placeholder
+      STRIPE_SECRET_KEY: ci_stripe_placeholder
+      STRIPE_WEBHOOK_SECRET: ci_stripe_webhook_placeholder
+      CONFIGURADOR_DATABASE_URL: postgresql://localhost:5432/configurador_test
+      ORGANIZACAO_DATABASE_URL: postgresql://localhost:5432/organizacao_test
+      SIMULACUSTO_DATABASE_URL: postgresql://localhost:5432/simulacusto_test
+      RESEND_API_KEY: ci_resend_placeholder
+      WHATSAPP_ACCESS_TOKEN: ci_whatsapp_placeholder
       WHATSAPP_PHONE_NUMBER_ID: "000000000000"
-      WHATSAPP_WEBHOOK_VERIFY_TOKEN: verify_placeholder
-      OPENAI_API_KEY: sk-placeholder
+      WHATSAPP_WEBHOOK_VERIFY_TOKEN: ci_whatsapp_verify_placeholder
+      OPENAI_API_KEY: ci_openai_placeholder
       SENTRY_DSN: ""
 
     steps:
@@ -149,9 +149,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run all tests
-        run: npx vitest run --reporter=verbose
-        timeout-minutes: 10
+      - name: Run tests (deploy gate)
+        run: npx tsx scripts/ativamente/run-vitest-ci.ts --deploy-gate
+        timeout-minutes: 15
 
   # ─────────────────────────────────────────────
   # JOB 3 — Build (serviços com script "build")

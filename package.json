@@ -61,6 +61,8 @@
     "translate": "npx tsx scripts/ativamente/translate.ts",
     "translate:check": "npx tsx scripts/ativamente/translate.ts --dry-run",
     "test": "vitest run --config testes/testes-unitarios/i18n/vitest.config.ts",
+    "test:deploy-gate": "tsx scripts/ativamente/run-vitest-ci.ts --deploy-gate",
+    "test:all-suites": "tsx scripts/ativamente/run-vitest-ci.ts",
     "test:e2e": "playwright test --project=i18n",
     "test:all": "vitest run --config testes/testes-unitarios/i18n/vitest.config.ts && playwright test --project=i18n",
     "validate:test-ids": "npx tsx scripts/ativamente/validate-test-ids.ts",

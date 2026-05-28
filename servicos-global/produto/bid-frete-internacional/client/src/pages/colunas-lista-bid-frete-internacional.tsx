@@ -5,6 +5,11 @@ import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga,
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS } from '../shared/types'
 import type { LinhaPaiLista } from './lista-bid-frete-internacional-utils'
 import { isLinhaBidGrupo } from './lista-bid-frete-internacional-utils'
+import {
+  carregarCasasDecimaisBidFrete,
+  STORAGE_KEY_CASAS_BID_FRETE,
+  SYNC_EVENT_CASAS_BID_FRETE,
+} from '../shared/casas-config-bid-frete'
 
 // ─── Badge de status ───
 const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
@@ -117,9 +122,29 @@ export const fmtQuantidade = (v: number | null | undefined, casas = 2): string =
   return v.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })
 }
 
-export const getCasas = (v: number): number => {
-  if (Math.floor(v) === v) return 0
-  return 2
+let _casasRaw: string | null | undefined
+let _casasParsed: Record<string, number> = {}
+
+function invalidarCacheCasasDecimais(): void {
+  _casasRaw = undefined
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener(SYNC_EVENT_CASAS_BID_FRETE, invalidarCacheCasasDecimais)
+}
+
+export function lerCasasDecimaisConfig(): Record<string, number> {
+  const raw = localStorage.getItem(STORAGE_KEY_CASAS_BID_FRETE)
+  if (raw !== _casasRaw) {
+    _casasRaw = raw
+    _casasParsed = carregarCasasDecimaisBidFrete()
+  }
+  return _casasParsed
+}
+
+/** Casas decimais configuráveis em Configurações → Colunas → Casas Decimais. */
+export function getCasas(campo: string, padrao: number): number {
+  return lerCasasDecimaisConfig()[campo] ?? padrao
 }
 
 function renderTexto(val: unknown): React.ReactNode {
@@ -471,14 +496,14 @@ export function buildColunasCotacoes(
       label: 'Peso (kg)',
       tipo: 'numero',
       align: 'right',
-      render: (val: unknown) => renderNumero(val, 0),
+      render: (val: unknown) => renderNumero(val, getCasas('peso_kg_cotacao_bid_frete_internacional', 2)),
     },
     {
       key: 'cubagem_m3_cotacao_bid_frete_internacional',
       label: 'Volume (m³)',
       tipo: 'numero',
       align: 'right',
-      render: (val: unknown) => renderNumero(val, 2),
+      render: (val: unknown) => renderNumero(val, getCasas('cubagem_m3_cotacao_bid_frete_internacional', 3)),
     },
     {
       key: 'incoterm_cotacao_bid_frete_internacional',
@@ -565,14 +590,20 @@ export function buildColunasCotacoes(
       label: 'Ganho estimado',
       tipo: 'numero',
       align: 'right',
-      render: (val: unknown) => val != null ? `USD ${fmtQuantidade(val as number, 2)}` : '—',
+      render: (val: unknown) =>
+        val != null
+          ? `USD ${fmtQuantidade(val as number, getCasas('ganho_valor_cotacao_bid_frete_internacional', 2))}`
+          : '—',
     },
     {
       key: 'ganho_percentual_cotacao_bid_frete_internacional',
       label: 'Ganho (%)',
       tipo: 'numero',
       align: 'right',
-      render: (val: unknown) => val != null ? `${fmtQuantidade(val as number, 2)}%` : '—',
+      render: (val: unknown) =>
+        val != null
+          ? `${fmtQuantidade(val as number, getCasas('ganho_percentual_cotacao_bid_frete_internacional', 2))}%`
+          : '—',
     },
   ]
 }

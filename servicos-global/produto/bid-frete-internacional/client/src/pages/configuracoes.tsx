@@ -42,6 +42,14 @@ import {
   type TabelaConfigBidFrete,
 } from '../shared/tabela-config-bid-frete'
 import {
+  carregarCasasDecimaisBidFrete,
+  COLUNAS_NUMERICAS_BID_FRETE,
+  GRUPOS_CASAS_DECIMAIS_BID_FRETE,
+  PADRAO_CASAS_COLUNA_PERSONALIZADA,
+  salvarCasasDecimaisBidFrete,
+  tipoColunaUsaCasasDecimais,
+} from '../shared/casas-config-bid-frete'
+import {
   CARD_PERIODOS as PERIODOS,
   registrarCardCustomizado,
   useCardPreferencesBidFrete,
@@ -201,13 +209,12 @@ const SIDEBAR_ITEMS = [
   { tipo: 'item',   id: 'exportacao',            label: 'Exportação',        labelKey: 'bidfrete.config.sidebar.exportacao',        icone: <DownloadSimple size={15} weight="duotone" />, ativo: true },
 ]
 
-const COLUNAS_NUMERICAS_NATIVAS = [
-  { campo: 'valor_frete_proposta_bid_frete_internacional',         label: 'Valor do Frete',         categoria: 'Frete', padrao: 2 },
-  { campo: 'taxas_origem_proposta_bid_frete_internacional',        label: 'Taxas de Origem',        categoria: 'Frete', padrao: 2 },
-  { campo: 'taxas_destino_proposta_bid_frete_internacional',       label: 'Taxas de Destino',       categoria: 'Frete', padrao: 2 },
-  { campo: 'peso_kg_cotacao_bid_frete_internacional',             label: 'Peso da Mercadoria (KG)',categoria: 'Mercadoria', padrao: 2 },
-  { campo: 'cubagem_m3_cotacao_bid_frete_internacional',          label: 'Cubagem (M3)',           categoria: 'Mercadoria', padrao: 3 },
-]
+const COLUNAS_FILHOS = [
+  'colunas-casas-decimais',
+  'colunas-formato-data',
+  'colunas-personalizadas',
+  'colunas-campos-calculados',
+] as const
 
 const TIPOS_COLUNA = [
   { id: 'texto',          label: 'Texto',         icone: <TextT size={16} weight="duotone" /> },
@@ -751,7 +758,7 @@ export default function Configuracoes() {
   const tabParam = searchParams.get('tab') as string | null
   const [categoria, setCategoria] = useState<string>(tabParam ?? 'cards')
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    'colunas-casas-decimais': ['colunas-casas-decimais', 'colunas-formato-data', 'colunas-personalizadas', 'colunas-campos-calculados'].includes(tabParam ?? ''),
+    'colunas-casas-decimais': COLUNAS_FILHOS.includes(tabParam as typeof COLUNAS_FILHOS[number]),
     'kanban': ['kanban-colunas', 'kanban-card', 'kanban-modal'].includes(tabParam ?? ''),
   })
 
@@ -812,19 +819,55 @@ export default function Configuracoes() {
     setTabelaConfig({ ...DEFAULT_TABELA_CONFIG_BID_FRETE })
   }, [])
 
-  const [casasDecimais, setCasasDecimais] = useConfigState<Record<string, number>>('casas-decimais', {
-    valor_frete_proposta_bid_frete_internacional: 2,
-    taxas_origem_proposta_bid_frete_internacional: 2,
-    taxas_destino_proposta_bid_frete_internacional: 2,
-    peso_kg_cotacao_bid_frete_internacional: 2,
-    cubagem_m3_cotacao_bid_frete_internacional: 3,
-  })
-
-  const [formatoData, setFormatoData] = useConfigState<string>('formato-data', 'DD/MM/AAAA')
-
   const [colunasPersonalizadas, setColunasPersonalizadas] = useConfigState<ColunaUsuario[]>('colunas-personalizadas', [
     { id: 'col_margem', chave: 'margem', nome: 'Margem Comercial', tipo: 'numero', escopo: 'pedido', visibilidade_cotacao_bid_frete_internacional: 'todos', obrigatorio: false, valor_padrao: '', descricao: 'Margem do frete', opcoes: [], formula_expressao: '', ativo: true }
   ])
+
+  const [casasDecimaisSalvas, setCasasDecimaisSalvas] = useState<Record<string, number>>(() => carregarCasasDecimaisBidFrete())
+  const [pendingCasas, setPendingCasas] = useState<Record<string, number>>(() => carregarCasasDecimaisBidFrete())
+  const casasDirty = JSON.stringify(pendingCasas) !== JSON.stringify(casasDecimaisSalvas)
+
+  const colunasNumericasPersonalizadas = useMemo(
+    () => colunasPersonalizadas.filter(col => tipoColunaUsaCasasDecimais(col.tipo)),
+    [colunasPersonalizadas],
+  )
+
+  useEffect(() => {
+    setPendingCasas(prev => {
+      let next: Record<string, number> | null = null
+      for (const col of colunasNumericasPersonalizadas) {
+        if (prev[col.id] === undefined) {
+          if (!next) next = { ...prev }
+          next[col.id] = PADRAO_CASAS_COLUNA_PERSONALIZADA
+        }
+      }
+      return next ?? prev
+    })
+  }, [colunasNumericasPersonalizadas])
+
+  const handleCasasDecimaisChange = useCallback((campo: string, valor: number) => {
+    setPendingCasas(prev => ({ ...prev, [campo]: valor }))
+  }, [])
+
+  const salvarCasasDecimaisConfig = useCallback(() => {
+    const payload: Record<string, number> = {}
+    for (const col of COLUNAS_NUMERICAS_BID_FRETE) {
+      payload[col.campo] = pendingCasas[col.campo] ?? col.padrao
+    }
+    for (const col of colunasNumericasPersonalizadas) {
+      payload[col.id] = pendingCasas[col.id] ?? PADRAO_CASAS_COLUNA_PERSONALIZADA
+    }
+    salvarCasasDecimaisBidFrete(payload)
+    setCasasDecimaisSalvas(payload)
+    setPendingCasas(payload)
+    addNotification({ type: 'success', message: 'Casas decimais salvas com sucesso!' })
+  }, [pendingCasas, colunasNumericasPersonalizadas, addNotification])
+
+  const restaurarCasasDecimaisConfig = useCallback(() => {
+    setPendingCasas(casasDecimaisSalvas)
+  }, [casasDecimaisSalvas])
+
+  const [formatoData, setFormatoData] = useConfigState<string>('formato-data', 'DD/MM/AAAA')
 
   const [saldoTokens, setSaldoTokens] = useConfigState<SaldoToken[]>('campos-calculados', [
     { tipo: 'campo', chave: 'valor_frete_proposta_bid_frete_internacional', label: 'Valor do Frete' },
@@ -1235,38 +1278,117 @@ export default function Configuracoes() {
           </div>
         )}
 
-        {/* ── CATEGORIA: COLUNAS - CASAS DECIMAIS ── */}
+        {/* ── COLUNAS (padrão Pedido) ── */}
+        {COLUNAS_FILHOS.includes(categoria as typeof COLUNAS_FILHOS[number]) && (
+          <div className="cfg-cards-wrapper">
+
         {categoria === 'colunas-casas-decimais' && (
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Casas Decimais</h2>
-                <p className="cfg-secao__desc">Configure as precisões numéricas de moedas, pesos e medidas em listas e visualizações do BID Frete.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.config.colunas.casas_decimais.titulo', 'Casas decimais por coluna')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.config.colunas.casas_decimais.descricao', 'Define quantas casas decimais são exibidas em colunas numéricas. Padrão: 2.')}
+                </p>
               </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {COLUNAS_NUMERICAS_NATIVAS.map(item => (
-                <div key={item.campo} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{item.label}</span>
-                    <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Categoria: {item.categoria}</p>
-                  </div>
-                  <select
-                    value={casasDecimais[item.campo] ?? item.padrao}
-                    onChange={e => setCasasDecimais(prev => ({ ...prev, [item.campo]: Number(e.target.value) }))}
-                    style={{ padding: '4px 10px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }}
-                  >
-                    {[0, 1, 2, 3, 4].map(v => (
-                      <option key={v} value={v}>{v} casas</option>
-                    ))}
-                  </select>
-                </div>
+
+            <div className="cfg-colunas-lista">
+              {GRUPOS_CASAS_DECIMAIS_BID_FRETE.map(grupo => (
+                <React.Fragment key={grupo}>
+                  <ConfiguracaoSecaoGlobal label={grupo.toUpperCase()} />
+                  {COLUNAS_NUMERICAS_BID_FRETE.filter(col => col.categoria === grupo).map(col => {
+                    const val = pendingCasas[col.campo] ?? col.padrao
+                    return (
+                      <div key={col.campo} className="cfg-coluna-row">
+                        <div className="cfg-coluna-row__info">
+                          <span className="cfg-coluna-row__label">{col.label}</span>
+                          {col.itemHint && (
+                            <span className="cfg-coluna-row__hint">{col.itemHint}</span>
+                          )}
+                        </div>
+                        <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.label}`}>
+                          <button
+                            type="button"
+                            className="cfg-casas-stepper__btn"
+                            disabled={val <= 0}
+                            onClick={() => handleCasasDecimaisChange(col.campo, val - 1)}
+                            aria-label="Diminuir casas decimais"
+                          >
+                            −
+                          </button>
+                          <span className="cfg-casas-stepper__value">{val}</span>
+                          <button
+                            type="button"
+                            className="cfg-casas-stepper__btn"
+                            disabled={val >= 8}
+                            onClick={() => handleCasasDecimaisChange(col.campo, val + 1)}
+                            aria-label="Aumentar casas decimais"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </React.Fragment>
               ))}
+
+              {colunasNumericasPersonalizadas.length > 0 && (
+                <>
+                  <ConfiguracaoSecaoGlobal
+                    label={t('bidfrete.config.colunas.casas_decimais.grupo_personalizadas', 'Personalizadas')}
+                  />
+                  {colunasNumericasPersonalizadas.map(col => {
+                    const val = pendingCasas[col.id] ?? PADRAO_CASAS_COLUNA_PERSONALIZADA
+                    return (
+                      <div key={col.id} className="cfg-coluna-row">
+                        <span className="cfg-coluna-row__label">{col.nome}</span>
+                        <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.nome}`}>
+                          <button
+                            type="button"
+                            className="cfg-casas-stepper__btn"
+                            disabled={val <= 0}
+                            onClick={() => handleCasasDecimaisChange(col.id, val - 1)}
+                            aria-label="Diminuir casas decimais"
+                          >
+                            −
+                          </button>
+                          <span className="cfg-casas-stepper__value">{val}</span>
+                          <button
+                            type="button"
+                            className="cfg-casas-stepper__btn"
+                            disabled={val >= 8}
+                            onClick={() => handleCasasDecimaisChange(col.id, val + 1)}
+                            aria-label="Aumentar casas decimais"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </>
+              )}
+            </div>
+
+            <div className="cfg-secao__footer">
+              <BotaoCancelar
+                dirty={casasDirty}
+                rotulo={t('bidfrete.config.acao.descartar', 'Descartar')}
+                onClick={restaurarCasasDecimaisConfig}
+              />
+              <BotaoSalvar
+                dirty={casasDirty}
+                rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
+                onClick={salvarCasasDecimaisConfig}
+              />
             </div>
           </section>
         )}
 
-        {/* ── CATEGORIA: COLUNAS - FORMATO DATA ── */}
         {categoria === 'colunas-formato-data' && (
           <section className="cfg-secao">
             <div className="cfg-secao__header">
@@ -1290,7 +1412,6 @@ export default function Configuracoes() {
           </section>
         )}
 
-        {/* ── CATEGORIA: COLUNAS - PERSONALIZADAS ── */}
         {categoria === 'colunas-personalizadas' && (
           <section className="cfg-secao">
             <div className="cfg-secao__header">
@@ -1340,7 +1461,6 @@ export default function Configuracoes() {
           </section>
         )}
 
-        {/* ── CATEGORIA: COLUNAS - CAMPOS CALCULADOS ── */}
         {categoria === 'colunas-campos-calculados' && (
           <section className="cfg-secao">
             <div className="cfg-secao__header">
@@ -1386,6 +1506,9 @@ export default function Configuracoes() {
               </div>
             </div>
           </section>
+        )}
+
+          </div>
         )}
 
         {/* ── CATEGORIA: KANBAN COLUNAS ── */}
@@ -1990,6 +2113,12 @@ export default function Configuracoes() {
               formula_expressao: '',
               ativo: true
             }])
+            if (tipoColunaUsaCasasDecimais(col.tipo)) {
+              setPendingCasas(prev => ({
+                ...prev,
+                [newId]: PADRAO_CASAS_COLUNA_PERSONALIZADA,
+              }))
+            }
             setCriandoColuna(false)
           }}
         />

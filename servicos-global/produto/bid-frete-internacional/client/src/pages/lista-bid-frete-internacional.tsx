@@ -52,6 +52,7 @@ import {
   HORAS_LIMITE_DESTAQUE_EXPIRACAO,
   SYNC_EVENT_TABELA_BID_FRETE,
 } from '../shared/tabela-config-bid-frete'
+import { SYNC_EVENT_CASAS_BID_FRETE } from '../shared/casas-config-bid-frete'
 import { listarCardsCatalogo, useCardPreferencesBidFrete } from '../shared/use-card-preferences'
 import {
   buildColunasPaiLista,
@@ -63,7 +64,6 @@ import {
   formatValorExportColuna,
   fmtData,
   fmtQuantidade,
-  getCasas,
   RenderBadgeStatus,
   RenderModalIcon,
 } from './colunas-lista-bid-frete-internacional'
@@ -272,6 +272,7 @@ export default function Cotacoes() {
 
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
   const [carregando, setCarregando] = useState(true)
+  const [erroCarregar, setErroCarregar] = useState<string | null>(null)
   const [busca, setBusca] = useState('')
 
   const visaoParam = searchParams.get('visao')
@@ -319,6 +320,7 @@ export default function Cotacoes() {
 
   const [tabelaConfig, setTabelaConfig] = useState(carregarTabelaConfigBidFrete)
   const [paginaLista, setPaginaLista] = useState(1)
+  const [casasVersion, setCasasVersion] = useState(0)
 
   useEffect(() => {
     function syncTabelaConfig() {
@@ -331,6 +333,16 @@ export default function Cotacoes() {
       window.removeEventListener(SYNC_EVENT_TABELA_BID_FRETE, syncTabelaConfig)
       window.removeEventListener('storage', syncTabelaConfig)
       window.removeEventListener('focus', syncTabelaConfig)
+    }
+  }, [])
+
+  useEffect(() => {
+    const syncCasas = () => setCasasVersion(v => v + 1)
+    window.addEventListener(SYNC_EVENT_CASAS_BID_FRETE, syncCasas)
+    window.addEventListener('storage', syncCasas)
+    return () => {
+      window.removeEventListener(SYNC_EVENT_CASAS_BID_FRETE, syncCasas)
+      window.removeEventListener('storage', syncCasas)
     }
   }, [])
 
@@ -355,11 +367,13 @@ export default function Cotacoes() {
   // Carregar dados de cotações
   const carregar = useCallback(async () => {
     setCarregando(true)
+    setErroCarregar(null)
     try {
       const res = await getCotacoes({ limit: COTACOES_LIMIT_LISTA })
       setCotacoes(res.cotacoes)
-    } catch {
+    } catch (e: unknown) {
       setCotacoes([])
+      setErroCarregar(e instanceof Error ? e.message : 'Erro ao carregar cotações')
     } finally {
       setCarregando(false)
     }
@@ -395,15 +409,15 @@ export default function Cotacoes() {
 
   const colunasTabela = useMemo(
     () => buildColunasPaiLista(t, opcoesColunasLista, abrirDetalheCotacao),
-    [t, opcoesColunasLista, abrirDetalheCotacao],
+    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion],
   )
   const mapaColunasFilho = useMemo(
     () => buildMapaColunasFilho(t, opcoesColunasLista, abrirDetalheCotacao),
-    [t, opcoesColunasLista, abrirDetalheCotacao],
+    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion],
   )
   const colunasFilhoExport = useMemo(
     () => buildColunasCotacoes(t, opcoesColunasLista, abrirDetalheCotacao),
-    [t, opcoesColunasLista, abrirDetalheCotacao],
+    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion],
   )
 
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown) => {
@@ -933,6 +947,29 @@ export default function Cotacoes() {
       {/* Conteúdo da Visão */}
       {visao === 'lista' ? (
         <div className="bf-table-section">
+          {erroCarregar && (
+            <div
+              role="alert"
+              style={{
+                marginBottom: '1rem',
+                padding: '0.75rem 1rem',
+                borderRadius: '8px',
+                background: 'rgba(239,68,68,0.12)',
+                border: '1px solid rgba(239,68,68,0.35)',
+                color: 'var(--text-primary, #f1f5f9)',
+                fontSize: '0.875rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '1rem',
+              }}
+            >
+              <span>{erroCarregar}</span>
+              <button type="button" className="dc-btn dc-btn--secondary" onClick={() => void carregar()}>
+                {t('comum.tentar_novamente', 'Tentar novamente')}
+              </button>
+            </div>
+          )}
           <TabelaVirtualGlobal<LinhaPaiLista, Cotacao>
             dados={linhasPaiFiltradas}
             colunas={colunasTabela}

@@ -60,7 +60,7 @@ const FMT_REGIAO_KEYS: Record<string, string> = {
   'DD/MM/AA':   'compacto',
 }
 import { SecaoKanbanColunas } from './SecaoKanbanColunas'
-import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel, PedidoStatusConfig } from '../shared/types'
+import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel, KanbanCardConfig, PedidoStatusConfig } from '../shared/types'
 import { KANBAN_LIMITES, KANBAN_PADRAO, KANBAN_CAMPOS_DISPONIVEIS, KANBAN_CARD_CAMPOS_DISPONIVEIS, KANBAN_CARD_GRUPOS } from '../shared/types'
 import { ModalNovaColunaUsuario } from '../components/ConfiguracaoColunas/ModalNovaColunaUsuario'
 import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
@@ -1954,6 +1954,7 @@ export default function Configuracoes() {
   const [kanbanPrefs, setKanbanPrefs]           = useState<KanbanPreferencias | null>(null)
   const [kanbanLoading, setKanbanLoading]       = useState(false)
   const [pendingColunasOcultas, setPendingColunasOcultas] = useState<string[]>([])
+  const [pendingKanbanCard, setPendingKanbanCard] = useState<KanbanCardConfig>(KANBAN_PADRAO.card)
   const kanbanSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Status carregado da API — mesma fonte que o Kanban usa (garante que Colunas ↔ Kanban são consistentes)
   const [kanbanApiStatus, setKanbanApiStatus]   = useState<PedidoStatusConfig[]>([])
@@ -1979,7 +1980,16 @@ export default function Configuracoes() {
 
   useEffect(() => {
     setPendingColunasOcultas(kanbanPrefs?.colunas_ocultas ?? [])
+    const card = (kanbanPrefs ?? KANBAN_PADRAO).card ?? KANBAN_PADRAO.card
+    setPendingKanbanCard({
+      campos: card.campos.map(c => ({ ...c })),
+      dataCritica: card.dataCritica,
+    })
   }, [kanbanPrefs])
+
+  const kanbanCardSalvo = (kanbanPrefs ?? KANBAN_PADRAO).card ?? KANBAN_PADRAO.card
+  const kanbanCardDirty =
+    JSON.stringify(pendingKanbanCard) !== JSON.stringify(kanbanCardSalvo)
 
   function kanbanCamposDeAba(aba: 'pedido' | 'quantidades' | 'datas'): KanbanCampoConfig[] {
     const prefs = kanbanPrefs ?? KANBAN_PADRAO
@@ -2062,31 +2072,34 @@ export default function Configuracoes() {
   }
 
   function kanbanCardCampos() {
-    const prefs = kanbanPrefs ?? KANBAN_PADRAO
-    const campos = prefs.card?.campos ?? KANBAN_PADRAO.card.campos
-    // Garantir que grupo está sempre presente (JSON do banco pode não ter)
-    return campos.map(c => ({
+    return pendingKanbanCard.campos.map(c => ({
       ...c,
       grupo: c.grupo ?? KANBAN_CARD_CAMPOS_DISPONIVEIS.find(d => d.campo === c.campo)?.grupo,
     }))
   }
 
   function kanbanCardToggle(campo: string) {
-    const prefs = kanbanPrefs ?? KANBAN_PADRAO
-    const card = prefs.card ?? KANBAN_PADRAO.card
-    kanbanSalvar({
-      ...prefs,
-      card: {
-        ...card,
-        campos: card.campos.map(c => c.campo === campo ? { ...c, visivel: !c.visivel } : c),
-      },
-    })
+    setPendingKanbanCard(prev => ({
+      ...prev,
+      campos: prev.campos.map(c => (c.campo === campo ? { ...c, visivel: !c.visivel } : c)),
+    }))
   }
 
   function kanbanCardSetDataCritica(valor: string | null) {
+    setPendingKanbanCard(prev => ({ ...prev, dataCritica: valor }))
+  }
+
+  function kanbanCardRestaurarPadrao() {
+    setPendingKanbanCard({
+      campos: KANBAN_PADRAO.card.campos.map(c => ({ ...c })),
+      dataCritica: KANBAN_PADRAO.card.dataCritica,
+    })
+  }
+
+  function kanbanCardSalvar() {
     const prefs = kanbanPrefs ?? KANBAN_PADRAO
-    const card = prefs.card ?? KANBAN_PADRAO.card
-    kanbanSalvar({ ...prefs, card: { ...card, dataCritica: valor } })
+    kanbanSalvar({ ...prefs, card: pendingKanbanCard })
+    addNotification({ type: 'success', message: t('pedido.config.kanban.card_msg_salvo') })
   }
 
   // ── Status state (API-driven) ──
@@ -2855,7 +2868,7 @@ export default function Configuracoes() {
                 const todosCampos      = kanbanCardCampos()
                 const ativos           = todosCampos.filter(c => c.visivel)
                 const disponiveis      = todosCampos.filter(c => !c.visivel)
-                const dataCritica      = (kanbanPrefs ?? KANBAN_PADRAO).card?.dataCritica ?? 'data_prevista_coleta_pedido'
+                const dataCritica      = pendingKanbanCard.dataCritica ?? 'data_prevista_coleta_pedido'
                 const dataCriticaLabel = KANBAN_CAMPOS_DISPONIVEIS.find(c => c.campo === dataCritica)?.label ?? null
                 return (
                   <>
@@ -2971,6 +2984,19 @@ export default function Configuracoes() {
                         opcoes={KANBAN_CAMPOS_DISPONIVEIS.filter(c => c.categoria === 'datas').map(c => ({ valor: c.campo, rotulo: c.label }))}
                         valor={dataCritica}
                         aoMudarValor={v => kanbanCardSetDataCritica(v != null ? String(v) : null)}
+                      />
+                    </div>
+
+                    <div className="cfg-secao__footer">
+                      <BotaoCancelar
+                        dirty={kanbanCardDirty}
+                        rotulo={t('pedido.config.acao.restaurar_padrao')}
+                        onClick={kanbanCardRestaurarPadrao}
+                      />
+                      <BotaoSalvar
+                        dirty={kanbanCardDirty}
+                        rotulo={t('pedido.config.acao.salvar')}
+                        onClick={kanbanCardSalvar}
                       />
                     </div>
                   </>

@@ -1016,7 +1016,14 @@ export default function Configuracoes() {
   // ─── Kanban Specific States ──────────────────────────────────────────────────
 
   const [kanbanColunasOcultas, setKanbanColunasOcultas] = useConfigState<string[]>('kanban-colunas-ocultas', [])
-  const [kanbanCardConfig, setKanbanCardConfig] = useConfigState<KanbanCardConfigBidFrete>(
+  const [
+    kanbanCardConfig,
+    setKanbanCardConfig,
+    ,
+    salvarKanbanCardConfig,
+    ,
+    kanbanCardDirty,
+  ] = useConfigState<KanbanCardConfigBidFrete>(
     'kanban-card-config',
     KANBAN_BF_CARD_PADRAO,
   )
@@ -1088,11 +1095,22 @@ export default function Configuracoes() {
       ...prev,
       campos: prev.campos.map(c => (c.campo === campo ? { ...c, visivel: !c.visivel } : c)),
     }))
-  }, [])
+  }, [setKanbanCardConfig])
 
   const kanbanCardSetDataCritica = useCallback((valor: string | null) => {
     setKanbanCardConfig(prev => ({ ...prev, dataCritica: valor }))
-  }, [])
+  }, [setKanbanCardConfig])
+
+  const kanbanCardRestaurarPadrao = useCallback(() => {
+    setKanbanCardConfig({
+      campos: KANBAN_BF_CARD_PADRAO.campos.map(c => ({ ...c })),
+      dataCritica: KANBAN_BF_CARD_PADRAO.dataCritica,
+    })
+  }, [setKanbanCardConfig])
+
+  const kanbanCardSalvar = useCallback(() => {
+    salvarKanbanCardConfig()
+  }, [salvarKanbanCardConfig])
 
   const handleDragEndStatus = (event: DragEndEvent) => {
     const { active, over } = event
@@ -1867,6 +1885,19 @@ export default function Configuracoes() {
                       ]}
                       valor={dataCritica ?? ''}
                       aoMudarValor={v => kanbanCardSetDataCritica(v != null && String(v) !== '' ? String(v) : null)}
+                    />
+                  </div>
+
+                  <div className="cfg-secao__footer">
+                    <BotaoCancelar
+                      dirty={kanbanCardDirty}
+                      rotulo={t('bidfrete.config.acao.restaurar_padrao', 'Restaurar padrão')}
+                      onClick={kanbanCardRestaurarPadrao}
+                    />
+                    <BotaoSalvar
+                      dirty={kanbanCardDirty}
+                      rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
+                      onClick={kanbanCardSalvar}
                     />
                   </div>
                 </>

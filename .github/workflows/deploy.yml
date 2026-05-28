@@ -40,6 +40,9 @@ jobs:
     name: Validate Prisma Schemas
     runs-on: ubuntu-latest
     needs: test
+    env:
+      CONFIGURADOR_DATABASE_URL: postgresql://localhost:5432/configurador_test
+      ORGANIZACAO_DATABASE_URL: postgresql://localhost:5432/organizacao_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

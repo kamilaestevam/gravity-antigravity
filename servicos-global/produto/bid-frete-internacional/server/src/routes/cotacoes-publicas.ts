@@ -11,6 +11,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { prisma } from '../middleware/isolamento-tenant.js'
 import { AppError } from '../lib/erros.js'
+import { snapshotPropostaFromCotacao } from '../lib/snapshot-proposta-bid-frete.js'
 
 const router = Router()
 
@@ -100,14 +101,14 @@ router.post('/:token_acesso/responder', async (req: Request, res: Response, next
 
     const cotacaoOrigem = await prisma.cotacaoBidFreteInternacional.findFirst({
       where: { id_cotacao_bid_frete_internacional: (bidRequest as any).id_cotacao_bid_frete_internacional },
-      select: { id_workspace: true },
+      select: { id_workspace: true, id_bid_bid_frete_internacional: true },
     } as any)
 
     const response = await prisma.propostaBidFreteInternacional.create({
       data: {
         id_organizacao: (bidRequest as any).id_organizacao,
         id_produto_gravity: 'bid-frete-internacional',
-        ...(cotacaoOrigem?.id_workspace ? { id_workspace: cotacaoOrigem.id_workspace } : {}),
+        ...(cotacaoOrigem ? snapshotPropostaFromCotacao(cotacaoOrigem) : {}),
         id_disparo_cotacao_bid_frete_internacional: (bidRequest as any).id_disparo_cotacao_bid_frete_internacional,
         id_cotacao_bid_frete_internacional: (bidRequest as any).id_cotacao_bid_frete_internacional,
         id_fornecedor_bid_frete_internacional: (bidRequest as any).id_fornecedor_bid_frete_internacional,

@@ -2213,6 +2213,15 @@
       "sidebar": {
         "dashboard_kpi": "Visão Geral"
       },
+      "acao": {
+        "salvar": "Salvar",
+        "restaurar_padrao": "Restaurar padrão",
+        "descartar": "Descartar",
+        "arrastar": "Arrastar para reordenar"
+      },
+      "kanban": {
+        "card_msg_salvo": "Card do Kanban salvo com sucesso."
+      },
       "dashboard_kpi": {
         "titulo": "Visão Geral — KPIs do topo",
         "descricao": "Escolha qual status de cotação cada um dos 4 cards fixos do painel Visão Geral representa.",
@@ -3996,7 +4005,8 @@
         "aria_ocultar_campo": "Ocultar campo",
         "aria_exibir_campo": "Exibir campo",
         "aria_remover_campo": "Remover campo",
-        "aria_adicionar_campo": "Adicionar campo"
+        "aria_adicionar_campo": "Adicionar campo",
+        "card_msg_salvo": "Card do Kanban salvo com sucesso."
       },
       "tabela": {
         "titulo": "Tabela",

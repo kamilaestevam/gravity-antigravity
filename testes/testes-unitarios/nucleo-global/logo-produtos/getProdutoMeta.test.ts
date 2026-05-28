@@ -1,5 +1,5 @@
 // TST-UNIT-NUCLEO-LOGO-001 — getProdutoMeta + PRODUTO_META registry
-// Valida que todos os 10 produtos/zonas retornam a cor correta do Design System
+// Valida que todos os produtos/zonas retornam a cor correta do Design System
 // e que o fallback para produtos não mapeados retorna Indigo padrão.
 
 /// <reference types="vitest/globals" />
@@ -22,6 +22,7 @@ describe('getProdutoMeta', () => {
       'pedido':          '#f59e0b',
       'bid-cambio':      '#06b6d4',
       'bid-frete':       '#60a5fa',
+      'bid-frete-internacional': '#60a5fa',
       'lpco':            '#f43f5e',
       'nf-importacao':   '#c084fc',
       'processo':        '#facc15',
@@ -44,8 +45,8 @@ describe('getProdutoMeta', () => {
   })
 
   describe('PRODUTO_META completude', () => {
-    it('registry contém exatamente 10 entradas', () => {
-      expect(Object.keys(PRODUTO_META)).toHaveLength(10)
+    it('registry contém exatamente 11 entradas', () => {
+      expect(Object.keys(PRODUTO_META)).toHaveLength(11)
     })
 
     it('todas as entradas têm icon, color e sublabel', () => {

@@ -19,7 +19,7 @@ const PRODUCTS = [
     tags: ['Importação', 'Exportação', 'Custos Reais'],
     rating: 4.9,
     reviews: 128,
-    color: '#818cf8',
+    color: '#34d399',
   },
   {
     id: 'nf-importacao',
@@ -30,7 +30,7 @@ const PRODUCTS = [
     tags: ['NF-e', 'SEFAZ', 'Compliance'],
     rating: 4.7,
     reviews: 84,
-    color: '#818cf8',
+    color: '#c084fc',
   },
   {
     id: 'dashboard',
@@ -53,7 +53,7 @@ const PRODUCTS = [
     tags: ['Custos', 'Precificação', 'Margem'],
     rating: 4.6,
     reviews: 67,
-    color: '#fb923c',
+    color: '#34d399',
     comingSoon: true,
   },
   {
@@ -65,7 +65,7 @@ const PRODUCTS = [
     tags: ['Frete', 'Logística', 'IA'],
     rating: 4.8,
     reviews: 142,
-    color: '#34d399',
+    color: '#60a5fa',
   },
 ]
 

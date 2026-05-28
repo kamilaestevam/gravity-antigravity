@@ -16,6 +16,12 @@ import {
   FileMagnifyingGlass,
   Eye,
 } from '@phosphor-icons/react'
+import { corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
+
+function coresProduto(slug: string): Pick<ProductMeta, 'iconBg' | 'iconColor'> {
+  const iconColor = corOficialProdutoGravity(slug)
+  return { iconColor, iconBg: corOficialProdutoDim(slug, 0.15) }
+}
 
 export interface ProductMeta {
   iconBg: string
@@ -30,9 +36,8 @@ export interface ProductMeta {
 
 export const PRODUCT_META: Record<string, ProductMeta> = {
   'bid-frete': {
-    iconBg: 'rgba(16, 185, 129, 0.15)',
-    iconColor: '#10b981',
-    icon: <Truck weight="duotone" size={28} color="#10b981" />,
+    ...coresProduto('bid-frete'),
+    icon: <Truck weight="duotone" size={28} color={corOficialProdutoGravity('bid-frete')} />,
     categoryKey: 'store.cat_logistica',
     categoryFilter: 'frete',
     nameKey: 'store.prod_bid_frete_nome',
@@ -40,9 +45,8 @@ export const PRODUCT_META: Record<string, ProductMeta> = {
     tagKeys: ['store.tag_multi_carrier', 'store.tag_tempo_real', 'store.tag_relatorios', 'store.tag_api_integrada'],
   },
   'bid-cambio': {
-    iconBg: 'rgba(16, 185, 129, 0.15)',
-    iconColor: '#10b981',
-    icon: <CurrencyDollar weight="duotone" size={28} color="#10b981" />,
+    ...coresProduto('bid-cambio'),
+    icon: <CurrencyDollar weight="duotone" size={28} color={corOficialProdutoGravity('bid-cambio')} />,
     categoryKey: 'store.cat_financeiro',
     categoryFilter: 'cambio',
     nameKey: 'store.prod_bid_cambio_nome',
@@ -50,9 +54,8 @@ export const PRODUCT_META: Record<string, ProductMeta> = {
     tagKeys: ['store.tag_banco_central', 'store.tag_multi_moeda', 'store.tag_historico'],
   },
   'nf-importacao': {
-    iconBg: 'rgba(99, 102, 241, 0.15)',
-    iconColor: '#818cf8',
-    icon: <FileText weight="duotone" size={28} color="#818cf8" />,
+    ...coresProduto('nf-importacao'),
+    icon: <FileText weight="duotone" size={28} color={corOficialProdutoGravity('nf-importacao')} />,
     categoryKey: 'store.cat_fiscal_doc',
     categoryFilter: 'importacao',
     nameKey: 'store.prod_nf_importacao_nome',
@@ -60,9 +63,8 @@ export const PRODUCT_META: Record<string, ProductMeta> = {
     tagKeys: ['store.tag_sefaz', 'store.tag_calc_ncm', 'store.tag_xml_pdf'],
   },
   'pedido': {
-    iconBg: 'rgba(245, 158, 11, 0.15)',
-    iconColor: '#f59e0b',
-    icon: <ShoppingBag weight="duotone" size={28} color="#f59e0b" />,
+    ...coresProduto('pedido'),
+    icon: <ShoppingBag weight="duotone" size={28} color={corOficialProdutoGravity('pedido')} />,
     categoryKey: 'store.cat_comercial',
     categoryFilter: 'comercial',
     nameKey: 'store.prod_pedido_nome',
@@ -70,9 +72,8 @@ export const PRODUCT_META: Record<string, ProductMeta> = {
     tagKeys: ['store.tag_aprov', 'store.tag_rastreamento', 'store.tag_integ_erp'],
   },
   'simula-custo': {
-    iconBg: 'rgba(99, 102, 241, 0.15)',
-    iconColor: '#818cf8',
-    icon: <FileMagnifyingGlass weight="duotone" size={28} color="#818cf8" />,
+    ...coresProduto('simula-custo'),
+    icon: <FileMagnifyingGlass weight="duotone" size={28} color={corOficialProdutoGravity('simula-custo')} />,
     categoryKey: 'store.cat_comex',
     categoryFilter: 'importacao',
     nameKey: 'store.prod_simula_custo_nome',
@@ -80,9 +81,8 @@ export const PRODUCT_META: Record<string, ProductMeta> = {
     tagKeys: ['store.tag_ncm_auto', 'store.tag_impostos', 'store.tag_comparativo'],
   },
   'smart-read': {
-    iconBg: 'rgba(139, 92, 246, 0.15)',
-    iconColor: '#a78bfa',
-    icon: <Eye weight="duotone" size={28} color="#a78bfa" />,
+    ...coresProduto('smart-read'),
+    icon: <Eye weight="duotone" size={28} color={corOficialProdutoGravity('smart-read')} />,
     categoryKey: 'store.cat_ia',
     categoryFilter: 'importacao',
     nameKey: 'store.prod_smart_read_nome',

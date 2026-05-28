@@ -41,6 +41,7 @@ import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { type NavItem } from '@nucleo/menu-lateral-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LogoGlobal } from '@nucleo/logo-global'
+import { corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
 import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
@@ -168,16 +169,25 @@ const PRODUCT_ROUTE_MAP: Record<string, { nome: string; rota: string }> = {
   'processo': { nome: 'Processo', rota: '/processo' },
 }
 
-/* ── Mapa de slug → ícone, cor e bg para produtos sugeridos ── */
+function produtoIconEntry(slug: string, icon: React.ReactElement): { icon: React.ReactElement; color: string; bg: string } {
+  return {
+    icon,
+    color: corOficialProdutoGravity(slug),
+    bg: corOficialProdutoDim(slug),
+  }
+}
+
+/* ── Mapa de slug → ícone, cor e bg (cores SSOT: PRODUTO_META / design system) ── */
 const PRODUCT_ICON_MAP: Record<string, { icon: React.ReactElement; color: string; bg: string }> = {
-  'nf-importacao':  { icon: <FileText size={18} weight="duotone" />,        color: '#818cf8', bg: 'rgba(129,140,248,0.12)' },
-  'nf-import':      { icon: <FileText size={18} weight="duotone" />,        color: '#818cf8', bg: 'rgba(129,140,248,0.12)' },
-  'pedido':         { icon: <ClipboardText size={18} weight="duotone" />,   color: '#34d399', bg: 'rgba(52,211,153,0.10)' },
-  'processo':       { icon: <ClipboardText size={18} weight="duotone" />,   color: '#34d399', bg: 'rgba(52,211,153,0.10)' },
-  'bid-cambio':     { icon: <CurrencyDollar size={18} weight="duotone" />,  color: '#f59e0b', bg: 'rgba(245,158,11,0.10)' },
-  'bid-frete':      { icon: <Truck size={18} weight="duotone" />,           color: '#1ED8C8', bg: 'rgba(30,216,200,0.10)' },
-  'simula-custo':   { icon: <Calculator size={18} weight="duotone" />,      color: '#a78bfa', bg: 'rgba(167,139,250,0.10)' },
-  'smart-read':     { icon: <Folders size={18} weight="duotone" />,         color: '#f472b6', bg: 'rgba(244,114,182,0.10)' },
+  'nf-importacao':  produtoIconEntry('nf-importacao', <FileText size={18} weight="duotone" />),
+  'nf-import':      produtoIconEntry('nf-importacao', <FileText size={18} weight="duotone" />),
+  'pedido':         produtoIconEntry('pedido', <ClipboardText size={18} weight="duotone" />),
+  'processo':       produtoIconEntry('processo', <ClipboardText size={18} weight="duotone" />),
+  'bid-cambio':     produtoIconEntry('bid-cambio', <CurrencyDollar size={18} weight="duotone" />),
+  'bid-frete':      produtoIconEntry('bid-frete', <Truck size={18} weight="duotone" />),
+  'bid-frete-internacional': produtoIconEntry('bid-frete-internacional', <Truck size={18} weight="duotone" />),
+  'simula-custo':   produtoIconEntry('simula-custo', <Calculator size={18} weight="duotone" />),
+  'smart-read':     produtoIconEntry('smart-read', <Folders size={18} weight="duotone" />),
 }
 
 /* ── Mapa de slug/product_key → chave de tradução do nome ── */

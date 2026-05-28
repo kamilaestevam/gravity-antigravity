@@ -28,7 +28,8 @@ import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { produtosWorkspaceApi, type ProdutoWorkspaceItem } from '../services/api-client'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
-import { LogoHub } from '@nucleo/logo-produtos'
+import { LogoHub, corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
+import { resolverProdVisualHub } from '../utils/resolver-prod-visual-hub'
 import { LogoGlobal } from '@nucleo/logo-global'
 import {
   LocalizadorGlobal,
@@ -48,37 +49,29 @@ interface ProdVisual {
   description: string
 }
 
+function prodVisualEntry(
+  slug: string,
+  icon: React.ReactNode,
+  description: string,
+): ProdVisual {
+  return {
+    color: corOficialProdutoGravity(slug),
+    dim: corOficialProdutoDim(slug),
+    icon,
+    description,
+  }
+}
+
 const getProdVisual = (t: (key: string) => string): Record<string, ProdVisual> => ({
-  'simula-custo': {
-    color: '#818cf8',
-    dim: 'rgba(129,140,248,0.12)',
-    icon: <Calculator weight="duotone" size={22} />,
-    description: t('hub.produto_visual_simula_custo'),
-  },
-  'nf-importacao': {
-    color: '#f59e0b',
-    dim: 'rgba(245,158,11,0.12)',
-    icon: <FileText weight="duotone" size={22} />,
-    description: t('hub.produto_visual_nf_importacao'),
-  },
-  'processo': {
-    color: '#14b8a6',
-    dim: 'rgba(20,184,166,0.12)',
-    icon: <ArrowsClockwise weight="duotone" size={22} />,
-    description: t('hub.produto_visual_processo'),
-  },
-  'bid-frete': {
-    color: '#ec4899',
-    dim: 'rgba(236,72,153,0.12)',
-    icon: <Truck weight="duotone" size={22} />,
-    description: t('hub.produto_visual_bid_frete'),
-  },
-  'bid-cambio': {
-    color: '#38bdf8',
-    dim: 'rgba(56,189,248,0.12)',
-    icon: <CurrencyDollar weight="duotone" size={22} />,
-    description: t('hub.produto_visual_bid_cambio'),
-  },
+  'simula-custo': prodVisualEntry('simula-custo', <Calculator weight="duotone" size={22} />, t('hub.produto_visual_simula_custo')),
+  'nf-importacao': prodVisualEntry('nf-importacao', <FileText weight="duotone" size={22} />, t('hub.produto_visual_nf_importacao')),
+  'nf-import': prodVisualEntry('nf-importacao', <FileText weight="duotone" size={22} />, t('hub.produto_visual_nf_importacao')),
+  'processo': prodVisualEntry('processo', <ArrowsClockwise weight="duotone" size={22} />, t('hub.produto_visual_processo')),
+  'bid-frete': prodVisualEntry('bid-frete', <Truck weight="duotone" size={22} />, t('hub.produto_visual_bid_frete')),
+  'bid-frete-internacional': prodVisualEntry('bid-frete-internacional', <Truck weight="duotone" size={22} />, t('hub.produto_visual_bid_frete')),
+  'bid-cambio': prodVisualEntry('bid-cambio', <CurrencyDollar weight="duotone" size={22} />, t('hub.produto_visual_bid_cambio')),
+  'pedido': prodVisualEntry('pedido', <Package weight="duotone" size={22} />, t('hub.produto_visual_pedido', 'Gestão de pedidos de compra e importação')),
+  'smart-read': prodVisualEntry('smart-read', <MagnifyingGlass weight="duotone" size={22} />, t('hub.produto_visual_smart_read', 'Leitura inteligente de documentos COMEX')),
 })
 
 const getDefaultVisual = (t: (key: string) => string): ProdVisual => ({
@@ -188,7 +181,8 @@ export function Hub() {
   const { history, addEntry } = useLocalizadorHistory('hub')
 
   const produtoNodes: EcosystemNode[] = products.map(p => {
-    const v = prodVisual[p.product_key] ?? defaultVisual
+    const slug = p.catalog?.slug ?? p.product_key
+    const v = resolverProdVisualHub(slug, prodVisual, defaultVisual, p.product_key)
     return {
       id:       p.product_key,
       label:    p.catalog?.name ?? p.product_key,
@@ -411,7 +405,7 @@ export function Hub() {
               <div className="hb-products-grid">
                 {products.map((p) => {
                   const slug = p.catalog?.slug ?? p.product_key
-                  const v = prodVisual[slug] ?? defaultVisual
+                  const v = resolverProdVisualHub(slug, prodVisual, defaultVisual, p.product_key)
                   return (
                     <div
                       key={p.product_key}

@@ -41,13 +41,23 @@ import { getCotacoes } from '../shared/api'
 import type { Cotacao, StatusCotacao } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, MODALIDADE_LABELS } from '../shared/types'
 import {
+  buildColunasPaiLista,
   buildColunasCotacoes,
+  buildMapaColunasFilho,
+  CHAVES_COLUNAS_COTACAO,
   fmtData,
   fmtQuantidade,
   getCasas,
   RenderBadgeStatus,
   RenderModalIcon,
 } from './colunas-lista-bid-frete-internacional'
+import {
+  montarLinhasPaiLista,
+  idLinhaPaiLista,
+  isLinhaBidGrupo,
+  cotacaoDaLinhaPai,
+  type LinhaPaiLista,
+} from './lista-bid-frete-internacional-utils'
 
 // ─── Status Config (localStorage) ───
 
@@ -119,7 +129,7 @@ const CAMPOS_EDITAVEIS = [
 const COLUNAS_PADRAO_VISIVEIS = [
   'numero_cotacao_bid_frete_internacional',
   'referencia_interna_cotacao_bid_frete_internacional',
-  'status',
+  'status_cotacao_bid_frete_internacional',
   'data_criacao_cotacao_bid_frete_internacional',
   'modal_cotacao_bid_frete_internacional',
   'origem_nome_cotacao_bid_frete_internacional',
@@ -129,7 +139,7 @@ const COLUNAS_PADRAO_VISIVEIS = [
   'incoterm_cotacao_bid_frete_internacional',
   'valor_meta_cotacao_bid_frete_internacional',
   'ganho_valor_cotacao_bid_frete_internacional',
-  'ganho_percentual_ganho_bid_frete_internacional',
+  'ganho_percentual_cotacao_bid_frete_internacional',
 ]
 
 
@@ -259,7 +269,7 @@ export default function Cotacoes() {
       }
 
       // Validar contra as colunas realmente disponíveis no produto internacional
-      const colunasDisponiveis = buildColunasCotacoes(() => '').map(c => c.key).filter((k): k is string => typeof k === 'string')
+      const colunasDisponiveis = CHAVES_COLUNAS_COTACAO
       const colunasValidas = parsed.colunas_visiveis.filter(k => colunasDisponiveis.includes(k))
 
       const hasIntlCore = colunasValidas.includes('numero_cotacao_bid_frete_internacional')
@@ -283,7 +293,13 @@ export default function Cotacoes() {
     } catch { /* ignore */ }
   }, [])
 
-  const colunasTabela = useMemo(() => buildColunasCotacoes(t), [t])
+  const abrirDetalheCotacao = useCallback((item: Cotacao) => {
+    navigate(`/produto/bid-frete/cotacoes/${item.id_cotacao_bid_frete_internacional}`)
+  }, [navigate])
+
+  const colunasTabela = useMemo(() => buildColunasPaiLista(t, abrirDetalheCotacao), [t, abrirDetalheCotacao])
+  const mapaColunasFilho = useMemo(() => buildMapaColunasFilho(t, abrirDetalheCotacao), [t, abrirDetalheCotacao])
+  const colunasFilhoExport = useMemo(() => buildColunasCotacoes(t, abrirDetalheCotacao), [t, abrirDetalheCotacao])
 
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown) => {
     let updatedCotacao: Cotacao | undefined
@@ -298,13 +314,6 @@ export default function Cotacoes() {
     if (!current) throw new Error('Cotação não encontrada')
     const updated = { ...current, [campo as keyof Cotacao]: valor } as Cotacao
     return updated
-  }, [cotacoes])
-
-  const handleReordenarCotacoes = useCallback((ids: string[]) => {
-    const mapa = new Map(cotacoes.map(c => [c.id_cotacao_bid_frete_internacional, c]))
-    const reordenados = ids.map(id => mapa.get(id)).filter((c): c is Cotacao => c != null)
-    const restantes = cotacoes.filter(c => !ids.includes(c.id_cotacao_bid_frete_internacional))
-    setCotacoes([...reordenados, ...restantes])
   }, [cotacoes])
 
   // ─── Filtragem Reativa (Busca + Abas) ───
@@ -331,6 +340,18 @@ export default function Cotacoes() {
     return result
   }, [cotacoes, filtroTab, busca])
 
+  const linhasPaiFiltradas = useMemo(
+    () => montarLinhasPaiLista(cotacoesFiltradas),
+    [cotacoesFiltradas],
+  )
+
+  const totalCotacoesFiltradas = cotacoesFiltradas.length
+
+  const handleCarregarFilhos = useCallback(async (pai: LinhaPaiLista): Promise<Cotacao[]> => {
+    if (isLinhaBidGrupo(pai)) return pai.cotacoes
+    return []
+  }, [])
+
   // ─── Ações de Linha ───
 
   const acoes = useMemo(() => [
@@ -338,9 +359,9 @@ export default function Cotacoes() {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: 'Ver detalhes',
-      onClick: (item: Cotacao) => navigate(`/produto/bid-frete/cotacoes/${item.id_cotacao_bid_frete_internacional}`),
+      onClick: abrirDetalheCotacao,
     },
-  ], [navigate])
+  ], [abrirDetalheCotacao])
 
   // ─── Dropdown + Novo e Exportar Toolbar ───
 
@@ -1000,7 +1021,7 @@ export default function Cotacoes() {
           margin-bottom: 0.5rem;
         }
 
-        .bf-kanban-card-numero_cotacao_bid_frete_internacional {
+        .bf-kanban-card-numero {
           font-family: 'DM Mono', monospace;
           font-size: 0.75rem;
           color: var(--text-muted, #64748b);

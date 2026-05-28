@@ -1,9 +1,22 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { KanbanGlobal } from '@nucleo/kanban-global'
+import type { KanbanColunaDef, KanbanItem } from '@nucleo/kanban-global'
+import {
+  CheckCircle,
+  Clock,
+  PaperPlaneTilt,
+  Package,
+  PencilSimple,
+  Question,
+  Warning,
+  XCircle,
+} from '@phosphor-icons/react'
 import type { Cotacao, StatusCotacao } from '../shared/types'
 import { MODAL_LABELS, MODALIDADE_LABELS } from '../shared/types'
 import { RenderBadgeStatus, RenderModalIcon, fmtData } from './colunas-lista-bid-frete-internacional'
+import { mudarStatusCotacao } from '../shared/api'
 
 interface CotacoesKanbanProps {
   cotacoes: Cotacao[]
@@ -47,26 +60,30 @@ function lerStatusConfig(): StatusConfig[] {
   return STATUS_CANONICOS
 }
 
-/** Converte hex (#RRGGBB) para rgba com opacidade */
-function hexToRgba(hex: string, alpha: number): string {
-  const h = hex.replace('#', '')
-  const r = parseInt(h.substring(0, 2), 16)
-  const g = parseInt(h.substring(2, 4), 16)
-  const b = parseInt(h.substring(4, 6), 16)
-  return `rgba(${r},${g},${b},${alpha})`
+interface CotacaoKanbanItem extends KanbanItem {
+  cotacao: Cotacao
 }
 
-export default function CotacoesKanban({ cotacoes, carregando }: CotacoesKanbanProps) {
+const STATUS_ICONS: Partial<Record<StatusCotacao, React.ReactElement>> = {
+  RASCUNHO: <PencilSimple size={16} weight="duotone" />,
+  ENVIADA_FORNECEDORES: <PaperPlaneTilt size={16} weight="duotone" />,
+  EM_COTACAO: <Clock size={16} weight="duotone" />,
+  AGUARDANDO_APROVACAO: <Warning size={16} weight="duotone" />,
+  APROVADA: <CheckCircle size={16} weight="duotone" />,
+  REPROVADA: <XCircle size={16} weight="duotone" />,
+  CANCELADA: <XCircle size={16} weight="duotone" />,
+  FALTA_INFORMACAO: <Question size={16} weight="duotone" />,
+  EXPIRADA: <Clock size={16} weight="duotone" />,
+}
+
+export default function CotacoesKanban({ cotacoes, carregando, onRefresh }: CotacoesKanbanProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
   // ─── Kanban Card ──────────────────────────────────────────────────────
   function KanbanCard({ cotacao }: { cotacao: Cotacao }) {
     return (
-      <div
-        className="bf-kanban-card"
-        onClick={() => navigate(`/produto/bid-frete/cotacoes/${cotacao.id_cotacao_bid_frete_internacional}`)}
-      >
+      <div className="bf-kanban-card">
         <div className="bf-kanban-card-header">
           <span className="bf-kanban-card-numero">
             {cotacao.numero_cotacao_bid_frete_internacional}
@@ -117,44 +134,62 @@ export default function CotacoesKanban({ cotacoes, carregando }: CotacoesKanbanP
   }, [])
 
   const kanbanCols = useMemo(() =>
-    statusConfig.map(s => ({
-      status: s.nome as StatusCotacao,
-      label: s.rotulo,
-      headerColor: s.cor,
-      headerBg: hexToRgba(s.cor, 0.15),
-    })),
+    statusConfig
+      .slice()
+      .sort((a, b) => a.ordem - b.ordem)
+      .map<KanbanColunaDef>(s => ({
+        key: s.nome,
+        label: s.rotulo,
+        color: s.cor,
+        icon: STATUS_ICONS[s.nome as StatusCotacao] ?? <Package size={16} weight="duotone" />,
+        colapsavel: true,
+      })),
     [statusConfig]
   )
 
-  if (carregando) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px', color: 'var(--text-secondary)' }}>
-        Carregando quadro kanban...
-      </div>
-    )
-  }
+  const itens = useMemo<CotacaoKanbanItem[]>(() =>
+    cotacoes.map(cotacao => ({
+      id: cotacao.id_cotacao_bid_frete_internacional,
+      colunaKey: cotacao.status_cotacao_bid_frete_internacional,
+      cotacao,
+    })),
+    [cotacoes]
+  )
+
+  const handleMoverCotacao = useCallback(async (itemId: string, novaColunaKey: string) => {
+    await mudarStatusCotacao(itemId, novaColunaKey as StatusCotacao)
+    onRefresh()
+  }, [onRefresh])
 
   return (
-    <div className="bf-kanban-board">
-      {kanbanCols.map(col => {
-        const cards = cotacoes.filter(c => c.status_cotacao_bid_frete_internacional === col.status)
-        return (
-          <div key={col.status} className="bf-kanban-col">
-            <div className="bf-kanban-col-header" style={{ background: col.headerBg, color: col.headerColor }}>
-              <span className="bf-kanban-col-dot" style={{ background: col.headerColor }} />
-              {col.label}
-              <span className="bf-kanban-col-count">{cards.length}</span>
-            </div>
-            <div className="bf-kanban-col-body">
-              {cards.length === 0 ? (
-                <div className="bf-kanban-empty">{t('bidfrete.cotacoes.vazio')}</div>
-              ) : (
-                cards.map(c => <KanbanCard key={c.id_cotacao_bid_frete_internacional} cotacao={c} />)
-              )}
-            </div>
-          </div>
-        )
-      })}
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+      <KanbanGlobal<CotacaoKanbanItem>
+        colunas={kanbanCols}
+        itens={itens}
+        renderCard={(item) => <KanbanCard cotacao={item.cotacao} />}
+        onMoverItem={handleMoverCotacao}
+        onCardClick={(item) => navigate(`/produto/bid-frete/cotacoes/${item.cotacao.id_cotacao_bid_frete_internacional}`)}
+        isLoading={carregando}
+        skeletonCount={4}
+        emptyLabel={t('bidfrete.kanban.semCotacoes', 'Nenhuma cotação')}
+        getItemLabel={(item) => item.cotacao.numero_cotacao_bid_frete_internacional}
+        getItemDate={(item) => item.cotacao.data_criacao_cotacao_bid_frete_internacional}
+        labels={{
+          sortNewest: t('kanban.ordenacao.mais_recente', 'Mais recente primeiro'),
+          sortOldest: t('kanban.ordenacao.mais_antigo', 'Mais antigo primeiro'),
+          sortAlpha: t('kanban.ordenacao.alfabetica', 'Ordem alfabética'),
+          sortPopoverTitle: t('kanban.ordenacao.titulo', 'Ordenar lista'),
+          sortPopoverClose: t('comum.fechar', 'Fechar'),
+          sortButtonTitle: t('kanban.ordenacao.botao', 'Ordenar coluna'),
+          collapseTitle: t('kanban.coluna.colapsar', 'Colapsar coluna'),
+          expandTitle: t('kanban.coluna.expandir', 'Expandir coluna'),
+          dropHintPrefix: t('kanban.mover.para', 'Mover para'),
+          moveCardTitle: t('kanban.mover.titulo', 'Mover para...'),
+          moveCardAriaLabel: t('kanban.mover.aria', 'Mover card para outra coluna'),
+          moveCardMenuLabel: t('kanban.mover.label', 'Mover para'),
+          movingAriaLabel: t('kanban.mover.movendo', 'Movendo...'),
+        }}
+      />
     </div>
   )
 }

@@ -115,6 +115,14 @@ export function MenuLateralGlobal({
   const [wsSearch, setWsSearch] = useState('')
   const [prodOpen, setProdOpen] = useState(false)
   const [prodSearch, setProdSearch] = useState('')
+
+  const logoNomeCompacto = Boolean(
+    (produtoAtualSlug &&
+      (produtoSlugEquivalente(produtoAtualSlug, 'bid-frete') ||
+        produtoSlugEquivalente(produtoAtualSlug, 'bid-frete-internacional'))) ||
+      moduleName === 'BID Frete Internacional',
+  )
+  const logoNameClass = logoNomeCompacto ? 'mlg-logo-name mlg-logo-name--compact' : 'mlg-logo-name'
   const wsRef = useRef<HTMLDivElement>(null)
   const prodRef = useRef<HTMLDivElement>(null)
   const tenantBtnRef = useRef<HTMLButtonElement>(null)
@@ -328,7 +336,7 @@ export function MenuLateralGlobal({
               {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
             </div>
             <div className="mlg-logo-info">
-              <span className="mlg-logo-name" style={{ color: moduleColor }} title={moduleName}>{moduleName}</span>
+              <span className={logoNameClass} style={{ color: moduleColor }} title={moduleName}>{moduleName}</span>
               <span className="mlg-logo-gravity">by Gravity</span>
             </div>
             <CaretDown className={`mlg-logo-chevron ${prodOpen ? 'open' : ''}`} size={13} weight="bold" />
@@ -339,7 +347,7 @@ export function MenuLateralGlobal({
               {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
             </div>
             <div className="mlg-logo-info">
-              <span className="mlg-logo-name" style={{ color: moduleColor }} title={moduleName}>{moduleName}</span>
+              <span className={logoNameClass} style={{ color: moduleColor }} title={moduleName}>{moduleName}</span>
               <span className="mlg-logo-gravity">by Gravity</span>
             </div>
           </div>

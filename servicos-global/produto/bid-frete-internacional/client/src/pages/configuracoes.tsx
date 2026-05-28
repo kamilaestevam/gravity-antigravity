@@ -35,6 +35,7 @@ import { useShellStore } from '@gravity/shell'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { SwitchGlobal } from '@nucleo/switch-global'
 import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
+import { notificarTabelaConfigBidFreteAtualizada } from '../shared/tabela-config-bid-frete'
 import {
   CARD_PERIODOS as PERIODOS,
   registrarCardCustomizado,
@@ -43,6 +44,13 @@ import {
   type CardPeriodoCodigo,
   type CardPreferencia,
 } from '../shared/use-card-preferences'
+import {
+  KANBAN_BF_CARD_GRUPOS,
+  KANBAN_BF_CARD_PADRAO,
+  KANBAN_BF_DATAS_CRITICAS,
+  normalizarCardConfigBidFrete,
+  type KanbanCardConfigBidFrete,
+} from '../shared/kanban-bid-frete-card'
 import './configuracoes.css'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
@@ -765,6 +773,9 @@ export default function Configuracoes() {
     const save = () => {
       localStorage.setItem(storageKey, JSON.stringify(currentState))
       setSavedState(currentState)
+      if (storageKey === 'bid-frete:config:tabela') {
+        notificarTabelaConfigBidFreteAtualizada()
+      }
       addNotification({ type: 'success', message: 'Configurações salvas com sucesso!' })
     }
 
@@ -893,12 +904,17 @@ export default function Configuracoes() {
   // ─── Kanban Specific States ──────────────────────────────────────────────────
 
   const [kanbanColunasOcultas, setKanbanColunasOcultas, , saveKanbanColunas, resetKanbanColunas, kanbanColunasDirty] = useConfigState<string[]>('kanban-colunas-ocultas', [])
-  const [kanbanCardConfig, setKanbanCardConfig, , saveKanbanCard, resetKanbanCard, kanbanCardDirty] = useConfigState<Record<string, boolean>>('kanban-card-config', {
-    exibirValor: true,
-    exibirIncoterm: true,
-    exibirArmador: false,
-    exibirDatas: true,
-  })
+  const [kanbanCardConfig, setKanbanCardConfig, , saveKanbanCard, resetKanbanCard, kanbanCardDirty] = useConfigState<KanbanCardConfigBidFrete>(
+    'kanban-card-config',
+    KANBAN_BF_CARD_PADRAO,
+  )
+
+  useEffect(() => {
+    const norm = normalizarCardConfigBidFrete(kanbanCardConfig)
+    if (JSON.stringify(norm) !== JSON.stringify(kanbanCardConfig)) {
+      setKanbanCardConfig(norm)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps -- migração legado uma vez no mount
 
   // ─── Active Sub-Tab/Group Controls ────────────────────────────────────────────
 
@@ -949,6 +965,24 @@ export default function Configuracoes() {
       return arrayMove(prev, oldIdx, newIdx)
     })
   }
+
+  const kanbanCardCampos = useCallback(() => {
+    return (kanbanCardConfig.campos ?? KANBAN_BF_CARD_PADRAO.campos).map(c => ({
+      ...c,
+      grupo: c.grupo ?? KANBAN_BF_CARD_PADRAO.campos.find(d => d.campo === c.campo)?.grupo,
+    }))
+  }, [kanbanCardConfig])
+
+  const kanbanCardToggle = useCallback((campo: string) => {
+    setKanbanCardConfig(prev => ({
+      ...prev,
+      campos: prev.campos.map(c => (c.campo === campo ? { ...c, visivel: !c.visivel } : c)),
+    }))
+  }, [])
+
+  const kanbanCardSetDataCritica = useCallback((valor: string | null) => {
+    setKanbanCardConfig(prev => ({ ...prev, dataCritica: valor }))
+  }, [])
 
   const handleDragEndStatus = (event: DragEndEvent) => {
     const { active, over } = event
@@ -1398,45 +1432,138 @@ export default function Configuracoes() {
           </section>
         )}
 
-        {/* ── CATEGORIA: KANBAN CARD ── */}
+        {/* ── CATEGORIA: KANBAN CARD (paridade Pedido) ── */}
         {categoria === 'kanban-card' && (
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Preferências do Card no Kanban</h2>
-                <p className="cfg-secao__desc">Selecione quais informações devem ser destacadas diretamente nos cards de cotação.</p>
+                <h2 className="cfg-secao__titulo">Card do Kanban</h2>
+                <p className="cfg-secao__desc">
+                  Defina quais campos aparecem nos cards de cotação — mesmo padrão visual do Kanban de Pedido.
+                </p>
               </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <ToggleRow
-                id="kcard-val"
-                label="Exibir Valor Estimado / Aprovado"
-                desc="Mostra valores financeiros de teto e proposta vencedora."
-                checked={kanbanCardConfig.exibirValor}
-                onChange={v => setKanbanCardConfig(prev => ({ ...prev, exibirValor: v }))}
-              />
-              <ToggleRow
-                id="kcard-inc"
-                label="Exibir Incoterm"
-                desc="Mostra a sigla do Incoterm (FOB, CIF, etc.) no card."
-                checked={kanbanCardConfig.exibirIncoterm}
-                onChange={v => setKanbanCardConfig(prev => ({ ...prev, exibirIncoterm: v }))}
-              />
-              <ToggleRow
-                id="kcard-arm"
-                label="Exibir Armador / Agente Comercial"
-                desc="Exibe a logo ou nome do fornecedor encarregado do frete."
-                checked={kanbanCardConfig.exibirArmador}
-                onChange={v => setKanbanCardConfig(prev => ({ ...prev, exibirArmador: v }))}
-              />
-              <ToggleRow
-                id="kcard-dat"
-                label="Exibir Datas de Fechamento"
-                desc="Mostra datas limites para envio de propostas."
-                checked={kanbanCardConfig.exibirDatas}
-                onChange={v => setKanbanCardConfig(prev => ({ ...prev, exibirDatas: v }))}
-              />
-            </div>
+
+            {(() => {
+              const todosCampos = kanbanCardCampos()
+              const ativos = todosCampos.filter(c => c.visivel)
+              const disponiveis = todosCampos.filter(c => !c.visivel)
+              const dataCritica = kanbanCardConfig.dataCritica
+              const dataCriticaLabel = KANBAN_BF_DATAS_CRITICAS.find(c => c.campo === dataCritica)?.label ?? null
+              return (
+                <>
+                  <div className="cfg-cards-preview-wrap">
+                    <p className="cfg-cards-preview-label">
+                      <SquaresFour size={12} weight="fill" />
+                      Preview — Como ficará no Kanban
+                    </p>
+                    <div className="cfg-card-preview">
+                      <div className="cfg-card-preview__header">
+                        <span className="cfg-card-preview__numero">BF-2025-0001</span>
+                        <span className="cfg-card-preview__fixo-badge">Fixo</span>
+                      </div>
+                      <div className="cfg-card-preview__campos">
+                        {ativos.map(c => (
+                          <div key={c.campo} className="cfg-card-preview__campo">
+                            <span className="cfg-card-preview__campo-label">{c.label}</span>
+                            <span className="cfg-card-preview__campo-valor">—</span>
+                          </div>
+                        ))}
+                        {ativos.length === 0 && (
+                          <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', padding: '0.25rem 0' }}>
+                            Nenhum campo ativo além do número da cotação.
+                          </p>
+                        )}
+                      </div>
+                      {dataCritica && (
+                        <div className="cfg-card-preview__data-critica">
+                          <CalendarBlank size={10} />
+                          {dataCriticaLabel ?? dataCritica}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <ConfiguracaoSecaoGlobal label="Ativos" count={`${ativos.length + 1} campos`} />
+                  <p className="cfg-hint">O número da cotação e o tipo de operação são sempre exibidos no topo do card.</p>
+                  <div className="cfg-kanban-campos-lista">
+                    <div className="cfg-kanban-campo-row cfg-kanban-campo-row--fixo">
+                      <span className="cfg-kanban-campo-label">Nº da Cotação + Tipo</span>
+                      <span className="cfg-kanban-aba-fixa-badge">Fixo</span>
+                    </div>
+                    {KANBAN_BF_CARD_GRUPOS.map(grupo => {
+                      const cols = ativos.filter(c => c.grupo === grupo.key)
+                      if (cols.length === 0) return null
+                      return (
+                        <React.Fragment key={grupo.key}>
+                          <div className="cfg-card-grupo-divider">{grupo.label}</div>
+                          {cols.map(cfg => (
+                            <div key={cfg.campo} className="cfg-kanban-campo-row">
+                              <span className="cfg-kanban-campo-label">{cfg.label}</span>
+                              <button
+                                type="button"
+                                className="cfg-eye-btn cfg-eye-btn--on"
+                                onClick={() => kanbanCardToggle(cfg.campo)}
+                                aria-label="Ocultar campo do card"
+                              >
+                                <Eye size={14} weight="bold" />
+                              </button>
+                            </div>
+                          ))}
+                        </React.Fragment>
+                      )
+                    })}
+                  </div>
+
+                  <ConfiguracaoSecaoGlobal label="Disponíveis para adicionar" hint="Clique em + para exibir no card" style={{ marginTop: '1.5rem' }} />
+                  <div className="cfg-kanban-disponivel-lista">
+                    <div className="cfg-kanban-disponivel-header">
+                      <span>Campo</span>
+                      <span>Grupo</span>
+                      <span></span>
+                    </div>
+                    {disponiveis.length === 0 && (
+                      <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
+                        Todos os campos estão ativos.
+                      </p>
+                    )}
+                    {disponiveis.map(cfg => (
+                      <div key={cfg.campo} className="cfg-kanban-disponivel-row">
+                        <span className="cfg-kanban-disponivel-label">{cfg.label}</span>
+                        <span className="cfg-origem-badge cfg-origem-badge--pedido">
+                          {KANBAN_BF_CARD_GRUPOS.find(g => g.key === cfg.grupo)?.label ?? '—'}
+                        </span>
+                        <TooltipGlobal descricao="Exibir no card">
+                          <button
+                            type="button"
+                            className="cfg-kanban-add-btn"
+                            onClick={() => kanbanCardToggle(cfg.campo)}
+                            aria-label="Exibir campo no card"
+                          >
+                            <Plus size={13} weight="bold" />
+                          </button>
+                        </TooltipGlobal>
+                      </div>
+                    ))}
+                  </div>
+
+                  <ConfiguracaoSecaoGlobal label="Data crítica" style={{ marginTop: '1.5rem' }} />
+                  <p className="cfg-hint">Badge colorido no card (verde / amarelo / vermelho conforme proximidade da data).</p>
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <SelectGlobal
+                      buscavel={false}
+                      placeholder="Não exibir data crítica"
+                      opcoes={[
+                        { valor: '', rotulo: 'Não exibir' },
+                        ...KANBAN_BF_DATAS_CRITICAS.map(c => ({ valor: c.campo, rotulo: c.label })),
+                      ]}
+                      valor={dataCritica ?? ''}
+                      aoMudarValor={v => kanbanCardSetDataCritica(v != null && String(v) !== '' ? String(v) : null)}
+                    />
+                  </div>
+                </>
+              )
+            })()}
           </section>
         )}
 

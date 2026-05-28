@@ -153,11 +153,13 @@ export default function DetalheCotacao() {
   const [cotacao, setCotacao] = useState<Cotacao | null>(null)
   const [bids, setBids] = useState<DisparoCotacaoBidFreteInternacional[]>([])
   const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState<string | null>(null)
   const [tab, setTab] = useState<'dados' | 'bids' | 'respostas'>('dados')
 
   const carregar = useCallback(async () => {
     if (!id) return
     setCarregando(true)
+    setErro(null)
     try {
       const [cot, bidList] = await Promise.all([
         getCotacao(id),
@@ -165,8 +167,10 @@ export default function DetalheCotacao() {
       ])
       setCotacao(cot)
       setBids(bidList)
-    } catch {
-      // erro
+    } catch (e: unknown) {
+      setCotacao(null)
+      setBids([])
+      setErro(e instanceof Error ? e.message : 'Erro ao carregar cotação')
     } finally {
       setCarregando(false)
     }
@@ -175,10 +179,16 @@ export default function DetalheCotacao() {
   useEffect(() => { carregar() }, [carregar])
 
   const tituloTopo = useMemo(() => {
-    if (carregando || !cotacao) {
+    if (carregando) {
       return {
         label: t('comum.carregando'),
         icone: <FileText weight="duotone" size={22} />,
+      }
+    }
+    if (erro || !cotacao) {
+      return {
+        label: erro ?? t('bidfrete.detalhe_cotacao.nao_encontrada', 'Cotação não encontrada'),
+        icone: <Warning weight="duotone" size={22} />,
       }
     }
     return {
@@ -188,7 +198,7 @@ export default function DetalheCotacao() {
         ? `Ref: ${cotacao.referencia_interna_cotacao_bid_frete_internacional}`
         : undefined,
     }
-  }, [carregando, cotacao, t])
+  }, [carregando, cotacao, erro, t])
 
   useSincronizarTituloPaginaTopo(tituloTopo)
 
@@ -270,7 +280,7 @@ export default function DetalheCotacao() {
 
   // ─── Loading ──────────────────────────────────────────────────────────
 
-  if (carregando || !cotacao) {
+  if (carregando) {
     return (
       <PaginaGlobal>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)' }}>
@@ -280,7 +290,21 @@ export default function DetalheCotacao() {
     )
   }
 
-  // ─── Render ───────────────────────────────────────────────────────────
+  if (erro || !cotacao) {
+    return (
+      <PaginaGlobal>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', height: '50vh', color: 'var(--text-muted)' }}>
+          <Warning weight="duotone" size={40} />
+          <p>{erro ?? t('bidfrete.detalhe_cotacao.nao_encontrada', 'Cotação não encontrada')}</p>
+          <button className="dc-btn dc-btn--secondary" type="button" onClick={() => navigate('/bid-frete/cotacoes')}>
+            <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
+          </button>
+        </div>
+      </PaginaGlobal>
+    )
+  }
+
+  // --- Render ---
 
   return (
     <PaginaGlobal className="dc-page bid-frete-page-shell">

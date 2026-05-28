@@ -8,10 +8,9 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
 
-const NovaCotacao = React.lazy(() => import('./cotacao-nova'))
 import CotacoesKanban from './kanban-bid-frete-internacional'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -138,11 +137,9 @@ const COLUNAS_PADRAO_VISIVEIS = [
 export default function Cotacoes() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const addNotification = useShellStore(s => s.addNotification)
 
-  const isNovaCotacao = location.pathname.endsWith('/nova')
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
   const [carregando, setCarregando] = useState(true)
   const [busca, setBusca] = useState('')
@@ -161,7 +158,7 @@ export default function Cotacoes() {
   }
 
   useEffect(() => {
-    if (!searchParams.has('visao') && !isNovaCotacao) {
+    if (!searchParams.has('visao')) {
       setSearchParams(
         (prev) => {
           prev.set('visao', 'lista')
@@ -170,7 +167,7 @@ export default function Cotacoes() {
         { replace: true }
       )
     }
-  }, [searchParams, setSearchParams, isNovaCotacao])
+  }, [searchParams, setSearchParams])
 
   const [filtroTab, setFiltroTab] = useState('TODAS')
 
@@ -1072,11 +1069,6 @@ export default function Cotacoes() {
           color: var(--text-primary, #f1f5f9);
         }
       `}</style>
-      {isNovaCotacao && (
-        <React.Suspense fallback={null}>
-          <NovaCotacao />
-        </React.Suspense>
-      )}
     </PaginaGlobal>
   )
 }

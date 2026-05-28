@@ -1,7 +1,6 @@
-/**
- * NovaCotacao.tsx — Wizard de Nova Cotação (T7)
- * Redesenhado para UX 10/10 com visual premium, glassmorphism, micro-animações,
- * cards ricos em descrição, painel inteligente de Incoterms e resumo visual avançado.
+﻿/**
+ * modal-nova-cotacao-bid-frete-internacional.tsx — SSOT do wizard Nova Cotação (BID Frete Internacional).
+ * Rota exclusiva: /bid-frete/cotacoes/nova (App.tsx). Não montar overlay em outras telas.
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
@@ -9,8 +8,8 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   Truck,
-  ArrowLeft,
-  ArrowRight,
+  DownloadSimple,
+  Export,
   Anchor,
   AirplaneTilt,
   Van,
@@ -24,16 +23,18 @@ import {
 } from '@phosphor-icons/react'
 
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
+import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
 
-import { criarCotacao, getContainers } from '../shared/api'
-import { useAeroportosPorPais, usePaisesCadastros, usePortosPorPais } from '../shared/useCadastrosLogistica'
+import { criarCotacao } from '../shared/api'
+import { rotuloContainerCadastro } from '../shared/cadastrosApi'
+import { useAeroportosPorPais, useContainersCadastros, usePaisesCadastros, usePortosPorPais } from '../shared/useCadastrosLogistica'
 import type {
   TipoOperacao,
   ModalFrete,
   ModalidadeCarga,
   Visibilidade,
-  ContainerOption,
 } from '../shared/types'
 import {
   OPERACAO_LABELS,
@@ -285,6 +286,15 @@ const NC_ESTILOS_CONTEUDO = `
         .nc-step-wrapper,
         .nc-sucesso {
           --nc-muted: var(--ws-muted, var(--text-secondary, #94a3b8));
+          /* Cards de opção: roxo explícito no selecionado (não herdar --accent azul do shell) */
+          --nc-option-accent: #818cf8;
+          --nc-option-accent-dim: rgba(129, 140, 248, 0.12);
+          --nc-option-accent-border: rgba(129, 140, 248, 0.35);
+          --nc-option-focus-ring: 0 0 0 3px rgba(129, 140, 248, 0.25);
+          --nc-accent: var(--ws-accent, var(--accent, #818cf8));
+          --nc-accent-dim: var(--ws-accent-dim, rgba(129, 140, 248, 0.12));
+          --nc-accent-border: var(--ws-accent-border, rgba(129, 140, 248, 0.2));
+          --nc-focus-ring: 0 0 0 3px rgba(129, 140, 248, 0.25);
         }
 
         /* Área scrollável — padding compacto para caber passo 1 sem scroll */
@@ -335,38 +345,52 @@ const NC_ESTILOS_CONTEUDO = `
           gap: 1rem;
           margin-bottom: 1.5rem;
         }
+        .nc-options-grid-3 {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+        @media (max-width: 720px) {
+          .nc-options-grid-3 {
+            grid-template-columns: 1fr;
+          }
+        }
         .nc-options-grid-2:last-child,
         .nc-options-grid-3:last-child {
           margin-bottom: 0;
         }
 
-        /* Botão de Opção Enriquecido */
+        /* Botão de Opção — repouso neutro; selecionado/hover selecionado em roxo (#818cf8) */
         .nc-option-btn {
           display: flex;
           align-items: center;
           gap: 0.625rem;
           padding: 0.625rem 0.75rem;
-          border-radius: 8px;
+          border-radius: var(--radius-md, 8px);
           background: rgba(255, 255, 255, 0.03);
           border: 1px solid rgba(255, 255, 255, 0.06);
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
           font-family: inherit;
+          font-weight: 400;
           text-align: left;
           width: 100%;
           user-select: none;
         }
-        .nc-option-btn:hover {
+        .nc-option-btn:hover:not(.nc-option-btn--selected) {
           background: rgba(255, 255, 255, 0.05);
           border-color: rgba(255, 255, 255, 0.12);
         }
         .nc-option-btn--selected {
-          background: rgba(99, 102, 241, 0.08);
-          border: 1px solid rgba(99, 102, 241, 0.27);
+          background: var(--nc-option-accent-dim);
+          border: 1.5px solid var(--nc-option-accent-border);
+          box-shadow: var(--nc-option-focus-ring);
         }
         .nc-option-btn--selected:hover {
-          background: rgba(99, 102, 241, 0.12);
-          border-color: rgba(99, 102, 241, 0.44);
+          background: rgba(129, 140, 248, 0.16);
+          border-color: rgba(129, 140, 248, 0.5);
+          box-shadow: var(--nc-option-focus-ring);
         }
 
         .nc-option-checkbox {
@@ -382,11 +406,11 @@ const NC_ESTILOS_CONTEUDO = `
           transition: all 0.15s ease;
         }
         .nc-option-btn--selected .nc-option-checkbox {
-          background: rgba(99, 102, 241, 0.2);
-          border-color: var(--accent, #6366f1);
+          background: color-mix(in srgb, var(--nc-option-accent) 20%, transparent);
+          border-color: var(--nc-option-accent);
         }
         .nc-option-checkmark {
-          color: var(--accent, #6366f1);
+          color: var(--nc-option-accent);
           font-size: 11px;
           line-height: 1;
           font-weight: 700;
@@ -400,9 +424,8 @@ const NC_ESTILOS_CONTEUDO = `
           flex-shrink: 0;
           transition: color 0.15s ease;
         }
-        .nc-option-btn--selected .nc-option-icon,
-        .nc-option-btn:hover .nc-option-icon {
-          color: var(--accent, #6366f1);
+        .nc-option-btn--selected .nc-option-icon {
+          color: var(--nc-option-accent);
         }
 
         .nc-option-text {
@@ -450,6 +473,93 @@ const NC_ESTILOS_CONTEUDO = `
           gap: 1.5rem 1.25rem;
         }
 
+        /* Linha 1: NCM | Descrição | HS CODE */
+        .nc-cargo-linha-principal {
+          display: grid;
+          grid-template-columns: 13rem minmax(0, 2fr) 10rem;
+          gap: 1.25rem;
+          align-items: start;
+          margin-bottom: 1.5rem;
+        }
+        .nc-cargo-linha-principal--com-qtd {
+          grid-template-columns: 13rem minmax(0, 2fr) 10rem 8.5rem;
+        }
+        /* Linha 2 (FCL): Tipo Container | Quantidade de container */
+        .nc-cargo-linha-container {
+          grid-column: 1 / -1;
+          display: grid;
+          grid-template-columns: minmax(0, 2fr) 8.5rem;
+          gap: 1.25rem;
+          align-items: start;
+        }
+        @media (max-width: 960px) {
+          .nc-cargo-linha-principal {
+            grid-template-columns: 1fr 1fr;
+          }
+          .nc-cargo-linha-principal .nc-cargo-descricao {
+            grid-column: 1 / -1;
+          }
+          .nc-cargo-linha-container {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+        @media (max-width: 560px) {
+          .nc-cargo-linha-principal {
+            grid-template-columns: 1fr;
+          }
+          .nc-cargo-linha-container {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        /* SelectNcmGlobal alinhado ao padrão nc-field / nc-input desta tela */
+        .nc-campo-ncm {
+          min-width: 0;
+        }
+        .nc-campo-ncm .cg-wrapper {
+          gap: 0.5rem;
+        }
+        .nc-campo-ncm .cg-label {
+          font-size: 0.6875rem;
+          font-weight: 700;
+          letter-spacing: 0.07em;
+          color: var(--nc-muted);
+        }
+        .nc-campo-ncm .cg-wrapper > div:first-of-type {
+          gap: 0.625rem;
+        }
+        .nc-campo-ncm input {
+          flex: 1;
+          min-width: 0;
+          padding: 0.5625rem 0.875rem;
+          background: var(--ws-bg-body, var(--bg-body, #0f172a));
+          border: 1.5px solid var(--nc-accent-border);
+          border-radius: var(--radius-md, 8px);
+          color: var(--text-primary, #f1f5f9);
+          font-size: 0.875rem;
+          font-family: var(--font-mono, 'DM Mono', monospace);
+          min-height: 2.5rem;
+          box-sizing: border-box;
+        }
+        .nc-campo-ncm input:focus {
+          border-color: var(--nc-option-accent, #818cf8);
+          box-shadow: var(--nc-option-focus-ring, 0 0 0 3px rgba(129, 140, 248, 0.25));
+          outline: none;
+        }
+        .nc-campo-ncm button[aria-label="Buscar NCM"] {
+          width: 2.5rem;
+          height: 2.5rem;
+          flex-shrink: 0;
+          background: var(--ws-bg-body, var(--bg-body, #0f172a));
+          border: 1.5px solid var(--nc-accent-border);
+          border-radius: var(--radius-md, 8px);
+          color: var(--nc-option-accent, #818cf8);
+        }
+        .nc-campo-ncm button[aria-label="Buscar NCM"]:hover:not(:disabled) {
+          background: var(--nc-option-accent-dim, rgba(129, 140, 248, 0.12));
+          border-color: var(--nc-option-accent, #818cf8);
+        }
+
         .nc-field {
           display: flex;
           flex-direction: column;
@@ -465,21 +575,22 @@ const NC_ESTILOS_CONTEUDO = `
         }
 
         .nc-input {
-          padding: 0.625rem 0.875rem;
-          background: var(--bg-base, rgba(15, 23, 42, 0.4));
-          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
-          border-radius: 8px;
-          color: var(--text-primary, #f8fafc);
+          padding: 0.5625rem 0.875rem;
+          background: var(--ws-bg-body, var(--bg-body, #0f172a));
+          border: 1.5px solid var(--nc-accent-border);
+          border-radius: var(--radius-md, 8px);
+          color: var(--text-primary, #f1f5f9);
           font-size: 0.875rem;
           font-family: inherit;
           outline: none;
-          transition: all 0.2s;
+          transition: border-color 0.18s ease, box-shadow 0.18s ease;
           width: 100%;
+          box-sizing: border-box;
+          min-height: 2.5rem;
         }
         .nc-input:focus {
-          border-color: var(--accent, #6366f1);
-          background: var(--bg-surface-raised, rgba(15, 23, 42, 0.65));
-          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+          border-color: var(--nc-accent);
+          box-shadow: var(--nc-focus-ring);
         }
         .nc-input::placeholder { 
           color: var(--text-muted, #64748b); 
@@ -514,7 +625,7 @@ const NC_ESTILOS_CONTEUDO = `
           text-transform: uppercase;
         }
         .nc-input:focus ~ .nc-input-suffix {
-          color: var(--accent, #6366f1);
+          color: var(--nc-accent);
         }
 
         /* ── Origem e Destino Refinados ── */
@@ -526,7 +637,7 @@ const NC_ESTILOS_CONTEUDO = `
           margin-top: 0.75rem;
         }
         .nc-location-visual-card--origin {
-          border-left: 4px solid var(--accent, #6366f1);
+          border-left: 4px solid var(--nc-accent);
         }
         .nc-location-visual-card--destination {
           border-left: 4px solid var(--success, #10b981);
@@ -551,8 +662,8 @@ const NC_ESTILOS_CONTEUDO = `
           background: rgba(255, 255, 255, 0.03);
         }
         .nc-location-visual-card--origin .nc-location-visual-circle {
-          background: rgba(99, 102, 241, 0.1);
-          color: var(--accent, #6366f1);
+          background: var(--nc-accent-dim);
+          color: var(--nc-accent);
         }
         .nc-location-visual-card--destination .nc-location-visual-circle {
           background: rgba(16, 185, 129, 0.1);
@@ -571,9 +682,9 @@ const NC_ESTILOS_CONTEUDO = `
         }
 
         @keyframes nc-pulse {
-          0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-          70% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+          0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--nc-accent) 40%, transparent); }
+          70% { box-shadow: 0 0 0 6px transparent; }
+          100% { box-shadow: 0 0 0 0 transparent; }
         }
         @keyframes nc-pulse-dest {
           0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
@@ -601,13 +712,13 @@ const NC_ESTILOS_CONTEUDO = `
           }
         }
 
-        /* Novo layout: País + Estado/Província (linha 1) + Porto/Aeroporto (linha 2) */
+        /* Layout: Porto/Aeroporto (linha 1) + País + Estado/Província (linha 2) */
         .nc-fields-grid--location-new {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 1.25rem;
         }
-        .nc-fields-grid--location-new > *:nth-child(3) {
+        .nc-fields-grid--location-new > *:nth-child(1) {
           grid-column: span 2;
         }
         @media(max-width: 600px) {
@@ -615,7 +726,7 @@ const NC_ESTILOS_CONTEUDO = `
             grid-template-columns: 1fr;
             gap: 1rem;
           }
-          .nc-fields-grid--location-new > *:nth-child(3) {
+          .nc-fields-grid--location-new > *:nth-child(1) {
             grid-column: span 1;
           }
         }
@@ -651,7 +762,7 @@ const NC_ESTILOS_CONTEUDO = `
           overflow-y: auto;
           background: rgba(15, 23, 42, 0.98);
           backdrop-filter: blur(12px);
-          border: 1px solid rgba(99, 102, 241, 0.3);
+          border: 1px solid var(--nc-accent-border);
           border-radius: 8px;
           box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
           padding: 0.25rem;
@@ -670,14 +781,14 @@ const NC_ESTILOS_CONTEUDO = `
           transition: background 0.12s ease;
         }
         .nc-autocomplete-item:hover {
-          background: rgba(99, 102, 241, 0.12);
+          background: var(--nc-accent-dim);
         }
         .nc-ac-code {
           font-family: 'DM Mono', monospace;
           font-size: 0.75rem;
           font-weight: 700;
-          color: #a5b4fc;
-          background: rgba(99, 102, 241, 0.12);
+          color: var(--nc-accent);
+          background: var(--nc-accent-dim);
           padding: 0.15rem 0.45rem;
           border-radius: 4px;
           min-width: 2.5rem;
@@ -701,34 +812,32 @@ const NC_ESTILOS_CONTEUDO = `
         }
 
         .nc-incoterm-btn {
-          padding: 0.625rem 1.25rem;
-          background: var(--bg-base, rgba(15, 23, 42, 0.45));
-          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
-          border-radius: 30px;
+          padding: 0.5625rem 1rem;
+          background: var(--ws-bg-body, var(--bg-body, #0f172a));
+          border: 1.5px solid var(--nc-accent-border);
+          border-radius: var(--radius-md, 8px);
           color: var(--text-secondary, #94a3b8);
           font-size: 0.8125rem;
           font-weight: 700;
           font-family: 'DM Mono', monospace;
           letter-spacing: 0.03em;
           cursor: pointer;
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
         }
         .nc-incoterm-btn:hover {
-          border-color: rgba(99, 102, 241, 0.5);
-          color: #fff;
-          transform: scale(1.05);
+          border-color: var(--nc-accent);
+          color: var(--text-primary, #f1f5f9);
         }
         .nc-incoterm-btn--selected {
-          background: rgba(99, 102, 241, 0.15);
-          border-color: var(--accent, #6366f1);
-          color: var(--accent, #6366f1);
-          box-shadow: 0 0 8px rgba(99, 102, 241, 0.2);
+          background: var(--nc-accent-dim);
+          border-color: var(--nc-accent);
+          color: var(--nc-accent);
         }
 
         /* UX Helper Card do Incoterm */
         .nc-incoterm-helper-card {
-          background: rgba(99, 102, 241, 0.04);
-          border: 1px solid rgba(99, 102, 241, 0.25);
+          background: var(--nc-accent-dim);
+          border: 1px solid var(--nc-accent-border);
           border-radius: 10px;
           padding: 1.25rem 1.5rem;
           margin: 1.75rem 0;
@@ -737,7 +846,7 @@ const NC_ESTILOS_CONTEUDO = `
           display: flex;
           align-items: center;
           gap: 0.75rem;
-          color: var(--accent, #6366f1);
+          color: var(--nc-accent);
           margin-bottom: 0.75rem;
         }
         .nc-helper-header h4 {
@@ -752,7 +861,7 @@ const NC_ESTILOS_CONTEUDO = `
         .nc-helper-footer {
           margin-top: 1rem;
           padding-top: 1rem;
-          border-top: 1px solid rgba(99, 102, 241, 0.15);
+          border-top: 1px solid var(--nc-accent-border);
           font-size: 0.8125rem;
           color: var(--text-secondary-light, #cbd5e1);
         }
@@ -770,23 +879,27 @@ const NC_ESTILOS_CONTEUDO = `
           align-items: flex-start;
           gap: 1.25rem;
           padding: 1.25rem 1.5rem;
-          background: var(--bg-base, rgba(15, 23, 42, 0.4));
-          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
-          border-radius: 8px;
+          background: var(--ws-bg-body, var(--bg-body, #0f172a));
+          border: 1.5px solid var(--nc-accent-border);
+          border-radius: var(--radius-md, 8px);
           cursor: pointer;
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
           text-align: left;
           font-family: inherit;
         }
-        .nc-vis-card:hover {
-          border-color: rgba(99, 102, 241, 0.4);
-          background: var(--bg-hover, rgba(99, 102, 241, 0.04));
-          transform: translateY(-2px);
+        .nc-vis-card:hover:not(.nc-vis-card--selected) {
+          border-color: var(--nc-accent);
+          background: var(--nc-accent-dim);
         }
         .nc-vis-card--selected {
-          border-color: var(--accent, #6366f1);
-          background: rgba(99, 102, 241, 0.1);
-          box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15);
+          border-color: var(--nc-accent);
+          background: var(--nc-accent-dim);
+          box-shadow: var(--nc-focus-ring);
+        }
+        .nc-vis-card--selected:hover {
+          border-color: var(--nc-accent);
+          background: var(--nc-accent-dim);
+          box-shadow: var(--nc-focus-ring);
         }
 
         .nc-vis-icon-wrap {
@@ -801,8 +914,8 @@ const NC_ESTILOS_CONTEUDO = `
           flex-shrink: 0;
         }
         .nc-vis-card--selected .nc-vis-icon-wrap {
-          background: var(--accent, #6366f1);
-          color: #fff;
+          background: color-mix(in srgb, var(--nc-accent) 20%, transparent);
+          color: var(--nc-accent);
         }
 
         .nc-vis-info {
@@ -886,7 +999,7 @@ const NC_ESTILOS_CONTEUDO = `
           border-radius: 50%;
         }
         .nc-switch input:checked + .nc-switch-slider {
-          background-color: var(--accent, #6366f1);
+          background-color: var(--nc-accent);
         }
         .nc-switch input:checked + .nc-switch-slider:before {
           transform: translateX(20px);
@@ -915,7 +1028,7 @@ const NC_ESTILOS_CONTEUDO = `
           left: 0;
           right: 0;
           height: 3px;
-          background: linear-gradient(90deg, var(--accent, #6366f1), var(--success, #10b981));
+          background: linear-gradient(90deg, var(--nc-accent), var(--success, #10b981));
         }
 
         .nc-receipt-header {
@@ -927,12 +1040,12 @@ const NC_ESTILOS_CONTEUDO = `
           padding-bottom: 1rem;
         }
         .nc-receipt-badge {
-          background: rgba(99, 102, 241, 0.15);
-          color: var(--accent, #6366f1);
+          background: var(--nc-accent-dim);
+          color: var(--nc-accent);
           font-size: 0.75rem;
           font-weight: 700;
           padding: 0.35rem 0.75rem;
-          border-radius: 30px;
+          border-radius: var(--radius-md, 8px);
           text-transform: uppercase;
         }
         .nc-receipt-modal_cotacao_bid_frete_internacional {
@@ -961,8 +1074,8 @@ const NC_ESTILOS_CONTEUDO = `
           flex-shrink: 0;
         }
         .nc-node-dot--origin {
-          background: var(--accent, #6366f1);
-          box-shadow: 0 0 8px var(--accent, #6366f1);
+          background: var(--nc-accent);
+          box-shadow: 0 0 8px var(--nc-accent);
         }
         .nc-node-dot--destination {
           background: var(--success, #10b981);
@@ -996,7 +1109,7 @@ const NC_ESTILOS_CONTEUDO = `
         }
         .nc-timeline-line-fill {
           height: 2px;
-          background: linear-gradient(90deg, var(--accent, #6366f1), var(--success, #10b981));
+          background: linear-gradient(90deg, var(--nc-accent), var(--success, #10b981));
           width: 100%;
           border-radius: 2px;
         }
@@ -1063,15 +1176,15 @@ const NC_ESTILOS_CONTEUDO = `
           color: var(--text-secondary, #94a3b8);
         }
         .nc-receipt-value--incoterm {
-          color: var(--accent, #6366f1);
+          color: var(--nc-accent);
           font-family: 'DM Mono', monospace;
-          background: rgba(99, 102, 241, 0.08);
+          background: var(--nc-accent-dim);
           padding: 0.15rem 0.5rem;
           border-radius: 4px;
-          border: 1px solid rgba(99, 102, 241, 0.2);
+          border: 1px solid var(--nc-accent-border);
         }
 
-        /* ── Footer de Navegação ── */
+        /* ── Footer de Navegação (legado — modal usa BotaoGlobal) ── */
         .nc-footer {
           display: flex;
           align-items: center;
@@ -1080,53 +1193,6 @@ const NC_ESTILOS_CONTEUDO = `
         }
         .nc-footer-spacer { 
           flex: 1; 
-        }
-
-        /* ── Botões Customizados Premium ── */
-        .nc-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.625rem;
-          padding: 0.8rem 2rem;
-          border-radius: 30px;
-          font-size: 0.875rem;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-          border: none;
-          font-family: inherit;
-        }
-        .nc-btn:disabled {
-          opacity: 0.3;
-          cursor: not-allowed;
-        }
-        .nc-btn--primary {
-          background: linear-gradient(135deg, var(--accent, #6366f1) 0%, var(--accent-hover, #4f46e5) 100%);
-          color: #fff;
-          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
-        }
-        .nc-btn--primary:hover:not(:disabled) {
-          background: linear-gradient(135deg, var(--accent-hover, #4f46e5) 0%, #4338ca 100%);
-          transform: translateY(-1px);
-          box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
-        }
-        .nc-btn--secondary {
-          background: rgba(255, 255, 255, 0.02);
-          color: var(--text-secondary, #94a3b8);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .nc-btn--secondary:hover:not(:disabled) {
-          background: rgba(255, 255, 255, 0.06);
-          border-color: rgba(255, 255, 255, 0.15);
-          color: var(--text-primary, #f8fafc);
-        }
-
-        .nc-btn--navigation {
-          min-width: 150px;
-        }
-        .nc-btn--cta {
-          box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
         }
 
         /* ── Sucesso Premium ── */
@@ -1183,8 +1249,14 @@ const NC_ESTILOS_CONTEUDO = `
         }
 `
 
+const ROTA_LISTA = '/bid-frete/cotacoes'
+
+function limparHtmlNcm(texto: string): string {
+  return texto.replace(/<[^>]*>/g, '').trim()
+}
+
 // ─── Componente Principal ────────────────────────────────────────────────────
-export default function NovaCotacao() {
+export default function ModalNovaCotacaoBidFreteInternacional() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const [step, setStep] = useState(1)
@@ -1192,9 +1264,6 @@ export default function NovaCotacao() {
   const [salvando, setSalvando] = useState(false)
   const [sucesso, setSucesso] = useState(false)
   const [cotacaoId, setCotacaoId] = useState<string | null>(null)
-  const [containersList, setContainersList] = useState<ContainerOption[]>([])
-
-  const ROTA_LISTA = '/bid-frete/cotacoes'
 
   const { paises: paisesCadastro, opcoes: opcoesPaises, carregando: carregandoPaises } = usePaisesCadastros()
   const paisOrigemCodigo = form.origem_pais_cotacao_bid_frete_internacional
@@ -1203,22 +1272,39 @@ export default function NovaCotacao() {
     portos: portosOrigem,
     opcoes: opcoesPortosOrigem,
     carregando: carregandoPortosOrigem,
-  } = usePortosPorPais(form.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? paisOrigemCodigo : '')
+  } = usePortosPorPais(
+    paisOrigemCodigo,
+    form.modal_cotacao_bid_frete_internacional === 'MARITIMO',
+  )
   const {
     portos: portosDestino,
     opcoes: opcoesPortosDestino,
     carregando: carregandoPortosDestino,
-  } = usePortosPorPais(form.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? paisDestinoCodigo : '')
+  } = usePortosPorPais(
+    paisDestinoCodigo,
+    form.modal_cotacao_bid_frete_internacional === 'MARITIMO',
+  )
   const {
     aeroportos: aeroportosOrigem,
     opcoes: opcoesAeroportosOrigem,
     carregando: carregandoAeroportosOrigem,
-  } = useAeroportosPorPais(form.modal_cotacao_bid_frete_internacional === 'AEREO' ? paisOrigemCodigo : '')
+  } = useAeroportosPorPais(
+    paisOrigemCodigo,
+    form.modal_cotacao_bid_frete_internacional === 'AEREO',
+  )
   const {
     aeroportos: aeroportosDestino,
     opcoes: opcoesAeroportosDestino,
     carregando: carregandoAeroportosDestino,
-  } = useAeroportosPorPais(form.modal_cotacao_bid_frete_internacional === 'AEREO' ? paisDestinoCodigo : '')
+  } = useAeroportosPorPais(
+    paisDestinoCodigo,
+    form.modal_cotacao_bid_frete_internacional === 'AEREO',
+  )
+  const {
+    containers: containersCadastro,
+    opcoes: opcoesContainers,
+    carregando: carregandoContainers,
+  } = useContainersCadastros(form.modal_cotacao_bid_frete_internacional === 'MARITIMO')
 
   const rotuloPais = useCallback(
     (codigo: string) => {
@@ -1274,46 +1360,73 @@ export default function NovaCotacao() {
 
   const aoMudarPortoOrigem = (valor: string | number | null) => {
     const codigo = String(valor ?? '')
+    const porto = portosOrigem.find((p) => p.codigo_unlocode_porto === codigo)
     setForm((prev) => ({
       ...prev,
       origem_codigo_cotacao_bid_frete_internacional: codigo,
       origem_nome_cotacao_bid_frete_internacional: codigo ? rotuloPorto(codigo, portosOrigem) : '',
+      ...(porto?.codigo_pais_porto && !prev.origem_pais_cotacao_bid_frete_internacional
+        ? {
+            origem_pais_cotacao_bid_frete_internacional: porto.codigo_pais_porto,
+            origem_pais_nome: rotuloPais(porto.codigo_pais_porto),
+          }
+        : {}),
     }))
   }
 
   const aoMudarPortoDestino = (valor: string | number | null) => {
     const codigo = String(valor ?? '')
+    const porto = portosDestino.find((p) => p.codigo_unlocode_porto === codigo)
     setForm((prev) => ({
       ...prev,
       destino_codigo_cotacao_bid_frete_internacional: codigo,
       destino_nome_cotacao_bid_frete_internacional: codigo ? rotuloPorto(codigo, portosDestino) : '',
+      ...(porto?.codigo_pais_porto && !prev.destino_pais_cotacao_bid_frete_internacional
+        ? {
+            destino_pais_cotacao_bid_frete_internacional: porto.codigo_pais_porto,
+            destino_pais_nome: rotuloPais(porto.codigo_pais_porto),
+          }
+        : {}),
     }))
   }
 
   const aoMudarAeroportoOrigem = (valor: string | number | null) => {
     const iata = String(valor ?? '')
+    const aeroporto = aeroportosOrigem.find((a) => a.codigo_iata_aeroporto === iata)
     setForm((prev) => ({
       ...prev,
       aeroporto_origem_cotacao_bid_frete_internacional: iata,
       aeroporto_origem_nome: iata ? rotuloAeroporto(iata, aeroportosOrigem) : '',
+      ...(aeroporto?.codigo_pais_aeroporto && !prev.origem_pais_cotacao_bid_frete_internacional
+        ? {
+            origem_pais_cotacao_bid_frete_internacional: aeroporto.codigo_pais_aeroporto,
+            origem_pais_nome: rotuloPais(aeroporto.codigo_pais_aeroporto),
+          }
+        : {}),
     }))
   }
 
   const aoMudarAeroportoDestino = (valor: string | number | null) => {
     const iata = String(valor ?? '')
+    const aeroporto = aeroportosDestino.find((a) => a.codigo_iata_aeroporto === iata)
     setForm((prev) => ({
       ...prev,
       aeroporto_destino_cotacao_bid_frete_internacional: iata,
       aeroporto_destino_nome: iata ? rotuloAeroporto(iata, aeroportosDestino) : '',
+      ...(aeroporto?.codigo_pais_aeroporto && !prev.destino_pais_cotacao_bid_frete_internacional
+        ? {
+            destino_pais_cotacao_bid_frete_internacional: aeroporto.codigo_pais_aeroporto,
+            destino_pais_nome: rotuloPais(aeroporto.codigo_pais_aeroporto),
+          }
+        : {}),
     }))
   }
 
-  // Carregar containers ao montar
-  useEffect(() => {
-    getContainers().then(setContainersList).catch(() => {})
-  }, [])
+  // Carregar containers — SSOT Cadastros via useContainersCadastros
 
   const modal = form.modal_cotacao_bid_frete_internacional
+  const modalidade = form.modalidade_cotacao_bid_frete_internacional
+  const exigeContainerFcl = modal === 'MARITIMO' && modalidade === 'FCL'
 
   const stepStatus = (passoId: number): 'pendente' | 'ativo' | 'feito' => {
     if (passoId < step) return 'feito'
@@ -1324,22 +1437,37 @@ export default function NovaCotacao() {
   const set = <K extends keyof FormState>(key: K, val: FormState[K]) =>
     setForm(prev => ({ ...prev, [key]: val }))
 
+  const aoMudarNcm = (codigo: string, descricao?: string) => {
+    set('ncm_cotacao_bid_frete_internacional', codigo)
+    if (descricao) {
+      set('descricao_mercadoria_cotacao_bid_frete_internacional', limparHtmlNcm(descricao))
+    }
+  }
+
   const canNext = (): boolean => {
     switch (step) {
       case 1: return !!form.tipo_operacao_cotacao_bid_frete_internacional && !!form.modal_cotacao_bid_frete_internacional && !!form.modalidade_cotacao_bid_frete_internacional
       case 2: {
-        const temPais = !!form.origem_pais_cotacao_bid_frete_internacional
-        if (modal === 'MARITIMO') return temPais && !!form.origem_codigo_cotacao_bid_frete_internacional
-        if (modal === 'AEREO') return temPais && !!form.aeroporto_origem_cotacao_bid_frete_internacional
-        return temPais // RODOVIARIO: só país
+        if (modal === 'MARITIMO') return !!form.origem_codigo_cotacao_bid_frete_internacional
+        if (modal === 'AEREO') return !!form.aeroporto_origem_cotacao_bid_frete_internacional
+        return true // RODOVIARIO: país e estado opcionais
       }
       case 3: {
-        const temPais = !!form.destino_pais_cotacao_bid_frete_internacional
-        if (modal === 'MARITIMO') return temPais && !!form.destino_codigo_cotacao_bid_frete_internacional
-        if (modal === 'AEREO') return temPais && !!form.aeroporto_destino_cotacao_bid_frete_internacional
-        return temPais
+        if (modal === 'MARITIMO') return !!form.destino_codigo_cotacao_bid_frete_internacional
+        if (modal === 'AEREO') return !!form.aeroporto_destino_cotacao_bid_frete_internacional
+        return true
       }
-      case 4: return !!form.descricao_mercadoria_cotacao_bid_frete_internacional && form.quantidade_cotacao_bid_frete_internacional > 0
+      case 4: {
+        const base = !!form.descricao_mercadoria_cotacao_bid_frete_internacional
+        if (exigeContainerFcl) {
+          return (
+            base
+            && !!form.tipo_container_cotacao_bid_frete_internacional
+            && form.quantidade_cotacao_bid_frete_internacional > 0
+          )
+        }
+        return base && form.quantidade_cotacao_bid_frete_internacional > 0
+      }
       case 5: return !!form.incoterm_cotacao_bid_frete_internacional
       case 6: return true
       case 7: return true
@@ -1350,16 +1478,36 @@ export default function NovaCotacao() {
   const handleSubmit = async () => {
     setSalvando(true)
     try {
+      const paisOrigem =
+        form.origem_pais_cotacao_bid_frete_internacional ||
+        portosOrigem.find((p) => p.codigo_unlocode_porto === form.origem_codigo_cotacao_bid_frete_internacional)?.codigo_pais_porto ||
+        aeroportosOrigem.find((a) => a.codigo_iata_aeroporto === form.aeroporto_origem_cotacao_bid_frete_internacional)?.codigo_pais_aeroporto ||
+        (form.origem_codigo_cotacao_bid_frete_internacional.length >= 2
+          ? form.origem_codigo_cotacao_bid_frete_internacional.slice(0, 2).toUpperCase()
+          : '')
+
+      const paisDestino =
+        form.destino_pais_cotacao_bid_frete_internacional ||
+        portosDestino.find((p) => p.codigo_unlocode_porto === form.destino_codigo_cotacao_bid_frete_internacional)?.codigo_pais_porto ||
+        aeroportosDestino.find((a) => a.codigo_iata_aeroporto === form.aeroporto_destino_cotacao_bid_frete_internacional)?.codigo_pais_aeroporto ||
+        (form.destino_codigo_cotacao_bid_frete_internacional.length >= 2
+          ? form.destino_codigo_cotacao_bid_frete_internacional.slice(0, 2).toUpperCase()
+          : '')
+
       const cotacao = await criarCotacao({
         tipo_operacao_cotacao_bid_frete_internacional: form.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao,
         modal_cotacao_bid_frete_internacional: form.modal_cotacao_bid_frete_internacional as ModalFrete,
         modalidade_cotacao_bid_frete_internacional: form.modalidade_cotacao_bid_frete_internacional as ModalidadeCarga,
-        origem_codigo_cotacao_bid_frete_internacional: form.origem_codigo_cotacao_bid_frete_internacional,
+        origem_codigo_cotacao_bid_frete_internacional:
+          form.origem_codigo_cotacao_bid_frete_internacional ||
+          form.aeroporto_origem_cotacao_bid_frete_internacional,
         origem_nome_cotacao_bid_frete_internacional: form.origem_nome_cotacao_bid_frete_internacional || form.aeroporto_origem_nome,
-        origem_pais_cotacao_bid_frete_internacional: form.origem_pais_cotacao_bid_frete_internacional,
-        destino_codigo_cotacao_bid_frete_internacional: form.destino_codigo_cotacao_bid_frete_internacional,
+        origem_pais_cotacao_bid_frete_internacional: paisOrigem,
+        destino_codigo_cotacao_bid_frete_internacional:
+          form.destino_codigo_cotacao_bid_frete_internacional ||
+          form.aeroporto_destino_cotacao_bid_frete_internacional,
         destino_nome_cotacao_bid_frete_internacional: form.destino_nome_cotacao_bid_frete_internacional || form.aeroporto_destino_nome,
-        destino_pais_cotacao_bid_frete_internacional: form.destino_pais_cotacao_bid_frete_internacional,
+        destino_pais_cotacao_bid_frete_internacional: paisDestino,
         descricao_mercadoria_cotacao_bid_frete_internacional: form.descricao_mercadoria_cotacao_bid_frete_internacional,
         ncm_cotacao_bid_frete_internacional: form.ncm_cotacao_bid_frete_internacional || undefined,
         quantidade_cotacao_bid_frete_internacional: form.quantidade_cotacao_bid_frete_internacional,
@@ -1404,7 +1552,7 @@ export default function NovaCotacao() {
                   onClick={() => {
                     set('tipo_operacao_cotacao_bid_frete_internacional', op)
                   }}
-                  icon={op === 'IMPORTACAO' ? <ArrowLeft weight="duotone" size={24} /> : <ArrowRight weight="duotone" size={24} />}
+                  icon={op === 'IMPORTACAO' ? <DownloadSimple weight="duotone" size={24} /> : <Export weight="duotone" size={24} />}
                   label={OPERACAO_LABELS[op]}
                   description={OPERACAO_DESCS[op]}
                 />
@@ -1419,7 +1567,7 @@ export default function NovaCotacao() {
                   set('modal_cotacao_bid_frete_internacional', 'MARITIMO')
                   set('modalidade_cotacao_bid_frete_internacional', '') // reseta para forçar escolha limpa
                 }}
-                icon={<Anchor weight="duotone" size={28} />}
+                icon={<Anchor weight="duotone" size={24} />}
                 label="Marítimo"
                 description={MODAL_DESCS.MARITIMO}
               />
@@ -1429,7 +1577,7 @@ export default function NovaCotacao() {
                   set('modal_cotacao_bid_frete_internacional', 'AEREO')
                   set('modalidade_cotacao_bid_frete_internacional', '')
                 }}
-                icon={<AirplaneTilt weight="duotone" size={28} />}
+                icon={<AirplaneTilt weight="duotone" size={24} />}
                 label="Aéreo"
                 description={MODAL_DESCS.AEREO}
               />
@@ -1439,7 +1587,7 @@ export default function NovaCotacao() {
                   set('modal_cotacao_bid_frete_internacional', 'RODOVIARIO')
                   set('modalidade_cotacao_bid_frete_internacional', '')
                 }}
-                icon={<Van weight="duotone" size={28} />}
+                icon={<Truck weight="duotone" size={24} />}
                 label="Rodoviário"
                 description={MODAL_DESCS.RODOVIARIO}
               />
@@ -1485,12 +1633,42 @@ export default function NovaCotacao() {
                 </div>
                 <div className="nc-location-visual-text">
                   <h4>{modal === 'AEREO' ? 'Aeroporto de Origem' : modal === 'RODOVIARIO' ? 'Local de Origem' : t('bidfrete.nova_cotacao.porto_origem')}</h4>
-                  <p className="nc-caption">{modal === 'AEREO' ? 'Selecione o país e o aeroporto de partida' : modal === 'RODOVIARIO' ? 'Selecione o país e estado/província de coleta' : 'Selecione o país e o porto de embarque'}</p>
+                  <p className="nc-caption">{modal === 'AEREO' ? 'Selecione o aeroporto de partida (país e estado são opcionais)' : modal === 'RODOVIARIO' ? 'Informe país e estado/província de coleta, se souber' : 'Selecione o porto de embarque (país e estado são opcionais)'}</p>
                 </div>
               </div>
 
               <div className="nc-fields-grid nc-fields-grid--location-new">
-                <Field label="PAÍS" required>
+                {modal === 'MARITIMO' && (
+                  <Field label="PORTO DE EMBARQUE" required className="nc-field--span-2">
+                    <SelectGlobal
+                      iconeEsquerda={<Anchor size={16} />}
+                      opcoes={opcoesPortosOrigem}
+                      valor={form.origem_codigo_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={aoMudarPortoOrigem}
+                      placeholder="Selecione o porto..."
+                      buscavel
+                      carregando={carregandoPortosOrigem}
+                      posicao="auto"
+                    />
+                  </Field>
+                )}
+
+                {modal === 'AEREO' && (
+                  <Field label="AEROPORTO DE EMBARQUE" required className="nc-field--span-2">
+                    <SelectGlobal
+                      iconeEsquerda={<AirplaneTilt size={16} />}
+                      opcoes={opcoesAeroportosOrigem}
+                      valor={form.aeroporto_origem_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={aoMudarAeroportoOrigem}
+                      placeholder="Selecione o aeroporto..."
+                      buscavel
+                      carregando={carregandoAeroportosOrigem}
+                      posicao="auto"
+                    />
+                  </Field>
+                )}
+
+                <Field label="PAÍS">
                   <SelectGlobal
                     iconeEsquerda={<MapPin size={16} />}
                     opcoes={opcoesPaises}
@@ -1523,46 +1701,6 @@ export default function NovaCotacao() {
                     />
                   )}
                 </Field>
-
-                {modal === 'MARITIMO' && (
-                  <Field label="PORTO DE EMBARQUE" required className="nc-field--span-2">
-                    <SelectGlobal
-                      iconeEsquerda={<Anchor size={16} />}
-                      opcoes={opcoesPortosOrigem}
-                      valor={form.origem_codigo_cotacao_bid_frete_internacional || null}
-                      aoMudarValor={aoMudarPortoOrigem}
-                      placeholder={
-                        form.origem_pais_cotacao_bid_frete_internacional
-                          ? 'Selecione o porto...'
-                          : 'Selecione o país primeiro'
-                      }
-                      buscavel
-                      carregando={carregandoPortosOrigem}
-                      desabilitado={!form.origem_pais_cotacao_bid_frete_internacional}
-                      posicao="auto"
-                    />
-                  </Field>
-                )}
-
-                {modal === 'AEREO' && (
-                  <Field label="AEROPORTO DE EMBARQUE" required className="nc-field--span-2">
-                    <SelectGlobal
-                      iconeEsquerda={<AirplaneTilt size={16} />}
-                      opcoes={opcoesAeroportosOrigem}
-                      valor={form.aeroporto_origem_cotacao_bid_frete_internacional || null}
-                      aoMudarValor={aoMudarAeroportoOrigem}
-                      placeholder={
-                        form.origem_pais_cotacao_bid_frete_internacional
-                          ? 'Selecione o aeroporto...'
-                          : 'Selecione o país primeiro'
-                      }
-                      buscavel
-                      carregando={carregandoAeroportosOrigem}
-                      desabilitado={!form.origem_pais_cotacao_bid_frete_internacional}
-                      posicao="auto"
-                    />
-                  </Field>
-                )}
               </div>
             </div>
           </div>
@@ -1579,12 +1717,42 @@ export default function NovaCotacao() {
                 </div>
                 <div className="nc-location-visual-text">
                   <h4>{modal === 'AEREO' ? 'Aeroporto de Destino' : modal === 'RODOVIARIO' ? 'Local de Destino' : t('bidfrete.nova_cotacao.porto_destino')}</h4>
-                  <p className="nc-caption">{modal === 'AEREO' ? 'Selecione o país e o aeroporto de chegada' : modal === 'RODOVIARIO' ? 'Selecione o país e estado/província de entrega' : 'Selecione o país e o porto de destino'}</p>
+                  <p className="nc-caption">{modal === 'AEREO' ? 'Selecione o aeroporto de chegada (país e estado são opcionais)' : modal === 'RODOVIARIO' ? 'Informe país e estado/província de entrega, se souber' : 'Selecione o porto de destino (país e estado são opcionais)'}</p>
                 </div>
               </div>
 
               <div className="nc-fields-grid nc-fields-grid--location-new">
-                <Field label="PAÍS" required>
+                {modal === 'MARITIMO' && (
+                  <Field label="PORTO DE DESTINO" required className="nc-field--span-2">
+                    <SelectGlobal
+                      iconeEsquerda={<Anchor size={16} />}
+                      opcoes={opcoesPortosDestino}
+                      valor={form.destino_codigo_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={aoMudarPortoDestino}
+                      placeholder="Selecione o porto..."
+                      buscavel
+                      carregando={carregandoPortosDestino}
+                      posicao="auto"
+                    />
+                  </Field>
+                )}
+
+                {modal === 'AEREO' && (
+                  <Field label="AEROPORTO DE DESTINO" required className="nc-field--span-2">
+                    <SelectGlobal
+                      iconeEsquerda={<AirplaneTilt size={16} />}
+                      opcoes={opcoesAeroportosDestino}
+                      valor={form.aeroporto_destino_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={aoMudarAeroportoDestino}
+                      placeholder="Selecione o aeroporto..."
+                      buscavel
+                      carregando={carregandoAeroportosDestino}
+                      posicao="auto"
+                    />
+                  </Field>
+                )}
+
+                <Field label="PAÍS">
                   <SelectGlobal
                     iconeEsquerda={<MapPin size={16} />}
                     opcoes={opcoesPaises}
@@ -1617,46 +1785,6 @@ export default function NovaCotacao() {
                     />
                   )}
                 </Field>
-
-                {modal === 'MARITIMO' && (
-                  <Field label="PORTO DE DESTINO" required className="nc-field--span-2">
-                    <SelectGlobal
-                      iconeEsquerda={<Anchor size={16} />}
-                      opcoes={opcoesPortosDestino}
-                      valor={form.destino_codigo_cotacao_bid_frete_internacional || null}
-                      aoMudarValor={aoMudarPortoDestino}
-                      placeholder={
-                        form.destino_pais_cotacao_bid_frete_internacional
-                          ? 'Selecione o porto...'
-                          : 'Selecione o país primeiro'
-                      }
-                      buscavel
-                      carregando={carregandoPortosDestino}
-                      desabilitado={!form.destino_pais_cotacao_bid_frete_internacional}
-                      posicao="auto"
-                    />
-                  </Field>
-                )}
-
-                {modal === 'AEREO' && (
-                  <Field label="AEROPORTO DE DESTINO" required className="nc-field--span-2">
-                    <SelectGlobal
-                      iconeEsquerda={<AirplaneTilt size={16} />}
-                      opcoes={opcoesAeroportosDestino}
-                      valor={form.aeroporto_destino_cotacao_bid_frete_internacional || null}
-                      aoMudarValor={aoMudarAeroportoDestino}
-                      placeholder={
-                        form.destino_pais_cotacao_bid_frete_internacional
-                          ? 'Selecione o aeroporto...'
-                          : 'Selecione o país primeiro'
-                      }
-                      buscavel
-                      carregando={carregandoAeroportosDestino}
-                      desabilitado={!form.destino_pais_cotacao_bid_frete_internacional}
-                      posicao="auto"
-                    />
-                  </Field>
-                )}
               </div>
             </div>
           </div>
@@ -1667,35 +1795,81 @@ export default function NovaCotacao() {
         return (
           <div className="nc-step-content">
             <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.dados_mercadoria')}</h3>
-            <div className="nc-fields-grid nc-fields-grid--cargo">
-              <div style={{ gridColumn: 'span 2' }}>
-                <Field label={t('bidfrete.nova_cotacao.descricao_mercadoria')} required>
-                  <input className="nc-input" placeholder="Ex: Peças automotivas, eletrônicos industriais..." value={form.descricao_mercadoria_cotacao_bid_frete_internacional} onChange={e => set('descricao_mercadoria_cotacao_bid_frete_internacional', e.target.value)} />
-                </Field>
-              </div>
-              <Field label="NCM">
-                <input className="nc-input" placeholder="Ex: 87089990" value={form.ncm_cotacao_bid_frete_internacional} onChange={e => set('ncm_cotacao_bid_frete_internacional', e.target.value.replace(/\D/g, '').slice(0, 8))} />
+
+            <div className={`nc-cargo-linha-principal${!exigeContainerFcl ? ' nc-cargo-linha-principal--com-qtd' : ''}`}>
+              <SelectNcmGlobal
+                className="nc-campo-ncm"
+                label="NCM"
+                value={form.ncm_cotacao_bid_frete_internacional}
+                onChange={aoMudarNcm}
+              />
+
+              <Field
+                label={t('bidfrete.nova_cotacao.descricao_mercadoria')}
+                required
+                className="nc-cargo-descricao"
+              >
+                <input
+                  className="nc-input"
+                  placeholder="Ex: Peças automotivas, eletrônicos industriais..."
+                  value={form.descricao_mercadoria_cotacao_bid_frete_internacional}
+                  onChange={e => set('descricao_mercadoria_cotacao_bid_frete_internacional', e.target.value)}
+                />
               </Field>
+
               <Field label="HS CODE">
-                <input className="nc-input" placeholder="Ex: 8708.99" value={form.hs_code_cotacao_bid_frete_internacional} onChange={e => set('hs_code_cotacao_bid_frete_internacional', e.target.value.slice(0, 10))} />
+                <input
+                  className="nc-input"
+                  placeholder="Ex: 8708.99"
+                  value={form.hs_code_cotacao_bid_frete_internacional}
+                  onChange={e => set('hs_code_cotacao_bid_frete_internacional', e.target.value.slice(0, 10))}
+                />
               </Field>
 
-              <Field label={t('bidfrete.nova_cotacao.quantidade')} required>
-                <div className="nc-input-group">
-                  <input className="nc-input nc-input--with-suffix" type="number" min={1} value={form.quantidade_cotacao_bid_frete_internacional} onChange={e => set('quantidade_cotacao_bid_frete_internacional', parseInt(e.target.value) || 1)} />
-                  <span className="nc-input-suffix">un</span>
-                </div>
-              </Field>
-
-              {modal === 'MARITIMO' && (
-                <Field label="TIPO CONTAINER">
-                  <select className="nc-input" value={form.tipo_container_cotacao_bid_frete_internacional} onChange={e => set('tipo_container_cotacao_bid_frete_internacional', e.target.value)}>
-                    <option value="">Selecione</option>
-                    {containersList.map(c => (
-                      <option key={c.codigo} value={c.codigo}>{c.nome} ({c.teus} TEU)</option>
-                    ))}
-                  </select>
+              {!exigeContainerFcl && (
+                <Field label={t('bidfrete.nova_cotacao.quantidade')} required>
+                  <div className="nc-input-group">
+                    <input
+                      className="nc-input nc-input--with-suffix"
+                      type="number"
+                      min={1}
+                      value={form.quantidade_cotacao_bid_frete_internacional}
+                      onChange={e => set('quantidade_cotacao_bid_frete_internacional', parseInt(e.target.value) || 1)}
+                    />
+                    <span className="nc-input-suffix">un</span>
+                  </div>
                 </Field>
+              )}
+            </div>
+
+            <div className="nc-fields-grid nc-fields-grid--cargo">
+              {exigeContainerFcl && (
+                <div className="nc-cargo-linha-container">
+                  <Field label="TIPO CONTAINER" required>
+                    <SelectGlobal
+                      opcoes={opcoesContainers}
+                      valor={form.tipo_container_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={(v) => set('tipo_container_cotacao_bid_frete_internacional', String(v ?? ''))}
+                      placeholder="Selecione o tipo..."
+                      buscavel
+                      carregando={carregandoContainers}
+                      posicao="auto"
+                    />
+                  </Field>
+
+                  <Field label="QUANTIDADE DE CONTAINER" required>
+                    <div className="nc-input-group">
+                      <input
+                        className="nc-input nc-input--with-suffix"
+                        type="number"
+                        min={1}
+                        value={form.quantidade_cotacao_bid_frete_internacional}
+                        onChange={e => set('quantidade_cotacao_bid_frete_internacional', parseInt(e.target.value) || 1)}
+                      />
+                      <span className="nc-input-suffix">ctn</span>
+                    </div>
+                  </Field>
+                </div>
               )}
 
               <Field label="PESO (KG)">
@@ -1883,7 +2057,7 @@ export default function NovaCotacao() {
                   <div className="nc-timeline-icon-wrap">
                     {modal === 'MARITIMO' && <Anchor weight="duotone" size={16} />}
                     {modal === 'AEREO' && <AirplaneTilt weight="duotone" size={16} />}
-                    {modal === 'RODOVIARIO' && <Van weight="duotone" size={16} />}
+                    {modal === 'RODOVIARIO' && <Truck weight="duotone" size={16} />}
                     {!modal && <Truck weight="duotone" size={16} />}
                   </div>
                   <div className="nc-timeline-line-fill"></div>
@@ -1918,13 +2092,29 @@ export default function NovaCotacao() {
                 <div className="nc-receipt-row">
                   <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_qtd_peso')}</span>
                   <span className="nc-receipt-value">
-                    {form.quantidade_cotacao_bid_frete_internacional} un {form.peso_kg_cotacao_bid_frete_internacional ? `| ${form.peso_kg_cotacao_bid_frete_internacional} Kg` : ''} {form.peso_ton_cotacao_bid_frete_internacional ? `(${form.peso_ton_cotacao_bid_frete_internacional} TON)` : ''} {form.cubagem_m3_cotacao_bid_frete_internacional ? `| ${form.cubagem_m3_cotacao_bid_frete_internacional} m³` : ''}
+                    {!exigeContainerFcl && `${form.quantidade_cotacao_bid_frete_internacional} un `}
+                    {form.peso_kg_cotacao_bid_frete_internacional ? `${!exigeContainerFcl ? '| ' : ''}${form.peso_kg_cotacao_bid_frete_internacional} Kg` : ''}
+                    {form.peso_ton_cotacao_bid_frete_internacional ? ` (${form.peso_ton_cotacao_bid_frete_internacional} TON)` : ''}
+                    {form.cubagem_m3_cotacao_bid_frete_internacional ? ` | ${form.cubagem_m3_cotacao_bid_frete_internacional} m³` : ''}
+                    {exigeContainerFcl && !form.peso_kg_cotacao_bid_frete_internacional && !form.cubagem_m3_cotacao_bid_frete_internacional ? '—' : ''}
                   </span>
                 </div>
                 {form.tipo_container_cotacao_bid_frete_internacional && (
                   <div className="nc-receipt-row">
                     <span className="nc-receipt-label">Container</span>
-                    <span className="nc-receipt-value">{containersList.find(c => c.codigo === form.tipo_container_cotacao_bid_frete_internacional)?.nome || form.tipo_container_cotacao_bid_frete_internacional}</span>
+                    <span className="nc-receipt-value">{
+                      (() => {
+                        const c = containersCadastro.find(
+                          (item) => item.codigo_iso_container === form.tipo_container_cotacao_bid_frete_internacional,
+                        )
+                        const rotulo = c
+                          ? `${c.codigo_iso_container} — ${rotuloContainerCadastro(c)}`
+                          : form.tipo_container_cotacao_bid_frete_internacional
+                        return exigeContainerFcl
+                          ? `${form.quantidade_cotacao_bid_frete_internacional}× ${rotulo}`
+                          : rotulo
+                      })()
+                    }</span>
                   </div>
                 )}
                 <div className="nc-receipt-row">
@@ -1983,11 +2173,16 @@ export default function NovaCotacao() {
             <h2 className="nc-sucesso-title">{t('bidfrete.nova_cotacao.criado_sucesso')}</h2>
             <p className="nc-sucesso-desc">{t('bidfrete.nova_cotacao.criado_desc')}</p>
             <div className="nc-sucesso-actions">
-              <button type="button" className="nc-btn nc-btn--secondary" onClick={handleFechar}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
+              <BotaoGlobal variante="fantasma" onClick={handleFechar}>
+                {t('bidfrete.nova_cotacao.ver_cotacoes')}
+              </BotaoGlobal>
               {cotacaoId && (
-                <button type="button" className="nc-btn nc-btn--primary" onClick={() => navigate(`${ROTA_LISTA}/${cotacaoId}`)}>
+                <BotaoGlobal
+                  variante="primario"
+                  onClick={() => navigate(`${ROTA_LISTA}/${cotacaoId}`)}
+                >
                   {t('bidfrete.nova_cotacao.ver_detalhes')}
-                </button>
+                </BotaoGlobal>
               )}
             </div>
           </div>

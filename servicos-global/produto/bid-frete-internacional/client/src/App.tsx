@@ -36,7 +36,9 @@ import type { NavItem } from '@nucleo/tela-produto-global'
 const VisaoGeral = lazy(() => import('./pages/visao-geral'))
 const Dashboard = lazy(() => import('./pages/dashboard'))
 const Cotacoes = lazy(() => import('./pages/lista-bid-frete-internacional'))
-const NovaCotacao = lazy(() => import('./pages/cotacao-nova'))
+const ModalNovaCotacaoBidFreteInternacional = lazy(
+  () => import('./pages/modal-nova-cotacao-bid-frete-internacional'),
+)
 const CotacoesImportar = lazy(() => import('./pages/cotacoes-importar'))
 const DetalheCotacao = lazy(() => import('./pages/cotacao-detalhe'))
 const Comparativo = lazy(() => import('./pages/comparativo'))
@@ -219,7 +221,7 @@ export default function App() {
           <Route path="visao-geral"    element={<VisaoGeral />} />
           <Route path="dashboard"      element={<Dashboard />} />
           <Route path="cotacoes"       element={<Cotacoes />} />
-          <Route path="cotacoes/nova"  element={<NovaCotacao />} />
+          <Route path="cotacoes/nova" element={<ModalNovaCotacaoBidFreteInternacional />} />
           <Route path="cotacoes/importar" element={<CotacoesImportar />} />
           <Route path="cotacoes/:id_cotacao" element={<DetalheCotacao />} />
           <Route path="cotacoes/:id_cotacao/comparativo" element={<Comparativo />} />

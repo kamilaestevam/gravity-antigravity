@@ -67,6 +67,7 @@ export function extrairSlugDaPermissao(permissao: string): string | null {
  */
 export const PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS = new Set<string>([
   'pedido',
+  'bid-frete',
 ])
 
 /**
@@ -131,6 +132,13 @@ export const DEFAULTS_GRANULARES_POR_PRODUTO: Record<
       { secao: 'dashboard', acao: 'ver' },
       { secao: 'lista',     acao: 'ver' },
       { secao: 'historico', acao: 'ver' },
+    ],
+  },
+  'bid-frete': {
+    PADRAO: [],
+    FORNECEDOR: [
+      { secao: 'dashboard', acao: 'ver' },
+      { secao: 'lista',     acao: 'ver' },
     ],
   },
 }

@@ -32,6 +32,7 @@ import { requireGravityAdmin } from './middleware/requireGravityAdmin.js'
 import { authRouter } from './routes/auth.js'
 import { organizacoesRouter } from './routes/organizacao.js'
 import { usersRouter } from './routes/usuario.js'
+import { prestadoresFornecedorRouter } from './routes/prestadores-fornecedor.js'
 import { billingRouter } from './routes/fatura-produto-gravity.js'
 import { accessRouter } from './routes/acesso.js'
 import { workspacesHabilitadosInternalRouter } from './routes/workspaces-habilitados-internal.js'
@@ -183,6 +184,7 @@ app.use('/api/v1/organizacoes/me/assinaturas-produto-gravity', assinaturaProduto
 app.use('/api/v1/organizacoes/me/negociacao-especial', negociacaoEspecialRouter)
 app.use('/api/v1/workspaces/:id_workspace/produtos-gravity', companyProductsRouter)
 app.use('/api/v1/usuarios', usersRouter)
+app.use('/api/v1/prestadores-fornecedor', prestadoresFornecedorRouter)
 app.use('/api/v1/tokens-servico', serviceTokenRouter)
 
 // ─── Rotas internas (x-chave-interna-servico obrigatória) ────────────────────────────

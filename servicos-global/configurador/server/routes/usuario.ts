@@ -33,6 +33,7 @@ import {
   aoDesvincularUsuarioDoWorkspace,
 } from '../services/sincronizar-acesso-usuario-produtos-service.js'
 import { convidarUsuarioService } from '../services/convidar-usuario-service.js'
+import { tipoFornecedorOrganizacaoEnum } from '../../shared/tipo-fornecedor-organizacao.js'
 
 export const usersRouter = Router()
 
@@ -50,14 +51,23 @@ export const ConvidarUsuarioSchema = z.object({
   // workspaces_alvo: lista de workspaces a vincular OU 'all' (todos os ATIVOs).
   // Obrigatório para PADRAO/FORNECEDOR; ignorado para MASTER (acesso implícito a todos).
   workspaces_alvo: z.union([z.literal('all'), z.array(z.string().cuid()).min(1)]).optional(),
-}).strict().refine(
-  // .strict() (QA P2 fix 2026-05-12): rejeita campos desconhecidos no body,
-  // incluindo tentativa de injetar `id_organizacao_alvo` na rota regular
-  // (essa rota força alvo = req.auth.id_organizacao, então o campo seria
-  // ignorado em silêncio — viola Mand. 06/09).
-  (data) => data.tipo_usuario === 'MASTER' || data.workspaces_alvo !== undefined,
-  { message: 'Selecione os workspaces para este tipo de usuário', path: ['workspaces_alvo'] },
-)
+  tipo_fornecedor_organizacao: tipoFornecedorOrganizacaoEnum.optional(),
+}).strict().superRefine((data, ctx) => {
+  if (data.tipo_usuario !== 'MASTER' && data.workspaces_alvo === undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Selecione os workspaces para este tipo de usuário',
+      path: ['workspaces_alvo'],
+    })
+  }
+  if (data.tipo_usuario === 'FORNECEDOR' && !data.tipo_fornecedor_organizacao) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Selecione a categoria do fornecedor (ex.: Agente de carga)',
+      path: ['tipo_fornecedor_organizacao'],
+    })
+  }
+})
 
 const VincularUsuarioWorkspaceSchema = z.object({
   id_workspace: z.string(),
@@ -394,6 +404,7 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
       nome_usuario: parsed.data.nome_usuario,
       tipo_usuario: parsed.data.tipo_usuario,
       workspaces_alvo: parsed.data.workspaces_alvo,
+      tipo_fornecedor_organizacao: parsed.data.tipo_fornecedor_organizacao,
     })
 
     res.status(201).json({

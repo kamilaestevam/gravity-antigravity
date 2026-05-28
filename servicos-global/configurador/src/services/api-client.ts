@@ -4,6 +4,7 @@
 
 import { z } from 'zod'
 import { injetarHeaderOverride } from '@gravity/shell'
+import { tipoFornecedorOrganizacaoEnum } from '../../shared/tipo-fornecedor-organizacao.js'
 
 const BASE_URL = '/api'
 
@@ -379,6 +380,19 @@ export const convidarUsuarioResponseSchema = z.object({
   }),
 })
 
+export const convidarUsuarioInputSchema = z.object({
+  email_usuario: z.string().email(),
+  nome_usuario: z.string().min(1),
+  tipo_usuario: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']),
+  workspaces_alvo: z.union([z.literal('all'), z.array(z.string())]).optional(),
+  tipo_fornecedor_organizacao: tipoFornecedorOrganizacaoEnum.optional(),
+})
+
+export const adminConvidarUsuarioInputSchema = convidarUsuarioInputSchema.extend({
+  id_organizacao_alvo: z.string(),
+  tipo_usuario: tipoUsuarioEnum,
+})
+
 export const usuarioWorkspaceResponseSchema = z.object({
   usuario_workspace: z.object({
     id_usuario_workspace: z.string(),
@@ -693,13 +707,8 @@ export const adminUsuariosApi = {
    *
    * Apenas SUPER_ADMIN pode chamar (ADMIN é read-only — backend retorna 403).
    */
-  async convidar(data: {
-    id_organizacao_alvo: string
-    email_usuario: string
-    nome_usuario: string
-    tipo_usuario: string
-    workspaces_alvo?: 'all' | string[]
-  }) {
+  async convidar(data: z.input<typeof adminConvidarUsuarioInputSchema>) {
+    const payload = adminConvidarUsuarioInputSchema.parse(data)
     return request<{
       message: string
       usuario: {
@@ -711,7 +720,7 @@ export const adminUsuariosApi = {
       }
     }>(
       '/v1/admin/usuarios/convidar',
-      { method: 'POST', body: JSON.stringify(data) }
+      { method: 'POST', body: JSON.stringify(payload) }
     )
   },
 }
@@ -1333,15 +1342,11 @@ export const usuariosApi = {
     return listarUsuariosResponseSchema.parse(raw)
   },
 
-  async convidar(data: {
-    email_usuario: string
-    nome_usuario: string
-    tipo_usuario: 'MASTER' | 'PADRAO' | 'FORNECEDOR'
-    workspaces_alvo?: 'all' | string[]
-  }) {
+  async convidar(data: z.input<typeof convidarUsuarioInputSchema>) {
+    const payload = convidarUsuarioInputSchema.parse(data)
     const raw = await request<unknown>('/v1/usuarios/convidar', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     })
     return convidarUsuarioResponseSchema.parse(raw)
   },

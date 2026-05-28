@@ -7,6 +7,7 @@ import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { prisma } from '../lib/prisma.js'
 import { auditLog } from '../../../servicos-plataforma/historico-global/src/audit-client.js'
+import { aposClerkVinculadoPrestadorFornecedor } from '../services/prestador-fornecedor-vinculo-service.js'
 
 // TTL do cache de usuário no requireAuth.
 // Configurável via env REQUIRE_AUTH_CACHE_TTL_MS — mitigação para kick-out
@@ -132,6 +133,12 @@ export async function requireAuth(
               data: { id_clerk_usuario: verified.sub },
             })
             user = { id_usuario: only.id_usuario, id_organizacao: only.id_organizacao, tipo_usuario: only.tipo_usuario, nome_usuario: only.nome_usuario, status_usuario: only.status_usuario }
+            aposClerkVinculadoPrestadorFornecedor({
+              id_usuario: only.id_usuario,
+              id_clerk_usuario: verified.sub,
+              email_usuario: primaryEmail,
+              id_organizacao: only.id_organizacao,
+            }).catch(() => { /* best-effort */ })
           } else if (candidates.length > 1) {
             // Ambiguidade cross-org — log alto (Mand. 08) + tenta desambiguar
             // pela invitation aceita no Clerk
@@ -168,6 +175,12 @@ export async function requireAuth(
                     nome_usuario: matched.nome_usuario,
                     status_usuario: matched.status_usuario,
                   }
+                  aposClerkVinculadoPrestadorFornecedor({
+                    id_usuario: matched.id_usuario,
+                    id_clerk_usuario: verified.sub,
+                    email_usuario: primaryEmail,
+                    id_organizacao: matched.id_organizacao,
+                  }).catch(() => { /* best-effort */ })
                   // eslint-disable-next-line no-console
                   console.log('[requireAuth] EMAIL_FALLBACK_DESAMBIGUADO_VIA_CLERK', {
                     invitation_id: inv.id,

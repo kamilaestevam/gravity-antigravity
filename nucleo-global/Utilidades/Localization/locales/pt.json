@@ -2209,6 +2209,20 @@
       "accumulatedUsd": "Acumulado (USD)",
       "totalAmountUsd": "Valor total (USD)"
     },
+    "config": {
+      "sidebar": {
+        "dashboard_kpi": "Visão Geral"
+      },
+      "dashboard_kpi": {
+        "titulo": "Visão Geral — KPIs do topo",
+        "descricao": "Escolha qual status de cotação cada um dos 4 cards fixos do painel Visão Geral representa.",
+        "cards_topo": "CARDS DO TOPO",
+        "card_status": "Card {{n}} — Status",
+        "sem_status": "Nenhum status cadastrado. Configure em Status primeiro.",
+        "selecionar_status": "Selecionar status",
+        "restaurar_tooltip": "Restaura os status padrão dos 4 cards do topo"
+      }
+    },
     "tabela": {
       "processo": "Processo (DATI)",
       "referencia": "Referência",
@@ -2312,12 +2326,26 @@
         }
       }
     },
+    "disparo": {
+      "titulo": "Enviar cotação aos fornecedores",
+      "enviar": "Enviar aos fornecedores",
+      "enviando": "Enviando...",
+      "canais": "Canais",
+      "hint_aberta": "A cotação será enviada a todos os fornecedores ativos que aceitam cotação aberta.",
+      "hint_direcionada": "Selecione os fornecedores que receberão o pedido de cotação por e-mail.",
+      "sem_fornecedores": "Nenhum fornecedor ativo cadastrado.",
+      "erro_sem_canal": "Selecione ao menos um canal de envio.",
+      "erro_sem_fornecedor": "Selecione ao menos um fornecedor.",
+      "erro_envio": "Erro ao enviar cotação",
+      "erro_carregar_fornecedores": "Erro ao carregar fornecedores"
+    },
     "nova_cotacao": {
       "origem": "Origem",
       "destino": "Destino",
       "carga": "Carga",
       "incoterm": "Incoterm",
       "fornecedores": "Fornecedores",
+      "fornecedores_disparo": "Fornecedores e envio",
       "resumo": "Resumo",
       "maritimo": "Marítimo",
       "aereo": "Aéreo",
@@ -2672,7 +2700,22 @@
       "kpi_total": "Total de Fornecedores",
       "novo_fornecedor": "Novo Fornecedor",
       "todos_tipos": "Todos os tipos",
-      "ver_detalhes": "Ver detalhes"
+      "todos_status": "Todos",
+      "ver_detalhes": "Ver detalhes",
+      "vazio_desc": "Nenhum fornecedor encontrado com os filtros selecionados.",
+      "aria_tabela": "Lista de fornecedores",
+      "kpi_total_sub": "Cadastrados na organização",
+      "kpi_ativos_sub": "Disponíveis para cotação",
+      "kpi_inativos_sub": "Fora de operação",
+      "kpi_rating_sub": "Média de classificação global",
+      "modal": {
+        "titulo": "Novo Fornecedor",
+        "subtitulo": "Cadastre agente de carga, armador ou transportadora",
+        "salvar": "Cadastrar fornecedor",
+        "salvando": "Salvando...",
+        "sucesso": "Fornecedor cadastrado com sucesso.",
+        "erro_salvar": "Erro ao cadastrar fornecedor"
+      }
     },
     "detalhe_fornecedor": {
       "carregando": "Carregando fornecedor...",
@@ -2946,10 +2989,13 @@
       "aprovado": "Aprovado",
       "buscar_fornecedor": "Buscar por fornecedor",
       "canal": "Canal",
+      "canal_pedido": "Canal de disparo",
       "comparativo": "Comparativo",
       "container": "Tipo de Container",
       "criada_em": "Criada em",
       "cubagem": "Cubagem",
+      "data_envio": "Data de envio",
+      "data_resposta": "Data de resposta",
       "destino": "Destino",
       "dias": "dias",
       "enviado_em": "Enviado em",
@@ -3960,12 +4006,21 @@
         "destacar_atrasados": "Destacar pedidos atrasados em vermelho",
         "msg_salvo": "Preferências da tabela salvas com sucesso."
       },
+      "dashboard_kpi": {
+        "titulo": "Visão Geral — KPIs do topo",
+        "descricao": "Escolha qual status de pedido cada um dos 4 cards fixos do painel Visão Geral representa.",
+        "cards_topo": "CARDS DO TOPO",
+        "card_status": "Card {{n}} — Status",
+        "sem_status": "Nenhum status cadastrado. Configure em Status do Pedido primeiro.",
+        "selecionar_status": "Selecionar status",
+        "restaurar_tooltip": "Restaura os status padrão dos 4 cards do topo"
+      },
       "sidebar": {
         "grupo_visualizacoes": "VISUALIZAÇÕES",
         "grupo_pedido": "PEDIDO",
         "grupo_sistema": "SISTEMA",
         "cards": "Cards",
-        "dashboard_kpi": "Dashboard",
+        "dashboard_kpi": "Visão Geral",
         "tabela": "Tabela",
         "colunas": "Colunas",
         "casas_decimais": "Casas Decimais",

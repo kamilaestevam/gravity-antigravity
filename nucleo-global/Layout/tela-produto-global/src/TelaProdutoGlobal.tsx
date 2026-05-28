@@ -7,12 +7,17 @@ import {
   useTituloPaginaTopoOverride,
   mesclarTituloPaginaTopo,
 } from '@nucleo/menu-topo-global'
-import { MenuLateralGlobal, type NavItem, type WorkspaceItem } from '@nucleo/menu-lateral-global'
+import {
+  MenuLateralGlobal,
+  type NavItem,
+  type WorkspaceItem,
+  type ProductSwitcherItem,
+} from '@nucleo/menu-lateral-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import './tela-produto-global.css'
 import './placeholder-global.css'
 
-export type { NavItem, WorkspaceItem }
+export type { NavItem, WorkspaceItem, ProductSwitcherItem }
 export type { MenuTopoUsuarioConfig as TelaProdutoUsuarioConfig }
 
 export type TelaProdutoLocalizadorConfig = Omit<
@@ -35,6 +40,10 @@ export interface TelaProdutoGlobalProps {
   sinalAbrirMenuWorkspaces?: number
   onCreateWorkspace?: () => void
   onManageWorkspace?: () => void
+  produtos?:              ProductSwitcherItem[]
+  produtoAtualSlug?:      string
+  onSwitchProduct?:       (slug: string) => void
+  produtoSlugEquivalente?: (a: string, b: string) => boolean
   tooltipsDisabled:   boolean
   onToggleTooltips:   () => void
   localizador: TelaProdutoLocalizadorConfig
@@ -65,6 +74,10 @@ function TelaProdutoLayout({
   sinalAbrirMenuWorkspaces,
   onCreateWorkspace,
   onManageWorkspace,
+  produtos,
+  produtoAtualSlug,
+  onSwitchProduct,
+  produtoSlugEquivalente,
   tooltipsDisabled,
   onToggleTooltips,
   localizador,
@@ -113,6 +126,10 @@ function TelaProdutoLayout({
           sinalAbrirMenuWorkspaces={sinalAbrirMenuWorkspaces}
           onCreateWorkspace={onCreateWorkspace}
           onManageWorkspace={onManageWorkspace}
+          produtos={produtos}
+          produtoAtualSlug={produtoAtualSlug}
+          onSwitchProduct={onSwitchProduct}
+          produtoSlugEquivalente={produtoSlugEquivalente}
         />
       </div>
 

@@ -1515,6 +1515,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   onOrdemManualResetada,
   renderIndicadorLinha,
   renderIndicadorLinhaFilho,
+  classNameLinhaPai,
+  classNameLinhaFilho,
 }: GTVirtualTableProps<T, C>) {
   // ── Funções de ID ────────────────────────────────────────────────────────────
   const itemId = useCallback(
@@ -2747,6 +2749,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       selecionado ? 'gtv-linha--selecionada' : '',
       dragRowId === id ? 'gtv-linha--dragging' : '',
       dragOverRowId === id && dragRowPaiId === null ? `gtv-linha--drag-over-${dragRowSide}` : '',
+      classNameLinhaPai?.(item) ?? '',
     ].filter(Boolean).join(' ')
 
     return (
@@ -2870,6 +2873,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             ultimoFilho ? 'gtv-linha--filho-ultimo' : '',
             dragRowId === id ? 'gtv-linha--dragging' : '',
             dragOverRowId === id && dragRowPaiId === paiIdFilho ? `gtv-linha--drag-over-${dragRowSide}` : '',
+            classNameLinhaFilho?.(item) ?? '',
           ].filter(Boolean).join(' ')}
           draggable={arrastavelFilho ? true : undefined}
           onDragStart={arrastavelFilho ? (e) => handleRowDragStart(e, id, paiIdFilho) : undefined}
@@ -3083,7 +3087,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const dropAbertoOrig = dropdownFilhoAberto === id
 
     return (
-      <div className={`gtv-linha gtv-linha--filho${filhoSelOrig ? ' gtv-linha--filho-selecionada' : ''}${ultimoFilho ? ' gtv-linha--filho-ultimo' : ''}`}>
+      <div className={[
+        'gtv-linha gtv-linha--filho',
+        filhoSelOrig ? 'gtv-linha--filho-selecionada' : '',
+        ultimoFilho ? 'gtv-linha--filho-ultimo' : '',
+        classNameLinhaFilho?.(item) ?? '',
+      ].filter(Boolean).join(' ')}>
         {/* Indicador visual filho à esquerda */}
         {renderIndicadorLinhaFilho && (
           <div className="gtv-celula gtv-celula--indicador gtv-col-fixa">

@@ -1,15 +1,8 @@
 /// <reference types="vitest/globals" />
 // @vitest-environment node
 
-/**
- * cotacoes-routes.test.ts — Testes funcionais das rotas de Cotacao BID Frete Internacional
- * Valida contratos HTTP com nomes DDD corretos nos campos.
- */
-
 import express, { Request, Response, NextFunction } from 'express'
 import request from 'supertest'
-
-// ── Mocks hoisted ───────────────────────────────────────────────────────────
 
 const mockCotacoes: Record<string, unknown>[] = []
 let nextId = 1
@@ -55,8 +48,18 @@ const mockBidFreteInternacionalCotacao = {
 }
 
 const mockPrisma = {
-  bidFreteInternacionalCotacao: mockBidFreteInternacionalCotacao,
+  cotacaoBidFreteInternacional: mockBidFreteInternacionalCotacao,
 }
+
+vi.mock(
+  '../../../servicos-global/produto/bid-frete-internacional/server/src/services/motor-bid-frete-internacional.js',
+  () => ({
+    motorBid: {
+      disparar: vi.fn(async () => ({ disparos: 0, enviados: false, results: [] })),
+      dispararCotacaoAberta: vi.fn(async () => ({ disparos: 0, enviados: false, results: [] })),
+    },
+  }),
+)
 
 // Mock integracoes-tenant S2S
 vi.mock(
@@ -115,6 +118,7 @@ const COTACAO_VALIDA = {
   descricao_mercadoria_cotacao_bid_frete_internacional: 'Maquinários e Autopeças',
   incoterm_cotacao_bid_frete_internacional: 'FOB',
   quantidade_cotacao_bid_frete_internacional: 2,
+  disparar_ao_criar: false,
 }
 
 // ── Testes ───────────────────────────────────────────────────────────────────
@@ -181,6 +185,24 @@ describe('GET /api/v1/bid-frete-internacional/cotacoes', () => {
     expect(res.body).toHaveProperty('cotacoes')
     expect(res.body).toHaveProperty('pagination')
     expect(res.body.cotacoes.length).toBe(1)
+  })
+
+  it('deve aceitar limit=500 (paridade com COTACOES_LIMIT_LISTA da lista)', async () => {
+    const res = await request(app)
+      .get('/api/v1/bid-frete-internacional/cotacoes?limit=500')
+      .set(HEADERS)
+
+    expect(res.status).toBe(200)
+    expect(res.body.pagination.limit).toBe(500)
+  })
+
+  it('deve retornar 400 quando limit excede 500', async () => {
+    const res = await request(app)
+      .get('/api/v1/bid-frete-internacional/cotacoes?limit=501')
+      .set(HEADERS)
+
+    expect(res.status).toBe(400)
+    expect(res.body.error).toHaveProperty('code', 'VALIDATION_ERROR')
   })
 })
 

@@ -1,6 +1,6 @@
-# Aplica migrations Prisma no gravity-bidfrete-producao (SSOT cotacao_bid_frete_internacional).
+# Aplica migrations Prisma no gravity-bid-frete-internacional-producao (SSOT cotacao_bid_frete_internacional).
 # Uso:
-#   1. Railway → gravity-bidfrete-producao → Settings → Networking → habilite TCP Proxy (5432)
+#   1. Railway → gravity-bid-frete-internacional-producao → Settings → Networking → habilite TCP Proxy (5432)
 #   2. Copie DATABASE_PUBLIC_URL (host *.proxy.rlwy.net — NÃO @:/railway)
 #   3. Crie servicos-global/produto/bid-frete-internacional/.env.producao (gitignored):
 #        DATABASE_URL="postgresql://postgres:...@HOST.proxy.rlwy.net:PORT/railway"

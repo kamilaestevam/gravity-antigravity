@@ -1,7 +1,7 @@
 /**
  * aplicar-migrations-bid-frete-internacional.ts
  *
- * Aplica migrations do BID Frete Internacional em gravity-bidfrete-producao.
+ * Aplica migrations do BID Frete Internacional em gravity-bid-frete-internacional-producao.
  * Banco legado (bid_cotacoes, etc.) sem _prisma_migrations → baseline (P3005).
  * Banco já migrado ou vazio → prisma migrate deploy normal.
  */

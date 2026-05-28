@@ -9,6 +9,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 
 import CotacoesKanban from './kanban-bid-frete-internacional'
@@ -37,17 +38,49 @@ import {
   Gauge,
 } from '@phosphor-icons/react'
 
-import { getCotacoes } from '../shared/api'
-import type { Cotacao, StatusCotacao } from '../shared/types'
+import { getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao } from '../shared/api'
+import type { BidFreteInternacional, Cotacao, StatusCotacao } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, MODALIDADE_LABELS } from '../shared/types'
 import {
+  calcularMetricaCardCustom,
+  formatarValorCardCustom,
+} from '../shared/lista-bid-frete-card-custom'
+import { COTACOES_LIMIT_LISTA, filtrarCotacoesPorPeriodoCards } from '../shared/lista-bid-frete-card-periodo'
+import { calcularStatsListaBidFrete } from '../shared/lista-bid-frete-kpi-metrics'
+import {
+  carregarTabelaConfigBidFrete,
+  HORAS_LIMITE_DESTAQUE_EXPIRACAO,
+  SYNC_EVENT_TABELA_BID_FRETE,
+} from '../shared/tabela-config-bid-frete'
+import { SYNC_EVENT_CASAS_BID_FRETE } from '../shared/casas-config-bid-frete'
+import { SYNC_EVENT_FORMATO_DATA_BID_FRETE } from '../shared/formato-data-bid-frete'
+import { listarCardsCatalogo, useCardPreferencesBidFrete } from '../shared/use-card-preferences'
+import {
+  buildColunasPaiLista,
   buildColunasCotacoes,
+  buildMapaColunasFilho,
+  CHAVES_COLUNAS_COTACAO,
+  CHAVES_COLUNAS_PADRAO_VISIVEIS,
+  type OpcoesColunasLista,
+  formatValorExportColuna,
   fmtData,
   fmtQuantidade,
-  getCasas,
   RenderBadgeStatus,
   RenderModalIcon,
 } from './colunas-lista-bid-frete-internacional'
+import {
+  montarLinhasPaiLista,
+  idLinhaPaiLista,
+  idLinhaFilhaLista,
+  isLinhaBidGrupo,
+  isLinhaProposta,
+  cotacaoDaLinhaPai,
+  propostasFilhasDaCotacaoAvulsa,
+  cotacaoPrestesAExpirar,
+  linhaPaiPrestesAExpirar,
+  type LinhaPaiLista,
+  type LinhaFilhaLista,
+} from './lista-bid-frete-internacional-utils'
 
 // ─── Status Config (localStorage) ───
 
@@ -114,34 +147,139 @@ const CAMPOS_EDITAVEIS = [
   'valor_meta_cotacao_bid_frete_internacional',
 ]
 
-// ─── Sequência de colunas padrão ───
+// ─── Colunas padrão = todas as colunas escalares do banco ───
 
-const COLUNAS_PADRAO_VISIVEIS = [
-  'numero_cotacao_bid_frete_internacional',
-  'referencia_interna_cotacao_bid_frete_internacional',
-  'status',
-  'data_criacao_cotacao_bid_frete_internacional',
-  'modal_cotacao_bid_frete_internacional',
-  'origem_nome_cotacao_bid_frete_internacional',
-  'destino_nome_cotacao_bid_frete_internacional',
-  'peso_kg_cotacao_bid_frete_internacional',
-  'cubagem_m3_cotacao_bid_frete_internacional',
-  'incoterm_cotacao_bid_frete_internacional',
-  'valor_meta_cotacao_bid_frete_internacional',
-  'ganho_valor_cotacao_bid_frete_internacional',
-  'ganho_percentual_ganho_bid_frete_internacional',
-]
+/** Incrementar quando adicionar colunas ao schema — força reset das prefs salvas. */
+const VERSAO_COLUNAS_LISTA = 3
+const STORAGE_COLUNAS_VERSAO = 'bid-frete-internacional:config:tabela_colunas_versao'
+const STORAGE_PREFS_INTL = 'bid-frete-internacional:config:tabela_preferencias'
+const STORAGE_PREFS_LEGADO = 'bid-frete:config:tabela_preferencias'
 
+const COLUNAS_PADRAO_VISIVEIS = CHAVES_COLUNAS_PADRAO_VISIVEIS
 
+function migrarPreferenciasColunasSeNecessario(): void {
+  try {
+    const versaoSalva = Number(localStorage.getItem(STORAGE_COLUNAS_VERSAO) ?? '1')
+    if (versaoSalva >= VERSAO_COLUNAS_LISTA) return
+    localStorage.removeItem(STORAGE_PREFS_INTL)
+    localStorage.removeItem(STORAGE_PREFS_LEGADO)
+    localStorage.setItem(STORAGE_COLUNAS_VERSAO, String(VERSAO_COLUNAS_LISTA))
+  } catch { /* storage indisponível */ }
+}
+
+function lerPreferenciasTabela(): GTPreferencias | undefined {
+  migrarPreferenciasColunasSeNecessario()
+  try {
+    let raw = localStorage.getItem(STORAGE_PREFS_INTL)
+    if (!raw) {
+      raw = localStorage.getItem(STORAGE_PREFS_LEGADO)
+    }
+    if (!raw) return undefined
+    const parsed = JSON.parse(raw) as GTPreferencias
+    if (!parsed || !Array.isArray(parsed.colunas_visiveis)) {
+      return undefined
+    }
+
+    const colunasValidas = parsed.colunas_visiveis
+      .filter(k => CHAVES_COLUNAS_COTACAO.includes(k))
+      .filter(k => k !== 'id_cotacao_bid_frete_internacional')
+    const faltantes = CHAVES_COLUNAS_PADRAO_VISIVEIS.filter(k => !colunasValidas.includes(k))
+
+    const hasIntlCore = colunasValidas.includes('numero_cotacao_bid_frete_internacional')
+    if (!hasIntlCore || colunasValidas.length < 3) {
+      return undefined
+    }
+
+    // Novas colunas do banco entram automaticamente ao final da lista visível
+    const colunasVisiveis = faltantes.length > 0
+      ? [...colunasValidas, ...faltantes]
+      : colunasValidas
+
+    return {
+      ...parsed,
+      colunas_visiveis: colunasVisiveis,
+    }
+  } catch {
+    return undefined
+  }
+}
 
 export default function Cotacoes() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const addNotification = useShellStore(s => s.addNotification)
+  const { getToken } = useAuth()
+  const currentUser = useShellStore(s => s.currentUser)
+  const workspacesStore = useShellStore(s => s.workspaces)
+  const organizacoesStore = useShellStore(s => s.organizacoes)
+  const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
+
+  useEffect(() => {
+    if (currentUser.id) {
+      sessionStorage.setItem('gravity_id_usuario', currentUser.id)
+    }
+  }, [currentUser.id])
+
+  const [usuariosOrganizacao, setUsuariosOrganizacao] = useState<Array<{ id_usuario: string; nome_usuario: string }>>([])
+
+  useEffect(() => {
+    let cancelado = false
+    listarUsuariosOrganizacao(getToken)
+      .then((lista) => { if (!cancelado) setUsuariosOrganizacao(lista) })
+      .catch(() => { if (!cancelado) setUsuariosOrganizacao([]) })
+    return () => { cancelado = true }
+  }, [getToken])
+
+  const organizacoesMap = useMemo(() => {
+    const mapa = new Map<string, string>()
+    if (currentUser.idOrganizacao && currentUser.nomeOrganizacao) {
+      mapa.set(currentUser.idOrganizacao, currentUser.nomeOrganizacao)
+    }
+    for (const org of organizacoesStore) {
+      mapa.set(org.id_organizacao, org.nome_organizacao)
+    }
+    return mapa
+  }, [currentUser.idOrganizacao, currentUser.nomeOrganizacao, organizacoesStore])
+
+  const workspacesMap = useMemo(() => {
+    const mapa = new Map<string, { nome: string }>()
+    for (const ws of workspacesStore) {
+      mapa.set(ws.id, { nome: ws.nome_workspace })
+    }
+    return mapa
+  }, [workspacesStore])
+
+  const usuariosMap = useMemo(() => {
+    const mapa = new Map<string, string>()
+    for (const u of usuariosOrganizacao) {
+      mapa.set(u.id_usuario, u.nome_usuario)
+    }
+    if (currentUser.id && currentUser.name) {
+      mapa.set(currentUser.id, currentUser.name)
+    }
+    return mapa
+  }, [usuariosOrganizacao, currentUser.id, currentUser.name])
+
+  const nomeWorkspaceAtivo = useMemo(() => {
+    if (!idWorkspaceAtivo) return undefined
+    return workspacesMap.get(idWorkspaceAtivo)?.nome
+  }, [idWorkspaceAtivo, workspacesMap])
+
+  const opcoesColunasLista = useMemo<OpcoesColunasLista>(() => ({
+    organizacoesMap,
+    workspacesMap,
+    usuariosMap,
+    idUsuarioAtual: currentUser.id,
+    nomeUsuarioAtual: currentUser.name || currentUser.email,
+    nomeWorkspaceFallback: nomeWorkspaceAtivo,
+  }), [organizacoesMap, workspacesMap, usuariosMap, currentUser.id, currentUser.name, currentUser.email, nomeWorkspaceAtivo])
 
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
+  const [cotacoesAvulsas, setCotacoesAvulsas] = useState<Cotacao[]>([])
+  const [bidsFreteInternacional, setBidsFreteInternacional] = useState<BidFreteInternacional[]>([])
   const [carregando, setCarregando] = useState(true)
+  const [erroCarregar, setErroCarregar] = useState<string | null>(null)
   const [busca, setBusca] = useState('')
 
   const visaoParam = searchParams.get('visao')
@@ -185,58 +323,84 @@ export default function Cotacoes() {
   }, [])
 
   const abas = useMemo(() => gerarAbasDinamicas(statusConfig), [statusConfig])
+  const { visiveis: cardsVisiveis, periodo: periodoCards } = useCardPreferencesBidFrete()
 
-  // Carrega configurações de cards do Configurador (Internacional)
-  const [cardsPref, setCardsPref] = useState<{ id: string; visible: boolean }[]>(() => {
-    try {
-      const raw = localStorage.getItem('bid-frete:config:cards')
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed
-        }
-      }
-    } catch {}
-    // Padrão completo do configurador caso não configurado
-    return [
-      { id: 'total_cotacoes', visible: true },
-      { id: 'valor_total_frete', visible: true },
-      { id: 'propostas_recebidas', visible: true },
-      { id: 'saving_total', visible: true },
-      { id: 'tempo_medio_resposta', visible: true },
-      { id: 'cotacoes_expiradas', visible: true },
-    ]
-  })
+  const [tabelaConfig, setTabelaConfig] = useState(carregarTabelaConfigBidFrete)
+  const [paginaLista, setPaginaLista] = useState(1)
+  const [casasVersion, setCasasVersion] = useState(0)
+  const [formatoDataVersion, setFormatoDataVersion] = useState(0)
 
-  // Sincronização em tempo real das preferências de cards
   useEffect(() => {
-    const handleStorageChange = () => {
-      try {
-        const raw = localStorage.getItem('bid-frete:config:cards')
-        if (raw) {
-          const parsed = JSON.parse(raw)
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setCardsPref(parsed)
-          }
-        }
-      } catch {}
+    function syncTabelaConfig() {
+      setTabelaConfig(carregarTabelaConfigBidFrete())
     }
-    window.addEventListener('storage', handleStorageChange)
-    window.addEventListener('focus', handleStorageChange)
+    window.addEventListener(SYNC_EVENT_TABELA_BID_FRETE, syncTabelaConfig)
+    window.addEventListener('storage', syncTabelaConfig)
+    window.addEventListener('focus', syncTabelaConfig)
     return () => {
-      window.removeEventListener('storage', handleStorageChange)
-      window.removeEventListener('focus', handleStorageChange)
+      window.removeEventListener(SYNC_EVENT_TABELA_BID_FRETE, syncTabelaConfig)
+      window.removeEventListener('storage', syncTabelaConfig)
+      window.removeEventListener('focus', syncTabelaConfig)
     }
   }, [])
+
+  useEffect(() => {
+    const syncCasas = () => setCasasVersion(v => v + 1)
+    window.addEventListener(SYNC_EVENT_CASAS_BID_FRETE, syncCasas)
+    window.addEventListener('storage', syncCasas)
+    return () => {
+      window.removeEventListener(SYNC_EVENT_CASAS_BID_FRETE, syncCasas)
+      window.removeEventListener('storage', syncCasas)
+    }
+  }, [])
+
+  useEffect(() => {
+    const syncFormato = () => setFormatoDataVersion(v => v + 1)
+    window.addEventListener(SYNC_EVENT_FORMATO_DATA_BID_FRETE, syncFormato)
+    window.addEventListener('storage', syncFormato)
+    return () => {
+      window.removeEventListener(SYNC_EVENT_FORMATO_DATA_BID_FRETE, syncFormato)
+      window.removeEventListener('storage', syncFormato)
+    }
+  }, [])
+
+  useEffect(() => {
+    setPaginaLista(1)
+  }, [tabelaConfig.linhasPorPagina])
+
+  const classNameLinhaPai = useCallback((linha: LinhaPaiLista) => {
+    if (!tabelaConfig.destacarAtrasados) return undefined
+    return linhaPaiPrestesAExpirar(linha, HORAS_LIMITE_DESTAQUE_EXPIRACAO)
+      ? 'gtv-linha--expira-prestes'
+      : undefined
+  }, [tabelaConfig.destacarAtrasados])
+
+  const classNameLinhaFilho = useCallback((filha: LinhaFilhaLista) => {
+    if (isLinhaProposta(filha)) return undefined
+    if (!tabelaConfig.destacarAtrasados) return undefined
+    return cotacaoPrestesAExpirar(filha, HORAS_LIMITE_DESTAQUE_EXPIRACAO)
+      ? 'gtv-linha--expira-prestes'
+      : undefined
+  }, [tabelaConfig.destacarAtrasados])
 
   // Carregar dados de cotações
   const carregar = useCallback(async () => {
     setCarregando(true)
+    setErroCarregar(null)
     try {
-      const res = await getCotacoes({ limit: 50 })
-      setCotacoes(res.cotacoes)
-    } catch {
+      const [resTodas, resAvulsas, bids] = await Promise.all([
+        getCotacoes({ limit: COTACOES_LIMIT_LISTA }),
+        getCotacoes({ limit: COTACOES_LIMIT_LISTA, apenas_avulsas: true }),
+        getBidsFreteInternacional(),
+      ])
+      setCotacoes(resTodas.cotacoes)
+      setCotacoesAvulsas(resAvulsas.cotacoes)
+      setBidsFreteInternacional(bids)
+    } catch (e: unknown) {
       setCotacoes([])
+      setCotacoesAvulsas([])
+      setBidsFreteInternacional([])
+      setErroCarregar(e instanceof Error ? e.message : 'Erro ao carregar cotações')
     } finally {
       setCarregando(false)
     }
@@ -246,44 +410,42 @@ export default function Cotacoes() {
 
   // ─── Tabela Virtual: Preferências, Colunas e Edição ───
 
-  const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(() => {
-    try {
-      let raw = localStorage.getItem('bid-frete-internacional:config:tabela_preferencias')
-      if (!raw) {
-        raw = localStorage.getItem('bid-frete:config:tabela_preferencias')
-      }
-      if (!raw) return undefined
-      const parsed = JSON.parse(raw) as GTPreferencias
-      if (!parsed || !Array.isArray(parsed.colunas_visiveis)) {
-        return undefined
-      }
+  const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(() => lerPreferenciasTabela())
 
-      // Validar contra as colunas realmente disponíveis no produto internacional
-      const colunasDisponiveis = buildColunasCotacoes(() => '').map(c => c.key).filter((k): k is string => typeof k === 'string')
-      const colunasValidas = parsed.colunas_visiveis.filter(k => colunasDisponiveis.includes(k))
-
-      const hasIntlCore = colunasValidas.includes('numero_cotacao_bid_frete_internacional')
-      if (!hasIntlCore || colunasValidas.length < 3) {
-        return undefined
-      }
-
-      return {
-        ...parsed,
-        colunas_visiveis: colunasValidas,
-      }
-    } catch {
-      return undefined
+  useEffect(() => {
+    const prefs = lerPreferenciasTabela()
+    if (prefs) {
+      setPreferencias(prefs)
+      try {
+        localStorage.setItem(STORAGE_PREFS_INTL, JSON.stringify(prefs))
+      } catch { /* ignore */ }
     }
-  })
+  }, [])
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
     try {
-      localStorage.setItem('bid-frete-internacional:config:tabela_preferencias', JSON.stringify(prefs))
+      localStorage.setItem(STORAGE_COLUNAS_VERSAO, String(VERSAO_COLUNAS_LISTA))
+      localStorage.setItem(STORAGE_PREFS_INTL, JSON.stringify(prefs))
     } catch { /* ignore */ }
   }, [])
 
-  const colunasTabela = useMemo(() => buildColunasCotacoes(t), [t])
+  const abrirDetalheCotacao = useCallback((item: Cotacao) => {
+    navigate(`/produto/bid-frete/cotacoes/${item.id_cotacao_bid_frete_internacional}`)
+  }, [navigate])
+
+  const colunasTabela = useMemo(
+    () => buildColunasPaiLista(t, opcoesColunasLista, abrirDetalheCotacao),
+    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion, formatoDataVersion],
+  )
+  const mapaColunasFilho = useMemo(
+    () => buildMapaColunasFilho(t, opcoesColunasLista, abrirDetalheCotacao),
+    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion, formatoDataVersion],
+  )
+  const colunasFilhoExport = useMemo(
+    () => buildColunasCotacoes(t, opcoesColunasLista, abrirDetalheCotacao),
+    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion, formatoDataVersion],
+  )
 
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown) => {
     let updatedCotacao: Cotacao | undefined
@@ -300,36 +462,79 @@ export default function Cotacoes() {
     return updated
   }, [cotacoes])
 
-  const handleReordenarCotacoes = useCallback((ids: string[]) => {
-    const mapa = new Map(cotacoes.map(c => [c.id_cotacao_bid_frete_internacional, c]))
-    const reordenados = ids.map(id => mapa.get(id)).filter((c): c is Cotacao => c != null)
-    const restantes = cotacoes.filter(c => !ids.includes(c.id_cotacao_bid_frete_internacional))
-    setCotacoes([...reordenados, ...restantes])
-  }, [cotacoes])
-
   // ─── Filtragem Reativa (Busca + Abas) ───
 
-  const cotacoesFiltradas = useMemo(() => {
-    let result = cotacoes
-
-    // Filtro por abas dinâmicas (nome do status ou "TODAS")
-    if (filtroTab !== 'TODAS') {
-      result = result.filter(c => c.status_cotacao_bid_frete_internacional === filtroTab)
+  const filtrarCotacaoItem = useCallback((c: Cotacao): boolean => {
+    if (filtroTab !== 'TODAS' && c.status_cotacao_bid_frete_internacional !== filtroTab) {
+      return false
     }
-
-    // Filtro por busca
     if (busca.trim()) {
       const term = busca.toLowerCase()
-      result = result.filter(c =>
+      return (
         c.numero_cotacao_bid_frete_internacional.toLowerCase().includes(term) ||
         (c.referencia_interna_cotacao_bid_frete_internacional ?? '').toLowerCase().includes(term) ||
         c.origem_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term) ||
         c.destino_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term)
       )
     }
+    return true
+  }, [filtroTab, busca])
 
-    return result
-  }, [cotacoes, filtroTab, busca])
+  const cotacoesFiltradas = useMemo(
+    () => cotacoes.filter(filtrarCotacaoItem),
+    [cotacoes, filtrarCotacaoItem],
+  )
+
+  const cotacoesAvulsasFiltradas = useMemo(
+    () => cotacoesAvulsas.filter(filtrarCotacaoItem),
+    [cotacoesAvulsas, filtrarCotacaoItem],
+  )
+
+  const bidsFiltrados = useMemo(() => {
+    const term = busca.trim().toLowerCase()
+    return bidsFreteInternacional
+      .map(bid => {
+        const cotacoesFilhas = (bid.cotacoes ?? []).filter(filtrarCotacaoItem)
+        if (cotacoesFilhas.length === 0) {
+          if (!term) return null
+          const matchBid =
+            bid.numero_bid_bid_frete_internacional.toLowerCase().includes(term) ||
+            (bid.referencia_interna_bid_bid_frete_internacional ?? '').toLowerCase().includes(term)
+          if (!matchBid) return null
+        }
+        return { ...bid, cotacoes: cotacoesFilhas.length > 0 ? cotacoesFilhas : (bid.cotacoes ?? []) }
+      })
+      .filter((b): b is BidFreteInternacional => b != null)
+  }, [bidsFreteInternacional, filtrarCotacaoItem, busca])
+
+  const linhasPaiFiltradas = useMemo(
+    () => montarLinhasPaiLista(bidsFiltrados, cotacoesAvulsasFiltradas),
+    [bidsFiltrados, cotacoesAvulsasFiltradas],
+  )
+
+  const totalCotacoesFiltradas = cotacoesFiltradas.length
+
+  const cotacoesParaKpi = useMemo(
+    () => filtrarCotacoesPorPeriodoCards(cotacoesFiltradas, periodoCards),
+    [cotacoesFiltradas, periodoCards],
+  )
+
+  const handleCarregarFilhos = useCallback(async (pai: LinhaPaiLista): Promise<LinhaFilhaLista[]> => {
+    if (isLinhaBidGrupo(pai)) return pai.cotacoes
+    return propostasFilhasDaCotacaoAvulsa(pai)
+  }, [])
+
+  const handleReordenarCotacoes = useCallback((ids: string[]) => {
+    const mapa = new Map(linhasPaiFiltradas.map(l => [idLinhaPaiLista(l), l]))
+    const reordenados = ids.map(id => mapa.get(id)).filter((l): l is LinhaPaiLista => l != null)
+    const restantes = linhasPaiFiltradas.filter(l => !ids.includes(idLinhaPaiLista(l)))
+    const reordenadasCotacoes = [...reordenados, ...restantes].flatMap(l =>
+      isLinhaBidGrupo(l) ? l.cotacoes : [l],
+    )
+    const idsOrdenados = new Set(reordenadasCotacoes.map(c => c.id_cotacao_bid_frete_internacional))
+    const resto = cotacoes.filter(c => !idsOrdenados.has(c.id_cotacao_bid_frete_internacional))
+    setCotacoes([...reordenadasCotacoes, ...resto])
+  }, [cotacoes, linhasPaiFiltradas])
 
   // ─── Ações de Linha ───
 
@@ -338,9 +543,23 @@ export default function Cotacoes() {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: 'Ver detalhes',
-      onClick: (item: Cotacao) => navigate(`/produto/bid-frete/cotacoes/${item.id_cotacao_bid_frete_internacional}`),
+      onClick: (item: LinhaPaiLista) => {
+        const cotacao = cotacaoDaLinhaPai(item)
+        if (cotacao) abrirDetalheCotacao(cotacao)
+      },
+      visivel: (item: LinhaPaiLista) => !isLinhaBidGrupo(item),
     },
-  ], [navigate])
+  ], [abrirDetalheCotacao])
+
+  const acoesFilho = useCallback((item: LinhaFilhaLista) => {
+    if (isLinhaProposta(item)) return []
+    return [{
+      id: 'ver-filho',
+      icone: <Eye weight="duotone" size={16} />,
+      tooltip: 'Ver detalhes',
+      onClick: () => abrirDetalheCotacao(item),
+    }]
+  }, [abrirDetalheCotacao])
 
   // ─── Dropdown + Novo e Exportar Toolbar ───
 
@@ -417,7 +636,7 @@ export default function Cotacoes() {
     const sep = formato === 'excel' ? ';' : ','
     const escape = (v: string) => `"${v.replace(/"/g, '""')}"`
     
-    const colunasExport = colunasTabela.filter(c => {
+    const colunasExport = colunasFilhoExport.filter(c => {
       if (!c.key) return false
       if (preferencias?.colunas_visiveis) {
         return preferencias.colunas_visiveis.includes(c.key as string)
@@ -429,12 +648,32 @@ export default function Cotacoes() {
     
     const linhas = cotacoesFiltradas.map(row => {
       return colunasExport.map(c => {
+        const key = c.key as string
         const val = row[c.key as keyof Cotacao]
+
+        if (
+          key === 'id_organizacao' ||
+          key === 'id_usuario' ||
+          key === 'id_workspace' ||
+          key === 'id_produto_gravity'
+        ) {
+          return escape(formatValorExportColuna(key, row, opcoesColunasLista))
+        }
+
         if (val == null) return escape('')
-        if (c.key === 'data_criacao_cotacao_bid_frete_internacional' || c.key === 'data_limite_resposta_cotacao_bid_frete_internacional' || c.key === 'data_atualizacao_cotacao_bid_frete_internacional') {
+        if (
+          key === 'data_criacao_cotacao_bid_frete_internacional' ||
+          key === 'data_limite_resposta_cotacao_bid_frete_internacional' ||
+          key === 'data_atualizacao_cotacao_bid_frete_internacional' ||
+          key === 'data_aprovacao_cotacao_bid_frete_internacional' ||
+          key === 'data_cancelamento_cotacao_bid_frete_internacional'
+        ) {
           return escape(fmtData(val as string))
         }
-        if (c.key === 'ganho_valor_cotacao_bid_frete_internacional' || c.key === 'valor_meta_cotacao_bid_frete_internacional' || c.key === 'valor_aprovado_ganho_bid_frete_internacional') {
+        if (
+          key === 'ganho_valor_cotacao_bid_frete_internacional' ||
+          key === 'valor_meta_cotacao_bid_frete_internacional'
+        ) {
           return escape(val != null ? String(val) : '')
         }
         return escape(String(val))
@@ -449,7 +688,7 @@ export default function Cotacoes() {
     a.download = `cotacoes_${formato === 'excel' ? 'excel' : 'csv'}_${new Date().toISOString().slice(0,10)}.csv`
     a.click()
     setTimeout(() => URL.revokeObjectURL(url), 5000)
-  }, [cotacoesFiltradas, colunasTabela, preferencias])
+  }, [cotacoesFiltradas, colunasFilhoExport, preferencias, opcoesColunasLista])
 
   const acoesExportacao = useMemo(() => [
     {
@@ -466,34 +705,10 @@ export default function Cotacoes() {
 
   // ─── KPI Metrics ───
 
-  const stats = useMemo(() => {
-    const total = cotacoes.length
-    const emAndamento = cotacoes.filter(c => c.status_cotacao_bid_frete_internacional === 'EM_COTACAO' || c.status_cotacao_bid_frete_internacional === 'ENVIADA_FORNECEDORES').length
-    const aguardandoAprovacao = cotacoes.filter(c => c.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO').length
-    const expiradas = cotacoes.filter(c => c.status_cotacao_bid_frete_internacional === 'EXPIRADA').length
-    const savingTotal = cotacoesFiltradas.reduce((acc, c) => acc + (c.ganho_valor_cotacao_bid_frete_internacional ?? 0), 0)
-    
-    // Novas métricas para o catálogo do configurador
-    const valorTotalFrete = cotacoesFiltradas.reduce((acc, c) => acc + (c.valor_aprovado_ganho_bid_frete_internacional ?? c.valor_meta_cotacao_bid_frete_internacional ?? 0), 0)
-    const propostas = cotacoes.reduce((acc, c) => {
-      if (c.propostas_bid_frete_internacional && c.propostas_bid_frete_internacional.length > 0) {
-        return acc + c.propostas_bid_frete_internacional.length
-      }
-      return acc + (c.status_cotacao_bid_frete_internacional === 'APROVADA' || c.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO' ? 3 : c.status_cotacao_bid_frete_internacional === 'EM_COTACAO' ? 1 : 0)
-    }, 0)
-    const tempoMedio = 18.5 // média em horas
-
-    return {
-      total,
-      emAndamento,
-      aguardandoAprovacao,
-      expiradas,
-      savingTotal,
-      valorTotalFrete,
-      propostas,
-      tempoMedio
-    }
-  }, [cotacoes, cotacoesFiltradas])
+  const stats = useMemo(
+    () => calcularStatsListaBidFrete(cotacoesParaKpi),
+    [cotacoesParaKpi],
+  )
 
   // ─── Renderizador de Cards Dinâmico ───
   const renderCard = useCallback((id: string) => {
@@ -522,7 +737,7 @@ export default function Cotacoes() {
                 </div>
                 <div className="cg-tooltip__row">
                   <span>{t('bidfrete.cotacoes.kpi.totalCotacoes.tooltipFechado', 'Histórico Fechado')}</span>
-                  <strong style={{ color: '#34d399' }}>{stats.total - stats.emAndamento - stats.aguardandoAprovacao - stats.expiradas}</strong>
+                  <strong style={{ color: '#34d399' }}>{stats.fechadas}</strong>
                 </div>
               </>
             }
@@ -544,16 +759,16 @@ export default function Cotacoes() {
                   <strong>{stats.emAndamento}</strong>
                 </div>
                 <div className="cg-tooltip__row">
-                  <span>{t('bidfrete.cotacoes.kpi.emAndamento.tooltipAguardandoEnvio', 'Aguardando Envio')}</span>
-                  <strong>{Math.round(stats.emAndamento * 0.4)}</strong>
+                  <span>{t('bidfrete.cotacoes.kpi.emAndamento.tooltipEnviada', 'Enviada ao fornecedor')}</span>
+                  <strong>{stats.enviadaFornecedores}</strong>
                 </div>
                 <div className="cg-tooltip__row">
-                  <span>{t('bidfrete.cotacoes.kpi.emAndamento.tooltipPropostas', 'Propostas')}</span>
-                  <strong style={{ color: '#34d399' }}>{Math.round(stats.emAndamento * 0.6)}</strong>
+                  <span>{t('bidfrete.cotacoes.kpi.emAndamento.tooltipEmCotacao', 'Em cotação')}</span>
+                  <strong style={{ color: '#34d399' }}>{stats.emCotacao}</strong>
                 </div>
                 <div className="cg-tooltip__row">
-                  <span>{t('bidfrete.cotacoes.kpi.emAndamento.tooltipSla', 'SLA Médio')}</span>
-                  <strong>{t('bidfrete.cotacoes.kpi.emAndamento.tooltipSlaDias', '1.8 dias')}</strong>
+                  <span>{t('bidfrete.cotacoes.kpi.emAndamento.tooltipPropostas', 'Propostas no período')}</span>
+                  <strong>{stats.propostas}</strong>
                 </div>
               </>
             }
@@ -575,16 +790,20 @@ export default function Cotacoes() {
                   <strong>{stats.aguardandoAprovacao}</strong>
                 </div>
                 <div className="cg-tooltip__row">
-                  <span>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipVolume', 'Volume sob Análise')}</span>
-                  <strong style={{ color: '#facc15' }}>USD {fmtQuantidade(stats.savingTotal * 1.5, 2)}</strong>
+                  <span>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipVolume', 'Valor meta acumulado')}</span>
+                  <strong style={{ color: '#facc15' }}>USD {fmtQuantidade(stats.aguardandoValorMeta, 2)}</strong>
                 </div>
                 <div className="cg-tooltip__row">
-                  <span>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipTempo', 'Tempo Médio Espera')}</span>
-                  <strong>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipTempoDias', '1.2 dias')}</strong>
+                  <span>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipTempo', 'Tempo médio até o prazo')}</span>
+                  <strong>
+                    {stats.aguardandoTempoMedioEsperaHoras == null
+                      ? '—'
+                      : `${fmtQuantidade(stats.aguardandoTempoMedioEsperaHoras, 1)} h`}
+                  </strong>
                 </div>
                 <div className="cg-tooltip__row">
-                  <span>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipUrgencia', 'Nível de Urgência')}</span>
-                  <strong style={{ color: '#f87171' }}>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipUrgenciaAlto', 'Alto')}</strong>
+                  <span>{t('bidfrete.cotacoes.kpi.aguardandoAprovacao.tooltipPropostas', 'Propostas recebidas')}</span>
+                  <strong>{stats.aguardandoPropostas}</strong>
                 </div>
               </>
             }
@@ -660,12 +879,8 @@ export default function Cotacoes() {
                   <strong>USD {fmtQuantidade(stats.savingTotal / (stats.emAndamento || 1), 2)}</strong>
                 </div>
                 <div className="cg-tooltip__row">
-                  <span>{t('bidfrete.cotacoes.kpi.saving.tooltipMaritimo', 'Participação Marítimo')}</span>
-                  <strong style={{ color: '#34d399' }}>USD {fmtQuantidade(stats.savingTotal * 0.7, 2)}</strong>
-                </div>
-                <div className="cg-tooltip__row">
-                  <span>{t('bidfrete.cotacoes.kpi.saving.tooltipAereo', 'Participação Aéreo')}</span>
-                  <strong style={{ color: '#a78bfa' }}>USD {fmtQuantidade(stats.savingTotal * 0.3, 2)}</strong>
+                  <span>{t('bidfrete.cotacoes.kpi.saving.tooltipCotacoes', 'Cotações com saving')}</span>
+                  <strong>{stats.cotacoesComSaving}</strong>
                 </div>
               </>
             }
@@ -677,7 +892,7 @@ export default function Cotacoes() {
             key="tempo_medio_resposta"
             titulo={t('bidfrete.config.cards.tempo_medio_resposta', 'Tempo Médio de Resposta')}
             icone={<Gauge weight="duotone" size={16} style={{ color: '#a78bfa' }} />}
-            valor={`${stats.tempoMedio} h`}
+            valor={stats.tempoMedioRespostaHoras == null ? '—' : `${fmtQuantidade(stats.tempoMedioRespostaHoras, 1)} h`}
             subtexto={t('bidfrete.config.cards.tempo_medio_resposta_desc', 'Tempo médio de resposta')}
             tooltip={
               <>
@@ -687,7 +902,9 @@ export default function Cotacoes() {
                 </div>
                 <div className="cg-tooltip__row">
                   <span>Tempo Médio Real</span>
-                  <strong style={{ color: '#a78bfa' }}>{stats.tempoMedio} h</strong>
+                  <strong style={{ color: '#a78bfa' }}>
+                    {stats.tempoMedioRespostaHoras == null ? 'Sem respostas' : `${fmtQuantidade(stats.tempoMedioRespostaHoras, 1)} h`}
+                  </strong>
                 </div>
               </>
             }
@@ -714,35 +931,52 @@ export default function Cotacoes() {
                   <strong style={{ color: '#f87171' }}>{((stats.expiradas / (stats.total || 1)) * 100).toFixed(1)}%</strong>
                 </div>
                 <div className="cg-tooltip__row">
-                  <span>{t('bidfrete.cotacoes.kpi.expiradas.tooltipMotivo', 'Motivo Principal')}</span>
-                  <strong>{t('bidfrete.cotacoes.kpi.expiradas.tooltipMotivoValor', 'Ausência de propostas')}</strong>
+                  <span>{t('bidfrete.cotacoes.kpi.expiradas.tooltipSemProposta', 'Sem proposta recebida')}</span>
+                  <strong>{stats.expiradasSemProposta}</strong>
                 </div>
                 <div className="cg-tooltip__row">
-                  <span>{t('bidfrete.cotacoes.kpi.expiradas.tooltipAcao', 'Ação Recomendada')}</span>
-                  <strong style={{ color: '#60a5fa' }}>{t('bidfrete.cotacoes.kpi.expiradas.tooltipAcaoValor', 'Duplicar & Reabrir')}</strong>
+                  <span>{t('bidfrete.cotacoes.kpi.expiradas.tooltipComProposta', 'Com pelo menos 1 proposta')}</span>
+                  <strong>{stats.expiradas - stats.expiradasSemProposta}</strong>
                 </div>
               </>
             }
           />
         )
-      default:
+      default: {
+        const defCustom = listarCardsCatalogo().find(c => c.id === id)
+        if (!defCustom) return null
+        const valorMetrica = calcularMetricaCardCustom(defCustom, cotacoesParaKpi)
+        const valorFormatado = formatarValorCardCustom(defCustom, valorMetrica, fmtQuantidade)
         return (
           <CardBasicoGlobal
             key={id}
-            titulo={id.startsWith('card_') ? 'Custom Card' : id}
-            icone={<Package weight="duotone" size={16} style={{ color: 'var(--ws-accent, #818cf8)' }} />}
-            valor="--"
-            subtexto="Métrica customizada"
+            titulo={defCustom.labelKey}
+            icone={<Package weight="duotone" size={16} style={{ color: defCustom.cor ?? 'var(--ws-accent, #818cf8)' }} />}
+            valor={valorFormatado}
+            subtexto={defCustom.descricao}
             tooltip={
-              <div className="cg-tooltip__row">
-                <span>Card Personalizado</span>
-                <strong>Fórmula em processamento</strong>
-              </div>
+              <>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.custom.tooltipTipo', 'Agregação')}</span>
+                  <strong>{`${defCustom.tipoAgg} · ${defCustom.origem}`}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.custom.tooltipCampo', 'Campo base')}</span>
+                  <strong>{defCustom.campoBase}</strong>
+                </div>
+                {defCustom.descKey ? (
+                  <div className="cg-tooltip__row">
+                    <span>{t('bidfrete.cotacoes.kpi.custom.tooltipFormula', 'Fórmula / nota')}</span>
+                    <strong>{defCustom.descKey}</strong>
+                  </div>
+                ) : null}
+              </>
             }
           />
         )
+      }
     }
-  }, [stats, t])
+  }, [stats, cotacoesParaKpi, t])
 
   // ─── Render ───
 
@@ -754,9 +988,7 @@ export default function Cotacoes() {
       {visao === 'lista' && (
         <div className="lp-stats-row">
           <div className="lp-cards">
-            {cardsPref
-              .filter(pref => pref.visible !== false)
-              .map(pref => renderCard(pref.id))}
+            {cardsVisiveis.map(pref => renderCard(pref.id))}
           </div>
         </div>
       )}
@@ -764,22 +996,52 @@ export default function Cotacoes() {
       {/* Conteúdo da Visão */}
       {visao === 'lista' ? (
         <div className="bf-table-section">
-          <TabelaVirtualGlobal<Cotacao, any>
-            dados={cotacoesFiltradas}
+          {erroCarregar && (
+            <div
+              role="alert"
+              style={{
+                marginBottom: '1rem',
+                padding: '0.75rem 1rem',
+                borderRadius: '8px',
+                background: 'rgba(239,68,68,0.12)',
+                border: '1px solid rgba(239,68,68,0.35)',
+                color: 'var(--text-primary, #f1f5f9)',
+                fontSize: '0.875rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '1rem',
+              }}
+            >
+              <span>{erroCarregar}</span>
+              <button type="button" className="dc-btn dc-btn--secondary" onClick={() => void carregar()}>
+                {t('comum.tentar_novamente', 'Tentar novamente')}
+              </button>
+            </div>
+          )}
+          <TabelaVirtualGlobal<LinhaPaiLista, LinhaFilhaLista>
+            dados={linhasPaiFiltradas}
             colunas={colunasTabela}
-            itemId={(item) => item.id_cotacao_bid_frete_internacional}
+            itemId={idLinhaPaiLista}
+            mapaColunasFilho={mapaColunasFilho}
+            onCarregarFilhos={handleCarregarFilhos}
+            filhoId={idLinhaFilhaLista}
             
-            itensPorPagina={50}
-            totalItens={cotacoesFiltradas.length}
-            paginaAtual={1}
-            onMudarPagina={() => {}}
-            labelPai={['cotação', 'cotações']}
+            itensPorPagina={tabelaConfig.linhasPorPagina}
+            totalItens={linhasPaiFiltradas.length}
+            totalFilhos={totalCotacoesFiltradas}
+            paginaAtual={paginaLista}
+            onMudarPagina={setPaginaLista}
+            classNameLinhaPai={classNameLinhaPai}
+            classNameLinhaFilho={classNameLinhaFilho}
+            labelPai={['registro', 'registros']}
             
             abas={abas}
             abaAtiva={filtroTab}
             onMudarAba={setFiltroTab}
             
             acoes={acoes}
+            acoesFilho={acoesFilho}
             acoesExportacao={acoesExportacao}
             acoesBarra={acoesBarra}
             
@@ -831,6 +1093,14 @@ export default function Cotacoes() {
           min-height: 0;
           overflow: hidden;
           gap: 1rem;
+        }
+
+        /* Destaque: cotação com menos de 2h para expirar (config Tabela) */
+        .bf-cotacoes .gtv-linha--expira-prestes {
+          box-shadow: inset 3px 0 0 rgba(248, 113, 113, 0.9);
+        }
+        .bf-cotacoes .gtv-linha--expira-prestes:hover {
+          box-shadow: inset 3px 0 0 rgba(248, 113, 113, 1);
         }
 
         /* ── KPI Cards / Row ── */
@@ -981,63 +1251,99 @@ export default function Cotacoes() {
         }
 
         .bf-kanban-card {
-          background: var(--bg-base, #1e293b);
-          border-radius: var(--radius-md, 8px);
-          padding: 0.75rem;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid var(--dark-border, rgba(255, 255, 255, 0.08));
+          border-radius: 10px;
+          padding: 0.75rem 0.85rem;
           cursor: pointer;
-          transition: transform 0.1s, box-shadow 0.1s;
-          border: 1px solid var(--bg-elevated, #475569);
+          display: flex;
+          flex-direction: column;
+          gap: 0.35rem;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          user-select: none;
+          transition: background 0.18s, border-color 0.18s, transform 0.18s, box-shadow 0.18s;
         }
         .bf-kanban-card:hover {
-          transform: translateY(-1px);
-          box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.5));
+          background: rgba(255, 255, 255, 0.07);
+          border-color: rgba(96, 165, 250, 0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
         }
 
         .bf-kanban-card-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 0.5rem;
+          gap: 0.5rem;
+          min-width: 0;
         }
 
-        .bf-kanban-card-numero_cotacao_bid_frete_internacional {
-          font-family: 'DM Mono', monospace;
-          font-size: 0.75rem;
-          color: var(--text-muted, #64748b);
+        .bf-kanban-card-numero {
+          font-size: 0.8rem;
+          font-weight: 700;
+          letter-spacing: 0.01em;
+          color: var(--text-main, #e2e8f0);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .bf-kanban-card-route {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
-          font-size: 0.8125rem;
+          gap: 0.3rem;
+          min-width: 0;
+          font-size: 0.75rem;
+          line-height: 1.35;
           font-weight: 600;
           color: var(--text-primary, #f1f5f9);
-          margin-bottom: 0.35rem;
+        }
+
+        .bf-kanban-card-route span {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .bf-kanban-card-meta {
           display: flex;
-          gap: 0.5rem;
-          font-size: 0.75rem;
+          flex-wrap: wrap;
+          gap: 0.35rem;
+          font-size: 0.68rem;
+          line-height: 1.2;
+          font-weight: 600;
           color: var(--text-secondary, #94a3b8);
-          margin-bottom: 0.35rem;
+        }
+
+        .bf-kanban-card-meta span {
+          padding: 0.12rem 0.38rem;
+          border-radius: 9999px;
+          background: rgba(255, 255, 255, 0.04);
+          white-space: nowrap;
         }
 
         .bf-kanban-card-ref {
-          font-size: 0.6875rem;
-          color: var(--text-muted, #64748b);
-          margin-bottom: 0.35rem;
+          font-size: 0.7rem;
+          line-height: 1.3;
+          font-weight: 500;
+          color: var(--text-muted, #94a3b8);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .bf-kanban-card-footer {
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          font-size: 0.6875rem;
+          justify-content: space-between;
+          gap: 0.4rem;
+          font-size: 0.67rem;
+          line-height: 1.2;
+          font-weight: 600;
           color: var(--text-muted, #64748b);
           padding-top: 0.35rem;
-          border-top: 1px solid var(--bg-elevated, #475569);
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         /* ── Botões ── */

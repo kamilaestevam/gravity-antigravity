@@ -9,6 +9,7 @@ export type TaxaInputProposta = {
   nome_taxa_bid_frete_internacional: string
   valor_taxa_bid_frete_internacional: number
   moeda_taxa_bid_frete_internacional?: string
+  id_taxa_origem_destino?: string | null
 }
 
 export async function persistirTaxasProposta(
@@ -31,6 +32,7 @@ export async function persistirTaxasProposta(
         id_taxa_origem_bid_frete_internacional: randomUUID(),
         id_organizacao,
         id_proposta_bid_frete_internacional,
+        id_taxa_origem_destino: t.id_taxa_origem_destino ?? null,
         nome_taxa_origem_bid_frete_internacional: t.nome_taxa_bid_frete_internacional,
         valor_taxa_origem_bid_frete_internacional: t.valor_taxa_bid_frete_internacional,
         moeda_taxa_origem_bid_frete_internacional: t.moeda_taxa_bid_frete_internacional ?? 'USD',
@@ -44,6 +46,7 @@ export async function persistirTaxasProposta(
         id_taxa_destino_bid_frete_internacional: randomUUID(),
         id_organizacao,
         id_proposta_bid_frete_internacional,
+        id_taxa_origem_destino: t.id_taxa_origem_destino ?? null,
         nome_taxa_destino_bid_frete_internacional: t.nome_taxa_bid_frete_internacional,
         valor_taxa_destino_bid_frete_internacional: t.valor_taxa_bid_frete_internacional,
         moeda_taxa_destino_bid_frete_internacional: t.moeda_taxa_bid_frete_internacional ?? 'USD',

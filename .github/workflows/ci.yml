@@ -2,9 +2,9 @@ name: Gravity CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [master, main, develop]
   pull_request:
-    branches: [main, develop]
+    branches: [master, main, develop]
 
 env:
   NODE_VERSION: "20"

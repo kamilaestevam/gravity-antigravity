@@ -27,7 +27,7 @@ async function expirarCotacoesVencidas() {
   const agora = new Date()
 
   // Leitura cross-tenant: buscar todas as cotações vencidas (necessário para cron)
-  const cotacoesVencidas = await cronPrisma.bidFreteInternacionalCotacao.findMany({
+  const cotacoesVencidas = await cronPrisma.cotacaoBidFreteInternacional.findMany({
     where: {
       status_cotacao_bid_frete_internacional: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
       data_limite_resposta_cotacao_bid_frete_internacional: { lt: agora },
@@ -44,7 +44,7 @@ async function expirarCotacoesVencidas() {
     // Escrita isolada por tenant
     const tenantDb = withTenantIsolation(cronPrisma, cotacao.id_organizacao)
 
-    await tenantDb.bidFreteInternacionalCotacao.update({
+    await tenantDb.cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional },
       data: { status_cotacao_bid_frete_internacional: 'EXPIRADA' } as any,
     } as any)
@@ -56,12 +56,12 @@ async function expirarCotacoesVencidas() {
     })
 
     // Expirar Pedidos de Cotacao pendentes — isolado por tenant
-    await tenantDb.bidFreteInternacionalPedidoCotacao.updateMany({
+    await tenantDb.disparoCotacaoBidFreteInternacional.updateMany({
       where: {
         id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
-        status_pedido_cotacao_bid_frete_internacional: { in: ['PENDENTE', 'ENVIADO', 'VISUALIZADO'] },
+        status_disparo_cotacao_bid_frete_internacional: { in: ['PENDENTE', 'ENVIADO', 'VISUALIZADO'] },
       } as any,
-      data: { status_pedido_cotacao_bid_frete_internacional: 'EXPIRADO' } as any,
+      data: { status_disparo_cotacao_bid_frete_internacional: 'EXPIRADO' } as any,
     } as any)
   }
 
@@ -78,7 +78,7 @@ async function alertarProximoVencimento() {
   const agora = new Date()
   const em24h = new Date(agora.getTime() + 24 * 60 * 60 * 1000)
 
-  const cotacoesVencendo = await cronPrisma.bidFreteInternacionalCotacao.findMany({
+  const cotacoesVencendo = await cronPrisma.cotacaoBidFreteInternacional.findMany({
     where: {
       status_cotacao_bid_frete_internacional: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
       data_limite_resposta_cotacao_bid_frete_internacional: { gte: agora, lte: em24h },
@@ -111,10 +111,10 @@ async function alertarProximoVencimento() {
 async function detectarSemResposta() {
   const ha48h = new Date(Date.now() - 48 * 60 * 60 * 1000)
 
-  const requestsSemResposta = await cronPrisma.bidFreteInternacionalPedidoCotacao.findMany({
+  const requestsSemResposta = await cronPrisma.disparoCotacaoBidFreteInternacional.findMany({
     where: {
-      status_pedido_cotacao_bid_frete_internacional: 'ENVIADO',
-      data_envio_pedido_cotacao_bid_frete_internacional: { lt: ha48h },
+      status_disparo_cotacao_bid_frete_internacional: 'ENVIADO',
+      data_envio_disparo_cotacao_bid_frete_internacional: { lt: ha48h },
     } as any,
     include: {
       cotacao: {

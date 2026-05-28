@@ -345,6 +345,17 @@ interface Props {
   urlRetorno?: string | null
 }
 
+function rotuloUrlRetorno(urlRetorno: string): string {
+  try {
+    const decoded = decodeURIComponent(urlRetorno).toLowerCase()
+    if (decoded.includes('/bid-frete/')) return 'Voltar para BID Frete'
+    if (decoded.includes('/pedido/')) return 'Voltar para Pedidos'
+    return 'Voltar'
+  } catch {
+    return 'Voltar'
+  }
+}
+
 export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar, papelInicial, urlRetorno }: Props) {
   const addNotification = useShellStore((s) => s.addNotification)
   const [form, setForm] = useState<FormState>(() => {
@@ -547,7 +558,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
             onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.12)'; e.currentTarget.style.color = '#a5b4fc' }}
           >
             <ArrowLeft size={14} weight="bold" />
-            Voltar para Pedidos
+            {rotuloUrlRetorno(urlRetorno)}
           </button>
         </>
       ) : undefined}

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * comparativo.ts — Rotas de Comparativo e Aprovacao
  * GET  /:cotacaoId           Ranking comparativo
  * POST /:cotacaoId/aprovar   Aprovar cotacao (2 cliques)
@@ -35,10 +35,10 @@ router.post('/:cotacaoId/aprovar', async (req: Request, res: Response, next: Nex
     await motorComparativo.aprovar(req.prisma!, req.params.cotacaoId, id_proposta_bid_frete_internacional, userId)
 
     // Fetch the updated cotacao with relations
-    const cotacao = await (req.prisma as any).bidFreteInternacionalCotacao.findFirst({
+    const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({
       where: { id_cotacao_bid_frete_internacional: req.params.cotacaoId },
       include: {
-        pedidos_cotacao: {
+        disparos_cotacao: {
           include: {
             fornecedor: { select: { id_fornecedor_bid_frete_internacional: true, nome_fornecedor_bid_frete_internacional: true, tipo_fornecedor_bid_frete_internacional: true, email_fornecedor_bid_frete_internacional: true } },
           },
@@ -71,7 +71,7 @@ router.post('/:cotacaoId/reprovar', async (req: Request, res: Response, next: Ne
   try {
     const { motivo } = req.body
 
-    await (req.prisma as any).bidFreteInternacionalCotacao.update({
+    await (req.prisma as any).cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional: req.params.cotacaoId },
       data: {
         status_cotacao_bid_frete_internacional: 'REPROVADA',
@@ -80,16 +80,16 @@ router.post('/:cotacaoId/reprovar', async (req: Request, res: Response, next: Ne
     })
 
     // Marcar todas as respostas como reprovadas
-    await (req.prisma as any).bidFreteInternacionalProposta.updateMany({
+    await (req.prisma as any).propostaBidFreteInternacional.updateMany({
       where: { id_cotacao_bid_frete_internacional: req.params.cotacaoId },
       data: { status_proposta_bid_frete_internacional: 'REPROVADA' },
     })
 
     // Fetch the updated cotacao with relations
-    const cotacao = await (req.prisma as any).bidFreteInternacionalCotacao.findFirst({
+    const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({
       where: { id_cotacao_bid_frete_internacional: req.params.cotacaoId },
       include: {
-        pedidos_cotacao: {
+        disparos_cotacao: {
           include: {
             fornecedor: { select: { id_fornecedor_bid_frete_internacional: true, nome_fornecedor_bid_frete_internacional: true, tipo_fornecedor_bid_frete_internacional: true, email_fornecedor_bid_frete_internacional: true } },
           },

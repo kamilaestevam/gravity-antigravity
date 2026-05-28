@@ -333,6 +333,29 @@ model Aeroporto {
 }
 
 // ---------------------------------------------------------------------
+// TaxaOrigemDestino — catálogo global de taxas logísticas (origem/destino/frete).
+// Cadastros guarda definição; valores ficam no BID (taxa_*_bid_frete_internacional).
+// ---------------------------------------------------------------------
+
+model TaxaOrigemDestino {
+  id_taxa_origem_destino                    String   @id @default(cuid())
+
+  nome_taxa_origem_destino                  String
+  descricao_taxa_origem_destino             String?
+  tipo_taxa_origem_destino                  String   // ORIGEM | DESTINO | FRETE
+  codigo_taxa_origem_destino                String?  @unique
+  ativo_taxa_origem_destino                 Boolean  @default(true)
+
+  data_criacao_taxa_origem_destino          DateTime @default(now())
+  data_atualizacao_taxa_origem_destino      DateTime @updatedAt
+
+  @@index([tipo_taxa_origem_destino], map: "taxa_origem_destino_tipo_idx")
+  @@index([ativo_taxa_origem_destino], map: "taxa_origem_destino_ativo_idx")
+  @@index([nome_taxa_origem_destino], map: "taxa_origem_destino_nome_idx")
+  @@map("taxa_origem_destino")
+}
+
+// ---------------------------------------------------------------------
 // Container — catálogo global / fonte única da verdade (ISO 6346).
 // Cada registro = um tipo+tamanho de container existente no mundo.
 // ~25 tipos práticos. Catálogo global — sem id_organizacao.

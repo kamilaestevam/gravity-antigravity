@@ -34,6 +34,7 @@ import {
 } from '@phosphor-icons/react'
 
 import { getCotacao, getDisparoPorCotacaoBidFreteInternacional, excluirCotacao } from '../shared/api'
+import { ModalEnviarCotacaoBidFreteInternacional } from './modal-enviar-cotacao-bid-frete-internacional'
 import type {
   Cotacao,
   DisparoCotacaoBidFreteInternacional,
@@ -153,11 +154,19 @@ export default function DetalheCotacao() {
   const [cotacao, setCotacao] = useState<Cotacao | null>(null)
   const [bids, setBids] = useState<DisparoCotacaoBidFreteInternacional[]>([])
   const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState<string | null>(null)
   const [tab, setTab] = useState<'dados' | 'bids' | 'respostas'>('dados')
+  const [modalDisparoAberto, setModalDisparoAberto] = useState(false)
+
+  const podeEnviarFornecedores = cotacao != null && (
+    cotacao.status_cotacao_bid_frete_internacional === 'RASCUNHO' ||
+    cotacao.status_cotacao_bid_frete_internacional === 'FALTA_INFORMACAO'
+  )
 
   const carregar = useCallback(async () => {
     if (!id) return
     setCarregando(true)
+    setErro(null)
     try {
       const [cot, bidList] = await Promise.all([
         getCotacao(id),
@@ -165,8 +174,10 @@ export default function DetalheCotacao() {
       ])
       setCotacao(cot)
       setBids(bidList)
-    } catch {
-      // erro
+    } catch (e: unknown) {
+      setCotacao(null)
+      setBids([])
+      setErro(e instanceof Error ? e.message : 'Erro ao carregar cotação')
     } finally {
       setCarregando(false)
     }
@@ -175,10 +186,16 @@ export default function DetalheCotacao() {
   useEffect(() => { carregar() }, [carregar])
 
   const tituloTopo = useMemo(() => {
-    if (carregando || !cotacao) {
+    if (carregando) {
       return {
         label: t('comum.carregando'),
         icone: <FileText weight="duotone" size={22} />,
+      }
+    }
+    if (erro || !cotacao) {
+      return {
+        label: erro ?? t('bidfrete.detalhe_cotacao.nao_encontrada', 'Cotação não encontrada'),
+        icone: <Warning weight="duotone" size={22} />,
       }
     }
     return {
@@ -188,7 +205,7 @@ export default function DetalheCotacao() {
         ? `Ref: ${cotacao.referencia_interna_cotacao_bid_frete_internacional}`
         : undefined,
     }
-  }, [carregando, cotacao, t])
+  }, [carregando, cotacao, erro, t])
 
   useSincronizarTituloPaginaTopo(tituloTopo)
 
@@ -197,6 +214,15 @@ export default function DetalheCotacao() {
       <button className="dc-btn dc-btn--secondary" type="button" onClick={() => navigate('/bid-frete/cotacoes')}>
         <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
       </button>
+      {podeEnviarFornecedores && (
+        <button
+          className="dc-btn dc-btn--primary"
+          type="button"
+          onClick={() => setModalDisparoAberto(true)}
+        >
+          <PaperPlaneTilt weight="bold" size={14} /> {t('bidfrete.disparo.enviar', 'Enviar aos fornecedores')}
+        </button>
+      )}
       {cotacao.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO' && (
         <button className="dc-btn dc-btn--primary" type="button" onClick={() => navigate(`/bid-frete/cotacoes/${id}/comparativo`)}>
           <Ranking weight="bold" size={14} /> {t('bidfrete.detalhe_cotacao.comparativo')}
@@ -270,7 +296,7 @@ export default function DetalheCotacao() {
 
   // ─── Loading ──────────────────────────────────────────────────────────
 
-  if (carregando || !cotacao) {
+  if (carregando) {
     return (
       <PaginaGlobal>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)' }}>
@@ -280,7 +306,21 @@ export default function DetalheCotacao() {
     )
   }
 
-  // ─── Render ───────────────────────────────────────────────────────────
+  if (erro || !cotacao) {
+    return (
+      <PaginaGlobal>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', height: '50vh', color: 'var(--text-muted)' }}>
+          <Warning weight="duotone" size={40} />
+          <p>{erro ?? t('bidfrete.detalhe_cotacao.nao_encontrada', 'Cotação não encontrada')}</p>
+          <button className="dc-btn dc-btn--secondary" type="button" onClick={() => navigate('/bid-frete/cotacoes')}>
+            <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
+          </button>
+        </div>
+      </PaginaGlobal>
+    )
+  }
+
+  // --- Render ---
 
   return (
     <PaginaGlobal className="dc-page bid-frete-page-shell">
@@ -365,6 +405,15 @@ export default function DetalheCotacao() {
       {/* Tab: Bids */}
       {tab === 'bids' && (
         <div className="dc-card">
+          {bids.length === 0 && podeEnviarFornecedores && (
+            <div className="dc-empty" style={{ height: 'auto', paddingBottom: '1rem' }}>
+              <PaperPlaneTilt weight="duotone" size={40} style={{ opacity: 0.3 }} />
+              <p>{t('bidfrete.detalhe_cotacao.vazio_disparos')}</p>
+              <button className="dc-btn dc-btn--primary" type="button" onClick={() => setModalDisparoAberto(true)}>
+                <PaperPlaneTilt weight="bold" size={14} /> {t('bidfrete.disparo.enviar', 'Enviar aos fornecedores')}
+              </button>
+            </div>
+          )}
           <TabelaGlobal
             dados={bids}
             colunas={bidColunas}
@@ -721,6 +770,16 @@ export default function DetalheCotacao() {
           to { transform: rotate(360deg); }
         }
       `}</style>
+      <ModalEnviarCotacaoBidFreteInternacional
+        cotacao={cotacao}
+        aberto={modalDisparoAberto}
+        onFechar={() => setModalDisparoAberto(false)}
+        onEnviado={() => {
+          setModalDisparoAberto(false)
+          setTab('bids')
+          void carregar()
+        }}
+      />
     </PaginaGlobal>
   )
 }

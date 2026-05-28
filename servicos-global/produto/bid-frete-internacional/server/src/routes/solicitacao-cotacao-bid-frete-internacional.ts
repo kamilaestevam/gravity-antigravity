@@ -54,33 +54,12 @@ router.post('/cotacao-aberta', async (req: Request, res: Response, next: NextFun
     const userId = req.headers['x-id-usuario'] as string
     if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
 
-    const where: Record<string, unknown> = {
-      id_produto_gravity: 'bid-frete-internacional',
-      status_fornecedor_bid_frete_internacional: 'ATIVO',
-      aceita_cotacao_aberta_fornecedor_bid_frete_internacional: true,
-    }
-    if (parsed.data.tipos_fornecedor?.length) {
-      where.tipo_fornecedor_bid_frete_internacional = { in: parsed.data.tipos_fornecedor }
-    }
-
-    const fornecedores = await (req.prisma as any).fornecedorBidFreteInternacional.findMany({
-      where,
-      select: { id_fornecedor_bid_frete_internacional: true },
-    })
-    const fornecedor_ids = (fornecedores as Array<{ id_fornecedor_bid_frete_internacional: string }>).map(
-      (f) => f.id_fornecedor_bid_frete_internacional,
-    )
-
-    if (fornecedor_ids.length === 0) {
-      return res.json({ disparos: 0, message: 'Nenhum fornecedor ativo aceita cotacao aberta' })
-    }
-
-    const resultado = await motorBid.disparar(req.prisma!, {
+    const resultado = await motorBid.dispararCotacaoAberta(req.prisma!, {
       id_cotacao_bid_frete_internacional: parsed.data.id_cotacao_bid_frete_internacional,
-      fornecedor_ids,
       canais: parsed.data.canais,
       id_usuario: userId,
       id_organizacao: req.tenantId!,
+      tipos_fornecedor: parsed.data.tipos_fornecedor,
     })
 
     res.json(resultado)

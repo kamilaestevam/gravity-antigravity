@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
-import { cadastrosApi, type AeroportoCadastro, type PaisCadastro, type PortoCadastro } from './cadastrosApi'
+import {
+  cadastrosApi,
+  rotuloContainerCadastro,
+  type AeroportoCadastro,
+  type ContainerCadastro,
+  type PaisCadastro,
+  type PortoCadastro,
+  type TaxaOrigemDestinoCadastro,
+  type TipoTaxaOrigemDestino,
+} from './cadastrosApi'
 
 export function usePaisesCadastros() {
   const [paises, setPaises] = useState<PaisCadastro[]>([])
@@ -37,32 +46,36 @@ export function usePaisesCadastros() {
   return { paises, opcoes, carregando, erro }
 }
 
-export function usePortosPorPais(codigoPais: string) {
+/** Portos: `ativo` controla o modal; país é filtro opcional (lista completa sem país). */
+export function usePortosPorPais(codigoPais: string, ativo = true) {
   const [portos, setPortos] = useState<PortoCadastro[]>([])
   const [carregando, setCarregando] = useState(false)
 
   useEffect(() => {
-    if (!codigoPais) {
+    if (!ativo) {
       setPortos([])
       return
     }
-    let ativo = true
+    let cancelado = false
     setCarregando(true)
     cadastrosApi
-      .listarPortos({ pais: codigoPais, limit: 500 })
+      .listarPortos({
+        ...(codigoPais ? { pais: codigoPais } : {}),
+        limit: 500,
+      })
       .then((resp) => {
-        if (ativo) setPortos(resp.itens)
+        if (!cancelado) setPortos(resp.itens)
       })
       .catch(() => {
-        if (ativo) setPortos([])
+        if (!cancelado) setPortos([])
       })
       .finally(() => {
-        if (ativo) setCarregando(false)
+        if (!cancelado) setCarregando(false)
       })
     return () => {
-      ativo = false
+      cancelado = true
     }
-  }, [codigoPais])
+  }, [codigoPais, ativo])
 
   const opcoes = useMemo((): SelectOpcao[] =>
     portos.map((p) => ({
@@ -74,32 +87,36 @@ export function usePortosPorPais(codigoPais: string) {
   return { portos, opcoes, carregando }
 }
 
-export function useAeroportosPorPais(codigoPais: string) {
+/** Aeroportos: `ativo` controla o modal; país é filtro opcional (lista completa sem país). */
+export function useAeroportosPorPais(codigoPais: string, ativo = true) {
   const [aeroportos, setAeroportos] = useState<AeroportoCadastro[]>([])
   const [carregando, setCarregando] = useState(false)
 
   useEffect(() => {
-    if (!codigoPais) {
+    if (!ativo) {
       setAeroportos([])
       return
     }
-    let ativo = true
+    let cancelado = false
     setCarregando(true)
     cadastrosApi
-      .listarAeroportos({ pais: codigoPais, limit: 500 })
+      .listarAeroportos({
+        ...(codigoPais ? { pais: codigoPais } : {}),
+        limit: 500,
+      })
       .then((resp) => {
-        if (ativo) setAeroportos(resp.itens)
+        if (!cancelado) setAeroportos(resp.itens)
       })
       .catch(() => {
-        if (ativo) setAeroportos([])
+        if (!cancelado) setAeroportos([])
       })
       .finally(() => {
-        if (ativo) setCarregando(false)
+        if (!cancelado) setCarregando(false)
       })
     return () => {
-      ativo = false
+      cancelado = true
     }
-  }, [codigoPais])
+  }, [codigoPais, ativo])
 
   const opcoes = useMemo((): SelectOpcao[] =>
     aeroportos
@@ -111,4 +128,90 @@ export function useAeroportosPorPais(codigoPais: string) {
   [aeroportos])
 
   return { aeroportos, opcoes, carregando }
+}
+
+export function useContainersCadastros(ativo = true) {
+  const [containers, setContainers] = useState<ContainerCadastro[]>([])
+  const [carregando, setCarregando] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!ativo) {
+      setContainers([])
+      return
+    }
+    let cancelado = false
+    setCarregando(true)
+    setErro(null)
+    cadastrosApi
+      .listarContainers({ limit: 500 })
+      .then((resp) => {
+        if (!cancelado) setContainers(resp.itens)
+      })
+      .catch((e: unknown) => {
+        if (!cancelado) {
+          setContainers([])
+          setErro(e instanceof Error ? e.message : 'Erro ao carregar containers')
+        }
+      })
+      .finally(() => {
+        if (!cancelado) setCarregando(false)
+      })
+    return () => {
+      cancelado = true
+    }
+  }, [ativo])
+
+  const opcoes = useMemo((): SelectOpcao[] =>
+    containers
+      .filter((c) => c.codigo_iso_container)
+      .map((c) => ({
+        valor: c.codigo_iso_container as string,
+        rotulo: `${c.codigo_iso_container} — ${rotuloContainerCadastro(c)}`,
+      })),
+  [containers])
+
+  return { containers, opcoes, carregando, erro }
+}
+
+export function useTaxasOrigemDestinoCadastros(tipo?: TipoTaxaOrigemDestino, ativo = true) {
+  const [taxas, setTaxas] = useState<TaxaOrigemDestinoCadastro[]>([])
+  const [carregando, setCarregando] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!ativo) {
+      setTaxas([])
+      return
+    }
+    let cancelado = false
+    setCarregando(true)
+    setErro(null)
+    cadastrosApi
+      .listarTaxasOrigemDestino({ ...(tipo ? { tipo } : {}), limit: 500 })
+      .then((resp) => {
+        if (!cancelado) setTaxas(resp.itens)
+      })
+      .catch((e: unknown) => {
+        if (!cancelado) {
+          setTaxas([])
+          setErro(e instanceof Error ? e.message : 'Erro ao carregar taxas')
+        }
+      })
+      .finally(() => {
+        if (!cancelado) setCarregando(false)
+      })
+    return () => {
+      cancelado = true
+    }
+  }, [tipo, ativo])
+
+  const opcoes = useMemo((): SelectOpcao[] =>
+    taxas.map((t) => ({
+      valor: t.id_taxa_origem_destino,
+      rotulo: t.nome_taxa_origem_destino,
+    })),
+  [taxas])
+
+  return { taxas, opcoes, carregando, erro }
 }

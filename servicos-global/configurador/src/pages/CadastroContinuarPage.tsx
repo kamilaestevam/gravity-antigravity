@@ -155,6 +155,15 @@ function processarTicketConvite(
   signUp: NonNullable<ReturnType<typeof useSignUp>['signUp']>,
   ticket: string,
 ): Promise<SignUpDadosConvite> {
+  const cachePersistido = lerCacheConvite(ticket)
+  if (cachePersistido?.email) {
+    return Promise.resolve({
+      emailAddress: cachePersistido.email,
+      firstName: cachePersistido.nome.split(/\s+/)[0] ?? '',
+      lastName: cachePersistido.nome.split(/\s+/).slice(1).join(' '),
+    })
+  }
+
   if (ticketsConviteInvalidos.has(ticket)) {
     return Promise.reject(new Error('ticket is invalid'))
   }
@@ -163,8 +172,9 @@ function processarTicketConvite(
   if (emCache) return emCache
 
   const { email: emailExistente } = normalizarDadosConvite(signUp)
-  if (ticketsConviteComSucesso.has(ticket) && emailExistente) {
-    const resolvida = Promise.resolve(signUp)
+  // Ticket já consumido nesta sessão — NUNCA chamar create de novo (StrictMode remount).
+  if (ticketsConviteComSucesso.has(ticket)) {
+    const resolvida = Promise.resolve(mesclarDadosSignUp(signUp, signUp))
     promessasTicketConvite.set(ticket, resolvida)
     return resolvida
   }
@@ -173,6 +183,8 @@ function processarTicketConvite(
     const resolvida = Promise.resolve(signUp)
     promessasTicketConvite.set(ticket, resolvida)
     ticketsConviteComSucesso.add(ticket)
+    const { email, nome } = normalizarDadosConvite(signUp)
+    gravarCacheConvite(ticket, email, nome)
     return resolvida
   }
 
@@ -185,7 +197,10 @@ function processarTicketConvite(
     .create({ strategy: 'ticket', ticket })
     .then((resultado) => {
       ticketsConviteComSucesso.add(ticket)
-      return mesclarDadosSignUp(resultado, signUp)
+      const merged = mesclarDadosSignUp(resultado, signUp)
+      const { email, nome } = normalizarDadosConvite(merged)
+      if (email) gravarCacheConvite(ticket, email, nome)
+      return merged
     })
     .catch((err: unknown) => {
       if (ticketInvalido(err)) {
@@ -349,7 +364,7 @@ export function CadastroContinuarPage() {
   // ─── Pré-popula do ticket ────────────────────────────────────────────────
   // signUp.create uma vez no mount (dedup via Map + lock síncrono).
   useEffect(() => {
-    if (!isLoaded || !ticket) return
+    if (!isLoaded || !ticket || !signUp) return
 
     const cache = lerCacheConvite(ticket)
     if (cache) {
@@ -364,7 +379,7 @@ export function CadastroContinuarPage() {
     }
 
     void executarProcessamentoTicket(ticket)
-  }, [isLoaded, ticket, aplicarDadosConvite, executarProcessamentoTicket])
+  }, [isLoaded, ticket, signUp, aplicarDadosConvite, executarProcessamentoTicket])
 
   // Autofill do browser às vezes joga o e-mail do convite no campo Nome.
   useEffect(() => {
@@ -829,7 +844,7 @@ export function CadastroContinuarPage() {
           )}
 
           {/* Erro — comum às duas etapas */}
-          {erro && (
+          {erro && !processandoTicket && (
             <div
               role="alert"
               style={{

@@ -29,8 +29,9 @@ jobs:
       - run: npm install
       - name: Generate Prisma Clients (query engines Linux)
         run: bash scripts/ativamente/generate-prisma-clients-ci.sh
-      - run: npx vitest run --reporter=verbose
-        timeout-minutes: 10
+      - name: Run tests (deploy gate)
+        run: npx tsx scripts/ativamente/run-vitest-ci.ts --deploy-gate
+        timeout-minutes: 15
 
   # ─────────────────────────────────────────────
   # JOB 2 — Validar schemas Prisma (integridade)

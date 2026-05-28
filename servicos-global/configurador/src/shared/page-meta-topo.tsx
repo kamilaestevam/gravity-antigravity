@@ -115,8 +115,8 @@ function adminMeta(pathname: string, t: TFunction): PageMetaTopo {
       icone:     <Database weight="duotone" size={ICON_SIZE} />,
       subtitulo: 'Catálogos compartilhados por todas as organizações (NCM, Moedas, Unidades). Somente leitura nesta onda.',
     },
-    '/admin/empresas-e-parceiros': {
-      label:     'Empresas e Parceiros',
+    '/admin/fornecedores': {
+      label:     'Fornecedores',
       icone:     <Buildings weight="duotone" size={ICON_SIZE} />,
       subtitulo: 'Visão cross-organização (SUPER_ADMIN / ADMIN Gravity)',
     },
@@ -161,10 +161,10 @@ function configuradorMeta(pathname: string, t: TFunction): PageMetaTopo {
       icone:     <Users weight="duotone" size={ICON_SIZE} />,
       subtitulo: t('workspace.users.subtitulo'),
     },
-    '/configurador/empresas-e-parceiros': {
-      label:     'Empresas e Parceiros',
+    '/configurador/fornecedores': {
+      label:     'Fornecedores',
       icone:     <Buildings weight="duotone" size={ICON_SIZE} />,
-      subtitulo: 'Cadastre e gerencie os parceiros da sua jornada COMEX',
+      subtitulo: 'Cadastre terceiros COMEX (importador, exportador, agente…). Em exportação, o importador pode atuar como cliente na operação.',
     },
     '/configurador/assinaturas': {
       label:     t('workspace.subscriptions.titulo'),

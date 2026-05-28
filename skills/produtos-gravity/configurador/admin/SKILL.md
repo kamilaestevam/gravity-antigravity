@@ -352,29 +352,29 @@ model GravityAdmin {
 
 ---
 
-## Empresas e Parceiros (Cross-Org)
+## Fornecedores (Cross-Org)
 
-Tela admin **read-only** que lista empresas/parceiros de TODAS as organizações da plataforma.
-Path: `/admin/empresas-e-parceiros`. Página: `EmpresasEParceirosAdmin.tsx`.
+Tela admin **read-only** que lista fornecedores COMEX de TODAS as organizações da plataforma.
+Path: `/admin/fornecedores`. Página: `FornecedoresAdmin.tsx`. Redirect legado: `/admin/empresas-e-parceiros`.
 
 ### Audiência
 SUPER_ADMIN e ADMIN Gravity. Bloqueada para qualquer outro `tipo_usuario` por `requireGravityAdmin`.
 
 ### Pipeline backend
-Frontend → `/api/v1/admin/empresas` (Configurador, porta 8005) → `requireAuth` → `requireGravityAdmin` → fetch S2S `/api/v1/admin/empresas` (Cadastros, porta 8031) → enrichment **batch** `IN(...)` em `Configurador.Organizacao` → audit log fire-and-forget em `AuditLogAdmin` → resposta.
+Frontend → `/api/v1/admin/fornecedores` (Configurador, porta 8005) → `requireAuth` → `requireGravityAdmin` → fetch S2S `/api/v1/admin/fornecedores` (Cadastros, porta 8031) → enrichment **batch** `IN(...)` em `Configurador.Organizacao` → audit log fire-and-forget em `AuditLogAdmin` → resposta.
 
 ### Garantias
 - **Read-only por design** — admin investiga, não modifica. Edição/criação/inativação cross-org está desabilitada na UI; mudanças continuam exclusivas da tela do workspace.
 - **Banner permanente** topo da tela: `CardBasicoGlobal variante="aviso"` explicando modo cross-org + audit log + read-only. Não dispensável.
 - **Modal volume > 500** sempre aparece (sem checkbox "não perguntar mais"), sugerindo filtrar por organização ou tipo de parceiro antes de continuar.
 - **Teto duro 200 por página** no Cadastros (clamp em servidor).
-- **Audit log persistente** em `audit_log_admin` — toda chamada grava `id_usuario`, `tipo_usuario`, `acao=admin.empresas.list`, `recurso=empresa`, `filtros_json`, `qtd_resultados`, `ip_origem`, `correlation_id`.
+- **Audit log persistente** em `audit_log_admin` — toda chamada grava `id_usuario`, `tipo_usuario`, `acao=admin.fornecedores.list`, `recurso=fornecedor`, `filtros_json`, `qtd_resultados`, `ip_origem`, `correlation_id`.
 - **Filtro por organização** via `SelectOrganizacaoAdminGlobal` (autocomplete com debounce 300ms) — input livre de UUID proibido.
 - **Coluna `nome_organizacao`** sticky-left, clique navega para `/admin/organizacoes/:id`.
-- **Falha alta (Mand. 08)** — se a Organizacao foi deletada do Configurador mas a empresa ainda existe no Cadastros, a coluna mostra `⟨organização removida⟩` (visível, nunca silencioso).
+- **Falha alta (Mand. 08)** — se a Organizacao foi deletada do Configurador mas o fornecedor ainda existe no Cadastros, a coluna mostra `⟨organização removida⟩` (visível, nunca silencioso).
 
 ### Roadmap Fase 2
-A Opção A (tab "Empresas e Parceiros" dentro de `OrganizacaoDetalheAdmin`, vista única-org) está documentada em `documentos-tecnicos/admin-cross-org-pattern.md` como follow-up. A Opção B (esta) entrega valor primeiro.
+A Opção A (tab "Fornecedores" dentro de `OrganizacaoDetalheAdmin`, vista única-org) está documentada em `documentos-tecnicos/admin-cross-org-pattern.md` como follow-up. A Opção B (esta) entrega valor primeiro.
 
 ### Skill relacionada
 - `skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md` (seção "Exceções permitidas") — autorização da rota Cadastros sem `extrairIdOrganizacao`.

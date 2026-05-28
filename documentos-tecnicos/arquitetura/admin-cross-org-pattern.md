@@ -3,7 +3,7 @@
 > Documento técnico de referência para qualquer tela admin Gravity que
 > precise listar/auditar dados de TODAS as organizações da plataforma.
 >
-> Criado em 2026-05-08 durante a entrega de `EmpresasEParceirosAdmin`.
+> Criado em 2026-05-08 durante a entrega de `FornecedoresAdmin` (antes `EmpresasEParceirosAdmin`).
 > Reutilizar este padrão em telas futuras (auditoria cross-org, billing
 > cross-org, deploy cross-org, etc.).
 
@@ -96,23 +96,23 @@ Edição/criação/inativação cross-org **proibidas na UI admin**. Mudanças c
 
 | Componente | Arquivo |
 |:---|:---|
-| Endpoint S2S | `servicos-global/cadastros/server/src/routes/admin-empresas.ts` |
-| Proxy + audit | `servicos-global/configurador/server/routes/admin-empresas.ts` |
+| Endpoint S2S | `servicos-global/cadastros/server/src/routes/admin-fornecedores.ts` |
+| Proxy + audit | `servicos-global/configurador/server/routes/admin-empresas.ts` (monta `/api/v1/admin/fornecedores`) |
 | Model audit | `configurador/prisma/schema.prisma` (`AuditLogAdmin`) |
-| Schema Zod | `servicos-global/cadastros/shared/schemas/empresa.schema.ts` (`listaEmpresasAdminSchema`) |
-| Página admin | `servicos-global/configurador/src/pages/admin/EmpresasEParceirosAdmin.tsx` |
+| Schema Zod | `servicos-global/cadastros/shared/schemas/fornecedor.schema.ts` (`listaFornecedoresAdminSchema`) |
+| Página admin | `servicos-global/configurador/src/pages/admin/FornecedoresAdmin.tsx` |
 | Autocomplete org | `nucleo-global/Campos/select-organizacao-admin-global/src/SelectOrganizacaoAdminGlobal.tsx` |
 | Testes | `servicos-global/cadastros/__tests__/functional/admin-empresas.test.ts`, `servicos-global/configurador/server/__tests__/admin-empresas.proxy.test.ts` |
 
 ## Roadmap — Fase 2
 
 A entrega atual (Opção B) é a vista cross-org global. A **Fase 2 (Opção A)**
-é uma tab "Empresas e Parceiros" dentro de `OrganizacaoDetalheAdmin` (vista
+é uma tab "Fornecedores" dentro de `OrganizacaoDetalheAdmin` (vista
 única-org). Reutiliza o mesmo endpoint passando `?id_organizacao=<id>` no
 query — sem novo backend. Backlog priorizado conforme demanda da equipe.
 
 ## Skill referência
 
 - `skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md` — Exceções permitidas
-- `skills/produtos-gravity/configurador/admin/SKILL.md` — Empresas e Parceiros (Cross-Org)
+- `skills/produtos-gravity/configurador/admin/SKILL.md` — Fornecedores (Cross-Org)
 - `skills/governanca/lei/cadastros-snapshot-policy/SKILL.md` — Nota sobre admin cross-org

@@ -1,6 +1,6 @@
 /**
  * Sincroniza parceiros de frete do Cadastros (SSOT) para fornecedor_bid_frete_internacional.
- * A UI cadastra via ModalEditarEmpresa; esta camada materializa o espelho operacional do BID.
+ * A UI cadastra via ModalEditarFornecedor; esta camada materializa o espelho operacional do BID.
  */
 
 import { fetchCadastrosJson } from '../lib/cadastros-client.js'

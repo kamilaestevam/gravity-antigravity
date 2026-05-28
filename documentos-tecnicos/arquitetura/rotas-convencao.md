@@ -140,7 +140,7 @@ A `{área}` vem **direto** após o domínio.
 | `/workspace/organizacao` | `/configurador/organizacao` |
 | `/workspace/workspaces` | `/configurador/workspaces` |
 | `/workspace/usuarios` | `/configurador/usuarios` |
-| `/workspace/empresas-e-parceiros` | `/configurador/empresas-e-parceiros` |
+| `/workspace/empresas-e-parceiros` | `/configurador/fornecedores` |
 | `/workspace/assinaturas` | `/configurador/assinaturas` |
 | `/workspace/financeiro` | `/configurador/financeiro` |
 | `/workspace/api-cockpit` | `/configurador/api-cockpit` |

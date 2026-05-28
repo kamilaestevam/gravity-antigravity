@@ -303,7 +303,7 @@ Verificar tooltip "Calculado a partir dos itens" (se implementado).
 | Passo | Acao | Resultado Esperado | Screenshot |
 |-------|------|--------------------|------------|
 | 13.1 | Localizar badge de Importador na coluna nome_importador | Badge clicavel visivel | |
-| 13.2 | Clicar no badge → navega para Configurador | URL: /workspace/empresas-e-parceiros com retorno= | 23_deep_link |
+| 13.2 | Clicar no badge → navega para Configurador | URL: /configurador/fornecedores com retorno= | 23_deep_link |
 | 13.3 | Clicar "Voltar" ou usar retorno → volta para Lista | Filtros preservados | |
 | 13.4 | Repetir para badge de Exportador | Mesma navegacao | |
 

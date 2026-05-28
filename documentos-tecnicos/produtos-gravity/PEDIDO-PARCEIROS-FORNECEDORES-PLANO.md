@@ -134,7 +134,7 @@ npx prisma generate --schema=prisma/schema.prisma
 | **01b** | ✅ ENUM + migrations teste (kodama) |
 | **02** | ✅ Drop `fornecedor_organizacao` Configurador (teste + prod, proxy `switchback.proxy.rlwy.net:13516`) |
 | **03b** | ✅ Proxy Config (`/fornecedores`, `/empresas`→rewrite, `/cadastros/*`); convite FORNECEDOR + vínculo Cadastros = **04** |
-| **04** | UI Empresas e Parceiros + portal crachá |
+| **04** | UI Fornecedores + portal crachá |
 | **05** | ✅ Drop `exportador_quando_importacao` + `importador_quando_exportacao` |
 | **Rename** | ✅ `empresa` → `fornecedor` (Cadastros, teste + prod) |
 

@@ -894,11 +894,13 @@ Gerado por sweep automatico. Cada linha mostra:
 | 326 | STRING | `tenant_id` | `    { key: 'tenant_id', label: t('admin.seguranca-admin.tabela.tenant'), tipo: 'texto', largura: '120px',` | `    { key: 'id_organizacao', label: t('admin.seguranca-admin.tabela.tenant'), tipo: 'texto', largura: '120px',` |
 | 373 | STRING | `tenant_id` | `    { key: 'tenant_id', label: t('admin.seguranca-admin.tabela.tenant'), tipo: 'texto', largura: '140px',` | `    { key: 'id_organizacao', label: t('admin.seguranca-admin.tabela.tenant'), tipo: 'texto', largura: '140px',` |
 
-### `servicos-global/configurador/src/pages/workspace/EmpresasParceiras.tsx` (1 hits)
+### `servicos-global/configurador/src/pages/configurador/Fornecedores.tsx` (legado resolvido)
 
-| Linha | Cat | Pat | Como esta | Como deve ficar |
+| Linha | Cat | Pat | Como estava | Como ficou |
 |---:|---|---|---|---|
-| 152 | TS_TYPE_OR_VAR | `tenantId` | `  const idOrganizacao = currentUser.tenantId` | `  const idOrganizacao = currentUser.id_organizacao` |
+| — | ROTA | `empresas-e-parceiros` | `/configurador/empresas-e-parceiros` | `/configurador/fornecedores` (+ redirect legado) |
+
+Arquivo anterior `pages/workspace/EmpresasParceiras.tsx` removido/renomeado em 2026-05-26.
 
 ### `servicos-global/configurador/src/pages/workspace/Organizacao.tsx` (2 hits)
 

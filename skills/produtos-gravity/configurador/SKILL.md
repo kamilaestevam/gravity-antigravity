@@ -152,7 +152,7 @@ if (!productPermissions || productPermissions.length === 0) {
 | Conceito | Onde vive | Como o Configurador usa |
 |----------|-----------|-------------------------|
 | Empresa da **organização** (1:1) | Cadastros.`empresa` + espelho `Organizacao.suid_empresa_organizacao` | Saga onboarding: `POST /api/v1/empresas` via `cadastros-client` |
-| **Parceiros** COMEX | Cadastros.`fornecedor` | Tela `/configurador/empresas-e-parceiros` — `GET /fornecedores?escopo=parceiros`, CRUD `/fornecedores` |
+| **Fornecedores** COMEX | Cadastros.`fornecedor` | Tela `/configurador/fornecedores` — `GET /fornecedores?escopo=parceiros`, CRUD `/fornecedores`. Deep-links: `?criar=...` (novo) e `?id=...` (editar). Redirect legado: `/configurador/empresas-e-parceiros` → `/configurador/fornecedores` |
 
 **Proxy** (`server/index.ts`): `/api/v1/empresas` e `/api/v1/fornecedores` são rotas **separadas** (sem rewrite). Chave S2S injetada server-side no proxy.
 

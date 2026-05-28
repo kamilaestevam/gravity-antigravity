@@ -27,7 +27,7 @@ A política vale para **todo produto e serviço** que referencia entidade de Cad
 
 | Produto / Serviço | Padrão atual | Padrão exigido |
 |---|---|---|
-| Configurador (`/configurador/empresas-e-parceiros`) | Leitura ao vivo (gestão) | Mantém — gestão da entidade |
+| Configurador (`/configurador/fornecedores`) | Leitura ao vivo (gestão) | Mantém — gestão da entidade |
 | Configurador (Modal Editar Empresa — campo País) | Leitura ao vivo via `usePaises()` hook | Mantém — gestão. Lista vem de `GET /api/v1/cadastros/paises` |
 | Pedido | Snapshot (`pedido_snapshot_empresa`) | Mantém — referência canônica desta lei |
 | LPCO | (a definir) | **Snapshot** — emite ao Portal Único |
@@ -269,7 +269,7 @@ Cada produto adapta os campos extras conforme seu domínio (ex: LPCO pode ter ca
 
 ## Nota — Admin cross-organização lê do master, não dos snapshots
 
-A tela admin `/admin/empresas-e-parceiros` (`EmpresasEParceirosAdmin.tsx`)
+A tela admin `/admin/fornecedores` (`FornecedoresAdmin.tsx`)
 e o endpoint `/api/v1/admin/empresas` listam empresas **ao vivo** da tabela
 master `empresa` no Cadastros. **Snapshots de outras organizações não são
 afetados nem expostos** por essa rota.

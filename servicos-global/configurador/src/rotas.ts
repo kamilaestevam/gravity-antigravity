@@ -42,7 +42,7 @@ export const ROTAS = {
     organizacao: '/configurador/organizacao',
     workspaces: '/configurador/workspaces',
     usuarios: '/configurador/usuarios',
-    empresasEParceiros: '/configurador/empresas-e-parceiros',
+    fornecedores: '/configurador/fornecedores',
     assinaturas: '/configurador/assinaturas',
     financeiro: '/configurador/financeiro',
     conectorCargowise: '/configurador/conector-cargowise',
@@ -69,7 +69,7 @@ export const ROTAS = {
     ncmIntegracao: '/admin/ncm-integracao',
     certificadosDigitais: '/admin/certificados-digitais',
     cadastrosGlobais: '/admin/cadastros-globais',
-    empresasEParceiros: '/admin/empresas-e-parceiros',
+    fornecedores: '/admin/fornecedores',
     taxasMoeda: '/admin/taxas-moeda',
     organizacoes: '/admin/organizacoes',
     organizacaoDetalhe: (idOrganizacao: string) => `/admin/organizacoes/${idOrganizacao}`,
@@ -102,6 +102,8 @@ export const ROTAS = {
   // ── Rotas legacy (apenas para detecção de redirect; não usar em código novo) ──
   legacy: {
     workspace: '/workspace',
+    empresasEParceiros: '/configurador/empresas-e-parceiros',
+    adminEmpresasEParceiros: '/admin/empresas-e-parceiros',
     produtoPedido: '/produto/pedido',
     produtoSimulaCusto: '/produto/simula-custo',
     produtoProcesso: '/produto/processo',
@@ -116,6 +118,8 @@ export const ROTAS = {
  */
 export const REDIRECTS_LEGACY: ReadonlyArray<{ de: string; para: string }> = [
   { de: '/workspace', para: '/configurador' },
+  { de: '/configurador/empresas-e-parceiros', para: '/configurador/fornecedores' },
+  { de: '/admin/empresas-e-parceiros', para: '/admin/fornecedores' },
   { de: '/produto/pedido', para: '/pedido' },
   { de: '/produto/simula-custo', para: '/simula-custo' },
   { de: '/produto/processo', para: '/processo' },

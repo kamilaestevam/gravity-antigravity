@@ -22,7 +22,7 @@ import {
 } from '@phosphor-icons/react'
 
 import { getFornecedores } from '../shared/api'
-import { urlCriarParceiroFreteInternacional } from '../shared/urls-deep-link-configurador'
+import { urlCriarFornecedorFreteInternacional } from '../shared/urls-deep-link-configurador'
 import type { Fornecedor, TipoFornecedor, StatusFornecedor } from '../shared/types'
 import { TIPO_FORNECEDOR_LABELS, STATUS_FORNECEDOR_LABELS } from '../shared/types'
 
@@ -287,7 +287,7 @@ export default function Fornecedores() {
       tamanho="pequeno"
       icone={<Plus size={14} weight="bold" />}
       onClick={() => {
-        window.location.href = urlCriarParceiroFreteInternacional()
+        window.location.href = urlCriarFornecedorFreteInternacional()
       }}
     >
       {t('bidfrete.fornecedores.novo_fornecedor')}

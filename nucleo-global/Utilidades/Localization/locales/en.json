@@ -1453,6 +1453,7 @@
       "api-cockpit": "API Cockpit",
       "seguranca": "Security",
       "certificados_digitais": "Digital Certificates",
+      "fornecedores": "Suppliers",
       "log_testes": "Tests",
       "tenant_name": "Gravity HQ",
       "tenant_plan": "Central Core",

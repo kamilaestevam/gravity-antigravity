@@ -67,6 +67,7 @@ const ADMIN_SUBSESSAO: Record<string, string> = {
   'eventos-seguranca': 'Segurança',
   'integracao-ncm':    'NCM Siscomex',
   'cadastros-globais': 'Cadastros Globais',
+  'fornecedores':      'Fornecedores',
   'faturas':           'Financeiro',
 }
 
@@ -74,7 +75,8 @@ const CONFIGURADOR_SUBSESSAO: Record<string, string> = {
   'organizacao':           'Organização',
   'workspaces':            'Workspaces',
   'usuarios':              'Usuários',
-  'empresas-e-parceiros':  'Empresas e Parceiros',
+  'fornecedores':          'Fornecedores',
+  'empresas-e-parceiros':  'Fornecedores',
   'assinaturas':           'Assinaturas',
   'financeiro':            'Financeiro',
   'api-cockpit':           'API Cockpit',

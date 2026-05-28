@@ -1,6 +1,6 @@
 /**
  * cadastrosApi.ts — Cliente HTTP do BID Frete Internacional para Cadastros (SSOT).
- * Países e portos: /api/v1/cadastros/*
+ * Países, portos, aeroportos e containers: /api/v1/cadastros/*
  */
 
 export interface PaisCadastro {
@@ -25,6 +25,34 @@ export interface AeroportoCadastro {
   nome_aeroporto: string
   codigo_pais_aeroporto?: string | null
   ativo_aeroporto: boolean
+}
+
+export interface ContainerCadastro {
+  id_container: string
+  tipo_container: string
+  tamanho_container: string
+  codigo_iso_container: string | null
+  armador_dono_container: string | null
+  ativo_container: boolean
+}
+
+const ROTULOS_TIPO_CONTAINER: Record<string, string> = {
+  DRY: 'Dry',
+  REEFER: 'Reefer',
+  OPEN_TOP: 'Open Top',
+  FLAT_RACK: 'Flat Rack',
+  TANK: 'Tank',
+  BULK: 'Bulk',
+  PLATAFORMA: 'Plataforma',
+}
+
+export function rotuloContainerCadastro(container: ContainerCadastro): string {
+  const tipo = ROTULOS_TIPO_CONTAINER[container.tipo_container] ?? container.tipo_container
+  const partes = [tipo, container.tamanho_container].filter(Boolean)
+  if (container.armador_dono_container) {
+    partes.push(container.armador_dono_container)
+  }
+  return partes.join(' · ')
 }
 
 function headers(): Record<string, string> {
@@ -79,5 +107,12 @@ export const cadastrosApi = {
     if (params?.pais) search.set('pais', params.pais)
     if (params?.limit) search.set('limit', String(params.limit))
     return request(`/api/v1/cadastros/aeroportos?${search.toString()}`)
+  },
+
+  listarContainers: (params?: { q?: string; limit?: number }): Promise<{ itens: ContainerCadastro[]; total: number }> => {
+    const search = new URLSearchParams({ apenas_ativos: 'true' })
+    if (params?.q) search.set('q', params.q)
+    if (params?.limit) search.set('limit', String(params.limit))
+    return request(`/api/v1/cadastros/containers?${search.toString()}`)
   },
 }

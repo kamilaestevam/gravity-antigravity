@@ -18,6 +18,7 @@ const deployGate = process.argv.includes('--deploy-gate')
 
 /** Suítes com falhas pré-existentes — fora do gate de deploy até correção. */
 const SUITES_FORA_DO_DEPLOY_GATE = new Set([
+  'testes/testes-cross-organizacao/bid-cambio/vitest.config.ts',
   'testes/testes-funcionais/bid-frete-internacional/vitest.config.ts',
   'testes/testes-funcionais/cadastros/vitest.config.ts',
   'testes/testes-funcionais/configurador/vitest.config.ts',

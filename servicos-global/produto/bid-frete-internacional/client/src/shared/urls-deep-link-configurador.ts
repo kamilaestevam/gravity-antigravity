@@ -1,8 +1,8 @@
 /**
- * Deep-links BID Frete Internacional → Configurador (Cadastros / Empresas e Parceiros).
+ * Deep-links BID Frete Internacional → Configurador (Cadastros / Fornecedores).
  *
- * O cadastro de fornecedores de frete usa o modal canônico "Nova Empresa e Parceiro"
- * (ModalEditarEmpresa), não um formulário próprio do produto.
+ * O cadastro de fornecedores de frete usa o modal canônico "Novo Fornecedor"
+ * (ModalEditarFornecedor), não um formulário próprio do produto.
  */
 
 const ORIGEM_SHELL_DEV = 'http://localhost:8000'
@@ -24,14 +24,20 @@ function urlRetornoFornecedoresBidFrete(): string {
   return encodeURIComponent(window.location.href)
 }
 
-/** Abre o modal canônico de nova empresa/parceiro (Cadastros). */
-export function urlCriarParceiroFreteInternacional(): string {
+/** Abre o modal canônico de novo fornecedor (Cadastros). */
+export function urlCriarFornecedorFreteInternacional(): string {
   const retorno = urlRetornoFornecedoresBidFrete()
-  return `${urlBaseConfigurador()}/empresas-e-parceiros?criar=parceiro-frete-internacional&retorno=${retorno}`
+  return `${urlBaseConfigurador()}/fornecedores?criar=fornecedor-frete-internacional&retorno=${retorno}`
 }
 
-/** Editar parceiro existente no Cadastros (por id_fornecedor do Cadastros). */
-export function urlEditarParceiroFreteInternacional(idFornecedorCadastros: string): string {
+/** @deprecated Use urlCriarFornecedorFreteInternacional */
+export const urlCriarParceiroFreteInternacional = urlCriarFornecedorFreteInternacional
+
+/** Editar fornecedor existente no Cadastros (por id_fornecedor do Cadastros). */
+export function urlEditarFornecedorFreteInternacional(idFornecedorCadastros: string): string {
   const retorno = urlRetornoFornecedoresBidFrete()
-  return `${urlBaseConfigurador()}/empresas-e-parceiros?id=${idFornecedorCadastros}&retorno=${retorno}`
+  return `${urlBaseConfigurador()}/fornecedores?id=${idFornecedorCadastros}&retorno=${retorno}`
 }
+
+/** @deprecated Use urlEditarFornecedorFreteInternacional */
+export const urlEditarParceiroFreteInternacional = urlEditarFornecedorFreteInternacional

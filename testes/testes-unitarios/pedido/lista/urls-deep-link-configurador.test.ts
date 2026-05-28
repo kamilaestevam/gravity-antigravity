@@ -28,7 +28,7 @@ describe('urlsDeepLinkConfigurador', () => {
     const url = urlVincularExportador(null, 'ped-123')
 
     expect(url).toBe(
-      '/configurador/empresas-e-parceiros?criar=exportador-quando-importacao&retorno=' +
+      '/configurador/fornecedores?criar=exportador-quando-importacao&retorno=' +
         encodeURIComponent('http://localhost:8000/pedido/pedidos/lista?expandir=ped-123'),
     )
     expect(url).not.toContain('8005')
@@ -40,7 +40,7 @@ describe('urlsDeepLinkConfigurador', () => {
     const { urlVincularExportador } = await importarModulo()
     const url = urlVincularExportador('exp-1', 'ped-456')
 
-    expect(url.startsWith('http://localhost:8000/configurador/empresas-e-parceiros?')).toBe(true)
+    expect(url.startsWith('http://localhost:8000/configurador/fornecedores?')).toBe(true)
     expect(url).toContain('id=exp-1')
     expect(url).not.toContain(':8005')
   })
@@ -81,8 +81,8 @@ describe('urlsDeepLinkConfigurador', () => {
       urlGerenciarWorkspaces(),
       urlCriarWorkspace(),
     ]) {
-      expect(url).toMatch(/\/configurador\/(empresas-e-parceiros|workspaces)/)
-      expect(url).not.toMatch(/:\/\/[^/]+\/empresas-e-parceiros/)
+      expect(url).toMatch(/\/configurador\/(fornecedores|workspaces)/)
+      expect(url).not.toMatch(/:\/\/[^/]+\/fornecedores/)
       expect(url).not.toContain(':8005')
     }
   })

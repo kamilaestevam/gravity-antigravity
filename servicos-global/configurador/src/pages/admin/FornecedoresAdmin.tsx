@@ -1,20 +1,12 @@
 /**
- * EmpresasEParceirosAdmin.tsx — Visão CROSS-ORGANIZAÇÃO de empresas/parceiros.
+ * FornecedoresAdmin.tsx — Visão CROSS-ORGANIZAÇÃO de fornecedores COMEX.
  *
- * Tela admin (read-only) para SUPER_ADMIN/ADMIN Gravity. Lista empresas de
+ * Tela admin (read-only) para SUPER_ADMIN/ADMIN Gravity. Lista fornecedores de
  * TODAS as organizações da plataforma. NÃO substitui a tela do workspace —
  * existe apenas para suporte, auditoria e troubleshooting interno.
  *
- * Camadas de aviso (decisões do plano + Coord/Líder):
- *   1. Banner permanente no topo (CardBasicoGlobal variante="aviso")
- *   2. Modal de aviso quando total > 500 — sempre aparece, sem dispense
- *   3. Audit log persistente em AuditLogAdmin (gravado pelo backend)
- *
- * Skill: skills/produtos-gravity/configurador/admin/SKILL.md
- * Doc:   documentos-tecnicos/admin-cross-org-pattern.md
- *
  * NOTA: criada como self-contained para evitar refator arriscado da página
- * do workspace. Quando o refator de extração de EmpresasEParceirosTabela
+ * do workspace. Quando o refator de extração de FornecedoresTabela
  * for executado, ambas as páginas convergem para usar o mesmo componente.
  */
 
@@ -53,18 +45,18 @@ const TIPOS_PARCEIRO = [
   { key: 'seguradora_corretora_cambio',               label: 'Seguradora/Corretora Câmbio' },
 ] as const
 
-function derivarTiposEmpresa(e: FornecedorAdmin): string {
+function derivarPapeisComex(e: FornecedorAdmin): string {
   return TIPOS_PARCEIRO
     .filter((t) => (e as unknown as Record<string, boolean>)[`pode_ser_${t.key}_fornecedor`])
     .map((t) => t.label)
     .join(' + ') || '—'
 }
 
-export function EmpresasEParceirosAdmin(): JSX.Element {
+export function FornecedoresAdmin(): JSX.Element {
   const { getToken } = useAuth()
   const navigate = useNavigate()
 
-  const [empresas, setEmpresas] = useState<FornecedorAdmin[]>([])
+  const [fornecedores, setFornecedores] = useState<FornecedorAdmin[]>([])
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [totalGeral, setTotalGeral] = useState(0)
@@ -94,13 +86,13 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
       }
       const raw = await res.json()
       const data = listaFornecedoresAdminSchema.parse(raw)
-      setEmpresas(data.itens)
+      setFornecedores(data.itens)
       setTotalGeral(data.total)
       setAlertaVolume(data.alerta_volume === true)
       if (data.alerta_volume === true) setModalAvisoAberto(true)
     } catch (e) {
       setErro(e instanceof Error ? e.message : 'Erro desconhecido')
-      setEmpresas([])
+      setFornecedores([])
     } finally {
       setCarregando(false)
     }
@@ -139,7 +131,7 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
         </button>
       ),
     },
-    { key: 'nome_fornecedor', label: 'Nome do parceiro' },
+    { key: 'nome_fornecedor', label: 'Fornecedor' },
     {
       key:   'documento',
       label: 'CNPJ / TIN',
@@ -159,9 +151,9 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
       ),
     },
     {
-      key:   'tipos_parceiro',
-      label: 'Tipo de Parceiro',
-      render: (_, l) => derivarTiposEmpresa(l),
+      key:   'papeis_comex',
+      label: 'Papel COMEX',
+      render: (_, l) => derivarPapeisComex(l),
     },
     {
       key:   'ativo_fornecedor',
@@ -179,47 +171,47 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
       stats={
         <>
           <CardBasicoGlobal
-            titulo="Total de Empresas"
+            titulo="Total de Fornecedores"
             icone={<Buildings weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
             valor={totalGeral}
             tooltip={
               <>
-                <div className="cg-tooltip__row"><span>Empresas cadastradas</span> <strong>{totalGeral}</strong></div>
-                <div className="cg-tooltip__row"><span>Ativas</span> <strong style={{ color: '#34d399' }}>{empresas.filter(e => e.ativo_fornecedor).length}</strong></div>
-                <div className="cg-tooltip__row"><span>Inativas</span> <strong style={{ color: '#94a3b8' }}>{empresas.filter(e => !e.ativo_fornecedor).length}</strong></div>
+                <div className="cg-tooltip__row"><span>Fornecedores cadastrados</span> <strong>{totalGeral}</strong></div>
+                <div className="cg-tooltip__row"><span>Ativos</span> <strong style={{ color: '#34d399' }}>{fornecedores.filter(e => e.ativo_fornecedor).length}</strong></div>
+                <div className="cg-tooltip__row"><span>Inativos</span> <strong style={{ color: '#94a3b8' }}>{fornecedores.filter(e => !e.ativo_fornecedor).length}</strong></div>
               </>
             }
           />
           <CardBasicoGlobal
             titulo="Países"
             icone={<GlobeHemisphereWest weight="duotone" size={16} style={{ color: '#34d399' }} />}
-            valor={new Set(empresas.map(e => e.pais_fornecedor)).size}
+            valor={new Set(fornecedores.map(e => e.pais_fornecedor)).size}
             tooltip={
-              <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Quantidade de países distintos entre todas as empresas cadastradas.</span>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Quantidade de países distintos entre todos os fornecedores cadastrados.</span>
             }
           />
           <CardBasicoGlobal
             titulo="Organizações"
             icone={<UsersThree weight="duotone" size={16} style={{ color: '#8b5cf6' }} />}
-            valor={new Set(empresas.map(e => e.id_organizacao)).size}
+            valor={new Set(fornecedores.map(e => e.id_organizacao)).size}
             tooltip={
-              <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Organizações que possuem ao menos uma empresa/parceiro cadastrado.</span>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Organizações que possuem ao menos um fornecedor cadastrado.</span>
             }
           />
           <CardGraficoGlobal
             titulo="Status"
             icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
-            total={empresas.length}
-            valorPrincipal={empresas.filter(e => e.ativo_fornecedor).length}
+            total={fornecedores.length}
+            valorPrincipal={fornecedores.filter(e => e.ativo_fornecedor).length}
             corGauge="#34d399"
             legenda={[
-              { label: 'Ativas', valor: empresas.filter(e => e.ativo_fornecedor).length, cor: 'green' },
-              { label: 'Inativas', valor: empresas.filter(e => !e.ativo_fornecedor).length, cor: 'red' },
+              { label: 'Ativos', valor: fornecedores.filter(e => e.ativo_fornecedor).length, cor: 'green' },
+              { label: 'Inativos', valor: fornecedores.filter(e => !e.ativo_fornecedor).length, cor: 'red' },
             ]}
             tooltip={
               <>
-                <div className="cg-tooltip__row"><span>Ativas</span> <strong style={{ color: '#34d399' }}>{empresas.filter(e => e.ativo_fornecedor).length}</strong></div>
-                <div className="cg-tooltip__row"><span>Inativas</span> <strong style={{ color: '#f87171' }}>{empresas.filter(e => !e.ativo_fornecedor).length}</strong></div>
+                <div className="cg-tooltip__row"><span>Ativos</span> <strong style={{ color: '#34d399' }}>{fornecedores.filter(e => e.ativo_fornecedor).length}</strong></div>
+                <div className="cg-tooltip__row"><span>Inativos</span> <strong style={{ color: '#f87171' }}>{fornecedores.filter(e => !e.ativo_fornecedor).length}</strong></div>
               </>
             }
           />
@@ -231,7 +223,7 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
       {/* ── Estados ──────────────────────────────────────────────────────── */}
       {carregando && (
         <div style={{ padding: 24, color: 'var(--ws-text-muted)' }}>
-          Carregando empresas, aguarde alguns segundos.
+          Carregando fornecedores, aguarde alguns segundos.
         </div>
       )}
 
@@ -250,11 +242,11 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
       {/* ── Tabela ───────────────────────────────────────────────────────── */}
       {!carregando && !erro && (
         <TabelaGlobal<FornecedorAdmin>
-          dados={empresas}
+          dados={fornecedores}
           colunas={colunas}
           idKey="id_fornecedor"
-          mensagemVazio="Nenhuma empresa encontrada com os filtros atuais."
-          tooltipBusca="Busca por nome do parceiro"
+          mensagemVazio="Nenhum fornecedor encontrado com os filtros atuais."
+          tooltipBusca="Busca por nome do fornecedor"
         />
       )}
 
@@ -284,7 +276,7 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
       >
         <div style={{ padding: 16 }}>
           <p style={{ marginBottom: 12 }}>
-            <strong>{totalGeral} empresas</strong> retornadas em sua consulta cross-organização.
+            <strong>{totalGeral} fornecedores</strong> retornados em sua consulta cross-organização.
           </p>
           <p style={{ marginBottom: 12, color: 'var(--ws-text-muted)' }}>
             Você está prestes a carregar uma quantidade alta de registros.

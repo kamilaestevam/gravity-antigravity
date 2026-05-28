@@ -1,8 +1,8 @@
 /**
- * EmpresasEParceiros.tsx — Gaveta do Configurador (Fase 5 DDD).
+ * Fornecedores.tsx — Gaveta do Configurador (Fase 5 DDD).
  *
- * Tela tenant — NÃO é painel Admin. Só lista/edita Empresas da organização
- * logada (Tenant Isolation via header x-organizacao-id).
+ * Tela tenant — NÃO é painel Admin. Só lista/edita fornecedores COMEX da
+ * organização logada (Tenant Isolation via header x-organizacao-id).
  *
  * Contrato bilateral (Mandamento 09): schemas Zod vêm do próprio serviço
  * Cadastros (@tenant/cadastros/shared/schemas). Divergência aqui = commit
@@ -52,7 +52,7 @@ import {
   exportarPDF,
   type ColunasExport,
 } from '../../services/export-service'
-import { ModalEditarEmpresa, type PapelFlag } from './ModalEditarEmpresa'
+import { ModalEditarFornecedor, type PapelFlag } from './ModalEditarFornecedor'
 
 // ── Auth helpers ─────────────────────────────────────────────────────────────
 
@@ -71,9 +71,9 @@ async function getAuthHeaders(idOrganizacao: string | undefined): Promise<Record
 
 // ── Cell renderers ───────────────────────────────────────────────────────────
 
-// Empresa enriquecida com campo derivado `tipos_empresa` para suportar
+// Fornecedor enriquecido com campo derivado `papeis_comex` para suportar
 // filtro/ordenacao do TabelaGlobal sem duplicar 14 colunas booleanas.
-type EmpresaComTipos = Fornecedor & { tipos_empresa: string }
+type FornecedorComPapeis = Fornecedor & { papeis_comex: string }
 
 const PAPEIS: Array<{ key: keyof Fornecedor; label: string; cor: string }> = [
   { key: 'pode_ser_importador_fornecedor', label: 'Importador', cor: '#60a5fa' },
@@ -92,13 +92,13 @@ const PAPEIS: Array<{ key: keyof Fornecedor; label: string; cor: string }> = [
   { key: 'pode_ser_seguradora_corretora_cambio_fornecedor', label: 'Seguradora / Corretora Câmbio', cor: '#14b8a6' },
 ]
 
-function derivarTiposEmpresa(empresa: Fornecedor): string {
-  const ativos = PAPEIS.filter(p => Boolean(empresa[p.key])).map(p => p.label)
+function derivarPapeisComex(fornecedor: Fornecedor): string {
+  const ativos = PAPEIS.filter(p => Boolean(fornecedor[p.key])).map(p => p.label)
   return ativos.length === 0 ? '—' : ativos.join(' + ')
 }
 
-function ChipsPapeis({ empresa }: { empresa: EmpresaComTipos | Fornecedor }) {
-  const ativos = PAPEIS.filter((p) => Boolean(empresa[p.key]))
+function ChipsPapeis({ fornecedor }: { fornecedor: FornecedorComPapeis | Fornecedor }) {
+  const ativos = PAPEIS.filter((p) => Boolean(fornecedor[p.key]))
   if (ativos.length === 0) {
     return <span style={{ color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>—</span>
   }
@@ -127,9 +127,9 @@ function ChipsPapeis({ empresa }: { empresa: EmpresaComTipos | Fornecedor }) {
   )
 }
 
-function DocumentoCell({ empresa }: { empresa: Fornecedor }) {
-  const ehBr = empresa.pais_fornecedor === 'BR'
-  const doc = ehBr ? empresa.cnpj_fornecedor : empresa.tin_fornecedor
+function DocumentoCell({ fornecedor }: { fornecedor: Fornecedor }) {
+  const ehBr = fornecedor.pais_fornecedor === 'BR'
+  const doc = ehBr ? fornecedor.cnpj_fornecedor : fornecedor.tin_fornecedor
   const tipo = ehBr ? 'CNPJ' : 'TIN'
   if (!doc) {
     return <span style={{ color: 'var(--ws-muted)', fontStyle: 'italic' }}>sem documento</span>
@@ -175,32 +175,97 @@ const PARAM_PARA_PAPEL: Record<string, PapelFlag> = {
   'transportadora-internacional': 'pode_ser_transportadora_rodoviaria_internacional',
 }
 
-export function EmpresasEParceiros() {
+function rotuloUrlRetorno(urlRetorno: string): string {
+  try {
+    const decoded = decodeURIComponent(urlRetorno).toLowerCase()
+    if (decoded.includes('/bid-frete/')) return 'Voltar para BID Frete'
+    if (decoded.includes('/pedido/')) return 'Voltar para Pedidos'
+    return 'Voltar'
+  } catch {
+    return 'Voltar'
+  }
+}
+
+export function Fornecedores() {
   const addNotification = useShellStore((s) => s.addNotification)
   const currentUser = useShellStore((s) => s.currentUser)
   const idOrganizacao = currentUser.idOrganizacao
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const [empresas, setEmpresas] = useState<Fornecedor[]>([])
+  const [fornecedores, setFornecedores] = useState<Fornecedor[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [empresaEditando, setEmpresaEditando] = useState<Fornecedor | null>(null)
+  const [fornecedorEditando, setFornecedorEditando] = useState<Fornecedor | null>(null)
   const [criandoNova, setCriandoNova] = useState(false)
 
-  // Deep-link: ?criar=exportador-quando-importacao ou importador-quando-exportacao
+  // Deep-link: ?criar=... | ?id=... (editar fornecedor existente)
   const paramCriar = searchParams.get('criar')
   const paramRetorno = searchParams.get('retorno')
+  const paramId = searchParams.get('id')
   const papelInicial = paramCriar ? PARAM_PARA_PAPEL[paramCriar] : undefined
 
   // Auto-abrir modal quando deep-link de criação é detectado
   useEffect(() => {
-    if (paramCriar === 'parceiro-frete-internacional' || paramCriar === 'novo') {
+    if (paramId) return
+    if (
+      paramCriar === 'fornecedor-frete-internacional'
+      || paramCriar === 'parceiro-frete-internacional'
+      || paramCriar === 'novo'
+    ) {
       setCriandoNova(true)
       return
     }
     if (paramCriar && papelInicial) {
       setCriandoNova(true)
     }
-  }, [paramCriar, papelInicial])
+  }, [paramCriar, papelInicial, paramId])
+
+  // Deep-link: ?id=<id_fornecedor> abre modal de edição (BID, Pedido)
+  useEffect(() => {
+    if (!paramId || !idOrganizacao) return
+
+    const fromList = fornecedores.find((e) => e.id_fornecedor === paramId)
+    if (fromList) {
+      setFornecedorEditando(fromList)
+      setCriandoNova(false)
+      return
+    }
+
+    if (carregando) return
+
+    let cancelado = false
+    async function carregarFornecedorPorId() {
+      try {
+        const headers = await getAuthHeaders(idOrganizacao)
+        const res = await fetch(`/api/v1/fornecedores/${paramId}`, { headers })
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}))
+          if (!cancelado) {
+            addNotification({
+              type: 'error',
+              message: body?.error?.message ?? 'Fornecedor não encontrado.',
+            })
+          }
+          return
+        }
+        const raw = await res.json()
+        const parsed = fornecedorSchema.parse(raw)
+        if (!cancelado) {
+          setFornecedorEditando(parsed)
+          setCriandoNova(false)
+        }
+      } catch (err) {
+        console.error('[Fornecedores] erro ao carregar fornecedor por id:', err)
+        if (!cancelado) {
+          addNotification({ type: 'error', message: 'Erro ao carregar fornecedor.' })
+        }
+      }
+    }
+
+    void carregarFornecedorPorId()
+    return () => {
+      cancelado = true
+    }
+  }, [paramId, idOrganizacao, fornecedores, carregando, addNotification])
 
   async function recarregar() {
     if (!idOrganizacao) {
@@ -215,18 +280,18 @@ export function EmpresasEParceiros() {
         const body = await res.json().catch(() => ({}))
         addNotification({
           type: 'error',
-          message: body?.error?.message ?? 'Falha ao carregar empresas.',
+          message: body?.error?.message ?? 'Falha ao carregar fornecedores.',
         })
         return
       }
       const raw = await res.json()
       const parsed = listaFornecedoresSchema.parse(raw)
-      setEmpresas(parsed.itens)
+      setFornecedores(parsed.itens)
     } catch (err) {
-      console.error('[EmpresasEParceiros] erro ao carregar:', err)
+      console.error('[Fornecedores] erro ao carregar:', err)
       addNotification({
         type: 'error',
-        message: 'Erro inesperado ao carregar empresas.',
+        message: 'Erro inesperado ao carregar fornecedores.',
       })
     } finally {
       setCarregando(false)
@@ -238,16 +303,16 @@ export function EmpresasEParceiros() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idOrganizacao])
 
-  async function alternarAtivacao(empresa: Fornecedor) {
+  async function alternarAtivacao(fornecedor: Fornecedor) {
     try {
       const headers = await getAuthHeaders(idOrganizacao)
       // Soft delete (DELETE) desativa; para reativar usamos PUT com { ativo_fornecedor: true }.
-      const res = empresa.ativo_fornecedor
-        ? await fetch(`/api/v1/fornecedores/${empresa.id_fornecedor}`, {
+      const res = fornecedor.ativo_fornecedor
+        ? await fetch(`/api/v1/fornecedores/${fornecedor.id_fornecedor}`, {
             method: 'DELETE',
             headers,
           })
-        : await fetch(`/api/v1/fornecedores/${empresa.id_fornecedor}`, {
+        : await fetch(`/api/v1/fornecedores/${fornecedor.id_fornecedor}`, {
             method: 'PUT',
             headers,
             body: JSON.stringify({ ativo_fornecedor: true }),
@@ -257,31 +322,31 @@ export function EmpresasEParceiros() {
         const body = await res.json().catch(() => ({}))
         addNotification({
           type: 'error',
-          message: body?.error?.message ?? 'Falha ao atualizar status da empresa.',
+          message: body?.error?.message ?? 'Falha ao atualizar status do fornecedor.',
         })
         return
       }
       const raw = await res.json()
-      const atualizada = fornecedorSchema.parse(raw)
-      setEmpresas((prev) => prev.map((e) => (e.id_fornecedor === atualizada.id_fornecedor ? atualizada : e)))
+      const atualizado = fornecedorSchema.parse(raw)
+      setFornecedores((prev) => prev.map((e) => (e.id_fornecedor === atualizado.id_fornecedor ? atualizado : e)))
       addNotification({
         type: 'success',
-        message: `Empresa "${atualizada.nome_fornecedor}" ${atualizada.ativo_fornecedor ? 'reativada' : 'desativada'}.`,
+        message: `Fornecedor "${atualizado.nome_fornecedor}" ${atualizado.ativo_fornecedor ? 'reativado' : 'desativado'}.`,
       })
     } catch (err) {
-      console.error('[EmpresasEParceiros] erro ao alternar status:', err)
-      addNotification({ type: 'error', message: 'Erro inesperado ao atualizar empresa.' })
+      console.error('[Fornecedores] erro ao alternar status:', err)
+      addNotification({ type: 'error', message: 'Erro inesperado ao atualizar fornecedor.' })
     }
   }
 
   // ── Colunas + ações ──────────────────────────────────────────────────────
 
-  const COLUNAS: TabelaGlobalColuna<EmpresaComTipos>[] = [
+  const COLUNAS: TabelaGlobalColuna<FornecedorComPapeis>[] = [
     {
       key: 'nome_fornecedor',
-      label: 'Empresa',
+      label: 'Fornecedor',
       tipo: 'texto',
-      tooltipTitulo: 'Empresa',
+      tooltipTitulo: 'Fornecedor',
       tooltipDescricao: 'Razão social registrada no Cadastros da organização',
       render: (_, item) => (
         // inline-flex + justifyContent center casa com `text-align: center` da célula <td>.
@@ -311,11 +376,11 @@ export function EmpresasEParceiros() {
     },
     {
       key: 'cnpj_fornecedor',
-      label: 'CNPJ do Parceiro',
+      label: 'CNPJ / TIN',
       tipo: 'texto',
-      tooltipTitulo: 'CNPJ do Parceiro',
-      tooltipDescricao: 'CNPJ para parceiros brasileiros, TIN para estrangeiros',
-      render: (_, item) => <DocumentoCell empresa={item} />,
+      tooltipTitulo: 'CNPJ / TIN',
+      tooltipDescricao: 'CNPJ para fornecedores brasileiros, TIN para estrangeiros',
+      render: (_, item) => <DocumentoCell fornecedor={item} />,
     },
     {
       key: 'pais_fornecedor',
@@ -337,30 +402,30 @@ export function EmpresasEParceiros() {
       ),
     },
     {
-      key: 'tipos_empresa',
-      label: 'Tipo de Parceiro',
+      key: 'papeis_comex',
+      label: 'Papel COMEX',
       tipo: 'texto',
-      tooltipTitulo: 'Tipo de Parceiro',
-      tooltipDescricao: 'Papéis que esta empresa pode desempenhar em operações de comércio exterior',
-      render: (_, item) => <ChipsPapeis empresa={item} />,
+      tooltipTitulo: 'Papel COMEX',
+      tooltipDescricao: 'Papéis que este fornecedor pode desempenhar em operações de comércio exterior',
+      render: (_, item) => <ChipsPapeis fornecedor={item} />,
     },
     {
       key: 'ativo_fornecedor',
       label: 'Status',
       tipo: 'texto',
       tooltipTitulo: 'Status',
-      tooltipDescricao: 'Empresas inativas não aparecem em dropdowns operacionais',
+      tooltipDescricao: 'Fornecedores inativos não aparecem em dropdowns operacionais',
       render: (_, item) => <StatusCell ativo={item.ativo_fornecedor} />,
       renderFiltroLabel: (val) => (val === 'true' ? 'Ativa' : val === 'false' ? 'Inativa' : val),
     },
   ]
 
-  const ACOES: TabelaGlobalAcao<EmpresaComTipos>[] = [
+  const ACOES: TabelaGlobalAcao<FornecedorComPapeis>[] = [
     {
       id: 'edit',
       icone: <PencilSimple size={15} weight="bold" />,
-      tooltip: 'Editar empresa',
-      onClick: (e) => setEmpresaEditando(e),
+      tooltip: 'Editar fornecedor',
+      onClick: (e) => setFornecedorEditando(e),
     },
     {
       id: 'toggle-ativo',
@@ -368,7 +433,7 @@ export function EmpresasEParceiros() {
       tooltip: 'Desativar/Reativar',
       onClick: (e) => void alternarAtivacao(e),
       renderCustom: (item) => (
-        <TooltipGlobal descricao={item.ativo_fornecedor ? 'Desativar empresa' : 'Reativar empresa'}>
+        <TooltipGlobal descricao={item.ativo_fornecedor ? 'Desativar fornecedor' : 'Reativar fornecedor'}>
           <button
             type="button"
             onClick={(ev) => {
@@ -434,9 +499,9 @@ export function EmpresasEParceiros() {
     { header: 'Seguradora / Corretora Câmbio', key: 'pode_ser_seguradora_corretora_cambio' },
     { header: 'Ativo', key: 'ativo' },
   ]
-  const OPCOES_EXPORT = { nomeArquivo: 'empresas-e-parceiros', titulo: 'Empresas e Parceiros' }
+  const OPCOES_EXPORT = { nomeArquivo: 'fornecedores', titulo: 'Fornecedores' }
 
-  const ACOES_EXPORT: TabelaExportAcao<EmpresaComTipos>[] = [
+  const ACOES_EXPORT: TabelaExportAcao<FornecedorComPapeis>[] = [
     { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
     { label: 'CSV', icone: <FileCsv size={14} weight="bold" />, onClick: (dados) => void exportarCSV(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
     { label: 'TXT', icone: <FileText size={14} weight="bold" />, onClick: (dados) => void exportarTXT(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
@@ -448,18 +513,16 @@ export function EmpresasEParceiros() {
   // ── Stats ────────────────────────────────────────────────────────────────
 
   const stats = useMemo(() => {
-    const ativas = empresas.filter((e) => e.ativo_fornecedor)
-    // Contagem por papel — empresas podem somar em mais de um (count > total e' OK).
-    // Ordena por count desc para destacar o tipo mais frequente.
+    const ativas = fornecedores.filter((e) => e.ativo_fornecedor)
     const tiposCount = PAPEIS
-      .map((p) => ({ label: p.label, cor: p.cor, count: empresas.filter((e) => Boolean(e[p.key])).length }))
+      .map((p) => ({ label: p.label, cor: p.cor, count: fornecedores.filter((e) => Boolean(e[p.key])).length }))
       .sort((a, b) => b.count - a.count)
     return {
-      total: empresas.length,
+      total: fornecedores.length,
       ativas: ativas.length,
       tiposCount,
     }
-  }, [empresas])
+  }, [fornecedores])
 
   const tipoPrincipal = stats.tiposCount[0]
   const tiposComEmpresas = stats.tiposCount.filter((t) => t.count > 0)
@@ -470,12 +533,12 @@ export function EmpresasEParceiros() {
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
-          titulo="Empresas e Parceiros"
-          subtitulo="Cadastre e gerencie os parceiros da sua jornada COMEX"
+          titulo="Fornecedores"
+          subtitulo="Cadastre terceiros COMEX (importador, exportador, agente…). Em exportação, o importador pode atuar como cliente na operação."
       stats={
         <>
           <CardBasicoGlobal
-            titulo="Total de empresas"
+            titulo="Total de fornecedores"
             valor={stats.total}
             icone={<Buildings weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
             subtexto="Ativas e inativas"
@@ -498,7 +561,7 @@ export function EmpresasEParceiros() {
             }
           />
           <CardBasicoGlobal
-            titulo="Empresas ativas"
+            titulo="Fornecedores ativos"
             valor={stats.ativas}
             icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
             variante="sucesso"
@@ -506,7 +569,7 @@ export function EmpresasEParceiros() {
             tooltip={
               <>
                 <p style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', lineHeight: 1.45 }}>
-                  Empresas com status ativo, disponíveis como opção em campos de seleção nos produtos operacionais.
+                  Fornecedores com status ativo, disponíveis como opção em campos de seleção nos produtos operacionais.
                 </p>
                 <div className="cg-tooltip__divider" />
                 <div className="cg-tooltip__row">
@@ -523,7 +586,7 @@ export function EmpresasEParceiros() {
           <CardGraficoGlobal
             titulo="Distribuição por tipo"
             icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8' }} />}
-            total={empresas.length}
+            total={fornecedores.length}
             valorPrincipal={tipoPrincipal?.count ?? 0}
             corGauge={tipoPrincipal?.cor ?? '#818cf8'}
             legenda={
@@ -565,8 +628,8 @@ export function EmpresasEParceiros() {
                 )}
                 <div className="cg-tooltip__divider" />
                 <div className="cg-tooltip__row">
-                  <span>Total de empresas</span>
-                  <strong>{empresas.length}</strong>
+                  <span>Total de fornecedores</span>
+                  <strong>{fornecedores.length}</strong>
                 </div>
               </>
             }
@@ -586,16 +649,16 @@ export function EmpresasEParceiros() {
                 }
               }}
             >
-              ← Voltar para Pedidos
+              ← {paramRetorno ? rotuloUrlRetorno(paramRetorno) : 'Voltar'}
             </BotaoGlobal>
           )}
-          <TooltipGlobal descricao="Cadastrar uma nova empresa no cartório de identidades">
+          <TooltipGlobal descricao="Cadastrar um novo fornecedor COMEX">
             <BotaoGlobal
               variante="primario"
               onClick={() => setCriandoNova(true)}
               icone={<Plus size={18} />}
             >
-              Nova Empresa e Parceiro
+              Novo Fornecedor
             </BotaoGlobal>
           </TooltipGlobal>
         </div>
@@ -604,23 +667,23 @@ export function EmpresasEParceiros() {
       <div style={{ position: 'relative', zIndex: 10 }}>
         {carregando ? (
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '3rem', color: 'var(--ws-muted)', fontSize: '0.875rem' }}>
-            Carregando empresas...
+            Carregando fornecedores...
           </div>
         ) : !idOrganizacao ? (
           <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ws-muted)' }}>
-            Carregando parceiros, aguarde alguns segundos.
+            Carregando fornecedores, aguarde alguns segundos.
           </div>
         ) : (
-          <TabelaGlobal<EmpresaComTipos>
-            id="workspace-empresas-e-parceiros"
+          <TabelaGlobal<FornecedorComPapeis>
+            id="workspace-fornecedores"
             idKey="id_fornecedor"
-            dados={empresas.map((e) => ({ ...e, tipos_empresa: derivarTiposEmpresa(e) }))}
+            dados={fornecedores.map((e) => ({ ...e, papeis_comex: derivarPapeisComex(e) }))}
             colunas={COLUNAS}
             acoes={ACOES}
             acoesExportacao={ACOES_EXPORT}
-            mensagemVazio="Nenhuma empresa encontrada com esse filtro."
-            mensagemSemFiltro="Você ainda não cadastrou empresas. Use o botão “Nova Empresa e Parceiro” acima."
-            tooltipBusca="Localizar empresa por nome, SUID, CNPJ ou TIN"
+            mensagemVazio="Nenhum fornecedor encontrado com esse filtro."
+            mensagemSemFiltro="Você ainda não cadastrou fornecedores. Use o botão “Novo Fornecedor” acima."
+            tooltipBusca="Localizar fornecedor por nome, SUID, CNPJ ou TIN"
           />
         )}
       </div>
@@ -634,43 +697,43 @@ export function EmpresasEParceiros() {
         sobe para o body e respeita a viewport. Scoped a esta tela; nao
         toca no nucleo (ModalSemSessoesGlobal) nem no HubBotao.
       */}
-      {(criandoNova || empresaEditando) && idOrganizacao && createPortal(
-        <ModalEditarEmpresa
-          empresa={empresaEditando}
+      {(criandoNova || fornecedorEditando) && idOrganizacao && createPortal(
+        <ModalEditarFornecedor
+          fornecedor={fornecedorEditando}
           idOrganizacao={idOrganizacao}
-          papelInicial={criandoNova && !empresaEditando ? papelInicial : undefined}
+          papelInicial={criandoNova && !fornecedorEditando ? papelInicial : undefined}
           urlRetorno={paramRetorno}
           aoFechar={() => {
-            setEmpresaEditando(null)
+            setFornecedorEditando(null)
             setCriandoNova(false)
             // Limpar params de deep-link ao fechar modal
-            if (paramCriar || paramRetorno) {
+            if (paramCriar || paramRetorno || paramId) {
               const novos = new URLSearchParams(searchParams)
               novos.delete('criar')
               novos.delete('retorno')
+              novos.delete('id')
               setSearchParams(novos, { replace: true })
             }
           }}
-          aoSalvar={(empresaSalva) => {
-            setEmpresas((prev) => {
-              const existe = prev.some((e) => e.id_fornecedor === empresaSalva.id_fornecedor)
+          aoSalvar={(fornecedorSalvo) => {
+            setFornecedores((prev) => {
+              const existe = prev.some((e) => e.id_fornecedor === fornecedorSalvo.id_fornecedor)
               return existe
-                ? prev.map((e) => (e.id_fornecedor === empresaSalva.id_fornecedor ? empresaSalva : e))
-                : [empresaSalva, ...prev]
+                ? prev.map((e) => (e.id_fornecedor === fornecedorSalvo.id_fornecedor ? fornecedorSalvo : e))
+                : [fornecedorSalvo, ...prev]
             })
-            setEmpresaEditando(null)
+            setFornecedorEditando(null)
             setCriandoNova(false)
-            // Após salvar, navegar de volta ao Pedido com dados da empresa para vínculo
+            // Após salvar, navegar de volta ao Pedido com dados do fornecedor para vínculo
             if (paramRetorno) {
               try {
                 const urlRetorno = new URL(decodeURIComponent(paramRetorno))
-                // Injetar dados da empresa criada para o Pedido vincular automaticamente
                 if (paramCriar === 'exportador-quando-importacao') {
-                  urlRetorno.searchParams.set('vincular_exportador_id', empresaSalva.id_fornecedor)
-                  urlRetorno.searchParams.set('vincular_exportador_nome', empresaSalva.nome_fornecedor)
+                  urlRetorno.searchParams.set('vincular_exportador_id', fornecedorSalvo.id_fornecedor)
+                  urlRetorno.searchParams.set('vincular_exportador_nome', fornecedorSalvo.nome_fornecedor)
                 } else if (paramCriar === 'importador-quando-exportacao') {
-                  urlRetorno.searchParams.set('vincular_importador_id', empresaSalva.id_fornecedor)
-                  urlRetorno.searchParams.set('vincular_importador_nome', empresaSalva.nome_fornecedor)
+                  urlRetorno.searchParams.set('vincular_importador_id', fornecedorSalvo.id_fornecedor)
+                  urlRetorno.searchParams.set('vincular_importador_nome', fornecedorSalvo.nome_fornecedor)
                 }
                 window.location.href = urlRetorno.toString()
               } catch {
@@ -678,6 +741,7 @@ export function EmpresasEParceiros() {
                 const novos = new URLSearchParams(searchParams)
                 novos.delete('criar')
                 novos.delete('retorno')
+                novos.delete('id')
                 setSearchParams(novos, { replace: true })
               }
             }
@@ -689,4 +753,4 @@ export function EmpresasEParceiros() {
   )
 }
 
-export default EmpresasEParceiros
+export default Fornecedores

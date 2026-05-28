@@ -370,7 +370,7 @@ export function ModalEditarWorkspace({
     )
 
   // CNPJ é opcional, mas se preenchido precisa ser válido (DV1 + DV2).
-  // Mesma política aplicada em ModalEditarEmpresa e VisaoGeralAdmin.
+  // Mesma política aplicada em ModalEditarFornecedor e VisaoGeralAdmin.
   const cnpjValor = (extraData.cnpj_workspace ?? '').trim()
   const cnpjValido = cnpjValor.length === 0 || validarCNPJ(cnpjValor)
 

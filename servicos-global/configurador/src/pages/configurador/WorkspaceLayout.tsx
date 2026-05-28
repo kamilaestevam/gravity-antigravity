@@ -57,7 +57,7 @@ export function WorkspaceLayout() {
     { to: '/configurador/organizacao',  label: t('workspace.layout.organizacao'),    icon: <Crown       weight="duotone" size={18} /> },
     { to: '/configurador/workspaces',     label: t('workspace.layout.workspaces'), icon: <Buildings   weight="duotone" size={18} /> },
     { to: '/configurador/usuarios',     label: t('workspace.layout.usuarios'),        icon: <Users       weight="duotone" size={18} /> },
-    { to: '/configurador/empresas-e-parceiros', label: 'Empresas e Parceiros',          icon: <Buildings   weight="duotone" size={18} /> },
+    { to: '/configurador/fornecedores', label: 'Fornecedores',          icon: <Buildings   weight="duotone" size={18} /> },
     { to: '/configurador/assinaturas',  label: t('workspace.layout.assinaturas'),     icon: <CreditCard  weight="duotone" size={18} /> },
     { to: '/configurador/financeiro',   label: t('workspace.layout.financeiro'),      icon: <Receipt     weight="duotone" size={18} /> },
     { to: '/configurador/api-cockpit',  label: t('workspace.layout.api-cockpit'),     icon: <Pulse weight="duotone" size={18} /> },

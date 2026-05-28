@@ -53,10 +53,17 @@ describe('empresaParaFornecedorCompatDto', () => {
   })
 })
 
-describe('EmpresasEParceiros — escopo parceiros', () => {
+describe('Fornecedores — escopo parceiros', () => {
   it('deve listar fornecedores com escopo=parceiros (exclui espelho da org)', () => {
-    const conteudo = ler('servicos-global/configurador/src/pages/configurador/EmpresasEParceiros.tsx')
+    const conteudo = ler('servicos-global/configurador/src/pages/configurador/Fornecedores.tsx')
     expect(conteudo).toContain('escopo=parceiros')
+  })
+
+  it('deve abrir modal de edição via deep-link ?id=<id_fornecedor>', () => {
+    const conteudo = ler('servicos-global/configurador/src/pages/configurador/Fornecedores.tsx')
+    expect(conteudo).toContain("searchParams.get('id')")
+    expect(conteudo).toContain('/api/v1/fornecedores/${paramId}')
+    expect(conteudo).toContain("novos.delete('id')")
   })
 })
 

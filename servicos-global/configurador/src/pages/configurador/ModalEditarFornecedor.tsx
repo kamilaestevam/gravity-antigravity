@@ -1,5 +1,5 @@
 /**
- * ModalEditarEmpresa.tsx — Criação/edição de Empresa do Cadastros (Fase 5).
+ * ModalEditarFornecedor.tsx — Criação/edição de Fornecedor do Cadastros (Fase 5).
  *
  * Contrato bilateral (Mandamento 09): usa `criarFornecedorSchema` e
  * `atualizarFornecedorSchema` do próprio Cadastros.
@@ -150,36 +150,36 @@ interface FormState {
   ativo: boolean
 }
 
-function empresaParaForm(empresa: Fornecedor | null): FormState {
+function fornecedorParaForm(fornecedor: Fornecedor | null): FormState {
   return {
-    nome_fornecedor: empresa?.nome_fornecedor ?? '',
-    pais: empresa?.pais_fornecedor ?? 'BR',
-    cnpj: empresa?.cnpj_fornecedor ?? '',
-    tin: empresa?.tin_fornecedor ?? '',
-    estado: empresa?.estado_provincia_fornecedor ?? '',
-    cidade: empresa?.cidade_fornecedor ?? '',
-    endereco: empresa?.endereco_fornecedor ?? '',
-    zipcode: empresa?.cep_zipcode_fornecedor ?? '',
-    email: empresa?.email_principal_fornecedor ?? '',
-    telefone: empresa?.telefone_principal_fornecedor ?? '',
-    whatsapp: empresa?.whatsapp_principal_fornecedor ?? '',
+    nome_fornecedor: fornecedor?.nome_fornecedor ?? '',
+    pais: fornecedor?.pais_fornecedor ?? 'BR',
+    cnpj: fornecedor?.cnpj_fornecedor ?? '',
+    tin: fornecedor?.tin_fornecedor ?? '',
+    estado: fornecedor?.estado_provincia_fornecedor ?? '',
+    cidade: fornecedor?.cidade_fornecedor ?? '',
+    endereco: fornecedor?.endereco_fornecedor ?? '',
+    zipcode: fornecedor?.cep_zipcode_fornecedor ?? '',
+    email: fornecedor?.email_principal_fornecedor ?? '',
+    telefone: fornecedor?.telefone_principal_fornecedor ?? '',
+    whatsapp: fornecedor?.whatsapp_principal_fornecedor ?? '',
     papeis: {
-      pode_ser_importador: empresa?.pode_ser_importador_fornecedor ?? false,
-      pode_ser_exportador: empresa?.pode_ser_exportador_fornecedor ?? false,
-      pode_ser_fabricante: empresa?.pode_ser_fabricante_fornecedor ?? false,
-      pode_ser_agente: empresa?.pode_ser_agente_fornecedor ?? false,
-      pode_ser_despachante: empresa?.pode_ser_despachante_fornecedor ?? false,
-      pode_ser_armador: empresa?.pode_ser_armador_fornecedor ?? false,
-      pode_ser_cia_aerea: empresa?.pode_ser_cia_aerea_fornecedor ?? false,
-      pode_ser_transportadora_rodoviaria_nacional: empresa?.pode_ser_transportadora_rodoviaria_nacional_fornecedor ?? false,
-      pode_ser_transportadora_rodoviaria_internacional: empresa?.pode_ser_transportadora_rodoviaria_internacional_fornecedor ?? false,
-      pode_ser_armazem_alfandegado: empresa?.pode_ser_armazem_alfandegado_fornecedor ?? false,
-      pode_ser_armazem_nacional: empresa?.pode_ser_armazem_nacional_fornecedor ?? false,
-      pode_ser_banco: empresa?.pode_ser_banco_fornecedor ?? false,
-      pode_ser_seguradora_internacional: empresa?.pode_ser_seguradora_internacional_fornecedor ?? false,
-      pode_ser_seguradora_corretora_cambio: empresa?.pode_ser_seguradora_corretora_cambio_fornecedor ?? false,
+      pode_ser_importador: fornecedor?.pode_ser_importador_fornecedor ?? false,
+      pode_ser_exportador: fornecedor?.pode_ser_exportador_fornecedor ?? false,
+      pode_ser_fabricante: fornecedor?.pode_ser_fabricante_fornecedor ?? false,
+      pode_ser_agente: fornecedor?.pode_ser_agente_fornecedor ?? false,
+      pode_ser_despachante: fornecedor?.pode_ser_despachante_fornecedor ?? false,
+      pode_ser_armador: fornecedor?.pode_ser_armador_fornecedor ?? false,
+      pode_ser_cia_aerea: fornecedor?.pode_ser_cia_aerea_fornecedor ?? false,
+      pode_ser_transportadora_rodoviaria_nacional: fornecedor?.pode_ser_transportadora_rodoviaria_nacional_fornecedor ?? false,
+      pode_ser_transportadora_rodoviaria_internacional: fornecedor?.pode_ser_transportadora_rodoviaria_internacional_fornecedor ?? false,
+      pode_ser_armazem_alfandegado: fornecedor?.pode_ser_armazem_alfandegado_fornecedor ?? false,
+      pode_ser_armazem_nacional: fornecedor?.pode_ser_armazem_nacional_fornecedor ?? false,
+      pode_ser_banco: fornecedor?.pode_ser_banco_fornecedor ?? false,
+      pode_ser_seguradora_internacional: fornecedor?.pode_ser_seguradora_internacional_fornecedor ?? false,
+      pode_ser_seguradora_corretora_cambio: fornecedor?.pode_ser_seguradora_corretora_cambio_fornecedor ?? false,
     },
-    ativo: empresa?.ativo_fornecedor ?? true,
+    ativo: fornecedor?.ativo_fornecedor ?? true,
   }
 }
 
@@ -335,11 +335,11 @@ function PapelCheckbox({
 // ── Modal principal ──────────────────────────────────────────────────────────
 
 interface Props {
-  empresa: Fornecedor | null
+  fornecedor: Fornecedor | null
   idOrganizacao: string
   aoFechar: () => void
-  aoSalvar: (empresa: Fornecedor) => void
-  /** Papel pré-selecionado ao criar nova empresa (deep-link do Pedido) */
+  aoSalvar: (fornecedor: Fornecedor) => void
+  /** Papel pré-selecionado ao criar novo fornecedor (deep-link do Pedido) */
   papelInicial?: PapelFlag
   /** URL de retorno (deep-link do Pedido). Exibe banner "Voltar para Pedidos" */
   urlRetorno?: string | null
@@ -356,27 +356,27 @@ function rotuloUrlRetorno(urlRetorno: string): string {
   }
 }
 
-export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar, papelInicial, urlRetorno }: Props) {
+export function ModalEditarFornecedor({ fornecedor, idOrganizacao, aoFechar, aoSalvar, papelInicial, urlRetorno }: Props) {
   const addNotification = useShellStore((s) => s.addNotification)
   const [form, setForm] = useState<FormState>(() => {
-    const base = empresaParaForm(empresa)
-    if (!empresa && papelInicial) {
+    const base = fornecedorParaForm(fornecedor)
+    if (!fornecedor && papelInicial) {
       base.papeis[papelInicial] = true
     }
     return base
   })
   const [enviando, setEnviando] = useState(false)
   const [erroCampos, setErroCampos] = useState<Record<string, string>>({})
-  const modoEdicao = empresa !== null
+  const modoEdicao = fornecedor !== null
 
   useEffect(() => {
-    const base = empresaParaForm(empresa)
-    if (!empresa && papelInicial) {
+    const base = fornecedorParaForm(fornecedor)
+    if (!fornecedor && papelInicial) {
       base.papeis[papelInicial] = true
     }
     setForm(base)
     setErroCampos({})
-  }, [empresa, papelInicial])
+  }, [fornecedor, papelInicial])
 
   const ehBr = form.pais === 'BR'
   const { cidades, carregando: carregandoCidades } = useCidadesIBGE(form.estado)
@@ -477,7 +477,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
       }
 
       const url = modoEdicao
-        ? `/api/v1/fornecedores/${empresa!.id_fornecedor}`
+        ? `/api/v1/fornecedores/${fornecedor!.id_fornecedor}`
         : '/api/v1/fornecedores'
       const res = await fetch(url, {
         method: modoEdicao ? 'PUT' : 'POST',
@@ -488,7 +488,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
         const body = await res.json().catch(() => ({}))
         addNotification({
           type: 'error',
-          message: body?.error?.message ?? body?.message ?? 'Falha ao salvar empresa.',
+          message: body?.error?.message ?? body?.message ?? 'Falha ao salvar fornecedor.',
         })
         return
       }
@@ -496,12 +496,12 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
       const salva = fornecedorSchema.parse(raw)
       addNotification({
         type: 'success',
-        message: modoEdicao ? `Empresa "${salva.nome_fornecedor}" atualizada.` : `Empresa "${salva.nome_fornecedor}" criada.`,
+        message: modoEdicao ? `Fornecedor "${salva.nome_fornecedor}" atualizado.` : `Fornecedor "${salva.nome_fornecedor}" criado.`,
       })
       aoSalvar(salva)
     } catch (err) {
-      console.error('[ModalEditarEmpresa] erro ao salvar:', err)
-      addNotification({ type: 'error', message: 'Erro inesperado ao salvar empresa.' })
+      console.error('[ModalEditarFornecedor] erro ao salvar:', err)
+      addNotification({ type: 'error', message: 'Erro inesperado ao salvar fornecedor.' })
     } finally {
       setEnviando(false)
     }
@@ -516,11 +516,11 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
       aoFechar={aoFechar}
       aoSalvar={handleSalvar}
       icone={<Buildings size={20} weight="duotone" />}
-      titulo={modoEdicao ? 'Editar Empresa e Parceiro' : 'Nova Empresa e Parceiro'}
+      titulo={modoEdicao ? 'Editar Fornecedor' : 'Novo Fornecedor'}
       subtitulo={
         modoEdicao
-          ? `Ajuste os dados e papéis de ${empresa?.nome_fornecedor ?? ''}`
-          : 'Cadastre um importador, exportador, fabricante ou parceiro COMEX'
+          ? `Ajuste os dados e papéis de ${fornecedor?.nome_fornecedor ?? ''}`
+          : 'Cadastre terceiros COMEX (importador, exportador, agente…). Em exportação, o importador pode atuar como cliente na operação.'
       }
       tamanho="lg"
       altura="auto"
@@ -568,7 +568,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
 
         {/* ── Identificação ────────────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.875rem' }}>
-          <CampoGeralGlobal label="NOME DO PARCEIRO" obrigatorio>
+          <CampoGeralGlobal label="NOME DO FORNECEDOR" obrigatorio>
             <div className="ws-input-icon-wrap">
               <Buildings size={16} />
               <input
@@ -729,7 +729,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
             }}
           >
             <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--ws-muted)' }}>
-              Tipo de Parceiro *
+              Papel no COMEX *
             </span>
             {!algumaFlagAtiva && (
               <span style={{ fontSize: '0.75rem', color: corErro }}>
@@ -757,4 +757,4 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar,
   )
 }
 
-export default ModalEditarEmpresa
+export default ModalEditarFornecedor

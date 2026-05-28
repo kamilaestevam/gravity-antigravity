@@ -331,7 +331,7 @@
       "baseUrl": "http://localhost:8005",
       "pathPrefix": "/api/v1/admin/empresas",
       "middleware": ["requireAuth (JWT Clerk)", "requireGravityAdmin (tipo_usuario ∈ {SUPER_ADMIN, ADMIN})"],
-      "note": "Proxy admin cross-organização. Pipeline: requireAuth → requireGravityAdmin → fetch Cadastros (S2S) → enrichment BATCH IN(...) em Configurador.Organizacao para preencher nome_organizacao (proibido N+1) → audit log fire-and-forget em AuditLogAdmin → resposta. Frontend EmpresasEParceirosAdmin.tsx (admin-only) consome este endpoint. Read-only por design — admin investiga, não modifica.",
+      "note": "Proxy admin cross-organização. Pipeline: requireAuth → requireGravityAdmin → fetch Cadastros (S2S) → enrichment BATCH IN(...) em Configurador.Organizacao para preencher nome_organizacao (proibido N+1) → audit log fire-and-forget em AuditLogAdmin → resposta. Frontend FornecedoresAdmin.tsx (admin-only) consome este endpoint. Read-only por design — admin investiga, não modifica.",
       "endpoints": {
         "GET /": "Lista empresas cross-org com nome_organizacao enriquecido. Query/resposta espelham /api/v1/admin/empresas do Cadastros. Toda chamada é registrada em AuditLogAdmin (acao='admin.empresas.list', filtros, qtd_resultados, ip, correlation_id)."
       }

@@ -184,7 +184,7 @@ export interface Pedido {
 
 ### 6.2 Colunas na tabela — ColunasPai.tsx (atualizado 2026-05-16)
 
-As colunas `nome_exportador` e `nome_importador` são **campos-link** (não editáveis inline). Renderizam como badges clicáveis que navegam ao Configurador ou à tela de Empresas e Parceiros.
+As colunas `nome_exportador` e `nome_importador` são **campos-link** (não editáveis inline). Renderizam como badges clicáveis que navegam ao Configurador ou à tela de Fornecedores.
 
 **Regra de renderização por tipo_operacao:**
 
@@ -200,7 +200,7 @@ As colunas `nome_exportador` e `nome_importador` são **campos-link** (não edit
 
 **Deep-links:**
 - Workspace → `urlEditarCnpjWorkspace()` (Configurador, modal de edição do workspace com "Voltar para Pedidos")
-- Contraparte → `urlVincularExportador()` / `urlVincularImportador()` (Configurador, tela Empresas e Parceiros)
+- Contraparte → `urlVincularExportador()` / `urlVincularImportador()` (Configurador, tela Fornecedores)
 
 **Fonte de dados:**
 - Workspace: `workspacesMap.get(row.id_workspace)?.nome` (carregado via `/api/v1/hub/init`)

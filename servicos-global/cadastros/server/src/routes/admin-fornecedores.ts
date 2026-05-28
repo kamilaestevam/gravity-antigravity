@@ -23,7 +23,7 @@
  *   exibe modal de aviso).
  *
  * Skill: skills/produtos-gravity/configurador/admin/SKILL.md (seção
- * "Empresas e Parceiros — Cross-Org").
+ * "Fornecedores — Cross-Org").
  */
 import { Router } from 'express'
 import { Prisma, type Fornecedor as PrismaFornecedor } from '../../../generated/index.js'

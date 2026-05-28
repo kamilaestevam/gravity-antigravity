@@ -63,12 +63,12 @@ const SegurancaAdmin = lazy(() => import('./pages/admin/SegurancaAdmin'), 'Segur
 const NcmIntegracaoAdmin = lazy(() => import('./pages/admin/NcmIntegracaoAdmin'), 'NcmIntegracaoAdmin')
 const CertificadosAdmin = lazy(() => import('./pages/admin/CertificadosAdmin'), 'CertificadosAdmin')
 const CadastrosGlobaisAdmin = React.lazy(() => import('./pages/admin/CadastrosGlobaisAdmin'))
-const EmpresasEParceirosAdmin = lazy(() => import('./pages/admin/EmpresasEParceirosAdmin'), 'EmpresasEParceirosAdmin')
+const FornecedoresAdmin = lazy(() => import('./pages/admin/FornecedoresAdmin'), 'FornecedoresAdmin')
 const WorkspaceLayout = lazy(() => import('./pages/configurador/WorkspaceLayout'), 'WorkspaceLayout')
 const Organizacao = lazy(() => import('./pages/configurador/Organizacao'), 'Organizacao')
 const Workspaces = lazy(() => import('./pages/configurador/Workspaces'), 'Workspaces')
 const Usuarios = lazy(() => import('./pages/configurador/Usuarios'), 'Usuarios')
-const EmpresasEParceiros = lazy(() => import('./pages/configurador/EmpresasEParceiros'), 'EmpresasEParceiros')
+const Fornecedores = lazy(() => import('./pages/configurador/Fornecedores'), 'Fornecedores')
 const Assinaturas = lazy(() => import('./pages/configurador/Assinaturas'), 'Assinaturas')
 const FinanceiroWorkspace = lazy(() => import('./pages/configurador/FinanceiroWorkspace'), 'FinanceiroWorkspace')
 const ApiCockpit = lazy(() => import('./pages/configurador/ApiCockpit'), 'ApiCockpit')
@@ -414,7 +414,8 @@ export default function App() {
           <Route path="ncm-integracao" element={<React.Suspense fallback={<ProductLoading />}><NcmIntegracaoAdmin /></React.Suspense>} />
           <Route path="certificados-digitais" element={<React.Suspense fallback={<ProductLoading />}><CertificadosAdmin /></React.Suspense>} />
           <Route path="cadastros-globais" element={<React.Suspense fallback={<ProductLoading />}><CadastrosGlobaisAdmin /></React.Suspense>} />
-          <Route path="empresas-e-parceiros" element={<React.Suspense fallback={<ProductLoading />}><EmpresasEParceirosAdmin /></React.Suspense>} />
+          <Route path="fornecedores" element={<React.Suspense fallback={<ProductLoading />}><FornecedoresAdmin /></React.Suspense>} />
+          <Route path="empresas-e-parceiros" element={<NavigateComPrefixo de="/admin/empresas-e-parceiros" para="/admin/fornecedores" />} />
           <Route path="taxas-moeda" element={<React.Suspense fallback={<ProductLoading />}><TaxasMoedaPage /></React.Suspense>} />
           <Route path="organizacoes" element={<React.Suspense fallback={<ProductLoading />}><OrganizacoesAdmin navigate={adminNavigate} /></React.Suspense>} />
           <Route path="organizacoes/:id_organizacao" element={<React.Suspense fallback={<ProductLoading />}><OrganizacaoDetalheWrapper /></React.Suspense>} />
@@ -429,7 +430,8 @@ export default function App() {
           <Route path="organizacao" element={<React.Suspense fallback={<ProductLoading />}><Organizacao /></React.Suspense>} />
           <Route path="workspaces" element={<React.Suspense fallback={<ProductLoading />}><Workspaces /></React.Suspense>} />
           <Route path="usuarios" element={<React.Suspense fallback={<ProductLoading />}><Usuarios /></React.Suspense>} />
-          <Route path="empresas-e-parceiros" element={<React.Suspense fallback={<ProductLoading />}><EmpresasEParceiros /></React.Suspense>} />
+          <Route path="fornecedores" element={<React.Suspense fallback={<ProductLoading />}><Fornecedores /></React.Suspense>} />
+          <Route path="empresas-e-parceiros" element={<NavigateComPrefixo de="/configurador/empresas-e-parceiros" para="/configurador/fornecedores" />} />
           <Route path="assinaturas" element={<React.Suspense fallback={<ProductLoading />}><Assinaturas /></React.Suspense>} />
           <Route path="financeiro" element={<React.Suspense fallback={<ProductLoading />}><FinanceiroWorkspace /></React.Suspense>} />
           <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpit /></React.Suspense>} />

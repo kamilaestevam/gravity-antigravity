@@ -120,7 +120,7 @@ Cada caller mantém um wrapper local (`ExpandidoEditorVinculosConfigurador`, etc
 
 ### Quando extrair para hook genérico
 
-Com 3 implementações independentes (Assinaturas per-item, Usuarios replace-all, UsuariosAdmin replace-all cross-org), **a próxima evolução natural é extrair `useEdicoesPendentesPorEntidade<P, F>`** para encapsular o estado pendente + handlers (`aoStagedToggle`, `aoStagedAcaoEmMassa`, `descartarEdicoes`, `salvarEdicoes`). Postergado até a 4ª tela aparecer (EmpresasEParceiros é a candidata) — duas implementações replace-all (Usuarios + UsuariosAdmin) compartilharam por enquanto via componente, não via hook.
+Com 3 implementações independentes (Assinaturas per-item, Usuarios replace-all, UsuariosAdmin replace-all cross-org), **a próxima evolução natural é extrair `useEdicoesPendentesPorEntidade<P, F>`** para encapsular o estado pendente + handlers (`aoStagedToggle`, `aoStagedAcaoEmMassa`, `descartarEdicoes`, `salvarEdicoes`). Postergado até a 4ª tela aparecer (Fornecedores é a candidata) — duas implementações replace-all (Usuarios + UsuariosAdmin) compartilharam por enquanto via componente, não via hook.
 
 ---
 

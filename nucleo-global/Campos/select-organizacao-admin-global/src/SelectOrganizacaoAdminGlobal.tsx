@@ -4,7 +4,7 @@
  * Componente reutilizável para telas administrativas Gravity (cross-org).
  * Restringe digitação livre de UUID — força escolha por nome via autocomplete
  * com debounce. Decisão do Líder Técnico durante revisão da Opção B do plano
- * Empresas e Parceiros Admin.
+ * Fornecedores Admin (cross-org).
  *
  * Decisão arquitetural:
  * - Componente NÃO acopla URL/auth do Configurador. Recebe `fetchOrganizacoes`

@@ -3,7 +3,7 @@
  *
  * Destinos:
  * - Workspace (CNPJ): /configurador/workspaces
- * - Exportador/Importador (Cadastros): /configurador/empresas-e-parceiros
+ * - Exportador/Importador (Cadastros): /configurador/fornecedores
  *
  * Navegação SPA usa caminho relativo `/configurador` (shell :8000 ou produção).
  * VITE_CONFIGURADOR_URL aponta para a API (:8005) — não usar aqui.
@@ -50,7 +50,7 @@ export function urlEditarCnpjWorkspace(idWorkspace: string, pedidoId?: string): 
 /** Vincular ou editar exportador (contraparte em operação de importação). */
 export function urlVincularExportador(idExportador: string | null, pedidoId?: string): string {
   const retorno = urlRetornoListaPedido(pedidoId)
-  const base = `${urlBaseConfigurador()}/empresas-e-parceiros`
+  const base = `${urlBaseConfigurador()}/fornecedores`
   if (idExportador) {
     return `${base}?id=${idExportador}&tipo=exportador-quando-importacao&retorno=${retorno}`
   }
@@ -60,7 +60,7 @@ export function urlVincularExportador(idExportador: string | null, pedidoId?: st
 /** Vincular ou editar importador (contraparte em operação de exportação). */
 export function urlVincularImportador(idImportador: string | null, pedidoId?: string): string {
   const retorno = urlRetornoListaPedido(pedidoId)
-  const base = `${urlBaseConfigurador()}/empresas-e-parceiros`
+  const base = `${urlBaseConfigurador()}/fornecedores`
   if (idImportador) {
     return `${base}?id=${idImportador}&tipo=importador-quando-exportacao&retorno=${retorno}`
   }

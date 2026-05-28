@@ -21,14 +21,14 @@ describe('urls-deep-link-configurador (bid-frete-internacional)', () => {
     return import(MODULO)
   }
 
-  it('no shell gera caminho relativo para empresas-e-parceiros com criar=parceiro-frete-internacional', async () => {
+  it('no shell gera caminho relativo para fornecedores com criar=fornecedor-frete-internacional', async () => {
     definirLocation(FORNECEDORES_SHELL)
 
-    const { urlCriarParceiroFreteInternacional } = await importarModulo()
-    const url = urlCriarParceiroFreteInternacional()
+    const { urlCriarFornecedorFreteInternacional } = await importarModulo()
+    const url = urlCriarFornecedorFreteInternacional()
 
     expect(url).toBe(
-      '/configurador/empresas-e-parceiros?criar=parceiro-frete-internacional&retorno=' +
+      '/configurador/fornecedores?criar=fornecedor-frete-internacional&retorno=' +
         encodeURIComponent(FORNECEDORES_SHELL),
     )
   })
@@ -36,10 +36,22 @@ describe('urls-deep-link-configurador (bid-frete-internacional)', () => {
   it('no BID standalone (dev :5181) gera URL absoluta para o shell :8000', async () => {
     definirLocation(FORNECEDORES_STANDALONE)
 
-    const { urlCriarParceiroFreteInternacional } = await importarModulo()
-    const url = urlCriarParceiroFreteInternacional()
+    const { urlCriarFornecedorFreteInternacional } = await importarModulo()
+    const url = urlCriarFornecedorFreteInternacional()
 
-    expect(url.startsWith('http://localhost:8000/configurador/empresas-e-parceiros?')).toBe(true)
-    expect(url).toContain('criar=parceiro-frete-internacional')
+    expect(url.startsWith('http://localhost:8000/configurador/fornecedores?')).toBe(true)
+    expect(url).toContain('criar=fornecedor-frete-internacional')
+  })
+
+  it('editar fornecedor gera deep-link com ?id= e retorno=', async () => {
+    definirLocation(FORNECEDORES_SHELL)
+
+    const { urlEditarFornecedorFreteInternacional } = await importarModulo()
+    const url = urlEditarFornecedorFreteInternacional('forn-cad-123')
+
+    expect(url).toBe(
+      '/configurador/fornecedores?id=forn-cad-123&retorno=' +
+        encodeURIComponent(FORNECEDORES_SHELL),
+    )
   })
 })

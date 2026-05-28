@@ -178,7 +178,7 @@ async function requestCadastros<T>(url: string): Promise<T> {
   return res.json() as Promise<T>
 }
 
-/** Parceiros de frete internacional — mesma fonte do modal Empresas e Parceiros. */
+/** Fornecedores de frete internacional — mesma fonte do modal Novo Fornecedor (Cadastros). */
 export async function listarParceirosFreteCadastros(): Promise<Fornecedor[]> {
   const raw = await requestCadastros<unknown>(
     '/api/v1/fornecedores?escopo=parceiros&por_pagina=200&pagina=1',

@@ -46,7 +46,7 @@ import type { PedidoStatusConfig } from '../../shared/types'
 import './PedidoSnapshotCadastros.css'
 
 // ─── Papéis (rows) ────────────────────────────────────────────────────────────
-// Mesma lista usada em EmpresasEParceiros / ModalEditarEmpresa — fonte única de
+// Mesma lista usada em Fornecedores / ModalEditarFornecedor — fonte única de
 // verdade seria um shared const, mas como a matriz está do lado do Pedido e o
 // cadastro do lado do Cadastros, replicamos local por isolamento de serviço.
 

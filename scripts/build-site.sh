@@ -29,8 +29,19 @@ npx tsx scripts/ativamente/compose-cadastros-schema.ts
 npx prisma generate --schema=servicos-global/cadastros/prisma/schema.prisma
 npx tsx scripts/ativamente/compose-pedido-schema.ts
 npx prisma generate --schema=servicos-global/produto/pedido/prisma/schema.prisma
+node servicos-global/produto/bid-frete-internacional/prisma/compose-schema.js
+npx prisma generate --schema=servicos-global/produto/bid-frete-internacional/prisma/schema.prisma
 
-# 2a. Cadastros — migrations (tabela empresa, fornecedor, catálogos globais)
+# 2a. BID Frete Internacional — migrations (bid_* → cotacao_bid_frete_internacional SSOT)
+if [ -n "$BID_FRETE_INTERNATIONAL_DATABASE_URL" ]; then
+  echo "[build-site] Applying BID Frete Internacional migrations..."
+  DATABASE_URL="$BID_FRETE_INTERNATIONAL_DATABASE_URL" \
+    npx prisma migrate deploy --schema=servicos-global/produto/bid-frete-internacional/prisma/schema.prisma
+else
+  echo "[build-site] BID_FRETE_INTERNATIONAL_DATABASE_URL ausente — skip BID migrations"
+fi
+
+# 2b. Cadastros — migrations (tabela empresa, fornecedor, catálogos globais)
 if [ -n "$CADASTROS_DATABASE_URL" ]; then
   echo "[build-site] Applying Cadastros migrations..."
   npx prisma migrate deploy --schema=servicos-global/cadastros/prisma/schema.prisma
@@ -38,7 +49,7 @@ else
   echo "[build-site] CADASTROS_DATABASE_URL ausente — skip Cadastros migrations"
 fi
 
-# 2b. Pedido — migrations (public template + schemas tenant_*)
+# 2c. Pedido — migrations (public template + schemas tenant_*)
 if [ -n "$PEDIDO_DATABASE_URL" ]; then
   echo "[build-site] Applying Pedido migrations..."
   CONFIGURADOR_DATABASE_URL="${CONFIGURADOR_DATABASE_URL:-$DATABASE_URL}" \

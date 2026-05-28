@@ -34,6 +34,11 @@ export function carregarTabelaConfigBidFrete(): TabelaConfigBidFrete {
   }
 }
 
+export function salvarTabelaConfigBidFrete(config: TabelaConfigBidFrete): void {
+  localStorage.setItem(STORAGE_KEY_TABELA_BID_FRETE, JSON.stringify(config))
+  notificarTabelaConfigBidFreteAtualizada()
+}
+
 export function notificarTabelaConfigBidFreteAtualizada(): void {
   window.dispatchEvent(new CustomEvent(SYNC_EVENT_TABELA_BID_FRETE))
 }

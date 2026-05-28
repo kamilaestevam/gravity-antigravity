@@ -4,9 +4,9 @@ import {
   isLinhaBidGrupo,
   cotacaoPrestesAExpirar,
   linhaPaiPrestesAExpirar,
-} from '../../../servicos-global/produto/bid-frete-internacional/client/src/pages/lista-bid-frete-internacional-utils'
-import { HORAS_LIMITE_DESTAQUE_EXPIRACAO } from '../../../servicos-global/produto/bid-frete-internacional/client/src/shared/tabela-config-bid-frete'
-import type { Cotacao } from '../../../servicos-global/produto/bid-frete-internacional/client/src/shared/types'
+} from '../../../../servicos-global/produto/bid-frete-internacional/client/src/pages/lista-bid-frete-internacional-utils'
+import { HORAS_LIMITE_DESTAQUE_EXPIRACAO } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/tabela-config-bid-frete'
+import type { Cotacao } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/types'
 
 function cotacaoBase(partial: Partial<Cotacao> & Pick<Cotacao, 'id_cotacao_bid_frete_internacional' | 'numero_cotacao_bid_frete_internacional'>): Cotacao {
   return {
@@ -83,6 +83,63 @@ describe('montarLinhasPaiLista', () => {
       }),
     ])
     expect(isLinhaBidGrupo(linhas[0])).toBe(false)
+  })
+
+  it('linha BID agrega id_organizacao e campos idênticos de usuário/workspace', () => {
+    const linhas = montarLinhasPaiLista([
+      cotacaoBase({
+        id_cotacao_bid_frete_internacional: 'c1',
+        numero_cotacao_bid_frete_internacional: 'BID-1',
+        referencia_interna_cotacao_bid_frete_internacional: 'IMP-GRP',
+        id_organizacao: 'org-abc',
+        id_usuario: 'user-1',
+        id_workspace: 'ws-1',
+      }),
+      cotacaoBase({
+        id_cotacao_bid_frete_internacional: 'c2',
+        numero_cotacao_bid_frete_internacional: 'BID-2',
+        referencia_interna_cotacao_bid_frete_internacional: 'IMP-GRP',
+        id_organizacao: 'org-abc',
+        id_usuario: 'user-1',
+        id_workspace: 'ws-1',
+      }),
+    ])
+    expect(isLinhaBidGrupo(linhas[0])).toBe(true)
+    if (isLinhaBidGrupo(linhas[0])) {
+      expect(linhas[0].id_organizacao).toBe('org-abc')
+      expect(linhas[0].id_usuario).toBe('user-1')
+      expect(linhas[0].id_workspace).toBe('ws-1')
+      expect(linhas[0].usuarios_divergentes).toBe(false)
+      expect(linhas[0].workspaces_divergentes).toBe(false)
+    }
+  })
+
+  it('linha BID marca divergência quando usuários ou workspaces diferem', () => {
+    const linhas = montarLinhasPaiLista([
+      cotacaoBase({
+        id_cotacao_bid_frete_internacional: 'c1',
+        numero_cotacao_bid_frete_internacional: 'BID-1',
+        referencia_interna_cotacao_bid_frete_internacional: 'IMP-MIX',
+        id_usuario: 'user-1',
+        id_workspace: 'ws-1',
+      }),
+      cotacaoBase({
+        id_cotacao_bid_frete_internacional: 'c2',
+        numero_cotacao_bid_frete_internacional: 'BID-2',
+        referencia_interna_cotacao_bid_frete_internacional: 'IMP-MIX',
+        id_usuario: 'user-2',
+        id_workspace: 'ws-2',
+      }),
+    ])
+    expect(isLinhaBidGrupo(linhas[0])).toBe(true)
+    if (isLinhaBidGrupo(linhas[0])) {
+      expect(linhas[0].id_usuario).toBeNull()
+      expect(linhas[0].id_workspace).toBeNull()
+      expect(linhas[0].usuarios_divergentes).toBe(true)
+      expect(linhas[0].workspaces_divergentes).toBe(true)
+      expect(linhas[0].quantidade_usuarios_distintos).toBe(2)
+      expect(linhas[0].quantidade_workspaces_distintos).toBe(2)
+    }
   })
 })
 

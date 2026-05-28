@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   calcularMetricaCardCustom,
   formatarValorCardCustom,
-} from '../../../servicos-global/produto/bid-frete-internacional/client/src/shared/lista-bid-frete-card-custom'
-import type { CardDefinicao } from '../../../servicos-global/produto/bid-frete-internacional/client/src/shared/use-card-preferences'
-import type { Cotacao } from '../../../servicos-global/produto/bid-frete-internacional/client/src/shared/types'
+} from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/lista-bid-frete-card-custom'
+import type { CardDefinicao } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/use-card-preferences'
+import type { Cotacao } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/types'
 
 function cotacaoBase(partial: Partial<Cotacao> & Pick<Cotacao, 'id_cotacao_bid_frete_internacional'>): Cotacao {
   return {

@@ -35,7 +35,12 @@ import { useShellStore } from '@gravity/shell'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { SwitchGlobal } from '@nucleo/switch-global'
 import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
-import { notificarTabelaConfigBidFreteAtualizada } from '../shared/tabela-config-bid-frete'
+import {
+  carregarTabelaConfigBidFrete,
+  DEFAULT_TABELA_CONFIG_BID_FRETE,
+  salvarTabelaConfigBidFrete,
+  type TabelaConfigBidFrete,
+} from '../shared/tabela-config-bid-frete'
 import {
   CARD_PERIODOS as PERIODOS,
   registrarCardCustomizado,
@@ -83,11 +88,6 @@ type TipoColunaUsuario =
 
 type EscopoColunaUsuario = 'pedido' | 'item' | 'ambos'
 type VisibilidadeColunaUsuario = 'todos' | 'roles' | 'privado'
-
-interface TabelaConfig {
-  linhasPorPagina: 25 | 50 | 100 | 200
-  destacarAtrasados: boolean
-}
 
 interface NotificacoesConfig {
   respostaFornecedor: boolean
@@ -773,9 +773,6 @@ export default function Configuracoes() {
     const save = () => {
       localStorage.setItem(storageKey, JSON.stringify(currentState))
       setSavedState(currentState)
-      if (storageKey === 'bid-frete:config:tabela') {
-        notificarTabelaConfigBidFreteAtualizada()
-      }
       addNotification({ type: 'success', message: 'Configurações salvas com sucesso!' })
     }
 
@@ -801,12 +798,21 @@ export default function Configuracoes() {
     resetar: resetarCards,
   } = useCardPreferencesBidFrete()
 
-  const [tabelaConfig, setTabelaConfig, , saveTabela, resetTabela, tabelaDirty] = useConfigState<TabelaConfig>('tabela', {
-    linhasPorPagina: 100,
-    destacarAtrasados: true,
-  })
+  const [tabelaConfig, setTabelaConfig] = useState<TabelaConfigBidFrete>(() => carregarTabelaConfigBidFrete())
+  const [tabelaConfigSalva, setTabelaConfigSalva] = useState<TabelaConfigBidFrete>(() => carregarTabelaConfigBidFrete())
+  const tabelaDirty = JSON.stringify(tabelaConfig) !== JSON.stringify(tabelaConfigSalva)
 
-  const [casasDecimais, setCasasDecimais, , saveCasas, resetCasas, casasDirty] = useConfigState<Record<string, number>>('casas-decimais', {
+  const salvarTabelaConfig = useCallback(() => {
+    salvarTabelaConfigBidFrete(tabelaConfig)
+    setTabelaConfigSalva(tabelaConfig)
+    addNotification({ type: 'success', message: 'Preferências da tabela salvas com sucesso!' })
+  }, [tabelaConfig, addNotification])
+
+  const restaurarTabelaConfig = useCallback(() => {
+    setTabelaConfig({ ...DEFAULT_TABELA_CONFIG_BID_FRETE })
+  }, [])
+
+  const [casasDecimais, setCasasDecimais] = useConfigState<Record<string, number>>('casas-decimais', {
     valor_frete_proposta_bid_frete_internacional: 2,
     taxas_origem_proposta_bid_frete_internacional: 2,
     taxas_destino_proposta_bid_frete_internacional: 2,
@@ -814,19 +820,19 @@ export default function Configuracoes() {
     cubagem_m3_cotacao_bid_frete_internacional: 3,
   })
 
-  const [formatoData, setFormatoData, , saveFormatoData, resetFormatoData, formatoDataDirty] = useConfigState<string>('formato-data', 'DD/MM/AAAA')
+  const [formatoData, setFormatoData] = useConfigState<string>('formato-data', 'DD/MM/AAAA')
 
-  const [colunasPersonalizadas, setColunasPersonalizadas, , saveColunas, resetColunas, colunasDirty] = useConfigState<ColunaUsuario[]>('colunas-personalizadas', [
+  const [colunasPersonalizadas, setColunasPersonalizadas] = useConfigState<ColunaUsuario[]>('colunas-personalizadas', [
     { id: 'col_margem', chave: 'margem', nome: 'Margem Comercial', tipo: 'numero', escopo: 'pedido', visibilidade_cotacao_bid_frete_internacional: 'todos', obrigatorio: false, valor_padrao: '', descricao: 'Margem do frete', opcoes: [], formula_expressao: '', ativo: true }
   ])
 
-  const [saldoTokens, setSaldoTokens, , saveSaldoFormula, resetSaldoFormula, saldoDirty] = useConfigState<SaldoToken[]>('campos-calculados', [
+  const [saldoTokens, setSaldoTokens] = useConfigState<SaldoToken[]>('campos-calculados', [
     { tipo: 'campo', chave: 'valor_frete_proposta_bid_frete_internacional', label: 'Valor do Frete' },
     { tipo: 'op', valor: '+' },
     { tipo: 'campo', chave: 'taxas_origem_proposta_bid_frete_internacional', label: 'Taxas Origem' }
   ])
 
-  const [statusList, setStatusList, , saveStatus, resetStatus, statusDirty] = useConfigState<PedidoStatusConfig[]>('status', [
+  const [statusList, setStatusList] = useConfigState<PedidoStatusConfig[]>('status', [
     { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
     { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
     { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
@@ -857,7 +863,7 @@ export default function Configuracoes() {
     }
   }, [statusList, setStatusList])
 
-  const [numeracaoConfig, setNumeracaoConfig, , saveNumeracao, resetNumeracao, numeracaoDirty] = useConfigState<NumeracaoConfig>('numeracao', {
+  const [numeracaoConfig, setNumeracaoConfig] = useConfigState<NumeracaoConfig>('numeracao', {
     prefixo: 'BID-',
     incluirAno: true,
     digitosSequencia: 5,
@@ -865,28 +871,28 @@ export default function Configuracoes() {
     automaticoCriar: true,
   })
 
-  const [templatesPdf, setTemplatesPdf, , saveTemplates, resetTemplates, templatesDirty] = useConfigState<TemplateLocal[]>('templates-pdf', [
+  const [templatesPdf, setTemplatesPdf] = useConfigState<TemplateLocal[]>('templates-pdf', [
     { id: 'tpl_resumo', nome: 'Resumo do Bid de Frete', documento_tipo: 'pdf', codigo_fonte: '<h1>Bid de Frete {{numero_cotacao_bid_frete_internacional}}</h1>', created_at: new Date().toISOString() }
   ])
 
-  const [regrasConfig, setRegrasConfig, , saveRegras, resetRegras, regrasDirty] = useConfigState<RegrasConfig>('regras', {
+  const [regrasConfig, setRegrasConfig] = useConfigState<RegrasConfig>('regras', {
     respostaAutomatica: true,
     prazoPadraoHoras: 72,
     alertasDivergencia: true,
     aprovarAbaixoDoTeto: false,
   })
 
-  const [categoriasAnexos, setCategoriasAnexos, , saveAnexos, resetAnexos, anexosDirty] = useConfigState<CategoriaAnexo[]>('categorias-anexos', [
+  const [categoriasAnexos, setCategoriasAnexos] = useConfigState<CategoriaAnexo[]>('categorias-anexos', [
     { id: 'bl', nome: 'Bill of Lading (B/L)', sistema: true },
     { id: 'proposta', nome: 'Proposta do Fornecedor', sistema: false }
   ])
 
-  const [taxasCambio, setTaxasCambio, , saveTaxas, resetTaxas, taxasDirty] = useConfigState<Record<string, number>>('taxa-cambio', {
+  const [taxasCambio, setTaxasCambio] = useConfigState<Record<string, number>>('taxa-cambio', {
     USD: 5.25,
     EUR: 5.65,
   })
 
-  const [notificacoesConfig, setNotificacoesConfig, , saveNotif, resetNotif, notifDirty] = useConfigState<NotificacoesConfig>('notificacoes', {
+  const [notificacoesConfig, setNotificacoesConfig] = useConfigState<NotificacoesConfig>('notificacoes', {
     respostaFornecedor: true,
     novaCotacao: true,
     cotacaoExpirada: false,
@@ -894,7 +900,7 @@ export default function Configuracoes() {
     erroIntegracao: true,
   })
 
-  const [exportConfig, setExportConfig, , saveExport, resetExport, exportDirty] = useConfigState<ExportacaoConfig>('exportacao', {
+  const [exportConfig, setExportConfig] = useConfigState<ExportacaoConfig>('exportacao', {
     formatoPadrao: 'xlsx',
     incluirPropostas: true,
     apenasAprovada: false,
@@ -903,8 +909,8 @@ export default function Configuracoes() {
 
   // ─── Kanban Specific States ──────────────────────────────────────────────────
 
-  const [kanbanColunasOcultas, setKanbanColunasOcultas, , saveKanbanColunas, resetKanbanColunas, kanbanColunasDirty] = useConfigState<string[]>('kanban-colunas-ocultas', [])
-  const [kanbanCardConfig, setKanbanCardConfig, , saveKanbanCard, resetKanbanCard, kanbanCardDirty] = useConfigState<KanbanCardConfigBidFrete>(
+  const [kanbanColunasOcultas, setKanbanColunasOcultas] = useConfigState<string[]>('kanban-colunas-ocultas', [])
+  const [kanbanCardConfig, setKanbanCardConfig] = useConfigState<KanbanCardConfigBidFrete>(
     'kanban-card-config',
     KANBAN_BF_CARD_PADRAO,
   )
@@ -943,8 +949,6 @@ export default function Configuracoes() {
   const [novoAnexoNome, setNovoAnexoNome] = useState('')
 
   // Global save trigger detection
-  const isDirtyGlobal = tabelaDirty || casasDirty || formatoDataDirty || colunasDirty || saldoDirty || statusDirty || numeracaoDirty || templatesDirty || regrasDirty || anexosDirty || taxasDirty || notifDirty || exportDirty || kanbanColunasDirty || kanbanCardDirty
-
   // ─── Drag & Drop Event Handlers ────────────────────────────────────────────────
 
   const handleDragEndCards = (event: DragEndEvent) => {
@@ -993,48 +997,6 @@ export default function Configuracoes() {
       const reordered = arrayMove(prev, oldIdx, newIdx)
       return reordered.map((s, idx) => ({ ...s, ordem: idx + 1 }))
     })
-  }
-
-  // ─── Save All Strategy ────────────────────────────────────────────────────────
-
-  const handleSalvarTudo = () => {
-    if (tabelaDirty) saveTabela()
-    if (casasDirty) saveCasas()
-    if (formatoDataDirty) saveFormatoData()
-    if (colunasDirty) saveColunas()
-    if (saldoDirty) saveSaldoFormula()
-    if (statusDirty) saveStatus()
-    if (numeracaoDirty) saveNumeracao()
-    if (templatesDirty) saveTemplates()
-    if (regrasDirty) saveRegras()
-    if (anexosDirty) saveAnexos()
-    if (taxasDirty) saveTaxas()
-    if (notifDirty) saveNotif()
-    if (exportDirty) saveExport()
-    if (kanbanColunasDirty) saveKanbanColunas()
-    if (kanbanCardDirty) saveKanbanCard()
-    if (kanbanColunasDirty || kanbanCardDirty) {
-      window.dispatchEvent(new CustomEvent('bid-frete:kanban-config:atualizado'))
-    }
-  }
-
-  const handleDescartarTudo = () => {
-    resetTabela()
-    resetCasas()
-    resetFormatoData()
-    resetColunas()
-    resetSaldoFormula()
-    resetStatus()
-    resetNumeracao()
-    resetTemplates()
-    resetRegras()
-    resetAnexos()
-    resetTaxas()
-    resetNotif()
-    resetExport()
-    resetKanbanColunas()
-    resetKanbanCard()
-    addNotification({ type: 'info', message: 'Modificações descartadas.' })
   }
 
   return (
@@ -1210,42 +1172,67 @@ export default function Configuracoes() {
           </div>
         )}
 
-        {/* ── CATEGORIA: TABELA ── */}
+        {/* ── CATEGORIA: TABELA (padrão Pedido) ── */}
         {categoria === 'tabela' && (
-          <section className="cfg-secao">
-            <div className="cfg-secao__header">
-              <div>
-                <h2 className="cfg-secao__titulo">Preferências da Tabela</h2>
-                <p className="cfg-secao__desc">Configure as preferências de paginação e visualização para a listagem do BID Frete.</p>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
                 <div>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>Itens por Página</p>
-                  <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Selecione a quantidade_cotacao_bid_frete_internacional de registros exibidos em listas de cotação.</p>
+                  <h2 className="cfg-secao__titulo">
+                    {t('bidfrete.config.tabela.titulo', 'Preferências da Tabela')}
+                  </h2>
+                  <p className="cfg-secao__desc">
+                    {t('bidfrete.config.tabela.descricao', 'Configure paginação e destaque visual na listagem de cotações.')}
+                  </p>
                 </div>
-                <select
-                  value={tabelaConfig.linhasPorPagina}
-                  onChange={e => setTabelaConfig(prev => ({ ...prev, linhasPorPagina: Number(e.target.value) as 25 | 50 | 100 | 200 }))}
-                  style={{ padding: '6px 12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }}
-                >
-                  <option value={25}>25 linhas</option>
-                  <option value={50}>50 linhas</option>
-                  <option value={100}>100 linhas</option>
-                  <option value={200}>200 linhas</option>
-                </select>
               </div>
-              <div className="cfg-divider" style={{ margin: '0.5rem 0' }} />
-              <ToggleRow
-                id="tab-destaque"
-                label="Destacar cotações prestes a expirar"
-                desc="Aplica borda sutil avermelhada a cotações com menos de 2 horas restantes para expiração."
-                checked={tabelaConfig.destacarAtrasados}
-                onChange={v => setTabelaConfig(prev => ({ ...prev, destacarAtrasados: v }))}
+
+              <ConfiguracaoSecaoGlobal
+                label={t('bidfrete.config.tabela.linhas_por_pagina', 'Linhas por página padrão')}
               />
-            </div>
-          </section>
+              <div className="cfg-periodo-pills" style={{ marginBottom: '1.5rem' }}>
+                {([25, 50, 100, 200] as const).map(n => (
+                  <button
+                    key={n}
+                    type="button"
+                    className={`cfg-periodo-pill${tabelaConfig.linhasPorPagina === n ? ' cfg-periodo-pill--ativo' : ''}`}
+                    onClick={() => setTabelaConfig(prev => ({ ...prev, linhasPorPagina: n }))}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+
+              <ConfiguracaoSecaoGlobal
+                label={t('bidfrete.config.tabela.preferencias', 'Preferências de exibição')}
+              />
+              <div className="cfg-toggles-lista">
+                <ToggleRow
+                  id="tab-destaque"
+                  label={t('bidfrete.config.tabela.destacar_expirar', 'Destacar cotações prestes a expirar')}
+                  desc={t(
+                    'bidfrete.config.tabela.destacar_expirar_desc',
+                    'Aplica borda sutil avermelhada a cotações com menos de 2 horas restantes para expiração.',
+                  )}
+                  checked={tabelaConfig.destacarAtrasados}
+                  onChange={v => setTabelaConfig(prev => ({ ...prev, destacarAtrasados: v }))}
+                />
+              </div>
+
+              <div className="cfg-secao__footer">
+                <BotaoCancelar
+                  dirty={tabelaDirty}
+                  rotulo={t('bidfrete.config.acao.restaurar_padrao', 'Restaurar padrão')}
+                  onClick={restaurarTabelaConfig}
+                />
+                <BotaoSalvar
+                  dirty={tabelaDirty}
+                  rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
+                  onClick={salvarTabelaConfig}
+                />
+              </div>
+            </section>
+          </div>
         )}
 
         {/* ── CATEGORIA: COLUNAS - CASAS DECIMAIS ── */}
@@ -1959,29 +1946,6 @@ export default function Configuracoes() {
         )}
 
       </main>
-      </div>
-
-      {/* ── Barra de Salvamento Flutuante ── */}
-      <div className={`bf-cfg-savebar ${isDirtyGlobal ? 'bf-cfg-savebar--visible' : ''}`}>
-        <div className="bf-cfg-savebar-inner">
-          <span className="bf-cfg-dirty-msg">Você possui alterações não salvas!</span>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              className="cfg-btn-secundario"
-              style={{ padding: '0.5rem 1rem', borderRadius: '9999px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#fff' }}
-              onClick={handleDescartarTudo}
-            >
-              Descartar
-            </button>
-            <button
-              className="bf-cfg-btn-save"
-              onClick={handleSalvarTudo}
-            >
-              <FloppyDisk weight="bold" size={16} />
-              Salvar Alterações
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* ── Modais Auxiliares ── */}

@@ -2,7 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   carregarTabelaConfigBidFrete,
   DEFAULT_TABELA_CONFIG_BID_FRETE,
+  salvarTabelaConfigBidFrete,
   STORAGE_KEY_TABELA_BID_FRETE,
+  SYNC_EVENT_TABELA_BID_FRETE,
 } from '../../../servicos-global/produto/bid-frete-internacional/client/src/shared/tabela-config-bid-frete'
 
 const lsStore: Record<string, string> = {}
@@ -42,5 +44,16 @@ describe('tabela-config-bid-frete', () => {
       destacarAtrasados: true,
     })
     expect(carregarTabelaConfigBidFrete().linhasPorPagina).toBe(100)
+  })
+
+  it('salvarTabelaConfigBidFrete persiste e dispara evento de sync', () => {
+    const dispatch = vi.fn()
+    vi.stubGlobal('window', { dispatchEvent: dispatch })
+    salvarTabelaConfigBidFrete({ linhasPorPagina: 25, destacarAtrasados: false })
+    expect(carregarTabelaConfigBidFrete()).toEqual({
+      linhasPorPagina: 25,
+      destacarAtrasados: false,
+    })
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: SYNC_EVENT_TABELA_BID_FRETE }))
   })
 })

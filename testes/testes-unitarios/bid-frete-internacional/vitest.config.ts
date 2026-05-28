@@ -17,6 +17,9 @@ export default defineConfig({
       reportsDirectory: './testes/testes-unitarios/bid-frete-internacional/resultados',
       include: [
         'servicos-global/produto/bid-frete-internacional/server/src/services/*.ts',
+        'servicos-global/produto/bid-frete-internacional/client/src/pages/colunas-lista-bid-frete-internacional.tsx',
+        'servicos-global/produto/bid-frete-internacional/client/src/pages/lista-bid-frete-internacional-utils.ts',
+        'servicos-global/produto/bid-frete-internacional/client/src/shared/lista-bid-frete-*.ts',
       ],
       thresholds: { lines: 60, branches: 60 },
     },

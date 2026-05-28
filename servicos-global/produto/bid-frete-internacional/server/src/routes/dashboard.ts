@@ -16,7 +16,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
     const { id_workspace, data_inicio, data_fim } = req.query as { id_workspace?: string; data_inicio?: string; data_fim?: string }
 
     // Cotacoes em andamento
-    const cotacoesAndamento = await (req.prisma as any).bidFreteInternacionalCotacao.count({
+    const cotacoesAndamento = await (req.prisma as any).cotacaoBidFreteInternacional.count({
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         status_cotacao_bid_frete_internacional: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO', 'FALTA_INFORMACAO'] },
@@ -25,7 +25,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
     })
 
     // Total de cotacoes passadas
-    const cotacoesPassadas = await (req.prisma as any).bidFreteInternacionalCotacao.count({
+    const cotacoesPassadas = await (req.prisma as any).cotacaoBidFreteInternacional.count({
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         status_cotacao_bid_frete_internacional: { in: ['APROVADA', 'REPROVADA', 'CANCELADA', 'EXPIRADA'] },
@@ -34,7 +34,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
     })
 
     // Valores totais das cotacoes em andamento
-    const valoresAndamento = await (req.prisma as any).bidFreteInternacionalProposta.aggregate({
+    const valoresAndamento = await (req.prisma as any).propostaBidFreteInternacional.aggregate({
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         cotacao: {
@@ -46,7 +46,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
     })
 
     // Valores totais das cotacoes passadas (aprovadas)
-    const valoresPassadas = await (req.prisma as any).bidFreteInternacionalProposta.aggregate({
+    const valoresPassadas = await (req.prisma as any).propostaBidFreteInternacional.aggregate({
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         status_proposta_bid_frete_internacional: 'APROVADA',
@@ -56,7 +56,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
     })
 
     // Cotacoes aprovadas por timing
-    const cotacoesAprovadas = await (req.prisma as any).bidFreteInternacionalCotacao.findMany({
+    const cotacoesAprovadas = await (req.prisma as any).cotacaoBidFreteInternacional.findMany({
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         status_cotacao_bid_frete_internacional: 'APROVADA',
@@ -79,7 +79,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
     })
 
     // Funil de status
-    const funil = await (req.prisma as any).bidFreteInternacionalCotacao.groupBy({
+    const funil = await (req.prisma as any).cotacaoBidFreteInternacional.groupBy({
       by: ['status_cotacao_bid_frete_internacional'],
       where: { id_produto_gravity: 'bid-frete-internacional', ...(id_workspace ? { id_workspace } : {}) },
       _count: true,
@@ -115,7 +115,7 @@ router.get('/calendario', async (req: Request, res: Response, next: NextFunction
     const em48h = new Date(Date.now() + 48 * 60 * 60 * 1000)
 
     // Respostas de fornecedores recentes (ultimas 24h)
-    const respostasRecentes = await (req.prisma as any).bidFreteInternacionalProposta.count({
+    const respostasRecentes = await (req.prisma as any).propostaBidFreteInternacional.count({
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         data_criacao_proposta_bid_frete_internacional: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
@@ -123,7 +123,7 @@ router.get('/calendario', async (req: Request, res: Response, next: NextFunction
     })
 
     // Proximo ao vencimento (1 dia)
-    const proximoVencimento = await (req.prisma as any).bidFreteInternacionalCotacao.count({
+    const proximoVencimento = await (req.prisma as any).cotacaoBidFreteInternacional.count({
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         status_cotacao_bid_frete_internacional: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
@@ -132,7 +132,7 @@ router.get('/calendario', async (req: Request, res: Response, next: NextFunction
     })
 
     // Data limite vence hoje
-    const venceHoje = await (req.prisma as any).bidFreteInternacionalCotacao.count({
+    const venceHoje = await (req.prisma as any).cotacaoBidFreteInternacional.count({
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         status_cotacao_bid_frete_internacional: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
@@ -144,7 +144,7 @@ router.get('/calendario', async (req: Request, res: Response, next: NextFunction
     })
 
     // Fora do prazo
-    const foraPrazo = await (req.prisma as any).bidFreteInternacionalCotacao.count({
+    const foraPrazo = await (req.prisma as any).cotacaoBidFreteInternacional.count({
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         status_cotacao_bid_frete_internacional: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },

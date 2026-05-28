@@ -25,7 +25,7 @@ router.get('/portos', async (req: Request, res: Response) => {
       ]
     }
 
-    const portos = await (prisma as any).bidFreteInternacionalPorto.findMany({
+    const portos = await (prisma as any).localOrigemBidFreteInternacional.findMany({
       where,
       take: Number(limit),
       orderBy: { nome: 'asc' },

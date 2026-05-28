@@ -1,4 +1,4 @@
-﻿/**
+/**
  * portal.ts — Portal do Fornecedor (autenticado via x-internal-key + x-id-usuario)
  * Rotas para fornecedores logados no Gravity (role SUPPLIER)
  *
@@ -44,23 +44,23 @@ router.get('/dashboard', async (req: Request, res: Response, next: NextFunction)
     if (!userId) throw new AppError('x-id-usuario obrigatorio', 401)
 
     // Buscar fornecedor vinculado a este user
-    const fornecedor = await (req.prisma as any).bidFreteInternacionalFornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
       where: { id_clerk_usuario: userId },
     })
 
     if (!fornecedor) throw new AppError('Fornecedor nao encontrado para este usuario', 404)
 
     const [pendentes, respondidas, aprovadas, totalRequests] = await Promise.all([
-      (req.prisma as any).bidFreteInternacionalPedidoCotacao.count({
-        where: { id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional, status_pedido_cotacao_bid_frete_internacional: { in: ['ENVIADO', 'VISUALIZADO'] } },
+      (req.prisma as any).disparoCotacaoBidFreteInternacional.count({
+        where: { id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional, status_disparo_cotacao_bid_frete_internacional: { in: ['ENVIADO', 'VISUALIZADO'] } },
       }),
-      (req.prisma as any).bidFreteInternacionalProposta.count({
+      (req.prisma as any).propostaBidFreteInternacional.count({
         where: { id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional },
       }),
-      (req.prisma as any).bidFreteInternacionalProposta.count({
+      (req.prisma as any).propostaBidFreteInternacional.count({
         where: { id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional, status_proposta_bid_frete_internacional: 'APROVADA' },
       }),
-      (req.prisma as any).bidFreteInternacionalPedidoCotacao.count({
+      (req.prisma as any).disparoCotacaoBidFreteInternacional.count({
         where: { id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional },
       }),
     ])
@@ -68,7 +68,7 @@ router.get('/dashboard', async (req: Request, res: Response, next: NextFunction)
     // Rating global
     let rating = null
     try {
-      rating = await (req.prisma as any).bidFreteInternacionalClassificacao.findUnique({
+      rating = await (req.prisma as any).classificacaoBidFreteInternacional.findUnique({
         where: { email_fornecedor_classificacao_bid_frete_internacional: fornecedor.email_fornecedor_bid_frete_internacional },
       })
     } catch { /* pode nao existir */ }
@@ -94,16 +94,16 @@ router.get('/dashboard', async (req: Request, res: Response, next: NextFunction)
 router.get('/cotacoes-pendentes', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.headers['x-id-usuario'] as string
-    const fornecedor = await (req.prisma as any).bidFreteInternacionalFornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
       where: { id_clerk_usuario: userId },
     })
 
     if (!fornecedor) throw new AppError('Fornecedor nao encontrado', 404)
 
-    const requests = await (req.prisma as any).bidFreteInternacionalPedidoCotacao.findMany({
+    const requests = await (req.prisma as any).disparoCotacaoBidFreteInternacional.findMany({
       where: {
         id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
-        status_pedido_cotacao_bid_frete_internacional: { in: ['ENVIADO', 'VISUALIZADO', 'PENDENTE'] },
+        status_disparo_cotacao_bid_frete_internacional: { in: ['ENVIADO', 'VISUALIZADO', 'PENDENTE'] },
       },
       include: {
         cotacao: {
@@ -118,18 +118,18 @@ router.get('/cotacoes-pendentes', async (req: Request, res: Response, next: Next
           },
         },
       },
-      orderBy: { data_criacao_pedido_cotacao_bid_frete_internacional: 'desc' },
+      orderBy: { data_criacao_disparo_cotacao_bid_frete_internacional: 'desc' },
     })
 
     // Marcar como visualizado
     const pendentesIds = (requests as any[])
-      .filter((r) => r.status_pedido_cotacao_bid_frete_internacional === 'ENVIADO' || r.status_pedido_cotacao_bid_frete_internacional === 'PENDENTE')
-      .map((r) => r.id_pedido_cotacao_bid_frete_internacional)
+      .filter((r) => r.status_disparo_cotacao_bid_frete_internacional === 'ENVIADO' || r.status_disparo_cotacao_bid_frete_internacional === 'PENDENTE')
+      .map((r) => r.id_disparo_cotacao_bid_frete_internacional)
 
     if (pendentesIds.length > 0) {
-      await (req.prisma as any).bidFreteInternacionalPedidoCotacao.updateMany({
-        where: { id_pedido_cotacao_bid_frete_internacional: { in: pendentesIds } },
-        data: { status_pedido_cotacao_bid_frete_internacional: 'VISUALIZADO', data_visualizacao_pedido_cotacao_bid_frete_internacional: new Date() },
+      await (req.prisma as any).disparoCotacaoBidFreteInternacional.updateMany({
+        where: { id_disparo_cotacao_bid_frete_internacional: { in: pendentesIds } },
+        data: { status_disparo_cotacao_bid_frete_internacional: 'VISUALIZADO', data_visualizacao_disparo_cotacao_bid_frete_internacional: new Date() },
       })
     }
 
@@ -143,7 +143,7 @@ router.get('/cotacoes-pendentes', async (req: Request, res: Response, next: Next
 router.get('/propostas', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.headers['x-id-usuario'] as string
-    const fornecedor = await (req.prisma as any).bidFreteInternacionalFornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
       where: { id_clerk_usuario: userId },
     })
 
@@ -153,7 +153,7 @@ router.get('/propostas', async (req: Request, res: Response, next: NextFunction)
     const skip = (Number(page) - 1) * Number(limit)
 
     const [respostas, total] = await Promise.all([
-      (req.prisma as any).bidFreteInternacionalProposta.findMany({
+      (req.prisma as any).propostaBidFreteInternacional.findMany({
         where: { id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional },
         include: {
           cotacao: {
@@ -165,7 +165,7 @@ router.get('/propostas', async (req: Request, res: Response, next: NextFunction)
         skip,
         take: Number(limit),
       }),
-      (req.prisma as any).bidFreteInternacionalProposta.count({ where: { id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional } }),
+      (req.prisma as any).propostaBidFreteInternacional.count({ where: { id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional } }),
     ])
 
     res.json({
@@ -185,12 +185,12 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
 
     const userId = req.headers['x-id-usuario'] as string
 
-    const bidRequest = await (req.prisma as any).bidFreteInternacionalPedidoCotacao.findFirst({
-      where: { id_pedido_cotacao_bid_frete_internacional: req.params.bidRequestId },
+    const bidRequest = await (req.prisma as any).disparoCotacaoBidFreteInternacional.findFirst({
+      where: { id_disparo_cotacao_bid_frete_internacional: req.params.bidRequestId },
     })
 
     if (!bidRequest) throw new AppError('Disparo de cotacao nao encontrado', 404)
-    if (bidRequest.status_pedido_cotacao_bid_frete_internacional === 'RESPONDIDO') throw new AppError('Cotacao ja respondida', 400)
+    if (bidRequest.status_disparo_cotacao_bid_frete_internacional === 'RESPONDIDO') throw new AppError('Cotacao ja respondida', 400)
 
     const { taxas, ...responseData } = parsed.data
 
@@ -198,11 +198,11 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
     const valorTotal = responseData.valor_frete_proposta_bid_frete_internacional + responseData.taxas_origem_proposta_bid_frete_internacional + responseData.taxas_destino_proposta_bid_frete_internacional
 
     // Criar BidResponse
-    const response = await (req.prisma as any).bidFreteInternacionalProposta.create({
+    const response = await (req.prisma as any).propostaBidFreteInternacional.create({
       data: {
         id_produto_gravity: 'bid-frete-internacional',
         id_usuario: userId,
-        id_pedido_cotacao_bid_frete_internacional: bidRequest.id_pedido_cotacao_bid_frete_internacional,
+        id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional,
         id_cotacao_bid_frete_internacional: bidRequest.id_cotacao_bid_frete_internacional,
         id_fornecedor_bid_frete_internacional: bidRequest.id_fornecedor_bid_frete_internacional,
         ...responseData,
@@ -214,7 +214,7 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
 
     // Criar detalhes de taxas
     if (taxas?.length) {
-      await (req.prisma as any).bidFreteInternacionalTaxa.createMany({
+      await (req.prisma as any).taxaBidFreteInternacional.createMany({
         data: taxas.map(t => ({
           id_proposta_bid_frete_internacional: response.id_proposta_bid_frete_internacional,
           id_organizacao: bidRequest.id_organizacao,
@@ -224,24 +224,24 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
     }
 
     // Atualizar BidRequest
-    await (req.prisma as any).bidFreteInternacionalPedidoCotacao.update({
-      where: { id_pedido_cotacao_bid_frete_internacional: bidRequest.id_pedido_cotacao_bid_frete_internacional },
-      data: { status_pedido_cotacao_bid_frete_internacional: 'RESPONDIDO', data_resposta_pedido_cotacao_bid_frete_internacional: new Date() },
+    await (req.prisma as any).disparoCotacaoBidFreteInternacional.update({
+      where: { id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional },
+      data: { status_disparo_cotacao_bid_frete_internacional: 'RESPONDIDO', data_resposta_disparo_cotacao_bid_frete_internacional: new Date() },
     })
 
     // Verificar se todas as respostas chegaram
-    const totalRequests = await (req.prisma as any).bidFreteInternacionalPedidoCotacao.count({
+    const totalRequests = await (req.prisma as any).disparoCotacaoBidFreteInternacional.count({
       where: { id_cotacao_bid_frete_internacional: bidRequest.id_cotacao_bid_frete_internacional },
     })
-    const totalRespondidos = await (req.prisma as any).bidFreteInternacionalPedidoCotacao.count({
-      where: { id_cotacao_bid_frete_internacional: bidRequest.id_cotacao_bid_frete_internacional, status_pedido_cotacao_bid_frete_internacional: 'RESPONDIDO' },
+    const totalRespondidos = await (req.prisma as any).disparoCotacaoBidFreteInternacional.count({
+      where: { id_cotacao_bid_frete_internacional: bidRequest.id_cotacao_bid_frete_internacional, status_disparo_cotacao_bid_frete_internacional: 'RESPONDIDO' },
     })
 
     // Buscar cotacao para dados de notificação
-    const cotacao = await (req.prisma as any).bidFreteInternacionalCotacao.findFirst({ where: { id_cotacao_bid_frete_internacional: bidRequest.id_cotacao_bid_frete_internacional } })
+    const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional: bidRequest.id_cotacao_bid_frete_internacional } })
 
     if (totalRespondidos >= totalRequests) {
-      await (req.prisma as any).bidFreteInternacionalCotacao.update({
+      await (req.prisma as any).cotacaoBidFreteInternacional.update({
         where: { id_cotacao_bid_frete_internacional: bidRequest.id_cotacao_bid_frete_internacional },
         data: { status_cotacao_bid_frete_internacional: 'AGUARDANDO_APROVACAO' },
       })
@@ -254,7 +254,7 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
         })
       }
     } else {
-      await (req.prisma as any).bidFreteInternacionalCotacao.update({
+      await (req.prisma as any).cotacaoBidFreteInternacional.update({
         where: { id_cotacao_bid_frete_internacional: bidRequest.id_cotacao_bid_frete_internacional },
         data: { status_cotacao_bid_frete_internacional: 'EM_COTACAO' },
       })
@@ -263,7 +263,7 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
     // Integrações S2S — notificar cliente que fornecedor respondeu
     if (cotacao) {
       const tenantId = (req as any).tenantId
-      const fornecedor = await (req.prisma as any).bidFreteInternacionalFornecedor.findFirst({ where: { id_fornecedor_bid_frete_internacional: bidRequest.id_fornecedor_bid_frete_internacional }, select: { nome_fornecedor_bid_frete_internacional: true } })
+      const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({ where: { id_fornecedor_bid_frete_internacional: bidRequest.id_fornecedor_bid_frete_internacional }, select: { nome_fornecedor_bid_frete_internacional: true } })
       notificacoesIntegration.fornecedorRespondeu(tenantId, cotacao.id_usuario, {
         cotacao_numero: cotacao.numero_cotacao_bid_frete_internacional,
         fornecedor_nome: fornecedor?.nome_fornecedor_bid_frete_internacional ?? 'Fornecedor',
@@ -285,7 +285,7 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
 router.get('/desempenho', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.headers['x-id-usuario'] as string
-    const fornecedor = await (req.prisma as any).bidFreteInternacionalFornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
       where: { id_clerk_usuario: userId },
     })
 
@@ -295,7 +295,7 @@ router.get('/desempenho', async (req: Request, res: Response, next: NextFunction
     const rating = await motorClassificacao.recalcular(req.prisma!, fornecedor.email_fornecedor_bid_frete_internacional)
 
     // Avaliacoes recentes
-    const avaliacoes = await (req.prisma as any).bidFreteInternacionalAvaliacao.findMany({
+    const avaliacoes = await (req.prisma as any).avaliacaoBidFreteInternacional.findMany({
       where: { id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional },
       orderBy: { data_criacao_avaliacao_bid_frete_internacional: 'desc' },
       take: 20,
@@ -311,7 +311,7 @@ router.get('/desempenho', async (req: Request, res: Response, next: NextFunction
 router.get('/meu-billing', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.headers['x-id-usuario'] as string
-    const fornecedor = await (req.prisma as any).bidFreteInternacionalFornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
       where: { id_clerk_usuario: userId },
     })
 

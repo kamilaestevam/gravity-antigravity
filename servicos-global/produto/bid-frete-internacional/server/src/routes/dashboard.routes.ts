@@ -47,7 +47,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
     for (const metric of metrics) {
       switch (metric) {
         case 'saving_total': {
-          const agg = await prisma.bidFreteInternacionalGanho.aggregate({
+          const agg = await prisma.ganhoBidFreteInternacional.aggregate({
             _sum: { ganho_vs_meta_ganho_bid_frete_internacional: true },
             where: { data_criacao_ganho_bid_frete_internacional: { gte: periodStart } },
           })
@@ -55,7 +55,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'valor_medio_ganho_bid_frete_internacional': {
-          const agg = await prisma.bidFreteInternacionalProposta.aggregate({
+          const agg = await prisma.propostaBidFreteInternacional.aggregate({
             _avg: { valor_total_proposta_bid_frete_internacional: true },
             where: { status_proposta_bid_frete_internacional: 'APROVADA', data_criacao_proposta_bid_frete_internacional: { gte: periodStart } },
           })
@@ -63,7 +63,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'cotacoes_status': {
-          const items = await prisma.bidFreteInternacionalCotacao.groupBy({
+          const items = await prisma.cotacaoBidFreteInternacional.groupBy({
             by: ['status_cotacao_bid_frete_internacional'],
             _count: true,
             where: { data_criacao_cotacao_bid_frete_internacional: { gte: periodStart } },
@@ -72,7 +72,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'ganho_percentual_ganho_bid_frete_internacional': {
-          const agg = await prisma.bidFreteInternacionalGanho.aggregate({
+          const agg = await prisma.ganhoBidFreteInternacional.aggregate({
             _avg: { ganho_percentual_ganho_bid_frete_internacional: true },
             where: { data_criacao_ganho_bid_frete_internacional: { gte: periodStart } },
           })
@@ -80,7 +80,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'transit_time': {
-          const agg = await prisma.bidFreteInternacionalProposta.aggregate({
+          const agg = await prisma.propostaBidFreteInternacional.aggregate({
             _avg: { dias_transito_proposta_bid_frete_internacional: true },
             where: {
               data_criacao_proposta_bid_frete_internacional: { gte: periodStart },
@@ -91,7 +91,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
         }
         case 'volume_mensal': {
           const dozeAtras = new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1)
-          const items = await prisma.bidFreteInternacionalCotacao.findMany({
+          const items = await prisma.cotacaoBidFreteInternacional.findMany({
             where: { data_criacao_cotacao_bid_frete_internacional: { gte: dozeAtras } },
             select: { data_criacao_cotacao_bid_frete_internacional: true },
           })
@@ -104,7 +104,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'cotacoes_andamento': {
-          const count = await prisma.bidFreteInternacionalCotacao.count({
+          const count = await prisma.cotacaoBidFreteInternacional.count({
             where: {
               status_cotacao_bid_frete_internacional: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO', 'FALTA_INFORMACAO'] },
               data_criacao_cotacao_bid_frete_internacional: { gte: periodStart }
@@ -114,7 +114,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'cotacoes_passadas': {
-          const count = await prisma.bidFreteInternacionalCotacao.count({
+          const count = await prisma.cotacaoBidFreteInternacional.count({
             where: {
               status_cotacao_bid_frete_internacional: { in: ['APROVADA', 'REPROVADA', 'CANCELADA', 'EXPIRADA'] },
               data_criacao_cotacao_bid_frete_internacional: { gte: periodStart }
@@ -124,7 +124,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'valor_andamento_usd': {
-          const agg = await prisma.bidFreteInternacionalProposta.aggregate({
+          const agg = await prisma.propostaBidFreteInternacional.aggregate({
             where: {
               cotacao: {
                 status_cotacao_bid_frete_internacional: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO'] },
@@ -137,7 +137,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'valor_aprovado_usd': {
-          const agg = await prisma.bidFreteInternacionalProposta.aggregate({
+          const agg = await prisma.propostaBidFreteInternacional.aggregate({
             where: {
               status_proposta_bid_frete_internacional: 'APROVADA',
               data_criacao_proposta_bid_frete_internacional: { gte: periodStart }

@@ -62,7 +62,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
     const userId = req.headers['x-id-usuario'] as string
 
-    const fornecedor = await (req.prisma as any).bidFreteInternacionalFornecedor.create({
+    const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.create({
       data: {
         ...parsed.data,
         id_produto_gravity: 'bid-frete-internacional',
@@ -98,16 +98,16 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     const skip = (Number(page) - 1) * Number(limit)
 
     const [fornecedores, total] = await Promise.all([
-      (req.prisma as any).bidFreteInternacionalFornecedor.findMany({
+      (req.prisma as any).fornecedorBidFreteInternacional.findMany({
         where,
         skip,
         take: Number(limit),
         orderBy: { nome_fornecedor_bid_frete_internacional: 'asc' },
         include: {
-          _count: { select: { pedidos_cotacao: true, propostas: true, avaliacoes: true } },
+          _count: { select: { disparos_cotacao: true, propostas: true, avaliacoes: true } },
         },
       }),
-      (req.prisma as any).bidFreteInternacionalFornecedor.count({ where }),
+      (req.prisma as any).fornecedorBidFreteInternacional.count({ where }),
     ])
 
     res.json({ fornecedores, pagination: { page: Number(page), limit: Number(limit), total, pages: Math.ceil(total / Number(limit)) } })
@@ -119,12 +119,12 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 // --- GET /:id — Detalhe ---
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const fornecedor = await (req.prisma as any).bidFreteInternacionalFornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
       where: { id_fornecedor_bid_frete_internacional: req.params.id },
       include: {
         tabelas_valor: { where: { ativa_tabela_valor_bid_frete_internacional: true }, orderBy: { origem_nome_tabela_valor_bid_frete_internacional: 'asc' } },
         avaliacoes: { orderBy: { data_criacao_avaliacao_bid_frete_internacional: 'desc' }, take: 10 },
-        _count: { select: { pedidos_cotacao: true, propostas: true, avaliacoes: true } },
+        _count: { select: { disparos_cotacao: true, propostas: true, avaliacoes: true } },
       },
     })
 
@@ -133,7 +133,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     // Buscar rating global
     let nota_global_classificacao_bid_frete_internacional = null
     try {
-      nota_global_classificacao_bid_frete_internacional = await (req.prisma as any).bidFreteInternacionalClassificacao.findUnique({
+      nota_global_classificacao_bid_frete_internacional = await (req.prisma as any).classificacaoBidFreteInternacional.findUnique({
         where: { email_fornecedor_classificacao_bid_frete_internacional: fornecedor.email_fornecedor_bid_frete_internacional },
       })
     } catch { /* tabela pode nao existir ainda */ }
@@ -147,7 +147,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 // --- PUT /:id — Atualizar ---
 router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const fornecedor = await (req.prisma as any).bidFreteInternacionalFornecedor.update({
+    const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.update({
       where: { id_fornecedor_bid_frete_internacional: req.params.id },
       data: req.body,
     })
@@ -164,7 +164,7 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
     if (!['ATIVO', 'INATIVO', 'BLOQUEADO'].includes(status)) {
       throw new AppError('Status invalido', 400, 'VALIDATION_ERROR')
     }
-    const fornecedor = await (req.prisma as any).bidFreteInternacionalFornecedor.update({
+    const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.update({
       where: { id_fornecedor_bid_frete_internacional: req.params.id },
       data: { status_fornecedor_bid_frete_internacional: status },
     })
@@ -177,7 +177,7 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
 // --- DELETE /:id ---
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await (req.prisma as any).bidFreteInternacionalFornecedor.delete({ where: { id_fornecedor_bid_frete_internacional: req.params.id } })
+    await (req.prisma as any).fornecedorBidFreteInternacional.delete({ where: { id_fornecedor_bid_frete_internacional: req.params.id } })
     res.json({ deleted: true })
   } catch (err) {
     next(err)
@@ -194,7 +194,7 @@ router.post('/:id_fornecedor/tabelas-valor', async (req: Request, res: Response,
 
     const userId = req.headers['x-id-usuario'] as string
 
-    const tabela = await (req.prisma as any).bidFreteInternacionalTabelaValor.create({
+    const tabela = await (req.prisma as any).tabelaBidFreteInternacional.create({
       data: {
         ...parsed.data,
         id_produto_gravity: 'bid-frete-internacional',
@@ -214,7 +214,7 @@ router.post('/:id_fornecedor/tabelas-valor', async (req: Request, res: Response,
 // GET /:id_fornecedor/tabelas-valor
 router.get('/:id_fornecedor/tabelas-valor', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tabelas = await (req.prisma as any).bidFreteInternacionalTabelaValor.findMany({
+    const tabelas = await (req.prisma as any).tabelaBidFreteInternacional.findMany({
       where: { id_fornecedor_bid_frete_internacional: req.params.id_fornecedor },
       orderBy: { origem_nome_tabela_valor_bid_frete_internacional: 'asc' },
     })
@@ -227,8 +227,8 @@ router.get('/:id_fornecedor/tabelas-valor', async (req: Request, res: Response, 
 // PUT /:id_fornecedor/tabelas-valor/:id_tabela_valor
 router.put('/:id_fornecedor/tabelas-valor/:id_tabela_valor', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tabela = await (req.prisma as any).bidFreteInternacionalTabelaValor.update({
-      where: { id_tabela_valor_bid_frete_internacional: req.params.id_tabela_valor },
+    const tabela = await (req.prisma as any).tabelaBidFreteInternacional.update({
+      where: { id_tabela_bid_frete_internacional: req.params.id_tabela_valor },
       data: req.body,
     })
     res.json({ tabela })
@@ -240,7 +240,7 @@ router.put('/:id_fornecedor/tabelas-valor/:id_tabela_valor', async (req: Request
 // DELETE /:id_fornecedor/tabelas-valor/:id_tabela_valor
 router.delete('/:id_fornecedor/tabelas-valor/:id_tabela_valor', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await (req.prisma as any).bidFreteInternacionalTabelaValor.delete({ where: { id_tabela_valor_bid_frete_internacional: req.params.id_tabela_valor } })
+    await (req.prisma as any).tabelaBidFreteInternacional.delete({ where: { id_tabela_bid_frete_internacional: req.params.id_tabela_valor } })
     res.json({ deleted: true })
   } catch (err) {
     next(err)

@@ -87,7 +87,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
     const { fornecedor_ids, ...cotacaoData } = parsed.data
 
-    const cotacao = await (req.prisma as any).bidFreteInternacionalCotacao.create({
+    const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.create({
       data: {
         ...cotacaoData,
         id_produto_gravity: 'bid-frete-internacional',
@@ -131,17 +131,17 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     const skip = (filtros.page - 1) * filtros.limit
 
     const [cotacoes, total] = await Promise.all([
-      (req.prisma as any).bidFreteInternacionalCotacao.findMany({
+      (req.prisma as any).cotacaoBidFreteInternacional.findMany({
         where,
         skip,
         take: filtros.limit,
         orderBy: { [filtros.order_by]: filtros.order_dir },
         include: {
-          pedidos_cotacao: { select: { id_pedido_cotacao_bid_frete_internacional: true, id_fornecedor_bid_frete_internacional: true, status_pedido_cotacao_bid_frete_internacional: true } },
+          disparos_cotacao: { select: { id_disparo_cotacao_bid_frete_internacional: true, id_fornecedor_bid_frete_internacional: true, status_disparo_cotacao_bid_frete_internacional: true } },
           propostas: { select: { id_proposta_bid_frete_internacional: true, id_fornecedor_bid_frete_internacional: true, valor_total_proposta_bid_frete_internacional: true, dias_transito_proposta_bid_frete_internacional: true, status_proposta_bid_frete_internacional: true } },
         },
       }),
-      (req.prisma as any).bidFreteInternacionalCotacao.count({ where }),
+      (req.prisma as any).cotacaoBidFreteInternacional.count({ where }),
     ])
 
     res.json({
@@ -161,10 +161,10 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 // --- GET /:id — Detalhe da cotacao ---
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const cotacao = await (req.prisma as any).bidFreteInternacionalCotacao.findFirst({
+    const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({
       where: { id_cotacao_bid_frete_internacional: req.params.id },
       include: {
-        pedidos_cotacao: {
+        disparos_cotacao: {
           include: {
             fornecedor: { select: { id_fornecedor_bid_frete_internacional: true, nome_fornecedor_bid_frete_internacional: true, tipo_fornecedor_bid_frete_internacional: true, email_fornecedor_bid_frete_internacional: true } },
           },
@@ -190,13 +190,13 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 // --- PATCH /:id — Atualizar cotacao ---
 router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const existing = await (req.prisma as any).bidFreteInternacionalCotacao.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
+    const existing = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
     if (existing.status_cotacao_bid_frete_internacional !== 'RASCUNHO' && existing.status_cotacao_bid_frete_internacional !== 'FALTA_INFORMACAO') {
       throw new AppError('So e possivel editar cotacoes em rascunho ou com falta de informacao', 400, 'INVALID_STATUS')
     }
 
-    const cotacao = await (req.prisma as any).bidFreteInternacionalCotacao.update({
+    const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional: req.params.id },
       data: req.body,
     })
@@ -213,7 +213,7 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
     const parsed = AtualizarStatusSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
-    const existing = await (req.prisma as any).bidFreteInternacionalCotacao.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
+    const existing = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
 
     const data: Record<string, unknown> = { status_cotacao_bid_frete_internacional: parsed.data.status }
@@ -228,7 +228,7 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
       data.motivo_cancelamento_cotacao_bid_frete_internacional = parsed.data.motivo_cancelamento_cotacao_bid_frete_internacional
     }
 
-    const cotacao = await (req.prisma as any).bidFreteInternacionalCotacao.update({
+    const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional: req.params.id },
       data,
     })
@@ -242,13 +242,13 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
 // --- DELETE /:id — Excluir rascunho ---
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const existing = await (req.prisma as any).bidFreteInternacionalCotacao.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
+    const existing = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
     if (existing.status_cotacao_bid_frete_internacional !== 'RASCUNHO') {
       throw new AppError('So e possivel excluir cotacoes em rascunho', 400, 'INVALID_STATUS')
     }
 
-    await (req.prisma as any).bidFreteInternacionalCotacao.delete({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
+    await (req.prisma as any).cotacaoBidFreteInternacional.delete({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
     res.json({ deleted: true })
   } catch (err) {
     next(err)
@@ -304,7 +304,7 @@ router.post('/bloco', async (req: Request, res: Response, next: NextFunction) =>
       const item = parsed.data.itens[i]
       try {
         const numero_cotacao_bid_frete_internacional = gerarNumeroCotacao()
-        const cotacao = await (req.prisma as any).bidFreteInternacionalCotacao.create({
+        const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.create({
           data: {
             ...item,
             id_produto_gravity: 'bid-frete-internacional',

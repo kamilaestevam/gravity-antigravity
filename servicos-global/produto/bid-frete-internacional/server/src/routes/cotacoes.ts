@@ -57,7 +57,8 @@ const FiltrosCotacaoSchema = z.object({
   data_inicio: z.string().optional(),
   data_fim: z.string().optional(),
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
+  // Paridade com COTACOES_LIMIT_LISTA (client) — KPIs e tabela filtram client-side
+  limit: z.coerce.number().int().positive().max(500).default(20),
   order_by: z.string().default('data_criacao_cotacao_bid_frete_internacional'),
   order_dir: z.enum(['asc', 'desc']).default('desc'),
 })
@@ -155,7 +156,15 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 // --- GET / — Listar cotacoes ---
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const filtros = FiltrosCotacaoSchema.parse(req.query)
+    const parsed = FiltrosCotacaoSchema.safeParse(req.query)
+    if (!parsed.success) {
+      throw new AppError(
+        `Dados invalidos: ${parsed.error.issues.map(i => i.message).join(', ')}`,
+        400,
+        'VALIDATION_ERROR',
+      )
+    }
+    const filtros = parsed.data
 
     const where: Record<string, unknown> = { id_produto_gravity: 'bid-frete-internacional' }
     if (filtros.status) where.status_cotacao_bid_frete_internacional = filtros.status

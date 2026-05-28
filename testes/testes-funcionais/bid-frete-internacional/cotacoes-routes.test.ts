@@ -186,6 +186,24 @@ describe('GET /api/v1/bid-frete-internacional/cotacoes', () => {
     expect(res.body).toHaveProperty('pagination')
     expect(res.body.cotacoes.length).toBe(1)
   })
+
+  it('deve aceitar limit=500 (paridade com COTACOES_LIMIT_LISTA da lista)', async () => {
+    const res = await request(app)
+      .get('/api/v1/bid-frete-internacional/cotacoes?limit=500')
+      .set(HEADERS)
+
+    expect(res.status).toBe(200)
+    expect(res.body.pagination.limit).toBe(500)
+  })
+
+  it('deve retornar 400 quando limit excede 500', async () => {
+    const res = await request(app)
+      .get('/api/v1/bid-frete-internacional/cotacoes?limit=501')
+      .set(HEADERS)
+
+    expect(res.status).toBe(400)
+    expect(res.body.error).toHaveProperty('code', 'VALIDATION_ERROR')
+  })
 })
 
 describe('PATCH /api/v1/bid-frete-internacional/cotacoes/:id/status', () => {

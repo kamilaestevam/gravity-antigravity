@@ -5,7 +5,7 @@
  */
 
 import { z } from 'zod'
-import { useShellStore } from '@gravity/shell'
+import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import type {
   Cotacao,
   CotacoesListResponse,
@@ -29,18 +29,41 @@ import type {
 } from './types'
 
 const API_BASE = '/api/v1'
+const LS_ORG_KEY = 'gravity:idOrganizacao'
+
+/** Organização efetiva — shell (/me) > cache local > fallback dev (espelha Pedido). */
+function resolverIdOrganizacao(): string {
+  const state = useShellStore.getState()
+  const live =
+    state.organizacaoOverride?.idOrganizacao ??
+    state.currentUser.idOrganizacao
+
+  if (live) {
+    try { localStorage.setItem(LS_ORG_KEY, live) } catch { /* ignore */ }
+    return live
+  }
+
+  try {
+    const cached = localStorage.getItem(LS_ORG_KEY)
+    if (cached) return cached
+  } catch { /* ignore */ }
+
+  return (
+    sessionStorage.getItem('gravity_id_organizacao') ||
+    import.meta.env.VITE_ID_ORGANIZACAO ||
+    import.meta.env.VITE_DEV_TENANT_ID ||
+    'org_dev_default'
+  )
+}
 
 const headers = () => {
   const customHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
     'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
+    ...injetarHeaderOverride(),
   }
 
-  const orgId =
-    sessionStorage.getItem('gravity_id_organizacao') ||
-    import.meta.env.VITE_ID_ORGANIZACAO ||
-    import.meta.env.VITE_DEV_TENANT_ID ||
-    'org_dev_default'
+  const orgId = resolverIdOrganizacao()
 
   const idWorkspace =
     sessionStorage.getItem('gravity_id_workspace') ||
@@ -493,7 +516,8 @@ export async function getFornecedor(id_fornecedor_bid_frete_internacional: strin
     { headers: headers() },
   )
   const raw = await handleResponse<unknown>(res)
-  return mapFornecedorFromServer(raw)
+  const parsed = z.object({ fornecedor: z.unknown() }).parse(raw)
+  return mapFornecedorFromServer(parsed.fornecedor)
 }
 
 export async function getTabelaPrecos(fornecedorId: string): Promise<TabelaPreco[]> {

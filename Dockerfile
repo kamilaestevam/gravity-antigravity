@@ -20,6 +20,8 @@ RUN npx prisma generate --schema=configurador/prisma/schema.prisma
 RUN npx prisma generate --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
 RUN npx prisma generate --schema=servicos-global/cadastros/prisma/schema.prisma
 RUN npx prisma generate --schema=servicos-global/produto/pedido/prisma/schema.prisma
+RUN node servicos-global/produto/bid-frete-internacional/prisma/compose-schema.js \
+    && npx prisma generate --schema=servicos-global/produto/bid-frete-internacional/prisma/schema.prisma
 
 # Pedido uses default Prisma output (node_modules/.prisma/client) — copy to root.
 # rm -rf first: npm ci may have created the dir, and cp -r would nest instead of replace.

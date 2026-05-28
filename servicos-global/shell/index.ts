@@ -38,6 +38,12 @@ export { useMeSync }           from './hooks/useMeSync'
 export { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
 export { useOrganizacaoOverride } from './hooks/useOrganizacaoOverride'
 export type { UsoOrganizacaoOverride } from './hooks/useOrganizacaoOverride'
+export { useProdutosSwitcher, EVENTO_PRODUTOS_WORKSPACE_ATUALIZADOS } from './hooks/useProdutosSwitcher'
+export {
+  resolverRotaProdutoGravity,
+  resolverSlugMetaProduto,
+  slugsProdutoEquivalentes,
+} from './utils/resolver-rota-produto'
 export type {
   ShellState,
   CurrentUser,

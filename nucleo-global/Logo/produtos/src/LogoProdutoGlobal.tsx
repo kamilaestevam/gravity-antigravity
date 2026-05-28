@@ -47,6 +47,11 @@ export const PRODUTO_META: Record<string, ProdutoMeta> = {
     color:    '#60a5fa',
     sublabel: 'frete · transportes',
   },
+  'bid-frete-internacional': {
+    icon:     <LogoBidFrete size={16} />,
+    color:    '#60a5fa',
+    sublabel: 'frete internacional',
+  },
   'lpco': {
     icon:     <LogoLpco size={16} />,
     color:    '#f43f5e',

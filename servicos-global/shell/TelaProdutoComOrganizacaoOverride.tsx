@@ -13,6 +13,8 @@ import {
 import { BannerOrganizacaoOverride } from './BannerOrganizacaoOverride'
 import { ModalTrocarOrganizacao } from './components/ModalTrocarOrganizacao'
 import { useOrganizacaoOverride } from './hooks/useOrganizacaoOverride'
+import { useProdutosSwitcher } from './hooks/useProdutosSwitcher'
+import { slugsProdutoEquivalentes } from './utils/resolver-rota-produto'
 import './banner-organizacao-override.css'
 
 export type TelaProdutoComOrganizacaoOverrideProps = TelaProdutoGlobalProps
@@ -22,6 +24,12 @@ export function TelaProdutoComOrganizacaoOverride(
 ): JSX.Element {
   const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
   const [modalTrocarOrgAberto, setModalTrocarOrgAberto] = useState(false)
+  const {
+    produtos: produtosSwitcher,
+    exibirSeletor: exibirSeletorProduto,
+    trocarProduto,
+    produtoAtualSlug,
+  } = useProdutosSwitcher(props.productId, props.productName)
 
   const usuario = useMemo(
     () => ({
@@ -43,6 +51,10 @@ export function TelaProdutoComOrganizacaoOverride(
         {...props}
         usuario={usuario}
         layoutClassName={layoutClassName}
+        produtos={exibirSeletorProduto ? produtosSwitcher : undefined}
+        produtoAtualSlug={produtoAtualSlug}
+        onSwitchProduct={exibirSeletorProduto ? trocarProduto : undefined}
+        produtoSlugEquivalente={slugsProdutoEquivalentes}
       />
       <ModalTrocarOrganizacao
         aberto={modalTrocarOrgAberto}

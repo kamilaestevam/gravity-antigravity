@@ -209,7 +209,7 @@ function computeDelta(current: number, prev: number): {
   return { delta, percent, direction }
 }
 
-// ── Gerador de insights client-side com dados reais do BID Frete ───────────────
+// ── Gerador de insights client-side com dados reais do BID Frete Internacional ──
 const fmtNum = (n: number) => new Intl.NumberFormat('pt-BR').format(Math.round(n))
 const fmtUSD = (n: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
@@ -308,7 +308,7 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
   return items
 }
 
-// ── Configuração visual por widget no BID Frete ──────────────────────────────
+// ── Configuração visual por widget no BID Frete Internacional ────────────────
 const AMBER  = '#f59e0b'
 const DANGER = '#ef4444'
 const GREEN  = '#10b981'
@@ -758,7 +758,7 @@ export default function Dashboard() {
     paineis, painelAtualId, setPaineis, setPainelAtual, salvarWidgetsPainelAtual,
   } = useDashboardStore()
 
-  const podeEditarDashboard = true // Hardcoded como true para o BID Frete
+  const podeEditarDashboard = true // Hardcoded como true para o BID Frete Internacional
 
   const navigate = useNavigate()
   const { trackWidget, trackInsight } = useTrackBehavior()

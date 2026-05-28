@@ -1,5 +1,5 @@
 /**
- * derivedMetrics.ts — Métricas derivadas por cruzamento de campos para o BID Frete
+ * derivedMetrics.ts — Métricas derivadas por cruzamento de campos para o BID Frete Internacional
  */
 export type { DerivedOperation, DerivedMetric } from '@nucleo/dashboard';
 import type { DerivedMetric } from '@nucleo/dashboard';

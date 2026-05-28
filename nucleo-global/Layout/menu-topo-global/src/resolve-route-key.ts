@@ -1,4 +1,4 @@
-/** Slugs de URL canônicos do BID Frete (Configurador monta em `/bid-frete/*`). */
+/** Slugs de URL canônicos do BID Frete Internacional (Configurador monta em `/bid-frete/*`). */
 export const BID_FRETE_URL_SLUGS = ['bid-frete', 'bid-frete-internacional'] as const
 
 /** Slugs de produtos Gravity servidos em `/produto/<slug>/*` ou `/<slug>/*`. */

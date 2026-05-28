@@ -386,12 +386,12 @@ async function fetchBidFreteInsights(
     insights.push({
       id: 'frete_alertas',
       variante: 'warn',
-      tag: 'Alerta · BID Frete',
+      tag: 'Alerta · BID Frete Internacional',
       texto: `${parts.join('. ')}.`,
       textoLink: 'Ver cotações',
       rota: '/bid-frete',
       score: weights.frete_alertas ?? 0,
-      produto: 'BID Frete',
+      produto: 'BID Frete Internacional',
     })
   }
 
@@ -538,7 +538,7 @@ function buildHubFeatureDiscovery(activeProducts: Set<string>): HubInsight[] {
     features.push({
       id: 'feat_bid_frete',
       variante: 'default',
-      tag: 'Sabia que você pode? · BID Frete',
+      tag: 'Sabia que você pode? · BID Frete Internacional',
       texto: 'Receba cotações de frete internacional de múltiplos fornecedores e compare lado a lado.',
       textoLink: 'Conhecer produto',
       rota: '/store',
@@ -619,7 +619,7 @@ function buildContextInsights(
     const nomes: string[] = []
     if (activeProductKeys.has('simula-custo')) nomes.push('SimulaCusto')
     if (activeProductKeys.has('bid-cambio')) nomes.push('BID Câmbio')
-    if (activeProductKeys.has('bid-frete')) nomes.push('BID Frete')
+    if (activeProductKeys.has('bid-frete')) nomes.push('BID Frete Internacional')
     if (activeProductKeys.has('pedido')) nomes.push('Pedido')
     if (activeProductKeys.has('lpco')) nomes.push('LPCO')
     if (activeProductKeys.has('nf-importacao') || activeProductKeys.has('nf-import')) nomes.push('NF Import')

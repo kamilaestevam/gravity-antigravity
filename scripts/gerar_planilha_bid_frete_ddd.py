@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Gera planilha DDD completa para o produto Bid Frete.
+Gera planilha DDD completa para o produto BID Frete Internacional.
 Formato idêntico à planilha mestre do Pedido.
 """
 
@@ -77,8 +77,8 @@ def add_row_center_nums(ws, row_data, center_cols=None):
 # DATA DEFINITIONS
 # ════════════════════════════════════════════════════════════════════════
 
-LOCAL = "Banco de Dados - Bid Frete"
-PRODUTO = "Bid Frete"
+LOCAL = "Banco de Dados - BID Frete Internacional"
+PRODUTO = "BID Frete Internacional"
 
 # ── All models with fields ──────────────────────────────────────────────
 
@@ -574,7 +574,7 @@ PAGES = [
     ("/cotacoes/:id/comparativo", "Comparativo", "Comparativo de Propostas", "Comparativo.tsx", "Comparativo.tsx", "Análise", "CabecalhoGlobal, PaginaGlobal, TabelaGlobal, BadgeGlobal, BotaoGlobal, ModalGlobal", "useState, useEffect, useParams, useFetch", "GET /comparativo/:id/ranking, POST /comparativo/:id/aprovar, POST /comparativo/:id/reprovar", "Proposta, Cotacao", "Atual", "Ranking, aprovação, rejeição"),
     ("/fornecedores", "Fornecedores", "Lista de Fornecedores", "Fornecedores.tsx", "FornecedoresLista.tsx", "Lista", "CabecalhoGlobal, PaginaGlobal, TabelaGlobal, BadgeGlobal, BotaoGlobal, ModalGlobal", "useState, useEffect, useFetch", "GET /fornecedores, POST /fornecedores", "Fornecedor", "Atual", "Lista com modal de criação"),
     ("/fornecedores/:id", "Detalhe Fornecedor", "Detalhe do Fornecedor", "DetalheFornecedor.tsx", "FornecedorDetalhe.tsx", "Detalhe", "CabecalhoGlobal, PaginaGlobal, BadgeGlobal, BotaoGlobal, TabsGlobal, TabelaGlobal, ModalGlobal", "useState, useEffect, useParams, useFetch", "GET /fornecedores/:id, POST /fornecedores/:id/avaliar, GET /fornecedores/:id/tabela", "Fornecedor, Avaliacao, TabelaPreco, ClassificacaoFornecedor", "Atual", "Tabs: dados, tabelas, avaliações"),
-    ("/configuracoes", "Configurações", "Configurações do Bid Frete", "Configuracoes.tsx", "Configuracoes.tsx", "Configuração", "CabecalhoGlobal, PaginaGlobal, TabsGlobal, InputTextoGlobal, SelectGlobal, BotaoGlobal", "useState, useEffect, useFetch", "GET/POST integrações", "Integracao", "Atual", "Configurações e integrações"),
+    ("/configuracoes", "Configurações", "Configurações do BID Frete Internacional", "Configuracoes.tsx", "Configuracoes.tsx", "Configuração", "CabecalhoGlobal, PaginaGlobal, TabsGlobal, InputTextoGlobal, SelectGlobal, BotaoGlobal", "useState, useEffect, useFetch", "GET/POST integrações", "Integracao", "Atual", "Configurações e integrações"),
     ("/portal/dashboard", "Portal Dashboard", "Dashboard do Fornecedor", "PortalDashboard.tsx", "PortalDashboard.tsx", "Dashboard", "CabecalhoGlobal, PaginaGlobal, BadgeGlobal", "useState, useEffect, useFetch", "GET /portal/dashboard", "DashboardPortal", "Atual", "Portal do fornecedor"),
     ("/portal/pendentes", "Cotações Pendentes", "Cotações Pendentes do Fornecedor", "CotacoesPendentes.tsx", "PortalPendentes.tsx", "Lista", "CabecalhoGlobal, PaginaGlobal, TabelaGlobal, BadgeGlobal, BotaoGlobal", "useState, useEffect, useFetch", "GET /portal/pendentes", "PedidoCotacao, Cotacao", "Atual", "Portal do fornecedor"),
     ("/portal/responder/:id", "Responder Cotação", "Responder Cotação (Portal)", "ResponderCotacao.tsx", "PortalResponder.tsx", "Formulário", "CabecalhoGlobal, PaginaGlobal, InputTextoGlobal, SelectGlobal, BotaoGlobal", "useState, useForm, useParams", "POST /portal/responder/:bidRequestId", "Proposta, DetalheTaxa", "Atual", "Formulário de resposta do fornecedor"),
@@ -601,7 +601,7 @@ MODALS = [
 
 NUCLEO_COMPONENTS = [
     # (componente, categoria, caminho, usado_em, qtd_usos, props, tipo, substituivel, status_ddd, obs)
-    ("LogoBidFrete", "Logo", "nucleo-global/Logo/", "App.tsx, CabecalhoGlobal", "2", "tamanho?", "Visual", "Não", "Atual", "Logo do produto Bid Frete"),
+    ("LogoBidFrete", "Logo", "nucleo-global/Logo/", "App.tsx, CabecalhoGlobal", "2", "tamanho?", "Visual", "Não", "Atual", "Logo do produto BID Frete Internacional"),
     ("CabecalhoGlobal", "Layout", "nucleo-global/Layout/cabecalho-global/", "Todas as páginas", "17", "titulo, acoes?, migalhas?", "Layout", "Não", "Atual", "Header de todas as páginas"),
     ("PaginaGlobal", "Layout", "nucleo-global/Layout/pagina-global/", "Todas as páginas", "17", "children, className?", "Layout", "Não", "Atual", "Container principal de página"),
     ("StepperPassoPassoGlobal", "Campos", "nucleo-global/Campos/stepper-passo-passo-global/", "NovaCotacao", "1", "passos, passoAtual, onPassoMudar", "Navegação", "Não", "Atual", "Wizard steps na criação de cotação"),
@@ -688,7 +688,7 @@ for r in ROUTES:
     method, prefix, full_route, ddd_route, router_var, file_name, mw, auth, zod, entity, action, qp, bp, resp, sc, pag, filt, status, obs = r
     explicacao_rota = action
     explicacao_ent = f"Retorna {entity}"
-    consumidor = "Frontend Bid Frete"
+    consumidor = "Frontend BID Frete Internacional"
     if "portal" in full_route.lower() and "public" not in full_route.lower():
         consumidor = "Portal do Fornecedor"
     elif "public" in full_route.lower():

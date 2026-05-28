@@ -847,10 +847,10 @@ model PreferenciaGridCambio {
 | Pagamento de Cambio (3 etapas) | M | Fluxo multi-step, recalculo de saldo, anexos |
 | parcelaEngine (recalculos) | G | Logica complexa: pagamento parcial, retorno a pendente, recalculo proporcional |
 | vencimentoEngine | M | 7 metodos de calculo, fallback Data Esperada |
-| Cotacao + Disparo | M | Formulario + bidEngine (reuso do padrao BID Frete) |
+| Cotacao + Disparo | M | Formulario + bidEngine (reuso do padrao BID Frete Internacional) |
 | Portal da Corretora | M | 7 telas, auth separado, dashboard |
-| Comparativo + Aprovacao | M | Ranking, tags, savings (reuso do padrao BID Frete) |
-| Rating de Corretoras | P | CRUD + calculo cross-tenant (reuso BID Frete) |
+| Comparativo + Aprovacao | M | Ranking, tags, savings (reuso do padrao BID Frete Internacional) |
+| Rating de Corretoras | P | CRUD + calculo cross-tenant (reuso BID Frete Internacional) |
 | E-mails Automaticos | M | 2 templates, cron job, logica de dias uteis/fim de semana |
 | Preferencias do Tenant | P | CRUD de configuracao |
 | Exportacao (CSV/Excel/PDF) | P | Biblioteca de export |

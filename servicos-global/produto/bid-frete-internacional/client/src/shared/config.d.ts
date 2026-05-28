@@ -1,5 +1,5 @@
 /**
- * config.ts — PRODUCT_CONFIG do BID Frete
+ * config.ts — PRODUCT_CONFIG do BID Frete Internacional
  *
  * Fonte de verdade do produto: declara servicos de tenant usados,
  * servicos de produto internos e a navegação lateral.
@@ -22,7 +22,7 @@ export interface NavigationItem {
 export declare const PRODUCT_CONFIG: {
     readonly id: "bid-frete-internacional";
     readonly productId: "bid-frete-internacional";
-    readonly name: "BID Frete";
+    readonly name: "BID Frete Internacional";
     readonly port: 8023;
     readonly tenantServices: readonly ["atividades", "dashboard", "relatorios", "historico", "notificacoes", "gabi", "email", "whatsapp", "agendamento", "api-cockpit"];
     readonly productServices: readonly ["bid-engine", "comparativo-engine", "rating-engine", "savings-engine", "connectors"];

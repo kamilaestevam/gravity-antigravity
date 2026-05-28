@@ -1,5 +1,5 @@
 /**
- * Dashboard.tsx — Dashboard Premium do BID Frete
+ * Dashboard.tsx — Dashboard Premium do BID Frete Internacional
  *
  * Layout glassmorphism com KPIs + sparklines, gráficos SVG,
  * funil com percentuais, donut com progress bars, câmbio do dia.

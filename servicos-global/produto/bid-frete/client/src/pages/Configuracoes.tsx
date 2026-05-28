@@ -1,5 +1,5 @@
 /**
- * Configuracoes.tsx — Configurações do BID Frete (Replica Pedido Premium)
+ * Configuracoes.tsx — Configurações do BID Frete Internacional (Replica Pedido Premium)
  * Visual & Behavioral Replica — Dark Theme Slate UI
  */
 
@@ -219,7 +219,7 @@ const SIDEBAR_ITEMS = [
   { tipo: 'sub',    id: 'kanban-card',           label: 'Card',              labelKey: 'bidfrete.config.sidebar.card',              icone: <SquaresFour size={15} weight="duotone" />, ativo: true },
   { tipo: 'sub',    id: 'kanban-modal',          label: 'Modal',             labelKey: 'bidfrete.config.sidebar.modal',             icone: <Columns size={15} weight="duotone" />, ativo: true },
   
-  { tipo: 'grupo',  label: 'BID FRETE',          labelKey: 'bidfrete.config.sidebar.grupo_bidfrete' },
+  { tipo: 'grupo',  label: 'BID FRETE INTERNACIONAL', labelKey: 'bidfrete.config.sidebar.grupo_bidfrete' },
   { tipo: 'item',   id: 'status',                label: 'Status',            labelKey: 'bidfrete.config.sidebar.status',            icone: <Tag size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'numeracao',             label: 'Numeração',         labelKey: 'bidfrete.config.sidebar.numeracao',         icone: <Hash size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'templates-pdf',         label: 'Templates PDF',     labelKey: 'bidfrete.config.sidebar.templates_pdf',     icone: <FloppyDisk size={15} weight="duotone" />, ativo: true },

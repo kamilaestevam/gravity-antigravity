@@ -9,7 +9,7 @@
 |---|---|---|---|
 | `id` | `'bid-frete'` | `'bid-frete-internacional'` | Identificador unico do produto |
 | `productId` | `'bid-frete'` | `'bid-frete-internacional'` | Mesmo que `id` — usado em contracts.json |
-| `name` | `'BID Frete'` | `'BID Frete Internacional'` | Nome de exibicao na UI |
+| `name` | ~~`'BID Frete'`~~ | `'BID Frete Internacional'` | Nome de exibicao na UI (**aplicado 2026-05-26**) |
 | `port` | `8023` | `8023` | Sem mudanca |
 
 ## Navegacao — URLs

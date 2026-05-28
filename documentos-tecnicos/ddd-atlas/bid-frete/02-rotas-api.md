@@ -43,13 +43,13 @@ Convencoes de rota DDD:
 | 15 | GET | `/api/v1/bid-frete/fornecedores/:id` | `/api/v1/bid-frete-internacional/fornecedores/:id_fornecedor` | Fornecedores | `fornecedores.ts` | Detalhe de um fornecedor |
 | 16 | GET | `/api/v1/bid-frete/fornecedores/:id/tabela` | `/api/v1/bid-frete-internacional/fornecedores/:id_fornecedor/tabelas-valor` | Fornecedores | `fornecedores.ts` | Tabelas de valor de um fornecedor |
 | 17 | GET | `/api/v1/bid-frete/avaliacoes/fornecedor/:id` | `/api/v1/bid-frete-internacional/avaliacoes/fornecedor/:id_fornecedor` | Fornecedores | `avaliacoes.ts` | Avaliacoes de um fornecedor |
-| 18 | GET | `/api/v1/bid-frete/portal/dashboard` | `/api/v1/bid-frete-internacional/portal/dashboard` | Portal Fornecedor | `portal.ts` | Dashboard do portal do fornecedor |
-| 19 | GET | `/api/v1/bid-frete/portal/pendentes` | `/api/v1/bid-frete-internacional/portal/pendentes` | Portal Fornecedor | `portal.ts` | Pedidos de cotacao pendentes |
-| 20 | POST | `/api/v1/bid-frete/portal/responder/:bidRequestId` | `/api/v1/bid-frete-internacional/portal/responder/:id_pedido_cotacao` | Portal Fornecedor | `portal.ts` | Responder a um pedido de cotacao |
-| 21 | GET | `/api/v1/bid-frete/portal/respostas` | `/api/v1/bid-frete-internacional/portal/propostas` | Portal Fornecedor | `portal.ts` | Propostas enviadas pelo fornecedor |
-| 22 | GET | `/api/v1/bid-frete/portal/desempenho` | `/api/v1/bid-frete-internacional/portal/desempenho` | Portal Fornecedor | `portal.ts` | Metricas de desempenho do fornecedor |
-| 23 | GET | `/api/v1/bid-frete/portal/public/:token` | `/api/v1/bid-frete-internacional/portal/publico/:token` | Portal Publico | `cotacoes-publicas.ts` | Cotacao publica (sem login) |
-| 24 | POST | `/api/v1/bid-frete/portal/public/:token/responder` | `/api/v1/bid-frete-internacional/portal/publico/:token/responder` | Portal Publico | `cotacoes-publicas.ts` | Responder via link publico (sem login) |
+| 18 | GET | `/api/v1/bid-frete/portal/dashboard` | `/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/dashboard` | Visao Fornecedor | `visao-fornecedor-bid-frete-internacional.ts` | Dashboard do fornecedor autenticado |
+| 19 | GET | `/api/v1/bid-frete/portal/pendentes` | `/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes` | Visao Fornecedor | `visao-fornecedor-bid-frete-internacional.ts` | Disparos de cotacao pendentes |
+| 20 | POST | `/api/v1/bid-frete/portal/responder/:bidRequestId` | `/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/responder/:id_disparo_cotacao_bid_frete_internacional` | Visao Fornecedor | `visao-fornecedor-bid-frete-internacional.ts` | Enviar proposta a um disparo |
+| 21 | GET | `/api/v1/bid-frete/portal/respostas` | `/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/propostas` | Visao Fornecedor | `visao-fornecedor-bid-frete-internacional.ts` | Propostas enviadas pelo fornecedor |
+| 22 | GET | `/api/v1/bid-frete/portal/desempenho` | `/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/desempenho` | Visao Fornecedor | `visao-fornecedor-bid-frete-internacional.ts` | Metricas de desempenho do fornecedor |
+| 23 | GET | `/api/v1/bid-frete/portal/public/:token` | `/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional` | Visao Fornecedor Publico | `visao-fornecedor-bid-frete-internacional-publico.ts` | Disparo publico (sem login) |
+| 24 | POST | `/api/v1/bid-frete/portal/public/:token/responder` | `/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional/responder` | Visao Fornecedor Publico | `visao-fornecedor-bid-frete-internacional-publico.ts` | Enviar proposta via link publico |
 | 25 | GET | `/api/v1/bid-frete/master-data/portos` | `/api/v1/bid-frete-internacional/dados-mestre/portos` | Dados Mestre | `portos.ts` | Lista de portos/aeroportos |
 | 26 | GET | `/api/v1/bid-frete/master-data/moedas` | `/api/v1/bid-frete-internacional/dados-mestre/moedas` | Dados Mestre | `moedas.ts` | Lista de moedas disponiveis |
 
@@ -82,7 +82,7 @@ Convencoes de rota DDD:
 | `:id` (em fornecedores) | `:id_fornecedor` | REGRA 01 — sufixo de entidade |
 | `:cotacaoId` | `:id_cotacao` | REGRA 04 — FK com prefixo `id_` |
 | `:fornecedorId` | `:id_fornecedor` | REGRA 04 — FK com prefixo `id_` |
-| `:bidRequestId` | `:id_pedido_cotacao` | DDD — FK para BidFreteInternacionalPedidoCotacao |
+| `:bidRequestId` | `:id_disparo_cotacao_bid_frete_internacional` | DDD — FK para DisparoCotacaoBidFreteInternacional |
 
 ---
 
@@ -99,7 +99,8 @@ Localizacao: `servicos-global/produto/bid-frete/server/src/routes/`
 | `dashboard.ts` | Manter | Nome universal aceito |
 | `fornecedores.ts` | Manter | Nome ja esta em PT-BR |
 | `avaliacoes.ts` | Manter | Nome ja esta em PT-BR |
-| `portal.ts` | Manter | Nome ja esta em PT-BR |
+| `portal.ts` | Renomeado para `visao-fornecedor-bid-frete-internacional.ts` | DDD — namespace visao_fornecedor_bid_frete_internacional |
+| `cotacoes-publicas.ts` | Renomeado para `visao-fornecedor-bid-frete-internacional-publico.ts` | Rotas publicas da visao fornecedor |
 | `portos.ts` | Manter | Nome ja esta em PT-BR |
 | `moedas.ts` | Manter | Nome ja esta em PT-BR |
 | `containers.ts` | Avaliar renomear para `conteineres.ts` | PT-BR — ou manter se for termo tecnico universal |
@@ -147,7 +148,7 @@ Localizacao: `servicos-global/produto/bid-frete/server/src/routes/`
 |-------------|-----------|------|
 | `status` | `status_cotacao_bid_frete_internacional` | Enum BidFreteInternacionalStatusCotacao |
 
-### POST `/api/v1/bid-frete-internacional/portal/responder/:id_pedido_cotacao` (rota #20)
+### POST `/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/responder/:id_disparo_cotacao_bid_frete_internacional` (rota #20)
 
 **Request body — campos principais da proposta (ver 01-campos.md, model BidFreteInternacionalProposta):**
 
@@ -165,9 +166,9 @@ Localizacao: `servicos-global/produto/bid-frete/server/src/routes/`
 | `escalas` | `escalas_proposta_bid_frete_internacional` | String |
 | `observacoes` | `observacoes_proposta_bid_frete_internacional` | String |
 
-### POST `/api/v1/bid-frete-internacional/portal/publico/:token/responder` (rota #24)
+### POST `/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional/responder` (rota #24)
 
-Mesmo payload da rota #20 (portal/responder), porem sem autenticacao.
+Mesmo payload da rota #20 (visao-fornecedor/responder), porem sem autenticacao.
 
 ### GET (query params) — rotas de listagem (#3, #14)
 
@@ -190,8 +191,8 @@ Mesmo payload da rota #20 (portal/responder), porem sem autenticacao.
 | Pedidos de Cotacao | 2 | JWT (usuario logado) |
 | Comparativo | 3 | JWT (usuario logado) |
 | Fornecedores | 4 | JWT (usuario logado) |
-| Portal Fornecedor | 5 | JWT (fornecedor logado) |
-| Portal Publico | 2 | Nenhuma (token na URL) |
+| Visao Fornecedor | 7 | JWT (fornecedor logado via `id_clerk_usuario`) |
+| Visao Fornecedor Publico | 2 | Nenhuma (token na URL) |
 | Dados Mestre | 2 | Nenhuma (dados publicos) |
 | **Total** | **26** | |
 

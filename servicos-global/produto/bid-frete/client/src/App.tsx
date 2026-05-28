@@ -1,5 +1,5 @@
 /**
- * App.tsx — Raiz da SPA BID Frete
+ * App.tsx — Raiz da SPA BID Frete Internacional
  *
  * Usa <TelaProdutoGlobal> (mesmo padrão do Pedido):
  * sidebar com logo + nome do produto, workspace, navegação, título de página.
@@ -60,7 +60,7 @@ const ResponderPublico = lazy(() => import('./pages/portal/ResponderPublico'))
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('bid-frete')
 const PRODUCT_ID    = 'bid-frete'
-const PRODUCT_NAME  = 'BID Frete'
+const PRODUCT_NAME  = 'BID Frete Internacional'
 const PRODUCT_COLOR = PRODUTO.color
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -138,7 +138,7 @@ export default function App() {
 
   // Registra navegação no localizador
   useEffect(() => {
-    const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'BID Frete'
+    const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'BID Frete Internacional'
     addEntry({
       productId:    PRODUCT_ID,
       productLabel: PRODUCT_NAME,

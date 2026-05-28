@@ -76,6 +76,11 @@ export function useDashboardTopKpiStatus() {
     }
   }, [])
 
+  const persistirMapa = useCallback((next: Record<DashboardTopKpiWidgetId, DashboardTopKpiStatusSlug>) => {
+    setMapa(next)
+    salvar(next)
+  }, [])
+
   const setStatusParaWidget = useCallback((widgetId: DashboardTopKpiWidgetId, statusSlug: DashboardTopKpiStatusSlug) => {
     setMapa(prev => {
       const next = { ...prev, [widgetId]: statusSlug }
@@ -85,10 +90,8 @@ export function useDashboardTopKpiStatus() {
   }, [])
 
   const resetar = useCallback(() => {
-    const next = { ...DEFAULT_BY_WIDGET }
-    setMapa(next)
-    salvar(next)
-  }, [])
+    persistirMapa({ ...DEFAULT_BY_WIDGET })
+  }, [persistirMapa])
 
-  return { mapa, setStatusParaWidget, resetar, defaults: DEFAULT_BY_WIDGET }
+  return { mapa, setStatusParaWidget, persistirMapa, resetar, defaults: DEFAULT_BY_WIDGET }
 }

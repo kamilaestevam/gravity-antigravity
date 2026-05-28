@@ -1,5 +1,5 @@
 /**
- * derivedMetrics.ts — Métricas derivadas por cruzamento de campos para o BID Frete
+ * derivedMetrics.ts — Métricas derivadas por cruzamento de campos para o BID Frete Internacional
  */
 export const BUILT_IN_DERIVED = [
     {

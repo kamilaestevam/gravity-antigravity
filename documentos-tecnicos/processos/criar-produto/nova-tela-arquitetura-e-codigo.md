@@ -355,4 +355,4 @@ Nova feature ou correção
 | NF Importação | 5183 | 8028 |
 | Processo | 5000 | — |
 | Financeiro COMEX | 5184 | — |
-| Bid Frete | 5181 | — |
+| BID Frete Internacional | 5181 | — |

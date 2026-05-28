@@ -455,7 +455,7 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
         method: 'GET',
         path: '/dashboard',
         titulo: 'Dashboard KPIs',
-        descricao: 'Retorna KPIs do BID Frete: cotações em andamento, savings, funil de status.',
+        descricao: 'Retorna KPIs do BID Frete Internacional: cotações em andamento, savings, funil de status.',
         responseBody: `{
   "cotacoes_andamento": 20,
   "cotacoes_passadas": 369,

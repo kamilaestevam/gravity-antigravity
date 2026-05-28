@@ -641,7 +641,7 @@ export default function Comparativo() {
 
 const comparativoStyles = `
   /* ═══════════════════════════════════════════════════════ */
-  /* BID FRETE — Comparativo Styles                        */
+  /* BID FRETE INTERNACIONAL — Comparativo Styles          */
   /* Design System: Solid Slate (CSS Vars)                 */
   /* ═══════════════════════════════════════════════════════ */
 

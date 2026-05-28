@@ -35,7 +35,7 @@ O sistema resolve:
 - Gestao de pedidos COMEX e feita em planilhas ou ERPs limitados
 - Saldo de itens se perde quando ha fatiamento entre embarques
 - O legado DATI valida que a matematica de saldo funciona por anos de uso real
-- E o pilar central que conecta todos os outros produtos (SimulaCusto, BID Frete, BID Cambio, Processo)
+- E o pilar central que conecta todos os outros produtos (SimulaCusto, BID Frete Internacional, BID Cambio, Processo)
 
 ### O que esta no MVP
 

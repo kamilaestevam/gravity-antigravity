@@ -1,7 +1,7 @@
 /**
  * App.tsx — Raiz da SPA BID Cambio
  *
- * Usa <TelaProdutoGlobal> (mesmo padrão do BID Frete):
+ * Usa <TelaProdutoGlobal> (mesmo padrão do BID Frete Internacional):
  * sidebar com logo + nome do produto, workspace, navegação, título de página.
  */
 

@@ -21,19 +21,7 @@ import {
   ArrowRight,
 } from '@phosphor-icons/react'
 
-import { getPortalDashboard } from '../../shared/api'
-
-// ─── Types ──────────────────────────────────────────────────────────────────
-
-interface PortalKPIs {
-  pendentes: number
-  respondidas: number
-  aprovadas: number
-  taxa_resposta: number
-  rating: number
-  valor_aprovado_ganho_bid_frete_internacional: number
-  moeda_aprovada: string
-}
+import { getVisaoFornecedorBidFreteInternacionalDashboard, type DashboardVisaoFornecedorBidFreteInternacional } from '../../shared/api'
 
 // ─── Formatacao ─────────────────────────────────────────────────────────────
 
@@ -42,17 +30,17 @@ const fmtNum = (val: number) =>
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
-export default function PortalDashboard() {
+export default function VisaoFornecedorBidFreteInternacionalDashboard() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const [kpis, setKpis] = useState<PortalKPIs | null>(null)
+  const [dashboard, setDashboard] = useState<DashboardVisaoFornecedorBidFreteInternacional | null>(null)
   const [carregando, setCarregando] = useState(true)
 
   const carregar = useCallback(async () => {
     setCarregando(true)
     try {
-      const data = await getPortalDashboard()
-      setKpis(data as unknown as PortalKPIs)
+      const data = await getVisaoFornecedorBidFreteInternacionalDashboard()
+      setDashboard(data)
     } catch {
       // loading state mantido
     } finally {
@@ -62,92 +50,81 @@ export default function PortalDashboard() {
 
   useEffect(() => { carregar() }, [carregar])
 
+  const kpis = dashboard?.kpis
+
   const actionCards = [
     {
-      titulo: t('bidfrete.portal.dashboard.card_pendentes_titulo'),
-      descricao: t('bidfrete.portal.dashboard.card_pendentes_desc'),
+      titulo: t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.card_pendentes_titulo'),
+      descricao: t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.card_pendentes_desc'),
       icone: <Envelope weight="duotone" size={24} />,
-      rota: '/produto/bid-frete/portal/pendentes',
+      rota: '/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes',
       cor: 'var(--accent, #6366f1)',
     },
     {
-      titulo: t('bidfrete.portal.dashboard.card_respostas_titulo'),
-      descricao: t('bidfrete.portal.dashboard.card_respostas_desc'),
+      titulo: t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.card_propostas_titulo', 'Minhas propostas'),
+      descricao: t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.card_propostas_desc', 'Histórico de propostas enviadas'),
       icone: <PaperPlaneTilt weight="duotone" size={24} />,
-      rota: '/produto/bid-frete/portal/respostas',
+      rota: '/visao-fornecedor-bid-frete-internacional/propostas',
       cor: 'var(--warning, #f59e0b)',
     },
     {
-      titulo: t('bidfrete.portal.dashboard.card_desempenho_titulo'),
-      descricao: t('bidfrete.portal.dashboard.card_desempenho_desc'),
+      titulo: t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.card_desempenho_titulo'),
+      descricao: t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.card_desempenho_desc'),
       icone: <ChartBar weight="duotone" size={24} />,
-      rota: '/produto/bid-frete/portal/desempenho',
+      rota: '/visao-fornecedor-bid-frete-internacional/desempenho',
       cor: 'var(--success, #22c55e)',
     },
   ]
 
   return (
-    <PaginaGlobal className="portal-dash bid-frete-page-shell">
+    <PaginaGlobal className="vfbfi-dashboard bid-frete-page-shell">
       {/* KPI Cards */}
       <div className="pd-kpis">
         <CardBasicoGlobal
-          titulo={t('bidfrete.portal.dashboard.pendentes')}
+          titulo={t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.pendentes')}
           icone={<ClockCountdown weight="duotone" size={16} />}
           valor={kpis?.pendentes ?? 0}
           className="pd-kpi-card"
         />
         <CardBasicoGlobal
-          titulo={t('bidfrete.portal.dashboard.respondidas')}
+          titulo={t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.propostas_enviadas', 'Propostas enviadas')}
           icone={<PaperPlaneTilt weight="duotone" size={16} />}
-          valor={kpis?.respondidas ?? 0}
+          valor={kpis?.propostas_enviadas ?? 0}
           className="pd-kpi-card"
         />
         <CardBasicoGlobal
-          titulo={t('bidfrete.portal.dashboard.aprovadas')}
+          titulo={t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.aprovadas')}
           icone={<CheckCircle weight="duotone" size={16} />}
-          valor={kpis?.aprovadas ?? 0}
+          valor={kpis?.propostas_aprovadas ?? 0}
           className="pd-kpi-card"
         />
         <div className="pd-kpi-card pd-kpi-custom">
           <div className="pd-kpi-icon">
             <Percent weight="duotone" size={16} />
           </div>
-          <span className="pd-kpi-label">{t('bidfrete.portal.dashboard.taxa_resposta')}</span>
+          <span className="pd-kpi-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.taxa_resposta')}</span>
           <span className="pd-kpi-valor">{(kpis?.taxa_resposta ?? 0).toFixed(1)}%</span>
         </div>
         <div className="pd-kpi-card pd-kpi-custom">
           <div className="pd-kpi-icon">
             <Star weight="duotone" size={16} />
           </div>
-          <span className="pd-kpi-label">{t('bidfrete.portal.dashboard.rating')}</span>
-          <span className="pd-kpi-valor">{(kpis?.rating ?? 0).toFixed(1)}</span>
+          <span className="pd-kpi-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.classificacao', 'Classificação')}</span>
+          <span className="pd-kpi-valor">{(kpis?.nota_global_classificacao_bid_frete_internacional ?? 0).toFixed(1)}</span>
           <div className="pd-stars">
             {[1, 2, 3, 4, 5].map(i => (
               <Star
                 key={i}
-                weight={i <= Math.round(kpis?.rating ?? 0) ? 'fill' : 'duotone'}
+                weight={i <= Math.round(kpis?.nota_global_classificacao_bid_frete_internacional ?? 0) ? 'fill' : 'duotone'}
                 size={14}
-                style={{ color: i <= Math.round(kpis?.rating ?? 0) ? 'var(--warning, #f59e0b)' : 'var(--text-muted, #64748b)' }}
+                style={{ color: i <= Math.round(kpis?.nota_global_classificacao_bid_frete_internacional ?? 0) ? 'var(--warning, #f59e0b)' : 'var(--text-muted, #64748b)' }}
               />
             ))}
           </div>
         </div>
       </div>
 
-      {/* Valor Aprovado Highlight */}
-      <div className="pd-highlight">
-        <div className="pd-highlight-icon">
-          <CurrencyDollar weight="duotone" size={28} />
-        </div>
-        <div className="pd-highlight-info">
-          <span className="pd-highlight-label">{t('bidfrete.portal.dashboard.total_aprovado')}</span>
-          <span className="pd-highlight-valor">
-            {kpis?.moeda_aprovada ?? 'USD'} {fmtNum(kpis?.valor_aprovado_ganho_bid_frete_internacional ?? 0)}
-          </span>
-        </div>
-      </div>
-
-      {/* Action Cards */}
+      {/* Valor Aprovado Highlight — reservado para monetização futura */}
       <div className="pd-actions">
         {actionCards.map(card => (
           <button
@@ -168,7 +145,7 @@ export default function PortalDashboard() {
       </div>
 
       <style>{`
-        .portal-dash { }
+        .vfbfi-dashboard { }
 
         .pd-kpis {
           display: grid;

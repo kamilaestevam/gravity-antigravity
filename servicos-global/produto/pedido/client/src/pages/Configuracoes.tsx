@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import {
   SquaresFour, Table, Bell, DownloadSimple,
-  ArrowCounterClockwise, Eye, EyeSlash, Plus, X, DotsSixVertical,
+  Eye, EyeSlash, Plus, X, DotsSixVertical,
   Package, CurrencyDollar, Scales, Warning, CheckCircle, Coins,
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
   Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple, Tag,
@@ -41,7 +41,13 @@ import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
-import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia, type CardDefinicao } from '../shared/useCardPreferences'
+import { useCardPreferences, CARDS_CATALOGO, CARDS_PADRAO, type CardPreferencia, type CardDefinicao } from '../shared/useCardPreferences'
+import { useCardsUsuario } from '../shared/useCardsUsuario'
+import { rotuloMetricaCard } from '../shared/cardMetricaCatalog'
+import { ICONE_CUSTOM_MAP } from '../shared/cardRegistry'
+import type { CardUsuario } from '../shared/types'
+import { ModalNovoCardUsuario } from '../components/ConfiguracaoCards/ModalNovoCardUsuario'
+import type { CardPeriodoCodigo } from '../shared/lista-card-schemas'
 import {
   DASHBOARD_TOP_KPI_WIDGET_IDS,
   useDashboardTopKpiStatus,
@@ -60,7 +66,7 @@ const FMT_REGIAO_KEYS: Record<string, string> = {
   'DD/MM/AA':   'compacto',
 }
 import { SecaoKanbanColunas } from './SecaoKanbanColunas'
-import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel, KanbanCardConfig, PedidoStatusConfig } from '../shared/types'
+import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel, KanbanCardConfig, KanbanAbaConfig, PedidoStatusConfig } from '../shared/types'
 import { KANBAN_LIMITES, KANBAN_PADRAO, KANBAN_CAMPOS_DISPONIVEIS, KANBAN_CARD_CAMPOS_DISPONIVEIS, KANBAN_CARD_GRUPOS } from '../shared/types'
 import { ModalNovaColunaUsuario } from '../components/ConfiguracaoColunas/ModalNovaColunaUsuario'
 import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
@@ -101,7 +107,13 @@ const CARD_VISUAL: Record<string, { icone: React.ReactNode; cor: string }> = {
 
 const CARD_VISUAL_FALLBACK = { icone: <Warning weight="duotone" size={18} />, cor: '#f59e0b' }
 
-function resolveCardVisual(id: string) {
+function resolveCardVisual(id: string, cardCustom?: Pick<CardUsuario, 'icone' | 'cor'>) {
+  if (cardCustom) {
+    return {
+      icone: ICONE_CUSTOM_MAP[cardCustom.icone] ?? CARD_VISUAL_FALLBACK.icone,
+      cor: cardCustom.cor,
+    }
+  }
   return CARD_VISUAL[id] ?? CARD_VISUAL_FALLBACK
 }
 
@@ -116,16 +128,17 @@ const PERIODOS = [
 // ─── Item sortável (DnD) ──────────────────────────────────────────────────────
 
 function CardSortavel({
-  pref, onToggle, onRemover, periodoAtivo,
+  pref, onToggle, onRemover, periodoAtivo, cardCustom,
 }: {
   pref: CardPreferencia
   onToggle: () => void
   onRemover: () => void
   periodoAtivo: string
+  cardCustom?: CardUsuario
 }) {
   const { t } = useTranslation()
-  const def    = CARDS_CATALOGO.find(c => c.id === pref.id)!
-  const visual = resolveCardVisual(pref.id)
+  const def    = CARDS_CATALOGO.find(c => c.id === pref.id)
+  const visual = resolveCardVisual(pref.id, cardCustom)
   const [detalheAberto, setDetalheAberto] = useState(false)
 
   const {
@@ -141,7 +154,10 @@ function CardSortavel({
   }
 
   const periodoLabel = t(`pedido.config.cards.periodo_${periodoAtivo}`, { defaultValue: PERIODOS.find(p => p.id === periodoAtivo)?.label ?? periodoAtivo })
-  const subtitulo = `${def.tipoAgg} · ${def.origem} · ${periodoLabel}`
+  const subtitulo = cardCustom
+    ? `${rotuloMetricaCard(cardCustom, t)} · ${periodoLabel}`
+    : `${def!.tipoAgg} · ${def!.origem} · ${periodoLabel}`
+  const nomeCard = cardCustom ? cardCustom.nome : t(def!.labelKey)
 
   return (
     <div ref={setNodeRef} style={style}>
@@ -161,12 +177,14 @@ function CardSortavel({
             {visual.icone}
           </span>
           <div>
-            <p className="cfg-card-row__nome">{t(def.labelKey)}</p>
+            <p className="cfg-card-row__nome">{nomeCard}</p>
             <p className="cfg-card-row__desc">{subtitulo}</p>
           </div>
         </div>
 
-        <span className="cfg-origem-badge cfg-origem-badge--meus">{t(`pedido.config.cards.origem_${def.origem.toLowerCase()}`)}</span>
+        <span className={`cfg-origem-badge ${cardCustom ? 'cfg-origem-badge--meus' : `cfg-origem-badge--${def!.origem.toLowerCase()}`}`}>
+          {cardCustom ? t('pedido.config.cards.badge_custom') : t(`pedido.config.cards.origem_${def!.origem.toLowerCase()}`)}
+        </span>
 
         <TooltipGlobal descricao={t('pedido.config.cards.tooltip_detalhes')}>
           <button
@@ -207,26 +225,41 @@ function CardSortavel({
 
       {detalheAberto && (
         <div className="cfg-card-detail-panel">
-          <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_campo_base')}</span>
-            <span className="cfg-card-detail-panel__value">{def.campoBase}</span>
-          </div>
-          <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_agregacao')}</span>
-            <span className="cfg-card-detail-panel__value">{def.tipoAgg}</span>
-          </div>
-          <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_origem')}</span>
-            <span className="cfg-card-detail-panel__value">{def.origem}</span>
-          </div>
-          <div className="cfg-card-detail-panel__row">
-            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_periodo')}</span>
-            <span className="cfg-card-detail-panel__value">{periodoLabel}</span>
-          </div>
-          <div className="cfg-card-detail-panel__row cfg-card-detail-panel__row--full">
-            <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_descricao')}</span>
-            <span className="cfg-card-detail-panel__value">{def.descricao}</span>
-          </div>
+          {cardCustom ? (
+            <>
+              <div className="cfg-card-detail-panel__row cfg-card-detail-panel__row--full">
+                <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_descricao')}</span>
+                <span className="cfg-card-detail-panel__value">{rotuloMetricaCard(cardCustom, t)}</span>
+              </div>
+              <div className="cfg-card-detail-panel__row">
+                <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_periodo')}</span>
+                <span className="cfg-card-detail-panel__value">{periodoLabel}</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="cfg-card-detail-panel__row">
+                <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_campo_base')}</span>
+                <span className="cfg-card-detail-panel__value">{def!.campoBase}</span>
+              </div>
+              <div className="cfg-card-detail-panel__row">
+                <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_agregacao')}</span>
+                <span className="cfg-card-detail-panel__value">{def!.tipoAgg}</span>
+              </div>
+              <div className="cfg-card-detail-panel__row">
+                <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_origem')}</span>
+                <span className="cfg-card-detail-panel__value">{def!.origem}</span>
+              </div>
+              <div className="cfg-card-detail-panel__row">
+                <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_periodo')}</span>
+                <span className="cfg-card-detail-panel__value">{periodoLabel}</span>
+              </div>
+              <div className="cfg-card-detail-panel__row cfg-card-detail-panel__row--full">
+                <span className="cfg-card-detail-panel__label">{t('pedido.config.cards.detalhe_descricao')}</span>
+                <span className="cfg-card-detail-panel__value">{def!.descricao}</span>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -517,11 +550,18 @@ type SidebarItemTipo =
 const KANBAN_FILHOS  = ['kanban-colunas', 'kanban-card', 'kanban-modal']
 const COLUNAS_FILHOS = ['colunas-casas-decimais', 'colunas-formato-data', 'colunas-personalizadas', 'colunas-campos-calculados']
 
+const DASHBOARD_TOP_KPI_PREVIEW_VISUAL: Record<DashboardTopKpiWidgetId, { cor: string; icone: React.ReactNode }> = {
+  kpi_total_pedidos:   { cor: '#f59e0b', icone: <Package        size={15} weight="duotone" /> },
+  kpi_pedidos_abertos: { cor: '#f59e0b', icone: <ClipboardText  size={15} weight="duotone" /> },
+  kpi_saldo_total:     { cor: '#f59e0b', icone: <Scales         size={15} weight="duotone" /> },
+  kpi_valor_total:     { cor: '#f59e0b', icone: <CurrencyDollar size={15} weight="duotone" /> },
+}
+
 const SIDEBAR_ITEMS: SidebarItemTipo[] = [
   // ── VISUALIZAÇÕES ──────────────────────────────────────────────────────────
   { tipo: 'grupo',  label: 'VISUALIZAÇÕES', labelKey: 'pedido.config.sidebar.grupo_visualizacoes' },
   { tipo: 'item',   id: 'cards',                          label: 'Cards',             labelKey: 'pedido.config.sidebar.cards',             icone: <SquaresFour          size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'dashboard-kpi',                  label: 'Dashboard',         labelKey: 'pedido.config.sidebar.dashboard_kpi',     icone: <ChartBar             size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'dashboard-kpi',                  label: 'Visão Geral',       labelKey: 'pedido.config.sidebar.dashboard_kpi',     icone: <ChartBar             size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'tabela',                         label: 'Tabela',            labelKey: 'pedido.config.sidebar.tabela',            icone: <Table                size={15} weight="duotone" />, ativo: true },
   { tipo: 'parent', id: 'colunas-casas-decimais',         label: 'Colunas',           labelKey: 'pedido.config.sidebar.colunas',           icone: <Columns              size={15} weight="duotone" />, ativo: true, filhos: COLUNAS_FILHOS },
   { tipo: 'sub',    id: 'colunas-casas-decimais',         label: 'Casas Decimais',    labelKey: 'pedido.config.sidebar.casas_decimais',    icone: <Hash                 size={15} weight="duotone" />, ativo: true },
@@ -1607,8 +1647,107 @@ export default function Configuracoes() {
     setNovaColuna(prev => ({ ...prev, opcoes: prev.opcoes.filter(o => o !== opcao) }))
   }
 
-  const { prefs, disponiveis, periodo, setPeriodo, adicionar, remover, toggle, reordenar, resetar } = useCardPreferences()
-  const { mapa: dashboardTopKpiMapa, setStatusParaWidget: setDashboardTopKpiStatus, resetar: resetarDashboardTopKpi } = useDashboardTopKpiStatus()
+  const {
+    prefs: cardsSalvos,
+    periodo: periodoSalvo,
+    persistir: persistirCards,
+    setPeriodo: persistirPeriodoCards,
+  } = useCardPreferences()
+  const {
+    cards: cardsUsuario,
+    carregando: carregandoCardsUsuario,
+    criar: criarCardUsuario,
+    excluir: excluirCardUsuario,
+    reordenar: reordenarCardsUsuario,
+  } = useCardsUsuario()
+  const mapaCardsUsuario = useMemo(
+    () => new Map(cardsUsuario.map(c => [c.id, c])),
+    [cardsUsuario],
+  )
+  const [criandoCard, setCriandoCard] = useState(false)
+  const [pendingCardsPrefs, setPendingCardsPrefs] = useState<CardPreferencia[]>(cardsSalvos)
+  const [pendingPeriodoCards, setPendingPeriodoCards] = useState<CardPeriodoCodigo>(periodoSalvo)
+  const [cardsPrefsBaseline, setCardsPrefsBaseline] = useState<CardPreferencia[]>(cardsSalvos)
+  const [periodoCardsBaseline, setPeriodoCardsBaseline] = useState<CardPeriodoCodigo>(periodoSalvo)
+
+  const normalizarPrefsCards = useCallback((prefs: CardPreferencia[]) => {
+    if (carregandoCardsUsuario) return prefs
+    const idsCustom = new Set(cardsUsuario.map(c => c.id))
+    return prefs.filter(p => CARDS_CATALOGO.some(c => c.id === p.id) || idsCustom.has(p.id))
+  }, [cardsUsuario, carregandoCardsUsuario])
+
+  useEffect(() => {
+    const normalizado = normalizarPrefsCards(cardsSalvos)
+    setPendingCardsPrefs(normalizado)
+    setCardsPrefsBaseline(normalizado)
+    setPendingPeriodoCards(periodoSalvo)
+    setPeriodoCardsBaseline(periodoSalvo)
+  }, [cardsSalvos, periodoSalvo, normalizarPrefsCards])
+
+  const cardsConfigDirty =
+    JSON.stringify(pendingCardsPrefs) !== JSON.stringify(cardsPrefsBaseline)
+    || pendingPeriodoCards !== periodoCardsBaseline
+
+  const salvarCardsConfig = useCallback(async () => {
+    persistirCards(pendingCardsPrefs)
+    persistirPeriodoCards(pendingPeriodoCards)
+    setCardsPrefsBaseline(pendingCardsPrefs)
+    setPeriodoCardsBaseline(pendingPeriodoCards)
+    const idsCustom = pendingCardsPrefs
+      .map(p => p.id)
+      .filter(id => mapaCardsUsuario.has(id))
+    if (idsCustom.length > 0) {
+      try {
+        await reordenarCardsUsuario(idsCustom)
+      } catch {
+        addNotification({ type: 'error', message: t('pedido.card_usuario.msg_erro_salvar', 'Não foi possível salvar a ordem dos cards personalizados.') })
+        return
+      }
+    }
+    addNotification({ type: 'success', message: t('pedido.config.cards.msg_salvo') })
+  }, [
+    pendingCardsPrefs, pendingPeriodoCards, persistirCards, persistirPeriodoCards,
+    addNotification, t, mapaCardsUsuario, reordenarCardsUsuario,
+  ])
+
+  const handleRemoverCardAtivo = useCallback(async (prefId: string) => {
+    if (mapaCardsUsuario.has(prefId)) {
+      try {
+        await excluirCardUsuario(prefId)
+      } catch {
+        addNotification({ type: 'error', message: t('pedido.card_usuario.msg_erro_excluir', 'Não foi possível excluir o card personalizado.') })
+        return
+      }
+    }
+    setPendingCardsPrefs(prev => prev.filter(p => p.id !== prefId))
+  }, [mapaCardsUsuario, excluirCardUsuario, addNotification, t])
+
+  const restaurarCardsPadrao = useCallback(() => {
+    setPendingCardsPrefs(CARDS_PADRAO.map(id => ({ id, visible: true })))
+    setPendingPeriodoCards('30d')
+  }, [])
+
+  const {
+    mapa: dashboardTopKpiSalvo,
+    persistirMapa: persistirDashboardTopKpi,
+    defaults: dashboardTopKpiDefaults,
+  } = useDashboardTopKpiStatus()
+  const [pendingDashboardTopKpi, setPendingDashboardTopKpi] = useState(dashboardTopKpiSalvo)
+
+  useEffect(() => {
+    setPendingDashboardTopKpi(dashboardTopKpiSalvo)
+  }, [dashboardTopKpiSalvo])
+
+  const dashboardKpiDirty = JSON.stringify(pendingDashboardTopKpi) !== JSON.stringify(dashboardTopKpiSalvo)
+
+  const salvarDashboardTopKpiConfig = useCallback(() => {
+    persistirDashboardTopKpi(pendingDashboardTopKpi)
+    addNotification({ type: 'success', message: t('pedido.config.dashboard_kpi.msg_salvo') })
+  }, [pendingDashboardTopKpi, persistirDashboardTopKpi, addNotification, t])
+
+  const restaurarDashboardTopKpiPadrao = useCallback(() => {
+    setPendingDashboardTopKpi({ ...dashboardTopKpiDefaults })
+  }, [dashboardTopKpiDefaults])
 
   const sensors = useSensors(useSensor(PointerSensor, {
     activationConstraint: { distance: 5 },
@@ -1617,9 +1756,10 @@ export default function Configuracoes() {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (!over || active.id === over.id) return
-    const oldIndex = prefs.findIndex(p => p.id === active.id)
-    const newIndex = prefs.findIndex(p => p.id === over.id)
-    reordenar(arrayMove(prefs, oldIndex, newIndex))
+    const oldIndex = pendingCardsPrefs.findIndex(p => p.id === active.id)
+    const newIndex = pendingCardsPrefs.findIndex(p => p.id === over.id)
+    if (oldIndex < 0 || newIndex < 0) return
+    setPendingCardsPrefs(arrayMove(pendingCardsPrefs, oldIndex, newIndex))
   }
 
   // ── Tabela state ──
@@ -1955,6 +2095,9 @@ export default function Configuracoes() {
   const [kanbanLoading, setKanbanLoading]       = useState(false)
   const [pendingColunasOcultas, setPendingColunasOcultas] = useState<string[]>([])
   const [pendingKanbanCard, setPendingKanbanCard] = useState<KanbanCardConfig>(KANBAN_PADRAO.card)
+  const [pendingKanbanAbas, setPendingKanbanAbas] = useState<KanbanAbaConfig[]>(
+    () => KANBAN_PADRAO.abas.map(a => ({ ...a, campos: a.campos.map(c => ({ ...c })) })),
+  )
   const kanbanSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Status carregado da API — mesma fonte que o Kanban usa (garante que Colunas ↔ Kanban são consistentes)
   const [kanbanApiStatus, setKanbanApiStatus]   = useState<PedidoStatusConfig[]>([])
@@ -1985,15 +2128,20 @@ export default function Configuracoes() {
       campos: card.campos.map(c => ({ ...c })),
       dataCritica: card.dataCritica,
     })
+    const abas = (kanbanPrefs ?? KANBAN_PADRAO).abas ?? KANBAN_PADRAO.abas
+    setPendingKanbanAbas(abas.map(a => ({ ...a, campos: a.campos.map(c => ({ ...c })) })))
   }, [kanbanPrefs])
 
   const kanbanCardSalvo = (kanbanPrefs ?? KANBAN_PADRAO).card ?? KANBAN_PADRAO.card
   const kanbanCardDirty =
     JSON.stringify(pendingKanbanCard) !== JSON.stringify(kanbanCardSalvo)
 
+  const kanbanAbasSalvas = (kanbanPrefs ?? KANBAN_PADRAO).abas ?? KANBAN_PADRAO.abas
+  const kanbanModalDirty =
+    JSON.stringify(pendingKanbanAbas) !== JSON.stringify(kanbanAbasSalvas)
+
   function kanbanCamposDeAba(aba: 'pedido' | 'quantidades' | 'datas'): KanbanCampoConfig[] {
-    const prefs = kanbanPrefs ?? KANBAN_PADRAO
-    return [...(prefs.abas.find(a => a.aba === aba)?.campos ?? [])].sort((a, b) => a.ordem - b.ordem)
+    return [...(pendingKanbanAbas.find(a => a.aba === aba)?.campos ?? [])].sort((a, b) => a.ordem - b.ordem)
   }
 
   function kanbanSalvar(novasPrefs: KanbanPreferencias) {
@@ -2026,49 +2174,57 @@ export default function Configuracoes() {
   }
 
   function kanbanAdicionarCampo(aba: 'pedido' | 'quantidades' | 'datas', campo: KanbanCampoDisponivel) {
-    const prefs = kanbanPrefs ?? KANBAN_PADRAO
-    const abaAtual = prefs.abas.find(a => a.aba === aba)
-    if (!abaAtual) return
-    if (abaAtual.campos.length >= (KANBAN_LIMITES[aba] ?? 10)) return
-    const novaOrdem = abaAtual.campos.length
-    const novoCampo: KanbanCampoConfig = { campo: campo.campo, label: campo.label, visivel: true, ordem: novaOrdem }
-    const novasAbas = prefs.abas.map(a =>
-      a.aba === aba ? { ...a, campos: [...a.campos, novoCampo] } : a,
-    )
-    kanbanSalvar({ ...prefs, abas: novasAbas })
+    setPendingKanbanAbas(prev => {
+      const abaAtual = prev.find(a => a.aba === aba)
+      if (!abaAtual) return prev
+      if (abaAtual.campos.length >= (KANBAN_LIMITES[aba] ?? 10)) return prev
+      const novaOrdem = abaAtual.campos.length
+      const novoCampo: KanbanCampoConfig = { campo: campo.campo, label: campo.label, visivel: true, ordem: novaOrdem }
+      return prev.map(a =>
+        a.aba === aba ? { ...a, campos: [...a.campos, novoCampo] } : a,
+      )
+    })
   }
 
   function kanbanRemoverCampo(aba: 'pedido' | 'quantidades' | 'datas', campo: string) {
-    const prefs = kanbanPrefs ?? KANBAN_PADRAO
-    const novasAbas = prefs.abas.map(a =>
-      a.aba === aba
-        ? { ...a, campos: a.campos.filter(c => c.campo !== campo).map((c, i) => ({ ...c, ordem: i })) }
-        : a,
+    setPendingKanbanAbas(prev =>
+      prev.map(a =>
+        a.aba === aba
+          ? { ...a, campos: a.campos.filter(c => c.campo !== campo).map((c, i) => ({ ...c, ordem: i })) }
+          : a,
+      ),
     )
-    kanbanSalvar({ ...prefs, abas: novasAbas })
   }
 
   function kanbanToggleVisivel(aba: 'pedido' | 'quantidades' | 'datas', campo: string) {
-    const prefs = kanbanPrefs ?? KANBAN_PADRAO
-    const novasAbas = prefs.abas.map(a =>
-      a.aba === aba
-        ? { ...a, campos: a.campos.map(c => c.campo === campo ? { ...c, visivel: !c.visivel } : c) }
-        : a,
+    setPendingKanbanAbas(prev =>
+      prev.map(a =>
+        a.aba === aba
+          ? { ...a, campos: a.campos.map(c => c.campo === campo ? { ...c, visivel: !c.visivel } : c) }
+          : a,
+      ),
     )
-    kanbanSalvar({ ...prefs, abas: novasAbas })
-  }
-
-  async function kanbanRestaurarPadrao() {
-    await kanbanConfigApi.restaurarPadrao().catch(() => {})
-    setKanbanPrefs(null)
-    window.dispatchEvent(new CustomEvent('kanban:preferencias:atualizadas'))
   }
 
   function kanbanCamposEmUso(): Set<string> {
-    const prefs = kanbanPrefs ?? KANBAN_PADRAO
     const todos = new Set<string>()
-    prefs.abas.forEach(a => a.campos.forEach(c => todos.add(c.campo)))
+    pendingKanbanAbas.forEach(a => a.campos.forEach(c => todos.add(c.campo)))
     return todos
+  }
+
+  function kanbanModalRestaurarPadrao() {
+    setPendingKanbanAbas(
+      KANBAN_PADRAO.abas.map(a => ({ ...a, campos: a.campos.map(c => ({ ...c })) })),
+    )
+  }
+
+  function kanbanModalSalvar() {
+    const prefs = kanbanPrefs ?? KANBAN_PADRAO
+    kanbanSalvar({ ...prefs, abas: pendingKanbanAbas })
+    addNotification({
+      type: 'success',
+      message: t('pedido.config.kanban.modal_msg_salvo', { defaultValue: 'Preferências do modal salvas.' }),
+    })
   }
 
   function kanbanCardCampos() {
@@ -2463,7 +2619,6 @@ export default function Configuracoes() {
           <div className="cfg-cards-wrapper">
             <section className="cfg-secao">
 
-              {/* ── Header unificado ── */}
               <div className="cfg-secao__header">
                 <div>
                   <h2 className="cfg-secao__titulo">{t('pedido.config.cards.titulo')}</h2>
@@ -2471,12 +2626,17 @@ export default function Configuracoes() {
                     {t('pedido.config.cards.descricao')}
                   </p>
                 </div>
-                <TooltipGlobal descricao={t('pedido.config.cards.restaurar_padrao_tooltip')}>
-                  <button type="button" className="cfg-btn-header--restaurar" onClick={resetar}>
-                    <ArrowCounterClockwise size={13} weight="bold" />
-                    {t('pedido.config.cards.restaurar_padrao')}
+                <div className="cfg-secao__header-actions">
+                  <button
+                    type="button"
+                    className="cfg-add-row-btn"
+                    disabled={!podeEditarConfig}
+                    onClick={() => setCriandoCard(true)}
+                  >
+                    <Plus size={13} weight="bold" />
+                    {t('pedido.config.cards.adicionar_card_kpi')}
                   </button>
-                </TooltipGlobal>
+                </div>
               </div>
 
               {/* ── Período de comparação ── */}
@@ -2487,8 +2647,8 @@ export default function Configuracoes() {
                     <button
                       key={p.id}
                       type="button"
-                      className={`cfg-periodo-pill${periodo === p.id ? ' cfg-periodo-pill--ativo' : ''}`}
-                      onClick={() => setPeriodo(p.id as typeof periodo)}
+                      className={`cfg-periodo-pill${pendingPeriodoCards === p.id ? ' cfg-periodo-pill--ativo' : ''}`}
+                      onClick={() => setPendingPeriodoCards(p.id as CardPeriodoCodigo)}
                     >
                       {t(`pedido.config.cards.periodo_${p.id}`)}
                     </button>
@@ -2497,16 +2657,18 @@ export default function Configuracoes() {
               </div>
 
               {/* ── Preview ao vivo ── */}
-              {prefs.length > 0 && (
+              {pendingCardsPrefs.length > 0 && (
                 <div className="cfg-cards-preview-wrap">
                   <p className="cfg-cards-preview-label">
                     <SquaresFour size={12} weight="fill" />
                     {t('pedido.config.cards.preview')}
                   </p>
                   <div className="cfg-cards-preview-grid">
-                    {prefs.map((pref, i) => {
-                      const visual = resolveCardVisual(pref.id)
-                      const def    = CARDS_CATALOGO.find(c => c.id === pref.id)!
+                    {pendingCardsPrefs.map((pref, i) => {
+                      const cardCustom = mapaCardsUsuario.get(pref.id)
+                      const def = CARDS_CATALOGO.find(c => c.id === pref.id)
+                      const visual = resolveCardVisual(pref.id, cardCustom)
+                      const label = cardCustom?.nome ?? (def ? t(def.labelKey) : pref.id)
                       return (
                         <div
                           key={pref.id}
@@ -2518,7 +2680,7 @@ export default function Configuracoes() {
                             {visual.icone}
                           </span>
                           <div className="cfg-kpi-preview-card__line" style={{ background: visual.cor }} />
-                          <p className="cfg-kpi-preview-card__label">{t(def.labelKey)}</p>
+                          <p className="cfg-kpi-preview-card__label">{label}</p>
                         </div>
                       )
                     })}
@@ -2527,23 +2689,31 @@ export default function Configuracoes() {
               )}
 
               {/* ── Ativos ── */}
-              <ConfiguracaoSecaoGlobal label={t('pedido.config.cards.ativos')} count={t('pedido.config.cards.count_card', { count: prefs.length })} />
+              <ConfiguracaoSecaoGlobal label={t('pedido.config.cards.ativos')} count={t('pedido.config.cards.count_card', { count: pendingCardsPrefs.length })} />
 
-              {prefs.length === 0 ? (
+              {pendingCardsPrefs.length === 0 ? (
                 <p className="cfg-empty">{t('pedido.config.cards.vazio')}</p>
               ) : (
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                  <SortableContext items={prefs.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                  <SortableContext items={pendingCardsPrefs.map(p => p.id)} strategy={verticalListSortingStrategy}>
                     <div className="cfg-cards-lista">
-                      {prefs.map(pref => (
-                        <CardSortavel
-                          key={pref.id}
-                          pref={pref}
-                          periodoAtivo={periodo}
-                          onToggle={() => toggle(pref.id)}
-                          onRemover={() => remover(pref.id)}
-                        />
-                      ))}
+                      {pendingCardsPrefs.map(pref => {
+                        const cardCustom = mapaCardsUsuario.get(pref.id)
+                        const def = CARDS_CATALOGO.find(c => c.id === pref.id)
+                        if (!def && !cardCustom) return null
+                        return (
+                          <CardSortavel
+                            key={pref.id}
+                            pref={pref}
+                            cardCustom={cardCustom}
+                            periodoAtivo={pendingPeriodoCards}
+                            onToggle={() => setPendingCardsPrefs(prev =>
+                              prev.map(p => (p.id === pref.id ? { ...p, visible: !p.visible } : p)),
+                            )}
+                            onRemover={() => { void handleRemoverCardAtivo(pref.id) }}
+                          />
+                        )
+                      })}
                     </div>
                   </SortableContext>
                 </DndContext>
@@ -2560,19 +2730,35 @@ export default function Configuracoes() {
               </div>
 
               <div className="cfg-cards-lista">
-                {CARDS_CATALOGO.filter(def => !prefs.find(p => p.id === def.id)).map(def => (
+                {CARDS_CATALOGO.filter(def => !pendingCardsPrefs.find(p => p.id === def.id)).map(def => (
                   <CardDisponivel
                     key={def.id}
                     def={def}
-                    onAdicionar={() => adicionar(def.id)}
-                    periodoAtivo={periodo}
+                    onAdicionar={() => {
+                      if (pendingCardsPrefs.some(p => p.id === def.id)) return
+                      setPendingCardsPrefs(prev => [...prev, { id: def.id, visible: true }])
+                    }}
+                    periodoAtivo={pendingPeriodoCards}
                   />
                 ))}
-                {CARDS_CATALOGO.filter(def => !prefs.find(p => p.id === def.id)).length === 0 && (
+                {CARDS_CATALOGO.filter(def => !pendingCardsPrefs.find(p => p.id === def.id)).length === 0 && (
                   <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
                     {t('pedido.config.cards.todos_adicionados')}
                   </p>
                 )}
+              </div>
+
+              <div className="cfg-secao__footer">
+                <BotaoCancelar
+                  dirty={cardsConfigDirty}
+                  rotulo={t('pedido.config.acao.restaurar_padrao')}
+                  onClick={restaurarCardsPadrao}
+                />
+                <BotaoSalvar
+                  dirty={cardsConfigDirty}
+                  rotulo={t('pedido.config.acao.salvar')}
+                  onClick={salvarCardsConfig}
+                />
               </div>
 
             </section>
@@ -2588,13 +2774,42 @@ export default function Configuracoes() {
                   <h2 className="cfg-secao__titulo">{t('pedido.config.dashboard_kpi.titulo')}</h2>
                   <p className="cfg-secao__desc">{t('pedido.config.dashboard_kpi.descricao')}</p>
                 </div>
-                <TooltipGlobal descricao={t('pedido.config.dashboard_kpi.restaurar_tooltip')}>
-                  <button type="button" className="cfg-btn-header--restaurar" onClick={resetarDashboardTopKpi}>
-                    <ArrowCounterClockwise size={13} weight="bold" />
-                    {t('pedido.config.cards.restaurar_padrao')}
-                  </button>
-                </TooltipGlobal>
               </div>
+
+              {statusList.length > 0 && !statusLoading && (
+                <div className="cfg-cards-preview-wrap">
+                  <p className="cfg-cards-preview-label">
+                    <ChartBar size={12} weight="fill" />
+                    {t('pedido.config.dashboard_kpi.preview')}
+                  </p>
+                  <div className="cfg-cards-preview-grid">
+                    {DASHBOARD_TOP_KPI_WIDGET_IDS.map((widgetId, index) => {
+                      const slugPendente = pendingDashboardTopKpi[widgetId as DashboardTopKpiWidgetId]
+                      const slugValido = statusList.some(s => s.nome === slugPendente)
+                        ? slugPendente
+                        : (statusList[index]?.nome ?? statusList[0]?.nome ?? '')
+                      const statusCfg = statusList.find(s => s.nome === slugValido)
+                      const visual = DASHBOARD_TOP_KPI_PREVIEW_VISUAL[widgetId as DashboardTopKpiWidgetId]
+                      const cor = statusCfg?.cor ?? visual.cor
+                      return (
+                        <div
+                          key={widgetId}
+                          className="cfg-kpi-preview-card"
+                          style={{ borderTopColor: cor }}
+                        >
+                          <span className="cfg-kpi-preview-card__pos">{index + 1}</span>
+                          <span className="cfg-kpi-preview-card__icon" style={{ color: cor }}>
+                            {visual.icone}
+                          </span>
+                          <div className="cfg-kpi-preview-card__line" style={{ background: cor }} />
+                          <p className="cfg-kpi-preview-card__valor">0</p>
+                          <p className="cfg-kpi-preview-card__label">{statusCfg?.rotulo ?? '—'}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
               <ConfiguracaoSecaoGlobal label={t('pedido.config.dashboard_kpi.cards_topo')} count="4" />
 
@@ -2606,31 +2821,45 @@ export default function Configuracoes() {
                 <div className="cfg-cards-lista" style={{ gap: '0.75rem' }}>
                   {DASHBOARD_TOP_KPI_WIDGET_IDS.map((widgetId, index) => {
                     const numero = String(index + 1).padStart(2, '0')
-                    const slugSalvo = dashboardTopKpiMapa[widgetId as DashboardTopKpiWidgetId]
-                    const slugValido = statusList.some(s => s.nome === slugSalvo)
-                      ? slugSalvo
+                    const slugPendente = pendingDashboardTopKpi[widgetId as DashboardTopKpiWidgetId]
+                    const slugValido = statusList.some(s => s.nome === slugPendente)
+                      ? slugPendente
                       : (statusList[index]?.nome ?? statusList[0]?.nome ?? '')
                     return (
                       <div key={widgetId} className="cfg-toggle-row" style={{ alignItems: 'center' }}>
-                        <label className="cfg-toggle-row__label" htmlFor={`dash-kpi-${widgetId}`} style={{ flex: 1 }}>
+                        <label className="cfg-toggle-row__label" style={{ flex: 1 }}>
                           {t('pedido.config.dashboard_kpi.card_status', { n: numero, defaultValue: `Card ${numero} — Status` })}
                         </label>
-                        <select
-                          id={`dash-kpi-${widgetId}`}
-                          className="cfg-input"
-                          style={{ maxWidth: '240px', flexShrink: 0 }}
-                          value={slugValido}
-                          onChange={e => setDashboardTopKpiStatus(widgetId as DashboardTopKpiWidgetId, e.target.value)}
-                        >
-                          {statusList.map(s => (
-                            <option key={s.id} value={s.nome}>{s.rotulo}</option>
-                          ))}
-                        </select>
+                        <div className="cfg-dashboard-kpi-select" style={{ maxWidth: '280px', flexShrink: 0, width: '100%' }}>
+                          <SelectGlobal
+                            buscavel
+                            placeholder={t('pedido.config.dashboard_kpi.selecionar_status')}
+                            opcoes={statusList.map(s => ({ valor: s.nome, rotulo: s.rotulo }))}
+                            valor={slugValido || null}
+                            aoMudarValor={v => setPendingDashboardTopKpi(prev => ({
+                              ...prev,
+                              [widgetId]: v != null ? String(v) : '',
+                            }))}
+                          />
+                        </div>
                       </div>
                     )
                   })}
                 </div>
               )}
+
+              <div className="cfg-secao__footer">
+                <BotaoCancelar
+                  dirty={dashboardKpiDirty}
+                  rotulo={t('pedido.config.acao.restaurar_padrao')}
+                  onClick={restaurarDashboardTopKpiPadrao}
+                />
+                <BotaoSalvar
+                  dirty={dashboardKpiDirty}
+                  rotulo={t('pedido.config.acao.salvar')}
+                  onClick={salvarDashboardTopKpiConfig}
+                />
+              </div>
             </section>
           </div>
         )}
@@ -2768,14 +2997,6 @@ export default function Configuracoes() {
                     <ConfiguracaoSecaoGlobal
                       label={t('pedido.config.cards.ativos')}
                       count={`${campos.length}/${limite} ${t('pedido.config.kanban.campos_label')}`}
-                      action={
-                        <TooltipGlobal descricao={t('pedido.config.kanban.restaurar_tooltip', { aba: nomeAba })}>
-                          <button type="button" className="cfg-btn-header--restaurar" onClick={kanbanRestaurarPadrao}>
-                            <ArrowCounterClockwise size={13} weight="bold" />
-                            {t('pedido.config.acao.restaurar_padrao')}
-                          </button>
-                        </TooltipGlobal>
-                      }
                     />
                     <p className="cfg-hint">{t('pedido.config.kanban.modal_hint')}</p>
 
@@ -2847,6 +3068,19 @@ export default function Configuracoes() {
                         action={<span className="cfg-kanban-aba-fixa-badge">{t('pedido.config.kanban.badge_fixa')}</span>}
                       />
                       <p className="cfg-hint">{t('pedido.config.kanban.aba_fixa_hint')}</p>
+                    </div>
+
+                    <div className="cfg-secao__footer">
+                      <BotaoCancelar
+                        dirty={kanbanModalDirty}
+                        rotulo={t('pedido.config.acao.restaurar_padrao')}
+                        onClick={kanbanModalRestaurarPadrao}
+                      />
+                      <BotaoSalvar
+                        dirty={kanbanModalDirty}
+                        rotulo={t('pedido.config.acao.salvar')}
+                        onClick={kanbanModalSalvar}
+                      />
                     </div>
                   </>
                 )
@@ -4870,6 +5104,33 @@ export default function Configuracoes() {
         aoConfirmar={excluirTemplateConfirmado}
         aoCancelar={() => setConfirmarExcluirTemplateId(null)}
       />
+
+      {criandoCard && (
+        <ModalNovoCardUsuario
+          onFechar={() => setCriandoCard(false)}
+          onSalvo={async data => {
+            try {
+              const ordem = cardsUsuario.length
+              const novo = await criarCardUsuario({ ...data, ordem })
+              setPendingCardsPrefs(prev => {
+                if (prev.some(p => p.id === novo.id)) return prev
+                return [...prev, { id: novo.id, visible: true }]
+              })
+              setCriandoCard(false)
+              addNotification({
+                type: 'success',
+                message: t('pedido.card_usuario.msg_criado', 'Card personalizado criado. Clique em Salvar para aplicar na lista.'),
+              })
+            } catch {
+              addNotification({
+                type: 'error',
+                message: t('pedido.card_usuario.msg_erro_criar', 'Não foi possível criar o card personalizado.'),
+              })
+              throw new Error('criar_card_usuario_falhou')
+            }
+          }}
+        />
+      )}
     </div>
   )
 }

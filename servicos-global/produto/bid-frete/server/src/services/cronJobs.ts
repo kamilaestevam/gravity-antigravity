@@ -1,5 +1,5 @@
 /**
- * cronJobs.ts — Jobs automáticos do BID Frete
+ * cronJobs.ts — Jobs automáticos do BID Frete Internacional
  * Executados periodicamente (a cada 5 minutos) para:
  * 1. Expirar cotações vencidas
  * 2. Alertar sobre cotações próximas ao vencimento

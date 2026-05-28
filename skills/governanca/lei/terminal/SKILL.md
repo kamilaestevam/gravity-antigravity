@@ -199,7 +199,7 @@ AÇÃO: rm -rf node_modules/.cache (ou .next/dist) → reiniciar
 | Pedido | 8030 | 5179 |
 | LPCO | 8027 | 5182 |
 | NF Importação | 8028 | 5183 |
-| Bid Frete | 8023 | 5181 |
+| BID Frete Internacional | 8023 | 5181 |
 | Bid Câmbio | 8025 | 5002 |
 | Financeiro Comex | 8029 | 5184 |
 | Processo | 8026 | 5000 |

@@ -282,7 +282,7 @@ Configurar Alert Rules no Sentry Dashboard, alinhados aos thresholds da `sla-met
 | Configurador | `https://configurador.gravity.com.br/health` | 2 min | Slack + Email |
 | Organização Services | `https://organizacao-services.gravity.com.br/health` | 2 min | Slack + Email |
 | SimulaCusto | `/health` | 5 min | Slack |
-| Bid Frete | `/health` | 5 min | Slack |
+| BID Frete Internacional | `/health` | 5 min | Slack |
 | Marketplace | `https://marketplace.gravity.com.br/health` | 5 min | Email |
 
 ---

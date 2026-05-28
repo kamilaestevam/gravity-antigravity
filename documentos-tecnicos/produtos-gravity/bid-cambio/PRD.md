@@ -16,7 +16,7 @@
 
 **Duas visoes separadas:** Portal do Comprador e Portal da Corretora, com logins, dashboards e experiencias independentes.
 
-**Integracao:** Funciona standalone ou integrado aos demais produtos Gravity (Processo, BID Frete, SimulaCusto) via servicos tenant.
+**Integracao:** Funciona standalone ou integrado aos demais produtos Gravity (Processo, BID Frete Internacional, SimulaCusto) via servicos tenant.
 
 ---
 
@@ -319,7 +319,7 @@ Recebe e-mail com link (token 7 dias)
 | 6 | **Responder Publico** | Via token (sem login) — mesmos campos |
 | 7 | **Configuracoes** | Dados da corretora, contatos, preferencias |
 
-**Total: 16 telas** (9 comprador + 7 corretora) — mesmo padrao do BID Frete.
+**Total: 16 telas** (9 comprador + 7 corretora) — mesmo padrao do BID Frete Internacional.
 
 ---
 
@@ -337,7 +337,7 @@ Recebe e-mail com link (token 7 dias)
 | **Agendamento** (3001) | Cron | Job diario 7h (alertas de vencimento) |
 | **Configurador** (8003) | API | Auth, permissoes, workspace |
 | **Processo** (quando integrado) | API (REST) | Leitura de dados do pedido (DI, Invoice, datas, exportador) |
-| **BID Frete** (quando integrado) | Via Dashboard | Visao consolidada frete + cambio |
+| **BID Frete Internacional** (quando integrado) | Via Dashboard | Visao consolidada frete + cambio |
 
 **Regra:** Nenhuma dependencia direta. BID Cambio funciona 100% standalone. Integracoes sao opcionais e via servicos tenant.
 

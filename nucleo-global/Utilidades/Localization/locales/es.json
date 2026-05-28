@@ -6884,7 +6884,7 @@
     "prod_pedido_desc": "Gestión completa de pedidos de compra con flujo de aprobación, seguimiento e integración con sistemas ERP.",
     "prod_simula_custo_desc": "Simulación detallada de costos de importación con cálculo automático de impuestos por NCM y comparativo de escenarios.",
     "prod_smart_read_desc": "Extracción inteligente de datos de documentos e imágenes usando IA. Procesa facturas, invoices y documentos aduaneros automáticamente.",
-    "prod_bid_frete_nome": "Bid Flete",
+    "prod_bid_frete_nome": "BID Flete Internacional",
     "prod_bid_cambio_nome": "Bid Divisas",
     "prod_nf_importacao_nome": "NF Importación",
     "prod_lpco_nome": "LPCO",

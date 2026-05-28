@@ -71,7 +71,7 @@ interface SeedPrismaMock {
   statusCotacaoBidFrete: { create: (args: { data: Record<string, unknown> }) => Promise<unknown> }
 }
 
-vi.mock('../../../servicos-global/produto/bid-frete/server/src/services/seedStatusPadrao.js', () => ({
+vi.mock('../../../../servicos-global/produto/bid-frete/server/src/services/seedStatusPadrao.js', () => ({
   seedStatusPadrao: vi.fn(async (prisma: SeedPrismaMock, idOrg: string) => {
     const defaults = ['RASCUNHO', 'ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO', 'APROVADA', 'REPROVADA', 'CANCELADA', 'FALTA_INFORMACAO', 'EXPIRADA']
     for (let i = 0; i < defaults.length; i++) {
@@ -92,7 +92,7 @@ vi.mock('../../../servicos-global/produto/bid-frete/server/src/services/seedStat
 
 // ── Mock do AppError ────────────────────────────────────────────────────────
 
-vi.mock('../../../servicos-global/produto/bid-frete/server/src/lib/errors.js', () => ({
+vi.mock('../../../../servicos-global/produto/bid-frete/server/src/lib/errors.js', () => ({
   AppError: class AppError extends Error {
     statusCode: number
     code: string
@@ -114,7 +114,7 @@ beforeEach(async () => {
   nextId = 1
 
   const { configStatusRouter } = await import(
-    '../../../servicos-global/produto/bid-frete/server/src/routes/config-status.js'
+    '../../../../servicos-global/produto/bid-frete/server/src/routes/config-status.js'
   )
 
   app = express()

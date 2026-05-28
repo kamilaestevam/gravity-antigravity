@@ -284,7 +284,7 @@ Rotas disponiveis:
 - LPCO: [LPCO](/produto/lpco)
 - Processo: [Processo](/produto/processo)
 - Pedido: [Pedido](/produto/pedido)
-- Bid Frete: [Bid Frete](/produto/bid-frete)
+- BID Frete Internacional: [BID Frete Internacional](/produto/bid-frete)
 - Bid Cambio: [Bid Cambio](/produto/bid-cambio)
 - Financeiro COMEX: [Financeiro COMEX](/produto/financeiro-comex)
 

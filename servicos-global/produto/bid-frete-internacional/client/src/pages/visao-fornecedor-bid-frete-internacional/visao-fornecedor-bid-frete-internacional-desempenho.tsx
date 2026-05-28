@@ -15,30 +15,7 @@ import {
   Timer,
 } from '@phosphor-icons/react'
 
-import { getPortalDesempenho } from '../../shared/api'
-
-// ─── Types ──────────────────────────────────────────────────────────────────
-
-interface DesempenhoData {
-  nota_global_classificacao_bid_frete_internacional: number
-  cotacoes_recebidas: number
-  cotacoes_respondidas: number
-  cotacoes_aprovadas: number
-  tempo_medio_horas: number
-  categorias: {
-    frete: number
-    atendimento: number
-    prazo: number
-    confiabilidade: number
-  }
-  avaliacoes_recentes: Array<{
-    id: string
-    nota_global: number
-    comentario_avaliacao_bid_frete_internacional: string | null
-    created_at: string
-    cotacao_numero: string | null
-  }>
-}
+import { getVisaoFornecedorBidFreteInternacionalDesempenho, type DesempenhoVisaoFornecedorBidFreteInternacional } from '../../shared/api'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -83,14 +60,14 @@ const fmtData = (iso: string) =>
 
 export default function MeuDesempenho() {
   const { t } = useTranslation()
-  const [dados, setDados] = useState<DesempenhoData | null>(null)
+  const [dados, setDados] = useState<DesempenhoVisaoFornecedorBidFreteInternacional | null>(null)
   const [carregando, setCarregando] = useState(true)
 
   const carregar = useCallback(async () => {
     setCarregando(true)
     try {
-      const data = await getPortalDesempenho()
-      setDados(data as unknown as DesempenhoData)
+      const data = await getVisaoFornecedorBidFreteInternacionalDesempenho()
+      setDados(data)
     } catch {
       // silencioso
     } finally {
@@ -121,7 +98,7 @@ export default function MeuDesempenho() {
       <div className="md-rating-hero">
         <div className="md-rating-number">{rating.toFixed(1)}</div>
         <StarRating nota={rating} tamanho={28} />
-        <span className="md-rating-sub">{t('bidfrete.portal.dashboard.rating')}</span>
+        <span className="md-rating-sub">{t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.rating')}</span>
       </div>
 
       {/* 4 Metric Cards */}
@@ -131,59 +108,59 @@ export default function MeuDesempenho() {
             <PaperPlaneTilt weight="duotone" size={20} />
           </div>
           <span className="md-metric-valor">{dados?.cotacoes_recebidas ?? 0}</span>
-          <span className="md-metric-label">{t('bidfrete.portal.dashboard.card_pendentes_titulo')}</span>
+          <span className="md-metric-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.card_pendentes_titulo')}</span>
         </div>
         <div className="md-metric-card">
           <div className="md-metric-icon" style={{ color: 'var(--warning, #f59e0b)' }}>
             <ClockCountdown weight="duotone" size={20} />
           </div>
           <span className="md-metric-valor">{dados?.cotacoes_respondidas ?? 0}</span>
-          <span className="md-metric-label">{t('bidfrete.portal.dashboard.respondidas')}</span>
+          <span className="md-metric-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.respondidas')}</span>
         </div>
         <div className="md-metric-card">
           <div className="md-metric-icon" style={{ color: 'var(--success, #22c55e)' }}>
             <CheckCircle weight="duotone" size={20} />
           </div>
           <span className="md-metric-valor">{dados?.cotacoes_aprovadas ?? 0}</span>
-          <span className="md-metric-label">{t('bidfrete.portal.dashboard.aprovadas')}</span>
+          <span className="md-metric-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.aprovadas')}</span>
         </div>
         <div className="md-metric-card">
           <div className="md-metric-icon" style={{ color: 'var(--danger, #ef4444)' }}>
             <Timer weight="duotone" size={20} />
           </div>
           <span className="md-metric-valor md-mono">{dados?.tempo_medio_horas ?? 0}h</span>
-          <span className="md-metric-label">{t('bidfrete.portal.meu_desempenho.cat_prazo')}</span>
+          <span className="md-metric-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.desempenho.cat_prazo')}</span>
         </div>
       </div>
 
       <div className="md-bottom-grid">
         {/* Rating por Categoria */}
         <div className="md-cat-section">
-          <h3 className="md-section-title">{t('bidfrete.portal.dashboard.rating')}</h3>
+          <h3 className="md-section-title">{t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.rating')}</h3>
           <div className="md-cat-list">
-            <ProgressBar label={t('bidfrete.portal.meu_desempenho.cat_frete')} valor={cats.frete} nota={cats.frete} />
-            <ProgressBar label={t('bidfrete.portal.meu_desempenho.cat_atendimento')} valor={cats.atendimento} nota={cats.atendimento} />
-            <ProgressBar label={t('bidfrete.portal.meu_desempenho.cat_prazo')} valor={cats.prazo} nota={cats.prazo} />
-            <ProgressBar label={t('bidfrete.portal.meu_desempenho.cat_confiabilidade')} valor={cats.confiabilidade} nota={cats.confiabilidade} />
+            <ProgressBar label={t('bidfrete.visao_fornecedor_bid_frete_internacional.desempenho.cat_frete')} valor={cats.frete} nota={cats.frete} />
+            <ProgressBar label={t('bidfrete.visao_fornecedor_bid_frete_internacional.desempenho.cat_atendimento')} valor={cats.atendimento} nota={cats.atendimento} />
+            <ProgressBar label={t('bidfrete.visao_fornecedor_bid_frete_internacional.desempenho.cat_prazo')} valor={cats.prazo} nota={cats.prazo} />
+            <ProgressBar label={t('bidfrete.visao_fornecedor_bid_frete_internacional.desempenho.cat_confiabilidade')} valor={cats.confiabilidade} nota={cats.confiabilidade} />
           </div>
         </div>
 
         {/* Avaliacoes Recentes */}
         <div className="md-aval-section">
-          <h3 className="md-section-title">{t('bidfrete.portal.meu_desempenho.subtitulo')}</h3>
+          <h3 className="md-section-title">{t('bidfrete.visao_fornecedor_bid_frete_internacional.desempenho.subtitulo')}</h3>
           {(!dados?.avaliacoes_recentes || dados.avaliacoes_recentes.length === 0) ? (
             <p className="md-aval-vazio">{t('comum.nenhum_resultado')}</p>
           ) : (
             <div className="md-aval-list">
               {dados.avaliacoes_recentes.map(aval => (
-                <div key={aval.id} className="md-aval-item">
+                <div key={aval.id_avaliacao_bid_frete_internacional} className="md-aval-item">
                   <div className="md-aval-header">
-                    <StarRating nota={aval.nota_global} tamanho={14} />
-                    <span className="md-aval-nota md-mono">{aval.nota_global.toFixed(1)}</span>
-                    <span className="md-aval-data">{fmtData(aval.created_at)}</span>
+                    <StarRating nota={aval.nota_geral_avaliacao_bid_frete_internacional} tamanho={14} />
+                    <span className="md-aval-nota md-mono">{aval.nota_geral_avaliacao_bid_frete_internacional.toFixed(1)}</span>
+                    <span className="md-aval-data">{fmtData(aval.data_criacao_avaliacao_bid_frete_internacional)}</span>
                   </div>
-                  {aval.cotacao_numero && (
-                    <span className="md-aval-cotacao md-mono">#{aval.cotacao_numero}</span>
+                  {aval.numero_cotacao_bid_frete_internacional && (
+                    <span className="md-aval-cotacao md-mono">#{aval.numero_cotacao_bid_frete_internacional}</span>
                   )}
                   {aval.comentario_avaliacao_bid_frete_internacional && (
                     <p className="md-aval-comment">{aval.comentario_avaliacao_bid_frete_internacional}</p>

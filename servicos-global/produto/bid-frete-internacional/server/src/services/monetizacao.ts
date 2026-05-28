@@ -93,7 +93,7 @@ export const monetizacao = {
     //   customer: fornecedor.stripe_customer_id,
     //   amount: DEFAULT_CONFIG.taxa_por_frete_usd * 100,
     //   currency: 'usd',
-    //   description: `BID Frete - Taxa por frete fechado (${data.cotacao_numero})`,
+    //   description: `BID Frete Internacional - Taxa por frete fechado (${data.cotacao_numero})`,
     // })
 
     return cobranca

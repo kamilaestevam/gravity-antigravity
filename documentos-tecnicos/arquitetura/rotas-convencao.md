@@ -79,7 +79,7 @@ A `{área}` vem **direto** após o domínio.
 | Área | URL raiz |
 |------|---------|
 | `/pedido` | Produto Pedido |
-| `/bid-frete` | Produto BID Frete |
+| `/bid-frete` | Produto BID Frete Internacional |
 | `/bid-cambio` | Produto BID Câmbio |
 | `/bid-frete-internacional` | Produto BID Frete Internacional |
 | `/simula-custo` | Produto Simulador de Custo |

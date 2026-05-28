@@ -1,11 +1,28 @@
 ﻿/// <reference types="vite/client" />
 /**
- * api.ts — Funções de chamada da API do BID Frete
+ * api.ts — Funções de chamada da API do BID Frete Internacional
  * Skill: antigravity-criar-produto (Passo 1 — shared/api.ts)
  */
 
 import { z } from 'zod'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
+import {
+  visaoFornecedorBidFreteInternacionalCotacoesPendentesResponseSchema,
+  visaoFornecedorBidFreteInternacionalDashboardResponseSchema,
+  visaoFornecedorBidFreteInternacionalDesempenhoResponseSchema,
+  visaoFornecedorBidFreteInternacionalEnviarPropostaResponseSchema,
+  visaoFornecedorBidFreteInternacionalPropostasResponseSchema,
+  visaoFornecedorBidFreteInternacionalPublicoDisparoResponseSchema,
+  visaoFornecedorBidFreteInternacionalPublicoEnviarPropostaResponseSchema,
+  visaoFornecedorBidFreteInternacionalTabelasValorResponseSchema,
+  visaoFornecedorBidFreteInternacionalTabelaValorItemResponseSchema,
+  mapDesempenhoVisaoFornecedorFromServer,
+  mapDashboardMetricasFromServer,
+} from './visao-fornecedor-bid-frete-internacional-schemas'
+export type {
+  DesempenhoVisaoFornecedorBidFreteInternacional,
+  MetricasVisaoFornecedorBidFreteInternacional,
+} from './visao-fornecedor-bid-frete-internacional-schemas'
 import type {
   BidFreteInternacional,
   Cotacao,
@@ -18,8 +35,8 @@ import type {
   StatusBidConfigBidFreteInternacional,
   DashboardKPIs,
   CalendarioAlerta,
-  TabelaPreco,
-  Avaliacao,
+  TabelaBidFreteInternacional,
+  AvaliacaoBidFreteInternacional,
   Porto,
   Moeda,
   Pais,
@@ -28,6 +45,8 @@ import type {
   IncotermOption,
   StatusCotacao,
   CanalDisparo,
+  ModalFrete,
+  ModalidadeCarga,
 } from './types'
 
 const API_BASE = '/api/v1'
@@ -548,36 +567,61 @@ export async function getFornecedor(id_fornecedor_bid_frete_internacional: strin
   return mapFornecedorFromServer(parsed.fornecedor)
 }
 
-export async function getTabelaPrecos(fornecedorId: string): Promise<TabelaPreco[]> {
+export function mapTabelaBidFreteInternacionalFromServer(rawUnknown: unknown): TabelaBidFreteInternacional {
+  const raw = serializeValue(rawUnknown) as Record<string, unknown>
+  return raw as TabelaBidFreteInternacional
+}
+
+export async function getTabelaPrecos(fornecedorId: string): Promise<TabelaBidFreteInternacional[]> {
   const res = await fetch(`${API_BASE}/bid-frete-internacional/fornecedores/${fornecedorId}/tabelas-valor`, { headers: headers() })
-  return handleResponse(res)
+  const data = await handleResponse<{ tabelas?: unknown[] }>(res)
+  return (data.tabelas ?? []).map(mapTabelaBidFreteInternacionalFromServer)
 }
 
-export async function getAvaliacoes(fornecedorId: string): Promise<Avaliacao[]> {
+export async function getAvaliacoes(fornecedorId: string): Promise<AvaliacaoBidFreteInternacional[]> {
   const res = await fetch(`${API_BASE}/bid-frete-internacional/avaliacoes/fornecedor/${fornecedorId}`, { headers: headers() })
-  return handleResponse(res)
+  const data = await handleResponse<{ avaliacoes?: unknown[] }>(res)
+  return (data.avaliacoes ?? []).map((a) => serializeValue(a) as AvaliacaoBidFreteInternacional)
 }
 
-// ─── Portal do Fornecedor ───────────────────────────────────────────────────
+const VISAO_FORNECEDOR_BASE = `${API_BASE}/bid-frete-internacional/visao-fornecedor-bid-frete-internacional`
 
-export async function getPortalDashboard(): Promise<Record<string, unknown>> {
-  const res = await fetch(`${API_BASE}/bid-frete-internacional/portal/dashboard`, { headers: headers() })
-  return handleResponse(res)
+export interface DashboardVisaoFornecedorBidFreteInternacional {
+  metricas: MetricasVisaoFornecedorBidFreteInternacional
+  kpis: ReturnType<typeof mapDashboardMetricasFromServer>
+  fornecedor: Fornecedor
 }
 
-export async function getCotacoesPendentesBidFreteInternacional(): Promise<DisparoCotacaoBidFreteInternacional[]> {
-  const res = await fetch(`${API_BASE}/bid-frete-internacional/portal/cotacoes-pendentes`, { headers: headers() })
-  const data = await handleResponse<{ disparo_cotacao_bid_frete_internacional?: unknown[]; requests?: unknown[] }>(res)
-  const lista = data.disparo_cotacao_bid_frete_internacional ?? data.requests ?? []
-  return lista.map(mapDisparoCotacaoBidFreteInternacionalFromServer)
+export async function getVisaoFornecedorBidFreteInternacionalDashboard(): Promise<DashboardVisaoFornecedorBidFreteInternacional> {
+  const res = await fetch(`${VISAO_FORNECEDOR_BASE}/dashboard`, { headers: headers() })
+  const raw = await handleResponse<unknown>(res)
+  const parsed = visaoFornecedorBidFreteInternacionalDashboardResponseSchema.parse(raw)
+  const visao = parsed.visao_fornecedor_bid_frete_internacional
+  return {
+    metricas: visao.metricas_visao_fornecedor_bid_frete_internacional,
+    kpis: mapDashboardMetricasFromServer(
+      visao.metricas_visao_fornecedor_bid_frete_internacional,
+      visao.classificacao_bid_frete_internacional,
+    ),
+    fornecedor: mapFornecedorFromServer(visao.fornecedor_bid_frete_internacional),
+  }
 }
 
-export async function respostaPropostaBidFreteInternacional(
+export async function getVisaoFornecedorBidFreteInternacionalCotacoesPendentes(): Promise<DisparoCotacaoBidFreteInternacional[]> {
+  const res = await fetch(`${VISAO_FORNECEDOR_BASE}/cotacoes-pendentes`, { headers: headers() })
+  const raw = await handleResponse<unknown>(res)
+  const parsed = visaoFornecedorBidFreteInternacionalCotacoesPendentesResponseSchema.parse(raw)
+  return parsed.visao_fornecedor_bid_frete_internacional.disparos_cotacao_bid_frete_internacional.map(
+    mapDisparoCotacaoBidFreteInternacionalFromServer,
+  )
+}
+
+export async function enviarVisaoFornecedorBidFreteInternacionalProposta(
   id_disparo_cotacao_bid_frete_internacional: string,
   data: Partial<PropostaBidFreteInternacional>,
 ): Promise<PropostaBidFreteInternacional> {
   const res = await fetch(
-    `${API_BASE}/bid-frete-internacional/portal/responder/${id_disparo_cotacao_bid_frete_internacional}`,
+    `${VISAO_FORNECEDOR_BASE}/responder/${id_disparo_cotacao_bid_frete_internacional}`,
     {
       method: 'POST',
       headers: headers(),
@@ -585,40 +629,141 @@ export async function respostaPropostaBidFreteInternacional(
     },
   )
   const raw = await handleResponse<unknown>(res)
-  return mapPropostaBidFreteInternacionalFromServer(raw)
+  const parsed = visaoFornecedorBidFreteInternacionalEnviarPropostaResponseSchema.parse(raw)
+  return mapPropostaBidFreteInternacionalFromServer(
+    parsed.visao_fornecedor_bid_frete_internacional.proposta_bid_frete_internacional,
+  )
 }
 
-export async function getPortalRespostas(): Promise<PropostaBidFreteInternacional[]> {
-  const res = await fetch(`${API_BASE}/bid-frete-internacional/portal/propostas`, { headers: headers() })
-  const data = await handleResponse<{ propostas_bid_frete_internacional?: unknown[]; respostas?: unknown[] }>(res)
-  const lista = data.propostas_bid_frete_internacional ?? data.respostas ?? []
-  return lista.map(mapPropostaBidFreteInternacionalFromServer)
+export async function getVisaoFornecedorBidFreteInternacionalPropostas(): Promise<PropostaBidFreteInternacional[]> {
+  const res = await fetch(`${VISAO_FORNECEDOR_BASE}/propostas`, { headers: headers() })
+  const raw = await handleResponse<unknown>(res)
+  const parsed = visaoFornecedorBidFreteInternacionalPropostasResponseSchema.parse(raw)
+  return parsed.visao_fornecedor_bid_frete_internacional.propostas_bid_frete_internacional.map(
+    mapPropostaBidFreteInternacionalFromServer,
+  )
 }
 
-export async function getPortalDesempenho(): Promise<Record<string, unknown>> {
-  const res = await fetch(`${API_BASE}/bid-frete-internacional/portal/desempenho`, { headers: headers() })
-  return handleResponse(res)
+export async function getVisaoFornecedorBidFreteInternacionalDesempenho(): Promise<DesempenhoVisaoFornecedorBidFreteInternacional> {
+  const res = await fetch(`${VISAO_FORNECEDOR_BASE}/desempenho`, { headers: headers() })
+  const raw = await handleResponse<unknown>(res)
+  const parsed = visaoFornecedorBidFreteInternacionalDesempenhoResponseSchema.parse(raw)
+  return mapDesempenhoVisaoFornecedorFromServer(parsed)
 }
 
-// ─── Portal Público (sem login) ─────────────────────────────────────────────
-
-export async function getPublicCotacao(token: string): Promise<Record<string, unknown>> {
-  const res = await fetch(`${API_BASE}/bid-frete-internacional/portal/publico/${token}`)
-  return handleResponse(res)
+export async function getVisaoFornecedorBidFreteInternacionalTabelasValor(): Promise<TabelaBidFreteInternacional[]> {
+  const res = await fetch(`${VISAO_FORNECEDOR_BASE}/tabelas-valor`, { headers: headers() })
+  const raw = await handleResponse<unknown>(res)
+  const parsed = visaoFornecedorBidFreteInternacionalTabelasValorResponseSchema.parse(raw)
+  return parsed.visao_fornecedor_bid_frete_internacional.tabelas_bid_frete_internacional.map(
+    mapTabelaBidFreteInternacionalFromServer,
+  )
 }
 
-export async function responderPublico(
-  token: string,
-  data: Partial<PropostaBidFreteInternacional>,
-): Promise<PropostaBidFreteInternacional> {
-  const res = await fetch(`${API_BASE}/bid-frete-internacional/portal/publico/${token}/responder`, {
+export interface InputTabelaBidFreteInternacionalVisaoFornecedor {
+  origem_codigo_tabela_bid_frete_internacional: string
+  origem_nome_tabela_bid_frete_internacional: string
+  destino_codigo_tabela_bid_frete_internacional: string
+  destino_nome_tabela_bid_frete_internacional: string
+  modal_tabela_bid_frete_internacional: ModalFrete
+  modalidade_tabela_bid_frete_internacional: ModalidadeCarga
+  moeda_tabela_bid_frete_internacional: string
+  valor_frete_tabela_bid_frete_internacional: number
+  taxas_origem_tabela_bid_frete_internacional: number
+  taxas_destino_tabela_bid_frete_internacional: number
+  valor_total_tabela_bid_frete_internacional: number
+  dias_transito_tabela_bid_frete_internacional: number
+  dias_free_time_tabela_bid_frete_internacional?: number
+  validade_inicio_tabela_bid_frete_internacional: string
+  validade_fim_tabela_bid_frete_internacional: string
+}
+
+export async function criarVisaoFornecedorBidFreteInternacionalTabelaValor(
+  data: InputTabelaBidFreteInternacionalVisaoFornecedor,
+): Promise<TabelaBidFreteInternacional> {
+  const res = await fetch(`${VISAO_FORNECEDOR_BASE}/tabelas-valor`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: headers(),
     body: JSON.stringify(data),
   })
   const raw = await handleResponse<unknown>(res)
-  return mapPropostaBidFreteInternacionalFromServer(raw)
+  const parsed = visaoFornecedorBidFreteInternacionalTabelaValorItemResponseSchema.parse(raw)
+  return mapTabelaBidFreteInternacionalFromServer(
+    parsed.visao_fornecedor_bid_frete_internacional.tabela_bid_frete_internacional,
+  )
 }
+
+export async function atualizarVisaoFornecedorBidFreteInternacionalTabelaValor(
+  id_tabela_bid_frete_internacional: string,
+  data: Partial<InputTabelaBidFreteInternacionalVisaoFornecedor>,
+): Promise<TabelaBidFreteInternacional> {
+  const res = await fetch(`${VISAO_FORNECEDOR_BASE}/tabelas-valor/${id_tabela_bid_frete_internacional}`, {
+    method: 'PUT',
+    headers: headers(),
+    body: JSON.stringify(data),
+  })
+  const raw = await handleResponse<unknown>(res)
+  const parsed = visaoFornecedorBidFreteInternacionalTabelaValorItemResponseSchema.parse(raw)
+  return mapTabelaBidFreteInternacionalFromServer(
+    parsed.visao_fornecedor_bid_frete_internacional.tabela_bid_frete_internacional,
+  )
+}
+
+export async function excluirVisaoFornecedorBidFreteInternacionalTabelaValor(
+  id_tabela_bid_frete_internacional: string,
+): Promise<void> {
+  const res = await fetch(`${VISAO_FORNECEDOR_BASE}/tabelas-valor/${id_tabela_bid_frete_internacional}`, {
+    method: 'DELETE',
+    headers: headers(),
+  })
+  await handleResponse(res)
+}
+
+// ─── Visão Fornecedor Público (sem login) ───────────────────────────────────
+
+export async function getVisaoFornecedorBidFreteInternacionalPublicoDisparo(
+  token_resposta_disparo_cotacao_bid_frete_internacional: string,
+): Promise<DisparoCotacaoBidFreteInternacional> {
+  const res = await fetch(
+    `${VISAO_FORNECEDOR_BASE}/publico/${token_resposta_disparo_cotacao_bid_frete_internacional}`,
+  )
+  const raw = await handleResponse<unknown>(res)
+  const parsed = visaoFornecedorBidFreteInternacionalPublicoDisparoResponseSchema.parse(raw)
+  return mapDisparoCotacaoBidFreteInternacionalFromServer(
+    parsed.visao_fornecedor_bid_frete_internacional_publico.disparo_cotacao_bid_frete_internacional,
+  )
+}
+
+export async function enviarVisaoFornecedorBidFreteInternacionalPropostaPublico(
+  token_resposta_disparo_cotacao_bid_frete_internacional: string,
+  data: Partial<PropostaBidFreteInternacional>,
+): Promise<void> {
+  const res = await fetch(
+    `${VISAO_FORNECEDOR_BASE}/publico/${token_resposta_disparo_cotacao_bid_frete_internacional}/responder`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    },
+  )
+  const raw = await handleResponse<unknown>(res)
+  visaoFornecedorBidFreteInternacionalPublicoEnviarPropostaResponseSchema.parse(raw)
+}
+
+/** @deprecated use getVisaoFornecedorBidFreteInternacionalDashboard */
+export const getPortalDashboard = getVisaoFornecedorBidFreteInternacionalDashboard
+/** @deprecated use getVisaoFornecedorBidFreteInternacionalCotacoesPendentes */
+export const getCotacoesPendentesBidFreteInternacional = getVisaoFornecedorBidFreteInternacionalCotacoesPendentes
+/** @deprecated use enviarVisaoFornecedorBidFreteInternacionalProposta */
+export const respostaPropostaBidFreteInternacional = enviarVisaoFornecedorBidFreteInternacionalProposta
+/** @deprecated use getVisaoFornecedorBidFreteInternacionalPropostas */
+export const getPortalRespostas = getVisaoFornecedorBidFreteInternacionalPropostas
+/** @deprecated use getVisaoFornecedorBidFreteInternacionalDesempenho */
+export const getPortalDesempenho = getVisaoFornecedorBidFreteInternacionalDesempenho
+/** @deprecated use getVisaoFornecedorBidFreteInternacionalPublicoDisparo */
+export const getPublicCotacao = getVisaoFornecedorBidFreteInternacionalPublicoDisparo
+/** @deprecated use enviarVisaoFornecedorBidFreteInternacionalPropostaPublico */
+export const responderPublico = enviarVisaoFornecedorBidFreteInternacionalPropostaPublico
 
 // ─── Master Data ────────────────────────────────────────────────────────────
 

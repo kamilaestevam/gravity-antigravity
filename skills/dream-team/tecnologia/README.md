@@ -366,7 +366,7 @@ CLAUDE.md                                     ← Mapa completo (carregado autom
 
 ### Quando Reativar Categorias Pausadas
 
-Quando um produto vertical (ex: Pedido, Bid Frete) for 100% definido:
+Quando um produto vertical (ex: Pedido, BID Frete Internacional) for 100% definido:
 
 1. Criar a pasta em `skills/produtos-gravity/<nome-produto>/`
 2. Criar a SKILL.md sem regras absolutas embutidas (referenciar SSOT)

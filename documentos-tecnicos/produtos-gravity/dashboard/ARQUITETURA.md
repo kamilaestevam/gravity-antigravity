@@ -1099,7 +1099,7 @@ O produto responsavel aplica seu proprio isolamento de tenant nos dados retornad
 | Dashboard Service | **3001** | **5010** | `/api/v1/dashboard` |
 | SimulaCusto | 8020 | — | `/api/v1/simula-custo/dashboard/widgets` |
 | Email Service | 3001 | — | `/api/v1/email/enviar` |
-| Bid Frete | 8023 | — | `/api/v1/bid-frete/dashboard/widgets` |
+| BID Frete Internacional | 8023 | — | `/api/v1/bid-frete/dashboard/widgets` |
 | Bid Cambio | 8025 | — | `/api/v1/bid-cambio/dashboard/widgets` |
 | Processo + Pedido | 8026 | — | `/api/v1/processos/dashboard/widgets` |
 | LPCO | 8027 | — | `/api/v1/lpcos/dashboard/widgets` |

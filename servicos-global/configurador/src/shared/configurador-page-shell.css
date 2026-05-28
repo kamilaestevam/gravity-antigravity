@@ -1,6 +1,6 @@
 /**
  * Distância canônica entre título no topo e conteúdo — Admin e Configurador.
- * Alinhado ao padrão dos produtos (Pedido / BID Frete): 1.5rem / 2rem / 2rem.
+ * Alinhado ao padrão dos produtos (Pedido / BID Frete Internacional): 1.5rem / 2rem / 2rem.
  */
 :root {
   --config-page-pt: 1.5rem;

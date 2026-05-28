@@ -1,5 +1,5 @@
 /**
- * config.ts — PRODUCT_CONFIG do BID Frete
+ * config.ts — PRODUCT_CONFIG do BID Frete Internacional
  *
  * Fonte de verdade do produto: declara servicos de tenant usados,
  * servicos de produto internos e a navegação lateral.
@@ -24,7 +24,7 @@ export interface NavigationItem {
 export const PRODUCT_CONFIG = {
   id: 'bid-frete',
   productId: 'bid-frete',
-  name: 'BID Frete',
+  name: 'BID Frete Internacional',
   port: 8023,
 
   tenantServices: [
@@ -60,8 +60,8 @@ export const PRODUCT_CONFIG = {
       ],
     },
 
-    // ── BID Frete ─────────────────────────────────────────────────────────────
-    { id: 'section-bid-frete',                          label: 'BID Frete',      sectionDivider: true },
+    // ── BID Frete Internacional ─────────────────────────────────────────────────
+    { id: 'section-bid-frete',                          label: 'BID Frete Internacional', sectionDivider: true },
     { id: '/bid-frete/visao-geral',             label: 'Visão Geral',    icon: 'chart-pie-slice', source: 'product' },
     { id: '/bid-frete/dashboard',               label: 'Dashboard',      icon: 'chart-bar',       source: 'product' },
     { id: '/bid-frete/cotacoes?visao=lista',    label: 'Lista',          icon: 'list-bullets',    source: 'product' },

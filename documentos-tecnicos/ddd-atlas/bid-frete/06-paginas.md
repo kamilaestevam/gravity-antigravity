@@ -27,19 +27,21 @@
 | `DetalheFornecedor.tsx` | `fornecedor-detalhe.tsx` | `/produto/bid-frete-internacional/fornecedores/:id_fornecedor` | Detalhe do fornecedor — dados, tabelas de valor, avaliacoes |
 | `Configuracoes.tsx` | `configuracoes.tsx` | `/produto/bid-frete-internacional/configuracoes` | Settings do produto |
 
-## Paginas do Portal (portal/)
+## Paginas da Visao Fornecedor (`visao-fornecedor-bid-frete-internacional/`)
 
-> Portal e a area acessada pelos fornecedores externos para responder cotacoes.
+> Area acessada pelos fornecedores externos para responder cotacoes e gerenciar tabelas de valor.
 
 | Arquivo atual | Arquivo DDD | Rota frontend | Descricao |
 |---|---|---|---|
-| `portal/PortalDashboard.tsx` | `portal/portal-dashboard.tsx` | `/produto/bid-frete-internacional/portal/visao-geral` | Dashboard do fornecedor — metricas de participacao |
-| `portal/CotacoesPendentes.tsx` | `portal/portal-cotacoes-pendentes.tsx` | `/produto/bid-frete-internacional/portal/cotacoes-pendentes` | Lista de cotacoes aguardando resposta do fornecedor |
-| `portal/ResponderCotacao.tsx` | `portal/portal-responder-cotacao.tsx` | `/produto/bid-frete-internacional/portal/cotacoes/:id_cotacao/responder` | Formulario de resposta a uma cotacao (autenticado) |
-| `portal/ResponderPublico.tsx` | `portal/portal-responder-publico.tsx` | `/produto/bid-frete-internacional/portal/publico/:token` | Formulario de resposta via link publico (sem auth) |
-| `portal/Respostas.tsx` | `portal/portal-propostas.tsx` | `/produto/bid-frete-internacional/portal/propostas` | Historico de propostas enviadas (renomeado: respostas → propostas) |
-| `portal/Desempenho.tsx` | `portal/portal-desempenho.tsx` | `/produto/bid-frete-internacional/portal/desempenho` | Metricas de desempenho do fornecedor |
-| `portal/TabelaPrecos.tsx` | `portal/portal-tabelas-valor.tsx` | `/produto/bid-frete-internacional/portal/tabelas-valor` | Tabelas de valor do fornecedor (renomeado: precos → valor) |
+| `visao-fornecedor-bid-frete-internacional-dashboard.tsx` | (implementado) | `/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/visao-geral` | Dashboard do fornecedor — metricas de participacao |
+| `visao-fornecedor-bid-frete-internacional-cotacoes-pendentes.tsx` | (implementado) | `/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes` | Disparos aguardando proposta |
+| `visao-fornecedor-bid-frete-internacional-responder-cotacao.tsx` | (implementado) | `/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/cotacoes/:id_disparo_cotacao_bid_frete_internacional/responder` | Formulario de proposta (autenticado) |
+| `visao-fornecedor-bid-frete-internacional-responder-publico.tsx` | (implementado) | `/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional` | Proposta via link publico (sem auth) |
+| `visao-fornecedor-bid-frete-internacional-propostas.tsx` | (implementado) | `/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/propostas` | Historico de propostas enviadas |
+| `visao-fornecedor-bid-frete-internacional-desempenho.tsx` | (implementado) | `/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/desempenho` | Metricas de desempenho do fornecedor |
+| `visao-fornecedor-bid-frete-internacional-tabelas-valor.tsx` | (implementado) | `/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/tabelas-valor` | CRUD de tabelas de valor do fornecedor |
+
+> Redirect legado: `/produto/bid-frete-internacional/portal/*` → rotas equivalentes em `visao-fornecedor-bid-frete-internacional/*`.
 
 ---
 

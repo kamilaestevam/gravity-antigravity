@@ -201,7 +201,7 @@ export default function ResponderPublico() {
         <div className="rp-header">
           <Truck weight="duotone" size={32} style={{ color: 'var(--accent, #6366f1)' }} />
           <div>
-            <h1 className="rp-title">BID Frete — {t('bidfrete.portal.responder.titulo')}</h1>
+            <h1 className="rp-title">BID Frete Internacional — {t('bidfrete.portal.responder.titulo')}</h1>
             {cotacao?.fornecedor_nome && (
               <p className="rp-text-muted">{cotacao.fornecedor_nome}</p>
             )}

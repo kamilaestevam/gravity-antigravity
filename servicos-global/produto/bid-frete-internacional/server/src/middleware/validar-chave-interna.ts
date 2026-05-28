@@ -15,7 +15,7 @@ export function requireInternalKey(req: Request, res: Response, next: NextFuncti
   // Health check e master-data nao precisam de autenticacao
   if (req.path === '/health' || req.path.startsWith('/api/v1/master-data')) return next()
   // Portal do fornecedor com token publico nao precisa de internal key
-  if (req.path.startsWith('/api/v1/bid-frete-internacional/portal/public')) return next()
+  if (req.path.startsWith('/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico')) return next()
 
   const key = req.headers['x-internal-key'] as string | undefined
   const expected = process.env.CHAVE_INTERNA_SERVICO

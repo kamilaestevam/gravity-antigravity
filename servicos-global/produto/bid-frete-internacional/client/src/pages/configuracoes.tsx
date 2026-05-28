@@ -1,5 +1,5 @@
 /**
- * Configuracoes.tsx — Configurações do BID Frete (Replica Pedido Premium)
+ * Configuracoes.tsx — Configurações do BID Frete Internacional (Replica Pedido Premium)
  * Visual & Behavioral Replica — Dark Theme Slate UI
  */
 
@@ -32,7 +32,6 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { ConfiguracaoSecaoGlobal } from '@nucleo/cabecalho-secao-global'
 import { useShellStore } from '@gravity/shell'
-import { PaginaGlobal } from '@nucleo/pagina-global'
 import { SwitchGlobal } from '@nucleo/switch-global'
 import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
 import {
@@ -58,6 +57,7 @@ import {
 } from '../shared/formato-data-bid-frete'
 import {
   CARD_PERIODOS as PERIODOS,
+  DEFAULT_CARD_PREFERENCIAS,
   registrarCardCustomizado,
   useCardPreferencesBidFrete,
   type CardDefinicao,
@@ -76,6 +76,17 @@ import {
   normalizarCardConfigBidFrete,
   type KanbanCardConfigBidFrete,
 } from '../shared/kanban-bid-frete-card'
+import {
+  KANBAN_BF_MODAL_CAMPOS_DISPONIVEIS,
+  KANBAN_BF_MODAL_LIMITES,
+  KANBAN_BF_MODAL_PADRAO,
+  normalizarModalConfigBidFrete,
+  clonarModalConfigBidFrete,
+  type KanbanModalAbaBidFrete,
+  type KanbanModalCampoDisponivelBidFrete,
+  type KanbanModalConfigBidFrete,
+} from '../shared/kanban-bid-frete-modal'
+import { notificarKanbanConfigBidFreteAtualizado } from '../shared/use-kanban-preferences-bid-frete'
 import './configuracoes.css'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
@@ -215,7 +226,7 @@ const SIDEBAR_ITEMS = [
   { tipo: 'sub',    id: 'kanban-card',           label: 'Card',              labelKey: 'bidfrete.config.sidebar.card',              icone: <SquaresFour size={15} weight="duotone" />, ativo: true },
   { tipo: 'sub',    id: 'kanban-modal',          label: 'Modal',             labelKey: 'bidfrete.config.sidebar.modal',             icone: <Columns size={15} weight="duotone" />, ativo: true },
   
-  { tipo: 'grupo',  label: 'BID FRETE',          labelKey: 'bidfrete.config.sidebar.grupo_bidfrete' },
+  { tipo: 'grupo',  label: 'BID FRETE INTERNACIONAL', labelKey: 'bidfrete.config.sidebar.grupo_bidfrete' },
   { tipo: 'item',   id: 'status',                label: 'Status Cotação',    labelKey: 'bidfrete.config.sidebar.status',            icone: <Tag size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'status-bid-frete-internacional', label: 'Status BID', labelKey: 'bidfrete.config.sidebar.status_bid', icone: <Tag size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'numeracao',             label: 'Numeração',         labelKey: 'bidfrete.config.sidebar.numeracao',         icone: <Hash size={15} weight="duotone" />, ativo: true },
@@ -814,17 +825,46 @@ export default function Configuracoes() {
   // ─── States declarations ──────────────────────────────────────────────────────
 
   const {
-    prefs: cardsPref,
+    prefs: cardsSalvos,
     catalogo: cardsCatalogo,
-    disponiveis: cardsDisponiveis,
-    periodo: periodoCards,
-    setPeriodo: setPeriodoCards,
-    adicionar: adicionarCard,
-    remover: removerCard,
-    toggle: toggleCard,
-    reordenar: reordenarCards,
-    resetar: resetarCards,
+    periodo: periodoSalvo,
+    persistir: persistirCards,
+    setPeriodo: persistirPeriodoCards,
   } = useCardPreferencesBidFrete()
+
+  const [pendingCardsPrefs, setPendingCardsPrefs] = useState<CardPreferencia[]>(cardsSalvos)
+  const [pendingPeriodoCards, setPendingPeriodoCards] = useState<CardPeriodoCodigo>(periodoSalvo)
+  const [cardsPrefsBaseline, setCardsPrefsBaseline] = useState<CardPreferencia[]>(cardsSalvos)
+  const [periodoCardsBaseline, setPeriodoCardsBaseline] = useState<CardPeriodoCodigo>(periodoSalvo)
+
+  useEffect(() => {
+    setPendingCardsPrefs(cardsSalvos)
+    setCardsPrefsBaseline(cardsSalvos)
+    setPendingPeriodoCards(periodoSalvo)
+    setPeriodoCardsBaseline(periodoSalvo)
+  }, [cardsSalvos, periodoSalvo])
+
+  const cardsConfigDirty =
+    JSON.stringify(pendingCardsPrefs) !== JSON.stringify(cardsPrefsBaseline)
+    || pendingPeriodoCards !== periodoCardsBaseline
+
+  const cardsDisponiveis = useMemo(
+    () => cardsCatalogo.filter(c => !pendingCardsPrefs.some(p => p.id === c.id)),
+    [cardsCatalogo, pendingCardsPrefs],
+  )
+
+  const salvarCardsConfig = useCallback(() => {
+    persistirCards(pendingCardsPrefs)
+    persistirPeriodoCards(pendingPeriodoCards)
+    setCardsPrefsBaseline(pendingCardsPrefs)
+    setPeriodoCardsBaseline(pendingPeriodoCards)
+    addNotification({ type: 'success', message: t('bidfrete.config.cards.msg_salvo') })
+  }, [pendingCardsPrefs, pendingPeriodoCards, persistirCards, persistirPeriodoCards, addNotification, t])
+
+  const restaurarCardsPadrao = useCallback(() => {
+    setPendingCardsPrefs([...DEFAULT_CARD_PREFERENCIAS])
+    setPendingPeriodoCards('30d')
+  }, [])
 
   const {
     mapa: dashboardTopKpiSalvo,
@@ -1067,10 +1107,10 @@ export default function Configuracoes() {
   const handleDragEndCards = (event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
-    const oldIdx = cardsPref.findIndex(p => p.id === active.id)
-    const newIdx = cardsPref.findIndex(p => p.id === over.id)
+    const oldIdx = pendingCardsPrefs.findIndex(p => p.id === active.id)
+    const newIdx = pendingCardsPrefs.findIndex(p => p.id === over.id)
     if (oldIdx < 0 || newIdx < 0) return
-    reordenarCards(arrayMove(cardsPref, oldIdx, newIdx))
+    setPendingCardsPrefs(arrayMove(pendingCardsPrefs, oldIdx, newIdx))
   }
 
   const handleDragEndColunas = (event: DragEndEvent) => {
@@ -1110,7 +1150,90 @@ export default function Configuracoes() {
 
   const kanbanCardSalvar = useCallback(() => {
     salvarKanbanCardConfig()
+    notificarKanbanConfigBidFreteAtualizado()
   }, [salvarKanbanCardConfig])
+
+  const [abaAtivaModal, setAbaAtivaModal] = useState<KanbanModalAbaBidFrete>('cotacao')
+  const [
+    kanbanModalConfig,
+    setKanbanModalConfig,
+    ,
+    salvarKanbanModalConfig,
+    ,
+    kanbanModalDirty,
+  ] = useConfigState<KanbanModalConfigBidFrete>(
+    'kanban-modal-config',
+    KANBAN_BF_MODAL_PADRAO,
+  )
+
+  useEffect(() => {
+    const norm = normalizarModalConfigBidFrete(kanbanModalConfig)
+    if (JSON.stringify(norm) !== JSON.stringify(kanbanModalConfig)) {
+      setKanbanModalConfig(norm)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const kanbanModalCamposDeAba = useCallback((aba: KanbanModalAbaBidFrete) => {
+    return [...(kanbanModalConfig.abas.find(a => a.aba === aba)?.campos ?? [])].sort((a, b) => a.ordem - b.ordem)
+  }, [kanbanModalConfig])
+
+  const kanbanModalCamposEmUso = useCallback(() => {
+    const todos = new Set<string>()
+    kanbanModalConfig.abas.forEach(a => a.campos.forEach(c => todos.add(c.campo)))
+    return todos
+  }, [kanbanModalConfig])
+
+  const kanbanModalAdicionarCampo = useCallback((aba: KanbanModalAbaBidFrete, campo: KanbanModalCampoDisponivelBidFrete) => {
+    setKanbanModalConfig(prev => {
+      const abaAtual = prev.abas.find(a => a.aba === aba)
+      if (!abaAtual) return prev
+      if (abaAtual.campos.length >= (KANBAN_BF_MODAL_LIMITES[aba] ?? 10)) return prev
+      const novaOrdem = abaAtual.campos.length
+      const novoCampo = { campo: campo.campo, label: campo.label, visivel: true, ordem: novaOrdem }
+      return {
+        abas: prev.abas.map(a =>
+          a.aba === aba ? { ...a, campos: [...a.campos, novoCampo] } : a,
+        ),
+      }
+    })
+  }, [setKanbanModalConfig])
+
+  const kanbanModalRemoverCampo = useCallback((aba: KanbanModalAbaBidFrete, campo: string) => {
+    setKanbanModalConfig(prev => ({
+      abas: prev.abas.map(a =>
+        a.aba === aba
+          ? { ...a, campos: a.campos.filter(c => c.campo !== campo).map((c, i) => ({ ...c, ordem: i })) }
+          : a,
+      ),
+    }))
+  }, [setKanbanModalConfig])
+
+  const kanbanModalToggleVisivel = useCallback((aba: KanbanModalAbaBidFrete, campo: string) => {
+    setKanbanModalConfig(prev => ({
+      abas: prev.abas.map(a =>
+        a.aba === aba
+          ? { ...a, campos: a.campos.map(c => c.campo === campo ? { ...c, visivel: !c.visivel } : c) }
+          : a,
+      ),
+    }))
+  }, [setKanbanModalConfig])
+
+  const kanbanModalRestaurarPadrao = useCallback(() => {
+    setKanbanModalConfig(clonarModalConfigBidFrete(KANBAN_BF_MODAL_PADRAO))
+  }, [setKanbanModalConfig])
+
+  const kanbanModalSalvar = useCallback(() => {
+    salvarKanbanModalConfig()
+    notificarKanbanConfigBidFreteAtualizado()
+    addNotification({ type: 'success', message: t('bidfrete.config.cards.msg_salvo', 'Preferências do modal salvas com sucesso!') })
+  }, [salvarKanbanModalConfig, addNotification, t])
+
+  const KANBAN_BF_MODAL_ABA_LABELS: Record<KanbanModalAbaBidFrete | 'lembrete', string> = {
+    cotacao: 'Cotação',
+    rota: 'Rota',
+    datas: 'Datas',
+    lembrete: 'Lembrete',
+  }
 
   const handleDragEndStatus = (event: DragEndEvent) => {
     const { active, over } = event
@@ -1124,10 +1247,7 @@ export default function Configuracoes() {
   }
 
   return (
-    <PaginaGlobal
-      className="bf-configuracoes bid-frete-page-shell"
-    >
-      <div className="cfg-page">
+    <div className="cfg-page ws-fade-up">
         {/* ── Sidebar ── */}
         <aside className="cfg-sidebar">
         <nav className="cfg-sidebar__nav">
@@ -1199,25 +1319,30 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Meus Cards</h2>
-                  <p className="cfg-secao__desc">Defina quais cards numéricos aparecem no topo da tela, ordene e oculte os não utilizados.</p>
+                  <h2 className="cfg-secao__titulo">
+                    {t('bidfrete.configuracoes.meus_cards_titulo', 'Meus Cards')}
+                  </h2>
+                  <p className="cfg-secao__desc">
+                    {t('bidfrete.configuracoes.meus_cards_desc', 'Defina quais cards numéricos aparecem no topo da tela, ordene e oculte os não utilizados.')}
+                  </p>
                 </div>
-                <button type="button" className="cfg-btn-header--restaurar" onClick={resetarCards}>
-                  <ArrowCounterClockwise size={13} weight="bold" />
-                  Restaurar padrão
-                </button>
+                <div className="cfg-secao__header-actions">
+                  <button type="button" className="cfg-add-row-btn" onClick={() => setCriandoCard(true)}>
+                    <Plus size={13} weight="bold" />
+                    {t('bidfrete.configuracoes.adicionar_card_kpi', 'Adicionar card KPI customizado')}
+                  </button>
+                </div>
               </div>
 
-              {/* Período */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <p className="cfg-list-section-label" style={{ marginBottom: '0.5rem' }}>Período de Comparação</p>
+              <ConfiguracaoSecaoGlobal label={t('bidfrete.configuracoes.periodo_comparacao', 'Período de Comparação')} />
+              <div className="cfg-periodo-row">
                 <div className="cfg-periodo-pills">
                   {PERIODOS.map(p => (
                     <button
                       key={p.id}
                       type="button"
-                      className={`cfg-periodo-pill ${periodoCards === p.id ? 'cfg-periodo-pill--ativo' : ''}`}
-                      onClick={() => setPeriodoCards(p.id)}
+                      className={`cfg-periodo-pill ${pendingPeriodoCards === p.id ? 'cfg-periodo-pill--ativo' : ''}`}
+                      onClick={() => setPendingPeriodoCards(p.id)}
                     >
                       {p.label}
                     </button>
@@ -1232,7 +1357,7 @@ export default function Configuracoes() {
                   Preview — Como ficará na tela
                 </p>
                 <div className="cfg-cards-preview-grid">
-                  {cardsPref.map((pref, i) => {
+                  {pendingCardsPrefs.map((pref, i) => {
                     const card = cardsCatalogo.find(c => c.id === pref.id)
                     if (!card) return null
                     return (
@@ -1250,11 +1375,11 @@ export default function Configuracoes() {
               </div>
 
               {/* Ativos List (DnD Context) */}
-              <ConfiguracaoSecaoGlobal label="ATIVOS" count={`${cardsPref.length} cards`} />
+              <ConfiguracaoSecaoGlobal label="ATIVOS" count={`${pendingCardsPrefs.length} cards`} />
               <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEndCards}>
-                <SortableContext items={cardsPref.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                <SortableContext items={pendingCardsPrefs.map(p => p.id)} strategy={verticalListSortingStrategy}>
                   <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
-                    {cardsPref.map(pref => {
+                    {pendingCardsPrefs.map(pref => {
                       const def = cardsCatalogo.find(c => c.id === pref.id)
                       if (!def) return null
                       return (
@@ -1262,9 +1387,11 @@ export default function Configuracoes() {
                           key={pref.id}
                           pref={pref}
                           def={def}
-                          periodoAtivo={periodoCards}
-                          onToggle={() => toggleCard(pref.id)}
-                          onRemover={() => removerCard(pref.id)}
+                          periodoAtivo={pendingPeriodoCards}
+                          onToggle={() => setPendingCardsPrefs(prev =>
+                            prev.map(p => (p.id === pref.id ? { ...p, visible: !p.visible } : p)),
+                          )}
+                          onRemover={() => setPendingCardsPrefs(prev => prev.filter(p => p.id !== pref.id))}
                         />
                       )
                     })}
@@ -1281,16 +1408,26 @@ export default function Configuracoes() {
                   <CardDisponivel
                     key={def.id}
                     def={def}
-                    periodoAtivo={periodoCards}
-                    onAdicionar={() => adicionarCard(def.id)}
+                    periodoAtivo={pendingPeriodoCards}
+                    onAdicionar={() => {
+                      if (pendingCardsPrefs.some(p => p.id === def.id)) return
+                      setPendingCardsPrefs(prev => [...prev, { id: def.id, visible: true }])
+                    }}
                   />
                 ))}
               </div>
 
-              <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-start' }}>
-                <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={() => setCriandoCard(true)}>
-                  <Plus size={14} weight="bold" /> Adicionar card KPI customizado
-                </BotaoGlobal>
+              <div className="cfg-secao__footer">
+                <BotaoCancelar
+                  dirty={cardsConfigDirty}
+                  rotulo={t('bidfrete.config.acao.restaurar_padrao', 'Restaurar padrão')}
+                  onClick={restaurarCardsPadrao}
+                />
+                <BotaoSalvar
+                  dirty={cardsConfigDirty}
+                  rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
+                  onClick={salvarCardsConfig}
+                />
               </div>
             </section>
           </div>
@@ -1906,7 +2043,7 @@ export default function Configuracoes() {
           </section>
         )}
 
-        {/* ── CATEGORIA: KANBAN MODAL ── */}
+        {/* ── CATEGORIA: KANBAN MODAL (paridade Pedido) ── */}
         {categoria === 'kanban-modal' && (
           <section className="cfg-secao">
             <div className="cfg-secao__header">
@@ -1915,7 +2052,139 @@ export default function Configuracoes() {
                 <p className="cfg-secao__desc">Decida quais informações da cotação são editáveis no modal pop-up lateral.</p>
               </div>
             </div>
-            <p className="cfg-hint">Todas as informações completas continuam acessíveis através do botão Detalhes na cotação.</p>
+
+            {(() => {
+              const campos = kanbanModalCamposDeAba(abaAtivaModal)
+              const limite = KANBAN_BF_MODAL_LIMITES[abaAtivaModal] ?? 10
+              const nomeAba = KANBAN_BF_MODAL_ABA_LABELS[abaAtivaModal]
+              const disponiveis = KANBAN_BF_MODAL_CAMPOS_DISPONIVEIS.filter(cd => cd.categoria === abaAtivaModal)
+              return (
+                <>
+                  <div className="cfg-cards-preview-wrap">
+                    <p className="cfg-cards-preview-label">
+                      <SquaresFour size={12} weight="fill" />
+                      Preview — como ficará no modal
+                    </p>
+                    <div className="cfg-modal-preview">
+                      <div className="cfg-modal-preview__tabs">
+                        {(['cotacao', 'rota', 'datas', 'lembrete'] as const).map(tab => (
+                          <span key={tab} className={`cfg-modal-preview__tab${tab === abaAtivaModal ? ' cfg-modal-preview__tab--ativo' : ''}`}>
+                            {KANBAN_BF_MODAL_ABA_LABELS[tab]}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="cfg-modal-preview__campos">
+                        {campos.filter(c => c.visivel).map(c => (
+                          <div key={c.campo} className="cfg-modal-preview__campo">
+                            <span className="cfg-modal-preview__campo-label">{c.label}</span>
+                            <span className="cfg-modal-preview__campo-valor">—</span>
+                          </div>
+                        ))}
+                        {campos.length === 0 && (
+                          <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'center', padding: '0.5rem 0' }}>
+                            Nenhum campo nesta aba
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="cfg-periodo-pills" style={{ marginBottom: '1.25rem' }}>
+                    {(['cotacao', 'rota', 'datas'] as const).map(aba => {
+                      const qtd = kanbanModalCamposDeAba(aba).length
+                      const lim = KANBAN_BF_MODAL_LIMITES[aba] ?? 10
+                      return (
+                        <button
+                          key={aba}
+                          type="button"
+                          className={`cfg-periodo-pill${abaAtivaModal === aba ? ' cfg-periodo-pill--ativo' : ''}`}
+                          onClick={() => setAbaAtivaModal(aba)}
+                        >
+                          {KANBAN_BF_MODAL_ABA_LABELS[aba]}
+                          <span style={{ marginLeft: '0.375rem', fontSize: '0.6875rem', opacity: 0.7 }}>
+                            {qtd}/{lim}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  <ConfiguracaoSecaoGlobal label="ATIVOS" count={`${campos.length}/${limite} campos`} />
+                  <p className="cfg-hint">Oculte ou remova campos que não deseja no modal da aba {nomeAba}. Detalhe completo permanece em Detalhes.</p>
+
+                  <div className="cfg-kanban-campos-lista">
+                    {campos.map(cfg => (
+                      <div key={cfg.campo} className={`cfg-kanban-campo-row${!cfg.visivel ? ' cfg-kanban-campo-row--oculto' : ''}`}>
+                        <span className="cfg-drag-handle" aria-label="Arrastar">
+                          <DotsSixVertical size={15} weight="bold" />
+                        </span>
+                        <span className="cfg-kanban-campo-label">{cfg.label}</span>
+                        <button
+                          type="button"
+                          className={`cfg-eye-btn${cfg.visivel ? ' cfg-eye-btn--on' : ''}`}
+                          onClick={() => kanbanModalToggleVisivel(abaAtivaModal, cfg.campo)}
+                          aria-label={cfg.visivel ? 'Ocultar campo' : 'Exibir campo'}
+                        >
+                          {cfg.visivel ? <Eye size={14} weight="bold" /> : <EyeSlash size={14} weight="bold" />}
+                        </button>
+                        <button
+                          type="button"
+                          className="cfg-remove-btn"
+                          onClick={() => kanbanModalRemoverCampo(abaAtivaModal, cfg.campo)}
+                          aria-label="Remover campo"
+                        >
+                          <X size={12} weight="bold" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <ConfiguracaoSecaoGlobal label="DISPONÍVEIS PARA ADICIONAR" hint="Clique em + para incluir na aba ativa" style={{ marginTop: '1.5rem' }} />
+                  <div className="cfg-kanban-disponivel-lista">
+                    {disponiveis.filter(cd => !kanbanModalCamposEmUso().has(cd.campo)).map(cd => {
+                      const cheio = campos.length >= limite
+                      return (
+                        <div key={cd.campo} className="cfg-kanban-disponivel-row">
+                          <span className="cfg-kanban-disponivel-label">{cd.label}</span>
+                          <TooltipGlobal descricao={cheio ? `Limite de ${limite} campos` : `Adicionar à aba ${nomeAba}`}>
+                            <button
+                              type="button"
+                              className={`cfg-kanban-add-btn${cheio ? ' cfg-kanban-add-btn--disabled' : ''}`}
+                              onClick={() => { if (!cheio) kanbanModalAdicionarCampo(abaAtivaModal, cd) }}
+                              disabled={cheio}
+                              aria-label="Adicionar campo"
+                            >
+                              <Plus size={13} weight="bold" />
+                            </button>
+                          </TooltipGlobal>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  <div className="cfg-kanban-aba cfg-kanban-aba--fixa" style={{ marginTop: '1.5rem' }}>
+                    <ConfiguracaoSecaoGlobal
+                      label="ABA LEMBRETE"
+                      action={<span className="cfg-kanban-aba-fixa-badge">Fixa</span>}
+                    />
+                    <p className="cfg-hint">Aba fixa — não configurável.</p>
+                  </div>
+
+                  <div className="cfg-secao__footer">
+                    <BotaoCancelar
+                      dirty={kanbanModalDirty}
+                      rotulo={t('bidfrete.config.acao.restaurar_padrao', 'Restaurar padrão')}
+                      onClick={kanbanModalRestaurarPadrao}
+                    />
+                    <BotaoSalvar
+                      dirty={kanbanModalDirty}
+                      rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
+                      onClick={kanbanModalSalvar}
+                    />
+                  </div>
+                </>
+              )
+            })()}
           </section>
         )}
 
@@ -2129,7 +2398,7 @@ export default function Configuracoes() {
             <div className="cfg-secao__header">
               <div>
                 <h2 className="cfg-secao__titulo">Regras de Negócio</h2>
-                <p className="cfg-secao__desc">Configure as regras de envio, validação e automações do BID Frete.</p>
+                <p className="cfg-secao__desc">Configure as regras de envio, validação e automações do BID Frete Internacional.</p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -2322,7 +2591,6 @@ export default function Configuracoes() {
         )}
 
       </main>
-      </div>
 
       {/* ── Modais Auxiliares ── */}
       {criandoCard && (
@@ -2341,7 +2609,10 @@ export default function Configuracoes() {
               icone: card.icone,
               cor: card.cor,
             })
-            adicionarCard(newId)
+            setPendingCardsPrefs(prev => {
+              if (prev.some(p => p.id === newId)) return prev
+              return [...prev, { id: newId, visible: true }]
+            })
             setCriandoCard(false)
           }}
         />
@@ -2376,7 +2647,7 @@ export default function Configuracoes() {
           }}
         />
       )}
-    </PaginaGlobal>
+    </div>
   )
 }
 

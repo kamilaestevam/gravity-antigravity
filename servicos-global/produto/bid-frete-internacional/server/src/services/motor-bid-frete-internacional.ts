@@ -1,7 +1,7 @@
 ﻿/**
  * motor-bid.ts — Motor de Disparo de BIDs
  * Responsável por:
- * 1. Criar Pedidos de Cotação (BidRequests) para cada fornecedor selecionado
+ * 1. Criar disparos de cotação para cada fornecedor selecionado
  * 2. Disparar via Email (Resend) e/ou WhatsApp (Meta Cloud API)
  * 3. Gerar tokens públicos para resposta sem login
  * 4. Verificar tabelas de valor para cotação automática
@@ -72,8 +72,8 @@ export const motorBid = {
         const token = randomUUID()
         const tokenExpira = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 dias
 
-        // Criar BidRequest (Pedido de Cotacao)
-        const bidRequest = await (prisma as any).disparoCotacaoBidFreteInternacional.create({
+        // Criar disparo de cotação
+        const disparo_cotacao = await (prisma as any).disparoCotacaoBidFreteInternacional.create({
           data: {
             id_produto_gravity: 'bid-frete-internacional',
             id_usuario,
@@ -97,7 +97,7 @@ export const motorBid = {
           }
 
           await (prisma as any).disparoCotacaoBidFreteInternacional.update({
-            where: { id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional },
+            where: { id_disparo_cotacao_bid_frete_internacional: disparo_cotacao.id_disparo_cotacao_bid_frete_internacional },
             data: {
               status_disparo_cotacao_bid_frete_internacional: 'ENVIADO',
               data_envio_disparo_cotacao_bid_frete_internacional: new Date(),
@@ -108,7 +108,7 @@ export const motorBid = {
         } catch (err: unknown) {
           const errorMessage = err instanceof Error ? err.message : String(err)
           await (prisma as any).disparoCotacaoBidFreteInternacional.update({
-            where: { id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional },
+            where: { id_disparo_cotacao_bid_frete_internacional: disparo_cotacao.id_disparo_cotacao_bid_frete_internacional },
             data: {
               status_disparo_cotacao_bid_frete_internacional: 'ERRO_ENVIO',
               erro_envio_disparo_cotacao_bid_frete_internacional: errorMessage,
@@ -119,13 +119,13 @@ export const motorBid = {
         results.push({
           id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
           canal_disparo_cotacao_bid_frete_internacional,
-          id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional,
+          id_disparo_cotacao_bid_frete_internacional: disparo_cotacao.id_disparo_cotacao_bid_frete_internacional,
         })
       }
 
       // Se tem tabela padrao e cotacao automatica ativada, gerar resposta automatica
       if (tabelaMatch && fornecedor.cotacao_automatica_fornecedor_bid_frete_internacional) {
-        await this.gerarRespostaAutomatica(prisma, cotacao, fornecedor, tabelaMatch)
+        await this.gerarPropostaAutomatica(prisma, cotacao, fornecedor, tabelaMatch)
       }
     }
 
@@ -196,15 +196,15 @@ export const motorBid = {
   },
 
   /**
-   * Gera BidResponse automatica a partir da tabela de precos
+   * Gera proposta automática a partir da tabela de valor
    */
-  async gerarRespostaAutomatica(prisma: PrismaClient, _cotacao: Record<string, unknown>, _fornecedor: Record<string, unknown>, _tabela: Record<string, unknown>) {
+  async gerarPropostaAutomatica(prisma: PrismaClient, _cotacao: Record<string, unknown>, _fornecedor: Record<string, unknown>, _tabela: Record<string, unknown>) {
     const cotacao = _cotacao as any
     const fornecedor = _fornecedor as any
     const tabela = _tabela as any
 
-    // Buscar o bidRequest correspondente
-    const bidRequest = await (prisma as any).disparoCotacaoBidFreteInternacional.findFirst({
+    // Buscar disparo correspondente
+    const disparo_cotacao = await (prisma as any).disparoCotacaoBidFreteInternacional.findFirst({
       where: {
         id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
         id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
@@ -212,16 +212,16 @@ export const motorBid = {
       orderBy: { data_criacao_disparo_cotacao_bid_frete_internacional: 'desc' },
     })
 
-    if (!bidRequest) return null
+    if (!disparo_cotacao) return null
 
     const snapshotProposta = snapshotPropostaFromCotacao(cotacao)
 
-    const response = await (prisma as any).propostaBidFreteInternacional.create({
+    const proposta = await (prisma as any).propostaBidFreteInternacional.create({
       data: {
         id_produto_gravity: 'bid-frete-internacional',
         id_organizacao: cotacao.id_organizacao,
         ...snapshotProposta,
-        id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional,
+        id_disparo_cotacao_bid_frete_internacional: disparo_cotacao.id_disparo_cotacao_bid_frete_internacional,
         id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
         id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
         moeda_proposta_bid_frete_internacional: tabela.moeda_tabela_bid_frete_internacional,
@@ -236,16 +236,16 @@ export const motorBid = {
       },
     })
 
-    // Atualizar bidRequest como respondido
+    // Atualizar disparo como respondido
     await (prisma as any).disparoCotacaoBidFreteInternacional.update({
-      where: { id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional },
+      where: { id_disparo_cotacao_bid_frete_internacional: disparo_cotacao.id_disparo_cotacao_bid_frete_internacional },
       data: {
         status_disparo_cotacao_bid_frete_internacional: 'RESPONDIDO',
         data_resposta_disparo_cotacao_bid_frete_internacional: new Date(),
       },
     })
 
-    return response
+    return proposta
   },
 
   async dispararEmail(

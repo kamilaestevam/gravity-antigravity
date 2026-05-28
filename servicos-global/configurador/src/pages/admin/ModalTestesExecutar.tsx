@@ -38,7 +38,7 @@ const PRODUTOS = [
   { valor: 'admin',         rotulo: 'Admin' },
   { valor: 'configurador',  rotulo: 'Configurador' },
   { valor: 'pedido',        rotulo: 'Pedido' },
-  { valor: 'bid-frete',     rotulo: 'Bid Frete' },
+  { valor: 'bid-frete',     rotulo: 'BID Frete Internacional' },
   { valor: 'bid-cambio',    rotulo: 'Bid Câmbio' },
   { valor: 'lpco',          rotulo: 'LPCO' },
   { valor: 'nf-importacao', rotulo: 'NF Importação' },

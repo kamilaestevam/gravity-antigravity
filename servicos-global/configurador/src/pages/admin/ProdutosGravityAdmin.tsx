@@ -963,7 +963,7 @@ export function ProdutosGravityAdmin() {
                             valor: s,
                             rotulo: ({
                               'simula-custo': 'Simula Custo',
-                              'bid-frete': 'Bid Frete',
+                              'bid-frete': 'BID Frete Internacional',
                               'bid-cambio': 'Bid Cambio',
                               'pedido': 'Pedido',
                               'nf-importacao': 'NF Import',

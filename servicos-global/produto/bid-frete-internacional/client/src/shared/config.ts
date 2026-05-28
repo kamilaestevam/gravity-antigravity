@@ -1,5 +1,5 @@
 /**
- * config.ts — PRODUCT_CONFIG do BID Frete
+ * config.ts — PRODUCT_CONFIG do BID Frete Internacional
  *
  * Fonte de verdade do produto: declara servicos de tenant usados,
  * servicos de produto internos e a navegação lateral.
@@ -24,7 +24,7 @@ export interface NavigationItem {
 export const PRODUCT_CONFIG = {
   id: 'bid-frete-internacional',
   productId: 'bid-frete-internacional',
-  name: 'BID Frete',
+  name: 'BID Frete Internacional',
   port: 8023,
 
   tenantServices: [
@@ -60,8 +60,8 @@ export const PRODUCT_CONFIG = {
       ],
     },
 
-    // ── BID Frete ─────────────────────────────────────────────────────────────
-    { id: 'section-bid-frete',                          label: 'BID Frete',      sectionDivider: true },
+    // ── BID Frete Internacional ─────────────────────────────────────────────────
+    { id: 'section-bid-frete',                          label: 'BID Frete Internacional', sectionDivider: true },
     { id: '/bid-frete/visao-geral',             label: 'Visão Geral',    icon: 'chart-pie-slice', source: 'product' },
     { id: '/bid-frete/dashboard',               label: 'Dashboard',      icon: 'chart-bar',       source: 'product' },
     { id: '/bid-frete/cotacoes?visao=lista',    label: 'Lista',          icon: 'list-bullets',    source: 'product' },
@@ -78,9 +78,17 @@ export const PRODUCT_CONFIG = {
     cotacao_aberta: true,
     nota_global_classificacao_bid_frete_internacional: true,
     monetizacao: false,
-    portal_publico: true,
+    visao_fornecedor_bid_frete_internacional_publico: true,
     importacao_bloco: true,
     mapa_rotas: true,
     conectores_erp: false,
   },
+
+  navigation_visao_fornecedor_bid_frete_internacional: [
+    { id: '/visao-fornecedor-bid-frete-internacional/dashboard', labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.dashboard', label: 'Visão geral', icon: 'chart-pie-slice', source: 'product' },
+    { id: '/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes', labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.cotacoes_pendentes', label: 'Cotações pendentes', icon: 'envelope', source: 'product' },
+    { id: '/visao-fornecedor-bid-frete-internacional/propostas', labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.propostas', label: 'Minhas propostas', icon: 'paper-plane-tilt', source: 'product' },
+    { id: '/visao-fornecedor-bid-frete-internacional/tabelas-valor', labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.tabelas_valor', label: 'Tabelas de valor', icon: 'currency-dollar', source: 'product' },
+    { id: '/visao-fornecedor-bid-frete-internacional/desempenho', labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.desempenho', label: 'Meu desempenho', icon: 'chart-bar', source: 'product' },
+  ] satisfies NavigationItem[],
 } as const

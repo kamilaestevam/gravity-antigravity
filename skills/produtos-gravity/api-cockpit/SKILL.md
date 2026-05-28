@@ -103,7 +103,7 @@ No Configurador, a organização vê todas as APIs de todos os produtos em uma �
 |:---|:---|:---|
 | Simulador Comex | api.gravity.com.br/sim-comex | 🟢 Online |
 | NF Importação | api.gravity.com.br/nf-import | 🟢 Online |
-| Bid Frete | api.gravity.com.br/bid-frete | 🟢 Online |
+| BID Frete Internacional | api.gravity.com.br/bid-frete | 🟢 Online |
 
 ---
 

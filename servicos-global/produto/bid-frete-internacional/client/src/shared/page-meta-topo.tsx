@@ -32,11 +32,11 @@ const ROUTE_LABELS: Record<string, string> = {
   'cotacoes/importar':    'Importar Cotações',
   'fornecedores':         'Fornecedores',
   'configuracoes':        'Configurações',
-  'portal/dashboard':     'Portal — Dashboard',
-  'portal/pendentes':     'Cotações Pendentes',
-  'portal/respostas':     'Respostas',
-  'portal/tabela-precos': 'Tabela de Preços',
-  'portal/desempenho':    'Desempenho',
+  'visao-fornecedor-bid-frete-internacional/dashboard':     'Visão Fornecedor — Dashboard',
+  'visao-fornecedor-bid-frete-internacional/cotacoes-pendentes': 'Cotações pendentes',
+  'visao-fornecedor-bid-frete-internacional/propostas':     'Minhas propostas',
+  'visao-fornecedor-bid-frete-internacional/tabelas-valor': 'Tabelas de valor',
+  'visao-fornecedor-bid-frete-internacional/desempenho':    'Meu desempenho',
 }
 
 const ROUTE_HEADERS: Record<string, Omit<PageMetaTopo, 'label'>> = {
@@ -47,11 +47,11 @@ const ROUTE_HEADERS: Record<string, Omit<PageMetaTopo, 'label'>> = {
   'cotacoes/importar':    { icone: <Upload          weight="duotone" size={22} />, subtitulo: 'Importar cotações em massa via planilha' },
   'fornecedores':         { icone: <Buildings       weight="duotone" size={22} />, subtitulo: 'Transportadores e agentes de carga cadastrados' },
   'configuracoes':        { icone: <GearSix         weight="duotone" size={22} />, subtitulo: 'Personalize cards, colunas e status do produto' },
-  'portal/dashboard':     { icone: <ChartPieSlice   weight="duotone" size={22} />, subtitulo: 'Visão geral das suas cotações e desempenho' },
-  'portal/pendentes':     { icone: <Envelope        weight="duotone" size={22} />, subtitulo: 'Cotações aguardando sua resposta' },
-  'portal/respostas':     { icone: <PaperPlaneTilt  weight="duotone" size={22} />, subtitulo: 'Propostas que você enviou' },
-  'portal/tabela-precos': { icone: <CurrencyDollar  weight="duotone" size={22} />, subtitulo: 'Sua tabela de preços e fretes' },
-  'portal/desempenho':    { icone: <Star            weight="duotone" size={22} />, subtitulo: 'Métricas das suas propostas' },
+  'visao-fornecedor-bid-frete-internacional/dashboard':     { icone: <ChartPieSlice   weight="duotone" size={22} />, subtitulo: 'Visão geral das suas cotações e desempenho' },
+  'visao-fornecedor-bid-frete-internacional/cotacoes-pendentes': { icone: <Envelope        weight="duotone" size={22} />, subtitulo: 'Cotações aguardando sua proposta' },
+  'visao-fornecedor-bid-frete-internacional/propostas':     { icone: <PaperPlaneTilt  weight="duotone" size={22} />, subtitulo: 'Propostas que você enviou' },
+  'visao-fornecedor-bid-frete-internacional/tabelas-valor': { icone: <CurrencyDollar  weight="duotone" size={22} />, subtitulo: 'Suas tabelas de valor' },
+  'visao-fornecedor-bid-frete-internacional/desempenho':    { icone: <Star            weight="duotone" size={22} />, subtitulo: 'Métricas e classificação' },
 }
 
 const LISTA_META: PageMetaTopo = {
@@ -112,7 +112,7 @@ export function resolverPageMetaTopo(pathname: string, search: string): PageMeta
     return DETALHE_COTACAO_META
   }
   if (/^fornecedores\/[^/]+$/.test(routeKey)) return DETALHE_FORNECEDOR_META
-  if (/^portal\/responder\/[^/]+$/.test(routeKey)) return RESPONDER_COTACAO_META
+  if (/^visao-fornecedor-bid-frete-internacional\/responder\/[^/]+$/.test(routeKey)) return RESPONDER_COTACAO_META
 
   return metaFromRoute(routeKey)
 }

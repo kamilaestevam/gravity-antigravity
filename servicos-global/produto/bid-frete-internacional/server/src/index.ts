@@ -25,8 +25,8 @@ import { configStatusRouter } from './routes/config-status.js'
 import { configStatusBidFreteInternacionalRouter } from './routes/config-status-bid-frete-internacional.js'
 import { bidsFreteInternacionalRouter } from './routes/bids-frete-internacional.js'
 import { comparativoRouter } from './routes/comparativo.js'
-import { portalRouter } from './routes/portal.js'
-import { cotacoesPublicasRouter } from './routes/cotacoes-publicas.js'
+import { visaoFornecedorBidFreteInternacionalRouter } from './routes/visao-fornecedor-bid-frete-internacional.js'
+import { visaoFornecedorBidFreteInternacionalPublicoRouter } from './routes/visao-fornecedor-bid-frete-internacional-publico.js'
 import { avaliacoesRouter } from './routes/avaliacoes.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
@@ -102,8 +102,12 @@ app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(
 app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), aeroportosRouter)
 app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), containersRouter)
 
-// --- 6. Portal Publico do Fornecedor — SEM internal key (usa token de resposta) ---
-app.use('/api/v1/bid-frete-internacional/portal/publico', rateLimitPresets.public(), cotacoesPublicasRouter)
+// --- 6. Visao Fornecedor publico — SEM internal key (usa token de resposta) ---
+app.use(
+  '/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico',
+  rateLimitPresets.public(),
+  visaoFornecedorBidFreteInternacionalPublicoRouter,
+)
 
 // --- 7. requireInternalKey — protege todas as rotas abaixo ---
 app.use(requireInternalKey)
@@ -137,7 +141,7 @@ app.use('/api/v1/bid-frete-internacional/solicitacao-cotacao-bid-frete-internaci
 app.use('/api/v1/bid-frete-internacional/config/status', configStatusRouter)
 app.use('/api/v1/bid-frete-internacional/config/status-bid-frete-internacional', configStatusBidFreteInternacionalRouter)
 app.use('/api/v1/bid-frete-internacional/comparativo', comparativoRouter)
-app.use('/api/v1/bid-frete-internacional/portal', portalRouter)
+app.use('/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional', visaoFornecedorBidFreteInternacionalRouter)
 app.use('/api/v1/bid-frete-internacional/avaliacoes', avaliacoesRouter)
 app.use('/api/v1/bid-frete-internacional/dashboard', dashboardRouter)
 app.use('/api/v1/bid-frete-internacional/dashboard', dashboardWidgetsRouter)

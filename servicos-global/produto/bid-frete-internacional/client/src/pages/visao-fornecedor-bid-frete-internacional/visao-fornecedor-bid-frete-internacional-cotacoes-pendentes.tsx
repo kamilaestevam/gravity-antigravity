@@ -19,7 +19,7 @@ import {
   MapPin,
 } from '@phosphor-icons/react'
 
-import { getCotacoesPendentesBidFreteInternacional } from '../../shared/api'
+import { getVisaoFornecedorBidFreteInternacionalCotacoesPendentes } from '../../shared/api'
 import type { DisparoCotacaoBidFreteInternacional, ModalFrete, StatusDisparoCotacaoBidFreteInternacional } from '../../shared/types'
 import { MODAL_LABELS, STATUS_DISPARO_COTACAO_BID_FRETE_INTERNACIONAL_LABELS } from '../../shared/types'
 
@@ -42,8 +42,8 @@ const BID_STATUS_COLORS: Record<string, { bg: string; color: string }> = {
 
 interface CotacaoInfo {
   numero_cotacao_bid_frete_internacional: string
-  origem_nome_cotacao_bid_frete_internacional: string
-  destino_nome_cotacao_bid_frete_internacional: string
+  origem_nome_tabela_bid_frete_internacional: string
+  destino_nome_tabela_bid_frete_internacional: string
   modal_cotacao_bid_frete_internacional: ModalFrete
   incoterm_cotacao_bid_frete_internacional: string
   quantidade_cotacao_bid_frete_internacional: number
@@ -74,7 +74,7 @@ export default function CotacoesPendentes() {
   const carregar = useCallback(async () => {
     setCarregando(true)
     try {
-      const data = await getCotacoesPendentesBidFreteInternacional()
+      const data = await getVisaoFornecedorBidFreteInternacionalCotacoesPendentes()
       setBids(data)
     } catch {
       // silencioso
@@ -86,7 +86,7 @@ export default function CotacoesPendentes() {
   useEffect(() => { carregar() }, [carregar])
 
   useSincronizarTituloPaginaTopo(useMemo(() => ({
-    label:     t('bidfrete.portal.cotacoes_pendentes.titulo'),
+    label:     t('bidfrete.visao_fornecedor_bid_frete_internacional.cotacoes_pendentes.titulo'),
     icone:     <Envelope weight="duotone" size={22} />,
     subtitulo: `${bids.length} cotação(ões) aguardando sua resposta`,
   }), [t, bids.length]))
@@ -96,12 +96,12 @@ export default function CotacoesPendentes() {
       {carregando ? (
         <div className="cp-loading">
           <ClockCountdown weight="duotone" size={48} style={{ opacity: 0.3 }} />
-          <p>{t('bidfrete.portal.cotacoes_pendentes.carregando')}</p>
+          <p>{t('bidfrete.visao_fornecedor_bid_frete_internacional.cotacoes_pendentes.carregando')}</p>
         </div>
       ) : bids.length === 0 ? (
         <div className="cp-empty">
           <Envelope weight="duotone" size={48} style={{ opacity: 0.3 }} />
-          <p>{t('bidfrete.portal.cotacoes_pendentes.vazio')}</p>
+          <p>{t('bidfrete.visao_fornecedor_bid_frete_internacional.cotacoes_pendentes.vazio')}</p>
         </div>
       ) : (
         <div className="cp-grid">
@@ -136,7 +136,7 @@ export default function CotacoesPendentes() {
                 <div className="cp-card-body">
                   <div className="cp-info-row">
                     <MapPin weight="duotone" size={14} />
-                    <span>{cotacao?.origem_nome_cotacao_bid_frete_internacional ?? '—'} &rarr; {cotacao?.destino_nome_cotacao_bid_frete_internacional ?? '—'}</span>
+                    <span>{cotacao?.origem_nome_tabela_bid_frete_internacional ?? '—'} &rarr; {cotacao?.destino_nome_tabela_bid_frete_internacional ?? '—'}</span>
                   </div>
                   <div className="cp-info-row">
                     <span className="cp-info-label">Modal</span>
@@ -162,9 +162,9 @@ export default function CotacoesPendentes() {
 
                 <button
                   className="cp-btn-responder"
-                  onClick={() => navigate(`/produto/bid-frete/portal/responder/${bid.id_disparo_cotacao_bid_frete_internacional}`)}
+                  onClick={() => navigate(`/visao-fornecedor-bid-frete-internacional/responder/${bid.id_disparo_cotacao_bid_frete_internacional}`)}
                 >
-                  {t('bidfrete.portal.responder.titulo')}
+                  {t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.titulo')}
                   <ArrowRight weight="bold" size={14} />
                 </button>
               </div>

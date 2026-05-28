@@ -60,7 +60,7 @@ const AREA_LABELS: Record<string, string> = {
   configurador: 'Configurador',
   'nucleo-global': 'Núcleo Global',
   pedido: 'Pedido',
-  'bid-frete': 'Bid Frete',
+  'bid-frete': 'BID Frete Internacional',
   'bid-cambio': 'Bid Câmbio',
   'simula-custo': 'Simula Custo',
   'nf-importacao': 'NF Importação',

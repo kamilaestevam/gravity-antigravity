@@ -38,7 +38,7 @@ describe('buildVisaoGeralMapa', () => {
     expect(mapa.globeRoutes).toEqual([])
   })
 
-  it('agrega origem estrangeira e hubs BR em importação (padrão BID Frete)', () => {
+  it('agrega origem estrangeira e hubs BR em importação (padrão BID Frete Internacional)', () => {
     const mapa = buildVisaoGeralMapa([pedidoBase({})])
 
     const shanghai = mapa.pins.find(p => p.papel === 'origem' && p.label.toLowerCase().includes('shanghai'))

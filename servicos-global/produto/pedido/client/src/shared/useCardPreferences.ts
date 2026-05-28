@@ -21,12 +21,18 @@ const SYNC_EVENT     = 'pedido:cards-updated'
 const DEFAULT: CardPreferencia[] = CARDS_PADRAO.map(id => ({ id, visible: true }))
 const DEFAULT_PERIODO: CardPeriodoCodigo = '30d'
 
+function isPreferenciaCardValida(p: CardPreferencia): boolean {
+  return typeof p.id === 'string' && typeof p.visible === 'boolean'
+}
+
 function carregarPrefs(): CardPreferencia[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return DEFAULT
     const salvas = JSON.parse(raw) as CardPreferencia[]
-    return salvas.filter(p => CARDS_CATALOGO.some(c => c.id === p.id))
+    if (!Array.isArray(salvas)) return DEFAULT
+    // Mantém cards do catálogo e cards customizados (id do backend, fora do catálogo).
+    return salvas.filter(isPreferenciaCardValida)
   } catch {
     return DEFAULT
   }
@@ -118,6 +124,6 @@ export function useCardPreferences() {
 
   return {
     prefs, visiveis, disponiveis, periodo,
-    adicionar, remover, toggle, reordenar, resetar, setPeriodo,
+    persistir, adicionar, remover, toggle, reordenar, resetar, setPeriodo,
   }
 }

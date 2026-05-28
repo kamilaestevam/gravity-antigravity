@@ -39,7 +39,7 @@ beforeEach(() => {
   stubBrowserStorage()
 })
 
-describe('use-card-preferences (Bid Frete)', () => {
+describe('use-card-preferences (BID Frete Internacional)', () => {
   it('padrão expõe apenas 3 cards do catálogo', () => {
     expect(CARDS_PADRAO).toEqual(['total_cotacoes', 'valor_total_frete', 'propostas_recebidas'])
     expect(DEFAULT_CARD_PREFERENCIAS).toHaveLength(3)

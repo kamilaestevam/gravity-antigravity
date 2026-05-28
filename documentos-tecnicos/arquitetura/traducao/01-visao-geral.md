@@ -31,7 +31,7 @@ Toda a interface pública da plataforma:
 | **Painel Admin** | Visão geral, segurança, histórico, deploy, monitor, produtos, usuários, financeiro |
 | **Workspace** | Organização, workspaces, usuários, assinaturas, financeiro, conectores |
 | **SimulaCusto** | Dashboard, estimativas, formulários, relatórios |
-| **BID Frete** | Dashboard, cotações, nova cotação |
+| **BID Frete Internacional** | Dashboard, cotações, nova cotação |
 | **BID Câmbio** | Dashboard, KPIs, funil |
 | **Pedidos** | Lista, formulário, ações |
 | **Processos** | Layout, dados técnicos, menu |

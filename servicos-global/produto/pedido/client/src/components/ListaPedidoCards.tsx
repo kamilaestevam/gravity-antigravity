@@ -12,7 +12,8 @@ import type { Pedido, PedidoItem } from '../shared/types'
 import { fmtQuantidade } from '../shared/types'
 import type { CardPreferencia } from '../shared/useCardPreferences'
 import { CARDS_CATALOGO } from '../shared/useCardPreferences'
-import { CARD_REGISTRY } from '../shared/cardRegistry'
+import { CARD_REGISTRY, buildCustomCardEntry, ICONE_CUSTOM_MAP } from '../shared/cardRegistry'
+import { useCardsUsuario } from '../shared/useCardsUsuario'
 import {
   computeCardStats,
   kpisApiToCardStats,
@@ -56,6 +57,11 @@ export function ListaPedidoCards({
   taxasVenda,
 }: ListaPedidoCardsProps) {
   const { t } = useTranslation()
+  const { cards: cardsUsuario } = useCardsUsuario()
+  const mapaCardsUsuario = useMemo(
+    () => new Map(cardsUsuario.map(c => [c.id, c])),
+    [cardsUsuario],
+  )
   const hoje = useMemo(() => new Date().toISOString().slice(0, 10), [])
 
   const idsWorkspacesFiltro = resolverIdsWorkspacesParaApi(workspacesSelecionados, workspaceAtivo)
@@ -250,6 +256,28 @@ export function ListaPedidoCards({
                 variante={registryEntry.variante}
                 subtexto={registryEntry.subtexto(t, cardStats)}
                 tooltip={registryEntry.tooltip(t, pedidosBase, cardStats)}
+              />
+            )
+          }
+
+          const cardCustom = mapaCardsUsuario.get(pref.id)
+          if (cardCustom) {
+            const entry = buildCustomCardEntry(cardCustom)
+            const valor = entry.format(entry.getValue(cardStats))
+            const iconeCustom = ICONE_CUSTOM_MAP[cardCustom.icone] ?? entry.icone
+            return (
+              <CardBasicoGlobal
+                key={pref.id}
+                titulo={cardCustom.nome}
+                icone={
+                  <span style={{ color: cardCustom.cor, display: 'inline-flex' }}>
+                    {iconeCustom}
+                  </span>
+                }
+                valor={valor}
+                variante={entry.variante}
+                subtexto={entry.subtexto(t, cardStats)}
+                tooltip={entry.tooltip(t, pedidosBase, cardStats)}
               />
             )
           }

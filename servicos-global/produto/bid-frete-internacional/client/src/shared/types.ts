@@ -136,9 +136,9 @@ export type Incoterm = typeof INCOTERMS[number]
 export interface BidFreteInternacional {
   id_bid_bid_frete_internacional: string
   id_organizacao: string
+  id_workspace?: string | null
   id_produto_gravity?: string | null
   id_usuario: string
-  id_workspace?: string | null
   numero_bid_bid_frete_internacional: string
   referencia_interna_bid_bid_frete_internacional: string | null
   status_bid_bid_frete_internacional: StatusBid
@@ -166,10 +166,10 @@ export interface StatusBidConfigBidFreteInternacional {
 
 export interface Cotacao {
   id_cotacao_bid_frete_internacional: string
-  id_organizacao: string
-  id_usuario: string | null
-  id_workspace?: string | null
   id_bid_bid_frete_internacional?: string | null
+  id_organizacao: string
+  id_workspace?: string | null
+  id_usuario: string | null
   bid_bid_frete_internacional?: Pick<BidFreteInternacional, 'id_bid_bid_frete_internacional' | 'numero_bid_bid_frete_internacional' | 'referencia_interna_bid_bid_frete_internacional' | 'status_bid_bid_frete_internacional'> | null
   numero_cotacao_bid_frete_internacional: string
   referencia_interna_cotacao_bid_frete_internacional: string | null
@@ -260,9 +260,10 @@ export interface DisparoCotacaoBidFreteInternacional {
 
 export interface PropostaBidFreteInternacional {
   id_proposta_bid_frete_internacional: string
+  id_cotacao_bid_frete_internacional: string
+  id_bid_bid_frete_internacional?: string | null
   id_organizacao: string
   id_workspace?: string | null
-  id_cotacao_bid_frete_internacional: string
   id_fornecedor_bid_frete_internacional: string
   fornecedor?: Fornecedor
   id_disparo_cotacao_bid_frete_internacional: string

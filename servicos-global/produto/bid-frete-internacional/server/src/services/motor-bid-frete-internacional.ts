@@ -16,7 +16,7 @@ import {
   montarHtmlEmailDisparo,
   montarLinkRespostaDisparo,
 } from './motor-bid-disparo-utils.js'
-import { idWorkspacePropostaFromCotacao } from '../lib/id-workspace-proposta.js'
+import { snapshotPropostaFromCotacao } from '../lib/snapshot-proposta-bid-frete.js'
 
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8022'
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
@@ -214,13 +214,13 @@ export const motorBid = {
 
     if (!bidRequest) return null
 
-    const idWorkspaceProposta = idWorkspacePropostaFromCotacao(cotacao)
+    const snapshotProposta = snapshotPropostaFromCotacao(cotacao)
 
     const response = await (prisma as any).propostaBidFreteInternacional.create({
       data: {
         id_produto_gravity: 'bid-frete-internacional',
         id_organizacao: cotacao.id_organizacao,
-        ...(idWorkspaceProposta ? { id_workspace: idWorkspaceProposta } : {}),
+        ...snapshotProposta,
         id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional,
         id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
         id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,

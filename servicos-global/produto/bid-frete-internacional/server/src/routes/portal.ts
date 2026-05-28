@@ -13,6 +13,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { motorClassificacao } from '../services/motor-classificacao-bid-frete-internacional.js'
 import { AppError } from '../lib/erros.js'
+import { snapshotPropostaFromCotacao } from '../lib/snapshot-proposta-bid-frete.js'
 import { notificacoesIntegration, historicoIntegration, atividadesIntegration } from '../services/integracoes-tenant.js'
 import { monetizacao } from '../services/monetizacao.js'
 
@@ -200,7 +201,7 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
 
     const cotacaoOrigem = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({
       where: { id_cotacao_bid_frete_internacional: bidRequest.id_cotacao_bid_frete_internacional },
-      select: { id_workspace: true },
+      select: { id_workspace: true, id_bid_bid_frete_internacional: true },
     })
 
     // Criar BidResponse
@@ -208,7 +209,7 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
       data: {
         id_organizacao: bidRequest.id_organizacao,
         id_produto_gravity: 'bid-frete-internacional',
-        ...(cotacaoOrigem?.id_workspace ? { id_workspace: cotacaoOrigem.id_workspace } : {}),
+        ...(cotacaoOrigem ? snapshotPropostaFromCotacao(cotacaoOrigem) : {}),
         id_usuario: userId,
         id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional,
         id_cotacao_bid_frete_internacional: bidRequest.id_cotacao_bid_frete_internacional,

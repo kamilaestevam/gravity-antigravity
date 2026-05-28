@@ -21,7 +21,7 @@ import {
   CurrencyDollar,
 } from '@phosphor-icons/react'
 
-import { getCotacoesPendentesBidFreteInternacional, respostaPropostaBidFreteInternacional } from '../../shared/api'
+import { getVisaoFornecedorBidFreteInternacionalCotacoesPendentes, enviarVisaoFornecedorBidFreteInternacionalProposta } from '../../shared/api'
 import type { DisparoCotacaoBidFreteInternacional, PropostaBidFreteInternacional, ModalFrete } from '../../shared/types'
 import { MODAL_LABELS } from '../../shared/types'
 
@@ -47,8 +47,8 @@ interface FormState {
   dias_transito_proposta_bid_frete_internacional: string
   dias_free_time_proposta_bid_frete_internacional: string
   validade_proposta_bid_frete_internacional: string
-  quantidade_transbordo_proposta_bid_frete_internacional: string
-  quantidade_escala_proposta_bid_frete_internacional: string
+  transbordos_proposta_bid_frete_internacional: string
+  escalas_proposta_bid_frete_internacional: string
   observacoes_proposta_bid_frete_internacional: string
 }
 
@@ -63,7 +63,7 @@ const MODAL_ICONS: Record<ModalFrete, React.ReactNode> = {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function ResponderCotacao() {
-  const { id_cotacao: bidRequestId } = useParams<{ id_cotacao: string }>()
+  const { id_disparo_cotacao_bid_frete_internacional: idDisparo } = useParams<{ id_disparo_cotacao_bid_frete_internacional: string }>()
   const navigate = useNavigate()
   const { t } = useTranslation()
 
@@ -81,23 +81,23 @@ export default function ResponderCotacao() {
     dias_transito_proposta_bid_frete_internacional: '',
     dias_free_time_proposta_bid_frete_internacional: '',
     validade_proposta_bid_frete_internacional: '',
-    quantidade_transbordo_proposta_bid_frete_internacional: '0',
-    quantidade_escala_proposta_bid_frete_internacional: '',
+    transbordos_proposta_bid_frete_internacional: '0',
+    escalas_proposta_bid_frete_internacional: '',
     observacoes_proposta_bid_frete_internacional: '',
   })
 
   const carregar = useCallback(async () => {
     setCarregando(true)
     try {
-      const pendentes = await getCotacoesPendentesBidFreteInternacional()
-      const found = pendentes.find(b => b.id_disparo_cotacao_bid_frete_internacional === bidRequestId)
+      const pendentes = await getVisaoFornecedorBidFreteInternacionalCotacoesPendentes()
+      const found = pendentes.find(b => b.id_disparo_cotacao_bid_frete_internacional === idDisparo)
       if (found) setBid(found)
     } catch {
       // silencioso
     } finally {
       setCarregando(false)
     }
-  }, [bidRequestId])
+  }, [idDisparo])
 
   useEffect(() => { carregar() }, [carregar])
 
@@ -106,19 +106,19 @@ export default function ResponderCotacao() {
   useSincronizarTituloPaginaTopo(useMemo(() => {
     if (sucesso) {
       return {
-        label: t('bidfrete.portal.responder.titulo_enviada'),
+        label: t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.titulo_enviada'),
         icone: <CheckCircle weight="duotone" size={22} />,
       }
     }
     if (carregando || !cotacao) {
       return {
-        label: t('bidfrete.portal.responder.titulo'),
+        label: t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.titulo'),
         icone: <PencilSimple weight="duotone" size={22} />,
         subtitulo: t('comum.carregando'),
       }
     }
     return {
-      label:     t('bidfrete.portal.responder.titulo'),
+      label:     t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.titulo'),
       icone:     <PencilSimple weight="duotone" size={22} />,
       subtitulo: cotacao.numero_cotacao_bid_frete_internacional,
     }
@@ -140,10 +140,10 @@ export default function ResponderCotacao() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!bidRequestId) return
+    if (!idDisparo) return
 
     if (!form.valor_frete_proposta_bid_frete_internacional || !form.dias_transito_proposta_bid_frete_internacional || !form.validade_proposta_bid_frete_internacional) {
-      setErro(t('bidfrete.portal.publico.campos_obrigatorios'))
+      setErro(t('bidfrete.visao_fornecedor_bid_frete_internacional_publico.campos_obrigatorios'))
       return
     }
 
@@ -159,11 +159,11 @@ export default function ResponderCotacao() {
         dias_transito_proposta_bid_frete_internacional: parseInt(form.dias_transito_proposta_bid_frete_internacional, 10),
         dias_free_time_proposta_bid_frete_internacional: form.dias_free_time_proposta_bid_frete_internacional ? parseInt(form.dias_free_time_proposta_bid_frete_internacional, 10) : null,
         validade_proposta_bid_frete_internacional: form.validade_proposta_bid_frete_internacional,
-        quantidade_transbordo_proposta_bid_frete_internacional: parseInt(form.quantidade_transbordo_proposta_bid_frete_internacional, 10) || 0,
-        quantidade_escala_proposta_bid_frete_internacional: parseInt(form.quantidade_escala_proposta_bid_frete_internacional, 10) || 0,
+        transbordos_proposta_bid_frete_internacional: parseInt(form.transbordos_proposta_bid_frete_internacional, 10) || 0,
+        escalas_proposta_bid_frete_internacional: form.escalas_proposta_bid_frete_internacional || undefined,
         observacoes_proposta_bid_frete_internacional: form.observacoes_proposta_bid_frete_internacional || null,
       }
-      await respostaPropostaBidFreteInternacional(bidRequestId, payload)
+      await enviarVisaoFornecedorBidFreteInternacionalProposta(idDisparo, payload)
       setSucesso(true)
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro ao enviar resposta')
@@ -177,10 +177,10 @@ export default function ResponderCotacao() {
       <PaginaGlobal>
         <div className="rc-sucesso">
           <CheckCircle weight="duotone" size={64} style={{ color: 'var(--success, #22c55e)' }} />
-          <h2 className="rc-sucesso-title">{t('bidfrete.portal.responder.sucesso')}</h2>
-          <p className="rc-sucesso-desc">{t('bidfrete.portal.responder.sucesso_desc')}</p>
-          <button className="rc-btn rc-btn--primary" type="button" onClick={() => navigate('/bid-frete/portal/pendentes')}>
-            {t('bidfrete.portal.responder.voltar_pendentes')}
+          <h2 className="rc-sucesso-title">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.sucesso')}</h2>
+          <p className="rc-sucesso-desc">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.sucesso_desc')}</p>
+          <button className="rc-btn rc-btn--primary" type="button" onClick={() => navigate('/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes')}>
+            {t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.voltar_pendentes')}
           </button>
         </div>
         <style>{rcStyles}</style>
@@ -190,8 +190,8 @@ export default function ResponderCotacao() {
 
   const acoesResponder = (
     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-      <button className="rc-btn rc-btn--secondary" type="button" onClick={() => navigate('/bid-frete/portal/pendentes')}>
-        <ArrowLeft weight="bold" size={14} /> {t('bidfrete.portal.responder.voltar')}
+      <button className="rc-btn rc-btn--secondary" type="button" onClick={() => navigate('/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes')}>
+        <ArrowLeft weight="bold" size={14} /> {t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.voltar')}
       </button>
     </div>
   )
@@ -207,34 +207,34 @@ export default function ResponderCotacao() {
         <div className="rc-layout">
           {/* Detalhes Read-Only */}
           <div className="rc-details">
-            <h3 className="rc-section-title">{t('bidfrete.portal.responder.detalhes')}</h3>
+            <h3 className="rc-section-title">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.detalhes')}</h3>
             <div className="rc-detail-grid">
               <div className="rc-detail-item">
-                <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_numero')}</span>
+                <span className="rc-detail-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_numero')}</span>
                 <span className="rc-detail-value rc-mono">
                   {cotacao?.numero_cotacao_bid_frete_internacional ?? bid?.id_cotacao_bid_frete_internacional.slice(0, 8).toUpperCase() ?? '—'}
                 </span>
               </div>
               <div className="rc-detail-item">
-                <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_rota')}</span>
+                <span className="rc-detail-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_rota')}</span>
                 <span className="rc-detail-value">
                   <MapPin weight="duotone" size={14} />
                   {cotacao?.origem_nome_cotacao_bid_frete_internacional ?? '—'} &rarr; {cotacao?.destino_nome_cotacao_bid_frete_internacional ?? '—'}
                 </span>
               </div>
               <div className="rc-detail-item">
-                <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_modal')}</span>
+                <span className="rc-detail-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_modal')}</span>
                 <span className="rc-detail-value">
                   {cotacao?.modal_cotacao_bid_frete_internacional ? MODAL_ICONS[cotacao.modal_cotacao_bid_frete_internacional] : null}
                   {cotacao?.modal_cotacao_bid_frete_internacional ? MODAL_LABELS[cotacao.modal_cotacao_bid_frete_internacional] : '—'}
                 </span>
               </div>
               <div className="rc-detail-item">
-                <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_incoterm')}</span>
+                <span className="rc-detail-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_incoterm')}</span>
                 <span className="rc-detail-value">{cotacao?.incoterm_cotacao_bid_frete_internacional ?? '—'}</span>
               </div>
               <div className="rc-detail-item rc-detail-wide">
-                <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_carga')}</span>
+                <span className="rc-detail-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_carga')}</span>
                 <span className="rc-detail-value">
                   <Package weight="duotone" size={14} />
                   {cotacao?.descricao_mercadoria_cotacao_bid_frete_internacional ?? '—'}
@@ -248,11 +248,11 @@ export default function ResponderCotacao() {
 
           {/* Form */}
           <form className="rc-form" onSubmit={handleSubmit}>
-            <h3 className="rc-section-title">{t('bidfrete.portal.responder.proposta')}</h3>
+            <h3 className="rc-section-title">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.proposta')}</h3>
 
             <div className="rc-form-grid">
               <div className="rc-field">
-                <label className="rc-label">{t('bidfrete.portal.responder.campo_moeda')}</label>
+                <label className="rc-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_moeda')}</label>
                 <select
                   className="rc-input"
                   value={form.moeda_proposta_bid_frete_internacional}
@@ -263,7 +263,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">{t('bidfrete.portal.responder.campo_valor_frete')}</label>
+                <label className="rc-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_valor_frete')}</label>
                 <input
                   className="rc-input rc-input--mono"
                   type="number"
@@ -276,7 +276,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">{t('bidfrete.portal.responder.campo_taxas_origem')}</label>
+                <label className="rc-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_taxas_origem')}</label>
                 <input
                   className="rc-input rc-input--mono"
                   type="number"
@@ -289,7 +289,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">{t('bidfrete.portal.responder.campo_taxas_destino')}</label>
+                <label className="rc-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_taxas_destino')}</label>
                 <input
                   className="rc-input rc-input--mono"
                   type="number"
@@ -303,7 +303,7 @@ export default function ResponderCotacao() {
 
               {/* Total auto-calculated */}
               <div className="rc-field rc-field--total">
-                <label className="rc-label">{t('bidfrete.portal.responder.campo_total')}</label>
+                <label className="rc-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_total')}</label>
                 <div className="rc-total-display">
                   <CurrencyDollar weight="duotone" size={18} />
                   <span className="rc-total-valor">{form.moeda_proposta_bid_frete_internacional} {fmtTotal}</span>
@@ -311,7 +311,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">{t('bidfrete.portal.responder.campo_transit')}</label>
+                <label className="rc-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_transit')}</label>
                 <input
                   className="rc-input rc-input--mono"
                   type="number"
@@ -323,7 +323,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">{t('bidfrete.portal.responder.campo_free_time')}</label>
+                <label className="rc-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_free_time')}</label>
                 <input
                   className="rc-input rc-input--mono"
                   type="number"
@@ -335,7 +335,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">{t('bidfrete.portal.responder.campo_validade')}</label>
+                <label className="rc-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_validade')}</label>
                 <input
                   className="rc-input"
                   type="date"
@@ -345,34 +345,34 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">{t('bidfrete.portal.responder.campo_transbordos')}</label>
+                <label className="rc-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_transbordos')}</label>
                 <input
                   className="rc-input rc-input--mono"
                   type="number"
                   min="0"
                   placeholder="0"
-                  value={form.quantidade_transbordo_proposta_bid_frete_internacional}
-                  onChange={e => handleChange('quantidade_transbordo_proposta_bid_frete_internacional', e.target.value)}
+                  value={form.transbordos_proposta_bid_frete_internacional}
+                  onChange={e => handleChange('transbordos_proposta_bid_frete_internacional', e.target.value)}
                 />
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">{t('bidfrete.portal.responder.campo_escalas')}</label>
+                <label className="rc-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_escalas')}</label>
                 <input
                   className="rc-input"
                   type="text"
                   placeholder="Ex: Singapore, Colombo"
-                  value={form.quantidade_escala_proposta_bid_frete_internacional}
-                  onChange={e => handleChange('quantidade_escala_proposta_bid_frete_internacional', e.target.value)}
+                  value={form.escalas_proposta_bid_frete_internacional}
+                  onChange={e => handleChange('escalas_proposta_bid_frete_internacional', e.target.value)}
                 />
               </div>
 
               <div className="rc-field rc-field--wide">
-                <label className="rc-label">{t('bidfrete.portal.responder.campo_observacoes')}</label>
+                <label className="rc-label">{t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_observacoes')}</label>
                 <textarea
                   className="rc-input rc-textarea"
                   rows={3}
-                  placeholder={t('bidfrete.portal.responder.campo_observacoes')}
+                  placeholder={t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.campo_observacoes')}
                   value={form.observacoes_proposta_bid_frete_internacional}
                   onChange={e => handleChange('observacoes_proposta_bid_frete_internacional', e.target.value)}
                 />
@@ -386,7 +386,7 @@ export default function ResponderCotacao() {
               type="submit"
               disabled={enviando}
             >
-              {enviando ? t('bidfrete.portal.responder.enviando') : t('bidfrete.portal.responder.enviar')}
+              {enviando ? t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.enviando') : t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.enviar')}
             </button>
           </form>
         </div>

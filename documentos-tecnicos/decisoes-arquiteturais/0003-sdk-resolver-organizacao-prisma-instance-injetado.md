@@ -204,7 +204,7 @@ Combinar todos os fragments em um único `schema.prisma` na raiz. SDK consome es
 | 3 | Deletar `internal-prisma.ts`; refatorar `withOrganizacao` para usar instance injetada | Líder Técnico | 30 min |
 | 4 | Atualizar 7 produtos hosts: instanciar PrismaClient próprio em cada `server/src/index.ts` | Líder Técnico | 1h |
 | 5 | Bumpear versão do SDK; atualizar lockfile | Líder Técnico | 5 min |
-| 6 | Smoke test em todos os 7 produtos (Pedido, Simula Custo, Bid Frete, Bid Câmbio, NF Importação, LPCO, Processo) | Líder Técnico + QA | 30 min |
+| 6 | Smoke test em todos os 7 produtos (Pedido, Simula Custo, BID Frete Internacional, Bid Câmbio, NF Importação, LPCO, Processo) | Líder Técnico + QA | 30 min |
 | 7 | Deploy gradual: Pedido primeiro, validar, depois os outros | Coordenador | 1 dia |
 
 **Pré-requisito obrigatório:** F3 (24 migrations Prisma do Pedido aplicadas) **antes** desta refatoração. Banco íntegro reduz ruído de regressão.

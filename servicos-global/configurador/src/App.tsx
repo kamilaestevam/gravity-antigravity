@@ -382,7 +382,7 @@ export default function App() {
             documentos-tecnicos/arquitetura/rotas-convencao.md) */}
         <Route path="/simula-custo/*" element={<ProtectedRoute><ProductErrorBoundary name="SimulaCusto"><React.Suspense fallback={<ProductLoading />}><SimulaCustoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/processo/*" element={<ProtectedRoute><ProductErrorBoundary name="Processo"><React.Suspense fallback={<ProductLoading />}><ProcessoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
-        <Route path="/bid-frete/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/bid-frete/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/bid-frete-internacional/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/bid-cambio/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Câmbio"><React.Suspense fallback={<ProductLoading />}><BidCambioApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/pedido/*" element={<ProtectedRoute><ProductErrorBoundary name="Pedido"><GuardaRotaPedido /></ProductErrorBoundary></ProtectedRoute>} />

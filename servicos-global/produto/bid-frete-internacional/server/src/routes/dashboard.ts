@@ -1,5 +1,5 @@
 /**
- * dashboard.ts — Dashboard do BID Frete
+ * dashboard.ts — Dashboard do BID Frete Internacional
  * GET /              KPIs e metricas gerais
  * GET /calendario    Alertas do calendario
  * GET /funil         Funil de status

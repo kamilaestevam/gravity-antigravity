@@ -79,7 +79,7 @@
 | `PEDIDO` | Produto Pedido | `produto/pedido/` |
 | `NFIMP` | Produto NF Importação | `produto/nf-importacao/` |
 | `LPCO` | Produto LPCO | `produto/lpco/` |
-| `BIDFRT` | Produto Bid Frete | `produto/bid-frete/` |
+| `BIDFRT` | Produto BID Frete Internacional | `produto/bid-frete-internacional/` |
 | `BIDCAM` | Produto Bid Câmbio | `produto/bid-cambio/` |
 | `SIMCUS` | Produto SimulaCusto | `produto/simula-custo/` |
 | `FINCOM` | Produto Financeiro Comex | `produto/financeiro-comex/` |

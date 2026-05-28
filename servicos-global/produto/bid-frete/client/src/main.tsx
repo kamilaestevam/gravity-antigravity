@@ -1,5 +1,5 @@
 /**
- * main.tsx — Entry Point do BID Frete
+ * main.tsx — Entry Point do BID Frete Internacional
  *
  * Inicializa o React com StrictMode + ClerkProvider + BrowserRouter.
  * ClerkProvider é obrigatório para o Shell (useMeSync depende de useAuth/useUser).

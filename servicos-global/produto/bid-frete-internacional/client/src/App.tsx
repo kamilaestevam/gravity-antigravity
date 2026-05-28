@@ -1,5 +1,5 @@
 ﻿/**
- * App.tsx — Raiz da SPA BID Frete
+ * App.tsx — Raiz da SPA BID Frete Internacional
  *
  * Usa <TelaProdutoGlobal> (mesmo padrão do Pedido):
  * sidebar com logo + nome do produto, workspace, navegação, título de página.
@@ -46,17 +46,17 @@ const Fornecedores = lazy(() => import('./pages/fornecedores-lista'))
 const DetalheFornecedor = lazy(() => import('./pages/fornecedor-detalhe'))
 const Configuracoes = lazy(() => import('./pages/configuracoes'))
 
-const PortalDashboard = lazy(() => import('./pages/portal/portal-dashboard'))
-const CotacoesPendentes = lazy(() => import('./pages/portal/portal-cotacoes-pendentes'))
-const Respostas = lazy(() => import('./pages/portal/portal-propostas'))
-const TabelaPrecos = lazy(() => import('./pages/portal/portal-tabelas-valor'))
-const Desempenho = lazy(() => import('./pages/portal/portal-desempenho'))
-const ResponderCotacao = lazy(() => import('./pages/portal/portal-responder-cotacao'))
-const ResponderPublico = lazy(() => import('./pages/portal/portal-responder-publico'))
+const VisaoFornecedorDashboard = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-dashboard'))
+const VisaoFornecedorCotacoesPendentes = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-cotacoes-pendentes'))
+const VisaoFornecedorPropostas = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-propostas'))
+const VisaoFornecedorTabelasValor = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-tabelas-valor'))
+const VisaoFornecedorDesempenho = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-desempenho'))
+const VisaoFornecedorResponderCotacao = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-responder-cotacao'))
+const VisaoFornecedorResponderPublico = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-responder-publico'))
 
 const PRODUTO       = getProdutoMeta('bid-frete-internacional')
 const PRODUCT_ID    = 'bid-frete-internacional'
-const PRODUCT_NAME  = 'BID Frete'
+const PRODUCT_NAME  = 'BID Frete Internacional'
 const PRODUCT_COLOR = PRODUTO.color
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -130,7 +130,7 @@ export default function App() {
   const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
   useEffect(() => {
-    const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'BID Frete'
+    const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'BID Frete Internacional'
     addEntry({
       productId:    PRODUCT_ID,
       productLabel: PRODUCT_NAME,
@@ -161,10 +161,13 @@ export default function App() {
     ? workspacesStore.map(ws => ({ id: ws.id, name: ws.nome_workspace, plan: '' }))
     : DEMO_WORKSPACES
 
-  const navItems = useMemo(
-    () => PRODUCT_CONFIG.navigation.map(item => mapNavItem(item)),
-    [],
-  )
+  const navItems = useMemo(() => {
+    const isVisaoFornecedor = location.pathname.includes('visao-fornecedor-bid-frete-internacional')
+    const nav = isVisaoFornecedor
+      ? PRODUCT_CONFIG.navigation_visao_fornecedor_bid_frete_internacional
+      : PRODUCT_CONFIG.navigation
+    return nav.map(item => mapNavItem(item))
+  }, [location.pathname])
 
   return (
     <TelaProdutoComOrganizacaoOverride
@@ -229,15 +232,17 @@ export default function App() {
           <Route path="fornecedores/:id_fornecedor" element={<DetalheFornecedor />} />
           <Route path="configuracoes"  element={<Configuracoes />} />
 
-          <Route path="portal"                  element={<Navigate to="portal/dashboard" replace />} />
-          <Route path="portal/dashboard"        element={<PortalDashboard />} />
-          <Route path="portal/pendentes"        element={<CotacoesPendentes />} />
-          <Route path="portal/respostas"        element={<Respostas />} />
-          <Route path="portal/tabela-precos"    element={<TabelaPrecos />} />
-          <Route path="portal/desempenho"       element={<Desempenho />} />
-          <Route path="portal/responder/:id_cotacao" element={<ResponderCotacao />} />
+          <Route path="visao-fornecedor-bid-frete-internacional" element={<Navigate to="visao-fornecedor-bid-frete-internacional/dashboard" replace />} />
+          <Route path="visao-fornecedor-bid-frete-internacional/dashboard" element={<VisaoFornecedorDashboard />} />
+          <Route path="visao-fornecedor-bid-frete-internacional/cotacoes-pendentes" element={<VisaoFornecedorCotacoesPendentes />} />
+          <Route path="visao-fornecedor-bid-frete-internacional/propostas" element={<VisaoFornecedorPropostas />} />
+          <Route path="visao-fornecedor-bid-frete-internacional/tabelas-valor" element={<VisaoFornecedorTabelasValor />} />
+          <Route path="visao-fornecedor-bid-frete-internacional/desempenho" element={<VisaoFornecedorDesempenho />} />
+          <Route path="visao-fornecedor-bid-frete-internacional/responder/:id_disparo_cotacao_bid_frete_internacional" element={<VisaoFornecedorResponderCotacao />} />
+          <Route path="visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional" element={<VisaoFornecedorResponderPublico />} />
 
-          <Route path="portal/public/responder/:token_resposta_pedido_cotacao_bid_frete_internacional" element={<ResponderPublico />} />
+          {/* Redirects legado portal → visão fornecedor */}
+          <Route path="portal/*" element={<Navigate to="/visao-fornecedor-bid-frete-internacional/dashboard" replace />} />
 
           <Route path="*" element={<Navigate to="visao-geral" replace />} />
         </Routes>

@@ -18,7 +18,7 @@ import {
   Van,
 } from '@phosphor-icons/react'
 
-import { getPortalRespostas } from '../../shared/api'
+import { getVisaoFornecedorBidFreteInternacionalPropostas } from '../../shared/api'
 import type { PropostaBidFreteInternacional, ModalFrete } from '../../shared/types'
 import { MODAL_LABELS } from '../../shared/types'
 
@@ -31,9 +31,9 @@ const TAB_KEYS: FiltroTab[] = ['TODAS', 'PENDENTES', 'APROVADAS', 'REPROVADAS']
 
 type CotacaoResumoPortal = {
   numero_cotacao_bid_frete_internacional: string
-  origem_nome_cotacao_bid_frete_internacional: string
-  destino_nome_cotacao_bid_frete_internacional: string
-  modal_cotacao_bid_frete_internacional: ModalFrete
+  origem_nome_tabela_bid_frete_internacional: string
+  destino_nome_tabela_bid_frete_internacional: string
+  modal_tabela_bid_frete_internacional: ModalFrete
 }
 
 type RespostaComCotacao = Omit<PropostaBidFreteInternacional, 'cotacao'> & {
@@ -49,9 +49,9 @@ function getRespostaStatus(r: PropostaBidFreteInternacional): RespostaStatus {
 }
 
 const STATUS_MAP: Record<RespostaStatus, { labelKey: string; bg: string; color: string }> = {
-  pendente:  { labelKey: 'bidfrete.portal.minhas_respostas.status_pendente',  bg: 'rgba(245,158,11,0.15)', color: 'var(--warning, #f59e0b)' },
-  aprovada:  { labelKey: 'bidfrete.portal.minhas_respostas.status_aprovada',  bg: 'rgba(34,197,94,0.15)',  color: 'var(--success, #22c55e)' },
-  reprovada: { labelKey: 'bidfrete.portal.minhas_respostas.status_reprovada', bg: 'rgba(239,68,68,0.15)',  color: 'var(--danger, #ef4444)' },
+  pendente:  { labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.propostas.status_pendente',  bg: 'rgba(245,158,11,0.15)', color: 'var(--warning, #f59e0b)' },
+  aprovada:  { labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.propostas.status_aprovada',  bg: 'rgba(34,197,94,0.15)',  color: 'var(--success, #22c55e)' },
+  reprovada: { labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.propostas.status_reprovada', bg: 'rgba(239,68,68,0.15)',  color: 'var(--danger, #ef4444)' },
 }
 
 const MODAL_ICON_MAP: Record<ModalFrete, React.ReactNode> = {
@@ -77,14 +77,14 @@ export default function MinhasRespostas() {
   const TABS: { key: FiltroTab; label: string }[] = [
     { key: 'TODAS', label: t('comum.todos') },
     { key: 'PENDENTES', label: t('comum.pendente') },
-    { key: 'APROVADAS', label: t('bidfrete.portal.dashboard.aprovadas') },
-    { key: 'REPROVADAS', label: t('bidfrete.portal.minhas_respostas.tab_reprovadas') },
+    { key: 'APROVADAS', label: t('bidfrete.visao_fornecedor_bid_frete_internacional.dashboard.aprovadas') },
+    { key: 'REPROVADAS', label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.tab_reprovadas') },
   ]
 
   const carregar = useCallback(async () => {
     setCarregando(true)
     try {
-      const data = await getPortalRespostas()
+      const data = await getVisaoFornecedorBidFreteInternacionalPropostas()
       setRespostas(data as RespostaComCotacao[])
     } catch {
       // silencioso
@@ -114,15 +114,15 @@ export default function MinhasRespostas() {
   }), [respostas])
 
   useSincronizarTituloPaginaTopo(useMemo(() => ({
-    label:     t('bidfrete.portal.minhas_respostas.titulo'),
+    label:     t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.titulo'),
     icone:     <PaperPlaneTilt weight="duotone" size={22} />,
-    subtitulo: t('bidfrete.portal.minhas_respostas.subtitulo', { count: respostas.length }),
+    subtitulo: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.subtitulo', { count: respostas.length }),
   }), [t, respostas.length]))
 
   const colunas: TabelaGlobalColuna<any>[] = [
     {
       key: 'cotacao',
-      label: t('bidfrete.portal.minhas_respostas.col_cotacao'),
+      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_cotacao'),
       tipo: 'texto',
       largura: 140,
       render: (_val: unknown, row: RespostaComCotacao) => (
@@ -133,33 +133,33 @@ export default function MinhasRespostas() {
     },
     {
       key: 'rota',
-      label: t('bidfrete.portal.minhas_respostas.col_rota'),
+      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_rota'),
       tipo: 'texto',
       largura: 200,
       render: (_val: unknown, row: RespostaComCotacao) => (
         <span style={{ fontSize: '0.8125rem' }}>
-          {row.cotacao?.origem_nome_cotacao_bid_frete_internacional ?? '—'} &rarr; {row.cotacao?.destino_nome_cotacao_bid_frete_internacional ?? '—'}
+          {row.cotacao?.origem_nome_tabela_bid_frete_internacional ?? '—'} &rarr; {row.cotacao?.destino_nome_tabela_bid_frete_internacional ?? '—'}
         </span>
       ),
     },
     {
-      key: 'modal_cotacao_bid_frete_internacional',
-      label: t('bidfrete.portal.minhas_respostas.col_modal'),
+      key: 'modal_tabela_bid_frete_internacional',
+      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_modal'),
       tipo: 'texto',
       largura: 120,
       render: (_val: unknown, row: RespostaComCotacao) => {
-        const modal_cotacao_bid_frete_internacional = row.cotacao?.modal_cotacao_bid_frete_internacional
+        const modal_tabela_bid_frete_internacional = row.cotacao?.modal_tabela_bid_frete_internacional
         return (
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8125rem' }}>
-            {modal_cotacao_bid_frete_internacional ? MODAL_ICON_MAP[modal_cotacao_bid_frete_internacional] : null}
-            {modal_cotacao_bid_frete_internacional ? MODAL_LABELS[modal_cotacao_bid_frete_internacional] : '—'}
+            {modal_tabela_bid_frete_internacional ? MODAL_ICON_MAP[modal_tabela_bid_frete_internacional] : null}
+            {modal_tabela_bid_frete_internacional ? MODAL_LABELS[modal_tabela_bid_frete_internacional] : '—'}
           </span>
         )
       },
     },
     {
-      key: 'valor_total_proposta_bid_frete_internacional',
-      label: t('bidfrete.portal.minhas_respostas.col_valor_total'),
+      key: 'valor_total_tabela_bid_frete_internacional',
+      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_valor_total'),
       tipo: 'numero',
       largura: 140,
       align: 'right',
@@ -170,27 +170,27 @@ export default function MinhasRespostas() {
       ),
     },
     {
-      key: 'dias_transito_proposta_bid_frete_internacional',
-      label: t('bidfrete.portal.minhas_respostas.col_transit_time'),
+      key: 'dias_transito_tabela_bid_frete_internacional',
+      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_transit_time'),
       tipo: 'numero',
       largura: 110,
       align: 'center',
       render: (val: unknown) => (
         <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem' }}>
-          {t('bidfrete.portal.minhas_respostas.dias', { val })}
+          {t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.dias', { val })}
         </span>
       ),
     },
     {
       key: 'validade_proposta_bid_frete_internacional',
-      label: t('bidfrete.portal.minhas_respostas.col_validade'),
+      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_validade'),
       tipo: 'periodo',
       largura: 110,
       render: (val: unknown) => fmtData(val as string),
     },
     {
       key: 'status',
-      label: t('bidfrete.portal.minhas_respostas.col_status'),
+      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_status'),
       tipo: 'texto',
       largura: 120,
       render: (_val: unknown, row: RespostaComCotacao) => {
@@ -245,8 +245,8 @@ export default function MinhasRespostas() {
           dados={filtradas}
           colunas={colunas}
           idKey="id_proposta_bid_frete_internacional"
-          mensagemVazio={t('bidfrete.portal.minhas_respostas.vazio')}
-          tooltipBusca={t('bidfrete.portal.minhas_respostas.buscar')}
+          mensagemVazio={t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.vazio')}
+          tooltipBusca={t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.buscar')}
         />
       )}
 

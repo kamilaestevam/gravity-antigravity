@@ -99,7 +99,7 @@ const CORE_SUBSESSAO: Record<string, string> = {
 
 const PRODUTO_NOME: Record<string, string> = {
   'pedido':           'Pedido',
-  'bid-frete':        'Bid Frete',
+  'bid-frete':        'BID Frete Internacional',
   'bid-cambio':       'Bid Câmbio',
   'lpco':             'LPCO',
   'nf-importacao':    'NF Importação',
@@ -287,7 +287,7 @@ const MODULO_PARA_SESSAO: Record<string, string> = {
   jobs:        'Sistema',
   historico:   'Core',
   pedido:      'Pedido',
-  'bid-frete': 'Bid Frete',
+  'bid-frete': 'BID Frete Internacional',
   'bid-cambio': 'Bid Câmbio',
   lpco:        'LPCO',
   'nf-importacao':    'NF Importação',

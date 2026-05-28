@@ -52,7 +52,7 @@ const mockPrisma = {
 }
 
 vi.mock(
-  '../../../servicos-global/produto/bid-frete-internacional/server/src/services/motor-bid-frete-internacional.js',
+  '../../../../servicos-global/produto/bid-frete-internacional/server/src/services/motor-bid-frete-internacional.js',
   () => ({
     motorBid: {
       disparar: vi.fn(async () => ({ disparos: 0, enviados: false, results: [] })),
@@ -63,7 +63,7 @@ vi.mock(
 
 // Mock integracoes-tenant S2S
 vi.mock(
-  '../../../servicos-global/produto/bid-frete-internacional/server/src/services/integracoes-tenant.js',
+  '../../../../servicos-global/produto/bid-frete-internacional/server/src/services/integracoes-tenant.js',
   () => ({
     atividadesIntegration: { cotacaoCriada: vi.fn() },
     historicoIntegration: { cotacaoCriada: vi.fn(), registrar: vi.fn() },
@@ -72,7 +72,7 @@ vi.mock(
 
 // ── App de teste ─────────────────────────────────────────────────────────────
 
-import { cotacoesRouter } from '../../../servicos-global/produto/bid-frete-internacional/server/src/routes/cotacoes'
+import { cotacoesRouter } from '../../../../servicos-global/produto/bid-frete-internacional/server/src/routes/cotacoes'
 
 function criarApp() {
   const app = express()

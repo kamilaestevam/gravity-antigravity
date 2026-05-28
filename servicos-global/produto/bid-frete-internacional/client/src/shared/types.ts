@@ -1,5 +1,5 @@
 ﻿/**
- * types.ts — Tipos do domínio BID Frete
+ * types.ts — Tipos do domínio BID Frete Internacional
  * Skill: antigravity-criar-produto (Passo 1 — shared/types.ts)
  * Alinhado com fragment.prisma — enums e campos.
  */
@@ -296,41 +296,50 @@ export interface PropostaRankingBidFreteInternacional extends PropostaBidFreteIn
   nota_global_classificacao_bid_frete_internacional?: number | null
 }
 
-export interface TabelaPreco {
-  id: string
+export interface TabelaBidFreteInternacional {
+  id_tabela_bid_frete_internacional: string
   id_organizacao: string
   id_fornecedor_bid_frete_internacional: string
-  origem_codigo_cotacao_bid_frete_internacional: string
-  origem_nome_cotacao_bid_frete_internacional: string
-  destino_codigo_cotacao_bid_frete_internacional: string
-  destino_nome_cotacao_bid_frete_internacional: string
-  modal_cotacao_bid_frete_internacional: ModalFrete
-  modalidade_cotacao_bid_frete_internacional: ModalidadeCarga
-  moeda_ganho_bid_frete_internacional: string
-  valor_frete_proposta_bid_frete_internacional: number
-  taxas_origem_proposta_bid_frete_internacional: number
-  taxas_destino_proposta_bid_frete_internacional: number
-  dias_transito_proposta_bid_frete_internacional: number
-  dias_free_time_proposta_bid_frete_internacional: number | null
-  validade_inicio: string
-  validade_fim: string
-  ativo: boolean
-  created_at: string
+  origem_codigo_tabela_bid_frete_internacional: string
+  origem_nome_tabela_bid_frete_internacional: string
+  destino_codigo_tabela_bid_frete_internacional: string
+  destino_nome_tabela_bid_frete_internacional: string
+  modal_tabela_bid_frete_internacional: ModalFrete
+  modalidade_tabela_bid_frete_internacional: ModalidadeCarga
+  moeda_tabela_bid_frete_internacional: string
+  valor_frete_tabela_bid_frete_internacional: number
+  taxas_origem_tabela_bid_frete_internacional: number
+  taxas_destino_tabela_bid_frete_internacional: number
+  valor_total_tabela_bid_frete_internacional: number
+  dias_transito_tabela_bid_frete_internacional: number
+  dias_free_time_tabela_bid_frete_internacional: number | null
+  validade_inicio_tabela_bid_frete_internacional: string
+  validade_fim_tabela_bid_frete_internacional: string
+  ativa_tabela_bid_frete_internacional: boolean
+  data_criacao_tabela_bid_frete_internacional: string
+  data_atualizacao_tabela_bid_frete_internacional: string
 }
 
-export interface Avaliacao {
-  id: string
+/** @deprecated use TabelaBidFreteInternacional */
+export type TabelaPreco = TabelaBidFreteInternacional
+
+export interface AvaliacaoBidFreteInternacional {
+  id_avaliacao_bid_frete_internacional: string
   id_organizacao: string
   id_fornecedor_bid_frete_internacional: string
   id_cotacao_bid_frete_internacional: string | null
-  nota_frete_avaliacao_bid_frete_internacional: number
-  nota_atendimento_avaliacao_bid_frete_internacional: number
-  nota_prazo: number
-  nota_confiabilidade_avaliacao_bid_frete_internacional: number
-  nota_global: number
+  nota_frete_avaliacao_bid_frete_internacional: number | null
+  nota_atendimento_avaliacao_bid_frete_internacional: number | null
+  nota_resposta_avaliacao_bid_frete_internacional: number | null
+  nota_confiabilidade_avaliacao_bid_frete_internacional: number | null
+  nota_geral_avaliacao_bid_frete_internacional: number | null
   comentario_avaliacao_bid_frete_internacional: string | null
-  created_at: string
+  data_criacao_avaliacao_bid_frete_internacional: string
+  data_atualizacao_avaliacao_bid_frete_internacional: string
 }
+
+/** @deprecated use AvaliacaoBidFreteInternacional */
+export type Avaliacao = AvaliacaoBidFreteInternacional
 
 // ─── Dashboard KPIs ──────────────────────────────────────────────────────────
 

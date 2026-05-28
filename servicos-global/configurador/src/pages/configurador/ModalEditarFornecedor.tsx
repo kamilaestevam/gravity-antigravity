@@ -348,7 +348,7 @@ interface Props {
 function rotuloUrlRetorno(urlRetorno: string): string {
   try {
     const decoded = decodeURIComponent(urlRetorno).toLowerCase()
-    if (decoded.includes('/bid-frete/')) return 'Voltar para BID Frete'
+    if (decoded.includes('/bid-frete/')) return 'Voltar para BID Frete Internacional'
     if (decoded.includes('/pedido/')) return 'Voltar para Pedidos'
     return 'Voltar'
   } catch {

@@ -3,7 +3,7 @@
 Este documento é a "Constituição" do Backend da Plataforma Gravity na sua essência logística. Ele dita como os módulos interagem sem dependência travada, como a Hierarquia 3-Tier garante o rastreamento em nível de linha (Item), e a Matemática Universal que fundamenta embarques parciais/consolidados.
 
 ## 1. O Ecossistema "Lego" (Desacoplamento de Módulos)
-Os módulos/produtos da Gravity (SimulaCusto, Bid Frete, Bid Câmbio, Gestão de Pedidos) têm a capacidade arquitetural de funcionar **sozinhos**. 
+Os módulos/produtos da Gravity (SimulaCusto, BID Frete Internacional, Bid Câmbio, Gestão de Pedidos) têm a capacidade arquitetural de funcionar **sozinhos**. 
 - Um usuário pode cotar um Frete Avulso. Um usuário pode simular um Custo sem que exista um pedido formal.
 - **Herança de Dados (Zero Digitação):** O `Processo` logístico possui "engates" magnéticos (`estimativa_base_id` e `cotacao_frete_id`). Se um processo real é gerado a partir de um desses módulos soltos, ele automaticamente preenche suas colunas (Porto, NCMs, Valor Estimado). O módulo "Doador" permanece intacto como documento histórico da simulação.
 

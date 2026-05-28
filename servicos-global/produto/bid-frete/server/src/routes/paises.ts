@@ -2,7 +2,7 @@
  * paises.ts — Lista estatica de paises para comercio exterior (publico, sem auth)
  * GET /paises?q=&limit=50
  *
- * Origem: master data estatico para selects de pais em cotacoes BID Frete.
+ * Origem: master data estatico para selects de pais em cotacoes BID Frete Internacional.
  */
 
 import { Router, Request, Response } from 'express'

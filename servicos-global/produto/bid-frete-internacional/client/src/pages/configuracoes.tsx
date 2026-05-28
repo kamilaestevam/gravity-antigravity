@@ -1,5 +1,5 @@
 /**
- * Configuracoes.tsx — Configurações do BID Frete (Replica Pedido Premium)
+ * Configuracoes.tsx — Configurações do BID Frete Internacional (Replica Pedido Premium)
  * Visual & Behavioral Replica — Dark Theme Slate UI
  */
 
@@ -226,7 +226,7 @@ const SIDEBAR_ITEMS = [
   { tipo: 'sub',    id: 'kanban-card',           label: 'Card',              labelKey: 'bidfrete.config.sidebar.card',              icone: <SquaresFour size={15} weight="duotone" />, ativo: true },
   { tipo: 'sub',    id: 'kanban-modal',          label: 'Modal',             labelKey: 'bidfrete.config.sidebar.modal',             icone: <Columns size={15} weight="duotone" />, ativo: true },
   
-  { tipo: 'grupo',  label: 'BID FRETE',          labelKey: 'bidfrete.config.sidebar.grupo_bidfrete' },
+  { tipo: 'grupo',  label: 'BID FRETE INTERNACIONAL', labelKey: 'bidfrete.config.sidebar.grupo_bidfrete' },
   { tipo: 'item',   id: 'status',                label: 'Status Cotação',    labelKey: 'bidfrete.config.sidebar.status',            icone: <Tag size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'status-bid-frete-internacional', label: 'Status BID', labelKey: 'bidfrete.config.sidebar.status_bid', icone: <Tag size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'numeracao',             label: 'Numeração',         labelKey: 'bidfrete.config.sidebar.numeracao',         icone: <Hash size={15} weight="duotone" />, ativo: true },
@@ -2398,7 +2398,7 @@ export default function Configuracoes() {
             <div className="cfg-secao__header">
               <div>
                 <h2 className="cfg-secao__titulo">Regras de Negócio</h2>
-                <p className="cfg-secao__desc">Configure as regras de envio, validação e automações do BID Frete.</p>
+                <p className="cfg-secao__desc">Configure as regras de envio, validação e automações do BID Frete Internacional.</p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

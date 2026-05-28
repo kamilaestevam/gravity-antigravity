@@ -28,7 +28,7 @@ const PRODUCT_LABELS: Record<string, string> = {
   'simula-custo':    'SimulaCusto',
   'pedido':          'Pedido',
   'bid-cambio':      'Bid Câmbio',
-  'bid-frete':       'Bid Frete',
+  'bid-frete':       'BID Frete Internacional',
   'lpco':            'LPCO',
   'nf-importacao':   'NF Importação',
   'processo':        'Processo',

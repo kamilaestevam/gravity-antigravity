@@ -122,7 +122,7 @@ O dev master passou de `concurrently -k` para **PM2** (`npm run pm2:start`). O P
 | cockpit | API-Cockpit | 8016 |
 | conector-erp | Conector ERP | 8017 |
 | sc-back | Simula-Custo | 8020 |
-| bid-frete | Bid Frete Internacional | 8023 |
+| bid-frete | BID Frete Internacional (UI) | 8023 |
 | bid-cambio | Bid Câmbio | 8025 |
 | proc-back | Processo | 8026 |
 | lpco | LPCO | 8027 |

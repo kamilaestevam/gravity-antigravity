@@ -44,22 +44,22 @@ const CriarFornecedorSchema = z.object({
   cotacao_automatica_fornecedor_bid_frete_internacional: z.boolean().default(false),
 })
 
-const TabelaPrecoSchema = z.object({
-  origem_codigo_tabela_valor_bid_frete_internacional: z.string().min(1),
-  origem_nome_tabela_valor_bid_frete_internacional: z.string().min(1),
-  destino_codigo_tabela_valor_bid_frete_internacional: z.string().min(1),
-  destino_nome_tabela_valor_bid_frete_internacional: z.string().min(1),
-  modal_tabela_valor_bid_frete_internacional: z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO']),
-  modalidade_tabela_valor_bid_frete_internacional: z.enum(['FCL', 'LCL', 'AEREO_GERAL', 'RODOVIARIO_FTL', 'RODOVIARIO_LTL']),
-  moeda_tabela_valor_bid_frete_internacional: z.string().default('USD'),
-  valor_frete_tabela_valor_bid_frete_internacional: z.number().positive(),
-  taxas_origem_tabela_valor_bid_frete_internacional: z.number().min(0).default(0),
-  taxas_destino_tabela_valor_bid_frete_internacional: z.number().min(0).default(0),
-  valor_total_tabela_valor_bid_frete_internacional: z.number().positive(),
-  dias_transito_tabela_valor_bid_frete_internacional: z.number().int().positive(),
-  dias_free_time_tabela_valor_bid_frete_internacional: z.number().int().optional(),
-  validade_inicio_tabela_valor_bid_frete_internacional: z.string().datetime(),
-  validade_fim_tabela_valor_bid_frete_internacional: z.string().datetime(),
+const TabelaBidFreteInternacionalSchema = z.object({
+  origem_codigo_tabela_bid_frete_internacional: z.string().min(1),
+  origem_nome_tabela_bid_frete_internacional: z.string().min(1),
+  destino_codigo_tabela_bid_frete_internacional: z.string().min(1),
+  destino_nome_tabela_bid_frete_internacional: z.string().min(1),
+  modal_tabela_bid_frete_internacional: z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO']),
+  modalidade_tabela_bid_frete_internacional: z.enum(['FCL', 'LCL', 'AEREO_GERAL', 'RODOVIARIO_FTL', 'RODOVIARIO_LTL']),
+  moeda_tabela_bid_frete_internacional: z.string().default('USD'),
+  valor_frete_tabela_bid_frete_internacional: z.number().positive(),
+  taxas_origem_tabela_bid_frete_internacional: z.number().min(0).default(0),
+  taxas_destino_tabela_bid_frete_internacional: z.number().min(0).default(0),
+  valor_total_tabela_bid_frete_internacional: z.number().positive(),
+  dias_transito_tabela_bid_frete_internacional: z.number().int().positive(),
+  dias_free_time_tabela_bid_frete_internacional: z.number().int().optional(),
+  validade_inicio_tabela_bid_frete_internacional: z.string().datetime(),
+  validade_fim_tabela_bid_frete_internacional: z.string().datetime(),
 })
 
 // --- POST / — Cadastrar fornecedor ---
@@ -263,7 +263,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 // POST /:id_fornecedor/tabelas-valor
 router.post('/:id_fornecedor/tabelas-valor', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const parsed = TabelaPrecoSchema.safeParse(req.body)
+    const parsed = TabelaBidFreteInternacionalSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
     const userId = req.headers['x-id-usuario'] as string
@@ -274,8 +274,8 @@ router.post('/:id_fornecedor/tabelas-valor', async (req: Request, res: Response,
         id_produto_gravity: 'bid-frete-internacional',
         id_usuario: userId,
         id_fornecedor_bid_frete_internacional: req.params.id_fornecedor,
-        validade_inicio_tabela_valor_bid_frete_internacional: new Date(parsed.data.validade_inicio_tabela_valor_bid_frete_internacional),
-        validade_fim_tabela_valor_bid_frete_internacional: new Date(parsed.data.validade_fim_tabela_valor_bid_frete_internacional),
+        validade_inicio_tabela_bid_frete_internacional: new Date(parsed.data.validade_inicio_tabela_bid_frete_internacional),
+        validade_fim_tabela_bid_frete_internacional: new Date(parsed.data.validade_fim_tabela_bid_frete_internacional),
       },
     })
 
@@ -290,7 +290,7 @@ router.get('/:id_fornecedor/tabelas-valor', async (req: Request, res: Response, 
   try {
     const tabelas = await (req.prisma as any).tabelaBidFreteInternacional.findMany({
       where: { id_fornecedor_bid_frete_internacional: req.params.id_fornecedor },
-      orderBy: { origem_nome_tabela_valor_bid_frete_internacional: 'asc' },
+      orderBy: { origem_nome_tabela_bid_frete_internacional: 'asc' },
     })
     res.json({ tabelas })
   } catch (err) {
@@ -298,11 +298,11 @@ router.get('/:id_fornecedor/tabelas-valor', async (req: Request, res: Response, 
   }
 })
 
-// PUT /:id_fornecedor/tabelas-valor/:id_tabela_valor
-router.put('/:id_fornecedor/tabelas-valor/:id_tabela_valor', async (req: Request, res: Response, next: NextFunction) => {
+// PUT /:id_fornecedor/tabelas-valor/:id_tabela_bid_frete_internacional
+router.put('/:id_fornecedor/tabelas-valor/:id_tabela_bid_frete_internacional', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tabela = await (req.prisma as any).tabelaBidFreteInternacional.update({
-      where: { id_tabela_bid_frete_internacional: req.params.id_tabela_valor },
+      where: { id_tabela_bid_frete_internacional: req.params.id_tabela_bid_frete_internacional },
       data: req.body,
     })
     res.json({ tabela })
@@ -311,10 +311,10 @@ router.put('/:id_fornecedor/tabelas-valor/:id_tabela_valor', async (req: Request
   }
 })
 
-// DELETE /:id_fornecedor/tabelas-valor/:id_tabela_valor
-router.delete('/:id_fornecedor/tabelas-valor/:id_tabela_valor', async (req: Request, res: Response, next: NextFunction) => {
+// DELETE /:id_fornecedor/tabelas-valor/:id_tabela_bid_frete_internacional
+router.delete('/:id_fornecedor/tabelas-valor/:id_tabela_bid_frete_internacional', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await (req.prisma as any).tabelaBidFreteInternacional.delete({ where: { id_tabela_bid_frete_internacional: req.params.id_tabela_valor } })
+    await (req.prisma as any).tabelaBidFreteInternacional.delete({ where: { id_tabela_bid_frete_internacional: req.params.id_tabela_bid_frete_internacional } })
     res.json({ deleted: true })
   } catch (err) {
     next(err)

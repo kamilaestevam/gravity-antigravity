@@ -141,7 +141,7 @@ function getScreenContext(path: string): ScreenContext {
   // /produto/bid-frete
   if (path.includes('/bid-frete'))
     return {
-      welcome: 'Voce esta no Bid Frete — cotacao inteligente de frete internacional. Posso te ajudar a comparar fretes, entender INCOTERMS e escolher a melhor opcao!',
+      welcome: 'Voce esta no BID Frete Internacional — cotacao inteligente de frete internacional. Posso te ajudar a comparar fretes, entender INCOTERMS e escolher a melhor opcao!',
       actions: [
         { label: 'Como cotar frete internacional?', icon: <Question size={16} /> },
         { label: 'O que sao INCOTERMS?', icon: <Sparkle size={16} /> },
@@ -228,7 +228,7 @@ function getScreenContext(path: string): ScreenContext {
 
 const MOCK_RESPONSES: Record<string, string> = {
   'O que e a Gravity Store?':
-    'A **Gravity Store** e onde voce encontra todos os modulos da plataforma. Funciona como uma loja de aplicativos para comercio exterior.\n\nCada modulo resolve um problema especifico:\n\n* **SimulaCusto** — Calculo de custos de importacao\n* **Smart Read** — Leitura inteligente de documentos\n* **BID Frete** — Cotacao de frete internacional\n* **BID Cambio** — Comparacao de taxas cambiais\n\nVoce ativa so o que precisa e pode expandir a qualquer momento. Todos incluem **14 dias gratis**!',
+    'A **Gravity Store** e onde voce encontra todos os modulos da plataforma. Funciona como uma loja de aplicativos para comercio exterior.\n\nCada modulo resolve um problema especifico:\n\n* **SimulaCusto** — Calculo de custos de importacao\n* **Smart Read** — Leitura inteligente de documentos\n* **BID Frete Internacional** — Cotacao de frete internacional\n* **BID Cambio** — Comparacao de taxas cambiais\n\nVoce ativa so o que precisa e pode expandir a qualquer momento. Todos incluem **14 dias gratis**!',
   'Qual o proximo passo?':
     'Agora que voce esta criando sua empresa, o proximo passo e simples:\n\n* **1.** Digite o nome da empresa e clique em **Ir para Gravity Store**\n* **2.** Na Store, explore os modulos disponiveis\n* **3.** Ative os que fazem sentido para sua operacao — com **14 dias gratis**\n* **4.** Pronto! Voce ja pode comecar a usar a plataforma\n\nSe precisar de ajuda para escolher os modulos, estarei aqui na Store tambem!',
   'Como funciona o trial?':
@@ -240,7 +240,7 @@ const MOCK_RESPONSES: Record<string, string> = {
   'Me ajude a escolher':
     'Claro! Me conta um pouco:\n\n* Sua empresa trabalha com **importacao**, **exportacao** ou ambos?\n* Qual o principal desafio hoje — **custos**, **documentos** ou **logistica**?\n\nCom essas infos consigo recomendar os modulos ideais para voce.',
   'O que e um workspace?':
-    'Pense no workspace como a **conta da sua empresa** dentro da Gravity.\n\nE onde ficam organizados:\n\n* **Seus dados** — informacoes da empresa, CNPJ, enderecos\n* **Seus produtos** — os modulos que voce ativa (SimulaCusto, BID Frete, etc.)\n* **Seus usuarios** — as pessoas do time que acessam a plataforma\n\nSe voce tem uma **matriz e filiais**, pode criar um workspace para cada uma. Cada workspace tem seus proprios dados e produtos separados.\n\nDigite o nome da sua empresa e clique em **Continuar** — e rapido!',
+    'Pense no workspace como a **conta da sua empresa** dentro da Gravity.\n\nE onde ficam organizados:\n\n* **Seus dados** — informacoes da empresa, CNPJ, enderecos\n* **Seus produtos** — os modulos que voce ativa (SimulaCusto, BID Frete Internacional, etc.)\n* **Seus usuarios** — as pessoas do time que acessam a plataforma\n\nSe voce tem uma **matriz e filiais**, pode criar um workspace para cada uma. Cada workspace tem seus proprios dados e produtos separados.\n\nDigite o nome da sua empresa e clique em **Continuar** — e rapido!',
   'Posso ter mais de um?':
     'Sim! Voce pode criar **quantos workspaces precisar**.\n\nIsso e util quando:\n\n* Sua empresa tem **filiais** em estados diferentes\n* Voce quer separar **divisoes** (importacao vs. exportacao)\n* Precisa de **ambientes distintos** para projetos\n\nCada workspace tem seus proprios dados, produtos e usuarios — tudo isolado e seguro.\n\nPor enquanto, crie o primeiro com o nome da sua empresa principal. Depois voce adiciona mais nas configuracoes!',
 }

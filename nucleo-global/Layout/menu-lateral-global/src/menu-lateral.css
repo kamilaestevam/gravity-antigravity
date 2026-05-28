@@ -102,9 +102,11 @@
 }
 
 .mlg-logo-name {
-  font-size: 0.9375rem;
+  /* 11px — cabe nomes longos (ex. BID Frete Internacional) na sidebar 240px com ícone + chevron */
+  font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

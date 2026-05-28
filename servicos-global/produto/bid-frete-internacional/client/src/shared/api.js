@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 /**
- * api.ts — Funções de chamada da API do BID Frete
+ * api.ts — Funções de chamada da API do BID Frete Internacional
  * Skill: antigravity-criar-produto (Passo 1 — shared/api.ts)
  */
 const API_BASE = '/api/v1';

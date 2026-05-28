@@ -7,7 +7,8 @@ description: "Use em tarefas do BID Frete Internacional — entidade BID opciona
 
 > Produto: `bid-frete-internacional` · Porta: **8023** · Banco dedicado Railway  
 > Código: `servicos-global/produto/bid-frete-internacional/`  
-> Docs: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/` · Atlas DDD: `documentos-tecnicos/ddd-atlas/bid-frete/`
+> Docs: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/` · Atlas DDD: `documentos-tecnicos/ddd-atlas/bid-frete/`  
+> **Nome de exibição (UI):** `BID Frete Internacional` — slug canônico de rota permanece `/bid-frete/*` e `product_key` `bid-frete`.
 
 ---
 
@@ -41,7 +42,7 @@ Ao **criar proposta**, copiar da cotação via `snapshotPropostaFromCotacao` (`s
 
 **Fonte da verdade do vínculo BID:** FK na **cotação**. O `id_bid` na proposta é snapshot (backfill na migration + preenchido na criação).
 
-Consumidores: `motor-bid-frete-internacional.ts`, `portal.ts`, `cotacoes-publicas.ts`.
+Consumidores: `motor-bid-frete-internacional.ts`, `visao-fornecedor-bid-frete-internacional.ts`, `visao-fornecedor-bid-frete-internacional-publico.ts`.
 
 ---
 
@@ -103,6 +104,23 @@ Schema: `prisma/fragment.prisma` → `node prisma/compose-schema.js` → `schema
 | GET | `/api/v1/bid-frete-internacional/cotacoes?apenas_avulsas=true` | `cotacoes.ts` |
 
 Demais rotas: ver `documentos-tecnicos/ddd-atlas/bid-frete/02-rotas-api.md`.
+
+---
+
+## Visão Fornecedor (`visao_fornecedor_bid_frete_internacional`)
+
+Namespace fixo para telas/API exclusivas do fornecedor logado.
+
+| Camada | Caminho |
+|--------|---------|
+| Doc SSOT | `documentos-tecnicos/produtos-gravity/bid-frete-internacional/DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md` |
+| API auth | `server/src/routes/visao-fornecedor-bid-frete-internacional.ts` |
+| API público | `server/src/routes/visao-fornecedor-bid-frete-internacional-publico.ts` |
+| Schemas Zod front | `client/src/shared/visao-fornecedor-bid-frete-internacional-schemas.ts` |
+| Páginas | `client/src/pages/visao-fornecedor-bid-frete-internacional/` |
+| Nav shell | `PRODUCT_CONFIG.navigation_visao_fornecedor_bid_frete_internacional` |
+
+**Proibido** na visão fornecedor: `portal`, `bidRequest`, `respostas`, payloads com chaves genéricas (`id`, `nome`, `rating`).
 
 ---
 

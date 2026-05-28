@@ -2212,7 +2212,8 @@
     },
     "config": {
       "sidebar": {
-        "dashboard_kpi": "Visão Geral"
+        "dashboard_kpi": "Visão Geral",
+        "grupo_bidfrete": "BID Frete Internacional"
       },
       "acao": {
         "salvar": "Salvar",
@@ -2566,7 +2567,7 @@
       "formato_data_titulo": "Formato de Data",
       "formato_data_desc": "Escolha como as datas serão exibidas na plataforma",
       "formato_padrao": "Formato padrão",
-      "formato_padrao_desc": "Formato utilizado em todas as telas do BID Frete",
+      "formato_padrao_desc": "Formato utilizado em todas as telas do BID Frete Internacional",
       "colunas_personalizadas_titulo": "Colunas Personalizadas",
       "colunas_personalizadas_desc": "Gerencie as colunas visíveis na listagem de cotações",
       "exibir_coluna": "Exibir coluna",
@@ -2619,7 +2620,7 @@
       "boletim_cambial_titulo": "Boletim Cambial",
       "boletim_cambial_desc": "Configure a exibição de câmbio do dia no dashboard",
       "notificacoes_titulo": "Notificações",
-      "notificacoes_desc": "Gerencie alertas e notificações do BID Frete",
+      "notificacoes_desc": "Gerencie alertas e notificações do BID Frete Internacional",
       "not_nova_cotacao_label": "Nova cotação criada",
       "not_nova_cotacao_desc": "Notificar quando uma nova cotação for criada",
       "not_resposta_label": "Resposta recebida",
@@ -2654,7 +2655,7 @@
       "disponiveis_adicionar": "Disponíveis para adicionar",
       "adicionar_card_kpi": "Adicionar card KPI customizado",
       "pref_tabela_titulo": "Preferências da Tabela",
-      "pref_tabela_desc": "Configure as preferências de paginação e visualização para a listagem do BID Frete.",
+      "pref_tabela_desc": "Configure as preferências de paginação e visualização para a listagem do BID Frete Internacional.",
       "itens_por_pagina": "Itens por Página",
       "editar_descricao": "Editar descrição",
       "criar_coluna_personalizada": "Criar Coluna Personalizada",
@@ -2921,7 +2922,7 @@
         "obrigado_titulo": "Obrigado pela sua proposta",
         "obrigado_desc": "Sua resposta foi enviada com sucesso e será analisada pelo comprador. Você será notificado sobre o resultado.",
         "campos_obrigatorios": "Preencha os campos obrigatórios: Valor Frete, Transit Time e Validade",
-        "header_titulo": "BID Frete — Responder Cotação",
+        "header_titulo": "BID Frete Internacional — Responder Cotação",
         "erro_envio": "Erro ao enviar resposta",
         "placeholder_observacoes": "Informações adicionais, condições especiais, observações..."
       },
@@ -8549,7 +8550,7 @@
     "prod_pedido_desc": "Gestão completa de pedidos de compra com fluxo de aprovação, rastreamento e integração com sistemas ERP.",
     "prod_simula_custo_desc": "Simulação detalhada de custos de importação com cálculo automático de impostos por NCM e comparativo de cenários.",
     "prod_smart_read_desc": "Extração inteligente de dados de documentos e imagens usando IA. Processa faturas, invoices e documentos aduaneiros automaticamente.",
-    "prod_bid_frete_nome": "Bid Frete",
+    "prod_bid_frete_nome": "BID Frete Internacional",
     "prod_bid_cambio_nome": "Bid Câmbio",
     "prod_nf_importacao_nome": "NF Importação",
     "prod_lpco_nome": "LPCO",

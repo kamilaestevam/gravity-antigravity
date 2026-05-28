@@ -5,7 +5,7 @@
 
 export function montarLinkRespostaDisparo(appUrl: string, token: string): string {
   const base = appUrl.replace(/\/$/, '')
-  return `${base}/bid-frete/portal/public/responder/${token}`
+  return `${base}/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/${token}`
 }
 
 export function montarAssuntoEmailDisparo(numeroCotacao: string): string {

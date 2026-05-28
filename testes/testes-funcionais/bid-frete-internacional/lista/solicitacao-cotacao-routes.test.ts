@@ -18,7 +18,7 @@ const { mockDisparar, mockDispararCotacaoAberta } = vi.hoisted(() => ({
 }))
 
 vi.mock(
-  '../../../servicos-global/produto/bid-frete-internacional/server/src/services/motor-bid-frete-internacional.js',
+  '../../../../servicos-global/produto/bid-frete-internacional/server/src/services/motor-bid-frete-internacional.js',
   () => ({
     motorBid: {
       disparar: mockDisparar,
@@ -27,7 +27,7 @@ vi.mock(
   }),
 )
 
-import { solicitacaoCotacaoBidFreteInternacionalRouter } from '../../../servicos-global/produto/bid-frete-internacional/server/src/routes/solicitacao-cotacao-bid-frete-internacional'
+import { solicitacaoCotacaoBidFreteInternacionalRouter } from '../../../../servicos-global/produto/bid-frete-internacional/server/src/routes/solicitacao-cotacao-bid-frete-internacional'
 
 function criarApp() {
   const app = express()

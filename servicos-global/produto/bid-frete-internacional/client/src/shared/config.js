@@ -1,5 +1,5 @@
 /**
- * config.ts — PRODUCT_CONFIG do BID Frete
+ * config.ts — PRODUCT_CONFIG do BID Frete Internacional
  *
  * Fonte de verdade do produto: declara servicos de tenant usados,
  * servicos de produto internos e a navegação lateral.
@@ -8,7 +8,7 @@
 export const PRODUCT_CONFIG = {
     id: 'bid-frete-internacional',
     productId: 'bid-frete-internacional',
-    name: 'BID Frete',
+    name: 'BID Frete Internacional',
     port: 8023,
     tenantServices: [
         'atividades',
@@ -39,8 +39,8 @@ export const PRODUCT_CONFIG = {
                 { id: '/core/whatsapp', label: 'WhatsApp', icon: 'whatsapp-logo', source: 'tenant', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
             ],
         },
-        // ── BID Frete ─────────────────────────────────────────────────────────────
-        { id: 'section-bid-frete', label: 'BID Frete', sectionDivider: true },
+        // ── BID Frete Internacional ─────────────────────────────────────────────────
+        { id: 'section-bid-frete', label: 'BID Frete Internacional', sectionDivider: true },
         { id: '/produto/bid-frete/visao-geral', label: 'Visão Geral', icon: 'chart-pie-slice', source: 'product' },
         { id: '/produto/bid-frete/dashboard', label: 'Dashboard', icon: 'chart-bar', source: 'product' },
         { id: '/produto/bid-frete/cotacoes?visao=lista', label: 'Lista', icon: 'list-bullets', source: 'product' },

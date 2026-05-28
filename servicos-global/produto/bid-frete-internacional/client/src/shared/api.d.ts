@@ -1,5 +1,5 @@
 /**
- * api.ts — Funções de chamada da API do BID Frete
+ * api.ts — Funções de chamada da API do BID Frete Internacional
  * Skill: antigravity-criar-produto (Passo 1 — shared/api.ts)
  */
 import type { Cotacao, CotacoesListResponse, Fornecedor, FornecedoresListResponse, BidRequest, BidResponse, DashboardKPIs, CalendarioAlerta, TabelaPreco, Avaliacao, Porto, Moeda, StatusCotacao } from './types';

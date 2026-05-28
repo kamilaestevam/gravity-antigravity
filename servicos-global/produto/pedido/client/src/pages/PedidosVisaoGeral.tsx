@@ -1,7 +1,7 @@
 /**
  * PedidosVisaoGeral.tsx — Visão Geral do produto Pedido
  *
- * Réplica do layout da Visão Geral do BID Frete, com a cor nativa do
+ * Réplica do layout da Visão Geral do BID Frete Internacional, com a cor nativa do
  * Pedido (âmbar) e gráficos alimentados por dados reais de pedidos
  * (useVisaoGeralPedido). Layout: KPIs + sparklines, globo 3D, gráficos
  * SVG, funil por status, donut por tipo de operação.

@@ -1,5 +1,5 @@
 /**
- * types.ts — Tipos do domínio BID Frete
+ * types.ts — Tipos do domínio BID Frete Internacional
  * Skill: antigravity-criar-produto (Passo 1 — shared/types.ts)
  * Alinhado com fragment.prisma — enums e campos.
  */

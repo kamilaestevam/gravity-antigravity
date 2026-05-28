@@ -2,7 +2,7 @@
  * visaoGeralMapaPedido.ts — Agregação geográfica para o globo da Visão Geral
  *
  * Deriva pins, rotas e rankings a partir de pedidos reais (sem mocks).
- * Padrão visual alinhado ao BID Frete: origens estrangeiras → hubs no Brasil.
+ * Padrão visual alinhado ao BID Frete Internacional: origens estrangeiras → hubs no Brasil.
  */
 
 import type { Pedido } from './types'
@@ -167,7 +167,7 @@ interface CambioLocAgg {
   moedaCambio: string
 }
 
-/** Hubs brasileiros no globo — mesmo conceito do BID Frete (Guarulhos, Itajaí, Recife). */
+/** Hubs brasileiros no globo — mesmo conceito do BID Frete Internacional (Guarulhos, Itajaí, Recife). */
 const HUBS_BR_DESTINO: ReadonlyArray<{
   key: string
   label: string

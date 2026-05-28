@@ -197,6 +197,12 @@
       "accumulatedUsd": "Accumulated (USD)",
       "totalAmountUsd": "Total amount (USD)"
     },
+    "config": {
+      "sidebar": {
+        "dashboard_kpi": "Overview",
+        "grupo_bidfrete": "BID International Freight"
+      }
+    },
     "tabela": {
       "processo": "Process (DATI)",
       "referencia": "Reference",
@@ -372,7 +378,7 @@
       "formato_data_titulo": "Date Format",
       "formato_data_desc": "Choose how dates are displayed on the platform",
       "formato_padrao": "Default format",
-      "formato_padrao_desc": "Format used across all BID Frete screens",
+      "formato_padrao_desc": "Format used across all BID International Freight screens",
       "colunas_personalizadas_titulo": "Custom Columns",
       "colunas_personalizadas_desc": "Manage visible columns in the quote listing",
       "exibir_coluna": "Show column",
@@ -425,7 +431,7 @@
       "boletim_cambial_titulo": "Exchange Bulletin",
       "boletim_cambial_desc": "Configure exchange rate display on the dashboard",
       "notificacoes_titulo": "Notifications",
-      "notificacoes_desc": "Manage BID Frete alerts and notifications",
+      "notificacoes_desc": "Manage BID International Freight alerts and notifications",
       "not_nova_cotacao_label": "New quote created",
       "not_nova_cotacao_desc": "Notify when a new quote is created",
       "not_resposta_label": "Response received",
@@ -460,7 +466,7 @@
       "disponiveis_adicionar": "Available to add",
       "adicionar_card_kpi": "Add custom KPI card",
       "pref_tabela_titulo": "Table Preferences",
-      "pref_tabela_desc": "Configure pagination and display preferences for the Freight BID listing.",
+      "pref_tabela_desc": "Configure pagination and display preferences for the BID International Freight listing.",
       "itens_por_pagina": "Items per Page",
       "editar_descricao": "Edit description",
       "criar_coluna_personalizada": "Create Custom Column",
@@ -698,7 +704,7 @@
         "obrigado_titulo": "Thank you for your proposal",
         "obrigado_desc": "Your response has been sent successfully and will be reviewed by the buyer. You will be notified of the result.",
         "campos_obrigatorios": "Please fill in required fields: Freight Value, Transit Time and Validity",
-        "header_titulo": "BID Frete — Respond to Quote",
+        "header_titulo": "BID International Freight — Respond to Quote",
         "erro_envio": "Error submitting response",
         "placeholder_observacoes": "Additional information, special conditions, notes..."
       },
@@ -8413,7 +8419,7 @@
     "prod_pedido_desc": "Complete purchase order management with approval workflow, tracking and ERP system integration.",
     "prod_simula_custo_desc": "Detailed import cost simulation with automatic tax calculation by NCM code and scenario comparison.",
     "prod_smart_read_desc": "Intelligent data extraction from documents and images using AI. Automatically processes invoices and customs documents.",
-    "prod_bid_frete_nome": "Bid Freight",
+    "prod_bid_frete_nome": "BID International Freight",
     "prod_bid_cambio_nome": "Bid Exchange",
     "prod_nf_importacao_nome": "Import Invoice",
     "prod_lpco_nome": "LPCO",

@@ -70,8 +70,8 @@ const SEGMENTS: Record<string, SegmentConfig> = {
     matchDirs: ['documentos-tecnicos/produtos-gravity/nf-importacao'],
   },
   'bid-frete': {
-    label: 'Bid Frete (Cotacao de Frete)',
-    matchDirs: ['documentos-tecnicos/produtos-gravity/bid-frete'],
+    label: 'BID Frete Internacional (Cotacao de Frete)',
+    matchDirs: ['documentos-tecnicos/produtos-gravity/bid-frete-internacional'],
   },
   'bid-cambio': {
     label: 'Bid Cambio (Cotacao de Cambio)',

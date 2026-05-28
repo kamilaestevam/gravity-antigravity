@@ -40,6 +40,12 @@
 
 **FK:** `cotacao_bid_frete_internacional.id_bid_bid_frete_internacional` → `bid_frete_internacional` (nullable).
 
-**Proposta:** `id_workspace` snapshot; sem `id_bid`.
+**Proposta:** snapshots na criação:
+- `id_workspace` — filial da cotação no momento da resposta
+- `id_bid_bid_frete_internacional` — denormalizado da cotação (SSOT continua na cotação)
+
+Ver: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/SNAPSHOT-PROPOSTA-TECNICO.md`
+
+**Ordem física de colunas (Railway UI):** `id_workspace` logo após `id_organizacao`; cotação com `id_bid` na 2ª coluna; proposta com `id_proposta → id_cotacao → id_bid` no topo. Ver `ORDEM-COLUNAS-BANCO-TECNICO.md`.
 
 **Hierarquia:** BID → Cotação → Disparo → Proposta.

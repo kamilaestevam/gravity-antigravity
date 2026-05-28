@@ -2230,7 +2230,9 @@
         "card_status": "Card {{n}} — Status",
         "sem_status": "Nenhum status cadastrado. Configure em Status primeiro.",
         "selecionar_status": "Selecionar status",
-        "restaurar_tooltip": "Restaura os status padrão dos 4 cards do topo"
+        "restaurar_tooltip": "Restaura os status padrão dos 4 cards do topo",
+        "preview": "Preview — como ficará na Visão Geral",
+        "msg_salvo": "Preferências dos KPIs da Visão Geral salvas com sucesso."
       }
     },
     "tabela": {

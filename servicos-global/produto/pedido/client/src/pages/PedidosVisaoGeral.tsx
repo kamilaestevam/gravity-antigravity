@@ -47,6 +47,12 @@ import {
 import { useVisaoGeralPedido, filtrarPedidosAlertaVisaoGeral } from '../shared/useVisaoGeralPedido'
 import type { VisaoGeralAlertaTipo } from '../shared/useVisaoGeralPedido'
 import type { Pedido } from '../shared/types'
+import { useDashboardTopKpiStatus } from '../shared/useDashboardTopKpiStatus'
+import type { DashboardTopKpiWidgetId } from '../shared/useDashboardTopKpiStatus'
+import {
+  calcularTopKpiCardsVisaoGeral,
+  useMapaRotulosStatusPedido,
+} from '../shared/visaoGeralTopKpi'
 import type {
   VisaoGeralMapPin,
   VisaoGeralRotaDetalhe,
@@ -86,6 +92,13 @@ function fmtValorPedido(p: Pedido): string {
   if (!Number.isFinite(v) || v <= 0) return '—'
   const moeda = (p.moeda_pedido ?? 'BRL').trim().toUpperCase()
   return `${moeda} ${fmtMoeda(v)}`
+}
+
+const TOP_KPI_ICONES: Record<DashboardTopKpiWidgetId, React.ReactNode> = {
+  kpi_total_pedidos:   <Clock weight="duotone" size={16} />,
+  kpi_pedidos_abertos: <CheckCircle weight="duotone" size={16} />,
+  kpi_saldo_total:     <Coins weight="duotone" size={16} />,
+  kpi_valor_total:     <Timer weight="duotone" size={16} />,
 }
 
 function rotuloCabecalhoRota(route: VisaoGeralRotaDetalhe, isExportacao: boolean): { origem: string; destino: string } {
@@ -2268,7 +2281,14 @@ export default function VisaoGeral() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const vg = useVisaoGeralPedido()
-  const { kpis, alertas, pedidos, incoterms, moedas, maiorPedido, sparkAndamento, sparkConcluido } = vg
+  const { alertas, pedidos, incoterms, moedas, maiorPedido, sparkAndamento, sparkConcluido } = vg
+  const { mapa: topKpiStatusMapa } = useDashboardTopKpiStatus()
+  const rotulosStatus = useMapaRotulosStatusPedido()
+
+  const topKpiCards = useMemo(
+    () => calcularTopKpiCardsVisaoGeral(pedidos, topKpiStatusMapa, rotulosStatus, t),
+    [pedidos, topKpiStatusMapa, rotulosStatus, t],
+  )
 
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
   const [alertModalTipo, setAlertModalTipo] = useState<VisaoGeralAlertaTipo | null>(null)
@@ -3721,40 +3741,37 @@ export default function VisaoGeral() {
         }
       `}</style>
 
-      {/* KPIs Grid */}
+      {/* KPIs Grid — status configuráveis em Configurações → Visão Geral */}
       <div className="bfd-kpi-grid">
-        <CardBasicoGlobal
-          titulo={t('pedido.visao_geral.kpi.andamento_titulo')}
-          icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
-          valor={String(kpis.andamento_count)}
-          tendencia={{ valor: t('pedido.visao_geral.kpi.andamento_tendencia'), direcao: 'up' }}
-          subtexto={t('pedido.visao_geral.kpi.andamento_subtexto', { valor: fmtMoeda(kpis.andamento_valor) })}
-          variante="padrao"
-        />
-        <CardBasicoGlobal
-          titulo={t('pedido.visao_geral.kpi.concluido_titulo')}
-          icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
-          valor={String(kpis.concluido_count)}
-          tendencia={{ valor: t('pedido.visao_geral.kpi.concluido_tendencia'), direcao: 'up' }}
-          subtexto={t('pedido.visao_geral.kpi.concluido_subtexto', { valor: fmtMoeda(kpis.concluido_valor) })}
-          variante="padrao"
-        />
-        <CardBasicoGlobal
-          titulo={t('pedido.visao_geral.kpi.valor_total_titulo')}
-          icone={<Coins weight="duotone" size={16} style={{ color: '#34d399' }} />}
-          valor={`R$ ${fmtMoeda(kpis.valor_total)}`}
-          tendencia={{ valor: '+2.3pp', direcao: 'up' }}
-          subtexto={t('pedido.visao_geral.kpi.valor_total_subtexto', { valor: fmtMoeda(kpis.ticket_medio) })}
-          variante="padrao"
-        />
-        <CardBasicoGlobal
-          titulo={t('pedido.visao_geral.kpi.taxa_atraso_titulo')}
-          icone={<Timer weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
-          valor={`${kpis.taxa_atraso_pct}%`}
-          tendencia={{ valor: '-0.8d', direcao: 'down' }}
-          subtexto={t('pedido.visao_geral.kpi.taxa_atraso_subtexto', { count: kpis.atrasados_count })}
-          variante="padrao"
-        />
+        {topKpiCards.map((card, index) => {
+          const tendencias = [
+            { valor: t('pedido.visao_geral.kpi.andamento_tendencia'), direcao: 'up' as const },
+            { valor: t('pedido.visao_geral.kpi.concluido_tendencia'), direcao: 'up' as const },
+            { valor: '+2.3pp', direcao: 'up' as const },
+            { valor: '-0.8d', direcao: 'down' as const },
+          ]
+          const subtextos = [
+            t('pedido.visao_geral.kpi.andamento_subtexto', { valor: fmtMoeda(card.valor) }),
+            t('pedido.visao_geral.kpi.concluido_subtexto', { valor: fmtMoeda(card.valor) }),
+            t('pedido.visao_geral.kpi.valor_total_subtexto', { valor: fmtMoeda(card.valor) }),
+            t('pedido.visao_geral.kpi.andamento_subtexto', { valor: fmtMoeda(card.valor) }),
+          ]
+          return (
+            <CardBasicoGlobal
+              key={card.widgetId}
+              titulo={card.titulo}
+              icone={
+                <span style={{ color: card.cor, display: 'flex' }}>
+                  {TOP_KPI_ICONES[card.widgetId]}
+                </span>
+              }
+              valor={String(card.count)}
+              tendencia={tendencias[index]}
+              subtexto={subtextos[index]}
+              variante="padrao"
+            />
+          )
+        })}
       </div>
 
       {/* Row 2: Globe Map + Right Column (Alertas on top, Funil de Cotações on bottom) */}

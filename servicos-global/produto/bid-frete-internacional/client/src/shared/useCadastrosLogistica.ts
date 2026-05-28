@@ -44,19 +44,22 @@ export function usePaisesCadastros() {
   return { paises, opcoes, carregando, erro }
 }
 
-export function usePortosPorPais(codigoPais: string, ativo = true) {
+export function usePortosPorPais(codigoPais: string, habilitado = true) {
   const [portos, setPortos] = useState<PortoCadastro[]>([])
   const [carregando, setCarregando] = useState(false)
 
   useEffect(() => {
-    if (!ativo || !codigoPais) {
+    if (!habilitado) {
       setPortos([])
       return
     }
     let cancelado = false
     setCarregando(true)
     cadastrosApi
-      .listarPortos({ pais: codigoPais, limit: 500 })
+      .listarPortos({
+        ...(codigoPais ? { pais: codigoPais } : {}),
+        limit: 500,
+      })
       .then((resp) => {
         if (!cancelado) setPortos(resp.itens)
       })
@@ -69,7 +72,7 @@ export function usePortosPorPais(codigoPais: string, ativo = true) {
     return () => {
       cancelado = true
     }
-  }, [codigoPais, ativo])
+  }, [codigoPais, habilitado])
 
   const opcoes = useMemo((): SelectOpcao[] =>
     portos.map((p) => ({
@@ -81,19 +84,22 @@ export function usePortosPorPais(codigoPais: string, ativo = true) {
   return { portos, opcoes, carregando }
 }
 
-export function useAeroportosPorPais(codigoPais: string, ativo = true) {
+export function useAeroportosPorPais(codigoPais: string, habilitado = true) {
   const [aeroportos, setAeroportos] = useState<AeroportoCadastro[]>([])
   const [carregando, setCarregando] = useState(false)
 
   useEffect(() => {
-    if (!ativo || !codigoPais) {
+    if (!habilitado) {
       setAeroportos([])
       return
     }
     let cancelado = false
     setCarregando(true)
     cadastrosApi
-      .listarAeroportos({ pais: codigoPais, limit: 500 })
+      .listarAeroportos({
+        ...(codigoPais ? { pais: codigoPais } : {}),
+        limit: 500,
+      })
       .then((resp) => {
         if (!cancelado) setAeroportos(resp.itens)
       })
@@ -106,7 +112,7 @@ export function useAeroportosPorPais(codigoPais: string, ativo = true) {
     return () => {
       cancelado = true
     }
-  }, [codigoPais, ativo])
+  }, [codigoPais, habilitado])
 
   const opcoes = useMemo((): SelectOpcao[] =>
     aeroportos

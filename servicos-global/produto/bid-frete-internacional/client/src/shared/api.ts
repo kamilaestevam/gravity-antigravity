@@ -4,6 +4,8 @@
  * Skill: antigravity-criar-produto (Passo 1 — shared/api.ts)
  */
 
+import { z } from 'zod'
+import { useShellStore } from '@gravity/shell'
 import type {
   Cotacao,
   CotacoesListResponse,
@@ -23,6 +25,7 @@ import type {
   ContainerOption,
   IncotermOption,
   StatusCotacao,
+  CanalDisparo,
 } from './types'
 
 const API_BASE = '/api/v1'
@@ -44,7 +47,10 @@ const headers = () => {
     sessionStorage.getItem('gravity_company_id') ||
     ''
 
+  const shellUserId = useShellStore.getState().currentUser.id
+
   const userId =
+    shellUserId ||
     sessionStorage.getItem('gravity_id_usuario') ||
     import.meta.env.VITE_USER_ID ||
     'user_dev_default'
@@ -319,8 +325,17 @@ export async function getCotacao(id: string): Promise<Cotacao> {
   return mapCotacaoFromServer(data.cotacao)
 }
 
-export async function criarCotacao(input: Partial<Cotacao>): Promise<Cotacao> {
+export interface CriarCotacaoPayload extends Partial<Cotacao> {
+  fornecedor_ids?: string[]
+  disparar_ao_criar?: boolean
+  canais_disparo?: CanalDisparo[]
+}
+
+export async function criarCotacao(input: CriarCotacaoPayload): Promise<Cotacao> {
   const serverInput = mapCotacaoToServer(input)
+  if (input.fornecedor_ids) serverInput.fornecedor_ids = input.fornecedor_ids
+  if (input.disparar_ao_criar !== undefined) serverInput.disparar_ao_criar = input.disparar_ao_criar
+  if (input.canais_disparo) serverInput.canais_disparo = input.canais_disparo
   const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes`, {
     method: 'POST',
     headers: headers(),
@@ -363,17 +378,44 @@ export async function excluirCotacao(id: string): Promise<void> {
 
 const SOLICITACAO_COTACAO_BASE = `${API_BASE}/bid-frete-internacional/solicitacao-cotacao-bid-frete-internacional`
 
+const disparoResultadoSchema = z.object({
+  disparos: z.number(),
+  enviados: z.boolean().optional(),
+  message: z.string().optional(),
+  results: z.array(z.object({
+    id_fornecedor_bid_frete_internacional: z.string(),
+    canal_disparo_cotacao_bid_frete_internacional: z.string(),
+    id_disparo_cotacao_bid_frete_internacional: z.string(),
+  })).optional(),
+})
+
+export type DisparoResultadoBidFreteInternacional = z.infer<typeof disparoResultadoSchema>
+
 export async function dispararCotacaoBidFreteInternacional(
   id_cotacao_bid_frete_internacional: string,
   fornecedor_ids: string[],
-  canais: string[],
-): Promise<unknown> {
+  canais: CanalDisparo[],
+): Promise<DisparoResultadoBidFreteInternacional> {
   const res = await fetch(`${SOLICITACAO_COTACAO_BASE}/disparar`, {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ id_cotacao_bid_frete_internacional, fornecedor_ids, canais }),
   })
-  return handleResponse(res)
+  const raw = await handleResponse<unknown>(res)
+  return disparoResultadoSchema.parse(raw)
+}
+
+export async function dispararCotacaoAbertaBidFreteInternacional(
+  id_cotacao_bid_frete_internacional: string,
+  canais: CanalDisparo[],
+): Promise<DisparoResultadoBidFreteInternacional> {
+  const res = await fetch(`${SOLICITACAO_COTACAO_BASE}/cotacao-aberta`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ id_cotacao_bid_frete_internacional, canais }),
+  })
+  const raw = await handleResponse<unknown>(res)
+  return disparoResultadoSchema.parse(raw)
 }
 
 export async function getDisparoPorCotacaoBidFreteInternacional(
@@ -728,5 +770,34 @@ export const dashboardApi = {
       ultima_sync: null,
     }
   }
+}
+
+const CONFIGURADOR_URL = import.meta.env.VITE_CONFIGURADOR_URL ?? ''
+
+const listarUsuariosOrganizacaoResponseSchema = z.object({
+  usuarios: z.array(z.object({
+    id_usuario: z.string(),
+    nome_usuario: z.string(),
+  })),
+})
+
+/** Lista usuários da organização (Configurador) para resolver nomes na tabela. */
+export async function listarUsuariosOrganizacao(
+  getToken: () => Promise<string | null>,
+): Promise<Array<{ id_usuario: string; nome_usuario: string }>> {
+  const token = await getToken()
+  if (!token) return []
+
+  const res = await fetch(`${CONFIGURADOR_URL}/api/v1/usuarios`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) {
+    console.warn('[listarUsuariosOrganizacao] /api/v1/usuarios retornou', res.status)
+    return []
+  }
+
+  const raw = await res.json()
+  const parsed = listarUsuariosOrganizacaoResponseSchema.parse(raw)
+  return parsed.usuarios
 }
 

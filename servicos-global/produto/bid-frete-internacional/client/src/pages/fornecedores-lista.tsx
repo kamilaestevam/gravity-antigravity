@@ -1,34 +1,40 @@
 /**
- * Fornecedores.tsx — Lista de Fornecedores (T5)
- * Skill: antigravity-design-system, antigravity-componentes
- *
- * Baseado nos prints: modelo 5 (donut fornecedores)
- * Layout: KPIs + Donut + Search/Filter + TabelaGlobal
+ * fornecedores-lista.tsx — Lista de Fornecedores
+ * Padrão canônico: CardBasicoGlobal + TabelaVirtualGlobal (igual Lista de Cotações).
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
+import { BotaoGlobal } from '@nucleo/botao-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
+import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
+import type { GTColuna, GTAcao, GTAbaTipo, GTPreferencias } from '@nucleo/tabela-virtual-global'
 import {
   Buildings,
   Plus,
   Eye,
   Star,
-  MagnifyingGlass,
-  FunnelSimple,
   CheckCircle,
   XCircle,
-  ChartPieSlice,
+  DownloadSimple,
 } from '@phosphor-icons/react'
 
 import { getFornecedores } from '../shared/api'
 import type { Fornecedor, TipoFornecedor, StatusFornecedor } from '../shared/types'
 import { TIPO_FORNECEDOR_LABELS, STATUS_FORNECEDOR_LABELS } from '../shared/types'
 
-// ─── Badge colors ───────────────────────────────────────────────────────────
+const STORAGE_PREFS = 'bid-frete-internacional:config:fornecedores-tabela-preferencias'
+
+const COLUNAS_KEYS = [
+  'nome_fornecedor_bid_frete_internacional',
+  'email_fornecedor_bid_frete_internacional',
+  'tipo_fornecedor_bid_frete_internacional',
+  'status_fornecedor_bid_frete_internacional',
+  'nota_global_classificacao_bid_frete_internacional',
+  'total_cotacoes',
+] as const
 
 const STATUS_FORNECEDOR_COLORS: Record<StatusFornecedor, { bg: string; color: string }> = {
   ATIVO:              { bg: 'rgba(34,197,94,0.15)',   color: 'var(--success, #22c55e)' },
@@ -43,15 +49,6 @@ const TIPO_FORNECEDOR_COLORS: Record<TipoFornecedor, { bg: string; color: string
   CIA_AEREA:      { bg: 'rgba(245,158,11,0.15)',  color: 'var(--warning, #f59e0b)' },
   TRANSPORTADORA: { bg: 'rgba(239,68,68,0.15)',   color: 'var(--danger, #ef4444)' },
 }
-
-const TIPO_DONUT_COLORS: Record<TipoFornecedor, string> = {
-  AGENTE_CARGA:   '#22c55e',
-  ARMADOR:        '#6366f1',
-  CIA_AEREA:      '#f59e0b',
-  TRANSPORTADORA: '#ef4444',
-}
-
-// ─── Stars renderer ─────────────────────────────────────────────────────────
 
 function Stars({ rating }: { rating: number | null }) {
   if (rating == null) return <span style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.75rem' }}>—</span>
@@ -78,31 +75,61 @@ function Stars({ rating }: { rating: number | null }) {
   )
 }
 
-// ─── Componente Principal ────────────────────────────────────────────────────
+function lerPreferenciasTabela(): GTPreferencias {
+  try {
+    const raw = localStorage.getItem(STORAGE_PREFS)
+    if (!raw) return { colunas_visiveis: [...COLUNAS_KEYS] }
+    const parsed = JSON.parse(raw) as GTPreferencias
+    if (!parsed?.colunas_visiveis?.length) return { colunas_visiveis: [...COLUNAS_KEYS] }
+    return parsed
+  } catch {
+    return { colunas_visiveis: [...COLUNAS_KEYS] }
+  }
+}
 
 export default function Fornecedores() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+
   const [fornecedores, setFornecedores] = useState<Fornecedor[]>([])
   const [carregando, setCarregando] = useState(true)
   const [busca, setBusca] = useState('')
-  const [filtroTipo, setFiltroTipo] = useState('')
+  const [abaAtiva, setAbaAtiva] = useState('TODOS')
+  const [preferencias, setPreferencias] = useState<GTPreferencias>(lerPreferenciasTabela)
 
   const carregar = useCallback(async () => {
     setCarregando(true)
     try {
-      const res = await getFornecedores({ busca, tipo: filtroTipo || undefined, limit: 100 })
+      const res = await getFornecedores({ limit: 500 })
       setFornecedores(res.fornecedores)
     } catch {
       setFornecedores([])
     } finally {
       setCarregando(false)
     }
-  }, [busca, filtroTipo])
+  }, [])
 
-  useEffect(() => { carregar() }, [carregar])
+  useEffect(() => { void carregar() }, [carregar])
 
-  // ─── KPI computations ─────────────────────────────────────────────────
+  const abas: GTAbaTipo[] = useMemo(() => [
+    { valor: 'TODOS', label: t('bidfrete.fornecedores.todos_status', 'Todos') },
+    { valor: 'ATIVO', label: STATUS_FORNECEDOR_LABELS.ATIVO },
+    { valor: 'INATIVO', label: STATUS_FORNECEDOR_LABELS.INATIVO },
+    { valor: 'PENDENTE_APROVACAO', label: STATUS_FORNECEDOR_LABELS.PENDENTE_APROVACAO },
+    { valor: 'BLOQUEADO', label: STATUS_FORNECEDOR_LABELS.BLOQUEADO },
+  ], [t])
+
+  const fornecedoresFiltrados = useMemo(() => {
+    const termo = busca.trim().toLowerCase()
+    return fornecedores.filter(f => {
+      if (abaAtiva !== 'TODOS' && f.status_fornecedor_bid_frete_internacional !== abaAtiva) return false
+      if (!termo) return true
+      const nome = f.nome_fornecedor_bid_frete_internacional?.toLowerCase() ?? ''
+      const fantasia = f.nome_fantasia_fornecedor_bid_frete_internacional?.toLowerCase() ?? ''
+      const email = f.email_fornecedor_bid_frete_internacional?.toLowerCase() ?? ''
+      return nome.includes(termo) || fantasia.includes(termo) || email.includes(termo)
+    })
+  }, [fornecedores, abaAtiva, busca])
 
   const total = fornecedores.length
   const ativos = fornecedores.filter(f => f.status_fornecedor_bid_frete_internacional === 'ATIVO').length
@@ -110,23 +137,15 @@ export default function Fornecedores() {
   const ratingsValidos = fornecedores.filter(f => f.nota_global_classificacao_bid_frete_internacional != null)
   const ratingMedio = ratingsValidos.length > 0
     ? ratingsValidos.reduce((acc, f) => acc + (f.nota_global_classificacao_bid_frete_internacional ?? 0), 0) / ratingsValidos.length
-    : 0
+    : null
 
-  // ─── Donut data ───────────────────────────────────────────────────────
-
-  const porTipo = (Object.keys(TIPO_FORNECEDOR_LABELS) as TipoFornecedor[]).map(tipo => ({
-    tipo,
-    count: fornecedores.filter(f => f.tipo_fornecedor_bid_frete_internacional === tipo).length,
-  }))
-
-  // ─── Colunas TabelaGlobal ─────────────────────────────────────────────
-
-  const colunas: TabelaGlobalColuna<Fornecedor>[] = [
+  const colunas: GTColuna<Fornecedor>[] = useMemo(() => [
     {
       key: 'nome_fornecedor_bid_frete_internacional',
       label: t('bidfrete.fornecedores.col_nome'),
       tipo: 'texto',
-      largura: 220,
+      naoOcultavel: true,
+      sortavel: true,
       render: (val: unknown, item: Fornecedor) => (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
           <span style={{ fontWeight: 600, color: 'var(--text-primary, #f1f5f9)', fontSize: '0.8125rem' }}>{String(val ?? '')}</span>
@@ -140,16 +159,16 @@ export default function Fornecedores() {
       key: 'email_fornecedor_bid_frete_internacional',
       label: t('bidfrete.fornecedores.col_email'),
       tipo: 'texto',
-      largura: 200,
+      sortavel: true,
       render: (val: unknown) => (
-        <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>{String(val ?? '')}</span>
+        <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>{String(val ?? '—')}</span>
       ),
     },
     {
       key: 'tipo_fornecedor_bid_frete_internacional',
       label: t('bidfrete.fornecedores.col_tipo'),
-      tipo: 'texto',
-      largura: 140,
+      tipo: 'badge',
+      filtravel: true,
       render: (val: unknown) => {
         const tipo = val as TipoFornecedor
         const cores = TIPO_FORNECEDOR_COLORS[tipo]
@@ -172,8 +191,8 @@ export default function Fornecedores() {
     {
       key: 'status_fornecedor_bid_frete_internacional',
       label: t('comum.status'),
-      tipo: 'texto',
-      largura: 120,
+      tipo: 'badge',
+      filtravel: true,
       render: (val: unknown) => {
         const status = val as StatusFornecedor
         const cores = STATUS_FORNECEDOR_COLORS[status]
@@ -197,303 +216,177 @@ export default function Fornecedores() {
       key: 'nota_global_classificacao_bid_frete_internacional',
       label: t('bidfrete.fornecedores.col_rating'),
       tipo: 'numero',
-      largura: 150,
-      render: (val: unknown) => <Stars rating={Number(val ?? 0)} />,
+      sortavel: true,
+      align: 'right',
+      render: (val: unknown) => <Stars rating={val != null ? Number(val) : null} />,
     },
     {
       key: 'total_cotacoes',
       label: t('bidfrete.fornecedores.col_total_cotacoes'),
       tipo: 'numero',
-      largura: 120,
+      sortavel: true,
       align: 'right',
       render: (val: unknown) => (
         <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem', color: 'var(--text-primary, #f1f5f9)' }}>
-          {String(val ?? '')}
+          {val != null ? String(val) : '—'}
         </span>
       ),
     },
-  ]
+  ], [t])
 
-  const acoes: TabelaGlobalAcao<Fornecedor>[] = [
+  const acoes: GTAcao<Fornecedor>[] = useMemo(() => [
     {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: t('bidfrete.fornecedores.ver_detalhes'),
-      onClick: (item: Fornecedor) => navigate(`/produto/bid-frete/fornecedores/${item.id_fornecedor_bid_frete_internacional}`),
+      onClick: (item: Fornecedor) => navigate(`/bid-frete/fornecedores/${item.id_fornecedor_bid_frete_internacional}`),
     },
-  ]
+  ], [navigate, t])
 
-  // ─── Render ───────────────────────────────────────────────────────────
+  const exportarCSV = useCallback(() => {
+    const sep = ';'
+    const escape = (v: string) => `"${v.replace(/"/g, '""')}"`
+    const cabecalho = colunas.map(c => escape(c.label)).join(sep)
+    const linhas = fornecedoresFiltrados.map(row =>
+      colunas.map(c => {
+        const val = row[c.key as keyof Fornecedor]
+        return escape(val != null ? String(val) : '')
+      }).join(sep),
+    )
+    const blob = new Blob(['\uFEFF' + [cabecalho, ...linhas].join('\n')], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `fornecedores_${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(url), 5000)
+  }, [colunas, fornecedoresFiltrados])
+
+  const acoesExportacao = useMemo(() => [
+    {
+      label: 'CSV',
+      icone: <DownloadSimple size={15} weight="duotone" />,
+      onClick: exportarCSV,
+    },
+  ], [exportarCSV])
+
+  const acoesBarra = useMemo(() => (
+    <BotaoGlobal
+      variante="primario"
+      tamanho="pequeno"
+      icone={<Plus size={14} weight="bold" />}
+      onClick={() => {
+        // TODO: modal/rota de cadastro de fornecedor
+      }}
+    >
+      {t('bidfrete.fornecedores.novo_fornecedor')}
+    </BotaoGlobal>
+  ), [t])
+
+  const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
+    setPreferencias(prefs)
+    try {
+      localStorage.setItem(STORAGE_PREFS, JSON.stringify(prefs))
+    } catch { /* storage indisponível */ }
+  }, [])
 
   return (
-    <PaginaGlobal
-      className="bf-fornecedores bid-frete-page-shell"
-    >
-      {/* Ação da página (Novo Fornecedor) — cabeçalho agora vive no top bar */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-        <button className="btn btn-primary">
-          <Plus weight="bold" size={16} />
-          {t('bidfrete.fornecedores.novo_fornecedor')}
-        </button>
-      </div>
-
-      {/* ════════ LINHA 1: KPIs + Donut ════════ */}
-      <div className="bf-forn-top">
-        <div className="bf-forn-kpis">
+    <PaginaGlobal className="bf-fornecedores bid-frete-page-shell">
+      <div className="lp-stats-row">
+        <div className="lp-cards">
           <CardBasicoGlobal
             titulo={t('bidfrete.fornecedores.kpi_total')}
-            icone={<Buildings weight="duotone" size={16} />}
+            icone={<Buildings weight="duotone" size={16} style={{ color: 'var(--ws-accent, #818cf8)' }} />}
             valor={total}
-            className="bf-forn-kpi"
+            subtexto={t('bidfrete.fornecedores.kpi_total_sub', 'Cadastrados na organização')}
           />
           <CardBasicoGlobal
             titulo={t('bidfrete.fornecedores.kpi_ativos')}
-            icone={<CheckCircle weight="duotone" size={16} />}
+            icone={<CheckCircle weight="duotone" size={16} style={{ color: 'var(--success, #22c55e)' }} />}
             valor={ativos}
-            className="bf-forn-kpi"
+            variante="sucesso"
+            subtexto={t('bidfrete.fornecedores.kpi_ativos_sub', 'Disponíveis para cotação')}
           />
           <CardBasicoGlobal
             titulo={t('bidfrete.fornecedores.kpi_inativos')}
-            icone={<XCircle weight="duotone" size={16} />}
+            icone={<XCircle weight="duotone" size={16} style={{ color: 'var(--text-muted, #64748b)' }} />}
             valor={inativos}
-            className="bf-forn-kpi"
+            subtexto={t('bidfrete.fornecedores.kpi_inativos_sub', 'Fora de operação')}
           />
-          <div className="bf-forn-kpi bf-forn-rating-card">
-            <div className="bf-forn-rating-label">
-              <Star weight="duotone" size={16} style={{ color: 'var(--warning, #f59e0b)' }} />
-              <span>{t('bidfrete.fornecedores.kpi_rating_medio')}</span>
-            </div>
-            <div className="bf-forn-rating-value">
-              {ratingMedio > 0 ? ratingMedio.toFixed(1) : '—'}
-            </div>
-            {ratingMedio > 0 && (
-              <div className="bf-forn-rating-stars">
-                {[1, 2, 3, 4, 5].map(i => (
-                  <Star
-                    key={i}
-                    weight={i <= Math.round(ratingMedio) ? 'fill' : 'regular'}
-                    size={14}
-                    style={{ color: i <= Math.round(ratingMedio) ? 'var(--warning, #f59e0b)' : 'var(--text-muted, #64748b)' }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          <CardBasicoGlobal
+            titulo={t('bidfrete.fornecedores.kpi_rating_medio')}
+            icone={<Star weight="duotone" size={16} style={{ color: 'var(--warning, #f59e0b)' }} />}
+            valor={ratingMedio != null ? ratingMedio.toFixed(1) : '—'}
+            variante="aviso"
+            subtexto={t('bidfrete.fornecedores.kpi_rating_sub', 'Média de classificação global')}
+          />
         </div>
+      </div>
 
-        <CardGraficoGlobal
-          titulo={t('bidfrete.fornecedores.grafico_por_tipo')}
-          icone={<ChartPieSlice weight="duotone" size={16} />}
-          total={total}
-          valorPrincipal={total}
-          corGauge="#6366f1"
-          legenda={porTipo.map(f => ({
-            label: TIPO_FORNECEDOR_LABELS[f.tipo],
-            valor: f.count,
-            cor: TIPO_DONUT_COLORS[f.tipo],
-          }))}
+      <div className="bf-table-section">
+        <TabelaVirtualGlobal<Fornecedor>
+          dados={fornecedoresFiltrados}
+          colunas={colunas}
+          itemId={(item) => item.id_fornecedor_bid_frete_internacional}
+          abas={abas}
+          abaAtiva={abaAtiva}
+          onMudarAba={setAbaAtiva}
+          acoes={acoes}
+          acoesExportacao={acoesExportacao}
+          acoesBarra={acoesBarra}
+          onBuscar={setBusca}
+          modoLocalizar
+          placeholderBusca={t('bidfrete.fornecedores.buscar_placeholder')}
+          preferencias={preferencias}
+          onSalvarPreferencias={handleSalvarPreferencias}
+          colunasPadrao={[...COLUNAS_KEYS]}
+          carregando={carregando}
+          emptyIcon={<Buildings size={40} weight="duotone" style={{ color: 'var(--text-muted)' }} />}
+          emptyTitle={t('bidfrete.fornecedores.vazio')}
+          emptyDescription={t('bidfrete.fornecedores.vazio_desc', 'Nenhum fornecedor encontrado com os filtros selecionados.')}
+          ariaLabel={t('bidfrete.fornecedores.aria_tabela', 'Lista de fornecedores')}
         />
       </div>
 
-      {/* ════════ LINHA 2: Filtros + Tabela ════════ */}
-      <div className="bf-forn-table-section">
-        <div className="bf-forn-filters">
-          <div className="bf-forn-search">
-            <MagnifyingGlass weight="bold" size={16} />
-            <input
-              type="text"
-              placeholder={t('bidfrete.fornecedores.buscar_placeholder')}
-              value={busca}
-              onChange={e => setBusca(e.target.value)}
-              className="bf-forn-search-input"
-            />
-          </div>
-          <div className="bf-forn-filter-select-wrap">
-            <FunnelSimple weight="duotone" size={16} />
-            <select
-              value={filtroTipo}
-              onChange={e => setFiltroTipo(e.target.value)}
-              className="bf-forn-filter-select"
-            >
-              <option value="">{t('bidfrete.fornecedores.todos_tipos')}</option>
-              {(Object.keys(TIPO_FORNECEDOR_LABELS) as TipoFornecedor[]).map(tipo => (
-                <option key={tipo} value={tipo}>{TIPO_FORNECEDOR_LABELS[tipo]}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {carregando ? (
-          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted, #64748b)' }}>
-            Carregando fornecedores...
-          </div>
-        ) : (
-          <TabelaGlobal
-            dados={fornecedores}
-            colunas={colunas}
-            acoes={acoes}
-            idKey="id_fornecedor_bid_frete_internacional"
-            mensagemVazio={t('bidfrete.fornecedores.vazio')}
-            tooltipBusca={t('bidfrete.fornecedores.buscar_tabela')}
-          />
-        )}
-      </div>
-
       <style>{`
-        .bf-fornecedores { }
-
-        /* ── Top row: KPIs + Donut ── */
-        .bf-forn-top {
-          display: grid;
-          grid-template-columns: 1fr 340px;
-          gap: 1.25rem;
-          margin-bottom: 1.5rem;
-        }
-        @media (max-width: 1100px) {
-          .bf-forn-top { grid-template-columns: 1fr; }
-        }
-
-        .bf-forn-kpis {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 1rem;
-        }
-        @media (max-width: 640px) {
-          .bf-forn-kpis { grid-template-columns: 1fr; }
-        }
-
-        .bf-forn-kpi {
-          min-height: 100px;
-        }
-
-        /* ── Rating card ── */
-        .bf-forn-rating-card {
-          background: var(--bg-surface, #334155);
-          border-radius: var(--radius-lg, 12px);
-          padding: 1rem 1.25rem;
+        .bf-fornecedores {
           display: flex;
           flex-direction: column;
-          gap: 0.35rem;
+          flex: 1;
+          min-height: 0;
+          height: 100%;
         }
-
-        .bf-forn-rating-label {
+        .bf-fornecedores .pg-conteudo-area {
           display: flex;
-          align-items: center;
-          gap: 0.4rem;
-          font-size: 0.6875rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.06em;
-          color: var(--text-muted, #64748b);
+          flex-direction: column;
+          flex: 1;
+          min-height: 0;
+          overflow: hidden;
+          gap: 1rem;
         }
-
-        .bf-forn-rating-value {
-          font-size: 1.75rem;
-          font-weight: 700;
-          color: var(--text-primary, #f1f5f9);
-          font-family: 'DM Mono', monospace;
-        }
-
-        .bf-forn-rating-stars {
+        .lp-stats-row {
           display: flex;
-          gap: 2px;
+          align-items: flex-end;
+          gap: 1rem;
+          padding: 0.5rem 0 1.5rem;
         }
-
-        /* ── Filters ── */
-        .bf-forn-table-section {
+        .lp-cards {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+          gap: 1rem;
+          flex: 1;
+          min-width: 0;
+        }
+        .bf-table-section {
           background: var(--bg-surface, #334155);
           border-radius: var(--radius-lg, 12px);
           overflow: hidden;
-        }
-
-        .bf-forn-filters {
-          display: flex;
-          gap: 0.75rem;
-          padding: 1rem 1.25rem;
-          border-bottom: 1px solid var(--bg-elevated, #475569);
-        }
-        @media (max-width: 640px) {
-          .bf-forn-filters { flex-direction: column; }
-        }
-
-        .bf-forn-search {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
           flex: 1;
-          background: var(--bg-base, #1e293b);
-          border-radius: var(--radius-md, 8px);
-          padding: 0 0.75rem;
-          border: 1px solid var(--bg-elevated, #475569);
-          color: var(--text-muted, #64748b);
-        }
-        .bf-forn-search:focus-within {
-          border-color: var(--accent, #6366f1);
-        }
-
-        .bf-forn-search-input {
-          flex: 1;
-          background: none;
-          border: none;
-          outline: none;
-          padding: 0.5rem 0;
-          font-size: 0.8125rem;
-          font-family: inherit;
-          color: var(--text-primary, #f1f5f9);
-        }
-        .bf-forn-search-input::placeholder {
-          color: var(--text-muted, #64748b);
-        }
-
-        .bf-forn-filter-select-wrap {
+          min-height: 0;
           display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: var(--bg-base, #1e293b);
-          border-radius: var(--radius-md, 8px);
-          padding: 0 0.75rem;
-          border: 1px solid var(--bg-elevated, #475569);
-          color: var(--text-muted, #64748b);
+          flex-direction: column;
+          height: 100%;
         }
-        .bf-forn-filter-select-wrap:focus-within {
-          border-color: var(--accent, #6366f1);
-        }
-
-        .bf-forn-filter-select {
-          background: none;
-          border: none;
-          outline: none;
-          padding: 0.5rem 0;
-          font-size: 0.8125rem;
-          font-family: inherit;
-          color: var(--text-primary, #f1f5f9);
-          cursor: pointer;
-          min-width: 160px;
-        }
-        .bf-forn-filter-select option {
-          background: var(--bg-base, #1e293b);
-          color: var(--text-primary, #f1f5f9);
-        }
-
-        /* ── Botoes ── */
-        .btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem 1.25rem;
-          border-radius: var(--radius-pill, 9999px);
-          font-size: 0.875rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.15s ease;
-          border: none;
-          font-family: inherit;
-        }
-        .btn-primary {
-          background: var(--accent, #6366f1);
-          color: #fff;
-        }
-        .btn-primary:hover { background: var(--accent-hover, #4f46e5); }
       `}</style>
     </PaginaGlobal>
   )

@@ -135,9 +135,135 @@ function renderMoeda(val: unknown, moeda: string | null | undefined): React.Reac
   return `${moeda ?? 'USD'} ${fmtQuantidade(val as number, 2)}`
 }
 
+export interface OpcoesColunasLista {
+  organizacoesMap?: Map<string, string>
+  workspacesMap?: Map<string, { nome: string }>
+  usuariosMap?: Map<string, string>
+  idUsuarioAtual?: string
+  nomeUsuarioAtual?: string
+  /** Fallback de workspace só para cotação do usuário logado sem id_workspace gravado. */
+  nomeWorkspaceFallback?: string
+}
+
+const LABEL_PRODUTO_GRAVITY: Record<string, string> = {
+  'bid-frete-internacional': 'BID Frete Internacional',
+}
+
+type ItemColunaLista = Cotacao | LinhaPaiLista
+
+function isUsuarioAtual(id: string | null | undefined, opcoes?: OpcoesColunasLista): boolean {
+  if (!id || !opcoes?.idUsuarioAtual) return id === 'user_dev_default'
+  return id === opcoes.idUsuarioAtual || id === 'user_dev_default'
+}
+
+function textoOrganizacao(val: unknown, opcoes?: OpcoesColunasLista): string {
+  const id = String(val ?? '')
+  if (!id) return ''
+  return opcoes?.organizacoesMap?.get(id) ?? ''
+}
+
+function textoWorkspace(
+  val: unknown,
+  opcoes?: OpcoesColunasLista,
+  item?: ItemColunaLista,
+): string {
+  if (item && isLinhaBidGrupo(item) && item.workspaces_divergentes) {
+    return `${item.quantidade_workspaces_distintos} workspaces`
+  }
+  const id = String(val ?? '')
+  if (!id) {
+    if (
+      item &&
+      opcoes?.nomeWorkspaceFallback &&
+      isUsuarioAtual('id_usuario' in item ? item.id_usuario : null, opcoes)
+    ) {
+      return opcoes.nomeWorkspaceFallback
+    }
+    return ''
+  }
+  return opcoes?.workspacesMap?.get(id)?.nome ?? ''
+}
+
+function textoUsuario(
+  val: unknown,
+  opcoes?: OpcoesColunasLista,
+  item?: ItemColunaLista,
+): string {
+  if (item && isLinhaBidGrupo(item) && item.usuarios_divergentes) {
+    return `${item.quantidade_usuarios_distintos} usuários`
+  }
+  const id = String(val ?? '')
+  if (!id) return ''
+  const nome = opcoes?.usuariosMap?.get(id)
+  if (nome) return nome
+  if (opcoes?.nomeUsuarioAtual && isUsuarioAtual(id, opcoes)) {
+    return opcoes.nomeUsuarioAtual
+  }
+  return ''
+}
+
+function renderNomeOrganizacao(
+  val: unknown,
+  opcoes?: OpcoesColunasLista,
+  _item?: ItemColunaLista,
+): React.ReactNode {
+  const nome = textoOrganizacao(val, opcoes)
+  return nome || '—'
+}
+
+function renderNomeWorkspace(
+  val: unknown,
+  opcoes?: OpcoesColunasLista,
+  item?: ItemColunaLista,
+): React.ReactNode {
+  const nome = textoWorkspace(val, opcoes, item)
+  return nome || '—'
+}
+
+function renderNomeUsuario(
+  val: unknown,
+  opcoes?: OpcoesColunasLista,
+  item?: ItemColunaLista,
+): React.ReactNode {
+  const nome = textoUsuario(val, opcoes, item)
+  return nome || '—'
+}
+
+function renderProduto(val: unknown): React.ReactNode {
+  const slug = String(val ?? '')
+  if (!slug) return '—'
+  return LABEL_PRODUTO_GRAVITY[slug] ?? slug
+}
+
+/** Valor textual para exportação CSV/Excel — paridade com o que a tabela exibe. */
+export function formatValorExportColuna(
+  key: string,
+  row: Cotacao,
+  opcoes: OpcoesColunasLista,
+): string {
+  const val = row[key as keyof Cotacao]
+  switch (key) {
+    case 'id_organizacao':
+      return textoOrganizacao(val, opcoes)
+    case 'id_usuario':
+      return textoUsuario(val, opcoes, row)
+    case 'id_workspace':
+      return textoWorkspace(val, opcoes, row)
+    case 'id_produto_gravity': {
+      const slug = String(val ?? '')
+      return slug ? (LABEL_PRODUTO_GRAVITY[slug] ?? slug) : ''
+    }
+    default:
+      break
+  }
+  if (val == null) return ''
+  return String(val)
+}
+
 /** Todas as colunas escalares de `cotacao_bid_frete_internacional` (fragment.prisma). */
 export function buildColunasCotacoes(
   _t: unknown,
+  opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<Cotacao>[] {
   return [
@@ -182,11 +308,44 @@ export function buildColunasCotacoes(
         )
       },
     },
-    { key: 'id_cotacao_bid_frete_internacional', label: 'ID', tipo: 'texto', render: renderTexto },
-    { key: 'id_organizacao', label: 'Organização', tipo: 'texto', render: renderTexto },
-    { key: 'id_produto_gravity', label: 'Produto', tipo: 'texto', render: renderTexto },
-    { key: 'id_usuario', label: 'Usuário', tipo: 'texto', render: renderTexto },
-    { key: 'id_workspace', label: 'Workspace', tipo: 'texto', render: renderTexto },
+    {
+      key: 'id_cotacao_bid_frete_internacional',
+      label: 'ID',
+      tipo: 'texto',
+      oculta: true,
+      render: renderTexto,
+    },
+    {
+      key: 'id_organizacao',
+      label: 'Organização',
+      tipo: 'texto',
+      render: (val: unknown, item: Cotacao) => renderNomeOrganizacao(val, opcoes, item),
+      findDisplay: (item: Cotacao) => textoOrganizacao(item.id_organizacao, opcoes) || '—',
+    },
+    {
+      key: 'id_produto_gravity',
+      label: 'Produto',
+      tipo: 'texto',
+      render: (val: unknown) => renderProduto(val),
+      findDisplay: (item: Cotacao) => {
+        const label = renderProduto(item.id_produto_gravity)
+        return label === '—' ? '' : String(label)
+      },
+    },
+    {
+      key: 'id_usuario',
+      label: 'Usuário',
+      tipo: 'texto',
+      render: (val: unknown, item: Cotacao) => renderNomeUsuario(val, opcoes, item),
+      findDisplay: (item: Cotacao) => textoUsuario(item.id_usuario, opcoes, item) || '—',
+    },
+    {
+      key: 'id_workspace',
+      label: 'Workspace',
+      tipo: 'texto',
+      render: (val: unknown, item: Cotacao) => renderNomeWorkspace(val, opcoes, item),
+      findDisplay: (item: Cotacao) => textoWorkspace(item.id_workspace, opcoes, item) || '—',
+    },
     {
       key: 'referencia_interna_cotacao_bid_frete_internacional',
       label: 'Referência',
@@ -421,9 +580,10 @@ export function buildColunasCotacoes(
 /** Colunas da linha pai (cotação avulsa ou BID agrupado). */
 export function buildColunasPaiLista(
   t: unknown,
+  opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<LinhaPaiLista>[] {
-  const colunasCotacao = buildColunasCotacoes(t, onAbrirCotacao)
+  const colunasCotacao = buildColunasCotacoes(t, opcoes, onAbrirCotacao)
 
   return colunasCotacao.map((col) => ({
     ...col,
@@ -456,9 +616,10 @@ export function buildColunasPaiLista(
 
 export function buildMapaColunasFilho(
   t: unknown,
+  opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): Record<string, { key: keyof Cotacao; render?: GTColuna<Cotacao>['render'] }> {
-  const colunas = buildColunasCotacoes(t, onAbrirCotacao)
+  const colunas = buildColunasCotacoes(t, opcoes, onAbrirCotacao)
   const mapa: Record<string, { key: keyof Cotacao; render?: GTColuna<Cotacao>['render'] }> = {}
   for (const col of colunas) {
     if (col.key) {
@@ -468,4 +629,14 @@ export function buildMapaColunasFilho(
   return mapa
 }
 
-export const CHAVES_COLUNAS_COTACAO = buildColunasCotacoes(null).map(c => c.key).filter((k): k is string => typeof k === 'string')
+const COLUNAS_COTACAO_BASE = buildColunasCotacoes(null)
+
+export const CHAVES_COLUNAS_COTACAO = COLUNAS_COTACAO_BASE
+  .map(c => c.key)
+  .filter((k): k is string => typeof k === 'string')
+
+/** Colunas visíveis por padrão (exclui técnicas como ID interno). */
+export const CHAVES_COLUNAS_PADRAO_VISIVEIS = COLUNAS_COTACAO_BASE
+  .filter(c => !c.oculta)
+  .map(c => c.key)
+  .filter((k): k is string => typeof k === 'string')

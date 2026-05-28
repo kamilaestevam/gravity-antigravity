@@ -14,6 +14,13 @@ export interface LinhaBidGrupoPai {
   cotacoes: Cotacao[]
   numero_cotacao_bid_frete_internacional: string
   referencia_interna_cotacao_bid_frete_internacional: string
+  id_organizacao: string
+  id_usuario: string | null
+  id_workspace: string | null
+  usuarios_divergentes: boolean
+  workspaces_divergentes: boolean
+  quantidade_usuarios_distintos: number
+  quantidade_workspaces_distintos: number
   status_cotacao_bid_frete_internacional: StatusCotacao
   data_criacao_cotacao_bid_frete_internacional: string
   data_atualizacao_cotacao_bid_frete_internacional: string
@@ -24,6 +31,21 @@ export interface LinhaBidGrupoPai {
   destino_nome_cotacao_bid_frete_internacional: string
   ganho_valor_cotacao_bid_frete_internacional: number | null
   ganho_percentual_cotacao_bid_frete_internacional: number | null
+}
+
+function agregarCampoId(
+  cotacoes: Cotacao[],
+  campo: 'id_usuario' | 'id_workspace',
+): { valor: string | null; divergente: boolean; quantidade: number } {
+  const valores = cotacoes
+    .map(c => c[campo])
+    .filter((v): v is string => typeof v === 'string' && v.length > 0)
+  const unicos = new Set(valores)
+  return {
+    valor: unicos.size === 1 ? [...unicos][0] : null,
+    divergente: unicos.size > 1,
+    quantidade: unicos.size,
+  }
 }
 
 export type LinhaPaiLista = Cotacao | LinhaBidGrupoPai
@@ -70,6 +92,9 @@ function buildLinhaBidGrupo(referencia: string, cotacoes: Cotacao[]): LinhaBidGr
     ? ganhosPct.reduce((a, b) => a + b, 0) / ganhosPct.length
     : null
 
+  const usuarios = agregarCampoId(cotacoes, 'id_usuario')
+  const workspaces = agregarCampoId(cotacoes, 'id_workspace')
+
   return {
     _tipo_linha: 'bid',
     id_linha_lista: `bid:${referencia}`,
@@ -78,6 +103,13 @@ function buildLinhaBidGrupo(referencia: string, cotacoes: Cotacao[]): LinhaBidGr
     cotacoes: ordenadas,
     numero_cotacao_bid_frete_internacional: `BID · ${referencia}`,
     referencia_interna_cotacao_bid_frete_internacional: referencia,
+    id_organizacao: principal.id_organizacao,
+    id_usuario: usuarios.valor,
+    id_workspace: workspaces.valor,
+    usuarios_divergentes: usuarios.divergente,
+    workspaces_divergentes: workspaces.divergente,
+    quantidade_usuarios_distintos: usuarios.quantidade,
+    quantidade_workspaces_distintos: workspaces.quantidade,
     status_cotacao_bid_frete_internacional: statusMaisAvancado(cotacoes),
     data_criacao_cotacao_bid_frete_internacional: principal.data_criacao_cotacao_bid_frete_internacional,
     data_atualizacao_cotacao_bid_frete_internacional: principal.data_atualizacao_cotacao_bid_frete_internacional,
@@ -136,4 +168,42 @@ export function cotacaoDaLinhaPai(linha: LinhaPaiLista): Cotacao | null {
 export function cotacoesFilhasDaLinha(linha: LinhaPaiLista): Cotacao[] {
   if (isLinhaBidGrupo(linha)) return linha.cotacoes
   return []
+}
+
+const STATUS_SEM_DESTAQUE_EXPIRACAO: StatusCotacao[] = [
+  'EXPIRADA',
+  'CANCELADA',
+  'APROVADA',
+  'REPROVADA',
+]
+
+/** Cotação com prazo de resposta entre agora e `horasLimite` (exclusivo de status finais). */
+export function cotacaoPrestesAExpirar(
+  cotacao: Cotacao,
+  horasLimite: number,
+  agoraMs = Date.now(),
+): boolean {
+  if (STATUS_SEM_DESTAQUE_EXPIRACAO.includes(cotacao.status_cotacao_bid_frete_internacional)) {
+    return false
+  }
+
+  const limite = cotacao.data_limite_resposta_cotacao_bid_frete_internacional
+  if (!limite) return false
+
+  const limiteMs = new Date(limite).getTime()
+  if (!Number.isFinite(limiteMs)) return false
+
+  const restanteHoras = (limiteMs - agoraMs) / (1000 * 60 * 60)
+  return restanteHoras > 0 && restanteHoras <= horasLimite
+}
+
+export function linhaPaiPrestesAExpirar(
+  linha: LinhaPaiLista,
+  horasLimite: number,
+  agoraMs = Date.now(),
+): boolean {
+  if (isLinhaBidGrupo(linha)) {
+    return linha.cotacoes.some(c => cotacaoPrestesAExpirar(c, horasLimite, agoraMs))
+  }
+  return cotacaoPrestesAExpirar(linha, horasLimite, agoraMs)
 }

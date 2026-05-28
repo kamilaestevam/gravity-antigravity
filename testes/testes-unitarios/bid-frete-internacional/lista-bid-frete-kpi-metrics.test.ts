@@ -133,5 +133,8 @@ describe('lista-bid-frete-kpi-metrics', () => {
     expect(stats.emAndamento).toBe(1)
     expect(stats.expiradas).toBe(1)
     expect(stats.savingTotal).toBe(100)
+    expect(stats.cotacoesComSaving).toBe(1)
+    expect(stats.enviadaFornecedores).toBe(0)
+    expect(stats.emCotacao).toBe(1)
   })
 })

@@ -12,6 +12,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from '../lib/erros.js'
 import { atividadesIntegration, historicoIntegration } from '../services/integracoes-tenant.js'
+import { motorBid } from '../services/motor-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -42,7 +43,9 @@ const CriarCotacaoSchema = z.object({
   visibilidade_cotacao_bid_frete_internacional: z.enum(['DIRECIONADA', 'ABERTA']).default('DIRECIONADA'),
   anonima_cotacao_bid_frete_internacional: z.boolean().default(false),
   data_limite_resposta_cotacao_bid_frete_internacional: z.string().datetime().optional(),
-  fornecedor_ids: z.array(z.string()).optional(), // IDs dos fornecedores para cotacao direcionada
+  fornecedor_ids: z.array(z.string()).optional(),
+  disparar_ao_criar: z.boolean().default(true),
+  canais_disparo: z.array(z.enum(['EMAIL', 'WHATSAPP'])).default(['EMAIL']),
 })
 
 const FiltrosCotacaoSchema = z.object({
@@ -84,6 +87,12 @@ function gerarNumeroCotacao(): string {
   return `BID-${date}-${seq}`
 }
 
+function resolverIdWorkspace(req: Request): string | undefined {
+  const header = req.headers['x-id-workspace'] as string | undefined
+  const id = header?.trim()
+  return id || undefined
+}
+
 // --- POST / — Criar cotacao ---
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -95,13 +104,15 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.headers['x-id-usuario'] as string
     if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
 
-    const { fornecedor_ids, ...cotacaoData } = parsed.data
+    const idWorkspace = resolverIdWorkspace(req)
+    const { fornecedor_ids, disparar_ao_criar, canais_disparo, ...cotacaoData } = parsed.data
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.create({
       data: {
         ...cotacaoData,
         id_produto_gravity: 'bid-frete-internacional',
         id_usuario: userId,
+        ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
         numero_cotacao_bid_frete_internacional: gerarNumeroCotacao(),
         data_limite_resposta_cotacao_bid_frete_internacional: cotacaoData.data_limite_resposta_cotacao_bid_frete_internacional ? new Date(cotacaoData.data_limite_resposta_cotacao_bid_frete_internacional) : null,
       },
@@ -114,7 +125,28 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       historicoIntegration.cotacaoCriada(tenantId, userId, cotacao)
     }
 
-    res.status(201).json({ cotacao })
+    let disparo: Awaited<ReturnType<typeof motorBid.disparar>> | Awaited<ReturnType<typeof motorBid.dispararCotacaoAberta>> | null = null
+    if (disparar_ao_criar) {
+      const canais = canais_disparo.length > 0 ? canais_disparo : ['EMAIL']
+      if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
+        disparo = await motorBid.dispararCotacaoAberta(req.prisma!, {
+          id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+          canais,
+          id_usuario: userId,
+          id_organizacao: tenantId ?? req.tenantId!,
+        })
+      } else if (fornecedor_ids && fornecedor_ids.length > 0) {
+        disparo = await motorBid.disparar(req.prisma!, {
+          id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+          fornecedor_ids,
+          canais,
+          id_usuario: userId,
+          id_organizacao: tenantId ?? req.tenantId!,
+        })
+      }
+    }
+
+    res.status(201).json({ cotacao, disparo })
   } catch (err) {
     next(err)
   }
@@ -308,6 +340,7 @@ router.post('/bloco', async (req: Request, res: Response, next: NextFunction) =>
     const userId = req.headers['x-id-usuario'] as string
     if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
 
+    const idWorkspace = resolverIdWorkspace(req)
     const results: Array<{ linha: number; id?: string; numero_cotacao_bid_frete_internacional?: string; status: 'ok' | 'erro'; erro?: string }> = []
 
     for (let i = 0; i < parsed.data.itens.length; i++) {
@@ -319,6 +352,7 @@ router.post('/bloco', async (req: Request, res: Response, next: NextFunction) =>
             ...item,
             id_produto_gravity: 'bid-frete-internacional',
             id_usuario: userId,
+            ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
             numero_cotacao_bid_frete_internacional,
             visibilidade_cotacao_bid_frete_internacional: parsed.data.visibilidade_cotacao_bid_frete_internacional,
             data_limite_resposta_cotacao_bid_frete_internacional: parsed.data.data_limite_resposta_cotacao_bid_frete_internacional ? new Date(parsed.data.data_limite_resposta_cotacao_bid_frete_internacional) : null,

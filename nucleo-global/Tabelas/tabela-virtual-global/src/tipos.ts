@@ -502,4 +502,8 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    * Mesmo conceito do `renderIndicadorLinha`, mas para linhas filhas.
    */
   renderIndicadorLinhaFilho?: (item: C) => ReactNode
+  /** Classe CSS extra na linha pai (ex.: destaque de urgência). */
+  classNameLinhaPai?: (item: T) => string | undefined
+  /** Classe CSS extra na linha filho. */
+  classNameLinhaFilho?: (item: C) => string | undefined
 }

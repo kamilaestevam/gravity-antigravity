@@ -11,18 +11,34 @@
 import { PrismaClient } from '../generated/client/index.js'
 import { randomUUID } from 'crypto'
 import axios from 'axios'
+import {
+  montarAssuntoEmailDisparo,
+  montarHtmlEmailDisparo,
+  montarLinkRespostaDisparo,
+} from './motor-bid-disparo-utils.js'
 
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8022'
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
 const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
-const APP_URL = process.env.APP_URL ?? 'http://localhost:5175'
+const APP_URL = process.env.APP_URL ?? 'http://localhost:8000'
+
+type CanalDisparoMotor = 'EMAIL' | 'WHATSAPP'
+type TipoFornecedorMotor = 'AGENTE_CARGA' | 'ARMADOR' | 'CIA_AEREA' | 'TRANSPORTADORA'
 
 interface DispararBidOptions {
   id_cotacao_bid_frete_internacional: string
   fornecedor_ids: string[]
-  canais: ('EMAIL' | 'WHATSAPP')[]
+  canais: CanalDisparoMotor[]
   id_usuario: string
   id_organizacao: string
+}
+
+interface DispararCotacaoAbertaOptions {
+  id_cotacao_bid_frete_internacional: string
+  canais: CanalDisparoMotor[]
+  id_usuario: string
+  id_organizacao: string
+  tipos_fornecedor?: TipoFornecedorMotor[]
 }
 
 export const motorBid = {
@@ -45,6 +61,7 @@ export const motorBid = {
     })
 
     const results: Array<{ id_fornecedor_bid_frete_internacional: string; canal_disparo_cotacao_bid_frete_internacional: string; id_disparo_cotacao_bid_frete_internacional: string }> = []
+    let algumDisparoEnviado = false
 
     for (const fornecedor of fornecedores) {
       // Verificar tabela de preco padrao (cotacao automatica)
@@ -71,8 +88,9 @@ export const motorBid = {
 
         // Disparar pelo canal correspondente
         try {
+          let idMensagem: string | null = null
           if (canal_disparo_cotacao_bid_frete_internacional === 'EMAIL') {
-            await this.dispararEmail(cotacao, fornecedor, token, id_organizacao)
+            idMensagem = await this.dispararEmail(cotacao, fornecedor, token, id_organizacao, id_usuario)
           } else if (canal_disparo_cotacao_bid_frete_internacional === 'WHATSAPP') {
             await this.dispararWhatsApp(cotacao, fornecedor, token, id_organizacao)
           }
@@ -82,8 +100,10 @@ export const motorBid = {
             data: {
               status_disparo_cotacao_bid_frete_internacional: 'ENVIADO',
               data_envio_disparo_cotacao_bid_frete_internacional: new Date(),
+              ...(idMensagem ? { id_mensagem_disparo_cotacao_bid_frete_internacional: idMensagem } : {}),
             },
           })
+          algumDisparoEnviado = true
         } catch (err: unknown) {
           const errorMessage = err instanceof Error ? err.message : String(err)
           await (prisma as any).disparoCotacaoBidFreteInternacional.update({
@@ -108,13 +128,46 @@ export const motorBid = {
       }
     }
 
-    // Atualizar status da cotacao
-    await (prisma as any).cotacaoBidFreteInternacional.update({
-      where: { id_cotacao_bid_frete_internacional },
-      data: { status_cotacao_bid_frete_internacional: 'ENVIADA_FORNECEDORES' },
+    if (algumDisparoEnviado) {
+      await (prisma as any).cotacaoBidFreteInternacional.update({
+        where: { id_cotacao_bid_frete_internacional },
+        data: { status_cotacao_bid_frete_internacional: 'ENVIADA_FORNECEDORES' },
+      })
+    }
+
+    return { disparos: results.length, enviados: algumDisparoEnviado, results }
+  },
+
+  async dispararCotacaoAberta(prisma: PrismaClient, options: DispararCotacaoAbertaOptions) {
+    const where: Record<string, unknown> = {
+      id_produto_gravity: 'bid-frete-internacional',
+      status_fornecedor_bid_frete_internacional: 'ATIVO',
+      aceita_cotacao_aberta_fornecedor_bid_frete_internacional: true,
+    }
+    if (options.tipos_fornecedor?.length) {
+      where.tipo_fornecedor_bid_frete_internacional = { in: options.tipos_fornecedor }
+    }
+
+    const fornecedores = await (prisma as any).fornecedorBidFreteInternacional.findMany({
+      where,
+      select: { id_fornecedor_bid_frete_internacional: true },
     })
 
-    return { disparos: results.length, results }
+    const fornecedor_ids = (fornecedores as Array<{ id_fornecedor_bid_frete_internacional: string }>).map(
+      (f) => f.id_fornecedor_bid_frete_internacional,
+    )
+
+    if (fornecedor_ids.length === 0) {
+      return { disparos: 0, results: [], message: 'Nenhum fornecedor ativo aceita cotacao aberta' }
+    }
+
+    return this.disparar(prisma, {
+      id_cotacao_bid_frete_internacional: options.id_cotacao_bid_frete_internacional,
+      fornecedor_ids,
+      canais: options.canais,
+      id_usuario: options.id_usuario,
+      id_organizacao: options.id_organizacao,
+    })
   },
 
   /**
@@ -191,78 +244,107 @@ export const motorBid = {
     return response
   },
 
-  /**
-   * Dispara email via tenant/email (Resend)
-   */
-  async dispararEmail(_cotacao: Record<string, unknown>, _fornecedor: Record<string, unknown>, token: string, tenantId: string) {
-    const cotacao = _cotacao as any
-    const fornecedor = _fornecedor as any
-    const linkResposta = `${APP_URL}/portal/responder/${token}`
-
-    const body = {
-      to: fornecedor.email_fornecedor_bid_frete_internacional,
-      subject: `Solicitacao de Cotacao de Frete - ${cotacao.numero_cotacao_bid_frete_internacional}`,
-      html: `
-        <h2>Solicitacao de Cotacao de Frete Internacional</h2>
-        <p>Prezado(a) ${fornecedor.nome_fornecedor_bid_frete_internacional},</p>
-        <p>Recebemos uma solicitacao de cotacao com os seguintes dados:</p>
-        <ul>
-          <li><strong>Numero:</strong> ${cotacao.numero_cotacao_bid_frete_internacional}</li>
-          <li><strong>Modal:</strong> ${cotacao.modal_cotacao_bid_frete_internacional}</li>
-          <li><strong>Origem:</strong> ${cotacao.origem_nome_cotacao_bid_frete_internacional} (${cotacao.origem_pais_cotacao_bid_frete_internacional})</li>
-          <li><strong>Destino:</strong> ${cotacao.destino_nome_cotacao_bid_frete_internacional} (${cotacao.destino_pais_cotacao_bid_frete_internacional})</li>
-          <li><strong>Mercadoria:</strong> ${cotacao.descricao_mercadoria_cotacao_bid_frete_internacional}</li>
-          <li><strong>Incoterm:</strong> ${cotacao.incoterm_cotacao_bid_frete_internacional}</li>
-          ${cotacao.tipo_container_cotacao_bid_frete_internacional ? `<li><strong>Container:</strong> ${cotacao.quantidade_cotacao_bid_frete_internacional}x ${cotacao.tipo_container_cotacao_bid_frete_internacional}</li>` : ''}
-          ${cotacao.peso_kg_cotacao_bid_frete_internacional ? `<li><strong>Peso:</strong> ${cotacao.peso_kg_cotacao_bid_frete_internacional} kg</li>` : ''}
-          ${cotacao.data_limite_resposta_cotacao_bid_frete_internacional ? `<li><strong>Prazo de Resposta:</strong> ${new Date(cotacao.data_limite_resposta_cotacao_bid_frete_internacional).toLocaleDateString('pt-BR')}</li>` : ''}
-        </ul>
-        <p><a href="${linkResposta}" style="background:#4F46E5;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;">Responder Cotacao</a></p>
-        <p>Ou acesse o portal para ver todas as cotacoes pendentes.</p>
-      `,
+  async dispararEmail(
+    _cotacao: Record<string, unknown>,
+    _fornecedor: Record<string, unknown>,
+    token: string,
+    id_organizacao: string,
+    id_usuario: string,
+  ): Promise<string | null> {
+    const cotacao = _cotacao as Record<string, any>
+    const fornecedor = _fornecedor as Record<string, any>
+    const email = fornecedor.email_fornecedor_bid_frete_internacional as string | undefined
+    if (!email) {
+      throw new Error(`Fornecedor ${fornecedor.nome_fornecedor_bid_frete_internacional ?? ''} sem e-mail cadastrado`)
     }
 
-    await axios.post(`${EMAIL_SERVICE_URL}/api/v1/envios-email`, body, {
-      headers: {
-        'x-internal-key': INTERNAL_KEY,
-        'x-id-organizacao': tenantId,
-        'Content-Type': 'application/json',
-      },
-    }).catch(() => {
-      // Fallback: log para retry
-      console.warn(`[BidEngine] Falha ao enviar email para ${fornecedor.email_fornecedor_bid_frete_internacional}`)
+    const linkResposta = montarLinkRespostaDisparo(APP_URL, token)
+    const bodyHtml = montarHtmlEmailDisparo({
+      nomeFornecedor: fornecedor.nome_fornecedor_bid_frete_internacional,
+      numeroCotacao: cotacao.numero_cotacao_bid_frete_internacional,
+      modal: cotacao.modal_cotacao_bid_frete_internacional,
+      origemNome: cotacao.origem_nome_cotacao_bid_frete_internacional,
+      origemPais: cotacao.origem_pais_cotacao_bid_frete_internacional,
+      destinoNome: cotacao.destino_nome_cotacao_bid_frete_internacional,
+      destinoPais: cotacao.destino_pais_cotacao_bid_frete_internacional,
+      mercadoria: cotacao.descricao_mercadoria_cotacao_bid_frete_internacional,
+      incoterm: cotacao.incoterm_cotacao_bid_frete_internacional,
+      tipoContainer: cotacao.tipo_container_cotacao_bid_frete_internacional,
+      quantidade: cotacao.quantidade_cotacao_bid_frete_internacional,
+      pesoKg: cotacao.peso_kg_cotacao_bid_frete_internacional,
+      dataLimiteResposta: cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
+      linkResposta,
     })
+
+    const response = await axios.post(
+      `${EMAIL_SERVICE_URL}/api/v1/envios-email`,
+      {
+        to: email,
+        subject: montarAssuntoEmailDisparo(cotacao.numero_cotacao_bid_frete_internacional),
+        body_html: bodyHtml,
+        product_id: 'bid-frete-internacional',
+      },
+      {
+        headers: {
+          'x-chave-interna-servico': INTERNAL_KEY,
+          'x-id-organizacao': id_organizacao,
+          'x-id-usuario': id_usuario,
+          'Content-Type': 'application/json',
+        },
+        validateStatus: () => true,
+      },
+    )
+
+    if (response.status < 200 || response.status >= 300) {
+      const msg = (response.data as { error?: { message?: string }; message?: string })?.error?.message
+        ?? (response.data as { message?: string })?.message
+        ?? `HTTP ${response.status}`
+      throw new Error(`Falha ao enviar e-mail: ${msg}`)
+    }
+
+    return (response.data as { resend_id?: string | null })?.resend_id ?? null
   },
 
-  /**
-   * Dispara WhatsApp via tenant/whatsapp (Meta Cloud API)
-   */
-  async dispararWhatsApp(_cotacao: Record<string, unknown>, _fornecedor: Record<string, unknown>, token: string, tenantId: string) {
-    const cotacao = _cotacao as any
-    const fornecedor = _fornecedor as any
-    if (!fornecedor.whatsapp_fornecedor_bid_frete_internacional) return
-
-    const linkResposta = `${APP_URL}/portal/responder/${token}`
-
-    const body = {
-      phone_number: fornecedor.whatsapp_fornecedor_bid_frete_internacional,
-      text: `*Solicitacao de Cotacao - ${cotacao.numero_cotacao_bid_frete_internacional}*\n\n` +
-        `Modal: ${cotacao.modal_cotacao_bid_frete_internacional}\n` +
-        `Origem: ${cotacao.origem_nome_cotacao_bid_frete_internacional}\n` +
-        `Destino: ${cotacao.destino_nome_cotacao_bid_frete_internacional}\n` +
-        `Mercadoria: ${cotacao.descricao_mercadoria_cotacao_bid_frete_internacional}\n` +
-        `Incoterm: ${cotacao.incoterm_cotacao_bid_frete_internacional}\n\n` +
-        `Responda pelo link: ${linkResposta}`,
+  async dispararWhatsApp(
+    _cotacao: Record<string, unknown>,
+    _fornecedor: Record<string, unknown>,
+    token: string,
+    id_organizacao: string,
+  ) {
+    const cotacao = _cotacao as Record<string, any>
+    const fornecedor = _fornecedor as Record<string, any>
+    const whatsapp = fornecedor.whatsapp_fornecedor_bid_frete_internacional as string | undefined
+    if (!whatsapp) {
+      throw new Error(`Fornecedor ${fornecedor.nome_fornecedor_bid_frete_internacional ?? ''} sem WhatsApp cadastrado`)
     }
 
-    await axios.post(`${WHATSAPP_SERVICE_URL}/api/v1/whatsapp/send`, body, {
-      headers: {
-        'x-internal-key': INTERNAL_KEY,
-        'x-id-organizacao': tenantId,
-        'Content-Type': 'application/json',
+    const linkResposta = montarLinkRespostaDisparo(APP_URL, token)
+
+    const response = await axios.post(
+      `${WHATSAPP_SERVICE_URL}/api/v1/whatsapp/send`,
+      {
+        phone_number: whatsapp,
+        text:
+          `*Solicitação de Cotação — ${cotacao.numero_cotacao_bid_frete_internacional}*\n\n` +
+          `Modal: ${cotacao.modal_cotacao_bid_frete_internacional}\n` +
+          `Origem: ${cotacao.origem_nome_cotacao_bid_frete_internacional}\n` +
+          `Destino: ${cotacao.destino_nome_cotacao_bid_frete_internacional}\n` +
+          `Mercadoria: ${cotacao.descricao_mercadoria_cotacao_bid_frete_internacional}\n` +
+          `Incoterm: ${cotacao.incoterm_cotacao_bid_frete_internacional}\n\n` +
+          `Responda pelo link: ${linkResposta}`,
       },
-    }).catch(() => {
-      console.warn(`[BidEngine] Falha ao enviar WhatsApp para ${fornecedor.whatsapp_fornecedor_bid_frete_internacional}`)
-    })
+      {
+        headers: {
+          'x-chave-interna-servico': INTERNAL_KEY,
+          'x-id-organizacao': id_organizacao,
+          'Content-Type': 'application/json',
+        },
+        validateStatus: () => true,
+      },
+    )
+
+    if (response.status < 200 || response.status >= 300) {
+      throw new Error(`Falha ao enviar WhatsApp: HTTP ${response.status}`)
+    }
   },
 }

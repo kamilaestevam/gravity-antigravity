@@ -1,15 +1,8 @@
 /// <reference types="vitest/globals" />
 // @vitest-environment node
 
-/**
- * cotacoes-routes.test.ts — Testes funcionais das rotas de Cotacao BID Frete Internacional
- * Valida contratos HTTP com nomes DDD corretos nos campos.
- */
-
 import express, { Request, Response, NextFunction } from 'express'
 import request from 'supertest'
-
-// ── Mocks hoisted ───────────────────────────────────────────────────────────
 
 const mockCotacoes: Record<string, unknown>[] = []
 let nextId = 1
@@ -55,8 +48,18 @@ const mockBidFreteInternacionalCotacao = {
 }
 
 const mockPrisma = {
-  bidFreteInternacionalCotacao: mockBidFreteInternacionalCotacao,
+  cotacaoBidFreteInternacional: mockBidFreteInternacionalCotacao,
 }
+
+vi.mock(
+  '../../../servicos-global/produto/bid-frete-internacional/server/src/services/motor-bid-frete-internacional.js',
+  () => ({
+    motorBid: {
+      disparar: vi.fn(async () => ({ disparos: 0, enviados: false, results: [] })),
+      dispararCotacaoAberta: vi.fn(async () => ({ disparos: 0, enviados: false, results: [] })),
+    },
+  }),
+)
 
 // Mock integracoes-tenant S2S
 vi.mock(
@@ -115,6 +118,7 @@ const COTACAO_VALIDA = {
   descricao_mercadoria_cotacao_bid_frete_internacional: 'Maquinários e Autopeças',
   incoterm_cotacao_bid_frete_internacional: 'FOB',
   quantidade_cotacao_bid_frete_internacional: 2,
+  disparar_ao_criar: false,
 }
 
 // ── Testes ───────────────────────────────────────────────────────────────────

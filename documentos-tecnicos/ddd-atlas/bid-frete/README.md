@@ -18,6 +18,7 @@
 | 7 | [`07-arquivos.md`](./07-arquivos.md) | Renomeacao de arquivos (kebab-case PT-BR) | 39 |
 | 8 | [`08-product-config.md`](./08-product-config.md) | PRODUCT_CONFIG e navegacao | 1 |
 | 9 | [`PLANO_REFATORACAO_CODIGO.md`](./PLANO_REFATORACAO_CODIGO.md) | Plano de refatoracao com ordem de execucao | — |
+| 10 | [`../../produtos-gravity/bid-frete-internacional/README.md`](../../produtos-gravity/bid-frete-internacional/README.md) | Entidade BID, snapshots, ordem de colunas (pos-DDD) | — |
 
 ---
 
@@ -30,8 +31,9 @@
 | Prefixo de model Prisma | `BidFreteInternacional` |
 | Prefixo de enum Prisma | `BidFreteInternacional` |
 | Porta backend | 8023 |
-| fragment.prisma | `servicos-global/produto/bid-frete/prisma/fragment.prisma` |
-| PRODUCT_CONFIG | `servicos-global/produto/bid-frete/client/src/shared/config.ts` |
+| fragment.prisma | `servicos-global/produto/bid-frete-internacional/prisma/fragment.prisma` |
+| PRODUCT_CONFIG | `servicos-global/produto/bid-frete-internacional/client/src/shared/config.ts` |
+| Docs entidade BID | `documentos-tecnicos/produtos-gravity/bid-frete-internacional/` |
 
 ---
 

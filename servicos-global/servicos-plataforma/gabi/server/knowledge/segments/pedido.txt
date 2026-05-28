@@ -774,7 +774,7 @@ testes/unitarios/pedido/colunasUsuarioService.test.ts
 
 > **Produto:** Pedido (COMEX)
 > **Versão:** 2.0
-> **Última atualização:** 2026-05-13
+> **Última atualização:** 2026-05-26
 > **Status:** Implementado (commit `0ab3cc99`)
 
 ---
@@ -879,11 +879,15 @@ Remove definitivamente um ou mais pedidos (ou itens). **Hard delete** — não h
 
 | Configuração | Descrição | Default |
 |---|---|---|
-| `excluir_status_permitidos` | Lista de status que podem ser excluídos | `['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado']` |
+| `excluir_status_permitidos` | **Blacklist opt-out** — status **bloqueados** para exclusão (nome de coluna legado; semântica invertida em 2026-05-26) | `[]` (= todos os status permitidos, inclusive custom como `pagamento_aprovado`) |
 | `excluir_pedido_sem_item_permitido` | Se false: ao excluir o último item, exclui o pedido pai também | `true` |
 
+> **Migração (2026-05-26):** orgs com a whitelist legada dos 7 status canônicos são normalizadas para `[]` no backend e na UI de Configurações — comportamento equivalente a “liberar todos”. Orgs que tinham whitelist **custom** (subset dos 7) mantêm a lista como blacklist explícita; revisar manualmente se algum status custom legítimo ficou bloqueado por engano.
+
 ### Fluxo de restrição por status
-- Se pedido não está em um status da lista `excluir_status_permitidos` → bloqueia com mensagem explicando quais status permitem exclusão
+- **Default (`[]`):** qualquer status pode ser excluído — inclusive status custom criados pela organização
+- Se o status do pedido está na blacklist `excluir_status_permitidos` → bloqueia com mensagem: *"Status \"X\" está bloqueado para exclusão nas configurações da organização"*
+- Na UI de Configurações, checkbox **marcado** = status **bloqueado** (opt-out)
 
 ### Fluxo UX
 1. Usuário seleciona pedido(s) ou item(s)
@@ -909,8 +913,8 @@ duplicar_numero_auto              Boolean  @default(false)
 duplicar_copiar_datas             Boolean  @default(false)
 duplicar_status_inicial           String   @default("copiar")
 
-// Excluir
-excluir_status_permitidos         String[] @default(["rascunho", "aberto", "em_andamento", "aprovado", "transferencia", "consolidado", "cancelado"])
+// Excluir — coluna excluir_status_permitidos guarda BLACKLIST (nome legado)
+excluir_status_permitidos         String[] @default([])   // [] = todos permitidos
 excluir_pedido_sem_item_permitido Boolean  @default(true)
 ```
 
@@ -927,7 +931,7 @@ excluir_pedido_sem_item_permitido Boolean  @default(true)
 
 > **Produto:** Pedido (COMEX)
 > **Versão:** 2.0
-> **Última atualização:** 2026-05-13
+> **Última atualização:** 2026-05-26
 > **Status:** Implementado (commits `efa03ca0`, `0ab3cc99`)
 
 ---
@@ -966,7 +970,7 @@ servicos-global/pedido/
 | POST | `/api/v1/pedidos/duplicacoes/preview` | Retorna config (`numero_auto`, `copiar_datas`, `status_inicial`) + lista de pedidos para o modal montar |
 | POST | `/api/v1/pedidos/duplicacoes/confirmar` | Cria N pedidos novos (cascade dos itens) |
 | POST | `/api/v1/pedidos/duplicacoes/itens` | Duplica M itens dentro de 1 pedido pai |
-| POST | `/api/v1/pedidos/exclusoes/preview` | Separa permitidos / bloqueados por status |
+| POST | `/api/v1/pedidos/exclusoes/preview` | Separa permitidos / bloqueados (blacklist opt-out em `excluir_status_permitidos`) |
 | POST | `/api/v1/pedidos/exclusoes/confirmar` | Hard delete + audit trail |
 | POST | `/api/v1/pedidos/exclusoes/itens` | Remove itens; aplica regra `excluir_pedido_sem_item_permitido` |
 
@@ -1046,9 +1050,32 @@ quantidade_cancelada_item: 0,
 
 Sem isso, o item duplicado herdaria "50 transferidas" sem nenhum processo de embarque correspondente — saldo fantasma. Aviso pré-duplicação no modal alerta quando isso acontece.
 
+### `ExcluirService.preview()` — blacklist opt-out (2026-05-26)
+
+Coluna Prisma `excluir_status_permitidos` **não é whitelist**. Guarda status **bloqueados**.
+
+```ts
+// duplicarExcluirService.ts
+function normalizarStatusBloqueadosExclusao(raw: string[] | null | undefined): string[] {
+  if (!raw || raw.length === 0) return []
+  // Whitelist legada (7 canônicos) → migra para [] (todos permitidos)
+  if (raw.length === 7 && LEGACY_EXCLUIR_WHITELIST.every((s) => raw.includes(s))) return []
+  return raw
+}
+
+function statusBloqueiaExclusao(statusPedido: string, bloqueados: string[]): boolean {
+  return bloqueados.includes(statusPedido)
+}
+```
+
+- `preview`: pedido em status **fora** da blacklist → `permitidos[]`; **dentro** → `bloqueados[]` com motivo explícito
+- UI Config (`Configuracoes.tsx`): checkbox marcado = status na blacklist; `migrarStatusBloqueadosUi()` espelha a normalização do backend
+
 ### `ExcluirService.confirmar()` e `ExcluirService.excluirItens()`
 
-Sem mudanças relevantes desta entrega — hard delete com `auditLog` antes via `historico-global` (fire-and-forget).
+Hard delete com `auditLog` antes via `historico-global` (fire-and-forget).
+
+**Timeout (2026-05-26):** rotas `/exclusoes/confirmar` e `/exclusoes/itens` usam `withOrganizacao(..., { timeoutMs: 30_000 })`. Renumeração de `sequencia_item_pedido` após delete de itens roda em paralelo (`Promise.all`) para evitar estouro do default de 10s em pedidos com muitos itens.
 
 ---
 
@@ -2024,9 +2051,9 @@ server/src/services/edicaoEmMassaService.integration.test.ts  (11 integração �
 # Filtro Multi-Workspace — Regras de Negócio
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
+> **Versão:** 1.1
 > **Data:** Maio 2026
-> **Status:** ✅ Em produção (commit `4bafb1b6`)
+> **Status:** ✅ Em produção — v1.0 commit `4bafb1b6`; v1.1 escopo por org PR #80
 
 ---
 
@@ -2188,6 +2215,25 @@ Auditoria mostra 14 workspaces (11 ATIVO + 3 INATIVO). Apenas 1 (`CDE EXPORTADOR
 
 ---
 
+## Cache local do escopo (menu lateral + Hub)
+
+O escopo multi-workspace do menu lateral Pedido persiste em:
+
+1. **Backend** — `preferencia_usuario_coluna_pedido` (por `id_organizacao` + `id_usuario`).
+2. **`sessionStorage`** — chave **`pedido:workspaces_escopo:{id_organizacao}`** (PR #80).
+
+### Regra de negócio — mesmo browser, org diferente
+
+| Situação | Comportamento esperado |
+|---|---|
+| Usuário operou org A e depois entra na org B (signup ou troca) | Escopo da org A **não** deve aparecer no modal do Hub nem afetar listagens da org B |
+| Chave legado `pedido:workspaces_escopo` ainda no browser | Pode ser lida uma vez como fallback, mas IDs são **filtrados** contra workspaces da org B |
+| Modal "Filtro de workspaces no Pedido" no Hub | Exibe **nomes** (`nome_workspace`), nunca CUID como label |
+
+**Importante:** isso corrige **metadado local enganoso** — não implica acesso a dados de outra organização (isolamento por schema/banco permanece).
+
+---
+
 ## Referências
 
 - Documento técnico: `FILTRO-MULTI-WORKSPACE-TECNICO.md` (este diretório)
@@ -2200,9 +2246,9 @@ Auditoria mostra 14 workspaces (11 ATIVO + 3 INATIVO). Apenas 1 (`CDE EXPORTADOR
 # Filtro Multi-Workspace — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
+> **Versão:** 1.1
 > **Data:** Maio 2026
-> **Status:** ✅ Em produção (commit `4bafb1b6`)
+> **Status:** ✅ Em produção — v1.0 commit `4bafb1b6`; v1.1 escopo por org + modal Hub PR #80
 > **Tracking:** Filtro multi-workspace na Lista, coluna "Workspace" sempre visível, popover com seleção interativa, defesa em 3 camadas
 
 ---
@@ -2217,9 +2263,10 @@ Auditoria mostra 14 workspaces (11 ATIVO + 3 INATIVO). Apenas 1 (`CDE EXPORTADOR
 6. [Frontend — coluna, popover e chip](#frontend--coluna-popover-e-chip)
 7. [Estado e sincronização](#estado-e-sincronização)
 8. [Autorização — 3 camadas](#autorização--3-camadas)
-9. [Casos de borda](#casos-de-borda)
-10. [Testes](#testes)
-11. [Dívidas conhecidas](#dívidas-conhecidas)
+9. [Persistência do escopo (Pedido + Hub)](#persistência-do-escopo-pedido--hub)
+10. [Casos de borda](#casos-de-borda)
+11. [Testes](#testes)
+12. [Dívidas conhecidas](#dívidas-conhecidas)
 
 ---
 
@@ -2546,6 +2593,46 @@ const idsWorkspacesFiltro = ehSelecaoDefault ? undefined : workspacesSelecionado
 
 ---
 
+## Persistência do escopo (Pedido + Hub)
+
+Além do popover da Lista, o **menu lateral do Pedido** (Lista, Kanban, Dashboard, Visão Geral) compartilha um escopo multi-workspace via Zustand (`useEscopoWorkspacesPedido`).
+
+### Fontes (prioridade)
+
+| Camada | Onde | Chave / contrato |
+|---|---|---|
+| Backend (SSOT) | `preferencia_usuario_coluna_pedido.colunas_largura` | Meta `__workspaces_escopo_v1__` → `ids_workspaces` (ver `preferenciasUsuarioColunaPedido.ts`) |
+| Cliente (cache) | `sessionStorage` | **`pedido:workspaces_escopo:{id_organizacao}`** (desde PR #80) |
+| Legado (somente leitura) | `sessionStorage` | `pedido:workspaces_escopo` — global, pré-2026-05; **não gravar** |
+
+### Hidratação (`useEscopoWorkspacesPedido.hidratar`)
+
+1. Preferência backend (se existir) **ou** fallback `sessionStorage` (chave da org, depois legado).
+2. **Filtro obrigatório:** `ids.filter(id => idsDisponiveis.has(id))` — descarta IDs de outra org ou workspace inacessível.
+3. Default: workspace ativo da sessão (`gravity_company_id`).
+
+### Modal do Hub — aviso de divergência
+
+Ao clicar **Entrar no Workspace** com Pedido contratado, `SelecionarWorkspace` consulta `pedido-escopo-hub.ts`:
+
+- `GET /api/v1/pedidos/config/preferencia-usuario-coluna-pedido` (backend primeiro).
+- Fallback `sessionStorage` com **`lerEscopoPedidoSessionStorage({ idOrganizacao, idUsuario })`**.
+- Nomes exibidos via **`GET /api/v1/me/workspaces`** (mapa id → `nome_workspace`), **não** só o carousel do Hub.
+- IDs que não existem na org atual são **descartados** antes do modal (`filtrarIdsEscopoWorkspacesValidos`).
+
+**Não é vazamento cross-tenant:** IDs stale de outra org no mesmo browser eram metadado local; queries Pedido rodam no schema da org autenticada (`withOrganizacao`). Fix #80 elimina exibição enganosa de CUIDs.
+
+### Arquivos SSOT (v1.1)
+
+| Arquivo | Papel |
+|---|---|
+| `produto/pedido/client/src/shared/useEscopoWorkspacesPedido.ts` | Zustand + sessionStorage por org |
+| `configurador/src/utils/pedido-escopo-hub.ts` | Divergência Hub ↔ escopo Pedido + modal |
+| `produto/pedido/shared/preferenciasUsuarioColunaPedido.ts` | Meta em `colunas_largura` |
+| `testes/testes-unitarios/configurador/pedido-escopo-hub.test.ts` | Filtro + chave por org |
+
+---
+
 ## Casos de borda
 
 | Cenário | Comportamento |
@@ -2560,6 +2647,8 @@ const idsWorkspacesFiltro = ehSelecaoDefault ? undefined : workspacesSelecionado
 | Pedido criado por edit/drawer | Continua usando workspace ATIVO via header — não afetado pelo filtro |
 | Cross-org não-FORNECEDOR | 403 ORGANIZACAO_MISMATCH no S2S |
 | FORNECEDOR cross-org | Permitido (exceção codificada no endpoint S2S) |
+| Mesmo browser, org nova após operar outra org | Escopo legado em `sessionStorage` global ignorado após filtro por org + `/me/workspaces` (PR #80) |
+| Modal Hub lista CUID em vez de nome | Bug corrigido #80 — resolver nomes via `/me/workspaces`, não fallback `?? id` |
 
 ---
 
@@ -2599,6 +2688,10 @@ Sugestão de plano:
 4. Login PADRAO sem acesso a workspace X → workspace X não aparece no popover
 5. Forge request com workspace X via DevTools → backend retorna 403
 
+### Unitários (Configurador — escopo Hub ↔ Pedido, PR #80)
+
+`testes/testes-unitarios/configurador/pedido-escopo-hub.test.ts` — chave `sessionStorage` por org, filtro de IDs stale, resolução de nomes.
+
 ---
 
 ## Dívidas conhecidas
@@ -2612,6 +2705,7 @@ Sugestão de plano:
 | D11 | SSOT da regra de visibilidade duplicada (`/hub/init` + S2S habilitados) | ✅ **Resolvida** — `organizacaoService.workspacesAcessiveis()` (2026-05-13) |
 | D12 | Lógica de migração de coluna inline em Pedidos.tsx | ✅ **Resolvida** — `shared/migracaoColunas.ts` com 16 testes (2026-05-13) |
 | D13 | Admin Panel `/admin/organizacoes` retorna preview de 5 workspaces sem lazy-load completo | 🟡 Aberta — delegada para outro agente |
+| D14 | `sessionStorage` global `pedido:workspaces_escopo` vazava IDs entre orgs no mesmo browser (modal Hub) | ✅ **Resolvida** — chave por `id_organizacao` + filtro + nomes via `/me/workspaces` (PR #80) |
 
 ---
 
@@ -3411,9 +3505,10 @@ DATABASE_URL=<url> node scripts/sob-demanda/aplicar-migration-cadastros-incoterm
 # Novo Pedido — Regras de Negócio
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
+> **Versão:** 1.1
 > **Data:** Abril 2026
-> **Status:** Definido — aguardando implementação
+> **Última atualização:** 2026-05-26
+> **Status:** Implementado (drawer manual + snapshot Cadastros)
 
 ---
 
@@ -3446,6 +3541,18 @@ Drawer (painel lateral deslizante) que abre pela direita. O usuário mantém o c
 - Grade dinâmica de itens dentro do drawer
 - Botão "+ Adicionar item" adiciona nova linha inline
 - Cada item: `part_number`, `ncm`, `descricao`, `quantidade_inicial`, `unidade`, `valor_unitario`
+
+### Snapshot Cadastros ao salvar (2026-05-26)
+
+Ao criar pedido manual, o backend busca parceiros no Cadastros pelo SUID via
+`processos-core/services/cadastrosClient.ts`:
+
+- Endpoint: `GET /api/v1/fornecedores/:suid` (não `/empresas`)
+- Contrato bilateral: **`fornecedorSchema`** (`cadastros/shared/schemas/fornecedor.schema.ts`)
+- Resposta validada antes de montar `PedidoSnapshotEmpresa` em `pedidoSnapshots.ts`
+
+> **Bug corrigido:** parse com `empresaSchema` falhava em campos exclusivos de fornecedor
+> (`pode_ser_importador_fornecedor`, etc.) e quebrava o POST `/pedidos` no browser (ZodError no console).
 
 ---
 
@@ -5410,13 +5517,27 @@ Consolidar é a operação de **juntar dois ou mais pedidos em um só** (diferen
 - Datas divergentes: exibem como intervalo `10/04–20/04` + tooltip com detalhe
 - Mínimo de 2 pedidos selecionados para habilitar o botão
 
+---
+
+## API — encoding de `id_pedido` (hotfix 2026-05)
+
+IDs de pedido podem conter `/` (ex.: `BR/PO-2026/001`). Todas as chamadas REST de transferência devem usar `encodeURIComponent` no segmento de path:
+
+- `GET .../pedidos/{id}/transferir/preview`
+- `POST .../pedidos/{id}/transferir/confirmar`
+- `GET .../pedidos/{id}/transferir/historico`
+- `POST .../pedidos/{id}/transferir/reverter`
+
+Sem encoding, o Express interpreta barras como novos segmentos → **404**. Ver `pedidoTransferirApi.pid()` em `client/src/shared/api.ts` e testes `pid-url-encoding.test.ts`.
+
 --- documentos-tecnicos/produtos-gravity/pedido/TRANSFERIR-TECNICO.md ---
 # Transferir Pedidos — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
+> **Versão:** 1.1
 > **Data:** Abril 2026
-> **Status:** Aguardando implementação
+> **Última atualização:** 2026-05-26
+> **Status:** Implementado (client + server + testes funcionais)
 
 ---
 
@@ -5550,37 +5671,38 @@ export interface TransferHistorico {
 
 ## API Client (`client/src/shared/api.ts`)
 
+IDs legados de pedido podem conter `/` (ex: `pedi_id_1234567/26`). **Todo** segmento de path
+(`id_pedido`, `id_transferencia_pedido`) deve passar por `pid()` = `encodeURIComponent`
+antes de montar a URL — senão Express interpreta a barra como separador de rota → **404 Rota não encontrada**.
+
 ```ts
+/** Codifica IDs legados que contêm '/' para uso em URLs */
+function pid(id: string): string {
+  return encodeURIComponent(id)
+}
+
 export const pedidoTransferirApi = {
-  // Pré-visualização — mostra impacto antes de confirmar
-  preview: (payload: Omit<TransferPayload, 'numero_pedido_novo'>) =>
-    request<TransferPreview>('/api/v1/pedidos/transferir/preview', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+  preview: (payload) =>
+    request(`/api/v1/pedidos/${pid(payload.pedido_id)}/transferencias/preview`, { method: 'POST', ... }),
 
-  // Confirmação — executa a transferência
-  confirmar: (payload: TransferPayload) =>
-    request<TransferResultado>('/api/v1/pedidos/transferir/confirmar', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+  confirmar: (payload) =>
+    request(`/api/v1/pedidos/${pid(payload.pedido_id)}/transferencias/confirmar`, { method: 'POST', ... }),
 
-  // Lista histórico de transferências de um pedido (para reversão)
-  historico: (pedido_id: string) =>
-    request<TransferHistorico[]>(`/api/v1/pedidos/${pedido_id}/transferencias`),
+  historico: (pedido_id) =>
+    request(`/api/v1/pedidos/${pid(pedido_id)}/transferencias`),
 
-  // Reverter uma transferência específica
-  reverter: (transfer_id: string) =>
-    request<TransferResultado>(`/api/v1/pedidos/transferir/${transfer_id}/reverter`, {
-      method: 'POST',
-    }),
+  reverter: (pedido_id, transfer_id) =>
+    request(`/api/v1/pedidos/${pid(pedido_id)}/transferencias/${pid(transfer_id)}/reverter`, { method: 'POST', ... }),
 }
 ```
 
+> **Regressão corrigida (2026-05-26):** preview/confirmar/historico/reverter passaram a usar `pid()`.
+> Testes: `testes-unitarios/pedido/lista/transferir/pid-url-encoding.test.ts` e
+> `testes-funcionais/pedido/Lista/transferir/url-pid-encoding.test.ts`.
+
 ---
 
-## Backend — Rotas (`server/src/routes/transferir.ts`)
+## Backend — Rotas (`server/src/routes/transferencias-pedido.ts`)
 
 ### `POST /api/v1/pedidos/transferir/preview`
 

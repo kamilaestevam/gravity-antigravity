@@ -194,3 +194,44 @@ Mesmo payload da rota #20 (portal/responder), porem sem autenticacao.
 | Portal Publico | 2 | Nenhuma (token na URL) |
 | Dados Mestre | 2 | Nenhuma (dados publicos) |
 | **Total** | **26** | |
+
+---
+
+## Rotas adicionadas (2026-05-29+) — Entidade BID
+
+> Implementadas em `servicos-global/produto/bid-frete-internacional/server/src/index.ts`
+
+### BID (conjunto de cotações)
+
+Prefixo: `/api/v1/bid-frete-internacional/bids-frete-internacional`  
+Arquivo: `bids-frete-internacional.ts`
+
+| Metodo | Path | Descricao |
+|--------|------|-----------|
+| GET | `/` | Lista BIDs com cotações e resumo de propostas |
+| GET | `/:id` | Detalhe de um BID |
+| POST | `/` | Cria BID; body opcional `ids_cotacao_bid_frete_internacional[]` |
+| PATCH | `/:id` | Atualiza referencia/status |
+| POST | `/:id/cotacoes` | Vincula cotações existentes ao BID |
+| PATCH | `/:id/cancelar` | Cancela BID |
+
+### Config status BID
+
+Prefixo: `/api/v1/bid-frete-internacional/config/status-bid-frete-internacional`  
+Arquivo: `config-status-bid-frete-internacional.ts`
+
+| Metodo | Path | Descricao |
+|--------|------|-----------|
+| GET | `/` | Lista status configuráveis do BID |
+| POST | `/` | Cria status |
+| PATCH | `/reordenar` | Reordena status |
+| PATCH | `/:id` | Atualiza status |
+| DELETE | `/:id` | Remove status (bloqueia gerenciados pelo sistema) |
+
+### Cotacoes — query adicional
+
+| Query | Descricao |
+|-------|-----------|
+| `apenas_avulsas=true` | Exclui cotações com `id_bid_bid_frete_internacional` preenchido |
+
+Documentacao detalhada: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/ENTIDADE-BID-TECNICO.md`

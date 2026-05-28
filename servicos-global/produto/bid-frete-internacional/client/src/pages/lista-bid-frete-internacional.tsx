@@ -53,6 +53,7 @@ import {
   SYNC_EVENT_TABELA_BID_FRETE,
 } from '../shared/tabela-config-bid-frete'
 import { SYNC_EVENT_CASAS_BID_FRETE } from '../shared/casas-config-bid-frete'
+import { SYNC_EVENT_FORMATO_DATA_BID_FRETE } from '../shared/formato-data-bid-frete'
 import { listarCardsCatalogo, useCardPreferencesBidFrete } from '../shared/use-card-preferences'
 import {
   buildColunasPaiLista,
@@ -321,6 +322,7 @@ export default function Cotacoes() {
   const [tabelaConfig, setTabelaConfig] = useState(carregarTabelaConfigBidFrete)
   const [paginaLista, setPaginaLista] = useState(1)
   const [casasVersion, setCasasVersion] = useState(0)
+  const [formatoDataVersion, setFormatoDataVersion] = useState(0)
 
   useEffect(() => {
     function syncTabelaConfig() {
@@ -343,6 +345,16 @@ export default function Cotacoes() {
     return () => {
       window.removeEventListener(SYNC_EVENT_CASAS_BID_FRETE, syncCasas)
       window.removeEventListener('storage', syncCasas)
+    }
+  }, [])
+
+  useEffect(() => {
+    const syncFormato = () => setFormatoDataVersion(v => v + 1)
+    window.addEventListener(SYNC_EVENT_FORMATO_DATA_BID_FRETE, syncFormato)
+    window.addEventListener('storage', syncFormato)
+    return () => {
+      window.removeEventListener(SYNC_EVENT_FORMATO_DATA_BID_FRETE, syncFormato)
+      window.removeEventListener('storage', syncFormato)
     }
   }, [])
 
@@ -409,15 +421,15 @@ export default function Cotacoes() {
 
   const colunasTabela = useMemo(
     () => buildColunasPaiLista(t, opcoesColunasLista, abrirDetalheCotacao),
-    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion],
+    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion, formatoDataVersion],
   )
   const mapaColunasFilho = useMemo(
     () => buildMapaColunasFilho(t, opcoesColunasLista, abrirDetalheCotacao),
-    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion],
+    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion, formatoDataVersion],
   )
   const colunasFilhoExport = useMemo(
     () => buildColunasCotacoes(t, opcoesColunasLista, abrirDetalheCotacao),
-    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion],
+    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion, formatoDataVersion],
   )
 
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown) => {

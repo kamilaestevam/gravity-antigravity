@@ -10,6 +10,7 @@ import {
   STORAGE_KEY_CASAS_BID_FRETE,
   SYNC_EVENT_CASAS_BID_FRETE,
 } from '../shared/casas-config-bid-frete'
+import { formatarDataBidFrete } from '../shared/formato-data-bid-frete'
 
 // ─── Badge de status ───
 const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
@@ -112,10 +113,7 @@ export function RenderModalIcon(valor: unknown): React.ReactNode {
   return <Truck weight="duotone" size={size} />
 }
 
-export const fmtData = (iso: string | null | undefined): string => {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
-}
+export const fmtData = (iso: string | null | undefined): string => formatarDataBidFrete(iso)
 
 export const fmtQuantidade = (v: number | null | undefined, casas = 2): string => {
   if (v == null) return '—'

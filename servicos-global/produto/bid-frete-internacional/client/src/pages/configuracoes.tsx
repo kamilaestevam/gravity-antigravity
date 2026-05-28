@@ -50,6 +50,13 @@ import {
   tipoColunaUsaCasasDecimais,
 } from '../shared/casas-config-bid-frete'
 import {
+  carregarFormatoDataBidFrete,
+  FORMATOS_DATA_BID_FRETE,
+  previewFormatoDataBidFrete,
+  salvarFormatoDataBidFrete,
+  type FormatoDataBidFrete,
+} from '../shared/formato-data-bid-frete'
+import {
   CARD_PERIODOS as PERIODOS,
   registrarCardCustomizado,
   useCardPreferencesBidFrete,
@@ -867,7 +874,19 @@ export default function Configuracoes() {
     setPendingCasas(casasDecimaisSalvas)
   }, [casasDecimaisSalvas])
 
-  const [formatoData, setFormatoData] = useConfigState<string>('formato-data', 'DD/MM/AAAA')
+  const [formatoDataSalvo, setFormatoDataSalvo] = useState<FormatoDataBidFrete>(() => carregarFormatoDataBidFrete())
+  const [pendingFormato, setPendingFormato] = useState<FormatoDataBidFrete>(() => carregarFormatoDataBidFrete())
+  const formatoDirty = pendingFormato !== formatoDataSalvo
+
+  const salvarFormatoDataConfig = useCallback(() => {
+    salvarFormatoDataBidFrete(pendingFormato)
+    setFormatoDataSalvo(pendingFormato)
+    addNotification({ type: 'success', message: 'Formato de data salvo com sucesso!' })
+  }, [pendingFormato, addNotification])
+
+  const restaurarFormatoDataConfig = useCallback(() => {
+    setPendingFormato(formatoDataSalvo)
+  }, [formatoDataSalvo])
 
   const [saldoTokens, setSaldoTokens] = useConfigState<SaldoToken[]>('campos-calculados', [
     { tipo: 'campo', chave: 'valor_frete_proposta_bid_frete_internacional', label: 'Valor do Frete' },
@@ -1393,21 +1412,55 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Formato de Data</h2>
-                <p className="cfg-secao__desc">Configure a exibição padrão de datas no sistema.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.config.colunas.formato_data.titulo', 'Formato de Data')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t(
+                    'bidfrete.config.colunas.formato_data.descricao',
+                    'Define como as datas são exibidas em todas as colunas da tabela, nos inputs de edição e nas exportações.',
+                  )}
+                </p>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              {['DD/MM/AAAA', 'MM/DD/AAAA', 'AAAA-MM-DD'].map(fmt => (
-                <button
-                  key={fmt}
-                  type="button"
-                  className={`cfg-periodo-pill ${formatoData === fmt ? 'cfg-periodo-pill--ativo' : ''}`}
-                  onClick={() => setFormatoData(fmt)}
-                >
-                  {fmt}
-                </button>
-              ))}
+
+            <div className="cfg-campo-linha" style={{ marginTop: 20 }}>
+              <div className="cfg-formato-data-grid">
+                {FORMATOS_DATA_BID_FRETE.map(fmt => (
+                  <button
+                    key={fmt.valor}
+                    type="button"
+                    className={`cfg-formato-data-opcao${pendingFormato === fmt.valor ? ' cfg-formato-data-opcao--ativo' : ''}`}
+                    onClick={() => setPendingFormato(fmt.valor)}
+                  >
+                    <span className="cfg-formato-data-label">{fmt.label}</span>
+                    <span className="cfg-formato-data-exemplo">{fmt.exemplo}</span>
+                    <span className="cfg-formato-data-regiao">{fmt.regiao}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="cfg-formato-data-preview" style={{ marginTop: 16 }}>
+              <span className="cfg-formato-data-preview__label">
+                {t('bidfrete.config.colunas.formato_data.preview_label', 'Preview com a data de hoje:')}
+              </span>
+              <strong className="cfg-formato-data-preview__valor">
+                {previewFormatoDataBidFrete(pendingFormato)}
+              </strong>
+            </div>
+
+            <div className="cfg-secao__footer" style={{ marginTop: 20 }}>
+              <BotaoCancelar
+                dirty={formatoDirty}
+                rotulo={t('bidfrete.config.acao.descartar', 'Cancelar')}
+                onClick={restaurarFormatoDataConfig}
+              />
+              <BotaoSalvar
+                dirty={formatoDirty}
+                rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
+                onClick={salvarFormatoDataConfig}
+              />
             </div>
           </section>
         )}

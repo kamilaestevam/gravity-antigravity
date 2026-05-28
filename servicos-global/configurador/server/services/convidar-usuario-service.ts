@@ -36,8 +36,13 @@ import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { aoVincularUsuarioAoWorkspace } from './sincronizar-acesso-usuario-produtos-service.js'
+import { provisionarPrestadorFornecedor } from './prestador-fornecedor-vinculo-service.js'
+import { type TipoFornecedorOrganizacao } from '../../shared/tipo-fornecedor-organizacao.js'
 import { AuditService } from '../../../servicos-plataforma/historico-global/server/services/audit.service.js'
 import { AcaoExecutadaPor } from '../../../servicos-plataforma/generated/index.js'
+import { logger } from '../lib/logger.js'
+
+const log = logger.child({ module: 'convidar-usuario-service' })
 
 export type TipoUsuarioConvidado = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR'
 
@@ -63,6 +68,8 @@ export interface ConvidarUsuarioArgs {
    *   • string[]          → conjunto explícito (validado contra a org alvo)
    */
   workspaces_alvo?: 'all' | string[]
+  /** Obrigatório quando tipo_usuario === 'FORNECEDOR' (categoria COMEX Cadastros). */
+  tipo_fornecedor_organizacao?: TipoFornecedorOrganizacao
 }
 
 export interface ConvidarUsuarioResult {
@@ -83,6 +90,7 @@ export async function convidarUsuarioService(
     nome_usuario,
     tipo_usuario,
     workspaces_alvo,
+    tipo_fornecedor_organizacao,
   } = args
 
   // ─── 1. Org alvo existe e está ATIVA ────────────────────────────────────
@@ -126,6 +134,14 @@ export async function convidarUsuarioService(
   if ((tipo_usuario === 'PADRAO' || tipo_usuario === 'FORNECEDOR') && workspaces_alvo === undefined) {
     throw new AppError(
       'Standard/Fornecedor exige pelo menos um workspace',
+      400,
+      'VALIDATION_ERROR',
+    )
+  }
+
+  if (tipo_usuario === 'FORNECEDOR' && !tipo_fornecedor_organizacao) {
+    throw new AppError(
+      'Fornecedor exige tipo_fornecedor_organizacao (categoria COMEX)',
       400,
       'VALIDATION_ERROR',
     )
@@ -265,6 +281,27 @@ export async function convidarUsuarioService(
   }
 
   // ─── Pós-transação (best-effort, fora do try/catch) ─────────────────────
+
+  // Passo 04 — cartório Cadastros + vínculos Gravity + org cliente (modo 01).
+  if (tipo_usuario === 'FORNECEDOR' && tipo_fornecedor_organizacao) {
+    try {
+      await provisionarPrestadorFornecedor({
+        id_usuario: usuarioCriado.id_usuario,
+        email_usuario: usuarioCriado.email_usuario,
+        nome_usuario,
+        tipo_fornecedor_organizacao,
+        id_organizacao_cliente: id_organizacao_alvo,
+        correlation_id: crypto.randomUUID(),
+      })
+    } catch (err) {
+      log.error('prestador.provisionar_falhou_pos_convite', {
+        id_usuario: usuarioCriado.id_usuario,
+        id_organizacao_alvo,
+        tipo_fornecedor_organizacao,
+        error: err instanceof Error ? err.message : String(err),
+      })
+    }
+  }
 
   // CP6 auto-sync — propaga chaves Portão 3 para cada workspace vinculado.
   // Espelha usuario.ts:352-360. Apenas PADRAO/FORNECEDOR recebem (Mand. 04).

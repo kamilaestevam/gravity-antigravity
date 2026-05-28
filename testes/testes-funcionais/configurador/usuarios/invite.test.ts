@@ -2,10 +2,12 @@
 // TST-FUNC-CONF-USER-001 — POST /api/v1/usuarios/convidar
 // Valida: convite cria usuário + vínculos atomicamente; Zod rejeita workspaces_alvo inválidos;
 //         IDOR bloqueado em workspaces cross-organização; MASTER cria vínculos para todos os workspaces.
-/// <reference types="vitest/globals" />
+
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 
 // ─── Mocks hoistados ─────────────────────────────────────────────────────────
 const {
+  mockOrganizacaoFindUnique,
   mockUsuarioFindFirst,
   mockUsuarioCreate,
   mockWorkspaceFindMany,
@@ -13,6 +15,7 @@ const {
   mockTransaction,
   mockInvitationCreate,
 } = vi.hoisted(() => ({
+  mockOrganizacaoFindUnique:      vi.fn(),
   mockUsuarioFindFirst:           vi.fn(),
   mockUsuarioCreate:              vi.fn(),
   mockWorkspaceFindMany:          vi.fn(),
@@ -23,6 +26,7 @@ const {
 
 vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => ({
   prisma: {
+    organizacao:      { findUnique: mockOrganizacaoFindUnique },
     usuario:          { findFirst: mockUsuarioFindFirst },
     workspace:        { findMany:  mockWorkspaceFindMany },
     usuarioWorkspace: { createMany: mockUsuarioWorkspaceCreateMany },
@@ -51,6 +55,18 @@ vi.mock('../../../../servicos-global/configurador/server/middleware/requireAuth.
 
 vi.mock('../../../../servicos-global/configurador/server/middleware/requireMasterRole.js', () => ({
   requireMasterRole: (_req: unknown, _res: unknown, next: () => void) => next(),
+}))
+
+vi.mock('../../../../servicos-global/configurador/server/services/prestador-fornecedor-vinculo-service.js', () => ({
+  provisionarPrestadorFornecedor: vi.fn().mockResolvedValue(undefined),
+}))
+
+vi.mock('../../../../servicos-global/configurador/server/services/sincronizar-acesso-usuario-produtos-service.js', () => ({
+  aoVincularUsuarioAoWorkspace: vi.fn().mockResolvedValue(undefined),
+}))
+
+vi.mock('../../../../servicos-global/servicos-plataforma/historico-global/server/services/audit.service.js', () => ({
+  AuditService: { log: vi.fn().mockResolvedValue(undefined) },
 }))
 
 vi.mock('../../../../servicos-global/servicos-plataforma/historico-global/server/lib/securityAuditLogger.js', () => ({
@@ -116,6 +132,10 @@ describe('TST-FUNC-CONF-USER-001 — POST /api/v1/usuarios/convidar — Caminho 
   beforeEach(() => {
     vi.clearAllMocks()
     setupTransaction()
+    mockOrganizacaoFindUnique.mockResolvedValue({
+      status_organizacao: 'ATIVO',
+      hospeda_colaboradores_gravity: false,
+    })
     mockInvitationCreate.mockResolvedValue(INVITE_CLERK)
     mockUsuarioFindFirst.mockResolvedValue(null)
     mockUsuarioCreate.mockResolvedValue(USUARIO_CRIADO)
@@ -250,6 +270,10 @@ describe('TST-FUNC-CONF-USER-001 — POST /api/v1/usuarios/convidar — Validaç
   beforeEach(() => {
     vi.clearAllMocks()
     setupTransaction()
+    mockOrganizacaoFindUnique.mockResolvedValue({
+      status_organizacao: 'ATIVO',
+      hospeda_colaboradores_gravity: false,
+    })
     mockInvitationCreate.mockResolvedValue(INVITE_CLERK)
     mockUsuarioFindFirst.mockResolvedValue(null)
   })
@@ -296,6 +320,20 @@ describe('TST-FUNC-CONF-USER-001 — POST /api/v1/usuarios/convidar — Validaç
     expect(res.body.error.code).toBe('VALIDATION_ERROR')
   })
 
+  it('retorna 400 quando FORNECEDOR enviado sem tipo_fornecedor_organizacao', async () => {
+    const res = await request(app)
+      .post('/api/v1/usuarios/convidar')
+      .send({
+        email_usuario: 'fornecedor@empresa.com',
+        nome_usuario: 'Fornecedor',
+        tipo_usuario: 'FORNECEDOR',
+        workspaces_alvo: [CUID_WS_A],
+      })
+
+    expect(res.status).toBe(400)
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
+  })
+
   it('retorna 400 quando email_usuario é inválido', async () => {
     const res = await request(app)
       .post('/api/v1/usuarios/convidar')
@@ -316,6 +354,10 @@ describe('TST-FUNC-CONF-USER-001 — POST /api/v1/usuarios/convidar — Seguran�
   beforeEach(() => {
     vi.clearAllMocks()
     setupTransaction()
+    mockOrganizacaoFindUnique.mockResolvedValue({
+      status_organizacao: 'ATIVO',
+      hospeda_colaboradores_gravity: false,
+    })
     mockInvitationCreate.mockResolvedValue(INVITE_CLERK)
     mockUsuarioFindFirst.mockResolvedValue(null)
     mockUsuarioCreate.mockResolvedValue(USUARIO_CRIADO)
@@ -335,7 +377,7 @@ describe('TST-FUNC-CONF-USER-001 — POST /api/v1/usuarios/convidar — Seguran�
       })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN')
+    expect(res.body.error.code).toBe('WORKSPACE_FORA_DA_ORG_ALVO')
     expect(mockTransaction).not.toHaveBeenCalled()
   })
 

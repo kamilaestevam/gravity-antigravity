@@ -24,6 +24,7 @@ import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { proximoSubdominioDisponivel, slugifySubdominio } from '../services/organizacao-service.js'
 import { convidarUsuarioService } from '../services/convidar-usuario-service.js'
+import { tipoFornecedorOrganizacaoEnum } from '../../shared/tipo-fornecedor-organizacao.js'
 import { spawn } from 'child_process'
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, renameSync, createWriteStream } from 'fs'
 import { join, resolve } from 'path'
@@ -1716,14 +1717,27 @@ const AdminInviteSchema = z.object({
   nome_usuario: z.string().min(1).max(200),
   tipo_usuario: z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
   workspaces_alvo: z.union([z.literal('all'), z.array(z.string().cuid()).min(1)]).optional(),
-}).strict().refine(
-  (d) =>
-    d.tipo_usuario === 'MASTER'
-    || d.tipo_usuario === 'SUPER_ADMIN'
-    || d.tipo_usuario === 'ADMIN'
-    || d.workspaces_alvo !== undefined,
-  { message: 'Standard/Fornecedor exige pelo menos um workspace', path: ['workspaces_alvo'] },
-)
+  tipo_fornecedor_organizacao: tipoFornecedorOrganizacaoEnum.optional(),
+}).strict().superRefine((d, ctx) => {
+  const exigeWs =
+    d.tipo_usuario !== 'MASTER'
+    && d.tipo_usuario !== 'SUPER_ADMIN'
+    && d.tipo_usuario !== 'ADMIN'
+  if (exigeWs && d.workspaces_alvo === undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Standard/Fornecedor exige pelo menos um workspace',
+      path: ['workspaces_alvo'],
+    })
+  }
+  if (d.tipo_usuario === 'FORNECEDOR' && !d.tipo_fornecedor_organizacao) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Fornecedor exige tipo_fornecedor_organizacao',
+      path: ['tipo_fornecedor_organizacao'],
+    })
+  }
+})
 
 adminRouter.post('/usuarios/convidar', async (req, res, next) => {
   try {
@@ -1757,6 +1771,7 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
       nome_usuario: parsed.data.nome_usuario,
       tipo_usuario: parsed.data.tipo_usuario,
       workspaces_alvo: parsed.data.workspaces_alvo,
+      tipo_fornecedor_organizacao: parsed.data.tipo_fornecedor_organizacao,
     })
 
     res.status(201).json({

@@ -6,6 +6,13 @@
 
 export { temBypassPermissao, type TipoUsuarioBypass } from './permissao-bypass.js'
 export {
+  tipoFornecedorOrganizacaoEnum,
+  ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO,
+  TIPOS_FORNECEDOR_BID_FRETE,
+  flagsCadastroPorTipoFornecedorOrganizacao,
+  type TipoFornecedorOrganizacao,
+} from './tipo-fornecedor-organizacao.js'
+export {
   SECOES_PRODUTO,
   ACOES_PRODUTO,
   TOGGLES_POR_PRODUTO,

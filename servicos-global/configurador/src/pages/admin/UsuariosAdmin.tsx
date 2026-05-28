@@ -31,6 +31,11 @@ import {
   type UsuarioGlobalApi,
   type WorkspaceItem,
 } from '../../services/api-client'
+import {
+  TIPOS_FORNECEDOR_BID_FRETE,
+  ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO,
+  type TipoFornecedorOrganizacao,
+} from '../../../shared/index.js'
 import { useShellStore } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { usePodeEditarUsuario } from '../../hooks/use-pode-editar-usuario'
@@ -135,6 +140,12 @@ const OPCOES_TIPO_ADMIN: SelectOpcao[] = [
   { valor: 'Super Admin', rotulo: 'Super Admin', descricao: 'Controle total global da plataforma (apenas em organizações Gravity)', meta: { icone: <Lightning size={16} weight="duotone" color="#22c55e" /> } },
 ]
 
+const OPCOES_CATEGORIA_FORNECEDOR_ADMIN: SelectOpcao[] = TIPOS_FORNECEDOR_BID_FRETE.map((tipo) => ({
+  valor: tipo,
+  rotulo: ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO[tipo],
+  descricao: 'Categoria COMEX do prestador (Cadastros)',
+}))
+
 export function UsuariosAdmin() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
@@ -157,6 +168,8 @@ export function UsuariosAdmin() {
   // Workspaces alvo do convite — só preenchido para PADRAO/FORNECEDOR (MASTER tem bypass).
   // Convenção do backend: 'all' = todos ATIVOs da org alvo; string[] = subset explícito.
   const [fWorkspacesAlvo, setFWorkspacesAlvo]       = useState<'all' | string[]>([])
+  const [fTipoFornecedorOrganizacao, setFTipoFornecedorOrganizacao] =
+    useState<TipoFornecedorOrganizacao>('AGENTE_CARGA')
 
   // Organizações derivadas dos dados reais (usado em cards de estatística:
   // total, orgs com/sem usuários). Diferente de `orgsAdmin` (lista da API
@@ -372,6 +385,10 @@ export function UsuariosAdmin() {
     const tipoBackend = nivelToRole(fTipo)
     // Standard/Fornecedor exige workspaces (Mand. 08 — fail-closed)
     const exigeWorkspaces = tipoBackend === 'PADRAO' || tipoBackend === 'FORNECEDOR'
+    if (tipoBackend === 'FORNECEDOR' && !fTipoFornecedorOrganizacao) {
+      addNotification({ type: 'error', message: t('admin.usuarios-globais.msg_categoria_fornecedor', 'Selecione a categoria do fornecedor (ex.: Agente de carga).') })
+      return
+    }
     let workspacesPayload: 'all' | string[] | undefined
     if (exigeWorkspaces) {
       if (fWorkspacesAlvo === 'all') {
@@ -390,13 +407,16 @@ export function UsuariosAdmin() {
         nome_usuario:  nome,
         tipo_usuario:  tipoBackend,
         workspaces_alvo: workspacesPayload,
+        ...(tipoBackend === 'FORNECEDOR'
+          ? { tipo_fornecedor_organizacao: fTipoFornecedorOrganizacao }
+          : {}),
       })
       // Refetch é a fonte da verdade — backend retorna id_organizacao real e
       // demais campos completos (UsuarioGlobalUI exige id_organizacao desde
       // 2026-05-05 para alimentar o lazy-load do editor de vínculos).
       await loadUsers()
       addNotification({ type: 'success', message: t('admin.usuarios-globais.msg_usuario_adicionado', { nome: fNome.trim() }) })
-      setFNome(''); setFEmail(''); setFTipo('Standard'); setFIdOrganizacaoAlvo(''); setFWorkspacesAlvo([]); setShowForm(false)
+      setFNome(''); setFEmail(''); setFTipo('Standard'); setFIdOrganizacaoAlvo(''); setFWorkspacesAlvo([]); setFTipoFornecedorOrganizacao('AGENTE_CARGA'); setShowForm(false)
     } catch (err) {
       addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.usuarios-globais.msg_erro_convidar') })
     }
@@ -1078,6 +1098,11 @@ export function UsuariosAdmin() {
           { chave: 'fEmail', ok: !!fEmail.trim(), mensagem: 'E-mail de acesso' },
           { chave: 'fOrg',   ok: !!fIdOrganizacaoAlvo, mensagem: 'Organização alvo' },
           {
+            chave: 'fCategoriaFornecedor',
+            ok: tipoBackendForm !== 'FORNECEDOR' || !!fTipoFornecedorOrganizacao,
+            mensagem: 'Categoria do fornecedor (COMEX)',
+          },
+          {
             chave: 'fWorkspaces',
             ok: !exigeWorkspacesForm || fWorkspacesAlvo === 'all' || (Array.isArray(fWorkspacesAlvo) && fWorkspacesAlvo.length > 0),
             mensagem: 'Workspaces vinculados (Standard/Fornecedor)',
@@ -1089,7 +1114,7 @@ export function UsuariosAdmin() {
         aoFechar={() => {
           setShowForm(false)
           setFNome(''); setFEmail(''); setFTipo('Standard')
-          setFIdOrganizacaoAlvo(''); setFWorkspacesAlvo([])
+          setFIdOrganizacaoAlvo(''); setFWorkspacesAlvo([]); setFTipoFornecedorOrganizacao('AGENTE_CARGA')
         }}
         aoSalvar={aoConvidarUsuario}
         icone={<User size={20} weight="duotone" />}
@@ -1162,6 +1187,19 @@ export function UsuariosAdmin() {
               )}
             />
           </CampoGeralGlobal>
+
+          {fTipo === 'Fornecedor' && (
+            <CampoGeralGlobal label={t('admin.usuarios-globais.categoria_fornecedor', 'Categoria do fornecedor')} obrigatorio>
+              <SelectGlobal
+                opcoes={OPCOES_CATEGORIA_FORNECEDOR_ADMIN}
+                valor={fTipoFornecedorOrganizacao}
+                aoMudarValor={(v) => setFTipoFornecedorOrganizacao(v as TipoFornecedorOrganizacao)}
+                iconeEsquerda={<Buildings size={18} weight="duotone" />}
+                buscavel
+                placeholder={t('admin.usuarios-globais.categoria_fornecedor_placeholder', 'Ex.: Agente de carga...')}
+              />
+            </CampoGeralGlobal>
+          )}
 
           {/* Organização ALVO — comportamento condicional (decisão dono 2026-05-12):
               - SUPER_ADMIN/ADMIN: só pode ser criado em org que hospeda colaboradores

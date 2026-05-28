@@ -27,6 +27,11 @@ import {
   type WorkspaceItem,
 } from '../../services/api-client'
 import { usePodeEditarUsuario, type TipoUsuarioBackend } from '../../hooks/use-pode-editar-usuario'
+import {
+  TIPOS_FORNECEDOR_BID_FRETE,
+  ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO,
+  type TipoFornecedorOrganizacao,
+} from '../../../shared/index.js'
 import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { useAuth } from '@clerk/clerk-react'
 
@@ -249,6 +254,12 @@ const OPCOES_TIPO: SelectOpcao[] = [
   },
 ]
 
+const OPCOES_CATEGORIA_FORNECEDOR: SelectOpcao[] = TIPOS_FORNECEDOR_BID_FRETE.map((tipo) => ({
+  valor: tipo,
+  rotulo: ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO[tipo],
+  descricao: 'Categoria COMEX do prestador (Cadastros)',
+}))
+
 export function Usuarios() {
   const { t } = useTranslation()
   const { isLoaded: userLoaded, user: clerkUser } = useUser()
@@ -332,6 +343,7 @@ export function Usuarios() {
   const [fTipo, setFTipo]       = useState<NivelAcesso>('Standard')
   const [fTodosWorkspaces, setFTodosWorkspaces] = useState(true)
   const [fWorkspacesSelecionados, setFWorkspacesSelecionados] = useState<string[]>([])
+  const [fTipoFornecedorOrganizacao, setFTipoFornecedorOrganizacao] = useState<TipoFornecedorOrganizacao>('AGENTE_CARGA')
   const [convidando, setConvidando] = useState(false)
 
   const [usuarioEditando, setUsuarioEditando] = useState<UsuarioOrg | null>(null)
@@ -355,13 +367,17 @@ export function Usuarios() {
 
   async function handleInvite() {
     if (!fNome.trim() || !fEmail.trim()) return
+    const tipoBackend = nivelToRole(fTipo)
+    const tipoConvite: TipoUsuarioConvidavel =
+      tipoBackend === 'MASTER' || tipoBackend === 'FORNECEDOR' ? tipoBackend : 'PADRAO'
+    if (tipoConvite === 'FORNECEDOR' && !fTipoFornecedorOrganizacao) {
+      addNotification({ type: 'error', message: 'Selecione a categoria do fornecedor (ex.: Agente de carga).' })
+      return
+    }
     setConvidando(true)
     try {
       // Map UI label → enum canônico do backend (PADRAO/MASTER/FORNECEDOR).
       // Super Admin/Admin não convidam por aqui — caem para PADRAO defensivamente.
-      const tipoBackend = nivelToRole(fTipo)
-      const tipoConvite: TipoUsuarioConvidavel =
-        tipoBackend === 'MASTER' || tipoBackend === 'FORNECEDOR' ? tipoBackend : 'PADRAO'
 
       const workspacesAlvo: 'all' | string[] | undefined =
         tipoConvite === 'PADRAO' || tipoConvite === 'FORNECEDOR'
@@ -373,6 +389,9 @@ export function Usuarios() {
         nome_usuario: fNome.trim(),
         tipo_usuario: tipoConvite,
         workspaces_alvo: workspacesAlvo,
+        ...(tipoConvite === 'FORNECEDOR'
+          ? { tipo_fornecedor_organizacao: fTipoFornecedorOrganizacao }
+          : {}),
       })
 
       const novoUsuario: UsuarioOrg = {
@@ -418,7 +437,7 @@ export function Usuarios() {
     } finally {
       setConvidando(false)
     }
-    setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]); setShowForm(false)
+    setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]); setFTipoFornecedorOrganizacao('AGENTE_CARGA'); setShowForm(false)
   }
 
   async function handleAlternarStatusUsuario(u: UsuarioOrg) {
@@ -1116,6 +1135,19 @@ export function Usuarios() {
               )}
             />
           </CampoGeralGlobal>
+
+          {fTipo === 'Fornecedor' && (
+            <CampoGeralGlobal label="CATEGORIA DO FORNECEDOR" obrigatorio>
+              <SelectGlobal
+                opcoes={OPCOES_CATEGORIA_FORNECEDOR}
+                valor={fTipoFornecedorOrganizacao}
+                aoMudarValor={(v) => setFTipoFornecedorOrganizacao(v as TipoFornecedorOrganizacao)}
+                iconeEsquerda={<Buildings size={18} weight="duotone" />}
+                buscavel
+                placeholder="Ex.: Agente de carga..."
+              />
+            </CampoGeralGlobal>
+          )}
 
           {(fTipo === 'Standard' || fTipo === 'Fornecedor') && (
             <CampoGeralGlobal label="WORKSPACES">

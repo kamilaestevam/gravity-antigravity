@@ -63,6 +63,15 @@ enum BidFreteInternacionalStatusCotacao {
   @@map("bid_frete_internacional_status_cotacao")
 }
 
+enum BidFreteInternacionalStatusBid {
+  RASCUNHO
+  EM_ANDAMENTO
+  PARCIALMENTE_CONCLUIDO
+  CONCLUIDO
+  CANCELADO
+  @@map("bid_frete_internacional_status_bid")
+}
+
 enum BidFreteInternacionalCanalDisparo {
   EMAIL
   WHATSAPP
@@ -170,6 +179,40 @@ model FornecedorBidFreteInternacional {
   @@map("fornecedor_bid_frete_internacional")
 }
 
+// ─── BID (conjunto opcional de pedidos de cotação) ─────────────────────────────
+
+model BidFreteInternacional {
+  id_bid_bid_frete_internacional                  String                            @id @default(cuid())
+  id_organizacao           String                            // OBRIGATORIO
+  id_produto_gravity          String?                           // "bid-frete-internacional"
+  id_usuario             String                            // quem criou o conjunto
+  id_workspace          String?                           // workspace/filial
+
+  numero_bid_bid_frete_internacional              String
+  referencia_interna_bid_bid_frete_internacional  String?
+
+  status_bid_bid_frete_internacional              BidFreteInternacionalStatusBid    @default(RASCUNHO)
+
+  tipo_operacao_bid_bid_frete_internacional       BidFreteInternacionalTipoOperacao?
+  modais_bid_bid_frete_internacional              Json?
+  modalidade_bid_bid_frete_internacional          BidFreteInternacionalModalidadeCarga?
+  origens_bid_bid_frete_internacional             Json?
+  destinos_bid_bid_frete_internacional            Json?
+
+  data_criacao_bid_bid_frete_internacional          DateTime                          @default(now())
+  data_atualizacao_bid_bid_frete_internacional          DateTime                          @updatedAt
+
+  cotacoes CotacaoBidFreteInternacional[]
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_workspace])
+  @@index([id_organizacao, status_bid_bid_frete_internacional])
+  @@index([numero_bid_bid_frete_internacional])
+  @@map("bid_frete_internacional")
+}
+
 // ─── COTACAO ───────────────────────────────────────────────────────────────────
 
 model CotacaoBidFreteInternacional {
@@ -178,6 +221,7 @@ model CotacaoBidFreteInternacional {
   id_produto_gravity          String?             // "bid-frete-internacional"
   id_usuario             String              // clerk_id do solicitante
   id_workspace          String?             // workspace/filial
+  id_bid_bid_frete_internacional String?
 
   // Referencia
   numero_cotacao_bid_frete_internacional              String              // auto-gerado: BID-YYYYMMDD-NNNN
@@ -235,6 +279,7 @@ model CotacaoBidFreteInternacional {
   data_atualizacao_cotacao_bid_frete_internacional          DateTime            @updatedAt
 
   // Relacoes
+  bid_bid_frete_internacional BidFreteInternacional? @relation(fields: [id_bid_bid_frete_internacional], references: [id_bid_bid_frete_internacional], onDelete: SetNull)
   disparos_cotacao        DisparoCotacaoBidFreteInternacional[]
   propostas       PropostaBidFreteInternacional[]
 
@@ -243,6 +288,7 @@ model CotacaoBidFreteInternacional {
   @@index([id_organizacao, id_usuario])
   @@index([id_organizacao, status_cotacao_bid_frete_internacional])
   @@index([id_organizacao, id_workspace])
+  @@index([id_organizacao, id_bid_bid_frete_internacional])
   @@index([id_organizacao, data_criacao_cotacao_bid_frete_internacional])
   @@index([numero_cotacao_bid_frete_internacional])
   @@map("cotacao_bid_frete_internacional")
@@ -298,6 +344,7 @@ model PropostaBidFreteInternacional {
   id_organizacao           String            // OBRIGATORIO
   id_produto_gravity          String?           // "bid-frete-internacional"
   id_usuario             String?           // clerk_id do fornecedor (se logado)
+  id_workspace          String?           // snapshot da cotação na criação
 
   id_disparo_cotacao_bid_frete_internacional      String            @unique
   id_cotacao_bid_frete_internacional          String
@@ -346,6 +393,7 @@ model PropostaBidFreteInternacional {
   @@index([id_organizacao])
   @@index([id_organizacao, id_produto_gravity])
   @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_workspace])
   @@index([id_organizacao, id_cotacao_bid_frete_internacional])
   @@index([id_organizacao, id_fornecedor_bid_frete_internacional])
   @@index([id_organizacao, valor_total_proposta_bid_frete_internacional])
@@ -605,6 +653,25 @@ model StatusCotacaoConfigBidFreteInternacional {
   @@index([id_organizacao], map: "status_cotacao_config_bfi_id_org_idx")
   @@index([id_organizacao, ordem_status_cotacao_config_bid_frete_internacional], map: "status_cotacao_config_bfi_id_org_ordem_idx")
   @@map("status_cotacao_config_bid_frete_internacional")
+}
+
+// ─── STATUS DE BID (Configuracao dinamica por organizacao) ─────────────────────
+
+model StatusBidConfigBidFreteInternacional {
+  id_status_bid_config_bid_frete_internacional                  String   @id @default(cuid())
+  id_organizacao                               String
+  nome_status_bid_config_bid_frete_internacional                String
+  rotulo_status_bid_config_bid_frete_internacional              String
+  cor_status_bid_config_bid_frete_internacional                 String
+  icone_status_bid_config_bid_frete_internacional               String?
+  ordem_status_bid_config_bid_frete_internacional               Int      @default(0)
+  padrao_status_bid_config_bid_frete_internacional              Boolean  @default(false)
+  gerenciado_sistema_status_bid_config_bid_frete_internacional  Boolean  @default(false)
+
+  @@unique([id_organizacao, nome_status_bid_config_bid_frete_internacional])
+  @@index([id_organizacao], map: "status_bid_config_bfi_id_org_idx")
+  @@index([id_organizacao, ordem_status_bid_config_bid_frete_internacional], map: "status_bid_config_bfi_id_org_ordem_idx")
+  @@map("status_bid_config_bid_frete_internacional")
 }
 
 // ─── DASHBOARD PANEL GLOBAL (Compartilhado com outros produtos no mesmo banco) ───

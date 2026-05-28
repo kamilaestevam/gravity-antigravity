@@ -198,10 +198,17 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
     // Calcular valor total
     const valorTotal = responseData.valor_frete_proposta_bid_frete_internacional + responseData.taxas_origem_proposta_bid_frete_internacional + responseData.taxas_destino_proposta_bid_frete_internacional
 
+    const cotacaoOrigem = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({
+      where: { id_cotacao_bid_frete_internacional: bidRequest.id_cotacao_bid_frete_internacional },
+      select: { id_workspace: true },
+    })
+
     // Criar BidResponse
     const response = await (req.prisma as any).propostaBidFreteInternacional.create({
       data: {
+        id_organizacao: bidRequest.id_organizacao,
         id_produto_gravity: 'bid-frete-internacional',
+        ...(cotacaoOrigem?.id_workspace ? { id_workspace: cotacaoOrigem.id_workspace } : {}),
         id_usuario: userId,
         id_disparo_cotacao_bid_frete_internacional: bidRequest.id_disparo_cotacao_bid_frete_internacional,
         id_cotacao_bid_frete_internacional: bidRequest.id_cotacao_bid_frete_internacional,

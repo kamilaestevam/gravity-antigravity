@@ -13,7 +13,7 @@ import {
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
   Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple, Tag,
   Columns, TextT, CalendarBlank, Percent, ListBullets, CheckSquare, MathOperations,
-  Paperclip, CurrencyCircleDollar, ArrowsClockwise, Clock, CaretDown, Info,
+  Paperclip, CurrencyCircleDollar, ArrowsClockwise, Clock, CaretDown, Info, ChartBar,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -64,6 +64,11 @@ import {
   type CardPeriodoCodigo,
   type CardPreferencia,
 } from '../shared/use-card-preferences'
+import {
+  BID_FRETE_DASHBOARD_TOP_KPI_WIDGET_IDS,
+  useDashboardTopKpiBidFrete,
+  type BidFreteDashboardTopKpiWidgetId,
+} from '../shared/use-dashboard-top-kpi-bid-frete'
 import {
   KANBAN_BF_CARD_GRUPOS,
   KANBAN_BF_CARD_PADRAO,
@@ -166,6 +171,13 @@ type SaldoToken =
 
 // ─── Constants & Catalogs ────────────────────────────────────────────────────────
 
+const BID_FRETE_DASHBOARD_TOP_KPI_PREVIEW_VISUAL: Record<BidFreteDashboardTopKpiWidgetId, { icone: React.ReactNode; cor: string }> = {
+  kpi_cotacoes_andamento: { icone: <ClipboardText     weight="duotone" size={15} />, cor: '#fbbf24' },
+  kpi_cotacoes_aprovadas: { icone: <CheckCircle       weight="duotone" size={15} />, cor: '#10b981' },
+  kpi_valor_em_aberto:    { icone: <CurrencyDollar    weight="duotone" size={15} />, cor: '#818cf8' },
+  kpi_cotacoes_expiradas: { icone: <Warning           weight="duotone" size={15} />, cor: '#d1d5db' },
+}
+
 const CARD_VISUAL: Record<string, { icone: React.ReactNode; cor: string }> = {
   total_cotacoes:        { icone: <Package           weight="duotone" size={18} />, cor: 'var(--ws-accent, #818cf8)' },
   valor_total_frete:     { icone: <CurrencyDollar    weight="duotone" size={18} />, cor: '#34d399' },
@@ -191,6 +203,7 @@ function obterNomeExibicaoCard(card: CardDefinicao): string {
 const SIDEBAR_ITEMS = [
   { tipo: 'grupo',  label: 'VISUALIZAÇÕES', labelKey: 'bidfrete.config.sidebar.grupo_visualizacoes' },
   { tipo: 'item',   id: 'cards',                 label: 'Cards',             labelKey: 'bidfrete.config.sidebar.cards',             icone: <SquaresFour size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'dashboard-kpi',         label: 'Visão Geral',       labelKey: 'bidfrete.config.sidebar.dashboard_kpi',     icone: <ChartBar size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'tabela',                label: 'Tabela',            labelKey: 'bidfrete.config.sidebar.tabela',            icone: <Table size={15} weight="duotone" />, ativo: true },
   { tipo: 'parent', id: 'colunas-casas-decimais',label: 'Colunas',           labelKey: 'bidfrete.config.sidebar.colunas',           icone: <Columns size={15} weight="duotone" />, ativo: true, filhos: ['colunas-casas-decimais', 'colunas-formato-data', 'colunas-personalizadas', 'colunas-campos-calculados'] },
   { tipo: 'sub',    id: 'colunas-casas-decimais',label: 'Casas Decimais',    labelKey: 'bidfrete.config.sidebar.casas_decimais',    icone: <Hash size={15} weight="duotone" />, ativo: true },
@@ -203,7 +216,8 @@ const SIDEBAR_ITEMS = [
   { tipo: 'sub',    id: 'kanban-modal',          label: 'Modal',             labelKey: 'bidfrete.config.sidebar.modal',             icone: <Columns size={15} weight="duotone" />, ativo: true },
   
   { tipo: 'grupo',  label: 'BID FRETE',          labelKey: 'bidfrete.config.sidebar.grupo_bidfrete' },
-  { tipo: 'item',   id: 'status',                label: 'Status',            labelKey: 'bidfrete.config.sidebar.status',            icone: <Tag size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'status',                label: 'Status Cotação',    labelKey: 'bidfrete.config.sidebar.status',            icone: <Tag size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'status-bid-frete-internacional', label: 'Status BID', labelKey: 'bidfrete.config.sidebar.status_bid', icone: <Tag size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'numeracao',             label: 'Numeração',         labelKey: 'bidfrete.config.sidebar.numeracao',         icone: <Hash size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'templates-pdf',         label: 'Templates PDF',     labelKey: 'bidfrete.config.sidebar.templates_pdf',     icone: <FloppyDisk size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'regras',                label: 'Regras',            labelKey: 'bidfrete.config.sidebar.regras',            icone: <Sliders size={15} weight="duotone" />, ativo: true },
@@ -812,6 +826,28 @@ export default function Configuracoes() {
     resetar: resetarCards,
   } = useCardPreferencesBidFrete()
 
+  const {
+    mapa: dashboardTopKpiSalvo,
+    persistirMapa: persistirDashboardTopKpi,
+    defaults: dashboardTopKpiDefaults,
+  } = useDashboardTopKpiBidFrete()
+  const [pendingDashboardTopKpi, setPendingDashboardTopKpi] = useState(dashboardTopKpiSalvo)
+
+  useEffect(() => {
+    setPendingDashboardTopKpi(dashboardTopKpiSalvo)
+  }, [dashboardTopKpiSalvo])
+
+  const dashboardKpiDirty = JSON.stringify(pendingDashboardTopKpi) !== JSON.stringify(dashboardTopKpiSalvo)
+
+  const salvarDashboardTopKpiConfig = useCallback(() => {
+    persistirDashboardTopKpi(pendingDashboardTopKpi)
+    addNotification({ type: 'success', message: t('bidfrete.config.dashboard_kpi.msg_salvo') })
+  }, [pendingDashboardTopKpi, persistirDashboardTopKpi, addNotification, t])
+
+  const restaurarDashboardTopKpiPadrao = useCallback(() => {
+    setPendingDashboardTopKpi({ ...dashboardTopKpiDefaults })
+  }, [dashboardTopKpiDefaults])
+
   const [tabelaConfig, setTabelaConfig] = useState<TabelaConfigBidFrete>(() => carregarTabelaConfigBidFrete())
   const [tabelaConfigSalva, setTabelaConfigSalva] = useState<TabelaConfigBidFrete>(() => carregarTabelaConfigBidFrete())
   const tabelaDirty = JSON.stringify(tabelaConfig) !== JSON.stringify(tabelaConfigSalva)
@@ -924,6 +960,14 @@ export default function Configuracoes() {
       localStorage.setItem('bid-frete:config:status', JSON.stringify(canonicals))
     }
   }, [statusList, setStatusList])
+
+  const [statusBidList, setStatusBidList] = useConfigState<PedidoStatusConfig[]>('status-bid-frete-internacional', [
+    { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
+    { id: 'em_andamento', nome: 'EM_ANDAMENTO', rotulo: 'Em andamento', cor: '#60a5fa', ordem: 2, is_sistema: true },
+    { id: 'parcial', nome: 'PARCIALMENTE_CONCLUIDO', rotulo: 'Parcialmente concluído', cor: '#fbbf24', ordem: 3, is_sistema: false },
+    { id: 'concluido', nome: 'CONCLUIDO', rotulo: 'Concluído', cor: '#10b981', ordem: 4, is_sistema: false },
+    { id: 'cancelado', nome: 'CANCELADO', rotulo: 'Cancelado', cor: '#6b7280', ordem: 5, is_sistema: true },
+  ])
 
   const [numeracaoConfig, setNumeracaoConfig] = useConfigState<NumeracaoConfig>('numeracao', {
     prefixo: 'BID-',
@@ -1229,6 +1273,107 @@ export default function Configuracoes() {
                 <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={() => setCriandoCard(true)}>
                   <Plus size={14} weight="bold" /> Adicionar card KPI customizado
                 </BotaoGlobal>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ── CATEGORIA: VISÃO GERAL — KPIs do topo ── */}
+        {categoria === 'dashboard-kpi' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">
+                    {t('bidfrete.config.dashboard_kpi.titulo')}
+                  </h2>
+                  <p className="cfg-secao__desc">
+                    {t('bidfrete.config.dashboard_kpi.descricao')}
+                  </p>
+                </div>
+              </div>
+
+              {statusList.length > 0 && (
+                <div className="cfg-cards-preview-wrap">
+                  <p className="cfg-cards-preview-label">
+                    <ChartBar size={12} weight="fill" />
+                    {t('bidfrete.config.dashboard_kpi.preview')}
+                  </p>
+                  <div className="cfg-cards-preview-grid">
+                    {BID_FRETE_DASHBOARD_TOP_KPI_WIDGET_IDS.map((widgetId, index) => {
+                      const slugPendente = pendingDashboardTopKpi[widgetId as BidFreteDashboardTopKpiWidgetId]
+                      const slugValido = statusList.some(s => s.nome === slugPendente)
+                        ? slugPendente
+                        : (statusList[index]?.nome ?? statusList[0]?.nome ?? '')
+                      const statusCfg = statusList.find(s => s.nome === slugValido)
+                      const visual = BID_FRETE_DASHBOARD_TOP_KPI_PREVIEW_VISUAL[widgetId as BidFreteDashboardTopKpiWidgetId]
+                      const cor = statusCfg?.cor ?? visual.cor
+                      return (
+                        <div
+                          key={widgetId}
+                          className="cfg-kpi-preview-card"
+                          style={{ borderTopColor: cor }}
+                        >
+                          <span className="cfg-kpi-preview-card__pos">{index + 1}</span>
+                          <span className="cfg-kpi-preview-card__icon" style={{ color: cor }}>
+                            {visual.icone}
+                          </span>
+                          <div className="cfg-kpi-preview-card__line" style={{ background: cor }} />
+                          <p className="cfg-kpi-preview-card__valor">0</p>
+                          <p className="cfg-kpi-preview-card__label">{statusCfg?.rotulo ?? '—'}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <ConfiguracaoSecaoGlobal label={t('bidfrete.config.dashboard_kpi.cards_topo')} count="4" />
+
+              {statusList.length === 0 ? (
+                <p className="cfg-empty">{t('bidfrete.config.dashboard_kpi.sem_status')}</p>
+              ) : (
+                <div className="cfg-cards-lista" style={{ gap: '0.75rem' }}>
+                  {BID_FRETE_DASHBOARD_TOP_KPI_WIDGET_IDS.map((widgetId, index) => {
+                    const numero = String(index + 1).padStart(2, '0')
+                    const slugPendente = pendingDashboardTopKpi[widgetId as BidFreteDashboardTopKpiWidgetId]
+                    const slugValido = statusList.some(s => s.nome === slugPendente)
+                      ? slugPendente
+                      : (statusList[index]?.nome ?? statusList[0]?.nome ?? '')
+                    return (
+                      <div key={widgetId} className="cfg-toggle-row" style={{ alignItems: 'center' }}>
+                        <label className="cfg-toggle-row__label" style={{ flex: 1 }}>
+                          {t('bidfrete.config.dashboard_kpi.card_status', { n: numero, defaultValue: `Card ${numero} — Status` })}
+                        </label>
+                        <div className="cfg-dashboard-kpi-select" style={{ maxWidth: '280px', flexShrink: 0, width: '100%' }}>
+                          <SelectGlobal
+                            buscavel
+                            placeholder={t('bidfrete.config.dashboard_kpi.selecionar_status')}
+                            opcoes={statusList.map(s => ({ valor: s.nome, rotulo: s.rotulo }))}
+                            valor={slugValido || null}
+                            aoMudarValor={v => setPendingDashboardTopKpi(prev => ({
+                              ...prev,
+                              [widgetId]: v != null ? String(v) : '',
+                            }))}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
+              <div className="cfg-secao__footer">
+                <BotaoCancelar
+                  dirty={dashboardKpiDirty}
+                  rotulo={t('bidfrete.config.acao.restaurar_padrao', 'Restaurar padrão')}
+                  onClick={restaurarDashboardTopKpiPadrao}
+                />
+                <BotaoSalvar
+                  dirty={dashboardKpiDirty}
+                  rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
+                  onClick={salvarDashboardTopKpiConfig}
+                />
               </div>
             </section>
           </div>
@@ -1807,6 +1952,30 @@ export default function Configuracoes() {
               }}>
                 <Plus size={14} /> Adicionar Status
               </BotaoGlobal>
+            </div>
+          </section>
+        )}
+
+        {/* ── CATEGORIA: STATUS BID ── */}
+        {categoria === 'status-bid-frete-internacional' && (
+          <section className="cfg-secao">
+            <div className="cfg-secao__header">
+              <div>
+                <h2 className="cfg-secao__titulo">Gerenciar Status do BID</h2>
+                <p className="cfg-secao__desc">Configure status do conjunto BID (agrupador de pedidos de cotação).</p>
+              </div>
+            </div>
+
+            <ConfiguracaoSecaoGlobal label="STATUS BID ATIVOS" count={`${statusBidList.length} status`} />
+
+            <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
+              {statusBidList.map(s => (
+                <div key={s.id} className="cfg-status-row">
+                  <span className="cfg-status-dot" style={{ background: s.cor }} />
+                  <span className="cfg-status-label">{s.rotulo}</span>
+                  {s.is_sistema && <span className="cfg-badge-sistema">Sistema</span>}
+                </div>
+              ))}
             </div>
           </section>
         )}

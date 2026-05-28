@@ -38,8 +38,8 @@ import {
   Gauge,
 } from '@phosphor-icons/react'
 
-import { getCotacoes, listarUsuariosOrganizacao } from '../shared/api'
-import type { Cotacao, StatusCotacao } from '../shared/types'
+import { getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao } from '../shared/api'
+import type { BidFreteInternacional, Cotacao, StatusCotacao } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, MODALIDADE_LABELS } from '../shared/types'
 import {
   calcularMetricaCardCustom,
@@ -71,11 +71,15 @@ import {
 import {
   montarLinhasPaiLista,
   idLinhaPaiLista,
+  idLinhaFilhaLista,
   isLinhaBidGrupo,
+  isLinhaProposta,
   cotacaoDaLinhaPai,
+  propostasFilhasDaCotacaoAvulsa,
   cotacaoPrestesAExpirar,
   linhaPaiPrestesAExpirar,
   type LinhaPaiLista,
+  type LinhaFilhaLista,
 } from './lista-bid-frete-internacional-utils'
 
 // ─── Status Config (localStorage) ───
@@ -272,6 +276,8 @@ export default function Cotacoes() {
   }), [organizacoesMap, workspacesMap, usuariosMap, currentUser.id, currentUser.name, currentUser.email, nomeWorkspaceAtivo])
 
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
+  const [cotacoesAvulsas, setCotacoesAvulsas] = useState<Cotacao[]>([])
+  const [bidsFreteInternacional, setBidsFreteInternacional] = useState<BidFreteInternacional[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
   const [busca, setBusca] = useState('')
@@ -369,9 +375,10 @@ export default function Cotacoes() {
       : undefined
   }, [tabelaConfig.destacarAtrasados])
 
-  const classNameLinhaFilho = useCallback((cotacao: Cotacao) => {
+  const classNameLinhaFilho = useCallback((filha: LinhaFilhaLista) => {
+    if (isLinhaProposta(filha)) return undefined
     if (!tabelaConfig.destacarAtrasados) return undefined
-    return cotacaoPrestesAExpirar(cotacao, HORAS_LIMITE_DESTAQUE_EXPIRACAO)
+    return cotacaoPrestesAExpirar(filha, HORAS_LIMITE_DESTAQUE_EXPIRACAO)
       ? 'gtv-linha--expira-prestes'
       : undefined
   }, [tabelaConfig.destacarAtrasados])
@@ -381,10 +388,18 @@ export default function Cotacoes() {
     setCarregando(true)
     setErroCarregar(null)
     try {
-      const res = await getCotacoes({ limit: COTACOES_LIMIT_LISTA })
-      setCotacoes(res.cotacoes)
+      const [resTodas, resAvulsas, bids] = await Promise.all([
+        getCotacoes({ limit: COTACOES_LIMIT_LISTA }),
+        getCotacoes({ limit: COTACOES_LIMIT_LISTA, apenas_avulsas: true }),
+        getBidsFreteInternacional(),
+      ])
+      setCotacoes(resTodas.cotacoes)
+      setCotacoesAvulsas(resAvulsas.cotacoes)
+      setBidsFreteInternacional(bids)
     } catch (e: unknown) {
       setCotacoes([])
+      setCotacoesAvulsas([])
+      setBidsFreteInternacional([])
       setErroCarregar(e instanceof Error ? e.message : 'Erro ao carregar cotações')
     } finally {
       setCarregando(false)
@@ -449,31 +464,52 @@ export default function Cotacoes() {
 
   // ─── Filtragem Reativa (Busca + Abas) ───
 
-  const cotacoesFiltradas = useMemo(() => {
-    let result = cotacoes
-
-    // Filtro por abas dinâmicas (nome do status ou "TODAS")
-    if (filtroTab !== 'TODAS') {
-      result = result.filter(c => c.status_cotacao_bid_frete_internacional === filtroTab)
+  const filtrarCotacaoItem = useCallback((c: Cotacao): boolean => {
+    if (filtroTab !== 'TODAS' && c.status_cotacao_bid_frete_internacional !== filtroTab) {
+      return false
     }
-
-    // Filtro por busca
     if (busca.trim()) {
       const term = busca.toLowerCase()
-      result = result.filter(c =>
+      return (
         c.numero_cotacao_bid_frete_internacional.toLowerCase().includes(term) ||
         (c.referencia_interna_cotacao_bid_frete_internacional ?? '').toLowerCase().includes(term) ||
         c.origem_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term) ||
         c.destino_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term)
       )
     }
+    return true
+  }, [filtroTab, busca])
 
-    return result
-  }, [cotacoes, filtroTab, busca])
+  const cotacoesFiltradas = useMemo(
+    () => cotacoes.filter(filtrarCotacaoItem),
+    [cotacoes, filtrarCotacaoItem],
+  )
+
+  const cotacoesAvulsasFiltradas = useMemo(
+    () => cotacoesAvulsas.filter(filtrarCotacaoItem),
+    [cotacoesAvulsas, filtrarCotacaoItem],
+  )
+
+  const bidsFiltrados = useMemo(() => {
+    const term = busca.trim().toLowerCase()
+    return bidsFreteInternacional
+      .map(bid => {
+        const cotacoesFilhas = (bid.cotacoes ?? []).filter(filtrarCotacaoItem)
+        if (cotacoesFilhas.length === 0) {
+          if (!term) return null
+          const matchBid =
+            bid.numero_bid_bid_frete_internacional.toLowerCase().includes(term) ||
+            (bid.referencia_interna_bid_bid_frete_internacional ?? '').toLowerCase().includes(term)
+          if (!matchBid) return null
+        }
+        return { ...bid, cotacoes: cotacoesFilhas.length > 0 ? cotacoesFilhas : (bid.cotacoes ?? []) }
+      })
+      .filter((b): b is BidFreteInternacional => b != null)
+  }, [bidsFreteInternacional, filtrarCotacaoItem, busca])
 
   const linhasPaiFiltradas = useMemo(
-    () => montarLinhasPaiLista(cotacoesFiltradas),
-    [cotacoesFiltradas],
+    () => montarLinhasPaiLista(bidsFiltrados, cotacoesAvulsasFiltradas),
+    [bidsFiltrados, cotacoesAvulsasFiltradas],
   )
 
   const totalCotacoesFiltradas = cotacoesFiltradas.length
@@ -483,9 +519,9 @@ export default function Cotacoes() {
     [cotacoesFiltradas, periodoCards],
   )
 
-  const handleCarregarFilhos = useCallback(async (pai: LinhaPaiLista): Promise<Cotacao[]> => {
+  const handleCarregarFilhos = useCallback(async (pai: LinhaPaiLista): Promise<LinhaFilhaLista[]> => {
     if (isLinhaBidGrupo(pai)) return pai.cotacoes
-    return []
+    return propostasFilhasDaCotacaoAvulsa(pai)
   }, [])
 
   const handleReordenarCotacoes = useCallback((ids: string[]) => {
@@ -515,14 +551,15 @@ export default function Cotacoes() {
     },
   ], [abrirDetalheCotacao])
 
-  const acoesFilho = useCallback((item: Cotacao) => [
-    {
+  const acoesFilho = useCallback((item: LinhaFilhaLista) => {
+    if (isLinhaProposta(item)) return []
+    return [{
       id: 'ver-filho',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: 'Ver detalhes',
       onClick: () => abrirDetalheCotacao(item),
-    },
-  ], [abrirDetalheCotacao])
+    }]
+  }, [abrirDetalheCotacao])
 
   // ─── Dropdown + Novo e Exportar Toolbar ───
 
@@ -982,13 +1019,13 @@ export default function Cotacoes() {
               </button>
             </div>
           )}
-          <TabelaVirtualGlobal<LinhaPaiLista, Cotacao>
+          <TabelaVirtualGlobal<LinhaPaiLista, LinhaFilhaLista>
             dados={linhasPaiFiltradas}
             colunas={colunasTabela}
             itemId={idLinhaPaiLista}
             mapaColunasFilho={mapaColunasFilho}
             onCarregarFilhos={handleCarregarFilhos}
-            filhoId={(filho) => filho.id_cotacao_bid_frete_internacional}
+            filhoId={idLinhaFilhaLista}
             
             itensPorPagina={tabelaConfig.linhasPorPagina}
             totalItens={linhasPaiFiltradas.length}

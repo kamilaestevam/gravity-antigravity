@@ -1,14 +1,15 @@
 /**
- * Utilitários da lista — hierarquia BID (pai) → cotações (filhas).
- * BID = grupo com 2+ cotações compartilhando referencia_interna.
- * Cotação avulsa = linha plana (sem expandir).
+ * Utilitários da lista — hierarquia BID (pai) → cotações (filhas) | avulsa → propostas.
+ * BID = entidade bid_frete_internacional com N cotações vinculadas via id_bid.
+ * Cotação avulsa = id_bid null; expandir mostra propostas.
  */
 
-import type { Cotacao, StatusCotacao } from '../shared/types'
+import type { BidFreteInternacional, Cotacao, PropostaBidFreteInternacional, StatusBid, StatusCotacao } from '../shared/types'
 
 export interface LinhaBidGrupoPai {
   _tipo_linha: 'bid'
   id_linha_lista: string
+  id_bid_bid_frete_internacional: string
   referencia_bid: string
   quantidade_cotacoes: number
   cotacoes: Cotacao[]
@@ -22,6 +23,7 @@ export interface LinhaBidGrupoPai {
   quantidade_usuarios_distintos: number
   quantidade_workspaces_distintos: number
   status_cotacao_bid_frete_internacional: StatusCotacao
+  status_bid_bid_frete_internacional: StatusBid
   data_criacao_cotacao_bid_frete_internacional: string
   data_atualizacao_cotacao_bid_frete_internacional: string
   tipo_operacao_cotacao_bid_frete_internacional: Cotacao['tipo_operacao_cotacao_bid_frete_internacional']
@@ -33,25 +35,15 @@ export interface LinhaBidGrupoPai {
   ganho_percentual_cotacao_bid_frete_internacional: number | null
 }
 
-function agregarCampoId(
-  cotacoes: Cotacao[],
-  campo: 'id_usuario' | 'id_workspace',
-): { valor: string | null; divergente: boolean; quantidade: number } {
-  const valores = cotacoes
-    .map(c => c[campo])
-    .filter((v): v is string => typeof v === 'string' && v.length > 0)
-  const unicos = new Set(valores)
-  return {
-    valor: unicos.size === 1 ? [...unicos][0] : null,
-    divergente: unicos.size > 1,
-    quantidade: unicos.size,
-  }
-}
-
 export type LinhaPaiLista = Cotacao | LinhaBidGrupoPai
+export type LinhaFilhaLista = Cotacao | PropostaBidFreteInternacional
 
 export function isLinhaBidGrupo(linha: LinhaPaiLista): linha is LinhaBidGrupoPai {
   return '_tipo_linha' in linha && linha._tipo_linha === 'bid'
+}
+
+export function isLinhaProposta(filha: LinhaFilhaLista): filha is PropostaBidFreteInternacional {
+  return 'id_proposta_bid_frete_internacional' in filha
 }
 
 const PRIORIDADE_STATUS: StatusCotacao[] = [
@@ -75,13 +67,28 @@ function statusMaisAvancado(cotacoes: Cotacao[]): StatusCotacao {
   return cotacoes[0]?.status_cotacao_bid_frete_internacional ?? 'RASCUNHO'
 }
 
-function buildLinhaBidGrupo(referencia: string, cotacoes: Cotacao[]): LinhaBidGrupoPai {
-  const ordenadas = [...cotacoes].sort(
+function agregarCampoId(
+  cotacoes: Cotacao[],
+  campo: 'id_usuario' | 'id_workspace',
+): { valor: string | null; divergente: boolean; quantidade: number } {
+  const valores = cotacoes
+    .map(c => c[campo])
+    .filter((v): v is string => typeof v === 'string' && v.length > 0)
+  const unicos = new Set(valores)
+  return {
+    valor: unicos.size === 1 ? [...unicos][0] : null,
+    divergente: unicos.size > 1,
+    quantidade: unicos.size,
+  }
+}
+
+function buildLinhaBidGrupo(bid: BidFreteInternacional): LinhaBidGrupoPai {
+  const cotacoes = [...(bid.cotacoes ?? [])].sort(
     (a, b) =>
       new Date(b.data_criacao_cotacao_bid_frete_internacional).getTime() -
       new Date(a.data_criacao_cotacao_bid_frete_internacional).getTime(),
   )
-  const principal = ordenadas[0]
+  const principal = cotacoes[0]
   const origens = new Set(cotacoes.map(c => c.origem_nome_cotacao_bid_frete_internacional))
   const destinos = new Set(cotacoes.map(c => c.destino_nome_cotacao_bid_frete_internacional))
   const ganhoTotal = cotacoes.reduce((acc, c) => acc + (c.ganho_valor_cotacao_bid_frete_internacional ?? 0), 0)
@@ -94,28 +101,31 @@ function buildLinhaBidGrupo(referencia: string, cotacoes: Cotacao[]): LinhaBidGr
 
   const usuarios = agregarCampoId(cotacoes, 'id_usuario')
   const workspaces = agregarCampoId(cotacoes, 'id_workspace')
+  const ref = bid.referencia_interna_bid_bid_frete_internacional?.trim() || bid.numero_bid_bid_frete_internacional
 
   return {
     _tipo_linha: 'bid',
-    id_linha_lista: `bid:${referencia}`,
-    referencia_bid: referencia,
+    id_linha_lista: `bid:${bid.id_bid_bid_frete_internacional}`,
+    id_bid_bid_frete_internacional: bid.id_bid_bid_frete_internacional,
+    referencia_bid: ref,
     quantidade_cotacoes: cotacoes.length,
-    cotacoes: ordenadas,
-    numero_cotacao_bid_frete_internacional: `BID · ${referencia}`,
-    referencia_interna_cotacao_bid_frete_internacional: referencia,
-    id_organizacao: principal.id_organizacao,
-    id_usuario: usuarios.valor,
-    id_workspace: workspaces.valor,
+    cotacoes,
+    numero_cotacao_bid_frete_internacional: bid.numero_bid_bid_frete_internacional,
+    referencia_interna_cotacao_bid_frete_internacional: ref,
+    id_organizacao: bid.id_organizacao,
+    id_usuario: usuarios.valor ?? bid.id_usuario,
+    id_workspace: workspaces.valor ?? bid.id_workspace ?? null,
     usuarios_divergentes: usuarios.divergente,
     workspaces_divergentes: workspaces.divergente,
     quantidade_usuarios_distintos: usuarios.quantidade,
     quantidade_workspaces_distintos: workspaces.quantidade,
     status_cotacao_bid_frete_internacional: statusMaisAvancado(cotacoes),
-    data_criacao_cotacao_bid_frete_internacional: principal.data_criacao_cotacao_bid_frete_internacional,
-    data_atualizacao_cotacao_bid_frete_internacional: principal.data_atualizacao_cotacao_bid_frete_internacional,
-    tipo_operacao_cotacao_bid_frete_internacional: principal.tipo_operacao_cotacao_bid_frete_internacional,
-    modal_cotacao_bid_frete_internacional: principal.modal_cotacao_bid_frete_internacional,
-    modalidade_cotacao_bid_frete_internacional: principal.modalidade_cotacao_bid_frete_internacional,
+    status_bid_bid_frete_internacional: bid.status_bid_bid_frete_internacional,
+    data_criacao_cotacao_bid_frete_internacional: principal?.data_criacao_cotacao_bid_frete_internacional ?? bid.data_criacao_bid_bid_frete_internacional,
+    data_atualizacao_cotacao_bid_frete_internacional: principal?.data_atualizacao_cotacao_bid_frete_internacional ?? bid.data_atualizacao_bid_bid_frete_internacional,
+    tipo_operacao_cotacao_bid_frete_internacional: principal?.tipo_operacao_cotacao_bid_frete_internacional ?? 'IMPORTACAO',
+    modal_cotacao_bid_frete_internacional: principal?.modal_cotacao_bid_frete_internacional ?? 'MARITIMO',
+    modalidade_cotacao_bid_frete_internacional: principal?.modalidade_cotacao_bid_frete_internacional ?? 'FCL',
     origem_nome_cotacao_bid_frete_internacional: origens.size === 1 ? [...origens][0] : `${origens.size} origens`,
     destino_nome_cotacao_bid_frete_internacional: destinos.size === 1 ? [...destinos][0] : `${destinos.size} destinos`,
     ganho_valor_cotacao_bid_frete_internacional: ganhoTotal > 0 ? ganhoTotal : null,
@@ -123,31 +133,13 @@ function buildLinhaBidGrupo(referencia: string, cotacoes: Cotacao[]): LinhaBidGr
   }
 }
 
-/** Monta linhas pai: cotação avulsa ou BID agrupado por referência interna. */
-export function montarLinhasPaiLista(cotacoes: Cotacao[]): LinhaPaiLista[] {
-  const grupos = new Map<string, Cotacao[]>()
-  const avulsas: Cotacao[] = []
-
-  for (const cotacao of cotacoes) {
-    const ref = cotacao.referencia_interna_cotacao_bid_frete_internacional?.trim()
-    if (ref) {
-      const lista = grupos.get(ref) ?? []
-      lista.push(cotacao)
-      grupos.set(ref, lista)
-    } else {
-      avulsas.push(cotacao)
-    }
-  }
-
-  const linhas: LinhaPaiLista[] = [...avulsas]
-
-  for (const [referencia, items] of grupos) {
-    if (items.length === 1) {
-      linhas.push(items[0])
-    } else {
-      linhas.push(buildLinhaBidGrupo(referencia, items))
-    }
-  }
+/** Monta linhas pai: BIDs da entidade + cotações avulsas (sem id_bid). */
+export function montarLinhasPaiLista(
+  bids: BidFreteInternacional[],
+  cotacoesAvulsas: Cotacao[],
+): LinhaPaiLista[] {
+  const linhasBids = bids.map(buildLinhaBidGrupo)
+  const linhas = [...cotacoesAvulsas, ...linhasBids]
 
   return linhas.sort((a, b) => {
     const da = new Date(a.data_criacao_cotacao_bid_frete_internacional).getTime()
@@ -157,7 +149,13 @@ export function montarLinhasPaiLista(cotacoes: Cotacao[]): LinhaPaiLista[] {
 }
 
 export function idLinhaPaiLista(linha: LinhaPaiLista): string {
-  return isLinhaBidGrupo(linha) ? linha.id_linha_lista : linha.id_cotacao_bid_frete_internacional
+  if (isLinhaBidGrupo(linha)) return linha.id_linha_lista
+  return linha.id_cotacao_bid_frete_internacional
+}
+
+export function idLinhaFilhaLista(filha: LinhaFilhaLista): string {
+  if (isLinhaProposta(filha)) return filha.id_proposta_bid_frete_internacional
+  return filha.id_cotacao_bid_frete_internacional
 }
 
 export function cotacaoDaLinhaPai(linha: LinhaPaiLista): Cotacao | null {
@@ -170,6 +168,10 @@ export function cotacoesFilhasDaLinha(linha: LinhaPaiLista): Cotacao[] {
   return []
 }
 
+export function propostasFilhasDaCotacaoAvulsa(cotacao: Cotacao): PropostaBidFreteInternacional[] {
+  return cotacao.propostas_bid_frete_internacional ?? []
+}
+
 const STATUS_SEM_DESTAQUE_EXPIRACAO: StatusCotacao[] = [
   'EXPIRADA',
   'CANCELADA',
@@ -177,7 +179,6 @@ const STATUS_SEM_DESTAQUE_EXPIRACAO: StatusCotacao[] = [
   'REPROVADA',
 ]
 
-/** Cotação com prazo de resposta entre agora e `horasLimite` (exclusivo de status finais). */
 export function cotacaoPrestesAExpirar(
   cotacao: Cotacao,
   horasLimite: number,

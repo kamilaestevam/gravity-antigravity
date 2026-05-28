@@ -7,6 +7,7 @@
 import { z } from 'zod'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import type {
+  BidFreteInternacional,
   Cotacao,
   CotacoesListResponse,
   Fornecedor,
@@ -14,6 +15,7 @@ import type {
   DisparoCotacaoBidFreteInternacional,
   PropostaBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
+  StatusBidConfigBidFreteInternacional,
   DashboardKPIs,
   CalendarioAlerta,
   TabelaPreco,
@@ -326,6 +328,7 @@ export interface CotacoesListParams {
   page?: number
   limit?: number
   busca?: string
+  apenas_avulsas?: boolean
 }
 
 export async function getCotacoes(params: CotacoesListParams = {}): Promise<CotacoesListResponse> {
@@ -334,6 +337,7 @@ export async function getCotacoes(params: CotacoesListParams = {}): Promise<Cota
   if (params.page) query.set('page', String(params.page))
   if (params.limit) query.set('limit', String(params.limit))
   if (params.busca) query.set('busca', params.busca)
+  if (params.apenas_avulsas) query.set('apenas_avulsas', 'true')
   const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes?${query}`, { headers: headers() })
   const data = await handleResponse<CotacoesListResponse>(res)
   return {
@@ -346,6 +350,30 @@ export async function getCotacao(id: string): Promise<Cotacao> {
   const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes/${id}`, { headers: headers() })
   const data = await handleResponse<{ cotacao: unknown }>(res)
   return mapCotacaoFromServer(data.cotacao)
+}
+
+function mapBidFreteInternacionalFromServer(rawUnknown: unknown): BidFreteInternacional {
+  const raw = serializeValue(rawUnknown) as Record<string, unknown>
+  const cotacoesRaw = (raw.cotacoes as unknown[] | undefined) ?? []
+  return {
+    ...(raw as unknown as BidFreteInternacional),
+    id_bid_bid_frete_internacional: (raw.id_bid_bid_frete_internacional ?? raw.id) as string,
+    cotacoes: cotacoesRaw.map(mapCotacaoFromServer),
+  }
+}
+
+export async function getBidsFreteInternacional(): Promise<BidFreteInternacional[]> {
+  const res = await fetch(`${API_BASE}/bid-frete-internacional/bids-frete-internacional`, { headers: headers() })
+  const data = await handleResponse<{ bids_frete_internacional?: unknown[]; bids?: unknown[] }>(res)
+  const lista = data.bids_frete_internacional ?? data.bids ?? []
+  return lista.map(mapBidFreteInternacionalFromServer)
+}
+
+export async function getStatusBidConfigFreteInternacional(): Promise<StatusBidConfigBidFreteInternacional[]> {
+  const res = await fetch(`${API_BASE}/bid-frete-internacional/config/status-bid-frete-internacional`, { headers: headers() })
+  const data = await handleResponse<{ status_bid_frete_internacional?: unknown[]; status?: unknown[] }>(res)
+  const lista = data.status_bid_frete_internacional ?? data.status ?? []
+  return lista as StatusBidConfigBidFreteInternacional[]
 }
 
 export interface CriarCotacaoPayload extends Partial<Cotacao> {

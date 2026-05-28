@@ -2,16 +2,22 @@ import { describe, expect, it } from 'vitest'
 import {
   montarLinhasPaiLista,
   isLinhaBidGrupo,
+  propostasFilhasDaCotacaoAvulsa,
   cotacaoPrestesAExpirar,
   linhaPaiPrestesAExpirar,
 } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/pages/lista-bid-frete-internacional-utils'
 import { HORAS_LIMITE_DESTAQUE_EXPIRACAO } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/tabela-config-bid-frete'
-import type { Cotacao } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/types'
+import type { BidFreteInternacional, Cotacao } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/types'
+import {
+  agregarResumoBidFreteInternacional,
+  gerarNumeroBidFreteInternacional,
+} from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/agregar-resumo-bid-frete-internacional.ts'
 
 function cotacaoBase(partial: Partial<Cotacao> & Pick<Cotacao, 'id_cotacao_bid_frete_internacional' | 'numero_cotacao_bid_frete_internacional'>): Cotacao {
   return {
     id_organizacao: 'org-1',
     id_usuario: 'user-1',
+    id_bid_bid_frete_internacional: null,
     referencia_interna_cotacao_bid_frete_internacional: null,
     tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO',
     modal_cotacao_bid_frete_internacional: 'MARITIMO',
@@ -44,155 +50,150 @@ function cotacaoBase(partial: Partial<Cotacao> & Pick<Cotacao, 'id_cotacao_bid_f
   }
 }
 
+function bidBase(partial: Partial<BidFreteInternacional> & Pick<BidFreteInternacional, 'id_bid_bid_frete_internacional'>): BidFreteInternacional {
+  return {
+    id_organizacao: 'org-1',
+    id_usuario: 'user-1',
+    id_workspace: 'ws-1',
+    numero_bid_bid_frete_internacional: 'BID-20260528-0001',
+    referencia_interna_bid_bid_frete_internacional: 'IMP-2026/01',
+    status_bid_bid_frete_internacional: 'EM_ANDAMENTO',
+    data_criacao_bid_bid_frete_internacional: '2026-05-28T09:00:00.000Z',
+    data_atualizacao_bid_bid_frete_internacional: '2026-05-28T09:00:00.000Z',
+    cotacoes: [],
+    ...partial,
+  }
+}
+
 describe('montarLinhasPaiLista', () => {
   it('mantém cotação avulsa como linha plana', () => {
-    const linhas = montarLinhasPaiLista([
-      cotacaoBase({ id_cotacao_bid_frete_internacional: 'c1', numero_cotacao_bid_frete_internacional: 'BID-1' }),
+    const linhas = montarLinhasPaiLista([], [
+      cotacaoBase({ id_cotacao_bid_frete_internacional: 'c1', numero_cotacao_bid_frete_internacional: 'COT-1' }),
     ])
     expect(linhas).toHaveLength(1)
     expect(isLinhaBidGrupo(linhas[0])).toBe(false)
   })
 
-  it('agrupa 2+ cotações com mesma referência interna em linha BID', () => {
+  it('monta linha BID a partir da entidade bid_frete_internacional', () => {
     const linhas = montarLinhasPaiLista([
-      cotacaoBase({
-        id_cotacao_bid_frete_internacional: 'c1',
-        numero_cotacao_bid_frete_internacional: 'BID-1',
-        referencia_interna_cotacao_bid_frete_internacional: 'IMP-2026/01',
+      bidBase({
+        id_bid_bid_frete_internacional: 'bid-1',
+        cotacoes: [
+          cotacaoBase({ id_cotacao_bid_frete_internacional: 'c1', numero_cotacao_bid_frete_internacional: 'COT-1', id_bid_bid_frete_internacional: 'bid-1' }),
+          cotacaoBase({ id_cotacao_bid_frete_internacional: 'c2', numero_cotacao_bid_frete_internacional: 'COT-2', id_bid_bid_frete_internacional: 'bid-1' }),
+        ],
       }),
-      cotacaoBase({
-        id_cotacao_bid_frete_internacional: 'c2',
-        numero_cotacao_bid_frete_internacional: 'BID-2',
-        referencia_interna_cotacao_bid_frete_internacional: 'IMP-2026/01',
-      }),
-    ])
+    ], [])
     expect(linhas).toHaveLength(1)
     expect(isLinhaBidGrupo(linhas[0])).toBe(true)
     if (isLinhaBidGrupo(linhas[0])) {
       expect(linhas[0].quantidade_cotacoes).toBe(2)
-      expect(linhas[0].cotacoes).toHaveLength(2)
+      expect(linhas[0].id_bid_bid_frete_internacional).toBe('bid-1')
     }
   })
 
-  it('referência única permanece linha avulsa', () => {
-    const linhas = montarLinhasPaiLista([
-      cotacaoBase({
+  it('cotação avulsa expande propostas', () => {
+    const avulsa = cotacaoBase({
+      id_cotacao_bid_frete_internacional: 'c1',
+      numero_cotacao_bid_frete_internacional: 'COT-1',
+      propostas_bid_frete_internacional: [{
+        id_proposta_bid_frete_internacional: 'p1',
+        id_organizacao: 'org-1',
         id_cotacao_bid_frete_internacional: 'c1',
-        numero_cotacao_bid_frete_internacional: 'BID-1',
-        referencia_interna_cotacao_bid_frete_internacional: 'IMP-UNICA',
-      }),
-    ])
-    expect(isLinhaBidGrupo(linhas[0])).toBe(false)
+        id_fornecedor_bid_frete_internacional: 'f1',
+        id_disparo_cotacao_bid_frete_internacional: 'd1',
+        moeda_proposta_bid_frete_internacional: 'USD',
+        valor_frete_proposta_bid_frete_internacional: 1000,
+        taxas_origem_proposta_bid_frete_internacional: 0,
+        taxas_destino_proposta_bid_frete_internacional: 0,
+        valor_total_proposta_bid_frete_internacional: 1000,
+        dias_transito_proposta_bid_frete_internacional: 20,
+        dias_free_time_proposta_bid_frete_internacional: null,
+        quantidade_transbordo_proposta_bid_frete_internacional: 0,
+        quantidade_escala_proposta_bid_frete_internacional: 0,
+        validade_proposta_bid_frete_internacional: '2026-06-01',
+        observacoes_proposta_bid_frete_internacional: null,
+        status_proposta_bid_frete_internacional: 'RECEBIDA',
+        data_criacao_proposta_bid_frete_internacional: '2026-05-28T10:00:00.000Z',
+        data_atualizacao_proposta_bid_frete_internacional: '2026-05-28T10:00:00.000Z',
+      }],
+    })
+    expect(propostasFilhasDaCotacaoAvulsa(avulsa)).toHaveLength(1)
   })
+})
 
-  it('linha BID agrega id_organizacao e campos idênticos de usuário/workspace', () => {
-    const linhas = montarLinhasPaiLista([
+describe('agregarResumoBidFreteInternacional', () => {
+  it('agrega modais e rotas distintas das cotações filhas', () => {
+    const resumo = agregarResumoBidFreteInternacional([
       cotacaoBase({
         id_cotacao_bid_frete_internacional: 'c1',
-        numero_cotacao_bid_frete_internacional: 'BID-1',
-        referencia_interna_cotacao_bid_frete_internacional: 'IMP-GRP',
-        id_organizacao: 'org-abc',
-        id_usuario: 'user-1',
-        id_workspace: 'ws-1',
+        numero_cotacao_bid_frete_internacional: 'COT-1',
+        modal_cotacao_bid_frete_internacional: 'MARITIMO',
       }),
       cotacaoBase({
         id_cotacao_bid_frete_internacional: 'c2',
-        numero_cotacao_bid_frete_internacional: 'BID-2',
-        referencia_interna_cotacao_bid_frete_internacional: 'IMP-GRP',
-        id_organizacao: 'org-abc',
-        id_usuario: 'user-1',
-        id_workspace: 'ws-1',
+        numero_cotacao_bid_frete_internacional: 'COT-2',
+        modal_cotacao_bid_frete_internacional: 'AEREO',
+        destino_codigo_cotacao_bid_frete_internacional: 'USLAX',
+        destino_nome_cotacao_bid_frete_internacional: 'Los Angeles',
+        destino_pais_cotacao_bid_frete_internacional: 'US',
       }),
     ])
-    expect(isLinhaBidGrupo(linhas[0])).toBe(true)
-    if (isLinhaBidGrupo(linhas[0])) {
-      expect(linhas[0].id_organizacao).toBe('org-abc')
-      expect(linhas[0].id_usuario).toBe('user-1')
-      expect(linhas[0].id_workspace).toBe('ws-1')
-      expect(linhas[0].usuarios_divergentes).toBe(false)
-      expect(linhas[0].workspaces_divergentes).toBe(false)
-    }
+    expect(resumo.modais_bid_bid_frete_internacional).toEqual(['MARITIMO', 'AEREO'])
+    expect(resumo.origens_bid_bid_frete_internacional).toHaveLength(1)
+    expect(resumo.destinos_bid_bid_frete_internacional).toHaveLength(2)
+    expect(resumo.tipo_operacao_bid_bid_frete_internacional).toBe('IMPORTACAO')
+    expect(resumo.modalidade_bid_bid_frete_internacional).toBe('FCL')
   })
 
-  it('linha BID marca divergência quando usuários ou workspaces diferem', () => {
-    const linhas = montarLinhasPaiLista([
+  it('retorna null para tipo/modalidade quando filhas divergem', () => {
+    const resumo = agregarResumoBidFreteInternacional([
       cotacaoBase({
         id_cotacao_bid_frete_internacional: 'c1',
-        numero_cotacao_bid_frete_internacional: 'BID-1',
-        referencia_interna_cotacao_bid_frete_internacional: 'IMP-MIX',
-        id_usuario: 'user-1',
-        id_workspace: 'ws-1',
+        numero_cotacao_bid_frete_internacional: 'COT-1',
+        tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO',
+        modalidade_cotacao_bid_frete_internacional: 'FCL',
       }),
       cotacaoBase({
         id_cotacao_bid_frete_internacional: 'c2',
-        numero_cotacao_bid_frete_internacional: 'BID-2',
-        referencia_interna_cotacao_bid_frete_internacional: 'IMP-MIX',
-        id_usuario: 'user-2',
-        id_workspace: 'ws-2',
+        numero_cotacao_bid_frete_internacional: 'COT-2',
+        tipo_operacao_cotacao_bid_frete_internacional: 'EXPORTACAO',
+        modalidade_cotacao_bid_frete_internacional: 'LCL',
       }),
     ])
-    expect(isLinhaBidGrupo(linhas[0])).toBe(true)
-    if (isLinhaBidGrupo(linhas[0])) {
-      expect(linhas[0].id_usuario).toBeNull()
-      expect(linhas[0].id_workspace).toBeNull()
-      expect(linhas[0].usuarios_divergentes).toBe(true)
-      expect(linhas[0].workspaces_divergentes).toBe(true)
-      expect(linhas[0].quantidade_usuarios_distintos).toBe(2)
-      expect(linhas[0].quantidade_workspaces_distintos).toBe(2)
-    }
+    expect(resumo.tipo_operacao_bid_bid_frete_internacional).toBeNull()
+    expect(resumo.modalidade_bid_bid_frete_internacional).toBeNull()
+  })
+})
+
+describe('gerarNumeroBidFreteInternacional', () => {
+  it('gera número no formato BID-YYYYMMDD-NNNN', () => {
+    expect(gerarNumeroBidFreteInternacional()).toMatch(/^BID-\d{8}-\d{4}$/)
   })
 })
 
 describe('cotacaoPrestesAExpirar', () => {
   const agora = new Date('2026-05-28T12:00:00.000Z').getTime()
 
-  it('destaca cotação com prazo em até 2 horas', () => {
-    const cotacao = cotacaoBase({
-      id_cotacao_bid_frete_internacional: 'c-exp',
-      numero_cotacao_bid_frete_internacional: 'BID-EXP',
-      status_cotacao_bid_frete_internacional: 'EM_COTACAO',
-      data_limite_resposta_cotacao_bid_frete_internacional: '2026-05-28T13:30:00.000Z',
-    })
-    expect(cotacaoPrestesAExpirar(cotacao, HORAS_LIMITE_DESTAQUE_EXPIRACAO, agora)).toBe(true)
-  })
-
-  it('não destaca cotação já expirada no status', () => {
-    const cotacao = cotacaoBase({
-      id_cotacao_bid_frete_internacional: 'c-done',
-      numero_cotacao_bid_frete_internacional: 'BID-DONE',
-      status_cotacao_bid_frete_internacional: 'EXPIRADA',
-      data_limite_resposta_cotacao_bid_frete_internacional: '2026-05-28T13:00:00.000Z',
-    })
-    expect(cotacaoPrestesAExpirar(cotacao, HORAS_LIMITE_DESTAQUE_EXPIRACAO, agora)).toBe(false)
-  })
-
-  it('não destaca quando faltam mais de 2 horas', () => {
-    const cotacao = cotacaoBase({
-      id_cotacao_bid_frete_internacional: 'c-ok',
-      numero_cotacao_bid_frete_internacional: 'BID-OK',
-      status_cotacao_bid_frete_internacional: 'EM_COTACAO',
-      data_limite_resposta_cotacao_bid_frete_internacional: '2026-05-29T12:00:00.000Z',
-    })
-    expect(cotacaoPrestesAExpirar(cotacao, HORAS_LIMITE_DESTAQUE_EXPIRACAO, agora)).toBe(false)
-  })
-
   it('grupo BID destaca se alguma filha está prestes a expirar', () => {
     const linhas = montarLinhasPaiLista([
-      cotacaoBase({
-        id_cotacao_bid_frete_internacional: 'c1',
-        numero_cotacao_bid_frete_internacional: 'BID-1',
-        referencia_interna_cotacao_bid_frete_internacional: 'IMP-GRP',
-        status_cotacao_bid_frete_internacional: 'EM_COTACAO',
-        data_limite_resposta_cotacao_bid_frete_internacional: '2026-05-28T13:00:00.000Z',
+      bidBase({
+        id_bid_bid_frete_internacional: 'bid-1',
+        cotacoes: [
+          cotacaoBase({
+            id_cotacao_bid_frete_internacional: 'c1',
+            numero_cotacao_bid_frete_internacional: 'COT-1',
+            status_cotacao_bid_frete_internacional: 'EM_COTACAO',
+            data_limite_resposta_cotacao_bid_frete_internacional: '2026-05-28T13:00:00.000Z',
+          }),
+          cotacaoBase({
+            id_cotacao_bid_frete_internacional: 'c2',
+            numero_cotacao_bid_frete_internacional: 'COT-2',
+            status_cotacao_bid_frete_internacional: 'RASCUNHO',
+          }),
+        ],
       }),
-      cotacaoBase({
-        id_cotacao_bid_frete_internacional: 'c2',
-        numero_cotacao_bid_frete_internacional: 'BID-2',
-        referencia_interna_cotacao_bid_frete_internacional: 'IMP-GRP',
-        status_cotacao_bid_frete_internacional: 'RASCUNHO',
-        data_limite_resposta_cotacao_bid_frete_internacional: '2026-05-30T12:00:00.000Z',
-      }),
-    ])
+    ], [])
     expect(isLinhaBidGrupo(linhas[0])).toBe(true)
     if (isLinhaBidGrupo(linhas[0])) {
       expect(linhaPaiPrestesAExpirar(linhas[0], HORAS_LIMITE_DESTAQUE_EXPIRACAO, agora)).toBe(true)

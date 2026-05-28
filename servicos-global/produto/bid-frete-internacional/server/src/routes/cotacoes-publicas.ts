@@ -98,10 +98,16 @@ router.post('/:token_acesso/responder', async (req: Request, res: Response, next
     const { taxas, ...responseData } = parsed.data
     const valorTotal = responseData.valor_frete_proposta_bid_frete_internacional + responseData.taxas_origem_proposta_bid_frete_internacional + responseData.taxas_destino_proposta_bid_frete_internacional
 
+    const cotacaoOrigem = await prisma.cotacaoBidFreteInternacional.findFirst({
+      where: { id_cotacao_bid_frete_internacional: (bidRequest as any).id_cotacao_bid_frete_internacional },
+      select: { id_workspace: true },
+    } as any)
+
     const response = await prisma.propostaBidFreteInternacional.create({
       data: {
         id_organizacao: (bidRequest as any).id_organizacao,
         id_produto_gravity: 'bid-frete-internacional',
+        ...(cotacaoOrigem?.id_workspace ? { id_workspace: cotacaoOrigem.id_workspace } : {}),
         id_disparo_cotacao_bid_frete_internacional: (bidRequest as any).id_disparo_cotacao_bid_frete_internacional,
         id_cotacao_bid_frete_internacional: (bidRequest as any).id_cotacao_bid_frete_internacional,
         id_fornecedor_bid_frete_internacional: (bidRequest as any).id_fornecedor_bid_frete_internacional,

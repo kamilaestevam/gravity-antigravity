@@ -377,6 +377,7 @@ model TaxaOrigemBidFreteInternacional {
   id_taxa_origem_bid_frete_internacional              String        @id @default(cuid())
   id_organizacao       String        // OBRIGATORIO
   id_proposta_bid_frete_internacional     String
+  id_taxa_origem_destino                              String?       // ref lógica Cadastros.taxa_origem_destino
 
   nome_taxa_origem_bid_frete_internacional            String
   valor_taxa_origem_bid_frete_internacional           Float
@@ -395,6 +396,7 @@ model TaxaDestinoBidFreteInternacional {
   id_taxa_destino_bid_frete_internacional              String        @id @default(cuid())
   id_organizacao       String        // OBRIGATORIO
   id_proposta_bid_frete_internacional     String
+  id_taxa_origem_destino                               String?       // ref lógica Cadastros.taxa_origem_destino
 
   nome_taxa_destino_bid_frete_internacional            String
   valor_taxa_destino_bid_frete_internacional           Float
@@ -603,24 +605,6 @@ model StatusCotacaoConfigBidFreteInternacional {
   @@index([id_organizacao], map: "status_cotacao_config_bfi_id_org_idx")
   @@index([id_organizacao, ordem_status_cotacao_config_bid_frete_internacional], map: "status_cotacao_config_bfi_id_org_ordem_idx")
   @@map("status_cotacao_config_bid_frete_internacional")
-}
-
-// ─── CACHE DE PORTOS E AEROPORTOS (origem) ─────────────────────────────────────
-
-model LocalOrigemBidFreteInternacional {
-  codigo_local_origem_bid_frete_internacional      String    @id        // UN/LOCODE (ex: BRSSZ, CNSHA)
-  nome_local_origem_bid_frete_internacional        String               // Santos, Shanghai
-  pais_local_origem_bid_frete_internacional        String
-  pais_codigo_local_origem_bid_frete_internacional String               // BR, CN
-  tipo_local_origem_bid_frete_internacional        String               // "porto" | "aeroporto" | "rodoviario"
-  latitude_local_origem_bid_frete_internacional    Float?
-  longitude_local_origem_bid_frete_internacional   Float?
-  ativo_local_origem_bid_frete_internacional       Boolean   @default(true)
-
-  @@index([pais_codigo_local_origem_bid_frete_internacional])
-  @@index([tipo_local_origem_bid_frete_internacional])
-  @@index([nome_local_origem_bid_frete_internacional])
-  @@map("local_origem_bid_frete_internacional")
 }
 
 // ─── DASHBOARD PANEL GLOBAL (Compartilhado com outros produtos no mesmo banco) ───

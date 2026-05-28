@@ -34,6 +34,7 @@ const ResponderSchema = z.object({
     nome_taxa_bid_frete_internacional: z.string(),
     valor_taxa_bid_frete_internacional: z.number(),
     moeda_taxa_bid_frete_internacional: z.string().default('USD'),
+    id_taxa_origem_destino: z.string().nullable().optional(),
   })).optional(),
 })
 

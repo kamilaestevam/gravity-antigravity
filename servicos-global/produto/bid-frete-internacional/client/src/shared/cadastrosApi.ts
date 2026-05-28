@@ -36,6 +36,17 @@ export interface ContainerCadastro {
   ativo_container: boolean
 }
 
+export type TipoTaxaOrigemDestino = 'ORIGEM' | 'DESTINO' | 'FRETE'
+
+export interface TaxaOrigemDestinoCadastro {
+  id_taxa_origem_destino: string
+  nome_taxa_origem_destino: string
+  descricao_taxa_origem_destino?: string | null
+  tipo_taxa_origem_destino: TipoTaxaOrigemDestino
+  codigo_taxa_origem_destino?: string | null
+  ativo_taxa_origem_destino: boolean
+}
+
 const ROTULOS_TIPO_CONTAINER: Record<string, string> = {
   DRY: 'Dry',
   REEFER: 'Reefer',
@@ -114,5 +125,17 @@ export const cadastrosApi = {
     if (params?.q) search.set('q', params.q)
     if (params?.limit) search.set('limit', String(params.limit))
     return request(`/api/v1/cadastros/containers?${search.toString()}`)
+  },
+
+  listarTaxasOrigemDestino: (params?: {
+    q?: string
+    tipo?: TipoTaxaOrigemDestino
+    limit?: number
+  }): Promise<{ itens: TaxaOrigemDestinoCadastro[]; total: number }> => {
+    const search = new URLSearchParams({ apenas_ativos: 'true' })
+    if (params?.q) search.set('q', params.q)
+    if (params?.tipo) search.set('tipo', params.tipo)
+    if (params?.limit) search.set('limit', String(params.limit))
+    return request(`/api/v1/cadastros/taxas-origem-destino?${search.toString()}`)
   },
 }

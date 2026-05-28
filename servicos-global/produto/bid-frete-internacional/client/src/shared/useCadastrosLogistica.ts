@@ -7,6 +7,8 @@ import {
   type ContainerCadastro,
   type PaisCadastro,
   type PortoCadastro,
+  type TaxaOrigemDestinoCadastro,
+  type TipoTaxaOrigemDestino,
 } from './cadastrosApi'
 
 export function usePaisesCadastros() {
@@ -170,4 +172,46 @@ export function useContainersCadastros(ativo = true) {
   [containers])
 
   return { containers, opcoes, carregando, erro }
+}
+
+export function useTaxasOrigemDestinoCadastros(tipo?: TipoTaxaOrigemDestino, ativo = true) {
+  const [taxas, setTaxas] = useState<TaxaOrigemDestinoCadastro[]>([])
+  const [carregando, setCarregando] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!ativo) {
+      setTaxas([])
+      return
+    }
+    let cancelado = false
+    setCarregando(true)
+    setErro(null)
+    cadastrosApi
+      .listarTaxasOrigemDestino({ ...(tipo ? { tipo } : {}), limit: 500 })
+      .then((resp) => {
+        if (!cancelado) setTaxas(resp.itens)
+      })
+      .catch((e: unknown) => {
+        if (!cancelado) {
+          setTaxas([])
+          setErro(e instanceof Error ? e.message : 'Erro ao carregar taxas')
+        }
+      })
+      .finally(() => {
+        if (!cancelado) setCarregando(false)
+      })
+    return () => {
+      cancelado = true
+    }
+  }, [tipo, ativo])
+
+  const opcoes = useMemo((): SelectOpcao[] =>
+    taxas.map((t) => ({
+      valor: t.id_taxa_origem_destino,
+      rotulo: t.nome_taxa_origem_destino,
+    })),
+  [taxas])
+
+  return { taxas, opcoes, carregando, erro }
 }

@@ -10,7 +10,6 @@
  *   6. Criacao/atualizacao de pedidos ($transaction)
  */
 
-import { randomUUID } from 'node:crypto'
 import { parseArquivo, ALIASES_CAMPOS, calcularHashColunas, type LinhaArquivo } from './importEngine.js'
 import { MapeamentoMemoriaService, type ColunaMapeadaBackend } from './mapeamentoMemoriaService.js'
 import { AppError } from '../errors/AppError.js'
@@ -40,6 +39,19 @@ import {
   CODIGO_ERRO_LIMITE_LINHAS,
   mensagemLimiteLinhasExcedido,
 } from '../../../shared/smart-import-limites.js'
+import {
+  planoConfirmarLinha,
+  obterDecisaoDuplicataImport,
+  ehLinhaItemSmartImport,
+  linhaTemDadosItem,
+  sanitizarDadosLinhaImport,
+} from '../../../shared/smart-import-confirmar-decisoes.js'
+import { gerarIdImportacao } from '../../../shared/smart-import-ids.js'
+
+export {
+  obterDecisaoDuplicataImport,
+  ehLinhaItemSmartImport,
+} from '../../../shared/smart-import-confirmar-decisoes.js'
 
 export { parseNumeroBr, parseNumeroBrOpcional } from '../../../shared/formatadores.js'
 
@@ -252,13 +264,6 @@ function traduzirErroPrisma(err: unknown): string {
   return primeira.length > 200 ? `${primeira.slice(0, 200)}...` : primeira
 }
 
-function gerarId(prefixo: string): string {
-  const ano = String(new Date().getFullYear()).slice(-2)
-  // randomUUID evita colisao P2002 em importacoes com centenas de linhas (Math.random nao e seguro).
-  const sufixo = randomUUID().replace(/-/g, '').slice(0, 13)
-  return `${prefixo}_id_${sufixo}/${ano}`
-}
-
 function erroPrismaIdItemDuplicado(err: unknown): boolean {
   if (!(err instanceof Error)) return false
   const msg = err.message
@@ -419,30 +424,6 @@ function aplicarFksParceirosNoPedido(
   if (parceiros.suid_fabricante) {
     dadosPedido.id_fabricante_pedido = parceiros.suid_fabricante
   }
-}
-
-type DecisaoDuplicataImport = 'sobrescrever' | 'criar' | 'pular'
-
-/** Resolve decisão de duplicata usando numero final ou original (payload usa numero_pedido da planilha). */
-export function obterDecisaoDuplicataImport(
-  decisoes: Record<string, DecisaoDuplicataImport>,
-  ...numeros: Array<string | null | undefined>
-): DecisaoDuplicataImport | undefined {
-  for (const numero of numeros) {
-    if (numero && decisoes[numero]) return decisoes[numero]
-  }
-  return undefined
-}
-
-/** Linha com dados de item (master-detail ITEM ou formato legado flat com part number). */
-export function ehLinhaItemSmartImport(
-  tipoLinha: string,
-  dados: Record<string, unknown>,
-): boolean {
-  const tipo = tipoLinha.trim().toUpperCase()
-  if (tipo === 'ITEM') return true
-  if (tipo === 'PEDIDO') return false
-  return Boolean(dados['part_number_item'] || dados['descricao_item'])
 }
 
 /** Monta linhas filtradas do payload de confirmar (cache ou stateless). */
@@ -969,11 +950,8 @@ export class SmartImportService {
         try {
           // Aplicar numero editado pelo usuario (SEC.1 / Problema 6)
           const numeroEditado = payload.numeros_editados?.[linha.linha_arquivo]
-          const dados = { ...linha.dados }
+          let dados = sanitizarDadosLinhaImport({ ...linha.dados })
           if (numeroEditado) dados['numero_pedido'] = numeroEditado
-          // PKs do sistema nunca vêm da planilha — evita P2002 id_item/id_pedido em sobrescrever.
-          delete dados['id_item']
-          delete dados['id_pedido']
 
           // P15.3 — Filtrar campos do nivel errado (seguranca no parser)
           const tipoLinha = String(dados['tipo_linha'] ?? '').trim().toUpperCase()
@@ -1010,13 +988,7 @@ export class SmartImportService {
             numeroPedido,
           )
           const ehLinhaItem = ehLinhaItemSmartImport(tipoLinha, dados)
-
-          // "Pular" aplica a todas as linhas do pedido (PEDIDO + ITEM + legado flat).
-          if ((numeroPedidoFinal ?? numeroPedido) && decisaoDup === 'pular') {
-            pulados.push(linha.linha_arquivo)
-            await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
-            continue
-          }
+          const temDadosItem = linhaTemDadosItem(dados)
 
           const numeroResolver = numeroPedidoFinal ?? numeroPedido ?? ''
           const pedidoResolvido = numeroResolver
@@ -1028,6 +1000,21 @@ export class SmartImportService {
           const parceirosNumero = numeroPedidoFinal
             ? parceirosPorNumero.get(numeroPedidoFinal)
             : undefined
+
+          const chaveSobrescrita = numeroPedidoFinal ?? numeroPedido ?? ''
+          const plano = planoConfirmarLinha({
+            decisaoDup,
+            pedidoExiste: Boolean(pedidoResolvido),
+            ehLinhaItem,
+            temDadosItem,
+            sobrescritaJaPreparada: chaveSobrescrita ? numerosSobrescritaPreparada.has(chaveSobrescrita) : false,
+          })
+
+          if (plano.pular) {
+            pulados.push(linha.linha_arquivo)
+            await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
+            continue
+          }
 
           const dadosPedido = {
             ...this.montarDadosPedido(
@@ -1041,7 +1028,7 @@ export class SmartImportService {
           }
           aplicarFksParceirosNoPedido(dadosPedido, parceirosNumero)
 
-          if (decisaoDup === 'criar' && pedidoResolvido && !ehLinhaItem) {
+          if (plano.erro === 'criar_duplicata') {
             erros.push({
               linha: linha.linha_arquivo,
               motivo: `Nao e possivel criar o pedido "${numeroPedido}": ja existe registro com este numero na organizacao.`,
@@ -1050,87 +1037,88 @@ export class SmartImportService {
             continue
           }
 
-          if (decisaoDup === 'sobrescrever' && pedidoResolvido) {
-            const chaveSobrescrita = numeroPedidoFinal ?? numeroPedido ?? ''
-            if (chaveSobrescrita && !numerosSobrescritaPreparada.has(chaveSobrescrita)) {
-              await (this.db as Record<string, any>)['pedidoItem'].deleteMany({
-                where: { id_pedido: pedidoResolvido.id_pedido, id_organizacao: tenantId },
-              })
-              proximaSequenciaPorPedido.set(pedidoResolvido.id_pedido, 1)
-              await this.restaurarPedidoVisivelNoWorkspaceImportacao(pedidoResolvido.id_pedido, companyId)
-              await (this.db as Record<string, any>)['pedido'].update({
-                where: { id_pedido: pedidoResolvido.id_pedido },
-                data: dadosPedidoParaUpdate(dadosPedido),
-              })
-              if (parceirosNumero) {
-                await aplicarParceirosResolvidosNoPedido(this.db, pedidoResolvido.id_pedido, tenantId, parceirosNumero)
-              }
-              numerosSobrescritaPreparada.add(chaveSobrescrita)
-              registrarOrdemPlanilhaPedido(pedidoResolvido.id_pedido, chaveSobrescrita)
-              idsPedidosParaRecalcular.add(pedidoResolvido.id_pedido)
-            }
-            if (!ehLinhaItem) {
-              atualizados.push(linha.linha_arquivo)
-              await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
-              continue
-            }
-          }
-
-          // Pedido existente: adicionar item (incremental ou pós-sobrescrita).
-          if (numeroPedidoFinal && pedidoResolvido && ehLinhaItem && decisaoDup !== 'pular' && decisaoDup !== 'criar') {
-            if (pedidoResolvido && (dados['part_number_item'] || dados['descricao_item'])) {
-              try {
-                await this.restaurarPedidoVisivelNoWorkspaceImportacao(pedidoResolvido.id_pedido, companyId)
-                const seqItem = await obterProximaSequenciaItem(pedidoResolvido.id_pedido)
-                const itemData = mesclarNomesItemParceiros(
-                  this.montarDadosItem(dados, tenantId, companyId ?? tenantId, casasConfig, seqItem),
-                  parceirosNumero?.nomesItem,
-                )
-                itemData.pedido_item = { connect: { id_pedido: pedidoResolvido.id_pedido } }
-                let criadoItem = false
-                for (let tentativa = 0; tentativa < 3 && !criadoItem; tentativa++) {
-                  try {
-                    await (this.db as Record<string, any>)['pedidoItem'].create({ data: itemData })
-                    criadoItem = true
-                  } catch (errTentativa: unknown) {
-                    if (tentativa < 2 && erroPrismaIdItemDuplicado(errTentativa)) {
-                      itemData.id_item = gerarId('pite')
-                      continue
-                    }
-                    throw errTentativa
-                  }
-                }
-                if (parceirosNumero) {
-                  await aplicarParceirosResolvidosNoPedido(this.db, pedidoResolvido.id_pedido, tenantId, parceirosNumero)
-                }
-                registrarOrdemPlanilhaPedido(pedidoResolvido.id_pedido, numeroPedidoFinal)
-                atualizados.push(linha.linha_arquivo)
-                idsPedidosParaRecalcular.add(pedidoResolvido.id_pedido)
-              } catch (errInsert: unknown) {
-                await executarSavepointSql(this.db, `ROLLBACK TO SAVEPOINT ${spName}`)
-                erros.push({
-                  linha: linha.linha_arquivo,
-                  motivo: `Falha ao adicionar item ao pedido "${numeroPedidoFinal}": ${traduzirErroPrisma(errInsert)}`,
-                })
-              }
-              await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
-              continue
-            }
-
-            if (pedidoResolvido) {
-              // Pedido existe mas linha não tem dados de item — pular silenciosamente
-              await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
-              atualizados.push(linha.linha_arquivo)
-              idsPedidosParaRecalcular.add(pedidoResolvido.id_pedido)
-              continue
-            }
-          }
-
-          if (pedidoResolvido) {
+          if (plano.erro === 'pedido_existe_sem_decisao') {
             erros.push({
               linha: linha.linha_arquivo,
               motivo: `Ja existe um pedido com o numero "${numeroResolver}" na organizacao. Use "Sobrescrever" na tela anterior para atualizar.`,
             })
+            await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
+            continue
+          }
+
+          if (plano.prepararSobrescrita && pedidoResolvido && chaveSobrescrita) {
+            await (this.db as Record<string, any>)['pedidoItem'].deleteMany({
+              where: { id_pedido: pedidoResolvido.id_pedido, id_organizacao: tenantId },
+            })
+            proximaSequenciaPorPedido.set(pedidoResolvido.id_pedido, 1)
+            await this.restaurarPedidoVisivelNoWorkspaceImportacao(pedidoResolvido.id_pedido, companyId)
+            await (this.db as Record<string, any>)['pedido'].update({
+              where: { id_pedido: pedidoResolvido.id_pedido },
+              data: dadosPedidoParaUpdate(dadosPedido),
+            })
+            if (parceirosNumero) {
+              await aplicarParceirosResolvidosNoPedido(this.db, pedidoResolvido.id_pedido, tenantId, parceirosNumero)
+            }
+            numerosSobrescritaPreparada.add(chaveSobrescrita)
+            registrarOrdemPlanilhaPedido(pedidoResolvido.id_pedido, chaveSobrescrita)
+            idsPedidosParaRecalcular.add(pedidoResolvido.id_pedido)
+          }
+
+          if (plano.somenteCabecalho) {
+            if (plano.contarComoAtualizado) atualizados.push(linha.linha_arquivo)
+            await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
+            continue
+          }
+
+          if (plano.criarItemEmPedidoExistente && pedidoResolvido) {
+            try {
+              await this.restaurarPedidoVisivelNoWorkspaceImportacao(pedidoResolvido.id_pedido, companyId)
+              const seqItem = await obterProximaSequenciaItem(pedidoResolvido.id_pedido)
+              const itemData = mesclarNomesItemParceiros(
+                this.montarDadosItem(dados, tenantId, companyId ?? tenantId, casasConfig, seqItem),
+                parceirosNumero?.nomesItem,
+              )
+              itemData.pedido_item = { connect: { id_pedido: pedidoResolvido.id_pedido } }
+              let criadoItem = false
+              for (let tentativa = 0; tentativa < 3 && !criadoItem; tentativa++) {
+                try {
+                  await (this.db as Record<string, any>)['pedidoItem'].create({ data: itemData })
+                  criadoItem = true
+                } catch (errTentativa: unknown) {
+                  if (tentativa < 2 && erroPrismaIdItemDuplicado(errTentativa)) {
+                    itemData.id_item = gerarIdImportacao('pite')
+                    continue
+                  }
+                  throw errTentativa
+                }
+              }
+              if (parceirosNumero) {
+                await aplicarParceirosResolvidosNoPedido(this.db, pedidoResolvido.id_pedido, tenantId, parceirosNumero)
+              }
+              registrarOrdemPlanilhaPedido(pedidoResolvido.id_pedido, numeroPedidoFinal)
+              if (plano.contarComoAtualizado) atualizados.push(linha.linha_arquivo)
+              idsPedidosParaRecalcular.add(pedidoResolvido.id_pedido)
+            } catch (errInsert: unknown) {
+              await executarSavepointSql(this.db, `ROLLBACK TO SAVEPOINT ${spName}`)
+              erros.push({
+                linha: linha.linha_arquivo,
+                motivo: `Falha ao adicionar item ao pedido "${numeroPedidoFinal}": ${traduzirErroPrisma(errInsert)}`,
+              })
+            }
+            await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
+            continue
+          }
+
+          if (!plano.criarPedidoNovo) {
+            if (
+              plano.contarComoAtualizado
+              && !plano.criarItemEmPedidoExistente
+              && !plano.somenteCabecalho
+              && pedidoResolvido
+            ) {
+              atualizados.push(linha.linha_arquivo)
+              idsPedidosParaRecalcular.add(pedidoResolvido.id_pedido)
+            }
             await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
             continue
           }
@@ -1825,7 +1813,7 @@ export class SmartImportService {
 
     // ── Campos obrigatórios (sempre incluídos) ──────────────────────────────
     const result: Record<string, unknown> = {
-      id_pedido:                        gerarId('pedi'),
+      id_pedido:                        gerarIdImportacao('pedi'),
       id_organizacao:                   tenantId,
       id_workspace:                     companyId,
       numero_pedido:                    String(dados['numero_pedido'] ?? `IMP-${Date.now()}`),
@@ -1988,7 +1976,7 @@ export class SmartImportService {
    */
   private montarDadosItem(dados: Record<string, unknown>, tenantId: string, companyId: string, casas = CASAS_DECIMAIS_PADRAO, seqPadrao = 1): Record<string, unknown> {
     const itemData: Record<string, unknown> = {
-      id_item:                       gerarId('pite'),
+      id_item:                       gerarIdImportacao('pite'),
       id_organizacao:                tenantId,
       id_workspace:                  companyId,
       // Sequencia vem da ordem das linhas no arquivo (seqPadrao), nunca da coluna da planilha

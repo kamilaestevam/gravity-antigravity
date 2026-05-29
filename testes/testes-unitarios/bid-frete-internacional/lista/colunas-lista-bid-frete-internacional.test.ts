@@ -77,6 +77,18 @@ describe('CHAVES_COLUNAS — visibilidade padrão', () => {
     const colId = colunas.find(c => c.key === 'id_cotacao_bid_frete_internacional')
     expect(colId?.oculta).toBe(true)
   })
+
+  it('coluna id_produto_gravity exibe label Produto Gravity', () => {
+    const colunas = buildColunasCotacoes(null)
+    const colProduto = colunas.find(c => c.key === 'id_produto_gravity')
+    expect(colProduto?.label).toBe('Produto Gravity')
+  })
+
+  it('coluna referencia_interna exibe label Referência Interna', () => {
+    const colunas = buildColunasCotacoes(null)
+    const colRef = colunas.find(c => c.key === 'referencia_interna_cotacao_bid_frete_internacional')
+    expect(colRef?.label).toBe('Referência Interna')
+  })
 })
 
 describe('formatValorExportColuna — paridade com exibição', () => {

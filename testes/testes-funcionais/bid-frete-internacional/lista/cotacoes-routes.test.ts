@@ -51,12 +51,17 @@ const mockPrisma = {
   cotacaoBidFreteInternacional: mockBidFreteInternacionalCotacao,
 }
 
+const { mockDisparar, mockDispararCotacaoAberta } = vi.hoisted(() => ({
+  mockDisparar: vi.fn(async () => ({ disparos: 0, enviados: false, results: [] })),
+  mockDispararCotacaoAberta: vi.fn(async () => ({ disparos: 0, enviados: false, results: [] })),
+}))
+
 vi.mock(
   '../../../../servicos-global/produto/bid-frete-internacional/server/src/services/motor-bid-frete-internacional.js',
   () => ({
     motorBid: {
-      disparar: vi.fn(async () => ({ disparos: 0, enviados: false, results: [] })),
-      dispararCotacaoAberta: vi.fn(async () => ({ disparos: 0, enviados: false, results: [] })),
+      disparar: mockDisparar,
+      dispararCotacaoAberta: mockDispararCotacaoAberta,
     },
   }),
 )
@@ -157,6 +162,36 @@ describe('POST /api/v1/bid-frete-internacional/cotacoes', () => {
 
     expect(res.status).toBe(400)
     expect(res.body.error).toHaveProperty('code', 'VALIDATION_ERROR')
+  })
+
+  it('deve retornar 201 mesmo quando disparo aberto falha (cotacao persistida)', async () => {
+    mockDispararCotacaoAberta.mockRejectedValueOnce(new Error('Falha ao enviar e-mail: HTTP 503'))
+
+    const res = await request(app)
+      .post('/api/v1/bid-frete-internacional/cotacoes')
+      .set(HEADERS)
+      .send({
+        ...COTACAO_VALIDA,
+        visibilidade_cotacao_bid_frete_internacional: 'ABERTA',
+        disparar_ao_criar: true,
+      })
+
+    expect(res.status).toBe(201)
+    expect(res.body.cotacao).toHaveProperty('id_cotacao_bid_frete_internacional')
+    expect(res.body.disparo_erro).toContain('Falha ao enviar e-mail')
+  })
+
+  it('deve persistir endereco_origem quando informado', async () => {
+    const res = await request(app)
+      .post('/api/v1/bid-frete-internacional/cotacoes')
+      .set(HEADERS)
+      .send({
+        ...COTACAO_VALIDA,
+        endereco_origem_cotacao_bid_frete_internacional: 'Rua Teste 123',
+      })
+
+    expect(res.status).toBe(201)
+    expect(res.body.cotacao.endereco_origem_cotacao_bid_frete_internacional).toBe('Rua Teste 123')
   })
 })
 

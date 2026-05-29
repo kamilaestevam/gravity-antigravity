@@ -6359,6 +6359,7 @@
         "ghost_requer_replicar": "Check \"Apply to all items in this order\" to save this field from the order row.",
         "pedido_sem_itens_para_campo": "This order has no items to update.",
         "workspace_somente_pedido": "Workspace is set on the order and applies to all items.",
+        "logistica_somente_pedido": "Location, port, and airport belong to the order — edit on the order row, not the item.",
         "pedido_item_nao_localizado": "Could not locate the order for this item. Reload the page.",
         "editar_valor_total_item": "Error editing valor_total_item",
         "editar_moeda_item": "Error editing item currency",

@@ -1,5 +1,6 @@
 import React from 'react'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
+import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { Anchor, AirplaneTilt, Truck } from '@phosphor-icons/react'
 import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS, INCOTERMS } from '../shared/types'
@@ -41,24 +42,28 @@ export function RenderBadgeStatus(valor: unknown): React.ReactNode {
   )
 }
 
+/** Paridade visual com Pedido › ColunasPai › tipo_operacao (lista). */
+export const ESTILO_BADGE_OPERACAO_IMPORTACAO: React.CSSProperties = {
+  color: '#60a5fa',
+  background: 'rgba(96,165,250,0.12)',
+  border: '1px solid rgba(96,165,250,0.2)',
+}
+
+export const ESTILO_BADGE_OPERACAO_EXPORTACAO: React.CSSProperties = {
+  color: '#34d399',
+  background: 'rgba(52,211,153,0.12)',
+  border: '1px solid rgba(52,211,153,0.2)',
+}
+
 export function RenderBadgeOperacao(valor: unknown): React.ReactNode {
   const op = valor as TipoOperacao
   const isImport = op === 'IMPORTACAO'
-  const bg = isImport ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)'
-  const color = isImport ? 'var(--accent, #6366f1)' : '#a855f7'
   return (
-    <span style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      padding: '0.2rem 0.6rem',
-      borderRadius: 'var(--radius-pill, 9999px)',
-      fontSize: '0.75rem',
-      fontWeight: 600,
-      background: bg,
-      color: color,
-    }}>
-      {OPERACAO_LABELS[op] || op}
-    </span>
+    <StatusBadgeGlobal
+      valor={OPERACAO_LABELS[op] || op}
+      genero="feminino"
+      style={isImport ? ESTILO_BADGE_OPERACAO_IMPORTACAO : ESTILO_BADGE_OPERACAO_EXPORTACAO}
+    />
   )
 }
 

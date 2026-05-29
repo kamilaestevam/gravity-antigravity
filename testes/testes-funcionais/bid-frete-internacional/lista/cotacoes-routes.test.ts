@@ -254,6 +254,31 @@ describe('GET /api/v1/bid-frete-internacional/cotacoes', () => {
   })
 })
 
+describe('PATCH /api/v1/bid-frete-internacional/cotacoes/:id', () => {
+  const app = criarApp()
+
+  beforeEach(() => {
+    mockCotacoes.length = 0
+    vi.clearAllMocks()
+    mockCotacoes.push({
+      id_cotacao_bid_frete_internacional: 'cotacao_em_cotacao',
+      tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO',
+      status_cotacao_bid_frete_internacional: 'EM_COTACAO',
+    })
+  })
+
+  it('deve permitir editar campo mesmo quando status nao e rascunho', async () => {
+    const res = await request(app)
+      .patch('/api/v1/bid-frete-internacional/cotacoes/cotacao_em_cotacao')
+      .set(HEADERS)
+      .send({ tipo_operacao_cotacao_bid_frete_internacional: 'EXPORTACAO' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.cotacao.tipo_operacao_cotacao_bid_frete_internacional).toBe('EXPORTACAO')
+    expect(res.body.cotacao.status_cotacao_bid_frete_internacional).toBe('EM_COTACAO')
+  })
+})
+
 describe('PATCH /api/v1/bid-frete-internacional/cotacoes/:id/status', () => {
   const app = criarApp()
 

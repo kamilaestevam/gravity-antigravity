@@ -284,9 +284,6 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
   try {
     const existing = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
-    if (existing.status_cotacao_bid_frete_internacional !== 'RASCUNHO' && existing.status_cotacao_bid_frete_internacional !== 'FALTA_INFORMACAO') {
-      throw new AppError('So e possivel editar cotacoes em rascunho ou com falta de informacao', 400, 'INVALID_STATUS')
-    }
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional: req.params.id },

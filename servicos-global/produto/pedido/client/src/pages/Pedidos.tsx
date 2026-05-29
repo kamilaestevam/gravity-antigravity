@@ -3329,6 +3329,8 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   porto_origem: {
     editavel: true,
     campo: 'porto_origem',
+    opcoes: portosOpcoes,
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.porto_origem ?? null,
     tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
@@ -3338,6 +3340,8 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   porto_destino: {
     editavel: true,
     campo: 'porto_destino',
+    opcoes: portosOpcoes,
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.porto_destino ?? null,
     tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
@@ -3347,6 +3351,8 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   local_de_origem: {
     editavel: true,
     campo: 'local_de_origem',
+    opcoes: paisesOpcoes,
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.local_de_origem ?? null,
     tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
@@ -3356,6 +3362,8 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   local_de_destino: {
     editavel: true,
     campo: 'local_de_destino',
+    opcoes: paisesOpcoes,
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.local_de_destino ?? null,
     tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
@@ -3365,6 +3373,8 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   aeroporto_origem: {
     editavel: true,
     campo: 'aeroporto_origem',
+    opcoes: aeroportosOpcoes,
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.aeroporto_origem ?? null,
     tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
@@ -3374,6 +3384,8 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   aeroporto_destino: {
     editavel: true,
     campo: 'aeroporto_destino',
+    opcoes: aeroportosOpcoes,
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.aeroporto_destino ?? null,
     tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p

@@ -199,15 +199,43 @@ async function obterPrimeiroPedidoRowId(page: Page): Promise<string> {
   return id
 }
 
-async function expandirPrimeiroPedido(page: Page): Promise<void> {
-  const chevron = page.locator('.gtv-linha--pai .gtv-chevron-btn').first()
-  const pai = page.locator('.gtv-linha--pai').first()
+async function expandirPedidoPorRowId(page: Page, rowId: string): Promise<void> {
+  const pai = page.locator(`.gtv-linha--pai:has([data-gtv-rowid="${rowId}"])`).first()
+  await pai.waitFor({ timeout: 20000 })
   const jaExpandido = await pai.evaluate(el => el.classList.contains('gtv-linha--expandida'))
   if (!jaExpandido) {
-    await chevron.click()
-    await page.locator('.gtv-linha--filho').first().waitFor({ timeout: 60000 })
+    await pai.locator('.gtv-chevron-btn').click()
     await page.waitForTimeout(800)
   }
+  await pai.locator('~ .gtv-linha--filho, + * .gtv-linha--filho').first().waitFor({ timeout: 60000 }).catch(async () => {
+    await page.locator('.gtv-linha--filho').first().waitFor({ timeout: 60000 })
+  })
+  await page.waitForTimeout(400)
+}
+
+async function clicarCelulaFilhoLogistica(page: Page, colKey: string): Promise<{ ok: boolean; debug: string }> {
+  await scrollColunaParaVisivel(page, colKey)
+  await page.waitForTimeout(600)
+  return page.evaluate((colKey) => {
+    const filho = document.querySelector('.gtv-linha--filho')
+    if (!filho) return { ok: false, debug: 'sem-linha-filho' }
+    const porAttr = filho.querySelector(`[data-gtv-filho-rowid][data-gtv-campo="${colKey}"]`) as HTMLElement | null
+    if (porAttr) {
+      porAttr.click()
+      return { ok: true, debug: 'click-attr' }
+    }
+    const headers = Array.from(document.querySelectorAll('[data-find-col-key]'))
+    const idx = headers.findIndex(h => h.getAttribute('data-find-col-key') === colKey)
+    if (idx < 0) return { ok: false, debug: `col-idx-nao-${colKey}` }
+    const cells = Array.from(filho.querySelectorAll('.gtv-celula')).filter(
+      c => !c.classList.contains('gtv-col-fixa') && !c.classList.contains('gtv-celula--expand'),
+    )
+    const cel = cells[idx] as HTMLElement | undefined
+    if (!cel) return { ok: false, debug: `cel-idx-${idx}-ausente` }
+    const editavel = cel.classList.contains('gtv-celula--editavel')
+    cel.click()
+    return { ok: editavel, debug: `click-idx-${idx}-editavel=${editavel}-class=${cel.className}` }
+  }, colKey)
 }
 
 async function fecharPopover(page: Page): Promise<void> {
@@ -320,23 +348,30 @@ async function testarSomenteItem(
   rowId: string,
   prefix: string,
 ): Promise<'PASS' | 'FAIL'> {
-  await expandirPrimeiroPedido(page)
-  await scrollColunaParaVisivel(page, col.key)
-
-  const celFilho = page.locator(
-    `.gtv-linha--filho[data-gtv-filho-rowid][data-gtv-campo="${col.key}"]`,
-  ).first()
+  await expandirPedidoPorRowId(page, rowId)
 
   await screenshot(page, `${prefix}-03-item-linha-expandida.png`)
 
-  if (await celFilho.count() === 0) {
-    log(`  ✗ item: célula editável não encontrada para ${col.key}`)
+  const click = await clicarCelulaFilhoLogistica(page, col.key)
+  if (!click.ok) {
+    log(`  ✗ item: célula não editável para ${col.key} (${click.debug})`)
     await screenshot(page, `${prefix}-04-item-celula-ausente.png`)
     return 'FAIL'
   }
 
-  const antesItem = (await celFilho.innerText()).trim()
-  await celFilho.click()
+  const celFilho = page.locator(
+    `.gtv-linha--filho[data-gtv-filho-rowid][data-gtv-campo="${col.key}"], .gtv-linha--filho .gtv-celula--editavel`,
+  ).first()
+  const antesItem = await page.evaluate((colKey) => {
+    const filho = document.querySelector('.gtv-linha--filho')
+    if (!filho) return ''
+    const headers = Array.from(document.querySelectorAll('[data-find-col-key]'))
+    const idx = headers.findIndex(h => h.getAttribute('data-find-col-key') === colKey)
+    const cells = Array.from(filho.querySelectorAll('.gtv-celula')).filter(
+      c => !c.classList.contains('gtv-col-fixa') && !c.classList.contains('gtv-celula--expand'),
+    )
+    return (cells[idx]?.textContent ?? '').trim()
+  }, col.key)
   const popoverAbriu = await page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
   if (!popoverAbriu) {
     log(`  ✗ item: popover não abriu para ${col.key}`)
@@ -355,7 +390,16 @@ async function testarSomenteItem(
     return 'FAIL'
   }
 
-  const depoisItem = (await celFilho.innerText()).trim()
+  const depoisItem = await page.evaluate((colKey) => {
+    const filho = document.querySelector('.gtv-linha--filho')
+    if (!filho) return ''
+    const headers = Array.from(document.querySelectorAll('[data-find-col-key]'))
+    const idx = headers.findIndex(h => h.getAttribute('data-find-col-key') === colKey)
+    const cells = Array.from(filho.querySelectorAll('.gtv-celula')).filter(
+      c => !c.classList.contains('gtv-col-fixa') && !c.classList.contains('gtv-celula--expand'),
+    )
+    return (cells[idx]?.textContent ?? '').trim()
+  }, col.key)
   const depoisPai = await lerTextoCelulaPai(page, rowId, col.key)
   const codigoEsperado = col.opcaoContem.split('—')[0].trim()
   const ok = (notif === 'sucesso' || notif === 'nenhuma')
@@ -413,6 +457,9 @@ async function testarUi() {
     }
 
     await garantirListaPedidos(page)
+    await page.reload({ waitUntil: 'networkidle', timeout: 60000 })
+    await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 45000 })
+    await page.waitForTimeout(2000)
     await screenshot(page, '00-lista-pedidos-carregada.png')
     await garantirColunasLogisticaVisiveis(page)
     await page.reload({ waitUntil: 'domcontentloaded' })

@@ -13,8 +13,13 @@
 // }) — ver server/routes/usuario.ts e admin.ts.
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { useSignUp } from '@clerk/clerk-react'
+import { useSignUp, useSignIn } from '@clerk/clerk-react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
+import {
+  CHAVE_ATIVANDO_SESSAO_CONVITE,
+  gravarLoginPendenteConvite,
+  limparLoginPendenteConvite,
+} from '../auth/clerk-sessao-convite'
 import { useTranslation } from 'react-i18next'
 import {
   Atom, CursorClick, Coins, ShieldCheck,
@@ -243,6 +248,11 @@ type ResultadoSignUpClerk = {
   unverifiedFields?: string[]
 }
 
+interface CredenciaisPosCadastro {
+  email: string
+  senha: string
+}
+
 function camposPendentesSignUp(signUpAtual: SignUpClerk | null | undefined): {
   missingFields: string[]
   unverifiedFields: string[]
@@ -274,6 +284,7 @@ export function CadastroContinuarPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { isLoaded, signUp, setActive } = useSignUp()
+  const { isLoaded: isSignInLoaded, signIn, setActive: setActiveSignIn } = useSignIn()
 
   const ticket = searchParams.get('__clerk_ticket')
   const status = searchParams.get('__clerk_status')
@@ -417,24 +428,107 @@ export function CadastroContinuarPage() {
     { chave: 'termos',   ok: aceiteTermos,   mensagem: 'Aceite dos Termos de Uso e Política de Privacidade' },
   ]
 
-  const podeEnviar = requisitos.every((r) => r.ok) && !enviando && isLoaded && !processandoTicket
-    && (!isInvitation || !!emailConvite)
+  const podeEnviar = requisitos.every((r) => r.ok) && !enviando && isLoaded && isSignInLoaded
+    && !processandoTicket && (!isInvitation || !!emailConvite)
+
+  // Clerk Captcha pode concluir o signUp sem disparar onSubmit — guardar credenciais cedo.
+  useEffect(() => {
+    if (!podeEnviar || etapaCadastro !== 'formulario') return
+    const email = emailConvite.trim()
+      || normalizarDadosConvite(signUpRef.current ?? {}).email
+      || (signUpRef.current?.emailAddress ?? '').trim()
+    if (!email || !senha) return
+    gravarLoginPendenteConvite({ email, senha })
+  }, [podeEnviar, etapaCadastro, emailConvite, senha])
 
   // ─── Handlers ─────────────────────────────────────────────────────────────
-  async function ativarSessaoCadastro(resultado: ResultadoSignUpClerk): Promise<boolean> {
+  async function ativarSessaoCadastro(
+    resultado: ResultadoSignUpClerk,
+    credenciais?: CredenciaisPosCadastro,
+  ): Promise<boolean> {
     if (!setActive) return false
-    const sessionId = resultado.createdSessionId ?? signUpRef.current?.createdSessionId ?? null
-    if (resultado.status !== 'complete' || !sessionId) return false
-    await setActive({ session: sessionId })
-    navigate('/hub', { replace: true })
-    return true
+
+    const sessionIdSignUp =
+      resultado.createdSessionId ?? signUpRef.current?.createdSessionId ?? null
+
+    if (resultado.status === 'complete' && sessionIdSignUp) {
+      limparLoginPendenteConvite()
+      await setActive({ session: sessionIdSignUp })
+      navigate('/hub', { replace: true })
+      return true
+    }
+
+    const signUpAtual = signUpRef.current
+    if (resultado.status === 'complete' && signUpAtual) {
+      try {
+        await signUpAtual.reload()
+        const sessionPosReload = signUpAtual.createdSessionId
+        if (sessionPosReload) {
+          limparLoginPendenteConvite()
+          await setActive({ session: sessionPosReload })
+          navigate('/hub', { replace: true })
+          return true
+        }
+      } catch (err) {
+        console.warn('[CadastroContinuar] signUp.reload após complete', err)
+      }
+    }
+
+    if (
+      resultado.status !== 'complete'
+      || !credenciais?.email
+      || !credenciais.senha
+      || !signIn
+    ) {
+      return false
+    }
+
+    try {
+      let login = await signIn.create({ transfer: true })
+
+      if (login.status !== 'complete') {
+        login = await signIn.create({
+          identifier: credenciais.email,
+          password: credenciais.senha,
+        })
+      }
+
+      if (login.status === 'complete' && signIn.createdSessionId) {
+        limparLoginPendenteConvite()
+        const ativar = setActiveSignIn ?? setActive
+        await ativar({ session: signIn.createdSessionId })
+        navigate('/hub', { replace: true })
+        return true
+      }
+
+      if (login.status === 'needs_second_factor') {
+        setErro(
+          'Sua conta exige verificação em duas etapas. Entre em contato com o suporte.',
+        )
+        return false
+      }
+
+      console.error('[CadastroContinuar] signIn pós-cadastro incompleto', {
+        status: login.status,
+      })
+    } catch (err) {
+      const erroClerk = err as { errors?: Array<{ code?: string; message?: string }> }
+      console.error('[CadastroContinuar] Falha no signIn automático pós-cadastro', {
+        code: erroClerk?.errors?.[0]?.code,
+        message: erroClerk?.errors?.[0]?.message,
+        err,
+      })
+    }
+
+    return false
   }
 
   async function concluirSignUpComVerificacaoSeNecessario(
     resultado: ResultadoSignUpClerk,
     signUpAtual: SignUpClerk,
+    credenciais: CredenciaisPosCadastro,
   ): Promise<boolean> {
-    if (await ativarSessaoCadastro(resultado)) return true
+    if (await ativarSessaoCadastro(resultado, credenciais)) return true
 
     const { unverifiedFields } = camposPendentesSignUp(signUpAtual)
     if (resultado.status === 'missing_requirements' && unverifiedFields.includes('email_address')) {
@@ -456,6 +550,13 @@ export function CadastroContinuarPage() {
     ev.preventDefault()
     if (!podeEnviar || !signUp || !setActive) return
 
+    const emailCadastroInicial = emailConvite.trim()
+      || normalizarDadosConvite(signUp).email
+      || (signUp.emailAddress ?? '').trim()
+    if (emailCadastroInicial && senha) {
+      gravarLoginPendenteConvite({ email: emailCadastroInicial, senha })
+    }
+
     if (isInvitation && !emailConvite && ticket) {
       await executarProcessamentoTicket(ticket)
       const cachePosProcesso = lerCacheConvite(ticket)
@@ -466,12 +567,15 @@ export function CadastroContinuarPage() {
 
     setEnviando(true)
     setErro(null)
+    sessionStorage.setItem(CHAVE_ATIVANDO_SESSAO_CONVITE, '1')
     try {
       const nomeParaCadastro = REGEX_EMAIL.test(nome.trim())
         ? ''
         : nome.trim()
       const [firstName = '', ...resto] = nomeParaCadastro.split(' ')
       const lastName = resto.join(' ')
+      const emailCadastro = emailCadastroInicial
+
       const resultado = await signUp.update({
         firstName,
         lastName,
@@ -479,10 +583,15 @@ export function CadastroContinuarPage() {
         legalAccepted: aceiteTermos,
       }) as ResultadoSignUpClerk
 
-      await concluirSignUpComVerificacaoSeNecessario(resultado, signUp)
+      await concluirSignUpComVerificacaoSeNecessario(
+        resultado,
+        signUp,
+        { email: emailCadastro, senha },
+      )
     } catch (err) {
       setErro(traduzirErroTicket(err))
     } finally {
+      sessionStorage.removeItem(CHAVE_ATIVANDO_SESSAO_CONVITE)
       setEnviando(false)
     }
   }
@@ -498,7 +607,11 @@ export function CadastroContinuarPage() {
         code: codigoVerificacao.trim(),
       }) as ResultadoSignUpClerk
 
-      if (!(await ativarSessaoCadastro(resultado))) {
+      const emailCadastro = emailConvite.trim()
+        || normalizarDadosConvite(signUp).email
+        || (signUp.emailAddress ?? '').trim()
+
+      if (!(await ativarSessaoCadastro(resultado, { email: emailCadastro, senha }))) {
         setErro(mensagemStatusSignUpIncompleto(signUp))
       }
     } catch (err) {

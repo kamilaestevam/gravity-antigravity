@@ -73,6 +73,7 @@ import {
   obterClientePrismaPedido,
   validarClientePrismaPedido,
 } from './cliente-prisma-pedido.js'
+import { LIMITE_BODY_JSON_IMPORTACAO } from '../../../shared/smart-import-limites.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 8030
@@ -105,7 +106,8 @@ app.use(cors({
 }))
 
 // ── 2. Body parsing ──────────────────────────────────────────────────────────
-app.use(express.json({ limit: '2mb' }))
+// Smart Import /confirmar envia até 1000 linhas no JSON — default 2mb estoura (413).
+app.use(express.json({ limit: LIMITE_BODY_JSON_IMPORTACAO }))
 
 // ── 3. Healthcheck (sem auth) ────────────────────────────────────────────────
 app.get('/health', (_req: Request, res: Response) => {

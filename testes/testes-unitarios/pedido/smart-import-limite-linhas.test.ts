@@ -5,6 +5,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   LIMITE_LINHAS_IMPORTACAO,
+  LIMITE_BODY_JSON_IMPORTACAO_MB,
+  LIMITE_BODY_JSON_IMPORTACAO,
   ULTIMA_LINHA_DADOS_TEMPLATE,
   PRIMEIRA_LINHA_DADOS_TEMPLATE,
   mensagemLimiteLinhasExcedido,
@@ -18,6 +20,11 @@ import { AppError } from '../../../servicos-global/produto/pedido/server/src/err
 describe('smart-import-limites (SSOT)', () => {
   it('define 1.000 linhas como limite maximo', () => {
     expect(LIMITE_LINHAS_IMPORTACAO).toBe(1000)
+  })
+
+  it('define limite de body JSON para confirmar (acima do default 2mb do Express)', () => {
+    expect(LIMITE_BODY_JSON_IMPORTACAO_MB).toBeGreaterThanOrEqual(10)
+    expect(LIMITE_BODY_JSON_IMPORTACAO).toBe(`${LIMITE_BODY_JSON_IMPORTACAO_MB}mb`)
   })
 
   it('template cobre exatamente 1.000 linhas de dados (linhas 3 a 1002)', () => {

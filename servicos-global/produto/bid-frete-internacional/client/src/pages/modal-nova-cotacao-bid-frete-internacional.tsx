@@ -49,12 +49,11 @@ import {
 // ─── Passos do wizard ─────────────────────────────────────────────────────────
 const STEPS = [
   { id: 1, label: 'Modal e Operação', icone: <Truck weight="duotone" size={16} /> },
-  { id: 2, label: 'Origem',           icone: <MapPin weight="duotone" size={16} /> },
-  { id: 3, label: 'Destino',          icone: <MapPin weight="duotone" size={16} /> },
-  { id: 4, label: 'Carga',            icone: <Package weight="duotone" size={16} /> },
-  { id: 5, label: 'Incoterm',         icone: <Scales weight="duotone" size={16} /> },
-  { id: 6, label: 'Fornecedores',     icone: <Users weight="duotone" size={16} /> },
-  { id: 7, label: 'Resumo',           icone: <FileText weight="duotone" size={16} /> },
+  { id: 2, label: 'Origem e Destino', icone: <MapPin weight="duotone" size={16} /> },
+  { id: 3, label: 'Carga',            icone: <Package weight="duotone" size={16} /> },
+  { id: 4, label: 'Incoterm',         icone: <Scales weight="duotone" size={16} /> },
+  { id: 5, label: 'Fornecedores',     icone: <Users weight="duotone" size={16} /> },
+  { id: 6, label: 'Resumo',           icone: <FileText weight="duotone" size={16} /> },
 ]
 
 // ─── UF Brasil ──────────────────────────────────────────────────────────────
@@ -646,6 +645,14 @@ const NC_ESTILOS_CONTEUDO = `
         }
         .nc-location-visual-card--destination {
           border-left: 4px solid var(--success, #10b981);
+        }
+        .nc-origem-destino-stack {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+        .nc-origem-destino-stack .nc-location-visual-card {
+          margin-top: 0;
         }
 
         .nc-location-visual-header {
@@ -1307,7 +1314,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const [canaisDisparo, setCanaisDisparo] = useState<CanalDisparo[]>([])
 
   useEffect(() => {
-    if (step !== 6 || form.visibilidade_cotacao_bid_frete_internacional !== 'DIRECIONADA') return
+    if (step !== 5 || form.visibilidade_cotacao_bid_frete_internacional !== 'DIRECIONADA') return
     let cancelado = false
     setCarregandoFornecedores(true)
     getFornecedores({ limit: 200, status: 'ATIVO' })
@@ -1512,16 +1519,19 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     switch (step) {
       case 1: return !!form.tipo_operacao_cotacao_bid_frete_internacional && !!form.modal_cotacao_bid_frete_internacional && !!form.modalidade_cotacao_bid_frete_internacional
       case 2: {
-        if (modal === 'MARITIMO') return !!form.origem_codigo_cotacao_bid_frete_internacional
-        if (modal === 'AEREO') return !!form.aeroporto_origem_cotacao_bid_frete_internacional
-        return true // RODOVIARIO: país e estado opcionais
+        const origemOk = modal === 'MARITIMO'
+          ? !!form.origem_codigo_cotacao_bid_frete_internacional
+          : modal === 'AEREO'
+            ? !!form.aeroporto_origem_cotacao_bid_frete_internacional
+            : true
+        const destinoOk = modal === 'MARITIMO'
+          ? !!form.destino_codigo_cotacao_bid_frete_internacional
+          : modal === 'AEREO'
+            ? !!form.aeroporto_destino_cotacao_bid_frete_internacional
+            : true
+        return origemOk && destinoOk
       }
       case 3: {
-        if (modal === 'MARITIMO') return !!form.destino_codigo_cotacao_bid_frete_internacional
-        if (modal === 'AEREO') return !!form.aeroporto_destino_cotacao_bid_frete_internacional
-        return true
-      }
-      case 4: {
         const base = !!form.descricao_mercadoria_cotacao_bid_frete_internacional
         if (exigeContainerFcl) {
           return (
@@ -1532,11 +1542,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         }
         return base && form.quantidade_cotacao_bid_frete_internacional > 0
       }
-      case 5: return !!form.incoterm_cotacao_bid_frete_internacional
-      case 6:
+      case 4: return !!form.incoterm_cotacao_bid_frete_internacional
+      case 5:
         if (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') return true
         return fornecedorIdsSelecionados.length > 0
-      case 7: return true
+      case 6: return true
       default: return false
     }
   }
@@ -1694,10 +1704,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           </div>
         )
 
-      // STEP 2 — Origem
+      // STEP 2 — Origem e Destino
       case 2:
         return (
-          <div className="nc-step-content">
+          <div className="nc-step-content nc-origem-destino-stack">
             <div className="nc-location-visual-card nc-location-visual-card--origin">
               <div className="nc-location-visual-header">
                 <div className="nc-location-visual-circle">
@@ -1775,13 +1785,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 </Field>
               </div>
             </div>
-          </div>
-        )
 
-      // STEP 3 — Destino
-      case 3:
-        return (
-          <div className="nc-step-content">
             <div className="nc-location-visual-card nc-location-visual-card--destination">
               <div className="nc-location-visual-header">
                 <div className="nc-location-visual-circle">
@@ -1871,8 +1875,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           </div>
         )
 
-      // STEP 4 — Carga
-      case 4:
+      // STEP 3 — Carga
+      case 3:
         return (
           <div className="nc-step-content">
             <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.dados_mercadoria')}</h3>
@@ -1987,8 +1991,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           </div>
         )
 
-      // STEP 5 — Incoterm
-      case 5: {
+      // STEP 4 — Incoterm
+      case 4: {
         const explanation = form.incoterm_cotacao_bid_frete_internacional ? INCOTERM_EXPLANATIONS[form.incoterm_cotacao_bid_frete_internacional] : null
 
         return (
@@ -2039,8 +2043,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         )
       }
 
-      // STEP 6 — Fornecedores
-      case 6:
+      // STEP 5 — Fornecedores
+      case 5:
         return (
           <div className="nc-step-content">
             <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.visibilidade')}</h3>
@@ -2104,8 +2108,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           </div>
         )
 
-      // STEP 7 — Resumo
-      case 7: {
+      // STEP 6 — Resumo
+      case 6: {
         const origemCode = modal === 'AEREO' ? form.aeroporto_origem_cotacao_bid_frete_internacional : form.origem_codigo_cotacao_bid_frete_internacional
         const origemName = modal === 'AEREO' ? form.aeroporto_origem_nome : (modal === 'RODOVIARIO' ? (form.estado_provincia_origem_cotacao_bid_frete_internacional || form.origem_pais_nome) : form.origem_nome_cotacao_bid_frete_internacional)
         const destinoCode = modal === 'AEREO' ? form.aeroporto_destino_cotacao_bid_frete_internacional : form.destino_codigo_cotacao_bid_frete_internacional
@@ -2236,7 +2240,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const handleFechar = () => navigate(ROTA_LISTA)
 
   const handleProximo = () => {
-    if (step < 7) setStep((s) => s + 1)
+    if (step < 6) setStep((s) => s + 1)
     else void handleSubmit()
   }
 
@@ -2252,7 +2256,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           titulo={t('bidfrete.nova_cotacao.criado_sucesso')}
           aberto
           passos={STEPS}
-          passoAtual={7}
+          passoAtual={6}
           onProximo={handleFechar}
           onVoltar={handleFechar}
           onFechar={handleFechar}

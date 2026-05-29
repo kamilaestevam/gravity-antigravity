@@ -105,8 +105,6 @@ async function executarWizardAberta(page: Page): Promise<string | null> {
   await clicarProximo(page)
 
   await selecionarComboboxPorCampo(page, /AEROPORTO DE EMBARQUE/i, 'EZE', /EZE|Buenos Aires/i)
-  await clicarProximo(page)
-
   await selecionarComboboxPorCampo(page, /AEROPORTO DE DESTINO/i, 'DXB', /DXB|Dubai/i)
   await clicarProximo(page)
 

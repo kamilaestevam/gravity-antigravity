@@ -1,8 +1,10 @@
 import React from 'react'
-import type { GTColuna } from '@nucleo/tabela-virtual-global'
+import type { GTColuna, GTValorMoeda } from '@nucleo/tabela-virtual-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
-import { Anchor, AirplaneTilt, Truck } from '@phosphor-icons/react'
+import { Anchor, AirplaneTilt, Eye, Truck } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../shared/types'
+import { classeMoedaBadge } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS, INCOTERMS } from '../shared/types'
 import {
   codigoDestinoParaEdicao,
@@ -155,17 +157,70 @@ export function getCasas(campo: string, padrao: number): number {
   return lerCasasDecimaisConfig()[campo] ?? padrao
 }
 
+/** Paridade Pedido (`renderDescricaoTruncada` em ColunasFilho). */
+export const LIMITE_TRUNCAR_DESCRICAO_LISTA = 50
+
 function renderTexto(val: unknown): React.ReactNode {
   return (val as string | null | undefined) ?? '—'
+}
+
+function renderDescricaoTruncada(
+  valor: string | null | undefined,
+  label: string,
+): React.ReactNode {
+  if (!valor?.trim()) return <span style={{ color: 'var(--text-muted)' }}>—</span>
+  const texto = valor.trim()
+  if (texto.length <= LIMITE_TRUNCAR_DESCRICAO_LISTA) return <span>{texto}</span>
+  return (
+    <TooltipGlobal titulo={label} descricao={texto}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', maxWidth: '100%' }}>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {texto.slice(0, LIMITE_TRUNCAR_DESCRICAO_LISTA) + '…'}
+        </span>
+        <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} aria-hidden />
+      </span>
+    </TooltipGlobal>
+  )
 }
 
 function renderNumero(val: unknown, casas = 0): React.ReactNode {
   return val != null ? fmtQuantidade(val as number, casas) : '—'
 }
 
-function renderMoeda(val: unknown, moeda: string | null | undefined): React.ReactNode {
-  if (val == null) return '—'
-  return `${moeda ?? 'USD'} ${fmtQuantidade(val as number, 2)}`
+/** Célula valor + badge de moeda (paridade Pedido `valor_total_pedido`). */
+function renderCelulaValorMoeda(
+  valor: number | null | undefined,
+  moeda: string | null | undefined,
+  casas = 2,
+): React.ReactNode {
+  const codigo = (moeda ?? 'USD').trim() || 'USD'
+  const num = valor != null ? Number(valor) : null
+  const temValor = num != null && !Number.isNaN(num)
+  return (
+    <span className="gtv-celula-moeda">
+      <span className={classeMoedaBadge(codigo)}>{codigo}</span>
+      {temValor ? fmtQuantidade(num, casas) : '—'}
+    </span>
+  )
+}
+
+/** Moeda de exibição/edição de valores monetários da cotação (paridade valor meta / aprovado). */
+export function moedaMonetariaCotacao(cotacao: Cotacao): string {
+  return (
+    cotacao.moeda_meta_cotacao_bid_frete_internacional?.trim()
+    || cotacao.moeda_aprovada?.trim()
+    || 'USD'
+  )
+}
+
+function renderBadgeMoeda(moeda: string | null | undefined): React.ReactNode {
+  const codigo = moeda?.trim()
+  if (!codigo) return '—'
+  return (
+    <span className="gtv-celula-moeda">
+      <span className={classeMoedaBadge(codigo)}>{codigo}</span>
+    </span>
+  )
 }
 
 export interface OpcoesColunasLista {
@@ -385,6 +440,41 @@ function aplicarConfigEdicaoColuna(
             || item.tipo_container_cotacao_bid_frete_internacional
             || '—',
       }
+    case 'valor_meta_cotacao_bid_frete_internacional': {
+      const casas = getCasas('valor_meta_cotacao_bid_frete_internacional', 2)
+      return {
+        ...base,
+        tipo: 'moeda',
+        casasDecimais: casas,
+        getValorEditar: (item: Cotacao): GTValorMoeda => ({
+          currency: item.moeda_meta_cotacao_bid_frete_internacional ?? 'USD',
+          amount: item.valor_meta_cotacao_bid_frete_internacional ?? 0,
+        }),
+        render: (_val: unknown, item: Cotacao) =>
+          renderCelulaValorMoeda(item.valor_meta_cotacao_bid_frete_internacional, item.moeda_meta_cotacao_bid_frete_internacional, casas),
+      }
+    }
+    case 'ganho_valor_cotacao_bid_frete_internacional': {
+      const casas = getCasas('ganho_valor_cotacao_bid_frete_internacional', 2)
+      return {
+        ...base,
+        tipo: 'moeda',
+        casasDecimais: casas,
+        getValorEditar: (item: Cotacao): GTValorMoeda => ({
+          currency: moedaMonetariaCotacao(item),
+          amount: item.ganho_valor_cotacao_bid_frete_internacional ?? 0,
+        }),
+        render: (_val: unknown, item: Cotacao) => (
+          <span style={{ display: 'inline-flex', justifyContent: 'center', width: '100%' }}>
+            {renderCelulaValorMoeda(
+              item.ganho_valor_cotacao_bid_frete_internacional,
+              moedaMonetariaCotacao(item),
+              casas,
+            )}
+          </span>
+        ),
+      }
+    }
     case 'moeda_meta_cotacao_bid_frete_internacional':
       return {
         ...base,
@@ -395,6 +485,8 @@ function aplicarConfigEdicaoColuna(
           { valor: 'GBP', label: 'GBP' },
           { valor: 'CNY', label: 'CNY' },
         ],
+        render: (_val: unknown, item: Cotacao) =>
+          renderBadgeMoeda(item.moeda_meta_cotacao_bid_frete_internacional),
       }
     default:
       return base
@@ -624,12 +716,14 @@ function buildColunasCotacoesBase(
       key: 'data_criacao_cotacao_bid_frete_internacional',
       label: 'Data da cotação',
       tipo: 'periodo',
+      align: 'center',
       render: (val: unknown) => fmtData(val as string),
     },
     {
       key: 'data_atualizacao_cotacao_bid_frete_internacional',
       label: 'Última atualização',
       tipo: 'periodo',
+      align: 'center',
       render: (val: unknown) => fmtData(val as string),
     },
     {
@@ -671,6 +765,7 @@ function buildColunasCotacoesBase(
       key: 'origem_pais_cotacao_bid_frete_internacional',
       label: 'País origem',
       tipo: 'texto',
+      align: 'center',
       render: renderTexto,
     },
     {
@@ -695,6 +790,7 @@ function buildColunasCotacoesBase(
       key: 'destino_pais_cotacao_bid_frete_internacional',
       label: 'País destino',
       tipo: 'texto',
+      align: 'center',
       render: renderTexto,
     },
     {
@@ -707,7 +803,9 @@ function buildColunasCotacoesBase(
       key: 'descricao_mercadoria_cotacao_bid_frete_internacional',
       label: 'Descrição mercadoria',
       tipo: 'texto',
-      render: renderTexto,
+      tooltipDescricao: 'Texto completo da mercadoria cotada',
+      render: (val: unknown) =>
+        renderDescricaoTruncada(val as string | null | undefined, 'Descrição mercadoria'),
     },
     {
       key: 'ncm_cotacao_bid_frete_internacional',
@@ -719,13 +817,14 @@ function buildColunasCotacoesBase(
       key: 'quantidade_cotacao_bid_frete_internacional',
       label: 'Quantidade',
       tipo: 'numero',
-      align: 'right',
+      align: 'center',
       render: (val: unknown) => renderNumero(val, 0),
     },
     {
       key: 'tipo_container_cotacao_bid_frete_internacional',
       label: 'Tipo container',
       tipo: 'texto',
+      align: 'center',
       render: renderTexto,
     },
     {
@@ -763,16 +862,27 @@ function buildColunasCotacoesBase(
     {
       key: 'valor_meta_cotacao_bid_frete_internacional',
       label: 'Valor meta',
-      tipo: 'numero',
-      align: 'right',
-      render: (val: unknown, item: Cotacao) =>
-        renderMoeda(val, item.moeda_meta_cotacao_bid_frete_internacional),
+      tipo: 'moeda',
+      align: 'center',
+      casasDecimais: getCasas('valor_meta_cotacao_bid_frete_internacional', 2),
+      getValorEditar: (item: Cotacao): GTValorMoeda => ({
+        currency: item.moeda_meta_cotacao_bid_frete_internacional ?? 'USD',
+        amount: item.valor_meta_cotacao_bid_frete_internacional ?? 0,
+      }),
+      render: (_val: unknown, item: Cotacao) =>
+        renderCelulaValorMoeda(
+          item.valor_meta_cotacao_bid_frete_internacional,
+          item.moeda_meta_cotacao_bid_frete_internacional,
+          getCasas('valor_meta_cotacao_bid_frete_internacional', 2),
+        ),
     },
     {
       key: 'moeda_meta_cotacao_bid_frete_internacional',
       label: 'Moeda meta',
       tipo: 'texto',
-      render: renderTexto,
+      align: 'center',
+      render: (_val: unknown, item: Cotacao) =>
+        renderBadgeMoeda(item.moeda_meta_cotacao_bid_frete_internacional),
     },
     {
       key: 'visibilidade_cotacao_bid_frete_internacional',
@@ -796,6 +906,7 @@ function buildColunasCotacoesBase(
       key: 'data_aprovacao_cotacao_bid_frete_internacional',
       label: 'Data aprovação',
       tipo: 'periodo',
+      align: 'center',
       render: (val: unknown) => fmtData(val as string),
     },
     {
@@ -820,27 +931,41 @@ function buildColunasCotacoesBase(
       key: 'id_fornecedor_vencedor_cotacao_bid_frete_internacional',
       label: 'Fornecedor vencedor',
       tipo: 'texto',
+      align: 'center',
       render: renderTexto,
     },
     {
       key: 'ganho_valor_cotacao_bid_frete_internacional',
       label: 'Ganho estimado',
-      tipo: 'numero',
-      align: 'right',
-      render: (val: unknown) =>
-        val != null
-          ? `USD ${fmtQuantidade(val as number, getCasas('ganho_valor_cotacao_bid_frete_internacional', 2))}`
-          : '—',
+      tipo: 'moeda',
+      align: 'center',
+      casasDecimais: getCasas('ganho_valor_cotacao_bid_frete_internacional', 2),
+      getValorEditar: (item: Cotacao): GTValorMoeda => ({
+        currency: moedaMonetariaCotacao(item),
+        amount: item.ganho_valor_cotacao_bid_frete_internacional ?? 0,
+      }),
+      render: (_val: unknown, item: Cotacao) => (
+        <span style={{ display: 'inline-flex', justifyContent: 'center', width: '100%' }}>
+          {renderCelulaValorMoeda(
+            item.ganho_valor_cotacao_bid_frete_internacional,
+            moedaMonetariaCotacao(item),
+            getCasas('ganho_valor_cotacao_bid_frete_internacional', 2),
+          )}
+        </span>
+      ),
     },
     {
       key: 'ganho_percentual_cotacao_bid_frete_internacional',
       label: 'Ganho (%)',
       tipo: 'numero',
-      align: 'right',
-      render: (val: unknown) =>
-        val != null
-          ? `${fmtQuantidade(val as number, getCasas('ganho_percentual_cotacao_bid_frete_internacional', 2))}%`
-          : '—',
+      align: 'center',
+      render: (val: unknown) => (
+        <span style={{ display: 'block', width: '100%', textAlign: 'center' }}>
+          {val != null
+            ? `${fmtQuantidade(val as number, getCasas('ganho_percentual_cotacao_bid_frete_internacional', 2))}%`
+            : '—'}
+        </span>
+      ),
     },
   ]
 }

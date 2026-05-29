@@ -401,6 +401,21 @@ export interface FornecedoresListResponse {
   }
 }
 
+// ─── Exibição de moeda (paridade Pedido / GTV) ───────────────────────────────
+
+const MOEDA_CLASSE_BADGE: Record<string, string> = {
+  USD: 'gtv-celula-moeda-badge--usd',
+  EUR: 'gtv-celula-moeda-badge--eur',
+  BRL: 'gtv-celula-moeda-badge--brl',
+  GBP: 'gtv-celula-moeda-badge--gbp',
+  CNY: 'gtv-celula-moeda-badge--cny',
+}
+
+/** Classe CSS do badge de moeda na lista (cores por ISO). */
+export function classeMoedaBadge(moeda: string): string {
+  return `gtv-celula-moeda-badge ${MOEDA_CLASSE_BADGE[moeda.toUpperCase()] ?? ''}`
+}
+
 // ─── Master Data ─────────────────────────────────────────────────────────────
 
 export interface Porto {

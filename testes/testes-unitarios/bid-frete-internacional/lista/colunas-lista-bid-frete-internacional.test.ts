@@ -101,6 +101,11 @@ describe('CHAVES_COLUNAS — visibilidade padrão', () => {
     expect(idxPais).toBeGreaterThan(idxDestino)
     expect(idxEndereco).toBe(idxPais + 1)
   })
+
+  it('CHAVES_COLUNAS_PADRAO_VISIVEIS inclui pais e endereco destino', () => {
+    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('destino_pais_cotacao_bid_frete_internacional')
+    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('endereco_destino_cotacao_bid_frete_internacional')
+  })
 })
 
 describe('CAMPOS_EDITAVEIS_LISTA — edição inline', () => {

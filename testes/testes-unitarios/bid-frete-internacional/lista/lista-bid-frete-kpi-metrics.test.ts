@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   calcularStatsListaBidFrete,
   calcularTempoMedioRespostaHoras,
+  contarCotacoesEmAtrasoPrazoResposta,
+  cotacaoEmAtrasoPrazoResposta,
   somarValorTotalFreteAprovado,
 } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/lista-bid-frete-kpi-metrics'
 import type { Cotacao } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/types'
@@ -136,5 +138,32 @@ describe('lista-bid-frete-kpi-metrics', () => {
     expect(stats.cotacoesComSaving).toBe(1)
     expect(stats.enviadaFornecedores).toBe(0)
     expect(stats.emCotacao).toBe(1)
+  })
+
+  it('conta cotações em atraso quando prazo de resposta já passou e status em aberto', () => {
+    const agoraMs = new Date('2026-05-28T12:00:00.000Z').getTime()
+    const emAtraso = cotacaoBase({
+      id_cotacao_bid_frete_internacional: 'c-atraso',
+      status_cotacao_bid_frete_internacional: 'EM_COTACAO',
+      data_limite_resposta_cotacao_bid_frete_internacional: '2026-05-02T23:59:00.000Z',
+    })
+    const noPrazo = cotacaoBase({
+      id_cotacao_bid_frete_internacional: 'c-ok',
+      status_cotacao_bid_frete_internacional: 'ENVIADA_FORNECEDORES',
+      data_limite_resposta_cotacao_bid_frete_internacional: '2026-06-01T23:59:00.000Z',
+    })
+    const expirada = cotacaoBase({
+      id_cotacao_bid_frete_internacional: 'c-exp',
+      status_cotacao_bid_frete_internacional: 'EXPIRADA',
+      data_limite_resposta_cotacao_bid_frete_internacional: '2026-05-02T23:59:00.000Z',
+    })
+
+    expect(cotacaoEmAtrasoPrazoResposta(emAtraso, agoraMs)).toBe(true)
+    expect(cotacaoEmAtrasoPrazoResposta(noPrazo, agoraMs)).toBe(false)
+    expect(cotacaoEmAtrasoPrazoResposta(expirada, agoraMs)).toBe(false)
+    expect(contarCotacoesEmAtrasoPrazoResposta([emAtraso, noPrazo, expirada], agoraMs)).toBe(1)
+
+    const stats = calcularStatsListaBidFrete([emAtraso, noPrazo, expirada], agoraMs)
+    expect(stats.cotacoesEmAtraso).toBe(1)
   })
 })

@@ -200,6 +200,8 @@ const CARD_VISUAL: Record<string, { icone: React.ReactNode; cor: string }> = {
   saving_total:          { icone: <Coins             weight="duotone" size={18} />, cor: '#fb923c' },
   tempo_medio_resposta:  { icone: <Gauge             weight="duotone" size={18} />, cor: '#a78bfa' },
   cotacoes_expiradas:    { icone: <Warning           weight="duotone" size={18} />, cor: '#f87171' },
+  cotacoes_em_atraso:    { icone: <Clock             weight="duotone" size={18} />, cor: '#fb923c' },
+  cotacoes_acima_meta:   { icone: <Gauge             weight="duotone" size={18} />, cor: '#f87171' },
 }
 
 const NOME_EXIBICAO_CARDS: Record<string, string> = {
@@ -209,6 +211,8 @@ const NOME_EXIBICAO_CARDS: Record<string, string> = {
   saving_total: 'Saving Total',
   tempo_medio_resposta: 'Tempo Médio de Resposta',
   cotacoes_expiradas: 'Cotações Expiradas',
+  cotacoes_em_atraso: 'Cotações em Atraso',
+  cotacoes_acima_meta: 'Quantidade cotações acima da meta',
 }
 
 function obterNomeExibicaoCard(card: CardDefinicao): string {

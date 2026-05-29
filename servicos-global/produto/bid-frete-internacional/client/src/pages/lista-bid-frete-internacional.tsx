@@ -36,6 +36,7 @@ import {
   CurrencyDollar,
   ClipboardText,
   Gauge,
+  Target,
 } from '@phosphor-icons/react'
 
 import { atualizarCotacao, getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao, mudarStatusCotacao } from '../shared/api'
@@ -49,6 +50,7 @@ import { resolverIconeCard } from '../shared/card-icone-map-bid-frete'
 import { decodeMetricaCard } from '../shared/card-metrica-catalog-bid-frete'
 import { COTACOES_LIMIT_LISTA, filtrarCotacoesPorPeriodoCards } from '../shared/lista-bid-frete-card-periodo'
 import { calcularStatsListaBidFrete } from '../shared/lista-bid-frete-kpi-metrics'
+import { calcularMetricasCotacoesAcimaMeta } from '../shared/lista-bid-frete-meta-metrics'
 import {
   carregarTabelaConfigBidFrete,
   HORAS_LIMITE_DESTAQUE_EXPIRACAO,
@@ -149,8 +151,6 @@ const CAMPOS_NUMERICOS_COTACAO = new Set([
   'quantidade_cotacao_bid_frete_internacional',
   'peso_kg_cotacao_bid_frete_internacional',
   'cubagem_m3_cotacao_bid_frete_internacional',
-  'valor_meta_cotacao_bid_frete_internacional',
-  'ganho_valor_cotacao_bid_frete_internacional',
   'ganho_percentual_cotacao_bid_frete_internacional',
 ])
 
@@ -203,7 +203,7 @@ function patchCotacaoNoEstado(
 }
 
 /** Incrementar quando adicionar colunas ao schema — força reset das prefs salvas. */
-const VERSAO_COLUNAS_LISTA = 3
+const VERSAO_COLUNAS_LISTA = 4
 const STORAGE_COLUNAS_VERSAO = 'bid-frete-internacional:config:tabela_colunas_versao'
 const STORAGE_PREFS_INTL = 'bid-frete-internacional:config:tabela_preferencias'
 const STORAGE_PREFS_LEGADO = 'bid-frete:config:tabela_preferencias'
@@ -243,10 +243,9 @@ function lerPreferenciasTabela(): GTPreferencias | undefined {
       return undefined
     }
 
-    // Novas colunas do banco entram automaticamente ao final da lista visível
-    const colunasVisiveis = faltantes.length > 0
-      ? [...colunasValidas, ...faltantes]
-      : colunasValidas
+    // Novas colunas entram na ordem do schema (bloco origem → destino), não no fim da tabela
+    const visiveisSet = new Set([...colunasValidas, ...faltantes])
+    const colunasVisiveis = CHAVES_COLUNAS_PADRAO_VISIVEIS.filter(k => visiveisSet.has(k))
 
     return {
       ...parsed,
@@ -576,21 +575,41 @@ export default function Cotacoes() {
     const atual = resolverCotacaoPorId(id)
     if (!atual) throw new Error('Cotação não encontrada')
 
-    const valorNormalizado = normalizarValorEdicaoCotacao(campo, valor)
     const patchLocalizacao = resolverPatchEdicaoLocalizacao(
       atual,
       campo,
-      valorNormalizado,
+      normalizarValorEdicaoCotacao(campo, valor),
       portosCadastro,
       aeroportosCadastro,
     )
 
     let cotacaoSalva: Cotacao
     if (campo === 'status_cotacao_bid_frete_internacional') {
-      cotacaoSalva = await mudarStatusCotacao(id, valorNormalizado as StatusCotacao)
+      cotacaoSalva = await mudarStatusCotacao(id, normalizarValorEdicaoCotacao(campo, valor) as StatusCotacao)
+    } else if (
+      valor != null &&
+      typeof valor === 'object' &&
+      'currency' in (valor as object) &&
+      (campo === 'valor_meta_cotacao_bid_frete_internacional'
+        || campo === 'ganho_valor_cotacao_bid_frete_internacional')
+    ) {
+      const mv = valor as { currency: string; amount: number }
+      const amount = typeof mv.amount === 'number' ? mv.amount : Number(mv.amount)
+      const valorNumerico = Number.isFinite(amount) && amount > 0 ? amount : null
+      if (campo === 'valor_meta_cotacao_bid_frete_internacional') {
+        cotacaoSalva = await atualizarCotacao(id, {
+          moeda_meta_cotacao_bid_frete_internacional: String(mv.currency || 'USD'),
+          valor_meta_cotacao_bid_frete_internacional: valorNumerico,
+        })
+      } else {
+        cotacaoSalva = await atualizarCotacao(id, {
+          ganho_valor_cotacao_bid_frete_internacional: valorNumerico,
+        })
+      }
     } else if (patchLocalizacao) {
       cotacaoSalva = await atualizarCotacao(id, patchLocalizacao)
     } else {
+      const valorNormalizado = normalizarValorEdicaoCotacao(campo, valor)
       cotacaoSalva = await atualizarCotacao(id, {
         [campo]: valorNormalizado,
       } as Partial<Cotacao>)
@@ -673,6 +692,13 @@ export default function Cotacoes() {
   const cotacoesParaKpi = useMemo(
     () => filtrarCotacoesPorPeriodoCards(cotacoesFiltradas, periodoCards),
     [cotacoesFiltradas, periodoCards],
+  )
+
+  const metricasAcimaMeta30d = useMemo(
+    () => calcularMetricasCotacoesAcimaMeta(
+      filtrarCotacoesPorPeriodoCards(cotacoesFiltradas, '30d'),
+    ),
+    [cotacoesFiltradas],
   )
 
   const handleCarregarFilhos = useCallback(async (pai: LinhaPaiLista): Promise<LinhaFilhaLista[]> => {
@@ -1098,6 +1124,98 @@ export default function Cotacoes() {
             }
           />
         )
+      case 'cotacoes_em_atraso':
+        return (
+          <CardBasicoGlobal
+            key="cotacoes_em_atraso"
+            titulo={t('bidfrete.cotacoes.kpi.emAtraso.titulo', 'Cotações em Atraso')}
+            icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
+            valor={stats.cotacoesEmAtraso}
+            variante="aviso"
+            subtexto={t('bidfrete.cotacoes.kpi.emAtraso.subtexto', 'Prazo de resposta vencido')}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.emAtraso.tooltipTotal', 'Total em atraso')}</span>
+                  <strong style={{ color: '#fb923c' }}>{stats.cotacoesEmAtraso}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.emAtraso.tooltipCriterio', 'Critério')}</span>
+                  <strong>{t('bidfrete.cotacoes.kpi.emAtraso.tooltipCriterioValor', 'Prazo anterior a hoje · em aberto')}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.emAtraso.tooltipExpiradas', 'Já marcadas como expiradas')}</span>
+                  <strong>{stats.expiradas}</strong>
+                </div>
+              </>
+            }
+          />
+        )
+      case 'cotacoes_acima_meta': {
+        const { quantidade, percentualMedioAcima, percentualDoTotalComMeta, totalComMetaAvaliavel, detalhes } =
+          metricasAcimaMeta30d
+        const subtextoPercentual = percentualMedioAcima != null
+          ? t('bidfrete.cotacoes.kpi.acimaMeta.subtextoComMedia', {
+            percentual: fmtQuantidade(percentualMedioAcima, 1),
+            defaultValue: `+${fmtQuantidade(percentualMedioAcima, 1)}% acima da meta (média)`,
+          })
+          : t('bidfrete.cotacoes.kpi.acimaMeta.subtextoVazio', 'Nenhuma cotação acima da meta')
+        return (
+          <CardBasicoGlobal
+            key="cotacoes_acima_meta"
+            titulo={t('bidfrete.cotacoes.kpi.acimaMeta.titulo', 'Cotações acima da meta')}
+            icone={<Target weight="duotone" size={16} style={{ color: '#f87171' }} />}
+            valor={quantidade}
+            variante={quantidade > 0 ? 'perigo' : undefined}
+            subtexto={subtextoPercentual}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipPeriodo', 'Período')}</span>
+                  <strong>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipPeriodoValor', 'Últimos 30 dias')}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipTotal', 'Acima da meta')}</span>
+                  <strong style={{ color: '#f87171' }}>{quantidade}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipComMeta', 'Com meta e proposta')}</span>
+                  <strong>{totalComMetaAvaliavel}</strong>
+                </div>
+                {percentualDoTotalComMeta != null && (
+                  <div className="cg-tooltip__row">
+                    <span>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipPercentualPeriodo', '% do período')}</span>
+                    <strong>{fmtQuantidade(percentualDoTotalComMeta, 1)}%</strong>
+                  </div>
+                )}
+                {percentualMedioAcima != null && (
+                  <div className="cg-tooltip__row">
+                    <span>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipMediaAcima', 'Média acima da meta')}</span>
+                    <strong>+{fmtQuantidade(percentualMedioAcima, 1)}%</strong>
+                  </div>
+                )}
+                {detalhes.length > 0 ? (
+                  detalhes.map(item => (
+                    <div key={item.id} className="cg-tooltip__row">
+                      <span>{item.numero}</span>
+                      <strong>
+                        {item.moeda} {fmtQuantidade(item.valorReferencia, 2)}
+                        {' '}
+                        (+{fmtQuantidade(item.percentualAcima, 1)}%)
+                      </strong>
+                    </div>
+                  ))
+                ) : (
+                  <div className="cg-tooltip__row">
+                    <span>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipVazio', 'Nenhuma nos últimos 30 dias')}</span>
+                    <strong>—</strong>
+                  </div>
+                )}
+              </>
+            }
+          />
+        )
+      }
       default: {
         const defCustom = listarCardsCatalogo().find(c => c.id === id)
         if (!defCustom) return null
@@ -1136,7 +1254,7 @@ export default function Cotacoes() {
         )
       }
     }
-  }, [stats, cotacoesParaKpi, t])
+  }, [stats, cotacoesParaKpi, metricasAcimaMeta30d, t])
 
   // ─── Render ───
 

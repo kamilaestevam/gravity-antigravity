@@ -1,4 +1,32 @@
-import type { Cotacao } from './types'
+import type { Cotacao, StatusCotacao } from './types'
+
+/** Status em que o prazo de resposta ainda é relevante (paridade dashboard fora_prazo). */
+export const STATUS_COTACAO_ABERTA_PRAZO_RESPOSTA: StatusCotacao[] = [
+  'ENVIADA_FORNECEDORES',
+  'EM_COTACAO',
+]
+
+/** Cotação em atraso: prazo de resposta já passou e ainda aguarda retorno. */
+export function cotacaoEmAtrasoPrazoResposta(
+  cotacao: Cotacao,
+  agoraMs = Date.now(),
+): boolean {
+  if (!STATUS_COTACAO_ABERTA_PRAZO_RESPOSTA.includes(cotacao.status_cotacao_bid_frete_internacional)) {
+    return false
+  }
+  const limite = cotacao.data_limite_resposta_cotacao_bid_frete_internacional
+  if (!limite) return false
+  const limiteMs = new Date(limite).getTime()
+  if (!Number.isFinite(limiteMs)) return false
+  return limiteMs < agoraMs
+}
+
+export function contarCotacoesEmAtrasoPrazoResposta(
+  cotacoes: Cotacao[],
+  agoraMs = Date.now(),
+): number {
+  return cotacoes.filter(c => cotacaoEmAtrasoPrazoResposta(c, agoraMs)).length
+}
 
 export interface ListaBidFreteKpiStats {
   total: number
@@ -11,6 +39,7 @@ export interface ListaBidFreteKpiStats {
   aguardandoTempoMedioEsperaHoras: number | null
   expiradas: number
   expiradasSemProposta: number
+  cotacoesEmAtraso: number
   savingTotal: number
   cotacoesComSaving: number
   valorTotalFrete: number
@@ -110,6 +139,7 @@ export function calcularStatsListaBidFrete(
     c => (c.ganho_valor_cotacao_bid_frete_internacional ?? 0) > 0,
   ).length
   const fechadas = total - emAndamento - aguardandoAprovacao - expiradas
+  const cotacoesEmAtraso = contarCotacoesEmAtrasoPrazoResposta(cotacoes, agoraMs)
 
   return {
     total,
@@ -125,6 +155,7 @@ export function calcularStatsListaBidFrete(
     aguardandoTempoMedioEsperaHoras: calcularTempoMedioEsperaAprovacaoHoras(cotacoes, agoraMs),
     expiradas,
     expiradasSemProposta,
+    cotacoesEmAtraso,
     savingTotal,
     cotacoesComSaving,
     valorTotalFrete: somarValorTotalFreteAprovado(cotacoes),

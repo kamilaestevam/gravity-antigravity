@@ -2223,7 +2223,23 @@
         "arrastar": "Arrastar para reordenar"
       },
       "cards": {
-        "msg_salvo": "Preferências de cards salvas com sucesso."
+        "msg_salvo": "Preferências de cards salvas com sucesso.",
+        "total_cotacoes": "Total de Cotações",
+        "total_cotacoes_desc": "Total de cotações de frete iniciadas no período",
+        "valor_total_frete": "Valor Total de Frete",
+        "valor_total_frete_desc": "Valor acumulado das propostas de frete aprovadas",
+        "propostas_recebidas": "Propostas Recebidas",
+        "propostas_recebidas_desc": "Quantidade total de respostas recebidas de fornecedores",
+        "saving_total": "Saving Total",
+        "saving_total_desc": "Economia gerada comparando a proposta vencedora com o teto",
+        "tempo_medio_resposta": "Tempo Médio de Resposta",
+        "tempo_medio_resposta_desc": "Tempo médio de resposta dos armadores e agentes de carga",
+        "cotacoes_expiradas": "Cotações Expiradas",
+        "cotacoes_expiradas_desc": "Cotações de frete expiradas sem aprovação",
+        "cotacoes_em_atraso": "Cotações em Atraso",
+        "cotacoes_em_atraso_desc": "Cotações com prazo de resposta vencido e ainda aguardando retorno",
+        "cotacoes_acima_meta": "Quantidade cotações acima da meta",
+        "cotacoes_acima_meta_desc": "Cotações cuja melhor proposta ou valor aprovado supera o valor meta"
       },
       "status": {
         "titulo": "Status de Cotação",
@@ -2349,6 +2365,26 @@
           "tooltipMotivoValor": "Sem fornecedores",
           "tooltipAcao": "Ação",
           "tooltipAcaoValor": "Reabrir ou arquivar"
+        },
+        "emAtraso": {
+          "titulo": "Cotações em Atraso",
+          "subtexto": "Prazo de resposta vencido",
+          "tooltipTotal": "Total em atraso",
+          "tooltipCriterio": "Critério",
+          "tooltipCriterioValor": "Prazo anterior a hoje · em aberto",
+          "tooltipExpiradas": "Já marcadas como expiradas"
+        },
+        "acimaMeta": {
+          "titulo": "Quantidade cotações acima da meta",
+          "subtextoComMedia": "+{{percentual}}% acima da meta (média)",
+          "subtextoVazio": "Nenhuma cotação acima da meta",
+          "tooltipPeriodo": "Período",
+          "tooltipPeriodoValor": "Últimos 30 dias",
+          "tooltipTotal": "Acima da meta",
+          "tooltipComMeta": "Com meta e proposta",
+          "tooltipPercentualPeriodo": "% do período",
+          "tooltipMediaAcima": "Média acima da meta",
+          "tooltipVazio": "Nenhuma nos últimos 30 dias"
         }
       }
     },

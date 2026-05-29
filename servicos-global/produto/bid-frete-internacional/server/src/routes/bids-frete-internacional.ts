@@ -8,6 +8,7 @@ import {
   gerarNumeroBidFreteInternacional,
   sincronizarResumoBid,
 } from '../services/agregar-resumo-bid-frete-internacional.js'
+import { relancarSeSchemaDrift } from '../lib/prisma-erro-schema.js'
 
 const router = Router()
 
@@ -72,7 +73,11 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     })
     res.json({ bids_frete_internacional: bids })
   } catch (err) {
-    next(err)
+    try {
+      relancarSeSchemaDrift(err)
+    } catch (e) {
+      next(e)
+    }
   }
 })
 

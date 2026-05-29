@@ -158,8 +158,10 @@ app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res
   console.error('[BidFrete] Erro:', err.message)
   const status = err.statusCode ?? 500
   res.status(status).json({
-    error: err.message || 'Erro interno',
-    code: err.code ?? 'INTERNAL_ERROR',
+    error: {
+      message: err.message || 'Erro interno',
+      code: err.code ?? 'INTERNAL_ERROR',
+    },
   })
 })
 

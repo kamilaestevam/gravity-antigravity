@@ -10,6 +10,7 @@
  *   6. Criacao/atualizacao de pedidos ($transaction)
  */
 
+import { randomUUID } from 'node:crypto'
 import { parseArquivo, ALIASES_CAMPOS, calcularHashColunas, type LinhaArquivo } from './importEngine.js'
 import { MapeamentoMemoriaService, type ColunaMapeadaBackend } from './mapeamentoMemoriaService.js'
 import { AppError } from '../errors/AppError.js'
@@ -252,9 +253,16 @@ function traduzirErroPrisma(err: unknown): string {
 }
 
 function gerarId(prefixo: string): string {
-  const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
   const ano = String(new Date().getFullYear()).slice(-2)
-  return `${prefixo}_id_${seq}/${ano}`
+  // randomUUID evita colisao P2002 em importacoes com centenas de linhas (Math.random nao e seguro).
+  const sufixo = randomUUID().replace(/-/g, '').slice(0, 13)
+  return `${prefixo}_id_${sufixo}/${ano}`
+}
+
+function erroPrismaIdItemDuplicado(err: unknown): boolean {
+  if (!(err instanceof Error)) return false
+  const msg = err.message
+  return msg.includes('Unique constraint failed') && msg.includes('id_item')
 }
 
 // Converte strings de data (YYYY-MM-DD, DD/MM/YYYY, etc.) para ISO-8601 DateTime.
@@ -963,6 +971,9 @@ export class SmartImportService {
           const numeroEditado = payload.numeros_editados?.[linha.linha_arquivo]
           const dados = { ...linha.dados }
           if (numeroEditado) dados['numero_pedido'] = numeroEditado
+          // PKs do sistema nunca vêm da planilha — evita P2002 id_item/id_pedido em sobrescrever.
+          delete dados['id_item']
+          delete dados['id_pedido']
 
           // P15.3 — Filtrar campos do nivel errado (seguranca no parser)
           const tipoLinha = String(dados['tipo_linha'] ?? '').trim().toUpperCase()
@@ -1076,7 +1087,19 @@ export class SmartImportService {
                   parceirosNumero?.nomesItem,
                 )
                 itemData.pedido_item = { connect: { id_pedido: pedidoResolvido.id_pedido } }
-                await (this.db as Record<string, any>)['pedidoItem'].create({ data: itemData })
+                let criadoItem = false
+                for (let tentativa = 0; tentativa < 3 && !criadoItem; tentativa++) {
+                  try {
+                    await (this.db as Record<string, any>)['pedidoItem'].create({ data: itemData })
+                    criadoItem = true
+                  } catch (errTentativa: unknown) {
+                    if (tentativa < 2 && erroPrismaIdItemDuplicado(errTentativa)) {
+                      itemData.id_item = gerarId('pite')
+                      continue
+                    }
+                    throw errTentativa
+                  }
+                }
                 if (parceirosNumero) {
                   await aplicarParceirosResolvidosNoPedido(this.db, pedidoResolvido.id_pedido, tenantId, parceirosNumero)
                 }

@@ -41,6 +41,7 @@ const CriarCotacaoSchema = z.object({
   incoterm_cotacao_bid_frete_internacional: z.string().min(1),
   zipcode_origem_cotacao_bid_frete_internacional: z.string().optional(),
   endereco_origem_cotacao_bid_frete_internacional: z.string().optional(),
+  endereco_destino_cotacao_bid_frete_internacional: z.string().optional(),
   zipcode_destino_cotacao_bid_frete_internacional: z.string().optional(),
   valor_meta_cotacao_bid_frete_internacional: z.number().positive().optional(),
   moeda_meta_cotacao_bid_frete_internacional: z.string().default('USD'),
@@ -67,6 +68,20 @@ const FiltrosCotacaoSchema = z.object({
   order_dir: z.enum(['asc', 'desc']).default('desc'),
   /** Quando true, retorna só pedidos avulsos (sem BID pai) — paridade lista 2 camadas */
   apenas_avulsas: z.coerce.boolean().optional(),
+})
+
+/** Campos atualizáveis via PATCH /:id — whitelist evita 500 por campos só do formulário wizard. */
+const AtualizarCotacaoSchema = CriarCotacaoSchema.omit({
+  fornecedor_ids: true,
+  disparar_ao_criar: true,
+  canais_disparo: true,
+}).partial().extend({
+  id_workspace: z.string().min(1).optional(),
+  id_usuario: z.string().min(1).optional(),
+  ganho_valor_cotacao_bid_frete_internacional: z.number().nullable().optional(),
+  ganho_percentual_cotacao_bid_frete_internacional: z.number().nullable().optional(),
+  motivo_reprovacao_cotacao_bid_frete_internacional: z.string().nullable().optional(),
+  motivo_cancelamento_cotacao_bid_frete_internacional: z.string().nullable().optional(),
 })
 
 const AtualizarStatusSchema = z.object({
@@ -281,20 +296,37 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 // --- PATCH /:id — Atualizar cotacao ---
 router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const parsed = AtualizarCotacaoSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(
+        `Dados invalidos: ${parsed.error.issues.map(i => `[${i.path.join('.')}] ${i.message}`).join('; ')}`,
+        400,
+        'VALIDATION_ERROR',
+      )
+    }
+
     const existing = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
-    if (existing.status_cotacao_bid_frete_internacional !== 'RASCUNHO' && existing.status_cotacao_bid_frete_internacional !== 'FALTA_INFORMACAO') {
-      throw new AppError('So e possivel editar cotacoes em rascunho ou com falta de informacao', 400, 'INVALID_STATUS')
+
+    const data: Record<string, unknown> = { ...parsed.data }
+    if (parsed.data.data_limite_resposta_cotacao_bid_frete_internacional != null) {
+      data.data_limite_resposta_cotacao_bid_frete_internacional = new Date(
+        parsed.data.data_limite_resposta_cotacao_bid_frete_internacional,
+      )
     }
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional: req.params.id },
-      data: req.body,
+      data,
     })
 
     res.json({ cotacao })
   } catch (err) {
-    next(err)
+    try {
+      relancarSeSchemaDrift(err)
+    } catch (e) {
+      next(e)
+    }
   }
 })
 

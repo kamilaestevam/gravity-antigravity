@@ -35,6 +35,8 @@ export const CARDS_CATALOGO: CardDefinicao[] = [
   { id: 'saving_total', campoBase: 'ganho_valor_cotacao_bid_frete_internacional', tipoAgg: 'Soma', origem: 'Cotação', labelKey: 'bidfrete.config.cards.saving_total', descKey: 'bidfrete.config.cards.saving_total_desc', descricao: 'Economia gerada comparando a proposta vencedora com o teto' },
   { id: 'tempo_medio_resposta', campoBase: 'tempo_medio_resposta', tipoAgg: 'Média', origem: 'Proposta', labelKey: 'bidfrete.config.cards.tempo_medio_resposta', descKey: 'bidfrete.config.cards.tempo_medio_resposta_desc', descricao: 'Tempo médio de resposta dos armadores e agentes de carga' },
   { id: 'cotacoes_expiradas', campoBase: 'id', tipoAgg: 'Contagem', origem: 'Cotação', labelKey: 'bidfrete.config.cards.cotacoes_expiradas', descKey: 'bidfrete.config.cards.cotacoes_expiradas_desc', descricao: 'Cotações de frete expiradas sem aprovação' },
+  { id: 'cotacoes_em_atraso', campoBase: 'id', tipoAgg: 'Contagem', origem: 'Cotação', labelKey: 'bidfrete.config.cards.cotacoes_em_atraso', descKey: 'bidfrete.config.cards.cotacoes_em_atraso_desc', descricao: 'Cotações com prazo de resposta vencido e ainda aguardando retorno' },
+  { id: 'cotacoes_acima_meta', campoBase: 'id', tipoAgg: 'Contagem', origem: 'Cotação', labelKey: 'bidfrete.config.cards.cotacoes_acima_meta', descKey: 'bidfrete.config.cards.cotacoes_acima_meta_desc', descricao: 'Cotações cuja melhor proposta (ou valor aprovado) está acima do valor meta' },
 ]
 
 export const CARDS_PADRAO = ['total_cotacoes', 'valor_total_frete', 'propostas_recebidas']

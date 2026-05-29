@@ -2694,11 +2694,11 @@
       "porto_destino": "Puerto de Destino",
       "porto_destino_titulo": "Puerto de Destino",
       "porto_destino_desc": "Puerto o lugar de desembarque (cadastros.porto — UN/LOCODE)",
-      "local_de_origem": "Local de Origen",
-      "local_de_origem_titulo": "Local de Origen",
+      "local_de_origem": "País origen",
+      "local_de_origem_titulo": "País origen",
       "local_de_origem_desc": "País de origen rodoviaria (cadastros.pais — ISO alpha-2)",
-      "local_de_destino": "Local de Destino",
-      "local_de_destino_titulo": "Local de Destino",
+      "local_de_destino": "País destino",
+      "local_de_destino_titulo": "País destino",
       "local_de_destino_desc": "País de destino rodoviario (cadastros.pais — ISO alpha-2)",
       "aeroporto_origem": "Aeropuerto de Origen",
       "aeroporto_origem_titulo": "Aeropuerto de Origen",
@@ -5662,6 +5662,9 @@
     "coluna_filho": {
       "mapa_id_workspace": {
         "tooltip_bloqueado": "El workspace es del pedido — edite en la fila del pedido"
+      },
+      "mapa_logistica": {
+        "tooltip_edita_pedido": "Valor del pedido — al editar aquí se actualiza todo el pedido (no se guarda en el ítem)."
       },
       "part_number": {
         "label": "Nº de Artículo",

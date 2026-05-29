@@ -36,17 +36,21 @@ import {
   CurrencyDollar,
   ClipboardText,
   Gauge,
+  Target,
 } from '@phosphor-icons/react'
 
-import { getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao } from '../shared/api'
+import { atualizarCotacao, getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao, mudarStatusCotacao } from '../shared/api'
 import type { BidFreteInternacional, Cotacao, StatusCotacao } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, MODALIDADE_LABELS } from '../shared/types'
 import {
   calcularMetricaCardCustom,
   formatarValorCardCustom,
 } from '../shared/lista-bid-frete-card-custom'
+import { resolverIconeCard } from '../shared/card-icone-map-bid-frete'
+import { decodeMetricaCard } from '../shared/card-metrica-catalog-bid-frete'
 import { COTACOES_LIMIT_LISTA, filtrarCotacoesPorPeriodoCards } from '../shared/lista-bid-frete-card-periodo'
 import { calcularStatsListaBidFrete } from '../shared/lista-bid-frete-kpi-metrics'
+import { calcularMetricasCotacoesAcimaMeta } from '../shared/lista-bid-frete-meta-metrics'
 import {
   carregarTabelaConfigBidFrete,
   HORAS_LIMITE_DESTAQUE_EXPIRACAO,
@@ -55,10 +59,13 @@ import {
 import { SYNC_EVENT_CASAS_BID_FRETE } from '../shared/casas-config-bid-frete'
 import { SYNC_EVENT_FORMATO_DATA_BID_FRETE } from '../shared/formato-data-bid-frete'
 import { listarCardsCatalogo, useCardPreferencesBidFrete } from '../shared/use-card-preferences'
+import { resolverPatchEdicaoLocalizacao } from '../shared/lista-bid-frete-edicao-logistica'
+import { useCadastrosListaBidFrete } from '../shared/useCadastrosListaBidFrete'
 import {
   buildColunasPaiLista,
   buildColunasCotacoes,
   buildMapaColunasFilho,
+  CAMPOS_EDITAVEIS_LISTA,
   CHAVES_COLUNAS_COTACAO,
   CHAVES_COLUNAS_PADRAO_VISIVEIS,
   type OpcoesColunasLista,
@@ -131,26 +138,72 @@ function gerarAbasDinamicas(statusList: StatusConfig[]): Array<{ valor: string; 
   return abas
 }
 
-// ─── Campos Editáveis Inline ───
-
-const CAMPOS_EDITAVEIS = [
-  'referencia_interna_cotacao_bid_frete_internacional',
-  'data_limite_resposta_cotacao_bid_frete_internacional',
-  'origem_nome_cotacao_bid_frete_internacional',
-  'destino_nome_cotacao_bid_frete_internacional',
-  'modal_cotacao_bid_frete_internacional',
-  'modalidade_cotacao_bid_frete_internacional',
-  'peso_kg_cotacao_bid_frete_internacional',
-  'cubagem_m3_cotacao_bid_frete_internacional',
-  'quantidade_cotacao_bid_frete_internacional',
-  'incoterm_cotacao_bid_frete_internacional',
-  'valor_meta_cotacao_bid_frete_internacional',
-]
-
 // ─── Colunas padrão = todas as colunas escalares do banco ───
 
+const CAMPOS_DATA_COTACAO = new Set([
+  'data_limite_resposta_cotacao_bid_frete_internacional',
+  'data_criacao_cotacao_bid_frete_internacional',
+  'data_aprovacao_cotacao_bid_frete_internacional',
+  'data_cancelamento_cotacao_bid_frete_internacional',
+])
+
+const CAMPOS_NUMERICOS_COTACAO = new Set([
+  'quantidade_cotacao_bid_frete_internacional',
+  'peso_kg_cotacao_bid_frete_internacional',
+  'cubagem_m3_cotacao_bid_frete_internacional',
+  'ganho_percentual_cotacao_bid_frete_internacional',
+])
+
+function normalizarDataIsoEdicao(valor: unknown): string | null {
+  if (valor == null || valor === '') return null
+  if (typeof valor === 'string') {
+    const parsed = new Date(valor)
+    if (!Number.isNaN(parsed.getTime())) return parsed.toISOString()
+    return valor
+  }
+  if (valor instanceof Date && !Number.isNaN(valor.getTime())) {
+    return valor.toISOString()
+  }
+  return String(valor)
+}
+
+function normalizarValorEdicaoCotacao(campo: string, valor: unknown): unknown {
+  if (campo === 'anonima_cotacao_bid_frete_internacional') {
+    if (typeof valor === 'boolean') return valor
+    return valor === true || valor === 'true' || valor === 'Sim'
+  }
+  if (CAMPOS_DATA_COTACAO.has(campo)) {
+    return normalizarDataIsoEdicao(valor)
+  }
+  if (CAMPOS_NUMERICOS_COTACAO.has(campo)) {
+    if (valor == null || valor === '') return null
+    const n = typeof valor === 'number' ? valor : Number(String(valor).replace(/\./g, '').replace(',', '.'))
+    return Number.isFinite(n) ? n : null
+  }
+  if (valor === '' || valor === '—') return null
+  return valor
+}
+
+function patchCotacaoNoEstado(
+  cotacao: Cotacao,
+  setCotacoes: Dispatch<SetStateAction<Cotacao[]>>,
+  setCotacoesAvulsas: Dispatch<SetStateAction<Cotacao[]>>,
+  setBids: Dispatch<SetStateAction<BidFreteInternacional[]>>,
+): void {
+  const id = cotacao.id_cotacao_bid_frete_internacional
+  const patch = (c: Cotacao) => (c.id_cotacao_bid_frete_internacional === id ? cotacao : c)
+  setCotacoes(prev => prev.map(patch))
+  setCotacoesAvulsas(prev => prev.map(patch))
+  setBids(prev =>
+    prev.map(bid => ({
+      ...bid,
+      cotacoes: (bid.cotacoes ?? []).map(patch),
+    })),
+  )
+}
+
 /** Incrementar quando adicionar colunas ao schema — força reset das prefs salvas. */
-const VERSAO_COLUNAS_LISTA = 3
+const VERSAO_COLUNAS_LISTA = 4
 const STORAGE_COLUNAS_VERSAO = 'bid-frete-internacional:config:tabela_colunas_versao'
 const STORAGE_PREFS_INTL = 'bid-frete-internacional:config:tabela_preferencias'
 const STORAGE_PREFS_LEGADO = 'bid-frete:config:tabela_preferencias'
@@ -190,10 +243,9 @@ function lerPreferenciasTabela(): GTPreferencias | undefined {
       return undefined
     }
 
-    // Novas colunas do banco entram automaticamente ao final da lista visível
-    const colunasVisiveis = faltantes.length > 0
-      ? [...colunasValidas, ...faltantes]
-      : colunasValidas
+    // Novas colunas entram na ordem do schema (bloco origem → destino), não no fim da tabela
+    const visiveisSet = new Set([...colunasValidas, ...faltantes])
+    const colunasVisiveis = CHAVES_COLUNAS_PADRAO_VISIVEIS.filter(k => visiveisSet.has(k))
 
     return {
       ...parsed,
@@ -266,6 +318,32 @@ export default function Cotacoes() {
     return workspacesMap.get(idWorkspaceAtivo)?.nome
   }, [idWorkspaceAtivo, workspacesMap])
 
+  const [statusConfig, setStatusConfig] = useState<StatusConfig[]>(lerStatusConfig)
+
+  useEffect(() => {
+    const handleStorage = () => setStatusConfig(lerStatusConfig())
+    window.addEventListener('storage', handleStorage)
+    window.addEventListener('focus', handleStorage)
+    return () => {
+      window.removeEventListener('storage', handleStorage)
+      window.removeEventListener('focus', handleStorage)
+    }
+  }, [])
+
+  const statusOpcoesColunas = useMemo(
+    () => statusConfig.map(s => ({ valor: s.nome, label: s.rotulo })),
+    [statusConfig],
+  )
+
+  const {
+    paisesOpcoes,
+    portosOpcoes,
+    aeroportosOpcoes,
+    containersOpcoes,
+    portos: portosCadastro,
+    aeroportos: aeroportosCadastro,
+  } = useCadastrosListaBidFrete()
+
   const opcoesColunasLista = useMemo<OpcoesColunasLista>(() => ({
     organizacoesMap,
     workspacesMap,
@@ -273,7 +351,25 @@ export default function Cotacoes() {
     idUsuarioAtual: currentUser.id,
     nomeUsuarioAtual: currentUser.name || currentUser.email,
     nomeWorkspaceFallback: nomeWorkspaceAtivo,
-  }), [organizacoesMap, workspacesMap, usuariosMap, currentUser.id, currentUser.name, currentUser.email, nomeWorkspaceAtivo])
+    statusOpcoes: statusOpcoesColunas,
+    paisesOpcoes,
+    portosOpcoes,
+    aeroportosOpcoes,
+    containersOpcoes,
+  }), [
+    organizacoesMap,
+    workspacesMap,
+    usuariosMap,
+    currentUser.id,
+    currentUser.name,
+    currentUser.email,
+    nomeWorkspaceAtivo,
+    statusOpcoesColunas,
+    paisesOpcoes,
+    portosOpcoes,
+    aeroportosOpcoes,
+    containersOpcoes,
+  ])
 
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
   const [cotacoesAvulsas, setCotacoesAvulsas] = useState<Cotacao[]>([])
@@ -308,19 +404,6 @@ export default function Cotacoes() {
   }, [searchParams, setSearchParams])
 
   const [filtroTab, setFiltroTab] = useState('TODAS')
-
-  // ─── Status Config dinâmico (sincronizado com Configurações via localStorage) ───
-  const [statusConfig, setStatusConfig] = useState<StatusConfig[]>(lerStatusConfig)
-
-  useEffect(() => {
-    const handleStorage = () => setStatusConfig(lerStatusConfig())
-    window.addEventListener('storage', handleStorage)
-    window.addEventListener('focus', handleStorage)
-    return () => {
-      window.removeEventListener('storage', handleStorage)
-      window.removeEventListener('focus', handleStorage)
-    }
-  }, [])
 
   const abas = useMemo(() => gerarAbasDinamicas(statusConfig), [statusConfig])
   const { visiveis: cardsVisiveis, periodo: periodoCards } = useCardPreferencesBidFrete()
@@ -469,20 +552,90 @@ export default function Cotacoes() {
     [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion, formatoDataVersion],
   )
 
-  const handleEditar = useCallback(async (id: string, campo: string, valor: unknown) => {
-    let updatedCotacao: Cotacao | undefined
-    setCotacoes(prev => prev.map(c => {
-      if (c.id_cotacao_bid_frete_internacional === id) {
-        updatedCotacao = { ...c, [campo as keyof Cotacao]: valor } as Cotacao
-        return updatedCotacao
+  const resolverCotacaoPorId = useCallback((id: string): Cotacao | null => {
+    const avulsa = cotacoesAvulsas.find(c => c.id_cotacao_bid_frete_internacional === id)
+    if (avulsa) return avulsa
+    const flat = cotacoes.find(c => c.id_cotacao_bid_frete_internacional === id)
+    if (flat) return flat
+    for (const bid of bidsFreteInternacional) {
+      const filha = (bid.cotacoes ?? []).find(c => c.id_cotacao_bid_frete_internacional === id)
+      if (filha) return filha
+    }
+    return null
+  }, [cotacoes, cotacoesAvulsas, bidsFreteInternacional])
+
+  const salvarEdicaoCotacao = useCallback(async (
+    id: string,
+    campo: string,
+    valor: unknown,
+  ): Promise<Cotacao> => {
+    if (id.startsWith('bid:')) {
+      throw new Error('Expanda o BID e edite a cotação na linha filha.')
+    }
+    const atual = resolverCotacaoPorId(id)
+    if (!atual) throw new Error('Cotação não encontrada')
+
+    const patchLocalizacao = resolverPatchEdicaoLocalizacao(
+      atual,
+      campo,
+      normalizarValorEdicaoCotacao(campo, valor),
+      portosCadastro,
+      aeroportosCadastro,
+    )
+
+    let cotacaoSalva: Cotacao
+    if (campo === 'status_cotacao_bid_frete_internacional') {
+      cotacaoSalva = await mudarStatusCotacao(id, normalizarValorEdicaoCotacao(campo, valor) as StatusCotacao)
+    } else if (
+      valor != null &&
+      typeof valor === 'object' &&
+      'currency' in (valor as object) &&
+      (campo === 'valor_meta_cotacao_bid_frete_internacional'
+        || campo === 'ganho_valor_cotacao_bid_frete_internacional')
+    ) {
+      const mv = valor as { currency: string; amount: number }
+      const amount = typeof mv.amount === 'number' ? mv.amount : Number(mv.amount)
+      const valorNumerico = Number.isFinite(amount) && amount > 0 ? amount : null
+      if (campo === 'valor_meta_cotacao_bid_frete_internacional') {
+        cotacaoSalva = await atualizarCotacao(id, {
+          moeda_meta_cotacao_bid_frete_internacional: String(mv.currency || 'USD'),
+          valor_meta_cotacao_bid_frete_internacional: valorNumerico,
+        })
+      } else {
+        cotacaoSalva = await atualizarCotacao(id, {
+          ganho_valor_cotacao_bid_frete_internacional: valorNumerico,
+        })
       }
-      return c
-    }))
-    const current = cotacoes.find(c => c.id_cotacao_bid_frete_internacional === id)
-    if (!current) throw new Error('Cotação não encontrada')
-    const updated = { ...current, [campo as keyof Cotacao]: valor } as Cotacao
-    return updated
-  }, [cotacoes])
+    } else if (patchLocalizacao) {
+      cotacaoSalva = await atualizarCotacao(id, patchLocalizacao)
+    } else {
+      const valorNormalizado = normalizarValorEdicaoCotacao(campo, valor)
+      cotacaoSalva = await atualizarCotacao(id, {
+        [campo]: valorNormalizado,
+      } as Partial<Cotacao>)
+    }
+
+    patchCotacaoNoEstado(cotacaoSalva, setCotacoes, setCotacoesAvulsas, setBidsFreteInternacional)
+    return cotacaoSalva
+  }, [resolverCotacaoPorId, portosCadastro, aeroportosCadastro])
+
+  const handleEditar = useCallback(async (
+    id: string,
+    campo: string,
+    valor: unknown,
+  ): Promise<LinhaPaiLista> => {
+    const cotacaoSalva = await salvarEdicaoCotacao(id, campo, valor)
+    return cotacaoSalva
+  }, [salvarEdicaoCotacao])
+
+  const handleEditarFilho = useCallback(async (
+    id: string,
+    campo: string,
+    valor: unknown,
+  ): Promise<LinhaFilhaLista> => {
+    const cotacaoSalva = await salvarEdicaoCotacao(id, campo, valor)
+    return cotacaoSalva
+  }, [salvarEdicaoCotacao])
 
   // ─── Filtragem Reativa (Busca + Abas) ───
 
@@ -539,6 +692,13 @@ export default function Cotacoes() {
   const cotacoesParaKpi = useMemo(
     () => filtrarCotacoesPorPeriodoCards(cotacoesFiltradas, periodoCards),
     [cotacoesFiltradas, periodoCards],
+  )
+
+  const metricasAcimaMeta30d = useMemo(
+    () => calcularMetricasCotacoesAcimaMeta(
+      filtrarCotacoesPorPeriodoCards(cotacoesFiltradas, '30d'),
+    ),
+    [cotacoesFiltradas],
   )
 
   const handleCarregarFilhos = useCallback(async (pai: LinhaPaiLista): Promise<LinhaFilhaLista[]> => {
@@ -964,18 +1124,114 @@ export default function Cotacoes() {
             }
           />
         )
+      case 'cotacoes_em_atraso':
+        return (
+          <CardBasicoGlobal
+            key="cotacoes_em_atraso"
+            titulo={t('bidfrete.cotacoes.kpi.emAtraso.titulo', 'Cotações em Atraso')}
+            icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
+            valor={stats.cotacoesEmAtraso}
+            variante="aviso"
+            subtexto={t('bidfrete.cotacoes.kpi.emAtraso.subtexto', 'Prazo de resposta vencido')}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.emAtraso.tooltipTotal', 'Total em atraso')}</span>
+                  <strong style={{ color: '#fb923c' }}>{stats.cotacoesEmAtraso}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.emAtraso.tooltipCriterio', 'Critério')}</span>
+                  <strong>{t('bidfrete.cotacoes.kpi.emAtraso.tooltipCriterioValor', 'Prazo anterior a hoje · em aberto')}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.emAtraso.tooltipExpiradas', 'Já marcadas como expiradas')}</span>
+                  <strong>{stats.expiradas}</strong>
+                </div>
+              </>
+            }
+          />
+        )
+      case 'cotacoes_acima_meta': {
+        const { quantidade, percentualMedioAcima, percentualDoTotalComMeta, totalComMetaAvaliavel, detalhes } =
+          metricasAcimaMeta30d
+        const subtextoPercentual = percentualMedioAcima != null
+          ? t('bidfrete.cotacoes.kpi.acimaMeta.subtextoComMedia', {
+            percentual: fmtQuantidade(percentualMedioAcima, 1),
+            defaultValue: `+${fmtQuantidade(percentualMedioAcima, 1)}% acima da meta (média)`,
+          })
+          : t('bidfrete.cotacoes.kpi.acimaMeta.subtextoVazio', 'Nenhuma cotação acima da meta')
+        return (
+          <CardBasicoGlobal
+            key="cotacoes_acima_meta"
+            titulo={t('bidfrete.cotacoes.kpi.acimaMeta.titulo', 'Cotações acima da meta')}
+            icone={<Target weight="duotone" size={16} style={{ color: '#f87171' }} />}
+            valor={quantidade}
+            variante={quantidade > 0 ? 'perigo' : undefined}
+            subtexto={subtextoPercentual}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipPeriodo', 'Período')}</span>
+                  <strong>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipPeriodoValor', 'Últimos 30 dias')}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipTotal', 'Acima da meta')}</span>
+                  <strong style={{ color: '#f87171' }}>{quantidade}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipComMeta', 'Com meta e proposta')}</span>
+                  <strong>{totalComMetaAvaliavel}</strong>
+                </div>
+                {percentualDoTotalComMeta != null && (
+                  <div className="cg-tooltip__row">
+                    <span>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipPercentualPeriodo', '% do período')}</span>
+                    <strong>{fmtQuantidade(percentualDoTotalComMeta, 1)}%</strong>
+                  </div>
+                )}
+                {percentualMedioAcima != null && (
+                  <div className="cg-tooltip__row">
+                    <span>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipMediaAcima', 'Média acima da meta')}</span>
+                    <strong>+{fmtQuantidade(percentualMedioAcima, 1)}%</strong>
+                  </div>
+                )}
+                {detalhes.length > 0 ? (
+                  detalhes.map(item => (
+                    <div key={item.id} className="cg-tooltip__row">
+                      <span>{item.numero}</span>
+                      <strong>
+                        {item.moeda} {fmtQuantidade(item.valorReferencia, 2)}
+                        {' '}
+                        (+{fmtQuantidade(item.percentualAcima, 1)}%)
+                      </strong>
+                    </div>
+                  ))
+                ) : (
+                  <div className="cg-tooltip__row">
+                    <span>{t('bidfrete.cotacoes.kpi.acimaMeta.tooltipVazio', 'Nenhuma nos últimos 30 dias')}</span>
+                    <strong>—</strong>
+                  </div>
+                )}
+              </>
+            }
+          />
+        )
+      }
       default: {
         const defCustom = listarCardsCatalogo().find(c => c.id === id)
         if (!defCustom) return null
         const valorMetrica = calcularMetricaCardCustom(defCustom, cotacoesParaKpi)
         const valorFormatado = formatarValorCardCustom(defCustom, valorMetrica, fmtQuantidade)
+        const metricaId = decodeMetricaCard(defCustom.descKey)
+        const metricaLabel = metricaId
+          ? t(`bidfrete.config.cards.${metricaId}`, defCustom.descricao)
+          : defCustom.descricao
         return (
           <CardBasicoGlobal
             key={id}
             titulo={defCustom.labelKey}
-            icone={<Package weight="duotone" size={16} style={{ color: defCustom.cor ?? 'var(--ws-accent, #818cf8)' }} />}
+            icone={resolverIconeCard(defCustom.icone, 16, defCustom.cor ?? 'var(--ws-accent, #818cf8)')}
             valor={valorFormatado}
-            subtexto={defCustom.descricao}
+            subtexto={metricaLabel}
             tooltip={
               <>
                 <div className="cg-tooltip__row">
@@ -998,7 +1254,7 @@ export default function Cotacoes() {
         )
       }
     }
-  }, [stats, cotacoesParaKpi, t])
+  }, [stats, cotacoesParaKpi, metricasAcimaMeta30d, t])
 
   // ─── Render ───
 
@@ -1071,8 +1327,10 @@ export default function Cotacoes() {
             modoLocalizar={true}
             placeholderBusca="Buscar por processo, referência, origem ou destino..."
             
-            camposEditaveis={CAMPOS_EDITAVEIS}
+            camposEditaveis={CAMPOS_EDITAVEIS_LISTA}
+            camposEditaveisFilhos={CAMPOS_EDITAVEIS_LISTA}
             onEditar={handleEditar}
+            onEditarFilho={handleEditarFilho}
             onSalvoComSucesso={() => addNotification({ type: 'success', message: 'Campo atualizado com sucesso.' })}
             onErroAoSalvar={(msg) => addNotification({ type: 'error', message: msg })}
             

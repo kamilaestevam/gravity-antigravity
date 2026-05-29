@@ -31,6 +31,7 @@ import {
   Scales,
   Warning,
   XCircle,
+  LinkSimple,
 } from '@phosphor-icons/react'
 
 import { getCotacao, getDisparoPorCotacaoBidFreteInternacional, excluirCotacao } from '../shared/api'
@@ -95,6 +96,11 @@ const BID_STATUS_VARIANTE: Record<StatusDisparoCotacaoBidFreteInternacional, str
   RESPONDIDO: 'success',
   EXPIRADO: 'danger',
   ERRO_ENVIO: 'danger',
+}
+
+function montarLinkRespostaPublicoDisparo(token: string): string {
+  const base = window.location.origin.replace(/\/$/, '')
+  return `${base}/bid-frete/visao-fornecedor-bid-frete-internacional/publico/${encodeURIComponent(token)}`
 }
 
 // ─── Timeline ────────────────────────────────────────────────────────────────
@@ -271,10 +277,69 @@ export default function DetalheCotacao() {
       label: t('comum.status'),
       tipo: 'texto',
       largura: 130,
-      render: (valor: unknown) => {
+      render: (valor: unknown, row: DisparoCotacaoBidFreteInternacional) => {
         const val = valor as StatusDisparoCotacaoBidFreteInternacional
+        const erro = row.erro_envio_disparo_cotacao_bid_frete_internacional?.trim()
         return (
-          <Badge label={STATUS_DISPARO_COTACAO_BID_FRETE_INTERNACIONAL_LABELS[val]} variante={BID_STATUS_VARIANTE[val]} />
+          <span title={val === 'ERRO_ENVIO' && erro ? erro : undefined}>
+            <Badge label={STATUS_DISPARO_COTACAO_BID_FRETE_INTERNACIONAL_LABELS[val]} variante={BID_STATUS_VARIANTE[val]} />
+          </span>
+        )
+      },
+    },
+    {
+      key: 'erro_envio_disparo_cotacao_bid_frete_internacional',
+      label: t('bidfrete.detalhe_cotacao.motivo_erro', 'Motivo'),
+      tipo: 'texto',
+      largura: 280,
+      render: (valor: unknown, row: DisparoCotacaoBidFreteInternacional) => {
+        const erro = (valor as string | null | undefined)?.trim()
+          || row.erro_envio_disparo_cotacao_bid_frete_internacional?.trim()
+        if (row.status_disparo_cotacao_bid_frete_internacional !== 'ERRO_ENVIO' || !erro) return '—'
+        return (
+          <span
+            title={erro}
+            style={{
+              fontSize: '0.75rem',
+              lineHeight: 1.4,
+              color: 'var(--danger, #ef4444)',
+              whiteSpace: 'normal',
+              wordBreak: 'break-word',
+              display: 'block',
+            }}
+          >
+            {erro}
+          </span>
+        )
+      },
+    },
+    {
+      key: 'token_resposta_disparo_cotacao_bid_frete_internacional',
+      label: t('bidfrete.detalhe_cotacao.link_resposta', 'Link resposta'),
+      tipo: 'texto',
+      largura: 120,
+      render: (_valor: unknown, row: DisparoCotacaoBidFreteInternacional) => {
+        const token = row.token_resposta_disparo_cotacao_bid_frete_internacional
+        if (!token) return '—'
+        const href = montarLinkRespostaPublicoDisparo(token)
+        return (
+          <a
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              color: 'var(--ws-accent, #818cf8)',
+              textDecoration: 'none',
+            }}
+          >
+            <LinkSimple weight="bold" size={14} />
+            {t('bidfrete.detalhe_cotacao.abrir_link', 'Abrir')}
+          </a>
         )
       },
     },

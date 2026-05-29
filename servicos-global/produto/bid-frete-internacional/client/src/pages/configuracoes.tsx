@@ -58,12 +58,16 @@ import {
 import {
   CARD_PERIODOS as PERIODOS,
   DEFAULT_CARD_PREFERENCIAS,
+  CARDS_CATALOGO,
   registrarCardCustomizado,
   useCardPreferencesBidFrete,
   type CardDefinicao,
   type CardPeriodoCodigo,
   type CardPreferencia,
 } from '../shared/use-card-preferences'
+import { encodeMetricaCard } from '../shared/card-metrica-catalog-bid-frete'
+import { resolverIconeCard } from '../shared/card-icone-map-bid-frete'
+import { ModalNovoCardUsuario } from '../components/ModalNovoCardUsuario'
 import {
   BID_FRETE_DASHBOARD_TOP_KPI_WIDGET_IDS,
   useDashboardTopKpiBidFrete,
@@ -196,6 +200,8 @@ const CARD_VISUAL: Record<string, { icone: React.ReactNode; cor: string }> = {
   saving_total:          { icone: <Coins             weight="duotone" size={18} />, cor: '#fb923c' },
   tempo_medio_resposta:  { icone: <Gauge             weight="duotone" size={18} />, cor: '#a78bfa' },
   cotacoes_expiradas:    { icone: <Warning           weight="duotone" size={18} />, cor: '#f87171' },
+  cotacoes_em_atraso:    { icone: <Clock             weight="duotone" size={18} />, cor: '#fb923c' },
+  cotacoes_acima_meta:   { icone: <Gauge             weight="duotone" size={18} />, cor: '#f87171' },
 }
 
 const NOME_EXIBICAO_CARDS: Record<string, string> = {
@@ -205,10 +211,21 @@ const NOME_EXIBICAO_CARDS: Record<string, string> = {
   saving_total: 'Saving Total',
   tempo_medio_resposta: 'Tempo Médio de Resposta',
   cotacoes_expiradas: 'Cotações Expiradas',
+  cotacoes_em_atraso: 'Cotações em Atraso',
+  cotacoes_acima_meta: 'Quantidade cotações acima da meta',
 }
 
 function obterNomeExibicaoCard(card: CardDefinicao): string {
   return NOME_EXIBICAO_CARDS[card.id] || card.labelKey
+}
+
+function resolverVisualCard(def: CardDefinicao): { icone: React.ReactNode; cor: string } {
+  const nativo = CARD_VISUAL[def.id]
+  if (nativo) return nativo
+  return {
+    icone: resolverIconeCard(def.icone, 18, def.cor),
+    cor: def.cor ?? 'var(--ws-accent, #818cf8)',
+  }
 }
 
 const SIDEBAR_ITEMS = [
@@ -277,10 +294,7 @@ function CardSortavel({
   onRemover: () => void
   periodoAtivo: string
 }) {
-  const visual = CARD_VISUAL[pref.id] ?? {
-    icone: <Package weight="duotone" size={18} />,
-    cor: def.cor ?? 'var(--ws-accent, #818cf8)',
-  }
+  const visual = resolverVisualCard(def)
   const [detalheAberto, setDetalheAberto] = useState(false)
 
   const {
@@ -580,10 +594,6 @@ function StatusSortavel({
 
         <span className="cfg-status-label">{status.rotulo}</span>
 
-        {status.is_sistema && (
-          <span className="cfg-badge-sistema">sistema</span>
-        )}
-
         <div className="cfg-status-acoes">
           <TooltipGlobal descricao="Editar">
             <button
@@ -595,18 +605,16 @@ function StatusSortavel({
               <PencilSimple size={14} weight="bold" />
             </button>
           </TooltipGlobal>
-          {!status.is_sistema && (
-            <TooltipGlobal descricao="Excluir">
-              <button
-                type="button"
-                className="cfg-remove-btn"
-                onClick={() => onExcluir(status.id)}
-                aria-label="Excluir"
-              >
-                <Trash size={14} weight="bold" />
-              </button>
-            </TooltipGlobal>
-          )}
+          <TooltipGlobal descricao="Excluir">
+            <button
+              type="button"
+              className="cfg-remove-btn"
+              onClick={() => onExcluir(status.id)}
+              aria-label="Excluir"
+            >
+              <Trash size={14} weight="bold" />
+            </button>
+          </TooltipGlobal>
         </div>
       </div>
 
@@ -671,68 +679,6 @@ function ToggleRow({ label, desc, checked, onChange, id }: { label: string; desc
         {desc && <p className="cfg-toggle-row__desc">{desc}</p>}
       </div>
       <Toggle checked={checked} onChange={onChange} id={id} />
-    </div>
-  )
-}
-
-// ─── Modal Novo Card ─────────────────────────────────────────────────────────────
-
-function ModalNovoCardUsuario({
-  onFechar, onSalvo
-}: {
-  onFechar: () => void
-  onSalvo: (card: { nome: string; icone: string; cor: string; formula_expressao: string }) => void
-}) {
-  const [nome, setNome] = useState('')
-  const [icone, setIcone] = useState('Package')
-  const [cor, setCor] = useState('#818cf8')
-  const [formula, setFormula] = useState('')
-
-  const ICONES = ['Package', 'CurrencyDollar', 'Scales', 'Warning', 'CheckCircle', 'Coins', 'ClipboardText', 'Gauge']
-  const CORES = ['#818cf8', '#34d399', '#fbbf24', '#f87171', '#60a5fa', '#a78bfa', '#fb923c']
-
-  const handleSalvar = () => {
-    if (!nome.trim()) return
-    onSalvo({ nome, icone, cor, formula_expressao: formula })
-  }
-
-  return (
-    <div className="mcu-overlay" onClick={onFechar} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
-      <div className="mcu-modal" onClick={e => e.stopPropagation()} style={{ background: '#1e293b', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', width: '420px' }}>
-        <h3 className="mcu-header__titulo" style={{ fontSize: '1rem', fontWeight: 600, color: '#f1f5f9', marginBottom: '1rem' }}>Novo Card Personalizado</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem', color: '#94a3b8' }}>
-            Nome do Card
-            <input type="text" value={nome} onChange={e => setNome(e.target.value)} style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#f1f5f9' }} />
-          </label>
-          <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-            Ícone
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
-              {ICONES.map(ic => (
-                <button key={ic} type="button" onClick={() => setIcone(ic)} style={{ padding: '6px', borderRadius: '6px', border: '1px solid transparent', background: icone === ic ? '#818cf8' : '#334155', color: '#f1f5f9', cursor: 'pointer' }}>
-                  {ic.substring(0, 3)}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-            Cor
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
-              {CORES.map(c => (
-                <button key={c} type="button" onClick={() => setCor(c)} style={{ width: '24px', height: '24px', borderRadius: '50%', border: cor === c ? '2px solid white' : 'none', background: c, cursor: 'pointer' }} />
-              ))}
-            </div>
-          </div>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem', color: '#94a3b8' }}>
-            Fórmula Simplificada
-            <input type="text" placeholder="Ex: valor_frete_proposta_bid_frete_internacional * 1.05" value={formula} onChange={e => setFormula(e.target.value)} style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#f1f5f9' }} />
-          </label>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1rem' }}>
-            <button type="button" onClick={onFechar} style={{ padding: '6px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#f1f5f9', cursor: 'pointer' }}>Cancelar</button>
-            <button type="button" onClick={handleSalvar} style={{ padding: '6px 16px', borderRadius: '8px', border: 'none', background: '#818cf8', color: '#fff', cursor: 'pointer' }}>Criar</button>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
@@ -970,11 +916,18 @@ export default function Configuracoes() {
     { tipo: 'campo', chave: 'taxas_origem_proposta_bid_frete_internacional', label: 'Taxas Origem' }
   ])
 
-  const [statusList, setStatusList] = useConfigState<PedidoStatusConfig[]>('status', [
-    { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
-    { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
-    { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
-    { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
+  const [
+    statusList,
+    setStatusList,
+    ,
+    salvarStatusConfig,
+    restaurarStatusConfig,
+    statusConfigDirty,
+  ] = useConfigState<PedidoStatusConfig[]>('status', [
+    { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: false },
+    { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: false },
+    { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: false },
+    { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: false },
     { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: false },
     { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: false },
     { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: false },
@@ -986,10 +939,10 @@ export default function Configuracoes() {
   useEffect(() => {
     if (statusList.length < 9) {
       const canonicals: PedidoStatusConfig[] = [
-        { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
-        { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
-        { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
-        { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
+        { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: false },
+        { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: false },
+        { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: false },
+        { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: false },
         { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: false },
         { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: false },
         { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: false },
@@ -1000,6 +953,13 @@ export default function Configuracoes() {
       localStorage.setItem('bid-frete:config:status', JSON.stringify(canonicals))
     }
   }, [statusList, setStatusList])
+
+  useEffect(() => {
+    setStatusList(prev => {
+      if (!prev.some(s => s.is_sistema)) return prev
+      return prev.map(s => ({ ...s, is_sistema: false }))
+    })
+  }, [setStatusList])
 
   const [statusBidList, setStatusBidList] = useConfigState<PedidoStatusConfig[]>('status-bid-frete-internacional', [
     { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
@@ -1091,6 +1051,9 @@ export default function Configuracoes() {
   const [editandoStatusId, setEditandoStatusId] = useState<string | null>(null)
   const [editStatusLabel, setEditStatusLabel] = useState('')
   const [editStatusCor, setEditStatusCor] = useState('#818cf8')
+  const [statusCriando, setStatusCriando] = useState(false)
+  const [statusNovoLabel, setStatusNovoLabel] = useState('')
+  const [statusNovoCor, setStatusNovoCor] = useState('#818cf8')
 
   // Template editing substate
   const [criandoTemplate, setCriandoTemplate] = useState(false)
@@ -1241,10 +1204,65 @@ export default function Configuracoes() {
     setStatusList(prev => {
       const oldIdx = prev.findIndex(p => p.id === active.id)
       const newIdx = prev.findIndex(p => p.id === over.id)
-      const reordered = arrayMove(prev, oldIdx, newIdx)
-      return reordered.map((s, idx) => ({ ...s, ordem: idx + 1 }))
+      if (oldIdx < 0 || newIdx < 0) return prev
+      return arrayMove(prev, oldIdx, newIdx).map((s, idx) => ({ ...s, ordem: idx + 1 }))
     })
   }
+
+  const iniciarEdicaoStatus = useCallback((status: PedidoStatusConfig) => {
+    setEditandoStatusId(status.id)
+    setEditStatusLabel(status.rotulo)
+    setEditStatusCor(status.cor)
+    setStatusCriando(false)
+  }, [])
+
+  const salvarEdicaoStatus = useCallback(() => {
+    if (!editStatusLabel.trim() || !editandoStatusId) return
+    setStatusList(prev => prev.map(s => (
+      s.id === editandoStatusId
+        ? { ...s, rotulo: editStatusLabel.trim(), cor: editStatusCor }
+        : s
+    )))
+    setEditandoStatusId(null)
+    setEditStatusLabel('')
+    setEditStatusCor('#818cf8')
+  }, [editStatusLabel, editStatusCor, editandoStatusId, setStatusList])
+
+  const cancelarEdicaoStatus = useCallback(() => {
+    setEditandoStatusId(null)
+    setEditStatusLabel('')
+    setEditStatusCor('#818cf8')
+  }, [])
+
+  const excluirStatus = useCallback((id: string) => {
+    setStatusList(prev => prev.filter(x => x.id !== id))
+  }, [setStatusList])
+
+  const adicionarStatus = useCallback(() => {
+    if (!statusNovoLabel.trim()) return
+    const ordem = statusList.length + 1
+    const nome = statusNovoLabel.trim().toUpperCase().replace(/\s+/g, '_')
+    const newId = `status_${Date.now()}`
+    setStatusList(prev => [...prev, {
+      id: newId,
+      nome,
+      rotulo: statusNovoLabel.trim(),
+      cor: statusNovoCor,
+      ordem,
+      is_sistema: false,
+    }])
+    setStatusNovoLabel('')
+    setStatusNovoCor('#818cf8')
+    setStatusCriando(false)
+  }, [statusNovoLabel, statusNovoCor, statusList.length, setStatusList])
+
+  const restaurarStatusPadrao = useCallback(() => {
+    restaurarStatusConfig()
+    setEditandoStatusId(null)
+    setStatusCriando(false)
+    setStatusNovoLabel('')
+    setStatusNovoCor('#818cf8')
+  }, [restaurarStatusConfig])
 
   return (
     <div className="cfg-page ws-fade-up">
@@ -1360,13 +1378,14 @@ export default function Configuracoes() {
                   {pendingCardsPrefs.map((pref, i) => {
                     const card = cardsCatalogo.find(c => c.id === pref.id)
                     if (!card) return null
+                    const visual = resolverVisualCard(card)
                     return (
                       <div key={card.id} className={`cfg-kpi-preview-card ${!pref.visible ? 'cfg-kpi-preview-card--oculto' : ''}`}>
                         <span className="cfg-kpi-preview-card__pos">{i + 1}</span>
-                        <div className="cfg-kpi-preview-card__icon" style={{ color: CARD_VISUAL[card.id]?.cor }}>
-                          {CARD_VISUAL[card.id]?.icone}
+                        <div className="cfg-kpi-preview-card__icon" style={{ color: visual.cor }}>
+                          {visual.icone}
                         </div>
-                        <div className="cfg-kpi-preview-card__line" style={{ background: CARD_VISUAL[card.id]?.cor }} />
+                        <div className="cfg-kpi-preview-card__line" style={{ background: visual.cor }} />
                         <p className="cfg-kpi-preview-card__label">{obterNomeExibicaoCard(card)}</p>
                       </div>
                     )
@@ -2190,70 +2209,108 @@ export default function Configuracoes() {
 
         {/* ── CATEGORIA: STATUS ── */}
         {categoria === 'status' && (
-          <section className="cfg-secao">
-            <div className="cfg-secao__header">
-              <div>
-                <h2 className="cfg-secao__titulo">Gerenciar Status</h2>
-                <p className="cfg-secao__desc">Configure, ordene e crie status customizados para as suas cotações.</p>
-              </div>
-            </div>
-
-            <ConfiguracaoSecaoGlobal label="STATUS ATIVOS" count={`${statusList.length} status`} />
-
-            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEndStatus}>
-              <SortableContext items={statusList.map(s => s.id)} strategy={verticalListSortingStrategy}>
-                <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
-                  {statusList.map(s => (
-                    <StatusSortavel
-                      key={s.id}
-                      status={s}
-                      editandoId={editandoStatusId}
-                      editLabel={editStatusLabel}
-                      editCor={editStatusCor}
-                      onIniciarEdicao={status => {
-                        setEditandoStatusId(status.id)
-                        setEditStatusLabel(status.rotulo)
-                        setEditStatusCor(status.cor)
-                      }}
-                      onSalvarEdicao={() => {
-                        if (!editStatusLabel.trim()) return
-                        setStatusList(prev => prev.map(s => s.id === editandoStatusId ? { ...s, rotulo: editStatusLabel, cor: editStatusCor } : s))
-                        setEditandoStatusId(null)
-                      }}
-                      onCancelarEdicao={() => setEditandoStatusId(null)}
-                      onChangeLabel={setEditStatusLabel}
-                      onChangeCor={setEditStatusCor}
-                      onExcluir={id => setStatusList(prev => prev.filter(x => x.id !== id))}
-                    />
-                  ))}
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">
+                    {t('bidfrete.config.status.titulo', 'Status de Cotação')}
+                  </h2>
+                  <p className="cfg-secao__desc">
+                    {t('bidfrete.config.status.descricao', 'Arraste para reordenar · edite o nome e a cor')}
+                  </p>
                 </div>
-              </SortableContext>
-            </DndContext>
+                {!statusCriando && (
+                  <button
+                    type="button"
+                    className="cfg-add-row-btn"
+                    onClick={() => { setStatusCriando(true); setEditandoStatusId(null) }}
+                  >
+                    <Plus size={13} weight="bold" />
+                    {t('bidfrete.config.status.novo_status', 'Novo Status')}
+                  </button>
+                )}
+              </div>
 
-            <div style={{ marginTop: '1.5rem', display: 'flex', gap: '8px' }}>
-              <input
-                type="text"
-                placeholder="Ex: Em Análise do Armador"
-                value={editStatusLabel}
-                onChange={e => setEditStatusLabel(e.target.value)}
-                style={{ flex: 1, padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#fff' }}
-              />
-              <input
-                type="color"
-                value={editStatusCor}
-                onChange={e => setEditStatusCor(e.target.value)}
-                style={{ width: '40px', height: '34px', border: 'none', background: 'transparent', cursor: 'pointer' }}
-              />
-              <BotaoGlobal variante="primario" tamanho="pequeno" onClick={() => {
-                if (!editStatusLabel.trim()) return
-                const newId = `status_${Date.now()}`
-                setStatusList(prev => [...prev, { id: newId, nome: editStatusLabel.toUpperCase().replace(/\s+/g, '_'), rotulo: editStatusLabel, cor: editStatusCor, ordem: prev.length + 1, is_sistema: false }])
-                setEditStatusLabel('')
-              }}>
-                <Plus size={14} /> Adicionar Status
-              </BotaoGlobal>
-            </div>
-          </section>
+              {statusList.length === 0 ? (
+                <p className="cfg-empty">{t('bidfrete.config.status.nenhum_status', 'Nenhum status configurado.')}</p>
+              ) : (
+                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEndStatus}>
+                  <SortableContext items={statusList.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                    <div className="cfg-cards-lista">
+                      {statusList.map(s => (
+                        <StatusSortavel
+                          key={s.id}
+                          status={s}
+                          editandoId={editandoStatusId}
+                          editLabel={editStatusLabel}
+                          editCor={editStatusCor}
+                          onIniciarEdicao={iniciarEdicaoStatus}
+                          onSalvarEdicao={salvarEdicaoStatus}
+                          onCancelarEdicao={cancelarEdicaoStatus}
+                          onChangeLabel={setEditStatusLabel}
+                          onChangeCor={setEditStatusCor}
+                          onExcluir={excluirStatus}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              )}
+
+              {statusCriando && (
+                <div className="cfg-status-novo-form">
+                  <div className="cfg-status-edit-fields">
+                    <input
+                      type="text"
+                      className="cfg-input cfg-input--grow"
+                      placeholder={t('bidfrete.config.status.placeholder_novo', 'Nome do novo status (ex.: Em Análise do Armador)')}
+                      value={statusNovoLabel}
+                      onChange={e => setStatusNovoLabel(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') adicionarStatus() }}
+                      autoFocus
+                    />
+                    <div className="cfg-status-color-picker">
+                      <span className="cfg-status-color-label">{t('bidfrete.config.status.cor', 'Cor')}</span>
+                      <input
+                        type="color"
+                        className="cfg-status-color-input"
+                        value={statusNovoCor}
+                        onChange={e => setStatusNovoCor(e.target.value)}
+                      />
+                      <span className="cfg-status-color-preview" style={{ background: statusNovoCor }} />
+                    </div>
+                  </div>
+                  <div className="cfg-tpl-form__actions">
+                    <button type="button" className="cfg-btn-primario cfg-btn-primario--xs" onClick={adicionarStatus}>
+                      <FloppyDisk size={13} weight="bold" />
+                      {t('bidfrete.config.acao.salvar', 'Salvar')}
+                    </button>
+                    <button
+                      type="button"
+                      className="cfg-btn-secundario cfg-btn-secundario--xs"
+                      onClick={() => { setStatusCriando(false); setStatusNovoLabel(''); setStatusNovoCor('#818cf8') }}
+                    >
+                      {t('bidfrete.config.acao.cancelar', 'Cancelar')}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="cfg-secao__footer">
+                <BotaoCancelar
+                  dirty={statusConfigDirty}
+                  rotulo={t('bidfrete.config.acao.restaurar_padrao', 'Restaurar padrão')}
+                  onClick={restaurarStatusPadrao}
+                />
+                <BotaoSalvar
+                  dirty={statusConfigDirty}
+                  rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
+                  onClick={salvarStatusConfig}
+                />
+              </div>
+            </section>
+          </div>
         )}
 
         {/* ── CATEGORIA: STATUS BID ── */}
@@ -2273,7 +2330,6 @@ export default function Configuracoes() {
                 <div key={s.id} className="cfg-status-row">
                   <span className="cfg-status-dot" style={{ background: s.cor }} />
                   <span className="cfg-status-label">{s.rotulo}</span>
-                  {s.is_sistema && <span className="cfg-badge-sistema">Sistema</span>}
                 </div>
               ))}
             </div>
@@ -2597,15 +2653,17 @@ export default function Configuracoes() {
         <ModalNovoCardUsuario
           onFechar={() => setCriandoCard(false)}
           onSalvo={card => {
+            const metricDef = CARDS_CATALOGO.find(c => c.id === card.metricaId)
+            if (!metricDef) return
             const newId = `card_${Date.now()}`
             registrarCardCustomizado({
               id: newId,
-              campoBase: 'valor_total_proposta_bid_frete_internacional',
-              tipoAgg: 'Soma',
-              origem: 'Proposta',
+              campoBase: metricDef.campoBase,
+              tipoAgg: metricDef.tipoAgg,
+              origem: metricDef.origem,
               labelKey: card.nome.trim(),
-              descKey: card.formula_expressao.trim() || card.nome.trim(),
-              descricao: card.formula_expressao.trim() || 'Card customizado pelo usuário',
+              descKey: encodeMetricaCard(card.metricaId),
+              descricao: metricDef.descricao,
               icone: card.icone,
               cor: card.cor,
             })

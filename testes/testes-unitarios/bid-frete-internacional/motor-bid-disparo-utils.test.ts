@@ -8,7 +8,7 @@ import {
 describe('motor-bid-disparo-utils', () => {
   it('monta link público na rota da visão fornecedor', () => {
     const link = montarLinkRespostaDisparo('http://localhost:8000', 'token-abc')
-    expect(link).toBe('http://localhost:8000/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/token-abc')
+    expect(link).toBe('http://localhost:8000/bid-frete/visao-fornecedor-bid-frete-internacional/publico/token-abc')
   })
 
   it('monta assunto com número da cotação', () => {
@@ -26,10 +26,10 @@ describe('motor-bid-disparo-utils', () => {
       destinoPais: 'CN',
       mercadoria: 'Peças',
       incoterm: 'FOB',
-      linkResposta: 'http://localhost:8000/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/tok',
+      linkResposta: 'http://localhost:8000/bid-frete/visao-fornecedor-bid-frete-internacional/publico/tok',
     })
     expect(html).toContain('Maersk')
     expect(html).toContain('BID-001')
-    expect(html).toContain('http://localhost:8000/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/tok')
+    expect(html).toContain('http://localhost:8000/bid-frete/visao-fornecedor-bid-frete-internacional/publico/tok')
   })
 })

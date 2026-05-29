@@ -193,6 +193,19 @@ describe('POST /api/v1/bid-frete-internacional/cotacoes', () => {
     expect(res.status).toBe(201)
     expect(res.body.cotacao.endereco_origem_cotacao_bid_frete_internacional).toBe('Rua Teste 123')
   })
+
+  it('deve persistir endereco_destino quando informado', async () => {
+    const res = await request(app)
+      .post('/api/v1/bid-frete-internacional/cotacoes')
+      .set(HEADERS)
+      .send({
+        ...COTACAO_VALIDA,
+        endereco_destino_cotacao_bid_frete_internacional: 'Av. Brasil, 500',
+      })
+
+    expect(res.status).toBe(201)
+    expect(res.body.cotacao.endereco_destino_cotacao_bid_frete_internacional).toBe('Av. Brasil, 500')
+  })
 })
 
 describe('GET /api/v1/bid-frete-internacional/cotacoes', () => {
@@ -235,6 +248,55 @@ describe('GET /api/v1/bid-frete-internacional/cotacoes', () => {
     const res = await request(app)
       .get('/api/v1/bid-frete-internacional/cotacoes?limit=501')
       .set(HEADERS)
+
+    expect(res.status).toBe(400)
+    expect(res.body.error).toHaveProperty('code', 'VALIDATION_ERROR')
+  })
+})
+
+describe('PATCH /api/v1/bid-frete-internacional/cotacoes/:id', () => {
+  const app = criarApp()
+
+  beforeEach(() => {
+    mockCotacoes.length = 0
+    vi.clearAllMocks()
+    mockCotacoes.push({
+      id_cotacao_bid_frete_internacional: 'cotacao_em_cotacao',
+      tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO',
+      status_cotacao_bid_frete_internacional: 'EM_COTACAO',
+    })
+  })
+
+  it('deve permitir editar campo mesmo quando status nao e rascunho', async () => {
+    const res = await request(app)
+      .patch('/api/v1/bid-frete-internacional/cotacoes/cotacao_em_cotacao')
+      .set(HEADERS)
+      .send({ tipo_operacao_cotacao_bid_frete_internacional: 'EXPORTACAO' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.cotacao.tipo_operacao_cotacao_bid_frete_internacional).toBe('EXPORTACAO')
+    expect(res.body.cotacao.status_cotacao_bid_frete_internacional).toBe('EM_COTACAO')
+  })
+
+  it('deve atualizar origem/destino via patch de localização (sem aeroporto_*)', async () => {
+    const res = await request(app)
+      .patch('/api/v1/bid-frete-internacional/cotacoes/cotacao_em_cotacao')
+      .set(HEADERS)
+      .send({
+        origem_codigo_cotacao_bid_frete_internacional: 'EZE',
+        origem_nome_cotacao_bid_frete_internacional: 'EZE — Buenos Aires Ezeiza',
+        origem_pais_cotacao_bid_frete_internacional: 'AR',
+      })
+
+    expect(res.status).toBe(200)
+    expect(res.body.cotacao.origem_codigo_cotacao_bid_frete_internacional).toBe('EZE')
+  })
+
+  it('deve retornar 400 para visibilidade inválida', async () => {
+    const res = await request(app)
+      .patch('/api/v1/bid-frete-internacional/cotacoes/cotacao_em_cotacao')
+      .set(HEADERS)
+      .send({ visibilidade_cotacao_bid_frete_internacional: 'INVALIDA' })
 
     expect(res.status).toBe(400)
     expect(res.body.error).toHaveProperty('code', 'VALIDATION_ERROR')

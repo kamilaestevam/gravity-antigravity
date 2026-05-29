@@ -175,8 +175,8 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
   // P11 — Rebaixados a 'secundaria' por decisao do dono (ESSENCIAL para em U).
   { campo: 'porto_origem_pedido',                          rotulo: 'Porto de Origem',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
   { campo: 'porto_destino_pedido',                         rotulo: 'Porto de Destino',                       tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
-  { campo: 'local_de_origem_pedido',                       rotulo: 'Local de Origem',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
-  { campo: 'local_de_destino_pedido',                      rotulo: 'Local de Destino',                       tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
+  { campo: 'local_de_origem_pedido',                       rotulo: 'País origem',                            tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
+  { campo: 'local_de_destino_pedido',                      rotulo: 'País destino',                           tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
   { campo: 'aeroporto_origem_pedido',                      rotulo: 'Aeroporto de Origem',                    tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
   { campo: 'aeroporto_destino_pedido',                     rotulo: 'Aeroporto de Destino',                   tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
 

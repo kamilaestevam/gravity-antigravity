@@ -2218,8 +2218,37 @@
       "acao": {
         "salvar": "Salvar",
         "restaurar_padrao": "Restaurar padrão",
+        "cancelar": "Cancelar",
         "descartar": "Descartar",
         "arrastar": "Arrastar para reordenar"
+      },
+      "cards": {
+        "msg_salvo": "Preferências de cards salvas com sucesso.",
+        "total_cotacoes": "Total de Cotações",
+        "total_cotacoes_desc": "Total de cotações de frete iniciadas no período",
+        "valor_total_frete": "Valor Total de Frete",
+        "valor_total_frete_desc": "Valor acumulado das propostas de frete aprovadas",
+        "propostas_recebidas": "Propostas Recebidas",
+        "propostas_recebidas_desc": "Quantidade total de respostas recebidas de fornecedores",
+        "saving_total": "Saving Total",
+        "saving_total_desc": "Economia gerada comparando a proposta vencedora com o teto",
+        "tempo_medio_resposta": "Tempo Médio de Resposta",
+        "tempo_medio_resposta_desc": "Tempo médio de resposta dos armadores e agentes de carga",
+        "cotacoes_expiradas": "Cotações Expiradas",
+        "cotacoes_expiradas_desc": "Cotações de frete expiradas sem aprovação",
+        "cotacoes_em_atraso": "Cotações em Atraso",
+        "cotacoes_em_atraso_desc": "Cotações com prazo de resposta vencido e ainda aguardando retorno",
+        "cotacoes_acima_meta": "Quantidade cotações acima da meta",
+        "cotacoes_acima_meta_desc": "Cotações cuja melhor proposta ou valor aprovado supera o valor meta"
+      },
+      "status": {
+        "titulo": "Status de Cotação",
+        "descricao": "Arraste para reordenar · edite o nome e a cor",
+        "novo_status": "Novo Status",
+        "placeholder_novo": "Nome do novo status (ex.: Em Análise do Armador)",
+        "cor": "Cor",
+        "nenhum_status": "Nenhum status configurado. Clique em \"Novo Status\" para criar.",
+        "msg_salvo": "Status salvos com sucesso."
       },
       "kanban": {
         "card_msg_salvo": "Card do Kanban salvo com sucesso."
@@ -2336,6 +2365,26 @@
           "tooltipMotivoValor": "Sem fornecedores",
           "tooltipAcao": "Ação",
           "tooltipAcaoValor": "Reabrir ou arquivar"
+        },
+        "emAtraso": {
+          "titulo": "Cotações em Atraso",
+          "subtexto": "Prazo de resposta vencido",
+          "tooltipTotal": "Total em atraso",
+          "tooltipCriterio": "Critério",
+          "tooltipCriterioValor": "Prazo anterior a hoje · em aberto",
+          "tooltipExpiradas": "Já marcadas como expiradas"
+        },
+        "acimaMeta": {
+          "titulo": "Quantidade cotações acima da meta",
+          "subtextoComMedia": "+{{percentual}}% acima da meta (média)",
+          "subtextoVazio": "Nenhuma cotação acima da meta",
+          "tooltipPeriodo": "Período",
+          "tooltipPeriodoValor": "Últimos 30 dias",
+          "tooltipTotal": "Acima da meta",
+          "tooltipComMeta": "Com meta e proposta",
+          "tooltipPercentualPeriodo": "% do período",
+          "tooltipMediaAcima": "Média acima da meta",
+          "tooltipVazio": "Nenhuma nos últimos 30 dias"
         }
       }
     },
@@ -3905,7 +3954,7 @@
       },
       "status": {
         "titulo": "Status do Pedido",
-        "descricao": "Arraste para reordenar · edite o nome e a cor · status de sistema não podem ser excluídos",
+        "descricao": "Arraste para reordenar · edite o nome e a cor",
         "novo_status": "Novo Status",
         "carregando": "Carregando status…",
         "badge_sistema": "sistema",
@@ -3919,7 +3968,9 @@
         "erro_carregar": "Não foi possível carregar os status. Verifique sua conexão e tente novamente.",
         "tentar_novamente": "Tentar novamente",
         "nenhum_status": "Nenhum status configurado. Clique em \"Novo Status\" para criar.",
-        "erro_criar": "Erro ao criar status. Tente novamente."
+        "erro_criar": "Erro ao criar status. Tente novamente.",
+        "msg_salvo": "Status salvos com sucesso.",
+        "erro_salvar": "Não foi possível salvar os status. Tente novamente."
       },
       "notificacoes": {
         "titulo": "Notificações",
@@ -5073,8 +5124,8 @@
       "referencia_fabricante": "Referência Fabricante",
       "porto_origem": "Porto de Origem",
       "porto_destino": "Porto de Destino",
-      "local_de_origem": "Local de Origem",
-      "local_de_destino": "Local de Destino",
+      "local_de_origem": "País origem",
+      "local_de_destino": "País destino",
       "aeroporto_origem": "Aeroporto de Origem",
       "aeroporto_destino": "Aeroporto de Destino",
       "data_emissao_pedido": "Data de Emissão",
@@ -5378,11 +5429,11 @@
       "porto_destino": "Porto de Destino",
       "porto_destino_titulo": "Porto de Destino",
       "porto_destino_desc": "Porto ou local de desembarque (cadastros.porto — UN/LOCODE)",
-      "local_de_origem": "Local de Origem",
-      "local_de_origem_titulo": "Local de Origem",
+      "local_de_origem": "País origem",
+      "local_de_origem_titulo": "País origem",
       "local_de_origem_desc": "País de origem rodoviária (cadastros.pais — ISO alpha-2)",
-      "local_de_destino": "Local de Destino",
-      "local_de_destino_titulo": "Local de Destino",
+      "local_de_destino": "País destino",
+      "local_de_destino_titulo": "País destino",
       "local_de_destino_desc": "País de destino rodoviário (cadastros.pais — ISO alpha-2)",
       "aeroporto_origem": "Aeroporto de Origem",
       "aeroporto_origem_titulo": "Aeroporto de Origem",
@@ -6955,6 +7006,9 @@
     "coluna_filho": {
       "mapa_id_workspace": {
         "tooltip_bloqueado": "Workspace é do pedido — altere na linha do pedido"
+      },
+      "mapa_logistica": {
+        "tooltip_edita_pedido": "Valor do pedido — a alteração aqui atualiza o pedido inteiro (não grava no item)."
       },
       "part_number": {
         "label": "Nº do Item",

@@ -350,9 +350,8 @@ pedidosConfigRouter.put('/status/sync', async (req: Request, res: Response, next
         })
       )
 
-      // Deletar os que não estão na nova lista (apenas não-sistema)
-      const idsParaDeletar = (atuais as Array<{ id_pedido_status: string; nome_pedido_status: string; gerenciado_sistema_pedido_status: boolean }>)
-        .filter(a => !nomesNovos.has(a.nome_pedido_status) && !a.gerenciado_sistema_pedido_status)
+      const idsParaDeletar = (atuais as Array<{ id_pedido_status: string; nome_pedido_status: string }>)
+        .filter(a => !nomesNovos.has(a.nome_pedido_status))
         .map(a => a.id_pedido_status)
 
       const deleteOp = idsParaDeletar.length > 0
@@ -417,10 +416,6 @@ pedidosConfigRouter.delete('/status/:id', async (req: Request, res: Response, ne
 
       if (!existente) {
         throw new AppError(404, 'Status nao encontrado')
-      }
-
-      if (existente.gerenciado_sistema_pedido_status) {
-        throw new AppError(400, 'Status do sistema nao pode ser deletado')
       }
 
       // Inclui id_organizacao no where para garantir isolamento atômico

@@ -169,6 +169,13 @@ const ITEM_EDITAVEL_OVERRIDE: Record<string, boolean> = {
   status:                       true,  // item herda status mas pode ser editado
   quantidade_transferida_total: false, // só muda via operação de transferência
   quantidade_cancelada_total_pedido: false, // só muda via cancelamento
+  // Logística: valor no Pedido; edição na linha item roteia para PATCH pedido (Pedidos.tsx)
+  porto_origem:                 false,
+  porto_destino:                false,
+  local_de_origem:              false,
+  local_de_destino:             false,
+  aeroporto_origem:             false,
+  aeroporto_destino:            false,
 }
 
 // ── API pública ──────────────────────────────────────────────────────────────

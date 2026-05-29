@@ -1,8 +1,16 @@
 import React from 'react'
-import type { GTColuna } from '@nucleo/tabela-virtual-global'
-import { Anchor, AirplaneTilt, Truck } from '@phosphor-icons/react'
+import type { GTColuna, GTValorMoeda } from '@nucleo/tabela-virtual-global'
+import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
+import { Anchor, AirplaneTilt, Eye, Truck } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../shared/types'
-import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS } from '../shared/types'
+import { classeMoedaBadge } from '../shared/types'
+import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS, INCOTERMS } from '../shared/types'
+import {
+  codigoDestinoParaEdicao,
+  codigoOrigemParaEdicao,
+} from '../shared/lista-bid-frete-edicao-logistica'
+import { rotuloCadastroLista, type GTOpcaoCadastro } from '../shared/useCadastrosListaBidFrete'
 import type { LinhaPaiLista } from './lista-bid-frete-internacional-utils'
 import { isLinhaBidGrupo } from './lista-bid-frete-internacional-utils'
 import {
@@ -41,24 +49,28 @@ export function RenderBadgeStatus(valor: unknown): React.ReactNode {
   )
 }
 
+/** Paridade visual com Pedido › ColunasPai › tipo_operacao (lista). */
+export const ESTILO_BADGE_OPERACAO_IMPORTACAO: React.CSSProperties = {
+  color: '#60a5fa',
+  background: 'rgba(96,165,250,0.12)',
+  border: '1px solid rgba(96,165,250,0.2)',
+}
+
+export const ESTILO_BADGE_OPERACAO_EXPORTACAO: React.CSSProperties = {
+  color: '#34d399',
+  background: 'rgba(52,211,153,0.12)',
+  border: '1px solid rgba(52,211,153,0.2)',
+}
+
 export function RenderBadgeOperacao(valor: unknown): React.ReactNode {
   const op = valor as TipoOperacao
   const isImport = op === 'IMPORTACAO'
-  const bg = isImport ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)'
-  const color = isImport ? 'var(--accent, #6366f1)' : '#a855f7'
   return (
-    <span style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      padding: '0.2rem 0.6rem',
-      borderRadius: 'var(--radius-pill, 9999px)',
-      fontSize: '0.75rem',
-      fontWeight: 600,
-      background: bg,
-      color: color,
-    }}>
-      {OPERACAO_LABELS[op] || op}
-    </span>
+    <StatusBadgeGlobal
+      valor={OPERACAO_LABELS[op] || op}
+      genero="feminino"
+      style={isImport ? ESTILO_BADGE_OPERACAO_IMPORTACAO : ESTILO_BADGE_OPERACAO_EXPORTACAO}
+    />
   )
 }
 
@@ -145,17 +157,70 @@ export function getCasas(campo: string, padrao: number): number {
   return lerCasasDecimaisConfig()[campo] ?? padrao
 }
 
+/** Paridade Pedido (`renderDescricaoTruncada` em ColunasFilho). */
+export const LIMITE_TRUNCAR_DESCRICAO_LISTA = 50
+
 function renderTexto(val: unknown): React.ReactNode {
   return (val as string | null | undefined) ?? '—'
+}
+
+function renderDescricaoTruncada(
+  valor: string | null | undefined,
+  label: string,
+): React.ReactNode {
+  if (!valor?.trim()) return <span style={{ color: 'var(--text-muted)' }}>—</span>
+  const texto = valor.trim()
+  if (texto.length <= LIMITE_TRUNCAR_DESCRICAO_LISTA) return <span>{texto}</span>
+  return (
+    <TooltipGlobal titulo={label} descricao={texto}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', maxWidth: '100%' }}>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {texto.slice(0, LIMITE_TRUNCAR_DESCRICAO_LISTA) + '…'}
+        </span>
+        <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} aria-hidden />
+      </span>
+    </TooltipGlobal>
+  )
 }
 
 function renderNumero(val: unknown, casas = 0): React.ReactNode {
   return val != null ? fmtQuantidade(val as number, casas) : '—'
 }
 
-function renderMoeda(val: unknown, moeda: string | null | undefined): React.ReactNode {
-  if (val == null) return '—'
-  return `${moeda ?? 'USD'} ${fmtQuantidade(val as number, 2)}`
+/** Célula valor + badge de moeda (paridade Pedido `valor_total_pedido`). */
+function renderCelulaValorMoeda(
+  valor: number | null | undefined,
+  moeda: string | null | undefined,
+  casas = 2,
+): React.ReactNode {
+  const codigo = (moeda ?? 'USD').trim() || 'USD'
+  const num = valor != null ? Number(valor) : null
+  const temValor = num != null && !Number.isNaN(num)
+  return (
+    <span className="gtv-celula-moeda">
+      <span className={classeMoedaBadge(codigo)}>{codigo}</span>
+      {temValor ? fmtQuantidade(num, casas) : '—'}
+    </span>
+  )
+}
+
+/** Moeda de exibição/edição de valores monetários da cotação (paridade valor meta / aprovado). */
+export function moedaMonetariaCotacao(cotacao: Cotacao): string {
+  return (
+    cotacao.moeda_meta_cotacao_bid_frete_internacional?.trim()
+    || cotacao.moeda_aprovada?.trim()
+    || 'USD'
+  )
+}
+
+function renderBadgeMoeda(moeda: string | null | undefined): React.ReactNode {
+  const codigo = moeda?.trim()
+  if (!codigo) return '—'
+  return (
+    <span className="gtv-celula-moeda">
+      <span className={classeMoedaBadge(codigo)}>{codigo}</span>
+    </span>
+  )
 }
 
 export interface OpcoesColunasLista {
@@ -166,6 +231,266 @@ export interface OpcoesColunasLista {
   nomeUsuarioAtual?: string
   /** Fallback de workspace só para cotação do usuário logado sem id_workspace gravado. */
   nomeWorkspaceFallback?: string
+  /** Opções de status (Configurações → sincronizado com localStorage). */
+  statusOpcoes?: Array<{ valor: string; label: string }>
+  /** Catálogos Cadastros — paridade Pedido (select com busca no popover GTV). */
+  paisesOpcoes?: GTOpcaoCadastro[]
+  portosOpcoes?: GTOpcaoCadastro[]
+  aeroportosOpcoes?: GTOpcaoCadastro[]
+  containersOpcoes?: GTOpcaoCadastro[]
+}
+
+function opcoesLocalizacaoLista(opcoes: OpcoesColunasLista): GTOpcaoCadastro[] | undefined {
+  const portos = opcoes.portosOpcoes ?? []
+  const aeroportos = opcoes.aeroportosOpcoes ?? []
+  const merged = [...portos, ...aeroportos]
+  return merged.length > 0 ? merged : undefined
+}
+
+function renderRotuloLocalizacao(
+  cotacao: Cotacao,
+  opcoesLoc: GTOpcaoCadastro[] | undefined,
+  codigo: string,
+  nomeFallback: string,
+): React.ReactNode {
+  const rotulo = opcoesLoc ? rotuloCadastroLista(codigo, opcoesLoc) : ''
+  return rotulo || nomeFallback || '—'
+}
+
+/** Campos que não entram na edição inline (técnicos ou geridos pelo servidor). */
+export const CAMPOS_NAO_EDITAVEIS_LISTA = new Set([
+  'id_cotacao_bid_frete_internacional',
+  'data_atualizacao_cotacao_bid_frete_internacional',
+])
+
+const OPCOES_OPERACAO = (Object.entries(OPERACAO_LABELS) as Array<[TipoOperacao, string]>).map(
+  ([valor, label]) => ({ valor, label }),
+)
+const OPCOES_MODAL = (Object.entries(MODAL_LABELS) as Array<[ModalFrete, string]>).map(
+  ([valor, label]) => ({ valor, label }),
+)
+const OPCOES_MODALIDADE = (Object.entries(MODALIDADE_LABELS) as Array<[ModalidadeCarga, string]>).map(
+  ([valor, label]) => ({ valor, label }),
+)
+const OPCOES_VISIBILIDADE: Array<{ valor: string; label: string }> = [
+  { valor: 'ABERTA', label: 'Aberta' },
+  { valor: 'DIRECIONADA', label: 'Direcionada' },
+]
+const OPCOES_ANONIMA: Array<{ valor: string; label: string }> = [
+  { valor: 'true', label: 'Sim' },
+  { valor: 'false', label: 'Não' },
+]
+const OPCOES_INCOTERM = INCOTERMS.map(inc => ({ valor: inc, label: inc }))
+const OPCOES_STATUS_PADRAO = (Object.entries(STATUS_LABELS) as Array<[StatusCotacao, string]>).map(
+  ([valor, label]) => ({ valor, label }),
+)
+
+function aplicarConfigEdicaoColuna(
+  col: GTColuna<Cotacao>,
+  opcoes: OpcoesColunasLista,
+): GTColuna<Cotacao> {
+  const key = col.key as string
+  if (!key || CAMPOS_NAO_EDITAVEIS_LISTA.has(key)) {
+    return col
+  }
+
+  const base: GTColuna<Cotacao> = { ...col, editavel: true }
+
+  switch (key) {
+    case 'status_cotacao_bid_frete_internacional':
+      return {
+        ...base,
+        opcoes: opcoes.statusOpcoes?.length ? opcoes.statusOpcoes : OPCOES_STATUS_PADRAO,
+      }
+    case 'tipo_operacao_cotacao_bid_frete_internacional':
+      return { ...base, opcoes: OPCOES_OPERACAO }
+    case 'modal_cotacao_bid_frete_internacional':
+      return { ...base, opcoes: OPCOES_MODAL }
+    case 'modalidade_cotacao_bid_frete_internacional':
+      return { ...base, opcoes: OPCOES_MODALIDADE }
+    case 'visibilidade_cotacao_bid_frete_internacional':
+      return { ...base, opcoes: OPCOES_VISIBILIDADE }
+    case 'anonima_cotacao_bid_frete_internacional':
+      return {
+        ...base,
+        opcoes: OPCOES_ANONIMA,
+        getValorEditar: (item: Cotacao) => String(!!item.anonima_cotacao_bid_frete_internacional),
+      }
+    case 'incoterm_cotacao_bid_frete_internacional':
+      return { ...base, opcoes: OPCOES_INCOTERM }
+    case 'id_organizacao':
+      return {
+        ...base,
+        opcoes: opcoes.organizacoesMap
+          ? [...opcoes.organizacoesMap.entries()].map(([valor, label]) => ({ valor, label }))
+          : undefined,
+        getValorEditar: (item: Cotacao) => item.id_organizacao,
+      }
+    case 'id_workspace':
+      return {
+        ...base,
+        opcoes: opcoes.workspacesMap
+          ? [...opcoes.workspacesMap.entries()].map(([valor, w]) => ({
+              valor,
+              label: w.nome,
+            }))
+          : undefined,
+        getValorEditar: (item: Cotacao) => item.id_workspace ?? '',
+      }
+    case 'id_usuario':
+      return {
+        ...base,
+        opcoes: opcoes.usuariosMap
+          ? [...opcoes.usuariosMap.entries()].map(([valor, label]) => ({ valor, label }))
+          : undefined,
+        getValorEditar: (item: Cotacao) => item.id_usuario ?? '',
+      }
+    case 'id_produto_gravity':
+      return {
+        ...base,
+        opcoes: [{ valor: 'bid-frete-internacional', label: 'BID Frete Internacional' }],
+      }
+    case 'origem_nome_cotacao_bid_frete_internacional':
+    case 'origem_codigo_cotacao_bid_frete_internacional': {
+      const opcoesLoc = opcoesLocalizacaoLista(opcoes)
+      return {
+        ...base,
+        opcoes: opcoesLoc,
+        editavel: (item: Cotacao) =>
+          item.modal_cotacao_bid_frete_internacional !== 'RODOVIARIO' && !!opcoesLoc?.length,
+        getValorEditar: codigoOrigemParaEdicao,
+        findDisplay: (item: Cotacao) => {
+          const rotulo = opcoesLoc
+            ? rotuloCadastroLista(codigoOrigemParaEdicao(item), opcoesLoc)
+            : ''
+          return rotulo || item.origem_nome_cotacao_bid_frete_internacional || ''
+        },
+        render: (_val: unknown, item: Cotacao) =>
+          renderRotuloLocalizacao(
+            item,
+            opcoesLoc,
+            codigoOrigemParaEdicao(item),
+            item.origem_nome_cotacao_bid_frete_internacional,
+          ),
+      }
+    }
+    case 'destino_nome_cotacao_bid_frete_internacional':
+    case 'destino_codigo_cotacao_bid_frete_internacional': {
+      const opcoesLoc = opcoesLocalizacaoLista(opcoes)
+      return {
+        ...base,
+        opcoes: opcoesLoc,
+        editavel: (item: Cotacao) =>
+          item.modal_cotacao_bid_frete_internacional !== 'RODOVIARIO' && !!opcoesLoc?.length,
+        getValorEditar: codigoDestinoParaEdicao,
+        findDisplay: (item: Cotacao) => {
+          const rotulo = opcoesLoc
+            ? rotuloCadastroLista(codigoDestinoParaEdicao(item), opcoesLoc)
+            : ''
+          return rotulo || item.destino_nome_cotacao_bid_frete_internacional || ''
+        },
+        render: (_val: unknown, item: Cotacao) =>
+          renderRotuloLocalizacao(
+            item,
+            opcoesLoc,
+            codigoDestinoParaEdicao(item),
+            item.destino_nome_cotacao_bid_frete_internacional,
+          ),
+      }
+    }
+    case 'origem_pais_cotacao_bid_frete_internacional':
+      return {
+        ...base,
+        opcoes: opcoes.paisesOpcoes,
+        getValorEditar: (item: Cotacao) => item.origem_pais_cotacao_bid_frete_internacional ?? '',
+        findDisplay: (item: Cotacao) =>
+          rotuloCadastroLista(item.origem_pais_cotacao_bid_frete_internacional, opcoes.paisesOpcoes ?? '')
+            || item.origem_pais_cotacao_bid_frete_internacional
+            || '—',
+        render: (_val: unknown, item: Cotacao) =>
+          rotuloCadastroLista(item.origem_pais_cotacao_bid_frete_internacional, opcoes.paisesOpcoes ?? '')
+            || item.origem_pais_cotacao_bid_frete_internacional
+            || '—',
+      }
+    case 'destino_pais_cotacao_bid_frete_internacional':
+      return {
+        ...base,
+        opcoes: opcoes.paisesOpcoes,
+        getValorEditar: (item: Cotacao) => item.destino_pais_cotacao_bid_frete_internacional ?? '',
+        findDisplay: (item: Cotacao) =>
+          rotuloCadastroLista(item.destino_pais_cotacao_bid_frete_internacional, opcoes.paisesOpcoes ?? '')
+            || item.destino_pais_cotacao_bid_frete_internacional
+            || '—',
+        render: (_val: unknown, item: Cotacao) =>
+          rotuloCadastroLista(item.destino_pais_cotacao_bid_frete_internacional, opcoes.paisesOpcoes ?? '')
+            || item.destino_pais_cotacao_bid_frete_internacional
+            || '—',
+      }
+    case 'tipo_container_cotacao_bid_frete_internacional':
+      return {
+        ...base,
+        opcoes: opcoes.containersOpcoes,
+        getValorEditar: (item: Cotacao) => item.tipo_container_cotacao_bid_frete_internacional ?? '',
+        findDisplay: (item: Cotacao) =>
+          rotuloCadastroLista(item.tipo_container_cotacao_bid_frete_internacional, opcoes.containersOpcoes ?? '')
+            || item.tipo_container_cotacao_bid_frete_internacional
+            || '—',
+        render: (_val: unknown, item: Cotacao) =>
+          rotuloCadastroLista(item.tipo_container_cotacao_bid_frete_internacional, opcoes.containersOpcoes ?? '')
+            || item.tipo_container_cotacao_bid_frete_internacional
+            || '—',
+      }
+    case 'valor_meta_cotacao_bid_frete_internacional': {
+      const casas = getCasas('valor_meta_cotacao_bid_frete_internacional', 2)
+      return {
+        ...base,
+        tipo: 'moeda',
+        casasDecimais: casas,
+        getValorEditar: (item: Cotacao): GTValorMoeda => ({
+          currency: item.moeda_meta_cotacao_bid_frete_internacional ?? 'USD',
+          amount: item.valor_meta_cotacao_bid_frete_internacional ?? 0,
+        }),
+        render: (_val: unknown, item: Cotacao) =>
+          renderCelulaValorMoeda(item.valor_meta_cotacao_bid_frete_internacional, item.moeda_meta_cotacao_bid_frete_internacional, casas),
+      }
+    }
+    case 'ganho_valor_cotacao_bid_frete_internacional': {
+      const casas = getCasas('ganho_valor_cotacao_bid_frete_internacional', 2)
+      return {
+        ...base,
+        tipo: 'moeda',
+        casasDecimais: casas,
+        getValorEditar: (item: Cotacao): GTValorMoeda => ({
+          currency: moedaMonetariaCotacao(item),
+          amount: item.ganho_valor_cotacao_bid_frete_internacional ?? 0,
+        }),
+        render: (_val: unknown, item: Cotacao) => (
+          <span style={{ display: 'inline-flex', justifyContent: 'center', width: '100%' }}>
+            {renderCelulaValorMoeda(
+              item.ganho_valor_cotacao_bid_frete_internacional,
+              moedaMonetariaCotacao(item),
+              casas,
+            )}
+          </span>
+        ),
+      }
+    }
+    case 'moeda_meta_cotacao_bid_frete_internacional':
+      return {
+        ...base,
+        opcoes: [
+          { valor: 'USD', label: 'USD' },
+          { valor: 'EUR', label: 'EUR' },
+          { valor: 'BRL', label: 'BRL' },
+          { valor: 'GBP', label: 'GBP' },
+          { valor: 'CNY', label: 'CNY' },
+        ],
+        render: (_val: unknown, item: Cotacao) =>
+          renderBadgeMoeda(item.moeda_meta_cotacao_bid_frete_internacional),
+      }
+    default:
+      return base
+  }
 }
 
 const LABEL_PRODUTO_GRAVITY: Record<string, string> = {
@@ -284,7 +609,7 @@ export function formatValorExportColuna(
 }
 
 /** Todas as colunas escalares de `cotacao_bid_frete_internacional` (fragment.prisma). */
-export function buildColunasCotacoes(
+function buildColunasCotacoesBase(
   _t: unknown,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
@@ -391,12 +716,14 @@ export function buildColunasCotacoes(
       key: 'data_criacao_cotacao_bid_frete_internacional',
       label: 'Data da cotação',
       tipo: 'periodo',
+      align: 'center',
       render: (val: unknown) => fmtData(val as string),
     },
     {
       key: 'data_atualizacao_cotacao_bid_frete_internacional',
       label: 'Última atualização',
       tipo: 'periodo',
+      align: 'center',
       render: (val: unknown) => fmtData(val as string),
     },
     {
@@ -438,6 +765,7 @@ export function buildColunasCotacoes(
       key: 'origem_pais_cotacao_bid_frete_internacional',
       label: 'País origem',
       tipo: 'texto',
+      align: 'center',
       render: renderTexto,
     },
     {
@@ -462,13 +790,22 @@ export function buildColunasCotacoes(
       key: 'destino_pais_cotacao_bid_frete_internacional',
       label: 'País destino',
       tipo: 'texto',
+      align: 'center',
+      render: renderTexto,
+    },
+    {
+      key: 'endereco_destino_cotacao_bid_frete_internacional',
+      label: 'Endereço destino',
+      tipo: 'texto',
       render: renderTexto,
     },
     {
       key: 'descricao_mercadoria_cotacao_bid_frete_internacional',
       label: 'Descrição mercadoria',
       tipo: 'texto',
-      render: renderTexto,
+      tooltipDescricao: 'Texto completo da mercadoria cotada',
+      render: (val: unknown) =>
+        renderDescricaoTruncada(val as string | null | undefined, 'Descrição mercadoria'),
     },
     {
       key: 'ncm_cotacao_bid_frete_internacional',
@@ -480,13 +817,14 @@ export function buildColunasCotacoes(
       key: 'quantidade_cotacao_bid_frete_internacional',
       label: 'Quantidade',
       tipo: 'numero',
-      align: 'right',
+      align: 'center',
       render: (val: unknown) => renderNumero(val, 0),
     },
     {
       key: 'tipo_container_cotacao_bid_frete_internacional',
       label: 'Tipo container',
       tipo: 'texto',
+      align: 'center',
       render: renderTexto,
     },
     {
@@ -524,16 +862,27 @@ export function buildColunasCotacoes(
     {
       key: 'valor_meta_cotacao_bid_frete_internacional',
       label: 'Valor meta',
-      tipo: 'numero',
-      align: 'right',
-      render: (val: unknown, item: Cotacao) =>
-        renderMoeda(val, item.moeda_meta_cotacao_bid_frete_internacional),
+      tipo: 'moeda',
+      align: 'center',
+      casasDecimais: getCasas('valor_meta_cotacao_bid_frete_internacional', 2),
+      getValorEditar: (item: Cotacao): GTValorMoeda => ({
+        currency: item.moeda_meta_cotacao_bid_frete_internacional ?? 'USD',
+        amount: item.valor_meta_cotacao_bid_frete_internacional ?? 0,
+      }),
+      render: (_val: unknown, item: Cotacao) =>
+        renderCelulaValorMoeda(
+          item.valor_meta_cotacao_bid_frete_internacional,
+          item.moeda_meta_cotacao_bid_frete_internacional,
+          getCasas('valor_meta_cotacao_bid_frete_internacional', 2),
+        ),
     },
     {
       key: 'moeda_meta_cotacao_bid_frete_internacional',
       label: 'Moeda meta',
       tipo: 'texto',
-      render: renderTexto,
+      align: 'center',
+      render: (_val: unknown, item: Cotacao) =>
+        renderBadgeMoeda(item.moeda_meta_cotacao_bid_frete_internacional),
     },
     {
       key: 'visibilidade_cotacao_bid_frete_internacional',
@@ -557,6 +906,7 @@ export function buildColunasCotacoes(
       key: 'data_aprovacao_cotacao_bid_frete_internacional',
       label: 'Data aprovação',
       tipo: 'periodo',
+      align: 'center',
       render: (val: unknown) => fmtData(val as string),
     },
     {
@@ -581,29 +931,53 @@ export function buildColunasCotacoes(
       key: 'id_fornecedor_vencedor_cotacao_bid_frete_internacional',
       label: 'Fornecedor vencedor',
       tipo: 'texto',
+      align: 'center',
       render: renderTexto,
     },
     {
       key: 'ganho_valor_cotacao_bid_frete_internacional',
       label: 'Ganho estimado',
-      tipo: 'numero',
-      align: 'right',
-      render: (val: unknown) =>
-        val != null
-          ? `USD ${fmtQuantidade(val as number, getCasas('ganho_valor_cotacao_bid_frete_internacional', 2))}`
-          : '—',
+      tipo: 'moeda',
+      align: 'center',
+      casasDecimais: getCasas('ganho_valor_cotacao_bid_frete_internacional', 2),
+      getValorEditar: (item: Cotacao): GTValorMoeda => ({
+        currency: moedaMonetariaCotacao(item),
+        amount: item.ganho_valor_cotacao_bid_frete_internacional ?? 0,
+      }),
+      render: (_val: unknown, item: Cotacao) => (
+        <span style={{ display: 'inline-flex', justifyContent: 'center', width: '100%' }}>
+          {renderCelulaValorMoeda(
+            item.ganho_valor_cotacao_bid_frete_internacional,
+            moedaMonetariaCotacao(item),
+            getCasas('ganho_valor_cotacao_bid_frete_internacional', 2),
+          )}
+        </span>
+      ),
     },
     {
       key: 'ganho_percentual_cotacao_bid_frete_internacional',
       label: 'Ganho (%)',
       tipo: 'numero',
-      align: 'right',
-      render: (val: unknown) =>
-        val != null
-          ? `${fmtQuantidade(val as number, getCasas('ganho_percentual_cotacao_bid_frete_internacional', 2))}%`
-          : '—',
+      align: 'center',
+      render: (val: unknown) => (
+        <span style={{ display: 'block', width: '100%', textAlign: 'center' }}>
+          {val != null
+            ? `${fmtQuantidade(val as number, getCasas('ganho_percentual_cotacao_bid_frete_internacional', 2))}%`
+            : '—'}
+        </span>
+      ),
     },
   ]
+}
+
+export function buildColunasCotacoes(
+  t: unknown,
+  opcoes: OpcoesColunasLista = {},
+  onAbrirCotacao?: (cotacao: Cotacao) => void,
+): GTColuna<Cotacao>[] {
+  return buildColunasCotacoesBase(t, opcoes, onAbrirCotacao).map(col =>
+    aplicarConfigEdicaoColuna(col, opcoes),
+  )
 }
 
 /** Colunas da linha pai (cotação avulsa ou BID agrupado). */
@@ -613,9 +987,18 @@ export function buildColunasPaiLista(
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<LinhaPaiLista>[] {
   const colunasCotacao = buildColunasCotacoes(t, opcoes, onAbrirCotacao)
+  const tooltipBid =
+    'Expanda o BID e edite cada cotação na linha filha.'
 
   return colunasCotacao.map((col) => ({
     ...col,
+    editavel: (item: LinhaPaiLista) => {
+      if (isLinhaBidGrupo(item)) return false
+      if (typeof col.editavel === 'function') return col.editavel(item as Cotacao)
+      return col.editavel !== false
+    },
+    tooltipBloqueado: (item: LinhaPaiLista) =>
+      isLinhaBidGrupo(item) ? tooltipBid : undefined,
     render: (val: unknown, item: LinhaPaiLista) => {
       if (col.key === 'numero_cotacao_bid_frete_internacional' && isLinhaBidGrupo(item)) {
         return (
@@ -658,11 +1041,16 @@ export function buildMapaColunasFilho(
   return mapa
 }
 
-const COLUNAS_COTACAO_BASE = buildColunasCotacoes(null)
+const COLUNAS_COTACAO_BASE = buildColunasCotacoesBase(null)
 
 export const CHAVES_COLUNAS_COTACAO = COLUNAS_COTACAO_BASE
   .map(c => c.key)
   .filter((k): k is string => typeof k === 'string')
+
+/** Whitelist de campos editáveis inline na lista (todas as colunas exceto técnicas). */
+export const CAMPOS_EDITAVEIS_LISTA = CHAVES_COLUNAS_COTACAO.filter(
+  k => !CAMPOS_NAO_EDITAVEIS_LISTA.has(k),
+)
 
 /** Colunas visíveis por padrão (exclui técnicas como ID interno). */
 export const CHAVES_COLUNAS_PADRAO_VISIVEIS = COLUNAS_COTACAO_BASE

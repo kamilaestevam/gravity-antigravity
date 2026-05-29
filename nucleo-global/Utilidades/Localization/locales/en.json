@@ -3843,11 +3843,11 @@
       "porto_destino": "Port of Destination",
       "porto_destino_titulo": "Port of Destination",
       "porto_destino_desc": "Port or place of discharge (cadastros.porto — UN/LOCODE)",
-      "local_de_origem": "Origin Location",
-      "local_de_origem_titulo": "Origin Location",
+      "local_de_origem": "Origin country",
+      "local_de_origem_titulo": "Origin country",
       "local_de_origem_desc": "Road origin country (cadastros.pais — ISO alpha-2)",
-      "local_de_destino": "Destination Location",
-      "local_de_destino_titulo": "Destination Location",
+      "local_de_destino": "Destination country",
+      "local_de_destino_titulo": "Destination country",
       "local_de_destino_desc": "Road destination country (cadastros.pais — ISO alpha-2)",
       "aeroporto_origem": "Origin Airport",
       "aeroporto_origem_titulo": "Origin Airport",
@@ -6824,6 +6824,9 @@
     "coluna_filho": {
       "mapa_id_workspace": {
         "tooltip_bloqueado": "Workspace belongs to the order — edit on the order row"
+      },
+      "mapa_logistica": {
+        "tooltip_edita_pedido": "Order-level value — editing here updates the whole order (not saved on the item)."
       },
       "part_number": {
         "label": "Item No.",

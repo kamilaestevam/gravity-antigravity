@@ -22,6 +22,10 @@ import { MODAL_LABELS, MODALIDADE_LABELS, OPERACAO_LABELS } from '../shared/type
 import { mudarStatusCotacao } from '../shared/api'
 import type { KanbanCardConfigBidFrete } from '../shared/kanban-bid-frete-card'
 import { useKanbanPreferencesBidFrete } from '../shared/use-kanban-preferences-bid-frete'
+import {
+  ESTILO_BADGE_OPERACAO_EXPORTACAO,
+  ESTILO_BADGE_OPERACAO_IMPORTACAO,
+} from './colunas-lista-bid-frete-internacional'
 import './kanban-bid-frete-internacional.css'
 
 interface CotacoesKanbanProps {
@@ -155,7 +159,10 @@ function CardCotacao({ cotacao, cardConfig }: { cotacao: Cotacao; cardConfig: Ka
   const valorFooter = valorFooterCotacao(cotacao)
 
   const tipoLabel = OPERACAO_LABELS[cotacao.tipo_operacao_cotacao_bid_frete_internacional]
-  const tipoColor = cotacao.tipo_operacao_cotacao_bid_frete_internacional === 'IMPORTACAO' ? '#818cf8' : '#34d399'
+  const isImport = cotacao.tipo_operacao_cotacao_bid_frete_internacional === 'IMPORTACAO'
+  const tipoColor = isImport
+    ? (ESTILO_BADGE_OPERACAO_IMPORTACAO.color as string)
+    : (ESTILO_BADGE_OPERACAO_EXPORTACAO.color as string)
 
   const origem = cotacao.origem_nome_cotacao_bid_frete_internacional
   const destino = cotacao.destino_nome_cotacao_bid_frete_internacional

@@ -193,6 +193,7 @@ export interface Cotacao {
   zipcode_origem_cotacao_bid_frete_internacional?: string | null
   zipcode_destino_cotacao_bid_frete_internacional: string | null
   endereco_origem_cotacao_bid_frete_internacional?: string | null
+  endereco_destino_cotacao_bid_frete_internacional?: string | null
   estado_provincia_origem_cotacao_bid_frete_internacional?: string | null
   aeroporto_origem_cotacao_bid_frete_internacional?: string | null
   estado_provincia_destino_cotacao_bid_frete_internacional?: string | null
@@ -247,6 +248,7 @@ export interface DisparoCotacaoBidFreteInternacional {
   fornecedor?: Fornecedor
   canal_disparo_cotacao_bid_frete_internacional: CanalDisparo
   status_disparo_cotacao_bid_frete_internacional: StatusDisparoCotacaoBidFreteInternacional
+  erro_envio_disparo_cotacao_bid_frete_internacional?: string | null
   token_resposta_disparo_cotacao_bid_frete_internacional: string | null
   data_envio_disparo_cotacao_bid_frete_internacional: string | null
   data_visualizacao_disparo_cotacao_bid_frete_internacional: string | null
@@ -398,6 +400,21 @@ export interface FornecedoresListResponse {
     pages: number
     limit: number
   }
+}
+
+// ─── Exibição de moeda (paridade Pedido / GTV) ───────────────────────────────
+
+const MOEDA_CLASSE_BADGE: Record<string, string> = {
+  USD: 'gtv-celula-moeda-badge--usd',
+  EUR: 'gtv-celula-moeda-badge--eur',
+  BRL: 'gtv-celula-moeda-badge--brl',
+  GBP: 'gtv-celula-moeda-badge--gbp',
+  CNY: 'gtv-celula-moeda-badge--cny',
+}
+
+/** Classe CSS do badge de moeda na lista (cores por ISO). */
+export function classeMoedaBadge(moeda: string): string {
+  return `gtv-celula-moeda-badge ${MOEDA_CLASSE_BADGE[moeda.toUpperCase()] ?? ''}`
 }
 
 // ─── Master Data ─────────────────────────────────────────────────────────────

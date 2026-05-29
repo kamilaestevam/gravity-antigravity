@@ -1,4 +1,6 @@
 import type { CardDefinicao } from './use-card-preferences'
+import { contarCotacoesEmAtrasoPrazoResposta } from './lista-bid-frete-kpi-metrics'
+import { calcularMetricasCotacoesAcimaMeta } from './lista-bid-frete-meta-metrics'
 import type { Cotacao, PropostaBidFreteInternacional } from './types'
 
 function lerNumero(valor: unknown): number {
@@ -32,7 +34,16 @@ function agregarValores(valores: number[], tipoAgg: CardDefinicao['tipoAgg']): n
 export function calcularMetricaCardCustom(
   def: CardDefinicao,
   cotacoes: Cotacao[],
+  agoraMs = Date.now(),
 ): number {
+  if (def.id === 'cotacoes_em_atraso') {
+    return contarCotacoesEmAtrasoPrazoResposta(cotacoes, agoraMs)
+  }
+
+  if (def.id === 'cotacoes_acima_meta') {
+    return calcularMetricasCotacoesAcimaMeta(cotacoes).quantidade
+  }
+
   if (def.origem === 'Proposta') {
     const valores = cotacoes.flatMap(c =>
       (c.propostas_bid_frete_internacional ?? []).flatMap(p =>

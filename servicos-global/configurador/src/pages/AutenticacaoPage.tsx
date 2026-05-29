@@ -1,11 +1,24 @@
 import { LogoGlobal } from '@nucleo/logo-global'
 import { LoginGlobal } from '@nucleo/login-global'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { Atom, CursorClick, Coins, ShieldCheck } from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
+import { useLoginAutomaticoPosConvite } from '../auth/use-login-automatico-pos-convite'
 import './auth.css'
 
 export function AutenticacaoPage() {
   const { t } = useTranslation()
+  const loginAutomaticoConvite = useLoginAutomaticoPosConvite()
+
+  if (loginAutomaticoConvite) {
+    return (
+      <div className="auth-root" style={{ alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <div id="clerk-captcha" />
+        <GravityLoader texto="Entrando na plataforma…" tamanho="lg" />
+      </div>
+    )
+  }
+
   return (
     <div className="auth-root">
 

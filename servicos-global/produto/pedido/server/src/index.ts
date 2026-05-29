@@ -73,7 +73,7 @@ import {
   obterClientePrismaPedido,
   validarClientePrismaPedido,
 } from './cliente-prisma-pedido.js'
-import { LIMITE_BODY_JSON_IMPORTACAO } from '../../../shared/smart-import-limites.js'
+import { LIMITE_BODY_JSON_IMPORTACAO } from '../../shared/smart-import-limites.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 8030

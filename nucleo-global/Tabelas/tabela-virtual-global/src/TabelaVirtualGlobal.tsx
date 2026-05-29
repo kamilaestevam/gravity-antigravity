@@ -242,11 +242,9 @@ const GTVazio = memo(function GTVazio({
 
 // ─── Helpers para campos de data ──────────────────────────────────────────────
 
+/** ISO 8601 completo (meio-dia UTC) — evita drift de fuso e falha em Zod `.datetime()`. */
 function dateToIso(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${dd}`
+  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0, 0)).toISOString()
 }
 
 function isoToBR(iso: unknown): string {
@@ -540,12 +538,14 @@ const GTEditPopover = memo(function GTEditPopover({
   const blurConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [textoLocal, setTextoLocal] = useState(() => String(valorEditando ?? ''))
   const textoLocalRef = useRef(String(valorEditando ?? ''))
+  const [periodoText, setPeriodoText] = useState<string>(() => isoToBR(valorEditando))
 
   useEffect(() => {
     const v = String(valorEditando ?? '')
     setTextoLocal(v)
     textoLocalRef.current = v
-  }, [overlayInfo.id, overlayInfo.campo])
+    setPeriodoText(isoToBR(valorEditando))
+  }, [overlayInfo.id, overlayInfo.campo, valorEditando])
 
   useEffect(() => () => {
     if (blurConfirmTimerRef.current) clearTimeout(blurConfirmTimerRef.current)
@@ -566,9 +566,13 @@ const GTEditPopover = memo(function GTEditPopover({
   // Quando mostrarCheckboxReplicar=false, replicarEmItens é sempre false (estado
   // inicial), entao o backend recebe replicar_em_itens=false (padrão divergente).
   const confirmarComOpts = useCallback(() => {
+    if (isPeriodo) {
+      const iso = brToIso(periodoText)
+      if (iso) onAtualizar(iso)
+    }
     if (isTextoLivre) onAtualizar(textoLocalRef.current)
     onConfirmar({ replicar_em_itens: replicarEmItens })
-  }, [onConfirmar, replicarEmItens, isTextoLivre, onAtualizar])
+  }, [onConfirmar, replicarEmItens, isTextoLivre, isPeriodo, periodoText, onAtualizar])
   const [moedaAberta, setMoedaAberta] = useState(false)
   const [unidadeAberta, setUnidadeAberta] = useState(false)
   // Calendário inicia fechado — abre quando usuário clica no icone à direita do input.
@@ -758,9 +762,6 @@ const GTEditPopover = memo(function GTEditPopover({
     return () => document.removeEventListener('paste', onDocPaste, true)
   // eslint-disable-next-line react-hooks/exhaustive-deps -- processarColagemPopover escopo do popover ativo
   }, [isTextoLivre, isNCM, overlayInfo.id, overlayInfo.campo])
-
-  // Estado local para campos de data: texto em formato DD/MM/AAAA
-  const [periodoText, setPeriodoText] = useState<string>(() => isoToBR(valorEditando))
 
   // Posição inicial (abaixo da célula) — reajustada pelo useLayoutEffect
   const [pos, setPos] = useState(() => {

@@ -78,6 +78,10 @@ const AtualizarCotacaoSchema = CriarCotacaoSchema.omit({
 }).partial().extend({
   id_workspace: z.string().min(1).optional(),
   id_usuario: z.string().min(1).optional(),
+  data_criacao_cotacao_bid_frete_internacional: z.coerce.date().optional(),
+  data_aprovacao_cotacao_bid_frete_internacional: z.coerce.date().nullable().optional(),
+  data_cancelamento_cotacao_bid_frete_internacional: z.coerce.date().nullable().optional(),
+  data_limite_resposta_cotacao_bid_frete_internacional: z.coerce.date().nullable().optional(),
   ganho_valor_cotacao_bid_frete_internacional: z.number().nullable().optional(),
   ganho_percentual_cotacao_bid_frete_internacional: z.number().nullable().optional(),
   motivo_reprovacao_cotacao_bid_frete_internacional: z.string().nullable().optional(),
@@ -309,11 +313,6 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
 
     const data: Record<string, unknown> = { ...parsed.data }
-    if (parsed.data.data_limite_resposta_cotacao_bid_frete_internacional != null) {
-      data.data_limite_resposta_cotacao_bid_frete_internacional = new Date(
-        parsed.data.data_limite_resposta_cotacao_bid_frete_internacional,
-      )
-    }
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional: req.params.id },

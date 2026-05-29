@@ -213,6 +213,7 @@ export function mapDisparoCotacaoBidFreteInternacionalFromServer(
     erro_envio_disparo_cotacao_bid_frete_internacional:
       (raw.erro_envio_disparo_cotacao_bid_frete_internacional ??
         raw.erro_envio_pedido_cotacao_bid_frete_internacional ??
+        raw.erro_envio ??
         null) as string | null,
     token_resposta_disparo_cotacao_bid_frete_internacional:
       (raw.token_resposta_disparo_cotacao_bid_frete_internacional ??
@@ -341,7 +342,6 @@ const CAMPOS_COTACAO_APENAS_CLIENTE = [
   'id_cotacao_bid_frete_internacional',
   'id_organizacao',
   'numero_cotacao_bid_frete_internacional',
-  'data_criacao_cotacao_bid_frete_internacional',
   'data_atualizacao_cotacao_bid_frete_internacional',
   'valor_aprovado_ganho_bid_frete_internacional',
   'moeda_aprovada',

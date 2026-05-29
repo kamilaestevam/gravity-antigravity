@@ -291,7 +291,15 @@ function aplicarConfigEdicaoColuna(
 ): GTColuna<Cotacao> {
   const key = col.key as string
   if (!key || CAMPOS_NAO_EDITAVEIS_LISTA.has(key)) {
-    return col
+    const tooltipServidor =
+      key === 'data_atualizacao_cotacao_bid_frete_internacional'
+        ? 'Atualizada automaticamente pelo sistema ao salvar alterações.'
+        : undefined
+    return {
+      ...col,
+      editavel: false,
+      ...(tooltipServidor ? { tooltipBloqueado: tooltipServidor } : {}),
+    }
   }
 
   const base: GTColuna<Cotacao> = { ...col, editavel: true }
@@ -995,7 +1003,7 @@ export function buildColunasPaiLista(
     editavel: (item: LinhaPaiLista) => {
       if (isLinhaBidGrupo(item)) return false
       if (typeof col.editavel === 'function') return col.editavel(item as Cotacao)
-      return col.editavel !== false
+      return col.editavel === true
     },
     tooltipBloqueado: (item: LinhaPaiLista) =>
       isLinhaBidGrupo(item) ? tooltipBid : undefined,

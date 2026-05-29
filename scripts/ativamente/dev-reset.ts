@@ -25,10 +25,14 @@ import { fileURLToPath } from 'node:url'
 // Mantida estática para evitar parsing do package.json a cada execução.
 const PORTAS_DEV = [
   3001,  // Plataforma (ORG)
-  8000,  // Configurador front
+  8000,  // Configurador front (Vite)
+  8001,  // fallback Vite se 8000 ocupada
+  8002,
+  8003,
   8005,  // Configurador back
   8016,  // API-Cockpit
   8020,  // Simula-Custo
+  8023,  // BID Frete Internacional
   8026,  // Processo
   8030,  // Pedido
   8031,  // Cadastros

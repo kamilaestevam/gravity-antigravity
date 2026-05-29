@@ -157,6 +157,10 @@ const CAMPOS_NUMERICOS_COTACAO = new Set([
 function normalizarDataIsoEdicao(valor: unknown): string | null {
   if (valor == null || valor === '') return null
   if (typeof valor === 'string') {
+    const soData = valor.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+    if (soData) {
+      return new Date(Date.UTC(Number(soData[1]), Number(soData[2]) - 1, Number(soData[3]), 12, 0, 0, 0)).toISOString()
+    }
     const parsed = new Date(valor)
     if (!Number.isNaN(parsed.getTime())) return parsed.toISOString()
     return valor

@@ -3,7 +3,7 @@
  */
 
 import React, { useMemo, useState } from 'react'
-import { Anchor, AirplaneTilt, MapPin, MapPinLine, Truck } from '@phosphor-icons/react'
+import { MapPin, MapPinLine } from '@phosphor-icons/react'
 import type { ModalFrete } from './types'
 
 export function resolverIsoAlpha2Pais(pais: string, codigoLocal?: string | null): string {
@@ -62,10 +62,10 @@ export function BandeiraPaisBidFrete({
     <span className={`dc-rota-flag-modern ${className}`} title={iso2}>
       <img
         className="dc-rota-flag-modern__img"
-        src={`https://flagcdn.com/w80/${slug}.webp`}
-        srcSet={`https://flagcdn.com/w160/${slug}.webp 2x`}
-        width={48}
-        height={36}
+      src={`https://flagcdn.com/w40/${slug}.webp`}
+      srcSet={`https://flagcdn.com/w80/${slug}.webp 2x`}
+      width={24}
+      height={18}
         alt=""
         role="presentation"
         loading="lazy"
@@ -83,78 +83,90 @@ function estiloModalRota(modal: ModalFrete): { cor: string; duracaoAnimacao: str
   return { cor: '#fbbf24', duracaoAnimacao: '5s' }
 }
 
-function IconeModalRota({ modal, size = 18 }: { modal: ModalFrete; size?: number }) {
-  if (modal === 'MARITIMO') return <Anchor weight="duotone" size={size} />
-  if (modal === 'AEREO') return <AirplaneTilt weight="duotone" size={size} />
-  return <Truck weight="duotone" size={size} />
+/** Linha tracejada termina antes da seta direcional (origem → destino). */
+const TRILHA_PATH = 'M 8,18 L 126,18'
+const TRILHA_SETA_PONTOS = '132,18 126,14 126,22'
+
+function FormaTransporteAnimada({ modal, cor }: { modal: ModalFrete; cor: string }) {
+  const sombra = { filter: `drop-shadow(0 0 4px ${cor}99)` }
+
+  if (modal === 'AEREO') {
+    return (
+      <path
+        d="M-7,-2 L-2,-2 L1,-6 L3,-6 L2,-2 L6,-1 L8,0 L6,1 L2,2 L3,6 L1,6 L-2,2 L-7,2 Z"
+        fill={cor}
+        style={sombra}
+      />
+    )
+  }
+  if (modal === 'MARITIMO') {
+    return (
+      <path
+        d="M-8,-2 L4,-2 L8,0 L4,2 L-8,2 Z M-5,-2 L-5,-4 L-2,-4 L-2,-2 Z"
+        fill={cor}
+        style={sombra}
+      />
+    )
+  }
+  return (
+    <path
+      d="M-9,-2 L3,-2 L6,-3 L8,-3 L8.5,-1 L10,-1 L10,2 L8,2 L8,0.5 L3,0.5 L3,2 L-9,2 Z M-6,-2 L-6,-4 L-3,-4 L-3,-2 Z"
+      fill={cor}
+      style={sombra}
+    />
+  )
 }
 
-/** Setas apontam da origem (esquerda) → destino (direita). */
+/** Trilha com navio, avião ou caminhão animado (mesmo padrão da Visão Geral). */
 function TrilhaRotaModal({ modal }: { modal: ModalFrete }) {
   const { cor, duracaoAnimacao } = estiloModalRota(modal)
-  const markerId = `dc-rota-arrow-${modal.toLowerCase()}`
+  const pathId = `dc-rota-path-${modal.toLowerCase()}`
 
   return (
     <div className="dc-rota-trilha" aria-hidden>
-      <svg className="dc-rota-trilha-svg" viewBox="0 0 140 32" preserveAspectRatio="none">
-        <defs>
-          <marker
-            id={markerId}
-            markerWidth="8"
-            markerHeight="8"
-            refX="7"
-            refY="4"
-            orient="auto"
-            markerUnits="strokeWidth"
-          >
-            <path d="M0,0 L8,4 L0,8 Z" fill={cor} opacity="0.9" />
-          </marker>
-        </defs>
-        <line
-          x1="6"
-          y1="16"
-          x2="134"
-          y2="16"
+      <svg className="dc-rota-trilha-svg" viewBox="0 0 140 36" preserveAspectRatio="none">
+        <path
+          id={pathId}
+          d={TRILHA_PATH}
+          fill="none"
           stroke="rgba(255, 255, 255, 0.12)"
           strokeWidth="2"
-          strokeDasharray="5 6"
+          strokeDasharray="4 5"
           vectorEffect="non-scaling-stroke"
         />
-        <line
-          x1="6"
-          y1="16"
-          x2="134"
-          y2="16"
+        <path
+          d={TRILHA_PATH}
+          fill="none"
           stroke={cor}
-          strokeWidth="2"
-          strokeDasharray="18 122"
-          opacity="0.92"
+          strokeWidth="1.75"
+          strokeDasharray="20 108"
+          opacity="0.85"
           vectorEffect="non-scaling-stroke"
-          markerEnd={`url(#${markerId})`}
         >
           <animate
             attributeName="stroke-dashoffset"
-            from="140"
-            to="0"
+            values="128;0"
             dur={duracaoAnimacao}
             repeatCount="indefinite"
           />
-        </line>
-        {/* Chevrons intermediários → direita (sentido origem → destino) */}
-        <polygon points="52,16 46,12 46,20" fill={cor} opacity="0.35" />
-        <polygon points="78,16 72,12 72,20" fill={cor} opacity="0.55" />
-        <polygon points="104,16 98,12 98,20" fill={cor} opacity="0.75" />
+        </path>
+        <g>
+          <FormaTransporteAnimada modal={modal} cor={cor} />
+          <animateMotion
+            path={TRILHA_PATH}
+            dur={duracaoAnimacao}
+            repeatCount="indefinite"
+            rotate="auto"
+          />
+        </g>
+        <g className="dc-rota-trilha-seta">
+          <polygon
+            points={TRILHA_SETA_PONTOS}
+            fill={cor}
+            style={{ filter: `drop-shadow(0 0 2px ${cor}aa)` }}
+          />
+        </g>
       </svg>
-      <div
-        className="dc-rota-trilha-icon-wrap"
-        style={{
-          color: cor,
-          borderColor: `${cor}66`,
-          boxShadow: `0 0 18px ${cor}55`,
-        }}
-      >
-        <IconeModalRota modal={modal} size={18} />
-      </div>
     </div>
   )
 }
@@ -179,6 +191,11 @@ function PontoRotaCard({
 
   return (
     <div className={`dc-rota-ponto dc-rota-ponto--${tipo}`}>
+      <BandeiraPaisBidFrete
+        pais={pais}
+        codigoLocal={codigoLocal}
+        className="dc-rota-ponto-bandeira"
+      />
       <div className={`dc-rota-ponto-badge dc-rota-ponto-badge--${tipo}`}>
         <span className="dc-rota-ponto-badge-icon" aria-hidden>
           <IconePonto weight="duotone" size={14} />
@@ -186,7 +203,6 @@ function PontoRotaCard({
         <span className="dc-rota-ponto-badge-label">{rotulo}</span>
       </div>
       <div className="dc-rota-ponto-corpo">
-        <BandeiraPaisBidFrete pais={pais} codigoLocal={codigoLocal} />
         <div className="dc-rota-ponto-text">
           <span className="dc-rota-ponto-nome">{nome}</span>
           <span className="dc-rota-ponto-codigo dc-info-mono">{codigo}</span>

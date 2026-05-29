@@ -146,7 +146,7 @@ export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown):
   const raw = serializeValue(rawUnknown) as Record<string, unknown>
   const fornecedor = raw.fornecedor ? mapFornecedorFromServer(raw.fornecedor) : undefined
   return {
-    id_proposta_bid_frete_internacional: raw.id_proposta_bid_frete_internacional as string,
+    id_proposta_bid_frete_internacional: (raw.id_proposta_bid_frete_internacional ?? raw.id) as string,
     id_organizacao: raw.id_organizacao as string,
     id_cotacao_bid_frete_internacional: raw.id_cotacao_bid_frete_internacional as string,
     id_fornecedor_bid_frete_internacional: raw.id_fornecedor_bid_frete_internacional as string,

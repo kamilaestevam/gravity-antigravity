@@ -24,7 +24,6 @@ import {
   PaperPlaneTilt,
   Ranking,
   CheckCircle,
-  Clock,
   Eye,
   Envelope,
   ChatCircle,
@@ -36,8 +35,6 @@ import {
   Warning,
   XCircle,
   LinkSimple,
-  Hourglass,
-  UserCircle,
   Cube,
   DownloadSimple,
   Export,
@@ -47,13 +44,25 @@ import {
 } from '@phosphor-icons/react'
 
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
-import { getCotacao, getDisparoPorCotacaoBidFreteInternacional, excluirCotacao, mudarStatusCotacao } from '../shared/api'
+import {
+  getCotacao,
+  getDisparoPorCotacaoBidFreteInternacional,
+  excluirCotacao,
+  mudarStatusCotacao,
+  rankingCotacoesBidFreteInternacional,
+} from '../shared/api'
 import { ModalEnviarCotacaoBidFreteInternacional } from './modal-enviar-cotacao-bid-frete-internacional'
 import { RotaVisualBidFrete } from '../shared/rota-visual-bid-frete-internacional'
+import { ListaPropostasDetalheCotacao } from '../shared/propostas-detalhe-cotacao-bid-frete-internacional'
+import { PainelFluxoInfograficosCotacao } from '../shared/painel-fluxo-infograficos-cotacao-bid-frete-internacional'
+import {
+  mesclarPropostasComRanking,
+  ranquearPropostasLocal,
+} from '../shared/metricas-proposta-cotacao-bid-frete-internacional'
 import type {
   Cotacao,
   DisparoCotacaoBidFreteInternacional,
-  PropostaBidFreteInternacional,
+  PropostaRankingBidFreteInternacional,
   StatusCotacao,
   StatusDisparoCotacaoBidFreteInternacional,
   ModalFrete,
@@ -127,68 +136,6 @@ const STATUS_COTACAO_OPCOES: SelectOpcao[] = (Object.keys(STATUS_LABELS) as Stat
   rotulo: STATUS_LABELS[status],
 }))
 
-const FLUXO_ETAPAS: { indice: number; labelKey: string }[] = [
-  { indice: 0, labelKey: 'bidfrete.detalhe_cotacao.timeline_rascunho' },
-  { indice: 1, labelKey: 'bidfrete.detalhe_cotacao.timeline_enviada' },
-  { indice: 2, labelKey: 'bidfrete.detalhe_cotacao.timeline_em_cotacao' },
-  { indice: 3, labelKey: 'bidfrete.detalhe_cotacao.timeline_aguardando' },
-  { indice: 4, labelKey: 'bidfrete.detalhe_cotacao.timeline_aprovada' },
-]
-
-function indiceFluxoPorStatus(status: StatusCotacao): number {
-  const mapa: Partial<Record<StatusCotacao, number>> = {
-    RASCUNHO: 0,
-    FALTA_INFORMACAO: 0,
-    ENVIADA_FORNECEDORES: 1,
-    EM_COTACAO: 2,
-    AGUARDANDO_APROVACAO: 3,
-    APROVADA: 4,
-    REPROVADA: 3,
-    CANCELADA: 0,
-    EXPIRADA: 2,
-  }
-  return mapa[status] ?? 0
-}
-
-function subtituloEtapaFluxo(
-  indiceEtapa: number,
-  indiceAtual: number,
-  dataCriacao: string,
-  t: TFunction,
-): string {
-  if (indiceEtapa < indiceAtual) {
-    if (indiceEtapa === 0) {
-      return t('bidfrete.detalhe_cotacao.fluxo_rascunho_concluido', {
-        data: dataBR(dataCriacao),
-        defaultValue: `Rascunho Concluído. Criada em ${dataBR(dataCriacao)}`,
-      })
-    }
-    if (indiceEtapa === 1) {
-      return t('bidfrete.detalhe_cotacao.fluxo_cotacao_enviada', 'Cotação Enviada')
-    }
-    return t('bidfrete.detalhe_cotacao.fluxo_concluido', 'Concluído')
-  }
-  if (indiceEtapa === indiceAtual) {
-    if (indiceEtapa === 2) {
-      return t('bidfrete.detalhe_cotacao.fluxo_aguardando_propostas', 'Aguardando Propostas (Em Progresso)')
-    }
-    if (indiceEtapa === 0) {
-      return t('bidfrete.detalhe_cotacao.fluxo_rascunho_concluido', {
-        data: dataBR(dataCriacao),
-        defaultValue: `Rascunho Concluído. Criada em ${dataBR(dataCriacao)}`,
-      })
-    }
-    if (indiceEtapa === 1) {
-      return t('bidfrete.detalhe_cotacao.fluxo_cotacao_enviada', 'Cotação Enviada')
-    }
-    if (indiceEtapa === 4) {
-      return t('bidfrete.comparativo.aprovar', 'Aprovada')
-    }
-    return t('bidfrete.detalhe_cotacao.fluxo_pendente', 'Pendente')
-  }
-  return t('bidfrete.detalhe_cotacao.fluxo_pendente', 'Pendente')
-}
-
 function iconeModalFrete(modal: ModalFrete): React.ReactNode {
   if (modal === 'MARITIMO') return <Anchor weight="duotone" size={16} />
   if (modal === 'AEREO') return <AirplaneTilt weight="duotone" size={16} />
@@ -205,102 +152,6 @@ function iconeVisibilidadeCotacao(visibilidade: Visibilidade): React.ReactNode {
   return visibilidade === 'ABERTA'
     ? <Globe weight="duotone" size={16} />
     : <UsersThree weight="duotone" size={16} />
-}
-
-function StepperFluxoCotacao({
-  statusAtual,
-  dataCriacao,
-}: {
-  statusAtual: StatusCotacao
-  dataCriacao: string
-}) {
-  const { t } = useTranslation()
-  const indiceAtual = indiceFluxoPorStatus(statusAtual)
-  const totalEtapas = FLUXO_ETAPAS.length
-  const progressoLinha =
-    totalEtapas <= 1 ? 0 : (indiceAtual / (totalEtapas - 1)) * 100
-
-  return (
-    <div className="dc-fluxo-stepper-shell">
-      <div className="dc-fluxo-track" aria-hidden>
-        <div className="dc-fluxo-track-base" />
-        <div
-          className="dc-fluxo-track-progress"
-          style={{ width: `${progressoLinha}%` }}
-        />
-        <div className="dc-fluxo-track-nodes">
-          {FLUXO_ETAPAS.map((etapa) => {
-            const concluida = etapa.indice < indiceAtual
-            const ativa = etapa.indice === indiceAtual
-            return (
-              <span
-                key={`node-${etapa.indice}`}
-                className={[
-                  'dc-fluxo-track-node',
-                  concluida ? 'dc-fluxo-track-node--done' : '',
-                  ativa ? 'dc-fluxo-track-node--active' : '',
-                  !concluida && !ativa ? 'dc-fluxo-track-node--future' : '',
-                ].filter(Boolean).join(' ')}
-              />
-            )
-          })}
-        </div>
-      </div>
-
-      <div className="dc-fluxo-stepper" role="list" aria-label={t('bidfrete.detalhe_cotacao.status', 'Status')}>
-        {FLUXO_ETAPAS.map((etapa, i) => {
-          const concluida = etapa.indice < indiceAtual
-          const ativa = etapa.indice === indiceAtual
-          const pendente = etapa.indice > indiceAtual
-          const IconeEtapa = concluida
-            ? CheckCircle
-            : ativa
-              ? Clock
-              : etapa.indice === 4
-                ? UserCircle
-                : Hourglass
-
-          const segmentoAnteriorConcluido = i > 0 && i < indiceAtual
-          const segmentoEntradaAtiva = i > 0 && i === indiceAtual
-
-          return (
-            <React.Fragment key={etapa.indice}>
-              {i > 0 && (
-                <div
-                  className={[
-                    'dc-fluxo-segment',
-                    segmentoAnteriorConcluido ? 'dc-fluxo-segment--done' : '',
-                    segmentoEntradaAtiva ? 'dc-fluxo-segment--leading-active' : '',
-                    !segmentoAnteriorConcluido && !segmentoEntradaAtiva ? 'dc-fluxo-segment--future' : '',
-                  ].filter(Boolean).join(' ')}
-                  aria-hidden
-                />
-              )}
-              <div
-                role="listitem"
-                className={[
-                  'dc-fluxo-card',
-                  concluida ? 'dc-fluxo-card--done' : '',
-                  ativa ? 'dc-fluxo-card--active' : '',
-                  pendente ? 'dc-fluxo-card--pending' : '',
-                ].filter(Boolean).join(' ')}
-              >
-                <div className="dc-fluxo-card-icon-wrap" aria-hidden>
-                  <IconeEtapa weight={concluida ? 'fill' : 'duotone'} size={20} />
-                </div>
-                <div className="dc-fluxo-card-text">
-                  <span className="dc-fluxo-card-title">{t(etapa.labelKey)}</span>
-                  <span className="dc-fluxo-card-sub">
-                    {subtituloEtapaFluxo(etapa.indice, indiceAtual, dataCriacao, t)}
-                  </span>
-                </div>
-              </div>
-            </React.Fragment>
-          )
-        })}
-      </div>
-    </div>
-  )
 }
 
 type VarianteCardDados = 'gerais' | 'rota' | 'carga'
@@ -459,6 +310,26 @@ export default function DetalheCotacao() {
   const [modalDisparoAberto, setModalDisparoAberto] = useState(false)
   const [salvandoStatus, setSalvandoStatus] = useState(false)
   const [erroStatus, setErroStatus] = useState<string | null>(null)
+  const [propostasRanking, setPropostasRanking] = useState<PropostaRankingBidFreteInternacional[]>([])
+  const [carregandoRanking, setCarregandoRanking] = useState(false)
+
+  const carregarRankingPropostas = useCallback(async (cot: Cotacao) => {
+    const propostas = cot.propostas_bid_frete_internacional ?? []
+    if (propostas.length === 0) {
+      setPropostasRanking([])
+      return
+    }
+    setCarregandoRanking(true)
+    try {
+      const ranking = await rankingCotacoesBidFreteInternacional(cot.id_cotacao_bid_frete_internacional)
+      const mescladas = mesclarPropostasComRanking(propostas, ranking)
+      setPropostasRanking(mescladas.length > 0 ? mescladas : ranquearPropostasLocal(propostas))
+    } catch {
+      setPropostasRanking(ranquearPropostasLocal(propostas))
+    } finally {
+      setCarregandoRanking(false)
+    }
+  }, [])
 
   const carregar = useCallback(async () => {
     if (!id) return
@@ -471,14 +342,16 @@ export default function DetalheCotacao() {
       ])
       setCotacao(cot)
       setBids(bidList)
+      void carregarRankingPropostas(cot)
     } catch (e: unknown) {
       setCotacao(null)
       setBids([])
+      setPropostasRanking([])
       setErro(e instanceof Error ? e.message : 'Erro ao carregar cotação')
     } finally {
       setCarregando(false)
     }
-  }, [id])
+  }, [id, carregarRankingPropostas])
 
   useEffect(() => { carregar() }, [carregar])
 
@@ -511,6 +384,12 @@ export default function DetalheCotacao() {
     const numero = cotacao.bid_bid_frete_internacional.numero_bid_bid_frete_internacional
     return t('bidfrete.detalhe_cotacao.kpi.cotacoes_no_bid', 'No BID {{numero}}', { numero })
   }, [cotacao, t])
+
+  const propostasParaInfograficos = useMemo(() => {
+    if (propostasRanking.length > 0) return propostasRanking
+    const raw = cotacao?.propostas_bid_frete_internacional ?? []
+    return raw.length > 0 ? ranquearPropostasLocal(raw) : []
+  }, [propostasRanking, cotacao])
 
   const handleMudarStatus = useCallback(async (novoStatus: string | number | null) => {
     if (!cotacao || novoStatus == null || novoStatus === '') return
@@ -705,6 +584,15 @@ export default function DetalheCotacao() {
     <PaginaGlobal className="dc-page bid-frete-page-shell">
       {acoesToolbar}
 
+      <ResumoKpisDetalhe
+        quantidadeCotacoes={quantidadeCotacoes}
+        quantidadeFornecedores={quantidadeFornecedores}
+        quantidadePropostas={quantidadePropostas}
+        subtituloCotacoes={subtituloCotacoesKpi}
+        aoClicarFornecedores={() => setTab('bids')}
+        aoClicarPropostas={() => setTab('respostas')}
+      />
+
       <div className="dc-fluxo-panel">
         <div className="dc-fluxo-panel-top">
           <div className="dc-status-select">
@@ -727,20 +615,12 @@ export default function DetalheCotacao() {
             </span>
           )}
         </div>
-        <StepperFluxoCotacao
+        <PainelFluxoInfograficosCotacao
           statusAtual={cotacao.status_cotacao_bid_frete_internacional}
-          dataCriacao={cotacao.data_criacao_cotacao_bid_frete_internacional}
+          disparos={bids}
+          propostas={propostasParaInfograficos}
         />
       </div>
-
-      <ResumoKpisDetalhe
-        quantidadeCotacoes={quantidadeCotacoes}
-        quantidadeFornecedores={quantidadeFornecedores}
-        quantidadePropostas={quantidadePropostas}
-        subtituloCotacoes={subtituloCotacoesKpi}
-        aoClicarFornecedores={() => setTab('bids')}
-        aoClicarPropostas={() => setTab('respostas')}
-      />
 
       {/* Tabs */}
       <div className="dc-tabs">
@@ -884,66 +764,12 @@ export default function DetalheCotacao() {
       )}
 
       {/* Tab: Respostas */}
-      {tab === 'respostas' && (
-        <div className="dc-card">
-          {(!cotacao.propostas_bid_frete_internacional || cotacao.propostas_bid_frete_internacional.length === 0) ? (
-            <div className="dc-empty">
-              <PaperPlaneTilt weight="duotone" size={40} style={{ opacity: 0.3 }} />
-              <p>{t('bidfrete.detalhe_cotacao.vazio_respostas')}</p>
-            </div>
-          ) : (
-            <div className="dc-responses-list">
-              {cotacao.propostas_bid_frete_internacional.map((resp: PropostaBidFreteInternacional) => {
-                const aprovada = resp.status_proposta_bid_frete_internacional === 'APROVADA'
-                return (
-                <div key={resp.id_proposta_bid_frete_internacional} className={`dc-response-card ${aprovada ? 'dc-response-card--aprovada' : ''}`}>
-                  <div className="dc-resp-header">
-                    <span className="dc-resp-fornecedor">{resp.fornecedor?.nome_fornecedor_bid_frete_internacional ?? 'Fornecedor'}</span>
-                    {aprovada && <Badge label={t('bidfrete.comparativo.aprovar')} variante="success" />}
-                  </div>
-                  <div className="dc-resp-grid">
-                    <div className="dc-resp-item">
-                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_frete')}</span>
-                      <span className="dc-resp-value">{resp.moeda_proposta_bid_frete_internacional} {resp.valor_frete_proposta_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                    </div>
-                    <div className="dc-resp-item">
-                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_taxas_origem')}</span>
-                      <span className="dc-resp-value">{resp.moeda_proposta_bid_frete_internacional} {resp.taxas_origem_proposta_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                    </div>
-                    <div className="dc-resp-item">
-                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_taxas_destino')}</span>
-                      <span className="dc-resp-value">{resp.moeda_proposta_bid_frete_internacional} {resp.taxas_destino_proposta_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                    </div>
-                    <div className="dc-resp-item dc-resp-item--destaque">
-                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_total')}</span>
-                      <span className="dc-resp-value">{resp.moeda_proposta_bid_frete_internacional} {resp.valor_total_proposta_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                    </div>
-                    <div className="dc-resp-item">
-                      <span className="dc-resp-label">{t('bidfrete.comparativo.transit_time')}</span>
-                      <span className="dc-resp-value">{resp.dias_transito_proposta_bid_frete_internacional} {t('bidfrete.detalhe_cotacao.dias')}</span>
-                    </div>
-                    <div className="dc-resp-item">
-                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_free_time')}</span>
-                      <span className="dc-resp-value">{resp.dias_free_time_proposta_bid_frete_internacional ?? '—'} {t('bidfrete.detalhe_cotacao.dias')}</span>
-                    </div>
-                    <div className="dc-resp-item">
-                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_transbordos')}</span>
-                      <span className="dc-resp-value">{resp.quantidade_transbordo_proposta_bid_frete_internacional}</span>
-                    </div>
-                    <div className="dc-resp-item">
-                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_validade')}</span>
-                      <span className="dc-resp-value">{dataBR(resp.validade_proposta_bid_frete_internacional)}</span>
-                    </div>
-                  </div>
-                  {resp.observacoes_proposta_bid_frete_internacional && (
-                    <p className="dc-resp-obs">{resp.observacoes_proposta_bid_frete_internacional}</p>
-                  )}
-                </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
+      {tab === 'respostas' && id && (
+        <ListaPropostasDetalheCotacao
+          id_cotacao_bid_frete_internacional={id}
+          propostasRanking={propostasRanking}
+          carregandoRanking={carregandoRanking}
+        />
       )}
 
       <style>{`
@@ -953,20 +779,17 @@ export default function DetalheCotacao() {
         .dc-fluxo-panel {
           background: linear-gradient(165deg, #293548 0%, #1a2332 48%, #151d2b 100%);
           border: 1px solid rgba(148, 163, 184, 0.14);
-          border-radius: 16px;
-          padding: 1.35rem 1.5rem 1.5rem;
-          margin-bottom: 1.35rem;
-          box-shadow:
-            0 1px 0 rgba(255, 255, 255, 0.04) inset,
-            0 12px 40px rgba(0, 0, 0, 0.28);
+          border-radius: 14px;
+          padding: 1rem 1.15rem 1.1rem;
+          margin-bottom: 1rem;
         }
         .dc-fluxo-panel-top {
           display: flex;
           align-items: flex-end;
           flex-wrap: wrap;
-          gap: 1rem 1.5rem;
-          margin-bottom: 1.35rem;
-          padding-bottom: 1.1rem;
+          gap: 0.75rem 1.25rem;
+          margin-bottom: 0.85rem;
+          padding-bottom: 0.75rem;
           border-bottom: 1px solid rgba(148, 163, 184, 0.12);
         }
         .dc-status-select {
@@ -1005,7 +828,7 @@ export default function DetalheCotacao() {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 0.75rem;
-          margin-bottom: 1.15rem;
+          margin-bottom: 1rem;
         }
         @media (max-width: 720px) {
           .dc-resumo-kpis { grid-template-columns: 1fr; }
@@ -1071,220 +894,217 @@ export default function DetalheCotacao() {
           text-overflow: ellipsis;
         }
 
-        .dc-fluxo-stepper-shell {
-          position: relative;
-          padding-top: 1.1rem;
-        }
-        .dc-fluxo-track {
-          position: absolute;
-          left: 4%;
-          right: 4%;
-          top: 0;
-          height: 14px;
-          z-index: 0;
-          pointer-events: none;
-        }
-        .dc-fluxo-track-base {
-          position: absolute;
-          left: 0;
-          right: 0;
-          top: 50%;
-          transform: translateY(-50%);
-          height: 2px;
-          background: rgba(71, 85, 105, 0.45);
-          border-radius: 2px;
-        }
-        .dc-fluxo-track-progress {
-          position: absolute;
-          left: 0;
-          top: 50%;
-          transform: translateY(-50%);
-          height: 3px;
-          max-width: 100%;
-          background: linear-gradient(90deg, #22c55e 0%, #4ade80 35%, #6366f1 100%);
-          border-radius: 3px;
-          box-shadow: 0 0 14px rgba(99, 102, 241, 0.4);
-          transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .dc-fluxo-track-nodes {
+        .dc-fluxo-painel-corpo {
           display: flex;
-          justify-content: space-between;
-          align-items: center;
-          position: relative;
-          height: 100%;
-          width: 100%;
-        }
-        .dc-fluxo-track-node {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          border: 2px solid rgba(100, 116, 139, 0.5);
-          background: #1e293b;
-          box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.95);
-          transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-        }
-        .dc-fluxo-track-node--done {
-          border-color: #4ade80;
-          background: #22c55e;
-          box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.95), 0 0 10px rgba(34, 197, 94, 0.45);
-        }
-        .dc-fluxo-track-node--active {
-          width: 14px;
-          height: 14px;
-          border-color: #c7d2fe;
-          background: #6366f1;
-          box-shadow:
-            0 0 0 4px rgba(99, 102, 241, 0.22),
-            0 0 18px rgba(99, 102, 241, 0.55);
-        }
-        .dc-fluxo-track-node--future {
-          border-color: rgba(100, 116, 139, 0.35);
-          background: #334155;
-        }
-
-        .dc-fluxo-stepper {
-          display: flex;
-          align-items: stretch;
-          gap: 0;
-          position: relative;
-          z-index: 1;
-          margin-top: 0.35rem;
-        }
-        .dc-fluxo-segment {
-          flex: 0 0 14px;
-          align-self: flex-start;
-          margin-top: 3.1rem;
-          height: 3px;
-          min-width: 8px;
-          border-radius: 2px;
-          background: rgba(71, 85, 105, 0.35);
-          transition: background 0.3s ease, box-shadow 0.3s ease;
-        }
-        .dc-fluxo-segment--done {
-          background: linear-gradient(90deg, #16a34a, #4ade80);
-          box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
-        }
-        .dc-fluxo-segment--leading-active {
-          background: linear-gradient(90deg, #22c55e 0%, #6366f1 100%);
-          box-shadow: 0 0 12px rgba(99, 102, 241, 0.35);
-        }
-        .dc-fluxo-segment--future {
-          background: rgba(51, 65, 85, 0.55);
-        }
-        @media (max-width: 1100px) {
-          .dc-fluxo-track,
-          .dc-fluxo-segment { display: none; }
-          .dc-fluxo-stepper-shell { padding-top: 0; }
-          .dc-fluxo-stepper {
-            flex-direction: column;
-            gap: 0.75rem;
-          }
-          .dc-fluxo-card { flex: none; width: 100%; }
-        }
-
-        .dc-fluxo-card {
-          flex: 1 1 0;
-          min-width: 0;
-          position: relative;
-          display: flex;
-          align-items: flex-start;
+          flex-direction: column;
           gap: 0.85rem;
-          padding: 1.05rem 1rem 1.05rem 1.1rem;
-          border-radius: 12px;
-          border: 1px solid rgba(100, 116, 139, 0.28);
-          background: linear-gradient(160deg, rgba(51, 65, 85, 0.55) 0%, rgba(15, 23, 42, 0.92) 100%);
-          min-height: 96px;
-          overflow: hidden;
-          transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
         }
-        .dc-fluxo-card::before {
-          content: '';
+        .dc-fluxo-compact {
+          position: relative;
+          padding-top: 0.35rem;
+        }
+        .dc-fluxo-compact-track {
+          position: relative;
+          height: 4px;
+          margin-bottom: 0.55rem;
+          border-radius: 4px;
+          overflow: hidden;
+        }
+        .dc-fluxo-compact-track-base {
+          position: absolute;
+          inset: 0;
+          background: rgba(71, 85, 105, 0.4);
+        }
+        .dc-fluxo-compact-track-fill {
           position: absolute;
           left: 0;
           top: 0;
           bottom: 0;
-          width: 3px;
-          background: rgba(100, 116, 139, 0.35);
-          border-radius: 12px 0 0 12px;
+          background: linear-gradient(90deg, #22c55e, #6366f1);
+          border-radius: 4px;
+          transition: width 0.35s ease;
         }
-        .dc-fluxo-card--done {
-          border-color: rgba(34, 197, 94, 0.55);
-          background: linear-gradient(155deg, rgba(34, 197, 94, 0.22) 0%, rgba(15, 23, 42, 0.95) 55%);
-          box-shadow: 0 4px 20px rgba(34, 197, 94, 0.12);
-        }
-        .dc-fluxo-card--done::before {
-          background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
-          width: 4px;
-        }
-        .dc-fluxo-card--done .dc-fluxo-card-icon-wrap {
-          background: rgba(34, 197, 94, 0.2);
-          color: #4ade80;
-          border: 1px solid rgba(74, 222, 128, 0.35);
-        }
-        .dc-fluxo-card--done .dc-fluxo-card-title { color: #86efac; }
-
-        .dc-fluxo-card--active {
-          border-color: rgba(129, 140, 248, 0.75);
-          background: linear-gradient(155deg, rgba(99, 102, 241, 0.35) 0%, rgba(30, 27, 75, 0.85) 50%, rgba(15, 23, 42, 0.98) 100%);
-          box-shadow:
-            0 0 0 1px rgba(129, 140, 248, 0.5),
-            0 0 32px rgba(99, 102, 241, 0.35),
-            0 12px 28px rgba(0, 0, 0, 0.35);
-          transform: translateY(-2px);
-        }
-        .dc-fluxo-card--active::before {
-          background: linear-gradient(180deg, #a5b4fc 0%, #6366f1 50%, #4f46e5 100%);
-          width: 4px;
-          box-shadow: 0 0 12px rgba(99, 102, 241, 0.8);
-        }
-        .dc-fluxo-card--active .dc-fluxo-card-icon-wrap {
-          background: rgba(99, 102, 241, 0.35);
-          color: #c7d2fe;
-          border: 1px solid rgba(165, 180, 252, 0.45);
-          box-shadow: 0 0 16px rgba(99, 102, 241, 0.4);
-        }
-        .dc-fluxo-card--active .dc-fluxo-card-title { color: #e0e7ff; }
-        .dc-fluxo-card--active .dc-fluxo-card-sub { color: #a5b4fc; }
-
-        .dc-fluxo-card--pending {
-          border-color: rgba(71, 85, 105, 0.45);
-          background: linear-gradient(160deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.88) 100%);
-        }
-        .dc-fluxo-card--pending .dc-fluxo-card-icon-wrap {
-          background: rgba(51, 65, 85, 0.65);
-          color: #94a3b8;
-          border: 1px solid rgba(100, 116, 139, 0.35);
-        }
-        .dc-fluxo-card--pending .dc-fluxo-card-title { color: #cbd5e1; }
-        .dc-fluxo-card--pending .dc-fluxo-card-sub { color: #64748b; }
-
-        .dc-fluxo-card-icon-wrap {
-          flex-shrink: 0;
+        .dc-fluxo-compact-etapas {
           display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-          margin-top: 0.05rem;
+          justify-content: space-between;
+          gap: 0.25rem;
         }
-        .dc-fluxo-card-text {
+        .dc-fluxo-compact-etapa {
           display: flex;
           flex-direction: column;
-          gap: 0.3rem;
+          align-items: center;
+          gap: 0.25rem;
+          flex: 1;
           min-width: 0;
-          padding-top: 0.1rem;
         }
-        .dc-fluxo-card-title {
-          font-size: 0.875rem;
-          font-weight: 700;
-          line-height: 1.25;
-          letter-spacing: 0.01em;
-        }
-        .dc-fluxo-card-sub {
-          font-size: 0.75rem;
+        .dc-fluxo-compact-node {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 26px;
+          height: 26px;
+          border-radius: 8px;
+          border: 1px solid rgba(100, 116, 139, 0.35);
+          background: rgba(30, 41, 59, 0.8);
           color: #94a3b8;
-          line-height: 1.4;
+        }
+        .dc-fluxo-compact-etapa--done .dc-fluxo-compact-node {
+          border-color: rgba(74, 222, 128, 0.4);
+          background: rgba(34, 197, 94, 0.15);
+          color: #4ade80;
+        }
+        .dc-fluxo-compact-etapa--active .dc-fluxo-compact-node {
+          border-color: rgba(129, 140, 248, 0.55);
+          background: rgba(99, 102, 241, 0.2);
+          color: #c7d2fe;
+        }
+        .dc-fluxo-compact-label {
+          font-size: 0.5625rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: #64748b;
+          text-align: center;
+          line-height: 1.2;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .dc-fluxo-compact-etapa--done .dc-fluxo-compact-label { color: #86efac; }
+        .dc-fluxo-compact-etapa--active .dc-fluxo-compact-label { color: #a5b4fc; }
+        @media (max-width: 640px) {
+          .dc-fluxo-compact-label { font-size: 0.5rem; }
+          .dc-fluxo-compact-node { width: 22px; height: 22px; }
+        }
+
+        .dc-info-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0.55rem;
+        }
+        @media (max-width: 960px) {
+          .dc-info-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 520px) {
+          .dc-info-grid { grid-template-columns: 1fr; }
+        }
+        .dc-info-card {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.55rem;
+          padding: 0.65rem 0.75rem;
+          border-radius: 10px;
+          border: 1px solid rgba(148, 163, 184, 0.12);
+          background: rgba(15, 23, 42, 0.45);
+          min-height: 72px;
+        }
+        .dc-info-card--wide {
+          grid-column: 1 / -1;
+        }
+        @media (min-width: 961px) {
+          .dc-info-card--wide { grid-column: span 3; }
+        }
+        @media (max-width: 960px) and (min-width: 521px) {
+          .dc-info-card--wide { grid-column: span 2; }
+        }
+        .dc-info-card--destaque {
+          border-color: rgba(129, 140, 248, 0.28);
+          background: rgba(99, 102, 241, 0.08);
+        }
+        .dc-info-card--vazio { opacity: 0.65; }
+        .dc-info-card-icon {
+          flex-shrink: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          background: rgba(99, 102, 241, 0.12);
+          border: 1px solid rgba(129, 140, 248, 0.2);
+          color: #a5b4fc;
+        }
+        .dc-info-card-body {
+          display: flex;
+          flex-direction: column;
+          gap: 0.12rem;
+          min-width: 0;
+          flex: 1;
+        }
+        .dc-info-card-body--wide { gap: 0.35rem; }
+        .dc-info-card-titulo {
+          font-size: 0.625rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: #64748b;
+        }
+        .dc-info-card-valor {
+          font-size: 0.9375rem;
+          font-weight: 700;
+          color: #f1f5f9;
+          line-height: 1.2;
+        }
+        .dc-info-card-valor--truncate {
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .dc-info-card-detalhe {
+          font-size: 0.6875rem;
+          color: #94a3b8;
+          line-height: 1.35;
+        }
+        .dc-info-barras {
+          display: flex;
+          flex-direction: column;
+          gap: 0.35rem;
+          margin-top: 0.15rem;
+        }
+        .dc-info-barra-linha {
+          display: grid;
+          grid-template-columns: minmax(56px, 88px) 1fr 28px;
+          align-items: center;
+          gap: 0.4rem;
+        }
+        .dc-info-barra-nome {
+          font-size: 0.625rem;
+          color: #94a3b8;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .dc-info-barra-trilha {
+          height: 6px;
+          border-radius: 4px;
+          background: rgba(51, 65, 85, 0.65);
+          overflow: hidden;
+        }
+        .dc-info-barra-fill {
+          height: 100%;
+          border-radius: 4px;
+          background: rgba(148, 163, 184, 0.45);
+          transition: width 0.3s ease;
+        }
+        .dc-info-barra-fill--melhor {
+          background: linear-gradient(90deg, #22c55e, #4ade80);
+        }
+        .dc-info-barra-dias {
+          font-size: 0.625rem;
+          font-weight: 700;
+          font-family: 'DM Mono', monospace;
+          color: #cbd5e1;
+          text-align: right;
+        }
+        .dc-info-legenda {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          font-size: 0.625rem;
+          color: #64748b;
+          padding-top: 0.1rem;
         }
 
         /* ── Dados — 3 cards ── */
@@ -1406,15 +1226,22 @@ export default function DetalheCotacao() {
           }
         }
         .dc-rota-ponto {
+          position: relative;
           flex: 1;
           display: flex;
           flex-direction: column;
           gap: 0.55rem;
           min-width: 0;
-          padding: 0.65rem 0.75rem;
+          padding: 0.65rem 2.35rem 0.65rem 0.75rem;
           border-radius: 10px;
           background: rgba(30, 41, 59, 0.55);
           border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        .dc-rota-ponto-bandeira {
+          position: absolute;
+          top: 0.55rem;
+          right: 0.55rem;
+          z-index: 1;
         }
         .dc-rota-ponto--origem {
           border-color: rgba(74, 222, 128, 0.22);
@@ -1452,18 +1279,15 @@ export default function DetalheCotacao() {
           justify-content: center;
         }
         .dc-rota-ponto-corpo {
-          display: flex;
-          align-items: center;
-          gap: 0.7rem;
           min-width: 0;
         }
         .dc-rota-flag-modern {
           position: relative;
           flex-shrink: 0;
           display: block;
-          width: 48px;
-          height: 36px;
-          border-radius: 10px;
+          width: 24px;
+          height: 18px;
+          border-radius: 6px;
           overflow: hidden;
           box-shadow:
             0 2px 10px rgba(0, 0, 0, 0.35),
@@ -1492,7 +1316,7 @@ export default function DetalheCotacao() {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          font-size: 1.65rem;
+          font-size: 0.9rem;
           font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
           background: rgba(51, 65, 85, 0.65);
         }
@@ -1506,31 +1330,19 @@ export default function DetalheCotacao() {
         }
         .dc-rota-trilha {
           position: relative;
-          flex: 0 1 108px;
-          min-width: 80px;
-          max-width: 132px;
-          height: 44px;
+          flex: 0 1 120px;
+          min-width: 88px;
+          max-width: 140px;
+          height: 40px;
           display: flex;
           align-items: center;
           justify-content: center;
         }
         .dc-rota-trilha-svg {
           width: 100%;
-          height: 28px;
+          height: 36px;
           display: block;
           overflow: visible;
-        }
-        .dc-rota-trilha-icon-wrap {
-          position: absolute;
-          z-index: 2;
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(15, 23, 42, 0.95);
-          border: 1px solid;
         }
         .dc-rota-ponto-text {
           display: flex;
@@ -1683,71 +1495,232 @@ export default function DetalheCotacao() {
           box-shadow: 0 4px 20px rgba(34, 197, 94, 0.12);
         }
 
-        /* ── Response Cards ── */
-        .dc-responses-list {
+        /* ── Propostas (Respostas) ── */
+        .dc-prop-panel {
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
+          gap: 0.85rem;
         }
-        .dc-response-card {
-          background: var(--bg-base, #1e293b);
-          border-radius: var(--radius-md, 8px);
-          padding: 1rem;
-          border: 1px solid var(--bg-elevated, #475569);
-        }
-        .dc-response-card--aprovada {
-          border-color: rgba(34,197,94,0.4);
-          background: rgba(34,197,94,0.03);
-        }
-        .dc-resp-header {
+        .dc-prop-panel-toolbar {
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: space-between;
-          margin-bottom: 0.75rem;
-        }
-        .dc-resp-fornecedor {
-          font-size: 0.875rem;
-          font-weight: 700;
-          color: var(--text-primary, #f1f5f9);
-        }
-        .dc-resp-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
           gap: 0.75rem;
+          flex-wrap: wrap;
+          padding: 0.75rem 0.85rem;
+          border-radius: 10px;
+          background: rgba(30, 41, 59, 0.55);
+          border: 1px solid rgba(148, 163, 184, 0.12);
         }
-        @media (max-width: 800px) {
-          .dc-resp-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        .dc-resp-item {
+        .dc-prop-sort-wrap {
           display: flex;
           flex-direction: column;
-          gap: 0.15rem;
+          gap: 0.45rem;
+          flex: 1;
+          min-width: 0;
         }
-        .dc-resp-item--destaque {
-          background: rgba(99,102,241,0.1);
-          padding: 0.5rem;
-          border-radius: var(--radius-sm, 4px);
+        .dc-prop-sort-label {
+          font-size: 0.6875rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: var(--text-muted, #64748b);
         }
-        .dc-resp-label {
+        .dc-prop-sort-bar {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.4rem;
+        }
+        .dc-prop-sort-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.35rem 0.6rem;
+          border-radius: 999px;
+          border: 1px solid rgba(148, 163, 184, 0.2);
+          background: rgba(15, 23, 42, 0.55);
+          color: #94a3b8;
           font-size: 0.6875rem;
           font-weight: 600;
-          text-transform: uppercase;
-          color: var(--text-muted, #64748b);
-          letter-spacing: 0.04em;
+          cursor: pointer;
+          transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
         }
-        .dc-resp-value {
+        .dc-prop-sort-btn:hover {
+          border-color: rgba(129, 140, 248, 0.45);
+          color: #e2e8f0;
+        }
+        .dc-prop-sort-btn--ativo {
+          border-color: rgba(129, 140, 248, 0.55);
+          background: rgba(99, 102, 241, 0.18);
+          color: #e0e7ff;
+        }
+        .dc-prop-comparativo-btn {
+          flex-shrink: 0;
+          align-self: center;
+        }
+        @media (max-width: 720px) {
+          .dc-prop-comparativo-btn { align-self: flex-start; width: 100%; justify-content: center; }
+        }
+        .dc-prop-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.85rem;
+        }
+        .dc-prop-loading {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0.65rem;
+          min-height: 160px;
+          color: var(--text-muted, #94a3b8);
           font-size: 0.875rem;
-          font-weight: 600;
-          color: var(--text-primary, #f1f5f9);
+        }
+        .dc-prop-loading-icon {
+          animation: dc-prop-pulse 1.2s ease-in-out infinite;
+        }
+        @keyframes dc-prop-pulse {
+          0%, 100% { opacity: 0.45; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.05); }
+        }
+        .dc-prop-card {
+          position: relative;
+          border-radius: 14px;
+          overflow: hidden;
+          background: linear-gradient(168deg, #2a3548 0%, #1e293b 42%, #161f2e 100%);
+          border: 1px solid rgba(148, 163, 184, 0.12);
+        }
+        .dc-prop-card::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(90deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%);
+        }
+        .dc-prop-card--lider::after {
+          background: linear-gradient(90deg, #ca8a04 0%, #facc15 50%, #fde047 100%);
+        }
+        .dc-prop-card--aprovada::after {
+          background: linear-gradient(90deg, #16a34a 0%, #4ade80 50%, #86efac 100%);
+        }
+        .dc-prop-card-head {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 1rem;
+          padding: 1rem 1.25rem 0.65rem;
+          border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        @media (max-width: 640px) {
+          .dc-prop-card-head { flex-direction: column; gap: 0.65rem; }
+          .dc-prop-card-total-block { align-items: flex-start; }
+        }
+        .dc-prop-card-head-main {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.65rem;
+          min-width: 0;
+          flex: 1;
+        }
+        .dc-prop-rank-inline {
+          flex-shrink: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.15rem;
+          min-width: 2.25rem;
+          height: 2.25rem;
+          padding: 0 0.45rem;
+          border-radius: 8px;
+          font-size: 0.8125rem;
+          font-weight: 800;
           font-family: 'DM Mono', monospace;
         }
-        .dc-resp-obs {
-          margin-top: 0.75rem;
+        .dc-prop-card-titulos { min-width: 0; }
+        .dc-prop-card-title-row {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 0.45rem 0.65rem;
+        }
+        .dc-prop-fornecedor {
+          margin: 0;
+          font-size: 0.9375rem;
+          font-weight: 700;
+          color: #f8fafc;
+          letter-spacing: 0.01em;
+        }
+        .dc-prop-card-meta {
+          margin: 0.25rem 0 0;
+          font-size: 0.6875rem;
+          font-weight: 500;
+          color: #94a3b8;
+          line-height: 1.45;
+        }
+        .dc-prop-badge-aprovada {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+          padding: 0.15rem 0.45rem;
+          border-radius: 999px;
+          font-size: 0.625rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          color: #86efac;
+          background: rgba(34, 197, 94, 0.12);
+          border: 1px solid rgba(74, 222, 128, 0.28);
+        }
+        .dc-prop-card-total-block {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 0.15rem;
+          flex-shrink: 0;
+        }
+        .dc-prop-total-valor {
+          font-size: 1.0625rem;
+          font-weight: 700;
+          color: #f1f5f9;
+        }
+        .dc-prop-resumo {
+          margin: 0;
+          padding: 0.5rem 1.25rem 0.65rem;
+          font-size: 0.6875rem;
+          font-weight: 500;
+          color: #64748b;
+          line-height: 1.5;
+          border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+        }
+        .dc-prop-card-body {
+          display: flex;
+          flex-direction: column;
+          padding: 0 1.25rem 0.35rem;
+        }
+        .dc-prop-card-body .dc-info-row {
+          border-bottom-color: rgba(148, 163, 184, 0.1);
+          padding: 0.55rem 0;
+        }
+        .dc-prop-card-body .dc-info-row:last-child {
+          border-bottom: none;
+        }
+        .dc-prop-icon-badge {
+          background: rgba(52, 211, 153, 0.1);
+          border-color: rgba(52, 211, 153, 0.22);
+          color: #34d399;
+        }
+        .dc-prop-obs {
+          margin: 0;
+          padding: 0.65rem 1.25rem 1rem;
+          border-top: 1px solid rgba(148, 163, 184, 0.1);
           font-size: 0.8125rem;
           color: var(--text-secondary, #94a3b8);
           font-style: italic;
-          padding-top: 0.5rem;
-          border-top: 1px solid var(--bg-elevated, #475569);
+        }
+        .dc-btn--sm {
+          padding: 0.4rem 0.75rem;
+          font-size: 0.8125rem;
         }
 
         /* ── Empty ── */

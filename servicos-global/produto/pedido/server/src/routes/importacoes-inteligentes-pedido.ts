@@ -36,6 +36,10 @@ import {
   prioridadeDeCampo,
   type CampoPedidoDDD,
 } from '../../../shared/campos-pedido-ddd.js'
+import {
+  PRIMEIRA_LINHA_DADOS_TEMPLATE,
+  ULTIMA_LINHA_DADOS_TEMPLATE,
+} from '../../../shared/smart-import-limites.js'
 
 // Versao do template. Atualize quando a ordem/estrutura mudar de forma
 // incompativel. O parser e' agnostico de ordem (matcheia por rotulo via SSOT
@@ -398,11 +402,11 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
     })
 
     // ── Data validation (dropdowns) para campos tipo 'select' ─────────────────
-    // Aplica do row 3 ate 1000 (margem para o usuario adicionar linhas).
+    // Aplica validacao de linha 3 ate linha 1002 (1000 linhas de dados no template).
     camposOrdenados.forEach((c, idx) => {
       if (c.tipo === 'select' && c.opcoesSelect && c.opcoesSelect.length > 0) {
         const colLetter = ws.getColumn(idx + 1).letter
-        for (let row = 3; row <= 1000; row++) {
+        for (let row = PRIMEIRA_LINHA_DADOS_TEMPLATE; row <= ULTIMA_LINHA_DADOS_TEMPLATE; row++) {
           ws.getCell(`${colLetter}${row}`).dataValidation = {
             type:           'list',
             allowBlank:     false,
@@ -443,7 +447,7 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
         if (!ref) return
         const colLetter = ws.getColumn(idx + 1).letter
         const label     = c.dropdownDinamico === 'moeda' ? 'moeda' : 'unidade'
-        for (let row = 3; row <= 1000; row++) {
+        for (let row = PRIMEIRA_LINHA_DADOS_TEMPLATE; row <= ULTIMA_LINHA_DADOS_TEMPLATE; row++) {
           ws.getCell(`${colLetter}${row}`).dataValidation = {
             type:             'list',
             allowBlank:       true,
@@ -463,7 +467,7 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
     camposOrdenados.forEach((c, idx) => {
       if (c.campo !== 'ncm_duimp') return
       const colLetter = ws.getColumn(idx + 1).letter
-      for (let row = 3; row <= 1000; row++) {
+      for (let row = PRIMEIRA_LINHA_DADOS_TEMPLATE; row <= ULTIMA_LINHA_DADOS_TEMPLATE; row++) {
         ws.getCell(`${colLetter}${row}`).dataValidation = {
           type:             'custom',
           allowBlank:       true,
@@ -521,7 +525,7 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
       const ehBloqPedido = CAMPOS_BLOQ_PARA_PEDIDO.has(c.campo)
       if (!ehBloqItem && !ehBloqPedido) return
       const ehNcm = c.campo === 'ncm_item' || c.campo === 'ncm_duimp'
-      for (let row = 3; row <= 1000; row++) {
+      for (let row = PRIMEIRA_LINHA_DADOS_TEMPLATE; row <= ULTIMA_LINHA_DADOS_TEMPLATE; row++) {
         const cell = ws.getCell(`${colLetter}${row}`)
         if (ehBloqItem) {
           cell.dataValidation = {
@@ -576,7 +580,7 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
       const ehBloqItem   = CAMPOS_BLOQ_PARA_ITEM.has(c.campo)
       const ehBloqPedido = CAMPOS_BLOQ_PARA_PEDIDO.has(c.campo)
       if (!ehBloqItem && !ehBloqPedido) return
-      const ref = `${colLetter}3:${colLetter}1000`
+      const ref = `${colLetter}${PRIMEIRA_LINHA_DADOS_TEMPLATE}:${colLetter}${ULTIMA_LINHA_DADOS_TEMPLATE}`
       const formula = ehBloqItem
         ? `$${colTipoLinha}3="ITEM"`
         : `$${colTipoLinha}3="PEDIDO"`

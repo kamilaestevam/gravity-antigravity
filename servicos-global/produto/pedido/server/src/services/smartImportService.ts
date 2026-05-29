@@ -34,6 +34,11 @@ import {
   type ParceirosResolvidosPedido,
 } from './smartImportParceirosService.js'
 import type { NomesEmpresaItem } from '../../../shared/mapaPropagacaoPedidoItem.js'
+import {
+  LIMITE_LINHAS_IMPORTACAO,
+  CODIGO_ERRO_LIMITE_LINHAS,
+  mensagemLimiteLinhasExcedido,
+} from '../../../shared/smart-import-limites.js'
 
 export { parseNumeroBr, parseNumeroBrOpcional } from '../../../shared/formatadores.js'
 
@@ -363,9 +368,6 @@ export interface SmartImportResultado {
   ids_criados: string[]
 }
 
-// FEAT.4 — Limite de linhas recomendado
-const LIMITE_LINHAS_AVISO = 1000
-
 // Cache simples em memoria para previews (TTL 30min)
 const previewCache = new Map<string, { data: SmartImportLinha[]; ts: number; mapeamento: ColunaMapeadaBackend[] }>()
 const PREVIEW_TTL_MS = 30 * 60 * 1000
@@ -431,7 +433,15 @@ export function prepararLinhasFiltradasConfirmacao(
           alertas: [],
           dados: {},
         }))
-  return linhasParaUsar.filter((l) => payload.linhas_incluidas.includes(l.linha_arquivo))
+  const filtradas = linhasParaUsar.filter((l) => payload.linhas_incluidas.includes(l.linha_arquivo))
+  if (filtradas.length > LIMITE_LINHAS_IMPORTACAO) {
+    throw new AppError(
+      mensagemLimiteLinhasExcedido(filtradas.length),
+      400,
+      CODIGO_ERRO_LIMITE_LINHAS,
+    )
+  }
+  return filtradas
 }
 
 // Defaults alinhados com PedidoCasasDecimais (schema Prisma)
@@ -597,13 +607,16 @@ export class SmartImportService {
       return l
     })
 
-    // FEAT.4 — Alertar se exceder limite recomendado
-    if (linhasComDuplicatas.length > LIMITE_LINHAS_AVISO) {
-      console.warn(`[SmartImport] tenant=${tenantId} arquivo com ${linhasComDuplicatas.length} linhas (limite recomendado: ${LIMITE_LINHAS_AVISO})`)
-    }
-
     // 8.5. Validacao de coerencia cross-linha (master-detail) — P1.2
     const linhasComCoerencia = this.validarCoerenciaMasterDetail(linhasComDuplicatas)
+
+    if (linhasComCoerencia.length > LIMITE_LINHAS_IMPORTACAO) {
+      throw new AppError(
+        mensagemLimiteLinhasExcedido(linhasComCoerencia.length),
+        400,
+        CODIGO_ERRO_LIMITE_LINHAS,
+      )
+    }
 
     // 9. Salvar preview no cache
     const previewId = `${tenantId}-${hashColunas}-${Date.now()}`
@@ -656,7 +669,7 @@ export class SmartImportService {
       memoria_aplicada: memoriaAplicada,
       preview_id:      previewId,
       linhas:          linhasComCoerencia,
-      limite_excedido: linhasComCoerencia.length > LIMITE_LINHAS_AVISO,
+      limite_excedido: false,
       extrator_usado,
       dados_brutos,
       conflitos_mapeamento,

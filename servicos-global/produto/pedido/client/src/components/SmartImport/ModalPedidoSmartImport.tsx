@@ -15,6 +15,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { LIMITE_LINHAS_IMPORTACAO } from '../../../../shared/smart-import-limites'
 import { useAuth } from '@clerk/clerk-react'
 import { UploadSimple } from '@phosphor-icons/react'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
@@ -146,6 +147,20 @@ function traduzirErroDetalhado(
         ],
         retryable: false,
         acoes: [{ label: t('pedido.smart_import.acao_baixar_template'), tipo: 'baixar_template' }],
+      }
+
+    case 'LIMITE_LINHAS_EXCEDIDO':
+      return {
+        code: codeBackend,
+        titulo: t('pedido.smart_import.err_limite_linhas_titulo'),
+        mensagem: msg || t('pedido.smart_import.err_limite_linhas_msg', { max: LIMITE_LINHAS_IMPORTACAO }),
+        causa: t('pedido.smart_import.err_limite_linhas_causa'),
+        sugestoes: [
+          t('pedido.smart_import.err_limite_linhas_sug1'),
+          t('pedido.smart_import.err_limite_linhas_sug2'),
+          t('pedido.smart_import.err_limite_linhas_sug3'),
+        ],
+        retryable: false,
       }
 
     case 'FORMATO_NAO_SUPORTADO':
@@ -752,9 +767,6 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido, onListaA
     onFechar()
   }
 
-  // Tipo auxiliar para preview com campos opcionais da Onda 2
-  const previewExt = preview as (SmartImportPreview & { limite_excedido?: boolean }) | null
-
   const footerSmartImport = etapa !== 'confirmacao' ? (
     <>
       <BotaoGlobal
@@ -869,23 +881,6 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido, onListaA
           </div>
         )}
 
-        {/* Aviso de limite de linhas excedido */}
-        {previewExt && previewExt.limite_excedido && (
-          <div style={{
-            padding: '0.5rem 1.25rem',
-            background: 'rgba(245,158,11,0.08)',
-            borderBottom: '1px solid rgba(245,158,11,0.2)',
-            color: '#f59e0b',
-            fontSize: '0.75rem',
-            fontWeight: 500,
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-          }}>
-            {t('pedido.smart_import.aviso_limite', { total: previewExt.total_linhas })}
-          </div>
-        )}
 
         {/* Corpo */}
         <div className="smart-import__corpo">

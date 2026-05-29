@@ -371,19 +371,19 @@ describe('templateHandler — bloqueio de celulas por tipo de linha (P15)', () =
     }
   })
 
-  it('aplica bloqueio em todas as linhas de dados (row 3 a 1000)', async () => {
+  it('aplica bloqueio em todas as linhas de dados (row 3 a 1002)', async () => {
     const { wb } = await gerarTemplate()
     const ws = wb.worksheets.find(s => s.name !== '_Listas')!
     const col = encontrarColuna(ws, 'part_number_item')
     expect(col).toBeGreaterThan(0)
-    const v3   = ws.getCell(3, col).dataValidation
-    const v500 = ws.getCell(500, col).dataValidation
-    const v1000 = ws.getCell(1000, col).dataValidation
+    const v3    = ws.getCell(3, col).dataValidation
+    const v500  = ws.getCell(500, col).dataValidation
+    const v1002 = ws.getCell(1002, col).dataValidation
     expect(v3).toBeDefined()
     expect(v500).toBeDefined()
-    expect(v1000).toBeDefined()
+    expect(v1002).toBeDefined()
     expect(v3!.formulae![0]).toContain('"PEDIDO"')
     expect(v500!.formulae![0]).toContain('"PEDIDO"')
-    expect(v1000!.formulae![0]).toContain('"PEDIDO"')
+    expect(v1002!.formulae![0]).toContain('"PEDIDO"')
   })
 })

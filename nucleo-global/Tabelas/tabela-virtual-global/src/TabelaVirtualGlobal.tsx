@@ -875,7 +875,11 @@ const GTEditPopover = memo(function GTEditPopover({
             const temBusca = todasOpcoes.length > 8
             const termo = opcoesBusca.trim().toLowerCase()
             const opcoesFiltradas = temBusca && termo
-              ? todasOpcoes.filter(op => op.label.toLowerCase().includes(termo) || op.valor.toLowerCase().includes(termo))
+              ? todasOpcoes.filter(op => {
+                  const label = (op.label ?? '').toLowerCase()
+                  const valor = (op.valor ?? '').toLowerCase()
+                  return label.includes(termo) || valor.includes(termo)
+                })
               : todasOpcoes
             return (
               <>

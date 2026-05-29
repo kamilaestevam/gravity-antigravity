@@ -43,12 +43,10 @@ import {
   ClipboardText,
 } from '@phosphor-icons/react'
 
-import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import {
   getCotacao,
   getDisparoPorCotacaoBidFreteInternacional,
   excluirCotacao,
-  mudarStatusCotacao,
   rankingCotacoesBidFreteInternacional,
 } from '../shared/api'
 import { ModalEnviarCotacaoBidFreteInternacional } from './modal-enviar-cotacao-bid-frete-internacional'
@@ -63,7 +61,6 @@ import type {
   Cotacao,
   DisparoCotacaoBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
-  StatusCotacao,
   StatusDisparoCotacaoBidFreteInternacional,
   ModalFrete,
   TipoOperacao,
@@ -71,7 +68,6 @@ import type {
 } from '../shared/types'
 import type { TFunction } from 'i18next'
 import {
-  STATUS_LABELS,
   MODAL_LABELS,
   MODALIDADE_LABELS,
   OPERACAO_LABELS,
@@ -80,9 +76,6 @@ import {
 } from '../shared/types'
 
 // ─── Formatação ──────────────────────────────────────────────────────────────
-
-const dataBR = (iso: string | null) =>
-  iso ? new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—'
 
 const dataHoraBR = (iso: string | null) =>
   iso ? new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'
@@ -128,13 +121,6 @@ function montarLinkRespostaPublicoDisparo(token: string): string {
   const base = window.location.origin.replace(/\/$/, '')
   return `${base}/bid-frete/visao-fornecedor-bid-frete-internacional/publico/${encodeURIComponent(token)}`
 }
-
-// ─── Timeline ────────────────────────────────────────────────────────────────
-
-const STATUS_COTACAO_OPCOES: SelectOpcao[] = (Object.keys(STATUS_LABELS) as StatusCotacao[]).map((status) => ({
-  valor: status,
-  rotulo: STATUS_LABELS[status],
-}))
 
 function iconeModalFrete(modal: ModalFrete): React.ReactNode {
   if (modal === 'MARITIMO') return <Anchor weight="duotone" size={16} />
@@ -308,8 +294,6 @@ export default function DetalheCotacao() {
   const [erro, setErro] = useState<string | null>(null)
   const [tab, setTab] = useState<'dados' | 'bids' | 'respostas'>('dados')
   const [modalDisparoAberto, setModalDisparoAberto] = useState(false)
-  const [salvandoStatus, setSalvandoStatus] = useState(false)
-  const [erroStatus, setErroStatus] = useState<string | null>(null)
   const [propostasRanking, setPropostasRanking] = useState<PropostaRankingBidFreteInternacional[]>([])
   const [carregandoRanking, setCarregandoRanking] = useState(false)
 
@@ -390,23 +374,6 @@ export default function DetalheCotacao() {
     const raw = cotacao?.propostas_bid_frete_internacional ?? []
     return raw.length > 0 ? ranquearPropostasLocal(raw) : []
   }, [propostasRanking, cotacao])
-
-  const handleMudarStatus = useCallback(async (novoStatus: string | number | null) => {
-    if (!cotacao || novoStatus == null || novoStatus === '') return
-    const status = String(novoStatus) as StatusCotacao
-    if (status === cotacao.status_cotacao_bid_frete_internacional) return
-
-    setSalvandoStatus(true)
-    setErroStatus(null)
-    try {
-      const atualizada = await mudarStatusCotacao(cotacao.id_cotacao_bid_frete_internacional, status)
-      setCotacao(atualizada)
-    } catch (e: unknown) {
-      setErroStatus(e instanceof Error ? e.message : t('bidfrete.detalhe_cotacao.erro_status', 'Erro ao alterar status'))
-    } finally {
-      setSalvandoStatus(false)
-    }
-  }, [cotacao, t])
 
   const acoesToolbar = cotacao ? (
     <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginBottom: '1rem' }}>
@@ -594,27 +561,6 @@ export default function DetalheCotacao() {
       />
 
       <div className="dc-fluxo-panel">
-        <div className="dc-fluxo-panel-top">
-          <div className="dc-status-select">
-            <span className="dc-status-select-label">{t('bidfrete.detalhe_cotacao.status', 'Status')}</span>
-            <SelectGlobal
-              opcoes={STATUS_COTACAO_OPCOES}
-              valor={cotacao.status_cotacao_bid_frete_internacional}
-              aoMudarValor={handleMudarStatus}
-              desabilitado={salvandoStatus}
-              placeholder={t('bidfrete.detalhe_cotacao.selecionar_status', 'Selecione o status')}
-            />
-          </div>
-          <span className="dc-status-date">
-            {t('bidfrete.detalhe_cotacao.criada_em')} {dataBR(cotacao.data_criacao_cotacao_bid_frete_internacional)}
-          </span>
-          {erroStatus && <span className="dc-status-erro" role="alert">{erroStatus}</span>}
-          {cotacao.ganho_percentual_cotacao_bid_frete_internacional != null && cotacao.ganho_percentual_cotacao_bid_frete_internacional > 0 && (
-            <span className="dc-saving-badge">
-              {t('bidfrete.detalhe_cotacao.saving_label', 'Saving:')} {cotacao.ganho_percentual_cotacao_bid_frete_internacional.toFixed(1)}%
-            </span>
-          )}
-        </div>
         <PainelFluxoInfograficosCotacao
           statusAtual={cotacao.status_cotacao_bid_frete_internacional}
           disparos={bids}
@@ -775,53 +721,13 @@ export default function DetalheCotacao() {
       <style>{`
         .dc-page { }
 
-        /* ── Painel fluxo (status + stepper) ── */
+        /* ── Painel fluxo (timeline + infográficos) ── */
         .dc-fluxo-panel {
           background: linear-gradient(165deg, #293548 0%, #1a2332 48%, #151d2b 100%);
           border: 1px solid rgba(148, 163, 184, 0.14);
           border-radius: 14px;
           padding: 1rem 1.15rem 1.1rem;
           margin-bottom: 1rem;
-        }
-        .dc-fluxo-panel-top {
-          display: flex;
-          align-items: flex-end;
-          flex-wrap: wrap;
-          gap: 0.75rem 1.25rem;
-          margin-bottom: 0.85rem;
-          padding-bottom: 0.75rem;
-          border-bottom: 1px solid rgba(148, 163, 184, 0.12);
-        }
-        .dc-status-select {
-          display: flex;
-          flex-direction: column;
-          gap: 0.35rem;
-          min-width: 240px;
-        }
-        .dc-status-select-label {
-          font-size: 0.6875rem;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.06em;
-          color: var(--text-muted, #64748b);
-        }
-        .dc-status-erro {
-          font-size: 0.8125rem;
-          color: var(--danger, #ef4444);
-        }
-        .dc-status-date {
-          font-size: 0.8125rem;
-          color: var(--text-secondary, #94a3b8);
-          padding-bottom: 0.35rem;
-        }
-        .dc-saving-badge {
-          margin-left: auto;
-          padding: 0.25rem 0.75rem;
-          border-radius: var(--radius-pill, 9999px);
-          background: rgba(34,197,94,0.15);
-          color: var(--success, #22c55e);
-          font-size: 0.75rem;
-          font-weight: 700;
         }
 
         .dc-resumo-kpis {
@@ -1057,46 +963,42 @@ export default function DetalheCotacao() {
           color: #94a3b8;
           line-height: 1.35;
         }
-        .dc-info-barras {
+        .dc-info-card-detalhe--fornecedor {
+          margin-top: -0.05rem;
+          margin-bottom: 0.15rem;
+        }
+        .dc-info-card--metricas {
+          min-height: auto;
+        }
+        .dc-info-metricas-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0.45rem 0.65rem;
+          margin-top: 0.2rem;
+        }
+        @media (max-width: 640px) {
+          .dc-info-metricas-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .dc-info-metrica {
           display: flex;
           flex-direction: column;
-          gap: 0.35rem;
-          margin-top: 0.15rem;
+          gap: 0.1rem;
+          min-width: 0;
         }
-        .dc-info-barra-linha {
-          display: grid;
-          grid-template-columns: minmax(56px, 88px) 1fr 28px;
-          align-items: center;
-          gap: 0.4rem;
-        }
-        .dc-info-barra-nome {
-          font-size: 0.625rem;
-          color: #94a3b8;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .dc-info-barra-trilha {
-          height: 6px;
-          border-radius: 4px;
-          background: rgba(51, 65, 85, 0.65);
-          overflow: hidden;
-        }
-        .dc-info-barra-fill {
-          height: 100%;
-          border-radius: 4px;
-          background: rgba(148, 163, 184, 0.45);
-          transition: width 0.3s ease;
-        }
-        .dc-info-barra-fill--melhor {
-          background: linear-gradient(90deg, #22c55e, #4ade80);
-        }
-        .dc-info-barra-dias {
-          font-size: 0.625rem;
+        .dc-info-metrica-label {
+          font-size: 0.5625rem;
           font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: #64748b;
+          line-height: 1.2;
+        }
+        .dc-info-metrica-valor {
+          font-size: 0.8125rem;
+          font-weight: 700;
+          color: #e2e8f0;
           font-family: 'DM Mono', monospace;
-          color: #cbd5e1;
-          text-align: right;
+          line-height: 1.25;
         }
         .dc-info-legenda {
           display: inline-flex;
@@ -1192,173 +1094,6 @@ export default function DetalheCotacao() {
         .dc-dados-card-body .dc-info-value {
           color: #f1f5f9;
           font-weight: 600;
-        }
-
-        .dc-rota-visual {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 0.5rem;
-          padding: 0.85rem 1rem;
-          margin-top: 0.15rem;
-          border-radius: 10px;
-          background: rgba(15, 23, 42, 0.55);
-          border: 1px solid rgba(56, 189, 248, 0.2);
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-        }
-        @media (max-width: 560px) {
-          .dc-rota-visual {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 0.75rem;
-          }
-          .dc-rota-trilha {
-            flex: none;
-            width: 100%;
-            max-width: none;
-            height: 52px;
-          }
-          .dc-rota-trilha-svg {
-            transform: rotate(90deg);
-            width: 52px;
-            height: 120px;
-            margin: 0 auto;
-          }
-        }
-        .dc-rota-ponto {
-          position: relative;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 0.55rem;
-          min-width: 0;
-          padding: 0.65rem 2.35rem 0.65rem 0.75rem;
-          border-radius: 10px;
-          background: rgba(30, 41, 59, 0.55);
-          border: 1px solid rgba(148, 163, 184, 0.1);
-        }
-        .dc-rota-ponto-bandeira {
-          position: absolute;
-          top: 0.55rem;
-          right: 0.55rem;
-          z-index: 1;
-        }
-        .dc-rota-ponto--origem {
-          border-color: rgba(74, 222, 128, 0.22);
-          background: linear-gradient(155deg, rgba(34, 197, 94, 0.1) 0%, rgba(30, 41, 59, 0.55) 55%);
-        }
-        .dc-rota-ponto--destino {
-          border-color: rgba(56, 189, 248, 0.22);
-          background: linear-gradient(155deg, rgba(56, 189, 248, 0.1) 0%, rgba(30, 41, 59, 0.55) 55%);
-        }
-        .dc-rota-ponto-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.4rem;
-          align-self: flex-start;
-          padding: 0.2rem 0.55rem 0.2rem 0.35rem;
-          border-radius: 999px;
-          font-size: 0.625rem;
-          font-weight: 800;
-          letter-spacing: 0.07em;
-          text-transform: uppercase;
-        }
-        .dc-rota-ponto-badge--origem {
-          color: #86efac;
-          background: rgba(34, 197, 94, 0.14);
-          border: 1px solid rgba(74, 222, 128, 0.28);
-        }
-        .dc-rota-ponto-badge--destino {
-          color: #7dd3fc;
-          background: rgba(56, 189, 248, 0.14);
-          border: 1px solid rgba(125, 211, 252, 0.28);
-        }
-        .dc-rota-ponto-badge-icon {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .dc-rota-ponto-corpo {
-          min-width: 0;
-        }
-        .dc-rota-flag-modern {
-          position: relative;
-          flex-shrink: 0;
-          display: block;
-          width: 24px;
-          height: 18px;
-          border-radius: 6px;
-          overflow: hidden;
-          box-shadow:
-            0 2px 10px rgba(0, 0, 0, 0.35),
-            0 0 0 1px rgba(255, 255, 255, 0.12),
-            inset 0 1px 0 rgba(255, 255, 255, 0.15);
-        }
-        .dc-rota-flag-modern__img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-        .dc-rota-flag-modern__shine {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.18) 0%,
-            transparent 42%,
-            transparent 58%,
-            rgba(0, 0, 0, 0.12) 100%
-          );
-          pointer-events: none;
-        }
-        .dc-rota-flag-modern--emoji {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.9rem;
-          font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
-          background: rgba(51, 65, 85, 0.65);
-        }
-        .dc-rota-flag-modern--vazio {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          color: #64748b;
-          font-size: 0.75rem;
-          background: rgba(51, 65, 85, 0.65);
-        }
-        .dc-rota-trilha {
-          position: relative;
-          flex: 0 1 120px;
-          min-width: 88px;
-          max-width: 140px;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .dc-rota-trilha-svg {
-          width: 100%;
-          height: 36px;
-          display: block;
-          overflow: visible;
-        }
-        .dc-rota-ponto-text {
-          display: flex;
-          flex-direction: column;
-          gap: 0.15rem;
-          min-width: 0;
-        }
-        .dc-rota-ponto-nome {
-          font-size: 0.9rem;
-          font-weight: 700;
-          line-height: 1.3;
-          color: var(--text-primary, #f1f5f9);
-        }
-        .dc-rota-ponto-codigo {
-          font-size: 0.75rem;
-          color: var(--text-secondary, #94a3b8);
         }
 
         .dc-mercadoria-destaque {
@@ -1706,9 +1441,9 @@ export default function DetalheCotacao() {
           border-bottom: none;
         }
         .dc-prop-icon-badge {
-          background: rgba(52, 211, 153, 0.1);
-          border-color: rgba(52, 211, 153, 0.22);
-          color: #34d399;
+          background: rgba(56, 189, 248, 0.12);
+          border-color: rgba(125, 211, 252, 0.28);
+          color: #38bdf8;
         }
         .dc-prop-obs {
           margin: 0;

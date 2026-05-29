@@ -70,8 +70,8 @@ export interface GTColuna<T = unknown> {
   /** Permite edição inline (sobrepõe camposEditaveis da prop raiz). Função recebe a linha e retorna se editável — quando false, bloqueia mesmo que a coluna esteja em camposEditaveis */
   editavel?: boolean | ((item: T) => boolean)
   /**
-   * Modo visual da célula quando não editável (piloto: somente_leitura / calculado).
-   * Não altera comportamento de edição — use com `editavel: false` ou fora de `camposEditaveis`.
+   * Modo visual opcional (calculado). Texto muted em coluna 100% não editável (pai + filho)
+   * é aplicado automaticamente pela GTV — não é necessário setar `somente_leitura` manualmente.
    */
   modoExibicaoCelula?: 'somente_leitura' | 'calculado'
   /** Tooltip exibido quando a célula está bloqueada (editavel retorna false ou coluna não editável) */

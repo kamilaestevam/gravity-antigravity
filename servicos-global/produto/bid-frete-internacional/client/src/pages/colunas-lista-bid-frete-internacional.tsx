@@ -299,9 +299,6 @@ function aplicarConfigEdicaoColuna(
     return {
       ...col,
       editavel: false,
-      ...(key === 'data_atualizacao_cotacao_bid_frete_internacional'
-        ? { modoExibicaoCelula: 'somente_leitura' as const }
-        : {}),
       ...(tooltipServidor ? { tooltipBloqueado: tooltipServidor } : {}),
     }
   }

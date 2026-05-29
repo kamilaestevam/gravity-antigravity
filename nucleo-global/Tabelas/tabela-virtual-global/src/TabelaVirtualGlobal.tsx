@@ -29,6 +29,10 @@ import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useNcmValidation } from '@nucleo/campo-ncm-global'
 import { lerTextoClipboard, resolverColagemPopover } from './utils/colagemPopover.js'
+import {
+  colunaSomenteLeituraCompleta,
+  deveAplicarVisualSomenteLeitura,
+} from './gtvColunaSomenteLeitura.js'
 import './tabela-virtual.css'
 import type {
   GTVirtualTableProps,
@@ -41,6 +45,7 @@ import type {
   GTValorMoeda,
   GTValorUnidade,
   GTUnidadeOpcao,
+  GTMapaColunasFilho,
 } from './tipos.js'
 import { BotaoCompletoExportar } from './BotaoCompletoExportar.js'
 
@@ -308,22 +313,46 @@ function resolverTooltipRegraCelula(
   }
 }
 
-/** Classe CSS de modo visual (somente leitura / calculado) — não aplica em células editáveis. */
 function classeModoExibicaoCelula(
   col: GTColuna<unknown>,
   podeEditar: boolean,
   semPermissao: boolean,
+  camposEditaveis: string[],
+  camposEditaveisFilhos: string[],
+  mapaColunasFilho: Record<string, GTMapaColunasFilho<unknown>> | undefined,
+  temHierarquiaFilho: boolean,
 ): string {
-  if (podeEditar || semPermissao) return ''
-  if (col.modoExibicaoCelula === 'somente_leitura') return ' gtv-celula--somente-leitura'
-  if (col.modoExibicaoCelula === 'calculado') return ' gtv-celula--calculado'
-  return ''
+  if (!deveAplicarVisualSomenteLeitura(
+    col,
+    camposEditaveis,
+    camposEditaveisFilhos,
+    mapaColunasFilho,
+    temHierarquiaFilho,
+    podeEditar,
+    semPermissao,
+  )) {
+    return ''
+  }
+  return ' gtv-celula--somente-leitura'
 }
 
-function classeThModoExibicao(col: GTColuna<unknown>): string {
-  if (col.modoExibicaoCelula === 'somente_leitura') return ' gtv-th--somente-leitura'
-  if (col.modoExibicaoCelula === 'calculado') return ' gtv-th--calculado'
-  return ''
+function classeThModoExibicao(
+  col: GTColuna<unknown>,
+  camposEditaveis: string[],
+  camposEditaveisFilhos: string[],
+  mapaColunasFilho: Record<string, GTMapaColunasFilho<unknown>> | undefined,
+  temHierarquiaFilho: boolean,
+): string {
+  if (!colunaSomenteLeituraCompleta(
+    col,
+    camposEditaveis,
+    camposEditaveisFilhos,
+    mapaColunasFilho,
+    temHierarquiaFilho,
+  )) {
+    return ''
+  }
+  return ' gtv-th--somente-leitura'
 }
 
 function wrapTooltipRegraCelula(
@@ -2688,6 +2717,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   // ─── Renderização de célula ──────────────────────────────────────────────────
 
+  const temHierarquiaFilhoGtv = !!(
+    mapaColunasFilho && Object.keys(mapaColunasFilho).length > 0
+  )
+  const mapaColunasFilhoGtv = mapaColunasFilho as Record<string, GTMapaColunasFilho<unknown>> | undefined
+
   function renderCelula<I>(
     item: I,
     id: string,
@@ -2722,7 +2756,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     const classeIndent      = ''
     const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoEditar ? ' gtv-celula--sem-permissao' : '')
-    const classeModoExib    = classeModoExibicaoCelula(col as GTColuna<unknown>, podeEditar, semPermissaoEditar)
+    const classeModoExib    = classeModoExibicaoCelula(
+      col as GTColuna<unknown>,
+      podeEditar,
+      semPermissaoEditar,
+      camposEditaveis,
+      camposEditaveisFilhos,
+      mapaColunasFilhoGtv,
+      temHierarquiaFilhoGtv,
+    )
     const classeFindMatch   = linhaIndex >= 0 && isCelulaMatch(linhaIndex, col.key as string) ? ' gtv-celula--find-match' : ''
     const classeFindAtivo   = linhaIndex >= 0 && isCelulaMatchAtivo(linhaIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
     const isCelulaFeedback  = celulaResultado?.id === id && celulaResultado?.campo === col.key
@@ -2790,7 +2832,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         style={styleCelula}
         data-gtv-rowid={podeEditar ? id : undefined}
         data-gtv-campo={podeEditar ? col.key : undefined}
-        data-gtv-modo-exibicao={!podeEditar && col.modoExibicaoCelula ? col.modoExibicaoCelula : undefined}
+        data-gtv-modo-exibicao={
+          !podeEditar && colunaSomenteLeituraCompleta(col as GTColuna<unknown>, camposEditaveis, camposEditaveisFilhos, mapaColunasFilhoGtv, temHierarquiaFilhoGtv)
+            ? 'somente_leitura'
+            : undefined
+        }
         tabIndex={podeEditar && !estaEditando ? 0 : undefined}
         onClick={e => {
           if (podeEditar && !estaEditando) {
@@ -3083,7 +3129,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
             const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
             const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoFilho ? ' gtv-celula--sem-permissao' : '')
-            const classeModoExibFilho = classeModoExibicaoCelula(col as GTColuna<unknown>, podeEditar, semPermissaoFilho)
+            const classeModoExibFilho = classeModoExibicaoCelula(
+              col as GTColuna<unknown>,
+              podeEditar,
+              semPermissaoFilho,
+              camposEditaveis,
+              camposEditaveisFilhos,
+              mapaColunasFilhoGtv,
+              temHierarquiaFilhoGtv,
+            )
             const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
             const classeFindAtivo   = isCelulaMatchAtivo(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
@@ -3098,7 +3152,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 style={styleCelula}
                 data-gtv-filho-rowid={podeEditar ? id : undefined}
                 data-gtv-campo={podeEditar ? (col.key as string) : undefined}
-                data-gtv-modo-exibicao={!podeEditar && col.modoExibicaoCelula ? col.modoExibicaoCelula : undefined}
+                data-gtv-modo-exibicao={
+                  !podeEditar && colunaSomenteLeituraCompleta(col as GTColuna<unknown>, camposEditaveis, camposEditaveisFilhos, mapaColunasFilhoGtv, temHierarquiaFilhoGtv)
+                    ? 'somente_leitura'
+                    : undefined
+                }
                 onClick={podeEditar && !estaEditando ? (e) => {
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -3566,7 +3624,20 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   const classeDropAfter  = isDropTarget && dropSide === 'after'  ? ' gtv-th--drop-after'  : ''
                   const classeThFindMatch = findMatches.some(m => m.tipo === 'header' && m.colKey === (col.key as string)) ? ' gtv-th--find-match' : ''
                   const classeThFindAtivo = (findMatches[findAtivo]?.tipo === 'header' && findMatches[findAtivo]?.colKey === (col.key as string)) ? ' gtv-th--find-match-ativo' : ''
-                  const classeThModo = classeThModoExibicao(col)
+                  const thSomenteLeitura = colunaSomenteLeituraCompleta(
+                    col,
+                    camposEditaveis,
+                    camposEditaveisFilhos,
+                    mapaColunasFilhoGtv,
+                    temHierarquiaFilhoGtv,
+                  )
+                  const classeThModo = classeThModoExibicao(
+                    col,
+                    camposEditaveis,
+                    camposEditaveisFilhos,
+                    mapaColunasFilhoGtv,
+                    temHierarquiaFilhoGtv,
+                  )
                   return (
                     <div
                       key={col.key}
@@ -3586,7 +3657,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                         <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao} interativo={col.tooltipInterativo}>
                           <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>
                             {col.label}
-                            {col.modoExibicaoCelula === 'somente_leitura' ? (
+                            {thSomenteLeitura ? (
                               <span className="gtv-th-modo-icone" aria-hidden="true" title="Somente leitura">
                                 <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
                                   <path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z" />
@@ -3598,7 +3669,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       ) : (
                         <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>
                           {col.label}
-                          {col.modoExibicaoCelula === 'somente_leitura' ? (
+                          {thSomenteLeitura ? (
                             <span className="gtv-th-modo-icone" aria-hidden="true" title="Somente leitura">
                               <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
                                 <path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z" />

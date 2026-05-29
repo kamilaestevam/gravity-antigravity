@@ -5,6 +5,7 @@
 import React, { useMemo, useState } from 'react'
 import { MapPin, MapPinLine } from '@phosphor-icons/react'
 import type { ModalFrete } from './types'
+import './rota-visual-bid-frete-internacional.css'
 
 export function resolverIsoAlpha2Pais(pais: string, codigoLocal?: string | null): string {
   const raw = (pais ?? '').trim().toUpperCase()
@@ -29,10 +30,12 @@ export function BandeiraPaisBidFrete({
   pais,
   codigoLocal,
   className = '',
+  'aria-label': ariaLabel,
 }: {
   pais: string
   codigoLocal?: string | null
   className?: string
+  'aria-label'?: string
 }) {
   const iso2 = useMemo(() => resolverIsoAlpha2Pais(pais, codigoLocal), [pais, codigoLocal])
   const [imagemFalhou, setImagemFalhou] = useState(false)
@@ -59,7 +62,7 @@ export function BandeiraPaisBidFrete({
 
   const slug = iso2.toLowerCase()
   return (
-    <span className={`dc-rota-flag-modern ${className}`} title={iso2}>
+    <span className={`dc-rota-flag-modern ${className}`} title={iso2} aria-label={ariaLabel}>
       <img
         className="dc-rota-flag-modern__img"
       src={`https://flagcdn.com/w40/${slug}.webp`}
@@ -77,10 +80,15 @@ export function BandeiraPaisBidFrete({
   )
 }
 
+/** Ciano alinhado à faixa superior do card Rota (detalhe da cotação). */
+const COR_TRILHA_ROTA_MARITIMO = '#38bdf8'
+const COR_TRILHA_ROTA_AEREO = '#a78bfa'
+const COR_TRILHA_ROTA_RODOVIARIO = '#fbbf24'
+
 function estiloModalRota(modal: ModalFrete): { cor: string; duracaoAnimacao: string } {
-  if (modal === 'AEREO') return { cor: '#a78bfa', duracaoAnimacao: '3.2s' }
-  if (modal === 'MARITIMO') return { cor: '#34d399', duracaoAnimacao: '6.5s' }
-  return { cor: '#fbbf24', duracaoAnimacao: '5s' }
+  if (modal === 'AEREO') return { cor: COR_TRILHA_ROTA_AEREO, duracaoAnimacao: '3.2s' }
+  if (modal === 'MARITIMO') return { cor: COR_TRILHA_ROTA_MARITIMO, duracaoAnimacao: '6.5s' }
+  return { cor: COR_TRILHA_ROTA_RODOVIARIO, duracaoAnimacao: '5s' }
 }
 
 /** Linha tracejada termina antes da seta direcional (origem → destino). */
@@ -189,19 +197,22 @@ function PontoRotaCard({
   const ehOrigem = tipo === 'origem'
   const IconePonto = ehOrigem ? MapPin : MapPinLine
 
+  const isoPais = resolverIsoAlpha2Pais(pais, codigoLocal)
+
   return (
     <div className={`dc-rota-ponto dc-rota-ponto--${tipo}`}>
-      <BandeiraPaisBidFrete
-        pais={pais}
-        codigoLocal={codigoLocal}
-        className="dc-rota-ponto-bandeira"
-      />
       <div className={`dc-rota-ponto-badge dc-rota-ponto-badge--${tipo}`}>
         <span className="dc-rota-ponto-badge-icon" aria-hidden>
           <IconePonto weight="duotone" size={14} />
         </span>
         <span className="dc-rota-ponto-badge-label">{rotulo}</span>
       </div>
+      <BandeiraPaisBidFrete
+        pais={pais}
+        codigoLocal={codigoLocal}
+        className="dc-rota-ponto-bandeira"
+        aria-label={isoPais ? `País: ${isoPais}` : undefined}
+      />
       <div className="dc-rota-ponto-corpo">
         <div className="dc-rota-ponto-text">
           <span className="dc-rota-ponto-nome">{nome}</span>

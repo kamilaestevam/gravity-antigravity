@@ -161,13 +161,35 @@ export default function App() {
     ? workspacesStore.map(ws => ({ id: ws.id, name: ws.nome_workspace, plan: '' }))
     : DEMO_WORKSPACES
 
+  const isRespostaPublica = location.pathname.includes(
+    '/visao-fornecedor-bid-frete-internacional/publico/',
+  )
+
   const navItems = useMemo(() => {
-    const isVisaoFornecedor = location.pathname.includes('visao-fornecedor-bid-frete-internacional')
+    const isVisaoFornecedor =
+      location.pathname.includes('visao-fornecedor-bid-frete-internacional')
+      && !isRespostaPublica
     const nav = isVisaoFornecedor
       ? PRODUCT_CONFIG.navigation_visao_fornecedor_bid_frete_internacional
       : PRODUCT_CONFIG.navigation
     return nav.map(item => mapNavItem(item))
-  }, [location.pathname])
+  }, [location.pathname, isRespostaPublica])
+
+  if (isRespostaPublica) {
+    return (
+      <>
+        <ToastContainer />
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route
+              path="visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional"
+              element={<VisaoFornecedorResponderPublico />}
+            />
+          </Routes>
+        </Suspense>
+      </>
+    )
+  }
 
   return (
     <TelaProdutoComOrganizacaoOverride
@@ -239,7 +261,6 @@ export default function App() {
           <Route path="visao-fornecedor-bid-frete-internacional/tabelas-valor" element={<VisaoFornecedorTabelasValor />} />
           <Route path="visao-fornecedor-bid-frete-internacional/desempenho" element={<VisaoFornecedorDesempenho />} />
           <Route path="visao-fornecedor-bid-frete-internacional/responder/:id_disparo_cotacao_bid_frete_internacional" element={<VisaoFornecedorResponderCotacao />} />
-          <Route path="visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional" element={<VisaoFornecedorResponderPublico />} />
 
           {/* Redirects legado portal → visão fornecedor */}
           <Route path="portal/*" element={<Navigate to="/visao-fornecedor-bid-frete-internacional/dashboard" replace />} />

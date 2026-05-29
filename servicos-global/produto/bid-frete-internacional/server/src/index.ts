@@ -64,7 +64,10 @@ app.use(express.json({ limit: '10mb' }))
 // --- 2. CORS (Configurador, Shell Gravity) ---
 app.use((_req: Request, res: Response, next: NextFunction) => {
   const allowedOrigins = [
+    'http://localhost:3000',  // shell Gravity (configurador dev)
     'http://localhost:5175',  // client dev
+    'http://localhost:5181',  // bid-frete client standalone
+    'http://localhost:8000',  // dev alternativo
     'http://localhost:8003',  // configurador
     process.env.CLIENT_URL ?? '',
   ].filter(Boolean)

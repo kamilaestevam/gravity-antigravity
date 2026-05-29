@@ -19,28 +19,12 @@ import { motorClassificacao } from '../services/motor-classificacao-bid-frete-in
 import { AppError } from '../lib/erros.js'
 import { monetizacao } from '../services/monetizacao.js'
 import { enviarPropostaDisparoBidFreteInternacional } from '../services/enviar-proposta-disparo-bid-frete-internacional.js'
+import {
+  EnviarPropostaSchema,
+  formatarErroValidacaoPropostaEnviarProposta,
+} from '../schemas/enviar-proposta-bid-frete-internacional-schema.js'
 
 const router = Router()
-
-const EnviarPropostaSchema = z.object({
-  moeda_proposta_bid_frete_internacional: z.string().default('USD'),
-  valor_frete_proposta_bid_frete_internacional: z.number().positive(),
-  taxas_origem_proposta_bid_frete_internacional: z.number().min(0).default(0),
-  taxas_destino_proposta_bid_frete_internacional: z.number().min(0).default(0),
-  dias_transito_proposta_bid_frete_internacional: z.number().int().positive(),
-  dias_free_time_proposta_bid_frete_internacional: z.number().int().optional(),
-  transbordos_proposta_bid_frete_internacional: z.number().int().min(0).default(0),
-  escalas_proposta_bid_frete_internacional: z.string().optional(),
-  observacoes_proposta_bid_frete_internacional: z.string().optional(),
-  validade_proposta_bid_frete_internacional: z.string().datetime(),
-  taxas: z.array(z.object({
-    tipo_taxa_bid_frete_internacional: z.enum(['origem', 'destino', 'frete']),
-    nome_taxa_bid_frete_internacional: z.string(),
-    valor_taxa_bid_frete_internacional: z.number(),
-    moeda_taxa_bid_frete_internacional: z.string().default('USD'),
-    id_taxa_origem_destino: z.string().nullable().optional(),
-  })).optional(),
-})
 
 const TabelaBidFreteInternacionalSchema = z.object({
   origem_codigo_tabela_bid_frete_internacional: z.string().min(1),
@@ -243,7 +227,7 @@ router.get('/propostas', async (req: Request, res: Response, next: NextFunction)
 router.post('/responder/:id_disparo_cotacao_bid_frete_internacional', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = EnviarPropostaSchema.safeParse(req.body)
-    if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
+    if (!parsed.success) throw new AppError(formatarErroValidacaoPropostaEnviarProposta(parsed.error), 400, 'VALIDATION_ERROR')
 
     const userId = req.headers['x-id-usuario'] as string
     await resolverFornecedorLogado(req)
@@ -421,4 +405,5 @@ router.delete('/tabelas-valor/:id_tabela_bid_frete_internacional', async (req: R
   }
 })
 
-export { router as visaoFornecedorBidFreteInternacionalRouter, EnviarPropostaSchema, TabelaBidFreteInternacionalSchema }
+export { router as visaoFornecedorBidFreteInternacionalRouter, TabelaBidFreteInternacionalSchema }
+export { EnviarPropostaSchema, formatarErroValidacaoPropostaEnviarProposta } from '../schemas/enviar-proposta-bid-frete-internacional-schema.js'

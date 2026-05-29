@@ -11,7 +11,10 @@ import { AppError } from '../lib/erros.js'
 import {
   enviarPropostaDisparoBidFreteInternacional,
 } from '../services/enviar-proposta-disparo-bid-frete-internacional.js'
-import { EnviarPropostaSchema } from './visao-fornecedor-bid-frete-internacional.js'
+import {
+  EnviarPropostaSchema,
+  formatarErroValidacaoPropostaEnviarProposta,
+} from '../schemas/enviar-proposta-bid-frete-internacional-schema.js'
 
 const router = Router()
 
@@ -90,7 +93,7 @@ router.get('/:token_resposta_disparo_cotacao_bid_frete_internacional', async (re
 router.post('/:token_resposta_disparo_cotacao_bid_frete_internacional/responder', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = EnviarPropostaSchema.safeParse(req.body)
-    if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
+    if (!parsed.success) throw new AppError(formatarErroValidacaoPropostaEnviarProposta(parsed.error), 400, 'VALIDATION_ERROR')
 
     const disparo = await buscarDisparoPorToken(req.params.token_resposta_disparo_cotacao_bid_frete_internacional)
 

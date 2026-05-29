@@ -19,6 +19,7 @@ import {
   SYNC_EVENT_CASAS_BID_FRETE,
 } from '../shared/casas-config-bid-frete'
 import { formatarDataBidFrete } from '../shared/formato-data-bid-frete'
+import { formatarContainersPersistidosParaExibicao } from '../shared/containers-cotacao-bid-frete-internacional'
 
 // ─── Badge de status ───
 const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
@@ -298,6 +299,9 @@ function aplicarConfigEdicaoColuna(
     return {
       ...col,
       editavel: false,
+      ...(key === 'data_atualizacao_cotacao_bid_frete_internacional'
+        ? { modoExibicaoCelula: 'somente_leitura' as const }
+        : {}),
       ...(tooltipServidor ? { tooltipBloqueado: tooltipServidor } : {}),
     }
   }
@@ -434,20 +438,31 @@ function aplicarConfigEdicaoColuna(
             || item.destino_pais_cotacao_bid_frete_internacional
             || '—',
       }
-    case 'tipo_container_cotacao_bid_frete_internacional':
+    case 'tipo_container_cotacao_bid_frete_internacional': {
+      const rotuloContainer = (codigo: string) =>
+        rotuloCadastroLista(codigo, opcoes.containersOpcoes ?? []) || codigo
       return {
         ...base,
         opcoes: opcoes.containersOpcoes,
         getValorEditar: (item: Cotacao) => item.tipo_container_cotacao_bid_frete_internacional ?? '',
         findDisplay: (item: Cotacao) =>
-          rotuloCadastroLista(item.tipo_container_cotacao_bid_frete_internacional, opcoes.containersOpcoes ?? '')
-            || item.tipo_container_cotacao_bid_frete_internacional
-            || '—',
+          item.tipo_container_cotacao_bid_frete_internacional
+            ? formatarContainersPersistidosParaExibicao(
+                item.tipo_container_cotacao_bid_frete_internacional,
+                item.quantidade_cotacao_bid_frete_internacional,
+                rotuloContainer,
+              )
+            : '—',
         render: (_val: unknown, item: Cotacao) =>
-          rotuloCadastroLista(item.tipo_container_cotacao_bid_frete_internacional, opcoes.containersOpcoes ?? '')
-            || item.tipo_container_cotacao_bid_frete_internacional
-            || '—',
+          item.tipo_container_cotacao_bid_frete_internacional
+            ? formatarContainersPersistidosParaExibicao(
+                item.tipo_container_cotacao_bid_frete_internacional,
+                item.quantidade_cotacao_bid_frete_internacional,
+                rotuloContainer,
+              )
+            : '—',
       }
+    }
     case 'valor_meta_cotacao_bid_frete_internacional': {
       const casas = getCasas('valor_meta_cotacao_bid_frete_internacional', 2)
       return {

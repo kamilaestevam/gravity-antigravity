@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
+  extrairMensagemErroDisparo,
   montarAssuntoEmailDisparo,
   montarHtmlEmailDisparo,
   montarLinkRespostaDisparo,
@@ -13,6 +14,16 @@ describe('motor-bid-disparo-utils', () => {
 
   it('monta assunto com número da cotação', () => {
     expect(montarAssuntoEmailDisparo('BID-20260528-0594')).toContain('BID-20260528-0594')
+  })
+
+  it('extrai mensagem ECONNREFUSED do serviço de e-mail', () => {
+    const err = Object.assign(new Error('connect ECONNREFUSED'), {
+      isAxiosError: true,
+      code: 'ECONNREFUSED',
+      response: undefined,
+    })
+    expect(extrairMensagemErroDisparo(err, 'http://localhost:8008')).toContain('ECONNREFUSED')
+    expect(extrairMensagemErroDisparo(err, 'http://localhost:8008')).toContain('8008')
   })
 
   it('monta HTML com link de resposta', () => {

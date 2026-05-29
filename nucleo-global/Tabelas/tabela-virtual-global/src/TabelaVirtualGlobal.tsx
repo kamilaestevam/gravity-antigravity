@@ -308,6 +308,24 @@ function resolverTooltipRegraCelula(
   }
 }
 
+/** Classe CSS de modo visual (somente leitura / calculado) — não aplica em células editáveis. */
+function classeModoExibicaoCelula(
+  col: GTColuna<unknown>,
+  podeEditar: boolean,
+  semPermissao: boolean,
+): string {
+  if (podeEditar || semPermissao) return ''
+  if (col.modoExibicaoCelula === 'somente_leitura') return ' gtv-celula--somente-leitura'
+  if (col.modoExibicaoCelula === 'calculado') return ' gtv-celula--calculado'
+  return ''
+}
+
+function classeThModoExibicao(col: GTColuna<unknown>): string {
+  if (col.modoExibicaoCelula === 'somente_leitura') return ' gtv-th--somente-leitura'
+  if (col.modoExibicaoCelula === 'calculado') return ' gtv-th--calculado'
+  return ''
+}
+
 function wrapTooltipRegraCelula(
   col: GTColuna<unknown>,
   conteudo: React.ReactNode,
@@ -2704,6 +2722,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     const classeIndent      = ''
     const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoEditar ? ' gtv-celula--sem-permissao' : '')
+    const classeModoExib    = classeModoExibicaoCelula(col as GTColuna<unknown>, podeEditar, semPermissaoEditar)
     const classeFindMatch   = linhaIndex >= 0 && isCelulaMatch(linhaIndex, col.key as string) ? ' gtv-celula--find-match' : ''
     const classeFindAtivo   = linhaIndex >= 0 && isCelulaMatchAtivo(linhaIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
     const isCelulaFeedback  = celulaResultado?.id === id && celulaResultado?.campo === col.key
@@ -2767,10 +2786,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     return (
       <div
         key={col.key}
-        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFindMatch}${classeFindAtivo}${classeFeedback}`}
+        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeModoExib}${classeFindMatch}${classeFindAtivo}${classeFeedback}`}
         style={styleCelula}
         data-gtv-rowid={podeEditar ? id : undefined}
         data-gtv-campo={podeEditar ? col.key : undefined}
+        data-gtv-modo-exibicao={!podeEditar && col.modoExibicaoCelula ? col.modoExibicaoCelula : undefined}
         tabIndex={podeEditar && !estaEditando ? 0 : undefined}
         onClick={e => {
           if (podeEditar && !estaEditando) {
@@ -3063,6 +3083,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
             const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
             const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoFilho ? ' gtv-celula--sem-permissao' : '')
+            const classeModoExibFilho = classeModoExibicaoCelula(col as GTColuna<unknown>, podeEditar, semPermissaoFilho)
             const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
             const classeFindAtivo   = isCelulaMatchAtivo(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
@@ -3073,10 +3094,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             return (
               <div
                 key={col.key as string}
-                className={`gtv-celula${classeAlinhamento}${classeEditavel}${classeFindMatch}${classeFindAtivo}`}
+                className={`gtv-celula${classeAlinhamento}${classeEditavel}${classeModoExibFilho}${classeFindMatch}${classeFindAtivo}`}
                 style={styleCelula}
                 data-gtv-filho-rowid={podeEditar ? id : undefined}
                 data-gtv-campo={podeEditar ? (col.key as string) : undefined}
+                data-gtv-modo-exibicao={!podeEditar && col.modoExibicaoCelula ? col.modoExibicaoCelula : undefined}
                 onClick={podeEditar && !estaEditando ? (e) => {
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -3544,12 +3566,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   const classeDropAfter  = isDropTarget && dropSide === 'after'  ? ' gtv-th--drop-after'  : ''
                   const classeThFindMatch = findMatches.some(m => m.tipo === 'header' && m.colKey === (col.key as string)) ? ' gtv-th--find-match' : ''
                   const classeThFindAtivo = (findMatches[findAtivo]?.tipo === 'header' && findMatches[findAtivo]?.colKey === (col.key as string)) ? ' gtv-th--find-match-ativo' : ''
+                  const classeThModo = classeThModoExibicao(col)
                   return (
                     <div
                       key={col.key}
                       role="columnheader"
                       data-find-col-key={col.key}
-                      className={`gtv-th gtv-th--center${classeSort}${classeDropBefore}${classeDropAfter}${classeThFindMatch}${classeThFindAtivo}`}
+                      className={`gtv-th gtv-th--center${classeSort}${classeDropBefore}${classeDropAfter}${classeThFindMatch}${classeThFindAtivo}${classeThModo}`}
                       style={{ ...styleTh, opacity: isDragging ? 0.45 : undefined, cursor: isDraggable ? 'grab' : undefined }}
                       draggable={isDraggable}
                       onDragStart={isDraggable ? () => handleColDragStart(col.key) : undefined}
@@ -3561,10 +3584,28 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     >
                       {col.tooltipTitulo ? (
                         <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao} interativo={col.tooltipInterativo}>
-                          <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>{col.label}</span>
+                          <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>
+                            {col.label}
+                            {col.modoExibicaoCelula === 'somente_leitura' ? (
+                              <span className="gtv-th-modo-icone" aria-hidden="true" title="Somente leitura">
+                                <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                                  <path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z" />
+                                </svg>
+                              </span>
+                            ) : null}
+                          </span>
                         </TooltipGlobal>
                       ) : (
-                        <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>{col.label}</span>
+                        <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>
+                          {col.label}
+                          {col.modoExibicaoCelula === 'somente_leitura' ? (
+                            <span className="gtv-th-modo-icone" aria-hidden="true" title="Somente leitura">
+                              <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                                <path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z" />
+                              </svg>
+                            </span>
+                          ) : null}
+                        </span>
                       )}
                       {col.sortavel && (
                         <span className={`gtv-sort-icon${!sortAtivo ? ' gtv-sort-icon--idle' : ''}`}>

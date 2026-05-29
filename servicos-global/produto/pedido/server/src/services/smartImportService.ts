@@ -210,9 +210,25 @@ export function wherePedidoPorNumeroOrganizacao(
   }
 }
 
-/** Update não pode regenerar `id_pedido` nem deixar pedido soft-deleted invisível na Lista. */
-function dadosPedidoParaUpdate(dadosPedido: Record<string, unknown>): Record<string, unknown> {
-  const { id_pedido: _omitId, ...rest } = dadosPedido
+/**
+ * Workspace válido para importação — nunca usar id_organizacao como id_workspace
+ * (anti-padrão removido da Lista em GET /pedidos; Mand. 08).
+ */
+export function idWorkspaceValidoImportacao(
+  tenantId: string,
+  companyId: string | undefined,
+): companyId is string {
+  return Boolean(companyId && companyId !== tenantId)
+}
+
+/** Update não altera PKs, tenant nem workspace — só campos de negócio do cabeçalho. */
+export function dadosPedidoParaUpdate(dadosPedido: Record<string, unknown>): Record<string, unknown> {
+  const {
+    id_pedido: _omitId,
+    id_organizacao: _omitOrg,
+    id_workspace: _omitWs,
+    ...rest
+  } = dadosPedido
   return { ...rest, data_exclusao_pedido: null }
 }
 
@@ -870,6 +886,14 @@ export class SmartImportService {
       throw new AppError('Preview nao pertence a este tenant', 403, 'UNAUTHORIZED_PREVIEW')
     }
 
+    if (!idWorkspaceValidoImportacao(tenantId, companyId)) {
+      throw new AppError(
+        'Header x-id-workspace obrigatorio e deve ser um workspace valido (diferente da organizacao).',
+        400,
+        'WORKSPACE_OBRIGATORIO',
+      )
+    }
+
     const linhasFiltradas = prepararLinhasFiltradasConfirmacao(tenantId, payload)
     const cached = previewCache.get(payload.preview_id)
 
@@ -1020,7 +1044,7 @@ export class SmartImportService {
             ...this.montarDadosPedido(
               dados,
               tenantId,
-              companyId ?? tenantId,
+              companyId,
               casasConfig,
               optsOrdemPlanilha(numeroPedidoFinal ?? numeroPedido),
             ),
@@ -1051,7 +1075,7 @@ export class SmartImportService {
               where: { id_pedido: pedidoResolvido.id_pedido, id_organizacao: tenantId },
             })
             proximaSequenciaPorPedido.set(pedidoResolvido.id_pedido, 1)
-            await this.restaurarPedidoVisivelNoWorkspaceImportacao(pedidoResolvido.id_pedido, companyId)
+            await this.restaurarPedidoVisivelNoWorkspaceImportacao(pedidoResolvido.id_pedido, companyId, tenantId)
             await (this.db as Record<string, any>)['pedido'].update({
               where: { id_pedido: pedidoResolvido.id_pedido },
               data: dadosPedidoParaUpdate(dadosPedido),
@@ -1072,10 +1096,10 @@ export class SmartImportService {
 
           if (plano.criarItemEmPedidoExistente && pedidoResolvido) {
             try {
-              await this.restaurarPedidoVisivelNoWorkspaceImportacao(pedidoResolvido.id_pedido, companyId)
+              await this.restaurarPedidoVisivelNoWorkspaceImportacao(pedidoResolvido.id_pedido, companyId, tenantId)
               const seqItem = await obterProximaSequenciaItem(pedidoResolvido.id_pedido)
               const itemData = mesclarNomesItemParceiros(
-                this.montarDadosItem(dados, tenantId, companyId ?? tenantId, casasConfig, seqItem),
+                this.montarDadosItem(dados, tenantId, companyId, casasConfig, seqItem),
                 parceirosNumero?.nomesItem,
               )
               itemData.pedido_item = { connect: { id_pedido: pedidoResolvido.id_pedido } }
@@ -1131,7 +1155,7 @@ export class SmartImportService {
             itens_pedido: {
               create: [
                 mesclarNomesItemParceiros(
-                  this.montarDadosItemInline(dados, tenantId, companyId ?? tenantId, casasConfig, 1),
+                  this.montarDadosItemInline(dados, tenantId, companyId, casasConfig, 1),
                   parceirosNumero?.nomesItem,
                 ),
               ],
@@ -2237,8 +2261,9 @@ export class SmartImportService {
   private async restaurarPedidoVisivelNoWorkspaceImportacao(
     pedidoId: string,
     companyId: string | undefined,
+    tenantId: string,
   ): Promise<void> {
-    if (!companyId) return
+    if (!idWorkspaceValidoImportacao(tenantId, companyId)) return
     await (this.db as Record<string, any>)['pedido'].update({
       where: { id_pedido: pedidoId },
       data: { data_exclusao_pedido: null, id_workspace: companyId },

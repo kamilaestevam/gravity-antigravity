@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  CAMPOS_LOGISTICA_PEDIDO,
   isCampoLogisticaPedido,
   normalizarCodigoLogisticaPedido,
 } from '../../../servicos-global/produto/pedido/shared/camposLogisticaPedido'
@@ -45,5 +46,13 @@ describe('camposLogisticaPedido', () => {
     expect(normalizarCodigoLogisticaPedido(' arbue ')).toBe('ARBUE')
     expect(normalizarCodigoLogisticaPedido('')).toBe(null)
     expect(normalizarCodigoLogisticaPedido(null)).toBe(null)
+  })
+
+  it('campos logísticos não entram na whitelist de edição inline em item', () => {
+    const exclusivosPedido = new Set<string>(['id_workspace', ...CAMPOS_LOGISTICA_PEDIDO])
+    for (const campo of CAMPOS_LOGISTICA_PEDIDO) {
+      expect(exclusivosPedido.has(campo)).toBe(true)
+    }
+    expect(exclusivosPedido.has('incoterm')).toBe(false)
   })
 })

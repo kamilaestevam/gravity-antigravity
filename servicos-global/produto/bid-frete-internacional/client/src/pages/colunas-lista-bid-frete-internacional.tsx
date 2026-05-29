@@ -347,7 +347,7 @@ export function buildColunasCotacoes(
     },
     {
       key: 'id_produto_gravity',
-      label: 'Produto',
+      label: 'Produto Gravity',
       tipo: 'texto',
       render: (val: unknown) => renderProduto(val),
       findDisplay: (item: Cotacao) => {
@@ -371,7 +371,7 @@ export function buildColunasCotacoes(
     },
     {
       key: 'referencia_interna_cotacao_bid_frete_internacional',
-      label: 'Referência',
+      label: 'Referência Interna',
       tipo: 'texto',
       render: renderTexto,
     },

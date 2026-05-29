@@ -657,7 +657,8 @@ smartImportRouter.post('/analisar', upload.single('arquivo'), async (req: Reques
       return res.json({ multiplas_planilhas: true, planilhas, preview: null })
     }
 
-    const companyId = (req.headers['x-id-workspace'] as string | undefined) ?? tenantId
+    const companyIdHeader = req.headers['x-id-workspace'] as string | undefined
+    const companyId = companyIdHeader && companyIdHeader !== tenantId ? companyIdHeader : undefined
 
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -691,7 +692,16 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
 
   // SEC.3 — Validar que o preview_id pertence ao tenant da requisicao
   const tenantId  = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
-  const companyId = (req.headers['x-id-workspace'] as string | undefined) ?? tenantId
+  const companyId = req.headers['x-id-workspace'] as string | undefined
+
+  if (!companyId || companyId === tenantId) {
+    return res.status(400).json({
+      error: {
+        code: 'WORKSPACE_OBRIGATORIO',
+        message: 'Header x-id-workspace obrigatorio e deve ser um workspace valido.',
+      },
+    })
+  }
 
   if (!parse.data.preview_id.startsWith(tenantId + '-')) {
     return res.status(403).json({

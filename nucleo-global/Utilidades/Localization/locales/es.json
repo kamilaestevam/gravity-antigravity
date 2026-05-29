@@ -5195,6 +5195,7 @@
         "desconhecido": "Error desconocido",
         "pedido_nao_encontrado": "Pedido no encontrado",
         "workspace_somente_pedido": "El workspace se define en el pedido y aplica a todos los ítems.",
+        "logistica_somente_pedido": "Local, puerto y aeropuerto pertenecen al pedido — edite en la fila del pedido, no del ítem.",
         "pedido_item_nao_localizado": "No fue posible localizar el pedido de este artículo. Recargue la página.",
         "editar_valor_total_item": "Error al editar valor_total_item",
         "editar_moeda_item": "Error al editar moneda del artículo",

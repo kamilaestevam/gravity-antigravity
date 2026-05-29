@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { ConteudoCarregandoBidFreteInternacional } from '../../shared/pagina-carregando-bid-frete-internacional'
 import {
   Truck,
   CheckCircle,
@@ -168,8 +169,7 @@ export default function VisaoFornecedorResponderPublico() {
     return (
       <div className="rp-fullscreen">
         <div className="rp-card rp-card--center">
-          <Truck weight="duotone" size={48} style={{ color: 'var(--accent, #6366f1)', opacity: 0.5 }} />
-          <p className="rp-text-muted">{t('bidfrete.portal.publico.carregando')}</p>
+          <ConteudoCarregandoBidFreteInternacional />
         </div>
         <style>{rpStyles}</style>
       </div>

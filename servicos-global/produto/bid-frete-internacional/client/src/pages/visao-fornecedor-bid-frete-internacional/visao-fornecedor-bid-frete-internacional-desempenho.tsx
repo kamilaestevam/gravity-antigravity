@@ -3,9 +3,14 @@
  * Rating global, 4 metric cards, rating por categoria, avaliacoes recentes
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
+import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
+import {
+  criarTituloCarregandoTopo,
+  PaginaCarregandoBidFreteInternacional,
+} from '../../shared/pagina-carregando-bid-frete-internacional'
 import {
   Star,
   ChartBar,
@@ -77,16 +82,15 @@ export default function MeuDesempenho() {
 
   useEffect(() => { carregar() }, [carregar])
 
+  useSincronizarTituloPaginaTopo(useMemo(() => {
+    if (carregando) {
+      return criarTituloCarregandoTopo(<Star weight="duotone" size={22} />, t)
+    }
+    return null
+  }, [carregando, t]))
+
   if (carregando) {
-    return (
-      <PaginaGlobal>
-        <div className="md-loading">
-          <ChartBar weight="duotone" size={48} style={{ opacity: 0.3 }} />
-          <p>{t('comum.carregando')}</p>
-        </div>
-        <style>{mdStyles}</style>
-      </PaginaGlobal>
-    )
+    return <PaginaCarregandoBidFreteInternacional className="md-page bid-frete-page-shell" />
   }
 
   const rating = dados?.nota_global_classificacao_bid_frete_internacional ?? 0

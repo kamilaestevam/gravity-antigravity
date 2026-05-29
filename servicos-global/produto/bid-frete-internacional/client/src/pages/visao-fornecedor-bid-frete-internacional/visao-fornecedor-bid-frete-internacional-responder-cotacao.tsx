@@ -4,11 +4,14 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
+import {
+  criarTituloCarregandoTopo,
+  ConteudoCarregandoBidFreteInternacional,
+} from '../../shared/pagina-carregando-bid-frete-internacional'
 import {
   PencilSimple,
   ArrowLeft,
@@ -110,11 +113,13 @@ export default function ResponderCotacao() {
         icone: <CheckCircle weight="duotone" size={22} />,
       }
     }
-    if (carregando || !cotacao) {
+    if (carregando) {
+      return criarTituloCarregandoTopo(<PencilSimple weight="duotone" size={22} />, t)
+    }
+    if (!cotacao) {
       return {
         label: t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.titulo'),
         icone: <PencilSimple weight="duotone" size={22} />,
-        subtitulo: t('comum.carregando'),
       }
     }
     return {
@@ -200,9 +205,7 @@ export default function ResponderCotacao() {
     <PaginaGlobal className="rc-page bid-frete-page-shell">
       {acoesResponder}
       {carregando ? (
-        <div className="rc-loading">
-          <GravityLoader texto={t('comum.carregando')} tamanho="sm" />
-        </div>
+        <ConteudoCarregandoBidFreteInternacional />
       ) : (
         <div className="rc-layout">
           {/* Detalhes Read-Only */}

@@ -13,6 +13,10 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@n
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import {
+  criarTituloCarregandoTopo,
+  ConteudoCarregandoBidFreteInternacional,
+} from '../shared/pagina-carregando-bid-frete-internacional'
+import {
   Ranking,
   ArrowLeft,
   Trophy,
@@ -184,6 +188,9 @@ export default function Comparativo() {
   useEffect(() => { carregar() }, [carregar])
 
   const tituloTopo = useMemo(() => {
+    if (carregando) {
+      return criarTituloCarregandoTopo(<Ranking weight="duotone" size={22} />, t)
+    }
     if (resultadoAprovacao) {
       return {
         label:     t('bidfrete.comparativo.titulo_aprovada'),
@@ -198,7 +205,7 @@ export default function Comparativo() {
         ? `${cotacao.numero_cotacao_bid_frete_internacional} — ${cotacao.origem_nome_cotacao_bid_frete_internacional} → ${cotacao.destino_nome_cotacao_bid_frete_internacional}`
         : t('bidfrete.comparativo.subtitulo'),
     }
-  }, [resultadoAprovacao, cotacao, t])
+  }, [carregando, resultadoAprovacao, cotacao, t])
 
   useSincronizarTituloPaginaTopo(tituloTopo)
 
@@ -544,9 +551,7 @@ export default function Comparativo() {
       )}
 
       {carregando ? (
-        <div style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted, #64748b)' }}>
-          Carregando comparativo de cotações...
-        </div>
+        <ConteudoCarregandoBidFreteInternacional />
       ) : respostas.length === 0 ? (
         <div className="bf-empty-state">
           <Ranking weight="duotone" size={48} />

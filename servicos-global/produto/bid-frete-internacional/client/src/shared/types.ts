@@ -170,7 +170,9 @@ export interface Cotacao {
   id_organizacao: string
   id_workspace?: string | null
   id_usuario: string | null
-  bid_bid_frete_internacional?: Pick<BidFreteInternacional, 'id_bid_bid_frete_internacional' | 'numero_bid_bid_frete_internacional' | 'referencia_interna_bid_bid_frete_internacional' | 'status_bid_bid_frete_internacional'> | null
+  bid_bid_frete_internacional?: (Pick<BidFreteInternacional, 'id_bid_bid_frete_internacional' | 'numero_bid_bid_frete_internacional' | 'referencia_interna_bid_bid_frete_internacional' | 'status_bid_bid_frete_internacional'> & {
+    quantidade_cotacoes_bid_frete_internacional?: number
+  }) | null
   numero_cotacao_bid_frete_internacional: string
   referencia_interna_cotacao_bid_frete_internacional: string | null
   tipo_operacao_cotacao_bid_frete_internacional: TipoOperacao

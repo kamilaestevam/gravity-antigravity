@@ -22,3 +22,21 @@
 .bid-frete-page-shell.pg-container .pg-conteudo-area.pg-layout-formulario {
   padding-top: 0;
 }
+
+/* ─── Loading padrão de página (detalhe de cotação) ─────────────────────── */
+.bf-pagina-carregando {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  color: var(--text-muted);
+}
+
+.bf-pagina-carregando-icone {
+  animation: bf-pagina-carregando-spin 1s linear infinite;
+}
+
+@keyframes bf-pagina-carregando-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

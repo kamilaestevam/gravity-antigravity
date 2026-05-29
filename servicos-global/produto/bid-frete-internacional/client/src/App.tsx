@@ -28,6 +28,7 @@ import {
 } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { resolverPageMetaTopo } from './shared/page-meta-topo'
+import { PaginaCarregandoBidFreteInternacional } from './shared/pagina-carregando-bid-frete-internacional'
 import './shared/bid-frete-page-shell.css'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
@@ -104,12 +105,7 @@ const ECOSYSTEM_NODES: EcosystemNode[] = [
 ]
 
 function LoadingFallback() {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '2rem' }}>
-      <div style={{ height: '1.5rem', width: '60%', background: 'var(--bg-surface)', borderRadius: '0.375rem' }} />
-      <div style={{ height: '20rem', width: '100%', background: 'var(--bg-surface)', borderRadius: '0.5rem' }} />
-    </div>
-  )
+  return <PaginaCarregandoBidFreteInternacional className="bid-frete-page-shell" />
 }
 
 export default function App() {

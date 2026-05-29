@@ -3,10 +3,15 @@
  * 5 KPI cards, valor aprovado highlight, 3 action cards
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
+import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
+import {
+  criarTituloCarregandoTopo,
+  ConteudoCarregandoBidFreteInternacional,
+} from '../../shared/pagina-carregando-bid-frete-internacional'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   ChartPieSlice,
@@ -50,6 +55,13 @@ export default function VisaoFornecedorBidFreteInternacionalDashboard() {
 
   useEffect(() => { carregar() }, [carregar])
 
+  useSincronizarTituloPaginaTopo(useMemo(() => {
+    if (carregando) {
+      return criarTituloCarregandoTopo(<ChartPieSlice weight="duotone" size={22} />, t)
+    }
+    return null
+  }, [carregando, t]))
+
   const kpis = dashboard?.kpis
 
   const actionCards = [
@@ -78,6 +90,10 @@ export default function VisaoFornecedorBidFreteInternacionalDashboard() {
 
   return (
     <PaginaGlobal className="vfbfi-dashboard bid-frete-page-shell">
+      {carregando ? (
+        <ConteudoCarregandoBidFreteInternacional />
+      ) : (
+        <>
       {/* KPI Cards */}
       <div className="pd-kpis">
         <CardBasicoGlobal
@@ -143,6 +159,9 @@ export default function VisaoFornecedorBidFreteInternacionalDashboard() {
           </button>
         ))}
       </div>
+
+        </>
+      )}
 
       <style>{`
         .vfbfi-dashboard { }

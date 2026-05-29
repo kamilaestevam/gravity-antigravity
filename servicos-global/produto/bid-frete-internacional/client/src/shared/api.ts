@@ -316,6 +316,19 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
   const propostas = propostasRaw.map(mapPropostaBidFreteInternacionalFromServer)
   const aprovada = propostas.find((p) => p.status_proposta_bid_frete_internacional === 'APROVADA')
 
+  const bidRaw = raw.bid_bid_frete_internacional as Record<string, unknown> | null | undefined
+  const bidMapeado = bidRaw
+    ? {
+        id_bid_bid_frete_internacional: bidRaw.id_bid_bid_frete_internacional as string,
+        numero_bid_bid_frete_internacional: bidRaw.numero_bid_bid_frete_internacional as string,
+        referencia_interna_bid_bid_frete_internacional:
+          (bidRaw.referencia_interna_bid_bid_frete_internacional as string | null) ?? null,
+        status_bid_bid_frete_internacional: bidRaw.status_bid_bid_frete_internacional as BidFreteInternacional['status_bid_bid_frete_internacional'],
+        quantidade_cotacoes_bid_frete_internacional:
+          (bidRaw._count as { cotacoes?: number } | undefined)?.cotacoes,
+      }
+    : null
+
   return {
     ...(raw as unknown as Cotacao),
     id_cotacao_bid_frete_internacional:
@@ -334,6 +347,7 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
       (aprovada ? aprovada.moeda_proposta_bid_frete_internacional : null),
     disparo_cotacao_bid_frete_internacional: disparosRaw.map(mapDisparoCotacaoBidFreteInternacionalFromServer),
     propostas_bid_frete_internacional: propostas,
+    bid_bid_frete_internacional: bidMapeado,
   }
 }
 

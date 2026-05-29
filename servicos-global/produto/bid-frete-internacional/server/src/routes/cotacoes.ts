@@ -274,6 +274,15 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({
       where: { id_cotacao_bid_frete_internacional: req.params.id },
       include: {
+        bid_bid_frete_internacional: {
+          select: {
+            id_bid_bid_frete_internacional: true,
+            numero_bid_bid_frete_internacional: true,
+            referencia_interna_bid_bid_frete_internacional: true,
+            status_bid_bid_frete_internacional: true,
+            _count: { select: { cotacoes: true } },
+          },
+        },
         disparos_cotacao: {
           include: {
             fornecedor: { select: { id_fornecedor_bid_frete_internacional: true, nome_fornecedor_bid_frete_internacional: true, tipo_fornecedor_bid_frete_internacional: true, email_fornecedor_bid_frete_internacional: true } },

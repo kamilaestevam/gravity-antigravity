@@ -3105,7 +3105,17 @@
       "erro_status": "Erro ao alterar status",
       "titulo_cotacao": "Cotação {{numero}}",
       "ref_prefix": "Ref: {{ref}}",
-      "saving_label": "Saving:"
+      "saving_label": "Saving:",
+      "kpi": {
+        "grupo": "Resumo da cotação",
+        "cotacoes": "Cotações",
+        "cotacoes_avulsa": "Cotação avulsa",
+        "cotacoes_no_bid": "No BID {{numero}}",
+        "fornecedores": "Fornecedores",
+        "fornecedores_sub": "Contatados no disparo",
+        "propostas": "Propostas",
+        "propostas_sub": "Respostas recebidas"
+      }
     },
     "colunas": {
       "processo": "Processo (DATI)",

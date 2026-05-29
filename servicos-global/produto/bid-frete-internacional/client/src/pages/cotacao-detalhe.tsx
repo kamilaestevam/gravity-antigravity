@@ -11,6 +11,10 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
+import {
+  criarTituloCarregandoTopo,
+  PaginaCarregandoBidFreteInternacional,
+} from '../shared/pagina-carregando-bid-frete-internacional'
 import { formatarContainersPersistidosParaExibicao } from '../shared/containers-cotacao-bid-frete-internacional'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import {
@@ -26,8 +30,7 @@ import {
   ChatCircle,
   Anchor,
   AirplaneTilt,
-  Van,
-  MapPin,
+  Truck,
   Package,
   Scales,
   Warning,
@@ -35,19 +38,27 @@ import {
   LinkSimple,
   Hourglass,
   UserCircle,
-  ArrowRight,
   Cube,
+  DownloadSimple,
+  Export,
+  Globe,
+  UsersThree,
+  ClipboardText,
 } from '@phosphor-icons/react'
 
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { getCotacao, getDisparoPorCotacaoBidFreteInternacional, excluirCotacao, mudarStatusCotacao } from '../shared/api'
 import { ModalEnviarCotacaoBidFreteInternacional } from './modal-enviar-cotacao-bid-frete-internacional'
+import { RotaVisualBidFrete } from '../shared/rota-visual-bid-frete-internacional'
 import type {
   Cotacao,
   DisparoCotacaoBidFreteInternacional,
   PropostaBidFreteInternacional,
   StatusCotacao,
   StatusDisparoCotacaoBidFreteInternacional,
+  ModalFrete,
+  TipoOperacao,
+  Visibilidade,
 } from '../shared/types'
 import type { TFunction } from 'i18next'
 import {
@@ -139,14 +150,6 @@ function indiceFluxoPorStatus(status: StatusCotacao): number {
   return mapa[status] ?? 0
 }
 
-function emojiBandeiraPais(codigoPais: string): string {
-  const cod = codigoPais.trim().toUpperCase()
-  if (cod.length !== 2 || !/^[A-Z]{2}$/.test(cod)) return ''
-  return String.fromCodePoint(
-    ...[...cod].map((letra) => 0x1f1e6 + letra.charCodeAt(0) - 65),
-  )
-}
-
 function subtituloEtapaFluxo(
   indiceEtapa: number,
   indiceAtual: number,
@@ -186,6 +189,24 @@ function subtituloEtapaFluxo(
   return t('bidfrete.detalhe_cotacao.fluxo_pendente', 'Pendente')
 }
 
+function iconeModalFrete(modal: ModalFrete): React.ReactNode {
+  if (modal === 'MARITIMO') return <Anchor weight="duotone" size={16} />
+  if (modal === 'AEREO') return <AirplaneTilt weight="duotone" size={16} />
+  return <Truck weight="duotone" size={16} />
+}
+
+function iconeTipoOperacao(tipo: TipoOperacao): React.ReactNode {
+  return tipo === 'IMPORTACAO'
+    ? <DownloadSimple weight="duotone" size={16} />
+    : <Export weight="duotone" size={16} />
+}
+
+function iconeVisibilidadeCotacao(visibilidade: Visibilidade): React.ReactNode {
+  return visibilidade === 'ABERTA'
+    ? <Globe weight="duotone" size={16} />
+    : <UsersThree weight="duotone" size={16} />
+}
+
 function StepperFluxoCotacao({
   statusAtual,
   dataCriacao,
@@ -195,44 +216,89 @@ function StepperFluxoCotacao({
 }) {
   const { t } = useTranslation()
   const indiceAtual = indiceFluxoPorStatus(statusAtual)
+  const totalEtapas = FLUXO_ETAPAS.length
+  const progressoLinha =
+    totalEtapas <= 1 ? 0 : (indiceAtual / (totalEtapas - 1)) * 100
 
   return (
-    <div className="dc-fluxo-stepper" role="list" aria-label={t('bidfrete.detalhe_cotacao.status', 'Status')}>
-      {FLUXO_ETAPAS.map((etapa) => {
-        const concluida = etapa.indice < indiceAtual
-        const ativa = etapa.indice === indiceAtual
-        const pendente = etapa.indice > indiceAtual
-        const IconeEtapa = concluida
-          ? CheckCircle
-          : ativa
-            ? Clock
-            : etapa.indice === 4
-              ? UserCircle
-              : Hourglass
+    <div className="dc-fluxo-stepper-shell">
+      <div className="dc-fluxo-track" aria-hidden>
+        <div className="dc-fluxo-track-base" />
+        <div
+          className="dc-fluxo-track-progress"
+          style={{ width: `${progressoLinha}%` }}
+        />
+        <div className="dc-fluxo-track-nodes">
+          {FLUXO_ETAPAS.map((etapa) => {
+            const concluida = etapa.indice < indiceAtual
+            const ativa = etapa.indice === indiceAtual
+            return (
+              <span
+                key={`node-${etapa.indice}`}
+                className={[
+                  'dc-fluxo-track-node',
+                  concluida ? 'dc-fluxo-track-node--done' : '',
+                  ativa ? 'dc-fluxo-track-node--active' : '',
+                  !concluida && !ativa ? 'dc-fluxo-track-node--future' : '',
+                ].filter(Boolean).join(' ')}
+              />
+            )
+          })}
+        </div>
+      </div>
 
-        return (
-          <div
-            key={etapa.indice}
-            role="listitem"
-            className={[
-              'dc-fluxo-card',
-              concluida ? 'dc-fluxo-card--done' : '',
-              ativa ? 'dc-fluxo-card--active' : '',
-              pendente ? 'dc-fluxo-card--pending' : '',
-            ].filter(Boolean).join(' ')}
-          >
-            <div className="dc-fluxo-card-icon-wrap" aria-hidden>
-              <IconeEtapa weight={concluida ? 'fill' : 'duotone'} size={20} />
-            </div>
-            <div className="dc-fluxo-card-text">
-              <span className="dc-fluxo-card-title">{t(etapa.labelKey)}</span>
-              <span className="dc-fluxo-card-sub">
-                {subtituloEtapaFluxo(etapa.indice, indiceAtual, dataCriacao, t)}
-              </span>
-            </div>
-          </div>
-        )
-      })}
+      <div className="dc-fluxo-stepper" role="list" aria-label={t('bidfrete.detalhe_cotacao.status', 'Status')}>
+        {FLUXO_ETAPAS.map((etapa, i) => {
+          const concluida = etapa.indice < indiceAtual
+          const ativa = etapa.indice === indiceAtual
+          const pendente = etapa.indice > indiceAtual
+          const IconeEtapa = concluida
+            ? CheckCircle
+            : ativa
+              ? Clock
+              : etapa.indice === 4
+                ? UserCircle
+                : Hourglass
+
+          const segmentoAnteriorConcluido = i > 0 && i < indiceAtual
+          const segmentoEntradaAtiva = i > 0 && i === indiceAtual
+
+          return (
+            <React.Fragment key={etapa.indice}>
+              {i > 0 && (
+                <div
+                  className={[
+                    'dc-fluxo-segment',
+                    segmentoAnteriorConcluido ? 'dc-fluxo-segment--done' : '',
+                    segmentoEntradaAtiva ? 'dc-fluxo-segment--leading-active' : '',
+                    !segmentoAnteriorConcluido && !segmentoEntradaAtiva ? 'dc-fluxo-segment--future' : '',
+                  ].filter(Boolean).join(' ')}
+                  aria-hidden
+                />
+              )}
+              <div
+                role="listitem"
+                className={[
+                  'dc-fluxo-card',
+                  concluida ? 'dc-fluxo-card--done' : '',
+                  ativa ? 'dc-fluxo-card--active' : '',
+                  pendente ? 'dc-fluxo-card--pending' : '',
+                ].filter(Boolean).join(' ')}
+              >
+                <div className="dc-fluxo-card-icon-wrap" aria-hidden>
+                  <IconeEtapa weight={concluida ? 'fill' : 'duotone'} size={20} />
+                </div>
+                <div className="dc-fluxo-card-text">
+                  <span className="dc-fluxo-card-title">{t(etapa.labelKey)}</span>
+                  <span className="dc-fluxo-card-sub">
+                    {subtituloEtapaFluxo(etapa.indice, indiceAtual, dataCriacao, t)}
+                  </span>
+                </div>
+              </div>
+            </React.Fragment>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -263,6 +329,118 @@ function InfoRow({ label, value, mono }: { label: string; value: string; mono?: 
     <div className="dc-info-row">
       <span className="dc-info-label">{label}</span>
       <span className={`dc-info-value ${mono ? 'dc-info-mono' : ''}`}>{value}</span>
+    </div>
+  )
+}
+
+function InfoRowComIcone({
+  icone,
+  label,
+  value,
+  mono,
+}: {
+  icone: React.ReactNode
+  label: string
+  value: string
+  mono?: boolean
+}) {
+  return (
+    <div className="dc-info-row dc-info-row--com-icone">
+      <div className="dc-info-label-group">
+        <span className="dc-info-icon-badge" aria-hidden>
+          {icone}
+        </span>
+        <span className="dc-info-label">{label}</span>
+      </div>
+      <span className={`dc-info-value ${mono ? 'dc-info-mono' : ''}`}>{value}</span>
+    </div>
+  )
+}
+
+function contarFornecedoresUnicos(disparos: DisparoCotacaoBidFreteInternacional[]): number {
+  const ids = new Set(
+    disparos
+      .map((d) => d.id_fornecedor_bid_frete_internacional)
+      .filter((id): id is string => typeof id === 'string' && id.length > 0),
+  )
+  return ids.size
+}
+
+function quantidadeCotacoesResumo(cotacao: Cotacao): number {
+  const noBid = cotacao.bid_bid_frete_internacional?.quantidade_cotacoes_bid_frete_internacional
+  if (noBid != null && noBid > 0) return noBid
+  return 1
+}
+
+function ResumoKpisDetalhe({
+  quantidadeCotacoes,
+  quantidadeFornecedores,
+  quantidadePropostas,
+  subtituloCotacoes,
+  aoClicarCotacoes,
+  aoClicarFornecedores,
+  aoClicarPropostas,
+}: {
+  quantidadeCotacoes: number
+  quantidadeFornecedores: number
+  quantidadePropostas: number
+  subtituloCotacoes?: string
+  aoClicarCotacoes?: () => void
+  aoClicarFornecedores?: () => void
+  aoClicarPropostas?: () => void
+}) {
+  const { t } = useTranslation()
+
+  const itens = [
+    {
+      id: 'cotacoes',
+      rotulo: t('bidfrete.detalhe_cotacao.kpi.cotacoes', 'Cotações'),
+      valor: quantidadeCotacoes,
+      sub: subtituloCotacoes ?? t('bidfrete.detalhe_cotacao.kpi.cotacoes_avulsa', 'Cotação avulsa'),
+      icone: <ClipboardText weight="duotone" size={18} />,
+      cor: '#818cf8',
+      onClick: aoClicarCotacoes,
+    },
+    {
+      id: 'fornecedores',
+      rotulo: t('bidfrete.detalhe_cotacao.kpi.fornecedores', 'Fornecedores'),
+      valor: quantidadeFornecedores,
+      sub: t('bidfrete.detalhe_cotacao.kpi.fornecedores_sub', 'Contatados no disparo'),
+      icone: <UsersThree weight="duotone" size={18} />,
+      cor: '#38bdf8',
+      onClick: aoClicarFornecedores,
+    },
+    {
+      id: 'propostas',
+      rotulo: t('bidfrete.detalhe_cotacao.kpi.propostas', 'Propostas'),
+      valor: quantidadePropostas,
+      sub: t('bidfrete.detalhe_cotacao.kpi.propostas_sub', 'Respostas recebidas'),
+      icone: <ChatCircle weight="duotone" size={18} />,
+      cor: '#34d399',
+      onClick: aoClicarPropostas,
+    },
+  ] as const
+
+  return (
+    <div className="dc-resumo-kpis" role="group" aria-label={t('bidfrete.detalhe_cotacao.kpi.grupo', 'Resumo da cotação')}>
+      {itens.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          className="dc-resumo-kpi"
+          onClick={item.onClick}
+          style={{ '--dc-kpi-accent': item.cor } as React.CSSProperties}
+        >
+          <span className="dc-resumo-kpi-icon" aria-hidden>
+            {item.icone}
+          </span>
+          <span className="dc-resumo-kpi-body">
+            <span className="dc-resumo-kpi-valor">{item.valor}</span>
+            <span className="dc-resumo-kpi-rotulo">{item.rotulo}</span>
+            <span className="dc-resumo-kpi-sub">{item.sub}</span>
+          </span>
+        </button>
+      ))}
     </div>
   )
 }
@@ -306,10 +484,7 @@ export default function DetalheCotacao() {
 
   const tituloTopo = useMemo(() => {
     if (carregando) {
-      return {
-        label: t('comum.carregando'),
-        icone: <FileText weight="duotone" size={22} />,
-      }
+      return criarTituloCarregandoTopo(<FileText weight="duotone" size={22} />, t)
     }
     if (erro || !cotacao) {
       return {
@@ -327,6 +502,15 @@ export default function DetalheCotacao() {
   }, [carregando, cotacao, erro, t])
 
   useSincronizarTituloPaginaTopo(tituloTopo)
+
+  const quantidadePropostas = cotacao?.propostas_bid_frete_internacional?.length ?? 0
+  const quantidadeFornecedores = useMemo(() => contarFornecedoresUnicos(bids), [bids])
+  const quantidadeCotacoes = cotacao ? quantidadeCotacoesResumo(cotacao) : 0
+  const subtituloCotacoesKpi = useMemo(() => {
+    if (!cotacao?.bid_bid_frete_internacional) return undefined
+    const numero = cotacao.bid_bid_frete_internacional.numero_bid_bid_frete_internacional
+    return t('bidfrete.detalhe_cotacao.kpi.cotacoes_no_bid', 'No BID {{numero}}', { numero })
+  }, [cotacao, t])
 
   const handleMudarStatus = useCallback(async (novoStatus: string | number | null) => {
     if (!cotacao || novoStatus == null || novoStatus === '') return
@@ -498,13 +682,7 @@ export default function DetalheCotacao() {
   // ─── Loading ──────────────────────────────────────────────────────────
 
   if (carregando) {
-    return (
-      <PaginaGlobal>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)' }}>
-          <Clock weight="duotone" size={32} style={{ animation: 'spin 1s linear infinite' }} />
-        </div>
-      </PaginaGlobal>
-    )
+    return <PaginaCarregandoBidFreteInternacional />
   }
 
   if (erro || !cotacao) {
@@ -555,16 +733,25 @@ export default function DetalheCotacao() {
         />
       </div>
 
+      <ResumoKpisDetalhe
+        quantidadeCotacoes={quantidadeCotacoes}
+        quantidadeFornecedores={quantidadeFornecedores}
+        quantidadePropostas={quantidadePropostas}
+        subtituloCotacoes={subtituloCotacoesKpi}
+        aoClicarFornecedores={() => setTab('bids')}
+        aoClicarPropostas={() => setTab('respostas')}
+      />
+
       {/* Tabs */}
       <div className="dc-tabs">
         <button className={`dc-tab ${tab === 'dados' ? 'dc-tab--ativo' : ''}`} onClick={() => setTab('dados')}>
           {t('bidfrete.detalhe_cotacao.tab_dados')}
         </button>
         <button className={`dc-tab ${tab === 'bids' ? 'dc-tab--ativo' : ''}`} onClick={() => setTab('bids')}>
-          {t('bidfrete.detalhe_cotacao.tab_disparos')} ({bids.length})
+          {t('bidfrete.detalhe_cotacao.tab_disparos')}
         </button>
         <button className={`dc-tab ${tab === 'respostas' ? 'dc-tab--ativo' : ''}`} onClick={() => setTab('respostas')}>
-          {t('bidfrete.detalhe_cotacao.tab_respostas')} ({cotacao.propostas_bid_frete_internacional?.length ?? 0})
+          {t('bidfrete.detalhe_cotacao.tab_respostas')}
         </button>
       </div>
 
@@ -572,38 +759,50 @@ export default function DetalheCotacao() {
       {tab === 'dados' && (
         <div className="dc-dados-layout">
           <CardSecaoDados variante="gerais" titulo={t('bidfrete.detalhe_cotacao.card_detalhes_gerais', 'Detalhes Gerais')}>
-            <InfoRow label={t('bidfrete.detalhe_cotacao.tipo_operacao')} value={OPERACAO_LABELS[cotacao.tipo_operacao_cotacao_bid_frete_internacional]} />
-            <InfoRow label={t('bidfrete.detalhe_cotacao.modal')} value={MODAL_LABELS[cotacao.modal_cotacao_bid_frete_internacional]} />
-            <InfoRow label={t('bidfrete.detalhe_cotacao.modalidade')} value={MODALIDADE_LABELS[cotacao.modalidade_cotacao_bid_frete_internacional]} />
-            <InfoRow label={t('bidfrete.detalhe_cotacao.incoterm')} value={cotacao.incoterm_cotacao_bid_frete_internacional} mono />
-            <InfoRow
+            <InfoRowComIcone
+              icone={iconeTipoOperacao(cotacao.tipo_operacao_cotacao_bid_frete_internacional)}
+              label={t('bidfrete.detalhe_cotacao.tipo_operacao')}
+              value={OPERACAO_LABELS[cotacao.tipo_operacao_cotacao_bid_frete_internacional]}
+            />
+            <InfoRowComIcone
+              icone={iconeModalFrete(cotacao.modal_cotacao_bid_frete_internacional)}
+              label={t('bidfrete.detalhe_cotacao.modal')}
+              value={MODAL_LABELS[cotacao.modal_cotacao_bid_frete_internacional]}
+            />
+            <InfoRowComIcone
+              icone={<Package weight="duotone" size={16} />}
+              label={t('bidfrete.detalhe_cotacao.modalidade')}
+              value={MODALIDADE_LABELS[cotacao.modalidade_cotacao_bid_frete_internacional]}
+            />
+            <InfoRowComIcone
+              icone={<Scales weight="duotone" size={16} />}
+              label={t('bidfrete.detalhe_cotacao.incoterm')}
+              value={cotacao.incoterm_cotacao_bid_frete_internacional}
+              mono
+            />
+            <InfoRowComIcone
+              icone={iconeVisibilidadeCotacao(cotacao.visibilidade_cotacao_bid_frete_internacional)}
               label={t('bidfrete.detalhe_cotacao.visibilidade')}
-              value={cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA' ? t('bidfrete.nova_cotacao.tipo_aberta') : t('bidfrete.nova_cotacao.tipo_direcionada')}
+              value={
+                cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
+                  ? t('bidfrete.nova_cotacao.tipo_aberta')
+                  : t('bidfrete.nova_cotacao.tipo_direcionada')
+              }
             />
           </CardSecaoDados>
 
           <CardSecaoDados variante="rota" titulo={t('bidfrete.detalhe_cotacao.card_rota', 'Rota')}>
-            <div className="dc-rota-visual">
-              <div className="dc-rota-ponto">
-                <span className="dc-rota-flag" aria-hidden>{emojiBandeiraPais(cotacao.origem_pais_cotacao_bid_frete_internacional)}</span>
-                <div className="dc-rota-ponto-text">
-                  <span className="dc-rota-ponto-label">{t('bidfrete.detalhe_cotacao.origem')}</span>
-                  <span className="dc-rota-ponto-nome">{cotacao.origem_nome_cotacao_bid_frete_internacional}</span>
-                  <span className="dc-rota-ponto-codigo dc-info-mono">{cotacao.origem_codigo_cotacao_bid_frete_internacional}</span>
-                </div>
-              </div>
-              <div className="dc-rota-seta" aria-hidden>
-                <ArrowRight weight="bold" size={28} />
-              </div>
-              <div className="dc-rota-ponto">
-                <span className="dc-rota-flag" aria-hidden>{emojiBandeiraPais(cotacao.destino_pais_cotacao_bid_frete_internacional)}</span>
-                <div className="dc-rota-ponto-text">
-                  <span className="dc-rota-ponto-label">{t('bidfrete.detalhe_cotacao.destino')}</span>
-                  <span className="dc-rota-ponto-nome">{cotacao.destino_nome_cotacao_bid_frete_internacional}</span>
-                  <span className="dc-rota-ponto-codigo dc-info-mono">{cotacao.destino_codigo_cotacao_bid_frete_internacional}</span>
-                </div>
-              </div>
-            </div>
+            <RotaVisualBidFrete
+              modal={cotacao.modal_cotacao_bid_frete_internacional}
+              origemPais={cotacao.origem_pais_cotacao_bid_frete_internacional}
+              origemCodigo={cotacao.origem_codigo_cotacao_bid_frete_internacional}
+              origemNome={cotacao.origem_nome_cotacao_bid_frete_internacional}
+              destinoPais={cotacao.destino_pais_cotacao_bid_frete_internacional}
+              destinoCodigo={cotacao.destino_codigo_cotacao_bid_frete_internacional}
+              destinoNome={cotacao.destino_nome_cotacao_bid_frete_internacional}
+              rotuloOrigem={t('bidfrete.detalhe_cotacao.origem')}
+              rotuloDestino={t('bidfrete.detalhe_cotacao.destino')}
+            />
           </CardSecaoDados>
 
           <CardSecaoDados variante="carga" titulo={t('bidfrete.detalhe_cotacao.card_detalhes_carga', 'Detalhes da Carga')}>
@@ -802,19 +1001,190 @@ export default function DetalheCotacao() {
           font-weight: 700;
         }
 
-        .dc-fluxo-stepper {
+        .dc-resumo-kpis {
           display: grid;
-          grid-template-columns: repeat(5, 1fr);
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0.75rem;
+          margin-bottom: 1.15rem;
+        }
+        @media (max-width: 720px) {
+          .dc-resumo-kpis { grid-template-columns: 1fr; }
+        }
+        .dc-resumo-kpi {
+          display: flex;
+          align-items: center;
           gap: 0.85rem;
+          padding: 0.85rem 1rem;
+          border-radius: 12px;
+          border: 1px solid rgba(148, 163, 184, 0.14);
+          background: linear-gradient(165deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.88) 100%);
+          text-align: left;
+          cursor: pointer;
+          transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .dc-resumo-kpi:hover {
+          border-color: color-mix(in srgb, var(--dc-kpi-accent, #818cf8) 45%, transparent);
+          transform: translateY(-1px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+        }
+        .dc-resumo-kpi:focus-visible {
+          outline: 2px solid var(--dc-kpi-accent, #818cf8);
+          outline-offset: 2px;
+        }
+        .dc-resumo-kpi-icon {
+          flex-shrink: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: color-mix(in srgb, var(--dc-kpi-accent, #818cf8) 14%, transparent);
+          border: 1px solid color-mix(in srgb, var(--dc-kpi-accent, #818cf8) 28%, transparent);
+          color: var(--dc-kpi-accent, #818cf8);
+        }
+        .dc-resumo-kpi-body {
+          display: flex;
+          flex-direction: column;
+          gap: 0.1rem;
+          min-width: 0;
+        }
+        .dc-resumo-kpi-valor {
+          font-size: 1.375rem;
+          font-weight: 700;
+          line-height: 1.1;
+          color: var(--text-primary, #f1f5f9);
+          font-variant-numeric: tabular-nums;
+        }
+        .dc-resumo-kpi-rotulo {
+          font-size: 0.6875rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: var(--text-muted, #94a3b8);
+        }
+        .dc-resumo-kpi-sub {
+          font-size: 0.75rem;
+          color: var(--text-secondary, #64748b);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .dc-fluxo-stepper-shell {
+          position: relative;
+          padding-top: 1.1rem;
+        }
+        .dc-fluxo-track {
+          position: absolute;
+          left: 4%;
+          right: 4%;
+          top: 0;
+          height: 14px;
+          z-index: 0;
+          pointer-events: none;
+        }
+        .dc-fluxo-track-base {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          height: 2px;
+          background: rgba(71, 85, 105, 0.45);
+          border-radius: 2px;
+        }
+        .dc-fluxo-track-progress {
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          height: 3px;
+          max-width: 100%;
+          background: linear-gradient(90deg, #22c55e 0%, #4ade80 35%, #6366f1 100%);
+          border-radius: 3px;
+          box-shadow: 0 0 14px rgba(99, 102, 241, 0.4);
+          transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .dc-fluxo-track-nodes {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: relative;
+          height: 100%;
+          width: 100%;
+        }
+        .dc-fluxo-track-node {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          border: 2px solid rgba(100, 116, 139, 0.5);
+          background: #1e293b;
+          box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.95);
+          transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+        .dc-fluxo-track-node--done {
+          border-color: #4ade80;
+          background: #22c55e;
+          box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.95), 0 0 10px rgba(34, 197, 94, 0.45);
+        }
+        .dc-fluxo-track-node--active {
+          width: 14px;
+          height: 14px;
+          border-color: #c7d2fe;
+          background: #6366f1;
+          box-shadow:
+            0 0 0 4px rgba(99, 102, 241, 0.22),
+            0 0 18px rgba(99, 102, 241, 0.55);
+        }
+        .dc-fluxo-track-node--future {
+          border-color: rgba(100, 116, 139, 0.35);
+          background: #334155;
+        }
+
+        .dc-fluxo-stepper {
+          display: flex;
+          align-items: stretch;
+          gap: 0;
+          position: relative;
+          z-index: 1;
+          margin-top: 0.35rem;
+        }
+        .dc-fluxo-segment {
+          flex: 0 0 14px;
+          align-self: flex-start;
+          margin-top: 3.1rem;
+          height: 3px;
+          min-width: 8px;
+          border-radius: 2px;
+          background: rgba(71, 85, 105, 0.35);
+          transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dc-fluxo-segment--done {
+          background: linear-gradient(90deg, #16a34a, #4ade80);
+          box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+        }
+        .dc-fluxo-segment--leading-active {
+          background: linear-gradient(90deg, #22c55e 0%, #6366f1 100%);
+          box-shadow: 0 0 12px rgba(99, 102, 241, 0.35);
+        }
+        .dc-fluxo-segment--future {
+          background: rgba(51, 65, 85, 0.55);
         }
         @media (max-width: 1100px) {
-          .dc-fluxo-stepper { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 560px) {
-          .dc-fluxo-stepper { grid-template-columns: 1fr; }
+          .dc-fluxo-track,
+          .dc-fluxo-segment { display: none; }
+          .dc-fluxo-stepper-shell { padding-top: 0; }
+          .dc-fluxo-stepper {
+            flex-direction: column;
+            gap: 0.75rem;
+          }
+          .dc-fluxo-card { flex: none; width: 100%; }
         }
 
         .dc-fluxo-card {
+          flex: 1 1 0;
+          min-width: 0;
           position: relative;
           display: flex;
           align-items: flex-start;
@@ -1006,9 +1376,9 @@ export default function DetalheCotacao() {
 
         .dc-rota-visual {
           display: flex;
-          align-items: stretch;
+          align-items: center;
           justify-content: space-between;
-          gap: 0.65rem;
+          gap: 0.5rem;
           padding: 0.85rem 1rem;
           margin-top: 0.15rem;
           border-radius: 10px;
@@ -1016,25 +1386,151 @@ export default function DetalheCotacao() {
           border: 1px solid rgba(56, 189, 248, 0.2);
           box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
         }
-        @media (max-width: 480px) {
-          .dc-rota-visual { flex-direction: column; }
-          .dc-rota-seta { transform: rotate(90deg); }
+        @media (max-width: 560px) {
+          .dc-rota-visual {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+          }
+          .dc-rota-trilha {
+            flex: none;
+            width: 100%;
+            max-width: none;
+            height: 52px;
+          }
+          .dc-rota-trilha-svg {
+            transform: rotate(90deg);
+            width: 52px;
+            height: 120px;
+            margin: 0 auto;
+          }
         }
         .dc-rota-ponto {
           flex: 1;
           display: flex;
-          align-items: flex-start;
-          gap: 0.65rem;
+          flex-direction: column;
+          gap: 0.55rem;
           min-width: 0;
-          padding: 0.5rem 0.65rem;
-          border-radius: 8px;
-          background: rgba(30, 41, 59, 0.5);
-          border: 1px solid rgba(148, 163, 184, 0.08);
+          padding: 0.65rem 0.75rem;
+          border-radius: 10px;
+          background: rgba(30, 41, 59, 0.55);
+          border: 1px solid rgba(148, 163, 184, 0.1);
         }
-        .dc-rota-flag {
+        .dc-rota-ponto--origem {
+          border-color: rgba(74, 222, 128, 0.22);
+          background: linear-gradient(155deg, rgba(34, 197, 94, 0.1) 0%, rgba(30, 41, 59, 0.55) 55%);
+        }
+        .dc-rota-ponto--destino {
+          border-color: rgba(56, 189, 248, 0.22);
+          background: linear-gradient(155deg, rgba(56, 189, 248, 0.1) 0%, rgba(30, 41, 59, 0.55) 55%);
+        }
+        .dc-rota-ponto-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          align-self: flex-start;
+          padding: 0.2rem 0.55rem 0.2rem 0.35rem;
+          border-radius: 999px;
+          font-size: 0.625rem;
+          font-weight: 800;
+          letter-spacing: 0.07em;
+          text-transform: uppercase;
+        }
+        .dc-rota-ponto-badge--origem {
+          color: #86efac;
+          background: rgba(34, 197, 94, 0.14);
+          border: 1px solid rgba(74, 222, 128, 0.28);
+        }
+        .dc-rota-ponto-badge--destino {
+          color: #7dd3fc;
+          background: rgba(56, 189, 248, 0.14);
+          border: 1px solid rgba(125, 211, 252, 0.28);
+        }
+        .dc-rota-ponto-badge-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .dc-rota-ponto-corpo {
+          display: flex;
+          align-items: center;
+          gap: 0.7rem;
+          min-width: 0;
+        }
+        .dc-rota-flag-modern {
+          position: relative;
+          flex-shrink: 0;
+          display: block;
+          width: 48px;
+          height: 36px;
+          border-radius: 10px;
+          overflow: hidden;
+          box-shadow:
+            0 2px 10px rgba(0, 0, 0, 0.35),
+            0 0 0 1px rgba(255, 255, 255, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+        .dc-rota-flag-modern__img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .dc-rota-flag-modern__shine {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.18) 0%,
+            transparent 42%,
+            transparent 58%,
+            rgba(0, 0, 0, 0.12) 100%
+          );
+          pointer-events: none;
+        }
+        .dc-rota-flag-modern--emoji {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
           font-size: 1.65rem;
-          line-height: 1;
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+          font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+          background: rgba(51, 65, 85, 0.65);
+        }
+        .dc-rota-flag-modern--vazio {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: #64748b;
+          font-size: 0.75rem;
+          background: rgba(51, 65, 85, 0.65);
+        }
+        .dc-rota-trilha {
+          position: relative;
+          flex: 0 1 108px;
+          min-width: 80px;
+          max-width: 132px;
+          height: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .dc-rota-trilha-svg {
+          width: 100%;
+          height: 28px;
+          display: block;
+          overflow: visible;
+        }
+        .dc-rota-trilha-icon-wrap {
+          position: absolute;
+          z-index: 2;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(15, 23, 42, 0.95);
+          border: 1px solid;
         }
         .dc-rota-ponto-text {
           display: flex;
@@ -1042,26 +1538,15 @@ export default function DetalheCotacao() {
           gap: 0.15rem;
           min-width: 0;
         }
-        .dc-rota-ponto-label {
-          font-size: 0.6875rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          color: var(--text-muted, #64748b);
-        }
         .dc-rota-ponto-nome {
-          font-size: 0.875rem;
-          font-weight: 600;
+          font-size: 0.9rem;
+          font-weight: 700;
+          line-height: 1.3;
           color: var(--text-primary, #f1f5f9);
         }
         .dc-rota-ponto-codigo {
           font-size: 0.75rem;
           color: var(--text-secondary, #94a3b8);
-        }
-        .dc-rota-seta {
-          flex-shrink: 0;
-          align-self: center;
-          color: #38bdf8;
-          filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.45));
         }
 
         .dc-mercadoria-destaque {
@@ -1126,8 +1611,36 @@ export default function DetalheCotacao() {
         .dc-info-row {
           display: flex;
           justify-content: space-between;
+          align-items: center;
+          gap: 0.75rem;
           padding: 0.4rem 0;
           border-bottom: 1px solid var(--bg-elevated, #475569);
+        }
+        .dc-info-row--com-icone {
+          padding: 0.55rem 0;
+        }
+        .dc-info-label-group {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          min-width: 0;
+        }
+        .dc-info-icon-badge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          width: 28px;
+          height: 28px;
+          border-radius: 8px;
+          background: rgba(99, 102, 241, 0.1);
+          border: 1px solid rgba(129, 140, 248, 0.18);
+          color: #a5b4fc;
+        }
+        .dc-dados-card--gerais .dc-info-icon-badge {
+          background: rgba(99, 102, 241, 0.12);
+          border-color: rgba(129, 140, 248, 0.22);
+          color: #818cf8;
         }
         .dc-info-label {
           font-size: 0.75rem;
@@ -1286,10 +1799,6 @@ export default function DetalheCotacao() {
           color: #fff;
         }
 
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
       `}</style>
       <ModalEnviarCotacaoBidFreteInternacional
         cotacao={cotacao}

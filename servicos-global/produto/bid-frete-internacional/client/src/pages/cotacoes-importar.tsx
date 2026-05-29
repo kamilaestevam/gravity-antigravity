@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useCallback, useRef, useMemo } from 'react'
-import { GravityLoader } from '@nucleo/gravity-loader-global'
+import { ConteudoCarregandoBidFreteInternacional } from '../shared/pagina-carregando-bid-frete-internacional'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -720,7 +720,7 @@ export default function ImportarBloco() {
           {/* ─── Phase: Creating ────────────────────────────────────────── */}
           {phase === 'creating' && (
             <div className="importar-bloco-result-card">
-              <GravityLoader texto={t('bidfrete.importar.criando')} />
+              <ConteudoCarregandoBidFreteInternacional />
               <p style={{
                 margin: 0,
                 fontSize: '0.8rem',

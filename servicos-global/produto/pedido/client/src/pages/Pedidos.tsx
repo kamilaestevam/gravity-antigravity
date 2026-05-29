@@ -104,6 +104,11 @@ import {
 import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
+import {
+  CAMPOS_LOGISTICA_PEDIDO,
+  isCampoLogisticaPedido,
+  normalizarCodigoLogisticaPedido,
+} from '../../../shared/camposLogisticaPedido'
 import { resolverEdicaoKanbanParaLista } from '../shared/kanbanNavegacaoLista'
 import { marcarPartNumbersDuplicados, pedidoTemPartNumberDuplicado } from '../../../shared/partNumberDuplicado'
 import {
@@ -5405,16 +5410,23 @@ export default function Pedidos() {
               return CAMPOS_PESO_PAI.has(campo) ? quantity * (FATOR_PARA_KG_PAI[unit] ?? 1) : quantity
             })()
           : valor
-    const valorEnviarPai: unknown = campo.startsWith('data_')
-      ? (normalizarDataISO(valorEnviarPaiBruto) ?? valorEnviarPaiBruto)
+    const valorEnviarPaiBrutoNorm = isCampoLogisticaPedido(campo)
+      ? normalizarCodigoLogisticaPedido(valorEnviarPaiBruto)
       : valorEnviarPaiBruto
+    const valorEnviarPai: unknown = campo.startsWith('data_')
+      ? (normalizarDataISO(valorEnviarPaiBrutoNorm) ?? valorEnviarPaiBrutoNorm)
+      : valorEnviarPaiBrutoNorm
     // replicar_em_itens vem do checkbox "Aplicar a todos os itens" no popover
     // do pai (Decisão UX 2026-05-13). Default false — comportamento divergente.
     // Exceção: id_workspace SEMPRE replica — item não pode ter workspace distinto.
     const replicar = campo === 'id_workspace'
       ? true
       : (opts?.replicar_em_itens ?? false)
-    const updatedPedido = await pedidoVirtualApi.editarCampo(id, campo, valorEnviarPai, replicar)
+    const updatedPedidoRaw = await pedidoVirtualApi.editarCampo(id, campo, valorEnviarPai, replicar)
+    const updatedPedido = {
+      ...updatedPedidoRaw,
+      [campo]: valorEnviarPai,
+    } as Pedido
     // Quando replicou, o servidor atualizou os itens filhos via updateMany.
     // ATUALIZA o cache local de itens com o novo valor (em vez de só invalidar
     // — invalidar sozinho exige refetch ao expandir e mantém flag stale).
@@ -6433,6 +6445,8 @@ export default function Pedidos() {
               'saldo_itens_do_pedido',
               'quantidade_transferida_total',
               'quantidade_volumes_pedido',
+              // Logística: só no Pedido (sem coluna em PedidoItem) — checkbox engana o usuário.
+              ...CAMPOS_LOGISTICA_PEDIDO,
             ])
             return !COLUNAS_SEM_REPLICACAO.has(campo)
           } : undefined}

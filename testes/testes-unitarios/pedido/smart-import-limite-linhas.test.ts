@@ -22,9 +22,9 @@ describe('smart-import-limites (SSOT)', () => {
     expect(LIMITE_LINHAS_IMPORTACAO).toBe(1000)
   })
 
-  it('define limite de body JSON para confirmar (acima do default 2mb do Express)', () => {
-    expect(LIMITE_BODY_JSON_IMPORTACAO_MB).toBeGreaterThanOrEqual(10)
-    expect(LIMITE_BODY_JSON_IMPORTACAO).toBe(`${LIMITE_BODY_JSON_IMPORTACAO_MB}mb`)
+  it('define limite de body JSON para confirmar (10mb — paridade com teto de arquivo)', () => {
+    expect(LIMITE_BODY_JSON_IMPORTACAO_MB).toBe(10)
+    expect(LIMITE_BODY_JSON_IMPORTACAO).toBe('10mb')
   })
 
   it('template cobre exatamente 1.000 linhas de dados (linhas 3 a 1002)', () => {

@@ -10,9 +10,9 @@ export const LIMITE_LINHAS_IMPORTACAO = 1000
 /**
  * Limite do body JSON no Express (POST /confirmar).
  * 1000 linhas × dados mapeados ultrapassa o default 2mb do Express.
- * Alinhado ao teto de arquivo (10MB) + margem para metadados do payload.
+ * Alinhado ao teto de arquivo (10MB) — suficiente para 1000 linhas no /confirmar.
  */
-export const LIMITE_BODY_JSON_IMPORTACAO_MB = 12
+export const LIMITE_BODY_JSON_IMPORTACAO_MB = 10
 export const LIMITE_BODY_JSON_IMPORTACAO = `${LIMITE_BODY_JSON_IMPORTACAO_MB}mb` as const
 
 /** Primeira linha de dados no template Gravity (linhas 1–2 = cabeçalhos). */

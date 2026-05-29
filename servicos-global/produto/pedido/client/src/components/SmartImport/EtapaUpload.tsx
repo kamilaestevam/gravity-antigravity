@@ -14,6 +14,7 @@ import {
   File,
   Warning,
 } from '@phosphor-icons/react'
+import { LIMITE_LINHAS_IMPORTACAO } from '../../../../shared/smart-import-limites'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -112,6 +113,7 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
             sugestoes: [
               t('pedido.smart_import.dica_formato', { extensoes: EXTENSOES_ACEITAS.join(', ') }),
               t('pedido.smart_import.dica_tamanho', { mb: TAMANHO_MAX_MB }),
+              t('pedido.smart_import.dica_linhas', { max: LIMITE_LINHAS_IMPORTACAO }),
             ],
             retryable: false,
           }
@@ -172,6 +174,8 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
           </p>
           <p className="smart-import__upload-sub">
             {t('pedido.importar.tamanho_maximo', { mb: TAMANHO_MAX_MB })}
+            {' · '}
+            {t('pedido.importar.limite_linhas', { max: LIMITE_LINHAS_IMPORTACAO })}
           </p>
         </div>
 

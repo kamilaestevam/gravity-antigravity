@@ -4,6 +4,11 @@ import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { Anchor, AirplaneTilt, Truck } from '@phosphor-icons/react'
 import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS, INCOTERMS } from '../shared/types'
+import {
+  codigoDestinoParaEdicao,
+  codigoOrigemParaEdicao,
+} from '../shared/lista-bid-frete-edicao-logistica'
+import { rotuloCadastroLista, type GTOpcaoCadastro } from '../shared/useCadastrosListaBidFrete'
 import type { LinhaPaiLista } from './lista-bid-frete-internacional-utils'
 import { isLinhaBidGrupo } from './lista-bid-frete-internacional-utils'
 import {
@@ -173,6 +178,28 @@ export interface OpcoesColunasLista {
   nomeWorkspaceFallback?: string
   /** Opções de status (Configurações → sincronizado com localStorage). */
   statusOpcoes?: Array<{ valor: string; label: string }>
+  /** Catálogos Cadastros — paridade Pedido (select com busca no popover GTV). */
+  paisesOpcoes?: GTOpcaoCadastro[]
+  portosOpcoes?: GTOpcaoCadastro[]
+  aeroportosOpcoes?: GTOpcaoCadastro[]
+  containersOpcoes?: GTOpcaoCadastro[]
+}
+
+function opcoesLocalizacaoLista(opcoes: OpcoesColunasLista): GTOpcaoCadastro[] | undefined {
+  const portos = opcoes.portosOpcoes ?? []
+  const aeroportos = opcoes.aeroportosOpcoes ?? []
+  const merged = [...portos, ...aeroportos]
+  return merged.length > 0 ? merged : undefined
+}
+
+function renderRotuloLocalizacao(
+  cotacao: Cotacao,
+  opcoesLoc: GTOpcaoCadastro[] | undefined,
+  codigo: string,
+  nomeFallback: string,
+): React.ReactNode {
+  const rotulo = opcoesLoc ? rotuloCadastroLista(codigo, opcoesLoc) : ''
+  return rotulo || nomeFallback || '—'
 }
 
 /** Campos que não entram na edição inline (técnicos ou geridos pelo servidor). */
@@ -267,6 +294,107 @@ function aplicarConfigEdicaoColuna(
       return {
         ...base,
         opcoes: [{ valor: 'bid-frete-internacional', label: 'BID Frete Internacional' }],
+      }
+    case 'origem_nome_cotacao_bid_frete_internacional':
+    case 'origem_codigo_cotacao_bid_frete_internacional': {
+      const opcoesLoc = opcoesLocalizacaoLista(opcoes)
+      return {
+        ...base,
+        opcoes: opcoesLoc,
+        editavel: (item: Cotacao) =>
+          item.modal_cotacao_bid_frete_internacional !== 'RODOVIARIO' && !!opcoesLoc?.length,
+        getValorEditar: codigoOrigemParaEdicao,
+        findDisplay: (item: Cotacao) => {
+          const rotulo = opcoesLoc
+            ? rotuloCadastroLista(codigoOrigemParaEdicao(item), opcoesLoc)
+            : ''
+          return rotulo || item.origem_nome_cotacao_bid_frete_internacional || ''
+        },
+        render: (_val: unknown, item: Cotacao) =>
+          renderRotuloLocalizacao(
+            item,
+            opcoesLoc,
+            codigoOrigemParaEdicao(item),
+            item.origem_nome_cotacao_bid_frete_internacional,
+          ),
+      }
+    }
+    case 'destino_nome_cotacao_bid_frete_internacional':
+    case 'destino_codigo_cotacao_bid_frete_internacional': {
+      const opcoesLoc = opcoesLocalizacaoLista(opcoes)
+      return {
+        ...base,
+        opcoes: opcoesLoc,
+        editavel: (item: Cotacao) =>
+          item.modal_cotacao_bid_frete_internacional !== 'RODOVIARIO' && !!opcoesLoc?.length,
+        getValorEditar: codigoDestinoParaEdicao,
+        findDisplay: (item: Cotacao) => {
+          const rotulo = opcoesLoc
+            ? rotuloCadastroLista(codigoDestinoParaEdicao(item), opcoesLoc)
+            : ''
+          return rotulo || item.destino_nome_cotacao_bid_frete_internacional || ''
+        },
+        render: (_val: unknown, item: Cotacao) =>
+          renderRotuloLocalizacao(
+            item,
+            opcoesLoc,
+            codigoDestinoParaEdicao(item),
+            item.destino_nome_cotacao_bid_frete_internacional,
+          ),
+      }
+    }
+    case 'origem_pais_cotacao_bid_frete_internacional':
+      return {
+        ...base,
+        opcoes: opcoes.paisesOpcoes,
+        getValorEditar: (item: Cotacao) => item.origem_pais_cotacao_bid_frete_internacional ?? '',
+        findDisplay: (item: Cotacao) =>
+          rotuloCadastroLista(item.origem_pais_cotacao_bid_frete_internacional, opcoes.paisesOpcoes ?? '')
+            || item.origem_pais_cotacao_bid_frete_internacional
+            || '—',
+        render: (_val: unknown, item: Cotacao) =>
+          rotuloCadastroLista(item.origem_pais_cotacao_bid_frete_internacional, opcoes.paisesOpcoes ?? '')
+            || item.origem_pais_cotacao_bid_frete_internacional
+            || '—',
+      }
+    case 'destino_pais_cotacao_bid_frete_internacional':
+      return {
+        ...base,
+        opcoes: opcoes.paisesOpcoes,
+        getValorEditar: (item: Cotacao) => item.destino_pais_cotacao_bid_frete_internacional ?? '',
+        findDisplay: (item: Cotacao) =>
+          rotuloCadastroLista(item.destino_pais_cotacao_bid_frete_internacional, opcoes.paisesOpcoes ?? '')
+            || item.destino_pais_cotacao_bid_frete_internacional
+            || '—',
+        render: (_val: unknown, item: Cotacao) =>
+          rotuloCadastroLista(item.destino_pais_cotacao_bid_frete_internacional, opcoes.paisesOpcoes ?? '')
+            || item.destino_pais_cotacao_bid_frete_internacional
+            || '—',
+      }
+    case 'tipo_container_cotacao_bid_frete_internacional':
+      return {
+        ...base,
+        opcoes: opcoes.containersOpcoes,
+        getValorEditar: (item: Cotacao) => item.tipo_container_cotacao_bid_frete_internacional ?? '',
+        findDisplay: (item: Cotacao) =>
+          rotuloCadastroLista(item.tipo_container_cotacao_bid_frete_internacional, opcoes.containersOpcoes ?? '')
+            || item.tipo_container_cotacao_bid_frete_internacional
+            || '—',
+        render: (_val: unknown, item: Cotacao) =>
+          rotuloCadastroLista(item.tipo_container_cotacao_bid_frete_internacional, opcoes.containersOpcoes ?? '')
+            || item.tipo_container_cotacao_bid_frete_internacional
+            || '—',
+      }
+    case 'moeda_meta_cotacao_bid_frete_internacional':
+      return {
+        ...base,
+        opcoes: [
+          { valor: 'USD', label: 'USD' },
+          { valor: 'EUR', label: 'EUR' },
+          { valor: 'BRL', label: 'BRL' },
+          { valor: 'GBP', label: 'GBP' },
+          { valor: 'CNY', label: 'CNY' },
+        ],
       }
     default:
       return base
@@ -741,7 +869,8 @@ export function buildColunasPaiLista(
     ...col,
     editavel: (item: LinhaPaiLista) => {
       if (isLinhaBidGrupo(item)) return false
-      return true
+      if (typeof col.editavel === 'function') return col.editavel(item as Cotacao)
+      return col.editavel !== false
     },
     tooltipBloqueado: (item: LinhaPaiLista) =>
       isLinhaBidGrupo(item) ? tooltipBid : undefined,

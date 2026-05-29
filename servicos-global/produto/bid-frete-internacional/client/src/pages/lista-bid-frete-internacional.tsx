@@ -45,6 +45,8 @@ import {
   calcularMetricaCardCustom,
   formatarValorCardCustom,
 } from '../shared/lista-bid-frete-card-custom'
+import { resolverIconeCard } from '../shared/card-icone-map-bid-frete'
+import { decodeMetricaCard } from '../shared/card-metrica-catalog-bid-frete'
 import { COTACOES_LIMIT_LISTA, filtrarCotacoesPorPeriodoCards } from '../shared/lista-bid-frete-card-periodo'
 import { calcularStatsListaBidFrete } from '../shared/lista-bid-frete-kpi-metrics'
 import {
@@ -55,6 +57,8 @@ import {
 import { SYNC_EVENT_CASAS_BID_FRETE } from '../shared/casas-config-bid-frete'
 import { SYNC_EVENT_FORMATO_DATA_BID_FRETE } from '../shared/formato-data-bid-frete'
 import { listarCardsCatalogo, useCardPreferencesBidFrete } from '../shared/use-card-preferences'
+import { resolverPatchEdicaoLocalizacao } from '../shared/lista-bid-frete-edicao-logistica'
+import { useCadastrosListaBidFrete } from '../shared/useCadastrosListaBidFrete'
 import {
   buildColunasPaiLista,
   buildColunasCotacoes,
@@ -332,6 +336,15 @@ export default function Cotacoes() {
     [statusConfig],
   )
 
+  const {
+    paisesOpcoes,
+    portosOpcoes,
+    aeroportosOpcoes,
+    containersOpcoes,
+    portos: portosCadastro,
+    aeroportos: aeroportosCadastro,
+  } = useCadastrosListaBidFrete()
+
   const opcoesColunasLista = useMemo<OpcoesColunasLista>(() => ({
     organizacoesMap,
     workspacesMap,
@@ -340,7 +353,24 @@ export default function Cotacoes() {
     nomeUsuarioAtual: currentUser.name || currentUser.email,
     nomeWorkspaceFallback: nomeWorkspaceAtivo,
     statusOpcoes: statusOpcoesColunas,
-  }), [organizacoesMap, workspacesMap, usuariosMap, currentUser.id, currentUser.name, currentUser.email, nomeWorkspaceAtivo, statusOpcoesColunas])
+    paisesOpcoes,
+    portosOpcoes,
+    aeroportosOpcoes,
+    containersOpcoes,
+  }), [
+    organizacoesMap,
+    workspacesMap,
+    usuariosMap,
+    currentUser.id,
+    currentUser.name,
+    currentUser.email,
+    nomeWorkspaceAtivo,
+    statusOpcoesColunas,
+    paisesOpcoes,
+    portosOpcoes,
+    aeroportosOpcoes,
+    containersOpcoes,
+  ])
 
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
   const [cotacoesAvulsas, setCotacoesAvulsas] = useState<Cotacao[]>([])
@@ -547,10 +577,19 @@ export default function Cotacoes() {
     if (!atual) throw new Error('Cotação não encontrada')
 
     const valorNormalizado = normalizarValorEdicaoCotacao(campo, valor)
+    const patchLocalizacao = resolverPatchEdicaoLocalizacao(
+      atual,
+      campo,
+      valorNormalizado,
+      portosCadastro,
+      aeroportosCadastro,
+    )
 
     let cotacaoSalva: Cotacao
     if (campo === 'status_cotacao_bid_frete_internacional') {
       cotacaoSalva = await mudarStatusCotacao(id, valorNormalizado as StatusCotacao)
+    } else if (patchLocalizacao) {
+      cotacaoSalva = await atualizarCotacao(id, patchLocalizacao)
     } else {
       cotacaoSalva = await atualizarCotacao(id, {
         [campo]: valorNormalizado,
@@ -559,7 +598,7 @@ export default function Cotacoes() {
 
     patchCotacaoNoEstado(cotacaoSalva, setCotacoes, setCotacoesAvulsas, setBidsFreteInternacional)
     return cotacaoSalva
-  }, [resolverCotacaoPorId])
+  }, [resolverCotacaoPorId, portosCadastro, aeroportosCadastro])
 
   const handleEditar = useCallback(async (
     id: string,
@@ -1064,13 +1103,17 @@ export default function Cotacoes() {
         if (!defCustom) return null
         const valorMetrica = calcularMetricaCardCustom(defCustom, cotacoesParaKpi)
         const valorFormatado = formatarValorCardCustom(defCustom, valorMetrica, fmtQuantidade)
+        const metricaId = decodeMetricaCard(defCustom.descKey)
+        const metricaLabel = metricaId
+          ? t(`bidfrete.config.cards.${metricaId}`, defCustom.descricao)
+          : defCustom.descricao
         return (
           <CardBasicoGlobal
             key={id}
             titulo={defCustom.labelKey}
-            icone={<Package weight="duotone" size={16} style={{ color: defCustom.cor ?? 'var(--ws-accent, #818cf8)' }} />}
+            icone={resolverIconeCard(defCustom.icone, 16, defCustom.cor ?? 'var(--ws-accent, #818cf8)')}
             valor={valorFormatado}
-            subtexto={defCustom.descricao}
+            subtexto={metricaLabel}
             tooltip={
               <>
                 <div className="cg-tooltip__row">

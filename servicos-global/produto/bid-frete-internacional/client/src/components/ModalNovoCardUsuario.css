@@ -1,0 +1,198 @@
+/* ── Modal Card Customizado (paridade Pedido) ─────────────────────────────── */
+
+.mcu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.mcu-modal {
+  background: var(--bg-card, #1e293b);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.mcu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.mcu-header__titulo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.mcu-header__fechar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: transparent;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+}
+.mcu-header__fechar:hover { color: var(--text-primary, #f1f5f9); }
+
+.mcu-body {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.mcu-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.mcu-campo__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.mcu-campo__input {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-primary, #f1f5f9);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.mcu-campo__input:focus { border-color: var(--ws-accent, #818cf8); }
+
+.mcu-icone-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.35rem;
+}
+
+.mcu-icone-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: transparent;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.mcu-icone-btn:hover { background: rgba(255,255,255,0.04); color: var(--text-primary, #f1f5f9); }
+.mcu-icone-btn--ativo {
+  background: rgba(129,140,248,0.12);
+  border-color: rgba(129,140,248,0.35);
+  color: var(--ws-accent, #818cf8);
+}
+
+.mcu-cor-grid {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.mcu-cor-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.mcu-cor-btn:hover { transform: scale(1.15); }
+.mcu-cor-btn--ativo { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,0.2); }
+
+.mcu-campo__hint {
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.mcu-obrigatorio {
+  color: #f87171;
+}
+
+.mcu-metrica-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 0.25rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.02);
+}
+
+.mcu-metrica-opcao {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+
+.mcu-metrica-opcao:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.06);
+}
+
+.mcu-metrica-opcao--ativa {
+  background: rgba(129,140,248,0.12);
+  border-color: rgba(129,140,248,0.35);
+}
+
+.mcu-metrica-opcao__nome {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.mcu-metrica-opcao__meta {
+  font-size: 0.72rem;
+  color: var(--text-muted, #64748b);
+}
+
+.mcu-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}

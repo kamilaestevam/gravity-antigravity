@@ -140,6 +140,16 @@ describe('CAMPOS_EDITAVEIS_LISTA — edição inline', () => {
     expect(colunas.find(c => c.key === 'modal_cotacao_bid_frete_internacional')?.opcoes?.length).toBeGreaterThan(0)
     expect(colunas.find(c => c.key === 'visibilidade_cotacao_bid_frete_internacional')?.opcoes).toHaveLength(2)
   })
+
+  it('coluna Origem usa opcoes de cadastro (select) e getValorEditar por código', () => {
+    const colunas = buildColunasCotacoes(null, {
+      portosOpcoes: [{ valor: 'ARBUE', label: 'ARBUE — Buenos Aires' }],
+      aeroportosOpcoes: [{ valor: 'GRU', label: 'GRU — Guarulhos' }],
+    })
+    const colOrigem = colunas.find(c => c.key === 'origem_nome_cotacao_bid_frete_internacional')
+    expect(colOrigem?.opcoes).toHaveLength(2)
+    expect(colOrigem?.getValorEditar?.(cotacaoBase())).toBe('BRSSZ')
+  })
 })
 
 describe('formatValorExportColuna — paridade com exibição', () => {

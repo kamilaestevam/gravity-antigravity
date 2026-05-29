@@ -332,10 +332,31 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
   }
 }
 
+/** Campos só da UI / agregados — nunca enviar no PATCH (não existem no Prisma). */
+const CAMPOS_COTACAO_APENAS_CLIENTE = [
+  'id_cotacao_bid_frete_internacional',
+  'id_organizacao',
+  'numero_cotacao_bid_frete_internacional',
+  'data_criacao_cotacao_bid_frete_internacional',
+  'data_atualizacao_cotacao_bid_frete_internacional',
+  'valor_aprovado_ganho_bid_frete_internacional',
+  'moeda_aprovada',
+  'disparo_cotacao_bid_frete_internacional',
+  'propostas_bid_frete_internacional',
+  'bid_bid_frete_internacional',
+  'aeroporto_origem_cotacao_bid_frete_internacional',
+  'aeroporto_destino_cotacao_bid_frete_internacional',
+  'estado_provincia_origem_cotacao_bid_frete_internacional',
+  'estado_provincia_destino_cotacao_bid_frete_internacional',
+  'hs_code_cotacao_bid_frete_internacional',
+  'peso_ton_cotacao_bid_frete_internacional',
+] as const
+
 export function mapCotacaoToServer(input: Partial<Cotacao>): Record<string, unknown> {
   const result: Record<string, unknown> = { ...input }
-  delete result.disparo_cotacao_bid_frete_internacional
-  delete result.propostas_bid_frete_internacional
+  for (const campo of CAMPOS_COTACAO_APENAS_CLIENTE) {
+    delete result[campo]
+  }
   return result
 }
 

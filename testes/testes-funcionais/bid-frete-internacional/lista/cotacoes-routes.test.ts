@@ -277,6 +277,30 @@ describe('PATCH /api/v1/bid-frete-internacional/cotacoes/:id', () => {
     expect(res.body.cotacao.tipo_operacao_cotacao_bid_frete_internacional).toBe('EXPORTACAO')
     expect(res.body.cotacao.status_cotacao_bid_frete_internacional).toBe('EM_COTACAO')
   })
+
+  it('deve atualizar origem/destino via patch de localização (sem aeroporto_*)', async () => {
+    const res = await request(app)
+      .patch('/api/v1/bid-frete-internacional/cotacoes/cotacao_em_cotacao')
+      .set(HEADERS)
+      .send({
+        origem_codigo_cotacao_bid_frete_internacional: 'EZE',
+        origem_nome_cotacao_bid_frete_internacional: 'EZE — Buenos Aires Ezeiza',
+        origem_pais_cotacao_bid_frete_internacional: 'AR',
+      })
+
+    expect(res.status).toBe(200)
+    expect(res.body.cotacao.origem_codigo_cotacao_bid_frete_internacional).toBe('EZE')
+  })
+
+  it('deve retornar 400 para visibilidade inválida', async () => {
+    const res = await request(app)
+      .patch('/api/v1/bid-frete-internacional/cotacoes/cotacao_em_cotacao')
+      .set(HEADERS)
+      .send({ visibilidade_cotacao_bid_frete_internacional: 'INVALIDA' })
+
+    expect(res.status).toBe(400)
+    expect(res.body.error).toHaveProperty('code', 'VALIDATION_ERROR')
+  })
 })
 
 describe('PATCH /api/v1/bid-frete-internacional/cotacoes/:id/status', () => {

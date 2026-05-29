@@ -58,12 +58,16 @@ import {
 import {
   CARD_PERIODOS as PERIODOS,
   DEFAULT_CARD_PREFERENCIAS,
+  CARDS_CATALOGO,
   registrarCardCustomizado,
   useCardPreferencesBidFrete,
   type CardDefinicao,
   type CardPeriodoCodigo,
   type CardPreferencia,
 } from '../shared/use-card-preferences'
+import { encodeMetricaCard } from '../shared/card-metrica-catalog-bid-frete'
+import { resolverIconeCard } from '../shared/card-icone-map-bid-frete'
+import { ModalNovoCardUsuario } from '../components/ModalNovoCardUsuario'
 import {
   BID_FRETE_DASHBOARD_TOP_KPI_WIDGET_IDS,
   useDashboardTopKpiBidFrete,
@@ -211,6 +215,15 @@ function obterNomeExibicaoCard(card: CardDefinicao): string {
   return NOME_EXIBICAO_CARDS[card.id] || card.labelKey
 }
 
+function resolverVisualCard(def: CardDefinicao): { icone: React.ReactNode; cor: string } {
+  const nativo = CARD_VISUAL[def.id]
+  if (nativo) return nativo
+  return {
+    icone: resolverIconeCard(def.icone, 18, def.cor),
+    cor: def.cor ?? 'var(--ws-accent, #818cf8)',
+  }
+}
+
 const SIDEBAR_ITEMS = [
   { tipo: 'grupo',  label: 'VISUALIZAÇÕES', labelKey: 'bidfrete.config.sidebar.grupo_visualizacoes' },
   { tipo: 'item',   id: 'cards',                 label: 'Cards',             labelKey: 'bidfrete.config.sidebar.cards',             icone: <SquaresFour size={15} weight="duotone" />, ativo: true },
@@ -277,10 +290,7 @@ function CardSortavel({
   onRemover: () => void
   periodoAtivo: string
 }) {
-  const visual = CARD_VISUAL[pref.id] ?? {
-    icone: <Package weight="duotone" size={18} />,
-    cor: def.cor ?? 'var(--ws-accent, #818cf8)',
-  }
+  const visual = resolverVisualCard(def)
   const [detalheAberto, setDetalheAberto] = useState(false)
 
   const {
@@ -665,68 +675,6 @@ function ToggleRow({ label, desc, checked, onChange, id }: { label: string; desc
         {desc && <p className="cfg-toggle-row__desc">{desc}</p>}
       </div>
       <Toggle checked={checked} onChange={onChange} id={id} />
-    </div>
-  )
-}
-
-// ─── Modal Novo Card ─────────────────────────────────────────────────────────────
-
-function ModalNovoCardUsuario({
-  onFechar, onSalvo
-}: {
-  onFechar: () => void
-  onSalvo: (card: { nome: string; icone: string; cor: string; formula_expressao: string }) => void
-}) {
-  const [nome, setNome] = useState('')
-  const [icone, setIcone] = useState('Package')
-  const [cor, setCor] = useState('#818cf8')
-  const [formula, setFormula] = useState('')
-
-  const ICONES = ['Package', 'CurrencyDollar', 'Scales', 'Warning', 'CheckCircle', 'Coins', 'ClipboardText', 'Gauge']
-  const CORES = ['#818cf8', '#34d399', '#fbbf24', '#f87171', '#60a5fa', '#a78bfa', '#fb923c']
-
-  const handleSalvar = () => {
-    if (!nome.trim()) return
-    onSalvo({ nome, icone, cor, formula_expressao: formula })
-  }
-
-  return (
-    <div className="mcu-overlay" onClick={onFechar} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
-      <div className="mcu-modal" onClick={e => e.stopPropagation()} style={{ background: '#1e293b', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', width: '420px' }}>
-        <h3 className="mcu-header__titulo" style={{ fontSize: '1rem', fontWeight: 600, color: '#f1f5f9', marginBottom: '1rem' }}>Novo Card Personalizado</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem', color: '#94a3b8' }}>
-            Nome do Card
-            <input type="text" value={nome} onChange={e => setNome(e.target.value)} style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#f1f5f9' }} />
-          </label>
-          <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-            Ícone
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
-              {ICONES.map(ic => (
-                <button key={ic} type="button" onClick={() => setIcone(ic)} style={{ padding: '6px', borderRadius: '6px', border: '1px solid transparent', background: icone === ic ? '#818cf8' : '#334155', color: '#f1f5f9', cursor: 'pointer' }}>
-                  {ic.substring(0, 3)}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-            Cor
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
-              {CORES.map(c => (
-                <button key={c} type="button" onClick={() => setCor(c)} style={{ width: '24px', height: '24px', borderRadius: '50%', border: cor === c ? '2px solid white' : 'none', background: c, cursor: 'pointer' }} />
-              ))}
-            </div>
-          </div>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem', color: '#94a3b8' }}>
-            Fórmula Simplificada
-            <input type="text" placeholder="Ex: valor_frete_proposta_bid_frete_internacional * 1.05" value={formula} onChange={e => setFormula(e.target.value)} style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#f1f5f9' }} />
-          </label>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1rem' }}>
-            <button type="button" onClick={onFechar} style={{ padding: '6px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#f1f5f9', cursor: 'pointer' }}>Cancelar</button>
-            <button type="button" onClick={handleSalvar} style={{ padding: '6px 16px', borderRadius: '8px', border: 'none', background: '#818cf8', color: '#fff', cursor: 'pointer' }}>Criar</button>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
@@ -1426,13 +1374,14 @@ export default function Configuracoes() {
                   {pendingCardsPrefs.map((pref, i) => {
                     const card = cardsCatalogo.find(c => c.id === pref.id)
                     if (!card) return null
+                    const visual = resolverVisualCard(card)
                     return (
                       <div key={card.id} className={`cfg-kpi-preview-card ${!pref.visible ? 'cfg-kpi-preview-card--oculto' : ''}`}>
                         <span className="cfg-kpi-preview-card__pos">{i + 1}</span>
-                        <div className="cfg-kpi-preview-card__icon" style={{ color: CARD_VISUAL[card.id]?.cor }}>
-                          {CARD_VISUAL[card.id]?.icone}
+                        <div className="cfg-kpi-preview-card__icon" style={{ color: visual.cor }}>
+                          {visual.icone}
                         </div>
-                        <div className="cfg-kpi-preview-card__line" style={{ background: CARD_VISUAL[card.id]?.cor }} />
+                        <div className="cfg-kpi-preview-card__line" style={{ background: visual.cor }} />
                         <p className="cfg-kpi-preview-card__label">{obterNomeExibicaoCard(card)}</p>
                       </div>
                     )
@@ -2700,15 +2649,17 @@ export default function Configuracoes() {
         <ModalNovoCardUsuario
           onFechar={() => setCriandoCard(false)}
           onSalvo={card => {
+            const metricDef = CARDS_CATALOGO.find(c => c.id === card.metricaId)
+            if (!metricDef) return
             const newId = `card_${Date.now()}`
             registrarCardCustomizado({
               id: newId,
-              campoBase: 'valor_total_proposta_bid_frete_internacional',
-              tipoAgg: 'Soma',
-              origem: 'Proposta',
+              campoBase: metricDef.campoBase,
+              tipoAgg: metricDef.tipoAgg,
+              origem: metricDef.origem,
               labelKey: card.nome.trim(),
-              descKey: card.formula_expressao.trim() || card.nome.trim(),
-              descricao: card.formula_expressao.trim() || 'Card customizado pelo usuário',
+              descKey: encodeMetricaCard(card.metricaId),
+              descricao: metricDef.descricao,
               icone: card.icone,
               cor: card.cor,
             })

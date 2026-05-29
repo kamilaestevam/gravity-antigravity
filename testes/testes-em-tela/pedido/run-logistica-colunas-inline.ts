@@ -352,16 +352,6 @@ async function testarSomenteItem(
 
   await screenshot(page, `${prefix}-03-item-linha-expandida.png`)
 
-  const click = await clicarCelulaFilhoLogistica(page, col.key)
-  if (!click.ok) {
-    log(`  ✗ item: célula não editável para ${col.key} (${click.debug})`)
-    await screenshot(page, `${prefix}-04-item-celula-ausente.png`)
-    return 'FAIL'
-  }
-
-  const celFilho = page.locator(
-    `.gtv-linha--filho[data-gtv-filho-rowid][data-gtv-campo="${col.key}"], .gtv-linha--filho .gtv-celula--editavel`,
-  ).first()
   const antesItem = await page.evaluate((colKey) => {
     const filho = document.querySelector('.gtv-linha--filho')
     if (!filho) return ''
@@ -372,6 +362,14 @@ async function testarSomenteItem(
     )
     return (cells[idx]?.textContent ?? '').trim()
   }, col.key)
+
+  const click = await clicarCelulaFilhoLogistica(page, col.key)
+  if (!click.ok) {
+    log(`  ✗ item: célula não editável para ${col.key} (${click.debug})`)
+    await screenshot(page, `${prefix}-04-item-celula-ausente.png`)
+    return 'FAIL'
+  }
+
   const popoverAbriu = await page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
   if (!popoverAbriu) {
     log(`  ✗ item: popover não abriu para ${col.key}`)

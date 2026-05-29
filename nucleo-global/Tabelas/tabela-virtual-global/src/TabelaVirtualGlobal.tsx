@@ -1454,6 +1454,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   colunasFilhas,
   mapaColunasFilho,
   onCarregarFilhos,
+  onCarregarFilhosLoteConcluido,
   itemVersion,
   filhoId: filhoIdProp,
   acoesFilhas,
@@ -1714,6 +1715,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const selecionadosRef = useRef(selecionados)
   selecionadosRef.current = selecionados
   const dadosPaginaOrdenadosRef = useRef<T[]>([])
+  const syncFilhosEmLoteRef = useRef(false)
+  const onCarregarFilhosLoteConcluidoRef = useRef(onCarregarFilhosLoteConcluido)
+  onCarregarFilhosLoteConcluidoRef.current = onCarregarFilhosLoteConcluido
 
   // ── Seleção de filhos ─────────────────────────────────────────────────────────
   const [filhosSelecionados, setFilhosSelecionados] = useState<Set<string>>(new Set())
@@ -1872,20 +1876,26 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const toggleTodosComSync = useCallback(
     async (idsPagina: string[]) => {
       const todosJaMarcados = idsPagina.length > 0 && idsPagina.every(id => selecionados.has(id))
-      toggleTodos(idsPagina)
-      setPaisAutoPromovidos(prev => (prev.size === 0 ? prev : new Set()))
+      syncFilhosEmLoteRef.current = true
+      try {
+        toggleTodos(idsPagina)
+        setPaisAutoPromovidos(prev => (prev.size === 0 ? prev : new Set()))
 
-      if (!selecionavelFilhos) return
+        if (!selecionavelFilhos) return
 
-      let cacheEfetivo = filhosCache
-      if (!todosJaMarcados && onCarregarFilhos) {
-        const itensPagina = idsPagina
-          .map(id => dadosPaginaOrdenadosRef.current.find(d => itemId(d) === id))
-          .filter((d): d is T => d != null)
-        cacheEfetivo = await ensureFilhosCarregados(itensPagina)
+        let cacheEfetivo = filhosCache
+        if (!todosJaMarcados && onCarregarFilhos) {
+          const itensPagina = idsPagina
+            .map(id => dadosPaginaOrdenadosRef.current.find(d => itemId(d) === id))
+            .filter((d): d is T => d != null)
+          cacheEfetivo = await ensureFilhosCarregados(itensPagina, { modo: 'selecao-lote' })
+          onCarregarFilhosLoteConcluidoRef.current?.()
+        }
+
+        aplicarFilhosSelecaoEmLote(idsPagina, cacheEfetivo, !todosJaMarcados)
+      } finally {
+        syncFilhosEmLoteRef.current = false
       }
-
-      aplicarFilhosSelecaoEmLote(idsPagina, cacheEfetivo, !todosJaMarcados)
     },
     [
       selecionados,
@@ -2068,6 +2078,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   // REGRA UNIVERSAL: pai marcado → filhos recém-carregados entram marcados (feedback visual)
   useEffect(() => {
     if (!selecionavelFilhos) return
+    if (syncFilhosEmLoteRef.current) return
 
     setFilhosSelecionados(prev => {
       let mudou = false

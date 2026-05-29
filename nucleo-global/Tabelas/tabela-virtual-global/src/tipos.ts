@@ -26,6 +26,12 @@ export interface GTValorMoeda {
   amount: number
 }
 
+/** Opções do callback `onCarregarFilhos` (ex.: seleção em lote no header) */
+export interface GTCarregarFilhosOpts {
+  /** `selecao-lote` evita side-effects pesados no consumidor (N× setState/API) */
+  modo?: 'padrao' | 'selecao-lote'
+}
+
 export interface GTValorUnidade {
   unit: string
   quantity: number
@@ -261,7 +267,9 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    */
   mapaColunasFilho?: Record<string, GTMapaColunasFilho<C>>
   /** Carrega os filhos de um item pai sob demanda */
-  onCarregarFilhos?: (item: T) => Promise<C[]>
+  onCarregarFilhos?: (item: T, opts?: GTCarregarFilhosOpts) => Promise<C[]>
+  /** Flush de side-effects após carregar filhos em lote (ex.: um único setPedidos) */
+  onCarregarFilhosLoteConcluido?: () => void
   /** Chamado quando o número de linhas expandidas muda (0 = todas retraídas) */
   onExpandidosMudar?: (count: number) => void
   /** Extrai uma versão estável do pai (ex: timestamp do servidor).

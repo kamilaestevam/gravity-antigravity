@@ -67,6 +67,7 @@ import type {
   GTAbaTipo,
   GTPreferencias,
   GTVirtualHandle,
+  GTCarregarFilhosOpts,
 } from '@nucleo/tabela-virtual-global'
 // Subsistema FiltrosColuna — refactor D9 (2026-05-13). Promovido do Pedido.
 import {
@@ -116,6 +117,7 @@ import {
   mesclarDivergenciasPreservandoDescricaoPedido,
 } from '../../../shared/pedidoDivergencias'
 import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
+import { renderRotuloCadastro } from '../shared/useLogisticaCadastrosPedido'
 import {
   enriquecerColunaComRegraTooltip,
   enriquecerMapaColunasFilhoComRegraTooltip,
@@ -2546,6 +2548,12 @@ type PedidoItemEnriquecido = PedidoItem & {
     moeda_pedido: string
     importacao_exportador_id: string | null
     exportacao_importador_id: string | null
+    porto_origem: string | null
+    porto_destino: string | null
+    local_de_origem: string | null
+    local_de_destino: string | null
+    aeroporto_origem: string | null
+    aeroporto_destino: string | null
   }
 }
 
@@ -2569,6 +2577,12 @@ function montarContextoPaiItem(pedido: Pedido, item: PedidoItem): PedidoItemEnri
     moeda_pedido: pedido.moeda_pedido ?? 'USD',
     importacao_exportador_id: pedido.importacao_exportador_id ?? null,
     exportacao_importador_id: pedido.exportacao_importador_id ?? null,
+    porto_origem: pedido.porto_origem ?? null,
+    porto_destino: pedido.porto_destino ?? null,
+    local_de_origem: pedido.local_de_origem ?? null,
+    local_de_destino: pedido.local_de_destino ?? null,
+    aeroporto_origem: pedido.aeroporto_origem ?? null,
+    aeroporto_destino: pedido.aeroporto_destino ?? null,
   }
 }
 
@@ -2610,7 +2624,11 @@ function aplicarPropagacaoPedidoNoItem(
 }
 
 function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
-  const { unidadesPeso, unidadesCubagem, workspacesMap } = opcoes
+  const { unidadesPeso, unidadesCubagem, workspacesMap, paisesOpcoes = [], portosOpcoes = [], aeroportosOpcoes = [] } = opcoes
+  const tooltipLogisticaSomentePedido = t(
+    'pedido.lista.erro.logistica_somente_pedido',
+    'Local, porto e aeroporto pertencem ao pedido — edite na linha do pedido, não no item.',
+  )
 
   /** Nome do workspace do pedido pai — espelha ColunasPai (importação/exportação). */
   const resolverNomeWorkspacePedidoPai = (row: PedidoItem): string | null => {
@@ -3305,6 +3323,55 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
           <span className="gtv-celula-unidade-badge">{unidade}</span>
         </span>
       )
+    },
+  },
+  // ── Logística: só no Pedido (PATCH item retorna 400) ───────────────────────
+  porto_origem: {
+    editavel: false,
+    tooltipBloqueado: tooltipLogisticaSomentePedido,
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return renderRotuloCadastro(p?.porto_origem ?? null, portosOpcoes, t('pedido.coluna_pai.porto_origem'))
+    },
+  },
+  porto_destino: {
+    editavel: false,
+    tooltipBloqueado: tooltipLogisticaSomentePedido,
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return renderRotuloCadastro(p?.porto_destino ?? null, portosOpcoes, t('pedido.coluna_pai.porto_destino'))
+    },
+  },
+  local_de_origem: {
+    editavel: false,
+    tooltipBloqueado: tooltipLogisticaSomentePedido,
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return renderRotuloCadastro(p?.local_de_origem ?? null, paisesOpcoes, t('pedido.coluna_pai.local_de_origem'))
+    },
+  },
+  local_de_destino: {
+    editavel: false,
+    tooltipBloqueado: tooltipLogisticaSomentePedido,
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return renderRotuloCadastro(p?.local_de_destino ?? null, paisesOpcoes, t('pedido.coluna_pai.local_de_destino'))
+    },
+  },
+  aeroporto_origem: {
+    editavel: false,
+    tooltipBloqueado: tooltipLogisticaSomentePedido,
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return renderRotuloCadastro(p?.aeroporto_origem ?? null, aeroportosOpcoes, t('pedido.coluna_pai.aeroporto_origem'))
+    },
+  },
+  aeroporto_destino: {
+    editavel: false,
+    tooltipBloqueado: tooltipLogisticaSomentePedido,
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return renderRotuloCadastro(p?.aeroporto_destino ?? null, aeroportosOpcoes, t('pedido.coluna_pai.aeroporto_destino'))
     },
   },
   // ── Datas replicáveis pedido→item (44 colunas) ─────────────────────────────
@@ -4327,8 +4394,9 @@ export default function Pedidos() {
       .filter(c => c.tipo !== 'formula' && c.tipo !== 'anexo'
                  && ((c.escopo || 'ambos') === 'item' || (c.escopo || 'ambos') === 'ambos'))
       .map(c => c.chave)
-    // id_workspace é exclusivo do pedido — itens herdam sempre, sem edição inline.
-    return [...CAMPOS_EDITAVEIS_PAI, ...customKeys].filter(k => k !== 'id_workspace')
+    // id_workspace e logística são exclusivos do pedido — itens herdam/exibem, sem PATCH em item.
+    const exclusivosPedido = new Set<string>(['id_workspace', ...CAMPOS_LOGISTICA_PEDIDO])
+    return [...CAMPOS_EDITAVEIS_PAI, ...customKeys].filter(k => !exclusivosPedido.has(k))
   }, [colunasUsuario])
 
   // ── Estado de filtros de coluna ───────────────────────────────────────────────
@@ -4586,6 +4654,8 @@ export default function Pedidos() {
   // Cache de itens carregados por pedido: pedidoId → PedidoItem[]
   // Não-reativo: evita que setPedidos dispare re-loads em useGTExpandir
   const itensCarregadosRef = useRef<Map<string, PedidoItem[]>>(new Map())
+  /** Patches acumulados durante seleção em lote — flush único evita N× setPedidos. */
+  const patchPedidosCarregarFilhosLoteRef = useRef<Map<string, { itens: PedidoItem[]; divergencias: Partial<Pedido> }>>(new Map())
 
   // ── Props estáveis para TabelaVirtualGlobal ──────────────────────────────────
   // REGRA: qualquer função/array passado como prop que entra em dep de useMemo/useEffect
@@ -5506,6 +5576,13 @@ export default function Pedidos() {
       throw new Error(t('pedido.lista.erro.workspace_somente_pedido', 'Workspace é definido no pedido e aplica-se a todos os itens.'))
     }
 
+    if (isCampoLogisticaPedido(campo)) {
+      throw new Error(t(
+        'pedido.lista.erro.logistica_somente_pedido',
+        'Local, porto e aeroporto pertencem ao pedido — edite na linha do pedido, não no item.',
+      ))
+    }
+
     if (campo === 'status') {
       const novoStatus = String(valor)
       const item = getItensCache().find(i => i.id === id)
@@ -6120,7 +6197,27 @@ export default function Pedidos() {
   }, [pedidos])
 
   // ── Carregar filhos (itens do pedido) ────────────────────────────────────────
-  const handleCarregarFilhos = useCallback(async (pedido: Pedido): Promise<PedidoItem[]> => {
+  function montarPedidoComItensCarregados(
+    p: Pedido,
+    itensComAlertas: PedidoItem[],
+    divergencias: Partial<Pedido>,
+  ): Pedido {
+    return {
+      ...p,
+      ...divergencias,
+      itens: itensComAlertas,
+      quantidade_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.quantidade_inicial_pedido) || 0), 0),
+      quantidade_transferida_total: itensComAlertas.reduce((s, i) => s + (Number(i.quantidade_transferida_pedido) || 0), 0),
+      peso_liquido_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.peso_liquido_unitario) || 0), 0),
+      peso_bruto_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.peso_bruto_unitario) || 0), 0),
+      cubagem_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.cubagem_unitaria) || 0), 0),
+    }
+  }
+
+  const handleCarregarFilhos = useCallback(async (
+    pedido: Pedido,
+    opts?: GTCarregarFilhosOpts,
+  ): Promise<PedidoItem[]> => {
     // BUG fix 2026-05-13: removida atribuição `_colunas_usuario: parentColunas`.
     // Sobrescrever `_colunas_usuario` do ITEM com o do PAI é incorreto —
     // colunas de escopo='item' têm valores PRÓPRIOS por id_item. O backend agora
@@ -6137,23 +6234,29 @@ export default function Pedidos() {
     // Popula cache para handleEditarFilho (não-reativo, evita re-loads em useGTExpandir)
     const { itens: itensComAlertas, divergencias } = sincronizarItensPedido(itensEnriquecidos, pedido)
     itensCarregadosRef.current.set(pedido.id, itensComAlertas)
-    // Atualiza pedidos state com itens carregados + recalcula aggregates e divergências.
-    // Isso habilita alertas de peso (unidades mistas), renderQtdPedido (soma por unidade)
-    // e qualquer outra lógica que depende de row.itens na renderização do pai.
-    setPedidos(prev => prev.map(p => {
-      if (p.id !== pedido.id) return p
-      return {
-        ...p,
-        ...divergencias,
+    if (opts?.modo === 'selecao-lote') {
+      patchPedidosCarregarFilhosLoteRef.current.set(pedido.id, {
         itens: itensComAlertas,
-        quantidade_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.quantidade_inicial_pedido) || 0), 0),
-        quantidade_transferida_total:    itensComAlertas.reduce((s, i) => s + (Number(i.quantidade_transferida_pedido) || 0), 0),
-        peso_liquido_total_pedido:       itensComAlertas.reduce((s, i) => s + (Number(i.peso_liquido_unitario) || 0), 0),
-        peso_bruto_total_pedido:         itensComAlertas.reduce((s, i) => s + (Number(i.peso_bruto_unitario) || 0), 0),
-        cubagem_total_pedido:            itensComAlertas.reduce((s, i) => s + (Number(i.cubagem_unitaria) || 0), 0),
-      }
-    }))
+        divergencias,
+      })
+      return itensComAlertas
+    }
+    // Atualiza pedidos state com itens carregados + recalcula aggregates e divergências.
+    setPedidos(prev => prev.map(p => (
+      p.id !== pedido.id ? p : montarPedidoComItensCarregados(p, itensComAlertas, divergencias)
+    )))
     return itensComAlertas
+  }, [])
+
+  const flushPedidosAposCarregarFilhosLote = useCallback(() => {
+    const patches = patchPedidosCarregarFilhosLoteRef.current
+    if (patches.size === 0) return
+    patchPedidosCarregarFilhosLoteRef.current = new Map()
+    setPedidos(prev => prev.map(p => {
+      const patch = patches.get(p.id)
+      if (!patch) return p
+      return montarPedidoComItensCarregados(p, patch.itens, patch.divergencias)
+    }))
   }, [])
 
   // ── Salvar preferências ──────────────────────────────────────────────────────
@@ -6365,6 +6468,7 @@ export default function Pedidos() {
 
           mapaColunasFilho={mapaColunasFilho}
           onCarregarFilhos={handleCarregarFilhos}
+          onCarregarFilhosLoteConcluido={flushPedidosAposCarregarFilhosLote}
           onExpandidosMudar={(count) => setTemExpandido(count > 0)}
           itemVersion={pedidoItemVersion}
           filhoId={pedidoFilhoId}

@@ -2218,8 +2218,21 @@
       "acao": {
         "salvar": "Salvar",
         "restaurar_padrao": "Restaurar padrão",
+        "cancelar": "Cancelar",
         "descartar": "Descartar",
         "arrastar": "Arrastar para reordenar"
+      },
+      "cards": {
+        "msg_salvo": "Preferências de cards salvas com sucesso."
+      },
+      "status": {
+        "titulo": "Status de Cotação",
+        "descricao": "Arraste para reordenar · edite o nome e a cor · status de sistema não podem ser excluídos",
+        "novo_status": "Novo Status",
+        "placeholder_novo": "Nome do novo status (ex.: Em Análise do Armador)",
+        "cor": "Cor",
+        "nenhum_status": "Nenhum status configurado. Clique em \"Novo Status\" para criar.",
+        "msg_salvo": "Status salvos com sucesso."
       },
       "kanban": {
         "card_msg_salvo": "Card do Kanban salvo com sucesso."
@@ -3919,7 +3932,9 @@
         "erro_carregar": "Não foi possível carregar os status. Verifique sua conexão e tente novamente.",
         "tentar_novamente": "Tentar novamente",
         "nenhum_status": "Nenhum status configurado. Clique em \"Novo Status\" para criar.",
-        "erro_criar": "Erro ao criar status. Tente novamente."
+        "erro_criar": "Erro ao criar status. Tente novamente.",
+        "msg_salvo": "Status salvos com sucesso.",
+        "erro_salvar": "Não foi possível salvar os status. Tente novamente."
       },
       "notificacoes": {
         "titulo": "Notificações",
@@ -6955,6 +6970,9 @@
     "coluna_filho": {
       "mapa_id_workspace": {
         "tooltip_bloqueado": "Workspace é do pedido — altere na linha do pedido"
+      },
+      "mapa_logistica": {
+        "tooltip_edita_pedido": "Valor do pedido — a alteração aqui atualiza o pedido inteiro (não grava no item)."
       },
       "part_number": {
         "label": "Nº do Item",

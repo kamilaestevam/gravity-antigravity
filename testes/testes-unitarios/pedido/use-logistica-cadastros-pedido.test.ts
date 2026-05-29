@@ -48,11 +48,10 @@ describe('camposLogisticaPedido', () => {
     expect(normalizarCodigoLogisticaPedido(null)).toBe(null)
   })
 
-  it('campos logísticos não entram na whitelist de edição inline em item', () => {
+  it('campos logísticos ficam fora do fallback camposEditaveisFilhos (mapa filho roteia para pedido)', () => {
     const exclusivosPedido = new Set<string>(['id_workspace', ...CAMPOS_LOGISTICA_PEDIDO])
-    for (const campo of CAMPOS_LOGISTICA_PEDIDO) {
-      expect(exclusivosPedido.has(campo)).toBe(true)
-    }
+    expect(exclusivosPedido.size).toBe(7)
+    expect(exclusivosPedido.has('local_de_origem')).toBe(true)
     expect(exclusivosPedido.has('incoterm')).toBe(false)
   })
 })

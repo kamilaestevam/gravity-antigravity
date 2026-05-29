@@ -2258,16 +2258,21 @@ export default function Configuracoes() {
     addNotification({ type: 'success', message: t('pedido.config.kanban.card_msg_salvo') })
   }
 
-  // ── Status state (API-driven) ──
-  const [statusList, setStatusList]           = useState<PedidoStatusConfig[]>([])
-  const [statusLoading, setStatusLoading]     = useState(false)
-  const [statusErro, setStatusErro]           = useState<string | null>(null)
+  // ── Status state (API-driven, edição pendente até Salvar) ──
+  const [statusList, setStatusList]             = useState<PedidoStatusConfig[]>([])
+  const [pendingStatusList, setPendingStatusList] = useState<PedidoStatusConfig[]>([])
+  const [statusLoading, setStatusLoading]       = useState(false)
+  const [statusErro, setStatusErro]             = useState<string | null>(null)
   const [statusEditandoId, setStatusEditandoId] = useState<string | null>(null)
-  const [statusEditLabel, setStatusEditLabel] = useState('')
-  const [statusEditCor, setStatusEditCor]     = useState('')
-  const [statusCriando, setStatusCriando]     = useState(false)
-  const [statusNovoLabel, setStatusNovoLabel] = useState('')
-  const [statusNovoCor, setStatusNovoCor]     = useState('#818cf8')
+  const [statusEditLabel, setStatusEditLabel]   = useState('')
+  const [statusEditCor, setStatusEditCor]       = useState('')
+  const [statusCriando, setStatusCriando]       = useState(false)
+  const [statusNovoLabel, setStatusNovoLabel]   = useState('')
+  const [statusNovoCor, setStatusNovoCor]       = useState('#818cf8')
+  const [statusSalvando, setStatusSalvando]     = useState(false)
+
+  const statusConfigDirty =
+    JSON.stringify(pendingStatusList) !== JSON.stringify(statusList)
 
   // Carrega status da API nas telas que consomem a lista (Status + KPIs do Dashboard)
   useEffect(() => {
@@ -2278,6 +2283,7 @@ export default function Configuracoes() {
       .then(res => {
         const lista = res.data ?? []
         setStatusList(lista)
+        setPendingStatusList(lista)
         sincronizarStatusLocal(lista)
       })
       .catch((err: Error) => {
@@ -2285,7 +2291,7 @@ export default function Configuracoes() {
         setStatusErro(t('pedido.config.status.erro_carregar'))
       })
       .finally(() => setStatusLoading(false))
-  }, [categoria])
+  }, [categoria, t])
 
   // ── Taxa de Câmbio ────────────────────────────────────────────────────────
   // Tipo BoletimCambio + schemas Zod centralizados em useTaxasCambio.ts
@@ -2387,12 +2393,12 @@ export default function Configuracoes() {
   function handleStatusDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (!over || active.id === over.id) return
-    const oldIndex = statusList.findIndex(s => s.id === active.id)
-    const newIndex = statusList.findIndex(s => s.id === over.id)
-    const novaLista = arrayMove(statusList, oldIndex, newIndex)
-    setStatusList(novaLista)
-    sincronizarStatusLocal(novaLista)
-    pedidoConfigApi.reordenarStatus(novaLista.map(s => s.id)).catch(() => {})
+    const oldIndex = pendingStatusList.findIndex(s => s.id === active.id)
+    const newIndex = pendingStatusList.findIndex(s => s.id === over.id)
+    if (oldIndex < 0 || newIndex < 0) return
+    const novaLista = arrayMove(pendingStatusList, oldIndex, newIndex)
+      .map((s, idx) => ({ ...s, ordem: idx + 1 }))
+    setPendingStatusList(novaLista)
   }
 
   function iniciarEdicaoStatus(s: PedidoStatusConfig) {
@@ -2404,21 +2410,10 @@ export default function Configuracoes() {
 
   function salvarEdicaoStatus() {
     if (!statusEditLabel.trim() || !statusEditandoId) return
-    const novaLista = statusList.map(s => s.id === statusEditandoId
+    setPendingStatusList(prev => prev.map(s => s.id === statusEditandoId
       ? { ...s, rotulo: statusEditLabel.trim(), cor: statusEditCor }
       : s,
-    )
-    setStatusList(novaLista)
-    sincronizarStatusLocal(novaLista)
-    pedidoConfigApi.atualizarStatus(statusEditandoId, {
-      rotulo: statusEditLabel.trim(),
-      cor:    statusEditCor,
-    }).catch(() => {
-      pedidoConfigApi.listarStatus().then(res => {
-        setStatusList(res.data ?? [])
-        sincronizarStatusLocal(res.data ?? [])
-      }).catch(() => {})
-    })
+    ))
     setStatusEditandoId(null)
     setStatusEditLabel('')
     setStatusEditCor('')
@@ -2431,32 +2426,13 @@ export default function Configuracoes() {
   }
 
   function excluirStatus(id: string) {
-    const statusRemovido = statusList.find(s => s.id === id)
-    const novaLista = statusList.filter(s => s.id !== id)
-    setStatusList(novaLista)
-    sincronizarStatusLocal(novaLista)
-    setRegrasConfig(prev => ({
-      ...prev,
-      excluir: {
-        ...prev.excluir,
-        statusBloqueados: statusRemovido
-          ? prev.excluir.statusBloqueados.filter(n => n !== statusRemovido.nome)
-          : prev.excluir.statusBloqueados,
-      },
-    }))
-    pedidoConfigApi.deletarStatus(id).catch(() => {
-      pedidoConfigApi.listarStatus().then(res => {
-        setStatusList(res.data ?? [])
-        sincronizarStatusLocal(res.data ?? [])
-      }).catch(() => {})
-    })
+    setPendingStatusList(prev => prev.filter(s => s.id !== id))
   }
 
   function adicionarStatus() {
     if (!statusNovoLabel.trim()) return
-    const ordem = statusList.length
+    const ordem = pendingStatusList.length
     const nome  = gerarNomeSlug(statusNovoLabel.trim(), ordem)
-    // Optimistic insert (id provisório até resposta da API)
     const provisorio: PedidoStatusConfig = {
       id:         `provisorio_${Date.now()}`,
       nome,
@@ -2466,28 +2442,88 @@ export default function Configuracoes() {
       is_padrao:  false,
       is_sistema: false,
     }
-    setStatusList(prev => [...prev, provisorio])
+    setPendingStatusList(prev => [...prev, provisorio])
     setStatusNovoLabel('')
     setStatusNovoCor('#818cf8')
     setStatusCriando(false)
-
-    pedidoConfigApi.criarStatus({ nome, rotulo: provisorio.rotulo, cor: provisorio.cor, ordem })
-      .then(criado => {
-        setStatusList(prev => {
-          const lista = prev.map(s => s.id === provisorio.id ? criado : s)
-          sincronizarStatusLocal(lista)
-          return lista
-        })
-      })
-      .catch(() => {
-        setStatusList(prev => {
-          const lista = prev.filter(s => s.id !== provisorio.id)
-          sincronizarStatusLocal(lista)
-          return lista
-        })
-        addNotification({ type: 'error', message: t('pedido.config.status.erro_criar') })
-      })
   }
+
+  const restaurarStatusConfig = useCallback(() => {
+    setPendingStatusList(statusList)
+    setStatusEditandoId(null)
+    setStatusCriando(false)
+    setStatusNovoLabel('')
+    setStatusNovoCor('#818cf8')
+  }, [statusList])
+
+  const salvarStatusConfig = useCallback(async () => {
+    setStatusSalvando(true)
+    try {
+      const baseline = statusList
+      let working = [...pendingStatusList]
+      const idMap = new Map<string, string>()
+
+      const deleted = baseline.filter(b => !working.some(w => w.id === b.id))
+      for (const item of deleted) {
+        await pedidoConfigApi.deletarStatus(item.id)
+      }
+
+      for (const item of working) {
+        const isNovo = item.id.startsWith('provisorio_') || !baseline.some(b => b.id === item.id)
+        if (!isNovo) continue
+        const criado = await pedidoConfigApi.criarStatus({
+          nome: item.nome || gerarNomeSlug(item.rotulo, item.ordem),
+          rotulo: item.rotulo,
+          cor: item.cor,
+          ordem: item.ordem,
+        })
+        idMap.set(item.id, criado.id)
+      }
+
+      working = working.map(s => (idMap.has(s.id) ? { ...s, id: idMap.get(s.id)! } : s))
+
+      for (const item of working) {
+        const orig = baseline.find(b => b.id === item.id)
+        if (!orig) continue
+        if (orig.rotulo !== item.rotulo || orig.cor !== item.cor) {
+          await pedidoConfigApi.atualizarStatus(item.id, {
+            rotulo: item.rotulo,
+            cor: item.cor,
+          })
+        }
+      }
+
+      const ordemMudou = JSON.stringify(working.map(s => s.id)) !== JSON.stringify(baseline.map(s => s.id))
+      if (ordemMudou) {
+        await pedidoConfigApi.reordenarStatus(working.map(s => s.id))
+      }
+
+      const res = await pedidoConfigApi.listarStatus()
+      const lista = res.data ?? []
+      setStatusList(lista)
+      setPendingStatusList(lista)
+      sincronizarStatusLocal(lista)
+
+      if (deleted.length > 0) {
+        setRegrasConfig(prev => ({
+          ...prev,
+          excluir: {
+            ...prev.excluir,
+            statusBloqueados: prev.excluir.statusBloqueados.filter(
+              n => !deleted.some(d => d.nome === n),
+            ),
+          },
+        }))
+      }
+
+      addNotification({ type: 'success', message: t('pedido.config.status.msg_salvo') })
+    } catch (err) {
+      console.warn('[Configuracoes/Status] Erro ao salvar:', err)
+      addNotification({ type: 'error', message: t('pedido.config.status.erro_salvar') })
+    } finally {
+      setStatusSalvando(false)
+    }
+  }, [statusList, pendingStatusList, addNotification, t])
 
   // ── Preview da numeração ──
   const previewNumeracao = (() => {
@@ -3295,6 +3331,7 @@ export default function Configuracoes() {
                         .then(res => {
                           const lista = res.data ?? []
                           setStatusList(lista)
+                          setPendingStatusList(lista)
                           sincronizarStatusLocal(lista)
                         })
                         .catch((err: Error) => {
@@ -3307,7 +3344,7 @@ export default function Configuracoes() {
                     {t('pedido.config.status.tentar_novamente')}
                   </button>
                 </div>
-              ) : statusList.length === 0 ? (
+              ) : pendingStatusList.length === 0 ? (
                 <p className="cfg-empty-text">{t('pedido.config.status.nenhum_status')}</p>
               ) : (
               <DndContext
@@ -3316,11 +3353,11 @@ export default function Configuracoes() {
                 onDragEnd={handleStatusDragEnd}
               >
                 <SortableContext
-                  items={statusList.map(s => s.id)}
+                  items={pendingStatusList.map(s => s.id)}
                   strategy={verticalListSortingStrategy}
                 >
                   <div className="cfg-cards-lista">
-                    {statusList.map(s => (
+                    {pendingStatusList.map(s => (
                       <StatusSortavel
                         key={s.id}
                         status={s}
@@ -3378,6 +3415,20 @@ export default function Configuracoes() {
                   </div>
                 </div>
               )}
+
+              <div className="cfg-secao__footer">
+                <BotaoCancelar
+                  dirty={statusConfigDirty}
+                  rotulo={t('pedido.config.acao.restaurar_padrao')}
+                  onClick={restaurarStatusConfig}
+                />
+                <BotaoSalvar
+                  dirty={statusConfigDirty}
+                  rotulo={t('pedido.config.acao.salvar')}
+                  onClick={salvarStatusConfig}
+                  carregando={statusSalvando}
+                />
+              </div>
             </section>
           </div>
         )}

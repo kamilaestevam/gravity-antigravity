@@ -2625,9 +2625,9 @@ function aplicarPropagacaoPedidoNoItem(
 
 function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
   const { unidadesPeso, unidadesCubagem, workspacesMap, paisesOpcoes = [], portosOpcoes = [], aeroportosOpcoes = [] } = opcoes
-  const tooltipLogisticaSomentePedido = t(
-    'pedido.lista.erro.logistica_somente_pedido',
-    'Local, porto e aeroporto pertencem ao pedido — edite na linha do pedido, não no item.',
+  const tooltipLogisticaEditaPedido = t(
+    'pedido.coluna_filho.mapa_logistica.tooltip_edita_pedido',
+    'Valor do pedido — a alteração aqui atualiza o pedido inteiro (não grava no item).',
   )
 
   /** Nome do workspace do pedido pai — espelha ColunasPai (importação/exportação). */
@@ -3325,50 +3325,56 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
       )
     },
   },
-  // ── Logística: só no Pedido (PATCH item retorna 400) ───────────────────────
+  // ── Logística: valor no Pedido; edição na linha do item roteia para PATCH pedido ──
   porto_origem: {
-    editavel: false,
-    tooltipBloqueado: tooltipLogisticaSomentePedido,
+    editavel: true,
+    campo: 'porto_origem',
+    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
       return renderRotuloCadastro(p?.porto_origem ?? null, portosOpcoes, t('pedido.coluna_pai.porto_origem'))
     },
   },
   porto_destino: {
-    editavel: false,
-    tooltipBloqueado: tooltipLogisticaSomentePedido,
+    editavel: true,
+    campo: 'porto_destino',
+    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
       return renderRotuloCadastro(p?.porto_destino ?? null, portosOpcoes, t('pedido.coluna_pai.porto_destino'))
     },
   },
   local_de_origem: {
-    editavel: false,
-    tooltipBloqueado: tooltipLogisticaSomentePedido,
+    editavel: true,
+    campo: 'local_de_origem',
+    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
       return renderRotuloCadastro(p?.local_de_origem ?? null, paisesOpcoes, t('pedido.coluna_pai.local_de_origem'))
     },
   },
   local_de_destino: {
-    editavel: false,
-    tooltipBloqueado: tooltipLogisticaSomentePedido,
+    editavel: true,
+    campo: 'local_de_destino',
+    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
       return renderRotuloCadastro(p?.local_de_destino ?? null, paisesOpcoes, t('pedido.coluna_pai.local_de_destino'))
     },
   },
   aeroporto_origem: {
-    editavel: false,
-    tooltipBloqueado: tooltipLogisticaSomentePedido,
+    editavel: true,
+    campo: 'aeroporto_origem',
+    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
       return renderRotuloCadastro(p?.aeroporto_origem ?? null, aeroportosOpcoes, t('pedido.coluna_pai.aeroporto_origem'))
     },
   },
   aeroporto_destino: {
-    editavel: false,
-    tooltipBloqueado: tooltipLogisticaSomentePedido,
+    editavel: true,
+    campo: 'aeroporto_destino',
+    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
       return renderRotuloCadastro(p?.aeroporto_destino ?? null, aeroportosOpcoes, t('pedido.coluna_pai.aeroporto_destino'))
@@ -5577,10 +5583,23 @@ export default function Pedidos() {
     }
 
     if (isCampoLogisticaPedido(campo)) {
-      throw new Error(t(
-        'pedido.lista.erro.logistica_somente_pedido',
-        'Local, porto e aeroporto pertencem ao pedido — edite na linha do pedido, não no item.',
-      ))
+      const valorNorm = normalizarCodigoLogisticaPedido(valor)
+      const updatedPedidoRaw = await pedidoVirtualApi.editarCampo(pedido.id, campo, valorNorm, false)
+      const updatedPedido = {
+        ...updatedPedidoRaw,
+        [campo]: valorNorm,
+      } as Pedido
+      const itensCache = getItensCache()
+      const itensAtualizados = itensCache.map(i => ({
+        ...i,
+        _p: montarContextoPaiItem(updatedPedido, i),
+      })) as PedidoItemEnriquecido[]
+      itensCarregadosRef.current.set(pedido.id, itensAtualizados)
+      setPedidos(prev => prev.map(p => (p.id !== pedido.id ? p : { ...updatedPedido, itens: p.itens })))
+      setResetFilhos(prev => prev + 1)
+      const itemAtual = itensAtualizados.find(i => i.id === id)
+      if (!itemAtual) throw new Error(t('pedido.lista.erro.pedido_item_nao_localizado'))
+      return itemAtual
     }
 
     if (campo === 'status') {

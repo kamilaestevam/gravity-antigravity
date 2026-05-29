@@ -6825,6 +6825,9 @@
       "mapa_id_workspace": {
         "tooltip_bloqueado": "Workspace belongs to the order — edit on the order row"
       },
+      "mapa_logistica": {
+        "tooltip_edita_pedido": "Order-level value — editing here updates the whole order (not saved on the item)."
+      },
       "part_number": {
         "label": "Item No.",
         "tooltip_titulo": "Item No.",

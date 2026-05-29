@@ -5663,6 +5663,9 @@
       "mapa_id_workspace": {
         "tooltip_bloqueado": "El workspace es del pedido — edite en la fila del pedido"
       },
+      "mapa_logistica": {
+        "tooltip_edita_pedido": "Valor del pedido — al editar aquí se actualiza todo el pedido (no se guarda en el ítem)."
+      },
       "part_number": {
         "label": "Nº de Artículo",
         "tooltip_titulo": "Nº de Artículo",

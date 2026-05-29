@@ -467,6 +467,20 @@ body,
   position: relative;
 }
 
+/* ─── Processo — menu unificado (trilho global + menu do processo) ──────────── */
+/* O ProcessoLayout e uma tela "deep work" de borda-a-borda. Aqui removemos o
+   padding do .shell-main (que abria um gap entre o trilho e o p2-sidebar) e a
+   borda direita do trilho, fundindo os dois numa superficie continua (#1e293b).
+   Escopado em .layout--processo — nao afeta /produto/ nem o dashboard. */
+.layout--processo .shell-main {
+  padding: 0;
+}
+
+.layout--processo .mlg-sidebar,
+.layout--processo .shell-sidebar {
+  border-right: none;
+}
+
 /* ─── Toast Notifications ─────────────────────────────────────────────────── */
 .shell-toast-container {
   position: fixed;

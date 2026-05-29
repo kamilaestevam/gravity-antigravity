@@ -248,6 +248,7 @@ export interface DisparoCotacaoBidFreteInternacional {
   fornecedor?: Fornecedor
   canal_disparo_cotacao_bid_frete_internacional: CanalDisparo
   status_disparo_cotacao_bid_frete_internacional: StatusDisparoCotacaoBidFreteInternacional
+  erro_envio_disparo_cotacao_bid_frete_internacional?: string | null
   token_resposta_disparo_cotacao_bid_frete_internacional: string | null
   data_envio_disparo_cotacao_bid_frete_internacional: string | null
   data_visualizacao_disparo_cotacao_bid_frete_internacional: string | null

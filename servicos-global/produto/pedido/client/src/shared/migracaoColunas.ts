@@ -100,3 +100,61 @@ export function moverColunaParaAposAncora(
   novo.splice(novoIdxApos + 1, 0, keyMover)
   return { resultado: novo, mudou: true }
 }
+
+/**
+ * Insere colunas faltantes de um bloco (ex.: logística) após âncora ou após
+ * a última coluna do bloco já presente nas prefs. Idempotente por coluna.
+ */
+export function inserirBlocoColunasFaltantes(
+  visiveis: string[],
+  blocoReferencia: readonly string[],
+  ancoraInicial: string,
+): { resultado: string[]; mudou: boolean } {
+  let atual = visiveis
+  let mudou = false
+
+  for (const key of blocoReferencia) {
+    const ancoras = [
+      ...blocoReferencia.filter(k => k !== key && atual.includes(k)).slice(-1),
+      ancoraInicial,
+    ]
+    const passo = inserirColunaAposAncora(atual, key, ancoras)
+    if (passo.mudou) mudou = true
+    atual = passo.resultado
+  }
+
+  return { resultado: atual, mudou }
+}
+
+/**
+ * Reordena colunas de um bloco conforme ordem do schema, preservando posição
+ * do bloco na lista e demais colunas do usuário.
+ */
+export function reordenarBlocoColunas(
+  visiveis: string[],
+  blocoReferencia: readonly string[],
+): { resultado: string[]; mudou: boolean } {
+  const setBloco = new Set<string>(blocoReferencia)
+  const presentes = blocoReferencia.filter(k => visiveis.includes(k))
+  if (presentes.length <= 1) {
+    return { resultado: visiveis, mudou: false }
+  }
+
+  const semBloco = visiveis.filter(k => !setBloco.has(k))
+  const primeiroIdxBloco = Math.min(...presentes.map(k => visiveis.indexOf(k)))
+  let insertAt = 0
+  for (let i = 0; i < primeiroIdxBloco; i++) {
+    if (!setBloco.has(visiveis[i])) insertAt++
+  }
+
+  const resultado = [
+    ...semBloco.slice(0, insertAt),
+    ...presentes,
+    ...semBloco.slice(insertAt),
+  ]
+
+  const mudou = resultado.length !== visiveis.length
+    || resultado.some((k, i) => k !== visiveis[i])
+
+  return { resultado, mudou }
+}

@@ -123,7 +123,12 @@ import {
   enriquecerMapaColunasFilhoComRegraTooltip,
 } from '../shared/buildTooltipRegraLista'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
-import { inserirColunaAposAncora, moverColunaParaAposAncora } from '../shared/migracaoColunas'
+import {
+  inserirBlocoColunasFaltantes,
+  inserirColunaAposAncora,
+  moverColunaParaAposAncora,
+  reordenarBlocoColunas,
+} from '../shared/migracaoColunas'
 import { ModalConsolidarPedidos } from '../components/ModalPedidosConsolidar'
 import { ModalGerarPdfPedido } from '../components/ModalPedidoGerarPdf'
 import '../components/ModalPedidoGerarPdf.css'
@@ -5214,13 +5219,27 @@ export default function Pedidos() {
         'unidade_comercializada_pedido',
         ['quantidade_pronta_itens_pedido_total', 'valor_total_pedido', 'quantidade_total_pedido'],
       )
-      const visivelComMigracao = passoUnidade.resultado
+      // Caso 6: bloco logística (porto → país → aeroporto) após incoterm — SSOT camposLogisticaPedido
+      const passoLogisticaInsert = inserirBlocoColunasFaltantes(
+        passoUnidade.resultado,
+        CAMPOS_LOGISTICA_PEDIDO,
+        'incoterm',
+      )
+      const passoLogisticaOrder = reordenarBlocoColunas(
+        passoLogisticaInsert.resultado,
+        CAMPOS_LOGISTICA_PEDIDO,
+      )
+      const visivelComMigracao = passoLogisticaOrder.resultado
       const mudouPosicao = passoMover.mudou || passoDescItem.mudou || passoMoeda.mudou || passoUnidade.mudou
+        || passoLogisticaInsert.mudou || passoLogisticaOrder.mudou
       const novasBuiltin = [
         ...(passoInserir.mudou ? ['id_workspace'] : []),
         ...(passoDescItem.mudou ? ['descricao_item'] : []),
         ...(passoMoeda.mudou ? ['moeda_pedido'] : []),
         ...(passoUnidade.mudou ? ['unidade_comercializada_pedido'] : []),
+        ...(passoLogisticaInsert.mudou
+          ? CAMPOS_LOGISTICA_PEDIDO.filter(k => passoLogisticaInsert.resultado.includes(k) && !savedSet.has(k))
+          : []),
       ]
 
       const finalVisible = novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao

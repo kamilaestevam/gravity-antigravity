@@ -210,6 +210,10 @@ export function mapDisparoCotacaoBidFreteInternacionalFromServer(
     status_disparo_cotacao_bid_frete_internacional:
       (raw.status_disparo_cotacao_bid_frete_internacional ??
         raw.status_pedido_cotacao_bid_frete_internacional) as DisparoCotacaoBidFreteInternacional['status_disparo_cotacao_bid_frete_internacional'],
+    erro_envio_disparo_cotacao_bid_frete_internacional:
+      (raw.erro_envio_disparo_cotacao_bid_frete_internacional ??
+        raw.erro_envio_pedido_cotacao_bid_frete_internacional ??
+        null) as string | null,
     token_resposta_disparo_cotacao_bid_frete_internacional:
       (raw.token_resposta_disparo_cotacao_bid_frete_internacional ??
         raw.token_resposta_pedido_cotacao_bid_frete_internacional ??

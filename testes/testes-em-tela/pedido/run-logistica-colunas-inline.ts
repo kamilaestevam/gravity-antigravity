@@ -24,7 +24,7 @@ if (!process.env.CLERK_PUBLISHABLE_KEY && process.env.VITE_CLERK_PUBLISHABLE_KEY
   process.env.CLERK_PUBLISHABLE_KEY = process.env.VITE_CLERK_PUBLISHABLE_KEY
 }
 
-const OUT = resolve(__dirRoot, '2026-05-29-logistica-item-roteia-pedido')
+const OUT = resolve(__dirRoot, '2026-05-29-logistica-pais-origem-destino-validacao')
 const BASE_UI = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:8000'
 const WORKSPACE_CDE_PADRAO = process.env.ID_WORKSPACE_TESTE ?? 'cmorx5iwh000aclwynp7y1ofm'
 
@@ -45,8 +45,8 @@ type ColunaLogistica = {
 const COLUNAS: ColunaLogistica[] = [
   { key: 'porto_origem', label: 'Porto de Origem', opcaoContem: 'DEHAM' },
   { key: 'porto_destino', label: 'Porto de Destino', opcaoContem: 'BRSSZ' },
-  { key: 'local_de_origem', label: 'Local de Origem', opcaoContem: 'BR' },
-  { key: 'local_de_destino', label: 'Local de Destino', opcaoContem: 'DE' },
+  { key: 'local_de_origem', label: 'País origem', opcaoContem: 'BR' },
+  { key: 'local_de_destino', label: 'País destino', opcaoContem: 'DE' },
   { key: 'aeroporto_origem', label: 'Aeroporto de Origem', opcaoContem: 'GRU' },
   { key: 'aeroporto_destino', label: 'Aeroporto de Destino', opcaoContem: 'EZE' },
 ]
@@ -242,6 +242,27 @@ async function fecharPopover(page: Page): Promise<void> {
   await page.keyboard.press('Escape').catch(() => {})
   await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {})
   await page.waitForTimeout(300)
+}
+
+async function screenshotCabecalhosPais(page: Page): Promise<void> {
+  await scrollColunaParaVisivel(page, 'local_de_origem')
+  await scrollColunaParaVisivel(page, 'local_de_destino')
+  await screenshot(page, '01-cabecalhos-pais-origem-destino.png')
+  const headers = await page.evaluate(() =>
+    Array.from(document.querySelectorAll('[data-find-col-key]'))
+      .map(el => ({
+        key: el.getAttribute('data-find-col-key'),
+        label: (el.textContent ?? '').trim(),
+      }))
+      .filter(h => h.key === 'local_de_origem' || h.key === 'local_de_destino'),
+  )
+  log(`  Cabeçalhos país: ${JSON.stringify(headers)}`)
+  const ok = headers.some(h => h.key === 'local_de_origem' && /país origem/i.test(h.label))
+    && headers.some(h => h.key === 'local_de_destino' && /país destino/i.test(h.label))
+  if (!ok) {
+    throw new Error(`Labels incorretos nos cabeçalhos: ${JSON.stringify(headers)}`)
+  }
+  log('  ✓ Labels "País origem" e "País destino" visíveis no cabeçalho')
 }
 
 async function screenshot(page: Page, nome: string): Promise<void> {
@@ -455,9 +476,6 @@ async function testarUi() {
     }
 
     await garantirListaPedidos(page)
-    await page.reload({ waitUntil: 'networkidle', timeout: 60000 })
-    await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 45000 })
-    await page.waitForTimeout(2000)
     await screenshot(page, '00-lista-pedidos-carregada.png')
     await garantirColunasLogisticaVisiveis(page)
     await page.reload({ waitUntil: 'domcontentloaded' })
@@ -469,6 +487,7 @@ async function testarUi() {
     )
     await page.waitForTimeout(2000)
     await screenshot(page, '00b-colunas-todas-visiveis.png')
+    await screenshotCabecalhosPais(page)
 
     const rowId = await obterPrimeiroPedidoRowId(page)
     log(`Pedido alvo: ${rowId}`)

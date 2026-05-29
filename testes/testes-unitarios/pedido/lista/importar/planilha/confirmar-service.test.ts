@@ -39,7 +39,7 @@ const TENANT_ID = 'org_test_001'
 const WORKSPACE_ID = 'ws_test_001'
 const PREVIEW_ID = `${TENANT_ID}-hash123-1234567890`
 
-function criarDbMock() {
+function criarDbMock(pedidoExistente?: { id_pedido: string; numero_pedido: string }) {
   const pedidosCriados: Record<string, unknown>[] = []
 
   const dbMock: Record<string, unknown> = {
@@ -49,6 +49,9 @@ function criarDbMock() {
     },
     pedido: {
       findFirst: vi.fn().mockImplementation((args: { where?: { numero_pedido?: string } }) => {
+        if (pedidoExistente && args.where?.numero_pedido === pedidoExistente.numero_pedido) {
+          return Promise.resolve({ id_pedido: pedidoExistente.id_pedido })
+        }
         const found = pedidosCriados.find(
           (p: Record<string, unknown>) => p.numero_pedido === args.where?.numero_pedido,
         )
@@ -63,6 +66,7 @@ function criarDbMock() {
     pedidoItem: {
       count: vi.fn().mockResolvedValue(0),
       create: vi.fn().mockResolvedValue({}),
+      deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
     pedidoSnapshotEmpresa: {
       findMany: vi.fn().mockResolvedValue([]),
@@ -255,5 +259,116 @@ describe('SmartImportService.confirmar (U-CNF)', () => {
     expect(criado.id_importacao_exportador_pedido).toBe('suid_exp')
     expect(criado.id_fabricante_pedido).toBe('suid_fab')
     expect(criado.snapshots_empresa_pedido).toBeDefined()
+  })
+
+  it('U-CNF-07: sobrescrever master-detail remove itens antigos e recria ITEMs', async () => {
+    const pedidoExistente = { id_pedido: 'pedi_existente_001', numero_pedido: 'PO-OVR' }
+    const { dbMock } = criarDbMock(pedidoExistente)
+    const service = criarSmartImportService(dbMock)
+    const payload = payloadBase([
+      {
+        linha_arquivo: 1,
+        dados: {
+          tipo_linha: 'PEDIDO',
+          numero_pedido: 'PO-OVR',
+          moeda_pedido: 'USD',
+        },
+      },
+      {
+        linha_arquivo: 2,
+        dados: {
+          tipo_linha: 'ITEM',
+          numero_pedido: 'PO-OVR',
+          part_number_item: 'PART-A',
+          descricao_item: 'Item A',
+          quantidade_inicial_item: 1,
+        },
+      },
+      {
+        linha_arquivo: 3,
+        dados: {
+          tipo_linha: 'ITEM',
+          numero_pedido: 'PO-OVR',
+          part_number_item: 'PART-B',
+          descricao_item: 'Item B',
+          quantidade_inicial_item: 2,
+        },
+      },
+    ])
+    payload.decisoes_duplicatas = { 'PO-OVR': 'sobrescrever' }
+
+    const resultado = await service.confirmar(TENANT_ID, 'user_001', payload, WORKSPACE_ID)
+
+    expect(resultado.criados).toBe(0)
+    expect(resultado.atualizados).toBe(3)
+    expect(resultado.erros).toHaveLength(0)
+    expect((dbMock.pedidoItem as Record<string, unknown>).deleteMany).toHaveBeenCalledTimes(1)
+    expect((dbMock.pedido as Record<string, unknown>).update).toHaveBeenCalled()
+    expect((dbMock.pedidoItem as Record<string, unknown>).create).toHaveBeenCalledTimes(2)
+    expect((dbMock.pedido as Record<string, unknown>).create).not.toHaveBeenCalled()
+  })
+
+  it('U-CNF-08: sobrescrever formato legado flat grava itens (nao so cabecalho)', async () => {
+    const pedidoExistente = { id_pedido: 'pedi_existente_002', numero_pedido: 'PO-FLAT' }
+    const { dbMock } = criarDbMock(pedidoExistente)
+    const service = criarSmartImportService(dbMock)
+    const payload = payloadBase([
+      {
+        linha_arquivo: 1,
+        dados: {
+          numero_pedido: 'PO-FLAT',
+          part_number_item: 'FLAT-1',
+          descricao_item: 'Legado 1',
+          quantidade_inicial_item: 1,
+        },
+      },
+      {
+        linha_arquivo: 2,
+        dados: {
+          numero_pedido: 'PO-FLAT',
+          part_number_item: 'FLAT-2',
+          descricao_item: 'Legado 2',
+          quantidade_inicial_item: 3,
+        },
+      },
+    ])
+    payload.decisoes_duplicatas = { 'PO-FLAT': 'sobrescrever' }
+
+    const resultado = await service.confirmar(TENANT_ID, 'user_001', payload, WORKSPACE_ID)
+
+    expect(resultado.criados).toBe(0)
+    expect(resultado.atualizados).toBe(2)
+    expect(resultado.erros).toHaveLength(0)
+    expect((dbMock.pedidoItem as Record<string, unknown>).deleteMany).toHaveBeenCalledTimes(1)
+    expect((dbMock.pedidoItem as Record<string, unknown>).create).toHaveBeenCalledTimes(2)
+  })
+
+  it('U-CNF-09: decisao pular ignora linhas ITEM do mesmo pedido', async () => {
+    const pedidoExistente = { id_pedido: 'pedi_existente_003', numero_pedido: 'PO-SKIP-ALL' }
+    const { dbMock } = criarDbMock(pedidoExistente)
+    const service = criarSmartImportService(dbMock)
+    const payload = payloadBase([
+      {
+        linha_arquivo: 1,
+        dados: { tipo_linha: 'PEDIDO', numero_pedido: 'PO-SKIP-ALL' },
+      },
+      {
+        linha_arquivo: 2,
+        dados: {
+          tipo_linha: 'ITEM',
+          numero_pedido: 'PO-SKIP-ALL',
+          part_number_item: 'SKIP-ITEM',
+          descricao_item: 'Item',
+          quantidade_inicial_item: 1,
+        },
+      },
+    ])
+    payload.decisoes_duplicatas = { 'PO-SKIP-ALL': 'pular' }
+
+    const resultado = await service.confirmar(TENANT_ID, 'user_001', payload, WORKSPACE_ID)
+
+    expect(resultado.pulados).toBe(2)
+    expect(resultado.criados).toBe(0)
+    expect((dbMock.pedidoItem as Record<string, unknown>).create).not.toHaveBeenCalled()
   })
 })

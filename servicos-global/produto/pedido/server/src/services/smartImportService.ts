@@ -413,6 +413,30 @@ function aplicarFksParceirosNoPedido(
   }
 }
 
+type DecisaoDuplicataImport = 'sobrescrever' | 'criar' | 'pular'
+
+/** Resolve decisão de duplicata usando numero final ou original (payload usa numero_pedido da planilha). */
+export function obterDecisaoDuplicataImport(
+  decisoes: Record<string, DecisaoDuplicataImport>,
+  ...numeros: Array<string | null | undefined>
+): DecisaoDuplicataImport | undefined {
+  for (const numero of numeros) {
+    if (numero && decisoes[numero]) return decisoes[numero]
+  }
+  return undefined
+}
+
+/** Linha com dados de item (master-detail ITEM ou formato legado flat com part number). */
+export function ehLinhaItemSmartImport(
+  tipoLinha: string,
+  dados: Record<string, unknown>,
+): boolean {
+  const tipo = tipoLinha.trim().toUpperCase()
+  if (tipo === 'ITEM') return true
+  if (tipo === 'PEDIDO') return false
+  return Boolean(dados['part_number_item'] || dados['descricao_item'])
+}
+
 /** Monta linhas filtradas do payload de confirmar (cache ou stateless). */
 export function prepararLinhasFiltradasConfirmacao(
   tenantId: string,
@@ -871,6 +895,8 @@ export class SmartImportService {
     // crashava com "Pedido nao encontrado", abortando toda a transacao.
     // Resultado: nenhum pedido era persistido apesar da UI nao mostrar erro.
     const idsPedidosParaRecalcular: Set<string> = new Set()
+    /** Pedidos cujos itens já foram removidos e cabeçalho atualizado na decisão "sobrescrever". */
+    const numerosSobrescritaPreparada = new Set<string>()
     /** Próxima sequência por pedido — ordem do arquivo, ignorando coluna "Sequencia do Item" da planilha. */
     const proximaSequenciaPorPedido = new Map<string, number>()
     /** Ordem dos pedidos na planilha → data_emissao sintetica para sort da lista. */
@@ -966,16 +992,21 @@ export class SmartImportService {
           }
 
           const numeroPedido = (dados['numero_pedido'] as string) || linha.numero_pedido
+          const numeroPedidoFinal = payload.numeros_editados?.[linha.linha_arquivo] ?? numeroPedido
+          const decisaoDup = obterDecisaoDuplicataImport(
+            payload.decisoes_duplicatas,
+            numeroPedidoFinal,
+            numeroPedido,
+          )
+          const ehLinhaItem = ehLinhaItemSmartImport(tipoLinha, dados)
 
-          // Aplicar decisao de duplicata — SOMENTE para linhas PEDIDO (não ITEM).
-          // Linhas ITEM sempre devem seguir para o caminho de "adicionar item ao pedido existente".
-          if (tipoLinha !== 'ITEM' && numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'pular') {
+          // "Pular" aplica a todas as linhas do pedido (PEDIDO + ITEM + legado flat).
+          if ((numeroPedidoFinal ?? numeroPedido) && decisaoDup === 'pular') {
             pulados.push(linha.linha_arquivo)
             await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
             continue
           }
 
-          const numeroPedidoFinal = payload.numeros_editados?.[linha.linha_arquivo] ?? numeroPedido
           const numeroResolver = numeroPedidoFinal ?? numeroPedido ?? ''
           const pedidoResolvido = numeroResolver
             ? await this.resolverPedidoPorNumeroImportacao(tenantId, companyId, numeroResolver, {
@@ -999,7 +1030,7 @@ export class SmartImportService {
           }
           aplicarFksParceirosNoPedido(dadosPedido, parceirosNumero)
 
-          if (tipoLinha !== 'ITEM' && numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'criar' && pedidoResolvido) {
+          if (decisaoDup === 'criar' && pedidoResolvido && !ehLinhaItem) {
             erros.push({
               linha: linha.linha_arquivo,
               motivo: `Nao e possivel criar o pedido "${numeroPedido}": ja existe registro com este numero na organizacao.`,
@@ -1008,8 +1039,14 @@ export class SmartImportService {
             continue
           }
 
-          if (tipoLinha !== 'ITEM' && numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'sobrescrever') {
-            if (pedidoResolvido) {
+          if (decisaoDup === 'sobrescrever' && pedidoResolvido) {
+            const chaveSobrescrita = numeroPedidoFinal ?? numeroPedido ?? ''
+            if (chaveSobrescrita && !numerosSobrescritaPreparada.has(chaveSobrescrita)) {
+              await (this.db as Record<string, any>)['pedidoItem'].deleteMany({
+                where: { id_pedido: pedidoResolvido.id_pedido, id_organizacao: tenantId },
+              })
+              proximaSequenciaPorPedido.set(pedidoResolvido.id_pedido, 1)
+              await this.restaurarPedidoVisivelNoWorkspaceImportacao(pedidoResolvido.id_pedido, companyId)
               await (this.db as Record<string, any>)['pedido'].update({
                 where: { id_pedido: pedidoResolvido.id_pedido },
                 data: dadosPedidoParaUpdate(dadosPedido),
@@ -1017,16 +1054,19 @@ export class SmartImportService {
               if (parceirosNumero) {
                 await aplicarParceirosResolvidosNoPedido(this.db, pedidoResolvido.id_pedido, tenantId, parceirosNumero)
               }
-              registrarOrdemPlanilhaPedido(pedidoResolvido.id_pedido, numeroPedido)
-              atualizados.push(linha.linha_arquivo)
+              numerosSobrescritaPreparada.add(chaveSobrescrita)
+              registrarOrdemPlanilhaPedido(pedidoResolvido.id_pedido, chaveSobrescrita)
               idsPedidosParaRecalcular.add(pedidoResolvido.id_pedido)
+            }
+            if (!ehLinhaItem) {
+              atualizados.push(linha.linha_arquivo)
               await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spName}`)
               continue
             }
           }
 
-          // Verificar se já existe pedido com este número (para importação incremental de itens)
-          if (numeroPedidoFinal && (tipoLinha === 'ITEM' || !payload.decisoes_duplicatas[numeroPedidoFinal])) {
+          // Pedido existente: adicionar item (incremental ou pós-sobrescrita).
+          if (numeroPedidoFinal && pedidoResolvido && ehLinhaItem && decisaoDup !== 'pular' && decisaoDup !== 'criar') {
             if (pedidoResolvido && (dados['part_number_item'] || dados['descricao_item'])) {
               try {
                 await this.restaurarPedidoVisivelNoWorkspaceImportacao(pedidoResolvido.id_pedido, companyId)

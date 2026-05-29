@@ -15,6 +15,8 @@ export interface UseGTExpandirRetorno<T, C> {
   colapsarTodos: () => void
   /** Atualiza um filho individual no cache (usado após edição inline) */
   atualizarFilhoNoCache: (filho: C, filhoIdFn: (f: C) => string) => void
+  /** Carrega filhos sob demanda para seleção em lote (sem expandir a linha) */
+  ensureFilhosCarregados: (items: T[]) => Promise<Map<string, C[]>>
 }
 
 export function useGTExpandir<T, C>(
@@ -196,5 +198,47 @@ export function useGTExpandir<T, C>(
     })
   }, [])
 
-  return { expandidos, filhosCache, carregandoFilhos, toggle, colapsar, colapsarTodos, atualizarFilhoNoCache }
+  const ensureFilhosCarregados = useCallback(
+    async (items: T[]): Promise<Map<string, C[]>> => {
+      if (!onCarregarFilhos || !itemId) {
+        return new Map(filhosCacheRef.current)
+      }
+
+      const merged = new Map(filhosCacheRef.current)
+      const pendentes = items.filter(item => !merged.has(itemId(item)))
+
+      if (pendentes.length === 0) return merged
+
+      await Promise.all(
+        pendentes.map(async item => {
+          const id = itemId(item)
+          try {
+            const filhos = await onCarregarFilhos(item)
+            merged.set(id, filhos)
+            setFilhosCache(prev => {
+              const next = new Map(prev)
+              next.set(id, filhos)
+              return next
+            })
+          } catch {
+            merged.set(id, [])
+          }
+        }),
+      )
+
+      return merged
+    },
+    [onCarregarFilhos, itemId],
+  )
+
+  return {
+    expandidos,
+    filhosCache,
+    carregandoFilhos,
+    toggle,
+    colapsar,
+    colapsarTodos,
+    atualizarFilhoNoCache,
+    ensureFilhosCarregados,
+  }
 }

@@ -1671,7 +1671,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   } | null>(null)
 
   // ── Expand/collapse ───────────────────────────────────────────────────────────
-  const { expandidos, filhosCache, carregandoFilhos, toggle, atualizarFilhoNoCache } = useGTExpandir<T, C>(
+  const { expandidos, filhosCache, carregandoFilhos, toggle, atualizarFilhoNoCache, ensureFilhosCarregados } = useGTExpandir<T, C>(
     onCarregarFilhos,
     dados,
     itemId,
@@ -1711,6 +1711,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     selecionadosArray,
   } = useGTSelecao()
 
+  const selecionadosRef = useRef(selecionados)
+  selecionadosRef.current = selecionados
+  const dadosPaginaOrdenadosRef = useRef<T[]>([])
+
   // ── Seleção de filhos ─────────────────────────────────────────────────────────
   const [filhosSelecionados, setFilhosSelecionados] = useState<Set<string>>(new Set())
   const filhosCacheMap = useRef<Map<string, C>>(new Map())
@@ -1741,43 +1745,189 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     if (!selecionavelFilhos) return
 
-    // Identifica pais que foram colapsados (estavam em prev, não estão em expandidos)
     const colapsados: string[] = []
     for (const id of prev) {
       if (!expandidos.has(id)) colapsados.push(id)
     }
-    if (colapsados.length === 0) return
 
-    // Coleta IDs dos filhos dos pais colapsados
-    const idsParaRemover = new Set<string>()
-    for (const paiId of colapsados) {
-      const filhos = filhosCache.get(paiId) ?? []
-      for (const filho of filhos) {
-        const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
-        if (fId) idsParaRemover.add(fId)
-      }
+    const recemExpandidos: string[] = []
+    for (const id of expandidos) {
+      if (!prev.has(id)) recemExpandidos.push(id)
     }
-    if (idsParaRemover.size === 0) return
 
-    // Remove filhos do Set de seleção
-    setFilhosSelecionados(prevSel => {
-      const novo = new Set(prevSel)
-      let mudou = false
-      for (const fId of idsParaRemover) {
-        if (novo.has(fId)) {
-          novo.delete(fId)
-          filhosCacheMap.current.delete(fId)
-          mudou = true
+    if (colapsados.length > 0) {
+      const idsParaRemover = new Set<string>()
+      for (const paiId of colapsados) {
+        const filhos = filhosCache.get(paiId) ?? []
+        for (const filho of filhos) {
+          const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+          if (fId) idsParaRemover.add(fId)
         }
       }
-      return mudou ? novo : prevSel
-    })
 
-    // Se o pai estava auto-marcado (via sync todos-filhos), desmarca também
-    for (const paiId of colapsados) {
-      if (selecionados.has(paiId)) toggleItem(paiId)
+      if (idsParaRemover.size > 0) {
+        setFilhosSelecionados(prevSel => {
+          const novo = new Set(prevSel)
+          let mudou = false
+          for (const fId of idsParaRemover) {
+            if (novo.has(fId)) {
+              novo.delete(fId)
+              filhosCacheMap.current.delete(fId)
+              mudou = true
+            }
+          }
+          return mudou ? novo : prevSel
+        })
+      }
+
+      for (const paiId of colapsados) {
+        if (paisAutoPromovidos.has(paiId)) {
+          if (selecionados.has(paiId)) toggleItem(paiId)
+          setPaisAutoPromovidos(prev => { const n = new Set(prev); n.delete(paiId); return n })
+        }
+      }
     }
-  }, [expandidos, filhosCache, selecionavelFilhos, filhoId, selecionados, toggleItem])
+
+    if (recemExpandidos.length > 0) {
+      setFilhosSelecionados(prevSel => {
+        let mudou = false
+        const novo = new Set(prevSel)
+        for (const paiId of recemExpandidos) {
+          if (!selecionados.has(paiId) || paisAutoPromovidos.has(paiId)) continue
+          const filhos = filhosCache.get(paiId) ?? []
+          for (const filho of filhos) {
+            const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+            if (!fId || novo.has(fId)) continue
+            novo.add(fId)
+            filhosCacheMap.current.set(fId, filho)
+            mudou = true
+          }
+        }
+        return mudou ? novo : prevSel
+      })
+    }
+  }, [expandidos, filhosCache, selecionavelFilhos, filhoId, selecionados, toggleItem, paisAutoPromovidos])
+
+  const syncFilhosDoPai = useCallback(
+    (filhosDoPai: C[], marcar: boolean) => {
+      setFilhosSelecionados(prev => {
+        const novo = new Set(prev)
+        for (const filho of filhosDoPai) {
+          const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+          if (!fId) continue
+          if (marcar) {
+            novo.add(fId)
+            filhosCacheMap.current.set(fId, filho)
+          } else {
+            novo.delete(fId)
+            filhosCacheMap.current.delete(fId)
+          }
+        }
+        return novo
+      })
+    },
+    [filhoId],
+  )
+
+  const aplicarFilhosSelecaoEmLote = useCallback(
+    (idsPagina: string[], cacheEfetivo: Map<string, C[]>, marcar: boolean) => {
+      setFilhosSelecionados(prev => {
+        const novo = new Set(prev)
+        for (const paiId of idsPagina) {
+          for (const filho of cacheEfetivo.get(paiId) ?? []) {
+            const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+            if (!fId) continue
+            if (marcar) {
+              novo.add(fId)
+              filhosCacheMap.current.set(fId, filho)
+            } else {
+              novo.delete(fId)
+              filhosCacheMap.current.delete(fId)
+            }
+          }
+        }
+        return novo
+      })
+    },
+    [filhoId],
+  )
+
+  // REGRA UNIVERSAL DE SYNC PAI↔FILHOS: selecionar todos (header) também sincroniza
+  // todos os filhos dos pais visíveis — carrega sob demanda quando necessário.
+  const toggleTodosComSync = useCallback(
+    async (idsPagina: string[]) => {
+      const todosJaMarcados = idsPagina.length > 0 && idsPagina.every(id => selecionados.has(id))
+      toggleTodos(idsPagina)
+      setPaisAutoPromovidos(new Set())
+
+      if (!selecionavelFilhos) return
+
+      let cacheEfetivo = filhosCache
+      if (!todosJaMarcados && onCarregarFilhos) {
+        const itensPagina = idsPagina
+          .map(id => dadosPaginaOrdenadosRef.current.find(d => itemId(d) === id))
+          .filter((d): d is T => d != null)
+        cacheEfetivo = await ensureFilhosCarregados(itensPagina)
+      }
+
+      aplicarFilhosSelecaoEmLote(idsPagina, cacheEfetivo, !todosJaMarcados)
+    },
+    [
+      selecionados,
+      toggleTodos,
+      selecionavelFilhos,
+      onCarregarFilhos,
+      ensureFilhosCarregados,
+      filhosCache,
+      itemId,
+      aplicarFilhosSelecaoEmLote,
+    ],
+  )
+
+  // REGRA UNIVERSAL DE SYNC PAI↔FILHOS: marcar pai marca todos os filhos;
+  // desmarcar pai desmarca todos os filhos. Carrega filhos sob demanda se necessário.
+  const toggleItemComSync = useCallback(
+    (id: string) => {
+      const estavaMarcado = selecionados.has(id)
+      toggleItem(id)
+
+      setPaisAutoPromovidos(prev => {
+        if (!prev.has(id)) return prev
+        const n = new Set(prev); n.delete(id); return n
+      })
+
+      if (!selecionavelFilhos) return
+
+      const filhosDoPai = filhosCache.get(id) ?? []
+      if (filhosDoPai.length > 0) {
+        syncFilhosDoPai(filhosDoPai, !estavaMarcado)
+        return
+      }
+
+      if (!estavaMarcado && onCarregarFilhos) {
+        const item = dadosPaginaOrdenadosRef.current.find(d => itemId(d) === id)
+        if (!item) return
+        void ensureFilhosCarregados([item])
+          .then(cache => {
+            const filhos = cache.get(id) ?? []
+            if (filhos.length === 0) return
+            if (!selecionadosRef.current.has(id)) return
+            syncFilhosDoPai(filhos, true)
+          })
+          .catch(() => { /* silent — pai permanece selecionado sem filhos */ })
+      }
+    },
+    [
+      selecionados,
+      toggleItem,
+      filhosCache,
+      syncFilhosDoPai,
+      selecionavelFilhos,
+      onCarregarFilhos,
+      ensureFilhosCarregados,
+      itemId,
+    ],
+  )
 
   const toggleFilho = useCallback(
     (id: string, item: C) => {
@@ -1826,77 +1976,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       }
     },
     [filhosSelecionados, filhosCache, selecionados, toggleItem, filhoId],
-  )
-
-  // REGRA UNIVERSAL DE SYNC PAI↔FILHOS: selecionar todos (header) também sincroniza
-  // todos os filhos cached dos pais visíveis. Coerência com checkbox hierárquico.
-  const toggleTodosComSync = useCallback(
-    (todosIds: string[]) => {
-      // Snapshot do estado ANTES do toggle (para saber se vai marcar ou desmarcar)
-      const todosJaMarcados = todosIds.length > 0 && todosIds.every(id => selecionados.has(id))
-      toggleTodos(todosIds)
-
-      // Header checkbox = seleção direta → limpar auto-promoções
-      setPaisAutoPromovidos(new Set())
-
-      if (!selecionavelFilhos) return
-
-      setFilhosSelecionados(prev => {
-        const novo = new Set(prev)
-        for (const paiId of todosIds) {
-          const filhosDoPai = filhosCache.get(paiId) ?? []
-          for (const filho of filhosDoPai) {
-            const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
-            if (!fId) continue
-            if (todosJaMarcados) {
-              novo.delete(fId)
-              filhosCacheMap.current.delete(fId)
-            } else {
-              novo.add(fId)
-              filhosCacheMap.current.set(fId, filho)
-            }
-          }
-        }
-        return novo
-      })
-    },
-    [selecionados, toggleTodos, filhosCache, selecionavelFilhos, filhoId],
-  )
-
-  // REGRA UNIVERSAL DE SYNC PAI↔FILHOS: marcar pai marca todos os filhos cached;
-  // desmarcar pai desmarca todos os filhos. Sem prop opcional — comportamento fixo.
-  const toggleItemComSync = useCallback(
-    (id: string) => {
-      const estavaMarcado = selecionados.has(id)
-      toggleItem(id)
-
-      // Clique direto no pai → remove da auto-promoção (seleção explícita)
-      setPaisAutoPromovidos(prev => {
-        if (!prev.has(id)) return prev
-        const n = new Set(prev); n.delete(id); return n
-      })
-
-      if (!selecionavelFilhos) return
-      const filhosDoPai = filhosCache.get(id) ?? []
-      if (filhosDoPai.length === 0) return
-
-      setFilhosSelecionados(prev => {
-        const novo = new Set(prev)
-        for (const filho of filhosDoPai) {
-          const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
-          if (!fId) continue
-          if (estavaMarcado) {
-            novo.delete(fId)
-            filhosCacheMap.current.delete(fId)
-          } else {
-            novo.add(fId)
-            filhosCacheMap.current.set(fId, filho)
-          }
-        }
-        return novo
-      })
-    },
-    [selecionados, toggleItem, filhosCache, selecionavelFilhos, filhoId],
   )
 
   // ── Limpeza de filhos órfãos quando dados mudam ─────────────────────────────
@@ -2292,6 +2371,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }, [dadosPagina, ordemManualPai, itemId])
 
   const todosIds = useMemo(() => dadosPaginaOrdenados.map(itemId), [dadosPaginaOrdenados, itemId])
+  dadosPaginaOrdenadosRef.current = dadosPaginaOrdenados
 
   // Flat rows incluindo filhos expandidos — apenas para a página atual
   const linhasPagina = useMemo(
@@ -3406,7 +3486,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       checked={todosSel}
                       ref={el => { if (el) el.indeterminate = parcialSel }}
                       aria-label="Selecionar todos"
-                      onChange={() => toggleTodosComSync(todosIds)}
+                      onChange={() => { void toggleTodosComSync(todosIds) }}
                     />
                   </div>
                 )}

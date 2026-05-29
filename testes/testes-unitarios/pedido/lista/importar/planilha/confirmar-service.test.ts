@@ -371,4 +371,39 @@ describe('SmartImportService.confirmar (U-CNF)', () => {
     expect(resultado.criados).toBe(0)
     expect((dbMock.pedidoItem as Record<string, unknown>).create).not.toHaveBeenCalled()
   })
+
+  it('U-CNF-10: id_item da planilha e ignorado e retry em colisao P2002', async () => {
+    const pedidoExistente = { id_pedido: 'pedi_existente_004', numero_pedido: 'PO-ID-COL' }
+    let tentativasCreate = 0
+    const { dbMock } = criarDbMock(pedidoExistente)
+    ;(dbMock.pedidoItem as { create: ReturnType<typeof vi.fn> }).create = vi.fn().mockImplementation(() => {
+      tentativasCreate++
+      if (tentativasCreate === 1) {
+        return Promise.reject(new Error('Unique constraint failed on the fields: (`id_item`)'))
+      }
+      return Promise.resolve({})
+    })
+    const service = criarSmartImportService(dbMock)
+    const payload = payloadBase([{
+      linha_arquivo: 1,
+      dados: {
+        id_item: 'pite_id_colisao_planilha/26',
+        numero_pedido: 'PO-ID-COL',
+        part_number_item: 'PN-1',
+        descricao_item: 'Item',
+        quantidade_inicial_item: 1,
+      },
+    }])
+    payload.decisoes_duplicatas = { 'PO-ID-COL': 'sobrescrever' }
+
+    const resultado = await service.confirmar(TENANT_ID, 'user_001', payload, WORKSPACE_ID)
+
+    expect(resultado.erros).toHaveLength(0)
+    expect(resultado.atualizados).toBe(1)
+    expect(tentativasCreate).toBe(2)
+    const createCall = (dbMock.pedidoItem as { create: ReturnType<typeof vi.fn> }).create.mock.calls[0][0] as {
+      data: { id_item: string }
+    }
+    expect(createCall.data.id_item).not.toBe('pite_id_colisao_planilha/26')
+  })
 })

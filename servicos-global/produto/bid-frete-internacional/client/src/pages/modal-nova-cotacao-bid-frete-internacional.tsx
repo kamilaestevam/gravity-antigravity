@@ -1254,6 +1254,38 @@ const NC_ESTILOS_CONTEUDO = `
 
 const ROTA_LISTA = '/bid-frete/cotacoes'
 
+/** Padrão Pedido (ModalPedidosConsolidar) — banner de resultado no wizard */
+const ESTILOS_RESULTADO = {
+  passo: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '1rem',
+    minHeight: '120px',
+  },
+  resultadoBanner: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    padding: '1rem',
+    background: 'color-mix(in srgb, var(--success, #22c55e) 10%, transparent)',
+    border: '1px solid color-mix(in srgb, var(--success, #22c55e) 35%, transparent)',
+    borderRadius: 'var(--radius-md, 8px)',
+  },
+  resultadoBannerTexto: {
+    margin: 0,
+    fontWeight: 600,
+    fontSize: '0.875rem',
+    color: 'var(--text-primary, #f8fafc)',
+    lineHeight: 1.5,
+  },
+  footerAcoes: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '0.75rem',
+    width: '100%',
+  },
+}
+
 function limparHtmlNcm(texto: string): string {
   return texto.replace(/<[^>]*>/g, '').trim()
 }
@@ -1270,7 +1302,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const [fornecedoresAtivos, setFornecedoresAtivos] = useState<Fornecedor[]>([])
   const [carregandoFornecedores, setCarregandoFornecedores] = useState(false)
   const [fornecedorIdsSelecionados, setFornecedorIdsSelecionados] = useState<string[]>([])
-  const [canaisDisparo, setCanaisDisparo] = useState<CanalDisparo[]>(['EMAIL'])
+  const [canaisDisparo, setCanaisDisparo] = useState<CanalDisparo[]>([])
 
   useEffect(() => {
     if (step !== 6 || form.visibilidade_cotacao_bid_frete_internacional !== 'DIRECIONADA') return
@@ -1558,7 +1590,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         moeda_meta_cotacao_bid_frete_internacional: form.moeda_meta_cotacao_bid_frete_internacional,
         data_limite_resposta_cotacao_bid_frete_internacional: form.data_limite_resposta_cotacao_bid_frete_internacional || undefined,
         fornecedor_ids: form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA' ? fornecedorIdsSelecionados : undefined,
-        disparar_ao_criar: true,
+        disparar_ao_criar: canaisDisparo.length > 0
+          && (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
+            || fornecedorIdsSelecionados.length > 0),
         canais_disparo: canaisDisparo,
       })
       setCotacaoId(cotacao.id_cotacao_bid_frete_internacional)
@@ -2211,27 +2245,30 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           onVoltar={handleFechar}
           onFechar={handleFechar}
           ocultarStepper
-          ocultarFooter
-          tamanho="md"
-        >
-          <div className="nc-root nc-sucesso nc-fade-in">
-            <div className="nc-sucesso-badge">
-              <CheckCircle weight="duotone" size={72} style={{ color: 'var(--success, #10b981)' }} />
-            </div>
-            <h2 className="nc-sucesso-title">{t('bidfrete.nova_cotacao.criado_sucesso')}</h2>
-            <p className="nc-sucesso-desc">{t('bidfrete.nova_cotacao.criado_desc')}</p>
-            <div className="nc-sucesso-actions">
-              <BotaoGlobal variante="fantasma" onClick={handleFechar}>
+          footerCustom={(
+            <div style={ESTILOS_RESULTADO.footerAcoes}>
+              <BotaoGlobal variante="fantasma" tamanho="medio" onClick={handleFechar}>
                 {t('bidfrete.nova_cotacao.ver_cotacoes')}
               </BotaoGlobal>
               {cotacaoId && (
                 <BotaoGlobal
                   variante="primario"
+                  tamanho="medio"
                   onClick={() => navigate(`${ROTA_LISTA}/${cotacaoId}`)}
                 >
                   {t('bidfrete.nova_cotacao.ver_detalhes')}
                 </BotaoGlobal>
               )}
+            </div>
+          )}
+          tamanho="md"
+        >
+          <div className="nc-root" style={ESTILOS_RESULTADO.passo}>
+            <div style={ESTILOS_RESULTADO.resultadoBanner}>
+              <CheckCircle weight="fill" size={20} color="var(--success, #22c55e)" />
+              <p style={ESTILOS_RESULTADO.resultadoBannerTexto}>
+                {t('bidfrete.nova_cotacao.criado_desc')}
+              </p>
             </div>
           </div>
         </ModalPassoPassoGlobal>

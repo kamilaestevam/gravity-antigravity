@@ -1,9 +1,9 @@
 export {
   agregarResumoBidFreteInternacional,
   gerarNumeroBidFreteInternacional,
-} from '../../client/src/shared/agregar-resumo-bid-frete-internacional.js'
+} from '../../../client/src/shared/agregar-resumo-bid-frete-internacional.js'
 
-import { agregarResumoBidFreteInternacional } from '../../client/src/shared/agregar-resumo-bid-frete-internacional.js'
+import { agregarResumoBidFreteInternacional } from '../../../client/src/shared/agregar-resumo-bid-frete-internacional.js'
 
 export async function sincronizarResumoBid(prisma: {
   cotacaoBidFreteInternacional: { findMany: (args: unknown) => Promise<Array<Record<string, string>>> }

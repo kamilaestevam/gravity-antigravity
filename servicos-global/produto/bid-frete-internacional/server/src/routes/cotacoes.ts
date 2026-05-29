@@ -14,6 +14,7 @@ import { AppError } from '../lib/erros.js'
 import { atividadesIntegration, historicoIntegration } from '../services/integracoes-tenant.js'
 import { motorBid } from '../services/motor-bid-frete-internacional.js'
 import { sincronizarResumoBid } from '../services/agregar-resumo-bid-frete-internacional.js'
+import { relancarSeSchemaDrift } from '../lib/prisma-erro-schema.js'
 
 const router = Router()
 
@@ -39,6 +40,7 @@ const CriarCotacaoSchema = z.object({
   cubagem_m3_cotacao_bid_frete_internacional: z.number().positive().optional(),
   incoterm_cotacao_bid_frete_internacional: z.string().min(1),
   zipcode_origem_cotacao_bid_frete_internacional: z.string().optional(),
+  endereco_origem_cotacao_bid_frete_internacional: z.string().optional(),
   zipcode_destino_cotacao_bid_frete_internacional: z.string().optional(),
   valor_meta_cotacao_bid_frete_internacional: z.number().positive().optional(),
   moeda_meta_cotacao_bid_frete_internacional: z.string().default('USD'),
@@ -46,8 +48,8 @@ const CriarCotacaoSchema = z.object({
   anonima_cotacao_bid_frete_internacional: z.boolean().default(false),
   data_limite_resposta_cotacao_bid_frete_internacional: z.string().datetime().optional(),
   fornecedor_ids: z.array(z.string()).optional(),
-  disparar_ao_criar: z.boolean().default(true),
-  canais_disparo: z.array(z.enum(['EMAIL', 'WHATSAPP'])).default(['EMAIL']),
+  disparar_ao_criar: z.boolean().default(false),
+  canais_disparo: z.array(z.enum(['EMAIL', 'WHATSAPP'])).default([]),
 })
 
 const FiltrosCotacaoSchema = z.object({
@@ -110,17 +112,19 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
 
     const idWorkspace = resolverIdWorkspace(req)
+    const tenantId = req.tenantId
     const { fornecedor_ids, disparar_ao_criar, canais_disparo, id_bid_bid_frete_internacional, ...cotacaoData } = parsed.data
+    const { data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso, ...camposCotacao } = cotacaoData
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.create({
       data: {
-        ...cotacaoData,
+        ...camposCotacao,
         id_produto_gravity: 'bid-frete-internacional',
         id_usuario: userId,
         ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
         ...(id_bid_bid_frete_internacional ? { id_bid_bid_frete_internacional } : {}),
         numero_cotacao_bid_frete_internacional: gerarNumeroCotacao(),
-        data_limite_resposta_cotacao_bid_frete_internacional: cotacaoData.data_limite_resposta_cotacao_bid_frete_internacional ? new Date(cotacaoData.data_limite_resposta_cotacao_bid_frete_internacional) : null,
+        data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso ? new Date(dataLimiteIso) : null,
       },
     })
 
@@ -129,36 +133,48 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     }
 
     // Integrações S2S (fire-and-forget)
-    const tenantId = (req as any).tenantId
     if (tenantId) {
       atividadesIntegration.cotacaoCriada(tenantId, userId, cotacao)
-      historicoIntegration.cotacaoCriada(tenantId, userId, cotacao)
+      historicoIntegration.cotacaoCriada(tenantId, userId, {
+        id: cotacao.id_cotacao_bid_frete_internacional,
+        numero_cotacao_bid_frete_internacional: cotacao.numero_cotacao_bid_frete_internacional,
+      })
     }
 
     let disparo: Awaited<ReturnType<typeof motorBid.disparar>> | Awaited<ReturnType<typeof motorBid.dispararCotacaoAberta>> | null = null
-    if (disparar_ao_criar) {
+    let disparo_erro: string | null = null
+    if (disparar_ao_criar && tenantId) {
       const canais = canais_disparo.length > 0 ? canais_disparo : ['EMAIL']
-      if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
-        disparo = await motorBid.dispararCotacaoAberta(req.prisma!, {
-          id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
-          canais,
-          id_usuario: userId,
-          id_organizacao: tenantId ?? req.tenantId!,
-        })
-      } else if (fornecedor_ids && fornecedor_ids.length > 0) {
-        disparo = await motorBid.disparar(req.prisma!, {
-          id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
-          fornecedor_ids,
-          canais,
-          id_usuario: userId,
-          id_organizacao: tenantId ?? req.tenantId!,
-        })
+      try {
+        if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
+          disparo = await motorBid.dispararCotacaoAberta(req.prisma!, {
+            id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+            canais,
+            id_usuario: userId,
+            id_organizacao: tenantId,
+          })
+        } else if (fornecedor_ids && fornecedor_ids.length > 0) {
+          disparo = await motorBid.disparar(req.prisma!, {
+            id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+            fornecedor_ids,
+            canais,
+            id_usuario: userId,
+            id_organizacao: tenantId,
+          })
+        }
+      } catch (disparoErr: unknown) {
+        disparo_erro = disparoErr instanceof Error ? disparoErr.message : String(disparoErr)
+        console.error('[cotacoes] disparo ao criar falhou (cotacao persistida):', disparo_erro)
       }
     }
 
-    res.status(201).json({ cotacao, disparo })
+    res.status(201).json({ cotacao, disparo, ...(disparo_erro ? { disparo_erro } : {}) })
   } catch (err) {
-    next(err)
+    try {
+      relancarSeSchemaDrift(err)
+    } catch (e) {
+      next(e)
+    }
   }
 })
 
@@ -225,7 +241,11 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
       },
     })
   } catch (err) {
-    next(err)
+    try {
+      relancarSeSchemaDrift(err)
+    } catch (e) {
+      next(e)
+    }
   }
 })
 

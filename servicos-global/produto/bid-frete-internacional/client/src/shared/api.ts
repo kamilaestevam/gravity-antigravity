@@ -105,10 +105,22 @@ const headers = () => {
   return customHeaders
 }
 
+function extrairMensagemErroApi(payload: unknown, status: number): string {
+  if (!payload || typeof payload !== 'object') return `Erro ${status}`
+  const body = payload as Record<string, unknown>
+  const erro = body.error
+  if (typeof erro === 'string' && erro.length > 0) return erro
+  if (erro && typeof erro === 'object' && typeof (erro as { message?: string }).message === 'string') {
+    return (erro as { message: string }).message
+  }
+  if (typeof body.message === 'string' && body.message.length > 0) return body.message
+  return `Erro ${status}`
+}
+
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err.error?.message ?? `Erro ${res.status}`)
+    throw new Error(extrairMensagemErroApi(err, res.status))
   }
   return res.json()
 }

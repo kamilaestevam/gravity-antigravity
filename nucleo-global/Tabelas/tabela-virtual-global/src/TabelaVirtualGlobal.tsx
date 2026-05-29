@@ -1454,6 +1454,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   colunasFilhas,
   mapaColunasFilho,
   onCarregarFilhos,
+  onCarregarFilhosLoteConcluido,
   itemVersion,
   filhoId: filhoIdProp,
   acoesFilhas,
@@ -1714,6 +1715,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const selecionadosRef = useRef(selecionados)
   selecionadosRef.current = selecionados
   const dadosPaginaOrdenadosRef = useRef<T[]>([])
+  const syncFilhosEmLoteRef = useRef(false)
+  const onCarregarFilhosLoteConcluidoRef = useRef(onCarregarFilhosLoteConcluido)
+  onCarregarFilhosLoteConcluidoRef.current = onCarregarFilhosLoteConcluido
 
   // ── Seleção de filhos ─────────────────────────────────────────────────────────
   const [filhosSelecionados, setFilhosSelecionados] = useState<Set<string>>(new Set())
@@ -1726,6 +1730,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   // excluir, etc.) deve atuar nos itens filhos, não no pedido inteiro.
   // Quando o usuário clica direto no pai, ele SAI deste set (seleção direta).
   const [paisAutoPromovidos, setPaisAutoPromovidos] = useState<Set<string>>(new Set())
+  const paisAutoPromovidosRef = useRef(paisAutoPromovidos)
+  paisAutoPromovidosRef.current = paisAutoPromovidos
 
   // Mantém sempre a referência mais recente do callback para evitar stale closure
   const onSelecaoFilhoRef = useRef(onSelecaoFilho)
@@ -1781,9 +1787,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       }
 
       for (const paiId of colapsados) {
-        if (paisAutoPromovidos.has(paiId)) {
+        if (paisAutoPromovidosRef.current.has(paiId)) {
           if (selecionados.has(paiId)) toggleItem(paiId)
-          setPaisAutoPromovidos(prev => { const n = new Set(prev); n.delete(paiId); return n })
+          setPaisAutoPromovidos(prev => {
+            if (!prev.has(paiId)) return prev
+            const n = new Set(prev)
+            n.delete(paiId)
+            return n
+          })
         }
       }
     }
@@ -1793,7 +1804,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         let mudou = false
         const novo = new Set(prevSel)
         for (const paiId of recemExpandidos) {
-          if (!selecionados.has(paiId) || paisAutoPromovidos.has(paiId)) continue
+          if (!selecionados.has(paiId) || paisAutoPromovidosRef.current.has(paiId)) continue
           const filhos = filhosCache.get(paiId) ?? []
           for (const filho of filhos) {
             const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
@@ -1806,24 +1817,28 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         return mudou ? novo : prevSel
       })
     }
-  }, [expandidos, filhosCache, selecionavelFilhos, filhoId, selecionados, toggleItem, paisAutoPromovidos])
+  }, [expandidos, filhosCache, selecionavelFilhos, filhoId, selecionados, toggleItem])
 
   const syncFilhosDoPai = useCallback(
     (filhosDoPai: C[], marcar: boolean) => {
       setFilhosSelecionados(prev => {
         const novo = new Set(prev)
+        let mudou = false
         for (const filho of filhosDoPai) {
           const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
           if (!fId) continue
           if (marcar) {
+            if (novo.has(fId)) continue
             novo.add(fId)
             filhosCacheMap.current.set(fId, filho)
-          } else {
+            mudou = true
+          } else if (novo.has(fId)) {
             novo.delete(fId)
             filhosCacheMap.current.delete(fId)
+            mudou = true
           }
         }
-        return novo
+        return mudou ? novo : prev
       })
     },
     [filhoId],
@@ -1833,20 +1848,24 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     (idsPagina: string[], cacheEfetivo: Map<string, C[]>, marcar: boolean) => {
       setFilhosSelecionados(prev => {
         const novo = new Set(prev)
+        let mudou = false
         for (const paiId of idsPagina) {
           for (const filho of cacheEfetivo.get(paiId) ?? []) {
             const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
             if (!fId) continue
             if (marcar) {
+              if (novo.has(fId)) continue
               novo.add(fId)
               filhosCacheMap.current.set(fId, filho)
-            } else {
+              mudou = true
+            } else if (novo.has(fId)) {
               novo.delete(fId)
               filhosCacheMap.current.delete(fId)
+              mudou = true
             }
           }
         }
-        return novo
+        return mudou ? novo : prev
       })
     },
     [filhoId],
@@ -1857,20 +1876,26 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const toggleTodosComSync = useCallback(
     async (idsPagina: string[]) => {
       const todosJaMarcados = idsPagina.length > 0 && idsPagina.every(id => selecionados.has(id))
-      toggleTodos(idsPagina)
-      setPaisAutoPromovidos(new Set())
+      syncFilhosEmLoteRef.current = true
+      try {
+        toggleTodos(idsPagina)
+        setPaisAutoPromovidos(prev => (prev.size === 0 ? prev : new Set()))
 
-      if (!selecionavelFilhos) return
+        if (!selecionavelFilhos) return
 
-      let cacheEfetivo = filhosCache
-      if (!todosJaMarcados && onCarregarFilhos) {
-        const itensPagina = idsPagina
-          .map(id => dadosPaginaOrdenadosRef.current.find(d => itemId(d) === id))
-          .filter((d): d is T => d != null)
-        cacheEfetivo = await ensureFilhosCarregados(itensPagina)
+        let cacheEfetivo = filhosCache
+        if (!todosJaMarcados && onCarregarFilhos) {
+          const itensPagina = idsPagina
+            .map(id => dadosPaginaOrdenadosRef.current.find(d => itemId(d) === id))
+            .filter((d): d is T => d != null)
+          cacheEfetivo = await ensureFilhosCarregados(itensPagina, { modo: 'selecao-lote' })
+          onCarregarFilhosLoteConcluidoRef.current?.()
+        }
+
+        aplicarFilhosSelecaoEmLote(idsPagina, cacheEfetivo, !todosJaMarcados)
+      } finally {
+        syncFilhosEmLoteRef.current = false
       }
-
-      aplicarFilhosSelecaoEmLote(idsPagina, cacheEfetivo, !todosJaMarcados)
     },
     [
       selecionados,
@@ -2034,7 +2059,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       filhosCacheMap.current.clear()
       return new Set()
     })
-    setPaisAutoPromovidos(new Set())
+    setPaisAutoPromovidos(prev => (prev.size === 0 ? prev : new Set()))
   }, [resetSelecaoFilhos])
 
   // Limpa auto-promovidos que não estão mais em selecionados (ex: limparSelecao)
@@ -2053,6 +2078,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   // REGRA UNIVERSAL: pai marcado → filhos recém-carregados entram marcados (feedback visual)
   useEffect(() => {
     if (!selecionavelFilhos) return
+    if (syncFilhosEmLoteRef.current) return
 
     setFilhosSelecionados(prev => {
       let mudou = false
@@ -2086,9 +2112,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     })
   }, [filhosCache, selecionados, selecionavelFilhos, filhoId])
 
-  // Dispara onSelecaoFilho sempre que filhosSelecionados mudar
+  // Dispara onSelecaoFilho quando a assinatura da seleção muda (evita loop via callback do pai)
+  const filhosSelecionadosAssinaturaRef = useRef('')
   useEffect(() => {
     if (!onSelecaoFilhoRef.current) return
+    const assinatura = Array.from(filhosSelecionados).sort().join('|')
+    if (assinatura === filhosSelecionadosAssinaturaRef.current) return
+    filhosSelecionadosAssinaturaRef.current = assinatura
     const itens = Array.from(filhosSelecionados)
       .map(id => filhosCacheMap.current.get(id))
       .filter((i): i is C => i != null)
@@ -2566,9 +2596,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onSelecaoMudarRef.current = onSelecaoMudar
   }, [onSelecaoMudar])
 
+  // Assinatura evita loop infinito quando `dados` muda de referência mas seleção não mudou
+  // (Pedidos.tsx documenta o mesmo padrão para itemId estável + onSelecaoMudar).
+  const itensSelecionadosAssinaturaRef = useRef('')
   useEffect(() => {
+    const assinatura = itensSelecionados.map(item => itemId(item)).join('|')
+    if (assinatura === itensSelecionadosAssinaturaRef.current) return
+    itensSelecionadosAssinaturaRef.current = assinatura
     onSelecaoMudarRef.current?.(itensSelecionados)
-  }, [itensSelecionados])
+  }, [itensSelecionados, itemId])
 
   // ── Fechar menus ao clicar fora ───────────────────────────────────────────────
 

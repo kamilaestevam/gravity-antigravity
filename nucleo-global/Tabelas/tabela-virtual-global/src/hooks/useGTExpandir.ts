@@ -5,6 +5,10 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react'
+import type { GTCarregarFilhosOpts } from '../tipos.js'
+import { carregarComConcorrencia } from '../utils/carregarComConcorrencia.js'
+
+const LIMITE_CONCORRENCIA_CARREGAR_FILHOS = 5
 
 export interface UseGTExpandirRetorno<T, C> {
   expandidos: Set<string>
@@ -16,11 +20,11 @@ export interface UseGTExpandirRetorno<T, C> {
   /** Atualiza um filho individual no cache (usado após edição inline) */
   atualizarFilhoNoCache: (filho: C, filhoIdFn: (f: C) => string) => void
   /** Carrega filhos sob demanda para seleção em lote (sem expandir a linha) */
-  ensureFilhosCarregados: (items: T[]) => Promise<Map<string, C[]>>
+  ensureFilhosCarregados: (items: T[], opts?: GTCarregarFilhosOpts) => Promise<Map<string, C[]>>
 }
 
 export function useGTExpandir<T, C>(
-  onCarregarFilhos?: (item: T) => Promise<C[]>,
+  onCarregarFilhos?: (item: T, opts?: GTCarregarFilhosOpts) => Promise<C[]>,
   dados?: T[],
   itemId?: (item: T) => string,
   /** Extrai uma versão estável do item (ex: timestamp do servidor). Quando fornecido,
@@ -199,7 +203,7 @@ export function useGTExpandir<T, C>(
   }, [])
 
   const ensureFilhosCarregados = useCallback(
-    async (items: T[]): Promise<Map<string, C[]>> => {
+    async (items: T[], opts?: GTCarregarFilhosOpts): Promise<Map<string, C[]>> => {
       if (!onCarregarFilhos || !itemId) {
         return new Map(filhosCacheRef.current)
       }
@@ -209,22 +213,35 @@ export function useGTExpandir<T, C>(
 
       if (pendentes.length === 0) return merged
 
-      await Promise.all(
-        pendentes.map(async item => {
+      const limite = opts?.modo === 'selecao-lote'
+        ? LIMITE_CONCORRENCIA_CARREGAR_FILHOS
+        : pendentes.length
+
+      const carregados = await carregarComConcorrencia(
+        pendentes,
+        limite,
+        async item => {
           const id = itemId(item)
           try {
-            const filhos = await onCarregarFilhos(item)
-            merged.set(id, filhos)
-            setFilhosCache(prev => {
-              const next = new Map(prev)
-              next.set(id, filhos)
-              return next
-            })
+            const filhos = await onCarregarFilhos(item, opts)
+            return { id, filhos }
           } catch {
-            merged.set(id, [])
+            return { id, filhos: [] as C[] }
           }
-        }),
+        },
       )
+
+      for (const { id, filhos } of carregados) {
+        merged.set(id, filhos)
+      }
+
+      setFilhosCache(prev => {
+        const next = new Map(prev)
+        for (const { id, filhos } of carregados) {
+          next.set(id, filhos)
+        }
+        return next
+      })
 
       return merged
     },

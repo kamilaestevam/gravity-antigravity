@@ -388,14 +388,36 @@ export default function Cotacoes() {
     setCarregando(true)
     setErroCarregar(null)
     try {
-      const [resTodas, resAvulsas, bids] = await Promise.all([
+      const [resTodas, resAvulsas, resBids] = await Promise.allSettled([
         getCotacoes({ limit: COTACOES_LIMIT_LISTA }),
         getCotacoes({ limit: COTACOES_LIMIT_LISTA, apenas_avulsas: true }),
         getBidsFreteInternacional(),
       ])
-      setCotacoes(resTodas.cotacoes)
-      setCotacoesAvulsas(resAvulsas.cotacoes)
-      setBidsFreteInternacional(bids)
+
+      const erros: string[] = []
+
+      if (resTodas.status === 'fulfilled') {
+        setCotacoes(resTodas.value.cotacoes)
+      } else {
+        setCotacoes([])
+        erros.push(resTodas.reason instanceof Error ? resTodas.reason.message : 'Falha ao carregar cotações')
+      }
+
+      if (resAvulsas.status === 'fulfilled') {
+        setCotacoesAvulsas(resAvulsas.value.cotacoes)
+      } else {
+        setCotacoesAvulsas([])
+        erros.push(resAvulsas.reason instanceof Error ? resAvulsas.reason.message : 'Falha ao carregar cotações avulsas')
+      }
+
+      if (resBids.status === 'fulfilled') {
+        setBidsFreteInternacional(resBids.value)
+      } else {
+        setBidsFreteInternacional([])
+        erros.push(resBids.reason instanceof Error ? resBids.reason.message : 'Falha ao carregar BIDs (camada 2)')
+      }
+
+      setErroCarregar(erros.length > 0 ? erros.join(' · ') : null)
     } catch (e: unknown) {
       setCotacoes([])
       setCotacoesAvulsas([])

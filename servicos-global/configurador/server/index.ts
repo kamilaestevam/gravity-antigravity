@@ -298,7 +298,9 @@ app.use('/api/v1/bid-frete-internacional', (req, res) => {
   const targetUrl = `${serviceUrl}${req.originalUrl}`
   const host = serviceUrl.replace(/^https?:\/\//, '')
   const headers = { ...req.headers, host } as Record<string, any>
-  headers['x-chave-interna-servico'] = process.env.CHAVE_INTERNA_SERVICO!
+  const chaveInterna = process.env.CHAVE_INTERNA_SERVICO ?? 'gravity-dev-internal-key-2026'
+  headers['x-chave-interna-servico'] = chaveInterna
+  headers['x-internal-key'] = chaveInterna
 
   if (!headers['x-id-organizacao'] || headers['x-id-organizacao'] === '') {
     headers['x-id-organizacao'] = 'org_dev_default'

@@ -17,16 +17,22 @@ export function requireInternalKey(req: Request, res: Response, next: NextFuncti
   // Portal do fornecedor com token publico nao precisa de internal key
   if (req.path.startsWith('/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico')) return next()
 
-  const key = req.headers['x-internal-key'] as string | undefined
+  const key =
+    (req.headers['x-internal-key'] as string | undefined) ??
+    (req.headers['x-chave-interna-servico'] as string | undefined)
   const expected = process.env.CHAVE_INTERNA_SERVICO
 
   if (!expected) {
     console.warn('[BidFreteInternacional] CHAVE_INTERNA_SERVICO nao configurada. Bloqueando.')
-    return res.status(500).json({ error: 'Servico mal configurado' })
+    return res.status(500).json({
+      error: { message: 'Servico mal configurado', code: 'CONFIG_ERROR' },
+    })
   }
 
   if (!key || !safeCompare(key, expected)) {
-    return res.status(401).json({ error: 'Chave interna invalida', code: 'UNAUTHORIZED' })
+    return res.status(401).json({
+      error: { message: 'Chave interna invalida', code: 'UNAUTHORIZED' },
+    })
   }
 
   next()

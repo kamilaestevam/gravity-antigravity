@@ -162,6 +162,7 @@ interface SeletorItemQuantidadeProps {
   /** Mapa itemId → quantidade a transferir (multi-select) */
   itensQuantidades: Map<string, number>
   onToggleItem: (itemId: string) => void
+  onToggleTodos: () => void
   onQuantidadeChange: (itemId: string, qty: number) => void
   /** Quando há múltiplos pedidos, mostra coluna "Pedido" */
   multiPedido: boolean
@@ -171,16 +172,37 @@ function SeletorItemQuantidade({
   itensComPedido,
   itensQuantidades,
   onToggleItem,
+  onToggleTodos,
   onQuantidadeChange,
   multiPedido,
 }: SeletorItemQuantidadeProps) {
   const { t } = useTranslation()
 
+  const todosIds = useMemo(
+    () => itensComPedido.map(({ item }) => item.id),
+    [itensComPedido],
+  )
+  const todosSelecionados = todosIds.length > 0 && todosIds.every(id => itensQuantidades.has(id))
+  const parcialSelecionado =
+    todosIds.some(id => itensQuantidades.has(id)) && !todosSelecionados
+
   return (
     <table className="modal-transferir__tabela-itens" aria-label={t('pedido.modal_transf.aria_tabela_itens')}>
       <thead>
         <tr>
-          <th scope="col" className="modal-transferir__col-check"></th>
+          <th scope="col" className="modal-transferir__col-check">
+            <input
+              type="checkbox"
+              checked={todosSelecionados}
+              ref={el => { if (el) el.indeterminate = parcialSelecionado }}
+              aria-label={t('pedido.modal_transf.aria_selecionar_todos')}
+              onChange={e => {
+                e.stopPropagation()
+                onToggleTodos()
+              }}
+              onClick={e => e.stopPropagation()}
+            />
+          </th>
           {multiPedido && <th scope="col">{t('pedido.modal_transf.col_pedido')}</th>}
           <th scope="col">{t('pedido.modal_transf.col_sequencia_item')}</th>
           <th scope="col">{t('pedido.modal_transf.col_part_number')}</th>
@@ -650,6 +672,23 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
     })
   }, [])
 
+  const handleToggleTodos = useCallback(() => {
+    setItensQuantidades(prev => {
+      const todosIds = itensComPedido.map(({ item }) => item.id)
+      const todosJaSelecionados = todosIds.length > 0 && todosIds.every(id => prev.has(id))
+      if (todosJaSelecionados) {
+        return new Map()
+      }
+      const novo = new Map(prev)
+      for (const id of todosIds) {
+        if (!novo.has(id)) {
+          novo.set(id, 0)
+        }
+      }
+      return novo
+    })
+  }, [itensComPedido])
+
   const handleQuantidadeItemChange = useCallback((itemId: string, qty: number) => {
     setItensQuantidades(prev => {
       const novo = new Map(prev)
@@ -1022,6 +1061,7 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
                   itensComPedido={itensComPedido}
                   itensQuantidades={itensQuantidades}
                   onToggleItem={handleToggleItem}
+                  onToggleTodos={handleToggleTodos}
                   onQuantidadeChange={handleQuantidadeItemChange}
                   multiPedido={multiPedido}
                 />

@@ -28,7 +28,12 @@ import { useUnidades } from '@nucleo/modal-tabela-unidades'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useNcmValidation } from '@nucleo/campo-ncm-global'
-import { lerTextoClipboard, resolverColagemPopover } from './utils/colagemPopover.js'
+import {
+  campoEhNcm,
+  lerTextoClipboard,
+  lerTextoClipboardAsync,
+  resolverColagemPopover,
+} from './utils/colagemPopover.js'
 import './tabela-virtual.css'
 import type {
   GTVirtualTableProps,
@@ -488,7 +493,7 @@ const GTEditPopover = memo(function GTEditPopover({
   const isMoeda   = overlayInfo.colTipo === 'moeda'
   const isUnidade = overlayInfo.colTipo === 'unidade'
   const isNumero  = overlayInfo.colTipo === 'numero'
-  const isNCM     = overlayInfo.campo === 'ncm'
+  const isNCM     = campoEhNcm(overlayInfo.campo)
   const isTextoLivre = !isPeriodo && !isOpcoes && !isMoeda && !isUnidade && !isNumero && !isNCM
 
   // Validação NCM com alíquotas TEC (debounce 600ms, não bloqueante)
@@ -721,43 +726,139 @@ const GTEditPopover = memo(function GTEditPopover({
     }, 250)
   }
 
-  function processarColagemPopover(texto: string) {
-    const res = resolverColagemPopover(texto, { textoLivre: isTextoLivre })
-    if (!res) return
+  function marcarColagemPopover() {
     cancelarBlurConfirmAgendado()
     ignorarBlurConfirmacaoRef.current = true
-    if (res.tipo === 'smart_paste') {
-      onSmartPaste?.(res.linhas)
-    } else {
-      aplicarTextoInput(res.valor)
-    }
     liberarIgnorarBlurConfirmacao()
   }
 
-  // Handler de paste — inputs controlados não propagam colar nativo para o React state.
-  const handleSmartPasteDetect = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const texto = lerTextoClipboard(e.clipboardData)
-    if (!texto) return
-    e.preventDefault()
-    e.stopPropagation()
-    processarColagemPopover(texto)
+  function aplicarColagemNoCaret(valor: string) {
+    const input = inputRef.current
+    if (!isTextoLivre || !input || document.activeElement !== input) {
+      aplicarTextoInput(valor)
+      return
+    }
+    if (valor.includes('\n')) {
+      aplicarTextoInput(valor)
+      return
+    }
+    const start = input.selectionStart ?? 0
+    const end = input.selectionEnd ?? 0
+    const base = textoLocalRef.current
+    const next = base.slice(0, start) + valor + base.slice(end)
+    aplicarTextoInput(next)
+    const pos = start + valor.length
+    requestAnimationFrame(() => {
+      input.focus()
+      input.setSelectionRange(pos, pos)
+    })
   }
 
-  // Menu de contexto (Colar) pode perder foco do input — captura paste no documento.
-  useEffect(() => {
-    if (!isTextoLivre && !isNCM) return
-    const onDocPaste = (e: ClipboardEvent) => {
-      const texto = lerTextoClipboard(e.clipboardData)
-      if (!texto) return
-      e.preventDefault()
-      e.stopPropagation()
+  function processarColagemPopover(texto: string) {
+    const res = resolverColagemPopover(texto, { textoLivre: isTextoLivre })
+    if (!res) return
+    marcarColagemPopover()
+    if (res.tipo === 'smart_paste') {
+      onSmartPaste?.(res.linhas)
+    } else if (isTextoLivre) {
+      aplicarColagemNoCaret(res.valor)
+    } else {
+      aplicarTextoInput(res.valor)
+    }
+  }
+
+  async function obterTextoColado(
+    data: DataTransfer | null,
+    prevent?: { preventDefault: () => void; stopPropagation: () => void },
+  ): Promise<string | null> {
+    const sync = lerTextoClipboard(data)
+    const syncTemConteudo =
+      sync.trim().length > 0 || sync.includes('\n') || sync.includes('\t')
+    if (syncTemConteudo) {
+      prevent?.preventDefault()
+      prevent?.stopPropagation()
+      return sync
+    }
+    prevent?.preventDefault()
+    prevent?.stopPropagation()
+    const asyncText = await lerTextoClipboardAsync(data)
+    if (!asyncText.trim() && !asyncText.includes('\n') && !asyncText.includes('\t')) return null
+    return asyncText
+  }
+
+  // Inputs controlados: colar nativo não atualiza o React state — sempre interceptamos.
+  const handleSmartPasteDetect = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    void (async () => {
+      const texto = await obterTextoColado(e.clipboardData, e)
+      if (texto == null) return
       processarColagemPopover(texto)
-      inputRef.current?.focus()
+    })()
+  }
+
+  const handleCopyPopover = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const input = inputRef.current
+    if (!input || document.activeElement !== input) return
+    const start = input.selectionStart
+    const end = input.selectionEnd
+    if (start == null || end == null || start === end) return
+    const fonte = isTextoLivre ? textoLocalRef.current : input.value
+    const slice = fonte.slice(start, end)
+    if (!slice) return
+    e.clipboardData.setData('text/plain', slice)
+    e.preventDefault()
+  }
+
+  const handleCutPopover = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const input = inputRef.current
+    if (!input || document.activeElement !== input) return
+    const start = input.selectionStart ?? 0
+    const end = input.selectionEnd ?? 0
+    if (start === end) return
+    const fonte = isTextoLivre ? textoLocalRef.current : input.value
+    const slice = fonte.slice(start, end)
+    if (!slice) return
+    e.clipboardData.setData('text/plain', slice)
+    e.preventDefault()
+    const next = fonte.slice(0, start) + fonte.slice(end)
+    if (isTextoLivre) {
+      aplicarTextoInput(next)
+      requestAnimationFrame(() => {
+        input.focus()
+        input.setSelectionRange(start, start)
+      })
+    } else {
+      aplicarTextoInput(next)
+    }
+  }
+
+  function marcarContextMenuColagem() {
+    ignorarBlurConfirmacaoRef.current = true
+    liberarIgnorarBlurConfirmacao()
+  }
+
+  // Menu de contexto (Colar) pode disparar blur antes do onPaste do input.
+  useEffect(() => {
+    const onDocPaste = (e: ClipboardEvent) => {
+      const root = popoverRef.current
+      if (!root) return
+      const alvo = e.target as Node | null
+      const focoNoPopover =
+        (document.activeElement && root.contains(document.activeElement)) ||
+        (alvo != null && root.contains(alvo)) ||
+        ignorarBlurConfirmacaoRef.current
+      if (!focoNoPopover) return
+
+      void (async () => {
+        const texto = await obterTextoColado(e.clipboardData, e)
+        if (texto == null) return
+        processarColagemPopover(texto)
+        inputRef.current?.focus()
+      })()
     }
     document.addEventListener('paste', onDocPaste, true)
     return () => document.removeEventListener('paste', onDocPaste, true)
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- processarColagemPopover escopo do popover ativo
-  }, [isTextoLivre, isNCM, overlayInfo.id, overlayInfo.campo])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- escopo do popover ativo
+  }, [overlayInfo.id, overlayInfo.campo])
 
   // Estado local para campos de data: texto em formato DD/MM/AAAA
   const [periodoText, setPeriodoText] = useState<string>(() => isoToBR(valorEditando))
@@ -965,6 +1066,9 @@ const GTEditPopover = memo(function GTEditPopover({
                 }}
                 onBlur={confirmarBlurPopover}
                 onPaste={handleSmartPasteDetect}
+                onCopy={handleCopyPopover}
+                onCut={handleCutPopover}
+                onContextMenu={marcarContextMenuColagem}
               />
             </div>
           ) : isUnidade ? (
@@ -995,6 +1099,9 @@ const GTEditPopover = memo(function GTEditPopover({
                   }}
                   onBlur={confirmarBlurPopover}
                   onPaste={handleSmartPasteDetect}
+                  onCopy={handleCopyPopover}
+                  onCut={handleCutPopover}
+                  onContextMenu={marcarContextMenuColagem}
                 />
               )}
               {/* Trigger — dropdown via portal para não ser cortado pelo overflow:hidden */}
@@ -1130,6 +1237,9 @@ const GTEditPopover = memo(function GTEditPopover({
               }}
               onBlur={confirmarBlurPopover}
               onPaste={handleSmartPasteDetect}
+              onCopy={handleCopyPopover}
+              onCut={handleCutPopover}
+              onContextMenu={marcarContextMenuColagem}
             />
           )}
         </div>

@@ -430,12 +430,6 @@ export interface Aeroporto {
   codigo_pais_aeroporto: string
 }
 
-export interface ContainerOption {
-  codigo: string
-  nome: string
-  teus: number
-}
-
 export interface IncotermOption {
   codigo: string
   nome: string

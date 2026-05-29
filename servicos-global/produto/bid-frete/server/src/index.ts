@@ -15,7 +15,6 @@ import { portosRouter } from './routes/portos.js'
 import { incotermsRouter } from './routes/incoterms.js'
 import { modaisRouter } from './routes/modais.js'
 import { moedasRouter } from './routes/moedas.js'
-import { containersRouter } from './routes/containers.js'
 import { paisesRouter } from './routes/paises.js'
 import { aeroportosRouter } from './routes/aeroportos.js'
 import { cotacoesRouter } from './routes/cotacoes.js'
@@ -95,7 +94,6 @@ app.use('/api/v1', rateLimitPresets.public(), portosRouter)
 app.use('/api/v1', rateLimitPresets.public(), incotermsRouter)
 app.use('/api/v1', rateLimitPresets.public(), modaisRouter)
 app.use('/api/v1', rateLimitPresets.public(), moedasRouter)
-app.use('/api/v1', rateLimitPresets.public(), containersRouter)
 app.use('/api/v1', rateLimitPresets.public(), paisesRouter)
 app.use('/api/v1', rateLimitPresets.public(), aeroportosRouter)
 

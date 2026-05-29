@@ -21,7 +21,7 @@ export interface CotacaoArmadorRequest {
   destino_codigo_cotacao_bid_frete_internacional: string
   modal_cotacao_bid_frete_internacional: 'MARITIMO'
   modalidade_cotacao_bid_frete_internacional: 'FCL' | 'LCL'
-  tipo_container_cotacao_bid_frete_internacional?: string  // ex: 20DRY, 40HC
+  tipo_container_cotacao_bid_frete_internacional?: string  // ex: 22G0, 45G0 (ISO 6346)
   quantidade_cotacao_bid_frete_internacional: number
   peso_kg_cotacao_bid_frete_internacional?: number
   cubagem_m3_cotacao_bid_frete_internacional?: number

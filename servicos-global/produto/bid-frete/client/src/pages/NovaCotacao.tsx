@@ -29,7 +29,8 @@ import {
   Airplane,
 } from '@phosphor-icons/react'
 
-import { criarCotacao, getPaises, getPortos, getAeroportos, getContainers } from '../shared/api'
+import { criarCotacao, getPaises, getPortos, getAeroportos } from '../shared/api'
+import { listarContainersCadastros, rotuloContainerCadastro } from '../shared/cadastrosContainers'
 import type {
   TipoOperacao,
   ModalFrete,
@@ -276,7 +277,7 @@ export default function NovaCotacao() {
   const [paisesLista, setPaisesLista] = useState<Array<{ id_pais: string; nome_pais_portugues: string; codigo_pais_iso_alpha2: string }>>([])
   const [portosLista, setPortosLista] = useState<Array<{ codigo: string; nome: string; pais: string }>>([])
   const [aeroportosLista, setAeroportosLista] = useState<Array<{ id_aeroporto: string; codigo_iata_aeroporto: string; nome_aeroporto: string; codigo_pais_aeroporto: string }>>([])
-  const [containersLista, setContainersLista] = useState<Array<{ codigo: string; nome: string; teus: number }>>([])
+  const [containersLista, setContainersLista] = useState<Array<{ codigo: string; nome: string }>>([])
 
   // ─── Autocomplete search states ────────────────────────────────────
   const [buscaPaisOrigem, setBuscaPaisOrigem] = useState('')
@@ -290,7 +291,18 @@ export default function NovaCotacao() {
   // ─── Fetch master data on mount ────────────────────────────────────
   useEffect(() => {
     getPaises().then(setPaisesLista).catch(() => {})
-    getContainers().then(setContainersLista).catch(() => {})
+    listarContainersCadastros()
+      .then((itens) =>
+        setContainersLista(
+          itens
+            .filter((c) => c.codigo_iso_container)
+            .map((c) => ({
+              codigo: c.codigo_iso_container as string,
+              nome: `${c.codigo_iso_container} — ${rotuloContainerCadastro(c)}`,
+            })),
+        ),
+      )
+      .catch(() => {})
   }, [])
 
   // Fetch portos/aeroportos when modal changes
@@ -828,7 +840,7 @@ export default function NovaCotacao() {
                   <select className="nc-input" value={form.tipo_container} onChange={e => set('tipo_container', e.target.value)}>
                     <option value="">{t('bidfrete.nova_cotacao.selecionarContainer', 'Selecionar container...')}</option>
                     {containersLista.map(c => (
-                      <option key={c.codigo} value={c.codigo}>{c.nome} ({c.teus} TEU)</option>
+                      <option key={c.codigo} value={c.codigo}>{c.nome}</option>
                     ))}
                   </select>
                 </Field>

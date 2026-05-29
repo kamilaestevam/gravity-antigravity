@@ -21,7 +21,7 @@ export interface CotacaoArmadorRequest {
   destino_codigo: string
   modal: 'MARITIMO'
   modalidade: 'FCL' | 'LCL'
-  tipo_container?: string  // ex: 20DRY, 40HC
+  tipo_container?: string  // ex: 22G0, 45G0 (ISO 6346)
   quantidade: number
   peso_kg?: number
   cubagem_m3?: number

@@ -18,7 +18,6 @@ import type {
   Moeda,
   Pais,
   Aeroporto,
-  ContainerOption,
   IncotermOption,
   StatusCotacao,
   StatusCotacaoBidFreteConfig,
@@ -345,12 +344,6 @@ export async function getAeroportos(q?: string, pais?: string): Promise<Aeroport
   const res = await fetch(`${API_BASE}/aeroportos${query}`)
   const data = await handleResponse<{ aeroportos: Aeroporto[] }>(res)
   return data.aeroportos
-}
-
-export async function getContainers(): Promise<ContainerOption[]> {
-  const res = await fetch(`${API_BASE}/containers`)
-  const data = await handleResponse<{ containers: ContainerOption[] }>(res)
-  return data.containers
 }
 
 export async function getIncoterms(): Promise<IncotermOption[]> {

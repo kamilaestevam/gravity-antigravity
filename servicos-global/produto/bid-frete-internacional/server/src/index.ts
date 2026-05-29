@@ -15,7 +15,6 @@ import { portosRouter } from './routes/portos.js'
 import { incotermsRouter } from './routes/incoterms.js'
 import { modaisRouter } from './routes/modais.js'
 import { moedasRouter } from './routes/moedas.js'
-import { containersRouter } from './routes/containers.js'
 import { paisesRouter } from './routes/paises.js'
 import { aeroportosRouter } from './routes/aeroportos.js'
 import { cotacoesRouter } from './routes/cotacoes.js'
@@ -100,7 +99,6 @@ app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(
 app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), moedasRouter)
 app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), paisesRouter)
 app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), aeroportosRouter)
-app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), containersRouter)
 
 // --- 6. Visao Fornecedor publico — SEM internal key (usa token de resposta) ---
 app.use(

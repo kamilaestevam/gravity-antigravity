@@ -1206,6 +1206,8 @@
   caret-color: var(--gtv-accent, #6366f1);
   transition: border-color 0.15s, box-shadow 0.15s;
   box-sizing: border-box;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .gtv-edit-popover-input:focus {
@@ -1403,6 +1405,12 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
+}
+
+.gtv-edit-moeda-valor,
+.gtv-edit-unidade-qty {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .gtv-edit-moeda-valor {

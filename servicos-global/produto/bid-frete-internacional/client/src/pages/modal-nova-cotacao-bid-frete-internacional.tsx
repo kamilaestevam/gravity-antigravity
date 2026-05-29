@@ -102,6 +102,7 @@ interface FormState {
   incoterm_cotacao_bid_frete_internacional: string
   zipcode_origem_cotacao_bid_frete_internacional: string
   endereco_origem_cotacao_bid_frete_internacional: string
+  endereco_destino_cotacao_bid_frete_internacional: string
   zipcode_destino_cotacao_bid_frete_internacional: string
   data_limite_resposta_cotacao_bid_frete_internacional: string
   // Fornecedores
@@ -141,6 +142,7 @@ const INITIAL_FORM: FormState = {
   incoterm_cotacao_bid_frete_internacional: '',
   zipcode_origem_cotacao_bid_frete_internacional: '',
   endereco_origem_cotacao_bid_frete_internacional: '',
+  endereco_destino_cotacao_bid_frete_internacional: '',
   zipcode_destino_cotacao_bid_frete_internacional: '',
   data_limite_resposta_cotacao_bid_frete_internacional: '',
   visibilidade_cotacao_bid_frete_internacional: 'DIRECIONADA',
@@ -1581,6 +1583,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         incoterm_cotacao_bid_frete_internacional: form.incoterm_cotacao_bid_frete_internacional,
         zipcode_origem_cotacao_bid_frete_internacional: form.zipcode_origem_cotacao_bid_frete_internacional.trim() || undefined,
         endereco_origem_cotacao_bid_frete_internacional: form.endereco_origem_cotacao_bid_frete_internacional.trim() || undefined,
+        endereco_destino_cotacao_bid_frete_internacional: form.endereco_destino_cotacao_bid_frete_internacional.trim() || undefined,
         zipcode_destino_cotacao_bid_frete_internacional: form.zipcode_destino_cotacao_bid_frete_internacional.trim() || undefined,
         visibilidade_cotacao_bid_frete_internacional: form.visibilidade_cotacao_bid_frete_internacional,
         anonima_cotacao_bid_frete_internacional: form.anonima_cotacao_bid_frete_internacional,
@@ -1853,6 +1856,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       onChange={(e) => set('estado_provincia_destino_cotacao_bid_frete_internacional', e.target.value)}
                     />
                   )}
+                </Field>
+
+                <Field label="ENDEREÇO COMPLETO" className="nc-field--span-2">
+                  <input
+                    className="nc-input"
+                    placeholder="Ex: Av. Paulista, 1000 — complemento, bairro"
+                    value={form.endereco_destino_cotacao_bid_frete_internacional}
+                    onChange={(e) => set('endereco_destino_cotacao_bid_frete_internacional', e.target.value)}
+                  />
                 </Field>
               </div>
             </div>

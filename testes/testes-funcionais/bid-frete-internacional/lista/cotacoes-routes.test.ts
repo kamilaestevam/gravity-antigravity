@@ -193,6 +193,19 @@ describe('POST /api/v1/bid-frete-internacional/cotacoes', () => {
     expect(res.status).toBe(201)
     expect(res.body.cotacao.endereco_origem_cotacao_bid_frete_internacional).toBe('Rua Teste 123')
   })
+
+  it('deve persistir endereco_destino quando informado', async () => {
+    const res = await request(app)
+      .post('/api/v1/bid-frete-internacional/cotacoes')
+      .set(HEADERS)
+      .send({
+        ...COTACAO_VALIDA,
+        endereco_destino_cotacao_bid_frete_internacional: 'Av. Brasil, 500',
+      })
+
+    expect(res.status).toBe(201)
+    expect(res.body.cotacao.endereco_destino_cotacao_bid_frete_internacional).toBe('Av. Brasil, 500')
+  })
 })
 
 describe('GET /api/v1/bid-frete-internacional/cotacoes', () => {

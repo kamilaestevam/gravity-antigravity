@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
+  CAMPOS_EDITAVEIS_LISTA,
+  CAMPOS_NAO_EDITAVEIS_LISTA,
   CHAVES_COLUNAS_COTACAO,
   CHAVES_COLUNAS_PADRAO_VISIVEIS,
   buildColunasCotacoes,
@@ -88,6 +90,55 @@ describe('CHAVES_COLUNAS — visibilidade padrão', () => {
     const colunas = buildColunasCotacoes(null)
     const colRef = colunas.find(c => c.key === 'referencia_interna_cotacao_bid_frete_internacional')
     expect(colRef?.label).toBe('Referência Interna')
+  })
+
+  it('colunas rota destino incluem pais e endereco apos destino nome', () => {
+    const colunas = buildColunasCotacoes(null)
+    const keys = colunas.map(c => c.key)
+    const idxDestino = keys.indexOf('destino_nome_cotacao_bid_frete_internacional')
+    const idxPais = keys.indexOf('destino_pais_cotacao_bid_frete_internacional')
+    const idxEndereco = keys.indexOf('endereco_destino_cotacao_bid_frete_internacional')
+    expect(idxPais).toBeGreaterThan(idxDestino)
+    expect(idxEndereco).toBe(idxPais + 1)
+  })
+})
+
+describe('CAMPOS_EDITAVEIS_LISTA — edição inline', () => {
+  it('inclui todas as colunas exceto campos técnicos', () => {
+    const esperados = CHAVES_COLUNAS_COTACAO.filter(k => !CAMPOS_NAO_EDITAVEIS_LISTA.has(k))
+    expect(CAMPOS_EDITAVEIS_LISTA).toEqual(esperados)
+  })
+
+  it('colunas visíveis da lista (status, operação, modal, workspace) são editáveis', () => {
+    for (const key of [
+      'numero_cotacao_bid_frete_internacional',
+      'referencia_interna_cotacao_bid_frete_internacional',
+      'tipo_operacao_cotacao_bid_frete_internacional',
+      'status_cotacao_bid_frete_internacional',
+      'visibilidade_cotacao_bid_frete_internacional',
+      'anonima_cotacao_bid_frete_internacional',
+      'id_workspace',
+      'data_limite_resposta_cotacao_bid_frete_internacional',
+      'id_organizacao',
+      'modal_cotacao_bid_frete_internacional',
+      'modalidade_cotacao_bid_frete_internacional',
+      'origem_nome_cotacao_bid_frete_internacional',
+      'destino_nome_cotacao_bid_frete_internacional',
+      'quantidade_cotacao_bid_frete_internacional',
+      'tipo_container_cotacao_bid_frete_internacional',
+    ]) {
+      expect(CAMPOS_EDITAVEIS_LISTA).toContain(key)
+    }
+  })
+
+  it('buildColunasCotacoes marca enums com opcoes de edição', () => {
+    const colunas = buildColunasCotacoes(null, {
+      statusOpcoes: [{ valor: 'RASCUNHO', label: 'Rascunho' }],
+    })
+    expect(colunas.find(c => c.key === 'status_cotacao_bid_frete_internacional')?.opcoes).toHaveLength(1)
+    expect(colunas.find(c => c.key === 'tipo_operacao_cotacao_bid_frete_internacional')?.opcoes?.length).toBeGreaterThan(0)
+    expect(colunas.find(c => c.key === 'modal_cotacao_bid_frete_internacional')?.opcoes?.length).toBeGreaterThan(0)
+    expect(colunas.find(c => c.key === 'visibilidade_cotacao_bid_frete_internacional')?.opcoes).toHaveLength(2)
   })
 })
 

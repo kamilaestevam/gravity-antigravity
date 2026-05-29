@@ -471,10 +471,6 @@ function StatusSortavel({
 
         <span className="cfg-status-label">{status.rotulo}</span>
 
-        {status.is_sistema && (
-          <span className="cfg-badge-sistema">{t('pedido.config.status.badge_sistema')}</span>
-        )}
-
         <div className="cfg-status-acoes">
           <TooltipGlobal descricao={t('pedido.config.status.editar_tooltip')}>
             <button
@@ -486,18 +482,16 @@ function StatusSortavel({
               <PencilSimple size={14} weight="bold" />
             </button>
           </TooltipGlobal>
-          {!status.is_sistema && (
-            <TooltipGlobal descricao={t('pedido.config.status.excluir_tooltip')}>
-              <button
-                type="button"
-                className="cfg-remove-btn"
-                onClick={() => onExcluir(status.id)}
-                aria-label={t('pedido.config.status.aria_excluir')}
-              >
-                <Trash size={14} weight="bold" />
-              </button>
-            </TooltipGlobal>
-          )}
+          <TooltipGlobal descricao={t('pedido.config.status.excluir_tooltip')}>
+            <button
+              type="button"
+              className="cfg-remove-btn"
+              onClick={() => onExcluir(status.id)}
+              aria-label={t('pedido.config.status.aria_excluir')}
+            >
+              <Trash size={14} weight="bold" />
+            </button>
+          </TooltipGlobal>
         </div>
       </div>
 

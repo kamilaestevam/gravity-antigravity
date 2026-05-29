@@ -2,7 +2,7 @@ import React from 'react'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
 import { Anchor, AirplaneTilt, Truck } from '@phosphor-icons/react'
 import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../shared/types'
-import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS } from '../shared/types'
+import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS, INCOTERMS } from '../shared/types'
 import type { LinhaPaiLista } from './lista-bid-frete-internacional-utils'
 import { isLinhaBidGrupo } from './lista-bid-frete-internacional-utils'
 import {
@@ -166,6 +166,106 @@ export interface OpcoesColunasLista {
   nomeUsuarioAtual?: string
   /** Fallback de workspace só para cotação do usuário logado sem id_workspace gravado. */
   nomeWorkspaceFallback?: string
+  /** Opções de status (Configurações → sincronizado com localStorage). */
+  statusOpcoes?: Array<{ valor: string; label: string }>
+}
+
+/** Campos que não entram na edição inline (técnicos ou geridos pelo servidor). */
+export const CAMPOS_NAO_EDITAVEIS_LISTA = new Set([
+  'id_cotacao_bid_frete_internacional',
+  'data_atualizacao_cotacao_bid_frete_internacional',
+])
+
+const OPCOES_OPERACAO = (Object.entries(OPERACAO_LABELS) as Array<[TipoOperacao, string]>).map(
+  ([valor, label]) => ({ valor, label }),
+)
+const OPCOES_MODAL = (Object.entries(MODAL_LABELS) as Array<[ModalFrete, string]>).map(
+  ([valor, label]) => ({ valor, label }),
+)
+const OPCOES_MODALIDADE = (Object.entries(MODALIDADE_LABELS) as Array<[ModalidadeCarga, string]>).map(
+  ([valor, label]) => ({ valor, label }),
+)
+const OPCOES_VISIBILIDADE: Array<{ valor: string; label: string }> = [
+  { valor: 'ABERTA', label: 'Aberta' },
+  { valor: 'DIRECIONADA', label: 'Direcionada' },
+]
+const OPCOES_ANONIMA: Array<{ valor: string; label: string }> = [
+  { valor: 'true', label: 'Sim' },
+  { valor: 'false', label: 'Não' },
+]
+const OPCOES_INCOTERM = INCOTERMS.map(inc => ({ valor: inc, label: inc }))
+const OPCOES_STATUS_PADRAO = (Object.entries(STATUS_LABELS) as Array<[StatusCotacao, string]>).map(
+  ([valor, label]) => ({ valor, label }),
+)
+
+function aplicarConfigEdicaoColuna(
+  col: GTColuna<Cotacao>,
+  opcoes: OpcoesColunasLista,
+): GTColuna<Cotacao> {
+  const key = col.key as string
+  if (!key || CAMPOS_NAO_EDITAVEIS_LISTA.has(key)) {
+    return col
+  }
+
+  const base: GTColuna<Cotacao> = { ...col, editavel: true }
+
+  switch (key) {
+    case 'status_cotacao_bid_frete_internacional':
+      return {
+        ...base,
+        opcoes: opcoes.statusOpcoes?.length ? opcoes.statusOpcoes : OPCOES_STATUS_PADRAO,
+      }
+    case 'tipo_operacao_cotacao_bid_frete_internacional':
+      return { ...base, opcoes: OPCOES_OPERACAO }
+    case 'modal_cotacao_bid_frete_internacional':
+      return { ...base, opcoes: OPCOES_MODAL }
+    case 'modalidade_cotacao_bid_frete_internacional':
+      return { ...base, opcoes: OPCOES_MODALIDADE }
+    case 'visibilidade_cotacao_bid_frete_internacional':
+      return { ...base, opcoes: OPCOES_VISIBILIDADE }
+    case 'anonima_cotacao_bid_frete_internacional':
+      return {
+        ...base,
+        opcoes: OPCOES_ANONIMA,
+        getValorEditar: (item: Cotacao) => String(!!item.anonima_cotacao_bid_frete_internacional),
+      }
+    case 'incoterm_cotacao_bid_frete_internacional':
+      return { ...base, opcoes: OPCOES_INCOTERM }
+    case 'id_organizacao':
+      return {
+        ...base,
+        opcoes: opcoes.organizacoesMap
+          ? [...opcoes.organizacoesMap.entries()].map(([valor, label]) => ({ valor, label }))
+          : undefined,
+        getValorEditar: (item: Cotacao) => item.id_organizacao,
+      }
+    case 'id_workspace':
+      return {
+        ...base,
+        opcoes: opcoes.workspacesMap
+          ? [...opcoes.workspacesMap.entries()].map(([valor, w]) => ({
+              valor,
+              label: w.nome,
+            }))
+          : undefined,
+        getValorEditar: (item: Cotacao) => item.id_workspace ?? '',
+      }
+    case 'id_usuario':
+      return {
+        ...base,
+        opcoes: opcoes.usuariosMap
+          ? [...opcoes.usuariosMap.entries()].map(([valor, label]) => ({ valor, label }))
+          : undefined,
+        getValorEditar: (item: Cotacao) => item.id_usuario ?? '',
+      }
+    case 'id_produto_gravity':
+      return {
+        ...base,
+        opcoes: [{ valor: 'bid-frete-internacional', label: 'BID Frete Internacional' }],
+      }
+    default:
+      return base
+  }
 }
 
 const LABEL_PRODUTO_GRAVITY: Record<string, string> = {
@@ -284,7 +384,7 @@ export function formatValorExportColuna(
 }
 
 /** Todas as colunas escalares de `cotacao_bid_frete_internacional` (fragment.prisma). */
-export function buildColunasCotacoes(
+function buildColunasCotacoesBase(
   _t: unknown,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
@@ -465,6 +565,12 @@ export function buildColunasCotacoes(
       render: renderTexto,
     },
     {
+      key: 'endereco_destino_cotacao_bid_frete_internacional',
+      label: 'Endereço destino',
+      tipo: 'texto',
+      render: renderTexto,
+    },
+    {
       key: 'descricao_mercadoria_cotacao_bid_frete_internacional',
       label: 'Descrição mercadoria',
       tipo: 'texto',
@@ -606,6 +712,16 @@ export function buildColunasCotacoes(
   ]
 }
 
+export function buildColunasCotacoes(
+  t: unknown,
+  opcoes: OpcoesColunasLista = {},
+  onAbrirCotacao?: (cotacao: Cotacao) => void,
+): GTColuna<Cotacao>[] {
+  return buildColunasCotacoesBase(t, opcoes, onAbrirCotacao).map(col =>
+    aplicarConfigEdicaoColuna(col, opcoes),
+  )
+}
+
 /** Colunas da linha pai (cotação avulsa ou BID agrupado). */
 export function buildColunasPaiLista(
   t: unknown,
@@ -613,9 +729,17 @@ export function buildColunasPaiLista(
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<LinhaPaiLista>[] {
   const colunasCotacao = buildColunasCotacoes(t, opcoes, onAbrirCotacao)
+  const tooltipBid =
+    'Expanda o BID e edite cada cotação na linha filha.'
 
   return colunasCotacao.map((col) => ({
     ...col,
+    editavel: (item: LinhaPaiLista) => {
+      if (isLinhaBidGrupo(item)) return false
+      return true
+    },
+    tooltipBloqueado: (item: LinhaPaiLista) =>
+      isLinhaBidGrupo(item) ? tooltipBid : undefined,
     render: (val: unknown, item: LinhaPaiLista) => {
       if (col.key === 'numero_cotacao_bid_frete_internacional' && isLinhaBidGrupo(item)) {
         return (
@@ -658,11 +782,16 @@ export function buildMapaColunasFilho(
   return mapa
 }
 
-const COLUNAS_COTACAO_BASE = buildColunasCotacoes(null)
+const COLUNAS_COTACAO_BASE = buildColunasCotacoesBase(null)
 
 export const CHAVES_COLUNAS_COTACAO = COLUNAS_COTACAO_BASE
   .map(c => c.key)
   .filter((k): k is string => typeof k === 'string')
+
+/** Whitelist de campos editáveis inline na lista (todas as colunas exceto técnicas). */
+export const CAMPOS_EDITAVEIS_LISTA = CHAVES_COLUNAS_COTACAO.filter(
+  k => !CAMPOS_NAO_EDITAVEIS_LISTA.has(k),
+)
 
 /** Colunas visíveis por padrão (exclui técnicas como ID interno). */
 export const CHAVES_COLUNAS_PADRAO_VISIVEIS = COLUNAS_COTACAO_BASE

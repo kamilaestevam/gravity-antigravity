@@ -3,7 +3,7 @@
  *
  * Cenários por coluna:
  *   A) somente no pedido (linha pai)
- *   B) somente no item (linha filho — esperado: não editável)
+ *   B) na linha filho — editável e roteia PATCH para o pedido (não PUT item)
  *   C) pedido + checkbox "Aplicar a todos" (logística: checkbox não deve aparecer)
  *
  * Uso: npx tsx testes/testes-em-tela/pedido/run-logistica-colunas-inline.ts
@@ -24,7 +24,7 @@ if (!process.env.CLERK_PUBLISHABLE_KEY && process.env.VITE_CLERK_PUBLISHABLE_KEY
   process.env.CLERK_PUBLISHABLE_KEY = process.env.VITE_CLERK_PUBLISHABLE_KEY
 }
 
-const OUT = resolve(__dirRoot, '2026-05-28-logistica-colunas-inline')
+const OUT = resolve(__dirRoot, '2026-05-29-logistica-item-roteia-pedido')
 const BASE_UI = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:8000'
 const WORKSPACE_CDE_PADRAO = process.env.ID_WORKSPACE_TESTE ?? 'cmorx5iwh000aclwynp7y1ofm'
 
@@ -120,7 +120,11 @@ async function autenticarClerk(page: Page): Promise<boolean> {
     log('⚠ CLERK_SECRET_KEY ausente')
     return false
   }
-  await page.goto(`${BASE_UI}/login`, { waitUntil: 'domcontentloaded', timeout: 45000 })
+  await page.goto(`${BASE_UI}/login`, { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await page.waitForFunction(() => {
+    const c = (window as unknown as { Clerk?: { loaded?: boolean; client?: unknown } }).Clerk
+    return Boolean(c?.loaded && c?.client)
+  }, undefined, { timeout: 60000 })
   await clerk.signIn({ page, emailAddress: email })
   await aguardarMeComOrganizacao(page)
   await prepararEscopoWorkspaces(page)
@@ -309,53 +313,60 @@ async function testarSomentePedido(
   return ok ? 'PASS' : 'FAIL'
 }
 
-/** Cenário B — tentativa na linha filho */
+/** Cenário B — edição na linha filho (roteia para PATCH pedido, sem erro 400 em item) */
 async function testarSomenteItem(
   page: Page,
   col: ColunaLogistica,
+  rowId: string,
   prefix: string,
-): Promise<'PASS' | 'N/A'> {
+): Promise<'PASS' | 'FAIL'> {
   await expandirPrimeiroPedido(page)
   await scrollColunaParaVisivel(page, col.key)
 
-  const celFilhoEditavel = page.locator(
-    `.gtv-linha--filho [data-gtv-campo="${col.key}"]`,
-  )
-  const celFilhoColuna = page.locator('.gtv-linha--filho').first().locator(
-    `.gtv-celula`,
-  )
-
-  const countEditavel = await page.locator(
+  const celFilho = page.locator(
     `.gtv-linha--filho[data-gtv-filho-rowid][data-gtv-campo="${col.key}"]`,
-  ).count()
+  ).first()
 
   await screenshot(page, `${prefix}-03-item-linha-expandida.png`)
 
-  if (countEditavel > 0) {
-    await page.locator(
-      `.gtv-linha--filho[data-gtv-filho-rowid][data-gtv-campo="${col.key}"]`,
-    ).first().click()
-    const popoverAbriu = await page.locator('.gtv-edit-popover').isVisible().catch(() => false)
-    if (popoverAbriu) {
-      log(`  ⚠ item: popover abriu (inesperado para ${col.key})`)
-      await fecharPopover(page)
-      return 'N/A'
-    }
+  if (await celFilho.count() === 0) {
+    log(`  ✗ item: célula editável não encontrada para ${col.key}`)
+    await screenshot(page, `${prefix}-04-item-celula-ausente.png`)
+    return 'FAIL'
   }
 
-  const textoColuna = await page.evaluate((colKey) => {
-    const filho = document.querySelector('.gtv-linha--filho')
-    if (!filho) return ''
-    const headers = Array.from(document.querySelectorAll('[data-find-col-key]'))
-    const idx = headers.findIndex(h => h.getAttribute('data-find-col-key') === colKey)
-    if (idx < 0) return ''
-    const cells = filho.querySelectorAll('.gtv-celula:not(.gtv-col-fixa)')
-    return cells[idx]?.textContent?.trim() ?? ''
-  }, col.key)
+  const antesItem = (await celFilho.innerText()).trim()
+  await celFilho.click()
+  const popoverAbriu = await page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  if (!popoverAbriu) {
+    log(`  ✗ item: popover não abriu para ${col.key}`)
+    await screenshot(page, `${prefix}-04-item-popover-nao-abriu.png`)
+    return 'FAIL'
+  }
+  await screenshot(page, `${prefix}-04-item-popover-aberto.png`)
 
-  log(`  ✓ item: não editável (data-gtv-campo ausente). Texto coluna="${textoColuna || '—'}"`)
-  await screenshot(page, `${prefix}-04-item-nao-editavel.png`)
-  return 'PASS'
+  await selecionarOpcaoNoPopover(page, col.opcaoContem)
+  const notif = await aguardarNotificacao(page, 12000)
+  await page.waitForTimeout(1000)
+  await screenshot(page, `${prefix}-05-item-apos-salvar.png`)
+
+  if (notif === 'erro') {
+    log(`  ✗ item: toast de erro ao salvar ${col.key} (esperado sucesso via pedido)`)
+    return 'FAIL'
+  }
+
+  const depoisItem = (await celFilho.innerText()).trim()
+  const depoisPai = await lerTextoCelulaPai(page, rowId, col.key)
+  const codigoEsperado = col.opcaoContem.split('—')[0].trim()
+  const ok = (notif === 'sucesso' || notif === 'nenhuma')
+    && depoisItem !== '—'
+    && (
+      depoisItem.includes(codigoEsperado)
+      || depoisItem !== antesItem
+      || depoisPai.includes(codigoEsperado)
+    )
+  log(`  ${ok ? '✓' : '✗'} item→pedido: notif=${notif}, item="${depoisItem.slice(0, 40)}", pai="${depoisPai.slice(0, 40)}"`)
+  return ok ? 'PASS' : 'FAIL'
 }
 
 /** Cenário C — popover pai: checkbox replicar (logística não deve exibir) */
@@ -425,7 +436,7 @@ async function testarUi() {
       const rPedido = await testarSomentePedido(page, col, rowId, prefix)
       await fecharPopover(page)
 
-      const rItem = await testarSomenteItem(page, col, prefix)
+      const rItem = await testarSomenteItem(page, col, rowId, prefix)
       await fecharPopover(page)
 
       const rReplicar = await testarPedidoReplicar(page, col, rowId, prefix)
@@ -438,9 +449,9 @@ async function testarUi() {
       }
     }
 
-    const falhas = Object.entries(resultados).filter(([, r]) => r.pedido === 'FAIL')
+    const falhas = Object.entries(resultados).filter(([, r]) => r.pedido === 'FAIL' || r.item === 'FAIL' || r.replicar === 'FAIL')
     if (falhas.length > 0) {
-      throw new Error(`Falhas: ${falhas.map(([k, r]) => `${k}(pedido=${r.pedido},replicar=${r.replicar})`).join(', ')}`)
+      throw new Error(`Falhas: ${falhas.map(([k, r]) => `${k}(pedido=${r.pedido},item=${r.item},replicar=${r.replicar})`).join(', ')}`)
     }
   } finally {
     await browser.close()

@@ -38,7 +38,7 @@ import {
   Gauge,
 } from '@phosphor-icons/react'
 
-import { getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao } from '../shared/api'
+import { atualizarCotacao, getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao, mudarStatusCotacao } from '../shared/api'
 import type { BidFreteInternacional, Cotacao, StatusCotacao } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, MODALIDADE_LABELS } from '../shared/types'
 import {
@@ -59,6 +59,7 @@ import {
   buildColunasPaiLista,
   buildColunasCotacoes,
   buildMapaColunasFilho,
+  CAMPOS_EDITAVEIS_LISTA,
   CHAVES_COLUNAS_COTACAO,
   CHAVES_COLUNAS_PADRAO_VISIVEIS,
   type OpcoesColunasLista,
@@ -131,23 +132,71 @@ function gerarAbasDinamicas(statusList: StatusConfig[]): Array<{ valor: string; 
   return abas
 }
 
-// ─── Campos Editáveis Inline ───
+// ─── Colunas padrão = todas as colunas escalares do banco ───
 
-const CAMPOS_EDITAVEIS = [
-  'referencia_interna_cotacao_bid_frete_internacional',
+const CAMPOS_DATA_COTACAO = new Set([
   'data_limite_resposta_cotacao_bid_frete_internacional',
-  'origem_nome_cotacao_bid_frete_internacional',
-  'destino_nome_cotacao_bid_frete_internacional',
-  'modal_cotacao_bid_frete_internacional',
-  'modalidade_cotacao_bid_frete_internacional',
+  'data_criacao_cotacao_bid_frete_internacional',
+  'data_aprovacao_cotacao_bid_frete_internacional',
+  'data_cancelamento_cotacao_bid_frete_internacional',
+])
+
+const CAMPOS_NUMERICOS_COTACAO = new Set([
+  'quantidade_cotacao_bid_frete_internacional',
   'peso_kg_cotacao_bid_frete_internacional',
   'cubagem_m3_cotacao_bid_frete_internacional',
-  'quantidade_cotacao_bid_frete_internacional',
-  'incoterm_cotacao_bid_frete_internacional',
   'valor_meta_cotacao_bid_frete_internacional',
-]
+  'ganho_valor_cotacao_bid_frete_internacional',
+  'ganho_percentual_cotacao_bid_frete_internacional',
+])
 
-// ─── Colunas padrão = todas as colunas escalares do banco ───
+function normalizarDataIsoEdicao(valor: unknown): string | null {
+  if (valor == null || valor === '') return null
+  if (typeof valor === 'string') {
+    const parsed = new Date(valor)
+    if (!Number.isNaN(parsed.getTime())) return parsed.toISOString()
+    return valor
+  }
+  if (valor instanceof Date && !Number.isNaN(valor.getTime())) {
+    return valor.toISOString()
+  }
+  return String(valor)
+}
+
+function normalizarValorEdicaoCotacao(campo: string, valor: unknown): unknown {
+  if (campo === 'anonima_cotacao_bid_frete_internacional') {
+    if (typeof valor === 'boolean') return valor
+    return valor === true || valor === 'true' || valor === 'Sim'
+  }
+  if (CAMPOS_DATA_COTACAO.has(campo)) {
+    return normalizarDataIsoEdicao(valor)
+  }
+  if (CAMPOS_NUMERICOS_COTACAO.has(campo)) {
+    if (valor == null || valor === '') return null
+    const n = typeof valor === 'number' ? valor : Number(String(valor).replace(/\./g, '').replace(',', '.'))
+    return Number.isFinite(n) ? n : null
+  }
+  if (valor === '' || valor === '—') return null
+  return valor
+}
+
+function patchCotacaoNoEstado(
+  cotacao: Cotacao,
+  setCotacoes: Dispatch<SetStateAction<Cotacao[]>>,
+  setCotacoesAvulsas: Dispatch<SetStateAction<Cotacao[]>>,
+  setBids: Dispatch<SetStateAction<BidFreteInternacional[]>>,
+): void {
+  const id = cotacao.id_cotacao_bid_frete_internacional
+  const patch = (c: Cotacao) => (c.id_cotacao_bid_frete_internacional === id ? cotacao : c)
+  setCotacoes(prev => prev.map(patch))
+  setCotacoesAvulsas(prev => prev.map(patch))
+  setBids(prev =>
+    prev.map(bid => ({
+      ...bid,
+      cotacoes: (bid.cotacoes ?? []).map(patch),
+    })),
+  )
+}
 
 /** Incrementar quando adicionar colunas ao schema — força reset das prefs salvas. */
 const VERSAO_COLUNAS_LISTA = 3
@@ -266,6 +315,23 @@ export default function Cotacoes() {
     return workspacesMap.get(idWorkspaceAtivo)?.nome
   }, [idWorkspaceAtivo, workspacesMap])
 
+  const [statusConfig, setStatusConfig] = useState<StatusConfig[]>(lerStatusConfig)
+
+  useEffect(() => {
+    const handleStorage = () => setStatusConfig(lerStatusConfig())
+    window.addEventListener('storage', handleStorage)
+    window.addEventListener('focus', handleStorage)
+    return () => {
+      window.removeEventListener('storage', handleStorage)
+      window.removeEventListener('focus', handleStorage)
+    }
+  }, [])
+
+  const statusOpcoesColunas = useMemo(
+    () => statusConfig.map(s => ({ valor: s.nome, label: s.rotulo })),
+    [statusConfig],
+  )
+
   const opcoesColunasLista = useMemo<OpcoesColunasLista>(() => ({
     organizacoesMap,
     workspacesMap,
@@ -273,7 +339,8 @@ export default function Cotacoes() {
     idUsuarioAtual: currentUser.id,
     nomeUsuarioAtual: currentUser.name || currentUser.email,
     nomeWorkspaceFallback: nomeWorkspaceAtivo,
-  }), [organizacoesMap, workspacesMap, usuariosMap, currentUser.id, currentUser.name, currentUser.email, nomeWorkspaceAtivo])
+    statusOpcoes: statusOpcoesColunas,
+  }), [organizacoesMap, workspacesMap, usuariosMap, currentUser.id, currentUser.name, currentUser.email, nomeWorkspaceAtivo, statusOpcoesColunas])
 
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
   const [cotacoesAvulsas, setCotacoesAvulsas] = useState<Cotacao[]>([])
@@ -308,19 +375,6 @@ export default function Cotacoes() {
   }, [searchParams, setSearchParams])
 
   const [filtroTab, setFiltroTab] = useState('TODAS')
-
-  // ─── Status Config dinâmico (sincronizado com Configurações via localStorage) ───
-  const [statusConfig, setStatusConfig] = useState<StatusConfig[]>(lerStatusConfig)
-
-  useEffect(() => {
-    const handleStorage = () => setStatusConfig(lerStatusConfig())
-    window.addEventListener('storage', handleStorage)
-    window.addEventListener('focus', handleStorage)
-    return () => {
-      window.removeEventListener('storage', handleStorage)
-      window.removeEventListener('focus', handleStorage)
-    }
-  }, [])
 
   const abas = useMemo(() => gerarAbasDinamicas(statusConfig), [statusConfig])
   const { visiveis: cardsVisiveis, periodo: periodoCards } = useCardPreferencesBidFrete()
@@ -469,20 +523,61 @@ export default function Cotacoes() {
     [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion, formatoDataVersion],
   )
 
-  const handleEditar = useCallback(async (id: string, campo: string, valor: unknown) => {
-    let updatedCotacao: Cotacao | undefined
-    setCotacoes(prev => prev.map(c => {
-      if (c.id_cotacao_bid_frete_internacional === id) {
-        updatedCotacao = { ...c, [campo as keyof Cotacao]: valor } as Cotacao
-        return updatedCotacao
-      }
-      return c
-    }))
-    const current = cotacoes.find(c => c.id_cotacao_bid_frete_internacional === id)
-    if (!current) throw new Error('Cotação não encontrada')
-    const updated = { ...current, [campo as keyof Cotacao]: valor } as Cotacao
-    return updated
-  }, [cotacoes])
+  const resolverCotacaoPorId = useCallback((id: string): Cotacao | null => {
+    const avulsa = cotacoesAvulsas.find(c => c.id_cotacao_bid_frete_internacional === id)
+    if (avulsa) return avulsa
+    const flat = cotacoes.find(c => c.id_cotacao_bid_frete_internacional === id)
+    if (flat) return flat
+    for (const bid of bidsFreteInternacional) {
+      const filha = (bid.cotacoes ?? []).find(c => c.id_cotacao_bid_frete_internacional === id)
+      if (filha) return filha
+    }
+    return null
+  }, [cotacoes, cotacoesAvulsas, bidsFreteInternacional])
+
+  const salvarEdicaoCotacao = useCallback(async (
+    id: string,
+    campo: string,
+    valor: unknown,
+  ): Promise<Cotacao> => {
+    if (id.startsWith('bid:')) {
+      throw new Error('Expanda o BID e edite a cotação na linha filha.')
+    }
+    const atual = resolverCotacaoPorId(id)
+    if (!atual) throw new Error('Cotação não encontrada')
+
+    const valorNormalizado = normalizarValorEdicaoCotacao(campo, valor)
+
+    let cotacaoSalva: Cotacao
+    if (campo === 'status_cotacao_bid_frete_internacional') {
+      cotacaoSalva = await mudarStatusCotacao(id, valorNormalizado as StatusCotacao)
+    } else {
+      cotacaoSalva = await atualizarCotacao(id, {
+        [campo]: valorNormalizado,
+      } as Partial<Cotacao>)
+    }
+
+    patchCotacaoNoEstado(cotacaoSalva, setCotacoes, setCotacoesAvulsas, setBidsFreteInternacional)
+    return cotacaoSalva
+  }, [resolverCotacaoPorId])
+
+  const handleEditar = useCallback(async (
+    id: string,
+    campo: string,
+    valor: unknown,
+  ): Promise<LinhaPaiLista> => {
+    const cotacaoSalva = await salvarEdicaoCotacao(id, campo, valor)
+    return cotacaoSalva
+  }, [salvarEdicaoCotacao])
+
+  const handleEditarFilho = useCallback(async (
+    id: string,
+    campo: string,
+    valor: unknown,
+  ): Promise<LinhaFilhaLista> => {
+    const cotacaoSalva = await salvarEdicaoCotacao(id, campo, valor)
+    return cotacaoSalva
+  }, [salvarEdicaoCotacao])
 
   // ─── Filtragem Reativa (Busca + Abas) ───
 
@@ -1071,8 +1166,10 @@ export default function Cotacoes() {
             modoLocalizar={true}
             placeholderBusca="Buscar por processo, referência, origem ou destino..."
             
-            camposEditaveis={CAMPOS_EDITAVEIS}
+            camposEditaveis={CAMPOS_EDITAVEIS_LISTA}
+            camposEditaveisFilhos={CAMPOS_EDITAVEIS_LISTA}
             onEditar={handleEditar}
+            onEditarFilho={handleEditarFilho}
             onSalvoComSucesso={() => addNotification({ type: 'success', message: 'Campo atualizado com sucesso.' })}
             onErroAoSalvar={(msg) => addNotification({ type: 'error', message: msg })}
             

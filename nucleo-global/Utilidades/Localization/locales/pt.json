@@ -2227,7 +2227,7 @@
       },
       "status": {
         "titulo": "Status de Cotação",
-        "descricao": "Arraste para reordenar · edite o nome e a cor · status de sistema não podem ser excluídos",
+        "descricao": "Arraste para reordenar · edite o nome e a cor",
         "novo_status": "Novo Status",
         "placeholder_novo": "Nome do novo status (ex.: Em Análise do Armador)",
         "cor": "Cor",
@@ -3918,7 +3918,7 @@
       },
       "status": {
         "titulo": "Status do Pedido",
-        "descricao": "Arraste para reordenar · edite o nome e a cor · status de sistema não podem ser excluídos",
+        "descricao": "Arraste para reordenar · edite o nome e a cor",
         "novo_status": "Novo Status",
         "carregando": "Carregando status…",
         "badge_sistema": "sistema",

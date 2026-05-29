@@ -41,6 +41,7 @@ const CriarCotacaoSchema = z.object({
   incoterm_cotacao_bid_frete_internacional: z.string().min(1),
   zipcode_origem_cotacao_bid_frete_internacional: z.string().optional(),
   endereco_origem_cotacao_bid_frete_internacional: z.string().optional(),
+  endereco_destino_cotacao_bid_frete_internacional: z.string().optional(),
   zipcode_destino_cotacao_bid_frete_internacional: z.string().optional(),
   valor_meta_cotacao_bid_frete_internacional: z.number().positive().optional(),
   moeda_meta_cotacao_bid_frete_internacional: z.string().default('USD'),

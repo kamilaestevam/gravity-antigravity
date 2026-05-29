@@ -341,7 +341,7 @@ app.use('/api/v1/pedidos', (req, res) => {
   headers['x-chave-interna-servico'] = process.env.CHAVE_INTERNA_SERVICO!
 
   const ehImportacaoInteligente = req.originalUrl.includes('/importacoes-inteligentes/')
-  const proxyTimeoutMs = ehImportacaoInteligente ? 600_000 : 60_000
+  const proxyTimeoutMs = ehImportacaoInteligente ? 900_000 : 60_000
 
   let bodyBuf: Buffer | undefined
   if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {

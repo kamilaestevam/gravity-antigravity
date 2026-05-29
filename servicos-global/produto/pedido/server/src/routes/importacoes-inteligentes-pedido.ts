@@ -727,7 +727,7 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
       const service   = criarSmartImportService(db)
       const resultado = await service.confirmar(tenantId, userId, parse.data, companyId, parceirosPorNumero)
       res.json(resultado)
-    }, { timeoutMs: 600_000 })
+    }, { timeoutMs: 900_000 })
   } catch (err) {
     console.error('[smart-import:confirmar] ERRO 500:', err instanceof Error ? err.stack : err)
     if (err instanceof Error && 'meta' in err) {

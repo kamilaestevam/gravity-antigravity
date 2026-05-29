@@ -233,14 +233,16 @@ model CotacaoBidFreteInternacional {
   modal_cotacao_bid_frete_internacional               BidFreteInternacionalModalidade
   modalidade_cotacao_bid_frete_internacional          BidFreteInternacionalModalidadeCarga
 
-  // Rota
+  // Rota — origem (código → nome → país → endereço)
   origem_codigo_cotacao_bid_frete_internacional       String              // UN/LOCODE ou IATA
   origem_nome_cotacao_bid_frete_internacional         String              // Nome legivel (ex: Shanghai)
   origem_pais_cotacao_bid_frete_internacional         String
+  endereco_origem_cotacao_bid_frete_internacional     String?
+  // Rota — destino (código → nome → país → endereço)
   destino_codigo_cotacao_bid_frete_internacional      String
   destino_nome_cotacao_bid_frete_internacional        String              // ex: Santos
   destino_pais_cotacao_bid_frete_internacional        String
-  endereco_origem_cotacao_bid_frete_internacional     String?
+  endereco_destino_cotacao_bid_frete_internacional   String?
 
   // Mercadoria
   descricao_mercadoria_cotacao_bid_frete_internacional String

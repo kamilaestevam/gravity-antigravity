@@ -580,10 +580,6 @@ function StatusSortavel({
 
         <span className="cfg-status-label">{status.rotulo}</span>
 
-        {status.is_sistema && (
-          <span className="cfg-badge-sistema">sistema</span>
-        )}
-
         <div className="cfg-status-acoes">
           <TooltipGlobal descricao="Editar">
             <button
@@ -595,18 +591,16 @@ function StatusSortavel({
               <PencilSimple size={14} weight="bold" />
             </button>
           </TooltipGlobal>
-          {!status.is_sistema && (
-            <TooltipGlobal descricao="Excluir">
-              <button
-                type="button"
-                className="cfg-remove-btn"
-                onClick={() => onExcluir(status.id)}
-                aria-label="Excluir"
-              >
-                <Trash size={14} weight="bold" />
-              </button>
-            </TooltipGlobal>
-          )}
+          <TooltipGlobal descricao="Excluir">
+            <button
+              type="button"
+              className="cfg-remove-btn"
+              onClick={() => onExcluir(status.id)}
+              aria-label="Excluir"
+            >
+              <Trash size={14} weight="bold" />
+            </button>
+          </TooltipGlobal>
         </div>
       </div>
 
@@ -978,10 +972,10 @@ export default function Configuracoes() {
     restaurarStatusConfig,
     statusConfigDirty,
   ] = useConfigState<PedidoStatusConfig[]>('status', [
-    { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
-    { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
-    { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
-    { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
+    { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: false },
+    { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: false },
+    { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: false },
+    { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: false },
     { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: false },
     { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: false },
     { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: false },
@@ -993,10 +987,10 @@ export default function Configuracoes() {
   useEffect(() => {
     if (statusList.length < 9) {
       const canonicals: PedidoStatusConfig[] = [
-        { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
-        { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
-        { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
-        { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
+        { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: false },
+        { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: false },
+        { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: false },
+        { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: false },
         { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: false },
         { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: false },
         { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: false },
@@ -1007,6 +1001,13 @@ export default function Configuracoes() {
       localStorage.setItem('bid-frete:config:status', JSON.stringify(canonicals))
     }
   }, [statusList, setStatusList])
+
+  useEffect(() => {
+    setStatusList(prev => {
+      if (!prev.some(s => s.is_sistema)) return prev
+      return prev.map(s => ({ ...s, is_sistema: false }))
+    })
+  }, [setStatusList])
 
   const [statusBidList, setStatusBidList] = useConfigState<PedidoStatusConfig[]>('status-bid-frete-internacional', [
     { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
@@ -2263,7 +2264,7 @@ export default function Configuracoes() {
                     {t('bidfrete.config.status.titulo', 'Status de Cotação')}
                   </h2>
                   <p className="cfg-secao__desc">
-                    {t('bidfrete.config.status.descricao', 'Arraste para reordenar · edite o nome e a cor · status de sistema não podem ser excluídos')}
+                    {t('bidfrete.config.status.descricao', 'Arraste para reordenar · edite o nome e a cor')}
                   </p>
                 </div>
                 {!statusCriando && (
@@ -2376,7 +2377,6 @@ export default function Configuracoes() {
                 <div key={s.id} className="cfg-status-row">
                   <span className="cfg-status-dot" style={{ background: s.cor }} />
                   <span className="cfg-status-label">{s.rotulo}</span>
-                  {s.is_sistema && <span className="cfg-badge-sistema">Sistema</span>}
                 </div>
               ))}
             </div>

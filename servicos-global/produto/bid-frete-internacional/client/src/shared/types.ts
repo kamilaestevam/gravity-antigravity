@@ -193,6 +193,7 @@ export interface Cotacao {
   zipcode_origem_cotacao_bid_frete_internacional?: string | null
   zipcode_destino_cotacao_bid_frete_internacional: string | null
   endereco_origem_cotacao_bid_frete_internacional?: string | null
+  endereco_destino_cotacao_bid_frete_internacional?: string | null
   estado_provincia_origem_cotacao_bid_frete_internacional?: string | null
   aeroporto_origem_cotacao_bid_frete_internacional?: string | null
   estado_provincia_destino_cotacao_bid_frete_internacional?: string | null

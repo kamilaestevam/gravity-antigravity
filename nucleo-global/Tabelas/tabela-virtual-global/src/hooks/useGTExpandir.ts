@@ -209,22 +209,29 @@ export function useGTExpandir<T, C>(
 
       if (pendentes.length === 0) return merged
 
-      await Promise.all(
+      const carregados = await Promise.all(
         pendentes.map(async item => {
           const id = itemId(item)
           try {
             const filhos = await onCarregarFilhos(item)
-            merged.set(id, filhos)
-            setFilhosCache(prev => {
-              const next = new Map(prev)
-              next.set(id, filhos)
-              return next
-            })
+            return { id, filhos }
           } catch {
-            merged.set(id, [])
+            return { id, filhos: [] as C[] }
           }
         }),
       )
+
+      for (const { id, filhos } of carregados) {
+        merged.set(id, filhos)
+      }
+
+      setFilhosCache(prev => {
+        const next = new Map(prev)
+        for (const { id, filhos } of carregados) {
+          next.set(id, filhos)
+        }
+        return next
+      })
 
       return merged
     },

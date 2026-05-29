@@ -125,7 +125,12 @@ export const motorBid = {
 
       // Se tem tabela padrao e cotacao automatica ativada, gerar resposta automatica
       if (tabelaMatch && fornecedor.cotacao_automatica_fornecedor_bid_frete_internacional) {
-        await this.gerarPropostaAutomatica(prisma, cotacao, fornecedor, tabelaMatch)
+        try {
+          await this.gerarPropostaAutomatica(prisma, cotacao, fornecedor, tabelaMatch)
+        } catch (err: unknown) {
+          const errorMessage = err instanceof Error ? err.message : String(err)
+          console.error('[motor-bid] proposta automatica falhou:', errorMessage)
+        }
       }
     }
 

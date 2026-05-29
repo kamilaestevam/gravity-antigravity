@@ -357,7 +357,7 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
   "descricao_mercadoria": "Auto Parts",
   "incoterm": "FOB",
   "quantidade": 2,
-  "tipo_container": "20DRY"
+  "tipo_container": "22G0"
 }`,
         responseBody: `{
   "cotacao": {

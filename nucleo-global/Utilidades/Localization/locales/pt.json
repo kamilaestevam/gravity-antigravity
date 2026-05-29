@@ -4856,6 +4856,7 @@
       "col_pedido": "Pedido",
       "col_sequencia_item": "Sequência do Item",
       "aria_selecionar_item": "Selecionar item {{item}}",
+      "aria_selecionar_todos": "Selecionar todos os itens",
       "carregando_pedidos": "Carregando pedidos…",
       "erro_calcular_preview": "Erro ao calcular preview",
       "toast_sucesso": "Transferência concluída: {{itens}} item(ns), {{qtd}} un. de {{pedidos}} processadas.",

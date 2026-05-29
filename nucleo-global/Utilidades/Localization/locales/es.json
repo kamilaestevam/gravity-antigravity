@@ -4038,6 +4038,7 @@
       "col_pedido": "Pedido",
       "col_sequencia_item": "Secuencia del Artículo",
       "aria_selecionar_item": "Seleccionar artículo {{item}}",
+      "aria_selecionar_todos": "Seleccionar todos los artículos",
       "carregando_pedidos": "Cargando pedidos…",
       "erro_calcular_preview": "Error al calcular vista previa",
       "toast_sucesso": "Transferencia completada: {{itens}} artículo(s), {{qtd}} un. de {{pedidos}} procesadas.",

@@ -5195,6 +5195,7 @@
       "erro_confirmar": "Error confirming transfer",
       "erro_calcular_preview": "Error calculating preview",
       "aria_selecionar_item": "Select item {{item}}",
+      "aria_selecionar_todos": "Select all items",
       "toast_sucesso": "Transfer completed: {{itens}} item(s), {{qtd}} unit(s) from {{pedidos}} processed.",
       "toast_falha": "Transfer failed: {{msg}}"
     },

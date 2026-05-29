@@ -36,6 +36,16 @@ function useSelecaoPaiFilhosSync(opts: {
     })
   }, [])
 
+  const toggleTodos = useCallback((ids: string[]) => {
+    setSelecionados(prev => {
+      const todosJa = ids.length > 0 && ids.every(id => prev.has(id))
+      const next = new Set(prev)
+      if (todosJa) ids.forEach(id => next.delete(id))
+      else ids.forEach(id => next.add(id))
+      return next
+    })
+  }, [])
+
   // ── filhos selecionados ──
   const [filhosSelecionados, setFilhosSelecionados] = useState<Set<string>>(new Set())
   const filhosCacheMap = useRef<Map<string, ItemFilho>>(new Map())
@@ -98,6 +108,36 @@ function useSelecaoPaiFilhosSync(opts: {
       }
     },
     [selecionados, toggleItem, filhosCache, syncFilhosDoPai, onCarregarFilhos, dados],
+  )
+
+  const toggleTodosComSync = useCallback(
+    async (idsPagina: string[]) => {
+      const todosJaMarcados = idsPagina.length > 0 && idsPagina.every(id => selecionados.has(id))
+      toggleTodos(idsPagina)
+      setPaisAutoPromovidos(new Set())
+
+      let cache = filhosCache
+      if (!todosJaMarcados && onCarregarFilhos) {
+        const merged = new Map(filhosCache)
+        const pendentes = idsPagina
+          .map(id => dados.find(d => d.id === id))
+          .filter((d): d is ItemPai => d != null)
+          .filter(item => !merged.has(item.id))
+
+        await Promise.all(
+          pendentes.map(async item => {
+            const filhos = await onCarregarFilhos(item)
+            merged.set(item.id, filhos)
+          }),
+        )
+        cache = merged
+      }
+
+      for (const paiId of idsPagina) {
+        syncFilhosDoPai(cache.get(paiId) ?? [], !todosJaMarcados)
+      }
+    },
+    [selecionados, toggleTodos, filhosCache, syncFilhosDoPai, onCarregarFilhos, dados],
   )
 
   // ── cleanup ao colapsar + re-sync ao expandir (lógica corrigida) ──
@@ -177,6 +217,7 @@ function useSelecaoPaiFilhosSync(opts: {
     paisAutoPromovidos,
     filhosCacheMap,
     toggleItemComSync,
+    toggleTodosComSync,
     expandir,
     colapsar,
     autoPromover,
@@ -477,5 +518,37 @@ describe('Bug #3 — re-expandir pai selecionado restaura filhos', () => {
 
     act(() => { result.current.expandir('pedido-1', FILHOS_A) })
     expect(result.current.filhosSelecionados.size).toBe(3)
+  })
+})
+
+describe('Bug #4 — selecionar todos (header) carrega filhos sob demanda', () => {
+  it('marca todos os pais e todos os filhos sem expandir', async () => {
+    const onCarregarFilhos = vi.fn(async (item: ItemPai) => {
+      if (item.id === 'pedido-1') return FILHOS_A
+      if (item.id === 'pedido-2') return FILHOS_B
+      return []
+    })
+
+    const { result } = renderHook(() =>
+      useSelecaoPaiFilhosSync({
+        onCarregarFilhos,
+        dados: [PAI_A, PAI_B],
+      }),
+    )
+
+    await act(async () => {
+      await result.current.toggleTodosComSync(['pedido-1', 'pedido-2'])
+    })
+
+    expect(result.current.selecionados.has('pedido-1')).toBe(true)
+    expect(result.current.selecionados.has('pedido-2')).toBe(true)
+    expect(onCarregarFilhos).toHaveBeenCalledTimes(2)
+
+    await waitFor(() => {
+      expect(result.current.filhosSelecionados.size).toBe(4)
+    })
+
+    expect(result.current.filhosSelecionados.has('item-1a')).toBe(true)
+    expect(result.current.filhosSelecionados.has('item-2a')).toBe(true)
   })
 })

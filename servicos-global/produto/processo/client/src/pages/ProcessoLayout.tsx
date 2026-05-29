@@ -15,6 +15,7 @@ import { Outlet, useSearchParams, useNavigate, useLocation } from 'react-router-
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { getProdutoMeta } from '@nucleo/logo-produtos'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import {
   FlowArrow,
@@ -130,6 +131,8 @@ interface NavItem {
   label: string
   icon: React.ReactNode
   id: string
+  /** Contador opcional — exibido apenas quando > 0 e sempre derivado de dado real (REGRA 05/08). */
+  count?: number
 }
 
 interface NavSection {
@@ -137,7 +140,16 @@ interface NavSection {
   items: NavItem[]
 }
 
-const buildNavSections = (processoId: string, idOrganizacao: string): NavSection[] => {
+/** Contadores derivados da fonte primária (ProcessoDetail). Nunca fabricar valores. */
+interface NavCounts {
+  pedidos: number
+}
+
+const buildNavSections = (
+  processoId: string,
+  idOrganizacao: string,
+  counts: NavCounts,
+): NavSection[] => {
   const qs = processoId ? `?id=${processoId}&idOrganizacao=${idOrganizacao}` : ''
 
   return [
@@ -145,7 +157,7 @@ const buildNavSections = (processoId: string, idOrganizacao: string): NavSection
       title: 'Acompanhamento',
       items: [
         { id: 'workflow',  to: `/workflow${qs}`,  label: 'Workflow',  icon: <FlowArrow weight="duotone" size={18} /> },
-        { id: 'pedidos',   to: `/pedidos${qs}`,   label: 'Pedidos',   icon: <Package   weight="duotone" size={18} /> },
+        { id: 'pedidos',   to: `/pedidos${qs}`,   label: 'Pedidos',   icon: <Package   weight="duotone" size={18} />, count: counts.pedidos },
       ],
     },
     {
@@ -195,6 +207,12 @@ const fmtPeso = (val: number) =>
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+
+// Cor de acento do produto Processo (#facc15) — fonte unica: getProdutoMeta.
+// Usada no item ativo do menu (dot + fundo), conforme design-system "3 pontos de contato".
+const PRODUTO_COLOR = getProdutoMeta('processo').color
+// Versao translucida (12%) para o fundo do item ativo — hex de 8 digitos (alpha 0x1f ~= 12%).
+const PRODUTO_COLOR_DIM = `${PRODUTO_COLOR}1f`
 
 // ─── Componente ─────────────────────────────────────────────────────────────
 
@@ -263,9 +281,15 @@ export default function ProcessoLayout() {
     }
   }, [tooltipsDisabled])
 
+  // Contadores derivados da fonte primaria — nunca fabricados (REGRA 05/08).
+  const navCounts = useMemo<NavCounts>(
+    () => ({ pedidos: processo?.pedidos?.length ?? 0 }),
+    [processo]
+  )
+
   const navSections = useMemo(
-    () => buildNavSections(processoId, idOrganizacao),
-    [processoId, idOrganizacao]
+    () => buildNavSections(processoId, idOrganizacao, navCounts),
+    [processoId, idOrganizacao, navCounts]
   )
 
   // Detecta rota ativa para o breadcrumb
@@ -295,7 +319,13 @@ export default function ProcessoLayout() {
 
   return (
     <ProcessoContext.Provider value={{ processo, loading, error, refetch: fetchProcesso }}>
-      <div className={`p2-shell ${sidebarCollapsed ? 'p2-shell--collapsed' : ''}`}>
+      <div
+        className={`p2-shell ${sidebarCollapsed ? 'p2-shell--collapsed' : ''}`}
+        style={{
+          '--p2-produto': PRODUTO_COLOR,
+          '--p2-produto-dim': PRODUTO_COLOR_DIM,
+        } as React.CSSProperties}
+      >
         {/* ─── Sidebar ──────────────────────────────────── */}
         <aside className="p2-sidebar">
           {/* Breadcrumb / Back */}
@@ -419,6 +449,9 @@ export default function ProcessoLayout() {
                     >
                       <span className="p2-nav-icon">{item.icon}</span>
                       <span className="p2-nav-label">{item.label}</span>
+                      {item.count != null && item.count > 0 && (
+                        <span className="p2-nav-badge">{item.count}</span>
+                      )}
                     </button>
                   )
                 })}

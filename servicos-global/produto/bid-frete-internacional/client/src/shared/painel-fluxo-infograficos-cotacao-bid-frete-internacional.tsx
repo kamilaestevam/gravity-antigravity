@@ -25,10 +25,12 @@ import {
   indiceFluxoPorStatus,
 } from './infograficos-fluxo-cotacao-bid-frete-internacional'
 import type {
+  BarraComparativoInsight,
   ComparativoMetricaPainel,
   InfograficosFluxoCotacao,
   PainelSmartInsightsDados,
 } from './infograficos-fluxo-cotacao-bid-frete-internacional'
+import type { TFunction } from 'i18next'
 import {
   AnelProgressoInsight,
   GraficoAreaTermometro,
@@ -216,30 +218,76 @@ export interface PainelFluxoInfograficosCotacaoProps {
   propostas: PropostaRankingBidFreteInternacional[]
 }
 
+function criarTextoVsGanhador(
+  t: TFunction,
+  melhorMenor: boolean,
+  sufixoDiff: string,
+): (barra: BarraComparativoInsight, valorGanhador: number) => string {
+  return (barra, valorGanhador) => {
+    if (barra.destaque) {
+      return t('bidfrete.detalhe_cotacao.spark_melhor_proposta', 'Melhor proposta (ganhador)')
+    }
+    const diff = Math.abs(barra.valor - valorGanhador)
+    if (diff === 0) {
+      return t('bidfrete.detalhe_cotacao.spark_igual_ganhador', 'Igual ao ganhador')
+    }
+    const diffFmt = sufixoDiff ? `${diff} ${sufixoDiff}` : String(diff)
+    if (melhorMenor) {
+      if (barra.valor > valorGanhador) {
+        return t('bidfrete.detalhe_cotacao.spark_pior_vs_ganhador', '+{{diff}} vs ganhador', { diff: diffFmt })
+      }
+      return t('bidfrete.detalhe_cotacao.spark_melhor_vs_ganhador', '{{diff}} melhor que o ganhador', { diff: diffFmt })
+    }
+    if (barra.valor < valorGanhador) {
+      return t('bidfrete.detalhe_cotacao.spark_pior_vs_ganhador_menos', '−{{diff}} vs ganhador', { diff: diffFmt })
+    }
+    return t('bidfrete.detalhe_cotacao.spark_melhor_vs_ganhador_mais', '+{{diff}} vs ganhador', { diff: diffFmt })
+  }
+}
+
 function CelulaMetricaComparativo({
   label,
   valor,
   comparativo,
-  tooltipTitle,
+  rotuloMetrica,
+  formatarValor,
+  sufixoDiff = '',
 }: {
   label: string
   valor: string
   comparativo: ComparativoMetricaPainel | null
-  tooltipTitle?: string
+  rotuloMetrica: string
+  formatarValor: (v: number) => string
+  sufixoDiff?: string
 }) {
+  const { t } = useTranslation()
+  const textoVsGanhador = comparativo != null
+    ? criarTextoVsGanhador(t, comparativo.melhorMenor, sufixoDiff)
+    : () => ''
+
+  if (comparativo == null || comparativo.barras.length === 0) {
+    return (
+      <div className="dc-smart-metrica-col">
+        <span className="dc-smart-metrica-label">{label}</span>
+        <span className="dc-smart-metrica-valor">{valor}</span>
+      </div>
+    )
+  }
+
   return (
-    <div className="dc-smart-metrica-col" title={tooltipTitle}>
+    <div className="dc-smart-metrica-col">
       <span className="dc-smart-metrica-label">{label}</span>
       <span className="dc-smart-metrica-valor">{valor}</span>
-      {comparativo != null && comparativo.barras.length > 0 && (
-        <div className="dc-smart-metrica-spark">
-          <SparkBarrasComparativo
-            barras={comparativo.barras}
-            melhorMenor={comparativo.melhorMenor}
-            variante="indigo"
-          />
-        </div>
-      )}
+      <div className="dc-smart-metrica-spark">
+        <SparkBarrasComparativo
+          barras={comparativo.barras}
+          melhorMenor={comparativo.melhorMenor}
+          variante="indigo"
+          rotuloMetrica={rotuloMetrica}
+          formatarValor={formatarValor}
+          textoVsGanhador={textoVsGanhador}
+        />
+      </div>
     </div>
   )
 }
@@ -272,6 +320,11 @@ function CardMelhorPropostaSmart({
   const escala = resumo.quantidadeEscala === 0
     ? t('bidfrete.comparativo.direto', 'Direto')
     : String(resumo.quantidadeEscala)
+  const fmtDias = (v: number) => `${v} ${diasLabel}`
+  const fmtEscala = (v: number) => (v === 0 ? t('bidfrete.comparativo.direto', 'Direto') : String(v))
+  const rotuloTransit = t('bidfrete.detalhe_cotacao.cockpit_transit_time', 'Transit Time')
+  const rotuloFree = t('bidfrete.detalhe_cotacao.info_free_time', 'Free Time')
+  const rotuloEscala = t('bidfrete.detalhe_cotacao.cockpit_escala', 'Escala')
 
   return (
     <article className="dc-smart-card dc-smart-card--melhor">
@@ -283,19 +336,28 @@ function CardMelhorPropostaSmart({
         <p className="dc-smart-valor-hero">{moeda(resumo.valorTotal, resumo.moeda)}</p>
         <div className="dc-smart-metricas-row" role="list">
           <CelulaMetricaComparativo
-            label={t('bidfrete.detalhe_cotacao.cockpit_transit_time', 'Transit Time')}
+            label={rotuloTransit}
             valor={`${resumo.diasTransito} ${diasLabel}`}
             comparativo={smart.comparativoTransito}
+            rotuloMetrica={rotuloTransit}
+            formatarValor={fmtDias}
+            sufixoDiff={diasLabel}
           />
           <CelulaMetricaComparativo
-            label={t('bidfrete.detalhe_cotacao.info_free_time', 'Free Time')}
+            label={rotuloFree}
             valor={freeTime}
             comparativo={smart.comparativoFreeTime}
+            rotuloMetrica={rotuloFree}
+            formatarValor={fmtDias}
+            sufixoDiff={diasLabel}
           />
           <CelulaMetricaComparativo
-            label={t('bidfrete.detalhe_cotacao.cockpit_escala', 'Escala')}
+            label={rotuloEscala}
             valor={escala}
             comparativo={smart.comparativoEscala}
+            rotuloMetrica={rotuloEscala}
+            formatarValor={fmtEscala}
+            sufixoDiff={t('bidfrete.detalhe_cotacao.spark_sufixo_escala', 'escala(s)')}
           />
         </div>
       </div>

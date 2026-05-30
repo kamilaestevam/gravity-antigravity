@@ -114,6 +114,11 @@
 
 .dc-cockpit-insights-row {
   margin-bottom: 1.15rem;
+  overflow: visible;
+}
+
+.dc-smart-insights {
+  overflow: visible;
 }
 
 /* Painel Smart Insights — mesmo DNA dos cards dc-dados-card */
@@ -131,6 +136,7 @@
   gap: 1.15rem;
   /* start: evita card do termômetro esticar vazio quando o vizinho (Melhor proposta) é mais alto */
   align-items: start;
+  overflow: visible;
 }
 
 @media (max-width: 1100px) {
@@ -171,6 +177,13 @@
 
 .dc-smart-card--melhor {
   border-color: rgba(99, 102, 241, 0.22);
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+}
+
+.dc-smart-card--melhor:has(.dc-spark-bar-wrap:hover) {
+  z-index: 30;
 }
 
 .dc-smart-card--melhor:hover {
@@ -225,6 +238,10 @@
   padding: 0.85rem 1.2rem 1.1rem;
 }
 
+.dc-smart-card--melhor .dc-smart-card-body {
+  overflow: visible;
+}
+
 .dc-smart-trophy { color: var(--warning, #f59e0b); flex-shrink: 0; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.35)); }
 
 .dc-smart-valor-hero {
@@ -252,6 +269,13 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
   padding-top: 0.25rem;
+  overflow: visible;
+}
+
+.dc-smart-card--melhor .dc-smart-metricas-row {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 0.35rem;
 }
 
 .dc-smart-metrica-col {
@@ -270,10 +294,13 @@
   border: 1px solid rgba(99, 102, 241, 0.08);
   border-radius: 10px;
   padding: 0.6rem 0.5rem 0.5rem;
+  overflow: visible;
   transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .dc-smart-card--melhor .dc-smart-metrica-col:hover {
+  position: relative;
+  z-index: 40;
   transform: translateY(-1px);
   background: rgba(15, 23, 42, 0.6);
   border-color: rgba(99, 102, 241, 0.22);
@@ -313,6 +340,18 @@
   height: 36px;
   display: flex;
   align-items: flex-end;
+  overflow: visible;
+}
+
+.dc-spark-bar-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.dc-spark-bar-wrap:hover {
+  z-index: 50;
 }
 
 .dc-smart-spark-barras,
@@ -321,6 +360,63 @@
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.dc-spark-bar-tooltip {
+  min-width: 148px;
+  max-width: min(180px, 28vw);
+  padding: 0.45rem 0.55rem;
+  border-radius: 6px;
+  background: #1e293b;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.55);
+  color: #f8fafc;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.dc-spark-bar-tooltip--portal {
+  z-index: 10050;
+}
+
+.dc-spark-bar-tooltip-empresa {
+  display: block;
+  font-weight: 800;
+  color: #e2e8f0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 0.2rem;
+  padding-bottom: 0.15rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dc-spark-bar-tooltip-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.dc-spark-bar-tooltip-label {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.dc-spark-bar-tooltip-valor {
+  font-weight: 700;
+  text-align: right;
+}
+
+.dc-spark-bar-tooltip-linha--vs {
+  margin-top: 0.12rem;
+}
+
+.dc-spark-bar-tooltip-vs {
+  color: #a5b4fc;
+  font-weight: 600;
+  font-size: 0.625rem;
 }
 
 .dc-smart-fornecedor-foot {

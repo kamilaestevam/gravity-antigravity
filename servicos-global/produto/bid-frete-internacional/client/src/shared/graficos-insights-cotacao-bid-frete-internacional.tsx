@@ -2,7 +2,8 @@
  * Gráficos SVG do Painel Smart Insights (detalhe da cotação).
  */
 
-import { useCallback, useId, useMemo, useState, useEffect } from 'react'
+import { useCallback, useId, useLayoutEffect, useMemo, useRef, useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import type { BarraComparativoInsight, PontoSerieHistoricoTermometro } from './infograficos-fluxo-cotacao-bid-frete-internacional'
 
 function formatarValorTermometro(valor: number, moeda: string): string {
@@ -28,65 +29,222 @@ function normalizarBarras(barras: BarraComparativoInsight[]): number[] {
   return barras.map((b) => 0.28 + ((b.valor - min) / span) * 0.62)
 }
 
+interface AncoraTooltipSpark {
+  left: number
+  top: number
+}
+
+function calcularPosicaoTooltipPortal(ancora: AncoraTooltipSpark): {
+  left: number
+  top: number
+  transform: string
+} {
+  const margin = 8
+  const larguraEstimada = 168
+  const alturaEstimada = 88
+  const left = Math.min(
+    window.innerWidth - larguraEstimada / 2 - margin,
+    Math.max(larguraEstimada / 2 + margin, ancora.left),
+  )
+  const espacoAbaixo = window.innerHeight - ancora.top - margin
+  if (espacoAbaixo >= alturaEstimada) {
+    return { left, top: ancora.top + 8, transform: 'translateX(-50%)' }
+  }
+  return { left, top: ancora.top - 8, transform: 'translate(-50%, -100%)' }
+}
+
+function calcularAncoraTooltipBarra(
+  wrapEl: HTMLDivElement,
+  indiceBarra: number,
+  startX: number,
+  barW: number,
+  gap: number,
+  viewBoxW: number,
+  viewBoxH: number,
+): AncoraTooltipSpark {
+  const rect = wrapEl.getBoundingClientRect()
+  const escalaX = rect.width / viewBoxW
+  const escalaY = rect.height / viewBoxH
+  const centroXView = startX + indiceBarra * (barW + gap) + barW / 2
+  const left = rect.left + centroXView * escalaX
+  const top = rect.top + viewBoxH * escalaY
+  return { left, top }
+}
+
+function TooltipSparkBarraPortal({
+  barra,
+  valorGanhador,
+  rotuloMetrica,
+  formatarValor,
+  textoVsGanhador,
+  ancora,
+}: {
+  barra: BarraComparativoInsight
+  valorGanhador: number
+  rotuloMetrica: string
+  formatarValor: (valor: number) => string
+  textoVsGanhador: (barra: BarraComparativoInsight, valorGanhador: number) => string
+  ancora: AncoraTooltipSpark
+}) {
+  const [pos, setPos] = useState(() => calcularPosicaoTooltipPortal(ancora))
+
+  useLayoutEffect(() => {
+    setPos(calcularPosicaoTooltipPortal(ancora))
+  }, [ancora.left, ancora.top])
+
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
+    <div
+      className="dc-spark-bar-tooltip dc-spark-bar-tooltip--portal"
+      style={{
+        position: 'fixed',
+        left: pos.left,
+        top: pos.top,
+        transform: pos.transform,
+      }}
+      role="tooltip"
+    >
+      <span className="dc-spark-bar-tooltip-empresa" title={barra.fornecedor}>
+        {barra.fornecedor}
+      </span>
+      <div className="dc-spark-bar-tooltip-linha">
+        <span className="dc-spark-bar-tooltip-label">{rotuloMetrica}</span>
+        <span className="dc-spark-bar-tooltip-valor">{formatarValor(barra.valor)}</span>
+      </div>
+      <div className="dc-spark-bar-tooltip-linha dc-spark-bar-tooltip-linha--vs">
+        <span className="dc-spark-bar-tooltip-vs">
+          {textoVsGanhador(barra, valorGanhador)}
+        </span>
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
 export function SparkBarrasComparativo({
   barras,
   melhorMenor,
   variante = 'azul',
+  rotuloMetrica = 'Valor',
+  formatarValor = (v: number) => String(v),
+  textoVsGanhador,
 }: {
   barras: BarraComparativoInsight[]
   melhorMenor: boolean
   variante?: 'azul' | 'amber' | 'indigo'
+  rotuloMetrica?: string
+  formatarValor?: (valor: number) => string
+  textoVsGanhador: (barra: BarraComparativoInsight, valorGanhador: number) => string
 }) {
   const uid = useId().replace(/:/g, '')
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null)
+  const [ancoraTooltip, setAncoraTooltip] = useState<AncoraTooltipSpark | null>(null)
   const alturas = normalizarBarras(barras)
   const W = 72
   const H = 36
-  const gap = barras.length > 4 ? 2 : 3
-  const barW = Math.max(4, (W - gap * (barras.length - 1)) / Math.max(barras.length, 1))
+  const n = barras.length
+  const gap = n > 4 ? 2 : 3
+  const barW = Math.max(4, (W - gap * (n - 1)) / Math.max(n, 1))
+  const totalW = n * barW + (n - 1) * gap
+  const startX = Math.max(0, (W - totalW) / 2)
+
+  const valorGanhador = useMemo(() => {
+    const ganhador = barras.find((b) => b.destaque)
+    return ganhador?.valor ?? barras[0]?.valor ?? 0
+  }, [barras])
 
   const stopColorNormalStart = variante === 'indigo' ? 'rgba(99, 102, 241, 0.25)' : variante === 'amber' ? '#f59e0b' : '#818cf8'
   const stopColorNormalEnd = variante === 'indigo' ? 'rgba(99, 102, 241, 0.4)' : variante === 'amber' ? '#d97706' : '#4f46e5'
   const stopColorBestStart = variante === 'indigo' ? '#818cf8' : variante === 'amber' ? '#fbbf24' : '#4ade80'
   const stopColorBestEnd = variante === 'indigo' ? '#6366f1' : variante === 'amber' ? '#f59e0b' : '#22c55e'
 
+  const barraHover = hoverIndex != null ? barras[hoverIndex] : null
+
+  const atualizarAncora = useCallback((indice: number) => {
+    const wrap = wrapRef.current
+    if (!wrap) return
+    setAncoraTooltip(calcularAncoraTooltipBarra(wrap, indice, startX, barW, gap, W, H))
+  }, [startX, barW, gap])
+
+  const limparHover = useCallback(() => {
+    setHoverIndex(null)
+    setAncoraTooltip(null)
+  }, [])
+
+  useEffect(() => {
+    if (hoverIndex == null) return
+    const reposicionar = () => atualizarAncora(hoverIndex)
+    window.addEventListener('scroll', reposicionar, true)
+    window.addEventListener('resize', reposicionar)
+    return () => {
+      window.removeEventListener('scroll', reposicionar, true)
+      window.removeEventListener('resize', reposicionar)
+    }
+  }, [hoverIndex, atualizarAncora])
+
   return (
-    <svg
-      viewBox={`0 0 ${W} ${H}`}
-      className="dc-smart-spark-barras"
-      role="img"
-      aria-hidden
+    <div
+      ref={wrapRef}
+      className="dc-spark-bar-wrap"
+      onMouseLeave={limparHover}
     >
-      <defs>
-        <linearGradient id={`dc-spark-bar-${uid}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={stopColorNormalStart} />
-          <stop offset="100%" stopColor={stopColorNormalEnd} />
-        </linearGradient>
-        <linearGradient id={`dc-spark-bar-best-${uid}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={stopColorBestStart} />
-          <stop offset="100%" stopColor={stopColorBestEnd} />
-        </linearGradient>
-      </defs>
-      {barras.map((barra, i) => {
-        const h = alturas[i] * (H - 4)
-        const x = i * (barW + gap)
-        const y = H - h
-        const fill = barra.destaque ? `url(#dc-spark-bar-best-${uid})` : `url(#dc-spark-bar-${uid})`
-        return (
-          <rect
-            key={`${barra.valor}-${i}`}
-            x={x}
-            y={y}
-            width={barW}
-            height={h}
-            rx={2}
-            fill={fill}
-            opacity={barra.destaque ? 1 : 0.55}
-            className={barra.destaque ? 'dc-smart-spark-bar--best' : undefined}
-            title={melhorMenor ? String(barra.valor) : String(barra.valor)}
-          />
-        )
-      })}
-    </svg>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="dc-smart-spark-barras"
+        role="img"
+        aria-label={rotuloMetrica}
+      >
+        <defs>
+          <linearGradient id={`dc-spark-bar-${uid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={stopColorNormalStart} />
+            <stop offset="100%" stopColor={stopColorNormalEnd} />
+          </linearGradient>
+          <linearGradient id={`dc-spark-bar-best-${uid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={stopColorBestStart} />
+            <stop offset="100%" stopColor={stopColorBestEnd} />
+          </linearGradient>
+        </defs>
+        {barras.map((barra, i) => {
+          const h = alturas[i] * (H - 4)
+          const x = startX + i * (barW + gap)
+          const y = H - h
+          const fill = barra.destaque ? `url(#dc-spark-bar-best-${uid})` : `url(#dc-spark-bar-${uid})`
+          const isHover = hoverIndex === i
+          return (
+            <rect
+              key={`${barra.fornecedor}-${barra.valor}-${i}`}
+              x={x}
+              y={y}
+              width={barW}
+              height={h}
+              rx={2}
+              fill={fill}
+              opacity={barra.destaque || isHover ? 1 : 0.55}
+              stroke={isHover ? '#a5b4fc' : barra.destaque ? '#818cf8' : 'transparent'}
+              strokeWidth={isHover ? 1.25 : barra.destaque ? 0.75 : 0}
+              className={barra.destaque ? 'dc-smart-spark-bar--best' : undefined}
+              onMouseEnter={() => {
+                setHoverIndex(i)
+                atualizarAncora(i)
+              }}
+            />
+          )
+        })}
+      </svg>
+
+      {barraHover != null && ancoraTooltip != null && (
+        <TooltipSparkBarraPortal
+          barra={barraHover}
+          valorGanhador={valorGanhador}
+          rotuloMetrica={rotuloMetrica}
+          formatarValor={formatarValor}
+          textoVsGanhador={textoVsGanhador}
+          ancora={ancoraTooltip}
+        />
+      )}
+    </div>
   )
 }
 

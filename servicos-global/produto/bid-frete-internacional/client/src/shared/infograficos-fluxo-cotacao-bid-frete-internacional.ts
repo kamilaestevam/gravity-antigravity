@@ -29,6 +29,7 @@ export interface PontoSerieHistoricoTermometro {
 export interface BarraComparativoInsight {
   valor: number
   destaque: boolean
+  fornecedor: string
 }
 
 export interface ComparativoMetricaPainel {
@@ -84,11 +85,23 @@ function buildComparativoMetrica(
   return {
     valorExibicao: formatar(melhorValor),
     melhorMenor,
-    barras: barrasRaw.slice(0, 6).map((valor) => ({
-      valor,
-      destaque: valor === melhorValor,
-    })),
+    barras: ordenadas.slice(0, 6).map((p) => {
+      const valor = extrair(p)
+      return {
+        valor,
+        destaque: valor === melhorValor,
+        fornecedor:
+          p.fornecedor_nome
+          ?? p.fornecedor?.nome_fornecedor_bid_frete_internacional
+          ?? '—',
+      }
+    }),
   }
+}
+
+export function valorGanhadorComparativo(barras: BarraComparativoInsight[]): number {
+  const ganhador = barras.find((b) => b.destaque)
+  return ganhador?.valor ?? barras[0]?.valor ?? 0
 }
 
 export function buildSerieTermometro(

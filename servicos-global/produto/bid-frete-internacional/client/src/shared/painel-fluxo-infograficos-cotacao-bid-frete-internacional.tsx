@@ -427,16 +427,23 @@ function CardTermometroHistoricoSmart({
             </span>
           )}
         </div>
-        <GraficoAreaTermometro serie={smart.serieHistorico6Meses} moeda={smart.termometroMoeda} />
-        {smart.termometroDadosDemonstracao && (
-          <p className="dc-smart-termometro-demo-legenda">
-            {t(
-              'bidfrete.detalhe_cotacao.cockpit_termometro_demo_legenda',
-              'Dados ilustrativos — aguardando cotações aprovadas nas mesmas condições.',
-            )}
-          </p>
-        )}
       </div>
+      <div className="dc-term-chart-slot">
+        <GraficoAreaTermometro
+          serie={smart.serieHistorico6Meses ?? []}
+          moeda={smart.termometroMoeda}
+          mediaFallback={smart.termometroMedia6Meses}
+          modoDemonstracao={smart.termometroDadosDemonstracao}
+        />
+      </div>
+      {smart.termometroDadosDemonstracao && (
+        <p className="dc-smart-termometro-demo-legenda">
+          {t(
+            'bidfrete.detalhe_cotacao.cockpit_termometro_demo_legenda',
+            'Dados ilustrativos — aguardando cotações aprovadas nas mesmas condições.',
+          )}
+        </p>
+      )}
     </article>
   )
 }

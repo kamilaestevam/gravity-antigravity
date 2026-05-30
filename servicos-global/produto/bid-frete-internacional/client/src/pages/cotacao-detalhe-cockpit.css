@@ -89,24 +89,22 @@
   height: 100%;
 }
 
-.dc-cockpit-insights-row .dc-smart-card-body {
+.dc-cockpit-insights-row .dc-smart-card--termometro {
+  overflow: visible;
+}
+
+.dc-cockpit-insights-row .dc-smart-card-body:not(.dc-smart-card-body--termometro) {
   flex: 1;
   min-height: 0;
 }
 
-.dc-cockpit-insights-row .dc-smart-card-body--termometro {
-  flex: 1;
+.dc-cockpit-insights-row .dc-smart-card--termometro .dc-smart-card-body--termometro {
+  flex: 0 0 auto;
+  min-height: auto;
 }
 
-.dc-cockpit-insights-row .dc-smart-card-body--termometro .dc-term-chart-wrap {
-  flex: 1;
-  height: auto;
-  min-height: var(--dc-smart-chart-h);
-}
-
-.dc-cockpit-insights-row .dc-smart-card-body--termometro .dc-term-chart-wrap .dc-smart-termometro-chart {
-  height: 100%;
-  min-height: var(--dc-smart-chart-h);
+.dc-cockpit-insights-row .dc-smart-card--termometro .dc-term-chart-slot {
+  flex: 0 0 auto;
 }
 
 .dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-metricas-row {
@@ -518,7 +516,7 @@
 }
 
 .dc-cockpit-insights-row {
-  overflow: hidden;
+  overflow: visible;
 }
 
 .dc-smart-insights {
@@ -1021,30 +1019,91 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 
 .dc-smart-card--termometro {
   overflow: visible;
+  min-height: 18rem;
 }
 
 .dc-smart-card-body--termometro {
   display: flex;
   flex-direction: column;
-  flex: 0 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
+  min-height: auto;
   gap: 0.35rem;
 }
 
-.dc-smart-card-body--termometro .dc-term-chart-wrap {
-  flex: 1 1 auto;
+/* Slot do gráfico: filho direto do card, fora do body com min-height:0 do cockpit */
+.dc-term-chart-slot {
+  flex: 0 0 auto;
   width: 100%;
-  height: auto;
-  min-height: var(--dc-smart-chart-h);
-  margin-inline: auto;
+  padding: 0 1rem;
+  box-sizing: border-box;
 }
 
-.dc-smart-card-body--termometro .dc-term-chart-wrap .dc-smart-termometro-chart {
-  display: block;
+.dc-term-chart-host,
+.dc-term-chart-slot .dc-term-chart-wrap {
   width: 100%;
+  position: relative;
+  border-radius: var(--radius-md, 8px);
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.dc-term-chart-host--vazio {
+  background: rgba(15, 23, 42, 0.25);
+}
+
+.dc-term-chart-slot .dc-smart-termometro-chart {
+  display: block;
+}
+
+/* Preview (dados mock) — barras HTML, altura fixa, independente de SVG */
+.dc-term-plot-html {
+  box-sizing: border-box;
+  border-radius: var(--radius-md, 8px);
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  padding: 0.65rem 0.5rem 0.35rem;
+}
+
+.dc-term-plot-html-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.35rem;
   height: 100%;
-  min-height: var(--dc-smart-chart-h);
-  margin-inline: auto;
+  min-height: 8.5rem;
+}
+
+.dc-term-plot-html-col {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  min-width: 0;
+  height: 100%;
+}
+
+.dc-term-plot-html-bar {
+  width: 100%;
+  max-width: 2.25rem;
+  min-height: 14px;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(180deg, #818cf8 0%, #6366f1 55%, rgba(99, 102, 241, 0.35) 100%);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.25);
+}
+
+.dc-term-plot-html-mes {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1;
+}
+
+.dc-smart-card--termometro .dc-smart-termometro-demo-legenda {
+  flex-shrink: 0;
+  margin: 0 1rem 0.65rem;
+  padding: 0;
 }
 
 .dc-smart-demo-pill {
@@ -1072,21 +1131,9 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 
 .dc-term-chart-wrap {
   position: relative;
-  width: 100%;
-  margin: 0.15rem 0 0;
   border-radius: var(--radius-md, 8px);
   overflow: visible;
   cursor: crosshair;
-}
-
-.dc-term-chart-wrap--vazio {
-  min-height: var(--dc-smart-chart-h);
-}
-
-.dc-term-chart-wrap .dc-smart-termometro-chart {
-  display: block;
-  width: 100%;
-  max-width: 100%;
 }
 
 .dc-term-chart-tooltip {
@@ -1379,6 +1426,7 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   align-self: stretch;
   padding: 0;
   border-radius: 14px;
+  /* Mesmo shell visual dos .dc-dados-card (Detalhes Gerais / Rota / Carga) */
   background: linear-gradient(168deg, #2a3548 0%, #1e293b 42%, #161f2e 100%);
   border: 1px solid rgba(148, 163, 184, 0.12);
   box-shadow:
@@ -1387,15 +1435,15 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   overflow: hidden;
 }
 
-.dc-cockpit-combat::before {
+.dc-cockpit-combat::after {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #4f46e5 0%, #6366f1 40%, #7c3aed 70%, #a78bfa 100%);
   border-radius: 14px 14px 0 0;
+  background: linear-gradient(90deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%);
   pointer-events: none;
 }
 
@@ -1407,7 +1455,7 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: none;
-  color: #c7d2fe;
+  color: #e0e7ff;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
 }
 
@@ -1461,15 +1509,7 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 }
 
 .dc-cockpit-combat .dc-prop-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%);
-  border-radius: 10px 10px 0 0;
-  pointer-events: none;
+  display: none;
 }
 
 .dc-cockpit-combat .dc-prop-card--lider {
@@ -1478,7 +1518,7 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 }
 
 .dc-cockpit-combat .dc-prop-card--lider::after {
-  background: linear-gradient(90deg, #4f46e5 0%, #6366f1 40%, #7c3aed 70%, #a78bfa 100%);
+  display: none;
 }
 
 .dc-cockpit-combat .dc-prop-card-head {

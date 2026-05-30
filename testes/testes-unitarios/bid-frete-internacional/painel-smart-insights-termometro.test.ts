@@ -3,6 +3,7 @@ import {
   buildSerieTermometro,
   calcularPainelSmartInsights,
   calcularInfograficosFluxoCotacao,
+  normalizarSerieTermometroParaPlot,
 } from '../../../servicos-global/produto/bid-frete-internacional/client/src/shared/infograficos-fluxo-cotacao-bid-frete-internacional'
 import type { PropostaRankingBidFreteInternacional } from '../../../servicos-global/produto/bid-frete-internacional/client/src/shared/types'
 
@@ -65,6 +66,15 @@ describe('termômetro histórico — mesmas condições', () => {
     expect(termometro.termometroSavingsValor).toBe(203)
     expect(termometro.quantidadeHistoricoMesmasCondicoes).toBe(1)
     expect(termometro.termometroDadosDemonstracao).toBe(false)
+  })
+
+  it('normalizarSerieTermometroParaPlot sintetiza pontos quando série vazia e há média', () => {
+    const plot = normalizarSerieTermometroParaPlot(
+      [{ mes: 'Jan', valor: 0 }],
+      864,
+    )
+    expect(plot.some((p) => p.valor > 0)).toBe(true)
+    expect(plot).toHaveLength(6)
   })
 
   it('calcularPainelSmartInsights expõe dados do termômetro', () => {

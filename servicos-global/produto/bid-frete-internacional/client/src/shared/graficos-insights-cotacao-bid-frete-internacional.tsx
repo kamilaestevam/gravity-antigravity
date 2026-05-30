@@ -2,9 +2,13 @@
  * Gráficos SVG do Painel Smart Insights (detalhe da cotação).
  */
 
-import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
-import type { BarraComparativoInsight, PontoSerieHistoricoTermometro } from './infograficos-fluxo-cotacao-bid-frete-internacional'
+import {
+  normalizarSerieTermometroParaPlot,
+  type BarraComparativoInsight,
+  type PontoSerieHistoricoTermometro,
+} from './infograficos-fluxo-cotacao-bid-frete-internacional'
 
 function formatarValorTermometro(valor: number, moeda: string): string {
   return new Intl.NumberFormat('pt-BR', {
@@ -335,15 +339,63 @@ export function SparkAreaMini({
 const TERMOMETRO_VIEW = { w: 400, h: 200 }
 const TERMOMETRO_PAD = { top: 14, right: 20, bottom: 24, left: 20 }
 
+/** Altura fixa do termômetro — aplicada via style inline no SVG (imune ao flex do cockpit). */
+export const TERMOMETRO_GRAFICO_ALTURA_PX = 180
+
+const ESTILO_PLOT_TERMOMETRO: CSSProperties = {
+  display: 'block',
+  width: '100%',
+  height: TERMOMETRO_GRAFICO_ALTURA_PX,
+  minHeight: TERMOMETRO_GRAFICO_ALTURA_PX,
+  maxWidth: '100%',
+  flexShrink: 0,
+}
+
+function serieTemValoresPositivos(serie: PontoSerieHistoricoTermometro[]): boolean {
+  return serie.some((p) => Number.isFinite(Number(p.valor)) && Number(p.valor) > 0)
+}
+
+/** Plot em HTML/CSS — modo Preview (dados mock); não depende de SVG nem flex. */
+function TermometroPlotHtml({ serie }: { serie: PontoSerieHistoricoTermometro[] }) {
+  const max = Math.max(...serie.map((p) => p.valor), 1)
+  return (
+    <div className="dc-term-plot-html" style={ESTILO_PLOT_TERMOMETRO} role="img" aria-hidden>
+      <div className="dc-term-plot-html-inner">
+        {serie.map((p) => (
+          <div key={p.mes} className="dc-term-plot-html-col">
+            <div
+              className="dc-term-plot-html-bar"
+              style={{ height: `${Math.max(14, Math.round((p.valor / max) * 100))}%` }}
+            />
+            <span className="dc-term-plot-html-mes">{p.mes}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function GraficoAreaTermometro({
   serie,
   moeda = 'USD',
+  mediaFallback = null,
+  modoDemonstracao = false,
 }: {
   serie: PontoSerieHistoricoTermometro[]
   moeda?: string
+  /** Média exibida no card — usada para montar série sintética se `serie` vier zerada. */
+  mediaFallback?: number | null
+  /** Preview/mock: usa barras HTML (evita bug de SVG colapsado no cockpit). */
+  modoDemonstracao?: boolean
 }) {
   const uid = useId().replace(/:/g, '')
+  const wrapRef = useRef<HTMLDivElement>(null)
   const [indiceAtivo, setIndiceAtivo] = useState<number | null>(null)
+
+  const seriePlot = useMemo(
+    () => normalizarSerieTermometroParaPlot(serie, mediaFallback),
+    [serie, mediaFallback],
+  )
 
   const { W, H } = TERMOMETRO_VIEW
   const pad = TERMOMETRO_PAD
@@ -351,7 +403,7 @@ export function GraficoAreaTermometro({
   const innerH = H - pad.top - pad.bottom
 
   const coords = useMemo(() => {
-    const pontosValidos = serie.filter((p) => Number.isFinite(Number(p.valor)) && Number(p.valor) > 0)
+    const pontosValidos = seriePlot.filter((p) => Number.isFinite(Number(p.valor)) && Number(p.valor) > 0)
     if (pontosValidos.length === 0) return []
 
     const valores = pontosValidos.map((p) => Number(p.valor))
@@ -359,15 +411,15 @@ export function GraficoAreaTermometro({
     const minVal = Math.min(...valores, 0)
     const span = Math.max(maxVal - minVal, 1)
 
-    return serie.map((p, i) => {
+    return seriePlot.map((p, i) => {
       const valor = Number(p.valor) || 0
-      const x = pad.left + (i / Math.max(serie.length - 1, 1)) * innerW
+      const x = pad.left + (i / Math.max(seriePlot.length - 1, 1)) * innerW
       const y = valor > 0
         ? pad.top + (1 - (valor - minVal) / span) * innerH
         : pad.top + innerH
       return { x, y, valor, mes: p.mes, indice: i }
     })
-  }, [serie, innerW, innerH, pad.left, pad.top])
+  }, [seriePlot, innerW, innerH, pad.left, pad.top])
 
   const maxVal = useMemo(
     () => (coords.length > 0 ? Math.max(...coords.map((c) => c.valor), 1) * 1.1 : 1),
@@ -390,12 +442,12 @@ export function GraficoAreaTermometro({
 
   const indicePorPosicaoX = useCallback(
     (ratioX: number) => {
-      if (serie.length === 0) return null
+      if (seriePlot.length === 0) return null
       const plotRatio = (ratioX - pad.left / W) / (innerW / W)
       const clamped = Math.max(0, Math.min(1, plotRatio))
-      return Math.round(clamped * (serie.length - 1))
+      return Math.round(clamped * (seriePlot.length - 1))
     },
-    [serie.length, pad.left, innerW, W],
+    [seriePlot.length, pad.left, innerW, W],
   )
 
   const atualizarPorEvento = useCallback(
@@ -423,24 +475,32 @@ export function GraficoAreaTermometro({
   )
 
   const tooltipLeftPct =
-    pontoAtivo != null && serie.length > 1
+    pontoAtivo != null && seriePlot.length > 1
       ? ((pontoAtivo.x - pad.left) / innerW) * 100
       : 50
 
-  const temDados = coords.some((c) => c.valor > 0)
+  const temDados = serieTemValoresPositivos(seriePlot)
 
   if (!temDados) {
     return (
       <div
-        className="dc-term-chart-wrap dc-term-chart-wrap--vazio"
-        aria-hidden
+        className="dc-term-chart-host dc-term-chart-host--vazio"
+        style={ESTILO_PLOT_TERMOMETRO}
+        role="img"
+        aria-label="Sem histórico para exibir"
       />
     )
   }
 
+  if (modoDemonstracao) {
+    return <TermometroPlotHtml serie={seriePlot} />
+  }
+
   return (
     <div
+      ref={wrapRef}
       className="dc-term-chart-wrap"
+      style={ESTILO_PLOT_TERMOMETRO}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setIndiceAtivo(null)}
       onTouchStart={handleTouchMove}
@@ -449,26 +509,25 @@ export function GraficoAreaTermometro({
       role="img"
       aria-label="Histórico de frete pago nas mesmas condições operacionais"
     >
-      {pontoAtivo != null && pontoAtivo.valor > 0 && (
-        <div
-          className="dc-term-chart-tooltip"
-          style={{ left: `${tooltipLeftPct}%` }}
-          role="tooltip"
+        {pontoAtivo != null && pontoAtivo.valor > 0 && (
+          <div
+            className="dc-term-chart-tooltip"
+            style={{ left: `${tooltipLeftPct}%` }}
+            role="tooltip"
+          >
+            <span className="dc-term-chart-tooltip-mes">{pontoAtivo.mes}</span>
+            <span className="dc-term-chart-tooltip-valor">
+              {formatarValorTermometro(pontoAtivo.valor, moeda)}
+            </span>
+          </div>
+        )}
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          className="dc-smart-termometro-chart"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden
+          style={{ display: 'block', width: '100%', height: '100%' }}
         >
-          <span className="dc-term-chart-tooltip-mes">{pontoAtivo.mes}</span>
-          <span className="dc-term-chart-tooltip-valor">
-            {formatarValorTermometro(pontoAtivo.valor, moeda)}
-          </span>
-        </div>
-      )}
-      <svg
-        width="100%"
-        height="100%"
-        viewBox={`0 0 ${W} ${H}`}
-        className="dc-smart-termometro-chart"
-        preserveAspectRatio="xMidYMid meet"
-        aria-hidden
-      >
         <defs>
           <linearGradient
             id={`dc-term-area-${uid}`}
@@ -570,7 +629,7 @@ export function GraficoAreaTermometro({
             </g>
           )
         })}
-      </svg>
+        </svg>
     </div>
   )
 }

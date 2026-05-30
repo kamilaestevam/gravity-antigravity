@@ -428,7 +428,9 @@ button, input, select, textarea { font-family: inherit; }
   border-radius: var(--p2-radius-sm);
   color: var(--p2-text);
   cursor: pointer;
-  z-index: 30;
+  /* CabecalhoGlobal e sticky com z-index: 50; o botao precisa ficar
+     acima dele para que o usuario consiga reabrir o menu. */
+  z-index: 60;
   transition: all var(--p2-transition);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }

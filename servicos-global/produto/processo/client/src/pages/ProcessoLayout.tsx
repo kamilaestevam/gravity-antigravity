@@ -473,22 +473,10 @@ export default function ProcessoLayout() {
         </aside>
 
         {/* ─── Main Area ──────────────────────────────── */}
+        {/* O titulo da pagina vem do CabecalhoGlobal de cada rota filha
+            (padrao plataforma). O menu nunca some — quando recolhido vira
+            um rail estreito de icones, e o toggle continua acessivel. */}
         <div className="p2-main">
-          {/* Botao flutuante para reabrir o menu quando recolhido.
-              O titulo da pagina vem do CabecalhoGlobal (padrao plataforma)
-              renderizado por cada rota filha — sem barra duplicada aqui. */}
-          {sidebarCollapsed && (
-            <TooltipGlobal titulo={t('shell.recolher_menu')} descricao="Expandir o menu lateral">
-              <button
-                className="p2-reopen-btn"
-                onClick={() => setSidebarCollapsed(false)}
-                type="button"
-                aria-label={t('shell.recolher_menu')}
-              >
-                <SidebarSimple weight="duotone" size={18} />
-              </button>
-            </TooltipGlobal>
-          )}
 
           {/* Error Banner */}
           {error && (

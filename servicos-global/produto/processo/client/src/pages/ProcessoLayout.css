@@ -19,7 +19,9 @@
   --p2-muted: var(--ws-muted, #94a3b8);
   /* 240px = largura canonica do MenuLateralGlobal (Pedido) */
   --p2-sidebar-w: 240px;
-  --p2-sidebar-collapsed-w: 0px;
+  /* 56px = rail estreito com so os icones (padrao MenuLateralGlobal).
+     NUNCA 0px — se for 0, o usuario perde acesso ao toggle e ao menu. */
+  --p2-sidebar-collapsed-w: 56px;
   --p2-topbar-h: 48px;
   --p2-success: #10b981;
   --p2-warning: #f59e0b;
@@ -77,7 +79,36 @@ button, input, select, textarea { font-family: inherit; }
 .p2-shell--collapsed .p2-sidebar {
   width: var(--p2-sidebar-collapsed-w);
   min-width: var(--p2-sidebar-collapsed-w);
-  overflow: hidden;
+}
+
+/* ── Modo rail (recolhido) — so icones ────────────────────────────────────── */
+/* Esconde breadcrumb, info card, section titles, labels e badges.
+   Mantem visiveis: icones dos nav items + toggle flutuante. */
+.p2-shell--collapsed .p2-breadcrumb,
+.p2-shell--collapsed .p2-info-card,
+.p2-shell--collapsed .p2-nav-section-title,
+.p2-shell--collapsed .p2-nav-label,
+.p2-shell--collapsed .p2-nav-badge {
+  display: none;
+}
+
+.p2-shell--collapsed .p2-nav {
+  padding: 12px 8px;
+}
+
+.p2-shell--collapsed .p2-nav-section {
+  margin-bottom: 8px;
+}
+
+.p2-shell--collapsed .p2-nav-section + .p2-nav-section {
+  border-top: 1px solid var(--p2-accent-border);
+  padding-top: 8px;
+}
+
+.p2-shell--collapsed .p2-nav-item {
+  justify-content: center;
+  padding: 10px 0;
+  border-radius: 10px;
 }
 
 /* ── Breadcrumb ───────────────────────────────────────────────────────────── */
@@ -409,37 +440,9 @@ button, input, select, textarea { font-family: inherit; }
   background: var(--p2-bg-body);
 }
 
-/* ── Botao flutuante para reabrir o menu quando recolhido ─────────────────── */
-/* Substitui a antiga p2-topbar (que carregava breadcrumb duplicado e Info).
-   O titulo agora vem so do CabecalhoGlobal de cada pagina (padrao plataforma).
-   Quando o menu esta recolhido, este botao aparece no canto superior esquerdo
-   do conteudo para permitir reabrir. */
-.p2-reopen-btn {
-  position: absolute;
-  top: 18px;
-  left: 18px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--p2-surface);
-  border: 1px solid var(--p2-accent-border);
-  border-radius: var(--p2-radius-sm);
-  color: var(--p2-text);
-  cursor: pointer;
-  /* CabecalhoGlobal e sticky com z-index: 50; o botao precisa ficar
-     acima dele para que o usuario consiga reabrir o menu. */
-  z-index: 60;
-  transition: all var(--p2-transition);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-}
-
-.p2-reopen-btn:hover {
-  background: var(--p2-produto, var(--p2-accent));
-  color: #0f172a;
-  border-color: var(--p2-produto, var(--p2-accent));
-}
+/* (.p2-reopen-btn removido — o menu nunca some completamente: quando
+    recolhido vira um rail de 56px com so os icones, e o toggle continua
+    visivel na borda direita. Sem necessidade de botao flutuante separado.) */
 
 /* ── Error Banner ─────────────────────────────────────────────────────────── */
 .p2-error-banner {
@@ -504,11 +507,6 @@ body.light-theme .p2-breadcrumb {
 
 body.light-theme .p2-info-card {
   background: var(--p2-surface-2);
-  border-color: rgba(0, 0, 0, 0.08);
-}
-
-body.light-theme .p2-reopen-btn {
-  background: var(--p2-surface);
   border-color: rgba(0, 0, 0, 0.08);
 }
 

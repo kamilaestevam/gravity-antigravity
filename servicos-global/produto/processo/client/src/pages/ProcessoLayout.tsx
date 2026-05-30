@@ -34,7 +34,7 @@ import {
   ArrowLeft,
   Info,
   CaretRight,
-  Sidebar,
+  SidebarSimple,
   Anchor,
   CalendarBlank,
   Scales,
@@ -467,7 +467,7 @@ export default function ProcessoLayout() {
                 onClick={() => setSidebarCollapsed(prev => !prev)}
                 type="button"
               >
-                <Sidebar weight="duotone" size={16} />
+                <SidebarSimple weight="regular" size={16} />
               </button>
             </TooltipGlobal>
           </div>
@@ -484,7 +484,7 @@ export default function ProcessoLayout() {
                 onClick={() => setSidebarCollapsed(false)}
                 type="button"
               >
-                <Sidebar weight="duotone" size={18} />
+                <SidebarSimple weight="duotone" size={18} />
               </button>
             )}
 

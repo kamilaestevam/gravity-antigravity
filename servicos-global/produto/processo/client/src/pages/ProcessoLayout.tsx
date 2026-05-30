@@ -33,7 +33,6 @@ import {
   CheckSquare,
   ArrowLeft,
   CaretRight,
-  SidebarSimple,
   Anchor,
   CalendarBlank,
   Scales,
@@ -229,7 +228,9 @@ export default function ProcessoLayout() {
   const [processo, setProcesso] = useState<ProcessoDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  // (Sem estado de collapse — o menu fica sempre expandido nesta tela,
+  // alinhado com o modelo do BID Frete. Se quiser reintroduzir o toggle
+  // depois, basta voltar com o useState + o botao + o classe condicional.)
 
   // Recolhe o nav global ao entrar no processo; restaura ao sair
   useEffect(() => {
@@ -319,7 +320,7 @@ export default function ProcessoLayout() {
   return (
     <ProcessoContext.Provider value={{ processo, loading, error, refetch: fetchProcesso }}>
       <div
-        className={`p2-shell ${sidebarCollapsed ? 'p2-shell--collapsed' : ''}`}
+        className="p2-shell"
         style={{
           '--p2-produto': PRODUTO_COLOR,
           '--p2-produto-dim': PRODUTO_COLOR_DIM,
@@ -342,18 +343,6 @@ export default function ProcessoLayout() {
             <CaretRight size={12} className="p2-breadcrumb-sep" />
             <span className="p2-breadcrumb-current">{activeRoute.label}</span>
           </div>
-
-          {/* Toggle flutuante na borda direita — logo abaixo do breadcrumb. */}
-          <TooltipGlobal titulo={t('shell.recolher_menu')} descricao="Recolher ou expandir o menu lateral">
-            <button
-              className="p2-collapse-btn"
-              onClick={() => setSidebarCollapsed(prev => !prev)}
-              type="button"
-              aria-label={t('shell.recolher_menu')}
-            >
-              <SidebarSimple weight={sidebarCollapsed ? 'duotone' : 'regular'} size={18} />
-            </button>
-          </TooltipGlobal>
 
           {/* Card de Info do Processo */}
           {loading && !processo && (

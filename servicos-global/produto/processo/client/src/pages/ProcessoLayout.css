@@ -372,7 +372,10 @@ button, input, select, textarea { font-family: inherit; }
 .p2-collapse-btn {
   position: absolute;
   right: -14px;
-  top: 60px;
+  /* 82px = mesma posicao do .mlg-toggle-btn no estado colapsado,
+     usado pelo trilho global. Garante alinhamento horizontal entre os
+     dois toggles (trilho + menu do processo). */
+  top: 82px;
   width: 28px;
   height: 28px;
   border-radius: 50%;

@@ -11,9 +11,28 @@
   --dc-card-shadow:
     0 1px 0 rgba(255, 255, 255, 0.05) inset,
     0 8px 32px rgba(0, 0, 0, 0.22);
-  max-width: 1600px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
   font-family: 'Plus Jakarta Sans', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Conteúdo ocupa 100% entre as margens do page-shell (mesmo padrão Configurador / Usuários) */
+.dc-cockpit.pg-container .pg-conteudo-area {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+.dc-cockpit-hero,
+.dc-cockpit-insights-row,
+.dc-cockpit-tabs,
+.dc-cockpit-workspace,
+.dc-cockpit-main {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
 }
 
 .dc-cockpit-quick-actions {
@@ -134,9 +153,12 @@
   display: grid;
   grid-template-columns: 1.35fr 1fr 1fr;
   gap: 1.15rem;
-  /* start: evita card do termômetro esticar vazio quando o vizinho (Melhor proposta) é mais alto */
-  align-items: start;
+  align-items: stretch;
   overflow: visible;
+}
+
+.dc-smart-insights-grid > .dc-smart-card {
+  height: 100%;
 }
 
 @media (max-width: 1100px) {
@@ -148,6 +170,7 @@
   display: flex;
   flex-direction: column;
   min-height: 220px;
+  height: 100%;
   border-radius: 14px;
   border: 1px solid var(--dc-card-border);
   background: var(--dc-card-gradient);
@@ -233,6 +256,8 @@
 .dc-smart-card-body {
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
   gap: 0.65rem;
   flex: 1;
   padding: 0.85rem 1.2rem 1.1rem;
@@ -381,14 +406,14 @@
 }
 
 .dc-spark-bar-tooltip-empresa {
-  display: block;
+  margin: 0;
   font-weight: 800;
   color: #e2e8f0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-bottom: 0.2rem;
   padding-bottom: 0.15rem;
+  margin-bottom: 0.2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -409,14 +434,12 @@
   text-align: right;
 }
 
-.dc-spark-bar-tooltip-linha--vs {
-  margin-top: 0.12rem;
-}
-
 .dc-spark-bar-tooltip-vs {
+  margin: 0.12rem 0 0;
   color: #a5b4fc;
   font-weight: 600;
   font-size: 0.625rem;
+  line-height: 1.35;
 }
 
 .dc-smart-fornecedor-foot {
@@ -507,6 +530,15 @@
   color: var(--text-secondary, #94a3b8);
 }
 
+.dc-smart-termometro-contexto {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  line-height: 1.35;
+}
+
 .dc-smart-savings-pill {
   flex-shrink: 0;
   padding: 0.3rem 0.65rem;
@@ -520,22 +552,55 @@
 }
 
 .dc-smart-card--termometro {
-  min-height: 300px;
   overflow: visible;
 }
 
 .dc-smart-card-body--termometro {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
   gap: 0.5rem;
+}
+
+.dc-smart-card-body--termometro .dc-term-chart-wrap {
+  flex: 0 0 auto;
+  height: 220px;
+  min-height: 220px;
+}
+
+.dc-smart-card-body--termometro .dc-term-chart-wrap .dc-smart-termometro-chart {
+  height: 220px;
+  min-height: 220px;
+}
+
+.dc-smart-demo-pill {
+  flex-shrink: 0;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-pill, 9999px);
+  font-size: 0.5625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fde68a;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.dc-smart-termometro-demo-legenda {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  text-align: center;
+  line-height: 1.35;
 }
 
 .dc-term-chart-wrap {
   position: relative;
   width: 100%;
-  /* altura vem do inline style no componente (220px) — evita colapso do SVG */
-  flex-shrink: 0;
-  margin: 0.15rem -0.25rem 0;
+  margin: 0.15rem 0 0;
   border-radius: var(--radius-md, 8px);
   overflow: visible;
   cursor: crosshair;
@@ -595,12 +660,14 @@
   opacity: 1;
 }
 
-.dc-term-ponto--ativo {
-  pointer-events: none;
+.dc-smart-card-body--resumo {
+  flex: 1;
+  min-height: 0;
+  gap: 0.75rem;
 }
 
-.dc-smart-card-body--resumo {
-  gap: 0.75rem;
+.dc-smart-card--resumo .dc-smart-resumo-stats {
+  flex-shrink: 0;
 }
 
 .dc-smart-resumo-stats {

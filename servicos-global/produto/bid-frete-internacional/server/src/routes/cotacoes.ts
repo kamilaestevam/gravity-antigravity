@@ -304,6 +304,10 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
       where: {
         origem_codigo_cotacao_bid_frete_internacional: cotacao.origem_codigo_cotacao_bid_frete_internacional,
         destino_codigo_cotacao_bid_frete_internacional: cotacao.destino_codigo_cotacao_bid_frete_internacional,
+        modal_cotacao_bid_frete_internacional: cotacao.modal_cotacao_bid_frete_internacional,
+        modalidade_cotacao_bid_frete_internacional: cotacao.modalidade_cotacao_bid_frete_internacional,
+        tipo_container_cotacao_bid_frete_internacional: cotacao.tipo_container_cotacao_bid_frete_internacional,
+        incoterm_cotacao_bid_frete_internacional: cotacao.incoterm_cotacao_bid_frete_internacional,
         status_cotacao_bid_frete_internacional: 'APROVADA',
         NOT: {
           id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,

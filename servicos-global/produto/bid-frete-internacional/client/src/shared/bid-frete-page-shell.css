@@ -19,8 +19,18 @@
   padding-bottom: 1rem;
 }
 
-.bid-frete-page-shell.pg-container .pg-conteudo-area.pg-layout-formulario {
+.bid-frete-page-shell.pg-container .pg-conteudo-area.pg-layout-formulario,
+.bid-frete-page-shell.pg-container .pg-conteudo-area.pg-layout-lista {
   padding-top: 0;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* Detalhe da cotação (cockpit): margens simétricas 2rem — alinhado ao MenuTopoGlobal */
+.bid-frete-page-shell.dc-page.dc-cockpit.pg-container {
+  width: 100%;
+  max-width: none;
 }
 
 /* ─── Loading padrão de página — GravityLoader orbital ──────────────────── */

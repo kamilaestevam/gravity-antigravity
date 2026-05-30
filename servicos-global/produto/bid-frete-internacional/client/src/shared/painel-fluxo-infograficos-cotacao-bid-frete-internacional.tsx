@@ -37,9 +37,9 @@ import {
   SparkBarrasComparativo,
 } from './graficos-insights-cotacao-bid-frete-internacional'
 import type {
+  Cotacao,
   DisparoCotacaoBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
-  Cotacao,
 } from './types'
 
 const moeda = (val: number, currency: string) =>
@@ -374,7 +374,7 @@ function CardMelhorPropostaSmart({
   )
 }
 
-function CardTermometroSmart({
+function CardTermometroHistoricoSmart({
   smart,
   t,
 }: {
@@ -387,11 +387,20 @@ function CardTermometroSmart({
   const savings = smart.termometroSavingsValor != null && smart.termometroSavingsValor > 0
     ? moeda(smart.termometroSavingsValor, smart.termometroMoeda)
     : null
+  const contexto = t(
+    'bidfrete.detalhe_cotacao.cockpit_termometro_contexto',
+    'Mesma origem, destino, modal, container e incoterm',
+  )
 
   return (
     <article className="dc-smart-card dc-smart-card--termometro">
       <header className="dc-smart-card-head">
         <span>{t('bidfrete.detalhe_cotacao.cockpit_termometro', 'Termômetro histórico')}</span>
+        {smart.termometroDadosDemonstracao && (
+          <span className="dc-smart-demo-pill">
+            {t('bidfrete.detalhe_cotacao.cockpit_termometro_demo', 'Preview')}
+          </span>
+        )}
       </header>
       <div className="dc-smart-card-body dc-smart-card-body--termometro">
         <div className="dc-smart-termometro-topo">
@@ -399,6 +408,9 @@ function CardTermometroSmart({
             <p className="dc-smart-valor-hero">{valorMedia}</p>
             <span className="dc-smart-termometro-sub">
               {t('bidfrete.detalhe_cotacao.cockpit_media_6_meses', 'Média 6 Meses')}
+            </span>
+            <span className="dc-smart-termometro-contexto" title={contexto}>
+              {contexto}
             </span>
           </div>
           {savings != null && (
@@ -411,6 +423,14 @@ function CardTermometroSmart({
           )}
         </div>
         <GraficoAreaTermometro serie={smart.serieHistorico6Meses} moeda={smart.termometroMoeda} />
+        {smart.termometroDadosDemonstracao && (
+          <p className="dc-smart-termometro-demo-legenda">
+            {t(
+              'bidfrete.detalhe_cotacao.cockpit_termometro_demo_legenda',
+              'Dados ilustrativos — aguardando cotações aprovadas nas mesmas condições.',
+            )}
+          </p>
+        )}
       </div>
     </article>
   )
@@ -494,7 +514,7 @@ export function InsightsGridFluxoCotacao({
 
   const smart = useMemo(
     () => calcularPainelSmartInsights(disparos, propostas, info, cotacao?.historico_aprovado),
-    [disparos, propostas, info, cotacao],
+    [disparos, propostas, info, cotacao?.historico_aprovado],
   )
 
   return (
@@ -504,7 +524,7 @@ export function InsightsGridFluxoCotacao({
       </h2>
       <div className="dc-smart-insights-grid">
         <CardMelhorPropostaSmart info={info} smart={smart} t={t} />
-        <CardTermometroSmart smart={smart} t={t} />
+        <CardTermometroHistoricoSmart smart={smart} t={t} />
         <CardResumoCompeticaoSmart info={info} smart={smart} propostas={propostas} t={t} />
       </div>
       {propostas.length >= 2 && (

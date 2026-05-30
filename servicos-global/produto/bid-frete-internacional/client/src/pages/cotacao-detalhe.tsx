@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DetalheCotacao.tsx — Detalhe de Cotação (T4)
  * Skill: antigravity-design-system, antigravity-componentes
  *
@@ -478,7 +478,11 @@ export default function DetalheCotacao() {
       </div>
 
       <section className="dc-cockpit-insights-row" aria-label={t('bidfrete.detalhe_cotacao.cockpit_insights', 'Insights')}>
-        <InsightsGridFluxoCotacao cotacao={cotacao} disparos={bids} propostas={propostasParaInfograficos} />
+        <InsightsGridFluxoCotacao
+          cotacao={cotacao}
+          disparos={bids}
+          propostas={propostasParaInfograficos}
+        />
       </section>
 
       <nav className="dc-cockpit-tabs" aria-label={t('bidfrete.detalhe_cotacao.cockpit_abas', 'Abas')}>

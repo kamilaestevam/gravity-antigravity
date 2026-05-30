@@ -26,6 +26,16 @@ export interface PontoSerieHistoricoTermometro {
   valor: number
 }
 
+export type HistoricoAprovadoMesmasCondicoes = Array<{
+  id_cotacao_bid_frete_internacional: string
+  numero_cotacao_bid_frete_internacional: string
+  data_aprovacao_cotacao_bid_frete_internacional: string
+  propostas: Array<{
+    valor_total_proposta_bid_frete_internacional: number
+    moeda_proposta_bid_frete_internacional: string
+  }>
+}>
+
 export interface BarraComparativoInsight {
   valor: number
   destaque: boolean
@@ -43,6 +53,9 @@ export interface PainelSmartInsightsDados {
   termometroMoeda: string
   termometroSavingsValor: number | null
   serieHistorico6Meses: PontoSerieHistoricoTermometro[]
+  quantidadeHistoricoMesmasCondicoes: number
+  /** true quando a série é ilustrativa (sem histórico aprovado real). */
+  termometroDadosDemonstracao: boolean
   comparativoTransito: ComparativoMetricaPainel | null
   comparativoFreeTime: ComparativoMetricaPainel | null
   comparativoEscala: ComparativoMetricaPainel | null
@@ -59,6 +72,170 @@ function ultimos6MesesRotulos(): string[] {
     const d = new Date(agora.getFullYear(), agora.getMonth() - (5 - i), 1)
     return MESES_CURTOS[d.getMonth()] ?? '—'
   })
+}
+
+function interpolarMesesVaziosSerie(
+  serie: Array<{ mes: string; valor: number; count: number }>,
+): PontoSerieHistoricoTermometro[] {
+  for (let i = 0; i < 6; i++) {
+    if (serie[i].count > 0) {
+      serie[i].valor = Math.round(serie[i].valor / serie[i].count)
+    }
+  }
+  for (let i = 0; i < 6; i++) {
+    if (serie[i].count > 0) continue
+    let leftVal: number | null = null
+    for (let j = i - 1; j >= 0; j--) {
+      if (serie[j].count > 0) {
+        leftVal = serie[j].valor
+        break
+      }
+    }
+    let rightVal: number | null = null
+    for (let j = i + 1; j < 6; j++) {
+      if (serie[j].count > 0) {
+        rightVal = serie[j].valor
+        break
+      }
+    }
+    if (leftVal !== null && rightVal !== null) {
+      serie[i].valor = Math.round((leftVal + rightVal) / 2)
+    } else if (leftVal !== null) {
+      serie[i].valor = leftVal
+    } else if (rightVal !== null) {
+      serie[i].valor = rightVal
+    }
+  }
+  return serie.map((s) => ({ mes: s.mes, valor: s.valor }))
+}
+
+/** Série ilustrativa para preview do gráfico quando não há histórico real. */
+function buildSerieTermometroDemonstracao(
+  propostas: PropostaRankingBidFreteInternacional[],
+  meses: string[],
+): Pick<
+  PainelSmartInsightsDados,
+  | 'serieHistorico6Meses'
+  | 'termometroMedia6Meses'
+  | 'termometroSavingsValor'
+  | 'quantidadeHistoricoMesmasCondicoes'
+  | 'termometroDadosDemonstracao'
+> {
+  const valoresDemoEstaticos = [220, 380, 340, 480, 520, 780]
+
+  if (propostas.length === 0) {
+    const media = valoresDemoEstaticos.reduce((acc, v) => acc + v, 0) / valoresDemoEstaticos.length
+    return {
+      serieHistorico6Meses: meses.map((mes, i) => ({
+        mes,
+        valor: valoresDemoEstaticos[i] ?? 400,
+      })),
+      termometroMedia6Meses: Math.round(media),
+      termometroSavingsValor: null,
+      quantidadeHistoricoMesmasCondicoes: 0,
+      termometroDadosDemonstracao: true,
+    }
+  }
+
+  const valores = propostas
+    .map((p) => p.valor_total_proposta_bid_frete_internacional)
+    .filter((v) => Number.isFinite(v))
+    .sort((a, b) => a - b)
+  const melhor = valores[0] ?? 800
+  const media = valores.reduce((acc, v) => acc + v, 0) / valores.length
+  const maxVal = valores[valores.length - 1] ?? media
+
+  const serie = meses.map((mes, i) => {
+    const t = i / Math.max(1, meses.length - 1)
+    const interpolado = maxVal - (maxVal - melhor) * t * 0.82
+    return { mes, valor: Math.round(interpolado) }
+  })
+
+  if (valores.length >= 2) {
+    valores.forEach((valor, idx) => {
+      const slot = Math.min(Math.floor((idx / valores.length) * 6), 5)
+      serie[slot] = { ...serie[slot], valor: Math.round(valor) }
+    })
+  }
+
+  const melhorAtual = valores[0]
+  const savings = melhorAtual != null ? Math.max(0, Math.round(media - melhorAtual)) : null
+
+  return {
+    serieHistorico6Meses: serie,
+    termometroMedia6Meses: Math.round(media),
+    termometroSavingsValor: savings,
+    quantidadeHistoricoMesmasCondicoes: 0,
+    termometroDadosDemonstracao: true,
+  }
+}
+
+/** Frete total pago em cotações aprovadas com mesma rota e condições operacionais (últimos 6 meses). */
+export function buildSerieTermometro(
+  propostas: PropostaRankingBidFreteInternacional[],
+  historicoAprovado?: HistoricoAprovadoMesmasCondicoes,
+): Pick<
+  PainelSmartInsightsDados,
+  | 'serieHistorico6Meses'
+  | 'termometroMedia6Meses'
+  | 'termometroSavingsValor'
+  | 'quantidadeHistoricoMesmasCondicoes'
+  | 'termometroDadosDemonstracao'
+> {
+  const meses = ultimos6MesesRotulos()
+
+  if (!historicoAprovado || historicoAprovado.length === 0) {
+    return buildSerieTermometroDemonstracao(propostas, meses)
+  }
+
+  const agora = new Date()
+  const slotsData = Array.from({ length: 6 }, (_, i) => {
+    return new Date(agora.getFullYear(), agora.getMonth() - (5 - i), 1)
+  })
+
+  const serie = meses.map((mes) => ({ mes, valor: 0, count: 0 }))
+
+  historicoAprovado.forEach((cotacaoHistorico) => {
+    const valor = cotacaoHistorico.propostas?.[0]?.valor_total_proposta_bid_frete_internacional
+    if (typeof valor !== 'number' || Number.isNaN(valor)) return
+
+    const dataAprov = new Date(cotacaoHistorico.data_aprovacao_cotacao_bid_frete_internacional)
+    const slotIdx = slotsData.findIndex(
+      (slotDate) => slotDate.getFullYear() === dataAprov.getFullYear()
+        && slotDate.getMonth() === dataAprov.getMonth(),
+    )
+    if (slotIdx !== -1) {
+      serie[slotIdx].valor += valor
+      serie[slotIdx].count += 1
+    }
+  })
+
+  const validSlots = serie.filter((s) => s.count > 0)
+  if (validSlots.length === 0) {
+    return {
+      ...buildSerieTermometroDemonstracao(propostas, meses),
+      quantidadeHistoricoMesmasCondicoes: historicoAprovado.length,
+    }
+  }
+
+  const serieHistorico6Meses = interpolarMesesVaziosSerie(serie)
+  const valoresPagos = validSlots.map((s) => Math.round(s.valor / s.count))
+  const media = valoresPagos.reduce((acc, v) => acc + v, 0) / valoresPagos.length
+
+  const valoresAtuais = propostas
+    .map((p) => p.valor_total_proposta_bid_frete_internacional)
+    .filter((v) => Number.isFinite(v))
+    .sort((a, b) => a - b)
+  const melhorAtual = valoresAtuais[0]
+  const savings = melhorAtual != null ? Math.max(0, Math.round(media - melhorAtual)) : null
+
+  return {
+    serieHistorico6Meses,
+    termometroMedia6Meses: Math.round(media),
+    termometroSavingsValor: savings,
+    quantidadeHistoricoMesmasCondicoes: historicoAprovado.length,
+    termometroDadosDemonstracao: false,
+  }
 }
 
 function buildComparativoMetrica(
@@ -99,155 +276,11 @@ function buildComparativoMetrica(
   }
 }
 
-export function valorGanhadorComparativo(barras: BarraComparativoInsight[]): number {
-  const ganhador = barras.find((b) => b.destaque)
-  return ganhador?.valor ?? barras[0]?.valor ?? 0
-}
-
-export function buildSerieTermometro(
-  propostas: PropostaRankingBidFreteInternacional[],
-  historicoAprovado?: Array<{
-    id_cotacao_bid_frete_internacional: string
-    numero_cotacao_bid_frete_internacional: string
-    data_aprovacao_cotacao_bid_frete_internacional: string
-    propostas: Array<{
-      valor_total_proposta_bid_frete_internacional: number
-      moeda_proposta_bid_frete_internacional: string
-    }>
-  }>,
-): Pick<PainelSmartInsightsDados, 'serieHistorico6Meses' | 'termometroMedia6Meses' | 'termometroSavingsValor'> {
-  const meses = ultimos6MesesRotulos()
-
-  // Se houver histórico de cotações aprovadas reais na rota, usamos esses dados!
-  if (historicoAprovado && historicoAprovado.length > 0) {
-    const agora = new Date()
-    const slotsData = Array.from({ length: 6 }, (_, i) => {
-      return new Date(agora.getFullYear(), agora.getMonth() - (5 - i), 1)
-    })
-
-    const serie = meses.map((mes) => ({ mes, valor: 0, count: 0 }))
-
-    historicoAprovado.forEach((q) => {
-      const valor = q.propostas?.[0]?.valor_total_proposta_bid_frete_internacional
-      if (typeof valor === 'number' && !Number.isNaN(valor)) {
-        const dataAprov = new Date(q.data_aprovacao_cotacao_bid_frete_internacional)
-        const anoAprov = dataAprov.getFullYear()
-        const mesAprov = dataAprov.getMonth()
-        
-        const slotIdx = slotsData.findIndex(
-          (slotDate) => slotDate.getFullYear() === anoAprov && slotDate.getMonth() === mesAprov
-        )
-        if (slotIdx !== -1) {
-          serie[slotIdx].valor += valor
-          serie[slotIdx].count += 1
-        }
-      }
-    })
-
-    const validSlots = serie.filter((s) => s.count > 0)
-
-    if (validSlots.length > 0) {
-      // Calcula as médias mensais reais para os meses que possuem dados
-      for (let i = 0; i < 6; i++) {
-        if (serie[i].count > 0) {
-          serie[i].valor = Math.round(serie[i].valor / serie[i].count)
-        }
-      }
-
-      // Interpolação de vizinhos para os meses sem cotações fechadas
-      for (let i = 0; i < 6; i++) {
-        if (serie[i].count === 0) {
-          let leftVal: number | null = null
-          for (let j = i - 1; j >= 0; j--) {
-            if (serie[j].count > 0) {
-              leftVal = serie[j].valor
-              break
-            }
-          }
-          let rightVal: number | null = null
-          for (let j = i + 1; j < 6; j++) {
-            if (serie[j].count > 0) {
-              rightVal = serie[j].valor
-              break
-            }
-          }
-
-          if (leftVal !== null && rightVal !== null) {
-            serie[i].valor = Math.round((leftVal + rightVal) / 2)
-          } else if (leftVal !== null) {
-            serie[i].valor = leftVal
-          } else if (rightVal !== null) {
-            serie[i].valor = rightVal
-          }
-        }
-      }
-
-      const actualValues = validSlots.map((s) => s.valor)
-      const media = actualValues.reduce((acc, v) => acc + v, 0) / actualValues.length
-
-      const valoresAtuais = propostas
-        .map((p) => p.valor_total_proposta_bid_frete_internacional)
-        .sort((a, b) => a - b)
-      const melhorAtual = valoresAtuais[0]
-      const savings = melhorAtual != null ? Math.max(0, Math.round(media - melhorAtual)) : null
-
-      return {
-        serieHistorico6Meses: serie.map((s) => ({ mes: s.mes, valor: s.valor })),
-        termometroMedia6Meses: Math.round(media),
-        termometroSavingsValor: savings,
-      }
-    }
-  }
-
-  // --- Fallback para simulação caso o histórico esteja vazio ---
-  if (propostas.length === 0) {
-    return {
-      serieHistorico6Meses: meses.map((mes) => ({ mes, valor: 0 })),
-      termometroMedia6Meses: null,
-      termometroSavingsValor: null,
-    }
-  }
-
-  const valores = propostas
-    .map((p) => p.valor_total_proposta_bid_frete_internacional)
-    .sort((a, b) => a - b)
-  const melhor = valores[0]
-  const media = valores.reduce((acc, v) => acc + v, 0) / valores.length
-  const maxVal = valores[valores.length - 1] ?? media
-
-  const serie = meses.map((mes, i) => {
-    const t = i / Math.max(1, meses.length - 1)
-    const interpolado = maxVal - (maxVal - melhor) * t * 0.82
-    return { mes, valor: Math.round(interpolado) }
-  })
-
-  if (valores.length >= 2) {
-    valores.forEach((valor, idx) => {
-      const slot = Math.min(Math.floor((idx / valores.length) * 6), 5)
-      serie[slot] = { ...serie[slot], valor: Math.round(valor) }
-    })
-  }
-
-  return {
-    serieHistorico6Meses: serie,
-    termometroMedia6Meses: Math.round(media),
-    termometroSavingsValor: Math.max(0, Math.round(media - melhor)),
-  }
-}
-
 export function calcularPainelSmartInsights(
   disparos: DisparoCotacaoBidFreteInternacional[],
   propostas: PropostaRankingBidFreteInternacional[],
   info: InfograficosFluxoCotacao,
-  historicoAprovado?: Array<{
-    id_cotacao_bid_frete_internacional: string
-    numero_cotacao_bid_frete_internacional: string
-    data_aprovacao_cotacao_bid_frete_internacional: string
-    propostas: Array<{
-      valor_total_proposta_bid_frete_internacional: number
-      moeda_proposta_bid_frete_internacional: string
-    }>
-  }>,
+  historicoAprovado?: HistoricoAprovadoMesmasCondicoes,
 ): PainelSmartInsightsDados {
   const disparosEnviados = disparos.filter(
     (d) => d.data_envio_disparo_cotacao_bid_frete_internacional != null,
@@ -262,11 +295,7 @@ export function calcularPainelSmartInsights(
     )
   }).length
 
-  const {
-    serieHistorico6Meses,
-    termometroMedia6Meses,
-    termometroSavingsValor,
-  } = buildSerieTermometro(propostas, historicoAprovado)
+  const termometro = buildSerieTermometro(propostas, historicoAprovado)
 
   const comparativoTransito = buildComparativoMetrica(
     propostas,
@@ -297,10 +326,12 @@ export function calcularPainelSmartInsights(
   )
 
   return {
-    termometroMedia6Meses,
+    termometroMedia6Meses: termometro.termometroMedia6Meses,
     termometroMoeda: info.melhorValorMoeda,
-    termometroSavingsValor,
-    serieHistorico6Meses,
+    termometroSavingsValor: termometro.termometroSavingsValor,
+    serieHistorico6Meses: termometro.serieHistorico6Meses,
+    quantidadeHistoricoMesmasCondicoes: termometro.quantidadeHistoricoMesmasCondicoes,
+    termometroDadosDemonstracao: termometro.termometroDadosDemonstracao,
     comparativoTransito,
     comparativoFreeTime,
     comparativoEscala,
@@ -339,14 +370,6 @@ function nomeFornecedorProposta(p: PropostaRankingBidFreteInternacional): string
   )
 }
 
-export interface BarraSparkComparativo {
-  valor: number
-  isVencedor: boolean
-  isMelhorPreco?: boolean
-  fornecedor: string
-  colocacao: number
-}
-
 function dedupePropostas(
   propostas: PropostaRankingBidFreteInternacional[],
 ): PropostaRankingBidFreteInternacional[] {
@@ -356,31 +379,6 @@ function dedupePropostas(
     if (vistos.has(id)) return false
     vistos.add(id)
     return true
-  })
-}
-
-/** Barras verticais no padrão Transit Time (melhor à esquerda). */
-export function montarBarrasComparativoPropostas(
-  propostas: PropostaRankingBidFreteInternacional[],
-  fornecedorMelhorPreco: string,
-  extrairValor: (p: PropostaRankingBidFreteInternacional) => number,
-  melhorMenor: boolean,
-  maxBarras = 6,
-): BarraSparkComparativo[] {
-  const sorted = [...dedupePropostas(propostas)].sort((a, b) => {
-    const va = extrairValor(a)
-    const vb = extrairValor(b)
-    return melhorMenor ? va - vb : vb - va
-  })
-  return sorted.slice(0, maxBarras).map((p, index) => {
-    const nomeFornecedor = nomeFornecedorProposta(p)
-    return {
-      valor: extrairValor(p),
-      isVencedor: index === 0,
-      isMelhorPreco: nomeFornecedor === fornecedorMelhorPreco,
-      fornecedor: nomeFornecedor,
-      colocacao: index + 1,
-    }
   })
 }
 

@@ -28,38 +28,22 @@ function propostaMock(
   } as PropostaRankingBidFreteInternacional
 }
 
-describe('painel smart insights — termômetro', () => {
-  it('gera série de 6 meses com valores numéricos quando há propostas', () => {
-    const propostas = [
-      propostaMock(797, 'p1'),
-      propostaMock(920, 'p2'),
-    ]
-    const { serieHistorico6Meses, termometroMedia6Meses } = buildSerieTermometro(propostas)
+describe('termômetro histórico — mesmas condições', () => {
+  it('usa série demonstrativa quando não há histórico aprovado', () => {
+    const propostas = [propostaMock(797, 'p1'), propostaMock(920, 'p2')]
+    const termometro = buildSerieTermometro(propostas)
 
-    expect(serieHistorico6Meses).toHaveLength(6)
-    expect(termometroMedia6Meses).toBe(859)
-    for (const ponto of serieHistorico6Meses) {
-      expect(ponto.mes.length).toBeGreaterThan(0)
-      expect(Number.isFinite(ponto.valor)).toBe(true)
-      expect(ponto.valor).toBeGreaterThan(0)
-    }
+    expect(termometro.termometroDadosDemonstracao).toBe(true)
+    expect(termometro.termometroMedia6Meses).not.toBeNull()
+    expect(termometro.quantidadeHistoricoMesmasCondicoes).toBe(0)
+    expect(termometro.serieHistorico6Meses.some((p) => p.valor > 0)).toBe(true)
   })
 
-  it('calcularPainelSmartInsights expõe série para o gráfico', () => {
-    const propostas = [propostaMock(797, 'p1'), propostaMock(864, 'p2')]
-    const info = calcularInfograficosFluxoCotacao([], propostas)
-    const smart = calcularPainelSmartInsights([], propostas, info)
-
-    expect(smart.serieHistorico6Meses.length).toBe(6)
-    expect(smart.termometroMedia6Meses).not.toBeNull()
-  })
-
-  it('gera série e métricas corretas baseadas no histórico real de cotações aprovadas', () => {
+  it('calcula média e savings a partir de cotações aprovadas no período', () => {
     const propostas = [propostaMock(797, 'p1')]
     const agora = new Date()
-    // Data de 2 meses atrás
     const dataDoisMesesAtras = new Date(agora.getFullYear(), agora.getMonth() - 2, 15).toISOString()
-    
+
     const historico = [
       {
         id_cotacao_bid_frete_internacional: 'cot-prev-1',
@@ -69,20 +53,26 @@ describe('painel smart insights — termômetro', () => {
           {
             valor_total_proposta_bid_frete_internacional: 1000,
             moeda_proposta_bid_frete_internacional: 'USD',
-          }
-        ]
-      }
+          },
+        ],
+      },
     ]
 
-    const { serieHistorico6Meses, termometroMedia6Meses, termometroSavingsValor } = buildSerieTermometro(propostas, historico)
+    const termometro = buildSerieTermometro(propostas, historico)
 
-    expect(serieHistorico6Meses).toHaveLength(6)
-    expect(termometroMedia6Meses).toBe(1000)
-    expect(termometroSavingsValor).toBe(203) // 1000 - 797 = 203
-    
-    // Todos os slots devem ter valor interpolado/propagado igual a 1000
-    for (const ponto of serieHistorico6Meses) {
-      expect(ponto.valor).toBe(1000)
-    }
+    expect(termometro.serieHistorico6Meses).toHaveLength(6)
+    expect(termometro.termometroMedia6Meses).toBe(1000)
+    expect(termometro.termometroSavingsValor).toBe(203)
+    expect(termometro.quantidadeHistoricoMesmasCondicoes).toBe(1)
+    expect(termometro.termometroDadosDemonstracao).toBe(false)
+  })
+
+  it('calcularPainelSmartInsights expõe dados do termômetro', () => {
+    const propostas = [propostaMock(797, 'p1')]
+    const info = calcularInfograficosFluxoCotacao([], propostas)
+    const smart = calcularPainelSmartInsights([], propostas, info)
+
+    expect(smart.serieHistorico6Meses).toHaveLength(6)
+    expect(smart.termometroMoeda).toBe(info.melhorValorMoeda)
   })
 })

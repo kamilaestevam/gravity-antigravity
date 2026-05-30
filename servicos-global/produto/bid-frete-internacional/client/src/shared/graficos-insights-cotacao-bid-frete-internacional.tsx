@@ -2,7 +2,7 @@
  * Gráficos SVG do Painel Smart Insights (detalhe da cotação).
  */
 
-import { useCallback, useId, useLayoutEffect, useMemo, useRef, useState, useEffect } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { BarraComparativoInsight, PontoSerieHistoricoTermometro } from './infograficos-fluxo-cotacao-bid-frete-internacional'
 
@@ -15,63 +15,111 @@ function formatarValorTermometro(valor: number, moeda: string): string {
   }).format(valor)
 }
 
-function normalizarBarras(barras: BarraComparativoInsight[]): number[] {
+const SPARK_VIEW_W = 72
+const SPARK_VIEW_H = 36
+const TOOLTIP_LARGURA_ESTIMADA = 168
+const TOOLTIP_ALTURA_ESTIMADA = 92
+
+type VarianteSparkBarras = 'azul' | 'amber' | 'indigo'
+
+const GRADIENTE_SPARK: Record<
+  VarianteSparkBarras,
+  { normal: readonly [string, string]; destaque: readonly [string, string] }
+> = {
+  indigo: {
+    normal: ['rgba(99, 102, 241, 0.25)', 'rgba(99, 102, 241, 0.4)'],
+    destaque: ['#818cf8', '#6366f1'],
+  },
+  amber: {
+    normal: ['#f59e0b', '#d97706'],
+    destaque: ['#fbbf24', '#f59e0b'],
+  },
+  azul: {
+    normal: ['#818cf8', '#4f46e5'],
+    destaque: ['#4ade80', '#22c55e'],
+  },
+}
+
+interface LayoutSparkBarras {
+  gap: number
+  barW: number
+  startX: number
+}
+
+interface AncoraViewport {
+  left: number
+  top: number
+}
+
+interface PosicaoTooltipFixa {
+  left: number
+  top: number
+  transform: string
+}
+
+export interface SparkBarrasComparativoProps {
+  barras: BarraComparativoInsight[]
+  /** Mantido no contrato do painel; comparação vs ganhador vem de `textoVsGanhador`. */
+  melhorMenor: boolean
+  variante?: VarianteSparkBarras
+  rotuloMetrica?: string
+  formatarValor?: (valor: number) => string
+  textoVsGanhador: (barra: BarraComparativoInsight, valorGanhador: number) => string
+}
+
+function calcularAlturasRelativas(barras: BarraComparativoInsight[]): number[] {
   if (barras.length === 0) return []
   if (barras.length === 1) {
     return [barras[0].destaque ? 0.72 : 0.5]
   }
-  const max = Math.max(...barras.map((b) => b.valor), 1)
-  const min = Math.min(...barras.map((b) => b.valor))
+
+  const valores = barras.map((b) => b.valor)
+  const max = Math.max(...valores, 1)
+  const min = Math.min(...valores)
   if (max === min) {
     return barras.map((b) => (b.destaque ? 0.82 : 0.48))
   }
+
   const span = max - min
   return barras.map((b) => 0.28 + ((b.valor - min) / span) * 0.62)
 }
 
-interface AncoraTooltipSpark {
-  left: number
-  top: number
+function calcularLayoutBarras(quantidade: number): LayoutSparkBarras {
+  const n = Math.max(quantidade, 1)
+  const gap = n <= 2 ? 4 : n <= 4 ? 3 : 2
+  const barW = Math.min(
+    n <= 4 ? 14 : 9,
+    Math.max(5, (SPARK_VIEW_W - gap * (n - 1)) / n),
+  )
+  const totalW = n * barW + (n - 1) * gap
+  const startX = Math.max(0, (SPARK_VIEW_W - totalW) / 2)
+  return { gap, barW, startX }
 }
 
-function calcularPosicaoTooltipPortal(ancora: AncoraTooltipSpark): {
-  left: number
-  top: number
-  transform: string
-} {
-  const margin = 8
-  const larguraEstimada = 168
-  const alturaEstimada = 88
+function calcularAncoraBarra(rect: DOMRect, indice: number, layout: LayoutSparkBarras): AncoraViewport {
+  const escalaX = rect.width / SPARK_VIEW_W
+  const escalaY = rect.height / SPARK_VIEW_H
+  const centroX = layout.startX + indice * (layout.barW + layout.gap) + layout.barW / 2
+  return {
+    left: rect.left + centroX * escalaX,
+    top: rect.top + SPARK_VIEW_H * escalaY,
+  }
+}
+
+function calcularPosicaoTooltipFixa(ancora: AncoraViewport): PosicaoTooltipFixa {
+  const margem = 10
   const left = Math.min(
-    window.innerWidth - larguraEstimada / 2 - margin,
-    Math.max(larguraEstimada / 2 + margin, ancora.left),
+    window.innerWidth - TOOLTIP_LARGURA_ESTIMADA / 2 - margem,
+    Math.max(TOOLTIP_LARGURA_ESTIMADA / 2 + margem, ancora.left),
   )
-  const espacoAbaixo = window.innerHeight - ancora.top - margin
-  if (espacoAbaixo >= alturaEstimada) {
+  const espacoAbaixo = window.innerHeight - ancora.top - margem
+  if (espacoAbaixo >= TOOLTIP_ALTURA_ESTIMADA) {
     return { left, top: ancora.top + 8, transform: 'translateX(-50%)' }
   }
   return { left, top: ancora.top - 8, transform: 'translate(-50%, -100%)' }
 }
 
-function calcularAncoraTooltipBarra(
-  wrapEl: HTMLDivElement,
-  indiceBarra: number,
-  startX: number,
-  barW: number,
-  gap: number,
-  viewBoxW: number,
-  viewBoxH: number,
-): AncoraTooltipSpark {
-  const rect = wrapEl.getBoundingClientRect()
-  const escalaX = rect.width / viewBoxW
-  const escalaY = rect.height / viewBoxH
-  const centroXView = startX + indiceBarra * (barW + gap) + barW / 2
-  const left = rect.left + centroXView * escalaX
-  const top = rect.top + viewBoxH * escalaY
-  return { left, top }
-}
-
-function TooltipSparkBarraPortal({
+function SparkBarraTooltipPortal({
   barra,
   valorGanhador,
   rotuloMetrica,
@@ -84,12 +132,12 @@ function TooltipSparkBarraPortal({
   rotuloMetrica: string
   formatarValor: (valor: number) => string
   textoVsGanhador: (barra: BarraComparativoInsight, valorGanhador: number) => string
-  ancora: AncoraTooltipSpark
+  ancora: AncoraViewport
 }) {
-  const [pos, setPos] = useState(() => calcularPosicaoTooltipPortal(ancora))
+  const [pos, setPos] = useState(() => calcularPosicaoTooltipFixa(ancora))
 
   useLayoutEffect(() => {
-    setPos(calcularPosicaoTooltipPortal(ancora))
+    setPos(calcularPosicaoTooltipFixa(ancora))
   }, [ancora.left, ancora.top])
 
   if (typeof document === 'undefined') return null
@@ -105,18 +153,14 @@ function TooltipSparkBarraPortal({
       }}
       role="tooltip"
     >
-      <span className="dc-spark-bar-tooltip-empresa" title={barra.fornecedor}>
+      <p className="dc-spark-bar-tooltip-empresa" title={barra.fornecedor}>
         {barra.fornecedor}
-      </span>
+      </p>
       <div className="dc-spark-bar-tooltip-linha">
         <span className="dc-spark-bar-tooltip-label">{rotuloMetrica}</span>
         <span className="dc-spark-bar-tooltip-valor">{formatarValor(barra.valor)}</span>
       </div>
-      <div className="dc-spark-bar-tooltip-linha dc-spark-bar-tooltip-linha--vs">
-        <span className="dc-spark-bar-tooltip-vs">
-          {textoVsGanhador(barra, valorGanhador)}
-        </span>
-      </div>
+      <p className="dc-spark-bar-tooltip-vs">{textoVsGanhador(barra, valorGanhador)}</p>
     </div>,
     document.body,
   )
@@ -124,127 +168,128 @@ function TooltipSparkBarraPortal({
 
 export function SparkBarrasComparativo({
   barras,
-  melhorMenor,
+  melhorMenor: _melhorMenor,
   variante = 'azul',
   rotuloMetrica = 'Valor',
   formatarValor = (v: number) => String(v),
   textoVsGanhador,
-}: {
-  barras: BarraComparativoInsight[]
-  melhorMenor: boolean
-  variante?: 'azul' | 'amber' | 'indigo'
-  rotuloMetrica?: string
-  formatarValor?: (valor: number) => string
-  textoVsGanhador: (barra: BarraComparativoInsight, valorGanhador: number) => string
-}) {
+}: SparkBarrasComparativoProps) {
   const uid = useId().replace(/:/g, '')
-  const wrapRef = useRef<HTMLDivElement>(null)
-  const [hoverIndex, setHoverIndex] = useState<number | null>(null)
-  const [ancoraTooltip, setAncoraTooltip] = useState<AncoraTooltipSpark | null>(null)
-  const alturas = normalizarBarras(barras)
-  const W = 72
-  const H = 36
-  const n = barras.length
-  const gap = n > 4 ? 2 : 3
-  const barW = Math.max(4, (W - gap * (n - 1)) / Math.max(n, 1))
-  const totalW = n * barW + (n - 1) * gap
-  const startX = Math.max(0, (W - totalW) / 2)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const [indiceHover, setIndiceHover] = useState<number | null>(null)
+
+  const layout = useMemo(() => calcularLayoutBarras(barras.length), [barras.length])
+  const alturas = useMemo(() => calcularAlturasRelativas(barras), [barras])
+  const gradiente = GRADIENTE_SPARK[variante]
 
   const valorGanhador = useMemo(() => {
     const ganhador = barras.find((b) => b.destaque)
     return ganhador?.valor ?? barras[0]?.valor ?? 0
   }, [barras])
 
-  const stopColorNormalStart = variante === 'indigo' ? 'rgba(99, 102, 241, 0.25)' : variante === 'amber' ? '#f59e0b' : '#818cf8'
-  const stopColorNormalEnd = variante === 'indigo' ? 'rgba(99, 102, 241, 0.4)' : variante === 'amber' ? '#d97706' : '#4f46e5'
-  const stopColorBestStart = variante === 'indigo' ? '#818cf8' : variante === 'amber' ? '#fbbf24' : '#4ade80'
-  const stopColorBestEnd = variante === 'indigo' ? '#6366f1' : variante === 'amber' ? '#f59e0b' : '#22c55e'
+  const barraHover = indiceHover != null ? barras[indiceHover] : null
 
-  const barraHover = hoverIndex != null ? barras[hoverIndex] : null
+  const [ancoraHover, setAncoraHover] = useState<AncoraViewport | null>(null)
 
-  const atualizarAncora = useCallback((indice: number) => {
-    const wrap = wrapRef.current
-    if (!wrap) return
-    setAncoraTooltip(calcularAncoraTooltipBarra(wrap, indice, startX, barW, gap, W, H))
-  }, [startX, barW, gap])
-
-  const limparHover = useCallback(() => {
-    setHoverIndex(null)
-    setAncoraTooltip(null)
-  }, [])
+  const definirHover = useCallback((indice: number | null) => {
+    setIndiceHover(indice)
+    const root = rootRef.current
+    if (indice == null || root == null) {
+      setAncoraHover(null)
+      return
+    }
+    setAncoraHover(calcularAncoraBarra(root.getBoundingClientRect(), indice, layout))
+  }, [layout])
 
   useEffect(() => {
-    if (hoverIndex == null) return
-    const reposicionar = () => atualizarAncora(hoverIndex)
+    if (indiceHover == null) return undefined
+    const reposicionar = () => {
+      const root = rootRef.current
+      if (root == null) return
+      setAncoraHover(calcularAncoraBarra(root.getBoundingClientRect(), indiceHover, layout))
+    }
     window.addEventListener('scroll', reposicionar, true)
     window.addEventListener('resize', reposicionar)
     return () => {
       window.removeEventListener('scroll', reposicionar, true)
       window.removeEventListener('resize', reposicionar)
     }
-  }, [hoverIndex, atualizarAncora])
+  }, [indiceHover, layout])
+
+  if (barras.length === 0) return null
 
   return (
-    <div
-      ref={wrapRef}
-      className="dc-spark-bar-wrap"
-      onMouseLeave={limparHover}
-    >
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        className="dc-smart-spark-barras"
-        role="img"
-        aria-label={rotuloMetrica}
+    <>
+      <div
+        ref={rootRef}
+        className="dc-spark-bar-wrap"
+        onMouseLeave={() => definirHover(null)}
       >
-        <defs>
-          <linearGradient id={`dc-spark-bar-${uid}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={stopColorNormalStart} />
-            <stop offset="100%" stopColor={stopColorNormalEnd} />
-          </linearGradient>
-          <linearGradient id={`dc-spark-bar-best-${uid}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={stopColorBestStart} />
-            <stop offset="100%" stopColor={stopColorBestEnd} />
-          </linearGradient>
-        </defs>
-        {barras.map((barra, i) => {
-          const h = alturas[i] * (H - 4)
-          const x = startX + i * (barW + gap)
-          const y = H - h
-          const fill = barra.destaque ? `url(#dc-spark-bar-best-${uid})` : `url(#dc-spark-bar-${uid})`
-          const isHover = hoverIndex === i
-          return (
-            <rect
-              key={`${barra.fornecedor}-${barra.valor}-${i}`}
-              x={x}
-              y={y}
-              width={barW}
-              height={h}
-              rx={2}
-              fill={fill}
-              opacity={barra.destaque || isHover ? 1 : 0.55}
-              stroke={isHover ? '#a5b4fc' : barra.destaque ? '#818cf8' : 'transparent'}
-              strokeWidth={isHover ? 1.25 : barra.destaque ? 0.75 : 0}
-              className={barra.destaque ? 'dc-smart-spark-bar--best' : undefined}
-              onMouseEnter={() => {
-                setHoverIndex(i)
-                atualizarAncora(i)
-              }}
-            />
-          )
-        })}
-      </svg>
+        <svg
+          viewBox={`0 0 ${SPARK_VIEW_W} ${SPARK_VIEW_H}`}
+          className="dc-smart-spark-barras"
+          role="img"
+          aria-label={rotuloMetrica}
+        >
+          <defs>
+            <linearGradient id={`spark-bar-n-${uid}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={gradiente.normal[0]} />
+              <stop offset="100%" stopColor={gradiente.normal[1]} />
+            </linearGradient>
+            <linearGradient id={`spark-bar-d-${uid}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={gradiente.destaque[0]} />
+              <stop offset="100%" stopColor={gradiente.destaque[1]} />
+            </linearGradient>
+          </defs>
 
-      {barraHover != null && ancoraTooltip != null && (
-        <TooltipSparkBarraPortal
+          {barras.map((barra, indice) => {
+            const alturaPx = alturas[indice] * (SPARK_VIEW_H - 4)
+            const x = layout.startX + indice * (layout.barW + layout.gap)
+            const y = SPARK_VIEW_H - alturaPx
+            const emHover = indiceHover === indice
+            const fillUrl = barra.destaque ? `url(#spark-bar-d-${uid})` : `url(#spark-bar-n-${uid})`
+
+            return (
+              <g
+                key={`${barra.fornecedor}-${indice}`}
+                onMouseEnter={() => definirHover(indice)}
+              >
+                <rect
+                  x={x - 2}
+                  y={0}
+                  width={layout.barW + 4}
+                  height={SPARK_VIEW_H}
+                  fill="transparent"
+                />
+                <rect
+                  x={x}
+                  y={y}
+                  width={layout.barW}
+                  height={alturaPx}
+                  rx={2}
+                  fill={fillUrl}
+                  opacity={barra.destaque || emHover ? 1 : 0.55}
+                  stroke={emHover ? '#a5b4fc' : barra.destaque ? '#818cf8' : 'transparent'}
+                  strokeWidth={emHover ? 1.25 : barra.destaque ? 0.75 : 0}
+                  className={barra.destaque ? 'dc-smart-spark-bar--best' : undefined}
+                />
+              </g>
+            )
+          })}
+        </svg>
+      </div>
+
+      {barraHover != null && ancoraHover != null && (
+        <SparkBarraTooltipPortal
           barra={barraHover}
           valorGanhador={valorGanhador}
           rotuloMetrica={rotuloMetrica}
           formatarValor={formatarValor}
           textoVsGanhador={textoVsGanhador}
-          ancora={ancoraTooltip}
+          ancora={ancoraHover}
         />
       )}
-    </div>
+    </>
   )
 }
 
@@ -287,8 +332,6 @@ export function SparkAreaMini({
   )
 }
 
-/** Altura fixa em px — NUNCA usar height:100% no SVG (quebra quando o pai não tem altura explícita). */
-export const TERMOMETRO_GRAFICO_ALTURA_PX = 220
 const TERMOMETRO_VIEW = { w: 400, h: 200 }
 const TERMOMETRO_PAD = { top: 16, right: 12, bottom: 28, left: 44 }
 
@@ -308,15 +351,20 @@ export function GraficoAreaTermometro({
   const innerH = H - pad.top - pad.bottom
 
   const coords = useMemo(() => {
-    if (serie.length === 0) return []
-    const valores = serie.map((p) => Number(p.valor) || 0)
+    const pontosValidos = serie.filter((p) => Number.isFinite(Number(p.valor)) && Number(p.valor) > 0)
+    if (pontosValidos.length === 0) return []
+
+    const valores = pontosValidos.map((p) => Number(p.valor))
     const maxVal = Math.max(...valores, 1) * 1.1
     const minVal = Math.min(...valores, 0)
     const span = Math.max(maxVal - minVal, 1)
+
     return serie.map((p, i) => {
       const valor = Number(p.valor) || 0
       const x = pad.left + (i / Math.max(serie.length - 1, 1)) * innerW
-      const y = pad.top + (1 - (valor - minVal) / span) * innerH
+      const y = valor > 0
+        ? pad.top + (1 - (valor - minVal) / span) * innerH
+        : pad.top + innerH
       return { x, y, valor, mes: p.mes, indice: i }
     })
   }, [serie, innerW, innerH, pad.left, pad.top])
@@ -327,13 +375,17 @@ export function GraficoAreaTermometro({
   )
   const ticks = [0, 0.25, 0.5, 0.75, 1]
 
-  const linePath = coords.map((c, i) => `${i === 0 ? 'M' : 'L'}${c.x},${c.y}`).join(' ')
+  const linePath = coords
+    .filter((c) => c.valor > 0)
+    .map((c, i) => `${i === 0 ? 'M' : 'L'}${c.x},${c.y}`)
+    .join(' ')
+  const pontosComValor = coords.filter((c) => c.valor > 0)
   const areaPath =
-    coords.length > 0
-      ? `${linePath} L${coords[coords.length - 1].x},${pad.top + innerH} L${coords[0].x},${pad.top + innerH} Z`
+    pontosComValor.length > 0
+      ? `${linePath} L${pontosComValor[pontosComValor.length - 1].x},${pad.top + innerH} L${pontosComValor[0].x},${pad.top + innerH} Z`
       : ''
 
-  const indiceHover = indiceAtivo ?? null
+  const indiceHover = indiceAtivo
   const pontoAtivo = indiceHover != null ? coords[indiceHover] : null
 
   const indicePorPosicaoX = useCallback(
@@ -348,8 +400,7 @@ export function GraficoAreaTermometro({
 
   const atualizarPorEvento = useCallback(
     (clientX: number, rect: DOMRect) => {
-      const ratioX = (clientX - rect.left) / rect.width
-      const idx = indicePorPosicaoX(ratioX)
+      const idx = indicePorPosicaoX((clientX - rect.left) / rect.width)
       setIndiceAtivo(idx)
     },
     [indicePorPosicaoX],
@@ -376,13 +427,12 @@ export function GraficoAreaTermometro({
       ? ((pontoAtivo.x - pad.left) / innerW) * 100
       : 50
 
-  const serieValida = serie.filter((p) => Number.isFinite(Number(p.valor)))
+  const temDados = coords.some((c) => c.valor > 0)
 
-  if (serieValida.length === 0) {
+  if (!temDados) {
     return (
       <div
         className="dc-term-chart-wrap dc-term-chart-wrap--vazio"
-        style={{ height: TERMOMETRO_GRAFICO_ALTURA_PX }}
         aria-hidden
       />
     )
@@ -391,16 +441,15 @@ export function GraficoAreaTermometro({
   return (
     <div
       className="dc-term-chart-wrap"
-      style={{ height: TERMOMETRO_GRAFICO_ALTURA_PX }}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setIndiceAtivo(null)}
       onTouchStart={handleTouchMove}
       onTouchMove={handleTouchMove}
       onTouchEnd={() => setIndiceAtivo(null)}
       role="img"
-      aria-label="Gráfico histórico de valores da cotação"
+      aria-label="Histórico de frete pago nas mesmas condições operacionais"
     >
-      {pontoAtivo != null && (
+      {pontoAtivo != null && pontoAtivo.valor > 0 && (
         <div
           className="dc-term-chart-tooltip"
           style={{ left: `${tooltipLeftPct}%` }}
@@ -414,7 +463,7 @@ export function GraficoAreaTermometro({
       )}
       <svg
         width="100%"
-        height={TERMOMETRO_GRAFICO_ALTURA_PX}
+        height="100%"
         viewBox={`0 0 ${W} ${H}`}
         className="dc-smart-termometro-chart"
         preserveAspectRatio="xMidYMid meet"
@@ -429,8 +478,12 @@ export function GraficoAreaTermometro({
             x2={W - pad.right}
             y2={pad.top + innerH}
           >
-            <stop offset="0%" stopColor="rgba(59, 130, 246, 0.45)" />
-            <stop offset="100%" stopColor="rgba(16, 185, 129, 0.2)" />
+            <stop offset="0%" stopColor="rgba(99, 102, 241, 0.5)" />
+            <stop offset="100%" stopColor="rgba(34, 211, 238, 0.15)" />
+          </linearGradient>
+          <linearGradient id={`dc-term-line-${uid}`} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#818cf8" />
+            <stop offset="100%" stopColor="#22d3ee" />
           </linearGradient>
         </defs>
         <rect
@@ -474,13 +527,13 @@ export function GraficoAreaTermometro({
           <path
             d={linePath}
             fill="none"
-            stroke="#38bdf8"
+            stroke={`url(#dc-term-line-${uid})`}
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         ) : null}
-        {pontoAtivo != null && (
+        {pontoAtivo != null && pontoAtivo.valor > 0 && (
           <line
             x1={pontoAtivo.x}
             y1={pad.top}
@@ -492,6 +545,7 @@ export function GraficoAreaTermometro({
           />
         )}
         {coords.map((c) => {
+          if (c.valor <= 0) return null
           const ativo = indiceHover === c.indice
           return (
             <g key={`${c.mes}-${c.indice}`}>
@@ -547,198 +601,3 @@ export function AnelProgressoInsight({ pct, variante }: { pct: number; variante:
   )
 }
 
-export function SparkTransitTimeBarras({
-  barras = [],
-  mediaMercado,
-  rotuloMetrica = 'Trânsito',
-  formatarValor = (v: number) => `${v} dias`,
-}: {
-  barras?: {
-    valor: number
-    isVencedor: boolean
-    isMelhorPreco?: boolean
-    fornecedor: string
-    colocacao?: number
-  }[]
-  mediaMercado?: number
-  rotuloMetrica?: string
-  formatarValor?: (valor: number) => string
-}) {
-  const uid = useId().replace(/:/g, '')
-  const [barAtivo, setBarAtivo] = useState<{
-    valor: number
-    isVencedor: boolean
-    fornecedor: string
-    colocacao?: number
-    index: number
-  } | null>(null)
-
-  useEffect(() => {
-    if (barAtivo == null) return
-    const handleOutsideClick = () => {
-      setBarAtivo(null)
-    }
-    window.addEventListener('click', handleOutsideClick)
-    return () => {
-      window.removeEventListener('click', handleOutsideClick)
-    }
-  }, [barAtivo])
-
-  const maxVal = useMemo(() => {
-    const valores = [...barras.map((b) => b.valor), mediaMercado].filter((v) => v != null && v >= 0)
-    return valores.length > 0 ? Math.max(...valores, 1) : 1
-  }, [barras, mediaMercado])
-
-  const W = 72
-  const H = 36
-  const n = barras.length
-
-  const gap = n <= 2 ? 4 : n <= 4 ? 3 : 2
-  const barW = n > 0
-    ? Math.min(n <= 4 ? 14 : 9, Math.max(5, (W - gap * (n - 1)) / n))
-    : 8
-
-  const totalW = n * barW + (n - 1) * gap
-  const startX = Math.max(0, (W - totalW) / 2)
-
-  const scaleY = (v: number) => {
-    return Math.max(4, (v / maxVal) * (H - 8))
-  }
-
-  const yMedia = mediaMercado != null ? H - scaleY(mediaMercado) : null
-
-  return (
-    <div className="dc-transit-spark-wrap" style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        className="dc-smart-spark-transit-barras"
-        role="img"
-        aria-hidden
-        style={{ cursor: 'pointer' }}
-      >
-        <defs>
-          <linearGradient id={`dc-transit-bar-winner-${uid}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#7dd3fc" />
-            <stop offset="100%" stopColor="#38bdf8" />
-          </linearGradient>
-          <linearGradient id={`dc-transit-bar-comp-${uid}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgba(56, 189, 248, 0.22)" />
-            <stop offset="100%" stopColor="rgba(56, 189, 248, 0.38)" />
-          </linearGradient>
-        </defs>
-
-        {/* Render the comparison bars */}
-        {barras.map((bar, i) => {
-          const h = scaleY(bar.valor)
-          const x = startX + i * (barW + gap)
-          const y = H - h
-          const isAtivo = barAtivo?.index === i
-          const fill = bar.isVencedor ? `url(#dc-transit-bar-winner-${uid})` : `url(#dc-transit-bar-comp-${uid})`
-          const borderStroke = isAtivo
-            ? '#34d399'
-            : bar.isVencedor
-              ? '#7dd3fc'
-              : bar.isMelhorPreco
-                ? '#a5b4fc'
-                : 'transparent'
-
-          return (
-            <rect
-              key={`${bar.fornecedor}-${bar.valor}-${i}`}
-              x={x}
-              y={y}
-              width={barW}
-              height={h}
-              rx={2}
-              fill={fill}
-              stroke={borderStroke}
-              strokeWidth={isAtivo ? 1.5 : bar.isVencedor || bar.isMelhorPreco ? 1 : 0}
-              opacity={bar.isVencedor || isAtivo ? 1 : 0.72}
-              title={`${bar.fornecedor}: ${bar.valor} dias`}
-              onClick={(e) => {
-                e.stopPropagation()
-                setBarAtivo(isAtivo ? null : { ...bar, index: i })
-              }}
-            />
-          )
-        })}
-
-        {/* Market average horizontal benchmark guide */}
-        {yMedia != null && (
-          <g>
-            <line
-              x1={0}
-              y1={yMedia}
-              x2={W}
-              y2={yMedia}
-              stroke="#38bdf8"
-              strokeWidth="1.25"
-              strokeDasharray="3,2"
-              opacity={0.9}
-            />
-          </g>
-        )}
-      </svg>
-
-      {barAtivo != null && (
-        <div
-          className="dc-transit-tooltip-click"
-          style={{
-            position: 'absolute',
-            bottom: 'calc(100% + 6px)',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 999,
-            width: '150px',
-            padding: '0.45rem 0.55rem',
-            borderRadius: '6px',
-            background: '#1e293b',
-            border: '1px solid rgba(148, 163, 184, 0.35)',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6)',
-            color: '#f8fafc',
-            fontSize: '0.6875rem',
-            lineHeight: '1.4',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.15rem',
-            pointerEvents: 'auto',
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '0.15rem', marginBottom: '0.2rem' }}>
-            <span style={{ fontWeight: 800, color: barAtivo.isVencedor ? '#a5b4fc' : '#cbd5e1', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '110px' }} title={barAtivo.fornecedor}>
-              {barAtivo.fornecedor}
-            </span>
-            <button
-              type="button"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#94a3b8',
-                cursor: 'pointer',
-                padding: 0,
-                fontSize: '0.8rem',
-                lineHeight: 1,
-                marginLeft: 'auto',
-              }}
-              onClick={(e) => {
-                e.stopPropagation()
-                setBarAtivo(null)
-              }}
-            >
-              &times;
-            </button>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ color: '#94a3b8' }}>{rotuloMetrica}:</span>
-            <span style={{ fontWeight: 700 }}>{formatarValor(barAtivo.valor)}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ color: '#94a3b8' }}>Colocação:</span>
-            <span style={{ fontWeight: 700, color: '#fbbf24' }}>{barAtivo.colocacao ?? barAtivo.index + 1}º lugar</span>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}

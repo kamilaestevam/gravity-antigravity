@@ -476,21 +476,12 @@ body,
   padding: 0;
 }
 
-/* O trilho global (ContextualSidebar/MenuLateralGlobal) e escondido na
-   tela de processo — quem desenha o menu lateral e o .p2-sidebar do
-   ProcessoLayout, que ja usa o padrao MenuLateralGlobal e fica como
-   menu unico, igual ao modelo do BID Frete (uma sidebar expandida so).
-   Isso tambem evita os dois rails colapsados encavalados que apareciam. */
+/* Trilho global (estreito) + menu do processo (expandido) sao os DOIS
+   menus dessa tela. Linha fina divisoria entre o trilho global e o
+   menu do processo. */
 .layout--processo .mlg-sidebar,
 .layout--processo .shell-sidebar {
-  display: none !important;
-}
-
-/* Sem o trilho global, o grid do .shell-layout precisa colapsar a coluna
-   de sidebar para zero — assim o .p2-shell (que tem sua propria sidebar
-   interna) ocupa toda a largura. */
-.layout--processo.shell-layout {
-  grid-template-columns: 0 1fr;
+  border-right: 1px solid var(--bg-elevated);
 }
 
 /* Na rota de processo: esconde so o lado ESQUERDO do shell-header

@@ -485,9 +485,16 @@ body,
    (Gravity logo + page label) — esse e que sobrepunha o titulo do
    CabecalhoGlobal. O lado DIREITO (Hub, Core, busca, info, tema, BR,
    settings, avatar) permanece visivel no canto superior direito, igual
-   ao modelo do BID Frete / Pedido. */
+   ao modelo do BID Frete / Pedido.
+   Sem o __left ocupando espaco no flex (justify-content: space-between),
+   o __right cai para o inicio. margin-left: auto empurra de volta pra
+   direita do container. */
 .layout--processo .shell-header__left {
   display: none !important;
+}
+
+.layout--processo .shell-header__right {
+  margin-left: auto;
 }
 
 /* ─── Toast Notifications ─────────────────────────────────────────────────── */

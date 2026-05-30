@@ -560,12 +560,14 @@ export default function Workflow() {
                   const variacao = hasReal
                     ? ((c.valor_real! - c.valor_estimado) / c.valor_estimado) * 100
                     : null
-                  // Cor da badge — semantica de custo: 'up' (real maior) = ruim/vermelho.
+                  // Semantica de custo: 'up' (real maior que estimado) = ruim/vermelho.
                   const direcao: 'up' | 'down' | 'neutral' = variacao === null
                     ? 'neutral'
                     : variacao > 0.5 ? 'up'
                     : variacao < -0.5 ? 'down'
                     : 'neutral'
+                  // Status + Real + observacoes ficam no titulo do tooltip — mantem
+                  // a info acessivel sem sobrecarregar o card.
                   const statusLabel = c.status === 'estimado'
                     ? t('processo.workflow.status_estimado', 'Estimado')
                     : c.status === 'confirmado'
@@ -573,47 +575,30 @@ export default function Workflow() {
                       : t('processo.workflow.status_pago', 'Pago')
                   const tooltipDesc = [
                     `${t('comum.status', 'Status')}: ${statusLabel}`,
+                    hasReal ? `${t('processo.workflow.custo_real', 'Real')}: ${fmtMoney(c.valor_real!)}` : t('processo.workflow.aguardando_real', 'Aguardando valor real'),
                     c.data_vencimento ? `${t('processo.workflow.vencimento', 'Vencimento')}: ${formatDate(c.data_vencimento)}` : null,
                     c.observacoes || null,
                   ].filter(Boolean).join(' · ')
                   return (
-                    <TooltipGlobal
-                      key={c.id}
-                      titulo={c.categoria}
-                      descricao={tooltipDesc || c.descricao || c.categoria}
-                    >
-                      <div className="wf-custo-item">
+                    <div key={c.id} className="wf-custo-item">
+                      <TooltipGlobal titulo={c.categoria} descricao={tooltipDesc}>
                         <div className="wf-custo-item-header">
                           <span className="wf-custo-item-icon">
                             {CUSTO_ICONS[c.categoria.toLowerCase()] ?? <CurrencyDollar weight="duotone" size={16} />}
                           </span>
                           <span className="wf-custo-item-label">{c.categoria}</span>
-                          <span className={`wf-custo-item-status wf-custo-item-status--${c.status}`}>
-                            {statusLabel}
-                          </span>
-                        </div>
-                        <div className="wf-custo-item-metric">{fmtMoney(c.valor_estimado)}</div>
-                        {hasReal ? (
-                          <div className="wf-custo-item-footer">
-                            <span className="wf-custo-item-real">
-                              {t('processo.workflow.custo_real', 'Real')}: <strong>{fmtMoney(c.valor_real!)}</strong>
-                            </span>
+                          {hasReal && (
                             <span className={`wf-custo-item-var wf-custo-item-var--${direcao}`}>
                               {direcao === 'up' && '↑'}
                               {direcao === 'down' && '↓'}
                               {direcao === 'neutral' && '→'}
                               {' '}{Math.abs(variacao!).toFixed(0)}%
                             </span>
-                          </div>
-                        ) : (
-                          <div className="wf-custo-item-footer">
-                            <span className="wf-custo-item-pendente">
-                              {t('processo.workflow.aguardando_real', 'Aguardando valor real')}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </TooltipGlobal>
+                          )}
+                        </div>
+                      </TooltipGlobal>
+                      <div className="wf-custo-item-metric">{fmtMoney(c.valor_estimado)}</div>
+                    </div>
                   )
                 })}
               </div>

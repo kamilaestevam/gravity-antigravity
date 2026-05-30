@@ -316,12 +316,20 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
       select: {
         id_cotacao_bid_frete_internacional: true,
         numero_cotacao_bid_frete_internacional: true,
+        data_criacao_cotacao_bid_frete_internacional: true,
+        data_atualizacao_cotacao_bid_frete_internacional: true,
+        data_limite_resposta_cotacao_bid_frete_internacional: true,
         data_aprovacao_cotacao_bid_frete_internacional: true,
-        propostas: {
-          where: {
-            status_proposta_bid_frete_internacional: 'APROVADA',
-          },
+        disparos_cotacao: {
           select: {
+            data_envio_disparo_cotacao_bid_frete_internacional: true,
+            data_resposta_disparo_cotacao_bid_frete_internacional: true,
+          },
+        },
+        propostas: {
+          select: {
+            data_criacao_proposta_bid_frete_internacional: true,
+            status_proposta_bid_frete_internacional: true,
             valor_total_proposta_bid_frete_internacional: true,
             moeda_proposta_bid_frete_internacional: true,
           },

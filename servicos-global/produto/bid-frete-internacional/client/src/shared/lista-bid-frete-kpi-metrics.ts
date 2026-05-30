@@ -28,6 +28,50 @@ export function contarCotacoesEmAtrasoPrazoResposta(
   return cotacoes.filter(c => cotacaoEmAtrasoPrazoResposta(c, agoraMs)).length
 }
 
+export type SituacaoPrazoRespostaCotacao = 'sem_prazo' | 'no_prazo' | 'fora_prazo'
+
+export interface AvaliacaoPrazoRespostaCotacao {
+  situacao: SituacaoPrazoRespostaCotacao
+  dataLimite: string | null
+  /** Exibe badge no prazo / fora do prazo (oculto em rascunho sem envio). */
+  exibirBadge: boolean
+}
+
+/** Situação do prazo para resposta no detalhe e badges (paridade KPI em atraso + expirada). */
+export function avaliarPrazoRespostaCotacao(
+  cotacao: Cotacao,
+  agoraMs = Date.now(),
+): AvaliacaoPrazoRespostaCotacao {
+  const limite = cotacao.data_limite_resposta_cotacao_bid_frete_internacional
+  if (!limite) {
+    return { situacao: 'sem_prazo', dataLimite: null, exibirBadge: false }
+  }
+
+  const limiteMs = new Date(limite).getTime()
+  if (!Number.isFinite(limiteMs)) {
+    return { situacao: 'sem_prazo', dataLimite: null, exibirBadge: false }
+  }
+
+  const status = cotacao.status_cotacao_bid_frete_internacional
+
+  if (status === 'EXPIRADA') {
+    return { situacao: 'fora_prazo', dataLimite: limite, exibirBadge: true }
+  }
+
+  if (cotacaoEmAtrasoPrazoResposta(cotacao, agoraMs)) {
+    return { situacao: 'fora_prazo', dataLimite: limite, exibirBadge: true }
+  }
+
+  if (status === 'AGUARDANDO_APROVACAO' && limiteMs < agoraMs) {
+    return { situacao: 'fora_prazo', dataLimite: limite, exibirBadge: true }
+  }
+
+  const situacao: SituacaoPrazoRespostaCotacao = limiteMs < agoraMs ? 'fora_prazo' : 'no_prazo'
+  const exibirBadge = status !== 'RASCUNHO' && status !== 'FALTA_INFORMACAO'
+
+  return { situacao, dataLimite: limite, exibirBadge }
+}
+
 export interface ListaBidFreteKpiStats {
   total: number
   emAndamento: number

@@ -67,42 +67,301 @@
   margin: 0 0.25rem;
 }
 
+/* Prazo (esq.) · timeline (centro) · ações (dir.) — altura única compartilhada */
 .dc-cockpit-hero {
+  --dc-cockpit-hero-min-h: 6.25rem;
+  --dc-prazo-status-pulse-duration: 7s;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: stretch;
   margin-bottom: var(--bid-frete-page-pt, 1.5rem);
 }
 
-.dc-cockpit-status-panel {
-  position: relative;
-  padding: 1rem 1.15rem 0.85rem;
+.dc-cockpit-prazo-col,
+.dc-cockpit-timeline-panel,
+.dc-cockpit-actions-col {
+  box-sizing: border-box;
+  min-height: var(--dc-cockpit-hero-min-h);
+  padding: 1rem 1.15rem;
   border-radius: 14px;
   border: 1px solid var(--dc-card-border);
   background: var(--dc-card-gradient);
   box-shadow: var(--dc-card-shadow);
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.dc-cockpit-status-head {
+.dc-cockpit-prazo-col {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.65rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+  min-width: 13.5rem;
+  padding: 0;
+  overflow: visible;
 }
 
-.dc-cockpit-status-titulo {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
+/* Chip ocupa 100% do card — mesmo fundo do painel da timeline */
+.dc-cockpit-prazo-col .dc-prazo-chip {
+  display: flex;
+  flex: 1;
+  align-self: stretch;
+  width: 100%;
+  min-height: 100%;
+  max-width: none;
+  border: none;
+  border-radius: inherit;
+  box-shadow: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.dc-cockpit-prazo-col .dc-prazo-chip--no-prazo,
+.dc-cockpit-prazo-col .dc-prazo-chip--fora-prazo {
+  border: none;
+  animation: none;
+  box-shadow: none;
+}
+
+.dc-cockpit-prazo-col .dc-prazo-chip-icone {
+  width: 3.5rem;
+  min-width: 3.5rem;
+  align-self: stretch;
+  background: transparent;
+  border-right: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.dc-cockpit-prazo-col .dc-prazo-chip-icone svg {
+  width: 1.68rem;
+  height: 1.68rem;
+}
+
+.dc-cockpit-prazo-col .dc-prazo-chip-corpo {
+  flex: 1;
+  justify-content: center;
+  gap: calc(0.2rem + 4px);
+  padding: 0.5rem 0.85rem;
+  background: transparent;
+}
+
+.dc-cockpit-prazo-col .dc-prazo-chip-label {
+  font-size: 0.625rem;
+}
+
+.dc-cockpit-prazo-col .dc-prazo-chip-data {
+  font-size: 1.0625rem;
+}
+
+.dc-cockpit-prazo-col .dc-prazo-chip-status {
+  align-self: stretch;
+  min-width: 5.75rem;
+  margin: 0.5rem 0.5rem 0.5rem 0;
+  padding: 0 0.9rem;
+  font-size: calc(0.625rem + 2px);
   letter-spacing: 0.06em;
-  color: var(--text-muted, #64748b);
+  border-left: none;
+  border-radius: 8px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
-/* Timeline — destaque roxo na etapa ativa (mockup) */
-.dc-cockpit .dc-fluxo-compact-etapa--active .dc-fluxo-compact-node {
-  width: 34px;
-  height: 34px;
+/* Pulso só fora do prazo — no prazo fica estático */
+.dc-cockpit-prazo-col .dc-prazo-chip--no-prazo .dc-prazo-chip-status {
+  animation: none;
+  box-shadow: none;
+}
+
+.dc-cockpit-prazo-col .dc-prazo-chip--fora-prazo .dc-prazo-chip-status {
+  animation: dc-prazo-status-pulse-vermelho var(--dc-prazo-status-pulse-duration) ease-in-out infinite;
+}
+
+.dc-cockpit-actions-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.dc-cockpit-timeline-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dc-cockpit-timeline-panel .dc-fluxo-compact {
+  width: 100%;
+  padding-top: 0.65rem;
+  padding-bottom: 0.2rem;
+  box-sizing: border-box;
+}
+
+/* Chip único — prazo, data e status integrados */
+@keyframes dc-prazo-chip-pulse-verde {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45); }
+  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes dc-prazo-chip-pulse-vermelho {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Status fora do prazo — halo externo + brilho interno (todos os lados) */
+@keyframes dc-prazo-status-pulse-vermelho {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(239, 68, 68, 0.6),
+      inset 0 0 0 0 rgba(239, 68, 68, 0.35);
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+  }
+  50% {
+    background-color: rgba(239, 68, 68, 0.34);
+    color: #fee2e2;
+    box-shadow:
+      0 0 0 4px rgba(239, 68, 68, 0.22),
+      inset 0 0 18px rgba(239, 68, 68, 0.32);
+  }
+  70% {
+    box-shadow:
+      0 0 0 10px rgba(239, 68, 68, 0),
+      inset 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(239, 68, 68, 0),
+      inset 0 0 0 0 rgba(239, 68, 68, 0);
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+  }
+}
+
+.dc-prazo-chip {
+  display: inline-flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  max-width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(15, 23, 42, 0.55);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  overflow: hidden;
+}
+
+.dc-prazo-chip--no-prazo {
+  border-color: rgba(16, 185, 129, 0.28);
+  animation: dc-prazo-chip-pulse-verde 2s infinite;
+}
+
+.dc-prazo-chip--fora-prazo {
+  border-color: rgba(239, 68, 68, 0.32);
+  animation: dc-prazo-chip-pulse-vermelho 2s infinite;
+}
+
+.dc-prazo-chip-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  color: #818cf8;
+  background: rgba(99, 102, 241, 0.12);
+  border-right: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.dc-prazo-chip-corpo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.12rem;
+  padding: 0.4rem 0.75rem;
+  min-width: 0;
+}
+
+.dc-prazo-chip-label {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.dc-prazo-chip-data {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #e0e7ff;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.dc-prazo-chip-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0 0.85rem;
+  font-size: 0.5625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  white-space: nowrap;
+  border-left: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.dc-prazo-chip--no-prazo .dc-prazo-chip-status {
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.18);
+}
+
+.dc-prazo-chip--fora-prazo .dc-prazo-chip-status {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.2);
+}
+
+@media (max-width: 900px) {
+  .dc-cockpit-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .dc-cockpit-prazo-col {
+    min-width: 0;
+  }
+
+  .dc-cockpit-actions-col {
+    align-items: stretch;
+  }
+
+  .dc-cockpit-actions-col .dc-cockpit-quick-actions {
+    justify-content: flex-end;
+  }
+}
+
+/* Timeline — mesma caixa de ícone e labels alinhados pela base */
+.dc-cockpit-timeline-panel .dc-fluxo-compact-etapas {
+  align-items: flex-end;
+  margin-top: 2px;
+}
+
+.dc-cockpit-timeline-panel .dc-fluxo-compact-etapa {
+  gap: calc(0.25rem + 2px);
+}
+
+.dc-cockpit-timeline-panel .dc-fluxo-compact-node {
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.dc-cockpit-timeline-panel .dc-fluxo-compact-etapa--active .dc-fluxo-compact-node {
   border-radius: 10px;
   border: 2px solid var(--dc-cockpit-accent);
   background: rgba(124, 58, 237, 0.2);
@@ -110,12 +369,29 @@
   box-shadow: 0 0 20px var(--dc-cockpit-accent-glow);
 }
 
-.dc-cockpit .dc-fluxo-compact-etapa--active .dc-fluxo-compact-label {
-  color: #c4b5fd;
-  font-weight: 800;
+.dc-cockpit-timeline-panel .dc-fluxo-compact-label,
+.dc-cockpit-timeline-panel .dc-fluxo-compact-etapa--done .dc-fluxo-compact-label,
+.dc-cockpit-timeline-panel .dc-fluxo-compact-etapa--active .dc-fluxo-compact-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 0;
+  line-height: 1.2;
 }
 
-.dc-cockpit .dc-fluxo-compact-etapa--done .dc-fluxo-compact-node {
+.dc-cockpit-timeline-panel .dc-fluxo-compact-etapa--active .dc-fluxo-compact-label {
+  color: #c4b5fd;
+}
+
+.dc-cockpit-timeline-panel .dc-fluxo-compact-track {
+  margin-top: 0.15rem;
+  margin-bottom: 0.65rem;
+}
+
+.dc-cockpit-timeline-panel .dc-fluxo-compact-etapa--done .dc-fluxo-compact-node {
   border-color: rgba(16, 185, 129, 0.5);
   background: rgba(16, 185, 129, 0.15);
   color: var(--dc-cockpit-success);
@@ -275,27 +551,22 @@ body.light-theme .dc-smart-insights-titulo {
   padding: 0 1rem;
   flex-shrink: 0;
   font-size: 0.6875rem;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.2;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--text-muted, #64748b);
+  /* Paridade .mlg-nav-item (itens do menu lateral) */
+  color: var(--ws-muted, var(--text-secondary, #94a3b8));
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
 }
 
 .dc-smart-card--melhor .dc-smart-card-head {
-  color: #818cf8;
   letter-spacing: 0.08em;
-  font-weight: 800;
   border-bottom: 1px solid rgba(99, 102, 241, 0.15);
 }
 
-.dc-smart-card--termometro .dc-smart-card-head {
-  color: #bae6fd;
-}
-
-.dc-smart-card--resumo .dc-smart-card-head {
-  color: #e0e7ff;
+body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head {
+  color: var(--text-muted, #475569);
 }
 
 /* Mesma reserva à direita do título (troféu / pill Preview) — alinha a linha do cabeçalho */
@@ -367,11 +638,18 @@ body.light-theme .dc-smart-insights-titulo {
   border: 1px solid rgba(148, 163, 184, 0.08);
 }
 
+.dc-smart-card--melhor {
+  --dc-smart-metrica-spark-h: 3.5rem;
+  --dc-smart-metrica-col-min-h: 8.75rem;
+}
+
 .dc-smart-card--melhor .dc-smart-metrica-col {
+  min-height: var(--dc-smart-metrica-col-min-h);
+  gap: 0.3rem;
   background: rgba(15, 23, 42, 0.45);
   border: 1px solid rgba(99, 102, 241, 0.08);
   border-radius: 10px;
-  padding: 0.4rem 0.4rem 0.35rem;
+  padding: 0.8rem 0.45rem 0.7rem;
   overflow: visible;
   transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -419,6 +697,13 @@ body.light-theme .dc-smart-insights-titulo {
   display: flex;
   align-items: flex-end;
   overflow: visible;
+}
+
+.dc-smart-card--melhor .dc-smart-metrica-spark {
+  flex: 1;
+  min-height: var(--dc-smart-metrica-spark-h);
+  height: var(--dc-smart-metrica-spark-h);
+  margin-top: 0.15rem;
 }
 
 .dc-spark-bar-wrap {
@@ -921,39 +1206,113 @@ body.light-theme .dc-smart-insights-titulo {
   box-shadow: 0 0 16px var(--dc-cockpit-accent-glow);
 }
 
-/* Área principal + sidebar Combat Matrix */
+/* Aba Dados — 3 cards + Combat Matrix na mesma linha */
 .dc-cockpit-workspace {
-  display: grid;
-  grid-template-columns: 1fr minmax(300px, 380px);
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
-  align-items: start;
+  min-width: 0;
+}
+
+.dc-cockpit-dados-row {
+  --dc-cockpit-dados-row-h: min(21.5rem, 42vh);
+  display: grid;
+  grid-template-columns: 1fr minmax(280px, 340px);
+  gap: 1rem;
+  align-items: stretch;
+  height: var(--dc-cockpit-dados-row-h);
+  min-width: 0;
 }
 
 @media (max-width: 1100px) {
-  .dc-cockpit-workspace { grid-template-columns: 1fr; }
+  .dc-cockpit-dados-row {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+.dc-cockpit-dados-row .dc-dados-layout {
+  min-width: 0;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  align-items: stretch;
+  align-content: stretch;
 }
 
 .dc-cockpit-main { min-width: 0; }
 
 .dc-cockpit-combat {
-  position: sticky;
-  top: 1rem;
-  max-height: calc(100vh - 6rem);
-  overflow-y: auto;
-  padding: 0.85rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  align-self: stretch;
+  padding: 0;
   border-radius: 14px;
-  background: linear-gradient(165deg, #1a1f2e 0%, #12151c 100%);
-  border: 1px solid rgba(124, 58, 237, 0.22);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(168deg, #2a3548 0%, #1e293b 42%, #161f2e 100%);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 8px 32px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+.dc-cockpit-combat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4f46e5 0%, #6366f1 40%, #7c3aed 70%, #a78bfa 100%);
+  border-radius: 14px 14px 0 0;
+  pointer-events: none;
 }
 
 .dc-cockpit-combat-titulo {
-  margin: 0 0 0.75rem;
-  font-size: 0.6875rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #94a3b8;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 1.15rem 1.35rem 0.85rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: #c7d2fe;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.dc-cockpit-combat-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0.75rem 0.85rem 1rem;
+  scrollbar-gutter: stable;
+}
+
+.dc-cockpit-combat-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dc-cockpit-combat-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(129, 140, 248, 0.35);
+}
+
+.dc-cockpit-combat-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dc-cockpit-combat-scroll .dc-prop-panel {
+  min-height: min-content;
+}
+
+.dc-cockpit-combat-scroll .dc-empty,
+.dc-cockpit-combat-scroll .dc-prop-loading {
+  min-height: 8rem;
 }
 
 .dc-cockpit-combat .dc-prop-panel-toolbar { display: none; }
@@ -969,9 +1328,30 @@ body.light-theme .dc-smart-insights-titulo {
   border: 1px solid rgba(148, 163, 184, 0.1);
 }
 
+.dc-cockpit-combat .dc-prop-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.dc-cockpit-combat .dc-prop-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%);
+  border-radius: 10px 10px 0 0;
+  pointer-events: none;
+}
+
 .dc-cockpit-combat .dc-prop-card--lider {
-  border-color: rgba(234, 179, 8, 0.35);
-  box-shadow: 0 0 12px rgba(234, 179, 8, 0.08);
+  border-color: rgba(99, 102, 241, 0.38);
+  box-shadow: 0 0 14px rgba(99, 102, 241, 0.14);
+}
+
+.dc-cockpit-combat .dc-prop-card--lider::after {
+  background: linear-gradient(90deg, #4f46e5 0%, #6366f1 40%, #7c3aed 70%, #a78bfa 100%);
 }
 
 .dc-cockpit-combat .dc-prop-card-head {
@@ -1038,19 +1418,49 @@ body.light-theme .dc-smart-insights-titulo {
 }
 
 .dc-cockpit-combat .dc-prop-tag--ouro {
-  background: rgba(234, 179, 8, 0.12);
-  color: #fde047;
-  border-color: rgba(234, 179, 8, 0.3);
+  background: rgba(99, 102, 241, 0.14);
+  color: #c7d2fe;
+  border-color: rgba(129, 140, 248, 0.32);
 }
 
-/* Dados — cards sem “input desabilitado” */
+/* Dados — altura fixa compartilhada; rolagem só no Combat Matrix */
 .dc-cockpit .dc-dados-layout {
   gap: 0.85rem;
 }
 
 .dc-cockpit .dc-dados-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  align-self: stretch;
+  overflow: hidden;
   background: var(--dc-cockpit-surface);
   border-color: rgba(148, 163, 184, 0.08);
+}
+
+.dc-cockpit .dc-dados-card-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 1100px) {
+  .dc-cockpit-dados-row .dc-dados-layout {
+    height: auto;
+    max-height: none;
+  }
+
+  .dc-cockpit .dc-dados-card {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .dc-cockpit-combat {
+    height: var(--dc-cockpit-dados-row-h);
+    max-height: var(--dc-cockpit-dados-row-h);
+  }
 }
 
 .dc-cockpit .dc-dados-card:hover {

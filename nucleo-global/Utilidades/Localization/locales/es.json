@@ -1797,7 +1797,10 @@
       "timeline_enviada": "Enviada",
       "timeline_em_cotacao": "En Cotización",
       "timeline_aguardando": "En Espera",
-      "timeline_aprovada": "Aprobada"
+      "timeline_aprovada": "Aprobada",
+      "prazo_resposta_label": "Plazo para respuesta",
+      "prazo_no_prazo": "En plazo",
+      "prazo_fora_prazo": "Fuera de plazo"
     },
     "colunas": {
       "processo": "Proceso (DATI)",

@@ -24,6 +24,11 @@ import {
   formatarHorasResposta,
   indiceFluxoPorStatus,
 } from './infograficos-fluxo-cotacao-bid-frete-internacional'
+import {
+  calcularDatasEtapasFluxoTimeline,
+  normalizarHistoricoTimeline,
+} from './datas-fluxo-timeline-cotacao-bid-frete-internacional'
+import { formatarDataBidFrete } from './formato-data-bid-frete'
 import type {
   BarraComparativoInsight,
   ComparativoMetricaPainel,

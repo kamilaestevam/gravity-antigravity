@@ -824,7 +824,10 @@
       "timeline_enviada": "Sent",
       "timeline_em_cotacao": "Quoting",
       "timeline_aguardando": "Waiting",
-      "timeline_aprovada": "Approved"
+      "timeline_aprovada": "Approved",
+      "prazo_resposta_label": "Response deadline",
+      "prazo_no_prazo": "On time",
+      "prazo_fora_prazo": "Overdue"
     },
     "colunas": {
       "processo": "Process (DATI)",

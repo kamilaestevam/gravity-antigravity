@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  avaliarPrazoRespostaCotacao,
   calcularStatsListaBidFrete,
   calcularTempoMedioRespostaHoras,
   contarCotacoesEmAtrasoPrazoResposta,
@@ -165,5 +166,75 @@ describe('lista-bid-frete-kpi-metrics', () => {
 
     const stats = calcularStatsListaBidFrete([emAtraso, noPrazo, expirada], agoraMs)
     expect(stats.cotacoesEmAtraso).toBe(1)
+  })
+
+  it('avalia prazo de resposta para exibição no detalhe', () => {
+    const agoraMs = new Date('2026-05-28T12:00:00.000Z').getTime()
+
+    expect(avaliarPrazoRespostaCotacao(cotacaoBase({ id_cotacao_bid_frete_internacional: 's0' }), agoraMs)).toEqual({
+      situacao: 'sem_prazo',
+      dataLimite: null,
+      exibirBadge: false,
+    })
+
+    expect(
+      avaliarPrazoRespostaCotacao(
+        cotacaoBase({
+          id_cotacao_bid_frete_internacional: 's1',
+          status_cotacao_bid_frete_internacional: 'EM_COTACAO',
+          data_limite_resposta_cotacao_bid_frete_internacional: '2026-06-01T23:59:00.000Z',
+        }),
+        agoraMs,
+      ),
+    ).toEqual({
+      situacao: 'no_prazo',
+      dataLimite: '2026-06-01T23:59:00.000Z',
+      exibirBadge: true,
+    })
+
+    expect(
+      avaliarPrazoRespostaCotacao(
+        cotacaoBase({
+          id_cotacao_bid_frete_internacional: 's2',
+          status_cotacao_bid_frete_internacional: 'EM_COTACAO',
+          data_limite_resposta_cotacao_bid_frete_internacional: '2026-05-02T23:59:00.000Z',
+        }),
+        agoraMs,
+      ),
+    ).toEqual({
+      situacao: 'fora_prazo',
+      dataLimite: '2026-05-02T23:59:00.000Z',
+      exibirBadge: true,
+    })
+
+    expect(
+      avaliarPrazoRespostaCotacao(
+        cotacaoBase({
+          id_cotacao_bid_frete_internacional: 's3',
+          status_cotacao_bid_frete_internacional: 'RASCUNHO',
+          data_limite_resposta_cotacao_bid_frete_internacional: '2026-06-01T23:59:00.000Z',
+        }),
+        agoraMs,
+      ),
+    ).toEqual({
+      situacao: 'no_prazo',
+      dataLimite: '2026-06-01T23:59:00.000Z',
+      exibirBadge: false,
+    })
+
+    expect(
+      avaliarPrazoRespostaCotacao(
+        cotacaoBase({
+          id_cotacao_bid_frete_internacional: 's4',
+          status_cotacao_bid_frete_internacional: 'EXPIRADA',
+          data_limite_resposta_cotacao_bid_frete_internacional: '2026-05-02T23:59:00.000Z',
+        }),
+        agoraMs,
+      ),
+    ).toEqual({
+      situacao: 'fora_prazo',
+      dataLimite: '2026-05-02T23:59:00.000Z',
+      exibirBadge: true,
+    })
   })
 })

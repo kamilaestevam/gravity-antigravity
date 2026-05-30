@@ -42,6 +42,7 @@ import {
   Export,
   Globe,
   UsersThree,
+  Clock,
 } from '@phosphor-icons/react'
 
 import {
@@ -77,9 +78,10 @@ import {
   MODALIDADE_LABELS,
   OPERACAO_LABELS,
   CANAL_LABELS,
-  STATUS_LABELS,
   STATUS_DISPARO_COTACAO_BID_FRETE_INTERNACIONAL_LABELS,
 } from '../shared/types'
+import { avaliarPrazoRespostaCotacao } from '../shared/lista-bid-frete-kpi-metrics'
+import { formatarDataBidFrete } from '../shared/formato-data-bid-frete'
 
 // ─── Formatação ──────────────────────────────────────────────────────────────
 
@@ -172,6 +174,54 @@ function InfoRow({ label, value, mono }: { label: string; value: string; mono?: 
     <div className="dc-info-row">
       <span className="dc-info-label">{label}</span>
       <span className={`dc-info-value ${mono ? 'dc-info-mono' : ''}`}>{value}</span>
+    </div>
+  )
+}
+
+/** Chip único: ícone + prazo + data + status (no prazo / fora do prazo). */
+function ChipPrazoRespostaCotacao({
+  cotacao,
+  t,
+}: {
+  cotacao: Cotacao
+  t: TFunction
+}) {
+  const prazo = avaliarPrazoRespostaCotacao(cotacao)
+  const dataFormatada = prazo.dataLimite ? formatarDataBidFrete(prazo.dataLimite) : '—'
+  const labelPrazo = t('bidfrete.detalhe_cotacao.prazo_resposta_label', 'Prazo para resposta')
+
+  const varianteChip =
+    prazo.exibirBadge && prazo.situacao === 'fora_prazo'
+      ? 'fora-prazo'
+      : prazo.exibirBadge && prazo.situacao === 'no_prazo'
+        ? 'no-prazo'
+        : 'neutro'
+
+  const rotuloStatus =
+    prazo.situacao === 'no_prazo'
+      ? t('bidfrete.detalhe_cotacao.prazo_no_prazo', 'No prazo')
+      : prazo.situacao === 'fora_prazo'
+        ? t('bidfrete.detalhe_cotacao.prazo_fora_prazo', 'Fora do prazo')
+        : null
+
+  const ariaStatus = rotuloStatus ? `${rotuloStatus} — ${labelPrazo}` : labelPrazo
+
+  return (
+    <div
+      className={['dc-prazo-chip', `dc-prazo-chip--${varianteChip}`].join(' ')}
+      role="status"
+      aria-label={`${ariaStatus}, ${dataFormatada}`}
+    >
+      <span className="dc-prazo-chip-icone" aria-hidden>
+        <Clock weight="duotone" size={26} />
+      </span>
+      <div className="dc-prazo-chip-corpo">
+        <span className="dc-prazo-chip-label">{labelPrazo}</span>
+        <span className="dc-prazo-chip-data">{dataFormatada}</span>
+      </div>
+      {prazo.exibirBadge && rotuloStatus ? (
+        <span className="dc-prazo-chip-status">{rotuloStatus}</span>
+      ) : null}
     </div>
   )
 }
@@ -430,12 +480,14 @@ export default function DetalheCotacao() {
   return (
     <PaginaGlobal className="dc-page dc-cockpit bid-frete-page-shell">
       <div className="dc-cockpit-hero">
-        <div className="dc-cockpit-status-panel">
-          <div className="dc-cockpit-status-head">
-            <span className="dc-cockpit-status-titulo">
-              {STATUS_LABELS[cotacao.status_cotacao_bid_frete_internacional]}
-            </span>
-            <div className="dc-cockpit-quick-actions">
+        <aside className="dc-cockpit-prazo-col" aria-label={t('bidfrete.detalhe_cotacao.prazo_resposta_label', 'Prazo para resposta')}>
+          <ChipPrazoRespostaCotacao cotacao={cotacao} t={t} />
+        </aside>
+        <div className="dc-cockpit-timeline-panel" aria-label={t('bidfrete.detalhe_cotacao.status', 'Status')}>
+          <TimelineFluxoCotacao statusAtual={cotacao.status_cotacao_bid_frete_internacional} />
+        </div>
+        <div className="dc-cockpit-actions-col">
+          <div className="dc-cockpit-quick-actions">
               {cotacao.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO' && (
                 <button
                   type="button"
@@ -472,8 +524,6 @@ export default function DetalheCotacao() {
                 <ChartLineUp weight="duotone" size={18} />
               </button>
             </div>
-          </div>
-          <TimelineFluxoCotacao statusAtual={cotacao.status_cotacao_bid_frete_internacional} />
         </div>
       </div>
 
@@ -516,9 +566,10 @@ export default function DetalheCotacao() {
       </nav>
 
       <div className={tab === 'dados' ? 'dc-cockpit-workspace' : 'dc-cockpit-main'}>
-        <div className="dc-cockpit-main">
       {/* Tab: Dados */}
       {tab === 'dados' && (
+        <>
+        <div className="dc-cockpit-dados-row">
         <div className="dc-dados-layout">
           <CardSecaoDados variante="gerais" titulo={t('bidfrete.detalhe_cotacao.card_detalhes_gerais', 'Detalhes Gerais')}>
             <InfoRowComIcone
@@ -596,10 +647,26 @@ export default function DetalheCotacao() {
               value={cotacao.cubagem_m3_cotacao_bid_frete_internacional ? `${cotacao.cubagem_m3_cotacao_bid_frete_internacional} m³` : '—'}
             />
           </CardSecaoDados>
+        </div>
 
-          <div className="dc-dados-extras">
+        {id && (
+          <aside className="dc-cockpit-combat" aria-label={t('bidfrete.detalhe_cotacao.cockpit_combat', 'Matriz de propostas')}>
+            <h2 className="dc-cockpit-combat-titulo">
+              {t('bidfrete.detalhe_cotacao.cockpit_combat_matrix', 'Combat Matrix')}
+            </h2>
+            <div className="dc-cockpit-combat-scroll">
+              <ListaPropostasDetalheCotacao
+                id_cotacao_bid_frete_internacional={id}
+                propostasRanking={propostasRanking}
+                carregandoRanking={carregandoRanking}
+                variante="combate"
+              />
+            </div>
+          </aside>
+        )}
+        </div>
 
-          {/* Valor alvo */}
+        <div className="dc-dados-extras">
           {cotacao.valor_meta_cotacao_bid_frete_internacional != null && (
             <div className="dc-target">
               <span className="dc-target-label">{t('bidfrete.detalhe_cotacao.valor_alvo')}:</span>
@@ -607,7 +674,6 @@ export default function DetalheCotacao() {
             </div>
           )}
 
-          {/* Valor aprovado */}
           {cotacao.valor_aprovado_ganho_bid_frete_internacional != null && (
             <div className="dc-aprovado">
               <CheckCircle weight="fill" size={20} style={{ color: 'var(--success)' }} />
@@ -619,10 +685,12 @@ export default function DetalheCotacao() {
               )}
             </div>
           )}
-          </div>
         </div>
+        </>
       )}
 
+      {tab !== 'dados' && (
+      <>
       {/* Tab: Bids */}
       {tab === 'bids' && (
         <div className="dc-card">
@@ -654,21 +722,8 @@ export default function DetalheCotacao() {
           variante="padrao"
         />
       )}
-        </div>
-
-        {tab === 'dados' && id && (
-          <aside className="dc-cockpit-combat" aria-label={t('bidfrete.detalhe_cotacao.cockpit_combat', 'Matriz de propostas')}>
-            <h2 className="dc-cockpit-combat-titulo">
-              {t('bidfrete.detalhe_cotacao.cockpit_combat_matrix', 'Combat Matrix')}
-            </h2>
-            <ListaPropostasDetalheCotacao
-              id_cotacao_bid_frete_internacional={id}
-              propostasRanking={propostasRanking}
-              carregandoRanking={carregandoRanking}
-              variante="combate"
-            />
-          </aside>
-        )}
+      </>
+      )}
       </div>
 
       <style>{`
@@ -818,8 +873,8 @@ export default function DetalheCotacao() {
           color: #c7d2fe;
         }
         .dc-fluxo-compact-label {
-          font-size: 0.5625rem;
-          font-weight: 700;
+          font-size: 11px;
+          font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.04em;
           color: #64748b;
@@ -833,7 +888,7 @@ export default function DetalheCotacao() {
         .dc-fluxo-compact-etapa--done .dc-fluxo-compact-label { color: #86efac; }
         .dc-fluxo-compact-etapa--active .dc-fluxo-compact-label { color: #a5b4fc; }
         @media (max-width: 640px) {
-          .dc-fluxo-compact-label { font-size: 0.5rem; }
+          .dc-fluxo-compact-label { font-size: 11px; }
           .dc-fluxo-compact-node { width: 22px; height: 22px; }
         }
 
@@ -973,10 +1028,10 @@ export default function DetalheCotacao() {
           .dc-dados-layout { grid-template-columns: 1fr; }
         }
         .dc-dados-extras {
-          grid-column: 1 / -1;
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
+          width: 100%;
         }
         .dc-dados-card {
           position: relative;
@@ -1014,7 +1069,7 @@ export default function DetalheCotacao() {
           background: linear-gradient(90deg, #0ea5e9 0%, #38bdf8 50%, #7dd3fc 100%);
         }
         .dc-dados-card--carga::after {
-          background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 50%, #fcd34d 100%);
+          background: linear-gradient(90deg, #4f46e5 0%, #6366f1 40%, #7c3aed 70%, #a78bfa 100%);
         }
         .dc-dados-card-title {
           margin: 0;
@@ -1027,7 +1082,7 @@ export default function DetalheCotacao() {
         }
         .dc-dados-card--gerais .dc-dados-card-title { color: #e0e7ff; }
         .dc-dados-card--rota .dc-dados-card-title { color: #e0f2fe; }
-        .dc-dados-card--carga .dc-dados-card-title { color: #fef3c7; }
+        .dc-dados-card--carga .dc-dados-card-title { color: #e0e7ff; }
         .dc-dados-card-body {
           display: flex;
           flex-direction: column;
@@ -1056,17 +1111,17 @@ export default function DetalheCotacao() {
           padding: 0.9rem 1rem;
           margin-bottom: 0.5rem;
           border-radius: 10px;
-          background: rgba(245, 158, 11, 0.08);
-          border: 1px solid rgba(251, 191, 36, 0.22);
+          background: rgba(99, 102, 241, 0.08);
+          border: 1px solid rgba(129, 140, 248, 0.22);
         }
         .dc-mercadoria-icon {
           flex-shrink: 0;
-          color: #fbbf24;
+          color: #a5b4fc;
           margin-top: 0.1rem;
           padding: 0.45rem;
           border-radius: 8px;
-          background: rgba(245, 158, 11, 0.15);
-          border: 1px solid rgba(251, 191, 36, 0.25);
+          background: rgba(99, 102, 241, 0.15);
+          border: 1px solid rgba(129, 140, 248, 0.28);
         }
         .dc-mercadoria-texto {
           margin: 0.25rem 0 0;

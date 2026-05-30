@@ -50,13 +50,14 @@ import {
 
 // Mapa de icone por ordem da etapa — Abertura → Entrega.
 // Espelha o padrao do BID Frete (icone semantico em cada step do timeline).
+// Size 18 ajustado para a nova caixa de 40px.
 const STEP_ICONS: Record<number, React.ReactNode> = {
-  1: <FolderOpen   weight="duotone" size={14} />, // Abertura
-  2: <Package      weight="duotone" size={14} />, // Pedido
-  3: <ClipboardText weight="duotone" size={14} />, // LI
-  4: <Anchor       weight="duotone" size={14} />, // Embarque
-  5: <ShieldCheck  weight="duotone" size={14} />, // Desembaraco
-  6: <House        weight="duotone" size={14} />, // Entrega
+  1: <FolderOpen   weight="duotone" size={18} />, // Abertura
+  2: <Package      weight="duotone" size={18} />, // Pedido
+  3: <ClipboardText weight="duotone" size={18} />, // LI
+  4: <Anchor       weight="duotone" size={18} />, // Embarque
+  5: <ShieldCheck  weight="duotone" size={18} />, // Desembaraco
+  6: <House        weight="duotone" size={18} />, // Entrega
 }
 import { useProcesso } from '../ProcessoLayout'
 import { getFollowUps, createFollowUp, deleteDocumento } from '../../shared/api'
@@ -285,10 +286,19 @@ export default function Workflow() {
                 const isActive = etapa.status === 'em_andamento'
                 const prevDone = idx > 0 && (etapas[idx - 1].status === 'concluida')
 
+                // Conector que ENTRA nesta etapa (a esquerda):
+                //   done = ambos os lados concluidos (verde solido)
+                //   active = passo anterior done + este ativo (gradiente verde -> roxo)
+                //   default = transparente/muted
+                const connectorClass = isDone
+                  ? 'wf-connector--done'
+                  : (isActive && prevDone)
+                    ? 'wf-connector--active'
+                    : prevDone ? 'wf-connector--done' : ''
                 return (
                   <React.Fragment key={etapa.id}>
                     {idx > 0 && (
-                      <div className={`wf-connector ${prevDone || isDone ? 'wf-connector--done' : ''}`} />
+                      <div className={`wf-connector ${connectorClass}`} />
                     )}
                     <div className="wf-step">
                       <TooltipGlobal

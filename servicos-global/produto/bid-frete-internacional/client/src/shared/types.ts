@@ -1,4 +1,4 @@
-﻿/**
+/**
  * types.ts — Tipos do domínio BID Frete Internacional
  * Skill: antigravity-criar-produto (Passo 1 — shared/types.ts)
  * Alinhado com fragment.prisma — enums e campos.
@@ -215,6 +215,15 @@ export interface Cotacao {
   data_atualizacao_cotacao_bid_frete_internacional: string
   disparo_cotacao_bid_frete_internacional?: DisparoCotacaoBidFreteInternacional[]
   propostas_bid_frete_internacional?: PropostaBidFreteInternacional[]
+  historico_aprovado?: Array<{
+    id_cotacao_bid_frete_internacional: string
+    numero_cotacao_bid_frete_internacional: string
+    data_aprovacao_cotacao_bid_frete_internacional: string
+    propostas: Array<{
+      valor_total_proposta_bid_frete_internacional: number
+      moeda_proposta_bid_frete_internacional: string
+    }>
+  }>
 }
 
 export interface Fornecedor {

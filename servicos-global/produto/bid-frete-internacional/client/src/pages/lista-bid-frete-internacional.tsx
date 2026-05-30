@@ -14,6 +14,11 @@ import { useShellStore } from '@gravity/shell'
 
 import CotacoesKanban from './kanban-bid-frete-internacional'
 import { PaginaGlobal } from '@nucleo/pagina-global'
+import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
+import {
+  criarTituloCarregandoTopo,
+  ConteudoCarregandoBidFreteInternacional,
+} from '../shared/pagina-carregando-bid-frete-internacional'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
@@ -1260,12 +1265,26 @@ export default function Cotacoes() {
     }
   }, [stats, cotacoesParaKpi, metricasAcimaMeta30d, t])
 
+  const tituloTopo = useMemo(() => {
+    if (!carregando) return null
+    const icone = visao === 'kanban'
+      ? <Kanban weight="duotone" size={22} />
+      : <ListBullets weight="duotone" size={22} />
+    return criarTituloCarregandoTopo(icone, t)
+  }, [carregando, visao, t])
+
+  useSincronizarTituloPaginaTopo(tituloTopo)
+
   // ─── Render ───
 
   return (
     <PaginaGlobal
       className="bf-cotacoes bid-frete-page-shell"
     >
+      {carregando ? (
+        <ConteudoCarregandoBidFreteInternacional />
+      ) : (
+        <>
       {/* ── KPI cards (Configuração dinâmica com sincronização do local storage) ── */}
       {visao === 'lista' && (
         <div className="lp-stats-row">
@@ -1345,7 +1364,6 @@ export default function Cotacoes() {
             onSalvarPreferencias={handleSalvarPreferencias}
             colunasPadrao={COLUNAS_PADRAO_VISIVEIS}
             
-            carregando={carregando}
             emptyIcon={<Package size={40} weight="duotone" style={{ color: 'var(--text-muted)' }} />}
             emptyTitle={t('bidfrete.cotacoes.vazio')}
             emptyDescription="Nenhuma cotação encontrada com os filtros selecionados."
@@ -1356,9 +1374,11 @@ export default function Cotacoes() {
       ) : (
         <CotacoesKanban
           cotacoes={cotacoesFiltradas}
-          carregando={carregando}
           onRefresh={carregar}
         />
+      )}
+
+        </>
       )}
 
       <style>{`

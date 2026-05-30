@@ -300,7 +300,40 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 
     if (!cotacao) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
 
-    res.json({ cotacao })
+    const historicoAprovado = await (req.prisma as any).cotacaoBidFreteInternacional.findMany({
+      where: {
+        origem_codigo_cotacao_bid_frete_internacional: cotacao.origem_codigo_cotacao_bid_frete_internacional,
+        destino_codigo_cotacao_bid_frete_internacional: cotacao.destino_codigo_cotacao_bid_frete_internacional,
+        status_cotacao_bid_frete_internacional: 'APROVADA',
+        NOT: {
+          id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+        },
+      },
+      select: {
+        id_cotacao_bid_frete_internacional: true,
+        numero_cotacao_bid_frete_internacional: true,
+        data_aprovacao_cotacao_bid_frete_internacional: true,
+        propostas: {
+          where: {
+            status_proposta_bid_frete_internacional: 'APROVADA',
+          },
+          select: {
+            valor_total_proposta_bid_frete_internacional: true,
+            moeda_proposta_bid_frete_internacional: true,
+          },
+        },
+      },
+      orderBy: {
+        data_aprovacao_cotacao_bid_frete_internacional: 'desc',
+      },
+    })
+
+    res.json({
+      cotacao: {
+        ...cotacao,
+        historico_aprovado: historicoAprovado,
+      },
+    })
   } catch (err) {
     next(err)
   }

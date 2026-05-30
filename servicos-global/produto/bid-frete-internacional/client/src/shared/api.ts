@@ -1,4 +1,4 @@
-﻿/// <reference types="vite/client" />
+/// <reference types="vite/client" />
 /**
  * api.ts — Funções de chamada da API do BID Frete Internacional
  * Skill: antigravity-criar-produto (Passo 1 — shared/api.ts)
@@ -348,6 +348,7 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
     disparo_cotacao_bid_frete_internacional: disparosRaw.map(mapDisparoCotacaoBidFreteInternacionalFromServer),
     propostas_bid_frete_internacional: propostas,
     bid_bid_frete_internacional: bidMapeado,
+    historico_aprovado: raw.historico_aprovado as Cotacao['historico_aprovado'],
   }
 }
 

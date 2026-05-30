@@ -108,9 +108,22 @@ function LinhaProposta({
         </span>
         <span className="dc-info-label">{label}</span>
       </div>
-      <span className={`dc-info-value ${mono ? 'dc-info-mono' : ''} ${destaque ? 'dc-prop-valor-destaque' : ''}`}>
+      <span className={`dc-info-value ${mono ? 'dc-info-mono' : ''}`}>
         {value}
       </span>
+    </div>
+  )
+}
+
+function BarraMetrica({ label, pct }: { label: string; pct: number }) {
+  const clamped = Math.max(0, Math.min(100, pct))
+  return (
+    <div className="dc-prop-bar-row">
+      <span>{label}</span>
+      <div className="dc-prop-bar-track">
+        <div className="dc-prop-bar-fill" style={{ width: `${clamped}%` }} />
+      </div>
+      <span>{clamped}%</span>
     </div>
   )
 }
@@ -120,11 +133,13 @@ function CardProposta({
   metricas,
   posicaoExibicao,
   t,
+  variante = 'padrao',
 }: {
   proposta: PropostaRankingBidFreteInternacional
   metricas: MetricasExibicaoProposta
   posicaoExibicao: number
   t: TFunction
+  variante?: 'padrao' | 'combate'
 }) {
   const aprovada = proposta.status_proposta_bid_frete_internacional === 'APROVADA'
   const nome =
@@ -136,6 +151,65 @@ function CardProposta({
   const tagsTexto = metricas.tags.map((tag) => tagLabel(tag, t)).join(' · ')
   const nota =
     metricas.notaFornecedor != null ? `${metricas.notaFornecedor.toFixed(1)}/5` : null
+
+  const pctPreco = metricas.percentualVsMelhorPreco != null
+    ? Math.max(12, Math.min(100, 100 - metricas.percentualVsMelhorPreco))
+    : Math.max(15, 100 - (metricas.rankPreco - 1) * 22)
+  const pctTransito = metricas.rankTransito <= 1
+    ? 100
+    : Math.max(20, 100 - (metricas.rankTransito - 1) * 18)
+  const pctAvaliacao = metricas.notaFornecedor != null
+    ? Math.round((metricas.notaFornecedor / 5) * 100)
+    : 70
+
+  if (variante === 'combate') {
+    return (
+      <article
+        className={[
+          'dc-prop-card',
+          aprovada ? 'dc-prop-card--aprovada' : '',
+          posicaoExibicao === 1 ? 'dc-prop-card--lider' : '',
+        ].filter(Boolean).join(' ')}
+      >
+        <header className="dc-prop-card-head">
+          <div className="dc-prop-card-head-main">
+            <span
+              className="dc-prop-rank-inline"
+              style={{
+                background: rankCores.bg,
+                color: rankCores.color,
+                border: `1px solid ${rankCores.border}`,
+              }}
+            >
+              {posicaoExibicao <= 3 && <Trophy weight="duotone" size={14} />}
+              {posicaoExibicao}º
+            </span>
+            <h3 className="dc-prop-fornecedor">{nome}</h3>
+          </div>
+          <span className="dc-prop-total-valor dc-info-mono">
+            {moeda(proposta.valor_total_proposta_bid_frete_internacional, moedaProposta)}
+          </span>
+        </header>
+        <div className="dc-prop-barras">
+          <BarraMetrica label={t('bidfrete.detalhe_cotacao.resp_frete', 'Frete')} pct={pctPreco} />
+          <BarraMetrica label={t('bidfrete.detalhe_cotacao.resp_taxas', 'Taxas')} pct={Math.min(95, pctPreco + 8)} />
+          <BarraMetrica label={t('bidfrete.comparativo.transit_time', 'Transit')} pct={pctTransito} />
+        </div>
+        {metricas.tags.length > 0 && (
+          <div className="dc-prop-tags">
+            {metricas.tags.map((tag) => (
+              <span
+                key={tag}
+                className={`dc-prop-tag${tag === 'MELHOR_PRECO' ? ' dc-prop-tag--ouro' : ''}`}
+              >
+                {tagLabel(tag, t)}
+              </span>
+            ))}
+          </div>
+        )}
+      </article>
+    )
+  }
 
   return (
     <article
@@ -254,12 +328,15 @@ export interface ListaPropostasDetalheCotacaoProps {
   id_cotacao_bid_frete_internacional: string
   propostasRanking: PropostaRankingBidFreteInternacional[]
   carregandoRanking?: boolean
+  /** Sidebar compacta estilo Combat Matrix (mockup cockpit). */
+  variante?: 'padrao' | 'combate'
 }
 
 export function ListaPropostasDetalheCotacao({
   id_cotacao_bid_frete_internacional,
   propostasRanking,
   carregandoRanking = false,
+  variante = 'padrao',
 }: ListaPropostasDetalheCotacaoProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -399,6 +476,7 @@ export function ListaPropostasDetalheCotacao({
               metricas={metricas}
               posicaoExibicao={indice + 1}
               t={t}
+              variante={variante}
             />
           )
         })}

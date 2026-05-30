@@ -1,4 +1,4 @@
-﻿/**
+/**
  * DetalheCotacao.tsx — Detalhe de Cotação (T4)
  * Skill: antigravity-design-system, antigravity-componentes
  *
@@ -23,6 +23,8 @@ import {
   Trash,
   PaperPlaneTilt,
   Ranking,
+  Medal,
+  ChartLineUp,
   CheckCircle,
   Eye,
   Envelope,
@@ -40,7 +42,6 @@ import {
   Export,
   Globe,
   UsersThree,
-  ClipboardText,
 } from '@phosphor-icons/react'
 
 import {
@@ -52,7 +53,11 @@ import {
 import { ModalEnviarCotacaoBidFreteInternacional } from './modal-enviar-cotacao-bid-frete-internacional'
 import { RotaVisualBidFrete } from '../shared/rota-visual-bid-frete-internacional'
 import { ListaPropostasDetalheCotacao } from '../shared/propostas-detalhe-cotacao-bid-frete-internacional'
-import { PainelFluxoInfograficosCotacao } from '../shared/painel-fluxo-infograficos-cotacao-bid-frete-internacional'
+import {
+  TimelineFluxoCotacao,
+  InsightsGridFluxoCotacao,
+} from '../shared/painel-fluxo-infograficos-cotacao-bid-frete-internacional'
+import './cotacao-detalhe-cockpit.css'
 import {
   mesclarPropostasComRanking,
   ranquearPropostasLocal,
@@ -72,6 +77,7 @@ import {
   MODALIDADE_LABELS,
   OPERACAO_LABELS,
   CANAL_LABELS,
+  STATUS_LABELS,
   STATUS_DISPARO_COTACAO_BID_FRETE_INTERNACIONAL_LABELS,
 } from '../shared/types'
 
@@ -194,94 +200,6 @@ function InfoRowComIcone({
   )
 }
 
-function contarFornecedoresUnicos(disparos: DisparoCotacaoBidFreteInternacional[]): number {
-  const ids = new Set(
-    disparos
-      .map((d) => d.id_fornecedor_bid_frete_internacional)
-      .filter((id): id is string => typeof id === 'string' && id.length > 0),
-  )
-  return ids.size
-}
-
-function quantidadeCotacoesResumo(cotacao: Cotacao): number {
-  const noBid = cotacao.bid_bid_frete_internacional?.quantidade_cotacoes_bid_frete_internacional
-  if (noBid != null && noBid > 0) return noBid
-  return 1
-}
-
-function ResumoKpisDetalhe({
-  quantidadeCotacoes,
-  quantidadeFornecedores,
-  quantidadePropostas,
-  subtituloCotacoes,
-  aoClicarCotacoes,
-  aoClicarFornecedores,
-  aoClicarPropostas,
-}: {
-  quantidadeCotacoes: number
-  quantidadeFornecedores: number
-  quantidadePropostas: number
-  subtituloCotacoes?: string
-  aoClicarCotacoes?: () => void
-  aoClicarFornecedores?: () => void
-  aoClicarPropostas?: () => void
-}) {
-  const { t } = useTranslation()
-
-  const itens = [
-    {
-      id: 'cotacoes',
-      rotulo: t('bidfrete.detalhe_cotacao.kpi.cotacoes', 'Cotações'),
-      valor: quantidadeCotacoes,
-      sub: subtituloCotacoes ?? t('bidfrete.detalhe_cotacao.kpi.cotacoes_avulsa', 'Cotação avulsa'),
-      icone: <ClipboardText weight="duotone" size={18} />,
-      cor: '#818cf8',
-      onClick: aoClicarCotacoes,
-    },
-    {
-      id: 'fornecedores',
-      rotulo: t('bidfrete.detalhe_cotacao.kpi.fornecedores', 'Fornecedores'),
-      valor: quantidadeFornecedores,
-      sub: t('bidfrete.detalhe_cotacao.kpi.fornecedores_sub', 'Contatados no disparo'),
-      icone: <UsersThree weight="duotone" size={18} />,
-      cor: '#38bdf8',
-      onClick: aoClicarFornecedores,
-    },
-    {
-      id: 'propostas',
-      rotulo: t('bidfrete.detalhe_cotacao.kpi.propostas', 'Propostas'),
-      valor: quantidadePropostas,
-      sub: t('bidfrete.detalhe_cotacao.kpi.propostas_sub', 'Respostas recebidas'),
-      icone: <ChatCircle weight="duotone" size={18} />,
-      cor: '#34d399',
-      onClick: aoClicarPropostas,
-    },
-  ] as const
-
-  return (
-    <div className="dc-resumo-kpis" role="group" aria-label={t('bidfrete.detalhe_cotacao.kpi.grupo', 'Resumo da cotação')}>
-      {itens.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          className="dc-resumo-kpi"
-          onClick={item.onClick}
-          style={{ '--dc-kpi-accent': item.cor } as React.CSSProperties}
-        >
-          <span className="dc-resumo-kpi-icon" aria-hidden>
-            {item.icone}
-          </span>
-          <span className="dc-resumo-kpi-body">
-            <span className="dc-resumo-kpi-valor">{item.valor}</span>
-            <span className="dc-resumo-kpi-rotulo">{item.rotulo}</span>
-            <span className="dc-resumo-kpi-sub">{item.sub}</span>
-          </span>
-        </button>
-      ))}
-    </div>
-  )
-}
-
 // ─── Componente Principal ────────────────────────────────────────────────────
 
 export default function DetalheCotacao() {
@@ -360,49 +278,11 @@ export default function DetalheCotacao() {
 
   useSincronizarTituloPaginaTopo(tituloTopo)
 
-  const quantidadePropostas = cotacao?.propostas_bid_frete_internacional?.length ?? 0
-  const quantidadeFornecedores = useMemo(() => contarFornecedoresUnicos(bids), [bids])
-  const quantidadeCotacoes = cotacao ? quantidadeCotacoesResumo(cotacao) : 0
-  const subtituloCotacoesKpi = useMemo(() => {
-    if (!cotacao?.bid_bid_frete_internacional) return undefined
-    const numero = cotacao.bid_bid_frete_internacional.numero_bid_bid_frete_internacional
-    return t('bidfrete.detalhe_cotacao.kpi.cotacoes_no_bid', 'No BID {{numero}}', { numero })
-  }, [cotacao, t])
-
   const propostasParaInfograficos = useMemo(() => {
     if (propostasRanking.length > 0) return propostasRanking
     const raw = cotacao?.propostas_bid_frete_internacional ?? []
     return raw.length > 0 ? ranquearPropostasLocal(raw) : []
   }, [propostasRanking, cotacao])
-
-  const acoesToolbar = cotacao ? (
-    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-      <button className="dc-btn dc-btn--secondary" type="button" onClick={() => navigate('/bid-frete/cotacoes')}>
-        <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
-      </button>
-      <button
-        className="dc-btn dc-btn--primary"
-        type="button"
-        onClick={() => setModalDisparoAberto(true)}
-      >
-        <PaperPlaneTilt weight="bold" size={14} /> {t('bidfrete.disparo.enviar', 'Enviar aos fornecedores')}
-      </button>
-      {cotacao.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO' && (
-        <button className="dc-btn dc-btn--primary" type="button" onClick={() => navigate(`/bid-frete/cotacoes/${id}/comparativo`)}>
-          <Ranking weight="bold" size={14} /> {t('bidfrete.detalhe_cotacao.comparativo')}
-        </button>
-      )}
-      {cotacao.status_cotacao_bid_frete_internacional === 'RASCUNHO' && (
-        <button
-          className="dc-btn dc-btn--danger"
-          type="button"
-          onClick={async () => { await excluirCotacao(cotacao.id_cotacao_bid_frete_internacional); navigate('/bid-frete/cotacoes') }}
-        >
-          <Trash weight="bold" size={14} /> {t('comum.excluir')}
-        </button>
-      )}
-    </div>
-  ) : null
 
   // ─── Tabela de Bids ───────────────────────────────────────────────────
 
@@ -548,39 +428,91 @@ export default function DetalheCotacao() {
   // --- Render ---
 
   return (
-    <PaginaGlobal className="dc-page bid-frete-page-shell">
-      {acoesToolbar}
-
-      <ResumoKpisDetalhe
-        quantidadeCotacoes={quantidadeCotacoes}
-        quantidadeFornecedores={quantidadeFornecedores}
-        quantidadePropostas={quantidadePropostas}
-        subtituloCotacoes={subtituloCotacoesKpi}
-        aoClicarFornecedores={() => setTab('bids')}
-        aoClicarPropostas={() => setTab('respostas')}
-      />
-
-      <div className="dc-fluxo-panel">
-        <PainelFluxoInfograficosCotacao
-          statusAtual={cotacao.status_cotacao_bid_frete_internacional}
-          disparos={bids}
-          propostas={propostasParaInfograficos}
-        />
+    <PaginaGlobal className="dc-page dc-cockpit bid-frete-page-shell">
+      <div className="dc-cockpit-hero">
+        <div className="dc-cockpit-status-panel">
+          <div className="dc-cockpit-status-head">
+            <span className="dc-cockpit-status-titulo">
+              {STATUS_LABELS[cotacao.status_cotacao_bid_frete_internacional]}
+            </span>
+            <div className="dc-cockpit-quick-actions">
+              {cotacao.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO' && (
+                <button
+                  type="button"
+                  className="dc-cockpit-icon-btn dc-cockpit-icon-btn--primary"
+                  title={t('bidfrete.detalhe_cotacao.comparativo')}
+                  onClick={() => navigate(`/bid-frete/cotacoes/${id}/comparativo`)}
+                >
+                  <Medal weight="duotone" size={18} />
+                </button>
+              )}
+              <button
+                type="button"
+                className="dc-cockpit-icon-btn"
+                title={t('bidfrete.disparo.enviar', 'Enviar aos fornecedores')}
+                onClick={() => setModalDisparoAberto(true)}
+              >
+                <PaperPlaneTilt weight="duotone" size={18} />
+              </button>
+              {cotacao.status_cotacao_bid_frete_internacional === 'RASCUNHO' && (
+                <button
+                  type="button"
+                  className="dc-cockpit-icon-btn dc-cockpit-icon-btn--danger"
+                  title={t('comum.excluir')}
+                  onClick={async () => {
+                    await excluirCotacao(cotacao.id_cotacao_bid_frete_internacional)
+                    navigate('/bid-frete/cotacoes')
+                  }}
+                >
+                  <Trash weight="duotone" size={18} />
+                </button>
+              )}
+              <span className="dc-cockpit-topbar-divider" aria-hidden />
+              <button type="button" className="dc-cockpit-icon-btn" title={t('bidfrete.detalhe_cotacao.cockpit_metricas', 'Métricas')}>
+                <ChartLineUp weight="duotone" size={18} />
+              </button>
+            </div>
+          </div>
+          <TimelineFluxoCotacao statusAtual={cotacao.status_cotacao_bid_frete_internacional} />
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="dc-tabs">
-        <button className={`dc-tab ${tab === 'dados' ? 'dc-tab--ativo' : ''}`} onClick={() => setTab('dados')}>
+      <section className="dc-cockpit-insights-row" aria-label={t('bidfrete.detalhe_cotacao.cockpit_insights', 'Insights')}>
+        <InsightsGridFluxoCotacao cotacao={cotacao} disparos={bids} propostas={propostasParaInfograficos} />
+      </section>
+
+      <nav className="dc-cockpit-tabs" aria-label={t('bidfrete.detalhe_cotacao.cockpit_abas', 'Abas')}>
+        <button
+          type="button"
+          className={`dc-cockpit-tab ${tab === 'dados' ? 'dc-cockpit-tab--ativo' : ''}`}
+          onClick={() => setTab('dados')}
+        >
           {t('bidfrete.detalhe_cotacao.tab_dados')}
         </button>
-        <button className={`dc-tab ${tab === 'bids' ? 'dc-tab--ativo' : ''}`} onClick={() => setTab('bids')}>
-          {t('bidfrete.detalhe_cotacao.tab_disparos')}
-        </button>
-        <button className={`dc-tab ${tab === 'respostas' ? 'dc-tab--ativo' : ''}`} onClick={() => setTab('respostas')}>
+        <button
+          type="button"
+          className={`dc-cockpit-tab ${tab === 'respostas' ? 'dc-cockpit-tab--ativo' : ''}`}
+          onClick={() => setTab('respostas')}
+        >
           {t('bidfrete.detalhe_cotacao.tab_respostas')}
         </button>
-      </div>
+        <button
+          type="button"
+          className={`dc-cockpit-tab ${tab === 'bids' ? 'dc-cockpit-tab--ativo' : ''}`}
+          onClick={() => setTab('bids')}
+        >
+          {t('bidfrete.detalhe_cotacao.tab_disparos')}
+        </button>
+        <button type="button" className="dc-cockpit-tab" disabled title={t('bidfrete.detalhe_cotacao.cockpit_em_breve', 'Em breve')}>
+          {t('bidfrete.detalhe_cotacao.cockpit_historico', 'Histórico')}
+        </button>
+        <button type="button" className="dc-cockpit-tab" disabled title={t('bidfrete.detalhe_cotacao.cockpit_em_breve', 'Em breve')}>
+          {t('bidfrete.detalhe_cotacao.cockpit_documentos', 'Documentos')}
+        </button>
+      </nav>
 
+      <div className={tab === 'dados' ? 'dc-cockpit-workspace' : 'dc-cockpit-main'}>
+        <div className="dc-cockpit-main">
       {/* Tab: Dados */}
       {tab === 'dados' && (
         <div className="dc-dados-layout">
@@ -715,8 +647,25 @@ export default function DetalheCotacao() {
           id_cotacao_bid_frete_internacional={id}
           propostasRanking={propostasRanking}
           carregandoRanking={carregandoRanking}
+          variante="padrao"
         />
       )}
+        </div>
+
+        {tab === 'dados' && id && (
+          <aside className="dc-cockpit-combat" aria-label={t('bidfrete.detalhe_cotacao.cockpit_combat', 'Matriz de propostas')}>
+            <h2 className="dc-cockpit-combat-titulo">
+              {t('bidfrete.detalhe_cotacao.cockpit_combat_matrix', 'Combat Matrix')}
+            </h2>
+            <ListaPropostasDetalheCotacao
+              id_cotacao_bid_frete_internacional={id}
+              propostasRanking={propostasRanking}
+              carregandoRanking={carregandoRanking}
+              variante="combate"
+            />
+          </aside>
+        )}
+      </div>
 
       <style>{`
         .dc-page { }

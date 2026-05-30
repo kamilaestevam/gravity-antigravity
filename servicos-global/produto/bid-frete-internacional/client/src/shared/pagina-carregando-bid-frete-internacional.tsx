@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react'
-import { Clock } from '@phosphor-icons/react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import type { TituloPaginaTopoOverride } from '@nucleo/menu-topo-global'
 import type { TFunction } from 'i18next'
 
-/** Spinner central padrão do BID Frete Internacional (detalhe de cotação). */
+/** Spinner central padrão do BID Frete Internacional — GravityLoader orbital. */
 export function ConteudoCarregandoBidFreteInternacional() {
   return (
     <div className="bf-pagina-carregando" role="status" aria-live="polite" aria-busy="true">
-      <Clock weight="duotone" size={32} className="bf-pagina-carregando-icone" aria-hidden />
+      <GravityLoader tamanho="md" />
     </div>
   )
 }
@@ -18,7 +18,7 @@ interface PaginaCarregandoBidFreteInternacionalProps {
   className?: string
 }
 
-/** Página inteira em carregamento — PaginaGlobal + spinner central. */
+/** Página inteira em carregamento — PaginaGlobal + GravityLoader central. */
 export function PaginaCarregandoBidFreteInternacional({ className }: PaginaCarregandoBidFreteInternacionalProps) {
   return (
     <PaginaGlobal className={className}>

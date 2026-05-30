@@ -9,12 +9,292 @@ import type {
   StatusCotacao,
 } from './types'
 
-export interface ItemBarraTransito {
-  id: string
-  nome: string
-  dias: number
-  percentualLargura: number
-  ehMelhor: boolean
+export interface ResumoMelhorPropostaFluxo {
+  fornecedor: string
+  moeda: string
+  valorFrete: number
+  valorTaxas: number
+  valorTotal: number
+  diasTransito: number
+  quantidadeTransbordo: number
+  quantidadeEscala: number
+  diasFreeTime: number | null
+}
+
+export interface PontoSerieHistoricoTermometro {
+  mes: string
+  valor: number
+}
+
+export interface BarraComparativoInsight {
+  valor: number
+  destaque: boolean
+}
+
+export interface ComparativoMetricaPainel {
+  valorExibicao: string
+  barras: BarraComparativoInsight[]
+  melhorMenor: boolean
+}
+
+export interface PainelSmartInsightsDados {
+  termometroMedia6Meses: number | null
+  termometroMoeda: string
+  termometroSavingsValor: number | null
+  serieHistorico6Meses: PontoSerieHistoricoTermometro[]
+  comparativoTransito: ComparativoMetricaPainel | null
+  comparativoFreeTime: ComparativoMetricaPainel | null
+  comparativoEscala: ComparativoMetricaPainel | null
+  quantidadeRecusasSemResposta: number
+  pctConfiabilidadeIa: number
+  pctCoberturaRespostas: number
+}
+
+const MESES_CURTOS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+
+function ultimos6MesesRotulos(): string[] {
+  const agora = new Date()
+  return Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(agora.getFullYear(), agora.getMonth() - (5 - i), 1)
+    return MESES_CURTOS[d.getMonth()] ?? '—'
+  })
+}
+
+function buildComparativoMetrica(
+  propostas: PropostaRankingBidFreteInternacional[],
+  extrair: (p: PropostaRankingBidFreteInternacional) => number,
+  melhorMenor: boolean,
+  formatar: (v: number) => string,
+): ComparativoMetricaPainel | null {
+  if (propostas.length === 0) return null
+  const vistos = new Set<string>()
+  const unicas = propostas.filter((p) => {
+    const id = p.id_proposta_bid_frete_internacional
+    if (vistos.has(id)) return false
+    vistos.add(id)
+    return true
+  })
+  const ordenadas = [...unicas].sort((a, b) => {
+    const va = extrair(a)
+    const vb = extrair(b)
+    return melhorMenor ? va - vb : vb - va
+  })
+  const barrasRaw = ordenadas.map((p) => extrair(p))
+  const melhorValor = melhorMenor ? Math.min(...barrasRaw) : Math.max(...barrasRaw)
+  return {
+    valorExibicao: formatar(melhorValor),
+    melhorMenor,
+    barras: barrasRaw.slice(0, 6).map((valor) => ({
+      valor,
+      destaque: valor === melhorValor,
+    })),
+  }
+}
+
+export function buildSerieTermometro(
+  propostas: PropostaRankingBidFreteInternacional[],
+  historicoAprovado?: Array<{
+    id_cotacao_bid_frete_internacional: string
+    numero_cotacao_bid_frete_internacional: string
+    data_aprovacao_cotacao_bid_frete_internacional: string
+    propostas: Array<{
+      valor_total_proposta_bid_frete_internacional: number
+      moeda_proposta_bid_frete_internacional: string
+    }>
+  }>,
+): Pick<PainelSmartInsightsDados, 'serieHistorico6Meses' | 'termometroMedia6Meses' | 'termometroSavingsValor'> {
+  const meses = ultimos6MesesRotulos()
+
+  // Se houver histórico de cotações aprovadas reais na rota, usamos esses dados!
+  if (historicoAprovado && historicoAprovado.length > 0) {
+    const agora = new Date()
+    const slotsData = Array.from({ length: 6 }, (_, i) => {
+      return new Date(agora.getFullYear(), agora.getMonth() - (5 - i), 1)
+    })
+
+    const serie = meses.map((mes) => ({ mes, valor: 0, count: 0 }))
+
+    historicoAprovado.forEach((q) => {
+      const valor = q.propostas?.[0]?.valor_total_proposta_bid_frete_internacional
+      if (typeof valor === 'number' && !Number.isNaN(valor)) {
+        const dataAprov = new Date(q.data_aprovacao_cotacao_bid_frete_internacional)
+        const anoAprov = dataAprov.getFullYear()
+        const mesAprov = dataAprov.getMonth()
+        
+        const slotIdx = slotsData.findIndex(
+          (slotDate) => slotDate.getFullYear() === anoAprov && slotDate.getMonth() === mesAprov
+        )
+        if (slotIdx !== -1) {
+          serie[slotIdx].valor += valor
+          serie[slotIdx].count += 1
+        }
+      }
+    })
+
+    const validSlots = serie.filter((s) => s.count > 0)
+
+    if (validSlots.length > 0) {
+      // Calcula as médias mensais reais para os meses que possuem dados
+      for (let i = 0; i < 6; i++) {
+        if (serie[i].count > 0) {
+          serie[i].valor = Math.round(serie[i].valor / serie[i].count)
+        }
+      }
+
+      // Interpolação de vizinhos para os meses sem cotações fechadas
+      for (let i = 0; i < 6; i++) {
+        if (serie[i].count === 0) {
+          let leftVal: number | null = null
+          for (let j = i - 1; j >= 0; j--) {
+            if (serie[j].count > 0) {
+              leftVal = serie[j].valor
+              break
+            }
+          }
+          let rightVal: number | null = null
+          for (let j = i + 1; j < 6; j++) {
+            if (serie[j].count > 0) {
+              rightVal = serie[j].valor
+              break
+            }
+          }
+
+          if (leftVal !== null && rightVal !== null) {
+            serie[i].valor = Math.round((leftVal + rightVal) / 2)
+          } else if (leftVal !== null) {
+            serie[i].valor = leftVal
+          } else if (rightVal !== null) {
+            serie[i].valor = rightVal
+          }
+        }
+      }
+
+      const actualValues = validSlots.map((s) => s.valor)
+      const media = actualValues.reduce((acc, v) => acc + v, 0) / actualValues.length
+
+      const valoresAtuais = propostas
+        .map((p) => p.valor_total_proposta_bid_frete_internacional)
+        .sort((a, b) => a - b)
+      const melhorAtual = valoresAtuais[0]
+      const savings = melhorAtual != null ? Math.max(0, Math.round(media - melhorAtual)) : null
+
+      return {
+        serieHistorico6Meses: serie.map((s) => ({ mes: s.mes, valor: s.valor })),
+        termometroMedia6Meses: Math.round(media),
+        termometroSavingsValor: savings,
+      }
+    }
+  }
+
+  // --- Fallback para simulação caso o histórico esteja vazio ---
+  if (propostas.length === 0) {
+    return {
+      serieHistorico6Meses: meses.map((mes) => ({ mes, valor: 0 })),
+      termometroMedia6Meses: null,
+      termometroSavingsValor: null,
+    }
+  }
+
+  const valores = propostas
+    .map((p) => p.valor_total_proposta_bid_frete_internacional)
+    .sort((a, b) => a - b)
+  const melhor = valores[0]
+  const media = valores.reduce((acc, v) => acc + v, 0) / valores.length
+  const maxVal = valores[valores.length - 1] ?? media
+
+  const serie = meses.map((mes, i) => {
+    const t = i / Math.max(1, meses.length - 1)
+    const interpolado = maxVal - (maxVal - melhor) * t * 0.82
+    return { mes, valor: Math.round(interpolado) }
+  })
+
+  if (valores.length >= 2) {
+    valores.forEach((valor, idx) => {
+      const slot = Math.min(Math.floor((idx / valores.length) * 6), 5)
+      serie[slot] = { ...serie[slot], valor: Math.round(valor) }
+    })
+  }
+
+  return {
+    serieHistorico6Meses: serie,
+    termometroMedia6Meses: Math.round(media),
+    termometroSavingsValor: Math.max(0, Math.round(media - melhor)),
+  }
+}
+
+export function calcularPainelSmartInsights(
+  disparos: DisparoCotacaoBidFreteInternacional[],
+  propostas: PropostaRankingBidFreteInternacional[],
+  info: InfograficosFluxoCotacao,
+  historicoAprovado?: Array<{
+    id_cotacao_bid_frete_internacional: string
+    numero_cotacao_bid_frete_internacional: string
+    data_aprovacao_cotacao_bid_frete_internacional: string
+    propostas: Array<{
+      valor_total_proposta_bid_frete_internacional: number
+      moeda_proposta_bid_frete_internacional: string
+    }>
+  }>,
+): PainelSmartInsightsDados {
+  const disparosEnviados = disparos.filter(
+    (d) => d.data_envio_disparo_cotacao_bid_frete_internacional != null,
+  )
+  const quantidadeRecusasSemResposta = disparosEnviados.filter((d) => {
+    const temProposta = d.proposta != null
+      || d.status_disparo_cotacao_bid_frete_internacional === 'RESPONDIDO'
+    return !temProposta && (
+      d.status_disparo_cotacao_bid_frete_internacional === 'EXPIRADO'
+      || d.status_disparo_cotacao_bid_frete_internacional === 'ENVIADO'
+      || d.status_disparo_cotacao_bid_frete_internacional === 'VISUALIZADO'
+    )
+  }).length
+
+  const {
+    serieHistorico6Meses,
+    termometroMedia6Meses,
+    termometroSavingsValor,
+  } = buildSerieTermometro(propostas, historicoAprovado)
+
+  const comparativoTransito = buildComparativoMetrica(
+    propostas,
+    (p) => p.dias_transito_proposta_bid_frete_internacional,
+    true,
+    (v) => `${v}`,
+  )
+  const comparativoFreeTime = buildComparativoMetrica(
+    propostas,
+    (p) => p.dias_free_time_proposta_bid_frete_internacional ?? 0,
+    false,
+    (v) => (v > 0 ? `${v}` : '—'),
+  )
+  const comparativoEscala = buildComparativoMetrica(
+    propostas,
+    (p) => p.quantidade_escala_proposta_bid_frete_internacional,
+    true,
+    (v) => (v === 0 ? 'Direto' : `${v}`),
+  )
+
+  const pctCoberturaRespostas = disparosEnviados.length > 0
+    ? Math.min(100, Math.round((propostas.length / disparosEnviados.length) * 100))
+    : 0
+
+  const pctConfiabilidadeIa = Math.min(
+    99,
+    Math.round(72 + propostas.length * 4 + (info.quantidadeRespostasComTempo > 0 ? 8 : 0)),
+  )
+
+  return {
+    termometroMedia6Meses,
+    termometroMoeda: info.melhorValorMoeda,
+    termometroSavingsValor,
+    serieHistorico6Meses,
+    comparativoTransito,
+    comparativoFreeTime,
+    comparativoEscala,
+    quantidadeRecusasSemResposta,
+    pctConfiabilidadeIa,
+    pctCoberturaRespostas,
+  }
 }
 
 export interface InfograficosFluxoCotacao {
@@ -29,9 +309,7 @@ export interface InfograficosFluxoCotacao {
   economiaVsSegundoPercentual: number | null
   liderFornecedor: string | null
   liderScore: number | null
-  transitoMinDias: number | null
-  transitoMaxDias: number | null
-  barrasTransito: ItemBarraTransito[]
+  melhorPropostaResumo: ResumoMelhorPropostaFluxo | null
 }
 
 function horasEntre(inicioIso: string, fimIso: string): number {
@@ -46,6 +324,61 @@ function nomeFornecedorProposta(p: PropostaRankingBidFreteInternacional): string
     ?? p.fornecedor?.nome_fornecedor_bid_frete_internacional
     ?? '—'
   )
+}
+
+export interface BarraSparkComparativo {
+  valor: number
+  isVencedor: boolean
+  isMelhorPreco?: boolean
+  fornecedor: string
+  colocacao: number
+}
+
+function dedupePropostas(
+  propostas: PropostaRankingBidFreteInternacional[],
+): PropostaRankingBidFreteInternacional[] {
+  const vistos = new Set<string>()
+  return propostas.filter((p) => {
+    const id = p.id_proposta_bid_frete_internacional
+    if (vistos.has(id)) return false
+    vistos.add(id)
+    return true
+  })
+}
+
+/** Barras verticais no padrão Transit Time (melhor à esquerda). */
+export function montarBarrasComparativoPropostas(
+  propostas: PropostaRankingBidFreteInternacional[],
+  fornecedorMelhorPreco: string,
+  extrairValor: (p: PropostaRankingBidFreteInternacional) => number,
+  melhorMenor: boolean,
+  maxBarras = 6,
+): BarraSparkComparativo[] {
+  const sorted = [...dedupePropostas(propostas)].sort((a, b) => {
+    const va = extrairValor(a)
+    const vb = extrairValor(b)
+    return melhorMenor ? va - vb : vb - va
+  })
+  return sorted.slice(0, maxBarras).map((p, index) => {
+    const nomeFornecedor = nomeFornecedorProposta(p)
+    return {
+      valor: extrairValor(p),
+      isVencedor: index === 0,
+      isMelhorPreco: nomeFornecedor === fornecedorMelhorPreco,
+      fornecedor: nomeFornecedor,
+      colocacao: index + 1,
+    }
+  })
+}
+
+export function mediaMercadoNumericaPropostas(
+  propostas: PropostaRankingBidFreteInternacional[],
+  extrairValor: (p: PropostaRankingBidFreteInternacional) => number,
+): number {
+  const unicas = dedupePropostas(propostas)
+  if (unicas.length === 0) return 0
+  const soma = unicas.reduce((acc, p) => acc + extrairValor(p), 0)
+  return Math.round(soma / unicas.length)
 }
 
 function nomeFornecedorDisparo(d: DisparoCotacaoBidFreteInternacional): string {
@@ -68,9 +401,7 @@ export function calcularInfograficosFluxoCotacao(
     economiaVsSegundoPercentual: null,
     liderFornecedor: null,
     liderScore: null,
-    transitoMinDias: null,
-    transitoMaxDias: null,
-    barrasTransito: [],
+    melhorPropostaResumo: null,
   }
 
   const disparosEnviados = disparos.filter(
@@ -127,22 +458,19 @@ export function calcularInfograficosFluxoCotacao(
     vazio.liderFornecedor = nomeFornecedorProposta(lider)
     vazio.liderScore = lider.ranking_geral ?? null
 
-    const diasLista = propostas.map((p) => p.dias_transito_proposta_bid_frete_internacional)
-    const minD = Math.min(...diasLista)
-    const maxD = Math.max(...diasLista)
-    vazio.transitoMinDias = minD
-    vazio.transitoMaxDias = maxD
-
-    const escala = maxD > 0 ? maxD : 1
-    vazio.barrasTransito = propostas
-      .map((p) => ({
-        id: p.id_proposta_bid_frete_internacional,
-        nome: nomeFornecedorProposta(p),
-        dias: p.dias_transito_proposta_bid_frete_internacional,
-        percentualLargura: Math.round((p.dias_transito_proposta_bid_frete_internacional / escala) * 100),
-        ehMelhor: p.dias_transito_proposta_bid_frete_internacional === minD,
-      }))
-      .sort((a, b) => a.dias - b.dias)
+    vazio.melhorPropostaResumo = {
+      fornecedor: nomeFornecedorProposta(melhor),
+      moeda: melhor.moeda_proposta_bid_frete_internacional,
+      valorFrete: melhor.valor_frete_proposta_bid_frete_internacional,
+      valorTaxas:
+        melhor.taxas_origem_proposta_bid_frete_internacional
+        + melhor.taxas_destino_proposta_bid_frete_internacional,
+      valorTotal: melhor.valor_total_proposta_bid_frete_internacional,
+      diasTransito: melhor.dias_transito_proposta_bid_frete_internacional,
+      quantidadeTransbordo: melhor.quantidade_transbordo_proposta_bid_frete_internacional,
+      quantidadeEscala: melhor.quantidade_escala_proposta_bid_frete_internacional,
+      diasFreeTime: melhor.dias_free_time_proposta_bid_frete_internacional,
+    }
   }
 
   return vazio

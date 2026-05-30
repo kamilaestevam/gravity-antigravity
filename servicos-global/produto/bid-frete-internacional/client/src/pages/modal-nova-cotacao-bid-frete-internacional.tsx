@@ -117,46 +117,60 @@ function sufixoQuantidadeEmbalagem(codigo: string): string {
   return SUFIXO_QUANTIDADE_EMBALAGEM[codigo] ?? 'un'
 }
 
-type CampoExibirLocalizacao = 'pais' | 'provincia' | 'cidade'
 type LadoLocalizacaoWizard = 'origem' | 'destino'
 
-function alternarExibirCampoLocalizacao(
+function fraseExibirCamposLocalizacao(lado: LadoLocalizacaoWizard): string {
+  const sufixo = lado === 'origem' ? 'Origem' : 'Destino'
+  return `Exibir campos: Cidade de ${sufixo}, Estado ou Província de ${sufixo} e País de ${sufixo}`
+}
+
+function limparCamposExtrasLocalizacao(prev: FormState, lado: LadoLocalizacaoWizard): FormState {
+  if (lado === 'origem') {
+    return {
+      ...prev,
+      origem_pais_cotacao_bid_frete_internacional: '',
+      origem_pais_nome: '',
+      estado_provincia_origem_cotacao_bid_frete_internacional: '',
+      cidade_origem_cotacao_bid_frete_internacional: '',
+      endereco_origem_cotacao_bid_frete_internacional: '',
+    }
+  }
+  return {
+    ...prev,
+    destino_pais_cotacao_bid_frete_internacional: '',
+    destino_pais_nome: '',
+    estado_provincia_destino_cotacao_bid_frete_internacional: '',
+    cidade_destino_cotacao_bid_frete_internacional: '',
+    endereco_destino_cotacao_bid_frete_internacional: '',
+  }
+}
+
+function alternarExibirCamposExtrasLocalizacao(
   setForm: React.Dispatch<React.SetStateAction<FormState>>,
   lado: LadoLocalizacaoWizard,
-  campo: CampoExibirLocalizacao,
   ativo: boolean,
 ): void {
   setForm((prev) => {
-    const next = { ...prev }
+    let next = { ...prev }
     if (lado === 'origem') {
-      if (campo === 'pais') {
-        next.exibir_pais_origem_cotacao = ativo
-        if (!ativo) {
-          next.origem_pais_cotacao_bid_frete_internacional = ''
-          next.origem_pais_nome = ''
-        }
-      } else if (campo === 'provincia') {
-        next.exibir_provincia_origem_cotacao = ativo
-        if (!ativo) next.estado_provincia_origem_cotacao_bid_frete_internacional = ''
-      } else {
-        next.exibir_cidade_origem_cotacao = ativo
-        if (!ativo) next.cidade_origem_cotacao_bid_frete_internacional = ''
-      }
-    } else if (campo === 'pais') {
-      next.exibir_pais_destino_cotacao = ativo
-      if (!ativo) {
-        next.destino_pais_cotacao_bid_frete_internacional = ''
-        next.destino_pais_nome = ''
-      }
-    } else if (campo === 'provincia') {
-      next.exibir_provincia_destino_cotacao = ativo
-      if (!ativo) next.estado_provincia_destino_cotacao_bid_frete_internacional = ''
+      next.exibir_campos_extras_origem_cotacao = ativo
     } else {
-      next.exibir_cidade_destino_cotacao = ativo
-      if (!ativo) next.cidade_destino_cotacao_bid_frete_internacional = ''
+      next.exibir_campos_extras_destino_cotacao = ativo
+    }
+    if (!ativo) {
+      next = limparCamposExtrasLocalizacao(next, lado)
     }
     return next
   })
+}
+
+function exibirCamposExtrasLocalizacao(
+  form: FormState,
+  lado: LadoLocalizacaoWizard,
+): boolean {
+  return lado === 'origem'
+    ? form.exibir_campos_extras_origem_cotacao
+    : form.exibir_campos_extras_destino_cotacao
 }
 
 function limparCamposQuantidadeAoMudarModalidade(
@@ -191,12 +205,8 @@ interface FormState {
   estado_provincia_destino_cotacao_bid_frete_internacional: string
   cidade_origem_cotacao_bid_frete_internacional: string
   cidade_destino_cotacao_bid_frete_internacional: string
-  exibir_pais_origem_cotacao: boolean
-  exibir_provincia_origem_cotacao: boolean
-  exibir_cidade_origem_cotacao: boolean
-  exibir_pais_destino_cotacao: boolean
-  exibir_provincia_destino_cotacao: boolean
-  exibir_cidade_destino_cotacao: boolean
+  exibir_campos_extras_origem_cotacao: boolean
+  exibir_campos_extras_destino_cotacao: boolean
   destino_codigo_cotacao_bid_frete_internacional: string
   destino_nome_cotacao_bid_frete_internacional: string
   aeroporto_destino_cotacao_bid_frete_internacional: string
@@ -243,12 +253,8 @@ const INITIAL_FORM: FormState = {
   estado_provincia_destino_cotacao_bid_frete_internacional: '',
   cidade_origem_cotacao_bid_frete_internacional: '',
   cidade_destino_cotacao_bid_frete_internacional: '',
-  exibir_pais_origem_cotacao: false,
-  exibir_provincia_origem_cotacao: false,
-  exibir_cidade_origem_cotacao: false,
-  exibir_pais_destino_cotacao: false,
-  exibir_provincia_destino_cotacao: false,
-  exibir_cidade_destino_cotacao: false,
+  exibir_campos_extras_origem_cotacao: false,
+  exibir_campos_extras_destino_cotacao: false,
   destino_codigo_cotacao_bid_frete_internacional: '',
   destino_nome_cotacao_bid_frete_internacional: '',
   aeroporto_destino_cotacao_bid_frete_internacional: '',
@@ -408,7 +414,7 @@ function Field({
   )
 }
 
-function GrupoExibirCamposLocalizacao({
+function LinhaCheckboxExibirCamposLocalizacao({
   lado,
   form,
   setForm,
@@ -417,41 +423,17 @@ function GrupoExibirCamposLocalizacao({
   form: FormState
   setForm: React.Dispatch<React.SetStateAction<FormState>>
 }) {
-  const sufixo = lado === 'origem' ? 'Origem' : 'Destino'
-  const exibirPais = lado === 'origem' ? form.exibir_pais_origem_cotacao : form.exibir_pais_destino_cotacao
-  const exibirProvincia = lado === 'origem' ? form.exibir_provincia_origem_cotacao : form.exibir_provincia_destino_cotacao
-  const exibirCidade = lado === 'origem' ? form.exibir_cidade_origem_cotacao : form.exibir_cidade_destino_cotacao
+  const marcado = exibirCamposExtrasLocalizacao(form, lado)
 
   return (
-    <div className="nc-exibir-campos nc-field--span-2">
-      <span className="nc-exibir-campos-titulo">Exibir campos:</span>
-      <div className="nc-exibir-campos-lista">
-        <label className="nc-exibir-campos-item">
-          <input
-            type="checkbox"
-            checked={exibirCidade}
-            onChange={(e) => alternarExibirCampoLocalizacao(setForm, lado, 'cidade', e.target.checked)}
-          />
-          <span>Cidade de {sufixo}</span>
-        </label>
-        <label className="nc-exibir-campos-item">
-          <input
-            type="checkbox"
-            checked={exibirProvincia}
-            onChange={(e) => alternarExibirCampoLocalizacao(setForm, lado, 'provincia', e.target.checked)}
-          />
-          <span>Estado ou Província de {sufixo}</span>
-        </label>
-        <label className="nc-exibir-campos-item">
-          <input
-            type="checkbox"
-            checked={exibirPais}
-            onChange={(e) => alternarExibirCampoLocalizacao(setForm, lado, 'pais', e.target.checked)}
-          />
-          <span>País de {sufixo}</span>
-        </label>
-      </div>
-    </div>
+    <label className="nc-exibir-campos-checkbox nc-field--span-2">
+      <input
+        type="checkbox"
+        checked={marcado}
+        onChange={(e) => alternarExibirCamposExtrasLocalizacao(setForm, lado, e.target.checked)}
+      />
+      <span>{fraseExibirCamposLocalizacao(lado)}</span>
+    </label>
   )
 }
 
@@ -902,41 +884,26 @@ const NC_ESTILOS_CONTEUDO = `
           flex-direction: column;
           gap: 1.5rem;
         }
-        .nc-exibir-campos {
+        .nc-exibir-campos-checkbox {
           display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          padding: 0.65rem 0.85rem;
-          border: 1px solid var(--nc-accent-border);
-          border-radius: var(--radius-md, 8px);
-          background: rgba(15, 23, 42, 0.35);
-        }
-        .nc-exibir-campos-titulo {
-          font-size: 0.6875rem;
-          font-weight: 700;
-          letter-spacing: 0.04em;
-          text-transform: uppercase;
-          color: var(--text-secondary-light, #94a3b8);
-        }
-        .nc-exibir-campos-lista {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.65rem 1.25rem;
-        }
-        .nc-exibir-campos-item {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.4rem;
-          font-size: 0.8125rem;
-          color: var(--text-secondary, #cbd5e1);
+          align-items: flex-start;
+          gap: 0.6rem;
+          margin-top: 0.15rem;
           cursor: pointer;
           user-select: none;
         }
-        .nc-exibir-campos-item input {
+        .nc-exibir-campos-checkbox input {
+          margin-top: 0.15rem;
+          flex-shrink: 0;
+          width: 1rem;
+          height: 1rem;
           accent-color: var(--nc-accent);
-          width: 0.95rem;
-          height: 0.95rem;
           cursor: pointer;
+        }
+        .nc-exibir-campos-checkbox span {
+          font-size: 0.8125rem;
+          line-height: 1.45;
+          color: var(--text-secondary, #cbd5e1);
         }
         .nc-origem-destino-stack .nc-location-visual-card {
           margin-top: 0;
@@ -1956,10 +1923,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         peso_kg_cotacao_bid_frete_internacional: form.peso_kg_cotacao_bid_frete_internacional ? parseFloat(form.peso_kg_cotacao_bid_frete_internacional) : undefined,
         cubagem_m3_cotacao_bid_frete_internacional: form.cubagem_m3_cotacao_bid_frete_internacional ? parseFloat(form.cubagem_m3_cotacao_bid_frete_internacional) : undefined,
         incoterm_cotacao_bid_frete_internacional: form.incoterm_cotacao_bid_frete_internacional,
-        endereco_origem_cotacao_bid_frete_internacional: form.exibir_cidade_origem_cotacao
+        endereco_origem_cotacao_bid_frete_internacional: exibirCamposExtrasLocalizacao(form, 'origem')
           ? form.cidade_origem_cotacao_bid_frete_internacional.trim() || undefined
           : undefined,
-        endereco_destino_cotacao_bid_frete_internacional: form.exibir_cidade_destino_cotacao
+        endereco_destino_cotacao_bid_frete_internacional: exibirCamposExtrasLocalizacao(form, 'destino')
           ? form.cidade_destino_cotacao_bid_frete_internacional.trim() || undefined
           : undefined,
         visibilidade_cotacao_bid_frete_internacional: form.visibilidade_cotacao_bid_frete_internacional,
@@ -2073,16 +2040,18 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
 
       // STEP 2 — Origem e Destino
       case 2: {
+        const exibirExtrasOrigem = exibirCamposExtrasLocalizacao(form, 'origem')
+        const exibirExtrasDestino = exibirCamposExtrasLocalizacao(form, 'destino')
         const legendaOrigem = modal === 'AEREO'
-          ? 'Informe o aeroporto de partida. Marque abaixo os campos extras que deseja preencher.'
+          ? 'Informe o aeroporto de partida.'
           : modal === 'RODOVIARIO'
-            ? 'Marque os campos de local de coleta que deseja informar.'
-            : 'Informe o porto de embarque. Marque abaixo os campos extras que deseja preencher.'
+            ? 'Marque a opção abaixo se precisar informar o local de coleta.'
+            : 'Informe o porto de embarque.'
         const legendaDestino = modal === 'AEREO'
-          ? 'Informe o aeroporto de chegada. Marque abaixo os campos extras que deseja preencher.'
+          ? 'Informe o aeroporto de chegada.'
           : modal === 'RODOVIARIO'
-            ? 'Marque os campos de local de entrega que deseja informar.'
-            : 'Informe o porto de destino. Marque abaixo os campos extras que deseja preencher.'
+            ? 'Marque a opção abaixo se precisar informar o local de entrega.'
+            : 'Informe o porto de destino.'
 
         return (
           <div className="nc-step-content nc-origem-destino-stack">
@@ -2112,7 +2081,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         posicao="auto"
                       />
                     </Field>
-                    <GrupoExibirCamposLocalizacao lado="origem" form={form} setForm={setForm} />
+                    <LinhaCheckboxExibirCamposLocalizacao lado="origem" form={form} setForm={setForm} />
                   </>
                 )}
 
@@ -2130,61 +2099,59 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         posicao="auto"
                       />
                     </Field>
-                    <GrupoExibirCamposLocalizacao lado="origem" form={form} setForm={setForm} />
+                    <LinhaCheckboxExibirCamposLocalizacao lado="origem" form={form} setForm={setForm} />
                   </>
                 )}
 
                 {modal === 'RODOVIARIO' && (
-                  <GrupoExibirCamposLocalizacao lado="origem" form={form} setForm={setForm} />
+                  <LinhaCheckboxExibirCamposLocalizacao lado="origem" form={form} setForm={setForm} />
                 )}
 
-                {form.exibir_pais_origem_cotacao && (
-                  <Field label="PAÍS DE ORIGEM">
-                    <SelectGlobal
-                      iconeEsquerda={<MapPin size={16} />}
-                      opcoes={opcoesPaises}
-                      valor={form.origem_pais_cotacao_bid_frete_internacional || null}
-                      aoMudarValor={aoMudarPaisOrigem}
-                      placeholder="Selecione o país..."
-                      buscavel
-                      carregando={carregandoPaises}
-                      posicao="auto"
-                    />
-                  </Field>
-                )}
-
-                {form.exibir_provincia_origem_cotacao && (
-                  <Field label="ESTADO OU PROVÍNCIA DE ORIGEM">
-                    {form.origem_pais_cotacao_bid_frete_internacional === 'BR' ? (
+                {exibirExtrasOrigem && (
+                  <>
+                    <Field label="PAÍS DE ORIGEM">
                       <SelectGlobal
-                        opcoes={OPCOES_ESTADOS_BR}
-                        valor={form.estado_provincia_origem_cotacao_bid_frete_internacional || null}
-                        aoMudarValor={(v) => set('estado_provincia_origem_cotacao_bid_frete_internacional', String(v ?? ''))}
-                        placeholder="Selecione o UF"
+                        iconeEsquerda={<MapPin size={16} />}
+                        opcoes={opcoesPaises}
+                        valor={form.origem_pais_cotacao_bid_frete_internacional || null}
+                        aoMudarValor={aoMudarPaisOrigem}
+                        placeholder="Selecione o país..."
                         buscavel
-                        desabilitado={!form.origem_pais_cotacao_bid_frete_internacional}
+                        carregando={carregandoPaises}
                         posicao="auto"
                       />
-                    ) : (
+                    </Field>
+
+                    <Field label="ESTADO OU PROVÍNCIA DE ORIGEM">
+                      {form.origem_pais_cotacao_bid_frete_internacional === 'BR' ? (
+                        <SelectGlobal
+                          opcoes={OPCOES_ESTADOS_BR}
+                          valor={form.estado_provincia_origem_cotacao_bid_frete_internacional || null}
+                          aoMudarValor={(v) => set('estado_provincia_origem_cotacao_bid_frete_internacional', String(v ?? ''))}
+                          placeholder="Selecione o UF"
+                          buscavel
+                          desabilitado={!form.origem_pais_cotacao_bid_frete_internacional}
+                          posicao="auto"
+                        />
+                      ) : (
+                        <input
+                          className="nc-input"
+                          placeholder="Ex: Guangdong"
+                          value={form.estado_provincia_origem_cotacao_bid_frete_internacional}
+                          onChange={(e) => set('estado_provincia_origem_cotacao_bid_frete_internacional', e.target.value)}
+                        />
+                      )}
+                    </Field>
+
+                    <Field label="CIDADE DE ORIGEM" className="nc-field--span-2">
                       <input
                         className="nc-input"
-                        placeholder="Ex: Guangdong"
-                        value={form.estado_provincia_origem_cotacao_bid_frete_internacional}
-                        onChange={(e) => set('estado_provincia_origem_cotacao_bid_frete_internacional', e.target.value)}
+                        placeholder="Ex: Shenzhen"
+                        value={form.cidade_origem_cotacao_bid_frete_internacional}
+                        onChange={(e) => set('cidade_origem_cotacao_bid_frete_internacional', e.target.value)}
                       />
-                    )}
-                  </Field>
-                )}
-
-                {form.exibir_cidade_origem_cotacao && (
-                  <Field label="CIDADE DE ORIGEM" className="nc-field--span-2">
-                    <input
-                      className="nc-input"
-                      placeholder="Ex: Shenzhen"
-                      value={form.cidade_origem_cotacao_bid_frete_internacional}
-                      onChange={(e) => set('cidade_origem_cotacao_bid_frete_internacional', e.target.value)}
-                    />
-                  </Field>
+                    </Field>
+                  </>
                 )}
               </div>
             </div>
@@ -2215,7 +2182,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         posicao="auto"
                       />
                     </Field>
-                    <GrupoExibirCamposLocalizacao lado="destino" form={form} setForm={setForm} />
+                    <LinhaCheckboxExibirCamposLocalizacao lado="destino" form={form} setForm={setForm} />
                   </>
                 )}
 
@@ -2233,61 +2200,59 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         posicao="auto"
                       />
                     </Field>
-                    <GrupoExibirCamposLocalizacao lado="destino" form={form} setForm={setForm} />
+                    <LinhaCheckboxExibirCamposLocalizacao lado="destino" form={form} setForm={setForm} />
                   </>
                 )}
 
                 {modal === 'RODOVIARIO' && (
-                  <GrupoExibirCamposLocalizacao lado="destino" form={form} setForm={setForm} />
+                  <LinhaCheckboxExibirCamposLocalizacao lado="destino" form={form} setForm={setForm} />
                 )}
 
-                {form.exibir_pais_destino_cotacao && (
-                  <Field label="PAÍS DE DESTINO">
-                    <SelectGlobal
-                      iconeEsquerda={<MapPin size={16} />}
-                      opcoes={opcoesPaises}
-                      valor={form.destino_pais_cotacao_bid_frete_internacional || null}
-                      aoMudarValor={aoMudarPaisDestino}
-                      placeholder="Selecione o país..."
-                      buscavel
-                      carregando={carregandoPaises}
-                      posicao="auto"
-                    />
-                  </Field>
-                )}
-
-                {form.exibir_provincia_destino_cotacao && (
-                  <Field label="ESTADO OU PROVÍNCIA DE DESTINO">
-                    {form.destino_pais_cotacao_bid_frete_internacional === 'BR' ? (
+                {exibirExtrasDestino && (
+                  <>
+                    <Field label="PAÍS DE DESTINO">
                       <SelectGlobal
-                        opcoes={OPCOES_ESTADOS_BR}
-                        valor={form.estado_provincia_destino_cotacao_bid_frete_internacional || null}
-                        aoMudarValor={(v) => set('estado_provincia_destino_cotacao_bid_frete_internacional', String(v ?? ''))}
-                        placeholder="Selecione o UF"
+                        iconeEsquerda={<MapPin size={16} />}
+                        opcoes={opcoesPaises}
+                        valor={form.destino_pais_cotacao_bid_frete_internacional || null}
+                        aoMudarValor={aoMudarPaisDestino}
+                        placeholder="Selecione o país..."
                         buscavel
-                        desabilitado={!form.destino_pais_cotacao_bid_frete_internacional}
+                        carregando={carregandoPaises}
                         posicao="auto"
                       />
-                    ) : (
+                    </Field>
+
+                    <Field label="ESTADO OU PROVÍNCIA DE DESTINO">
+                      {form.destino_pais_cotacao_bid_frete_internacional === 'BR' ? (
+                        <SelectGlobal
+                          opcoes={OPCOES_ESTADOS_BR}
+                          valor={form.estado_provincia_destino_cotacao_bid_frete_internacional || null}
+                          aoMudarValor={(v) => set('estado_provincia_destino_cotacao_bid_frete_internacional', String(v ?? ''))}
+                          placeholder="Selecione o UF"
+                          buscavel
+                          desabilitado={!form.destino_pais_cotacao_bid_frete_internacional}
+                          posicao="auto"
+                        />
+                      ) : (
+                        <input
+                          className="nc-input"
+                          placeholder="Ex: California"
+                          value={form.estado_provincia_destino_cotacao_bid_frete_internacional}
+                          onChange={(e) => set('estado_provincia_destino_cotacao_bid_frete_internacional', e.target.value)}
+                        />
+                      )}
+                    </Field>
+
+                    <Field label="CIDADE DE DESTINO" className="nc-field--span-2">
                       <input
                         className="nc-input"
-                        placeholder="Ex: California"
-                        value={form.estado_provincia_destino_cotacao_bid_frete_internacional}
-                        onChange={(e) => set('estado_provincia_destino_cotacao_bid_frete_internacional', e.target.value)}
+                        placeholder="Ex: Santos"
+                        value={form.cidade_destino_cotacao_bid_frete_internacional}
+                        onChange={(e) => set('cidade_destino_cotacao_bid_frete_internacional', e.target.value)}
                       />
-                    )}
-                  </Field>
-                )}
-
-                {form.exibir_cidade_destino_cotacao && (
-                  <Field label="CIDADE DE DESTINO" className="nc-field--span-2">
-                    <input
-                      className="nc-input"
-                      placeholder="Ex: Santos"
-                      value={form.cidade_destino_cotacao_bid_frete_internacional}
-                      onChange={(e) => set('cidade_destino_cotacao_bid_frete_internacional', e.target.value)}
-                    />
-                  </Field>
+                    </Field>
+                  </>
                 )}
               </div>
             </div>

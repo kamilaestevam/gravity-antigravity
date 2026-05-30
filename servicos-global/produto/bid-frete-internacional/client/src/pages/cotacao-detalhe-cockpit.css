@@ -85,15 +85,17 @@
   height: 100%;
 }
 
-.dc-cockpit-insights-row .dc-smart-insights-grid > .dc-smart-card {
+.dc-cockpit-insights-row .dc-smart-insights-grid > .dc-smart-card:not(.dc-smart-card--melhor) {
   height: 100%;
 }
 
 .dc-cockpit-insights-row .dc-smart-card--termometro {
   overflow: visible;
+  justify-content: flex-start;
+  min-height: 0;
 }
 
-.dc-cockpit-insights-row .dc-smart-card-body:not(.dc-smart-card-body--termometro) {
+.dc-cockpit-insights-row .dc-smart-card--resumo .dc-smart-card-body--resumo {
   flex: 1;
   min-height: 0;
 }
@@ -107,25 +109,100 @@
   flex: 0 0 auto;
 }
 
-.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-metricas-row {
-  flex: 1;
+/* Melhor proposta — card compacto no topo da célula (sem esticar até o termômetro) */
+.dc-cockpit-insights-row .dc-smart-card--melhor,
+.dc-cockpit-insights-row .dc-smart-card--melhor-compacto {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  height: auto;
+  max-height: 100%;
   min-height: 0;
+  --dc-smart-metrica-spark-h: 52px;
+}
+
+.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-card-body {
+  flex: 0 0 auto;
+  flex-grow: 0;
+  justify-content: flex-start;
+  padding-bottom: 0.35rem;
+}
+
+.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-metricas-row {
+  flex: 0 0 auto;
+  align-items: start;
+  height: auto;
+  margin-bottom: 0;
 }
 
 .dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-metrica-col {
-  flex: 1;
-  min-height: var(--dc-smart-metrica-col-min-h);
+  flex: 1 1 0;
+  min-height: 0;
+  height: auto;
+  padding: 0.4rem 0.35rem 0.35rem;
+  align-self: start;
+  justify-content: flex-start;
 }
 
-.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-metrica-spark {
-  flex: 1 1 auto;
-  height: auto;
-  min-height: var(--dc-smart-metrica-spark-h);
+.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-metrica-label,
+.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-metrica-valor {
+  flex: 0 0 auto;
+}
+
+.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-metrica-spark--melhor-proposta {
+  flex: 0 0 auto;
+  height: 52px;
+  min-height: 52px;
+  max-height: 52px;
+  margin-top: 0;
+  margin-bottom: 0;
+  align-items: flex-start;
 }
 
 .dc-cockpit-insights-row .dc-smart-card--melhor .dc-spark-bar-wrap {
-  flex: 1;
-  min-height: var(--dc-smart-metrica-spark-h);
+  flex: none;
+  height: 100%;
+  min-height: 0;
+}
+
+.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-fornecedor-foot {
+  margin-top: 0.5rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 3;
+}
+
+/* Termômetro Preview — compacto como referência (barras altas, meses logo abaixo) */
+.dc-cockpit-insights-row .dc-smart-card--termometro .dc-term-chart-slot {
+  padding-top: 0;
+  padding-bottom: 0.35rem;
+}
+
+.dc-cockpit-insights-row .dc-term-plot-spark-mock {
+  height: auto;
+  min-height: 0;
+  justify-content: flex-start;
+  gap: 0.15rem;
+  padding: 0.2rem 0.65rem 0.25rem;
+}
+
+.dc-cockpit-insights-row .dc-term-plot-spark-mock-chart {
+  flex: 0 0 auto;
+  height: var(--dc-term-plot-spark-h, 7.25rem);
+  min-height: var(--dc-term-plot-spark-h, 7.25rem);
+  margin-top: 0;
+  align-items: flex-end;
+}
+
+.dc-cockpit-insights-row .dc-term-plot-spark-mock .dc-spark-bar-wrap {
+  flex: none;
+  height: 100%;
+  min-height: 0;
+}
+
+.dc-cockpit-insights-row .dc-term-plot-spark-mock-meses {
+  margin-top: 0;
+  flex-shrink: 0;
 }
 
 .dc-cockpit-insights-row .dc-smart-card-body--resumo {
@@ -527,6 +604,7 @@
   --dc-smart-chart-h: 9.5rem;
   --dc-smart-metrica-spark-h: 5.5rem;
   --dc-smart-metrica-col-min-h: 11.5rem;
+  --dc-term-plot-spark-h: 7.25rem;
 }
 
 /* Linha do título: cantos em L nas pontas + horizontal cortada pelo texto */
@@ -710,6 +788,12 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   overflow: visible;
 }
 
+.dc-smart-card--melhor .dc-smart-card-body--melhor-proposta {
+  flex: 0 0 auto;
+  flex-grow: 0;
+  min-height: 0;
+}
+
 .dc-smart-trophy { color: var(--warning, #f59e0b); flex-shrink: 0; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.35)); }
 
 .dc-smart-valor-hero {
@@ -746,6 +830,15 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   margin-bottom: 0.15rem;
 }
 
+.dc-smart-card--melhor .dc-smart-metricas-row--melhor-proposta {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  align-content: flex-start;
+  height: auto;
+  min-height: 0;
+}
+
 .dc-smart-metrica-col {
   display: flex;
   flex-direction: column;
@@ -757,25 +850,32 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   border: 1px solid rgba(148, 163, 184, 0.08);
 }
 
-.dc-smart-card--melhor {
-  --dc-smart-metrica-spark-h: 5.5rem;
-  --dc-smart-metrica-col-min-h: 11.5rem;
+.dc-smart-card--melhor,
+.dc-smart-card--melhor-compacto {
+  --dc-smart-metrica-spark-h: 52px;
 }
 
 .dc-smart-card--melhor .dc-smart-metrica-col {
-  min-height: var(--dc-smart-metrica-col-min-h);
-  gap: 0.3rem;
+  min-height: unset;
+  justify-content: flex-start;
+  gap: 0.2rem;
   background: rgba(15, 23, 42, 0.45);
   border: 1px solid rgba(99, 102, 241, 0.08);
   border-radius: 10px;
-  padding: 0.8rem 0.45rem 0.7rem;
+  padding: 0.45rem 0.4rem 0.4rem;
   overflow: visible;
   transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.dc-smart-card--melhor .dc-smart-metrica-col:has(.dc-smart-metrica-spark) {
-  display: flex;
-  flex-direction: column;
+/* Colunas com spark: grid 2 linhas (texto + barras) — não usar flex column (empurrava barras para baixo) */
+.dc-smart-card--melhor .dc-smart-metrica-col--insights-spark {
+  display: grid;
+  grid-template-rows: auto 52px;
+  grid-template-columns: 1fr;
+  gap: 0.2rem;
+  min-height: 0;
+  height: auto;
+  justify-content: unset;
 }
 
 .dc-smart-card--melhor .dc-smart-metrica-col:hover {
@@ -823,12 +923,44 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   overflow: visible;
 }
 
-.dc-smart-card--melhor .dc-smart-metrica-spark {
-  flex: 1 1 auto;
+.dc-smart-card--melhor .dc-smart-metrica-spark:not(.dc-smart-metrica-spark--melhor-proposta) {
+  flex: 0 0 auto;
+  height: var(--dc-smart-metrica-spark-h);
   min-height: var(--dc-smart-metrica-spark-h);
-  height: auto;
-  margin-top: 0.15rem;
+  margin-top: 0.1rem;
   align-items: stretch;
+}
+
+.dc-smart-metrica-col-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-height: 0;
+}
+
+.dc-smart-metrica-spark--melhor-proposta {
+  grid-row: 2;
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  height: 52px;
+  min-height: 52px;
+  max-height: 52px;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+.dc-smart-metrica-spark--melhor-proposta .dc-spark-bar-wrap,
+.dc-smart-metrica-spark--melhor-proposta .dc-smart-spark-barras {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.dc-smart-card--melhor .dc-smart-metrica-spark .dc-spark-bar-wrap {
+  height: 100%;
+  min-height: 0;
 }
 
 .dc-spark-bar-wrap {
@@ -1019,7 +1151,7 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 
 .dc-smart-card--termometro {
   overflow: visible;
-  min-height: 18rem;
+  min-height: 0;
 }
 
 .dc-smart-card-body--termometro {
@@ -1055,45 +1187,48 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   display: block;
 }
 
-/* Preview (dados mock) — barras HTML, altura fixa, independente de SVG */
-.dc-term-plot-html {
+/* Preview (dados mock) — mesmo spark da Melhor proposta; altura pelo conteúdo */
+.dc-term-plot-spark-mock {
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.15rem;
+  height: auto;
+  min-height: 0;
   border-radius: var(--radius-md, 8px);
   background: rgba(15, 23, 42, 0.35);
   border: 1px solid rgba(99, 102, 241, 0.12);
-  padding: 0.65rem 0.5rem 0.35rem;
+  padding: 0.2rem 0.65rem 0.25rem;
 }
 
-.dc-term-plot-html-inner {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.35rem;
-  height: 100%;
-  min-height: 8.5rem;
-}
-
-.dc-term-plot-html-col {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.25rem;
-  min-width: 0;
-  height: 100%;
-}
-
-.dc-term-plot-html-bar {
+.dc-term-plot-spark-mock-chart {
+  flex: 0 0 auto;
   width: 100%;
-  max-width: 2.25rem;
-  min-height: 14px;
-  border-radius: 4px 4px 0 0;
-  background: linear-gradient(180deg, #818cf8 0%, #6366f1 55%, rgba(99, 102, 241, 0.35) 100%);
-  box-shadow: 0 0 12px rgba(99, 102, 241, 0.25);
+  height: var(--dc-term-plot-spark-h, 7.25rem);
+  min-height: var(--dc-term-plot-spark-h, 7.25rem);
+  display: flex;
+  align-items: stretch;
 }
 
-.dc-term-plot-html-mes {
+.dc-term-plot-spark-mock-chart .dc-spark-bar-wrap {
+  height: 100%;
+  min-height: 0;
+}
+
+.dc-term-plot-spark-mock-meses {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.2rem;
+  margin-top: 0;
+  flex-shrink: 0;
+  padding: 0 0.1rem;
+}
+
+.dc-term-plot-spark-mock-mes {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
   font-size: 0.625rem;
   font-weight: 600;
   color: var(--text-muted, #94a3b8);
@@ -1426,25 +1561,20 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   align-self: stretch;
   padding: 0;
   border-radius: 14px;
-  /* Mesmo shell visual dos .dc-dados-card (Detalhes Gerais / Rota / Carga) */
-  background: linear-gradient(168deg, #2a3548 0%, #1e293b 42%, #161f2e 100%);
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.05) inset,
-    0 8px 32px rgba(0, 0, 0, 0.22);
+  background: var(--dc-card-gradient);
+  border: 1px solid var(--dc-card-border);
+  box-shadow: var(--dc-card-shadow);
   overflow: hidden;
 }
 
-.dc-cockpit-combat::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  border-radius: 14px 14px 0 0;
-  background: linear-gradient(90deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%);
-  pointer-events: none;
+.dc-cockpit-combat-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0.75rem 0.85rem 1rem;
+  scrollbar-gutter: stable;
+  background: transparent;
 }
 
 .dc-cockpit-combat-titulo {
@@ -1457,15 +1587,6 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   text-transform: none;
   color: #e0e7ff;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
-}
-
-.dc-cockpit-combat-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding: 0.75rem 0.85rem 1rem;
-  scrollbar-gutter: stable;
 }
 
 .dc-cockpit-combat-scroll::-webkit-scrollbar {
@@ -1493,19 +1614,17 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 .dc-cockpit-combat .dc-prop-panel-toolbar { display: none; }
 
 .dc-cockpit-combat .dc-prop-list {
-  gap: 0.65rem;
+  gap: 0.85rem;
 }
 
 .dc-cockpit-combat .dc-prop-card {
-  padding: 0.75rem;
+  padding: 1rem 1.05rem 1.05rem;
   border-radius: 10px;
   background: rgba(15, 23, 42, 0.65);
   border: 1px solid rgba(148, 163, 184, 0.1);
-}
-
-.dc-cockpit-combat .dc-prop-card {
   position: relative;
   overflow: hidden;
+  min-height: 10.5rem;
 }
 
 .dc-cockpit-combat .dc-prop-card::after {
@@ -1522,9 +1641,26 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 }
 
 .dc-cockpit-combat .dc-prop-card-head {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0 0 0.65rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.dc-cockpit-combat .dc-prop-rank-inline {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  font-size: 0.875rem;
+}
+
+.dc-cockpit-combat .dc-prop-card-titulos--combate {
+  display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: flex-start;
   gap: 0.35rem;
+  min-width: 0;
+  flex: 1;
 }
 
 .dc-cockpit-combat .dc-prop-card-body,
@@ -1532,28 +1668,34 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   display: none;
 }
 
+.dc-cockpit-combat .dc-prop-fornecedor {
+  line-height: 1.35;
+}
+
 .dc-cockpit-combat .dc-prop-total-valor {
-  font-size: 1.25rem;
+  font-size: 1rem;
+  line-height: 1.25;
 }
 
 .dc-cockpit-combat .dc-prop-barras {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  margin-top: 0.5rem;
+  gap: 0.55rem;
+  margin-top: 0.65rem;
 }
 
 .dc-cockpit-combat .dc-prop-bar-row {
   display: grid;
-  grid-template-columns: 72px 1fr 2rem;
+  grid-template-columns: 5.25rem 1fr 2.5rem;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.625rem;
-  color: #94a3b8;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #cbd5e1;
 }
 
 .dc-cockpit-combat .dc-prop-bar-track {
-  height: 6px;
+  height: 8px;
   border-radius: 999px;
   background: rgba(71, 85, 105, 0.45);
   overflow: hidden;
@@ -1568,16 +1710,16 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 .dc-cockpit-combat .dc-prop-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
-  margin-top: 0.45rem;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
 }
 
 .dc-cockpit-combat .dc-prop-tag {
-  font-size: 0.5625rem;
+  font-size: 0.6875rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding: 0.12rem 0.4rem;
+  padding: 0.25rem 0.5rem;
   border-radius: 4px;
   background: rgba(16, 185, 129, 0.12);
   color: #6ee7b7;
@@ -1642,4 +1784,69 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 .dc-cockpit .dc-info-value {
   color: #f8fafc;
   font-weight: 600;
+}
+
+/* Melhor proposta — layout fixo (não depende de flex:1 no body genérico) */
+.dc-cockpit-insights-row .dc-smart-insights-grid > .dc-smart-card--melhor,
+.dc-cockpit-insights-row .dc-smart-insights-grid > .dc-smart-card--melhor-compacto {
+  height: auto;
+  align-self: start;
+}
+
+.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-card-body--melhor-proposta {
+  flex: 0 0 auto;
+  flex-grow: 0;
+  min-height: 0;
+}
+
+.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-metricas-row--melhor-proposta {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  align-content: flex-start;
+  height: auto;
+  min-height: 0;
+}
+
+.dc-cockpit-insights-row .dc-smart-metrica-col--insights-spark {
+  display: grid;
+  grid-template-rows: auto 52px;
+  grid-template-columns: 1fr;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  align-self: start;
+  padding: 0.4rem 0.35rem 0.35rem;
+  gap: 0.2rem;
+}
+
+.dc-cockpit-insights-row .dc-smart-metrica-col-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-height: 0;
+}
+
+.dc-cockpit-insights-row .dc-smart-metrica-spark--melhor-proposta {
+  grid-row: 2;
+  display: flex;
+  align-items: stretch;
+  align-self: stretch;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+.dc-cockpit-insights-row .dc-smart-metrica-spark--melhor-proposta .dc-spark-bar-wrap,
+.dc-cockpit-insights-row .dc-smart-metrica-spark--melhor-proposta .dc-smart-spark-barras {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-fornecedor-foot {
+  margin-top: 0.5rem;
+  flex-shrink: 0;
 }

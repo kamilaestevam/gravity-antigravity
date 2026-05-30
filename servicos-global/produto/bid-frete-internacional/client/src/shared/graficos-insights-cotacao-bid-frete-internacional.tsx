@@ -2,7 +2,7 @@
  * Gráficos SVG do Painel Smart Insights (detalhe da cotação).
  */
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import {
   normalizarSerieTermometroParaPlot,
@@ -21,6 +21,9 @@ function formatarValorTermometro(valor: number, moeda: string): string {
 
 const SPARK_VIEW_W = 88
 const SPARK_VIEW_H = 52
+/** ViewBox compacto — métricas Melhor proposta (barras preenchem o slot). */
+export const SPARK_VIEW_MELHOR_PROPOSTA = { w: 88, h: 40 } as const
+export const SPARK_SLOT_MELHOR_PROPOSTA_PX = 52
 const TOOLTIP_LARGURA_ESTIMADA = 168
 const TOOLTIP_ALTURA_ESTIMADA = 92
 
@@ -69,44 +72,66 @@ export interface SparkBarrasComparativoProps {
   rotuloMetrica?: string
   formatarValor?: (valor: number) => string
   textoVsGanhador: (barra: BarraComparativoInsight, valorGanhador: number) => string
+  /** ViewBox do SVG (padrão: sparks compactos da melhor proposta). */
+  dimensoesView?: { w: number; h: number }
+  /** `top` = barras coladas ao topo do SVG (métricas Melhor proposta no cockpit). */
+  ancoraBarras?: 'base' | 'top'
 }
 
 function calcularAlturasRelativas(barras: BarraComparativoInsight[]): number[] {
   if (barras.length === 0) return []
   if (barras.length === 1) {
-    return [barras[0].destaque ? 0.9 : 0.72]
+    return [barras[0].destaque ? 0.98 : 0.82]
   }
 
   const valores = barras.map((b) => b.valor)
   const max = Math.max(...valores, 1)
   const min = Math.min(...valores)
   if (max === min) {
-    return barras.map((b) => (b.destaque ? 0.92 : 0.65))
+    return barras.map((b) => (b.destaque ? 1 : 0.92))
   }
 
   const span = max - min
-  return barras.map((b) => 0.4 + ((b.valor - min) / span) * 0.52)
+  if (barras.length <= 2) {
+    return barras.map((b) => (b.destaque ? 1 : 0.94))
+  }
+  return barras.map((b) => 0.84 + ((b.valor - min) / span) * 0.16)
 }
 
-function calcularLayoutBarras(quantidade: number): LayoutSparkBarras {
+function calcularLayoutBarras(
+  quantidade: number,
+  viewLargura: number = SPARK_VIEW_W,
+): LayoutSparkBarras {
   const n = Math.max(quantidade, 1)
   const gap = n <= 2 ? 6 : n <= 4 ? 4 : 3
   const barW = Math.min(
     n <= 2 ? 22 : n <= 4 ? 16 : 10,
-    Math.max(6, (SPARK_VIEW_W - gap * (n - 1)) / n),
+    Math.max(6, (viewLargura - gap * (n - 1)) / n),
   )
   const totalW = n * barW + (n - 1) * gap
-  const startX = Math.max(0, (SPARK_VIEW_W - totalW) / 2)
+  const startX = Math.max(0, (viewLargura - totalW) / 2)
   return { gap, barW, startX }
 }
 
-function calcularAncoraBarra(rect: DOMRect, indice: number, layout: LayoutSparkBarras): AncoraViewport {
-  const escalaX = rect.width / SPARK_VIEW_W
-  const escalaY = rect.height / SPARK_VIEW_H
+function calcularAncoraBarra(
+  rect: DOMRect,
+  indice: number,
+  layout: LayoutSparkBarras,
+  viewW: number,
+  viewH: number,
+  alturas: number[],
+  ancoraBarras: 'base' | 'top',
+): AncoraViewport {
+  const escalaX = rect.width / viewW
+  const escalaY = rect.height / viewH
+  const pad = 2
+  const plotH = viewH - pad * 2
+  const alturaPx = alturas[indice] * plotH
   const centroX = layout.startX + indice * (layout.barW + layout.gap) + layout.barW / 2
+  const yBaseSvg = ancoraBarras === 'top' ? pad + alturaPx : viewH
   return {
     left: rect.left + centroX * escalaX,
-    top: rect.top + SPARK_VIEW_H * escalaY,
+    top: rect.top + yBaseSvg * escalaY,
   }
 }
 
@@ -177,12 +202,20 @@ export function SparkBarrasComparativo({
   rotuloMetrica = 'Valor',
   formatarValor = (v: number) => String(v),
   textoVsGanhador,
+  dimensoesView,
+  ancoraBarras = 'base',
 }: SparkBarrasComparativoProps) {
   const uid = useId().replace(/:/g, '')
   const rootRef = useRef<HTMLDivElement>(null)
   const [indiceHover, setIndiceHover] = useState<number | null>(null)
 
-  const layout = useMemo(() => calcularLayoutBarras(barras.length), [barras.length])
+  const viewW = dimensoesView?.w ?? SPARK_VIEW_W
+  const viewH = dimensoesView?.h ?? SPARK_VIEW_H
+
+  const layout = useMemo(
+    () => calcularLayoutBarras(barras.length, viewW),
+    [barras.length, viewW],
+  )
   const alturas = useMemo(() => calcularAlturasRelativas(barras), [barras])
   const gradiente = GRADIENTE_SPARK[variante]
 
@@ -202,15 +235,19 @@ export function SparkBarrasComparativo({
       setAncoraHover(null)
       return
     }
-    setAncoraHover(calcularAncoraBarra(root.getBoundingClientRect(), indice, layout))
-  }, [layout])
+    setAncoraHover(
+      calcularAncoraBarra(root.getBoundingClientRect(), indice, layout, viewW, viewH, alturas, ancoraBarras),
+    )
+  }, [alturas, ancoraBarras, layout, viewW, viewH])
 
   useEffect(() => {
     if (indiceHover == null) return undefined
     const reposicionar = () => {
       const root = rootRef.current
       if (root == null) return
-      setAncoraHover(calcularAncoraBarra(root.getBoundingClientRect(), indiceHover, layout))
+      setAncoraHover(
+        calcularAncoraBarra(root.getBoundingClientRect(), indiceHover, layout, viewW, viewH, alturas, ancoraBarras),
+      )
     }
     window.addEventListener('scroll', reposicionar, true)
     window.addEventListener('resize', reposicionar)
@@ -218,7 +255,7 @@ export function SparkBarrasComparativo({
       window.removeEventListener('scroll', reposicionar, true)
       window.removeEventListener('resize', reposicionar)
     }
-  }, [indiceHover, layout])
+  }, [alturas, ancoraBarras, indiceHover, layout, viewW, viewH])
 
   if (barras.length === 0) return null
 
@@ -230,7 +267,7 @@ export function SparkBarrasComparativo({
         onMouseLeave={() => definirHover(null)}
       >
         <svg
-          viewBox={`0 0 ${SPARK_VIEW_W} ${SPARK_VIEW_H}`}
+          viewBox={`0 0 ${viewW} ${viewH}`}
           className="dc-smart-spark-barras"
           role="img"
           aria-label={rotuloMetrica}
@@ -247,9 +284,11 @@ export function SparkBarrasComparativo({
           </defs>
 
           {barras.map((barra, indice) => {
-            const alturaPx = alturas[indice] * (SPARK_VIEW_H - 4)
+            const pad = 2
+            const plotH = viewH - pad * 2
+            const alturaPx = alturas[indice] * plotH
             const x = layout.startX + indice * (layout.barW + layout.gap)
-            const y = SPARK_VIEW_H - alturaPx
+            const y = ancoraBarras === 'top' ? pad : viewH - alturaPx
             const emHover = indiceHover === indice
             const fillUrl = barra.destaque ? `url(#spark-bar-d-${uid})` : `url(#spark-bar-n-${uid})`
 
@@ -262,7 +301,7 @@ export function SparkBarrasComparativo({
                   x={x - 2}
                   y={0}
                   width={layout.barW + 4}
-                  height={SPARK_VIEW_H}
+                  height={viewH}
                   fill="transparent"
                 />
                 <rect
@@ -355,20 +394,44 @@ function serieTemValoresPositivos(serie: PontoSerieHistoricoTermometro[]): boole
   return serie.some((p) => Number.isFinite(Number(p.valor)) && Number(p.valor) > 0)
 }
 
-/** Plot em HTML/CSS — modo Preview (dados mock); não depende de SVG nem flex. */
-function TermometroPlotHtml({ serie }: { serie: PontoSerieHistoricoTermometro[] }) {
-  const max = Math.max(...serie.map((p) => p.valor), 1)
+function serieParaBarrasTermometroMock(
+  serie: PontoSerieHistoricoTermometro[],
+): BarraComparativoInsight[] {
+  const maxValor = Math.max(...serie.map((p) => p.valor), 1)
+  return serie.map((p) => ({
+    valor: p.valor,
+    destaque: p.valor === maxValor,
+    fornecedor: p.mes,
+  }))
+}
+
+/** Preview: mesmas barras SVG da Melhor proposta (gradiente indigo, rx, hover). */
+function TermometroPlotSparkMock({
+  serie,
+  moeda,
+}: {
+  serie: PontoSerieHistoricoTermometro[]
+  moeda: string
+}) {
+  const barras = useMemo(() => serieParaBarrasTermometroMock(serie), [serie])
+
   return (
-    <div className="dc-term-plot-html" style={ESTILO_PLOT_TERMOMETRO} role="img" aria-hidden>
-      <div className="dc-term-plot-html-inner">
+    <div className="dc-term-plot-spark-mock" role="img">
+      <div className="dc-smart-metrica-spark dc-term-plot-spark-mock-chart">
+        <SparkBarrasComparativo
+          barras={barras}
+          melhorMenor={false}
+          variante="indigo"
+          rotuloMetrica="Frete"
+          formatarValor={(v) => formatarValorTermometro(v, moeda)}
+          textoVsGanhador={() => ''}
+        />
+      </div>
+      <div className="dc-term-plot-spark-mock-meses" aria-hidden>
         {serie.map((p) => (
-          <div key={p.mes} className="dc-term-plot-html-col">
-            <div
-              className="dc-term-plot-html-bar"
-              style={{ height: `${Math.max(14, Math.round((p.valor / max) * 100))}%` }}
-            />
-            <span className="dc-term-plot-html-mes">{p.mes}</span>
-          </div>
+          <span key={p.mes} className="dc-term-plot-spark-mock-mes">
+            {p.mes}
+          </span>
         ))}
       </div>
     </div>
@@ -385,7 +448,7 @@ export function GraficoAreaTermometro({
   moeda?: string
   /** Média exibida no card — usada para montar série sintética se `serie` vier zerada. */
   mediaFallback?: number | null
-  /** Preview/mock: usa barras HTML (evita bug de SVG colapsado no cockpit). */
+  /** Preview/mock: barras iguais à Melhor proposta (SparkBarrasComparativo). */
   modoDemonstracao?: boolean
 }) {
   const uid = useId().replace(/:/g, '')
@@ -493,7 +556,7 @@ export function GraficoAreaTermometro({
   }
 
   if (modoDemonstracao) {
-    return <TermometroPlotHtml serie={seriePlot} />
+    return <TermometroPlotSparkMock serie={seriePlot} moeda={moeda} />
   }
 
   return (

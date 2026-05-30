@@ -653,7 +653,7 @@ export default function DetalheCotacao() {
         {id && (
           <aside className="dc-cockpit-combat" aria-label={t('bidfrete.detalhe_cotacao.cockpit_combat', 'Matriz de propostas')}>
             <h2 className="dc-cockpit-combat-titulo">
-              {t('bidfrete.detalhe_cotacao.cockpit_combat_matrix', 'Combat Matrix')}
+              {t('bidfrete.detalhe_cotacao.cockpit_combat_matrix', 'Ranking das respostas')}
             </h2>
             <div className="dc-cockpit-combat-scroll">
               <ListaPropostasDetalheCotacao
@@ -1392,7 +1392,7 @@ export default function DetalheCotacao() {
         }
         .dc-prop-fornecedor {
           margin: 0;
-          font-size: 0.9375rem;
+          font-size: 0.75rem;
           font-weight: 700;
           color: #f8fafc;
           letter-spacing: 0.01em;

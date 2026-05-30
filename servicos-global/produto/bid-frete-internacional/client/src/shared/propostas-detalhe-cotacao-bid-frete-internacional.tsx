@@ -184,11 +184,13 @@ function CardProposta({
               {posicaoExibicao <= 3 && <Trophy weight="duotone" size={14} />}
               {posicaoExibicao}º
             </span>
-            <h3 className="dc-prop-fornecedor">{nome}</h3>
+            <div className="dc-prop-card-titulos dc-prop-card-titulos--combate">
+              <h3 className="dc-prop-fornecedor">{nome}</h3>
+              <span className="dc-prop-total-valor dc-info-mono">
+                {moeda(proposta.valor_total_proposta_bid_frete_internacional, moedaProposta)}
+              </span>
+            </div>
           </div>
-          <span className="dc-prop-total-valor dc-info-mono">
-            {moeda(proposta.valor_total_proposta_bid_frete_internacional, moedaProposta)}
-          </span>
         </header>
         <div className="dc-prop-barras">
           <BarraMetrica label={t('bidfrete.detalhe_cotacao.resp_frete', 'Frete')} pct={pctPreco} />

@@ -2,7 +2,7 @@
  * Painel compacto: linha do tempo resumida + infográficos das propostas.
  */
 
-import React, { useMemo } from 'react'
+import React, { useMemo, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   CheckCircle,
@@ -39,6 +39,8 @@ import type { TFunction } from 'i18next'
 import {
   AnelProgressoInsight,
   GraficoAreaTermometro,
+  SPARK_SLOT_MELHOR_PROPOSTA_PX,
+  SPARK_VIEW_MELHOR_PROPOSTA,
   SparkBarrasComparativo,
 } from './graficos-insights-cotacao-bid-frete-internacional'
 import type {
@@ -250,6 +252,42 @@ function criarTextoVsGanhador(
   }
 }
 
+const ESTILO_COLUNA_METRICA_MELHOR: CSSProperties = {
+  display: 'grid',
+  gridTemplateRows: `auto ${SPARK_SLOT_MELHOR_PROPOSTA_PX}px`,
+  gridTemplateColumns: '1fr',
+  gap: 4,
+  minHeight: 0,
+  height: 'auto',
+  alignSelf: 'flex-start',
+}
+
+const ESTILO_SPARK_SLOT_MELHOR: CSSProperties = {
+  height: SPARK_SLOT_MELHOR_PROPOSTA_PX,
+  minHeight: SPARK_SLOT_MELHOR_PROPOSTA_PX,
+  maxHeight: SPARK_SLOT_MELHOR_PROPOSTA_PX,
+  margin: 0,
+  padding: 0,
+  display: 'block',
+  lineHeight: 0,
+  overflow: 'visible',
+}
+
+const ESTILO_METRICAS_ROW_MELHOR: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'flex-start',
+  gap: '0.5rem',
+  height: 'auto',
+  minHeight: 0,
+}
+
+const ESTILO_BODY_MELHOR_PROPOSTA: CSSProperties = {
+  flex: '0 0 auto',
+  flexGrow: 0,
+  minHeight: 0,
+}
+
 function CelulaMetricaComparativo({
   label,
   valor,
@@ -280,10 +318,18 @@ function CelulaMetricaComparativo({
   }
 
   return (
-    <div className="dc-smart-metrica-col">
-      <span className="dc-smart-metrica-label">{label}</span>
-      <span className="dc-smart-metrica-valor">{valor}</span>
-      <div className="dc-smart-metrica-spark">
+    <div
+      className="dc-smart-metrica-col dc-smart-metrica-col--insights-spark"
+      style={ESTILO_COLUNA_METRICA_MELHOR}
+    >
+      <div className="dc-smart-metrica-col-texto">
+        <span className="dc-smart-metrica-label">{label}</span>
+        <span className="dc-smart-metrica-valor">{valor}</span>
+      </div>
+      <div
+        className="dc-smart-metrica-spark dc-smart-metrica-spark--melhor-proposta"
+        style={ESTILO_SPARK_SLOT_MELHOR}
+      >
         <SparkBarrasComparativo
           barras={comparativo.barras}
           melhorMenor={comparativo.melhorMenor}
@@ -291,6 +337,8 @@ function CelulaMetricaComparativo({
           rotuloMetrica={rotuloMetrica}
           formatarValor={formatarValor}
           textoVsGanhador={textoVsGanhador}
+          dimensoesView={SPARK_VIEW_MELHOR_PROPOSTA}
+          ancoraBarras="top"
         />
       </div>
     </div>
@@ -332,14 +380,24 @@ function CardMelhorPropostaSmart({
   const rotuloEscala = t('bidfrete.detalhe_cotacao.cockpit_escala', 'Escala')
 
   return (
-    <article className="dc-smart-card dc-smart-card--melhor">
+    <article
+      className="dc-smart-card dc-smart-card--melhor dc-smart-card--melhor-compacto"
+      data-layout-melhor-proposta="compacto-v2"
+    >
       <header className="dc-smart-card-head">
         <span>{t('bidfrete.detalhe_cotacao.cockpit_melhor_proposta', 'Melhor proposta')}</span>
         <Trophy weight="duotone" size={18} className="dc-smart-trophy" aria-hidden />
       </header>
-      <div className="dc-smart-card-body">
+      <div
+        className="dc-smart-card-body dc-smart-card-body--melhor-proposta"
+        style={ESTILO_BODY_MELHOR_PROPOSTA}
+      >
         <p className="dc-smart-valor-hero">{moeda(resumo.valorTotal, resumo.moeda)}</p>
-        <div className="dc-smart-metricas-row" role="list">
+        <div
+          className="dc-smart-metricas-row dc-smart-metricas-row--melhor-proposta"
+          role="list"
+          style={ESTILO_METRICAS_ROW_MELHOR}
+        >
           <CelulaMetricaComparativo
             label={rotuloTransit}
             valor={`${resumo.diasTransito} ${diasLabel}`}

@@ -46,6 +46,7 @@ import {
   House,
   FolderOpen,
   Trophy,
+  PencilSimple,
 } from '@phosphor-icons/react'
 
 // Mapa de icone por ordem da etapa — Abertura → Entrega.
@@ -607,7 +608,12 @@ export default function Workflow() {
 
           {/* Documentos */}
           <div className="wf-docs-section ws-fade-up">
-            <h3 className="wf-section-title">{t('processo.workflow.documentos', 'Documentos')}</h3>
+            <h3 className="wf-section-title">
+              {t('processo.workflow.documentos', 'Documentos')}
+              {documentos.length > 0 && (
+                <span className="wf-section-count">{documentos.length}</span>
+              )}
+            </h3>
             {documentos.length === 0 ? (
               <div className="wf-panel-empty">
                 <FileIcon weight="duotone" size={28} className="wf-panel-empty-icon" />
@@ -615,37 +621,51 @@ export default function Workflow() {
               </div>
             ) : (
               <div className="wf-docs-list">
-                {documentos.map(doc => (
-                  <TooltipGlobal
-                    key={doc.id}
-                    titulo={doc.nome}
-                    descricao={`${doc.tipo.toUpperCase()} - ${(doc.tamanho_bytes / 1024).toFixed(0)} KB`}
-                  >
-                    <div className="wf-doc-item">
-                      <div className="wf-doc-icon">
-                        <FileIcon size={16} weight="duotone" />
-                      </div>
-                      <div className="wf-doc-info">
-                        <div className="wf-doc-nome">{doc.nome}</div>
-                        <div className="wf-doc-meta">
-                          {doc.tipo.toUpperCase()} &middot; {formatDate(doc.created_at)} &middot; {(doc.tamanho_bytes / 1024).toFixed(0)} KB
+                {documentos.map(doc => {
+                  // Meta detalhada (tipo · data · tamanho) vive no tooltip —
+                  // mantem a info acessivel sem encher o card.
+                  const tooltipDesc = `${doc.tipo.toUpperCase()} · ${formatDate(doc.created_at)} · ${(doc.tamanho_bytes / 1024).toFixed(0)} KB`
+                  return (
+                  <div key={doc.id} className="wf-doc-item">
+                    <TooltipGlobal titulo={doc.nome} descricao={tooltipDesc}>
+                      <div className="wf-doc-trigger">
+                        <div className="wf-doc-icon">
+                          <FileIcon size={16} weight="duotone" />
                         </div>
+                        <div className="wf-doc-nome">{doc.nome}</div>
                       </div>
+                    </TooltipGlobal>
+                    <div className="wf-doc-actions">
+                      <TooltipGlobal
+                        titulo={t('processo.workflow.editar_doc', 'Editar documento')}
+                        descricao={t('processo.workflow.editar_doc_desc', 'Renomear ou trocar este documento')}
+                      >
+                        <button
+                          className="wf-doc-action"
+                          onClick={() => { /* TODO: abrir modal de edicao do documento */ }}
+                          type="button"
+                          aria-label={t('processo.workflow.editar_doc', 'Editar documento')}
+                        >
+                          <PencilSimple size={14} weight="duotone" />
+                        </button>
+                      </TooltipGlobal>
                       <TooltipGlobal
                         titulo={t('processo.workflow.excluir_doc', 'Excluir documento')}
                         descricao={t('processo.workflow.excluir_doc_desc', 'Remover este documento do processo')}
                       >
                         <button
-                          className="wf-doc-delete"
+                          className="wf-doc-action wf-doc-action--delete"
                           onClick={() => setDocToDelete({ id: doc.id, nome: doc.nome })}
                           type="button"
+                          aria-label={t('processo.workflow.excluir_doc', 'Excluir documento')}
                         >
-                          <Trash size={16} weight="duotone" />
+                          <Trash size={14} weight="duotone" />
                         </button>
                       </TooltipGlobal>
                     </div>
-                  </TooltipGlobal>
-                ))}
+                  </div>
+                  )
+                })}
               </div>
             )}
           </div>

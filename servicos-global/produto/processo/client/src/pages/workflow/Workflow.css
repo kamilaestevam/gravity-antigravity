@@ -715,12 +715,30 @@
   gap: 1.25rem;
 }
 
-/* Section title (Custos, Documentos) */
+/* Section title (Custos, Documentos) — com slot opcional pra contador */
 .wf-section-title {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--proc-text, var(--ws-text, #f1f5f9));
   margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Pill de contagem (ex.: Documentos 4) */
+.wf-section-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  background: var(--proc-accent-dim, rgba(99, 102, 241, 0.15));
+  color: var(--proc-accent, #818cf8);
 }
 
 /* Panel Empty */
@@ -861,15 +879,16 @@
   gap: 0.5rem;
 }
 
+/* Card de documento mais compacto — caber acoes (editar + lixeira)
+   sem ficar apertado. Padding reduzido e icone menor. */
 .wf-doc-item {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.625rem 0.75rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
   background: var(--proc-surface-2, var(--ws-surface-2, #0f172a));
   border-radius: 8px;
   border: 1px solid rgba(99, 102, 241, 0.08);
-  cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
 }
 
@@ -879,9 +898,9 @@
 }
 
 .wf-doc-icon {
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
   border-radius: 6px;
   background: var(--proc-accent-dim, rgba(99, 102, 241, 0.12));
   color: var(--proc-accent, #6366f1);
@@ -891,31 +910,44 @@
   flex-shrink: 0;
 }
 
-.wf-doc-info {
+/* Trigger envolve icone + nome — recebe o tooltip. flex:1 garante que
+   ocupe toda a largura disponivel (descontando o botao delete a direita). */
+.wf-doc-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
   flex: 1;
   min-width: 0;
+  cursor: default;
 }
 
 .wf-doc-nome {
-  font-size: 0.8125rem;
-  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--proc-text, var(--ws-text, #f1f5f9));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.wf-doc-meta {
-  font-size: 0.6875rem;
-  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+/* Acoes (editar + lixeira) — grupo agrupado a direita do card */
+.wf-doc-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  flex-shrink: 0;
 }
 
-.wf-doc-delete {
+.wf-doc-action {
   background: none;
   border: none;
   color: var(--proc-muted, var(--ws-muted, #94a3b8));
   cursor: pointer;
   padding: 0.25rem;
+  width: 24px;
+  height: 24px;
   border-radius: 6px;
   transition: color 0.15s, background 0.15s;
   display: flex;
@@ -923,12 +955,17 @@
   justify-content: center;
 }
 
-.wf-doc-delete:hover {
+.wf-doc-action:hover {
+  color: var(--proc-text, var(--ws-text, #f1f5f9));
+  background: var(--proc-accent-dim, rgba(99, 102, 241, 0.12));
+}
+
+.wf-doc-action--delete:hover {
   color: #f87171;
   background: rgba(248, 113, 113, 0.08);
 }
 
-.wf-doc-delete:focus-visible {
+.wf-doc-action:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
 }

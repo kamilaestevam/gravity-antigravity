@@ -373,9 +373,6 @@
   color: var(--proc-text, var(--ws-text, #f1f5f9));
   letter-spacing: -0.02em;
   line-height: 1.1;
-  /* Mesma fonte mono dos cards de Estimativa de Custos — consistencia
-     visual entre os valores monetarios da tela. */
-  font-family: 'DM Mono', 'Plus Jakarta Sans', monospace;
 }
 
 .wf-insight-card-stats {
@@ -802,13 +799,13 @@
   text-overflow: ellipsis;
 }
 
-/* Valor principal — maior e em mono pra leitura facil em moeda. */
+/* Valor principal — Plus Jakarta Sans (mesma fonte da metrica dos
+   Insights), para consistencia visual entre cards monetarios da tela. */
 .wf-custo-item-metric {
   font-size: 1.375rem;
   font-weight: 700;
   color: var(--proc-text, var(--ws-text, #f1f5f9));
   letter-spacing: -0.02em;
-  font-family: 'DM Mono', 'Plus Jakarta Sans', monospace;
   line-height: 1.1;
 }
 

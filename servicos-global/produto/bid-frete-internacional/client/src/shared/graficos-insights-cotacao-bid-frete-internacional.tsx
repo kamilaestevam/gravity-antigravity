@@ -76,6 +76,8 @@ export interface SparkBarrasComparativoProps {
   dimensoesView?: { w: number; h: number }
   /** `top` = barras coladas ao topo do SVG (métricas Melhor proposta no cockpit). */
   ancoraBarras?: 'base' | 'top'
+  /** Quando `true`, o SVG estica verticalmente para preencher o slot (preserveAspectRatio="none"). */
+  esticarVertical?: boolean
 }
 
 function calcularAlturasRelativas(barras: BarraComparativoInsight[]): number[] {
@@ -204,6 +206,7 @@ export function SparkBarrasComparativo({
   textoVsGanhador,
   dimensoesView,
   ancoraBarras = 'base',
+  esticarVertical = false,
 }: SparkBarrasComparativoProps) {
   const uid = useId().replace(/:/g, '')
   const rootRef = useRef<HTMLDivElement>(null)
@@ -269,6 +272,7 @@ export function SparkBarrasComparativo({
         <svg
           viewBox={`0 0 ${viewW} ${viewH}`}
           className="dc-smart-spark-barras"
+          preserveAspectRatio={esticarVertical ? 'none' : undefined}
           role="img"
           aria-label={rotuloMetrica}
         >

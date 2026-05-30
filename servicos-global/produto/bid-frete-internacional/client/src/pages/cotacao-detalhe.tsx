@@ -477,8 +477,12 @@ export default function DetalheCotacao() {
 
   // --- Render ---
 
+  const abaConteudoExpandido = tab === 'respostas' || tab === 'bids'
+
   return (
-    <PaginaGlobal className="dc-page dc-cockpit bid-frete-page-shell">
+    <PaginaGlobal
+      className={`dc-page dc-cockpit bid-frete-page-shell${abaConteudoExpandido ? ' dc-cockpit--conteudo-expandido' : ''}`}
+    >
       <div className="dc-cockpit-hero">
         <aside className="dc-cockpit-prazo-col" aria-label={t('bidfrete.detalhe_cotacao.prazo_resposta_label', 'Prazo para resposta')}>
           <ChipPrazoRespostaCotacao cotacao={cotacao} t={t} />
@@ -527,7 +531,11 @@ export default function DetalheCotacao() {
         </div>
       </div>
 
-      <section className="dc-cockpit-insights-row" aria-label={t('bidfrete.detalhe_cotacao.cockpit_insights', 'Insights')}>
+      <section
+        className="dc-cockpit-insights-row"
+        aria-label={t('bidfrete.detalhe_cotacao.cockpit_insights', 'Insights')}
+        aria-hidden={abaConteudoExpandido}
+      >
         <InsightsGridFluxoCotacao
           cotacao={cotacao}
           disparos={bids}
@@ -559,7 +567,7 @@ export default function DetalheCotacao() {
           {t('bidfrete.detalhe_cotacao.tab_disparos')}
         </button>
         <button type="button" className="dc-cockpit-tab" disabled title={t('bidfrete.detalhe_cotacao.cockpit_em_breve', 'Em breve')}>
-          {t('bidfrete.detalhe_cotacao.cockpit_historico', 'Histórico')}
+          {t('bidfrete.detalhe_cotacao.cockpit_comentarios', 'Comentários')}
         </button>
         <button type="button" className="dc-cockpit-tab" disabled title={t('bidfrete.detalhe_cotacao.cockpit_em_breve', 'Em breve')}>
           {t('bidfrete.detalhe_cotacao.cockpit_documentos', 'Documentos')}

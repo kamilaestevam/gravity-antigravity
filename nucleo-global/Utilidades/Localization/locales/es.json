@@ -1801,7 +1801,8 @@
       "prazo_resposta_label": "Plazo para respuesta",
       "prazo_no_prazo": "En plazo",
       "prazo_fora_prazo": "Fuera de plazo",
-      "cockpit_combat_matrix": "Ranking de respuestas"
+      "cockpit_combat_matrix": "Ranking de respuestas",
+      "cockpit_comentarios": "Comentarios",
     },
     "colunas": {
       "processo": "Proceso (DATI)",

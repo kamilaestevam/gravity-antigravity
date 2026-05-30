@@ -254,18 +254,18 @@ function criarTextoVsGanhador(
 
 const ESTILO_COLUNA_METRICA_MELHOR: CSSProperties = {
   display: 'grid',
-  gridTemplateRows: `auto ${SPARK_SLOT_MELHOR_PROPOSTA_PX}px`,
+  gridTemplateRows: 'auto 1fr',
   gridTemplateColumns: '1fr',
   gap: 4,
   minHeight: 0,
-  height: 'auto',
-  alignSelf: 'flex-start',
+  height: '100%',
+  alignSelf: 'stretch',
 }
 
 const ESTILO_SPARK_SLOT_MELHOR: CSSProperties = {
-  height: SPARK_SLOT_MELHOR_PROPOSTA_PX,
+  height: '100%',
   minHeight: SPARK_SLOT_MELHOR_PROPOSTA_PX,
-  maxHeight: SPARK_SLOT_MELHOR_PROPOSTA_PX,
+  maxHeight: 'none',
   margin: 0,
   padding: 0,
   display: 'block',
@@ -276,15 +276,16 @@ const ESTILO_SPARK_SLOT_MELHOR: CSSProperties = {
 const ESTILO_METRICAS_ROW_MELHOR: CSSProperties = {
   display: 'flex',
   flexDirection: 'row',
-  alignItems: 'flex-start',
+  alignItems: 'stretch',
   gap: '0.5rem',
-  height: 'auto',
+  flex: '1 1 auto',
+  height: '100%',
   minHeight: 0,
 }
 
 const ESTILO_BODY_MELHOR_PROPOSTA: CSSProperties = {
-  flex: '0 0 auto',
-  flexGrow: 0,
+  flex: '1 1 auto',
+  flexGrow: 1,
   minHeight: 0,
 }
 
@@ -339,6 +340,7 @@ function CelulaMetricaComparativo({
           textoVsGanhador={textoVsGanhador}
           dimensoesView={SPARK_VIEW_MELHOR_PROPOSTA}
           ancoraBarras="top"
+          esticarVertical
         />
       </div>
     </div>

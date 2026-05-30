@@ -65,6 +65,41 @@ function tagLabel(tag: string, t: TFunction): string {
   return mapa[tag] ?? tag
 }
 
+const ROTULO_CRITERIO_ORDENACAO: Record<
+  CriterioOrdenacaoRespostaDetalhe,
+  { labelKey: string; labelPadrao: string }
+> = {
+  ranking_geral: {
+    labelKey: 'bidfrete.detalhe_cotacao.resposta_ordem_score',
+    labelPadrao: 'Score geral',
+  },
+  valor_total_proposta_bid_frete_internacional: {
+    labelKey: 'bidfrete.detalhe_cotacao.resposta_ordem_preco',
+    labelPadrao: 'Menor preço',
+  },
+  dias_transito_proposta_bid_frete_internacional: {
+    labelKey: 'bidfrete.detalhe_cotacao.resposta_ordem_transito',
+    labelPadrao: 'Melhor trânsito',
+  },
+  rating: {
+    labelKey: 'bidfrete.detalhe_cotacao.resposta_ordem_avaliacao',
+    labelPadrao: 'Melhor avaliação',
+  },
+  quantidade_transbordo_proposta_bid_frete_internacional: {
+    labelKey: 'bidfrete.detalhe_cotacao.resposta_ordem_transbordo',
+    labelPadrao: 'Menor transbordo',
+  },
+  dias_free_time_proposta_bid_frete_internacional: {
+    labelKey: 'bidfrete.detalhe_cotacao.resposta_ordem_free_time',
+    labelPadrao: 'Maior free time',
+  },
+}
+
+function rotuloCriterioOrdenacao(criterio: CriterioOrdenacaoRespostaDetalhe, t: TFunction): string {
+  const cfg = ROTULO_CRITERIO_ORDENACAO[criterio]
+  return t(cfg.labelKey, cfg.labelPadrao)
+}
+
 function montarResumoComparativo(metricas: MetricasExibicaoProposta, t: TFunction): string {
   const partes: string[] = []
 
@@ -87,6 +122,16 @@ function montarResumoComparativo(metricas: MetricasExibicaoProposta, t: TFunctio
   partes.push(`${t('bidfrete.detalhe_cotacao.resposta_score', 'Score')} ${metricas.scoreGeral}`)
 
   return partes.join(' · ')
+}
+
+function TagPropostaInline({ tag, t }: { tag: string; t: TFunction }) {
+  return (
+    <span
+      className={`dc-prop-tag${tag === 'MELHOR_PRECO' ? ' dc-prop-tag--ouro' : ''}`}
+    >
+      {tagLabel(tag, t)}
+    </span>
+  )
 }
 
 function LinhaProposta({
@@ -128,16 +173,70 @@ function BarraMetrica({ label, pct }: { label: string; pct: number }) {
   )
 }
 
+function TagsProposta({ tags, t }: { tags: string[]; t: TFunction }) {
+  if (tags.length === 0) return null
+  return (
+    <div className="dc-prop-tags">
+      {tags.map((tag) => (
+        <TagPropostaInline key={tag} tag={tag} t={t} />
+      ))}
+    </div>
+  )
+}
+
+function GrupoRankProposta({
+  posicaoScore,
+  posicaoLista,
+  criterioOrdenacao,
+  t,
+}: {
+  posicaoScore: number
+  posicaoLista: number
+  criterioOrdenacao: CriterioOrdenacaoRespostaDetalhe
+  t: TFunction
+}) {
+  const rankCores = coresColocacao(posicaoScore)
+  const mostrarChipOrdenacao = criterioOrdenacao !== 'ranking_geral'
+
+  return (
+    <div className="dc-prop-rank-group">
+      <span
+        className="dc-prop-rank-inline"
+        title={t('bidfrete.detalhe_cotacao.resposta_rank_score_tooltip', 'Colocação no score geral')}
+        style={{
+          background: rankCores.bg,
+          color: rankCores.color,
+          border: `1px solid ${rankCores.border}`,
+        }}
+      >
+        {posicaoScore <= 3 && <Trophy weight="duotone" size={14} />}
+        {posicaoScore}º
+      </span>
+      {mostrarChipOrdenacao && (
+        <span className="dc-prop-rank-criterio">
+          {t('bidfrete.detalhe_cotacao.resposta_posicao_por_criterio', {
+            posicao: posicaoLista,
+            criterio: rotuloCriterioOrdenacao(criterioOrdenacao, t),
+            defaultValue: `${posicaoLista}º por ${rotuloCriterioOrdenacao(criterioOrdenacao, t)}`,
+          })}
+        </span>
+      )}
+    </div>
+  )
+}
+
 function CardProposta({
   proposta,
   metricas,
-  posicaoExibicao,
+  posicaoLista,
+  criterioOrdenacao,
   t,
   variante = 'padrao',
 }: {
   proposta: PropostaRankingBidFreteInternacional
   metricas: MetricasExibicaoProposta
-  posicaoExibicao: number
+  posicaoLista: number
+  criterioOrdenacao: CriterioOrdenacaoRespostaDetalhe
   t: TFunction
   variante?: 'padrao' | 'combate'
 }) {
@@ -147,8 +246,7 @@ function CardProposta({
     ?? proposta.fornecedor?.nome_fornecedor_bid_frete_internacional
     ?? t('bidfrete.comparativo.fornecedor', 'Fornecedor')
   const moedaProposta = proposta.moeda_proposta_bid_frete_internacional
-  const rankCores = coresColocacao(posicaoExibicao)
-  const tagsTexto = metricas.tags.map((tag) => tagLabel(tag, t)).join(' · ')
+  const posicaoScore = metricas.posicaoGeral
   const nota =
     metricas.notaFornecedor != null ? `${metricas.notaFornecedor.toFixed(1)}/5` : null
 
@@ -158,9 +256,6 @@ function CardProposta({
   const pctTransito = metricas.rankTransito <= 1
     ? 100
     : Math.max(20, 100 - (metricas.rankTransito - 1) * 18)
-  const pctAvaliacao = metricas.notaFornecedor != null
-    ? Math.round((metricas.notaFornecedor / 5) * 100)
-    : 70
 
   if (variante === 'combate') {
     return (
@@ -168,22 +263,17 @@ function CardProposta({
         className={[
           'dc-prop-card',
           aprovada ? 'dc-prop-card--aprovada' : '',
-          posicaoExibicao === 1 ? 'dc-prop-card--lider' : '',
+          posicaoScore === 1 ? 'dc-prop-card--lider' : '',
         ].filter(Boolean).join(' ')}
       >
         <header className="dc-prop-card-head">
           <div className="dc-prop-card-head-main">
-            <span
-              className="dc-prop-rank-inline"
-              style={{
-                background: rankCores.bg,
-                color: rankCores.color,
-                border: `1px solid ${rankCores.border}`,
-              }}
-            >
-              {posicaoExibicao <= 3 && <Trophy weight="duotone" size={14} />}
-              {posicaoExibicao}º
-            </span>
+            <GrupoRankProposta
+              posicaoScore={posicaoScore}
+              posicaoLista={posicaoLista}
+              criterioOrdenacao={criterioOrdenacao}
+              t={t}
+            />
             <div className="dc-prop-card-titulos dc-prop-card-titulos--combate">
               <h3 className="dc-prop-fornecedor">{nome}</h3>
               <span className="dc-prop-total-valor dc-info-mono">
@@ -197,18 +287,7 @@ function CardProposta({
           <BarraMetrica label={t('bidfrete.detalhe_cotacao.resp_taxas', 'Taxas')} pct={Math.min(95, pctPreco + 8)} />
           <BarraMetrica label={t('bidfrete.comparativo.transit_time', 'Transit')} pct={pctTransito} />
         </div>
-        {metricas.tags.length > 0 && (
-          <div className="dc-prop-tags">
-            {metricas.tags.map((tag) => (
-              <span
-                key={tag}
-                className={`dc-prop-tag${tag === 'MELHOR_PRECO' ? ' dc-prop-tag--ouro' : ''}`}
-              >
-                {tagLabel(tag, t)}
-              </span>
-            ))}
-          </div>
-        )}
+        <TagsProposta tags={metricas.tags} t={t} />
       </article>
     )
   }
@@ -218,22 +297,17 @@ function CardProposta({
       className={[
         'dc-prop-card',
         aprovada ? 'dc-prop-card--aprovada' : '',
-        posicaoExibicao === 1 ? 'dc-prop-card--lider' : '',
+        posicaoScore === 1 ? 'dc-prop-card--lider' : '',
       ].filter(Boolean).join(' ')}
     >
       <header className="dc-prop-card-head">
         <div className="dc-prop-card-head-main">
-          <span
-            className="dc-prop-rank-inline"
-            style={{
-              background: rankCores.bg,
-              color: rankCores.color,
-              border: `1px solid ${rankCores.border}`,
-            }}
-          >
-            {posicaoExibicao <= 3 && <Trophy weight="duotone" size={14} />}
-            {posicaoExibicao}º
-          </span>
+          <GrupoRankProposta
+            posicaoScore={posicaoScore}
+            posicaoLista={posicaoLista}
+            criterioOrdenacao={criterioOrdenacao}
+            t={t}
+          />
           <div className="dc-prop-card-titulos">
             <div className="dc-prop-card-title-row">
               <h3 className="dc-prop-fornecedor">{nome}</h3>
@@ -243,23 +317,14 @@ function CardProposta({
                   {t('bidfrete.comparativo.aprovada', 'Aprovada')}
                 </span>
               )}
-            </div>
-            <p className="dc-prop-card-meta">
-              {t('bidfrete.detalhe_cotacao.resposta_colocacao', {
-                posicao: posicaoExibicao,
-                total: metricas.totalPropostas,
-                defaultValue: `${posicaoExibicao}ª de ${metricas.totalPropostas}`,
-              })}
-              {tagsTexto ? ` · ${tagsTexto}` : ''}
-              {nota ? (
-                <>
-                  {' · '}
-                  <Star weight="duotone" size={12} style={{ color: '#eab308', verticalAlign: '-2px' }} />
-                  {' '}
+              {nota && (
+                <span className="dc-prop-nota">
+                  <Star weight="duotone" size={12} aria-hidden />
                   {nota}
-                </>
-              ) : null}
-            </p>
+                </span>
+              )}
+            </div>
+            <TagsProposta tags={metricas.tags} t={t} />
           </div>
         </div>
         <div className="dc-prop-card-total-block">
@@ -269,8 +334,6 @@ function CardProposta({
           </span>
         </div>
       </header>
-
-      <p className="dc-prop-resumo">{montarResumoComparativo(metricas, t)}</p>
 
       <div className="dc-prop-card-body">
         <LinhaProposta
@@ -318,6 +381,8 @@ function CardProposta({
           mono={false}
         />
       </div>
+
+      <p className="dc-prop-resumo dc-prop-resumo--rodape">{montarResumoComparativo(metricas, t)}</p>
 
       {proposta.observacoes_proposta_bid_frete_internacional?.trim() && (
         <p className="dc-prop-obs">{proposta.observacoes_proposta_bid_frete_internacional}</p>
@@ -476,7 +541,8 @@ export function ListaPropostasDetalheCotacao({
               key={proposta.id_proposta_bid_frete_internacional}
               proposta={proposta}
               metricas={metricas}
-              posicaoExibicao={indice + 1}
+              posicaoLista={indice + 1}
+              criterioOrdenacao={criterioOrdenacao}
               t={t}
               variante={variante}
             />

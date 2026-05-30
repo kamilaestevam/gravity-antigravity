@@ -828,7 +828,8 @@
       "prazo_resposta_label": "Response deadline",
       "prazo_no_prazo": "On time",
       "prazo_fora_prazo": "Overdue",
-      "cockpit_combat_matrix": "Response ranking"
+      "cockpit_combat_matrix": "Response ranking",
+      "cockpit_comentarios": "Comments",
     },
     "colunas": {
       "processo": "Process (DATI)",

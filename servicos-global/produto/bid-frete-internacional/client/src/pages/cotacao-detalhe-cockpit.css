@@ -109,14 +109,13 @@
   flex: 0 0 auto;
 }
 
-/* Melhor proposta — card compacto no topo da célula (sem esticar até o termômetro) */
+/* Melhor proposta — mesma altura dos cards Termômetro e Resumo (estica até o fim da linha) */
 .dc-cockpit-insights-row .dc-smart-card--melhor,
 .dc-cockpit-insights-row .dc-smart-card--melhor-compacto {
   display: flex;
   flex-direction: column;
-  align-self: start;
-  height: auto;
-  max-height: 100%;
+  align-self: stretch;
+  height: 100%;
   min-height: 0;
   --dc-smart-metrica-spark-h: 52px;
 }
@@ -215,7 +214,48 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
   padding-top: var(--bid-frete-page-pt, 1.5rem);
+  transition:
+    flex 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+    margin-top 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dc-cockpit--conteudo-expandido .dc-cockpit-insights-row {
+  flex: 0 0 0;
+  min-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    flex 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.28s ease,
+    min-height 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s linear 0.42s;
+}
+
+.dc-cockpit--conteudo-expandido .dc-cockpit-rodape {
+  flex: 1 1 0;
+  margin-top: 0;
+  overflow: hidden;
+}
+
+.dc-cockpit--conteudo-expandido .dc-cockpit-rodape .dc-cockpit-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-cockpit-insights-row,
+  .dc-cockpit-rodape,
+  .dc-cockpit--conteudo-expandido .dc-cockpit-insights-row {
+    transition: none;
+  }
 }
 
 .dc-cockpit-rodape .dc-cockpit-main {
@@ -1719,29 +1759,98 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   background: linear-gradient(90deg, #6366f1, #7c3aed);
 }
 
-.dc-cockpit-combat .dc-prop-tags {
+.dc-prop-tags {
   display: flex;
   flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+}
+
+.dc-cockpit-combat .dc-prop-tags {
   gap: 0.35rem;
   margin-top: 0.65rem;
 }
 
-.dc-cockpit-combat .dc-prop-tag {
+.dc-prop-tag {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
   font-size: 0.6875rem;
-  font-weight: 800;
+  font-weight: 400;
+  line-height: 1.25;
+  white-space: nowrap;
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.22);
+  border: 1px solid rgba(52, 211, 153, 0.42);
+}
+
+.dc-prop-tag--ouro {
+  color: #fde047;
+  background: rgba(234, 179, 8, 0.28);
+  border-color: rgba(250, 204, 21, 0.48);
+}
+
+.dc-cockpit-combat .dc-prop-tag {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
-  background: rgba(16, 185, 129, 0.12);
-  color: #6ee7b7;
-  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
-.dc-cockpit-combat .dc-prop-tag--ouro {
-  background: rgba(99, 102, 241, 0.14);
-  color: #c7d2fe;
-  border-color: rgba(129, 140, 248, 0.32);
+.dc-prop-rank-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.dc-prop-rank-criterio {
+  display: inline-flex;
+  align-items: center;
+  max-width: 5.5rem;
+  padding: 0.12rem 0.35rem;
+  border-radius: 999px;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  letter-spacing: 0.02em;
+  color: #94a3b8;
+  background: rgba(100, 116, 139, 0.14);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.dc-cockpit-combat .dc-prop-rank-group {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dc-cockpit-combat .dc-prop-rank-criterio {
+  max-width: none;
+  white-space: nowrap;
+}
+
+.dc-prop-nota {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #eab308;
+  white-space: nowrap;
+}
+
+.dc-prop-resumo--rodape {
+  margin: 0.65rem 0 0;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: #64748b;
 }
 
 /* Dados — altura fixa compartilhada; rolagem só no Combat Matrix */
@@ -1798,11 +1907,11 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   font-weight: 600;
 }
 
-/* Melhor proposta — layout fixo (não depende de flex:1 no body genérico) */
+/* Melhor proposta — estica até a altura da linha (igual Termômetro e Resumo) */
 .dc-cockpit-insights-row .dc-smart-insights-grid > .dc-smart-card--melhor,
 .dc-cockpit-insights-row .dc-smart-insights-grid > .dc-smart-card--melhor-compacto {
-  height: auto;
-  align-self: start;
+  height: 100%;
+  align-self: stretch;
 }
 
 .dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-card-body--melhor-proposta {

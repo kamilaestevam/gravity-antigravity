@@ -116,6 +116,11 @@
   background: var(--proc-surface, var(--ws-surface, #1e293b));
   border-radius: 12px;
   border: 1px solid var(--proc-accent-border, rgba(99, 102, 241, 0.2));
+  /* margin-top: respiro entre o CabecalhoGlobal (sticky, 74px) e a primeira
+     secao. Em outras telas (Configurador) esse respiro vem do pg-contexto-row
+     (stats/acoes) que o Workflow nao usa — entao replicamos manualmente
+     a mesma altura visual (~40px). */
+  margin-top: 1.5rem;
   margin-bottom: 1.5rem;
   overflow-x: auto;
 }

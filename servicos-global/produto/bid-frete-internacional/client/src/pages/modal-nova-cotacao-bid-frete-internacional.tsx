@@ -127,6 +127,24 @@ function modalExigeAeroportoCotacao(modal: ModalFrete | ''): boolean {
   return modal === 'AEREO'
 }
 
+function localizacaoPrincipalPreenchida(
+  form: FormState,
+  modal: ModalFrete | '',
+  lado: LadoLocalizacaoWizard,
+): boolean {
+  if (modalExigePortoCotacao(modal)) {
+    return lado === 'origem'
+      ? !!form.origem_codigo_cotacao_bid_frete_internacional.trim()
+      : !!form.destino_codigo_cotacao_bid_frete_internacional.trim()
+  }
+  if (modalExigeAeroportoCotacao(modal)) {
+    return lado === 'origem'
+      ? !!form.aeroporto_origem_cotacao_bid_frete_internacional.trim()
+      : !!form.aeroporto_destino_cotacao_bid_frete_internacional.trim()
+  }
+  return false
+}
+
 function fraseExibirCamposLocalizacao(lado: LadoLocalizacaoWizard): string {
   const sufixo = lado === 'origem' ? 'Origem' : 'Destino'
   return `Exibir campos: Cidade de ${sufixo}, Estado ou Província de ${sufixo} e País de ${sufixo}`
@@ -876,22 +894,19 @@ const NC_ESTILOS_CONTEUDO = `
           color: var(--nc-accent);
         }
 
-        /* ── Origem e Destino Refinados ── */
+        /* ── Origem e Destino — repouso = nc-option-btn; selecionado = nc-option-btn--selected ── */
         .nc-location-visual-card {
-          background: var(--bg-base, rgba(15, 23, 42, 0.3));
-          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.05));
-          border-radius: 12px;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: var(--radius-md, 12px);
           padding: 1.5rem 1.75rem;
           margin-top: 0.75rem;
+          transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
         }
-        .nc-location-visual-card--origin {
+        .nc-location-visual-card--selected {
           background: var(--nc-option-accent-dim);
-          border: 1px solid var(--nc-option-accent-border);
-          border-left: 4px solid var(--nc-option-accent);
+          border: 1.5px solid var(--nc-option-accent-border);
           box-shadow: var(--nc-option-focus-ring);
-        }
-        .nc-location-visual-card--destination {
-          border-left: 4px solid var(--success, #10b981);
         }
         .nc-origem-destino-stack {
           display: flex;
@@ -996,16 +1011,16 @@ const NC_ESTILOS_CONTEUDO = `
           width: 48px;
           height: 48px;
           border-radius: 50%;
-          background: rgba(255, 255, 255, 0.03);
+          flex-shrink: 0;
+          background: transparent;
+          border: 2px solid rgba(255, 255, 255, 0.25);
+          color: var(--nc-muted);
+          transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
         }
-        .nc-location-visual-card--origin .nc-location-visual-circle {
+        .nc-location-visual-card--selected .nc-location-visual-circle {
           background: color-mix(in srgb, var(--nc-option-accent) 20%, transparent);
-          border: 1px solid var(--nc-option-accent-border);
+          border-color: var(--nc-option-accent);
           color: var(--nc-option-accent);
-        }
-        .nc-location-visual-card--destination .nc-location-visual-circle {
-          background: rgba(16, 185, 129, 0.1);
-          color: var(--success, #10b981);
         }
 
         .nc-location-visual-text h4 {
@@ -1024,19 +1039,10 @@ const NC_ESTILOS_CONTEUDO = `
           70% { box-shadow: 0 0 0 6px transparent; }
           100% { box-shadow: 0 0 0 0 transparent; }
         }
-        @keyframes nc-pulse-dest {
-          0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-          70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-
-        .nc-pulsing-icon {
+        .nc-location-visual-card--selected .nc-pulsing-icon,
+        .nc-location-visual-card--selected .nc-pulsing-icon-dest {
           border-radius: 50%;
           animation: nc-pulse 2s infinite;
-        }
-        .nc-pulsing-icon-dest {
-          border-radius: 50%;
-          animation: nc-pulse-dest 2s infinite;
         }
 
         .nc-fields-grid--location {
@@ -2116,6 +2122,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         const exibirExtrasDestino = exibirCamposExtrasLocalizacao(form, 'destino')
         const exigePorto = modalExigePortoCotacao(modal)
         const exigeAeroporto = modalExigeAeroportoCotacao(modal)
+        const origemPreenchida = localizacaoPrincipalPreenchida(form, modal, 'origem')
+        const destinoPreenchido = localizacaoPrincipalPreenchida(form, modal, 'destino')
         const legendaOrigem = exigeAeroporto
           ? 'Informe o aeroporto de partida. Marque a opção abaixo se precisar informar cidade, estado ou país.'
           : exigePorto
@@ -2129,7 +2137,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
 
         return (
           <div className="nc-step-content nc-origem-destino-stack">
-            <div className="nc-location-visual-card nc-location-visual-card--origin">
+            <div
+              className={`nc-location-visual-card nc-location-visual-card--origin${origemPreenchida ? ' nc-location-visual-card--selected' : ''}`}
+            >
               <div className="nc-location-visual-header">
                 <div className="nc-location-visual-circle">
                   <MapPin weight="duotone" size={26} className="nc-pulsing-icon" />
@@ -2222,7 +2232,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               </div>
             </div>
 
-            <div className="nc-location-visual-card nc-location-visual-card--destination">
+            <div
+              className={`nc-location-visual-card nc-location-visual-card--destination${destinoPreenchido ? ' nc-location-visual-card--selected' : ''}`}
+            >
               <div className="nc-location-visual-header">
                 <div className="nc-location-visual-circle">
                   <MapPin weight="duotone" size={26} className="nc-pulsing-icon-dest" />

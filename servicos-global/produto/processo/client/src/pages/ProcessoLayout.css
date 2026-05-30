@@ -362,38 +362,34 @@ button, input, select, textarea { font-family: inherit; }
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
 }
 
-/* ── Toggle flutuante (igual ao .mlg-toggle-btn do MenuLateralGlobal) ─────── */
-/* Botao circular pendurado na borda direita da sidebar. Mesma posicao/tamanho
-   do canonico para que a UX seja identica entre menu principal e do processo. */
+/* ── Toggle inline no breadcrumb (mesmo padrao do trilho global) ──────────── */
+/* O toggle de recolher/expandir vive inline no cabecalho do menu — fica no
+   final do breadcrumb, espelhando o icone que ja existe no trilho global ao
+   lado do avatar. Sem botao flutuante. */
 .p2-sidebar-footer {
-  display: none; /* footer removido — toggle virou flutuante */
+  display: none;
 }
 
-.p2-collapse-btn {
-  position: absolute;
-  right: -13px;
-  top: 138px;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--p2-surface);
-  border: 1px solid var(--p2-accent-border);
-  color: var(--p2-muted);
+.p2-breadcrumb-toggle {
+  margin-left: auto; /* empurra para a direita do breadcrumb */
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: transparent;
+  border: 1px solid var(--p2-accent-border);
+  border-radius: var(--p2-radius-sm);
+  color: var(--p2-muted);
   cursor: pointer;
-  z-index: 20;
-  transition: all var(--p2-transition);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
-.p2-collapse-btn:hover {
-  background: var(--p2-produto, var(--p2-accent));
-  color: #0f172a;
+.p2-breadcrumb-toggle:hover {
+  color: var(--p2-produto, var(--p2-accent));
+  background: var(--p2-produto-dim, var(--p2-accent-dim));
   border-color: var(--p2-produto, var(--p2-accent));
-  transform: scale(1.15);
-  box-shadow: 0 2px 12px var(--p2-produto-dim, var(--p2-accent-dim));
 }
 
 /* ── Main Area ────────────────────────────────────────────────────────────── */

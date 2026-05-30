@@ -31,8 +31,6 @@ import {
   Receipt,
   Envelope,
   CheckSquare,
-  ArrowLeft,
-  CaretRight,
   SidebarSimple,
   Anchor,
   CalendarBlank,
@@ -297,18 +295,7 @@ export default function ProcessoLayout() {
     [processoId, idOrganizacao, navCounts]
   )
 
-  // Detecta rota ativa para o breadcrumb
-  const activeRoute = useMemo(() => {
-    const path = location.pathname.replace(/^\//, '')
-    for (const section of navSections) {
-      for (const item of section.items) {
-        if (item.to.startsWith(`/${path}`)) {
-          return { label: item.label, sectionTitle: section.title }
-        }
-      }
-    }
-    return { label: 'Workflow', sectionTitle: 'Acompanhamento' }
-  }, [location.pathname, navSections])
+
 
   // Progresso das etapas
   const { etapasConcluidas, etapasTotal, progressPercent } = useMemo(() => {
@@ -333,22 +320,6 @@ export default function ProcessoLayout() {
       >
         {/* ─── Sidebar ──────────────────────────────────── */}
         <aside className="p2-sidebar">
-          {/* Breadcrumb / Back */}
-          <div className="p2-breadcrumb">
-            <TooltipGlobal titulo="Voltar" descricao="Retornar para a listagem de processos">
-              <button
-                className="p2-breadcrumb-back"
-                onClick={() => navigate(-1)}
-                type="button"
-              >
-                <ArrowLeft weight="bold" size={14} />
-                <span>{t('processo.titulo')}</span>
-              </button>
-            </TooltipGlobal>
-            <CaretRight size={12} className="p2-breadcrumb-sep" />
-            <span className="p2-breadcrumb-current">{activeRoute.label}</span>
-          </div>
-
           {/* Toggle flutuante na borda direita — recolhe/expande o menu. */}
           <TooltipGlobal titulo={t('shell.recolher_menu')} descricao="Recolher ou expandir o menu lateral">
             <button

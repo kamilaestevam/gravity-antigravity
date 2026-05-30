@@ -317,6 +317,105 @@
   color: #10b981;
 }
 
+/* ── Painel de Insights ─ espelha o "Painel de Insights Inteligente"
+   do BID Frete (3 cards em grid com header + metrica grande + stats). */
+.wf-insights {
+  margin-bottom: 1.5rem;
+}
+
+.wf-insights-title {
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--proc-text, var(--ws-text, #f1f5f9));
+  margin-bottom: 1rem;
+}
+
+.wf-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.wf-insight-card {
+  background: var(--proc-surface, var(--ws-surface, #1e293b));
+  border: 1px solid var(--proc-accent-border, rgba(99, 102, 241, 0.2));
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-height: 180px;
+}
+
+.wf-insight-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.wf-insight-card-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+}
+
+.wf-insight-card-icon {
+  flex-shrink: 0;
+}
+
+.wf-insight-card-metric {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--proc-text, var(--ws-text, #f1f5f9));
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.wf-insight-card-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.wf-insight-stat {
+  background: rgba(0, 0, 0, 0.20);
+  border-radius: 8px;
+  padding: 0.5rem 0.625rem;
+  min-width: 0;
+}
+
+.wf-insight-stat-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-insight-stat-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--proc-text, var(--ws-text, #f1f5f9));
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 1024px) {
+  .wf-insights-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Layout Principal (2 colunas) ──────────────────────────────────────── */
 .wf-content {
   display: grid;

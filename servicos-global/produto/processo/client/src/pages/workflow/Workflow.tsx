@@ -46,6 +46,7 @@ import {
   Anchor,
   House,
   FolderOpen,
+  Trophy,
 } from '@phosphor-icons/react'
 
 // Mapa de icone por ordem da etapa — Abertura → Entrega.
@@ -333,6 +334,96 @@ export default function Workflow() {
                   </React.Fragment>
                 )
               })}
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* ─── Painel de Insights — padrao BID Frete (3 cards) ──────────────────── */}
+      {(() => {
+        // Tempo de transito (dias) entre embarque e chegada — null se faltar data.
+        const embarque = processo.data_embarque ? new Date(processo.data_embarque) : null
+        const chegada = processo.data_chegada ? new Date(processo.data_chegada) : null
+        const transitoDias = (embarque && chegada)
+          ? Math.max(0, Math.round((chegada.getTime() - embarque.getTime()) / (1000 * 60 * 60 * 24)))
+          : null
+        const etapaAtual = etapas.find(e => e.status === 'em_andamento')
+        const etapasTotal = etapas.length
+        const etapasConcluidas = etapas.filter(e => e.status === 'concluida').length
+        const moedaFob = processo.moeda_fob || 'USD'
+        const valorFob = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: moedaFob }).format(processo.valor_fob_total || 0)
+        const pesoBruto = processo.peso_bruto_total
+          ? `${processo.peso_bruto_total.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} kg`
+          : '—'
+
+        return (
+          <div className="wf-insights ws-fade-up">
+            <div className="wf-insights-title">{t('processo.workflow.insights', 'Painel de Insights')}</div>
+            <div className="wf-insights-grid">
+
+              {/* Card 1 — Valor FOB da mercadoria */}
+              <div className="wf-insight-card">
+                <div className="wf-insight-card-header">
+                  <span className="wf-insight-card-label">{t('processo.workflow.valor_fob', 'Valor FOB total')}</span>
+                  <Trophy weight="fill" size={20} className="wf-insight-card-icon" style={{ color: '#facc15' }} />
+                </div>
+                <div className="wf-insight-card-metric">{valorFob}</div>
+                <div className="wf-insight-card-stats">
+                  <div className="wf-insight-stat">
+                    <div className="wf-insight-stat-label">{t('processo.workflow.peso_bruto', 'Peso bruto')}</div>
+                    <div className="wf-insight-stat-value">{pesoBruto}</div>
+                  </div>
+                  <div className="wf-insight-stat">
+                    <div className="wf-insight-stat-label">{t('processo.workflow.incoterm', 'Incoterm')}</div>
+                    <div className="wf-insight-stat-value">{processo.incoterm || '—'}</div>
+                  </div>
+                  <div className="wf-insight-stat">
+                    <div className="wf-insight-stat-label">{t('processo.workflow.canal', 'Canal')}</div>
+                    <div className="wf-insight-stat-value" style={{ textTransform: 'capitalize' }}>{processo.canal || '—'}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2 — Tempo de transito */}
+              <div className="wf-insight-card">
+                <div className="wf-insight-card-header">
+                  <span className="wf-insight-card-label">{t('processo.workflow.tempo_transito', 'Tempo de trânsito')}</span>
+                  <Clock weight="fill" size={20} className="wf-insight-card-icon" style={{ color: '#a78bfa' }} />
+                </div>
+                <div className="wf-insight-card-metric">
+                  {transitoDias !== null ? `${transitoDias} ${transitoDias === 1 ? 'dia' : 'dias'}` : '—'}
+                </div>
+                <div className="wf-insight-card-stats">
+                  <div className="wf-insight-stat">
+                    <div className="wf-insight-stat-label">{t('processo.workflow.embarque', 'Embarque')}</div>
+                    <div className="wf-insight-stat-value">{embarque ? formatDate(processo.data_embarque!) : '—'}</div>
+                  </div>
+                  <div className="wf-insight-stat">
+                    <div className="wf-insight-stat-label">{t('processo.workflow.chegada', 'Chegada')}</div>
+                    <div className="wf-insight-stat-value">{chegada ? formatDate(processo.data_chegada!) : '—'}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3 — Progresso */}
+              <div className="wf-insight-card">
+                <div className="wf-insight-card-header">
+                  <span className="wf-insight-card-label">{t('processo.workflow.progresso', 'Progresso')}</span>
+                  <FlowArrow weight="fill" size={20} className="wf-insight-card-icon" style={{ color: '#10b981' }} />
+                </div>
+                <div className="wf-insight-card-metric">{etapasConcluidas}/{etapasTotal}</div>
+                <div className="wf-insight-card-stats">
+                  <div className="wf-insight-stat">
+                    <div className="wf-insight-stat-label">{t('processo.workflow.etapa_atual', 'Etapa atual')}</div>
+                    <div className="wf-insight-stat-value">{etapaAtual?.nome || '—'}</div>
+                  </div>
+                  <div className="wf-insight-stat">
+                    <div className="wf-insight-stat-label">{t('processo.workflow.concluido', 'Concluído')}</div>
+                    <div className="wf-insight-stat-value">{etapasTotal > 0 ? Math.round((etapasConcluidas / etapasTotal) * 100) : 0}%</div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         )

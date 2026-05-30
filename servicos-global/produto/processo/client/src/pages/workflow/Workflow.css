@@ -108,20 +108,119 @@
   margin: 0;
 }
 
-/* ── Timeline Stepper (horizontal) ─────────────────────────────────────── */
-.wf-stepper {
-  display: flex;
-  align-items: flex-start;
-  padding: 1.25rem 1.5rem;
+/* ── Timeline (header + stepper) — estilo BID Frete ─────────────────────── */
+/* Card unico que envolve um cabecalho (prazo / acoes) e o stepper logo abaixo. */
+.wf-timeline {
   background: var(--proc-surface, var(--ws-surface, #1e293b));
   border-radius: 12px;
   border: 1px solid var(--proc-accent-border, rgba(99, 102, 241, 0.2));
-  /* margin-top: respiro entre o CabecalhoGlobal (sticky, 74px) e a primeira
-     secao. Em outras telas (Configurador) esse respiro vem do pg-contexto-row
-     (stats/acoes) que o Workflow nao usa — entao replicamos manualmente
-     a mesma altura visual (~40px). */
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.wf-timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1.5rem;
+  border-bottom: 1px solid var(--proc-accent-border, rgba(99, 102, 241, 0.12));
+}
+
+.wf-timeline-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.wf-timeline-status-icon {
+  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+  flex-shrink: 0;
+}
+
+.wf-timeline-info {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.wf-timeline-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+  white-space: nowrap;
+}
+
+.wf-timeline-date {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--proc-text, var(--ws-text, #f1f5f9));
+  white-space: nowrap;
+}
+
+.wf-timeline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.wf-timeline-badge--ontime {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.30);
+}
+
+.wf-timeline-badge--overdue {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.30);
+}
+
+.wf-timeline-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.wf-timeline-action-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--proc-accent-border, rgba(99, 102, 241, 0.20));
+  border-radius: 8px;
+  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.wf-timeline-action-btn:hover {
+  background: var(--proc-accent-dim, rgba(99, 102, 241, 0.12));
+  color: var(--proc-text, var(--ws-text, #f1f5f9));
+  border-color: var(--proc-accent, #6366f1);
+}
+
+/* ── Timeline Stepper (horizontal) ─────────────────────────────────────── */
+/* Agora vive DENTRO do .wf-timeline — sem fundo/borda proprios. */
+.wf-stepper {
+  display: flex;
+  align-items: flex-start;
+  padding: 1.5rem;
   overflow-x: auto;
 }
 
@@ -159,12 +258,13 @@
   color: var(--proc-muted, var(--ws-muted, #94a3b8));
 }
 
-/* Active: accent color */
+/* Active: cor do produto (Processo #facc15) com ring sutil — destacado como
+   no BID Frete (purpura no exemplo, aqui amarelo do produto). */
 .wf-step-circle--active {
-  border-color: var(--proc-accent, #6366f1);
-  background: var(--proc-accent-dim, rgba(99, 102, 241, 0.12));
-  color: var(--proc-accent, #6366f1);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  border-color: var(--p2-produto, #facc15);
+  background: rgba(250, 204, 21, 0.15);
+  color: var(--p2-produto, #facc15);
+  box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.12);
 }
 
 /* Done: green */
@@ -190,10 +290,12 @@
   background: #10b981;
 }
 
-/* Step label */
+/* Step label — UPPERCASE como no BID Frete */
 .wf-step-label {
   font-size: 0.6875rem;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   text-align: center;
   color: var(--proc-muted, var(--ws-muted, #94a3b8));
   max-width: 90px;
@@ -201,8 +303,8 @@
 }
 
 .wf-step-label--active {
-  color: var(--proc-accent, #6366f1);
-  font-weight: 600;
+  color: var(--p2-produto, #facc15);
+  font-weight: 700;
 }
 
 .wf-step-label--done {

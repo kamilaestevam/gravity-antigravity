@@ -41,7 +41,23 @@ import {
   Clock,
   Warning,
   Empty,
+  ArrowsClockwise,
+  ClipboardText,
+  Anchor,
+  House,
+  FolderOpen,
 } from '@phosphor-icons/react'
+
+// Mapa de icone por ordem da etapa — Abertura → Entrega.
+// Espelha o padrao do BID Frete (icone semantico em cada step do timeline).
+const STEP_ICONS: Record<number, React.ReactNode> = {
+  1: <FolderOpen   weight="duotone" size={14} />, // Abertura
+  2: <Package      weight="duotone" size={14} />, // Pedido
+  3: <ClipboardText weight="duotone" size={14} />, // LI
+  4: <Anchor       weight="duotone" size={14} />, // Embarque
+  5: <ShieldCheck  weight="duotone" size={14} />, // Desembaraco
+  6: <House        weight="duotone" size={14} />, // Entrega
+}
 import { useProcesso } from '../ProcessoLayout'
 import { getFollowUps, createFollowUp, deleteDocumento } from '../../shared/api'
 import type { FollowUp, FilterFollowUp } from '../../shared/types'
@@ -223,55 +239,94 @@ export default function Workflow() {
         />
       }
     >
-      {/* ─── Timeline Stepper ───────────────────────────── */}
-      <div className="wf-stepper ws-fade-up">
-        {etapas.map((etapa, idx) => {
-          const isDone = etapa.status === 'concluida'
-          const isActive = etapa.status === 'em_andamento'
-          const prevDone = idx > 0 && (etapas[idx - 1].status === 'concluida')
-
-          return (
-            <React.Fragment key={etapa.id}>
-              {/* Connector line (before step, except first) */}
-              {idx > 0 && (
-                <div className={`wf-connector ${prevDone || isDone ? 'wf-connector--done' : ''}`} />
-              )}
-
-              {/* Step circle + label */}
-              <div className="wf-step">
-                <TooltipGlobal
-                  titulo={etapa.nome}
-                  descricao={
-                    isDone
-                      ? `${t('processo.workflow.concluida_em', 'Concluída em')} ${etapa.data_conclusao ? formatDate(etapa.data_conclusao) : '—'}`
-                      : isActive
-                        ? t('processo.workflow.em_andamento', 'Etapa em andamento')
-                        : t('processo.workflow.pendente', 'Etapa pendente')
-                  }
-                >
-                  <div className={`wf-step-circle ${
-                    isDone ? 'wf-step-circle--done' :
-                    isActive ? 'wf-step-circle--active' :
-                    'wf-step-circle--pending'
-                  }`}>
-                    {isDone ? (
-                      <Check size={14} weight="bold" />
-                    ) : (
-                      <span>{etapa.ordem}</span>
-                    )}
-                  </div>
-                </TooltipGlobal>
-                <span className={`wf-step-label ${
-                  isDone ? 'wf-step-label--done' :
-                  isActive ? 'wf-step-label--active' : ''
-                }`}>
-                  {etapa.nome}
-                </span>
+      {/* ─── Timeline (cabecalho + stepper) — padrao BID Frete ───────────────── */}
+      {(() => {
+        // Status: NO PRAZO se data_chegada e futura/igual hoje; ATRASADO se passou.
+        const hoje = new Date()
+        const chegada = processo.data_chegada ? new Date(processo.data_chegada) : null
+        const concluido = processo.status === 'concluido'
+        const atrasado = chegada !== null && chegada < hoje && !concluido
+        const exibeBadge = chegada !== null
+        return (
+          <div className="wf-timeline ws-fade-up">
+            <div className="wf-timeline-header">
+              <div className="wf-timeline-status">
+                <Clock weight="duotone" size={18} className="wf-timeline-status-icon" />
+                <div className="wf-timeline-info">
+                  <span className="wf-timeline-label">{t('processo.workflow.previsao_chegada', 'Previsão de chegada')}</span>
+                  <span className="wf-timeline-date">{chegada ? formatDate(processo.data_chegada!) : '—'}</span>
+                </div>
+                {exibeBadge && (
+                  <span className={`wf-timeline-badge ${atrasado ? 'wf-timeline-badge--overdue' : 'wf-timeline-badge--ontime'}`}>
+                    {atrasado ? t('processo.workflow.atrasado', 'Atrasado') : t('processo.workflow.no_prazo', 'No prazo')}
+                  </span>
+                )}
               </div>
-            </React.Fragment>
-          )
-        })}
-      </div>
+              <div className="wf-timeline-actions">
+                <TooltipGlobal
+                  titulo={t('processo.workflow.atualizar', 'Atualizar dados')}
+                  descricao={t('processo.workflow.atualizar_desc', 'Recarregar informações do workflow')}
+                >
+                  <button
+                    type="button"
+                    className="wf-timeline-action-btn"
+                    onClick={refetch}
+                    aria-label={t('processo.workflow.atualizar', 'Atualizar dados')}
+                  >
+                    <ArrowsClockwise weight="duotone" size={16} />
+                  </button>
+                </TooltipGlobal>
+              </div>
+            </div>
+
+            <div className="wf-stepper">
+              {etapas.map((etapa, idx) => {
+                const isDone = etapa.status === 'concluida'
+                const isActive = etapa.status === 'em_andamento'
+                const prevDone = idx > 0 && (etapas[idx - 1].status === 'concluida')
+
+                return (
+                  <React.Fragment key={etapa.id}>
+                    {idx > 0 && (
+                      <div className={`wf-connector ${prevDone || isDone ? 'wf-connector--done' : ''}`} />
+                    )}
+                    <div className="wf-step">
+                      <TooltipGlobal
+                        titulo={etapa.nome}
+                        descricao={
+                          isDone
+                            ? `${t('processo.workflow.concluida_em', 'Concluída em')} ${etapa.data_conclusao ? formatDate(etapa.data_conclusao) : '—'}`
+                            : isActive
+                              ? t('processo.workflow.em_andamento', 'Etapa em andamento')
+                              : t('processo.workflow.pendente', 'Etapa pendente')
+                        }
+                      >
+                        <div className={`wf-step-circle ${
+                          isDone ? 'wf-step-circle--done' :
+                          isActive ? 'wf-step-circle--active' :
+                          'wf-step-circle--pending'
+                        }`}>
+                          {isDone ? (
+                            <Check size={14} weight="bold" />
+                          ) : (
+                            STEP_ICONS[etapa.ordem] ?? <span>{etapa.ordem}</span>
+                          )}
+                        </div>
+                      </TooltipGlobal>
+                      <span className={`wf-step-label ${
+                        isDone ? 'wf-step-label--done' :
+                        isActive ? 'wf-step-label--active' : ''
+                      }`}>
+                        {etapa.nome}
+                      </span>
+                    </div>
+                  </React.Fragment>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* ─── Conteudo em 2 colunas ─────────────────────── */}
       <div className="wf-content">

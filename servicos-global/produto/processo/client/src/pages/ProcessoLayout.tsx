@@ -328,7 +328,7 @@ export default function ProcessoLayout() {
       >
         {/* ─── Sidebar ──────────────────────────────────── */}
         <aside className="p2-sidebar">
-          {/* Breadcrumb / Back + toggle inline (mesmo padrao do trilho global) */}
+          {/* Breadcrumb / Back */}
           <div className="p2-breadcrumb">
             <TooltipGlobal titulo="Voltar" descricao="Retornar para a listagem de processos">
               <button
@@ -342,17 +342,19 @@ export default function ProcessoLayout() {
             </TooltipGlobal>
             <CaretRight size={12} className="p2-breadcrumb-sep" />
             <span className="p2-breadcrumb-current">{activeRoute.label}</span>
-            <TooltipGlobal titulo={t('shell.recolher_menu')} descricao="Recolher ou expandir o menu lateral">
-              <button
-                className="p2-breadcrumb-toggle"
-                onClick={() => setSidebarCollapsed(prev => !prev)}
-                type="button"
-                aria-label={t('shell.recolher_menu')}
-              >
-                <SidebarSimple weight={sidebarCollapsed ? 'duotone' : 'regular'} size={16} />
-              </button>
-            </TooltipGlobal>
           </div>
+
+          {/* Toggle flutuante na borda direita — logo abaixo do breadcrumb. */}
+          <TooltipGlobal titulo={t('shell.recolher_menu')} descricao="Recolher ou expandir o menu lateral">
+            <button
+              className="p2-collapse-btn"
+              onClick={() => setSidebarCollapsed(prev => !prev)}
+              type="button"
+              aria-label={t('shell.recolher_menu')}
+            >
+              <SidebarSimple weight={sidebarCollapsed ? 'duotone' : 'regular'} size={18} />
+            </button>
+          </TooltipGlobal>
 
           {/* Card de Info do Processo */}
           {loading && !processo && (

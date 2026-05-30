@@ -230,9 +230,6 @@
   align-items: center;
   gap: 0.5rem;
   min-width: 80px;
-  /* Empurra a caixa pra baixo para a linha (connector) ficar visivel
-     no topo da timeline, como no modelo BID Frete. */
-  padding-top: 20px;
 }
 
 /* Stepper Box — caixa arredondada 40x40 (BID Frete), nao circulo */
@@ -276,15 +273,16 @@
   color: #fff;
 }
 
-/* Connector line — no TOPO da timeline (como no BID Frete), nao no
-   centro vertical das caixas. A caixa fica abaixo via padding-top do step. */
+/* Connector line entre as caixas — alinhada com o centro vertical das
+   caixas de 40px (margin-top: 19px = 20 - 1 onde 1 = metade da altura
+   do connector de 2px). */
 .wf-connector {
   flex: 1;
   height: 2px;
   min-width: 1.5rem;
   background: var(--proc-accent-border, rgba(99, 102, 241, 0.2));
   align-self: flex-start;
-  margin-top: 0;
+  margin-top: 19px;
   transition: background 0.3s;
 }
 

@@ -32,7 +32,6 @@ import {
   Envelope,
   CheckSquare,
   ArrowLeft,
-  Info,
   CaretRight,
   SidebarSimple,
   Anchor,
@@ -224,7 +223,7 @@ export default function ProcessoLayout() {
   const processoId = searchParams.get('id') ?? ''
   const idOrganizacao = searchParams.get('idOrganizacao') ?? ''
 
-  const { currentTheme, tooltipsDisabled, toggleTooltips, setSidebarOpen } = useShellStore()
+  const { currentTheme, tooltipsDisabled, setSidebarOpen } = useShellStore()
   const isLight = currentTheme === 'light'
 
   const [processo, setProcesso] = useState<ProcessoDetail | null>(null)
@@ -475,45 +474,21 @@ export default function ProcessoLayout() {
 
         {/* ─── Main Area ──────────────────────────────── */}
         <div className="p2-main">
-          {/* Top Bar */}
-          <div className="p2-topbar">
-            {/* Sidebar toggle para mobile / collapsed */}
-            {sidebarCollapsed && (
+          {/* Botao flutuante para reabrir o menu quando recolhido.
+              O titulo da pagina vem do CabecalhoGlobal (padrao plataforma)
+              renderizado por cada rota filha — sem barra duplicada aqui. */}
+          {sidebarCollapsed && (
+            <TooltipGlobal titulo={t('shell.recolher_menu')} descricao="Expandir o menu lateral">
               <button
-                className="p2-topbar-toggle"
+                className="p2-reopen-btn"
                 onClick={() => setSidebarCollapsed(false)}
                 type="button"
+                aria-label={t('shell.recolher_menu')}
               >
                 <SidebarSimple weight="duotone" size={18} />
               </button>
-            )}
-
-            <div className="p2-topbar-title">
-              {processo && (
-                <>
-                  <span className="p2-topbar-numero">{processo.numero}</span>
-                  <CaretRight size={12} className="p2-topbar-sep" />
-                  <span className="p2-topbar-page">{activeRoute.label}</span>
-                </>
-              )}
-            </div>
-
-            <div className="p2-topbar-actions">
-              <TooltipGlobal
-                titulo="Dicas e Explicacoes"
-                descricao={tooltipsDisabled ? 'Tooltips desabilitadas' : 'Tooltips habilitadas'}
-              >
-                <button
-                  className="p2-topbar-btn"
-                  onClick={toggleTooltips}
-                  style={{ color: tooltipsDisabled ? 'var(--p2-muted)' : 'var(--p2-accent)' }}
-                  type="button"
-                >
-                  <Info size={18} weight={tooltipsDisabled ? 'regular' : 'fill'} />
-                </button>
-              </TooltipGlobal>
-            </div>
-          </div>
+            </TooltipGlobal>
+          )}
 
           {/* Error Banner */}
           {error && (

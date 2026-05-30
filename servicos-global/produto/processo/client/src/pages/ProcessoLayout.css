@@ -401,6 +401,7 @@ button, input, select, textarea { font-family: inherit; }
 
 /* ── Main Area ────────────────────────────────────────────────────────────── */
 .p2-main {
+  position: relative; /* ancora do .p2-reopen-btn flutuante */
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -408,88 +409,34 @@ button, input, select, textarea { font-family: inherit; }
   background: var(--p2-bg-body);
 }
 
-/* ── Top Bar ──────────────────────────────────────────────────────────────── */
-.p2-topbar {
-  display: flex;
-  align-items: center;
-  height: var(--p2-topbar-h);
-  min-height: var(--p2-topbar-h);
-  padding: 0 1rem;
-  border-bottom: 1px solid rgba(99, 102, 241, 0.06);
-  gap: 0.75rem;
-}
-
-.p2-topbar-toggle {
+/* ── Botao flutuante para reabrir o menu quando recolhido ─────────────────── */
+/* Substitui a antiga p2-topbar (que carregava breadcrumb duplicado e Info).
+   O titulo agora vem so do CabecalhoGlobal de cada pagina (padrao plataforma).
+   Quando o menu esta recolhido, este botao aparece no canto superior esquerdo
+   do conteudo para permitir reabrir. */
+.p2-reopen-btn {
+  position: absolute;
+  top: 18px;
+  left: 18px;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: none;
+  background: var(--p2-surface);
+  border: 1px solid var(--p2-accent-border);
   border-radius: var(--p2-radius-sm);
-  color: var(--p2-muted);
-  cursor: pointer;
-  transition: color 0.15s, background 0.15s;
-}
-
-.p2-topbar-toggle:hover {
   color: var(--p2-text);
-  background: var(--p2-accent-hover);
-}
-
-.p2-topbar-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.p2-topbar-numero {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--p2-text);
-  white-space: nowrap;
-}
-
-.p2-topbar-sep {
-  color: var(--p2-muted);
-  opacity: 0.4;
-  flex-shrink: 0;
-}
-
-.p2-topbar-page {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--p2-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.p2-topbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-
-.p2-topbar-btn {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--p2-radius-sm);
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  z-index: 30;
+  transition: all var(--p2-transition);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-.p2-topbar-btn:hover {
-  background: var(--p2-accent-dim);
-  border-color: var(--p2-accent-border);
+.p2-reopen-btn:hover {
+  background: var(--p2-produto, var(--p2-accent));
+  color: #0f172a;
+  border-color: var(--p2-produto, var(--p2-accent));
 }
 
 /* ── Error Banner ─────────────────────────────────────────────────────────── */
@@ -556,12 +503,9 @@ body.light-theme .p2-info-card {
   border-color: rgba(0, 0, 0, 0.08);
 }
 
-body.light-theme .p2-topbar {
-  border-bottom-color: rgba(0, 0, 0, 0.06);
-}
-
-body.light-theme .p2-sidebar-footer {
-  border-top-color: rgba(0, 0, 0, 0.06);
+body.light-theme .p2-reopen-btn {
+  background: var(--p2-surface);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 body.light-theme .p2-error-banner {

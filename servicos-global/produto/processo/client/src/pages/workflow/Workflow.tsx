@@ -19,7 +19,6 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { CardBasicoGlobal } from '@nucleo/card-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
@@ -541,7 +540,7 @@ export default function Workflow() {
 
         {/* ─── Coluna Direita: Custos + Documentos ─────── */}
         <div className="wf-right-panel">
-          {/* Estimativas de Custo — CardBasicoGlobal */}
+          {/* Estimativas de Custo — lista vertical com status + variacao real vs estimado */}
           <div className="wf-custos-section ws-fade-up">
             <h3 className="wf-section-title">{t('processo.workflow.estimativa_custos', 'Estimativa de Custos')}</h3>
             {custos.length === 0 ? (
@@ -550,40 +549,73 @@ export default function Workflow() {
                 <p>{t('processo.workflow.sem_estimativa', 'Nenhuma estimativa cadastrada')}</p>
               </div>
             ) : (
-              <div className="wf-custos-grid">
-                {custos.map(c => (
-                  <CardBasicoGlobal
-                    key={c.id}
-                    titulo={c.categoria}
-                    icone={CUSTO_ICONS[c.categoria.toLowerCase()] ?? <CurrencyDollar weight="duotone" size={16} />}
-                    valor={brl(c.valor_estimado)}
-                    periodos={[
-                      {
-                        periodo: '30d',
-                        rotulo: '30 dias',
-                        valor: c.valor_real != null
-                          ? `${((c.valor_real - c.valor_estimado) / c.valor_estimado * 100).toFixed(0)}%`
-                          : '—',
-                        direcao: c.valor_real != null
-                          ? (c.valor_real > c.valor_estimado ? 'up' : c.valor_real < c.valor_estimado ? 'down' : 'neutral')
-                          : 'neutral',
-                      },
-                    ]}
-                    subtexto={
-                      c.valor_real != null
-                        ? <span className="wf-custo-real">{t('processo.workflow.custo_real', 'Real')}: {brl(c.valor_real)}</span>
-                        : <span className="wf-custo-pendente">{t('processo.workflow.aguardando_real', 'Aguardando valor real')}</span>
-                    }
-                    tooltip={
-                      <div className="wf-custo-tooltip">
-                        <p>{t('comum.status', 'Status')}: <strong>{c.status === 'estimado' ? t('processo.workflow.status_estimado', 'Estimado') : c.status === 'confirmado' ? t('processo.workflow.status_confirmado', 'Confirmado') : t('processo.workflow.status_pago', 'Pago')}</strong></p>
-                        {c.data_vencimento && <p>{t('processo.workflow.vencimento', 'Vencimento')}: {formatDate(c.data_vencimento)}</p>}
-                        {c.observacoes && <p>{c.observacoes}</p>}
+              <div className="wf-custos-list">
+                {custos.map(c => {
+                  const fmtMoney = (val: number) =>
+                    new Intl.NumberFormat('pt-BR', {
+                      style: 'currency',
+                      currency: c.moeda || 'BRL',
+                    }).format(val)
+                  const hasReal = c.valor_real != null
+                  const variacao = hasReal
+                    ? ((c.valor_real! - c.valor_estimado) / c.valor_estimado) * 100
+                    : null
+                  // Cor da badge — semantica de custo: 'up' (real maior) = ruim/vermelho.
+                  const direcao: 'up' | 'down' | 'neutral' = variacao === null
+                    ? 'neutral'
+                    : variacao > 0.5 ? 'up'
+                    : variacao < -0.5 ? 'down'
+                    : 'neutral'
+                  const statusLabel = c.status === 'estimado'
+                    ? t('processo.workflow.status_estimado', 'Estimado')
+                    : c.status === 'confirmado'
+                      ? t('processo.workflow.status_confirmado', 'Confirmado')
+                      : t('processo.workflow.status_pago', 'Pago')
+                  const tooltipDesc = [
+                    `${t('comum.status', 'Status')}: ${statusLabel}`,
+                    c.data_vencimento ? `${t('processo.workflow.vencimento', 'Vencimento')}: ${formatDate(c.data_vencimento)}` : null,
+                    c.observacoes || null,
+                  ].filter(Boolean).join(' · ')
+                  return (
+                    <TooltipGlobal
+                      key={c.id}
+                      titulo={c.categoria}
+                      descricao={tooltipDesc || c.descricao || c.categoria}
+                    >
+                      <div className="wf-custo-item">
+                        <div className="wf-custo-item-header">
+                          <span className="wf-custo-item-icon">
+                            {CUSTO_ICONS[c.categoria.toLowerCase()] ?? <CurrencyDollar weight="duotone" size={16} />}
+                          </span>
+                          <span className="wf-custo-item-label">{c.categoria}</span>
+                          <span className={`wf-custo-item-status wf-custo-item-status--${c.status}`}>
+                            {statusLabel}
+                          </span>
+                        </div>
+                        <div className="wf-custo-item-metric">{fmtMoney(c.valor_estimado)}</div>
+                        {hasReal ? (
+                          <div className="wf-custo-item-footer">
+                            <span className="wf-custo-item-real">
+                              {t('processo.workflow.custo_real', 'Real')}: <strong>{fmtMoney(c.valor_real!)}</strong>
+                            </span>
+                            <span className={`wf-custo-item-var wf-custo-item-var--${direcao}`}>
+                              {direcao === 'up' && '↑'}
+                              {direcao === 'down' && '↓'}
+                              {direcao === 'neutral' && '→'}
+                              {' '}{Math.abs(variacao!).toFixed(0)}%
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="wf-custo-item-footer">
+                            <span className="wf-custo-item-pendente">
+                              {t('processo.workflow.aguardando_real', 'Aguardando valor real')}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    }
-                    className="wf-custo-card"
-                  />
-                ))}
+                    </TooltipGlobal>
+                  )
+                })}
               </div>
             )}
           </div>

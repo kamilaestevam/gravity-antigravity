@@ -481,6 +481,12 @@ body,
   border-right: 1px solid var(--bg-elevated);
 }
 
+/* Esconde o logo "Gravity" + label de pagina do shell-header na tela de
+   processo — o titulo da pagina ja vem do CabecalhoGlobal de cada rota. */
+.layout--processo .shell-header__left {
+  display: none;
+}
+
 /* ─── Toast Notifications ─────────────────────────────────────────────────── */
 .shell-toast-container {
   position: fixed;

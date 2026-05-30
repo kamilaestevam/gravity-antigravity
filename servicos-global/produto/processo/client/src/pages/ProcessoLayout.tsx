@@ -459,18 +459,16 @@ export default function ProcessoLayout() {
             ))}
           </nav>
 
-          {/* Toggle Collapse */}
-          <div className="p2-sidebar-footer">
-            <TooltipGlobal titulo={t('shell.recolher_menu')} descricao="Recolher ou expandir o menu lateral">
-              <button
-                className="p2-collapse-btn"
-                onClick={() => setSidebarCollapsed(prev => !prev)}
-                type="button"
-              >
-                <SidebarSimple weight="regular" size={16} />
-              </button>
-            </TooltipGlobal>
-          </div>
+          {/* Toggle flutuante na borda direita — mesmo padrao do MenuLateralGlobal */}
+          <TooltipGlobal titulo={t('shell.recolher_menu')} descricao="Recolher ou expandir o menu lateral">
+            <button
+              className="p2-collapse-btn"
+              onClick={() => setSidebarCollapsed(prev => !prev)}
+              type="button"
+            >
+              <SidebarSimple weight={sidebarCollapsed ? 'duotone' : 'regular'} size={16} />
+            </button>
+          </TooltipGlobal>
         </aside>
 
         {/* ─── Main Area ──────────────────────────────── */}

@@ -119,6 +119,14 @@ function sufixoQuantidadeEmbalagem(codigo: string): string {
 
 type LadoLocalizacaoWizard = 'origem' | 'destino'
 
+function modalExigePortoCotacao(modal: ModalFrete | ''): boolean {
+  return modal === 'MARITIMO' || modal === 'RODOVIARIO'
+}
+
+function modalExigeAeroportoCotacao(modal: ModalFrete | ''): boolean {
+  return modal === 'AEREO'
+}
+
 function fraseExibirCamposLocalizacao(lado: LadoLocalizacaoWizard): string {
   const sufixo = lado === 'origem' ? 'Origem' : 'Destino'
   return `Exibir campos: Cidade de ${sufixo}, Estado ou Província de ${sufixo} e País de ${sufixo}`
@@ -426,14 +434,17 @@ function LinhaCheckboxExibirCamposLocalizacao({
   const marcado = exibirCamposExtrasLocalizacao(form, lado)
 
   return (
-    <label className="nc-exibir-campos-checkbox nc-field--span-2">
-      <input
-        type="checkbox"
-        checked={marcado}
-        onChange={(e) => alternarExibirCamposExtrasLocalizacao(setForm, lado, e.target.checked)}
-      />
-      <span>{fraseExibirCamposLocalizacao(lado)}</span>
-    </label>
+    <div className="nc-exibir-campos-linha">
+      <label className="nc-exibir-campos-checkbox">
+        <input
+          type="checkbox"
+          className="nc-checkbox-padrao"
+          checked={marcado}
+          onChange={(e) => alternarExibirCamposExtrasLocalizacao(setForm, lado, e.target.checked)}
+        />
+        <span>{fraseExibirCamposLocalizacao(lado)}</span>
+      </label>
+    </div>
   )
 }
 
@@ -874,7 +885,10 @@ const NC_ESTILOS_CONTEUDO = `
           margin-top: 0.75rem;
         }
         .nc-location-visual-card--origin {
-          border-left: 4px solid var(--nc-accent);
+          background: var(--nc-option-accent-dim);
+          border: 1px solid var(--nc-option-accent-border);
+          border-left: 4px solid var(--nc-option-accent);
+          box-shadow: var(--nc-option-focus-ring);
         }
         .nc-location-visual-card--destination {
           border-left: 4px solid var(--success, #10b981);
@@ -884,21 +898,78 @@ const NC_ESTILOS_CONTEUDO = `
           flex-direction: column;
           gap: 1.5rem;
         }
+        .nc-location-body {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        .nc-exibir-campos-linha {
+          margin: 0;
+          padding: 0;
+        }
         .nc-exibir-campos-checkbox {
           display: flex;
           align-items: flex-start;
           gap: 0.6rem;
-          margin-top: 0.15rem;
+          margin: 0;
           cursor: pointer;
           user-select: none;
         }
-        .nc-exibir-campos-checkbox input {
+        .nc-fields-grid--location-extras {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.25rem;
+          margin-top: 1rem;
+        }
+        .nc-fields-grid--location-extras .nc-field--span-2 {
+          grid-column: span 2;
+        }
+        @media (max-width: 600px) {
+          .nc-fields-grid--location-extras {
+            grid-template-columns: 1fr;
+          }
+          .nc-fields-grid--location-extras .nc-field--span-2 {
+            grid-column: span 1;
+          }
+        }
+        /* Checkbox — paridade gtv-checkbox (tabela-virtual-global) / Solid Slate */
+        .nc-checkbox-padrao {
+          appearance: none;
+          -webkit-appearance: none;
           margin-top: 0.15rem;
           flex-shrink: 0;
-          width: 1rem;
-          height: 1rem;
-          accent-color: var(--nc-accent);
+          width: 15px;
+          height: 15px;
+          border-radius: 4px;
+          border: 1.5px solid var(--text-secondary, #94a3b8);
+          background: transparent;
           cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          transition: border-color 0.12s ease, background 0.12s ease;
+        }
+        .nc-checkbox-padrao:hover {
+          border-color: var(--nc-accent);
+          background: var(--nc-accent-dim);
+        }
+        .nc-checkbox-padrao:checked {
+          background: var(--nc-accent);
+          border-color: var(--nc-accent);
+        }
+        .nc-checkbox-padrao:checked::after {
+          content: '';
+          position: absolute;
+          width: 8px;
+          height: 5px;
+          border-left: 2px solid #fff;
+          border-bottom: 2px solid #fff;
+          transform: rotate(-45deg) translate(0, -1px);
+        }
+        .nc-checkbox-padrao:focus-visible {
+          outline: none;
+          box-shadow: var(--nc-focus-ring);
         }
         .nc-exibir-campos-checkbox span {
           font-size: 0.8125rem;
@@ -928,8 +999,9 @@ const NC_ESTILOS_CONTEUDO = `
           background: rgba(255, 255, 255, 0.03);
         }
         .nc-location-visual-card--origin .nc-location-visual-circle {
-          background: var(--nc-accent-dim);
-          color: var(--nc-accent);
+          background: color-mix(in srgb, var(--nc-option-accent) 20%, transparent);
+          border: 1px solid var(--nc-option-accent-border);
+          color: var(--nc-option-accent);
         }
         .nc-location-visual-card--destination .nc-location-visual-circle {
           background: rgba(16, 185, 129, 0.1);
@@ -948,7 +1020,7 @@ const NC_ESTILOS_CONTEUDO = `
         }
 
         @keyframes nc-pulse {
-          0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--nc-accent) 40%, transparent); }
+          0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--nc-option-accent) 40%, transparent); }
           70% { box-shadow: 0 0 0 6px transparent; }
           100% { box-shadow: 0 0 0 0 transparent; }
         }
@@ -1616,7 +1688,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     carregando: carregandoPortosOrigem,
   } = usePortosPorPais(
     paisOrigemCodigo,
-    form.modal_cotacao_bid_frete_internacional === 'MARITIMO',
+    modalExigePortoCotacao(form.modal_cotacao_bid_frete_internacional),
   )
   const {
     portos: portosDestino,
@@ -1624,7 +1696,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     carregando: carregandoPortosDestino,
   } = usePortosPorPais(
     paisDestinoCodigo,
-    form.modal_cotacao_bid_frete_internacional === 'MARITIMO',
+    modalExigePortoCotacao(form.modal_cotacao_bid_frete_internacional),
   )
   const {
     aeroportos: aeroportosOrigem,
@@ -1632,7 +1704,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     carregando: carregandoAeroportosOrigem,
   } = useAeroportosPorPais(
     paisOrigemCodigo,
-    form.modal_cotacao_bid_frete_internacional === 'AEREO',
+    modalExigeAeroportoCotacao(form.modal_cotacao_bid_frete_internacional),
   )
   const {
     aeroportos: aeroportosDestino,
@@ -1640,7 +1712,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     carregando: carregandoAeroportosDestino,
   } = useAeroportosPorPais(
     paisDestinoCodigo,
-    form.modal_cotacao_bid_frete_internacional === 'AEREO',
+    modalExigeAeroportoCotacao(form.modal_cotacao_bid_frete_internacional),
   )
   const {
     containers: containersCadastro,
@@ -1837,14 +1909,14 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     switch (step) {
       case 1: return !!form.tipo_operacao_cotacao_bid_frete_internacional && !!form.modal_cotacao_bid_frete_internacional && !!form.modalidade_cotacao_bid_frete_internacional
       case 2: {
-        const origemOk = modal === 'MARITIMO'
+        const origemOk = modalExigePortoCotacao(modal)
           ? !!form.origem_codigo_cotacao_bid_frete_internacional
-          : modal === 'AEREO'
+          : modalExigeAeroportoCotacao(modal)
             ? !!form.aeroporto_origem_cotacao_bid_frete_internacional
             : true
-        const destinoOk = modal === 'MARITIMO'
+        const destinoOk = modalExigePortoCotacao(modal)
           ? !!form.destino_codigo_cotacao_bid_frete_internacional
-          : modal === 'AEREO'
+          : modalExigeAeroportoCotacao(modal)
             ? !!form.aeroporto_destino_cotacao_bid_frete_internacional
             : true
         return origemOk && destinoOk
@@ -2042,16 +2114,18 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       case 2: {
         const exibirExtrasOrigem = exibirCamposExtrasLocalizacao(form, 'origem')
         const exibirExtrasDestino = exibirCamposExtrasLocalizacao(form, 'destino')
-        const legendaOrigem = modal === 'AEREO'
-          ? 'Informe o aeroporto de partida.'
-          : modal === 'RODOVIARIO'
-            ? 'Marque a opção abaixo se precisar informar o local de coleta.'
-            : 'Informe o porto de embarque.'
-        const legendaDestino = modal === 'AEREO'
-          ? 'Informe o aeroporto de chegada.'
-          : modal === 'RODOVIARIO'
-            ? 'Marque a opção abaixo se precisar informar o local de entrega.'
-            : 'Informe o porto de destino.'
+        const exigePorto = modalExigePortoCotacao(modal)
+        const exigeAeroporto = modalExigeAeroportoCotacao(modal)
+        const legendaOrigem = exigeAeroporto
+          ? 'Informe o aeroporto de partida. Marque a opção abaixo se precisar informar cidade, estado ou país.'
+          : exigePorto
+            ? 'Informe o porto de embarque. Marque a opção abaixo se precisar informar cidade, estado ou país.'
+            : 'Marque a opção abaixo se precisar informar o local de coleta.'
+        const legendaDestino = exigeAeroporto
+          ? 'Informe o aeroporto de chegada. Marque a opção abaixo se precisar informar cidade, estado ou país.'
+          : exigePorto
+            ? 'Informe o porto de destino. Marque a opção abaixo se precisar informar cidade, estado ou país.'
+            : 'Marque a opção abaixo se precisar informar o local de entrega.'
 
         return (
           <div className="nc-step-content nc-origem-destino-stack">
@@ -2061,54 +2135,46 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   <MapPin weight="duotone" size={26} className="nc-pulsing-icon" />
                 </div>
                 <div className="nc-location-visual-text">
-                  <h4>{modal === 'AEREO' ? 'Aeroporto de Origem' : modal === 'RODOVIARIO' ? 'Local de Origem' : t('bidfrete.nova_cotacao.porto_origem')}</h4>
+                  <h4>{exigeAeroporto ? 'Aeroporto de Origem' : exigePorto ? t('bidfrete.nova_cotacao.porto_origem') : 'Local de Origem'}</h4>
                   <p className="nc-caption">{legendaOrigem}</p>
                 </div>
               </div>
 
-              <div className="nc-fields-grid nc-fields-grid--location-new">
-                {modal === 'MARITIMO' && (
-                  <>
-                    <Field label="PORTO DE EMBARQUE" required className="nc-field--span-2">
-                      <SelectGlobal
-                        iconeEsquerda={<Anchor size={16} />}
-                        opcoes={opcoesPortosOrigem}
-                        valor={form.origem_codigo_cotacao_bid_frete_internacional || null}
-                        aoMudarValor={aoMudarPortoOrigem}
-                        placeholder="Selecione o porto..."
-                        buscavel
-                        carregando={carregandoPortosOrigem}
-                        posicao="auto"
-                      />
-                    </Field>
-                    <LinhaCheckboxExibirCamposLocalizacao lado="origem" form={form} setForm={setForm} />
-                  </>
+              <div className="nc-location-body">
+                {exigePorto && (
+                  <Field label="PORTO DE EMBARQUE" required>
+                    <SelectGlobal
+                      iconeEsquerda={<Anchor size={16} />}
+                      opcoes={opcoesPortosOrigem}
+                      valor={form.origem_codigo_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={aoMudarPortoOrigem}
+                      placeholder="Selecione o porto..."
+                      buscavel
+                      carregando={carregandoPortosOrigem}
+                      posicao="auto"
+                    />
+                  </Field>
                 )}
 
-                {modal === 'AEREO' && (
-                  <>
-                    <Field label="AEROPORTO DE EMBARQUE" required className="nc-field--span-2">
-                      <SelectGlobal
-                        iconeEsquerda={<AirplaneTilt size={16} />}
-                        opcoes={opcoesAeroportosOrigem}
-                        valor={form.aeroporto_origem_cotacao_bid_frete_internacional || null}
-                        aoMudarValor={aoMudarAeroportoOrigem}
-                        placeholder="Selecione o aeroporto..."
-                        buscavel
-                        carregando={carregandoAeroportosOrigem}
-                        posicao="auto"
-                      />
-                    </Field>
-                    <LinhaCheckboxExibirCamposLocalizacao lado="origem" form={form} setForm={setForm} />
-                  </>
+                {exigeAeroporto && (
+                  <Field label="AEROPORTO DE EMBARQUE" required>
+                    <SelectGlobal
+                      iconeEsquerda={<AirplaneTilt size={16} />}
+                      opcoes={opcoesAeroportosOrigem}
+                      valor={form.aeroporto_origem_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={aoMudarAeroportoOrigem}
+                      placeholder="Selecione o aeroporto..."
+                      buscavel
+                      carregando={carregandoAeroportosOrigem}
+                      posicao="auto"
+                    />
+                  </Field>
                 )}
 
-                {modal === 'RODOVIARIO' && (
-                  <LinhaCheckboxExibirCamposLocalizacao lado="origem" form={form} setForm={setForm} />
-                )}
+                <LinhaCheckboxExibirCamposLocalizacao lado="origem" form={form} setForm={setForm} />
 
                 {exibirExtrasOrigem && (
-                  <>
+                  <div className="nc-fields-grid nc-fields-grid--location-extras">
                     <Field label="PAÍS DE ORIGEM">
                       <SelectGlobal
                         iconeEsquerda={<MapPin size={16} />}
@@ -2151,7 +2217,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         onChange={(e) => set('cidade_origem_cotacao_bid_frete_internacional', e.target.value)}
                       />
                     </Field>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
@@ -2162,54 +2228,46 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   <MapPin weight="duotone" size={26} className="nc-pulsing-icon-dest" />
                 </div>
                 <div className="nc-location-visual-text">
-                  <h4>{modal === 'AEREO' ? 'Aeroporto de Destino' : modal === 'RODOVIARIO' ? 'Local de Destino' : t('bidfrete.nova_cotacao.porto_destino')}</h4>
+                  <h4>{exigeAeroporto ? 'Aeroporto de Destino' : exigePorto ? t('bidfrete.nova_cotacao.porto_destino') : 'Local de Destino'}</h4>
                   <p className="nc-caption">{legendaDestino}</p>
                 </div>
               </div>
 
-              <div className="nc-fields-grid nc-fields-grid--location-new">
-                {modal === 'MARITIMO' && (
-                  <>
-                    <Field label="PORTO DE DESTINO" required className="nc-field--span-2">
-                      <SelectGlobal
-                        iconeEsquerda={<Anchor size={16} />}
-                        opcoes={opcoesPortosDestino}
-                        valor={form.destino_codigo_cotacao_bid_frete_internacional || null}
-                        aoMudarValor={aoMudarPortoDestino}
-                        placeholder="Selecione o porto..."
-                        buscavel
-                        carregando={carregandoPortosDestino}
-                        posicao="auto"
-                      />
-                    </Field>
-                    <LinhaCheckboxExibirCamposLocalizacao lado="destino" form={form} setForm={setForm} />
-                  </>
+              <div className="nc-location-body">
+                {exigePorto && (
+                  <Field label="PORTO DE DESTINO" required>
+                    <SelectGlobal
+                      iconeEsquerda={<Anchor size={16} />}
+                      opcoes={opcoesPortosDestino}
+                      valor={form.destino_codigo_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={aoMudarPortoDestino}
+                      placeholder="Selecione o porto..."
+                      buscavel
+                      carregando={carregandoPortosDestino}
+                      posicao="auto"
+                    />
+                  </Field>
                 )}
 
-                {modal === 'AEREO' && (
-                  <>
-                    <Field label="AEROPORTO DE DESTINO" required className="nc-field--span-2">
-                      <SelectGlobal
-                        iconeEsquerda={<AirplaneTilt size={16} />}
-                        opcoes={opcoesAeroportosDestino}
-                        valor={form.aeroporto_destino_cotacao_bid_frete_internacional || null}
-                        aoMudarValor={aoMudarAeroportoDestino}
-                        placeholder="Selecione o aeroporto..."
-                        buscavel
-                        carregando={carregandoAeroportosDestino}
-                        posicao="auto"
-                      />
-                    </Field>
-                    <LinhaCheckboxExibirCamposLocalizacao lado="destino" form={form} setForm={setForm} />
-                  </>
+                {exigeAeroporto && (
+                  <Field label="AEROPORTO DE DESTINO" required>
+                    <SelectGlobal
+                      iconeEsquerda={<AirplaneTilt size={16} />}
+                      opcoes={opcoesAeroportosDestino}
+                      valor={form.aeroporto_destino_cotacao_bid_frete_internacional || null}
+                      aoMudarValor={aoMudarAeroportoDestino}
+                      placeholder="Selecione o aeroporto..."
+                      buscavel
+                      carregando={carregandoAeroportosDestino}
+                      posicao="auto"
+                    />
+                  </Field>
                 )}
 
-                {modal === 'RODOVIARIO' && (
-                  <LinhaCheckboxExibirCamposLocalizacao lado="destino" form={form} setForm={setForm} />
-                )}
+                <LinhaCheckboxExibirCamposLocalizacao lado="destino" form={form} setForm={setForm} />
 
                 {exibirExtrasDestino && (
-                  <>
+                  <div className="nc-fields-grid nc-fields-grid--location-extras">
                     <Field label="PAÍS DE DESTINO">
                       <SelectGlobal
                         iconeEsquerda={<MapPin size={16} />}
@@ -2252,7 +2310,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         onChange={(e) => set('cidade_destino_cotacao_bid_frete_internacional', e.target.value)}
                       />
                     </Field>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
@@ -2576,9 +2634,13 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       // STEP 5 — Resumo
       case 5: {
         const origemCode = modal === 'AEREO' ? form.aeroporto_origem_cotacao_bid_frete_internacional : form.origem_codigo_cotacao_bid_frete_internacional
-        const origemName = modal === 'AEREO' ? form.aeroporto_origem_nome : (modal === 'RODOVIARIO' ? (form.estado_provincia_origem_cotacao_bid_frete_internacional || form.origem_pais_nome) : form.origem_nome_cotacao_bid_frete_internacional)
+        const origemName = modalExigeAeroportoCotacao(modal)
+          ? form.aeroporto_origem_nome
+          : form.origem_nome_cotacao_bid_frete_internacional
         const destinoCode = modal === 'AEREO' ? form.aeroporto_destino_cotacao_bid_frete_internacional : form.destino_codigo_cotacao_bid_frete_internacional
-        const destinoName = modal === 'AEREO' ? form.aeroporto_destino_nome : (modal === 'RODOVIARIO' ? (form.estado_provincia_destino_cotacao_bid_frete_internacional || form.destino_pais_nome) : form.destino_nome_cotacao_bid_frete_internacional)
+        const destinoName = modalExigeAeroportoCotacao(modal)
+          ? form.aeroporto_destino_nome
+          : form.destino_nome_cotacao_bid_frete_internacional
 
         return (
           <div className="nc-step-content">

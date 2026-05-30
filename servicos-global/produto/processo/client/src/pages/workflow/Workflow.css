@@ -373,6 +373,9 @@
   color: var(--proc-text, var(--ws-text, #f1f5f9));
   letter-spacing: -0.02em;
   line-height: 1.1;
+  /* Mesma fonte mono dos cards de Estimativa de Custos — consistencia
+     visual entre os valores monetarios da tela. */
+  font-family: 'DM Mono', 'Plus Jakarta Sans', monospace;
 }
 
 .wf-insight-card-stats {

@@ -68,7 +68,7 @@
 }
 
 .dc-cockpit-hero {
-  margin-bottom: 1rem;
+  margin-bottom: var(--bid-frete-page-pt, 1.5rem);
 }
 
 .dc-cockpit-status-panel {
@@ -80,16 +80,6 @@
   box-shadow: var(--dc-card-shadow);
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-.dc-cockpit-status-panel::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--dc-cockpit-accent) 0%, #818cf8 55%, #a5b4fc 100%);
 }
 
 .dc-cockpit-status-head {
@@ -132,33 +122,99 @@
 }
 
 .dc-cockpit-insights-row {
-  margin-bottom: 1.15rem;
+  margin-bottom: var(--bid-frete-page-pt, 1.5rem);
   overflow: visible;
 }
 
 .dc-smart-insights {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bid-frete-page-pt, 1.5rem);
   overflow: visible;
+  --dc-smart-chart-h: 108px;
 }
 
-/* Painel Smart Insights — mesmo DNA dos cards dc-dados-card */
+/* Linha do título: cantos em L nas pontas + horizontal cortada pelo texto */
+.dc-smart-insights-titulo-linha {
+  --dc-smart-titulo-linha: var(--ws-accent-border, rgba(129, 140, 248, 0.15));
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+}
+
+/* └ esquerda — traço horizontal + vertical para baixo */
+.dc-smart-insights-titulo-linha::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: calc(50% - 0.5px);
+  box-sizing: border-box;
+  width: 0.625rem;
+  height: 0.5rem;
+  border-top: 1px solid var(--dc-smart-titulo-linha);
+  border-left: 1px solid var(--dc-smart-titulo-linha);
+  pointer-events: none;
+}
+
+/* ┘ direita — traço horizontal + vertical para baixo */
+.dc-smart-insights-titulo-linha::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: calc(50% - 0.5px);
+  box-sizing: border-box;
+  width: 0.625rem;
+  height: 0.5rem;
+  border-top: 1px solid var(--dc-smart-titulo-linha);
+  border-right: 1px solid var(--dc-smart-titulo-linha);
+  pointer-events: none;
+}
+
 .dc-smart-insights-titulo {
-  margin: 0 0 0.85rem;
-  font-size: 0.9375rem;
-  font-weight: 700;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  gap: 0.85rem;
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
   letter-spacing: 0.02em;
-  color: var(--text-primary, #f1f5f9);
+  color: var(--ws-muted, var(--text-secondary, #94a3b8));
+  white-space: nowrap;
+}
+
+.dc-smart-insights-titulo::before,
+.dc-smart-insights-titulo::after {
+  content: '';
+  flex: 1;
+  min-width: 0;
+  height: 1px;
+  background: var(--dc-smart-titulo-linha, var(--ws-accent-border, rgba(129, 140, 248, 0.15)));
+}
+
+body.light-theme .dc-smart-insights-titulo-linha {
+  --dc-smart-titulo-linha: var(--border-default, rgba(148, 163, 184, 0.35));
+}
+
+body.light-theme .dc-smart-insights-titulo {
+  color: var(--text-muted, #475569);
 }
 
 .dc-smart-insights-grid {
   display: grid;
-  grid-template-columns: 1.35fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.15rem;
   align-items: stretch;
   overflow: visible;
 }
 
 .dc-smart-insights-grid > .dc-smart-card {
-  height: 100%;
+  width: 100%;
+  min-width: 0;
+  height: auto;
 }
 
 @media (max-width: 1100px) {
@@ -169,8 +225,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 220px;
-  height: 100%;
+  min-height: 0;
+  height: auto;
   border-radius: 14px;
   border: 1px solid var(--dc-card-border);
   background: var(--dc-card-gradient);
@@ -186,16 +242,6 @@
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.06) inset,
     0 16px 40px rgba(0, 0, 0, 0.32);
-}
-
-.dc-smart-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  border-radius: 14px 14px 0 0;
 }
 
 .dc-smart-card--melhor {
@@ -217,27 +263,20 @@
     0 0 24px rgba(99, 102, 241, 0.16);
 }
 
-.dc-smart-card--melhor::after {
-  background: linear-gradient(90deg, #3b82f6 0%, #6366f1 50%, #818cf8 100%);
-}
-
-.dc-smart-card--termometro::after {
-  background: linear-gradient(90deg, #0ea5e9 0%, #38bdf8 50%, #7dd3fc 100%);
-}
-
-.dc-smart-card--resumo::after {
-  background: linear-gradient(90deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%);
-}
-
-.dc-smart-card-head {
+.dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  box-sizing: border-box;
+  height: 2.375rem;
+  min-height: 2.375rem;
   margin: 0;
-  padding: 1rem 1.2rem 0.75rem;
+  padding: 0 1rem;
+  flex-shrink: 0;
   font-size: 0.6875rem;
   font-weight: 700;
+  line-height: 1.2;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-muted, #64748b);
@@ -250,17 +289,31 @@
   font-weight: 800;
   border-bottom: 1px solid rgba(99, 102, 241, 0.15);
 }
-.dc-smart-card--termometro .dc-smart-card-head { color: #bae6fd; }
-.dc-smart-card--resumo .dc-smart-card-head { color: #e0e7ff; }
+
+.dc-smart-card--termometro .dc-smart-card-head {
+  color: #bae6fd;
+}
+
+.dc-smart-card--resumo .dc-smart-card-head {
+  color: #e0e7ff;
+}
+
+/* Mesma reserva à direita do título (troféu / pill Preview) — alinha a linha do cabeçalho */
+.dc-smart-card--resumo .dc-smart-card-head::after {
+  content: '';
+  flex-shrink: 0;
+  width: 3.25rem;
+  height: 1.125rem;
+}
 
 .dc-smart-card-body {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: stretch;
-  gap: 0.65rem;
-  flex: 1;
-  padding: 0.85rem 1.2rem 1.1rem;
+  gap: 0.45rem;
+  flex: 0 1 auto;
+  padding: 0.55rem 1rem 0.65rem;
 }
 
 .dc-smart-card--melhor .dc-smart-card-body {
@@ -271,7 +324,7 @@
 
 .dc-smart-valor-hero {
   margin: 0;
-  font-size: 1.875rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-primary, #f1f5f9);
   letter-spacing: -0.02em;
@@ -284,7 +337,7 @@
   background: linear-gradient(135deg, #ffffff 40%, #818cf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-size: 2.125rem;
+  font-size: 1.625rem;
   font-weight: 800;
   filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.2));
 }
@@ -300,15 +353,15 @@
 .dc-smart-card--melhor .dc-smart-metricas-row {
   position: relative;
   z-index: 2;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.15rem;
 }
 
 .dc-smart-metrica-col {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.15rem;
   min-width: 0;
-  padding: 0.5rem 0.45rem 0.4rem;
+  padding: 0.35rem 0.4rem 0.3rem;
   border-radius: var(--radius-md, 8px);
   background: rgba(15, 23, 42, 0.35);
   border: 1px solid rgba(148, 163, 184, 0.08);
@@ -318,7 +371,7 @@
   background: rgba(15, 23, 42, 0.45);
   border: 1px solid rgba(99, 102, 241, 0.08);
   border-radius: 10px;
-  padding: 0.6rem 0.5rem 0.5rem;
+  padding: 0.4rem 0.4rem 0.35rem;
   overflow: visible;
   transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -361,8 +414,8 @@
 }
 
 .dc-smart-metrica-spark {
-  margin-top: 0.1rem;
-  height: 36px;
+  margin-top: 0.05rem;
+  height: 28px;
   display: flex;
   align-items: flex-end;
   overflow: visible;
@@ -446,8 +499,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin: 0 1.2rem 1rem;
-  padding: 0.65rem 0.75rem;
+  margin: 0 1rem 0.65rem;
+  padding: 0.45rem 0.6rem;
   border-radius: var(--radius-md, 8px);
   background: var(--bg-elevated, #475569);
   border: 1px solid rgba(148, 163, 184, 0.1);
@@ -456,7 +509,7 @@
 .dc-smart-card--melhor .dc-smart-fornecedor-foot {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.07) 0%, rgba(15, 23, 42, 0.45) 100%);
   border: 1px solid rgba(99, 102, 241, 0.16);
-  margin: auto 1.2rem 1.1rem;
+  margin: 0 1rem 0.65rem;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.18);
@@ -470,8 +523,8 @@
 }
 
 .dc-smart-fornecedor-avatar {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: var(--radius-md, 8px);
   display: flex;
   align-items: center;
@@ -532,11 +585,14 @@
 
 .dc-smart-termometro-contexto {
   display: block;
-  margin-top: 0.2rem;
-  font-size: 0.625rem;
+  margin-top: 0.1rem;
+  font-size: 0.5625rem;
   font-weight: 600;
   color: var(--text-muted, #64748b);
-  line-height: 1.35;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dc-smart-savings-pill {
@@ -558,20 +614,25 @@
 .dc-smart-card-body--termometro {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 0 1 auto;
   min-height: 0;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .dc-smart-card-body--termometro .dc-term-chart-wrap {
   flex: 0 0 auto;
-  height: 220px;
-  min-height: 220px;
+  width: 100%;
+  height: var(--dc-smart-chart-h);
+  min-height: var(--dc-smart-chart-h);
+  margin-inline: auto;
 }
 
 .dc-smart-card-body--termometro .dc-term-chart-wrap .dc-smart-termometro-chart {
-  height: 220px;
-  min-height: 220px;
+  display: block;
+  width: 100%;
+  height: var(--dc-smart-chart-h);
+  min-height: var(--dc-smart-chart-h);
+  margin-inline: auto;
 }
 
 .dc-smart-demo-pill {
@@ -607,7 +668,7 @@
 }
 
 .dc-term-chart-wrap--vazio {
-  min-height: 120px;
+  min-height: var(--dc-smart-chart-h);
 }
 
 .dc-term-chart-wrap .dc-smart-termometro-chart {
@@ -661,9 +722,9 @@
 }
 
 .dc-smart-card-body--resumo {
-  flex: 1;
+  flex: 0 1 auto;
   min-height: 0;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .dc-smart-card--resumo .dc-smart-resumo-stats {
@@ -687,7 +748,7 @@
 }
 
 .dc-smart-resumo-stat-val {
-  font-size: 1.75rem;
+  font-size: 1.375rem;
   font-weight: 700;
   color: var(--text-primary, #f1f5f9);
   line-height: 1;
@@ -707,13 +768,18 @@
 .dc-smart-resumo-divider {
   width: 1px;
   align-self: stretch;
-  min-height: 40px;
+  min-height: 28px;
   background: rgba(148, 163, 184, 0.14);
 }
 
+/* AI Trust Badge — desce 36px para alinhar com a “linha” dos cards vizinhos */
+.dc-smart-card--resumo .dc-smart-ia-panel {
+  margin-top: 36px;
+}
+
 .dc-smart-ia-panel {
-  margin-top: auto;
-  padding: 0.75rem 0.85rem;
+  margin-top: 0;
+  padding: 0.4rem 0.55rem;
   border-radius: var(--radius-md, 8px);
   background: rgba(15, 23, 42, 0.4);
   border: 1px solid rgba(148, 163, 184, 0.1);
@@ -723,7 +789,7 @@
 
 .dc-smart-ia-titulo {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   font-size: 0.5625rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -736,6 +802,7 @@
   grid-template-columns: 1fr auto auto;
   align-items: center;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .dc-smart-ia-confianca {
@@ -743,10 +810,11 @@
   flex-direction: column;
   gap: 0.25rem;
   min-width: 0;
+  justify-self: start;
 }
 
 .dc-smart-ia-pct-grande {
-  font-size: 1.375rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: var(--success, #22c55e);
   line-height: 1;
@@ -762,7 +830,9 @@
 }
 
 .dc-smart-ia-bar {
-  height: 6px;
+  width: 100%;
+  max-width: 7.5rem;
+  height: 5px;
   border-radius: 999px;
   background: rgba(71, 85, 105, 0.45);
   overflow: hidden;
@@ -777,12 +847,15 @@
 .dc-smart-ia-mascote {
   color: var(--text-secondary, #94a3b8);
   opacity: 0.9;
+  flex-shrink: 0;
+  justify-self: center;
 }
 
 .dc-smart-anel {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
+  justify-self: end;
 }
 
 .dc-smart-anel--verde .dc-smart-anel-arco { stroke: var(--success, #22c55e); }
@@ -811,7 +884,7 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  margin: 0.65rem 0 0;
+  margin: 0;
   font-size: 0.75rem;
   color: var(--text-muted, #64748b);
 }

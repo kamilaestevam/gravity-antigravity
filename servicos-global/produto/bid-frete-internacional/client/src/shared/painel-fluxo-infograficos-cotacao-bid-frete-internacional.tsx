@@ -330,7 +330,7 @@ function CardMelhorPropostaSmart({
     <article className="dc-smart-card dc-smart-card--melhor">
       <header className="dc-smart-card-head">
         <span>{t('bidfrete.detalhe_cotacao.cockpit_melhor_proposta', 'Melhor proposta')}</span>
-        <Trophy weight="duotone" size={22} className="dc-smart-trophy" aria-hidden />
+        <Trophy weight="duotone" size={18} className="dc-smart-trophy" aria-hidden />
       </header>
       <div className="dc-smart-card-body">
         <p className="dc-smart-valor-hero">{moeda(resumo.valorTotal, resumo.moeda)}</p>
@@ -489,7 +489,7 @@ function CardResumoCompeticaoSmart({
               <div className="dc-smart-ia-bar-fill" style={{ width: `${smart.pctConfiabilidadeIa}%` }} />
             </div>
           </div>
-          <Robot weight="duotone" size={36} className="dc-smart-ia-mascote" aria-hidden />
+          <Robot weight="duotone" size={28} className="dc-smart-ia-mascote" aria-hidden />
           <AnelProgressoInsight pct={smart.pctCoberturaRespostas} variante="ambar" />
         </div>
       </div>
@@ -519,9 +519,11 @@ export function InsightsGridFluxoCotacao({
 
   return (
     <div className="dc-smart-insights">
-      <h2 className="dc-smart-insights-titulo">
-        {t('bidfrete.detalhe_cotacao.cockpit_painel_titulo', 'Painel de Insights Inteligente')}
-      </h2>
+      <div className="dc-smart-insights-titulo-linha">
+        <h2 className="dc-smart-insights-titulo">
+          {t('bidfrete.detalhe_cotacao.cockpit_painel_titulo', 'Painel de Insights Inteligente')}
+        </h2>
+      </div>
       <div className="dc-smart-insights-grid">
         <CardMelhorPropostaSmart info={info} smart={smart} t={t} />
         <CardTermometroHistoricoSmart smart={smart} t={t} />

@@ -16,7 +16,7 @@ function formatarValorTermometro(valor: number, moeda: string): string {
 }
 
 const SPARK_VIEW_W = 72
-const SPARK_VIEW_H = 36
+const SPARK_VIEW_H = 28
 const TOOLTIP_LARGURA_ESTIMADA = 168
 const TOOLTIP_ALTURA_ESTIMADA = 92
 
@@ -303,7 +303,7 @@ export function SparkAreaMini({
   const uid = useId().replace(/:/g, '')
   if (pontos.length < 2) return null
   const W = 72
-  const H = 36
+  const H = 28
   const max = Math.max(...pontos, 1)
   const min = Math.min(...pontos)
   const span = max - min || 1
@@ -333,7 +333,7 @@ export function SparkAreaMini({
 }
 
 const TERMOMETRO_VIEW = { w: 400, h: 200 }
-const TERMOMETRO_PAD = { top: 16, right: 12, bottom: 28, left: 44 }
+const TERMOMETRO_PAD = { top: 14, right: 20, bottom: 24, left: 20 }
 
 export function GraficoAreaTermometro({
   serie,

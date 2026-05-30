@@ -484,6 +484,20 @@ body,
   border-right: 1px solid var(--bg-elevated);
 }
 
+/* Centraliza o hexagono do LogoGlobal dentro do trilho recolhido — a regra
+   .mlg-logo-area--collapsed do menu-lateral.css ja faz justify-content:center,
+   mas alguns containers internos do LogoGlobal nao zeram margens. Forca aqui. */
+.layout--processo .mlg-logo-area,
+.layout--processo .mlg-logo-area--collapsed,
+.layout--processo .mlg-logo-area .mlg-logo-icon,
+.layout--processo .mlg-logo-area > * {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* Na rota de processo: esconde so o lado ESQUERDO do shell-header
    (Gravity logo + page label) — esse e que sobrepunha o titulo do
    CabecalhoGlobal. O lado DIREITO (Hub, Core, busca, info, tema, BR,

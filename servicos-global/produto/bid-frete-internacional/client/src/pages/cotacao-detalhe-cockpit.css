@@ -25,14 +25,134 @@
   box-sizing: border-box;
 }
 
+/* 3 blocos verticais: hero fixo · insights flex · rodapé ancorado (padrão lista BID) */
+.bid-frete-page-shell.dc-cockpit.pg-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.dc-cockpit.pg-container .pg-conteudo-area {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  gap: 0;
+  padding-bottom: 0;
+}
+
 .dc-cockpit-hero,
 .dc-cockpit-insights-row,
+.dc-cockpit-rodape,
 .dc-cockpit-tabs,
 .dc-cockpit-workspace,
 .dc-cockpit-main {
   width: 100%;
   max-width: none;
   box-sizing: border-box;
+}
+
+.dc-cockpit-hero {
+  flex-shrink: 0;
+}
+
+.dc-cockpit-insights-row {
+  flex: 1 1 0;
+  min-height: 0;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dc-cockpit-insights-row .dc-smart-insights {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  gap: 0.85rem;
+}
+
+.dc-cockpit-insights-row .dc-smart-insights-titulo-linha {
+  flex-shrink: 0;
+}
+
+.dc-cockpit-insights-row .dc-smart-insights-grid {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.dc-cockpit-insights-row .dc-smart-insights-grid > .dc-smart-card {
+  height: 100%;
+}
+
+.dc-cockpit-insights-row .dc-smart-card-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.dc-cockpit-insights-row .dc-smart-card-body--termometro {
+  flex: 1;
+}
+
+.dc-cockpit-insights-row .dc-smart-card-body--termometro .dc-term-chart-wrap {
+  flex: 1;
+  height: auto;
+  min-height: var(--dc-smart-chart-h);
+}
+
+.dc-cockpit-insights-row .dc-smart-card-body--termometro .dc-term-chart-wrap .dc-smart-termometro-chart {
+  height: 100%;
+  min-height: var(--dc-smart-chart-h);
+}
+
+.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-metricas-row {
+  flex: 1;
+  min-height: 0;
+}
+
+.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-metrica-col {
+  flex: 1;
+  min-height: var(--dc-smart-metrica-col-min-h);
+}
+
+.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-metrica-spark {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: var(--dc-smart-metrica-spark-h);
+}
+
+.dc-cockpit-insights-row .dc-smart-card--melhor .dc-spark-bar-wrap {
+  flex: 1;
+  min-height: var(--dc-smart-metrica-spark-h);
+}
+
+.dc-cockpit-insights-row .dc-smart-card-body--resumo {
+  flex: 1;
+}
+
+.dc-cockpit-rodape {
+  flex-shrink: 0;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-top: var(--bid-frete-page-pt, 1.5rem);
+}
+
+.dc-cockpit-rodape .dc-cockpit-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: min(50vh, 28rem);
+  overflow-y: auto;
+}
+
+/* Uma coluna de scroll: preenche a área abaixo do MenuTopoGlobal */
+.tpg-main:has(> .dc-cockpit.pg-container) {
+  overflow: hidden;
 }
 
 .dc-cockpit-quick-actions {
@@ -398,8 +518,7 @@
 }
 
 .dc-cockpit-insights-row {
-  margin-bottom: var(--bid-frete-page-pt, 1.5rem);
-  overflow: visible;
+  overflow: hidden;
 }
 
 .dc-smart-insights {
@@ -407,7 +526,9 @@
   flex-direction: column;
   gap: var(--bid-frete-page-pt, 1.5rem);
   overflow: visible;
-  --dc-smart-chart-h: 108px;
+  --dc-smart-chart-h: 9.5rem;
+  --dc-smart-metrica-spark-h: 5.5rem;
+  --dc-smart-metrica-col-min-h: 11.5rem;
 }
 
 /* Linha do título: cantos em L nas pontas + horizontal cortada pelo texto */
@@ -639,8 +760,8 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 }
 
 .dc-smart-card--melhor {
-  --dc-smart-metrica-spark-h: 3.5rem;
-  --dc-smart-metrica-col-min-h: 8.75rem;
+  --dc-smart-metrica-spark-h: 5.5rem;
+  --dc-smart-metrica-col-min-h: 11.5rem;
 }
 
 .dc-smart-card--melhor .dc-smart-metrica-col {
@@ -652,6 +773,11 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   padding: 0.8rem 0.45rem 0.7rem;
   overflow: visible;
   transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dc-smart-card--melhor .dc-smart-metrica-col:has(.dc-smart-metrica-spark) {
+  display: flex;
+  flex-direction: column;
 }
 
 .dc-smart-card--melhor .dc-smart-metrica-col:hover {
@@ -700,10 +826,11 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 }
 
 .dc-smart-card--melhor .dc-smart-metrica-spark {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: var(--dc-smart-metrica-spark-h);
-  height: var(--dc-smart-metrica-spark-h);
+  height: auto;
   margin-top: 0.15rem;
+  align-items: stretch;
 }
 
 .dc-spark-bar-wrap {
@@ -905,9 +1032,9 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 }
 
 .dc-smart-card-body--termometro .dc-term-chart-wrap {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   width: 100%;
-  height: var(--dc-smart-chart-h);
+  height: auto;
   min-height: var(--dc-smart-chart-h);
   margin-inline: auto;
 }
@@ -915,7 +1042,7 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 .dc-smart-card-body--termometro .dc-term-chart-wrap .dc-smart-termometro-chart {
   display: block;
   width: 100%;
-  height: var(--dc-smart-chart-h);
+  height: 100%;
   min-height: var(--dc-smart-chart-h);
   margin-inline: auto;
 }

@@ -535,6 +535,7 @@ export default function DetalheCotacao() {
         />
       </section>
 
+      <div className="dc-cockpit-rodape">
       <nav className="dc-cockpit-tabs" aria-label={t('bidfrete.detalhe_cotacao.cockpit_abas', 'Abas')}>
         <button
           type="button"
@@ -724,6 +725,7 @@ export default function DetalheCotacao() {
       )}
       </>
       )}
+      </div>
       </div>
 
       <style>{`

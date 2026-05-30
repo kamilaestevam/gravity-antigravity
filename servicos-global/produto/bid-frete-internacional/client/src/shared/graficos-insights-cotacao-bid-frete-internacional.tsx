@@ -15,8 +15,8 @@ function formatarValorTermometro(valor: number, moeda: string): string {
   }).format(valor)
 }
 
-const SPARK_VIEW_W = 72
-const SPARK_VIEW_H = 28
+const SPARK_VIEW_W = 88
+const SPARK_VIEW_H = 52
 const TOOLTIP_LARGURA_ESTIMADA = 168
 const TOOLTIP_ALTURA_ESTIMADA = 92
 
@@ -70,26 +70,26 @@ export interface SparkBarrasComparativoProps {
 function calcularAlturasRelativas(barras: BarraComparativoInsight[]): number[] {
   if (barras.length === 0) return []
   if (barras.length === 1) {
-    return [barras[0].destaque ? 0.72 : 0.5]
+    return [barras[0].destaque ? 0.9 : 0.72]
   }
 
   const valores = barras.map((b) => b.valor)
   const max = Math.max(...valores, 1)
   const min = Math.min(...valores)
   if (max === min) {
-    return barras.map((b) => (b.destaque ? 0.82 : 0.48))
+    return barras.map((b) => (b.destaque ? 0.92 : 0.65))
   }
 
   const span = max - min
-  return barras.map((b) => 0.28 + ((b.valor - min) / span) * 0.62)
+  return barras.map((b) => 0.4 + ((b.valor - min) / span) * 0.52)
 }
 
 function calcularLayoutBarras(quantidade: number): LayoutSparkBarras {
   const n = Math.max(quantidade, 1)
-  const gap = n <= 2 ? 4 : n <= 4 ? 3 : 2
+  const gap = n <= 2 ? 6 : n <= 4 ? 4 : 3
   const barW = Math.min(
-    n <= 4 ? 14 : 9,
-    Math.max(5, (SPARK_VIEW_W - gap * (n - 1)) / n),
+    n <= 2 ? 22 : n <= 4 ? 16 : 10,
+    Math.max(6, (SPARK_VIEW_W - gap * (n - 1)) / n),
   )
   const totalW = n * barW + (n - 1) * gap
   const startX = Math.max(0, (SPARK_VIEW_W - totalW) / 2)
@@ -266,7 +266,7 @@ export function SparkBarrasComparativo({
                   y={y}
                   width={layout.barW}
                   height={alturaPx}
-                  rx={2}
+                  rx={3}
                   fill={fillUrl}
                   opacity={barra.destaque || emHover ? 1 : 0.55}
                   stroke={emHover ? '#a5b4fc' : barra.destaque ? '#818cf8' : 'transparent'}

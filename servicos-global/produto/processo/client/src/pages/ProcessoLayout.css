@@ -458,7 +458,9 @@ button, input, select, textarea { font-family: inherit; }
 .p2-content {
   flex: 1;
   overflow-y: auto;
-  padding: 0;
+  /* Padding equivalente ao .shell-main canonico (24px topo, 2rem laterais
+     e base). Da o respiro correto ao CabecalhoGlobal de cada pagina. */
+  padding: 24px 2rem 2rem;
 }
 
 /* ── Skeletons ────────────────────────────────────────────────────────────── */

@@ -220,20 +220,6 @@ export default function Workflow() {
           icone={<FlowArrow weight="duotone" size={22} />}
           titulo={`Workflow — ${processo.numero}`}
           subtitulo={`${processo.importador_nome} | ${processo.exportador_nome}`}
-          acoes={
-            <TooltipGlobal
-              titulo={t('processo.workflow.atualizar', 'Atualizar dados')}
-              descricao={t('processo.workflow.atualizar_desc', 'Recarregar informações do workflow')}
-            >
-              <BotaoGlobal
-                variante="secundario"
-                tamanho="pequeno"
-                onClick={refetch}
-              >
-                {t('comum.atualizar', 'Atualizar')}
-              </BotaoGlobal>
-            </TooltipGlobal>
-          }
         />
       }
     >

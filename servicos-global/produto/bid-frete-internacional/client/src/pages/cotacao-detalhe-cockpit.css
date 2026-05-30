@@ -1567,6 +1567,18 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   overflow: hidden;
 }
 
+.dc-cockpit-combat::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 14px 14px 0 0;
+  background: linear-gradient(90deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%);
+  pointer-events: none;
+}
+
 .dc-cockpit-combat-scroll {
   flex: 1;
   min-height: 0;

@@ -481,11 +481,12 @@ body,
   border-right: 1px solid var(--bg-elevated);
 }
 
-/* Esconde o shell-header INTEIRO (esquerda: Gravity+label / direita: Hub,
-   notificacoes, user menu) na tela de processo — o titulo da pagina ja vem
-   do CabecalhoGlobal de cada rota e o header global sobrepoe esse titulo.
-   Acoes do header global (Hub, notif) ficam acessiveis pelo trilho lateral. */
-.layout--processo .shell-header {
+/* Na rota de processo: esconde so o lado ESQUERDO do shell-header
+   (Gravity logo + page label) — esse e que sobrepunha o titulo do
+   CabecalhoGlobal. O lado DIREITO (Hub, Core, busca, info, tema, BR,
+   settings, avatar) permanece visivel no canto superior direito, igual
+   ao modelo do BID Frete / Pedido. */
+.layout--processo .shell-header__left {
   display: none !important;
 }
 

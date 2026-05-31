@@ -18,26 +18,16 @@ import {
   ArrowsLeftRight, Warehouse, ShieldCheck, TrafficSign,
   CurrencyDollar, Boat, AirplaneTakeoff, Package, ListChecks,
   IdentificationBadge, ChatText, SidebarSimple, Warning,
-  CaretDown, MagnifyingGlass, X, Cube, Resize, Barcode,
-  Stack, CubeFocus, Lock, Sparkle, Gear,
+  CaretDown, MagnifyingGlass, X,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { SelectGlobal } from '@nucleo/campo-select-global'
 import './DadosTecnicos.css'
 
 // ── Configuracao de campos ──────────────────────────────────────────────────
 
 type CampoTipo = 'texto' | 'select' | 'numero'
-
-/**
- * Motivo de campo nao editavel:
- * - calculado: derivado de formula/soma (ex: Total FOB dos pedidos)
- * - bloqueado: trava por status do processo (ex: Canal apos parametrizacao RF)
- * - sistema: gerado automaticamente (ex: Numero do Processo, timestamps)
- */
-type ReadonlyMotivo = 'calculado' | 'bloqueado' | 'sistema'
 
 interface CampoConfig {
   key: string
@@ -47,10 +37,6 @@ interface CampoConfig {
   obrigatorio?: boolean
   opcoes?: { valor: string; label: string }[]
   placeholder?: string
-  /** Marca o campo como nao editavel + define o motivo (ícone + tooltip). */
-  readonly?: ReadonlyMotivo
-  /** Texto custom do tooltip readonly. Default usa o texto padrao do motivo. */
-  motivoTexto?: string
 }
 
 interface SecaoConfig {
@@ -66,12 +52,6 @@ const SECOES: SecaoConfig[] = [
     titulo: 'Geral',
     icone: <Buildings weight="duotone" size={18} />,
     campos: [
-      // Sistema (readonly) — gerados na criacao do processo
-      { key: 'numero_processo',    label: 'Número do Processo',    tipo: 'texto', icone: <Hash />,
-        readonly: 'sistema', motivoTexto: 'Gerado automaticamente na criação do processo' },
-      { key: 'data_abertura',      label: 'Data de Abertura',      tipo: 'texto', icone: <Certificate />,
-        readonly: 'sistema', motivoTexto: 'Timestamp de criação do processo' },
-      // Editaveis
       { key: 'ref_cliente',        label: 'Referência do Cliente', tipo: 'texto', obrigatorio: true, placeholder: 'Ex: 1995/25 E 2020/25', icone: <IdentificationCard /> },
       { key: 'outra_ref',          label: 'Outra Referência',      tipo: 'texto', icone: <Hash /> },
       { key: 'responsavel',        label: 'Responsável',           tipo: 'texto', obrigatorio: true, icone: <User /> },
@@ -79,12 +59,7 @@ const SECOES: SecaoConfig[] = [
       { key: 'auxiliar',           label: 'Auxiliar',              tipo: 'texto', icone: <UserCircle /> },
       { key: 'numero_booking',     label: 'Número do Booking',     tipo: 'texto', placeholder: 'BKG-…', icone: <Hash /> },
       { key: 'despachante',        label: 'Despachante',           tipo: 'texto', obrigatorio: true, icone: <Briefcase /> },
-      // Bloqueado (readonly) — apos emissao nao pode ser alterado
-      { key: 'certificado',        label: 'Certificado',           tipo: 'texto', icone: <Certificate />,
-        readonly: 'bloqueado', motivoTexto: 'Bloqueado após emissão do certificado' },
-      // Calculado (readonly) — soma dos pedidos vinculados
-      { key: 'total_fob',          label: 'Total FOB',             tipo: 'texto', icone: <CurrencyDollar />,
-        readonly: 'calculado', motivoTexto: 'Soma do valor FOB de todos os pedidos vinculados ao processo' },
+      { key: 'certificado',        label: 'Certificado',           tipo: 'texto', icone: <Certificate /> },
     ],
   },
   {
@@ -112,7 +87,6 @@ const SECOES: SecaoConfig[] = [
       { key: 'regime_tributario',   label: 'Regime Tributário', tipo: 'select', icone: <ShieldCheck />,
         opcoes: [{ valor: 'comum', label: 'Comum' }, { valor: 'drawback', label: 'Drawback' }, { valor: 'recof', label: 'RECOF' }] },
       { key: 'canal',               label: 'Canal', tipo: 'select', icone: <TrafficSign />,
-        readonly: 'bloqueado', motivoTexto: 'Definido pela Receita Federal após parametrização da DI',
         opcoes: [{ valor: 'verde', label: 'Verde' }, { valor: 'amarelo', label: 'Amarelo' }, { valor: 'vermelho', label: 'Vermelho' }, { valor: 'cinza', label: 'Cinza' }] },
       { key: 'incoterm',            label: 'Incoterm', tipo: 'select', obrigatorio: true, icone: <Globe />,
         opcoes: ['EXW','FOB','CFR','CIF','CIP','DDP','DAP'].map(v => ({ valor: v, label: v })) },
@@ -147,46 +121,11 @@ const SECOES: SecaoConfig[] = [
       { key: 'status_observacao', label: 'Status Observação',         tipo: 'texto', icone: <ChatText /> },
     ],
   },
-  {
-    // Containers: tipo/tamanho herdam dos enums do Cadastros/Container;
-    // numero, tara, pesos e cubagem sao operacionais do processo
-    // (variam por embarque, nao moram no catalogo).
-    id: 'containers',
-    titulo: 'Containers',
-    icone: <Cube weight="duotone" size={18} />,
-    campos: [
-      { key: 'numero_container',       label: 'Número do Container', tipo: 'texto',  obrigatorio: true, placeholder: 'Ex: MSKU1234567', icone: <Barcode /> },
-      { key: 'tipo_container',         label: 'Tipo de Container',   tipo: 'select', obrigatorio: true, icone: <Cube />,
-        opcoes: [
-          { valor: 'DRY',         label: 'Dry (carga seca)' },
-          { valor: 'REEFER',      label: 'Reefer (refrigerado)' },
-          { valor: 'OPEN_TOP',    label: 'Open Top' },
-          { valor: 'FLAT_RACK',   label: 'Flat Rack' },
-          { valor: 'TANK',        label: 'Tank (tanque)' },
-          { valor: 'BULK',        label: 'Bulk (granel)' },
-          { valor: 'PLATAFORMA',  label: 'Plataforma' },
-        ] },
-      { key: 'tamanho_container',      label: 'Tamanho do Container', tipo: 'select', obrigatorio: true, icone: <Resize />,
-        opcoes: [
-          { valor: "20'",    label: "20'" },
-          { valor: "40'",    label: "40'" },
-          { valor: "40'HC",  label: "40' High Cube" },
-          { valor: "45'",    label: "45'" },
-        ] },
-      { key: 'tara_container',         label: 'Tara do Container (kg)',          tipo: 'numero', placeholder: 'Ex: 2300',  icone: <Scales /> },
-      { key: 'peso_liquido_container', label: 'Peso Líquido do Container (kg)',  tipo: 'numero', placeholder: 'Ex: 20000', icone: <Package /> },
-      { key: 'peso_bruto_container',   label: 'Peso Bruto do Container (kg)',    tipo: 'numero', placeholder: 'Ex: 22300', icone: <Stack /> },
-      { key: 'cubagem_container',      label: 'Cubagem do Container (m³)',       tipo: 'numero', placeholder: 'Ex: 33.2',  icone: <CubeFocus /> },
-    ],
-  },
 ]
 
 // ── Mock de valores iniciais ────────────────────────────────────────────────
 
 const VALORES_INICIAIS: Record<string, string> = {
-  numero_processo: 'IMP-2026/0150',
-  data_abertura: '10/01/2026',
-  total_fob: 'US$ 108.050,00',
   ref_cliente: '1995/25 E 2020/25 - S25146005S',
   responsavel: 'Daniel Martins',
   despachante: 'Asia Shipping Transportes Internacionais Ltda.',
@@ -248,41 +187,6 @@ function CampoLinha({ campo, valor, onSalvar }: CampoLinhaProps) {
     : campo.obrigatorio ? 'vazio-obrig'
     : 'vazio-opc'
 
-  // ── Caso readonly: mesmo layout/cor dos editaveis, so muda o
-  //    icone direito (Lock/Sparkle/Gear) + tooltip ancorado no icone
-  //    + sem hover lift + cursor default. Visual ortogonal ao status. ───
-  if (campo.readonly) {
-    const READONLY_CONFIG: Record<ReadonlyMotivo, { icone: React.ReactNode; texto: string }> = {
-      calculado:  { icone: <Sparkle weight="fill"     size={14} />, texto: 'Calculado automaticamente' },
-      bloqueado:  { icone: <Lock    weight="duotone"  size={14} />, texto: 'Bloqueado por status do processo' },
-      sistema:    { icone: <Gear    weight="duotone"  size={14} />, texto: 'Gerado pelo sistema' },
-    }
-    const cfg = READONLY_CONFIG[campo.readonly]
-    const tooltipDescricao = campo.motivoTexto ?? cfg.texto
-
-    return (
-      <div className={`dt-row dt-row--${status} dt-row--readonly dt-row--readonly-${campo.readonly}`}>
-        <div className="dt-row-status" aria-hidden="true" />
-        <div className="dt-row-head">
-          {campo.icone && <span className="dt-row-icon">{campo.icone}</span>}
-          <span className="dt-row-label">{campo.label}</span>
-          {/* Icone do motivo logo apos o label (mesmo lugar do asterisco
-              de obrigatorio). TooltipGlobal ancorado SOMENTE no icone
-              — anchor pequeno = posicao correta. */}
-          <TooltipGlobal titulo={campo.label} descricao={tooltipDescricao}>
-            <span className="dt-row-readonly-icon" aria-hidden="true">{cfg.icone}</span>
-          </TooltipGlobal>
-        </div>
-        <div className="dt-row-value dt-row-value--readonly">
-          {vazio
-            ? <span className="dt-row-empty">—</span>
-            : <span className="dt-row-text">{valorDisplay}</span>
-          }
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className={`dt-row dt-row--${status}`}>
       <div className="dt-row-status" aria-hidden="true" />
@@ -296,20 +200,18 @@ function CampoLinha({ campo, valor, onSalvar }: CampoLinhaProps) {
       {editando ? (
         <div className="dt-row-edit">
           {campo.tipo === 'select' ? (
-            // SelectGlobal — padrao do sistema (com busca, icone, chevron)
-            <SelectGlobal
-              opcoes={campo.opcoes?.map(o => ({ valor: o.valor, rotulo: o.label })) ?? []}
-              valor={valorLocal}
-              aoMudarValor={(v) => {
-                const novo = v == null ? '' : String(v)
-                setValorLocal(novo)
-                if (novo !== valor) onSalvar(novo)
-                setEditando(false)
-              }}
-              buscavel
-              placeholder="Selecione…"
-              iconeEsquerda={campo.icone}
-            />
+            <select
+              ref={inputRef as React.RefObject<HTMLSelectElement>}
+              value={valorLocal}
+              onChange={e => setValorLocal(e.target.value)}
+              onBlur={salvar}
+              onKeyDown={e => { if (e.key === 'Enter') salvar(); if (e.key === 'Escape') cancelar() }}
+            >
+              <option value="">—</option>
+              {campo.opcoes?.map(op => (
+                <option key={op.valor} value={op.valor}>{op.label}</option>
+              ))}
+            </select>
           ) : (
             <input
               ref={inputRef as React.RefObject<HTMLInputElement>}
@@ -346,8 +248,7 @@ export default function DadosTecnicos() {
   const [valores, setValores] = useState<Record<string, string>>(VALORES_INICIAIS)
   const [secaoAtiva, setSecaoAtiva] = useState(SECOES[0].id)
   // TOC default contraida. (TODO persistir preferencia do usuario depois)
-  // (TOC vertical/colapsavel foi substituida por header horizontal —
-  //  estado tocColapsada removido pra evitar codigo orfao.)
+  const [tocColapsada, setTocColapsada] = useState(true)
   // Modo do card de stats: total ou so obrigatorios
   const [modoStats, setModoStats] = useState<'total' | 'obrig'>('total')
   // Secoes colapsadas — default TODAS COLAPSADAS (usuario expande as
@@ -490,79 +391,204 @@ export default function DadosTecnicos() {
       cabecalho={
         <CabecalhoGlobal
           icone={<GearSix weight="duotone" size={22} />}
-          titulo="Dados do Processo"
+          titulo="Dados Técnicos"
           subtitulo="Informações operacionais e documentais do processo"
         />
       }
     >
-      <div className="dt-layout">
-        {/* ── Conteudo: secoes empilhadas em largura total ──────────────── */}
-        <main className="dt-main">
-          {/* Toolbar: donut stats (esq) + busca (esq) + Recolher/Expandir (dir) */}
-          <div className="dt-main-toolbar">
-            {(() => {
-              const obrigPreench = stats.obrigTotal - stats.obrigPend
-              const pctObrig = stats.obrigTotal > 0
-                ? Math.round((obrigPreench / stats.obrigTotal) * 100)
-                : 100
-              const pctAtual = modoStats === 'total' ? stats.pct : pctObrig
-              const corDonut =
-                pctAtual === 100 ? '#34d399'
-                : modoStats === 'obrig' ? '#fbbf24'
-                : '#a78bfa'
-              const numeradorAtual = modoStats === 'total' ? stats.preench : obrigPreench
-              const denominadorAtual = modoStats === 'total' ? stats.total : stats.obrigTotal
-              return (
-                <button
-                  type="button"
-                  className="dt-header-stats"
-                  onClick={() => setModoStats(modoStats === 'total' ? 'obrig' : 'total')}
-                  title={`Clique para alternar — atualmente vendo ${modoStats === 'total' ? 'totais' : 'só obrigatórios'}`}
-                >
-                  <div
-                    className="dt-stats-donut"
-                    style={{
-                      background: `conic-gradient(${corDonut} 0% ${pctAtual}%, rgba(148,163,184,0.18) ${pctAtual}% 100%)`,
-                    }}
+      <div className={`dt-layout ${tocColapsada ? 'dt-layout--toc-colapsada' : ''}`}>
+        {/* ── Sidebar: TOC + stats agrupados, sticky ─────────────────────── */}
+        <div className="dt-sidebar">
+        {/* ── TOC lateral ───────────────────────────────────────────────── */}
+        <aside className={`dt-toc ${tocColapsada ? 'dt-toc--colapsada' : ''}`} aria-label="Navegação entre seções">
+          {/* Topo do TOC: busca + toggle (busca esconde quando colapsada) */}
+          <div className="dt-toc-topo">
+            {!tocColapsada && (
+              <div className="dt-toc-busca">
+                <MagnifyingGlass weight="duotone" size={14} className="dt-toc-busca-icon" />
+                <input
+                  type="text"
+                  className="dt-toc-busca-input"
+                  placeholder="Buscar campo…"
+                  value={busca}
+                  onChange={e => setBusca(e.target.value)}
+                  aria-label="Buscar campo por nome ou conteúdo"
+                />
+                {busca && (
+                  <button
+                    type="button"
+                    className="dt-toc-busca-limpar"
+                    onClick={() => setBusca('')}
+                    title="Limpar busca"
+                    aria-label="Limpar busca"
                   >
-                    <div className="dt-stats-donut-inner">
-                      <span className="dt-stats-donut-pct">{pctAtual}%</span>
-                    </div>
-                  </div>
-                  <div className="dt-header-stats-texto">
-                    <strong>{numeradorAtual}/{denominadorAtual}</strong>
-                    <span>{modoStats === 'total' ? 'campos' : 'obrigatórios'}</span>
-                  </div>
-                </button>
-              )
-            })()}
-
-            <div className="dt-header-busca">
-              <MagnifyingGlass weight="duotone" size={14} className="dt-toc-busca-icon" />
-              <input
-                type="text"
-                className="dt-toc-busca-input"
-                placeholder="Buscar campo…"
-                value={busca}
-                onChange={e => setBusca(e.target.value)}
-                aria-label="Buscar campo por nome ou conteúdo"
-              />
-              {busca && (
-                <button
-                  type="button"
-                  className="dt-toc-busca-limpar"
-                  onClick={() => setBusca('')}
-                  title="Limpar busca"
-                  aria-label="Limpar busca"
-                >
-                  <X size={12} weight="bold" />
-                </button>
-              )}
-            </div>
-
+                    <X size={12} weight="bold" />
+                  </button>
+                )}
+              </div>
+            )}
             <button
               type="button"
-              className="dt-main-toolbar-btn dt-main-toolbar-btn--right"
+              className="dt-toc-toggle"
+              onClick={() => setTocColapsada(p => !p)}
+              title={tocColapsada ? 'Expandir menu' : 'Recolher menu'}
+              aria-label={tocColapsada ? 'Expandir menu' : 'Recolher menu'}
+            >
+              <SidebarSimple weight="duotone" size={16} />
+            </button>
+          </div>
+
+          {/* Contador de resultados quando a busca esta ativa */}
+          {filtroAtivo && !tocColapsada && (
+            <div className="dt-toc-resultados">
+              {totalMatches > 0
+                ? <>{totalMatches} resultado{totalMatches > 1 ? 's' : ''}</>
+                : <>Nenhum resultado</>}
+            </div>
+          )}
+
+          {SECOES.map(sec => {
+            const c = completude[sec.id]
+            const completa = c.preenchidos === c.total
+            const ativa = secaoAtiva === sec.id
+
+            const botao = (
+              <button
+                type="button"
+                className={`dt-toc-item ${ativa ? 'dt-toc-item--ativa' : ''} ${completa ? 'dt-toc-item--ok' : ''}`}
+                onClick={() => irParaSecao(sec.id)}
+                aria-label={tocColapsada ? `${sec.titulo} — ${c.preenchidos} de ${c.total}` : undefined}
+              >
+                <span className="dt-toc-icon">{sec.icone}</span>
+                <span className="dt-toc-label">{sec.titulo}</span>
+                <span className={`dt-toc-pill ${completa ? 'dt-toc-pill--ok' : ''}`}>
+                  {completa
+                    ? <CheckCircle weight="fill" size={12} />
+                    : <Circle weight="duotone" size={12} />}
+                  {c.preenchidos}/{c.total}
+                </span>
+                {/* Bolinha de status no modo colapsado (canto sup. direito) */}
+                {tocColapsada && (
+                  <span className={`dt-toc-dot ${completa ? 'dt-toc-dot--ok' : ''}`} aria-hidden="true" />
+                )}
+              </button>
+            )
+
+            // No modo colapsado, envolve em tooltip pra mostrar nome+contagem ao hover
+            return (
+              <React.Fragment key={sec.id}>
+                {tocColapsada ? (
+                  <TooltipGlobal
+                    titulo={sec.titulo}
+                    descricao={`${c.preenchidos} de ${c.total} preenchidos${c.obrigatoriosPendentes > 0 ? ` • ${c.obrigatoriosPendentes} obrigatório${c.obrigatoriosPendentes > 1 ? 's' : ''} pendente${c.obrigatoriosPendentes > 1 ? 's' : ''}` : ''}`}
+                  >
+                    {botao}
+                  </TooltipGlobal>
+                ) : botao}
+              </React.Fragment>
+            )
+          })}
+        </aside>
+
+        {/* ── Card de estatisticas com donut + toggle ──────────────────── */}
+        {(() => {
+          const obrigPreench = stats.obrigTotal - stats.obrigPend
+          const pctObrig = stats.obrigTotal > 0
+            ? Math.round((obrigPreench / stats.obrigTotal) * 100)
+            : 100
+          const pctAtual = modoStats === 'total' ? stats.pct : pctObrig
+          // Cor: verde se 100%, ambar se modo obrig com pendentes, roxo no resto
+          const corDonut =
+            pctAtual === 100 ? '#34d399'
+            : modoStats === 'obrig' ? '#fbbf24'
+            : '#a78bfa'
+          const numeradorAtual = modoStats === 'total' ? stats.preench : obrigPreench
+          const denominadorAtual = modoStats === 'total' ? stats.total : stats.obrigTotal
+          return (
+            <div className={`dt-stats ${tocColapsada ? 'dt-stats--colapsada' : ''}`}>
+              {/* Toggle Total / Obrigatorios — escondido no modo colapsado */}
+              {!tocColapsada && (
+                <div className="dt-stats-toggle" role="tablist" aria-label="Modo de visualizacao">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={modoStats === 'total'}
+                    className={`dt-stats-toggle-btn ${modoStats === 'total' ? 'dt-stats-toggle-btn--ativa' : ''}`}
+                    onClick={() => setModoStats('total')}
+                  >
+                    Total
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={modoStats === 'obrig'}
+                    className={`dt-stats-toggle-btn ${modoStats === 'obrig' ? 'dt-stats-toggle-btn--ativa' : ''}`}
+                    onClick={() => setModoStats('obrig')}
+                  >
+                    Obrigatórios
+                  </button>
+                </div>
+              )}
+
+              <div
+                className="dt-stats-donut"
+                style={{
+                  background: `conic-gradient(${corDonut} 0% ${pctAtual}%, rgba(148,163,184,0.18) ${pctAtual}% 100%)`,
+                }}
+              >
+                <div className="dt-stats-donut-inner">
+                  <span className="dt-stats-donut-pct">{pctAtual}%</span>
+                </div>
+              </div>
+
+              {!tocColapsada && (
+                <div className="dt-stats-body">
+                  <div className="dt-stats-linha dt-stats-linha--hero">
+                    <strong>{numeradorAtual}</strong>
+                    <span>
+                      de {denominadorAtual} {modoStats === 'total' ? 'campos' : 'obrigatórios'}
+                    </span>
+                  </div>
+                  {/* Linha secundaria — clicavel pra trocar de modo */}
+                  {modoStats === 'total' ? (
+                    <button
+                      type="button"
+                      className={`dt-stats-linha dt-stats-linha--secundaria ${stats.obrigPend === 0 ? 'dt-stats-linha--ok' : 'dt-stats-linha--warn'}`}
+                      onClick={() => setModoStats('obrig')}
+                      title="Ver só obrigatórios"
+                    >
+                      {stats.obrigPend === 0
+                        ? <CheckCircle weight="fill" size={12} />
+                        : <Warning weight="fill" size={12} />}
+                      <strong>{obrigPreench}/{stats.obrigTotal}</strong>
+                      <span>obrigatórios</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="dt-stats-linha dt-stats-linha--secundaria"
+                      onClick={() => setModoStats('total')}
+                      title="Ver total"
+                    >
+                      <Circle weight="duotone" size={12} />
+                      <strong>{stats.preench}/{stats.total}</strong>
+                      <span>no total</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })()}
+        </div>
+
+        {/* ── Conteudo: secoes empilhadas ──────────────────────────────── */}
+        <main className="dt-main">
+          {/* Toolbar: Recolher / Expandir todas */}
+          <div className="dt-main-toolbar">
+            <button
+              type="button"
+              className="dt-main-toolbar-btn"
               onClick={toggleTodas}
               title={todasColapsadas ? 'Expandir todas as seções' : 'Recolher todas as seções'}
             >
@@ -574,30 +600,6 @@ export default function DadosTecnicos() {
               {todasColapsadas ? 'Expandir todas' : 'Recolher todas'}
             </button>
           </div>
-
-          {/* Chip do filtro ativo (mesmo padrao .fc-chip do sistema) */}
-          {filtroAtivo && (
-            <div className="dt-chips">
-              <div className="fc-chip" role="status" aria-live="polite">
-                <span className="fc-chip-label">Busca:</span>
-                <span className="fc-chip-valor">"{busca}"</span>
-                <span className="dt-chip-meta">
-                  · {totalMatches > 0
-                    ? `${totalMatches} resultado${totalMatches > 1 ? 's' : ''}`
-                    : 'sem resultado'}
-                </span>
-                <button
-                  type="button"
-                  className="fc-chip-remove"
-                  onClick={() => setBusca('')}
-                  title="Remover filtro"
-                  aria-label="Remover filtro de busca"
-                >
-                  <X size={10} weight="bold" />
-                </button>
-              </div>
-            </div>
-          )}
 
           {SECOES.map(sec => {
             const c = completude[sec.id]

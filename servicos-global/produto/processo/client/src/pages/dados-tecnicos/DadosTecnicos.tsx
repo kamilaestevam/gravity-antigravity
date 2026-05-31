@@ -427,7 +427,7 @@ export default function DadosTecnicos() {
       cabecalho={
         <CabecalhoGlobal
           icone={<GearSix weight="duotone" size={22} />}
-          titulo="Dados Técnicos"
+          titulo="Dados do Processo"
           subtitulo="Informações operacionais e documentais do processo"
         />
       }

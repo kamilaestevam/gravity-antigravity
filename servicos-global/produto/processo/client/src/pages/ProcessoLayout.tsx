@@ -204,7 +204,7 @@ const buildNavSections = (
         // 'Containers' foi promovido a SECAO dentro de Dados Tecnicos
         // (campos do banco Cadastros/Container) — nao precisa mais
         // de rota separada.
-        { id: 'dados-tecnicos', to: `${base}/dados-tecnicos${qs}`, label: 'Dados Tecnicos',    icon: <GearSix       weight="duotone" size={18} /> },
+        { id: 'dados-tecnicos', to: `${base}/dados-tecnicos${qs}`, label: 'Dados do Processo', icon: <GearSix       weight="duotone" size={18} /> },
       ],
     },
     {

@@ -295,10 +295,12 @@ export default function PedidosLista() {
       }
     >
       <PedidosTabs />
-      {/* Wrapper flex pra TabelaVirtualGlobal ocupar a altura disponivel
-          (virtual scrolling exige altura explicita do container). */}
-      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      {/* PaginaGlobal.pg-conteudo-area NAO usa flex — entao `flex:1` aqui
+          colapsa pra 0. Uso min-height pra garantir altura visivel
+          (virtual scrolling precisa de altura explicita do parent). */}
+      <div style={{ minHeight: 'calc(100vh - 260px)', display: 'flex', flexDirection: 'column' }}>
         <TabelaVirtualGlobal<MockPedido, MockItem>
+          exibirCabecalhoQuandoVazio
           dados={pedidosFiltrados}
           colunas={colunasPai}
           itemId={(p) => p.id}

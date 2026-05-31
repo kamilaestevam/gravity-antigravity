@@ -1823,7 +1823,7 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   line-height: 1.25;
   text-align: center;
   letter-spacing: 0.02em;
-  color: #94a3b8;
+  color: inherit;
   background: rgba(100, 116, 139, 0.14);
   border: 1px solid rgba(148, 163, 184, 0.22);
 }
@@ -1845,17 +1845,17 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   gap: 0.2rem;
   font-size: 0.6875rem;
   font-weight: 600;
-  color: #eab308;
+  color: inherit;
   white-space: nowrap;
 }
 
 .dc-prop-resumo--rodape {
-  margin: 0.65rem 0 0;
-  padding-top: 0.55rem;
+  margin: 0;
+  padding: 1rem var(--dc-prop-px, 1.875rem) 1rem;
   border-top: 1px solid rgba(148, 163, 184, 0.12);
   font-size: 0.6875rem;
   line-height: 1.45;
-  color: #64748b;
+  color: inherit;
 }
 
 /* Dados — altura fixa compartilhada; rolagem só no Combat Matrix */

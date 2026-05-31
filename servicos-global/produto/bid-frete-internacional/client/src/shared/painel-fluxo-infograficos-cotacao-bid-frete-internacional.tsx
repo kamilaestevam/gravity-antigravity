@@ -340,7 +340,6 @@ function CelulaMetricaComparativo({
           textoVsGanhador={textoVsGanhador}
           dimensoesView={SPARK_VIEW_MELHOR_PROPOSTA}
           ancoraBarras="top"
-          esticarVertical
         />
       </div>
     </div>

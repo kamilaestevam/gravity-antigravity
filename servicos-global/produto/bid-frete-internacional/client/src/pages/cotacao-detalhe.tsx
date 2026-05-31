@@ -63,6 +63,10 @@ import {
   mesclarPropostasComRanking,
   ranquearPropostasLocal,
 } from '../shared/metricas-proposta-cotacao-bid-frete-internacional'
+import {
+  anexarMocksRespostasTemporarias,
+  MOCAR_RESPOSTAS_COTACAO_TEMP,
+} from '../shared/mock-respostas-cotacao-APAGAR-ANTES-COMMIT'
 import type {
   Cotacao,
   DisparoCotacaoBidFreteInternacional,
@@ -267,17 +271,22 @@ export default function DetalheCotacao() {
 
   const carregarRankingPropostas = useCallback(async (cot: Cotacao) => {
     const propostas = cot.propostas_bid_frete_internacional ?? []
-    if (propostas.length === 0) {
+    if (propostas.length === 0 && !MOCAR_RESPOSTAS_COTACAO_TEMP) {
       setPropostasRanking([])
       return
     }
     setCarregandoRanking(true)
     try {
-      const ranking = await rankingCotacoesBidFreteInternacional(cot.id_cotacao_bid_frete_internacional)
-      const mescladas = mesclarPropostasComRanking(propostas, ranking)
-      setPropostasRanking(mescladas.length > 0 ? mescladas : ranquearPropostasLocal(propostas))
+      let mescladas: PropostaRankingBidFreteInternacional[] = []
+      if (propostas.length > 0) {
+        const ranking = await rankingCotacoesBidFreteInternacional(cot.id_cotacao_bid_frete_internacional)
+        mescladas = mesclarPropostasComRanking(propostas, ranking)
+        if (mescladas.length === 0) mescladas = ranquearPropostasLocal(propostas)
+      }
+      setPropostasRanking(anexarMocksRespostasTemporarias(mescladas, cot))
     } catch {
-      setPropostasRanking(ranquearPropostasLocal(propostas))
+      const fallback = propostas.length > 0 ? ranquearPropostasLocal(propostas) : []
+      setPropostasRanking(anexarMocksRespostasTemporarias(fallback, cot))
     } finally {
       setCarregandoRanking(false)
     }
@@ -1217,8 +1226,13 @@ export default function DetalheCotacao() {
         .dc-info-value {
           font-size: 0.8125rem;
           color: var(--text-primary, #f1f5f9);
-          font-weight: 500;
+          font-weight: 600;
           text-align: right;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .dc-prop-card .dc-prop-total-valor {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-weight: 600;
         }
         .dc-info-mono { font-family: 'DM Mono', monospace; }
 
@@ -1252,7 +1266,7 @@ export default function DetalheCotacao() {
         .dc-prop-panel {
           display: flex;
           flex-direction: column;
-          gap: 0.85rem;
+          gap: 1.5rem;
         }
         .dc-prop-panel-toolbar {
           display: flex;
@@ -1293,7 +1307,7 @@ export default function DetalheCotacao() {
           border: 1px solid rgba(148, 163, 184, 0.2);
           background: rgba(15, 23, 42, 0.55);
           color: #94a3b8;
-          font-size: 0.6875rem;
+          font-size: 0.78125rem;
           font-weight: 600;
           cursor: pointer;
           transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
@@ -1314,10 +1328,26 @@ export default function DetalheCotacao() {
         @media (max-width: 720px) {
           .dc-prop-comparativo-btn { align-self: flex-start; width: 100%; justify-content: center; }
         }
+        .dc-prop-list-wrap {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
         .dc-prop-list {
           display: flex;
           flex-direction: column;
-          gap: 0.85rem;
+          gap: 1.5rem;
+        }
+        .dc-prop-list--podio {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1.5rem;
+          align-items: stretch;
+        }
+        @media (max-width: 900px) {
+          .dc-prop-list--podio {
+            grid-template-columns: 1fr;
+          }
         }
         .dc-prop-loading {
           display: flex;
@@ -1342,6 +1372,74 @@ export default function DetalheCotacao() {
           overflow: hidden;
           background: linear-gradient(168deg, #2a3548 0%, #1e293b 42%, #161f2e 100%);
           border: 1px solid rgba(148, 163, 184, 0.12);
+          --dc-prop-texto: var(--ws-muted, var(--text-secondary, #94a3b8));
+          --dc-prop-valor: #ffffff;
+          --dc-prop-px: 1.875rem;
+          color: var(--dc-prop-texto);
+        }
+        .dc-prop-card .dc-prop-fornecedor,
+        .dc-prop-card .dc-info-value,
+        .dc-prop-card .dc-prop-total-valor {
+          color: var(--dc-prop-valor);
+        }
+        .dc-prop-card .dc-info-label,
+        .dc-prop-card .dc-prop-resumo,
+        .dc-prop-card .dc-prop-obs,
+        .dc-prop-card .dc-prop-nota,
+        .dc-prop-card .dc-prop-rank-criterio,
+        .dc-prop-card .dc-prop-card-meta,
+        .dc-prop-card .dc-info-icon-badge,
+        .dc-prop-card .dc-prop-icon-badge,
+        .dc-prop-card .dc-prop-tag,
+        .dc-prop-card .dc-prop-tag--ouro,
+        .dc-prop-card .dc-prop-badge-aprovada {
+          color: var(--dc-prop-texto);
+        }
+        .dc-prop-card .dc-info-icon-badge,
+        .dc-prop-card .dc-prop-icon-badge {
+          background: rgba(148, 163, 184, 0.08);
+          border-color: rgba(148, 163, 184, 0.18);
+        }
+        .dc-prop-card .dc-prop-tag,
+        .dc-prop-card .dc-prop-tag--ouro {
+          background: rgba(148, 163, 184, 0.08);
+          border-color: rgba(148, 163, 184, 0.18);
+        }
+        .dc-prop-card .dc-prop-badge-aprovada {
+          background: rgba(148, 163, 184, 0.08);
+          border-color: rgba(148, 163, 184, 0.18);
+        }
+        .dc-prop-list--podio .dc-prop-card {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          border-radius: 12px;
+          transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+        .dc-prop-list--podio .dc-prop-card--lider {
+          border-color: rgba(234, 179, 8, 0.28);
+        }
+        .dc-prop-list--podio .dc-prop-card--segundo {
+          border-color: rgba(148, 163, 184, 0.24);
+        }
+        .dc-prop-list--podio .dc-prop-card--terceiro {
+          border-color: rgba(217, 119, 6, 0.28);
+        }
+        .dc-prop-list--podio .dc-prop-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+        }
+        .dc-prop-list--podio .dc-prop-card--lider:hover {
+          border-color: rgba(234, 179, 8, 0.35);
+          box-shadow: 0 10px 28px rgba(234, 179, 8, 0.08);
+        }
+        .dc-prop-list--podio .dc-prop-card--segundo:hover {
+          border-color: rgba(148, 163, 184, 0.38);
+          box-shadow: 0 10px 28px rgba(148, 163, 184, 0.1);
+        }
+        .dc-prop-list--podio .dc-prop-card--terceiro:hover {
+          border-color: rgba(217, 119, 6, 0.38);
+          box-shadow: 0 10px 28px rgba(217, 119, 6, 0.1);
         }
         .dc-prop-card::after {
           content: '';
@@ -1355,16 +1453,43 @@ export default function DetalheCotacao() {
         .dc-prop-card--lider::after {
           background: linear-gradient(90deg, #ca8a04 0%, #facc15 50%, #fde047 100%);
         }
+        .dc-prop-card--segundo::after {
+          background: linear-gradient(90deg, #64748b 0%, #94a3b8 50%, #cbd5e1 100%);
+        }
+        .dc-prop-card--terceiro::after {
+          background: linear-gradient(90deg, #b45309 0%, #d97706 50%, #fbbf24 100%);
+        }
         .dc-prop-card--aprovada::after {
           background: linear-gradient(90deg, #16a34a 0%, #4ade80 50%, #86efac 100%);
         }
         .dc-prop-card-head {
           display: flex;
-          align-items: flex-start;
+          align-items: center;
           justify-content: space-between;
           gap: 1rem;
-          padding: 1rem 1.25rem 0.65rem;
+          padding: 1rem var(--dc-prop-px) 1rem;
           border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        .dc-prop-card-head:has(.dc-prop-tags:not(:empty)) {
+          align-items: flex-start;
+        }
+        .dc-prop-tags:empty {
+          display: none;
+        }
+        .dc-prop-card--compacto .dc-prop-card-head {
+          gap: 0.5rem;
+        }
+        .dc-prop-card--compacto .dc-prop-card-head-main {
+          align-items: center;
+          gap: 0.5rem;
+        }
+        .dc-prop-card .dc-prop-rank-group {
+          flex-direction: row;
+          align-items: center;
+          gap: 0.25rem;
+        }
+        .dc-prop-card--compacto .dc-prop-card-total-block {
+          align-items: flex-end;
         }
         @media (max-width: 640px) {
           .dc-prop-card-head { flex-direction: column; gap: 0.65rem; }
@@ -1372,10 +1497,13 @@ export default function DetalheCotacao() {
         }
         .dc-prop-card-head-main {
           display: flex;
-          align-items: flex-start;
+          align-items: center;
           gap: 0.65rem;
           min-width: 0;
           flex: 1;
+        }
+        .dc-prop-card-head:has(.dc-prop-tags:not(:empty)) .dc-prop-card-head-main {
+          align-items: flex-start;
         }
         .dc-prop-rank-inline {
           flex-shrink: 0;
@@ -1388,8 +1516,8 @@ export default function DetalheCotacao() {
           padding: 0 0.45rem;
           border-radius: 8px;
           font-size: 0.8125rem;
-          font-weight: 800;
-          font-family: 'DM Mono', monospace;
+          font-weight: 700;
+          font-family: 'Plus Jakarta Sans', sans-serif;
         }
         .dc-prop-card-titulos { min-width: 0; }
         .dc-prop-card-title-row {
@@ -1400,16 +1528,22 @@ export default function DetalheCotacao() {
         }
         .dc-prop-fornecedor {
           margin: 0;
-          font-size: 0.75rem;
+          font-size: 12.5px;
           font-weight: 700;
-          color: #f8fafc;
           letter-spacing: 0.01em;
+        }
+        .dc-prop-card--compacto .dc-prop-fornecedor {
+          font-size: 12.5px;
+          font-weight: 600;
+          line-height: 1.35;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
         .dc-prop-card-meta {
           margin: 0.25rem 0 0;
           font-size: 0.6875rem;
           font-weight: 500;
-          color: #94a3b8;
           line-height: 1.45;
         }
         .dc-prop-badge-aprovada {
@@ -1421,7 +1555,6 @@ export default function DetalheCotacao() {
           font-size: 0.625rem;
           font-weight: 700;
           text-transform: uppercase;
-          color: #86efac;
           background: rgba(34, 197, 94, 0.12);
           border: 1px solid rgba(74, 222, 128, 0.28);
         }
@@ -1435,40 +1568,123 @@ export default function DetalheCotacao() {
         .dc-prop-total-valor {
           font-size: 1.0625rem;
           font-weight: 700;
-          color: #f1f5f9;
+          font-family: 'Plus Jakarta Sans', sans-serif;
         }
         .dc-prop-resumo {
           margin: 0;
-          padding: 0.5rem 1.25rem 0.65rem;
+          padding: 0.5rem var(--dc-prop-px) 0.65rem;
           font-size: 0.6875rem;
           font-weight: 500;
-          color: #64748b;
           line-height: 1.5;
           border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+        }
+        .dc-prop-card--compacto .dc-prop-resumo--rodape {
+          margin-top: auto;
+          flex-shrink: 0;
+          padding: 1rem var(--dc-prop-px) 1rem;
+          line-height: 1.4;
+          border-top: 1px solid rgba(148, 163, 184, 0.1);
+          border-bottom: none;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .dc-prop-card--compacto .dc-prop-obs {
+          padding: 0.45rem var(--dc-prop-px) 0.65rem;
+          border-top: 1px solid rgba(148, 163, 184, 0.08);
+        }
+        .dc-prop-list--podio .dc-prop-rank-inline {
+          min-width: 2.25rem;
+          height: 2.25rem;
+        }
+        .dc-prop-list--podio .dc-prop-rank-criterio {
+          font-size: 0.5625rem;
+          max-width: 100%;
+        }
+        .dc-prop-list--podio .dc-prop-rank-group {
+          flex-wrap: wrap;
+          gap: 0.25rem;
+        }
+        .dc-prop-list--podio .dc-prop-tags {
+          gap: 0.25rem;
         }
         .dc-prop-card-body {
           display: flex;
           flex-direction: column;
-          padding: 0 1.25rem 0.35rem;
+          padding: 1rem var(--dc-prop-px) 1rem;
         }
-        .dc-prop-card-body .dc-info-row {
-          border-bottom-color: rgba(148, 163, 184, 0.1);
-          padding: 0.55rem 0;
+        .dc-prop-metricas-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.625rem 0.5rem;
+          width: 100%;
+        }
+        .dc-prop-metricas-col {
+          display: flex;
+          flex-direction: column;
+          gap: 0.625rem;
+          min-width: 0;
+        }
+        .dc-prop-card--compacto .dc-prop-card-body {
+          flex: 0 0 auto;
+        }
+        .dc-prop-card .dc-prop-card-body .dc-info-row {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.35rem;
+          padding: 0.38rem 0.42rem;
+          margin: 0;
+          border-bottom: none;
+          border-radius: 7px;
+          background: rgba(15, 23, 42, 0.38);
+          border: 1px solid rgba(148, 163, 184, 0.08);
+        }
+        .dc-prop-card .dc-prop-card-body .dc-info-label-group {
+          flex: 1 1 auto;
+          min-width: 0;
+          gap: 0.3rem;
+        }
+        .dc-prop-card .dc-prop-card-body .dc-info-icon-badge {
+          flex-shrink: 0;
+        }
+        .dc-prop-card .dc-prop-card-body .dc-info-label {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .dc-prop-card .dc-prop-card-body .dc-info-value,
+        .dc-prop-card .dc-prop-card-body .dc-prop-total-valor {
+          flex-shrink: 0;
+          width: auto;
+          text-align: right;
+          word-break: normal;
+          color: #ffffff;
+        }
+        .dc-prop-card .dc-info-row--frete-total {
+          margin-top: calc(1rem - 0.625rem);
+        }
+        .dc-prop-card .dc-prop-card-body .dc-info-row--frete-total {
+          background: rgba(99, 102, 241, 0.12);
+          border-color: rgba(129, 140, 248, 0.28);
+        }
+        .dc-prop-card .dc-info-row--frete-total .dc-info-label {
+          color: #ffffff;
+          font-weight: 700;
         }
         .dc-prop-card-body .dc-info-row:last-child {
           border-bottom: none;
         }
         .dc-prop-icon-badge {
-          background: rgba(56, 189, 248, 0.12);
-          border-color: rgba(125, 211, 252, 0.28);
-          color: #38bdf8;
+          background: rgba(148, 163, 184, 0.08);
+          border-color: rgba(148, 163, 184, 0.18);
         }
         .dc-prop-obs {
           margin: 0;
-          padding: 0.65rem 1.25rem 1rem;
+          padding: 0.65rem var(--dc-prop-px) 1rem;
           border-top: 1px solid rgba(148, 163, 184, 0.1);
           font-size: 0.8125rem;
-          color: var(--text-secondary, #94a3b8);
           font-style: italic;
         }
         .dc-btn--sm {

@@ -21,8 +21,8 @@ function formatarValorTermometro(valor: number, moeda: string): string {
 
 const SPARK_VIEW_W = 88
 const SPARK_VIEW_H = 52
-/** ViewBox compacto — métricas Melhor proposta (barras preenchem o slot). */
-export const SPARK_VIEW_MELHOR_PROPOSTA = { w: 88, h: 40 } as const
+/** ViewBox alto/estreito — barras da Melhor proposta preenchem a coluna preservando proporção (mesmo formato arredondado do Termômetro). */
+export const SPARK_VIEW_MELHOR_PROPOSTA = { w: 88, h: 180 } as const
 export const SPARK_SLOT_MELHOR_PROPOSTA_PX = 52
 const TOOLTIP_LARGURA_ESTIMADA = 168
 const TOOLTIP_ALTURA_ESTIMADA = 92

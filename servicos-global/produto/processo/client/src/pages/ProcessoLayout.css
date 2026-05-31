@@ -1,6 +1,9 @@
 /* ProcessoLayout.css — Layout do Processo
-   Nav agrupada, breadcrumb, progress bar, quick stats, sidebar colapsavel.
-   Tokens: --p2-* (indigo accent)
+   Padroes visuais alinhados ao MenuLateralGlobal (usado por Pedido/BID Frete):
+   itens pill, separadores de secao com border-top, toggle flutuante na borda
+   direita, item ativo com barra vertical de 3px na cor do produto.
+   Tokens: --p2-* — accent generico do menu (indigo); cor do produto entra
+   pelas vars --p2-produto / --p2-produto-dim injetadas no .p2-shell.
 */
 
 /* ── Design tokens ────────────────────────────────────────────────────────── */
@@ -14,15 +17,18 @@
   --p2-surface-2: var(--ws-surface-2, #0f172a);
   --p2-text: var(--ws-text, #f1f5f9);
   --p2-muted: var(--ws-muted, #94a3b8);
-  --p2-sidebar-w: 256px;
-  --p2-sidebar-collapsed-w: 0px;
+  /* 240px = largura canonica do MenuLateralGlobal (Pedido) */
+  --p2-sidebar-w: 240px;
+  /* 56px = rail estreito com so os icones (padrao MenuLateralGlobal).
+     NUNCA 0px — se for 0, o usuario perde acesso ao toggle e ao menu. */
+  --p2-sidebar-collapsed-w: 56px;
   --p2-topbar-h: 48px;
   --p2-success: #10b981;
   --p2-warning: #f59e0b;
   --p2-danger: #ef4444;
   --p2-radius: 10px;
   --p2-radius-sm: 6px;
-  --p2-transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --p2-transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ── Animations ───────────────────────────────────────────────────────────── */
@@ -56,23 +62,53 @@ button, input, select, textarea { font-family: inherit; }
 }
 
 /* ── Sidebar ──────────────────────────────────────────────────────────────── */
+/* Gradiente no topo na cor do produto (igual ao MenuLateralGlobal do Pedido).
+   Sem border-right — quem desenha a linha divisoria e o shell (.layout--processo). */
 .p2-sidebar {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: var(--p2-sidebar-w);
   min-width: var(--p2-sidebar-w);
   height: 100%;
-  overflow: hidden;
-  border-right: 1px solid var(--p2-accent-border);
-  background: var(--p2-surface);
+  overflow: visible; /* permite o toggle flutuante na borda direita */
+  background: linear-gradient(180deg, var(--p2-produto-dim, var(--p2-accent-dim)) 0%, var(--p2-surface) 120px);
   transition: width var(--p2-transition), min-width var(--p2-transition);
 }
 
 .p2-shell--collapsed .p2-sidebar {
   width: var(--p2-sidebar-collapsed-w);
   min-width: var(--p2-sidebar-collapsed-w);
-  overflow: hidden;
-  border-right: none;
+}
+
+/* ── Modo rail (recolhido) — so icones ────────────────────────────────────── */
+/* Esconde breadcrumb, info card, section titles, labels e badges.
+   Mantem visiveis: icones dos nav items + toggle flutuante. */
+.p2-shell--collapsed .p2-breadcrumb,
+.p2-shell--collapsed .p2-info-card,
+.p2-shell--collapsed .p2-nav-section-title,
+.p2-shell--collapsed .p2-nav-label,
+.p2-shell--collapsed .p2-nav-badge {
+  display: none;
+}
+
+.p2-shell--collapsed .p2-nav {
+  padding: 12px 8px;
+}
+
+.p2-shell--collapsed .p2-nav-section {
+  margin-bottom: 8px;
+}
+
+.p2-shell--collapsed .p2-nav-section + .p2-nav-section {
+  border-top: 1px solid var(--p2-accent-border);
+  padding-top: 8px;
+}
+
+.p2-shell--collapsed .p2-nav-item {
+  justify-content: center;
+  padding: 10px 0;
+  border-radius: 10px;
 }
 
 /* ── Breadcrumb ───────────────────────────────────────────────────────────── */
@@ -122,9 +158,9 @@ button, input, select, textarea { font-family: inherit; }
 
 /* ── Info Card ────────────────────────────────────────────────────────────── */
 .p2-info-card {
-  margin: 0.75rem;
-  padding: 1rem;
-  background: var(--p2-bg-body);
+  margin: 0.75rem 0.625rem;
+  padding: 0.875rem;
+  background: rgba(0, 0, 0, 0.18);
   border-radius: var(--p2-radius);
   border: 1px solid var(--p2-accent-border);
   display: flex;
@@ -157,9 +193,9 @@ button, input, select, textarea { font-family: inherit; }
 
 .p2-info-row {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start; /* valor cola no label, em vez de ir pra direita */
   align-items: baseline;
-  gap: 0.5rem;
+  gap: 0.375rem;               /* pequeno gap entre 'Label:' e valor */
   font-size: 0.75rem;
 }
 
@@ -171,10 +207,11 @@ button, input, select, textarea { font-family: inherit; }
 
 .p2-info-value {
   color: var(--p2-text);
-  text-align: right;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
 }
 
 /* ── Progress Bar ─────────────────────────────────────────────────────────── */
@@ -205,14 +242,14 @@ button, input, select, textarea { font-family: inherit; }
 
 .p2-progress-bar {
   height: 4px;
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(167, 139, 250, 0.12); /* Opcao C — trilha roxo translucido */
   border-radius: 9999px;
   overflow: hidden;
 }
 
 .p2-progress-fill {
   height: 100%;
-  background: var(--p2-success);
+  background: #a78bfa; /* Opcao C — preenchimento roxo (mesma cor do step ativo) */
   border-radius: 9999px;
   transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -245,57 +282,72 @@ button, input, select, textarea { font-family: inherit; }
 }
 
 /* ── Navigation ───────────────────────────────────────────────────────────── */
+/* Padroes herdados do MenuLateralGlobal: itens pill, secoes separadas por
+   border-top + margin, item ativo com barra vertical de 3px (inset shadow). */
 .p2-nav {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem 0.625rem;
 }
 
 .p2-nav-section {
-  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin-bottom: 0.25rem;
 }
 
 .p2-nav-section-title {
-  font-size: 0.625rem;
-  font-weight: 600;
+  font-size: 0.6875rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   color: var(--p2-muted);
-  padding: 0.5rem 0.625rem 0.25rem;
-  opacity: 0.7;
+  padding: 0 0.875rem 0.375rem;
+  margin-bottom: 0.125rem;
+}
+
+/* Separador entre secoes — border-top + espaco, igual ao .mlg-nav-section-label */
+.p2-nav-section + .p2-nav-section .p2-nav-section-title {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--p2-accent-border);
 }
 
 .p2-nav-item {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.75rem;
   width: 100%;
-  padding: 0.5rem 0.625rem;
-  background: none;
+  padding: 12px 0.875rem;
+  background: transparent;
   border: none;
-  border-radius: var(--p2-radius-sm);
+  border-radius: 9999px; /* pill — padrao MenuLateralGlobal */
   color: var(--p2-muted);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: color 0.15s, background 0.15s;
+  transition: background 0.15s, color 0.15s;
   text-align: left;
 }
 
 .p2-nav-item:hover {
   color: var(--p2-text);
-  background: var(--p2-accent-hover);
+  background: var(--p2-produto-dim, var(--p2-accent-dim));
 }
 
+/* Item ativo — cor do PRODUTO (Processo #facc15) + barra vertical de 3px,
+   padrao canonico do MenuLateralGlobal (inset box-shadow, nao dot). */
 .p2-nav-item--active {
-  color: var(--p2-accent);
-  background: var(--p2-accent-dim);
+  color: var(--p2-produto, var(--p2-accent));
+  background: var(--p2-produto-dim, var(--p2-accent-dim));
   font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--p2-produto, var(--p2-accent));
 }
 
 .p2-nav-item--active .p2-nav-icon {
-  color: var(--p2-accent);
+  color: var(--p2-produto, var(--p2-accent));
 }
 
 .p2-nav-icon {
@@ -303,13 +355,38 @@ button, input, select, textarea { font-family: inherit; }
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 20px;
+  min-width: 18px;
+  font-size: 1.125rem;
 }
 
 .p2-nav-label {
+  flex: 1;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Badge de contador (information scent) — sempre derivado de dado real */
+.p2-nav-badge {
+  flex-shrink: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 0.375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 9999px;
+  background: var(--p2-accent-dim);
+  color: var(--p2-text);
+}
+
+.p2-nav-item--active .p2-nav-badge {
+  background: rgba(15, 23, 42, 0.25);
+  color: var(--p2-produto, var(--p2-accent));
 }
 
 .p2-nav-item:focus-visible {
@@ -317,35 +394,46 @@ button, input, select, textarea { font-family: inherit; }
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
 }
 
-/* ── Sidebar Footer ───────────────────────────────────────────────────────── */
+/* ── Toggle flutuante na borda direita do menu ────────────────────────────── */
+/* Botao circular pendurado na borda direita do menu do processo, logo abaixo
+   do breadcrumb (top: 60px). Posicao confirmada visualmente pelo dono. */
 .p2-sidebar-footer {
-  padding: 0.5rem;
-  border-top: 1px solid rgba(99, 102, 241, 0.08);
-  display: flex;
-  justify-content: flex-end;
+  display: none;
 }
 
 .p2-collapse-btn {
-  width: 32px;
-  height: 32px;
+  position: absolute;
+  right: -14px;
+  /* 82px = mesma posicao do .mlg-toggle-btn no estado colapsado,
+     usado pelo trilho global. Garante alinhamento horizontal entre os
+     dois toggles (trilho + menu do processo). */
+  top: 82px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--p2-surface);
+  border: 1px solid var(--p2-accent-border);
+  color: var(--p2-text); /* texto claro para o icone ficar visivel */
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: none;
-  border-radius: var(--p2-radius-sm);
-  color: var(--p2-muted);
   cursor: pointer;
-  transition: color 0.15s, background 0.15s;
+  z-index: 30;
+  transition: all var(--p2-transition);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .p2-collapse-btn:hover {
-  color: var(--p2-text);
-  background: var(--p2-accent-hover);
+  background: var(--p2-produto, var(--p2-accent));
+  color: #0f172a;
+  border-color: var(--p2-produto, var(--p2-accent));
+  transform: scale(1.15);
+  box-shadow: 0 2px 12px var(--p2-produto-dim, var(--p2-accent-dim));
 }
 
 /* ── Main Area ────────────────────────────────────────────────────────────── */
 .p2-main {
+  position: relative; /* ancora do .p2-reopen-btn flutuante */
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -353,89 +441,9 @@ button, input, select, textarea { font-family: inherit; }
   background: var(--p2-bg-body);
 }
 
-/* ── Top Bar ──────────────────────────────────────────────────────────────── */
-.p2-topbar {
-  display: flex;
-  align-items: center;
-  height: var(--p2-topbar-h);
-  min-height: var(--p2-topbar-h);
-  padding: 0 1rem;
-  border-bottom: 1px solid rgba(99, 102, 241, 0.06);
-  gap: 0.75rem;
-}
-
-.p2-topbar-toggle {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  border-radius: var(--p2-radius-sm);
-  color: var(--p2-muted);
-  cursor: pointer;
-  transition: color 0.15s, background 0.15s;
-}
-
-.p2-topbar-toggle:hover {
-  color: var(--p2-text);
-  background: var(--p2-accent-hover);
-}
-
-.p2-topbar-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.p2-topbar-numero {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--p2-text);
-  white-space: nowrap;
-}
-
-.p2-topbar-sep {
-  color: var(--p2-muted);
-  opacity: 0.4;
-  flex-shrink: 0;
-}
-
-.p2-topbar-page {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--p2-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.p2-topbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-
-.p2-topbar-btn {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--p2-radius-sm);
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.p2-topbar-btn:hover {
-  background: var(--p2-accent-dim);
-  border-color: var(--p2-accent-border);
-}
+/* (.p2-reopen-btn removido — o menu nunca some completamente: quando
+    recolhido vira um rail de 56px com so os icones, e o toggle continua
+    visivel na borda direita. Sem necessidade de botao flutuante separado.) */
 
 /* ── Error Banner ─────────────────────────────────────────────────────────── */
 .p2-error-banner {
@@ -456,7 +464,9 @@ button, input, select, textarea { font-family: inherit; }
 .p2-content {
   flex: 1;
   overflow-y: auto;
-  padding: 0;
+  /* Padding equivalente ao .shell-main canonico (24px topo, 2rem laterais
+     e base). Da o respiro correto ao CabecalhoGlobal de cada pagina. */
+  padding: 24px 2rem 2rem;
 }
 
 /* ── Skeletons ────────────────────────────────────────────────────────────── */
@@ -499,14 +509,6 @@ body.light-theme .p2-breadcrumb {
 body.light-theme .p2-info-card {
   background: var(--p2-surface-2);
   border-color: rgba(0, 0, 0, 0.08);
-}
-
-body.light-theme .p2-topbar {
-  border-bottom-color: rgba(0, 0, 0, 0.06);
-}
-
-body.light-theme .p2-sidebar-footer {
-  border-top-color: rgba(0, 0, 0, 0.06);
 }
 
 body.light-theme .p2-error-banner {

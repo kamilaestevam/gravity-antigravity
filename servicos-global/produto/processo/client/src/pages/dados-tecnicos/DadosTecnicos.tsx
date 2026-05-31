@@ -14,6 +14,10 @@ import React, { useState, useRef, useEffect, useMemo } from 'react'
 import {
   GearSix, Buildings, MapPin, Scales, Anchor, FileText,
   CheckCircle, Circle, PencilSimple, IdentificationCard,
+  Hash, User, UserCircle, Briefcase, Certificate, Globe,
+  ArrowsLeftRight, Warehouse, ShieldCheck, TrafficSign,
+  CurrencyDollar, Boat, AirplaneTakeoff, Package, ListChecks,
+  IdentificationBadge, ChatText,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -27,6 +31,7 @@ interface CampoConfig {
   key: string
   label: string
   tipo: CampoTipo
+  icone?: React.ReactNode
   obrigatorio?: boolean
   opcoes?: { valor: string; label: string }[]
   placeholder?: string
@@ -45,14 +50,14 @@ const SECOES: SecaoConfig[] = [
     titulo: 'Geral',
     icone: <Buildings weight="duotone" size={18} />,
     campos: [
-      { key: 'ref_cliente',        label: 'Referência do Cliente', tipo: 'texto', obrigatorio: true, placeholder: 'Ex: 1995/25 E 2020/25' },
-      { key: 'outra_ref',          label: 'Outra Referência',      tipo: 'texto' },
-      { key: 'responsavel',        label: 'Responsável',           tipo: 'texto', obrigatorio: true },
-      { key: 'responsavel_reg',    label: 'Responsável Registro',  tipo: 'texto' },
-      { key: 'auxiliar',           label: 'Auxiliar',              tipo: 'texto' },
-      { key: 'numero_booking',     label: 'Número do Booking',     tipo: 'texto', placeholder: 'BKG-…' },
-      { key: 'despachante',        label: 'Despachante',           tipo: 'texto', obrigatorio: true },
-      { key: 'certificado',        label: 'Certificado',           tipo: 'texto' },
+      { key: 'ref_cliente',        label: 'Referência do Cliente', tipo: 'texto', obrigatorio: true, placeholder: 'Ex: 1995/25 E 2020/25', icone: <IdentificationCard /> },
+      { key: 'outra_ref',          label: 'Outra Referência',      tipo: 'texto', icone: <Hash /> },
+      { key: 'responsavel',        label: 'Responsável',           tipo: 'texto', obrigatorio: true, icone: <User /> },
+      { key: 'responsavel_reg',    label: 'Responsável Registro',  tipo: 'texto', icone: <User /> },
+      { key: 'auxiliar',           label: 'Auxiliar',              tipo: 'texto', icone: <UserCircle /> },
+      { key: 'numero_booking',     label: 'Número do Booking',     tipo: 'texto', placeholder: 'BKG-…', icone: <Hash /> },
+      { key: 'despachante',        label: 'Despachante',           tipo: 'texto', obrigatorio: true, icone: <Briefcase /> },
+      { key: 'certificado',        label: 'Certificado',           tipo: 'texto', icone: <Certificate /> },
     ],
   },
   {
@@ -60,12 +65,12 @@ const SECOES: SecaoConfig[] = [
     titulo: 'Origem & Destino',
     icone: <MapPin weight="duotone" size={18} />,
     campos: [
-      { key: 'pais_origem',         label: 'País de Origem',       tipo: 'texto', obrigatorio: true, placeholder: 'CN' },
-      { key: 'porto_embarque',      label: 'Porto de Embarque',    tipo: 'texto', obrigatorio: true },
-      { key: 'porto_transbordo',    label: 'Porto de Transbordo',  tipo: 'texto' },
-      { key: 'pais_destino',        label: 'País de Destino',      tipo: 'texto', obrigatorio: true, placeholder: 'BR' },
-      { key: 'porto_destino',       label: 'Porto de Destino',     tipo: 'texto', obrigatorio: true },
-      { key: 'recinto_alfandegado', label: 'Recinto Alfandegado',  tipo: 'texto' },
+      { key: 'pais_origem',         label: 'País de Origem',       tipo: 'texto', obrigatorio: true, placeholder: 'CN', icone: <Globe /> },
+      { key: 'porto_embarque',      label: 'Porto de Embarque',    tipo: 'texto', obrigatorio: true, icone: <Anchor /> },
+      { key: 'porto_transbordo',    label: 'Porto de Transbordo',  tipo: 'texto', icone: <ArrowsLeftRight /> },
+      { key: 'pais_destino',        label: 'País de Destino',      tipo: 'texto', obrigatorio: true, placeholder: 'BR', icone: <Globe /> },
+      { key: 'porto_destino',       label: 'Porto de Destino',     tipo: 'texto', obrigatorio: true, icone: <Anchor /> },
+      { key: 'recinto_alfandegado', label: 'Recinto Alfandegado',  tipo: 'texto', icone: <Warehouse /> },
     ],
   },
   {
@@ -73,17 +78,17 @@ const SECOES: SecaoConfig[] = [
     titulo: 'Operação Aduaneira',
     icone: <Scales weight="duotone" size={18} />,
     campos: [
-      { key: 'tipo_decl_aduaneira', label: 'Tipo de Declaração Aduaneira', tipo: 'select',
+      { key: 'tipo_decl_aduaneira', label: 'Tipo de Declaração Aduaneira', tipo: 'select', icone: <FileText />,
         opcoes: [{ valor: 'DI', label: 'DI' }, { valor: 'DUIMP', label: 'DUIMP' }, { valor: 'DSI', label: 'DSI' }] },
-      { key: 'tipo_operacao',       label: 'Tipo de Operação', tipo: 'select',
+      { key: 'tipo_operacao',       label: 'Tipo de Operação', tipo: 'select', icone: <Scales />,
         opcoes: [{ valor: 'direta', label: 'Direta' }, { valor: 'conta_ordem', label: 'Conta e Ordem' }, { valor: 'encomenda', label: 'Encomenda' }] },
-      { key: 'regime_tributario',   label: 'Regime Tributário', tipo: 'select',
+      { key: 'regime_tributario',   label: 'Regime Tributário', tipo: 'select', icone: <ShieldCheck />,
         opcoes: [{ valor: 'comum', label: 'Comum' }, { valor: 'drawback', label: 'Drawback' }, { valor: 'recof', label: 'RECOF' }] },
-      { key: 'canal',               label: 'Canal', tipo: 'select',
+      { key: 'canal',               label: 'Canal', tipo: 'select', icone: <TrafficSign />,
         opcoes: [{ valor: 'verde', label: 'Verde' }, { valor: 'amarelo', label: 'Amarelo' }, { valor: 'vermelho', label: 'Vermelho' }, { valor: 'cinza', label: 'Cinza' }] },
-      { key: 'incoterm',            label: 'Incoterm', tipo: 'select', obrigatorio: true,
+      { key: 'incoterm',            label: 'Incoterm', tipo: 'select', obrigatorio: true, icone: <Globe />,
         opcoes: ['EXW','FOB','CFR','CIF','CIP','DDP','DAP'].map(v => ({ valor: v, label: v })) },
-      { key: 'moeda',               label: 'Moeda', tipo: 'select',
+      { key: 'moeda',               label: 'Moeda', tipo: 'select', icone: <CurrencyDollar />,
         opcoes: ['USD','EUR','BRL','CNY','JPY'].map(v => ({ valor: v, label: v })) },
     ],
   },
@@ -92,14 +97,14 @@ const SECOES: SecaoConfig[] = [
     titulo: 'Transporte',
     icone: <Anchor weight="duotone" size={18} />,
     campos: [
-      { key: 'via_transporte',  label: 'Via de Transporte', tipo: 'select',
+      { key: 'via_transporte',  label: 'Via de Transporte', tipo: 'select', icone: <AirplaneTakeoff />,
         opcoes: [{ valor: 'maritimo', label: 'Marítimo' }, { valor: 'aereo', label: 'Aéreo' }, { valor: 'terrestre', label: 'Terrestre' }] },
-      { key: 'companhia',       label: 'Companhia de Transporte', tipo: 'texto' },
-      { key: 'navio_voo',       label: 'Navio / Voo',             tipo: 'texto' },
-      { key: 'bl_awb',          label: 'BL / AWB',                tipo: 'texto', obrigatorio: true },
-      { key: 'tipo_carga',      label: 'Tipo de Carga',           tipo: 'select',
+      { key: 'companhia',       label: 'Companhia de Transporte', tipo: 'texto', icone: <Buildings /> },
+      { key: 'navio_voo',       label: 'Navio / Voo',             tipo: 'texto', icone: <Boat /> },
+      { key: 'bl_awb',          label: 'BL / AWB',                tipo: 'texto', obrigatorio: true, icone: <FileText /> },
+      { key: 'tipo_carga',      label: 'Tipo de Carga',           tipo: 'select', icone: <Package />,
         opcoes: [{ valor: 'container', label: 'Container' }, { valor: 'granel', label: 'Granel' }, { valor: 'carga_geral', label: 'Carga Geral' }] },
-      { key: 'romaneio_carga',  label: 'Romaneio Carga Nº',       tipo: 'texto' },
+      { key: 'romaneio_carga',  label: 'Romaneio Carga Nº',       tipo: 'texto', icone: <ListChecks /> },
     ],
   },
   {
@@ -107,11 +112,11 @@ const SECOES: SecaoConfig[] = [
     titulo: 'Documentos',
     icone: <FileText weight="duotone" size={18} />,
     campos: [
-      { key: 'cert_origem',       label: 'Certificado de Origem Nº', tipo: 'texto' },
-      { key: 'nif',               label: 'NIF',                       tipo: 'texto' },
-      { key: 'di_numero',         label: 'DI Nº',                     tipo: 'texto' },
-      { key: 'li_numero',         label: 'LI Nº',                     tipo: 'texto' },
-      { key: 'status_observacao', label: 'Status Observação',         tipo: 'texto' },
+      { key: 'cert_origem',       label: 'Certificado de Origem Nº', tipo: 'texto', icone: <Certificate /> },
+      { key: 'nif',               label: 'NIF',                       tipo: 'texto', icone: <IdentificationBadge /> },
+      { key: 'di_numero',         label: 'DI Nº',                     tipo: 'texto', icone: <FileText /> },
+      { key: 'li_numero',         label: 'LI Nº',                     tipo: 'texto', icone: <FileText /> },
+      { key: 'status_observacao', label: 'Status Observação',         tipo: 'texto', icone: <ChatText /> },
     ],
   },
 ]
@@ -174,10 +179,19 @@ function CampoLinha({ campo, valor, onSalvar }: CampoLinhaProps) {
   const opcaoSelecionada = campo.opcoes?.find(o => o.valor === valor)
   const valorDisplay = opcaoSelecionada?.label ?? valor
 
+  // Status: verde=preenchido, ambar=vazio obrigatorio, cinza=vazio opcional
+  const status: 'preenchido' | 'vazio-obrig' | 'vazio-opc' =
+    !vazio ? 'preenchido'
+    : campo.obrigatorio ? 'vazio-obrig'
+    : 'vazio-opc'
+
   return (
-    <div className={`dt-row ${vazio ? 'dt-row--vazio' : ''}`}>
-      <div className="dt-row-label">
-        <span>{campo.label}</span>
+    <div className={`dt-row dt-row--${status}`}>
+      <div className="dt-row-status" aria-hidden="true" />
+
+      <div className="dt-row-head">
+        {campo.icone && <span className="dt-row-icon">{campo.icone}</span>}
+        <span className="dt-row-label">{campo.label}</span>
         {campo.obrigatorio && <span className="dt-row-required" title="Obrigatório">*</span>}
       </div>
 

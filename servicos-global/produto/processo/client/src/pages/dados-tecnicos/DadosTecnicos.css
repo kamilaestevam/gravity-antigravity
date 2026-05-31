@@ -179,8 +179,8 @@
 .dt-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  column-gap: 2rem;
-  row-gap: 0;
+  column-gap: 0.75rem;
+  row-gap: 0.625rem;
 }
 
 @media (max-width: 900px) {
@@ -189,33 +189,87 @@
   .dt-toc { position: static; }
 }
 
-/* ── Linha de campo: label + value ─────────────────────────────────────── */
+/* ── Linha de campo: agora um CARD com status colorido a esquerda ─────── */
 
 .dt-row {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(140px, 38%) 1fr;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.625rem 0;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.07);
-  min-height: 40px;
+  grid-template-columns: 4px 1fr;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.18s ease-out, box-shadow 0.18s ease-out,
+              border-color 0.18s ease-out, background 0.18s ease-out;
 }
 
-.dt-row-label {
+.dt-row:hover {
+  transform: translateY(-1px);
+  border-color: rgba(167, 139, 250, 0.35);
+  background: rgba(30, 41, 59, 0.55);
+  box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.4),
+              0 0 0 1px rgba(167, 139, 250, 0.08);
+}
+
+/* ── Barra de status (esquerda) ──────────────────────────────────────── */
+
+.dt-row-status {
+  width: 4px;
+  height: 100%;
+  align-self: stretch;
+}
+
+.dt-row--preenchido  .dt-row-status { background: #34d399; }
+.dt-row--vazio-obrig .dt-row-status { background: #fbbf24; }
+.dt-row--vazio-opc   .dt-row-status { background: rgba(148, 163, 184, 0.35); }
+
+/* Wrapper interno do conteudo (head + value) */
+
+.dt-row > .dt-row-head,
+.dt-row > .dt-row-value,
+.dt-row > .dt-row-edit {
+  /* movidos pra colunas 2 do grid */
+  grid-column: 2;
+}
+
+.dt-row-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0.5rem 0.75rem 0.25rem;
+}
+
+.dt-row-icon {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: rgba(167, 139, 250, 0.85);
+  flex-shrink: 0;
+}
+
+.dt-row-icon svg { width: 14px; height: 14px; }
+
+.dt-row-label {
   font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--ws-muted, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dt-row-required {
   color: #f87171;
   font-weight: 700;
   font-size: 0.875rem;
+  line-height: 1;
 }
 
 /* ── Value (modo leitura) — botao que vira input ──────────────────────── */
@@ -226,22 +280,18 @@
   justify-content: space-between;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.375rem 0.625rem;
+  padding: 0.125rem 0.75rem 0.625rem;
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 6px;
+  border: none;
   color: var(--ws-text, #f1f5f9);
   font-size: 0.875rem;
   font-weight: 500;
   text-align: left;
   cursor: text;
-  transition: background 0.15s, border-color 0.15s;
+  transition: color 0.15s;
 }
 
-.dt-row-value:hover {
-  background: rgba(167, 139, 250, 0.06);
-  border-color: rgba(167, 139, 250, 0.2);
-}
+.dt-row-value:hover { color: #c4b5fd; }
 
 .dt-row-text {
   flex: 1;
@@ -268,12 +318,13 @@
 
 .dt-row-edit {
   width: 100%;
+  padding: 0.125rem 0.75rem 0.5rem;
 }
 
 .dt-row-edit input,
 .dt-row-edit select {
   width: 100%;
-  padding: 0.375rem 0.625rem;
+  padding: 0.375rem 0.5rem;
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid #a78bfa;
   border-radius: 6px;

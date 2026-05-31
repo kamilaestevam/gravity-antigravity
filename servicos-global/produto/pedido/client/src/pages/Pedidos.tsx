@@ -23,6 +23,8 @@ import {
   Package,
   Plus,
   CaretDown,
+  CaretDoubleDown,
+  CaretDoubleUp,
   CaretRight,
   Eye,
   PencilSimple,
@@ -5057,36 +5059,35 @@ export default function Pedidos() {
 
   const acoesBarra = useMemo(() => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', flex: 1 }}>
-      {/* Botao Expandir/Recolher todos itens (mesmo padrao do DadosTecnicos) */}
-      <button
-        type="button"
-        onClick={() => {
-          if (temExpandido) tabelaRef.current?.recolherTodos()
-          else void tabelaRef.current?.expandirTodos()
-        }}
-        title={temExpandido ? 'Recolher todos os itens' : 'Expandir todos os itens'}
-        style={{
-          display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
-          padding: '0.3125rem 0.625rem',
-          background: 'transparent',
-          border: '1px solid rgba(148, 163, 184, 0.15)',
-          borderRadius: '9999px',
-          color: 'var(--ws-muted, #94a3b8)',
-          fontSize: '0.6875rem', fontWeight: 600,
-          cursor: 'pointer',
-          transition: 'background 0.15s, color 0.15s, border-color 0.15s',
-        }}
+      {/* Botao Expandir/Recolher todos itens — icone-only com TooltipGlobal
+          (padrao Linear/Notion para acoes utilitarias frequentes em tabelas
+          hierarquicas). */}
+      <TooltipGlobal
+        descricao={temExpandido ? 'Recolher todos os itens' : 'Expandir todos os itens'}
       >
-        <CaretDown
-          size={12}
-          weight="bold"
-          style={{
-            transition: 'transform 0.15s',
-            transform: temExpandido ? 'none' : 'rotate(-90deg)',
+        <button
+          type="button"
+          onClick={() => {
+            if (temExpandido) tabelaRef.current?.recolherTodos()
+            else void tabelaRef.current?.expandirTodos()
           }}
-        />
-        {temExpandido ? 'Recolher todos' : 'Expandir todos'}
-      </button>
+          aria-label={temExpandido ? 'Recolher todos os itens' : 'Expandir todos os itens'}
+          style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: '32px', height: '32px',
+            background: 'transparent',
+            border: '1px solid rgba(148, 163, 184, 0.15)',
+            borderRadius: '8px',
+            color: 'var(--ws-muted, #94a3b8)',
+            cursor: 'pointer',
+            transition: 'background 0.15s, color 0.15s, border-color 0.15s',
+          }}
+        >
+          {temExpandido
+            ? <CaretDoubleUp   size={14} weight="bold" />
+            : <CaretDoubleDown size={14} weight="bold" />}
+        </button>
+      </TooltipGlobal>
 
       {/* Escopo de workspaces = menu lateral; filtros de coluna = client-side */}
       <BarraAcoesPedido

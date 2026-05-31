@@ -467,6 +467,53 @@ body,
   position: relative;
 }
 
+/* ─── Processo — trilho global + menu do processo colados ───────────────────── */
+/* O ProcessoLayout e uma tela "deep work" de borda-a-borda. Zeramos o padding do
+   .shell-main (que abria um gap entre o trilho e o p2-sidebar), mantendo apenas
+   uma linha fina divisoria entre os dois menus.
+   Escopado em .layout--processo — nao afeta /produto/ nem o dashboard. */
+.layout--processo .shell-main {
+  padding: 0;
+}
+
+/* Trilho global (estreito) + menu do processo (expandido) sao os DOIS
+   menus dessa tela. Linha fina divisoria entre o trilho global e o
+   menu do processo. */
+.layout--processo .mlg-sidebar,
+.layout--processo .shell-sidebar {
+  border-right: 1px solid var(--bg-elevated);
+}
+
+/* Centraliza o hexagono do LogoGlobal dentro do trilho recolhido — a regra
+   .mlg-logo-area--collapsed do menu-lateral.css ja faz justify-content:center,
+   mas alguns containers internos do LogoGlobal nao zeram margens. Forca aqui. */
+.layout--processo .mlg-logo-area,
+.layout--processo .mlg-logo-area--collapsed,
+.layout--processo .mlg-logo-area .mlg-logo-icon,
+.layout--processo .mlg-logo-area > * {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Na rota de processo: esconde so o lado ESQUERDO do shell-header
+   (Gravity logo + page label) — esse e que sobrepunha o titulo do
+   CabecalhoGlobal. O lado DIREITO (Hub, Core, busca, info, tema, BR,
+   settings, avatar) permanece visivel no canto superior direito, igual
+   ao modelo do BID Frete / Pedido.
+   Sem o __left ocupando espaco no flex (justify-content: space-between),
+   o __right cai para o inicio. margin-left: auto empurra de volta pra
+   direita do container. */
+.layout--processo .shell-header__left {
+  display: none !important;
+}
+
+.layout--processo .shell-header__right {
+  margin-left: auto;
+}
+
 /* ─── Toast Notifications ─────────────────────────────────────────────────── */
 .shell-toast-container {
   position: fixed;

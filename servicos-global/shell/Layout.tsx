@@ -117,8 +117,12 @@ export function Layout({
   const overrideAtivo = organizacaoOverride !== null
   const classeOverride = overrideAtivo ? ' layout--override-ativo' : ''
 
+  // Processo: trilho global + menu do processo viram uma superficie continua
+  // (sem gap do .shell-main, sem costura entre trilho e p2-sidebar).
+  const classeProcesso = isProcessoRoute ? ' layout--processo' : ''
+
   return (
-    <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}${classeOverride}`}>
+    <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}${classeOverride}${classeProcesso}`}>
       {overrideAtivo && <BannerOrganizacaoOverride />}
       {isProcessoRoute ? (
         <ContextualSidebar

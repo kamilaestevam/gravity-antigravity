@@ -12,9 +12,9 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
-import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { getProdutoMeta } from '@nucleo/logo-produtos'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import {
   FlowArrow,
@@ -30,13 +30,7 @@ import {
   Receipt,
   Envelope,
   CheckSquare,
-  ArrowLeft,
-  Info,
-  CaretRight,
-  Sidebar,
-  Anchor,
-  CalendarBlank,
-  Scales,
+  SidebarSimple,
 } from '@phosphor-icons/react'
 import { getProcesso } from '../shared/api'
 import type { ProcessoDetail } from '../shared/types'
@@ -96,7 +90,45 @@ const MOCK_PROCESSO: ProcessoDetail = {
     { id: 'e5', processo_id: 'core_id_000001', nome: 'Desembaraco', ordem: 5, status: 'pendente',     created_at: '2026-01-10T00:00:00Z' },
     { id: 'e6', processo_id: 'core_id_000001', nome: 'Entrega',     ordem: 6, status: 'pendente',     created_at: '2026-01-10T00:00:00Z' },
   ],
-  pedidos: [],
+  pedidos: [
+    {
+      id: 'pd1', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo',
+      numero: 'PO-2026-001', exportador_nome: 'Shanghai Electronics Co.', exportador_pais: 'CN',
+      status: 'confirmado', valor_fob: 68_400, moeda: 'USD', peso_bruto: 12_300,
+      data_pedido: '2026-01-15T00:00:00Z', data_embarque_prevista: '2026-03-15T00:00:00Z',
+      observacoes: 'PO principal — equipamentos de comunicação 5G',
+      created_at: '2026-01-15T00:00:00Z', updated_at: '2026-02-01T00:00:00Z',
+      itens: [
+        { id: 'i1-1', pedido_id: 'pd1', numero_item: 1, descricao: 'Roteador 5G dual-band — modelo R-2400', ncm: '8517.62.99', quantidade: 200, unidade: 'UN', valor_unitario: 215.00, valor_total: 43_000, peso_liquido: 1_600, peso_bruto: 1_800, status_li: 'deferida', numero_li: 'LI-2026/0123456-7', created_at: '2026-01-15T00:00:00Z' },
+        { id: 'i1-2', pedido_id: 'pd1', numero_item: 2, descricao: 'Antena setorial 3.5GHz — modelo A-SEC35', ncm: '8517.62.99', quantidade: 100, unidade: 'UN', valor_unitario: 180.00, valor_total: 18_000, peso_liquido: 800, peso_bruto: 900, status_li: 'deferida', numero_li: 'LI-2026/0123456-7', created_at: '2026-01-15T00:00:00Z' },
+        { id: 'i1-3', pedido_id: 'pd1', numero_item: 3, descricao: 'Cabo coaxial RG-58 — bobina 100m', ncm: '8544.49.00', quantidade: 80, unidade: 'UN', valor_unitario: 92.50, valor_total: 7_400, peso_liquido: 480, peso_bruto: 560, status_li: 'deferida', created_at: '2026-01-15T00:00:00Z' },
+      ],
+    },
+    {
+      id: 'pd2', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo',
+      numero: 'PO-2026-002', exportador_nome: 'Shanghai Electronics Co.', exportador_pais: 'CN',
+      status: 'confirmado', valor_fob: 32_650, moeda: 'USD', peso_bruto: 5_200,
+      data_pedido: '2026-01-22T00:00:00Z', data_embarque_prevista: '2026-03-15T00:00:00Z',
+      observacoes: 'Acessórios complementares — mesmo embarque do PO-001',
+      created_at: '2026-01-22T00:00:00Z', updated_at: '2026-02-10T00:00:00Z',
+      itens: [
+        { id: 'i2-1', pedido_id: 'pd2', numero_item: 1, descricao: 'Fonte de alimentação 48V/10A', ncm: '8504.40.90', quantidade: 150, unidade: 'UN', valor_unitario: 145.00, valor_total: 21_750, peso_liquido: 2_800, peso_bruto: 3_200, status_li: 'deferida', numero_li: 'LI-2026/0123456-7', created_at: '2026-01-22T00:00:00Z' },
+        { id: 'i2-2', pedido_id: 'pd2', numero_item: 2, descricao: 'Suporte de fixação para torre', ncm: '7308.30.00', quantidade: 80, unidade: 'UN', valor_unitario: 95.00, valor_total: 7_600, peso_liquido: 1_600, peso_bruto: 1_800, status_li: 'dispensada', created_at: '2026-01-22T00:00:00Z' },
+        { id: 'i2-3', pedido_id: 'pd2', numero_item: 3, descricao: 'Kit de conectores N-Type', ncm: '8536.69.90', quantidade: 660, unidade: 'PC', valor_unitario: 5.00, valor_total: 3_300, peso_liquido: 180, peso_bruto: 200, status_li: 'dispensada', created_at: '2026-01-22T00:00:00Z' },
+      ],
+    },
+    {
+      id: 'pd3', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo',
+      numero: 'PO-2026-003', exportador_nome: 'Shanghai Electronics Co.', exportador_pais: 'CN',
+      status: 'pendente', valor_fob: 7_000, moeda: 'USD', peso_bruto: 1_271,
+      data_pedido: '2026-02-05T00:00:00Z',
+      observacoes: 'PO complementar — peças de reposição. Aguardando confirmação do exportador.',
+      created_at: '2026-02-05T00:00:00Z', updated_at: '2026-02-05T00:00:00Z',
+      itens: [
+        { id: 'i3-1', pedido_id: 'pd3', numero_item: 1, descricao: 'Módulo de RF 3.5GHz (reposição)', ncm: '8517.62.99', quantidade: 50, unidade: 'UN', valor_unitario: 140.00, valor_total: 7_000, peso_liquido: 1_100, peso_bruto: 1_271, status_li: 'pendente', created_at: '2026-02-05T00:00:00Z' },
+      ],
+    },
+  ],
   followUps: [],
   documentos: [
     { id: 'd1', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', tipo: 'invoice',           nome: 'Invoice_Proforma_PO2026001.pdf', arquivo_url: '#', tamanho_bytes: 251_000, mime_type: 'application/pdf', uploaded_by: 'user1', created_at: '2026-01-20T00:00:00Z' },
@@ -112,17 +144,6 @@ const MOCK_PROCESSO: ProcessoDetail = {
   ],
 }
 
-// ─── Status Map ─────────────────────────────────────────────────────────────
-
-const STATUS_LABELS: Record<string, string> = {
-  rascunho: 'Rascunho',
-  em_andamento: 'Em Andamento',
-  aguardando_documentos: 'Aguardando Docs',
-  em_desembaraco: 'Em Desembaraco',
-  concluido: 'Concluido',
-  cancelado: 'Cancelado',
-}
-
 // ─── Navigation Sections ────────────────────────────────────────────────────
 
 interface NavItem {
@@ -130,6 +151,8 @@ interface NavItem {
   label: string
   icon: React.ReactNode
   id: string
+  /** Contador opcional — exibido apenas quando > 0 e sempre derivado de dado real (REGRA 05/08). */
+  count?: number
 }
 
 interface NavSection {
@@ -137,46 +160,64 @@ interface NavSection {
   items: NavItem[]
 }
 
-const buildNavSections = (processoId: string, idOrganizacao: string): NavSection[] => {
+/** Contadores derivados da fonte primária (ProcessoDetail). Nunca fabricar valores. */
+interface NavCounts {
+  pedidos: number
+}
+
+const buildNavSections = (
+  processoId: string,
+  idOrganizacao: string,
+  counts: NavCounts,
+): NavSection[] => {
   const qs = processoId ? `?id=${processoId}&idOrganizacao=${idOrganizacao}` : ''
+  // Prefixo do produto — todas as paginas vivem sob /processo/<rota>.
+  // Sem o prefixo o navigate jogava para localhost/<rota> e dava 404.
+  const base = '/processo'
 
   return [
     {
       title: 'Acompanhamento',
       items: [
-        { id: 'workflow',  to: `/workflow${qs}`,  label: 'Workflow',  icon: <FlowArrow weight="duotone" size={18} /> },
-        { id: 'pedidos',   to: `/pedidos${qs}`,   label: 'Pedidos',   icon: <Package   weight="duotone" size={18} /> },
+        { id: 'workflow',  to: `${base}/workflow${qs}`,  label: 'Workflow',  icon: <FlowArrow weight="duotone" size={18} /> },
+        { id: 'pedidos',   to: `${base}/pedidos${qs}`,   label: 'Pedidos',   icon: <Package   weight="duotone" size={18} />, count: counts.pedidos },
       ],
     },
     {
       title: 'Documentos',
       items: [
-        { id: 'li',          to: `/li${qs}`,          label: 'LI',          icon: <FileText     weight="duotone" size={18} /> },
-        { id: 'di',          to: `/di${qs}`,          label: 'DI',          icon: <FileDashed   weight="duotone" size={18} /> },
-        { id: 'duimp',       to: `/duimp${qs}`,       label: 'DUIMP',       icon: <CloudArrowUp weight="duotone" size={18} /> },
-        { id: 'retificacao', to: `/retificacao${qs}`, label: 'Retificacao', icon: <PencilLine   weight="duotone" size={18} /> },
+        { id: 'li',          to: `${base}/li${qs}`,          label: 'LI',          icon: <FileText     weight="duotone" size={18} /> },
+        { id: 'di',          to: `${base}/di${qs}`,          label: 'DI',          icon: <FileDashed   weight="duotone" size={18} /> },
+        { id: 'duimp',       to: `${base}/duimp${qs}`,       label: 'DUIMP',       icon: <CloudArrowUp weight="duotone" size={18} /> },
+        { id: 'retificacao', to: `${base}/retificacao${qs}`, label: 'Retificacao', icon: <PencilLine   weight="duotone" size={18} /> },
       ],
     },
     {
       title: 'Financeiro',
       items: [
-        { id: 'financeiro', to: `/financeiro${qs}`, label: 'Financeiro', icon: <CurrencyDollar weight="duotone" size={18} /> },
-        { id: 'taxas',      to: `/taxas${qs}`,      label: 'Taxas',      icon: <Receipt        weight="duotone" size={18} /> },
+        { id: 'financeiro', to: `${base}/financeiro${qs}`, label: 'Financeiro', icon: <CurrencyDollar weight="duotone" size={18} /> },
+        { id: 'taxas',      to: `${base}/taxas${qs}`,      label: 'Taxas',      icon: <Receipt        weight="duotone" size={18} /> },
       ],
     },
     {
       title: 'Dados',
       items: [
-        { id: 'containers',     to: `/containers${qs}`,     label: 'Containers',        icon: <Cube          weight="duotone" size={18} /> },
-        { id: 'dados-tecnicos', to: `/dados-tecnicos${qs}`, label: 'Dados Tecnicos',    icon: <GearSix       weight="duotone" size={18} /> },
-        { id: 'dados-processo', to: `/dados-processo${qs}`, label: 'Dados do Processo', icon: <ClipboardText weight="duotone" size={18} /> },
+        { id: 'containers',     to: `${base}/containers${qs}`,     label: 'Containers',        icon: <Cube          weight="duotone" size={18} /> },
+        { id: 'dados-tecnicos', to: `${base}/dados-tecnicos${qs}`, label: 'Dados Tecnicos',    icon: <GearSix       weight="duotone" size={18} /> },
+        { id: 'dados-processo', to: `${base}/dados-processo${qs}`, label: 'Dados do Processo', icon: <ClipboardText weight="duotone" size={18} /> },
       ],
     },
     {
       title: 'Comunicacao',
       items: [
-        { id: 'email', to: `/email${qs}`, label: 'Email', icon: <Envelope    weight="duotone" size={18} /> },
-        { id: 'todo',  to: `/todo${qs}`,  label: 'To Do', icon: <CheckSquare weight="duotone" size={18} /> },
+        { id: 'email', to: `${base}/email${qs}`, label: 'Email', icon: <Envelope    weight="duotone" size={18} /> },
+        { id: 'todo',  to: `${base}/todo${qs}`,  label: 'To Do', icon: <CheckSquare weight="duotone" size={18} /> },
+      ],
+    },
+    {
+      title: 'Configurações',
+      items: [
+        { id: 'configuracoes', to: `${base}/configuracoes${qs}`, label: 'Configurações', icon: <GearSix weight="duotone" size={18} /> },
       ],
     },
   ]
@@ -184,17 +225,11 @@ const buildNavSections = (processoId: string, idOrganizacao: string): NavSection
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-const brl = (val: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)
-
-const usd = (val: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'USD' }).format(val)
-
-const fmtPeso = (val: number) =>
-  val.toLocaleString('pt-BR', { maximumFractionDigits: 2 })
-
-const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+// Cor de acento do produto Processo (#facc15) — fonte unica: getProdutoMeta.
+// Usada no item ativo do menu (dot + fundo), conforme design-system "3 pontos de contato".
+const PRODUTO_COLOR = getProdutoMeta('processo').color
+// Versao translucida (12%) para o fundo do item ativo — hex de 8 digitos (alpha 0x1f ~= 12%).
+const PRODUTO_COLOR_DIM = `${PRODUTO_COLOR}1f`
 
 // ─── Componente ─────────────────────────────────────────────────────────────
 
@@ -206,13 +241,19 @@ export default function ProcessoLayout() {
   const processoId = searchParams.get('id') ?? ''
   const idOrganizacao = searchParams.get('idOrganizacao') ?? ''
 
-  const { currentTheme, tooltipsDisabled, toggleTooltips, setSidebarOpen } = useShellStore()
+  const { currentTheme, tooltipsDisabled, setSidebarOpen } = useShellStore()
   const isLight = currentTheme === 'light'
 
   const [processo, setProcesso] = useState<ProcessoDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
+  // Garante que ao montar a pagina o menu SEMPRE comeca expandido —
+  // evita o estado preso recolhido entre HMRs / Fast Refresh do Vite.
+  useEffect(() => {
+    setSidebarCollapsed(false)
+  }, [])
 
   // Recolhe o nav global ao entrar no processo; restaura ao sair
   useEffect(() => {
@@ -263,23 +304,18 @@ export default function ProcessoLayout() {
     }
   }, [tooltipsDisabled])
 
-  const navSections = useMemo(
-    () => buildNavSections(processoId, idOrganizacao),
-    [processoId, idOrganizacao]
+  // Contadores derivados da fonte primaria — nunca fabricados (REGRA 05/08).
+  const navCounts = useMemo<NavCounts>(
+    () => ({ pedidos: processo?.pedidos?.length ?? 0 }),
+    [processo]
   )
 
-  // Detecta rota ativa para o breadcrumb
-  const activeRoute = useMemo(() => {
-    const path = location.pathname.replace(/^\//, '')
-    for (const section of navSections) {
-      for (const item of section.items) {
-        if (item.to.startsWith(`/${path}`)) {
-          return { label: item.label, sectionTitle: section.title }
-        }
-      }
-    }
-    return { label: 'Workflow', sectionTitle: 'Acompanhamento' }
-  }, [location.pathname, navSections])
+  const navSections = useMemo(
+    () => buildNavSections(processoId, idOrganizacao, navCounts),
+    [processoId, idOrganizacao, navCounts]
+  )
+
+
 
   // Progresso das etapas
   const { etapasConcluidas, etapasTotal, progressPercent } = useMemo(() => {
@@ -295,24 +331,26 @@ export default function ProcessoLayout() {
 
   return (
     <ProcessoContext.Provider value={{ processo, loading, error, refetch: fetchProcesso }}>
-      <div className={`p2-shell ${sidebarCollapsed ? 'p2-shell--collapsed' : ''}`}>
+      <div
+        className={`p2-shell ${sidebarCollapsed ? 'p2-shell--collapsed' : ''}`}
+        style={{
+          '--p2-produto': PRODUTO_COLOR,
+          '--p2-produto-dim': PRODUTO_COLOR_DIM,
+        } as React.CSSProperties}
+      >
         {/* ─── Sidebar ──────────────────────────────────── */}
         <aside className="p2-sidebar">
-          {/* Breadcrumb / Back */}
-          <div className="p2-breadcrumb">
-            <TooltipGlobal titulo="Voltar" descricao="Retornar para a listagem de processos">
-              <button
-                className="p2-breadcrumb-back"
-                onClick={() => navigate(-1)}
-                type="button"
-              >
-                <ArrowLeft weight="bold" size={14} />
-                <span>{t('processo.titulo')}</span>
-              </button>
-            </TooltipGlobal>
-            <CaretRight size={12} className="p2-breadcrumb-sep" />
-            <span className="p2-breadcrumb-current">{activeRoute.label}</span>
-          </div>
+          {/* Toggle flutuante na borda direita — recolhe/expande o menu. */}
+          <TooltipGlobal titulo={t('shell.recolher_menu')} descricao="Recolher ou expandir o menu lateral">
+            <button
+              className="p2-collapse-btn"
+              onClick={() => setSidebarCollapsed(prev => !prev)}
+              type="button"
+              aria-label={t('shell.recolher_menu')}
+            >
+              <SidebarSimple weight={sidebarCollapsed ? 'duotone' : 'regular'} size={18} />
+            </button>
+          </TooltipGlobal>
 
           {/* Card de Info do Processo */}
           {loading && !processo && (
@@ -326,13 +364,6 @@ export default function ProcessoLayout() {
 
           {processo && (
             <div className="p2-info-card ws-fade-up">
-              <div className="p2-info-top">
-                <div className="p2-info-numero">{processo.numero}</div>
-                <StatusBadgeGlobal
-                  valor={STATUS_LABELS[processo.status] ?? processo.status}
-                  genero="masculino"
-                />
-              </div>
               <div className="p2-info-empresa">{processo.importador_nome}</div>
 
               {processo.exportador_nome && (
@@ -364,41 +395,6 @@ export default function ProcessoLayout() {
                 </div>
               )}
 
-              {/* Quick Stats */}
-              <div className="p2-quick-stats">
-                {processo.valor_fob_total > 0 && (
-                  <TooltipGlobal titulo="Valor FOB Total" descricao="Valor total das mercadorias no ponto de embarque">
-                    <div className="p2-stat">
-                      <CurrencyDollar weight="duotone" size={14} />
-                      <span>{usd(processo.valor_fob_total)}</span>
-                    </div>
-                  </TooltipGlobal>
-                )}
-                {processo.peso_bruto_total > 0 && (
-                  <TooltipGlobal titulo="Peso Bruto Total" descricao="Peso total incluindo embalagem">
-                    <div className="p2-stat">
-                      <Scales weight="duotone" size={14} />
-                      <span>{fmtPeso(processo.peso_bruto_total)} kg</span>
-                    </div>
-                  </TooltipGlobal>
-                )}
-                {processo.data_embarque && (
-                  <TooltipGlobal titulo="Data de Embarque" descricao="Data prevista ou realizada do embarque">
-                    <div className="p2-stat">
-                      <Anchor weight="duotone" size={14} />
-                      <span>{fmtDate(processo.data_embarque)}</span>
-                    </div>
-                  </TooltipGlobal>
-                )}
-                {processo.data_chegada && (
-                  <TooltipGlobal titulo="Data de Chegada" descricao="Data prevista ou realizada da chegada">
-                    <div className="p2-stat">
-                      <CalendarBlank weight="duotone" size={14} />
-                      <span>{fmtDate(processo.data_chegada)}</span>
-                    </div>
-                  </TooltipGlobal>
-                )}
-              </div>
             </div>
           )}
 
@@ -409,6 +405,7 @@ export default function ProcessoLayout() {
                 <div className="p2-nav-section-title">{section.title}</div>
                 {section.items.map(item => {
                   const isActive = location.pathname === item.to.split('?')[0] ||
+                    location.pathname === `/processo/${item.id}` ||
                     location.pathname === `/${item.id}`
                   return (
                     <button
@@ -419,6 +416,9 @@ export default function ProcessoLayout() {
                     >
                       <span className="p2-nav-icon">{item.icon}</span>
                       <span className="p2-nav-label">{item.label}</span>
+                      {item.count != null && item.count > 0 && (
+                        <span className="p2-nav-badge">{item.count}</span>
+                      )}
                     </button>
                   )
                 })}
@@ -426,61 +426,13 @@ export default function ProcessoLayout() {
             ))}
           </nav>
 
-          {/* Toggle Collapse */}
-          <div className="p2-sidebar-footer">
-            <TooltipGlobal titulo={t('shell.recolher_menu')} descricao="Recolher ou expandir o menu lateral">
-              <button
-                className="p2-collapse-btn"
-                onClick={() => setSidebarCollapsed(prev => !prev)}
-                type="button"
-              >
-                <Sidebar weight="duotone" size={16} />
-              </button>
-            </TooltipGlobal>
-          </div>
         </aside>
 
         {/* ─── Main Area ──────────────────────────────── */}
+        {/* O titulo da pagina vem do CabecalhoGlobal de cada rota filha
+            (padrao plataforma). O menu nunca some — quando recolhido vira
+            um rail estreito de icones, e o toggle continua acessivel. */}
         <div className="p2-main">
-          {/* Top Bar */}
-          <div className="p2-topbar">
-            {/* Sidebar toggle para mobile / collapsed */}
-            {sidebarCollapsed && (
-              <button
-                className="p2-topbar-toggle"
-                onClick={() => setSidebarCollapsed(false)}
-                type="button"
-              >
-                <Sidebar weight="duotone" size={18} />
-              </button>
-            )}
-
-            <div className="p2-topbar-title">
-              {processo && (
-                <>
-                  <span className="p2-topbar-numero">{processo.numero}</span>
-                  <CaretRight size={12} className="p2-topbar-sep" />
-                  <span className="p2-topbar-page">{activeRoute.label}</span>
-                </>
-              )}
-            </div>
-
-            <div className="p2-topbar-actions">
-              <TooltipGlobal
-                titulo="Dicas e Explicacoes"
-                descricao={tooltipsDisabled ? 'Tooltips desabilitadas' : 'Tooltips habilitadas'}
-              >
-                <button
-                  className="p2-topbar-btn"
-                  onClick={toggleTooltips}
-                  style={{ color: tooltipsDisabled ? 'var(--p2-muted)' : 'var(--p2-accent)' }}
-                  type="button"
-                >
-                  <Info size={18} weight={tooltipsDisabled ? 'regular' : 'fill'} />
-                </button>
-              </TooltipGlobal>
-            </div>
-          </div>
 
           {/* Error Banner */}
           {error && (

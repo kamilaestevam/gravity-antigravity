@@ -10,7 +10,7 @@ import React, { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from '@shell'
 import { PRODUCT_CONFIG } from './shared/config'
-import { CurrencyDollar } from '@phosphor-icons/react'
+import { CurrencyDollar, Briefcase } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 
@@ -18,7 +18,8 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 
 const ProcessoLayout = lazy(() => import('./pages/ProcessoLayout'))
 const Workflow = lazy(() => import('./pages/workflow/Workflow'))
-const Pedidos = lazy(() => import('./pages/pedidos/Pedidos'))
+const PedidosResumo = lazy(() => import('./pages/pedidos/PedidosResumo'))
+const PedidosLista = lazy(() => import('./pages/pedidos/PedidosLista'))
 const DadosTecnicos = lazy(() => import('./pages/dados-tecnicos/DadosTecnicos'))
 const Email = lazy(() => import('./pages/email/Email'))
 
@@ -59,6 +60,31 @@ function FinanceiroPlaceholder() {
   )
 }
 
+// ─── Placeholder: Workspace ────────────────────────────────────────────────
+
+function WorkspacePlaceholder() {
+  return (
+    <PaginaGlobal
+      className="ws-fade-up"
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<Briefcase weight="duotone" size={22} />}
+          titulo="Workspace"
+          subtitulo="Área de trabalho do processo"
+        />
+      }
+    >
+      <div className="proc-empty-state ws-fade-up ws-fade-up-d1">
+        <Briefcase weight="duotone" size={48} color="var(--text-muted)" />
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+          Workspace em construção
+        </p>
+      </div>
+    </PaginaGlobal>
+  )
+}
+
 // ─── App ───────────────────────────────────────────────────────────────────
 
 export function App() {
@@ -69,10 +95,17 @@ export function App() {
           <Route path="/" element={<Navigate to="workflow" replace />} />
           <Route element={<ProcessoLayout />}>
             <Route path="workflow" element={<Workflow />} />
-            <Route path="pedidos" element={<Pedidos />} />
+            {/* Pedidos: rotas aninhadas — /pedidos cai no index (Navigate
+                pra resumo); /pedidos/resumo e /pedidos/lista sao filhos. */}
+            <Route path="pedidos">
+              <Route index element={<Navigate to="resumo" replace />} />
+              <Route path="resumo" element={<PedidosResumo />} />
+              <Route path="lista"  element={<PedidosLista />} />
+            </Route>
             <Route path="dados-tecnicos" element={<DadosTecnicos />} />
             <Route path="email" element={<Email />} />
             <Route path="financeiro" element={<FinanceiroPlaceholder />} />
+            <Route path="workspace"  element={<WorkspacePlaceholder />} />
           </Route>
           <Route path="*" element={<Navigate to="workflow" replace />} />
         </Routes>

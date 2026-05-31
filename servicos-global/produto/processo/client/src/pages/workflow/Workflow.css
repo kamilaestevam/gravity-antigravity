@@ -108,15 +108,119 @@
   margin: 0;
 }
 
-/* ── Timeline Stepper (horizontal) ─────────────────────────────────────── */
-.wf-stepper {
-  display: flex;
-  align-items: flex-start;
-  padding: 1.25rem 1.5rem;
+/* ── Timeline (header + stepper) — estilo BID Frete ─────────────────────── */
+/* Card unico que envolve um cabecalho (prazo / acoes) e o stepper logo abaixo. */
+.wf-timeline {
   background: var(--proc-surface, var(--ws-surface, #1e293b));
   border-radius: 12px;
   border: 1px solid var(--proc-accent-border, rgba(99, 102, 241, 0.2));
+  margin-top: 1.5rem;
   margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.wf-timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1.5rem;
+  border-bottom: 1px solid var(--proc-accent-border, rgba(99, 102, 241, 0.12));
+}
+
+.wf-timeline-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.wf-timeline-status-icon {
+  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+  flex-shrink: 0;
+}
+
+.wf-timeline-info {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.wf-timeline-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+  white-space: nowrap;
+}
+
+.wf-timeline-date {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--proc-text, var(--ws-text, #f1f5f9));
+  white-space: nowrap;
+}
+
+.wf-timeline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.wf-timeline-badge--ontime {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.30);
+}
+
+.wf-timeline-badge--overdue {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.30);
+}
+
+.wf-timeline-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.wf-timeline-action-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--proc-accent-border, rgba(99, 102, 241, 0.20));
+  border-radius: 8px;
+  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.wf-timeline-action-btn:hover {
+  background: var(--proc-accent-dim, rgba(99, 102, 241, 0.12));
+  color: var(--proc-text, var(--ws-text, #f1f5f9));
+  border-color: var(--proc-accent, #6366f1);
+}
+
+/* ── Timeline Stepper (horizontal) ─────────────────────────────────────── */
+/* Agora vive DENTRO do .wf-timeline — sem fundo/borda proprios. */
+.wf-stepper {
+  display: flex;
+  align-items: flex-start;
+  padding: 1.5rem;
   overflow-x: auto;
 }
 
@@ -128,19 +232,19 @@
   min-width: 80px;
 }
 
-/* Stepper Circle — 2rem, min-width 2rem, flex-shrink 0 */
+/* Stepper Box — caixa arredondada 40x40 (BID Frete), nao circulo */
 .wf-step-circle {
-  width: 2rem;
-  height: 2rem;
-  min-width: 2rem;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
   flex-shrink: 0;
-  border-radius: 50%;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 700;
-  border: 2px solid var(--proc-accent-border, rgba(99, 102, 241, 0.2));
+  border: 1.5px solid var(--proc-accent-border, rgba(99, 102, 241, 0.2));
   background: var(--proc-surface-2, var(--ws-surface-2, #0f172a));
   color: var(--proc-muted, var(--ws-muted, #94a3b8));
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -154,12 +258,12 @@
   color: var(--proc-muted, var(--ws-muted, #94a3b8));
 }
 
-/* Active: accent color */
+/* Active: roxo identico ao BID Frete (#a78bfa violet-400) com ring sutil */
 .wf-step-circle--active {
-  border-color: var(--proc-accent, #6366f1);
-  background: var(--proc-accent-dim, rgba(99, 102, 241, 0.12));
-  color: var(--proc-accent, #6366f1);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  border-color: #a78bfa;
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+  box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.10);
 }
 
 /* Done: green */
@@ -169,26 +273,35 @@
   color: #fff;
 }
 
-/* Connector line between steps */
+/* Connector line entre as caixas — alinhada com o centro vertical das
+   caixas de 40px (margin-top: 19px = 20 - 1 onde 1 = metade da altura
+   do connector de 2px). */
 .wf-connector {
   flex: 1;
   height: 2px;
   min-width: 1.5rem;
   background: var(--proc-accent-border, rgba(99, 102, 241, 0.2));
-  align-self: center;
-  margin-top: -0.25rem;
+  align-self: flex-start;
+  margin-top: 19px;
   transition: background 0.3s;
 }
 
-/* Done connector: green */
+/* Done connector: green (entre dois passos concluidos) */
 .wf-connector--done {
   background: #10b981;
 }
 
-/* Step label */
+/* Active connector: gradiente verde → roxo (transicao para a etapa ativa) */
+.wf-connector--active {
+  background: linear-gradient(90deg, #10b981, #a78bfa);
+}
+
+/* Step label — UPPERCASE como no BID Frete */
 .wf-step-label {
   font-size: 0.6875rem;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   text-align: center;
   color: var(--proc-muted, var(--ws-muted, #94a3b8));
   max-width: 90px;
@@ -196,12 +309,126 @@
 }
 
 .wf-step-label--active {
-  color: var(--proc-accent, #6366f1);
-  font-weight: 600;
+  color: #a78bfa;
+  font-weight: 700;
 }
 
 .wf-step-label--done {
   color: #10b981;
+}
+
+/* ── Painel de Insights ─ espelha o "Painel de Insights Inteligente"
+   do BID Frete (3 cards em grid com header + metrica grande + stats). */
+.wf-insights {
+  margin-bottom: 1.5rem;
+}
+
+/* Titulo do painel com linhas laterais sutis (igual ao BID Frete:
+   "─── Painel de Insights Inteligente ───"). */
+.wf-insights-title {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--proc-text, var(--ws-text, #f1f5f9));
+  margin-bottom: 1rem;
+}
+
+.wf-insights-title::before,
+.wf-insights-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(99, 102, 241, 0.15);
+}
+
+.wf-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.wf-insight-card {
+  background: var(--proc-surface, var(--ws-surface, #1e293b));
+  border: 1px solid var(--proc-accent-border, rgba(99, 102, 241, 0.2));
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-height: 180px;
+}
+
+.wf-insight-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.wf-insight-card-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+}
+
+.wf-insight-card-icon {
+  flex-shrink: 0;
+}
+
+.wf-insight-card-metric {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--proc-text, var(--ws-text, #f1f5f9));
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.wf-insight-card-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.wf-insight-stat {
+  /* Opcao C — Roxo discreto: tinta do mesmo #a78bfa do step ativo
+     (Embarque), criando coesao visual com a etapa em andamento. */
+  background: rgba(167, 139, 250, 0.06);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  border-radius: 8px;
+  padding: 0.5rem 0.625rem;
+  min-width: 0;
+}
+
+.wf-insight-stat-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-insight-stat-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--proc-text, var(--ws-text, #f1f5f9));
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 1024px) {
+  .wf-insights-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ── Layout Principal (2 colunas) ──────────────────────────────────────── */
@@ -352,33 +579,77 @@
   margin: 0;
 }
 
-/* Feed Item */
+/* ── Timeline: agrupamento por data ──────────────────────────────────── */
+.wf-feed-group {
+  margin-bottom: 1.25rem;
+}
+
+.wf-feed-group:last-child {
+  margin-bottom: 0;
+}
+
+.wf-feed-group-header {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+  padding: 0.5rem 0 0.75rem 2.625rem; /* alinha com inicio do body (avatar 28 + gap 14) */
+}
+
+/* Lista de itens com linha vertical ao lado dos avatares */
+.wf-feed-timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+
+.wf-feed-timeline::before {
+  content: '';
+  position: absolute;
+  /* centro do avatar 28px = 14px, menos metade da linha (1px) = 13px */
+  left: 13px;
+  top: 14px;
+  bottom: 14px;
+  width: 2px;
+  background: rgba(99, 102, 241, 0.15);
+}
+
+/* Feed Item — gap maior entre itens para destacar os mini-cards */
 .wf-feed-item {
   display: flex;
-  gap: 0.75rem;
-  padding: 0.875rem 0;
-  border-bottom: 1px solid rgba(99, 102, 241, 0.06);
+  gap: 0.875rem;
+  padding: 0.375rem 0;
   position: relative;
+}
+
+.wf-feed-item + .wf-feed-item {
+  margin-top: 0.375rem;
 }
 
 .wf-feed-item:last-child {
   border-bottom: none;
 }
 
-/* Feed Avatar */
+/* Feed Avatar — borda na cor do fundo "recorta" a linha do timeline,
+   criando o efeito de avatar pendurado na linha. */
 .wf-feed-avatar {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.6875rem;
+  font-weight: 700;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  border: 2px solid var(--proc-surface, var(--ws-surface, #1e293b));
   /* Default (comentario) */
-  background: var(--proc-accent-dim, rgba(99, 102, 241, 0.12));
+  background: var(--proc-accent-dim, rgba(99, 102, 241, 0.18));
   color: var(--proc-accent, #6366f1);
 }
 
@@ -402,10 +673,20 @@
   color: #3b82f6;
 }
 
-/* Feed Body */
+/* Feed Body — Opcao C: roxo discreto (#a78bfa do step ativo). */
 .wf-feed-body {
   flex: 1;
   min-width: 0;
+  background: rgba(167, 139, 250, 0.06);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  border-radius: 8px;
+  padding: 0.625rem 0.875rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.wf-feed-item:hover .wf-feed-body {
+  border-color: rgba(167, 139, 250, 0.35);
+  background: rgba(167, 139, 250, 0.10);
 }
 
 .wf-feed-meta {
@@ -421,23 +702,28 @@
   color: var(--proc-text, var(--ws-text, #f1f5f9));
 }
 
-.wf-feed-tipo {
-  font-size: 0.6875rem;
-  padding: 0.125rem 0.5rem;
-  border-radius: 9999px;
-  background: var(--proc-accent-dim, rgba(99, 102, 241, 0.12));
-  color: var(--proc-accent, #6366f1);
+/* Dot colorido por categoria — primeiro item do header */
+.wf-feed-cat-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.wf-feed-tipo--alteracao_status { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-.wf-feed-tipo--documento { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-.wf-feed-tipo--email { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-.wf-feed-tipo--sistema { background: rgba(148, 163, 184, 0.08); color: var(--proc-muted, #94a3b8); }
+/* Tipo agora e texto leve em vez de pill colorida */
+.wf-feed-tipo {
+  font-size: 0.6875rem;
+  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+  text-transform: lowercase;
+}
 
-.wf-feed-data {
+/* Tempo relativo a direita; tooltip mostra a data/hora absoluta */
+.wf-feed-time {
   font-size: 0.6875rem;
   color: var(--proc-muted, var(--ws-muted, #94a3b8));
   margin-left: auto;
+  font-variant-numeric: tabular-nums;
 }
 
 .wf-feed-titulo {
@@ -503,12 +789,30 @@
   gap: 1.25rem;
 }
 
-/* Section title (Custos, Documentos) */
+/* Section title (Custos, Documentos) — com slot opcional pra contador */
 .wf-section-title {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--proc-text, var(--ws-text, #f1f5f9));
   margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Pill de contagem (ex.: Documentos 4) */
+.wf-section-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  background: var(--proc-accent-dim, rgba(99, 102, 241, 0.15));
+  color: var(--proc-accent, #818cf8);
 }
 
 /* Panel Empty */
@@ -540,25 +844,90 @@
   padding: 1.25rem;
 }
 
-.wf-custos-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+/* Lista vertical com cards de largura uniforme (align-items: stretch
+   herdado, mais width: 100% no header pra evitar shrink). */
+.wf-custos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  align-items: stretch;
 }
 
-.wf-custo-card {
-  /* CardBasicoGlobal override */
+.wf-custo-item {
+  width: 100%;
+  /* Opcao C — roxo discreto (#a78bfa do step ativo) */
+  background: rgba(167, 139, 250, 0.06);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  border-radius: 10px;
+  padding: 0.875rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
 }
 
-.wf-custo-real {
-  color: #10b981;
+.wf-custo-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.wf-custo-item-icon {
+  color: var(--proc-accent, #818cf8);
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.wf-custo-item-label {
   font-size: 0.75rem;
-}
-
-.wf-custo-pendente {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--proc-muted, var(--ws-muted, #94a3b8));
-  font-size: 0.75rem;
-  font-style: italic;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Valor principal — Plus Jakarta Sans (mesma fonte da metrica dos
+   Insights), para consistencia visual entre cards monetarios da tela. */
+.wf-custo-item-metric {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--proc-text, var(--ws-text, #f1f5f9));
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.wf-custo-item-var {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+/* Estouro de orcamento (real > estimado) = vermelho */
+.wf-custo-item-var--up {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+/* Abaixo do estimado (saving) = verde */
+.wf-custo-item-var--down {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.wf-custo-item-var--neutral {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
 }
 
 .wf-custo-tooltip p {
@@ -583,17 +952,22 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  align-items: stretch;
 }
 
+/* Card de documento mais compacto — caber acoes (editar + lixeira)
+   sem ficar apertado. Padding reduzido e icone menor.
+   width:100% garante largura uniforme (o wrapper do TooltipGlobal no
+   trigger interno tende a virar inline-block e encolher o card). */
 .wf-doc-item {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.625rem 0.75rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
   background: var(--proc-surface-2, var(--ws-surface-2, #0f172a));
   border-radius: 8px;
   border: 1px solid rgba(99, 102, 241, 0.08);
-  cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
 }
 
@@ -603,9 +977,9 @@
 }
 
 .wf-doc-icon {
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
   border-radius: 6px;
   background: var(--proc-accent-dim, rgba(99, 102, 241, 0.12));
   color: var(--proc-accent, #6366f1);
@@ -615,31 +989,47 @@
   flex-shrink: 0;
 }
 
-.wf-doc-info {
+/* Trigger envolve icone + nome — recebe o tooltip. flex:1 garante que
+   ocupe toda a largura disponivel (descontando o botao delete a direita). */
+.wf-doc-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
   flex: 1;
   min-width: 0;
+  cursor: default;
 }
 
 .wf-doc-nome {
-  font-size: 0.8125rem;
-  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--proc-text, var(--ws-text, #f1f5f9));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.wf-doc-meta {
-  font-size: 0.6875rem;
-  color: var(--proc-muted, var(--ws-muted, #94a3b8));
+/* Acoes (editar + lixeira) — grupo agrupado a direita do card.
+   margin-left: auto empurra pra direita mesmo quando o wrapper do
+   TooltipGlobal no trigger nao expande naturalmente. */
+.wf-doc-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
-.wf-doc-delete {
+.wf-doc-action {
   background: none;
   border: none;
   color: var(--proc-muted, var(--ws-muted, #94a3b8));
   cursor: pointer;
   padding: 0.25rem;
+  width: 24px;
+  height: 24px;
   border-radius: 6px;
   transition: color 0.15s, background 0.15s;
   display: flex;
@@ -647,12 +1037,17 @@
   justify-content: center;
 }
 
-.wf-doc-delete:hover {
+.wf-doc-action:hover {
+  color: var(--proc-text, var(--ws-text, #f1f5f9));
+  background: var(--proc-accent-dim, rgba(99, 102, 241, 0.12));
+}
+
+.wf-doc-action--delete:hover {
   color: #f87171;
   background: rgba(248, 113, 113, 0.08);
 }
 
-.wf-doc-delete:focus-visible {
+.wf-doc-action:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
 }

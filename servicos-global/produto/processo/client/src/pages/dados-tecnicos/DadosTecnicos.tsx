@@ -575,12 +575,27 @@ export default function DadosTecnicos() {
             </button>
           </div>
 
-          {/* Banner de resultados quando busca esta ativa */}
+          {/* Chip do filtro ativo (mesmo padrao .fc-chip do sistema) */}
           {filtroAtivo && (
-            <div className="dt-toc-resultados dt-toc-resultados--horizontal">
-              {totalMatches > 0
-                ? <>{totalMatches} resultado{totalMatches > 1 ? 's' : ''}</>
-                : <>Nenhum resultado</>}
+            <div className="dt-chips">
+              <div className="fc-chip" role="status" aria-live="polite">
+                <span className="fc-chip-label">Busca:</span>
+                <span className="fc-chip-valor">"{busca}"</span>
+                <span className="dt-chip-meta">
+                  · {totalMatches > 0
+                    ? `${totalMatches} resultado${totalMatches > 1 ? 's' : ''}`
+                    : 'sem resultado'}
+                </span>
+                <button
+                  type="button"
+                  className="fc-chip-remove"
+                  onClick={() => setBusca('')}
+                  title="Remover filtro"
+                  aria-label="Remover filtro de busca"
+                >
+                  <X size={10} weight="bold" />
+                </button>
+              </div>
             </div>
           )}
 

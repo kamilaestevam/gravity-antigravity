@@ -89,8 +89,18 @@
   height: 100%;
 }
 
-.dc-cockpit-insights-row .dc-smart-insights-grid > .dc-smart-card:not(.dc-smart-card--melhor) {
+.dc-cockpit-insights-row .dc-smart-insights-grid > .dc-smart-card:not(.dc-smart-card--melhor):not(.dc-smart-card--melhor-compacto) {
   height: 100%;
+}
+
+.dc-cockpit-insights-row .dc-smart-insights-grid--4col > .dc-smart-metricas-coluna {
+  height: 100%;
+  min-height: 0;
+}
+
+.dc-cockpit-insights-row .dc-smart-card--ranking .dc-smart-card-body--ranking {
+  flex: 1;
+  min-height: 0;
 }
 
 .dc-cockpit-insights-row .dc-smart-card--termometro {
@@ -733,14 +743,188 @@ body.light-theme .dc-smart-insights-titulo {
   overflow: visible;
 }
 
+.dc-smart-insights-grid--4col {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-height: 0;
+}
+
 .dc-smart-insights-grid > .dc-smart-card {
   width: 100%;
   min-width: 0;
   height: auto;
 }
 
+.dc-smart-metricas-coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-height: 0;
+  height: 100%;
+  align-self: stretch;
+}
+
+.dc-smart-mini-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--dc-cockpit-card-border);
+  background: var(--dc-cockpit-card-bg);
+  box-shadow: var(--dc-cockpit-card-shadow);
+  min-height: 0;
+}
+
+.dc-smart-mini-card-lbl {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted, #64748b);
+}
+
+.dc-smart-mini-card-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary, #f1f5f9);
+  font-variant-numeric: tabular-nums;
+}
+
+.dc-smart-mini-card--ia {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.dc-smart-mini-card-ia-corpo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 0;
+}
+
+.dc-smart-mini-card--ia .dc-smart-ia-confianca {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dc-smart-mini-card--ia .dc-smart-ia-mascote {
+  flex-shrink: 0;
+}
+
+.dc-smart-card--ranking {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dc-smart-card-body--ranking {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0.75rem 0.7rem 0.8rem;
+  background: rgba(2, 6, 23, 0.42);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
+
+.dc-smart-card-body--ranking::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dc-smart-card-body--ranking::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.35);
+}
+
+.dc-smart-card--ranking .dc-prop-panel-toolbar {
+  display: none;
+}
+
+.dc-smart-card--ranking .dc-prop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding: 0.15rem 0.05rem 0.25rem;
+}
+
+.dc-smart-card--ranking .dc-prop-card {
+  padding: 1rem 1.05rem 1.05rem;
+  border-radius: 12px;
+  border: 1px solid var(--dc-cockpit-card-border);
+  background: var(--dc-cockpit-card-bg);
+  box-shadow: var(--dc-cockpit-card-shadow);
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.dc-smart-card--ranking .dc-prop-card-head {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0 0 0.65rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.dc-smart-card--ranking .dc-prop-card-body,
+.dc-smart-card--ranking .dc-prop-resumo {
+  display: none;
+}
+
+.dc-smart-card--ranking .dc-prop-card-acoes {
+  display: flex;
+  padding: 0.35rem 0.85rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.dc-smart-card--ranking .dc-prop-card-acoes .dc-prop-btn-aprovar.gb-btn {
+  width: 100%;
+}
+
+/* Ranking no painel — herda layout combate (barras, tags, sparks) sem duplicar o card externo */
+.dc-smart-card--ranking .dc-cockpit-combat {
+  height: auto;
+  max-height: none;
+  min-height: 0;
+  align-self: auto;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.dc-smart-card--ranking .dc-cockpit-combat::after {
+  display: none;
+}
+
+@media (max-width: 1400px) {
+  .dc-smart-insights-grid--4col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 1100px) {
-  .dc-smart-insights-grid { grid-template-columns: 1fr; }
+  .dc-smart-insights-grid,
+  .dc-smart-insights-grid--4col {
+    grid-template-columns: 1fr;
+  }
+
+  .dc-smart-metricas-coluna {
+    flex-direction: row;
+    flex-wrap: wrap;
+    height: auto;
+  }
+
+  .dc-smart-mini-card {
+    flex: 1 1 calc(33.333% - 0.35rem);
+    min-width: 5.5rem;
+  }
+
+  .dc-smart-mini-card--ia {
+    flex: 1 1 100%;
+  }
 }
 
 .dc-smart-card {

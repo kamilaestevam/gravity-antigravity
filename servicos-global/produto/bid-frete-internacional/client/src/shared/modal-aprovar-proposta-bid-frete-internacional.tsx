@@ -151,6 +151,15 @@ export interface ModalAprovarPropostaBidFreteInternacionalProps {
   onConfirmar: () => void
 }
 
+function DestaqueGanhadorAvisoAprovacao({ children }: { children?: React.ReactNode }) {
+  return (
+    <strong className="bf-aprovacao-aviso-ganhador">
+      <Trophy weight="duotone" size={14} className="bf-aprovacao-aviso-trofeu" aria-hidden />
+      {children}
+    </strong>
+  )
+}
+
 export function ModalAprovarPropostaBidFreteInternacional({
   aberto,
   proposta,
@@ -233,16 +242,7 @@ export function ModalAprovarPropostaBidFreteInternacional({
                   i18nKey="bidfrete.comparativo.modal_aprovar_aviso_ganhador"
                   values={{ fornecedor: nome }}
                   components={{
-                    ganhador: (
-                      <strong className="bf-aprovacao-aviso-ganhador">
-                        <Trophy
-                          weight="duotone"
-                          size={14}
-                          className="bf-aprovacao-aviso-trofeu"
-                          aria-hidden
-                        />
-                      </strong>
-                    ),
+                    ganhador: <DestaqueGanhadorAvisoAprovacao />,
                   }}
                   defaults={
                     'A partir deste momento, <ganhador>{{fornecedor}}</ganhador> será avisado como ganhador da cotação. '

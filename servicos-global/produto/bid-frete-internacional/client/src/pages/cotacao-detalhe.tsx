@@ -614,7 +614,6 @@ export default function DetalheCotacao() {
               icone={<Scales weight="duotone" size={16} />}
               label={t('bidfrete.detalhe_cotacao.incoterm')}
               value={cotacao.incoterm_cotacao_bid_frete_internacional}
-              mono
             />
             <InfoRowComIcone
               icone={iconeVisibilidadeCotacao(cotacao.visibilidade_cotacao_bid_frete_internacional)}
@@ -649,7 +648,7 @@ export default function DetalheCotacao() {
                 <p className="dc-mercadoria-texto">{cotacao.descricao_mercadoria_cotacao_bid_frete_internacional}</p>
               </div>
             </div>
-            <InfoRow label={t('bidfrete.detalhe_cotacao.ncm')} value={cotacao.ncm_cotacao_bid_frete_internacional ?? '—'} mono />
+            <InfoRow label={t('bidfrete.detalhe_cotacao.ncm')} value={cotacao.ncm_cotacao_bid_frete_internacional ?? '—'} />
             <InfoRow label={t('bidfrete.detalhe_cotacao.quantidade')} value={String(cotacao.quantidade_cotacao_bid_frete_internacional)} />
             <InfoRow
               label={t('bidfrete.detalhe_cotacao.peso')}

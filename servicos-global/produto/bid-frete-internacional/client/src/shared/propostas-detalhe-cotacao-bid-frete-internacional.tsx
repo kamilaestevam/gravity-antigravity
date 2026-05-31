@@ -468,9 +468,9 @@ function CardProposta({
           </div>
         </header>
         <div className="dc-prop-barras">
-          <BarraMetrica label={t('bidfrete.detalhe_cotacao.resp_frete', 'Frete')} pct={pctPreco} />
+          <BarraMetrica label={t('bidfrete.detalhe_cotacao.resp_frete', 'Frete Básico')} pct={pctPreco} />
           <BarraMetrica label={t('bidfrete.detalhe_cotacao.resp_taxas', 'Taxas')} pct={Math.min(95, pctPreco + 8)} />
-          <BarraMetrica label={t('bidfrete.comparativo.transit_time', 'Transit')} pct={pctTransito} />
+          <BarraMetrica label={t('bidfrete.comparativo.transit_time', 'Transit Time')} pct={pctTransito} />
         </div>
         <DestaquesCardProposta
           proposta={proposta}
@@ -799,7 +799,12 @@ export function ListaPropostasDetalheCotacao({
   }
 
   return (
-    <div className="dc-prop-panel">
+    <div
+      className={[
+        'dc-prop-panel',
+        variante === 'combate' ? 'dc-cockpit-combat' : '',
+      ].filter(Boolean).join(' ')}
+    >
       <div className="dc-prop-panel-toolbar">
         <div className="dc-prop-sort-wrap">
           <span className="dc-prop-sort-label">

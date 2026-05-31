@@ -251,8 +251,9 @@ export default function DadosTecnicos() {
   const [tocColapsada, setTocColapsada] = useState(true)
   // Modo do card de stats: total ou so obrigatorios
   const [modoStats, setModoStats] = useState<'total' | 'obrig'>('total')
-  // Secoes colapsadas — default todas EXPANDIDAS (Set vazio).
-  const [secoesColapsadas, setSecoesColapsadas] = useState<Set<string>>(() => new Set())
+  // Secoes colapsadas — default TODAS COLAPSADAS (usuario expande as
+  // que quiser). Tela inicia compacta, evita rolagem desnecessaria.
+  const [secoesColapsadas, setSecoesColapsadas] = useState<Set<string>>(() => new Set(SECOES.map(s => s.id)))
 
   function toggleSecao(id: string) {
     setSecoesColapsadas(prev => {
@@ -339,25 +340,16 @@ export default function DadosTecnicos() {
   }, [])
 
   function irParaSecao(id: string) {
-    // Se a secao estiver colapsada, expande antes de rolar
+    // Se a secao estiver colapsada, expande antes (aguarda render no
+    // proximo frame pra que a altura nova ja conte na hora do scroll).
     expandirSecao(id)
-    const el = document.getElementById(id)
-    if (!el) return
-    // PaginaGlobal usa .pg-conteudo-area com overflow-y: auto — esse e
-    // o container que rola. Acha ele e rola ate o offsetTop da secao.
-    const scroller = el.closest('.pg-conteudo-area') as HTMLElement | null
-    if (scroller) {
-      // offsetTop e relativo ao offsetParent — calcula a posicao real
-      // dentro do scroller somando o getBoundingClientRect.
-      const elTop = el.getBoundingClientRect().top
-      const scTop = scroller.getBoundingClientRect().top
-      scroller.scrollTo({
-        top: scroller.scrollTop + elTop - scTop - 16,
-        behavior: 'smooth',
-      })
-    } else {
+    requestAnimationFrame(() => {
+      const el = document.getElementById(id)
+      if (!el) return
+      // scrollIntoView nativo ja anda na arvore atras do ancestral
+      // rolavel e respeita o scroll-margin-top do CSS (1rem em .dt-secao).
       el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+    })
   }
 
   return (

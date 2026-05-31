@@ -22,7 +22,7 @@ import {
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { TFunction } from 'i18next'
-import type { PropostaRankingBidFreteInternacional, StatusCotacao } from './types'
+import type { Cotacao, PropostaRankingBidFreteInternacional, StatusCotacao } from './types'
 import { aprovarResposta } from './api'
 import { ModalAprovarPropostaBidFreteInternacional } from './modal-aprovar-proposta-bid-frete-internacional'
 import {
@@ -653,6 +653,7 @@ export function ListaPropostasDetalheCotacao({
     useState<PropostaRankingBidFreteInternacional | null>(null)
   const [aprovando, setAprovando] = useState(false)
   const [aprovacaoSucesso, setAprovacaoSucesso] = useState(false)
+  const [resultadoAprovacao, setResultadoAprovacao] = useState<Cotacao | null>(null)
 
   const acoesGlobaisHabilitadas =
     propostasRanking.length > 0
@@ -725,27 +726,30 @@ export function ListaPropostasDetalheCotacao({
   }
 
   function fecharModalAprovar() {
-    if (aprovando || aprovacaoSucesso) return
+    if (aprovando) return
     setModalAprovar(false)
     setPropostaSelecionada(null)
+    setAprovacaoSucesso(false)
+    setResultadoAprovacao(null)
+  }
+
+  function concluirSucessoAprovacao() {
+    fecharModalAprovar()
+    onCotacaoAtualizada?.()
   }
 
   async function confirmarAprovar() {
     if (!propostaSelecionada || aprovando || aprovacaoSucesso) return
     setAprovando(true)
     try {
-      await aprovarResposta(
+      const resultado = await aprovarResposta(
         id_cotacao_bid_frete_internacional,
         propostaSelecionada.id_proposta_bid_frete_internacional,
       )
+      setResultadoAprovacao(resultado)
       setAprovacaoSucesso(true)
-      await new Promise((resolve) => { window.setTimeout(resolve, 600) })
-      setModalAprovar(false)
-      setPropostaSelecionada(null)
-      onCotacaoAtualizada?.()
     } finally {
       setAprovando(false)
-      setAprovacaoSucesso(false)
     }
   }
 
@@ -855,7 +859,9 @@ export function ListaPropostasDetalheCotacao({
         proposta={propostaSelecionada}
         aprovando={aprovando}
         aprovacaoSucesso={aprovacaoSucesso}
+        resultadoAprovacao={resultadoAprovacao}
         onFechar={fecharModalAprovar}
+        onConcluirSucesso={concluirSucessoAprovacao}
         onConfirmar={() => void confirmarAprovar()}
       />
     </div>

@@ -326,6 +326,7 @@
       "modal_reprovar": "Reject All",
       "motivo_placeholder": "Enter the reason for rejection...",
       "aprovacao_confirmada": "Approval confirmed!",
+      "aprovacao_sucesso_aviso": "The winner will be notified. All other proposals were automatically rejected.",
       "aprovando": "Approving...",
       "confirmar_aprovacao": "Confirm Approval",
       "confirmar_reprovacao": "Confirm Rejection",

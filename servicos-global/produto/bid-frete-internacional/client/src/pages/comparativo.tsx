@@ -126,6 +126,7 @@ export default function Comparativo() {
   const [respostaSelecionada, setRespostaSelecionada] = useState<PropostaRankingBidFreteInternacional | null>(null)
   const [aprovando, setAprovando] = useState(false)
   const [aprovacaoSucesso, setAprovacaoSucesso] = useState(false)
+  const [resultadoAprovacaoPendente, setResultadoAprovacaoPendente] = useState<Cotacao | null>(null)
 
   // Modal de reprovacao
   const [modalReprovar, setModalReprovar] = useState(false)
@@ -229,16 +230,31 @@ export default function Comparativo() {
     setAprovando(true)
     try {
       const result = await aprovarResposta(id, respostaSelecionada.id_proposta_bid_frete_internacional)
+      setResultadoAprovacaoPendente(result)
       setAprovacaoSucesso(true)
-      await new Promise((resolve) => { window.setTimeout(resolve, 600) })
-      setResultadoAprovacao(result)
-      setModalAprovar(false)
     } catch {
       // erro tratado pelo loading state
     } finally {
       setAprovando(false)
-      setAprovacaoSucesso(false)
     }
+  }
+
+  function concluirSucessoModalAprovar() {
+    if (resultadoAprovacaoPendente) {
+      setResultadoAprovacao(resultadoAprovacaoPendente)
+      setResultadoAprovacaoPendente(null)
+    }
+    setAprovacaoSucesso(false)
+    setModalAprovar(false)
+  }
+
+  function fecharModalAprovar() {
+    if (aprovando) return
+    if (aprovacaoSucesso) {
+      concluirSucessoModalAprovar()
+      return
+    }
+    setModalAprovar(false)
   }
 
   async function handleReprovar() {
@@ -558,7 +574,9 @@ export default function Comparativo() {
         proposta={respostaSelecionada}
         aprovando={aprovando}
         aprovacaoSucesso={aprovacaoSucesso}
-        onFechar={() => !aprovando && !aprovacaoSucesso && setModalAprovar(false)}
+        resultadoAprovacao={resultadoAprovacaoPendente}
+        onFechar={fecharModalAprovar}
+        onConcluirSucesso={concluirSucessoModalAprovar}
         onConfirmar={() => void handleAprovar()}
       />
 

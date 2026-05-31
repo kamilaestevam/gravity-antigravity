@@ -2564,6 +2564,7 @@
       "modal_reprovar": "Reprovar Todas",
       "motivo_placeholder": "Informe o motivo da reprovação...",
       "aprovacao_confirmada": "Aprovação confirmada!",
+      "aprovacao_sucesso_aviso": "O ganhador será notificado. As demais propostas foram reprovadas automaticamente.",
       "aprovando": "Aprovando...",
       "confirmar_aprovacao": "Confirmar Aprovação",
       "confirmar_reprovacao": "Confirmar Reprovação",

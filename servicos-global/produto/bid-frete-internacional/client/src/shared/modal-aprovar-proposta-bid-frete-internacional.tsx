@@ -4,10 +4,10 @@
 
 import React, { useId } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { BellRinging, CheckCircle, Info, Trophy } from '@phosphor-icons/react'
+import { BellRinging, CheckCircle, CurrencyDollar, Info, Trophy } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalOverlay } from '@nucleo/modal-global'
-import type { PropostaRankingBidFreteInternacional } from './types'
+import type { Cotacao, PropostaRankingBidFreteInternacional } from './types'
 
 const formatMoeda = (val: number, currency: string) =>
   new Intl.NumberFormat('pt-BR', {
@@ -147,8 +147,62 @@ export interface ModalAprovarPropostaBidFreteInternacionalProps {
   proposta: PropostaRankingBidFreteInternacional | null
   aprovando?: boolean
   aprovacaoSucesso?: boolean
+  /** Resposta da API após aprovar — alimenta card de saving na tela de sucesso. */
+  resultadoAprovacao?: Cotacao | null
   onFechar: () => void
   onConfirmar: () => void
+  /** Fecha o modal após o usuário ver a confirmação de sucesso. */
+  onConcluirSucesso?: () => void
+}
+
+function CorpoSucessoAprovacao({
+  nomeFornecedorExibicao,
+  resultado,
+}: {
+  nomeFornecedorExibicao: string
+  resultado: Cotacao | null | undefined
+}) {
+  const { t } = useTranslation()
+  const moedaSaving = resultado?.moeda_aprovada ?? resultado?.moeda_meta_cotacao_bid_frete_internacional ?? 'USD'
+  const valorSaving = resultado?.ganho_valor_cotacao_bid_frete_internacional
+  const pctSaving = resultado?.ganho_percentual_cotacao_bid_frete_internacional
+
+  return (
+    <div className="bf-aprovacao-sucesso" role="status">
+      <div className="bf-aprovacao-sucesso-icone" aria-hidden>
+        <CheckCircle weight="duotone" size={56} />
+      </div>
+      <h3 className="bf-aprovacao-sucesso-titulo">
+        {t('bidfrete.comparativo.aprovacao_confirmada', 'Aprovação confirmada!')}
+      </h3>
+      <p className="bf-aprovacao-sucesso-sub">
+        {t('bidfrete.comparativo.fornecedor_selecionado', 'Fornecedor selecionado')}:{' '}
+        <strong>{nomeFornecedorExibicao}</strong>
+      </p>
+      <p className="bf-aprovacao-sucesso-aviso">
+        {t(
+          'bidfrete.comparativo.aprovacao_sucesso_aviso',
+          'O ganhador será notificado. As demais propostas foram reprovadas automaticamente.',
+        )}
+      </p>
+      {valorSaving != null && valorSaving > 0 && (
+        <div className="bf-aprovacao-saving-card">
+          <div className="bf-aprovacao-saving-header">
+            <CurrencyDollar weight="duotone" size={18} aria-hidden />
+            <span>{t('bidfrete.comparativo.saving_obtido', 'Saving obtido')}</span>
+          </div>
+          <div className="bf-aprovacao-saving-valores">
+            <span className="bf-aprovacao-saving-valor">
+              {formatMoeda(valorSaving, moedaSaving)}
+            </span>
+            {pctSaving != null && (
+              <span className="bf-aprovacao-saving-pct">{pctSaving.toFixed(1)}%</span>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 function DestaqueGanhadorAvisoAprovacao({ children }: { children?: React.ReactNode }) {
@@ -165,8 +219,10 @@ export function ModalAprovarPropostaBidFreteInternacional({
   proposta,
   aprovando = false,
   aprovacaoSucesso = false,
+  resultadoAprovacao = null,
   onFechar,
   onConfirmar,
+  onConcluirSucesso,
 }: ModalAprovarPropostaBidFreteInternacionalProps) {
   const { t } = useTranslation()
   const tituloId = useId()
@@ -178,62 +234,91 @@ export function ModalAprovarPropostaBidFreteInternacional({
     fornecedor: nome,
     defaultValue: `Revise os dados completos da proposta de ${nome} antes de confirmar.`,
   })
-  const emProcesso = aprovando || aprovacaoSucesso
+  const exibirSucesso = aprovacaoSucesso && !aprovando
+  const bloquearFechar = aprovando
+
+  function aoFecharModal() {
+    if (aprovando) return
+    if (exibirSucesso) {
+      ;(onConcluirSucesso ?? onFechar)()
+      return
+    }
+    onFechar()
+  }
 
   return (
     <>
       <ModalOverlay
         aberto={aberto}
-        aoFechar={onFechar}
-        titulo={tituloModal}
-        tamanho="lg"
-        semFechar={emProcesso}
-        fecharAoClicarOverlay={!emProcesso}
-        fecharPorESC={!emProcesso}
-        cabecalhoPersonalizado={(
-          <div className="modal-header bf-aprovacao-modal-header">
-            <div className="bf-aprovacao-modal-header-texto">
-              <div className="bf-aprovacao-modal-titulo-row">
-                <CheckCircle
-                  weight="duotone"
-                  size={22}
-                  className="bf-aprovacao-modal-icone-titulo"
-                  aria-hidden
-                />
-                <h2 id={tituloId} className="mg-titulo text-h3">
-                  {tituloModal}
-                </h2>
+        aoFechar={aoFecharModal}
+        titulo={exibirSucesso ? '' : tituloModal}
+        tamanho={exibirSucesso ? 'md' : 'lg'}
+        semFechar={bloquearFechar}
+        fecharAoClicarOverlay={!bloquearFechar}
+        fecharPorESC={!bloquearFechar}
+        cabecalhoPersonalizado={
+          exibirSucesso
+            ? <div className="bf-aprovacao-modal-header bf-aprovacao-modal-header--sucesso" aria-hidden />
+            : (
+              <div className="modal-header bf-aprovacao-modal-header">
+                <div className="bf-aprovacao-modal-header-texto">
+                  <div className="bf-aprovacao-modal-titulo-row">
+                    <CheckCircle
+                      weight="duotone"
+                      size={22}
+                      className="bf-aprovacao-modal-icone-titulo"
+                      aria-hidden
+                    />
+                    <h2 id={tituloId} className="mg-titulo text-h3">
+                      {tituloModal}
+                    </h2>
+                  </div>
+                  <p className="mg-subtitulo text-sm">{subtituloModal}</p>
+                </div>
               </div>
-              <p className="mg-subtitulo text-sm">{subtituloModal}</p>
-            </div>
-          </div>
-        )}
+            )
+        }
         renderizarFooter={() => (
-          <>
-            <BotaoGlobal
-              variante="secundario"
-              tamanho="medio"
-              onClick={onFechar}
-              disabled={emProcesso}
-            >
-              {t('comum.cancelar', 'Cancelar')}
-            </BotaoGlobal>
+          exibirSucesso ? (
             <BotaoGlobal
               variante="primario"
               tamanho="medio"
               icone={<CheckCircle size={14} weight="bold" />}
-              carregando={aprovando && !aprovacaoSucesso}
-              textoCarregando={t('bidfrete.comparativo.aprovando', 'Aprovando...')}
-              resultadoAcao={aprovacaoSucesso ? 'sucesso' : null}
-              disabled={!proposta || emProcesso}
-              onClick={onConfirmar}
+              onClick={aoFecharModal}
             >
-              {t('bidfrete.comparativo.confirmar_aprovacao', 'Confirmar Aprovação')}
+              {t('comum.continuar', 'Continuar')}
             </BotaoGlobal>
-          </>
+          ) : (
+            <>
+              <BotaoGlobal
+                variante="secundario"
+                tamanho="medio"
+                onClick={onFechar}
+                disabled={aprovando}
+              >
+                {t('comum.cancelar', 'Cancelar')}
+              </BotaoGlobal>
+              <BotaoGlobal
+                variante="primario"
+                tamanho="medio"
+                icone={<CheckCircle size={14} weight="bold" />}
+                carregando={aprovando}
+                textoCarregando={t('bidfrete.comparativo.aprovando', 'Aprovando...')}
+                disabled={!proposta || aprovando}
+                onClick={onConfirmar}
+              >
+                {t('bidfrete.comparativo.confirmar_aprovacao', 'Confirmar Aprovação')}
+              </BotaoGlobal>
+            </>
+          )
         )}
       >
-        {proposta && (
+        {exibirSucesso ? (
+          <CorpoSucessoAprovacao
+            nomeFornecedorExibicao={nome}
+            resultado={resultadoAprovacao}
+          />
+        ) : proposta && (
           <div className="bf-aprovacao-corpo">
             <div className="bf-aprovacao-aviso" role="note">
               <BellRinging weight="duotone" size={20} className="bf-aprovacao-aviso-icone" aria-hidden />
@@ -279,6 +364,11 @@ export function ModalAprovarPropostaBidFreteInternacional({
 const MODAL_APROVAR_PROPOSTA_RESUMO_STYLES = `
   .bf-aprovacao-modal-header {
     padding-right: 3.5rem;
+  }
+  .bf-aprovacao-modal-header--sucesso {
+    padding: 0;
+    min-height: 2.75rem;
+    border-bottom: none;
   }
   .bf-aprovacao-modal-header-texto {
     display: flex;
@@ -418,5 +508,85 @@ const MODAL_APROVAR_PROPOSTA_RESUMO_STYLES = `
     font-size: 1rem;
     font-weight: 700;
     color: #e0e7ff;
+  }
+  .mg-dialog:has(.bf-aprovacao-sucesso) > .mg-body.modal-body {
+    padding-top: 1.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .bf-aprovacao-sucesso {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.5rem 0.75rem 1rem;
+    text-align: center;
+  }
+  .bf-aprovacao-sucesso-icone {
+    color: var(--success, #22c55e);
+    animation: bf-aprovacao-sucesso-pulse 0.85s ease-out;
+  }
+  @keyframes bf-aprovacao-sucesso-pulse {
+    0% { transform: scale(0.82); opacity: 0; }
+    55% { transform: scale(1.06); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .bf-aprovacao-sucesso-titulo {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary, #f1f5f9);
+  }
+  .bf-aprovacao-sucesso-sub {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary, #94a3b8);
+    line-height: 1.5;
+  }
+  .bf-aprovacao-sucesso-sub strong {
+    color: var(--text-primary, #f1f5f9);
+  }
+  .bf-aprovacao-sucesso-aviso {
+    margin: 0;
+    max-width: 28rem;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--text-muted, #94a3b8);
+  }
+  .bf-aprovacao-saving-card {
+    margin-top: 0.35rem;
+    width: 100%;
+    max-width: 18rem;
+    padding: 0.875rem 1.125rem;
+    border-radius: 10px;
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.22);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    text-align: left;
+  }
+  .bf-aprovacao-saving-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #86efac;
+  }
+  .bf-aprovacao-saving-valores {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .bf-aprovacao-saving-valor {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: #f0fdf4;
+    font-variant-numeric: tabular-nums;
+  }
+  .bf-aprovacao-saving-pct {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #4ade80;
   }
 `

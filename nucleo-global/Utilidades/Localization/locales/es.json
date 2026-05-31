@@ -1299,6 +1299,7 @@
       "modal_reprovar": "Rechazar Todas",
       "motivo_placeholder": "Indique el motivo del rechazo...",
       "aprovacao_confirmada": "¡Aprobación confirmada!",
+      "aprovacao_sucesso_aviso": "El ganador será notificado. Las demás propuestas fueron rechazadas automáticamente.",
       "aprovando": "Aprobando...",
       "confirmar_aprovacao": "Confirmar Aprobación",
       "confirmar_reprovacao": "Confirmar Rechazo",

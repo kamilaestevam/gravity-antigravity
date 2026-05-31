@@ -383,11 +383,10 @@
 }
 
 .wf-insight-stat {
-  /* Opcao B — Glass com glow indigo: bg translucido indigo, borda mais
-     visivel, inset highlight no topo (vidro fosco/glassmorphism leve). */
-  background: rgba(99, 102, 241, 0.06);
-  border: 1px solid rgba(99, 102, 241, 0.22);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  /* Opcao C — Roxo discreto: tinta do mesmo #a78bfa do step ativo
+     (Embarque), criando coesao visual com a etapa em andamento. */
+  background: rgba(167, 139, 250, 0.06);
+  border: 1px solid rgba(167, 139, 250, 0.18);
   border-radius: 8px;
   padding: 0.5rem 0.625rem;
   min-width: 0;
@@ -662,22 +661,20 @@
   color: #3b82f6;
 }
 
-/* Feed Body — Opcao B: glass com glow indigo. */
+/* Feed Body — Opcao C: roxo discreto (#a78bfa do step ativo). */
 .wf-feed-body {
   flex: 1;
   min-width: 0;
-  background: rgba(99, 102, 241, 0.06);
-  border: 1px solid rgba(99, 102, 241, 0.22);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  background: rgba(167, 139, 250, 0.06);
+  border: 1px solid rgba(167, 139, 250, 0.18);
   border-radius: 8px;
   padding: 0.625rem 0.875rem;
-  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, background 0.15s;
 }
 
 .wf-feed-item:hover .wf-feed-body {
-  border-color: rgba(99, 102, 241, 0.40);
-  background: rgba(99, 102, 241, 0.10);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border-color: rgba(167, 139, 250, 0.35);
+  background: rgba(167, 139, 250, 0.10);
 }
 
 .wf-feed-meta {
@@ -846,10 +843,9 @@
 
 .wf-custo-item {
   width: 100%;
-  /* Opcao B — glass com glow indigo */
-  background: rgba(99, 102, 241, 0.06);
-  border: 1px solid rgba(99, 102, 241, 0.22);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  /* Opcao C — roxo discreto (#a78bfa do step ativo) */
+  background: rgba(167, 139, 250, 0.06);
+  border: 1px solid rgba(167, 139, 250, 0.18);
   border-radius: 10px;
   padding: 0.875rem 1rem;
   display: flex;

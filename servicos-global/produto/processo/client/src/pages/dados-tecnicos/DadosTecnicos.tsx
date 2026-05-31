@@ -17,8 +17,9 @@ import {
   Hash, User, UserCircle, Briefcase, Certificate, Globe,
   ArrowsLeftRight, Warehouse, ShieldCheck, TrafficSign,
   CurrencyDollar, Boat, AirplaneTakeoff, Package, ListChecks,
-  IdentificationBadge, ChatText,
+  IdentificationBadge, ChatText, SidebarSimple,
 } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import './DadosTecnicos.css'
@@ -245,6 +246,8 @@ function CampoLinha({ campo, valor, onSalvar }: CampoLinhaProps) {
 export default function DadosTecnicos() {
   const [valores, setValores] = useState<Record<string, string>>(VALORES_INICIAIS)
   const [secaoAtiva, setSecaoAtiva] = useState(SECOES[0].id)
+  // TOC default contraida. (TODO persistir preferencia do usuario depois)
+  const [tocColapsada, setTocColapsada] = useState(true)
 
   function salvarCampo(key: string, novo: string) {
     setValores(p => ({ ...p, [key]: novo }))
@@ -304,19 +307,31 @@ export default function DadosTecnicos() {
         />
       }
     >
-      <div className="dt-layout">
+      <div className={`dt-layout ${tocColapsada ? 'dt-layout--toc-colapsada' : ''}`}>
         {/* ── TOC lateral ───────────────────────────────────────────────── */}
-        <aside className="dt-toc" aria-label="Navegação entre seções">
+        <aside className={`dt-toc ${tocColapsada ? 'dt-toc--colapsada' : ''}`} aria-label="Navegação entre seções">
+          {/* Toggle expandir/contrair */}
+          <button
+            type="button"
+            className="dt-toc-toggle"
+            onClick={() => setTocColapsada(p => !p)}
+            title={tocColapsada ? 'Expandir menu' : 'Recolher menu'}
+            aria-label={tocColapsada ? 'Expandir menu' : 'Recolher menu'}
+          >
+            <SidebarSimple weight="duotone" size={16} />
+          </button>
+
           {SECOES.map(sec => {
             const c = completude[sec.id]
             const completa = c.preenchidos === c.total
             const ativa = secaoAtiva === sec.id
-            return (
+
+            const botao = (
               <button
-                key={sec.id}
                 type="button"
-                className={`dt-toc-item ${ativa ? 'dt-toc-item--ativa' : ''}`}
+                className={`dt-toc-item ${ativa ? 'dt-toc-item--ativa' : ''} ${completa ? 'dt-toc-item--ok' : ''}`}
                 onClick={() => irParaSecao(sec.id)}
+                aria-label={tocColapsada ? `${sec.titulo} — ${c.preenchidos} de ${c.total}` : undefined}
               >
                 <span className="dt-toc-icon">{sec.icone}</span>
                 <span className="dt-toc-label">{sec.titulo}</span>
@@ -326,7 +341,25 @@ export default function DadosTecnicos() {
                     : <Circle weight="duotone" size={12} />}
                   {c.preenchidos}/{c.total}
                 </span>
+                {/* Bolinha de status no modo colapsado (canto sup. direito) */}
+                {tocColapsada && (
+                  <span className={`dt-toc-dot ${completa ? 'dt-toc-dot--ok' : ''}`} aria-hidden="true" />
+                )}
               </button>
+            )
+
+            // No modo colapsado, envolve em tooltip pra mostrar nome+contagem ao hover
+            return (
+              <React.Fragment key={sec.id}>
+                {tocColapsada ? (
+                  <TooltipGlobal
+                    titulo={sec.titulo}
+                    descricao={`${c.preenchidos} de ${c.total} preenchidos${c.obrigatoriosPendentes > 0 ? ` • ${c.obrigatoriosPendentes} obrigatório${c.obrigatoriosPendentes > 1 ? 's' : ''} pendente${c.obrigatoriosPendentes > 1 ? 's' : ''}` : ''}`}
+                  >
+                    {botao}
+                  </TooltipGlobal>
+                ) : botao}
+              </React.Fragment>
             )
           })}
         </aside>

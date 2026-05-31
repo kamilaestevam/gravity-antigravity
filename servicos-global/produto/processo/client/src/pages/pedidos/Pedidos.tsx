@@ -1,463 +1,308 @@
 /**
- * Pedidos.tsx — Pedidos de compra vinculados ao processo
+ * Pedidos.tsx — Pedidos vinculados ao processo atual
  *
- * TabelaVirtualGlobal: pedidos como nível pai, itens como nível filho.
- * Dados 100% da API — cursor pagination, edição inline, lote, exportação.
+ * Versao simplificada: ao inves de replicar o TabelaVirtualGlobal do produto
+ * Pedido, mostra os pedidos do processo (vem do contexto useProcesso) em
+ * cards visuais — Painel de Insights no topo + lista de cards.
+ *
+ * Para listagem completa, busca avancada, kanban, importacao etc., o usuario
+ * vai ao produto Pedido via link "Ver no Pedido" em cada card.
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { Package, Plus, Eye, PencilSimple, X } from '@phosphor-icons/react'
-import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
-import type {
-  GTColuna,
-  GTAcao,
-  GTAcaoLote,
-  GTAcaoExport,
-  GTAbaTipo,
-  GTPreferencias,
-} from '@nucleo/tabela-virtual-global'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import type {
-  PedidoRico,
-  PedidoItemRico,
-  PedidoStatusConfig,
-} from '../../shared/types'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
-  getPedidos,
-  getPedidoItens,
-  editarCampoPedido,
-  getPedidosStatus,
-  getPreferenciasUsuario,
-  salvarPreferenciasUsuario,
-  exportarPedidos,
-} from '../../shared/api'
+  Package,
+  CurrencyDollar,
+  Scales,
+  ListChecks,
+  ArrowSquareOut,
+  Plus,
+  CalendarBlank,
+  MapPin,
+} from '@phosphor-icons/react'
+import { useProcesso } from '../ProcessoLayout'
+import type { Pedido, StatusPedido } from '../../shared/types'
+import './Pedidos.css'
 
-// ── Env / IDs ─────────────────────────────────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
-const idOrganizacao = import.meta.env.VITE_TENANT_ID ?? 'tenant-demo'
-const userId = import.meta.env.VITE_USER_ID ?? 'user-demo'
+const fmtMoney = (val: number, moeda = 'USD') =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: moeda }).format(val)
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-const fmtUSD = (val: string | number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'USD' }).format(Number(val))
-
-const fmtDecimal = (val: string | number) =>
-  Number(val).toLocaleString('pt-BR', { maximumFractionDigits: 2 })
+const fmtPeso = (val: number) =>
+  `${val.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} kg`
 
 const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('pt-BR')
+  new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
 
-// ── Componente ────────────────────────────────────────────────────────────────
+// Cor + label de cada status do pedido (mesma paleta semantica usada em outros lugares).
+const STATUS_META: Record<StatusPedido, { label: string; color: string; dim: string }> = {
+  pendente:      { label: 'Pendente',      color: '#f59e0b', dim: 'rgba(245, 158, 11, 0.15)' },
+  confirmado:    { label: 'Confirmado',    color: '#22d3ee', dim: 'rgba(34, 211, 238, 0.15)' },
+  em_transito:   { label: 'Em trânsito',   color: '#a78bfa', dim: 'rgba(167, 139, 250, 0.15)' },
+  desembaracado: { label: 'Desembaraçado', color: '#818cf8', dim: 'rgba(129, 140, 248, 0.15)' },
+  entregue:      { label: 'Entregue',      color: '#34d399', dim: 'rgba(52, 211, 153, 0.15)' },
+  cancelado:     { label: 'Cancelado',     color: '#f87171', dim: 'rgba(248, 113, 113, 0.15)' },
+}
+
+// Bandeira por sigla ISO-2 do pais (emoji unicode). Fallback: globo.
+const flagEmoji = (iso2: string): string => {
+  if (!iso2 || iso2.length !== 2) return '🌐'
+  const A = 0x1F1E6
+  const codes = iso2.toUpperCase().split('').map(c => A + (c.charCodeAt(0) - 'A'.charCodeAt(0)))
+  return String.fromCodePoint(...codes)
+}
+
+// ─── Componente ─────────────────────────────────────────────────────────────
 
 export default function Pedidos() {
-  const [pedidos, setPedidos] = useState<PedidoRico[]>([])
-  const [carregando, setCarregando] = useState(true)
-  const [abaAtiva, setAbaAtiva] = useState('todos')
-  const [busca, setBusca] = useState('')
-  const [sortCampo, setSortCampo] = useState('created_at')
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
-  const [statusList, setStatusList] = useState<PedidoStatusConfig[]>([])
-  const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>()
+  const { t } = useTranslation()
+  const { processo, loading } = useProcesso()
 
-  // ── Carregamento inicial ───────────────────────────────────────────────────
-
-  useEffect(() => {
-    async function init() {
-      setCarregando(true)
-      try {
-        const [statusData, prefsData, listData] = await Promise.all([
-          getPedidosStatus(idOrganizacao),
-          getPreferenciasUsuario(idOrganizacao, userId),
-          getPedidos(idOrganizacao, { sort: sortCampo, dir: sortDir, limit: 50 }),
-        ])
-        setStatusList(statusData)
-        if (prefsData) {
-          setPreferencias({
-            colunas_visiveis: prefsData.colunas_visiveis,
-            larguras: prefsData.colunas_largura,
-          })
-        }
-        setPedidos(listData.data)
-      } catch {
-        // erros silenciosos — tabela exibirá estado vazio
-      } finally {
-        setCarregando(false)
-      }
-    }
-    void init()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // ── Recarregar ao mudar aba / busca / sort ────────────────────────────────
-
-  const recarregar = useCallback(
-    async (
-      novoStatus: string,
-      novaBusca: string,
-      novoCampo: string,
-      novoDir: 'asc' | 'desc'
-    ) => {
-      setCarregando(true)
-      try {
-        const resp = await getPedidos(idOrganizacao, {
-          sort: novoCampo,
-          dir: novoDir,
-          limit: 50,
-          status: novoStatus !== 'todos' ? novoStatus : undefined,
-          busca: novaBusca || undefined,
-        })
-        setPedidos(resp.data)
-      } catch {
-        // silencioso
-      } finally {
-        setCarregando(false)
-      }
-    },
-    []
-  )
-
-  // ── Aba ───────────────────────────────────────────────────────────────────
-
-  function handleMudarAba(aba: string) {
-    setAbaAtiva(aba)
-    void recarregar(aba, busca, sortCampo, sortDir)
+  if (loading && !processo) {
+    return (
+      <PaginaGlobal
+        layout="lista"
+        cabecalho={<CabecalhoGlobal icone={<Package weight="duotone" size={22} />} titulo="Pedidos" />}
+      >
+        <div className="proc-empty-state"><Package weight="duotone" size={48} color="var(--text-muted)" /></div>
+      </PaginaGlobal>
+    )
   }
 
-  // ── Busca ─────────────────────────────────────────────────────────────────
+  const pedidos: Pedido[] = processo?.pedidos ?? []
 
-  function handleBuscar(termo: string) {
-    setBusca(termo)
-    void recarregar(abaAtiva, termo, sortCampo, sortDir)
-  }
+  // ── Agregados para o Painel de Insights ──
+  // Somatorios por moeda (carrega mix BRL/USD sem misturar).
+  const totaisPorMoeda = pedidos.reduce<Record<string, number>>((acc, p) => {
+    const m = p.moeda || 'USD'
+    acc[m] = (acc[m] || 0) + (p.valor_fob || 0)
+    return acc
+  }, {})
+  const moedaPrincipal = Object.keys(totaisPorMoeda)[0] || 'USD'
+  const valorPrincipal = totaisPorMoeda[moedaPrincipal] || 0
 
-  // ── Ordenação ─────────────────────────────────────────────────────────────
+  const totalItens = pedidos.reduce((acc, p) => acc + (p.itens?.length ?? 0), 0)
+  const pesoTotal = pedidos.reduce((acc, p) => acc + (p.peso_bruto || 0), 0)
+  // Top NCMs (mais frequentes nos itens) — opcional, exibido como sub-info.
+  const ncmCount = pedidos.flatMap(p => p.itens ?? []).reduce<Record<string, number>>((acc, it) => {
+    if (it.ncm) acc[it.ncm] = (acc[it.ncm] || 0) + 1
+    return acc
+  }, {})
+  const topNcms = Object.entries(ncmCount).sort(([, a], [, b]) => b - a).slice(0, 2).map(([k]) => k)
 
-  function handleOrdenar(campo: string, dir: 'asc' | 'desc') {
-    setSortCampo(campo)
-    setSortDir(dir)
-    void recarregar(abaAtiva, busca, campo, dir)
-  }
+  // Distribuicao de status para o 3o card.
+  const statusCount = pedidos.reduce<Record<string, number>>((acc, p) => {
+    acc[p.status] = (acc[p.status] || 0) + 1
+    return acc
+  }, {})
+  const aprovados = (statusCount.confirmado || 0) + (statusCount.em_transito || 0) +
+                    (statusCount.desembaracado || 0) + (statusCount.entregue || 0)
+  const pendentes = (statusCount.pendente || 0)
+  const cancelados = (statusCount.cancelado || 0)
 
-  // ── Carregar filhos (itens do pedido) ─────────────────────────────────────
-  // useCallback com deps estáveis para não disparar o useEffect de
-  // auto-revalidação do useGTExpandir em todo render de Pedidos.
-  const carregarItens = useCallback(
-    (pedido: PedidoRico): Promise<PedidoItemRico[]> => getPedidoItens(idOrganizacao, pedido.id),
-    [idOrganizacao],
-  )
-
-  // ── Edição inline ─────────────────────────────────────────────────────────
-
-  async function handleEditar(id: string, campo: string, valor: unknown): Promise<PedidoRico> {
-    const atualizado = await editarCampoPedido(idOrganizacao, id, campo, valor)
-    setPedidos(prev => prev.map(p => (p.id === id ? atualizado : p)))
-    return atualizado
-  }
-
-  // ── Salvar preferências ───────────────────────────────────────────────────
-
-  async function handleSalvarPreferencias(prefs: GTPreferencias) {
-    setPreferencias(prefs)
-    await salvarPreferenciasUsuario(idOrganizacao, userId, {
-      colunas_visiveis: prefs.colunas_visiveis,
-      colunas_largura: prefs.larguras,
-    })
-  }
-
-  // ── Abas ──────────────────────────────────────────────────────────────────
-
-  const abas: GTAbaTipo[] = [
-    { valor: 'todos', label: 'Todos' },
-    ...statusList.map(s => ({
-      valor: s.nome,
-      label: s.rotulo,
-      cor: s.cor,
-    })),
-  ]
-
-  // ── Colunas pai ───────────────────────────────────────────────────────────
-
-  const colunasPai: GTColuna<PedidoRico>[] = [
-    {
-      key: 'numero',
-      label: 'Nº Pedido',
-      sortavel: true,
-      naoOcultavel: true,
-      largura: 140,
-      tooltipTitulo: 'Número do Pedido',
-      tooltipDescricao: 'Identificador único do pedido de compra no processo',
-    },
-    {
-      key: 'exportador_nome',
-      label: 'Exportador',
-      sortavel: true,
-      largura: 200,
-      tooltipTitulo: 'Exportador',
-      tooltipDescricao: 'Fornecedor internacional responsável pelo envio da mercadoria',
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      largura: 130,
-      tooltipTitulo: 'Status do Pedido',
-      tooltipDescricao: 'Situação atual do pedido dentro do fluxo de importação',
-      render: (_val: unknown, row: PedidoRico) => {
-        const cfg = statusList.find(s => s.nome === row.status)
-        const rotulo = cfg?.rotulo ?? row.status
-        const cor = cfg?.cor ?? '#6b7280'
-        return (
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.375rem',
-              padding: '0.125rem 0.5rem',
-              borderRadius: '9999px',
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              background: `${cor}22`,
-              color: cor,
-              border: `1px solid ${cor}44`,
-            }}
-          >
-            {rotulo}
-          </span>
-        )
-      },
-    },
-    {
-      key: 'valor_fob',
-      label: 'Valor FOB',
-      align: 'right',
-      sortavel: true,
-      largura: 130,
-      tooltipTitulo: 'Valor FOB',
-      tooltipDescricao: 'Valor total da mercadoria no ponto de embarque em dólares',
-      render: (_val: unknown, row: PedidoRico) => <span>{fmtUSD(row.valor_fob)}</span>,
-    },
-    {
-      key: 'moeda',
-      label: 'Moeda',
-      largura: 80,
-      tooltipTitulo: 'Moeda',
-      tooltipDescricao: 'Moeda utilizada no pedido de compra',
-    },
-    {
-      key: 'peso_bruto',
-      label: 'Peso Bruto (kg)',
-      align: 'right',
-      largura: 130,
-      tooltipTitulo: 'Peso Bruto',
-      tooltipDescricao: 'Peso total do pedido incluindo embalagem em quilogramas',
-      render: (_val: unknown, row: PedidoRico) => <span>{fmtDecimal(row.peso_bruto)}</span>,
-    },
-    {
-      key: 'created_at',
-      label: 'Data',
-      sortavel: true,
-      largura: 110,
-      tooltipTitulo: 'Data de Criação',
-      tooltipDescricao: 'Data em que o pedido foi registrado no sistema',
-      render: (_val: unknown, row: PedidoRico) => <span>{fmtDate(row.created_at)}</span>,
-    },
-  ]
-
-  // ── Colunas filha ─────────────────────────────────────────────────────────
-
-  const colunasFilha: GTColuna<PedidoItemRico>[] = [
-    {
-      key: 'numero_item',
-      label: 'Item',
-      largura: 70,
-      tooltipTitulo: 'Número do Item',
-      tooltipDescricao: 'Sequencial do item dentro do pedido de compra',
-    },
-    {
-      key: 'descricao',
-      label: 'Descrição',
-      largura: 250,
-      tooltipTitulo: 'Descrição do Item',
-      tooltipDescricao: 'Nome comercial da mercadoria conforme fatura do exportador',
-    },
-    {
-      key: 'ncm',
-      label: 'NCM',
-      largura: 110,
-      tooltipTitulo: 'NCM',
-      tooltipDescricao: 'Código da Nomenclatura Comum do Mercosul para classificação fiscal',
-      render: (_val: unknown, row: PedidoItemRico) =>
-        row.ncm ? (
-          <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
-            {row.ncm}
-          </span>
-        ) : null,
-    },
-    {
-      key: 'quantidade',
-      label: 'Qtd.',
-      align: 'right',
-      largura: 100,
-      tooltipTitulo: 'Quantidade',
-      tooltipDescricao: 'Volume adquirido do item na unidade de medida informada',
-      render: (_val: unknown, row: PedidoItemRico) => (
-        <span>
-          {fmtDecimal(row.quantidade)} {row.unidade}
-        </span>
-      ),
-    },
-    {
-      key: 'valor_total',
-      label: 'Valor Total',
-      align: 'right',
-      largura: 120,
-      tooltipTitulo: 'Valor Total',
-      tooltipDescricao: 'Valor FOB total do item em dólares americanos',
-      render: (_val: unknown, row: PedidoItemRico) => <span>{fmtUSD(row.valor_total)}</span>,
-    },
-    {
-      key: 'status_li',
-      label: 'LI',
-      largura: 100,
-      tooltipTitulo: 'Status da LI',
-      tooltipDescricao: 'Situação da Licença de Importação junto aos órgãos anuentes',
-      render: (_val: unknown, row: PedidoItemRico) => (
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            padding: '0.125rem 0.5rem',
-            borderRadius: '9999px',
-            fontSize: '0.75rem',
-            fontWeight: 500,
-            background: 'var(--ws-surface-2, #f3f4f6)',
-            color: 'var(--ws-muted, #6b7280)',
-          }}
-        >
-          {row.status_li}
-        </span>
-      ),
-    },
-  ]
-
-  // ── Ações de linha ────────────────────────────────────────────────────────
-
-  const acoes: GTAcao<PedidoRico>[] = [
-    {
-      id: 'ver',
-      tooltip: 'Ver detalhes',
-      icone: <Eye size={16} weight="duotone" />,
-      onClick: (row: PedidoRico) => {
-        // navegação para detalhe do pedido — implementar rota
-        void row
-      },
-    },
-    {
-      id: 'editar',
-      tooltip: 'Editar pedido',
-      icone: <PencilSimple size={16} weight="duotone" />,
-      onClick: (row: PedidoRico) => {
-        void row
-      },
-    },
-    {
-      id: 'cancelar',
-      tooltip: 'Cancelar pedido',
-      icone: <X size={16} weight="duotone" />,
-      variant: 'danger',
-      visivel: (row: PedidoRico) => row.status !== 'cancelado',
-      onClick: (row: PedidoRico) => {
-        void row
-      },
-    },
-  ]
-
-  // ── Ações em lote ─────────────────────────────────────────────────────────
-
-  const acoesLote: GTAcaoLote<PedidoRico>[] = [
-    {
-      id: 'exportar_lote',
-      label: 'Exportar selecionados',
-      onClick: async (itens: PedidoRico[]) => {
-        await exportarPedidos(idOrganizacao, itens.map(i => i.id), 'csv')
-      },
-    },
-    {
-      id: 'cancelar_lote',
-      label: 'Cancelar selecionados',
-      variant: 'danger',
-      onClick: (_itens: PedidoRico[]) => {
-        // abrir modal de confirmação
-      },
-    },
-  ]
-
-  // ── Ações de exportação ───────────────────────────────────────────────────
-
-  const acoesExportacao: GTAcaoExport[] = [
-    {
-      label: 'CSV',
-      onClick: async () => {
-        await exportarPedidos(idOrganizacao, pedidos.map(p => p.id), 'csv')
-      },
-    },
-    {
-      label: 'Excel',
-      onClick: async () => {
-        await exportarPedidos(idOrganizacao, pedidos.map(p => p.id), 'xlsx')
-      },
-    },
-    {
-      label: 'JSON',
-      onClick: async () => {
-        await exportarPedidos(idOrganizacao, pedidos.map(p => p.id), 'json')
-      },
-    },
-  ]
-
-  // ── Render ────────────────────────────────────────────────────────────────
+  // ── Renderizacao ──
 
   return (
-    <div style={{ height: '100%' }}>
-      <TabelaVirtualGlobal<PedidoRico, PedidoItemRico>
-        dados={pedidos}
-        colunas={colunasPai}
-        itemId={(p: PedidoRico) => p.id}
-        colunasFilhas={colunasFilha}
-        onCarregarFilhos={carregarItens}
-        filhoId={(filho: PedidoItemRico) => filho.id}
-        itensPorPagina={50}
-        abas={abas}
-        abaAtiva={abaAtiva}
-        onMudarAba={handleMudarAba}
-        acoes={acoes}
-        acoesLote={acoesLote}
-        acoesExportacao={acoesExportacao}
-        acoesBarra={
-          <BotaoGlobal variante="primario" icone={<Plus size={16} />}>
-            Novo Pedido
-          </BotaoGlobal>
-        }
-        onBuscar={handleBuscar}
-        placeholderBusca="Buscar pedidos..."
-        onOrdenar={handleOrdenar}
-        sortCampo={sortCampo}
-        sortDir={sortDir}
-        camposEditaveis={['exportador_nome', 'moeda', 'status']}
-        onEditar={handleEditar}
-        preferencias={preferencias}
-        onSalvarPreferencias={prefs => void handleSalvarPreferencias(prefs)}
-        carregando={carregando}
-        emptyIcon={<Package weight="duotone" size={48} />}
-        emptyTitle="Nenhum pedido encontrado"
-        emptyDescription="Crie o primeiro pedido ou ajuste os filtros"
-        emptyAction={
-          <BotaoGlobal variante="primario" icone={<Plus size={16} />}>
-            Novo Pedido
-          </BotaoGlobal>
-        }
-        ariaLabel="Tabela de pedidos de compra"
-      />
-    </div>
+    <PaginaGlobal
+      className="ws-fade-up"
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<Package weight="duotone" size={22} />}
+          titulo={t('processo.pedidos.titulo', 'Pedidos')}
+          subtitulo={t('processo.pedidos.subtitulo', 'Pedidos de compra vinculados a este processo')}
+          acoes={
+            <TooltipGlobal
+              titulo={t('processo.pedidos.associar', 'Associar pedido')}
+              descricao={t('processo.pedidos.associar_desc', 'Vincular um pedido existente do tenant a este processo')}
+            >
+              {/* TODO: abrir modal de busca/associacao de pedido existente */}
+              <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={() => { /* TODO */ }}>
+                <Plus weight="bold" size={14} />
+                <span style={{ marginLeft: 6 }}>{t('processo.pedidos.associar', 'Associar pedido')}</span>
+              </BotaoGlobal>
+            </TooltipGlobal>
+          }
+        />
+      }
+    >
+      {pedidos.length === 0 ? (
+        <div className="pp-empty ws-fade-up">
+          <Package weight="duotone" size={48} className="pp-empty-icon" />
+          <h3 className="pp-empty-title">{t('processo.pedidos.vazio', 'Nenhum pedido vinculado')}</h3>
+          <p className="pp-empty-desc">
+            {t('processo.pedidos.vazio_desc', 'Use o botão acima para vincular um pedido existente a este processo.')}
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* ─── Painel de Insights (3 cards) ─────────────────────────── */}
+          <div className="pp-insights ws-fade-up">
+            <div className="pp-insights-title">{t('processo.pedidos.insights', 'Painel de Insights')}</div>
+            <div className="pp-insights-grid">
+
+              {/* Card 1 — Valor FOB total */}
+              <div className="pp-insight-card">
+                <div className="pp-insight-card-header">
+                  <span className="pp-insight-card-label">{t('processo.pedidos.valor_fob', 'Valor FOB total')}</span>
+                  <CurrencyDollar weight="fill" size={20} style={{ color: '#facc15' }} />
+                </div>
+                <div className="pp-insight-card-metric">{fmtMoney(valorPrincipal, moedaPrincipal)}</div>
+                <div className="pp-insight-card-stats">
+                  <div className="pp-insight-stat">
+                    <div className="pp-insight-stat-label">{t('processo.pedidos.pedidos', 'Pedidos')}</div>
+                    <div className="pp-insight-stat-value">{pedidos.length}</div>
+                  </div>
+                  {Object.entries(totaisPorMoeda).length > 1 && (
+                    <div className="pp-insight-stat">
+                      <div className="pp-insight-stat-label">{t('processo.pedidos.moedas', 'Moedas')}</div>
+                      <div className="pp-insight-stat-value">{Object.keys(totaisPorMoeda).join(' · ')}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Card 2 — Mercadoria */}
+              <div className="pp-insight-card">
+                <div className="pp-insight-card-header">
+                  <span className="pp-insight-card-label">{t('processo.pedidos.mercadoria', 'Mercadoria')}</span>
+                  <Scales weight="fill" size={20} style={{ color: '#a78bfa' }} />
+                </div>
+                <div className="pp-insight-card-metric">{totalItens} {totalItens === 1 ? 'item' : 'itens'}</div>
+                <div className="pp-insight-card-stats">
+                  <div className="pp-insight-stat">
+                    <div className="pp-insight-stat-label">{t('processo.pedidos.peso_bruto', 'Peso bruto')}</div>
+                    <div className="pp-insight-stat-value">{fmtPeso(pesoTotal)}</div>
+                  </div>
+                  {topNcms.length > 0 && (
+                    <div className="pp-insight-stat">
+                      <div className="pp-insight-stat-label">{t('processo.pedidos.top_ncms', 'Top NCMs')}</div>
+                      <div className="pp-insight-stat-value">{topNcms.join(' · ')}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Card 3 — Status */}
+              <div className="pp-insight-card">
+                <div className="pp-insight-card-header">
+                  <span className="pp-insight-card-label">{t('processo.pedidos.status', 'Status')}</span>
+                  <ListChecks weight="fill" size={20} style={{ color: '#34d399' }} />
+                </div>
+                <div className="pp-insight-card-metric">
+                  {aprovados}/{pedidos.length}
+                </div>
+                <div className="pp-insight-card-stats">
+                  <div className="pp-insight-stat">
+                    <div className="pp-insight-stat-label">{t('processo.pedidos.aprovados', 'Aprovados')}</div>
+                    <div className="pp-insight-stat-value">{aprovados}</div>
+                  </div>
+                  <div className="pp-insight-stat">
+                    <div className="pp-insight-stat-label">{t('processo.pedidos.pendentes', 'Pendentes')}</div>
+                    <div className="pp-insight-stat-value">{pendentes}</div>
+                  </div>
+                  {cancelados > 0 && (
+                    <div className="pp-insight-stat">
+                      <div className="pp-insight-stat-label">{t('processo.pedidos.cancelados', 'Cancelados')}</div>
+                      <div className="pp-insight-stat-value">{cancelados}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* ─── Lista de Pedidos (cards) ─────────────────────────────── */}
+          <div className="pp-list ws-fade-up">
+            <div className="pp-list-header">
+              <h3 className="pp-list-title">
+                {t('processo.pedidos.lista_titulo', 'Pedidos do processo')}
+                <span className="pp-list-count">{pedidos.length}</span>
+              </h3>
+            </div>
+
+            <div className="pp-list-items">
+              {pedidos.map(p => {
+                const st = STATUS_META[p.status] || STATUS_META.pendente
+                const itens = p.itens ?? []
+                const visiveis = itens.slice(0, 3)
+                const restantes = itens.length - visiveis.length
+
+                return (
+                  <article key={p.id} className="pp-card">
+                    <header className="pp-card-header">
+                      <div className="pp-card-head-left">
+                        <span className="pp-card-numero">{p.numero}</span>
+                        <span
+                          className="pp-card-status"
+                          style={{ background: st.dim, color: st.color, borderColor: st.color }}
+                        >
+                          {st.label}
+                        </span>
+                      </div>
+                      <div className="pp-card-valor">{fmtMoney(p.valor_fob, p.moeda)}</div>
+                    </header>
+
+                    <div className="pp-card-meta">
+                      <span className="pp-card-meta-item">
+                        <span className="pp-card-flag" aria-hidden>{flagEmoji(p.exportador_pais)}</span>
+                        <MapPin weight="duotone" size={14} className="pp-card-meta-icon" />
+                        {p.exportador_nome}
+                      </span>
+                      <span className="pp-card-meta-item">
+                        <Scales weight="duotone" size={14} className="pp-card-meta-icon" />
+                        {fmtPeso(p.peso_bruto)}
+                      </span>
+                      <span className="pp-card-meta-item">
+                        <CalendarBlank weight="duotone" size={14} className="pp-card-meta-icon" />
+                        {fmtDate(p.data_pedido)}
+                      </span>
+                    </div>
+
+                    {visiveis.length > 0 && (
+                      <ul className="pp-card-itens">
+                        {visiveis.map(it => (
+                          <li key={it.id} className="pp-card-item">
+                            <span className="pp-card-item-num">#{it.numero_item}</span>
+                            <span className="pp-card-item-desc" title={it.descricao}>{it.descricao}</span>
+                            <span className="pp-card-item-qtd">{it.quantidade} {it.unidade}</span>
+                            <span className="pp-card-item-val">{fmtMoney(it.valor_total, p.moeda)}</span>
+                          </li>
+                        ))}
+                        {restantes > 0 && (
+                          <li className="pp-card-item-more">
+                            + {restantes} {restantes === 1 ? 'item' : 'itens'}
+                          </li>
+                        )}
+                      </ul>
+                    )}
+
+                    <footer className="pp-card-footer">
+                      <Link
+                        to={`/pedido/pedidos/${p.id}/editar`}
+                        className="pp-card-link"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {t('processo.pedidos.ver_pedido', 'Ver no Pedido')}
+                        <ArrowSquareOut weight="bold" size={14} />
+                      </Link>
+                    </footer>
+                  </article>
+                )
+              })}
+            </div>
+          </div>
+        </>
+      )}
+    </PaginaGlobal>
   )
 }

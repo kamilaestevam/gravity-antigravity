@@ -1,0 +1,345 @@
+/* Pedidos.css — Pedidos do processo (versao simplificada)
+   Padroes visuais alinhados com Workflow.css (Painel de Insights, cards
+   em Opcao C roxo discreto). */
+
+/* ── Painel de Insights ─────────────────────────────────────────────────── */
+.pp-insights {
+  margin-bottom: 1.5rem;
+}
+
+.pp-insights-title {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ws-text, #f1f5f9);
+  margin-bottom: 1rem;
+}
+
+.pp-insights-title::before,
+.pp-insights-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(99, 102, 241, 0.15);
+}
+
+.pp-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.pp-insight-card {
+  background: var(--ws-surface, #1e293b);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-height: 180px;
+}
+
+.pp-insight-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.pp-insight-card-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ws-muted, #94a3b8);
+}
+
+.pp-insight-card-metric {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--ws-text, #f1f5f9);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.pp-insight-card-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.pp-insight-stat {
+  background: rgba(167, 139, 250, 0.06);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  border-radius: 8px;
+  padding: 0.5rem 0.625rem;
+  min-width: 0;
+}
+
+.pp-insight-stat-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ws-muted, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pp-insight-stat-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ws-text, #f1f5f9);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 1024px) {
+  .pp-insights-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Lista de Pedidos (cards) ───────────────────────────────────────────── */
+.pp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.pp-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pp-list-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ws-text, #f1f5f9);
+  margin: 0;
+}
+
+.pp-list-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+
+.pp-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Card individual de pedido — Opcao C roxo */
+.pp-card {
+  background: rgba(167, 139, 250, 0.06);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  border-radius: 10px;
+  padding: 1rem 1.125rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.pp-card:hover {
+  border-color: rgba(167, 139, 250, 0.35);
+  background: rgba(167, 139, 250, 0.10);
+}
+
+.pp-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.pp-card-head-left {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.pp-card-numero {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--ws-text, #f1f5f9);
+  letter-spacing: -0.01em;
+}
+
+.pp-card-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  border: 1px solid;
+}
+
+.pp-card-valor {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--ws-text, #f1f5f9);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Linha de meta (exportador + peso + data) */
+.pp-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.875rem 1.25rem;
+  font-size: 0.75rem;
+  color: var(--ws-muted, #94a3b8);
+}
+
+.pp-card-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.pp-card-meta-icon {
+  flex-shrink: 0;
+  color: #a78bfa;
+}
+
+.pp-card-flag {
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+/* Itens (top 3) */
+.pp-card-itens {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-top: 1px solid rgba(167, 139, 250, 0.15);
+  padding-top: 0.75rem;
+}
+
+.pp-card-item {
+  display: grid;
+  grid-template-columns: 32px 1fr auto auto;
+  gap: 0.625rem;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.pp-card-item-num {
+  color: var(--ws-muted, #94a3b8);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.pp-card-item-desc {
+  color: var(--ws-text, #f1f5f9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pp-card-item-qtd {
+  color: var(--ws-muted, #94a3b8);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.pp-card-item-val {
+  color: var(--ws-text, #f1f5f9);
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.pp-card-item-more {
+  font-size: 0.6875rem;
+  color: var(--ws-muted, #94a3b8);
+  font-style: italic;
+  padding-left: calc(32px + 0.625rem);
+}
+
+/* Footer com link cross-product */
+.pp-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid rgba(167, 139, 250, 0.10);
+  padding-top: 0.625rem;
+}
+
+.pp-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #a78bfa;
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.pp-card-link:hover {
+  background: rgba(167, 139, 250, 0.12);
+  color: #c4b5fd;
+}
+
+/* ── Empty state ────────────────────────────────────────────────────────── */
+.pp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.pp-empty-icon {
+  color: var(--ws-muted, #94a3b8);
+  margin-bottom: 0.5rem;
+}
+
+.pp-empty-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ws-text, #f1f5f9);
+  margin: 0;
+}
+
+.pp-empty-desc {
+  font-size: 0.875rem;
+  color: var(--ws-muted, #94a3b8);
+  max-width: 400px;
+  margin: 0;
+}

@@ -90,7 +90,45 @@ const MOCK_PROCESSO: ProcessoDetail = {
     { id: 'e5', processo_id: 'core_id_000001', nome: 'Desembaraco', ordem: 5, status: 'pendente',     created_at: '2026-01-10T00:00:00Z' },
     { id: 'e6', processo_id: 'core_id_000001', nome: 'Entrega',     ordem: 6, status: 'pendente',     created_at: '2026-01-10T00:00:00Z' },
   ],
-  pedidos: [],
+  pedidos: [
+    {
+      id: 'pd1', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo',
+      numero: 'PO-2026-001', exportador_nome: 'Shanghai Electronics Co.', exportador_pais: 'CN',
+      status: 'confirmado', valor_fob: 68_400, moeda: 'USD', peso_bruto: 12_300,
+      data_pedido: '2026-01-15T00:00:00Z', data_embarque_prevista: '2026-03-15T00:00:00Z',
+      observacoes: 'PO principal — equipamentos de comunicação 5G',
+      created_at: '2026-01-15T00:00:00Z', updated_at: '2026-02-01T00:00:00Z',
+      itens: [
+        { id: 'i1-1', pedido_id: 'pd1', numero_item: 1, descricao: 'Roteador 5G dual-band — modelo R-2400', ncm: '8517.62.99', quantidade: 200, unidade: 'UN', valor_unitario: 215.00, valor_total: 43_000, peso_liquido: 1_600, peso_bruto: 1_800, status_li: 'deferida', numero_li: 'LI-2026/0123456-7', created_at: '2026-01-15T00:00:00Z' },
+        { id: 'i1-2', pedido_id: 'pd1', numero_item: 2, descricao: 'Antena setorial 3.5GHz — modelo A-SEC35', ncm: '8517.62.99', quantidade: 100, unidade: 'UN', valor_unitario: 180.00, valor_total: 18_000, peso_liquido: 800, peso_bruto: 900, status_li: 'deferida', numero_li: 'LI-2026/0123456-7', created_at: '2026-01-15T00:00:00Z' },
+        { id: 'i1-3', pedido_id: 'pd1', numero_item: 3, descricao: 'Cabo coaxial RG-58 — bobina 100m', ncm: '8544.49.00', quantidade: 80, unidade: 'UN', valor_unitario: 92.50, valor_total: 7_400, peso_liquido: 480, peso_bruto: 560, status_li: 'deferida', created_at: '2026-01-15T00:00:00Z' },
+      ],
+    },
+    {
+      id: 'pd2', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo',
+      numero: 'PO-2026-002', exportador_nome: 'Shanghai Electronics Co.', exportador_pais: 'CN',
+      status: 'confirmado', valor_fob: 32_650, moeda: 'USD', peso_bruto: 5_200,
+      data_pedido: '2026-01-22T00:00:00Z', data_embarque_prevista: '2026-03-15T00:00:00Z',
+      observacoes: 'Acessórios complementares — mesmo embarque do PO-001',
+      created_at: '2026-01-22T00:00:00Z', updated_at: '2026-02-10T00:00:00Z',
+      itens: [
+        { id: 'i2-1', pedido_id: 'pd2', numero_item: 1, descricao: 'Fonte de alimentação 48V/10A', ncm: '8504.40.90', quantidade: 150, unidade: 'UN', valor_unitario: 145.00, valor_total: 21_750, peso_liquido: 2_800, peso_bruto: 3_200, status_li: 'deferida', numero_li: 'LI-2026/0123456-7', created_at: '2026-01-22T00:00:00Z' },
+        { id: 'i2-2', pedido_id: 'pd2', numero_item: 2, descricao: 'Suporte de fixação para torre', ncm: '7308.30.00', quantidade: 80, unidade: 'UN', valor_unitario: 95.00, valor_total: 7_600, peso_liquido: 1_600, peso_bruto: 1_800, status_li: 'dispensada', created_at: '2026-01-22T00:00:00Z' },
+        { id: 'i2-3', pedido_id: 'pd2', numero_item: 3, descricao: 'Kit de conectores N-Type', ncm: '8536.69.90', quantidade: 660, unidade: 'PC', valor_unitario: 5.00, valor_total: 3_300, peso_liquido: 180, peso_bruto: 200, status_li: 'dispensada', created_at: '2026-01-22T00:00:00Z' },
+      ],
+    },
+    {
+      id: 'pd3', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo',
+      numero: 'PO-2026-003', exportador_nome: 'Shanghai Electronics Co.', exportador_pais: 'CN',
+      status: 'pendente', valor_fob: 7_000, moeda: 'USD', peso_bruto: 1_271,
+      data_pedido: '2026-02-05T00:00:00Z',
+      observacoes: 'PO complementar — peças de reposição. Aguardando confirmação do exportador.',
+      created_at: '2026-02-05T00:00:00Z', updated_at: '2026-02-05T00:00:00Z',
+      itens: [
+        { id: 'i3-1', pedido_id: 'pd3', numero_item: 1, descricao: 'Módulo de RF 3.5GHz (reposição)', ncm: '8517.62.99', quantidade: 50, unidade: 'UN', valor_unitario: 140.00, valor_total: 7_000, peso_liquido: 1_100, peso_bruto: 1_271, status_li: 'pendente', created_at: '2026-02-05T00:00:00Z' },
+      ],
+    },
+  ],
   followUps: [],
   documentos: [
     { id: 'd1', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', tipo: 'invoice',           nome: 'Invoice_Proforma_PO2026001.pdf', arquivo_url: '#', tamanho_bytes: 251_000, mime_type: 'application/pdf', uploaded_by: 'user1', created_at: '2026-01-20T00:00:00Z' },

@@ -250,8 +250,13 @@ export function useGTExpandir<T, C>(
     [onCarregarFilhos, itemId],
   )
 
-  // Expande todos os pais informados — pre-carrega filhos em lote e
-  // troca o Set de expandidos de uma vez (uma re-render so).
+  // Expande todos os pais informados — pre-carrega filhos em lote
+  // (concorrencia 5) e troca o Set de expandidos de uma vez (uma re-render
+  // so, nao N). Performance critica: em prod com ~50 pedidos/pagina e
+  // ~200ms/request, iteracao serial trava 10s+ a UI.
+  //
+  // Sincroniza dadosAnteriorRef tambem — controle de version usado pelo
+  // auto-revalidate. Sem isso, ao re-fetch o cache fica stale.
   const expandirTodos = useCallback(
     async (items: T[], idFn: (item: T) => string) => {
       if (!items.length) return
@@ -260,11 +265,17 @@ export function useGTExpandir<T, C>(
           await ensureFilhosCarregados(items, { modo: 'selecao-lote' })
         } catch { /* silent — pais sem filhos seguem expandidos sem linhas */ }
       }
+      // Sync dadosAnteriorRef pra todos (ref, nao state — sem re-render)
       const ids = new Set<string>()
-      for (const it of items) ids.add(idFn(it))
+      for (const it of items) {
+        const id = idFn(it)
+        ids.add(id)
+        dadosAnteriorRef.current.set(id, itemVersion ? itemVersion(it) : it)
+      }
+      // 1 setState = 1 re-render (batched)
       setExpandidos(ids)
     },
-    [onCarregarFilhos, ensureFilhosCarregados],
+    [onCarregarFilhos, ensureFilhosCarregados, itemVersion],
   )
 
   return {

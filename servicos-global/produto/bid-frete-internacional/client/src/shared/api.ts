@@ -196,6 +196,10 @@ export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown):
       raw.dias_free_time_proposta_bid_frete_internacional != null
         ? Number(raw.dias_free_time_proposta_bid_frete_internacional)
         : null,
+    dias_prazo_pagamento_proposta_bid_frete_internacional:
+      raw.dias_prazo_pagamento_proposta_bid_frete_internacional != null
+        ? Number(raw.dias_prazo_pagamento_proposta_bid_frete_internacional)
+        : null,
     quantidade_transbordo_proposta_bid_frete_internacional: Number(
       raw.quantidade_transbordo_proposta_bid_frete_internacional ??
         raw.transbordos_proposta_bid_frete_internacional ??

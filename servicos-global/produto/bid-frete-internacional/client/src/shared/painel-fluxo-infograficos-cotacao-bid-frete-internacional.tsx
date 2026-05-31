@@ -2,7 +2,7 @@
  * Painel compacto: linha do tempo resumida + infográficos das propostas.
  */
 
-import React, { useMemo, type CSSProperties } from 'react'
+import React, { useMemo, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   CheckCircle,
@@ -51,7 +51,14 @@ import type {
   DisparoCotacaoBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
 } from './types'
-import { ListaPropostasDetalheCotacao } from './propostas-detalhe-cotacao-bid-frete-internacional'
+import { BotaoGlobal } from '@nucleo/botao-global'
+import { aprovarResposta } from './api'
+import { ModalAprovarPropostaBidFreteInternacional } from './modal-aprovar-proposta-bid-frete-internacional'
+import {
+  cotacaoPermiteAcoesResposta,
+  ListaPropostasDetalheCotacao,
+  propostaPermiteAcoes,
+} from './propostas-detalhe-cotacao-bid-frete-internacional'
 
 const moeda = (val: number, currency: string) =>
   new Intl.NumberFormat('pt-BR', {
@@ -427,13 +434,80 @@ function AvisoGraficosInsightsCotacao({
 function CardMelhorPropostaSmart({
   info,
   smart,
+  id_cotacao_bid_frete_internacional,
+  status_cotacao_bid_frete_internacional,
+  propostasRanking,
+  onCotacaoAtualizada,
   t,
 }: {
   info: InfograficosFluxoCotacao
   smart: PainelSmartInsightsDados
+  id_cotacao_bid_frete_internacional?: string | null
+  status_cotacao_bid_frete_internacional?: StatusCotacao | null
+  propostasRanking: PropostaRankingBidFreteInternacional[]
+  onCotacaoAtualizada?: (cotacaoAtualizada?: Cotacao) => void
   t: (k: string, d?: string | Record<string, unknown>) => string
 }) {
+  const [modalAprovar, setModalAprovar] = useState(false)
+  const [aprovando, setAprovando] = useState(false)
+  const [aprovacaoSucesso, setAprovacaoSucesso] = useState(false)
+  const [resultadoAprovacao, setResultadoAprovacao] = useState<Cotacao | null>(null)
+
   const resumo = info.melhorPropostaResumo
+  const propostaMelhor = useMemo(
+    () => (resumo
+      ? propostasRanking.find(
+        (p) => p.id_proposta_bid_frete_internacional === resumo.id_proposta_bid_frete_internacional,
+      ) ?? null
+      : null),
+    [propostasRanking, resumo],
+  )
+
+  const exibirAprovar = Boolean(
+    id_cotacao_bid_frete_internacional
+    && propostaMelhor
+    && propostasRanking.length > 0
+    && cotacaoPermiteAcoesResposta(status_cotacao_bid_frete_internacional)
+    && propostaPermiteAcoes(propostaMelhor),
+  )
+
+  function abrirModalAprovar() {
+    if (!propostaMelhor) return
+    setModalAprovar(true)
+  }
+
+  function fecharModalAprovar() {
+    if (aprovando) return
+    setModalAprovar(false)
+    setAprovacaoSucesso(false)
+    setResultadoAprovacao(null)
+  }
+
+  function concluirSucessoAprovacao() {
+    const cotAtualizada = resultadoAprovacao
+    fecharModalAprovar()
+    if (cotAtualizada) {
+      onCotacaoAtualizada?.(cotAtualizada)
+      return
+    }
+    onCotacaoAtualizada?.()
+  }
+
+  async function confirmarAprovar() {
+    if (!id_cotacao_bid_frete_internacional || !propostaMelhor || aprovando || aprovacaoSucesso) return
+    setAprovando(true)
+    try {
+      const resultado = await aprovarResposta(
+        id_cotacao_bid_frete_internacional,
+        propostaMelhor.id_proposta_bid_frete_internacional,
+      )
+      setResultadoAprovacao(resultado)
+      setAprovacaoSucesso(true)
+    } finally {
+      setAprovando(false)
+    }
+  }
+
   if (!resumo) {
     return (
       <article className="dc-smart-card dc-smart-card--melhor dc-smart-card--vazio">
@@ -513,8 +587,31 @@ function CardMelhorPropostaSmart({
         <span className="dc-smart-fornecedor-nome" title={resumo.fornecedor}>
           {resumo.fornecedor.length > 24 ? `${resumo.fornecedor.slice(0, 22)}…` : resumo.fornecedor}
         </span>
-        <Trophy weight="fill" size={16} className="dc-smart-trophy-sm" aria-hidden />
+        {exibirAprovar && (
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="pequeno"
+            className="dc-prop-btn-aprovar dc-smart-btn-aprovar"
+            icone={<CheckCircle weight="bold" size={14} />}
+            onClick={abrirModalAprovar}
+            disabled={aprovando || modalAprovar}
+          >
+            {t('bidfrete.comparativo.aprovar', 'Aprovar')}
+          </BotaoGlobal>
+        )}
       </footer>
+      {propostaMelhor && (
+        <ModalAprovarPropostaBidFreteInternacional
+          aberto={modalAprovar}
+          proposta={propostaMelhor}
+          aprovando={aprovando}
+          aprovacaoSucesso={aprovacaoSucesso}
+          resultadoAprovacao={resultadoAprovacao}
+          onFechar={fecharModalAprovar}
+          onConcluirSucesso={concluirSucessoAprovacao}
+          onConfirmar={() => void confirmarAprovar()}
+        />
+      )}
     </article>
   )
 }
@@ -634,8 +731,27 @@ export function podeDispararCotacaoBidFrete(status: StatusCotacao | null | undef
   return !STATUS_COTACAO_BLOQUEIA_DISPARO.includes(status)
 }
 
+function RotuloSegmentoCompeticao({
+  rotulo,
+  rotuloLinhas,
+}: {
+  rotulo?: string
+  rotuloLinhas?: readonly [string, string]
+}) {
+  if (rotuloLinhas) {
+    return (
+      <span className="dc-competicao-seg-lbl dc-competicao-seg-lbl--duas-linhas">
+        <span className="dc-competicao-seg-lbl-linha">{rotuloLinhas[0]}</span>
+        <span className="dc-competicao-seg-lbl-linha">{rotuloLinhas[1]}</span>
+      </span>
+    )
+  }
+  return <span className="dc-competicao-seg-lbl">{rotulo}</span>
+}
+
 function SegmentoCompeticaoHero({
   rotulo,
+  rotuloLinhas,
   valor,
   variante,
   icone,
@@ -644,7 +760,8 @@ function SegmentoCompeticaoHero({
   habilitado = true,
   titulo,
 }: {
-  rotulo: string
+  rotulo?: string
+  rotuloLinhas?: readonly [string, string]
   valor: number
   variante: 'disparos' | 'respostas' | 'recusas'
   icone: React.ReactNode
@@ -653,7 +770,8 @@ function SegmentoCompeticaoHero({
   habilitado?: boolean
   titulo?: string
 }) {
-  const rotuloAcessivel = titulo ?? `${rotulo}: ${valor}`
+  const rotuloTexto = rotuloLinhas ? rotuloLinhas.join(' ') : (rotulo ?? '')
+  const rotuloAcessivel = titulo ?? `${rotuloTexto}: ${valor}`
   const classe = [
     'dc-competicao-seg',
     `dc-competicao-seg--${variante}`,
@@ -674,7 +792,7 @@ function SegmentoCompeticaoHero({
       >
         <span className="dc-competicao-seg-icone" aria-hidden>{icone}</span>
         <span className="dc-competicao-seg-val">{valor}</span>
-        <span className="dc-competicao-seg-lbl">{rotulo}</span>
+        <RotuloSegmentoCompeticao rotulo={rotulo} rotuloLinhas={rotuloLinhas} />
       </button>
     )
   }
@@ -683,7 +801,7 @@ function SegmentoCompeticaoHero({
     <div className={classe} title={rotuloAcessivel} aria-label={rotuloAcessivel}>
       <span className="dc-competicao-seg-icone" aria-hidden>{icone}</span>
       <span className="dc-competicao-seg-val">{valor}</span>
-      <span className="dc-competicao-seg-lbl">{rotulo}</span>
+      <RotuloSegmentoCompeticao rotulo={rotulo} rotuloLinhas={rotuloLinhas} />
     </div>
   )
 }
@@ -705,7 +823,10 @@ function ResumoCompeticaoHero({
   onIrRespostas?: () => void
   onIrRecusas?: () => void
 }) {
-  const rotuloDisparos = t('bidfrete.detalhe_cotacao.cockpit_disparos', 'Disparos')
+  const rotuloDisparosLinhas: readonly [string, string] = [
+    t('bidfrete.detalhe_cotacao.cockpit_disparos_linha1', 'Solicitações de'),
+    t('bidfrete.detalhe_cotacao.cockpit_disparos_linha2', 'cotação'),
+  ]
   const rotuloRespostas = t('bidfrete.detalhe_cotacao.cockpit_respostas', 'Respostas')
   const rotuloRecusas = t('bidfrete.detalhe_cotacao.cockpit_recusas', 'Recusas')
 
@@ -716,7 +837,7 @@ function ResumoCompeticaoHero({
       aria-label={t('bidfrete.detalhe_cotacao.cockpit_metricas_competicao', 'Métricas da competição')}
     >
       <SegmentoCompeticaoHero
-        rotulo={rotuloDisparos}
+        rotuloLinhas={rotuloDisparosLinhas}
         valor={info.quantidadeDisparosEnviados}
         variante="disparos"
         icone={<PaperPlaneTilt weight="duotone" size={16} />}
@@ -849,7 +970,15 @@ export function InsightsGridFluxoCotacao({
         t={t}
       />
       <div className="dc-smart-insights-grid">
-        <CardMelhorPropostaSmart info={info} smart={smart} t={t} />
+        <CardMelhorPropostaSmart
+          info={info}
+          smart={smart}
+          id_cotacao_bid_frete_internacional={idCotacao}
+          status_cotacao_bid_frete_internacional={status_cotacao_bid_frete_internacional}
+          propostasRanking={propostasRanking}
+          onCotacaoAtualizada={onCotacaoAtualizada}
+          t={t}
+        />
         {idCotacao != null && (
           <CardRankingRespostasInsights
             id_cotacao_bid_frete_internacional={idCotacao}

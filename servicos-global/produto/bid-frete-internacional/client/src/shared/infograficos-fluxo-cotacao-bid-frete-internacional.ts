@@ -10,6 +10,7 @@ import type {
 } from './types'
 
 export interface ResumoMelhorPropostaFluxo {
+  id_proposta_bid_frete_internacional: string
   fornecedor: string
   moeda: string
   valorFrete: number
@@ -744,6 +745,7 @@ export function calcularInfograficosFluxoCotacao(
     vazio.liderScore = lider.ranking_geral ?? null
 
     vazio.melhorPropostaResumo = {
+      id_proposta_bid_frete_internacional: melhor.id_proposta_bid_frete_internacional,
       fornecedor: nomeFornecedorProposta(melhor),
       moeda: melhor.moeda_proposta_bid_frete_internacional,
       valorFrete: melhor.valor_frete_proposta_bid_frete_internacional,

@@ -203,7 +203,11 @@ export default function ResponderPublico() {
       || !form.valor_frete_proposta_bid_frete_internacional
       || !form.dias_transito_proposta_bid_frete_internacional
       || !form.validade_proposta_bid_frete_internacional
-      || !camposLogisticaRespostaCotacaoValidos(form, cotacao?.modal_cotacao_bid_frete_internacional)
+      || !camposLogisticaRespostaCotacaoValidos(
+        form,
+        cotacao?.modal_cotacao_bid_frete_internacional,
+        cotacao?.modalidade_cotacao_bid_frete_internacional,
+      )
     ) {
 
       setErro(t('bidfrete.portal.publico.campos_obrigatorios'))
@@ -439,6 +443,8 @@ export default function ResponderPublico() {
             form={form}
 
             modalCotacao={cotacao?.modal_cotacao_bid_frete_internacional}
+
+            modalidadeCotacao={cotacao?.modalidade_cotacao_bid_frete_internacional}
 
             onChange={handleChange}
 

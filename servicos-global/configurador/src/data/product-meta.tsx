@@ -89,6 +89,27 @@ export const PRODUCT_META: Record<string, ProductMeta> = {
     descKey: 'store.prod_smart_read_desc',
     tagKeys: ['store.tag_ocr_ia', 'store.tag_invoice', 'store.tag_aduaneiro'],
   },
+  'bid-frete-internacional': {
+    ...coresProduto('bid-frete'),
+    icon: <Truck weight="duotone" size={28} color={corOficialProdutoGravity('bid-frete')} />,
+    categoryKey: 'store.cat_logistica',
+    categoryFilter: 'frete',
+    nameKey: 'store.prod_bid_frete_nome',
+    descKey: 'store.prod_bid_frete_desc',
+    tagKeys: ['store.tag_multi_carrier', 'store.tag_tempo_real', 'store.tag_relatorios', 'store.tag_api_integrada'],
+  },
+}
+
+/** Nome de vitrine/hub — prioriza i18n (Bid) sobre valor persistido no catálogo (pode estar legado). */
+export function nomeExibicaoProdutoGravity(
+  slug: string,
+  fallback: string,
+  t: (key: string, defaultValue?: string) => string,
+): string {
+  const chave = slug === 'bid-frete-internacional' ? 'bid-frete' : slug
+  const meta = PRODUCT_META[chave] ?? PRODUCT_META[slug]
+  if (meta?.nameKey) return t(meta.nameKey)
+  return fallback
 }
 
 // Relação entre produtos Gravity — quais módulos se complementam.

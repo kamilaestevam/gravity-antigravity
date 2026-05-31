@@ -7,7 +7,7 @@ import {
   exigePropostaExistenteParaSalvar,
   type ResultadoAcessoRespostaDisparoBidFreteInternacional,
 } from '../lib/acesso-resposta-disparo-bid-frete-internacional.js'
-import { persistirTaxasProposta, type TaxaInputProposta } from '../lib/persistir-taxas-proposta.js'
+import { validarPropostaEnvioModalidadeCotacaoBidFreteInternacional } from '../lib/validar-proposta-envio-modalidade-cotacao-bid-frete-internacional.js'
 import { snapshotPropostaFromCotacao } from '../lib/snapshot-proposta-bid-frete.js'
 import { notificacoesIntegration, historicoIntegration, atividadesIntegration } from './integracoes-tenant.js'
 
@@ -17,7 +17,8 @@ export interface DadosPropostaDisparo {
   taxas_origem_proposta_bid_frete_internacional: number
   taxas_destino_proposta_bid_frete_internacional: number
   dias_transito_proposta_bid_frete_internacional: number
-  dias_free_time_proposta_bid_frete_internacional?: number
+  dias_free_time_proposta_bid_frete_internacional?: number | null
+  dias_prazo_pagamento_proposta_bid_frete_internacional: number
   transbordos_proposta_bid_frete_internacional: number
   escalas_proposta_bid_frete_internacional?: string
   observacoes_proposta_bid_frete_internacional?: string
@@ -88,6 +89,7 @@ export async function enviarPropostaDisparoBidFreteInternacional(
           numero_cotacao_bid_frete_internacional: true,
           status_cotacao_bid_frete_internacional: true,
           data_limite_resposta_cotacao_bid_frete_internacional: true,
+          modalidade_cotacao_bid_frete_internacional: true,
         },
       },
     },
@@ -101,6 +103,14 @@ export async function enviarPropostaDisparoBidFreteInternacional(
   if (acesso.modo_acesso_resposta_disparo_bid_frete_internacional === 'bloqueado') {
     const codigo = acesso.codigo_bloqueio_resposta_disparo_bid_frete_internacional ?? 'ACESSO_NEGADO'
     throw erroAcesso(codigo, mensagemErroCodigoBloqueio(codigo), 403)
+  }
+
+  const erroModalidade = validarPropostaEnvioModalidadeCotacaoBidFreteInternacional(
+    dados,
+    disparo.cotacao?.modalidade_cotacao_bid_frete_internacional as string | null | undefined,
+  )
+  if (erroModalidade) {
+    throw erroAcesso('VALIDATION_ERROR', erroModalidade, 400)
   }
 
   const modo = acesso.modo_acesso_resposta_disparo_bid_frete_internacional

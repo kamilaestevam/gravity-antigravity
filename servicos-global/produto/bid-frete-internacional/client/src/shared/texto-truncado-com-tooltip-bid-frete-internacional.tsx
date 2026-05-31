@@ -21,11 +21,14 @@ export function TextoTruncadoComTooltip({
   rotuloTooltip,
   className,
   limiteCaracteres = LIMITE_TRUNCAR_TEXTO_BID_FRETE_INTERNACIONAL,
+  /** Em cards (ex.: mercadoria no detalhe), valor fica abaixo do rótulo — não na mesma linha. */
+  layoutBloco = false,
 }: {
   texto: string | null | undefined
   rotuloTooltip?: string
   className?: string
   limiteCaracteres?: number
+  layoutBloco?: boolean
 }): React.ReactElement {
   if (!texto?.trim()) {
     return <span className={className} style={{ color: 'var(--text-muted)' }}>—</span>
@@ -44,11 +47,12 @@ export function TextoTruncadoComTooltip({
       <span
         className={className}
         style={{
-          display: 'inline-flex',
+          display: 'flex',
           alignItems: 'center',
           gap: '0.25rem',
           maxWidth: '100%',
           minWidth: 0,
+          width: layoutBloco ? '100%' : undefined,
         }}
       >
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

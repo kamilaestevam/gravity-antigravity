@@ -119,6 +119,28 @@ html:has(.brc-page--publico) body {
   margin-bottom: 3.5rem;
 }
 
+.brc-auth-marca-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.brc-auth-logo.brc-auth-marca-link {
+  width: fit-content;
+}
+
+.brc-auth-marca-hero:focus-visible {
+  outline: 2px solid rgba(129, 140, 248, 0.55);
+  outline-offset: 4px;
+  border-radius: 0.5rem;
+}
+
+a.brc-auth-feature:focus-visible {
+  outline: 2px solid rgba(129, 140, 248, 0.55);
+  outline-offset: 2px;
+}
+
 .brc-auth-logo span span:last-child {
   color: #f8fafc !important;
   font-size: 1.68rem !important;

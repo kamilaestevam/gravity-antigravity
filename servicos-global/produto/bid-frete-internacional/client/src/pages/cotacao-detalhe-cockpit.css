@@ -447,8 +447,28 @@
   text-transform: uppercase;
   letter-spacing: 0.07em;
   color: #94a3b8;
-  line-height: 1.2;
+  line-height: 1.15;
+  text-align: center;
+  min-height: 2.35em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.dc-competicao-seg-lbl--duas-linhas {
+  gap: 0.08rem;
+  max-width: 5.75rem;
+}
+
+.dc-competicao-seg-lbl-linha {
+  display: block;
   white-space: nowrap;
+}
+
+.dc-competicao-seg--disparos {
+  flex: 1.15 1 0;
+  min-width: 5.25rem;
 }
 
 .dc-cockpit-prazo-col,
@@ -1948,6 +1968,44 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.5));
 }
 
+.dc-smart-card--melhor .dc-smart-fornecedor-foot .dc-smart-btn-aprovar.gb-btn {
+  flex-shrink: 0;
+  margin-left: auto;
+  animation: dc-prop-pulse-aprovar 2.5s ease-out infinite;
+  background: linear-gradient(
+    180deg,
+    rgba(16, 185, 129, 0.055) 0%,
+    rgba(16, 185, 129, 0.025) 100%
+  );
+  border-color: rgba(52, 211, 153, 0.13);
+  color: #34d399;
+  transition:
+    background 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease,
+    transform 0.12s ease;
+}
+
+.dc-smart-card--melhor .dc-smart-fornecedor-foot .dc-smart-btn-aprovar.gb-btn:hover:not(:disabled) {
+  background: linear-gradient(
+    180deg,
+    rgba(16, 185, 129, 0.085) 0%,
+    rgba(16, 185, 129, 0.045) 100%
+  );
+  border-color: rgba(52, 211, 153, 0.2);
+  color: #6ee7b7;
+}
+
+.dc-smart-card--melhor .dc-smart-fornecedor-foot .dc-smart-btn-aprovar .gb-btn__icon-badge {
+  background: rgba(16, 185, 129, 0.08);
+  color: #10b981;
+}
+
+.dc-smart-card--melhor .dc-smart-fornecedor-foot .dc-smart-btn-aprovar.gb-btn:hover:not(:disabled) .gb-btn__icon-badge {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+}
+
 .dc-smart-termometro-topo {
   display: flex;
   align-items: flex-start;
@@ -2556,8 +2614,8 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 }
 
 .dc-cockpit-combat .dc-prop-card--lider {
-  border-color: rgba(99, 102, 241, 0.38);
-  box-shadow: 0 0 14px rgba(99, 102, 241, 0.14);
+  border-color: rgba(99, 102, 241, 0.19);
+  box-shadow: 0 0 14px rgba(99, 102, 241, 0.07);
 }
 
 .dc-cockpit-combat .dc-prop-card--lider::after {
@@ -2569,7 +2627,7 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0 0 0.65rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.05);
 }
 
 .dc-cockpit-combat .dc-prop-rank-inline {
@@ -2638,13 +2696,13 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   min-width: 0;
   padding: 0.55rem 0.6rem 0.5rem;
   border-radius: 8px;
-  background: rgba(15, 23, 42, 0.35);
-  border: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(15, 23, 42, 0.175);
+  border: 1px solid rgba(148, 163, 184, 0.06);
 }
 
 .dc-cockpit-combat .dc-prop-colocacao-celula--lider {
-  border-color: rgba(52, 211, 153, 0.28);
-  background: rgba(52, 211, 153, 0.06);
+  border-color: rgba(52, 211, 153, 0.14);
+  background: rgba(52, 211, 153, 0.03);
 }
 
 .dc-cockpit-combat .dc-prop-colocacao-celula--analise {
@@ -2652,8 +2710,8 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 }
 
 .dc-cockpit-combat .dc-prop-colocacao-celula--analise:hover {
-  border-color: rgba(129, 140, 248, 0.35);
-  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(129, 140, 248, 0.175);
+  background: rgba(99, 102, 241, 0.04);
 }
 
 .dc-cockpit-combat .dc-prop-colocacao-rotulo {
@@ -2832,9 +2890,9 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   letter-spacing: 0.01em;
   text-transform: none;
   color: #7dd3fc;
-  background: rgba(30, 41, 59, 0.75);
-  border: 1px solid rgba(148, 163, 184, 0.32);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  background: rgba(30, 41, 59, 0.375);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02) inset;
 }
 
 .dc-cockpit-combat .dc-prop-tag {
@@ -2864,7 +2922,7 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   text-align: center;
   letter-spacing: 0.02em;
   color: inherit;
-  background: rgba(100, 116, 139, 0.14);
+  background: rgba(100, 116, 139, 0.07);
   border: 1px solid rgba(148, 163, 184, 0.22);
 }
 
@@ -3077,8 +3135,8 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   gap: 0.15rem;
   padding: 0.45rem 0.4rem 0.4rem;
   border-radius: 8px;
-  background: rgba(15, 23, 42, 0.45);
-  border: 1px solid rgba(99, 102, 241, 0.1);
+  background: rgba(15, 23, 42, 0.225);
+  border: 1px solid rgba(99, 102, 241, 0.05);
 }
 
 .dc-prop-card .dc-prop-metrica-col--spark {
@@ -3152,18 +3210,88 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 
 .dc-cockpit-main .dc-prop-list.dc-prop-list--podio {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--dc-prop-podio-cols, 3), minmax(0, 1fr));
   gap: 1.5rem;
   align-items: stretch;
 }
 
+/* Aba Propostas: sem caixa combate — só toolbar + cards */
+.dc-cockpit-main .dc-prop-panel.dc-cockpit-combat.dc-cockpit-combat--com-toolbar {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  min-height: 0;
+  border-radius: 0;
+  overflow: visible;
+  position: static;
+}
+
+.dc-cockpit-main .dc-prop-panel.dc-cockpit-combat.dc-cockpit-combat--com-toolbar::after {
+  display: none;
+}
+
+.dc-cockpit-main .dc-cockpit-combat--com-toolbar .dc-prop-panel-toolbar {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.dc-cockpit-main .dc-cockpit-combat--com-toolbar .dc-prop-list {
+  padding: 0;
+}
+
 .dc-cockpit-main .dc-cockpit-combat .dc-prop-list.dc-prop-list--podio {
   gap: 1rem;
-  padding: 0 1rem 0;
 }
 
 .dc-cockpit-main .dc-prop-list--podio .dc-prop-colocacao-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Pódio + combate: restaura faixa ouro/prata/bronze e bordas do layout padrao (commit 5c5eb9d1) */
+.dc-cockpit-main .dc-cockpit-combat .dc-prop-list--podio .dc-prop-card::after {
+  display: block;
+}
+
+.dc-cockpit-main .dc-cockpit-combat .dc-prop-list--podio .dc-prop-card--lider {
+  border-color: rgba(234, 179, 8, 0.14);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.025) inset,
+    0 8px 32px rgba(0, 0, 0, 0.11);
+}
+
+.dc-cockpit-main .dc-cockpit-combat .dc-prop-list--podio .dc-prop-card--segundo {
+  border-color: rgba(148, 163, 184, 0.12);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.025) inset,
+    0 8px 32px rgba(0, 0, 0, 0.11);
+}
+
+.dc-cockpit-main .dc-cockpit-combat .dc-prop-list--podio .dc-prop-card--terceiro {
+  border-color: rgba(217, 119, 6, 0.14);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.025) inset,
+    0 8px 32px rgba(0, 0, 0, 0.11);
+}
+
+.dc-cockpit-main .dc-cockpit-combat .dc-prop-list--podio .dc-prop-card--lider::after {
+  background: linear-gradient(90deg, #ca8a04 0%, #facc15 50%, #fde047 100%);
+  opacity: 0.5;
+}
+
+.dc-cockpit-main .dc-cockpit-combat .dc-prop-list--podio .dc-prop-card--segundo::after {
+  background: linear-gradient(90deg, #64748b 0%, #94a3b8 50%, #cbd5e1 100%);
+  opacity: 0.5;
+}
+
+.dc-cockpit-main .dc-cockpit-combat .dc-prop-list--podio .dc-prop-card--terceiro::after {
+  background: linear-gradient(90deg, #b45309 0%, #d97706 50%, #fbbf24 100%);
+  opacity: 0.5;
+}
+
+/* Células do pódio: fundo neutro uniforme; destaque só na borda/badge */
+.dc-cockpit-main .dc-prop-list--podio .dc-prop-colocacao-celula--lider {
+  background: rgba(15, 23, 42, 0.175);
+  border-color: rgba(52, 211, 153, 0.14);
 }
 
 @media (max-width: 900px) {

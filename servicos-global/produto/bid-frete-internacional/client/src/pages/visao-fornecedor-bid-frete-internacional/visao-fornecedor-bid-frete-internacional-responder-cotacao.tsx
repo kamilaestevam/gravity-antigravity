@@ -117,7 +117,11 @@ export default function ResponderCotacao() {
       || !form.valor_frete_proposta_bid_frete_internacional
       || !form.dias_transito_proposta_bid_frete_internacional
       || !form.validade_proposta_bid_frete_internacional
-      || !camposLogisticaRespostaCotacaoValidos(form, cotacao?.modal_cotacao_bid_frete_internacional)
+      || !camposLogisticaRespostaCotacaoValidos(
+        form,
+        cotacao?.modal_cotacao_bid_frete_internacional,
+        cotacao?.modalidade_cotacao_bid_frete_internacional,
+      )
     ) {
       setErro(t('bidfrete.visao_fornecedor_bid_frete_internacional_publico.campos_obrigatorios'))
       return
@@ -209,6 +213,7 @@ export default function ResponderCotacao() {
               <FormPropostaRespostaCotacao
                 form={form}
                 modalCotacao={cotacao?.modal_cotacao_bid_frete_internacional}
+                modalidadeCotacao={cotacao?.modalidade_cotacao_bid_frete_internacional}
                 onChange={handleChange}
                 onLinhasOrigemChange={(linhas) => setForm((prev) => ({ ...prev, linhas_taxa_origem: linhas }))}
                 onLinhasDestinoChange={(linhas) => setForm((prev) => ({ ...prev, linhas_taxa_destino: linhas }))}

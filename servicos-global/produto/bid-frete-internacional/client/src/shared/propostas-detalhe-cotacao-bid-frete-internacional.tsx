@@ -69,12 +69,12 @@ const STATUS_COTACAO_SEM_ACOES_RESPOSTA: StatusCotacao[] = [
   'EXPIRADA',
 ]
 
-function cotacaoPermiteAcoesResposta(status: StatusCotacao | null | undefined): boolean {
+export function cotacaoPermiteAcoesResposta(status: StatusCotacao | null | undefined): boolean {
   if (!status) return true
   return !STATUS_COTACAO_SEM_ACOES_RESPOSTA.includes(status)
 }
 
-function propostaPermiteAcoes(proposta: PropostaRankingBidFreteInternacional): boolean {
+export function propostaPermiteAcoes(proposta: PropostaRankingBidFreteInternacional): boolean {
   const status = proposta.status_proposta_bid_frete_internacional
   return status !== 'APROVADA' && status !== 'REPROVADA'
 }
@@ -119,10 +119,10 @@ function nomeFornecedorProposta(
 
 function coresColocacao(posicao: number): { bg: string; color: string; border: string } {
   const textoColocacao = '#ffffff'
-  if (posicao === 1) return { bg: 'rgba(234,179,8,0.18)', color: textoColocacao, border: 'rgba(234,179,8,0.45)' }
-  if (posicao === 2) return { bg: 'rgba(148,163,184,0.14)', color: textoColocacao, border: 'rgba(148,163,184,0.35)' }
-  if (posicao === 3) return { bg: 'rgba(180,83,9,0.14)', color: textoColocacao, border: 'rgba(180,83,9,0.35)' }
-  return { bg: 'rgba(100,116,139,0.12)', color: textoColocacao, border: 'rgba(100,116,139,0.25)' }
+  if (posicao === 1) return { bg: 'rgba(234,179,8,0.09)', color: textoColocacao, border: 'rgba(234,179,8,0.225)' }
+  if (posicao === 2) return { bg: 'rgba(148,163,184,0.07)', color: textoColocacao, border: 'rgba(148,163,184,0.175)' }
+  if (posicao === 3) return { bg: 'rgba(180,83,9,0.07)', color: textoColocacao, border: 'rgba(180,83,9,0.175)' }
+  return { bg: 'rgba(100,116,139,0.06)', color: textoColocacao, border: 'rgba(100,116,139,0.125)' }
 }
 
 function classeBarraColocacao(posicaoScore: number): string {
@@ -947,7 +947,10 @@ export function ListaPropostasDetalheCotacao({
 
       <div className="dc-prop-list-wrap">
         {propostasPodio.length > 0 && (
-          <div className="dc-prop-list dc-prop-list--podio">
+          <div
+            className="dc-prop-list dc-prop-list--podio"
+            style={{ '--dc-prop-podio-cols': Math.min(propostasPodio.length, 3) } as React.CSSProperties}
+          >
             {propostasPodio.map((proposta, indice) => renderCard(proposta, indice, 'podio'))}
           </div>
         )}

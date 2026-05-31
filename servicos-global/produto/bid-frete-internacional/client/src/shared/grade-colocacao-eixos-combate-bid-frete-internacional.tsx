@@ -259,10 +259,10 @@ export function calcularEixosColocacaoCombate(
 
 function coresBadgeColocacao(rank: number): { bg: string; color: string; border: string } {
   const texto = '#f8fafc'
-  if (rank === 1) return { bg: 'rgba(52, 211, 153, 0.2)', color: '#6ee7b7', border: 'rgba(52, 211, 153, 0.45)' }
-  if (rank === 2) return { bg: 'rgba(148, 163, 184, 0.16)', color: texto, border: 'rgba(148, 163, 184, 0.35)' }
-  if (rank === 3) return { bg: 'rgba(180, 83, 9, 0.16)', color: '#fcd34d', border: 'rgba(180, 83, 9, 0.35)' }
-  return { bg: 'rgba(100, 116, 139, 0.14)', color: '#cbd5e1', border: 'rgba(100, 116, 139, 0.28)' }
+  if (rank === 1) return { bg: 'rgba(52, 211, 153, 0.1)', color: '#6ee7b7', border: 'rgba(52, 211, 153, 0.225)' }
+  if (rank === 2) return { bg: 'rgba(148, 163, 184, 0.08)', color: texto, border: 'rgba(148, 163, 184, 0.175)' }
+  if (rank === 3) return { bg: 'rgba(180, 83, 9, 0.08)', color: '#fcd34d', border: 'rgba(180, 83, 9, 0.175)' }
+  return { bg: 'rgba(100, 116, 139, 0.07)', color: '#cbd5e1', border: 'rgba(100, 116, 139, 0.14)' }
 }
 
 function CelulaColocacaoEixo({

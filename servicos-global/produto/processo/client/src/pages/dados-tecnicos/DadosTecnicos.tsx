@@ -17,7 +17,7 @@ import {
   Hash, User, UserCircle, Briefcase, Certificate, Globe,
   ArrowsLeftRight, Warehouse, ShieldCheck, TrafficSign,
   CurrencyDollar, Boat, AirplaneTakeoff, Package, ListChecks,
-  IdentificationBadge, ChatText, SidebarSimple,
+  IdentificationBadge, ChatText, SidebarSimple, Warning,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -269,6 +269,24 @@ export default function DadosTecnicos() {
     return mapa
   }, [valores])
 
+  // Estatisticas globais (todas as secoes somadas)
+  const stats = useMemo(() => {
+    let preench = 0, total = 0, obrigTotal = 0, obrigPend = 0
+    for (const sec of SECOES) {
+      for (const c of sec.campos) {
+        total++
+        const tem = !!valores[c.key] && valores[c.key].trim() !== ''
+        if (tem) preench++
+        if (c.obrigatorio) {
+          obrigTotal++
+          if (!tem) obrigPend++
+        }
+      }
+    }
+    const pct = total > 0 ? Math.round((preench / total) * 100) : 0
+    return { preench, total, obrigTotal, obrigPend, pct }
+  }, [valores])
+
   // Scroll-spy: detecta secao visivel
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -292,7 +310,22 @@ export default function DadosTecnicos() {
 
   function irParaSecao(id: string) {
     const el = document.getElementById(id)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (!el) return
+    // PaginaGlobal usa container interno com overflow — scrollIntoView nao
+    // funciona porque so ajusta o window. Sobe a arvore ate achar o
+    // ancestral com overflow rolavel e rola ele explicitamente.
+    let parent: HTMLElement | null = el.parentElement
+    while (parent) {
+      const ov = getComputedStyle(parent).overflowY
+      if (ov === 'auto' || ov === 'scroll' || ov === 'overlay') break
+      parent = parent.parentElement
+    }
+    if (parent) {
+      const offset = el.getBoundingClientRect().top - parent.getBoundingClientRect().top + parent.scrollTop - 16
+      parent.scrollTo({ top: offset, behavior: 'smooth' })
+    } else {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
   }
 
   return (
@@ -308,6 +341,8 @@ export default function DadosTecnicos() {
       }
     >
       <div className={`dt-layout ${tocColapsada ? 'dt-layout--toc-colapsada' : ''}`}>
+        {/* ── Sidebar: TOC + stats agrupados, sticky ─────────────────────── */}
+        <div className="dt-sidebar">
         {/* ── TOC lateral ───────────────────────────────────────────────── */}
         <aside className={`dt-toc ${tocColapsada ? 'dt-toc--colapsada' : ''}`} aria-label="Navegação entre seções">
           {/* Toggle expandir/contrair */}
@@ -363,6 +398,37 @@ export default function DadosTecnicos() {
             )
           })}
         </aside>
+
+        {/* ── Card de estatisticas com donut ───────────────────────────── */}
+        <div className={`dt-stats ${tocColapsada ? 'dt-stats--colapsada' : ''}`}>
+          <div
+            className="dt-stats-donut"
+            style={{
+              background: `conic-gradient(${stats.pct === 100 ? '#34d399' : '#a78bfa'} 0% ${stats.pct}%, rgba(148,163,184,0.18) ${stats.pct}% 100%)`,
+            }}
+          >
+            <div className="dt-stats-donut-inner">
+              <span className="dt-stats-donut-pct">{stats.pct}%</span>
+            </div>
+          </div>
+          {!tocColapsada && (
+            <div className="dt-stats-body">
+              <div className="dt-stats-titulo">Preenchimento</div>
+              <div className="dt-stats-linha">
+                <strong>{stats.preench}</strong>
+                <span>de {stats.total} campos</span>
+              </div>
+              <div className={`dt-stats-linha dt-stats-linha--obrig ${stats.obrigPend === 0 ? 'dt-stats-linha--ok' : 'dt-stats-linha--warn'}`}>
+                {stats.obrigPend === 0
+                  ? <CheckCircle weight="fill" size={13} />
+                  : <Warning weight="fill" size={13} />}
+                <strong>{stats.obrigTotal - stats.obrigPend}/{stats.obrigTotal}</strong>
+                <span>obrigatórios</span>
+              </div>
+            </div>
+          )}
+        </div>
+        </div>
 
         {/* ── Conteudo: secoes empilhadas ──────────────────────────────── */}
         <main className="dt-main">

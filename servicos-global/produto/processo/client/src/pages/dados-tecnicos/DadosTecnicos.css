@@ -20,15 +20,20 @@
   gap: 1.25rem;
 }
 
-/* ── TOC lateral (sticky) ──────────────────────────────────────────────── */
+/* ── Sidebar (TOC + stats) sticky ─────────────────────────────────────── */
 
-.dt-toc {
+.dt-sidebar {
   position: sticky;
   top: 1rem;
-  /* align-self: start — a celula do grid estica, mas a TOC fica do
-     tamanho do seu conteudo, deixando 'espaco vazio' abaixo onde o
-     sticky pode atuar (ela acompanha o scroll). */
   align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── TOC lateral ───────────────────────────────────────────────────────── */
+
+.dt-toc {
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
@@ -37,6 +42,95 @@
   border: 1px solid rgba(167, 139, 250, 0.12);
   border-radius: 12px;
 }
+
+/* ── Card de estatisticas com donut ───────────────────────────────────── */
+
+.dt-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 0.875rem 1.125rem;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(167, 139, 250, 0.12);
+  border-radius: 12px;
+}
+
+.dt-stats--colapsada { padding: 0.5rem; }
+
+.dt-stats-donut {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: width 0.2s, height 0.2s, background 0.3s ease-out;
+}
+
+.dt-stats--colapsada .dt-stats-donut { width: 40px; height: 40px; }
+
+.dt-stats-donut-inner {
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dt-stats-donut-pct {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ws-text, #f1f5f9);
+  letter-spacing: -0.02em;
+}
+
+.dt-stats--colapsada .dt-stats-donut-pct {
+  font-size: 0.625rem;
+}
+
+.dt-stats-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  align-items: center;
+}
+
+.dt-stats-titulo {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ws-muted, #94a3b8);
+}
+
+.dt-stats-linha {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--ws-muted, #94a3b8);
+  font-variant-numeric: tabular-nums;
+}
+
+.dt-stats-linha strong {
+  color: var(--ws-text, #f1f5f9);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.dt-stats-linha--obrig { align-items: center; }
+
+.dt-stats-linha--ok   { color: #34d399; }
+.dt-stats-linha--ok   strong { color: #34d399; }
+.dt-stats-linha--warn { color: #fbbf24; }
+.dt-stats-linha--warn strong { color: #fbbf24; }
 
 .dt-toc-item {
   display: grid;

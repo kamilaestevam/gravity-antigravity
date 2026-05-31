@@ -260,6 +260,7 @@ model CotacaoBidFreteInternacional {
   // Target
   valor_meta_cotacao_bid_frete_internacional        Float?              // valor referencial que quer atingir
   moeda_meta_cotacao_bid_frete_internacional        String?             @default("USD")
+  dias_prazo_pagamento_cotacao_bid_frete_internacional Int?             // prazo de pagamento em dias
 
   // Visibilidade
   visibilidade_cotacao_bid_frete_internacional        BidFreteInternacionalVisibilidade @default(DIRECIONADA)

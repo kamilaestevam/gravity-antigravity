@@ -1,15 +1,39 @@
 import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import {
+  createNucleoAliases,
+  createServiceAliases,
+  createTenantAliases,
+} from '../../../nucleo-global/vite-aliases'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '../../..')
 
+const resolveTsFromJs = {
+  name: 'resolve-ts-from-js',
+  resolveId(source: string, importer: string | undefined) {
+    if (source.endsWith('.js') && importer) {
+      return path.resolve(path.dirname(importer), source.replace(/\.js$/, '.ts'))
+    }
+  },
+}
+
 export default defineConfig({
+  plugins: [react(), resolveTsFromJs],
+  root,
+  resolve: {
+    alias: {
+      ...createNucleoAliases(root),
+      ...createServiceAliases(root),
+      ...createTenantAliases(root, ['gabi']),
+    },
+    extensions: ['.mjs', '.ts', '.tsx', '.mts', '.jsx', '.js', '.json'],
+  },
   test: {
-    environment: 'node',
+    environment: 'jsdom',
     globals: true,
-    root,
     include: ['testes/testes-unitarios/bid-frete-internacional/**/*.test.ts'],
     coverage: {
       provider: 'v8',

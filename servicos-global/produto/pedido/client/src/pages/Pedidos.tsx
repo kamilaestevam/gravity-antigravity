@@ -5057,6 +5057,37 @@ export default function Pedidos() {
 
   const acoesBarra = useMemo(() => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', flex: 1 }}>
+      {/* Botao Expandir/Recolher todos itens (mesmo padrao do DadosTecnicos) */}
+      <button
+        type="button"
+        onClick={() => {
+          if (temExpandido) tabelaRef.current?.recolherTodos()
+          else void tabelaRef.current?.expandirTodos()
+        }}
+        title={temExpandido ? 'Recolher todos os itens' : 'Expandir todos os itens'}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+          padding: '0.3125rem 0.625rem',
+          background: 'transparent',
+          border: '1px solid rgba(148, 163, 184, 0.15)',
+          borderRadius: '9999px',
+          color: 'var(--ws-muted, #94a3b8)',
+          fontSize: '0.6875rem', fontWeight: 600,
+          cursor: 'pointer',
+          transition: 'background 0.15s, color 0.15s, border-color 0.15s',
+        }}
+      >
+        <CaretDown
+          size={12}
+          weight="bold"
+          style={{
+            transition: 'transform 0.15s',
+            transform: temExpandido ? 'none' : 'rotate(-90deg)',
+          }}
+        />
+        {temExpandido ? 'Recolher todos' : 'Expandir todos'}
+      </button>
+
       {/* Escopo de workspaces = menu lateral; filtros de coluna = client-side */}
       <BarraAcoesPedido
         novoDropdownRef={novoDropdownRef}
@@ -5098,6 +5129,7 @@ export default function Pedidos() {
     setModalGerarPdfAberto, setModalDuplicarAberto,
     handleExcluirLote, handleNavConfiguracoes, handleLimparFiltro, handleLimparTodosFiltros,
     onFiltroColuna, podeEditarLista,
+    temExpandido,
   ])
 
   // ── Valores únicos por campo (para filtro enum e sugestões texto) ────────────

@@ -1782,7 +1782,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   } | null>(null)
 
   // ── Expand/collapse ───────────────────────────────────────────────────────────
-  const { expandidos, filhosCache, carregandoFilhos, toggle, atualizarFilhoNoCache, ensureFilhosCarregados } = useGTExpandir<T, C>(
+  const { expandidos, filhosCache, carregandoFilhos, toggle, colapsarTodos, expandirTodos, atualizarFilhoNoCache, ensureFilhosCarregados } = useGTExpandir<T, C>(
     onCarregarFilhos,
     dados,
     itemId,
@@ -2467,6 +2467,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       if (!item) return
       void toggleRef.current(id, item)
     },
+    expandirTodos: async () => {
+      const items = dadosPaginaOrdenadosRef.current
+      await expandirTodos(items, itemIdRef.current)
+    },
+    recolherTodos: () => {
+      colapsarTodos()
+    },
     rolarParaCelula: (id: string, campo: string) => {
       const celula = document.querySelector<HTMLElement>(
         `[data-gtv-rowid="${id}"][data-gtv-campo="${campo}"]`
@@ -2477,7 +2484,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         celula.scrollIntoView({ block: 'center', behavior: 'instant' })
       }
     },
-  }), [iniciarEdicaoPai, iniciarEdicaoFilho])
+  }), [iniciarEdicaoPai, iniciarEdicaoFilho, expandirTodos, colapsarTodos])
 
   // ── Paginação ─────────────────────────────────────────────────────────────────
   const modoExterno = totalItens !== undefined

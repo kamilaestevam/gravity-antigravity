@@ -17,6 +17,8 @@ export interface UseGTExpandirRetorno<T, C> {
   toggle: (id: string, item: T) => Promise<void>
   colapsar: (id: string) => void
   colapsarTodos: () => void
+  /** Expande todos os pais informados (loadea filhos em lote primeiro). */
+  expandirTodos: (items: T[], idFn: (item: T) => string) => Promise<void>
   /** Atualiza um filho individual no cache (usado após edição inline) */
   atualizarFilhoNoCache: (filho: C, filhoIdFn: (f: C) => string) => void
   /** Carrega filhos sob demanda para seleção em lote (sem expandir a linha) */
@@ -248,6 +250,23 @@ export function useGTExpandir<T, C>(
     [onCarregarFilhos, itemId],
   )
 
+  // Expande todos os pais informados — pre-carrega filhos em lote e
+  // troca o Set de expandidos de uma vez (uma re-render so).
+  const expandirTodos = useCallback(
+    async (items: T[], idFn: (item: T) => string) => {
+      if (!items.length) return
+      if (onCarregarFilhos) {
+        try {
+          await ensureFilhosCarregados(items, { modo: 'selecao-lote' })
+        } catch { /* silent — pais sem filhos seguem expandidos sem linhas */ }
+      }
+      const ids = new Set<string>()
+      for (const it of items) ids.add(idFn(it))
+      setExpandidos(ids)
+    },
+    [onCarregarFilhos, ensureFilhosCarregados],
+  )
+
   return {
     expandidos,
     filhosCache,
@@ -255,6 +274,7 @@ export function useGTExpandir<T, C>(
     toggle,
     colapsar,
     colapsarTodos,
+    expandirTodos,
     atualizarFilhoNoCache,
     ensureFilhosCarregados,
   }

@@ -383,7 +383,10 @@
 }
 
 .wf-insight-stat {
-  background: rgba(0, 0, 0, 0.20);
+  /* Opcao A — Slate elevado: tom solido entre bg-body e bg-base, com
+     borda em tint indigo sutil. Cria profundidade real (volume), nao buraco. */
+  background: #1a2236;
+  border: 1px solid rgba(99, 102, 241, 0.15);
   border-radius: 8px;
   padding: 0.5rem 0.625rem;
   min-width: 0;
@@ -658,21 +661,20 @@
   color: #3b82f6;
 }
 
-/* Feed Body — fundo sutil que individualiza cada item como mini-card
-   sem quebrar o visual de timeline. Hover destaca a borda. */
+/* Feed Body — Opcao A: slate elevado #1a2236 + tint indigo na borda. */
 .wf-feed-body {
   flex: 1;
   min-width: 0;
-  background: rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(99, 102, 241, 0.08);
+  background: #1a2236;
+  border: 1px solid rgba(99, 102, 241, 0.15);
   border-radius: 8px;
   padding: 0.625rem 0.875rem;
   transition: border-color 0.15s, background 0.15s;
 }
 
 .wf-feed-item:hover .wf-feed-body {
-  border-color: var(--proc-accent-border, rgba(99, 102, 241, 0.25));
-  background: rgba(0, 0, 0, 0.25);
+  border-color: rgba(99, 102, 241, 0.30);
+  background: #1d2740;
 }
 
 .wf-feed-meta {
@@ -841,8 +843,9 @@
 
 .wf-custo-item {
   width: 100%;
-  background: rgba(0, 0, 0, 0.18);
-  border: 1px solid var(--proc-accent-border, rgba(99, 102, 241, 0.15));
+  /* Opcao A — slate elevado */
+  background: #1a2236;
+  border: 1px solid rgba(99, 102, 241, 0.15);
   border-radius: 10px;
   padding: 0.875rem 1rem;
   display: flex;

@@ -437,6 +437,10 @@ export default function PedidosLista() {
       }
     >
       <PedidosTabs />
+      {/* TabelaVirtualGlobal usa virtual scrolling e precisa de altura
+          explicita; sem o wrapper flex ela renderiza com 0px e nao
+          mostra colunas/cabecalhos. */}
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       <TabelaVirtualGlobal<PedidoRico, PedidoItemRico>
         dados={pedidos}
         colunas={colunasPai}
@@ -476,6 +480,7 @@ export default function PedidosLista() {
         }
         ariaLabel="Tabela de pedidos de compra"
       />
+      </div>
     </PaginaGlobal>
   )
 }

@@ -2,17 +2,15 @@
  * Aba Dados gerais — cronograma da cotação (datas globais, prazo editável).
  */
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CalendarBlank, Clock, FloppyDisk, PaperPlaneTilt, CheckCircle, XCircle } from '@phosphor-icons/react'
-import { BotaoGlobal } from '@nucleo/botao-global'
+import { CalendarBlank, Clock, PaperPlaneTilt, CheckCircle, XCircle } from '@phosphor-icons/react'
 import { atualizarCotacao } from './api'
 import {
   calcularDatasDerivadasCronogramaCotacao,
   cotacaoPermiteEditarPrazoResposta,
-  inputDatetimeLocalParaIso,
-  isoParaInputDatetimeLocal,
 } from './calcular-cronograma-cotacao-bid-frete-internacional'
+import { EdicaoPrazoCronogramaCotacaoBidFreteInternacional } from './edicao-prazo-cronograma-cotacao-bid-frete-internacional'
 import { fmtDataCotacaoBidFrete } from './colunas-datas-motivos-cotacao-bid-frete-internacional'
 import { formatarDataBidFrete } from './formato-data-bid-frete'
 import type { Cotacao, DisparoCotacaoBidFreteInternacional } from './types'
@@ -60,9 +58,9 @@ export function PainelDadosGeraisCotacaoBidFreteInternacional({
   onCotacaoAtualizada,
 }: PainelDadosGeraisCotacaoBidFreteInternacionalProps) {
   const { t } = useTranslation()
-  const [prazoLocal, setPrazoLocal] = useState('')
   const [salvandoPrazo, setSalvandoPrazo] = useState(false)
   const [erroPrazo, setErroPrazo] = useState<string | null>(null)
+  const [resultadoPrazo, setResultadoPrazo] = useState<'sucesso' | 'erro' | null>(null)
 
   const derivadas = useMemo(
     () => calcularDatasDerivadasCronogramaCotacao(disparos),
@@ -73,32 +71,27 @@ export function PainelDadosGeraisCotacaoBidFreteInternacional({
     cotacao.status_cotacao_bid_frete_internacional,
   )
 
-  useEffect(() => {
-    setPrazoLocal(isoParaInputDatetimeLocal(cotacao.data_limite_resposta_cotacao_bid_frete_internacional))
-    setErroPrazo(null)
-  }, [cotacao.data_limite_resposta_cotacao_bid_frete_internacional])
-
-  const prazoAlterado = prazoLocal !== isoParaInputDatetimeLocal(
-    cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
-  )
-
-  async function salvarPrazoResposta() {
-    if (!permiteEditarPrazo || salvandoPrazo || !prazoAlterado) return
+  async function salvarPrazoResposta(iso: string | null) {
+    if (!permiteEditarPrazo || salvandoPrazo) return
     setSalvandoPrazo(true)
     setErroPrazo(null)
+    setResultadoPrazo(null)
     try {
-      const iso = inputDatetimeLocalParaIso(prazoLocal)
       const cotacaoAtualizada = await atualizarCotacao(
         cotacao.id_cotacao_bid_frete_internacional,
         { data_limite_resposta_cotacao_bid_frete_internacional: iso },
       )
       onCotacaoAtualizada(cotacaoAtualizada)
+      setResultadoPrazo('sucesso')
+      window.setTimeout(() => setResultadoPrazo(null), 1200)
     } catch (e: unknown) {
+      setResultadoPrazo('erro')
       setErroPrazo(
         e instanceof Error
           ? e.message
           : t('bidfrete.detalhe_cotacao.cronograma_erro_salvar', 'Não foi possível salvar o prazo.'),
       )
+      window.setTimeout(() => setResultadoPrazo(null), 2000)
     } finally {
       setSalvandoPrazo(false)
     }
@@ -125,37 +118,23 @@ export function PainelDadosGeraisCotacaoBidFreteInternacional({
             icone={<Clock weight="duotone" size={16} />}
             label={t('bidfrete.detalhe_cotacao.cronograma_prazo_resposta', 'Prazo para resposta')}
           >
-            <div className="dc-cronograma-prazo-editor">
-              <input
-                type="datetime-local"
-                className="dc-cronograma-input"
-                value={prazoLocal}
-                disabled={!permiteEditarPrazo || salvandoPrazo}
-                onChange={(e) => setPrazoLocal(e.target.value)}
-                aria-label={t('bidfrete.detalhe_cotacao.cronograma_prazo_resposta', 'Prazo para resposta')}
-              />
-              {permiteEditarPrazo && (
-                <BotaoGlobal
-                  variante="secundario"
-                  tamanho="pequeno"
-                  icone={<FloppyDisk weight="bold" size={14} />}
-                  carregando={salvandoPrazo}
-                  disabled={!prazoAlterado || salvandoPrazo}
-                  onClick={() => void salvarPrazoResposta()}
-                >
-                  {t('comum.salvar', 'Salvar')}
-                </BotaoGlobal>
-              )}
-            </div>
+            <EdicaoPrazoCronogramaCotacaoBidFreteInternacional
+              label={t('bidfrete.detalhe_cotacao.cronograma_prazo_resposta', 'Prazo para resposta')}
+              valorIso={cotacao.data_limite_resposta_cotacao_bid_frete_internacional}
+              permiteEditar={permiteEditarPrazo}
+              salvando={salvandoPrazo}
+              resultadoSalvar={resultadoPrazo}
+              onConfirmar={salvarPrazoResposta}
+              avisoSomenteLeitura={
+                !permiteEditarPrazo
+                  ? t(
+                    'bidfrete.detalhe_cotacao.cronograma_prazo_somente_leitura',
+                    'Prazo bloqueado para edição neste status da cotação.',
+                  )
+                  : undefined
+              }
+            />
           </LinhaCronograma>
-          {!permiteEditarPrazo && (
-            <p className="dc-cronograma-aviso">
-              {t(
-                'bidfrete.detalhe_cotacao.cronograma_prazo_somente_leitura',
-                'Prazo bloqueado para edição neste status da cotação.',
-              )}
-            </p>
-          )}
           {erroPrazo && (
             <p className="dc-cronograma-erro" role="alert">{erroPrazo}</p>
           )}

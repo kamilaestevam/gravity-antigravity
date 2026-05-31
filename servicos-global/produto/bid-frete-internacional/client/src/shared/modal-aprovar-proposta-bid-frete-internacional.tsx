@@ -8,6 +8,10 @@ import { BellRinging, CheckCircle, CurrencyDollar, Info, Trophy } from '@phospho
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalOverlay } from '@nucleo/modal-global'
 import type { Cotacao, PropostaRankingBidFreteInternacional } from './types'
+import {
+  subtotalTaxasDestinoTexto,
+  subtotalTaxasOrigemTexto,
+} from './exibir-taxas-proposta-bid-frete-internacional'
 
 const formatMoeda = (val: number, currency: string) =>
   new Intl.NumberFormat('pt-BR', {
@@ -95,11 +99,11 @@ function ResumoCompletoProposta({
       />
       <CampoResumoProposta
         label={t('bidfrete.detalhe_cotacao.resp_taxas_origem', 'Taxas da Origem')}
-        value={formatMoeda(proposta.taxas_origem_proposta_bid_frete_internacional, moeda)}
+        value={subtotalTaxasOrigemTexto(proposta, moeda)}
       />
       <CampoResumoProposta
         label={t('bidfrete.detalhe_cotacao.resp_taxas_destino', 'Taxas do Destino')}
-        value={formatMoeda(proposta.taxas_destino_proposta_bid_frete_internacional, moeda)}
+        value={subtotalTaxasDestinoTexto(proposta, moeda)}
       />
       <CampoResumoProposta
         label={t('bidfrete.detalhe_cotacao.resp_frete_total', 'Frete Total')}

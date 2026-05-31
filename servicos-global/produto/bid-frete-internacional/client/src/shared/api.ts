@@ -19,9 +19,15 @@ import {
   mapDesempenhoVisaoFornecedorFromServer,
   mapDashboardMetricasFromServer,
 } from './visao-fornecedor-bid-frete-internacional-schemas'
+import type {
+  CodigoBloqueioRespostaDisparoBidFreteInternacional,
+  ModoAcessoRespostaDisparoBidFreteInternacional,
+} from './visao-fornecedor-bid-frete-internacional-schemas'
 export type {
+  CodigoBloqueioRespostaDisparoBidFreteInternacional,
   DesempenhoVisaoFornecedorBidFreteInternacional,
   MetricasVisaoFornecedorBidFreteInternacional,
+  ModoAcessoRespostaDisparoBidFreteInternacional,
 } from './visao-fornecedor-bid-frete-internacional-schemas'
 import type {
   BidFreteInternacional,
@@ -105,24 +111,50 @@ const headers = () => {
   return customHeaders
 }
 
-function extrairMensagemErroApi(payload: unknown, status: number): string {
-  if (!payload || typeof payload !== 'object') return `Erro ${status}`
+export class BidFreteApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public code: string,
+  ) {
+    super(message)
+    this.name = 'BidFreteApiError'
+  }
+}
+
+function extrairErroApi(payload: unknown, status: number): BidFreteApiError {
+  if (!payload || typeof payload !== 'object') {
+    return new BidFreteApiError(`Erro ${status}`, status, 'HTTP_ERROR')
+  }
   const body = payload as Record<string, unknown>
   const erro = body.error
-  if (typeof erro === 'string' && erro.length > 0) return erro
-  if (erro && typeof erro === 'object' && typeof (erro as { message?: string }).message === 'string') {
-    return (erro as { message: string }).message
+  if (typeof erro === 'string' && erro.length > 0) {
+    return new BidFreteApiError(erro, status, 'HTTP_ERROR')
   }
-  if (typeof body.message === 'string' && body.message.length > 0) return body.message
-  return `Erro ${status}`
+  if (erro && typeof erro === 'object') {
+    const obj = erro as { message?: string; code?: string }
+    const message = typeof obj.message === 'string' && obj.message.length > 0 ? obj.message : `Erro ${status}`
+    const code = typeof obj.code === 'string' && obj.code.length > 0 ? obj.code : 'HTTP_ERROR'
+    return new BidFreteApiError(message, status, code)
+  }
+  if (typeof body.message === 'string' && body.message.length > 0) {
+    return new BidFreteApiError(body.message, status, 'HTTP_ERROR')
+  }
+  return new BidFreteApiError(`Erro ${status}`, status, 'HTTP_ERROR')
 }
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(extrairMensagemErroApi(err, res.status))
+    throw extrairErroApi(err, res.status)
   }
   return res.json()
+}
+
+export interface PublicoDisparoRespostaCarregado {
+  disparo: DisparoCotacaoBidFreteInternacional
+  modo_acesso_resposta_disparo_bid_frete_internacional: ModoAcessoRespostaDisparoBidFreteInternacional
+  codigo_bloqueio_resposta_disparo_bid_frete_internacional: CodigoBloqueioRespostaDisparoBidFreteInternacional
 }
 
 // ─── Serialização (Date → ISO) ───────────────────────────────────────────────
@@ -170,8 +202,12 @@ export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown):
         0,
     ),
     quantidade_escala_proposta_bid_frete_internacional: Number(
-      raw.quantidade_escala_proposta_bid_frete_internacional ?? raw.escalas_proposta_bid_frete_internacional ?? 0,
+      raw.quantidade_escala_proposta_bid_frete_internacional ?? 0,
     ),
+    escalas_proposta_bid_frete_internacional:
+      typeof raw.escalas_proposta_bid_frete_internacional === 'string'
+        ? raw.escalas_proposta_bid_frete_internacional
+        : null,
     validade_proposta_bid_frete_internacional:
       (raw.validade_proposta_bid_frete_internacional ?? raw.validade) as string,
     observacoes_proposta_bid_frete_internacional:
@@ -189,6 +225,12 @@ export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown):
       (raw.data_atualizacao_proposta_bid_frete_internacional ?? raw.updated_at) as string,
     fornecedor,
     cotacao: raw.cotacao ? mapCotacaoFromServer(raw.cotacao) : undefined,
+    ...(Array.isArray(raw.taxas_origem)
+      ? { taxas_origem: raw.taxas_origem as PropostaBidFreteInternacional['taxas_origem'] }
+      : {}),
+    ...(Array.isArray(raw.taxas_destino)
+      ? { taxas_destino: raw.taxas_destino as PropostaBidFreteInternacional['taxas_destino'] }
+      : {}),
   }
 }
 
@@ -774,15 +816,20 @@ export async function excluirVisaoFornecedorBidFreteInternacionalTabelaValor(
 
 export async function getVisaoFornecedorBidFreteInternacionalPublicoDisparo(
   token_resposta_disparo_cotacao_bid_frete_internacional: string,
-): Promise<DisparoCotacaoBidFreteInternacional> {
+): Promise<PublicoDisparoRespostaCarregado> {
   const res = await fetch(
     `${VISAO_FORNECEDOR_BASE}/publico/${token_resposta_disparo_cotacao_bid_frete_internacional}`,
   )
   const raw = await handleResponse<unknown>(res)
   const parsed = visaoFornecedorBidFreteInternacionalPublicoDisparoResponseSchema.parse(raw)
-  return mapDisparoCotacaoBidFreteInternacionalFromServer(
-    parsed.visao_fornecedor_bid_frete_internacional_publico.disparo_cotacao_bid_frete_internacional,
-  )
+  const payload = parsed.visao_fornecedor_bid_frete_internacional_publico
+  return {
+    disparo: mapDisparoCotacaoBidFreteInternacionalFromServer(payload.disparo_cotacao_bid_frete_internacional),
+    modo_acesso_resposta_disparo_bid_frete_internacional:
+      payload.modo_acesso_resposta_disparo_bid_frete_internacional,
+    codigo_bloqueio_resposta_disparo_bid_frete_internacional:
+      payload.codigo_bloqueio_resposta_disparo_bid_frete_internacional,
+  }
 }
 
 export async function enviarVisaoFornecedorBidFreteInternacionalPropostaPublico(

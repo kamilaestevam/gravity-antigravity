@@ -23,6 +23,10 @@ import {
   EnviarPropostaSchema,
   formatarErroValidacaoPropostaEnviarProposta,
 } from '../schemas/enviar-proposta-bid-frete-internacional-schema.js'
+import {
+  COTACAO_SELECT_RESPOSTA_FORNECEDOR,
+  enriquecerDisparosRespostaFornecedor,
+} from '../lib/enriquecer-disparo-resposta-fornecedor-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -125,27 +129,18 @@ router.get('/cotacoes-pendentes', async (req: Request, res: Response, next: Next
     const disparos = await (req.prisma as any).disparoCotacaoBidFreteInternacional.findMany({
       where: {
         id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
-        status_disparo_cotacao_bid_frete_internacional: { in: ['ENVIADO', 'VISUALIZADO', 'PENDENTE'] },
+        status_disparo_cotacao_bid_frete_internacional: { in: ['ENVIADO', 'VISUALIZADO', 'PENDENTE', 'RESPONDIDO'] },
       },
       include: {
+        proposta: {
+          include: {
+            taxas_origem: true,
+            taxas_destino: true,
+          },
+        },
         cotacao: {
           select: {
-            id_cotacao_bid_frete_internacional: true,
-            numero_cotacao_bid_frete_internacional: true,
-            modal_cotacao_bid_frete_internacional: true,
-            modalidade_cotacao_bid_frete_internacional: true,
-            origem_nome_cotacao_bid_frete_internacional: true,
-            origem_pais_cotacao_bid_frete_internacional: true,
-            destino_nome_cotacao_bid_frete_internacional: true,
-            destino_pais_cotacao_bid_frete_internacional: true,
-            descricao_mercadoria_cotacao_bid_frete_internacional: true,
-            ncm_cotacao_bid_frete_internacional: true,
-            incoterm_cotacao_bid_frete_internacional: true,
-            quantidade_cotacao_bid_frete_internacional: true,
-            tipo_container_cotacao_bid_frete_internacional: true,
-            peso_kg_cotacao_bid_frete_internacional: true,
-            data_limite_resposta_cotacao_bid_frete_internacional: true,
-            anonima_cotacao_bid_frete_internacional: true,
+            ...COTACAO_SELECT_RESPOSTA_FORNECEDOR,
             valor_meta_cotacao_bid_frete_internacional: true,
           },
         },
@@ -167,9 +162,11 @@ router.get('/cotacoes-pendentes', async (req: Request, res: Response, next: Next
       })
     }
 
+    const disparosEnriquecidos = await enriquecerDisparosRespostaFornecedor(disparos as never[])
+
     res.json({
       visao_fornecedor_bid_frete_internacional: {
-        disparos_cotacao_bid_frete_internacional: disparos,
+        disparos_cotacao_bid_frete_internacional: disparosEnriquecidos,
       },
     })
   } catch (err) {
@@ -250,7 +247,8 @@ router.post('/responder/:id_disparo_cotacao_bid_frete_internacional', async (req
     })
   } catch (err) {
     if (err instanceof Error && 'statusCode' in err) {
-      next(new AppError(err.message, (err as Error & { statusCode: number }).statusCode))
+      const e = err as Error & { statusCode: number; code?: string }
+      next(new AppError(e.message, e.statusCode, e.code ?? 'BAD_REQUEST'))
       return
     }
     next(err)

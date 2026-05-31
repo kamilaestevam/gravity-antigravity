@@ -291,7 +291,8 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
         propostas: {
           include: {
             fornecedor: { select: { id_fornecedor_bid_frete_internacional: true, nome_fornecedor_bid_frete_internacional: true, tipo_fornecedor_bid_frete_internacional: true, email_fornecedor_bid_frete_internacional: true } },
-            taxas: true,
+            taxas_origem: true,
+            taxas_destino: true,
           },
           orderBy: { valor_total_proposta_bid_frete_internacional: 'asc' },
         },

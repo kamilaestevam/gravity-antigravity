@@ -34,6 +34,16 @@ import {
   type MetricasExibicaoProposta,
 } from './metricas-proposta-cotacao-bid-frete-internacional'
 import { FaixaMetricasComparativoSparkProposta } from './metricas-comparativo-spark-card-proposta'
+import {
+  formatarMoedaBidFrete,
+  itensTaxasDestinoProposta,
+  itensTaxasOrigemProposta,
+  percentualBarraPorRank,
+  rankPropostaPorValor,
+  subtotalTaxasDestinoTexto,
+  subtotalTaxasOrigemTexto,
+  type ItemTaxaExibicaoProposta,
+} from './exibir-taxas-proposta-bid-frete-internacional'
 
 interface OpcaoOrdenacaoResposta {
   key: CriterioOrdenacaoRespostaDetalhe
@@ -199,6 +209,49 @@ function TagPropostaInline({ tag, t }: { tag: string; t: TFunction }) {
   )
 }
 
+function BlocoTaxasDetalheProposta({
+  icone,
+  titulo,
+  itens,
+  subtotal,
+  rotuloSubtotal,
+}: {
+  icone: React.ReactNode
+  titulo: string
+  itens: ItemTaxaExibicaoProposta[]
+  subtotal: string
+  rotuloSubtotal: string
+}) {
+  const linhasVisiveis = itens.filter((i) => i.valor > 0)
+  if (linhasVisiveis.length === 0) return null
+
+  return (
+    <div className="dc-prop-taxas-bloco">
+      <div className="dc-info-row dc-info-row--com-icone dc-prop-taxas-cabecalho">
+        <div className="dc-info-label-group">
+          <span className="dc-info-icon-badge dc-prop-icon-badge" aria-hidden>
+            {icone}
+          </span>
+          <span className="dc-info-label">{titulo}</span>
+        </div>
+        <span className="dc-prop-taxas-subtotal-cabecalho">
+          {rotuloSubtotal}: {subtotal}
+        </span>
+      </div>
+      <ul className="dc-prop-taxas-linhas">
+        {linhasVisiveis.map((item) => (
+          <li key={`${item.nome}-${item.moeda}-${item.valor}`} className="dc-prop-taxas-linha">
+            <span className="dc-prop-taxas-linha-nome">{item.nome}</span>
+            <span className="dc-prop-taxas-linha-valor">
+              {formatarMoedaBidFrete(item.valor, item.moeda)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 function LinhaProposta({
   icone,
   label,
@@ -350,6 +403,12 @@ function CorpoMetricasProposta({
       ? `${proposta.dias_free_time_proposta_bid_frete_internacional} ${t('bidfrete.detalhe_cotacao.dias')}`
       : '—'
 
+  const itensOrigem = itensTaxasOrigemProposta(proposta)
+  const itensDestino = itensTaxasDestinoProposta(proposta)
+  const subtotalOrigem = subtotalTaxasOrigemTexto(proposta, moedaProposta)
+  const subtotalDestino = subtotalTaxasDestinoTexto(proposta, moedaProposta)
+  const rotuloSubtotal = t('bidfrete.portal.responder.taxas_subtotal', 'Subtotal')
+
   return (
     <div className="dc-prop-metricas-grid">
       <div className="dc-prop-metricas-col">
@@ -358,16 +417,36 @@ function CorpoMetricasProposta({
           label={t('bidfrete.detalhe_cotacao.resp_frete', 'Frete Básico')}
           value={moeda(proposta.valor_frete_proposta_bid_frete_internacional, moedaProposta)}
         />
-        <LinhaProposta
-          icone={<Coins weight="duotone" size={16} />}
-          label={t('bidfrete.detalhe_cotacao.resp_taxas_origem', 'Taxas da Origem')}
-          value={moeda(proposta.taxas_origem_proposta_bid_frete_internacional, moedaProposta)}
-        />
-        <LinhaProposta
-          icone={<Coins weight="duotone" size={16} />}
-          label={t('bidfrete.detalhe_cotacao.resp_taxas_destino', 'Taxas do Destino')}
-          value={moeda(proposta.taxas_destino_proposta_bid_frete_internacional, moedaProposta)}
-        />
+        {itensOrigem.length > 0 ? (
+          <BlocoTaxasDetalheProposta
+            icone={<Coins weight="duotone" size={16} />}
+            titulo={t('bidfrete.detalhe_cotacao.resp_taxas_origem', 'Taxas da Origem')}
+            itens={itensOrigem}
+            subtotal={subtotalOrigem}
+            rotuloSubtotal={rotuloSubtotal}
+          />
+        ) : (
+          <LinhaProposta
+            icone={<Coins weight="duotone" size={16} />}
+            label={t('bidfrete.detalhe_cotacao.resp_taxas_origem', 'Taxas da Origem')}
+            value={subtotalOrigem}
+          />
+        )}
+        {itensDestino.length > 0 ? (
+          <BlocoTaxasDetalheProposta
+            icone={<Coins weight="duotone" size={16} />}
+            titulo={t('bidfrete.detalhe_cotacao.resp_taxas_destino', 'Taxas do Destino')}
+            itens={itensDestino}
+            subtotal={subtotalDestino}
+            rotuloSubtotal={rotuloSubtotal}
+          />
+        ) : (
+          <LinhaProposta
+            icone={<Coins weight="duotone" size={16} />}
+            label={t('bidfrete.detalhe_cotacao.resp_taxas_destino', 'Taxas do Destino')}
+            value={subtotalDestino}
+          />
+        )}
         <LinhaProposta
           icone={<CurrencyDollar weight="duotone" size={16} />}
           label={t('bidfrete.detalhe_cotacao.resp_frete_total', 'Frete Total')}
@@ -471,6 +550,19 @@ function CardProposta({
     ? 100
     : Math.max(20, 100 - (metricas.rankTransito - 1) * 18)
 
+  const rankTaxasOrigem = rankPropostaPorValor(
+    propostasTodas,
+    proposta.id_proposta_bid_frete_internacional,
+    (p) => p.taxas_origem_proposta_bid_frete_internacional,
+  )
+  const rankTaxasDestino = rankPropostaPorValor(
+    propostasTodas,
+    proposta.id_proposta_bid_frete_internacional,
+    (p) => p.taxas_destino_proposta_bid_frete_internacional,
+  )
+  const pctTaxasOrigem = percentualBarraPorRank(rankTaxasOrigem)
+  const pctTaxasDestino = percentualBarraPorRank(rankTaxasDestino)
+
   if (variante === 'combate') {
     return (
       <article
@@ -502,7 +594,14 @@ function CardProposta({
         </header>
         <div className="dc-prop-barras">
           <BarraMetrica label={t('bidfrete.detalhe_cotacao.resp_frete', 'Frete Básico')} pct={pctPreco} />
-          <BarraMetrica label={t('bidfrete.detalhe_cotacao.resp_taxas', 'Taxas')} pct={Math.min(95, pctPreco + 8)} />
+          <BarraMetrica
+            label={t('bidfrete.detalhe_cotacao.resp_taxas_origem', 'Taxas Origem')}
+            pct={pctTaxasOrigem}
+          />
+          <BarraMetrica
+            label={t('bidfrete.detalhe_cotacao.resp_taxas_destino', 'Taxas Destino')}
+            pct={pctTaxasDestino}
+          />
           <BarraMetrica label={t('bidfrete.comparativo.transit_time', 'Transit Time')} pct={pctTransito} />
         </div>
         <DestaquesCardProposta

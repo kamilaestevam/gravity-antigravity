@@ -142,7 +142,13 @@ export function mesclarPropostasComRanking(
       if (!id) return null
       const base = porId.get(id)
       if (!base) return null
-      return { ...base, ...r, id_proposta_bid_frete_internacional: id }
+      return {
+        ...base,
+        ...r,
+        id_proposta_bid_frete_internacional: id,
+        taxas_origem: base.taxas_origem?.length ? base.taxas_origem : r.taxas_origem,
+        taxas_destino: base.taxas_destino?.length ? base.taxas_destino : r.taxas_destino,
+      }
     })
     .filter((p): p is PropostaRankingBidFreteInternacional => p != null)
 

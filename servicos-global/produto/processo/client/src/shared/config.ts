@@ -52,7 +52,6 @@ export const PRODUCT_CONFIG = {
     { id: 'financeiro',      label: 'Financeiro',         icon: 'currency-dollar',   source: 'product' },
     { id: 'containers',      label: 'Containers',         icon: 'cube',             source: 'product' },
     { id: 'dados-tecnicos',  label: 'Dados Técnicos',     icon: 'gear-six',          source: 'product' },
-    { id: 'dados-processo',  label: 'Dados do Processo',  icon: 'clipboard-text',    source: 'product' },
     { id: 'taxas',           label: 'Taxas',              icon: 'receipt',           source: 'product' },
     // Serviços de tenant acessados via shell
     { id: 'email',           label: 'Email',              icon: 'envelope',          source: 'tenant'  },

@@ -26,7 +26,6 @@ import {
   CurrencyDollar,
   Cube,
   GearSix,
-  ClipboardText,
   Receipt,
   Envelope,
   CheckSquare,
@@ -204,7 +203,6 @@ const buildNavSections = (
       items: [
         { id: 'containers',     to: `${base}/containers${qs}`,     label: 'Containers',        icon: <Cube          weight="duotone" size={18} /> },
         { id: 'dados-tecnicos', to: `${base}/dados-tecnicos${qs}`, label: 'Dados Tecnicos',    icon: <GearSix       weight="duotone" size={18} /> },
-        { id: 'dados-processo', to: `${base}/dados-processo${qs}`, label: 'Dados do Processo', icon: <ClipboardText weight="duotone" size={18} /> },
       ],
     },
     {

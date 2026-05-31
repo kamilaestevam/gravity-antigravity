@@ -7,7 +7,10 @@
   display: grid;
   grid-template-columns: 240px 1fr;
   gap: 2rem;
-  align-items: start;
+  /* align-items: stretch (default) — celula da TOC estica ate a altura
+     do main, dando 'espaco de rolagem' para o position: sticky funcionar
+     (sem isso a celula colapsa pro tamanho do conteudo e sticky nao
+     gruda). */
   margin-top: 1.5rem;
   transition: grid-template-columns 0.2s ease-out;
 }
@@ -22,6 +25,10 @@
 .dt-toc {
   position: sticky;
   top: 1rem;
+  /* align-self: start — a celula do grid estica, mas a TOC fica do
+     tamanho do seu conteudo, deixando 'espaco vazio' abaixo onde o
+     sticky pode atuar (ela acompanha o scroll). */
+  align-self: start;
   display: flex;
   flex-direction: column;
   gap: 0.125rem;

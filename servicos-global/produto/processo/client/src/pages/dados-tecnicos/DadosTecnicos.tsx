@@ -498,11 +498,71 @@ export default function DadosTecnicos() {
       <div className="dt-layout">
         {/* ── Conteudo: secoes empilhadas em largura total ──────────────── */}
         <main className="dt-main">
-          {/* Toolbar: Recolher / Expandir todas */}
+          {/* Toolbar: donut stats (esq) + busca (esq) + Recolher/Expandir (dir) */}
           <div className="dt-main-toolbar">
+            {(() => {
+              const obrigPreench = stats.obrigTotal - stats.obrigPend
+              const pctObrig = stats.obrigTotal > 0
+                ? Math.round((obrigPreench / stats.obrigTotal) * 100)
+                : 100
+              const pctAtual = modoStats === 'total' ? stats.pct : pctObrig
+              const corDonut =
+                pctAtual === 100 ? '#34d399'
+                : modoStats === 'obrig' ? '#fbbf24'
+                : '#a78bfa'
+              const numeradorAtual = modoStats === 'total' ? stats.preench : obrigPreench
+              const denominadorAtual = modoStats === 'total' ? stats.total : stats.obrigTotal
+              return (
+                <button
+                  type="button"
+                  className="dt-header-stats"
+                  onClick={() => setModoStats(modoStats === 'total' ? 'obrig' : 'total')}
+                  title={`Clique para alternar — atualmente vendo ${modoStats === 'total' ? 'totais' : 'só obrigatórios'}`}
+                >
+                  <div
+                    className="dt-stats-donut"
+                    style={{
+                      background: `conic-gradient(${corDonut} 0% ${pctAtual}%, rgba(148,163,184,0.18) ${pctAtual}% 100%)`,
+                    }}
+                  >
+                    <div className="dt-stats-donut-inner">
+                      <span className="dt-stats-donut-pct">{pctAtual}%</span>
+                    </div>
+                  </div>
+                  <div className="dt-header-stats-texto">
+                    <strong>{numeradorAtual}/{denominadorAtual}</strong>
+                    <span>{modoStats === 'total' ? 'campos' : 'obrigatórios'}</span>
+                  </div>
+                </button>
+              )
+            })()}
+
+            <div className="dt-header-busca">
+              <MagnifyingGlass weight="duotone" size={14} className="dt-toc-busca-icon" />
+              <input
+                type="text"
+                className="dt-toc-busca-input"
+                placeholder="Buscar campo…"
+                value={busca}
+                onChange={e => setBusca(e.target.value)}
+                aria-label="Buscar campo por nome ou conteúdo"
+              />
+              {busca && (
+                <button
+                  type="button"
+                  className="dt-toc-busca-limpar"
+                  onClick={() => setBusca('')}
+                  title="Limpar busca"
+                  aria-label="Limpar busca"
+                >
+                  <X size={12} weight="bold" />
+                </button>
+              )}
+            </div>
+
             <button
               type="button"
-              className="dt-main-toolbar-btn"
+              className="dt-main-toolbar-btn dt-main-toolbar-btn--right"
               onClick={toggleTodas}
               title={todasColapsadas ? 'Expandir todas as seções' : 'Recolher todas as seções'}
             >
@@ -514,6 +574,15 @@ export default function DadosTecnicos() {
               {todasColapsadas ? 'Expandir todas' : 'Recolher todas'}
             </button>
           </div>
+
+          {/* Banner de resultados quando busca esta ativa */}
+          {filtroAtivo && (
+            <div className="dt-toc-resultados dt-toc-resultados--horizontal">
+              {totalMatches > 0
+                ? <>{totalMatches} resultado{totalMatches > 1 ? 's' : ''}</>
+                : <>Nenhum resultado</>}
+            </div>
+          )}
 
           {SECOES.map(sec => {
             const c = completude[sec.id]

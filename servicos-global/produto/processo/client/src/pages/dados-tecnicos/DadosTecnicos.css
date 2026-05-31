@@ -539,9 +539,13 @@
 /* Toolbar acima das secoes */
 .dt-main-toolbar {
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: -0.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
 }
+
+/* Botao 'Expandir/Recolher todas' empurrado pra direita */
+.dt-main-toolbar-btn--right { margin-left: auto; }
 
 .dt-main-toolbar-btn {
   display: inline-flex;

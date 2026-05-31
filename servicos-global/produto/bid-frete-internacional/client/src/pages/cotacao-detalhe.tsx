@@ -495,7 +495,7 @@ export default function DetalheCotacao() {
 
   // --- Render ---
 
-  const abaConteudoExpandido = tab === 'respostas' || tab === 'bids'
+  const abaConteudoExpandido = tab === 'respostas' || tab === 'bids' || tab === 'dados_gerais'
 
   return (
     <PaginaGlobal
@@ -604,7 +604,7 @@ export default function DetalheCotacao() {
         </button>
       </nav>
 
-      <div className={tab === 'visao_geral' || tab === 'dados_gerais' ? 'dc-cockpit-workspace' : 'dc-cockpit-main'}>
+      <div className={tab === 'visao_geral' ? 'dc-cockpit-workspace' : 'dc-cockpit-main'}>
       {/* Tab: Visão geral */}
       {tab === 'visao_geral' && (
         <>

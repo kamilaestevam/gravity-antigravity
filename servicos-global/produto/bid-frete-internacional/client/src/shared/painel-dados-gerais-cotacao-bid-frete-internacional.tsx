@@ -98,92 +98,96 @@ export function PainelDadosGeraisCotacaoBidFreteInternacional({
   }
 
   return (
-    <div className="dc-dados-gerais-layout">
-      <section className="dc-dados-card dc-dados-card--cronograma">
-        <h3 className="dc-dados-card-title">
-          {t('bidfrete.detalhe_cotacao.card_cronograma', 'Cronograma')}
-        </h3>
-        <div className="dc-dados-card-body dc-dados-card-body--cronograma">
-          <LinhaCronograma
-            icone={<CalendarBlank weight="duotone" size={16} />}
-            label={t('bidfrete.detalhe_cotacao.cronograma_data_criacao', 'Data de criação')}
-            value={dataHoraBR(cotacao.data_criacao_cotacao_bid_frete_internacional)}
-          />
-          <LinhaCronograma
-            icone={<PaperPlaneTilt weight="duotone" size={16} />}
-            label={t('bidfrete.detalhe_cotacao.cronograma_primeiro_envio', 'Primeiro envio')}
-            value={dataHoraBR(derivadas.data_primeiro_envio_disparo)}
-          />
-          <LinhaCronograma
-            icone={<Clock weight="duotone" size={16} />}
-            label={t('bidfrete.detalhe_cotacao.cronograma_prazo_resposta', 'Prazo para resposta')}
-          >
-            <EdicaoPrazoCronogramaCotacaoBidFreteInternacional
-              label={t('bidfrete.detalhe_cotacao.cronograma_prazo_resposta', 'Prazo para resposta')}
-              valorIso={cotacao.data_limite_resposta_cotacao_bid_frete_internacional}
-              permiteEditar={permiteEditarPrazo}
-              salvando={salvandoPrazo}
-              resultadoSalvar={resultadoPrazo}
-              onConfirmar={salvarPrazoResposta}
-              avisoSomenteLeitura={
-                !permiteEditarPrazo
-                  ? t(
-                    'bidfrete.detalhe_cotacao.cronograma_prazo_somente_leitura',
-                    'Prazo bloqueado para edição neste status da cotação.',
-                  )
-                  : undefined
-              }
+    <section className="dc-dados-card dc-dados-card--gerais dc-dados-card--dados-gerais-unificado">
+      <div className="dc-dados-card-body dc-dados-card-body--dados-gerais-unificado">
+        <div className="dc-dados-secao dc-dados-secao--cronograma">
+          <h4 className="dc-dados-secao-titulo">
+            {t('bidfrete.detalhe_cotacao.card_cronograma', 'Cronograma')}
+          </h4>
+          <div className="dc-dados-secao-conteudo dc-dados-secao-conteudo--cronograma">
+            <LinhaCronograma
+              icone={<CalendarBlank weight="duotone" size={16} />}
+              label={t('bidfrete.detalhe_cotacao.cronograma_data_criacao', 'Data de criação')}
+              value={dataHoraBR(cotacao.data_criacao_cotacao_bid_frete_internacional)}
             />
-          </LinhaCronograma>
-          {erroPrazo && (
-            <p className="dc-cronograma-erro" role="alert">{erroPrazo}</p>
-          )}
-          <LinhaCronograma
-            icone={<CheckCircle weight="duotone" size={16} />}
-            label={t('bidfrete.detalhe_cotacao.cronograma_ultima_resposta', 'Última resposta')}
-            value={dataHoraBR(derivadas.data_ultima_resposta_disparo)}
-          />
-          <LinhaCronograma
-            icone={<CheckCircle weight="fill" size={16} />}
-            label={t('bidfrete.lista.colunas.data_aprovacao', 'Data aprovação')}
-            value={fmtDataCotacaoBidFrete(cotacao.data_aprovacao_cotacao_bid_frete_internacional)}
-          />
-          <LinhaCronograma
-            icone={<XCircle weight="fill" size={16} />}
-            label={t('bidfrete.lista.colunas.data_cancelamento', 'Data cancelamento')}
-            value={fmtDataCotacaoBidFrete(cotacao.data_cancelamento_cotacao_bid_frete_internacional)}
-          />
-          <LinhaCronograma
-            icone={<CalendarBlank weight="duotone" size={16} />}
-            label={t('bidfrete.detalhe_cotacao.cronograma_ultima_atualizacao', 'Última atualização')}
-            value={formatarDataBidFrete(cotacao.data_atualizacao_cotacao_bid_frete_internacional)}
-          />
+            <LinhaCronograma
+              icone={<PaperPlaneTilt weight="duotone" size={16} />}
+              label={t('bidfrete.detalhe_cotacao.cronograma_primeiro_envio', 'Primeiro envio')}
+              value={dataHoraBR(derivadas.data_primeiro_envio_disparo)}
+            />
+            <LinhaCronograma
+              icone={<Clock weight="duotone" size={16} />}
+              label={t('bidfrete.detalhe_cotacao.cronograma_prazo_resposta', 'Prazo para resposta')}
+            >
+              <EdicaoPrazoCronogramaCotacaoBidFreteInternacional
+                label={t('bidfrete.detalhe_cotacao.cronograma_prazo_resposta', 'Prazo para resposta')}
+                valorIso={cotacao.data_limite_resposta_cotacao_bid_frete_internacional}
+                permiteEditar={permiteEditarPrazo}
+                salvando={salvandoPrazo}
+                resultadoSalvar={resultadoPrazo}
+                onConfirmar={salvarPrazoResposta}
+                avisoSomenteLeitura={
+                  !permiteEditarPrazo
+                    ? t(
+                      'bidfrete.detalhe_cotacao.cronograma_prazo_somente_leitura',
+                      'Prazo bloqueado para edição neste status da cotação.',
+                    )
+                    : undefined
+                }
+              />
+            </LinhaCronograma>
+            {erroPrazo && (
+              <p className="dc-cronograma-erro" role="alert">{erroPrazo}</p>
+            )}
+            <LinhaCronograma
+              icone={<CheckCircle weight="duotone" size={16} />}
+              label={t('bidfrete.detalhe_cotacao.cronograma_ultima_resposta', 'Última resposta')}
+              value={dataHoraBR(derivadas.data_ultima_resposta_disparo)}
+            />
+            <LinhaCronograma
+              icone={<CheckCircle weight="fill" size={16} />}
+              label={t('bidfrete.lista.colunas.data_aprovacao', 'Data aprovação')}
+              value={fmtDataCotacaoBidFrete(cotacao.data_aprovacao_cotacao_bid_frete_internacional)}
+            />
+            <LinhaCronograma
+              icone={<XCircle weight="fill" size={16} />}
+              label={t('bidfrete.lista.colunas.data_cancelamento', 'Data cancelamento')}
+              value={fmtDataCotacaoBidFrete(cotacao.data_cancelamento_cotacao_bid_frete_internacional)}
+            />
+            <LinhaCronograma
+              icone={<CalendarBlank weight="duotone" size={16} />}
+              label={t('bidfrete.detalhe_cotacao.cronograma_ultima_atualizacao', 'Última atualização')}
+              value={formatarDataBidFrete(cotacao.data_atualizacao_cotacao_bid_frete_internacional)}
+            />
+          </div>
         </div>
-      </section>
 
-      <section className="dc-dados-card dc-dados-card--gerais dc-dados-card--metadados">
-        <h3 className="dc-dados-card-title">
-          {t('bidfrete.detalhe_cotacao.card_metadados', 'Metadados')}
-        </h3>
-        <div className="dc-dados-card-body">
-          <div className="dc-info-row">
-            <span className="dc-info-label">{t('bidfrete.detalhe_cotacao.numero_cotacao', 'Número')}</span>
-            <span className="dc-info-value dc-info-mono">
-              {cotacao.numero_cotacao_bid_frete_internacional}
-            </span>
-          </div>
-          <div className="dc-info-row">
-            <span className="dc-info-label">{t('bidfrete.detalhe_cotacao.referencia_interna', 'Referência interna')}</span>
-            <span className="dc-info-value">
-              {cotacao.referencia_interna_cotacao_bid_frete_internacional?.trim() || '—'}
-            </span>
-          </div>
-          <div className="dc-info-row">
-            <span className="dc-info-label">{t('comum.status')}</span>
-            <span className="dc-info-value">{cotacao.status_cotacao_bid_frete_internacional}</span>
+        <div className="dc-dados-secao dc-dados-secao--metadados">
+          <h4 className="dc-dados-secao-titulo">
+            {t('bidfrete.detalhe_cotacao.card_metadados', 'Metadados')}
+          </h4>
+          <div className="dc-dados-secao-conteudo dc-dados-secao-conteudo--metadados">
+            <div className="dc-info-row">
+              <span className="dc-info-label">{t('bidfrete.detalhe_cotacao.numero_cotacao', 'Número')}</span>
+              <span className="dc-info-value dc-info-mono">
+                {cotacao.numero_cotacao_bid_frete_internacional}
+              </span>
+            </div>
+            <div className="dc-info-row">
+              <span className="dc-info-label">
+                {t('bidfrete.detalhe_cotacao.referencia_interna', 'Referência interna')}
+              </span>
+              <span className="dc-info-value">
+                {cotacao.referencia_interna_cotacao_bid_frete_internacional?.trim() || '—'}
+              </span>
+            </div>
+            <div className="dc-info-row">
+              <span className="dc-info-label">{t('comum.status')}</span>
+              <span className="dc-info-value">{cotacao.status_cotacao_bid_frete_internacional}</span>
+            </div>
           </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   )
 }

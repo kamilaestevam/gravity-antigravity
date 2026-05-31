@@ -3,21 +3,172 @@
 
 /* ── Layout geral ──────────────────────────────────────────────────────── */
 
+/* Layout vertical: header horizontal no topo + main em largura total.
+   Antes era grid com sidebar a esquerda — TOC + stats + busca foram
+   movidos pra um header horizontal compacto. Main ganha 240px de largura
+   extra pra exibir os cards de campo. */
 .dt-layout {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 2rem;
-  /* align-items: stretch (default) — celula da TOC estica ate a altura
-     do main, dando 'espaco de rolagem' para o position: sticky funcionar
-     (sem isso a celula colapsa pro tamanho do conteudo e sticky nao
-     gruda). */
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
   margin-top: 1.5rem;
-  transition: grid-template-columns 0.2s ease-out;
 }
 
-.dt-layout--toc-colapsada {
-  grid-template-columns: 56px 1fr;
-  gap: 1.25rem;
+/* ── Header bar horizontal ─────────────────────────────────────────────── */
+
+.dt-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(167, 139, 250, 0.12);
+  border-radius: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+/* Stats compacto na esquerda (botao = toggle entre Total/Obrigatorios) */
+.dt-header-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-shrink: 0;
+  padding-right: 0.875rem;
+  border-right: 1px solid rgba(148, 163, 184, 0.15);
+  background: transparent;
+  border-top: none;
+  border-left: none;
+  border-bottom: none;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 0.25rem 0.875rem 0.25rem 0.25rem;
+  transition: background 0.15s;
+}
+
+.dt-header-stats:hover {
+  background: rgba(167, 139, 250, 0.08);
+}
+
+/* Compacta o donut no header */
+.dt-header-stats .dt-stats-donut {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.dt-header-stats .dt-stats-donut-pct {
+  font-size: 0.625rem;
+}
+
+.dt-header-stats-texto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  color: var(--ws-muted, #94a3b8);
+}
+
+.dt-header-stats-texto strong {
+  color: var(--ws-text, #f1f5f9);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Nav horizontal das secoes — rola horizontalmente se nao couber */
+.dt-header-nav {
+  display: flex;
+  flex: 1;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding: 0.125rem 0;
+  min-width: 0;
+}
+
+.dt-header-nav::-webkit-scrollbar { height: 4px; }
+.dt-header-nav::-webkit-scrollbar-thumb { background: rgba(167, 139, 250, 0.25); border-radius: 9999px; }
+
+/* Busca compacta na direita */
+.dt-header-busca {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 220px;
+  flex-shrink: 0;
+  padding: 0.4375rem 0.625rem 0.4375rem 1.75rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 8px;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.dt-header-busca:focus-within {
+  border-color: var(--ws-accent, #818cf8);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.18);
+}
+
+.dt-header-busca .dt-toc-busca-icon {
+  position: absolute;
+  left: 0.5rem;
+  color: var(--ws-muted, #94a3b8);
+}
+
+.dt-header-busca .dt-toc-busca-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ws-text, #f1f5f9);
+  font-size: 0.8125rem;
+  font-family: inherit;
+}
+
+.dt-header-busca .dt-toc-busca-input::placeholder {
+  color: rgba(148, 163, 184, 0.6);
+}
+
+.dt-header-busca .dt-toc-busca-limpar {
+  position: absolute;
+  right: 0.375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--ws-muted, #94a3b8);
+  cursor: pointer;
+}
+
+.dt-header-busca .dt-toc-busca-limpar:hover {
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--ws-text, #f1f5f9);
+}
+
+/* Resultados de busca aparecem como banner discreto abaixo do header */
+.dt-toc-resultados--horizontal {
+  padding: 0.375rem 0.875rem;
+  background: rgba(167, 139, 250, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #a78bfa;
+}
+
+/* Responsivo: empilha em telas estreitas */
+@media (max-width: 900px) {
+  .dt-header-bar { flex-wrap: wrap; }
+  .dt-header-nav { order: 3; flex-basis: 100%; }
+  .dt-header-busca { width: 100%; }
 }
 
 /* ── Sidebar (TOC + stats) sticky ─────────────────────────────────────── */

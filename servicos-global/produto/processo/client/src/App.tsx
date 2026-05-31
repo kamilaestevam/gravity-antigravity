@@ -21,6 +21,7 @@ const Workflow = lazy(() => import('./pages/workflow/Workflow'))
 const PedidosResumo = lazy(() => import('./pages/pedidos/PedidosResumo'))
 const PedidosLista = lazy(() => import('./pages/pedidos/PedidosLista'))
 const DadosTecnicos = lazy(() => import('./pages/dados-tecnicos/DadosTecnicos'))
+const Financeiro = lazy(() => import('./pages/financeiro/Financeiro'))
 const Email = lazy(() => import('./pages/email/Email'))
 
 // ─── Loading Fallback ──────────────────────────────────────────────────────
@@ -104,7 +105,7 @@ export function App() {
             </Route>
             <Route path="dados-tecnicos" element={<DadosTecnicos />} />
             <Route path="email" element={<Email />} />
-            <Route path="financeiro" element={<FinanceiroPlaceholder />} />
+            <Route path="financeiro" element={<Financeiro />} />
             <Route path="workspace"  element={<WorkspacePlaceholder />} />
           </Route>
           <Route path="*" element={<Navigate to="workflow" replace />} />

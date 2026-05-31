@@ -179,6 +179,29 @@ function TrilhaRotaModal({ modal }: { modal: ModalFrete }) {
   )
 }
 
+/** Evita "Buenos Aires (ARBUE)" + linha "ARBUE" — sigla aparece só uma vez. */
+export function normalizarTextoPontoRota(
+  nome: string,
+  codigo: string,
+): { titulo: string; sigla: string | null } {
+  const sigla = codigo.trim()
+  let titulo = nome.trim()
+
+  if (!sigla) {
+    return { titulo: titulo || '—', sigla: null }
+  }
+
+  const siglaEscapada = sigla.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const padraoSufixoEntreParenteses = new RegExp(`\\s*\\(\\s*${siglaEscapada}\\s*\\)\\s*$`, 'i')
+  titulo = titulo.replace(padraoSufixoEntreParenteses, '').trim()
+
+  if (!titulo || titulo.toUpperCase() === sigla.toUpperCase()) {
+    return { titulo: sigla, sigla: null }
+  }
+
+  return { titulo, sigla }
+}
+
 function PontoRotaCard({
   tipo,
   rotulo,
@@ -198,6 +221,7 @@ function PontoRotaCard({
   const IconePonto = ehOrigem ? MapPin : MapPinLine
 
   const isoPais = resolverIsoAlpha2Pais(pais, codigoLocal)
+  const { titulo, sigla } = normalizarTextoPontoRota(nome, codigo)
 
   return (
     <div className={`dc-rota-ponto dc-rota-ponto--${tipo}`}>
@@ -215,8 +239,8 @@ function PontoRotaCard({
       />
       <div className="dc-rota-ponto-corpo">
         <div className="dc-rota-ponto-text">
-          <span className="dc-rota-ponto-nome">{nome}</span>
-          <span className="dc-rota-ponto-codigo dc-info-mono">{codigo}</span>
+          <span className="dc-rota-ponto-nome">{titulo}</span>
+          {sigla != null && <span className="dc-rota-ponto-codigo">{sigla}</span>}
         </div>
       </div>
     </div>

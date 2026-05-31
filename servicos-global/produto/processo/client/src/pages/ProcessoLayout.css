@@ -241,14 +241,14 @@ button, input, select, textarea { font-family: inherit; }
 
 .p2-progress-bar {
   height: 4px;
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(167, 139, 250, 0.12); /* Opcao C — trilha roxo translucido */
   border-radius: 9999px;
   overflow: hidden;
 }
 
 .p2-progress-fill {
   height: 100%;
-  background: var(--p2-success);
+  background: #a78bfa; /* Opcao C — preenchimento roxo (mesma cor do step ativo) */
   border-radius: 9999px;
   transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }

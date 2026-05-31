@@ -20,9 +20,7 @@ import {
   FlowArrow,
   Package,
   FileText,
-  FileDashed,
   CloudArrowUp,
-  PencilLine,
   CurrencyDollar,
   Cube,
   GearSix,
@@ -185,10 +183,8 @@ const buildNavSections = (
     {
       title: 'Despacho Aduaneiro',
       items: [
-        { id: 'li',          to: `${base}/li${qs}`,          label: 'LPCO',        icon: <FileText     weight="duotone" size={18} /> },
-        { id: 'di',          to: `${base}/di${qs}`,          label: 'DUIMP',       icon: <FileDashed   weight="duotone" size={18} /> },
         { id: 'duimp',       to: `${base}/duimp${qs}`,       label: 'DUIMP',       icon: <CloudArrowUp weight="duotone" size={18} /> },
-        { id: 'retificacao', to: `${base}/retificacao${qs}`, label: 'Retificacao', icon: <PencilLine   weight="duotone" size={18} /> },
+        { id: 'li',          to: `${base}/li${qs}`,          label: 'LPCO',        icon: <FileText     weight="duotone" size={18} /> },
       ],
     },
     {

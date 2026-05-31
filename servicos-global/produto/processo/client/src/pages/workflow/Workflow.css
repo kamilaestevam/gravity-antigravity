@@ -219,7 +219,10 @@
 /* Agora vive DENTRO do .wf-timeline — sem fundo/borda proprios. */
 .wf-stepper {
   display: flex;
-  align-items: flex-start;
+  /* align-items: flex-end — labels em cima, boxes embaixo. Stepper
+     alinha pela base, entao todos os boxes ficam na mesma linha
+     mesmo se algum label quebrar pra 2 linhas. */
+  align-items: flex-end;
   padding: 1.5rem;
   overflow-x: auto;
 }
@@ -274,15 +277,17 @@
 }
 
 /* Connector line entre as caixas — alinhada com o centro vertical das
-   caixas de 40px (margin-top: 19px = 20 - 1 onde 1 = metade da altura
-   do connector de 2px). */
+   caixas de 40px. Stepper agora usa align-items: flex-end (label em
+   cima, box embaixo), entao alinhamos o connector pela base e subimos
+   ele 19px (= 20 - 1, sendo 1 = metade da altura do connector) pra
+   atingir o centro do box. */
 .wf-connector {
   flex: 1;
   height: 2px;
   min-width: 1.5rem;
   background: var(--proc-accent-border, rgba(99, 102, 241, 0.2));
-  align-self: flex-start;
-  margin-top: 19px;
+  align-self: flex-end;
+  margin-bottom: 19px;
   transition: background 0.3s;
 }
 

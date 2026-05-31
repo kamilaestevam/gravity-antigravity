@@ -45,10 +45,8 @@ export const PRODUCT_CONFIG = {
     // Telas exclusivas do produto
     { id: 'workflow',        label: 'Visão Geral',        icon: 'flow-arrow',        source: 'product' },
     { id: 'pedidos',         label: 'Pedidos',            icon: 'package',           source: 'product' },
-    { id: 'li',              label: 'LPCO',               icon: 'file-text',         source: 'product' },
-    { id: 'di',              label: 'DUIMP',              icon: 'file-dashed',       source: 'product' },
     { id: 'duimp',           label: 'DUIMP',              icon: 'cloud-arrow-up',    source: 'product' },
-    { id: 'retificacao',     label: 'Retificação',        icon: 'pencil-line',       source: 'product' },
+    { id: 'li',              label: 'LPCO',               icon: 'file-text',         source: 'product' },
     { id: 'financeiro',      label: 'Financeiro',         icon: 'currency-dollar',   source: 'product' },
     { id: 'containers',      label: 'Containers',         icon: 'cube',             source: 'product' },
     { id: 'dados-tecnicos',  label: 'Dados Técnicos',     icon: 'gear-six',          source: 'product' },

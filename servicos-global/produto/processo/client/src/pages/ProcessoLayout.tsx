@@ -20,13 +20,11 @@ import {
   FlowArrow,
   Package,
   FileText,
-  FileDashed,
+  Folders,
   CloudArrowUp,
-  PencilLine,
   CurrencyDollar,
   Cube,
   GearSix,
-  ClipboardText,
   Receipt,
   Envelope,
   CheckSquare,
@@ -179,17 +177,22 @@ const buildNavSections = (
     {
       title: 'Acompanhamento',
       items: [
-        { id: 'workflow',  to: `${base}/workflow${qs}`,  label: 'Workflow',  icon: <FlowArrow weight="duotone" size={18} /> },
+        { id: 'workflow',       to: `${base}/workflow${qs}`,       label: 'Visão Geral',       icon: <FlowArrow weight="duotone" size={18} /> },
+        { id: 'dados-tecnicos', to: `${base}/dados-tecnicos${qs}`, label: 'Dados do Processo', icon: <GearSix   weight="duotone" size={18} /> },
+        { id: 'documentos',     to: `${base}/documentos${qs}`,     label: 'Documentos',        icon: <Folders   weight="duotone" size={18} /> },
+      ],
+    },
+    {
+      title: 'Pedidos',
+      items: [
         { id: 'pedidos',   to: `${base}/pedidos${qs}`,   label: 'Pedidos',   icon: <Package   weight="duotone" size={18} />, count: counts.pedidos },
       ],
     },
     {
-      title: 'Documentos',
+      title: 'Despacho Aduaneiro',
       items: [
-        { id: 'li',          to: `${base}/li${qs}`,          label: 'LI',          icon: <FileText     weight="duotone" size={18} /> },
-        { id: 'di',          to: `${base}/di${qs}`,          label: 'DI',          icon: <FileDashed   weight="duotone" size={18} /> },
         { id: 'duimp',       to: `${base}/duimp${qs}`,       label: 'DUIMP',       icon: <CloudArrowUp weight="duotone" size={18} /> },
-        { id: 'retificacao', to: `${base}/retificacao${qs}`, label: 'Retificacao', icon: <PencilLine   weight="duotone" size={18} /> },
+        { id: 'li',          to: `${base}/li${qs}`,          label: 'LPCO',        icon: <FileText     weight="duotone" size={18} /> },
       ],
     },
     {
@@ -197,14 +200,6 @@ const buildNavSections = (
       items: [
         { id: 'financeiro', to: `${base}/financeiro${qs}`, label: 'Financeiro', icon: <CurrencyDollar weight="duotone" size={18} /> },
         { id: 'taxas',      to: `${base}/taxas${qs}`,      label: 'Taxas',      icon: <Receipt        weight="duotone" size={18} /> },
-      ],
-    },
-    {
-      title: 'Dados',
-      items: [
-        { id: 'containers',     to: `${base}/containers${qs}`,     label: 'Containers',        icon: <Cube          weight="duotone" size={18} /> },
-        { id: 'dados-tecnicos', to: `${base}/dados-tecnicos${qs}`, label: 'Dados Tecnicos',    icon: <GearSix       weight="duotone" size={18} /> },
-        { id: 'dados-processo', to: `${base}/dados-processo${qs}`, label: 'Dados do Processo', icon: <ClipboardText weight="duotone" size={18} /> },
       ],
     },
     {

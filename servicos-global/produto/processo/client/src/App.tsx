@@ -10,7 +10,7 @@ import React, { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from '@shell'
 import { PRODUCT_CONFIG } from './shared/config'
-import { CurrencyDollar, Briefcase } from '@phosphor-icons/react'
+import { CurrencyDollar, Briefcase, Folders } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 
@@ -21,6 +21,9 @@ const Workflow = lazy(() => import('./pages/workflow/Workflow'))
 const PedidosResumo = lazy(() => import('./pages/pedidos/PedidosResumo'))
 const PedidosLista = lazy(() => import('./pages/pedidos/PedidosLista'))
 const DadosTecnicos = lazy(() => import('./pages/dados-tecnicos/DadosTecnicos'))
+const FinanceiroMovimentacao = lazy(() => import('./pages/financeiro/FinanceiroMovimentacao'))
+const FinanceiroNumerario = lazy(() => import('./pages/financeiro/FinanceiroNumerario'))
+const FinanceiroRateio = lazy(() => import('./pages/financeiro/FinanceiroRateio'))
 const Email = lazy(() => import('./pages/email/Email'))
 
 // ─── Loading Fallback ──────────────────────────────────────────────────────
@@ -54,6 +57,31 @@ function FinanceiroPlaceholder() {
         <CurrencyDollar weight="duotone" size={48} color="var(--text-muted)" />
         <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
           Módulo financeiro em desenvolvimento
+        </p>
+      </div>
+    </PaginaGlobal>
+  )
+}
+
+// ─── Placeholder: Documentos ───────────────────────────────────────────────
+
+function DocumentosPlaceholder() {
+  return (
+    <PaginaGlobal
+      className="ws-fade-up"
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<Folders weight="duotone" size={22} />}
+          titulo="Documentos"
+          subtitulo="Documentos vinculados ao processo"
+        />
+      }
+    >
+      <div className="proc-empty-state ws-fade-up ws-fade-up-d1">
+        <Folders weight="duotone" size={48} color="var(--text-muted)" />
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+          Módulo de documentos em desenvolvimento
         </p>
       </div>
     </PaginaGlobal>
@@ -95,6 +123,7 @@ export function App() {
           <Route path="/" element={<Navigate to="workflow" replace />} />
           <Route element={<ProcessoLayout />}>
             <Route path="workflow" element={<Workflow />} />
+            <Route path="documentos" element={<DocumentosPlaceholder />} />
             {/* Pedidos: rotas aninhadas — /pedidos cai no index (Navigate
                 pra resumo); /pedidos/resumo e /pedidos/lista sao filhos. */}
             <Route path="pedidos">
@@ -104,7 +133,14 @@ export function App() {
             </Route>
             <Route path="dados-tecnicos" element={<DadosTecnicos />} />
             <Route path="email" element={<Email />} />
-            <Route path="financeiro" element={<FinanceiroPlaceholder />} />
+            {/* Financeiro: rotas aninhadas — /financeiro cai no index
+                (Navigate pra movimentacao); cada aba e um filho. */}
+            <Route path="financeiro">
+              <Route index element={<Navigate to="movimentacao" replace />} />
+              <Route path="movimentacao" element={<FinanceiroMovimentacao />} />
+              <Route path="numerario"    element={<FinanceiroNumerario />} />
+              <Route path="rateio"       element={<FinanceiroRateio />} />
+            </Route>
             <Route path="workspace"  element={<WorkspacePlaceholder />} />
           </Route>
           <Route path="*" element={<Navigate to="workflow" replace />} />

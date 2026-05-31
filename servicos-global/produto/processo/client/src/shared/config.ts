@@ -43,16 +43,14 @@ export const PRODUCT_CONFIG = {
   // Navegação: telas do produto + serviços de tenant
   navigation: [
     // Telas exclusivas do produto
-    { id: 'workflow',        label: 'Workflow',           icon: 'flow-arrow',        source: 'product' },
+    { id: 'workflow',        label: 'Visão Geral',        icon: 'flow-arrow',        source: 'product' },
+    { id: 'documentos',      label: 'Documentos',         icon: 'folders',           source: 'product' },
     { id: 'pedidos',         label: 'Pedidos',            icon: 'package',           source: 'product' },
-    { id: 'li',              label: 'LI',                 icon: 'file-text',         source: 'product' },
-    { id: 'di',              label: 'DI',                 icon: 'file-dashed',       source: 'product' },
     { id: 'duimp',           label: 'DUIMP',              icon: 'cloud-arrow-up',    source: 'product' },
-    { id: 'retificacao',     label: 'Retificação',        icon: 'pencil-line',       source: 'product' },
+    { id: 'li',              label: 'LPCO',               icon: 'file-text',         source: 'product' },
     { id: 'financeiro',      label: 'Financeiro',         icon: 'currency-dollar',   source: 'product' },
     { id: 'containers',      label: 'Containers',         icon: 'cube',             source: 'product' },
     { id: 'dados-tecnicos',  label: 'Dados Técnicos',     icon: 'gear-six',          source: 'product' },
-    { id: 'dados-processo',  label: 'Dados do Processo',  icon: 'clipboard-text',    source: 'product' },
     { id: 'taxas',           label: 'Taxas',              icon: 'receipt',           source: 'product' },
     // Serviços de tenant acessados via shell
     { id: 'email',           label: 'Email',              icon: 'envelope',          source: 'tenant'  },

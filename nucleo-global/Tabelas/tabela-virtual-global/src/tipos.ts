@@ -249,6 +249,13 @@ export interface GTVirtualHandle {
    * No-op se a linha já está expandida ou se o `id` não está na página atual.
    */
   expandir: (id: string) => void
+  /**
+   * Expande TODAS as linhas pai da página atual (carrega filhos em lote).
+   * Resolve quando todos os filhos terminaram de carregar.
+   */
+  expandirTodos: () => Promise<void>
+  /** Recolhe TODAS as linhas pai expandidas. */
+  recolherTodos: () => void
   /** Rola até a célula pai indicada (sem abrir edição) */
   rolarParaCelula: (id: string, campo: string) => void
 }

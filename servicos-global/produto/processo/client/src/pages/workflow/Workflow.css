@@ -217,13 +217,64 @@
 
 /* ── Timeline Stepper (horizontal) ─────────────────────────────────────── */
 /* Agora vive DENTRO do .wf-timeline — sem fundo/borda proprios. */
+/* Stepper em 3 linhas: cards | linha conectora | labels.
+   Padding-top reduzido drasticamente pra cards encostarem no
+   header. Gap maior entre rows pra linha ficar visivelmente
+   separada dos cards. */
 .wf-stepper {
   display: flex;
-  align-items: flex-start;
-  padding: 1.5rem;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 1.5rem 1.5rem;
   overflow-x: auto;
 }
 
+.wf-stepper-row {
+  display: flex;
+  width: 100%;
+}
+
+.wf-stepper-cell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+}
+
+/* Celula da linha do meio — linha BEM GROSSA pra impossivel de
+   confundir com a anterior. */
+.wf-stepper-cell--line {
+  height: 6px;
+  justify-content: stretch;
+  gap: 0;
+}
+
+.wf-line-half {
+  flex: 1;
+  height: 6px;
+  background: var(--proc-accent-border, rgba(99, 102, 241, 0.2));
+  transition: background 0.3s;
+  border-radius: 3px;
+}
+
+.wf-line-half--empty {
+  background: transparent;
+}
+
+.wf-line-half--pending {
+  background: var(--proc-accent-border, rgba(99, 102, 241, 0.2));
+}
+
+.wf-line-half--done {
+  background: #10b981;
+}
+
+.wf-line-half--active {
+  background: linear-gradient(90deg, #10b981, #a78bfa);
+}
+
+/* wf-step antigo nao usado mais — mas mantido pra eventuais usos */
 .wf-step {
   display: flex;
   flex-direction: column;
@@ -232,11 +283,11 @@
   min-width: 80px;
 }
 
-/* Stepper Box — caixa arredondada 40x40 (BID Frete), nao circulo */
+/* Stepper Box — caixa arredondada 48x48 (maior pra dar impacto visual) */
 .wf-step-circle {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
   flex-shrink: 0;
   border-radius: 10px;
   display: flex;
@@ -273,28 +324,8 @@
   color: #fff;
 }
 
-/* Connector line entre as caixas — alinhada com o centro vertical das
-   caixas de 40px (margin-top: 19px = 20 - 1 onde 1 = metade da altura
-   do connector de 2px). */
-.wf-connector {
-  flex: 1;
-  height: 2px;
-  min-width: 1.5rem;
-  background: var(--proc-accent-border, rgba(99, 102, 241, 0.2));
-  align-self: flex-start;
-  margin-top: 19px;
-  transition: background 0.3s;
-}
-
-/* Done connector: green (entre dois passos concluidos) */
-.wf-connector--done {
-  background: #10b981;
-}
-
-/* Active connector: gradiente verde → roxo (transicao para a etapa ativa) */
-.wf-connector--active {
-  background: linear-gradient(90deg, #10b981, #a78bfa);
-}
+/* Conectores antigos removidos — substituidos por .wf-line-half
+   acima, parte da estrutura em 3 linhas do .wf-stepper. */
 
 /* Step label — UPPERCASE como no BID Frete */
 .wf-step-label {

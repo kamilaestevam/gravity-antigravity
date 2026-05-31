@@ -23,6 +23,8 @@ import {
   Package,
   Plus,
   CaretDown,
+  CaretDoubleDown,
+  CaretDoubleUp,
   CaretRight,
   Eye,
   PencilSimple,
@@ -5057,6 +5059,36 @@ export default function Pedidos() {
 
   const acoesBarra = useMemo(() => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', flex: 1 }}>
+      {/* Botao Expandir/Recolher todos itens — icone-only com TooltipGlobal
+          (padrao Linear/Notion para acoes utilitarias frequentes em tabelas
+          hierarquicas). */}
+      <TooltipGlobal
+        descricao={temExpandido ? 'Recolher todos os itens' : 'Expandir todos os itens'}
+      >
+        <button
+          type="button"
+          onClick={() => {
+            if (temExpandido) tabelaRef.current?.recolherTodos()
+            else void tabelaRef.current?.expandirTodos()
+          }}
+          aria-label={temExpandido ? 'Recolher todos os itens' : 'Expandir todos os itens'}
+          style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: '32px', height: '32px',
+            background: 'transparent',
+            border: '1px solid rgba(148, 163, 184, 0.15)',
+            borderRadius: '8px',
+            color: 'var(--ws-muted, #94a3b8)',
+            cursor: 'pointer',
+            transition: 'background 0.15s, color 0.15s, border-color 0.15s',
+          }}
+        >
+          {temExpandido
+            ? <CaretDoubleUp   size={14} weight="bold" />
+            : <CaretDoubleDown size={14} weight="bold" />}
+        </button>
+      </TooltipGlobal>
+
       {/* Escopo de workspaces = menu lateral; filtros de coluna = client-side */}
       <BarraAcoesPedido
         novoDropdownRef={novoDropdownRef}
@@ -5098,6 +5130,7 @@ export default function Pedidos() {
     setModalGerarPdfAberto, setModalDuplicarAberto,
     handleExcluirLote, handleNavConfiguracoes, handleLimparFiltro, handleLimparTodosFiltros,
     onFiltroColuna, podeEditarLista,
+    temExpandido,
   ])
 
   // ── Valores únicos por campo (para filtro enum e sugestões texto) ────────────

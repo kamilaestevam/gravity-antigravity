@@ -32,9 +32,6 @@ import {
   Envelope,
   CheckSquare,
   SidebarSimple,
-  Anchor,
-  CalendarBlank,
-  Scales,
 } from '@phosphor-icons/react'
 import { getProcesso } from '../shared/api'
 import type { ProcessoDetail } from '../shared/types'
@@ -192,18 +189,6 @@ const buildNavSections = (
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-
-const brl = (val: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)
-
-const usd = (val: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'USD' }).format(val)
-
-const fmtPeso = (val: number) =>
-  val.toLocaleString('pt-BR', { maximumFractionDigits: 2 })
-
-const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
 
 // Cor de acento do produto Processo (#facc15) — fonte unica: getProdutoMeta.
 // Usada no item ativo do menu (dot + fundo), conforme design-system "3 pontos de contato".
@@ -382,41 +367,6 @@ export default function ProcessoLayout() {
                 </div>
               )}
 
-              {/* Quick Stats */}
-              <div className="p2-quick-stats">
-                {processo.valor_fob_total > 0 && (
-                  <TooltipGlobal titulo="Valor FOB Total" descricao="Valor total das mercadorias no ponto de embarque">
-                    <div className="p2-stat">
-                      <CurrencyDollar weight="duotone" size={14} />
-                      <span>{usd(processo.valor_fob_total)}</span>
-                    </div>
-                  </TooltipGlobal>
-                )}
-                {processo.peso_bruto_total > 0 && (
-                  <TooltipGlobal titulo="Peso Bruto Total" descricao="Peso total incluindo embalagem">
-                    <div className="p2-stat">
-                      <Scales weight="duotone" size={14} />
-                      <span>{fmtPeso(processo.peso_bruto_total)} kg</span>
-                    </div>
-                  </TooltipGlobal>
-                )}
-                {processo.data_embarque && (
-                  <TooltipGlobal titulo="Data de Embarque" descricao="Data prevista ou realizada do embarque">
-                    <div className="p2-stat">
-                      <Anchor weight="duotone" size={14} />
-                      <span>{fmtDate(processo.data_embarque)}</span>
-                    </div>
-                  </TooltipGlobal>
-                )}
-                {processo.data_chegada && (
-                  <TooltipGlobal titulo="Data de Chegada" descricao="Data prevista ou realizada da chegada">
-                    <div className="p2-stat">
-                      <CalendarBlank weight="duotone" size={14} />
-                      <span>{fmtDate(processo.data_chegada)}</span>
-                    </div>
-                  </TooltipGlobal>
-                )}
-              </div>
             </div>
           )}
 

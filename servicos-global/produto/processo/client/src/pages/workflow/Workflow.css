@@ -218,14 +218,13 @@
 /* ── Timeline Stepper (horizontal) ─────────────────────────────────────── */
 /* Agora vive DENTRO do .wf-timeline — sem fundo/borda proprios. */
 /* Stepper em 3 linhas: cards | linha conectora | labels.
-   Gaps grandes entre as linhas para a separacao ficar OBVIA — cards
-   no topo, linha no MEIO (visualmente isolada), labels embaixo. */
+   Padding-top zero pra cards subirem ate proximo do header de
+   PREVISAO DE CHEGADA, eliminando o espaco vazio no topo. */
 .wf-stepper {
   display: flex;
   flex-direction: column;
-  /* gap grande pra separar visualmente as 3 fileiras */
-  gap: 1.25rem;
-  padding: 1.5rem;
+  gap: 0.875rem;
+  padding: 0.75rem 1.5rem 1.5rem;
   overflow-x: auto;
 }
 

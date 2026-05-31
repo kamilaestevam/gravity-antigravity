@@ -133,44 +133,47 @@ const buildNavSections = (
   counts: NavCounts,
 ): NavSection[] => {
   const qs = processoId ? `?id=${processoId}&idOrganizacao=${idOrganizacao}` : ''
+  // Prefixo do produto — todas as paginas vivem sob /processo/<rota>.
+  // Sem o prefixo o navigate jogava para localhost/<rota> e dava 404.
+  const base = '/processo'
 
   return [
     {
       title: 'Acompanhamento',
       items: [
-        { id: 'workflow',  to: `/workflow${qs}`,  label: 'Workflow',  icon: <FlowArrow weight="duotone" size={18} /> },
-        { id: 'pedidos',   to: `/pedidos${qs}`,   label: 'Pedidos',   icon: <Package   weight="duotone" size={18} />, count: counts.pedidos },
+        { id: 'workflow',  to: `${base}/workflow${qs}`,  label: 'Workflow',  icon: <FlowArrow weight="duotone" size={18} /> },
+        { id: 'pedidos',   to: `${base}/pedidos${qs}`,   label: 'Pedidos',   icon: <Package   weight="duotone" size={18} />, count: counts.pedidos },
       ],
     },
     {
       title: 'Documentos',
       items: [
-        { id: 'li',          to: `/li${qs}`,          label: 'LI',          icon: <FileText     weight="duotone" size={18} /> },
-        { id: 'di',          to: `/di${qs}`,          label: 'DI',          icon: <FileDashed   weight="duotone" size={18} /> },
-        { id: 'duimp',       to: `/duimp${qs}`,       label: 'DUIMP',       icon: <CloudArrowUp weight="duotone" size={18} /> },
-        { id: 'retificacao', to: `/retificacao${qs}`, label: 'Retificacao', icon: <PencilLine   weight="duotone" size={18} /> },
+        { id: 'li',          to: `${base}/li${qs}`,          label: 'LI',          icon: <FileText     weight="duotone" size={18} /> },
+        { id: 'di',          to: `${base}/di${qs}`,          label: 'DI',          icon: <FileDashed   weight="duotone" size={18} /> },
+        { id: 'duimp',       to: `${base}/duimp${qs}`,       label: 'DUIMP',       icon: <CloudArrowUp weight="duotone" size={18} /> },
+        { id: 'retificacao', to: `${base}/retificacao${qs}`, label: 'Retificacao', icon: <PencilLine   weight="duotone" size={18} /> },
       ],
     },
     {
       title: 'Financeiro',
       items: [
-        { id: 'financeiro', to: `/financeiro${qs}`, label: 'Financeiro', icon: <CurrencyDollar weight="duotone" size={18} /> },
-        { id: 'taxas',      to: `/taxas${qs}`,      label: 'Taxas',      icon: <Receipt        weight="duotone" size={18} /> },
+        { id: 'financeiro', to: `${base}/financeiro${qs}`, label: 'Financeiro', icon: <CurrencyDollar weight="duotone" size={18} /> },
+        { id: 'taxas',      to: `${base}/taxas${qs}`,      label: 'Taxas',      icon: <Receipt        weight="duotone" size={18} /> },
       ],
     },
     {
       title: 'Dados',
       items: [
-        { id: 'containers',     to: `/containers${qs}`,     label: 'Containers',        icon: <Cube          weight="duotone" size={18} /> },
-        { id: 'dados-tecnicos', to: `/dados-tecnicos${qs}`, label: 'Dados Tecnicos',    icon: <GearSix       weight="duotone" size={18} /> },
-        { id: 'dados-processo', to: `/dados-processo${qs}`, label: 'Dados do Processo', icon: <ClipboardText weight="duotone" size={18} /> },
+        { id: 'containers',     to: `${base}/containers${qs}`,     label: 'Containers',        icon: <Cube          weight="duotone" size={18} /> },
+        { id: 'dados-tecnicos', to: `${base}/dados-tecnicos${qs}`, label: 'Dados Tecnicos',    icon: <GearSix       weight="duotone" size={18} /> },
+        { id: 'dados-processo', to: `${base}/dados-processo${qs}`, label: 'Dados do Processo', icon: <ClipboardText weight="duotone" size={18} /> },
       ],
     },
     {
       title: 'Comunicacao',
       items: [
-        { id: 'email', to: `/email${qs}`, label: 'Email', icon: <Envelope    weight="duotone" size={18} /> },
-        { id: 'todo',  to: `/todo${qs}`,  label: 'To Do', icon: <CheckSquare weight="duotone" size={18} /> },
+        { id: 'email', to: `${base}/email${qs}`, label: 'Email', icon: <Envelope    weight="duotone" size={18} /> },
+        { id: 'todo',  to: `${base}/todo${qs}`,  label: 'To Do', icon: <CheckSquare weight="duotone" size={18} /> },
       ],
     },
   ]
@@ -358,6 +361,7 @@ export default function ProcessoLayout() {
                 <div className="p2-nav-section-title">{section.title}</div>
                 {section.items.map(item => {
                   const isActive = location.pathname === item.to.split('?')[0] ||
+                    location.pathname === `/processo/${item.id}` ||
                     location.pathname === `/${item.id}`
                   return (
                     <button

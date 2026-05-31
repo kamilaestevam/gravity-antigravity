@@ -19,7 +19,12 @@ import {
   PaperPlaneTilt,
   CheckCircle,
   WarningCircle,
+  Atom,
+  CursorClick,
+  Coins,
+  ShieldCheck,
 } from '@phosphor-icons/react'
+import { LogoGlobal } from '@nucleo/logo-global'
 import type { ModalFrete, PropostaBidFreteInternacional, TipoOperacao } from './types'
 import type { CodigoBloqueioRespostaDisparoBidFreteInternacional } from './visao-fornecedor-bid-frete-internacional-schemas'
 import { MODAL_LABELS } from './types'
@@ -608,6 +613,74 @@ export function AvisoEdicaoPropostaResposta({ texto }: { texto: string }) {
 
 export type VarianteMensagemRespostaCotacao = 'sucesso' | 'invalido' | 'bloqueado' | 'carregando'
 
+function FundoGravityRespostaPublica() {
+  return (
+    <div className="brc-auth-fundo" aria-hidden>
+      <div className="brc-auth-brand-grid" />
+    </div>
+  )
+}
+
+function MarcaLateralGravityRespostaPublica() {
+  const { t } = useTranslation()
+
+  const features = [
+    {
+      icon: <Atom size={20} weight="duotone" className="brc-auth-feature-icon" />,
+      title: t('auth.ecossistema_titulo'),
+      desc: t('auth.ecossistema_desc'),
+    },
+    {
+      icon: <CursorClick size={20} weight="duotone" className="brc-auth-feature-icon" />,
+      title: t('auth.zero_digitacao_titulo'),
+      desc: t('auth.zero_digitacao_desc'),
+    },
+    {
+      icon: <Coins size={20} weight="duotone" className="brc-auth-feature-icon" />,
+      title: t('auth.gestao_custos_titulo'),
+      desc: t('auth.gestao_custos_desc'),
+    },
+    {
+      icon: <ShieldCheck size={20} weight="duotone" className="brc-auth-feature-icon" />,
+      title: t('auth.padrao_enterprise_titulo'),
+      desc: t('auth.padrao_enterprise_desc'),
+    },
+  ]
+
+  return (
+    <aside className="brc-auth-marca-login" aria-label={t('auth.headline')}>
+      <div className="brc-auth-marca-conteudo">
+        <div className="brc-auth-logo">
+          <LogoGlobal iconSize={30} iconColor="#818cf8" />
+        </div>
+
+        <h1 className="brc-auth-headline">
+          {t('auth.headline')}{' '}
+          <span className="brc-auth-headline-accent">{t('auth.headline_destaque')}</span>
+        </h1>
+
+        <p className="brc-auth-subheadline">{t('auth.subheadline')}</p>
+
+        <div className="brc-auth-features">
+          {features.map((feature, index) => (
+            <div
+              key={feature.title}
+              className="brc-auth-feature"
+              style={{ '--i': index } as React.CSSProperties}
+            >
+              <div className="brc-auth-feature-icon-wrapper">{feature.icon}</div>
+              <div className="brc-auth-feature-content">
+                <h2 className="brc-auth-feature-title">{feature.title}</h2>
+                <p className="brc-auth-feature-desc">{feature.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </aside>
+  )
+}
+
 export function ShellPaginaRespostaCotacao({
   modo,
   children,
@@ -615,9 +688,23 @@ export function ShellPaginaRespostaCotacao({
   modo: 'publico' | 'logado'
   children: React.ReactNode
 }) {
+  if (modo === 'logado') {
+    return (
+      <div className="brc-page brc-page--logado">
+        <div className="brc-shell">{children}</div>
+      </div>
+    )
+  }
+
   return (
-    <div className={`brc-page brc-page--${modo}`}>
-      <div className="brc-shell">{children}</div>
+    <div className="brc-page brc-page--publico brc-auth-layout">
+      <FundoGravityRespostaPublica />
+      <MarcaLateralGravityRespostaPublica />
+      <div className="brc-auth-modal-wrap">
+        <div className="brc-auth-painel-form">
+          <div className="brc-shell">{children}</div>
+        </div>
+      </div>
     </div>
   )
 }

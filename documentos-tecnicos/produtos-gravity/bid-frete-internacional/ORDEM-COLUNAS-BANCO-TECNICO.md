@@ -49,7 +49,7 @@ FKs de negócio relevantes ficam **no topo**, logo após a PK.
 | 3 | **`id_bid_bid_frete_internacional`** (snapshot) |
 | 4 | `id_organizacao` |
 | 5 | `id_workspace` (snapshot) |
-| … | demais campos |
+| … | demais campos (bloco prazos: `dias_transito` → `dias_free_time` → **`dias_prazo_pagamento`** → `validade`) |
 
 ### `ganho_bid_frete_internacional`
 
@@ -70,6 +70,7 @@ FKs de negócio relevantes ficam **no topo**, logo após a PK.
 |-----------|--------|
 | `20260530120000_reorder_colunas_bid_frete_internacional` | Backfill `id_bid` na proposta; reorder bid, cotação, proposta, ganho; recria FKs/índices |
 | `20260530130000_fixup_reorder_bid_ganho_colunas` | Corrige skip idempotente; reorder efetivo de `bid` e `ganho` |
+| `20260531120000_add_dias_prazo_pagamento_proposta_bid_frete_internacional` | Coluna `dias_prazo_pagamento_proposta_bid_frete_internacional` (Int?, entre free time e validade) |
 
 Função SQL temporária: `bfi_reorder_table_columns(table, column_order[])` — recria tabela, copia dados, dropa original. **Idempotente:** compara posição das N primeiras colunas desejadas.
 

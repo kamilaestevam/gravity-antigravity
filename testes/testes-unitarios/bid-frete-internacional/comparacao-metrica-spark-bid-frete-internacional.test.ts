@@ -3,10 +3,14 @@ import {
   formatarDiffAbsolutaMetrica,
   formatarPctDiffMetrica,
   montarComparacaoMetricaSparkTooltip,
+  montarLinhasAnaliseConcorrentesTooltip,
 } from '../../../servicos-global/produto/bid-frete-internacional/client/src/shared/comparacao-metrica-spark-bid-frete-internacional'
 import type { BarraComparativoInsight } from '../../../servicos-global/produto/bid-frete-internacional/client/src/shared/infograficos-fluxo-cotacao-bid-frete-internacional'
 
-const t = ((_key: string, defaultValue?: string) => defaultValue ?? '') as never
+const t = ((_key: string, defaultValue?: string, opts?: Record<string, unknown>) => {
+  if (opts == null) return defaultValue ?? ''
+  return (defaultValue ?? '').replace(/\{\{(\w+)\}\}/g, (_, k: string) => String(opts[k] ?? ''))
+}) as never
 
 function barra(partial: Partial<BarraComparativoInsight> & Pick<BarraComparativoInsight, 'valor' | 'fornecedor'>): BarraComparativoInsight {
   return {
@@ -89,5 +93,49 @@ describe('montarComparacaoMetricaSparkTooltip', () => {
 
     expect(result.textoDiferenca).toBe('+10 dias (+100,0%)')
     expect(result.classe).toBe('pior')
+  })
+})
+
+describe('montarLinhasAnaliseConcorrentesTooltip', () => {
+  const fmtDias = (v: number) => `${v} dias`
+
+  it('lista cada concorrente com valor da cotação em hover e % semântico', () => {
+    const barras = [
+      barra({ valor: 10, fornecedor: 'Agente ABC', destaque: true }),
+      barra({ valor: 20, fornecedor: 'TRANSDATA' }),
+    ]
+
+    const linhas = montarLinhasAnaliseConcorrentesTooltip(
+      barras[1],
+      barras,
+      true,
+      fmtDias,
+      t,
+      'transit_time',
+    )
+
+    expect(linhas).toHaveLength(1)
+    expect(linhas[0].fornecedor).toBe('Agente ABC')
+    expect(linhas[0].textoLinha).toBe('20 dias — 100% mais lento que Agente ABC')
+    expect(linhas[0].classe).toBe('pior')
+  })
+
+  it('formata dias com zero à esquerda na linha de análise', () => {
+    const barras = [
+      barra({ valor: 10, fornecedor: 'Agente ABC' }),
+      barra({ valor: 5, fornecedor: 'TRANSDATA' }),
+    ]
+
+    const linhas = montarLinhasAnaliseConcorrentesTooltip(
+      barras[1],
+      barras,
+      true,
+      fmtDias,
+      t,
+      'transit_time',
+    )
+
+    expect(linhas[0].textoLinha).toBe('05 dias — 50% mais rápido que Agente ABC')
+    expect(linhas[0].classe).toBe('melhor')
   })
 })

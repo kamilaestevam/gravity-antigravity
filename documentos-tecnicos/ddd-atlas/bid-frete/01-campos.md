@@ -194,6 +194,7 @@ Cada model possui duas tabelas:
 | valor_total | valor_total_proposta_bid_frete_internacional | Float | REGRA 01 | Campo generico -> sufixo entidade |
 | transit_time_dias | dias_transito_proposta_bid_frete_internacional | Int | REGRA 01, REGRA 02 | `transit_time` -> `dias_transito` (PT-BR) + sufixo entidade |
 | free_time_dias | dias_free_time_proposta_bid_frete_internacional | Int? | REGRA 01 | Campo generico -> sufixo entidade (free time e termo tecnico mantido) |
+| prazo_pagamento_dias | dias_prazo_pagamento_proposta_bid_frete_internacional | Int? | REGRA 01 | Prazo de pagamento em dias + sufixo entidade |
 | validade_cotacao | validade_proposta_bid_frete_internacional | DateTime | REGRA 01 | Renomeado: e validade da proposta, nao da cotacao + sufixo entidade |
 | transbordos | transbordos_proposta_bid_frete_internacional | Int @default(0) | REGRA 01 | Campo generico -> sufixo entidade |
 | escalas | escalas_proposta_bid_frete_internacional | String? | REGRA 01 | Campo generico -> sufixo entidade |

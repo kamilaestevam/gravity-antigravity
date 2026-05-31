@@ -2,7 +2,7 @@
  * Lista de propostas no detalhe da cotação — ranking, % vs demais e avaliação.
  */
 
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Star,
@@ -34,6 +34,9 @@ import {
   type MetricasExibicaoProposta,
 } from './metricas-proposta-cotacao-bid-frete-internacional'
 import { FaixaMetricasComparativoSparkProposta } from './metricas-comparativo-spark-card-proposta'
+import { montarBarrasComparativoDePropostas } from './infograficos-fluxo-cotacao-bid-frete-internacional'
+import type { BarraComparativoInsight } from './infograficos-fluxo-cotacao-bid-frete-internacional'
+import { TooltipAnaliseMetricaSparkPortal } from './graficos-insights-cotacao-bid-frete-internacional'
 import {
   formatarMoedaBidFrete,
   itensTaxasDestinoProposta,
@@ -301,6 +304,67 @@ function BarraMetrica({ label, pct }: { label: string; pct: number }) {
       </div>
       <span>{clamped}%</span>
     </div>
+  )
+}
+
+function BarraMetricaComAnalise({
+  label,
+  pct,
+  barra,
+  barras,
+  melhorMenor,
+  rotuloMetrica,
+  formatarValor,
+}: {
+  label: string
+  pct: number
+  barra: BarraComparativoInsight
+  barras: BarraComparativoInsight[]
+  melhorMenor: boolean
+  rotuloMetrica: string
+  formatarValor: (valor: number) => string
+}) {
+  const rowRef = useRef<HTMLDivElement>(null)
+  const [ancora, setAncora] = useState<{ left: number; top: number } | null>(null)
+  const clamped = Math.round(Math.max(0, Math.min(100, pct)))
+  const valorReferencia = useMemo(() => {
+    const referencia = barras.find((b) => b.destaque)
+    return referencia?.valor ?? barras[0]?.valor ?? 0
+  }, [barras])
+
+  const definirAncora = () => {
+    const el = rowRef.current
+    if (el == null) return
+    const rect = el.getBoundingClientRect()
+    setAncora({ left: rect.left + rect.width / 2, top: rect.bottom })
+  }
+
+  return (
+    <>
+      <div
+        ref={rowRef}
+        className="dc-prop-bar-row dc-prop-bar-row--com-analise"
+        onMouseEnter={definirAncora}
+        onMouseLeave={() => setAncora(null)}
+      >
+        <span>{label}</span>
+        <div className="dc-prop-bar-track">
+          <div className="dc-prop-bar-fill" style={{ width: `${clamped}%` }} />
+        </div>
+        <span>{clamped}%</span>
+      </div>
+      {ancora != null && (
+        <TooltipAnaliseMetricaSparkPortal
+          barra={barra}
+          barras={barras}
+          valorReferencia={valorReferencia}
+          melhorMenor={melhorMenor}
+          rotuloMetrica={rotuloMetrica}
+          formatarValor={formatarValor}
+          ancora={ancora}
+        />
+      )}
+    </>
   )
 }
 
@@ -587,6 +651,65 @@ function CardProposta({
   const pctTaxasOrigem = percentualBarraPorRank(rankTaxasOrigem)
   const pctTaxasDestino = percentualBarraPorRank(rankTaxasDestino)
 
+  const idProposta = proposta.id_proposta_bid_frete_internacional
+  const diasLabel = t('bidfrete.detalhe_cotacao.dias', 'dias')
+  const rotuloFrete = t('bidfrete.detalhe_cotacao.resp_frete', 'Frete Básico')
+  const rotuloTaxasOrigem = t('bidfrete.detalhe_cotacao.resp_taxas_origem', 'Taxas Origem')
+  const rotuloTaxasDestino = t('bidfrete.detalhe_cotacao.resp_taxas_destino', 'Taxas Destino')
+  const rotuloTransito = t('bidfrete.comparativo.transit_time', 'Transit Time')
+  const fmtMoeda = (v: number) => formatarMoedaBidFrete(v, moedaProposta)
+  const fmtDias = (v: number) => `${v} ${diasLabel}`
+
+  const barrasFrete = useMemo(
+    () => (propostasTodas.length >= 2 && idProposta != null
+      ? montarBarrasComparativoDePropostas(
+        propostasTodas,
+        idProposta,
+        (p) => p.valor_total_proposta_bid_frete_internacional,
+        true,
+      )
+      : []),
+    [propostasTodas, idProposta],
+  )
+  const barrasTaxasOrigem = useMemo(
+    () => (propostasTodas.length >= 2 && idProposta != null
+      ? montarBarrasComparativoDePropostas(
+        propostasTodas,
+        idProposta,
+        (p) => p.taxas_origem_proposta_bid_frete_internacional,
+        true,
+      )
+      : []),
+    [propostasTodas, idProposta],
+  )
+  const barrasTaxasDestino = useMemo(
+    () => (propostasTodas.length >= 2 && idProposta != null
+      ? montarBarrasComparativoDePropostas(
+        propostasTodas,
+        idProposta,
+        (p) => p.taxas_destino_proposta_bid_frete_internacional,
+        true,
+      )
+      : []),
+    [propostasTodas, idProposta],
+  )
+  const barrasTransito = useMemo(
+    () => (propostasTodas.length >= 2 && idProposta != null
+      ? montarBarrasComparativoDePropostas(
+        propostasTodas,
+        idProposta,
+        (p) => p.dias_transito_proposta_bid_frete_internacional,
+        true,
+      )
+      : []),
+    [propostasTodas, idProposta],
+  )
+
+  const barraFrete = barrasFrete.find((b) => b.destaque)
+  const barraTaxasOrigem = barrasTaxasOrigem.find((b) => b.destaque)
+  const barraTaxasDestino = barrasTaxasDestino.find((b) => b.destaque)
+  const barraTransito = barrasTransito.find((b) => b.destaque)
+
   if (variante === 'combate') {
     return (
       <article
@@ -617,16 +740,58 @@ function CardProposta({
           </div>
         </header>
         <div className="dc-prop-barras">
-          <BarraMetrica label={t('bidfrete.detalhe_cotacao.resp_frete', 'Frete Básico')} pct={pctPreco} />
-          <BarraMetrica
-            label={t('bidfrete.detalhe_cotacao.resp_taxas_origem', 'Taxas Origem')}
-            pct={pctTaxasOrigem}
-          />
-          <BarraMetrica
-            label={t('bidfrete.detalhe_cotacao.resp_taxas_destino', 'Taxas Destino')}
-            pct={pctTaxasDestino}
-          />
-          <BarraMetrica label={t('bidfrete.comparativo.transit_time', 'Transit Time')} pct={pctTransito} />
+          {barraFrete != null && barrasFrete.length >= 2 ? (
+            <BarraMetricaComAnalise
+              label={rotuloFrete}
+              pct={pctPreco}
+              barra={barraFrete}
+              barras={barrasFrete}
+              melhorMenor
+              rotuloMetrica={rotuloFrete}
+              formatarValor={fmtMoeda}
+            />
+          ) : (
+            <BarraMetrica label={rotuloFrete} pct={pctPreco} />
+          )}
+          {barraTaxasOrigem != null && barrasTaxasOrigem.length >= 2 ? (
+            <BarraMetricaComAnalise
+              label={rotuloTaxasOrigem}
+              pct={pctTaxasOrigem}
+              barra={barraTaxasOrigem}
+              barras={barrasTaxasOrigem}
+              melhorMenor
+              rotuloMetrica={rotuloTaxasOrigem}
+              formatarValor={fmtMoeda}
+            />
+          ) : (
+            <BarraMetrica label={rotuloTaxasOrigem} pct={pctTaxasOrigem} />
+          )}
+          {barraTaxasDestino != null && barrasTaxasDestino.length >= 2 ? (
+            <BarraMetricaComAnalise
+              label={rotuloTaxasDestino}
+              pct={pctTaxasDestino}
+              barra={barraTaxasDestino}
+              barras={barrasTaxasDestino}
+              melhorMenor
+              rotuloMetrica={rotuloTaxasDestino}
+              formatarValor={fmtMoeda}
+            />
+          ) : (
+            <BarraMetrica label={rotuloTaxasDestino} pct={pctTaxasDestino} />
+          )}
+          {barraTransito != null && barrasTransito.length >= 2 ? (
+            <BarraMetricaComAnalise
+              label={rotuloTransito}
+              pct={pctTransito}
+              barra={barraTransito}
+              barras={barrasTransito}
+              melhorMenor
+              rotuloMetrica={rotuloTransito}
+              formatarValor={fmtDias}
+            />
+          ) : (
+            <BarraMetrica label={rotuloTransito} pct={pctTransito} />
+          )}
         </div>
         <DestaquesCardProposta
           proposta={proposta}

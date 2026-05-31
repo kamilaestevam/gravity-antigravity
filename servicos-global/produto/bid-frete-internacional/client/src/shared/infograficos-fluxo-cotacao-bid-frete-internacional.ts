@@ -197,13 +197,21 @@ export function montarConteudoAvisoGraficosInsights(
   }
 }
 
-const MESES_CURTOS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+const MESES_ABREV_PT = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'] as const
+
+/** Rótulo do eixo X do termômetro — ex.: `dez/25`, `jan/26`. */
+export function rotuloMesAnoTermometro(data: Date): string {
+  const mes = MESES_ABREV_PT[data.getMonth()]
+  if (mes == null) return '—'
+  const ano = String(data.getFullYear()).slice(-2)
+  return `${mes}/${ano}`
+}
 
 function ultimos6MesesRotulos(): string[] {
   const agora = new Date()
   return Array.from({ length: 6 }, (_, i) => {
     const d = new Date(agora.getFullYear(), agora.getMonth() - (5 - i), 1)
-    return MESES_CURTOS[d.getMonth()] ?? '—'
+    return rotuloMesAnoTermometro(d)
   })
 }
 
@@ -494,6 +502,23 @@ export function buildComparativoMetrica(
       }
     }),
   }
+}
+
+/** Barras comparativas para tooltip de análise (ranking / barras de progresso). */
+export function montarBarrasComparativoDePropostas(
+  propostas: PropostaRankingBidFreteInternacional[],
+  id_proposta_destaque: string,
+  extrair: (p: PropostaRankingBidFreteInternacional) => number,
+  melhorMenor: boolean,
+): BarraComparativoInsight[] {
+  const comparativo = buildComparativoMetrica(
+    propostas,
+    extrair,
+    melhorMenor,
+    (v) => String(v),
+    id_proposta_destaque,
+  )
+  return comparativo?.barras ?? []
 }
 
 /** Comparativo com barras iguais ao painel Melhor proposta, destacando a proposta do card. */

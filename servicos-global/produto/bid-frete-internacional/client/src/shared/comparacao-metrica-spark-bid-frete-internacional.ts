@@ -3,6 +3,23 @@ import type { BarraComparativoInsight } from './infograficos-fluxo-cotacao-bid-f
 
 export type ClasseComparacaoMetricaSpark = 'melhor' | 'pior' | 'igual'
 
+export type TipoMetricaComparativaBidFrete =
+  | 'transit_time'
+  | 'frete'
+  | 'taxas'
+  | 'free_time'
+  | 'escala'
+  | 'generico'
+
+export interface LinhaAnaliseConcorrenteTooltip {
+  fornecedor: string
+  textoLinha: string
+  classe: ClasseComparacaoMetricaSpark
+  /** Posição normalizada (0–100) no mini-gráfico da linha. */
+  posicaoAtualPct: number
+  posicaoConcorrentePct: number
+}
+
 export interface ComparacaoMetricaSparkTooltip {
   classe: ClasseComparacaoMetricaSpark
   tituloSecao: string
@@ -44,6 +61,202 @@ export function formatarDiffAbsolutaMetrica(
   }
   const sinal = delta > 0 ? '+' : '−'
   return `${sinal}${formatarValor(Math.abs(delta))}`
+}
+
+export function inferirTipoMetricaComparativaFromRotulo(
+  rotuloMetrica: string,
+): TipoMetricaComparativaBidFrete {
+  const n = rotuloMetrica
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+  if (n.includes('transit') || n.includes('transito')) return 'transit_time'
+  if (n.includes('free')) return 'free_time'
+  if (n.includes('escala')) return 'escala'
+  if (n.includes('taxa')) return 'taxas'
+  if (n.includes('frete') || n.includes('preco')) return 'frete'
+  return 'generico'
+}
+
+function formatarPctAbsolutoLegenda(delta: number, base: number): string | null {
+  if (base === 0) return null
+  const pct = Math.abs((delta / base) * 100)
+  return `${pct.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 1 })}%`
+}
+
+function formatarValorExibicaoAnalise(valor: number, formatarValor: (v: number) => string): string {
+  const fmt = formatarValor(valor)
+  return fmt.replace(/^(\d+)\s*(dias?)\b/i, (_, n: string, unidade: string) => {
+    const pad = n.padStart(2, '0')
+    return `${pad} ${unidade.toLowerCase() === 'dia' ? 'dias' : unidade}`
+  })
+}
+
+export function montarTextoLegendaComparacaoMetrica(
+  valorAtual: number,
+  valorReferencia: number,
+  nomeReferencia: string,
+  melhorMenor: boolean,
+  tipo: TipoMetricaComparativaBidFrete,
+  t: TFunction,
+): { classe: ClasseComparacaoMetricaSpark; textoLegenda: string } {
+  const classe = classificarDiffMetricaSpark(melhorMenor, valorAtual, valorReferencia)
+
+  if (valorAtual === valorReferencia) {
+    return {
+      classe: 'igual',
+      textoLegenda: t('bidfrete.detalhe_cotacao.spark_diff_igual_a', 'Igual a {{alvo}}', {
+        alvo: nomeReferencia,
+      }),
+    }
+  }
+
+  const pct = formatarPctAbsolutoLegenda(valorAtual - valorReferencia, valorReferencia)
+  const pctFmt = pct ?? formatarDiffAbsolutaMetrica(
+    valorAtual - valorReferencia,
+    (v) => String(v),
+  )
+
+  if (classe === 'pior') {
+    switch (tipo) {
+      case 'transit_time':
+        return {
+          classe,
+          textoLegenda: t(
+            'bidfrete.detalhe_cotacao.spark_pct_mais_lento_que',
+            '{{pct}} mais lento que {{nome}}',
+            { pct: pctFmt, nome: nomeReferencia },
+          ),
+        }
+      case 'frete':
+      case 'taxas':
+        return {
+          classe,
+          textoLegenda: t(
+            'bidfrete.detalhe_cotacao.spark_pct_mais_caro_que',
+            '{{pct}} mais caro que {{nome}}',
+            { pct: pctFmt, nome: nomeReferencia },
+          ),
+        }
+      case 'free_time':
+        return {
+          classe,
+          textoLegenda: t(
+            'bidfrete.detalhe_cotacao.spark_pct_menos_free_time_que',
+            '{{pct}} menos free time que {{nome}}',
+            { pct: pctFmt, nome: nomeReferencia },
+          ),
+        }
+      case 'escala':
+        return {
+          classe,
+          textoLegenda: t(
+            'bidfrete.detalhe_cotacao.spark_pct_mais_escalas_que',
+            '{{pct}} mais escalas que {{nome}}',
+            { pct: pctFmt, nome: nomeReferencia },
+          ),
+        }
+      default:
+        return {
+          classe,
+          textoLegenda: t(
+            'bidfrete.detalhe_cotacao.spark_pct_pior_que',
+            '{{pct}} pior que {{nome}}',
+            { pct: pctFmt, nome: nomeReferencia },
+          ),
+        }
+    }
+  }
+
+  switch (tipo) {
+    case 'transit_time':
+      return {
+        classe,
+        textoLegenda: t(
+          'bidfrete.detalhe_cotacao.spark_pct_mais_rapido_que',
+          '{{pct}} mais rápido que {{nome}}',
+          { pct: pctFmt, nome: nomeReferencia },
+        ),
+      }
+    case 'frete':
+    case 'taxas':
+      return {
+        classe,
+        textoLegenda: t(
+          'bidfrete.detalhe_cotacao.spark_pct_mais_barato_que',
+          '{{pct}} mais barato que {{nome}}',
+          { pct: pctFmt, nome: nomeReferencia },
+        ),
+      }
+    case 'free_time':
+      return {
+        classe,
+        textoLegenda: t(
+          'bidfrete.detalhe_cotacao.spark_pct_mais_free_time_que',
+          '{{pct}} mais free time que {{nome}}',
+          { pct: pctFmt, nome: nomeReferencia },
+        ),
+      }
+    case 'escala':
+      return {
+        classe,
+        textoLegenda: t(
+          'bidfrete.detalhe_cotacao.spark_pct_menos_escalas_que',
+          '{{pct}} menos escalas que {{nome}}',
+          { pct: pctFmt, nome: nomeReferencia },
+        ),
+      }
+    default:
+      return {
+        classe,
+        textoLegenda: t(
+          'bidfrete.detalhe_cotacao.spark_pct_melhor_que',
+          '{{pct}} melhor que {{nome}}',
+          { pct: pctFmt, nome: nomeReferencia },
+        ),
+      }
+  }
+}
+
+function posicaoNormalizadaEscala(valor: number, min: number, max: number): number {
+  if (max === min) return 50
+  return ((valor - min) / (max - min)) * 100
+}
+
+/** Lista de comparações da cotação em hover vs cada outra resposta (somente tooltip). */
+export function montarLinhasAnaliseConcorrentesTooltip(
+  barraAtual: BarraComparativoInsight,
+  barras: BarraComparativoInsight[],
+  melhorMenor: boolean,
+  formatarValor: (valor: number) => string,
+  t: TFunction,
+  tipoMetrica: TipoMetricaComparativaBidFrete,
+): LinhaAnaliseConcorrenteTooltip[] {
+  const concorrentes = barras.filter((b) => b.fornecedor !== barraAtual.fornecedor)
+  if (concorrentes.length === 0) return []
+
+  const valores = barras.map((b) => b.valor)
+  const min = Math.min(...valores)
+  const max = Math.max(...valores)
+  const valorAtualFmt = formatarValorExibicaoAnalise(barraAtual.valor, formatarValor)
+
+  return concorrentes.map((concorrente) => {
+    const { classe, textoLegenda } = montarTextoLegendaComparacaoMetrica(
+      barraAtual.valor,
+      concorrente.valor,
+      concorrente.fornecedor,
+      melhorMenor,
+      tipoMetrica,
+      t,
+    )
+    return {
+      fornecedor: concorrente.fornecedor,
+      textoLinha: `${valorAtualFmt} — ${textoLegenda}`,
+      classe,
+      posicaoAtualPct: posicaoNormalizadaEscala(barraAtual.valor, min, max),
+      posicaoConcorrentePct: posicaoNormalizadaEscala(concorrente.valor, min, max),
+    }
+  })
 }
 
 function mediaBarras(barras: BarraComparativoInsight[]): number | null {

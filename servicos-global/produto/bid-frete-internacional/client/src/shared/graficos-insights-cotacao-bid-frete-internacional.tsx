@@ -11,7 +11,11 @@ import {
   type BarraComparativoInsight,
   type PontoSerieHistoricoTermometro,
 } from './infograficos-fluxo-cotacao-bid-frete-internacional'
-import { montarComparacaoMetricaSparkTooltip } from './comparacao-metrica-spark-bid-frete-internacional'
+import {
+  inferirTipoMetricaComparativaFromRotulo,
+  montarComparacaoMetricaSparkTooltip,
+  montarLinhasAnaliseConcorrentesTooltip,
+} from './comparacao-metrica-spark-bid-frete-internacional'
 
 function formatarValorTermometro(valor: number, moeda: string): string {
   return new Intl.NumberFormat('pt-BR', {
@@ -32,7 +36,7 @@ export const SPARK_SLOT_CARD_RANKING_PX = 68
 /** Termômetro preview (6 meses). */
 export const SPARK_VIEW_TERMOMETRO_MOCK = { w: 280, h: 100 } as const
 const TOOLTIP_LARGURA_ESTIMADA = 248
-const TOOLTIP_ALTURA_ESTIMADA = 220
+const TOOLTIP_ALTURA_ESTIMADA = 280
 
 type VarianteSparkBarras = 'azul' | 'amber' | 'indigo'
 
@@ -174,7 +178,18 @@ function formatarFreteTooltip(moeda: string | undefined, valor: number | undefin
   }
 }
 
-function SparkBarraTooltipPortal({
+export interface TooltipAnaliseMetricaSparkPortalProps {
+  barra: BarraComparativoInsight
+  barras: BarraComparativoInsight[]
+  valorReferencia: number
+  melhorMenor: boolean
+  rotuloMetrica: string
+  formatarValor: (valor: number) => string
+  ancora: AncoraViewport
+}
+
+/** Tooltip rico com seção Análise (sparks e barras do ranking). */
+export function TooltipAnaliseMetricaSparkPortal({
   barra,
   barras,
   valorReferencia,
@@ -182,16 +197,7 @@ function SparkBarraTooltipPortal({
   rotuloMetrica,
   formatarValor,
   ancora,
-}: {
-  barra: BarraComparativoInsight
-  barras: BarraComparativoInsight[]
-  valorReferencia: number
-  melhorMenor: boolean
-  rotuloMetrica: string
-  formatarValor: (valor: number) => string
-  textoVsGanhador: (barra: BarraComparativoInsight, valorGanhador: number) => string
-  ancora: AncoraViewport
-}) {
+}: TooltipAnaliseMetricaSparkPortalProps) {
   const { t } = useTranslation()
   const [pos, setPos] = useState(() => calcularPosicaoTooltipFixa(ancora))
 
@@ -206,6 +212,11 @@ function SparkBarraTooltipPortal({
     melhorMenor,
     formatarValor,
     t,
+  )
+  const tipoMetrica = inferirTipoMetricaComparativaFromRotulo(rotuloMetrica)
+  const linhasAnalise = useMemo(
+    () => montarLinhasAnaliseConcorrentesTooltip(barra, barras, melhorMenor, formatarValor, t, tipoMetrica),
+    [barra, barras, melhorMenor, formatarValor, t, tipoMetrica],
   )
   const freteTotal = formatarFreteTooltip(
     barra.moeda_proposta_bid_frete_internacional,
@@ -278,17 +289,51 @@ function SparkBarraTooltipPortal({
         </span>
         <strong className="dc-spark-bar-tooltip-valor">{comparacao.valorReferenciaFormatado}</strong>
       </div>
-      <div className="dc-spark-bar-tooltip-linha">
-        <span className="dc-spark-bar-tooltip-label">
-          {t('bidfrete.detalhe_cotacao.spark_tooltip_diferenca', 'Diferença')}
-        </span>
-        <strong className={`dc-spark-bar-tooltip-valor dc-spark-bar-tooltip-valor--${comparacao.classe}`}>
-          {comparacao.textoDiferenca}
-        </strong>
-      </div>
-      {comparacao.textoLegenda.trim() !== '' && (
+      <p className="dc-spark-bar-tooltip-secao-titulo">
+        {t('bidfrete.detalhe_cotacao.spark_tooltip_analise', 'Análise')}
+      </p>
+      {linhasAnalise.length > 0 ? (
+        <ul className="dc-spark-bar-tooltip-analise-lista">
+          {linhasAnalise.map((linha) => (
+            <li key={linha.fornecedor} className="dc-spark-bar-tooltip-analise-item">
+              <div
+                className="dc-spark-bar-tooltip-analise-grafico"
+                role="img"
+                aria-label={linha.textoLinha}
+              >
+                <span className="dc-spark-bar-tooltip-analise-trilha" aria-hidden />
+                <span
+                  className="dc-spark-bar-tooltip-analise-marcador dc-spark-bar-tooltip-analise-marcador--concorrente"
+                  style={{ left: `${linha.posicaoConcorrentePct}%` }}
+                  aria-hidden
+                />
+                <span
+                  className={[
+                    'dc-spark-bar-tooltip-analise-marcador',
+                    'dc-spark-bar-tooltip-analise-marcador--atual',
+                    `dc-spark-bar-tooltip-analise-marcador--${linha.classe}`,
+                  ].join(' ')}
+                  style={{ left: `${linha.posicaoAtualPct}%` }}
+                  aria-hidden
+                />
+              </div>
+              <p
+                className={[
+                  'dc-spark-bar-tooltip-analise-texto',
+                  `dc-spark-bar-tooltip-analise-texto--${linha.classe}`,
+                ].join(' ')}
+                title={linha.textoLinha}
+              >
+                {linha.textoLinha}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ) : (
         <p className={`dc-spark-bar-tooltip-vs dc-spark-bar-tooltip-vs--${comparacao.classe}`}>
-          {comparacao.textoLegenda}
+          {comparacao.textoLegenda.trim() !== ''
+            ? comparacao.textoLegenda
+            : comparacao.textoDiferenca}
         </p>
       )}
 
@@ -473,14 +518,13 @@ export function SparkBarrasComparativo({
       </div>
 
       {barraHover != null && ancoraHover != null && (
-        <SparkBarraTooltipPortal
+        <TooltipAnaliseMetricaSparkPortal
           barra={barraHover}
           barras={barras}
           valorReferencia={valorReferencia}
           melhorMenor={melhorMenor}
           rotuloMetrica={rotuloMetrica}
           formatarValor={formatarValor}
-          textoVsGanhador={textoVsGanhador}
           ancora={ancoraHover}
         />
       )}

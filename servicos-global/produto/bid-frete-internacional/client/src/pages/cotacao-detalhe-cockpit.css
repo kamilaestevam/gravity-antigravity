@@ -1531,8 +1531,8 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 }
 
 .dc-spark-bar-tooltip--rico {
-  min-width: 220px;
-  max-width: min(280px, 92vw);
+  min-width: 240px;
+  max-width: min(320px, 92vw);
   padding: 0.75rem 0.85rem;
   border-radius: 10px;
   border-color: rgba(167, 139, 250, 0.28);
@@ -1599,7 +1599,8 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #94a3b8;
+  /* Mesma cor de .brc-secao-titulo (ex.: SUA PROPOSTA no formulário de resposta) */
+  color: #c7d2fe;
 }
 
 .dc-spark-bar-tooltip-divisor {
@@ -1674,6 +1675,100 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 
 .dc-spark-bar-tooltip-vs--igual {
   color: #a5b4fc;
+}
+
+.dc-spark-bar-tooltip-analise-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.dc-spark-bar-tooltip-analise-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.dc-spark-bar-tooltip-analise-grafico {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(51, 65, 85, 0.65);
+  overflow: visible;
+}
+
+.dc-spark-bar-tooltip-analise-trilha {
+  position: absolute;
+  inset: 3px 0;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(99, 102, 241, 0.15) 0%,
+    rgba(99, 102, 241, 0.35) 100%
+  );
+}
+
+.dc-spark-bar-tooltip-analise-marcador {
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9);
+}
+
+.dc-spark-bar-tooltip-analise-marcador--concorrente {
+  background: #94a3b8;
+  z-index: 1;
+}
+
+.dc-spark-bar-tooltip-analise-marcador--atual {
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  background: #818cf8;
+  z-index: 2;
+}
+
+.dc-spark-bar-tooltip-analise-marcador--atual.dc-spark-bar-tooltip-analise-marcador--pior {
+  background: #f87171;
+}
+
+.dc-spark-bar-tooltip-analise-marcador--atual.dc-spark-bar-tooltip-analise-marcador--melhor {
+  background: #4ade80;
+}
+
+.dc-spark-bar-tooltip-analise-marcador--atual.dc-spark-bar-tooltip-analise-marcador--igual {
+  background: #cbd5e1;
+}
+
+.dc-spark-bar-tooltip-analise-texto {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #cbd5e1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dc-spark-bar-tooltip-analise-texto--pior {
+  color: #f87171;
+}
+
+.dc-spark-bar-tooltip-analise-texto--melhor {
+  color: #4ade80;
+}
+
+.dc-spark-bar-tooltip-analise-texto--igual {
+  color: #94a3b8;
 }
 
 .dc-smart-fornecedor-foot {
@@ -2356,6 +2451,14 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   font-size: 0.75rem;
   font-weight: 600;
   color: #cbd5e1;
+}
+
+.dc-cockpit-combat .dc-prop-bar-row--com-analise {
+  cursor: help;
+}
+
+.dc-cockpit-combat .dc-prop-bar-row--com-analise:hover .dc-prop-bar-fill {
+  filter: brightness(1.08);
 }
 
 .dc-cockpit-combat .dc-prop-bar-track {

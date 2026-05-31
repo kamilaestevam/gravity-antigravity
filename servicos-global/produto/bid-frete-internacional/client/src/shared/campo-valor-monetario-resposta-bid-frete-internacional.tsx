@@ -14,10 +14,12 @@ export function CampoValorMonetarioResposta({
   valor,
   onChange,
   id,
+  placeholder = '0,00',
 }: {
   valor: string
   onChange: (valor: string) => void
   id?: string
+  placeholder?: string
 }) {
   return (
     <div className="brc-campo-decimal-wrap">
@@ -26,7 +28,7 @@ export function CampoValorMonetarioResposta({
         valor={valorStringParaDecimal(valor)}
         aoMudarValor={(n) => onChange(n === null ? '' : String(n))}
         casasDecimais={2}
-        placeholder="0,00"
+        placeholder={placeholder}
         textAlign="left"
         style={{ fontFamily: 'inherit' }}
       />

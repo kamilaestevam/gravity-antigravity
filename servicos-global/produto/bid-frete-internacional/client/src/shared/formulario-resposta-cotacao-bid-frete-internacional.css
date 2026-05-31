@@ -430,10 +430,13 @@ html:has(.brc-page--publico) body {
   width: 100%;
 }
 
-/* SelectGlobal alinhado ao .brc-input (Solid Slate do formulário) */
+/* SelectGlobal / CampoCalendarioGlobal alinhados ao .brc-input (Solid Slate) */
 .brc-field .sg-campo,
 .brc-taxas-linha-nome .sg-campo,
-.brc-taxas-linha-moeda .sg-campo {
+.brc-taxas-linha-moeda .sg-campo,
+.brc-field--calendario .sg-campo {
+  box-sizing: border-box;
+  border-radius: var(--radius-md, 8px);
   background: rgba(15, 23, 42, 0.65);
   border: 1.5px solid rgba(129, 140, 248, 0.18);
   transition:
@@ -457,6 +460,48 @@ html:has(.brc-page--publico) body {
   border-color: var(--brc-accent);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22);
   background: rgba(15, 23, 42, 0.85);
+}
+
+.brc-field--calendario .cg-wrapper,
+.brc-field--calendario .brc-calendario-campo {
+  width: 100%;
+  gap: 0;
+}
+
+/* Calendário alinhado ao select/input — sem ícone à esquerda, mesmo placeholder */
+.brc-field--calendario .sg-icone-esquerda {
+  display: none;
+}
+
+.brc-field--calendario .sg-campo {
+  min-height: 2.5rem;
+}
+
+.brc-field--calendario .sg-campo:hover:not(.sg-campo--desabilitado) {
+  border-color: rgba(129, 140, 248, 0.32);
+}
+
+.brc-field--calendario .sg-campo--aberto,
+.brc-field--calendario .sg-campo:focus-visible {
+  border-color: var(--brc-accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22);
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.brc-field--calendario .sg-placeholder,
+.brc-field--calendario .sg-valor-selecionado {
+  font-size: 0.875rem;
+  font-weight: 400;
+  font-family: inherit;
+}
+
+.brc-field--calendario .sg-placeholder {
+  color: var(--text-muted, #64748b);
+}
+
+.brc-field--calendario .sg-valor-selecionado {
+  color: var(--text-primary, #f1f5f9);
+  font-weight: 500;
 }
 
 .brc-label {

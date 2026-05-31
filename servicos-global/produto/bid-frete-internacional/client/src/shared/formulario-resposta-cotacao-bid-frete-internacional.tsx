@@ -7,6 +7,7 @@ import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { CampoValorMonetarioResposta } from './campo-valor-monetario-resposta-bid-frete-internacional'
 import {
   Truck,
@@ -161,7 +162,7 @@ export function quantidadeEscalasTextoFromProposta(proposta: PropostaBidFreteInt
   if (Number.isFinite(q) && q >= 0) return String(q)
   const raw = proposta.escalas_proposta_bid_frete_internacional?.trim()
   if (raw != null && raw !== '' && /^\d+$/.test(raw)) return raw
-  return '0'
+  return ''
 }
 
 export function exibeCampoTransbordosRespostaCotacao(modal?: ModalFrete | null): boolean {
@@ -195,9 +196,22 @@ export const ESTADO_INICIAL_FORMULARIO_RESPOSTA: EstadoFormularioRespostaCotacao
   dias_transito_proposta_bid_frete_internacional: '',
   dias_free_time_proposta_bid_frete_internacional: '',
   validade_proposta_bid_frete_internacional: '',
-  transbordos_proposta_bid_frete_internacional: '0',
-  escalas_proposta_bid_frete_internacional: '0',
+  transbordos_proposta_bid_frete_internacional: '',
+  escalas_proposta_bid_frete_internacional: '',
   observacoes_proposta_bid_frete_internacional: '',
+}
+
+function dataIsoParaCalendario(iso: string): { inicio: Date | null; fim: Date | null } {
+  const normalizada = iso.trim().slice(0, 10)
+  if (!normalizada) return { inicio: null, fim: null }
+  const data = new Date(`${normalizada}T00:00:00`)
+  if (Number.isNaN(data.getTime())) return { inicio: null, fim: null }
+  return { inicio: data, fim: data }
+}
+
+function calendarioParaDataIso(inicio: Date | null): string {
+  if (!inicio) return ''
+  return `${inicio.getFullYear()}-${String(inicio.getMonth() + 1).padStart(2, '0')}-${String(inicio.getDate()).padStart(2, '0')}`
 }
 
 function LabelObrigatorio({ children }: { children: React.ReactNode }) {
@@ -348,6 +362,12 @@ export function FormPropostaRespostaCotacao({
     transbordos: string
     escalas: string
     observacoes: string
+    placeholderTransit: string
+    placeholderFreeTime: string
+    placeholderTransbordos: string
+    placeholderEscalas: string
+    placeholderValorFrete: string
+    placeholderValidade: string
     placeholderObservacoes: string
   }
   erro: string
@@ -414,6 +434,7 @@ export function FormPropostaRespostaCotacao({
               id="brc-valor-frete"
               valor={form.valor_frete_proposta_bid_frete_internacional}
               onChange={(v) => onChange('valor_frete_proposta_bid_frete_internacional', v)}
+              placeholder={rotulos.placeholderValorFrete}
             />
           </div>
 
@@ -485,7 +506,7 @@ export function FormPropostaRespostaCotacao({
               className="brc-input brc-input--mono"
               type="number"
               min="1"
-              placeholder="0"
+              placeholder={rotulos.placeholderTransit}
               value={form.dias_transito_proposta_bid_frete_internacional}
               onChange={(e) => onChange('dias_transito_proposta_bid_frete_internacional', e.target.value)}
             />
@@ -497,19 +518,22 @@ export function FormPropostaRespostaCotacao({
               className="brc-input brc-input--mono"
               type="number"
               min="0"
-              placeholder="0"
+              placeholder={rotulos.placeholderFreeTime}
               value={form.dias_free_time_proposta_bid_frete_internacional}
               onChange={(e) => onChange('dias_free_time_proposta_bid_frete_internacional', e.target.value)}
             />
           </div>
 
-          <div className="brc-field">
+          <div className="brc-field brc-field--calendario">
             <LabelObrigatorio>{rotulos.validade}</LabelObrigatorio>
-            <input
-              className="brc-input"
-              type="date"
-              value={form.validade_proposta_bid_frete_internacional}
-              onChange={(e) => onChange('validade_proposta_bid_frete_internacional', e.target.value)}
+            <CampoCalendarioGlobal
+              className="brc-calendario-campo"
+              valor={dataIsoParaCalendario(form.validade_proposta_bid_frete_internacional)}
+              aoMudarValor={(v) =>
+                onChange('validade_proposta_bid_frete_internacional', calendarioParaDataIso(v.inicio))
+              }
+              placeholder={rotulos.placeholderValidade}
+              modoUnico
             />
           </div>
 
@@ -521,7 +545,7 @@ export function FormPropostaRespostaCotacao({
                 type="number"
                 min={0}
                 step={1}
-                placeholder="0"
+                placeholder={rotulos.placeholderTransbordos}
                 value={form.transbordos_proposta_bid_frete_internacional}
                 onChange={(e) => onChange('transbordos_proposta_bid_frete_internacional', e.target.value)}
               />
@@ -536,7 +560,7 @@ export function FormPropostaRespostaCotacao({
                 type="number"
                 min={0}
                 step={1}
-                placeholder="0"
+                placeholder={rotulos.placeholderEscalas}
                 value={form.escalas_proposta_bid_frete_internacional}
                 onChange={(e) => onChange('escalas_proposta_bid_frete_internacional', e.target.value)}
               />
@@ -822,7 +846,27 @@ export function criarRotulosFormularioResposta(
       defaultValue: 'Quantidade de escalas',
     }),
     observacoes: t(`${prefixo}.campo_observacoes`),
-    placeholderObservacoes: t(`${prefixo}.campo_observacoes`),
+    placeholderTransit: t('bidfrete.portal.responder.placeholder_transit', {
+      defaultValue: 'Informar dias',
+    }),
+    placeholderFreeTime: t('bidfrete.portal.responder.placeholder_free_time', {
+      defaultValue: 'Informar dias',
+    }),
+    placeholderTransbordos: t('bidfrete.portal.responder.placeholder_transbordos', {
+      defaultValue: 'Informar quantidade',
+    }),
+    placeholderEscalas: t('bidfrete.portal.responder.placeholder_escalas', {
+      defaultValue: 'Informar quantidade',
+    }),
+    placeholderValorFrete: t('bidfrete.portal.responder.placeholder_valor_frete', {
+      defaultValue: 'Informar valor',
+    }),
+    placeholderValidade: t('bidfrete.portal.responder.placeholder_validade', {
+      defaultValue: 'Informar data',
+    }),
+    placeholderObservacoes: t('bidfrete.portal.publico.placeholder_observacoes', {
+      defaultValue: 'Informações adicionais, condições especiais, observações...',
+    }),
     enviar: t(`${prefixo}.enviar`),
     enviando: t(`${prefixo}.enviando`),
   }

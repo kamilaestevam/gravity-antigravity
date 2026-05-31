@@ -177,8 +177,9 @@ const buildNavSections = (
     {
       title: 'Acompanhamento',
       items: [
-        { id: 'workflow',     to: `${base}/workflow${qs}`,     label: 'Visão Geral',  icon: <FlowArrow weight="duotone" size={18} /> },
-        { id: 'documentos',   to: `${base}/documentos${qs}`,   label: 'Documentos',   icon: <Folders   weight="duotone" size={18} /> },
+        { id: 'workflow',       to: `${base}/workflow${qs}`,       label: 'Visão Geral',       icon: <FlowArrow weight="duotone" size={18} /> },
+        { id: 'dados-tecnicos', to: `${base}/dados-tecnicos${qs}`, label: 'Dados do Processo', icon: <GearSix   weight="duotone" size={18} /> },
+        { id: 'documentos',     to: `${base}/documentos${qs}`,     label: 'Documentos',        icon: <Folders   weight="duotone" size={18} /> },
       ],
     },
     {
@@ -199,15 +200,6 @@ const buildNavSections = (
       items: [
         { id: 'financeiro', to: `${base}/financeiro${qs}`, label: 'Financeiro', icon: <CurrencyDollar weight="duotone" size={18} /> },
         { id: 'taxas',      to: `${base}/taxas${qs}`,      label: 'Taxas',      icon: <Receipt        weight="duotone" size={18} /> },
-      ],
-    },
-    {
-      title: 'Dados',
-      items: [
-        // 'Containers' foi promovido a SECAO dentro de Dados Tecnicos
-        // (campos do banco Cadastros/Container) — nao precisa mais
-        // de rota separada.
-        { id: 'dados-tecnicos', to: `${base}/dados-tecnicos${qs}`, label: 'Dados do Processo', icon: <GearSix       weight="duotone" size={18} /> },
       ],
     },
     {

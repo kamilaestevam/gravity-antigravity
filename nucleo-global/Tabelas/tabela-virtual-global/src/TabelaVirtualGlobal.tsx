@@ -1782,7 +1782,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   } | null>(null)
 
   // ── Expand/collapse ───────────────────────────────────────────────────────────
-  const { expandidos, filhosCache, carregandoFilhos, toggle, colapsarTodos, atualizarFilhoNoCache, ensureFilhosCarregados } = useGTExpandir<T, C>(
+  const { expandidos, filhosCache, carregandoFilhos, toggle, colapsarTodos, expandirTodos: expandirTodosHook, atualizarFilhoNoCache, ensureFilhosCarregados } = useGTExpandir<T, C>(
     onCarregarFilhos,
     dados,
     itemId,
@@ -2468,17 +2468,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       void toggleRef.current(id, item)
     },
     expandirTodos: async () => {
-      // Itera pelos pedidos da pagina atual, chamando toggle individual
-      // para os que ainda nao estao expandidos. Garante que filhosCache
-      // e expandidos sao atualizados pelo MESMO caminho do clique normal,
-      // evitando estados intermediarios.
+      // Usa expandirTodos do hook: carrega filhos em paralelo (concorrencia
+      // 5 via ensureFilhosCarregados) e dispara UM unico setExpandidos no
+      // fim — uma re-render so. Critica para perf em prod com muitos
+      // pedidos: iteracao serial com toggle bloqueava a UI por segundos.
       const items = dadosPaginaOrdenadosRef.current
-      for (const item of items) {
-        const id = itemIdRef.current(item)
-        if (!expandidosRef2.current.has(id)) {
-          await toggleRef.current(id, item)
-        }
-      }
+      await expandirTodosHook(items, itemIdRef.current)
     },
     recolherTodos: () => {
       colapsarTodos()
@@ -2493,7 +2488,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         celula.scrollIntoView({ block: 'center', behavior: 'instant' })
       }
     },
-  }), [iniciarEdicaoPai, iniciarEdicaoFilho, colapsarTodos])
+  }), [iniciarEdicaoPai, iniciarEdicaoFilho, colapsarTodos, expandirTodosHook])
 
   // ── Paginação ─────────────────────────────────────────────────────────────────
   const modoExterno = totalItens !== undefined

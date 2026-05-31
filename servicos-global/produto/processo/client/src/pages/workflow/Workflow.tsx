@@ -412,15 +412,9 @@ export default function Workflow() {
                       <div className={`wf-connector ${connectorClass}`} />
                     )}
                     <div className="wf-step">
-                      {/* Label primeiro (em cima), box do icone embaixo —
-                          assim a linha conector passa pelo centro do box
-                          que agora fica na linha inferior. */}
-                      <span className={`wf-step-label ${
-                        isDone ? 'wf-step-label--done' :
-                        isActive ? 'wf-step-label--active' : ''
-                      }`}>
-                        {etapa.nome}
-                      </span>
+                      {/* Card no topo + label embaixo. A linha conector
+                          fica POR FORA do card (no gap entre card e
+                          label) — nao passa pelo centro do card. */}
                       <TooltipGlobal
                         titulo={etapa.nome}
                         descricao={
@@ -443,6 +437,12 @@ export default function Workflow() {
                           )}
                         </div>
                       </TooltipGlobal>
+                      <span className={`wf-step-label ${
+                        isDone ? 'wf-step-label--done' :
+                        isActive ? 'wf-step-label--active' : ''
+                      }`}>
+                        {etapa.nome}
+                      </span>
                     </div>
                   </React.Fragment>
                 )

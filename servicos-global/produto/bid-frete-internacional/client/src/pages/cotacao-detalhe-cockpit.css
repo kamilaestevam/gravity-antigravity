@@ -718,6 +718,166 @@
   white-space: nowrap;
 }
 
+/* Aviso contextual — gráficos indisponíveis ou parciais (cockpit insights) */
+.dc-smart-aviso-graficos {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  flex-shrink: 0;
+  padding: 0.9rem 1.05rem;
+  border-radius: var(--radius-lg, 12px);
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.14) 0%,
+    rgba(30, 41, 59, 0.72) 52%,
+    rgba(15, 23, 42, 0.85) 100%
+  );
+  border: 1px solid rgba(129, 140, 248, 0.32);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+.dc-smart-aviso-graficos--aguardando {
+  border-color: rgba(56, 189, 248, 0.28);
+  background: linear-gradient(
+    135deg,
+    rgba(56, 189, 248, 0.1) 0%,
+    rgba(30, 41, 59, 0.72) 55%,
+    rgba(15, 23, 42, 0.85) 100%
+  );
+}
+
+.dc-smart-aviso-graficos--comparativo_parcial {
+  border-color: rgba(129, 140, 248, 0.38);
+}
+
+.dc-smart-aviso-graficos-icone {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 10px;
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.16);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  box-shadow: 0 0 18px rgba(99, 102, 241, 0.12);
+}
+
+.dc-smart-aviso-graficos--aguardando .dc-smart-aviso-graficos-icone {
+  color: #7dd3fc;
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(125, 211, 252, 0.28);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.1);
+}
+
+.dc-smart-aviso-graficos-corpo {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.dc-smart-aviso-graficos-titulo {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--text-primary, #f1f5f9);
+  line-height: 1.35;
+}
+
+.dc-smart-aviso-graficos-texto {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.dc-smart-aviso-graficos-passos {
+  margin: 0.15rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dc-smart-aviso-graficos-passos li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+
+.dc-smart-aviso-graficos-passo-icone {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  color: #818cf8;
+}
+
+.dc-smart-aviso-graficos--aguardando .dc-smart-aviso-graficos-passo-icone {
+  color: #38bdf8;
+}
+
+.dc-smart-aviso-graficos-nota-termometro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.55rem;
+  margin: 0.25rem 0 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text-muted, #64748b);
+}
+
+.dc-smart-aviso-graficos-nota-termometro .dc-smart-demo-pill {
+  margin: 0;
+}
+
+.dc-smart-card--melhor.dc-smart-card--vazio .dc-smart-card-body--ranking {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.dc-smart-card--melhor.dc-smart-card--vazio .dc-empty {
+  flex: 1;
+  width: 100%;
+  min-height: 8rem;
+  height: auto;
+  margin: 0;
+}
+
+body.light-theme .dc-smart-aviso-graficos {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, #f8fafc 55%, #f1f5f9 100%);
+  border-color: rgba(99, 102, 241, 0.22);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+body.light-theme .dc-smart-aviso-graficos-titulo {
+  color: var(--text-primary, #0f172a);
+}
+
+body.light-theme .dc-smart-aviso-graficos-passos li {
+  color: var(--text-secondary, #475569);
+}
+
+.dc-cockpit-insights-row .dc-smart-aviso-graficos {
+  margin-bottom: 0.15rem;
+}
+
 .dc-smart-insights-titulo::before,
 .dc-smart-insights-titulo::after {
   content: '';
@@ -1694,7 +1854,7 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   fill: var(--text-primary, #f1f5f9);
 }
 
-.dc-smart-card--vazio .dc-smart-card-body {
+.dc-smart-card--vazio .dc-smart-card-body:not(.dc-smart-card-body--ranking) {
   align-items: center;
   justify-content: center;
 }

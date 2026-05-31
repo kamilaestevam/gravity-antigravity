@@ -13,8 +13,11 @@ import {
   CurrencyDollar,
   Trophy,
   ChartBar,
+  ChartLineUp,
   Lightning,
+  PaperPlaneTilt,
   Robot,
+  Info,
 } from '@phosphor-icons/react'
 import type { StatusCotacao } from './types'
 import {
@@ -23,6 +26,7 @@ import {
   FLUXO_ETAPAS_RESUMIDAS,
   formatarHorasResposta,
   indiceFluxoPorStatus,
+  montarConteudoAvisoGraficosInsights,
 } from './infograficos-fluxo-cotacao-bid-frete-internacional'
 import {
   calcularDatasEtapasFluxoTimeline,
@@ -347,6 +351,77 @@ function CelulaMetricaComparativo({
   )
 }
 
+function AvisoGraficosInsightsCotacao({
+  status,
+  info,
+  smart,
+  quantidadePropostas,
+  t,
+}: {
+  status?: StatusCotacao | null
+  info: InfograficosFluxoCotacao
+  smart: PainelSmartInsightsDados
+  quantidadePropostas: number
+  t: TFunction
+}) {
+  const conteudo = useMemo(
+    () => montarConteudoAvisoGraficosInsights(
+      status,
+      quantidadePropostas,
+      info.quantidadeDisparosEnviados,
+      t,
+    ),
+    [status, quantidadePropostas, info.quantidadeDisparosEnviados, t],
+  )
+
+  if (conteudo == null) return null
+
+  const IconePrincipal =
+    conteudo.variante === 'aguardando'
+      ? PaperPlaneTilt
+      : conteudo.variante === 'comparativo_parcial'
+        ? ChartLineUp
+        : Info
+
+  return (
+    <aside
+      className={`dc-smart-aviso-graficos dc-smart-aviso-graficos--${conteudo.variante}`}
+      role="status"
+      aria-live="polite"
+      aria-label={conteudo.titulo}
+    >
+      <div className="dc-smart-aviso-graficos-icone" aria-hidden>
+        <IconePrincipal weight="duotone" size={26} />
+      </div>
+      <div className="dc-smart-aviso-graficos-corpo">
+        <p className="dc-smart-aviso-graficos-titulo">{conteudo.titulo}</p>
+        <p className="dc-smart-aviso-graficos-texto">{conteudo.texto}</p>
+        <ul className="dc-smart-aviso-graficos-passos">
+          {conteudo.passos.map((passo) => (
+            <li key={passo}>
+              <CheckCircle weight="duotone" size={14} className="dc-smart-aviso-graficos-passo-icone" aria-hidden />
+              <span>{passo}</span>
+            </li>
+          ))}
+        </ul>
+        {smart.termometroDadosDemonstracao && (
+          <p className="dc-smart-aviso-graficos-nota-termometro">
+            <span className="dc-smart-demo-pill">
+              {t('bidfrete.detalhe_cotacao.cockpit_termometro_demo', 'Preview')}
+            </span>
+            <span>
+              {t(
+                'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_termometro',
+                'O termômetro histórico exibe série ilustrativa até existirem cotações aprovadas na mesma rota e condições.',
+              )}
+            </span>
+          </p>
+        )}
+      </div>
+    </aside>
+  )
+}
+
 function CardMelhorPropostaSmart({
   info,
   smart,
@@ -363,8 +438,11 @@ function CardMelhorPropostaSmart({
         <header className="dc-smart-card-head">
           <span>{t('bidfrete.detalhe_cotacao.cockpit_melhor_proposta', 'Melhor proposta')}</span>
         </header>
-        <div className="dc-smart-card-body">
-          <p className="dc-smart-vazio">—</p>
+        <div className="dc-smart-card-body dc-smart-card-body--ranking">
+          <div className="dc-empty">
+            <PaperPlaneTilt weight="duotone" size={40} style={{ opacity: 0.3 }} />
+            <p>{t('bidfrete.detalhe_cotacao.vazio_respostas')}</p>
+          </div>
         </div>
       </article>
     )
@@ -640,6 +718,13 @@ export function InsightsGridFluxoCotacao({
           {t('bidfrete.detalhe_cotacao.cockpit_painel_titulo', 'Painel de Insights Inteligente')}
         </h2>
       </div>
+      <AvisoGraficosInsightsCotacao
+        status={status_cotacao_bid_frete_internacional}
+        info={info}
+        smart={smart}
+        quantidadePropostas={propostas.length}
+        t={t}
+      />
       <div className="dc-smart-insights-grid dc-smart-insights-grid--4col">
         <CardMelhorPropostaSmart info={info} smart={smart} t={t} />
         {idCotacao != null && (

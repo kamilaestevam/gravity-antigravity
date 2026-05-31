@@ -69,6 +69,126 @@ export interface PainelSmartInsightsDados {
   pctCoberturaRespostas: number
 }
 
+export type VarianteAvisoGraficosInsights = 'rascunho' | 'aguardando' | 'comparativo_parcial'
+
+export interface ConteudoAvisoGraficosInsights {
+  variante: VarianteAvisoGraficosInsights
+  titulo: string
+  texto: string
+  passos: string[]
+}
+
+/** Textos do banner quando gráficos comparativos ainda não estão disponíveis. */
+export function montarConteudoAvisoGraficosInsights(
+  status: StatusCotacao | null | undefined,
+  quantidadePropostas: number,
+  quantidadeDisparosEnviados: number,
+  t: TFunction,
+): ConteudoAvisoGraficosInsights | null {
+  if (quantidadePropostas >= 2) return null
+
+  if (quantidadePropostas === 1) {
+    return {
+      variante: 'comparativo_parcial',
+      titulo: t(
+        'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_titulo_parcial',
+        'Comparativo visual quase pronto',
+      ),
+      texto: t(
+        'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_texto_parcial',
+        'Já existe 1 proposta. Os mini-gráficos de Transit Time, Free Time e Escala aparecem quando houver pelo menos 2 respostas para comparar.',
+      ),
+      passos: [
+        t(
+          'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_passo_parcial_1',
+          'Aguarde mais uma resposta ou convide fornecedores adicionais.',
+        ),
+        t(
+          'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_passo_parcial_2',
+          'Com 2+ propostas, o ranking e a Melhor proposta exibem barras comparativas.',
+        ),
+      ],
+    }
+  }
+
+  const ehRascunho = status === 'RASCUNHO' || status == null
+
+  if (ehRascunho && quantidadeDisparosEnviados === 0) {
+    return {
+      variante: 'rascunho',
+      titulo: t(
+        'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_titulo_rascunho',
+        'Gráficos liberados após o disparo',
+      ),
+      texto: t(
+        'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_texto_rascunho',
+        'Esta cotação ainda está em rascunho. Envie aos fornecedores para iniciar o leilão e popular o painel.',
+      ),
+      passos: [
+        t(
+          'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_passo_rascunho_1',
+          'Finalize os dados e dispare a cotação.',
+        ),
+        t(
+          'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_passo_rascunho_2',
+          'Com as respostas, liberamos Melhor proposta, ranking e mini-gráficos.',
+        ),
+        t(
+          'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_passo_rascunho_3',
+          'O termômetro histórico usa dados reais após aprovações na mesma rota.',
+        ),
+      ],
+    }
+  }
+
+  if (quantidadeDisparosEnviados > 0) {
+    return {
+      variante: 'aguardando',
+      titulo: t(
+        'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_titulo_aguardando',
+        'Aguardando propostas dos fornecedores',
+      ),
+      texto: t(
+        'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_texto_aguardando',
+        '{{n}} disparo(s) enviado(s). Os gráficos comparativos aparecem assim que chegar a primeira resposta.',
+        { n: quantidadeDisparosEnviados },
+      ),
+      passos: [
+        t(
+          'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_passo_aguardando_1',
+          'Melhor proposta e métricas Transit / Free Time / Escala dependem de propostas recebidas.',
+        ),
+        t(
+          'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_passo_aguardando_2',
+          'Com 2 ou mais respostas, as barras comparativas são exibidas em todos os cards.',
+        ),
+      ],
+    }
+  }
+
+  return {
+    variante: 'rascunho',
+    titulo: t(
+      'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_titulo_sem_dados',
+      'Sem dados para gráficos ainda',
+    ),
+    texto: t(
+      'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_texto_sem_dados',
+      'Não há propostas nesta cotação. Dispare ou aguarde respostas para ativar os insights visuais.',
+    ),
+    passos: [
+      t(
+        'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_passo_sem_dados_1',
+        'Envie a cotação aos fornecedores cadastrados.',
+      ),
+      t(
+        'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_passo_sem_dados_2',
+        'Os mini-gráficos só comparam valores entre propostas recebidas.',
+      ),
+    ],
+  }
+}
+
 const MESES_CURTOS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
 function ultimos6MesesRotulos(): string[] {

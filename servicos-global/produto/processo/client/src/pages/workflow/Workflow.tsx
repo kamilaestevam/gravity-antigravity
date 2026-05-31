@@ -103,6 +103,60 @@ const CATEGORIA_LABELS: Record<string, string> = {
 
 const CATEGORIAS = ['geral', 'financeiro', 'documental', 'operacional', 'cliente'] as const
 
+// Mock de follow-ups — usado como fallback quando a API falha (modo dev sem
+// backend). Conta a historia do processo: Abertura -> Pedido -> LI -> Embarque.
+// Cada entrada tem id_organizacao e processo_id apontando para o MOCK_PROCESSO.
+const MOCK_FOLLOWUPS: FollowUp[] = [
+  { id: 'fu-12', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', user_id: 'sys', user_nome: 'Sistema Gravity',
+    tipo: 'sistema', categoria: 'operacional', titulo: 'Etapa Embarque iniciada',
+    descricao: 'O processo avançou para a etapa de Embarque. Container ZIMU2042389 saiu do depósito do exportador em direção ao porto.',
+    created_at: '2026-03-15T08:30:00Z' },
+  { id: 'fu-11', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', user_id: 'u-marina', user_nome: 'Marina Albuquerque',
+    tipo: 'comentario', categoria: 'operacional', titulo: 'Container chegou ao porto de Shanghai',
+    descricao: 'Confirmado pelo agente da Maersk em SHA. Aguardando booking do navio MSKU-1234567 (ETD 18/03).',
+    created_at: '2026-03-14T17:42:00Z' },
+  { id: 'fu-10', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', user_id: 'sys', user_nome: 'Sistema Gravity',
+    tipo: 'documento', categoria: 'documental', titulo: 'BL_MSKU1234567.pdf anexado',
+    descricao: 'Bill of Lading recebido do armador (Maersk). 305 KB.',
+    created_at: '2026-03-15T11:05:00Z' },
+  { id: 'fu-09', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', user_id: 'u-rafael', user_nome: 'Rafael Mendes',
+    tipo: 'email', categoria: 'cliente', titulo: 'Aviso de embarque enviado',
+    descricao: 'Cliente Acme Importações notificado por e-mail (contato@acme.com.br) sobre o embarque previsto para 14/03/26.',
+    created_at: '2026-03-13T10:15:00Z' },
+  { id: 'fu-08', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', user_id: 'u-rafael', user_nome: 'Rafael Mendes',
+    tipo: 'comentario', categoria: 'financeiro', titulo: 'Cotação de frete travada',
+    descricao: 'Cotação de US$ 4.200 confirmada com o agente. Diferença de +4% vs estimativa inicial — registrado em Estimativa de Custos.',
+    created_at: '2026-03-10T14:20:00Z' },
+  { id: 'fu-07', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', user_id: 'sys', user_nome: 'Sistema Gravity',
+    tipo: 'alteracao_status', categoria: 'operacional', titulo: 'LI deferida',
+    descricao: 'Licença de Importação aprovada pelo SISCOMEX. Processo liberado para embarque.',
+    created_at: '2026-02-20T09:00:00Z' },
+  { id: 'fu-06', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', user_id: 'u-juliana', user_nome: 'Juliana Costa',
+    tipo: 'documento', categoria: 'documental', titulo: 'CO_Shanghai_Electronics.pdf anexado',
+    descricao: 'Certificado de Origem (Form A) emitido pela CCPIT. Necessário para usufruir do benefício tarifário.',
+    created_at: '2026-02-15T16:10:00Z' },
+  { id: 'fu-05', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', user_id: 'sys', user_nome: 'Sistema Gravity',
+    tipo: 'documento', categoria: 'documental', titulo: 'Packing_List_PO2026001.pdf anexado',
+    descricao: 'Recebido do exportador. 125 KB. NCM 8517.62.99 — Equipamentos de comunicação.',
+    created_at: '2026-02-09T11:30:00Z' },
+  { id: 'fu-04', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', user_id: 'u-juliana', user_nome: 'Juliana Costa',
+    tipo: 'comentario', categoria: 'documental', titulo: 'LI registrada no SISCOMEX',
+    descricao: 'Protocolo nº 26/0123456-7. Status: em análise. Prazo médio do anuente: 15 dias úteis.',
+    created_at: '2026-02-05T08:45:00Z' },
+  { id: 'fu-03', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', user_id: 'u-rafael', user_nome: 'Rafael Mendes',
+    tipo: 'email', categoria: 'cliente', titulo: 'Confirmação de pedido enviada ao exportador',
+    descricao: 'Email para sales@shanghai-electronics.com.cn confirmando PO #PO2026001, valor FOB US$ 108.050,00, condição CIF Santos.',
+    created_at: '2026-01-20T15:00:00Z' },
+  { id: 'fu-02', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', user_id: 'sys', user_nome: 'Sistema Gravity',
+    tipo: 'documento', categoria: 'documental', titulo: 'Invoice_Proforma_PO2026001.pdf anexado',
+    descricao: 'Recebido do exportador. 245 KB. Valor total US$ 108.050,00.',
+    created_at: '2026-01-19T10:00:00Z' },
+  { id: 'fu-01', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', user_id: 'u-rafael', user_nome: 'Rafael Mendes',
+    tipo: 'sistema', categoria: 'geral', titulo: 'Processo criado',
+    descricao: 'Processo IMP-2026/0150 aberto por Rafael Mendes. Importador: Acme Importações Ltda. Exportador: Shanghai Electronics Co.',
+    created_at: '2026-01-10T09:00:00Z' },
+]
+
 const CUSTO_ICONS: Record<string, React.ReactNode> = {
   frete: <Truck weight="duotone" size={16} />,
   seguro: <ShieldCheck weight="duotone" size={16} />,
@@ -136,11 +190,16 @@ export default function Workflow() {
       const data = await getFollowUps(idOrganizacao, processoId, filter)
       setFollowUps(data)
     } catch {
-      addNotification({ type: 'danger', message: 'Erro ao carregar follow-ups' })
+      // Fallback dev: se a API falhar (ex: modo mock sem backend) usa o
+      // MOCK_FOLLOWUPS, respeitando o filtro de categoria se houver.
+      const filtrados = filter.categoria
+        ? MOCK_FOLLOWUPS.filter(fu => fu.categoria === filter.categoria)
+        : MOCK_FOLLOWUPS
+      setFollowUps(filtrados)
     } finally {
       setFollowUpsLoading(false)
     }
-  }, [idOrganizacao, processoId, filter, addNotification])
+  }, [idOrganizacao, processoId, filter])
 
   useEffect(() => {
     fetchFollowUps()

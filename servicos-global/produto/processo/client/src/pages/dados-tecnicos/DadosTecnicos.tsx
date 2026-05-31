@@ -18,7 +18,7 @@ import {
   ArrowsLeftRight, Warehouse, ShieldCheck, TrafficSign,
   CurrencyDollar, Boat, AirplaneTakeoff, Package, ListChecks,
   IdentificationBadge, ChatText, SidebarSimple, Warning,
-  CaretDown, MagnifyingGlass, X,
+  CaretDown, MagnifyingGlass, X, Cube, Resize, Barcode,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -119,6 +119,36 @@ const SECOES: SecaoConfig[] = [
       { key: 'di_numero',         label: 'DI Nº',                     tipo: 'texto', icone: <FileText /> },
       { key: 'li_numero',         label: 'LI Nº',                     tipo: 'texto', icone: <FileText /> },
       { key: 'status_observacao', label: 'Status Observação',         tipo: 'texto', icone: <ChatText /> },
+    ],
+  },
+  {
+    // Containers: campos do banco Cadastros/Container (model Container
+    // em servicos-global/cadastros/prisma/fragment.prisma). Quando o
+    // back/banco do Processo estiver pronto, esses campos representarao
+    // o(s) container(s) vinculado(s) a este processo.
+    id: 'containers',
+    titulo: 'Containers',
+    icone: <Cube weight="duotone" size={18} />,
+    campos: [
+      { key: 'tipo_container',         label: 'Tipo de Container',   tipo: 'select', obrigatorio: true, icone: <Cube />,
+        opcoes: [
+          { valor: 'DRY',         label: 'Dry (carga seca)' },
+          { valor: 'REEFER',      label: 'Reefer (refrigerado)' },
+          { valor: 'OPEN_TOP',    label: 'Open Top' },
+          { valor: 'FLAT_RACK',   label: 'Flat Rack' },
+          { valor: 'TANK',        label: 'Tank (tanque)' },
+          { valor: 'BULK',        label: 'Bulk (granel)' },
+          { valor: 'PLATAFORMA',  label: 'Plataforma' },
+        ] },
+      { key: 'tamanho_container',      label: 'Tamanho',             tipo: 'select', obrigatorio: true, icone: <Resize />,
+        opcoes: [
+          { valor: "20'",    label: "20'" },
+          { valor: "40'",    label: "40'" },
+          { valor: "40'HC",  label: "40' High Cube" },
+          { valor: "45'",    label: "45'" },
+        ] },
+      { key: 'codigo_iso_container',   label: 'Código ISO 6346',     tipo: 'texto', placeholder: 'Ex: 22G0', icone: <Barcode /> },
+      { key: 'armador_dono_container', label: 'Armador',             tipo: 'texto', placeholder: 'Ex: Maersk', icone: <Boat /> },
     ],
   },
 ]

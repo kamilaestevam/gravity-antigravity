@@ -201,7 +201,9 @@ const buildNavSections = (
     {
       title: 'Dados',
       items: [
-        { id: 'containers',     to: `${base}/containers${qs}`,     label: 'Containers',        icon: <Cube          weight="duotone" size={18} /> },
+        // 'Containers' foi promovido a SECAO dentro de Dados Tecnicos
+        // (campos do banco Cadastros/Container) — nao precisa mais
+        // de rota separada.
         { id: 'dados-tecnicos', to: `${base}/dados-tecnicos${qs}`, label: 'Dados Tecnicos',    icon: <GearSix       weight="duotone" size={18} /> },
       ],
     },

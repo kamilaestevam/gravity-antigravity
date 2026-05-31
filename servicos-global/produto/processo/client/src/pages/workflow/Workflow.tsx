@@ -186,12 +186,22 @@ export default function Workflow() {
   const fetchFollowUps = useCallback(async () => {
     if (!idOrganizacao || !processoId) return
     setFollowUpsLoading(true)
+    // Modo mock (sem backend) — detectado pelos identificadores da MOCK_PROCESSO
+    // em ProcessoLayout (tenant-demo / core_id_000001). Pula a API direto.
+    const isMock = idOrganizacao === 'tenant-demo' || processoId.startsWith('core_id_')
+    if (isMock) {
+      const filtrados = filter.categoria
+        ? MOCK_FOLLOWUPS.filter(fu => fu.categoria === filter.categoria)
+        : MOCK_FOLLOWUPS
+      setFollowUps(filtrados)
+      setFollowUpsLoading(false)
+      return
+    }
     try {
       const data = await getFollowUps(idOrganizacao, processoId, filter)
       setFollowUps(data)
     } catch {
-      // Fallback dev: se a API falhar (ex: modo mock sem backend) usa o
-      // MOCK_FOLLOWUPS, respeitando o filtro de categoria se houver.
+      // Fallback: se a API falhar tambem cai no mock (defesa em profundidade).
       const filtrados = filter.categoria
         ? MOCK_FOLLOWUPS.filter(fu => fu.categoria === filter.categoria)
         : MOCK_FOLLOWUPS

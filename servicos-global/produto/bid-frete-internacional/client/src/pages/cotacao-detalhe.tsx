@@ -63,10 +63,6 @@ import {
   mesclarPropostasComRanking,
   ranquearPropostasLocal,
 } from '../shared/metricas-proposta-cotacao-bid-frete-internacional'
-import {
-  anexarMocksRespostasTemporarias,
-  MOCAR_RESPOSTAS_COTACAO_TEMP,
-} from '../shared/mock-respostas-cotacao-APAGAR-ANTES-COMMIT'
 import { aplicarEstadoPosAprovacaoCotacao } from '../shared/sincronizar-estado-pos-aprovacao-cotacao-bid-frete-internacional'
 import type {
   Cotacao,
@@ -272,22 +268,18 @@ export default function DetalheCotacao() {
 
   const carregarRankingPropostas = useCallback(async (cot: Cotacao) => {
     const propostas = cot.propostas_bid_frete_internacional ?? []
-    if (propostas.length === 0 && !MOCAR_RESPOSTAS_COTACAO_TEMP) {
+    if (propostas.length === 0) {
       setPropostasRanking([])
       return
     }
     setCarregandoRanking(true)
     try {
-      let mescladas: PropostaRankingBidFreteInternacional[] = []
-      if (propostas.length > 0) {
-        const ranking = await rankingCotacoesBidFreteInternacional(cot.id_cotacao_bid_frete_internacional)
-        mescladas = mesclarPropostasComRanking(propostas, ranking)
-        if (mescladas.length === 0) mescladas = ranquearPropostasLocal(propostas)
-      }
-      setPropostasRanking(anexarMocksRespostasTemporarias(mescladas, cot))
+      const ranking = await rankingCotacoesBidFreteInternacional(cot.id_cotacao_bid_frete_internacional)
+      let mescladas = mesclarPropostasComRanking(propostas, ranking)
+      if (mescladas.length === 0) mescladas = ranquearPropostasLocal(propostas)
+      setPropostasRanking(mescladas)
     } catch {
-      const fallback = propostas.length > 0 ? ranquearPropostasLocal(propostas) : []
-      setPropostasRanking(anexarMocksRespostasTemporarias(fallback, cot))
+      setPropostasRanking(ranquearPropostasLocal(propostas))
     } finally {
       setCarregandoRanking(false)
     }

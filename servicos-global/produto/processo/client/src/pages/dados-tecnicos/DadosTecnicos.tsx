@@ -313,18 +313,18 @@ export default function DadosTecnicos() {
   function irParaSecao(id: string) {
     const el = document.getElementById(id)
     if (!el) return
-    // PaginaGlobal usa container interno com overflow — scrollIntoView nao
-    // funciona porque so ajusta o window. Sobe a arvore ate achar o
-    // ancestral com overflow rolavel e rola ele explicitamente.
-    let parent: HTMLElement | null = el.parentElement
-    while (parent) {
-      const ov = getComputedStyle(parent).overflowY
-      if (ov === 'auto' || ov === 'scroll' || ov === 'overlay') break
-      parent = parent.parentElement
-    }
-    if (parent) {
-      const offset = el.getBoundingClientRect().top - parent.getBoundingClientRect().top + parent.scrollTop - 16
-      parent.scrollTo({ top: offset, behavior: 'smooth' })
+    // PaginaGlobal usa .pg-conteudo-area com overflow-y: auto — esse e
+    // o container que rola. Acha ele e rola ate o offsetTop da secao.
+    const scroller = el.closest('.pg-conteudo-area') as HTMLElement | null
+    if (scroller) {
+      // offsetTop e relativo ao offsetParent — calcula a posicao real
+      // dentro do scroller somando o getBoundingClientRect.
+      const elTop = el.getBoundingClientRect().top
+      const scTop = scroller.getBoundingClientRect().top
+      scroller.scrollTo({
+        top: scroller.scrollTop + elTop - scTop - 16,
+        behavior: 'smooth',
+      })
     } else {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }

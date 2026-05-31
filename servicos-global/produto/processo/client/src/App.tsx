@@ -10,7 +10,7 @@ import React, { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from '@shell'
 import { PRODUCT_CONFIG } from './shared/config'
-import { CurrencyDollar, Briefcase } from '@phosphor-icons/react'
+import { CurrencyDollar, Briefcase, Folders } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 
@@ -63,6 +63,31 @@ function FinanceiroPlaceholder() {
   )
 }
 
+// ─── Placeholder: Documentos ───────────────────────────────────────────────
+
+function DocumentosPlaceholder() {
+  return (
+    <PaginaGlobal
+      className="ws-fade-up"
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<Folders weight="duotone" size={22} />}
+          titulo="Documentos"
+          subtitulo="Documentos vinculados ao processo"
+        />
+      }
+    >
+      <div className="proc-empty-state ws-fade-up ws-fade-up-d1">
+        <Folders weight="duotone" size={48} color="var(--text-muted)" />
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+          Módulo de documentos em desenvolvimento
+        </p>
+      </div>
+    </PaginaGlobal>
+  )
+}
+
 // ─── Placeholder: Workspace ────────────────────────────────────────────────
 
 function WorkspacePlaceholder() {
@@ -98,6 +123,7 @@ export function App() {
           <Route path="/" element={<Navigate to="workflow" replace />} />
           <Route element={<ProcessoLayout />}>
             <Route path="workflow" element={<Workflow />} />
+            <Route path="documentos" element={<DocumentosPlaceholder />} />
             {/* Pedidos: rotas aninhadas — /pedidos cai no index (Navigate
                 pra resumo); /pedidos/resumo e /pedidos/lista sao filhos. */}
             <Route path="pedidos">

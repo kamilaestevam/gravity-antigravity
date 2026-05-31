@@ -44,6 +44,7 @@ export const PRODUCT_CONFIG = {
   navigation: [
     // Telas exclusivas do produto
     { id: 'workflow',        label: 'Visão Geral',        icon: 'flow-arrow',        source: 'product' },
+    { id: 'documentos',      label: 'Documentos',         icon: 'folders',           source: 'product' },
     { id: 'pedidos',         label: 'Pedidos',            icon: 'package',           source: 'product' },
     { id: 'duimp',           label: 'DUIMP',              icon: 'cloud-arrow-up',    source: 'product' },
     { id: 'li',              label: 'LPCO',               icon: 'file-text',         source: 'product' },

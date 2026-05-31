@@ -30,6 +30,7 @@ import {
   Play,
   Pause,
   Globe,
+  MapTrifold,
   List,
   MapPin,
   Clock,
@@ -1210,7 +1211,16 @@ function VisaoGeralMapa() {
   
   // State for React overlays
   const [projectedPins, setProjectedPins] = useState<(VisaoGeralMapPin & { px: number; py: number; opacity: number })[]>([])
-  
+
+  // Alternância Globo 3D ↔ Mapa plano 2D
+  const [vista, setVista] = useState<'globo' | 'mapa'>('globo')
+  const vistaRef = useRef<'globo' | 'mapa'>(vista)
+  useEffect(() => {
+    vistaRef.current = vista
+  }, [vista])
+  // Deslocamento do mapa plano (pan via arraste)
+  const panRef = useRef({ x: 0, y: 0 })
+
   const canvasRef = useRef<HTMLCanvasElement>(null)
   
   // Dragging and Rotation state refs
@@ -1250,13 +1260,14 @@ function VisaoGeralMapa() {
     zoomRef.current = 1.0
     rotationRef.current = { x: 0.28, y: -1.25 }
     velocityRef.current = { x: 0, y: 0 }
+    panRef.current = { x: 0, y: 0 }
     isRotationPausedRef.current = !isAutoRotatingRef.current
   }
   
   // Generate 5500 Fibonacci points on the sphere for ultra-high-definition realistic mapping
   const samples = 16000
   const fibonacciPoints = useMemo(() => {
-    const pts: { x: number; y: number; z: number }[] = []
+    const pts: { x: number; y: number; z: number; lat: number; lng: number }[] = []
     const phi = Math.PI * (3 - Math.sqrt(5))
     for (let i = 0; i < samples; i++) {
       const y = 1 - (i / (samples - 1)) * 2
@@ -1264,12 +1275,12 @@ function VisaoGeralMapa() {
       const theta = phi * i
       const x = Math.cos(theta) * radius
       const z = Math.sin(theta) * radius
-      
+
       const lat = Math.asin(y) * (180 / Math.PI)
       const lng = Math.atan2(x, z) * (180 / Math.PI)
-      
+
       if (isLand(lat, lng)) {
-        pts.push({ x, y, z })
+        pts.push({ x, y, z, lat, lng })
       }
     }
     return pts
@@ -1281,7 +1292,201 @@ function VisaoGeralMapa() {
   // Frame render loop
   useEffect(() => {
     let animId: number
-    
+
+    // ── Renderizador do MAPA PLANO (projeção equiretangular) ──────────────
+    // Reaproveita os mesmos dados do globo (pins, globeRoutes, pontos de terra
+    // com lat/lng) e o esquema de cor importação/exportação.
+    const renderMapaPlano = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+      w: number,
+      h: number,
+      cx: number,
+      cy: number,
+    ) => {
+      const now = Date.now()
+      const scale = zoomRef.current
+      const worldW = w * scale
+      const worldH = worldW / 2
+      const originX = cx - worldW / 2 + panRef.current.x
+      const originY = cy - worldH / 2 + panRef.current.y
+
+      const project = (lat: number, lng: number) => ({
+        sx: originX + ((lng + 180) / 360) * worldW,
+        sy: originY + ((90 - lat) / 180) * worldH,
+      })
+
+      const roundRectPath = (x: number, y: number, rw: number, rh: number, r: number) => {
+        const rad = Math.min(r, rw / 2, rh / 2)
+        ctx.beginPath()
+        ctx.moveTo(x + rad, y)
+        ctx.arcTo(x + rw, y, x + rw, y + rh, rad)
+        ctx.arcTo(x + rw, y + rh, x, y + rh, rad)
+        ctx.arcTo(x, y + rh, x, y, rad)
+        ctx.arcTo(x, y, x + rw, y, rad)
+        ctx.closePath()
+      }
+
+      ctx.clearRect(0, 0, w, h)
+
+      // Aura de fundo
+      const bgGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.7)
+      bgGlow.addColorStop(0, 'rgba(40, 28, 10, 0.40)')
+      bgGlow.addColorStop(1, 'rgba(0, 0, 0, 0)')
+      ctx.fillStyle = bgGlow
+      ctx.fillRect(0, 0, w, h)
+
+      // Painel "oceano" — retângulo equiretangular 2:1
+      roundRectPath(originX, originY, worldW, worldH, 14)
+      const ocean = ctx.createLinearGradient(originX, originY, originX, originY + worldH)
+      ocean.addColorStop(0, 'rgba(23, 19, 12, 0.55)')
+      ocean.addColorStop(1, 'rgba(14, 11, 7, 0.55)')
+      ctx.fillStyle = ocean
+      ctx.fill()
+
+      ctx.save()
+      roundRectPath(originX, originY, worldW, worldH, 14)
+      ctx.clip()
+
+      // Graticula (meridianos/paralelos a cada 30°)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
+      ctx.lineWidth = 1
+      for (let lng = -180; lng <= 180; lng += 30) {
+        const a = project(0, lng)
+        ctx.beginPath()
+        ctx.moveTo(a.sx, originY)
+        ctx.lineTo(a.sx, originY + worldH)
+        ctx.stroke()
+      }
+      for (let lat = -60; lat <= 90; lat += 30) {
+        const a = project(lat, -180)
+        ctx.beginPath()
+        ctx.moveTo(originX, a.sy)
+        ctx.lineTo(originX + worldW, a.sy)
+        ctx.stroke()
+      }
+
+      // Pontos de terra (mesmos do globo, projetados em 2D) — âmbar
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.55)'
+      for (const p of fibonacciPoints) {
+        const { sx, sy } = project(p.lat, p.lng)
+        if (sx < -4 || sx > w + 4 || sy < -4 || sy > h + 4) continue
+        ctx.beginPath()
+        ctx.arc(sx, sy, 1.1, 0, Math.PI * 2)
+        ctx.fill()
+      }
+      ctx.restore()
+
+      // Borda do painel
+      roundRectPath(originX, originY, worldW, worldH, 14)
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.18)'
+      ctx.lineWidth = 1.5
+      ctx.stroke()
+
+      // Rotas (arco abaulado entre origem e destino)
+      const currentHovered = hoveredPinRef.current
+      globeRoutesRef.current.forEach((route, routeIdx) => {
+        const fromPin = pinsRef.current.find(p => p.id === route.fromId)
+        const toPin = pinsRef.current.find(p => p.id === route.toId)
+        if (!fromPin || !toPin) return
+
+        const a = project(fromPin.geoLat, fromPin.geoLng)
+        const b = project(toPin.geoLat, toPin.geoLng)
+
+        const mx = (a.sx + b.sx) / 2
+        const my = (a.sy + b.sy) / 2
+        const dist = Math.hypot(b.sx - a.sx, b.sy - a.sy)
+        const bow = Math.min(dist * 0.22, worldH * 0.35)
+        const ctrlX = mx
+        const ctrlY = my - bow
+
+        const segmentsCount = 36
+        const pathPoints: { sx: number; sy: number }[] = []
+        for (let j = 0; j <= segmentsCount; j++) {
+          const t = j / segmentsCount
+          const it = 1 - t
+          pathPoints.push({
+            sx: it * it * a.sx + 2 * it * t * ctrlX + t * t * b.sx,
+            sy: it * it * a.sy + 2 * it * t * ctrlY + t * t * b.sy,
+          })
+        }
+
+        const isImportacao = route.mode === 'importacao'
+        const isRouteDirectSource = currentHovered !== null && (route.fromId === currentHovered || route.toId === currentHovered)
+        const dim = currentHovered !== null && !isRouteDirectSource
+
+        ctx.strokeStyle = route.color
+        ctx.lineWidth = isRouteDirectSource ? 3.0 : 1.5
+        ctx.globalAlpha = dim ? 0.06 : isRouteDirectSource ? 0.8 : 0.30
+        ctx.beginPath()
+        ctx.moveTo(pathPoints[0].sx, pathPoints[0].sy)
+        for (let j = 1; j < pathPoints.length; j++) ctx.lineTo(pathPoints[j].sx, pathPoints[j].sy)
+        ctx.stroke()
+        ctx.globalAlpha = 1
+
+        if (dim) return
+
+        // Marching-ants direcional
+        ctx.strokeStyle = route.color
+        ctx.lineWidth = isRouteDirectSource ? 3.5 : 2.0
+        ctx.setLineDash([5, 8])
+        ctx.lineDashOffset = -(now / (isImportacao ? 320 : 32)) % 100
+        ctx.beginPath()
+        ctx.moveTo(pathPoints[0].sx, pathPoints[0].sy)
+        for (let j = 1; j < pathPoints.length; j++) ctx.lineTo(pathPoints[j].sx, pathPoints[j].sy)
+        ctx.stroke()
+        ctx.setLineDash([])
+
+        // Pulsos de carga (seta entrada/saída) percorrendo a rota
+        const speed = isImportacao ? 24000 : 2400
+        ;[0.0, 0.5].forEach(offset => {
+          const tPulse = (now / speed + routeIdx * 0.22 + offset) % 1.0
+          const rawIdx = tPulse * segmentsCount
+          const idx = Math.floor(rawIdx)
+          const nextIdx = Math.min(segmentsCount, idx + 1)
+          const interp = rawIdx - idx
+          const pc = pathPoints[idx]
+          const pn = pathPoints[nextIdx]
+          if (!pc || !pn) return
+          const px = pc.sx * (1 - interp) + pn.sx * interp
+          const py = pc.sy * (1 - interp) + pn.sy * interp
+          const angle = Math.atan2(pn.sy - pc.sy, pn.sx - pc.sx)
+          ctx.save()
+          ctx.translate(px, py)
+          ctx.rotate(angle)
+          if (isRouteDirectSource) ctx.scale(1.35, 1.35)
+          ctx.beginPath()
+          if (isImportacao) {
+            ctx.moveTo(6, -5); ctx.lineTo(-2, 3); ctx.lineTo(1, 3); ctx.lineTo(1, 6)
+            ctx.lineTo(-5, 6); ctx.lineTo(-5, 3); ctx.lineTo(-2, 3)
+          } else {
+            ctx.moveTo(-6, 5); ctx.lineTo(2, -3); ctx.lineTo(-1, -3); ctx.lineTo(-1, -6)
+            ctx.lineTo(5, -6); ctx.lineTo(5, -3); ctx.lineTo(2, -3)
+          }
+          ctx.fillStyle = '#ffffff'
+          ctx.shadowBlur = isRouteDirectSource ? 16 : 12
+          ctx.shadowColor = isImportacao ? '#f59e0b' : '#c084fc'
+          ctx.fill()
+          ctx.beginPath()
+          ctx.arc(0, 0, 2.2, 0, Math.PI * 2)
+          ctx.fillStyle = isImportacao ? '#f59e0b' : '#a78bfa'
+          ctx.shadowBlur = 0
+          ctx.fill()
+          ctx.restore()
+        })
+      })
+
+      // Pinos (overlay HTML) — projeta e publica
+      const offsetX = canvas.offsetLeft || 0
+      const offsetY = canvas.offsetTop || 0
+      const tempPins = pinsRef.current.map(pin => {
+        const { sx, sy } = project(pin.geoLat, pin.geoLng)
+        const visible = sx >= -10 && sx <= w + 10 && sy >= -10 && sy <= h + 10
+        return { ...pin, px: sx + offsetX, py: sy + offsetY, opacity: visible ? 1 : 0 }
+      })
+      setProjectedPins(tempPins)
+    }
+
     const renderFrame = () => {
       const canvas = canvasRef.current
       if (!canvas) {
@@ -1307,7 +1512,14 @@ function VisaoGeralMapa() {
       const cy = h / 2
       const R = Math.min(w, h) * 0.42 * zoomRef.current
       const pulseTime = Date.now() / 2400
-      
+
+      // Modo MAPA PLANO: renderiza o mapa 2D e encerra o frame (globo intocado)
+      if (vistaRef.current === 'mapa') {
+        renderMapaPlano(ctx, canvas, w, h, cx, cy)
+        animId = requestAnimationFrame(renderFrame)
+        return
+      }
+
        // Physics: inertially decay dragging or add auto-rotation
       if (!isDraggingRef.current) {
         if (!isRotationPausedRef.current) {
@@ -1730,18 +1942,40 @@ function VisaoGeralMapa() {
     velocityRef.current = { x: 0, y: 0 }
   }
   
+  // Mantém o mapa plano sempre parcialmente visível ao arrastar
+  const clampPan = () => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const w = canvas.clientWidth
+    const h = canvas.clientHeight
+    const worldW = w * zoomRef.current
+    const worldH = worldW / 2
+    const maxX = worldW / 2
+    const maxY = Math.max(worldH / 2, h / 2)
+    panRef.current.x = Math.max(-maxX, Math.min(maxX, panRef.current.x))
+    panRef.current.y = Math.max(-maxY, Math.min(maxY, panRef.current.y))
+  }
+
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDraggingRef.current) return
     const dx = e.clientX - dragStartRef.current.x
     const dy = e.clientY - dragStartRef.current.y
-    
+
+    if (vistaRef.current === 'mapa') {
+      panRef.current.x += dx
+      panRef.current.y += dy
+      clampPan()
+      dragStartRef.current = { x: e.clientX, y: e.clientY }
+      return
+    }
+
     rotationRef.current.y -= dx * 0.0055
     rotationRef.current.x += dy * 0.0055
     rotationRef.current.x = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, rotationRef.current.x))
-    
+
     velocityRef.current.y = -dx * 0.0055
     velocityRef.current.x = dy * 0.0055
-    
+
     dragStartRef.current = { x: e.clientX, y: e.clientY }
   }
   
@@ -1763,7 +1997,15 @@ function VisaoGeralMapa() {
     if (!isDraggingRef.current || e.touches.length === 0) return
     const dx = e.touches[0].clientX - dragStartRef.current.x
     const dy = e.touches[0].clientY - dragStartRef.current.y
-    
+
+    if (vistaRef.current === 'mapa') {
+      panRef.current.x += dx
+      panRef.current.y += dy
+      clampPan()
+      dragStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+      return
+    }
+
     rotationRef.current.y -= dx * 0.0055
     rotationRef.current.x += dy * 0.0055
     rotationRef.current.x = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, rotationRef.current.x))
@@ -1816,8 +2058,16 @@ function VisaoGeralMapa() {
           
           {/* Floating Zoom & Control Panel */}
           <div className="bfd-map-controls">
-            <button 
-              onClick={handleZoomIn} 
+            <button
+              onClick={() => setVista(prev => (prev === 'globo' ? 'mapa' : 'globo'))}
+              title={vista === 'globo' ? 'Ver como Mapa' : 'Ver como Globo'}
+              className="bfd-map-control-btn"
+            >
+              {vista === 'globo' ? <MapTrifold size={16} weight="bold" /> : <Globe size={16} weight="bold" />}
+            </button>
+
+            <button
+              onClick={handleZoomIn}
               title={t('pedido.visao_geral.mapa.aumentar_zoom')}
               className="bfd-map-control-btn"
             >
@@ -1840,13 +2090,15 @@ function VisaoGeralMapa() {
               <ArrowCounterClockwise size={16} weight="bold" />
             </button>
 
-            <button 
-              onClick={toggleRotation} 
-              title={isAutoRotating ? t('pedido.visao_geral.mapa.pausar_rotacao') : t('pedido.visao_geral.mapa.iniciar_rotacao')}
-              className="bfd-map-control-btn"
-            >
-              {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
-            </button>
+            {vista === 'globo' && (
+              <button
+                onClick={toggleRotation}
+                title={isAutoRotating ? t('pedido.visao_geral.mapa.pausar_rotacao') : t('pedido.visao_geral.mapa.iniciar_rotacao')}
+                className="bfd-map-control-btn"
+              >
+                {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
+              </button>
+            )}
           </div>
 
           {/* Dynamic HTML Overlay Pins */}

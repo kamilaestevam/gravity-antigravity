@@ -43,7 +43,7 @@ export const PRODUCT_CONFIG = {
   // Navegação: telas do produto + serviços de tenant
   navigation: [
     // Telas exclusivas do produto
-    { id: 'workflow',        label: 'Workflow',           icon: 'flow-arrow',        source: 'product' },
+    { id: 'workflow',        label: 'Visão Geral',        icon: 'flow-arrow',        source: 'product' },
     { id: 'pedidos',         label: 'Pedidos',            icon: 'package',           source: 'product' },
     { id: 'li',              label: 'LI',                 icon: 'file-text',         source: 'product' },
     { id: 'di',              label: 'DI',                 icon: 'file-dashed',       source: 'product' },

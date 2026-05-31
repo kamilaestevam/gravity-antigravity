@@ -346,7 +346,7 @@ export default function Workflow() {
       cabecalho={
         <CabecalhoGlobal
           icone={<FlowArrow weight="duotone" size={22} />}
-          titulo={`Workflow — ${processo.numero}`}
+          titulo={`Visão Geral — ${processo.numero}`}
           subtitulo={`${processo.importador_nome} | ${processo.exportador_nome}`}
         />
       }

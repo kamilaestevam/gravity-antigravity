@@ -16,18 +16,16 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import {
   TabelaVirtualGlobal,
   type GTColuna, type GTAcao, type GTAcaoLote, type GTAcaoExport,
-  type GTAbaTipo,
 } from '@nucleo/tabela-virtual-global'
 import { FinanceiroTabs } from './FinanceiroTabs'
 import {
   MOCK_LANCAMENTOS, fmtMoeda, fmtData, calcularTotais,
-  STATUS_LABEL, type Moeda, type Lancamento, type StatusPagamento,
+  STATUS_LABEL, type Moeda, type Lancamento,
 } from './_mocks'
 import './Financeiro.css'
 
 export default function FinanceiroMovimentacao() {
   const [moedaAtiva, setMoedaAtiva] = useState<Moeda>('BRL')
-  const [abaAtiva, setAbaAtiva] = useState<'todos' | StatusPagamento>('todos')
   const [busca, setBusca] = useState('')
   const [sortCampo, setSortCampo] = useState<string>('data')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
@@ -39,25 +37,17 @@ export default function FinanceiroMovimentacao() {
   const pctAberto = totalGeral > 0 ? Math.round((totaisMoeda.aberto / totalGeral) * 100) : 0
   const corDonut = pctAberto > 0 ? '#fbbf24' : '#34d399'
 
-  // ── Contagem por aba ────────────────────────────────────────────────────
-  const contagens = useMemo(() => {
-    const c = { todos: MOCK_LANCAMENTOS.length, pendente: 0, agendado: 0, pago: 0, cancelado: 0 }
-    for (const l of MOCK_LANCAMENTOS) c[l.status]++
-    return c
-  }, [])
-
-  // ── Filtro: aba + busca ────────────────────────────────────────────────
+  // ── Filtro: busca + ordenacao (status removido, filtragem agora via
+  //    funil do header da coluna Status) ────────────────────────────────
   const buscaNorm = busca.trim().toLowerCase()
   const lancamentosFiltrados = useMemo(() => {
     let arr = MOCK_LANCAMENTOS
-    if (abaAtiva !== 'todos') arr = arr.filter(l => l.status === abaAtiva)
     if (buscaNorm) {
       arr = arr.filter(l =>
         l.descricao.toLowerCase().includes(buscaNorm)
         || l.fornecedor.toLowerCase().includes(buscaNorm)
       )
     }
-    // Ordenacao
     const ordenado = [...arr].sort((a, b) => {
       const va = (a as unknown as Record<string, unknown>)[sortCampo]
       const vb = (b as unknown as Record<string, unknown>)[sortCampo]
@@ -70,7 +60,7 @@ export default function FinanceiroMovimentacao() {
       return sortDir === 'asc' ? sa.localeCompare(sb) : sb.localeCompare(sa)
     })
     return ordenado
-  }, [abaAtiva, buscaNorm, sortCampo, sortDir])
+  }, [buscaNorm, sortCampo, sortDir])
 
   // ── Colunas ─────────────────────────────────────────────────────────────
   const colunas: GTColuna<Lancamento>[] = [
@@ -98,15 +88,6 @@ export default function FinanceiroMovimentacao() {
         : <span style={{ opacity: 0.4 }}>—</span> },
     { key: 'status', label: 'Status', tipo: 'badge', align: 'center', sortavel: true, filtravel: true,
       render: (_v, l) => <span className={`fn-status fn-status--${l.status}`}>{STATUS_LABEL[l.status]}</span> },
-  ]
-
-  // ── Abas de status ──────────────────────────────────────────────────────
-  const abas: GTAbaTipo[] = [
-    { valor: 'todos',     label: 'Todos',      contagem: contagens.todos },
-    { valor: 'pendente',  label: 'Pendentes',  contagem: contagens.pendente,  cor: '#fbbf24' },
-    { valor: 'agendado',  label: 'Agendados',  contagem: contagens.agendado,  cor: '#a78bfa' },
-    { valor: 'pago',      label: 'Pagos',      contagem: contagens.pago,      cor: '#34d399' },
-    { valor: 'cancelado', label: 'Cancelados', contagem: contagens.cancelado, cor: '#94a3b8' },
   ]
 
   // ── Acoes ───────────────────────────────────────────────────────────────
@@ -149,22 +130,10 @@ export default function FinanceiroMovimentacao() {
     >
       <FinanceiroTabs />
 
-      {/* Painel: total aberto + breakdown por status, toggle de moeda */}
+      {/* Painel: total aberto + breakdown por status (toggle de moeda
+          movido pra cima da tabela, alinhado a direita). */}
       <div className="fn-insights">
         <div className="fn-insights-corpo">
-          <div className="fn-insights-toggle">
-            {(['BRL', 'USD', 'EUR'] as Moeda[]).map(m => (
-              <button
-                key={m}
-                type="button"
-                className={`fn-insights-toggle-btn ${moedaAtiva === m ? 'fn-insights-toggle-btn--ativa' : ''}`}
-                onClick={() => setMoedaAtiva(m)}
-              >
-                {m}
-              </button>
-            ))}
-          </div>
-
           <div className="fn-insights-cards">
             <div className="fn-insights-card fn-insights-card--hero">
               <div
@@ -199,6 +168,23 @@ export default function FinanceiroMovimentacao() {
         </div>
       </div>
 
+      {/* Toggle de moeda — alinhado a direita, acima da tabela.
+          Afeta apenas os cards de insights (totais consolidados). */}
+      <div className="fn-moeda-row">
+        <div className="fn-insights-toggle">
+          {(['BRL', 'USD', 'EUR'] as Moeda[]).map(m => (
+            <button
+              key={m}
+              type="button"
+              className={`fn-insights-toggle-btn ${moedaAtiva === m ? 'fn-insights-toggle-btn--ativa' : ''}`}
+              onClick={() => setMoedaAtiva(m)}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Tabela padrao do sistema. min-height pq pg-conteudo-area nao usa flex. */}
       <div style={{ minHeight: 'calc(100vh - 460px)', display: 'flex', flexDirection: 'column' }}>
         <TabelaVirtualGlobal<Lancamento>
@@ -207,9 +193,6 @@ export default function FinanceiroMovimentacao() {
           colunas={colunas}
           itemId={(l) => l.id}
           itensPorPagina={50}
-          abas={abas}
-          abaAtiva={abaAtiva}
-          onMudarAba={(v) => setAbaAtiva(v as 'todos' | StatusPagamento)}
           acoes={acoes}
           acoesLote={acoesLote}
           acoesExportacao={acoesExportacao}

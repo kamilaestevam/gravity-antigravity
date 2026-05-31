@@ -21,6 +21,13 @@
   gap: 0.75rem;
 }
 
+/* Linha do toggle de moeda (alinhado a direita, acima da tabela) */
+.fn-moeda-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
 /* Toggle BRL / USD / EUR */
 
 .fn-insights-toggle {

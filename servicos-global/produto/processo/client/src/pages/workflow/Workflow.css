@@ -217,15 +217,65 @@
 
 /* ── Timeline Stepper (horizontal) ─────────────────────────────────────── */
 /* Agora vive DENTRO do .wf-timeline — sem fundo/borda proprios. */
+/* Stepper em 3 linhas: cards | linha conectora | labels.
+   Linha conectora fica VISIVELMENTE separada dos cards — nao passa
+   por dentro deles. Cada linha eh um flex row de celulas iguais. */
 .wf-stepper {
   display: flex;
-  /* align-items: flex-start — cards no topo, linha no gap abaixo,
-     labels embaixo de tudo. Linha NAO passa pelo centro do card. */
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.625rem;
   padding: 1.5rem;
   overflow-x: auto;
 }
 
+.wf-stepper-row {
+  display: flex;
+  width: 100%;
+}
+
+.wf-stepper-cell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+}
+
+/* Celula da linha do meio — contem 2 metades (esquerda/direita) que
+   representam os conectores entrando/saindo desse step. */
+.wf-stepper-cell--line {
+  height: 2px;
+  justify-content: stretch;
+  gap: 0;
+}
+
+/* Cada metade preenche meio da celula. Conector idx-1 -> idx vive em
+   2 metades: direita do step idx-1 + esquerda do step idx (mesma cor,
+   formam uma linha unica). */
+.wf-line-half {
+  flex: 1;
+  height: 2px;
+  background: var(--proc-accent-border, rgba(99, 102, 241, 0.2));
+  transition: background 0.3s;
+}
+
+.wf-line-half--empty {
+  background: transparent;
+}
+
+.wf-line-half--pending {
+  background: var(--proc-accent-border, rgba(99, 102, 241, 0.2));
+}
+
+.wf-line-half--done {
+  background: #10b981;
+}
+
+.wf-line-half--active {
+  background: linear-gradient(90deg, #10b981, #a78bfa);
+}
+
+/* wf-step antigo nao usado mais — mas mantido pra eventuais usos */
 .wf-step {
   display: flex;
   flex-direction: column;
@@ -275,30 +325,8 @@
   color: #fff;
 }
 
-/* Connector line: posicionada NO GAP entre o card (40px) e o label.
-   Stepper usa align-items: flex-start. Empurro o connector 48px pra
-   baixo (card 40 + metade do gap ~8) entao ele fica no espaco vazio
-   entre o card e o label, NAO passando pelo centro do card.
-   Visual: cards no topo separados da linha, labels embaixo. */
-.wf-connector {
-  flex: 1;
-  height: 2px;
-  min-width: 1.5rem;
-  background: var(--proc-accent-border, rgba(99, 102, 241, 0.2));
-  align-self: flex-start;
-  margin-top: 48px;
-  transition: background 0.3s;
-}
-
-/* Done connector: green (entre dois passos concluidos) */
-.wf-connector--done {
-  background: #10b981;
-}
-
-/* Active connector: gradiente verde → roxo (transicao para a etapa ativa) */
-.wf-connector--active {
-  background: linear-gradient(90deg, #10b981, #a78bfa);
-}
+/* Conectores antigos removidos — substituidos por .wf-line-half
+   acima, parte da estrutura em 3 linhas do .wf-stepper. */
 
 /* Step label — UPPERCASE como no BID Frete */
 .wf-step-label {

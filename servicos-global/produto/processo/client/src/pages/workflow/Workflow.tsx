@@ -391,30 +391,22 @@ export default function Workflow() {
               </div>
             </div>
 
+            {/* Estrutura em 3 linhas explicitas: cards no topo, linha
+                conectora no meio, labels embaixo. Cada step ocupa uma
+                celula flex:1 em cada linha, garantindo alinhamento
+                vertical card↔label.
+                Linha do meio: cada celula tem 2 metades (esquerda e
+                direita) representando os conectores que entram/saem
+                desse step. Conector idx-1 -> idx vive na direita do
+                step idx-1 + esquerda do step idx (mesma cor). */}
             <div className="wf-stepper">
-              {etapas.map((etapa, idx) => {
-                const isDone = etapa.status === 'concluida'
-                const isActive = etapa.status === 'em_andamento'
-                const prevDone = idx > 0 && (etapas[idx - 1].status === 'concluida')
-
-                // Conector que ENTRA nesta etapa (a esquerda):
-                //   done = ambos os lados concluidos (verde solido)
-                //   active = passo anterior done + este ativo (gradiente verde -> roxo)
-                //   default = transparente/muted
-                const connectorClass = isDone
-                  ? 'wf-connector--done'
-                  : (isActive && prevDone)
-                    ? 'wf-connector--active'
-                    : prevDone ? 'wf-connector--done' : ''
-                return (
-                  <React.Fragment key={etapa.id}>
-                    {idx > 0 && (
-                      <div className={`wf-connector ${connectorClass}`} />
-                    )}
-                    <div className="wf-step">
-                      {/* Card no topo + label embaixo. A linha conector
-                          fica POR FORA do card (no gap entre card e
-                          label) — nao passa pelo centro do card. */}
+              {/* Linha 1: cards (boxes 40x40) */}
+              <div className="wf-stepper-row wf-stepper-row--cards">
+                {etapas.map(etapa => {
+                  const isDone = etapa.status === 'concluida'
+                  const isActive = etapa.status === 'em_andamento'
+                  return (
+                    <div key={`c-${etapa.id}`} className="wf-stepper-cell">
                       <TooltipGlobal
                         titulo={etapa.nome}
                         descricao={
@@ -437,6 +429,52 @@ export default function Workflow() {
                           )}
                         </div>
                       </TooltipGlobal>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Linha 2: conectores (metades esquerda+direita por step) */}
+              <div className="wf-stepper-row wf-stepper-row--line">
+                {etapas.map((etapa, idx) => {
+                  // Conector idx-1 -> idx (entra neste step pela esquerda)
+                  const connEntradaState =
+                    idx === 0 ? 'empty'
+                    : etapa.status === 'concluida' || etapas[idx - 1].status === 'concluida'
+                      ? (etapa.status === 'em_andamento' && etapas[idx - 1].status === 'concluida'
+                          ? 'active'
+                          : (etapas[idx - 1].status === 'concluida' && etapa.status === 'concluida'
+                              ? 'done'
+                              : 'done'))  // prev concluida → considera done na entrada
+                      : 'pending'
+
+                  // Conector idx -> idx+1 (sai deste step pela direita)
+                  const connSaidaState =
+                    idx === etapas.length - 1 ? 'empty'
+                    : etapas[idx].status === 'concluida' || etapas[idx + 1].status === 'concluida'
+                      ? (etapas[idx + 1].status === 'em_andamento' && etapas[idx].status === 'concluida'
+                          ? 'active'
+                          : (etapas[idx].status === 'concluida' && etapas[idx + 1].status === 'concluida'
+                              ? 'done'
+                              : 'done'))
+                      : 'pending'
+
+                  return (
+                    <div key={`l-${etapa.id}`} className="wf-stepper-cell wf-stepper-cell--line">
+                      <div className={`wf-line-half wf-line-half--${connEntradaState}`} />
+                      <div className={`wf-line-half wf-line-half--${connSaidaState}`} />
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Linha 3: labels */}
+              <div className="wf-stepper-row wf-stepper-row--labels">
+                {etapas.map(etapa => {
+                  const isDone = etapa.status === 'concluida'
+                  const isActive = etapa.status === 'em_andamento'
+                  return (
+                    <div key={`lb-${etapa.id}`} className="wf-stepper-cell">
                       <span className={`wf-step-label ${
                         isDone ? 'wf-step-label--done' :
                         isActive ? 'wf-step-label--active' : ''
@@ -444,9 +482,9 @@ export default function Workflow() {
                         {etapa.nome}
                       </span>
                     </div>
-                  </React.Fragment>
-                )
-              })}
+                  )
+                })}
+              </div>
             </div>
           </div>
         )

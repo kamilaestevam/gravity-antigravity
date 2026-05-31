@@ -19,6 +19,7 @@ import {
   SYNC_EVENT_CASAS_BID_FRETE,
 } from '../shared/casas-config-bid-frete'
 import { formatarDataBidFrete } from '../shared/formato-data-bid-frete'
+import { criarColunasDatasMotivosCotacaoLista } from '../shared/colunas-datas-motivos-cotacao-bid-frete-internacional'
 import { formatarContainersPersistidosParaExibicao } from '../shared/containers-cotacao-bid-frete-internacional'
 
 // ─── Badge de status ───
@@ -916,37 +917,7 @@ function buildColunasCotacoesBase(
       tipo: 'texto',
       render: (val: unknown) => RenderBadgeAnonima(val),
     },
-    {
-      key: 'data_limite_resposta_cotacao_bid_frete_internacional',
-      label: 'Prazo resposta',
-      tipo: 'periodo',
-      render: (val: unknown) => fmtData(val as string),
-    },
-    {
-      key: 'data_aprovacao_cotacao_bid_frete_internacional',
-      label: 'Data aprovação',
-      tipo: 'periodo',
-      align: 'center',
-      render: (val: unknown) => fmtData(val as string),
-    },
-    {
-      key: 'data_cancelamento_cotacao_bid_frete_internacional',
-      label: 'Data cancelamento',
-      tipo: 'periodo',
-      render: (val: unknown) => fmtData(val as string),
-    },
-    {
-      key: 'motivo_reprovacao_cotacao_bid_frete_internacional',
-      label: 'Motivo reprovação',
-      tipo: 'texto',
-      render: renderTexto,
-    },
-    {
-      key: 'motivo_cancelamento_cotacao_bid_frete_internacional',
-      label: 'Motivo cancelamento',
-      tipo: 'texto',
-      render: renderTexto,
-    },
+    ...criarColunasDatasMotivosCotacaoLista(),
     {
       key: 'id_fornecedor_vencedor_cotacao_bid_frete_internacional',
       label: 'Fornecedor vencedor',

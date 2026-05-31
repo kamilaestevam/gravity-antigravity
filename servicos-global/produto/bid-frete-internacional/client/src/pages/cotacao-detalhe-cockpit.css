@@ -1196,7 +1196,7 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   color: var(--text-primary, #f1f5f9);
   letter-spacing: -0.02em;
   line-height: 1.1;
-  font-family: 'DM Mono', monospace;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-variant-numeric: tabular-nums;
 }
 

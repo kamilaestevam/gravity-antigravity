@@ -83,6 +83,12 @@ import {
 } from '../shared/types'
 import { avaliarPrazoRespostaCotacao } from '../shared/lista-bid-frete-kpi-metrics'
 import { formatarDataBidFrete } from '../shared/formato-data-bid-frete'
+import {
+  criarColunasDatasMotivosDisparoTabelaGlobal,
+  espelharDatasMotivosCotacaoEmDisparos,
+  type DisparoComEspelhoDatasMotivosCotacao,
+  type RotulosColunasDatasMotivosCotacao,
+} from '../shared/colunas-datas-motivos-cotacao-bid-frete-internacional'
 
 // ─── Formatação ──────────────────────────────────────────────────────────────
 
@@ -347,15 +353,46 @@ export default function DetalheCotacao() {
     return raw.length > 0 ? ranquearPropostasLocal(raw) : []
   }, [propostasRanking, cotacao])
 
+  const rotulosColunasDatasMotivos = useMemo<RotulosColunasDatasMotivosCotacao>(
+    () => ({
+      data_limite_resposta_cotacao_bid_frete_internacional: t(
+        'bidfrete.lista.colunas.prazo_resposta',
+        'Prazo resposta',
+      ),
+      data_aprovacao_cotacao_bid_frete_internacional: t(
+        'bidfrete.lista.colunas.data_aprovacao',
+        'Data aprovação',
+      ),
+      data_cancelamento_cotacao_bid_frete_internacional: t(
+        'bidfrete.lista.colunas.data_cancelamento',
+        'Data cancelamento',
+      ),
+      motivo_reprovacao_cotacao_bid_frete_internacional: t(
+        'bidfrete.lista.colunas.motivo_reprovacao',
+        'Motivo reprovação',
+      ),
+      motivo_cancelamento_cotacao_bid_frete_internacional: t(
+        'bidfrete.lista.colunas.motivo_cancelamento',
+        'Motivo cancelamento',
+      ),
+    }),
+    [t],
+  )
+
+  const bidsComEspelhoCotacao = useMemo(
+    () => espelharDatasMotivosCotacaoEmDisparos(bids, cotacao),
+    [bids, cotacao],
+  )
+
   // ─── Tabela de Bids ───────────────────────────────────────────────────
 
-  const bidColunas: TabelaGlobalColuna<DisparoCotacaoBidFreteInternacional>[] = [
+  const bidColunas: TabelaGlobalColuna<DisparoComEspelhoDatasMotivosCotacao>[] = useMemo(() => [
     {
       key: 'id_fornecedor_bid_frete_internacional',
       label: t('bidfrete.comparativo.fornecedor'),
       tipo: 'texto',
       largura: 200,
-      render: (valor: unknown, row: DisparoCotacaoBidFreteInternacional) => {
+      render: (valor: unknown, row: DisparoComEspelhoDatasMotivosCotacao) => {
         const _val = valor as string
         return row.fornecedor?.nome_fornecedor_bid_frete_internacional ?? _val.slice(0, 8)
       },
@@ -378,7 +415,7 @@ export default function DetalheCotacao() {
       label: t('comum.status'),
       tipo: 'texto',
       largura: 130,
-      render: (valor: unknown, row: DisparoCotacaoBidFreteInternacional) => {
+      render: (valor: unknown, row: DisparoComEspelhoDatasMotivosCotacao) => {
         const val = valor as StatusDisparoCotacaoBidFreteInternacional
         const erro = row.erro_envio_disparo_cotacao_bid_frete_internacional?.trim()
         return (
@@ -393,7 +430,7 @@ export default function DetalheCotacao() {
       label: t('bidfrete.detalhe_cotacao.motivo_erro', 'Motivo'),
       tipo: 'texto',
       largura: 280,
-      render: (valor: unknown, row: DisparoCotacaoBidFreteInternacional) => {
+      render: (valor: unknown, row: DisparoComEspelhoDatasMotivosCotacao) => {
         const erro = (valor as string | null | undefined)?.trim()
           || row.erro_envio_disparo_cotacao_bid_frete_internacional?.trim()
         const texto =
@@ -427,7 +464,7 @@ export default function DetalheCotacao() {
       label: t('bidfrete.detalhe_cotacao.link_resposta', 'Link resposta'),
       tipo: 'texto',
       largura: 120,
-      render: (_valor: unknown, row: DisparoCotacaoBidFreteInternacional) => {
+      render: (_valor: unknown, row: DisparoComEspelhoDatasMotivosCotacao) => {
         const token = row.token_resposta_disparo_cotacao_bid_frete_internacional
         if (!token) return '—'
         const href = montarLinkRespostaPublicoDisparo(token)
@@ -459,6 +496,7 @@ export default function DetalheCotacao() {
       largura: 140,
       render: (valor: unknown) => dataHoraBR(valor as string | null),
     },
+    ...criarColunasDatasMotivosDisparoTabelaGlobal(rotulosColunasDatasMotivos),
     {
       key: 'data_resposta_disparo_cotacao_bid_frete_internacional',
       label: t('bidfrete.detalhe_cotacao.data_resposta'),
@@ -466,7 +504,7 @@ export default function DetalheCotacao() {
       largura: 140,
       render: (valor: unknown) => dataHoraBR(valor as string | null),
     },
-  ]
+  ], [t, rotulosColunasDatasMotivos])
 
   // ─── Loading ──────────────────────────────────────────────────────────
 
@@ -714,7 +752,7 @@ export default function DetalheCotacao() {
             </div>
           )}
           <TabelaGlobal
-            dados={bids}
+            dados={bidsComEspelhoCotacao}
             colunas={bidColunas}
             idKey="id_disparo_cotacao_bid_frete_internacional"
             mensagemVazio={t('bidfrete.detalhe_cotacao.vazio_disparos')}

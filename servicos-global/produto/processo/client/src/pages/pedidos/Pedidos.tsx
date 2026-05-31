@@ -37,19 +37,21 @@ import {
 const idOrganizacao = import.meta.env.VITE_TENANT_ID ?? 'tenant-demo'
 const userId = import.meta.env.VITE_USER_ID ?? 'user-demo'
 
-// Porta do produto Pedido (dev). Pode ser sobrescrita por VITE_PEDIDO_PORT.
-// Em prod a navegacao cross-product deveria usar service discovery
-// (contracts.json / PRODUCT_CONFIG) — TODO da plataforma.
-const PEDIDO_PORT = import.meta.env.VITE_PEDIDO_PORT ?? '8000'
+// Porta do produto Pedido (frontend dev). Em dev o frontend agregado roda
+// na porta do Configurador (8000) ou fallback (8001) — todas as rotas dos
+// produtos sao servidas pela mesma SPA. Aqui usamos a porta atual do browser
+// (location.port) por padrao — assim o link funciona sem hardcoded.
+// Pode ser sobrescrito por VITE_PEDIDO_PORT para apontar para outra origem.
+const PEDIDO_PORT = import.meta.env.VITE_PEDIDO_PORT ?? (typeof window !== 'undefined' ? window.location.port : '')
 
-// Abre o produto Pedido na porta correta — corrige o bug em que o
-// link relativo /pedido/... caia no proprio :8001 (Processo) e dava
-// connection refused.
+// Abre a tela de detalhe/editar do Pedido em nova aba.
+// Usa mesma origem por padrao (SPA agregada) — apenas troca a rota.
 function abrirPedido(pedidoId: string, modo: 'ver' | 'editar') {
   const path = modo === 'editar'
     ? `/pedido/pedidos/${pedidoId}/editar`
     : `/pedido/pedidos/${pedidoId}`
-  const url = `${window.location.protocol}//${window.location.hostname}:${PEDIDO_PORT}${path}`
+  const portSuffix = PEDIDO_PORT ? `:${PEDIDO_PORT}` : ''
+  const url = `${window.location.protocol}//${window.location.hostname}${portSuffix}${path}`
   window.open(url, '_blank', 'noopener,noreferrer')
 }
 

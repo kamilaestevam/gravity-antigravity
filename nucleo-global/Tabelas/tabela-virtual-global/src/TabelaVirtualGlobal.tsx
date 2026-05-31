@@ -1782,7 +1782,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   } | null>(null)
 
   // ── Expand/collapse ───────────────────────────────────────────────────────────
-  const { expandidos, filhosCache, carregandoFilhos, toggle, colapsarTodos, expandirTodos, atualizarFilhoNoCache, ensureFilhosCarregados } = useGTExpandir<T, C>(
+  const { expandidos, filhosCache, carregandoFilhos, toggle, colapsarTodos, atualizarFilhoNoCache, ensureFilhosCarregados } = useGTExpandir<T, C>(
     onCarregarFilhos,
     dados,
     itemId,
@@ -2468,8 +2468,17 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       void toggleRef.current(id, item)
     },
     expandirTodos: async () => {
+      // Itera pelos pedidos da pagina atual, chamando toggle individual
+      // para os que ainda nao estao expandidos. Garante que filhosCache
+      // e expandidos sao atualizados pelo MESMO caminho do clique normal,
+      // evitando estados intermediarios.
       const items = dadosPaginaOrdenadosRef.current
-      await expandirTodos(items, itemIdRef.current)
+      for (const item of items) {
+        const id = itemIdRef.current(item)
+        if (!expandidosRef2.current.has(id)) {
+          await toggleRef.current(id, item)
+        }
+      }
     },
     recolherTodos: () => {
       colapsarTodos()
@@ -2484,7 +2493,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         celula.scrollIntoView({ block: 'center', behavior: 'instant' })
       }
     },
-  }), [iniciarEdicaoPai, iniciarEdicaoFilho, expandirTodos, colapsarTodos])
+  }), [iniciarEdicaoPai, iniciarEdicaoFilho, colapsarTodos])
 
   // ── Paginação ─────────────────────────────────────────────────────────────────
   const modoExterno = totalItens !== undefined

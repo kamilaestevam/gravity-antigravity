@@ -31,6 +31,7 @@ import {
   salvarPreferenciasUsuario,
   exportarPedidos,
 } from '../../shared/api'
+import { PedidosTabs } from './PedidosTabs'
 
 // ── Env / IDs ─────────────────────────────────────────────────────────────────
 
@@ -68,7 +69,7 @@ const fmtDate = (iso: string) =>
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export default function Pedidos() {
+export default function PedidosLista() {
   const [pedidos, setPedidos] = useState<PedidoRico[]>([])
   const [carregando, setCarregando] = useState(true)
   const [abaAtiva, setAbaAtiva] = useState('todos')
@@ -420,7 +421,8 @@ export default function Pedidos() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ height: '100%' }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <PedidosTabs />
       <TabelaVirtualGlobal<PedidoRico, PedidoItemRico>
         dados={pedidos}
         colunas={colunasPai}

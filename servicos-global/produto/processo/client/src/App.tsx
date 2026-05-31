@@ -18,7 +18,8 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 
 const ProcessoLayout = lazy(() => import('./pages/ProcessoLayout'))
 const Workflow = lazy(() => import('./pages/workflow/Workflow'))
-const Pedidos = lazy(() => import('./pages/pedidos/Pedidos'))
+const PedidosResumo = lazy(() => import('./pages/pedidos/PedidosResumo'))
+const PedidosLista = lazy(() => import('./pages/pedidos/PedidosLista'))
 const DadosTecnicos = lazy(() => import('./pages/dados-tecnicos/DadosTecnicos'))
 const Email = lazy(() => import('./pages/email/Email'))
 
@@ -94,7 +95,10 @@ export function App() {
           <Route path="/" element={<Navigate to="workflow" replace />} />
           <Route element={<ProcessoLayout />}>
             <Route path="workflow" element={<Workflow />} />
-            <Route path="pedidos" element={<Pedidos />} />
+            {/* Pedidos: /pedidos redireciona pra /resumo; ha tambem /lista */}
+            <Route path="pedidos" element={<Navigate to="pedidos/resumo" replace />} />
+            <Route path="pedidos/resumo" element={<PedidosResumo />} />
+            <Route path="pedidos/lista"  element={<PedidosLista />} />
             <Route path="dados-tecnicos" element={<DadosTecnicos />} />
             <Route path="email" element={<Email />} />
             <Route path="financeiro" element={<FinanceiroPlaceholder />} />

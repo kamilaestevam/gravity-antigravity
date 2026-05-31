@@ -59,6 +59,20 @@ const flagEmoji = (iso2: string): string => {
   return String.fromCodePoint(...codes)
 }
 
+// Paleta de cores para segmentos do stacked bar de itens — tons distintos
+// que ficam bem agrupados num retangulo unico, sem competir com a paleta
+// roxa dos cards.
+const ITEM_COLORS = [
+  '#a78bfa', // violet-400
+  '#22d3ee', // cyan-400
+  '#34d399', // emerald-400
+  '#f59e0b', // amber-500
+  '#f87171', // red-400
+  '#818cf8', // indigo-400
+  '#fb7185', // rose-400
+  '#facc15', // yellow-400
+]
+
 // Mini bar chart de 3 colunas — exibe a magnitude de um valor relativo ao
 // maximo entre todos os pedidos. Espelha o estilo das mini-charts do
 // BID Frete (TRANSIT TIME / FREE TIME / ESCALA).
@@ -257,8 +271,6 @@ export default function Pedidos() {
               {pedidos.map(p => {
                 const st = STATUS_META[p.status] || STATUS_META.pendente
                 const itens = p.itens ?? []
-                const visiveis = itens.slice(0, 3)
-                const restantes = itens.length - visiveis.length
 
                 return (
                   <article key={p.id} className="pp-card">
@@ -314,23 +326,50 @@ export default function Pedidos() {
                       </span>
                     </div>
 
-                    {visiveis.length > 0 && (
-                      <ul className="pp-card-itens">
-                        {visiveis.map(it => (
-                          <li key={it.id} className="pp-card-item">
-                            <span className="pp-card-item-num">#{it.numero_item}</span>
-                            <span className="pp-card-item-desc" title={it.descricao}>{it.descricao}</span>
-                            <span className="pp-card-item-qtd">{it.quantidade} {it.unidade}</span>
-                            <span className="pp-card-item-val">{fmtMoney(it.valor_total, p.moeda)}</span>
-                          </li>
-                        ))}
-                        {restantes > 0 && (
-                          <li className="pp-card-item-more">
-                            + {restantes} {restantes === 1 ? 'item' : 'itens'}
-                          </li>
-                        )}
-                      </ul>
-                    )}
+                    {itens.length > 0 && (() => {
+                      // Stacked bar — soma de valor_total dos itens (pode
+                      // divergir do p.valor_fob se houver desconto/frete embutido).
+                      const totalItens = itens.reduce((acc, it) => acc + it.valor_total, 0)
+                      return (
+                        <div className="pp-items-bar">
+                          {/* Barra unica segmentada — cada item ocupa % do total */}
+                          <div
+                            className="pp-items-bar-track"
+                            role="img"
+                            aria-label={t('processo.pedidos.distribuicao_itens', 'Distribuição por item')}
+                          >
+                            {itens.map((it, idx) => {
+                              const pct = totalItens > 0 ? (it.valor_total / totalItens) * 100 : 0
+                              const color = ITEM_COLORS[idx % ITEM_COLORS.length]
+                              return (
+                                <span
+                                  key={it.id}
+                                  className="pp-items-bar-segment"
+                                  style={{ width: `${pct}%`, background: color }}
+                                  title={`${it.descricao} — ${fmtMoney(it.valor_total, p.moeda)} (${pct.toFixed(0)}%)`}
+                                />
+                              )
+                            })}
+                          </div>
+
+                          {/* Legenda compacta: cor + descricao + % + valor */}
+                          <ul className="pp-items-legend">
+                            {itens.map((it, idx) => {
+                              const pct = totalItens > 0 ? (it.valor_total / totalItens) * 100 : 0
+                              const color = ITEM_COLORS[idx % ITEM_COLORS.length]
+                              return (
+                                <li key={it.id} className="pp-items-legend-item">
+                                  <span className="pp-items-legend-dot" style={{ background: color }} aria-hidden />
+                                  <span className="pp-items-legend-desc" title={it.descricao}>{it.descricao}</span>
+                                  <span className="pp-items-legend-pct">{pct.toFixed(0)}%</span>
+                                  <span className="pp-items-legend-val">{fmtMoney(it.valor_total, p.moeda)}</span>
+                                </li>
+                              )
+                            })}
+                          </ul>
+                        </div>
+                      )
+                    })()}
 
                     <footer className="pp-card-footer">
                       <Link

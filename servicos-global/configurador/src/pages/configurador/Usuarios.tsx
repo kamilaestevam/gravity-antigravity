@@ -34,6 +34,7 @@ import {
 } from '../../../shared/index.js'
 import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { useAuth } from '@clerk/clerk-react'
+import { OrgBadge } from '../../components/org-badge'
 
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -264,6 +265,8 @@ export function Usuarios() {
   const { t } = useTranslation()
   const { isLoaded: userLoaded, user: clerkUser } = useUser()
   const addNotification = useShellStore((s) => s.addNotification)
+  const nomeOrganizacao =
+    useShellStore((s) => s.organizacaoOverride?.nomeOrganizacao ?? s.currentUser.nomeOrganizacao) ?? '—'
   const idWorkspaceAtivo = useShellStore((s: { idWorkspaceAtivo: string | null }) => s.idWorkspaceAtivo)
   const [usuarios, setUsuarios] = useState<UsuarioOrg[]>([])
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([])
@@ -659,6 +662,17 @@ export function Usuarios() {
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v as string}</span>,
     },
     {
+      key: 'nome_organizacao',
+      label: t('workspace.users.tabela.empresa', 'Empresa'),
+      tipo: 'texto',
+      tooltipTitulo: t('workspace.users.tabela.empresa_tooltip', 'Empresa'),
+      tooltipDescricao: t(
+        'workspace.users.tabela.empresa_desc',
+        'Organização à qual este usuário pertence.',
+      ),
+      render: () => <OrgBadge nome={nomeOrganizacao} />,
+    },
+    {
       key: 'tipo_usuario', label: t('workspace.users.tabela.tipo'), tipo: 'texto',
       tooltipTitulo: 'Tipo', tooltipDescricao: 'Define as permissões base: Master, Standard ou Fornecedor',
       render: (v) => {
@@ -785,6 +799,7 @@ export function Usuarios() {
   const COLUNAS_EXPORT: ColunasExport[] = [
     { header: 'Nome do Usuário', key: 'nome_usuario'   },
     { header: 'E-mail',          key: 'email_usuario'  },
+    { header: 'Empresa',         key: 'nome_organizacao' },
     { header: 'Tipo de Usuário', key: 'tipo_usuario'   },
     { header: 'Status',          key: 'status_usuario' },
   ]
@@ -794,6 +809,7 @@ export function Usuarios() {
     dados.map((u) => ({
       nome_usuario: u.nome_usuario,
       email_usuario: u.email_usuario,
+      nome_organizacao: nomeOrganizacao,
       tipo_usuario: mapRole(u.tipo_usuario),
       status_usuario: u.status_usuario === 'ATIVO' ? 'Ativo' : 'Inativo',
     }))

@@ -30,6 +30,7 @@ import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LogoHub, corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
 import { resolverProdVisualHub } from '../utils/resolver-prod-visual-hub'
+import { nomeExibicaoProdutoGravity } from '../data/product-meta'
 import { LogoGlobal } from '@nucleo/logo-global'
 import {
   LocalizadorGlobal,
@@ -418,7 +419,9 @@ export function Hub() {
                         <span className="hb-prod-status hb-prod-status--active">{t('hub.produto_ativo')}</span>
                       </div>
                       <div>
-                        <div className="hb-prod-name">{p.catalog?.name ?? p.product_key}</div>
+                        <div className="hb-prod-name">
+                          {nomeExibicaoProdutoGravity(slug, p.catalog?.name ?? p.product_key, t)}
+                        </div>
                         <div className="hb-prod-desc">{p.catalog?.description ?? v.description}</div>
                       </div>
                       <div className="hb-prod-footer">

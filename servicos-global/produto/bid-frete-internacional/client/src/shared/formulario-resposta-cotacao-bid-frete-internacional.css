@@ -23,19 +23,320 @@ html:has(.brc-page--publico) body {
 
 .brc-page--publico {
   box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #f8fafc;
+}
+
+/* Fundo login em tela cheia; marca fixa à esquerda (como /login); modal no centro */
+.brc-page--publico.brc-auth-layout {
+  position: relative;
+  box-sizing: border-box;
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
+  background: #0b0f1a;
+}
+
+.brc-auth-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: #0b0f1a;
+}
+
+.brc-auth-fundo::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.15) 0%, transparent 70%);
+  filter: blur(80px);
+  animation: brc-auth-orb-float 20s infinite alternate ease-in-out;
+}
+
+.brc-auth-fundo::after {
+  content: '';
+  position: absolute;
+  bottom: 0%;
+  right: -5%;
+  width: 45%;
+  height: 45%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+  filter: blur(80px);
+  animation: brc-auth-orb-float 25s infinite alternate-reverse ease-in-out;
+}
+
+@keyframes brc-auth-orb-float {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(10%, 10%) scale(1.1); }
+}
+
+.brc-auth-brand-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(129, 140, 248, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(129, 140, 248, 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(circle at 40% 50%, black, transparent 80%);
+}
+
+/* Painel esquerdo — mesma posição do .auth-brand do login */
+.brc-auth-marca-login {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 55%;
+  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  padding: 4rem 6rem;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.brc-auth-marca-conteudo {
+  position: relative;
+  z-index: 1;
+  max-width: 520px;
+  pointer-events: auto;
+  animation: brc-auth-content-fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes brc-auth-content-fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.brc-auth-logo {
+  margin-bottom: 3.5rem;
+}
+
+.brc-auth-marca-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.brc-auth-logo.brc-auth-marca-link {
+  width: fit-content;
+}
+
+.brc-auth-marca-hero:focus-visible {
+  outline: 2px solid rgba(129, 140, 248, 0.55);
+  outline-offset: 4px;
+  border-radius: 0.5rem;
+}
+
+a.brc-auth-feature:focus-visible {
+  outline: 2px solid rgba(129, 140, 248, 0.55);
+  outline-offset: 2px;
+}
+
+.brc-auth-logo span span:last-child {
+  color: #f8fafc !important;
+  font-size: 1.68rem !important;
+  font-weight: 700 !important;
+}
+
+.brc-auth-headline {
+  margin: 0 0 1.5rem;
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  color: #f8fafc;
+}
+
+.brc-auth-headline-accent {
+  background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block;
+}
+
+.brc-auth-subheadline {
+  margin: 0 0 3.5rem;
+  max-width: 440px;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: #94a3b8;
+}
+
+.brc-auth-features {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.brc-auth-feature {
+  display: flex;
   align-items: center;
-  justify-content: flex-start;
-  padding: 1.5rem 1.5rem 2.5rem;
-  overflow-x: hidden;
-  overflow-y: visible;
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.12), transparent),
-    var(--bg-body-dark, #0f172a);
+  gap: 1.25rem;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  animation: brc-auth-feature-slide-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(0.1s * var(--i) + 0.4s);
+}
+
+@keyframes brc-auth-feature-slide-in {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.brc-auth-feature:hover {
+  background: rgba(30, 41, 59, 0.5);
+  transform: translateX(8px);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.brc-auth-feature-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(129, 140, 248, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #818cf8;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.brc-auth-feature:hover .brc-auth-feature-icon-wrapper {
+  background: #818cf8;
+  color: #fff;
+  transform: rotate(-8deg) scale(1.1);
+}
+
+.brc-auth-feature-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.brc-auth-feature-desc {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: #94a3b8;
+}
+
+/* Modal ancorado no topo; cresce para baixo com rolagem da página */
+.brc-auth-modal-wrap {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1.5rem 3rem;
+  pointer-events: none;
+}
+
+.brc-auth-painel-form {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 44rem;
+  flex-shrink: 0;
+}
+
+.brc-page--publico .brc-shell {
+  width: 100%;
+  max-width: none;
+}
+
+.brc-page--publico .brc-card {
+  background: #1a1f2e;
+  border: none;
+  box-shadow:
+    0 40px 80px -20px rgba(0, 0, 0, 0.95),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.brc-page--publico .brc-header-titulo {
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #f1f5f9;
+}
+
+.brc-page--publico .brc-secao-titulo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+}
+
+.brc-page--publico .brc-label {
+  color: #94a3b8;
+}
+
+.brc-page--publico .brc-estado-titulo {
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #f1f5f9;
+}
+
+.brc-page--publico .brc-estado-texto {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+@media (max-width: 1100px) {
+  .brc-auth-headline { font-size: 2.75rem; }
+  .brc-auth-marca-login { padding: 4rem 3rem; }
+}
+
+@media (max-width: 900px) {
+  .brc-page--publico.brc-auth-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .brc-auth-marca-login {
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 3rem 2rem 1rem;
+    align-items: center;
+    text-align: center;
+    pointer-events: auto;
+  }
+
+  .brc-auth-marca-conteudo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .brc-auth-subheadline {
+    margin-bottom: 2rem;
+  }
+
+  .brc-auth-features {
+    display: none;
+  }
+
+  .brc-auth-modal-wrap {
+    padding: 1.25rem 1rem 2rem;
+  }
 }
 
 .brc-page--logado {

@@ -44,6 +44,7 @@ import {
   ExpandidoEditorVinculos,
   type EdicoesPorUsuario,
 } from '../../components/expandido-editor-vinculos'
+import { OrgBadge } from '../../components/org-badge'
 
 /** Regex RFC 5322 simplificada para validação de email no frontend. */
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -108,23 +109,6 @@ function mapearApiParaUsuarioGlobal(u: UsuarioGlobalApi): UsuarioGlobalUI {
     organizacao_hospeda_colaboradores_gravity: u.organizacao?.hospeda_colaboradores_gravity ?? false,
     vinculos_workspace: vinculos,
   }
-}
-
-// ─── Badge de organização ───────────────────────────────────────────────────────
-function OrgBadge({ nome }: { nome: string }) {
-  return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
-      padding: '0.18rem 0.55rem', borderRadius: '9999px',
-      background: 'rgba(139,92,246,0.1)',
-      border: '1px solid rgba(139,92,246,0.2)',
-      color: '#a78bfa',
-      fontSize: '0.6875rem', fontWeight: 600, whiteSpace: 'nowrap',
-    }}>
-      <Buildings size={11} weight="duotone" />
-      {nome}
-    </span>
-  )
 }
 
 // Catálogo completo de tipos para o modal de convite. A regra condicional
@@ -441,13 +425,7 @@ export function UsuariosAdmin() {
           }}>
             {item.nome_usuario.split(' ').map(n => n[0]).join('').slice(0, 2)}
           </div>
-          {/* Stack vertical: nome em cima, org embaixo, alinhados horizontalmente
-              à direita do avatar. Decisão dono 2026-05-13 — paridade com Configurador
-              (que não tem org), preservando visibilidade cross-org no Admin. */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', minWidth: 0 }}>
-            <span style={{ fontWeight: 600 }}>{item.nome_usuario}</span>
-            <OrgBadge nome={item.nome_organizacao} />
-          </div>
+          <span style={{ fontWeight: 600, minWidth: 0 }}>{item.nome_usuario}</span>
         </div>
       )
     },
@@ -455,6 +433,14 @@ export function UsuariosAdmin() {
       key: 'email_usuario', label: t('admin.usuarios-globais.tabela.email'), tipo: 'texto',
       tooltipTitulo: t('admin.usuarios-globais.tabela.email_acesso'), tooltipDescricao: t('admin.usuarios-globais.tabela.email_acesso_desc'),
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
+    },
+    {
+      key: 'nome_organizacao',
+      label: t('admin.usuarios-globais.tabela.empresa', 'Empresa'),
+      tipo: 'texto',
+      tooltipTitulo: t('admin.usuarios-globais.tabela.org_tooltip'),
+      tooltipDescricao: t('admin.usuarios-globais.tabela.org_desc'),
+      render: (_, item) => <OrgBadge nome={item.nome_organizacao} />,
     },
     {
       key: 'tipo', label: t('admin.usuarios-globais.tabela.tipo'), tipo: 'texto',

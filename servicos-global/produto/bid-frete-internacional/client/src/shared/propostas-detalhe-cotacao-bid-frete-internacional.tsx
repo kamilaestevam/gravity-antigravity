@@ -2,7 +2,7 @@
  * Lista de propostas no detalhe da cotação — ranking, % vs demais e avaliação.
  */
 
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Star,
@@ -24,8 +24,8 @@ import {
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { TFunction } from 'i18next'
 import type { Cotacao, PropostaRankingBidFreteInternacional, StatusCotacao } from './types'
-import { aprovarResposta } from './api'
 import { ModalAprovarPropostaBidFreteInternacional } from './modal-aprovar-proposta-bid-frete-internacional'
+import { propostaPermiteAprovacaoReal } from './proposta-elegivel-aprovacao-bid-frete-internacional'
 import {
   calcularMetricasPropostas,
   criterioOrdenacaoAscendentePorPadrao,
@@ -34,15 +34,11 @@ import {
   type MetricasExibicaoProposta,
 } from './metricas-proposta-cotacao-bid-frete-internacional'
 import { FaixaMetricasComparativoSparkProposta } from './metricas-comparativo-spark-card-proposta'
-import { montarBarrasComparativoDePropostas } from './infograficos-fluxo-cotacao-bid-frete-internacional'
-import type { BarraComparativoInsight } from './infograficos-fluxo-cotacao-bid-frete-internacional'
-import { TooltipAnaliseMetricaSparkPortal } from './graficos-insights-cotacao-bid-frete-internacional'
+import { GradeColocacaoEixosCombate } from './grade-colocacao-eixos-combate-bid-frete-internacional'
 import {
   formatarMoedaBidFrete,
   itensTaxasDestinoProposta,
   itensTaxasOrigemProposta,
-  percentualBarraPorRank,
-  rankPropostaPorValor,
   subtotalTaxasDestinoTexto,
   subtotalTaxasOrigemTexto,
   type ItemTaxaExibicaoProposta,
@@ -73,14 +69,13 @@ const STATUS_COTACAO_SEM_ACOES_RESPOSTA: StatusCotacao[] = [
   'EXPIRADA',
 ]
 
-function cotacaoPermiteAcoesResposta(status: StatusCotacao | null | undefined): boolean {
+export function cotacaoPermiteAcoesResposta(status: StatusCotacao | null | undefined): boolean {
   if (!status) return true
   return !STATUS_COTACAO_SEM_ACOES_RESPOSTA.includes(status)
 }
 
-function propostaPermiteAcoes(proposta: PropostaRankingBidFreteInternacional): boolean {
-  const status = proposta.status_proposta_bid_frete_internacional
-  return status !== 'APROVADA' && status !== 'REPROVADA'
+export function propostaPermiteAcoes(proposta: PropostaRankingBidFreteInternacional): boolean {
+  return propostaPermiteAprovacaoReal(proposta)
 }
 
 function BadgeStatusProposta({
@@ -123,10 +118,10 @@ function nomeFornecedorProposta(
 
 function coresColocacao(posicao: number): { bg: string; color: string; border: string } {
   const textoColocacao = '#ffffff'
-  if (posicao === 1) return { bg: 'rgba(234,179,8,0.18)', color: textoColocacao, border: 'rgba(234,179,8,0.45)' }
-  if (posicao === 2) return { bg: 'rgba(148,163,184,0.14)', color: textoColocacao, border: 'rgba(148,163,184,0.35)' }
-  if (posicao === 3) return { bg: 'rgba(180,83,9,0.14)', color: textoColocacao, border: 'rgba(180,83,9,0.35)' }
-  return { bg: 'rgba(100,116,139,0.12)', color: textoColocacao, border: 'rgba(100,116,139,0.25)' }
+  if (posicao === 1) return { bg: 'rgba(234,179,8,0.09)', color: textoColocacao, border: 'rgba(234,179,8,0.225)' }
+  if (posicao === 2) return { bg: 'rgba(148,163,184,0.07)', color: textoColocacao, border: 'rgba(148,163,184,0.175)' }
+  if (posicao === 3) return { bg: 'rgba(180,83,9,0.07)', color: textoColocacao, border: 'rgba(180,83,9,0.175)' }
+  return { bg: 'rgba(100,116,139,0.06)', color: textoColocacao, border: 'rgba(100,116,139,0.125)' }
 }
 
 function classeBarraColocacao(posicaoScore: number): string {
@@ -291,80 +286,6 @@ function LinhaProposta({
         {value}
       </span>
     </div>
-  )
-}
-
-function BarraMetrica({ label, pct }: { label: string; pct: number }) {
-  const clamped = Math.round(Math.max(0, Math.min(100, pct)))
-  return (
-    <div className="dc-prop-bar-row">
-      <span>{label}</span>
-      <div className="dc-prop-bar-track">
-        <div className="dc-prop-bar-fill" style={{ width: `${clamped}%` }} />
-      </div>
-      <span>{clamped}%</span>
-    </div>
-  )
-}
-
-function BarraMetricaComAnalise({
-  label,
-  pct,
-  barra,
-  barras,
-  melhorMenor,
-  rotuloMetrica,
-  formatarValor,
-}: {
-  label: string
-  pct: number
-  barra: BarraComparativoInsight
-  barras: BarraComparativoInsight[]
-  melhorMenor: boolean
-  rotuloMetrica: string
-  formatarValor: (valor: number) => string
-}) {
-  const rowRef = useRef<HTMLDivElement>(null)
-  const [ancora, setAncora] = useState<{ left: number; top: number } | null>(null)
-  const clamped = Math.round(Math.max(0, Math.min(100, pct)))
-  const valorReferencia = useMemo(() => {
-    const referencia = barras.find((b) => b.destaque)
-    return referencia?.valor ?? barras[0]?.valor ?? 0
-  }, [barras])
-
-  const definirAncora = () => {
-    const el = rowRef.current
-    if (el == null) return
-    const rect = el.getBoundingClientRect()
-    setAncora({ left: rect.left + rect.width / 2, top: rect.bottom })
-  }
-
-  return (
-    <>
-      <div
-        ref={rowRef}
-        className="dc-prop-bar-row dc-prop-bar-row--com-analise"
-        onMouseEnter={definirAncora}
-        onMouseLeave={() => setAncora(null)}
-      >
-        <span>{label}</span>
-        <div className="dc-prop-bar-track">
-          <div className="dc-prop-bar-fill" style={{ width: `${clamped}%` }} />
-        </div>
-        <span>{clamped}%</span>
-      </div>
-      {ancora != null && (
-        <TooltipAnaliseMetricaSparkPortal
-          barra={barra}
-          barras={barras}
-          valorReferencia={valorReferencia}
-          melhorMenor={melhorMenor}
-          rotuloMetrica={rotuloMetrica}
-          formatarValor={formatarValor}
-          ancora={ancora}
-        />
-      )}
-    </>
   )
 }
 
@@ -574,20 +495,23 @@ function DestaquesCardProposta({
   propostasTodas,
   tags,
   t,
+  exibirSpark = true,
 }: {
   proposta: PropostaRankingBidFreteInternacional
   propostasTodas: PropostaRankingBidFreteInternacional[]
   tags: string[]
   t: TFunction
+  /** Modo combate usa grade de colocação; sparks ficam só no card Melhor proposta. */
+  exibirSpark?: boolean
 }) {
-  const exibirSpark = propostasTodas.length >= 2
+  const exibirSparkRow = exibirSpark && propostasTodas.length >= 2
   const exibirTags = tags.length > 0
-  if (!exibirSpark && !exibirTags) return null
+  if (!exibirSparkRow && !exibirTags) return null
 
   return (
     <div className="dc-prop-card-destaques">
       {exibirTags && <TagsProposta tags={tags} t={t} />}
-      {exibirSpark && (
+      {exibirSparkRow && (
         <FaixaMetricasComparativoSparkProposta
           proposta={proposta}
           propostas={propostasTodas}
@@ -631,85 +555,6 @@ function CardProposta({
   const nota =
     metricas.notaFornecedor != null ? `${metricas.notaFornecedor.toFixed(1)}/5` : null
 
-  const pctPreco = metricas.percentualVsMelhorPreco != null
-    ? Math.max(12, Math.min(100, 100 - metricas.percentualVsMelhorPreco))
-    : Math.max(15, 100 - (metricas.rankPreco - 1) * 22)
-  const pctTransito = metricas.rankTransito <= 1
-    ? 100
-    : Math.max(20, 100 - (metricas.rankTransito - 1) * 18)
-
-  const rankTaxasOrigem = rankPropostaPorValor(
-    propostasTodas,
-    proposta.id_proposta_bid_frete_internacional,
-    (p) => p.taxas_origem_proposta_bid_frete_internacional,
-  )
-  const rankTaxasDestino = rankPropostaPorValor(
-    propostasTodas,
-    proposta.id_proposta_bid_frete_internacional,
-    (p) => p.taxas_destino_proposta_bid_frete_internacional,
-  )
-  const pctTaxasOrigem = percentualBarraPorRank(rankTaxasOrigem)
-  const pctTaxasDestino = percentualBarraPorRank(rankTaxasDestino)
-
-  const idProposta = proposta.id_proposta_bid_frete_internacional
-  const diasLabel = t('bidfrete.detalhe_cotacao.dias', 'dias')
-  const rotuloFrete = t('bidfrete.detalhe_cotacao.resp_frete', 'Frete Básico')
-  const rotuloTaxasOrigem = t('bidfrete.detalhe_cotacao.resp_taxas_origem', 'Taxas Origem')
-  const rotuloTaxasDestino = t('bidfrete.detalhe_cotacao.resp_taxas_destino', 'Taxas Destino')
-  const rotuloTransito = t('bidfrete.comparativo.transit_time', 'Transit Time')
-  const fmtMoeda = (v: number) => formatarMoedaBidFrete(v, moedaProposta)
-  const fmtDias = (v: number) => `${v} ${diasLabel}`
-
-  const barrasFrete = useMemo(
-    () => (propostasTodas.length >= 2 && idProposta != null
-      ? montarBarrasComparativoDePropostas(
-        propostasTodas,
-        idProposta,
-        (p) => p.valor_total_proposta_bid_frete_internacional,
-        true,
-      )
-      : []),
-    [propostasTodas, idProposta],
-  )
-  const barrasTaxasOrigem = useMemo(
-    () => (propostasTodas.length >= 2 && idProposta != null
-      ? montarBarrasComparativoDePropostas(
-        propostasTodas,
-        idProposta,
-        (p) => p.taxas_origem_proposta_bid_frete_internacional,
-        true,
-      )
-      : []),
-    [propostasTodas, idProposta],
-  )
-  const barrasTaxasDestino = useMemo(
-    () => (propostasTodas.length >= 2 && idProposta != null
-      ? montarBarrasComparativoDePropostas(
-        propostasTodas,
-        idProposta,
-        (p) => p.taxas_destino_proposta_bid_frete_internacional,
-        true,
-      )
-      : []),
-    [propostasTodas, idProposta],
-  )
-  const barrasTransito = useMemo(
-    () => (propostasTodas.length >= 2 && idProposta != null
-      ? montarBarrasComparativoDePropostas(
-        propostasTodas,
-        idProposta,
-        (p) => p.dias_transito_proposta_bid_frete_internacional,
-        true,
-      )
-      : []),
-    [propostasTodas, idProposta],
-  )
-
-  const barraFrete = barrasFrete.find((b) => b.destaque)
-  const barraTaxasOrigem = barrasTaxasOrigem.find((b) => b.destaque)
-  const barraTaxasDestino = barrasTaxasDestino.find((b) => b.destaque)
-  const barraTransito = barrasTransito.find((b) => b.destaque)
-
   if (variante === 'combate') {
     return (
       <article
@@ -739,65 +584,9 @@ function CardProposta({
             </div>
           </div>
         </header>
-        <div className="dc-prop-barras">
-          {barraFrete != null && barrasFrete.length >= 2 ? (
-            <BarraMetricaComAnalise
-              label={rotuloFrete}
-              pct={pctPreco}
-              barra={barraFrete}
-              barras={barrasFrete}
-              melhorMenor
-              rotuloMetrica={rotuloFrete}
-              formatarValor={fmtMoeda}
-            />
-          ) : (
-            <BarraMetrica label={rotuloFrete} pct={pctPreco} />
-          )}
-          {barraTaxasOrigem != null && barrasTaxasOrigem.length >= 2 ? (
-            <BarraMetricaComAnalise
-              label={rotuloTaxasOrigem}
-              pct={pctTaxasOrigem}
-              barra={barraTaxasOrigem}
-              barras={barrasTaxasOrigem}
-              melhorMenor
-              rotuloMetrica={rotuloTaxasOrigem}
-              formatarValor={fmtMoeda}
-            />
-          ) : (
-            <BarraMetrica label={rotuloTaxasOrigem} pct={pctTaxasOrigem} />
-          )}
-          {barraTaxasDestino != null && barrasTaxasDestino.length >= 2 ? (
-            <BarraMetricaComAnalise
-              label={rotuloTaxasDestino}
-              pct={pctTaxasDestino}
-              barra={barraTaxasDestino}
-              barras={barrasTaxasDestino}
-              melhorMenor
-              rotuloMetrica={rotuloTaxasDestino}
-              formatarValor={fmtMoeda}
-            />
-          ) : (
-            <BarraMetrica label={rotuloTaxasDestino} pct={pctTaxasDestino} />
-          )}
-          {barraTransito != null && barrasTransito.length >= 2 ? (
-            <BarraMetricaComAnalise
-              label={rotuloTransito}
-              pct={pctTransito}
-              barra={barraTransito}
-              barras={barrasTransito}
-              melhorMenor
-              rotuloMetrica={rotuloTransito}
-              formatarValor={fmtDias}
-            />
-          ) : (
-            <BarraMetrica label={rotuloTransito} pct={pctTransito} />
-          )}
-        </div>
-        <DestaquesCardProposta
+        <GradeColocacaoEixosCombate
           proposta={proposta}
           propostasTodas={propostasTodas}
-          tags={metricas.tags}
-          t={t}
         />
         <RodapeAcoesProposta
           visivel={exibirAcoes}
@@ -938,6 +727,8 @@ export interface ListaPropostasDetalheCotacaoProps {
   carregandoRanking?: boolean
   /** Sidebar compacta estilo Combat Matrix (mockup cockpit). */
   variante?: 'padrao' | 'combate'
+  /** Na aba Respostas: exibe ordenação; no card de insights permanece oculto. */
+  exibirToolbarOrdenacao?: boolean
   /** Recebe a cotação retornada pela API após aprovar; omitido = recarregar do servidor. */
   onCotacaoAtualizada?: (cotacaoAtualizada?: Cotacao) => void
 }
@@ -948,6 +739,7 @@ export function ListaPropostasDetalheCotacao({
   propostasRanking,
   carregandoRanking = false,
   variante = 'padrao',
+  exibirToolbarOrdenacao = false,
   onCotacaoAtualizada,
 }: ListaPropostasDetalheCotacaoProps) {
   const { t } = useTranslation()
@@ -957,9 +749,6 @@ export function ListaPropostasDetalheCotacao({
   const [modalAprovar, setModalAprovar] = useState(false)
   const [propostaSelecionada, setPropostaSelecionada] =
     useState<PropostaRankingBidFreteInternacional | null>(null)
-  const [aprovando, setAprovando] = useState(false)
-  const [aprovacaoSucesso, setAprovacaoSucesso] = useState(false)
-  const [resultadoAprovacao, setResultadoAprovacao] = useState<Cotacao | null>(null)
 
   const acoesGlobaisHabilitadas =
     propostasRanking.length > 0
@@ -1032,36 +821,13 @@ export function ListaPropostasDetalheCotacao({
   }
 
   function fecharModalAprovar() {
-    if (aprovando) return
     setModalAprovar(false)
     setPropostaSelecionada(null)
-    setAprovacaoSucesso(false)
-    setResultadoAprovacao(null)
   }
 
-  function concluirSucessoAprovacao() {
-    const cotAtualizada = resultadoAprovacao
+  function aoAprovarProposta(cotAtualizada: Cotacao) {
+    onCotacaoAtualizada?.(cotAtualizada)
     fecharModalAprovar()
-    if (cotAtualizada) {
-      onCotacaoAtualizada?.(cotAtualizada)
-      return
-    }
-    onCotacaoAtualizada?.()
-  }
-
-  async function confirmarAprovar() {
-    if (!propostaSelecionada || aprovando || aprovacaoSucesso) return
-    setAprovando(true)
-    try {
-      const resultado = await aprovarResposta(
-        id_cotacao_bid_frete_internacional,
-        propostaSelecionada.id_proposta_bid_frete_internacional,
-      )
-      setResultadoAprovacao(resultado)
-      setAprovacaoSucesso(true)
-    } finally {
-      setAprovando(false)
-    }
   }
 
   if (carregandoRanking) {
@@ -1082,8 +848,9 @@ export function ListaPropostasDetalheCotacao({
     )
   }
 
-  const propostasPodio = variante === 'padrao' ? propostasOrdenadas.slice(0, 3) : []
-  const propostasRestantes = variante === 'padrao'
+  const usaLayoutPodio = variante === 'padrao' || variante === 'combate'
+  const propostasPodio = usaLayoutPodio ? propostasOrdenadas.slice(0, 3) : []
+  const propostasRestantes = usaLayoutPodio
     ? propostasOrdenadas.slice(3)
     : propostasOrdenadas
 
@@ -1107,7 +874,7 @@ export function ListaPropostasDetalheCotacao({
         variante={variante}
         densidade={densidade}
         exibirAcoes={exibirAcoes}
-        acoesDesabilitadas={aprovando || modalAprovar}
+        acoesDesabilitadas={modalAprovar}
         onAprovar={() => abrirModalAprovar(proposta)}
       />
     )
@@ -1118,6 +885,7 @@ export function ListaPropostasDetalheCotacao({
       className={[
         'dc-prop-panel',
         variante === 'combate' ? 'dc-cockpit-combat' : '',
+        variante === 'combate' && exibirToolbarOrdenacao ? 'dc-cockpit-combat--com-toolbar' : '',
       ].filter(Boolean).join(' ')}
     >
       <div className="dc-prop-panel-toolbar">
@@ -1152,7 +920,10 @@ export function ListaPropostasDetalheCotacao({
 
       <div className="dc-prop-list-wrap">
         {propostasPodio.length > 0 && (
-          <div className="dc-prop-list dc-prop-list--podio">
+          <div
+            className="dc-prop-list dc-prop-list--podio"
+            style={{ '--dc-prop-podio-cols': Math.min(propostasPodio.length, 3) } as React.CSSProperties}
+          >
             {propostasPodio.map((proposta, indice) => renderCard(proposta, indice, 'podio'))}
           </div>
         )}
@@ -1167,13 +938,10 @@ export function ListaPropostasDetalheCotacao({
 
       <ModalAprovarPropostaBidFreteInternacional
         aberto={modalAprovar}
+        id_cotacao_bid_frete_internacional={id_cotacao_bid_frete_internacional}
         proposta={propostaSelecionada}
-        aprovando={aprovando}
-        aprovacaoSucesso={aprovacaoSucesso}
-        resultadoAprovacao={resultadoAprovacao}
         onFechar={fecharModalAprovar}
-        onConcluirSucesso={concluirSucessoAprovacao}
-        onConfirmar={() => void confirmarAprovar()}
+        onAprovado={aoAprovarProposta}
       />
     </div>
   )

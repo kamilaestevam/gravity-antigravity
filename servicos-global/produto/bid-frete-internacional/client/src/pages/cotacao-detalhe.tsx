@@ -6,7 +6,7 @@
  * Layout: Header + Timeline + Dados + BidRequests + BidResponses
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -24,7 +24,6 @@ import {
   PaperPlaneTilt,
   Ranking,
   Medal,
-  ChartLineUp,
   CheckCircle,
   Eye,
   Envelope,
@@ -57,14 +56,22 @@ import { ListaPropostasDetalheCotacao } from '../shared/propostas-detalhe-cotaca
 import {
   TimelineFluxoCotacao,
   InsightsGridFluxoCotacao,
+  MetricasCompeticaoHeroCotacao,
+  podeDispararCotacaoBidFrete,
 } from '../shared/painel-fluxo-infograficos-cotacao-bid-frete-internacional'
+import { isDisparoRecusaSemResposta } from '../shared/infograficos-fluxo-cotacao-bid-frete-internacional'
 import './cotacao-detalhe-cockpit.css'
 import {
   mesclarPropostasComRanking,
   ranquearPropostasLocal,
 } from '../shared/metricas-proposta-cotacao-bid-frete-internacional'
+import {
+  anexarMocksRespostasTemporarias,
+  MOCAR_RESPOSTAS_COTACAO_TEMP,
+} from '../shared/mock-respostas-cotacao-APAGAR-ANTES-COMMIT'
 import { aplicarEstadoPosAprovacaoCotacao } from '../shared/sincronizar-estado-pos-aprovacao-cotacao-bid-frete-internacional'
 import { PainelDadosGeraisCotacaoBidFreteInternacional } from '../shared/painel-dados-gerais-cotacao-bid-frete-internacional'
+import { TextoTruncadoComTooltip } from '../shared/texto-truncado-com-tooltip-bid-frete-internacional'
 import {
   inscreverCotacaoAtualizadaBidFrete,
   publicarCotacaoAtualizadaBidFrete,
@@ -268,23 +275,29 @@ export default function DetalheCotacao() {
   const [erro, setErro] = useState<string | null>(null)
   const [tab, setTab] = useState<'visao_geral' | 'dados_gerais' | 'respostas' | 'bids'>('visao_geral')
   const [modalDisparoAberto, setModalDisparoAberto] = useState(false)
+  const [filtroDisparosAba, setFiltroDisparosAba] = useState<'todos' | 'recusas'>('todos')
+  const rodapeRef = useRef<HTMLDivElement>(null)
   const [propostasRanking, setPropostasRanking] = useState<PropostaRankingBidFreteInternacional[]>([])
   const [carregandoRanking, setCarregandoRanking] = useState(false)
 
   const carregarRankingPropostas = useCallback(async (cot: Cotacao) => {
     const propostas = cot.propostas_bid_frete_internacional ?? []
-    if (propostas.length === 0) {
+    if (propostas.length === 0 && !MOCAR_RESPOSTAS_COTACAO_TEMP) {
       setPropostasRanking([])
       return
     }
     setCarregandoRanking(true)
     try {
-      const ranking = await rankingCotacoesBidFreteInternacional(cot.id_cotacao_bid_frete_internacional)
-      let mescladas = mesclarPropostasComRanking(propostas, ranking)
-      if (mescladas.length === 0) mescladas = ranquearPropostasLocal(propostas)
-      setPropostasRanking(mescladas)
+      let mescladas: PropostaRankingBidFreteInternacional[] = []
+      if (propostas.length > 0) {
+        const ranking = await rankingCotacoesBidFreteInternacional(cot.id_cotacao_bid_frete_internacional)
+        mescladas = mesclarPropostasComRanking(propostas, ranking)
+        if (mescladas.length === 0) mescladas = ranquearPropostasLocal(propostas)
+      }
+      setPropostasRanking(anexarMocksRespostasTemporarias(mescladas, cot))
     } catch {
-      setPropostasRanking(ranquearPropostasLocal(propostas))
+      const fallback = propostas.length > 0 ? ranquearPropostasLocal(propostas) : []
+      setPropostasRanking(anexarMocksRespostasTemporarias(fallback, cot))
     } finally {
       setCarregandoRanking(false)
     }
@@ -370,8 +383,33 @@ export default function DetalheCotacao() {
   const propostasParaInfograficos = useMemo(() => {
     if (propostasRanking.length > 0) return propostasRanking
     const raw = cotacao?.propostas_bid_frete_internacional ?? []
+    if (raw.length === 0 && !MOCAR_RESPOSTAS_COTACAO_TEMP) return []
+    if (cotacao) return anexarMocksRespostasTemporarias(ranquearPropostasLocal(raw), cotacao)
     return raw.length > 0 ? ranquearPropostasLocal(raw) : []
   }, [propostasRanking, cotacao])
+
+  const bidsExibidosAba = useMemo(() => {
+    if (filtroDisparosAba !== 'recusas') return bids
+    return bids.filter(isDisparoRecusaSemResposta)
+  }, [bids, filtroDisparosAba])
+
+  const podeDispararCotacao = cotacao != null
+    && podeDispararCotacaoBidFrete(cotacao.status_cotacao_bid_frete_internacional)
+
+  const irParaAbaCotacao = useCallback((
+    aba: 'visao_geral' | 'dados_gerais' | 'respostas' | 'bids',
+    opts?: { filtroDisparos?: 'todos' | 'recusas' },
+  ) => {
+    if (opts?.filtroDisparos != null) {
+      setFiltroDisparosAba(opts.filtroDisparos)
+    } else if (aba !== 'bids') {
+      setFiltroDisparosAba('todos')
+    }
+    setTab(aba)
+    requestAnimationFrame(() => {
+      rodapeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }, [])
 
   // ─── Tabela de Bids ───────────────────────────────────────────────────
 
@@ -517,21 +555,35 @@ export default function DetalheCotacao() {
   // --- Render ---
 
   const abaConteudoExpandido = tab === 'respostas' || tab === 'bids' || tab === 'dados_gerais'
+  const exibirComparativoHero = cotacao.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO'
+  const exibirExcluirHero = cotacao.status_cotacao_bid_frete_internacional === 'RASCUNHO'
+  const exibirAcoesHero = exibirComparativoHero || exibirExcluirHero
 
   return (
     <PaginaGlobal
       className={`dc-page dc-cockpit bid-frete-page-shell${abaConteudoExpandido ? ' dc-cockpit--conteudo-expandido' : ''}`}
     >
-      <div className="dc-cockpit-hero">
+      <div className={`dc-cockpit-hero${exibirAcoesHero ? '' : ' dc-cockpit-hero--sem-acoes'}`}>
         <aside className="dc-cockpit-prazo-col" aria-label={t('bidfrete.detalhe_cotacao.prazo_resposta_label', 'Prazo para resposta')}>
           <ChipPrazoRespostaCotacao cotacao={cotacao} t={t} />
+        </aside>
+        <aside className="dc-cockpit-metricas-hero-col">
+          <MetricasCompeticaoHeroCotacao
+            disparos={bids}
+            propostas={propostasParaInfograficos}
+            historico_aprovado={cotacao.historico_aprovado}
+            onIrDisparos={() => irParaAbaCotacao('bids', { filtroDisparos: 'todos' })}
+            onIrRespostas={() => irParaAbaCotacao('respostas')}
+            onIrRecusas={() => irParaAbaCotacao('bids', { filtroDisparos: 'recusas' })}
+          />
         </aside>
         <div className="dc-cockpit-timeline-panel" aria-label={t('bidfrete.detalhe_cotacao.status', 'Status')}>
           <TimelineFluxoCotacao statusAtual={cotacao.status_cotacao_bid_frete_internacional} />
         </div>
+        {exibirAcoesHero && (
         <div className="dc-cockpit-actions-col">
           <div className="dc-cockpit-quick-actions">
-              {cotacao.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO' && (
+              {exibirComparativoHero && (
                 <button
                   type="button"
                   className="dc-cockpit-icon-btn dc-cockpit-icon-btn--primary"
@@ -541,15 +593,7 @@ export default function DetalheCotacao() {
                   <Medal weight="duotone" size={18} />
                 </button>
               )}
-              <button
-                type="button"
-                className="dc-cockpit-icon-btn"
-                title={t('bidfrete.disparo.enviar', 'Enviar aos fornecedores')}
-                onClick={() => setModalDisparoAberto(true)}
-              >
-                <PaperPlaneTilt weight="duotone" size={18} />
-              </button>
-              {cotacao.status_cotacao_bid_frete_internacional === 'RASCUNHO' && (
+              {exibirExcluirHero && (
                 <button
                   type="button"
                   className="dc-cockpit-icon-btn dc-cockpit-icon-btn--danger"
@@ -562,12 +606,9 @@ export default function DetalheCotacao() {
                   <Trash weight="duotone" size={18} />
                 </button>
               )}
-              <span className="dc-cockpit-topbar-divider" aria-hidden />
-              <button type="button" className="dc-cockpit-icon-btn" title={t('bidfrete.detalhe_cotacao.cockpit_metricas', 'Métricas')}>
-                <ChartLineUp weight="duotone" size={18} />
-              </button>
             </div>
         </div>
+        )}
       </div>
 
       <section
@@ -587,7 +628,7 @@ export default function DetalheCotacao() {
         />
       </section>
 
-      <div className="dc-cockpit-rodape">
+      <div className="dc-cockpit-rodape" ref={rodapeRef}>
       <nav className="dc-cockpit-tabs" aria-label={t('bidfrete.detalhe_cotacao.cockpit_abas', 'Abas')}>
         <button
           type="button"
@@ -605,17 +646,17 @@ export default function DetalheCotacao() {
         </button>
         <button
           type="button"
-          className={`dc-cockpit-tab ${tab === 'respostas' ? 'dc-cockpit-tab--ativo' : ''}`}
-          onClick={() => setTab('respostas')}
+          className={`dc-cockpit-tab ${tab === 'bids' ? 'dc-cockpit-tab--ativo' : ''}`}
+          onClick={() => irParaAbaCotacao('bids', { filtroDisparos: 'todos' })}
         >
-          {t('bidfrete.detalhe_cotacao.tab_respostas')}
+          {t('bidfrete.detalhe_cotacao.tab_disparos', 'Solicitação de Cotação')}
         </button>
         <button
           type="button"
-          className={`dc-cockpit-tab ${tab === 'bids' ? 'dc-cockpit-tab--ativo' : ''}`}
-          onClick={() => setTab('bids')}
+          className={`dc-cockpit-tab ${tab === 'respostas' ? 'dc-cockpit-tab--ativo' : ''}`}
+          onClick={() => irParaAbaCotacao('respostas')}
         >
-          {t('bidfrete.detalhe_cotacao.tab_disparos')}
+          {t('bidfrete.detalhe_cotacao.tab_respostas', 'Propostas')}
         </button>
         <button type="button" className="dc-cockpit-tab" disabled title={t('bidfrete.detalhe_cotacao.cockpit_em_breve', 'Em breve')}>
           {t('bidfrete.detalhe_cotacao.cockpit_comentarios', 'Comentários')}
@@ -680,9 +721,14 @@ export default function DetalheCotacao() {
           <CardSecaoDados variante="carga" titulo={t('bidfrete.detalhe_cotacao.card_detalhes_carga', 'Detalhes da Carga')}>
             <div className="dc-mercadoria-destaque">
               <Cube weight="duotone" size={20} className="dc-mercadoria-icon" />
-              <div>
+              <div className="dc-mercadoria-conteudo">
                 <span className="dc-info-label">{t('bidfrete.detalhe_cotacao.mercadoria')}</span>
-                <p className="dc-mercadoria-texto">{cotacao.descricao_mercadoria_cotacao_bid_frete_internacional}</p>
+                <TextoTruncadoComTooltip
+                  className="dc-mercadoria-texto"
+                  layoutBloco
+                  texto={cotacao.descricao_mercadoria_cotacao_bid_frete_internacional}
+                  rotuloTooltip={t('bidfrete.detalhe_cotacao.mercadoria')}
+                />
               </div>
             </div>
             <InfoRow label={t('bidfrete.detalhe_cotacao.ncm')} value={cotacao.ncm_cotacao_bid_frete_internacional ?? '—'} />
@@ -745,20 +791,52 @@ export default function DetalheCotacao() {
       {/* Tab: Bids */}
       {tab === 'bids' && (
         <div className="dc-card">
-          {bids.length === 0 && (
+          <div className="dc-disparos-aba-toolbar">
+            {filtroDisparosAba === 'recusas' && (
+              <div className="dc-disparos-filtro-aviso" role="status">
+                <XCircle weight="duotone" size={16} />
+                <span>{t('bidfrete.detalhe_cotacao.filtro_recusas_ativo', 'Exibindo disparos sem resposta')}</span>
+                <button
+                  type="button"
+                  className="dc-disparos-filtro-limpar"
+                  onClick={() => setFiltroDisparosAba('todos')}
+                >
+                  {t('bidfrete.detalhe_cotacao.ver_todos_disparos', 'Ver todos')}
+                </button>
+              </div>
+            )}
+            {podeDispararCotacao && (
+              <button
+                className="dc-btn dc-btn--primary dc-disparos-aba-enviar"
+                type="button"
+                onClick={() => setModalDisparoAberto(true)}
+              >
+                <PaperPlaneTilt weight="bold" size={14} />
+                {t('bidfrete.disparo.enviar', 'Enviar aos fornecedores')}
+              </button>
+            )}
+          </div>
+          {bidsExibidosAba.length === 0 && bids.length === 0 && (
             <div className="dc-empty" style={{ height: 'auto', paddingBottom: '1rem' }}>
               <PaperPlaneTilt weight="duotone" size={40} style={{ opacity: 0.3 }} />
               <p>{t('bidfrete.detalhe_cotacao.vazio_disparos')}</p>
-              <button className="dc-btn dc-btn--primary" type="button" onClick={() => setModalDisparoAberto(true)}>
-                <PaperPlaneTilt weight="bold" size={14} /> {t('bidfrete.disparo.enviar', 'Enviar aos fornecedores')}
-              </button>
+            </div>
+          )}
+          {bidsExibidosAba.length === 0 && bids.length > 0 && filtroDisparosAba === 'recusas' && (
+            <div className="dc-empty" style={{ height: 'auto', paddingBottom: '1rem' }}>
+              <CheckCircle weight="duotone" size={40} style={{ opacity: 0.3 }} />
+              <p>{t('bidfrete.detalhe_cotacao.vazio_recusas', 'Nenhum disparo sem resposta no momento')}</p>
             </div>
           )}
           <TabelaGlobal
-            dados={bids}
+            dados={bidsExibidosAba}
             colunas={bidColunas}
             idKey="id_disparo_cotacao_bid_frete_internacional"
-            mensagemVazio={t('bidfrete.detalhe_cotacao.vazio_disparos')}
+            mensagemVazio={
+              filtroDisparosAba === 'recusas'
+                ? t('bidfrete.detalhe_cotacao.vazio_recusas', 'Nenhum disparo sem resposta no momento')
+                : t('bidfrete.detalhe_cotacao.vazio_disparos')
+            }
             tooltipBusca={t('bidfrete.detalhe_cotacao.buscar_fornecedor')}
           />
         </div>
@@ -771,7 +849,8 @@ export default function DetalheCotacao() {
           status_cotacao_bid_frete_internacional={cotacao.status_cotacao_bid_frete_internacional}
           propostasRanking={propostasRanking}
           carregandoRanking={carregandoRanking}
-          variante="padrao"
+          variante="combate"
+          exibirToolbarOrdenacao
           onCotacaoAtualizada={handleCotacaoAtualizada}
         />
       )}
@@ -1074,9 +1153,10 @@ export default function DetalheCotacao() {
         /* ── Dados — 3 cards ── */
         .dc-dados-layout {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 1.15rem;
           align-items: stretch;
+          width: 100%;
         }
         @media (max-width: 1100px) {
           .dc-dados-layout { grid-template-columns: 1fr; }
@@ -1140,7 +1220,7 @@ export default function DetalheCotacao() {
           overflow: hidden;
         }
         .dc-dados-card--rota .dc-rota-visual {
-          margin-top: 0;
+          margin-top: 16px;
         }
         .dc-dados-card--carga .dc-dados-card-title { color: #e0e7ff; }
         .dc-dados-card-body {
@@ -1169,10 +1249,23 @@ export default function DetalheCotacao() {
           gap: 0.85rem;
           align-items: flex-start;
           padding: 0.9rem 1rem;
+          margin-top: 24px;
           margin-bottom: 0.5rem;
           border-radius: 10px;
           background: rgba(99, 102, 241, 0.08);
           border: 1px solid rgba(129, 140, 248, 0.22);
+          min-width: 0;
+        }
+        .dc-mercadoria-conteudo {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 0.35rem;
+        }
+        .dc-mercadoria-conteudo .dc-info-label {
+          display: block;
         }
         .dc-mercadoria-icon {
           flex-shrink: 0;
@@ -1184,11 +1277,14 @@ export default function DetalheCotacao() {
           border: 1px solid rgba(129, 140, 248, 0.28);
         }
         .dc-mercadoria-texto {
-          margin: 0.25rem 0 0;
+          display: block;
+          margin: 0;
           font-size: 0.8125rem;
           line-height: 1.5;
           color: #f8fafc;
           font-weight: 500;
+          width: 100%;
+          max-width: 100%;
         }
 
         /* ── Tabs ── */
@@ -1374,7 +1470,7 @@ export default function DetalheCotacao() {
         }
         .dc-prop-list--podio {
           display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-columns: repeat(var(--dc-prop-podio-cols, 3), minmax(0, 1fr));
           gap: 1.5rem;
           align-items: stretch;
         }
@@ -1405,7 +1501,7 @@ export default function DetalheCotacao() {
           border-radius: 14px;
           overflow: hidden;
           background: linear-gradient(168deg, #2a3548 0%, #1e293b 42%, #161f2e 100%);
-          border: 1px solid rgba(148, 163, 184, 0.12);
+          border: 1px solid rgba(148, 163, 184, 0.06);
           --dc-prop-texto: var(--ws-muted, var(--text-secondary, #94a3b8));
           --dc-prop-valor: #ffffff;
           --dc-prop-px: 1.875rem;
@@ -1429,12 +1525,12 @@ export default function DetalheCotacao() {
         }
         .dc-prop-card .dc-info-icon-badge,
         .dc-prop-card .dc-prop-icon-badge {
-          background: rgba(148, 163, 184, 0.08);
-          border-color: rgba(148, 163, 184, 0.18);
+          background: rgba(148, 163, 184, 0.04);
+          border-color: rgba(148, 163, 184, 0.09);
         }
         .dc-prop-card .dc-prop-badge-aprovada {
-          background: rgba(148, 163, 184, 0.08);
-          border-color: rgba(148, 163, 184, 0.18);
+          background: rgba(148, 163, 184, 0.04);
+          border-color: rgba(148, 163, 184, 0.09);
         }
         .dc-prop-list--podio .dc-prop-card {
           display: flex;
@@ -1444,29 +1540,29 @@ export default function DetalheCotacao() {
           transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
         }
         .dc-prop-list--podio .dc-prop-card--lider {
-          border-color: rgba(234, 179, 8, 0.28);
+          border-color: rgba(234, 179, 8, 0.14);
         }
         .dc-prop-list--podio .dc-prop-card--segundo {
-          border-color: rgba(148, 163, 184, 0.24);
+          border-color: rgba(148, 163, 184, 0.12);
         }
         .dc-prop-list--podio .dc-prop-card--terceiro {
-          border-color: rgba(217, 119, 6, 0.28);
+          border-color: rgba(217, 119, 6, 0.14);
         }
         .dc-prop-list--podio .dc-prop-card:hover {
           transform: translateY(-2px);
-          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.11);
         }
         .dc-prop-list--podio .dc-prop-card--lider:hover {
-          border-color: rgba(234, 179, 8, 0.35);
-          box-shadow: 0 10px 28px rgba(234, 179, 8, 0.08);
+          border-color: rgba(234, 179, 8, 0.175);
+          box-shadow: 0 10px 28px rgba(234, 179, 8, 0.04);
         }
         .dc-prop-list--podio .dc-prop-card--segundo:hover {
-          border-color: rgba(148, 163, 184, 0.38);
-          box-shadow: 0 10px 28px rgba(148, 163, 184, 0.1);
+          border-color: rgba(148, 163, 184, 0.19);
+          box-shadow: 0 10px 28px rgba(148, 163, 184, 0.05);
         }
         .dc-prop-list--podio .dc-prop-card--terceiro:hover {
-          border-color: rgba(217, 119, 6, 0.38);
-          box-shadow: 0 10px 28px rgba(217, 119, 6, 0.1);
+          border-color: rgba(217, 119, 6, 0.19);
+          box-shadow: 0 10px 28px rgba(217, 119, 6, 0.05);
         }
         .dc-prop-card::after {
           content: '';
@@ -1475,6 +1571,7 @@ export default function DetalheCotacao() {
           left: 0;
           right: 0;
           height: 3px;
+          opacity: 0.5;
           background: linear-gradient(90deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%);
         }
         .dc-prop-card--lider::after {
@@ -1496,7 +1593,7 @@ export default function DetalheCotacao() {
           justify-content: space-between;
           gap: 1rem;
           padding: 1rem var(--dc-prop-px) 1rem;
-          border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+          border-bottom: 1px solid rgba(148, 163, 184, 0.05);
         }
         .dc-prop-card-head:has(.dc-prop-tags:not(:empty)),
         .dc-prop-card-head:has(.dc-prop-card-destaques),
@@ -1593,8 +1690,8 @@ export default function DetalheCotacao() {
           font-size: 0.625rem;
           font-weight: 700;
           text-transform: uppercase;
-          background: rgba(34, 197, 94, 0.12);
-          border: 1px solid rgba(74, 222, 128, 0.28);
+          background: rgba(34, 197, 94, 0.06);
+          border: 1px solid rgba(74, 222, 128, 0.14);
           color: #86efac;
         }
         .dc-prop-badge-reprovada {
@@ -1606,12 +1703,12 @@ export default function DetalheCotacao() {
           font-size: 0.625rem;
           font-weight: 700;
           text-transform: uppercase;
-          background: rgba(239, 68, 68, 0.12);
-          border: 1px solid rgba(248, 113, 113, 0.28);
+          background: rgba(239, 68, 68, 0.06);
+          border: 1px solid rgba(248, 113, 113, 0.14);
           color: #fca5a5;
         }
         .dc-prop-card--reprovada {
-          opacity: 0.78;
+          opacity: 0.39;
         }
         .dc-prop-card--reprovada::after {
           background: linear-gradient(90deg, #991b1b 0%, #ef4444 50%, #fca5a5 100%);
@@ -1634,14 +1731,14 @@ export default function DetalheCotacao() {
           font-size: 0.6875rem;
           font-weight: 500;
           line-height: 1.5;
-          border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+          border-bottom: 1px solid rgba(148, 163, 184, 0.04);
         }
         .dc-prop-card--compacto .dc-prop-resumo--rodape {
           margin-top: auto;
           flex-shrink: 0;
           padding: 1rem var(--dc-prop-px) 1rem;
           line-height: 1.4;
-          border-top: 1px solid rgba(148, 163, 184, 0.1);
+          border-top: 1px solid rgba(148, 163, 184, 0.05);
           border-bottom: none;
           display: -webkit-box;
           -webkit-line-clamp: 2;
@@ -1650,7 +1747,7 @@ export default function DetalheCotacao() {
         }
         .dc-prop-card--compacto .dc-prop-obs {
           padding: 0.45rem var(--dc-prop-px) 0.65rem;
-          border-top: 1px solid rgba(148, 163, 184, 0.08);
+          border-top: 1px solid rgba(148, 163, 184, 0.04);
         }
         .dc-prop-card-acoes {
           display: flex;
@@ -1661,17 +1758,17 @@ export default function DetalheCotacao() {
           margin-top: 0;
         }
         @keyframes dc-prop-pulse-aprovar {
-          0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.32); }
+          0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.16); }
           70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
           100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
         .dc-prop-card-acoes .dc-prop-btn-aprovar.gb-btn {
           background: linear-gradient(
             180deg,
-            rgba(16, 185, 129, 0.11) 0%,
-            rgba(16, 185, 129, 0.05) 100%
+            rgba(16, 185, 129, 0.055) 0%,
+            rgba(16, 185, 129, 0.025) 100%
           );
-          border-color: rgba(52, 211, 153, 0.26);
+          border-color: rgba(52, 211, 153, 0.13);
           color: #34d399;
           animation: dc-prop-pulse-aprovar 2.5s ease-out infinite;
           transition:
@@ -1683,18 +1780,18 @@ export default function DetalheCotacao() {
         .dc-prop-card-acoes .dc-prop-btn-aprovar.gb-btn:hover:not(:disabled) {
           background: linear-gradient(
             180deg,
-            rgba(16, 185, 129, 0.17) 0%,
-            rgba(16, 185, 129, 0.09) 100%
+            rgba(16, 185, 129, 0.085) 0%,
+            rgba(16, 185, 129, 0.045) 100%
           );
-          border-color: rgba(52, 211, 153, 0.4);
+          border-color: rgba(52, 211, 153, 0.2);
           color: #6ee7b7;
         }
         .dc-prop-card-acoes .dc-prop-btn-aprovar .gb-btn__icon-badge {
-          background: rgba(16, 185, 129, 0.16);
+          background: rgba(16, 185, 129, 0.08);
           color: #10b981;
         }
         .dc-prop-card-acoes .dc-prop-btn-aprovar.gb-btn:hover:not(:disabled) .gb-btn__icon-badge {
-          background: rgba(16, 185, 129, 0.24);
+          background: rgba(16, 185, 129, 0.12);
           color: #34d399;
         }
         .dc-prop-card-acoes .dc-prop-btn-aprovar.gb-btn--carregando {
@@ -1744,8 +1841,8 @@ export default function DetalheCotacao() {
           margin: 0;
           border-bottom: none;
           border-radius: 7px;
-          background: rgba(15, 23, 42, 0.38);
-          border: 1px solid rgba(148, 163, 184, 0.08);
+          background: rgba(15, 23, 42, 0.19);
+          border: 1px solid rgba(148, 163, 184, 0.04);
         }
         .dc-prop-card .dc-prop-card-body .dc-info-label-group {
           flex: 1 1 auto;
@@ -1772,8 +1869,8 @@ export default function DetalheCotacao() {
           margin-top: calc(1rem - 0.625rem);
         }
         .dc-prop-card .dc-prop-card-body .dc-info-row--frete-total {
-          background: rgba(99, 102, 241, 0.12);
-          border-color: rgba(129, 140, 248, 0.28);
+          background: rgba(99, 102, 241, 0.06);
+          border-color: rgba(129, 140, 248, 0.14);
         }
         .dc-prop-card .dc-info-row--frete-total .dc-info-label {
           color: #ffffff;
@@ -1783,13 +1880,13 @@ export default function DetalheCotacao() {
           border-bottom: none;
         }
         .dc-prop-icon-badge {
-          background: rgba(148, 163, 184, 0.08);
-          border-color: rgba(148, 163, 184, 0.18);
+          background: rgba(148, 163, 184, 0.04);
+          border-color: rgba(148, 163, 184, 0.09);
         }
         .dc-prop-obs {
           margin: 0;
           padding: 0.65rem var(--dc-prop-px) 1rem;
-          border-top: 1px solid rgba(148, 163, 184, 0.1);
+          border-top: 1px solid rgba(148, 163, 184, 0.05);
           font-size: 0.8125rem;
           font-style: italic;
         }

@@ -8,6 +8,7 @@ describe('EnviarPropostaSchema — portal fornecedor', () => {
     taxas_origem_proposta_bid_frete_internacional: 77,
     taxas_destino_proposta_bid_frete_internacional: 77,
     dias_transito_proposta_bid_frete_internacional: 10,
+    dias_prazo_pagamento_proposta_bid_frete_internacional: 30,
     transbordos_proposta_bid_frete_internacional: 0,
   }
 
@@ -36,6 +37,16 @@ describe('EnviarPropostaSchema — portal fornecedor', () => {
     if (parsed.success) {
       expect(parsed.data.validade_proposta_bid_frete_internacional).toBe('2026-07-01T12:00:00.000Z')
     }
+  })
+
+  it('exige dias_prazo_pagamento_proposta_bid_frete_internacional', () => {
+    const parsed = EnviarPropostaSchema.safeParse({
+      ...basePayload,
+      validade_proposta_bid_frete_internacional: '2026-07-01',
+      dias_prazo_pagamento_proposta_bid_frete_internacional: undefined,
+    })
+
+    expect(parsed.success).toBe(false)
   })
 
   it('ignora campos extras enviados pelo frontend (ex.: valor_total)', () => {

@@ -2379,7 +2379,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
             </section>
 
             <section className="nc-cargo-subsecao" aria-labelledby="nc-cargo-quantidade">
-              <h4 id="nc-cargo-quantidade" className="nc-cargo-subsecao-title">Quantidade</h4>
+              <h4 id="nc-cargo-quantidade" className="nc-cargo-subsecao-title">{t('bidfrete.nova_cotacao.quantidade')}</h4>
               {exigeContainerFcl ? (
                 <>
                   <div className="nc-linhas-container-header">

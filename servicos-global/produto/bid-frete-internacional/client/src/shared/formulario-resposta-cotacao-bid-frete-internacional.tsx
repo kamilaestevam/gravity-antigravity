@@ -19,8 +19,13 @@ import {
   PaperPlaneTilt,
   CheckCircle,
   WarningCircle,
+  BellRinging,
+  HandCoins,
+  RocketLaunch,
+  Table,
 } from '@phosphor-icons/react'
-import type { ModalFrete, PropostaBidFreteInternacional, TipoOperacao } from './types'
+import { LogoGlobal } from '@nucleo/logo-global'
+import type { ModalFrete, ModalidadeCarga, PropostaBidFreteInternacional, TipoOperacao } from './types'
 import type { CodigoBloqueioRespostaDisparoBidFreteInternacional } from './visao-fornecedor-bid-frete-internacional-schemas'
 import { MODAL_LABELS } from './types'
 import {
@@ -40,7 +45,13 @@ import {
 } from './taxas-linha-proposta-bid-frete-internacional'
 import { formatarRotaExibicaoCotacao } from './formatacao-local-logistico-bid-frete-internacional'
 import { useOpcoesMoedaCadastrosBidFreteInternacional } from './use-opcoes-moeda-cadastros-bid-frete-internacional'
+import { urlMarketplaceBidFreteInternacional } from './url-marketplace-gravity-bid-frete-internacional'
 import './formulario-resposta-cotacao-bid-frete-internacional.css'
+
+const PROP_LINK_MARKETPLACE = {
+  target: '_blank',
+  rel: 'noopener noreferrer',
+} as const
 
 export const MODAL_ICONS_RESPOSTA: Record<ModalFrete, React.ReactNode> = {
   MARITIMO: <Anchor weight="duotone" size={16} />,
@@ -56,6 +67,7 @@ export interface DetalhesCotacaoResposta {
   origem_nome_cotacao_bid_frete_internacional: string
   destino_nome_cotacao_bid_frete_internacional: string
   modal_cotacao_bid_frete_internacional?: ModalFrete
+  modalidade_cotacao_bid_frete_internacional?: ModalidadeCarga
   incoterm_cotacao_bid_frete_internacional: string
   descricao_mercadoria_cotacao_bid_frete_internacional: string
   quantidade_cotacao_bid_frete_internacional?: number
@@ -70,6 +82,7 @@ export interface EstadoFormularioRespostaCotacao {
   linhas_taxa_destino: LinhaTaxaPropostaBidFreteInternacional[]
   dias_transito_proposta_bid_frete_internacional: string
   dias_free_time_proposta_bid_frete_internacional: string
+  dias_prazo_pagamento_proposta_bid_frete_internacional: string
   validade_proposta_bid_frete_internacional: string
   transbordos_proposta_bid_frete_internacional: string
   escalas_proposta_bid_frete_internacional: string
@@ -101,6 +114,10 @@ export function estadoFormularioFromProposta(
     dias_free_time_proposta_bid_frete_internacional:
       proposta.dias_free_time_proposta_bid_frete_internacional != null
         ? String(proposta.dias_free_time_proposta_bid_frete_internacional)
+        : '',
+    dias_prazo_pagamento_proposta_bid_frete_internacional:
+      proposta.dias_prazo_pagamento_proposta_bid_frete_internacional != null
+        ? String(proposta.dias_prazo_pagamento_proposta_bid_frete_internacional)
         : '',
     validade_proposta_bid_frete_internacional: validade,
     transbordos_proposta_bid_frete_internacional: String(
@@ -173,9 +190,23 @@ export function exibeCampoEscalasRespostaCotacao(modal?: ModalFrete | null): boo
   return modal === 'AEREO'
 }
 
+export function exigeFreeTimeObrigatorioRespostaCotacao(
+  modalidade?: ModalidadeCarga | null,
+): boolean {
+  return modalidade === 'FCL'
+}
+
+function diasInteiroNaoNegativoValido(valor: string): boolean {
+  const v = valor.trim()
+  if (v === '') return false
+  const n = Number(v)
+  return Number.isInteger(n) && n >= 0
+}
+
 export function camposLogisticaRespostaCotacaoValidos(
   form: EstadoFormularioRespostaCotacao,
   modal?: ModalFrete | null,
+  modalidade?: ModalidadeCarga | null,
 ): boolean {
   if (exibeCampoTransbordosRespostaCotacao(modal)) {
     const v = form.transbordos_proposta_bid_frete_internacional.trim()
@@ -184,6 +215,14 @@ export function camposLogisticaRespostaCotacaoValidos(
   if (exibeCampoEscalasRespostaCotacao(modal)) {
     const v = form.escalas_proposta_bid_frete_internacional.trim()
     if (v === '' || Number.isNaN(Number(v)) || Number(v) < 0) return false
+  }
+  if (!diasInteiroNaoNegativoValido(form.dias_prazo_pagamento_proposta_bid_frete_internacional)) {
+    return false
+  }
+  if (exigeFreeTimeObrigatorioRespostaCotacao(modalidade)) {
+    if (!diasInteiroNaoNegativoValido(form.dias_free_time_proposta_bid_frete_internacional)) {
+      return false
+    }
   }
   return true
 }
@@ -195,6 +234,7 @@ export const ESTADO_INICIAL_FORMULARIO_RESPOSTA: EstadoFormularioRespostaCotacao
   linhas_taxa_destino: [],
   dias_transito_proposta_bid_frete_internacional: '',
   dias_free_time_proposta_bid_frete_internacional: '',
+  dias_prazo_pagamento_proposta_bid_frete_internacional: '',
   validade_proposta_bid_frete_internacional: '',
   transbordos_proposta_bid_frete_internacional: '',
   escalas_proposta_bid_frete_internacional: '',
@@ -308,6 +348,7 @@ export function SecaoDetalhesCotacaoResposta({
 export function FormPropostaRespostaCotacao({
   form,
   modalCotacao,
+  modalidadeCotacao,
   onChange,
   onLinhasOrigemChange,
   onLinhasDestinoChange,
@@ -321,6 +362,7 @@ export function FormPropostaRespostaCotacao({
 }: {
   form: EstadoFormularioRespostaCotacao
   modalCotacao?: ModalFrete | null
+  modalidadeCotacao?: ModalidadeCarga | null
   onChange: (field: keyof EstadoFormularioRespostaCotacao, value: string) => void
   onLinhasOrigemChange: (linhas: LinhaTaxaPropostaBidFreteInternacional[]) => void
   onLinhasDestinoChange: (linhas: LinhaTaxaPropostaBidFreteInternacional[]) => void
@@ -358,12 +400,14 @@ export function FormPropostaRespostaCotacao({
     total: string
     transit: string
     freeTime: string
+    prazoPagamento: string
     validade: string
     transbordos: string
     escalas: string
     observacoes: string
     placeholderTransit: string
     placeholderFreeTime: string
+    placeholderPrazoPagamento: string
     placeholderTransbordos: string
     placeholderEscalas: string
     placeholderValorFrete: string
@@ -398,6 +442,7 @@ export function FormPropostaRespostaCotacao({
 
   const mostrarTransbordos = exibeCampoTransbordosRespostaCotacao(modalCotacao)
   const mostrarEscalas = exibeCampoEscalasRespostaCotacao(modalCotacao)
+  const freeTimeObrigatorio = exigeFreeTimeObrigatorioRespostaCotacao(modalidadeCotacao)
 
   const composicaoProposta = calcularComposicaoPropostaResposta({
     moeda_frete: form.moeda_proposta_bid_frete_internacional,
@@ -513,11 +558,16 @@ export function FormPropostaRespostaCotacao({
           </div>
 
           <div className="brc-field">
-            <label className="brc-label">{rotulos.freeTime}</label>
+            {freeTimeObrigatorio ? (
+              <LabelObrigatorio>{rotulos.freeTime}</LabelObrigatorio>
+            ) : (
+              <label className="brc-label">{rotulos.freeTime}</label>
+            )}
             <input
               className="brc-input brc-input--mono"
               type="number"
               min="0"
+              step="1"
               placeholder={rotulos.placeholderFreeTime}
               value={form.dias_free_time_proposta_bid_frete_internacional}
               onChange={(e) => onChange('dias_free_time_proposta_bid_frete_internacional', e.target.value)}
@@ -567,6 +617,19 @@ export function FormPropostaRespostaCotacao({
             </div>
           ) : null}
 
+          <div className="brc-field">
+            <LabelObrigatorio>{rotulos.prazoPagamento}</LabelObrigatorio>
+            <input
+              className="brc-input brc-input--mono"
+              type="number"
+              min="0"
+              step="1"
+              placeholder={rotulos.placeholderPrazoPagamento}
+              value={form.dias_prazo_pagamento_proposta_bid_frete_internacional}
+              onChange={(e) => onChange('dias_prazo_pagamento_proposta_bid_frete_internacional', e.target.value)}
+            />
+          </div>
+
           <div className="brc-field brc-field--wide">
             <label className="brc-label">{rotulos.observacoes}</label>
             <textarea
@@ -608,6 +671,87 @@ export function AvisoEdicaoPropostaResposta({ texto }: { texto: string }) {
 
 export type VarianteMensagemRespostaCotacao = 'sucesso' | 'invalido' | 'bloqueado' | 'carregando'
 
+function FundoGravityRespostaPublica() {
+  return (
+    <div className="brc-auth-fundo" aria-hidden>
+      <div className="brc-auth-brand-grid" />
+    </div>
+  )
+}
+
+function MarcaLateralGravityRespostaPublica() {
+  const { t } = useTranslation()
+  const urlMarketplace = urlMarketplaceBidFreteInternacional()
+
+  const features = [
+    {
+      icon: <Table size={20} weight="duotone" className="brc-auth-feature-icon" />,
+      title: t('bidfrete.resposta_publica.marca_feature_1_titulo'),
+      desc: t('bidfrete.resposta_publica.marca_feature_1_desc'),
+    },
+    {
+      icon: <BellRinging size={20} weight="duotone" className="brc-auth-feature-icon" />,
+      title: t('bidfrete.resposta_publica.marca_feature_2_titulo'),
+      desc: t('bidfrete.resposta_publica.marca_feature_2_desc'),
+    },
+    {
+      icon: <HandCoins size={20} weight="duotone" className="brc-auth-feature-icon" />,
+      title: t('bidfrete.resposta_publica.marca_feature_3_titulo'),
+      desc: t('bidfrete.resposta_publica.marca_feature_3_desc'),
+    },
+    {
+      icon: <RocketLaunch size={20} weight="duotone" className="brc-auth-feature-icon" />,
+      title: t('bidfrete.resposta_publica.marca_feature_4_titulo'),
+      desc: t('bidfrete.resposta_publica.marca_feature_4_desc'),
+    },
+  ]
+
+  return (
+    <aside className="brc-auth-marca-login" aria-label={t('bidfrete.resposta_publica.marca_aria')}>
+      <div className="brc-auth-marca-conteudo">
+        <a
+          href={urlMarketplace}
+          {...PROP_LINK_MARKETPLACE}
+          className="brc-auth-marca-link brc-auth-logo"
+        >
+          <LogoGlobal iconSize={30} iconColor="#818cf8" />
+        </a>
+
+        <a
+          href={urlMarketplace}
+          {...PROP_LINK_MARKETPLACE}
+          className="brc-auth-marca-link brc-auth-marca-hero"
+        >
+          <h1 className="brc-auth-headline">
+            {t('bidfrete.resposta_publica.marca_headline')}{' '}
+            <span className="brc-auth-headline-accent">{t('bidfrete.resposta_publica.marca_headline_destaque')}</span>
+          </h1>
+
+          <p className="brc-auth-subheadline">{t('bidfrete.resposta_publica.marca_subheadline')}</p>
+        </a>
+
+        <div className="brc-auth-features">
+          {features.map((feature, index) => (
+            <a
+              key={feature.title}
+              href={urlMarketplace}
+              {...PROP_LINK_MARKETPLACE}
+              className="brc-auth-feature brc-auth-marca-link"
+              style={{ '--i': index } as React.CSSProperties}
+            >
+              <div className="brc-auth-feature-icon-wrapper">{feature.icon}</div>
+              <div className="brc-auth-feature-content">
+                <h2 className="brc-auth-feature-title">{feature.title}</h2>
+                <p className="brc-auth-feature-desc">{feature.desc}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </aside>
+  )
+}
+
 export function ShellPaginaRespostaCotacao({
   modo,
   children,
@@ -615,9 +759,23 @@ export function ShellPaginaRespostaCotacao({
   modo: 'publico' | 'logado'
   children: React.ReactNode
 }) {
+  if (modo === 'logado') {
+    return (
+      <div className="brc-page brc-page--logado">
+        <div className="brc-shell">{children}</div>
+      </div>
+    )
+  }
+
   return (
-    <div className={`brc-page brc-page--${modo}`}>
-      <div className="brc-shell">{children}</div>
+    <div className="brc-page brc-page--publico brc-auth-layout">
+      <FundoGravityRespostaPublica />
+      <MarcaLateralGravityRespostaPublica />
+      <div className="brc-auth-modal-wrap">
+        <div className="brc-auth-painel-form">
+          <div className="brc-shell">{children}</div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -838,6 +996,9 @@ export function criarRotulosFormularioResposta(
     total: t(`${prefixo}.campo_total`),
     transit: t(`${prefixo}.campo_transit`),
     freeTime: t(`${prefixo}.campo_free_time`),
+    prazoPagamento: t(`${prefixo}.campo_prazo_pagamento`, {
+      defaultValue: 'Prazo de pagamento (dias)',
+    }),
     validade: t(`${prefixo}.campo_validade`),
     transbordos: t(`${prefixo}.campo_transbordos`, {
       defaultValue: 'Quantidade de transbordos',
@@ -850,6 +1011,9 @@ export function criarRotulosFormularioResposta(
       defaultValue: 'Informar dias',
     }),
     placeholderFreeTime: t('bidfrete.portal.responder.placeholder_free_time', {
+      defaultValue: 'Informar dias',
+    }),
+    placeholderPrazoPagamento: t('bidfrete.portal.responder.placeholder_prazo_pagamento', {
       defaultValue: 'Informar dias',
     }),
     placeholderTransbordos: t('bidfrete.portal.responder.placeholder_transbordos', {

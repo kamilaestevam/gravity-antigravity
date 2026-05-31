@@ -32,6 +32,10 @@ export function montarPayloadPropostaRespostaBidFreteInternacional(
     dias_free_time_proposta_bid_frete_internacional: form.dias_free_time_proposta_bid_frete_internacional
       ? parseInt(form.dias_free_time_proposta_bid_frete_internacional, 10)
       : null,
+    dias_prazo_pagamento_proposta_bid_frete_internacional: parseInt(
+      form.dias_prazo_pagamento_proposta_bid_frete_internacional,
+      10,
+    ),
     validade_proposta_bid_frete_internacional: form.validade_proposta_bid_frete_internacional,
     transbordos_proposta_bid_frete_internacional: exibeCampoTransbordosRespostaCotacao(modalCotacao)
       ? parseInt(form.transbordos_proposta_bid_frete_internacional, 10) || 0

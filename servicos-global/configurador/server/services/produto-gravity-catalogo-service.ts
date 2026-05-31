@@ -571,7 +571,7 @@ const seedProducts: Prisma.ProdutoGravityUncheckedCreateInput[] = [
     publico_alvo_produto_gravity: 'Importadores, exportadores e despachantes aduaneiros',
   },
   {
-    nome_produto_gravity: 'BID Frete Internacional',
+    nome_produto_gravity: 'Bid Frete Internacional',
     slug_produto_gravity: 'bid-frete',
     descricao_produto_gravity: 'Licitação inteligente de fretes internacionais com análise de fornecedores, ranking automático e cálculo de savings',
     status_produto_gravity: 'ATIVO',

@@ -2,7 +2,7 @@
  * Painel compacto: linha do tempo resumida + infográficos das propostas.
  */
 
-import React, { useMemo, type CSSProperties } from 'react'
+import React, { useMemo, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   CheckCircle,
@@ -51,7 +51,13 @@ import type {
   DisparoCotacaoBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
 } from './types'
-import { ListaPropostasDetalheCotacao } from './propostas-detalhe-cotacao-bid-frete-internacional'
+import { BotaoGlobal } from '@nucleo/botao-global'
+import { ModalAprovarPropostaBidFreteInternacional } from './modal-aprovar-proposta-bid-frete-internacional'
+import {
+  cotacaoPermiteAcoesResposta,
+  ListaPropostasDetalheCotacao,
+  propostaPermiteAcoes,
+} from './propostas-detalhe-cotacao-bid-frete-internacional'
 
 const moeda = (val: number, currency: string) =>
   new Intl.NumberFormat('pt-BR', {
@@ -427,13 +433,54 @@ function AvisoGraficosInsightsCotacao({
 function CardMelhorPropostaSmart({
   info,
   smart,
+  id_cotacao_bid_frete_internacional,
+  status_cotacao_bid_frete_internacional,
+  propostasRanking,
+  onCotacaoAtualizada,
   t,
 }: {
   info: InfograficosFluxoCotacao
   smart: PainelSmartInsightsDados
+  id_cotacao_bid_frete_internacional?: string | null
+  status_cotacao_bid_frete_internacional?: StatusCotacao | null
+  propostasRanking: PropostaRankingBidFreteInternacional[]
+  onCotacaoAtualizada?: (cotacaoAtualizada?: Cotacao) => void
   t: (k: string, d?: string | Record<string, unknown>) => string
 }) {
+  const [modalAprovar, setModalAprovar] = useState(false)
+
   const resumo = info.melhorPropostaResumo
+  const propostaMelhor = useMemo(
+    () => (resumo
+      ? propostasRanking.find(
+        (p) => p.id_proposta_bid_frete_internacional === resumo.id_proposta_bid_frete_internacional,
+      ) ?? null
+      : null),
+    [propostasRanking, resumo],
+  )
+
+  const exibirAprovar = Boolean(
+    id_cotacao_bid_frete_internacional
+    && propostaMelhor
+    && propostasRanking.length > 0
+    && cotacaoPermiteAcoesResposta(status_cotacao_bid_frete_internacional)
+    && propostaPermiteAcoes(propostaMelhor),
+  )
+
+  function abrirModalAprovar() {
+    if (!propostaMelhor) return
+    setModalAprovar(true)
+  }
+
+  function fecharModalAprovar() {
+    setModalAprovar(false)
+  }
+
+  function aoAprovarProposta(cotAtualizada: Cotacao) {
+    onCotacaoAtualizada?.(cotAtualizada)
+    fecharModalAprovar()
+  }
+
   if (!resumo) {
     return (
       <article className="dc-smart-card dc-smart-card--melhor dc-smart-card--vazio">
@@ -513,8 +560,28 @@ function CardMelhorPropostaSmart({
         <span className="dc-smart-fornecedor-nome" title={resumo.fornecedor}>
           {resumo.fornecedor.length > 24 ? `${resumo.fornecedor.slice(0, 22)}…` : resumo.fornecedor}
         </span>
-        <Trophy weight="fill" size={16} className="dc-smart-trophy-sm" aria-hidden />
+        {exibirAprovar && (
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="pequeno"
+            className="dc-prop-btn-aprovar dc-smart-btn-aprovar"
+            icone={<CheckCircle weight="bold" size={14} />}
+            onClick={abrirModalAprovar}
+            disabled={modalAprovar}
+          >
+            {t('bidfrete.comparativo.aprovar', 'Aprovar')}
+          </BotaoGlobal>
+        )}
       </footer>
+      {propostaMelhor && id_cotacao_bid_frete_internacional && (
+        <ModalAprovarPropostaBidFreteInternacional
+          aberto={modalAprovar}
+          id_cotacao_bid_frete_internacional={id_cotacao_bid_frete_internacional}
+          proposta={propostaMelhor}
+          onFechar={fecharModalAprovar}
+          onAprovado={aoAprovarProposta}
+        />
+      )}
     </article>
   )
 }
@@ -622,66 +689,205 @@ function CardRankingRespostasInsights({
   )
 }
 
-function CardKpiCompeticao({
+const STATUS_COTACAO_BLOQUEIA_DISPARO: StatusCotacao[] = [
+  'APROVADA',
+  'REPROVADA',
+  'CANCELADA',
+  'EXPIRADA',
+]
+
+export function podeDispararCotacaoBidFrete(status: StatusCotacao | null | undefined): boolean {
+  if (!status) return false
+  return !STATUS_COTACAO_BLOQUEIA_DISPARO.includes(status)
+}
+
+function RotuloSegmentoCompeticao({
   rotulo,
-  valor,
-  icone,
-  variante,
+  rotuloLinhas,
 }: {
-  rotulo: string
-  valor: number
-  icone: React.ReactNode
-  variante: 'disparos' | 'respostas' | 'recusas'
+  rotulo?: string
+  rotuloLinhas?: readonly [string, string]
 }) {
+  if (rotuloLinhas) {
+    return (
+      <span className="dc-competicao-seg-lbl dc-competicao-seg-lbl--duas-linhas">
+        <span className="dc-competicao-seg-lbl-linha">{rotuloLinhas[0]}</span>
+        <span className="dc-competicao-seg-lbl-linha">{rotuloLinhas[1]}</span>
+      </span>
+    )
+  }
+  return <span className="dc-competicao-seg-lbl">{rotulo}</span>
+}
+
+function SegmentoCompeticaoHero({
+  rotulo,
+  rotuloLinhas,
+  valor,
+  variante,
+  icone,
+  interativo = false,
+  onAcao,
+  habilitado = true,
+  titulo,
+}: {
+  rotulo?: string
+  rotuloLinhas?: readonly [string, string]
+  valor: number
+  variante: 'disparos' | 'respostas' | 'recusas'
+  icone: React.ReactNode
+  interativo?: boolean
+  onAcao?: () => void
+  habilitado?: boolean
+  titulo?: string
+}) {
+  const rotuloTexto = rotuloLinhas ? rotuloLinhas.join(' ') : (rotulo ?? '')
+  const rotuloAcessivel = titulo ?? `${rotuloTexto}: ${valor}`
+  const classe = [
+    'dc-competicao-seg',
+    `dc-competicao-seg--${variante}`,
+    interativo ? 'dc-competicao-seg--acao' : '',
+    interativo && habilitado ? 'dc-competicao-seg--acao-ativo' : '',
+    interativo && !habilitado ? 'dc-competicao-seg--acao-inativo' : '',
+  ].filter(Boolean).join(' ')
+
+  if (interativo) {
+    return (
+      <button
+        type="button"
+        className={classe}
+        onClick={habilitado ? onAcao : undefined}
+        disabled={!habilitado}
+        title={rotuloAcessivel}
+        aria-label={rotuloAcessivel}
+      >
+        <span className="dc-competicao-seg-icone" aria-hidden>{icone}</span>
+        <span className="dc-competicao-seg-val">{valor}</span>
+        <RotuloSegmentoCompeticao rotulo={rotulo} rotuloLinhas={rotuloLinhas} />
+      </button>
+    )
+  }
+
   return (
-    <article className={`dc-smart-kpi-card dc-smart-kpi-card--${variante}`}>
-      <div className="dc-smart-kpi-card-topo">
-        <span className="dc-smart-kpi-card-icon" aria-hidden>
-          {icone}
-        </span>
-        <span className="dc-smart-kpi-card-lbl">{rotulo}</span>
-      </div>
-      <span className="dc-smart-kpi-card-val">{valor}</span>
-    </article>
+    <div className={classe} title={rotuloAcessivel} aria-label={rotuloAcessivel}>
+      <span className="dc-competicao-seg-icone" aria-hidden>{icone}</span>
+      <span className="dc-competicao-seg-val">{valor}</span>
+      <RotuloSegmentoCompeticao rotulo={rotulo} rotuloLinhas={rotuloLinhas} />
+    </div>
   )
 }
 
-function ColunaMetricasCompeticaoInsights({
+function ResumoCompeticaoHero({
   info,
   smart,
   propostas,
   t,
+  onIrDisparos,
+  onIrRespostas,
+  onIrRecusas,
 }: {
   info: InfograficosFluxoCotacao
   smart: PainelSmartInsightsDados
   propostas: PropostaRankingBidFreteInternacional[]
   t: (k: string, d?: string | Record<string, unknown>) => string
+  onIrDisparos?: () => void
+  onIrRespostas?: () => void
+  onIrRecusas?: () => void
 }) {
+  const rotuloDisparosLinhas: readonly [string, string] = [
+    t('bidfrete.detalhe_cotacao.cockpit_disparos_linha1', 'Solicitações de'),
+    t('bidfrete.detalhe_cotacao.cockpit_disparos_linha2', 'cotação'),
+  ]
+  const rotuloRespostas = t('bidfrete.detalhe_cotacao.cockpit_respostas', 'Respostas')
+  const rotuloRecusas = t('bidfrete.detalhe_cotacao.cockpit_recusas', 'Recusas')
+
   return (
     <div
-      className="dc-smart-metricas-coluna"
+      className="dc-cockpit-competicao-resumo"
       role="group"
       aria-label={t('bidfrete.detalhe_cotacao.cockpit_metricas_competicao', 'Métricas da competição')}
     >
-      <CardKpiCompeticao
-        rotulo={t('bidfrete.detalhe_cotacao.cockpit_disparos', 'Disparos')}
+      <SegmentoCompeticaoHero
+        rotuloLinhas={rotuloDisparosLinhas}
         valor={info.quantidadeDisparosEnviados}
-        icone={<PaperPlaneTilt weight="duotone" size={18} />}
         variante="disparos"
+        icone={<PaperPlaneTilt weight="duotone" size={16} />}
+        interativo={onIrDisparos != null}
+        onAcao={onIrDisparos}
+        titulo={t('bidfrete.detalhe_cotacao.ir_aba_disparos', {
+          n: info.quantidadeDisparosEnviados,
+          defaultValue: `Ver ${info.quantidadeDisparosEnviados} disparos`,
+        })}
       />
-      <CardKpiCompeticao
-        rotulo={t('bidfrete.detalhe_cotacao.cockpit_respostas', 'Respostas')}
+      <span className="dc-competicao-seg-divider" aria-hidden />
+      <SegmentoCompeticaoHero
+        rotulo={rotuloRespostas}
         valor={propostas.length}
-        icone={<CheckCircle weight="duotone" size={18} />}
         variante="respostas"
+        icone={<CheckCircle weight="duotone" size={16} />}
+        interativo={onIrRespostas != null}
+        onAcao={onIrRespostas}
+        titulo={t('bidfrete.detalhe_cotacao.ir_aba_respostas', {
+          n: propostas.length,
+          defaultValue: `Ver ${propostas.length} respostas`,
+        })}
       />
-      <CardKpiCompeticao
-        rotulo={t('bidfrete.detalhe_cotacao.cockpit_recusas', 'Recusas')}
+      <span className="dc-competicao-seg-divider" aria-hidden />
+      <SegmentoCompeticaoHero
+        rotulo={rotuloRecusas}
         valor={smart.quantidadeRecusasSemResposta}
-        icone={<XCircle weight="duotone" size={18} />}
         variante="recusas"
+        icone={<XCircle weight="duotone" size={16} />}
+        interativo={onIrRecusas != null}
+        onAcao={onIrRecusas}
+        titulo={t('bidfrete.detalhe_cotacao.ir_aba_recusas', {
+          n: smart.quantidadeRecusasSemResposta,
+          defaultValue: `Ver ${smart.quantidadeRecusasSemResposta} recusas sem resposta`,
+        })}
       />
     </div>
+  )
+}
+
+export interface MetricasCompeticaoHeroCotacaoProps {
+  disparos: DisparoCotacaoBidFreteInternacional[]
+  propostas: PropostaRankingBidFreteInternacional[]
+  historico_aprovado?: Cotacao['historico_aprovado']
+  onIrDisparos?: () => void
+  onIrRespostas?: () => void
+  onIrRecusas?: () => void
+}
+
+/** Disparos / Respostas / Recusas — faixa superior do cockpit (hero). */
+export function MetricasCompeticaoHeroCotacao({
+  disparos,
+  propostas,
+  historico_aprovado,
+  onIrDisparos,
+  onIrRespostas,
+  onIrRecusas,
+}: MetricasCompeticaoHeroCotacaoProps) {
+  const { t } = useTranslation()
+
+  const info = useMemo(
+    () => calcularInfograficosFluxoCotacao(disparos, propostas),
+    [disparos, propostas],
+  )
+
+  const smart = useMemo(
+    () => calcularPainelSmartInsights(disparos, propostas, info, historico_aprovado),
+    [disparos, propostas, info, historico_aprovado],
+  )
+
+  return (
+    <ResumoCompeticaoHero
+      info={info}
+      smart={smart}
+      propostas={propostas}
+      t={t}
+      onIrDisparos={onIrDisparos}
+      onIrRespostas={onIrRespostas}
+      onIrRecusas={onIrRecusas}
+    />
   )
 }
 
@@ -733,8 +939,16 @@ export function InsightsGridFluxoCotacao({
         quantidadePropostas={propostas.length}
         t={t}
       />
-      <div className="dc-smart-insights-grid dc-smart-insights-grid--4col">
-        <CardMelhorPropostaSmart info={info} smart={smart} t={t} />
+      <div className="dc-smart-insights-grid">
+        <CardMelhorPropostaSmart
+          info={info}
+          smart={smart}
+          id_cotacao_bid_frete_internacional={idCotacao}
+          status_cotacao_bid_frete_internacional={status_cotacao_bid_frete_internacional}
+          propostasRanking={propostasRanking}
+          onCotacaoAtualizada={onCotacaoAtualizada}
+          t={t}
+        />
         {idCotacao != null && (
           <CardRankingRespostasInsights
             id_cotacao_bid_frete_internacional={idCotacao}
@@ -746,7 +960,6 @@ export function InsightsGridFluxoCotacao({
           />
         )}
         <CardTermometroHistoricoSmart smart={smart} t={t} />
-        <ColunaMetricasCompeticaoInsights info={info} smart={smart} propostas={propostas} t={t} />
       </div>
       {propostas.length >= 2 && (
         <p className="dc-smart-legenda" aria-hidden>

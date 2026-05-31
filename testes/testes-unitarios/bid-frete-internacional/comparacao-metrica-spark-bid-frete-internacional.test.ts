@@ -4,6 +4,7 @@ import {
   formatarPctDiffMetrica,
   montarComparacaoMetricaSparkTooltip,
   montarLinhasAnaliseConcorrentesTooltip,
+  montarRotuloBarraMetricaRanking,
 } from '../../../servicos-global/produto/bid-frete-internacional/client/src/shared/comparacao-metrica-spark-bid-frete-internacional'
 import type { BarraComparativoInsight } from '../../../servicos-global/produto/bid-frete-internacional/client/src/shared/infograficos-fluxo-cotacao-bid-frete-internacional'
 
@@ -137,5 +138,46 @@ describe('montarLinhasAnaliseConcorrentesTooltip', () => {
 
     expect(linhas[0].textoLinha).toBe('05 dias — 50% mais rápido que Agente ABC')
     expect(linhas[0].classe).toBe('melhor')
+  })
+})
+
+describe('montarRotuloBarraMetricaRanking', () => {
+  const barras = [
+    barra({ valor: 120, fornecedor: 'TRANSCAPRI', destaque: true }),
+    barra({ valor: 150, fornecedor: 'OUTRO' }),
+  ]
+
+  it('retorna Melhor quando valor iguala o melhor da métrica', () => {
+    const r = montarRotuloBarraMetricaRanking({
+      valorAtual: 120,
+      barras,
+      melhorMenor: true,
+      t,
+    })
+    expect(r.texto).toBe('Melhor')
+    expect(r.classe).toBe('melhor')
+  })
+
+  it('retorna delta vs melhor quando pior que o líder', () => {
+    const r = montarRotuloBarraMetricaRanking({
+      valorAtual: 150,
+      barras,
+      melhorMenor: true,
+      t,
+    })
+    expect(r.texto).toBe('+25,0% vs melhor')
+    expect(r.classe).toBe('pior')
+  })
+
+  it('usa rank local quando não há barras comparativas', () => {
+    expect(
+      montarRotuloBarraMetricaRanking({
+        valorAtual: 10,
+        barras: [],
+        melhorMenor: true,
+        t,
+        rankLocal: 2,
+      }).texto,
+    ).toBe('2º')
   })
 })

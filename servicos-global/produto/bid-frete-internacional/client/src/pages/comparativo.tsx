@@ -31,7 +31,7 @@ import {
   Package,
 } from '@phosphor-icons/react'
 
-import { rankingCotacoesBidFreteInternacional, aprovarResposta, reprovarTodas, getCotacao } from '../shared/api'
+import { rankingCotacoesBidFreteInternacional, reprovarTodas, getCotacao } from '../shared/api'
 import { aplicarEstadoPosAprovacaoCotacao } from '../shared/sincronizar-estado-pos-aprovacao-cotacao-bid-frete-internacional'
 import type { PropostaRankingBidFreteInternacional, Cotacao } from '../shared/types'
 import {
@@ -125,9 +125,6 @@ export default function Comparativo() {
   // Modal de aprovacao
   const [modalAprovar, setModalAprovar] = useState(false)
   const [respostaSelecionada, setRespostaSelecionada] = useState<PropostaRankingBidFreteInternacional | null>(null)
-  const [aprovando, setAprovando] = useState(false)
-  const [aprovacaoSucesso, setAprovacaoSucesso] = useState(false)
-  const [resultadoAprovacaoPendente, setResultadoAprovacaoPendente] = useState<Cotacao | null>(null)
 
   // Modal de reprovacao
   const [modalReprovar, setModalReprovar] = useState(false)
@@ -226,40 +223,19 @@ export default function Comparativo() {
 
   // ─── Acoes ────────────────────────────────────────────────────────────────
 
-  async function handleAprovar() {
-    if (!id || !respostaSelecionada || aprovando || aprovacaoSucesso) return
-    setAprovando(true)
-    try {
-      const result = await aprovarResposta(id, respostaSelecionada.id_proposta_bid_frete_internacional)
-      setResultadoAprovacaoPendente(result)
-      setAprovacaoSucesso(true)
-    } catch {
-      // erro tratado pelo loading state
-    } finally {
-      setAprovando(false)
-    }
-  }
-
-  function concluirSucessoModalAprovar() {
-    if (resultadoAprovacaoPendente) {
-      const { cotacao: cotMesclada, propostasRanking: rankingSincronizado } =
-        aplicarEstadoPosAprovacaoCotacao(cotacao, respostas, resultadoAprovacaoPendente)
-      setCotacao(cotMesclada)
-      setRespostas(rankingSincronizado)
-      setResultadoAprovacao(cotMesclada)
-      setResultadoAprovacaoPendente(null)
-    }
-    setAprovacaoSucesso(false)
+  function aoAprovarProposta(cotAtualizada: Cotacao) {
+    const { cotacao: cotMesclada, propostasRanking: rankingSincronizado } =
+      aplicarEstadoPosAprovacaoCotacao(cotacao, respostas, cotAtualizada)
+    setCotacao(cotMesclada)
+    setRespostas(rankingSincronizado)
+    setResultadoAprovacao(cotMesclada)
     setModalAprovar(false)
+    setRespostaSelecionada(null)
   }
 
   function fecharModalAprovar() {
-    if (aprovando) return
-    if (aprovacaoSucesso) {
-      concluirSucessoModalAprovar()
-      return
-    }
     setModalAprovar(false)
+    setRespostaSelecionada(null)
   }
 
   async function handleReprovar() {
@@ -583,13 +559,10 @@ export default function Comparativo() {
       {/* ════════ Modal Aprovar ════════ */}
       <ModalAprovarPropostaBidFreteInternacional
         aberto={modalAprovar}
+        id_cotacao_bid_frete_internacional={id ?? ''}
         proposta={respostaSelecionada}
-        aprovando={aprovando}
-        aprovacaoSucesso={aprovacaoSucesso}
-        resultadoAprovacao={resultadoAprovacaoPendente}
         onFechar={fecharModalAprovar}
-        onConcluirSucesso={concluirSucessoModalAprovar}
-        onConfirmar={() => void handleAprovar()}
+        onAprovado={aoAprovarProposta}
       />
 
       {/* ════════ Modal Reprovar ════════ */}

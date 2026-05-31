@@ -333,7 +333,7 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
   // ── BID Frete Internacional ─────────────────────────────────────────────────
   {
     id: 'bid-frete',
-    nome: 'BID Frete Internacional',
+    nome: 'Bid Frete Internacional',
     descricao: 'Licitação inteligente de fretes internacionais. Solicite, compare e aprove cotações de múltiplos fornecedores.',
     baseUrl: 'https://api.usegravity.com.br/bid-frete/v1',
     versao: 'v1',

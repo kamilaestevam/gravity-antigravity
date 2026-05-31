@@ -15,7 +15,12 @@ import {
   Bell,
   Gear,
 } from '@phosphor-icons/react'
-import { PRODUCT_META, RELACAO_ENTRE_PRODUTOS_GRAVITY, STACK_ORDER } from '../data/product-meta'
+import {
+  PRODUCT_META,
+  RELACAO_ENTRE_PRODUTOS_GRAVITY,
+  STACK_ORDER,
+  nomeExibicaoProdutoGravity,
+} from '../data/product-meta'
 import './hub-store.css'
 import './hub.css'
 import '../pages/configurador/workspace.css'
@@ -504,7 +509,7 @@ export function Store() {
                               ? navigate(`/produto/${slug}`)
                               : document.getElementById(`produto-${slug}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
                             }
-                            title={cp.name}
+                            title={nomeExibicaoProdutoGravity(slug, cp.name, t)}
                           >
                             {/* Shape SVG da peça */}
                             <svg width="138" height="90" viewBox="0 0 138 90" className="gs-piece__svg">
@@ -515,7 +520,9 @@ export function Store() {
                               <div className="gs-piece__icon">
                                 {meta?.icon ?? <Package weight="duotone" size={20} color="#818cf8" />}
                               </div>
-                              <span className="gs-piece__name">{cp.name}</span>
+                              <span className="gs-piece__name">
+                                {nomeExibicaoProdutoGravity(slug, cp.name, t)}
+                              </span>
                               {isOwned && (
                                 <span className="gs-piece__check">
                                   <CheckCircle weight="fill" size={11} color="#10b981" />
@@ -671,7 +678,9 @@ export function Store() {
                         </div>
                       </div>
                       <div className="gs-card__body">
-                        <h3 className="gs-card__name">{meta?.nameKey ? t(meta.nameKey) : p.name}</h3>
+                        <h3 className="gs-card__name">
+                          {nomeExibicaoProdutoGravity(p.slug, p.name, t)}
+                        </h3>
                         {meta?.categoryKey && (
                           <span className="gs-card__category" style={{ color: meta.iconColor }}>
                             {t(meta.categoryKey)}
@@ -703,7 +712,7 @@ export function Store() {
                                     className={`gs-combina-chip${relOwned ? ' gs-combina-chip--owned' : ''}`}
                                     style={{ color: relMeta.iconColor }}
                                   >
-                                    {relProduct.name}
+                                    {nomeExibicaoProdutoGravity(relSlug, relProduct.name, t)}
                                   </span>
                                 )
                               })}

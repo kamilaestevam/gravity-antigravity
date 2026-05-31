@@ -998,8 +998,7 @@
   font-size: 0.6rem;
   font-weight: 700;
   color: rgba(255,255,255,0.35);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   line-height: 1.2;
   text-align: center;
   max-width: 72px;

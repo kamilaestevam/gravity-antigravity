@@ -355,3 +355,98 @@ export function montarComparacaoMetricaSparkTooltip(
     valorReferenciaFormatado: formatarValor(valorReferenciaCard),
   }
 }
+
+export interface RotuloBarraMetricaRanking {
+  texto: string
+  classe: ClasseComparacaoMetricaSpark
+}
+
+export function valorMelhorEntreBarras(
+  barras: BarraComparativoInsight[],
+  melhorMenor: boolean,
+): number {
+  if (barras.length === 0) return 0
+  const valores = barras.map((b) => b.valor)
+  return melhorMenor ? Math.min(...valores) : Math.max(...valores)
+}
+
+/** Rótulo da barra no ranking (combate): Melhor ou delta vs melhor — sem % de preenchimento. */
+export function montarRotuloBarraMetricaRanking(params: {
+  valorAtual: number
+  barras: BarraComparativoInsight[]
+  melhorMenor: boolean
+  t: TFunction
+  rankLocal?: number
+  /** Quando não há barras comparativas (ex.: preço total vs 1º). */
+  percentualAcimaDoMelhor?: number | null
+}): RotuloBarraMetricaRanking {
+  const {
+    valorAtual,
+    barras,
+    melhorMenor,
+    t,
+    rankLocal,
+    percentualAcimaDoMelhor,
+  } = params
+
+  if (barras.length >= 2) {
+    const melhorValor = valorMelhorEntreBarras(barras, melhorMenor)
+    const classe = classificarDiffMetricaSpark(melhorMenor, valorAtual, melhorValor)
+    if (valorAtual === melhorValor) {
+      return {
+        texto: t('bidfrete.detalhe_cotacao.barra_metrica_melhor', 'Melhor'),
+        classe: 'melhor',
+      }
+    }
+    const deltaPct = formatarPctDiffMetrica(valorAtual - melhorValor, melhorValor)
+    const delta = deltaPct ?? formatarDiffAbsolutaMetrica(
+      valorAtual - melhorValor,
+      (v) => String(v),
+    )
+    return {
+      texto: t(
+        'bidfrete.detalhe_cotacao.barra_metrica_delta_vs_melhor',
+        '{{delta}} vs melhor',
+        { delta },
+      ),
+      classe,
+    }
+  }
+
+  if (percentualAcimaDoMelhor != null) {
+    if (Math.abs(percentualAcimaDoMelhor) < 0.05) {
+      return {
+        texto: t('bidfrete.detalhe_cotacao.barra_metrica_melhor', 'Melhor'),
+        classe: 'melhor',
+      }
+    }
+    const pct = percentualAcimaDoMelhor.toLocaleString('pt-BR', {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    })
+    const delta = percentualAcimaDoMelhor > 0 ? `+${pct}%` : `−${pct}%`
+    return {
+      texto: t(
+        'bidfrete.detalhe_cotacao.barra_metrica_delta_vs_melhor',
+        '{{delta}} vs melhor',
+        { delta },
+      ),
+      classe: percentualAcimaDoMelhor > 0 ? 'pior' : 'melhor',
+    }
+  }
+
+  if (rankLocal != null && rankLocal > 0) {
+    if (rankLocal === 1) {
+      return {
+        texto: t('bidfrete.detalhe_cotacao.barra_metrica_melhor', 'Melhor'),
+        classe: 'melhor',
+      }
+    }
+    return {
+      texto: t('bidfrete.detalhe_cotacao.barra_metrica_colocacao', '{{n}}º', { n: rankLocal }),
+      classe: rankLocal <= 2 ? 'igual' : 'pior',
+    }
+  }
+
+  return { texto: '—', classe: 'igual' }
+}

@@ -196,6 +196,10 @@ export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown):
       raw.dias_free_time_proposta_bid_frete_internacional != null
         ? Number(raw.dias_free_time_proposta_bid_frete_internacional)
         : null,
+    dias_prazo_pagamento_proposta_bid_frete_internacional:
+      raw.dias_prazo_pagamento_proposta_bid_frete_internacional != null
+        ? Number(raw.dias_prazo_pagamento_proposta_bid_frete_internacional)
+        : null,
     quantidade_transbordo_proposta_bid_frete_internacional: Number(
       raw.quantidade_transbordo_proposta_bid_frete_internacional ??
         raw.transbordos_proposta_bid_frete_internacional ??
@@ -352,6 +356,9 @@ export function mapPropostaRankingBidFreteInternacionalFromServer(
 }
 
 export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
+  if (rawUnknown == null || typeof rawUnknown !== 'object') {
+    throw new BidFreteApiError('Payload de cotação inválido', 500, 'INVALID_RESPONSE')
+  }
   const raw = serializeValue(rawUnknown) as Record<string, unknown>
   const propostasRaw =
     (raw.propostas_bid_frete_internacional as unknown[] | undefined) ??
@@ -619,6 +626,9 @@ export async function aprovarResposta(cotacaoId: string, responseId: string): Pr
     body: JSON.stringify({ id_proposta_bid_frete_internacional: responseId }),
   })
   const data = await handleResponse<{ cotacao: unknown }>(res)
+  if (data.cotacao == null) {
+    throw new BidFreteApiError('Resposta da API sem cotação atualizada', 500, 'INVALID_RESPONSE')
+  }
   return mapCotacaoFromServer(data.cotacao)
 }
 

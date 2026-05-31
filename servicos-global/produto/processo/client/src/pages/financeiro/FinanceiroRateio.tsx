@@ -27,7 +27,6 @@ export default function FinanceiroRateio() {
       <FinanceiroTabs />
 
       <div className="fn-insights">
-        <div className="fn-insights-titulo">Painel de Insights</div>
         <div className="fn-insights-corpo">
           <div className="fn-insights-cards">
             <div className="fn-insights-card fn-insights-card--hero">

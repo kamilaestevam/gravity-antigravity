@@ -149,9 +149,8 @@ export default function FinanceiroMovimentacao() {
     >
       <FinanceiroTabs />
 
-      {/* Painel de Insights: total aberto + breakdown por status, toggle de moeda */}
+      {/* Painel: total aberto + breakdown por status, toggle de moeda */}
       <div className="fn-insights">
-        <div className="fn-insights-titulo">Painel de Insights</div>
         <div className="fn-insights-corpo">
           <div className="fn-insights-toggle">
             {(['BRL', 'USD', 'EUR'] as Moeda[]).map(m => (

@@ -10,7 +10,7 @@
 import { test, expect } from '../../../playwright.fixtures'
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3000'
-const ROTA_LISTA = '/bid-frete/cotacoes?visao=lista'
+const ROTA_LISTA = '/bid-frete/lista'
 
 test.describe.skip('BID Frete Internacional — Lista de Cotações', () => {
   test('LST-E01-01: coluna ID não visível; Organização/Usuário/Workspace legíveis', async ({ page }) => {
@@ -30,7 +30,7 @@ test.describe.skip('BID Frete Internacional — Lista de Cotações', () => {
     await page.goto(`${BASE_URL}${ROTA_LISTA}`)
     await page.getByRole('button', { name: /Kanban/i }).click()
     await page.getByRole('button', { name: /Lista/i }).click()
-    await expect(page).toHaveURL(/visao=lista/)
+    await expect(page).toHaveURL(/\/bid-frete\/lista/)
   })
 
   test('LST-E02-01: linha BID expandível exibe filhas', async ({ page }) => {

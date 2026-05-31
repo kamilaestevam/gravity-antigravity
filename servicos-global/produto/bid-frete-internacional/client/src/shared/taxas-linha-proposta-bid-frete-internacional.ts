@@ -5,6 +5,11 @@ import type { TipoTaxaOrigemDestino, TaxaOrigemDestinoCadastro } from './cadastr
 
 export const MOEDAS_LINHA_TAXA = ['USD', 'EUR', 'BRL', 'CNY', 'GBP'] as const
 
+export const OPCOES_MOEDA_LINHA_TAXA = MOEDAS_LINHA_TAXA.map((m) => ({
+  valor: m,
+  rotulo: m,
+}))
+
 export type SecaoTaxaLinhaProposta = 'origem' | 'destino'
 
 export interface LinhaTaxaPropostaBidFreteInternacional {

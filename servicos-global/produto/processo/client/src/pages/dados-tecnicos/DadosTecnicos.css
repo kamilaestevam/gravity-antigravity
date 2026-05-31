@@ -1,109 +1,791 @@
-/* DadosTecnicos.css — Estilos do formulario de Dados Tecnicos
-   Segue padroes do workspace.css (em-section, em-grid, ws-section-title) */
+/* DadosTecnicos — layout moderno: TOC lateral + secoes empilhadas
+   com edit-in-place. */
 
-/* ── Top bar (gauge + search + tabs) ─────────────────────────────────────── */
+/* ── Layout geral ──────────────────────────────────────────────────────── */
 
-.dt-top-bar {
-  display: flex;
-  align-items: flex-start;
+.dt-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 2rem;
+  /* align-items: stretch (default) — celula da TOC estica ate a altura
+     do main, dando 'espaco de rolagem' para o position: sticky funcionar
+     (sem isso a celula colapsa pro tamanho do conteudo e sticky nao
+     gruda). */
+  margin-top: 1.5rem;
+  transition: grid-template-columns 0.2s ease-out;
+}
+
+.dt-layout--toc-colapsada {
+  grid-template-columns: 56px 1fr;
   gap: 1.25rem;
-  flex-wrap: wrap;
 }
 
-.dt-top-bar .cg-card {
-  flex-shrink: 0;
-}
+/* ── Sidebar (TOC + stats) sticky ─────────────────────────────────────── */
 
-.dt-top-right {
-  flex: 1;
+.dt-sidebar {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  min-width: 0;
 }
 
-.dt-search-row {
+/* ── TOC lateral ───────────────────────────────────────────────────────── */
+
+.dt-toc {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.5rem;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(167, 139, 250, 0.12);
+  border-radius: 12px;
 }
 
-/* ── Pill tabs ────────────────────────────────────────────────────────────── */
+/* Topo do TOC: busca + toggle alinhados */
+.dt-toc-topo {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.125rem 0.375rem;
+}
 
-.dt-tabs {
+.dt-toc--colapsada .dt-toc-topo {
+  justify-content: center;
+  padding: 0.125rem;
+}
+
+/* Campo de busca */
+.dt-toc-busca {
+  flex: 1;
   display: inline-flex;
-  background: var(--ws-surface, #1e293b);
-  border: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.20));
-  border-radius: 9999px;
-  padding: 0.25rem;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3125rem 0.5rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 8px;
+  transition: border-color 0.15s, background 0.15s;
 }
 
-.dt-tab {
-  padding: 0.5rem 1.25rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
+.dt-toc-busca:focus-within {
+  border-color: rgba(167, 139, 250, 0.5);
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.dt-toc-busca-icon {
   color: var(--ws-muted, #94a3b8);
-  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.dt-toc-busca:focus-within .dt-toc-busca-icon { color: #a78bfa; }
+
+.dt-toc-busca-input {
+  flex: 1;
+  min-width: 0;
   background: transparent;
   border: none;
-  font-family: var(--font, inherit);
+  outline: none;
+  color: var(--ws-text, #f1f5f9);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0;
+}
+
+.dt-toc-busca-input::placeholder {
+  color: rgba(148, 163, 184, 0.5);
+  font-style: italic;
+}
+
+.dt-toc-busca-limpar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: rgba(148, 163, 184, 0.15);
+  border: none;
+  border-radius: 50%;
+  color: var(--ws-muted, #94a3b8);
+  cursor: pointer;
+  flex-shrink: 0;
   transition: background 0.15s, color 0.15s;
 }
 
-.dt-tab:hover {
-  color: var(--ws-text, #e2e8f0);
+.dt-toc-busca-limpar:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
 }
 
-.dt-tab.active {
-  background: var(--ws-accent, #818cf8);
-  color: var(--text-primary, #0f172a);
+/* Contador de resultados quando filtro ativo */
+.dt-toc-resultados {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(167, 139, 250, 0.85);
+  padding: 0.25rem 0.625rem 0.5rem;
+}
+
+/* ── Card de estatisticas com donut ───────────────────────────────────── */
+
+.dt-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 0.875rem 1.125rem;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(167, 139, 250, 0.12);
+  border-radius: 12px;
+}
+
+.dt-stats--colapsada { padding: 0.5rem; }
+
+.dt-stats-donut {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: width 0.2s, height 0.2s, background 0.3s ease-out;
+}
+
+.dt-stats--colapsada .dt-stats-donut { width: 40px; height: 40px; }
+
+.dt-stats-donut-inner {
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dt-stats-donut-pct {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ws-text, #f1f5f9);
+  letter-spacing: -0.02em;
+}
+
+.dt-stats--colapsada .dt-stats-donut-pct {
+  font-size: 0.625rem;
+}
+
+.dt-stats-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  align-items: center;
+}
+
+/* Toggle Total / Obrigatorios */
+
+.dt-stats-toggle {
+  display: inline-flex;
+  padding: 2px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 9999px;
+  border: 1px solid rgba(167, 139, 250, 0.12);
+}
+
+.dt-stats-toggle-btn {
+  padding: 0.25rem 0.625rem;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dt-stats-toggle-btn:hover { color: var(--ws-text, #f1f5f9); }
+
+.dt-stats-toggle-btn--ativa {
+  background: rgba(167, 139, 250, 0.18);
+  color: #c4b5fd;
+}
+
+/* Linhas de stats */
+
+.dt-stats-linha {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--ws-muted, #94a3b8);
+  font-variant-numeric: tabular-nums;
+}
+
+.dt-stats-linha strong {
+  color: var(--ws-text, #f1f5f9);
+  font-size: 0.9375rem;
   font-weight: 700;
 }
 
-/* ── Section card ──────────────────────────────────────────────────────────── */
-
-.dt-section {
-  background: var(--ws-surface, #1e293b);
-  border: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.20));
-  border-radius: 12px;
-  padding: 1.25rem 1.5rem;
+/* Linha principal (hero) — destaca o modo selecionado */
+.dt-stats-linha--hero {
+  align-items: baseline;
 }
 
-/* ── Form grids ────────────────────────────────────────────────────────────── */
+/* Linha secundaria — clicavel pra trocar de modo */
+.dt-stats-linha--secundaria {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  padding: 0.1875rem 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
 
-.em-grid {
+.dt-stats-linha--secundaria strong { font-size: 0.75rem; }
+
+.dt-stats-linha--secundaria:hover {
+  background: rgba(167, 139, 250, 0.08);
+  border-color: rgba(167, 139, 250, 0.2);
+}
+
+.dt-stats-linha--ok   { color: #34d399; }
+.dt-stats-linha--ok   strong { color: #34d399; }
+.dt-stats-linha--warn { color: #fbbf24; }
+.dt-stats-linha--warn strong { color: #fbbf24; }
+
+.dt-toc-item {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.625rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dt-toc-item:hover {
+  background: rgba(167, 139, 250, 0.08);
+  color: var(--ws-text, #f1f5f9);
+}
+
+.dt-toc-item--ativa {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+
+/* ── Toggle expandir/recolher ──────────────────────────────────────────── */
+
+.dt-toc-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 32px;
+  margin-bottom: 0.375rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--ws-muted, #94a3b8);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dt-toc-toggle:hover {
+  background: rgba(167, 139, 250, 0.1);
+  color: #a78bfa;
+}
+
+/* ── TOC modo COLAPSADO ────────────────────────────────────────────────── */
+
+.dt-toc--colapsada {
+  padding: 0.375rem;
+}
+
+.dt-toc--colapsada .dt-toc-item {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem;
+  grid-template-columns: none;
+}
+
+.dt-toc--colapsada .dt-toc-label,
+.dt-toc--colapsada .dt-toc-pill {
+  display: none;
+}
+
+/* Bolinha de status canto sup. direito do icone */
+
+.dt-toc-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(167, 139, 250, 0.6);
+  box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.6);
+}
+
+.dt-toc-dot--ok { background: #34d399; }
+
+.dt-toc-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+}
+
+.dt-toc-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dt-toc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: rgba(167, 139, 250, 0.85);
+  background: rgba(167, 139, 250, 0.1);
+  border-radius: 9999px;
+}
+
+.dt-toc-pill--ok {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+}
+
+/* ── Main: secoes empilhadas ───────────────────────────────────────────── */
+
+.dt-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+/* Toolbar acima das secoes */
+.dt-main-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: -0.5rem;
+}
+
+.dt-main-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3125rem 0.625rem;
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 9999px;
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.dt-main-toolbar-btn:hover {
+  background: rgba(167, 139, 250, 0.08);
+  color: #c4b5fd;
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+/* Empty state quando busca nao encontra nada */
+.dt-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem 1.5rem;
+  background: rgba(30, 41, 59, 0.25);
+  border: 1px dashed rgba(167, 139, 250, 0.2);
+  border-radius: 14px;
+  color: var(--ws-muted, #94a3b8);
+  text-align: center;
+}
+
+.dt-empty > svg { color: rgba(167, 139, 250, 0.5); }
+
+.dt-empty h3 {
+  margin: 0.5rem 0 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ws-text, #f1f5f9);
+}
+
+.dt-empty p {
+  margin: 0;
+  font-size: 0.8125rem;
+}
+
+.dt-empty-btn {
+  margin-top: 0.75rem;
+  padding: 0.375rem 0.875rem;
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dt-empty-btn:hover {
+  background: rgba(167, 139, 250, 0.25);
+  color: #c4b5fd;
+}
+
+.dt-secao {
+  background: rgba(30, 41, 59, 0.35);
+  border: 1px solid rgba(167, 139, 250, 0.1);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem 1.5rem;
+  scroll-margin-top: 1rem;
+  transition: padding 0.2s ease-out;
+}
+
+/* Colapsada: tira padding inferior, header fica como unica linha */
+.dt-secao--colapsada {
+  padding-bottom: 1.25rem;
+}
+
+.dt-secao-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 0 0 1rem;
+  margin-bottom: 1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.1);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, margin 0.2s, padding 0.2s;
+}
+
+.dt-secao-header:hover .dt-secao-title h2 {
+  color: #c4b5fd;
+}
+
+/* Colapsada: header sem border-bottom nem margin, vira linha simples */
+.dt-secao--colapsada .dt-secao-header {
+  padding: 0;
+  margin-bottom: 0;
+  border-bottom-color: transparent;
+}
+
+.dt-secao-title {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+/* Caret rotativo (90deg quando colapsado) */
+.dt-caret {
+  color: var(--ws-muted, #94a3b8);
+  transition: transform 0.2s ease-out, color 0.15s;
+  flex-shrink: 0;
+}
+
+.dt-caret--colapsado {
+  transform: rotate(-90deg);
+}
+
+.dt-secao-header:hover .dt-caret { color: #c4b5fd; }
+.dt-main-toolbar-btn:hover .dt-caret { color: #c4b5fd; }
+
+.dt-secao-icon {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.1);
+  border-radius: 8px;
+}
+
+.dt-secao-title h2 {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ws-text, #f1f5f9);
+}
+
+.dt-secao-completude {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.dt-secao-progress {
+  width: 80px;
+  height: 4px;
+  background: rgba(148, 163, 184, 0.15);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.dt-secao-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.25s ease-out, background 0.25s ease-out;
+}
+
+.dt-secao-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ws-muted, #94a3b8);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.dt-secao-pill-warn {
+  color: #fbbf24;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── Grid de campos: 2 colunas no desktop ──────────────────────────────── */
+
+.dt-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 1rem;
+  column-gap: 0.75rem;
+  row-gap: 0.625rem;
 }
 
-.em-grid:last-child {
-  margin-bottom: 0;
+@media (max-width: 900px) {
+  .dt-grid { grid-template-columns: 1fr; }
+  .dt-layout { grid-template-columns: 1fr; }
+  .dt-toc { position: static; }
 }
 
-.em-grid--3 {
-  grid-template-columns: repeat(3, 1fr);
+/* ── Linha de campo: agora um CARD com status colorido a esquerda ─────── */
+
+.dt-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 4px 1fr;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  /* Mesma cor dos cards do Workflow (#1e293b solido — proc-surface) */
+  background: var(--proc-surface, var(--ws-surface, #1e293b));
+  border: 1px solid rgba(148, 163, 184, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.18s ease-out, box-shadow 0.18s ease-out,
+              border-color 0.18s ease-out, background 0.18s ease-out;
 }
 
-@media (max-width: 1024px) {
-  .em-grid--3 {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.dt-row:hover {
+  transform: translateY(-1px);
+  border-color: rgba(167, 139, 250, 0.35);
+  background: var(--proc-surface, var(--ws-surface, #1e293b));
+  box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.4),
+              0 0 0 1px rgba(167, 139, 250, 0.15);
 }
 
-@media (max-width: 768px) {
-  .em-grid,
-  .em-grid--3 {
-    grid-template-columns: 1fr;
-  }
+/* ── Variante READONLY (calculado / bloqueado / sistema) ───────────────
+   Mesma cor e tamanho dos editaveis (var --proc-surface). A diferenca
+   visual e:
+   - Sem hover lift (transform: none, sem borda roxa, sem shadow)
+   - Cursor default em vez de text
+   - Icone do motivo a direita (Lock / Sparkle / Gear) colorido por tipo
+   - Tooltip ancorado no icone explica o porque                            */
 
-  .dt-top-bar {
-    flex-direction: column;
-  }
+.dt-row--readonly {
+  cursor: default;
+}
 
-  .dt-tabs {
-    flex-wrap: wrap;
-  }
+.dt-row--readonly:hover {
+  transform: none;
+  border-color: rgba(148, 163, 184, 0.08);
+  background: var(--proc-surface, var(--ws-surface, #1e293b));
+  box-shadow: none;
+}
+
+.dt-row-value--readonly {
+  cursor: default;
+}
+
+.dt-row-value--readonly:hover {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ws-text, #f1f5f9);
+}
+
+.dt-row-readonly-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  cursor: help;  /* sinaliza que o icone tem informacao */
+  /* Fica logo apos o label (mesmo lugar do asterisco de obrigatorio). */
+}
+
+/* Cores por motivo de readonly */
+.dt-row--readonly-calculado .dt-row-readonly-icon { color: #22d3ee; }          /* cyan */
+.dt-row--readonly-bloqueado .dt-row-readonly-icon { color: #fbbf24; }          /* ambar */
+.dt-row--readonly-sistema   .dt-row-readonly-icon { color: rgba(148, 163, 184, 0.85); } /* cinza */
+
+/* ── Barra de status (esquerda) ──────────────────────────────────────── */
+
+.dt-row-status {
+  width: 4px;
+  height: 100%;
+  align-self: stretch;
+}
+
+.dt-row--preenchido  .dt-row-status { background: #34d399; }
+.dt-row--vazio-obrig .dt-row-status { background: #fbbf24; }
+.dt-row--vazio-opc   .dt-row-status { background: rgba(148, 163, 184, 0.35); }
+
+/* Wrapper interno do conteudo (head + value) */
+
+.dt-row > .dt-row-head,
+.dt-row > .dt-row-value,
+.dt-row > .dt-row-edit {
+  /* movidos pra colunas 2 do grid */
+  grid-column: 2;
+}
+
+.dt-row-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0.5rem 0.75rem 0.25rem;
+}
+
+.dt-row-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: rgba(167, 139, 250, 0.85);
+  flex-shrink: 0;
+}
+
+.dt-row-icon svg { width: 14px; height: 14px; }
+
+.dt-row-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ws-muted, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dt-row-required {
+  color: #f87171;
+  font-weight: 700;
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+/* ── Value (modo leitura) — botao que vira input ──────────────────────── */
+
+.dt-row-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.125rem 0.75rem 0.625rem;
+  background: transparent;
+  border: none;
+  color: var(--ws-text, #f1f5f9);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: text;
+  transition: color 0.15s;
+}
+
+.dt-row-value:hover { color: #c4b5fd; }
+
+.dt-row-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dt-row-empty {
+  flex: 1;
+  color: rgba(148, 163, 184, 0.5);
+  font-style: italic;
+}
+
+.dt-row-edit-icon {
+  opacity: 0;
+  color: #a78bfa;
+  transition: opacity 0.15s;
+}
+
+.dt-row-value:hover .dt-row-edit-icon { opacity: 1; }
+
+/* ── Value (modo edit) — input/select inline ──────────────────────────── */
+
+.dt-row-edit {
+  width: 100%;
+  padding: 0.125rem 0.75rem 0.5rem;
+}
+
+.dt-row-edit input,
+.dt-row-edit select {
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  background: rgba(15, 23, 42, 0.6);
+  /* Mesmo padrao do sistema (modal Convidar Usuario, SelectGlobal):
+     borda indigo --ws-accent (#818cf8) + glow suave. */
+  border: 1px solid var(--ws-accent, #818cf8);
+  border-radius: 6px;
+  color: var(--ws-text, #f1f5f9);
+  font-size: 0.875rem;
+  font-weight: 500;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.dt-row-edit input::placeholder {
+  color: rgba(148, 163, 184, 0.5);
+  font-style: italic;
 }

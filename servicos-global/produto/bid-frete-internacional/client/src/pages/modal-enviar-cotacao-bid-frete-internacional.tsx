@@ -5,6 +5,8 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PaperPlaneTilt, X } from '@phosphor-icons/react'
+import { BotaoGlobal } from '@nucleo/botao-global'
+import { useShellStore } from '@gravity/shell'
 import type { CanalDisparo, Cotacao, Fornecedor } from '../shared/types'
 import {
   dispararCotacaoAbertaBidFreteInternacional,
@@ -27,6 +29,7 @@ export function ModalEnviarCotacaoBidFreteInternacional({
   onEnviado,
 }: ModalEnviarCotacaoBidFreteInternacionalProps) {
   const { t } = useTranslation()
+  const addNotification = useShellStore(s => s.addNotification)
   const [fornecedores, setFornecedores] = useState<Fornecedor[]>([])
   const [carregandoFornecedores, setCarregandoFornecedores] = useState(false)
   const [selecionados, setSelecionados] = useState<string[]>([])
@@ -41,11 +44,13 @@ export function ModalEnviarCotacaoBidFreteInternacional({
       const ativos = res.fornecedores.filter(f => f.status_fornecedor_bid_frete_internacional === 'ATIVO')
       setFornecedores(ativos)
     } catch (e: unknown) {
-      setErro(e instanceof Error ? e.message : t('bidfrete.disparo.erro_carregar_fornecedores', 'Erro ao carregar fornecedores'))
+      const msg = e instanceof Error ? e.message : t('bidfrete.disparo.erro_carregar_fornecedores', 'Erro ao carregar fornecedores')
+      setErro(msg)
+      addNotification({ type: 'error', message: msg, duration: 4000 })
     } finally {
       setCarregandoFornecedores(false)
     }
-  }, [t])
+  }, [t, addNotification])
 
   useEffect(() => {
     if (!aberto) return
@@ -57,16 +62,21 @@ export function ModalEnviarCotacaoBidFreteInternacional({
     }
   }, [aberto, cotacao.visibilidade_cotacao_bid_frete_internacional, carregarFornecedores])
 
+  const notificarErro = useCallback((msg: string) => {
+    setErro(msg)
+    addNotification({ type: 'error', message: msg, duration: 4000 })
+  }, [addNotification])
+
   const handleEnviar = async () => {
     if (canais.length === 0) {
-      setErro(t('bidfrete.disparo.erro_sem_canal', 'Selecione ao menos um canal de envio.'))
+      notificarErro(t('bidfrete.disparo.erro_sem_canal', 'Selecione ao menos um canal de envio.'))
       return
     }
     if (
       cotacao.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA' &&
       selecionados.length === 0
     ) {
-      setErro(t('bidfrete.disparo.erro_sem_fornecedor', 'Selecione ao menos um fornecedor.'))
+      notificarErro(t('bidfrete.disparo.erro_sem_fornecedor', 'Selecione ao menos um fornecedor.'))
       return
     }
 
@@ -79,10 +89,15 @@ export function ModalEnviarCotacaoBidFreteInternacional({
       } else {
         await dispararCotacaoBidFreteInternacional(id, selecionados, canais)
       }
+      addNotification({
+        type: 'success',
+        message: t('bidfrete.disparo.toast_sucesso', 'Cotação enviada aos fornecedores com sucesso.'),
+        duration: 4000,
+      })
       onEnviado()
       onFechar()
     } catch (e: unknown) {
-      setErro(e instanceof Error ? e.message : t('bidfrete.disparo.erro_envio', 'Erro ao enviar cotação'))
+      notificarErro(e instanceof Error ? e.message : t('bidfrete.disparo.erro_envio', 'Erro ao enviar cotação'))
     } finally {
       setEnviando(false)
     }
@@ -116,13 +131,24 @@ export function ModalEnviarCotacaoBidFreteInternacional({
         {erro && <p className="bf-disparo-erro" role="alert">{erro}</p>}
 
         <div className="bf-disparo-acoes">
-          <button type="button" className="bf-disparo-btn bf-disparo-btn--sec" onClick={onFechar} disabled={enviando}>
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="medio"
+            onClick={onFechar}
+            disabled={enviando}
+          >
             {t('comum.cancelar', 'Cancelar')}
-          </button>
-          <button type="button" className="bf-disparo-btn bf-disparo-btn--pri" onClick={() => void handleEnviar()} disabled={enviando}>
-            <PaperPlaneTilt weight="bold" size={16} />
-            {enviando ? t('bidfrete.disparo.enviando', 'Enviando...') : t('bidfrete.disparo.enviar', 'Enviar agora')}
-          </button>
+          </BotaoGlobal>
+          <BotaoGlobal
+            variante="primario"
+            tamanho="medio"
+            icone={<PaperPlaneTilt weight="bold" size={14} />}
+            carregando={enviando}
+            textoCarregando={t('bidfrete.disparo.enviando', 'Enviando...')}
+            onClick={() => void handleEnviar()}
+          >
+            {t('bidfrete.disparo.enviar', 'Enviar agora')}
+          </BotaoGlobal>
         </div>
       </div>
 
@@ -141,14 +167,7 @@ export function ModalEnviarCotacaoBidFreteInternacional({
         .bf-disparo-fechar { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.25rem; }
         .bf-disparo-subtitulo { margin: 0; font-size: 0.8125rem; color: var(--text-secondary, #94a3b8); }
         .bf-disparo-erro { margin: 0; font-size: 0.875rem; color: var(--danger, #ef4444); }
-        .bf-disparo-acoes { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem; }
-        .bf-disparo-btn {
-          display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem;
-          border-radius: 9999px; font-size: 0.875rem; font-weight: 600; cursor: pointer; border: none; font-family: inherit;
-        }
-        .bf-disparo-btn--sec { background: var(--bg-base, #1e293b); color: var(--text-secondary, #94a3b8); border: 1px solid var(--bg-elevated, #475569); }
-        .bf-disparo-btn--pri { background: var(--accent, #6366f1); color: #fff; }
-        .bf-disparo-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .bf-disparo-acoes { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
       `}</style>
     </div>
   )

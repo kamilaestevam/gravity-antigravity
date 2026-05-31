@@ -98,10 +98,16 @@ describe('NavigateComPrefixo', () => {
       ).toBe('/pedido/pedidos/123/editar')
     })
 
-    it('/produto/bid-frete/cotacoes?visao=kanban -> /bid-frete/cotacoes?visao=kanban', () => {
+    it('/produto/bid-frete/cotacoes?visao=kanban -> /bid-frete/cotacoes?visao=kanban (app redireciona para /kanban)', () => {
       expect(
         renderRedirect('/produto/bid-frete/cotacoes?visao=kanban', '/produto/bid-frete', '/bid-frete')
       ).toBe('/bid-frete/cotacoes?visao=kanban')
+    })
+
+    it('/produto/bid-frete/lista -> /bid-frete/lista', () => {
+      expect(
+        renderRedirect('/produto/bid-frete/lista', '/produto/bid-frete', '/bid-frete')
+      ).toBe('/bid-frete/lista')
     })
 
     it('/produto/simula-custo/resultado/abc -> /simula-custo/resultado/abc', () => {

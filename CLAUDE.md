@@ -389,6 +389,7 @@ const meResponseSchema = z.object({
 | API Cockpit | `skills/produtos-gravity/api-cockpit/SKILL.md` | Tokens, playground, webhooks, conector ERP/SAP, fluxo Gabi OData |
 | Marketplace | `skills/produtos-gravity/marketplace/SKILL.md` | Landing pública, pricing, onboarding (sem auth, sem backend) |
 | Pedido | `skills/produtos-gravity/pedido/SKILL.md` | Lista, edição em massa (cascade Pedido→Item), consolidação, transferência. Convenção `@@unique` e anti-padrões |
+| Processo | `skills/produtos-gravity/processo/SKILL.md` | Workflow, DadosTecnicos, Pedidos, Containers, Taxas e novas telas. **Define o PADRÃO UX OFICIAL** (TOC sticky, cards de campo, edit-in-place, SelectGlobal, paleta indigo/roxo) — ver `documentos-tecnicos/produtos-gravity/processo/PADRAO-UX-TELAS.md` |
 | Simulador COMEX | `skills/produtos-gravity/simulador-comex/SKILL.md` | **BLOQUEADO — não iniciar sem regras de negócio** |
 
 > Futuros: `bid-frete/`, etc. seguem o mesmo padrão (vertical em `produtos-gravity/`, **sem** regras absolutas embutidas — referenciar SSOT).

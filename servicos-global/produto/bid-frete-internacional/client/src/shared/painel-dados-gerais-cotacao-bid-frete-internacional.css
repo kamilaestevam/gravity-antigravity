@@ -210,3 +210,26 @@
   border-radius: 8px;
 }
 
+.dc-dados-gerais-processo .dc-campo-espelho-input,
+.dc-dados-gerais-processo .dc-campo-espelho-select {
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.65);
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.dc-dados-gerais-processo .dc-campo-espelho-select {
+  cursor: pointer;
+}
+
+.dc-dados-gerais-processo .dc-campo-espelho-input:focus,
+.dc-dados-gerais-processo .dc-campo-espelho-select:focus {
+  outline: 2px solid rgba(167, 139, 250, 0.45);
+  outline-offset: 1px;
+}
+

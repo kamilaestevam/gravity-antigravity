@@ -353,7 +353,7 @@ export default function CotacoesKanban({ cotacoes, onRefresh }: CotacoesKanbanPr
         itens={itensFiltrados}
         renderCard={(item) => <CardCotacao cotacao={item.cotacao} cardConfig={cardConfig} />}
         onMoverItem={handleMoverCotacao}
-        onCardClick={(item) => navigate(`/produto/bid-frete/cotacoes/${item.cotacao.id_cotacao_bid_frete_internacional}`)}
+        onCardClick={(item) => navigate(`/bid-frete/cotacoes/${item.cotacao.id_cotacao_bid_frete_internacional}`)}
         skeletonCount={4}
         emptyLabel={t('bidfrete.kanban.semCotacoes', 'Nenhuma cotação')}
         getItemLabel={(item) => item.cotacao.numero_cotacao_bid_frete_internacional}

@@ -6,9 +6,9 @@
  * persistência de colunas, edição inline e precisão numérica reativa.
  */
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 
@@ -44,8 +44,14 @@ import {
   Target,
 } from '@phosphor-icons/react'
 
-import { atualizarCotacao, getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao, mudarStatusCotacao } from '../shared/api'
-import type { BidFreteInternacional, Cotacao, StatusCotacao } from '../shared/types'
+import { getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao } from '../shared/api'
+import {
+  publicarCotacaoAtualizadaBidFrete,
+  inscreverCotacaoAtualizadaBidFrete,
+} from '../shared/bus-cotacao-atualizada-bid-frete-internacional'
+import { patchCotacaoNoEstadoListaBidFrete } from '../shared/patch-estado-cotacoes-lista-bid-frete-internacional'
+import { salvarCampoCotacaoBidFreteInternacional } from '../shared/salvar-campo-cotacao-bid-frete-internacional'
+import type { BidFreteInternacional, Cotacao } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, MODALIDADE_LABELS } from '../shared/types'
 import {
   calcularMetricaCardCustom,
@@ -64,7 +70,6 @@ import {
 import { SYNC_EVENT_CASAS_BID_FRETE } from '../shared/casas-config-bid-frete'
 import { SYNC_EVENT_FORMATO_DATA_BID_FRETE } from '../shared/formato-data-bid-frete'
 import { listarCardsCatalogo, useCardPreferencesBidFrete } from '../shared/use-card-preferences'
-import { resolverPatchEdicaoLocalizacao } from '../shared/lista-bid-frete-edicao-logistica'
 import { useCadastrosListaBidFrete } from '../shared/useCadastrosListaBidFrete'
 import {
   buildColunasPaiLista,
@@ -145,72 +150,6 @@ function gerarAbasDinamicas(statusList: StatusConfig[]): Array<{ valor: string; 
 
 // ─── Colunas padrão = todas as colunas escalares do banco ───
 
-const CAMPOS_DATA_COTACAO = new Set([
-  'data_limite_resposta_cotacao_bid_frete_internacional',
-  'data_criacao_cotacao_bid_frete_internacional',
-  'data_aprovacao_cotacao_bid_frete_internacional',
-  'data_cancelamento_cotacao_bid_frete_internacional',
-])
-
-const CAMPOS_NUMERICOS_COTACAO = new Set([
-  'quantidade_cotacao_bid_frete_internacional',
-  'peso_kg_cotacao_bid_frete_internacional',
-  'cubagem_m3_cotacao_bid_frete_internacional',
-  'ganho_percentual_cotacao_bid_frete_internacional',
-])
-
-function normalizarDataIsoEdicao(valor: unknown): string | null {
-  if (valor == null || valor === '') return null
-  if (typeof valor === 'string') {
-    const soData = valor.match(/^(\d{4})-(\d{2})-(\d{2})$/)
-    if (soData) {
-      return new Date(Date.UTC(Number(soData[1]), Number(soData[2]) - 1, Number(soData[3]), 12, 0, 0, 0)).toISOString()
-    }
-    const parsed = new Date(valor)
-    if (!Number.isNaN(parsed.getTime())) return parsed.toISOString()
-    return valor
-  }
-  if (valor instanceof Date && !Number.isNaN(valor.getTime())) {
-    return valor.toISOString()
-  }
-  return String(valor)
-}
-
-function normalizarValorEdicaoCotacao(campo: string, valor: unknown): unknown {
-  if (campo === 'anonima_cotacao_bid_frete_internacional') {
-    if (typeof valor === 'boolean') return valor
-    return valor === true || valor === 'true' || valor === 'Sim'
-  }
-  if (CAMPOS_DATA_COTACAO.has(campo)) {
-    return normalizarDataIsoEdicao(valor)
-  }
-  if (CAMPOS_NUMERICOS_COTACAO.has(campo)) {
-    if (valor == null || valor === '') return null
-    const n = typeof valor === 'number' ? valor : Number(String(valor).replace(/\./g, '').replace(',', '.'))
-    return Number.isFinite(n) ? n : null
-  }
-  if (valor === '' || valor === '—') return null
-  return valor
-}
-
-function patchCotacaoNoEstado(
-  cotacao: Cotacao,
-  setCotacoes: Dispatch<SetStateAction<Cotacao[]>>,
-  setCotacoesAvulsas: Dispatch<SetStateAction<Cotacao[]>>,
-  setBids: Dispatch<SetStateAction<BidFreteInternacional[]>>,
-): void {
-  const id = cotacao.id_cotacao_bid_frete_internacional
-  const patch = (c: Cotacao) => (c.id_cotacao_bid_frete_internacional === id ? cotacao : c)
-  setCotacoes(prev => prev.map(patch))
-  setCotacoesAvulsas(prev => prev.map(patch))
-  setBids(prev =>
-    prev.map(bid => ({
-      ...bid,
-      cotacoes: (bid.cotacoes ?? []).map(patch),
-    })),
-  )
-}
-
 /** Incrementar quando adicionar colunas ao schema — força reset das prefs salvas. */
 const VERSAO_COLUNAS_LISTA = 4
 const STORAGE_COLUNAS_VERSAO = 'bid-frete-internacional:config:tabela_colunas_versao'
@@ -268,7 +207,7 @@ function lerPreferenciasTabela(): GTPreferencias | undefined {
 export default function Cotacoes() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const location = useLocation()
   const addNotification = useShellStore(s => s.addNotification)
   const { getToken } = useAuth()
   const currentUser = useShellStore(s => s.currentUser)
@@ -387,30 +326,7 @@ export default function Cotacoes() {
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
   const [busca, setBusca] = useState('')
 
-  const visaoParam = searchParams.get('visao')
-  const visao = visaoParam === 'kanban' ? 'kanban' : 'lista'
-
-  const setVisao = (novaVisao: 'lista' | 'kanban') => {
-    setSearchParams(
-      (prev) => {
-        prev.set('visao', novaVisao)
-        return prev
-      },
-      { replace: true }
-    )
-  }
-
-  useEffect(() => {
-    if (!searchParams.has('visao')) {
-      setSearchParams(
-        (prev) => {
-          prev.set('visao', 'lista')
-          return prev
-        },
-        { replace: true }
-      )
-    }
-  }, [searchParams, setSearchParams])
+  const visao: 'lista' | 'kanban' = location.pathname.includes('/kanban') ? 'kanban' : 'lista'
 
   const [filtroTab, setFiltroTab] = useState('TODAS')
 
@@ -545,7 +461,7 @@ export default function Cotacoes() {
   }, [])
 
   const abrirDetalheCotacao = useCallback((item: Cotacao) => {
-    navigate(`/produto/bid-frete/cotacoes/${item.id_cotacao_bid_frete_internacional}`)
+    navigate(`/bid-frete/cotacoes/${item.id_cotacao_bid_frete_internacional}`)
   }, [navigate])
 
   const colunasTabela = useMemo(
@@ -584,49 +500,35 @@ export default function Cotacoes() {
     const atual = resolverCotacaoPorId(id)
     if (!atual) throw new Error('Cotação não encontrada')
 
-    const patchLocalizacao = resolverPatchEdicaoLocalizacao(
-      atual,
+    const cotacaoSalva = await salvarCampoCotacaoBidFreteInternacional({
+      id,
       campo,
-      normalizarValorEdicaoCotacao(campo, valor),
+      valor,
+      cotacaoAtual: atual,
       portosCadastro,
       aeroportosCadastro,
+    })
+
+    patchCotacaoNoEstadoListaBidFrete(
+      cotacaoSalva,
+      setCotacoes,
+      setCotacoesAvulsas,
+      setBidsFreteInternacional,
     )
-
-    let cotacaoSalva: Cotacao
-    if (campo === 'status_cotacao_bid_frete_internacional') {
-      cotacaoSalva = await mudarStatusCotacao(id, normalizarValorEdicaoCotacao(campo, valor) as StatusCotacao)
-    } else if (
-      valor != null &&
-      typeof valor === 'object' &&
-      'currency' in (valor as object) &&
-      (campo === 'valor_meta_cotacao_bid_frete_internacional'
-        || campo === 'ganho_valor_cotacao_bid_frete_internacional')
-    ) {
-      const mv = valor as { currency: string; amount: number }
-      const amount = typeof mv.amount === 'number' ? mv.amount : Number(mv.amount)
-      const valorNumerico = Number.isFinite(amount) && amount > 0 ? amount : null
-      if (campo === 'valor_meta_cotacao_bid_frete_internacional') {
-        cotacaoSalva = await atualizarCotacao(id, {
-          moeda_meta_cotacao_bid_frete_internacional: String(mv.currency || 'USD'),
-          valor_meta_cotacao_bid_frete_internacional: valorNumerico,
-        })
-      } else {
-        cotacaoSalva = await atualizarCotacao(id, {
-          ganho_valor_cotacao_bid_frete_internacional: valorNumerico,
-        })
-      }
-    } else if (patchLocalizacao) {
-      cotacaoSalva = await atualizarCotacao(id, patchLocalizacao)
-    } else {
-      const valorNormalizado = normalizarValorEdicaoCotacao(campo, valor)
-      cotacaoSalva = await atualizarCotacao(id, {
-        [campo]: valorNormalizado,
-      } as Partial<Cotacao>)
-    }
-
-    patchCotacaoNoEstado(cotacaoSalva, setCotacoes, setCotacoesAvulsas, setBidsFreteInternacional)
+    publicarCotacaoAtualizadaBidFrete(cotacaoSalva)
     return cotacaoSalva
   }, [resolverCotacaoPorId, portosCadastro, aeroportosCadastro])
+
+  useEffect(() => {
+    return inscreverCotacaoAtualizadaBidFrete((cotacao) => {
+      patchCotacaoNoEstadoListaBidFrete(
+        cotacao,
+        setCotacoes,
+        setCotacoesAvulsas,
+        setBidsFreteInternacional,
+      )
+    })
+  }, [])
 
   const handleEditar = useCallback(async (
     id: string,
@@ -789,7 +691,7 @@ export default function Cotacoes() {
             type="button"
             className="lp-dropdown-btn"
             onClick={() => {
-              navigate('/produto/bid-frete/cotacoes/nova')
+              navigate('/bid-frete/cotacoes/nova')
               setNovoDropdownAberto(false)
             }}
           >
@@ -806,7 +708,7 @@ export default function Cotacoes() {
             type="button"
             className="lp-dropdown-btn"
             onClick={() => {
-              navigate('/produto/bid-frete/cotacoes/importar')
+              navigate('/bid-frete/cotacoes/importar')
               setNovoDropdownAberto(false)
             }}
           >

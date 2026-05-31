@@ -6,6 +6,7 @@ import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   CampoDadoGlobal,
+  type ModoCampoDadoGlobal,
   type StatusPreenchimentoCampoDadoGlobal,
 } from './campo-dado-global-nucleo'
 import {
@@ -20,15 +21,21 @@ import {
   IdentificationCard,
   TrafficSign,
 } from '@phosphor-icons/react'
-import { atualizarCotacao } from './api'
+import { publicarCotacaoAtualizadaBidFrete } from './bus-cotacao-atualizada-bid-frete-internacional'
 import {
   calcularDatasDerivadasCronogramaCotacao,
   cotacaoPermiteEditarPrazoResposta,
 } from './calcular-cronograma-cotacao-bid-frete-internacional'
-import { EdicaoPrazoCronogramaCotacaoBidFreteInternacional } from './edicao-prazo-cronograma-cotacao-bid-frete-internacional'
+import { EdicaoPeriodoCampoCotacaoBidFreteInternacional } from './edicao-periodo-campo-cotacao-bid-frete-internacional'
+import { EdicaoStatusCampoCotacaoBidFreteInternacional } from './edicao-status-campo-cotacao-bid-frete-internacional'
+import { EdicaoTextoCampoCotacaoBidFreteInternacional } from './edicao-texto-campo-cotacao-bid-frete-internacional'
 import { fmtDataCotacaoBidFrete } from './colunas-datas-motivos-cotacao-bid-frete-internacional'
 import { formatarDataBidFrete } from './formato-data-bid-frete'
-import type { Cotacao, DisparoCotacaoBidFreteInternacional } from './types'
+import {
+  cotacaoCampoEditavel,
+  salvarCampoCotacaoBidFreteInternacional,
+} from './salvar-campo-cotacao-bid-frete-internacional'
+import { STATUS_LABELS, type Cotacao, type DisparoCotacaoBidFreteInternacional } from './types'
 import './painel-dados-gerais-cotacao-bid-frete-internacional.css'
 
 const SECOES_IDS = ['identificacao', 'cronograma'] as const
@@ -135,10 +142,57 @@ export function PainelDadosGeraisCotacaoBidFreteInternacional({
   onCotacaoAtualizada,
 }: PainelDadosGeraisCotacaoBidFreteInternacionalProps) {
   const { t } = useTranslation()
-  const [salvandoPrazo, setSalvandoPrazo] = useState(false)
-  const [erroPrazo, setErroPrazo] = useState<string | null>(null)
-  const [resultadoPrazo, setResultadoPrazo] = useState<'sucesso' | 'erro' | null>(null)
+  const [salvandoCampo, setSalvandoCampo] = useState<string | null>(null)
+  const [erroCampo, setErroCampo] = useState<string | null>(null)
+  const [resultadoCampo, setResultadoCampo] = useState<Record<string, 'sucesso' | 'erro'>>({})
   const [secoesColapsadas, setSecoesColapsadas] = useState<Set<SecaoId>>(new Set())
+
+  const idCotacao = cotacao.id_cotacao_bid_frete_internacional
+
+  function modoCampo(campo: string, bloqueado = false): ModoCampoDadoGlobal {
+    if (!cotacaoCampoEditavel(campo) || bloqueado) {
+      return bloqueado ? 'bloqueado' : 'somente_leitura'
+    }
+    return 'editavel'
+  }
+
+  async function salvarCampo(campo: string, valor: unknown, bloqueado = false) {
+    if (!cotacaoCampoEditavel(campo) || bloqueado || salvandoCampo) return
+    setSalvandoCampo(campo)
+    setErroCampo(null)
+    try {
+      const cotacaoAtualizada = await salvarCampoCotacaoBidFreteInternacional({
+        id: idCotacao,
+        campo,
+        valor,
+        cotacaoAtual: cotacao,
+      })
+      publicarCotacaoAtualizadaBidFrete(cotacaoAtualizada)
+      onCotacaoAtualizada(cotacaoAtualizada)
+      setResultadoCampo(prev => ({ ...prev, [campo]: 'sucesso' }))
+      window.setTimeout(() => {
+        setResultadoCampo(prev => {
+          const next = { ...prev }
+          delete next[campo]
+          return next
+        })
+      }, 1200)
+    } catch (e: unknown) {
+      setResultadoCampo(prev => ({ ...prev, [campo]: 'erro' }))
+      setErroCampo(
+        e instanceof Error
+          ? e.message
+          : t('bidfrete.detalhe_cotacao.cronograma_erro_salvar', 'Não foi possível salvar.'),
+      )
+      window.setTimeout(() => setResultadoCampo(prev => {
+        const next = { ...prev }
+        delete next[campo]
+        return next
+      }), 2000)
+    } finally {
+      setSalvandoCampo(null)
+    }
+  }
 
   const derivadas = useMemo(
     () => calcularDatasDerivadasCronogramaCotacao(disparos),
@@ -198,33 +252,8 @@ export function PainelDadosGeraisCotacaoBidFreteInternacional({
     )
   }
 
-  async function salvarPrazoResposta(iso: string | null) {
-    if (!permiteEditarPrazo || salvandoPrazo) return
-    setSalvandoPrazo(true)
-    setErroPrazo(null)
-    setResultadoPrazo(null)
-    try {
-      const cotacaoAtualizada = await atualizarCotacao(
-        cotacao.id_cotacao_bid_frete_internacional,
-        { data_limite_resposta_cotacao_bid_frete_internacional: iso },
-      )
-      onCotacaoAtualizada(cotacaoAtualizada)
-      setResultadoPrazo('sucesso')
-      window.setTimeout(() => setResultadoPrazo(null), 1200)
-    } catch (e: unknown) {
-      setResultadoPrazo('erro')
-      setErroPrazo(
-        e instanceof Error
-          ? e.message
-          : t('bidfrete.detalhe_cotacao.cronograma_erro_salvar', 'Não foi possível salvar o prazo.'),
-      )
-      window.setTimeout(() => setResultadoPrazo(null), 2000)
-    } finally {
-      setSalvandoPrazo(false)
-    }
-  }
-
   const labelPrazo = t('bidfrete.detalhe_cotacao.cronograma_prazo_resposta', 'Prazo para resposta')
+  const campoPrazo = 'data_limite_resposta_cotacao_bid_frete_internacional'
   const valorPrazo = dataHoraBR(cotacao.data_limite_resposta_cotacao_bid_frete_internacional)
   const motivoPrazoBloqueado = !permiteEditarPrazo
     ? t(
@@ -272,19 +301,38 @@ export function PainelDadosGeraisCotacaoBidFreteInternacional({
         <CampoDadoGlobal
           icone={<IdentificationCard weight="duotone" size={14} />}
           label={t('bidfrete.detalhe_cotacao.referencia_interna', 'Referência interna')}
-          valor={cotacao.referencia_interna_cotacao_bid_frete_internacional?.trim() || null}
-          modo="somente_leitura"
+          modo={modoCampo('referencia_interna_cotacao_bid_frete_internacional')}
           statusPreenchimento={statusPreenchimento(
             cotacao.referencia_interna_cotacao_bid_frete_internacional,
           )}
-        />
+        >
+          <EdicaoTextoCampoCotacaoBidFreteInternacional
+            label={t('bidfrete.detalhe_cotacao.referencia_interna', 'Referência interna')}
+            valor={cotacao.referencia_interna_cotacao_bid_frete_internacional}
+            permiteEditar={cotacaoCampoEditavel('referencia_interna_cotacao_bid_frete_internacional')}
+            salvando={salvandoCampo === 'referencia_interna_cotacao_bid_frete_internacional'}
+            onConfirmar={(texto) =>
+              salvarCampo('referencia_interna_cotacao_bid_frete_internacional', texto)}
+          />
+        </CampoDadoGlobal>
         <CampoDadoGlobal
           icone={<TrafficSign weight="duotone" size={14} />}
           label={t('comum.status')}
-          valor={cotacao.status_cotacao_bid_frete_internacional}
-          modo="somente_leitura"
-          statusPreenchimento={statusPreenchimento(cotacao.status_cotacao_bid_frete_internacional)}
-        />
+          modo={modoCampo('status_cotacao_bid_frete_internacional')}
+          statusPreenchimento={statusPreenchimento(
+            STATUS_LABELS[cotacao.status_cotacao_bid_frete_internacional]
+              ?? cotacao.status_cotacao_bid_frete_internacional,
+          )}
+        >
+          <EdicaoStatusCampoCotacaoBidFreteInternacional
+            label={t('comum.status')}
+            valor={cotacao.status_cotacao_bid_frete_internacional}
+            permiteEditar={cotacaoCampoEditavel('status_cotacao_bid_frete_internacional')}
+            salvando={salvandoCampo === 'status_cotacao_bid_frete_internacional'}
+            onConfirmar={(status) =>
+              salvarCampo('status_cotacao_bid_frete_internacional', status)}
+          />
+        </CampoDadoGlobal>
       </SecaoDadosGerais>
 
       <SecaoDadosGerais
@@ -296,20 +344,29 @@ export function PainelDadosGeraisCotacaoBidFreteInternacional({
         colapsada={secoesColapsadas.has('cronograma')}
         onToggle={() => toggleSecao('cronograma')}
       >
-        {erroPrazo && (
+        {erroCampo && (
           <p className="dc-cronograma-erro-secao" role="alert">
-            {erroPrazo}
+            {erroCampo}
           </p>
         )}
         <CampoDadoGlobal
           icone={<CalendarBlank weight="duotone" size={14} />}
           label={t('bidfrete.detalhe_cotacao.cronograma_data_criacao', 'Data de criação')}
-          valor={dataHoraBR(cotacao.data_criacao_cotacao_bid_frete_internacional)}
-          modo="somente_leitura"
+          modo={modoCampo('data_criacao_cotacao_bid_frete_internacional')}
           statusPreenchimento={statusPreenchimento(
             dataHoraBR(cotacao.data_criacao_cotacao_bid_frete_internacional),
           )}
-        />
+        >
+          <EdicaoPeriodoCampoCotacaoBidFreteInternacional
+            label={t('bidfrete.detalhe_cotacao.cronograma_data_criacao', 'Data de criação')}
+            valorIso={cotacao.data_criacao_cotacao_bid_frete_internacional}
+            permiteEditar={cotacaoCampoEditavel('data_criacao_cotacao_bid_frete_internacional')}
+            comHorario
+            salvando={salvandoCampo === 'data_criacao_cotacao_bid_frete_internacional'}
+            resultadoSalvar={resultadoCampo.data_criacao_cotacao_bid_frete_internacional ?? null}
+            onConfirmar={(iso) => salvarCampo('data_criacao_cotacao_bid_frete_internacional', iso)}
+          />
+        </CampoDadoGlobal>
         <CampoDadoGlobal
           icone={<PaperPlaneTilt weight="duotone" size={14} />}
           label={t('bidfrete.detalhe_cotacao.cronograma_primeiro_envio', 'Primeiro envio')}
@@ -322,17 +379,19 @@ export function PainelDadosGeraisCotacaoBidFreteInternacional({
         <CampoDadoGlobal
           icone={<Clock weight="duotone" size={14} />}
           label={labelPrazo}
-          modo={permiteEditarPrazo ? 'editavel' : 'bloqueado'}
+          modo={modoCampo(campoPrazo, !permiteEditarPrazo)}
           motivo={motivoPrazoBloqueado}
           statusPreenchimento={statusPreenchimento(valorPrazo)}
         >
-          <EdicaoPrazoCronogramaCotacaoBidFreteInternacional
+          <EdicaoPeriodoCampoCotacaoBidFreteInternacional
             label={labelPrazo}
             valorIso={cotacao.data_limite_resposta_cotacao_bid_frete_internacional}
-            permiteEditar={permiteEditarPrazo}
-            salvando={salvandoPrazo}
-            resultadoSalvar={resultadoPrazo}
-            onConfirmar={salvarPrazoResposta}
+            permiteEditar={permiteEditarPrazo && cotacaoCampoEditavel(campoPrazo)}
+            comHorario
+            motivoBloqueado={motivoPrazoBloqueado}
+            salvando={salvandoCampo === campoPrazo}
+            resultadoSalvar={resultadoCampo[campoPrazo] ?? null}
+            onConfirmar={(iso) => salvarCampo(campoPrazo, iso, !permiteEditarPrazo)}
           />
         </CampoDadoGlobal>
         <CampoDadoGlobal
@@ -347,21 +406,39 @@ export function PainelDadosGeraisCotacaoBidFreteInternacional({
         <CampoDadoGlobal
           icone={<CheckCircle weight="fill" size={14} />}
           label={t('bidfrete.lista.colunas.data_aprovacao', 'Data aprovação')}
-          valor={fmtDataCotacaoBidFrete(cotacao.data_aprovacao_cotacao_bid_frete_internacional)}
-          modo="somente_leitura"
+          modo={modoCampo('data_aprovacao_cotacao_bid_frete_internacional')}
           statusPreenchimento={statusPreenchimento(
-            cotacao.data_aprovacao_cotacao_bid_frete_internacional,
+            fmtDataCotacaoBidFrete(cotacao.data_aprovacao_cotacao_bid_frete_internacional),
           )}
-        />
+        >
+          <EdicaoPeriodoCampoCotacaoBidFreteInternacional
+            label={t('bidfrete.lista.colunas.data_aprovacao', 'Data aprovação')}
+            valorIso={cotacao.data_aprovacao_cotacao_bid_frete_internacional}
+            permiteEditar={cotacaoCampoEditavel('data_aprovacao_cotacao_bid_frete_internacional')}
+            comHorario={false}
+            salvando={salvandoCampo === 'data_aprovacao_cotacao_bid_frete_internacional'}
+            resultadoSalvar={resultadoCampo.data_aprovacao_cotacao_bid_frete_internacional ?? null}
+            onConfirmar={(iso) => salvarCampo('data_aprovacao_cotacao_bid_frete_internacional', iso)}
+          />
+        </CampoDadoGlobal>
         <CampoDadoGlobal
           icone={<XCircle weight="fill" size={14} />}
           label={t('bidfrete.lista.colunas.data_cancelamento', 'Data cancelamento')}
-          valor={fmtDataCotacaoBidFrete(cotacao.data_cancelamento_cotacao_bid_frete_internacional)}
-          modo="somente_leitura"
+          modo={modoCampo('data_cancelamento_cotacao_bid_frete_internacional')}
           statusPreenchimento={statusPreenchimento(
-            cotacao.data_cancelamento_cotacao_bid_frete_internacional,
+            fmtDataCotacaoBidFrete(cotacao.data_cancelamento_cotacao_bid_frete_internacional),
           )}
-        />
+        >
+          <EdicaoPeriodoCampoCotacaoBidFreteInternacional
+            label={t('bidfrete.lista.colunas.data_cancelamento', 'Data cancelamento')}
+            valorIso={cotacao.data_cancelamento_cotacao_bid_frete_internacional}
+            permiteEditar={cotacaoCampoEditavel('data_cancelamento_cotacao_bid_frete_internacional')}
+            comHorario={false}
+            salvando={salvandoCampo === 'data_cancelamento_cotacao_bid_frete_internacional'}
+            resultadoSalvar={resultadoCampo.data_cancelamento_cotacao_bid_frete_internacional ?? null}
+            onConfirmar={(iso) => salvarCampo('data_cancelamento_cotacao_bid_frete_internacional', iso)}
+          />
+        </CampoDadoGlobal>
         <CampoDadoGlobal
           icone={<CalendarBlank weight="duotone" size={14} />}
           label={t('bidfrete.detalhe_cotacao.cronograma_ultima_atualizacao', 'Última atualização')}

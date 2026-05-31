@@ -5,6 +5,8 @@
 import React from 'react'
 import type { TFunction } from 'i18next'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
+import { CampoValorMonetarioResposta } from './campo-valor-monetario-resposta-bid-frete-internacional'
 import {
   Truck,
   Anchor,
@@ -34,9 +36,15 @@ import {
   type LinhaTaxaPropostaBidFreteInternacional,
   type TotalPorMoedaBidFreteInternacional,
 } from './taxas-linha-proposta-bid-frete-internacional'
+import { formatarRotaExibicaoCotacao } from './formatacao-local-logistico-bid-frete-internacional'
 import './formulario-resposta-cotacao-bid-frete-internacional.css'
 
 export const MOEDAS_RESPOSTA_COTACAO = ['USD', 'EUR', 'BRL', 'CNY', 'GBP'] as const
+
+export const OPCOES_MOEDA_RESPOSTA_COTACAO: SelectOpcao[] = MOEDAS_RESPOSTA_COTACAO.map((m) => ({
+  valor: m,
+  rotulo: m,
+}))
 
 export const MODAL_ICONS_RESPOSTA: Record<ModalFrete, React.ReactNode> = {
   MARITIMO: <Anchor weight="duotone" size={16} />,
@@ -221,9 +229,10 @@ export function SecaoDetalhesCotacaoResposta({
           <span className="brc-detalhe-label">{rotuloRota}</span>
           <span className="brc-detalhe-valor">
             <MapPin weight="duotone" size={14} aria-hidden />
-            {cotacao?.origem_nome_cotacao_bid_frete_internacional ?? '—'}
-            {' → '}
-            {cotacao?.destino_nome_cotacao_bid_frete_internacional ?? '—'}
+            {formatarRotaExibicaoCotacao(
+              cotacao?.origem_nome_cotacao_bid_frete_internacional ?? '',
+              cotacao?.destino_nome_cotacao_bid_frete_internacional ?? '',
+            )}
           </span>
         </div>
         <div className="brc-detalhe">
@@ -340,27 +349,24 @@ export function FormPropostaRespostaCotacao({
         <div className="brc-form-grid">
           <div className="brc-field">
             <LabelObrigatorio>{rotulos.moeda}</LabelObrigatorio>
-            <select
-              className="brc-input"
-              value={form.moeda_proposta_bid_frete_internacional}
-              onChange={(e) => onChange('moeda_proposta_bid_frete_internacional', e.target.value)}
-            >
-              {MOEDAS_RESPOSTA_COTACAO.map((m) => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
+            <SelectGlobal
+              opcoes={OPCOES_MOEDA_RESPOSTA_COTACAO}
+              valor={form.moeda_proposta_bid_frete_internacional}
+              aoMudarValor={(v) =>
+                onChange('moeda_proposta_bid_frete_internacional', String(v ?? 'USD'))
+              }
+              buscavel={false}
+              placeholder="Selecione..."
+              posicao="auto"
+            />
           </div>
 
           <div className="brc-field">
             <LabelObrigatorio>{rotulos.valorFrete}</LabelObrigatorio>
-            <input
-              className="brc-input brc-input--mono"
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              value={form.valor_frete_proposta_bid_frete_internacional}
-              onChange={(e) => onChange('valor_frete_proposta_bid_frete_internacional', e.target.value)}
+            <CampoValorMonetarioResposta
+              id="brc-valor-frete"
+              valor={form.valor_frete_proposta_bid_frete_internacional}
+              onChange={(v) => onChange('valor_frete_proposta_bid_frete_internacional', v)}
             />
           </div>
 

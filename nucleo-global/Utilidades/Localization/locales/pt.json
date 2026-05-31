@@ -2403,7 +2403,8 @@
       "erro_sem_canal": "Selecione ao menos um canal de envio.",
       "erro_sem_fornecedor": "Selecione ao menos um fornecedor.",
       "erro_envio": "Erro ao enviar cotação",
-      "erro_carregar_fornecedores": "Erro ao carregar fornecedores"
+      "erro_carregar_fornecedores": "Erro ao carregar fornecedores",
+      "toast_sucesso": "Cotação enviada aos fornecedores com sucesso."
     },
     "nova_cotacao": {
       "origem": "Origem",

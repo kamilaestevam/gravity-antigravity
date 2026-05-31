@@ -141,7 +141,7 @@ export const notificacoesIntegration = {
       tipo: 'BID_RESPOSTA',
       titulo: `Nova resposta de ${data.fornecedor_nome}`,
       mensagem: `O fornecedor ${data.fornecedor_nome} respondeu a cotação ${data.cotacao_numero}.`,
-      link: `/cotacoes/${data.id_cotacao_bid_frete_internacional}/comparativo`,
+      link: `/bid-frete/cotacoes/${data.id_cotacao_bid_frete_internacional}/comparativo`,
     })
   },
 
@@ -162,7 +162,7 @@ export const notificacoesIntegration = {
       tipo: 'BID_EXPIRADA',
       titulo: `Cotação ${data.cotacao_numero} expirou`,
       mensagem: `O prazo de resposta da cotação expirou sem aprovação.`,
-      link: `/cotacoes/${data.id_cotacao_bid_frete_internacional}`,
+      link: `/bid-frete/cotacoes/${data.id_cotacao_bid_frete_internacional}`,
     })
   },
 }

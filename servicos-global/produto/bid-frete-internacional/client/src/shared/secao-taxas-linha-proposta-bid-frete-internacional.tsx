@@ -4,17 +4,19 @@
 import React, { useEffect, useState } from 'react'
 import { Plus, Trash } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import { cadastrosApi, type TaxaOrigemDestinoCadastro } from './cadastrosApi'
 import {
   filtrarTaxasCatalogoNaoLegado,
   criarLinhaTaxaManual,
   criarLinhasIniciaisDoCatalogo,
-  MOEDAS_LINHA_TAXA,
+  OPCOES_MOEDA_LINHA_TAXA,
   agruparValoresPorMoedaLinhas,
   type LinhaTaxaPropostaBidFreteInternacional,
   type SecaoTaxaLinhaProposta,
 } from './taxas-linha-proposta-bid-frete-internacional'
 import { ResumoMoedasTotalBidFreteInternacional } from './resumo-moedas-total-bid-frete-internacional'
+import { CampoValorMonetarioResposta } from './campo-valor-monetario-resposta-bid-frete-internacional'
 
 export interface SecaoTaxasLinhaPropostaBidFreteInternacionalProps {
   secao: SecaoTaxaLinhaProposta
@@ -153,32 +155,26 @@ export function SecaoTaxasLinhaPropostaBidFreteInternacional({
             </div>
             <div className="brc-taxas-linha-moeda">
               <label className="brc-label">{rotuloMoeda}</label>
-              <select
-                className="brc-input"
-                value={linha.moeda_taxa_bid_frete_internacional}
-                onChange={(e) =>
+              <SelectGlobal
+                opcoes={OPCOES_MOEDA_LINHA_TAXA}
+                valor={linha.moeda_taxa_bid_frete_internacional}
+                aoMudarValor={(v) =>
                   atualizarLinha(linha.id_linha_taxa_proposta_bid_frete_internacional, {
-                    moeda_taxa_bid_frete_internacional: e.target.value,
+                    moeda_taxa_bid_frete_internacional: String(v ?? moedaPadrao),
                   })
                 }
-              >
-                {MOEDAS_LINHA_TAXA.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
+                buscavel={false}
+                placeholder="Selecione..."
+                posicao="auto"
+              />
             </div>
             <div className="brc-taxas-linha-valor">
               <label className="brc-label">{rotuloValor}</label>
-              <input
-                className="brc-input"
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                value={linha.valor_taxa_bid_frete_internacional}
-                onChange={(e) =>
+              <CampoValorMonetarioResposta
+                valor={linha.valor_taxa_bid_frete_internacional}
+                onChange={(v) =>
                   atualizarLinha(linha.id_linha_taxa_proposta_bid_frete_internacional, {
-                    valor_taxa_bid_frete_internacional: e.target.value,
+                    valor_taxa_bid_frete_internacional: v,
                   })
                 }
               />

@@ -10,6 +10,7 @@ import {
   type ComposicaoPorMoedaPropostaBidFreteInternacional,
   type LinhaTaxaPropostaBidFreteInternacional,
 } from './taxas-linha-proposta-bid-frete-internacional'
+import { TextoTruncadoComTooltip } from './texto-truncado-com-tooltip-bid-frete-internacional'
 
 export interface RotulosTabelaResumoPropostaBidFreteInternacional {
   colunaFreteBase: string
@@ -57,7 +58,11 @@ function CelulaTaxasProposta({
               key={linha.id_linha_taxa_proposta_bid_frete_internacional}
               className="brc-tabela-resumo-item"
             >
-              <span className="brc-tabela-resumo-item-nome" title={nome}>{nome}</span>
+              <TextoTruncadoComTooltip
+                className="brc-tabela-resumo-item-nome"
+                texto={nome}
+                rotuloTooltip={nome}
+              />
               <span className="brc-tabela-resumo-item-valor">
                 {formatarTotalMoedaBidFrete(moeda, valor)}
               </span>

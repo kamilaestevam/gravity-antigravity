@@ -24,11 +24,13 @@ function formatarValorTermometro(valor: number, moeda: string): string {
 
 const SPARK_VIEW_W = 88
 const SPARK_VIEW_H = 52
-/** ViewBox alto/estreito — barras da Melhor proposta preenchem a coluna preservando proporção (mesmo formato arredondado do Termômetro). */
+/** ViewBox alto — com `preencherSlot` o SVG estica e ocupa o slot (padrão cockpit). */
 export const SPARK_VIEW_MELHOR_PROPOSTA = { w: 88, h: 180 } as const
-export const SPARK_SLOT_MELHOR_PROPOSTA_PX = 52
+export const SPARK_SLOT_MELHOR_PROPOSTA_PX = 68
 export const SPARK_VIEW_CARD_RANKING = { w: 140, h: 72 } as const
 export const SPARK_SLOT_CARD_RANKING_PX = 68
+/** Termômetro preview (6 meses). */
+export const SPARK_VIEW_TERMOMETRO_MOCK = { w: 280, h: 100 } as const
 const TOOLTIP_LARGURA_ESTIMADA = 248
 const TOOLTIP_ALTURA_ESTIMADA = 220
 
@@ -81,8 +83,11 @@ export interface SparkBarrasComparativoProps {
   dimensoesView?: { w: number; h: number }
   /** `top` = barras coladas ao topo do SVG (métricas Melhor proposta no cockpit). */
   ancoraBarras?: 'base' | 'top'
-  /** Quando `true`, o SVG estica verticalmente para preencher o slot (preserveAspectRatio="none"). */
-  esticarVertical?: boolean
+  /**
+   * Preenche o slot (`preserveAspectRatio="none"`). Padrão `true` nos cards do cockpit.
+   * Não usar na trilha da rota (SVG com traço horizontal).
+   */
+  preencherSlot?: boolean
 }
 
 function calcularAlturasRelativas(barras: BarraComparativoInsight[]): number[] {
@@ -347,7 +352,7 @@ export function SparkBarrasComparativo({
   textoVsGanhador,
   dimensoesView,
   ancoraBarras = 'base',
-  esticarVertical = false,
+  preencherSlot = true,
 }: SparkBarrasComparativoProps) {
   const uid = useId().replace(/:/g, '')
   const rootRef = useRef<HTMLDivElement>(null)
@@ -413,7 +418,7 @@ export function SparkBarrasComparativo({
         <svg
           viewBox={`0 0 ${viewW} ${viewH}`}
           className="dc-smart-spark-barras"
-          preserveAspectRatio={esticarVertical ? 'none' : undefined}
+          preserveAspectRatio={preencherSlot ? 'none' : 'xMidYMid meet'}
           role="img"
           aria-label={rotuloMetrica}
         >
@@ -572,6 +577,9 @@ function TermometroPlotSparkMock({
           rotuloMetrica="Frete"
           formatarValor={(v) => formatarValorTermometro(v, moeda)}
           textoVsGanhador={() => ''}
+          dimensoesView={SPARK_VIEW_TERMOMETRO_MOCK}
+          ancoraBarras="base"
+          preencherSlot
         />
       </div>
       <div className="dc-term-plot-spark-mock-meses" aria-hidden>

@@ -1136,6 +1136,12 @@ export default function DetalheCotacao() {
         }
         .dc-dados-card--gerais .dc-dados-card-title { color: #e0e7ff; }
         .dc-dados-card--rota .dc-dados-card-title { color: #e0f2fe; }
+        .dc-dados-card--rota .dc-dados-card-body {
+          overflow: hidden;
+        }
+        .dc-dados-card--rota .dc-rota-visual {
+          margin-top: 0;
+        }
         .dc-dados-card--carga .dc-dados-card-title { color: #e0e7ff; }
         .dc-dados-card-body {
           display: flex;

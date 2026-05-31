@@ -133,7 +133,11 @@ function TrilhaRotaModal({ modal }: { modal: ModalFrete }) {
 
   return (
     <div className="dc-rota-trilha" aria-hidden>
-      <svg className="dc-rota-trilha-svg" viewBox="0 0 140 36" preserveAspectRatio="none">
+      <svg
+        className="dc-rota-trilha-svg"
+        viewBox="0 0 140 36"
+        preserveAspectRatio="xMidYMid meet"
+      >
         <path
           id={pathId}
           d={TRILHA_PATH}

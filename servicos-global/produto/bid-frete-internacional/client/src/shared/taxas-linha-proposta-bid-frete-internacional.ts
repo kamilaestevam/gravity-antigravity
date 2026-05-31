@@ -3,13 +3,6 @@
  */
 import type { TipoTaxaOrigemDestino, TaxaOrigemDestinoCadastro } from './cadastrosApi'
 
-export const MOEDAS_LINHA_TAXA = ['USD', 'EUR', 'BRL', 'CNY', 'GBP'] as const
-
-export const OPCOES_MOEDA_LINHA_TAXA = MOEDAS_LINHA_TAXA.map((m) => ({
-  valor: m,
-  rotulo: m,
-}))
-
 export type SecaoTaxaLinhaProposta = 'origem' | 'destino'
 
 export interface LinhaTaxaPropostaBidFreteInternacional {
@@ -26,27 +19,140 @@ export function criarIdLinhaTaxaProposta(): string {
   return `linha_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
 }
 
+export function ehTaxaOrigemDestinoLegada(item: {
+  legado_taxa_origem_destino?: boolean
+  codigo_taxa_origem_destino?: string | null
+}): boolean {
+  if (item.legado_taxa_origem_destino === true) return true
+  const codigo = (item.codigo_taxa_origem_destino ?? '').trim().toUpperCase()
+  return codigo.startsWith('LEG_')
+}
+
 export function filtrarTaxasCatalogoNaoLegado(
   itens: TaxaOrigemDestinoCadastro[],
 ): TaxaOrigemDestinoCadastro[] {
-  return itens.filter((item) => {
-    const legado = (item as TaxaOrigemDestinoCadastro & { legado_taxa_origem_destino?: boolean })
-      .legado_taxa_origem_destino
-    if (legado === true) return false
-    return item.ativo_taxa_origem_destino !== false
-  })
+  return normalizarTaxasCatalogoCadastros(itens).filter(
+    (item) => item.ativo_taxa_origem_destino !== false && !ehTaxaOrigemDestinoLegada(item),
+  )
+}
+
+export function normalizarTaxasCatalogoCadastros(
+  itens: TaxaOrigemDestinoCadastro[],
+): TaxaOrigemDestinoCadastro[] {
+  return itens.map((item) => ({
+    ...item,
+    tipo_taxa_origem_destino: (item.tipo_taxa_origem_destino ?? '')
+      .trim()
+      .toUpperCase() as TipoTaxaOrigemDestino,
+  }))
+}
+
+/**
+ * Planilha SSOT: coluna Origem/Destino = ambas seções; sufixos "- Origem"/"- Destino"
+ * ou tipo ORIGEM/DESTINO restringem. tipo FRETE sem sufixo = Origem/Destino (ambas).
+ */
+export function taxaAplicaSecao(
+  taxa: TaxaOrigemDestinoCadastro,
+  secao: SecaoTaxaLinhaProposta,
+): boolean {
+  const nome = taxa.nome_taxa_origem_destino.trim()
+  const nomeLower = nome.toLowerCase()
+  const tipo = taxa.tipo_taxa_origem_destino
+
+  const explicitamenteOrigem =
+    /\s-\s*origem$/i.test(nome) ||
+    /\sorigem$/i.test(nome) ||
+    /\bna origem\b/i.test(nome) ||
+    /\(coleta\)/i.test(nome)
+
+  const explicitamenteDestino =
+    /\s-\s*destino$/i.test(nome) ||
+    /\sdestino$/i.test(nome) ||
+    /\bno destino\b/i.test(nome) ||
+    /\(entrega\)/i.test(nome)
+
+  if (explicitamenteOrigem && !explicitamenteDestino) {
+    return secao === 'origem'
+  }
+  if (explicitamenteDestino && !explicitamenteOrigem) {
+    return secao === 'destino'
+  }
+
+  if (tipo === 'ORIGEM') return secao === 'origem'
+  if (tipo === 'DESTINO') return secao === 'destino'
+  if (tipo === 'FRETE') return true
+
+  return false
 }
 
 export function taxasCatalogoPorSecao(
   itens: TaxaOrigemDestinoCadastro[],
   secao: SecaoTaxaLinhaProposta,
 ): TaxaOrigemDestinoCadastro[] {
-  const filtrados = filtrarTaxasCatalogoNaoLegado(itens)
-  const tipo: TipoTaxaOrigemDestino = secao === 'origem' ? 'ORIGEM' : 'DESTINO'
-  const porTipo = filtrados.filter((t) => t.tipo_taxa_origem_destino === tipo)
-  if (porTipo.length > 0) return porTipo
-  // Catálogo BID em produção: tipo FRETE — mesma lista nas duas seções
-  return filtrados.filter((t) => t.tipo_taxa_origem_destino === 'FRETE')
+  return filtrarTaxasCatalogoNaoLegado(itens).filter((t) => taxaAplicaSecao(t, secao))
+}
+
+export interface OpcaoSelectTaxaCatalogo {
+  valor: string
+  rotulo: string
+}
+
+/** Opções do SelectGlobal — catálogo Cadastros.taxa_origem_destino filtrado por seção. */
+export function opcoesSelectTaxasPorSecao(
+  catalogo: TaxaOrigemDestinoCadastro[],
+  secao: SecaoTaxaLinhaProposta,
+  linha?: Pick<
+    LinhaTaxaPropostaBidFreteInternacional,
+    'id_taxa_origem_destino' | 'nome_taxa_bid_frete_internacional'
+  >,
+): OpcaoSelectTaxaCatalogo[] {
+  const opcoes = taxasCatalogoPorSecao(catalogo, secao).map((t) => ({
+    valor: t.id_taxa_origem_destino,
+    rotulo: t.nome_taxa_origem_destino,
+  }))
+  const idAtual = linha?.id_taxa_origem_destino
+  if (idAtual && !opcoes.some((o) => o.valor === idAtual)) {
+    opcoes.unshift({
+      valor: idAtual,
+      rotulo: linha?.nome_taxa_bid_frete_internacional?.trim() || idAtual,
+    })
+  }
+  return opcoes
+}
+
+/** Proposta antiga ou catálogo indisponível — input de texto livre. */
+export function linhaUsaInputManualTaxa(
+  linha: LinhaTaxaPropostaBidFreteInternacional,
+  catalogoDisponivel = true,
+): boolean {
+  if (!linha.manual || linha.id_taxa_origem_destino != null) return false
+  if (!catalogoDisponivel) return true
+  return linha.nome_taxa_bid_frete_internacional.trim().length > 0
+}
+
+export function patchLinhaAoSelecionarTaxaCatalogo(
+  catalogo: TaxaOrigemDestinoCadastro[],
+  idTaxa: string | null | undefined,
+): Partial<LinhaTaxaPropostaBidFreteInternacional> {
+  if (!idTaxa) {
+    return {
+      id_taxa_origem_destino: null,
+      nome_taxa_bid_frete_internacional: '',
+      manual: true,
+    }
+  }
+  const taxa = catalogo.find((t) => t.id_taxa_origem_destino === idTaxa)
+  if (!taxa) {
+    return {
+      id_taxa_origem_destino: idTaxa,
+      manual: false,
+    }
+  }
+  return {
+    id_taxa_origem_destino: taxa.id_taxa_origem_destino,
+    nome_taxa_bid_frete_internacional: taxa.nome_taxa_origem_destino,
+    manual: false,
+  }
 }
 
 export function criarLinhaTaxaDoCatalogo(
@@ -72,14 +178,6 @@ export function criarLinhaTaxaManual(moedaPadrao: string): LinhaTaxaPropostaBidF
     moeda_taxa_bid_frete_internacional: moedaPadrao,
     manual: true,
   }
-}
-
-export function criarLinhasIniciaisDoCatalogo(
-  catalogo: TaxaOrigemDestinoCadastro[],
-  secao: SecaoTaxaLinhaProposta,
-  moedaPadrao: string,
-): LinhaTaxaPropostaBidFreteInternacional[] {
-  return taxasCatalogoPorSecao(catalogo, secao).map((t) => criarLinhaTaxaDoCatalogo(t, moedaPadrao))
 }
 
 export function parseValorLinhaTaxa(valor: string): number {
@@ -175,6 +273,9 @@ export function agruparValorTotalPropostaResposta(params: {
   )
 
   if (ordenados.length > 0) return ordenados
+
+  if (!params.moeda_frete.trim()) return []
+
   return [{ moeda: params.moeda_frete.trim() || 'USD', total: 0 }]
 }
 
@@ -189,6 +290,7 @@ export function formatarValorTotalPropostaResposta(params: {
   )
 
   if (partes.length > 0) return partes.join(' · ')
+  if (!params.moeda_frete.trim()) return '—'
   return formatarTotalMoedaBidFrete(params.moeda_frete.trim() || 'USD', 0)
 }
 
@@ -263,6 +365,8 @@ export function calcularComposicaoPropostaResposta(params: {
   })
 
   if (ordenados.length > 0) return ordenados
+
+  if (!params.moeda_frete.trim()) return []
 
   return [{
     moeda: moedaFrete,

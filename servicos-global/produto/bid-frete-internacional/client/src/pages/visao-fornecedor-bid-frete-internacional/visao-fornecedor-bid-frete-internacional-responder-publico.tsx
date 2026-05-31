@@ -51,6 +51,8 @@ import {
 
   criarRotulosFormularioResposta,
 
+  camposLogisticaRespostaCotacaoValidos,
+
   estadoFormularioFromProposta,
 
   type DetalhesCotacaoResposta,
@@ -90,8 +92,6 @@ export default function ResponderPublico() {
   const [erro, setErro] = useState('')
 
   const [form, setForm] = useState<EstadoFormularioRespostaCotacao>(ESTADO_INICIAL_FORMULARIO_RESPOSTA)
-  const [taxasOrigemInicializado, setTaxasOrigemInicializado] = useState(false)
-  const [taxasDestinoInicializado, setTaxasDestinoInicializado] = useState(false)
 
 
 
@@ -150,12 +150,8 @@ export default function ResponderPublico() {
       if (editando && data.disparo.proposta) {
         const formEdicao = estadoFormularioFromProposta(data.disparo.proposta)
         setForm(formEdicao)
-        setTaxasOrigemInicializado(formEdicao.linhas_taxa_origem.length > 0)
-        setTaxasDestinoInicializado(formEdicao.linhas_taxa_destino.length > 0)
       } else {
         setForm(ESTADO_INICIAL_FORMULARIO_RESPOSTA)
-        setTaxasOrigemInicializado(false)
-        setTaxasDestinoInicializado(false)
       }
 
       setPageState('form')
@@ -203,13 +199,11 @@ export default function ResponderPublico() {
 
 
     if (
-
-      !form.valor_frete_proposta_bid_frete_internacional
-
+      !form.moeda_proposta_bid_frete_internacional
+      || !form.valor_frete_proposta_bid_frete_internacional
       || !form.dias_transito_proposta_bid_frete_internacional
-
       || !form.validade_proposta_bid_frete_internacional
-
+      || !camposLogisticaRespostaCotacaoValidos(form, cotacao?.modal_cotacao_bid_frete_internacional)
     ) {
 
       setErro(t('bidfrete.portal.publico.campos_obrigatorios'))
@@ -226,7 +220,10 @@ export default function ResponderPublico() {
 
     try {
 
-      const payload = montarPayloadPropostaRespostaBidFreteInternacional(form)
+      const payload = montarPayloadPropostaRespostaBidFreteInternacional(
+        form,
+        cotacao?.modal_cotacao_bid_frete_internacional,
+      )
 
       await enviarPropostaPublicoApi(token, payload)
 
@@ -441,19 +438,13 @@ export default function ResponderPublico() {
 
             form={form}
 
+            modalCotacao={cotacao?.modal_cotacao_bid_frete_internacional}
+
             onChange={handleChange}
 
             onLinhasOrigemChange={(linhas) => setForm((prev) => ({ ...prev, linhas_taxa_origem: linhas }))}
 
             onLinhasDestinoChange={(linhas) => setForm((prev) => ({ ...prev, linhas_taxa_destino: linhas }))}
-
-            taxasOrigemInicializado={taxasOrigemInicializado}
-
-            taxasDestinoInicializado={taxasDestinoInicializado}
-
-            onTaxasOrigemInicializado={() => setTaxasOrigemInicializado(true)}
-
-            onTaxasDestinoInicializado={() => setTaxasDestinoInicializado(true)}
 
             onSubmit={handleSubmit}
 

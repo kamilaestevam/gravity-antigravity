@@ -129,7 +129,7 @@ function CelulaMetricaSparkCard({
           textoVsGanhador={textoVsGanhador}
           dimensoesView={SPARK_VIEW_CARD_RANKING}
           ancoraBarras="base"
-          esticarVertical
+          preencherSlot
         />
       </div>
     </div>

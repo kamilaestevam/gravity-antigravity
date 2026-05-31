@@ -10,6 +10,7 @@ import {
   type TaxaOrigemDestinoCadastro,
   type TipoTaxaOrigemDestino,
 } from './cadastrosApi'
+import { filtrarTaxasCatalogoNaoLegado } from './taxas-linha-proposta-bid-frete-internacional'
 
 export function usePaisesCadastros() {
   const [paises, setPaises] = useState<PaisCadastro[]>([])
@@ -190,7 +191,7 @@ export function useTaxasOrigemDestinoCadastros(tipo?: TipoTaxaOrigemDestino, ati
     cadastrosApi
       .listarTaxasOrigemDestino({ ...(tipo ? { tipo } : {}), limit: 500 })
       .then((resp) => {
-        if (!cancelado) setTaxas(resp.itens)
+        if (!cancelado) setTaxas(filtrarTaxasCatalogoNaoLegado(resp.itens))
       })
       .catch((e: unknown) => {
         if (!cancelado) {

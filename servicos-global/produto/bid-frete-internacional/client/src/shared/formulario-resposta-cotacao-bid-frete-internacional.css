@@ -425,8 +425,38 @@ html:has(.brc-page--publico) body {
 }
 
 .brc-field .sg-wrapper-inner,
+.brc-taxas-linha-nome .sg-wrapper-inner,
 .brc-taxas-linha-moeda .sg-wrapper-inner {
   width: 100%;
+}
+
+/* SelectGlobal alinhado ao .brc-input (Solid Slate do formulário) */
+.brc-field .sg-campo,
+.brc-taxas-linha-nome .sg-campo,
+.brc-taxas-linha-moeda .sg-campo {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1.5px solid rgba(129, 140, 248, 0.18);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.brc-field .sg-campo:hover:not(.sg-campo--desabilitado):not(.sg-campo--carregando),
+.brc-taxas-linha-nome .sg-campo:hover:not(.sg-campo--desabilitado):not(.sg-campo--carregando),
+.brc-taxas-linha-moeda .sg-campo:hover:not(.sg-campo--desabilitado):not(.sg-campo--carregando) {
+  border-color: rgba(129, 140, 248, 0.32);
+}
+
+.brc-field .sg-campo--aberto,
+.brc-field .sg-campo:focus-visible,
+.brc-taxas-linha-nome .sg-campo--aberto,
+.brc-taxas-linha-nome .sg-campo:focus-visible,
+.brc-taxas-linha-moeda .sg-campo--aberto,
+.brc-taxas-linha-moeda .sg-campo:focus-visible {
+  border-color: var(--brc-accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22);
+  background: rgba(15, 23, 42, 0.85);
 }
 
 .brc-label {
@@ -888,6 +918,10 @@ select.brc-input {
   margin: 0;
   font-size: 0.75rem;
   color: var(--text-muted, #64748b);
+}
+
+.brc-taxas-aviso--erro {
+  color: #f87171;
 }
 
 .brc-taxas-linhas {

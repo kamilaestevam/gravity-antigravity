@@ -218,13 +218,14 @@
 /* ── Timeline Stepper (horizontal) ─────────────────────────────────────── */
 /* Agora vive DENTRO do .wf-timeline — sem fundo/borda proprios. */
 /* Stepper em 3 linhas: cards | linha conectora | labels.
-   Linha conectora fica VISIVELMENTE separada dos cards — nao passa
-   por dentro deles. Cada linha eh um flex row de celulas iguais. */
+   Padding-top reduzido drasticamente pra cards encostarem no
+   header. Gap maior entre rows pra linha ficar visivelmente
+   separada dos cards. */
 .wf-stepper {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
-  padding: 1.5rem;
+  gap: 1rem;
+  padding: 0.5rem 1.5rem 1.5rem;
   overflow-x: auto;
 }
 
@@ -241,22 +242,20 @@
   min-width: 80px;
 }
 
-/* Celula da linha do meio — contem 2 metades (esquerda/direita) que
-   representam os conectores entrando/saindo desse step. */
+/* Celula da linha do meio — linha BEM GROSSA pra impossivel de
+   confundir com a anterior. */
 .wf-stepper-cell--line {
-  height: 2px;
+  height: 6px;
   justify-content: stretch;
   gap: 0;
 }
 
-/* Cada metade preenche meio da celula. Conector idx-1 -> idx vive em
-   2 metades: direita do step idx-1 + esquerda do step idx (mesma cor,
-   formam uma linha unica). */
 .wf-line-half {
   flex: 1;
-  height: 2px;
+  height: 6px;
   background: var(--proc-accent-border, rgba(99, 102, 241, 0.2));
   transition: background 0.3s;
+  border-radius: 3px;
 }
 
 .wf-line-half--empty {
@@ -284,11 +283,11 @@
   min-width: 80px;
 }
 
-/* Stepper Box — caixa arredondada 40x40 (BID Frete), nao circulo */
+/* Stepper Box — caixa arredondada 48x48 (maior pra dar impacto visual) */
 .wf-step-circle {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
   flex-shrink: 0;
   border-radius: 10px;
   display: flex;

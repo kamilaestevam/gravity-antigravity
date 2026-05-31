@@ -346,7 +346,8 @@ export default function DadosTecnicos() {
   const [valores, setValores] = useState<Record<string, string>>(VALORES_INICIAIS)
   const [secaoAtiva, setSecaoAtiva] = useState(SECOES[0].id)
   // TOC default contraida. (TODO persistir preferencia do usuario depois)
-  const [tocColapsada, setTocColapsada] = useState(true)
+  // (TOC vertical/colapsavel foi substituida por header horizontal —
+  //  estado tocColapsada removido pra evitar codigo orfao.)
   // Modo do card de stats: total ou so obrigatorios
   const [modoStats, setModoStats] = useState<'total' | 'obrig'>('total')
   // Secoes colapsadas — default TODAS COLAPSADAS (usuario expande as
@@ -494,199 +495,74 @@ export default function DadosTecnicos() {
         />
       }
     >
-      <div className={`dt-layout ${tocColapsada ? 'dt-layout--toc-colapsada' : ''}`}>
-        {/* ── Sidebar: TOC + stats agrupados, sticky ─────────────────────── */}
-        <div className="dt-sidebar">
-        {/* ── TOC lateral ───────────────────────────────────────────────── */}
-        <aside className={`dt-toc ${tocColapsada ? 'dt-toc--colapsada' : ''}`} aria-label="Navegação entre seções">
-          {/* Topo do TOC: busca + toggle (busca esconde quando colapsada) */}
-          <div className="dt-toc-topo">
-            {!tocColapsada && (
-              <div className="dt-toc-busca">
-                <MagnifyingGlass weight="duotone" size={14} className="dt-toc-busca-icon" />
-                <input
-                  type="text"
-                  className="dt-toc-busca-input"
-                  placeholder="Buscar campo…"
-                  value={busca}
-                  onChange={e => setBusca(e.target.value)}
-                  aria-label="Buscar campo por nome ou conteúdo"
-                />
-                {busca && (
-                  <button
-                    type="button"
-                    className="dt-toc-busca-limpar"
-                    onClick={() => setBusca('')}
-                    title="Limpar busca"
-                    aria-label="Limpar busca"
-                  >
-                    <X size={12} weight="bold" />
-                  </button>
-                )}
-              </div>
-            )}
-            <button
-              type="button"
-              className="dt-toc-toggle"
-              onClick={() => setTocColapsada(p => !p)}
-              title={tocColapsada ? 'Expandir menu' : 'Recolher menu'}
-              aria-label={tocColapsada ? 'Expandir menu' : 'Recolher menu'}
-            >
-              <SidebarSimple weight="duotone" size={16} />
-            </button>
-          </div>
-
-          {/* Contador de resultados quando a busca esta ativa */}
-          {filtroAtivo && !tocColapsada && (
-            <div className="dt-toc-resultados">
-              {totalMatches > 0
-                ? <>{totalMatches} resultado{totalMatches > 1 ? 's' : ''}</>
-                : <>Nenhum resultado</>}
-            </div>
-          )}
-
-          {SECOES.map(sec => {
-            const c = completude[sec.id]
-            const completa = c.preenchidos === c.total
-            const ativa = secaoAtiva === sec.id
-
-            const botao = (
-              <button
-                type="button"
-                className={`dt-toc-item ${ativa ? 'dt-toc-item--ativa' : ''} ${completa ? 'dt-toc-item--ok' : ''}`}
-                onClick={() => irParaSecao(sec.id)}
-                aria-label={tocColapsada ? `${sec.titulo} — ${c.preenchidos} de ${c.total}` : undefined}
-              >
-                <span className="dt-toc-icon">{sec.icone}</span>
-                <span className="dt-toc-label">{sec.titulo}</span>
-                <span className={`dt-toc-pill ${completa ? 'dt-toc-pill--ok' : ''}`}>
-                  {completa
-                    ? <CheckCircle weight="fill" size={12} />
-                    : <Circle weight="duotone" size={12} />}
-                  {c.preenchidos}/{c.total}
-                </span>
-                {/* Bolinha de status no modo colapsado (canto sup. direito) */}
-                {tocColapsada && (
-                  <span className={`dt-toc-dot ${completa ? 'dt-toc-dot--ok' : ''}`} aria-hidden="true" />
-                )}
-              </button>
-            )
-
-            // No modo colapsado, envolve em tooltip pra mostrar nome+contagem ao hover
-            return (
-              <React.Fragment key={sec.id}>
-                {tocColapsada ? (
-                  <TooltipGlobal
-                    titulo={sec.titulo}
-                    descricao={`${c.preenchidos} de ${c.total} preenchidos${c.obrigatoriosPendentes > 0 ? ` • ${c.obrigatoriosPendentes} obrigatório${c.obrigatoriosPendentes > 1 ? 's' : ''} pendente${c.obrigatoriosPendentes > 1 ? 's' : ''}` : ''}`}
-                  >
-                    {botao}
-                  </TooltipGlobal>
-                ) : botao}
-              </React.Fragment>
-            )
-          })}
-        </aside>
-
-        {/* ── Card de estatisticas com donut + toggle ──────────────────── */}
-        {(() => {
-          const obrigPreench = stats.obrigTotal - stats.obrigPend
-          const pctObrig = stats.obrigTotal > 0
-            ? Math.round((obrigPreench / stats.obrigTotal) * 100)
-            : 100
-          const pctAtual = modoStats === 'total' ? stats.pct : pctObrig
-          // Cor: verde se 100%, ambar se modo obrig com pendentes, roxo no resto
-          const corDonut =
-            pctAtual === 100 ? '#34d399'
-            : modoStats === 'obrig' ? '#fbbf24'
-            : '#a78bfa'
-          const numeradorAtual = modoStats === 'total' ? stats.preench : obrigPreench
-          const denominadorAtual = modoStats === 'total' ? stats.total : stats.obrigTotal
-          return (
-            <div className={`dt-stats ${tocColapsada ? 'dt-stats--colapsada' : ''}`}>
-              {/* Toggle Total / Obrigatorios — escondido no modo colapsado */}
-              {!tocColapsada && (
-                <div className="dt-stats-toggle" role="tablist" aria-label="Modo de visualizacao">
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={modoStats === 'total'}
-                    className={`dt-stats-toggle-btn ${modoStats === 'total' ? 'dt-stats-toggle-btn--ativa' : ''}`}
-                    onClick={() => setModoStats('total')}
-                  >
-                    Total
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={modoStats === 'obrig'}
-                    className={`dt-stats-toggle-btn ${modoStats === 'obrig' ? 'dt-stats-toggle-btn--ativa' : ''}`}
-                    onClick={() => setModoStats('obrig')}
-                  >
-                    Obrigatórios
-                  </button>
-                </div>
-              )}
-
-              <div
-                className="dt-stats-donut"
-                style={{
-                  background: `conic-gradient(${corDonut} 0% ${pctAtual}%, rgba(148,163,184,0.18) ${pctAtual}% 100%)`,
-                }}
-              >
-                <div className="dt-stats-donut-inner">
-                  <span className="dt-stats-donut-pct">{pctAtual}%</span>
-                </div>
-              </div>
-
-              {!tocColapsada && (
-                <div className="dt-stats-body">
-                  <div className="dt-stats-linha dt-stats-linha--hero">
-                    <strong>{numeradorAtual}</strong>
-                    <span>
-                      de {denominadorAtual} {modoStats === 'total' ? 'campos' : 'obrigatórios'}
-                    </span>
-                  </div>
-                  {/* Linha secundaria — clicavel pra trocar de modo */}
-                  {modoStats === 'total' ? (
-                    <button
-                      type="button"
-                      className={`dt-stats-linha dt-stats-linha--secundaria ${stats.obrigPend === 0 ? 'dt-stats-linha--ok' : 'dt-stats-linha--warn'}`}
-                      onClick={() => setModoStats('obrig')}
-                      title="Ver só obrigatórios"
-                    >
-                      {stats.obrigPend === 0
-                        ? <CheckCircle weight="fill" size={12} />
-                        : <Warning weight="fill" size={12} />}
-                      <strong>{obrigPreench}/{stats.obrigTotal}</strong>
-                      <span>obrigatórios</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="dt-stats-linha dt-stats-linha--secundaria"
-                      onClick={() => setModoStats('total')}
-                      title="Ver total"
-                    >
-                      <Circle weight="duotone" size={12} />
-                      <strong>{stats.preench}/{stats.total}</strong>
-                      <span>no total</span>
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          )
-        })()}
-        </div>
-
-        {/* ── Conteudo: secoes empilhadas ──────────────────────────────── */}
+      <div className="dt-layout">
+        {/* ── Conteudo: secoes empilhadas em largura total ──────────────── */}
         <main className="dt-main">
-          {/* Toolbar: Recolher / Expandir todas */}
+          {/* Toolbar: donut stats (esq) + busca (esq) + Recolher/Expandir (dir) */}
           <div className="dt-main-toolbar">
+            {(() => {
+              const obrigPreench = stats.obrigTotal - stats.obrigPend
+              const pctObrig = stats.obrigTotal > 0
+                ? Math.round((obrigPreench / stats.obrigTotal) * 100)
+                : 100
+              const pctAtual = modoStats === 'total' ? stats.pct : pctObrig
+              const corDonut =
+                pctAtual === 100 ? '#34d399'
+                : modoStats === 'obrig' ? '#fbbf24'
+                : '#a78bfa'
+              const numeradorAtual = modoStats === 'total' ? stats.preench : obrigPreench
+              const denominadorAtual = modoStats === 'total' ? stats.total : stats.obrigTotal
+              return (
+                <button
+                  type="button"
+                  className="dt-header-stats"
+                  onClick={() => setModoStats(modoStats === 'total' ? 'obrig' : 'total')}
+                  title={`Clique para alternar — atualmente vendo ${modoStats === 'total' ? 'totais' : 'só obrigatórios'}`}
+                >
+                  <div
+                    className="dt-stats-donut"
+                    style={{
+                      background: `conic-gradient(${corDonut} 0% ${pctAtual}%, rgba(148,163,184,0.18) ${pctAtual}% 100%)`,
+                    }}
+                  >
+                    <div className="dt-stats-donut-inner">
+                      <span className="dt-stats-donut-pct">{pctAtual}%</span>
+                    </div>
+                  </div>
+                  <div className="dt-header-stats-texto">
+                    <strong>{numeradorAtual}/{denominadorAtual}</strong>
+                    <span>{modoStats === 'total' ? 'campos' : 'obrigatórios'}</span>
+                  </div>
+                </button>
+              )
+            })()}
+
+            <div className="dt-header-busca">
+              <MagnifyingGlass weight="duotone" size={14} className="dt-toc-busca-icon" />
+              <input
+                type="text"
+                className="dt-toc-busca-input"
+                placeholder="Buscar campo…"
+                value={busca}
+                onChange={e => setBusca(e.target.value)}
+                aria-label="Buscar campo por nome ou conteúdo"
+              />
+              {busca && (
+                <button
+                  type="button"
+                  className="dt-toc-busca-limpar"
+                  onClick={() => setBusca('')}
+                  title="Limpar busca"
+                  aria-label="Limpar busca"
+                >
+                  <X size={12} weight="bold" />
+                </button>
+              )}
+            </div>
+
             <button
               type="button"
-              className="dt-main-toolbar-btn"
+              className="dt-main-toolbar-btn dt-main-toolbar-btn--right"
               onClick={toggleTodas}
               title={todasColapsadas ? 'Expandir todas as seções' : 'Recolher todas as seções'}
             >
@@ -698,6 +574,30 @@ export default function DadosTecnicos() {
               {todasColapsadas ? 'Expandir todas' : 'Recolher todas'}
             </button>
           </div>
+
+          {/* Chip do filtro ativo (mesmo padrao .fc-chip do sistema) */}
+          {filtroAtivo && (
+            <div className="dt-chips">
+              <div className="fc-chip" role="status" aria-live="polite">
+                <span className="fc-chip-label">Busca:</span>
+                <span className="fc-chip-valor">"{busca}"</span>
+                <span className="dt-chip-meta">
+                  · {totalMatches > 0
+                    ? `${totalMatches} resultado${totalMatches > 1 ? 's' : ''}`
+                    : 'sem resultado'}
+                </span>
+                <button
+                  type="button"
+                  className="fc-chip-remove"
+                  onClick={() => setBusca('')}
+                  title="Remover filtro"
+                  aria-label="Remover filtro de busca"
+                >
+                  <X size={10} weight="bold" />
+                </button>
+              </div>
+            </div>
+          )}
 
           {SECOES.map(sec => {
             const c = completude[sec.id]

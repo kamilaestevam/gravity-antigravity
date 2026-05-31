@@ -121,7 +121,7 @@ async function authHeadersCadastros(): Promise<Record<string, string>> {
   const idOrganizacao = resolverIdOrganizacao()
   const customHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
-    'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
+    'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'gravity-dev-internal-key-2026',
     'x-id-organizacao': idOrganizacao,
     'x-organizacao-id': idOrganizacao,
     ...injetarHeaderOverride(),

@@ -262,6 +262,7 @@ const ESTILO_COLUNA_METRICA_MELHOR: CSSProperties = {
   gridTemplateColumns: '1fr',
   gap: 4,
   minHeight: 0,
+  minWidth: 0,
   height: '100%',
   alignSelf: 'stretch',
 }
@@ -269,12 +270,13 @@ const ESTILO_COLUNA_METRICA_MELHOR: CSSProperties = {
 const ESTILO_SPARK_SLOT_MELHOR: CSSProperties = {
   height: '100%',
   minHeight: SPARK_SLOT_MELHOR_PROPOSTA_PX,
-  maxHeight: 'none',
   margin: 0,
   padding: 0,
-  display: 'block',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
   lineHeight: 0,
-  overflow: 'visible',
+  overflow: 'hidden',
 }
 
 const ESTILO_METRICAS_ROW_MELHOR: CSSProperties = {
@@ -283,7 +285,7 @@ const ESTILO_METRICAS_ROW_MELHOR: CSSProperties = {
   alignItems: 'stretch',
   gap: '0.5rem',
   flex: '1 1 auto',
-  height: '100%',
+  width: '100%',
   minHeight: 0,
 }
 
@@ -344,6 +346,7 @@ function CelulaMetricaComparativo({
           textoVsGanhador={textoVsGanhador}
           dimensoesView={SPARK_VIEW_MELHOR_PROPOSTA}
           ancoraBarras="base"
+          preencherSlot
         />
       </div>
     </div>

@@ -1923,43 +1923,6 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
           </span>
         </div>
 
-        {/* Grupo de controles do header: Globo/Mapa + Modo */}
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-
-        {/* Vista Switcher: botão único que alterna para o modo oposto */}
-        <div style={{
-          display: 'inline-flex',
-          background: 'rgba(255, 255, 255, 0.04)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          borderRadius: '20px',
-          padding: '2px',
-          backdropFilter: 'blur(8px)',
-        }}>
-          <button
-            onClick={() => setVista(prev => (prev === 'globo' ? 'mapa' : 'globo'))}
-            title={vista === 'globo' ? 'Ver como mapa' : 'Ver como globo'}
-            style={{
-              background: 'rgba(96, 165, 250, 0.15)',
-              border: 'none',
-              color: '#60a5fa',
-              padding: '6px 14px',
-              fontSize: '0.78rem',
-              fontWeight: 700,
-              borderRadius: '18px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: '0 0 10px rgba(96, 165, 250, 0.1)',
-            }}
-          >
-            {vista === 'globo'
-              ? <><MapTrifold size={13} weight="bold" /><span>Mapa</span></>
-              : <><Globe size={13} weight="bold" /><span>Globo</span></>}
-          </button>
-        </div>
-
         {/* Mode Switcher pills */}
         <div style={{
           display: 'inline-flex',
@@ -2011,8 +1974,6 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
             <Clock size={13} weight="bold" />
             <span>Transit Time</span>
           </button>
-        </div>
-
         </div>
       </div>
 
@@ -2069,8 +2030,16 @@ function VisaoGeralMapa({ onOpenCompleto }: VisaoGeralMapaProps) {
           
           {/* Floating Zoom & Control Panel */}
           <div className="bfd-map-controls">
-            <button 
-              onClick={handleZoomIn} 
+            <button
+              onClick={() => setVista(prev => (prev === 'globo' ? 'mapa' : 'globo'))}
+              title={vista === 'globo' ? 'Ver como Mapa' : 'Ver como Globo'}
+              className="bfd-map-control-btn"
+            >
+              {vista === 'globo' ? <MapTrifold size={16} weight="bold" /> : <Globe size={16} weight="bold" />}
+            </button>
+
+            <button
+              onClick={handleZoomIn}
               title="Aumentar Zoom" 
               className="bfd-map-control-btn"
             >

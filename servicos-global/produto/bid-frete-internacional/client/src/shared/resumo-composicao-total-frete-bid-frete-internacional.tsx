@@ -111,9 +111,15 @@ function CelulaFreteBase({
 
 function CelulaValorTotal({
   composicao,
+  rotuloSemTaxas,
 }: {
   composicao: ComposicaoPorMoedaPropostaBidFreteInternacional[]
+  rotuloSemTaxas: string
 }) {
+  if (composicao.length === 0) {
+    return <span className="brc-tabela-resumo-vazio">{rotuloSemTaxas}</span>
+  }
+
   return (
     <div className="brc-tabela-resumo-coluna brc-tabela-resumo-coluna--totais">
       {composicao.map(({ moeda, total }) => (
@@ -143,7 +149,7 @@ export function TabelaResumoPropostaBidFreteInternacional({
   composicao: ComposicaoPorMoedaPropostaBidFreteInternacional[]
   rotulos: RotulosTabelaResumoPropostaBidFreteInternacional
 }) {
-  const moedaPrioritaria = moedaFrete.trim() || 'USD'
+  const moedaPrioritaria = moedaFrete.trim()
 
   return (
     <div className="brc-tabela-resumo-wrapper">
@@ -182,7 +188,7 @@ export function TabelaResumoPropostaBidFreteInternacional({
               />
             </td>
             <td data-label={rotulos.colunaValorTotal}>
-              <CelulaValorTotal composicao={composicao} />
+              <CelulaValorTotal composicao={composicao} rotuloSemTaxas={rotulos.semTaxas} />
             </td>
           </tr>
         </tbody>

@@ -267,6 +267,17 @@ exports.Prisma.AeroportoScalarFieldEnum = {
   ativo_aeroporto: 'ativo_aeroporto'
 };
 
+exports.Prisma.TaxaOrigemDestinoScalarFieldEnum = {
+  id_taxa_origem_destino: 'id_taxa_origem_destino',
+  nome_taxa_origem_destino: 'nome_taxa_origem_destino',
+  descricao_taxa_origem_destino: 'descricao_taxa_origem_destino',
+  tipo_taxa_origem_destino: 'tipo_taxa_origem_destino',
+  codigo_taxa_origem_destino: 'codigo_taxa_origem_destino',
+  ativo_taxa_origem_destino: 'ativo_taxa_origem_destino',
+  data_criacao_taxa_origem_destino: 'data_criacao_taxa_origem_destino',
+  data_atualizacao_taxa_origem_destino: 'data_atualizacao_taxa_origem_destino'
+};
+
 exports.Prisma.ContainerScalarFieldEnum = {
   id_container: 'id_container',
   tipo_container: 'tipo_container',
@@ -426,6 +437,7 @@ exports.Prisma.ModelName = {
   Incoterm: 'Incoterm',
   Porto: 'Porto',
   Aeroporto: 'Aeroporto',
+  TaxaOrigemDestino: 'TaxaOrigemDestino',
   Container: 'Container',
   NcmSync: 'NcmSync',
   NcmSyncLog: 'NcmSyncLog',

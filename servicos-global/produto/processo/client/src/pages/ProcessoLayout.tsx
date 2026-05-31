@@ -176,6 +176,12 @@ const buildNavSections = (
         { id: 'todo',  to: `${base}/todo${qs}`,  label: 'To Do', icon: <CheckSquare weight="duotone" size={18} /> },
       ],
     },
+    {
+      title: 'Configurações',
+      items: [
+        { id: 'configuracoes', to: `${base}/configuracoes${qs}`, label: 'Configurações', icon: <GearSix weight="duotone" size={18} /> },
+      ],
+    },
   ]
 }
 

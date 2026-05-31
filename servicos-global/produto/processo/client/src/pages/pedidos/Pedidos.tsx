@@ -37,6 +37,22 @@ import {
 const idOrganizacao = import.meta.env.VITE_TENANT_ID ?? 'tenant-demo'
 const userId = import.meta.env.VITE_USER_ID ?? 'user-demo'
 
+// Porta do produto Pedido (dev). Pode ser sobrescrita por VITE_PEDIDO_PORT.
+// Em prod a navegacao cross-product deveria usar service discovery
+// (contracts.json / PRODUCT_CONFIG) — TODO da plataforma.
+const PEDIDO_PORT = import.meta.env.VITE_PEDIDO_PORT ?? '8000'
+
+// Abre o produto Pedido na porta correta — corrige o bug em que o
+// link relativo /pedido/... caia no proprio :8001 (Processo) e dava
+// connection refused.
+function abrirPedido(pedidoId: string, modo: 'ver' | 'editar') {
+  const path = modo === 'editar'
+    ? `/pedido/pedidos/${pedidoId}/editar`
+    : `/pedido/pedidos/${pedidoId}`
+  const url = `${window.location.protocol}//${window.location.hostname}:${PEDIDO_PORT}${path}`
+  window.open(url, '_blank', 'noopener,noreferrer')
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const fmtUSD = (val: string | number) =>
@@ -334,20 +350,15 @@ export default function Pedidos() {
   const acoes: GTAcao<PedidoRico>[] = [
     {
       id: 'ver',
-      tooltip: 'Ver detalhes',
+      tooltip: 'Ver no produto Pedido',
       icone: <Eye size={16} weight="duotone" />,
-      onClick: (row: PedidoRico) => {
-        // navegação para detalhe do pedido — implementar rota
-        void row
-      },
+      onClick: (row: PedidoRico) => abrirPedido(row.id, 'ver'),
     },
     {
       id: 'editar',
-      tooltip: 'Editar pedido',
+      tooltip: 'Editar no produto Pedido',
       icone: <PencilSimple size={16} weight="duotone" />,
-      onClick: (row: PedidoRico) => {
-        void row
-      },
+      onClick: (row: PedidoRico) => abrirPedido(row.id, 'editar'),
     },
     {
       id: 'cancelar',

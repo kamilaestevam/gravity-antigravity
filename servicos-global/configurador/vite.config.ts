@@ -43,6 +43,11 @@ export default defineConfig(({ command }) => {
       // historico-global: nome de pasta difere do alias usado pelo produto
       '@plataforma/historico': path.resolve(monorepoRoot, 'servicos-global/servicos-plataforma/historico-global/src/index.ts'),
       ...createNucleoAliases(monorepoRoot),
+      // Pacote novo — alias explícito garante resolve mesmo com cache/HMR stale
+      '@nucleo/campo-dado-global': path.resolve(
+        monorepoRoot,
+        'nucleo-global/Campos/campo-dado-global/src/index.ts',
+      ),
       ...createServiceAliases(monorepoRoot),
       ...createTenantAliases(monorepoRoot, ['gabi', 'dashboard', 'atividades', 'cadastros']),
       // peerDeps do kanban-global — npm workspaces hoista para o root

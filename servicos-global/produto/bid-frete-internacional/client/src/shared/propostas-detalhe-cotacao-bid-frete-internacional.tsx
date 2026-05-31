@@ -481,6 +481,30 @@ function CorpoMetricasProposta({
   )
 }
 
+function TagsCardProposta({ tags, t }: { tags: string[]; t: TFunction }) {
+  if (tags.length === 0) return null
+  return (
+    <div className="dc-prop-card-destaques dc-prop-card-destaques--tags">
+      <TagsProposta tags={tags} t={t} />
+    </div>
+  )
+}
+
+function SparkComparativoCardProposta({
+  proposta,
+  propostasTodas,
+}: {
+  proposta: PropostaRankingBidFreteInternacional
+  propostasTodas: PropostaRankingBidFreteInternacional[]
+}) {
+  if (propostasTodas.length < 2) return null
+  return (
+    <div className="dc-prop-card-spark-full">
+      <FaixaMetricasComparativoSparkProposta proposta={proposta} propostas={propostasTodas} />
+    </div>
+  )
+}
+
 function DestaquesCardProposta({
   proposta,
   propostasTodas,
@@ -650,12 +674,7 @@ function CardProposta({
                   </span>
                 )}
               </div>
-              <DestaquesCardProposta
-                proposta={proposta}
-                propostasTodas={propostasTodas}
-                tags={metricas.tags}
-                t={t}
-              />
+              <TagsCardProposta tags={metricas.tags} t={t} />
             </div>
           </div>
           <div className="dc-prop-card-total-block">
@@ -664,6 +683,7 @@ function CardProposta({
               {moeda(proposta.valor_total_proposta_bid_frete_internacional, moedaProposta)}
             </span>
           </div>
+          <SparkComparativoCardProposta proposta={proposta} propostasTodas={propostasTodas} />
         </header>
 
         <div className="dc-prop-card-body">
@@ -714,12 +734,7 @@ function CardProposta({
                 </span>
               )}
             </div>
-            <DestaquesCardProposta
-              proposta={proposta}
-              propostasTodas={propostasTodas}
-              tags={metricas.tags}
-              t={t}
-            />
+            <TagsCardProposta tags={metricas.tags} t={t} />
           </div>
         </div>
         <div className="dc-prop-card-total-block">
@@ -728,6 +743,7 @@ function CardProposta({
             {moeda(proposta.valor_total_proposta_bid_frete_internacional, moedaProposta)}
           </span>
         </div>
+        <SparkComparativoCardProposta proposta={proposta} propostasTodas={propostasTodas} />
       </header>
 
       <div className="dc-prop-card-body">

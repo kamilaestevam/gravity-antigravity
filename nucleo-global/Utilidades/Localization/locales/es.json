@@ -49,7 +49,11 @@
     "enviar": "Enviar",
     "todos": "Todos",
     "de": "De",
-    "para": "Para"
+    "para": "Para",
+    "obrigatorio": "Obligatorio",
+    "campo_modo_editavel": "Editable",
+    "campo_modo_somente_leitura": "Solo lectura",
+    "campo_modo_bloqueado": "Bloqueado"
   },
   "acoes": {
     "clique_aqui": "Haga clic aquí",
@@ -1835,7 +1839,7 @@
       "prazo_no_prazo": "En plazo",
       "prazo_fora_prazo": "Fuera de plazo",
       "card_cronograma": "Cronograma",
-      "card_metadados": "Metadatos",
+      "card_identificacao": "Identificación",
       "numero_cotacao": "Número",
       "referencia_interna": "Referencia interna",
       "cronograma_data_criacao": "Fecha de creación",

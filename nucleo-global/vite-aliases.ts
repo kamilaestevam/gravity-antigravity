@@ -94,6 +94,9 @@ function getSpecialAliases(nucleoRoot: string): Record<string, string> {
     // pasta criada com dev server rodando). Espelha modal-tabela-unidades.
     '@nucleo/modal-tabela-incoterm': path.resolve(nucleoRoot, 'Modais/modal-tabela-incoterm/src/index.ts'),
 
+    // 2026-05-26 — CampoDadoGlobal (modos editável / somente leitura / bloqueado)
+    '@nucleo/campo-dado-global': path.resolve(nucleoRoot, 'Campos/campo-dado-global/src/index.ts'),
+
     // Tokens (estrutura flat, sem subpasta)
     '@nucleo/tokens': path.resolve(nucleoRoot, 'Tokens/index.ts'),
   }

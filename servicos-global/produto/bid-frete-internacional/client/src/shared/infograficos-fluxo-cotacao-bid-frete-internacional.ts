@@ -45,6 +45,14 @@ export interface BarraComparativoInsight {
   valor: number
   destaque: boolean
   fornecedor: string
+  /** Posição neste comparativo (1 = melhor na métrica). */
+  posicao_comparativo_metrica?: number
+  ranking_geral_proposta?: number
+  moeda_proposta_bid_frete_internacional?: string
+  valor_total_proposta_bid_frete_internacional?: number
+  dias_transito_proposta_bid_frete_internacional?: number
+  dias_free_time_proposta_bid_frete_internacional?: number | null
+  quantidade_escala_proposta_bid_frete_internacional?: number
 }
 
 export interface ComparativoMetricaPainel {
@@ -463,7 +471,7 @@ export function buildComparativoMetrica(
   return {
     valorExibicao: formatar(melhorValor),
     melhorMenor,
-    barras: ordenadas.slice(0, 6).map((p) => {
+    barras: ordenadas.slice(0, 6).map((p, indice) => {
       const valor = extrair(p)
       const id = p.id_proposta_bid_frete_internacional
       const destaque = id_proposta_destaque != null
@@ -476,6 +484,13 @@ export function buildComparativoMetrica(
           p.fornecedor_nome
           ?? p.fornecedor?.nome_fornecedor_bid_frete_internacional
           ?? '—',
+        posicao_comparativo_metrica: indice + 1,
+        ranking_geral_proposta: p.ranking_geral,
+        moeda_proposta_bid_frete_internacional: p.moeda_proposta_bid_frete_internacional,
+        valor_total_proposta_bid_frete_internacional: p.valor_total_proposta_bid_frete_internacional,
+        dias_transito_proposta_bid_frete_internacional: p.dias_transito_proposta_bid_frete_internacional,
+        dias_free_time_proposta_bid_frete_internacional: p.dias_free_time_proposta_bid_frete_internacional,
+        quantidade_escala_proposta_bid_frete_internacional: p.quantidade_escala_proposta_bid_frete_internacional,
       }
     }),
   }

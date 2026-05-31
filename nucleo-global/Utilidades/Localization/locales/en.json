@@ -862,7 +862,7 @@
       "prazo_no_prazo": "On time",
       "prazo_fora_prazo": "Overdue",
       "card_cronograma": "Timeline",
-      "card_metadados": "Metadata",
+      "card_identificacao": "Identification",
       "numero_cotacao": "Number",
       "referencia_interna": "Internal reference",
       "cronograma_data_criacao": "Created on",
@@ -993,7 +993,11 @@
     "enviar": "Send",
     "todos": "All",
     "de": "From",
-    "para": "To"
+    "para": "To",
+    "obrigatorio": "Required",
+    "campo_modo_editavel": "Editable",
+    "campo_modo_somente_leitura": "Read-only",
+    "campo_modo_bloqueado": "Locked"
   },
   "acoes": {
     "clique_aqui": "Click here",

@@ -1,0 +1,212 @@
+/**
+ * Dados gerais (cockpit cotação) — paridade visual com Processo › Dados Técnicos.
+ * Classes dt-* escopadas em .dc-dados-gerais-processo para não colidir com Processo.
+ */
+
+.dc-dados-gerais-processo.dt-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.dc-dados-gerais-processo .dt-main-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: -0.5rem;
+}
+
+.dc-dados-gerais-processo .dt-main-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3125rem 0.625rem;
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 9999px;
+  color: #94a3b8;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.dc-dados-gerais-processo .dt-main-toolbar-btn:hover {
+  background: rgba(167, 139, 250, 0.08);
+  color: #c4b5fd;
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+.dc-dados-gerais-processo .dt-secao {
+  background: rgba(30, 41, 59, 0.35);
+  border: 1px solid rgba(167, 139, 250, 0.1);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem 1.5rem;
+  scroll-margin-top: 1rem;
+  transition: padding 0.2s ease-out;
+}
+
+.dc-dados-gerais-processo .dt-secao--colapsada {
+  padding-bottom: 1.25rem;
+}
+
+.dc-dados-gerais-processo .dt-secao-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 0 0 1rem;
+  margin-bottom: 1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.1);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, margin 0.2s, padding 0.2s;
+}
+
+.dc-dados-gerais-processo .dt-secao-header:hover .dt-secao-title h2 {
+  color: #c4b5fd;
+}
+
+.dc-dados-gerais-processo .dt-secao--colapsada .dt-secao-header {
+  padding: 0;
+  margin-bottom: 0;
+  border-bottom-color: transparent;
+}
+
+.dc-dados-gerais-processo .dt-secao-title {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.dc-dados-gerais-processo .dt-caret {
+  color: #94a3b8;
+  transition: transform 0.2s ease-out, color 0.15s;
+  flex-shrink: 0;
+}
+
+.dc-dados-gerais-processo .dt-caret--colapsado {
+  transform: rotate(-90deg);
+}
+
+.dc-dados-gerais-processo .dt-secao-header:hover .dt-caret,
+.dc-dados-gerais-processo .dt-main-toolbar-btn:hover .dt-caret {
+  color: #c4b5fd;
+}
+
+.dc-dados-gerais-processo .dt-secao-icon {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.1);
+  border-radius: 8px;
+}
+
+.dc-dados-gerais-processo .dt-secao-title h2 {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #f1f5f9;
+}
+
+.dc-dados-gerais-processo .dt-secao-completude {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.dc-dados-gerais-processo .dt-secao-progress {
+  width: 80px;
+  height: 4px;
+  background: rgba(148, 163, 184, 0.15);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.dc-dados-gerais-processo .dt-secao-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.25s ease-out, background 0.25s ease-out;
+}
+
+.dc-dados-gerais-processo .dt-secao-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #94a3b8;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.dc-dados-gerais-processo .dt-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 0.75rem;
+  row-gap: 0.625rem;
+}
+
+@media (max-width: 900px) {
+  .dc-dados-gerais-processo .dt-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dc-dados-gerais-processo .dc-cronograma-prazo-editor {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.dc-dados-gerais-processo .dc-cronograma-prazo-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.dc-dados-gerais-processo .dc-cronograma-prazo-trigger:hover:not(:disabled) {
+  color: #c4b5fd;
+}
+
+.dc-dados-gerais-processo .dc-cronograma-prazo-trigger-valor {
+  font-variant-numeric: tabular-nums;
+}
+
+.dc-dados-gerais-processo .dc-cronograma-prazo-trigger-icone {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.dc-dados-gerais-processo .dc-cronograma-erro-secao {
+  grid-column: 1 / -1;
+  margin: 0 0 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: 8px;
+}
+

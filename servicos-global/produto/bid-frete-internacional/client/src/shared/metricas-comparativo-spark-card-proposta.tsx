@@ -12,8 +12,8 @@ import {
 } from './infograficos-fluxo-cotacao-bid-frete-internacional'
 import type { PropostaRankingBidFreteInternacional } from './types'
 import {
-  SPARK_SLOT_MELHOR_PROPOSTA_PX,
-  SPARK_VIEW_MELHOR_PROPOSTA,
+  SPARK_SLOT_CARD_RANKING_PX,
+  SPARK_VIEW_CARD_RANKING,
   SparkBarrasComparativo,
 } from './graficos-insights-cotacao-bid-frete-internacional'
 
@@ -127,8 +127,9 @@ function CelulaMetricaSparkCard({
           rotuloMetrica={rotuloMetrica}
           formatarValor={formatarValor}
           textoVsGanhador={textoVsGanhador}
-          dimensoesView={SPARK_VIEW_MELHOR_PROPOSTA}
+          dimensoesView={SPARK_VIEW_CARD_RANKING}
           ancoraBarras="base"
+          esticarVertical
         />
       </div>
     </div>
@@ -170,7 +171,7 @@ export function FaixaMetricasComparativoSparkProposta({
   return (
     <div
       className="dc-prop-metricas-spark-row"
-      style={{ '--dc-prop-metrica-spark-h': `${SPARK_SLOT_MELHOR_PROPOSTA_PX}px` } as React.CSSProperties}
+      style={{ '--dc-prop-metrica-spark-h': `${SPARK_SLOT_CARD_RANKING_PX}px` } as React.CSSProperties}
       role="group"
       aria-label={t('bidfrete.detalhe_cotacao.resposta_metricas_comparativo', 'Comparativo entre propostas')}
     >

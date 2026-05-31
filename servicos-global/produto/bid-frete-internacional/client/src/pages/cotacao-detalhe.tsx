@@ -1464,6 +1464,7 @@ export default function DetalheCotacao() {
         }
         .dc-prop-card-head {
           display: flex;
+          flex-wrap: wrap;
           align-items: center;
           justify-content: space-between;
           gap: 1rem;
@@ -1472,7 +1473,8 @@ export default function DetalheCotacao() {
         }
         .dc-prop-card-head:has(.dc-prop-tags:not(:empty)),
         .dc-prop-card-head:has(.dc-prop-card-destaques),
-        .dc-prop-card-head:has(.dc-prop-metricas-spark-row) {
+        .dc-prop-card-head:has(.dc-prop-metricas-spark-row),
+        .dc-prop-card-head:has(.dc-prop-card-spark-full) {
           align-items: flex-start;
         }
         .dc-prop-tags:empty {
@@ -1506,7 +1508,8 @@ export default function DetalheCotacao() {
         }
         .dc-prop-card-head:has(.dc-prop-tags:not(:empty)) .dc-prop-card-head-main,
         .dc-prop-card-head:has(.dc-prop-card-destaques) .dc-prop-card-head-main,
-        .dc-prop-card-head:has(.dc-prop-metricas-spark-row) .dc-prop-card-head-main {
+        .dc-prop-card-head:has(.dc-prop-metricas-spark-row) .dc-prop-card-head-main,
+        .dc-prop-card-head:has(.dc-prop-card-spark-full) .dc-prop-card-head-main {
           align-items: flex-start;
         }
         .dc-prop-rank-inline {

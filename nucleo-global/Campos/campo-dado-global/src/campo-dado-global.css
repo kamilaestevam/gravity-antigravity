@@ -1,0 +1,235 @@
+/**
+ * @nucleo/campo-dado-global — card de dado com modos editável / somente leitura / bloqueado.
+ * Paridade visual com Processo › Dados Técnicos (.dt-row), com sinais explícitos de modo.
+ */
+
+.cdado {
+  position: relative;
+  display: grid;
+  grid-template-columns: 4px 1fr;
+  align-items: stretch;
+  background: var(--cdado-bg, #1e293b);
+  border: 1px solid var(--cdado-border, rgba(148, 163, 184, 0.1));
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.18s ease-out, box-shadow 0.18s ease-out,
+    border-color 0.18s ease-out, background 0.18s ease-out;
+}
+
+.cdado-status {
+  width: 4px;
+  height: 100%;
+  align-self: stretch;
+  background: rgba(148, 163, 184, 0.35);
+}
+
+.cdado--preenchido .cdado-status {
+  background: #34d399;
+}
+
+.cdado--vazio-obrig .cdado-status {
+  background: #fbbf24;
+}
+
+.cdado--vazio-opc .cdado-status {
+  background: rgba(148, 163, 184, 0.35);
+}
+
+.cdado--somente-leitura .cdado-status,
+.cdado--bloqueado .cdado-status {
+  background: rgba(148, 163, 184, 0.45);
+}
+
+.cdado--editavel.cdado--preenchido .cdado-status {
+  background: #34d399;
+}
+
+.cdado-head,
+.cdado-body,
+.cdado-motivo {
+  grid-column: 2;
+}
+
+.cdado-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  padding: 0.5rem 0.75rem 0.25rem;
+}
+
+.cdado-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: rgba(167, 139, 250, 0.85);
+  flex-shrink: 0;
+}
+
+.cdado-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cdado-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.cdado-required {
+  color: #f87171;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cdado-modo-badge {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.cdado--editavel .cdado-modo-badge {
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.16);
+  border: 1px solid rgba(129, 140, 248, 0.35);
+}
+
+.cdado--somente-leitura .cdado-modo-badge {
+  color: #94a3b8;
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.cdado--bloqueado .cdado-modo-badge {
+  color: #fcd34d;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+}
+
+.cdado-body {
+  padding: 0.125rem 0.75rem 0.5rem;
+  min-width: 0;
+}
+
+.cdado-valor {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-primary, #f1f5f9);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  font-family: inherit;
+}
+
+.cdado-texto {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+.cdado-vazio {
+  flex: 1;
+  color: rgba(148, 163, 184, 0.5);
+  font-style: italic;
+}
+
+.cdado--somente-leitura .cdado-valor,
+.cdado--bloqueado .cdado-valor {
+  cursor: default;
+  color: #cbd5e1;
+}
+
+.cdado--editavel .cdado-valor {
+  cursor: pointer;
+  border-radius: 6px;
+  outline: 1px dashed transparent;
+  outline-offset: 2px;
+  transition: color 0.15s, outline-color 0.15s, background 0.15s;
+}
+
+.cdado--editavel:hover {
+  transform: translateY(-1px);
+  border-color: rgba(167, 139, 250, 0.35);
+  box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(167, 139, 250, 0.12);
+}
+
+.cdado--editavel:hover .cdado-valor {
+  color: #e0e7ff;
+  outline-color: rgba(129, 140, 248, 0.45);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.cdado--editavel .cdado-icone-acao {
+  color: #a78bfa;
+  opacity: 0.55;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.cdado--editavel:hover .cdado-icone-acao {
+  opacity: 1;
+}
+
+.cdado--somente-leitura:hover,
+.cdado--bloqueado:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.cdado-motivo {
+  margin: 0 0.75rem 0.625rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: #94a3b8;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.cdado--bloqueado .cdado-motivo {
+  color: #fcd34d;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.18);
+}
+
+.cdado--span-2 {
+  grid-column: 1 / -1;
+}
+
+body.light-theme .cdado {
+  --cdado-bg: #f8fafc;
+  --cdado-border: rgba(148, 163, 184, 0.35);
+}
+
+body.light-theme .cdado-valor {
+  color: #0f172a;
+}
+
+body.light-theme .cdado--somente-leitura .cdado-valor,
+body.light-theme .cdado--bloqueado .cdado-valor {
+  color: #475569;
+}

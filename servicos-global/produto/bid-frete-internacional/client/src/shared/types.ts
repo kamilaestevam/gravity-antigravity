@@ -298,6 +298,7 @@ export interface PropostaBidFreteInternacional {
   quantidade_transbordo_proposta_bid_frete_internacional: number
   quantidade_escala_proposta_bid_frete_internacional: number
   escalas_proposta_bid_frete_internacional?: string | null
+  dias_prazo_pagamento_proposta_bid_frete_internacional?: number | null
   validade_proposta_bid_frete_internacional: string
   observacoes_proposta_bid_frete_internacional: string | null
   status_proposta_bid_frete_internacional: string

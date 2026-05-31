@@ -93,11 +93,6 @@
   height: 100%;
 }
 
-.dc-cockpit-insights-row .dc-smart-insights-grid--4col > .dc-smart-metricas-coluna {
-  height: 100%;
-  min-height: 0;
-}
-
 .dc-cockpit-insights-row .dc-smart-card--ranking .dc-smart-card-body--ranking {
   flex: 1;
   min-height: 0;
@@ -339,15 +334,121 @@
   margin: 0 0.25rem;
 }
 
-/* Prazo (esq.) · timeline (centro) · ações (dir.) — altura única compartilhada */
+/* Prazo · timeline · ações — KPIs à esquerda no hero */
 .dc-cockpit-hero {
   --dc-cockpit-hero-min-h: 6.25rem;
   --dc-prazo-status-pulse-duration: 7s;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
   gap: 0.85rem;
   align-items: stretch;
   margin-bottom: var(--bid-frete-page-pt, 1.5rem);
+}
+
+.dc-cockpit-hero--sem-acoes {
+  grid-template-columns: auto auto minmax(0, 1fr);
+}
+
+.dc-cockpit-metricas-hero-col {
+  display: flex;
+  align-items: stretch;
+  min-height: var(--dc-cockpit-hero-min-h);
+}
+
+/* Resumo único: Disparos · Respostas · Recusas (hero) */
+.dc-cockpit-competicao-resumo {
+  display: flex;
+  align-items: stretch;
+  min-height: var(--dc-cockpit-hero-min-h);
+  border-radius: 14px;
+  border: 1px solid var(--dc-cockpit-card-border);
+  background: var(--dc-cockpit-card-bg);
+  box-shadow: var(--dc-cockpit-card-shadow);
+  overflow: hidden;
+}
+
+.dc-competicao-seg {
+  flex: 1 1 0;
+  min-width: 4.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.55rem 0.9rem;
+  text-align: center;
+}
+
+.dc-competicao-seg--acao {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: default;
+}
+
+.dc-competicao-seg--acao-ativo {
+  cursor: pointer;
+}
+
+.dc-competicao-seg--acao-ativo:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.dc-competicao-seg--respostas.dc-competicao-seg--acao-ativo:hover {
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.dc-competicao-seg--recusas.dc-competicao-seg--acao-ativo:hover {
+  background: rgba(251, 113, 133, 0.1);
+}
+
+.dc-competicao-seg--acao-ativo:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: -2px;
+}
+
+.dc-competicao-seg--acao-inativo {
+  opacity: 0.65;
+}
+
+.dc-competicao-seg-divider {
+  flex: 0 0 1px;
+  align-self: stretch;
+  margin: 0.75rem 0;
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.dc-competicao-seg-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.dc-competicao-seg--disparos .dc-competicao-seg-icone { color: #818cf8; }
+.dc-competicao-seg--respostas .dc-competicao-seg-icone { color: #34d399; }
+.dc-competicao-seg--recusas .dc-competicao-seg-icone { color: #fb7185; }
+
+.dc-competicao-seg-val {
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #f8fafc;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.dc-competicao-seg-lbl {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #94a3b8;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .dc-cockpit-prazo-col,
@@ -601,6 +702,10 @@
 @media (max-width: 900px) {
   .dc-cockpit-hero {
     grid-template-columns: 1fr;
+  }
+
+  .dc-cockpit-competicao-resumo {
+    width: 100%;
   }
 
   .dc-cockpit-prazo-col {
@@ -2256,35 +2361,87 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   flex-direction: column;
   gap: 1rem;
   min-width: 0;
+  width: 100%;
 }
 
 .dc-cockpit-dados-row {
   --dc-cockpit-dados-row-h: min(21.5rem, 42vh);
   display: grid;
-  grid-template-columns: 1fr minmax(280px, 340px);
+  grid-template-columns: 1fr;
   gap: 1rem;
   align-items: stretch;
+  width: 100%;
   height: var(--dc-cockpit-dados-row-h);
   min-width: 0;
 }
 
-@media (max-width: 1100px) {
-  .dc-cockpit-dados-row {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-}
-
 .dc-cockpit-dados-row .dc-dados-layout {
   min-width: 0;
+  width: 100%;
   height: 100%;
   max-height: 100%;
   min-height: 0;
   align-items: stretch;
   align-content: stretch;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 1100px) {
+  .dc-cockpit-dados-row {
+    height: auto;
+  }
+
+  .dc-cockpit-dados-row .dc-dados-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+    max-height: none;
+  }
 }
 
 .dc-cockpit-main { min-width: 0; }
+
+.dc-disparos-aba-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+
+.dc-disparos-filtro-aviso {
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0.45rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(251, 113, 133, 0.28);
+  background: rgba(251, 113, 133, 0.08);
+  color: #fda4af;
+  font-size: 0.8125rem;
+}
+
+.dc-disparos-filtro-limpar {
+  margin-left: auto;
+  padding: 0.2rem 0.55rem;
+  border: none;
+  border-radius: 8px;
+  background: rgba(148, 163, 184, 0.12);
+  color: #e2e8f0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dc-disparos-filtro-limpar:hover {
+  background: rgba(148, 163, 184, 0.2);
+}
+
+.dc-disparos-aba-enviar {
+  flex-shrink: 0;
+}
 
 .dc-cockpit-combat {
   position: relative;
@@ -2361,6 +2518,24 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 
 .dc-cockpit-combat .dc-prop-panel-toolbar { display: none; }
 
+.dc-cockpit-combat--com-toolbar .dc-prop-panel-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  padding: 0.85rem 1rem 0.65rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.dc-cockpit-main .dc-cockpit-combat {
+  height: auto;
+  max-height: none;
+  min-height: min(12rem, 40vh);
+}
+
+.dc-cockpit-main .dc-cockpit-combat .dc-prop-list {
+  padding: 0 1rem 1rem;
+}
+
 .dc-cockpit-combat .dc-prop-list {
   gap: 0.85rem;
 }
@@ -2436,6 +2611,93 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   width: 100%;
 }
 
+.dc-cockpit-combat .dc-prop-colocacao-grade {
+  margin-top: 0.65rem;
+  padding: 0 0.15rem 0.35rem;
+}
+
+.dc-cockpit-combat .dc-prop-colocacao-grade-head {
+  margin: 0 0 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.dc-cockpit-combat .dc-prop-colocacao-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.dc-cockpit-combat .dc-prop-colocacao-celula {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.55rem 0.6rem 0.5rem;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.dc-cockpit-combat .dc-prop-colocacao-celula--lider {
+  border-color: rgba(52, 211, 153, 0.28);
+  background: rgba(52, 211, 153, 0.06);
+}
+
+.dc-cockpit-combat .dc-prop-colocacao-celula--analise {
+  cursor: help;
+}
+
+.dc-cockpit-combat .dc-prop-colocacao-celula--analise:hover {
+  border-color: rgba(129, 140, 248, 0.35);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.dc-cockpit-combat .dc-prop-colocacao-rotulo {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  line-height: 1.2;
+}
+
+.dc-cockpit-combat .dc-prop-colocacao-valor {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dc-cockpit-combat .dc-prop-colocacao-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  align-self: flex-start;
+  margin-top: 0.15rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.dc-cockpit-main .dc-prop-colocacao-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .dc-cockpit-main .dc-prop-colocacao-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .dc-cockpit-combat .dc-prop-barras {
   display: flex;
   flex-direction: column;
@@ -2445,12 +2707,30 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 
 .dc-cockpit-combat .dc-prop-bar-row {
   display: grid;
-  grid-template-columns: 5.25rem 1fr 2.5rem;
+  grid-template-columns: 5.25rem 1fr minmax(4.75rem, 8.5rem);
   align-items: center;
   gap: 0.5rem;
   font-size: 0.75rem;
   font-weight: 600;
   color: #cbd5e1;
+}
+
+.dc-cockpit-combat .dc-prop-bar-rotulo {
+  justify-self: end;
+  text-align: right;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  color: #94a3b8;
+}
+
+.dc-cockpit-combat .dc-prop-bar-rotulo--melhor {
+  color: #34d399;
+}
+
+.dc-cockpit-combat .dc-prop-bar-rotulo--pior {
+  color: #f87171;
 }
 
 .dc-cockpit-combat .dc-prop-bar-row--com-analise {
@@ -2868,4 +3148,26 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 
 .dc-prop-list--podio .dc-prop-metricas-spark-row {
   margin-top: 0.35rem;
+}
+
+.dc-cockpit-main .dc-prop-list.dc-prop-list--podio {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+.dc-cockpit-main .dc-cockpit-combat .dc-prop-list.dc-prop-list--podio {
+  gap: 1rem;
+  padding: 0 1rem 0;
+}
+
+.dc-cockpit-main .dc-prop-list--podio .dc-prop-colocacao-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .dc-cockpit-main .dc-prop-list.dc-prop-list--podio {
+    grid-template-columns: 1fr;
+  }
 }

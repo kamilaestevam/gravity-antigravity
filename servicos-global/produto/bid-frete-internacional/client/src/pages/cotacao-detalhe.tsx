@@ -6,7 +6,7 @@
  * Layout: Header + Timeline + Dados + BidRequests + BidResponses
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -24,7 +24,6 @@ import {
   PaperPlaneTilt,
   Ranking,
   Medal,
-  ChartLineUp,
   CheckCircle,
   Eye,
   Envelope,
@@ -57,7 +56,10 @@ import { ListaPropostasDetalheCotacao } from '../shared/propostas-detalhe-cotaca
 import {
   TimelineFluxoCotacao,
   InsightsGridFluxoCotacao,
+  MetricasCompeticaoHeroCotacao,
+  podeDispararCotacaoBidFrete,
 } from '../shared/painel-fluxo-infograficos-cotacao-bid-frete-internacional'
+import { isDisparoRecusaSemResposta } from '../shared/infograficos-fluxo-cotacao-bid-frete-internacional'
 import './cotacao-detalhe-cockpit.css'
 import {
   mesclarPropostasComRanking,
@@ -268,6 +270,8 @@ export default function DetalheCotacao() {
   const [erro, setErro] = useState<string | null>(null)
   const [tab, setTab] = useState<'visao_geral' | 'dados_gerais' | 'respostas' | 'bids'>('visao_geral')
   const [modalDisparoAberto, setModalDisparoAberto] = useState(false)
+  const [filtroDisparosAba, setFiltroDisparosAba] = useState<'todos' | 'recusas'>('todos')
+  const rodapeRef = useRef<HTMLDivElement>(null)
   const [propostasRanking, setPropostasRanking] = useState<PropostaRankingBidFreteInternacional[]>([])
   const [carregandoRanking, setCarregandoRanking] = useState(false)
 
@@ -372,6 +376,29 @@ export default function DetalheCotacao() {
     const raw = cotacao?.propostas_bid_frete_internacional ?? []
     return raw.length > 0 ? ranquearPropostasLocal(raw) : []
   }, [propostasRanking, cotacao])
+
+  const bidsExibidosAba = useMemo(() => {
+    if (filtroDisparosAba !== 'recusas') return bids
+    return bids.filter(isDisparoRecusaSemResposta)
+  }, [bids, filtroDisparosAba])
+
+  const podeDispararCotacao = cotacao != null
+    && podeDispararCotacaoBidFrete(cotacao.status_cotacao_bid_frete_internacional)
+
+  const irParaAbaCotacao = useCallback((
+    aba: 'visao_geral' | 'dados_gerais' | 'respostas' | 'bids',
+    opts?: { filtroDisparos?: 'todos' | 'recusas' },
+  ) => {
+    if (opts?.filtroDisparos != null) {
+      setFiltroDisparosAba(opts.filtroDisparos)
+    } else if (aba !== 'bids') {
+      setFiltroDisparosAba('todos')
+    }
+    setTab(aba)
+    requestAnimationFrame(() => {
+      rodapeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }, [])
 
   // ─── Tabela de Bids ───────────────────────────────────────────────────
 
@@ -517,21 +544,35 @@ export default function DetalheCotacao() {
   // --- Render ---
 
   const abaConteudoExpandido = tab === 'respostas' || tab === 'bids' || tab === 'dados_gerais'
+  const exibirComparativoHero = cotacao.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO'
+  const exibirExcluirHero = cotacao.status_cotacao_bid_frete_internacional === 'RASCUNHO'
+  const exibirAcoesHero = exibirComparativoHero || exibirExcluirHero
 
   return (
     <PaginaGlobal
       className={`dc-page dc-cockpit bid-frete-page-shell${abaConteudoExpandido ? ' dc-cockpit--conteudo-expandido' : ''}`}
     >
-      <div className="dc-cockpit-hero">
+      <div className={`dc-cockpit-hero${exibirAcoesHero ? '' : ' dc-cockpit-hero--sem-acoes'}`}>
         <aside className="dc-cockpit-prazo-col" aria-label={t('bidfrete.detalhe_cotacao.prazo_resposta_label', 'Prazo para resposta')}>
           <ChipPrazoRespostaCotacao cotacao={cotacao} t={t} />
+        </aside>
+        <aside className="dc-cockpit-metricas-hero-col">
+          <MetricasCompeticaoHeroCotacao
+            disparos={bids}
+            propostas={propostasParaInfograficos}
+            historico_aprovado={cotacao.historico_aprovado}
+            onIrDisparos={() => irParaAbaCotacao('bids', { filtroDisparos: 'todos' })}
+            onIrRespostas={() => irParaAbaCotacao('respostas')}
+            onIrRecusas={() => irParaAbaCotacao('bids', { filtroDisparos: 'recusas' })}
+          />
         </aside>
         <div className="dc-cockpit-timeline-panel" aria-label={t('bidfrete.detalhe_cotacao.status', 'Status')}>
           <TimelineFluxoCotacao statusAtual={cotacao.status_cotacao_bid_frete_internacional} />
         </div>
+        {exibirAcoesHero && (
         <div className="dc-cockpit-actions-col">
           <div className="dc-cockpit-quick-actions">
-              {cotacao.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO' && (
+              {exibirComparativoHero && (
                 <button
                   type="button"
                   className="dc-cockpit-icon-btn dc-cockpit-icon-btn--primary"
@@ -541,15 +582,7 @@ export default function DetalheCotacao() {
                   <Medal weight="duotone" size={18} />
                 </button>
               )}
-              <button
-                type="button"
-                className="dc-cockpit-icon-btn"
-                title={t('bidfrete.disparo.enviar', 'Enviar aos fornecedores')}
-                onClick={() => setModalDisparoAberto(true)}
-              >
-                <PaperPlaneTilt weight="duotone" size={18} />
-              </button>
-              {cotacao.status_cotacao_bid_frete_internacional === 'RASCUNHO' && (
+              {exibirExcluirHero && (
                 <button
                   type="button"
                   className="dc-cockpit-icon-btn dc-cockpit-icon-btn--danger"
@@ -562,12 +595,9 @@ export default function DetalheCotacao() {
                   <Trash weight="duotone" size={18} />
                 </button>
               )}
-              <span className="dc-cockpit-topbar-divider" aria-hidden />
-              <button type="button" className="dc-cockpit-icon-btn" title={t('bidfrete.detalhe_cotacao.cockpit_metricas', 'Métricas')}>
-                <ChartLineUp weight="duotone" size={18} />
-              </button>
             </div>
         </div>
+        )}
       </div>
 
       <section
@@ -587,7 +617,7 @@ export default function DetalheCotacao() {
         />
       </section>
 
-      <div className="dc-cockpit-rodape">
+      <div className="dc-cockpit-rodape" ref={rodapeRef}>
       <nav className="dc-cockpit-tabs" aria-label={t('bidfrete.detalhe_cotacao.cockpit_abas', 'Abas')}>
         <button
           type="button"
@@ -606,14 +636,14 @@ export default function DetalheCotacao() {
         <button
           type="button"
           className={`dc-cockpit-tab ${tab === 'respostas' ? 'dc-cockpit-tab--ativo' : ''}`}
-          onClick={() => setTab('respostas')}
+          onClick={() => irParaAbaCotacao('respostas')}
         >
-          {t('bidfrete.detalhe_cotacao.tab_respostas')}
+          {t('bidfrete.detalhe_cotacao.tab_respostas', 'Propostas')}
         </button>
         <button
           type="button"
           className={`dc-cockpit-tab ${tab === 'bids' ? 'dc-cockpit-tab--ativo' : ''}`}
-          onClick={() => setTab('bids')}
+          onClick={() => irParaAbaCotacao('bids', { filtroDisparos: 'todos' })}
         >
           {t('bidfrete.detalhe_cotacao.tab_disparos')}
         </button>
@@ -745,20 +775,52 @@ export default function DetalheCotacao() {
       {/* Tab: Bids */}
       {tab === 'bids' && (
         <div className="dc-card">
-          {bids.length === 0 && (
+          <div className="dc-disparos-aba-toolbar">
+            {filtroDisparosAba === 'recusas' && (
+              <div className="dc-disparos-filtro-aviso" role="status">
+                <XCircle weight="duotone" size={16} />
+                <span>{t('bidfrete.detalhe_cotacao.filtro_recusas_ativo', 'Exibindo disparos sem resposta')}</span>
+                <button
+                  type="button"
+                  className="dc-disparos-filtro-limpar"
+                  onClick={() => setFiltroDisparosAba('todos')}
+                >
+                  {t('bidfrete.detalhe_cotacao.ver_todos_disparos', 'Ver todos')}
+                </button>
+              </div>
+            )}
+            {podeDispararCotacao && (
+              <button
+                className="dc-btn dc-btn--primary dc-disparos-aba-enviar"
+                type="button"
+                onClick={() => setModalDisparoAberto(true)}
+              >
+                <PaperPlaneTilt weight="bold" size={14} />
+                {t('bidfrete.disparo.enviar', 'Enviar aos fornecedores')}
+              </button>
+            )}
+          </div>
+          {bidsExibidosAba.length === 0 && bids.length === 0 && (
             <div className="dc-empty" style={{ height: 'auto', paddingBottom: '1rem' }}>
               <PaperPlaneTilt weight="duotone" size={40} style={{ opacity: 0.3 }} />
               <p>{t('bidfrete.detalhe_cotacao.vazio_disparos')}</p>
-              <button className="dc-btn dc-btn--primary" type="button" onClick={() => setModalDisparoAberto(true)}>
-                <PaperPlaneTilt weight="bold" size={14} /> {t('bidfrete.disparo.enviar', 'Enviar aos fornecedores')}
-              </button>
+            </div>
+          )}
+          {bidsExibidosAba.length === 0 && bids.length > 0 && filtroDisparosAba === 'recusas' && (
+            <div className="dc-empty" style={{ height: 'auto', paddingBottom: '1rem' }}>
+              <CheckCircle weight="duotone" size={40} style={{ opacity: 0.3 }} />
+              <p>{t('bidfrete.detalhe_cotacao.vazio_recusas', 'Nenhum disparo sem resposta no momento')}</p>
             </div>
           )}
           <TabelaGlobal
-            dados={bids}
+            dados={bidsExibidosAba}
             colunas={bidColunas}
             idKey="id_disparo_cotacao_bid_frete_internacional"
-            mensagemVazio={t('bidfrete.detalhe_cotacao.vazio_disparos')}
+            mensagemVazio={
+              filtroDisparosAba === 'recusas'
+                ? t('bidfrete.detalhe_cotacao.vazio_recusas', 'Nenhum disparo sem resposta no momento')
+                : t('bidfrete.detalhe_cotacao.vazio_disparos')
+            }
             tooltipBusca={t('bidfrete.detalhe_cotacao.buscar_fornecedor')}
           />
         </div>
@@ -771,7 +833,8 @@ export default function DetalheCotacao() {
           status_cotacao_bid_frete_internacional={cotacao.status_cotacao_bid_frete_internacional}
           propostasRanking={propostasRanking}
           carregandoRanking={carregandoRanking}
-          variante="padrao"
+          variante="combate"
+          exibirToolbarOrdenacao
           onCotacaoAtualizada={handleCotacaoAtualizada}
         />
       )}
@@ -1074,9 +1137,10 @@ export default function DetalheCotacao() {
         /* ── Dados — 3 cards ── */
         .dc-dados-layout {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 1.15rem;
           align-items: stretch;
+          width: 100%;
         }
         @media (max-width: 1100px) {
           .dc-dados-layout { grid-template-columns: 1fr; }
@@ -1140,7 +1204,7 @@ export default function DetalheCotacao() {
           overflow: hidden;
         }
         .dc-dados-card--rota .dc-rota-visual {
-          margin-top: 0;
+          margin-top: 16px;
         }
         .dc-dados-card--carga .dc-dados-card-title { color: #e0e7ff; }
         .dc-dados-card-body {

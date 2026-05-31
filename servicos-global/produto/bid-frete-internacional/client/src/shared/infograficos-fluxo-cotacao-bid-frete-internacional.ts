@@ -544,6 +544,20 @@ export function buildComparativoMetricaParaProposta(
   }
 }
 
+/** Disparo enviado sem proposta (conta como recusa no painel). */
+export function isDisparoRecusaSemResposta(
+  disparo: DisparoCotacaoBidFreteInternacional,
+): boolean {
+  if (disparo.data_envio_disparo_cotacao_bid_frete_internacional == null) return false
+  const temProposta = disparo.proposta != null
+    || disparo.status_disparo_cotacao_bid_frete_internacional === 'RESPONDIDO'
+  return !temProposta && (
+    disparo.status_disparo_cotacao_bid_frete_internacional === 'EXPIRADO'
+    || disparo.status_disparo_cotacao_bid_frete_internacional === 'ENVIADO'
+    || disparo.status_disparo_cotacao_bid_frete_internacional === 'VISUALIZADO'
+  )
+}
+
 export function calcularPainelSmartInsights(
   disparos: DisparoCotacaoBidFreteInternacional[],
   propostas: PropostaRankingBidFreteInternacional[],
@@ -553,15 +567,7 @@ export function calcularPainelSmartInsights(
   const disparosEnviados = disparos.filter(
     (d) => d.data_envio_disparo_cotacao_bid_frete_internacional != null,
   )
-  const quantidadeRecusasSemResposta = disparosEnviados.filter((d) => {
-    const temProposta = d.proposta != null
-      || d.status_disparo_cotacao_bid_frete_internacional === 'RESPONDIDO'
-    return !temProposta && (
-      d.status_disparo_cotacao_bid_frete_internacional === 'EXPIRADO'
-      || d.status_disparo_cotacao_bid_frete_internacional === 'ENVIADO'
-      || d.status_disparo_cotacao_bid_frete_internacional === 'VISUALIZADO'
-    )
-  }).length
+  const quantidadeRecusasSemResposta = disparosEnviados.filter(isDisparoRecusaSemResposta).length
 
   const termometro = buildSerieTermometro(propostas, historicoAprovado)
 

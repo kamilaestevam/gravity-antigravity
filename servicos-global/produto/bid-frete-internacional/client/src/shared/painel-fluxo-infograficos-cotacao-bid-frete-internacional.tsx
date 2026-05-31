@@ -622,66 +622,181 @@ function CardRankingRespostasInsights({
   )
 }
 
-function CardKpiCompeticao({
+const STATUS_COTACAO_BLOQUEIA_DISPARO: StatusCotacao[] = [
+  'APROVADA',
+  'REPROVADA',
+  'CANCELADA',
+  'EXPIRADA',
+]
+
+export function podeDispararCotacaoBidFrete(status: StatusCotacao | null | undefined): boolean {
+  if (!status) return false
+  return !STATUS_COTACAO_BLOQUEIA_DISPARO.includes(status)
+}
+
+function SegmentoCompeticaoHero({
   rotulo,
   valor,
-  icone,
   variante,
+  icone,
+  interativo = false,
+  onAcao,
+  habilitado = true,
+  titulo,
 }: {
   rotulo: string
   valor: number
-  icone: React.ReactNode
   variante: 'disparos' | 'respostas' | 'recusas'
+  icone: React.ReactNode
+  interativo?: boolean
+  onAcao?: () => void
+  habilitado?: boolean
+  titulo?: string
 }) {
+  const rotuloAcessivel = titulo ?? `${rotulo}: ${valor}`
+  const classe = [
+    'dc-competicao-seg',
+    `dc-competicao-seg--${variante}`,
+    interativo ? 'dc-competicao-seg--acao' : '',
+    interativo && habilitado ? 'dc-competicao-seg--acao-ativo' : '',
+    interativo && !habilitado ? 'dc-competicao-seg--acao-inativo' : '',
+  ].filter(Boolean).join(' ')
+
+  if (interativo) {
+    return (
+      <button
+        type="button"
+        className={classe}
+        onClick={habilitado ? onAcao : undefined}
+        disabled={!habilitado}
+        title={rotuloAcessivel}
+        aria-label={rotuloAcessivel}
+      >
+        <span className="dc-competicao-seg-icone" aria-hidden>{icone}</span>
+        <span className="dc-competicao-seg-val">{valor}</span>
+        <span className="dc-competicao-seg-lbl">{rotulo}</span>
+      </button>
+    )
+  }
+
   return (
-    <article className={`dc-smart-kpi-card dc-smart-kpi-card--${variante}`}>
-      <div className="dc-smart-kpi-card-topo">
-        <span className="dc-smart-kpi-card-icon" aria-hidden>
-          {icone}
-        </span>
-        <span className="dc-smart-kpi-card-lbl">{rotulo}</span>
-      </div>
-      <span className="dc-smart-kpi-card-val">{valor}</span>
-    </article>
+    <div className={classe} title={rotuloAcessivel} aria-label={rotuloAcessivel}>
+      <span className="dc-competicao-seg-icone" aria-hidden>{icone}</span>
+      <span className="dc-competicao-seg-val">{valor}</span>
+      <span className="dc-competicao-seg-lbl">{rotulo}</span>
+    </div>
   )
 }
 
-function ColunaMetricasCompeticaoInsights({
+function ResumoCompeticaoHero({
   info,
   smart,
   propostas,
   t,
+  onIrDisparos,
+  onIrRespostas,
+  onIrRecusas,
 }: {
   info: InfograficosFluxoCotacao
   smart: PainelSmartInsightsDados
   propostas: PropostaRankingBidFreteInternacional[]
   t: (k: string, d?: string | Record<string, unknown>) => string
+  onIrDisparos?: () => void
+  onIrRespostas?: () => void
+  onIrRecusas?: () => void
 }) {
+  const rotuloDisparos = t('bidfrete.detalhe_cotacao.cockpit_disparos', 'Disparos')
+  const rotuloRespostas = t('bidfrete.detalhe_cotacao.cockpit_respostas', 'Respostas')
+  const rotuloRecusas = t('bidfrete.detalhe_cotacao.cockpit_recusas', 'Recusas')
+
   return (
     <div
-      className="dc-smart-metricas-coluna"
+      className="dc-cockpit-competicao-resumo"
       role="group"
       aria-label={t('bidfrete.detalhe_cotacao.cockpit_metricas_competicao', 'Métricas da competição')}
     >
-      <CardKpiCompeticao
-        rotulo={t('bidfrete.detalhe_cotacao.cockpit_disparos', 'Disparos')}
+      <SegmentoCompeticaoHero
+        rotulo={rotuloDisparos}
         valor={info.quantidadeDisparosEnviados}
-        icone={<PaperPlaneTilt weight="duotone" size={18} />}
         variante="disparos"
+        icone={<PaperPlaneTilt weight="duotone" size={16} />}
+        interativo={onIrDisparos != null}
+        onAcao={onIrDisparos}
+        titulo={t('bidfrete.detalhe_cotacao.ir_aba_disparos', {
+          n: info.quantidadeDisparosEnviados,
+          defaultValue: `Ver ${info.quantidadeDisparosEnviados} disparos`,
+        })}
       />
-      <CardKpiCompeticao
-        rotulo={t('bidfrete.detalhe_cotacao.cockpit_respostas', 'Respostas')}
+      <span className="dc-competicao-seg-divider" aria-hidden />
+      <SegmentoCompeticaoHero
+        rotulo={rotuloRespostas}
         valor={propostas.length}
-        icone={<CheckCircle weight="duotone" size={18} />}
         variante="respostas"
+        icone={<CheckCircle weight="duotone" size={16} />}
+        interativo={onIrRespostas != null}
+        onAcao={onIrRespostas}
+        titulo={t('bidfrete.detalhe_cotacao.ir_aba_respostas', {
+          n: propostas.length,
+          defaultValue: `Ver ${propostas.length} respostas`,
+        })}
       />
-      <CardKpiCompeticao
-        rotulo={t('bidfrete.detalhe_cotacao.cockpit_recusas', 'Recusas')}
+      <span className="dc-competicao-seg-divider" aria-hidden />
+      <SegmentoCompeticaoHero
+        rotulo={rotuloRecusas}
         valor={smart.quantidadeRecusasSemResposta}
-        icone={<XCircle weight="duotone" size={18} />}
         variante="recusas"
+        icone={<XCircle weight="duotone" size={16} />}
+        interativo={onIrRecusas != null}
+        onAcao={onIrRecusas}
+        titulo={t('bidfrete.detalhe_cotacao.ir_aba_recusas', {
+          n: smart.quantidadeRecusasSemResposta,
+          defaultValue: `Ver ${smart.quantidadeRecusasSemResposta} recusas sem resposta`,
+        })}
       />
     </div>
+  )
+}
+
+export interface MetricasCompeticaoHeroCotacaoProps {
+  disparos: DisparoCotacaoBidFreteInternacional[]
+  propostas: PropostaRankingBidFreteInternacional[]
+  historico_aprovado?: Cotacao['historico_aprovado']
+  onIrDisparos?: () => void
+  onIrRespostas?: () => void
+  onIrRecusas?: () => void
+}
+
+/** Disparos / Respostas / Recusas — faixa superior do cockpit (hero). */
+export function MetricasCompeticaoHeroCotacao({
+  disparos,
+  propostas,
+  historico_aprovado,
+  onIrDisparos,
+  onIrRespostas,
+  onIrRecusas,
+}: MetricasCompeticaoHeroCotacaoProps) {
+  const { t } = useTranslation()
+
+  const info = useMemo(
+    () => calcularInfograficosFluxoCotacao(disparos, propostas),
+    [disparos, propostas],
+  )
+
+  const smart = useMemo(
+    () => calcularPainelSmartInsights(disparos, propostas, info, historico_aprovado),
+    [disparos, propostas, info, historico_aprovado],
+  )
+
+  return (
+    <ResumoCompeticaoHero
+      info={info}
+      smart={smart}
+      propostas={propostas}
+      t={t}
+      onIrDisparos={onIrDisparos}
+      onIrRespostas={onIrRespostas}
+      onIrRecusas={onIrRecusas}
+    />
   )
 }
 
@@ -733,7 +848,7 @@ export function InsightsGridFluxoCotacao({
         quantidadePropostas={propostas.length}
         t={t}
       />
-      <div className="dc-smart-insights-grid dc-smart-insights-grid--4col">
+      <div className="dc-smart-insights-grid">
         <CardMelhorPropostaSmart info={info} smart={smart} t={t} />
         {idCotacao != null && (
           <CardRankingRespostasInsights
@@ -746,7 +861,6 @@ export function InsightsGridFluxoCotacao({
           />
         )}
         <CardTermometroHistoricoSmart smart={smart} t={t} />
-        <ColunaMetricasCompeticaoInsights info={info} smart={smart} propostas={propostas} t={t} />
       </div>
       {propostas.length >= 2 && (
         <p className="dc-smart-legenda" aria-hidden>

@@ -323,12 +323,24 @@
   margin-bottom: 1.5rem;
 }
 
+/* Titulo do painel com linhas laterais sutis (igual ao BID Frete:
+   "─── Painel de Insights Inteligente ───"). */
 .wf-insights-title {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--proc-text, var(--ws-text, #f1f5f9));
   margin-bottom: 1rem;
+}
+
+.wf-insights-title::before,
+.wf-insights-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(99, 102, 241, 0.15);
 }
 
 .wf-insights-grid {

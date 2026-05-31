@@ -10,7 +10,7 @@ import React, { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from '@shell'
 import { PRODUCT_CONFIG } from './shared/config'
-import { CurrencyDollar } from '@phosphor-icons/react'
+import { CurrencyDollar, Briefcase } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 
@@ -59,6 +59,31 @@ function FinanceiroPlaceholder() {
   )
 }
 
+// ─── Placeholder: Workspace ────────────────────────────────────────────────
+
+function WorkspacePlaceholder() {
+  return (
+    <PaginaGlobal
+      className="ws-fade-up"
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<Briefcase weight="duotone" size={22} />}
+          titulo="Workspace"
+          subtitulo="Área de trabalho do processo"
+        />
+      }
+    >
+      <div className="proc-empty-state ws-fade-up ws-fade-up-d1">
+        <Briefcase weight="duotone" size={48} color="var(--text-muted)" />
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+          Workspace em construção
+        </p>
+      </div>
+    </PaginaGlobal>
+  )
+}
+
 // ─── App ───────────────────────────────────────────────────────────────────
 
 export function App() {
@@ -73,6 +98,7 @@ export function App() {
             <Route path="dados-tecnicos" element={<DadosTecnicos />} />
             <Route path="email" element={<Email />} />
             <Route path="financeiro" element={<FinanceiroPlaceholder />} />
+            <Route path="workspace"  element={<WorkspacePlaceholder />} />
           </Route>
           <Route path="*" element={<Navigate to="workflow" replace />} />
         </Routes>

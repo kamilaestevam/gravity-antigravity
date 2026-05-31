@@ -12,7 +12,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
-import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
@@ -105,17 +104,6 @@ const MOCK_PROCESSO: ProcessoDetail = {
     { id: 'c3', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', categoria: 'Impostos',    descricao: 'II + IPI + ICMS + PIS/COFINS',      valor_estimado: 52_000, moeda: 'BRL', status: 'estimado',   created_at: '2026-01-10T00:00:00Z', updated_at: '2026-01-10T00:00:00Z' },
     { id: 'c4', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', categoria: 'Despachante', descricao: 'Honorarios de despacho aduaneiro',   valor_estimado: 3_500, valor_real: 3_500, moeda: 'BRL', status: 'pago',       data_vencimento: '2026-03-25T00:00:00Z', created_at: '2026-01-10T00:00:00Z', updated_at: '2026-03-25T00:00:00Z' },
   ],
-}
-
-// ─── Status Map ─────────────────────────────────────────────────────────────
-
-const STATUS_LABELS: Record<string, string> = {
-  rascunho: 'Rascunho',
-  em_andamento: 'Em Andamento',
-  aguardando_documentos: 'Aguardando Docs',
-  em_desembaraco: 'Em Desembaraco',
-  concluido: 'Concluido',
-  cancelado: 'Cancelado',
 }
 
 // ─── Navigation Sections ────────────────────────────────────────────────────
@@ -329,13 +317,6 @@ export default function ProcessoLayout() {
 
           {processo && (
             <div className="p2-info-card ws-fade-up">
-              <div className="p2-info-top">
-                <div className="p2-info-numero">{processo.numero}</div>
-                <StatusBadgeGlobal
-                  valor={STATUS_LABELS[processo.status] ?? processo.status}
-                  genero="masculino"
-                />
-              </div>
               <div className="p2-info-empresa">{processo.importador_nome}</div>
 
               {processo.exportador_nome && (

@@ -117,6 +117,7 @@ Cada model possui duas tabelas:
 | zip_code_destino | zipcode_destino_cotacao_bid_frete_internacional | String? | REGRA 01, REGRA 02 | Generico -> sufixo; underscore removido; dono decidiu manter `zipcode` |
 | valor_target | valor_meta_cotacao_bid_frete_internacional | Float? | REGRA 01, REGRA 02 | `target` -> `meta` (decisao dono) + sufixo entidade |
 | moeda_target | moeda_meta_cotacao_bid_frete_internacional | String? @default("USD") | REGRA 01, REGRA 02 | `target` -> `meta` (decisao dono) + sufixo entidade |
+| prazo_pagamento_dias | dias_prazo_pagamento_cotacao_bid_frete_internacional | Int? | REGRA 01 | Prazo de pagamento em dias + sufixo entidade |
 | visibilidade | visibilidade_cotacao_bid_frete_internacional | BidFreteCotacaoVisibilidade | REGRA 01 | Campo generico -> sufixo entidade |
 | ocultar_nome_empresa | anonima_cotacao_bid_frete_internacional | Boolean @default(false) | REGRA 05 | Renomeado para adjetivo PT-BR descritivo (REGRA 05: sem `is_`, booleano descritivo) |
 | status | status_cotacao_bid_frete_internacional | BidFreteCotacaoStatus | REGRA 01 | Campo generico `status` -> sufixo entidade |

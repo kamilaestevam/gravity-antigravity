@@ -85,6 +85,47 @@ const formatDateTime = (iso: string) => {
 const getInitials = (nome: string) =>
   nome.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase()
 
+// ─── Helpers de timeline (agrupamento por data + tempo relativo) ───────────
+
+/** Bucket de data: "Hoje", "Ontem", "Há N dias", "MARÇO 2026", "MAR/24" */
+const dateBucket = (iso: string, today: Date): string => {
+  const d = new Date(iso)
+  const day = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  const todayDay = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  const diffDays = Math.round((todayDay.getTime() - day.getTime()) / (1000 * 60 * 60 * 24))
+  if (diffDays === 0) return 'Hoje'
+  if (diffDays === 1) return 'Ontem'
+  if (diffDays > 1 && diffDays <= 6) return `Há ${diffDays} dias`
+  if (today.getFullYear() === d.getFullYear()) {
+    return d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase()
+  }
+  return d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }).toUpperCase()
+}
+
+/** Tempo relativo curto: "agora", "5 min", "3h", "2d", "1sem", "DD/MM" */
+const relativeTime = (iso: string, today: Date): string => {
+  const d = new Date(iso)
+  const diffSec = Math.round((today.getTime() - d.getTime()) / 1000)
+  const diffMin = Math.round(diffSec / 60)
+  const diffHr = Math.round(diffMin / 60)
+  const diffDays = Math.round(diffHr / 24)
+  if (diffSec < 60) return 'agora'
+  if (diffMin < 60) return `${diffMin} min`
+  if (diffHr < 24) return `${diffHr}h`
+  if (diffDays < 7) return `${diffDays}d`
+  if (diffDays < 30) return `${Math.round(diffDays / 7)}sem`
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+}
+
+/** Cor da categoria — pontinho no header do item */
+const CATEGORIA_COR: Record<string, string> = {
+  geral:       '#94a3b8',
+  financeiro:  '#f59e0b',
+  documental:  '#22d3ee',
+  operacional: '#a78bfa',
+  cliente:     '#34d399',
+}
+
 const TIPO_LABELS: Record<string, string> = {
   comentario: 'Comentario',
   alteracao_status: 'Status',
@@ -543,34 +584,73 @@ export default function Workflow() {
               </div>
             )}
 
-            {!followUpsLoading && followUps.map((fu, idx) => (
-              <div
-                className="wf-feed-item ws-fade-up"
-                key={fu.id}
-                style={{ animationDelay: `${idx * 0.04}s` }}
-              >
-                <div className={`wf-feed-avatar wf-feed-avatar--${fu.tipo}`}>
-                  {fu.tipo === 'sistema' ? (
-                    <Robot size={16} weight="duotone" />
-                  ) : fu.tipo === 'email' ? (
-                    <Envelope size={16} weight="duotone" />
-                  ) : (
-                    getInitials(fu.user_nome)
-                  )}
+            {!followUpsLoading && followUps.length > 0 && (() => {
+              // Agrupa os follow-ups por bucket de data — preserva a ordem
+              // original (mais novo no topo) usando array de grupos.
+              const today = new Date()
+              const grupos: { bucket: string; items: typeof followUps }[] = []
+              let lastBucket = ''
+              for (const fu of followUps) {
+                const b = dateBucket(fu.created_at, today)
+                if (b !== lastBucket) {
+                  grupos.push({ bucket: b, items: [] })
+                  lastBucket = b
+                }
+                grupos[grupos.length - 1].items.push(fu)
+              }
+              let globalIdx = 0
+              return grupos.map(g => (
+                <div className="wf-feed-group" key={g.bucket}>
+                  <div className="wf-feed-group-header">{g.bucket}</div>
+                  <ul className="wf-feed-timeline">
+                    {g.items.map(fu => {
+                      const idx = globalIdx++
+                      return (
+                        <li
+                          className="wf-feed-item ws-fade-up"
+                          key={fu.id}
+                          style={{ animationDelay: `${idx * 0.04}s` }}
+                        >
+                          <div className={`wf-feed-avatar wf-feed-avatar--${fu.tipo}`}>
+                            {fu.tipo === 'sistema' ? (
+                              <Robot size={14} weight="duotone" />
+                            ) : fu.tipo === 'email' ? (
+                              <Envelope size={14} weight="duotone" />
+                            ) : fu.tipo === 'documento' ? (
+                              <FileIcon size={14} weight="duotone" />
+                            ) : (
+                              getInitials(fu.user_nome)
+                            )}
+                          </div>
+                          <div className="wf-feed-body">
+                            <div className="wf-feed-meta">
+                              <span
+                                className="wf-feed-cat-dot"
+                                style={{ background: CATEGORIA_COR[fu.categoria] }}
+                                title={CATEGORIA_LABELS[fu.categoria]}
+                              />
+                              <span className="wf-feed-nome">{fu.user_nome}</span>
+                              <span className="wf-feed-tipo">
+                                {TIPO_LABELS[fu.tipo]?.toLowerCase() ?? fu.tipo}
+                              </span>
+                              <time
+                                className="wf-feed-time"
+                                dateTime={fu.created_at}
+                                title={formatDateTime(fu.created_at)}
+                              >
+                                {relativeTime(fu.created_at, today)}
+                              </time>
+                            </div>
+                            <div className="wf-feed-titulo">{fu.titulo}</div>
+                            <div className="wf-feed-descricao">{fu.descricao}</div>
+                          </div>
+                        </li>
+                      )
+                    })}
+                  </ul>
                 </div>
-                <div className="wf-feed-body">
-                  <div className="wf-feed-meta">
-                    <span className="wf-feed-nome">{fu.user_nome}</span>
-                    <span className={`wf-feed-tipo wf-feed-tipo--${fu.tipo}`}>
-                      {TIPO_LABELS[fu.tipo] ?? fu.tipo}
-                    </span>
-                    <span className="wf-feed-data">{formatDateTime(fu.created_at)}</span>
-                  </div>
-                  <div className="wf-feed-titulo">{fu.titulo}</div>
-                  <div className="wf-feed-descricao">{fu.descricao}</div>
-                </div>
-              </div>
-            ))}
+              ))
+            })()}
           </div>
 
           {/* Caixa de Comentario */}

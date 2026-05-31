@@ -33,6 +33,20 @@ function percentualDelta(valor: number, referencia: number): number | null {
   return ((valor - referencia) / referencia) * 100
 }
 
+/** Mescla tags da API com destaques derivados do ranking (preço, trânsito, avaliação). */
+function montarTagsExibicaoProposta(
+  proposta: PropostaRankingBidFreteInternacional,
+  rankPreco: number,
+  rankTransito: number,
+  rankAvaliacao: number,
+): string[] {
+  const tags = new Set<string>(proposta.tags ?? [])
+  if (rankPreco === 1) tags.add('MELHOR_PRECO')
+  if (rankTransito === 1) tags.add('MELHOR_TRANSIT')
+  if (rankAvaliacao === 1) tags.add('MELHOR_AVALIACAO')
+  return [...tags]
+}
+
 export function calcularMetricasPropostas(
   propostas: PropostaRankingBidFreteInternacional[],
 ): Map<string, MetricasExibicaoProposta> {
@@ -51,12 +65,15 @@ export function calcularMetricasPropostas(
 
   ordenadoScore.forEach((p, idx) => {
     const valor = p.valor_total_proposta_bid_frete_internacional
+    const rankPreco = p.classificacao_valor_proposta_bid_frete_internacional ?? idx + 1
+    const rankTransito = p.classificacao_transito_proposta_bid_frete_internacional ?? total
+    const rankAvaliacao = p.classificacao_avaliacao_proposta_bid_frete_internacional ?? total
     mapa.set(p.id_proposta_bid_frete_internacional, {
       posicaoGeral: idx + 1,
       totalPropostas: total,
-      rankPreco: p.classificacao_valor_proposta_bid_frete_internacional ?? idx + 1,
-      rankTransito: p.classificacao_transito_proposta_bid_frete_internacional ?? total,
-      rankAvaliacao: p.classificacao_avaliacao_proposta_bid_frete_internacional ?? total,
+      rankPreco,
+      rankTransito,
+      rankAvaliacao,
       scoreGeral: p.ranking_geral ?? idx + 1,
       percentualVsMelhorPreco:
         total > 1 && valor === melhorPreco ? 0 : percentualDelta(valor, melhorPreco),
@@ -65,7 +82,7 @@ export function calcularMetricasPropostas(
         p.nota_global_classificacao_bid_frete_internacional
         ?? p.fornecedor?.nota_global_classificacao_bid_frete_internacional
         ?? null,
-      tags: p.tags ?? [],
+      tags: montarTagsExibicaoProposta(p, rankPreco, rankTransito, rankAvaliacao),
       melhorPreco,
       mediaPreco,
     })
@@ -96,6 +113,7 @@ export function ranquearPropostasLocal(
     const tags: string[] = []
     if (rankPreco === 1) tags.push('MELHOR_PRECO')
     if (rankTransit === 1) tags.push('MELHOR_TRANSIT')
+    if (rankAvaliacao === 1) tags.push('MELHOR_AVALIACAO')
 
     return {
       ...p,

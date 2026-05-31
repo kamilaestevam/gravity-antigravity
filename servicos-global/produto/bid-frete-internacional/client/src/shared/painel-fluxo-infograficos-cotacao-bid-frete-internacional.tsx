@@ -339,7 +339,7 @@ function CelulaMetricaComparativo({
           formatarValor={formatarValor}
           textoVsGanhador={textoVsGanhador}
           dimensoesView={SPARK_VIEW_MELHOR_PROPOSTA}
-          ancoraBarras="top"
+          ancoraBarras="base"
         />
       </div>
     </div>

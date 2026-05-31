@@ -318,11 +318,12 @@ export function buildSerieTermometro(
   )
 }
 
-function buildComparativoMetrica(
+export function buildComparativoMetrica(
   propostas: PropostaRankingBidFreteInternacional[],
   extrair: (p: PropostaRankingBidFreteInternacional) => number,
   melhorMenor: boolean,
   formatar: (v: number) => string,
+  id_proposta_destaque?: string,
 ): ComparativoMetricaPainel | null {
   if (propostas.length === 0) return null
   const vistos = new Set<string>()
@@ -344,15 +345,42 @@ function buildComparativoMetrica(
     melhorMenor,
     barras: ordenadas.slice(0, 6).map((p) => {
       const valor = extrair(p)
+      const id = p.id_proposta_bid_frete_internacional
+      const destaque = id_proposta_destaque != null
+        ? id === id_proposta_destaque
+        : valor === melhorValor
       return {
         valor,
-        destaque: valor === melhorValor,
+        destaque,
         fornecedor:
           p.fornecedor_nome
           ?? p.fornecedor?.nome_fornecedor_bid_frete_internacional
           ?? '—',
       }
     }),
+  }
+}
+
+/** Comparativo com barras iguais ao painel Melhor proposta, destacando a proposta do card. */
+export function buildComparativoMetricaParaProposta(
+  propostas: PropostaRankingBidFreteInternacional[],
+  propostaAtual: PropostaRankingBidFreteInternacional,
+  extrair: (p: PropostaRankingBidFreteInternacional) => number,
+  melhorMenor: boolean,
+  formatar: (v: number) => string,
+): ComparativoMetricaPainel | null {
+  if (propostas.length < 2) return null
+  const comparativo = buildComparativoMetrica(
+    propostas,
+    extrair,
+    melhorMenor,
+    formatar,
+    propostaAtual.id_proposta_bid_frete_internacional,
+  )
+  if (comparativo == null) return null
+  return {
+    ...comparativo,
+    valorExibicao: formatar(extrair(propostaAtual)),
   }
 }
 

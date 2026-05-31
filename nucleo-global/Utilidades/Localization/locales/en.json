@@ -345,6 +345,11 @@
       "voltar_cotacao": "Back to quote",
       "voltar_cotacoes": "View all quotes",
       "modal_aprovar_pergunta": "Do you want to approve this proposal?",
+      "modal_aprovar_subtitulo": "Review the full proposal data for {{fornecedor}} before confirming.",
+      "modal_aprovar_aviso_ganhador": "From this moment on, {{fornecedor}} will be notified as the winner of this quote. All other proposals will be automatically rejected.",
+      "modal_aprovar_secao_proposta": "Full proposal details",
+      "modal_aprovar_campo_moeda": "Currency",
+      "modal_aprovar_campo_escalas": "Legs / stops",
       "modal_reprovar_desc": "Provide the reason for rejecting all suppliers."
     },
     "configuracoes": {

@@ -675,9 +675,11 @@ export default function DetalheCotacao() {
             <div className="dc-cockpit-combat-scroll">
               <ListaPropostasDetalheCotacao
                 id_cotacao_bid_frete_internacional={id}
+                status_cotacao_bid_frete_internacional={cotacao.status_cotacao_bid_frete_internacional}
                 propostasRanking={propostasRanking}
                 carregandoRanking={carregandoRanking}
                 variante="combate"
+                onCotacaoAtualizada={carregar}
               />
             </div>
           </aside>
@@ -735,9 +737,11 @@ export default function DetalheCotacao() {
       {tab === 'respostas' && id && (
         <ListaPropostasDetalheCotacao
           id_cotacao_bid_frete_internacional={id}
+          status_cotacao_bid_frete_internacional={cotacao.status_cotacao_bid_frete_internacional}
           propostasRanking={propostasRanking}
           carregandoRanking={carregandoRanking}
           variante="padrao"
+          onCotacaoAtualizada={carregar}
         />
       )}
       </>
@@ -1321,13 +1325,6 @@ export default function DetalheCotacao() {
           background: rgba(99, 102, 241, 0.18);
           color: #e0e7ff;
         }
-        .dc-prop-comparativo-btn {
-          flex-shrink: 0;
-          align-self: center;
-        }
-        @media (max-width: 720px) {
-          .dc-prop-comparativo-btn { align-self: flex-start; width: 100%; justify-content: center; }
-        }
         .dc-prop-list-wrap {
           display: flex;
           flex-direction: column;
@@ -1390,18 +1387,11 @@ export default function DetalheCotacao() {
         .dc-prop-card .dc-prop-card-meta,
         .dc-prop-card .dc-info-icon-badge,
         .dc-prop-card .dc-prop-icon-badge,
-        .dc-prop-card .dc-prop-tag,
-        .dc-prop-card .dc-prop-tag--ouro,
         .dc-prop-card .dc-prop-badge-aprovada {
           color: var(--dc-prop-texto);
         }
         .dc-prop-card .dc-info-icon-badge,
         .dc-prop-card .dc-prop-icon-badge {
-          background: rgba(148, 163, 184, 0.08);
-          border-color: rgba(148, 163, 184, 0.18);
-        }
-        .dc-prop-card .dc-prop-tag,
-        .dc-prop-card .dc-prop-tag--ouro {
           background: rgba(148, 163, 184, 0.08);
           border-color: rgba(148, 163, 184, 0.18);
         }
@@ -1470,7 +1460,9 @@ export default function DetalheCotacao() {
           padding: 1rem var(--dc-prop-px) 1rem;
           border-bottom: 1px solid rgba(148, 163, 184, 0.1);
         }
-        .dc-prop-card-head:has(.dc-prop-tags:not(:empty)) {
+        .dc-prop-card-head:has(.dc-prop-tags:not(:empty)),
+        .dc-prop-card-head:has(.dc-prop-card-destaques),
+        .dc-prop-card-head:has(.dc-prop-metricas-spark-row) {
           align-items: flex-start;
         }
         .dc-prop-tags:empty {
@@ -1502,7 +1494,9 @@ export default function DetalheCotacao() {
           min-width: 0;
           flex: 1;
         }
-        .dc-prop-card-head:has(.dc-prop-tags:not(:empty)) .dc-prop-card-head-main {
+        .dc-prop-card-head:has(.dc-prop-tags:not(:empty)) .dc-prop-card-head-main,
+        .dc-prop-card-head:has(.dc-prop-card-destaques) .dc-prop-card-head-main,
+        .dc-prop-card-head:has(.dc-prop-metricas-spark-row) .dc-prop-card-head-main {
           align-items: flex-start;
         }
         .dc-prop-rank-inline {
@@ -1518,6 +1512,10 @@ export default function DetalheCotacao() {
           font-size: 0.8125rem;
           font-weight: 700;
           font-family: 'Plus Jakarta Sans', sans-serif;
+          color: #ffffff;
+        }
+        .dc-prop-rank-inline svg {
+          color: #ffffff;
         }
         .dc-prop-card-titulos { min-width: 0; }
         .dc-prop-card-title-row {
@@ -1594,6 +1592,54 @@ export default function DetalheCotacao() {
           padding: 0.45rem var(--dc-prop-px) 0.65rem;
           border-top: 1px solid rgba(148, 163, 184, 0.08);
         }
+        .dc-prop-card-acoes {
+          display: flex;
+          padding: 0 var(--dc-prop-px) 1rem;
+          flex-shrink: 0;
+        }
+        .dc-prop-card--compacto .dc-prop-card-acoes {
+          margin-top: 0;
+        }
+        @keyframes dc-prop-pulse-aprovar {
+          0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.32); }
+          70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .dc-prop-card-acoes .dc-prop-btn-aprovar.gb-btn {
+          background: linear-gradient(
+            180deg,
+            rgba(16, 185, 129, 0.11) 0%,
+            rgba(16, 185, 129, 0.05) 100%
+          );
+          border-color: rgba(52, 211, 153, 0.26);
+          color: #34d399;
+          animation: dc-prop-pulse-aprovar 2.5s ease-out infinite;
+          transition:
+            background 0.22s ease,
+            border-color 0.22s ease,
+            color 0.22s ease,
+            transform 0.12s ease;
+        }
+        .dc-prop-card-acoes .dc-prop-btn-aprovar.gb-btn:hover:not(:disabled) {
+          background: linear-gradient(
+            180deg,
+            rgba(16, 185, 129, 0.17) 0%,
+            rgba(16, 185, 129, 0.09) 100%
+          );
+          border-color: rgba(52, 211, 153, 0.4);
+          color: #6ee7b7;
+        }
+        .dc-prop-card-acoes .dc-prop-btn-aprovar .gb-btn__icon-badge {
+          background: rgba(16, 185, 129, 0.16);
+          color: #10b981;
+        }
+        .dc-prop-card-acoes .dc-prop-btn-aprovar.gb-btn:hover:not(:disabled) .gb-btn__icon-badge {
+          background: rgba(16, 185, 129, 0.24);
+          color: #34d399;
+        }
+        .dc-prop-card-acoes .dc-prop-btn-aprovar.gb-btn--carregando {
+          animation: dc-prop-pulse-aprovar 2.5s ease-out infinite;
+        }
         .dc-prop-list--podio .dc-prop-rank-inline {
           min-width: 2.25rem;
           height: 2.25rem;
@@ -1607,7 +1653,7 @@ export default function DetalheCotacao() {
           gap: 0.25rem;
         }
         .dc-prop-list--podio .dc-prop-tags {
-          gap: 0.25rem;
+          gap: 0.5rem;
         }
         .dc-prop-card-body {
           display: flex;

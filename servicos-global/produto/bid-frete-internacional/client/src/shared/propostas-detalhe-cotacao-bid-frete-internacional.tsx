@@ -4,7 +4,6 @@
 
 import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 import {
   Star,
   Trophy,
@@ -21,8 +20,11 @@ import {
   Coins,
   CalendarBlank,
 } from '@phosphor-icons/react'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import type { TFunction } from 'i18next'
-import type { PropostaRankingBidFreteInternacional } from './types'
+import type { PropostaRankingBidFreteInternacional, StatusCotacao } from './types'
+import { aprovarResposta } from './api'
+import { ModalAprovarPropostaBidFreteInternacional } from './modal-aprovar-proposta-bid-frete-internacional'
 import {
   calcularMetricasPropostas,
   criterioOrdenacaoAscendentePorPadrao,
@@ -30,6 +32,7 @@ import {
   type CriterioOrdenacaoRespostaDetalhe,
   type MetricasExibicaoProposta,
 } from './metricas-proposta-cotacao-bid-frete-internacional'
+import { FaixaMetricasComparativoSparkProposta } from './metricas-comparativo-spark-card-proposta'
 
 interface OpcaoOrdenacaoResposta {
   key: CriterioOrdenacaoRespostaDetalhe
@@ -49,12 +52,40 @@ const moeda = (val: number, currency: string) =>
     maximumFractionDigits: 2,
   }).format(val)
 
+const STATUS_COTACAO_SEM_ACOES_RESPOSTA: StatusCotacao[] = [
+  'APROVADA',
+  'REPROVADA',
+  'CANCELADA',
+  'EXPIRADA',
+]
+
+function cotacaoPermiteAcoesResposta(status: StatusCotacao | null | undefined): boolean {
+  if (!status) return true
+  return !STATUS_COTACAO_SEM_ACOES_RESPOSTA.includes(status)
+}
+
+function propostaPermiteAcoes(proposta: PropostaRankingBidFreteInternacional): boolean {
+  const status = proposta.status_proposta_bid_frete_internacional
+  return status !== 'APROVADA' && status !== 'REPROVADA'
+}
+
+function nomeFornecedorProposta(
+  proposta: PropostaRankingBidFreteInternacional,
+  t: TFunction,
+): string {
+  return (
+    proposta.fornecedor_nome
+    ?? proposta.fornecedor?.nome_fornecedor_bid_frete_internacional
+    ?? t('bidfrete.comparativo.fornecedor', 'Fornecedor')
+  )
+}
+
 function coresColocacao(posicao: number): { bg: string; color: string; border: string } {
-  const textoMenu = 'var(--ws-muted, var(--text-secondary, #94a3b8))'
-  if (posicao === 1) return { bg: 'rgba(234,179,8,0.18)', color: textoMenu, border: 'rgba(234,179,8,0.45)' }
-  if (posicao === 2) return { bg: 'rgba(148,163,184,0.14)', color: textoMenu, border: 'rgba(148,163,184,0.35)' }
-  if (posicao === 3) return { bg: 'rgba(180,83,9,0.14)', color: textoMenu, border: 'rgba(180,83,9,0.35)' }
-  return { bg: 'rgba(100,116,139,0.12)', color: textoMenu, border: 'rgba(100,116,139,0.25)' }
+  const textoColocacao = '#ffffff'
+  if (posicao === 1) return { bg: 'rgba(234,179,8,0.18)', color: textoColocacao, border: 'rgba(234,179,8,0.45)' }
+  if (posicao === 2) return { bg: 'rgba(148,163,184,0.14)', color: textoColocacao, border: 'rgba(148,163,184,0.35)' }
+  if (posicao === 3) return { bg: 'rgba(180,83,9,0.14)', color: textoColocacao, border: 'rgba(180,83,9,0.35)' }
+  return { bg: 'rgba(100,116,139,0.12)', color: textoColocacao, border: 'rgba(100,116,139,0.25)' }
 }
 
 function classeBarraColocacao(posicaoScore: number): string {
@@ -134,9 +165,7 @@ function montarResumoComparativo(metricas: MetricasExibicaoProposta, t: TFunctio
 
 function TagPropostaInline({ tag, t }: { tag: string; t: TFunction }) {
   return (
-    <span
-      className={`dc-prop-tag${tag === 'MELHOR_PRECO' ? ' dc-prop-tag--ouro' : ''}`}
-    >
+    <span className="dc-prop-tag">
       {tagLabel(tag, t)}
     </span>
   )
@@ -182,7 +211,7 @@ function LinhaProposta({
 }
 
 function BarraMetrica({ label, pct }: { label: string; pct: number }) {
-  const clamped = Math.max(0, Math.min(100, pct))
+  const clamped = Math.round(Math.max(0, Math.min(100, pct)))
   return (
     <div className="dc-prop-bar-row">
       <span>{label}</span>
@@ -200,6 +229,35 @@ function TagsProposta({ tags, t }: { tags: string[]; t: TFunction }) {
       {tags.map((tag) => (
         <TagPropostaInline key={tag} tag={tag} t={t} />
       ))}
+    </div>
+  )
+}
+
+function RodapeAcoesProposta({
+  visivel,
+  desabilitado,
+  onAprovar,
+  t,
+}: {
+  visivel: boolean
+  desabilitado: boolean
+  onAprovar: () => void
+  t: TFunction
+}) {
+  if (!visivel) return null
+  return (
+    <div className="dc-prop-card-acoes">
+      <BotaoGlobal
+        variante="secundario"
+        tamanho="pequeno"
+        blocoCompleto
+        className="dc-prop-btn-aprovar"
+        icone={<CheckCircle weight="bold" size={14} />}
+        onClick={onAprovar}
+        disabled={desabilitado}
+      >
+        {t('bidfrete.comparativo.aprovar', 'Aprovar')}
+      </BotaoGlobal>
     </div>
   )
 }
@@ -316,28 +374,61 @@ function CorpoMetricasProposta({
   )
 }
 
+function DestaquesCardProposta({
+  proposta,
+  propostasTodas,
+  tags,
+  t,
+}: {
+  proposta: PropostaRankingBidFreteInternacional
+  propostasTodas: PropostaRankingBidFreteInternacional[]
+  tags: string[]
+  t: TFunction
+}) {
+  const exibirSpark = propostasTodas.length >= 2
+  const exibirTags = tags.length > 0
+  if (!exibirSpark && !exibirTags) return null
+
+  return (
+    <div className="dc-prop-card-destaques">
+      {exibirTags && <TagsProposta tags={tags} t={t} />}
+      {exibirSpark && (
+        <FaixaMetricasComparativoSparkProposta
+          proposta={proposta}
+          propostas={propostasTodas}
+        />
+      )}
+    </div>
+  )
+}
+
 function CardProposta({
   proposta,
+  propostasTodas,
   metricas,
   posicaoLista,
   criterioOrdenacao,
   t,
   variante = 'padrao',
   densidade = 'expandido',
+  exibirAcoes = false,
+  acoesDesabilitadas = false,
+  onAprovar,
 }: {
   proposta: PropostaRankingBidFreteInternacional
+  propostasTodas: PropostaRankingBidFreteInternacional[]
   metricas: MetricasExibicaoProposta
   posicaoLista: number
   criterioOrdenacao: CriterioOrdenacaoRespostaDetalhe
   t: TFunction
   variante?: 'padrao' | 'combate'
   densidade?: 'podio' | 'expandido'
+  exibirAcoes?: boolean
+  acoesDesabilitadas?: boolean
+  onAprovar?: () => void
 }) {
   const aprovada = proposta.status_proposta_bid_frete_internacional === 'APROVADA'
-  const nome =
-    proposta.fornecedor_nome
-    ?? proposta.fornecedor?.nome_fornecedor_bid_frete_internacional
-    ?? t('bidfrete.comparativo.fornecedor', 'Fornecedor')
+  const nome = nomeFornecedorProposta(proposta, t)
   const moedaProposta = proposta.moeda_proposta_bid_frete_internacional
   const posicaoScore = metricas.posicaoGeral
   const colocacaoVisualPodio = densidade === 'podio' ? posicaoLista : posicaoScore
@@ -381,7 +472,18 @@ function CardProposta({
           <BarraMetrica label={t('bidfrete.detalhe_cotacao.resp_taxas', 'Taxas')} pct={Math.min(95, pctPreco + 8)} />
           <BarraMetrica label={t('bidfrete.comparativo.transit_time', 'Transit')} pct={pctTransito} />
         </div>
-        <TagsProposta tags={metricas.tags} t={t} />
+        <DestaquesCardProposta
+          proposta={proposta}
+          propostasTodas={propostasTodas}
+          tags={metricas.tags}
+          t={t}
+        />
+        <RodapeAcoesProposta
+          visivel={exibirAcoes}
+          desabilitado={acoesDesabilitadas}
+          onAprovar={() => onAprovar?.()}
+          t={t}
+        />
       </article>
     )
   }
@@ -420,7 +522,12 @@ function CardProposta({
                   </span>
                 )}
               </div>
-              <TagsProposta tags={metricas.tags} t={t} />
+              <DestaquesCardProposta
+                proposta={proposta}
+                propostasTodas={propostasTodas}
+                tags={metricas.tags}
+                t={t}
+              />
             </div>
           </div>
           <div className="dc-prop-card-total-block">
@@ -436,6 +543,13 @@ function CardProposta({
         </div>
 
         <p className="dc-prop-resumo dc-prop-resumo--rodape">{montarResumoComparativo(metricas, t)}</p>
+
+        <RodapeAcoesProposta
+          visivel={exibirAcoes}
+          desabilitado={acoesDesabilitadas}
+          onAprovar={() => onAprovar?.()}
+          t={t}
+        />
 
         {proposta.observacoes_proposta_bid_frete_internacional?.trim() && (
           <p className="dc-prop-obs">{proposta.observacoes_proposta_bid_frete_internacional}</p>
@@ -476,7 +590,12 @@ function CardProposta({
                 </span>
               )}
             </div>
-            <TagsProposta tags={metricas.tags} t={t} />
+            <DestaquesCardProposta
+              proposta={proposta}
+              propostasTodas={propostasTodas}
+              tags={metricas.tags}
+              t={t}
+            />
           </div>
         </div>
         <div className="dc-prop-card-total-block">
@@ -493,6 +612,13 @@ function CardProposta({
 
       <p className="dc-prop-resumo dc-prop-resumo--rodape">{montarResumoComparativo(metricas, t)}</p>
 
+      <RodapeAcoesProposta
+        visivel={exibirAcoes}
+        desabilitado={acoesDesabilitadas}
+        onAprovar={() => onAprovar?.()}
+        t={t}
+      />
+
       {proposta.observacoes_proposta_bid_frete_internacional?.trim() && (
         <p className="dc-prop-obs">{proposta.observacoes_proposta_bid_frete_internacional}</p>
       )}
@@ -502,23 +628,35 @@ function CardProposta({
 
 export interface ListaPropostasDetalheCotacaoProps {
   id_cotacao_bid_frete_internacional: string
+  status_cotacao_bid_frete_internacional?: StatusCotacao | null
   propostasRanking: PropostaRankingBidFreteInternacional[]
   carregandoRanking?: boolean
   /** Sidebar compacta estilo Combat Matrix (mockup cockpit). */
   variante?: 'padrao' | 'combate'
+  onCotacaoAtualizada?: () => void
 }
 
 export function ListaPropostasDetalheCotacao({
   id_cotacao_bid_frete_internacional,
+  status_cotacao_bid_frete_internacional,
   propostasRanking,
   carregandoRanking = false,
   variante = 'padrao',
+  onCotacaoAtualizada,
 }: ListaPropostasDetalheCotacaoProps) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const [criterioOrdenacao, setCriterioOrdenacao] =
     useState<CriterioOrdenacaoRespostaDetalhe>('ranking_geral')
   const [ordenacaoAsc, setOrdenacaoAsc] = useState(true)
+  const [modalAprovar, setModalAprovar] = useState(false)
+  const [propostaSelecionada, setPropostaSelecionada] =
+    useState<PropostaRankingBidFreteInternacional | null>(null)
+  const [aprovando, setAprovando] = useState(false)
+  const [aprovacaoSucesso, setAprovacaoSucesso] = useState(false)
+
+  const acoesGlobaisHabilitadas =
+    propostasRanking.length > 0
+    && cotacaoPermiteAcoesResposta(status_cotacao_bid_frete_internacional)
 
   const opcoesOrdenacao: OpcaoOrdenacaoResposta[] = useMemo(
     () => [
@@ -581,6 +719,36 @@ export function ListaPropostasDetalheCotacao({
     setOrdenacaoAsc(criterioOrdenacaoAscendentePorPadrao(key))
   }
 
+  function abrirModalAprovar(proposta: PropostaRankingBidFreteInternacional) {
+    setPropostaSelecionada(proposta)
+    setModalAprovar(true)
+  }
+
+  function fecharModalAprovar() {
+    if (aprovando || aprovacaoSucesso) return
+    setModalAprovar(false)
+    setPropostaSelecionada(null)
+  }
+
+  async function confirmarAprovar() {
+    if (!propostaSelecionada || aprovando || aprovacaoSucesso) return
+    setAprovando(true)
+    try {
+      await aprovarResposta(
+        id_cotacao_bid_frete_internacional,
+        propostaSelecionada.id_proposta_bid_frete_internacional,
+      )
+      setAprovacaoSucesso(true)
+      await new Promise((resolve) => { window.setTimeout(resolve, 600) })
+      setModalAprovar(false)
+      setPropostaSelecionada(null)
+      onCotacaoAtualizada?.()
+    } finally {
+      setAprovando(false)
+      setAprovacaoSucesso(false)
+    }
+  }
+
   if (carregandoRanking) {
     return (
       <div className="dc-prop-loading">
@@ -611,16 +779,21 @@ export function ListaPropostasDetalheCotacao({
   ) {
     const metricas = metricasPorId.get(proposta.id_proposta_bid_frete_internacional)
     if (!metricas) return null
+    const exibirAcoes = acoesGlobaisHabilitadas && propostaPermiteAcoes(proposta)
     return (
       <CardProposta
         key={proposta.id_proposta_bid_frete_internacional}
         proposta={proposta}
+        propostasTodas={propostasRanking}
         metricas={metricas}
         posicaoLista={indice + 1}
         criterioOrdenacao={criterioOrdenacao}
         t={t}
         variante={variante}
         densidade={densidade}
+        exibirAcoes={exibirAcoes}
+        acoesDesabilitadas={aprovando || modalAprovar}
+        onAprovar={() => abrirModalAprovar(proposta)}
       />
     )
   }
@@ -655,16 +828,6 @@ export function ListaPropostasDetalheCotacao({
             ))}
           </div>
         </div>
-        {propostasRanking.length > 1 && (
-          <button
-            type="button"
-            className="dc-btn dc-btn--secondary dc-btn--sm dc-prop-comparativo-btn"
-            onClick={() => navigate(`/bid-frete/cotacoes/${id_cotacao_bid_frete_internacional}/comparativo`)}
-          >
-            <Ranking weight="bold" size={14} />
-            {t('bidfrete.detalhe_cotacao.ver_comparativo', 'Ver comparativo completo')}
-          </button>
-        )}
       </div>
 
       <div className="dc-prop-list-wrap">
@@ -681,6 +844,15 @@ export function ListaPropostasDetalheCotacao({
           </div>
         )}
       </div>
+
+      <ModalAprovarPropostaBidFreteInternacional
+        aberto={modalAprovar}
+        proposta={propostaSelecionada}
+        aprovando={aprovando}
+        aprovacaoSucesso={aprovacaoSucesso}
+        onFechar={fecharModalAprovar}
+        onConfirmar={() => void confirmarAprovar()}
+      />
     </div>
   )
 }

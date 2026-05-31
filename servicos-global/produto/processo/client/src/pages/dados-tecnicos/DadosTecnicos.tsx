@@ -18,7 +18,7 @@ import {
   ArrowsLeftRight, Warehouse, ShieldCheck, TrafficSign,
   CurrencyDollar, Boat, AirplaneTakeoff, Package, ListChecks,
   IdentificationBadge, ChatText, SidebarSimple, Warning,
-  CaretDown,
+  CaretDown, MagnifyingGlass, X,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -254,6 +254,35 @@ export default function DadosTecnicos() {
   // Secoes colapsadas — default TODAS COLAPSADAS (usuario expande as
   // que quiser). Tela inicia compacta, evita rolagem desnecessaria.
   const [secoesColapsadas, setSecoesColapsadas] = useState<Set<string>>(() => new Set(SECOES.map(s => s.id)))
+  // Busca por nome do campo OU conteudo preenchido
+  const [busca, setBusca] = useState('')
+  const buscaNorm = busca.trim().toLowerCase()
+  const filtroAtivo = buscaNorm !== ''
+
+  // Decide se um campo corresponde a busca: bate no label, no valor
+  // bruto ou no label da opcao selecionada (no caso de selects).
+  function campoCorresponde(c: CampoConfig, v: string): boolean {
+    if (c.label.toLowerCase().includes(buscaNorm)) return true
+    if (v && v.toLowerCase().includes(buscaNorm)) return true
+    const op = c.opcoes?.find(o => o.valor === v)
+    if (op && op.label.toLowerCase().includes(buscaNorm)) return true
+    return false
+  }
+
+  // Pre-computa quais campos batem com a busca por secao
+  const camposFiltrados = useMemo(() => {
+    if (!filtroAtivo) return null
+    const mapa: Record<string, CampoConfig[]> = {}
+    for (const sec of SECOES) {
+      mapa[sec.id] = sec.campos.filter(c => campoCorresponde(c, valores[c.key] ?? ''))
+    }
+    return mapa
+  }, [buscaNorm, valores, filtroAtivo])
+
+  const totalMatches = useMemo(() => {
+    if (!camposFiltrados) return 0
+    return Object.values(camposFiltrados).reduce((acc, arr) => acc + arr.length, 0)
+  }, [camposFiltrados])
 
   function toggleSecao(id: string) {
     setSecoesColapsadas(prev => {
@@ -372,16 +401,51 @@ export default function DadosTecnicos() {
         <div className="dt-sidebar">
         {/* ── TOC lateral ───────────────────────────────────────────────── */}
         <aside className={`dt-toc ${tocColapsada ? 'dt-toc--colapsada' : ''}`} aria-label="Navegação entre seções">
-          {/* Toggle expandir/contrair */}
-          <button
-            type="button"
-            className="dt-toc-toggle"
-            onClick={() => setTocColapsada(p => !p)}
-            title={tocColapsada ? 'Expandir menu' : 'Recolher menu'}
-            aria-label={tocColapsada ? 'Expandir menu' : 'Recolher menu'}
-          >
-            <SidebarSimple weight="duotone" size={16} />
-          </button>
+          {/* Topo do TOC: busca + toggle (busca esconde quando colapsada) */}
+          <div className="dt-toc-topo">
+            {!tocColapsada && (
+              <div className="dt-toc-busca">
+                <MagnifyingGlass weight="duotone" size={14} className="dt-toc-busca-icon" />
+                <input
+                  type="text"
+                  className="dt-toc-busca-input"
+                  placeholder="Buscar campo…"
+                  value={busca}
+                  onChange={e => setBusca(e.target.value)}
+                  aria-label="Buscar campo por nome ou conteúdo"
+                />
+                {busca && (
+                  <button
+                    type="button"
+                    className="dt-toc-busca-limpar"
+                    onClick={() => setBusca('')}
+                    title="Limpar busca"
+                    aria-label="Limpar busca"
+                  >
+                    <X size={12} weight="bold" />
+                  </button>
+                )}
+              </div>
+            )}
+            <button
+              type="button"
+              className="dt-toc-toggle"
+              onClick={() => setTocColapsada(p => !p)}
+              title={tocColapsada ? 'Expandir menu' : 'Recolher menu'}
+              aria-label={tocColapsada ? 'Expandir menu' : 'Recolher menu'}
+            >
+              <SidebarSimple weight="duotone" size={16} />
+            </button>
+          </div>
+
+          {/* Contador de resultados quando a busca esta ativa */}
+          {filtroAtivo && !tocColapsada && (
+            <div className="dt-toc-resultados">
+              {totalMatches > 0
+                ? <>{totalMatches} resultado{totalMatches > 1 ? 's' : ''}</>
+                : <>Nenhum resultado</>}
+            </div>
+          )}
 
           {SECOES.map(sec => {
             const c = completude[sec.id]
@@ -541,7 +605,13 @@ export default function DadosTecnicos() {
             const c = completude[sec.id]
             const completa = c.preenchidos === c.total
             const pct = Math.round((c.preenchidos / c.total) * 100)
-            const colapsada = secoesColapsadas.has(sec.id)
+            // Quando busca ativa: usa lista filtrada, esconde secao sem
+            // matches e forca expansao para mostrar os hits.
+            const camposVisiveis = filtroAtivo
+              ? (camposFiltrados?.[sec.id] ?? [])
+              : sec.campos
+            if (filtroAtivo && camposVisiveis.length === 0) return null
+            const colapsada = filtroAtivo ? false : secoesColapsadas.has(sec.id)
             return (
               <section
                 key={sec.id}
@@ -585,7 +655,7 @@ export default function DadosTecnicos() {
 
                 {!colapsada && (
                   <div id={`${sec.id}-grid`} className="dt-grid">
-                    {sec.campos.map(campo => (
+                    {camposVisiveis.map(campo => (
                       <CampoLinha
                         key={campo.key}
                         campo={campo}
@@ -598,6 +668,18 @@ export default function DadosTecnicos() {
               </section>
             )
           })}
+
+          {/* Empty state quando busca nao tem matches */}
+          {filtroAtivo && totalMatches === 0 && (
+            <div className="dt-empty">
+              <MagnifyingGlass weight="duotone" size={32} />
+              <h3>Nenhum campo encontrado</h3>
+              <p>Nenhum campo cujo nome ou conteúdo contenha “{busca}”.</p>
+              <button type="button" className="dt-empty-btn" onClick={() => setBusca('')}>
+                Limpar busca
+              </button>
+            </div>
+          )}
         </main>
       </div>
     </PaginaGlobal>

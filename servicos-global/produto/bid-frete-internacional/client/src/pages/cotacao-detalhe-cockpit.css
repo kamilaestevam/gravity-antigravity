@@ -2438,6 +2438,107 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   align-items: flex-start;
 }
 
+/* Aba Dados gerais — cronograma e metadados */
+.dc-dados-gerais-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.9fr);
+  gap: 0.85rem;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .dc-dados-gerais-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dc-dados-card--cronograma .dc-dados-card-body--cronograma {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  overflow: visible;
+}
+
+.dc-cronograma-linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.dc-cronograma-linha:last-child {
+  border-bottom: none;
+}
+
+.dc-cronograma-linha-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.dc-cronograma-linha-icone {
+  display: inline-flex;
+  color: #818cf8;
+}
+
+.dc-cronograma-linha-valor {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f8fafc;
+  text-align: right;
+}
+
+.dc-cronograma-prazo-editor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.dc-cronograma-input {
+  min-width: 12.5rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(15, 23, 42, 0.65);
+  color: #f8fafc;
+  font-size: 0.8125rem;
+}
+
+.dc-cronograma-input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.dc-cronograma-aviso,
+.dc-cronograma-erro {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.dc-cronograma-aviso {
+  color: #94a3b8;
+}
+
+.dc-cronograma-erro {
+  color: #f87171;
+}
+
+.dc-dados-card--metadados .dc-info-row {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.dc-dados-card--metadados .dc-info-row:last-child {
+  border-bottom: none;
+}
+
 .dc-prop-list--podio .dc-prop-metricas-spark-row {
   margin-top: 0.35rem;
 }

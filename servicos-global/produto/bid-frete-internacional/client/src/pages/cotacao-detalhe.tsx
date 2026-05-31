@@ -64,6 +64,7 @@ import {
   ranquearPropostasLocal,
 } from '../shared/metricas-proposta-cotacao-bid-frete-internacional'
 import { aplicarEstadoPosAprovacaoCotacao } from '../shared/sincronizar-estado-pos-aprovacao-cotacao-bid-frete-internacional'
+import { PainelDadosGeraisCotacaoBidFreteInternacional } from '../shared/painel-dados-gerais-cotacao-bid-frete-internacional'
 import type {
   Cotacao,
   DisparoCotacaoBidFreteInternacional,
@@ -83,12 +84,6 @@ import {
 } from '../shared/types'
 import { avaliarPrazoRespostaCotacao } from '../shared/lista-bid-frete-kpi-metrics'
 import { formatarDataBidFrete } from '../shared/formato-data-bid-frete'
-import {
-  criarColunasDatasMotivosDisparoTabelaGlobal,
-  espelharDatasMotivosCotacaoEmDisparos,
-  type DisparoComEspelhoDatasMotivosCotacao,
-  type RotulosColunasDatasMotivosCotacao,
-} from '../shared/colunas-datas-motivos-cotacao-bid-frete-internacional'
 
 // ─── Formatação ──────────────────────────────────────────────────────────────
 
@@ -267,7 +262,7 @@ export default function DetalheCotacao() {
   const [bids, setBids] = useState<DisparoCotacaoBidFreteInternacional[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
-  const [tab, setTab] = useState<'dados' | 'bids' | 'respostas'>('dados')
+  const [tab, setTab] = useState<'visao_geral' | 'dados_gerais' | 'respostas' | 'bids'>('visao_geral')
   const [modalDisparoAberto, setModalDisparoAberto] = useState(false)
   const [propostasRanking, setPropostasRanking] = useState<PropostaRankingBidFreteInternacional[]>([])
   const [carregandoRanking, setCarregandoRanking] = useState(false)
@@ -313,16 +308,20 @@ export default function DetalheCotacao() {
     }
   }, [id, carregarRankingPropostas])
 
-  const handleCotacaoAtualizada = useCallback((cotacaoAprovada?: Cotacao) => {
-    if (cotacaoAprovada) {
+  const handleCotacaoAtualizada = useCallback((cotacaoAtualizada?: Cotacao) => {
+    if (cotacaoAtualizada) {
       const { cotacao: cotMesclada, propostasRanking: rankingSincronizado } =
-        aplicarEstadoPosAprovacaoCotacao(cotacao, propostasRanking, cotacaoAprovada)
+        aplicarEstadoPosAprovacaoCotacao(cotacao, propostasRanking, cotacaoAtualizada)
       setCotacao(cotMesclada)
       setPropostasRanking(rankingSincronizado)
       return
     }
     void carregar()
   }, [carregar, cotacao, propostasRanking])
+
+  function aplicarCotacaoSalva(cotacaoSalva: Cotacao) {
+    setCotacao(cotacaoSalva)
+  }
 
   useEffect(() => { carregar() }, [carregar])
 
@@ -353,46 +352,15 @@ export default function DetalheCotacao() {
     return raw.length > 0 ? ranquearPropostasLocal(raw) : []
   }, [propostasRanking, cotacao])
 
-  const rotulosColunasDatasMotivos = useMemo<RotulosColunasDatasMotivosCotacao>(
-    () => ({
-      data_limite_resposta_cotacao_bid_frete_internacional: t(
-        'bidfrete.lista.colunas.prazo_resposta',
-        'Prazo resposta',
-      ),
-      data_aprovacao_cotacao_bid_frete_internacional: t(
-        'bidfrete.lista.colunas.data_aprovacao',
-        'Data aprovação',
-      ),
-      data_cancelamento_cotacao_bid_frete_internacional: t(
-        'bidfrete.lista.colunas.data_cancelamento',
-        'Data cancelamento',
-      ),
-      motivo_reprovacao_cotacao_bid_frete_internacional: t(
-        'bidfrete.lista.colunas.motivo_reprovacao',
-        'Motivo reprovação',
-      ),
-      motivo_cancelamento_cotacao_bid_frete_internacional: t(
-        'bidfrete.lista.colunas.motivo_cancelamento',
-        'Motivo cancelamento',
-      ),
-    }),
-    [t],
-  )
-
-  const bidsComEspelhoCotacao = useMemo(
-    () => espelharDatasMotivosCotacaoEmDisparos(bids, cotacao),
-    [bids, cotacao],
-  )
-
   // ─── Tabela de Bids ───────────────────────────────────────────────────
 
-  const bidColunas: TabelaGlobalColuna<DisparoComEspelhoDatasMotivosCotacao>[] = useMemo(() => [
+  const bidColunas: TabelaGlobalColuna<DisparoCotacaoBidFreteInternacional>[] = useMemo(() => [
     {
       key: 'id_fornecedor_bid_frete_internacional',
       label: t('bidfrete.comparativo.fornecedor'),
       tipo: 'texto',
       largura: 200,
-      render: (valor: unknown, row: DisparoComEspelhoDatasMotivosCotacao) => {
+      render: (valor: unknown, row: DisparoCotacaoBidFreteInternacional) => {
         const _val = valor as string
         return row.fornecedor?.nome_fornecedor_bid_frete_internacional ?? _val.slice(0, 8)
       },
@@ -415,7 +383,7 @@ export default function DetalheCotacao() {
       label: t('comum.status'),
       tipo: 'texto',
       largura: 130,
-      render: (valor: unknown, row: DisparoComEspelhoDatasMotivosCotacao) => {
+      render: (valor: unknown, row: DisparoCotacaoBidFreteInternacional) => {
         const val = valor as StatusDisparoCotacaoBidFreteInternacional
         const erro = row.erro_envio_disparo_cotacao_bid_frete_internacional?.trim()
         return (
@@ -430,7 +398,7 @@ export default function DetalheCotacao() {
       label: t('bidfrete.detalhe_cotacao.motivo_erro', 'Motivo'),
       tipo: 'texto',
       largura: 280,
-      render: (valor: unknown, row: DisparoComEspelhoDatasMotivosCotacao) => {
+      render: (valor: unknown, row: DisparoCotacaoBidFreteInternacional) => {
         const erro = (valor as string | null | undefined)?.trim()
           || row.erro_envio_disparo_cotacao_bid_frete_internacional?.trim()
         const texto =
@@ -464,7 +432,7 @@ export default function DetalheCotacao() {
       label: t('bidfrete.detalhe_cotacao.link_resposta', 'Link resposta'),
       tipo: 'texto',
       largura: 120,
-      render: (_valor: unknown, row: DisparoComEspelhoDatasMotivosCotacao) => {
+      render: (_valor: unknown, row: DisparoCotacaoBidFreteInternacional) => {
         const token = row.token_resposta_disparo_cotacao_bid_frete_internacional
         if (!token) return '—'
         const href = montarLinkRespostaPublicoDisparo(token)
@@ -496,7 +464,6 @@ export default function DetalheCotacao() {
       largura: 140,
       render: (valor: unknown) => dataHoraBR(valor as string | null),
     },
-    ...criarColunasDatasMotivosDisparoTabelaGlobal(rotulosColunasDatasMotivos),
     {
       key: 'data_resposta_disparo_cotacao_bid_frete_internacional',
       label: t('bidfrete.detalhe_cotacao.data_resposta'),
@@ -504,7 +471,7 @@ export default function DetalheCotacao() {
       largura: 140,
       render: (valor: unknown) => dataHoraBR(valor as string | null),
     },
-  ], [t, rotulosColunasDatasMotivos])
+  ], [t])
 
   // ─── Loading ──────────────────────────────────────────────────────────
 
@@ -603,10 +570,17 @@ export default function DetalheCotacao() {
       <nav className="dc-cockpit-tabs" aria-label={t('bidfrete.detalhe_cotacao.cockpit_abas', 'Abas')}>
         <button
           type="button"
-          className={`dc-cockpit-tab ${tab === 'dados' ? 'dc-cockpit-tab--ativo' : ''}`}
-          onClick={() => setTab('dados')}
+          className={`dc-cockpit-tab ${tab === 'visao_geral' ? 'dc-cockpit-tab--ativo' : ''}`}
+          onClick={() => setTab('visao_geral')}
         >
-          {t('bidfrete.detalhe_cotacao.tab_dados')}
+          {t('bidfrete.detalhe_cotacao.tab_visao_geral', 'Visão geral')}
+        </button>
+        <button
+          type="button"
+          className={`dc-cockpit-tab ${tab === 'dados_gerais' ? 'dc-cockpit-tab--ativo' : ''}`}
+          onClick={() => setTab('dados_gerais')}
+        >
+          {t('bidfrete.detalhe_cotacao.tab_dados_gerais', 'Dados gerais')}
         </button>
         <button
           type="button"
@@ -630,9 +604,9 @@ export default function DetalheCotacao() {
         </button>
       </nav>
 
-      <div className={tab === 'dados' ? 'dc-cockpit-workspace' : 'dc-cockpit-main'}>
-      {/* Tab: Dados */}
-      {tab === 'dados' && (
+      <div className={tab === 'visao_geral' || tab === 'dados_gerais' ? 'dc-cockpit-workspace' : 'dc-cockpit-main'}>
+      {/* Tab: Visão geral */}
+      {tab === 'visao_geral' && (
         <>
         <div className="dc-cockpit-dados-row">
         <div className="dc-dados-layout">
@@ -737,7 +711,15 @@ export default function DetalheCotacao() {
         </>
       )}
 
-      {tab !== 'dados' && (
+      {tab === 'dados_gerais' && (
+        <PainelDadosGeraisCotacaoBidFreteInternacional
+          cotacao={cotacao}
+          disparos={bids}
+          onCotacaoAtualizada={aplicarCotacaoSalva}
+        />
+      )}
+
+      {(tab === 'respostas' || tab === 'bids') && (
       <>
       {/* Tab: Bids */}
       {tab === 'bids' && (
@@ -752,7 +734,7 @@ export default function DetalheCotacao() {
             </div>
           )}
           <TabelaGlobal
-            dados={bidsComEspelhoCotacao}
+            dados={bids}
             colunas={bidColunas}
             idKey="id_disparo_cotacao_bid_frete_internacional"
             mensagemVazio={t('bidfrete.detalhe_cotacao.vazio_disparos')}

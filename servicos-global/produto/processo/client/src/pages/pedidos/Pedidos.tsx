@@ -59,6 +59,24 @@ const flagEmoji = (iso2: string): string => {
   return String.fromCodePoint(...codes)
 }
 
+// Mini bar chart de 3 colunas — exibe a magnitude de um valor relativo ao
+// maximo entre todos os pedidos. Espelha o estilo das mini-charts do
+// BID Frete (TRANSIT TIME / FREE TIME / ESCALA).
+function MiniBarChart({ value, max }: { value: number; max: number }) {
+  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0
+  // 3 barras com alturas progressivas (ascending pattern) escaladas pelo %.
+  const h1 = Math.max(12, pct * 0.45)
+  const h2 = Math.max(20, pct * 0.72)
+  const h3 = Math.max(28, pct)
+  return (
+    <div className="pp-chart" aria-hidden>
+      <span className="pp-chart-bar" style={{ height: `${h1}%` }} />
+      <span className="pp-chart-bar" style={{ height: `${h2}%` }} />
+      <span className="pp-chart-bar" style={{ height: `${h3}%` }} />
+    </div>
+  )
+}
+
 // ─── Componente ─────────────────────────────────────────────────────────────
 
 export default function Pedidos() {
@@ -106,6 +124,12 @@ export default function Pedidos() {
                     (statusCount.desembaracado || 0) + (statusCount.entregue || 0)
   const pendentes = (statusCount.pendente || 0)
   const cancelados = (statusCount.cancelado || 0)
+
+  // Maximos por metrica — usados pelos MiniBarChart de cada card
+  // para escalar a altura das barras relativamente ao maior pedido.
+  const maxValor = Math.max(...pedidos.map(p => p.valor_fob || 0), 1)
+  const maxPeso  = Math.max(...pedidos.map(p => p.peso_bruto || 0), 1)
+  const maxItens = Math.max(...pedidos.map(p => p.itens?.length ?? 0), 1)
 
   // ── Renderizacao ──
 
@@ -251,15 +275,38 @@ export default function Pedidos() {
                       <div className="pp-card-valor">{fmtMoney(p.valor_fob, p.moeda)}</div>
                     </header>
 
+                    {/* Metricas com mini bar charts — padrao BID Frete */}
+                    <div className="pp-card-metrics">
+                      <div className="pp-card-metric">
+                        <div className="pp-card-metric-info">
+                          <span className="pp-card-metric-label">{t('processo.pedidos.itens', 'Itens')}</span>
+                          <span className="pp-card-metric-value">{itens.length}</span>
+                        </div>
+                        <MiniBarChart value={itens.length} max={maxItens} />
+                      </div>
+                      <div className="pp-card-metric">
+                        <div className="pp-card-metric-info">
+                          <span className="pp-card-metric-label">{t('processo.pedidos.peso_bruto', 'Peso bruto')}</span>
+                          <span className="pp-card-metric-value">{fmtPeso(p.peso_bruto)}</span>
+                        </div>
+                        <MiniBarChart value={p.peso_bruto} max={maxPeso} />
+                      </div>
+                      <div className="pp-card-metric">
+                        <div className="pp-card-metric-info">
+                          <span className="pp-card-metric-label">{t('processo.pedidos.share_fob', 'Share FOB')}</span>
+                          <span className="pp-card-metric-value">
+                            {maxValor > 0 ? Math.round((p.valor_fob / pedidos.reduce((acc, x) => acc + x.valor_fob, 0)) * 100) : 0}%
+                          </span>
+                        </div>
+                        <MiniBarChart value={p.valor_fob} max={maxValor} />
+                      </div>
+                    </div>
+
                     <div className="pp-card-meta">
                       <span className="pp-card-meta-item">
                         <span className="pp-card-flag" aria-hidden>{flagEmoji(p.exportador_pais)}</span>
                         <MapPin weight="duotone" size={14} className="pp-card-meta-icon" />
                         {p.exportador_nome}
-                      </span>
-                      <span className="pp-card-meta-item">
-                        <Scales weight="duotone" size={14} className="pp-card-meta-icon" />
-                        {fmtPeso(p.peso_bruto)}
                       </span>
                       <span className="pp-card-meta-item">
                         <CalendarBlank weight="duotone" size={14} className="pp-card-meta-icon" />

@@ -622,19 +622,17 @@ export default function Workflow() {
             ) : (
               <div className="wf-docs-list">
                 {documentos.map(doc => {
-                  // Meta detalhada (tipo · data · tamanho) vive no tooltip —
-                  // mantem a info acessivel sem encher o card.
-                  const tooltipDesc = `${doc.tipo.toUpperCase()} · ${formatDate(doc.created_at)} · ${(doc.tamanho_bytes / 1024).toFixed(0)} KB`
+                  // Meta detalhada vive no atributo title nativo do navegador —
+                  // evita a caixa do TooltipGlobal cobrindo cards vizinhos.
+                  const titleAttr = `${doc.nome}\n${doc.tipo.toUpperCase()} · ${formatDate(doc.created_at)} · ${(doc.tamanho_bytes / 1024).toFixed(0)} KB`
                   return (
                   <div key={doc.id} className="wf-doc-item">
-                    <TooltipGlobal titulo={doc.nome} descricao={tooltipDesc}>
-                      <div className="wf-doc-trigger">
-                        <div className="wf-doc-icon">
-                          <FileIcon size={16} weight="duotone" />
-                        </div>
-                        <div className="wf-doc-nome">{doc.nome}</div>
+                    <div className="wf-doc-trigger" title={titleAttr}>
+                      <div className="wf-doc-icon">
+                        <FileIcon size={16} weight="duotone" />
                       </div>
-                    </TooltipGlobal>
+                      <div className="wf-doc-nome">{doc.nome}</div>
+                    </div>
                     <div className="wf-doc-actions">
                       <TooltipGlobal
                         titulo={t('processo.workflow.editar_doc', 'Editar documento')}

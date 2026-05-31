@@ -19,7 +19,7 @@ import {
   CurrencyDollar, Boat, AirplaneTakeoff, Package, ListChecks,
   IdentificationBadge, ChatText, SidebarSimple, Warning,
   CaretDown, MagnifyingGlass, X, Cube, Resize, Barcode,
-  Stack, CubeFocus,
+  Stack, CubeFocus, Lock, Sparkle, Gear,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -31,6 +31,14 @@ import './DadosTecnicos.css'
 
 type CampoTipo = 'texto' | 'select' | 'numero'
 
+/**
+ * Motivo de campo nao editavel:
+ * - calculado: derivado de formula/soma (ex: Total FOB dos pedidos)
+ * - bloqueado: trava por status do processo (ex: Canal apos parametrizacao RF)
+ * - sistema: gerado automaticamente (ex: Numero do Processo, timestamps)
+ */
+type ReadonlyMotivo = 'calculado' | 'bloqueado' | 'sistema'
+
 interface CampoConfig {
   key: string
   label: string
@@ -39,6 +47,10 @@ interface CampoConfig {
   obrigatorio?: boolean
   opcoes?: { valor: string; label: string }[]
   placeholder?: string
+  /** Marca o campo como nao editavel + define o motivo (ícone + tooltip). */
+  readonly?: ReadonlyMotivo
+  /** Texto custom do tooltip readonly. Default usa o texto padrao do motivo. */
+  motivoTexto?: string
 }
 
 interface SecaoConfig {
@@ -54,6 +66,12 @@ const SECOES: SecaoConfig[] = [
     titulo: 'Geral',
     icone: <Buildings weight="duotone" size={18} />,
     campos: [
+      // Sistema (readonly) — gerados na criacao do processo
+      { key: 'numero_processo',    label: 'Número do Processo',    tipo: 'texto', icone: <Hash />,
+        readonly: 'sistema', motivoTexto: 'Gerado automaticamente na criação do processo' },
+      { key: 'data_abertura',      label: 'Data de Abertura',      tipo: 'texto', icone: <Certificate />,
+        readonly: 'sistema', motivoTexto: 'Timestamp de criação do processo' },
+      // Editaveis
       { key: 'ref_cliente',        label: 'Referência do Cliente', tipo: 'texto', obrigatorio: true, placeholder: 'Ex: 1995/25 E 2020/25', icone: <IdentificationCard /> },
       { key: 'outra_ref',          label: 'Outra Referência',      tipo: 'texto', icone: <Hash /> },
       { key: 'responsavel',        label: 'Responsável',           tipo: 'texto', obrigatorio: true, icone: <User /> },
@@ -61,7 +79,12 @@ const SECOES: SecaoConfig[] = [
       { key: 'auxiliar',           label: 'Auxiliar',              tipo: 'texto', icone: <UserCircle /> },
       { key: 'numero_booking',     label: 'Número do Booking',     tipo: 'texto', placeholder: 'BKG-…', icone: <Hash /> },
       { key: 'despachante',        label: 'Despachante',           tipo: 'texto', obrigatorio: true, icone: <Briefcase /> },
-      { key: 'certificado',        label: 'Certificado',           tipo: 'texto', icone: <Certificate /> },
+      // Bloqueado (readonly) — apos emissao nao pode ser alterado
+      { key: 'certificado',        label: 'Certificado',           tipo: 'texto', icone: <Certificate />,
+        readonly: 'bloqueado', motivoTexto: 'Bloqueado após emissão do certificado' },
+      // Calculado (readonly) — soma dos pedidos vinculados
+      { key: 'total_fob',          label: 'Total FOB',             tipo: 'texto', icone: <CurrencyDollar />,
+        readonly: 'calculado', motivoTexto: 'Soma do valor FOB de todos os pedidos vinculados ao processo' },
     ],
   },
   {
@@ -89,6 +112,7 @@ const SECOES: SecaoConfig[] = [
       { key: 'regime_tributario',   label: 'Regime Tributário', tipo: 'select', icone: <ShieldCheck />,
         opcoes: [{ valor: 'comum', label: 'Comum' }, { valor: 'drawback', label: 'Drawback' }, { valor: 'recof', label: 'RECOF' }] },
       { key: 'canal',               label: 'Canal', tipo: 'select', icone: <TrafficSign />,
+        readonly: 'bloqueado', motivoTexto: 'Definido pela Receita Federal após parametrização da DI',
         opcoes: [{ valor: 'verde', label: 'Verde' }, { valor: 'amarelo', label: 'Amarelo' }, { valor: 'vermelho', label: 'Vermelho' }, { valor: 'cinza', label: 'Cinza' }] },
       { key: 'incoterm',            label: 'Incoterm', tipo: 'select', obrigatorio: true, icone: <Globe />,
         opcoes: ['EXW','FOB','CFR','CIF','CIP','DDP','DAP'].map(v => ({ valor: v, label: v })) },
@@ -160,6 +184,9 @@ const SECOES: SecaoConfig[] = [
 // ── Mock de valores iniciais ────────────────────────────────────────────────
 
 const VALORES_INICIAIS: Record<string, string> = {
+  numero_processo: 'IMP-2026/0150',
+  data_abertura: '10/01/2026',
+  total_fob: 'US$ 108.050,00',
   ref_cliente: '1995/25 E 2020/25 - S25146005S',
   responsavel: 'Daniel Martins',
   despachante: 'Asia Shipping Transportes Internacionais Ltda.',
@@ -220,6 +247,36 @@ function CampoLinha({ campo, valor, onSalvar }: CampoLinhaProps) {
     !vazio ? 'preenchido'
     : campo.obrigatorio ? 'vazio-obrig'
     : 'vazio-opc'
+
+  // ── Caso readonly: render proprio, sem edit, com icone + tooltip ───
+  if (campo.readonly) {
+    const READONLY_CONFIG: Record<ReadonlyMotivo, { icone: React.ReactNode; texto: string }> = {
+      calculado:  { icone: <Sparkle weight="fill"     size={13} />, texto: 'Calculado automaticamente' },
+      bloqueado:  { icone: <Lock    weight="duotone"  size={13} />, texto: 'Bloqueado por status do processo' },
+      sistema:    { icone: <Gear    weight="duotone"  size={13} />, texto: 'Gerado pelo sistema' },
+    }
+    const cfg = READONLY_CONFIG[campo.readonly]
+    const tooltipDescricao = campo.motivoTexto ?? cfg.texto
+
+    return (
+      <TooltipGlobal titulo={campo.label} descricao={tooltipDescricao}>
+        <div className={`dt-row dt-row--${status} dt-row--readonly dt-row--readonly-${campo.readonly}`}>
+          <div className="dt-row-status" aria-hidden="true" />
+          <div className="dt-row-head">
+            {campo.icone && <span className="dt-row-icon">{campo.icone}</span>}
+            <span className="dt-row-label">{campo.label}</span>
+          </div>
+          <div className="dt-row-value dt-row-value--readonly">
+            {vazio
+              ? <span className="dt-row-empty">—</span>
+              : <span className="dt-row-text">{valorDisplay}</span>
+            }
+            <span className="dt-row-readonly-icon" aria-hidden="true">{cfg.icone}</span>
+          </div>
+        </div>
+      </TooltipGlobal>
+    )
+  }
 
   return (
     <div className={`dt-row dt-row--${status}`}>

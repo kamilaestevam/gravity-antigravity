@@ -619,6 +619,48 @@
               0 0 0 1px rgba(167, 139, 250, 0.15);
 }
 
+/* ── Variante READONLY (calculado / bloqueado / sistema) ───────────────
+   - Background mais escuro e dessaturado (perceptual cue de 'inerte')
+   - Sem hover lift, sem borda roxa, sem cursor de texto
+   - Valor com opacity 0.85 (sutil) + cursor: default
+   - Icone do motivo a direita (Lock / Sparkle / Gear) colorido por tipo
+   - Wrapper em TooltipGlobal: hover mostra o motivo */
+
+.dt-row--readonly {
+  background: rgba(15, 23, 42, 0.6);
+  cursor: default;
+}
+
+.dt-row--readonly:hover {
+  transform: none;
+  border-color: rgba(148, 163, 184, 0.08);
+  background: rgba(15, 23, 42, 0.6);
+  box-shadow: none;
+}
+
+.dt-row-value--readonly {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.dt-row-value--readonly:hover {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ws-text, #f1f5f9);
+}
+
+.dt-row-readonly-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Cores por motivo de readonly */
+.dt-row--readonly-calculado .dt-row-readonly-icon { color: #22d3ee; }          /* cyan */
+.dt-row--readonly-bloqueado .dt-row-readonly-icon { color: #fbbf24; }          /* ambar */
+.dt-row--readonly-sistema   .dt-row-readonly-icon { color: rgba(148, 163, 184, 0.85); } /* cinza */
+
 /* ── Barra de status (esquerda) ──────────────────────────────────────── */
 
 .dt-row-status {

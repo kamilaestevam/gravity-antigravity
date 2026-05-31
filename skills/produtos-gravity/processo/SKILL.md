@@ -78,7 +78,14 @@ Resumo dos pontos não-negociáveis:
 - Select: **SEMPRE** `SelectGlobal` do `@nucleo/campo-select-global` com `buscavel` + `iconeEsquerda`
 - Enter/blur salva, Esc cancela
 
-### 6. Paleta
+### 6. Read-only
+- `readonly?: 'calculado' | 'bloqueado' | 'sistema'` por campo + `motivoTexto` opcional pro tooltip
+- Visual: sem hover lift, cursor default, background `rgba(15, 23, 42, 0.6)`, valor com `opacity: 0.85`
+- Ícone à direita: `Sparkle` ciano (calculado), `Lock` âmbar (bloqueado), `Gear` muted (sistema)
+- Card todo envolvido em `TooltipGlobal` com o motivo
+- **NÃO usar readonly pra permissão de usuário** — permissão é do user, não do campo
+
+### 7. Paleta
 
 | Cor | Uso |
 |-----|-----|
@@ -159,3 +166,4 @@ Definidas em [App.tsx](../../../servicos-global/produto/processo/client/src/App.
 |------|-------|
 | 2026-05-30 | Redesign DadosTecnicos (TOC + edit-in-place + cards individuais) |
 | 2026-05-31 | SelectGlobal + borda indigo do sistema → padrão consolidado e documentado |
+| 2026-05-31 | Padrão de campos read-only (calculado/bloqueado/sistema) com ícone + tooltip + visual dessaturado |

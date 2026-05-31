@@ -185,7 +185,91 @@ PaginaGlobal layout="lista"
 
 ---
 
-## 6. Paleta de Cores (Processo)
+## 6. Campos Não-Editáveis (Read-only)
+
+Campos podem ser inerentemente não-editáveis por 3 motivos distintos. Cada um tem ícone, cor e tooltip próprios — usuário entende **por quê** o campo não responde a clique.
+
+### Configuração
+
+```ts
+interface CampoConfig {
+  // ... outros campos
+  readonly?: 'calculado' | 'bloqueado' | 'sistema'
+  motivoTexto?: string  // texto customizado pro tooltip; default usa o motivo
+}
+```
+
+### Os 3 motivos
+
+| Motivo | Ícone | Cor | Quando usar |
+|--------|-------|-----|-------------|
+| `calculado` | `Sparkle` (fill) | `#22d3ee` ciano | Derivado de fórmula/soma — ex: Total FOB = Σ pedidos |
+| `bloqueado` | `Lock` (duotone) | `#fbbf24` âmbar | Travado por status — ex: Canal após RF, Certificado após emissão |
+| `sistema` | `Gear` (duotone) | cinza muted | Gerado automaticamente — ex: Número do Processo, timestamps |
+
+### Tratamento visual
+
+1. **Ícone do motivo à direita** do valor (substitui o `PencilSimple` do hover)
+2. **TooltipGlobal envolvendo o card** com título do campo + descrição do motivo
+3. **Sem hover lift**: `transform: none`, sem borda roxa, sem shadow
+4. **Cursor default** (não `text` de campo editável)
+5. **Background mais escuro/dessaturado**: `rgba(15, 23, 42, 0.6)` em vez do `--proc-surface` sólido
+6. **Valor com `opacity: 0.85`** (sutil distinção sem perder legibilidade)
+
+### CSS canônico
+
+```css
+.dt-row--readonly {
+  background: rgba(15, 23, 42, 0.6);
+  cursor: default;
+}
+.dt-row--readonly:hover {
+  transform: none;
+  border-color: rgba(148, 163, 184, 0.08);
+  background: rgba(15, 23, 42, 0.6);
+  box-shadow: none;
+}
+.dt-row-value--readonly { cursor: default; opacity: 0.85; }
+.dt-row-readonly-icon { margin-left: auto; }
+
+.dt-row--readonly-calculado .dt-row-readonly-icon { color: #22d3ee; }
+.dt-row--readonly-bloqueado .dt-row-readonly-icon { color: #fbbf24; }
+.dt-row--readonly-sistema   .dt-row-readonly-icon { color: rgba(148, 163, 184, 0.85); }
+```
+
+### Exemplos práticos
+
+```ts
+// Sistema — gerado na criacao
+{ key: 'numero_processo', label: 'Número do Processo', tipo: 'texto',
+  readonly: 'sistema', motivoTexto: 'Gerado automaticamente na criação do processo' }
+
+// Bloqueado — apos emissao
+{ key: 'certificado', label: 'Certificado', tipo: 'texto',
+  readonly: 'bloqueado', motivoTexto: 'Bloqueado após emissão do certificado' }
+
+// Calculado — soma dos pedidos
+{ key: 'total_fob', label: 'Total FOB', tipo: 'texto',
+  readonly: 'calculado', motivoTexto: 'Soma do valor FOB de todos os pedidos vinculados' }
+
+// Select tambem aceita readonly (ex: Canal bloqueado pela RF)
+{ key: 'canal', label: 'Canal', tipo: 'select', icone: <TrafficSign />,
+  readonly: 'bloqueado', motivoTexto: 'Definido pela RF após parametrização da DI',
+  opcoes: [...] }
+```
+
+### Regra: barra de status continua válida
+
+Mesmo readonly, o campo respeita a barra colorida à esquerda (verde preenchido / âmbar vazio obrigatório / cinza vazio opcional). Read-only **não substitui** o status — são dimensões ortogonais (status = "tem valor?" / readonly = "posso editar?").
+
+### Quando NÃO usar readonly
+
+- Campo que **pode** ser editado mas o usuário atual **não tem permissão** → mostre o campo normal e trate no botão de salvar (tooltip "Sem permissão") em vez de readonly visual permanente. Razão: a permissão é do user, não do campo.
+- Campo que é readonly **temporariamente** (ex: processando) → use estado de loading, não readonly.
+
+---
+
+## 7. Paleta de Cores (Processo)
 
 > Estes são os **únicos** tokens permitidos. Não inventar cores ad-hoc.
 
@@ -205,7 +289,7 @@ PaginaGlobal layout="lista"
 
 ---
 
-## 7. Busca
+## 8. Busca
 
 Quando a tela tem muitos campos, oferecer busca em tempo real:
 - **Por nome do campo** (label match parcial)
@@ -216,7 +300,7 @@ Quando a tela tem muitos campos, oferecer busca em tempo real:
 
 ---
 
-## 8. Implementação de referência
+## 9. Implementação de referência
 
 Arquivo canônico que define todos esses padrões:
 
@@ -227,7 +311,7 @@ Quando criar uma tela nova no Processo, **copie a estrutura desses dois arquivos
 
 ---
 
-## 9. Checklist para nova tela do Processo
+## 10. Checklist para nova tela do Processo
 
 Antes de abrir PR, confirmar:
 
@@ -246,6 +330,10 @@ Antes de abrir PR, confirmar:
   - [ ] Texto: `<input>` com borda `var(--ws-accent)` + glow indigo
   - [ ] Select: `SelectGlobal` com `buscavel` + `iconeEsquerda`
   - [ ] Enter/blur salva, Esc cancela
+- [ ] Campos read-only:
+  - [ ] `readonly: 'calculado' | 'bloqueado' | 'sistema'` definido por campo
+  - [ ] `motivoTexto` claro pro tooltip (não usar texto genérico se possível)
+  - [ ] Visual: sem hover lift, cursor default, background `rgba(15, 23, 42, 0.6)`, ícone Sparkle/Lock/Gear à direita
 - [ ] Click no TOC: `expandirSecao` + **double-rAF** + `scrollIntoView`
 - [ ] Scroll-spy ativo destacando a seção visível
 - [ ] Paleta de cores estritamente dentro dos tokens listados
@@ -259,3 +347,4 @@ Antes de abrir PR, confirmar:
 |------|-------|
 | 2026-05-30 | Redesign inicial DadosTecnicos (TOC + edit-in-place + cards) |
 | 2026-05-31 | SelectGlobal substitui `<select>` nativo + borda indigo unificada com modal Convidar Usuário → **padrão consolidado** |
+| 2026-05-31 | Padrão de campos read-only (`calculado` / `bloqueado` / `sistema`) com ícone + tooltip + visual dessaturado |

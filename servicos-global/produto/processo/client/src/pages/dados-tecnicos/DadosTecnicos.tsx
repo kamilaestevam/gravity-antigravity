@@ -248,33 +248,38 @@ function CampoLinha({ campo, valor, onSalvar }: CampoLinhaProps) {
     : campo.obrigatorio ? 'vazio-obrig'
     : 'vazio-opc'
 
-  // ── Caso readonly: render proprio, sem edit, com icone + tooltip ───
+  // ── Caso readonly: mesmo layout/cor dos editaveis, so muda o
+  //    icone direito (Lock/Sparkle/Gear) + tooltip ancorado no icone
+  //    + sem hover lift + cursor default. Visual ortogonal ao status. ───
   if (campo.readonly) {
     const READONLY_CONFIG: Record<ReadonlyMotivo, { icone: React.ReactNode; texto: string }> = {
-      calculado:  { icone: <Sparkle weight="fill"     size={13} />, texto: 'Calculado automaticamente' },
-      bloqueado:  { icone: <Lock    weight="duotone"  size={13} />, texto: 'Bloqueado por status do processo' },
-      sistema:    { icone: <Gear    weight="duotone"  size={13} />, texto: 'Gerado pelo sistema' },
+      calculado:  { icone: <Sparkle weight="fill"     size={14} />, texto: 'Calculado automaticamente' },
+      bloqueado:  { icone: <Lock    weight="duotone"  size={14} />, texto: 'Bloqueado por status do processo' },
+      sistema:    { icone: <Gear    weight="duotone"  size={14} />, texto: 'Gerado pelo sistema' },
     }
     const cfg = READONLY_CONFIG[campo.readonly]
     const tooltipDescricao = campo.motivoTexto ?? cfg.texto
 
     return (
-      <TooltipGlobal titulo={campo.label} descricao={tooltipDescricao}>
-        <div className={`dt-row dt-row--${status} dt-row--readonly dt-row--readonly-${campo.readonly}`}>
-          <div className="dt-row-status" aria-hidden="true" />
-          <div className="dt-row-head">
-            {campo.icone && <span className="dt-row-icon">{campo.icone}</span>}
-            <span className="dt-row-label">{campo.label}</span>
-          </div>
-          <div className="dt-row-value dt-row-value--readonly">
-            {vazio
-              ? <span className="dt-row-empty">—</span>
-              : <span className="dt-row-text">{valorDisplay}</span>
-            }
-            <span className="dt-row-readonly-icon" aria-hidden="true">{cfg.icone}</span>
-          </div>
+      <div className={`dt-row dt-row--${status} dt-row--readonly dt-row--readonly-${campo.readonly}`}>
+        <div className="dt-row-status" aria-hidden="true" />
+        <div className="dt-row-head">
+          {campo.icone && <span className="dt-row-icon">{campo.icone}</span>}
+          <span className="dt-row-label">{campo.label}</span>
         </div>
-      </TooltipGlobal>
+        <div className="dt-row-value dt-row-value--readonly">
+          {vazio
+            ? <span className="dt-row-empty">—</span>
+            : <span className="dt-row-text">{valorDisplay}</span>
+          }
+          {/* Tooltip ancorado SOMENTE no icone — posicao consistente
+              com o resto do sistema (TooltipGlobal posiciona embaixo
+              do span pequeno em vez de em cima da row inteira). */}
+          <TooltipGlobal titulo={campo.label} descricao={tooltipDescricao}>
+            <span className="dt-row-readonly-icon" aria-hidden="true">{cfg.icone}</span>
+          </TooltipGlobal>
+        </div>
+      </div>
     )
   }
 

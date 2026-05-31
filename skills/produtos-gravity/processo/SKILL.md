@@ -80,9 +80,9 @@ Resumo dos pontos não-negociáveis:
 
 ### 6. Read-only
 - `readonly?: 'calculado' | 'bloqueado' | 'sistema'` por campo + `motivoTexto` opcional pro tooltip
-- Visual: sem hover lift, cursor default, background `rgba(15, 23, 42, 0.6)`, valor com `opacity: 0.85`
+- **Mesma cor e tamanho dos editáveis** — diferença é só o ícone à direita + sem hover lift + cursor default
 - Ícone à direita: `Sparkle` ciano (calculado), `Lock` âmbar (bloqueado), `Gear` muted (sistema)
-- Card todo envolvido em `TooltipGlobal` com o motivo
+- **TooltipGlobal envolve SOMENTE o ícone** (anchor pequeno = posição correta, padrão do sistema)
 - **NÃO usar readonly pra permissão de usuário** — permissão é do user, não do campo
 
 ### 7. Paleta

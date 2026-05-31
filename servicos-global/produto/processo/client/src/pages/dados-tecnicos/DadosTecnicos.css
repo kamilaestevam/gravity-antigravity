@@ -620,27 +620,26 @@
 }
 
 /* ── Variante READONLY (calculado / bloqueado / sistema) ───────────────
-   - Background mais escuro e dessaturado (perceptual cue de 'inerte')
-   - Sem hover lift, sem borda roxa, sem cursor de texto
-   - Valor com opacity 0.85 (sutil) + cursor: default
+   Mesma cor e tamanho dos editaveis (var --proc-surface). A diferenca
+   visual e:
+   - Sem hover lift (transform: none, sem borda roxa, sem shadow)
+   - Cursor default em vez de text
    - Icone do motivo a direita (Lock / Sparkle / Gear) colorido por tipo
-   - Wrapper em TooltipGlobal: hover mostra o motivo */
+   - Tooltip ancorado no icone explica o porque                            */
 
 .dt-row--readonly {
-  background: rgba(15, 23, 42, 0.6);
   cursor: default;
 }
 
 .dt-row--readonly:hover {
   transform: none;
   border-color: rgba(148, 163, 184, 0.08);
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--proc-surface, var(--ws-surface, #1e293b));
   box-shadow: none;
 }
 
 .dt-row-value--readonly {
   cursor: default;
-  opacity: 0.85;
 }
 
 .dt-row-value--readonly:hover {
@@ -654,6 +653,7 @@
   align-items: center;
   margin-left: auto;
   flex-shrink: 0;
+  cursor: help;  /* sinaliza que o icone tem informacao */
 }
 
 /* Cores por motivo de readonly */

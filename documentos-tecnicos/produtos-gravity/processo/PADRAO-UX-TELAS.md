@@ -209,28 +209,38 @@ interface CampoConfig {
 
 ### Tratamento visual
 
-1. **Ícone do motivo à direita** do valor (substitui o `PencilSimple` do hover)
-2. **TooltipGlobal envolvendo o card** com título do campo + descrição do motivo
-3. **Sem hover lift**: `transform: none`, sem borda roxa, sem shadow
-4. **Cursor default** (não `text` de campo editável)
-5. **Background mais escuro/dessaturado**: `rgba(15, 23, 42, 0.6)` em vez do `--proc-surface` sólido
-6. **Valor com `opacity: 0.85`** (sutil distinção sem perder legibilidade)
+> **Princípio:** mesma cor, tamanho e layout dos cards editáveis. A diferença é **só o ícone à direita + comportamento do mouse**. Distinção forte demais (bg escurecido, opacity) faz o campo parecer "vazio" ou "quebrado".
+
+1. **Mesma cor de fundo** (`var(--proc-surface)`) e **mesmo tamanho** dos cards editáveis
+2. **Sem hover lift**: `transform: none`, sem borda roxa, sem shadow
+3. **Cursor default** no card todo (não `text` de campo editável)
+4. **`cursor: help`** no ícone — sinaliza que ali tem informação
+5. **Ícone do motivo à direita** do valor (substitui o `PencilSimple` que aparece no hover dos editáveis), colorido por tipo
+6. **TooltipGlobal ancorado SOMENTE no ícone** (não no card todo) — anchor pequeno = posicionamento correto, mesmo padrão de tooltip do resto do sistema
 
 ### CSS canônico
 
 ```css
 .dt-row--readonly {
-  background: rgba(15, 23, 42, 0.6);
   cursor: default;
 }
 .dt-row--readonly:hover {
   transform: none;
   border-color: rgba(148, 163, 184, 0.08);
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--proc-surface, var(--ws-surface, #1e293b));
   box-shadow: none;
 }
-.dt-row-value--readonly { cursor: default; opacity: 0.85; }
-.dt-row-readonly-icon { margin-left: auto; }
+.dt-row-value--readonly { cursor: default; }
+.dt-row-value--readonly:hover {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ws-text, #f1f5f9);
+}
+
+.dt-row-readonly-icon {
+  margin-left: auto;
+  cursor: help;
+}
 
 .dt-row--readonly-calculado .dt-row-readonly-icon { color: #22d3ee; }
 .dt-row--readonly-bloqueado .dt-row-readonly-icon { color: #fbbf24; }

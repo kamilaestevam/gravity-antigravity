@@ -6,7 +6,10 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Package, Plus, Eye, PencilSimple, X } from '@phosphor-icons/react'
+import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
 import type {
   GTColuna,
@@ -70,6 +73,7 @@ const fmtDate = (iso: string) =>
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function PedidosLista() {
+  const { t } = useTranslation()
   const [pedidos, setPedidos] = useState<PedidoRico[]>([])
   const [carregando, setCarregando] = useState(true)
   const [abaAtiva, setAbaAtiva] = useState('todos')
@@ -421,7 +425,17 @@ export default function PedidosLista() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <PaginaGlobal
+      className="ws-fade-up"
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<Package weight="duotone" size={22} />}
+          titulo={t('processo.pedidos.titulo', 'Pedidos')}
+          subtitulo={t('processo.pedidos.subtitulo', 'Pedidos de compra vinculados a este processo')}
+        />
+      }
+    >
       <PedidosTabs />
       <TabelaVirtualGlobal<PedidoRico, PedidoItemRico>
         dados={pedidos}
@@ -462,6 +476,6 @@ export default function PedidosLista() {
         }
         ariaLabel="Tabela de pedidos de compra"
       />
-    </div>
+    </PaginaGlobal>
   )
 }

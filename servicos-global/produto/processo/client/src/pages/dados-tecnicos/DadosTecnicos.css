@@ -102,17 +102,41 @@
   align-items: center;
 }
 
-.dt-stats-titulo {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--ws-muted, #94a3b8);
+/* Toggle Total / Obrigatorios */
+
+.dt-stats-toggle {
+  display: inline-flex;
+  padding: 2px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 9999px;
+  border: 1px solid rgba(167, 139, 250, 0.12);
 }
+
+.dt-stats-toggle-btn {
+  padding: 0.25rem 0.625rem;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dt-stats-toggle-btn:hover { color: var(--ws-text, #f1f5f9); }
+
+.dt-stats-toggle-btn--ativa {
+  background: rgba(167, 139, 250, 0.18);
+  color: #c4b5fd;
+}
+
+/* Linhas de stats */
 
 .dt-stats-linha {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.375rem;
   font-size: 0.75rem;
   color: var(--ws-muted, #94a3b8);
@@ -121,11 +145,31 @@
 
 .dt-stats-linha strong {
   color: var(--ws-text, #f1f5f9);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 700;
 }
 
-.dt-stats-linha--obrig { align-items: center; }
+/* Linha principal (hero) — destaca o modo selecionado */
+.dt-stats-linha--hero {
+  align-items: baseline;
+}
+
+/* Linha secundaria — clicavel pra trocar de modo */
+.dt-stats-linha--secundaria {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  padding: 0.1875rem 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.dt-stats-linha--secundaria strong { font-size: 0.75rem; }
+
+.dt-stats-linha--secundaria:hover {
+  background: rgba(167, 139, 250, 0.08);
+  border-color: rgba(167, 139, 250, 0.2);
+}
 
 .dt-stats-linha--ok   { color: #34d399; }
 .dt-stats-linha--ok   strong { color: #34d399; }

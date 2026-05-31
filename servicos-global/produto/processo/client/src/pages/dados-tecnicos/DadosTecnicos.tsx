@@ -248,6 +248,8 @@ export default function DadosTecnicos() {
   const [secaoAtiva, setSecaoAtiva] = useState(SECOES[0].id)
   // TOC default contraida. (TODO persistir preferencia do usuario depois)
   const [tocColapsada, setTocColapsada] = useState(true)
+  // Modo do card de stats: total ou so obrigatorios
+  const [modoStats, setModoStats] = useState<'total' | 'obrig'>('total')
 
   function salvarCampo(key: string, novo: string) {
     setValores(p => ({ ...p, [key]: novo }))
@@ -399,35 +401,96 @@ export default function DadosTecnicos() {
           })}
         </aside>
 
-        {/* ── Card de estatisticas com donut ───────────────────────────── */}
-        <div className={`dt-stats ${tocColapsada ? 'dt-stats--colapsada' : ''}`}>
-          <div
-            className="dt-stats-donut"
-            style={{
-              background: `conic-gradient(${stats.pct === 100 ? '#34d399' : '#a78bfa'} 0% ${stats.pct}%, rgba(148,163,184,0.18) ${stats.pct}% 100%)`,
-            }}
-          >
-            <div className="dt-stats-donut-inner">
-              <span className="dt-stats-donut-pct">{stats.pct}%</span>
-            </div>
-          </div>
-          {!tocColapsada && (
-            <div className="dt-stats-body">
-              <div className="dt-stats-titulo">Preenchimento</div>
-              <div className="dt-stats-linha">
-                <strong>{stats.preench}</strong>
-                <span>de {stats.total} campos</span>
+        {/* ── Card de estatisticas com donut + toggle ──────────────────── */}
+        {(() => {
+          const obrigPreench = stats.obrigTotal - stats.obrigPend
+          const pctObrig = stats.obrigTotal > 0
+            ? Math.round((obrigPreench / stats.obrigTotal) * 100)
+            : 100
+          const pctAtual = modoStats === 'total' ? stats.pct : pctObrig
+          // Cor: verde se 100%, ambar se modo obrig com pendentes, roxo no resto
+          const corDonut =
+            pctAtual === 100 ? '#34d399'
+            : modoStats === 'obrig' ? '#fbbf24'
+            : '#a78bfa'
+          const numeradorAtual = modoStats === 'total' ? stats.preench : obrigPreench
+          const denominadorAtual = modoStats === 'total' ? stats.total : stats.obrigTotal
+          return (
+            <div className={`dt-stats ${tocColapsada ? 'dt-stats--colapsada' : ''}`}>
+              {/* Toggle Total / Obrigatorios — escondido no modo colapsado */}
+              {!tocColapsada && (
+                <div className="dt-stats-toggle" role="tablist" aria-label="Modo de visualizacao">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={modoStats === 'total'}
+                    className={`dt-stats-toggle-btn ${modoStats === 'total' ? 'dt-stats-toggle-btn--ativa' : ''}`}
+                    onClick={() => setModoStats('total')}
+                  >
+                    Total
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={modoStats === 'obrig'}
+                    className={`dt-stats-toggle-btn ${modoStats === 'obrig' ? 'dt-stats-toggle-btn--ativa' : ''}`}
+                    onClick={() => setModoStats('obrig')}
+                  >
+                    Obrigatórios
+                  </button>
+                </div>
+              )}
+
+              <div
+                className="dt-stats-donut"
+                style={{
+                  background: `conic-gradient(${corDonut} 0% ${pctAtual}%, rgba(148,163,184,0.18) ${pctAtual}% 100%)`,
+                }}
+              >
+                <div className="dt-stats-donut-inner">
+                  <span className="dt-stats-donut-pct">{pctAtual}%</span>
+                </div>
               </div>
-              <div className={`dt-stats-linha dt-stats-linha--obrig ${stats.obrigPend === 0 ? 'dt-stats-linha--ok' : 'dt-stats-linha--warn'}`}>
-                {stats.obrigPend === 0
-                  ? <CheckCircle weight="fill" size={13} />
-                  : <Warning weight="fill" size={13} />}
-                <strong>{stats.obrigTotal - stats.obrigPend}/{stats.obrigTotal}</strong>
-                <span>obrigatórios</span>
-              </div>
+
+              {!tocColapsada && (
+                <div className="dt-stats-body">
+                  <div className="dt-stats-linha dt-stats-linha--hero">
+                    <strong>{numeradorAtual}</strong>
+                    <span>
+                      de {denominadorAtual} {modoStats === 'total' ? 'campos' : 'obrigatórios'}
+                    </span>
+                  </div>
+                  {/* Linha secundaria — clicavel pra trocar de modo */}
+                  {modoStats === 'total' ? (
+                    <button
+                      type="button"
+                      className={`dt-stats-linha dt-stats-linha--secundaria ${stats.obrigPend === 0 ? 'dt-stats-linha--ok' : 'dt-stats-linha--warn'}`}
+                      onClick={() => setModoStats('obrig')}
+                      title="Ver só obrigatórios"
+                    >
+                      {stats.obrigPend === 0
+                        ? <CheckCircle weight="fill" size={12} />
+                        : <Warning weight="fill" size={12} />}
+                      <strong>{obrigPreench}/{stats.obrigTotal}</strong>
+                      <span>obrigatórios</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="dt-stats-linha dt-stats-linha--secundaria"
+                      onClick={() => setModoStats('total')}
+                      title="Ver total"
+                    >
+                      <Circle weight="duotone" size={12} />
+                      <strong>{stats.preench}/{stats.total}</strong>
+                      <span>no total</span>
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          )
+        })()}
         </div>
 
         {/* ── Conteudo: secoes empilhadas ──────────────────────────────── */}

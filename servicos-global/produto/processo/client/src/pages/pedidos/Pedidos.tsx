@@ -59,19 +59,13 @@ const flagEmoji = (iso2: string): string => {
   return String.fromCodePoint(...codes)
 }
 
-// Paleta de cores para segmentos do stacked bar de itens — tons distintos
-// que ficam bem agrupados num retangulo unico, sem competir com a paleta
-// roxa dos cards.
-const ITEM_COLORS = [
-  '#a78bfa', // violet-400
-  '#22d3ee', // cyan-400
-  '#34d399', // emerald-400
-  '#f59e0b', // amber-500
-  '#f87171', // red-400
-  '#818cf8', // indigo-400
-  '#fb7185', // rose-400
-  '#facc15', // yellow-400
-]
+// Cor + label por status_li (indicador visual ao lado de cada item)
+const STATUS_LI_META: Record<string, { label: string; color: string; dim: string }> = {
+  deferida:   { label: 'Deferida',   color: '#34d399', dim: 'rgba(52, 211, 153, 0.18)' },
+  indeferida: { label: 'Indeferida', color: '#f87171', dim: 'rgba(248, 113, 113, 0.18)' },
+  pendente:   { label: 'Pendente',   color: '#f59e0b', dim: 'rgba(245, 158, 11, 0.18)' },
+  dispensada: { label: 'Dispensada', color: '#94a3b8', dim: 'rgba(148, 163, 184, 0.18)' },
+}
 
 // Mini bar chart de 3 colunas — exibe a magnitude de um valor relativo ao
 // maximo entre todos os pedidos. Espelha o estilo das mini-charts do
@@ -327,47 +321,41 @@ export default function Pedidos() {
                     </div>
 
                     {itens.length > 0 && (() => {
-                      // Stacked bar — soma de valor_total dos itens (pode
-                      // divergir do p.valor_fob se houver desconto/frete embutido).
-                      const totalItens = itens.reduce((acc, it) => acc + it.valor_total, 0)
+                      // Opcao B — uma linha por item, cada um com sua propria
+                      // mini-bar horizontal escalada pelo maior valor_total
+                      // dentro deste pedido.
+                      const maxValor = Math.max(...itens.map(it => it.valor_total), 1)
                       return (
-                        <div className="pp-items-bar">
-                          {/* Barra unica segmentada — cada item ocupa % do total */}
-                          <div
-                            className="pp-items-bar-track"
-                            role="img"
-                            aria-label={t('processo.pedidos.distribuicao_itens', 'Distribuição por item')}
-                          >
-                            {itens.map((it, idx) => {
-                              const pct = totalItens > 0 ? (it.valor_total / totalItens) * 100 : 0
-                              const color = ITEM_COLORS[idx % ITEM_COLORS.length]
-                              return (
+                        <ul className="pp-items-list">
+                          {itens.map(it => {
+                            const pct = (it.valor_total / maxValor) * 100
+                            const st = STATUS_LI_META[it.status_li] || STATUS_LI_META.pendente
+                            return (
+                              <li key={it.id} className="pp-item-row">
+                                <span className="pp-item-num">#{it.numero_item}</span>
                                 <span
-                                  key={it.id}
-                                  className="pp-items-bar-segment"
-                                  style={{ width: `${pct}%`, background: color }}
-                                  title={`${it.descricao} — ${fmtMoney(it.valor_total, p.moeda)} (${pct.toFixed(0)}%)`}
-                                />
-                              )
-                            })}
-                          </div>
-
-                          {/* Legenda compacta: cor + descricao + % + valor */}
-                          <ul className="pp-items-legend">
-                            {itens.map((it, idx) => {
-                              const pct = totalItens > 0 ? (it.valor_total / totalItens) * 100 : 0
-                              const color = ITEM_COLORS[idx % ITEM_COLORS.length]
-                              return (
-                                <li key={it.id} className="pp-items-legend-item">
-                                  <span className="pp-items-legend-dot" style={{ background: color }} aria-hidden />
-                                  <span className="pp-items-legend-desc" title={it.descricao}>{it.descricao}</span>
-                                  <span className="pp-items-legend-pct">{pct.toFixed(0)}%</span>
-                                  <span className="pp-items-legend-val">{fmtMoney(it.valor_total, p.moeda)}</span>
-                                </li>
-                              )
-                            })}
-                          </ul>
-                        </div>
+                                  className="pp-item-status"
+                                  style={{ background: st.dim, color: st.color }}
+                                  title={`${t('processo.pedidos.status_li', 'Status LI')}: ${st.label}`}
+                                >
+                                  {st.label}
+                                </span>
+                                <span className="pp-item-desc" title={it.descricao}>{it.descricao}</span>
+                                <div
+                                  className="pp-item-bar"
+                                  role="img"
+                                  aria-label={`${pct.toFixed(0)}%`}
+                                >
+                                  <span className="pp-item-bar-fill" style={{ width: `${pct}%` }} />
+                                </div>
+                                <span className="pp-item-qtd">
+                                  {it.quantidade.toLocaleString('pt-BR')} {it.unidade}
+                                </span>
+                                <span className="pp-item-val">{fmtMoney(it.valor_total, p.moeda)}</span>
+                              </li>
+                            )
+                          })}
+                        </ul>
                       )
                     })()}
 

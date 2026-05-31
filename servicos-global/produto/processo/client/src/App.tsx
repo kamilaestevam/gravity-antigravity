@@ -95,10 +95,13 @@ export function App() {
           <Route path="/" element={<Navigate to="workflow" replace />} />
           <Route element={<ProcessoLayout />}>
             <Route path="workflow" element={<Workflow />} />
-            {/* Pedidos: /pedidos redireciona pra /resumo; ha tambem /lista */}
-            <Route path="pedidos" element={<Navigate to="pedidos/resumo" replace />} />
-            <Route path="pedidos/resumo" element={<PedidosResumo />} />
-            <Route path="pedidos/lista"  element={<PedidosLista />} />
+            {/* Pedidos: rotas aninhadas — /pedidos cai no index (Navigate
+                pra resumo); /pedidos/resumo e /pedidos/lista sao filhos. */}
+            <Route path="pedidos">
+              <Route index element={<Navigate to="resumo" replace />} />
+              <Route path="resumo" element={<PedidosResumo />} />
+              <Route path="lista"  element={<PedidosLista />} />
+            </Route>
             <Route path="dados-tecnicos" element={<DadosTecnicos />} />
             <Route path="email" element={<Email />} />
             <Route path="financeiro" element={<FinanceiroPlaceholder />} />

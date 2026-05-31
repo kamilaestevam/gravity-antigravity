@@ -67,6 +67,20 @@ const STATUS_LI_META: Record<string, { label: string; color: string; dim: string
   dispensada: { label: 'Dispensada', color: '#94a3b8', dim: 'rgba(148, 163, 184, 0.18)' },
 }
 
+// Paleta para identificar cada item visualmente — usada tanto no segmento
+// da stacked bar quanto no mini-bar fill da linha do item, criando conexao
+// visual entre as duas representacoes.
+const ITEM_COLORS = [
+  '#a78bfa', // violet-400
+  '#22d3ee', // cyan-400
+  '#34d399', // emerald-400
+  '#f59e0b', // amber-500
+  '#f87171', // red-400
+  '#818cf8', // indigo-400
+  '#fb7185', // rose-400
+  '#facc15', // yellow-400
+]
+
 // Mini bar chart de 3 colunas — exibe a magnitude de um valor relativo ao
 // maximo entre todos os pedidos. Espelha o estilo das mini-charts do
 // BID Frete (TRANSIT TIME / FREE TIME / ESCALA).
@@ -321,41 +335,70 @@ export default function Pedidos() {
                     </div>
 
                     {itens.length > 0 && (() => {
-                      // Opcao B — uma linha por item, cada um com sua propria
-                      // mini-bar horizontal escalada pelo maior valor_total
-                      // dentro deste pedido.
+                      // Opcao 3 — Hibrido: stacked bar (proporcao por valor)
+                      // em cima + lista de itens com mini-bars escaladas pelo
+                      // maior valor_total embaixo. As cores casam entre as
+                      // duas representacoes (mesmo indice = mesma cor).
+                      const totalItens = itens.reduce((acc, it) => acc + it.valor_total, 0)
                       const maxValor = Math.max(...itens.map(it => it.valor_total), 1)
                       return (
-                        <ul className="pp-items-list">
-                          {itens.map(it => {
-                            const pct = (it.valor_total / maxValor) * 100
-                            const st = STATUS_LI_META[it.status_li] || STATUS_LI_META.pendente
-                            return (
-                              <li key={it.id} className="pp-item-row">
-                                <span className="pp-item-num">#{it.numero_item}</span>
+                        <div className="pp-items">
+                          {/* Stacked bar — visao de 1 segundo da proporcao */}
+                          <div
+                            className="pp-items-bar-track"
+                            role="img"
+                            aria-label={t('processo.pedidos.distribuicao_itens', 'Distribuição por item')}
+                          >
+                            {itens.map((it, idx) => {
+                              const pct = totalItens > 0 ? (it.valor_total / totalItens) * 100 : 0
+                              const color = ITEM_COLORS[idx % ITEM_COLORS.length]
+                              return (
                                 <span
-                                  className="pp-item-status"
-                                  style={{ background: st.dim, color: st.color }}
-                                  title={`${t('processo.pedidos.status_li', 'Status LI')}: ${st.label}`}
-                                >
-                                  {st.label}
-                                </span>
-                                <span className="pp-item-desc" title={it.descricao}>{it.descricao}</span>
-                                <div
-                                  className="pp-item-bar"
-                                  role="img"
-                                  aria-label={`${pct.toFixed(0)}%`}
-                                >
-                                  <span className="pp-item-bar-fill" style={{ width: `${pct}%` }} />
-                                </div>
-                                <span className="pp-item-qtd">
-                                  {it.quantidade.toLocaleString('pt-BR')} {it.unidade}
-                                </span>
-                                <span className="pp-item-val">{fmtMoney(it.valor_total, p.moeda)}</span>
-                              </li>
-                            )
-                          })}
-                        </ul>
+                                  key={it.id}
+                                  className="pp-items-bar-segment"
+                                  style={{ width: `${pct}%`, background: color }}
+                                  title={`${it.descricao} — ${fmtMoney(it.valor_total, p.moeda)} (${pct.toFixed(0)}%)`}
+                                />
+                              )
+                            })}
+                          </div>
+
+                          {/* Lista detalhada — mini-bar com cor casando com o segmento */}
+                          <ul className="pp-items-list">
+                            {itens.map((it, idx) => {
+                              const pct = (it.valor_total / maxValor) * 100
+                              const color = ITEM_COLORS[idx % ITEM_COLORS.length]
+                              const st = STATUS_LI_META[it.status_li] || STATUS_LI_META.pendente
+                              return (
+                                <li key={it.id} className="pp-item-row">
+                                  <span className="pp-item-num">#{it.numero_item}</span>
+                                  <span
+                                    className="pp-item-status"
+                                    style={{ background: st.dim, color: st.color }}
+                                    title={`${t('processo.pedidos.status_li', 'Status LI')}: ${st.label}`}
+                                  >
+                                    {st.label}
+                                  </span>
+                                  <span className="pp-item-desc" title={it.descricao}>{it.descricao}</span>
+                                  <div
+                                    className="pp-item-bar"
+                                    role="img"
+                                    aria-label={`${pct.toFixed(0)}%`}
+                                  >
+                                    <span
+                                      className="pp-item-bar-fill"
+                                      style={{ width: `${pct}%`, background: color }}
+                                    />
+                                  </div>
+                                  <span className="pp-item-qtd">
+                                    {it.quantidade.toLocaleString('pt-BR')} {it.unidade}
+                                  </span>
+                                  <span className="pp-item-val">{fmtMoney(it.valor_total, p.moeda)}</span>
+                                </li>
+                              )
+                            })}
+                          </ul>
+                        </div>
                       )
                     })()}
 

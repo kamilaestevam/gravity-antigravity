@@ -81,7 +81,7 @@ Resumo dos pontos não-negociáveis:
 ### 6. Read-only
 - `readonly?: 'calculado' | 'bloqueado' | 'sistema'` por campo + `motivoTexto` opcional pro tooltip
 - **Mesma cor e tamanho dos editáveis** — diferença é só o ícone à direita + sem hover lift + cursor default
-- Ícone à direita: `Sparkle` ciano (calculado), `Lock` âmbar (bloqueado), `Gear` muted (sistema)
+- Ícone **logo após o label** (mesmo lugar do `*` obrigatório): `Sparkle` ciano (calculado), `Lock` âmbar (bloqueado), `Gear` muted (sistema)
 - **TooltipGlobal envolve SOMENTE o ícone** (anchor pequeno = posição correta, padrão do sistema)
 - **NÃO usar readonly pra permissão de usuário** — permissão é do user, não do campo
 

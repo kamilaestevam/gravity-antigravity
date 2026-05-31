@@ -651,9 +651,9 @@
 .dt-row-readonly-icon {
   display: inline-flex;
   align-items: center;
-  margin-left: auto;
   flex-shrink: 0;
   cursor: help;  /* sinaliza que o icone tem informacao */
+  /* Fica logo apos o label (mesmo lugar do asterisco de obrigatorio). */
 }
 
 /* Cores por motivo de readonly */

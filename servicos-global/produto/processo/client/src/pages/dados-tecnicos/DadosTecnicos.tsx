@@ -266,18 +266,18 @@ function CampoLinha({ campo, valor, onSalvar }: CampoLinhaProps) {
         <div className="dt-row-head">
           {campo.icone && <span className="dt-row-icon">{campo.icone}</span>}
           <span className="dt-row-label">{campo.label}</span>
+          {/* Icone do motivo logo apos o label (mesmo lugar do asterisco
+              de obrigatorio). TooltipGlobal ancorado SOMENTE no icone
+              — anchor pequeno = posicao correta. */}
+          <TooltipGlobal titulo={campo.label} descricao={tooltipDescricao}>
+            <span className="dt-row-readonly-icon" aria-hidden="true">{cfg.icone}</span>
+          </TooltipGlobal>
         </div>
         <div className="dt-row-value dt-row-value--readonly">
           {vazio
             ? <span className="dt-row-empty">—</span>
             : <span className="dt-row-text">{valorDisplay}</span>
           }
-          {/* Tooltip ancorado SOMENTE no icone — posicao consistente
-              com o resto do sistema (TooltipGlobal posiciona embaixo
-              do span pequeno em vez de em cima da row inteira). */}
-          <TooltipGlobal titulo={campo.label} descricao={tooltipDescricao}>
-            <span className="dt-row-readonly-icon" aria-hidden="true">{cfg.icone}</span>
-          </TooltipGlobal>
         </div>
       </div>
     )

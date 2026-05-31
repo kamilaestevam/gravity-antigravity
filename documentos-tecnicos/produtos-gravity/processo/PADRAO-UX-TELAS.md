@@ -215,7 +215,7 @@ interface CampoConfig {
 2. **Sem hover lift**: `transform: none`, sem borda roxa, sem shadow
 3. **Cursor default** no card todo (não `text` de campo editável)
 4. **`cursor: help`** no ícone — sinaliza que ali tem informação
-5. **Ícone do motivo à direita** do valor (substitui o `PencilSimple` que aparece no hover dos editáveis), colorido por tipo
+5. **Ícone do motivo logo após o label** (mesmo lugar onde fica o asterisco `*` de obrigatório), colorido por tipo. Fica próximo ao nome do campo, fácil de associar visualmente.
 6. **TooltipGlobal ancorado SOMENTE no ícone** (não no card todo) — anchor pequeno = posicionamento correto, mesmo padrão de tooltip do resto do sistema
 
 ### CSS canônico
@@ -238,8 +238,8 @@ interface CampoConfig {
 }
 
 .dt-row-readonly-icon {
-  margin-left: auto;
   cursor: help;
+  /* Fica no .dt-row-head, logo apos o label — mesmo lugar do asterisco. */
 }
 
 .dt-row--readonly-calculado .dt-row-readonly-icon { color: #22d3ee; }

@@ -731,13 +731,16 @@
   width: 100%;
   padding: 0.375rem 0.5rem;
   background: rgba(15, 23, 42, 0.6);
-  border: 1px solid #a78bfa;
+  /* Mesmo padrao do sistema (modal Convidar Usuario, SelectGlobal):
+     borda indigo --ws-accent (#818cf8) + glow suave. */
+  border: 1px solid var(--ws-accent, #818cf8);
   border-radius: 6px;
   color: var(--ws-text, #f1f5f9);
   font-size: 0.875rem;
   font-weight: 500;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+  transition: border-color .18s ease, box-shadow .18s ease;
 }
 
 .dt-row-edit input::placeholder {

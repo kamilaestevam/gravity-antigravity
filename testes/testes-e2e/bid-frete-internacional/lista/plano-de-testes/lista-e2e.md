@@ -1,6 +1,6 @@
 # Plano de Testes E2E — BID Frete Internacional / Lista
 
-**Escopo:** `BIDFRT` — tela `/bid-frete/cotacoes?visao=lista`  
+**Escopo:** `BIDFRT` — tela `/bid-frete/lista`  
 **Status:** aguardando aprovação do dono (spec scaffold com `describe.skip`)  
 **Data:** 26/05/2026
 
@@ -32,7 +32,7 @@
 
 ### LST-E01 — Colunas legíveis na tabela
 
-1. Acessar `/bid-frete/cotacoes?visao=lista`
+1. Acessar `/bid-frete/lista`
 2. Verificar que coluna **ID** não aparece
 3. Verificar **Organização** exibe nome (não CUID)
 4. Verificar **Workspace** exibe nome ou `—`

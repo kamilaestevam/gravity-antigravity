@@ -1,20 +1,26 @@
 /**
  * Seção de taxas (origem ou destino) — uma linha por taxa, moeda própria, catálogo + manual.
  */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Plus, Trash } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import { cadastrosApi, type TaxaOrigemDestinoCadastro } from './cadastrosApi'
 import {
   filtrarTaxasCatalogoNaoLegado,
   criarLinhaTaxaManual,
-  criarLinhasIniciaisDoCatalogo,
-  MOEDAS_LINHA_TAXA,
+  linhaUsaInputManualTaxa,
+  opcoesSelectTaxasPorSecao,
+  patchLinhaAoSelecionarTaxaCatalogo,
+  taxasCatalogoPorSecao,
   agruparValoresPorMoedaLinhas,
   type LinhaTaxaPropostaBidFreteInternacional,
   type SecaoTaxaLinhaProposta,
 } from './taxas-linha-proposta-bid-frete-internacional'
 import { ResumoMoedasTotalBidFreteInternacional } from './resumo-moedas-total-bid-frete-internacional'
+import { CampoValorMonetarioResposta } from './campo-valor-monetario-resposta-bid-frete-internacional'
+import { useOpcoesMoedaCadastrosBidFreteInternacional } from './use-opcoes-moeda-cadastros-bid-frete-internacional'
 
 export interface SecaoTaxasLinhaPropostaBidFreteInternacionalProps {
   secao: SecaoTaxaLinhaProposta
@@ -30,8 +36,6 @@ export interface SecaoTaxasLinhaPropostaBidFreteInternacionalProps {
   linhas: LinhaTaxaPropostaBidFreteInternacional[]
   onChange: (linhas: LinhaTaxaPropostaBidFreteInternacional[]) => void
   moedaPadrao: string
-  inicializado: boolean
-  onInicializado: () => void
 }
 
 export function SecaoTaxasLinhaPropostaBidFreteInternacional({
@@ -48,43 +52,65 @@ export function SecaoTaxasLinhaPropostaBidFreteInternacional({
   linhas,
   onChange,
   moedaPadrao,
-  inicializado,
-  onInicializado,
 }: SecaoTaxasLinhaPropostaBidFreteInternacionalProps) {
+  const { t } = useTranslation()
+  const {
+    opcoes: opcoesMoeda,
+    loading: carregandoMoedas,
+    erro: erroMoedas,
+    indisponivel: moedasIndisponiveis,
+  } = useOpcoesMoedaCadastrosBidFreteInternacional()
+
+  const placeholderMoeda = erroMoedas
+    ? t('bidfrete.portal.responder.moeda_erro', {
+      erro: erroMoedas,
+      defaultValue: 'Erro ao carregar moedas: {{erro}}',
+    })
+    : (!carregandoMoedas && opcoesMoeda.length === 0)
+      ? t('bidfrete.portal.responder.moeda_sem_cadastro', {
+        defaultValue: 'Nenhuma moeda cadastrada',
+      })
+      : t('bidfrete.portal.responder.moeda_selecionar', {
+        defaultValue: 'Selecionar moeda',
+      })
+
   const [catalogo, setCatalogo] = useState<TaxaOrigemDestinoCadastro[]>([])
-  const [carregandoCatalogo, setCarregandoCatalogo] = useState(true)
+  const [carregandoCatalogo, setCarregandoCatalogo] = useState(false)
+  const [erroCatalogo, setErroCatalogo] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelado = false
-    setCarregandoCatalogo(true)
-    cadastrosApi
-      .listarTaxasOrigemDestino({ limit: 500 })
-      .then((resp) => {
-        if (!cancelado) setCatalogo(filtrarTaxasCatalogoNaoLegado(resp.itens))
-      })
-      .catch(() => {
-        if (!cancelado) setCatalogo([])
-      })
-      .finally(() => {
+
+    async function carregar(tentativa: number) {
+      setCarregandoCatalogo(true)
+      if (tentativa === 0) setErroCatalogo(null)
+      try {
+        const resp = await cadastrosApi.listarTaxasOrigemDestino({ limit: 500 })
+        if (!cancelado) {
+          setCatalogo(filtrarTaxasCatalogoNaoLegado(resp.itens))
+          setErroCatalogo(null)
+        }
+      } catch (err: unknown) {
+        if (cancelado) return
+        if (tentativa < 1) {
+          await new Promise((resolve) => setTimeout(resolve, 1200))
+          if (!cancelado) await carregar(tentativa + 1)
+          return
+        }
+        setCatalogo([])
+        setErroCatalogo(
+          err instanceof Error ? err.message : 'Catálogo de taxas temporariamente indisponível',
+        )
+      } finally {
         if (!cancelado) setCarregandoCatalogo(false)
-      })
+      }
+    }
+
+    void carregar(0)
     return () => {
       cancelado = true
     }
-  }, [])
-
-  useEffect(() => {
-    if (inicializado || carregandoCatalogo) return
-    if (linhas.length > 0) {
-      onInicializado()
-      return
-    }
-    const iniciais = criarLinhasIniciaisDoCatalogo(catalogo, secao, moedaPadrao)
-    if (iniciais.length > 0) {
-      onChange(iniciais)
-    }
-    onInicializado()
-  }, [inicializado, carregandoCatalogo, catalogo, secao, moedaPadrao, linhas.length, onChange, onInicializado])
+  }, [secao])
 
   function atualizarLinha(
     id: string,
@@ -107,15 +133,23 @@ export function SecaoTaxasLinhaPropostaBidFreteInternacional({
 
   const totaisPorMoeda = agruparValoresPorMoedaLinhas(linhas, moedaPadrao)
 
+  const catalogoSecao = useMemo(
+    () => taxasCatalogoPorSecao(catalogo, secao),
+    [catalogo, secao],
+  )
+  const catalogoDisponivel = !erroCatalogo && catalogoSecao.length > 0
+
   return (
     <div className="brc-taxas-secao">
       <h3 className="brc-taxas-secao-titulo">{titulo}</h3>
 
-      {carregandoCatalogo && linhas.length === 0 ? (
-        <p className="brc-taxas-aviso" role="status">Carregando taxas do cadastro…</p>
+      {erroCatalogo && linhas.length > 0 ? (
+        <p className="brc-taxas-aviso brc-taxas-aviso--erro" role="alert">
+          Não foi possível carregar as taxas do cadastro. Você pode digitar o nome da taxa manualmente.
+        </p>
       ) : null}
 
-      {!carregandoCatalogo && linhas.length === 0 && catalogo.length === 0 ? (
+      {!carregandoCatalogo && !erroCatalogo && linhas.length === 0 && catalogoSecao.length === 0 ? (
         <p className="brc-taxas-aviso" role="status">
           Nenhuma taxa do cadastro disponível. Use &quot;Adicionar taxa manual&quot; abaixo.
         </p>
@@ -129,7 +163,7 @@ export function SecaoTaxasLinhaPropostaBidFreteInternacional({
           >
             <div className="brc-taxas-linha-nome">
               <label className="brc-label">{rotuloNome}</label>
-              {linha.manual ? (
+              {linhaUsaInputManualTaxa(linha, catalogoDisponivel) ? (
                 <input
                   className="brc-input"
                   type="text"
@@ -142,43 +176,46 @@ export function SecaoTaxasLinhaPropostaBidFreteInternacional({
                   }
                 />
               ) : (
-                <input
-                  className="brc-input brc-input--readonly"
-                  type="text"
-                  readOnly
-                  value={linha.nome_taxa_bid_frete_internacional}
-                  title={linha.nome_taxa_bid_frete_internacional}
+                <SelectGlobal
+                  opcoes={opcoesSelectTaxasPorSecao(catalogo, secao, linha)}
+                  valor={linha.id_taxa_origem_destino}
+                  aoMudarValor={(v) =>
+                    atualizarLinha(
+                      linha.id_linha_taxa_proposta_bid_frete_internacional,
+                      patchLinhaAoSelecionarTaxaCatalogo(catalogo, v == null ? null : String(v)),
+                    )
+                  }
+                  buscavel
+                  placeholder="Selecione a taxa..."
+                  posicao="baixo"
+                  carregando={carregandoCatalogo}
                 />
               )}
             </div>
             <div className="brc-taxas-linha-moeda">
               <label className="brc-label">{rotuloMoeda}</label>
-              <select
-                className="brc-input"
-                value={linha.moeda_taxa_bid_frete_internacional}
-                onChange={(e) =>
+              <SelectGlobal
+                opcoes={opcoesMoeda}
+                valor={linha.moeda_taxa_bid_frete_internacional || null}
+                aoMudarValor={(v) =>
                   atualizarLinha(linha.id_linha_taxa_proposta_bid_frete_internacional, {
-                    moeda_taxa_bid_frete_internacional: e.target.value,
+                    moeda_taxa_bid_frete_internacional: v == null ? '' : String(v),
                   })
                 }
-              >
-                {MOEDAS_LINHA_TAXA.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
+                buscavel
+                placeholder={placeholderMoeda}
+                carregando={carregandoMoedas}
+                desabilitado={moedasIndisponiveis}
+                posicao="auto"
+              />
             </div>
             <div className="brc-taxas-linha-valor">
               <label className="brc-label">{rotuloValor}</label>
-              <input
-                className="brc-input"
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                value={linha.valor_taxa_bid_frete_internacional}
-                onChange={(e) =>
+              <CampoValorMonetarioResposta
+                valor={linha.valor_taxa_bid_frete_internacional}
+                onChange={(v) =>
                   atualizarLinha(linha.id_linha_taxa_proposta_bid_frete_internacional, {
-                    valor_taxa_bid_frete_internacional: e.target.value,
+                    valor_taxa_bid_frete_internacional: v,
                   })
                 }
               />

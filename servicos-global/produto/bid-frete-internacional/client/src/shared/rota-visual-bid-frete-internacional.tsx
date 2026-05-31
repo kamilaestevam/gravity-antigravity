@@ -5,6 +5,7 @@
 import React, { useMemo, useState } from 'react'
 import { MapPin, MapPinLine } from '@phosphor-icons/react'
 import type { ModalFrete } from './types'
+import { normalizarTextoPontoRota } from './formatacao-local-logistico-bid-frete-internacional.js'
 import './rota-visual-bid-frete-internacional.css'
 
 export function resolverIsoAlpha2Pais(pais: string, codigoLocal?: string | null): string {
@@ -132,7 +133,11 @@ function TrilhaRotaModal({ modal }: { modal: ModalFrete }) {
 
   return (
     <div className="dc-rota-trilha" aria-hidden>
-      <svg className="dc-rota-trilha-svg" viewBox="0 0 140 36" preserveAspectRatio="none">
+      <svg
+        className="dc-rota-trilha-svg"
+        viewBox="0 0 140 36"
+        preserveAspectRatio="xMidYMid meet"
+      >
         <path
           id={pathId}
           d={TRILHA_PATH}
@@ -179,28 +184,7 @@ function TrilhaRotaModal({ modal }: { modal: ModalFrete }) {
   )
 }
 
-/** Evita "Buenos Aires (ARBUE)" + linha "ARBUE" — sigla aparece só uma vez. */
-export function normalizarTextoPontoRota(
-  nome: string,
-  codigo: string,
-): { titulo: string; sigla: string | null } {
-  const sigla = codigo.trim()
-  let titulo = nome.trim()
-
-  if (!sigla) {
-    return { titulo: titulo || '—', sigla: null }
-  }
-
-  const siglaEscapada = sigla.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const padraoSufixoEntreParenteses = new RegExp(`\\s*\\(\\s*${siglaEscapada}\\s*\\)\\s*$`, 'i')
-  titulo = titulo.replace(padraoSufixoEntreParenteses, '').trim()
-
-  if (!titulo || titulo.toUpperCase() === sigla.toUpperCase()) {
-    return { titulo: sigla, sigla: null }
-  }
-
-  return { titulo, sigla }
-}
+export { normalizarTextoPontoRota } from './formatacao-local-logistico-bid-frete-internacional.js'
 
 function PontoRotaCard({
   tipo,

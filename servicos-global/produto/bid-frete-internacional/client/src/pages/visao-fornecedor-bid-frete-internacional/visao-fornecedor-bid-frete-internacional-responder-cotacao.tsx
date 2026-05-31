@@ -30,6 +30,7 @@ import {
   CabecalhoFormularioRespostaCotacao,
   estadoFormularioFromProposta,
   criarRotulosFormularioResposta,
+  camposLogisticaRespostaCotacaoValidos,
   type DetalhesCotacaoResposta,
   type EstadoFormularioRespostaCotacao,
 } from '../../shared/formulario-resposta-cotacao-bid-frete-internacional'
@@ -48,8 +49,6 @@ export default function ResponderCotacao() {
   const [modoEdicao, setModoEdicao] = useState(false)
   const [erro, setErro] = useState('')
   const [form, setForm] = useState<EstadoFormularioRespostaCotacao>(ESTADO_INICIAL_FORMULARIO_RESPOSTA)
-  const [taxasOrigemInicializado, setTaxasOrigemInicializado] = useState(false)
-  const [taxasDestinoInicializado, setTaxasDestinoInicializado] = useState(false)
 
   const rotulos = useMemo(
     () => criarRotulosFormularioResposta(t, 'bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao'),
@@ -65,15 +64,10 @@ export default function ResponderCotacao() {
         setBid(found)
         if (found.proposta) {
           setModoEdicao(true)
-          const formEdicao = estadoFormularioFromProposta(found.proposta)
-          setForm(formEdicao)
-          setTaxasOrigemInicializado(formEdicao.linhas_taxa_origem.length > 0)
-          setTaxasDestinoInicializado(formEdicao.linhas_taxa_destino.length > 0)
+          setForm(estadoFormularioFromProposta(found.proposta))
         } else {
           setModoEdicao(false)
           setForm(ESTADO_INICIAL_FORMULARIO_RESPOSTA)
-          setTaxasOrigemInicializado(false)
-          setTaxasDestinoInicializado(false)
         }
       }
     } catch {
@@ -119,9 +113,11 @@ export default function ResponderCotacao() {
     if (!idDisparo) return
 
     if (
-      !form.valor_frete_proposta_bid_frete_internacional
+      !form.moeda_proposta_bid_frete_internacional
+      || !form.valor_frete_proposta_bid_frete_internacional
       || !form.dias_transito_proposta_bid_frete_internacional
       || !form.validade_proposta_bid_frete_internacional
+      || !camposLogisticaRespostaCotacaoValidos(form, cotacao?.modal_cotacao_bid_frete_internacional)
     ) {
       setErro(t('bidfrete.visao_fornecedor_bid_frete_internacional_publico.campos_obrigatorios'))
       return
@@ -130,7 +126,10 @@ export default function ResponderCotacao() {
     setEnviando(true)
     setErro('')
     try {
-      const payload = montarPayloadPropostaRespostaBidFreteInternacional(form)
+      const payload = montarPayloadPropostaRespostaBidFreteInternacional(
+        form,
+        cotacao?.modal_cotacao_bid_frete_internacional,
+      )
       await enviarVisaoFornecedorBidFreteInternacionalProposta(idDisparo, payload)
       setSucesso(true)
     } catch (err) {
@@ -209,13 +208,10 @@ export default function ResponderCotacao() {
               />
               <FormPropostaRespostaCotacao
                 form={form}
+                modalCotacao={cotacao?.modal_cotacao_bid_frete_internacional}
                 onChange={handleChange}
                 onLinhasOrigemChange={(linhas) => setForm((prev) => ({ ...prev, linhas_taxa_origem: linhas }))}
                 onLinhasDestinoChange={(linhas) => setForm((prev) => ({ ...prev, linhas_taxa_destino: linhas }))}
-                taxasOrigemInicializado={taxasOrigemInicializado}
-                taxasDestinoInicializado={taxasDestinoInicializado}
-                onTaxasOrigemInicializado={() => setTaxasOrigemInicializado(true)}
-                onTaxasDestinoInicializado={() => setTaxasDestinoInicializado(true)}
                 onSubmit={handleSubmit}
                 tituloSecao={rotulos.proposta}
                 rotulos={rotulos}

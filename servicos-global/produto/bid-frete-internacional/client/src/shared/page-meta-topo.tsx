@@ -27,6 +27,8 @@ export interface PageMetaTopo {
 const ROUTE_LABELS: Record<string, string> = {
   'visao-geral':          'Visão Geral',
   'dashboard':            'Dashboard',
+  'lista':                'Lista',
+  'kanban':               'Kanban',
   'cotacoes':             'Cotações',
   'cotacoes/nova':        'Nova Cotação',
   'cotacoes/importar':    'Importar Cotações',
@@ -42,6 +44,8 @@ const ROUTE_LABELS: Record<string, string> = {
 const ROUTE_HEADERS: Record<string, Omit<PageMetaTopo, 'label'>> = {
   'visao-geral':          { icone: <Compass         weight="duotone" size={22} />, subtitulo: 'Resumo das cotações de frete internacional' },
   'dashboard':            { icone: <ChartBar        weight="duotone" size={22} />, subtitulo: 'KPIs e widgets configuráveis' },
+  'lista':                { icone: <ListBullets     weight="duotone" size={22} />, subtitulo: 'Todas as cotações de frete em tabela' },
+  'kanban':               { icone: <Kanban          weight="duotone" size={22} />, subtitulo: 'Cotações organizadas por status' },
   'cotacoes':             { icone: <FileText        weight="duotone" size={22} />, subtitulo: 'Cotações de frete internacional' },
   'cotacoes/nova':        { icone: <Truck           weight="duotone" size={22} />, subtitulo: 'Preencha as informações para buscar as melhores opções de frete' },
   'cotacoes/importar':    { icone: <Upload          weight="duotone" size={22} />, subtitulo: 'Importar cotações em massa via planilha' },
@@ -104,6 +108,8 @@ export function resolverPageMetaTopo(pathname: string, search: string): PageMeta
   const routeKey = resolveRouteKey(pathname)
   const visao = new URLSearchParams(search).get('visao')
 
+  if (routeKey === 'kanban') return KANBAN_META
+  if (routeKey === 'lista') return LISTA_META
   if (routeKey === 'cotacoes' && visao === 'kanban') return KANBAN_META
   if (routeKey === 'cotacoes' && (visao === 'lista' || !visao)) return LISTA_META
 

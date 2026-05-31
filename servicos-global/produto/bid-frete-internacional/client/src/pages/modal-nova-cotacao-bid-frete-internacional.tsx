@@ -29,7 +29,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
 
-import { criarCotacao, getFornecedores } from '../shared/api'
+import { formatarRotuloLocalLogistico } from '../shared/formatacao-local-logistico-bid-frete-internacional'
 import { rotuloContainerCadastro } from '../shared/cadastrosApi'
 import {
   formatarLinhasContainersParaExibicao,
@@ -1609,7 +1609,7 @@ const NC_ESTILOS_CONTEUDO = `
         }
 `
 
-const ROTA_LISTA = '/bid-frete/cotacoes'
+const ROTA_LISTA = '/bid-frete/lista'
 
 /** Padrão Pedido (ModalPedidosConsolidar) — banner de resultado no wizard */
 const ESTILOS_RESULTADO = {
@@ -1737,7 +1737,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const rotuloPorto = useCallback(
     (codigo: string, portos: typeof portosOrigem) => {
       const porto = portos.find((p) => p.codigo_unlocode_porto === codigo)
-      return porto ? `${porto.nome_porto} (${codigo})` : codigo
+      return porto ? formatarRotuloLocalLogistico(porto.nome_porto, codigo) : codigo
     },
     [],
   )
@@ -1745,7 +1745,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const rotuloAeroporto = useCallback(
     (iata: string, aeroportos: typeof aeroportosOrigem) => {
       const aeroporto = aeroportos.find((a) => a.codigo_iata_aeroporto === iata)
-      return aeroporto ? `${aeroporto.nome_aeroporto} (${iata})` : iata
+      return aeroporto ? formatarRotuloLocalLogistico(aeroporto.nome_aeroporto, iata) : iata
     },
     [],
   )

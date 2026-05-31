@@ -16,7 +16,7 @@ import {
   ChartLineUp,
   Lightning,
   PaperPlaneTilt,
-  Robot,
+  XCircle,
   Info,
 } from '@phosphor-icons/react'
 import type { StatusCotacao } from './types'
@@ -41,7 +41,6 @@ import type {
 } from './infograficos-fluxo-cotacao-bid-frete-internacional'
 import type { TFunction } from 'i18next'
 import {
-  AnelProgressoInsight,
   GraficoAreaTermometro,
   SPARK_SLOT_MELHOR_PROPOSTA_PX,
   SPARK_VIEW_MELHOR_PROPOSTA,
@@ -263,6 +262,7 @@ const ESTILO_COLUNA_METRICA_MELHOR: CSSProperties = {
   gridTemplateColumns: '1fr',
   gap: 4,
   minHeight: 0,
+  minWidth: 0,
   height: '100%',
   alignSelf: 'stretch',
 }
@@ -270,12 +270,13 @@ const ESTILO_COLUNA_METRICA_MELHOR: CSSProperties = {
 const ESTILO_SPARK_SLOT_MELHOR: CSSProperties = {
   height: '100%',
   minHeight: SPARK_SLOT_MELHOR_PROPOSTA_PX,
-  maxHeight: 'none',
   margin: 0,
   padding: 0,
-  display: 'block',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
   lineHeight: 0,
-  overflow: 'visible',
+  overflow: 'hidden',
 }
 
 const ESTILO_METRICAS_ROW_MELHOR: CSSProperties = {
@@ -284,7 +285,7 @@ const ESTILO_METRICAS_ROW_MELHOR: CSSProperties = {
   alignItems: 'stretch',
   gap: '0.5rem',
   flex: '1 1 auto',
-  height: '100%',
+  width: '100%',
   minHeight: 0,
 }
 
@@ -345,6 +346,7 @@ function CelulaMetricaComparativo({
           textoVsGanhador={textoVsGanhador}
           dimensoesView={SPARK_VIEW_MELHOR_PROPOSTA}
           ancoraBarras="base"
+          preencherSlot
         />
       </div>
     </div>
@@ -620,6 +622,30 @@ function CardRankingRespostasInsights({
   )
 }
 
+function CardKpiCompeticao({
+  rotulo,
+  valor,
+  icone,
+  variante,
+}: {
+  rotulo: string
+  valor: number
+  icone: React.ReactNode
+  variante: 'disparos' | 'respostas' | 'recusas'
+}) {
+  return (
+    <article className={`dc-smart-kpi-card dc-smart-kpi-card--${variante}`}>
+      <div className="dc-smart-kpi-card-topo">
+        <span className="dc-smart-kpi-card-icon" aria-hidden>
+          {icone}
+        </span>
+        <span className="dc-smart-kpi-card-lbl">{rotulo}</span>
+      </div>
+      <span className="dc-smart-kpi-card-val">{valor}</span>
+    </article>
+  )
+}
+
 function ColunaMetricasCompeticaoInsights({
   info,
   smart,
@@ -637,42 +663,24 @@ function ColunaMetricasCompeticaoInsights({
       role="group"
       aria-label={t('bidfrete.detalhe_cotacao.cockpit_metricas_competicao', 'Métricas da competição')}
     >
-      <article className="dc-smart-mini-card">
-        <span className="dc-smart-mini-card-lbl">
-          {t('bidfrete.detalhe_cotacao.cockpit_disparos', 'Disparos')}
-        </span>
-        <span className="dc-smart-mini-card-val">{info.quantidadeDisparosEnviados}</span>
-      </article>
-      <article className="dc-smart-mini-card">
-        <span className="dc-smart-mini-card-lbl">
-          {t('bidfrete.detalhe_cotacao.cockpit_respostas', 'Respostas')}
-        </span>
-        <span className="dc-smart-mini-card-val">{propostas.length}</span>
-      </article>
-      <article className="dc-smart-mini-card">
-        <span className="dc-smart-mini-card-lbl">
-          {t('bidfrete.detalhe_cotacao.cockpit_recusas', 'Recusas')}
-        </span>
-        <span className="dc-smart-mini-card-val">{smart.quantidadeRecusasSemResposta}</span>
-      </article>
-      <article className="dc-smart-mini-card dc-smart-mini-card--ia">
-        <span className="dc-smart-mini-card-lbl">
-          {t('bidfrete.detalhe_cotacao.cockpit_ia_trust', 'AI Trust')}
-        </span>
-        <div className="dc-smart-mini-card-ia-corpo">
-          <div className="dc-smart-ia-confianca">
-            <span className="dc-smart-ia-pct-grande">{smart.pctConfiabilidadeIa}%</span>
-            <span className="dc-smart-ia-pct-legenda">
-              {t('bidfrete.detalhe_cotacao.cockpit_confiabilidade', 'Confiabilidade')}
-            </span>
-            <div className="dc-smart-ia-bar" aria-hidden>
-              <div className="dc-smart-ia-bar-fill" style={{ width: `${smart.pctConfiabilidadeIa}%` }} />
-            </div>
-          </div>
-          <Robot weight="duotone" size={22} className="dc-smart-ia-mascote" aria-hidden />
-          <AnelProgressoInsight pct={smart.pctCoberturaRespostas} variante="ambar" />
-        </div>
-      </article>
+      <CardKpiCompeticao
+        rotulo={t('bidfrete.detalhe_cotacao.cockpit_disparos', 'Disparos')}
+        valor={info.quantidadeDisparosEnviados}
+        icone={<PaperPlaneTilt weight="duotone" size={18} />}
+        variante="disparos"
+      />
+      <CardKpiCompeticao
+        rotulo={t('bidfrete.detalhe_cotacao.cockpit_respostas', 'Respostas')}
+        valor={propostas.length}
+        icone={<CheckCircle weight="duotone" size={18} />}
+        variante="respostas"
+      />
+      <CardKpiCompeticao
+        rotulo={t('bidfrete.detalhe_cotacao.cockpit_recusas', 'Recusas')}
+        valor={smart.quantidadeRecusasSemResposta}
+        icone={<XCircle weight="duotone" size={18} />}
+        variante="recusas"
+      />
     </div>
   )
 }

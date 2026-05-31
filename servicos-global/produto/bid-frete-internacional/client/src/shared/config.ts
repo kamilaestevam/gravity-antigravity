@@ -64,8 +64,8 @@ export const PRODUCT_CONFIG = {
     { id: 'section-bid-frete',                          label: 'BID Frete Internacional', sectionDivider: true },
     { id: '/bid-frete/visao-geral',             label: 'Visão Geral',    icon: 'chart-pie-slice', source: 'product' },
     { id: '/bid-frete/dashboard',               label: 'Dashboard',      icon: 'chart-bar',       source: 'product' },
-    { id: '/bid-frete/cotacoes?visao=lista',    label: 'Lista',          icon: 'list-bullets',    source: 'product' },
-    { id: '/bid-frete/cotacoes?visao=kanban',   label: 'Kanban',         icon: 'kanban',          source: 'product' },
+    { id: '/bid-frete/lista',                   label: 'Lista',          icon: 'list-bullets',    source: 'product' },
+    { id: '/bid-frete/kanban',                  label: 'Kanban',         icon: 'kanban',          source: 'product' },
     { id: '/bid-frete/fornecedores',            label: 'Fornecedores',   icon: 'buildings',       source: 'product' },
 
     // ── Serviços ──────────────────────────────────────────────────────────────

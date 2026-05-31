@@ -4,13 +4,18 @@
   display: flex;
   align-items: stretch;
   justify-content: space-between;
-  gap: 0.5rem;
-  padding: 16px;
+  gap: clamp(0.35rem, 2cqi, 0.5rem);
+  padding: clamp(0.75rem, 3cqi, 1rem);
   margin-top: 24px;
   border-radius: 10px;
   background: rgba(15, 23, 42, 0.55);
   border: 1px solid rgba(56, 189, 248, 0.2);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  container-type: inline-size;
+  overflow: hidden;
 }
 
 @media (max-width: 560px) {
@@ -46,6 +51,8 @@
   border-radius: 10px;
   background: rgba(30, 41, 59, 0.55);
   border: 1px solid rgba(148, 163, 184, 0.1);
+  container-type: inline-size;
+  overflow: hidden;
 }
 
 .dc-rota-ponto-bandeira {
@@ -69,21 +76,38 @@
 .dc-rota-ponto-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  align-self: flex-start;
-  max-width: calc(100% - 2.25rem);
-  padding: 0.2rem 0.55rem 0.2rem 0.35rem;
+  justify-content: center;
+  gap: 0.35em;
+  align-self: center;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: 100%;
+  min-height: 1.75em;
+  padding: 0.4em 0.7em 0.4em 0.45em;
   border-radius: 999px;
-  font-size: 0.625rem;
+  font-size: clamp(0.5625rem, 2.8cqi, 0.625rem);
   font-weight: 800;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.04em;
+  line-height: 1;
   text-transform: uppercase;
+  overflow: visible;
+  transform: translateX(calc((2.5rem - 0.75rem) / 2));
 }
 
-.dc-rota-ponto-badge--origem,
-.dc-rota-ponto-badge--destino {
-  align-self: center;
-  transform: translateX(calc((2.5rem - 0.75rem) / 2));
+@container (max-width: 9.5rem) {
+  .dc-rota-ponto-badge {
+    font-size: 0.5625rem;
+    letter-spacing: 0.03em;
+    padding-inline: 0.55em;
+  }
+}
+
+.dc-rota-ponto-badge-label {
+  display: block;
+  flex-shrink: 0;
+  line-height: 1;
+  padding-block: 0.05em;
+  white-space: nowrap;
 }
 
 .dc-rota-ponto-badge--origem {
@@ -103,8 +127,10 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 1.375rem;
-  height: 1.375rem;
+  width: 1.75em;
+  height: 1.75em;
+  min-width: 1.75em;
+  min-height: 1.75em;
   border-radius: 5px;
   overflow: hidden;
   line-height: 0;
@@ -123,8 +149,8 @@
 
 .dc-rota-ponto-badge-icon svg {
   display: block;
-  width: 14px;
-  height: 14px;
+  width: 1.05em;
+  height: 1.05em;
   flex-shrink: 0;
 }
 
@@ -189,21 +215,37 @@
 
 .dc-rota-trilha {
   position: relative;
-  flex: 0 1 120px;
+  flex: 0 0 auto;
   align-self: center;
-  min-width: 88px;
-  max-width: 140px;
+  width: clamp(4.75rem, 22%, 7.25rem);
+  min-width: 4.75rem;
+  max-width: 7.25rem;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+@container (max-width: 16rem) {
+  .dc-rota-trilha {
+    width: 4.5rem;
+    min-width: 4.5rem;
+    max-width: 4.5rem;
+  }
+
+  .dc-rota-ponto {
+    padding-inline-end: 1.5rem;
+  }
 }
 
 .dc-rota-trilha-svg {
   width: 100%;
-  height: 36px;
+  height: 100%;
+  max-height: 36px;
   display: block;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .dc-rota-ponto-text {

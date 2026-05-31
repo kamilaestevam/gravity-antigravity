@@ -64,6 +64,11 @@ export type Porto = $Result.DefaultSelection<Prisma.$PortoPayload>
  */
 export type Aeroporto = $Result.DefaultSelection<Prisma.$AeroportoPayload>
 /**
+ * Model TaxaOrigemDestino
+ * 
+ */
+export type TaxaOrigemDestino = $Result.DefaultSelection<Prisma.$TaxaOrigemDestinoPayload>
+/**
  * Model Container
  * 
  */
@@ -388,6 +393,16 @@ export class PrismaClient<
     * ```
     */
   get aeroporto(): Prisma.AeroportoDelegate<ExtArgs>;
+
+  /**
+   * `prisma.taxaOrigemDestino`: Exposes CRUD operations for the **TaxaOrigemDestino** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TaxaOrigemDestinos
+    * const taxaOrigemDestinos = await prisma.taxaOrigemDestino.findMany()
+    * ```
+    */
+  get taxaOrigemDestino(): Prisma.TaxaOrigemDestinoDelegate<ExtArgs>;
 
   /**
    * `prisma.container`: Exposes CRUD operations for the **Container** model.
@@ -898,6 +913,7 @@ export namespace Prisma {
     Incoterm: 'Incoterm',
     Porto: 'Porto',
     Aeroporto: 'Aeroporto',
+    TaxaOrigemDestino: 'TaxaOrigemDestino',
     Container: 'Container',
     NcmSync: 'NcmSync',
     NcmSyncLog: 'NcmSyncLog',
@@ -919,7 +935,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "fornecedor" | "fornecedorOrganizacao" | "pais" | "moeda" | "unidade" | "incoterm" | "porto" | "aeroporto" | "container" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
+      modelProps: "empresa" | "fornecedor" | "fornecedorOrganizacao" | "pais" | "moeda" | "unidade" | "incoterm" | "porto" | "aeroporto" | "taxaOrigemDestino" | "container" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1550,6 +1566,76 @@ export namespace Prisma {
           count: {
             args: Prisma.AeroportoCountArgs<ExtArgs>
             result: $Utils.Optional<AeroportoCountAggregateOutputType> | number
+          }
+        }
+      }
+      TaxaOrigemDestino: {
+        payload: Prisma.$TaxaOrigemDestinoPayload<ExtArgs>
+        fields: Prisma.TaxaOrigemDestinoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TaxaOrigemDestinoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaOrigemDestinoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TaxaOrigemDestinoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaOrigemDestinoPayload>
+          }
+          findFirst: {
+            args: Prisma.TaxaOrigemDestinoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaOrigemDestinoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TaxaOrigemDestinoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaOrigemDestinoPayload>
+          }
+          findMany: {
+            args: Prisma.TaxaOrigemDestinoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaOrigemDestinoPayload>[]
+          }
+          create: {
+            args: Prisma.TaxaOrigemDestinoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaOrigemDestinoPayload>
+          }
+          createMany: {
+            args: Prisma.TaxaOrigemDestinoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TaxaOrigemDestinoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaOrigemDestinoPayload>[]
+          }
+          delete: {
+            args: Prisma.TaxaOrigemDestinoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaOrigemDestinoPayload>
+          }
+          update: {
+            args: Prisma.TaxaOrigemDestinoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaOrigemDestinoPayload>
+          }
+          deleteMany: {
+            args: Prisma.TaxaOrigemDestinoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TaxaOrigemDestinoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TaxaOrigemDestinoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaOrigemDestinoPayload>
+          }
+          aggregate: {
+            args: Prisma.TaxaOrigemDestinoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTaxaOrigemDestino>
+          }
+          groupBy: {
+            args: Prisma.TaxaOrigemDestinoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TaxaOrigemDestinoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TaxaOrigemDestinoCountArgs<ExtArgs>
+            result: $Utils.Optional<TaxaOrigemDestinoCountAggregateOutputType> | number
           }
         }
       }
@@ -11144,6 +11230,920 @@ export namespace Prisma {
 
 
   /**
+   * Model TaxaOrigemDestino
+   */
+
+  export type AggregateTaxaOrigemDestino = {
+    _count: TaxaOrigemDestinoCountAggregateOutputType | null
+    _min: TaxaOrigemDestinoMinAggregateOutputType | null
+    _max: TaxaOrigemDestinoMaxAggregateOutputType | null
+  }
+
+  export type TaxaOrigemDestinoMinAggregateOutputType = {
+    id_taxa_origem_destino: string | null
+    nome_taxa_origem_destino: string | null
+    descricao_taxa_origem_destino: string | null
+    tipo_taxa_origem_destino: string | null
+    codigo_taxa_origem_destino: string | null
+    ativo_taxa_origem_destino: boolean | null
+    data_criacao_taxa_origem_destino: Date | null
+    data_atualizacao_taxa_origem_destino: Date | null
+  }
+
+  export type TaxaOrigemDestinoMaxAggregateOutputType = {
+    id_taxa_origem_destino: string | null
+    nome_taxa_origem_destino: string | null
+    descricao_taxa_origem_destino: string | null
+    tipo_taxa_origem_destino: string | null
+    codigo_taxa_origem_destino: string | null
+    ativo_taxa_origem_destino: boolean | null
+    data_criacao_taxa_origem_destino: Date | null
+    data_atualizacao_taxa_origem_destino: Date | null
+  }
+
+  export type TaxaOrigemDestinoCountAggregateOutputType = {
+    id_taxa_origem_destino: number
+    nome_taxa_origem_destino: number
+    descricao_taxa_origem_destino: number
+    tipo_taxa_origem_destino: number
+    codigo_taxa_origem_destino: number
+    ativo_taxa_origem_destino: number
+    data_criacao_taxa_origem_destino: number
+    data_atualizacao_taxa_origem_destino: number
+    _all: number
+  }
+
+
+  export type TaxaOrigemDestinoMinAggregateInputType = {
+    id_taxa_origem_destino?: true
+    nome_taxa_origem_destino?: true
+    descricao_taxa_origem_destino?: true
+    tipo_taxa_origem_destino?: true
+    codigo_taxa_origem_destino?: true
+    ativo_taxa_origem_destino?: true
+    data_criacao_taxa_origem_destino?: true
+    data_atualizacao_taxa_origem_destino?: true
+  }
+
+  export type TaxaOrigemDestinoMaxAggregateInputType = {
+    id_taxa_origem_destino?: true
+    nome_taxa_origem_destino?: true
+    descricao_taxa_origem_destino?: true
+    tipo_taxa_origem_destino?: true
+    codigo_taxa_origem_destino?: true
+    ativo_taxa_origem_destino?: true
+    data_criacao_taxa_origem_destino?: true
+    data_atualizacao_taxa_origem_destino?: true
+  }
+
+  export type TaxaOrigemDestinoCountAggregateInputType = {
+    id_taxa_origem_destino?: true
+    nome_taxa_origem_destino?: true
+    descricao_taxa_origem_destino?: true
+    tipo_taxa_origem_destino?: true
+    codigo_taxa_origem_destino?: true
+    ativo_taxa_origem_destino?: true
+    data_criacao_taxa_origem_destino?: true
+    data_atualizacao_taxa_origem_destino?: true
+    _all?: true
+  }
+
+  export type TaxaOrigemDestinoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TaxaOrigemDestino to aggregate.
+     */
+    where?: TaxaOrigemDestinoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TaxaOrigemDestinos to fetch.
+     */
+    orderBy?: TaxaOrigemDestinoOrderByWithRelationInput | TaxaOrigemDestinoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TaxaOrigemDestinoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TaxaOrigemDestinos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TaxaOrigemDestinos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TaxaOrigemDestinos
+    **/
+    _count?: true | TaxaOrigemDestinoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TaxaOrigemDestinoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TaxaOrigemDestinoMaxAggregateInputType
+  }
+
+  export type GetTaxaOrigemDestinoAggregateType<T extends TaxaOrigemDestinoAggregateArgs> = {
+        [P in keyof T & keyof AggregateTaxaOrigemDestino]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTaxaOrigemDestino[P]>
+      : GetScalarType<T[P], AggregateTaxaOrigemDestino[P]>
+  }
+
+
+
+
+  export type TaxaOrigemDestinoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TaxaOrigemDestinoWhereInput
+    orderBy?: TaxaOrigemDestinoOrderByWithAggregationInput | TaxaOrigemDestinoOrderByWithAggregationInput[]
+    by: TaxaOrigemDestinoScalarFieldEnum[] | TaxaOrigemDestinoScalarFieldEnum
+    having?: TaxaOrigemDestinoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TaxaOrigemDestinoCountAggregateInputType | true
+    _min?: TaxaOrigemDestinoMinAggregateInputType
+    _max?: TaxaOrigemDestinoMaxAggregateInputType
+  }
+
+  export type TaxaOrigemDestinoGroupByOutputType = {
+    id_taxa_origem_destino: string
+    nome_taxa_origem_destino: string
+    descricao_taxa_origem_destino: string | null
+    tipo_taxa_origem_destino: string
+    codigo_taxa_origem_destino: string | null
+    ativo_taxa_origem_destino: boolean
+    data_criacao_taxa_origem_destino: Date
+    data_atualizacao_taxa_origem_destino: Date
+    _count: TaxaOrigemDestinoCountAggregateOutputType | null
+    _min: TaxaOrigemDestinoMinAggregateOutputType | null
+    _max: TaxaOrigemDestinoMaxAggregateOutputType | null
+  }
+
+  type GetTaxaOrigemDestinoGroupByPayload<T extends TaxaOrigemDestinoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TaxaOrigemDestinoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TaxaOrigemDestinoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TaxaOrigemDestinoGroupByOutputType[P]>
+            : GetScalarType<T[P], TaxaOrigemDestinoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TaxaOrigemDestinoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_taxa_origem_destino?: boolean
+    nome_taxa_origem_destino?: boolean
+    descricao_taxa_origem_destino?: boolean
+    tipo_taxa_origem_destino?: boolean
+    codigo_taxa_origem_destino?: boolean
+    ativo_taxa_origem_destino?: boolean
+    data_criacao_taxa_origem_destino?: boolean
+    data_atualizacao_taxa_origem_destino?: boolean
+  }, ExtArgs["result"]["taxaOrigemDestino"]>
+
+  export type TaxaOrigemDestinoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_taxa_origem_destino?: boolean
+    nome_taxa_origem_destino?: boolean
+    descricao_taxa_origem_destino?: boolean
+    tipo_taxa_origem_destino?: boolean
+    codigo_taxa_origem_destino?: boolean
+    ativo_taxa_origem_destino?: boolean
+    data_criacao_taxa_origem_destino?: boolean
+    data_atualizacao_taxa_origem_destino?: boolean
+  }, ExtArgs["result"]["taxaOrigemDestino"]>
+
+  export type TaxaOrigemDestinoSelectScalar = {
+    id_taxa_origem_destino?: boolean
+    nome_taxa_origem_destino?: boolean
+    descricao_taxa_origem_destino?: boolean
+    tipo_taxa_origem_destino?: boolean
+    codigo_taxa_origem_destino?: boolean
+    ativo_taxa_origem_destino?: boolean
+    data_criacao_taxa_origem_destino?: boolean
+    data_atualizacao_taxa_origem_destino?: boolean
+  }
+
+
+  export type $TaxaOrigemDestinoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TaxaOrigemDestino"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_taxa_origem_destino: string
+      nome_taxa_origem_destino: string
+      descricao_taxa_origem_destino: string | null
+      tipo_taxa_origem_destino: string
+      codigo_taxa_origem_destino: string | null
+      ativo_taxa_origem_destino: boolean
+      data_criacao_taxa_origem_destino: Date
+      data_atualizacao_taxa_origem_destino: Date
+    }, ExtArgs["result"]["taxaOrigemDestino"]>
+    composites: {}
+  }
+
+  type TaxaOrigemDestinoGetPayload<S extends boolean | null | undefined | TaxaOrigemDestinoDefaultArgs> = $Result.GetResult<Prisma.$TaxaOrigemDestinoPayload, S>
+
+  type TaxaOrigemDestinoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<TaxaOrigemDestinoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: TaxaOrigemDestinoCountAggregateInputType | true
+    }
+
+  export interface TaxaOrigemDestinoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TaxaOrigemDestino'], meta: { name: 'TaxaOrigemDestino' } }
+    /**
+     * Find zero or one TaxaOrigemDestino that matches the filter.
+     * @param {TaxaOrigemDestinoFindUniqueArgs} args - Arguments to find a TaxaOrigemDestino
+     * @example
+     * // Get one TaxaOrigemDestino
+     * const taxaOrigemDestino = await prisma.taxaOrigemDestino.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TaxaOrigemDestinoFindUniqueArgs>(args: SelectSubset<T, TaxaOrigemDestinoFindUniqueArgs<ExtArgs>>): Prisma__TaxaOrigemDestinoClient<$Result.GetResult<Prisma.$TaxaOrigemDestinoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one TaxaOrigemDestino that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {TaxaOrigemDestinoFindUniqueOrThrowArgs} args - Arguments to find a TaxaOrigemDestino
+     * @example
+     * // Get one TaxaOrigemDestino
+     * const taxaOrigemDestino = await prisma.taxaOrigemDestino.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TaxaOrigemDestinoFindUniqueOrThrowArgs>(args: SelectSubset<T, TaxaOrigemDestinoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TaxaOrigemDestinoClient<$Result.GetResult<Prisma.$TaxaOrigemDestinoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first TaxaOrigemDestino that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaOrigemDestinoFindFirstArgs} args - Arguments to find a TaxaOrigemDestino
+     * @example
+     * // Get one TaxaOrigemDestino
+     * const taxaOrigemDestino = await prisma.taxaOrigemDestino.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TaxaOrigemDestinoFindFirstArgs>(args?: SelectSubset<T, TaxaOrigemDestinoFindFirstArgs<ExtArgs>>): Prisma__TaxaOrigemDestinoClient<$Result.GetResult<Prisma.$TaxaOrigemDestinoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first TaxaOrigemDestino that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaOrigemDestinoFindFirstOrThrowArgs} args - Arguments to find a TaxaOrigemDestino
+     * @example
+     * // Get one TaxaOrigemDestino
+     * const taxaOrigemDestino = await prisma.taxaOrigemDestino.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TaxaOrigemDestinoFindFirstOrThrowArgs>(args?: SelectSubset<T, TaxaOrigemDestinoFindFirstOrThrowArgs<ExtArgs>>): Prisma__TaxaOrigemDestinoClient<$Result.GetResult<Prisma.$TaxaOrigemDestinoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more TaxaOrigemDestinos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaOrigemDestinoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TaxaOrigemDestinos
+     * const taxaOrigemDestinos = await prisma.taxaOrigemDestino.findMany()
+     * 
+     * // Get first 10 TaxaOrigemDestinos
+     * const taxaOrigemDestinos = await prisma.taxaOrigemDestino.findMany({ take: 10 })
+     * 
+     * // Only select the `id_taxa_origem_destino`
+     * const taxaOrigemDestinoWithId_taxa_origem_destinoOnly = await prisma.taxaOrigemDestino.findMany({ select: { id_taxa_origem_destino: true } })
+     * 
+     */
+    findMany<T extends TaxaOrigemDestinoFindManyArgs>(args?: SelectSubset<T, TaxaOrigemDestinoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaxaOrigemDestinoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a TaxaOrigemDestino.
+     * @param {TaxaOrigemDestinoCreateArgs} args - Arguments to create a TaxaOrigemDestino.
+     * @example
+     * // Create one TaxaOrigemDestino
+     * const TaxaOrigemDestino = await prisma.taxaOrigemDestino.create({
+     *   data: {
+     *     // ... data to create a TaxaOrigemDestino
+     *   }
+     * })
+     * 
+     */
+    create<T extends TaxaOrigemDestinoCreateArgs>(args: SelectSubset<T, TaxaOrigemDestinoCreateArgs<ExtArgs>>): Prisma__TaxaOrigemDestinoClient<$Result.GetResult<Prisma.$TaxaOrigemDestinoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many TaxaOrigemDestinos.
+     * @param {TaxaOrigemDestinoCreateManyArgs} args - Arguments to create many TaxaOrigemDestinos.
+     * @example
+     * // Create many TaxaOrigemDestinos
+     * const taxaOrigemDestino = await prisma.taxaOrigemDestino.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TaxaOrigemDestinoCreateManyArgs>(args?: SelectSubset<T, TaxaOrigemDestinoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TaxaOrigemDestinos and returns the data saved in the database.
+     * @param {TaxaOrigemDestinoCreateManyAndReturnArgs} args - Arguments to create many TaxaOrigemDestinos.
+     * @example
+     * // Create many TaxaOrigemDestinos
+     * const taxaOrigemDestino = await prisma.taxaOrigemDestino.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TaxaOrigemDestinos and only return the `id_taxa_origem_destino`
+     * const taxaOrigemDestinoWithId_taxa_origem_destinoOnly = await prisma.taxaOrigemDestino.createManyAndReturn({ 
+     *   select: { id_taxa_origem_destino: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TaxaOrigemDestinoCreateManyAndReturnArgs>(args?: SelectSubset<T, TaxaOrigemDestinoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaxaOrigemDestinoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a TaxaOrigemDestino.
+     * @param {TaxaOrigemDestinoDeleteArgs} args - Arguments to delete one TaxaOrigemDestino.
+     * @example
+     * // Delete one TaxaOrigemDestino
+     * const TaxaOrigemDestino = await prisma.taxaOrigemDestino.delete({
+     *   where: {
+     *     // ... filter to delete one TaxaOrigemDestino
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TaxaOrigemDestinoDeleteArgs>(args: SelectSubset<T, TaxaOrigemDestinoDeleteArgs<ExtArgs>>): Prisma__TaxaOrigemDestinoClient<$Result.GetResult<Prisma.$TaxaOrigemDestinoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one TaxaOrigemDestino.
+     * @param {TaxaOrigemDestinoUpdateArgs} args - Arguments to update one TaxaOrigemDestino.
+     * @example
+     * // Update one TaxaOrigemDestino
+     * const taxaOrigemDestino = await prisma.taxaOrigemDestino.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TaxaOrigemDestinoUpdateArgs>(args: SelectSubset<T, TaxaOrigemDestinoUpdateArgs<ExtArgs>>): Prisma__TaxaOrigemDestinoClient<$Result.GetResult<Prisma.$TaxaOrigemDestinoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more TaxaOrigemDestinos.
+     * @param {TaxaOrigemDestinoDeleteManyArgs} args - Arguments to filter TaxaOrigemDestinos to delete.
+     * @example
+     * // Delete a few TaxaOrigemDestinos
+     * const { count } = await prisma.taxaOrigemDestino.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TaxaOrigemDestinoDeleteManyArgs>(args?: SelectSubset<T, TaxaOrigemDestinoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TaxaOrigemDestinos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaOrigemDestinoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TaxaOrigemDestinos
+     * const taxaOrigemDestino = await prisma.taxaOrigemDestino.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TaxaOrigemDestinoUpdateManyArgs>(args: SelectSubset<T, TaxaOrigemDestinoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one TaxaOrigemDestino.
+     * @param {TaxaOrigemDestinoUpsertArgs} args - Arguments to update or create a TaxaOrigemDestino.
+     * @example
+     * // Update or create a TaxaOrigemDestino
+     * const taxaOrigemDestino = await prisma.taxaOrigemDestino.upsert({
+     *   create: {
+     *     // ... data to create a TaxaOrigemDestino
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TaxaOrigemDestino we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TaxaOrigemDestinoUpsertArgs>(args: SelectSubset<T, TaxaOrigemDestinoUpsertArgs<ExtArgs>>): Prisma__TaxaOrigemDestinoClient<$Result.GetResult<Prisma.$TaxaOrigemDestinoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of TaxaOrigemDestinos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaOrigemDestinoCountArgs} args - Arguments to filter TaxaOrigemDestinos to count.
+     * @example
+     * // Count the number of TaxaOrigemDestinos
+     * const count = await prisma.taxaOrigemDestino.count({
+     *   where: {
+     *     // ... the filter for the TaxaOrigemDestinos we want to count
+     *   }
+     * })
+    **/
+    count<T extends TaxaOrigemDestinoCountArgs>(
+      args?: Subset<T, TaxaOrigemDestinoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TaxaOrigemDestinoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TaxaOrigemDestino.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaOrigemDestinoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TaxaOrigemDestinoAggregateArgs>(args: Subset<T, TaxaOrigemDestinoAggregateArgs>): Prisma.PrismaPromise<GetTaxaOrigemDestinoAggregateType<T>>
+
+    /**
+     * Group by TaxaOrigemDestino.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaOrigemDestinoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TaxaOrigemDestinoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TaxaOrigemDestinoGroupByArgs['orderBy'] }
+        : { orderBy?: TaxaOrigemDestinoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TaxaOrigemDestinoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTaxaOrigemDestinoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TaxaOrigemDestino model
+   */
+  readonly fields: TaxaOrigemDestinoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TaxaOrigemDestino.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TaxaOrigemDestinoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TaxaOrigemDestino model
+   */ 
+  interface TaxaOrigemDestinoFieldRefs {
+    readonly id_taxa_origem_destino: FieldRef<"TaxaOrigemDestino", 'String'>
+    readonly nome_taxa_origem_destino: FieldRef<"TaxaOrigemDestino", 'String'>
+    readonly descricao_taxa_origem_destino: FieldRef<"TaxaOrigemDestino", 'String'>
+    readonly tipo_taxa_origem_destino: FieldRef<"TaxaOrigemDestino", 'String'>
+    readonly codigo_taxa_origem_destino: FieldRef<"TaxaOrigemDestino", 'String'>
+    readonly ativo_taxa_origem_destino: FieldRef<"TaxaOrigemDestino", 'Boolean'>
+    readonly data_criacao_taxa_origem_destino: FieldRef<"TaxaOrigemDestino", 'DateTime'>
+    readonly data_atualizacao_taxa_origem_destino: FieldRef<"TaxaOrigemDestino", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TaxaOrigemDestino findUnique
+   */
+  export type TaxaOrigemDestinoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaOrigemDestino
+     */
+    select?: TaxaOrigemDestinoSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaOrigemDestino to fetch.
+     */
+    where: TaxaOrigemDestinoWhereUniqueInput
+  }
+
+  /**
+   * TaxaOrigemDestino findUniqueOrThrow
+   */
+  export type TaxaOrigemDestinoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaOrigemDestino
+     */
+    select?: TaxaOrigemDestinoSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaOrigemDestino to fetch.
+     */
+    where: TaxaOrigemDestinoWhereUniqueInput
+  }
+
+  /**
+   * TaxaOrigemDestino findFirst
+   */
+  export type TaxaOrigemDestinoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaOrigemDestino
+     */
+    select?: TaxaOrigemDestinoSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaOrigemDestino to fetch.
+     */
+    where?: TaxaOrigemDestinoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TaxaOrigemDestinos to fetch.
+     */
+    orderBy?: TaxaOrigemDestinoOrderByWithRelationInput | TaxaOrigemDestinoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TaxaOrigemDestinos.
+     */
+    cursor?: TaxaOrigemDestinoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TaxaOrigemDestinos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TaxaOrigemDestinos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TaxaOrigemDestinos.
+     */
+    distinct?: TaxaOrigemDestinoScalarFieldEnum | TaxaOrigemDestinoScalarFieldEnum[]
+  }
+
+  /**
+   * TaxaOrigemDestino findFirstOrThrow
+   */
+  export type TaxaOrigemDestinoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaOrigemDestino
+     */
+    select?: TaxaOrigemDestinoSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaOrigemDestino to fetch.
+     */
+    where?: TaxaOrigemDestinoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TaxaOrigemDestinos to fetch.
+     */
+    orderBy?: TaxaOrigemDestinoOrderByWithRelationInput | TaxaOrigemDestinoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TaxaOrigemDestinos.
+     */
+    cursor?: TaxaOrigemDestinoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TaxaOrigemDestinos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TaxaOrigemDestinos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TaxaOrigemDestinos.
+     */
+    distinct?: TaxaOrigemDestinoScalarFieldEnum | TaxaOrigemDestinoScalarFieldEnum[]
+  }
+
+  /**
+   * TaxaOrigemDestino findMany
+   */
+  export type TaxaOrigemDestinoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaOrigemDestino
+     */
+    select?: TaxaOrigemDestinoSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaOrigemDestinos to fetch.
+     */
+    where?: TaxaOrigemDestinoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TaxaOrigemDestinos to fetch.
+     */
+    orderBy?: TaxaOrigemDestinoOrderByWithRelationInput | TaxaOrigemDestinoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TaxaOrigemDestinos.
+     */
+    cursor?: TaxaOrigemDestinoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TaxaOrigemDestinos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TaxaOrigemDestinos.
+     */
+    skip?: number
+    distinct?: TaxaOrigemDestinoScalarFieldEnum | TaxaOrigemDestinoScalarFieldEnum[]
+  }
+
+  /**
+   * TaxaOrigemDestino create
+   */
+  export type TaxaOrigemDestinoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaOrigemDestino
+     */
+    select?: TaxaOrigemDestinoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a TaxaOrigemDestino.
+     */
+    data: XOR<TaxaOrigemDestinoCreateInput, TaxaOrigemDestinoUncheckedCreateInput>
+  }
+
+  /**
+   * TaxaOrigemDestino createMany
+   */
+  export type TaxaOrigemDestinoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TaxaOrigemDestinos.
+     */
+    data: TaxaOrigemDestinoCreateManyInput | TaxaOrigemDestinoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TaxaOrigemDestino createManyAndReturn
+   */
+  export type TaxaOrigemDestinoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaOrigemDestino
+     */
+    select?: TaxaOrigemDestinoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many TaxaOrigemDestinos.
+     */
+    data: TaxaOrigemDestinoCreateManyInput | TaxaOrigemDestinoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TaxaOrigemDestino update
+   */
+  export type TaxaOrigemDestinoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaOrigemDestino
+     */
+    select?: TaxaOrigemDestinoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a TaxaOrigemDestino.
+     */
+    data: XOR<TaxaOrigemDestinoUpdateInput, TaxaOrigemDestinoUncheckedUpdateInput>
+    /**
+     * Choose, which TaxaOrigemDestino to update.
+     */
+    where: TaxaOrigemDestinoWhereUniqueInput
+  }
+
+  /**
+   * TaxaOrigemDestino updateMany
+   */
+  export type TaxaOrigemDestinoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TaxaOrigemDestinos.
+     */
+    data: XOR<TaxaOrigemDestinoUpdateManyMutationInput, TaxaOrigemDestinoUncheckedUpdateManyInput>
+    /**
+     * Filter which TaxaOrigemDestinos to update
+     */
+    where?: TaxaOrigemDestinoWhereInput
+  }
+
+  /**
+   * TaxaOrigemDestino upsert
+   */
+  export type TaxaOrigemDestinoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaOrigemDestino
+     */
+    select?: TaxaOrigemDestinoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the TaxaOrigemDestino to update in case it exists.
+     */
+    where: TaxaOrigemDestinoWhereUniqueInput
+    /**
+     * In case the TaxaOrigemDestino found by the `where` argument doesn't exist, create a new TaxaOrigemDestino with this data.
+     */
+    create: XOR<TaxaOrigemDestinoCreateInput, TaxaOrigemDestinoUncheckedCreateInput>
+    /**
+     * In case the TaxaOrigemDestino was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TaxaOrigemDestinoUpdateInput, TaxaOrigemDestinoUncheckedUpdateInput>
+  }
+
+  /**
+   * TaxaOrigemDestino delete
+   */
+  export type TaxaOrigemDestinoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaOrigemDestino
+     */
+    select?: TaxaOrigemDestinoSelect<ExtArgs> | null
+    /**
+     * Filter which TaxaOrigemDestino to delete.
+     */
+    where: TaxaOrigemDestinoWhereUniqueInput
+  }
+
+  /**
+   * TaxaOrigemDestino deleteMany
+   */
+  export type TaxaOrigemDestinoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TaxaOrigemDestinos to delete
+     */
+    where?: TaxaOrigemDestinoWhereInput
+  }
+
+  /**
+   * TaxaOrigemDestino without action
+   */
+  export type TaxaOrigemDestinoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaOrigemDestino
+     */
+    select?: TaxaOrigemDestinoSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Model Container
    */
 
@@ -17101,6 +18101,20 @@ export namespace Prisma {
   export type AeroportoScalarFieldEnum = (typeof AeroportoScalarFieldEnum)[keyof typeof AeroportoScalarFieldEnum]
 
 
+  export const TaxaOrigemDestinoScalarFieldEnum: {
+    id_taxa_origem_destino: 'id_taxa_origem_destino',
+    nome_taxa_origem_destino: 'nome_taxa_origem_destino',
+    descricao_taxa_origem_destino: 'descricao_taxa_origem_destino',
+    tipo_taxa_origem_destino: 'tipo_taxa_origem_destino',
+    codigo_taxa_origem_destino: 'codigo_taxa_origem_destino',
+    ativo_taxa_origem_destino: 'ativo_taxa_origem_destino',
+    data_criacao_taxa_origem_destino: 'data_criacao_taxa_origem_destino',
+    data_atualizacao_taxa_origem_destino: 'data_atualizacao_taxa_origem_destino'
+  };
+
+  export type TaxaOrigemDestinoScalarFieldEnum = (typeof TaxaOrigemDestinoScalarFieldEnum)[keyof typeof TaxaOrigemDestinoScalarFieldEnum]
+
+
   export const ContainerScalarFieldEnum: {
     id_container: 'id_container',
     tipo_container: 'tipo_container',
@@ -18236,6 +19250,73 @@ export namespace Prisma {
     longitude_aeroporto?: FloatNullableWithAggregatesFilter<"Aeroporto"> | number | null
     codigo_iata_aeroporto?: StringNullableWithAggregatesFilter<"Aeroporto"> | string | null
     ativo_aeroporto?: BoolWithAggregatesFilter<"Aeroporto"> | boolean
+  }
+
+  export type TaxaOrigemDestinoWhereInput = {
+    AND?: TaxaOrigemDestinoWhereInput | TaxaOrigemDestinoWhereInput[]
+    OR?: TaxaOrigemDestinoWhereInput[]
+    NOT?: TaxaOrigemDestinoWhereInput | TaxaOrigemDestinoWhereInput[]
+    id_taxa_origem_destino?: StringFilter<"TaxaOrigemDestino"> | string
+    nome_taxa_origem_destino?: StringFilter<"TaxaOrigemDestino"> | string
+    descricao_taxa_origem_destino?: StringNullableFilter<"TaxaOrigemDestino"> | string | null
+    tipo_taxa_origem_destino?: StringFilter<"TaxaOrigemDestino"> | string
+    codigo_taxa_origem_destino?: StringNullableFilter<"TaxaOrigemDestino"> | string | null
+    ativo_taxa_origem_destino?: BoolFilter<"TaxaOrigemDestino"> | boolean
+    data_criacao_taxa_origem_destino?: DateTimeFilter<"TaxaOrigemDestino"> | Date | string
+    data_atualizacao_taxa_origem_destino?: DateTimeFilter<"TaxaOrigemDestino"> | Date | string
+  }
+
+  export type TaxaOrigemDestinoOrderByWithRelationInput = {
+    id_taxa_origem_destino?: SortOrder
+    nome_taxa_origem_destino?: SortOrder
+    descricao_taxa_origem_destino?: SortOrderInput | SortOrder
+    tipo_taxa_origem_destino?: SortOrder
+    codigo_taxa_origem_destino?: SortOrderInput | SortOrder
+    ativo_taxa_origem_destino?: SortOrder
+    data_criacao_taxa_origem_destino?: SortOrder
+    data_atualizacao_taxa_origem_destino?: SortOrder
+  }
+
+  export type TaxaOrigemDestinoWhereUniqueInput = Prisma.AtLeast<{
+    id_taxa_origem_destino?: string
+    codigo_taxa_origem_destino?: string
+    AND?: TaxaOrigemDestinoWhereInput | TaxaOrigemDestinoWhereInput[]
+    OR?: TaxaOrigemDestinoWhereInput[]
+    NOT?: TaxaOrigemDestinoWhereInput | TaxaOrigemDestinoWhereInput[]
+    nome_taxa_origem_destino?: StringFilter<"TaxaOrigemDestino"> | string
+    descricao_taxa_origem_destino?: StringNullableFilter<"TaxaOrigemDestino"> | string | null
+    tipo_taxa_origem_destino?: StringFilter<"TaxaOrigemDestino"> | string
+    ativo_taxa_origem_destino?: BoolFilter<"TaxaOrigemDestino"> | boolean
+    data_criacao_taxa_origem_destino?: DateTimeFilter<"TaxaOrigemDestino"> | Date | string
+    data_atualizacao_taxa_origem_destino?: DateTimeFilter<"TaxaOrigemDestino"> | Date | string
+  }, "id_taxa_origem_destino" | "codigo_taxa_origem_destino">
+
+  export type TaxaOrigemDestinoOrderByWithAggregationInput = {
+    id_taxa_origem_destino?: SortOrder
+    nome_taxa_origem_destino?: SortOrder
+    descricao_taxa_origem_destino?: SortOrderInput | SortOrder
+    tipo_taxa_origem_destino?: SortOrder
+    codigo_taxa_origem_destino?: SortOrderInput | SortOrder
+    ativo_taxa_origem_destino?: SortOrder
+    data_criacao_taxa_origem_destino?: SortOrder
+    data_atualizacao_taxa_origem_destino?: SortOrder
+    _count?: TaxaOrigemDestinoCountOrderByAggregateInput
+    _max?: TaxaOrigemDestinoMaxOrderByAggregateInput
+    _min?: TaxaOrigemDestinoMinOrderByAggregateInput
+  }
+
+  export type TaxaOrigemDestinoScalarWhereWithAggregatesInput = {
+    AND?: TaxaOrigemDestinoScalarWhereWithAggregatesInput | TaxaOrigemDestinoScalarWhereWithAggregatesInput[]
+    OR?: TaxaOrigemDestinoScalarWhereWithAggregatesInput[]
+    NOT?: TaxaOrigemDestinoScalarWhereWithAggregatesInput | TaxaOrigemDestinoScalarWhereWithAggregatesInput[]
+    id_taxa_origem_destino?: StringWithAggregatesFilter<"TaxaOrigemDestino"> | string
+    nome_taxa_origem_destino?: StringWithAggregatesFilter<"TaxaOrigemDestino"> | string
+    descricao_taxa_origem_destino?: StringNullableWithAggregatesFilter<"TaxaOrigemDestino"> | string | null
+    tipo_taxa_origem_destino?: StringWithAggregatesFilter<"TaxaOrigemDestino"> | string
+    codigo_taxa_origem_destino?: StringNullableWithAggregatesFilter<"TaxaOrigemDestino"> | string | null
+    ativo_taxa_origem_destino?: BoolWithAggregatesFilter<"TaxaOrigemDestino"> | boolean
+    data_criacao_taxa_origem_destino?: DateTimeWithAggregatesFilter<"TaxaOrigemDestino"> | Date | string
+    data_atualizacao_taxa_origem_destino?: DateTimeWithAggregatesFilter<"TaxaOrigemDestino"> | Date | string
   }
 
   export type ContainerWhereInput = {
@@ -19747,6 +20828,83 @@ export namespace Prisma {
     ativo_aeroporto?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type TaxaOrigemDestinoCreateInput = {
+    id_taxa_origem_destino?: string
+    nome_taxa_origem_destino: string
+    descricao_taxa_origem_destino?: string | null
+    tipo_taxa_origem_destino: string
+    codigo_taxa_origem_destino?: string | null
+    ativo_taxa_origem_destino?: boolean
+    data_criacao_taxa_origem_destino?: Date | string
+    data_atualizacao_taxa_origem_destino?: Date | string
+  }
+
+  export type TaxaOrigemDestinoUncheckedCreateInput = {
+    id_taxa_origem_destino?: string
+    nome_taxa_origem_destino: string
+    descricao_taxa_origem_destino?: string | null
+    tipo_taxa_origem_destino: string
+    codigo_taxa_origem_destino?: string | null
+    ativo_taxa_origem_destino?: boolean
+    data_criacao_taxa_origem_destino?: Date | string
+    data_atualizacao_taxa_origem_destino?: Date | string
+  }
+
+  export type TaxaOrigemDestinoUpdateInput = {
+    id_taxa_origem_destino?: StringFieldUpdateOperationsInput | string
+    nome_taxa_origem_destino?: StringFieldUpdateOperationsInput | string
+    descricao_taxa_origem_destino?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_taxa_origem_destino?: StringFieldUpdateOperationsInput | string
+    codigo_taxa_origem_destino?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_taxa_origem_destino?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_taxa_origem_destino?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_taxa_origem_destino?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TaxaOrigemDestinoUncheckedUpdateInput = {
+    id_taxa_origem_destino?: StringFieldUpdateOperationsInput | string
+    nome_taxa_origem_destino?: StringFieldUpdateOperationsInput | string
+    descricao_taxa_origem_destino?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_taxa_origem_destino?: StringFieldUpdateOperationsInput | string
+    codigo_taxa_origem_destino?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_taxa_origem_destino?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_taxa_origem_destino?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_taxa_origem_destino?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TaxaOrigemDestinoCreateManyInput = {
+    id_taxa_origem_destino?: string
+    nome_taxa_origem_destino: string
+    descricao_taxa_origem_destino?: string | null
+    tipo_taxa_origem_destino: string
+    codigo_taxa_origem_destino?: string | null
+    ativo_taxa_origem_destino?: boolean
+    data_criacao_taxa_origem_destino?: Date | string
+    data_atualizacao_taxa_origem_destino?: Date | string
+  }
+
+  export type TaxaOrigemDestinoUpdateManyMutationInput = {
+    id_taxa_origem_destino?: StringFieldUpdateOperationsInput | string
+    nome_taxa_origem_destino?: StringFieldUpdateOperationsInput | string
+    descricao_taxa_origem_destino?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_taxa_origem_destino?: StringFieldUpdateOperationsInput | string
+    codigo_taxa_origem_destino?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_taxa_origem_destino?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_taxa_origem_destino?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_taxa_origem_destino?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TaxaOrigemDestinoUncheckedUpdateManyInput = {
+    id_taxa_origem_destino?: StringFieldUpdateOperationsInput | string
+    nome_taxa_origem_destino?: StringFieldUpdateOperationsInput | string
+    descricao_taxa_origem_destino?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_taxa_origem_destino?: StringFieldUpdateOperationsInput | string
+    codigo_taxa_origem_destino?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_taxa_origem_destino?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_taxa_origem_destino?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_taxa_origem_destino?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ContainerCreateInput = {
     id_container?: string
     tipo_container: $Enums.ContainerTipo
@@ -20996,6 +22154,39 @@ export namespace Prisma {
     longitude_aeroporto?: SortOrder
   }
 
+  export type TaxaOrigemDestinoCountOrderByAggregateInput = {
+    id_taxa_origem_destino?: SortOrder
+    nome_taxa_origem_destino?: SortOrder
+    descricao_taxa_origem_destino?: SortOrder
+    tipo_taxa_origem_destino?: SortOrder
+    codigo_taxa_origem_destino?: SortOrder
+    ativo_taxa_origem_destino?: SortOrder
+    data_criacao_taxa_origem_destino?: SortOrder
+    data_atualizacao_taxa_origem_destino?: SortOrder
+  }
+
+  export type TaxaOrigemDestinoMaxOrderByAggregateInput = {
+    id_taxa_origem_destino?: SortOrder
+    nome_taxa_origem_destino?: SortOrder
+    descricao_taxa_origem_destino?: SortOrder
+    tipo_taxa_origem_destino?: SortOrder
+    codigo_taxa_origem_destino?: SortOrder
+    ativo_taxa_origem_destino?: SortOrder
+    data_criacao_taxa_origem_destino?: SortOrder
+    data_atualizacao_taxa_origem_destino?: SortOrder
+  }
+
+  export type TaxaOrigemDestinoMinOrderByAggregateInput = {
+    id_taxa_origem_destino?: SortOrder
+    nome_taxa_origem_destino?: SortOrder
+    descricao_taxa_origem_destino?: SortOrder
+    tipo_taxa_origem_destino?: SortOrder
+    codigo_taxa_origem_destino?: SortOrder
+    ativo_taxa_origem_destino?: SortOrder
+    data_criacao_taxa_origem_destino?: SortOrder
+    data_atualizacao_taxa_origem_destino?: SortOrder
+  }
+
   export type EnumContainerTipoFilter<$PrismaModel = never> = {
     equals?: $Enums.ContainerTipo | EnumContainerTipoFieldRefInput<$PrismaModel>
     in?: $Enums.ContainerTipo[] | ListEnumContainerTipoFieldRefInput<$PrismaModel>
@@ -22140,6 +23331,10 @@ export namespace Prisma {
      * @deprecated Use AeroportoDefaultArgs instead
      */
     export type AeroportoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AeroportoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use TaxaOrigemDestinoDefaultArgs instead
+     */
+    export type TaxaOrigemDestinoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TaxaOrigemDestinoDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ContainerDefaultArgs instead
      */

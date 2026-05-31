@@ -417,7 +417,7 @@ export default function ImportarBloco() {
       <button
         className="importar-bloco-pill-btn importar-bloco-pill-btn--secondary"
         type="button"
-        onClick={() => navigate('/bid-frete/cotacoes')}
+        onClick={() => navigate('/bid-frete/lista')}
       >
         <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
       </button>
@@ -828,7 +828,7 @@ export default function ImportarBloco() {
                 </button>
                 <button
                   className="importar-bloco-pill-btn importar-bloco-pill-btn--primary"
-                  onClick={() => navigate('/produto/bid-frete/cotacoes')}
+                  onClick={() => navigate('/bid-frete/lista')}
                 >
                   Ver cotacoes
                 </button>

@@ -65,6 +65,10 @@ import {
 } from '../shared/metricas-proposta-cotacao-bid-frete-internacional'
 import { aplicarEstadoPosAprovacaoCotacao } from '../shared/sincronizar-estado-pos-aprovacao-cotacao-bid-frete-internacional'
 import { PainelDadosGeraisCotacaoBidFreteInternacional } from '../shared/painel-dados-gerais-cotacao-bid-frete-internacional'
+import {
+  inscreverCotacaoAtualizadaBidFrete,
+  publicarCotacaoAtualizadaBidFrete,
+} from '../shared/bus-cotacao-atualizada-bid-frete-internacional'
 import type {
   Cotacao,
   DisparoCotacaoBidFreteInternacional,
@@ -308,22 +312,39 @@ export default function DetalheCotacao() {
     }
   }, [id, carregarRankingPropostas])
 
+  const mesclarCotacaoNoDetalhe = useCallback((cotacaoAtualizada: Cotacao) => {
+    setCotacao((atual) => {
+      if (!atual) return cotacaoAtualizada
+      const { cotacao: cotMesclada, propostasRanking: rankingSincronizado } =
+        aplicarEstadoPosAprovacaoCotacao(atual, propostasRanking, cotacaoAtualizada)
+      setPropostasRanking(rankingSincronizado)
+      return cotMesclada
+    })
+  }, [propostasRanking])
+
   const handleCotacaoAtualizada = useCallback((cotacaoAtualizada?: Cotacao) => {
     if (cotacaoAtualizada) {
-      const { cotacao: cotMesclada, propostasRanking: rankingSincronizado } =
-        aplicarEstadoPosAprovacaoCotacao(cotacao, propostasRanking, cotacaoAtualizada)
-      setCotacao(cotMesclada)
-      setPropostasRanking(rankingSincronizado)
+      mesclarCotacaoNoDetalhe(cotacaoAtualizada)
+      publicarCotacaoAtualizadaBidFrete(cotacaoAtualizada)
       return
     }
     void carregar()
-  }, [carregar, cotacao, propostasRanking])
+  }, [carregar, mesclarCotacaoNoDetalhe])
 
   function aplicarCotacaoSalva(cotacaoSalva: Cotacao) {
-    setCotacao(cotacaoSalva)
+    mesclarCotacaoNoDetalhe(cotacaoSalva)
+    publicarCotacaoAtualizadaBidFrete(cotacaoSalva)
   }
 
   useEffect(() => { carregar() }, [carregar])
+
+  useEffect(() => {
+    if (!id) return undefined
+    return inscreverCotacaoAtualizadaBidFrete((cotacaoRemota) => {
+      if (cotacaoRemota.id_cotacao_bid_frete_internacional !== id) return
+      mesclarCotacaoNoDetalhe(cotacaoRemota)
+    })
+  }, [id, mesclarCotacaoNoDetalhe])
 
   const tituloTopo = useMemo(() => {
     if (carregando) {
@@ -485,7 +506,7 @@ export default function DetalheCotacao() {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', height: '50vh', color: 'var(--text-muted)' }}>
           <Warning weight="duotone" size={40} />
           <p>{erro ?? t('bidfrete.detalhe_cotacao.nao_encontrada', 'Cotação não encontrada')}</p>
-          <button className="dc-btn dc-btn--secondary" type="button" onClick={() => navigate('/bid-frete/cotacoes')}>
+          <button className="dc-btn dc-btn--secondary" type="button" onClick={() => navigate('/bid-frete/lista')}>
             <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
           </button>
         </div>
@@ -535,7 +556,7 @@ export default function DetalheCotacao() {
                   title={t('comum.excluir')}
                   onClick={async () => {
                     await excluirCotacao(cotacao.id_cotacao_bid_frete_internacional)
-                    navigate('/bid-frete/cotacoes')
+                    navigate('/bid-frete/lista')
                   }}
                 >
                   <Trash weight="duotone" size={18} />
@@ -1115,6 +1136,12 @@ export default function DetalheCotacao() {
         }
         .dc-dados-card--gerais .dc-dados-card-title { color: #e0e7ff; }
         .dc-dados-card--rota .dc-dados-card-title { color: #e0f2fe; }
+        .dc-dados-card--rota .dc-dados-card-body {
+          overflow: hidden;
+        }
+        .dc-dados-card--rota .dc-rota-visual {
+          margin-top: 0;
+        }
         .dc-dados-card--carga .dc-dados-card-title { color: #e0e7ff; }
         .dc-dados-card-body {
           display: flex;
@@ -1464,6 +1491,7 @@ export default function DetalheCotacao() {
         }
         .dc-prop-card-head {
           display: flex;
+          flex-wrap: wrap;
           align-items: center;
           justify-content: space-between;
           gap: 1rem;
@@ -1472,7 +1500,8 @@ export default function DetalheCotacao() {
         }
         .dc-prop-card-head:has(.dc-prop-tags:not(:empty)),
         .dc-prop-card-head:has(.dc-prop-card-destaques),
-        .dc-prop-card-head:has(.dc-prop-metricas-spark-row) {
+        .dc-prop-card-head:has(.dc-prop-metricas-spark-row),
+        .dc-prop-card-head:has(.dc-prop-card-spark-full) {
           align-items: flex-start;
         }
         .dc-prop-tags:empty {
@@ -1506,7 +1535,8 @@ export default function DetalheCotacao() {
         }
         .dc-prop-card-head:has(.dc-prop-tags:not(:empty)) .dc-prop-card-head-main,
         .dc-prop-card-head:has(.dc-prop-card-destaques) .dc-prop-card-head-main,
-        .dc-prop-card-head:has(.dc-prop-metricas-spark-row) .dc-prop-card-head-main {
+        .dc-prop-card-head:has(.dc-prop-metricas-spark-row) .dc-prop-card-head-main,
+        .dc-prop-card-head:has(.dc-prop-card-spark-full) .dc-prop-card-head-main {
           align-items: flex-start;
         }
         .dc-prop-rank-inline {

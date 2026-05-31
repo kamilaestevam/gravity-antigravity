@@ -1,4 +1,9 @@
-import type { EstadoFormularioRespostaCotacao } from './formulario-resposta-cotacao-bid-frete-internacional'
+import type { ModalFrete } from './types'
+import {
+  exibeCampoEscalasRespostaCotacao,
+  exibeCampoTransbordosRespostaCotacao,
+  type EstadoFormularioRespostaCotacao,
+} from './formulario-resposta-cotacao-bid-frete-internacional'
 import {
   linhasParaPayloadTaxas,
   parseValorLinhaTaxa,
@@ -7,6 +12,7 @@ import {
 
 export function montarPayloadPropostaRespostaBidFreteInternacional(
   form: EstadoFormularioRespostaCotacao,
+  modalCotacao?: ModalFrete | null,
 ) {
   const valorFrete = parseValorLinhaTaxa(form.valor_frete_proposta_bid_frete_internacional)
   const taxasOrigem = somarLinhasTaxa(form.linhas_taxa_origem)
@@ -27,8 +33,12 @@ export function montarPayloadPropostaRespostaBidFreteInternacional(
       ? parseInt(form.dias_free_time_proposta_bid_frete_internacional, 10)
       : null,
     validade_proposta_bid_frete_internacional: form.validade_proposta_bid_frete_internacional,
-    transbordos_proposta_bid_frete_internacional: parseInt(form.transbordos_proposta_bid_frete_internacional, 10) || 0,
-    escalas_proposta_bid_frete_internacional: form.escalas_proposta_bid_frete_internacional || undefined,
+    transbordos_proposta_bid_frete_internacional: exibeCampoTransbordosRespostaCotacao(modalCotacao)
+      ? parseInt(form.transbordos_proposta_bid_frete_internacional, 10) || 0
+      : 0,
+    escalas_proposta_bid_frete_internacional: exibeCampoEscalasRespostaCotacao(modalCotacao)
+      ? String(parseInt(form.escalas_proposta_bid_frete_internacional, 10) || 0)
+      : undefined,
     observacoes_proposta_bid_frete_internacional: form.observacoes_proposta_bid_frete_internacional || null,
     taxas: taxasDetalhe,
   }

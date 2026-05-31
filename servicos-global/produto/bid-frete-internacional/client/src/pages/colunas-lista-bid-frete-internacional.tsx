@@ -1,8 +1,7 @@
 import React from 'react'
 import type { GTColuna, GTValorMoeda } from '@nucleo/tabela-virtual-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
-import { Anchor, AirplaneTilt, Eye, Truck } from '@phosphor-icons/react'
-import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { Anchor, AirplaneTilt, Truck } from '@phosphor-icons/react'
 import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../shared/types'
 import { classeMoedaBadge } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS, INCOTERMS } from '../shared/types'
@@ -21,6 +20,12 @@ import {
 import { formatarDataBidFrete } from '../shared/formato-data-bid-frete'
 import { criarColunasDatasMotivosCotacaoLista } from '../shared/colunas-datas-motivos-cotacao-bid-frete-internacional'
 import { formatarContainersPersistidosParaExibicao } from '../shared/containers-cotacao-bid-frete-internacional'
+import {
+  TextoTruncadoComTooltip,
+} from '../shared/texto-truncado-com-tooltip-bid-frete-internacional'
+import { CAMPOS_NAO_EDITAVEIS_COTACAO as CAMPOS_NAO_EDITAVEIS_LISTA } from '../shared/salvar-campo-cotacao-bid-frete-internacional'
+
+export { CAMPOS_NAO_EDITAVEIS_LISTA }
 
 // ─── Badge de status ───
 const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
@@ -159,8 +164,7 @@ export function getCasas(campo: string, padrao: number): number {
   return lerCasasDecimaisConfig()[campo] ?? padrao
 }
 
-/** Paridade Pedido (`renderDescricaoTruncada` em ColunasFilho). */
-export const LIMITE_TRUNCAR_DESCRICAO_LISTA = 50
+export { LIMITE_TRUNCAR_DESCRICAO_LISTA } from '../shared/texto-truncado-com-tooltip-bid-frete-internacional'
 
 function renderTexto(val: unknown): React.ReactNode {
   return (val as string | null | undefined) ?? '—'
@@ -170,19 +174,7 @@ function renderDescricaoTruncada(
   valor: string | null | undefined,
   label: string,
 ): React.ReactNode {
-  if (!valor?.trim()) return <span style={{ color: 'var(--text-muted)' }}>—</span>
-  const texto = valor.trim()
-  if (texto.length <= LIMITE_TRUNCAR_DESCRICAO_LISTA) return <span>{texto}</span>
-  return (
-    <TooltipGlobal titulo={label} descricao={texto}>
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', maxWidth: '100%' }}>
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {texto.slice(0, LIMITE_TRUNCAR_DESCRICAO_LISTA) + '…'}
-        </span>
-        <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} aria-hidden />
-      </span>
-    </TooltipGlobal>
-  )
+  return <TextoTruncadoComTooltip texto={valor} rotuloTooltip={label} />
 }
 
 function renderNumero(val: unknown, casas = 0): React.ReactNode {
@@ -258,12 +250,6 @@ function renderRotuloLocalizacao(
   const rotulo = opcoesLoc ? rotuloCadastroLista(codigo, opcoesLoc) : ''
   return rotulo || nomeFallback || '—'
 }
-
-/** Campos que não entram na edição inline (técnicos ou geridos pelo servidor). */
-export const CAMPOS_NAO_EDITAVEIS_LISTA = new Set([
-  'id_cotacao_bid_frete_internacional',
-  'data_atualizacao_cotacao_bid_frete_internacional',
-])
 
 const OPCOES_OPERACAO = (Object.entries(OPERACAO_LABELS) as Array<[TipoOperacao, string]>).map(
   ([valor, label]) => ({ valor, label }),

@@ -3,7 +3,7 @@ import { Prisma } from '../../../generated/index.js'
 import { requireInternalKey } from '../middleware/internal-key.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/app-error.js'
-import { tipoTaxaOrigemDestinoEnum } from '../../../shared/schemas/taxa-origem-destino.schema.js'
+import { tipoTaxaOrigemDestinoEnum, ehTaxaOrigemDestinoLegada } from '../../../shared/schemas/taxa-origem-destino.schema.js'
 
 const router = Router()
 router.use(requireInternalKey)
@@ -23,6 +23,11 @@ router.get('/', async (req, res, next) => {
 
     const where: Prisma.TaxaOrigemDestinoWhereInput = {
       ...(apenasAtivos ? { ativo_taxa_origem_destino: true } : {}),
+      ...(apenasNaoLegado
+        ? {
+            NOT: { codigo_taxa_origem_destino: { startsWith: 'LEG_', mode: 'insensitive' } },
+          }
+        : {}),
       ...(tipo?.success ? { tipo_taxa_origem_destino: tipo.data } : {}),
       ...(q
         ? {
@@ -44,10 +49,7 @@ router.get('/', async (req, res, next) => {
     ])
 
     const itens = apenasNaoLegado
-      ? itensRaw.filter((item) => {
-          const legado = (item as { legado_taxa_origem_destino?: boolean }).legado_taxa_origem_destino
-          return legado !== true
-        })
+      ? itensRaw.filter((item) => !ehTaxaOrigemDestinoLegada(item))
       : itensRaw
     const total = apenasNaoLegado ? itens.length : totalRaw
 

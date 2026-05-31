@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import {
   filtrarTaxasCatalogoNaoLegado,
   taxasCatalogoPorSecao,
+  opcoesSelectTaxasPorSecao,
+  patchLinhaAoSelecionarTaxaCatalogo,
   linhasParaPayloadTaxas,
   criarLinhaTaxaManual,
   formatarValorTotalPropostaResposta,
@@ -36,15 +38,42 @@ describe('taxas-linha-proposta-bid-frete-internacional', () => {
     expect(filtrarTaxasCatalogoNaoLegado(itens)[0].id_taxa_origem_destino).toBe('a')
   })
 
-  it('usa tipo FRETE quando não há ORIGEM/DESTINO', () => {
+  it('exclui itens com codigo LEG_ importados do legado', () => {
     const itens = [
-      taxa({ id_taxa_origem_destino: 'f1', nome_taxa_origem_destino: 'Handling', tipo_taxa_origem_destino: 'FRETE' }),
-      taxa({ id_taxa_origem_destino: 'o1', nome_taxa_origem_destino: 'THC', tipo_taxa_origem_destino: 'ORIGEM' }),
+      taxa({ id_taxa_origem_destino: 'a', nome_taxa_origem_destino: 'Pick Up', tipo_taxa_origem_destino: 'ORIGEM', codigo_taxa_origem_destino: 'PICKUP' }),
+      taxa({ id_taxa_origem_destino: 'b', nome_taxa_origem_destino: 'Taxa CE', tipo_taxa_origem_destino: 'ORIGEM', codigo_taxa_origem_destino: 'LEG_1001_ORIGEM' }),
     ]
-    expect(taxasCatalogoPorSecao(itens, 'origem').map((t) => t.id_taxa_origem_destino)).toEqual(['o1'])
-    const soFrete = [itens[0]]
-    expect(taxasCatalogoPorSecao(soFrete, 'origem')).toHaveLength(1)
-    expect(taxasCatalogoPorSecao(soFrete, 'destino')).toHaveLength(1)
+    expect(filtrarTaxasCatalogoNaoLegado(itens)).toHaveLength(1)
+    expect(filtrarTaxasCatalogoNaoLegado(itens)[0].codigo_taxa_origem_destino).toBe('PICKUP')
+  })
+
+  it('retorna todas as taxas do tipo da seção (exceto legado)', () => {
+    const itens = [
+      taxa({ id_taxa_origem_destino: 'f1', nome_taxa_origem_destino: 'BAF', tipo_taxa_origem_destino: 'FRETE' }),
+      taxa({ id_taxa_origem_destino: 'o1', nome_taxa_origem_destino: 'THC Origem', tipo_taxa_origem_destino: 'ORIGEM' }),
+      taxa({ id_taxa_origem_destino: 'o2', nome_taxa_origem_destino: 'Pick Up', tipo_taxa_origem_destino: 'ORIGEM' }),
+      taxa({ id_taxa_origem_destino: 'd1', nome_taxa_origem_destino: 'THC Destino', tipo_taxa_origem_destino: 'DESTINO' }),
+    ]
+    expect(taxasCatalogoPorSecao(itens, 'origem').map((t) => t.id_taxa_origem_destino)).toEqual(['f1', 'o1', 'o2'])
+    expect(taxasCatalogoPorSecao(itens, 'destino').map((t) => t.id_taxa_origem_destino)).toEqual(['f1', 'd1'])
+  })
+
+  it('FRETE com sufixo - Origem/- Destino restringe a uma seção', () => {
+    const itens = [
+      taxa({ id_taxa_origem_destino: 'h1', nome_taxa_origem_destino: 'Handling - Origem', tipo_taxa_origem_destino: 'FRETE' }),
+      taxa({ id_taxa_origem_destino: 'h2', nome_taxa_origem_destino: 'Handling - Destino', tipo_taxa_origem_destino: 'FRETE' }),
+      taxa({ id_taxa_origem_destino: 'h3', nome_taxa_origem_destino: 'Handling', tipo_taxa_origem_destino: 'FRETE' }),
+    ]
+    expect(taxasCatalogoPorSecao(itens, 'origem').map((t) => t.id_taxa_origem_destino)).toEqual(['h1', 'h3'])
+    expect(taxasCatalogoPorSecao(itens, 'destino').map((t) => t.id_taxa_origem_destino)).toEqual(['h2', 'h3'])
+  })
+
+  it('seção origem não inclui taxas FRETE só-destino', () => {
+    const itens = [
+      taxa({ id_taxa_origem_destino: 'h2', nome_taxa_origem_destino: 'Handling - Destino', tipo_taxa_origem_destino: 'FRETE' }),
+    ]
+    expect(taxasCatalogoPorSecao(itens, 'origem')).toHaveLength(0)
+    expect(taxasCatalogoPorSecao(itens, 'destino')).toHaveLength(1)
   })
 
   it('valor total soma frete e taxas na mesma moeda', () => {
@@ -74,6 +103,35 @@ describe('taxas-linha-proposta-bid-frete-internacional', () => {
       { moeda: 'USD', total: 20 },
       { moeda: 'EUR', total: 10 },
     ])
+  })
+
+  it('formulário vazio sem moeda não exibe total fictício', () => {
+    expect(
+      agruparValorTotalPropostaResposta({
+        moeda_frete: '',
+        valor_frete: '',
+        linhas_taxa_origem: [],
+        linhas_taxa_destino: [],
+      }),
+    ).toEqual([])
+
+    expect(
+      calcularComposicaoPropostaResposta({
+        moeda_frete: '',
+        valor_frete: '',
+        linhas_taxa_origem: [],
+        linhas_taxa_destino: [],
+      }),
+    ).toEqual([])
+
+    expect(
+      formatarValorTotalPropostaResposta({
+        moeda_frete: '',
+        valor_frete: '',
+        linhas_taxa_origem: [],
+        linhas_taxa_destino: [],
+      }),
+    ).toBe('—')
   })
 
   it('valor total multi-moeda mantém moeda do frete em primeiro', () => {
@@ -133,6 +191,31 @@ describe('taxas-linha-proposta-bid-frete-internacional', () => {
         total: 20,
       },
     ])
+  })
+
+  it('monta opções do select por seção sem legado', () => {
+    const itens = [
+      taxa({ id_taxa_origem_destino: 'o1', nome_taxa_origem_destino: 'Pick Up', tipo_taxa_origem_destino: 'ORIGEM' }),
+      taxa({ id_taxa_origem_destino: 'd1', nome_taxa_origem_destino: 'Desconsolidação', tipo_taxa_origem_destino: 'DESTINO' }),
+      taxa({ id_taxa_origem_destino: 'leg', nome_taxa_origem_destino: 'Legado', tipo_taxa_origem_destino: 'ORIGEM', legado_taxa_origem_destino: true }),
+    ]
+    expect(opcoesSelectTaxasPorSecao(itens, 'origem')).toEqual([
+      { valor: 'o1', rotulo: 'Pick Up' },
+    ])
+    expect(opcoesSelectTaxasPorSecao(itens, 'destino')).toEqual([
+      { valor: 'd1', rotulo: 'Desconsolidação' },
+    ])
+  })
+
+  it('patch de seleção preenche id e nome do catálogo', () => {
+    const catalogo = [
+      taxa({ id_taxa_origem_destino: 'o1', nome_taxa_origem_destino: 'Handling', tipo_taxa_origem_destino: 'ORIGEM' }),
+    ]
+    expect(patchLinhaAoSelecionarTaxaCatalogo(catalogo, 'o1')).toEqual({
+      id_taxa_origem_destino: 'o1',
+      nome_taxa_bid_frete_internacional: 'Handling',
+      manual: false,
+    })
   })
 
   it('monta payload apenas com linhas nomeadas', () => {

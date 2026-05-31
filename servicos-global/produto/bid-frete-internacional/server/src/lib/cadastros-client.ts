@@ -1,4 +1,4 @@
-const FETCH_TIMEOUT_MS = 5_000
+const FETCH_TIMEOUT_MS = 12_000
 
 function getCadastrosUrl(): string {
   return process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
@@ -8,7 +8,7 @@ function getInternalServiceKey(): string {
   const key = process.env.CHAVE_INTERNA_SERVICO
   if (key?.trim()) return key
   if (process.env.NODE_ENV !== 'production') {
-    return process.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key'
+    return process.env.VITE_CHAVE_INTERNA_SERVICO ?? 'gravity-dev-internal-key-2026'
   }
   throw new Error('CHAVE_INTERNA_SERVICO ausente — BID não pode chamar Cadastros')
 }

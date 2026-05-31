@@ -340,6 +340,7 @@ model PropostaBidFreteInternacional {
   // Prazos
   dias_transito_proposta_bid_frete_internacional   Int               // tempo de transito em dias
   dias_free_time_proposta_bid_frete_internacional      Int?              // free time demurrage
+  dias_prazo_pagamento_proposta_bid_frete_internacional Int?           // prazo de pagamento em dias
   validade_proposta_bid_frete_internacional    DateTime          // data limite de validade da proposta
 
   // Logistica

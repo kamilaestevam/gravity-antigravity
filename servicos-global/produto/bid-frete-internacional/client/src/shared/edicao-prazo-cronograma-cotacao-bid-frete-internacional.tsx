@@ -23,7 +23,6 @@ export interface EdicaoPrazoCronogramaCotacaoBidFreteInternacionalProps {
   salvando: boolean
   resultadoSalvar: 'sucesso' | 'erro' | null
   onConfirmar: (iso: string | null) => void | Promise<void>
-  avisoSomenteLeitura?: string
 }
 
 export function EdicaoPrazoCronogramaCotacaoBidFreteInternacional({
@@ -33,7 +32,6 @@ export function EdicaoPrazoCronogramaCotacaoBidFreteInternacional({
   salvando,
   resultadoSalvar,
   onConfirmar,
-  avisoSomenteLeitura,
 }: EdicaoPrazoCronogramaCotacaoBidFreteInternacionalProps) {
   const triggerRef = useRef<HTMLButtonElement>(null)
   const [popoverAberto, setPopoverAberto] = useState(false)
@@ -71,12 +69,8 @@ export function EdicaoPrazoCronogramaCotacaoBidFreteInternacional({
           <PencilSimple weight="bold" size={14} className="dc-cronograma-prazo-trigger-icone" aria-hidden />
         </button>
       ) : (
-        <span className="dc-cronograma-linha-valor">{textoExibicao ?? '—'}</span>
+        <span className="cdado-texto">{textoExibicao ?? '—'}</span>
       )}
-
-      {!permiteEditar && avisoSomenteLeitura ? (
-        <p className="dc-cronograma-aviso">{avisoSomenteLeitura}</p>
-      ) : null}
 
       {popoverAberto && anchorRect ? (
         <EdicaoPeriodoPopoverGlobal

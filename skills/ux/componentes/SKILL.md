@@ -45,10 +45,34 @@ Antes de criar qualquer componente novo, consultar este catálogo. Se a necessid
 | Calendário e agendamentos | Serviço de organização **agendamento** |
 | Chat com IA contextual | Serviço de organização **gabi** |
 | Suporte com tickets e SLA | Serviço produto **helpdesk** |
+| Card de campo em painel (editável / leitura / bloqueado) | **CampoDadoGlobal** |
 
 ---
 
 ## Componentes do nucleo-global
+
+### CampoDadoGlobal
+
+**Quando usar:** painéis de detalhe, abas “Dados gerais” ou seções estilo Processo › Dados Técnicos — um rótulo + valor (ou controle customizado) com **modo explícito** para o usuário.
+
+```typescript
+import { CampoDadoGlobal } from '@nucleo/campo-dado-global'
+```
+
+**Modos (`modo`):**
+- `somente_leitura` — badge “Somente leitura” (ícone olho); datas e metadados fixos
+- `editavel` — badge “Editável” (ícone lápis); hover com destaque; use `children` para popover/input
+- `bloqueado` — badge “Bloqueado” (ícone cadeado); `motivo` obrigatório quando a regra de negócio impede edição
+
+**Barra lateral:** `statusPreenchimento` — `preenchido` | `vazio-opc` | `vazio-obrig` (verde / cinza / amarelo).
+
+**i18n:** `comum.campo_modo_editavel`, `comum.campo_modo_somente_leitura`, `comum.campo_modo_bloqueado`.
+
+**Referência de uso:** BID › Cotação › Dados gerais (`painel-dados-gerais-cotacao-bid-frete-internacional.tsx`).
+
+**Quando NÃO usar:** formulários de cadastro em fluxo wizard — usar inputs do design system; listagens — usar **TabelaGlobal**.
+
+---
 
 ### TabelaGlobal
 

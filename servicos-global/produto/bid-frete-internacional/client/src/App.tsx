@@ -6,7 +6,7 @@
  */
 
 import React, { lazy, Suspense, useEffect, useMemo } from 'react'
-import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
 import { useAuth, useClerk } from '@clerk/clerk-react'
 import { TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
@@ -106,6 +106,14 @@ const ECOSYSTEM_NODES: EcosystemNode[] = [
 
 function LoadingFallback() {
   return <PaginaCarregandoBidFreteInternacional className="bid-frete-page-shell" />
+}
+
+/** Redirect legado: /cotacoes e /cotacoes?visao=* → /lista ou /kanban (rotas-convencao.md). */
+function RedirectCotacoesVisaoLegado() {
+  const [searchParams] = useSearchParams()
+  const visao = searchParams.get('visao')
+  const destino = visao === 'kanban' ? 'kanban' : 'lista'
+  return <Navigate to={destino} replace />
 }
 
 export default function App() {
@@ -241,7 +249,9 @@ export default function App() {
           <Route path="/"              element={<Navigate to="visao-geral" replace />} />
           <Route path="visao-geral"    element={<VisaoGeral />} />
           <Route path="dashboard"      element={<Dashboard />} />
-          <Route path="cotacoes"       element={<Cotacoes />} />
+          <Route path="lista"          element={<Cotacoes />} />
+          <Route path="kanban"         element={<Cotacoes />} />
+          <Route path="cotacoes"       element={<RedirectCotacoesVisaoLegado />} />
           <Route path="cotacoes/nova" element={<ModalNovaCotacaoBidFreteInternacional />} />
           <Route path="cotacoes/importar" element={<CotacoesImportar />} />
           <Route path="cotacoes/:id_cotacao" element={<DetalheCotacao />} />

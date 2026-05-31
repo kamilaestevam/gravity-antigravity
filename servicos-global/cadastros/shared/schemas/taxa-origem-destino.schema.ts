@@ -17,3 +17,13 @@ export const listaTaxasOrigemDestinoSchema = z.object({
 })
 
 export type TaxaOrigemDestino = z.infer<typeof taxaOrigemDestinoSchema>
+
+/** Importações legadas usam prefixo LEG_ no código (ex.: LEG_1000_DESTINO). */
+export function ehTaxaOrigemDestinoLegada(item: {
+  legado_taxa_origem_destino?: boolean
+  codigo_taxa_origem_destino?: string | null
+}): boolean {
+  if (item.legado_taxa_origem_destino === true) return true
+  const codigo = (item.codigo_taxa_origem_destino ?? '').trim().toUpperCase()
+  return codigo.startsWith('LEG_')
+}

@@ -163,7 +163,7 @@ async function main() {
     const numero = await executarWizardAberta(page)
     log(`✓ Cotação criada: ${numero ?? '(sem número na resposta)'}`)
 
-    await page.goto(`${BASE_UI}/bid-frete/cotacoes?visao=lista`, { waitUntil: 'domcontentloaded', timeout: 45000 })
+    await page.goto(`${BASE_UI}/bid-frete/lista`, { waitUntil: 'domcontentloaded', timeout: 45000 })
     if (numero) {
       await page.getByText(numero).first().waitFor({ timeout: 30000 })
     }

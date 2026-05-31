@@ -201,11 +201,18 @@ export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown):
         raw.transbordos_proposta_bid_frete_internacional ??
         0,
     ),
-    quantidade_escala_proposta_bid_frete_internacional: Number(
-      raw.quantidade_escala_proposta_bid_frete_internacional ?? 0,
-    ),
+    quantidade_escala_proposta_bid_frete_internacional: (() => {
+      const explicito = raw.quantidade_escala_proposta_bid_frete_internacional
+      if (explicito != null && explicito !== '') return Number(explicito)
+      const escalasRaw = raw.escalas_proposta_bid_frete_internacional
+      if (typeof escalasRaw === 'string' && /^\d+$/.test(escalasRaw.trim())) {
+        return Number(escalasRaw.trim())
+      }
+      return 0
+    })(),
     escalas_proposta_bid_frete_internacional:
       typeof raw.escalas_proposta_bid_frete_internacional === 'string'
+        && !/^\d+$/.test(raw.escalas_proposta_bid_frete_internacional.trim())
         ? raw.escalas_proposta_bid_frete_internacional
         : null,
     validade_proposta_bid_frete_internacional:

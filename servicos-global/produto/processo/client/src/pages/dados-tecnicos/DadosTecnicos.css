@@ -261,7 +261,8 @@
   align-items: stretch;
   gap: 0;
   padding: 0;
-  background: rgba(15, 23, 42, 0.35);
+  /* Mesma cor dos cards do Workflow (#1e293b solido — proc-surface) */
+  background: var(--proc-surface, var(--ws-surface, #1e293b));
   border: 1px solid rgba(148, 163, 184, 0.08);
   border-radius: 10px;
   overflow: hidden;
@@ -272,9 +273,9 @@
 .dt-row:hover {
   transform: translateY(-1px);
   border-color: rgba(167, 139, 250, 0.35);
-  background: rgba(30, 41, 59, 0.55);
+  background: var(--proc-surface, var(--ws-surface, #1e293b));
   box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.4),
-              0 0 0 1px rgba(167, 139, 250, 0.08);
+              0 0 0 1px rgba(167, 139, 250, 0.15);
 }
 
 /* ── Barra de status (esquerda) ──────────────────────────────────────── */

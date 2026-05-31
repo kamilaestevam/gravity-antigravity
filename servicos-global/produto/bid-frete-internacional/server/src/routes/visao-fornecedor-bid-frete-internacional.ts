@@ -19,28 +19,16 @@ import { motorClassificacao } from '../services/motor-classificacao-bid-frete-in
 import { AppError } from '../lib/erros.js'
 import { monetizacao } from '../services/monetizacao.js'
 import { enviarPropostaDisparoBidFreteInternacional } from '../services/enviar-proposta-disparo-bid-frete-internacional.js'
+import {
+  EnviarPropostaSchema,
+  formatarErroValidacaoPropostaEnviarProposta,
+} from '../schemas/enviar-proposta-bid-frete-internacional-schema.js'
+import {
+  COTACAO_SELECT_RESPOSTA_FORNECEDOR,
+  enriquecerDisparosRespostaFornecedor,
+} from '../lib/enriquecer-disparo-resposta-fornecedor-bid-frete-internacional.js'
 
 const router = Router()
-
-const EnviarPropostaSchema = z.object({
-  moeda_proposta_bid_frete_internacional: z.string().default('USD'),
-  valor_frete_proposta_bid_frete_internacional: z.number().positive(),
-  taxas_origem_proposta_bid_frete_internacional: z.number().min(0).default(0),
-  taxas_destino_proposta_bid_frete_internacional: z.number().min(0).default(0),
-  dias_transito_proposta_bid_frete_internacional: z.number().int().positive(),
-  dias_free_time_proposta_bid_frete_internacional: z.number().int().optional(),
-  transbordos_proposta_bid_frete_internacional: z.number().int().min(0).default(0),
-  escalas_proposta_bid_frete_internacional: z.string().optional(),
-  observacoes_proposta_bid_frete_internacional: z.string().optional(),
-  validade_proposta_bid_frete_internacional: z.string().datetime(),
-  taxas: z.array(z.object({
-    tipo_taxa_bid_frete_internacional: z.enum(['origem', 'destino', 'frete']),
-    nome_taxa_bid_frete_internacional: z.string(),
-    valor_taxa_bid_frete_internacional: z.number(),
-    moeda_taxa_bid_frete_internacional: z.string().default('USD'),
-    id_taxa_origem_destino: z.string().nullable().optional(),
-  })).optional(),
-})
 
 const TabelaBidFreteInternacionalSchema = z.object({
   origem_codigo_tabela_bid_frete_internacional: z.string().min(1),
@@ -141,27 +129,18 @@ router.get('/cotacoes-pendentes', async (req: Request, res: Response, next: Next
     const disparos = await (req.prisma as any).disparoCotacaoBidFreteInternacional.findMany({
       where: {
         id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
-        status_disparo_cotacao_bid_frete_internacional: { in: ['ENVIADO', 'VISUALIZADO', 'PENDENTE'] },
+        status_disparo_cotacao_bid_frete_internacional: { in: ['ENVIADO', 'VISUALIZADO', 'PENDENTE', 'RESPONDIDO'] },
       },
       include: {
+        proposta: {
+          include: {
+            taxas_origem: true,
+            taxas_destino: true,
+          },
+        },
         cotacao: {
           select: {
-            id_cotacao_bid_frete_internacional: true,
-            numero_cotacao_bid_frete_internacional: true,
-            modal_cotacao_bid_frete_internacional: true,
-            modalidade_cotacao_bid_frete_internacional: true,
-            origem_nome_cotacao_bid_frete_internacional: true,
-            origem_pais_cotacao_bid_frete_internacional: true,
-            destino_nome_cotacao_bid_frete_internacional: true,
-            destino_pais_cotacao_bid_frete_internacional: true,
-            descricao_mercadoria_cotacao_bid_frete_internacional: true,
-            ncm_cotacao_bid_frete_internacional: true,
-            incoterm_cotacao_bid_frete_internacional: true,
-            quantidade_cotacao_bid_frete_internacional: true,
-            tipo_container_cotacao_bid_frete_internacional: true,
-            peso_kg_cotacao_bid_frete_internacional: true,
-            data_limite_resposta_cotacao_bid_frete_internacional: true,
-            anonima_cotacao_bid_frete_internacional: true,
+            ...COTACAO_SELECT_RESPOSTA_FORNECEDOR,
             valor_meta_cotacao_bid_frete_internacional: true,
           },
         },
@@ -183,9 +162,11 @@ router.get('/cotacoes-pendentes', async (req: Request, res: Response, next: Next
       })
     }
 
+    const disparosEnriquecidos = await enriquecerDisparosRespostaFornecedor(disparos as never[])
+
     res.json({
       visao_fornecedor_bid_frete_internacional: {
-        disparos_cotacao_bid_frete_internacional: disparos,
+        disparos_cotacao_bid_frete_internacional: disparosEnriquecidos,
       },
     })
   } catch (err) {
@@ -243,7 +224,7 @@ router.get('/propostas', async (req: Request, res: Response, next: NextFunction)
 router.post('/responder/:id_disparo_cotacao_bid_frete_internacional', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = EnviarPropostaSchema.safeParse(req.body)
-    if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
+    if (!parsed.success) throw new AppError(formatarErroValidacaoPropostaEnviarProposta(parsed.error), 400, 'VALIDATION_ERROR')
 
     const userId = req.headers['x-id-usuario'] as string
     await resolverFornecedorLogado(req)
@@ -266,7 +247,8 @@ router.post('/responder/:id_disparo_cotacao_bid_frete_internacional', async (req
     })
   } catch (err) {
     if (err instanceof Error && 'statusCode' in err) {
-      next(new AppError(err.message, (err as Error & { statusCode: number }).statusCode))
+      const e = err as Error & { statusCode: number; code?: string }
+      next(new AppError(e.message, e.statusCode, e.code ?? 'BAD_REQUEST'))
       return
     }
     next(err)
@@ -421,4 +403,5 @@ router.delete('/tabelas-valor/:id_tabela_bid_frete_internacional', async (req: R
   }
 })
 
-export { router as visaoFornecedorBidFreteInternacionalRouter, EnviarPropostaSchema, TabelaBidFreteInternacionalSchema }
+export { router as visaoFornecedorBidFreteInternacionalRouter, TabelaBidFreteInternacionalSchema }
+export { EnviarPropostaSchema, formatarErroValidacaoPropostaEnviarProposta } from '../schemas/enviar-proposta-bid-frete-internacional-schema.js'

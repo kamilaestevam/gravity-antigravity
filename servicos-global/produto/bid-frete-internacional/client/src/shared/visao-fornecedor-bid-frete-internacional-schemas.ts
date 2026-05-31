@@ -60,9 +60,25 @@ export const visaoFornecedorBidFreteInternacionalDesempenhoResponseSchema = z.ob
   }),
 })
 
+const modoAcessoRespostaDisparoSchema = z.enum(['criar', 'editar', 'bloqueado'])
+
+const codigoBloqueioRespostaDisparoSchema = z.enum([
+  'TOKEN_INVALID',
+  'TOKEN_EXPIRED',
+  'COTACAO_APROVADA',
+  'COTACAO_REPROVADA',
+  'COTACAO_CANCELADA',
+  'COTACAO_EXPIRADA',
+  'PROPOSTA_APROVADA',
+  'PROPOSTA_REPROVADA',
+  'PRAZO_RESPOSTA_ENCERRADO',
+]).nullable()
+
 export const visaoFornecedorBidFreteInternacionalPublicoDisparoResponseSchema = z.object({
   visao_fornecedor_bid_frete_internacional_publico: z.object({
     disparo_cotacao_bid_frete_internacional: z.record(z.string(), z.unknown()),
+    modo_acesso_resposta_disparo_bid_frete_internacional: modoAcessoRespostaDisparoSchema,
+    codigo_bloqueio_resposta_disparo_bid_frete_internacional: codigoBloqueioRespostaDisparoSchema,
   }),
 })
 
@@ -88,8 +104,13 @@ export const visaoFornecedorBidFreteInternacionalPublicoEnviarPropostaResponseSc
   visao_fornecedor_bid_frete_internacional_publico: z.object({
     sucesso_envio_proposta_visao_fornecedor_bid_frete_internacional: z.boolean(),
     mensagem_visao_fornecedor_bid_frete_internacional_publico: z.string(),
+    modo_acesso_resposta_disparo_bid_frete_internacional: modoAcessoRespostaDisparoSchema.optional(),
+    proposta_bid_frete_internacional: z.record(z.string(), z.unknown()).optional(),
   }),
 })
+
+export type ModoAcessoRespostaDisparoBidFreteInternacional = z.infer<typeof modoAcessoRespostaDisparoSchema>
+export type CodigoBloqueioRespostaDisparoBidFreteInternacional = z.infer<typeof codigoBloqueioRespostaDisparoSchema>
 
 export type VisaoFornecedorBidFreteInternacionalDashboard =
   z.infer<typeof visaoFornecedorBidFreteInternacionalDashboardResponseSchema>['visao_fornecedor_bid_frete_internacional']

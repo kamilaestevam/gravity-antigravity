@@ -1,0 +1,998 @@
+/**
+ * Formulário de resposta do fornecedor — Solid Slate (alinhado nova cotação / cockpit).
+ */
+
+html:has(.brc-page--publico),
+html:has(.brc-page--publico) body {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.brc-page {
+  --brc-accent: var(--accent, #6366f1);
+  --brc-accent-hover: var(--accent-hover, #4f46e5);
+  --brc-border: rgba(148, 163, 184, 0.14);
+  --brc-card-bg: linear-gradient(168deg, #2a3548 0%, #1e293b 42%, #161f2e 100%);
+  --brc-card-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 12px 36px rgba(0, 0, 0, 0.28);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.brc-page--publico {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1.5rem 1.5rem 2.5rem;
+  overflow-x: hidden;
+  overflow-y: visible;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.12), transparent),
+    var(--bg-body-dark, #0f172a);
+}
+
+.brc-page--logado {
+  width: 100%;
+  min-height: 0;
+}
+
+.pg-container.brc-page--logado.bid-frete-page-shell {
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.pg-container.brc-page--logado.bid-frete-page-shell .pg-conteudo-area {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.brc-shell {
+  width: 100%;
+  max-width: 44rem;
+  flex: 0 0 auto;
+}
+
+.brc-page--logado .brc-shell {
+  max-width: none;
+}
+
+.brc-page--logado .brc-card--mensagem {
+  max-width: 44rem;
+  margin: 0 auto;
+}
+
+.brc-card--carregando .brc-mensagem-corpo {
+  min-height: 12rem;
+  justify-content: center;
+}
+
+.brc-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--brc-border);
+  background: var(--brc-card-bg);
+  box-shadow: var(--brc-card-shadow);
+}
+
+.brc-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4f46e5 0%, #6366f1 40%, #7c3aed 70%, #a78bfa 100%);
+  pointer-events: none;
+}
+
+.brc-card--form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+.brc-card--mensagem {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+}
+
+.brc-card--mensagem.brc-card--sucesso::before {
+  background: linear-gradient(90deg, #15803d 0%, #22c55e 45%, #4ade80 100%);
+}
+
+.brc-card--mensagem.brc-card--bloqueado::before {
+  background: linear-gradient(90deg, #b45309 0%, #f59e0b 50%, #fbbf24 100%);
+}
+
+.brc-aviso-edicao {
+  margin: 0 1.25rem 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  background: rgba(99, 102, 241, 0.12);
+  color: #c7d2fe;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.brc-aviso-edicao p {
+  margin: 0;
+}
+
+.brc-card--mensagem.brc-card--invalido::before {
+  background: linear-gradient(90deg, #b91c1c 0%, #ef4444 50%, #f87171 100%);
+}
+
+.brc-card--mensagem.brc-card--carregando::before {
+  background: linear-gradient(90deg, #4f46e5 0%, #6366f1 40%, #7c3aed 70%, #a78bfa 100%);
+}
+
+.brc-mensagem-corpo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.85rem;
+  padding: 2.25rem 1.75rem 2rem;
+}
+
+.brc-mensagem-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.brc-card--sucesso .brc-mensagem-icone {
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(74, 222, 128, 0.32);
+  box-shadow: 0 0 24px rgba(34, 197, 94, 0.12);
+}
+
+.brc-card--bloqueado .brc-mensagem-icone {
+  color: #f59e0b;
+}
+
+.brc-card--bloqueado .brc-mensagem-painel {
+  border-color: rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.brc-card--invalido .brc-mensagem-icone {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.1);
+}
+
+.brc-mensagem-textos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  max-width: 24rem;
+}
+
+.brc-mensagem-painel {
+  width: 100%;
+  max-width: 24rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.brc-card--sucesso .brc-mensagem-painel {
+  border-color: rgba(74, 222, 128, 0.18);
+  background: rgba(34, 197, 94, 0.06);
+}
+
+.brc-card--invalido .brc-mensagem-painel {
+  border-color: rgba(248, 113, 113, 0.2);
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.brc-mensagem-acoes {
+  width: 100%;
+  max-width: 24rem;
+  margin-top: 0.35rem;
+}
+
+.brc-mensagem-acoes .gb-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.brc-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.35rem 1.5rem 1.15rem;
+  border-bottom: 1px solid var(--brc-border);
+}
+
+.brc-header-corpo {
+  min-width: 0;
+  flex: 1;
+}
+
+.brc-header-icone {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 10px;
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.14);
+  border: 1px solid rgba(129, 140, 248, 0.28);
+}
+
+.brc-header-titulo {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--text-primary, #f1f5f9);
+  line-height: 1.35;
+}
+
+.brc-header-sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.brc-header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+}
+
+.brc-header-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
+  padding: 0.3rem 0.7rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.35;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(129, 140, 248, 0.24);
+  color: #e2e8f0;
+}
+
+.brc-header-chip--oculto {
+  background: rgba(100, 116, 139, 0.1);
+  border-color: rgba(148, 163, 184, 0.28);
+  border-style: dashed;
+  color: #94a3b8;
+}
+
+.brc-header-chip-label {
+  flex-shrink: 0;
+  font-weight: 500;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.6875rem;
+}
+
+.brc-header-chip-valor {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #f1f5f9;
+}
+
+.brc-header-chip--oculto .brc-header-chip-valor {
+  color: #94a3b8;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.brc-layout-logado {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 1.15rem;
+  padding: 1.25rem 1.35rem 1.35rem;
+}
+
+@media (max-width: 960px) {
+  .brc-layout-logado {
+    grid-template-columns: 1fr;
+  }
+}
+
+.brc-secao {
+  padding: 1.15rem 1.35rem 1.25rem;
+}
+
+.brc-layout-logado .brc-secao {
+  padding: 0;
+}
+
+.brc-secao + .brc-secao {
+  border-top: 1px solid var(--brc-border);
+}
+
+.brc-layout-logado .brc-secao + .brc-secao {
+  border-top: none;
+}
+
+.brc-secao-titulo {
+  margin: 0 0 1rem;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #c7d2fe;
+}
+
+.brc-detalhes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem 1rem;
+}
+
+.brc-detalhe--wide {
+  grid-column: 1 / -1;
+}
+
+.brc-detalhe {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.brc-detalhe-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted, #64748b);
+}
+
+.brc-detalhe-valor {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  line-height: 1.4;
+}
+
+/* Mesma família da página (Plus Jakarta Sans); só alinha dígitos. */
+.brc-detalhe-valor--mono {
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.brc-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem 1rem;
+}
+
+@media (max-width: 560px) {
+  .brc-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.brc-field--wide,
+.brc-field--total {
+  grid-column: 1 / -1;
+}
+
+.brc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.brc-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.brc-label-obrigatorio {
+  color: #f87171;
+  margin-left: 0.15rem;
+}
+
+.brc-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 2.5rem;
+  padding: 0.5625rem 0.875rem;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1.5px solid rgba(129, 140, 248, 0.18);
+  border-radius: var(--radius-md, 8px);
+  color: var(--text-primary, #f1f5f9);
+  font-size: 0.875rem;
+  font-family: inherit;
+  outline: none;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.brc-input:hover {
+  border-color: rgba(129, 140, 248, 0.32);
+}
+
+.brc-input:focus {
+  border-color: var(--brc-accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22);
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.brc-input::placeholder {
+  color: var(--text-muted, #64748b);
+}
+
+.brc-input--mono {
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+select.brc-input {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+.brc-textarea {
+  resize: vertical;
+  min-height: 5.5rem;
+}
+
+.brc-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.28);
+}
+
+.brc-total--secao {
+  margin-top: 0.15rem;
+  align-items: stretch;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.brc-total-secao-linha {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.brc-total-secao-dica {
+  margin: 0;
+  width: 100%;
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: #64748b;
+}
+
+.brc-total--secao .brc-total-valor,
+.brc-total--secao .brc-total-moedas {
+  margin-left: auto;
+  text-align: right;
+}
+
+.brc-total--secao .brc-total-valor {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.brc-total-valor--secao {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.brc-total-linha .brc-total-moedas,
+.brc-total-linha .brc-total-valor {
+  flex-shrink: 0;
+}
+
+.brc-total-moedas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.brc-total-moedas--secao {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: min(100%, 15rem);
+  gap: 0.45rem;
+}
+
+.brc-total-moedas--geral {
+  gap: 0.42rem;
+}
+
+.brc-total-moeda-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.22rem 0.55rem 0.22rem 0.35rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(129, 140, 248, 0.25);
+}
+
+.brc-total-moeda-sigla {
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  padding: 0.2rem 0.38rem;
+  border-radius: 4px;
+  background: rgba(99, 102, 241, 0.38);
+  color: #e0e7ff;
+}
+
+.brc-total-moeda-valor {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.brc-total-moedas--secao .brc-total-moeda-valor {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.brc-total-moedas--geral .brc-total-moeda-valor {
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+
+.brc-total-moedas--geral .brc-total-moeda-chip {
+  padding: 0.3rem 0.68rem 0.3rem 0.42rem;
+}
+
+.brc-total--geral {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
+}
+
+.brc-total-linha {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.brc-total-legenda {
+  margin: 0;
+  padding-top: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: #94a3b8;
+  border-top: 1px solid rgba(129, 140, 248, 0.14);
+}
+
+.brc-total-legenda--secundaria {
+  padding-top: 0.25rem;
+  border-top: none;
+  color: #64748b;
+  font-size: 0.625rem;
+}
+
+.brc-total-rotulo--bloco {
+  display: block;
+  margin-bottom: 0.65rem;
+}
+
+.brc-tabela-resumo-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.brc-tabela-resumo {
+  width: 100%;
+  min-width: 36rem;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.8125rem;
+}
+
+.brc-tabela-resumo th:nth-child(1),
+.brc-tabela-resumo td:nth-child(1) {
+  border-right: 2px solid rgba(129, 140, 248, 0.45);
+  padding-right: 1.25rem;
+}
+
+.brc-tabela-resumo th:nth-child(2),
+.brc-tabela-resumo td:nth-child(2) {
+  border-right: 2px solid rgba(129, 140, 248, 0.45);
+  padding-right: 1.25rem;
+  padding-left: 1.25rem;
+}
+
+.brc-tabela-resumo th:nth-child(3),
+.brc-tabela-resumo td:nth-child(3) {
+  border-right: 2px solid rgba(129, 140, 248, 0.45);
+  padding-right: 1.25rem;
+  padding-left: 1.25rem;
+}
+
+.brc-tabela-resumo th:nth-child(4),
+.brc-tabela-resumo td:nth-child(4) {
+  padding-left: 1.25rem;
+}
+
+.brc-tabela-resumo th {
+  padding: 0.55rem 0.65rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  color: #a5b4fc;
+  background: rgba(15, 23, 42, 0.35);
+  border-bottom: 1px solid rgba(129, 140, 248, 0.22);
+}
+
+.brc-tabela-resumo th:first-child {
+  border-radius: 8px 0 0 0;
+}
+
+.brc-tabela-resumo th:last-child {
+  border-radius: 0 8px 0 0;
+}
+
+.brc-tabela-resumo td {
+  padding: 0.65rem;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.14);
+  background: rgba(15, 23, 42, 0.28);
+}
+
+.brc-tabela-resumo tbody tr td:first-child {
+  border-left: 1px solid rgba(129, 140, 248, 0.14);
+}
+
+.brc-tabela-resumo tbody tr td:last-child {
+  border-right: 1px solid rgba(129, 140, 248, 0.14);
+}
+
+.brc-tabela-resumo tbody tr:last-child td:first-child {
+  border-radius: 0 0 0 8px;
+}
+
+.brc-tabela-resumo tbody tr:last-child td:last-child {
+  border-radius: 0 0 8px 0;
+}
+
+.brc-tabela-resumo-coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+}
+
+.brc-tabela-resumo-coluna--totais {
+  gap: 0.5rem;
+}
+
+.brc-tabela-resumo-vazio {
+  color: #64748b;
+  font-size: 0.8125rem;
+}
+
+.brc-tabela-resumo-frete-valor {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.brc-tabela-resumo-itens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.brc-tabela-resumo-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  line-height: 1.35;
+}
+
+.brc-tabela-resumo-item-nome {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #cbd5e1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.brc-tabela-resumo-item-valor {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #e2e8f0;
+}
+
+.brc-tabela-resumo-subtotais {
+  margin-top: 0.15rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed rgba(129, 140, 248, 0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.brc-tabela-resumo-subtotais-rotulo {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.brc-tabela-resumo-subtotais-valores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.brc-tabela-resumo-subtotal-chip {
+  display: inline-flex;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #e0e7ff;
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(129, 140, 248, 0.22);
+}
+
+.brc-tabela-resumo-total-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.35rem 0.45rem;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(129, 140, 248, 0.24);
+}
+
+.brc-tabela-resumo-total-valor {
+  font-size: 1.125rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.brc-tabela-resumo th:last-child,
+.brc-tabela-resumo td:last-child {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.brc-total-rotulo {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #a5b4fc;
+}
+
+.brc-total-valor {
+  font-size: 1.375rem;
+  font-weight: 800;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.brc-taxas-secao {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.brc-taxas-secao-titulo {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.brc-taxas-aviso {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+}
+
+.brc-taxas-linhas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.brc-taxas-linha {
+  display: grid;
+  grid-template-columns: 1fr 5.5rem 7rem 2rem;
+  gap: 0.5rem;
+  align-items: end;
+}
+
+@media (max-width: 520px) {
+  .brc-taxas-linha {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .brc-taxas-linha-valor {
+    grid-column: 1 / -1;
+  }
+
+  .brc-taxas-linha-remover {
+    grid-column: 2;
+    justify-self: end;
+  }
+}
+
+.brc-input--readonly {
+  opacity: 0.85;
+  cursor: default;
+}
+
+.brc-taxas-linha-remover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2.25rem;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  cursor: pointer;
+}
+
+.brc-taxas-linha-remover:hover {
+  background: rgba(239, 68, 68, 0.22);
+}
+
+.brc-erro {
+  margin: 0.75rem 0 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.28);
+}
+
+.brc-acoes-form {
+  margin-top: 1.15rem;
+  margin-bottom: 0.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.brc-acoes-form .gb-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.brc-toolbar-logado {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.brc-estado-titulo {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--text-primary, #f1f5f9);
+  line-height: 1.35;
+}
+
+.brc-estado-texto {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.55;
+}
+
+.brc-estado-texto + .brc-estado-texto {
+  margin-top: 0.15rem;
+}
+
+body.light-theme .brc-card {
+  --brc-card-bg: linear-gradient(168deg, #ffffff 0%, #f8fafc 55%, #f1f5f9 100%);
+  --brc-border: rgba(148, 163, 184, 0.28);
+}
+
+body.light-theme .brc-input {
+  background: #fff;
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+body.light-theme .brc-detalhe {
+  background: rgba(241, 245, 249, 0.85);
+}

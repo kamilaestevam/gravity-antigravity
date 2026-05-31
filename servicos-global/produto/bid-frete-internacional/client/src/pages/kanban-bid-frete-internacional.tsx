@@ -30,7 +30,6 @@ import './kanban-bid-frete-internacional.css'
 
 interface CotacoesKanbanProps {
   cotacoes: Cotacao[]
-  carregando: boolean
   onRefresh: () => void
 }
 
@@ -241,7 +240,7 @@ function CardCotacao({ cotacao, cardConfig }: { cotacao: Cotacao; cardConfig: Ka
   )
 }
 
-export default function CotacoesKanban({ cotacoes, carregando, onRefresh }: CotacoesKanbanProps) {
+export default function CotacoesKanban({ cotacoes, onRefresh }: CotacoesKanbanProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { colunasOcultas, cardConfig } = useKanbanPreferencesBidFrete()
@@ -355,7 +354,6 @@ export default function CotacoesKanban({ cotacoes, carregando, onRefresh }: Cota
         renderCard={(item) => <CardCotacao cotacao={item.cotacao} cardConfig={cardConfig} />}
         onMoverItem={handleMoverCotacao}
         onCardClick={(item) => navigate(`/produto/bid-frete/cotacoes/${item.cotacao.id_cotacao_bid_frete_internacional}`)}
-        isLoading={carregando}
         skeletonCount={4}
         emptyLabel={t('bidfrete.kanban.semCotacoes', 'Nenhuma cotação')}
         getItemLabel={(item) => item.cotacao.numero_cotacao_bid_frete_internacional}

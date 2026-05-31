@@ -170,7 +170,9 @@ export interface Cotacao {
   id_organizacao: string
   id_workspace?: string | null
   id_usuario: string | null
-  bid_bid_frete_internacional?: Pick<BidFreteInternacional, 'id_bid_bid_frete_internacional' | 'numero_bid_bid_frete_internacional' | 'referencia_interna_bid_bid_frete_internacional' | 'status_bid_bid_frete_internacional'> | null
+  bid_bid_frete_internacional?: (Pick<BidFreteInternacional, 'id_bid_bid_frete_internacional' | 'numero_bid_bid_frete_internacional' | 'referencia_interna_bid_bid_frete_internacional' | 'status_bid_bid_frete_internacional'> & {
+    quantidade_cotacoes_bid_frete_internacional?: number
+  }) | null
   numero_cotacao_bid_frete_internacional: string
   referencia_interna_cotacao_bid_frete_internacional: string | null
   tipo_operacao_cotacao_bid_frete_internacional: TipoOperacao
@@ -202,6 +204,7 @@ export interface Cotacao {
   peso_ton_cotacao_bid_frete_internacional?: number | null
   visibilidade_cotacao_bid_frete_internacional: Visibilidade
   anonima_cotacao_bid_frete_internacional: boolean
+  nome_cliente_operacao_cotacao_bid_frete_internacional?: string | null
   valor_meta_cotacao_bid_frete_internacional: number | null
   moeda_meta_cotacao_bid_frete_internacional: string | null
   data_limite_resposta_cotacao_bid_frete_internacional: string | null
@@ -211,8 +214,24 @@ export interface Cotacao {
   ganho_percentual_cotacao_bid_frete_internacional: number | null
   data_criacao_cotacao_bid_frete_internacional: string
   data_atualizacao_cotacao_bid_frete_internacional: string
+  data_aprovacao_cotacao_bid_frete_internacional?: string | null
+  data_cancelamento_cotacao_bid_frete_internacional?: string | null
+  motivo_reprovacao_cotacao_bid_frete_internacional?: string | null
+  motivo_cancelamento_cotacao_bid_frete_internacional?: string | null
   disparo_cotacao_bid_frete_internacional?: DisparoCotacaoBidFreteInternacional[]
   propostas_bid_frete_internacional?: PropostaBidFreteInternacional[]
+  historico_aprovado?: Array<{
+    id_cotacao_bid_frete_internacional: string
+    numero_cotacao_bid_frete_internacional: string
+    data_criacao_cotacao_bid_frete_internacional?: string
+    data_aprovacao_cotacao_bid_frete_internacional: string
+    data_limite_resposta_cotacao_bid_frete_internacional?: string | null
+    data_atualizacao_cotacao_bid_frete_internacional?: string
+    disparo_cotacao_bid_frete_internacional?: DisparoCotacaoBidFreteInternacional[]
+    propostas_bid_frete_internacional?: PropostaBidFreteInternacional[]
+    propostas?: PropostaBidFreteInternacional[]
+    disparos_cotacao?: DisparoCotacaoBidFreteInternacional[]
+  }>
 }
 
 export interface Fornecedor {
@@ -278,6 +297,7 @@ export interface PropostaBidFreteInternacional {
   dias_free_time_proposta_bid_frete_internacional: number | null
   quantidade_transbordo_proposta_bid_frete_internacional: number
   quantidade_escala_proposta_bid_frete_internacional: number
+  escalas_proposta_bid_frete_internacional?: string | null
   validade_proposta_bid_frete_internacional: string
   observacoes_proposta_bid_frete_internacional: string | null
   status_proposta_bid_frete_internacional: string
@@ -287,6 +307,24 @@ export interface PropostaBidFreteInternacional {
   data_criacao_proposta_bid_frete_internacional: string
   data_atualizacao_proposta_bid_frete_internacional: string
   cotacao?: Cotacao
+  taxas_origem?: TaxaOrigemPropostaBidFreteInternacional[]
+  taxas_destino?: TaxaDestinoPropostaBidFreteInternacional[]
+}
+
+export interface TaxaOrigemPropostaBidFreteInternacional {
+  id_taxa_origem_bid_frete_internacional: string
+  id_taxa_origem_destino?: string | null
+  nome_taxa_origem_bid_frete_internacional: string
+  valor_taxa_origem_bid_frete_internacional: number
+  moeda_taxa_origem_bid_frete_internacional: string
+}
+
+export interface TaxaDestinoPropostaBidFreteInternacional {
+  id_taxa_destino_bid_frete_internacional: string
+  id_taxa_origem_destino?: string | null
+  nome_taxa_destino_bid_frete_internacional: string
+  valor_taxa_destino_bid_frete_internacional: number
+  moeda_taxa_destino_bid_frete_internacional: string
 }
 
 /** Proposta enriquecida pelo motor de ranking (comparativo) */

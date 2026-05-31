@@ -13,6 +13,10 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import {
+  criarTituloCarregandoTopo,
+  ConteudoCarregandoBidFreteInternacional,
+} from '../shared/pagina-carregando-bid-frete-internacional'
+import {
   Buildings,
   ArrowLeft,
   Star,
@@ -147,11 +151,16 @@ export default function DetalheFornecedor() {
 
   useEffect(() => { carregar() }, [carregar])
 
-  const tituloTopo = useMemo(() => ({
-    label:     fornecedor?.nome_fornecedor_bid_frete_internacional ?? t('bidfrete.detalhe_fornecedor.carregando'),
-    icone:     <Buildings weight="duotone" size={22} />,
-    subtitulo: fornecedor?.nome_fantasia_fornecedor_bid_frete_internacional ?? undefined,
-  }), [fornecedor, t])
+  const tituloTopo = useMemo(() => {
+    if (carregando && !fornecedor) {
+      return criarTituloCarregandoTopo(<Buildings weight="duotone" size={22} />, t)
+    }
+    return {
+      label:     fornecedor?.nome_fornecedor_bid_frete_internacional ?? t('bidfrete.detalhe_fornecedor.carregando'),
+      icone:     <Buildings weight="duotone" size={22} />,
+      subtitulo: fornecedor?.nome_fantasia_fornecedor_bid_frete_internacional ?? undefined,
+    }
+  }, [fornecedor, carregando, t])
 
   useSincronizarTituloPaginaTopo(tituloTopo)
 
@@ -272,12 +281,7 @@ export default function DetalheFornecedor() {
         </button>
       </div>
       {carregando && !fornecedor ? (
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          height: '40vh', color: 'var(--text-muted, #64748b)', fontSize: '0.875rem',
-        }}>
-          {t('bidfrete.detalhe_fornecedor.carregando')}
-        </div>
+        <ConteudoCarregandoBidFreteInternacional />
       ) : fornecedor ? (
         <>
           {/* ════════ Rating Summary Cards ════════ */}

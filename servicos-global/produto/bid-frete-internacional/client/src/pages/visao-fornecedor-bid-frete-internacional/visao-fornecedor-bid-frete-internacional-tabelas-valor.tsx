@@ -3,9 +3,14 @@
  * CRUD de rotas com form inline + TabelaGlobal
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
+import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
+import {
+  criarTituloCarregandoTopo,
+  ConteudoCarregandoBidFreteInternacional,
+} from '../../shared/pagina-carregando-bid-frete-internacional'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import {
   CurrencyDollar,
@@ -137,6 +142,13 @@ export default function VisaoFornecedorBidFreteInternacionalTabelasValor() {
   }, [])
 
   useEffect(() => { carregar() }, [carregar])
+
+  useSincronizarTituloPaginaTopo(useMemo(() => {
+    if (carregando) {
+      return criarTituloCarregandoTopo(<CurrencyDollar weight="duotone" size={22} />, t)
+    }
+    return null
+  }, [carregando, t]))
 
   function abrirNovo() {
     setForm(FORM_VAZIO)
@@ -429,9 +441,7 @@ export default function VisaoFornecedorBidFreteInternacionalTabelasValor() {
       )}
 
       {carregando ? (
-        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted, #64748b)' }}>
-          Carregando tabela de preços...
-        </div>
+        <ConteudoCarregandoBidFreteInternacional />
       ) : (
         <TabelaGlobal
           dados={precos}

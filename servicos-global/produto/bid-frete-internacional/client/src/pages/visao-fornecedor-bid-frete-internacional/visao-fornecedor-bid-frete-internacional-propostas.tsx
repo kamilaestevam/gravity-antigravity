@@ -7,6 +7,10 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
+import {
+  criarTituloCarregandoTopo,
+  ConteudoCarregandoBidFreteInternacional,
+} from '../../shared/pagina-carregando-bid-frete-internacional'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import {
   PaperPlaneTilt,
@@ -113,11 +117,16 @@ export default function MinhasRespostas() {
     REPROVADAS: respostas.filter(r => getRespostaStatus(r) === 'reprovada').length,
   }), [respostas])
 
-  useSincronizarTituloPaginaTopo(useMemo(() => ({
-    label:     t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.titulo'),
-    icone:     <PaperPlaneTilt weight="duotone" size={22} />,
-    subtitulo: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.subtitulo', { count: respostas.length }),
-  }), [t, respostas.length]))
+  useSincronizarTituloPaginaTopo(useMemo(() => {
+    if (carregando) {
+      return criarTituloCarregandoTopo(<PaperPlaneTilt weight="duotone" size={22} />, t)
+    }
+    return {
+      label:     t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.titulo'),
+      icone:     <PaperPlaneTilt weight="duotone" size={22} />,
+      subtitulo: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.subtitulo', { count: respostas.length }),
+    }
+  }, [carregando, t, respostas.length]))
 
   const colunas: TabelaGlobalColuna<any>[] = [
     {
@@ -237,9 +246,7 @@ export default function MinhasRespostas() {
       </div>
 
       {carregando ? (
-        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted, #64748b)' }}>
-          Carregando respostas...
-        </div>
+        <ConteudoCarregandoBidFreteInternacional />
       ) : (
         <TabelaGlobal
           dados={filtradas}

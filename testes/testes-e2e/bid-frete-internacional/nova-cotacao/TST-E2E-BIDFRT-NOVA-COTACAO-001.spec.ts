@@ -44,27 +44,22 @@ test.describe('TST-E2E-BIDFRT-NOVA-COTACAO-001 — Nova Cotação', () => {
     await dialog.getByRole('button', { name: /Aéreo Geral/i }).click()
     await clicarProximo(page)
 
-    // Step 2 — Origem
+    // Step 2 — Origem e Destino
     await selecionarComboboxPorCampo(page, /AEROPORTO DE EMBARQUE/i, 'EZE', /EZE|Buenos Aires/i)
-    await clicarProximo(page)
-
-    // Step 3 — Destino
     await selecionarComboboxPorCampo(page, /AEROPORTO DE DESTINO/i, 'DXB', /DXB|Dubai/i)
     await clicarProximo(page)
 
-    // Step 4 — Carga
+    // Step 3 — Carga + Incoterm
     await page.getByPlaceholder(/Peças automotivas|eletrônicos/i).fill('a')
-    await clicarProximo(page)
-
-    // Step 5 — Incoterm
+    await selecionarComboboxPorCampo(page, /TIPO DE VOLUME/i, 'caixa', /caixa/i)
     await page.getByRole('button', { name: 'DAP', exact: true }).click()
     await clicarProximo(page)
 
-    // Step 6 — Fornecedores (Aberta)
+    // Step 4 — Fornecedores (Aberta)
     await page.getByRole('button', { name: /Aberta — Todos os fornecedores/i }).click()
     await clicarProximo(page)
 
-    // Step 7 — Resumo → Criar
+    // Step 5 — Resumo → Criar
     await expect(page.getByText(/Resumo da Cotação/i)).toBeVisible()
     const criar = page.getByRole('button', { name: /Criar Cotação/i })
     await expect(criar).toBeEnabled()

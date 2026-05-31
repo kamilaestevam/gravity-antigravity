@@ -1139,6 +1139,21 @@
   cursor: not-allowed;
 }
 
+.gtv-edit-popover-hora-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
+}
+
+.gtv-edit-popover-hora-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
 /* Footer */
 .gtv-edit-popover-footer {
   display: flex;

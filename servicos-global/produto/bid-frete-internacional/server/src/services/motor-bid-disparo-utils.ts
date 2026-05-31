@@ -3,6 +3,29 @@
  * Exportados para testes unitários e reutilização pelo motor.
  */
 
+import axios from 'axios'
+
+export function extrairMensagemErroDisparo(
+  err: unknown,
+  emailServiceUrl = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8008',
+): string {
+  if (axios.isAxiosError(err)) {
+    const data = err.response?.data as { error?: { message?: string }; message?: string } | undefined
+    const apiMsg = data?.error?.message ?? data?.message
+    if (apiMsg) return `Falha ao enviar e-mail: ${apiMsg}`
+    if (err.code === 'ECONNREFUSED') {
+      return `Serviço de e-mail indisponível em ${emailServiceUrl} (ECONNREFUSED)`
+    }
+    return err.message?.trim() || 'Falha de rede ao chamar serviço de e-mail'
+  }
+  if (err instanceof Error) {
+    const msg = err.message.trim()
+    return msg || 'Erro desconhecido ao enviar disparo'
+  }
+  const text = String(err).trim()
+  return text || 'Erro desconhecido ao enviar disparo'
+}
+
 export function montarLinkRespostaDisparo(appUrl: string, token: string): string {
   const base = appUrl.replace(/\/$/, '')
   return `${base}/bid-frete/visao-fornecedor-bid-frete-internacional/publico/${token}`

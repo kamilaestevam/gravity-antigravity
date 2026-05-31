@@ -9,6 +9,10 @@ import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
 import {
+  criarTituloCarregandoTopo,
+  ConteudoCarregandoBidFreteInternacional,
+} from '../../shared/pagina-carregando-bid-frete-internacional'
+import {
   Envelope,
   Anchor,
   AirplaneTilt,
@@ -85,19 +89,21 @@ export default function CotacoesPendentes() {
 
   useEffect(() => { carregar() }, [carregar])
 
-  useSincronizarTituloPaginaTopo(useMemo(() => ({
-    label:     t('bidfrete.visao_fornecedor_bid_frete_internacional.cotacoes_pendentes.titulo'),
-    icone:     <Envelope weight="duotone" size={22} />,
-    subtitulo: `${bids.length} cotação(ões) aguardando sua resposta`,
-  }), [t, bids.length]))
+  useSincronizarTituloPaginaTopo(useMemo(() => {
+    if (carregando) {
+      return criarTituloCarregandoTopo(<Envelope weight="duotone" size={22} />, t)
+    }
+    return {
+      label:     t('bidfrete.visao_fornecedor_bid_frete_internacional.cotacoes_pendentes.titulo'),
+      icone:     <Envelope weight="duotone" size={22} />,
+      subtitulo: `${bids.length} cotação(ões) aguardando sua resposta`,
+    }
+  }, [carregando, t, bids.length]))
 
   return (
     <PaginaGlobal className="cp-page bid-frete-page-shell">
       {carregando ? (
-        <div className="cp-loading">
-          <ClockCountdown weight="duotone" size={48} style={{ opacity: 0.3 }} />
-          <p>{t('bidfrete.visao_fornecedor_bid_frete_internacional.cotacoes_pendentes.carregando')}</p>
-        </div>
+        <ConteudoCarregandoBidFreteInternacional />
       ) : bids.length === 0 ? (
         <div className="cp-empty">
           <Envelope weight="duotone" size={48} style={{ opacity: 0.3 }} />

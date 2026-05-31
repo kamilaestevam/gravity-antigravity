@@ -12,6 +12,7 @@ import { PrismaClient } from '../generated/client/index.js'
 import { randomUUID } from 'crypto'
 import axios from 'axios'
 import {
+  extrairMensagemErroDisparo,
   montarAssuntoEmailDisparo,
   montarHtmlEmailDisparo,
   montarLinkRespostaDisparo,
@@ -106,14 +107,22 @@ export const motorBid = {
           })
           algumDisparoEnviado = true
         } catch (err: unknown) {
-          const errorMessage = err instanceof Error ? err.message : String(err)
-          await (prisma as any).disparoCotacaoBidFreteInternacional.update({
-            where: { id_disparo_cotacao_bid_frete_internacional: disparo_cotacao.id_disparo_cotacao_bid_frete_internacional },
-            data: {
-              status_disparo_cotacao_bid_frete_internacional: 'ERRO_ENVIO',
-              erro_envio_disparo_cotacao_bid_frete_internacional: errorMessage,
-            },
-          })
+          const errorMessage = extrairMensagemErroDisparo(err, EMAIL_SERVICE_URL)
+          try {
+            await (prisma as any).disparoCotacaoBidFreteInternacional.update({
+              where: { id_disparo_cotacao_bid_frete_internacional: disparo_cotacao.id_disparo_cotacao_bid_frete_internacional },
+              data: {
+                status_disparo_cotacao_bid_frete_internacional: 'ERRO_ENVIO',
+                erro_envio_disparo_cotacao_bid_frete_internacional: errorMessage,
+              },
+            })
+          } catch (updateErr: unknown) {
+            console.error('[motor-bid] falha ao registrar erro_envio do disparo:', updateErr)
+            await (prisma as any).disparoCotacaoBidFreteInternacional.update({
+              where: { id_disparo_cotacao_bid_frete_internacional: disparo_cotacao.id_disparo_cotacao_bid_frete_internacional },
+              data: { status_disparo_cotacao_bid_frete_internacional: 'ERRO_ENVIO' },
+            })
+          }
         }
 
         results.push({

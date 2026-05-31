@@ -13,6 +13,10 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@n
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import {
+  criarTituloCarregandoTopo,
+  ConteudoCarregandoBidFreteInternacional,
+} from '../shared/pagina-carregando-bid-frete-internacional'
+import {
   Ranking,
   ArrowLeft,
   Trophy,
@@ -24,12 +28,16 @@ import {
   SortAscending,
   SortDescending,
   Confetti,
-  Warning,
   Package,
 } from '@phosphor-icons/react'
 
 import { rankingCotacoesBidFreteInternacional, aprovarResposta, reprovarTodas, getCotacao } from '../shared/api'
+import { aplicarEstadoPosAprovacaoCotacao } from '../shared/sincronizar-estado-pos-aprovacao-cotacao-bid-frete-internacional'
 import type { PropostaRankingBidFreteInternacional, Cotacao } from '../shared/types'
+import {
+  ModalAprovarPropostaBidFreteInternacional,
+} from '../shared/modal-aprovar-proposta-bid-frete-internacional'
+import { ModalOverlay } from '@nucleo/modal-global'
 
 // ─── Formatacao ─────────────────────────────────────────────────────────────
 
@@ -101,36 +109,6 @@ function RatingStars({ rating }: { rating: number | null }) {
   )
 }
 
-// ─── Modal Overlay ──────────────────────────────────────────────────────────
-
-interface ModalProps {
-  aberto: boolean
-  titulo: string
-  icone: React.ReactNode
-  children: React.ReactNode
-  onFechar: () => void
-}
-
-function ModalOverlay({ aberto, titulo, icone, children, onFechar }: ModalProps) {
-  if (!aberto) return null
-  return (
-    <div className="bf-modal_cotacao_bid_frete_internacional-overlay" onClick={onFechar}>
-      <div className="bf-modal_cotacao_bid_frete_internacional" onClick={e => e.stopPropagation()}>
-        <div className="bf-modal_cotacao_bid_frete_internacional-header">
-          {icone}
-          <h3 className="bf-modal_cotacao_bid_frete_internacional-titulo">{titulo}</h3>
-          <button className="bf-modal_cotacao_bid_frete_internacional-fechar" onClick={onFechar}>
-            <XCircle weight="duotone" size={20} />
-          </button>
-        </div>
-        <div className="bf-modal_cotacao_bid_frete_internacional-body">
-          {children}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ─── Componente Principal ───────────────────────────────────────────────────
 
 export default function Comparativo() {
@@ -148,6 +126,8 @@ export default function Comparativo() {
   const [modalAprovar, setModalAprovar] = useState(false)
   const [respostaSelecionada, setRespostaSelecionada] = useState<PropostaRankingBidFreteInternacional | null>(null)
   const [aprovando, setAprovando] = useState(false)
+  const [aprovacaoSucesso, setAprovacaoSucesso] = useState(false)
+  const [resultadoAprovacaoPendente, setResultadoAprovacaoPendente] = useState<Cotacao | null>(null)
 
   // Modal de reprovacao
   const [modalReprovar, setModalReprovar] = useState(false)
@@ -184,6 +164,9 @@ export default function Comparativo() {
   useEffect(() => { carregar() }, [carregar])
 
   const tituloTopo = useMemo(() => {
+    if (carregando) {
+      return criarTituloCarregandoTopo(<Ranking weight="duotone" size={22} />, t)
+    }
     if (resultadoAprovacao) {
       return {
         label:     t('bidfrete.comparativo.titulo_aprovada'),
@@ -198,7 +181,7 @@ export default function Comparativo() {
         ? `${cotacao.numero_cotacao_bid_frete_internacional} — ${cotacao.origem_nome_cotacao_bid_frete_internacional} → ${cotacao.destino_nome_cotacao_bid_frete_internacional}`
         : t('bidfrete.comparativo.subtitulo'),
     }
-  }, [resultadoAprovacao, cotacao, t])
+  }, [carregando, resultadoAprovacao, cotacao, t])
 
   useSincronizarTituloPaginaTopo(tituloTopo)
 
@@ -244,17 +227,39 @@ export default function Comparativo() {
   // ─── Acoes ────────────────────────────────────────────────────────────────
 
   async function handleAprovar() {
-    if (!id || !respostaSelecionada) return
+    if (!id || !respostaSelecionada || aprovando || aprovacaoSucesso) return
     setAprovando(true)
     try {
       const result = await aprovarResposta(id, respostaSelecionada.id_proposta_bid_frete_internacional)
-      setResultadoAprovacao(result)
-      setModalAprovar(false)
+      setResultadoAprovacaoPendente(result)
+      setAprovacaoSucesso(true)
     } catch {
       // erro tratado pelo loading state
     } finally {
       setAprovando(false)
     }
+  }
+
+  function concluirSucessoModalAprovar() {
+    if (resultadoAprovacaoPendente) {
+      const { cotacao: cotMesclada, propostasRanking: rankingSincronizado } =
+        aplicarEstadoPosAprovacaoCotacao(cotacao, respostas, resultadoAprovacaoPendente)
+      setCotacao(cotMesclada)
+      setRespostas(rankingSincronizado)
+      setResultadoAprovacao(cotMesclada)
+      setResultadoAprovacaoPendente(null)
+    }
+    setAprovacaoSucesso(false)
+    setModalAprovar(false)
+  }
+
+  function fecharModalAprovar() {
+    if (aprovando) return
+    if (aprovacaoSucesso) {
+      concluirSucessoModalAprovar()
+      return
+    }
+    setModalAprovar(false)
   }
 
   async function handleReprovar() {
@@ -416,14 +421,21 @@ export default function Comparativo() {
     },
   ]
 
-  const acoes: TabelaGlobalAcao<PropostaRankingBidFreteInternacional>[] = [
+  const permiteAprovar = cotacao?.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO'
+
+  const acoes: TabelaGlobalAcao<PropostaRankingBidFreteInternacional>[] = permiteAprovar
+    ? [
     {
       id: 'aprovar',
       icone: <CheckCircle weight="duotone" size={16} />,
       tooltip: t('bidfrete.comparativo.aprovar'),
       onClick: (item: PropostaRankingBidFreteInternacional) => abrirModalAprovar(item),
+      disabled: (item: PropostaRankingBidFreteInternacional) =>
+        item.status_proposta_bid_frete_internacional === 'APROVADA'
+        || item.status_proposta_bid_frete_internacional === 'REPROVADA',
     },
   ]
+    : []
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
@@ -544,9 +556,7 @@ export default function Comparativo() {
       )}
 
       {carregando ? (
-        <div style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted, #64748b)' }}>
-          Carregando comparativo de cotações...
-        </div>
+        <ConteudoCarregandoBidFreteInternacional />
       ) : respostas.length === 0 ? (
         <div className="bf-empty-state">
           <Ranking weight="duotone" size={48} />
@@ -571,88 +581,53 @@ export default function Comparativo() {
       )}
 
       {/* ════════ Modal Aprovar ════════ */}
-      <ModalOverlay
+      <ModalAprovarPropostaBidFreteInternacional
         aberto={modalAprovar}
-        titulo={t('bidfrete.comparativo.modal_aprovar')}
-        icone={<CheckCircle weight="duotone" size={20} style={{ color: 'var(--success, #22c55e)' }} />}
-        onFechar={() => setModalAprovar(false)}
-      >
-        {respostaSelecionada && (
-          <>
-            <p className="bf-modal_cotacao_bid_frete_internacional-text">
-              {t('bidfrete.comparativo.modal_aprovar_pergunta', { fornecedor: respostaSelecionada.fornecedor_nome ?? respostaSelecionada.fornecedor?.nome_fornecedor_bid_frete_internacional ?? t('bidfrete.comparativo.fornecedor') })}
-            </p>
-            <div className="bf-modal_cotacao_bid_frete_internacional-detail-grid">
-              <div className="bf-modal_cotacao_bid_frete_internacional-detail">
-                <span className="bf-modal_cotacao_bid_frete_internacional-detail-label">{t('bidfrete.detalhe_cotacao.resp_total')}</span>
-                <span className="bf-modal_cotacao_bid_frete_internacional-detail-valor bf-mono">
-                  {moeda_ganho_bid_frete_internacional(respostaSelecionada.valor_total_proposta_bid_frete_internacional, respostaSelecionada.moeda_proposta_bid_frete_internacional)}
-                </span>
-              </div>
-              <div className="bf-modal_cotacao_bid_frete_internacional-detail">
-                <span className="bf-modal_cotacao_bid_frete_internacional-detail-label">{t('bidfrete.comparativo.transit_time')}</span>
-                <span className="bf-modal_cotacao_bid_frete_internacional-detail-valor bf-mono">{respostaSelecionada.dias_transito_proposta_bid_frete_internacional}d</span>
-              </div>
-              <div className="bf-modal_cotacao_bid_frete_internacional-detail">
-                <span className="bf-modal_cotacao_bid_frete_internacional-detail-label">{t('bidfrete.detalhe_cotacao.resp_transbordos')}</span>
-                <span className="bf-modal_cotacao_bid_frete_internacional-detail-valor bf-mono">
-                  {respostaSelecionada.quantidade_transbordo_proposta_bid_frete_internacional === 0 ? t('bidfrete.comparativo.direto') : respostaSelecionada.quantidade_transbordo_proposta_bid_frete_internacional}
-                </span>
-              </div>
-              <div className="bf-modal_cotacao_bid_frete_internacional-detail">
-                <span className="bf-modal_cotacao_bid_frete_internacional-detail-label">{t('bidfrete.detalhe_cotacao.resp_validade')}</span>
-                <span className="bf-modal_cotacao_bid_frete_internacional-detail-valor">{dataBR(respostaSelecionada.validade_proposta_bid_frete_internacional)}</span>
-              </div>
-            </div>
-            {respostaSelecionada.observacoes_proposta_bid_frete_internacional && (
-              <div className="bf-modal_cotacao_bid_frete_internacional-obs">
-                <span className="bf-modal_cotacao_bid_frete_internacional-detail-label">{t('bidfrete.comparativo.observacoes_proposta_bid_frete_internacional')}</span>
-                <p>{respostaSelecionada.observacoes_proposta_bid_frete_internacional}</p>
-              </div>
-            )}
-            <div className="bf-modal_cotacao_bid_frete_internacional-acoes">
-              <button className="btn btn-secondary" onClick={() => setModalAprovar(false)} disabled={aprovando}>
-                {t('comum.cancelar')}
-              </button>
-              <button className="btn btn-success" onClick={handleAprovar} disabled={aprovando}>
-                <CheckCircle weight="bold" size={16} />
-                {aprovando ? t('bidfrete.comparativo.aprovando') : t('bidfrete.comparativo.confirmar_aprovacao')}
-              </button>
-            </div>
-          </>
-        )}
-      </ModalOverlay>
+        proposta={respostaSelecionada}
+        aprovando={aprovando}
+        aprovacaoSucesso={aprovacaoSucesso}
+        resultadoAprovacao={resultadoAprovacaoPendente}
+        onFechar={fecharModalAprovar}
+        onConcluirSucesso={concluirSucessoModalAprovar}
+        onConfirmar={() => void handleAprovar()}
+      />
 
       {/* ════════ Modal Reprovar ════════ */}
       <ModalOverlay
         aberto={modalReprovar}
+        aoFechar={() => !reprovando && setModalReprovar(false)}
         titulo={t('bidfrete.comparativo.modal_reprovar')}
-        icone={<Warning weight="duotone" size={20} style={{ color: 'var(--danger, #ef4444)' }} />}
-        onFechar={() => setModalReprovar(false)}
+        tamanho="md"
+        semFechar={reprovando}
+        fecharAoClicarOverlay={!reprovando}
+        botoes={[
+          {
+            rotulo: t('comum.cancelar'),
+            variante: 'secondary',
+            ao_clicar: () => setModalReprovar(false),
+            desabilitado: reprovando,
+          },
+          {
+            rotulo: reprovando
+              ? t('bidfrete.comparativo.reprovando')
+              : t('bidfrete.comparativo.confirmar_reprovacao'),
+            variante: 'danger',
+            ao_clicar: () => void handleReprovar(),
+            carregando: reprovando,
+            desabilitado: reprovando || !motivoReprovar.trim(),
+          },
+        ]}
       >
-        <p className="bf-modal_cotacao_bid_frete_internacional-text">
+        <p className="bf-modal-reprovar-texto">
           {t('bidfrete.comparativo.modal_reprovar_desc', { count: respostas.length })}
         </p>
         <textarea
-          className="bf-modal_cotacao_bid_frete_internacional-textarea"
+          className="bf-modal-reprovar-textarea"
           placeholder={t('bidfrete.comparativo.motivo_placeholder')}
           value={motivoReprovar}
           onChange={e => setMotivoReprovar(e.target.value)}
           rows={4}
         />
-        <div className="bf-modal_cotacao_bid_frete_internacional-acoes">
-          <button className="btn btn-secondary" onClick={() => setModalReprovar(false)} disabled={reprovando}>
-            {t('comum.cancelar')}
-          </button>
-          <button
-            className="btn btn-danger"
-            onClick={handleReprovar}
-            disabled={reprovando || !motivoReprovar.trim()}
-          >
-            <XCircle weight="bold" size={16} />
-            {reprovando ? t('bidfrete.comparativo.reprovando') : t('bidfrete.comparativo.confirmar_reprovacao')}
-          </button>
-        </div>
       </ModalOverlay>
 
       <style>{comparativoStyles}</style>
@@ -894,103 +869,14 @@ const comparativoStyles = `
     margin: 0;
   }
 
-  /* ── Modal ── */
-  .bf-modal_cotacao_bid_frete_internacional-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    backdrop-filter: blur(4px);
-  }
-  .bf-modal_cotacao_bid_frete_internacional {
-    background: var(--bg-surface, #334155);
-    border-radius: var(--radius-lg, 12px);
-    width: 100%;
-    max-width: 480px;
-    box-shadow: var(--shadow-xl, 0 20px 60px rgba(0,0,0,0.5));
-    border: 1px solid var(--bg-elevated, #475569);
-  }
-  .bf-modal_cotacao_bid_frete_internacional-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--bg-elevated, #475569);
-  }
-  .bf-modal_cotacao_bid_frete_internacional-titulo {
-    flex: 1;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary, #f1f5f9);
-    margin: 0;
-  }
-  .bf-modal_cotacao_bid_frete_internacional-fechar {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text-muted, #64748b);
-    display: flex;
-    padding: 0;
-  }
-  .bf-modal_cotacao_bid_frete_internacional-fechar:hover { color: var(--text-primary, #f1f5f9); }
-
-  .bf-modal_cotacao_bid_frete_internacional-body {
-    padding: 1.25rem;
-  }
-  .bf-modal_cotacao_bid_frete_internacional-text {
+  /* ── Modal reprovar (ModalOverlay padrão) ── */
+  .bf-modal-reprovar-texto {
     font-size: 0.875rem;
     color: var(--text-secondary, #94a3b8);
     margin: 0 0 1rem;
     line-height: 1.5;
   }
-  .bf-modal_cotacao_bid_frete_internacional-text strong {
-    color: var(--text-primary, #f1f5f9);
-  }
-
-  .bf-modal_cotacao_bid_frete_internacional-detail-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-  .bf-modal_cotacao_bid_frete_internacional-detail {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    background: var(--bg-base, #1e293b);
-    border-radius: var(--radius-md, 8px);
-    padding: 0.75rem;
-  }
-  .bf-modal_cotacao_bid_frete_internacional-detail-label {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted, #64748b);
-  }
-  .bf-modal_cotacao_bid_frete_internacional-detail-valor {
-    font-size: 0.9375rem;
-    font-weight: 700;
-    color: var(--text-primary, #f1f5f9);
-  }
-
-  .bf-modal_cotacao_bid_frete_internacional-obs {
-    background: var(--bg-base, #1e293b);
-    border-radius: var(--radius-md, 8px);
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-  }
-  .bf-modal_cotacao_bid_frete_internacional-obs p {
-    font-size: 0.8125rem;
-    color: var(--text-secondary, #94a3b8);
-    margin: 0.25rem 0 0;
-    line-height: 1.5;
-  }
-
-  .bf-modal_cotacao_bid_frete_internacional-textarea {
+  .bf-modal-reprovar-textarea {
     width: 100%;
     min-height: 100px;
     background: var(--bg-base, #1e293b);
@@ -1001,22 +887,11 @@ const comparativoStyles = `
     color: var(--text-primary, #f1f5f9);
     font-family: 'Plus Jakarta Sans', sans-serif;
     resize: vertical;
-    margin-bottom: 1rem;
   }
-  .bf-modal_cotacao_bid_frete_internacional-textarea:focus {
+  .bf-modal-reprovar-textarea:focus {
     outline: none;
     border-color: var(--accent, #6366f1);
     box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
-  }
-  .bf-modal_cotacao_bid_frete_internacional-textarea::placeholder {
-    color: var(--text-muted, #64748b);
-  }
-
-  .bf-modal_cotacao_bid_frete_internacional-acoes {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    padding-top: 0.5rem;
   }
 
   /* ── Aprovacao Result ── */

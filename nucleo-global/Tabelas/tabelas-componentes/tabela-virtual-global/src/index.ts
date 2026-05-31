@@ -3,6 +3,8 @@
  */
 
 export { TabelaVirtualGlobal } from './TabelaVirtualGlobal.js'
+export { EdicaoPeriodoPopoverGlobal } from './EdicaoPeriodoPopoverGlobal.js'
+export type { EdicaoPeriodoPopoverGlobalProps } from './EdicaoPeriodoPopoverGlobal.js'
 export { BotaoCompletoExportar } from './BotaoCompletoExportar.js'
 export type { BotaoCompletoExportarProps } from './BotaoCompletoExportar.js'
 export type {

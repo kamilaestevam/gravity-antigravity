@@ -19,6 +19,7 @@ router.get('/', async (req, res, next) => {
     const limitRaw = typeof req.query.limit === 'string' ? Number(req.query.limit) : 200
     const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 500) : 200
     const apenasAtivos = req.query.apenas_ativos !== 'false'
+    const apenasNaoLegado = req.query.apenas_nao_legado !== 'false'
 
     const where: Prisma.TaxaOrigemDestinoWhereInput = {
       ...(apenasAtivos ? { ativo_taxa_origem_destino: true } : {}),
@@ -33,7 +34,7 @@ router.get('/', async (req, res, next) => {
         : {}),
     }
 
-    const [itens, total] = await Promise.all([
+    const [itensRaw, totalRaw] = await Promise.all([
       prisma.taxaOrigemDestino.findMany({
         where,
         take: limit,
@@ -41,6 +42,14 @@ router.get('/', async (req, res, next) => {
       }),
       prisma.taxaOrigemDestino.count({ where }),
     ])
+
+    const itens = apenasNaoLegado
+      ? itensRaw.filter((item) => {
+          const legado = (item as { legado_taxa_origem_destino?: boolean }).legado_taxa_origem_destino
+          return legado !== true
+        })
+      : itensRaw
+    const total = apenasNaoLegado ? itens.length : totalRaw
 
     res.status(200).json({ itens, total })
   } catch (err) {

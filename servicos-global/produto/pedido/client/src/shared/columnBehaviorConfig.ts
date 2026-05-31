@@ -218,3 +218,15 @@ export function getEditavelItem(key: string): boolean {
 export function getTipoCampo(key: string): TipoCampo | null {
   return COLUMN_CONFIG[key]?.tipo ?? null
 }
+
+/**
+ * Coluna não editável em nenhum nível (pedido e item).
+ * Usado pela GTV para texto muted; se só o pedido bloqueia mas o item edita, retorna false.
+ */
+export function isColunaSomenteLeituraCompleta(key: string): boolean {
+  if (getEditavelItem(key)) return false
+  const cfg = COLUMN_CONFIG[key]
+  if (!cfg) return false
+  if (cfg.editavelFn) return false
+  return !TIPO_DEFAULTS[cfg.tipo].editavel
+}

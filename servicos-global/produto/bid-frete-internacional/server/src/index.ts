@@ -17,6 +17,7 @@ import { modaisRouter } from './routes/modais.js'
 import { moedasRouter } from './routes/moedas.js'
 import { paisesRouter } from './routes/paises.js'
 import { aeroportosRouter } from './routes/aeroportos.js'
+import { taxasOrigemDestinoCadastroRouter } from './routes/taxas-origem-destino-cadastro.js'
 import { cotacoesRouter } from './routes/cotacoes.js'
 import { fornecedoresRouter } from './routes/fornecedores.js'
 import { solicitacaoCotacaoBidFreteInternacionalRouter } from './routes/solicitacao-cotacao-bid-frete-internacional.js'
@@ -64,7 +65,10 @@ app.use(express.json({ limit: '10mb' }))
 // --- 2. CORS (Configurador, Shell Gravity) ---
 app.use((_req: Request, res: Response, next: NextFunction) => {
   const allowedOrigins = [
+    'http://localhost:3000',  // shell Gravity (configurador dev)
     'http://localhost:5175',  // client dev
+    'http://localhost:5181',  // bid-frete client standalone
+    'http://localhost:8000',  // dev alternativo
     'http://localhost:8003',  // configurador
     process.env.CLIENT_URL ?? '',
   ].filter(Boolean)
@@ -99,6 +103,7 @@ app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(
 app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), moedasRouter)
 app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), paisesRouter)
 app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), aeroportosRouter)
+app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), taxasOrigemDestinoCadastroRouter)
 
 // --- 6. Visao Fornecedor publico — SEM internal key (usa token de resposta) ---
 app.use(

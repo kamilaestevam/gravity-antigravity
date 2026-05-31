@@ -34,6 +34,10 @@ import {
   lerTextoClipboardAsync,
   resolverColagemPopover,
 } from './utils/colagemPopover.js'
+import {
+  colunaSomenteLeituraCompleta,
+  deveAplicarVisualSomenteLeitura,
+} from './gtvColunaSomenteLeitura.js'
 import './tabela-virtual.css'
 import type {
   GTVirtualTableProps,
@@ -46,6 +50,7 @@ import type {
   GTValorMoeda,
   GTValorUnidade,
   GTUnidadeOpcao,
+  GTMapaColunasFilho,
 } from './tipos.js'
 import { BotaoCompletoExportar } from './BotaoCompletoExportar.js'
 
@@ -247,11 +252,9 @@ const GTVazio = memo(function GTVazio({
 
 // ─── Helpers para campos de data ──────────────────────────────────────────────
 
+/** ISO 8601 completo (meio-dia UTC) — evita drift de fuso e falha em Zod `.datetime()`. */
 function dateToIso(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${dd}`
+  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0, 0)).toISOString()
 }
 
 function isoToBR(iso: unknown): string {
@@ -313,6 +316,48 @@ function resolverTooltipRegraCelula(
     descricao,
     interativo: col.tooltipInterativo,
   }
+}
+
+function classeModoExibicaoCelula(
+  col: GTColuna<unknown>,
+  podeEditar: boolean,
+  semPermissao: boolean,
+  camposEditaveis: string[],
+  camposEditaveisFilhos: string[],
+  mapaColunasFilho: Record<string, GTMapaColunasFilho<unknown>> | undefined,
+  temHierarquiaFilho: boolean,
+): string {
+  if (!deveAplicarVisualSomenteLeitura(
+    col,
+    camposEditaveis,
+    camposEditaveisFilhos,
+    mapaColunasFilho,
+    temHierarquiaFilho,
+    podeEditar,
+    semPermissao,
+  )) {
+    return ''
+  }
+  return ' gtv-celula--somente-leitura'
+}
+
+function classeThModoExibicao(
+  col: GTColuna<unknown>,
+  camposEditaveis: string[],
+  camposEditaveisFilhos: string[],
+  mapaColunasFilho: Record<string, GTMapaColunasFilho<unknown>> | undefined,
+  temHierarquiaFilho: boolean,
+): string {
+  if (!colunaSomenteLeituraCompleta(
+    col,
+    camposEditaveis,
+    camposEditaveisFilhos,
+    mapaColunasFilho,
+    temHierarquiaFilho,
+  )) {
+    return ''
+  }
+  return ' gtv-th--somente-leitura'
 }
 
 function wrapTooltipRegraCelula(
@@ -545,12 +590,14 @@ const GTEditPopover = memo(function GTEditPopover({
   const blurConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [textoLocal, setTextoLocal] = useState(() => String(valorEditando ?? ''))
   const textoLocalRef = useRef(String(valorEditando ?? ''))
+  const [periodoText, setPeriodoText] = useState<string>(() => isoToBR(valorEditando))
 
   useEffect(() => {
     const v = String(valorEditando ?? '')
     setTextoLocal(v)
     textoLocalRef.current = v
-  }, [overlayInfo.id, overlayInfo.campo])
+    setPeriodoText(isoToBR(valorEditando))
+  }, [overlayInfo.id, overlayInfo.campo, valorEditando])
 
   useEffect(() => () => {
     if (blurConfirmTimerRef.current) clearTimeout(blurConfirmTimerRef.current)
@@ -571,9 +618,13 @@ const GTEditPopover = memo(function GTEditPopover({
   // Quando mostrarCheckboxReplicar=false, replicarEmItens é sempre false (estado
   // inicial), entao o backend recebe replicar_em_itens=false (padrão divergente).
   const confirmarComOpts = useCallback(() => {
+    if (isPeriodo) {
+      const iso = brToIso(periodoText)
+      if (iso) onAtualizar(iso)
+    }
     if (isTextoLivre) onAtualizar(textoLocalRef.current)
     onConfirmar({ replicar_em_itens: replicarEmItens })
-  }, [onConfirmar, replicarEmItens, isTextoLivre, onAtualizar])
+  }, [onConfirmar, replicarEmItens, isTextoLivre, isPeriodo, periodoText, onAtualizar])
   const [moedaAberta, setMoedaAberta] = useState(false)
   const [unidadeAberta, setUnidadeAberta] = useState(false)
   // Calendário inicia fechado — abre quando usuário clica no icone à direita do input.
@@ -859,9 +910,6 @@ const GTEditPopover = memo(function GTEditPopover({
     return () => document.removeEventListener('paste', onDocPaste, true)
   // eslint-disable-next-line react-hooks/exhaustive-deps -- escopo do popover ativo
   }, [overlayInfo.id, overlayInfo.campo])
-
-  // Estado local para campos de data: texto em formato DD/MM/AAAA
-  const [periodoText, setPeriodoText] = useState<string>(() => isoToBR(valorEditando))
 
   // Posição inicial (abaixo da célula) — reajustada pelo useLayoutEffect
   const [pos, setPos] = useState(() => {
@@ -2779,6 +2827,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   // ─── Renderização de célula ──────────────────────────────────────────────────
 
+  const temHierarquiaFilhoGtv = !!(
+    mapaColunasFilho && Object.keys(mapaColunasFilho).length > 0
+  )
+  const mapaColunasFilhoGtv = mapaColunasFilho as Record<string, GTMapaColunasFilho<unknown>> | undefined
+
   function renderCelula<I>(
     item: I,
     id: string,
@@ -2813,6 +2866,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     const classeIndent      = ''
     const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoEditar ? ' gtv-celula--sem-permissao' : '')
+    const classeModoExib    = classeModoExibicaoCelula(
+      col as GTColuna<unknown>,
+      podeEditar,
+      semPermissaoEditar,
+      camposEditaveis,
+      camposEditaveisFilhos,
+      mapaColunasFilhoGtv,
+      temHierarquiaFilhoGtv,
+    )
     const classeFindMatch   = linhaIndex >= 0 && isCelulaMatch(linhaIndex, col.key as string) ? ' gtv-celula--find-match' : ''
     const classeFindAtivo   = linhaIndex >= 0 && isCelulaMatchAtivo(linhaIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
     const isCelulaFeedback  = celulaResultado?.id === id && celulaResultado?.campo === col.key
@@ -2876,10 +2938,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     return (
       <div
         key={col.key}
-        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFindMatch}${classeFindAtivo}${classeFeedback}`}
+        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeModoExib}${classeFindMatch}${classeFindAtivo}${classeFeedback}`}
         style={styleCelula}
         data-gtv-rowid={podeEditar ? id : undefined}
         data-gtv-campo={podeEditar ? col.key : undefined}
+        data-gtv-modo-exibicao={
+          !podeEditar && colunaSomenteLeituraCompleta(col as GTColuna<unknown>, camposEditaveis, camposEditaveisFilhos, mapaColunasFilhoGtv, temHierarquiaFilhoGtv)
+            ? 'somente_leitura'
+            : undefined
+        }
         tabIndex={podeEditar && !estaEditando ? 0 : undefined}
         onClick={e => {
           if (podeEditar && !estaEditando) {
@@ -3172,6 +3239,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
             const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
             const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoFilho ? ' gtv-celula--sem-permissao' : '')
+            const classeModoExibFilho = classeModoExibicaoCelula(
+              col as GTColuna<unknown>,
+              podeEditar,
+              semPermissaoFilho,
+              camposEditaveis,
+              camposEditaveisFilhos,
+              mapaColunasFilhoGtv,
+              temHierarquiaFilhoGtv,
+            )
             const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
             const classeFindAtivo   = isCelulaMatchAtivo(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
@@ -3182,10 +3258,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             return (
               <div
                 key={col.key as string}
-                className={`gtv-celula${classeAlinhamento}${classeEditavel}${classeFindMatch}${classeFindAtivo}`}
+                className={`gtv-celula${classeAlinhamento}${classeEditavel}${classeModoExibFilho}${classeFindMatch}${classeFindAtivo}`}
                 style={styleCelula}
                 data-gtv-filho-rowid={podeEditar ? id : undefined}
                 data-gtv-campo={podeEditar ? (col.key as string) : undefined}
+                data-gtv-modo-exibicao={
+                  !podeEditar && colunaSomenteLeituraCompleta(col as GTColuna<unknown>, camposEditaveis, camposEditaveisFilhos, mapaColunasFilhoGtv, temHierarquiaFilhoGtv)
+                    ? 'somente_leitura'
+                    : undefined
+                }
                 onClick={podeEditar && !estaEditando ? (e) => {
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -3653,12 +3734,26 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   const classeDropAfter  = isDropTarget && dropSide === 'after'  ? ' gtv-th--drop-after'  : ''
                   const classeThFindMatch = findMatches.some(m => m.tipo === 'header' && m.colKey === (col.key as string)) ? ' gtv-th--find-match' : ''
                   const classeThFindAtivo = (findMatches[findAtivo]?.tipo === 'header' && findMatches[findAtivo]?.colKey === (col.key as string)) ? ' gtv-th--find-match-ativo' : ''
+                  const thSomenteLeitura = colunaSomenteLeituraCompleta(
+                    col,
+                    camposEditaveis,
+                    camposEditaveisFilhos,
+                    mapaColunasFilhoGtv,
+                    temHierarquiaFilhoGtv,
+                  )
+                  const classeThModo = classeThModoExibicao(
+                    col,
+                    camposEditaveis,
+                    camposEditaveisFilhos,
+                    mapaColunasFilhoGtv,
+                    temHierarquiaFilhoGtv,
+                  )
                   return (
                     <div
                       key={col.key}
                       role="columnheader"
                       data-find-col-key={col.key}
-                      className={`gtv-th gtv-th--center${classeSort}${classeDropBefore}${classeDropAfter}${classeThFindMatch}${classeThFindAtivo}`}
+                      className={`gtv-th gtv-th--center${classeSort}${classeDropBefore}${classeDropAfter}${classeThFindMatch}${classeThFindAtivo}${classeThModo}`}
                       style={{ ...styleTh, opacity: isDragging ? 0.45 : undefined, cursor: isDraggable ? 'grab' : undefined }}
                       draggable={isDraggable}
                       onDragStart={isDraggable ? () => handleColDragStart(col.key) : undefined}
@@ -3670,10 +3765,28 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     >
                       {col.tooltipTitulo ? (
                         <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao} interativo={col.tooltipInterativo}>
-                          <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>{col.label}</span>
+                          <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>
+                            {col.label}
+                            {thSomenteLeitura ? (
+                              <span className="gtv-th-modo-icone" aria-hidden="true" title="Somente leitura">
+                                <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                                  <path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z" />
+                                </svg>
+                              </span>
+                            ) : null}
+                          </span>
                         </TooltipGlobal>
                       ) : (
-                        <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>{col.label}</span>
+                        <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>
+                          {col.label}
+                          {thSomenteLeitura ? (
+                            <span className="gtv-th-modo-icone" aria-hidden="true" title="Somente leitura">
+                              <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                                <path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z" />
+                              </svg>
+                            </span>
+                          ) : null}
+                        </span>
                       )}
                       {col.sortavel && (
                         <span className={`gtv-sort-icon${!sortAtivo ? ' gtv-sort-icon--idle' : ''}`}>

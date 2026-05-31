@@ -52,6 +52,8 @@ export interface TaxaOrigemDestinoCadastro {
   tipo_taxa_origem_destino: TipoTaxaOrigemDestino
   codigo_taxa_origem_destino?: string | null
   ativo_taxa_origem_destino: boolean
+  /** Presente no banco Cadastros quando a coluna existir. */
+  legado_taxa_origem_destino?: boolean
 }
 
 const ROTULOS_TIPO_CONTAINER: Record<string, string> = {
@@ -198,6 +200,16 @@ async function request<T>(url: string): Promise<T> {
   return res.json() as Promise<T>
 }
 
+/** Catálogo global via proxy BID (público — sem chave interna no browser). */
+async function requestPublicDadosMestreBidFrete<T>(url: string): Promise<T> {
+  const res = await fetch(url, { headers: { Accept: 'application/json' } })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error((err as { error?: { message?: string } }).error?.message ?? `Erro ${res.status}`)
+  }
+  return res.json() as Promise<T>
+}
+
 export const cadastrosApi = {
   listarPaises: (): Promise<{ itens: PaisCadastro[]; total: number }> =>
     request('/api/v1/cadastros/paises?apenas_ativos=true'),
@@ -229,11 +241,14 @@ export const cadastrosApi = {
     q?: string
     tipo?: TipoTaxaOrigemDestino
     limit?: number
+    apenas_nao_legado?: boolean
   }): Promise<{ itens: TaxaOrigemDestinoCadastro[]; total: number }> => {
-    const search = new URLSearchParams({ apenas_ativos: 'true' })
+    const search = new URLSearchParams()
     if (params?.q) search.set('q', params.q)
     if (params?.tipo) search.set('tipo', params.tipo)
     if (params?.limit) search.set('limit', String(params.limit))
-    return request(`/api/v1/cadastros/taxas-origem-destino?${search.toString()}`)
+    const qs = search.toString()
+    const path = `/api/v1/bid-frete-internacional/dados-mestre/taxas-origem-destino${qs ? `?${qs}` : ''}`
+    return requestPublicDadosMestreBidFrete(path)
   },
 }

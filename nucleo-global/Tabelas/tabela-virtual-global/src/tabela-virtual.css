@@ -914,6 +914,36 @@
   cursor: not-allowed;
 }
 
+/* Modo visual: somente leitura — texto muted, sem fundo na célula */
+.gtv-celula--somente-leitura {
+  cursor: default;
+  color: var(--gtv-text-muted, #94a3b8);
+}
+
+.gtv-th--somente-leitura .gtv-th-label {
+  display: inline-flex;
+  align-items: center;
+  color: var(--gtv-text-muted, #94a3b8);
+  gap: 0.25rem;
+}
+
+.gtv-th-modo-icone {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.2rem;
+  opacity: 0.75;
+  vertical-align: middle;
+  color: var(--gtv-text-muted, #94a3b8);
+}
+
+body.light-theme .gtv-celula--somente-leitura {
+  color: #64748b;
+}
+
+body.light-theme .gtv-th--somente-leitura .gtv-th-label {
+  color: #64748b;
+}
+
 /* ─── Input de edição inline ──────────────────────────────────────────────── */
 .gtv-celula-input {
   width: 100%;

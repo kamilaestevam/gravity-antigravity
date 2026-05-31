@@ -78,6 +78,10 @@ const AtualizarCotacaoSchema = CriarCotacaoSchema.omit({
 }).partial().extend({
   id_workspace: z.string().min(1).optional(),
   id_usuario: z.string().min(1).optional(),
+  data_criacao_cotacao_bid_frete_internacional: z.coerce.date().optional(),
+  data_aprovacao_cotacao_bid_frete_internacional: z.coerce.date().nullable().optional(),
+  data_cancelamento_cotacao_bid_frete_internacional: z.coerce.date().nullable().optional(),
+  data_limite_resposta_cotacao_bid_frete_internacional: z.coerce.date().nullable().optional(),
   ganho_valor_cotacao_bid_frete_internacional: z.number().nullable().optional(),
   ganho_percentual_cotacao_bid_frete_internacional: z.number().nullable().optional(),
   motivo_reprovacao_cotacao_bid_frete_internacional: z.string().nullable().optional(),
@@ -270,6 +274,15 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({
       where: { id_cotacao_bid_frete_internacional: req.params.id },
       include: {
+        bid_bid_frete_internacional: {
+          select: {
+            id_bid_bid_frete_internacional: true,
+            numero_bid_bid_frete_internacional: true,
+            referencia_interna_bid_bid_frete_internacional: true,
+            status_bid_bid_frete_internacional: true,
+            _count: { select: { cotacoes: true } },
+          },
+        },
         disparos_cotacao: {
           include: {
             fornecedor: { select: { id_fornecedor_bid_frete_internacional: true, nome_fornecedor_bid_frete_internacional: true, tipo_fornecedor_bid_frete_internacional: true, email_fornecedor_bid_frete_internacional: true } },
@@ -278,7 +291,8 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
         propostas: {
           include: {
             fornecedor: { select: { id_fornecedor_bid_frete_internacional: true, nome_fornecedor_bid_frete_internacional: true, tipo_fornecedor_bid_frete_internacional: true, email_fornecedor_bid_frete_internacional: true } },
-            taxas: true,
+            taxas_origem: true,
+            taxas_destino: true,
           },
           orderBy: { valor_total_proposta_bid_frete_internacional: 'asc' },
         },
@@ -287,7 +301,52 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 
     if (!cotacao) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
 
-    res.json({ cotacao })
+    const historicoAprovado = await (req.prisma as any).cotacaoBidFreteInternacional.findMany({
+      where: {
+        origem_codigo_cotacao_bid_frete_internacional: cotacao.origem_codigo_cotacao_bid_frete_internacional,
+        destino_codigo_cotacao_bid_frete_internacional: cotacao.destino_codigo_cotacao_bid_frete_internacional,
+        modal_cotacao_bid_frete_internacional: cotacao.modal_cotacao_bid_frete_internacional,
+        modalidade_cotacao_bid_frete_internacional: cotacao.modalidade_cotacao_bid_frete_internacional,
+        tipo_container_cotacao_bid_frete_internacional: cotacao.tipo_container_cotacao_bid_frete_internacional,
+        incoterm_cotacao_bid_frete_internacional: cotacao.incoterm_cotacao_bid_frete_internacional,
+        status_cotacao_bid_frete_internacional: 'APROVADA',
+        NOT: {
+          id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+        },
+      },
+      select: {
+        id_cotacao_bid_frete_internacional: true,
+        numero_cotacao_bid_frete_internacional: true,
+        data_criacao_cotacao_bid_frete_internacional: true,
+        data_atualizacao_cotacao_bid_frete_internacional: true,
+        data_limite_resposta_cotacao_bid_frete_internacional: true,
+        data_aprovacao_cotacao_bid_frete_internacional: true,
+        disparos_cotacao: {
+          select: {
+            data_envio_disparo_cotacao_bid_frete_internacional: true,
+            data_resposta_disparo_cotacao_bid_frete_internacional: true,
+          },
+        },
+        propostas: {
+          select: {
+            data_criacao_proposta_bid_frete_internacional: true,
+            status_proposta_bid_frete_internacional: true,
+            valor_total_proposta_bid_frete_internacional: true,
+            moeda_proposta_bid_frete_internacional: true,
+          },
+        },
+      },
+      orderBy: {
+        data_aprovacao_cotacao_bid_frete_internacional: 'desc',
+      },
+    })
+
+    res.json({
+      cotacao: {
+        ...cotacao,
+        historico_aprovado: historicoAprovado,
+      },
+    })
   } catch (err) {
     next(err)
   }
@@ -309,11 +368,6 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
 
     const data: Record<string, unknown> = { ...parsed.data }
-    if (parsed.data.data_limite_resposta_cotacao_bid_frete_internacional != null) {
-      data.data_limite_resposta_cotacao_bid_frete_internacional = new Date(
-        parsed.data.data_limite_resposta_cotacao_bid_frete_internacional,
-      )
-    }
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional: req.params.id },

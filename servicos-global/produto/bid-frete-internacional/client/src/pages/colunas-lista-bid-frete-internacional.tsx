@@ -19,6 +19,8 @@ import {
   SYNC_EVENT_CASAS_BID_FRETE,
 } from '../shared/casas-config-bid-frete'
 import { formatarDataBidFrete } from '../shared/formato-data-bid-frete'
+import { criarColunasDatasMotivosCotacaoLista } from '../shared/colunas-datas-motivos-cotacao-bid-frete-internacional'
+import { formatarContainersPersistidosParaExibicao } from '../shared/containers-cotacao-bid-frete-internacional'
 
 // ─── Badge de status ───
 const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
@@ -291,7 +293,15 @@ function aplicarConfigEdicaoColuna(
 ): GTColuna<Cotacao> {
   const key = col.key as string
   if (!key || CAMPOS_NAO_EDITAVEIS_LISTA.has(key)) {
-    return col
+    const tooltipServidor =
+      key === 'data_atualizacao_cotacao_bid_frete_internacional'
+        ? 'Atualizada automaticamente pelo sistema ao salvar alterações.'
+        : undefined
+    return {
+      ...col,
+      editavel: false,
+      ...(tooltipServidor ? { tooltipBloqueado: tooltipServidor } : {}),
+    }
   }
 
   const base: GTColuna<Cotacao> = { ...col, editavel: true }
@@ -426,20 +436,31 @@ function aplicarConfigEdicaoColuna(
             || item.destino_pais_cotacao_bid_frete_internacional
             || '—',
       }
-    case 'tipo_container_cotacao_bid_frete_internacional':
+    case 'tipo_container_cotacao_bid_frete_internacional': {
+      const rotuloContainer = (codigo: string) =>
+        rotuloCadastroLista(codigo, opcoes.containersOpcoes ?? []) || codigo
       return {
         ...base,
         opcoes: opcoes.containersOpcoes,
         getValorEditar: (item: Cotacao) => item.tipo_container_cotacao_bid_frete_internacional ?? '',
         findDisplay: (item: Cotacao) =>
-          rotuloCadastroLista(item.tipo_container_cotacao_bid_frete_internacional, opcoes.containersOpcoes ?? '')
-            || item.tipo_container_cotacao_bid_frete_internacional
-            || '—',
+          item.tipo_container_cotacao_bid_frete_internacional
+            ? formatarContainersPersistidosParaExibicao(
+                item.tipo_container_cotacao_bid_frete_internacional,
+                item.quantidade_cotacao_bid_frete_internacional,
+                rotuloContainer,
+              )
+            : '—',
         render: (_val: unknown, item: Cotacao) =>
-          rotuloCadastroLista(item.tipo_container_cotacao_bid_frete_internacional, opcoes.containersOpcoes ?? '')
-            || item.tipo_container_cotacao_bid_frete_internacional
-            || '—',
+          item.tipo_container_cotacao_bid_frete_internacional
+            ? formatarContainersPersistidosParaExibicao(
+                item.tipo_container_cotacao_bid_frete_internacional,
+                item.quantidade_cotacao_bid_frete_internacional,
+                rotuloContainer,
+              )
+            : '—',
       }
+    }
     case 'valor_meta_cotacao_bid_frete_internacional': {
       const casas = getCasas('valor_meta_cotacao_bid_frete_internacional', 2)
       return {
@@ -896,37 +917,7 @@ function buildColunasCotacoesBase(
       tipo: 'texto',
       render: (val: unknown) => RenderBadgeAnonima(val),
     },
-    {
-      key: 'data_limite_resposta_cotacao_bid_frete_internacional',
-      label: 'Prazo resposta',
-      tipo: 'periodo',
-      render: (val: unknown) => fmtData(val as string),
-    },
-    {
-      key: 'data_aprovacao_cotacao_bid_frete_internacional',
-      label: 'Data aprovação',
-      tipo: 'periodo',
-      align: 'center',
-      render: (val: unknown) => fmtData(val as string),
-    },
-    {
-      key: 'data_cancelamento_cotacao_bid_frete_internacional',
-      label: 'Data cancelamento',
-      tipo: 'periodo',
-      render: (val: unknown) => fmtData(val as string),
-    },
-    {
-      key: 'motivo_reprovacao_cotacao_bid_frete_internacional',
-      label: 'Motivo reprovação',
-      tipo: 'texto',
-      render: renderTexto,
-    },
-    {
-      key: 'motivo_cancelamento_cotacao_bid_frete_internacional',
-      label: 'Motivo cancelamento',
-      tipo: 'texto',
-      render: renderTexto,
-    },
+    ...criarColunasDatasMotivosCotacaoLista(),
     {
       key: 'id_fornecedor_vencedor_cotacao_bid_frete_internacional',
       label: 'Fornecedor vencedor',
@@ -995,7 +986,7 @@ export function buildColunasPaiLista(
     editavel: (item: LinhaPaiLista) => {
       if (isLinhaBidGrupo(item)) return false
       if (typeof col.editavel === 'function') return col.editavel(item as Cotacao)
-      return col.editavel !== false
+      return col.editavel === true
     },
     tooltipBloqueado: (item: LinhaPaiLista) =>
       isLinhaBidGrupo(item) ? tooltipBid : undefined,

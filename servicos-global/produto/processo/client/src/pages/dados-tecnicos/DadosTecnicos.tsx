@@ -340,15 +340,18 @@ export default function DadosTecnicos() {
   }, [])
 
   function irParaSecao(id: string) {
-    // Se a secao estiver colapsada, expande antes (aguarda render no
-    // proximo frame pra que a altura nova ja conte na hora do scroll).
+    // Se a secao estiver colapsada, expande antes do scroll.
     expandirSecao(id)
+    // Double rAF: o primeiro frame deixa o React fazer o re-render
+    // (a secao expande, ganha altura), o segundo deixa o browser
+    // recomputar o layout antes do scrollIntoView usar as posicoes
+    // novas. Sem isso, o scrollIntoView usa as posicoes antigas
+    // (todas colapsadas, todas no topo da tela) e nada acontece.
     requestAnimationFrame(() => {
-      const el = document.getElementById(id)
-      if (!el) return
-      // scrollIntoView nativo ja anda na arvore atras do ancestral
-      // rolavel e respeita o scroll-margin-top do CSS (1rem em .dt-secao).
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      requestAnimationFrame(() => {
+        const el = document.getElementById(id)
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
     })
   }
 

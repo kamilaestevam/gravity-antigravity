@@ -52,7 +52,6 @@ import type {
   PropostaRankingBidFreteInternacional,
 } from './types'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { aprovarResposta } from './api'
 import { ModalAprovarPropostaBidFreteInternacional } from './modal-aprovar-proposta-bid-frete-internacional'
 import {
   cotacaoPermiteAcoesResposta,
@@ -449,9 +448,6 @@ function CardMelhorPropostaSmart({
   t: (k: string, d?: string | Record<string, unknown>) => string
 }) {
   const [modalAprovar, setModalAprovar] = useState(false)
-  const [aprovando, setAprovando] = useState(false)
-  const [aprovacaoSucesso, setAprovacaoSucesso] = useState(false)
-  const [resultadoAprovacao, setResultadoAprovacao] = useState<Cotacao | null>(null)
 
   const resumo = info.melhorPropostaResumo
   const propostaMelhor = useMemo(
@@ -477,35 +473,12 @@ function CardMelhorPropostaSmart({
   }
 
   function fecharModalAprovar() {
-    if (aprovando) return
     setModalAprovar(false)
-    setAprovacaoSucesso(false)
-    setResultadoAprovacao(null)
   }
 
-  function concluirSucessoAprovacao() {
-    const cotAtualizada = resultadoAprovacao
+  function aoAprovarProposta(cotAtualizada: Cotacao) {
+    onCotacaoAtualizada?.(cotAtualizada)
     fecharModalAprovar()
-    if (cotAtualizada) {
-      onCotacaoAtualizada?.(cotAtualizada)
-      return
-    }
-    onCotacaoAtualizada?.()
-  }
-
-  async function confirmarAprovar() {
-    if (!id_cotacao_bid_frete_internacional || !propostaMelhor || aprovando || aprovacaoSucesso) return
-    setAprovando(true)
-    try {
-      const resultado = await aprovarResposta(
-        id_cotacao_bid_frete_internacional,
-        propostaMelhor.id_proposta_bid_frete_internacional,
-      )
-      setResultadoAprovacao(resultado)
-      setAprovacaoSucesso(true)
-    } finally {
-      setAprovando(false)
-    }
   }
 
   if (!resumo) {
@@ -594,22 +567,19 @@ function CardMelhorPropostaSmart({
             className="dc-prop-btn-aprovar dc-smart-btn-aprovar"
             icone={<CheckCircle weight="bold" size={14} />}
             onClick={abrirModalAprovar}
-            disabled={aprovando || modalAprovar}
+            disabled={modalAprovar}
           >
             {t('bidfrete.comparativo.aprovar', 'Aprovar')}
           </BotaoGlobal>
         )}
       </footer>
-      {propostaMelhor && (
+      {propostaMelhor && id_cotacao_bid_frete_internacional && (
         <ModalAprovarPropostaBidFreteInternacional
           aberto={modalAprovar}
+          id_cotacao_bid_frete_internacional={id_cotacao_bid_frete_internacional}
           proposta={propostaMelhor}
-          aprovando={aprovando}
-          aprovacaoSucesso={aprovacaoSucesso}
-          resultadoAprovacao={resultadoAprovacao}
           onFechar={fecharModalAprovar}
-          onConcluirSucesso={concluirSucessoAprovacao}
-          onConfirmar={() => void confirmarAprovar()}
+          onAprovado={aoAprovarProposta}
         />
       )}
     </article>

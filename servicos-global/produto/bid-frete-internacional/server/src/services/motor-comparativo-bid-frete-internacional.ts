@@ -6,6 +6,7 @@
  * 3. Calcular ganho potencial
  */
 
+import { AppError } from '../lib/erros.js'
 import { PrismaClient } from '../generated/client/index.js'
 
 interface RankedResponse {
@@ -189,18 +190,23 @@ export const motorComparativo = {
     return { ranking, saving, cotacao }
   },
 
-  /**
-   * Aprova cotacao com fornecedor vencedor (2 cliques)
-   */
   async aprovar(prisma: PrismaClient, id_cotacao_bid_frete_internacional: string, id_proposta_bid_frete_internacional: string, id_usuario: string) {
     const response = await (prisma as any).propostaBidFreteInternacional.findFirst({
       where: { id_proposta_bid_frete_internacional, id_cotacao_bid_frete_internacional },
     })
 
-    if (!response) throw new Error('Resposta nao encontrada')
+    if (!response) {
+      throw new AppError(
+        'Resposta nao encontrada para esta cotação',
+        404,
+        'PROPOSTA_NAO_ENCONTRADA',
+      )
+    }
 
-    // Buscar cotacao para saving
     const cotacao = await (prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional } })
+    if (!cotacao) {
+      throw new AppError('Cotacao nao encontrada', 404, 'COTACAO_NAO_ENCONTRADA')
+    }
 
     // Aprovar a resposta
     await (prisma as any).propostaBidFreteInternacional.update({
@@ -222,9 +228,10 @@ export const motorComparativo = {
 
     const savingVsTarget = cotacao.valor_meta_cotacao_bid_frete_internacional ? cotacao.valor_meta_cotacao_bid_frete_internacional - response.valor_total_proposta_bid_frete_internacional : null
     const savingVsMedia = media - response.valor_total_proposta_bid_frete_internacional
-    const savingPct = cotacao.valor_meta_cotacao_bid_frete_internacional
+    const savingPctBruto = cotacao.valor_meta_cotacao_bid_frete_internacional
       ? ((cotacao.valor_meta_cotacao_bid_frete_internacional - response.valor_total_proposta_bid_frete_internacional) / cotacao.valor_meta_cotacao_bid_frete_internacional) * 100
       : media > 0 ? ((media - response.valor_total_proposta_bid_frete_internacional) / media) * 100 : null
+    const savingPct = savingPctBruto != null && Number.isFinite(savingPctBruto) ? savingPctBruto : null
 
     await (prisma as any).cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional },
@@ -237,23 +244,30 @@ export const motorComparativo = {
       },
     })
 
-    // Registrar saving/ganho
-    await (prisma as any).ganhoBidFreteInternacional.create({
-      data: {
-        id_produto_gravity: 'bid-frete-internacional',
-        id_usuario,
-        id_organizacao: cotacao.id_organizacao,
-        id_cotacao_bid_frete_internacional,
-        id_workspace: cotacao.id_workspace,
-        valor_meta_ganho_bid_frete_internacional: cotacao.valor_meta_cotacao_bid_frete_internacional,
-        valor_aprovado_ganho_bid_frete_internacional: response.valor_total_proposta_bid_frete_internacional,
-        valor_medio_ganho_bid_frete_internacional: media,
-        ganho_vs_meta_ganho_bid_frete_internacional: savingVsTarget,
-        ganho_vs_media_ganho_bid_frete_internacional: savingVsMedia,
-        ganho_percentual_ganho_bid_frete_internacional: savingPct,
-        moeda_ganho_bid_frete_internacional: response.moeda_proposta_bid_frete_internacional,
-      },
-    })
+    // Registrar saving/ganho (não bloqueia aprovação se métrica falhar)
+    try {
+      await (prisma as any).ganhoBidFreteInternacional.create({
+        data: {
+          id_produto_gravity: 'bid-frete-internacional',
+          id_usuario,
+          id_organizacao: cotacao.id_organizacao,
+          id_cotacao_bid_frete_internacional,
+          id_workspace: cotacao.id_workspace,
+          valor_meta_ganho_bid_frete_internacional: cotacao.valor_meta_cotacao_bid_frete_internacional,
+          valor_aprovado_ganho_bid_frete_internacional: response.valor_total_proposta_bid_frete_internacional,
+          valor_medio_ganho_bid_frete_internacional: media,
+          ganho_vs_meta_ganho_bid_frete_internacional: savingVsTarget,
+          ganho_vs_media_ganho_bid_frete_internacional: savingVsMedia,
+          ganho_percentual_ganho_bid_frete_internacional: savingPct,
+          moeda_ganho_bid_frete_internacional: response.moeda_proposta_bid_frete_internacional,
+        },
+      })
+    } catch (err: unknown) {
+      console.warn(
+        '[Comparativo] Falha ao registrar ganho (aprovação mantida):',
+        err instanceof Error ? err.message : err,
+      )
+    }
 
     return { approved: true, ganho_percentual_ganho_bid_frete_internacional: savingPct }
   },

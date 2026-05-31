@@ -2,11 +2,14 @@
  * Modal de confirmação de aprovação — @nucleo/modal-global + resumo completo da proposta.
  */
 
-import React, { useId } from 'react'
+import React, { useEffect, useId, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { BellRinging, CheckCircle, CurrencyDollar, Info, Trophy } from '@phosphor-icons/react'
+import { BellRinging, CheckCircle, CurrencyDollar, Info, Trophy, WarningCircle } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalOverlay } from '@nucleo/modal-global'
+import { useShellStore } from '@gravity/shell'
+import { aprovarResposta, BidFreteApiError } from './api'
+import { isPropostaRespostaDemonstracao } from './proposta-elegivel-aprovacao-bid-frete-internacional'
 import type { Cotacao, PropostaRankingBidFreteInternacional } from './types'
 import {
   subtotalTaxasDestinoTexto,
@@ -148,15 +151,11 @@ function ResumoCompletoProposta({
 
 export interface ModalAprovarPropostaBidFreteInternacionalProps {
   aberto: boolean
+  id_cotacao_bid_frete_internacional: string
   proposta: PropostaRankingBidFreteInternacional | null
-  aprovando?: boolean
-  aprovacaoSucesso?: boolean
-  /** Resposta da API após aprovar — alimenta card de saving na tela de sucesso. */
-  resultadoAprovacao?: Cotacao | null
   onFechar: () => void
-  onConfirmar: () => void
-  /** Fecha o modal após o usuário ver a confirmação de sucesso. */
-  onConcluirSucesso?: () => void
+  /** Chamado após o usuário confirmar sucesso no modal (cotação já persistida). */
+  onAprovado: (cotacao: Cotacao) => void
 }
 
 function CorpoSucessoAprovacao({
@@ -220,16 +219,27 @@ function DestaqueGanhadorAvisoAprovacao({ children }: { children?: React.ReactNo
 
 export function ModalAprovarPropostaBidFreteInternacional({
   aberto,
+  id_cotacao_bid_frete_internacional,
   proposta,
-  aprovando = false,
-  aprovacaoSucesso = false,
-  resultadoAprovacao = null,
   onFechar,
-  onConfirmar,
-  onConcluirSucesso,
+  onAprovado,
 }: ModalAprovarPropostaBidFreteInternacionalProps) {
   const { t } = useTranslation()
   const tituloId = useId()
+  const addNotification = useShellStore((s) => s.addNotification)
+  const [aprovando, setAprovando] = useState(false)
+  const [aprovacaoSucesso, setAprovacaoSucesso] = useState(false)
+  const [resultadoAprovacao, setResultadoAprovacao] = useState<Cotacao | null>(null)
+  const [erroAprovacao, setErroAprovacao] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!aberto) {
+      setAprovando(false)
+      setAprovacaoSucesso(false)
+      setResultadoAprovacao(null)
+      setErroAprovacao(null)
+    }
+  }, [aberto])
 
   const fornecedorFallback = t('bidfrete.comparativo.fornecedor', 'Fornecedor')
   const nome = proposta ? nomeFornecedor(proposta, fornecedorFallback) : fornecedorFallback
@@ -241,10 +251,44 @@ export function ModalAprovarPropostaBidFreteInternacional({
   const exibirSucesso = aprovacaoSucesso && !aprovando
   const bloquearFechar = aprovando
 
+  async function confirmarAprovacao() {
+    if (!proposta || aprovando || aprovacaoSucesso) return
+    if (isPropostaRespostaDemonstracao(proposta)) {
+      const msg = t(
+        'bidfrete.comparativo.erro_aprovar_mock',
+        'Esta proposta é apenas demonstração (mock) e não pode ser aprovada. Use respostas reais de fornecedores.',
+      )
+      setErroAprovacao(msg)
+      addNotification({ type: 'error', message: msg, duration: 6000 })
+      return
+    }
+    setAprovando(true)
+    setErroAprovacao(null)
+    try {
+      const resultado = await aprovarResposta(
+        id_cotacao_bid_frete_internacional,
+        proposta.id_proposta_bid_frete_internacional,
+      )
+      setResultadoAprovacao(resultado)
+      setAprovacaoSucesso(true)
+    } catch (e: unknown) {
+      const msg = e instanceof BidFreteApiError
+        ? e.message
+        : e instanceof Error
+          ? e.message
+          : t('bidfrete.comparativo.erro_aprovar', 'Erro ao aprovar cotação')
+      setErroAprovacao(msg)
+      addNotification({ type: 'error', message: msg, duration: 6000 })
+    } finally {
+      setAprovando(false)
+    }
+  }
+
   function aoFecharModal() {
     if (aprovando) return
-    if (exibirSucesso) {
-      ;(onConcluirSucesso ?? onFechar)()
+    if (exibirSucesso && resultadoAprovacao) {
+      onAprovado(resultadoAprovacao)
+      onFechar()
       return
     }
     onFechar()
@@ -297,7 +341,7 @@ export function ModalAprovarPropostaBidFreteInternacional({
               <BotaoGlobal
                 variante="secundario"
                 tamanho="medio"
-                onClick={onFechar}
+                onClick={aoFecharModal}
                 disabled={aprovando}
               >
                 {t('comum.cancelar', 'Cancelar')}
@@ -309,7 +353,7 @@ export function ModalAprovarPropostaBidFreteInternacional({
                 carregando={aprovando}
                 textoCarregando={t('bidfrete.comparativo.aprovando', 'Aprovando...')}
                 disabled={!proposta || aprovando}
-                onClick={onConfirmar}
+                onClick={() => void confirmarAprovacao()}
               >
                 {t('bidfrete.comparativo.confirmar_aprovacao', 'Confirmar Aprovação')}
               </BotaoGlobal>
@@ -324,6 +368,12 @@ export function ModalAprovarPropostaBidFreteInternacional({
           />
         ) : proposta && (
           <div className="bf-aprovacao-corpo">
+            {erroAprovacao && (
+              <div className="bf-aprovacao-erro" role="alert">
+                <WarningCircle weight="duotone" size={20} className="bf-aprovacao-erro-icone" aria-hidden />
+                <p className="bf-aprovacao-erro-texto">{erroAprovacao}</p>
+              </div>
+            )}
             <div className="bf-aprovacao-aviso" role="note">
               <BellRinging weight="duotone" size={20} className="bf-aprovacao-aviso-icone" aria-hidden />
               <p className="bf-aprovacao-aviso-texto">
@@ -366,6 +416,30 @@ export function ModalAprovarPropostaBidFreteInternacional({
 }
 
 const MODAL_APROVAR_PROPOSTA_RESUMO_STYLES = `
+  .mg-overlay:has(.bf-aprovacao-corpo),
+  .mg-overlay:has(.bf-aprovacao-sucesso) {
+    z-index: 11000;
+  }
+  .bf-aprovacao-erro {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.35);
+  }
+  .bf-aprovacao-erro-icone {
+    flex-shrink: 0;
+    color: #f87171;
+    margin-top: 0.1rem;
+  }
+  .bf-aprovacao-erro-texto {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: #fecaca;
+  }
   .bf-aprovacao-modal-header {
     padding-right: 3.5rem;
   }

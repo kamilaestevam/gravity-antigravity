@@ -24,8 +24,8 @@ import {
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { TFunction } from 'i18next'
 import type { Cotacao, PropostaRankingBidFreteInternacional, StatusCotacao } from './types'
-import { aprovarResposta } from './api'
 import { ModalAprovarPropostaBidFreteInternacional } from './modal-aprovar-proposta-bid-frete-internacional'
+import { propostaPermiteAprovacaoReal } from './proposta-elegivel-aprovacao-bid-frete-internacional'
 import {
   calcularMetricasPropostas,
   criterioOrdenacaoAscendentePorPadrao,
@@ -75,8 +75,7 @@ export function cotacaoPermiteAcoesResposta(status: StatusCotacao | null | undef
 }
 
 export function propostaPermiteAcoes(proposta: PropostaRankingBidFreteInternacional): boolean {
-  const status = proposta.status_proposta_bid_frete_internacional
-  return status !== 'APROVADA' && status !== 'REPROVADA'
+  return propostaPermiteAprovacaoReal(proposta)
 }
 
 function BadgeStatusProposta({
@@ -750,9 +749,6 @@ export function ListaPropostasDetalheCotacao({
   const [modalAprovar, setModalAprovar] = useState(false)
   const [propostaSelecionada, setPropostaSelecionada] =
     useState<PropostaRankingBidFreteInternacional | null>(null)
-  const [aprovando, setAprovando] = useState(false)
-  const [aprovacaoSucesso, setAprovacaoSucesso] = useState(false)
-  const [resultadoAprovacao, setResultadoAprovacao] = useState<Cotacao | null>(null)
 
   const acoesGlobaisHabilitadas =
     propostasRanking.length > 0
@@ -825,36 +821,13 @@ export function ListaPropostasDetalheCotacao({
   }
 
   function fecharModalAprovar() {
-    if (aprovando) return
     setModalAprovar(false)
     setPropostaSelecionada(null)
-    setAprovacaoSucesso(false)
-    setResultadoAprovacao(null)
   }
 
-  function concluirSucessoAprovacao() {
-    const cotAtualizada = resultadoAprovacao
+  function aoAprovarProposta(cotAtualizada: Cotacao) {
+    onCotacaoAtualizada?.(cotAtualizada)
     fecharModalAprovar()
-    if (cotAtualizada) {
-      onCotacaoAtualizada?.(cotAtualizada)
-      return
-    }
-    onCotacaoAtualizada?.()
-  }
-
-  async function confirmarAprovar() {
-    if (!propostaSelecionada || aprovando || aprovacaoSucesso) return
-    setAprovando(true)
-    try {
-      const resultado = await aprovarResposta(
-        id_cotacao_bid_frete_internacional,
-        propostaSelecionada.id_proposta_bid_frete_internacional,
-      )
-      setResultadoAprovacao(resultado)
-      setAprovacaoSucesso(true)
-    } finally {
-      setAprovando(false)
-    }
   }
 
   if (carregandoRanking) {
@@ -901,7 +874,7 @@ export function ListaPropostasDetalheCotacao({
         variante={variante}
         densidade={densidade}
         exibirAcoes={exibirAcoes}
-        acoesDesabilitadas={aprovando || modalAprovar}
+        acoesDesabilitadas={modalAprovar}
         onAprovar={() => abrirModalAprovar(proposta)}
       />
     )
@@ -965,13 +938,10 @@ export function ListaPropostasDetalheCotacao({
 
       <ModalAprovarPropostaBidFreteInternacional
         aberto={modalAprovar}
+        id_cotacao_bid_frete_internacional={id_cotacao_bid_frete_internacional}
         proposta={propostaSelecionada}
-        aprovando={aprovando}
-        aprovacaoSucesso={aprovacaoSucesso}
-        resultadoAprovacao={resultadoAprovacao}
         onFechar={fecharModalAprovar}
-        onConcluirSucesso={concluirSucessoAprovacao}
-        onConfirmar={() => void confirmarAprovar()}
+        onAprovado={aoAprovarProposta}
       />
     </div>
   )

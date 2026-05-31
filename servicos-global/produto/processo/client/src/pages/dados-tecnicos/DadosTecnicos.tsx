@@ -19,10 +19,12 @@ import {
   CurrencyDollar, Boat, AirplaneTakeoff, Package, ListChecks,
   IdentificationBadge, ChatText, SidebarSimple, Warning,
   CaretDown, MagnifyingGlass, X, Cube, Resize, Barcode,
+  Stack, CubeFocus,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import './DadosTecnicos.css'
 
 // ── Configuracao de campos ──────────────────────────────────────────────────
@@ -122,14 +124,14 @@ const SECOES: SecaoConfig[] = [
     ],
   },
   {
-    // Containers: campos do banco Cadastros/Container (model Container
-    // em servicos-global/cadastros/prisma/fragment.prisma). Quando o
-    // back/banco do Processo estiver pronto, esses campos representarao
-    // o(s) container(s) vinculado(s) a este processo.
+    // Containers: tipo/tamanho herdam dos enums do Cadastros/Container;
+    // numero, tara, pesos e cubagem sao operacionais do processo
+    // (variam por embarque, nao moram no catalogo).
     id: 'containers',
     titulo: 'Containers',
     icone: <Cube weight="duotone" size={18} />,
     campos: [
+      { key: 'numero_container',       label: 'Número do Container', tipo: 'texto',  obrigatorio: true, placeholder: 'Ex: MSKU1234567', icone: <Barcode /> },
       { key: 'tipo_container',         label: 'Tipo de Container',   tipo: 'select', obrigatorio: true, icone: <Cube />,
         opcoes: [
           { valor: 'DRY',         label: 'Dry (carga seca)' },
@@ -140,15 +142,17 @@ const SECOES: SecaoConfig[] = [
           { valor: 'BULK',        label: 'Bulk (granel)' },
           { valor: 'PLATAFORMA',  label: 'Plataforma' },
         ] },
-      { key: 'tamanho_container',      label: 'Tamanho',             tipo: 'select', obrigatorio: true, icone: <Resize />,
+      { key: 'tamanho_container',      label: 'Tamanho do Container', tipo: 'select', obrigatorio: true, icone: <Resize />,
         opcoes: [
           { valor: "20'",    label: "20'" },
           { valor: "40'",    label: "40'" },
           { valor: "40'HC",  label: "40' High Cube" },
           { valor: "45'",    label: "45'" },
         ] },
-      { key: 'codigo_iso_container',   label: 'Código ISO 6346',     tipo: 'texto', placeholder: 'Ex: 22G0', icone: <Barcode /> },
-      { key: 'armador_dono_container', label: 'Armador',             tipo: 'texto', placeholder: 'Ex: Maersk', icone: <Boat /> },
+      { key: 'tara_container',         label: 'Tara do Container (kg)',          tipo: 'numero', placeholder: 'Ex: 2300',  icone: <Scales /> },
+      { key: 'peso_liquido_container', label: 'Peso Líquido do Container (kg)',  tipo: 'numero', placeholder: 'Ex: 20000', icone: <Package /> },
+      { key: 'peso_bruto_container',   label: 'Peso Bruto do Container (kg)',    tipo: 'numero', placeholder: 'Ex: 22300', icone: <Stack /> },
+      { key: 'cubagem_container',      label: 'Cubagem do Container (m³)',       tipo: 'numero', placeholder: 'Ex: 33.2',  icone: <CubeFocus /> },
     ],
   },
 ]
@@ -230,18 +234,20 @@ function CampoLinha({ campo, valor, onSalvar }: CampoLinhaProps) {
       {editando ? (
         <div className="dt-row-edit">
           {campo.tipo === 'select' ? (
-            <select
-              ref={inputRef as React.RefObject<HTMLSelectElement>}
-              value={valorLocal}
-              onChange={e => setValorLocal(e.target.value)}
-              onBlur={salvar}
-              onKeyDown={e => { if (e.key === 'Enter') salvar(); if (e.key === 'Escape') cancelar() }}
-            >
-              <option value="">—</option>
-              {campo.opcoes?.map(op => (
-                <option key={op.valor} value={op.valor}>{op.label}</option>
-              ))}
-            </select>
+            // SelectGlobal — padrao do sistema (com busca, icone, chevron)
+            <SelectGlobal
+              opcoes={campo.opcoes?.map(o => ({ valor: o.valor, rotulo: o.label })) ?? []}
+              valor={valorLocal}
+              aoMudarValor={(v) => {
+                const novo = v == null ? '' : String(v)
+                setValorLocal(novo)
+                if (novo !== valor) onSalvar(novo)
+                setEditando(false)
+              }}
+              buscavel
+              placeholder="Selecione…"
+              iconeEsquerda={campo.icone}
+            />
           ) : (
             <input
               ref={inputRef as React.RefObject<HTMLInputElement>}

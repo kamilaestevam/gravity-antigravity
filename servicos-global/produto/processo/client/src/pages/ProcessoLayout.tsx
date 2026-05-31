@@ -177,6 +177,11 @@ const buildNavSections = (
       title: 'Acompanhamento',
       items: [
         { id: 'workflow',  to: `${base}/workflow${qs}`,  label: 'Visão Geral',  icon: <FlowArrow weight="duotone" size={18} /> },
+      ],
+    },
+    {
+      title: 'Pedidos',
+      items: [
         { id: 'pedidos',   to: `${base}/pedidos${qs}`,   label: 'Pedidos',   icon: <Package   weight="duotone" size={18} />, count: counts.pedidos },
       ],
     },

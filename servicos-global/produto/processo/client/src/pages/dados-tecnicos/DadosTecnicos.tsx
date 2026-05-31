@@ -18,6 +18,7 @@ import {
   ArrowsLeftRight, Warehouse, ShieldCheck, TrafficSign,
   CurrencyDollar, Boat, AirplaneTakeoff, Package, ListChecks,
   IdentificationBadge, ChatText, SidebarSimple, Warning,
+  CaretDown,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -250,6 +251,33 @@ export default function DadosTecnicos() {
   const [tocColapsada, setTocColapsada] = useState(true)
   // Modo do card de stats: total ou so obrigatorios
   const [modoStats, setModoStats] = useState<'total' | 'obrig'>('total')
+  // Secoes colapsadas — default todas EXPANDIDAS (Set vazio).
+  const [secoesColapsadas, setSecoesColapsadas] = useState<Set<string>>(() => new Set())
+
+  function toggleSecao(id: string) {
+    setSecoesColapsadas(prev => {
+      const novo = new Set(prev)
+      if (novo.has(id)) novo.delete(id); else novo.add(id)
+      return novo
+    })
+  }
+
+  function expandirSecao(id: string) {
+    setSecoesColapsadas(prev => {
+      if (!prev.has(id)) return prev
+      const novo = new Set(prev)
+      novo.delete(id)
+      return novo
+    })
+  }
+
+  const todasColapsadas = secoesColapsadas.size === SECOES.length
+
+  function toggleTodas() {
+    setSecoesColapsadas(prev =>
+      prev.size === SECOES.length ? new Set() : new Set(SECOES.map(s => s.id))
+    )
+  }
 
   function salvarCampo(key: string, novo: string) {
     setValores(p => ({ ...p, [key]: novo }))
@@ -311,6 +339,8 @@ export default function DadosTecnicos() {
   }, [])
 
   function irParaSecao(id: string) {
+    // Se a secao estiver colapsada, expande antes de rolar
+    expandirSecao(id)
     const el = document.getElementById(id)
     if (!el) return
     // PaginaGlobal usa .pg-conteudo-area com overflow-y: auto — esse e
@@ -495,14 +525,48 @@ export default function DadosTecnicos() {
 
         {/* ── Conteudo: secoes empilhadas ──────────────────────────────── */}
         <main className="dt-main">
+          {/* Toolbar: Recolher / Expandir todas */}
+          <div className="dt-main-toolbar">
+            <button
+              type="button"
+              className="dt-main-toolbar-btn"
+              onClick={toggleTodas}
+              title={todasColapsadas ? 'Expandir todas as seções' : 'Recolher todas as seções'}
+            >
+              <CaretDown
+                weight="bold"
+                size={12}
+                className={`dt-caret ${todasColapsadas ? 'dt-caret--colapsado' : ''}`}
+              />
+              {todasColapsadas ? 'Expandir todas' : 'Recolher todas'}
+            </button>
+          </div>
+
           {SECOES.map(sec => {
             const c = completude[sec.id]
             const completa = c.preenchidos === c.total
             const pct = Math.round((c.preenchidos / c.total) * 100)
+            const colapsada = secoesColapsadas.has(sec.id)
             return (
-              <section key={sec.id} id={sec.id} className="dt-secao">
-                <header className="dt-secao-header">
+              <section
+                key={sec.id}
+                id={sec.id}
+                className={`dt-secao ${colapsada ? 'dt-secao--colapsada' : ''}`}
+              >
+                <button
+                  type="button"
+                  className="dt-secao-header"
+                  onClick={() => toggleSecao(sec.id)}
+                  aria-expanded={!colapsada}
+                  aria-controls={`${sec.id}-grid`}
+                  title={colapsada ? 'Expandir seção' : 'Recolher seção'}
+                >
                   <div className="dt-secao-title">
+                    <CaretDown
+                      weight="bold"
+                      size={14}
+                      className={`dt-caret ${colapsada ? 'dt-caret--colapsado' : ''}`}
+                    />
                     <span className="dt-secao-icon">{sec.icone}</span>
                     <h2>{sec.titulo}</h2>
                   </div>
@@ -522,18 +586,20 @@ export default function DadosTecnicos() {
                       )}
                     </span>
                   </div>
-                </header>
+                </button>
 
-                <div className="dt-grid">
-                  {sec.campos.map(campo => (
-                    <CampoLinha
-                      key={campo.key}
-                      campo={campo}
-                      valor={valores[campo.key] ?? ''}
-                      onSalvar={(novo) => salvarCampo(campo.key, novo)}
-                    />
-                  ))}
-                </div>
+                {!colapsada && (
+                  <div id={`${sec.id}-grid`} className="dt-grid">
+                    {sec.campos.map(campo => (
+                      <CampoLinha
+                        key={campo.key}
+                        campo={campo}
+                        valor={valores[campo.key] ?? ''}
+                        onSalvar={(novo) => salvarCampo(campo.key, novo)}
+                      />
+                    ))}
+                  </div>
+                )}
               </section>
             )
           })}

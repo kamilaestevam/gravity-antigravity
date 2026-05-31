@@ -300,12 +300,46 @@
   min-width: 0;
 }
 
+/* Toolbar acima das secoes */
+.dt-main-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: -0.5rem;
+}
+
+.dt-main-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3125rem 0.625rem;
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 9999px;
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.dt-main-toolbar-btn:hover {
+  background: rgba(167, 139, 250, 0.08);
+  color: #c4b5fd;
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
 .dt-secao {
   background: rgba(30, 41, 59, 0.35);
   border: 1px solid rgba(167, 139, 250, 0.1);
   border-radius: 14px;
   padding: 1.25rem 1.5rem 1.5rem;
   scroll-margin-top: 1rem;
+  transition: padding 0.2s ease-out;
+}
+
+/* Colapsada: tira padding inferior, header fica como unica linha */
+.dt-secao--colapsada {
+  padding-bottom: 1.25rem;
 }
 
 .dt-secao-header {
@@ -313,9 +347,26 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding-bottom: 1rem;
+  width: 100%;
+  padding: 0 0 1rem;
   margin-bottom: 1rem;
+  background: transparent;
+  border: none;
   border-bottom: 1px solid rgba(167, 139, 250, 0.1);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, margin 0.2s, padding 0.2s;
+}
+
+.dt-secao-header:hover .dt-secao-title h2 {
+  color: #c4b5fd;
+}
+
+/* Colapsada: header sem border-bottom nem margin, vira linha simples */
+.dt-secao--colapsada .dt-secao-header {
+  padding: 0;
+  margin-bottom: 0;
+  border-bottom-color: transparent;
 }
 
 .dt-secao-title {
@@ -323,6 +374,20 @@
   align-items: center;
   gap: 0.625rem;
 }
+
+/* Caret rotativo (90deg quando colapsado) */
+.dt-caret {
+  color: var(--ws-muted, #94a3b8);
+  transition: transform 0.2s ease-out, color 0.15s;
+  flex-shrink: 0;
+}
+
+.dt-caret--colapsado {
+  transform: rotate(-90deg);
+}
+
+.dt-secao-header:hover .dt-caret { color: #c4b5fd; }
+.dt-main-toolbar-btn:hover .dt-caret { color: #c4b5fd; }
 
 .dt-secao-icon {
   display: inline-flex;

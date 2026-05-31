@@ -877,11 +877,15 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  align-items: stretch;
 }
 
 /* Card de documento mais compacto — caber acoes (editar + lixeira)
-   sem ficar apertado. Padding reduzido e icone menor. */
+   sem ficar apertado. Padding reduzido e icone menor.
+   width:100% garante largura uniforme (o wrapper do TooltipGlobal no
+   trigger interno tende a virar inline-block e encolher o card). */
 .wf-doc-item {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -932,12 +936,15 @@
   white-space: nowrap;
 }
 
-/* Acoes (editar + lixeira) — grupo agrupado a direita do card */
+/* Acoes (editar + lixeira) — grupo agrupado a direita do card.
+   margin-left: auto empurra pra direita mesmo quando o wrapper do
+   TooltipGlobal no trigger nao expande naturalmente. */
 .wf-doc-actions {
   display: flex;
   align-items: center;
   gap: 0.125rem;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .wf-doc-action {

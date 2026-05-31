@@ -32,6 +32,7 @@ import {
 } from '@phosphor-icons/react'
 
 import { rankingCotacoesBidFreteInternacional, aprovarResposta, reprovarTodas, getCotacao } from '../shared/api'
+import { aplicarEstadoPosAprovacaoCotacao } from '../shared/sincronizar-estado-pos-aprovacao-cotacao-bid-frete-internacional'
 import type { PropostaRankingBidFreteInternacional, Cotacao } from '../shared/types'
 import {
   ModalAprovarPropostaBidFreteInternacional,
@@ -241,7 +242,11 @@ export default function Comparativo() {
 
   function concluirSucessoModalAprovar() {
     if (resultadoAprovacaoPendente) {
-      setResultadoAprovacao(resultadoAprovacaoPendente)
+      const { cotacao: cotMesclada, propostasRanking: rankingSincronizado } =
+        aplicarEstadoPosAprovacaoCotacao(cotacao, respostas, resultadoAprovacaoPendente)
+      setCotacao(cotMesclada)
+      setRespostas(rankingSincronizado)
+      setResultadoAprovacao(cotMesclada)
       setResultadoAprovacaoPendente(null)
     }
     setAprovacaoSucesso(false)
@@ -416,14 +421,21 @@ export default function Comparativo() {
     },
   ]
 
-  const acoes: TabelaGlobalAcao<PropostaRankingBidFreteInternacional>[] = [
+  const permiteAprovar = cotacao?.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO'
+
+  const acoes: TabelaGlobalAcao<PropostaRankingBidFreteInternacional>[] = permiteAprovar
+    ? [
     {
       id: 'aprovar',
       icone: <CheckCircle weight="duotone" size={16} />,
       tooltip: t('bidfrete.comparativo.aprovar'),
       onClick: (item: PropostaRankingBidFreteInternacional) => abrirModalAprovar(item),
+      disabled: (item: PropostaRankingBidFreteInternacional) =>
+        item.status_proposta_bid_frete_internacional === 'APROVADA'
+        || item.status_proposta_bid_frete_internacional === 'REPROVADA',
     },
   ]
+    : []
 
   // ─── Render ───────────────────────────────────────────────────────────────
 

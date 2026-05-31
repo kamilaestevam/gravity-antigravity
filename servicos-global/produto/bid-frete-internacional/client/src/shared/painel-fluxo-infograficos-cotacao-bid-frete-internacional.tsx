@@ -520,7 +520,7 @@ function CardRankingRespostasInsights({
   status_cotacao_bid_frete_internacional?: StatusCotacao | null
   propostasRanking: PropostaRankingBidFreteInternacional[]
   carregandoRanking: boolean
-  onCotacaoAtualizada?: () => void
+  onCotacaoAtualizada?: (cotacaoAtualizada?: Cotacao) => void
   t: (k: string, d?: string | Record<string, unknown>) => string
 }) {
   return (
@@ -607,7 +607,7 @@ export interface InsightsGridFluxoCotacaoProps {
   status_cotacao_bid_frete_internacional?: StatusCotacao | null
   propostasRanking?: PropostaRankingBidFreteInternacional[]
   carregandoRanking?: boolean
-  onCotacaoAtualizada?: () => void
+  onCotacaoAtualizada?: (cotacaoAtualizada?: Cotacao) => void
 }
 
 export function InsightsGridFluxoCotacao({

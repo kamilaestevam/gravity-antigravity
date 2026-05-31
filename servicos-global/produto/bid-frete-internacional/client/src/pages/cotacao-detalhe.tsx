@@ -67,6 +67,7 @@ import {
   anexarMocksRespostasTemporarias,
   MOCAR_RESPOSTAS_COTACAO_TEMP,
 } from '../shared/mock-respostas-cotacao-APAGAR-ANTES-COMMIT'
+import { aplicarEstadoPosAprovacaoCotacao } from '../shared/sincronizar-estado-pos-aprovacao-cotacao-bid-frete-internacional'
 import type {
   Cotacao,
   DisparoCotacaoBidFreteInternacional,
@@ -314,6 +315,17 @@ export default function DetalheCotacao() {
     }
   }, [id, carregarRankingPropostas])
 
+  const handleCotacaoAtualizada = useCallback((cotacaoAprovada?: Cotacao) => {
+    if (cotacaoAprovada) {
+      const { cotacao: cotMesclada, propostasRanking: rankingSincronizado } =
+        aplicarEstadoPosAprovacaoCotacao(cotacao, propostasRanking, cotacaoAprovada)
+      setCotacao(cotMesclada)
+      setPropostasRanking(rankingSincronizado)
+      return
+    }
+    void carregar()
+  }, [carregar, cotacao, propostasRanking])
+
   useEffect(() => { carregar() }, [carregar])
 
   const tituloTopo = useMemo(() => {
@@ -553,7 +565,7 @@ export default function DetalheCotacao() {
           status_cotacao_bid_frete_internacional={cotacao.status_cotacao_bid_frete_internacional}
           propostasRanking={propostasRanking}
           carregandoRanking={carregandoRanking}
-          onCotacaoAtualizada={carregar}
+          onCotacaoAtualizada={handleCotacaoAtualizada}
         />
       </section>
 
@@ -727,7 +739,7 @@ export default function DetalheCotacao() {
           propostasRanking={propostasRanking}
           carregandoRanking={carregandoRanking}
           variante="padrao"
-          onCotacaoAtualizada={carregar}
+          onCotacaoAtualizada={handleCotacaoAtualizada}
         />
       )}
       </>
@@ -1541,6 +1553,26 @@ export default function DetalheCotacao() {
           text-transform: uppercase;
           background: rgba(34, 197, 94, 0.12);
           border: 1px solid rgba(74, 222, 128, 0.28);
+          color: #86efac;
+        }
+        .dc-prop-badge-reprovada {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+          padding: 0.15rem 0.45rem;
+          border-radius: 999px;
+          font-size: 0.625rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          background: rgba(239, 68, 68, 0.12);
+          border: 1px solid rgba(248, 113, 113, 0.28);
+          color: #fca5a5;
+        }
+        .dc-prop-card--reprovada {
+          opacity: 0.78;
+        }
+        .dc-prop-card--reprovada::after {
+          background: linear-gradient(90deg, #991b1b 0%, #ef4444 50%, #fca5a5 100%);
         }
         .dc-prop-card-total-block {
           display: flex;

@@ -19,6 +19,7 @@ import {
   Boat,
   Coins,
   CalendarBlank,
+  XCircle,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { TFunction } from 'i18next'
@@ -67,6 +68,33 @@ function cotacaoPermiteAcoesResposta(status: StatusCotacao | null | undefined): 
 function propostaPermiteAcoes(proposta: PropostaRankingBidFreteInternacional): boolean {
   const status = proposta.status_proposta_bid_frete_internacional
   return status !== 'APROVADA' && status !== 'REPROVADA'
+}
+
+function BadgeStatusProposta({
+  proposta,
+  t,
+}: {
+  proposta: PropostaRankingBidFreteInternacional
+  t: TFunction
+}) {
+  const status = proposta.status_proposta_bid_frete_internacional
+  if (status === 'APROVADA') {
+    return (
+      <span className="dc-prop-badge-aprovada">
+        <CheckCircle weight="fill" size={13} />
+        {t('bidfrete.comparativo.aprovada', 'Aprovada')}
+      </span>
+    )
+  }
+  if (status === 'REPROVADA') {
+    return (
+      <span className="dc-prop-badge-reprovada">
+        <XCircle weight="fill" size={13} />
+        {t('bidfrete.comparativo.reprovada', 'Reprovada')}
+      </span>
+    )
+  }
+  return null
 }
 
 function nomeFornecedorProposta(
@@ -428,6 +456,7 @@ function CardProposta({
   onAprovar?: () => void
 }) {
   const aprovada = proposta.status_proposta_bid_frete_internacional === 'APROVADA'
+  const reprovada = proposta.status_proposta_bid_frete_internacional === 'REPROVADA'
   const nome = nomeFornecedorProposta(proposta, t)
   const moedaProposta = proposta.moeda_proposta_bid_frete_internacional
   const posicaoScore = metricas.posicaoGeral
@@ -448,6 +477,7 @@ function CardProposta({
         className={[
           'dc-prop-card',
           aprovada ? 'dc-prop-card--aprovada' : '',
+          reprovada ? 'dc-prop-card--reprovada' : '',
           classeBarraColocacao(colocacaoVisualPodio),
         ].filter(Boolean).join(' ')}
       >
@@ -460,7 +490,10 @@ function CardProposta({
               t={t}
             />
             <div className="dc-prop-card-titulos dc-prop-card-titulos--combate">
-              <h3 className="dc-prop-fornecedor">{nome}</h3>
+              <div className="dc-prop-card-title-row">
+                <h3 className="dc-prop-fornecedor">{nome}</h3>
+                <BadgeStatusProposta proposta={proposta} t={t} />
+              </div>
               <span className="dc-prop-total-valor">
                 {moeda(proposta.valor_total_proposta_bid_frete_internacional, moedaProposta)}
               </span>
@@ -495,6 +528,7 @@ function CardProposta({
           'dc-prop-card',
           'dc-prop-card--compacto',
           aprovada ? 'dc-prop-card--aprovada' : '',
+          reprovada ? 'dc-prop-card--reprovada' : '',
           classeBarraColocacao(colocacaoVisualPodio),
         ].filter(Boolean).join(' ')}
       >
@@ -509,12 +543,7 @@ function CardProposta({
             <div className="dc-prop-card-titulos">
               <div className="dc-prop-card-title-row">
                 <h3 className="dc-prop-fornecedor" title={nome}>{nome}</h3>
-                {aprovada && (
-                  <span className="dc-prop-badge-aprovada">
-                    <CheckCircle weight="fill" size={13} />
-                    {t('bidfrete.comparativo.aprovada', 'Aprovada')}
-                  </span>
-                )}
+                <BadgeStatusProposta proposta={proposta} t={t} />
                 {nota && (
                   <span className="dc-prop-nota">
                     <Star weight="duotone" size={12} aria-hidden />
@@ -563,6 +592,7 @@ function CardProposta({
       className={[
         'dc-prop-card',
         aprovada ? 'dc-prop-card--aprovada' : '',
+        reprovada ? 'dc-prop-card--reprovada' : '',
         classeBarraColocacao(posicaoScore),
       ].filter(Boolean).join(' ')}
     >
@@ -577,12 +607,7 @@ function CardProposta({
           <div className="dc-prop-card-titulos">
             <div className="dc-prop-card-title-row">
               <h3 className="dc-prop-fornecedor">{nome}</h3>
-              {aprovada && (
-                <span className="dc-prop-badge-aprovada">
-                  <CheckCircle weight="fill" size={13} />
-                  {t('bidfrete.comparativo.aprovada', 'Aprovada')}
-                </span>
-              )}
+              <BadgeStatusProposta proposta={proposta} t={t} />
               {nota && (
                 <span className="dc-prop-nota">
                   <Star weight="duotone" size={12} aria-hidden />
@@ -633,7 +658,8 @@ export interface ListaPropostasDetalheCotacaoProps {
   carregandoRanking?: boolean
   /** Sidebar compacta estilo Combat Matrix (mockup cockpit). */
   variante?: 'padrao' | 'combate'
-  onCotacaoAtualizada?: () => void
+  /** Recebe a cotação retornada pela API após aprovar; omitido = recarregar do servidor. */
+  onCotacaoAtualizada?: (cotacaoAtualizada?: Cotacao) => void
 }
 
 export function ListaPropostasDetalheCotacao({
@@ -734,7 +760,12 @@ export function ListaPropostasDetalheCotacao({
   }
 
   function concluirSucessoAprovacao() {
+    const cotAtualizada = resultadoAprovacao
     fecharModalAprovar()
+    if (cotAtualizada) {
+      onCotacaoAtualizada?.(cotAtualizada)
+      return
+    }
     onCotacaoAtualizada?.()
   }
 

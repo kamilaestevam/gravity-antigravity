@@ -1,0 +1,36 @@
+/* FinanceiroTabs — pills no topo das telas de Financeiro
+   (espelha PedidosTabs.css com prefixo ft-). */
+
+.ft-tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  background: var(--ws-surface, #1e293b);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  border-radius: 9999px;
+}
+
+.ft-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ws-muted, #94a3b8);
+  text-decoration: none;
+  border-radius: 9999px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ft-tab:hover {
+  color: var(--ws-text, #f1f5f9);
+  background: rgba(167, 139, 250, 0.08);
+}
+
+.ft-tab--active {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}

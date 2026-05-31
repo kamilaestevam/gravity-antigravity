@@ -21,7 +21,9 @@ const Workflow = lazy(() => import('./pages/workflow/Workflow'))
 const PedidosResumo = lazy(() => import('./pages/pedidos/PedidosResumo'))
 const PedidosLista = lazy(() => import('./pages/pedidos/PedidosLista'))
 const DadosTecnicos = lazy(() => import('./pages/dados-tecnicos/DadosTecnicos'))
-const Financeiro = lazy(() => import('./pages/financeiro/Financeiro'))
+const FinanceiroMovimentacao = lazy(() => import('./pages/financeiro/FinanceiroMovimentacao'))
+const FinanceiroNumerario = lazy(() => import('./pages/financeiro/FinanceiroNumerario'))
+const FinanceiroRateio = lazy(() => import('./pages/financeiro/FinanceiroRateio'))
 const Email = lazy(() => import('./pages/email/Email'))
 
 // ─── Loading Fallback ──────────────────────────────────────────────────────
@@ -105,7 +107,14 @@ export function App() {
             </Route>
             <Route path="dados-tecnicos" element={<DadosTecnicos />} />
             <Route path="email" element={<Email />} />
-            <Route path="financeiro" element={<Financeiro />} />
+            {/* Financeiro: rotas aninhadas — /financeiro cai no index
+                (Navigate pra movimentacao); cada aba e um filho. */}
+            <Route path="financeiro">
+              <Route index element={<Navigate to="movimentacao" replace />} />
+              <Route path="movimentacao" element={<FinanceiroMovimentacao />} />
+              <Route path="numerario"    element={<FinanceiroNumerario />} />
+              <Route path="rateio"       element={<FinanceiroRateio />} />
+            </Route>
             <Route path="workspace"  element={<WorkspacePlaceholder />} />
           </Route>
           <Route path="*" element={<Navigate to="workflow" replace />} />

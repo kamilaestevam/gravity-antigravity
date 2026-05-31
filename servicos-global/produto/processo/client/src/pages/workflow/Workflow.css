@@ -218,12 +218,13 @@
 /* ── Timeline Stepper (horizontal) ─────────────────────────────────────── */
 /* Agora vive DENTRO do .wf-timeline — sem fundo/borda proprios. */
 /* Stepper em 3 linhas: cards | linha conectora | labels.
-   Linha conectora fica VISIVELMENTE separada dos cards — nao passa
-   por dentro deles. Cada linha eh um flex row de celulas iguais. */
+   Gaps grandes entre as linhas para a separacao ficar OBVIA — cards
+   no topo, linha no MEIO (visualmente isolada), labels embaixo. */
 .wf-stepper {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  /* gap grande pra separar visualmente as 3 fileiras */
+  gap: 1.25rem;
   padding: 1.5rem;
   overflow-x: auto;
 }
@@ -241,22 +242,22 @@
   min-width: 80px;
 }
 
-/* Celula da linha do meio — contem 2 metades (esquerda/direita) que
-   representam os conectores entrando/saindo desse step. */
+/* Celula da linha do meio — linha mais grossa pra ficar visivel. */
 .wf-stepper-cell--line {
-  height: 2px;
+  height: 3px;
   justify-content: stretch;
   gap: 0;
 }
 
-/* Cada metade preenche meio da celula. Conector idx-1 -> idx vive em
+/* Cada metade preenche meia celula. Conector idx-1 -> idx vive em
    2 metades: direita do step idx-1 + esquerda do step idx (mesma cor,
    formam uma linha unica). */
 .wf-line-half {
   flex: 1;
-  height: 2px;
+  height: 3px;
   background: var(--proc-accent-border, rgba(99, 102, 241, 0.2));
   transition: background 0.3s;
+  border-radius: 2px;
 }
 
 .wf-line-half--empty {

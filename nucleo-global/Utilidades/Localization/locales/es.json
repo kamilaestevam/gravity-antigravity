@@ -1319,7 +1319,7 @@
       "voltar_cotacoes": "Ver todas las cotizaciones",
       "modal_aprovar_pergunta": "¿Desea aprobar esta propuesta?",
       "modal_aprovar_subtitulo": "Revise los datos completos de la propuesta de {{fornecedor}} antes de confirmar.",
-      "modal_aprovar_aviso_ganhador": "A partir de este momento, {{fornecedor}} será avisado como ganador de la cotización. Las demás propuestas serán rechazadas automáticamente.",
+      "modal_aprovar_aviso_ganhador": "A partir de este momento, <ganhador>{{fornecedor}}</ganhador> será avisado como ganador de la cotización. Las demás propuestas serán rechazadas automáticamente.",
       "modal_aprovar_secao_proposta": "Datos completos de la propuesta",
       "modal_aprovar_campo_moeda": "Moneda",
       "modal_aprovar_campo_escalas": "Escalas",

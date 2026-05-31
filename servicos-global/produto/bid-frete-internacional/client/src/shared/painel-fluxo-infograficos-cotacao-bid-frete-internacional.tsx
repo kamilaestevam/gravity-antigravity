@@ -48,6 +48,7 @@ import type {
   DisparoCotacaoBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
 } from './types'
+import { ListaPropostasDetalheCotacao } from './propostas-detalhe-cotacao-bid-frete-internacional'
 
 const moeda = (val: number, currency: string) =>
   new Intl.NumberFormat('pt-BR', {
@@ -507,7 +508,41 @@ function CardTermometroHistoricoSmart({
   )
 }
 
-function CardResumoCompeticaoSmart({
+function CardRankingRespostasInsights({
+  id_cotacao_bid_frete_internacional,
+  status_cotacao_bid_frete_internacional,
+  propostasRanking,
+  carregandoRanking,
+  onCotacaoAtualizada,
+  t,
+}: {
+  id_cotacao_bid_frete_internacional: string
+  status_cotacao_bid_frete_internacional?: StatusCotacao | null
+  propostasRanking: PropostaRankingBidFreteInternacional[]
+  carregandoRanking: boolean
+  onCotacaoAtualizada?: () => void
+  t: (k: string, d?: string | Record<string, unknown>) => string
+}) {
+  return (
+    <article className="dc-smart-card dc-smart-card--ranking">
+      <header className="dc-smart-card-head">
+        <span>{t('bidfrete.detalhe_cotacao.cockpit_combat_matrix', 'Ranking das respostas')}</span>
+      </header>
+      <div className="dc-smart-card-body dc-smart-card-body--ranking">
+        <ListaPropostasDetalheCotacao
+          id_cotacao_bid_frete_internacional={id_cotacao_bid_frete_internacional}
+          status_cotacao_bid_frete_internacional={status_cotacao_bid_frete_internacional}
+          propostasRanking={propostasRanking}
+          carregandoRanking={carregandoRanking}
+          variante="combate"
+          onCotacaoAtualizada={onCotacaoAtualizada}
+        />
+      </div>
+    </article>
+  )
+}
+
+function ColunaMetricasCompeticaoInsights({
   info,
   smart,
   propostas,
@@ -519,38 +554,34 @@ function CardResumoCompeticaoSmart({
   t: (k: string, d?: string | Record<string, unknown>) => string
 }) {
   return (
-    <article className="dc-smart-card dc-smart-card--resumo">
-      <header className="dc-smart-card-head">
-        <span>{t('bidfrete.detalhe_cotacao.cockpit_resumo_competicao', 'Resumo da competição')}</span>
-      </header>
-      <div className="dc-smart-card-body dc-smart-card-body--resumo">
-      <div className="dc-smart-resumo-stats" role="list">
-        <div className="dc-smart-resumo-stat" role="listitem">
-          <span className="dc-smart-resumo-stat-val">{info.quantidadeDisparosEnviados}</span>
-          <span className="dc-smart-resumo-stat-lbl">
-            {t('bidfrete.detalhe_cotacao.cockpit_disparos', 'Disparos')}
-          </span>
-        </div>
-        <span className="dc-smart-resumo-divider" aria-hidden />
-        <div className="dc-smart-resumo-stat" role="listitem">
-          <span className="dc-smart-resumo-stat-val">{propostas.length}</span>
-          <span className="dc-smart-resumo-stat-lbl">
-            {t('bidfrete.detalhe_cotacao.cockpit_respostas', 'Respostas')}
-          </span>
-        </div>
-        <span className="dc-smart-resumo-divider" aria-hidden />
-        <div className="dc-smart-resumo-stat" role="listitem">
-          <span className="dc-smart-resumo-stat-val">{smart.quantidadeRecusasSemResposta}</span>
-          <span className="dc-smart-resumo-stat-lbl">
-            {t('bidfrete.detalhe_cotacao.cockpit_recusas', 'Recusas')}
-          </span>
-        </div>
-      </div>
-      <div className="dc-smart-ia-panel">
-        <span className="dc-smart-ia-titulo">
-          {t('bidfrete.detalhe_cotacao.cockpit_ia_trust', 'AI Trust Badge')}
+    <div
+      className="dc-smart-metricas-coluna"
+      role="group"
+      aria-label={t('bidfrete.detalhe_cotacao.cockpit_metricas_competicao', 'Métricas da competição')}
+    >
+      <article className="dc-smart-mini-card">
+        <span className="dc-smart-mini-card-lbl">
+          {t('bidfrete.detalhe_cotacao.cockpit_disparos', 'Disparos')}
         </span>
-        <div className="dc-smart-ia-corpo">
+        <span className="dc-smart-mini-card-val">{info.quantidadeDisparosEnviados}</span>
+      </article>
+      <article className="dc-smart-mini-card">
+        <span className="dc-smart-mini-card-lbl">
+          {t('bidfrete.detalhe_cotacao.cockpit_respostas', 'Respostas')}
+        </span>
+        <span className="dc-smart-mini-card-val">{propostas.length}</span>
+      </article>
+      <article className="dc-smart-mini-card">
+        <span className="dc-smart-mini-card-lbl">
+          {t('bidfrete.detalhe_cotacao.cockpit_recusas', 'Recusas')}
+        </span>
+        <span className="dc-smart-mini-card-val">{smart.quantidadeRecusasSemResposta}</span>
+      </article>
+      <article className="dc-smart-mini-card dc-smart-mini-card--ia">
+        <span className="dc-smart-mini-card-lbl">
+          {t('bidfrete.detalhe_cotacao.cockpit_ia_trust', 'AI Trust')}
+        </span>
+        <div className="dc-smart-mini-card-ia-corpo">
           <div className="dc-smart-ia-confianca">
             <span className="dc-smart-ia-pct-grande">{smart.pctConfiabilidadeIa}%</span>
             <span className="dc-smart-ia-pct-legenda">
@@ -560,23 +591,37 @@ function CardResumoCompeticaoSmart({
               <div className="dc-smart-ia-bar-fill" style={{ width: `${smart.pctConfiabilidadeIa}%` }} />
             </div>
           </div>
-          <Robot weight="duotone" size={28} className="dc-smart-ia-mascote" aria-hidden />
+          <Robot weight="duotone" size={22} className="dc-smart-ia-mascote" aria-hidden />
           <AnelProgressoInsight pct={smart.pctCoberturaRespostas} variante="ambar" />
         </div>
-      </div>
-      </div>
-    </article>
+      </article>
+    </div>
   )
+}
+
+export interface InsightsGridFluxoCotacaoProps {
+  cotacao?: Cotacao | null
+  disparos: DisparoCotacaoBidFreteInternacional[]
+  propostas: PropostaRankingBidFreteInternacional[]
+  id_cotacao_bid_frete_internacional?: string | null
+  status_cotacao_bid_frete_internacional?: StatusCotacao | null
+  propostasRanking?: PropostaRankingBidFreteInternacional[]
+  carregandoRanking?: boolean
+  onCotacaoAtualizada?: () => void
 }
 
 export function InsightsGridFluxoCotacao({
   cotacao,
   disparos,
   propostas,
-}: Pick<PainelFluxoInfograficosCotacaoProps, 'disparos' | 'propostas'> & {
-  cotacao?: Cotacao | null
-}) {
+  id_cotacao_bid_frete_internacional,
+  status_cotacao_bid_frete_internacional,
+  propostasRanking = [],
+  carregandoRanking = false,
+  onCotacaoAtualizada,
+}: InsightsGridFluxoCotacaoProps) {
   const { t } = useTranslation()
+  const idCotacao = id_cotacao_bid_frete_internacional ?? cotacao?.id_cotacao_bid_frete_internacional ?? null
 
   const info = useMemo(
     () => calcularInfograficosFluxoCotacao(disparos, propostas),
@@ -595,10 +640,20 @@ export function InsightsGridFluxoCotacao({
           {t('bidfrete.detalhe_cotacao.cockpit_painel_titulo', 'Painel de Insights Inteligente')}
         </h2>
       </div>
-      <div className="dc-smart-insights-grid">
+      <div className="dc-smart-insights-grid dc-smart-insights-grid--4col">
         <CardMelhorPropostaSmart info={info} smart={smart} t={t} />
+        {idCotacao != null && (
+          <CardRankingRespostasInsights
+            id_cotacao_bid_frete_internacional={idCotacao}
+            status_cotacao_bid_frete_internacional={status_cotacao_bid_frete_internacional}
+            propostasRanking={propostasRanking}
+            carregandoRanking={carregandoRanking}
+            onCotacaoAtualizada={onCotacaoAtualizada}
+            t={t}
+          />
+        )}
         <CardTermometroHistoricoSmart smart={smart} t={t} />
-        <CardResumoCompeticaoSmart info={info} smart={smart} propostas={propostas} t={t} />
+        <ColunaMetricasCompeticaoInsights info={info} smart={smart} propostas={propostas} t={t} />
       </div>
       {propostas.length >= 2 && (
         <p className="dc-smart-legenda" aria-hidden>

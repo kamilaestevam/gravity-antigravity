@@ -2584,7 +2584,7 @@
       "voltar_cotacoes": "Ver todas as cotações",
       "modal_aprovar_pergunta": "Deseja aprovar esta proposta?",
       "modal_aprovar_subtitulo": "Revise os dados completos da proposta de {{fornecedor}} antes de confirmar.",
-      "modal_aprovar_aviso_ganhador": "A partir deste momento, {{fornecedor}} será avisado como ganhador da cotação. As demais propostas serão reprovadas automaticamente.",
+      "modal_aprovar_aviso_ganhador": "A partir deste momento, <ganhador>{{fornecedor}}</ganhador> será avisado como ganhador da cotação. As demais propostas serão reprovadas automaticamente.",
       "modal_aprovar_secao_proposta": "Dados completos da proposta",
       "modal_aprovar_campo_moeda": "Moeda",
       "modal_aprovar_campo_escalas": "Escalas",

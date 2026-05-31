@@ -3,8 +3,8 @@
  */
 
 import React, { useId } from 'react'
-import { useTranslation } from 'react-i18next'
-import { BellRinging, CheckCircle, Info } from '@phosphor-icons/react'
+import { Trans, useTranslation } from 'react-i18next'
+import { BellRinging, CheckCircle, Info, Trophy } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalOverlay } from '@nucleo/modal-global'
 import type { PropostaRankingBidFreteInternacional } from './types'
@@ -229,12 +229,26 @@ export function ModalAprovarPropostaBidFreteInternacional({
             <div className="bf-aprovacao-aviso" role="note">
               <BellRinging weight="duotone" size={20} className="bf-aprovacao-aviso-icone" aria-hidden />
               <p className="bf-aprovacao-aviso-texto">
-                {t('bidfrete.comparativo.modal_aprovar_aviso_ganhador', {
-                  fornecedor: nome,
-                  defaultValue:
-                    `A partir deste momento, ${nome} será avisado como ganhador da cotação. `
-                    + 'As demais propostas serão reprovadas automaticamente.',
-                })}
+                <Trans
+                  i18nKey="bidfrete.comparativo.modal_aprovar_aviso_ganhador"
+                  values={{ fornecedor: nome }}
+                  components={{
+                    ganhador: (
+                      <strong className="bf-aprovacao-aviso-ganhador">
+                        <Trophy
+                          weight="duotone"
+                          size={14}
+                          className="bf-aprovacao-aviso-trofeu"
+                          aria-hidden
+                        />
+                      </strong>
+                    ),
+                  }}
+                  defaults={
+                    'A partir deste momento, <ganhador>{{fornecedor}}</ganhador> será avisado como ganhador da cotação. '
+                    + 'As demais propostas serão reprovadas automaticamente.'
+                  }
+                />
               </p>
             </div>
 
@@ -310,6 +324,17 @@ const MODAL_APROVAR_PROPOSTA_RESUMO_STYLES = `
     font-size: 0.8125rem;
     line-height: 1.55;
     color: var(--text-secondary, #cbd5e1);
+  }
+  .bf-aprovacao-aviso-ganhador {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 700;
+    color: var(--text-primary, #f1f5f9);
+  }
+  .bf-aprovacao-aviso-trofeu {
+    flex-shrink: 0;
+    color: var(--warning, #f59e0b);
   }
   .bf-aprovacao-fornecedor-card {
     display: flex;

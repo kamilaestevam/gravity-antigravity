@@ -549,6 +549,11 @@ export default function DetalheCotacao() {
           cotacao={cotacao}
           disparos={bids}
           propostas={propostasParaInfograficos}
+          id_cotacao_bid_frete_internacional={id}
+          status_cotacao_bid_frete_internacional={cotacao.status_cotacao_bid_frete_internacional}
+          propostasRanking={propostasRanking}
+          carregandoRanking={carregandoRanking}
+          onCotacaoAtualizada={carregar}
         />
       </section>
 
@@ -666,24 +671,6 @@ export default function DetalheCotacao() {
             />
           </CardSecaoDados>
         </div>
-
-        {id && (
-          <aside className="dc-cockpit-combat" aria-label={t('bidfrete.detalhe_cotacao.cockpit_combat', 'Matriz de propostas')}>
-            <h2 className="dc-cockpit-combat-titulo">
-              {t('bidfrete.detalhe_cotacao.cockpit_combat_matrix', 'Ranking das respostas')}
-            </h2>
-            <div className="dc-cockpit-combat-scroll">
-              <ListaPropostasDetalheCotacao
-                id_cotacao_bid_frete_internacional={id}
-                status_cotacao_bid_frete_internacional={cotacao.status_cotacao_bid_frete_internacional}
-                propostasRanking={propostasRanking}
-                carregandoRanking={carregandoRanking}
-                variante="combate"
-                onCotacaoAtualizada={carregar}
-              />
-            </div>
-          </aside>
-        )}
         </div>
 
         <div className="dc-dados-extras">

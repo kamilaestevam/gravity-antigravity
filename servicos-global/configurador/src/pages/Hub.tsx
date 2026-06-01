@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useTranslation } from 'react-i18next'
 import { useAuth, useClerk, useUser } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ArrowUpRight,
   Gear,
   Sparkle,
   Calculator,
   FileText,
   ArrowsClockwise,
-  Truck,
   CurrencyDollar,
   Package,
   Bell,
@@ -29,13 +27,17 @@ import { produtosWorkspaceApi, type ProdutoWorkspaceItem } from '../services/api
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LogoHub, corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
+import { iconeOficialBidFreteInternacional } from '../data/product-meta'
 import { resolverProdVisualHub } from '../utils/resolver-prod-visual-hub'
 import { temBypassPermissao } from '../../shared/index.js'
 import {
   expandirCardsProdutosCore,
+  agruparCardsProdutosCore,
+  temDuasZonasProdutosCore,
   carregarPermissoesUsuarioWorkspace,
   type CardProdutoCoreExibicao,
 } from '../shared/entrada-produtos-core'
+import { GradeProdutosCore } from '../components/grade-produtos-core'
 import { LogoGlobal } from '@nucleo/logo-global'
 import {
   LocalizadorGlobal,
@@ -62,28 +64,28 @@ function prodVisualEntry(
 ): ProdVisual {
   return {
     color: corOficialProdutoGravity(slug),
-    dim: corOficialProdutoDim(slug),
+    dim: corOficialProdutoDim(slug, 0.28),
     icon,
     description,
   }
 }
 
 const getProdVisual = (t: (key: string) => string): Record<string, ProdVisual> => ({
-  'simula-custo': prodVisualEntry('simula-custo', <Calculator weight="duotone" size={22} />, t('hub.produto_visual_simula_custo')),
-  'nf-importacao': prodVisualEntry('nf-importacao', <FileText weight="duotone" size={22} />, t('hub.produto_visual_nf_importacao')),
-  'nf-import': prodVisualEntry('nf-importacao', <FileText weight="duotone" size={22} />, t('hub.produto_visual_nf_importacao')),
-  'processo': prodVisualEntry('processo', <ArrowsClockwise weight="duotone" size={22} />, t('hub.produto_visual_processo')),
-  'bid-frete': prodVisualEntry('bid-frete', <Truck weight="duotone" size={22} />, t('hub.produto_visual_bid_frete')),
-  'bid-frete-internacional': prodVisualEntry('bid-frete-internacional', <Truck weight="duotone" size={22} />, t('hub.produto_visual_bid_frete')),
-  'bid-cambio': prodVisualEntry('bid-cambio', <CurrencyDollar weight="duotone" size={22} />, t('hub.produto_visual_bid_cambio')),
-  'pedido': prodVisualEntry('pedido', <Package weight="duotone" size={22} />, t('hub.produto_visual_pedido', 'Gestão de pedidos de compra e importação')),
-  'smart-read': prodVisualEntry('smart-read', <MagnifyingGlass weight="duotone" size={22} />, t('hub.produto_visual_smart_read', 'Leitura inteligente de documentos COMEX')),
+  'simula-custo': prodVisualEntry('simula-custo', <Calculator weight="duotone" size={24} />, t('hub.produto_visual_simula_custo')),
+  'nf-importacao': prodVisualEntry('nf-importacao', <FileText weight="duotone" size={24} />, t('hub.produto_visual_nf_importacao')),
+  'nf-import': prodVisualEntry('nf-importacao', <FileText weight="duotone" size={24} />, t('hub.produto_visual_nf_importacao')),
+  'processo': prodVisualEntry('processo', <ArrowsClockwise weight="duotone" size={24} />, t('hub.produto_visual_processo')),
+  'bid-frete': prodVisualEntry('bid-frete', iconeOficialBidFreteInternacional(26, 'card'), t('hub.produto_visual_bid_frete')),
+  'bid-frete-internacional': prodVisualEntry('bid-frete-internacional', iconeOficialBidFreteInternacional(26, 'card'), t('hub.produto_visual_bid_frete')),
+  'bid-cambio': prodVisualEntry('bid-cambio', <CurrencyDollar weight="duotone" size={24} />, t('hub.produto_visual_bid_cambio')),
+  'pedido': prodVisualEntry('pedido', <Package weight="duotone" size={24} />, t('hub.produto_visual_pedido', 'Gestão de pedidos de compra e importação')),
+  'smart-read': prodVisualEntry('smart-read', <MagnifyingGlass weight="duotone" size={24} />, t('hub.produto_visual_smart_read', 'Leitura inteligente de documentos COMEX')),
 })
 
 const getDefaultVisual = (t: (key: string) => string): ProdVisual => ({
   color: '#6366f1',
   dim: 'rgba(99,102,241,0.12)',
-  icon: <Package weight="duotone" size={22} />,
+  icon: <Package weight="duotone" size={24} />,
   description: t('hub.produto_visual_default'),
 })
 
@@ -202,6 +204,20 @@ export function Hub() {
   }
 
   const activeCount = cardsCore.length
+  const grupoCards = useMemo(() => agruparCardsProdutosCore(cardsCore), [cardsCore])
+  const duasZonasProdutos = temDuasZonasProdutosCore(grupoCards)
+
+  const textoModulosHero = duasZonasProdutos
+    ? t(
+        'hub.modulos_hero_duas_zonas',
+        '{{total}} módulos ativos · {{meus}} operacionais · {{forn}} como fornecedor',
+        {
+          total: activeCount,
+          meus: grupoCards.meusProdutos.length,
+          forn: grupoCards.comoFornecedor.length,
+        },
+      )
+    : `${activeCount} ${t('hub.modulos_ativos')}`
 
   // ── Localizador — nós do ecossistema ──────────────────────────────────────
   const { history, addEntry } = useLocalizadorHistory('hub')
@@ -214,7 +230,7 @@ export function Hub() {
       sublabel: 'produto',
       color:    v.color,
       type:     'produto',
-      status:   allowedProducts.some(a => a.product_key === p.product_key && a.is_active) ? 'accessible' : 'locked',
+      status:   allowedProducts.some(a => a.product_key === card.produto.product_key && a.is_active) ? 'accessible' : 'locked',
     }
   })
 
@@ -341,7 +357,7 @@ export function Hub() {
           <div>
             <h1>{getGreeting(userName, t).split(',')[0]}, <span>{userName}</span> 👋</h1>
             <p className="hb-hero-sub">
-              {companyName}&nbsp;·&nbsp;{t('hub.workspace_principal')}&nbsp;·&nbsp;{activeCount} {t('hub.modulos_ativos')}
+              {companyName}&nbsp;·&nbsp;{t('hub.workspace_principal')}&nbsp;·&nbsp;{textoModulosHero}
             </p>
           </div>
           <div className="hb-hero-meta">
@@ -406,10 +422,12 @@ export function Hub() {
           {/* Produtos */}
           <div>
             <div className="hb-section-actions">
-              <span className="hb-section-title" style={{ marginBottom: 0 }}>
-                {t('hub.seus_produtos', 'Seus produtos')}
+              <span className="hb-section-heading">
+                {duasZonasProdutos
+                  ? t('hub.modulos_workspace', 'Módulos do workspace')
+                  : t('hub.seus_produtos', 'Seus produtos')}
               </span>
-              <button className="hb-section-link" type="button" onClick={() => navigate('/store')}>
+              <button className="hb-section-link hb-section-link--store" type="button" onClick={() => navigate('/store')}>
                 {t('hub.ir_para_store')} →
               </button>
             </div>
@@ -427,35 +445,13 @@ export function Hub() {
                 </button>
               </div>
             ) : (
-              <div className="hb-products-grid">
-                {cardsCore.map((card) => {
-                  const p = card.produto
-                  const v = resolverProdVisualHub(card.slug, prodVisual, defaultVisual, p.product_key)
-                  return (
-                    <div
-                      key={card.key}
-                      className="hb-prod-card"
-                      style={{ '--hb-prod-color': v.color, '--hb-prod-dim': v.dim } as React.CSSProperties}
-                      onClick={() => handleOpenProduct(card.rota)}
-                    >
-                      <div className="hb-prod-top">
-                        <div className="hb-prod-icon">{v.icon}</div>
-                        <span className="hb-prod-status hb-prod-status--active">{t('hub.produto_ativo')}</span>
-                      </div>
-                      <div>
-                        <div className="hb-prod-name">{card.nome}</div>
-                        <div className="hb-prod-desc">{p.catalog?.description ?? v.description}</div>
-                      </div>
-                      <div className="hb-prod-footer">
-                        <span className="hb-prod-stat">{t('hub.produto_acessar')}</span>
-                        <div className="hb-prod-arrow">
-                          <ArrowUpRight weight="bold" size={14} />
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+              <GradeProdutosCore
+                cards={cardsCore}
+                prodVisual={prodVisual}
+                defaultVisual={defaultVisual}
+                onAbrirProduto={handleOpenProduct}
+                t={t}
+              />
             )}
           </div>
 

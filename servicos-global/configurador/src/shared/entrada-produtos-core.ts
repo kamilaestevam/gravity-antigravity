@@ -13,7 +13,8 @@ import {
 } from '../../shared/index.js'
 import { ROTA_ENTRADA_BID_FRETE_FORNECEDOR } from './verificar-cotar-bid-frete-internacional'
 
-export type VarianteCardProdutoCore = 'padrao' | 'bid_operacional' | 'bid_fornecedor'
+export type { VarianteCardProdutoCore } from './cards-produtos-core-types.js'
+import type { VarianteCardProdutoCore } from './cards-produtos-core-types.js'
 
 export interface CardProdutoCoreExibicao {
   key: string
@@ -113,3 +114,6 @@ export function expandirCardsProdutosCore(
 
   return cards
 }
+
+export type { AgrupamentoCardsProdutosCore } from './agrupamento-cards-produtos-core.js'
+export { agruparCardsProdutosCore, temDuasZonasProdutosCore } from './agrupamento-cards-produtos-core.js'

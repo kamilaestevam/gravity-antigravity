@@ -9,14 +9,27 @@
 
 import React from 'react'
 import {
-  Truck,
   CurrencyDollar,
   FileText,
   ShoppingBag,
   FileMagnifyingGlass,
   Eye,
 } from '@phosphor-icons/react'
-import { corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
+import { LogoBidFrete, corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
+
+/** Ícone oficial BID Frete Internacional (navio + container + avião) — SSOT LogoBidFrete. */
+export function iconeOficialBidFreteInternacional(
+  size: number,
+  variant: 'default' | 'card' = 'default',
+): React.ReactNode {
+  return (
+    <LogoBidFrete
+      size={size}
+      color={corOficialProdutoGravity('bid-frete')}
+      variant={variant}
+    />
+  )
+}
 
 function coresProduto(slug: string): Pick<ProductMeta, 'iconBg' | 'iconColor'> {
   const iconColor = corOficialProdutoGravity(slug)
@@ -37,7 +50,7 @@ export interface ProductMeta {
 export const PRODUCT_META: Record<string, ProductMeta> = {
   'bid-frete': {
     ...coresProduto('bid-frete'),
-    icon: <Truck weight="duotone" size={28} color={corOficialProdutoGravity('bid-frete')} />,
+    icon: iconeOficialBidFreteInternacional(28),
     categoryKey: 'store.cat_logistica',
     categoryFilter: 'frete',
     nameKey: 'store.prod_bid_frete_nome',
@@ -91,7 +104,7 @@ export const PRODUCT_META: Record<string, ProductMeta> = {
   },
   'bid-frete-internacional': {
     ...coresProduto('bid-frete'),
-    icon: <Truck weight="duotone" size={28} color={corOficialProdutoGravity('bid-frete')} />,
+    icon: iconeOficialBidFreteInternacional(28),
     categoryKey: 'store.cat_logistica',
     categoryFilter: 'frete',
     nameKey: 'store.prod_bid_frete_nome',

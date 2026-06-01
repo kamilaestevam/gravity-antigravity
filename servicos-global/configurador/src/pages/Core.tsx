@@ -30,7 +30,10 @@ import {
   Sparkle,
   MagnifyingGlass,
   Info,
+  Handshake,
 } from '@phosphor-icons/react'
+import { ehSlugProdutoBidFrete } from '../../shared/index.js'
+import { iconeOficialBidFreteInternacional } from '../data/product-meta'
 import { MenuLateralGlobal, type NavItem } from '@nucleo/menu-lateral-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { HubBotao } from '../components/HubBotao'
@@ -44,6 +47,7 @@ import { temBypassPermissao } from '../../shared/index.js'
 import {
   expandirCardsProdutosCore,
   carregarPermissoesUsuarioWorkspace,
+  type VarianteCardProdutoCore,
 } from '../shared/entrada-produtos-core'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync, useOrganizacaoOverride } from '@gravity/shell'
 import { limparCacheTipoUsuario, useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
@@ -60,6 +64,7 @@ interface ProdutoAtivo {
   nome: string
   slug: string
   rota: string
+  variant: VarianteCardProdutoCore
 }
 
 export function Core() {
@@ -147,6 +152,7 @@ export function Core() {
           nome: c.nome,
           slug: c.slug,
           rota: c.rota,
+          variant: c.variant,
         })))
         // Mapa do ecossistema — usa builder único
         const productNodes = buildTenantProductNodes(allProds)
@@ -180,22 +186,47 @@ export function Core() {
       ],
     })
 
-    // Produtos Gravity (dinâmico)
-    items.push({
-      label: t('shell.menu.produtos_gravity'),
-      sectionDivider: true,
-      icon: <ShoppingBagOpen weight="duotone" size={18} />,
-    })
+    const navMeusProdutos = produtosAtivos.filter(p => p.variant !== 'bid_fornecedor')
+    const navComoFornecedor = produtosAtivos.filter(p => p.variant === 'bid_fornecedor')
 
     if (produtosAtivos.length > 0) {
-      produtosAtivos.forEach(prod => {
+      if (navMeusProdutos.length > 0) {
         items.push({
-          to: prod.rota,
-          label: prod.nome,
-          icon: <Package weight="duotone" size={18} />,
+          label: t('shell.menu.produtos_gravity'),
+          sectionDivider: true,
+          icon: <ShoppingBagOpen weight="duotone" size={18} />,
         })
-      })
+        for (const prod of navMeusProdutos) {
+          items.push({
+            to: prod.rota,
+            label: prod.nome,
+            icon: ehSlugProdutoBidFrete(prod.slug)
+              ? iconeOficialBidFreteInternacional(18)
+              : <Package weight="duotone" size={18} />,
+          })
+        }
+      }
+
+      if (navComoFornecedor.length > 0) {
+        items.push({
+          label: t('hub.zona_como_fornecedor', 'Como fornecedor'),
+          sectionDivider: true,
+          icon: <Handshake weight="duotone" size={18} />,
+        })
+        for (const prod of navComoFornecedor) {
+          items.push({
+            to: prod.rota,
+            label: prod.nome,
+            icon: iconeOficialBidFreteInternacional(18),
+          })
+        }
+      }
     } else {
+      items.push({
+        label: t('shell.menu.produtos_gravity'),
+        sectionDivider: true,
+        icon: <ShoppingBagOpen weight="duotone" size={18} />,
+      })
       items.push({
         to: '/store',
         label: t('hub.explorar_catalogo'),

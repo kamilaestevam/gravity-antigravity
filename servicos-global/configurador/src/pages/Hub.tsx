@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useTranslation } from 'react-i18next'
 import { useAuth, useClerk, useUser } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ArrowUpRight,
   Gear,
   Sparkle,
   Calculator,
@@ -33,9 +32,12 @@ import { resolverProdVisualHub } from '../utils/resolver-prod-visual-hub'
 import { temBypassPermissao } from '../../shared/index.js'
 import {
   expandirCardsProdutosCore,
+  agruparCardsProdutosCore,
+  temDuasZonasProdutosCore,
   carregarPermissoesUsuarioWorkspace,
   type CardProdutoCoreExibicao,
 } from '../shared/entrada-produtos-core'
+import { GradeProdutosCore } from '../components/grade-produtos-core'
 import { LogoGlobal } from '@nucleo/logo-global'
 import {
   LocalizadorGlobal,
@@ -202,6 +204,20 @@ export function Hub() {
   }
 
   const activeCount = cardsCore.length
+  const grupoCards = useMemo(() => agruparCardsProdutosCore(cardsCore), [cardsCore])
+  const duasZonasProdutos = temDuasZonasProdutosCore(grupoCards)
+
+  const textoModulosHero = duasZonasProdutos
+    ? t(
+        'hub.modulos_hero_duas_zonas',
+        '{{total}} módulos ativos · {{meus}} operacionais · {{forn}} como fornecedor',
+        {
+          total: activeCount,
+          meus: grupoCards.meusProdutos.length,
+          forn: grupoCards.comoFornecedor.length,
+        },
+      )
+    : `${activeCount} ${t('hub.modulos_ativos')}`
 
   // ── Localizador — nós do ecossistema ──────────────────────────────────────
   const { history, addEntry } = useLocalizadorHistory('hub')
@@ -214,7 +230,7 @@ export function Hub() {
       sublabel: 'produto',
       color:    v.color,
       type:     'produto',
-      status:   allowedProducts.some(a => a.product_key === p.product_key && a.is_active) ? 'accessible' : 'locked',
+      status:   allowedProducts.some(a => a.product_key === card.produto.product_key && a.is_active) ? 'accessible' : 'locked',
     }
   })
 
@@ -341,7 +357,7 @@ export function Hub() {
           <div>
             <h1>{getGreeting(userName, t).split(',')[0]}, <span>{userName}</span> 👋</h1>
             <p className="hb-hero-sub">
-              {companyName}&nbsp;·&nbsp;{t('hub.workspace_principal')}&nbsp;·&nbsp;{activeCount} {t('hub.modulos_ativos')}
+              {companyName}&nbsp;·&nbsp;{t('hub.workspace_principal')}&nbsp;·&nbsp;{textoModulosHero}
             </p>
           </div>
           <div className="hb-hero-meta">
@@ -407,7 +423,9 @@ export function Hub() {
           <div>
             <div className="hb-section-actions">
               <span className="hb-section-title" style={{ marginBottom: 0 }}>
-                {t('hub.seus_produtos', 'Seus produtos')}
+                {duasZonasProdutos
+                  ? t('hub.modulos_workspace', 'Módulos do workspace')
+                  : t('hub.seus_produtos', 'Seus produtos')}
               </span>
               <button className="hb-section-link" type="button" onClick={() => navigate('/store')}>
                 {t('hub.ir_para_store')} →
@@ -427,35 +445,13 @@ export function Hub() {
                 </button>
               </div>
             ) : (
-              <div className="hb-products-grid">
-                {cardsCore.map((card) => {
-                  const p = card.produto
-                  const v = resolverProdVisualHub(card.slug, prodVisual, defaultVisual, p.product_key)
-                  return (
-                    <div
-                      key={card.key}
-                      className="hb-prod-card"
-                      style={{ '--hb-prod-color': v.color, '--hb-prod-dim': v.dim } as React.CSSProperties}
-                      onClick={() => handleOpenProduct(card.rota)}
-                    >
-                      <div className="hb-prod-top">
-                        <div className="hb-prod-icon">{v.icon}</div>
-                        <span className="hb-prod-status hb-prod-status--active">{t('hub.produto_ativo')}</span>
-                      </div>
-                      <div>
-                        <div className="hb-prod-name">{card.nome}</div>
-                        <div className="hb-prod-desc">{p.catalog?.description ?? v.description}</div>
-                      </div>
-                      <div className="hb-prod-footer">
-                        <span className="hb-prod-stat">{t('hub.produto_acessar')}</span>
-                        <div className="hb-prod-arrow">
-                          <ArrowUpRight weight="bold" size={14} />
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+              <GradeProdutosCore
+                cards={cardsCore}
+                prodVisual={prodVisual}
+                defaultVisual={defaultVisual}
+                onAbrirProduto={handleOpenProduct}
+                t={t}
+              />
             )}
           </div>
 

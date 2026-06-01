@@ -224,6 +224,48 @@ export const servicoPermissaoUsuario = {
   },
 
   /**
+   * Verifica chave canônica exata (ex.: `bid-frete-internacional:visao_fornecedor:cotar`).
+   * Bypass Master/SAdmin/Admin; demais exigem linha em UsuarioPermissao.
+   */
+  async verificarPermissaoChaveExata(input: {
+    id_organizacao: string
+    id_usuario: string
+    id_workspace: string
+    permissao_usuario: string
+  }): Promise<boolean> {
+    const { id_organizacao, id_usuario, id_workspace, permissao_usuario } = input
+
+    const usuario = await prisma.usuario.findFirst({
+      where: { id_usuario, id_organizacao },
+      select: { tipo_usuario: true },
+    })
+    if (!usuario) return false
+    if (temBypassPermissao(usuario)) return true
+
+    const slug = extrairSlugDaPermissao(permissao_usuario)
+    if (!slug) return false
+
+    const produto = await prisma.produtoGravity.findUnique({
+      where: { slug_produto_gravity: slug },
+      select: { id_produto_gravity: true },
+    })
+    if (!produto) return false
+
+    const linha = await prisma.usuarioPermissao.findFirst({
+      where: {
+        id_organizacao,
+        id_workspace,
+        id_usuario,
+        id_produto_gravity: produto.id_produto_gravity,
+        permissao_usuario,
+      },
+      select: { id_usuario_permissao: true },
+    })
+
+    return !!linha
+  },
+
+  /**
    * Verifica se o usuario tem permissao `<slug>:<secao>:<acao>` em PELO MENOS UM
    * workspace da organizacao (sem exigir workspace especifico).
    *

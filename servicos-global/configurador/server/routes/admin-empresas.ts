@@ -141,7 +141,7 @@ adminEmpresasRouter.get('/', async (req: Request, res: Response, next: NextFunct
     const qs = qsParams.toString()
     const url = `${getCadastrosUrl()}/api/v1/admin/fornecedores${qs ? `?${qs}` : ''}`
 
-    let response: Response
+    let response: globalThis.Response
     try {
       response = await fetch(url, {
         method: 'GET',
@@ -151,7 +151,7 @@ adminEmpresasRouter.get('/', async (req: Request, res: Response, next: NextFunct
           'x-correlation-id': (req.headers['x-correlation-id'] as string) ?? '',
         },
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      }) as unknown as Response
+      })
     } catch {
       throw new AppError(
         'Serviço Cadastros indisponível (rede/timeout)',
@@ -283,7 +283,7 @@ adminEmpresasRouter.get(
       const qs = qsParams.toString()
       const url = `${getCadastrosUrl()}/api/v1/admin/fornecedores/${encodeURIComponent(idFornecedor)}/usuarios-vinculados${qs ? `?${qs}` : ''}`
 
-      let response: Response
+      let response: globalThis.Response
       try {
         response = await fetch(url, {
           method: 'GET',
@@ -293,7 +293,7 @@ adminEmpresasRouter.get(
             'x-correlation-id': (req.headers['x-correlation-id'] as string) ?? '',
           },
           signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-        }) as unknown as Response
+        })
       } catch {
         throw new AppError(
           'Serviço Cadastros indisponível (rede/timeout)',

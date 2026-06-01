@@ -1916,7 +1916,7 @@
         "organizacao": "Organization",
         "nome_organizacao": "Organization Name",
         "nome_organizacao_tooltip": "Organization Name",
-        "nome_organizacao_desc": "Organization this user belongs to in this record (cross-org view).",
+        "nome_organizacao_desc": "Organization each workspace belongs to (cross-org view in the expanded sub-table).",
         "nome_empresa": "Company Name",
         "nome_empresa_tooltip": "Company Name",
         "nome_empresa_desc": "Linked supplier company (Supplier users only).",

@@ -21,6 +21,7 @@ import { TabelaGlobal } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { WorkspaceItem } from '../../services/api-client'
+import { OrgBadge } from '../org-badge'
 
 // ── Tipos do modo edição em lote (compartilhados) ─────────────────────────
 export type EdicaoWorkspacePendente = { tipo: 'toggle'; ativo: boolean }
@@ -45,6 +46,10 @@ export interface ExpandidoEditorVinculosProps {
   onDescartar: () => void
   onSalvar: () => void
   salvando: boolean
+  /** Super Admin global — coluna "Nome da Organização" na sub-tabela (entre # e workspace). */
+  exibirColunaOrganizacao?: boolean
+  /** Org do cadastro quando todos os workspaces listados pertencem à mesma organização. */
+  nomeOrganizacao?: string
 }
 
 export function ExpandidoEditorVinculos(props: ExpandidoEditorVinculosProps) {
@@ -53,6 +58,8 @@ export function ExpandidoEditorVinculos(props: ExpandidoEditorVinculosProps) {
     usuario, podeEditar, workspaces, vinculosServidor,
     edicoesPendentes, selecaoIds, onSelecaoChange,
     onStagedToggle, onAcaoEmMassa, onDescartar, onSalvar, salvando,
+    exibirColunaOrganizacao = false,
+    nomeOrganizacao,
   } = props
 
   // Estado efetivo (servidor + pendência local) por workspace.
@@ -213,6 +220,16 @@ export function ExpandidoEditorVinculos(props: ExpandidoEditorVinculosProps) {
           </>
         ) : null}
         colunas={[
+          ...(exibirColunaOrganizacao
+            ? [{
+                key: 'id_workspace' as const,
+                label: t('admin.usuarios-globais.tabela.nome_organizacao', 'Nome da Organização'),
+                tipo: 'texto' as const,
+                render: (_v: unknown, _ws: WorkspaceItem) => (
+                  <OrgBadge nome={nomeOrganizacao ?? '—'} />
+                ),
+              }]
+            : []),
           {
             key: 'nome_workspace',
             label: t('workspace.users.nome_workspace'),

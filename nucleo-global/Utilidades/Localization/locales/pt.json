@@ -825,7 +825,7 @@
         "organizacao": "Organização",
         "nome_organizacao": "Nome da Organização",
         "nome_organizacao_tooltip": "Nome da Organização",
-        "nome_organizacao_desc": "Organização à qual este usuário pertence neste cadastro (visão cross-org).",
+        "nome_organizacao_desc": "Organização à qual pertence cada workspace (visão cross-org na sub-tabela expandida).",
         "nome_empresa": "Nome da Empresa",
         "nome_empresa_tooltip": "Nome da Empresa",
         "nome_empresa_desc": "Empresa fornecedora vinculada (apenas usuários Fornecedor).",

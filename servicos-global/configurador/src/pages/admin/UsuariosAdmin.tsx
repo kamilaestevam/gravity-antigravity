@@ -438,17 +438,6 @@ export function UsuariosAdmin() {
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
     },
     {
-      key: 'nome_organizacao',
-      label: t('admin.usuarios-globais.tabela.nome_organizacao', 'Nome da Organização'),
-      tipo: 'texto',
-      tooltipTitulo: t('admin.usuarios-globais.tabela.nome_organizacao_tooltip', 'Nome da Organização'),
-      tooltipDescricao: t(
-        'admin.usuarios-globais.tabela.nome_organizacao_desc',
-        'Organização à qual este usuário pertence neste cadastro (visão cross-org).',
-      ),
-      render: (_, item) => <OrgBadge nome={item.nome_organizacao} />,
-    },
-    {
       key: 'nome_empresa',
       label: t('admin.usuarios-globais.tabela.nome_empresa', 'Nome da Empresa'),
       tipo: 'texto',
@@ -963,6 +952,8 @@ export function UsuariosAdmin() {
                       <ExpandidoEditorVinculos
                         usuario={{ id_usuario: user.id_usuario, nome_usuario: user.nome_usuario }}
                         podeEditar={podeEditar}
+                        exibirColunaOrganizacao
+                        nomeOrganizacao={user.nome_organizacao}
                         workspaces={workspacesDaOrg}
                         vinculosServidor={vinculosServidorDoUsuario(user)}
                         edicoesPendentes={edicoesPendentesPorUsuario[user.id_usuario]}

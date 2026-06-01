@@ -32,7 +32,12 @@ function avaliarSenha(senha: string) {
 const CORES_FORCA = ['#475569', '#ef4444', '#f59e0b', '#22c55e', '#34d399']
 const LABEL_FORCA = ['', 'Fraca', 'Razoável', 'Forte', 'Muito forte']
 
-export function LoginGlobal() {
+export type LoginGlobalProps = {
+  /** Porteiro SSOT (/api/v1/me → /trial ou /hub). Injetado pelo Configurador. */
+  onAutenticacaoCompleta?: () => void | Promise<void>
+}
+
+export function LoginGlobal({ onAutenticacaoCompleta }: LoginGlobalProps = {}) {
   const location = useLocation()
   const navigate = useNavigate()
   const { t } = useTranslation()
@@ -95,9 +100,9 @@ export function LoginGlobal() {
       {isForgotPassword ? (
         <ForgotPasswordFlow onBack={() => navigate('/login')} />
       ) : isSignUp ? (
-        <SignUpFlow />
+        <SignUpFlow onAutenticacaoCompleta={onAutenticacaoCompleta} />
       ) : (
-        <SignInFlow />
+        <SignInFlow onAutenticacaoCompleta={onAutenticacaoCompleta} />
       )}
 
       {!isForgotPassword && (
@@ -254,7 +259,7 @@ function GoogleLogoColorido({ size = 20 }: { size?: number }) {
  *   - Mand. 05 (sem casting vazio): estados null/string, nunca {} as ...
  *   - Mand. 08 (sem fallback silencioso): switch explícito, console.error em ramos inesperados
  */
-function SignUpFlow() {
+function SignUpFlow({ onAutenticacaoCompleta }: Pick<LoginGlobalProps, 'onAutenticacaoCompleta'>) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { isLoaded, signUp, setActive } = useSignUp()
@@ -337,7 +342,11 @@ function SignUpFlow() {
         case 'complete':
           if (resultado.createdSessionId) {
             await setActive({ session: resultado.createdSessionId })
-            navigate('/trial', { replace: true })
+            if (onAutenticacaoCompleta) {
+              await onAutenticacaoCompleta()
+            } else {
+              navigate('/trial', { replace: true })
+            }
           }
           return
 
@@ -694,7 +703,7 @@ function SignUpFlow() {
  *   - Mand. 05 (sem casting vazio): estados null/string, nunca {} as ...
  *   - Mand. 08 (sem fallback silencioso): switch exaustivo no result.status com console.error
  */
-function SignInFlow() {
+function SignInFlow({ onAutenticacaoCompleta }: Pick<LoginGlobalProps, 'onAutenticacaoCompleta'>) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { isLoaded, signIn, setActive } = useSignIn()
@@ -709,7 +718,11 @@ function SignInFlow() {
   const completarLogin = async () => {
     if (!signIn) return
     await setActive({ session: signIn.createdSessionId })
-    navigate('/hub')
+    if (onAutenticacaoCompleta) {
+      await onAutenticacaoCompleta()
+    } else {
+      navigate('/hub')
+    }
   }
 
   const enviarCodigoSegundoFator = async () => {
@@ -746,7 +759,11 @@ function SignInFlow() {
       const resultado = await signIn.attemptSecondFactor({ strategy: estrategia, code: codigoEmail })
       if (resultado.status === 'complete') {
         await setActive({ session: resultado.createdSessionId })
-        navigate('/hub')
+        if (onAutenticacaoCompleta) {
+          await onAutenticacaoCompleta()
+        } else {
+          navigate('/hub')
+        }
       } else {
         console.error('[LoginGlobal] Status inesperado apos segundo fator', { status: resultado.status })
         setErro(t('login.erro_status_incompleto'))

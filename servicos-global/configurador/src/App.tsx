@@ -5,6 +5,7 @@ import { useCarregarTipoUsuario } from './hooks/use-carregar-tipo-usuario'
 import { ConfiguradorRoute } from './routing/guards'
 import { NavigateComPrefixo } from './routing/NavigateComPrefixo'
 import { NavigateDestinoPosAutenticacao, TelaCarregandoPorteiro } from './routing/NavigateDestinoPosAutenticacao'
+import { RedirecionarConviteClerkTicket } from './routing/redirecionar-convite-clerk-ticket'
 import { useDestinoPosAutenticacao } from './hooks/use-destino-pos-autenticacao'
 import { ROTAS as ROTAS_POS_AUTH } from './routing/destino-pos-autenticacao'
 import { useServerHealth } from './hooks/use-server-health'
@@ -197,11 +198,11 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
     return <TelaCarregandoPorteiro />
   }
 
-  return isSignedIn ? (
-    <NavigateDestinoPosAutenticacao replace />
-  ) : (
-    <>{children}</>
-  )
+  if (isSignedIn) {
+    return <NavigateDestinoPosAutenticacao replace />
+  }
+
+  return <RedirecionarConviteClerkTicket>{children}</RedirecionarConviteClerkTicket>
 }
 
 /**

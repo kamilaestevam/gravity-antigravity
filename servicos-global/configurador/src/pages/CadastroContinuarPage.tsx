@@ -13,8 +13,9 @@
 // }) — ver server/routes/usuario.ts e admin.ts.
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { useSignUp, useSignIn } from '@clerk/clerk-react'
+import { useSignUp, useSignIn, useAuth } from '@clerk/clerk-react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
+import { navegarDestinoPosAutenticacao } from '../routing/navegar-destino-pos-autenticacao.js'
 import {
   CHAVE_ATIVANDO_SESSAO_CONVITE,
   gravarLoginPendenteConvite,
@@ -285,6 +286,7 @@ export function CadastroContinuarPage() {
   const [searchParams] = useSearchParams()
   const { isLoaded, signUp, setActive } = useSignUp()
   const { isLoaded: isSignInLoaded, signIn, setActive: setActiveSignIn } = useSignIn()
+  const { getToken, userId } = useAuth()
 
   const ticket = searchParams.get('__clerk_ticket')
   const status = searchParams.get('__clerk_status')
@@ -442,6 +444,10 @@ export function CadastroContinuarPage() {
   }, [podeEnviar, etapaCadastro, emailConvite, senha])
 
   // ─── Handlers ─────────────────────────────────────────────────────────────
+  async function irPosCadastroConvite(): Promise<void> {
+    await navegarDestinoPosAutenticacao({ getToken, navigate, userId })
+  }
+
   async function ativarSessaoCadastro(
     resultado: ResultadoSignUpClerk,
     credenciais?: CredenciaisPosCadastro,
@@ -454,7 +460,7 @@ export function CadastroContinuarPage() {
     if (resultado.status === 'complete' && sessionIdSignUp) {
       limparLoginPendenteConvite()
       await setActive({ session: sessionIdSignUp })
-      navigate('/hub', { replace: true })
+      await irPosCadastroConvite()
       return true
     }
 
@@ -466,7 +472,7 @@ export function CadastroContinuarPage() {
         if (sessionPosReload) {
           limparLoginPendenteConvite()
           await setActive({ session: sessionPosReload })
-          navigate('/hub', { replace: true })
+          await irPosCadastroConvite()
           return true
         }
       } catch (err) {
@@ -497,7 +503,7 @@ export function CadastroContinuarPage() {
         limparLoginPendenteConvite()
         const ativar = setActiveSignIn ?? setActive
         await ativar({ session: signIn.createdSessionId })
-        navigate('/hub', { replace: true })
+        await irPosCadastroConvite()
         return true
       }
 

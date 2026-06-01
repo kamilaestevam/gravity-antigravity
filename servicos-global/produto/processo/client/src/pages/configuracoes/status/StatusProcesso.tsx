@@ -14,7 +14,7 @@
 import React, { useState } from 'react'
 import {
   Plus, Trash, DotsSixVertical, CaretDown, Funnel, X,
-  WarningCircle, CheckCircle, FloppyDisk,
+  WarningCircle, CheckCircle, FloppyDisk, PencilSimple,
 } from '@phosphor-icons/react'
 import './StatusProcesso.css'
 
@@ -268,28 +268,29 @@ export default function StatusProcesso() {
                   )}
                 </span>
 
-                <button
-                  type="button"
-                  className="sp-status-toggle"
-                  onClick={() => toggleExpand(status.id)}
-                  title={expandido ? 'Recolher regras' : 'Editar regras'}
-                >
-                  <CaretDown
-                    size={14}
-                    weight="bold"
-                    className={`sp-caret ${expandido ? '' : 'sp-caret--colapsado'}`}
-                  />
-                  {expandido ? 'Recolher' : 'Regras'}
-                </button>
-
-                <button
-                  type="button"
-                  className="sp-status-deletar"
-                  onClick={() => removerStatus(status.id)}
-                  title="Remover status"
-                >
-                  <Trash size={14} weight="duotone" />
-                </button>
+                {/* Acoes inline: edit (lapis) + delete (lixo), padrao Pedido */}
+                <div className="sp-status-acoes">
+                  <button
+                    type="button"
+                    className={`sp-icone-btn ${expandido ? 'sp-icone-btn--ativa' : ''}`}
+                    onClick={() => toggleExpand(status.id)}
+                    title={expandido ? 'Fechar editor de regras' : 'Editar regras'}
+                    aria-label={expandido ? 'Fechar editor de regras' : 'Editar regras'}
+                  >
+                    {expandido
+                      ? <CaretDown size={14} weight="bold" />
+                      : <PencilSimple size={14} weight="duotone" />}
+                  </button>
+                  <button
+                    type="button"
+                    className="sp-icone-btn sp-icone-btn--perigo"
+                    onClick={() => removerStatus(status.id)}
+                    title="Remover status"
+                    aria-label="Remover status"
+                  >
+                    <Trash size={14} weight="duotone" />
+                  </button>
+                </div>
               </header>
 
               {expandido && (

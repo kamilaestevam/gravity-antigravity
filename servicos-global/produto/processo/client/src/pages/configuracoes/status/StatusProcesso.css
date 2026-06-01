@@ -189,51 +189,46 @@
   color: #fbbf24;
 }
 
-.sp-status-toggle {
+/* Grupo de botoes de acao no final do row (padrao Pedido) */
+.sp-status-acoes {
   display: inline-flex;
   align-items: center;
-  gap: 0.3125rem;
-  padding: 0.3125rem 0.625rem;
-  background: transparent;
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 8px;
-  color: var(--ws-muted, #94a3b8);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  gap: 0.25rem;
+  flex-shrink: 0;
 }
 
-.sp-status-toggle:hover {
-  background: rgba(167, 139, 250, 0.08);
-  border-color: rgba(167, 139, 250, 0.3);
-  color: #c4b5fd;
-}
-
-.sp-caret {
-  transition: transform 0.2s;
-}
-
-.sp-caret--colapsado {
-  transform: rotate(-90deg);
-}
-
-.sp-status-deletar {
+/* Botao de icone compacto — espelha o padrao do Status do Pedido:
+   caixinha rounded com hover sutil. */
+.sp-icone-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
+  padding: 0;
   background: transparent;
-  border: none;
+  border: 1px solid rgba(148, 163, 184, 0.15);
   border-radius: 6px;
   color: var(--ws-muted, #94a3b8);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.sp-status-deletar:hover {
+.sp-icone-btn:hover {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: rgba(167, 139, 250, 0.3);
+  color: #c4b5fd;
+}
+
+.sp-icone-btn--ativa {
+  background: rgba(167, 139, 250, 0.18);
+  border-color: rgba(167, 139, 250, 0.45);
+  color: #c4b5fd;
+}
+
+.sp-icone-btn--perigo:hover {
   background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
   color: #f87171;
 }
 

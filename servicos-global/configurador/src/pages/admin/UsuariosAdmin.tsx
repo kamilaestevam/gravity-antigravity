@@ -44,7 +44,7 @@ import {
   ExpandidoEditorVinculos,
   type EdicoesPorUsuario,
 } from '../../components/expandido-editor-vinculos'
-import { CelulaNomeEmpresa } from '../../components/celula-nome-empresa'
+import { OrgBadge } from '../../components/org-badge'
 
 /** Regex RFC 5322 simplificada para validação de email no frontend. */
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -438,21 +438,33 @@ export function UsuariosAdmin() {
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
     },
     {
+      key: 'nome_organizacao',
+      label: t('admin.usuarios-globais.tabela.nome_organizacao', 'Nome da Organização'),
+      tipo: 'texto',
+      tooltipTitulo: t('admin.usuarios-globais.tabela.nome_organizacao_tooltip', 'Nome da Organização'),
+      tooltipDescricao: t(
+        'admin.usuarios-globais.tabela.nome_organizacao_desc',
+        'Organização à qual este usuário pertence neste cadastro (visão cross-org).',
+      ),
+      render: (_, item) => <OrgBadge nome={item.nome_organizacao} />,
+    },
+    {
       key: 'nome_empresa',
       label: t('admin.usuarios-globais.tabela.nome_empresa', 'Nome da Empresa'),
       tipo: 'texto',
       tooltipTitulo: t('admin.usuarios-globais.tabela.nome_empresa_tooltip', 'Nome da Empresa'),
       tooltipDescricao: t(
         'admin.usuarios-globais.tabela.nome_empresa_desc',
-        'Organização (usuários internos) ou empresa fornecedora (Fornecedor).',
+        'Empresa fornecedora vinculada (apenas usuários Fornecedor).',
       ),
-      render: (_, item) => (
-        <CelulaNomeEmpresa
-          ehFornecedor={item.tipo === 'Fornecedor'}
-          nomeOrganizacao={item.nome_organizacao}
-          nomeFornecedor={item.nome_fornecedor}
-        />
-      ),
+      render: (_, item) => {
+        if (item.tipo !== 'Fornecedor') {
+          return <span style={{ color: 'var(--ws-muted)' }}>—</span>
+        }
+        const nome = item.nome_fornecedor
+        if (!nome) return <span style={{ color: 'var(--ws-muted)' }}>—</span>
+        return <OrgBadge nome={nome} variant="fornecedor" />
+      },
     },
     {
       key: 'tipo', label: t('admin.usuarios-globais.tabela.tipo'), tipo: 'texto',

@@ -435,10 +435,10 @@ export function UsuariosAdmin() {
     {
       key: 'email_usuario', label: t('admin.usuarios-globais.tabela.email'), tipo: 'texto',
       tooltipTitulo: t('admin.usuarios-globais.tabela.email_acesso'), tooltipDescricao: t('admin.usuarios-globais.tabela.email_acesso_desc'),
-      render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
+      render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{String(v ?? '')}</span>
     },
     {
-      key: 'nome_empresa',
+      key: 'nome_fornecedor',
       label: t('admin.usuarios-globais.tabela.nome_empresa', 'Nome da Empresa'),
       tipo: 'texto',
       tooltipTitulo: t('admin.usuarios-globais.tabela.nome_empresa_tooltip', 'Nome da Empresa'),
@@ -986,6 +986,7 @@ export function UsuariosAdmin() {
           id_usuario:           usuarioEditando.id_usuario,
           nome_usuario:         usuarioEditando.nome_usuario,
           email_usuario:        usuarioEditando.email_usuario,
+          nome_fornecedor:      usuarioEditando.nome_fornecedor,
           tipo_usuario:         nivelToRole(usuarioEditando.tipo),
           // Campo só consultado/modificado pela tela de workspace; no admin
           // global default false (não muda o comportamento do modal).

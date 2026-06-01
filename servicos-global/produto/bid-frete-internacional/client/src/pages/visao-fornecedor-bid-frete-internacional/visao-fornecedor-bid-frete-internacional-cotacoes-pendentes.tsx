@@ -26,6 +26,7 @@ import {
 import { getVisaoFornecedorBidFreteInternacionalCotacoesPendentes } from '../../shared/api'
 import type { DisparoCotacaoBidFreteInternacional, ModalFrete, StatusDisparoCotacaoBidFreteInternacional } from '../../shared/types'
 import { MODAL_LABELS, STATUS_DISPARO_COTACAO_BID_FRETE_INTERNACIONAL_LABELS } from '../../shared/types'
+import { ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../shared/rotas-bid-frete-internacional'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -168,7 +169,7 @@ export default function CotacoesPendentes() {
 
                 <button
                   className="cp-btn-responder"
-                  onClick={() => navigate(`/visao-fornecedor-bid-frete-internacional/responder/${bid.id_disparo_cotacao_bid_frete_internacional}`)}
+                  onClick={() => navigate(ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.responder(bid.id_disparo_cotacao_bid_frete_internacional))}
                 >
                   {t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.titulo')}
                   <ArrowRight weight="bold" size={14} />

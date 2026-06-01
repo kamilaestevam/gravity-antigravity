@@ -709,7 +709,7 @@ function buildColunasCotacoesBase(
     },
     {
       key: 'tipo_operacao_cotacao_bid_frete_internacional',
-      label: 'Operação',
+      label: 'Tipo de operação',
       tipo: 'texto',
       render: (val: unknown) => RenderBadgeOperacao(val),
     },
@@ -758,7 +758,7 @@ function buildColunasCotacoesBase(
     },
     {
       key: 'origem_codigo_cotacao_bid_frete_internacional',
-      label: 'Código origem',
+      label: 'Cód. origem',
       tipo: 'texto',
       render: renderTexto,
     },
@@ -770,7 +770,7 @@ function buildColunasCotacoesBase(
     },
     {
       key: 'origem_pais_cotacao_bid_frete_internacional',
-      label: 'País origem',
+      label: 'País de origem',
       tipo: 'texto',
       align: 'center',
       render: renderTexto,
@@ -783,7 +783,7 @@ function buildColunasCotacoesBase(
     },
     {
       key: 'destino_codigo_cotacao_bid_frete_internacional',
-      label: 'Código destino',
+      label: 'Cód. destino',
       tipo: 'texto',
       render: renderTexto,
     },
@@ -795,7 +795,7 @@ function buildColunasCotacoesBase(
     },
     {
       key: 'destino_pais_cotacao_bid_frete_internacional',
-      label: 'País destino',
+      label: 'País de destino',
       tipo: 'texto',
       align: 'center',
       render: renderTexto,
@@ -1029,8 +1029,16 @@ export const CAMPOS_EDITAVEIS_LISTA = CHAVES_COLUNAS_COTACAO.filter(
   k => !CAMPOS_NAO_EDITAVEIS_LISTA.has(k),
 )
 
-/** Colunas visíveis por padrão (exclui técnicas como ID interno). */
-export const CHAVES_COLUNAS_PADRAO_VISIVEIS = COLUNAS_COTACAO_BASE
-  .filter(c => !c.oculta)
-  .map(c => c.key)
-  .filter((k): k is string => typeof k === 'string')
+/** Colunas visíveis na 1ª abertura (sem prefs salvas). Ordem = layout padrão da lista. */
+export const CHAVES_COLUNAS_PADRAO_VISIVEIS: string[] = [
+  'numero_cotacao_bid_frete_internacional',
+  'tipo_operacao_cotacao_bid_frete_internacional',
+  'modal_cotacao_bid_frete_internacional',
+  'modalidade_cotacao_bid_frete_internacional',
+  'origem_nome_cotacao_bid_frete_internacional',
+  'origem_codigo_cotacao_bid_frete_internacional',
+  'origem_pais_cotacao_bid_frete_internacional',
+  'destino_nome_cotacao_bid_frete_internacional',
+  'destino_codigo_cotacao_bid_frete_internacional',
+  'destino_pais_cotacao_bid_frete_internacional',
+]

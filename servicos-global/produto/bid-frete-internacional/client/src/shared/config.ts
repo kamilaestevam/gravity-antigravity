@@ -1,3 +1,5 @@
+import { ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL, rotaBidFreteInternacional } from './rotas-bid-frete-internacional'
+
 /**
  * config.ts — PRODUCT_CONFIG do BID Frete Internacional
  *
@@ -62,15 +64,15 @@ export const PRODUCT_CONFIG = {
 
     // ── BID Frete Internacional ─────────────────────────────────────────────────
     { id: 'section-bid-frete',                          label: 'Bid Frete Internacional', sectionDivider: true },
-    { id: '/bid-frete/visao-geral',             label: 'Visão Geral',    icon: 'chart-pie-slice', source: 'product' },
-    { id: '/bid-frete/dashboard',               label: 'Dashboard',      icon: 'chart-bar',       source: 'product' },
-    { id: '/bid-frete/lista',                   label: 'Lista',          icon: 'list-bullets',    source: 'product' },
-    { id: '/bid-frete/kanban',                  label: 'Kanban',         icon: 'kanban',          source: 'product' },
-    { id: '/bid-frete/fornecedores',            label: 'Fornecedores',   icon: 'buildings',       source: 'product' },
+    { id: rotaBidFreteInternacional('visao-geral'),    label: 'Visão Geral',    icon: 'chart-pie-slice', source: 'product' },
+    { id: rotaBidFreteInternacional('dashboard'),      label: 'Dashboard',      icon: 'chart-bar',       source: 'product' },
+    { id: rotaBidFreteInternacional('lista'),          label: 'Lista',          icon: 'list-bullets',    source: 'product' },
+    { id: rotaBidFreteInternacional('kanban'),         label: 'Kanban',         icon: 'kanban',          source: 'product' },
+    { id: rotaBidFreteInternacional('fornecedores'),   label: 'Fornecedores',   icon: 'buildings',       source: 'product' },
 
     // ── Serviços ──────────────────────────────────────────────────────────────
     { id: '/workspace/historico-organizacao?id_produto_historico_log=bid-frete', label: 'Histórico', icon: 'clock-counter-clockwise', source: 'tenant', external: true },
-    { id: '/bid-frete/configuracoes', label: 'Configurações', icon: 'gear-six', source: 'product' },
+    { id: rotaBidFreteInternacional('configuracoes'), label: 'Configurações', icon: 'gear-six', source: 'product' },
 
   ] satisfies NavigationItem[],
 
@@ -85,10 +87,14 @@ export const PRODUCT_CONFIG = {
   },
 
   navigation_visao_fornecedor_bid_frete_internacional: [
-    { id: '/visao-fornecedor-bid-frete-internacional/dashboard', labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.dashboard', label: 'Visão geral', icon: 'chart-pie-slice', source: 'product' },
-    { id: '/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes', labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.cotacoes_pendentes', label: 'Cotações pendentes', icon: 'envelope', source: 'product' },
-    { id: '/visao-fornecedor-bid-frete-internacional/propostas', labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.propostas', label: 'Minhas propostas', icon: 'paper-plane-tilt', source: 'product' },
-    { id: '/visao-fornecedor-bid-frete-internacional/tabelas-valor', labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.tabelas_valor', label: 'Tabelas de valor', icon: 'currency-dollar', source: 'product' },
-    { id: '/visao-fornecedor-bid-frete-internacional/desempenho', labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.desempenho', label: 'Meu desempenho', icon: 'chart-bar', source: 'product' },
+    { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.dashboard, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.dashboard', label: 'Visão geral', icon: 'chart-pie-slice', source: 'product' },
+    { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.paineisDashboard, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.paineis_dashboard', label: 'Dashboard', icon: 'chart-bar', source: 'product' },
+    { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.lista, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.lista', label: 'Lista', icon: 'list-bullets', source: 'product' },
+    { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.kanban, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.kanban', label: 'Kanban', icon: 'kanban', source: 'product' },
+    { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.cotacoesPendentes, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.cotacoes_pendentes', label: 'Cotações pendentes', icon: 'envelope', source: 'product' },
+    { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.propostas, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.propostas', label: 'Minhas propostas', icon: 'paper-plane-tilt', source: 'product' },
+    { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.tabelasValor, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.tabelas_valor', label: 'Tabelas de valor', icon: 'currency-dollar', source: 'product' },
+    { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.desempenho, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.desempenho', label: 'Meu desempenho', icon: 'chart-bar', source: 'product' },
+    { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.configuracoes, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.configuracoes', label: 'Configurações', icon: 'gear-six', source: 'product' },
   ] satisfies NavigationItem[],
 } as const

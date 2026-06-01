@@ -27,6 +27,7 @@ import {
   COTACAO_SELECT_RESPOSTA_FORNECEDOR,
   enriquecerDisparosRespostaFornecedor,
 } from '../lib/enriquecer-disparo-resposta-fornecedor-bid-frete-internacional.js'
+import { resolverFornecedorLogado } from '../lib/resolver-fornecedor-logado-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -47,18 +48,6 @@ const TabelaBidFreteInternacionalSchema = z.object({
   validade_inicio_tabela_bid_frete_internacional: z.string().datetime(),
   validade_fim_tabela_bid_frete_internacional: z.string().datetime(),
 })
-
-async function resolverFornecedorLogado(req: Request) {
-  const userId = req.headers['x-id-usuario'] as string
-  if (!userId) throw new AppError('x-id-usuario obrigatorio', 401)
-
-  const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
-    where: { id_clerk_usuario: userId },
-  })
-
-  if (!fornecedor) throw new AppError('Fornecedor nao encontrado para este usuario', 404)
-  return fornecedor
-}
 
 function mapFornecedorResumo(fornecedor: Record<string, unknown>) {
   return {
@@ -155,28 +144,28 @@ router.get('/dashboard', async (req: Request, res: Response, next: NextFunction)
         quantidade_alerta_visao_fornecedor_bid_frete_internacional: pendentes,
         tom_alerta_visao_fornecedor_bid_frete_internacional: 'amber',
         rota_alerta_visao_fornecedor_bid_frete_internacional:
-          '/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes',
+          '/bid-frete/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes',
       },
       {
         rotulo_alerta_visao_fornecedor_bid_frete_internacional: 'propostas_em_analise',
         quantidade_alerta_visao_fornecedor_bid_frete_internacional: propostasEmAnalise,
         tom_alerta_visao_fornecedor_bid_frete_internacional: 'blue',
         rota_alerta_visao_fornecedor_bid_frete_internacional:
-          '/visao-fornecedor-bid-frete-internacional/propostas',
+          '/bid-frete/visao-fornecedor-bid-frete-internacional/propostas',
       },
       {
         rotulo_alerta_visao_fornecedor_bid_frete_internacional: 'propostas_reprovadas',
         quantidade_alerta_visao_fornecedor_bid_frete_internacional: propostasReprovadas,
         tom_alerta_visao_fornecedor_bid_frete_internacional: 'rose',
         rota_alerta_visao_fornecedor_bid_frete_internacional:
-          '/visao-fornecedor-bid-frete-internacional/propostas',
+          '/bid-frete/visao-fornecedor-bid-frete-internacional/propostas',
       },
       {
         rotulo_alerta_visao_fornecedor_bid_frete_internacional: 'propostas_aprovadas',
         quantidade_alerta_visao_fornecedor_bid_frete_internacional: propostasAprovadas,
         tom_alerta_visao_fornecedor_bid_frete_internacional: 'emerald',
         rota_alerta_visao_fornecedor_bid_frete_internacional:
-          '/visao-fornecedor-bid-frete-internacional/propostas',
+          '/bid-frete/visao-fornecedor-bid-frete-internacional/propostas',
       },
     ].filter((a) => a.quantidade_alerta_visao_fornecedor_bid_frete_internacional > 0)
 
@@ -217,7 +206,9 @@ router.get('/cotacoes-pendentes', async (req: Request, res: Response, next: Next
     const disparos = await (req.prisma as any).disparoCotacaoBidFreteInternacional.findMany({
       where: {
         id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
-        status_disparo_cotacao_bid_frete_internacional: { in: ['ENVIADO', 'VISUALIZADO', 'PENDENTE', 'RESPONDIDO'] },
+        status_disparo_cotacao_bid_frete_internacional: {
+          in: ['ENVIADO', 'VISUALIZADO', 'PENDENTE', 'RESPONDIDO', 'EXPIRADO'],
+        },
       },
       include: {
         proposta: {

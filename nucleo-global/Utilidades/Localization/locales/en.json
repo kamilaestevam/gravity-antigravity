@@ -830,10 +830,14 @@
       },
       "nav": {
         "dashboard": "Overview",
+        "paineis_dashboard": "Dashboard",
+        "lista": "List",
+        "kanban": "Kanban",
         "cotacoes_pendentes": "Pending quotes",
         "propostas": "My proposals",
         "tabelas_valor": "Rate tables",
-        "desempenho": "My performance"
+        "desempenho": "My performance",
+        "configuracoes": "Settings"
       },
       "dashboard": {
         "pendentes": "Pending",
@@ -883,6 +887,30 @@
         "card_propostas_desc": "History of proposals you sent",
         "card_desempenho_titulo": "My performance",
         "card_desempenho_desc": "View your rating and performance metrics"
+      },
+      "lista": {
+        "subtitulo": "{{count}} opportunity(ies)",
+        "aba_todas": "All opportunities",
+        "vazio": "No opportunities found",
+        "vazio_desc": "No opportunities found with the selected filters.",
+        "aria": "Opportunities list",
+        "buscar": "Search by process, reference, origin or destination...",
+        "sem_proposta": "—",
+        "col_cotacao": "Quote",
+        "col_prazo": "Response deadline",
+        "col_recebido": "Received on",
+        "acao_abrir": "Open",
+        "toggle_visao": "Switch view"
+      },
+      "kanban": {
+        "aguardando_resposta": "Awaiting response",
+        "em_analise": "Under review",
+        "aprovada": "Approved",
+        "reprovada": "Rejected",
+        "expirada": "Expired",
+        "busca": "Find quote...",
+        "total": "{{count}} opportunities",
+        "vazio": "No quotes in the funnel"
       },
       "cotacoes_pendentes": {
         "titulo": "Pending quotes",
@@ -1381,6 +1409,7 @@
     "seus_processos_desc": "COMEX dossiers — orders, freight, invoices and finance consolidated per operation.",
     "novo_processo": "New process",
     "hero_processos": "{{ativos}} active processes · {{pendentes}} awaiting action · {{plugins}} workspace products",
+    "hero_core_equilibrado": "{{workspace}} · {{ativos}} processes · {{plugins}} active products",
     "produtos_workspace": "Workspace products",
     "kpi_aguardando_acao": "Awaiting action",
     "ver_todos": "view all",

@@ -50,6 +50,15 @@
   display: flex;
   gap: 1.5rem;
 }
+
+.bfd-map-container--sem-painel-lateral {
+  gap: 0;
+}
+
+.bfd-map-container--sem-painel-lateral .bfd-map-canvas-wrapper {
+  flex: 1;
+  width: 100%;
+}
 .bfd-map-canvas-wrapper {
   flex: 1;
   position: relative;

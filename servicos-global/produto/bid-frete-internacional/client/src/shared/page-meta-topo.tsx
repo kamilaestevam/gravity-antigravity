@@ -34,11 +34,15 @@ const ROUTE_LABELS: Record<string, string> = {
   'cotacoes/importar':    'Importar Cotações',
   'fornecedores':         'Fornecedores',
   'configuracoes':        'Configurações',
-  'visao-fornecedor-bid-frete-internacional/dashboard':     'Visão Fornecedor — Dashboard',
+  'visao-fornecedor-bid-frete-internacional/dashboard':     'Visão geral',
+  'visao-fornecedor-bid-frete-internacional/paineis-dashboard': 'Dashboard',
+  'visao-fornecedor-bid-frete-internacional/lista':         'Lista',
+  'visao-fornecedor-bid-frete-internacional/kanban':        'Kanban',
   'visao-fornecedor-bid-frete-internacional/cotacoes-pendentes': 'Cotações pendentes',
   'visao-fornecedor-bid-frete-internacional/propostas':     'Minhas propostas',
   'visao-fornecedor-bid-frete-internacional/tabelas-valor': 'Tabelas de valor',
   'visao-fornecedor-bid-frete-internacional/desempenho':    'Meu desempenho',
+  'visao-fornecedor-bid-frete-internacional/configuracoes': 'Configurações',
 }
 
 const ROUTE_HEADERS: Record<string, Omit<PageMetaTopo, 'label'>> = {
@@ -52,10 +56,14 @@ const ROUTE_HEADERS: Record<string, Omit<PageMetaTopo, 'label'>> = {
   'fornecedores':         { icone: <Buildings       weight="duotone" size={22} />, subtitulo: 'Transportadores e agentes de carga cadastrados' },
   'configuracoes':        { icone: <GearSix         weight="duotone" size={22} />, subtitulo: 'Personalize cards, colunas e status do produto' },
   'visao-fornecedor-bid-frete-internacional/dashboard':     { icone: <ChartPieSlice   weight="duotone" size={22} />, subtitulo: 'Visão geral das suas cotações e desempenho' },
+  'visao-fornecedor-bid-frete-internacional/paineis-dashboard': { icone: <ChartBar        weight="duotone" size={22} />, subtitulo: 'KPIs e widgets configuráveis do fornecedor' },
+  'visao-fornecedor-bid-frete-internacional/lista':         { icone: <ListBullets     weight="duotone" size={22} />, subtitulo: 'Todas as oportunidades em tabela' },
+  'visao-fornecedor-bid-frete-internacional/kanban':        { icone: <Kanban          weight="duotone" size={22} />, subtitulo: 'Suas cotações e propostas por etapa' },
   'visao-fornecedor-bid-frete-internacional/cotacoes-pendentes': { icone: <Envelope        weight="duotone" size={22} />, subtitulo: 'Cotações aguardando sua proposta' },
   'visao-fornecedor-bid-frete-internacional/propostas':     { icone: <PaperPlaneTilt  weight="duotone" size={22} />, subtitulo: 'Propostas que você enviou' },
   'visao-fornecedor-bid-frete-internacional/tabelas-valor': { icone: <CurrencyDollar  weight="duotone" size={22} />, subtitulo: 'Suas tabelas de valor' },
   'visao-fornecedor-bid-frete-internacional/desempenho':    { icone: <Star            weight="duotone" size={22} />, subtitulo: 'Métricas e classificação' },
+  'visao-fornecedor-bid-frete-internacional/configuracoes': { icone: <GearSix         weight="duotone" size={22} />, subtitulo: 'Personalize cards, colunas e kanban da sua visão' },
 }
 
 const LISTA_META: PageMetaTopo = {

@@ -23,6 +23,7 @@ import {
   sincronizarFornecedoresCadastros,
 } from '../services/sincronizar-fornecedores-cadastros.js'
 import { prisma as basePrisma } from '../middleware/isolamento-tenant.js'
+import { vincularUsuarioNoFornecedorBidFrete } from '../lib/resolver-fornecedor-logado-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -40,8 +41,14 @@ const CriarFornecedorSchema = z.object({
   pais_fornecedor_bid_frete_internacional: z.string().optional(),
   cidade_fornecedor_bid_frete_internacional: z.string().optional(),
   id_clerk_usuario: z.string().optional(),
+  id_usuario: z.string().optional(),
   aceita_cotacao_aberta_fornecedor_bid_frete_internacional: z.boolean().default(true),
   cotacao_automatica_fornecedor_bid_frete_internacional: z.boolean().default(false),
+})
+
+const VincularUsuarioFornecedorSchema = z.object({
+  id_usuario: z.string().min(1),
+  id_clerk_usuario: z.string().min(1).optional(),
 })
 
 const TabelaBidFreteInternacionalSchema = z.object({
@@ -68,13 +75,14 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const parsed = CriarFornecedorSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError(`Dados invalidos: ${parsed.error.issues.map(i => i.message).join(', ')}`, 400, 'VALIDATION_ERROR')
 
-    const userId = req.headers['x-id-usuario'] as string
+    const { id_usuario: idUsuarioVinculo, id_clerk_usuario: idClerkVinculo, ...dadosFornecedor } = parsed.data
 
     const fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.create({
       data: {
-        ...parsed.data,
+        ...dadosFornecedor,
         id_produto_gravity: 'bid-frete-internacional',
-        id_usuario: userId,
+        ...(idUsuarioVinculo ? { id_usuario: idUsuarioVinculo } : {}),
+        ...(idClerkVinculo ? { id_clerk_usuario: idClerkVinculo } : {}),
       },
     })
 
@@ -170,6 +178,35 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     ])
 
     res.json({ fornecedores, pagination: { page: Number(page), limit: Number(limit), total, pages: Math.ceil(total / Number(limit)) } })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// --- PUT /:id_fornecedor/vincular-usuario — S2S Configurador (convite FORNECEDOR) ---
+router.put('/:id_fornecedor/vincular-usuario', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const parsed = VincularUsuarioFornecedorSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(
+        `Dados invalidos: ${parsed.error.issues.map(i => i.message).join(', ')}`,
+        400,
+        'VALIDATION_ERROR',
+      )
+    }
+
+    const tenantId = req.tenantId
+    if (!tenantId) throw new AppError('x-id-organizacao obrigatorio', 401, 'UNAUTHORIZED')
+
+    const fornecedor = await vincularUsuarioNoFornecedorBidFrete({
+      prisma: req.prisma,
+      idOrganizacao: tenantId,
+      idFornecedor: req.params.id_fornecedor,
+      id_usuario: parsed.data.id_usuario,
+      id_clerk_usuario: parsed.data.id_clerk_usuario ?? null,
+    })
+
+    res.json({ fornecedor })
   } catch (err) {
     next(err)
   }

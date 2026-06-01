@@ -38,7 +38,7 @@ describe('visao-fornecedor-bid-frete-internacional schemas', () => {
             quantidade_alerta_visao_fornecedor_bid_frete_internacional: 1,
             tom_alerta_visao_fornecedor_bid_frete_internacional: 'amber',
             rota_alerta_visao_fornecedor_bid_frete_internacional:
-              '/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes',
+              '/bid-frete/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes',
           },
         ],
         classificacao_bid_frete_internacional: {

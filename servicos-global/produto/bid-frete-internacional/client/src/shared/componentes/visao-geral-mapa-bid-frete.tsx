@@ -17,6 +17,7 @@ import {
   Play,
   Plus,
   Clock,
+  List,
 } from '@phosphor-icons/react'
 // ─── Map Pin Data ──────────────────────────────────────────────────────────
 
@@ -135,319 +136,21 @@ const MAP_PINS: MapPin[] = [
     flag: '🇧🇷'
   }
 ]
+const fmtMoeda = (v: number) =>
+  new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v)
 
-
-
-// ─── Gráfico de Barras Mensal (SVG) ─────────────────────────────────────────
-
-function GraficoBarrasMensal() {
-  const W = 520
-  const H = 280
-  const pad = { top: 35, right: 20, bottom: 40, left: 40 }
-  const innerW = W - pad.left - pad.right
-  const innerH = H - pad.top - pad.bottom
-  const barW = innerW / DEMO_MENSAL.length
-  
-  // Dynamic maxVal calculated from the tallest total, leaving 10% elegant spacing at the top
-  const maxMonthlyTotal = Math.max(...DEMO_MENSAL.map(d => d.aprovadas + d.andamento + d.recusadas))
-  const maxVal = maxMonthlyTotal > 0 ? maxMonthlyTotal * 1.1 : 100
-
-  // Y-axis grid ticks (from 0 = top/max to 1 = bottom/zero)
-  const gridTicks = [0, 0.25, 0.5, 0.75, 1]
-
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="bfd-chart-svg" style={{ overflow: 'visible' }}>
-      <defs>
-        {/* Vibrant blue gradient (Aprovadas) */}
-        <linearGradient id="grad-aprov" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#60a5fa" />
-          <stop offset="100%" stopColor="#2563eb" />
-        </linearGradient>
-        
-        {/* Vibrant lavender/violet gradient (Em andamento) */}
-        <linearGradient id="grad-and" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#c084fc" />
-          <stop offset="100%" stopColor="#7c3aed" />
-        </linearGradient>
-        
-        {/* Vibrant rose/red gradient */}
-        <linearGradient id="grad-rec" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#f87171" />
-          <stop offset="100%" stopColor="#dc2626" />
-        </linearGradient>
-
-        {/* Premium smooth drop shadow for columns */}
-        <filter id="col-shadow" x="-20%" y="-10%" width="140%" height="130%">
-          <feDropShadow dx="0" dy="4" stdDeviation="3" floodColor="#000000" floodOpacity="0.25" />
-        </filter>
-      </defs>
-
-      {/* Gridlines & Y-axis labels in background */}
-      {gridTicks.map((t, idx) => {
-        const y = pad.top + t * innerH
-        const val = Math.round((1 - t) * maxVal)
-        return (
-          <g key={idx} className="bfd-chart-gridline-group">
-            <line
-              x1={pad.left}
-              y1={y}
-              x2={W - pad.right}
-              y2={y}
-              stroke="rgba(255, 255, 255, 0.05)"
-              strokeWidth="1"
-              strokeDasharray={t === 1 ? undefined : "4, 4"}
-            />
-            <text
-              x={pad.left - 12}
-              y={y + 4}
-              textAnchor="end"
-              fill="#64748b"
-              fontSize="11"
-              fontWeight="600"
-              className="bfd-chart-grid-text"
-            >
-              {val}
-            </text>
-          </g>
-        )
-      })}
-
-      {DEMO_MENSAL.map((d, i) => {
-        const total = d.aprovadas + d.andamento + d.recusadas
-        const w = barW * 0.45
-        const x = pad.left + i * barW + (barW - w) / 2
-        const fullH = (total / maxVal) * innerH
-
-        const hAprov = (d.aprovadas / total) * fullH
-        const hAnd = (d.andamento / total) * fullH
-        const hRec = (d.recusadas / total) * fullH
-        
-        const yTop = pad.top + innerH - fullH
-
-        // Gaps & drawing adjustments
-        const hTopDraw = Math.max(3, hAprov - 1)
-        const hMidDraw = Math.max(3, hAnd - 2)
-        const hBotDraw = Math.max(3, hRec - 1)
-
-        const yTopSeg = yTop
-        const yMidSeg = yTop + hAprov + 1
-        const yBotSeg = yTop + hAprov + hAnd + 1
-
-        // Bottom rounded corners path
-        const r = Math.min(6, hBotDraw / 2, w / 2)
-        const botPath = `M ${x} ${yBotSeg} L ${x + w} ${yBotSeg} L ${x + w} ${yBotSeg + hBotDraw - r} A ${r} ${r} 0 0 1 ${x + w - r} ${yBotSeg + hBotDraw} L ${x + r} ${yBotSeg + hBotDraw} A ${r} ${r} 0 0 1 ${x} ${yBotSeg + hBotDraw - r} Z`
-
-        return (
-          <g key={i} className="bfd-chart-bar-group" filter="url(#col-shadow)">
-            {/* Top Segment: Mint/Emerald Gradient Capsule */}
-            <rect
-              x={x}
-              y={yTopSeg}
-              width={w}
-              height={hTopDraw}
-              rx={6}
-              ry={6}
-              fill="url(#grad-aprov)"
-            />
-            
-            {/* Middle Segment: Blue Gradient Rect */}
-            <rect
-              x={x}
-              y={yMidSeg}
-              width={w}
-              height={hMidDraw}
-              fill="url(#grad-and)"
-            />
-            
-            {/* Bottom Segment: Rose Red Gradient Rounded Bottom */}
-            <path
-              d={botPath}
-              fill="url(#grad-rec)"
-            />
-            
-            {/* Total value text above the bar */}
-            <text
-              x={x + w / 2}
-              y={yTop - 10}
-              textAnchor="middle"
-              fill="#ffffff"
-              fontSize="14"
-              fontWeight="700"
-              className="bfd-chart-total-text"
-            >
-              {total}
-            </text>
-            
-            {/* Month label below the bar */}
-            <text
-              x={x + w / 2}
-              y={H - 12}
-              textAnchor="middle"
-              fill="#cbd5e1"
-              fontSize="12"
-              fontWeight="600"
-              className="bfd-chart-month-text"
-            >
-              {d.mes}
-            </text>
-          </g>
-        )
-      })}
-    </svg>
-  )
+const MODAL_ICONS_MAPA: Record<string, React.ReactNode> = {
+  MARITIMO: <Anchor weight="duotone" size={16} />,
+  AEREO: <AirplaneTilt weight="duotone" size={16} />,
+  RODOVIARIO: <Anchor weight="duotone" size={16} />,
 }
 
-// ─── Donut Modal (SVG + progress bars) ──────────────────────────────────────
-
-function GraficoDonutModal() {
-  const total = DEMO_MODAL.reduce((s, m) => s + m.count, 0)
-  const cx = 80
-  const cy = 80
-  const r = 58
-  const stroke = 16
-  const circ = 2 * Math.PI * r
-
-  let offset = 0
-  const arcs = DEMO_MODAL.map(m => {
-    const pct = m.count / total
-    const dashLen = pct * circ
-    const arc = { ...m, dashLen, dashOffset: -offset }
-    offset += dashLen
-    return arc
-  })
-
-  return (
-    <div className="bfd-donut">
-      <svg viewBox="0 0 160 160" width="130" height="130">
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
-        {arcs.map((a, i) => (
-          <circle
-            key={i}
-            cx={cx} cy={cy} r={r}
-            fill="none"
-            stroke={a.cor}
-            strokeWidth={stroke}
-            strokeDasharray={`${a.dashLen} ${circ - a.dashLen}`}
-            strokeDashoffset={a.dashOffset}
-            strokeLinecap="round"
-            style={{ transform: 'rotate(-90deg)', transformOrigin: '80px 80px' }}
-          />
-        ))}
-        <text x={cx} y={cy - 4} textAnchor="middle" fill="#ffffff" fontSize="28" fontWeight="800" style={{ letterSpacing: '0.02em' }}>{total}</text>
-        <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="10" fontWeight="600" style={{ letterSpacing: '0.04em' }}>cotações</text>
-      </svg>
-      <div className="bfd-donut__legend">
-        {DEMO_MODAL.map(m => (
-          <div key={m.modal_cotacao_bid_frete_internacional} className="bfd-donut__legend-row">
-            <span className="bfd-donut__legend-icon" style={{ color: m.cor }}>{MODAL_ICONS[m.modal_cotacao_bid_frete_internacional]}</span>
-            <span className="bfd-donut__legend-label">{MODAL_LABELS[m.modal_cotacao_bid_frete_internacional as keyof typeof MODAL_LABELS] ?? m.modal_cotacao_bid_frete_internacional}</span>
-            <div className="bfd-donut__legend-bar">
-              <div className="bfd-donut__legend-bar-fill" style={{ width: `${m.pct}%`, background: m.cor }} />
-            </div>
-            <span className="bfd-donut__legend-count" style={{ color: m.cor }}>{m.count}</span>
-            <span className="bfd-donut__legend-pct">{m.pct}%</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+const MODAL_LABELS_MAPA: Record<string, string> = {
+  MARITIMO: "Maritimo",
+  AEREO: "Aereo",
+  RODOVIARIO: "Rodoviario",
 }
 
-// ─── Funil ──────────────────────────────────────────────────────────────────
-
-function FunilStatus() {
-  const localFunil = [
-    { label: 'Draft', count: 5, color: '#94a3b8' },
-    { label: 'Recebido no fornecedor', count: 8, color: '#8b5cf6' },
-    { label: 'Aprovação', count: 12, color: '#818cf8' },
-    { label: 'Aprovação pendente', count: 7, color: '#fbbf24' },
-    { label: 'Recusada', count: 42, color: '#60a5fa' },
-    { label: 'Aprovada', count: 6, color: '#f87171' },
-    { label: 'Expirada', count: 3, color: '#64748b' },
-  ]
-  const total = localFunil.reduce((s, f) => s + f.count, 0)
-  const maxCount = Math.max(...localFunil.map(f => f.count))
-  
-  return (
-    <div className="bfd-funil">
-      {localFunil.map(f => {
-        const pct = total ? Math.round((f.count / total) * 100) : 0
-        const barW = maxCount ? (f.count / maxCount) * 100 : 0
-        return (
-          <div key={f.label} className="bfd-funil__row">
-            <span className="bfd-funil__label">{f.label}</span>
-            <div className="bfd-funil__bar-wrap">
-              <div
-                className="bfd-funil__bar"
-                style={{ width: `${barW}%`, background: f.color }}
-              />
-            </div>
-            <span className="bfd-funil__count">{f.count}</span>
-            <span className="bfd-funil__pct">{pct}%</span>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-// ─── Taxa Aprovação (donut) ──────────────────────────────────────────────────
-
-function TaxaAprovacao() {
-  const { percentual_em_tempo, percentual_atraso, nao_respondidas } = DEMO_KPIS.aprovacao
-  const cx = 55
-  const cy = 55
-  const r = 42
-  const stroke = 10
-  const circ = 2 * Math.PI * r
-
-  const segments = [
-    { pct: percentual_em_tempo, cor: '#60a5fa', label: `Em tempo: ${percentual_em_tempo}%` },
-    { pct: percentual_atraso, cor: '#fbbf24', label: `Atrasadas: ${percentual_atraso}%` },
-    { pct: nao_respondidas, cor: '#f87171', label: `Sem resposta: ${nao_respondidas}%` },
-  ]
-  let off = 0
-
-  return (
-    <div className="bfd-taxa">
-      <svg viewBox="0 0 110 110" width="105" height="105">
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
-        {segments.map((s, i) => {
-          const dashLen = (s.pct / 100) * circ
-          const arc = (
-            <circle
-              key={i}
-              cx={cx} cy={cy} r={r}
-              fill="none"
-              stroke={s.cor}
-              strokeWidth={stroke}
-              strokeDasharray={`${dashLen} ${circ - dashLen}`}
-              strokeDashoffset={-off}
-              style={{ transform: 'rotate(-90deg)', transformOrigin: `${cx}px ${cy}px` }}
-            />
-          )
-          off += dashLen
-          return arc
-        })}
-        <text x={cx} y={cy + 2} textAnchor="middle" fill="#ffffff" fontSize="22" fontWeight="800" style={{ letterSpacing: '0.02em' }}>{percentual_em_tempo}%</text>
-        <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="9" fontWeight="600" style={{ letterSpacing: '0.04em' }}>em tempo</text>
-      </svg>
-      <div className="bfd-taxa__legend">
-        {segments.map((s, i) => (
-          <div key={i} className="bfd-taxa__legend-row">
-            <span className="bfd-taxa__dot" style={{ background: s.cor }} />
-            <span>{s.label}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ─── 3D Globe Helpers & Data ────────────────────────────────────────────────
-
-// Precise geographic polygons for realistic continent rendering
-// Extremely high-fidelity realistic world polygons generated with lower RDP epsilon
 const POLYGONS = {
   americas: [
     [-90.547, 69.498], [-90.552, 68.475], [-89.215, 69.259], [-88.02, 68.615], [-88.318, 67.873], [-87.35, 67.199], [-86.306, 67.922], [-85.577, 68.784],
@@ -962,6 +665,10 @@ export interface VisaoGeralMapaBidFreteProps {
   descricaoBids?: string
   descricaoTransit?: string
   painelRankingsSubtitulo?: string
+  /** Visão fornecedor: oculta Rankings Globais, Transit Benchmark e alternador Bids/Transit. */
+  exibirPainelLateralMapa?: boolean
+  /** Vista inicial do canvas: globo 3D (padrão operacional) ou mapa plano. */
+  vistaInicialMapa?: 'globo' | 'mapa'
 }
 
 export function VisaoGeralMapaBidFrete({
@@ -970,17 +677,16 @@ export function VisaoGeralMapaBidFrete({
   descricaoBids,
   descricaoTransit,
   painelRankingsSubtitulo = 'Rankings em tempo real • 200 bids',
+  exibirPainelLateralMapa = true,
+  vistaInicialMapa = 'globo',
 }: VisaoGeralMapaBidFreteProps) {
-  const descricaoMapaBids =
-    descricaoBids ??
-    `Localizações estratégicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)`
   const descricaoMapaTransit =
     descricaoTransit ?? 'Benchmarking de Transit Time global (Sua Empresa vs. Média de Mercado)'
   const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modal_cotacao_bid_frete_internacional'>('origens')
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
   const [selectedPinForDialogoResumido, setSelectedPinForDialogoResumido] = useState<number | null>(null)
   const [mapaModo, setMapaModo] = useState<'bids' | 'transit'>('bids')
-  const [vista, setVista] = useState<'globo' | 'mapa'>('globo')
+  const [vista, setVista] = useState<'globo' | 'mapa'>(vistaInicialMapa)
 
   const vistaRef = useRef<'globo' | 'mapa'>(vista)
   useEffect(() => {
@@ -1891,11 +1597,12 @@ export function VisaoGeralMapaBidFrete({
           <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }}>
             {mapaModo === 'transit'
               ? descricaoMapaTransit
-              : `${descricaoMapaBids.replace('Arrastar para Girar', vista === 'mapa' ? 'Arrastar para Mover' : 'Arrastar para Girar')}`}
+              : (descricaoBids ??
+                `Localizações estratégicas, bids ativos e saving acumulado por terminal (${vista === 'mapa' ? 'Arrastar para Mover' : 'Arrastar para Girar'})`)}
           </span>
         </div>
 
-        {/* Mode Switcher pills */}
+        {exibirPainelLateralMapa ? (
         <div style={{
           display: 'inline-flex',
           background: 'rgba(255, 255, 255, 0.04)',
@@ -1947,9 +1654,16 @@ export function VisaoGeralMapaBidFrete({
             <span>Transit Time</span>
           </button>
         </div>
+        ) : null}
       </div>
 
-      <div className="bfd-map-container">
+      <div
+        className={
+          exibirPainelLateralMapa
+            ? 'bfd-map-container'
+            : 'bfd-map-container bfd-map-container--sem-painel-lateral'
+        }
+      >
         {/* Left Side: Canvas and Zoom Controls */}
         <div 
           className="bfd-map-canvas-wrapper"
@@ -2050,7 +1764,7 @@ export function VisaoGeralMapaBidFrete({
             if (pin.opacity <= 0.05) return null
             
             const isHovered = hoveredPin === pin.id
-            const Icon = MODAL_ICONS[pin.mode] || <Anchor size={12} />
+            const Icon = MODAL_ICONS_MAPA[pin.mode] || <Anchor size={12} />
             
             return (
               <div
@@ -2136,7 +1850,7 @@ export function VisaoGeralMapaBidFrete({
           })}
         </div>
 
-        {/* Right Side: HUD de Cotações Globais / Transit Benchmark Hub */}
+        {exibirPainelLateralMapa ? (
         <div className="bfd-hud-container">
           {mapaModo === 'transit' ? (
             <div className="bfd-map-right-panel bfd-map-right-panel--transit" style={{ background: 'rgba(11, 14, 20, 0.45)', border: '1px solid rgba(52, 211, 153, 0.15)', boxShadow: '0 8px 32px 0 rgba(0,0,0,0.5), 0 0 16px rgba(52, 211, 153, 0.08)' }}>
@@ -2409,7 +2123,7 @@ export function VisaoGeralMapaBidFrete({
                     <div key={idx} className="bfd-map-panel__row">
                       <span className="bfd-map-panel__row-rank">{idx + 1}</span>
                       <span className="bfd-map-panel__modal-icon-wrap" style={{ color: item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '#a78bfa' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '#34d399' : '#fbbf24' }}>
-                        {MODAL_ICONS[item.modal_cotacao_bid_frete_internacional] || <Anchor size={14} />}
+                        {MODAL_ICONS_MAPA[item.modal_cotacao_bid_frete_internacional] || <Anchor size={14} />}
                       </span>
                       <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
                         <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
@@ -2434,6 +2148,7 @@ export function VisaoGeralMapaBidFrete({
             </div>
           )}
         </div>
+        ) : null}
 
         {/* Premium Detail Modal Overlay */}
         {selectedPinForDialogoResumido !== null && (() => {

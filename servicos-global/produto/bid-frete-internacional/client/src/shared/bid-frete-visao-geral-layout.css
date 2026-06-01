@@ -26,6 +26,21 @@
   gap: 1.25rem;
 }
 
+.bfd-globe-row {
+  display: grid;
+  grid-template-columns: 2.15fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 0;
+}
+
+.bfd-globe-row__coluna-direita {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  height: 100%;
+  min-height: 0;
+}
+
 .bfd-insights-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -313,6 +328,7 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .bfd-globe-row,
   .bfd-insights-grid,
   .bfd-charts-grid--fornecedor,
   .bfd-acoes-grid {

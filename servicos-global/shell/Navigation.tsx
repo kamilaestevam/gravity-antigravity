@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 
@@ -82,6 +82,16 @@ function LoadingFallback() {
   )
 }
 
+/** Legado: links da visão fornecedor sem `/bid-frete` caíam no 404 do shell. */
+function RedirectVisaoFornecedorSemPrefixoBidFrete() {
+  const { pathname, search } = useLocation()
+  const sufixo = pathname.replace(/^\/visao-fornecedor-bid-frete-internacional\/?/, '')
+  const destino = sufixo
+    ? `/bid-frete/visao-fornecedor-bid-frete-internacional/${sufixo}`
+    : '/bid-frete/visao-fornecedor-bid-frete-internacional/dashboard'
+  return <Navigate to={`${destino}${search}`} replace />
+}
+
 function NotFoundPage() {
   const { t } = useTranslation()
   return (
@@ -130,6 +140,16 @@ export function Navigation() {
         <Route path="/helpdesk/*"     element={<HelpdeskModule />} />
         <Route path="/conector-erp/*" element={<ConectorErpModule />} />
         <Route path="/bid-frete/*"   element={<BidFreteModule />} />
+
+        {/* Visão fornecedor BID Frete — URLs legadas sem prefixo do produto */}
+        <Route
+          path="/visao-fornecedor-bid-frete-internacional"
+          element={<Navigate to="/bid-frete/visao-fornecedor-bid-frete-internacional/dashboard" replace />}
+        />
+        <Route
+          path="/visao-fornecedor-bid-frete-internacional/*"
+          element={<RedirectVisaoFornecedorSemPrefixoBidFrete />}
+        />
 
         {/* Produtos (Onda 3) */}
         <Route path="/simula-custo/*" element={<SimulaCustoModule />} />

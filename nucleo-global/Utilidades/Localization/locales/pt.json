@@ -207,6 +207,7 @@
     "seus_processos_desc": "Dossiês COMEX — pedidos, frete, NF e financeiro consolidados por operação.",
     "novo_processo": "Novo processo",
     "hero_processos": "{{ativos}} processos em andamento · {{pendentes}} aguardando ação · {{plugins}} produtos no workspace",
+    "hero_core_equilibrado": "{{workspace}} · {{ativos}} processos · {{plugins}} produtos ativos",
     "produtos_workspace": "Produtos do workspace",
     "kpi_aguardando_acao": "Aguardando ação",
     "ver_todos": "ver todos",
@@ -3135,10 +3136,14 @@
       },
       "nav": {
         "dashboard": "Visão geral",
+        "paineis_dashboard": "Dashboard",
+        "lista": "Lista",
+        "kanban": "Kanban",
         "cotacoes_pendentes": "Cotações pendentes",
         "propostas": "Minhas propostas",
         "tabelas_valor": "Tabelas de valor",
-        "desempenho": "Meu desempenho"
+        "desempenho": "Meu desempenho",
+        "configuracoes": "Configurações"
       },
       "dashboard": {
         "pendentes": "Pendentes",
@@ -3188,6 +3193,30 @@
         "card_propostas_desc": "Histórico de propostas enviadas",
         "card_desempenho_titulo": "Meu desempenho",
         "card_desempenho_desc": "Veja sua classificação e métricas de performance"
+      },
+      "lista": {
+        "subtitulo": "{{count}} oportunidade(s)",
+        "aba_todas": "Todas as oportunidades",
+        "vazio": "Nenhuma oportunidade encontrada",
+        "vazio_desc": "Nenhuma oportunidade encontrada com os filtros selecionados.",
+        "aria": "Lista de oportunidades",
+        "buscar": "Buscar por processo, referência, origem ou destino...",
+        "sem_proposta": "—",
+        "col_cotacao": "Cotação",
+        "col_prazo": "Prazo resposta",
+        "col_recebido": "Recebido em",
+        "acao_abrir": "Abrir",
+        "toggle_visao": "Alternar visualização"
+      },
+      "kanban": {
+        "aguardando_resposta": "Aguardando resposta",
+        "em_analise": "Em análise",
+        "aprovada": "Aprovada",
+        "reprovada": "Reprovada",
+        "expirada": "Expirada",
+        "busca": "Localizar cotação...",
+        "total": "{{count}} oportunidades",
+        "vazio": "Nenhuma cotação no funil"
       },
       "cotacoes_pendentes": {
         "titulo": "Cotações pendentes",

@@ -19,6 +19,7 @@ import {
   enviarVisaoFornecedorBidFreteInternacionalProposta,
 } from '../../shared/api'
 import type { DisparoCotacaoBidFreteInternacional } from '../../shared/types'
+import { ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../shared/rotas-bid-frete-internacional'
 import { montarPayloadPropostaRespostaBidFreteInternacional } from '../../shared/montar-payload-proposta-resposta-bid-frete-internacional'
 import {
   ESTADO_INICIAL_FORMULARIO_RESPOSTA,
@@ -156,7 +157,7 @@ export default function ResponderCotacao() {
                 variante="primario"
                 tamanho="medio"
                 type="button"
-                onClick={() => navigate('/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes')}
+                onClick={() => navigate(ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.cotacoesPendentes)}
               >
                 {t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.voltar_pendentes')}
               </BotaoGlobal>
@@ -175,7 +176,7 @@ export default function ResponderCotacao() {
           tamanho="medio"
           type="button"
           icone={<ArrowLeft weight="bold" size={14} />}
-          onClick={() => navigate('/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes')}
+          onClick={() => navigate(ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.cotacoesPendentes)}
         >
           {t('bidfrete.visao_fornecedor_bid_frete_internacional.responder_cotacao.voltar')}
         </BotaoGlobal>

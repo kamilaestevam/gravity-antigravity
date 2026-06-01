@@ -32,7 +32,10 @@ import {
   MOCK_DASHBOARD_VISAO_FORNECEDOR_TEMP,
   USAR_MOCK_DASHBOARD_VISAO_FORNECEDOR_TEMP,
 } from '../../shared/mock-dashboard-visao-fornecedor-APAGAR-ANTES-COMMIT'
+import { ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../shared/rotas-bid-frete-internacional'
 import '../../shared/bid-frete-visao-geral-layout.css'
+import '../../shared/bid-frete-visao-geral-mapa.css'
+import { VisaoGeralMapaBidFrete } from '../../shared/componentes/visao-geral-mapa-bid-frete'
 import {
   BidFreteFunilBarras,
   BidFreteAlertasFornecedor,
@@ -211,27 +214,44 @@ export default function VisaoFornecedorBidFreteInternacionalDashboard() {
             />
           </div>
 
-          <div className="bfd-insights-grid">
-            <div className="bfd-card bfd-alertas bfd-card--accent-rose">
-              <BidFreteSecaoCabecalho
-                icone={iconesSecao.alertas}
-                titulo={t(`${ns}.dashboard.secao_alertas`)}
-                corIcone="#f87171"
-              />
-              <BidFreteAlertasFornecedor
-                alertas={alertas}
-                rotuloAlerta={rotuloAlerta}
-                mensagemVazio={t(`${ns}.dashboard.alertas_vazio`)}
-              />
-            </div>
+          <div className="bfd-globe-row">
+            <VisaoGeralMapaBidFrete
+              titulo={t(`${ns}.dashboard.mapa_titulo`)}
+              descricaoBids={t(`${ns}.dashboard.mapa_descricao_bids`, {
+                arraste: t(`${ns}.dashboard.mapa_arraste_girar`),
+              })}
+              exibirPainelLateralMapa={false}
+              vistaInicialMapa="mapa"
+              onOpenCompleto={() =>
+                navigate(ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.cotacoesPendentes)
+              }
+            />
 
-            <div className="bfd-card bfd-card--accent-indigo">
-              <BidFreteSecaoCabecalho
-                icone={iconesSecao.funil}
-                titulo={t(`${ns}.dashboard.secao_funil`)}
-                corIcone="#818cf8"
-              />
-              <BidFreteFunilBarras etapas={funil} rotuloEtapa={rotuloFunil} />
+            <div className="bfd-globe-row__coluna-direita">
+              <div
+                className="bfd-card bfd-alertas bfd-card--accent-rose"
+                style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }}
+              >
+                <BidFreteSecaoCabecalho
+                  icone={iconesSecao.alertas}
+                  titulo={t(`${ns}.dashboard.secao_alertas`)}
+                  corIcone="#f87171"
+                />
+                <BidFreteAlertasFornecedor
+                  alertas={alertas}
+                  rotuloAlerta={rotuloAlerta}
+                  mensagemVazio={t(`${ns}.dashboard.alertas_vazio`)}
+                />
+              </div>
+
+              <div className="bfd-card bfd-card--accent-indigo" style={{ flex: 1, padding: '1.25rem 1.5rem' }}>
+                <BidFreteSecaoCabecalho
+                  icone={iconesSecao.funil}
+                  titulo={t(`${ns}.dashboard.secao_funil`)}
+                  corIcone="#818cf8"
+                />
+                <BidFreteFunilBarras etapas={funil} rotuloEtapa={rotuloFunil} />
+              </div>
             </div>
           </div>
 
@@ -289,21 +309,21 @@ export default function VisaoFornecedorBidFreteInternacionalDashboard() {
               descricao={t(`${ns}.dashboard.card_pendentes_desc`)}
               icone={<Envelope weight="duotone" size={24} />}
               corIcone="#fbbf24"
-              onClick={() => navigate('/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes')}
+              onClick={() => navigate(ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.cotacoesPendentes)}
             />
             <BidFreteAcaoRapida
               titulo={t(`${ns}.dashboard.card_propostas_titulo`)}
               descricao={t(`${ns}.dashboard.card_propostas_desc`)}
               icone={<PaperPlaneTilt weight="duotone" size={24} />}
               corIcone="#60a5fa"
-              onClick={() => navigate('/visao-fornecedor-bid-frete-internacional/propostas')}
+              onClick={() => navigate(ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.propostas)}
             />
             <BidFreteAcaoRapida
               titulo={t(`${ns}.dashboard.card_desempenho_titulo`)}
               descricao={t(`${ns}.dashboard.card_desempenho_desc`)}
               icone={<ChartBar weight="duotone" size={24} />}
               corIcone="#34d399"
-              onClick={() => navigate('/visao-fornecedor-bid-frete-internacional/desempenho')}
+              onClick={() => navigate(ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.desempenho)}
             />
           </div>
         </div>

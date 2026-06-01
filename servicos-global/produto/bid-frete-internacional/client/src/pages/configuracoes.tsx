@@ -90,6 +90,8 @@ import {
   type KanbanModalConfigBidFrete,
 } from '../shared/kanban-bid-frete-modal'
 import { notificarKanbanConfigBidFreteAtualizado } from '../shared/use-kanban-preferences-bid-frete'
+import type { EscopoCardsBidFrete } from '../shared/use-card-preferences'
+import { useBidFreteConfiguracoesVisao, todasAbasConfigPermitidas } from '../shared/bid-frete-configuracoes-visao-context'
 import './configuracoes.css'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
@@ -731,9 +733,25 @@ export default function Configuracoes() {
   const { t } = useTranslation()
   const addNotification = useShellStore(s => s.addNotification)
   const [searchParams] = useSearchParams()
+  const cfgVisao = useBidFreteConfiguracoesVisao()
+  const escopoCards: EscopoCardsBidFrete = cfgVisao.modo === 'fornecedor' ? 'fornecedor' : 'operacional'
 
   const tabParam = searchParams.get('tab') as string | null
-  const [categoria, setCategoria] = useState<string>(tabParam ?? 'cards')
+  const categoriaInicial = useMemo(() => {
+    const candidato = tabParam ?? 'cards'
+    if (todasAbasConfigPermitidas(cfgVisao)) return candidato
+    return cfgVisao.sidebarIdsPermitidos.has(candidato) ? candidato : 'cards'
+  }, [tabParam, cfgVisao])
+  const [categoria, setCategoria] = useState<string>(categoriaInicial)
+
+  const sidebarItems = useMemo(() => {
+    if (todasAbasConfigPermitidas(cfgVisao)) return SIDEBAR_ITEMS
+    return SIDEBAR_ITEMS.filter(item => {
+      if (item.tipo === 'grupo') return true
+      const id = item.id ?? ''
+      return cfgVisao.sidebarIdsPermitidos.has(id)
+    })
+  }, [cfgVisao])
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     'colunas-casas-decimais': COLUNAS_FILHOS.includes(tabParam as typeof COLUNAS_FILHOS[number]),
     'kanban': ['kanban-colunas', 'kanban-card', 'kanban-modal'].includes(tabParam ?? ''),
@@ -742,7 +760,7 @@ export default function Configuracoes() {
   // ─── Mocks & Persistence Hook ─────────────────────────────────────────────────
 
   const useConfigState = <T,>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>, T, () => void, () => void, boolean] => {
-    const storageKey = `bid-frete:config:${key}`
+    const storageKey = `${cfgVisao.storagePrefix}:${key}`
     const [savedState, setSavedState] = useState<T>(() => {
       try {
         const raw = localStorage.getItem(storageKey)
@@ -775,7 +793,7 @@ export default function Configuracoes() {
     periodo: periodoSalvo,
     persistir: persistirCards,
     setPeriodo: persistirPeriodoCards,
-  } = useCardPreferencesBidFrete()
+  } = useCardPreferencesBidFrete(escopoCards)
 
   const [pendingCardsPrefs, setPendingCardsPrefs] = useState<CardPreferencia[]>(cardsSalvos)
   const [pendingPeriodoCards, setPendingPeriodoCards] = useState<CardPeriodoCodigo>(periodoSalvo)
@@ -1112,8 +1130,8 @@ export default function Configuracoes() {
 
   const kanbanCardSalvar = useCallback(() => {
     salvarKanbanCardConfig()
-    notificarKanbanConfigBidFreteAtualizado()
-  }, [salvarKanbanCardConfig])
+    notificarKanbanConfigBidFreteAtualizado(cfgVisao.kanbanEscopo)
+  }, [salvarKanbanCardConfig, cfgVisao.kanbanEscopo])
 
   const [abaAtivaModal, setAbaAtivaModal] = useState<KanbanModalAbaBidFrete>('cotacao')
   const [
@@ -1186,9 +1204,9 @@ export default function Configuracoes() {
 
   const kanbanModalSalvar = useCallback(() => {
     salvarKanbanModalConfig()
-    notificarKanbanConfigBidFreteAtualizado()
+    notificarKanbanConfigBidFreteAtualizado(cfgVisao.kanbanEscopo)
     addNotification({ type: 'success', message: t('bidfrete.config.cards.msg_salvo', 'Preferências do modal salvas com sucesso!') })
-  }, [salvarKanbanModalConfig, addNotification, t])
+  }, [salvarKanbanModalConfig, addNotification, t, cfgVisao.kanbanEscopo])
 
   const KANBAN_BF_MODAL_ABA_LABELS: Record<KanbanModalAbaBidFrete | 'lembrete', string> = {
     cotacao: 'Cotação',
@@ -1268,7 +1286,7 @@ export default function Configuracoes() {
         {/* ── Sidebar ── */}
         <aside className="cfg-sidebar">
         <nav className="cfg-sidebar__nav">
-          {SIDEBAR_ITEMS.map((item, idx) => {
+          {sidebarItems.map((item, idx) => {
             if (item.tipo === 'grupo') {
               return (
                 <div key={idx} className="cfg-sidebar__titulo--grupo">
@@ -1291,7 +1309,7 @@ export default function Configuracoes() {
                     <CaretDown className={`cfg-sidebar__chevron ${isOpen ? 'cfg-sidebar__chevron--open' : ''}`} size={12} />
                   </button>
                   <div className={`cfg-sidebar__submenu ${isOpen ? 'cfg-sidebar__submenu--open' : ''}`}>
-                    {SIDEBAR_ITEMS.filter(s => s.tipo === 'sub' && s.id && item.filhos?.includes(s.id)).map(sub => {
+                    {sidebarItems.filter(s => s.tipo === 'sub' && s.id && item.filhos?.includes(s.id)).map(sub => {
                       const subId = sub.id || ''
                       const subAtivo = categoria === subId
                       return (
@@ -2665,7 +2683,7 @@ export default function Configuracoes() {
               descricao: metricDef.descricao,
               icone: card.icone,
               cor: card.cor,
-            })
+            }, escopoCards)
             setPendingCardsPrefs(prev => {
               if (prev.some(p => p.id === newId)) return prev
               return [...prev, { id: newId, visible: true }]

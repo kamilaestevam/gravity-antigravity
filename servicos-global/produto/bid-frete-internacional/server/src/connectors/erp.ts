@@ -25,7 +25,7 @@ export interface PedidoERP {
   incoterm_cotacao_bid_frete_internacional?: string
   peso_kg_cotacao_bid_frete_internacional?: number
   cubagem_m3_cotacao_bid_frete_internacional?: number
-  quantidade_cotacao_bid_frete_internacional?: number
+  quantidade_volume_cotacao_bid_frete_internacional?: number
   tipo_container_cotacao_bid_frete_internacional?: string
   data_carga_pronta?: string // ISO date
   valor_mercadoria?: number

@@ -12,7 +12,7 @@ export interface CotacaoAgenteRequest {
   modal_cotacao_bid_frete_internacional: 'MARITIMO' | 'AEREO' | 'RODOVIARIO'
   modalidade_cotacao_bid_frete_internacional: string
   tipo_container_cotacao_bid_frete_internacional?: string
-  quantidade_cotacao_bid_frete_internacional: number
+  quantidade_volume_cotacao_bid_frete_internacional: number
   peso_kg_cotacao_bid_frete_internacional?: number
   cubagem_m3_cotacao_bid_frete_internacional?: number
   ncm_cotacao_bid_frete_internacional?: string
@@ -78,7 +78,7 @@ export async function cotarComAgente(
       modal_cotacao_bid_frete_internacional: req.modal_cotacao_bid_frete_internacional,
       modalidade_cotacao_bid_frete_internacional: req.modalidade_cotacao_bid_frete_internacional,
       containerType: req.tipo_container_cotacao_bid_frete_internacional,
-      quantity: req.quantidade_cotacao_bid_frete_internacional,
+      quantity: req.quantidade_volume_cotacao_bid_frete_internacional,
       weight: req.peso_kg_cotacao_bid_frete_internacional,
       volume: req.cubagem_m3_cotacao_bid_frete_internacional,
       ncm_cotacao_bid_frete_internacional: req.ncm_cotacao_bid_frete_internacional,

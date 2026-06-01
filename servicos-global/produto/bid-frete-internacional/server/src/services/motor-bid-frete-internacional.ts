@@ -1,4 +1,4 @@
-﻿/**
+/**
  * motor-bid.ts — Motor de Disparo de BIDs
  * Responsável por:
  * 1. Criar disparos de cotação para cada fornecedor selecionado
@@ -288,7 +288,7 @@ export const motorBid = {
       mercadoria: cotacao.descricao_mercadoria_cotacao_bid_frete_internacional,
       incoterm: cotacao.incoterm_cotacao_bid_frete_internacional,
       tipoContainer: cotacao.tipo_container_cotacao_bid_frete_internacional,
-      quantidade: cotacao.quantidade_cotacao_bid_frete_internacional,
+      quantidade: cotacao.quantidade_volume_cotacao_bid_frete_internacional,
       pesoKg: cotacao.peso_kg_cotacao_bid_frete_internacional,
       dataLimiteResposta: cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
       linkResposta,

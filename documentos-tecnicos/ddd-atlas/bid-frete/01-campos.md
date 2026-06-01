@@ -108,7 +108,7 @@ Cada model possui duas tabelas:
 | destino_pais | destino_pais_cotacao_bid_frete_internacional | String | REGRA 01 | Campo generico -> sufixo entidade |
 | descricao_mercadoria | descricao_mercadoria_cotacao_bid_frete_internacional | String | REGRA 01 | Campo generico -> sufixo entidade |
 | ncm | ncm_cotacao_bid_frete_internacional | String? | REGRA 01 | Campo generico `ncm` -> sufixo entidade |
-| quantidade | quantidade_cotacao_bid_frete_internacional | Int @default(1) | REGRA 01 | Campo generico `quantidade` -> sufixo entidade |
+| quantidade | quantidade_volume_cotacao_bid_frete_internacional | Int @default(1) | REGRA 01 | Campo generico `quantidade` -> sufixo entidade |
 | tipo_container | tipo_container_cotacao_bid_frete_internacional | String? | REGRA 01 | Campo generico -> sufixo entidade |
 | peso_kg | peso_kg_cotacao_bid_frete_internacional | Float? | REGRA 01 | Campo generico -> sufixo entidade |
 | cubagem_m3 | cubagem_m3_cotacao_bid_frete_internacional | Float? | REGRA 01 | Campo generico -> sufixo entidade |

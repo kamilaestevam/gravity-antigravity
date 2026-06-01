@@ -17,7 +17,7 @@ export const CAMPOS_DATA_COTACAO = new Set([
 ])
 
 const CAMPOS_NUMERICOS_COTACAO = new Set([
-  'quantidade_cotacao_bid_frete_internacional',
+  'quantidade_volume_cotacao_bid_frete_internacional',
   'peso_kg_cotacao_bid_frete_internacional',
   'cubagem_m3_cotacao_bid_frete_internacional',
   'ganho_percentual_cotacao_bid_frete_internacional',

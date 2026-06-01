@@ -11,7 +11,7 @@ describe('containers-cotacao-bid-frete-internacional', () => {
       serializarLinhasContainersFcl([{ tipo_container: '22G0', quantidade: 2 }]),
     ).toEqual({
       tipo_container_cotacao_bid_frete_internacional: '22G0',
-      quantidade_cotacao_bid_frete_internacional: 2,
+      quantidade_volume_cotacao_bid_frete_internacional: 2,
     })
   })
 
@@ -23,7 +23,7 @@ describe('containers-cotacao-bid-frete-internacional', () => {
       ]),
     ).toEqual({
       tipo_container_cotacao_bid_frete_internacional: '22G0:2|45G0:1',
-      quantidade_cotacao_bid_frete_internacional: 3,
+      quantidade_volume_cotacao_bid_frete_internacional: 3,
     })
   })
 

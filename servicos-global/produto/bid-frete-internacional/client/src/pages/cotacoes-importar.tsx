@@ -40,7 +40,7 @@ const EXPECTED_COLUMNS = [
   { key: 'destino_nome_cotacao_bid_frete_internacional', label: 'Destino (nome)', example: 'Shanghai' },
   { key: 'descricao_mercadoria_cotacao_bid_frete_internacional', label: 'Mercadoria', example: 'Pecas automotivas' },
   { key: 'incoterm_cotacao_bid_frete_internacional', label: 'Incoterm', example: 'FOB, CIF, EXW...' },
-  { key: 'quantidade_cotacao_bid_frete_internacional', label: 'Quantidade de Volume', example: '10' },
+  { key: 'quantidade_volume_cotacao_bid_frete_internacional', label: 'Quantidade de Volume', example: '10' },
   { key: 'ncm_cotacao_bid_frete_internacional', label: 'NCM (opcional)', example: '8708.99.90' },
 ]
 
@@ -58,7 +58,7 @@ interface ParsedRow {
   destino_nome_cotacao_bid_frete_internacional: string
   descricao_mercadoria_cotacao_bid_frete_internacional: string
   incoterm_cotacao_bid_frete_internacional: string
-  quantidade_cotacao_bid_frete_internacional: string
+  quantidade_volume_cotacao_bid_frete_internacional: string
   ncm_cotacao_bid_frete_internacional: string
 }
 
@@ -74,7 +74,7 @@ interface ValidatedRow {
   destino_nome_cotacao_bid_frete_internacional: string
   descricao_mercadoria_cotacao_bid_frete_internacional: string
   incoterm_cotacao_bid_frete_internacional: string
-  quantidade_cotacao_bid_frete_internacional: string
+  quantidade_volume_cotacao_bid_frete_internacional: string
   ncm_cotacao_bid_frete_internacional: string
   erros: string
 }
@@ -122,9 +122,9 @@ function validateRow(row: ParsedRow): string[] {
     erros.push('incoterm_cotacao_bid_frete_internacional invalido')
   }
 
-  const qty = Number(row.quantidade_cotacao_bid_frete_internacional)
-  if (!row.quantidade_cotacao_bid_frete_internacional?.trim() || isNaN(qty) || qty <= 0) {
-    erros.push('quantidade_cotacao_bid_frete_internacional deve ser > 0')
+  const qty = Number(row.quantidade_volume_cotacao_bid_frete_internacional)
+  if (!row.quantidade_volume_cotacao_bid_frete_internacional?.trim() || isNaN(qty) || qty <= 0) {
+    erros.push('quantidade_volume_cotacao_bid_frete_internacional deve ser > 0')
   }
 
   return erros
@@ -159,7 +159,7 @@ function parseCSV(content: string): ParsedRow[] {
       destino_nome_cotacao_bid_frete_internacional: cells[colMap['destino_nome_cotacao_bid_frete_internacional'] ?? 5] ?? '',
       descricao_mercadoria_cotacao_bid_frete_internacional: cells[colMap['descricao_mercadoria_cotacao_bid_frete_internacional'] ?? 6] ?? '',
       incoterm_cotacao_bid_frete_internacional: cells[colMap['incoterm_cotacao_bid_frete_internacional'] ?? 7] ?? '',
-      quantidade_cotacao_bid_frete_internacional: cells[colMap['quantidade_cotacao_bid_frete_internacional'] ?? 8] ?? '',
+      quantidade_volume_cotacao_bid_frete_internacional: cells[colMap['quantidade_volume_cotacao_bid_frete_internacional'] ?? 8] ?? '',
       ncm_cotacao_bid_frete_internacional: cells[colMap['ncm_cotacao_bid_frete_internacional'] ?? 9] ?? '',
     })
   }
@@ -266,7 +266,7 @@ export default function ImportarBloco() {
           destino_pais_cotacao_bid_frete_internacional: '',
           descricao_mercadoria_cotacao_bid_frete_internacional: row.descricao_mercadoria_cotacao_bid_frete_internacional.trim(),
           incoterm_cotacao_bid_frete_internacional: row.incoterm_cotacao_bid_frete_internacional.trim().toUpperCase(),
-          quantidade_cotacao_bid_frete_internacional: Number(row.quantidade_cotacao_bid_frete_internacional),
+          quantidade_volume_cotacao_bid_frete_internacional: Number(row.quantidade_volume_cotacao_bid_frete_internacional),
           ncm_cotacao_bid_frete_internacional: row.ncm_cotacao_bid_frete_internacional?.trim() || null,
         })
         criadas++
@@ -367,7 +367,7 @@ export default function ImportarBloco() {
       ),
     },
     {
-      key: 'quantidade_cotacao_bid_frete_internacional',
+      key: 'quantidade_volume_cotacao_bid_frete_internacional',
       label: t('bidfrete.importar.col_qtd'),
       tipo: 'numero',
       largura: 64,

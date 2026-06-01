@@ -50,7 +50,7 @@ interface CotacaoInfo {
   destino_nome_tabela_bid_frete_internacional: string
   modal_cotacao_bid_frete_internacional: ModalFrete
   incoterm_cotacao_bid_frete_internacional: string
-  quantidade_cotacao_bid_frete_internacional: number
+  quantidade_volume_cotacao_bid_frete_internacional: number
   peso_kg_cotacao_bid_frete_internacional: number | null
   data_limite_resposta_cotacao_bid_frete_internacional: string | null
 }
@@ -155,7 +155,7 @@ export default function CotacoesPendentes() {
                   <div className="cp-info-row">
                     <Package weight="duotone" size={14} />
                     <span>
-                      {cotacao?.quantidade_cotacao_bid_frete_internacional ?? 0} un
+                      {cotacao?.quantidade_volume_cotacao_bid_frete_internacional ?? 0} un
                       {cotacao?.peso_kg_cotacao_bid_frete_internacional != null ? ` / ${cotacao.peso_kg_cotacao_bid_frete_internacional.toLocaleString('pt-BR')} kg` : ''}
                     </span>
                   </div>

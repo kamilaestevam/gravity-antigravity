@@ -22,7 +22,7 @@ export interface CotacaoArmadorRequest {
   modal_cotacao_bid_frete_internacional: 'MARITIMO'
   modalidade_cotacao_bid_frete_internacional: 'FCL' | 'LCL'
   tipo_container_cotacao_bid_frete_internacional?: string  // ex: 22G0, 45G0 (ISO 6346)
-  quantidade_cotacao_bid_frete_internacional: number
+  quantidade_volume_cotacao_bid_frete_internacional: number
   peso_kg_cotacao_bid_frete_internacional?: number
   cubagem_m3_cotacao_bid_frete_internacional?: number
   data_embarque?: string   // ISO date
@@ -71,7 +71,7 @@ const mscConnector: ArmadorConnector = {
       origin: req.origem_codigo_cotacao_bid_frete_internacional,
       destination: req.destino_codigo_cotacao_bid_frete_internacional,
       containerType: req.tipo_container_cotacao_bid_frete_internacional,
-      quantity: req.quantidade_cotacao_bid_frete_internacional,
+      quantity: req.quantidade_volume_cotacao_bid_frete_internacional,
       weight: req.peso_kg_cotacao_bid_frete_internacional,
     }, {
       headers: {
@@ -120,7 +120,7 @@ const maerskConnector: ArmadorConnector = {
       origin: { unLocode: req.origem_codigo_cotacao_bid_frete_internacional },
       destination: { unLocode: req.destino_codigo_cotacao_bid_frete_internacional },
       containerType: req.tipo_container_cotacao_bid_frete_internacional,
-      quantity: req.quantidade_cotacao_bid_frete_internacional,
+      quantity: req.quantidade_volume_cotacao_bid_frete_internacional,
       weight: { value: req.peso_kg_cotacao_bid_frete_internacional, unit: 'KGS' },
     }, {
       headers: {

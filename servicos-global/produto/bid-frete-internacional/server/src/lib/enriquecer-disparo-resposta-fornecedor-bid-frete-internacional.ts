@@ -27,7 +27,7 @@ export const COTACAO_SELECT_RESPOSTA_FORNECEDOR = {
   descricao_mercadoria_cotacao_bid_frete_internacional: true,
   ncm_cotacao_bid_frete_internacional: true,
   incoterm_cotacao_bid_frete_internacional: true,
-  quantidade_cotacao_bid_frete_internacional: true,
+  quantidade_volume_cotacao_bid_frete_internacional: true,
   tipo_container_cotacao_bid_frete_internacional: true,
   peso_kg_cotacao_bid_frete_internacional: true,
   cubagem_m3_cotacao_bid_frete_internacional: true,

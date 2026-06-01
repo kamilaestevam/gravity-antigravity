@@ -1,4 +1,4 @@
-﻿/**
+/**
  * DetalheCotacao.tsx — Detalhe de Cotação (T4)
  * Skill: antigravity-design-system, antigravity-componentes
  *
@@ -732,7 +732,7 @@ export default function DetalheCotacao() {
               </div>
             </div>
             <InfoRow label={t('bidfrete.detalhe_cotacao.ncm')} value={cotacao.ncm_cotacao_bid_frete_internacional ?? '—'} />
-            <InfoRow label={t('bidfrete.detalhe_cotacao.quantidade')} value={String(cotacao.quantidade_cotacao_bid_frete_internacional)} />
+            <InfoRow label={t('bidfrete.detalhe_cotacao.quantidade')} value={String(cotacao.quantidade_volume_cotacao_bid_frete_internacional)} />
             <InfoRow
               label={t('bidfrete.detalhe_cotacao.peso')}
               value={cotacao.peso_kg_cotacao_bid_frete_internacional ? `${cotacao.peso_kg_cotacao_bid_frete_internacional.toLocaleString('pt-BR')} Kg` : '—'}
@@ -742,7 +742,7 @@ export default function DetalheCotacao() {
                 label={t('bidfrete.detalhe_cotacao.container')}
                 value={formatarContainersPersistidosParaExibicao(
                   cotacao.tipo_container_cotacao_bid_frete_internacional,
-                  cotacao.quantidade_cotacao_bid_frete_internacional,
+                  cotacao.quantidade_volume_cotacao_bid_frete_internacional,
                   (codigo) => codigo,
                 )}
               />

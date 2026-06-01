@@ -29,6 +29,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
 
+import { criarCotacao, getFornecedores } from '../shared/api'
 import { formatarRotuloLocalLogistico } from '../shared/formatacao-local-logistico-bid-frete-internacional'
 import { rotuloContainerCadastro } from '../shared/cadastrosApi'
 import {
@@ -125,6 +126,20 @@ function modalExigePortoCotacao(modal: ModalFrete | ''): boolean {
 
 function modalExigeAeroportoCotacao(modal: ModalFrete | ''): boolean {
   return modal === 'AEREO'
+}
+
+function rotuloResumoVisibilidadeNovaCotacao(
+  t: (chave: string) => string,
+  visibilidade: Visibilidade,
+  anonima: boolean,
+): string {
+  if (visibilidade === 'DIRECIONADA') {
+    return t('bidfrete.nova_cotacao.resumo_visibilidade_direcionada')
+  }
+  if (anonima) {
+    return t('bidfrete.nova_cotacao.resumo_visibilidade_aberta_anonima')
+  }
+  return t('bidfrete.nova_cotacao.resumo_visibilidade_aberta_identificada')
 }
 
 function localizacaoPrincipalPreenchida(
@@ -2765,7 +2780,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 <div className="nc-receipt-row">
                   <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_visibilidade')}</span>
                   <span className="nc-receipt-value">
-                    {form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA' ? 'Aberta' : 'Direcionada'}{form.anonima_cotacao_bid_frete_internacional ? ' (Anônima)' : ''}
+                    {rotuloResumoVisibilidadeNovaCotacao(
+                      t,
+                      form.visibilidade_cotacao_bid_frete_internacional,
+                      form.anonima_cotacao_bid_frete_internacional,
+                    )}
                   </span>
                 </div>
               </div>

@@ -15,6 +15,7 @@ import React, { useState } from 'react'
 import {
   Plus, Trash, DotsSixVertical, CaretDown, Funnel, X,
   WarningCircle, CheckCircle, FloppyDisk, PencilSimple,
+  Sparkle, XCircle,
 } from '@phosphor-icons/react'
 import './StatusProcesso.css'
 
@@ -143,6 +144,124 @@ const STATUS_INICIAIS: StatusConfig[] = [
     ],
   },
 ]
+
+// ── Validacao semantica (estilo GABI) ──────────────────────────────────────
+//
+// Espelha o validador de formulas de Campos Calculados do Pedido. Detecta
+// incompatibilidades antes do back avaliar — ex: 'maior que' em texto, valor
+// vazio quando exigido, regras conflitantes no mesmo campo.
+
+type Severidade = 'erro' | 'aviso'
+
+interface Problema {
+  severidade: Severidade
+  mensagem: string
+}
+
+interface Validacao {
+  problemas: Problema[]
+  valida: boolean
+}
+
+/**
+ * Compatibilidade entre tipo do campo e condicao. Cada condicao so faz
+ * sentido pra certos tipos:
+ *
+ *   vazio, preenchido   → todos (verifica existencia)
+ *   igual, diferente    → todos (comparacao exata)
+ *   contem              → SO texto (substring)
+ *   maior_que, menor_que → numero ou data (comparacao ordinal)
+ */
+const CONDICAO_POR_TIPO: Record<CondicaoTipo, CampoOpcao['tipo'][]> = {
+  vazio:      ['texto', 'numero', 'data', 'select'],
+  preenchido: ['texto', 'numero', 'data', 'select'],
+  igual:      ['texto', 'numero', 'data', 'select'],
+  diferente:  ['texto', 'numero', 'data', 'select'],
+  contem:     ['texto'],
+  maior_que:  ['numero', 'data'],
+  menor_que:  ['numero', 'data'],
+}
+
+function validarStatus(status: StatusConfig): Validacao {
+  const problemas: Problema[] = []
+
+  if (status.regras.length === 0) {
+    problemas.push({
+      severidade: 'aviso',
+      mensagem: 'Status sem regras nunca é disparado automaticamente.',
+    })
+  }
+
+  // Indices de regras por campo+origem (pra detectar conflitos)
+  const porCampo = new Map<string, Regra[]>()
+
+  for (const regra of status.regras) {
+    const campos = camposPara(regra.origem)
+    const campoInfo = campos.find(c => c.key === regra.campo)
+    if (!campoInfo) continue
+    const labelCampo = campoInfo.label
+
+    // 1. Condicao incompativel com tipo do campo
+    const tiposPermitidos = CONDICAO_POR_TIPO[regra.condicao]
+    if (!tiposPermitidos.includes(campoInfo.tipo)) {
+      const rotuloTipo = campoInfo.tipo === 'texto' ? 'texto'
+        : campoInfo.tipo === 'numero' ? 'número'
+        : campoInfo.tipo === 'data' ? 'data'
+        : 'lista'
+      problemas.push({
+        severidade: 'erro',
+        mensagem: `"${ROTULO_CONDICAO[regra.condicao]}" não funciona em campo de ${rotuloTipo} (${labelCampo}).`,
+      })
+    }
+
+    // 2. Valor exigido mas vazio
+    if (precisaValor(regra.condicao) && (!regra.valor || regra.valor.trim() === '')) {
+      problemas.push({
+        severidade: 'erro',
+        mensagem: `Regra em "${labelCampo}" precisa de um valor de comparação.`,
+      })
+    }
+
+    // 3. Valor numerico invalido em campo numerico
+    if (campoInfo.tipo === 'numero' && regra.valor && regra.valor.trim() !== '') {
+      const n = Number(regra.valor.replace(',', '.'))
+      if (Number.isNaN(n)) {
+        problemas.push({
+          severidade: 'erro',
+          mensagem: `Valor "${regra.valor}" não é um número válido para o campo "${labelCampo}".`,
+        })
+      }
+    }
+
+    // Agrupa pra checar conflitos
+    const k = `${regra.origem}.${regra.campo}`
+    const arr = porCampo.get(k) ?? []
+    arr.push(regra)
+    porCampo.set(k, arr)
+  }
+
+  // 4. Conflitos: campo X = vazio AND campo X = preenchido (no modo AND)
+  if (status.operador === 'AND') {
+    for (const [chave, regras] of porCampo) {
+      const temVazio = regras.some(r => r.condicao === 'vazio')
+      const temPreenchido = regras.some(r => r.condicao === 'preenchido')
+      if (temVazio && temPreenchido) {
+        const labelCampo = chave.split('.')[1]
+        const campos = [...CAMPOS_DADOS_PROCESSO, ...CAMPOS_PEDIDO]
+        const info = campos.find(c => c.key === labelCampo)
+        problemas.push({
+          severidade: 'erro',
+          mensagem: `Campo "${info?.label ?? labelCampo}" não pode ser "vazio" E "preenchido" ao mesmo tempo (no modo E).`,
+        })
+      }
+    }
+  }
+
+  return {
+    problemas,
+    valida: !problemas.some(p => p.severidade === 'erro'),
+  }
+}
 
 // ── Componente principal ───────────────────────────────────────────────────
 
@@ -385,6 +504,44 @@ export default function StatusProcesso() {
                   >
                     <Plus size={12} weight="bold" /> Adicionar regra
                   </button>
+
+                  {/* Painel GABI — validacao semantica das regras
+                      (espelha o validador de Campos Calculados do Pedido). */}
+                  {(() => {
+                    const v = validarStatus(status)
+                    const valido = v.valida && v.problemas.length === 0
+                    return (
+                      <div className={`sp-gabi ${
+                        valido ? 'sp-gabi--ok' :
+                        v.valida ? 'sp-gabi--aviso' :
+                        'sp-gabi--erro'
+                      }`}>
+                        <div className="sp-gabi-cabecalho">
+                          <Sparkle size={14} weight="fill" />
+                          <strong>GABI · </strong>
+                          {valido && <>REGRAS VÁLIDAS <CheckCircle size={12} weight="fill" /></>}
+                          {!valido && v.valida && <>ATENÇÃO <WarningCircle size={12} weight="fill" /></>}
+                          {!v.valida && <>REGRA INVÁLIDA <XCircle size={12} weight="fill" /></>}
+                        </div>
+                        {valido ? (
+                          <div className="sp-gabi-corpo">
+                            Combinação coerente. Clique em <strong>Salvar</strong> para aplicar.
+                          </div>
+                        ) : (
+                          <ul className="sp-gabi-lista">
+                            {v.problemas.map((p, i) => (
+                              <li key={i} className={`sp-gabi-item sp-gabi-item--${p.severidade}`}>
+                                {p.severidade === 'erro'
+                                  ? <XCircle size={12} weight="fill" />
+                                  : <WarningCircle size={12} weight="fill" />}
+                                <span>{p.mensagem}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )
+                  })()}
                 </div>
               )}
             </article>

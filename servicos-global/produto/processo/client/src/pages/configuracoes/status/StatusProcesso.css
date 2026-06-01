@@ -410,6 +410,85 @@
   font-size: 0.6875rem;
 }
 
+/* ── Painel GABI · validacao semantica ──────────────────────────────────── */
+/* Espelha o card verde do validador de Campos Calculados do Pedido.
+   Tres estados: ok (verde), aviso (ambar), erro (vermelho). */
+
+.sp-gabi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4375rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 8px;
+  border-width: 1px;
+  border-style: solid;
+  font-size: 0.75rem;
+  margin-top: 0.125rem;
+}
+
+.sp-gabi--ok {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: rgba(52, 211, 153, 0.35);
+  color: #34d399;
+}
+
+.sp-gabi--aviso {
+  background: rgba(251, 191, 36, 0.08);
+  border-color: rgba(251, 191, 36, 0.35);
+  color: #fbbf24;
+}
+
+.sp-gabi--erro {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+.sp-gabi-cabecalho {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sp-gabi-cabecalho strong {
+  font-weight: 700;
+}
+
+.sp-gabi-corpo {
+  color: rgba(241, 245, 249, 0.85);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.sp-gabi-corpo strong {
+  color: var(--ws-text, #f1f5f9);
+}
+
+.sp-gabi-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3125rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sp-gabi-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4375rem;
+  color: rgba(241, 245, 249, 0.85);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.sp-gabi-item--erro > svg { color: #f87171; flex-shrink: 0; margin-top: 2px; }
+.sp-gabi-item--aviso > svg { color: #fbbf24; flex-shrink: 0; margin-top: 2px; }
+
 /* ── Barra sticky de salvar ─────────────────────────────────────────────── */
 
 .sp-barra-salvar {

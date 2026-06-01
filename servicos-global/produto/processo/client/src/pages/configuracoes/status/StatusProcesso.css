@@ -1,0 +1,446 @@
+/* StatusProcesso — lista de status + rule builder */
+
+.sp-pagina {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Header da pagina ───────────────────────────────────────────────────── */
+
+.sp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.1);
+}
+
+.sp-header h2 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ws-text, #f1f5f9);
+}
+
+.sp-header p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--ws-muted, #94a3b8);
+  max-width: 580px;
+  line-height: 1.5;
+}
+
+.sp-header strong {
+  color: var(--ws-text, #f1f5f9);
+  font-weight: 600;
+}
+
+/* ── Botoes ─────────────────────────────────────────────────────────────── */
+
+.sp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.75rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 8px;
+  color: var(--ws-text, #f1f5f9);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.sp-btn:hover {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: rgba(167, 139, 250, 0.3);
+  color: #c4b5fd;
+}
+
+.sp-btn--primario {
+  background: rgba(167, 139, 250, 0.18);
+  border-color: rgba(167, 139, 250, 0.4);
+  color: #c4b5fd;
+}
+
+.sp-btn--primario:hover {
+  background: rgba(167, 139, 250, 0.28);
+  border-color: rgba(167, 139, 250, 0.55);
+}
+
+.sp-btn--secundario {
+  background: transparent;
+  border-color: rgba(148, 163, 184, 0.15);
+}
+
+/* ── Lista de status ────────────────────────────────────────────────────── */
+
+.sp-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+/* Card de status */
+
+.sp-status {
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+.sp-status:hover {
+  border-color: rgba(167, 139, 250, 0.25);
+}
+
+.sp-status--aberta {
+  border-color: rgba(167, 139, 250, 0.3);
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.sp-status-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+}
+
+.sp-status-arrastar {
+  color: var(--ws-muted, #94a3b8);
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.sp-status-ordem {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--ws-muted, #94a3b8);
+  border-radius: 50%;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.sp-status-cor {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.sp-status-cor:hover {
+  transform: scale(1.15);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.sp-status-nome {
+  flex: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.3125rem 0.5rem;
+  color: var(--ws-text, #f1f5f9);
+  font-size: 0.875rem;
+  font-weight: 600;
+  outline: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.sp-status-nome:hover {
+  background: rgba(167, 139, 250, 0.05);
+  border-color: rgba(167, 139, 250, 0.15);
+}
+
+.sp-status-nome:focus {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(167, 139, 250, 0.5);
+}
+
+.sp-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.1875rem 0.5rem;
+  background: rgba(167, 139, 250, 0.12);
+  color: rgba(167, 139, 250, 0.9);
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-status-pill--vazia {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+}
+
+.sp-status-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.3125rem 0.625rem;
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 8px;
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.sp-status-toggle:hover {
+  background: rgba(167, 139, 250, 0.08);
+  border-color: rgba(167, 139, 250, 0.3);
+  color: #c4b5fd;
+}
+
+.sp-caret {
+  transition: transform 0.2s;
+}
+
+.sp-caret--colapsado {
+  transform: rotate(-90deg);
+}
+
+.sp-status-deletar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--ws-muted, #94a3b8);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sp-status-deletar:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+/* ── Regras (collapsable) ───────────────────────────────────────────────── */
+
+.sp-regras {
+  padding: 0.75rem 1rem 1rem;
+  border-top: 1px solid rgba(167, 139, 250, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: rgba(15, 23, 42, 0.25);
+}
+
+.sp-regras-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}
+
+.sp-regras-titulo {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ws-muted, #94a3b8);
+}
+
+.sp-toggle-operador {
+  display: inline-flex;
+  padding: 2px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 9999px;
+  border: 1px solid rgba(167, 139, 250, 0.12);
+}
+
+.sp-toggle-btn {
+  padding: 0.25rem 0.625rem;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sp-toggle-btn:hover { color: var(--ws-text, #f1f5f9); }
+
+.sp-toggle-btn--ativa {
+  background: rgba(167, 139, 250, 0.18);
+  color: #c4b5fd;
+}
+
+/* Estado vazio das regras */
+
+.sp-regras-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: rgba(251, 191, 36, 0.06);
+  border: 1px dashed rgba(251, 191, 36, 0.25);
+  border-radius: 8px;
+  color: #fbbf24;
+  text-align: center;
+}
+
+.sp-regras-vazio p {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ws-muted, #94a3b8);
+}
+
+/* Lista de regras */
+
+.sp-regras-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sp-regra {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.625rem;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.sp-regra-prefixo,
+.sp-regra-conector {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(167, 139, 250, 0.7);
+  flex-shrink: 0;
+}
+
+.sp-regra-conector {
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.875rem;
+  text-transform: none;
+  font-weight: 400;
+}
+
+.sp-regra-operador {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.125rem 0.4375rem;
+  background: rgba(167, 139, 250, 0.18);
+  color: #c4b5fd;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.sp-regra select,
+.sp-regra-valor {
+  padding: 0.3125rem 0.5rem;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 6px;
+  color: var(--ws-text, #f1f5f9);
+  font-size: 0.75rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.sp-regra select:hover,
+.sp-regra-valor:hover {
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+.sp-regra select:focus,
+.sp-regra-valor:focus {
+  border-color: rgba(167, 139, 250, 0.6);
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.sp-regra-valor {
+  width: 110px;
+}
+
+.sp-regra-remover {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: rgba(148, 163, 184, 0.1);
+  border: none;
+  border-radius: 50%;
+  color: var(--ws-muted, #94a3b8);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sp-regra-remover:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.sp-adicionar-regra {
+  align-self: flex-start;
+  padding: 0.3125rem 0.625rem;
+  font-size: 0.6875rem;
+}
+
+/* ── Barra sticky de salvar ─────────────────────────────────────────────── */
+
+.sp-barra-salvar {
+  position: sticky;
+  bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.125rem;
+  background: rgba(167, 139, 250, 0.12);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.4);
+  color: #c4b5fd;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.sp-barra-salvar > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.sp-barra-acoes {
+  display: flex;
+  gap: 0.5rem;
+}

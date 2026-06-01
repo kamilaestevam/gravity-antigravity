@@ -31,8 +31,9 @@ import {
   MagnifyingGlass,
   Info,
   Handshake,
-  Truck,
 } from '@phosphor-icons/react'
+import { ehSlugProdutoBidFrete } from '../../shared/index.js'
+import { iconeOficialBidFreteInternacional } from '../data/product-meta'
 import { MenuLateralGlobal, type NavItem } from '@nucleo/menu-lateral-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { HubBotao } from '../components/HubBotao'
@@ -199,7 +200,9 @@ export function Core() {
           items.push({
             to: prod.rota,
             label: prod.nome,
-            icon: <Package weight="duotone" size={18} />,
+            icon: ehSlugProdutoBidFrete(prod.slug)
+              ? iconeOficialBidFreteInternacional(18)
+              : <Package weight="duotone" size={18} />,
           })
         }
       }
@@ -214,7 +217,7 @@ export function Core() {
           items.push({
             to: prod.rota,
             label: prod.nome,
-            icon: <Truck weight="duotone" size={18} />,
+            icon: iconeOficialBidFreteInternacional(18),
           })
         }
       }

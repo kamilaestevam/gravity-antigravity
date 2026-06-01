@@ -9,7 +9,6 @@ import {
   Calculator,
   FileText,
   ArrowsClockwise,
-  Truck,
   CurrencyDollar,
   Package,
   Bell,
@@ -28,6 +27,7 @@ import { produtosWorkspaceApi, type ProdutoWorkspaceItem } from '../services/api
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LogoHub, corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
+import { iconeOficialBidFreteInternacional } from '../data/product-meta'
 import { resolverProdVisualHub } from '../utils/resolver-prod-visual-hub'
 import { temBypassPermissao } from '../../shared/index.js'
 import {
@@ -64,28 +64,28 @@ function prodVisualEntry(
 ): ProdVisual {
   return {
     color: corOficialProdutoGravity(slug),
-    dim: corOficialProdutoDim(slug),
+    dim: corOficialProdutoDim(slug, 0.28),
     icon,
     description,
   }
 }
 
 const getProdVisual = (t: (key: string) => string): Record<string, ProdVisual> => ({
-  'simula-custo': prodVisualEntry('simula-custo', <Calculator weight="duotone" size={22} />, t('hub.produto_visual_simula_custo')),
-  'nf-importacao': prodVisualEntry('nf-importacao', <FileText weight="duotone" size={22} />, t('hub.produto_visual_nf_importacao')),
-  'nf-import': prodVisualEntry('nf-importacao', <FileText weight="duotone" size={22} />, t('hub.produto_visual_nf_importacao')),
-  'processo': prodVisualEntry('processo', <ArrowsClockwise weight="duotone" size={22} />, t('hub.produto_visual_processo')),
-  'bid-frete': prodVisualEntry('bid-frete', <Truck weight="duotone" size={22} />, t('hub.produto_visual_bid_frete')),
-  'bid-frete-internacional': prodVisualEntry('bid-frete-internacional', <Truck weight="duotone" size={22} />, t('hub.produto_visual_bid_frete')),
-  'bid-cambio': prodVisualEntry('bid-cambio', <CurrencyDollar weight="duotone" size={22} />, t('hub.produto_visual_bid_cambio')),
-  'pedido': prodVisualEntry('pedido', <Package weight="duotone" size={22} />, t('hub.produto_visual_pedido', 'Gestão de pedidos de compra e importação')),
-  'smart-read': prodVisualEntry('smart-read', <MagnifyingGlass weight="duotone" size={22} />, t('hub.produto_visual_smart_read', 'Leitura inteligente de documentos COMEX')),
+  'simula-custo': prodVisualEntry('simula-custo', <Calculator weight="duotone" size={24} />, t('hub.produto_visual_simula_custo')),
+  'nf-importacao': prodVisualEntry('nf-importacao', <FileText weight="duotone" size={24} />, t('hub.produto_visual_nf_importacao')),
+  'nf-import': prodVisualEntry('nf-importacao', <FileText weight="duotone" size={24} />, t('hub.produto_visual_nf_importacao')),
+  'processo': prodVisualEntry('processo', <ArrowsClockwise weight="duotone" size={24} />, t('hub.produto_visual_processo')),
+  'bid-frete': prodVisualEntry('bid-frete', iconeOficialBidFreteInternacional(26, 'card'), t('hub.produto_visual_bid_frete')),
+  'bid-frete-internacional': prodVisualEntry('bid-frete-internacional', iconeOficialBidFreteInternacional(26, 'card'), t('hub.produto_visual_bid_frete')),
+  'bid-cambio': prodVisualEntry('bid-cambio', <CurrencyDollar weight="duotone" size={24} />, t('hub.produto_visual_bid_cambio')),
+  'pedido': prodVisualEntry('pedido', <Package weight="duotone" size={24} />, t('hub.produto_visual_pedido', 'Gestão de pedidos de compra e importação')),
+  'smart-read': prodVisualEntry('smart-read', <MagnifyingGlass weight="duotone" size={24} />, t('hub.produto_visual_smart_read', 'Leitura inteligente de documentos COMEX')),
 })
 
 const getDefaultVisual = (t: (key: string) => string): ProdVisual => ({
   color: '#6366f1',
   dim: 'rgba(99,102,241,0.12)',
-  icon: <Package weight="duotone" size={22} />,
+  icon: <Package weight="duotone" size={24} />,
   description: t('hub.produto_visual_default'),
 })
 
@@ -422,12 +422,12 @@ export function Hub() {
           {/* Produtos */}
           <div>
             <div className="hb-section-actions">
-              <span className="hb-section-title" style={{ marginBottom: 0 }}>
+              <span className="hb-section-heading">
                 {duasZonasProdutos
                   ? t('hub.modulos_workspace', 'Módulos do workspace')
                   : t('hub.seus_produtos', 'Seus produtos')}
               </span>
-              <button className="hb-section-link" type="button" onClick={() => navigate('/store')}>
+              <button className="hb-section-link hb-section-link--store" type="button" onClick={() => navigate('/store')}>
                 {t('hub.ir_para_store')} →
               </button>
             </div>

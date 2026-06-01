@@ -33,7 +33,11 @@ import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
-import { listaFornecedoresAdminSchema } from '@cadastros/shared/schemas'
+import {
+  listaFornecedoresAdminSchema,
+  listaUsuariosVinculadosFornecedorAdminCadastrosSchema,
+  listaUsuariosVinculadosFornecedorAdminSchema,
+} from '@cadastros/shared/schemas'
 
 export const adminEmpresasRouter = Router()
 
@@ -243,3 +247,146 @@ adminEmpresasRouter.get('/', async (req: Request, res: Response, next: NextFunct
     next(err)
   }
 })
+
+const queryUsuariosVinculadosSchema = z.object({
+  id_organizacao: z.string().min(1).max(80).optional(),
+})
+
+// ---------------------------------------------------------------------------
+// GET /api/v1/admin/fornecedores/:id_fornecedor/usuarios-vinculados
+// ---------------------------------------------------------------------------
+adminEmpresasRouter.get(
+  '/:id_fornecedor/usuarios-vinculados',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!getChaveInterna()) {
+        throw new AppError(
+          'CHAVE_INTERNA_SERVICO ausente no Configurador — proxy admin desabilitado',
+          500,
+          'CONFIG_ERROR',
+        )
+      }
+
+      const idFornecedor = z.string().min(1).max(80).parse(req.params.id_fornecedor)
+      const parsedQuery = queryUsuariosVinculadosSchema.safeParse(req.query)
+      if (!parsedQuery.success) {
+        const detalhes = parsedQuery.error.issues
+          .map((i) => `${i.path.join('.') || '<raiz>'}: ${i.message}`)
+          .join('; ')
+        throw new AppError(`Query inválida: ${detalhes}`, 400, 'QUERY_INVALIDA')
+      }
+
+      const qsParams = new URLSearchParams()
+      if (parsedQuery.data.id_organizacao) {
+        qsParams.set('id_organizacao', parsedQuery.data.id_organizacao)
+      }
+      const qs = qsParams.toString()
+      const url = `${getCadastrosUrl()}/api/v1/admin/fornecedores/${encodeURIComponent(idFornecedor)}/usuarios-vinculados${qs ? `?${qs}` : ''}`
+
+      let response: Response
+      try {
+        response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-internal-key': getChaveInterna(),
+            'x-correlation-id': (req.headers['x-correlation-id'] as string) ?? '',
+          },
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        }) as unknown as Response
+      } catch {
+        throw new AppError(
+          'Serviço Cadastros indisponível (rede/timeout)',
+          503,
+          'CADASTROS_UNAVAILABLE',
+        )
+      }
+
+      if (!response.ok) {
+        const corpo = await response.json().catch(() => ({}))
+        res.status(response.status).json(corpo)
+        return
+      }
+
+      const raw = await response.json()
+      const parsed = listaUsuariosVinculadosFornecedorAdminCadastrosSchema.safeParse(raw)
+      if (!parsed.success) {
+        console.error(
+          '[admin-empresas] usuarios-vinculados fora do contrato Cadastros',
+          { issues: parsed.error.issues, correlation_id: req.headers['x-correlation-id'] },
+        )
+        throw new AppError(
+          'Resposta do Cadastros não bate com listaUsuariosVinculadosFornecedorAdminCadastrosSchema',
+          502,
+          'CADASTROS_CONTRATO_QUEBRADO',
+        )
+      }
+
+      const idsUsuarios = Array.from(new Set(parsed.data.itens.map((v) => v.id_usuario)))
+      const idsOrganizacoes = Array.from(new Set(parsed.data.itens.map((v) => v.id_organizacao)))
+
+      const [usuarios, organizacoes] = await Promise.all([
+        idsUsuarios.length > 0
+          ? prisma.usuario.findMany({
+              where: { id_usuario: { in: idsUsuarios } },
+              select: {
+                id_usuario: true,
+                nome_usuario: true,
+                email_usuario: true,
+                tipo_usuario: true,
+              },
+            })
+          : [],
+        idsOrganizacoes.length > 0
+          ? prisma.organizacao.findMany({
+              where: { id_organizacao: { in: idsOrganizacoes } },
+              select: { id_organizacao: true, nome_organizacao: true },
+            })
+          : [],
+      ])
+
+      const mapaUsuarios = new Map(usuarios.map((u) => [u.id_usuario, u]))
+      const mapaOrganizacoes = new Map(organizacoes.map((o) => [o.id_organizacao, o.nome_organizacao]))
+
+      const itensEnriquecidos = parsed.data.itens.map((v) => {
+        const usuario = mapaUsuarios.get(v.id_usuario)
+        return {
+          ...v,
+          nome_organizacao: mapaOrganizacoes.get(v.id_organizacao) ?? '⟨organização removida⟩',
+          nome_usuario: usuario?.nome_usuario ?? null,
+          email_usuario: usuario?.email_usuario ?? null,
+          tipo_usuario: usuario?.tipo_usuario ?? null,
+        }
+      })
+
+      const resposta = listaUsuariosVinculadosFornecedorAdminSchema.parse({
+        itens: itensEnriquecidos,
+        total: parsed.data.total,
+      })
+
+      void prisma.auditLogAdmin
+        .create({
+          data: {
+            id_usuario_audit_log_admin: req.auth.id_usuario,
+            tipo_usuario_audit_log_admin: req.auth.tipo_usuario,
+            acao_audit_log_admin: 'admin.fornecedores.usuarios-vinculados',
+            recurso_audit_log_admin: 'fornecedor',
+            filtros_audit_log_admin: {
+              id_fornecedor: idFornecedor,
+              ...parsedQuery.data,
+            },
+            qtd_resultados_audit_log_admin: resposta.total,
+            ip_origem_audit_log_admin: extrairIpCliente(req),
+            correlation_id_audit_log_admin: (req.headers['x-correlation-id'] as string) ?? '',
+          },
+        })
+        .catch((err: unknown) => {
+          console.error('[admin-empresas] falha ao gravar audit log usuarios-vinculados', err)
+        })
+
+      res.status(200).json(resposta)
+    } catch (err) {
+      next(err)
+    }
+  },
+)

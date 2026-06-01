@@ -73,6 +73,36 @@ export const listaFornecedorOrganizacaoSchema = z.object({
   por_pagina: z.number().int().positive(),
 })
 
+/** Vínculo com usuário — resposta Cadastros (sem enrich Configurador). */
+export const vinculoUsuarioFornecedorAdminCadastrosSchema = z.object({
+  id_fornecedor_organizacao: z.string(),
+  id_fornecedor: z.string(),
+  id_organizacao: z.string(),
+  id_usuario: z.string(),
+  tipo_fornecedor_organizacao: tipoFornecedorOrganizacaoEnum,
+  status_fornecedor_organizacao: statusFornecedorOrganizacaoEnum,
+})
+
+export const listaUsuariosVinculadosFornecedorAdminCadastrosSchema = z.object({
+  itens: z.array(vinculoUsuarioFornecedorAdminCadastrosSchema),
+  total: z.number().int().nonnegative(),
+})
+
+/** Resposta enriquecida pelo proxy Configurador (contrato bilateral front ↔ back). */
+export const usuarioVinculadoFornecedorAdminSchema = vinculoUsuarioFornecedorAdminCadastrosSchema.extend({
+  nome_organizacao: z.string(),
+  nome_usuario: z.string().nullable(),
+  email_usuario: z.string().nullable(),
+  tipo_usuario: z.string().nullable(),
+})
+
+export const listaUsuariosVinculadosFornecedorAdminSchema = z.object({
+  itens: z.array(usuarioVinculadoFornecedorAdminSchema),
+  total: z.number().int().nonnegative(),
+})
+
 export type FornecedorOrganizacao = z.infer<typeof fornecedorOrganizacaoSchema>
 export type CriarFornecedorOrganizacaoInput = z.infer<typeof criarFornecedorOrganizacaoSchema>
 export type AtualizarFornecedorOrganizacaoInput = z.infer<typeof atualizarFornecedorOrganizacaoSchema>
+export type UsuarioVinculadoFornecedorAdmin = z.infer<typeof usuarioVinculadoFornecedorAdminSchema>
+export type ListaUsuariosVinculadosFornecedorAdmin = z.infer<typeof listaUsuariosVinculadosFornecedorAdminSchema>

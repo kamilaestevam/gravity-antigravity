@@ -70,7 +70,7 @@ export interface DetalhesCotacaoResposta {
   modalidade_cotacao_bid_frete_internacional?: ModalidadeCarga
   incoterm_cotacao_bid_frete_internacional: string
   descricao_mercadoria_cotacao_bid_frete_internacional: string
-  quantidade_cotacao_bid_frete_internacional?: number
+  quantidade_volume_cotacao_bid_frete_internacional?: number
   peso_kg_cotacao_bid_frete_internacional?: number | null
   cubagem_m3_cotacao_bid_frete_internacional?: number | null
 }
@@ -286,8 +286,8 @@ export function SecaoDetalhesCotacaoResposta({
   if (cotacao?.descricao_mercadoria_cotacao_bid_frete_internacional) {
     partesCarga.push(cotacao.descricao_mercadoria_cotacao_bid_frete_internacional)
   }
-  if (cotacao?.quantidade_cotacao_bid_frete_internacional != null) {
-    partesCarga.push(`${cotacao.quantidade_cotacao_bid_frete_internacional} un`)
+  if (cotacao?.quantidade_volume_cotacao_bid_frete_internacional != null) {
+    partesCarga.push(`${cotacao.quantidade_volume_cotacao_bid_frete_internacional} un`)
   }
   if (cotacao?.peso_kg_cotacao_bid_frete_internacional != null) {
     partesCarga.push(`${cotacao.peso_kg_cotacao_bid_frete_internacional.toLocaleString('pt-BR')} kg`)

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * modal-nova-cotacao-bid-frete-internacional.tsx — SSOT do wizard Nova Cotação (BID Frete Internacional).
  * Rota exclusiva: /bid-frete/cotacoes/nova (App.tsx). Não montar overlay em outras telas.
  */
@@ -222,7 +222,7 @@ function limparCamposQuantidadeAoMudarModalidade(
     ...prev,
     modalidade_cotacao_bid_frete_internacional: modalidade,
     tipo_container_cotacao_bid_frete_internacional: '',
-    quantidade_cotacao_bid_frete_internacional: 1,
+    quantidade_volume_cotacao_bid_frete_internacional: 1,
     linhas_container_fcl_cotacao: [linhaContainerCotacaoVazia(1)],
   }))
 }
@@ -256,7 +256,7 @@ interface FormState {
   descricao_mercadoria_cotacao_bid_frete_internacional: string
   ncm_cotacao_bid_frete_internacional: string
   hs_code_cotacao_bid_frete_internacional: string
-  quantidade_cotacao_bid_frete_internacional: number
+  quantidade_volume_cotacao_bid_frete_internacional: number
   tipo_container_cotacao_bid_frete_internacional: string
   /** FCL — várias linhas tipo/qtd; persistidas via serialização em tipo_container. */
   linhas_container_fcl_cotacao: LinhaContainerCotacao[]
@@ -303,7 +303,7 @@ const INITIAL_FORM: FormState = {
   descricao_mercadoria_cotacao_bid_frete_internacional: '',
   ncm_cotacao_bid_frete_internacional: '',
   hs_code_cotacao_bid_frete_internacional: '',
-  quantidade_cotacao_bid_frete_internacional: 1,
+  quantidade_volume_cotacao_bid_frete_internacional: 1,
   tipo_container_cotacao_bid_frete_internacional: '',
   linhas_container_fcl_cotacao: [linhaContainerCotacaoVazia(1)],
   peso_kg_cotacao_bid_frete_internacional: '',
@@ -1957,7 +1957,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         return (
           base
           && !!form.tipo_container_cotacao_bid_frete_internacional
-          && form.quantidade_cotacao_bid_frete_internacional > 0
+          && form.quantidade_volume_cotacao_bid_frete_internacional > 0
         )
       }
       case 4:
@@ -1991,7 +1991,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         ? serializarLinhasContainersFcl(form.linhas_container_fcl_cotacao)
         : {
             tipo_container_cotacao_bid_frete_internacional: form.tipo_container_cotacao_bid_frete_internacional,
-            quantidade_cotacao_bid_frete_internacional: form.quantidade_cotacao_bid_frete_internacional,
+            quantidade_volume_cotacao_bid_frete_internacional: form.quantidade_volume_cotacao_bid_frete_internacional,
           }
 
       const cotacao = await criarCotacao({
@@ -2010,7 +2010,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         destino_pais_cotacao_bid_frete_internacional: paisDestino,
         descricao_mercadoria_cotacao_bid_frete_internacional: form.descricao_mercadoria_cotacao_bid_frete_internacional,
         ncm_cotacao_bid_frete_internacional: form.ncm_cotacao_bid_frete_internacional || undefined,
-        quantidade_cotacao_bid_frete_internacional: containersPersistidos.quantidade_cotacao_bid_frete_internacional,
+        quantidade_volume_cotacao_bid_frete_internacional: containersPersistidos.quantidade_volume_cotacao_bid_frete_internacional,
         tipo_container_cotacao_bid_frete_internacional:
           containersPersistidos.tipo_container_cotacao_bid_frete_internacional || undefined,
         peso_kg_cotacao_bid_frete_internacional: form.peso_kg_cotacao_bid_frete_internacional ? parseFloat(form.peso_kg_cotacao_bid_frete_internacional) : undefined,
@@ -2477,8 +2477,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                           className="nc-input nc-input--with-suffix"
                           type="number"
                           min={1}
-                          value={form.quantidade_cotacao_bid_frete_internacional}
-                          onChange={e => set('quantidade_cotacao_bid_frete_internacional', parseInt(e.target.value, 10) || 1)}
+                          value={form.quantidade_volume_cotacao_bid_frete_internacional}
+                          onChange={e => set('quantidade_volume_cotacao_bid_frete_internacional', parseInt(e.target.value, 10) || 1)}
                         />
                         <span className="nc-input-suffix">{sufixoQtd}</span>
                       </div>
@@ -2745,15 +2745,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_qtd_peso')}</span>
                   <span className="nc-receipt-value">
                     {exigeContainerFcl
-                      ? `${serializarLinhasContainersFcl(form.linhas_container_fcl_cotacao).quantidade_cotacao_bid_frete_internacional} ctn`
-                      : `${form.quantidade_cotacao_bid_frete_internacional} ${sufixoQuantidadeEmbalagem(form.tipo_container_cotacao_bid_frete_internacional)}`}
+                      ? `${serializarLinhasContainersFcl(form.linhas_container_fcl_cotacao).quantidade_volume_cotacao_bid_frete_internacional} ctn`
+                      : `${form.quantidade_volume_cotacao_bid_frete_internacional} ${sufixoQuantidadeEmbalagem(form.tipo_container_cotacao_bid_frete_internacional)}`}
                     {form.peso_kg_cotacao_bid_frete_internacional ? ` | ${form.peso_kg_cotacao_bid_frete_internacional} Kg` : ''}
                     {form.peso_ton_cotacao_bid_frete_internacional ? ` (${form.peso_ton_cotacao_bid_frete_internacional} TON)` : ''}
                     {form.cubagem_m3_cotacao_bid_frete_internacional ? ` | ${form.cubagem_m3_cotacao_bid_frete_internacional} m³` : ''}
                     {!exigeContainerFcl
                       && !form.peso_kg_cotacao_bid_frete_internacional
                       && !form.cubagem_m3_cotacao_bid_frete_internacional
-                      && form.quantidade_cotacao_bid_frete_internacional <= 0
+                      && form.quantidade_volume_cotacao_bid_frete_internacional <= 0
                       ? '—'
                       : ''}
                   </span>

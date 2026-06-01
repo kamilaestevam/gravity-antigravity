@@ -82,7 +82,7 @@ const COTACAO_VALIDA = {
   destino_pais_cotacao_bid_frete_internacional: 'Holanda',
   descricao_mercadoria_cotacao_bid_frete_internacional: 'Maquinários',
   incoterm_cotacao_bid_frete_internacional: 'FOB',
-  quantidade_cotacao_bid_frete_internacional: 1,
+  quantidade_volume_cotacao_bid_frete_internacional: 1,
   disparar_ao_criar: false,
 }
 

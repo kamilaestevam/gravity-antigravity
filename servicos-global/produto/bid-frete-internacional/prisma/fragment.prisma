@@ -223,7 +223,7 @@ model CotacaoBidFreteInternacional {
   // Mercadoria
   descricao_mercadoria_cotacao_bid_frete_internacional String
   ncm_cotacao_bid_frete_internacional                 String?
-  quantidade_cotacao_bid_frete_internacional          Int                 @default(1)
+  quantidade_volume_cotacao_bid_frete_internacional          Int                 @default(1)
   tipo_container_cotacao_bid_frete_internacional      String?             // ex: 20' DRY, 40' HC
   peso_kg_cotacao_bid_frete_internacional             Float?
   cubagem_m3_cotacao_bid_frete_internacional          Float?

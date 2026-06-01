@@ -16,22 +16,22 @@ export function linhaContainerCotacaoVazia(id: number): LinhaContainerCotacao {
 
 export function serializarLinhasContainersFcl(
   linhas: Array<Pick<LinhaContainerCotacao, 'tipo_container' | 'quantidade'>>,
-): { tipo_container_cotacao_bid_frete_internacional: string; quantidade_cotacao_bid_frete_internacional: number } {
+): { tipo_container_cotacao_bid_frete_internacional: string; quantidade_volume_cotacao_bid_frete_internacional: number } {
   const validas = linhas.filter((l) => l.tipo_container.trim() && l.quantidade > 0)
   if (validas.length === 0) {
-    return { tipo_container_cotacao_bid_frete_internacional: '', quantidade_cotacao_bid_frete_internacional: 1 }
+    return { tipo_container_cotacao_bid_frete_internacional: '', quantidade_volume_cotacao_bid_frete_internacional: 1 }
   }
   const quantidadeTotal = validas.reduce((acc, l) => acc + l.quantidade, 0)
   if (validas.length === 1) {
     return {
       tipo_container_cotacao_bid_frete_internacional: validas[0].tipo_container.trim(),
-      quantidade_cotacao_bid_frete_internacional: validas[0].quantidade,
+      quantidade_volume_cotacao_bid_frete_internacional: validas[0].quantidade,
     }
   }
   const tipo = validas.map((l) => `${l.tipo_container.trim()}:${l.quantidade}`).join('|')
   return {
     tipo_container_cotacao_bid_frete_internacional: tipo,
-    quantidade_cotacao_bid_frete_internacional: quantidadeTotal,
+    quantidade_volume_cotacao_bid_frete_internacional: quantidadeTotal,
   }
 }
 

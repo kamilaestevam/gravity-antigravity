@@ -10,21 +10,28 @@
  * for executado, ambas as páginas convergem para usar o mesmo componente.
  */
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Warning, Buildings, Globe, UsersThree, GlobeHemisphereWest, ChartPieSlice } from '@phosphor-icons/react'
+import { Warning, Buildings, Globe, UsersThree, GlobeHemisphereWest, ChartPieSlice, TreeStructure, UserCircle } from '@phosphor-icons/react'
 import { useAuth } from '@clerk/clerk-react'
-import { z } from 'zod'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import {
   type OrganizacaoOpcao,
 } from '@nucleo/select-organizacao-admin-global'
-import { listaFornecedoresAdminSchema, type FornecedorAdmin } from '@cadastros/shared/schemas'
+import {
+  listaFornecedoresAdminSchema,
+  listaUsuariosVinculadosFornecedorAdminSchema,
+  type FornecedorAdmin,
+  type UsuarioVinculadoFornecedorAdmin,
+} from '@cadastros/shared/schemas'
 import { buscarOrganizacoesAdmin } from '@gravity/shell'
+import { ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO } from '../../../shared/tipo-fornecedor-organizacao.js'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 
 // ─── Tipos auxiliares ────────────────────────────────────────────────────────
 
@@ -52,6 +59,19 @@ function derivarPapeisComex(e: FornecedorAdmin): string {
     .join(' + ') || '—'
 }
 
+function rotuloStatusVinculo(status: UsuarioVinculadoFornecedorAdmin['status_fornecedor_organizacao']): string {
+  switch (status) {
+    case 'ATIVO': return 'Ativo'
+    case 'INATIVO': return 'Inativo'
+    case 'PENDENTE_APROVACAO': return 'Pendente'
+    default: return status
+  }
+}
+
+function chaveCacheUsuarios(idFornecedor: string): string {
+  return idFornecedor
+}
+
 export function FornecedoresAdmin(): JSX.Element {
   const { getToken } = useAuth()
   const navigate = useNavigate()
@@ -65,6 +85,12 @@ export function FornecedoresAdmin(): JSX.Element {
 
   const [filtroOrg, setFiltroOrg] = useState('')
   const [filtroTipoParceiro, setFiltroTipoParceiro] = useState('')
+
+  const [usuariosPorFornecedor, setUsuariosPorFornecedor] = useState<
+    Record<string, UsuarioVinculadoFornecedorAdmin[]>
+  >({})
+  const [carregandoUsuarios, setCarregandoUsuarios] = useState<Set<string>>(new Set())
+  const [erroUsuarios, setErroUsuarios] = useState<Record<string, string>>({})
 
   // ── Fetch ──────────────────────────────────────────────────────────────
   async function carregar(): Promise<void> {
@@ -99,6 +125,44 @@ export function FornecedoresAdmin(): JSX.Element {
   }
 
   useEffect(() => { void carregar() }, [filtroOrg, filtroTipoParceiro]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const carregarUsuariosVinculados = useCallback(async (idFornecedor: string, forcar = false): Promise<void> => {
+    const chave = chaveCacheUsuarios(idFornecedor)
+    if (!forcar && (usuariosPorFornecedor[chave] !== undefined || carregandoUsuarios.has(chave))) return
+
+    setCarregandoUsuarios((prev) => new Set(prev).add(chave))
+    setErroUsuarios((prev) => {
+      const next = { ...prev }
+      delete next[chave]
+      return next
+    })
+
+    try {
+      const token = await getToken()
+      const res = await fetch(
+        `/api/v1/admin/fornecedores/${encodeURIComponent(idFornecedor)}/usuarios-vinculados`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
+      if (!res.ok) {
+        const corpo = await res.json().catch(() => ({}))
+        throw new Error(corpo?.error?.message ?? `Falha (${res.status})`)
+      }
+      const raw = await res.json()
+      const data = listaUsuariosVinculadosFornecedorAdminSchema.parse(raw)
+      setUsuariosPorFornecedor((prev) => ({ ...prev, [chave]: data.itens }))
+    } catch (e) {
+      setErroUsuarios((prev) => ({
+        ...prev,
+        [chave]: e instanceof Error ? e.message : 'Erro ao carregar usuários vinculados',
+      }))
+    } finally {
+      setCarregandoUsuarios((prev) => {
+        const next = new Set(prev)
+        next.delete(chave)
+        return next
+      })
+    }
+  }, [carregandoUsuarios, getToken, usuariosPorFornecedor])
 
   // ── Autocomplete de organizações ────────────────────────────────────────
   async function fetchOrganizacoes(busca: string): Promise<OrganizacaoOpcao[]> {
@@ -162,6 +226,60 @@ export function FornecedoresAdmin(): JSX.Element {
         <span style={{ color: l.ativo_fornecedor ? '#34d399' : '#94a3b8' }}>
           {l.ativo_fornecedor ? 'Ativa' : 'Inativa'}
         </span>
+      ),
+    },
+  ], [navigate])
+
+  const colunasUsuariosVinculados: TabelaGlobalColuna<UsuarioVinculadoFornecedorAdmin>[] = useMemo(() => [
+    {
+      key: 'nome_organizacao',
+      label: 'Organização',
+      render: (_, linha) => (
+        <button
+          type="button"
+          onClick={() => navigate(`/admin/organizacoes/${linha.id_organizacao}`)}
+          style={{
+            background: 'transparent', border: 'none', padding: 0,
+            color: 'var(--ws-accent, #818cf8)', cursor: 'pointer',
+            textDecoration: 'underline', fontSize: 'inherit',
+          }}
+          title={`Abrir ${linha.id_organizacao}`}
+        >
+          {linha.nome_organizacao}
+        </button>
+      ),
+    },
+    {
+      key: 'nome_usuario',
+      label: 'Usuário',
+      render: (_, linha) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <UserCircle size={16} weight="duotone" style={{ color: '#818cf8', flexShrink: 0 }} />
+          <span style={{ fontWeight: 600 }}>{linha.nome_usuario ?? '—'}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'email_usuario',
+      label: 'E-mail',
+      render: (_, linha) => linha.email_usuario ?? '—',
+    },
+    {
+      key: 'tipo_usuario',
+      label: 'Tipo',
+      render: (_, linha) => linha.tipo_usuario ?? '—',
+    },
+    {
+      key: 'tipo_fornecedor_organizacao',
+      label: 'Papel COMEX',
+      render: (_, linha) =>
+        ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO[linha.tipo_fornecedor_organizacao] ?? linha.tipo_fornecedor_organizacao,
+    },
+    {
+      key: 'status_fornecedor_organizacao',
+      label: 'Status vínculo',
+      render: (_, linha) => (
+        <StatusBadgeGlobal valor={rotuloStatusVinculo(linha.status_fornecedor_organizacao)} />
       ),
     },
   ], [navigate])
@@ -242,11 +360,93 @@ export function FornecedoresAdmin(): JSX.Element {
       {/* ── Tabela ───────────────────────────────────────────────────────── */}
       {!carregando && !erro && (
         <TabelaGlobal<FornecedorAdmin>
+          id="admin-fornecedores"
           dados={fornecedores}
           colunas={colunas}
           idKey="id_fornecedor"
           mensagemVazio="Nenhum fornecedor encontrado com os filtros atuais."
           tooltipBusca="Busca por nome do fornecedor"
+          tooltipExpandir="Ver usuários vinculados ao fornecedor"
+          tooltipRecolher="Recolher usuários vinculados"
+          renderExpandido={(fornecedor) => {
+            const chave = chaveCacheUsuarios(fornecedor.id_fornecedor)
+            if (
+              usuariosPorFornecedor[chave] === undefined
+              && !carregandoUsuarios.has(chave)
+              && !erroUsuarios[chave]
+            ) {
+              void carregarUsuariosVinculados(fornecedor.id_fornecedor)
+            }
+
+            const lista = usuariosPorFornecedor[chave] ?? []
+            const carregandoVinculos = carregandoUsuarios.has(chave)
+            const erroVinculos = erroUsuarios[chave]
+
+            return (
+              <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
+                <div style={{
+                  padding: '1rem',
+                  borderTop: '1px solid rgba(129,140,248,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  color: 'var(--ws-muted)',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}>
+                  <TreeStructure size={14} /> Usuários vinculados ({carregandoVinculos ? '…' : lista.length})
+                </div>
+
+                {erroVinculos ? (
+                  <div style={{
+                    padding: '1rem',
+                    marginBottom: '0.75rem',
+                    borderRadius: '8px',
+                    background: 'rgba(239,68,68,0.1)',
+                    border: '1px solid rgba(239,68,68,0.3)',
+                    color: '#fca5a5',
+                    fontSize: '0.8125rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '0.75rem',
+                  }}>
+                    <span>{erroVinculos}</span>
+                    <BotaoGlobal
+                      variante="secundario"
+                      onClick={() => void carregarUsuariosVinculados(fornecedor.id_fornecedor, true)}
+                    >
+                      Tentar novamente
+                    </BotaoGlobal>
+                  </div>
+                ) : null}
+
+                {carregandoVinculos ? (
+                  <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>
+                    Carregando usuários vinculados a <strong>{fornecedor.nome_fornecedor}</strong>…
+                  </div>
+                ) : (
+                  <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
+                    <TabelaGlobal<UsuarioVinculadoFornecedorAdmin>
+                      id={`admin-fornecedor-usuarios-${fornecedor.id_fornecedor}`}
+                      idKey="id_fornecedor_organizacao"
+                      dados={lista}
+                      colunas={colunasUsuariosVinculados}
+                      mensagemVazio="Nenhum usuário vinculado a este fornecedor."
+                      tooltipBusca="Buscar por nome, e-mail ou organização"
+                      acoesExportacao={getAcoesExportacaoPadrao(
+                        colunasUsuariosVinculados,
+                        'dados_tabela',
+                        'Exportação de Dados',
+                      )}
+                    />
+                  </div>
+                )}
+              </div>
+            )
+          }}
         />
       )}
 

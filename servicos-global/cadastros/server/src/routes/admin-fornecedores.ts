@@ -26,7 +26,7 @@
  * "Fornecedores — Cross-Org").
  */
 import { Router } from 'express'
-import { Prisma, type Fornecedor as PrismaFornecedor } from '../../../generated/index.js'
+import { Prisma, type Fornecedor as PrismaFornecedor, type FornecedorOrganizacao } from '../../../generated/index.js'
 import { requireInternalKey } from '../middleware/internal-key.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/app-error.js'
@@ -168,6 +168,66 @@ router.get('/', async (req, res, next) => {
       pagina,
       por_pagina: porPagina,
       alerta_volume: alertaVolume,
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+function toVinculoUsuarioAdminDto(v: FornecedorOrganizacao): Record<string, unknown> {
+  return {
+    id_fornecedor_organizacao: v.id_fornecedor_organizacao,
+    id_fornecedor: v.id_fornecedor,
+    id_organizacao: v.id_organizacao,
+    id_usuario: v.id_usuario,
+    tipo_fornecedor_organizacao: v.tipo_fornecedor_organizacao,
+    status_fornecedor_organizacao: v.status_fornecedor_organizacao,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/v1/admin/fornecedores/:id_fornecedor/usuarios-vinculados
+// LINT-EXCEPTION: cross-org read-only; audit no proxy Configurador.
+// ---------------------------------------------------------------------------
+router.get('/:id_fornecedor/usuarios-vinculados', async (req, res, next) => {
+  try {
+    const idFornecedor = req.params.id_fornecedor.trim()
+    if (!idFornecedor) {
+      throw new AppError('id_fornecedor é obrigatório', 400, 'FORNECEDOR_AUSENTE')
+    }
+
+    const fornecedor = await prisma.fornecedor.findFirst({
+      where: { id_fornecedor: idFornecedor },
+      select: { id_fornecedor: true },
+    })
+    if (!fornecedor) {
+      throw new AppError('Fornecedor não encontrado', 404, 'FORNECEDOR_NAO_ENCONTRADO')
+    }
+
+    const filtroOrg =
+      typeof req.query.id_organizacao === 'string' && req.query.id_organizacao.length > 0
+        ? req.query.id_organizacao
+        : undefined
+
+    const itens = await prisma.fornecedorOrganizacao.findMany({
+      where: {
+        id_fornecedor: idFornecedor,
+        id_usuario: { not: null },
+        ...(filtroOrg ? { id_organizacao: filtroOrg } : {}),
+      },
+      orderBy: [
+        { id_organizacao: 'asc' },
+        { data_criacao_fornecedor_organizacao: 'desc' },
+      ],
+    })
+
+    const vinculos = itens.filter((v): v is FornecedorOrganizacao & { id_usuario: string } =>
+      typeof v.id_usuario === 'string' && v.id_usuario.length > 0,
+    )
+
+    res.status(200).json({
+      itens: vinculos.map(toVinculoUsuarioAdminDto),
+      total: vinculos.length,
     })
   } catch (err) {
     next(err)

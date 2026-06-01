@@ -41,7 +41,7 @@ import { ModalEditarFornecedor, type PapelFlag } from './ModalEditarFornecedor'
 import type { Fornecedor } from '@cadastros/shared/schemas'
 import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { useAuth } from '@clerk/clerk-react'
-import { OrgBadge } from '../../components/org-badge'
+import { CelulaNomeEmpresa } from '../../components/celula-nome-empresa'
 
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -192,20 +192,20 @@ function WorkspacesAcessoCell({ workspaces, master }: { workspaces: WorkspaceIte
 }
 
 /** Coluna unificada: org (Master/Standard) ou empresa fornecedora. */
-function CelulaNomeEmpresa({
+function CelulaNomeEmpresaUsuario({
   usuario,
   nomeOrganizacao,
 }: {
   usuario: UsuarioOrg
   nomeOrganizacao: string
 }) {
-  if (usuario.tipo_usuario === 'FORNECEDOR') {
-    const nome = usuario.nome_fornecedor
-    if (!nome) return <span style={{ color: 'var(--ws-muted)' }}>—</span>
-    return <OrgBadge nome={nome} variant="fornecedor" />
-  }
-
-  return <OrgBadge nome={nomeOrganizacao} />
+  return (
+    <CelulaNomeEmpresa
+      ehFornecedor={usuario.tipo_usuario === 'FORNECEDOR'}
+      nomeOrganizacao={nomeOrganizacao}
+      nomeFornecedor={usuario.nome_fornecedor}
+    />
+  )
 }
 
 // ── Wrapper Configurador-específico: aplica gating via usePodeEditarUsuario ──
@@ -775,7 +775,7 @@ export function Usuarios() {
         'Organização (usuários internos) ou empresa fornecedora (usuários Fornecedor).',
       ),
       render: (_, item) => (
-        <CelulaNomeEmpresa usuario={item} nomeOrganizacao={nomeOrganizacao} />
+        <CelulaNomeEmpresaUsuario usuario={item} nomeOrganizacao={nomeOrganizacao} />
       ),
     },
     {

@@ -44,7 +44,7 @@ import {
   ExpandidoEditorVinculos,
   type EdicoesPorUsuario,
 } from '../../components/expandido-editor-vinculos'
-import { OrgBadge } from '../../components/org-badge'
+import { CelulaNomeEmpresa } from '../../components/celula-nome-empresa'
 
 /** Regex RFC 5322 simplificada para validação de email no frontend. */
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -70,6 +70,8 @@ interface UsuarioGlobalUI {
   /** id_organizacao do alvo — necessário para lazy-load de workspaces da org. */
   id_organizacao: string
   nome_organizacao: string
+  /** Empresa fornecedora (Cadastros) — preenchido para Fornecedor; null nos demais. */
+  nome_fornecedor: string | null
   /** Flag da organização do alvo (decisão dono 2026-05-11) — habilita
    *  SUPER_ADMIN/ADMIN na whitelist de tipos atribuíveis. */
   organizacao_hospeda_colaboradores_gravity: boolean
@@ -106,6 +108,7 @@ function mapearApiParaUsuarioGlobal(u: UsuarioGlobalApi): UsuarioGlobalUI {
     status,
     id_organizacao:    u.id_organizacao,
     nome_organizacao:  u.organizacao?.nome_organizacao ?? 'N/A',
+    nome_fornecedor:   u.nome_fornecedor ?? null,
     organizacao_hospeda_colaboradores_gravity: u.organizacao?.hospeda_colaboradores_gravity ?? false,
     vinculos_workspace: vinculos,
   }
@@ -435,12 +438,21 @@ export function UsuariosAdmin() {
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
     },
     {
-      key: 'nome_organizacao',
-      label: t('admin.usuarios-globais.tabela.empresa', 'Empresa'),
+      key: 'nome_empresa',
+      label: t('admin.usuarios-globais.tabela.nome_empresa', 'Nome da Empresa'),
       tipo: 'texto',
-      tooltipTitulo: t('admin.usuarios-globais.tabela.org_tooltip'),
-      tooltipDescricao: t('admin.usuarios-globais.tabela.org_desc'),
-      render: (_, item) => <OrgBadge nome={item.nome_organizacao} />,
+      tooltipTitulo: t('admin.usuarios-globais.tabela.nome_empresa_tooltip', 'Nome da Empresa'),
+      tooltipDescricao: t(
+        'admin.usuarios-globais.tabela.nome_empresa_desc',
+        'Organização (usuários internos) ou empresa fornecedora (Fornecedor).',
+      ),
+      render: (_, item) => (
+        <CelulaNomeEmpresa
+          ehFornecedor={item.tipo === 'Fornecedor'}
+          nomeOrganizacao={item.nome_organizacao}
+          nomeFornecedor={item.nome_fornecedor}
+        />
+      ),
     },
     {
       key: 'tipo', label: t('admin.usuarios-globais.tabela.tipo'), tipo: 'texto',
@@ -488,9 +500,12 @@ export function UsuariosAdmin() {
       // Master/SAdmin/Admin: chip "✶ Todos os workspaces" (LIMBO Mand. 04).
       // Standard/Fornecedor: chips com nomes dos workspaces vinculados.
       // Decisão dono 2026-05-13.
-      key: 'id_usuario', label: t('workspace.users.tabela_acesso', 'Acesso'), tipo: 'texto',
-      tooltipTitulo: 'Workspaces vinculados',
-      tooltipDescricao: 'Workspaces aos quais este usuário tem acesso liberado',
+      key: 'id_usuario', label: t('workspace.users.tabela_acesso', 'Workspaces habilitados'), tipo: 'texto',
+      tooltipTitulo: t('workspace.users.tabela.workspaces_habilitados_tooltip', 'Workspaces habilitados'),
+      tooltipDescricao: t(
+        'workspace.users.tabela.workspaces_habilitados_desc',
+        'Workspaces aos quais este usuário tem acesso liberado.',
+      ),
       render: (_, item) => {
         const acessoTotal = item.tipo === 'Master' || item.tipo === 'Super Admin' || item.tipo === 'Admin'
         if (acessoTotal) {

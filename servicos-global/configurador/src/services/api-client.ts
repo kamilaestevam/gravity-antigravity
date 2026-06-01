@@ -674,6 +674,8 @@ export interface UsuarioGlobalApi {
    *  - 'CONVIDADO': convite Clerk pendente (derivado em runtime)
    *  - 'ATIVO' | 'INATIVO': valor persistido em Usuario.status_usuario */
   status_usuario: 'ATIVO' | 'INATIVO' | 'CONVIDADO'
+  /** Empresa fornecedora (Cadastros) — preenchido para Fornecedor; null nos demais. */
+  nome_fornecedor: string | null
   organizacao: {
     nome_organizacao: string
     subdominio_organizacao: string

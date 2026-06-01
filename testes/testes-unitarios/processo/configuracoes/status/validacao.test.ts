@@ -1,15 +1,22 @@
-/**
- * status-validacao.test.ts — testes unitarios do validador GABI das
- * regras de status (espelha o validador de Campos Calculados do Pedido).
- *
- * Cobertura: 4 dimensoes de validacao
- *   1. Compatibilidade tipo do campo × condicao
- *   2. Valor exigido nao vazio
- *   3. Valor numerico parseavel
- *   4. Conflitos no modo AND (vazio + preenchido no mesmo campo)
- */
+// TST-UNIT-PROC-STATUS-001 — Validador GABI das regras de Status do Processo
+// Cobre validacao.ts (funcao validarStatus, catalogos, helpers).
+// Espelha o padrao de teste de Campos Calculados do Pedido.
+//
+// Categorias do plano (status-unitario.md):
+//   STATUS-U01..U05  catalogo de campos
+//   STATUS-U06..U09  helpers (precisaValor, ROTULO_CONDICAO)
+//   STATUS-U10..U13  matriz CONDICAO_POR_TIPO
+//   STATUS-U14..U18  casos validos
+//   STATUS-U19..U22  incompatibilidade tipo x condicao
+//   STATUS-U23..U27  valor de comparacao ausente
+//   STATUS-U28..U31  valor numerico invalido
+//   STATUS-U32..U34  conflitos no modo AND
+//   STATUS-U35       aviso (status sem regras)
+//   STATUS-U36       acumulo de problemas
+//   STATUS-U37..U38  robustez
 
-import { describe, it, expect } from 'vitest'
+/// <reference types="vitest/globals" />
+
 import {
   validarStatus,
   precisaValor,
@@ -17,9 +24,10 @@ import {
   CONDICAO_POR_TIPO,
   CAMPOS_DADOS_PROCESSO,
   CAMPOS_PEDIDO,
+  ROTULO_CONDICAO,
   type StatusConfig,
   type Regra,
-} from '../pages/configuracoes/status/validacao'
+} from '../../../../../servicos-global/produto/processo/client/src/pages/configuracoes/status/validacao.js'
 
 // ── Factory helpers ────────────────────────────────────────────────────────
 
@@ -45,7 +53,7 @@ function status(p: Partial<StatusConfig>): StatusConfig {
   }
 }
 
-// ── Helpers / Catalogos ────────────────────────────────────────────────────
+// ── STATUS-U06..U09  helpers ───────────────────────────────────────────────
 
 describe('precisaValor', () => {
   it('retorna false para vazio e preenchido', () => {
@@ -62,7 +70,17 @@ describe('precisaValor', () => {
   })
 })
 
-describe('camposPara', () => {
+describe('ROTULO_CONDICAO', () => {
+  it('cobre todas as 7 condicoes', () => {
+    expect(Object.keys(ROTULO_CONDICAO).sort()).toEqual([
+      'contem', 'diferente', 'igual', 'maior_que', 'menor_que', 'preenchido', 'vazio',
+    ])
+  })
+})
+
+// ── STATUS-U01..U05  catalogos ─────────────────────────────────────────────
+
+describe('camposPara + catalogos', () => {
   it('retorna os 13 campos do Dados do Processo', () => {
     expect(camposPara('dados_processo')).toBe(CAMPOS_DADOS_PROCESSO)
     expect(CAMPOS_DADOS_PROCESSO.length).toBe(13)
@@ -82,10 +100,17 @@ describe('camposPara', () => {
   })
 })
 
+// ── STATUS-U10..U13  matriz de compatibilidade ─────────────────────────────
+
 describe('CONDICAO_POR_TIPO — matriz de compatibilidade', () => {
   it('vazio e preenchido aceitam todos os tipos', () => {
     expect(CONDICAO_POR_TIPO.vazio).toEqual(['texto', 'numero', 'data', 'select'])
     expect(CONDICAO_POR_TIPO.preenchido).toEqual(['texto', 'numero', 'data', 'select'])
+  })
+
+  it('igual e diferente aceitam todos os tipos', () => {
+    expect(CONDICAO_POR_TIPO.igual).toEqual(['texto', 'numero', 'data', 'select'])
+    expect(CONDICAO_POR_TIPO.diferente).toEqual(['texto', 'numero', 'data', 'select'])
   })
 
   it('contem so funciona em texto', () => {
@@ -98,13 +123,11 @@ describe('CONDICAO_POR_TIPO — matriz de compatibilidade', () => {
   })
 })
 
-// ── validarStatus — casos validos ──────────────────────────────────────────
+// ── STATUS-U14..U18  casos validos ─────────────────────────────────────────
 
 describe('validarStatus — casos validos', () => {
-  it('status com 1 regra simples (campo preenchido) eh valido sem problemas', () => {
-    const s = status({
-      regras: [regra({ campo: 'numero_processo', condicao: 'preenchido' })],
-    })
+  it('status com 1 regra simples (campo preenchido) eh valido', () => {
+    const s = status({ regras: [regra({ condicao: 'preenchido' })] })
     const v = validarStatus(s)
     expect(v.valida).toBe(true)
     expect(v.problemas).toHaveLength(0)
@@ -118,28 +141,21 @@ describe('validarStatus — casos validos', () => {
         regra({ id: 'r2', campo: 'data_chegada',  condicao: 'vazio' }),
       ],
     })
-    const v = validarStatus(s)
-    expect(v.valida).toBe(true)
-    expect(v.problemas).toHaveLength(0)
+    expect(validarStatus(s).valida).toBe(true)
   })
 
-  it('maior_que em campo numerico com valor parseavel eh valido', () => {
+  it('maior_que em campo numerico com valor eh valido', () => {
     const s = status({
       regras: [regra({ origem: 'pedido', campo: 'valor_fob', condicao: 'maior_que', valor: '10000' })],
     })
     expect(validarStatus(s).valida).toBe(true)
   })
 
-  it('aceita virgula como separador decimal em campo numerico', () => {
+  it('aceita virgula como separador decimal', () => {
     const s = status({
-      regras: [regra({ origem: 'pedido', campo: 'valor_fob', condicao: 'maior_que', valor: '10.500,75' })],
-    })
-    // O regex Number(valor.replace(',', '.')) trata virgula como decimal — ainda da NaN
-    // por causa do ponto extra, entao validamos o caso simples '10000,5'
-    const s2 = status({
       regras: [regra({ origem: 'pedido', campo: 'valor_fob', condicao: 'maior_que', valor: '10000,5' })],
     })
-    expect(validarStatus(s2).valida).toBe(true)
+    expect(validarStatus(s).valida).toBe(true)
   })
 
   it('contem em campo texto eh valido', () => {
@@ -150,7 +166,7 @@ describe('validarStatus — casos validos', () => {
   })
 })
 
-// ── validarStatus — erros de compatibilidade tipo×condicao ────────────────
+// ── STATUS-U19..U22  incompatibilidade tipo x condicao ────────────────────
 
 describe('validarStatus — incompatibilidade tipo × condicao', () => {
   it('maior_que em campo texto gera erro', () => {
@@ -186,7 +202,7 @@ describe('validarStatus — incompatibilidade tipo × condicao', () => {
   })
 })
 
-// ── validarStatus — valor exigido vazio ───────────────────────────────────
+// ── STATUS-U23..U27  valor de comparacao ausente ──────────────────────────
 
 describe('validarStatus — valor de comparacao ausente', () => {
   it('igual sem valor gera erro', () => {
@@ -205,7 +221,7 @@ describe('validarStatus — valor de comparacao ausente', () => {
     expect(validarStatus(s).valida).toBe(false)
   })
 
-  it('valor apenas com espacos eh tratado como vazio', () => {
+  it('valor com apenas espacos eh tratado como vazio', () => {
     const s = status({
       regras: [regra({ campo: 'responsavel', condicao: 'contem', valor: '   ' })],
     })
@@ -213,21 +229,17 @@ describe('validarStatus — valor de comparacao ausente', () => {
   })
 
   it('vazio nao precisa de valor — ok mesmo sem ele', () => {
-    const s = status({
-      regras: [regra({ campo: 'di_numero', condicao: 'vazio' })],
-    })
+    const s = status({ regras: [regra({ campo: 'di_numero', condicao: 'vazio' })] })
     expect(validarStatus(s).valida).toBe(true)
   })
 
   it('preenchido nao precisa de valor', () => {
-    const s = status({
-      regras: [regra({ campo: 'numero_processo', condicao: 'preenchido' })],
-    })
+    const s = status({ regras: [regra({ campo: 'numero_processo', condicao: 'preenchido' })] })
     expect(validarStatus(s).valida).toBe(true)
   })
 })
 
-// ── validarStatus — valor numerico invalido ───────────────────────────────
+// ── STATUS-U28..U31  valor numerico invalido ──────────────────────────────
 
 describe('validarStatus — valor numerico invalido', () => {
   it('texto em campo numero gera erro', () => {
@@ -261,7 +273,7 @@ describe('validarStatus — valor numerico invalido', () => {
   })
 })
 
-// ── validarStatus — conflitos no modo AND ─────────────────────────────────
+// ── STATUS-U32..U34  conflitos no AND ─────────────────────────────────────
 
 describe('validarStatus — conflitos logicos no AND', () => {
   it('mesmo campo vazio E preenchido gera erro no modo AND', () => {
@@ -277,7 +289,7 @@ describe('validarStatus — conflitos logicos no AND', () => {
     expect(v.problemas.some(p => p.mensagem.includes('"vazio" E "preenchido"'))).toBe(true)
   })
 
-  it('mesmo campo vazio E preenchido no modo OR NAO gera erro (eh possivel)', () => {
+  it('mesmo campo vazio OU preenchido (OR) NAO gera erro (eh possivel)', () => {
     const s = status({
       operador: 'OR',
       regras: [
@@ -292,7 +304,7 @@ describe('validarStatus — conflitos logicos no AND', () => {
     const s = status({
       operador: 'AND',
       regras: [
-        regra({ id: 'r1', campo: 'di_numero',  condicao: 'vazio' }),
+        regra({ id: 'r1', campo: 'di_numero', condicao: 'vazio' }),
         regra({ id: 'r2', campo: 'li_numero', condicao: 'preenchido' }),
       ],
     })
@@ -300,10 +312,10 @@ describe('validarStatus — conflitos logicos no AND', () => {
   })
 })
 
-// ── validarStatus — avisos (nao bloqueiam) ────────────────────────────────
+// ── STATUS-U35  aviso ──────────────────────────────────────────────────────
 
 describe('validarStatus — avisos', () => {
-  it('status sem regras gera AVISO mas continua valido (nao bloqueia salvar)', () => {
+  it('status sem regras gera AVISO mas continua valido', () => {
     const s = status({ regras: [] })
     const v = validarStatus(s)
     expect(v.valida).toBe(true)
@@ -313,7 +325,7 @@ describe('validarStatus — avisos', () => {
   })
 })
 
-// ── validarStatus — multiplos problemas acumulados ────────────────────────
+// ── STATUS-U36  acumulo ───────────────────────────────────────────────────
 
 describe('validarStatus — acumulo de problemas', () => {
   it('reporta multiplos erros em uma so chamada', () => {
@@ -326,23 +338,21 @@ describe('validarStatus — acumulo de problemas', () => {
     })
     const v = validarStatus(s)
     expect(v.valida).toBe(false)
-    // Pelo menos 2 erros (tipo incompativel + valor vazio na regra 1, tipo incompativel na regra 2)
     expect(v.problemas.filter(p => p.severidade === 'erro').length).toBeGreaterThanOrEqual(2)
   })
 })
 
-// ── Robustez ───────────────────────────────────────────────────────────────
+// ── STATUS-U37..U38  robustez ─────────────────────────────────────────────
 
 describe('validarStatus — robustez', () => {
   it('regra com campo inexistente eh ignorada silenciosamente', () => {
     const s = status({
       regras: [regra({ campo: 'campo_que_nao_existe', condicao: 'preenchido' })],
     })
-    // Nao deve crashar — o campo simplesmente nao eh validado
     expect(() => validarStatus(s)).not.toThrow()
   })
 
-  it('campos cross-origem funcionam (dados_processo + pedido)', () => {
+  it('campos cross-origem (dados_processo + pedido) funcionam', () => {
     const s = status({
       operador: 'AND',
       regras: [

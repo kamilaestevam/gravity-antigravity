@@ -24,7 +24,11 @@ import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { proximoSubdominioDisponivel, slugifySubdominio } from '../services/organizacao-service.js'
 import { convidarUsuarioService } from '../services/convidar-usuario-service.js'
+import { listarVinculosFornecedorOrganizacaoPorOrganizacao } from '../services/cadastros-client.js'
+import { logger } from '../lib/logger.js'
 import { tipoFornecedorOrganizacaoEnum } from '../../shared/tipo-fornecedor-organizacao.js'
+
+const log = logger.child({ module: 'admin-routes' })
 import { spawn } from 'child_process'
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, renameSync, createWriteStream } from 'fs'
 import { join, resolve } from 'path'
@@ -664,16 +668,56 @@ adminRouter.get('/usuarios', async (req, res, next) => {
       status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
+    const fornecedoresPorOrg = new Map<string, string[]>()
+    for (const u of users) {
+      if (u.tipo_usuario !== 'FORNECEDOR') continue
+      const lista = fornecedoresPorOrg.get(u.id_organizacao) ?? []
+      lista.push(u.id_usuario)
+      fornecedoresPorOrg.set(u.id_organizacao, lista)
+    }
+
+    const mapaNomeFornecedor = new Map<string, string>()
+    if (fornecedoresPorOrg.size > 0) {
+      const correlationId =
+        typeof req.headers['x-correlation-id'] === 'string' ? req.headers['x-correlation-id'] : ''
+      for (const [idOrganizacao] of fornecedoresPorOrg) {
+        try {
+          const vinculos = await listarVinculosFornecedorOrganizacaoPorOrganizacao({
+            id_organizacao: idOrganizacao,
+            correlation_id: correlationId,
+          })
+          for (const v of vinculos) {
+            if (!v.id_usuario) continue
+            const nome = v.fornecedor?.nome_fornecedor
+            if (!nome) continue
+            const existente = mapaNomeFornecedor.get(v.id_usuario)
+            mapaNomeFornecedor.set(v.id_usuario, existente ? `${existente}, ${nome}` : nome)
+          }
+        } catch (err) {
+          log.warn('admin.usuarios.listar.nome_fornecedor_indisponivel', {
+            id_organizacao: idOrganizacao,
+            error: err instanceof Error ? err.message : String(err),
+          })
+        }
+      }
+    }
+
     // PARIDADE ABSOLUTA: nomes Prisma direto. Renomeia apenas relações back:
     // `tenant` (relação) → `organizacao`, `company` (relação) → `workspace`.
     // Deriva status_usuario (3 valores no DTO, 2 no banco):
     //   - 'CONVIDADO': id_clerk_usuario começa com 'pending_' (Clerk pendente)
     //   - 'ATIVO' | 'INATIVO': vem da coluna persistida status_usuario
-    const usuarios = users.map(({ memberships, tenant, id_clerk_usuario, status_usuario, ...rest }) => ({
+    const usuarios = users.map(({ memberships, tenant, id_clerk_usuario, status_usuario, tipo_usuario, id_usuario, ...rest }) => ({
       ...rest,
+      id_usuario,
+      tipo_usuario,
       status_usuario: id_clerk_usuario.startsWith('pending_')
         ? ('CONVIDADO' as const)
         : status_usuario,
+      nome_fornecedor:
+        tipo_usuario === 'FORNECEDOR'
+          ? (mapaNomeFornecedor.get(id_usuario) ?? null)
+          : null,
       organizacao: tenant,
       memberships: memberships.map(({ company, ...m }) => ({
         ...m,
@@ -1718,6 +1762,7 @@ const AdminInviteSchema = z.object({
   tipo_usuario: z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
   workspaces_alvo: z.union([z.literal('all'), z.array(z.string().cuid()).min(1)]).optional(),
   tipo_fornecedor_organizacao: tipoFornecedorOrganizacaoEnum.optional(),
+  id_fornecedor: z.string().min(1).optional(),
 }).strict().superRefine((d, ctx) => {
   const exigeWs =
     d.tipo_usuario !== 'MASTER'
@@ -1735,6 +1780,13 @@ const AdminInviteSchema = z.object({
       code: z.ZodIssueCode.custom,
       message: 'Fornecedor exige tipo_fornecedor_organizacao',
       path: ['tipo_fornecedor_organizacao'],
+    })
+  }
+  if (d.tipo_usuario === 'FORNECEDOR' && !d.id_fornecedor?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Fornecedor exige id_fornecedor (empresa do cartório)',
+      path: ['id_fornecedor'],
     })
   }
 })
@@ -1772,6 +1824,7 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
       tipo_usuario: parsed.data.tipo_usuario,
       workspaces_alvo: parsed.data.workspaces_alvo,
       tipo_fornecedor_organizacao: parsed.data.tipo_fornecedor_organizacao,
+      id_fornecedor: parsed.data.id_fornecedor,
     })
 
     res.status(201).json({

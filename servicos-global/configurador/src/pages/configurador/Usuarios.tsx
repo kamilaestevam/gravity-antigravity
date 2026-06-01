@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useUser } from '@clerk/clerk-react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -30,8 +31,14 @@ import { usePodeEditarUsuario, type TipoUsuarioBackend } from '../../hooks/use-p
 import {
   TIPOS_FORNECEDOR_BID_FRETE,
   ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO,
+  fornecedorAtendeTipoOrganizacao,
+  papelInicialModalPorTipoOrganizacao,
   type TipoFornecedorOrganizacao,
 } from '../../../shared/index.js'
+import { carregarFornecedoresConviteTenant, mapFornecedorConvite } from '../../shared/carregar-fornecedores-convite'
+import { CampoFornecedorEmpresaConvite } from '../../components/campo-fornecedor-empresa-convite'
+import { ModalEditarFornecedor, type PapelFlag } from './ModalEditarFornecedor'
+import type { Fornecedor } from '@cadastros/shared/schemas'
 import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { useAuth } from '@clerk/clerk-react'
 import { OrgBadge } from '../../components/org-badge'
@@ -182,6 +189,23 @@ function WorkspacesAcessoCell({ workspaces, master }: { workspaces: WorkspaceIte
       )}
     </span>
   )
+}
+
+/** Coluna unificada: org (Master/Standard) ou empresa fornecedora. */
+function CelulaNomeEmpresa({
+  usuario,
+  nomeOrganizacao,
+}: {
+  usuario: UsuarioOrg
+  nomeOrganizacao: string
+}) {
+  if (usuario.tipo_usuario === 'FORNECEDOR') {
+    const nome = usuario.nome_fornecedor
+    if (!nome) return <span style={{ color: 'var(--ws-muted)' }}>—</span>
+    return <OrgBadge nome={nome} variant="fornecedor" />
+  }
+
+  return <OrgBadge nome={nomeOrganizacao} />
 }
 
 // ── Wrapper Configurador-específico: aplica gating via usePodeEditarUsuario ──
@@ -340,6 +364,7 @@ export function Usuarios() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoaded])
 
+  const idOrganizacao = useShellStore((s) => s.currentUser.idOrganizacao)
   const [showForm, setShowForm] = useState(false)
   const [fNome, setFNome]       = useState('')
   const [fEmail, setFEmail]     = useState('')
@@ -347,6 +372,10 @@ export function Usuarios() {
   const [fTodosWorkspaces, setFTodosWorkspaces] = useState(true)
   const [fWorkspacesSelecionados, setFWorkspacesSelecionados] = useState<string[]>([])
   const [fTipoFornecedorOrganizacao, setFTipoFornecedorOrganizacao] = useState<TipoFornecedorOrganizacao>('AGENTE_CARGA')
+  const [fIdFornecedor, setFIdFornecedor] = useState('')
+  const [fornecedoresConvite, setFornecedoresConvite] = useState<Awaited<ReturnType<typeof carregarFornecedoresConviteTenant>>>([])
+  const [carregandoFornecedoresConvite, setCarregandoFornecedoresConvite] = useState(false)
+  const [modalCadastroFornecedorConvite, setModalCadastroFornecedorConvite] = useState(false)
   const [convidando, setConvidando] = useState(false)
 
   const [usuarioEditando, setUsuarioEditando] = useState<UsuarioOrg | null>(null)
@@ -368,6 +397,70 @@ export function Usuarios() {
   )
   const tiposPermitidosUI: NivelAcesso[] = gatingEdicao.tiposPermitidosParaPatente.map(mapRole)
 
+  useEffect(() => {
+    if (!showForm || fTipo !== 'Fornecedor' || !idOrganizacao) {
+      setFornecedoresConvite([])
+      return
+    }
+    let cancelado = false
+    async function carregar() {
+      setCarregandoFornecedoresConvite(true)
+      try {
+        const itens = await carregarFornecedoresConviteTenant(idOrganizacao)
+        if (!cancelado) setFornecedoresConvite(itens.filter((f) => f.ativo_fornecedor))
+      } catch (err) {
+        if (!cancelado) {
+          addNotification({
+            type: 'error',
+            message: err instanceof Error ? err.message : 'Falha ao carregar fornecedores.',
+          })
+          setFornecedoresConvite([])
+        }
+      } finally {
+        if (!cancelado) setCarregandoFornecedoresConvite(false)
+      }
+    }
+    void carregar()
+    return () => { cancelado = true }
+  }, [showForm, fTipo, idOrganizacao, addNotification])
+
+  const opcoesFornecedorConvite: SelectOpcao[] = useMemo(() => {
+    return fornecedoresConvite
+      .filter((f) => fornecedorAtendeTipoOrganizacao(f, fTipoFornecedorOrganizacao))
+      .map((f) => ({
+        valor: f.id_fornecedor,
+        rotulo: f.nome_fornecedor,
+        descricao: f.id_fornecedor,
+      }))
+  }, [fornecedoresConvite, fTipoFornecedorOrganizacao])
+
+  useEffect(() => {
+    if (!fIdFornecedor) return
+    const aindaValido = opcoesFornecedorConvite.some((o) => o.valor === fIdFornecedor)
+    if (!aindaValido) setFIdFornecedor('')
+  }, [fIdFornecedor, opcoesFornecedorConvite])
+
+  function aoFornecedorCriadoNoConvite(fornecedor: Fornecedor) {
+    const item = mapFornecedorConvite(fornecedor)
+    setFornecedoresConvite((prev) => [
+      item,
+      ...prev.filter((f) => f.id_fornecedor !== item.id_fornecedor),
+    ])
+    if (fornecedorAtendeTipoOrganizacao(item, fTipoFornecedorOrganizacao)) {
+      setFIdFornecedor(item.id_fornecedor)
+    } else {
+      addNotification({
+        type: 'warning',
+        message: 'Fornecedor cadastrado, mas o papel COMEX da categoria escolhida não está marcado nele.',
+      })
+    }
+    setModalCadastroFornecedorConvite(false)
+    addNotification({
+      type: 'success',
+      message: `Fornecedor "${fornecedor.nome_fornecedor}" cadastrado no cartório.`,
+    })
+  }
+
   async function handleInvite() {
     if (!fNome.trim() || !fEmail.trim()) return
     const tipoBackend = nivelToRole(fTipo)
@@ -375,6 +468,10 @@ export function Usuarios() {
       tipoBackend === 'MASTER' || tipoBackend === 'FORNECEDOR' ? tipoBackend : 'PADRAO'
     if (tipoConvite === 'FORNECEDOR' && !fTipoFornecedorOrganizacao) {
       addNotification({ type: 'error', message: 'Selecione a categoria do fornecedor (ex.: Agente de carga).' })
+      return
+    }
+    if (tipoConvite === 'FORNECEDOR' && !fIdFornecedor) {
+      addNotification({ type: 'error', message: 'Selecione o fornecedor (empresa) do cartório.' })
       return
     }
     setConvidando(true)
@@ -393,7 +490,10 @@ export function Usuarios() {
         tipo_usuario: tipoConvite,
         workspaces_alvo: workspacesAlvo,
         ...(tipoConvite === 'FORNECEDOR'
-          ? { tipo_fornecedor_organizacao: fTipoFornecedorOrganizacao }
+          ? {
+              tipo_fornecedor_organizacao: fTipoFornecedorOrganizacao,
+              id_fornecedor: fIdFornecedor,
+            }
           : {}),
       })
 
@@ -405,6 +505,10 @@ export function Usuarios() {
         acesso_workspaces_futuros: criado.acesso_workspaces_futuros,
         data_criacao_usuario: new Date().toISOString(),
         usuario_workspaces: [],
+        nome_fornecedor:
+          tipoConvite === 'FORNECEDOR'
+            ? (fornecedoresConvite.find((f) => f.id_fornecedor === fIdFornecedor)?.nome_fornecedor ?? null)
+            : null,
         // Recém-convidado — sempre CONVIDADO até webhook/login fazer transição
         // para ATIVO via requireAuth.ts fallback (Clerk getUser por email).
         status_usuario: 'CONVIDADO',
@@ -440,7 +544,7 @@ export function Usuarios() {
     } finally {
       setConvidando(false)
     }
-    setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]); setFTipoFornecedorOrganizacao('AGENTE_CARGA'); setShowForm(false)
+    setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]); setFTipoFornecedorOrganizacao('AGENTE_CARGA'); setFIdFornecedor(''); setShowForm(false)
   }
 
   async function handleAlternarStatusUsuario(u: UsuarioOrg) {
@@ -662,15 +766,17 @@ export function Usuarios() {
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v as string}</span>,
     },
     {
-      key: 'nome_organizacao',
-      label: t('workspace.users.tabela.empresa', 'Empresa'),
+      key: 'nome_empresa',
+      label: t('workspace.users.tabela.nome_empresa', 'Nome da Empresa'),
       tipo: 'texto',
-      tooltipTitulo: t('workspace.users.tabela.empresa_tooltip', 'Empresa'),
+      tooltipTitulo: t('workspace.users.tabela.nome_empresa_tooltip', 'Nome da Empresa'),
       tooltipDescricao: t(
-        'workspace.users.tabela.empresa_desc',
-        'Organização à qual este usuário pertence.',
+        'workspace.users.tabela.nome_empresa_desc',
+        'Organização (usuários internos) ou empresa fornecedora (usuários Fornecedor).',
       ),
-      render: () => <OrgBadge nome={nomeOrganizacao} />,
+      render: (_, item) => (
+        <CelulaNomeEmpresa usuario={item} nomeOrganizacao={nomeOrganizacao} />
+      ),
     },
     {
       key: 'tipo_usuario', label: t('workspace.users.tabela.tipo'), tipo: 'texto',
@@ -699,8 +805,12 @@ export function Usuarios() {
       },
     },
     {
-      key: 'id_usuario', label: t('workspace.users.tabela_acesso'), tipo: 'texto',
-      tooltipTitulo: 'Workspaces vinculados', tooltipDescricao: 'Workspaces aos quais este usuário tem acesso liberado',
+      key: 'id_usuario', label: t('workspace.users.tabela_acesso', 'Workspaces habilitados'), tipo: 'texto',
+      tooltipTitulo: t('workspace.users.tabela.workspaces_habilitados_tooltip', 'Workspaces habilitados'),
+      tooltipDescricao: t(
+        'workspace.users.tabela.workspaces_habilitados_desc',
+        'Workspaces aos quais este usuário tem acesso liberado.',
+      ),
       render: (_, item) => {
         const acessoTotal = temAcessoTotalAosWorkspaces(item.tipo_usuario)
         const lista = acessoTotal ? workspaces : workspacesDoUsuario(item.id_usuario)
@@ -799,7 +909,7 @@ export function Usuarios() {
   const COLUNAS_EXPORT: ColunasExport[] = [
     { header: 'Nome do Usuário', key: 'nome_usuario'   },
     { header: 'E-mail',          key: 'email_usuario'  },
-    { header: 'Empresa',         key: 'nome_organizacao' },
+    { header: 'Nome da Empresa', key: 'nome_empresa' },
     { header: 'Tipo de Usuário', key: 'tipo_usuario'   },
     { header: 'Status',          key: 'status_usuario' },
   ]
@@ -809,7 +919,10 @@ export function Usuarios() {
     dados.map((u) => ({
       nome_usuario: u.nome_usuario,
       email_usuario: u.email_usuario,
-      nome_organizacao: nomeOrganizacao,
+      nome_empresa:
+        u.tipo_usuario === 'FORNECEDOR'
+          ? (u.nome_fornecedor ?? '—')
+          : nomeOrganizacao,
       tipo_usuario: mapRole(u.tipo_usuario),
       status_usuario: u.status_usuario === 'ATIVO' ? 'Ativo' : 'Inativo',
     }))
@@ -1078,6 +1191,13 @@ export function Usuarios() {
           { chave: 'fNome',  ok: fNome.trim().length > 0,  mensagem: 'Nome completo' },
           { chave: 'fEmail', ok: fEmail.trim().length > 0, mensagem: 'E-mail válido' },
         ]
+        if (fTipo === 'Fornecedor') {
+          requisitosConvite.push({
+            chave: 'fIdFornecedor',
+            ok: !!fIdFornecedor,
+            mensagem: 'Selecione o fornecedor (empresa) do cartório',
+          })
+        }
         if (fTipo === 'Standard' || fTipo === 'Fornecedor') {
           requisitosConvite.push({
             chave: 'fWorkspaces',
@@ -1088,13 +1208,22 @@ export function Usuarios() {
         return (
       <ModalFormularioGlobal
         aberto={showForm}
-        aoFechar={() => { setShowForm(false); setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]) }}
+        aoFechar={() => {
+          setShowForm(false)
+          setFNome('')
+          setFEmail('')
+          setFTipo('Standard')
+          setFTodosWorkspaces(true)
+          setFWorkspacesSelecionados([])
+          setFIdFornecedor('')
+          setModalCadastroFornecedorConvite(false)
+        }}
         aoSalvar={handleInvite}
         icone={<User size={20} weight="duotone" />}
         titulo={t('workspace.users.modal_convidar_titulo')}
         subtitulo={t('workspace.users.modal_convidar_subtitulo')}
         tamanho="md"
-        altura={(fTipo === 'Standard' || fTipo === 'Fornecedor') ? '600px' : '480px'}
+        altura={(fTipo === 'Standard' || fTipo === 'Fornecedor') ? '680px' : '480px'}
         dirty={!!(fNome || fEmail)}
         podesSalvar={requisitosConvite.every(r => r.ok) && !convidando}
         carregando={convidando}
@@ -1163,6 +1292,24 @@ export function Usuarios() {
                 placeholder="Ex.: Agente de carga..."
               />
             </CampoGeralGlobal>
+          )}
+
+          {fTipo === 'Fornecedor' && (
+            <CampoFornecedorEmpresaConvite
+              opcoes={opcoesFornecedorConvite}
+              valor={fIdFornecedor}
+              aoMudarValor={setFIdFornecedor}
+              carregando={carregandoFornecedoresConvite}
+              onCadastrarNova={() => setModalCadastroFornecedorConvite(true)}
+              placeholder={
+                carregandoFornecedoresConvite
+                  ? 'Carregando fornecedores...'
+                  : opcoesFornecedorConvite.length === 0
+                    ? 'Nenhum compatível — use + Nova para cadastrar'
+                    : 'Ex.: TRANSDATA (BR-TRANSDATA-00007)'
+              }
+              invalido={!fIdFornecedor}
+            />
           )}
 
           {(fTipo === 'Standard' || fTipo === 'Fornecedor') && (
@@ -1249,6 +1396,17 @@ export function Usuarios() {
         )
       })()}
 
+      {modalCadastroFornecedorConvite && idOrganizacao && createPortal(
+        <ModalEditarFornecedor
+          fornecedor={null}
+          idOrganizacao={idOrganizacao}
+          aoFechar={() => setModalCadastroFornecedorConvite(false)}
+          aoSalvar={aoFornecedorCriadoNoConvite}
+          papelInicial={papelInicialModalPorTipoOrganizacao(fTipoFornecedorOrganizacao) as PapelFlag}
+        />,
+        document.body,
+      )}
+
       {/* Modal Edição do Usuário */}
       <ModalEditarUsuario
         usuario={usuarioEditando}
@@ -1333,6 +1491,7 @@ export function Usuarios() {
               type: 'error',
               message: extractCatchError(err, 'Falha ao salvar alterações do usuário.'),
             })
+            throw err
           }
         }}
       />

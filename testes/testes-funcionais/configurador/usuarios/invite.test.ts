@@ -334,6 +334,22 @@ describe('TST-FUNC-CONF-USER-001 — POST /api/v1/usuarios/convidar — Validaç
     expect(res.body.error.code).toBe('VALIDATION_ERROR')
   })
 
+  it('retorna 400 quando FORNECEDOR enviado sem id_fornecedor', async () => {
+    const res = await request(app)
+      .post('/api/v1/usuarios/convidar')
+      .send({
+        email_usuario: 'fornecedor@empresa.com',
+        nome_usuario: 'Fornecedor',
+        tipo_usuario: 'FORNECEDOR',
+        workspaces_alvo: [CUID_WS_A],
+        tipo_fornecedor_organizacao: 'AGENTE_CARGA',
+      })
+
+    expect(res.status).toBe(400)
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
+    expect(mockTransaction).not.toHaveBeenCalled()
+  })
+
   it('retorna 400 quando email_usuario é inválido', async () => {
     const res = await request(app)
       .post('/api/v1/usuarios/convidar')

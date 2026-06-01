@@ -44,6 +44,23 @@ import { logger } from '../lib/logger.js'
 
 const log = logger.child({ module: 'convidar-usuario-service' })
 
+/** Remove usuário + vínculos e revoga convite Clerk quando o passo 04 falha. */
+async function reverterConviteFornecedorSemVinculo(args: {
+  id_usuario: string
+  id_organizacao: string
+  invitation_id: string
+}): Promise<void> {
+  await prisma.usuarioWorkspace.deleteMany({
+    where: { id_usuario: args.id_usuario, id_organizacao: args.id_organizacao },
+  })
+  await prisma.usuario.delete({ where: { id_usuario: args.id_usuario } })
+  try {
+    await clerkClient.invitations.revokeInvitation(args.invitation_id)
+  } catch {
+    log.warn('convite.reverter.revoke_clerk_falhou', { invitation_id: args.invitation_id })
+  }
+}
+
 export type TipoUsuarioConvidado = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR'
 
 export interface ConvidarUsuarioArgs {
@@ -70,6 +87,8 @@ export interface ConvidarUsuarioArgs {
   workspaces_alvo?: 'all' | string[]
   /** Obrigatório quando tipo_usuario === 'FORNECEDOR' (categoria COMEX Cadastros). */
   tipo_fornecedor_organizacao?: TipoFornecedorOrganizacao
+  /** Obrigatório no convite FORNECEDOR — fornecedor existente no cartório da org alvo. */
+  id_fornecedor?: string
 }
 
 export interface ConvidarUsuarioResult {
@@ -91,6 +110,7 @@ export async function convidarUsuarioService(
     tipo_usuario,
     workspaces_alvo,
     tipo_fornecedor_organizacao,
+    id_fornecedor,
   } = args
 
   // ─── 1. Org alvo existe e está ATIVA ────────────────────────────────────
@@ -142,6 +162,14 @@ export async function convidarUsuarioService(
   if (tipo_usuario === 'FORNECEDOR' && !tipo_fornecedor_organizacao) {
     throw new AppError(
       'Fornecedor exige tipo_fornecedor_organizacao (categoria COMEX)',
+      400,
+      'VALIDATION_ERROR',
+    )
+  }
+
+  if (tipo_usuario === 'FORNECEDOR' && !id_fornecedor?.trim()) {
+    throw new AppError(
+      'Fornecedor exige id_fornecedor (empresa do cartório)',
       400,
       'VALIDATION_ERROR',
     )
@@ -282,7 +310,7 @@ export async function convidarUsuarioService(
 
   // ─── Pós-transação (best-effort, fora do try/catch) ─────────────────────
 
-  // Passo 04 — cartório Cadastros + vínculos Gravity + org cliente (modo 01).
+  // Passo 04 — cartório Cadastros + vínculo fornecedor_organizacao (obrigatório para FORNECEDOR).
   if (tipo_usuario === 'FORNECEDOR' && tipo_fornecedor_organizacao) {
     try {
       await provisionarPrestadorFornecedor({
@@ -291,6 +319,7 @@ export async function convidarUsuarioService(
         nome_usuario,
         tipo_fornecedor_organizacao,
         id_organizacao_cliente: id_organizacao_alvo,
+        id_fornecedor: id_fornecedor?.trim(),
         correlation_id: crypto.randomUUID(),
       })
     } catch (err) {
@@ -300,6 +329,17 @@ export async function convidarUsuarioService(
         tipo_fornecedor_organizacao,
         error: err instanceof Error ? err.message : String(err),
       })
+      await reverterConviteFornecedorSemVinculo({
+        id_usuario: usuarioCriado.id_usuario,
+        id_organizacao: id_organizacao_alvo,
+        invitation_id: invitation.id,
+      })
+      if (err instanceof AppError) throw err
+      throw new AppError(
+        'Falha ao vincular fornecedor ao cartório — convite revertido',
+        503,
+        'VINCULO_FORNECEDOR_FALHOU',
+      )
     }
   }
 

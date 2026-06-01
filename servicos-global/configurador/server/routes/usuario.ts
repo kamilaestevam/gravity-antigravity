@@ -33,7 +33,11 @@ import {
   aoDesvincularUsuarioDoWorkspace,
 } from '../services/sincronizar-acesso-usuario-produtos-service.js'
 import { convidarUsuarioService } from '../services/convidar-usuario-service.js'
+import { listarVinculosFornecedorOrganizacaoPorOrganizacao } from '../services/cadastros-client.js'
+import { logger } from '../lib/logger.js'
 import { tipoFornecedorOrganizacaoEnum } from '../../shared/tipo-fornecedor-organizacao.js'
+
+const log = logger.child({ module: 'usuario-routes' })
 
 export const usersRouter = Router()
 
@@ -52,6 +56,7 @@ export const ConvidarUsuarioSchema = z.object({
   // Obrigatório para PADRAO/FORNECEDOR; ignorado para MASTER (acesso implícito a todos).
   workspaces_alvo: z.union([z.literal('all'), z.array(z.string().cuid()).min(1)]).optional(),
   tipo_fornecedor_organizacao: tipoFornecedorOrganizacaoEnum.optional(),
+  id_fornecedor: z.string().min(1).optional(),
 }).strict().superRefine((data, ctx) => {
   if (data.tipo_usuario !== 'MASTER' && data.workspaces_alvo === undefined) {
     ctx.addIssue({
@@ -65,6 +70,13 @@ export const ConvidarUsuarioSchema = z.object({
       code: z.ZodIssueCode.custom,
       message: 'Selecione a categoria do fornecedor (ex.: Agente de carga)',
       path: ['tipo_fornecedor_organizacao'],
+    })
+  }
+  if (data.tipo_usuario === 'FORNECEDOR' && !data.id_fornecedor?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Selecione o fornecedor (empresa) do cartório',
+      path: ['id_fornecedor'],
     })
   }
 })
@@ -123,6 +135,8 @@ export const usuarioListItemSchema = z.object({
   status_usuario: StatusUsuarioDtoEnum,
   acesso_workspaces_futuros: z.boolean(),
   data_criacao_usuario: z.union([z.string(), z.date()]),
+  /** Empresa fornecedora (Cadastros) — preenchido para tipo FORNECEDOR; null nos demais. */
+  nome_fornecedor: z.string().nullable(),
   usuario_workspaces: z.array(usuarioWorkspaceItemSchema),
 })
 
@@ -212,12 +226,46 @@ usersRouter.get('/', async (req, res, next) => {
     //   - 'ATIVO' | 'INATIVO': vem da coluna persistida status_usuario.
     // A transição CONVIDADO → ATIVO acontece automaticamente no primeiro login,
     // via fallback do requireAuth.ts (Clerk getUser por email).
-    const dto = usuarios.map(({ memberships, id_clerk_usuario, status_usuario, ...rest }) => ({
+    const dtoBase = usuarios.map(({ memberships, id_clerk_usuario, status_usuario, ...rest }) => ({
       ...rest,
       status_usuario: id_clerk_usuario.startsWith('pending_')
         ? ('CONVIDADO' as const)
         : status_usuario,
       usuario_workspaces: memberships,
+    }))
+
+    const temFornecedor = dtoBase.some((u) => u.tipo_usuario === 'FORNECEDOR')
+    const mapaNomeFornecedor = new Map<string, string>()
+
+    if (temFornecedor) {
+      const correlationId =
+        typeof req.headers['x-correlation-id'] === 'string' ? req.headers['x-correlation-id'] : ''
+      try {
+        const vinculos = await listarVinculosFornecedorOrganizacaoPorOrganizacao({
+          id_organizacao: req.auth.id_organizacao,
+          correlation_id: correlationId,
+        })
+        for (const v of vinculos) {
+          if (!v.id_usuario) continue
+          const nome = v.fornecedor?.nome_fornecedor
+          if (!nome) continue
+          const existente = mapaNomeFornecedor.get(v.id_usuario)
+          mapaNomeFornecedor.set(v.id_usuario, existente ? `${existente}, ${nome}` : nome)
+        }
+      } catch (err) {
+        log.warn('usuarios.listar.nome_fornecedor_indisponivel', {
+          id_organizacao: req.auth.id_organizacao,
+          error: err instanceof Error ? err.message : String(err),
+        })
+      }
+    }
+
+    const dto = dtoBase.map((u) => ({
+      ...u,
+      nome_fornecedor:
+        u.tipo_usuario === 'FORNECEDOR'
+          ? (mapaNomeFornecedor.get(u.id_usuario) ?? null)
+          : null,
     }))
     res.json({ usuarios: dto })
   } catch (err) {
@@ -405,6 +453,7 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
       tipo_usuario: parsed.data.tipo_usuario,
       workspaces_alvo: parsed.data.workspaces_alvo,
       tipo_fornecedor_organizacao: parsed.data.tipo_fornecedor_organizacao,
+      id_fornecedor: parsed.data.id_fornecedor,
     })
 
     res.status(201).json({

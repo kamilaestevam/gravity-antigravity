@@ -7,20 +7,26 @@ const {
   mockOrganizacaoFindUnique,
   mockUsuarioFindFirst,
   mockUsuarioCreate,
+  mockUsuarioDelete,
   mockWorkspaceFindMany,
   mockUsuarioWorkspaceCreateMany,
+  mockUsuarioWorkspaceDeleteMany,
   mockTransaction,
   mockInvitationCreate,
+  mockInvitationRevoke,
   mockProvisionarPrestadorFornecedor,
   mockListarVinculosFornecedorPorUsuario,
 } = vi.hoisted(() => ({
   mockOrganizacaoFindUnique: vi.fn(),
   mockUsuarioFindFirst: vi.fn(),
   mockUsuarioCreate: vi.fn(),
+  mockUsuarioDelete: vi.fn(),
   mockWorkspaceFindMany: vi.fn(),
   mockUsuarioWorkspaceCreateMany: vi.fn(),
+  mockUsuarioWorkspaceDeleteMany: vi.fn(),
   mockTransaction: vi.fn(),
   mockInvitationCreate: vi.fn(),
+  mockInvitationRevoke: vi.fn(),
   mockProvisionarPrestadorFornecedor: vi.fn(),
   mockListarVinculosFornecedorPorUsuario: vi.fn(),
 }))
@@ -28,16 +34,22 @@ const {
 vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => ({
   prisma: {
     organizacao: { findUnique: mockOrganizacaoFindUnique, findFirst: vi.fn() },
-    usuario: { findFirst: mockUsuarioFindFirst },
+    usuario: { findFirst: mockUsuarioFindFirst, delete: mockUsuarioDelete },
     workspace: { findMany: mockWorkspaceFindMany },
-    usuarioWorkspace: { createMany: mockUsuarioWorkspaceCreateMany },
+    usuarioWorkspace: {
+      createMany: mockUsuarioWorkspaceCreateMany,
+      deleteMany: mockUsuarioWorkspaceDeleteMany,
+    },
     $transaction: mockTransaction,
   },
 }))
 
 vi.mock('../../../../servicos-global/configurador/server/lib/clerk.js', () => ({
   clerkClient: {
-    invitations: { createInvitation: mockInvitationCreate },
+    invitations: {
+      createInvitation: mockInvitationCreate,
+      revokeInvitation: mockInvitationRevoke,
+    },
   },
 }))
 
@@ -137,6 +149,9 @@ describe('TST-FUNC-CONF-PREST-001 — Convite FORNECEDOR', () => {
     mockUsuarioCreate.mockResolvedValue(USUARIO_FORNECEDOR_CRIADO)
     mockWorkspaceFindMany.mockResolvedValue([{ id_workspace: CUID_WS_A }])
     mockUsuarioWorkspaceCreateMany.mockResolvedValue({ count: 1 })
+    mockUsuarioWorkspaceDeleteMany.mockResolvedValue({ count: 1 })
+    mockUsuarioDelete.mockResolvedValue(USUARIO_FORNECEDOR_CRIADO)
+    mockInvitationRevoke.mockResolvedValue(undefined)
     mockProvisionarPrestadorFornecedor.mockResolvedValue({
       id_fornecedor: 'forn_01',
       id_organizacao_gravity: 'org_gravity',
@@ -160,7 +175,7 @@ describe('TST-FUNC-CONF-PREST-001 — Convite FORNECEDOR', () => {
     expect(mockProvisionarPrestadorFornecedor).not.toHaveBeenCalled()
   })
 
-  it('retorna 201 e chama provisionarPrestadorFornecedor após convite FORNECEDOR', async () => {
+  it('retorna 400 quando FORNECEDOR enviado sem id_fornecedor', async () => {
     const res = await request(appConvite)
       .post('/api/v1/usuarios/convidar')
       .send({
@@ -171,6 +186,23 @@ describe('TST-FUNC-CONF-PREST-001 — Convite FORNECEDOR', () => {
         tipo_fornecedor_organizacao: 'AGENTE_CARGA',
       })
 
+    expect(res.status).toBe(400)
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
+    expect(mockProvisionarPrestadorFornecedor).not.toHaveBeenCalled()
+  })
+
+  it('retorna 201 e chama provisionarPrestadorFornecedor após convite FORNECEDOR', async () => {
+    const res = await request(appConvite)
+      .post('/api/v1/usuarios/convidar')
+      .send({
+        email_usuario: 'agente@frete.com',
+        nome_usuario: 'Agente Frete',
+        tipo_usuario: 'FORNECEDOR',
+        workspaces_alvo: [CUID_WS_A],
+        tipo_fornecedor_organizacao: 'AGENTE_CARGA',
+        id_fornecedor: 'BR-TRANSDATA-00007',
+      })
+
     expect(res.status).toBe(201)
     expect(mockProvisionarPrestadorFornecedor).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -178,12 +210,13 @@ describe('TST-FUNC-CONF-PREST-001 — Convite FORNECEDOR', () => {
         email_usuario: 'agente@frete.com',
         nome_usuario: 'Agente Frete',
         tipo_fornecedor_organizacao: 'AGENTE_CARGA',
+        id_fornecedor: 'BR-TRANSDATA-00007',
         id_organizacao_cliente: 'org_forn_01',
       }),
     )
   })
 
-  it('retorna 201 mesmo se provisionar falhar (convite já commitado)', async () => {
+  it('reverte convite quando provisionar falhar (503 + rollback DB/Clerk)', async () => {
     mockProvisionarPrestadorFornecedor.mockRejectedValue(new Error('Cadastros indisponível'))
 
     const res = await request(appConvite)
@@ -194,10 +227,38 @@ describe('TST-FUNC-CONF-PREST-001 — Convite FORNECEDOR', () => {
         tipo_usuario: 'FORNECEDOR',
         workspaces_alvo: [CUID_WS_A],
         tipo_fornecedor_organizacao: 'ARMADOR',
+        id_fornecedor: 'BR-ARMADOR-00001',
       })
 
-    expect(res.status).toBe(201)
+    expect(res.status).toBe(503)
+    expect(res.body.error.code).toBe('VINCULO_FORNECEDOR_FALHOU')
     expect(mockProvisionarPrestadorFornecedor).toHaveBeenCalled()
+    expect(mockUsuarioWorkspaceDeleteMany).toHaveBeenCalledWith({
+      where: { id_usuario: 'usr_forn_new', id_organizacao: 'org_forn_01' },
+    })
+    expect(mockUsuarioDelete).toHaveBeenCalledWith({ where: { id_usuario: 'usr_forn_new' } })
+    expect(mockInvitationRevoke).toHaveBeenCalledWith('inv_forn_01')
+  })
+
+  it('propaga AppError do provisionamento (ex.: fornecedor inexistente 404)', async () => {
+    mockProvisionarPrestadorFornecedor.mockRejectedValue(
+      new AppError('Fornecedor não encontrado no cartório da organização', 404, 'FORNECEDOR_NAO_ENCONTRADO'),
+    )
+
+    const res = await request(appConvite)
+      .post('/api/v1/usuarios/convidar')
+      .send({
+        email_usuario: 'agente@frete.com',
+        nome_usuario: 'Agente Frete',
+        tipo_usuario: 'FORNECEDOR',
+        workspaces_alvo: [CUID_WS_A],
+        tipo_fornecedor_organizacao: 'AGENTE_CARGA',
+        id_fornecedor: 'BR-INEXISTENTE-00001',
+      })
+
+    expect(res.status).toBe(404)
+    expect(res.body.error.code).toBe('FORNECEDOR_NAO_ENCONTRADO')
+    expect(mockInvitationRevoke).toHaveBeenCalledWith('inv_forn_01')
   })
 })
 

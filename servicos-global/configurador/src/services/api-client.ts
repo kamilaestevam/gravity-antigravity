@@ -359,6 +359,8 @@ export const usuarioListItemSchema = z.object({
    *  PATCH `/api/v1/usuarios/:id/status` muda ATIVO ↔ INATIVO. requireAuth
    *  bloqueia INATIVO com 401 USUARIO_INATIVO. */
   status_usuario: z.enum(['ATIVO', 'INATIVO', 'CONVIDADO']),
+  /** Empresa fornecedora (Cadastros) — preenchido para tipo FORNECEDOR; null nos demais. */
+  nome_fornecedor: z.string().nullable(),
   usuario_workspaces: z.array(usuarioWorkspaceItemSchema),
 })
 export type UsuarioListItem = z.infer<typeof usuarioListItemSchema>
@@ -386,6 +388,7 @@ export const convidarUsuarioInputSchema = z.object({
   tipo_usuario: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']),
   workspaces_alvo: z.union([z.literal('all'), z.array(z.string())]).optional(),
   tipo_fornecedor_organizacao: tipoFornecedorOrganizacaoEnum.optional(),
+  id_fornecedor: z.string().min(1).optional(),
 })
 
 export const adminConvidarUsuarioInputSchema = convidarUsuarioInputSchema.extend({

@@ -3,7 +3,10 @@ import { useLocation } from 'react-router-dom'
 import { SidebarSimple, CaretDown, Check, Plus, Gear, Square, CheckSquare } from '@phosphor-icons/react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { LogoModoBadgeVisaoFornecedor } from './LogoModoBadgeVisaoFornecedor'
 import './menu-lateral.css'
+
+export type ModuleModoVariant = 'visao_fornecedor'
 
 export interface WorkspaceItem {
   id: string
@@ -40,6 +43,15 @@ export interface MenuLateralGlobalProps {
   tenantPlan: string
   navItems: NavItem[]
   moduleName?: string
+  /** Badge de modo no logo (ex.: visão fornecedor com ícones Eye + Handshake) */
+  moduleModoVariant?: ModuleModoVariant
+  /** Rótulo curto no badge (ex.: Fornecedor) */
+  moduleModoBadgeLabel?: string
+  /** Descrição completa para aria (ex.: Visão fornecedor) */
+  moduleModoAriaLabel?: string
+  /** Tooltip ao passar o mouse no badge */
+  moduleModoTooltipTitulo?: string
+  moduleModoTooltipDescricao?: string
   moduleColor?: string
   moduleIcon?: React.ReactNode
   /** Lista de workspaces disponíveis para troca */
@@ -86,6 +98,11 @@ export function MenuLateralGlobal({
   tenantPlan,
   navItems,
   moduleName = 'Configurador',
+  moduleModoVariant,
+  moduleModoBadgeLabel = 'Visão Fornecedor',
+  moduleModoAriaLabel,
+  moduleModoTooltipTitulo,
+  moduleModoTooltipDescricao,
   moduleColor = '#818cf8',
   moduleIcon,
   workspaces = [],
@@ -120,9 +137,28 @@ export function MenuLateralGlobal({
     (produtoAtualSlug &&
       (produtoSlugEquivalente(produtoAtualSlug, 'bid-frete') ||
         produtoSlugEquivalente(produtoAtualSlug, 'bid-frete-internacional'))) ||
-      moduleName === 'BID Frete Internacional',
+      /^bid frete internacional$/i.test(moduleName),
   )
-  const logoNameClass = logoNomeCompacto ? 'mlg-logo-name mlg-logo-name--compact' : 'mlg-logo-name'
+  const logoTituloPar = logoNomeCompacto ? 'mlg-logo-titulo-par' : ''
+  const logoNameClass = logoNomeCompacto
+    ? `mlg-logo-name mlg-logo-name--compact ${logoTituloPar}`.trim()
+    : 'mlg-logo-name'
+  const modoAria = moduleModoAriaLabel ?? moduleModoBadgeLabel
+  const logoTooltip = moduleModoVariant && modoAria ? `${moduleName} — ${modoAria}` : moduleName
+
+  const logoModoBadge = moduleModoVariant === 'visao_fornecedor' ? (
+    <LogoModoBadgeVisaoFornecedor
+      label={moduleModoBadgeLabel}
+      ariaLabel={modoAria}
+      textoClassName={logoTituloPar || logoNameClass}
+      tooltipTitulo={moduleModoTooltipTitulo ?? modoAria}
+      tooltipDescricao={
+        moduleModoTooltipDescricao
+        ?? 'Área para responder cotações, enviar propostas e acompanhar seu desempenho'
+      }
+    />
+  ) : null
+
   const wsRef = useRef<HTMLDivElement>(null)
   const prodRef = useRef<HTMLDivElement>(null)
   const tenantBtnRef = useRef<HTMLButtonElement>(null)
@@ -158,7 +194,13 @@ export function MenuLateralGlobal({
     ws.plan ? `${ws.name} · ${ws.plan}` : ws.name
 
   const isCollapsed = controlledIsCollapsed !== undefined ? controlledIsCollapsed : internalCollapsed
-  
+
+  const logoIconNode = (
+    <div className="mlg-logo-icon" style={{ color: moduleColor }}>
+      {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
+    </div>
+  )
+
   const toggleCollapse = () => {
     if (onToggleCollapse) {
       onToggleCollapse()
@@ -315,11 +357,9 @@ export function MenuLateralGlobal({
       {/* ── Logo + seletor de produto ── */}
       <div className="mlg-logo-wrapper" ref={prodRef}>
         {isCollapsed ? (
-          <TooltipGlobal descricao={moduleName}>
+          <TooltipGlobal descricao={logoTooltip}>
             <div className="mlg-logo-area mlg-logo-area--collapsed">
-              <div className="mlg-logo-icon" style={{ color: moduleColor }}>
-                {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
-              </div>
+              {logoIconNode}
             </div>
           </TooltipGlobal>
         ) : exibirSeletorProduto ? (
@@ -332,26 +372,30 @@ export function MenuLateralGlobal({
             aria-haspopup="listbox"
             aria-label={`Produto: ${moduleName}. Trocar produto`}
           >
-            <div className="mlg-logo-icon" style={{ color: moduleColor }}>
-              {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
-            </div>
+            {logoIconNode}
             <div className="mlg-logo-info">
-              <span className={logoNameClass} style={{ color: moduleColor }} title={moduleName}>{moduleName}</span>
+              <span className={logoNameClass} style={{ color: moduleColor }} title={moduleName}>
+                {moduleName}
+              </span>
               <span className="mlg-logo-gravity">by Gravity</span>
             </div>
             <CaretDown className={`mlg-logo-chevron ${prodOpen ? 'open' : ''}`} size={13} weight="bold" />
           </button>
         ) : (
           <div className="mlg-logo-area">
-            <div className="mlg-logo-icon" style={{ color: moduleColor }}>
-              {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
-            </div>
+            {logoIconNode}
             <div className="mlg-logo-info">
-              <span className={logoNameClass} style={{ color: moduleColor }} title={moduleName}>{moduleName}</span>
+              <span className={logoNameClass} style={{ color: moduleColor }} title={moduleName}>
+                {moduleName}
+              </span>
               <span className="mlg-logo-gravity">by Gravity</span>
             </div>
           </div>
         )}
+
+        {logoModoBadge && !isCollapsed ? (
+          <div className="mlg-logo-modo-row">{logoModoBadge}</div>
+        ) : null}
 
         {prodOpen && !isCollapsed && exibirSeletorProduto && (
           <div className="mlg-ws-dropdown mlg-prod-dropdown" role="listbox">

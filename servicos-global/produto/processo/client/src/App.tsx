@@ -24,6 +24,8 @@ const DadosTecnicos = lazy(() => import('./pages/dados-tecnicos/DadosTecnicos'))
 const FinanceiroMovimentacao = lazy(() => import('./pages/financeiro/FinanceiroMovimentacao'))
 const FinanceiroNumerario = lazy(() => import('./pages/financeiro/FinanceiroNumerario'))
 const FinanceiroRateio = lazy(() => import('./pages/financeiro/FinanceiroRateio'))
+const ConfiguracoesLayout = lazy(() => import('./pages/configuracoes/ConfiguracoesLayout'))
+const StatusProcesso = lazy(() => import('./pages/configuracoes/status/StatusProcesso'))
 const Email = lazy(() => import('./pages/email/Email'))
 
 // ─── Loading Fallback ──────────────────────────────────────────────────────
@@ -142,6 +144,24 @@ export function App() {
               <Route path="rateio"       element={<FinanceiroRateio />} />
             </Route>
             <Route path="workspace"  element={<WorkspacePlaceholder />} />
+            {/* Configuracoes: layout com sub-sidebar + sub-paginas */}
+            <Route path="configuracoes" element={<ConfiguracoesLayout />}>
+              <Route index element={<Navigate to="status" replace />} />
+              <Route path="status" element={<StatusProcesso />} />
+              <Route path="cards"         element={<Navigate to="../status" replace />} />
+              <Route path="visao-geral"   element={<Navigate to="../status" replace />} />
+              <Route path="tabela"        element={<Navigate to="../status" replace />} />
+              <Route path="colunas"       element={<Navigate to="../status" replace />} />
+              <Route path="kanban"        element={<Navigate to="../status" replace />} />
+              <Route path="numeracao"     element={<Navigate to="../status" replace />} />
+              <Route path="templates-pdf" element={<Navigate to="../status" replace />} />
+              <Route path="regras"        element={<Navigate to="../status" replace />} />
+              <Route path="categ-anexos"  element={<Navigate to="../status" replace />} />
+              <Route path="taxa-cambio"   element={<Navigate to="../status" replace />} />
+              <Route path="cadastros"     element={<Navigate to="../status" replace />} />
+              <Route path="notificacoes"  element={<Navigate to="../status" replace />} />
+              <Route path="exportacao"    element={<Navigate to="../status" replace />} />
+            </Route>
           </Route>
           <Route path="*" element={<Navigate to="workflow" replace />} />
         </Routes>

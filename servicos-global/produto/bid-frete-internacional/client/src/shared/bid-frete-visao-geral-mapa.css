@@ -1,0 +1,795 @@
+﻿.bfd-map-card {
+  padding: 1.5rem 1.75rem 3.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+}
+.bfd-map-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.bfd-map-legend {
+  display: flex;
+  gap: 1.25rem;
+}
+.bfd-map-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+.bfd-map-legend-floating {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  z-index: 30;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.bfd-map-container {
+  position: relative;
+  height: 440px;
+  border-radius: 12px;
+  overflow: visible;
+  background: transparent;
+  display: flex;
+  gap: 1.5rem;
+}
+.bfd-map-canvas-wrapper {
+  flex: 1;
+  position: relative;
+  height: 100%;
+}
+.bfd-hud-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 320px;
+  height: 100%;
+  min-width: 320px;
+}
+.bfd-hud-container .bfd-map-legend {
+  justify-content: flex-end;
+  padding-right: 0.25rem;
+}
+
+/* ── HUD Right Panel ─────────────────────────────────────── */
+.bfd-map-right-panel {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  z-index: 20;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.bfd-map-right-panel--origens {
+  border-color: rgba(96, 165, 250, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(96, 165, 250, 0.1);
+}
+.bfd-map-right-panel--destinos {
+  border-color: rgba(167, 139, 250, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(167, 139, 250, 0.1);
+}
+.bfd-map-right-panel--modal_cotacao_bid_frete_internacional {
+  border-color: rgba(251, 191, 36, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(251, 191, 36, 0.1);
+}
+.bfd-map-panel__live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #60a5fa;
+  box-shadow: 0 0 8px #60a5fa, 0 0 12px #60a5fa;
+  animation: bfdLaserPulse 1.8s infinite alternate ease-in-out;
+}
+@keyframes bfdLaserPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.6;
+    box-shadow: 0 0 4px #60a5fa, 0 0 6px #60a5fa;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 1;
+    box-shadow: 0 0 10px #60a5fa, 0 0 16px #60a5fa;
+  }
+}
+.bfd-map-panel__modal-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.bfd-map-panel__modal-stat-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 0.4rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.bfd-map-panel__modal-stat-lbl {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.bfd-map-panel__modal-stat-num {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+.bfd-map-panel__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.bfd-map-panel__title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+.bfd-map-panel__subtitle {
+  font-size: 0.75rem;
+  color: #cbd5e1;
+  letter-spacing: 0.015em;
+}
+.bfd-map-panel__tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+.bfd-map-panel__tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 2px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.bfd-map-panel__tab:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.03);
+}
+.bfd-map-panel__tab.is-active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.bfd-map-panel__tab.is-active.tab-origens {
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.2);
+  background: rgba(96, 165, 250, 0.08);
+}
+.bfd-map-panel__tab.is-active.tab-destinos {
+  color: #a78bfa;
+  border-color: rgba(167, 139, 250, 0.2);
+  background: rgba(167, 139, 250, 0.08);
+}
+.bfd-map-panel__tab.is-active.tab-modal_cotacao_bid_frete_internacional {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.2);
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.bfd-map-panel__list {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-right: 0.25rem;
+}
+/* Custom scrollbar */
+.bfd-map-panel__list::-webkit-scrollbar {
+  width: 4px;
+}
+.bfd-map-panel__list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+.bfd-map-panel__list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+.bfd-map-panel__list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.bfd-map-panel__row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.55rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
+}
+.bfd-map-panel__row.has-link {
+  cursor: pointer;
+}
+.bfd-map-panel__row:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.bfd-map-panel__row.is-highlighted {
+  background: rgba(96, 165, 250, 0.08);
+  border-color: rgba(96, 165, 250, 0.25);
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.15);
+}
+.bfd-map-panel__row.is-highlighted-dest {
+  background: rgba(167, 139, 250, 0.08);
+  border-color: rgba(167, 139, 250, 0.25);
+  box-shadow: 0 0 10px rgba(167, 139, 250, 0.15);
+}
+
+.bfd-map-panel__rank {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.bfd-map-panel__rank--1 {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.35);
+}
+.bfd-map-panel__rank--2 {
+  background: linear-gradient(135deg, #94a3b8, #64748b);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 0 8px rgba(148, 163, 184, 0.3);
+}
+.bfd-map-panel__rank--3 {
+  background: linear-gradient(135deg, #b45309, #78350f);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 0 8px rgba(180, 83, 9, 0.3);
+}
+
+.bfd-map-panel__row-flag {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.bfd-map-panel__info-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bfd-map-panel__row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bfd-map-panel__row-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.bfd-map-panel__row-stats {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.bfd-map-panel__row-bar-wrap {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1.5px;
+  overflow: hidden;
+  width: 100%;
+}
+.bfd-map-panel__row-bar-fill {
+  height: 100%;
+  border-radius: 1.5px;
+  transition: width 0.5s ease-out;
+}
+
+.bfd-map-panel__modal-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.2rem 0;
+}
+.bfd-map-panel__modal-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+.bfd-map-panel__modal-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.bfd-map-panel__modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bfd-map-panel__modal-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.bfd-map-panel__modal-count {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.bfd-map-panel__modal-bar-wrap {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+  width: 100%;
+}
+.bfd-map-panel__modal-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bfd-map-panel__modal-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+.bfd-map-panel__terminal-list {
+  overflow-y: auto;
+  flex: 1;
+}
+.bfd-map-panel__terminal-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  padding: 0.55rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.bfd-map-panel__terminal-item:hover, .bfd-map-panel__terminal-item.is-hovered {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateX(4px);
+}
+.bfd-map-panel__terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.bfd-map-panel__terminal-name {
+  font-size: 0.8rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.bfd-map-panel__terminal-flag {
+  font-size: 0.95rem;
+}
+.bfd-map-panel__terminal-saving {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #60a5fa;
+}
+.bfd-map-panel__progress-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.bfd-map-panel__progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.bfd-map-panel__terminal-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+@media (max-width: 1023px) {
+  .bfd-hud-container {
+    display: none !important;
+  }
+  .bfd-map-right-panel {
+    display: none !important;
+  }
+}
+.bfd-map-controls {
+  position: absolute;
+  bottom: -2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 30;
+  transition: left 0.3s ease, transform 0.3s ease;
+}
+.bfd-map-control-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+.bfd-map-control-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+@media (max-width: 1023px) {
+  .bfd-map-controls {
+    left: 50%;
+  }
+}
+.bfd-map-bg {
+  position: absolute; inset: 0;
+  background-position: center; background-repeat: no-repeat;
+  background-size: cover; opacity: 0.55; border-radius: 12px; pointer-events: none;
+}
+
+.bfd-map-pin-wrapper {
+  position: absolute; transform: translate3d(-50%, -50%, 0); cursor: pointer; z-index: 10;
+  will-change: transform;
+}
+.bfd-map-pin-wrapper.is-active { z-index: 100; }
+
+.bfd-map-pin__glow {
+  position: absolute; inset: -8px; border-radius: 50%; border: 1.5px solid #60a5fa;
+  opacity: 0; animation: pinPulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite; pointer-events: none;
+}
+.bfd-map-pin__dot {
+  width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; color: #000000; box-shadow: 0 0 10px rgba(96,165,250,0.4);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
+}
+.bfd-map-pin-wrapper:hover .bfd-map-pin__dot {
+  transform: scale(1.2); box-shadow: 0 0 15px rgba(255,255,255,0.7);
+}
+.bfd-map-pin__icon-inner { display: flex; }
+.bfd-map-pin__icon-inner svg { width: 13px; height: 13px; }
+
+/* ── World Map Tooltip ───────────────────────────────────── */
+.bfd-map-tooltip {
+  position: absolute; bottom: 36px; left: 50%; transform: translate3d(-50%, 0, 0);
+  width: 290px; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 1.1rem;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.15);
+  display: flex; flex-direction: column; gap: 0.8rem; pointer-events: none;
+  animation: tooltipFadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+.bfd-map-tooltip__after {
+  content: ''; position: absolute; bottom: -6px; left: 50%; transform: translate3d(-50%, 0, 0) rotate(45deg);
+  width: 10px; height: 10px; background: rgba(15, 23, 42, 0.94);
+  border-right: 1px solid rgba(255, 255, 255, 0.12); border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.bfd-map-tooltip__header { display: flex; align-items: center; gap: 0.6rem; }
+.bfd-map-tooltip__flag { font-size: 1.25rem; }
+.bfd-map-tooltip__title-wrap { flex: 1; display: flex; flex-direction: column; }
+.bfd-map-tooltip__title { font-size: 0.95rem; font-weight: 700; color: #ffffff; line-height: 1.3; letter-spacing: 0.02em; }
+.bfd-map-tooltip__subtitle { font-size: 0.8rem; color: #cbd5e1; font-weight: 500; letter-spacing: 0.02em; }
+.bfd-map-tooltip__mode-icon { display: flex; align-items: center; }
+
+.bfd-map-tooltip__body {
+  display: flex; flex-direction: column; gap: 0.5rem; padding: 0.6rem 0;
+  border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.bfd-map-tooltip__stat { display: flex; justify-content: space-between; align-items: center; }
+.bfd-map-tooltip__stat-label { font-size: 0.8rem; color: #cbd5e1; font-weight: 500; letter-spacing: 0.02em; }
+.bfd-map-tooltip__stat-val { font-size: 0.82rem; font-weight: 700; color: #ffffff; letter-spacing: 0.025em; }
+
+.bfd-map-tooltip__footer { display: flex; justify-content: space-between; align-items: center; }
+.bfd-map-tooltip__supplier { font-size: 0.8rem; color: #cbd5e1; letter-spacing: 0.02em; }
+.bfd-map-tooltip__supplier strong { color: #ffffff; font-weight: 600; }
+
+@keyframes bfdBlink {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.bfd-map-tooltip__hint {
+  font-size: 0.72rem;
+  color: #fbbf24;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 0.2rem;
+  animation: bfdBlink 1.8s infinite;
+  letter-spacing: 0.03em;
+}
+
+/* ── Premium Modal overlay ───────────────────────────────── */
+.dialogo-cotacao-resumida-bid-frete-internacional-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 10, 18, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  animation: bfdModalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  padding: 1rem;
+}
+@keyframes bfdModalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-card {
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: bfdModalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes bfdModalSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dialogo-cotacao-resumida-bid-frete-internacional-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.dialogo-cotacao-resumida-bid-frete-internacional-flag-large {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+.dialogo-cotacao-resumida-bid-frete-internacional-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.dialogo-cotacao-resumida-bid-frete-internacional-subtitle {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  margin-top: 0.15rem;
+  display: block;
+  font-weight: 500;
+}
+.dialogo-cotacao-resumida-bid-frete-internacional-close-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.dialogo-cotacao-resumida-bid-frete-internacional-close-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  transform: rotate(90deg);
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.bfd-route-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  min-height: max-content;
+}
+.bfd-route-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+
+
+.bfd-route-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bfd-route-ports {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.bfd-route-port-flag {
+  font-size: 1.15rem;
+}
+.bfd-route-port-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.bfd-route-arrow-icon {
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.bfd-route-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.bfd-route-badge--maritimo {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+.bfd-route-badge--aereo {
+  background: rgba(167, 139, 250, 0.12);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+.bfd-route-svg-container {
+  margin: 0.25rem 0;
+  width: 100%;
+  height: 30px;
+}
+
+.bfd-route-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+}
+.bfd-route-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.bfd-route-stat-label {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.bfd-route-stat-value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(11, 15, 28, 0.5);
+}
+.dialogo-cotacao-resumida-bid-frete-internacional-close-action {
+  padding: 0.5rem 1.25rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.dialogo-cotacao-resumida-bid-frete-internacional-close-action:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}

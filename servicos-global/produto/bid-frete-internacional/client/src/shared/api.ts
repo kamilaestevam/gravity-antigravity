@@ -18,6 +18,11 @@ import {
   visaoFornecedorBidFreteInternacionalTabelaValorItemResponseSchema,
   mapDesempenhoVisaoFornecedorFromServer,
   mapDashboardMetricasFromServer,
+  mapDashboardVisaoFornecedorFromServer,
+} from './visao-fornecedor-bid-frete-internacional-schemas'
+import type {
+  AlertaVisaoFornecedorBidFreteInternacional,
+  EtapaFunilVisaoFornecedorBidFreteInternacional,
 } from './visao-fornecedor-bid-frete-internacional-schemas'
 import type {
   CodigoBloqueioRespostaDisparoBidFreteInternacional,
@@ -699,6 +704,8 @@ const VISAO_FORNECEDOR_BASE = `${API_BASE}/bid-frete-internacional/visao-fornece
 export interface DashboardVisaoFornecedorBidFreteInternacional {
   metricas: MetricasVisaoFornecedorBidFreteInternacional
   kpis: ReturnType<typeof mapDashboardMetricasFromServer>
+  funil: EtapaFunilVisaoFornecedorBidFreteInternacional[]
+  alertas: AlertaVisaoFornecedorBidFreteInternacional[]
   fornecedor: Fornecedor
 }
 
@@ -707,12 +714,12 @@ export async function getVisaoFornecedorBidFreteInternacionalDashboard(): Promis
   const raw = await handleResponse<unknown>(res)
   const parsed = visaoFornecedorBidFreteInternacionalDashboardResponseSchema.parse(raw)
   const visao = parsed.visao_fornecedor_bid_frete_internacional
+  const mapped = mapDashboardVisaoFornecedorFromServer(visao, visao.fornecedor_bid_frete_internacional)
   return {
-    metricas: visao.metricas_visao_fornecedor_bid_frete_internacional,
-    kpis: mapDashboardMetricasFromServer(
-      visao.metricas_visao_fornecedor_bid_frete_internacional,
-      visao.classificacao_bid_frete_internacional,
-    ),
+    metricas: mapped.metricas,
+    kpis: mapped.kpis,
+    funil: mapped.funil,
+    alertas: mapped.alertas,
     fornecedor: mapFornecedorFromServer(visao.fornecedor_bid_frete_internacional),
   }
 }

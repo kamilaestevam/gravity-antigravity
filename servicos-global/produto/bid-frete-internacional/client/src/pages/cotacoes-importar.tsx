@@ -40,7 +40,7 @@ const EXPECTED_COLUMNS = [
   { key: 'destino_nome_cotacao_bid_frete_internacional', label: 'Destino (nome)', example: 'Shanghai' },
   { key: 'descricao_mercadoria_cotacao_bid_frete_internacional', label: 'Mercadoria', example: 'Pecas automotivas' },
   { key: 'incoterm_cotacao_bid_frete_internacional', label: 'Incoterm', example: 'FOB, CIF, EXW...' },
-  { key: 'quantidade_volume_cotacao_bid_frete_internacional', label: 'Quantidade de Volume', example: '10' },
+  { key: 'quantidade_volume_cotacao_bid_frete_internacional', label: 'Quantidade de Volumes', example: '10' },
   { key: 'ncm_cotacao_bid_frete_internacional', label: 'NCM (opcional)', example: '8708.99.90' },
 ]
 

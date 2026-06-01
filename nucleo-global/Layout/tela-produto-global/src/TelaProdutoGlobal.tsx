@@ -9,6 +9,7 @@ import {
 } from '@nucleo/menu-topo-global'
 import {
   MenuLateralGlobal,
+  type ModuleModoVariant,
   type NavItem,
   type WorkspaceItem,
   type ProductSwitcherItem,
@@ -28,6 +29,14 @@ export type TelaProdutoLocalizadorConfig = Omit<
 export interface TelaProdutoGlobalProps {
   productId:   string
   productName: string
+  /** Badge de modo no logo da sidebar (ex.: visao_fornecedor) */
+  productModoVariant?: ModuleModoVariant
+  /** Rótulo curto no badge (ex.: Fornecedor) */
+  productModoBadgeLabel?: string
+  /** Descrição para aria no badge (ex.: Visão fornecedor) */
+  productModoAriaLabel?: string
+  productModoTooltipTitulo?: string
+  productModoTooltipDescricao?: string
   tenantName:  string
   tenantPlan:  string
   navItems:    NavItem[]
@@ -62,6 +71,11 @@ export interface TelaProdutoGlobalProps {
 function TelaProdutoLayout({
   productId,
   productName,
+  productModoVariant,
+  productModoBadgeLabel,
+  productModoAriaLabel,
+  productModoTooltipTitulo,
+  productModoTooltipDescricao,
   tenantName,
   tenantPlan,
   navItems,
@@ -113,6 +127,11 @@ function TelaProdutoLayout({
           tenantPlan={tenantPlan}
           navItems={navItems}
           moduleName={productName}
+          moduleModoVariant={productModoVariant}
+          moduleModoBadgeLabel={productModoBadgeLabel}
+          moduleModoAriaLabel={productModoAriaLabel}
+          moduleModoTooltipTitulo={productModoTooltipTitulo}
+          moduleModoTooltipDescricao={productModoTooltipDescricao}
           moduleColor={meta.color}
           moduleIcon={sidebarIcon}
           isCollapsed={sidebarCollapsed}

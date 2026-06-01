@@ -24,7 +24,7 @@ export interface NavigationItem {
 export const PRODUCT_CONFIG = {
   id: 'bid-frete-internacional',
   productId: 'bid-frete-internacional',
-  name: 'BID Frete Internacional',
+  name: 'Bid Frete Internacional',
   port: 8023,
 
   tenantServices: [
@@ -61,7 +61,7 @@ export const PRODUCT_CONFIG = {
     },
 
     // ── BID Frete Internacional ─────────────────────────────────────────────────
-    { id: 'section-bid-frete',                          label: 'BID Frete Internacional', sectionDivider: true },
+    { id: 'section-bid-frete',                          label: 'Bid Frete Internacional', sectionDivider: true },
     { id: '/bid-frete/visao-geral',             label: 'Visão Geral',    icon: 'chart-pie-slice', source: 'product' },
     { id: '/bid-frete/dashboard',               label: 'Dashboard',      icon: 'chart-bar',       source: 'product' },
     { id: '/bid-frete/lista',                   label: 'Lista',          icon: 'list-bullets',    source: 'product' },

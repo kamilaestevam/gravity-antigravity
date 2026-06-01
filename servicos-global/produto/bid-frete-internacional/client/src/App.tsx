@@ -6,6 +6,7 @@
  */
 
 import React, { lazy, Suspense, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
 import { useAuth, useClerk } from '@clerk/clerk-react'
@@ -57,7 +58,7 @@ const VisaoFornecedorResponderPublico = lazy(() => import('./pages/visao-fornece
 
 const PRODUTO       = getProdutoMeta('bid-frete-internacional')
 const PRODUCT_ID    = 'bid-frete-internacional'
-const PRODUCT_NAME  = 'BID Frete Internacional'
+const PRODUCT_NAME  = 'Bid Frete Internacional'
 const PRODUCT_COLOR = PRODUTO.color
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -118,6 +119,7 @@ function RedirectCotacoesVisaoLegado() {
 
 export default function App() {
   useMeSync()
+  const { t } = useTranslation()
   const { getToken } = useAuth()
   const { signOut } = useClerk()
   const location = useLocation()
@@ -134,7 +136,7 @@ export default function App() {
   const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
   useEffect(() => {
-    const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'BID Frete Internacional'
+    const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'Bid Frete Internacional'
     addEntry({
       productId:    PRODUCT_ID,
       productLabel: PRODUCT_NAME,
@@ -169,15 +171,32 @@ export default function App() {
     '/visao-fornecedor-bid-frete-internacional/publico/',
   )
 
+  const isVisaoFornecedor =
+    location.pathname.includes('visao-fornecedor-bid-frete-internacional')
+    && !isRespostaPublica
+
+  const productModoBadgeLabel = isVisaoFornecedor
+    ? t('bidfrete.visao_fornecedor_bid_frete_internacional.identidade.badge_fornecedor', 'Visão Fornecedor')
+    : undefined
+  const productModoAriaLabel = isVisaoFornecedor
+    ? t('bidfrete.visao_fornecedor_bid_frete_internacional.identidade.modo', 'Visão fornecedor')
+    : undefined
+  const productModoTooltipTitulo = isVisaoFornecedor
+    ? t('bidfrete.visao_fornecedor_bid_frete_internacional.identidade.tooltip_titulo', 'Visão fornecedor')
+    : undefined
+  const productModoTooltipDescricao = isVisaoFornecedor
+    ? t(
+        'bidfrete.visao_fornecedor_bid_frete_internacional.identidade.tooltip_descricao',
+        'Área para responder cotações, enviar propostas e acompanhar seu desempenho',
+      )
+    : undefined
+
   const navItems = useMemo(() => {
-    const isVisaoFornecedor =
-      location.pathname.includes('visao-fornecedor-bid-frete-internacional')
-      && !isRespostaPublica
     const nav = isVisaoFornecedor
       ? PRODUCT_CONFIG.navigation_visao_fornecedor_bid_frete_internacional
       : PRODUCT_CONFIG.navigation
     return nav.map(item => mapNavItem(item))
-  }, [location.pathname, isRespostaPublica])
+  }, [isVisaoFornecedor])
 
   if (isRespostaPublica) {
     return (
@@ -199,6 +218,11 @@ export default function App() {
     <TelaProdutoComOrganizacaoOverride
       productId={PRODUCT_ID}
       productName={PRODUCT_NAME}
+      productModoVariant={isVisaoFornecedor ? 'visao_fornecedor' : undefined}
+      productModoBadgeLabel={productModoBadgeLabel}
+      productModoAriaLabel={productModoAriaLabel}
+      productModoTooltipTitulo={productModoTooltipTitulo}
+      productModoTooltipDescricao={productModoTooltipDescricao}
       tenantName={nomeWorkspaceAtivo}
       tenantPlan={currentUser.nomeOrganizacao ?? ''}
       navItems={navItems}

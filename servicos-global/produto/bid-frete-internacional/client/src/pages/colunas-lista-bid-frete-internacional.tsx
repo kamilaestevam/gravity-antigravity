@@ -822,7 +822,7 @@ function buildColunasCotacoesBase(
     },
     {
       key: 'quantidade_volume_cotacao_bid_frete_internacional',
-      label: 'Quantidade de Volume',
+      label: 'Quantidade de Volumes',
       tipo: 'numero',
       align: 'center',
       render: (val: unknown) => renderNumero(val, 0),

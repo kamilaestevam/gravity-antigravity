@@ -68,12 +68,27 @@ function mapFornecedorResumo(fornecedor: Record<string, unknown>) {
   }
 }
 
+const STATUS_PROPOSTA_EM_ANALISE = [
+  'RECEBIDA',
+  'EM_ANALISE',
+  'MELHOR_PRECO',
+  'MELHOR_TRANSIT',
+  'MELHOR_AVALIACAO',
+] as const
+
 router.get('/dashboard', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const fornecedor = await resolverFornecedorLogado(req)
     const id_fornecedor = fornecedor.id_fornecedor_bid_frete_internacional
 
-    const [pendentes, propostasEnviadas, propostasAprovadas, totalDisparos] = await Promise.all([
+    const [
+      pendentes,
+      propostasEnviadas,
+      propostasAprovadas,
+      propostasEmAnalise,
+      propostasReprovadas,
+      totalDisparos,
+    ] = await Promise.all([
       (req.prisma as any).disparoCotacaoBidFreteInternacional.count({
         where: {
           id_fornecedor_bid_frete_internacional: id_fornecedor,
@@ -89,10 +104,81 @@ router.get('/dashboard', async (req: Request, res: Response, next: NextFunction)
           status_proposta_bid_frete_internacional: 'APROVADA',
         },
       }),
+      (req.prisma as any).propostaBidFreteInternacional.count({
+        where: {
+          id_fornecedor_bid_frete_internacional: id_fornecedor,
+          status_proposta_bid_frete_internacional: { in: [...STATUS_PROPOSTA_EM_ANALISE] },
+        },
+      }),
+      (req.prisma as any).propostaBidFreteInternacional.count({
+        where: {
+          id_fornecedor_bid_frete_internacional: id_fornecedor,
+          status_proposta_bid_frete_internacional: 'REPROVADA',
+        },
+      }),
       (req.prisma as any).disparoCotacaoBidFreteInternacional.count({
         where: { id_fornecedor_bid_frete_internacional: id_fornecedor },
       }),
     ])
+
+    const taxaResposta =
+      totalDisparos > 0 ? (propostasEnviadas / totalDisparos * 100).toFixed(1) : '0'
+    const taxaAprovacao =
+      propostasEnviadas > 0 ? (propostasAprovadas / propostasEnviadas * 100).toFixed(1) : '0'
+
+    const funil_visao_fornecedor_bid_frete_internacional = [
+      {
+        rotulo_funil_visao_fornecedor_bid_frete_internacional: 'aguardando_resposta',
+        quantidade_funil_visao_fornecedor_bid_frete_internacional: pendentes,
+        cor_funil_visao_fornecedor_bid_frete_internacional: '#fbbf24',
+      },
+      {
+        rotulo_funil_visao_fornecedor_bid_frete_internacional: 'em_analise',
+        quantidade_funil_visao_fornecedor_bid_frete_internacional: propostasEmAnalise,
+        cor_funil_visao_fornecedor_bid_frete_internacional: '#818cf8',
+      },
+      {
+        rotulo_funil_visao_fornecedor_bid_frete_internacional: 'aprovadas',
+        quantidade_funil_visao_fornecedor_bid_frete_internacional: propostasAprovadas,
+        cor_funil_visao_fornecedor_bid_frete_internacional: '#34d399',
+      },
+      {
+        rotulo_funil_visao_fornecedor_bid_frete_internacional: 'reprovadas',
+        quantidade_funil_visao_fornecedor_bid_frete_internacional: propostasReprovadas,
+        cor_funil_visao_fornecedor_bid_frete_internacional: '#f87171',
+      },
+    ]
+
+    const alertas_visao_fornecedor_bid_frete_internacional = [
+      {
+        rotulo_alerta_visao_fornecedor_bid_frete_internacional: 'cotacoes_pendentes',
+        quantidade_alerta_visao_fornecedor_bid_frete_internacional: pendentes,
+        tom_alerta_visao_fornecedor_bid_frete_internacional: 'amber',
+        rota_alerta_visao_fornecedor_bid_frete_internacional:
+          '/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes',
+      },
+      {
+        rotulo_alerta_visao_fornecedor_bid_frete_internacional: 'propostas_em_analise',
+        quantidade_alerta_visao_fornecedor_bid_frete_internacional: propostasEmAnalise,
+        tom_alerta_visao_fornecedor_bid_frete_internacional: 'blue',
+        rota_alerta_visao_fornecedor_bid_frete_internacional:
+          '/visao-fornecedor-bid-frete-internacional/propostas',
+      },
+      {
+        rotulo_alerta_visao_fornecedor_bid_frete_internacional: 'propostas_reprovadas',
+        quantidade_alerta_visao_fornecedor_bid_frete_internacional: propostasReprovadas,
+        tom_alerta_visao_fornecedor_bid_frete_internacional: 'rose',
+        rota_alerta_visao_fornecedor_bid_frete_internacional:
+          '/visao-fornecedor-bid-frete-internacional/propostas',
+      },
+      {
+        rotulo_alerta_visao_fornecedor_bid_frete_internacional: 'propostas_aprovadas',
+        quantidade_alerta_visao_fornecedor_bid_frete_internacional: propostasAprovadas,
+        tom_alerta_visao_fornecedor_bid_frete_internacional: 'emerald',
+        rota_alerta_visao_fornecedor_bid_frete_internacional:
+          '/visao-fornecedor-bid-frete-internacional/propostas',
+      },
+    ].filter((a) => a.quantidade_alerta_visao_fornecedor_bid_frete_internacional > 0)
 
     let classificacao_bid_frete_internacional = null
     try {
@@ -108,12 +194,14 @@ router.get('/dashboard', async (req: Request, res: Response, next: NextFunction)
           cotacoes_pendentes_visao_fornecedor_bid_frete_internacional: pendentes,
           propostas_enviadas_visao_fornecedor_bid_frete_internacional: propostasEnviadas,
           propostas_aprovadas_visao_fornecedor_bid_frete_internacional: propostasAprovadas,
+          propostas_em_analise_visao_fornecedor_bid_frete_internacional: propostasEmAnalise,
+          propostas_reprovadas_visao_fornecedor_bid_frete_internacional: propostasReprovadas,
           disparos_recebidos_visao_fornecedor_bid_frete_internacional: totalDisparos,
-          taxa_resposta_visao_fornecedor_bid_frete_internacional:
-            totalDisparos > 0 ? (propostasEnviadas / totalDisparos * 100).toFixed(1) : '0',
-          taxa_aprovacao_visao_fornecedor_bid_frete_internacional:
-            propostasEnviadas > 0 ? (propostasAprovadas / propostasEnviadas * 100).toFixed(1) : '0',
+          taxa_resposta_visao_fornecedor_bid_frete_internacional: taxaResposta,
+          taxa_aprovacao_visao_fornecedor_bid_frete_internacional: taxaAprovacao,
         },
+        funil_visao_fornecedor_bid_frete_internacional,
+        alertas_visao_fornecedor_bid_frete_internacional,
         classificacao_bid_frete_internacional,
       },
     })

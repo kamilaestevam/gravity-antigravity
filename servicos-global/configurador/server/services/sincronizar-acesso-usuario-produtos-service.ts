@@ -30,7 +30,7 @@
 import { prisma } from '../lib/prisma.js'
 import {
   buildAcessoUsuarioProdutosGravityString,
-  chavesDefaultGranulares,
+  chavesDefaultPermissoesVinculo,
 } from '../../shared/index.js'
 
 const ATOR_AUTO_SYNC = 'SISTEMA_AUTO_SYNC_PORTAO_3'
@@ -89,7 +89,7 @@ export async function aoHabilitarProdutoNoWorkspace(args: {
     // REGRA 2026-05-13: produto novo no ws => Padrao/Fornecedor ja existentes
     // ganham defaults granulares conforme tabela DEFAULTS_GRANULARES_POR_PRODUTO.
     const dadosGranulares = memberships.flatMap((m) => {
-      const chaves = chavesDefaultGranulares(slug_produto, m.user.tipo_usuario)
+      const chaves = chavesDefaultPermissoesVinculo(slug_produto, m.user.tipo_usuario)
       return chaves.map((chave) => ({
         id_organizacao,
         id_workspace,
@@ -225,7 +225,7 @@ export async function aoVincularUsuarioAoWorkspace(args: {
     //
     // Master pode refinar via modal Editar Usuário > Permissões depois.
     const dadosGranulares = produtosDoWs.flatMap((p) => {
-      const chaves = chavesDefaultGranulares(p.produto.slug_produto_gravity, usuario.tipo_usuario)
+      const chaves = chavesDefaultPermissoesVinculo(p.produto.slug_produto_gravity, usuario.tipo_usuario)
       return chaves.map((chave) => ({
         id_organizacao,
         id_workspace,

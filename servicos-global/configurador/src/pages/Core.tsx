@@ -40,12 +40,11 @@ import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildTenantProductNodes } from '../utils/ecosystem-nodes'
 import { produtosWorkspaceApi } from '../services/api-client'
+import { temBypassPermissao } from '../../shared/index.js'
 import {
-  ehSlugBidFreteInternacional,
-  ROTA_ENTRADA_BID_FRETE_FORNECEDOR,
-  usuarioPodeCotarBidFreteInternacional,
-} from '../shared/verificar-cotar-bid-frete-internacional'
-import { nomeExibicaoProdutoGravity } from '../data/product-meta'
+  expandirCardsProdutosCore,
+  carregarPermissoesUsuarioWorkspace,
+} from '../shared/entrada-produtos-core'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync, useOrganizacaoOverride } from '@gravity/shell'
 import { limparCacheTipoUsuario, useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
@@ -57,6 +56,7 @@ const Notificacoes = React.lazy(() => import('../../../servicos-plataforma/notif
 const GabiChat = React.lazy(() => import('@plataforma/gabi/src/Gabi'))
 
 interface ProdutoAtivo {
+  key: string
   nome: string
   slug: string
   rota: string
@@ -77,7 +77,7 @@ export function Core() {
 
   // ── Localizador ────────────────────────────────────────────────────────────
   const { history: locHistory, addEntry: locAddEntry } = useLocalizadorHistory('core')
-  const { gravityAdmin: isGravityAdmin } = useCarregarTipoUsuario()
+  const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole, idUsuarioPrisma, pronto: tipoUsuarioPronto } = useCarregarTipoUsuario()
   const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
   const [modalTrocarOrgAberto, setModalTrocarOrgAberto] = useState(false)
   useEffect(() => {
@@ -116,23 +116,10 @@ export function Core() {
   const isLight = currentTheme === 'light'
   const [isGabiOpen, setIsGabiOpen] = useState(false)
   const [produtosAtivos, setProdutosAtivos] = useState<ProdutoAtivo[]>([])
-  const [podeCotarBidFrete, setPodeCotarBidFrete] = useState(false)
 
   const userName = user?.fullName ?? user?.firstName ?? 'Usuário'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? ''
-
-  useEffect(() => {
-    if (!id_workspace) {
-      setPodeCotarBidFrete(false)
-      return
-    }
-    let cancelado = false
-    void usuarioPodeCotarBidFreteInternacional(getToken, id_workspace).then(permitido => {
-      if (!cancelado) setPodeCotarBidFrete(permitido)
-    })
-    return () => { cancelado = true }
-  }, [id_workspace, getToken])
 
   // Carregar produtos ativos do workspace
   useEffect(() => {
@@ -142,21 +129,25 @@ export function Core() {
         // Wrapper Zod-validado (REGRA 06 — sem cast direto da response)
         const data = await produtosWorkspaceApi.listar(id_workspace!)
         const allProds = data.products
-        // Menu lateral — só os produtos ativos
-        const ativos = allProds
-          .filter(p => p.is_active)
-          .map(p => {
-            const slug = p.catalog?.slug ?? p.product_key
-            const entradaFornecedor = ehSlugBidFreteInternacional(slug) && podeCotarBidFrete
-            return {
-              nome: entradaFornecedor
-                ? t('hub.produto_bid_frete_internacional_fornecedor', 'Bid Frete Internacional - Fornecedor')
-                : nomeExibicaoProdutoGravity(slug, p.catalog?.name ?? p.product_key, t),
-              slug,
-              rota: entradaFornecedor ? ROTA_ENTRADA_BID_FRETE_FORNECEDOR : `/produto/${slug}`,
-            }
-          })
-        setProdutosAtivos(ativos)
+        const ativosProdutos = allProds.filter(p => p.is_active)
+
+        const bypass = tipoUsuarioPronto && temBypassPermissao({ tipo_usuario: dbRole })
+        let permissoes: Set<string> | null = null
+        if (tipoUsuarioPronto && !bypass && idUsuarioPrisma) {
+          try {
+            permissoes = await carregarPermissoesUsuarioWorkspace(getToken, idUsuarioPrisma, id_workspace!)
+          } catch (errPerm) {
+            console.warn('[Core] Falha ao carregar permissões do workspace:', errPerm)
+          }
+        }
+
+        const cards = expandirCardsProdutosCore(ativosProdutos, permissoes, bypass, t)
+        setProdutosAtivos(cards.map(c => ({
+          key: c.key,
+          nome: c.nome,
+          slug: c.slug,
+          rota: c.rota,
+        })))
         // Mapa do ecossistema — usa builder único
         const productNodes = buildTenantProductNodes(allProds)
         setCoreEcosystemNodes(buildEcosystemNodes({
@@ -171,7 +162,7 @@ export function Core() {
       }
     }
     loadProducts()
-  }, [id_workspace, isGravityAdmin, podeCotarBidFrete, t])
+  }, [id_workspace, isGravityAdmin, idUsuarioPrisma, dbRole, tipoUsuarioPronto, getToken, t])
 
   // Menu lateral
   const navItems: NavItem[] = useMemo(() => {

@@ -2,6 +2,12 @@
 import { describe, it, expect } from 'vitest'
 import {
   chavesDefaultGranulares,
+  chavesDefaultPermissoesVinculo,
+  chavesDefaultExtrasVinculo,
+  buildPermissaoCotarFreteString,
+  togglesGranularesPorProduto,
+  usuarioTemPermissaoGranularProduto,
+  usuarioTemPermissaoCotarFrete,
   DEFAULTS_GRANULARES_POR_PRODUTO,
   buildPermissaoString,
   SECOES_PRODUTO,
@@ -105,5 +111,42 @@ describe('buildPermissaoString', () => {
         expect(buildPermissaoString('pedido', secao, acao)).toBe(`pedido:${secao}:${acao}`)
       }
     }
+  })
+})
+
+describe('BID Frete — cotar e vínculo', () => {
+  it('FORNECEDOR no BID recebe cotar em chavesDefaultExtrasVinculo', () => {
+    expect(chavesDefaultExtrasVinculo('bid-frete-internacional', 'FORNECEDOR')).toEqual([
+      'bid-frete-internacional:visao_fornecedor:cotar',
+    ])
+  })
+
+  it('chavesDefaultPermissoesVinculo mescla grade + cotar', () => {
+    const chaves = chavesDefaultPermissoesVinculo('bid-frete-internacional', 'FORNECEDOR')
+    expect(chaves).toContain('bid-frete-internacional:dashboard:ver')
+    expect(chaves).toContain('bid-frete-internacional:visao_fornecedor:cotar')
+  })
+
+  it('togglesGranularesPorProduto soma +1 no BID', () => {
+    expect(togglesGranularesPorProduto('bid-frete-internacional')).toBe(13)
+    expect(togglesGranularesPorProduto('pedido')).toBe(12)
+  })
+
+  it('usuarioTemPermissaoGranularProduto e CotarFrete distinguem chaves', () => {
+    const set = new Set([
+      'bid-frete-internacional:visao_fornecedor:cotar',
+      'bid-frete-internacional:dashboard:ver',
+    ])
+    expect(usuarioTemPermissaoGranularProduto(set, 'bid-frete-internacional')).toBe(true)
+    expect(usuarioTemPermissaoCotarFrete(set, 'bid-frete-internacional')).toBe(true)
+    expect(usuarioTemPermissaoGranularProduto(
+      new Set([buildPermissaoCotarFreteString('bid-frete-internacional')]),
+      'bid-frete-internacional',
+    )).toBe(false)
+  })
+
+  it('slugs bid-frete e bid-frete-internacional são compatíveis', () => {
+    const set = new Set(['bid-frete:visao_fornecedor:cotar'])
+    expect(usuarioTemPermissaoCotarFrete(set, 'bid-frete-internacional')).toBe(true)
   })
 })

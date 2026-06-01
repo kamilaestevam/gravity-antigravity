@@ -171,6 +171,60 @@ export function chavesDefaultExtrasVinculo(slug: string, tipo_usuario: string): 
   return [buildPermissaoCotarFreteString(slug)]
 }
 
+export function ehSlugProdutoBidFrete(slug: string): boolean {
+  return SLUGS_BID_FRETE.includes(slug as (typeof SLUGS_BID_FRETE)[number])
+}
+
+export function ehPermissaoCotarFrete(permissao: string): boolean {
+  return permissao.endsWith(`:${SECAO_VISAO_FORNECEDOR}:${ACAO_COTAR_FRETE}`)
+}
+
+/** Grid 6×2 + toggle cotar (somente produtos BID). */
+export function togglesGranularesPorProduto(slug: string): number {
+  return ehSlugProdutoBidFrete(slug) ? TOGGLES_POR_PRODUTO + 1 : TOGGLES_POR_PRODUTO
+}
+
+/** Defaults granulares + extras (cotar) no vínculo/sync. */
+export function chavesDefaultPermissoesVinculo(slug: string, tipo_usuario: string): string[] {
+  return [
+    ...chavesDefaultGranulares(slug, tipo_usuario),
+    ...chavesDefaultExtrasVinculo(slug, tipo_usuario),
+  ]
+}
+
+function slugBidFreteCompativel(slugProduto: string, slugChave: string): boolean {
+  if (slugProduto === slugChave) return true
+  return ehSlugProdutoBidFrete(slugProduto) && ehSlugProdutoBidFrete(slugChave)
+}
+
+/** Alguma chave da grade 6×2 (ver/editar) para o produto. */
+export function usuarioTemPermissaoGranularProduto(
+  permissoes: ReadonlySet<string>,
+  slugProduto: string,
+): boolean {
+  for (const chave of permissoes) {
+    if (ehPermissaoAcessoUsuarioProdutoGravity(chave) || ehPermissaoCotarFrete(chave)) continue
+    const parsed = parsePermissaoString(chave)
+    if (!parsed) continue
+    if (slugBidFreteCompativel(slugProduto, parsed.slug)) return true
+  }
+  return false
+}
+
+/** Chave `visao_fornecedor:cotar` — visão fornecedor BID. */
+export function usuarioTemPermissaoCotarFrete(
+  permissoes: ReadonlySet<string>,
+  slugProduto: string,
+): boolean {
+  if (!ehSlugProdutoBidFrete(slugProduto)) return false
+  for (const chave of permissoes) {
+    if (!ehPermissaoCotarFrete(chave)) continue
+    const slug = extrairSlugDaPermissao(chave)
+    if (slug && slugBidFreteCompativel(slugProduto, slug)) return true
+  }
+  return false
+}
+
 /**
  * Retorna as chaves canônicas que devem ser inseridas em UsuarioPermissao
  * quando o usuário do tipo X é vinculado ao workspace que tem o produto Y.

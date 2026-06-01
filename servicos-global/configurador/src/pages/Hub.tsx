@@ -30,12 +30,12 @@ import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LogoHub, corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
 import { resolverProdVisualHub } from '../utils/resolver-prod-visual-hub'
-import { nomeExibicaoProdutoGravity } from '../data/product-meta'
+import { temBypassPermissao } from '../../shared/index.js'
 import {
-  ehSlugBidFreteInternacional,
-  ROTA_ENTRADA_BID_FRETE_FORNECEDOR,
-  usuarioPodeCotarBidFreteInternacional,
-} from '../shared/verificar-cotar-bid-frete-internacional'
+  expandirCardsProdutosCore,
+  carregarPermissoesUsuarioWorkspace,
+  type CardProdutoCoreExibicao,
+} from '../shared/entrada-produtos-core'
 import { LogoGlobal } from '@nucleo/logo-global'
 import {
   LocalizadorGlobal,
@@ -132,8 +132,8 @@ export function Hub() {
   const { getToken } = useAuth()
   const { user } = useUser()
   const navigate = useNavigate()
-  const [podeCotarBidFrete, setPodeCotarBidFrete] = useState(false)
-  const { gravityAdmin: isAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
+  const [cardsCore, setCardsCore] = useState<CardProdutoCoreExibicao[]>([])
+  const { gravityAdmin: isAdmin, tipoUsuario: dbRole, idUsuarioPrisma, pronto: tipoUsuarioPronto } = useCarregarTipoUsuario()
   // Popula currentUser.tipoUsuario no ShellStore (consumido por
   // useOrganizacaoOverride — Pendência #4). Sem isso, /hub acessado
   // direto pós-login deixa o store vazio e o item "Trocar Organização"
@@ -170,48 +170,47 @@ export function Hub() {
         // Empty state quando nenhum produto está habilitado neste workspace.
         // Habilitação é manual via /workspace/assinaturas (sem auto-bootstrap).
         setProducts(active)
+
+        const bypass = tipoUsuarioPronto && temBypassPermissao({ tipo_usuario: dbRole })
+        let permissoes: Set<string> | null = null
+        if (tipoUsuarioPronto && !bypass && idUsuarioPrisma) {
+          try {
+            permissoes = await carregarPermissoesUsuarioWorkspace(getToken, idUsuarioPrisma, id_workspace)
+          } catch (errPerm) {
+            console.warn('[Hub] Falha ao carregar permissões do workspace:', errPerm)
+          }
+        }
+        setCardsCore(expandirCardsProdutosCore(active, permissoes, bypass, t))
       } catch (err) {
         // REGRA 08 — log alto na falha (Opção B); não engole o erro com fallback silencioso
         console.warn('[Hub] Falha ao carregar produtos do workspace:', err)
         addNotification({ type: 'error', message: err instanceof Error ? err.message : t('hub.erro_carregar_produtos') })
+        setCardsCore([])
       } finally {
         setLoading(false)
       }
     }
     loadProducts()
-  }, [id_workspace, addNotification, t])
+  }, [id_workspace, idUsuarioPrisma, dbRole, tipoUsuarioPronto, getToken, addNotification, t])
 
-  useEffect(() => {
-    if (!id_workspace) {
-      setPodeCotarBidFrete(false)
+  const handleOpenProduct = (rota: string) => {
+    if (rota.startsWith('/bid-frete-internacional/visao-fornecedor')) {
+      window.location.href = rota
       return
     }
-    let cancelado = false
-    void usuarioPodeCotarBidFreteInternacional(getToken, id_workspace).then(permitido => {
-      if (!cancelado) setPodeCotarBidFrete(permitido)
-    })
-    return () => { cancelado = true }
-  }, [id_workspace, getToken])
-
-  const handleOpenProduct = (slug: string) => {
-    if (ehSlugBidFreteInternacional(slug) && podeCotarBidFrete) {
-      window.location.href = ROTA_ENTRADA_BID_FRETE_FORNECEDOR
-      return
-    }
-    navigate(`/produto/${slug}`)
+    navigate(rota)
   }
 
-  const activeCount = products.length
+  const activeCount = cardsCore.length
 
   // ── Localizador — nós do ecossistema ──────────────────────────────────────
   const { history, addEntry } = useLocalizadorHistory('hub')
 
-  const produtoNodes: EcosystemNode[] = products.map(p => {
-    const slug = p.catalog?.slug ?? p.product_key
-    const v = resolverProdVisualHub(slug, prodVisual, defaultVisual, p.product_key)
+  const produtoNodes: EcosystemNode[] = cardsCore.map(card => {
+    const v = resolverProdVisualHub(card.slug, prodVisual, defaultVisual, card.produto.product_key)
     return {
-      id:       p.product_key,
-      label:    p.catalog?.name ?? p.product_key,
+      id:       card.key,
+      label:    card.nome,
       sublabel: 'produto',
       color:    v.color,
       type:     'produto',
@@ -419,7 +418,7 @@ export function Hub() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 0', minHeight: 200 }}>
                 <GravityLoader texto="Carregando" tamanho="md" />
               </div>
-            ) : products.length === 0 ? (
+            ) : cardsCore.length === 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', padding: '3rem 0', minHeight: 200, color: 'var(--hb-muted)', fontSize: '0.875rem' }}>
                 <Rocket weight="duotone" size={48} color="var(--hb-muted)" />
                 <p style={{ textAlign: 'center', maxWidth: 320 }}>{t('hub.empty_desc', { nome: companyName })}</p>
@@ -429,26 +428,22 @@ export function Hub() {
               </div>
             ) : (
               <div className="hb-products-grid">
-                {products.map((p) => {
-                  const slug = p.catalog?.slug ?? p.product_key
-                  const v = resolverProdVisualHub(slug, prodVisual, defaultVisual, p.product_key)
+                {cardsCore.map((card) => {
+                  const p = card.produto
+                  const v = resolverProdVisualHub(card.slug, prodVisual, defaultVisual, p.product_key)
                   return (
                     <div
-                      key={p.product_key}
+                      key={card.key}
                       className="hb-prod-card"
                       style={{ '--hb-prod-color': v.color, '--hb-prod-dim': v.dim } as React.CSSProperties}
-                      onClick={() => handleOpenProduct(slug)}
+                      onClick={() => handleOpenProduct(card.rota)}
                     >
                       <div className="hb-prod-top">
                         <div className="hb-prod-icon">{v.icon}</div>
                         <span className="hb-prod-status hb-prod-status--active">{t('hub.produto_ativo')}</span>
                       </div>
                       <div>
-                        <div className="hb-prod-name">
-                          {ehSlugBidFreteInternacional(slug) && podeCotarBidFrete
-                            ? t('hub.produto_bid_frete_internacional_fornecedor', 'Bid Frete Internacional - Fornecedor')
-                            : nomeExibicaoProdutoGravity(slug, p.catalog?.name ?? p.product_key, t)}
-                        </div>
+                        <div className="hb-prod-name">{card.nome}</div>
                         <div className="hb-prod-desc">{p.catalog?.description ?? v.description}</div>
                       </div>
                       <div className="hb-prod-footer">

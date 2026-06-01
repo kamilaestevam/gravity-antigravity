@@ -26,7 +26,10 @@ import {
   TOGGLES_POR_PRODUTO,
   PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS,
   buildAcessoUsuarioProdutosGravityString,
+  buildPermissaoCotarFreteString,
   ehPermissaoAcessoUsuarioProdutoGravity,
+  ehSlugProdutoBidFrete,
+  togglesGranularesPorProduto,
 } from '../../../shared/index.js'
 
 /**
@@ -483,8 +486,13 @@ const CardProdutoAtivo = React.memo(function CardProdutoAtivo({ produto, permiss
 }) {
   const slug = produto.product_key
   const nome = produto.catalog?.name ?? slug
+  const ehBidFrete = ehSlugProdutoBidFrete(slug)
+  const chaveCotar = buildPermissaoCotarFreteString(slug)
   const todasChavesProduto = SECOES_PRODUTO_RENDER.flatMap(s => ACOES_PRODUTO_RENDER.map(a => `${slug}:${s.id}:${a.id}`))
-  const ativasNoProduto = todasChavesProduto.filter(c => permissoesDoWorkspace.has(c)).length
+  const ativasGrade = todasChavesProduto.filter(c => permissoesDoWorkspace.has(c)).length
+  const cotarAtivo = ehBidFrete && permissoesDoWorkspace.has(chaveCotar)
+  const ativasNoProduto = ativasGrade + (cotarAtivo ? 1 : 0)
+  const totalTogglesProduto = togglesGranularesPorProduto(slug)
 
   return (
     <div style={{
@@ -498,7 +506,7 @@ const CardProdutoAtivo = React.memo(function CardProdutoAtivo({ produto, permiss
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <Cube size={16} weight="duotone" color="#818cf8" />
           <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#e2e8f0' }}>{nome}</span>
-          <span style={{ fontSize: '0.6875rem', color: '#64748b', fontWeight: 600 }}>{ativasNoProduto}/{TOGGLES_POR_PRODUTO}</span>
+          <span style={{ fontSize: '0.6875rem', color: '#64748b', fontWeight: 600 }}>{ativasNoProduto}/{totalTogglesProduto}</span>
         </div>
         {!desabilitarEdicao && (
           <div style={{ display: 'flex', gap: '0.375rem' }}>
@@ -559,6 +567,55 @@ const CardProdutoAtivo = React.memo(function CardProdutoAtivo({ produto, permiss
             </React.Fragment>
           ))}
         </div>
+
+        {ehBidFrete && (
+          <div style={{
+            marginTop: '1rem',
+            paddingTop: '1rem',
+            borderTop: '1px solid rgba(129,140,248,0.15)',
+          }}>
+            <p style={{
+              fontSize: '0.6875rem',
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: '#94a3b8',
+              marginBottom: '0.5rem',
+            }}>
+              Visão fornecedor
+            </p>
+            <button
+              type="button"
+              disabled={desabilitarEdicao}
+              onClick={() => { if (!desabilitarEdicao) onTogglePermissao(chaveCotar, !cotarAtivo) }}
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem',
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: 8,
+                cursor: desabilitarEdicao ? 'not-allowed' : 'pointer',
+                background: cotarAtivo ? 'rgba(129,140,248,0.12)' : 'rgba(255,255,255,0.02)',
+                border: cotarAtivo ? '1px solid rgba(129,140,248,0.35)' : '1px solid rgba(255,255,255,0.08)',
+                textAlign: 'left',
+                opacity: desabilitarEdicao ? 0.85 : 1,
+              }}
+            >
+              {cotarAtivo
+                ? <CheckSquare size={20} weight="fill" color="#818cf8" style={{ flexShrink: 0, marginTop: 2 }} />
+                : <Square size={20} weight="regular" color="#475569" style={{ flexShrink: 0, marginTop: 2 }} />}
+              <span>
+                <span style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#e2e8f0' }}>
+                  Pode cotar frete internacional
+                </span>
+                <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem', lineHeight: 1.4 }}>
+                  Acesso à visão fornecedor: responder cotações, enviar propostas e painel BID Frete Internacional - Fornecedor.
+                </span>
+              </span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -1090,7 +1147,9 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     () => produtosDoWsSelecionado.filter(p => p.is_active && PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS.has(p.product_key)),
     [produtosDoWsSelecionado],
   )
-  const totalToggles = master ? 0 : produtosAtivosNoWs.length * TOGGLES_POR_PRODUTO
+  const totalToggles = master
+    ? 0
+    : produtosAtivosNoWs.reduce((acc, p) => acc + togglesGranularesPorProduto(p.product_key), 0)
   const permissoesAtivasDoWs = useMemo(
     () => workspaceSelecionado ? (permissoesPorWorkspace[workspaceSelecionado] ?? []) : [],
     [workspaceSelecionado, permissoesPorWorkspace],
@@ -1111,6 +1170,9 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         for (const a of ACOES_PRODUTO_RENDER) {
           todas.add(`${p.product_key}:${s.id}:${a.id}`)
         }
+      }
+      if (ehSlugProdutoBidFrete(p.product_key)) {
+        todas.add(buildPermissaoCotarFreteString(p.product_key))
       }
     }
     return todas

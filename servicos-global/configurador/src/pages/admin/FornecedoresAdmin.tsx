@@ -179,7 +179,7 @@ export function FornecedoresAdmin(): JSX.Element {
     {
       key:    'nome_organizacao',
       label:  'Organização',
-      sticky: 'left',
+      tipo:   'texto',
       render: (_, linha) => (
         <button
           type="button"
@@ -195,11 +195,16 @@ export function FornecedoresAdmin(): JSX.Element {
         </button>
       ),
     },
-    { key: 'nome_fornecedor', label: 'Fornecedor' },
+    { key: 'nome_fornecedor', label: 'Fornecedor', tipo: 'texto' },
     {
-      key:   'documento',
+      key:   'cnpj_fornecedor',
       label: 'CNPJ / TIN',
+      tipo:  'texto',
       render: (_, l) =>
+        l.pais_fornecedor === 'BR'
+          ? (l.cnpj_fornecedor ?? '—')
+          : (l.tin_fornecedor ?? '—'),
+      getValorBruto: (l) =>
         l.pais_fornecedor === 'BR'
           ? (l.cnpj_fornecedor ?? '—')
           : (l.tin_fornecedor ?? '—'),
@@ -207,6 +212,7 @@ export function FornecedoresAdmin(): JSX.Element {
     {
       key:   'pais_fornecedor',
       label: 'País',
+      tipo:  'texto',
       render: (_, l) => (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
           <Globe size={12} weight="bold" />
@@ -215,13 +221,16 @@ export function FornecedoresAdmin(): JSX.Element {
       ),
     },
     {
-      key:   'papeis_comex',
+      key:   'id_fornecedor',
       label: 'Papel COMEX',
+      tipo:  'texto',
       render: (_, l) => derivarPapeisComex(l),
+      getValorBruto: (l) => derivarPapeisComex(l),
     },
     {
       key:   'ativo_fornecedor',
       label: 'Status',
+      tipo:  'texto',
       render: (_, l) => (
         <span style={{ color: l.ativo_fornecedor ? '#34d399' : '#94a3b8' }}>
           {l.ativo_fornecedor ? 'Ativa' : 'Inativa'}
@@ -234,6 +243,7 @@ export function FornecedoresAdmin(): JSX.Element {
     {
       key: 'nome_organizacao',
       label: 'Organização',
+      tipo: 'texto',
       render: (_, linha) => (
         <button
           type="button"
@@ -252,6 +262,7 @@ export function FornecedoresAdmin(): JSX.Element {
     {
       key: 'nome_usuario',
       label: 'Usuário',
+      tipo: 'texto',
       render: (_, linha) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <UserCircle size={16} weight="duotone" style={{ color: '#818cf8', flexShrink: 0 }} />
@@ -262,22 +273,26 @@ export function FornecedoresAdmin(): JSX.Element {
     {
       key: 'email_usuario',
       label: 'E-mail',
+      tipo: 'texto',
       render: (_, linha) => linha.email_usuario ?? '—',
     },
     {
       key: 'tipo_usuario',
       label: 'Tipo',
+      tipo: 'texto',
       render: (_, linha) => linha.tipo_usuario ?? '—',
     },
     {
       key: 'tipo_fornecedor_organizacao',
       label: 'Papel COMEX',
+      tipo: 'texto',
       render: (_, linha) =>
         ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO[linha.tipo_fornecedor_organizacao] ?? linha.tipo_fornecedor_organizacao,
     },
     {
       key: 'status_fornecedor_organizacao',
       label: 'Status vínculo',
+      tipo: 'texto',
       render: (_, linha) => (
         <StatusBadgeGlobal valor={rotuloStatusVinculo(linha.status_fornecedor_organizacao)} />
       ),
@@ -363,6 +378,7 @@ export function FornecedoresAdmin(): JSX.Element {
           id="admin-fornecedores"
           dados={fornecedores}
           colunas={colunas}
+          frozenColunas={1}
           idKey="id_fornecedor"
           mensagemVazio="Nenhum fornecedor encontrado com os filtros atuais."
           tooltipBusca="Busca por nome do fornecedor"

@@ -409,7 +409,7 @@ usersRouter.post('/:id_usuario/reenviar-convite', requireUserManagementRole, asy
     securityAudit.permissionChanged(alvo.id_organizacao, req.auth.id_usuario, {
       id_usuario_alvo: alvo.id_usuario,
       nome_permissao: 'convite_reenviado',
-      acao_permissao: 'RESENT',
+      acao_permissao: 'GRANTED',
     }, req.auth.nome_usuario).catch(() => { /* fire-and-forget */ })
 
     res.status(200).json({

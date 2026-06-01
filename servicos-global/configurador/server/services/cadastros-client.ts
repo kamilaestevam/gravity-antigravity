@@ -22,6 +22,7 @@ import {
 import {
   criarFornecedorOrganizacaoSchema,
   fornecedorOrganizacaoSchema,
+  listaFornecedorOrganizacaoSchema,
   type CriarFornecedorOrganizacaoInput,
   type FornecedorOrganizacao,
 } from '../../../cadastros/shared/schemas/fornecedor-organizacao.schema.js'
@@ -298,6 +299,50 @@ export async function listarFornecedoresPorOrganizacao(
   return lista.itens
 }
 
+/** Obtém fornecedor do cartório da org pelo SUID (404 → null). */
+export async function obterFornecedorPorIdNaOrganizacao(
+  idFornecedor: string,
+  ctx: CadastrosRequestContext,
+): Promise<Fornecedor | null> {
+  let response: Response
+  try {
+    response = await fetch(
+      `${getCadastrosUrl()}/fornecedores/${encodeURIComponent(idFornecedor)}`,
+      {
+        method: 'GET',
+        headers: headersPadrao(ctx),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      },
+    )
+  } catch (err) {
+    log.error('cadastros.obter_fornecedor.network_failure', {
+      correlation_id: ctx.correlation_id,
+      id_organizacao: ctx.id_organizacao,
+      id_fornecedor: idFornecedor,
+      error: err instanceof Error ? err.message : String(err),
+    })
+    throw new AppError(
+      'Serviço Cadastros indisponível (rede/timeout)',
+      503,
+      'CADASTROS_INDISPONIVEL',
+    )
+  }
+
+  if (response.status === 404) return null
+
+  if (!response.ok) {
+    const corpo = await lerCorpoErro(response)
+    throw new AppError(
+      `Cadastros falhou ao obter fornecedor: ${response.status} ${corpo}`,
+      response.status >= 500 ? 503 : response.status,
+      'CADASTROS_OBTER_FALHOU',
+    )
+  }
+
+  const raw = await response.json()
+  return fornecedorSchema.parse(raw)
+}
+
 /** Busca fornecedor no cartório da org pelo e-mail principal (até 200 itens). */
 export async function buscarFornecedorPorEmailNaOrganizacao(
   email: string,
@@ -385,6 +430,35 @@ const listaVinculosPorUsuarioSchema = z.object({
   itens: z.array(fornecedorOrganizacaoSchema),
   total: z.number().int().nonnegative(),
 })
+
+/** Lista vínculos fornecedor_organizacao da organização (enrich com nome do cartório). */
+export async function listarVinculosFornecedorOrganizacaoPorOrganizacao(
+  ctx: CadastrosRequestContext,
+): Promise<FornecedorOrganizacao[]> {
+  const params = new URLSearchParams({
+    id_organizacao: ctx.id_organizacao,
+    por_pagina: '200',
+  })
+  const response = await fetch(
+    `${getCadastrosUrl()}/cadastros/fornecedores-organizacao?${params.toString()}`,
+    {
+      method: 'GET',
+      headers: headersPadrao(ctx),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    },
+  )
+  if (!response.ok) {
+    const corpo = await lerCorpoErro(response)
+    throw new AppError(
+      `Cadastros falhou ao listar vínculos da organização: ${response.status} ${corpo}`,
+      response.status >= 500 ? 503 : response.status,
+      'CADASTROS_LISTA_FALHOU',
+    )
+  }
+  const raw = await response.json()
+  const lista = listaFornecedorOrganizacaoSchema.parse(raw)
+  return lista.itens
+}
 
 /** Lista vínculos fornecedor_organizacao de um usuário (troca de crachá). */
 export async function listarVinculosFornecedorPorUsuario(

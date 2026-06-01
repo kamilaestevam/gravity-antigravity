@@ -24,6 +24,17 @@ import {
   compararEstadosHistoricoLog,
   montarDetalheAcaoHistoricoLog,
 } from '@nucleo/montar-detalhe-acao-historico-log'
+import { servicoPermissaoUsuario } from '../services/permissao-usuario-servico.js'
+import {
+  SECOES_PRODUTO,
+  ACOES_PRODUTO,
+  SECAO_VISAO_FORNECEDOR,
+  ACAO_COTAR_FRETE,
+  SLUGS_BID_FRETE,
+  buildPermissaoCotarFreteString,
+  type SecaoProduto,
+  type AcaoProduto,
+} from '../../shared/index.js'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Schema de resposta — contrato exportável para testes e consumidores
@@ -676,6 +687,68 @@ meRouter.delete('/workspaces/:id_workspace', requireConfiguradorMutation, async 
     }).catch(() => {})
 
     res.status(204).end()
+  } catch (err) {
+    next(err)
+  }
+})
+
+const CUID_OR_UUID = /^([a-z][a-z0-9]{22,24}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/
+
+const mePermissaoVerificarQuerySchema = z.object({
+  slug_produto: z.string().regex(/^[a-z][a-z0-9-]*$/),
+  secao: z.union([z.enum(SECOES_PRODUTO), z.literal(SECAO_VISAO_FORNECEDOR)]),
+  acao: z.union([z.enum(ACOES_PRODUTO), z.literal(ACAO_COTAR_FRETE)]),
+  id_workspace: z.string().regex(CUID_OR_UUID),
+})
+
+export const mePermissaoVerificarResponseSchema = z.object({
+  permitido: z.boolean(),
+})
+
+/**
+ * GET /api/v1/me/permissoes/verificar
+ * Verifica permissão granular ou extra (visao_fornecedor:cotar) no workspace ativo.
+ */
+meRouter.get('/permissoes/verificar', async (req, res, next) => {
+  try {
+    const parsed = mePermissaoVerificarQuerySchema.safeParse(req.query)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Query inválida', 400, 'VALIDATION_ERROR')
+    }
+
+    const { slug_produto, secao, acao, id_workspace } = parsed.data
+    const base = {
+      id_organizacao: req.auth.id_organizacao,
+      id_usuario: req.auth.id_usuario,
+      id_workspace,
+    }
+
+    let permitido = false
+
+    if (secao === SECAO_VISAO_FORNECEDOR && acao === ACAO_COTAR_FRETE) {
+      const slugs = new Set<string>([slug_produto, ...SLUGS_BID_FRETE])
+      for (const slug of slugs) {
+        const chave = buildPermissaoCotarFreteString(slug)
+        const ok = await servicoPermissaoUsuario.verificarPermissaoChaveExata({
+          ...base,
+          permissao_usuario: chave,
+        })
+        if (ok) {
+          permitido = true
+          break
+        }
+      }
+    } else {
+      permitido = await servicoPermissaoUsuario.verificarPermissao({
+        ...base,
+        slug_produto,
+        secao: secao as SecaoProduto,
+        acao: acao as AcaoProduto,
+      })
+    }
+
+    const payload = mePermissaoVerificarResponseSchema.parse({ permitido })
+    res.json(payload)
   } catch (err) {
     next(err)
   }

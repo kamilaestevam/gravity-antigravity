@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useTranslation } from 'react-i18next'
-import { useClerk, useUser } from '@clerk/clerk-react'
+import { useAuth, useClerk, useUser } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowUpRight,
@@ -31,6 +31,11 @@ import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LogoHub, corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
 import { resolverProdVisualHub } from '../utils/resolver-prod-visual-hub'
 import { nomeExibicaoProdutoGravity } from '../data/product-meta'
+import {
+  ehSlugBidFreteInternacional,
+  ROTA_ENTRADA_BID_FRETE_FORNECEDOR,
+  usuarioPodeCotarBidFreteInternacional,
+} from '../shared/verificar-cotar-bid-frete-internacional'
 import { LogoGlobal } from '@nucleo/logo-global'
 import {
   LocalizadorGlobal,
@@ -124,8 +129,10 @@ export function Hub() {
   const [loading, setLoading] = useState(true)
 
   const { signOut } = useClerk()
+  const { getToken } = useAuth()
   const { user } = useUser()
   const navigate = useNavigate()
+  const [podeCotarBidFrete, setPodeCotarBidFrete] = useState(false)
   const { gravityAdmin: isAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
   // Popula currentUser.tipoUsuario no ShellStore (consumido por
   // useOrganizacaoOverride — Pendência #4). Sem isso, /hub acessado
@@ -172,9 +179,27 @@ export function Hub() {
       }
     }
     loadProducts()
-  }, [id_workspace])
+  }, [id_workspace, addNotification, t])
 
-  const handleOpenProduct = (slug: string) => navigate(`/produto/${slug}`)
+  useEffect(() => {
+    if (!id_workspace) {
+      setPodeCotarBidFrete(false)
+      return
+    }
+    let cancelado = false
+    void usuarioPodeCotarBidFreteInternacional(getToken, id_workspace).then(permitido => {
+      if (!cancelado) setPodeCotarBidFrete(permitido)
+    })
+    return () => { cancelado = true }
+  }, [id_workspace, getToken])
+
+  const handleOpenProduct = (slug: string) => {
+    if (ehSlugBidFreteInternacional(slug) && podeCotarBidFrete) {
+      window.location.href = ROTA_ENTRADA_BID_FRETE_FORNECEDOR
+      return
+    }
+    navigate(`/produto/${slug}`)
+  }
 
   const activeCount = products.length
 
@@ -420,7 +445,9 @@ export function Hub() {
                       </div>
                       <div>
                         <div className="hb-prod-name">
-                          {nomeExibicaoProdutoGravity(slug, p.catalog?.name ?? p.product_key, t)}
+                          {ehSlugBidFreteInternacional(slug) && podeCotarBidFrete
+                            ? t('hub.produto_bid_frete_internacional_fornecedor', 'Bid Frete Internacional - Fornecedor')
+                            : nomeExibicaoProdutoGravity(slug, p.catalog?.name ?? p.product_key, t)}
                         </div>
                         <div className="hb-prod-desc">{p.catalog?.description ?? v.description}</div>
                       </div>

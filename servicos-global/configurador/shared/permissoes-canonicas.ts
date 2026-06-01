@@ -17,6 +17,19 @@ export type AcaoProduto = typeof ACOES_PRODUTO[number]
 /** Total de toggles disponíveis por produto: 6 seções × 2 ações = 12. */
 export const TOGGLES_POR_PRODUTO = SECOES_PRODUTO.length * ACOES_PRODUTO.length
 
+/** Seção extra — visão fornecedor (fora da grid 6×2 padrão). */
+export const SECAO_VISAO_FORNECEDOR = 'visao_fornecedor' as const
+
+/** Ação extra — responder cotações / visão fornecedor no BID. */
+export const ACAO_COTAR_FRETE = 'cotar' as const
+
+export const SLUGS_BID_FRETE = ['bid-frete', 'bid-frete-internacional'] as const
+
+/** Chave canônica `bid-frete-internacional:visao_fornecedor:cotar`. */
+export function buildPermissaoCotarFreteString(slug: string): string {
+  return `${slug}:${SECAO_VISAO_FORNECEDOR}:${ACAO_COTAR_FRETE}`
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Portão 3 — Acesso usuário × produto Gravity (Cadeia 2 grosseira)
 //
@@ -68,6 +81,7 @@ export function extrairSlugDaPermissao(permissao: string): string | null {
 export const PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS = new Set<string>([
   'pedido',
   'bid-frete',
+  'bid-frete-internacional',
 ])
 
 /**
@@ -80,7 +94,7 @@ export const PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS = new Set<string>([
  *   2. Portão 3 (acesso ao prod):  `<slug>:acesso_usuario_produtos_gravity:permitido`
  */
 export const PERMISSAO_REGEX_PATTERN =
-  `^[a-z][a-z0-9-]*:((${SECOES_PRODUTO.join('|')}):(${ACOES_PRODUTO.join('|')})|${SECAO_ACESSO_PRODUTO}:${ACAO_ACESSO_PERMITIDO})$`
+  `^[a-z][a-z0-9-]*:((${SECOES_PRODUTO.join('|')}):(${ACOES_PRODUTO.join('|')})|${SECAO_VISAO_FORNECEDOR}:${ACAO_COTAR_FRETE}|${SECAO_ACESSO_PRODUTO}:${ACAO_ACESSO_PERMITIDO})$`
 
 /** Constrói uma string canônica `<slug>:<secao>:<acao>`. */
 export function buildPermissaoString(
@@ -141,6 +155,20 @@ export const DEFAULTS_GRANULARES_POR_PRODUTO: Record<
       { secao: 'lista',     acao: 'ver' },
     ],
   },
+  'bid-frete-internacional': {
+    PADRAO: [],
+    FORNECEDOR: [
+      { secao: 'dashboard', acao: 'ver' },
+      { secao: 'lista',     acao: 'ver' },
+    ],
+  },
+}
+
+/** Extras fora da grid 6×2 — ex.: cotar na visão fornecedor BID. */
+export function chavesDefaultExtrasVinculo(slug: string, tipo_usuario: string): string[] {
+  if (tipo_usuario !== 'FORNECEDOR') return []
+  if (!SLUGS_BID_FRETE.includes(slug as (typeof SLUGS_BID_FRETE)[number])) return []
+  return [buildPermissaoCotarFreteString(slug)]
 }
 
 /**

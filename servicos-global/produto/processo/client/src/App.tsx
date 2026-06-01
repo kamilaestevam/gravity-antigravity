@@ -26,6 +26,8 @@ const FinanceiroNumerario = lazy(() => import('./pages/financeiro/FinanceiroNume
 const FinanceiroRateio = lazy(() => import('./pages/financeiro/FinanceiroRateio'))
 const ConfiguracoesLayout = lazy(() => import('./pages/configuracoes/ConfiguracoesLayout'))
 const StatusProcesso = lazy(() => import('./pages/configuracoes/status/StatusProcesso'))
+const TodosProcessosLista = lazy(() => import('./pages/todos/TodosProcessosLista'))
+const TodosProcessosKanban = lazy(() => import('./pages/todos/TodosProcessosKanban'))
 const Email = lazy(() => import('./pages/email/Email'))
 
 // ─── Loading Fallback ──────────────────────────────────────────────────────
@@ -122,7 +124,21 @@ export function App() {
     <Layout>
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<Navigate to="workflow" replace />} />
+          {/* Lista geral dos processos do workspace — workspace-level, SEM
+              ProcessoLayout (que e sidebar de detalhe de um processo
+              especifico). O <Layout> do @shell ja cuida do posicionamento. */}
+          <Route path="/"      element={<Navigate to="lista" replace />} />
+          <Route path="lista"  element={<TodosProcessosLista />} />
+          <Route path="kanban" element={<TodosProcessosKanban />} />
+          {/* Alias /todos/* durante migracao */}
+          <Route path="todos">
+            <Route index element={<Navigate to="../lista" replace />} />
+            <Route path="lista"  element={<Navigate to="../../lista" replace />} />
+            <Route path="kanban" element={<Navigate to="../../kanban" replace />} />
+          </Route>
+
+          {/* Detalhe de um processo especifico — usa ProcessoLayout
+              (sidebar contextual com Visao Geral, Pedidos, DUIMP, etc.) */}
           <Route element={<ProcessoLayout />}>
             <Route path="workflow" element={<Workflow />} />
             <Route path="documentos" element={<DocumentosPlaceholder />} />
@@ -148,6 +164,7 @@ export function App() {
             <Route path="configuracoes" element={<ConfiguracoesLayout />}>
               <Route index element={<Navigate to="status" replace />} />
               <Route path="status" element={<StatusProcesso />} />
+              {/* Sub-paginas stub: redirecionam pra status por enquanto */}
               <Route path="cards"         element={<Navigate to="../status" replace />} />
               <Route path="visao-geral"   element={<Navigate to="../status" replace />} />
               <Route path="tabela"        element={<Navigate to="../status" replace />} />

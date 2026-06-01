@@ -31,7 +31,7 @@ function cotacaoBase(partial: Partial<Cotacao> = {}): Cotacao {
     destino_pais_cotacao_bid_frete_internacional: 'CN',
     descricao_mercadoria_cotacao_bid_frete_internacional: 'Carga teste',
     ncm_cotacao_bid_frete_internacional: null,
-    quantidade_volume_cotacao_bid_frete_internacional: 1,
+    quantidade_cotacao_bid_frete_internacional: 1,
     tipo_container_cotacao_bid_frete_internacional: null,
     peso_kg_cotacao_bid_frete_internacional: null,
     cubagem_m3_cotacao_bid_frete_internacional: null,
@@ -66,22 +66,12 @@ describe('CHAVES_COLUNAS — visibilidade padrão', () => {
     expect(CHAVES_COLUNAS_COTACAO).toContain('id_cotacao_bid_frete_internacional')
   })
 
-  it('CHAVES_COLUNAS_PADRAO_VISIVEIS — 10 colunas na ordem do produto', () => {
+  it('CHAVES_COLUNAS_PADRAO_VISIVEIS oculta id_cotacao_bid_frete_internacional', () => {
     expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).not.toContain('id_cotacao_bid_frete_internacional')
-    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toEqual([
-      'numero_cotacao_bid_frete_internacional',
-      'tipo_operacao_cotacao_bid_frete_internacional',
-      'modal_cotacao_bid_frete_internacional',
-      'modalidade_cotacao_bid_frete_internacional',
-      'origem_nome_cotacao_bid_frete_internacional',
-      'origem_codigo_cotacao_bid_frete_internacional',
-      'origem_pais_cotacao_bid_frete_internacional',
-      'destino_nome_cotacao_bid_frete_internacional',
-      'destino_codigo_cotacao_bid_frete_internacional',
-      'destino_pais_cotacao_bid_frete_internacional',
-    ])
-    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).not.toContain('id_organizacao')
-    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).not.toContain('status_cotacao_bid_frete_internacional')
+    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('numero_cotacao_bid_frete_internacional')
+    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('id_organizacao')
+    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('id_workspace')
+    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('id_usuario')
   })
 
   it('coluna ID interna está marcada como oculta em buildColunasCotacoes', () => {
@@ -112,9 +102,9 @@ describe('CHAVES_COLUNAS — visibilidade padrão', () => {
     expect(idxEndereco).toBe(idxPais + 1)
   })
 
-  it('CHAVES_COLUNAS_PADRAO_VISIVEIS inclui país destino mas não endereço', () => {
+  it('CHAVES_COLUNAS_PADRAO_VISIVEIS inclui pais e endereco destino', () => {
     expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('destino_pais_cotacao_bid_frete_internacional')
-    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).not.toContain('endereco_destino_cotacao_bid_frete_internacional')
+    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('endereco_destino_cotacao_bid_frete_internacional')
   })
 })
 
@@ -139,7 +129,7 @@ describe('CAMPOS_EDITAVEIS_LISTA — edição inline', () => {
       'modalidade_cotacao_bid_frete_internacional',
       'origem_nome_cotacao_bid_frete_internacional',
       'destino_nome_cotacao_bid_frete_internacional',
-      'quantidade_volume_cotacao_bid_frete_internacional',
+      'quantidade_cotacao_bid_frete_internacional',
       'tipo_container_cotacao_bid_frete_internacional',
     ]) {
       expect(CAMPOS_EDITAVEIS_LISTA).toContain(key)

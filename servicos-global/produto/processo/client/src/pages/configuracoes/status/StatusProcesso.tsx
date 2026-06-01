@@ -17,85 +17,13 @@ import {
   WarningCircle, CheckCircle, FloppyDisk, PencilSimple,
   Sparkle, XCircle,
 } from '@phosphor-icons/react'
+import {
+  validarStatus, camposPara, precisaValor,
+  ROTULO_CONDICAO,
+  type FieldSource, type CondicaoTipo, type CampoOpcao,
+  type Regra, type StatusConfig,
+} from './validacao'
 import './StatusProcesso.css'
-
-// ── Tipos ──────────────────────────────────────────────────────────────────
-
-type FieldSource = 'dados_processo' | 'pedido'
-
-type CondicaoTipo =
-  | 'vazio' | 'preenchido'
-  | 'igual' | 'diferente'
-  | 'maior_que' | 'menor_que'
-  | 'contem'
-
-interface CampoOpcao {
-  key: string
-  label: string
-  tipo: 'texto' | 'numero' | 'data' | 'select'
-}
-
-interface Regra {
-  id: string
-  origem: FieldSource
-  campo: string
-  condicao: CondicaoTipo
-  valor?: string
-}
-
-interface StatusConfig {
-  id: string
-  nome: string
-  cor: string
-  ordem: number
-  operador: 'AND' | 'OR'
-  regras: Regra[]
-}
-
-// ── Catalogo de campos disponiveis para regras ─────────────────────────────
-
-const CAMPOS_DADOS_PROCESSO: CampoOpcao[] = [
-  { key: 'numero_processo',  label: 'Número do Processo',  tipo: 'texto' },
-  { key: 'data_abertura',    label: 'Data de Abertura',    tipo: 'data' },
-  { key: 'data_embarque',    label: 'Data de Embarque',    tipo: 'data' },
-  { key: 'data_chegada',     label: 'Data de Chegada',     tipo: 'data' },
-  { key: 'ref_cliente',      label: 'Referência Cliente',  tipo: 'texto' },
-  { key: 'responsavel',      label: 'Responsável',         tipo: 'texto' },
-  { key: 'despachante',      label: 'Despachante',         tipo: 'texto' },
-  { key: 'incoterm',         label: 'Incoterm',            tipo: 'texto' },
-  { key: 'canal',            label: 'Canal',               tipo: 'select' },
-  { key: 'tipo_decl',        label: 'Tipo de Declaração',  tipo: 'select' },
-  { key: 'bl_awb',           label: 'BL / AWB',            tipo: 'texto' },
-  { key: 'di_numero',        label: 'DI Nº',               tipo: 'texto' },
-  { key: 'li_numero',        label: 'LI Nº',               tipo: 'texto' },
-]
-
-const CAMPOS_PEDIDO: CampoOpcao[] = [
-  { key: 'numero_pedido',    label: 'Número do Pedido',    tipo: 'texto' },
-  { key: 'status_pedido',    label: 'Status do Pedido',    tipo: 'select' },
-  { key: 'valor_fob',        label: 'Valor FOB',           tipo: 'numero' },
-  { key: 'peso_bruto',       label: 'Peso Bruto',          tipo: 'numero' },
-  { key: 'data_pedido',      label: 'Data do Pedido',      tipo: 'data' },
-  { key: 'data_emb_prev',    label: 'Data Embarque Prev.', tipo: 'data' },
-]
-
-function camposPara(origem: FieldSource): CampoOpcao[] {
-  return origem === 'dados_processo' ? CAMPOS_DADOS_PROCESSO : CAMPOS_PEDIDO
-}
-
-const ROTULO_CONDICAO: Record<CondicaoTipo, string> = {
-  vazio:       'é vazio',
-  preenchido:  'está preenchido',
-  igual:       'é igual a',
-  diferente:   'é diferente de',
-  maior_que:   'é maior que',
-  menor_que:   'é menor que',
-  contem:      'contém',
-}
-
-function precisaValor(c: CondicaoTipo): boolean {
-  return c !== 'vazio' && c !== 'preenchido'
-}
 
 // ── Cores predefinidas ────────────────────────────────────────────────────
 
@@ -144,124 +72,6 @@ const STATUS_INICIAIS: StatusConfig[] = [
     ],
   },
 ]
-
-// ── Validacao semantica (estilo GABI) ──────────────────────────────────────
-//
-// Espelha o validador de formulas de Campos Calculados do Pedido. Detecta
-// incompatibilidades antes do back avaliar — ex: 'maior que' em texto, valor
-// vazio quando exigido, regras conflitantes no mesmo campo.
-
-type Severidade = 'erro' | 'aviso'
-
-interface Problema {
-  severidade: Severidade
-  mensagem: string
-}
-
-interface Validacao {
-  problemas: Problema[]
-  valida: boolean
-}
-
-/**
- * Compatibilidade entre tipo do campo e condicao. Cada condicao so faz
- * sentido pra certos tipos:
- *
- *   vazio, preenchido   → todos (verifica existencia)
- *   igual, diferente    → todos (comparacao exata)
- *   contem              → SO texto (substring)
- *   maior_que, menor_que → numero ou data (comparacao ordinal)
- */
-const CONDICAO_POR_TIPO: Record<CondicaoTipo, CampoOpcao['tipo'][]> = {
-  vazio:      ['texto', 'numero', 'data', 'select'],
-  preenchido: ['texto', 'numero', 'data', 'select'],
-  igual:      ['texto', 'numero', 'data', 'select'],
-  diferente:  ['texto', 'numero', 'data', 'select'],
-  contem:     ['texto'],
-  maior_que:  ['numero', 'data'],
-  menor_que:  ['numero', 'data'],
-}
-
-function validarStatus(status: StatusConfig): Validacao {
-  const problemas: Problema[] = []
-
-  if (status.regras.length === 0) {
-    problemas.push({
-      severidade: 'aviso',
-      mensagem: 'Status sem regras nunca é disparado automaticamente.',
-    })
-  }
-
-  // Indices de regras por campo+origem (pra detectar conflitos)
-  const porCampo = new Map<string, Regra[]>()
-
-  for (const regra of status.regras) {
-    const campos = camposPara(regra.origem)
-    const campoInfo = campos.find(c => c.key === regra.campo)
-    if (!campoInfo) continue
-    const labelCampo = campoInfo.label
-
-    // 1. Condicao incompativel com tipo do campo
-    const tiposPermitidos = CONDICAO_POR_TIPO[regra.condicao]
-    if (!tiposPermitidos.includes(campoInfo.tipo)) {
-      const rotuloTipo = campoInfo.tipo === 'texto' ? 'texto'
-        : campoInfo.tipo === 'numero' ? 'número'
-        : campoInfo.tipo === 'data' ? 'data'
-        : 'lista'
-      problemas.push({
-        severidade: 'erro',
-        mensagem: `"${ROTULO_CONDICAO[regra.condicao]}" não funciona em campo de ${rotuloTipo} (${labelCampo}).`,
-      })
-    }
-
-    // 2. Valor exigido mas vazio
-    if (precisaValor(regra.condicao) && (!regra.valor || regra.valor.trim() === '')) {
-      problemas.push({
-        severidade: 'erro',
-        mensagem: `Regra em "${labelCampo}" precisa de um valor de comparação.`,
-      })
-    }
-
-    // 3. Valor numerico invalido em campo numerico
-    if (campoInfo.tipo === 'numero' && regra.valor && regra.valor.trim() !== '') {
-      const n = Number(regra.valor.replace(',', '.'))
-      if (Number.isNaN(n)) {
-        problemas.push({
-          severidade: 'erro',
-          mensagem: `Valor "${regra.valor}" não é um número válido para o campo "${labelCampo}".`,
-        })
-      }
-    }
-
-    // Agrupa pra checar conflitos
-    const k = `${regra.origem}.${regra.campo}`
-    const arr = porCampo.get(k) ?? []
-    arr.push(regra)
-    porCampo.set(k, arr)
-  }
-
-  // 4. Conflitos: campo X = vazio AND campo X = preenchido (no modo AND)
-  if (status.operador === 'AND') {
-    for (const [chave, regras] of porCampo) {
-      const temVazio = regras.some(r => r.condicao === 'vazio')
-      const temPreenchido = regras.some(r => r.condicao === 'preenchido')
-      if (temVazio && temPreenchido) {
-        const labelCampo = chave.split('.')[1]
-        const campos = [...CAMPOS_DADOS_PROCESSO, ...CAMPOS_PEDIDO]
-        const info = campos.find(c => c.key === labelCampo)
-        problemas.push({
-          severidade: 'erro',
-          mensagem: `Campo "${info?.label ?? labelCampo}" não pode ser "vazio" E "preenchido" ao mesmo tempo (no modo E).`,
-        })
-      }
-    }
-  }
-
-  return {
-    problemas,
-    valida: !problemas.some(p => p.severidade === 'erro'),
-  }
-}
 
 // ── Componente principal ───────────────────────────────────────────────────
 
@@ -336,7 +146,7 @@ export default function StatusProcesso() {
   }
 
   return (
-    <div className="sp-pagina">
+    <div className="sp-pagina" data-testid="status-pagina">
       {/* Header */}
       <div className="sp-header">
         <div>
@@ -357,7 +167,7 @@ export default function StatusProcesso() {
           const expandido = expandidos.has(status.id)
           const semRegras = status.regras.length === 0
           return (
-            <article key={status.id} className={`sp-status ${expandido ? 'sp-status--aberta' : ''}`}>
+            <article key={status.id} className={`sp-status ${expandido ? 'sp-status--aberta' : ''}`} data-testid={`status-row-${status.id}`}>
               <header className="sp-status-cabecalho">
                 <DotsSixVertical size={16} weight="bold" className="sp-status-arrastar" />
                 <span className="sp-status-ordem">{idx + 1}</span>
@@ -515,7 +325,7 @@ export default function StatusProcesso() {
                         valido ? 'sp-gabi--ok' :
                         v.valida ? 'sp-gabi--aviso' :
                         'sp-gabi--erro'
-                      }`}>
+                      }`} data-testid="gabi-painel" data-state={valido ? 'ok' : v.valida ? 'aviso' : 'erro'}>
                         <div className="sp-gabi-cabecalho">
                           <Sparkle size={14} weight="fill" />
                           <strong>GABI · </strong>

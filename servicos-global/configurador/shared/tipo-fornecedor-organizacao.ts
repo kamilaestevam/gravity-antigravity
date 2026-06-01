@@ -66,6 +66,70 @@ const FLAGS_ZERADAS: FlagsFornecedor = {
   pode_ser_fabricante_fornecedor: false,
 }
 
+/** Flags COMEX mínimas para filtrar cartório no convite FORNECEDOR. */
+export type FornecedorFlagsComex = Partial<FlagsFornecedor>
+
+const CHAVE_FLAG_POR_TIPO_ORGANIZACAO: Record<TipoFornecedorOrganizacao, keyof FlagsFornecedor> = {
+  AGENTE_CARGA: 'pode_ser_agente_fornecedor',
+  DESPACHANTE_ADUANEIRO: 'pode_ser_despachante_fornecedor',
+  ARMADOR: 'pode_ser_armador_fornecedor',
+  CIA_AEREA: 'pode_ser_cia_aerea_fornecedor',
+  TRANSPORTADORA_RODOVIARIA_NACIONAL: 'pode_ser_transportadora_rodoviaria_nacional_fornecedor',
+  TRANSPORTADORA_RODOVIARIA_INTERNACIONAL: 'pode_ser_transportadora_rodoviaria_internacional_fornecedor',
+  ARMAZEM_ALFANDEGADO: 'pode_ser_armazem_alfandegado_fornecedor',
+  ARMAZEM_NACIONAL: 'pode_ser_armazem_nacional_fornecedor',
+  BANCO: 'pode_ser_banco_fornecedor',
+  SEGURADORA_INTERNACIONAL: 'pode_ser_seguradora_internacional_fornecedor',
+  CORRETORA_CAMBIO: 'pode_ser_seguradora_corretora_cambio_fornecedor',
+  FABRICANTE: 'pode_ser_fabricante_fornecedor',
+}
+
+/** Verifica se o fornecedor do cartório pode exercer a categoria do vínculo. */
+export function fornecedorAtendeTipoOrganizacao(
+  fornecedor: FornecedorFlagsComex,
+  tipo: TipoFornecedorOrganizacao,
+): boolean {
+  const chave = CHAVE_FLAG_POR_TIPO_ORGANIZACAO[tipo]
+  return fornecedor[chave] === true
+}
+
+/** Chaves de papel no ModalEditarFornecedor (sem sufixo `_fornecedor`). */
+export type PapelFlagModalFornecedor =
+  | 'pode_ser_agente'
+  | 'pode_ser_despachante'
+  | 'pode_ser_armador'
+  | 'pode_ser_cia_aerea'
+  | 'pode_ser_transportadora_rodoviaria_nacional'
+  | 'pode_ser_transportadora_rodoviaria_internacional'
+  | 'pode_ser_armazem_alfandegado'
+  | 'pode_ser_armazem_nacional'
+  | 'pode_ser_banco'
+  | 'pode_ser_seguradora_internacional'
+  | 'pode_ser_seguradora_corretora_cambio'
+  | 'pode_ser_fabricante'
+
+const PAPEL_MODAL_POR_TIPO_ORGANIZACAO: Record<TipoFornecedorOrganizacao, PapelFlagModalFornecedor> = {
+  AGENTE_CARGA: 'pode_ser_agente',
+  DESPACHANTE_ADUANEIRO: 'pode_ser_despachante',
+  ARMADOR: 'pode_ser_armador',
+  CIA_AEREA: 'pode_ser_cia_aerea',
+  TRANSPORTADORA_RODOVIARIA_NACIONAL: 'pode_ser_transportadora_rodoviaria_nacional',
+  TRANSPORTADORA_RODOVIARIA_INTERNACIONAL: 'pode_ser_transportadora_rodoviaria_internacional',
+  ARMAZEM_ALFANDEGADO: 'pode_ser_armazem_alfandegado',
+  ARMAZEM_NACIONAL: 'pode_ser_armazem_nacional',
+  BANCO: 'pode_ser_banco',
+  SEGURADORA_INTERNACIONAL: 'pode_ser_seguradora_internacional',
+  CORRETORA_CAMBIO: 'pode_ser_seguradora_corretora_cambio',
+  FABRICANTE: 'pode_ser_fabricante',
+}
+
+/** Pré-marca o papel COMEX ao abrir cadastro rápido no convite FORNECEDOR. */
+export function papelInicialModalPorTipoOrganizacao(
+  tipo: TipoFornecedorOrganizacao,
+): PapelFlagModalFornecedor {
+  return PAPEL_MODAL_POR_TIPO_ORGANIZACAO[tipo]
+}
+
 /** Mapeia categoria COMEX → flags `pode_ser_*` no cartório Cadastros. */
 export function flagsCadastroPorTipoFornecedorOrganizacao(
   tipo: TipoFornecedorOrganizacao,

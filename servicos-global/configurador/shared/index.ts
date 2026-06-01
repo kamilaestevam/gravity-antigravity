@@ -10,6 +10,10 @@ export {
   ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO,
   TIPOS_FORNECEDOR_BID_FRETE,
   flagsCadastroPorTipoFornecedorOrganizacao,
+  fornecedorAtendeTipoOrganizacao,
+  papelInicialModalPorTipoOrganizacao,
+  type FornecedorFlagsComex,
+  type PapelFlagModalFornecedor,
   type TipoFornecedorOrganizacao,
 } from './tipo-fornecedor-organizacao.js'
 export {

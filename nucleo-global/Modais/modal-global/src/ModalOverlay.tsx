@@ -148,7 +148,12 @@ export function ModalOverlay({
   cabecalhoPersonalizado,
   children,
   botoes,
+  rodape,
   renderizarFooter,
+  onAbaAtivaChange,
+  carregandoFooter = false,
+  dirtyFooter = false,
+  podesSalvarFooter = true,
   footerEpoch,
   tamanho = 'md',
   altura,
@@ -161,18 +166,25 @@ export function ModalOverlay({
   const primeiraAba = abas?.[0]?.id ?? ''
   const [abaAtiva, setAbaAtiva] = useState(abaAtivaInicial || primeiraAba)
 
+  const mudarAba = (id: string) => {
+    setAbaAtiva(id)
+    onAbaAtivaChange?.(id)
+  }
+
   useEffect(() => {
     if (aberto && abaAtivaInicial) {
       setAbaAtiva(abaAtivaInicial)
+      onAbaAtivaChange?.(abaAtivaInicial)
     } else if (aberto && !abaAtivaInicial) {
       setAbaAtiva(primeiraAba)
+      if (primeiraAba) onAbaAtivaChange?.(primeiraAba)
     }
-  }, [aberto, abaAtivaInicial, primeiraAba])
+  }, [aberto, abaAtivaInicial, primeiraAba, onAbaAtivaChange])
 
   // Sincroniza a aba ativa quando as abas mudam
   useEffect(() => {
     if (abas && abas.length > 0 && !abas.find((a) => a.id === abaAtiva)) {
-      setAbaAtiva(abas[0].id)
+      mudarAba(abas[0].id)
     }
   }, [abas, abaAtiva])
 
@@ -271,7 +283,7 @@ export function ModalOverlay({
             <NavegacaoAbas
               abas={abas}
               abaAtiva={abaAtiva}
-              aoMudarAba={setAbaAtiva}
+              aoMudarAba={mudarAba}
               idBase={id}
               tipoAbas={tipoAbas}
               centralizarAbas={centralizarAbas}
@@ -291,15 +303,19 @@ export function ModalOverlay({
         </div>
 
         {/* Footer */}
-        {(botoes || renderizarFooter) && (
+        {(botoes || rodape || renderizarFooter) && (
           <div key={footerEpoch ?? 'footer'} className="mg-footer modal-footer">
-            {renderizarFooter ? (
-              renderizarFooter(abaAtiva)
+            {rodape ?? (renderizarFooter ? (
+              renderizarFooter(abaAtiva, {
+                carregando: carregandoFooter,
+                dirty: dirtyFooter,
+                podesSalvar: podesSalvarFooter,
+              })
             ) : (
               botoes?.map((botao, i) => (
                 <BotaoFooter key={`${botao.rotulo}-${i}`} {...botao} />
               ))
-            )}
+            ))}
           </div>
         )}
       </div>

@@ -77,12 +77,17 @@ async function botaoSalvarNoDialogo(dialog: Locator): Promise<Locator> {
   return dialog.getByRole('button', { name: /Salvar Alterações/i })
 }
 
-async function aguardarSalvando(botao: Locator, timeoutMs = 8000): Promise<boolean> {
+async function aguardarSalvando(dialog: Locator, timeoutMs = 8000): Promise<boolean> {
   try {
-    await botao.waitFor({ state: 'visible', timeout: 5000 })
+    const btn = dialog.getByTestId('modal-abas-btn-salvar')
+    await btn.waitFor({ state: 'visible', timeout: 5000 })
     await Promise.race([
-      botao.getByText(/Salvando/i).waitFor({ state: 'visible', timeout: timeoutMs }),
-      botao.locator('.gb-btn--carregando').waitFor({ state: 'attached', timeout: timeoutMs }),
+      btn.getByText(/Salvando/i).waitFor({ state: 'visible', timeout: timeoutMs }),
+      btn.locator('.gb-btn--carregando').waitFor({ state: 'attached', timeout: timeoutMs }),
+      dialog.locator('[data-testid="modal-abas-btn-salvar"][data-carregando="true"]').waitFor({
+        state: 'attached',
+        timeout: timeoutMs,
+      }),
     ])
     return true
   } catch {
@@ -198,7 +203,7 @@ async function main() {
     ).catch(() => null)
 
     await btnSalvar.click({ timeout: 10000 })
-    const viuSalvando = await aguardarSalvando(btnSalvar)
+    const viuSalvando = await aguardarSalvando(editar)
     log(viuSalvando ? '✓ Botão entrou em estado Salvando…' : '⚠ Spinner "Salvando" não detectado (footer pode estar desatualizado no bundle)')
 
     await Promise.race([putPermissoes, syncOuPut, page.waitForTimeout(5000)])

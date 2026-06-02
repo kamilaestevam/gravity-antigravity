@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
@@ -884,6 +885,10 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   const [tipo, setTipo] = useState<NivelAcesso>('Standard')
   const [workspacesAtivos, setWorkspacesAtivos] = useState<string[]>([])
 
+  useEffect(() => {
+    setSalvando(false)
+  }, [usuario?.id_usuario])
+
   // ─── Permissões granulares ───────────────────────────────────────────────
   // Map<id_workspace, Set<chave>> onde `chave` segue formato `<slug>:<secao>:<acao>`.
   // Manter como Record para serialização/diff trivial; converter para Set só na renderização.
@@ -1203,7 +1208,6 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         : `${t('workspace.users.aba_permissoes')} (${countPermissoes}/${totalToggles})`,
       icone: 'shield-check',
       ocultarBotoesSalvar: somenteLeitura,
-      salvarSempreAtivo: !master && !somenteLeitura,
       conteudo: (
         <BannerRequisitosContexto requisitos={requisitos}>
           <AbaPermissoes
@@ -1385,6 +1389,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
           permissoesParaPersistir.length === 0
           && !temMudancaDados
           && mapasPermissoesIguais(atuaisParaDiff, originaisParaDiff)
+          && !permissoesDirty
         ) {
           // Permissões já persistidas (ex.: Portão 3 pelo backend no convite).
           // Toast de sucesso vem do Usuarios.tsx após fechar o modal.
@@ -1408,11 +1413,13 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         if (
           permissoesParaPersistir.length === 0
           && !temMudancaDados
-          && !mapasPermissoesIguais(atuaisParaDiff, originaisParaDiff)
+          && permissoesDirty
         ) {
           const msg =
-            'As permissões exibidas não puderam ser gravadas. Aguarde o catálogo de produtos ' +
-            'ou altere uma permissão e tente novamente.'
+            mapasPermissoesIguais(atuaisParaDiff, originaisParaDiff)
+              ? 'As alterações não puderam ser aplicadas. Aguarde o catálogo de produtos carregar e tente novamente.'
+              : 'As permissões exibidas não puderam ser gravadas. Aguarde o catálogo de produtos ' +
+                'ou altere uma permissão e tente novamente.'
           setErroSalvar(msg)
           addNotification({ type: 'error', message: msg })
           return
@@ -1465,10 +1472,10 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   }
 
   const handleSalvar = async () => {
-    if (!usuario || salvando) return
-    setSalvando(true)
+    if (!usuario) return
+
+    flushSync(() => setSalvando(true))
     try {
-      // O save pré-carrega catálogo — não bloquear clique só por lazy-load do banner.
       const requisitosPendentes = requisitos.filter(
         (r) => r.chave !== 'carga_produtos' && !r.ok,
       )
@@ -1483,7 +1490,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     } catch {
       // executarSalvar / aoSalvar já notificam; evita unhandled rejection.
     } finally {
-      setSalvando(false)
+      flushSync(() => setSalvando(false))
     }
   }
 

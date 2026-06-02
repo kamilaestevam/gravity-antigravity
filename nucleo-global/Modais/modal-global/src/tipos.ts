@@ -47,6 +47,13 @@ export interface BotaoModal {
 
 export type TamanhoModal = 'sm' | 'md' | 'lg' | 'xl' | 'full'
 
+/** Estado do footer repassado pelo ModalOverlay ao renderizarFooter. */
+export interface FooterRenderContext {
+  carregando: boolean
+  dirty: boolean
+  podesSalvar: boolean
+}
+
 // ─── Props do ModalOverlay ─────────────────────────────────────────────────────
 
 export interface ModalProps {
@@ -91,8 +98,16 @@ export interface ModalProps {
   // Rodapé
   /** Botões do footer */
   botoes?: BotaoModal[]
+  /** Contexto injetado pelo overlay no footer (evita closure desatualizada no portal). */
+  carregandoFooter?: boolean
+  dirtyFooter?: boolean
+  podesSalvarFooter?: boolean
+  /** Rodapé como elemento React (preferível ao callback — re-renderiza com props atuais no portal). */
+  rodape?: ReactNode
+  /** Notifica mudança de aba (para sincronizar rodapé externo). */
+  onAbaAtivaChange?: (abaAtivaId: string) => void
   /** Renderizador customizado de footer. Recebe o id da aba ativa para permitir footers contextuais. */
-  renderizarFooter?: (abaAtivaId?: string) => ReactNode
+  renderizarFooter?: (abaAtivaId?: string, ctx?: FooterRenderContext) => ReactNode
   /** Força re-render do footer quando muda (ex.: carregando do botão Salvar). */
   footerEpoch?: number | string
 

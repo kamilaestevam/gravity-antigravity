@@ -503,6 +503,15 @@ export function Usuarios() {
           : {}),
       })
 
+      const nomeFornecedorConvite =
+        tipoConvite === 'FORNECEDOR'
+          ? (
+            criado.nome_fornecedor
+            ?? fornecedoresConvite.find((f) => f.id_fornecedor === fIdFornecedor)?.nome_fornecedor
+            ?? null
+          )
+          : null
+
       const novoUsuario: UsuarioOrg = {
         id_usuario: criado.id_usuario,
         nome_usuario: fNome.trim(),
@@ -511,10 +520,7 @@ export function Usuarios() {
         acesso_workspaces_futuros: criado.acesso_workspaces_futuros,
         data_criacao_usuario: new Date().toISOString(),
         usuario_workspaces: [],
-        nome_fornecedor:
-          tipoConvite === 'FORNECEDOR'
-            ? (fornecedoresConvite.find((f) => f.id_fornecedor === fIdFornecedor)?.nome_fornecedor ?? null)
-            : null,
+        nome_fornecedor: nomeFornecedorConvite,
         // Recém-convidado — sempre CONVIDADO até webhook/login fazer transição
         // para ATIVO via requireAuth.ts fallback (Clerk getUser por email).
         status_usuario: 'CONVIDADO',
@@ -537,7 +543,18 @@ export function Usuarios() {
         try {
           const { usuarios: lista } = await recarregarUsuarios()
           const daApi = lista.find((u) => u.id_usuario === criado.id_usuario)
-          setUsuarioEditando(daApi ?? novoUsuario)
+          const usuarioModal = daApi
+            ? {
+              ...daApi,
+              nome_fornecedor: daApi.nome_fornecedor ?? novoUsuario.nome_fornecedor,
+            }
+            : novoUsuario
+          if (daApi && !daApi.nome_fornecedor && novoUsuario.nome_fornecedor) {
+            setUsuarios((prev) =>
+              prev.map((u) => (u.id_usuario === criado.id_usuario ? usuarioModal : u)),
+            )
+          }
+          setUsuarioEditando(usuarioModal)
         } catch (recarregarErr) {
           // eslint-disable-next-line no-console
           console.warn('[Usuarios] recarregar após convite falhou; abrindo modal com estado local', recarregarErr)

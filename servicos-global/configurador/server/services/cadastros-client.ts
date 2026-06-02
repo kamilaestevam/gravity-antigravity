@@ -20,9 +20,11 @@ import {
   type Fornecedor,
 } from '../../../cadastros/shared/schemas/fornecedor.schema.js'
 import {
+  atualizarFornecedorOrganizacaoSchema,
   criarFornecedorOrganizacaoSchema,
   fornecedorOrganizacaoSchema,
   listaFornecedorOrganizacaoSchema,
+  type AtualizarFornecedorOrganizacaoInput,
   type CriarFornecedorOrganizacaoInput,
   type FornecedorOrganizacao,
 } from '../../../cadastros/shared/schemas/fornecedor-organizacao.schema.js'
@@ -424,6 +426,69 @@ export async function criarVinculoFornecedorOrganizacao(
     id_fornecedor_organizacao: vinculo.id_fornecedor_organizacao,
   })
   return vinculo
+}
+
+export async function atualizarVinculoFornecedorOrganizacao(
+  id_fornecedor_organizacao: string,
+  input: AtualizarFornecedorOrganizacaoInput,
+  ctx: CadastrosRequestContext,
+): Promise<FornecedorOrganizacao> {
+  const payload = atualizarFornecedorOrganizacaoSchema.parse(input)
+
+  log.info('cadastros.atualizar_vinculo_fornecedor_org.start', {
+    correlation_id: ctx.correlation_id,
+    id_organizacao: ctx.id_organizacao,
+    id_fornecedor_organizacao,
+  })
+
+  let response: Response
+  try {
+    response = await fetch(
+      `${getCadastrosUrl()}/cadastros/fornecedores-organizacao/${encodeURIComponent(id_fornecedor_organizacao)}`,
+      {
+        method: 'PATCH',
+        headers: headersPadrao(ctx),
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      },
+    )
+  } catch (err) {
+    log.error('cadastros.atualizar_vinculo_fornecedor_org.network_failure', {
+      correlation_id: ctx.correlation_id,
+      id_organizacao: ctx.id_organizacao,
+      error: err instanceof Error ? err.message : String(err),
+    })
+    throw new AppError(
+      'Serviço Cadastros indisponível (rede/timeout)',
+      503,
+      'CADASTROS_INDISPONIVEL',
+    )
+  }
+
+  if (!response.ok) {
+    const corpo = await lerCorpoErro(response)
+    log.warn('cadastros.atualizar_vinculo_fornecedor_org.http_error', {
+      correlation_id: ctx.correlation_id,
+      id_organizacao: ctx.id_organizacao,
+      status: response.status,
+      body: corpo,
+    })
+    if (response.status >= 400 && response.status < 500) {
+      throw new AppError(
+        `Cadastros rejeitou a atualização do vínculo: ${corpo}`,
+        response.status,
+        'CADASTROS_VALIDACAO',
+      )
+    }
+    throw new AppError(
+      `Cadastros falhou com status ${response.status}`,
+      503,
+      'CADASTROS_INDISPONIVEL',
+    )
+  }
+
+  const raw = await response.json()
+  return fornecedorOrganizacaoSchema.parse(raw)
 }
 
 const listaVinculosPorUsuarioSchema = z.object({

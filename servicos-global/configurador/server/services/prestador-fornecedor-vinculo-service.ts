@@ -20,9 +20,11 @@ import {
 } from '../../shared/tipo-fornecedor-organizacao.js'
 import {
   type CadastrosRequestContext,
+  atualizarVinculoFornecedorOrganizacao,
   buscarFornecedorPorEmailNaOrganizacao,
   criarFornecedor,
   criarVinculoFornecedorOrganizacao,
+  listarVinculosFornecedorOrganizacaoPorOrganizacao,
   listarVinculosFornecedorPorUsuario,
   obterFornecedorPorIdNaOrganizacao,
 } from './cadastros-client.js'
@@ -140,6 +142,64 @@ async function resolverFornecedorConvite(args: {
   return fornecedor.id_fornecedor
 }
 
+/** CONVIDADO = id_clerk_usuario pending_* (mesma regra da listagem de usuários). */
+async function usuarioEstaConvidado(id_usuario: string, id_organizacao: string): Promise<boolean> {
+  const usuario = await prisma.usuario.findFirst({
+    where: { id_usuario, id_organizacao },
+    select: { id_clerk_usuario: true },
+  })
+  return usuario?.id_clerk_usuario?.startsWith('pending_') ?? false
+}
+
+/**
+ * Vínculo fornecedor+org+tipo pode já existir no cartório (sem id_usuario ou com
+ * convite pendente antigo). Garante que o usuário convidado fique associado —
+ * sem bloquear o convite nem lançar erro para usuário ativo já vinculado.
+ */
+async function associarUsuarioAoVinculoExistente(args: {
+  id_fornecedor: string
+  id_organizacao: string
+  tipo_fornecedor_organizacao: TipoFornecedorOrganizacao
+  id_usuario: string
+  correlation_id?: string
+}): Promise<void> {
+  const ctx = ctxCadastros(args.id_organizacao, args.correlation_id)
+  const vinculosOrg = await listarVinculosFornecedorOrganizacaoPorOrganizacao(ctx)
+  const existente = vinculosOrg.find(
+    (v) =>
+      v.id_fornecedor === args.id_fornecedor
+      && v.id_organizacao === args.id_organizacao
+      && v.tipo_fornecedor_organizacao === args.tipo_fornecedor_organizacao,
+  )
+  if (!existente) return
+  if (existente.id_usuario === args.id_usuario) return
+
+  const podeReatribuir =
+    !existente.id_usuario
+    || await usuarioEstaConvidado(existente.id_usuario, args.id_organizacao)
+
+  if (!podeReatribuir) {
+    log.warn('prestador.vinculo_ocupado_usuario_ativo', {
+      id_fornecedor: args.id_fornecedor,
+      id_organizacao: args.id_organizacao,
+      id_usuario_ocupante: existente.id_usuario,
+      id_usuario_novo: args.id_usuario,
+    })
+    return
+  }
+
+  await atualizarVinculoFornecedorOrganizacao(
+    existente.id_fornecedor_organizacao,
+    { id_usuario: args.id_usuario },
+    ctx,
+  )
+  log.info('prestador.vinculo_usuario_associado', {
+    id_fornecedor_organizacao: existente.id_fornecedor_organizacao,
+    id_usuario: args.id_usuario,
+    substituiu_convite_pendente: !!existente.id_usuario,
+  })
+}
+
 async function garantirVinculo(args: {
   id_fornecedor: string
   id_organizacao: string
@@ -157,6 +217,20 @@ async function garantirVinculo(args: {
   )
   if (jaExiste) return 'existente'
 
+  // Cartório pode ter linha pré-cadastrada (id_usuario null) — associa antes do POST.
+  await associarUsuarioAoVinculoExistente(args)
+  const vinculosAposAssociar = await listarVinculosFornecedorPorUsuario(args.id_usuario, ctx)
+  if (
+    vinculosAposAssociar.some(
+      (v) =>
+        v.id_organizacao === args.id_organizacao
+        && v.tipo_fornecedor_organizacao === args.tipo_fornecedor_organizacao
+        && v.id_fornecedor === args.id_fornecedor,
+    )
+  ) {
+    return 'existente'
+  }
+
   try {
     await criarVinculoFornecedorOrganizacao(
       {
@@ -171,6 +245,7 @@ async function garantirVinculo(args: {
     return 'criado'
   } catch (err) {
     if (err instanceof AppError && err.code === 'VINCULO_DUPLICADO') {
+      await associarUsuarioAoVinculoExistente(args)
       return 'existente'
     }
     throw err

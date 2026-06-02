@@ -33,7 +33,10 @@ import {
   aoDesvincularUsuarioDoWorkspace,
 } from '../services/sincronizar-acesso-usuario-produtos-service.js'
 import { convidarUsuarioService } from '../services/convidar-usuario-service.js'
-import { listarVinculosFornecedorOrganizacaoPorOrganizacao } from '../services/cadastros-client.js'
+import {
+  listarVinculosFornecedorOrganizacaoPorOrganizacao,
+  listarVinculosFornecedorPorUsuario,
+} from '../services/cadastros-client.js'
 import { logger } from '../lib/logger.js'
 import { tipoFornecedorOrganizacaoEnum } from '../../shared/tipo-fornecedor-organizacao.js'
 
@@ -151,6 +154,7 @@ export const convidarUsuarioResponseSchema = z.object({
     email_usuario: z.string().email(),
     tipo_usuario: TipoUsuarioEnum,
     acesso_workspaces_futuros: z.boolean(),
+    nome_fornecedor: z.string().nullable().optional(),
   }),
 })
 
@@ -240,11 +244,12 @@ usersRouter.get('/', async (req, res, next) => {
     if (temFornecedor) {
       const correlationId =
         typeof req.headers['x-correlation-id'] === 'string' ? req.headers['x-correlation-id'] : ''
+      const ctxCadastros = {
+        id_organizacao: req.auth.id_organizacao,
+        correlation_id: correlationId || crypto.randomUUID(),
+      }
       try {
-        const vinculos = await listarVinculosFornecedorOrganizacaoPorOrganizacao({
-          id_organizacao: req.auth.id_organizacao,
-          correlation_id: correlationId,
-        })
+        const vinculos = await listarVinculosFornecedorOrganizacaoPorOrganizacao(ctxCadastros)
         for (const v of vinculos) {
           if (!v.id_usuario) continue
           const nome = v.fornecedor?.nome_fornecedor
@@ -257,6 +262,34 @@ usersRouter.get('/', async (req, res, next) => {
           id_organizacao: req.auth.id_organizacao,
           error: err instanceof Error ? err.message : String(err),
         })
+      }
+
+      // Fallback: usuários FORNECEDOR sem nome após listagem org-wide (ex.: paginação
+      // parcial ou vínculo recém-associado).
+      const idsSemNome = dtoBase
+        .filter((u) => u.tipo_usuario === 'FORNECEDOR' && !mapaNomeFornecedor.has(u.id_usuario))
+        .map((u) => u.id_usuario)
+
+      if (idsSemNome.length > 0) {
+        await Promise.all(
+          idsSemNome.map(async (idUsuario) => {
+            try {
+              const vinculosUsuario = await listarVinculosFornecedorPorUsuario(idUsuario, ctxCadastros)
+              const nomes = vinculosUsuario
+                .filter((v) => v.id_organizacao === req.auth.id_organizacao)
+                .map((v) => v.fornecedor?.nome_fornecedor)
+                .filter((nome): nome is string => !!nome)
+              if (nomes.length === 0) return
+              mapaNomeFornecedor.set(idUsuario, [...new Set(nomes)].join(', '))
+            } catch (err) {
+              log.warn('usuarios.listar.nome_fornecedor_usuario_falhou', {
+                id_organizacao: req.auth.id_organizacao,
+                id_usuario: idUsuario,
+                error: err instanceof Error ? err.message : String(err),
+              })
+            }
+          }),
+        )
       }
     }
 
@@ -463,6 +496,7 @@ usersRouter.post('/convidar', requireUserManagementRole, async (req, res, next) 
         email_usuario: resultado.email_usuario,
         tipo_usuario: resultado.tipo_usuario,
         acesso_workspaces_futuros: resultado.acesso_workspaces_futuros,
+        nome_fornecedor: resultado.nome_fornecedor,
       },
     })
   } catch (err) {

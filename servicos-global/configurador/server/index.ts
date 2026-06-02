@@ -381,6 +381,46 @@ app.use('/api/v1/pedidos', (req, res) => {
   }
 })
 
+// ─── Proxy reverso: Processo sidecar (porta 8026) ───────────────────────────
+// Front Processo (embutido no Configurador) chama `/api/v1/processos/*`,
+// `/api/v1/processo-status/*` e `/api/v1/documentos-processo/*`.
+const _proxyProcesso = (req: express.Request, res: express.Response) => {
+  const targetUrl = `http://127.0.0.1:8026${req.originalUrl}`
+  const headers: Record<string, string | string[] | undefined> = { ...req.headers, host: '127.0.0.1:8026' }
+  headers['x-internal-key'] = process.env.CHAVE_INTERNA_SERVICO!
+  headers['x-chave-interna-servico'] = process.env.CHAVE_INTERNA_SERVICO!
+
+  let bodyBuf: Buffer | undefined
+  if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+    bodyBuf = Buffer.from(JSON.stringify(req.body))
+    headers['content-length'] = String(bodyBuf.length)
+  }
+
+  const proxyReq = httpRequest(targetUrl, { method: req.method, headers }, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode ?? 502, proxyRes.headers)
+    proxyRes.pipe(res)
+  })
+  proxyReq.on('error', (err) => {
+    console.error('[proxy-processo] erro ao conectar com sidecar', {
+      code: (err as NodeJS.ErrnoException).code,
+      message: err.message,
+      method: req.method,
+      url: req.originalUrl,
+    })
+    if (!res.headersSent) {
+      res.status(502).json({ error: 'Processo service unavailable', sidecar: _sidecarStatus['processo'] })
+    }
+  })
+  if (bodyBuf) {
+    proxyReq.end(bodyBuf)
+  } else {
+    req.pipe(proxyReq)
+  }
+}
+app.use('/api/v1/processos', _proxyProcesso)
+app.use('/api/v1/processo-status', _proxyProcesso)
+app.use('/api/v1/documentos-processo', _proxyProcesso)
+
 // ─── Proxy reverso: Cadastros sidecar (porta 8031) ──────────────────────────
 // O sidecar Cadastros expõe `/api/v1/empresas` (1:1 org), `/api/v1/fornecedores` (parceiros) e `/api/v1/cadastros/*`
 // (moedas, unidades, incoterms, ncm, operacoes-comex, paises...).
@@ -541,7 +581,37 @@ if (process.env.NODE_ENV !== 'test') {
     console.warn('[configurador] PEDIDO_DATABASE_URL ausente — sidecar Pedido desativado')
   }
 
-  // Sidecar 3: API Cockpit (porta 8016)
+  // Sidecar 3: Processo (porta 8026)
+  // Migrations rodam em build-site.sh / start-site.sh quando PROCESSO_DATABASE_URL está definida.
+  if (process.env.PROCESSO_DATABASE_URL) {
+    process.env.PORT = '8026'
+    process.env.DATABASE_URL = process.env.PROCESSO_DATABASE_URL
+    process.env.CONFIGURATOR_URL = `http://127.0.0.1:${portaOriginal ?? '8080'}`
+    process.env.PROCESSO_SIDECAR = '1'
+    process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
+      ? `https://${process.env.CANONICAL_DOMAIN}`
+      : 'https://usegravity.com.br'
+    const _origExitProcesso = process.exit
+    process.exit = ((code?: number) => {
+      throw new Error(`[sidecar-guard] process.exit(${code}) bloqueado em modo sidecar Processo`)
+    }) as typeof process.exit
+    try {
+      await import('../../produto/processo/server/src/index.js')
+      _sidecarStatus['processo'] = { ok: true }
+      console.log('[configurador] Sidecar Processo iniciado na porta 8026')
+    } catch (err) {
+      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+      _sidecarStatus['processo'] = { ok: false, error: msg }
+      console.error('[configurador] Falha ao iniciar sidecar Processo:', msg)
+    } finally {
+      process.exit = _origExitProcesso
+    }
+  } else {
+    _sidecarStatus['processo'] = { ok: false, error: 'PROCESSO_DATABASE_URL ausente' }
+    console.warn('[configurador] PROCESSO_DATABASE_URL ausente — sidecar Processo desativado')
+  }
+
+  // Sidecar 4: API Cockpit (porta 8016)
   // Health checks, tokens, webhooks, logs de requisição, monitoramento.
   // Usa CONFIGURADOR_DATABASE_URL (mesmas tabelas — fragment composto).
   process.env.PORT = '8016'

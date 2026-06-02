@@ -83,36 +83,51 @@
   flex-shrink: 0;
 }
 
+/*
+ * CONTRATO — Painel de Insights Inteligente (cockpit detalhe cotação)
+ * - Grid com altura fixa: --dc-cockpit-insights-grid-h (18rem)
+ * - Três cards (Melhor proposta, Ranking, Termômetro): height 100%, align-self stretch
+ * - Melhor proposta: conteúdo compacto no topo; footer com margin-top auto
+ * - Não usar height:auto / align-self:start só no card Melhor — quebra alinhamento
+ * - Regras espelhadas no fim do arquivo devem manter estes valores
+ * - Validar visualmente: detalhe cotação com respostas (ex. BID-20260530-6654)
+ */
 .dc-cockpit-insights-row .dc-smart-insights-grid {
   flex: 0 0 auto;
   min-height: 0;
-  height: auto;
+  height: var(--dc-cockpit-insights-grid-h, 18rem);
   max-height: var(--dc-cockpit-insights-grid-h, 18rem);
-  align-items: start;
+  align-items: stretch;
+}
+
+.dc-cockpit-insights-row .dc-smart-insights-grid > .dc-smart-card {
+  height: 100%;
+  max-height: var(--dc-cockpit-insights-grid-h, 18rem);
+  align-self: stretch;
 }
 
 .dc-cockpit-insights-row .dc-smart-insights-grid > .dc-smart-card:not(.dc-smart-card--melhor):not(.dc-smart-card--melhor-compacto) {
-  height: auto;
+  height: 100%;
   max-height: var(--dc-cockpit-insights-grid-h, 18rem);
 }
 
 .dc-cockpit-insights-row .dc-smart-card--termometro {
-  overflow: visible;
+  overflow: hidden;
   justify-content: flex-start;
   min-height: 0;
-  height: auto;
+  height: 100%;
   max-height: var(--dc-cockpit-insights-grid-h, 18rem);
 }
 
 .dc-cockpit-insights-row .dc-smart-card--ranking {
-  height: auto;
-  align-self: start;
+  height: 100%;
+  align-self: stretch;
+  min-height: 0;
 }
 
 .dc-cockpit-insights-row .dc-smart-card--ranking .dc-smart-card-body--ranking {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   min-height: 0;
-  max-height: calc(var(--dc-cockpit-insights-grid-h, 18rem) - 2.75rem);
   overflow-y: auto;
 }
 
@@ -126,20 +141,16 @@
   min-height: auto;
 }
 
-.dc-cockpit-insights-row .dc-smart-card--termometro .dc-term-chart-slot {
-  flex: 0 0 auto;
-  min-height: auto;
-}
-
-/* Melhor proposta compacta — altura pelo conteúdo, não estica com a linha */
+/* Melhor proposta — mesma altura dos cards Ranking e Termômetro */
 .dc-cockpit-insights-row .dc-smart-card--melhor,
 .dc-cockpit-insights-row .dc-smart-card--melhor-compacto {
   display: flex;
   flex-direction: column;
-  align-self: start;
-  height: auto;
+  align-self: stretch;
+  height: 100%;
   max-height: var(--dc-cockpit-insights-grid-h, 18rem);
   min-height: 0;
+  overflow: hidden;
   --dc-smart-metrica-spark-h: 52px;
 }
 
@@ -191,18 +202,18 @@
 }
 
 .dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-fornecedor-foot {
-  margin-top: 0.5rem;
+  margin-top: auto;
   flex-shrink: 0;
   position: relative;
   z-index: 3;
 }
 
-/* Termômetro Preview — compacto como referência (barras altas, meses logo abaixo) */
+/* Termômetro — gráfico ocupa o espaço restante dentro da altura compartilhada */
 .dc-cockpit-insights-row .dc-smart-card--termometro .dc-term-chart-slot {
-  flex: 0 0 auto;
-  min-height: auto;
+  flex: 1 1 auto;
+  min-height: 0;
   max-height: none;
-  overflow: visible;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   padding-top: 0;
@@ -210,23 +221,32 @@
 }
 
 .dc-cockpit-insights-row .dc-term-plot-spark-mock {
-  flex: 0 0 auto;
-  height: auto;
+  flex: 1 1 auto;
+  height: 100%;
   min-height: 0;
-  justify-content: flex-start;
+  justify-content: flex-end;
   gap: 0.15rem;
   padding: 0.2rem 0.65rem 0.25rem;
 }
 
 .dc-cockpit-insights-row .dc-term-plot-spark-mock-chart {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   width: 100%;
-  height: var(--dc-term-plot-spark-h, 7.25rem);
-  min-height: var(--dc-term-plot-spark-h, 7.25rem);
-  max-height: var(--dc-term-plot-spark-h, 7.25rem);
+  height: 100%;
+  min-height: 4.5rem;
+  max-height: none;
   margin-top: 0;
   align-items: flex-end;
   overflow: hidden;
+}
+
+.dc-cockpit-insights-row .dc-smart-card--termometro .dc-term-chart-slot > .dc-term-plot-spark-mock,
+.dc-cockpit-insights-row .dc-smart-card--termometro .dc-term-chart-slot > .dc-term-chart-wrap,
+.dc-cockpit-insights-row .dc-smart-card--termometro .dc-term-chart-slot > .dc-term-chart-host {
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
 }
 
 .dc-cockpit-insights-row .dc-term-plot-spark-mock .dc-spark-bar-wrap {
@@ -3016,11 +3036,11 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   font-weight: 600;
 }
 
-/* Melhor proposta — compacto no topo da célula (altura pelo conteúdo) */
+/* Melhor proposta — altura igual aos demais cards da linha */
 .dc-cockpit-insights-row .dc-smart-insights-grid > .dc-smart-card--melhor,
 .dc-cockpit-insights-row .dc-smart-insights-grid > .dc-smart-card--melhor-compacto {
-  height: auto;
-  align-self: start;
+  height: 100%;
+  align-self: stretch;
 }
 
 .dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-card-body--melhor-proposta {
@@ -3085,7 +3105,7 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 }
 
 .dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-fornecedor-foot {
-  margin-top: 0.5rem;
+  margin-top: auto;
   flex-shrink: 0;
 }
 

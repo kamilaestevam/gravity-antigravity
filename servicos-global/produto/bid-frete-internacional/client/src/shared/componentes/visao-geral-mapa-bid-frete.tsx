@@ -557,6 +557,162 @@ const getCartesian = (lat: number, lng: number) => {
   }
 }
 
+/** Maior divisor = animação mais lenta. Aéreo = ritmo “marítimo” anterior; marítimo = 20% da velocidade do aéreo. */
+const ANIM_FRAME_DIV_AEREO = 24000
+const ANIM_FRAME_DIV_MARITIMO = ANIM_FRAME_DIV_AEREO / 0.2
+const MARCHING_ANTS_DIV_AEREO = 320
+const MARCHING_ANTS_DIV_MARITIMO = MARCHING_ANTS_DIV_AEREO / 0.2
+const TRANSIT_ANIM_MULT_AEREO = 900
+const TRANSIT_ANIM_MULT_MARITIMO = TRANSIT_ANIM_MULT_AEREO / 0.2
+const TRANSIT_MARCH_MULT_AEREO = 12
+const TRANSIT_MARCH_MULT_MARITIMO = TRANSIT_MARCH_MULT_AEREO / 0.2
+const DURACAO_ANIM_SVG_AEREO_S = '6.5s'
+const DURACAO_ANIM_SVG_MARITIMO_S = `${(6.5 / 0.2).toFixed(1)}s`
+
+type GeoPoint = { lat: number; lng: number }
+
+function slerpGeo(lat1: number, lng1: number, lat2: number, lng2: number, t: number): GeoPoint {
+  const p1 = getCartesian(lat1, lng1)
+  const p2 = getCartesian(lat2, lng2)
+  let dot = p1.x * p2.x + p1.y * p2.y + p1.z * p2.z
+  dot = Math.max(-1, Math.min(1, dot))
+  const omega = Math.acos(dot)
+  if (omega < 1e-6) {
+    return { lat: lat1 + (lat2 - lat1) * t, lng: lng1 + (lng2 - lng1) * t }
+  }
+  const sinOmega = Math.sin(omega)
+  const a = Math.sin((1 - t) * omega) / sinOmega
+  const b = Math.sin(t * omega) / sinOmega
+  const x = a * p1.x + b * p2.x
+  const y = a * p1.y + b * p2.y
+  const z = a * p1.z + b * p2.z
+  return {
+    lat: (Math.asin(y) * 180) / Math.PI,
+    lng: (Math.atan2(x, z) * 180) / Math.PI,
+  }
+}
+
+function sampleGreatCircleGeo(lat1: number, lng1: number, lat2: number, lng2: number, segments: number): GeoPoint[] {
+  const pts: GeoPoint[] = []
+  for (let i = 0; i <= segments; i++) {
+    pts.push(slerpGeo(lat1, lng1, lat2, lng2, i / segments))
+  }
+  return pts
+}
+
+/** Ignora extremos (portos na costa); navio não pode atravessar continente no meio da rota. */
+function countLandOnPathInterior(pts: GeoPoint[]): number {
+  let count = 0
+  const last = pts.length - 1
+  for (let i = 0; i <= last; i++) {
+    const t = last === 0 ? 0 : i / last
+    if (t <= 0.05 || t >= 0.95) continue
+    const p = pts[i]
+    if (isLand(p.lat, p.lng)) count++
+  }
+  return count
+}
+
+function concatGeoPaths(...segments: GeoPoint[][]): GeoPoint[] {
+  const out: GeoPoint[] = []
+  for (const seg of segments) {
+    if (out.length === 0) out.push(...seg)
+    else out.push(...seg.slice(1))
+  }
+  return out
+}
+
+/** Hubs oceânicos para desviar rotas marítimas que cruzariam continente. */
+const OCEAN_WAYPOINTS: GeoPoint[] = [
+  { lat: 28, lng: -42 },
+  { lat: -18, lng: -38 },
+  { lat: 8, lng: -78 },
+  { lat: -8, lng: -48 },
+  { lat: 12, lng: -105 },
+  { lat: 18, lng: 128 },
+  { lat: -2, lng: 108 },
+  { lat: -34, lng: 18 },
+  { lat: -20, lng: 62 },
+  { lat: 0, lng: -155 },
+  { lat: -45, lng: -60 },
+  { lat: 30, lng: 32 },
+  { lat: -30, lng: -10 },
+]
+
+function buildMaritimeGeoPath(lat1: number, lng1: number, lat2: number, lng2: number): GeoPoint[] {
+  const direct = sampleGreatCircleGeo(lat1, lng1, lat2, lng2, 48)
+  if (countLandOnPathInterior(direct) === 0) return direct
+
+  let best: GeoPoint[] = direct
+  let bestLand = countLandOnPathInterior(direct)
+  const start: GeoPoint = { lat: lat1, lng: lng1 }
+  const end: GeoPoint = { lat: lat2, lng: lng2 }
+
+  const tryPath = (waypoints: GeoPoint[]): boolean => {
+    const parts: GeoPoint[][] = []
+    for (let i = 0; i < waypoints.length - 1; i++) {
+      parts.push(
+        sampleGreatCircleGeo(
+          waypoints[i].lat,
+          waypoints[i].lng,
+          waypoints[i + 1].lat,
+          waypoints[i + 1].lng,
+          24,
+        ),
+      )
+    }
+    const merged = concatGeoPaths(...parts)
+    const land = countLandOnPathInterior(merged)
+    if (land < bestLand) {
+      bestLand = land
+      best = merged
+    }
+    return land === 0
+  }
+
+  for (const hub of OCEAN_WAYPOINTS) {
+    if (tryPath([start, hub, end])) return best
+  }
+  for (let i = 0; i < OCEAN_WAYPOINTS.length; i++) {
+    for (let j = i + 1; j < OCEAN_WAYPOINTS.length; j++) {
+      if (tryPath([start, OCEAN_WAYPOINTS[i], OCEAN_WAYPOINTS[j], end])) return best
+    }
+  }
+  return best
+}
+
+function unwrapGeoPathForEquirectangular(points: GeoPoint[], anchorLng: number): GeoPoint[] {
+  if (points.length === 0) return points
+  const out: GeoPoint[] = [{ lat: points[0].lat, lng: points[0].lng }]
+  let prevLng = anchorLng
+  for (let i = 1; i < points.length; i++) {
+    let lng = points[i].lng
+    while (lng - prevLng > 180) lng -= 360
+    while (lng - prevLng < -180) lng += 360
+    prevLng = lng
+    out.push({ lat: points[i].lat, lng })
+  }
+  return out
+}
+
+function sampleGeoPathPoint(points: GeoPoint[], t: number): GeoPoint {
+  const fIdx = t * (points.length - 1)
+  const idx = Math.floor(fIdx)
+  const next = Math.min(points.length - 1, idx + 1)
+  const interp = fIdx - idx
+  const a = points[idx]
+  const b = points[next]
+  return slerpGeo(a.lat, a.lng, b.lat, b.lng, interp)
+}
+
+function resampleGeoPath(points: GeoPoint[], targetCount: number): GeoPoint[] {
+  const out: GeoPoint[] = []
+  for (let i = 0; i <= targetCount; i++) {
+    out.push(sampleGeoPathPoint(points, i / targetCount))
+  }
+  return out
+}
+
 // Arc Routes definition
 interface ArcRoute {
   fromId: number
@@ -876,23 +1032,38 @@ export function VisaoGeralMapaBidFrete({
         const a = project(fromPin.geoLat, fromPin.geoLng)
         const b = project(toPin.geoLat, toPin.geoLng)
 
-        const mx = (a.sx + b.sx) / 2
-        const my = (a.sy + b.sy) / 2
-        const dist = Math.hypot(b.sx - a.sx, b.sy - a.sy)
-        const bow = Math.min(dist * 0.22, worldH * 0.35)
-        const ctrlX = mx
-        const ctrlY = my - bow
-
         const segmentsCount = 36
         const pathPoints: { sx: number; sy: number }[] = []
-        for (let j = 0; j <= segmentsCount; j++) {
-          const t = j / segmentsCount
-          const it = 1 - t
-          pathPoints.push({
-            sx: it * it * a.sx + 2 * it * t * ctrlX + t * t * b.sx,
-            sy: it * it * a.sy + 2 * it * t * ctrlY + t * t * b.sy,
-          })
+        const isMaritimeRoute = route.mode === 'MARITIMO'
+
+        if (isMaritimeRoute) {
+          const geoPath = unwrapGeoPathForEquirectangular(
+            buildMaritimeGeoPath(fromPin.geoLat, fromPin.geoLng, toPin.geoLat, toPin.geoLng),
+            fromPin.geoLng,
+          )
+          const sampled = resampleGeoPath(geoPath, segmentsCount)
+          for (const p of sampled) {
+            const { sx, sy } = project(p.lat, p.lng)
+            pathPoints.push({ sx, sy })
+          }
+        } else {
+          const mx = (a.sx + b.sx) / 2
+          const my = (a.sy + b.sy) / 2
+          const dist = Math.hypot(b.sx - a.sx, b.sy - a.sy)
+          const bow = Math.min(dist * 0.22, worldH * 0.35)
+          const ctrlX = mx
+          const ctrlY = my - bow
+          for (let j = 0; j <= segmentsCount; j++) {
+            const t = j / segmentsCount
+            const it = 1 - t
+            pathPoints.push({
+              sx: it * it * a.sx + 2 * it * t * ctrlX + t * t * b.sx,
+              sy: it * it * a.sy + 2 * it * t * ctrlY + t * t * b.sy,
+            })
+          }
         }
+        pathPoints[0] = { sx: a.sx, sy: a.sy }
+        pathPoints[segmentsCount] = { sx: b.sx, sy: b.sy }
 
         let routeStrokeColor = route.color
         if (mapaModo === 'transit') {
@@ -924,10 +1095,10 @@ export function VisaoGeralMapaBidFrete({
         ctx.strokeStyle = routeStrokeColor
         ctx.lineWidth = isRouteDirectSource ? 3.5 : 2.0
         ctx.setLineDash([5, 8])
-        let divider = isMaritime ? 320 : 32
+        let divider = isMaritime ? MARCHING_ANTS_DIV_MARITIMO : MARCHING_ANTS_DIV_AEREO
         if (mapaModo === 'transit') {
           const tClient = route.transitTime || 20
-          divider = isMaritime ? tClient * 12 : tClient * 10
+          divider = isMaritime ? tClient * TRANSIT_MARCH_MULT_MARITIMO : tClient * TRANSIT_MARCH_MULT_AEREO
         }
         ctx.lineDashOffset = -(now / divider) % 100
         ctx.beginPath()
@@ -937,10 +1108,10 @@ export function VisaoGeralMapaBidFrete({
         ctx.setLineDash([])
 
         // Pulsos de carga (navio/avião) percorrendo a rota
-        let speed = isMaritime ? 24000 : 2400
+        let speed = isMaritime ? ANIM_FRAME_DIV_MARITIMO : ANIM_FRAME_DIV_AEREO
         if (mapaModo === 'transit') {
           const tClient = route.transitTime || 20
-          speed = isMaritime ? tClient * 900 : tClient * 800
+          speed = isMaritime ? tClient * TRANSIT_ANIM_MULT_MARITIMO : tClient * TRANSIT_ANIM_MULT_AEREO
         }
         ;[0.0, 0.5].forEach(offset => {
           const tPulse = (now / speed + routeIdx * 0.22 + offset) % 1.0
@@ -1182,8 +1353,12 @@ export function VisaoGeralMapaBidFrete({
         
         const p1 = getCartesian(fromPin.geoLat, fromPin.geoLng)
         const p2 = getCartesian(toPin.geoLat, toPin.geoLng)
+        const maritimeGeoPath =
+          route.mode === 'MARITIMO'
+            ? buildMaritimeGeoPath(fromPin.geoLat, fromPin.geoLng, toPin.geoLat, toPin.geoLng)
+            : null
         
-        // Trace curved arc
+        // Trace curved arc (marítimo só pelo mar; aéreo arco esférico direto)
         const segmentsCount = 36
         const pathPoints: { sx: number; sy: number; rz2: number }[] = []
         let avgDepth = 0
@@ -1191,14 +1366,24 @@ export function VisaoGeralMapaBidFrete({
         for (let j = 0; j <= segmentsCount; j++) {
           const t = j / segmentsCount
           
-          // LERP + Normalize (Spherical arch approximation)
-          let px = p1.x * (1 - t) + p2.x * t
-          let py = p1.y * (1 - t) + p2.y * t
-          let pz = p1.z * (1 - t) + p2.z * t
-          const len = Math.sqrt(px * px + py * py + pz * pz)
-          px /= len
-          py /= len
-          pz /= len
+          let px: number
+          let py: number
+          let pz: number
+          if (maritimeGeoPath) {
+            const { lat, lng } = sampleGeoPathPoint(maritimeGeoPath, t)
+            const c = getCartesian(lat, lng)
+            px = c.x
+            py = c.y
+            pz = c.z
+          } else {
+            px = p1.x * (1 - t) + p2.x * t
+            py = p1.y * (1 - t) + p2.y * t
+            pz = p1.z * (1 - t) + p2.z * t
+            const len = Math.sqrt(px * px + py * py + pz * pz)
+            px /= len
+            py /= len
+            pz /= len
+          }
           
           // Dome height factor
           const hFactor = route.heightFactor || 0.16
@@ -1272,10 +1457,12 @@ export function VisaoGeralMapaBidFrete({
           ctx.setLineDash([5, 8])
           // Negative offset moves the dash pattern from start to end (fromId -> toId)
           const isMaritime = route.mode === 'MARITIMO'
-          let pulseSpeedDivider = isMaritime ? 320 : 32
+          let pulseSpeedDivider = isMaritime ? MARCHING_ANTS_DIV_MARITIMO : MARCHING_ANTS_DIV_AEREO
           if (mapaModo === 'transit') {
             const tClient = route.transitTime || 20
-            pulseSpeedDivider = isMaritime ? (tClient * 12) : (tClient * 10)
+            pulseSpeedDivider = isMaritime
+              ? tClient * TRANSIT_MARCH_MULT_MARITIMO
+              : tClient * TRANSIT_MARCH_MULT_AEREO
           }
           ctx.lineDashOffset = -(Date.now() / pulseSpeedDivider) % 100
           
@@ -1334,10 +1521,12 @@ export function VisaoGeralMapaBidFrete({
           // Draw 2 staggered pulses per route so direction is immediately obvious
           [0.0, 0.5].forEach((offset) => {
             const isMaritime = route.mode === 'MARITIMO'
-            let pulseSpeedDivider = isMaritime ? 24000 : 2400
+            let pulseSpeedDivider = isMaritime ? ANIM_FRAME_DIV_MARITIMO : ANIM_FRAME_DIV_AEREO
             if (mapaModo === 'transit') {
               const tClient = route.transitTime || 20
-              pulseSpeedDivider = isMaritime ? (tClient * 900) : (tClient * 800)
+              pulseSpeedDivider = isMaritime
+                ? tClient * TRANSIT_ANIM_MULT_MARITIMO
+                : tClient * TRANSIT_ANIM_MULT_AEREO
             }
             const routePulseTime = Date.now() / pulseSpeedDivider
             const tPulse = (routePulseTime + routeIdx * 0.22 + offset) % 1.0
@@ -2185,7 +2374,7 @@ export function VisaoGeralMapaBidFrete({
                       
                       // High-quality loop motion path details
                       const pathD = "M 10,15 Q 120,-5 230,15"
-                      const speed = isAir ? "3.2s" : "6.5s"
+                      const speed = isAir ? DURACAO_ANIM_SVG_AEREO_S : DURACAO_ANIM_SVG_MARITIMO_S
                       
                       return (
                         <div key={idx} className={cardClass}>

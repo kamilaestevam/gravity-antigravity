@@ -1,7 +1,8 @@
 # QA — Entrega MBOTO (Seletor universal SLA 1s)
 
 **Data:** 2026-06-02  
-**Branch:** `analise/selector-universal-visibilidade/lentidao`
+**Código base:** mergeado em `master` via PR [#162](https://github.com/dmmltda/gravity-antigravity/pull/162)  
+**Follow-up SLA 1s:** PR `#163` — branch `feat/menu-botoes/mboto-sla-1s-follow-up`
 
 ## Critérios bloqueantes
 

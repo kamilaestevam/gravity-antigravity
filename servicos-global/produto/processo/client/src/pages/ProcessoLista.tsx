@@ -69,7 +69,7 @@ import { TodosProcessosTabs } from './todos/TodosProcessosTabs'
 import './todos/TodosProcessos.css'
 import './ProcessoLista.css'
 
-export default function ProcessoLista() {
+export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolean }) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const { addNotification } = useShellStore()
@@ -459,7 +459,7 @@ export default function ProcessoLista() {
           subtitulo="Lista hierárquica — Processo, Pedido e Item"
         />
       }
-      toolbar={<TodosProcessosTabs />}
+      toolbar={embedTabs ? <TodosProcessosTabs /> : undefined}
     >
       <div className="lp-page pl-page">
         <div className="lp-tabela-wrapper">

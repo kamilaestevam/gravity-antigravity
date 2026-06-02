@@ -16,12 +16,12 @@ TST-{TIPO}-{ESCOPO}-{NNNNNN}
 |---|---|---|
 | `TST` | fixo | sempre `TST` |
 | `{TIPO}` | 3 letras | `UNI`, `CON`, `FUN`, `CRO`, `E2E`, `PEN` |
-| `{ESCOPO}` | 5-6 letras | `LOGIN`, `CONFIG`, `ADMIN`, `HUB`, `CORE`, `MARKET`, `TENANT`, `DBASE`, `PEDIDO`, `NFIMP`, `LPCO`, `BIDFRT`, `BIDCAM`, `SIMCUS`, `FINCOM`, `PROCSO` |
+| `{ESCOPO}` | 5-6 letras | `LOGIN`, `CONFIG`, `ADMIN`, `HUB`, `CORE`, `MARKET`, `TENANT`, `DBASE`, `PEDIDO`, `NFIMP`, `LPCO`, `BIDFRT`, `BIDCAM`, `SIMCUS`, `FINCOM`, `PROCSO`, **`MBOTO`** |
 | `{NNNNNN}` | 6 dígitos | sequencial com zero-padding |
 
 ### Regex de validação
 ```
-^TST-(UNI|CON|FUN|CRO|E2E|PEN)-(LOGIN|CONFIG|ADMIN|HUB|CORE|MARKET|TENANT|DBASE|PEDIDO|NFIMP|LPCO|BIDFRT|BIDCAM|SIMCUS|FINCOM|PROCSO)-\d{6}$
+^TST-(UNI|CON|FUN|CRO|E2E|PEN)-(LOGIN|CONFIG|ADMIN|HUB|CORE|MARKET|TENANT|DBASE|PEDIDO|NFIMP|LPCO|BIDFRT|BIDCAM|SIMCUS|FINCOM|PROCSO|MBOTO)-\d{6}$
 ```
 
 ---
@@ -169,7 +169,11 @@ O registry mantém um campo `deletados: ["TST-E2E-CONFIG-000001"]` pra rastreabi
 | `FINCOM` | Produto Financeiro Comex | `produto/financeiro-comex/` |
 | `PROCSO` | Produto Processo | `produto/processo/` |
 
-**Total: 16 escopos.** PETSHOP foi removido (produto não existe).
+| `MBOTO` | Transversal — menu-botoes / seletor universal de visualizações | `testes/*/menu-botoes/seletor-universal-visoes/` |
+
+**Total: 17 escopos.** PETSHOP foi removido (produto não existe).
+
+**Híbrido MBOTO:** IDs usam escopo `MBOTO`; variantes por produto ficam em `matriz-produtos.json` (`produto_slug`).
 
 **Para adicionar um novo escopo:**
 1. Atualizar este documento

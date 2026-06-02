@@ -450,7 +450,7 @@ export default function ProcessoLista() {
 
   return (
     <PaginaGlobal
-      className="ws-fade-up"
+      className="ws-fade-up processo-lista-page"
       layout="lista"
       cabecalho={
         <CabecalhoGlobal
@@ -461,10 +461,7 @@ export default function ProcessoLista() {
       }
       toolbar={<TodosProcessosTabs />}
     >
-      <div
-        className="lp-page pl-page"
-        style={{ minHeight: 'calc(100vh - 320px)', display: 'flex', flexDirection: 'column' }}
-      >
+      <div className="lp-page pl-page">
         <div className="lp-tabela-wrapper">
           <TabelaVirtualGlobal<ProcessoAvoLinha, FilhoLinhaLista>
             exibirCabecalhoQuandoVazio

@@ -1,0 +1,55 @@
+/* PedidosVisualizacaoTabs — pills compactas; distâncias via pedido-page-shell.css */
+
+.pvt-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.125rem;
+  padding: 0.125rem;
+  margin-top: 0;
+  margin-bottom: var(--pedido-visualizacao-tabs-mb);
+  background: var(--ws-surface, #1e293b);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  border-radius: 9999px;
+}
+
+.pvt-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ws-muted, #94a3b8);
+  text-decoration: none;
+  border-radius: 9999px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.pvt-tab svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.pvt-tab:hover {
+  color: var(--ws-text, #f1f5f9);
+  background: rgba(167, 139, 250, 0.08);
+}
+
+.pvt-tab--active {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+
+.pedido-visualizacao-layout__tabs {
+  padding: var(--pedido-page-pt) var(--pedido-page-px) 0;
+  flex-shrink: 0;
+}
+
+.pedido-visualizacao-layout .lp-page,
+.pedido-visualizacao-layout .kbp-page,
+.pedido-visualizacao-layout .pedido-page-shell,
+.pedido-visualizacao-layout .bfd-dashboard {
+  padding-top: 0;
+}

@@ -13,6 +13,7 @@ import { PRODUCT_CONFIG } from './shared/config'
 import { CurrencyDollar, Briefcase, Folders } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import './shared/processo-page-shell.css'
 
 // ─── Lazy loading das telas do produto ─────────────────────────────────────
 

@@ -51,13 +51,6 @@ export const PRODUCT_CONFIG = {
       ],
     },
 
-    // ── Pedidos ──────────────────────────────────────────────────────────────
-    { id: 'section-pedidos',                    label: 'Pedidos',    labelKey: 'pedido.nav.pedidos',       sectionDivider: true },
-    { id: '/pedido/pedidos/visao-geral', label: 'Visão Geral', labelKey: 'pedido.nav.visao_geral', icon: 'chart-pie-slice', source: 'product' },
-    { id: '/pedido/pedidos/dashboard',  label: 'Dashboard',  labelKey: 'pedido.nav.dashboard',     icon: 'chart-bar',               source: 'product' },
-    { id: '/pedido/pedidos/lista',      label: 'Lista',      labelKey: 'pedido.nav.lista',         icon: 'list-bullets',            source: 'product' },
-    { id: '/pedido/pedidos/kanban',     label: 'Kanban',     labelKey: 'pedido.nav.kanban',        icon: 'kanban',                  source: 'product' },
-
     // ── Servicos ──────────────────────────────────────────────────────────────
     // Historico: link externo para a tela centralizada do Configurador (SSOT da UI de auditoria).
     // O filtro id_produto_historico_log=pedido pre-aplica o escopo do produto na tela.

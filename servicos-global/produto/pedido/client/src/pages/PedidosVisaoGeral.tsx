@@ -1213,7 +1213,7 @@ function VisaoGeralMapa() {
   const [projectedPins, setProjectedPins] = useState<(VisaoGeralMapPin & { px: number; py: number; opacity: number })[]>([])
 
   // Alternância Globo 3D ↔ Mapa plano 2D
-  const [vista, setVista] = useState<'globo' | 'mapa'>('globo')
+  const [vista, setVista] = useState<'globo' | 'mapa'>('mapa')
   const vistaRef = useRef<'globo' | 'mapa'>(vista)
   useEffect(() => {
     vistaRef.current = vista
@@ -2017,8 +2017,9 @@ function VisaoGeralMapa() {
   }
   
   return (
-    <div className="bfd-card bfd-map-card bfd-card--accent-amber">
-      <div className="bfd-map-card__header" style={{ marginBottom: '1.25rem' }}>
+    <div className="bfd-map-rankings-row">
+      <div className="bfd-card bfd-map-card bfd-card--accent-amber">
+      <div className="bfd-map-card__header" style={{ marginBottom: '0.65rem' }}>
         <div>
           <div className="cg-card__header" style={{ marginBottom: '0.4rem' }}>
             <div className="cg-card__icon-wrap">
@@ -2030,8 +2031,7 @@ function VisaoGeralMapa() {
         </div>
       </div>
       
-      <div className="bfd-map-container">
-        {/* Left Side: Canvas and Zoom Controls */}
+      <div className="bfd-map-container bfd-map-container--sem-painel-lateral">
         <div 
           className="bfd-map-canvas-wrapper"
           onMouseDown={handleMouseDown}
@@ -2195,156 +2195,6 @@ function VisaoGeralMapa() {
               </div>
             )
           })}
-        </div>
-
-        {/* Right Side: HUD de Cotações Globais */}
-        <div className="bfd-hud-container">
-          {/* HUD de Cotações Globais */}
-          <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
-            <div className="bfd-map-panel__header">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="bfd-map-panel__title">{t('pedido.visao_geral.hud.titulo')}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <span className="bfd-map-panel__live-dot" />
-                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('pedido.visao_geral.hud.live_feed')}</span>
-                </div>
-              </div>
-              <span className="bfd-map-panel__subtitle">{t('pedido.visao_geral.hud.subtitulo_pedidos', { total })}</span>
-            </div>
-            
-            {/* Tabs */}
-            <div className="bfd-map-panel__tabs">
-              <button 
-                className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
-                onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
-              >
-                <Globe size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_origens')}
-              </button>
-              <button 
-                className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
-                onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
-              >
-                <MapPin size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_destinos')}
-              </button>
-              <button 
-                className={`bfd-map-panel__tab tab-modais ${activeTab === 'modais' ? 'is-active' : ''}`}
-                onClick={(e) => { e.stopPropagation(); setActiveTab('modais'); }}
-              >
-                <List size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_modais')}
-              </button>
-            </div>
-            
-            {/* List Content */}
-            <div className="bfd-map-panel__list">
-              {activeTab === 'origens' && (topOrigens.length === 0 ? (
-                <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
-              ) : topOrigens.map(item => {
-                const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
-                
-                return (
-                  <div 
-                    key={item.rank}
-                    className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted' : ''}`}
-                    onMouseEnter={() => {
-                      if (item.pinId) {
-                        setHoveredPin(item.pinId)
-                        isRotationPausedRef.current = true
-                      }
-                    }}
-                    onMouseLeave={() => {
-                      if (item.pinId) {
-                        setHoveredPin(null)
-                        isRotationPausedRef.current = false
-                      }
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      isRotationPausedRef.current = true
-                      setSelectedLocKey(item.locKey)
-                    }}
-                  >
-                    <span className="bfd-map-panel__row-rank">{item.rank}</span>
-                    <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                    <div className="bfd-map-panel__row-info">
-                      <span className="bfd-map-panel__row-city">{item.name}</span>
-                      <span className="bfd-map-panel__row-code">{item.code}</span>
-                    </div>
-                    <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
-                  </div>
-                )
-              }))}
-              
-              {activeTab === 'destinos' && (topDestinos.length === 0 ? (
-                <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
-              ) : topDestinos.map(item => {
-                const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
-                
-                return (
-                  <div 
-                    key={item.rank}
-                    className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted-dest' : ''}`}
-                    onMouseEnter={() => {
-                      if (item.pinId) {
-                        setHoveredPin(item.pinId)
-                        isRotationPausedRef.current = true
-                      }
-                    }}
-                    onMouseLeave={() => {
-                      if (item.pinId) {
-                        setHoveredPin(null)
-                        isRotationPausedRef.current = false
-                      }
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      isRotationPausedRef.current = true
-                      setSelectedLocKey(item.locKey)
-                    }}
-                  >
-                    <span className="bfd-map-panel__row-rank">{item.rank}</span>
-                    <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                    <div className="bfd-map-panel__row-info">
-                      <span className="bfd-map-panel__row-city">{item.name}</span>
-                      <span className="bfd-map-panel__row-code">{item.code}</span>
-                    </div>
-                    <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
-                  </div>
-                )
-              }))}
-              
-              {activeTab === 'modais' && modaisGlobo.map((item, idx) => {
-                const isExportacao = item.key === 'exportacao'
-                return (
-                  <div
-                    key={item.key}
-                    className="bfd-map-panel__row has-link"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelectedLocKey(`modal|${item.key}`)
-                    }}
-                  >
-                    <span className="bfd-map-panel__row-rank">{idx + 1}</span>
-                    <span className="bfd-map-panel__modal-icon-wrap" style={{ color: isExportacao ? '#a78bfa' : '#f59e0b' }}>
-                      {TIPO_OPERACAO_ICONS[item.key] || <DownloadSimple size={14} />}
-                    </span>
-                    <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
-                      <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
-                        {t(`pedido.visao_geral.modal.${item.key}`, { defaultValue: item.label })}
-                      </span>
-                      <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
-                        {t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-                      <span className="bfd-map-panel__row-bids" style={{ fontWeight: 800, color: '#ffffff' }}>
-                        {item.pct}%
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
         </div>
 
         {/* Premium Detail Modal Overlay */}
@@ -2525,6 +2375,153 @@ function VisaoGeralMapa() {
           )
         })()}
       </div>
+      </div>
+
+      <div className="bfd-card bfd-rankings-card bfd-card--accent-amber">
+        <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
+          <div className="bfd-map-panel__header">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span className="bfd-map-panel__title">{t('pedido.visao_geral.hud.titulo')}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <span className="bfd-map-panel__live-dot" />
+                <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('pedido.visao_geral.hud.live_feed')}</span>
+              </div>
+            </div>
+            <span className="bfd-map-panel__subtitle">{t('pedido.visao_geral.hud.subtitulo_pedidos', { total })}</span>
+          </div>
+
+          <div className="bfd-map-panel__tabs">
+            <button
+              className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
+            >
+              <Globe size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_origens')}
+            </button>
+            <button
+              className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
+            >
+              <MapPin size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_destinos')}
+            </button>
+            <button
+              className={`bfd-map-panel__tab tab-modais ${activeTab === 'modais' ? 'is-active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); setActiveTab('modais'); }}
+            >
+              <List size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_modais')}
+            </button>
+          </div>
+
+          <div className="bfd-map-panel__list">
+            {activeTab === 'origens' && (topOrigens.length === 0 ? (
+              <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
+            ) : topOrigens.map(item => {
+              const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
+
+              return (
+                <div
+                  key={item.rank}
+                  className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted' : ''}`}
+                  onMouseEnter={() => {
+                    if (item.pinId) {
+                      setHoveredPin(item.pinId)
+                      isRotationPausedRef.current = true
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (item.pinId) {
+                      setHoveredPin(null)
+                      isRotationPausedRef.current = false
+                    }
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    isRotationPausedRef.current = true
+                    setSelectedLocKey(item.locKey)
+                  }}
+                >
+                  <span className="bfd-map-panel__row-rank">{item.rank}</span>
+                  <span className="bfd-map-panel__row-flag">{item.flag}</span>
+                  <div className="bfd-map-panel__row-info">
+                    <span className="bfd-map-panel__row-city">{item.name}</span>
+                    <span className="bfd-map-panel__row-code">{item.code}</span>
+                  </div>
+                  <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
+                </div>
+              )
+            }))}
+
+            {activeTab === 'destinos' && (topDestinos.length === 0 ? (
+              <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
+            ) : topDestinos.map(item => {
+              const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
+
+              return (
+                <div
+                  key={item.rank}
+                  className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted-dest' : ''}`}
+                  onMouseEnter={() => {
+                    if (item.pinId) {
+                      setHoveredPin(item.pinId)
+                      isRotationPausedRef.current = true
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (item.pinId) {
+                      setHoveredPin(null)
+                      isRotationPausedRef.current = false
+                    }
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    isRotationPausedRef.current = true
+                    setSelectedLocKey(item.locKey)
+                  }}
+                >
+                  <span className="bfd-map-panel__row-rank">{item.rank}</span>
+                  <span className="bfd-map-panel__row-flag">{item.flag}</span>
+                  <div className="bfd-map-panel__row-info">
+                    <span className="bfd-map-panel__row-city">{item.name}</span>
+                    <span className="bfd-map-panel__row-code">{item.code}</span>
+                  </div>
+                  <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
+                </div>
+              )
+            }))}
+
+            {activeTab === 'modais' && modaisGlobo.map((item, idx) => {
+              const isExportacao = item.key === 'exportacao'
+              return (
+                <div
+                  key={item.key}
+                  className="bfd-map-panel__row has-link"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedLocKey(`modal|${item.key}`)
+                  }}
+                >
+                  <span className="bfd-map-panel__row-rank">{idx + 1}</span>
+                  <span className="bfd-map-panel__modal-icon-wrap" style={{ color: isExportacao ? '#a78bfa' : '#f59e0b' }}>
+                    {TIPO_OPERACAO_ICONS[item.key] || <DownloadSimple size={14} />}
+                  </span>
+                  <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
+                    <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
+                      {t(`pedido.visao_geral.modal.${item.key}`, { defaultValue: item.label })}
+                    </span>
+                    <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
+                      {t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                    <span className="bfd-map-panel__row-bids" style={{ fontWeight: 800, color: '#ffffff' }}>
+                      {item.pct}%
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -2564,9 +2561,9 @@ export default function VisaoGeral() {
 
 
   return (
-    <div className="bfd-dashboard">
+    <div className="pedido-visao-geral bfd-dashboard">
       <style>{`
-        .bfd-dashboard {
+        .pedido-visao-geral.bfd-dashboard {
           padding: var(--pedido-page-pt) var(--pedido-page-px) var(--pedido-page-pb);
           display: flex;
           flex-direction: column;
@@ -2581,29 +2578,29 @@ export default function VisaoGeral() {
         }
 
         /* ── KPI Grid ────────────────────────────────────────────── */
-        .bfd-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
-        .bfd-kpi {
+        .pedido-visao-geral .bfd-kpi-grid {
+        .pedido-visao-geral .bfd-kpi {
           background: rgba(255,255,255,0.04); border-radius: 14px; padding: 1.5rem 1.75rem;
           border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 0.65rem;
           transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .bfd-kpi:hover {
+        .pedido-visao-geral .bfd-kpi:hover {
           transform: translateY(-3px);
           background: rgba(255,255,255,0.07);
           border-color: rgba(255,255,255,0.12);
         }
         
-        .bfd-kpi--destacado {
+        .pedido-visao-geral .bfd-kpi--destacado {
           border: 1px solid #f59e0b !important;
           background: rgba(245, 158, 11, 0.08) !important;
           box-shadow: 0 0 18px rgba(245, 158, 11, 0.15);
         }
-        .bfd-kpi--destacado:hover {
+        .pedido-visao-geral .bfd-kpi--destacado:hover {
           background: rgba(245, 158, 11, 0.12) !important;
           box-shadow: 0 0 24px rgba(245, 158, 11, 0.25);
         }
 
-        .bfd-kpi--action {
+        .pedido-visao-geral .bfd-kpi--action {
           cursor: pointer;
           display: flex;
           flex-direction: column;
@@ -2612,31 +2609,31 @@ export default function VisaoGeral() {
           gap: 0.85rem;
           text-align: center;
         }
-        .bfd-kpi--action:hover {
+        .pedido-visao-geral .bfd-kpi--action:hover {
           transform: translateY(-5px) !important;
           filter: brightness(1.1);
           box-shadow: 0 10px 22px rgba(59, 130, 246, 0.25);
         }
 
-        .bfd-kpi__header { display: flex; align-items: center; gap: 0.6rem; }
-        .bfd-kpi__icon { color: #cbd5e1; display: flex; }
-        .bfd-kpi__label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: #cbd5e1; }
-        .bfd-kpi__row { display: flex; align-items: baseline; gap: 0.65rem; }
-        .bfd-kpi__value { font-size: 2.2rem; font-weight: 700; color: #ffffff; line-height: 1.1; letter-spacing: -0.01em; }
-        .bfd-kpi__badge {
+        .pedido-visao-geral .bfd-kpi__header {
+        .pedido-visao-geral .bfd-kpi__icon {
+        .pedido-visao-geral .bfd-kpi__label {
+        .pedido-visao-geral .bfd-kpi__row {
+        .pedido-visao-geral .bfd-kpi__value {
+        .pedido-visao-geral .bfd-kpi__badge {
           font-size: 0.78rem; font-weight: 700; padding: 0.2rem 0.6rem;
           border-radius: 6px; letter-spacing: 0.02em;
         }
-        .bfd-kpi__sub { font-size: 0.85rem; color: #e2e8f0; font-weight: 500; letter-spacing: 0.02em; line-height: 1.5; }
-        .bfd-kpi__spark { display: flex; align-items: flex-end; gap: 4px; height: 32px; margin: 0.35rem 0; }
-        .bfd-kpi__spark-bar { flex: 1; border-radius: 2px; min-width: 8px; transition: height 0.3s; }
-        .bfd-kpi__spark-line { display: flex; align-items: center; height: 32px; margin: 0.35rem 0; width: 100%; }
-        .bfd-kpi__progress-wrap { display: flex; align-items: center; height: 32px; margin: 0.35rem 0; width: 100%; }
-        .bfd-kpi__progress-bg { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; width: 100%; }
-        .bfd-kpi__progress-fill { height: 100%; background: #f59e0b; border-radius: 3px; }
+        .pedido-visao-geral .bfd-kpi__sub {
+        .pedido-visao-geral .bfd-kpi__spark {
+        .pedido-visao-geral .bfd-kpi__spark-bar {
+        .pedido-visao-geral .bfd-kpi__spark-line {
+        .pedido-visao-geral .bfd-kpi__progress-wrap {
+        .pedido-visao-geral .bfd-kpi__progress-bg {
+        .pedido-visao-geral .bfd-kpi__progress-fill {
 
         /* ── Base Cards and Containers ───────────────────────────── */
-        .bfd-card {
+        .pedido-visao-geral .bfd-card {
           background: rgba(255, 255, 255, 0.04);
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
@@ -2648,38 +2645,38 @@ export default function VisaoGeral() {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
           transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .bfd-card:hover {
+        .pedido-visao-geral .bfd-card:hover {
           transform: translateY(-2px);
           background: rgba(255, 255, 255, 0.06);
           border-color: rgba(255, 255, 255, 0.12);
         }
 
         /* Modificadores premium com efeito glow no hover (sem borda acentuada) */
-        .bfd-card--accent-blue:hover {
+        .pedido-visao-geral .bfd-card--accent-blue:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
         }
 
-        .bfd-card--accent-indigo:hover {
+        .pedido-visao-geral .bfd-card--accent-indigo:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(129, 140, 248, 0.18) !important;
         }
 
-        .bfd-card--accent-purple:hover {
+        .pedido-visao-geral .bfd-card--accent-purple:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(167, 139, 250, 0.18) !important;
         }
 
-        .bfd-card--accent-emerald:hover {
+        .pedido-visao-geral .bfd-card--accent-emerald:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(52, 211, 153, 0.18) !important;
         }
 
-        .bfd-card--accent-amber:hover {
+        .pedido-visao-geral .bfd-card--accent-amber:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(251, 191, 36, 0.18) !important;
         }
 
-        .bfd-card--accent-rose:hover {
+        .pedido-visao-geral .bfd-card--accent-rose:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(248, 113, 113, 0.18) !important;
         }
 
-        .bfd-card__title {
+        .pedido-visao-geral .bfd-card__title {
           font-size: 1.1rem;
           font-weight: 700;
           color: #ffffff;
@@ -2687,23 +2684,25 @@ export default function VisaoGeral() {
           margin-bottom: 1.25rem;
           line-height: 1.4;
         }
-        .bfd-map-card {
-          padding: 1.5rem 1.75rem 3.5rem 1.75rem;
+        .pedido-visao-geral .bfd-map-card {
+          padding: 1.15rem 1.5rem 3.5rem 1.5rem;
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
+          gap: 0.85rem;
           position: relative;
+          min-height: 0;
+          overflow: visible;
         }
-        .bfd-map-card__header {
+        .pedido-visao-geral .bfd-map-card__header {
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
-        .bfd-map-legend {
+        .pedido-visao-geral .bfd-map-legend {
           display: flex;
           gap: 1.25rem;
         }
-        .bfd-map-legend__item {
+        .pedido-visao-geral .bfd-map-legend__item {
           display: flex;
           align-items: center;
           gap: 0.5rem;
@@ -2712,7 +2711,7 @@ export default function VisaoGeral() {
           letter-spacing: 0.02em;
           font-weight: 600;
         }
-        .bfd-map-legend-floating {
+        .pedido-visao-geral .bfd-map-legend-floating {
           position: absolute;
           left: 1.25rem;
           top: 2rem;
@@ -2729,21 +2728,47 @@ export default function VisaoGeral() {
           padding: 0.85rem 1rem;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        .bfd-map-container {
+        .pedido-visao-geral .bfd-map-container {
           position: relative;
-          height: 440px;
+          flex: 1;
+          min-height: 0;
           border-radius: 12px;
           overflow: visible;
           background: transparent;
           display: flex;
           gap: 1.5rem;
         }
-        .bfd-map-canvas-wrapper {
+        .pedido-visao-geral .bfd-map-container--sem-painel-lateral {
+          gap: 0;
+        }
+        .pedido-visao-geral .bfd-map-container--sem-painel-lateral .bfd-map-canvas-wrapper {
+          flex: 1;
+          width: 100%;
+        }
+        .pedido-visao-geral .bfd-map-rankings-row {
+          display: contents;
+        }
+        .pedido-visao-geral .bfd-rankings-card {
+          padding: 0;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .pedido-visao-geral .bfd-rankings-card .bfd-map-right-panel {
+          flex: 1;
+          min-height: 0;
+          height: 100%;
+          border: none;
+          border-radius: 14px;
+          box-shadow: none;
+        }
+        .pedido-visao-geral .bfd-map-canvas-wrapper {
           flex: 1;
           position: relative;
           height: 100%;
         }
-        .bfd-hud-container {
+        .pedido-visao-geral .bfd-hud-container {
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
@@ -2751,13 +2776,13 @@ export default function VisaoGeral() {
           height: 100%;
           min-width: 320px;
         }
-        .bfd-hud-container .bfd-map-legend {
+        .pedido-visao-geral .bfd-hud-container .bfd-map-legend {
           justify-content: flex-end;
           padding-right: 0.25rem;
         }
 
         /* ── HUD Right Panel ─────────────────────────────────────── */
-        .bfd-map-right-panel {
+        .pedido-visao-geral .bfd-map-right-panel {
           position: relative;
           width: 100%;
           flex: 1;
@@ -2775,19 +2800,19 @@ export default function VisaoGeral() {
           box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
           transition: border-color 0.4s ease, box-shadow 0.4s ease;
         }
-        .bfd-map-right-panel--origens {
+        .pedido-visao-geral .bfd-map-right-panel--origens {
           border-color: rgba(245, 158, 11, 0.25);
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(245, 158, 11, 0.1);
         }
-        .bfd-map-right-panel--destinos {
+        .pedido-visao-geral .bfd-map-right-panel--destinos {
           border-color: rgba(167, 139, 250, 0.25);
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(167, 139, 250, 0.1);
         }
-        .bfd-map-right-panel--modais {
+        .pedido-visao-geral .bfd-map-right-panel--modais {
           border-color: rgba(251, 191, 36, 0.25);
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(251, 191, 36, 0.1);
         }
-        .bfd-map-panel__live-dot {
+        .pedido-visao-geral .bfd-map-panel__live-dot {
           width: 6px;
           height: 6px;
           border-radius: 50%;
@@ -2807,13 +2832,13 @@ export default function VisaoGeral() {
             box-shadow: 0 0 10px #f59e0b, 0 0 16px #f59e0b;
           }
         }
-        .bfd-map-panel__modal-stats-grid {
+        .pedido-visao-geral .bfd-map-panel__modal-stats-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 0.5rem;
           margin-top: 0.5rem;
         }
-        .bfd-map-panel__modal-stat-box {
+        .pedido-visao-geral .bfd-map-panel__modal-stat-box {
           background: rgba(255, 255, 255, 0.03);
           border: 1px solid rgba(255, 255, 255, 0.05);
           border-radius: 6px;
@@ -2822,35 +2847,35 @@ export default function VisaoGeral() {
           flex-direction: column;
           gap: 2px;
         }
-        .bfd-map-panel__modal-stat-lbl {
+        .pedido-visao-geral .bfd-map-panel__modal-stat-lbl {
           font-size: 0.62rem;
           text-transform: uppercase;
           color: #94a3b8;
           font-weight: 700;
           letter-spacing: 0.05em;
         }
-        .bfd-map-panel__modal-stat-num {
+        .pedido-visao-geral .bfd-map-panel__modal-stat-num {
           font-size: 0.8rem;
           font-weight: 800;
           letter-spacing: 0.01em;
         }
-        .bfd-map-panel__header {
+        .pedido-visao-geral .bfd-map-panel__header {
           display: flex;
           flex-direction: column;
           gap: 0.2rem;
         }
-        .bfd-map-panel__title {
+        .pedido-visao-geral .bfd-map-panel__title {
           font-size: 0.98rem;
           font-weight: 700;
           color: #ffffff;
           letter-spacing: 0.02em;
         }
-        .bfd-map-panel__subtitle {
+        .pedido-visao-geral .bfd-map-panel__subtitle {
           font-size: 0.75rem;
           color: #cbd5e1;
           letter-spacing: 0.015em;
         }
-        .bfd-map-panel__tabs {
+        .pedido-visao-geral .bfd-map-panel__tabs {
           display: flex;
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid rgba(255, 255, 255, 0.06);
@@ -2858,7 +2883,7 @@ export default function VisaoGeral() {
           padding: 2px;
           gap: 2px;
         }
-        .bfd-map-panel__tab {
+        .pedido-visao-geral .bfd-map-panel__tab {
           flex: 1;
           display: flex;
           align-items: center;
@@ -2874,33 +2899,33 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .bfd-map-panel__tab:hover {
+        .pedido-visao-geral .bfd-map-panel__tab:hover {
           color: #ffffff;
           background: rgba(255, 255, 255, 0.03);
         }
-        .bfd-map-panel__tab.is-active {
+        .pedido-visao-geral .bfd-map-panel__tab.is-active {
           color: #ffffff;
           background: rgba(255, 255, 255, 0.08);
           border: 1px solid rgba(255, 255, 255, 0.1);
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         }
-        .bfd-map-panel__tab.is-active.tab-origens {
+        .pedido-visao-geral .bfd-map-panel__tab.is-active.tab-origens {
           color: #f59e0b;
           border-color: rgba(245, 158, 11, 0.2);
           background: rgba(245, 158, 11, 0.08);
         }
-        .bfd-map-panel__tab.is-active.tab-destinos {
+        .pedido-visao-geral .bfd-map-panel__tab.is-active.tab-destinos {
           color: #a78bfa;
           border-color: rgba(167, 139, 250, 0.2);
           background: rgba(167, 139, 250, 0.08);
         }
-        .bfd-map-panel__tab.is-active.tab-modais {
+        .pedido-visao-geral .bfd-map-panel__tab.is-active.tab-modais {
           color: #fbbf24;
           border-color: rgba(251, 191, 36, 0.2);
           background: rgba(251, 191, 36, 0.08);
         }
         
-        .bfd-map-panel__list {
+        .pedido-visao-geral .bfd-map-panel__list {
           overflow-y: auto;
           flex: 1;
           display: flex;
@@ -2909,22 +2934,22 @@ export default function VisaoGeral() {
           padding-right: 0.25rem;
         }
         /* Custom scrollbar */
-        .bfd-map-panel__list::-webkit-scrollbar {
+        .pedido-visao-geral .bfd-map-panel__list::-webkit-scrollbar {
           width: 4px;
         }
-        .bfd-map-panel__list::-webkit-scrollbar-track {
+        .pedido-visao-geral .bfd-map-panel__list::-webkit-scrollbar-track {
           background: rgba(255, 255, 255, 0.02);
           border-radius: 4px;
         }
-        .bfd-map-panel__list::-webkit-scrollbar-thumb {
+        .pedido-visao-geral .bfd-map-panel__list::-webkit-scrollbar-thumb {
           background: rgba(255, 255, 255, 0.15);
           border-radius: 4px;
         }
-        .bfd-map-panel__list::-webkit-scrollbar-thumb:hover {
+        .pedido-visao-geral .bfd-map-panel__list::-webkit-scrollbar-thumb:hover {
           background: rgba(255, 255, 255, 0.3);
         }
 
-        .bfd-map-panel__row {
+        .pedido-visao-geral .bfd-map-panel__row {
           display: flex;
           align-items: center;
           gap: 0.6rem;
@@ -2935,25 +2960,25 @@ export default function VisaoGeral() {
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
           cursor: default;
         }
-        .bfd-map-panel__row.has-link {
+        .pedido-visao-geral .bfd-map-panel__row.has-link {
           cursor: pointer;
         }
-        .bfd-map-panel__row:hover {
+        .pedido-visao-geral .bfd-map-panel__row:hover {
           background: rgba(255, 255, 255, 0.05);
           border-color: rgba(255, 255, 255, 0.08);
         }
-        .bfd-map-panel__row.is-highlighted {
+        .pedido-visao-geral .bfd-map-panel__row.is-highlighted {
           background: rgba(245, 158, 11, 0.08);
           border-color: rgba(245, 158, 11, 0.25);
           box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);
         }
-        .bfd-map-panel__row.is-highlighted-dest {
+        .pedido-visao-geral .bfd-map-panel__row.is-highlighted-dest {
           background: rgba(167, 139, 250, 0.08);
           border-color: rgba(167, 139, 250, 0.25);
           box-shadow: 0 0 10px rgba(167, 139, 250, 0.15);
         }
         
-        .bfd-map-panel__rank {
+        .pedido-visao-geral .bfd-map-panel__rank {
           width: 18px;
           height: 18px;
           border-radius: 50%;
@@ -2965,74 +2990,74 @@ export default function VisaoGeral() {
           color: #cbd5e1;
           border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .bfd-map-panel__rank--1 {
+        .pedido-visao-geral .bfd-map-panel__rank--1 {
           background: linear-gradient(135deg, #f59e0b, #d97706);
           color: #ffffff;
           border: none;
           box-shadow: 0 0 8px rgba(245, 158, 11, 0.35);
         }
-        .bfd-map-panel__rank--2 {
+        .pedido-visao-geral .bfd-map-panel__rank--2 {
           background: linear-gradient(135deg, #94a3b8, #64748b);
           color: #ffffff;
           border: none;
           box-shadow: 0 0 8px rgba(148, 163, 184, 0.3);
         }
-        .bfd-map-panel__rank--3 {
+        .pedido-visao-geral .bfd-map-panel__rank--3 {
           background: linear-gradient(135deg, #b45309, #78350f);
           color: #ffffff;
           border: none;
           box-shadow: 0 0 8px rgba(180, 83, 9, 0.3);
         }
         
-        .bfd-map-panel__row-flag {
+        .pedido-visao-geral .bfd-map-panel__row-flag {
           font-size: 1rem;
           line-height: 1;
         }
         
-        .bfd-map-panel__info-wrap {
+        .pedido-visao-geral .bfd-map-panel__info-wrap {
           flex: 1;
           display: flex;
           flex-direction: column;
           gap: 2px;
         }
         
-        .bfd-map-panel__row-header {
+        .pedido-visao-geral .bfd-map-panel__row-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
         
-        .bfd-map-panel__row-name {
+        .pedido-visao-geral .bfd-map-panel__row-name {
           font-size: 0.8rem;
           font-weight: 700;
           color: #ffffff;
         }
         
-        .bfd-map-panel__row-stats {
+        .pedido-visao-geral .bfd-map-panel__row-stats {
           font-size: 0.72rem;
           font-weight: 600;
         }
         
-        .bfd-map-panel__row-bar-wrap {
+        .pedido-visao-geral .bfd-map-panel__row-bar-wrap {
           height: 3px;
           background: rgba(255, 255, 255, 0.05);
           border-radius: 1.5px;
           overflow: hidden;
           width: 100%;
         }
-        .bfd-map-panel__row-bar-fill {
+        .pedido-visao-geral .bfd-map-panel__row-bar-fill {
           height: 100%;
           border-radius: 1.5px;
           transition: width 0.5s ease-out;
         }
 
-        .bfd-map-panel__modal-wrap {
+        .pedido-visao-geral .bfd-map-panel__modal-wrap {
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
           padding: 0.2rem 0;
         }
-        .bfd-map-panel__modal-item {
+        .pedido-visao-geral .bfd-map-panel__modal-item {
           background: rgba(255, 255, 255, 0.02);
           border: 1px solid rgba(255, 255, 255, 0.04);
           border-radius: 10px;
@@ -3042,16 +3067,16 @@ export default function VisaoGeral() {
           gap: 0.5rem;
           transition: all 0.2s ease;
         }
-        .bfd-map-panel__modal-item:hover {
+        .pedido-visao-geral .bfd-map-panel__modal-item:hover {
           background: rgba(255, 255, 255, 0.04);
           border-color: rgba(255, 255, 255, 0.08);
         }
-        .bfd-map-panel__modal-header {
+        .pedido-visao-geral .bfd-map-panel__modal-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-        .bfd-map-panel__modal-title {
+        .pedido-visao-geral .bfd-map-panel__modal-title {
           font-size: 0.8rem;
           font-weight: 700;
           color: #ffffff;
@@ -3059,34 +3084,34 @@ export default function VisaoGeral() {
           align-items: center;
           gap: 0.35rem;
         }
-        .bfd-map-panel__modal-count {
+        .pedido-visao-geral .bfd-map-panel__modal-count {
           font-size: 0.8rem;
           font-weight: 700;
         }
-        .bfd-map-panel__modal-bar-wrap {
+        .pedido-visao-geral .bfd-map-panel__modal-bar-wrap {
           height: 6px;
           background: rgba(255, 255, 255, 0.05);
           border-radius: 3px;
           overflow: hidden;
           width: 100%;
         }
-        .bfd-map-panel__modal-bar-fill {
+        .pedido-visao-geral .bfd-map-panel__modal-bar-fill {
           height: 100%;
           border-radius: 3px;
           transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .bfd-map-panel__modal-stats {
+        .pedido-visao-geral .bfd-map-panel__modal-stats {
           display: flex;
           justify-content: space-between;
           font-size: 0.72rem;
           color: #cbd5e1;
           font-weight: 500;
         }
-        .bfd-map-panel__terminal-list {
+        .pedido-visao-geral .bfd-map-panel__terminal-list {
           overflow-y: auto;
           flex: 1;
         }
-        .bfd-map-panel__terminal-item {
+        .pedido-visao-geral .bfd-map-panel__terminal-item {
           background: rgba(255, 255, 255, 0.02);
           border: 1px solid rgba(255, 255, 255, 0.04);
           border-radius: 8px;
@@ -3097,43 +3122,43 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .bfd-map-panel__terminal-item:hover, .bfd-map-panel__terminal-item.is-hovered {
+        .pedido-visao-geral .bfd-map-panel__terminal-item:hover, .bfd-map-panel__terminal-item.is-hovered {
           background: rgba(255, 255, 255, 0.06);
           border-color: rgba(255, 255, 255, 0.15);
           transform: translateX(4px);
         }
-        .bfd-map-panel__terminal-header {
+        .pedido-visao-geral .bfd-map-panel__terminal-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
-        .bfd-map-panel__terminal-name {
+        .pedido-visao-geral .bfd-map-panel__terminal-name {
           font-size: 0.8rem;
           color: #ffffff;
           display: flex;
           align-items: center;
           gap: 0.3rem;
         }
-        .bfd-map-panel__terminal-flag {
+        .pedido-visao-geral .bfd-map-panel__terminal-flag {
           font-size: 0.95rem;
         }
-        .bfd-map-panel__terminal-saving {
+        .pedido-visao-geral .bfd-map-panel__terminal-saving {
           font-size: 0.8rem;
           font-weight: 700;
           color: #f59e0b;
         }
-        .bfd-map-panel__progress-bar {
+        .pedido-visao-geral .bfd-map-panel__progress-bar {
           height: 4px;
           background: rgba(255, 255, 255, 0.06);
           border-radius: 2px;
           overflow: hidden;
         }
-        .bfd-map-panel__progress-fill {
+        .pedido-visao-geral .bfd-map-panel__progress-fill {
           height: 100%;
           border-radius: 2px;
           transition: width 0.4s ease;
         }
-        .bfd-map-panel__terminal-meta {
+        .pedido-visao-geral .bfd-map-panel__terminal-meta {
           display: flex;
           justify-content: space-between;
           font-size: 0.7rem;
@@ -3141,14 +3166,11 @@ export default function VisaoGeral() {
           font-weight: 500;
         }
         @media (max-width: 1023px) {
-          .bfd-hud-container {
-            display: none !important;
-          }
-          .bfd-map-right-panel {
-            display: none !important;
+          .pedido-visao-geral .bfd-map-rankings-row {
+            grid-template-columns: 1fr;
           }
         }
-        .bfd-map-controls {
+        .pedido-visao-geral .bfd-map-controls {
           position: absolute;
           bottom: -2.5rem;
           left: 50%;
@@ -3158,7 +3180,7 @@ export default function VisaoGeral() {
           z-index: 30;
           transition: left 0.3s ease, transform 0.3s ease;
         }
-        .bfd-map-control-btn {
+        .pedido-visao-geral .bfd-map-control-btn {
           width: 32px;
           height: 32px;
           border-radius: 8px;
@@ -3174,44 +3196,44 @@ export default function VisaoGeral() {
           transition: all 0.2s ease;
           outline: none;
         }
-        .bfd-map-control-btn:hover {
+        .pedido-visao-geral .bfd-map-control-btn:hover {
           background: rgba(255, 255, 255, 0.1);
           border-color: rgba(255, 255, 255, 0.2);
         }
         @media (max-width: 1023px) {
-          .bfd-map-controls {
+          .pedido-visao-geral .bfd-map-controls {
             left: 50%;
           }
         }
-        .bfd-map-bg {
+        .pedido-visao-geral .bfd-map-bg {
           position: absolute; inset: 0;
           background-position: center; background-repeat: no-repeat;
           background-size: cover; opacity: 0.55; border-radius: 12px; pointer-events: none;
         }
 
-        .bfd-map-pin-wrapper {
+        .pedido-visao-geral .bfd-map-pin-wrapper {
           position: absolute; transform: translate3d(-50%, -50%, 0); cursor: pointer; z-index: 10;
           will-change: transform;
         }
-        .bfd-map-pin-wrapper.is-active { z-index: 100; }
+        .pedido-visao-geral .bfd-map-pin-wrapper.is-active {
 
-        .bfd-map-pin__glow {
+        .pedido-visao-geral .bfd-map-pin__glow {
           position: absolute; inset: -8px; border-radius: 50%; border: 1.5px solid #f59e0b;
           opacity: 0; animation: pinPulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite; pointer-events: none;
         }
-        .bfd-map-pin__dot {
+        .pedido-visao-geral .bfd-map-pin__dot {
           width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center;
           justify-content: center; color: #000000; box-shadow: 0 0 10px rgba(245,158,11,0.4);
           transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
         }
-        .bfd-map-pin-wrapper:hover .bfd-map-pin__dot {
+        .pedido-visao-geral .bfd-map-pin-wrapper:hover .bfd-map-pin__dot {
           transform: scale(1.2); box-shadow: 0 0 15px rgba(255,255,255,0.7);
         }
-        .bfd-map-pin__icon-inner { display: flex; }
-        .bfd-map-pin__icon-inner svg { width: 13px; height: 13px; }
+        .pedido-visao-geral .bfd-map-pin__icon-inner {
+        .pedido-visao-geral .bfd-map-pin__icon-inner svg {
 
         /* ── World Map Tooltip ───────────────────────────────────── */
-        .bfd-map-tooltip {
+        .pedido-visao-geral .bfd-map-tooltip {
           position: absolute; bottom: 36px; left: 50%; transform: translate3d(-50%, 0, 0);
           width: 290px; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
@@ -3221,36 +3243,36 @@ export default function VisaoGeral() {
           animation: tooltipFadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           will-change: transform, opacity;
         }
-        .bfd-map-tooltip__after {
+        .pedido-visao-geral .bfd-map-tooltip__after {
           content: ''; position: absolute; bottom: -6px; left: 50%; transform: translate3d(-50%, 0, 0) rotate(45deg);
           width: 10px; height: 10px; background: rgba(15, 23, 42, 0.94);
           border-right: 1px solid rgba(255, 255, 255, 0.12); border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
 
-        .bfd-map-tooltip__header { display: flex; align-items: center; gap: 0.6rem; }
-        .bfd-map-tooltip__flag { font-size: 1.25rem; }
-        .bfd-map-tooltip__title-wrap { flex: 1; display: flex; flex-direction: column; }
-        .bfd-map-tooltip__title { font-size: 0.95rem; font-weight: 700; color: #ffffff; line-height: 1.3; letter-spacing: 0.02em; }
-        .bfd-map-tooltip__subtitle { font-size: 0.8rem; color: #cbd5e1; font-weight: 500; letter-spacing: 0.02em; }
-        .bfd-map-tooltip__mode-icon { display: flex; align-items: center; }
+        .pedido-visao-geral .bfd-map-tooltip__header {
+        .pedido-visao-geral .bfd-map-tooltip__flag {
+        .pedido-visao-geral .bfd-map-tooltip__title-wrap {
+        .pedido-visao-geral .bfd-map-tooltip__title {
+        .pedido-visao-geral .bfd-map-tooltip__subtitle {
+        .pedido-visao-geral .bfd-map-tooltip__mode-icon {
 
-        .bfd-map-tooltip__body {
+        .pedido-visao-geral .bfd-map-tooltip__body {
           display: flex; flex-direction: column; gap: 0.5rem; padding: 0.6rem 0;
           border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08);
         }
-        .bfd-map-tooltip__stat { display: flex; justify-content: space-between; align-items: center; }
-        .bfd-map-tooltip__stat-label { font-size: 0.8rem; color: #cbd5e1; font-weight: 500; letter-spacing: 0.02em; }
-        .bfd-map-tooltip__stat-val { font-size: 0.82rem; font-weight: 700; color: #ffffff; letter-spacing: 0.025em; }
+        .pedido-visao-geral .bfd-map-tooltip__stat {
+        .pedido-visao-geral .bfd-map-tooltip__stat-label {
+        .pedido-visao-geral .bfd-map-tooltip__stat-val {
 
-        .bfd-map-tooltip__footer { display: flex; justify-content: space-between; align-items: center; }
-        .bfd-map-tooltip__supplier { font-size: 0.8rem; color: #cbd5e1; letter-spacing: 0.02em; }
-        .bfd-map-tooltip__supplier strong { color: #ffffff; font-weight: 600; }
+        .pedido-visao-geral .bfd-map-tooltip__footer {
+        .pedido-visao-geral .bfd-map-tooltip__supplier {
+        .pedido-visao-geral .bfd-map-tooltip__supplier strong {
         
         @keyframes bfdBlink {
           0%, 100% { opacity: 0.5; }
           50% { opacity: 1; }
         }
-        .bfd-map-tooltip__hint {
+        .pedido-visao-geral .bfd-map-tooltip__hint {
           font-size: 0.72rem;
           color: #fbbf24;
           font-weight: 700;
@@ -3261,7 +3283,7 @@ export default function VisaoGeral() {
         }
 
         /* ── Premium Modal overlay ───────────────────────────────── */
-        .bfd-modal-mapa-overlay {
+        .pedido-visao-geral .bfd-modal-mapa-overlay {
           position: fixed;
           inset: 0;
           background: rgba(8, 10, 18, 0.75);
@@ -3279,7 +3301,7 @@ export default function VisaoGeral() {
           to { opacity: 1; }
         }
         
-        .bfd-modal-mapa-card {
+        .pedido-visao-geral .bfd-modal-mapa-card {
           width: 100%;
           max-width: 620px;
           max-height: 90vh;
@@ -3299,37 +3321,37 @@ export default function VisaoGeral() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        .bfd-modal-mapa-header {
+        .pedido-visao-geral .bfd-modal-mapa-header {
           padding: 1.25rem 1.5rem;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-        .bfd-modal-mapa-title-group {
+        .pedido-visao-geral .bfd-modal-mapa-title-group {
           display: flex;
           align-items: center;
           gap: 0.75rem;
         }
-        .bfd-modal-mapa-flag-large {
+        .pedido-visao-geral .bfd-modal-mapa-flag-large {
           font-size: 2.2rem;
           line-height: 1;
         }
-        .bfd-modal-mapa-title {
+        .pedido-visao-geral .bfd-modal-mapa-title {
           font-size: 1.25rem;
           font-weight: 800;
           color: #ffffff;
           letter-spacing: -0.01em;
           margin: 0;
         }
-        .bfd-modal-mapa-subtitle {
+        .pedido-visao-geral .bfd-modal-mapa-subtitle {
           font-size: 0.82rem;
           color: #cbd5e1;
           margin-top: 0.15rem;
           display: block;
           font-weight: 500;
         }
-        .bfd-modal-mapa-close-btn {
+        .pedido-visao-geral .bfd-modal-mapa-close-btn {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.08);
           color: #94a3b8;
@@ -3342,14 +3364,14 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .bfd-modal-mapa-close-btn:hover {
+        .pedido-visao-geral .bfd-modal-mapa-close-btn:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
           color: #ffffff;
           transform: rotate(90deg);
         }
 
-        .bfd-modal-mapa-body {
+        .pedido-visao-geral .bfd-modal-mapa-body {
           flex: 1;
           min-height: 0;
           padding: 1.5rem;
@@ -3359,7 +3381,7 @@ export default function VisaoGeral() {
           gap: 1.25rem;
         }
         
-        .bfd-route-card {
+        .pedido-visao-geral .bfd-route-card {
           background: rgba(255, 255, 255, 0.03);
           border: 1px solid rgba(255, 255, 255, 0.06);
           border-radius: 12px;
@@ -3373,27 +3395,27 @@ export default function VisaoGeral() {
           flex-shrink: 0;
           transition: all 0.3s ease;
         }
-        .bfd-route-card:hover {
+        .pedido-visao-geral .bfd-route-card:hover {
           background: rgba(255, 255, 255, 0.05);
           border-color: rgba(255, 255, 255, 0.15);
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
           transform: translateY(-2px);
         }
 
-        .bfd-route-card--importacao {
+        .pedido-visao-geral .bfd-route-card--importacao {
           border-left: 3px solid #f59e0b;
         }
-        .bfd-route-card--exportacao {
+        .pedido-visao-geral .bfd-route-card--exportacao {
           border-left: 3px solid #a78bfa;
         }
 
-        .bfd-route-header {
+        .pedido-visao-geral .bfd-route-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
         
-        .bfd-route-ports {
+        .pedido-visao-geral .bfd-route-ports {
           display: flex;
           align-items: center;
           gap: 0.45rem;
@@ -3402,10 +3424,10 @@ export default function VisaoGeral() {
           flex-wrap: nowrap;
         }
 
-        .bfd-route-port-flag {
+        .pedido-visao-geral .bfd-route-port-flag {
           font-size: 1.15rem;
         }
-        .bfd-route-port-name {
+        .pedido-visao-geral .bfd-route-port-name {
           font-size: 0.9rem;
           font-weight: 700;
           color: #ffffff;
@@ -3415,13 +3437,13 @@ export default function VisaoGeral() {
           max-width: 42%;
         }
         
-        .bfd-route-arrow-icon {
+        .pedido-visao-geral .bfd-route-arrow-icon {
           color: rgba(255, 255, 255, 0.4);
           font-weight: 700;
           font-size: 0.85rem;
         }
         
-        .bfd-route-badge {
+        .pedido-visao-geral .bfd-route-badge {
           font-size: 0.72rem;
           font-weight: 800;
           padding: 0.25rem 0.6rem;
@@ -3429,25 +3451,25 @@ export default function VisaoGeral() {
           letter-spacing: 0.05em;
           text-transform: uppercase;
         }
-        .bfd-route-badge--importacao {
+        .pedido-visao-geral .bfd-route-badge--importacao {
           background: rgba(245, 158, 11, 0.12);
           color: #f59e0b;
           border: 1px solid rgba(245, 158, 11, 0.2);
         }
-        .bfd-route-badge--exportacao {
+        .pedido-visao-geral .bfd-route-badge--exportacao {
           background: rgba(167, 139, 250, 0.12);
           color: #a78bfa;
           border: 1px solid rgba(167, 139, 250, 0.2);
         }
 
-        .bfd-route-svg-container {
+        .pedido-visao-geral .bfd-route-svg-container {
           position: relative;
           margin: 0.25rem 0;
           width: 100%;
           height: 30px;
         }
 
-        .bfd-route-mini-arco {
+        .pedido-visao-geral .bfd-route-mini-arco {
           position: absolute;
           top: 0.55rem;
           right: 0.65rem;
@@ -3456,7 +3478,7 @@ export default function VisaoGeral() {
           z-index: 2;
         }
 
-        .bfd-route-mini-arco__icon {
+        .pedido-visao-geral .bfd-route-mini-arco__icon {
           position: absolute;
           left: 50%;
           top: 55%;
@@ -3471,7 +3493,7 @@ export default function VisaoGeral() {
           border: 1px solid rgba(251, 191, 36, 0.35);
         }
 
-        .bfd-route-vencimentos {
+        .pedido-visao-geral .bfd-route-vencimentos {
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
@@ -3484,18 +3506,18 @@ export default function VisaoGeral() {
           position: relative;
         }
 
-        .bfd-route-vencimentos:has(.bfd-route-mini-timeline) {
+        .pedido-visao-geral .bfd-route-vencimentos:has(.bfd-route-mini-timeline) {
           padding-top: 3.1rem;
         }
 
-        .bfd-route-vencimentos__cols {
+        .pedido-visao-geral .bfd-route-vencimentos__cols {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 0.75rem;
           align-items: start;
         }
 
-        .bfd-route-vencimentos__col {
+        .pedido-visao-geral .bfd-route-vencimentos__col {
           display: flex;
           flex-direction: column;
           gap: 0.28rem;
@@ -3503,7 +3525,7 @@ export default function VisaoGeral() {
           overflow: visible;
         }
 
-        .bfd-route-vencimentos__titulo {
+        .pedido-visao-geral .bfd-route-vencimentos__titulo {
           font-size: 0.68rem;
           font-weight: 800;
           letter-spacing: 0.05em;
@@ -3512,7 +3534,7 @@ export default function VisaoGeral() {
           margin-bottom: 0.15rem;
         }
 
-        .bfd-route-vencimentos__linha {
+        .pedido-visao-geral .bfd-route-vencimentos__linha {
           display: flex;
           justify-content: space-between;
           gap: 0.5rem;
@@ -3520,19 +3542,19 @@ export default function VisaoGeral() {
           color: #cbd5e1;
         }
 
-        .bfd-route-vencimentos__linha strong {
+        .pedido-visao-geral .bfd-route-vencimentos__linha strong {
           color: #ffffff;
           font-weight: 700;
           white-space: nowrap;
         }
 
-        .bfd-route-vencimentos__vazio {
+        .pedido-visao-geral .bfd-route-vencimentos__vazio {
           font-size: 0.72rem;
           color: #64748b;
           font-style: italic;
         }
 
-        .bfd-route-vencimentos__resumo {
+        .pedido-visao-geral .bfd-route-vencimentos__resumo {
           display: flex;
           flex-direction: column;
           gap: 0.1rem;
@@ -3540,22 +3562,22 @@ export default function VisaoGeral() {
           color: #94a3b8;
         }
 
-        .bfd-route-vencimentos__resumo strong {
+        .pedido-visao-geral .bfd-route-vencimentos__resumo strong {
           font-size: 0.82rem;
         }
 
-        .bfd-route-vencimentos__proximo {
+        .pedido-visao-geral .bfd-route-vencimentos__proximo {
           font-size: 0.68rem;
           color: #94a3b8;
         }
 
-        .bfd-route-vencimentos__alertas {
+        .pedido-visao-geral .bfd-route-vencimentos__alertas {
           display: flex;
           flex-wrap: wrap;
           gap: 0.35rem;
         }
 
-        .bfd-route-venc-alert {
+        .pedido-visao-geral .bfd-route-venc-alert {
           font-size: 0.62rem;
           font-weight: 700;
           padding: 0.12rem 0.4rem;
@@ -3563,25 +3585,25 @@ export default function VisaoGeral() {
           letter-spacing: 0.02em;
         }
 
-        .bfd-route-venc-alert--red {
+        .pedido-visao-geral .bfd-route-venc-alert--red {
           background: rgba(239, 68, 68, 0.15);
           color: #fca5a5;
           border: 1px solid rgba(239, 68, 68, 0.35);
         }
 
-        .bfd-route-venc-alert--orange {
+        .pedido-visao-geral .bfd-route-venc-alert--orange {
           background: rgba(245, 158, 11, 0.15);
           color: #fcd34d;
           border: 1px solid rgba(245, 158, 11, 0.35);
         }
 
-        .bfd-route-vencimentos__mais {
+        .pedido-visao-geral .bfd-route-vencimentos__mais {
           font-size: 0.68rem;
           color: #64748b;
           font-style: italic;
         }
 
-        .bfd-route-ver-todos-btn {
+        .pedido-visao-geral .bfd-route-ver-todos-btn {
           width: 100%;
           margin-top: 0.35rem;
           padding: 0.45rem 0.75rem;
@@ -3595,26 +3617,26 @@ export default function VisaoGeral() {
           transition: background 0.15s ease, border-color 0.15s ease;
         }
 
-        .bfd-route-ver-todos-btn:hover {
+        .pedido-visao-geral .bfd-route-ver-todos-btn:hover {
           background: rgba(56, 189, 248, 0.16);
           border-color: rgba(56, 189, 248, 0.55);
         }
 
-        .bfd-venc-expandido {
+        .pedido-visao-geral .bfd-venc-expandido {
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
           min-height: 320px;
         }
 
-        .bfd-venc-expandido__header {
+        .pedido-visao-geral .bfd-venc-expandido__header {
           display: flex;
           align-items: center;
           gap: 0.75rem;
           flex-wrap: wrap;
         }
 
-        .bfd-venc-expandido__voltar {
+        .pedido-visao-geral .bfd-venc-expandido__voltar {
           background: none;
           border: none;
           color: #7dd3fc;
@@ -3624,18 +3646,18 @@ export default function VisaoGeral() {
           padding: 0;
         }
 
-        .bfd-venc-expandido__rota {
+        .pedido-visao-geral .bfd-venc-expandido__rota {
           font-size: 0.82rem;
           color: #e2e8f0;
           font-weight: 600;
         }
 
-        .bfd-venc-expandido__tabs {
+        .pedido-visao-geral .bfd-venc-expandido__tabs {
           display: flex;
           gap: 0.5rem;
         }
 
-        .bfd-venc-expandido__tab {
+        .pedido-visao-geral .bfd-venc-expandido__tab {
           flex: 1;
           display: flex;
           align-items: center;
@@ -3651,20 +3673,20 @@ export default function VisaoGeral() {
           cursor: pointer;
         }
 
-        .bfd-venc-expandido__tab.is-active {
+        .pedido-visao-geral .bfd-venc-expandido__tab.is-active {
           border-color: rgba(56, 189, 248, 0.45);
           background: rgba(56, 189, 248, 0.1);
           color: #e2e8f0;
         }
 
-        .bfd-venc-expandido__tab-count {
+        .pedido-visao-geral .bfd-venc-expandido__tab-count {
           font-size: 0.65rem;
           padding: 0.1rem 0.35rem;
           border-radius: 999px;
           background: rgba(255, 255, 255, 0.08);
         }
 
-        .bfd-venc-expandido__resumo-bar {
+        .pedido-visao-geral .bfd-venc-expandido__resumo-bar {
           display: flex;
           flex-wrap: wrap;
           gap: 0.75rem;
@@ -3676,7 +3698,7 @@ export default function VisaoGeral() {
           border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .bfd-venc-expandido__lista {
+        .pedido-visao-geral .bfd-venc-expandido__lista {
           flex: 1;
           max-height: 360px;
           overflow-y: auto;
@@ -3686,7 +3708,7 @@ export default function VisaoGeral() {
           padding: 0.35rem 0.5rem;
         }
 
-        .bfd-venc-expandido__linha {
+        .pedido-visao-geral .bfd-venc-expandido__linha {
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -3697,7 +3719,7 @@ export default function VisaoGeral() {
           border-bottom: 1px solid rgba(255, 255, 255, 0.04);
         }
 
-        .bfd-venc-expandido__vazio {
+        .pedido-visao-geral .bfd-venc-expandido__vazio {
           font-size: 0.78rem;
           color: #64748b;
           font-style: italic;
@@ -3705,7 +3727,7 @@ export default function VisaoGeral() {
           text-align: center;
         }
 
-        .bfd-route-mini-timeline {
+        .pedido-visao-geral .bfd-route-mini-timeline {
           position: absolute;
           top: 0.55rem;
           right: 0.65rem;
@@ -3721,19 +3743,19 @@ export default function VisaoGeral() {
           transition: border-color 0.15s ease, background 0.15s ease;
         }
 
-        .bfd-route-mini-timeline--clickable:hover {
+        .pedido-visao-geral .bfd-route-mini-timeline--clickable:hover {
           border-color: rgba(56, 189, 248, 0.45);
           background: rgba(56, 189, 248, 0.08);
         }
 
-        .bfd-timeline-expandido {
+        .pedido-visao-geral .bfd-timeline-expandido {
           display: flex;
           flex-direction: column;
           gap: 1rem;
           min-height: 320px;
         }
 
-        .bfd-timeline-expandido__legenda {
+        .pedido-visao-geral .bfd-timeline-expandido__legenda {
           display: flex;
           flex-wrap: wrap;
           gap: 1rem;
@@ -3741,23 +3763,23 @@ export default function VisaoGeral() {
           color: #cbd5e1;
         }
 
-        .bfd-timeline-expandido__legenda-item {
+        .pedido-visao-geral .bfd-timeline-expandido__legenda-item {
           display: inline-flex;
           align-items: center;
           gap: 0.4rem;
         }
 
-        .bfd-timeline-expandido__swatch {
+        .pedido-visao-geral .bfd-timeline-expandido__swatch {
           width: 10px;
           height: 10px;
           border-radius: 2px;
           display: inline-block;
         }
 
-        .bfd-timeline-expandido__swatch--pagar { background: #f59e0b; }
-        .bfd-timeline-expandido__swatch--receber { background: #34d399; }
+        .pedido-visao-geral .bfd-timeline-expandido__swatch--pagar {
+        .pedido-visao-geral .bfd-timeline-expandido__swatch--receber {
 
-        .bfd-timeline-expandido__chart-wrap {
+        .pedido-visao-geral .bfd-timeline-expandido__chart-wrap {
           flex: 1;
           overflow-x: auto;
           padding: 0.5rem;
@@ -3766,14 +3788,14 @@ export default function VisaoGeral() {
           background: rgba(0, 0, 0, 0.18);
         }
 
-        .bfd-timeline-expandido__chart {
+        .pedido-visao-geral .bfd-timeline-expandido__chart {
           width: 100%;
           min-width: 320px;
           height: auto;
           display: block;
         }
 
-        .bfd-route-cambio-icon {
+        .pedido-visao-geral .bfd-route-cambio-icon {
           position: absolute;
           left: 50%;
           top: 50%;
@@ -3790,7 +3812,7 @@ export default function VisaoGeral() {
           pointer-events: none;
         }
 
-        .bfd-route-stats {
+        .pedido-visao-geral .bfd-route-stats {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 0.75rem;
@@ -3798,32 +3820,32 @@ export default function VisaoGeral() {
           padding-top: 0.75rem;
           margin-top: 0.25rem;
         }
-        .bfd-route-stat-item {
+        .pedido-visao-geral .bfd-route-stat-item {
           display: flex;
           flex-direction: column;
           gap: 0.15rem;
         }
-        .bfd-route-stat-label {
+        .pedido-visao-geral .bfd-route-stat-label {
           font-size: 0.68rem;
           color: #94a3b8;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.03em;
         }
-        .bfd-route-stat-value {
+        .pedido-visao-geral .bfd-route-stat-value {
           font-size: 0.8rem;
           font-weight: 700;
           color: #ffffff;
         }
 
-        .bfd-modal-mapa-footer {
+        .pedido-visao-geral .bfd-modal-mapa-footer {
           padding: 1rem 1.5rem;
           border-top: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           justify-content: flex-end;
           background: rgba(11, 15, 28, 0.5);
         }
-        .bfd-modal-mapa-close-action {
+        .pedido-visao-geral .bfd-modal-mapa-close-action {
           padding: 0.5rem 1.25rem;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.1);
@@ -3834,142 +3856,209 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .bfd-modal-mapa-close-action:hover {
+        .pedido-visao-geral .bfd-modal-mapa-close-action:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
         }
 
         /* ── Globe Map + Câmbio Row ───────────────────────────────── */
-        .bfd-globe-row {
+        .pedido-visao-geral .bfd-globe-row {
           display: grid;
-          grid-template-columns: 2.15fr 1fr;
+          grid-template-columns: minmax(0, 1fr) 320px minmax(280px, 0.72fr);
           gap: 1.25rem;
           margin-bottom: 1.25rem;
+          align-items: stretch;
+          --bfd-visao-geral-linha-altura: 400px;
+        }
+        .pedido-visao-geral .bfd-globe-row__coluna-direita {
+          display: flex;
+          flex-direction: column;
+          gap: 0.85rem;
+          min-height: 0;
+          overflow: hidden;
+        }
+        .bfd-globe-row .bfd-map-card,
+        .bfd-globe-row .bfd-rankings-card,
+        .pedido-visao-geral .bfd-globe-row .bfd-globe-row__coluna-direita {
+          min-height: var(--bfd-visao-geral-linha-altura);
+          max-height: var(--bfd-visao-geral-linha-altura);
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-alertas {
+          flex: 0 0 auto;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-card--accent-indigo {
+          flex: 1;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-funil {
+          flex: 1;
+          min-height: 0;
+          overflow-y: auto;
+          justify-content: center;
+          gap: 0.45rem;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-funil__row {
+          gap: 0.5rem;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-funil__label {
+          font-size: 0.78rem;
+          min-width: 120px;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-funil__bar-wrap {
+          height: 12px;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-rankings-card .bfd-map-right-panel {
+          padding: 1rem;
+          gap: 0.65rem;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-map-panel__header {
+          gap: 0.15rem;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-map-panel__row {
+          padding: 0.35rem 0.5rem;
         }
         @media (max-width: 1200px) {
-          .bfd-globe-row {
+          .pedido-visao-geral .bfd-globe-row {
             grid-template-columns: 1fr;
+            --bfd-visao-geral-linha-altura: auto;
+          }
+          .pedido-visao-geral .bfd-map-rankings-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+          }
+          .bfd-globe-row .bfd-map-card,
+          .bfd-globe-row .bfd-rankings-card,
+          .pedido-visao-geral .bfd-globe-row .bfd-globe-row__coluna-direita {
+            min-height: 0;
+            max-height: none;
+          }
+          .pedido-visao-geral .bfd-map-container {
+            min-height: 280px;
           }
         }
 
         /* ── Charts Grid ─────────────────────────────────────────── */
-        .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1.25rem; }
-        .bfd-charts-grid .bfd-card { height: 380px; }
-        .bfd-chart-svg { width: 100%; max-height: 230px; height: auto; display: block; margin: auto 0; }
-        .bfd-chart__legend { display: flex; gap: 1.25rem; margin-top: auto; padding-top: 0.75rem; justify-content: center; }
-        .bfd-chart__legend span { font-size: 0.85rem; color: #cbd5e1; letter-spacing: 0.02em; display: flex; align-items: center; gap: 8px; font-weight: 500; }
-        .bfd-chart__legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-        .bfd-chart__subtitle { font-size: 0.82rem; color: #cbd5e1; letter-spacing: 0.02em; text-align: right; margin-bottom: 0.5rem; font-weight: 500; }
+        .pedido-visao-geral .bfd-charts-grid {
+        .pedido-visao-geral .bfd-charts-grid .bfd-card {
+        .pedido-visao-geral .bfd-chart-svg {
+        .pedido-visao-geral .bfd-chart__legend {
+        .pedido-visao-geral .bfd-chart__legend span {
+        .pedido-visao-geral .bfd-chart__legend-dot {
+        .pedido-visao-geral .bfd-chart__subtitle {
 
         /* ── Column Chart Hovers ─────────────────────────────────── */
-        .bfd-chart-bar-group {
+        .pedido-visao-geral .bfd-chart-bar-group {
           cursor: pointer;
           transform-origin: bottom;
           transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .bfd-chart-bar-group:hover {
+        .pedido-visao-geral .bfd-chart-bar-group:hover {
           transform: translateY(-4px);
         }
-        .bfd-chart-bar-group text {
+        .pedido-visao-geral .bfd-chart-bar-group text {
           transition: fill 0.2s ease, font-size 0.2s ease;
         }
-        .bfd-chart-bar-group:hover .bfd-chart-total-text {
+        .pedido-visao-geral .bfd-chart-bar-group:hover .bfd-chart-total-text {
           fill: #ffffff;
           font-weight: 800;
         }
-        .bfd-chart-svg:has(.bfd-chart-bar-group:hover) .bfd-chart-bar-group:not(:hover) {
+        .pedido-visao-geral .bfd-chart-svg:has(.bfd-chart-bar-group:hover) .bfd-chart-bar-group:not(:hover) {
           opacity: 0.35;
         }
 
         /* ── Câmbio ──────────────────────────────────────────────── */
-        .bfd-cambio { display: flex; flex-direction: column; gap: 0; margin: auto 0; }
-        .bfd-cambio__row {
+        .pedido-visao-geral .bfd-cambio {
+        .pedido-visao-geral .bfd-cambio__row {
           display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 0;
           border-bottom: 1px solid rgba(255,255,255,0.06);
         }
-        .bfd-cambio__row:last-child { border-bottom: none; }
-        .bfd-cambio__code { font-size: 0.85rem; font-weight: 700; color: #ffffff; min-width: 44px; letter-spacing: 0.02em; }
-        .bfd-cambio__val { font-size: 0.85rem; color: #cbd5e1; flex: 1; letter-spacing: 0.02em; font-weight: 600; }
-        .bfd-cambio__var {
+        .pedido-visao-geral .bfd-cambio__row:last-child {
+        .pedido-visao-geral .bfd-cambio__code {
+        .pedido-visao-geral .bfd-cambio__val {
+        .pedido-visao-geral .bfd-cambio__var {
           font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; letter-spacing: 0.01em;
         }
 
         /* ── Insights Grid ───────────────────────────────────────── */
-        .bfd-insights-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem; }
+        .pedido-visao-geral .bfd-insights-grid {
 
         /* ── Melhor cotação ──────────────────────────────────────── */
-        .bfd-best { display: flex; flex-direction: column; gap: 0.85rem; }
-        .bfd-best__route { display: flex; align-items: center; justify-content: space-between; }
-        .bfd-best__port { text-align: center; }
-        .bfd-best__port-flag { font-size: 1.1rem; font-weight: 700; color: #ffffff; letter-spacing: 0.02em; }
-        .bfd-best__port-code { font-size: 0.82rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 600; }
-        .bfd-best__arrow { display: flex; align-items: center; gap: 0.25rem; color: #cbd5e1; flex: 1; justify-content: center; }
-        .bfd-best__arrow-line { height: 1px; flex: 1; background: rgba(255,255,255,0.15); max-width: 120px; }
-        .bfd-best__arrow-tt { font-size: 0.78rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 600; }
-        .bfd-best__saving {
+        .pedido-visao-geral .bfd-best {
+        .pedido-visao-geral .bfd-best__route {
+        .pedido-visao-geral .bfd-best__port {
+        .pedido-visao-geral .bfd-best__port-flag {
+        .pedido-visao-geral .bfd-best__port-code {
+        .pedido-visao-geral .bfd-best__arrow {
+        .pedido-visao-geral .bfd-best__arrow-line {
+        .pedido-visao-geral .bfd-best__arrow-tt {
+        .pedido-visao-geral .bfd-best__saving {
           display: flex; align-items: center; gap: 0.75rem;
         }
-        .bfd-best__saving-badge {
+        .pedido-visao-geral .bfd-best__saving-badge {
           font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 6px;
           background: rgba(245, 158, 11, 0.12); color: #f59e0b; display: flex; align-items: center; gap: 4px;
           letter-spacing: 0.01em;
         }
-        .bfd-best__saving-val { font-size: 1.45rem; font-weight: 800; color: #f59e0b; letter-spacing: 0.02em; }
-        .bfd-best__meta { font-size: 0.82rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 500; line-height: 1.5; }
+        .pedido-visao-geral .bfd-best__saving-val {
+        .pedido-visao-geral .bfd-best__meta {
 
         /* ── Donut ───────────────────────────────────────────────── */
-        .bfd-donut { display: flex; align-items: center; gap: 1.75rem; margin: auto 0; }
-        .bfd-donut__legend { display: flex; flex-direction: column; gap: 0.75rem; flex: 1; }
-        .bfd-donut__legend-row { display: flex; align-items: center; gap: 0.6rem; }
-        .bfd-donut__legend-icon { color: #cbd5e1; display: flex; }
-        .bfd-donut__legend-label { font-size: 0.85rem; color: #cbd5e1; min-width: 80px; letter-spacing: 0.02em; font-weight: 600; }
-        .bfd-donut__legend-bar { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
-        .bfd-donut__legend-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
-        .bfd-donut__legend-count { font-size: 0.88rem; font-weight: 700; min-width: 28px; text-align: right; color: #ffffff; }
-        .bfd-donut__legend-pct { font-size: 0.82rem; color: #cbd5e1; min-width: 32px; text-align: right; letter-spacing: 0.02em; font-weight: 500; }
+        .pedido-visao-geral .bfd-donut {
+        .pedido-visao-geral .bfd-donut__legend {
+        .pedido-visao-geral .bfd-donut__legend-row {
+        .pedido-visao-geral .bfd-donut__legend-icon {
+        .pedido-visao-geral .bfd-donut__legend-label {
+        .pedido-visao-geral .bfd-donut__legend-bar {
+        .pedido-visao-geral .bfd-donut__legend-bar-fill {
+        .pedido-visao-geral .bfd-donut__legend-count {
+        .pedido-visao-geral .bfd-donut__legend-pct {
 
         /* ── Funil ───────────────────────────────────────────────── */
-        .bfd-funil { display: flex; flex-direction: column; gap: 0.55rem; }
-        .bfd-funil__row { display: flex; align-items: center; gap: 0.6rem; }
-        .bfd-funil__label { font-size: 0.85rem; color: #cbd5e1; min-width: 155px; white-space: nowrap; letter-spacing: 0.02em; font-weight: 600; }
-        .bfd-funil__bar-wrap { flex: 1; height: 14px; background: rgba(255,255,255,0.04); border-radius: 4px; overflow: hidden; }
-        .bfd-funil__bar { height: 100%; border-radius: 4px; transition: width 0.4s; }
-        .bfd-funil__count { font-size: 0.88rem; font-weight: 700; color: #ffffff; min-width: 24px; text-align: right; }
-        .bfd-funil__pct { font-size: 0.82rem; color: #cbd5e1; min-width: 32px; text-align: right; letter-spacing: 0.02em; font-weight: 500; }
+        .pedido-visao-geral .bfd-funil {
+        .pedido-visao-geral .bfd-funil__row {
+        .pedido-visao-geral .bfd-funil__label {
+        .pedido-visao-geral .bfd-funil__bar-wrap {
+        .pedido-visao-geral .bfd-funil__bar {
+        .pedido-visao-geral .bfd-funil__count {
+        .pedido-visao-geral .bfd-funil__pct {
 
         /* ── Top Incoterms ───────────────────────────────────────── */
-        .bfd-incoterms { display: flex; flex-direction: column; gap: 0.45rem; }
-        .bfd-incoterms__row { display: flex; align-items: center; justify-content: space-between; padding: 0.45rem 0; }
-        .bfd-incoterms__code { font-size: 0.88rem; font-weight: 700; color: #ffffff; letter-spacing: 0.03em; }
-        .bfd-incoterms__count { font-size: 0.85rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 600; }
+        .pedido-visao-geral .bfd-incoterms {
+        .pedido-visao-geral .bfd-incoterms__row {
+        .pedido-visao-geral .bfd-incoterms__code {
+        .pedido-visao-geral .bfd-incoterms__count {
 
         /* ── Bottom Grid ─────────────────────────────────────────── */
-        .bfd-bottom-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+        .pedido-visao-geral .bfd-bottom-grid {
 
         /* ── Taxa ────────────────────────────────────────────────── */
-        .bfd-taxa { display: flex; align-items: center; gap: 1.25rem; }
-        .bfd-taxa__legend { display: flex; flex-direction: column; gap: 0.5rem; }
-        .bfd-taxa__legend-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; color: #cbd5e1; font-weight: 600; letter-spacing: 0.02em; line-height: 1.5; }
-        .bfd-taxa__dot { width: 8px; height: 8px; border-radius: 50%; }
+        .pedido-visao-geral .bfd-taxa {
+        .pedido-visao-geral .bfd-taxa__legend {
+        .pedido-visao-geral .bfd-taxa__legend-row {
+        .pedido-visao-geral .bfd-taxa__dot {
 
         /* ── Alertas ─────────────────────────────────────────────── */
-        .bfd-alertas { display: flex; flex-direction: column; gap: 0.85rem; }
-        .bfd-alertas__nav { display: flex; align-items: center; gap: 0.6rem; justify-content: flex-end; margin-bottom: 0.5rem; }
-        .bfd-alertas__nav button {
+        .pedido-visao-geral .bfd-alertas {
+        .pedido-visao-geral .bfd-alertas__nav {
+        .pedido-visao-geral .bfd-alertas__nav button {
           background: none; border: none; cursor: pointer; color: #94a3b8; display: flex; align-items: center; transition: color 0.15s;
         }
-        .bfd-alertas__nav button:hover { color: #ffffff; }
-        .bfd-alertas__nav span { font-size: 0.82rem; color: #cbd5e1; font-weight: 600; letter-spacing: 0.02em; }
-        .bfd-alertas__pills { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-        .bfd-alertas__pill {
+        .pedido-visao-geral .bfd-alertas__nav button:hover {
+        .pedido-visao-geral .bfd-alertas__nav span {
+        .pedido-visao-geral .bfd-alertas__pills {
+        .pedido-visao-geral .bfd-alertas__pill {
           display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 1rem;
           border-radius: 8px; font-size: 0.85rem; color: #cbd5e1; font-weight: 600; letter-spacing: 0.02em;
           background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
         }
-        .bfd-alertas__pill-count { font-weight: 800; font-size: 0.9rem; }
+        .pedido-visao-geral .bfd-alertas__pill-count {
 
         /* ── Footer ──────────────────────────────────────────────── */
-        .bfd-footer { text-align: center; font-size: 0.8rem; color: #cbd5e1; padding: 0.75rem 0; opacity: 0.8; letter-spacing: 0.02em; font-weight: 500; }
+        .pedido-visao-geral .bfd-footer {
 
         /* ── Animations ──────────────────────────────────────────── */
         @keyframes pinPulse {
@@ -3983,13 +4072,13 @@ export default function VisaoGeral() {
 
         /* ── Responsive ──────────────────────────────────────────── */
         @media (max-width: 1200px) {
-          .bfd-kpi-grid { grid-template-columns: repeat(3, 1fr); }
-          .bfd-charts-grid { grid-template-columns: 1fr; }
-          .bfd-insights-grid { grid-template-columns: 1fr; }
-          .bfd-bottom-grid { grid-template-columns: 1fr; }
+          .pedido-visao-geral .bfd-kpi-grid {
+          .pedido-visao-geral .bfd-charts-grid {
+          .pedido-visao-geral .bfd-insights-grid {
+          .pedido-visao-geral .bfd-bottom-grid {
         }
         @media (max-width: 768px) {
-          .bfd-kpi-grid { grid-template-columns: repeat(1, 1fr); }
+          .pedido-visao-geral .bfd-kpi-grid {
         }
       `}</style>
 
@@ -4032,10 +4121,10 @@ export default function VisaoGeral() {
         <VisaoGeralMapa />
 
         {/* Right Column Stacking Alertas + Funil */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', minHeight: 0 }}>
+        <div className="bfd-globe-row__coluna-direita">
           {/* Alertas */}
-          <div className="bfd-card bfd-alertas bfd-card--accent-rose" style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <div className="bfd-card bfd-alertas bfd-card--accent-rose" style={{ flex: '0 0 auto', padding: '1rem 1.25rem', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
               <div className="cg-card__header">
                 <div className="cg-card__icon-wrap">
                   <Bell weight="duotone" size={16} style={{ color: '#f87171' }} />
@@ -4048,28 +4137,28 @@ export default function VisaoGeral() {
                 <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}><CaretRight size={12} /></button>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.65rem', flex: 1 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
               {alertas.map((a, i) => {
-                let icon = <Clock size={16} weight="duotone" />
+                let icon = <Clock size={14} weight="duotone" />
                 let glowColor = 'rgba(248, 113, 113, 0.15)'
                 let textColor = '#f87171'
                 let borderLeftColor = '#f87171'
                 let itemBg = 'rgba(248, 113, 113, 0.04)'
 
                 if (a.cor === 'orange' || a.cor === 'yellow') {
-                  icon = <ChatText size={16} weight="duotone" />
+                  icon = <ChatText size={14} weight="duotone" />
                   glowColor = 'rgba(251, 191, 36, 0.15)'
                   textColor = '#fbbf24'
                   borderLeftColor = '#fbbf24'
                   itemBg = 'rgba(251, 191, 36, 0.04)'
                 } else if (a.cor === 'green') {
-                  icon = <Bell size={16} weight="duotone" />
+                  icon = <Bell size={14} weight="duotone" />
                   glowColor = 'rgba(52, 211, 153, 0.15)'
                   textColor = '#34d399'
                   borderLeftColor = '#34d399'
                   itemBg = 'rgba(52, 211, 153, 0.04)'
                 } else {
-                  icon = <CheckCircle size={16} weight="duotone" />
+                  icon = <CheckCircle size={14} weight="duotone" />
                   glowColor = 'rgba(245, 158, 11, 0.15)'
                   textColor = '#f59e0b'
                   borderLeftColor = '#f59e0b'
@@ -4088,10 +4177,10 @@ export default function VisaoGeral() {
                       border: '1px solid rgba(255, 255, 255, 0.03)',
                       borderLeft: `3px solid ${borderLeftColor}`,
                       borderRadius: '6px',
-                      padding: '0.65rem 0.8rem',
+                      padding: '0.35rem 0.65rem',
                       transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                       cursor: 'pointer',
-                      minHeight: '75px',
+                      minHeight: '38px',
                     }}
                     onClick={() => {
                       setAlertModalTipo(a.tipo)
@@ -4115,11 +4204,11 @@ export default function VisaoGeral() {
                       <span style={{ color: borderLeftColor, display: 'flex', alignItems: 'center' }}>
                         {icon}
                       </span>
-                      <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                      <span style={{ fontSize: '1rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1 }}>
                         {a.count}
                       </span>
                     </div>
-                    <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1', lineHeight: '1.2', marginTop: '0.35rem', letterSpacing: '0.01em' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#cbd5e1', lineHeight: '1.15', marginTop: '0.15rem', letterSpacing: '0.01em' }}>
                       {t(`pedido.visao_geral.alertas.${a.tipo}`)}
                     </span>
                   </div>
@@ -4129,8 +4218,8 @@ export default function VisaoGeral() {
           </div>
 
           {/* Funil */}
-          <div className="bfd-card bfd-card--accent-indigo" style={{ flex: 1, padding: '1.25rem 1.5rem' }}>
-            <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+          <div className="bfd-card bfd-card--accent-indigo" style={{ flex: 1, minHeight: 0, padding: '1rem 1.25rem' }}>
+            <div className="cg-card__header" style={{ marginBottom: '0.75rem' }}>
               <div className="cg-card__icon-wrap">
                 <Funnel weight="duotone" size={16} style={{ color: '#818cf8' }} />
               </div>

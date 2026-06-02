@@ -6,6 +6,12 @@
     }
   },
   "bidfrete": {
+    "nav": {
+      "insights": "Insights",
+      "lista": "List",
+      "dashboard": "Dashboard",
+      "kanban": "Kanban"
+    },
     "nova_cotacao": {
       "tipo_operacao_cotacao_bid_frete_internacional": "Operation Type",
       "modalidade_cotacao_bid_frete_internacional": "Modality",
@@ -414,6 +420,8 @@
       "ver_detalhes_card": "View card details",
       "status_titulo": "Manage Status",
       "status_desc": "Configure available statuses for quotes",
+      "badge_sistema": "system",
+      "tooltip_status_sistema": "Default system status — cannot be deleted or hidden",
       "placeholder_nome_status": "Status name",
       "numeracao_titulo": "Numbering Mask & Sequence",
       "numeracao_desc": "Configure quote numbering format",
@@ -829,6 +837,7 @@
         "tooltip_descricao": "Respond to quotes, send proposals and track your performance here"
       },
       "nav": {
+        "insights": "Insights",
         "dashboard": "Overview",
         "paineis_dashboard": "Dashboard",
         "lista": "List",

@@ -33,6 +33,7 @@ import { ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL } from './shared/rotas-b
 import { resolverPageMetaTopo } from './shared/page-meta-topo'
 import { PaginaCarregandoBidFreteInternacional } from './shared/pagina-carregando-bid-frete-internacional'
 import './shared/bid-frete-page-shell.css'
+import { BidFreteVisualizacaoLayout } from './components/BidFreteVisualizacaoLayout'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
@@ -85,20 +86,21 @@ const iconMap: Record<string, React.ReactNode> = {
   'kanban':                  <Kanban                weight="duotone" size={20} />,
 }
 
-function mapNavItem(item: NavigationItem): NavItem {
+function mapNavItem(item: NavigationItem, t: (key: string) => string): NavItem {
+  const label = item.labelKey ? t(item.labelKey) : item.label
   if (item.sectionDivider) {
-    return { label: item.label, sectionDivider: true as const, icon: null as any }
+    return { label, sectionDivider: true as const, icon: null as any }
   }
   return {
     id:           item.id,
     to:           item.id,
-    label:        item.label,
+    label,
     icon:         iconMap[item.icon ?? ''] ?? <ListBullets weight="duotone" size={20} />,
     disabled:     item.disabled,
     badge:        item.badge,
     badgeVariant: item.badgeVariant as 'accent' | 'muted' | undefined,
     external:     item.external,
-    children:     item.children?.map(child => mapNavItem(child)),
+    children:     item.children?.map(child => mapNavItem(child, t)),
   }
 }
 
@@ -204,8 +206,8 @@ export default function App() {
     const nav = isVisaoFornecedor
       ? PRODUCT_CONFIG.navigation_visao_fornecedor_bid_frete_internacional
       : PRODUCT_CONFIG.navigation
-    return nav.map(item => mapNavItem(item))
-  }, [isVisaoFornecedor])
+    return nav.map(item => mapNavItem(item, t))
+  }, [isVisaoFornecedor, t])
 
   if (isRespostaPublica) {
     return (
@@ -286,10 +288,10 @@ export default function App() {
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/"              element={<Navigate to="visao-geral" replace />} />
-          <Route path="visao-geral"    element={<VisaoGeral />} />
-          <Route path="dashboard"      element={<Dashboard />} />
-          <Route path="lista"          element={<Cotacoes />} />
-          <Route path="kanban"         element={<Cotacoes />} />
+          <Route path="visao-geral"    element={<BidFreteVisualizacaoLayout modo="cliente"><VisaoGeral /></BidFreteVisualizacaoLayout>} />
+          <Route path="dashboard"      element={<BidFreteVisualizacaoLayout modo="cliente"><Dashboard /></BidFreteVisualizacaoLayout>} />
+          <Route path="lista"          element={<BidFreteVisualizacaoLayout modo="cliente"><Cotacoes /></BidFreteVisualizacaoLayout>} />
+          <Route path="kanban"         element={<BidFreteVisualizacaoLayout modo="cliente"><Cotacoes /></BidFreteVisualizacaoLayout>} />
           <Route path="cotacoes"       element={<RedirectCotacoesVisaoLegado />} />
           <Route path="cotacoes/nova" element={<ModalNovaCotacaoBidFreteInternacional />} />
           <Route path="cotacoes/importar" element={<CotacoesImportar />} />
@@ -297,18 +299,18 @@ export default function App() {
           <Route path="cotacoes/:id_cotacao/comparativo" element={<Comparativo />} />
           <Route path="fornecedores"   element={<Fornecedores />} />
           <Route path="fornecedores/:id_fornecedor" element={<DetalheFornecedor />} />
-          <Route path="configuracoes"  element={<Configuracoes />} />
+          <Route path="configuracoes"  element={<BidFreteVisualizacaoLayout modo="cliente"><Configuracoes /></BidFreteVisualizacaoLayout>} />
 
           <Route path="visao-fornecedor-bid-frete-internacional" element={<Navigate to="visao-fornecedor-bid-frete-internacional/dashboard" replace />} />
-          <Route path="visao-fornecedor-bid-frete-internacional/dashboard" element={<VisaoFornecedorDashboard />} />
-          <Route path="visao-fornecedor-bid-frete-internacional/paineis-dashboard" element={<VisaoFornecedorPaineisDashboard />} />
-          <Route path="visao-fornecedor-bid-frete-internacional/lista" element={<VisaoFornecedorLista />} />
-          <Route path="visao-fornecedor-bid-frete-internacional/kanban" element={<VisaoFornecedorKanban />} />
+          <Route path="visao-fornecedor-bid-frete-internacional/dashboard" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorDashboard /></BidFreteVisualizacaoLayout>} />
+          <Route path="visao-fornecedor-bid-frete-internacional/paineis-dashboard" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorPaineisDashboard /></BidFreteVisualizacaoLayout>} />
+          <Route path="visao-fornecedor-bid-frete-internacional/lista" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorLista /></BidFreteVisualizacaoLayout>} />
+          <Route path="visao-fornecedor-bid-frete-internacional/kanban" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorKanban /></BidFreteVisualizacaoLayout>} />
           <Route path="visao-fornecedor-bid-frete-internacional/cotacoes-pendentes" element={<VisaoFornecedorCotacoesPendentes />} />
           <Route path="visao-fornecedor-bid-frete-internacional/propostas" element={<VisaoFornecedorPropostas />} />
           <Route path="visao-fornecedor-bid-frete-internacional/tabelas-valor" element={<VisaoFornecedorTabelasValor />} />
           <Route path="visao-fornecedor-bid-frete-internacional/desempenho" element={<VisaoFornecedorDesempenho />} />
-          <Route path="visao-fornecedor-bid-frete-internacional/configuracoes" element={<VisaoFornecedorConfiguracoes />} />
+          <Route path="visao-fornecedor-bid-frete-internacional/configuracoes" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorConfiguracoes /></BidFreteVisualizacaoLayout>} />
           <Route path="visao-fornecedor-bid-frete-internacional/responder/:id_disparo_cotacao_bid_frete_internacional" element={<VisaoFornecedorResponderCotacao />} />
 
           {/* Redirects legado portal → visão fornecedor */}

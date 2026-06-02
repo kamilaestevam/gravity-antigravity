@@ -4,7 +4,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from '../lib/erros.js'
-import { seedStatusPadrao } from '../services/seedStatusPadrao.js'
+import { seedStatusPadrao, garantirStatusCanonicos } from '../services/seedStatusPadrao.js'
 
 const router = Router()
 
@@ -19,7 +19,6 @@ const EditarStatusSchema = z.object({
   rotulo_status_cotacao_config_bid_frete_internacional: z.string().min(1).max(100).optional(),
   cor_status_cotacao_config_bid_frete_internacional: z.string().min(4).max(9).optional(),
   icone_status_cotacao_config_bid_frete_internacional: z.string().max(50).nullable().optional(),
-  gerenciado_sistema_status_cotacao_config_bid_frete_internacional: z.boolean().optional(),
 })
 
 const ReordenarStatusSchema = z.object({
@@ -37,6 +36,8 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
     if (count === 0) {
       await seedStatusPadrao(req.prisma as any, idOrganizacao)
+    } else {
+      await garantirStatusCanonicos(req.prisma as any, idOrganizacao)
     }
 
     const statusList = await (req.prisma as any).statusCotacaoConfigBidFreteInternacional.findMany({

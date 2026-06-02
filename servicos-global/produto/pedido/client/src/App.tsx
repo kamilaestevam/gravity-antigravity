@@ -403,9 +403,11 @@ function AppInner() {
             </BloqueioPermissaoOpaco>
           } />
           <Route path="configuracoes"        element={
-            <BloqueioPermissaoOpaco pode={estadoPermissao('configuracao', 'ver') !== 'negado'} motivo="Sem permissão para ver Configurações" modo="bloqueio-tela">
-              <Configuracoes />
-            </BloqueioPermissaoOpaco>
+            <PedidosVisualizacaoLayout>
+              <BloqueioPermissaoOpaco pode={estadoPermissao('configuracao', 'ver') !== 'negado'} motivo="Sem permissão para ver Configurações" modo="bloqueio-tela">
+                <Configuracoes />
+              </BloqueioPermissaoOpaco>
+            </PedidosVisualizacaoLayout>
           } />
           <Route path="*"                    element={<Navigate to="/pedido/pedidos/visao-geral" replace />} />
         </Routes>

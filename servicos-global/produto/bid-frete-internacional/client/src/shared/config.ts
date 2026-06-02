@@ -64,10 +64,6 @@ export const PRODUCT_CONFIG = {
 
     // ── BID Frete Internacional ─────────────────────────────────────────────────
     { id: 'section-bid-frete',                          label: 'Bid Frete Internacional', sectionDivider: true },
-    { id: rotaBidFreteInternacional('visao-geral'),    label: 'Visão Geral',    icon: 'chart-pie-slice', source: 'product' },
-    { id: rotaBidFreteInternacional('dashboard'),      label: 'Dashboard',      icon: 'chart-bar',       source: 'product' },
-    { id: rotaBidFreteInternacional('lista'),          label: 'Lista',          icon: 'list-bullets',    source: 'product' },
-    { id: rotaBidFreteInternacional('kanban'),         label: 'Kanban',         icon: 'kanban',          source: 'product' },
     { id: rotaBidFreteInternacional('fornecedores'),   label: 'Fornecedores',   icon: 'buildings',       source: 'product' },
 
     // ── Serviços ──────────────────────────────────────────────────────────────
@@ -87,10 +83,6 @@ export const PRODUCT_CONFIG = {
   },
 
   navigation_visao_fornecedor_bid_frete_internacional: [
-    { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.dashboard, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.dashboard', label: 'Visão geral', icon: 'chart-pie-slice', source: 'product' },
-    { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.paineisDashboard, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.paineis_dashboard', label: 'Dashboard', icon: 'chart-bar', source: 'product' },
-    { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.lista, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.lista', label: 'Lista', icon: 'list-bullets', source: 'product' },
-    { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.kanban, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.kanban', label: 'Kanban', icon: 'kanban', source: 'product' },
     { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.cotacoesPendentes, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.cotacoes_pendentes', label: 'Cotações pendentes', icon: 'envelope', source: 'product' },
     { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.propostas, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.propostas', label: 'Minhas propostas', icon: 'paper-plane-tilt', source: 'product' },
     { id: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.tabelasValor, labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.tabelas_valor', label: 'Tabelas de valor', icon: 'currency-dollar', source: 'product' },

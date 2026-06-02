@@ -6,6 +6,8 @@
   --bid-frete-page-pt: 1.5rem;
   --bid-frete-page-px: 2rem;
   --bid-frete-page-pb: 2rem;
+  /** Distância abaixo do seletor Insights|Lista|… — paridade Pedido / pg-toolbar */
+  --bid-frete-visualizacao-tabs-mb: 1rem;
 }
 
 .bid-frete-page-shell {

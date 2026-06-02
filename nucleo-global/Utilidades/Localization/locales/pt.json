@@ -2191,6 +2191,12 @@
     }
   },
   "bidfrete": {
+    "nav": {
+      "insights": "Insights",
+      "lista": "Lista",
+      "dashboard": "Dashboard",
+      "kanban": "Kanban"
+    },
     "dashboard": {
       "titulo": "Visão Geral",
       "cotacoes_andamento": "Cotações em andamento",
@@ -2275,6 +2281,12 @@
         "titulo": "Status de Cotação",
         "descricao": "Arraste para reordenar · edite o nome e a cor",
         "novo_status": "Novo Status",
+        "badge_sistema": "sistema",
+        "tooltip_sistema": "Status padrão do sistema — não pode ser excluído ou ocultado",
+        "editar_tooltip": "Editar status",
+        "excluir_tooltip": "Excluir status",
+        "aria_editar": "Editar status",
+        "aria_excluir": "Excluir status",
         "placeholder_novo": "Nome do novo status (ex.: Em Análise do Armador)",
         "cor": "Cor",
         "nenhum_status": "Nenhum status configurado. Clique em \"Novo Status\" para criar.",
@@ -2771,6 +2783,8 @@
       "criar": "Criar",
       "cor_label": "Cor",
       "status_ativos_label": "STATUS ATIVOS",
+      "badge_sistema": "sistema",
+      "tooltip_status_sistema": "Status padrão do sistema — não pode ser excluído ou ocultado",
       "placeholder_novo_status": "Ex: Em Análise do Armador",
       "adicionar_status": "Adicionar Status",
       "seus_templates_label": "SEUS TEMPLATES",
@@ -3135,6 +3149,7 @@
         "tooltip_descricao": "Área para responder cotações, enviar propostas e acompanhar seu desempenho"
       },
       "nav": {
+        "insights": "Insights",
         "dashboard": "Visão geral",
         "paineis_dashboard": "Dashboard",
         "lista": "Lista",

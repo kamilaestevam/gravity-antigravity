@@ -25,7 +25,7 @@ export interface PageMetaTopo {
 }
 
 const ROUTE_LABELS: Record<string, string> = {
-  'visao-geral':          'Visão Geral',
+  'visao-geral':          'Insights',
   'dashboard':            'Dashboard',
   'lista':                'Lista',
   'kanban':               'Kanban',
@@ -34,7 +34,7 @@ const ROUTE_LABELS: Record<string, string> = {
   'cotacoes/importar':    'Importar Cotações',
   'fornecedores':         'Fornecedores',
   'configuracoes':        'Configurações',
-  'visao-fornecedor-bid-frete-internacional/dashboard':     'Visão geral',
+  'visao-fornecedor-bid-frete-internacional/dashboard':     'Insights',
   'visao-fornecedor-bid-frete-internacional/paineis-dashboard': 'Dashboard',
   'visao-fornecedor-bid-frete-internacional/lista':         'Lista',
   'visao-fornecedor-bid-frete-internacional/kanban':        'Kanban',
@@ -105,7 +105,7 @@ const RESPONDER_COTACAO_META: PageMetaTopo = {
 function metaFromRoute(routeKey: string): PageMetaTopo {
   const header = ROUTE_HEADERS[routeKey]
   return {
-    label:     ROUTE_LABELS[routeKey] ?? 'Visão Geral',
+    label:     ROUTE_LABELS[routeKey] ?? 'Insights',
     icone:     header?.icone,
     subtitulo: header?.subtitulo,
   }

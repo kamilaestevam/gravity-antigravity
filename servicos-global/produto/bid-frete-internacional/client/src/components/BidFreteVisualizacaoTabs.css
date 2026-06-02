@@ -1,18 +1,18 @@
-/* PedidosVisualizacaoTabs — pills compactas; distâncias via pedido-page-shell.css */
+/* BidFreteVisualizacaoTabs — pills compactas; distâncias via bid-frete-page-shell.css */
 
-.pvt-tabs {
+.bft-tabs {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 0.125rem;
   padding: 0.125rem;
   margin-top: 0;
-  margin-bottom: var(--pedido-visualizacao-tabs-mb);
+  margin-bottom: var(--bid-frete-visualizacao-tabs-mb);
   background: var(--ws-surface, #1e293b);
   border: 1px solid rgba(167, 139, 250, 0.18);
   border-radius: 9999px;
 }
 
-.pvt-tab {
+.bft-tab {
   display: inline-flex;
   align-items: center;
   gap: 0.3125rem;
@@ -26,23 +26,23 @@
   transition: background 0.15s, color 0.15s;
 }
 
-.pvt-tab svg {
+.bft-tab svg {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
 }
 
-.pvt-tab:hover {
+.bft-tab:hover {
   color: var(--ws-text, #f1f5f9);
   background: rgba(167, 139, 250, 0.08);
 }
 
-.pvt-tab--active {
+.bft-tab--active {
   background: rgba(167, 139, 250, 0.15);
   color: #a78bfa;
 }
 
-.pedido-visualizacao-layout {
+.bid-frete-visualizacao-layout {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -50,18 +50,25 @@
   width: 100%;
 }
 
-.pedido-visualizacao-layout__tabs {
-  padding: var(--pedido-page-pt) var(--pedido-page-px) 0;
+.bid-frete-visualizacao-layout__tabs {
+  padding: var(--bid-frete-page-pt) var(--bid-frete-page-px) 0;
   flex-shrink: 0;
 }
 
-.pedido-visualizacao-layout .lp-page,
-.pedido-visualizacao-layout .kbp-page,
-.pedido-visualizacao-layout .pedido-page-shell,
-.pedido-visualizacao-layout .bfd-dashboard,
-.pedido-visualizacao-layout .cfg-page {
+.bid-frete-visualizacao-layout .bid-frete-page-shell,
+.bid-frete-visualizacao-layout .pg-container.bid-frete-page-shell,
+.bid-frete-visualizacao-layout .bfd-dashboard,
+.bid-frete-visualizacao-layout .cfg-page {
   padding-top: 0;
+  padding-left: var(--bid-frete-page-px);
+  padding-right: var(--bid-frete-page-px);
+  padding-bottom: var(--bid-frete-page-pb);
   flex: 1;
   min-height: 0;
   min-width: 0;
+}
+
+.bid-frete-visualizacao-layout .pg-container.bid-frete-page-shell .pg-contexto-row.pg-no-header {
+  margin-top: 0;
+  padding-top: 0;
 }

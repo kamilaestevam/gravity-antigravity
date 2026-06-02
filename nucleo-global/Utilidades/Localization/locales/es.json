@@ -992,6 +992,12 @@
     }
   },
   "bidfrete": {
+    "nav": {
+      "insights": "Insights",
+      "lista": "Lista",
+      "dashboard": "Dashboard",
+      "kanban": "Kanban"
+    },
     "dashboard": {
       "titulo": "Visión General",
       "cotacoes_andamento": "Cotizaciones en curso",

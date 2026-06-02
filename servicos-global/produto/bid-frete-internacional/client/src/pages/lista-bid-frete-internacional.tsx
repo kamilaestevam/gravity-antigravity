@@ -148,10 +148,10 @@ function gerarAbasDinamicas(statusList: StatusConfig[]): Array<{ valor: string; 
   return abas
 }
 
-// ─── Colunas padrão da lista (10 colunas rota/cotação — ver CHAVES_COLUNAS_PADRAO_VISIVEIS) ───
+// ─── Colunas padrão = todas as colunas escalares do banco ───
 
-/** Incrementar para forçar reset das prefs salvas no localStorage. */
-const VERSAO_COLUNAS_LISTA = 6
+/** Incrementar quando adicionar colunas ao schema — força reset das prefs salvas. */
+const VERSAO_COLUNAS_LISTA = 4
 const STORAGE_COLUNAS_VERSAO = 'bid-frete-internacional:config:tabela_colunas_versao'
 const STORAGE_PREFS_INTL = 'bid-frete-internacional:config:tabela_preferencias'
 const STORAGE_PREFS_LEGADO = 'bid-frete:config:tabela_preferencias'
@@ -168,34 +168,36 @@ function migrarPreferenciasColunasSeNecessario(): void {
   } catch { /* storage indisponível */ }
 }
 
-function normalizarPreferenciasColunasSalvas(parsed: GTPreferencias): GTPreferencias | undefined {
-  if (!parsed?.colunas_visiveis?.length) return undefined
-
-  const colunasValidas = parsed.colunas_visiveis
-    .filter(k => CHAVES_COLUNAS_COTACAO.includes(k))
-    .filter(k => k !== 'id_cotacao_bid_frete_internacional')
-
-  if (
-    !colunasValidas.includes('numero_cotacao_bid_frete_internacional')
-    || colunasValidas.length < 3
-  ) {
-    return undefined
-  }
-
-  // Preserva ordem e colunas escolhidas pelo usuário; só acrescenta colunas novas do produto ao final.
-  const faltantes = CHAVES_COLUNAS_PADRAO_VISIVEIS.filter(k => !colunasValidas.includes(k))
-  const colunasVisiveis = [...colunasValidas, ...faltantes]
-
-  return { ...parsed, colunas_visiveis: colunasVisiveis }
-}
-
 function lerPreferenciasTabela(): GTPreferencias | undefined {
   migrarPreferenciasColunasSeNecessario()
   try {
-    const raw = localStorage.getItem(STORAGE_PREFS_INTL)
+    let raw = localStorage.getItem(STORAGE_PREFS_INTL)
+    if (!raw) {
+      raw = localStorage.getItem(STORAGE_PREFS_LEGADO)
+    }
     if (!raw) return undefined
     const parsed = JSON.parse(raw) as GTPreferencias
-    return normalizarPreferenciasColunasSalvas(parsed)
+    if (!parsed || !Array.isArray(parsed.colunas_visiveis)) {
+      return undefined
+    }
+
+    const colunasValidas = parsed.colunas_visiveis
+      .filter(k => CHAVES_COLUNAS_COTACAO.includes(k))
+      .filter(k => k !== 'id_cotacao_bid_frete_internacional')
+    const faltantes = CHAVES_COLUNAS_PADRAO_VISIVEIS.filter(k => !colunasValidas.includes(k))
+
+    const hasIntlCore = colunasValidas.includes('numero_cotacao_bid_frete_internacional')
+    if (!hasIntlCore || colunasValidas.length < 3) {
+      return undefined
+    }
+
+    const visiveisSet = new Set([...colunasValidas, ...faltantes])
+    const colunasVisiveis = CHAVES_COLUNAS_PADRAO_VISIVEIS.filter(k => visiveisSet.has(k))
+
+    return {
+      ...parsed,
+      colunas_visiveis: colunasVisiveis,
+    }
   } catch {
     return undefined
   }
@@ -207,6 +209,7 @@ export default function Cotacoes() {
   const location = useLocation()
   const addNotification = useShellStore(s => s.addNotification)
   const { getToken } = useAuth()
+  const meStatus = useShellStore(s => s.meStatus)
   const currentUser = useShellStore(s => s.currentUser)
   const workspacesStore = useShellStore(s => s.workspaces)
   const organizacoesStore = useShellStore(s => s.organizacoes)
@@ -216,7 +219,10 @@ export default function Cotacoes() {
     if (currentUser.id) {
       sessionStorage.setItem('gravity_id_usuario', currentUser.id)
     }
-  }, [currentUser.id])
+    if (currentUser.idOrganizacao) {
+      sessionStorage.setItem('gravity_id_organizacao', currentUser.idOrganizacao)
+    }
+  }, [currentUser.id, currentUser.idOrganizacao])
 
   const [usuariosOrganizacao, setUsuariosOrganizacao] = useState<Array<{ id_usuario: string; nome_usuario: string }>>([])
 
@@ -388,7 +394,6 @@ export default function Cotacoes() {
       : undefined
   }, [tabelaConfig.destacarAtrasados])
 
-  // Carregar dados de cotações
   const carregar = useCallback(async () => {
     setCarregando(true)
     setErroCarregar(null)
@@ -422,7 +427,7 @@ export default function Cotacoes() {
         erros.push(resBids.reason instanceof Error ? resBids.reason.message : 'Falha ao carregar BIDs (camada 2)')
       }
 
-      setErroCarregar(erros.length > 0 ? erros.join(' · ') : null)
+      setErroCarregar(erros.length > 0 ? [...new Set(erros)].join(' · ') : null)
     } catch (e: unknown) {
       setCotacoes([])
       setCotacoesAvulsas([])
@@ -433,19 +438,30 @@ export default function Cotacoes() {
     }
   }, [])
 
-  useEffect(() => { carregar() }, [carregar])
+  useEffect(() => {
+    if (meStatus !== 'success' || !currentUser.id || !currentUser.idOrganizacao) return
+    void carregar()
+  }, [carregar, meStatus, currentUser.id, currentUser.idOrganizacao])
 
   // ─── Tabela Virtual: Preferências, Colunas e Edição ───
 
   const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(() => lerPreferenciasTabela())
 
+  useEffect(() => {
+    const prefs = lerPreferenciasTabela()
+    if (prefs) {
+      setPreferencias(prefs)
+      try {
+        localStorage.setItem(STORAGE_PREFS_INTL, JSON.stringify(prefs))
+      } catch { /* ignore */ }
+    }
+  }, [])
+
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
-    const normalizado = normalizarPreferenciasColunasSalvas(prefs) ?? prefs
-    setPreferencias(normalizado)
+    setPreferencias(prefs)
     try {
       localStorage.setItem(STORAGE_COLUNAS_VERSAO, String(VERSAO_COLUNAS_LISTA))
-      localStorage.removeItem(STORAGE_PREFS_LEGADO)
-      localStorage.setItem(STORAGE_PREFS_INTL, JSON.stringify(normalizado))
+      localStorage.setItem(STORAGE_PREFS_INTL, JSON.stringify(prefs))
     } catch { /* ignore */ }
   }, [])
 

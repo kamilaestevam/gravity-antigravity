@@ -34,9 +34,14 @@ import {
 } from '../services/sincronizar-acesso-usuario-produtos-service.js'
 import { convidarUsuarioService } from '../services/convidar-usuario-service.js'
 import {
+  exigirVinculosCadastrosFornecedorAtivos,
+  sincronizarUsuarioBidFreteFornecedor,
+} from '../services/prestador-fornecedor-vinculo-service.js'
+import {
   listarVinculosFornecedorOrganizacaoPorOrganizacao,
   listarVinculosFornecedorPorUsuario,
 } from '../services/cadastros-client.js'
+import { ehPermissaoCotarFrete } from '../../shared/permissoes-canonicas.js'
 import { logger } from '../lib/logger.js'
 import { tipoFornecedorOrganizacaoEnum } from '../../shared/tipo-fornecedor-organizacao.js'
 
@@ -1269,6 +1274,23 @@ usersRouter.put('/:id_usuario/permissoes', requireUserManagementRole, async (req
       )
     }
 
+    const concedendoCotarFrete =
+      alvo.tipo_usuario === 'FORNECEDOR'
+      && parsed.data.permissoes.some(ehPermissaoCotarFrete)
+
+    const correlation_id = crypto.randomUUID()
+    let vinculosFornecedorAtivos: Awaited<
+      ReturnType<typeof exigirVinculosCadastrosFornecedorAtivos>
+    > = []
+
+    if (concedendoCotarFrete) {
+      vinculosFornecedorAtivos = await exigirVinculosCadastrosFornecedorAtivos({
+        id_usuario,
+        id_organizacao: alvo.id_organizacao,
+        correlation_id,
+      })
+    }
+
     const result = await servicoPermissaoUsuario.configurarPermissoes({
       id_organizacao: alvo.id_organizacao,
       id_workspace: parsed.data.id_workspace,
@@ -1277,6 +1299,23 @@ usersRouter.put('/:id_usuario/permissoes', requireUserManagementRole, async (req
       permissoes: parsed.data.permissoes,
       concedido_por_clerk_id: req.auth.clerkUserId,
     })
+
+    if (concedendoCotarFrete && vinculosFornecedorAtivos.length > 0) {
+      const usuarioClerk = await prisma.usuario.findUnique({
+        where: { id_usuario },
+        select: { id_clerk_usuario: true },
+      })
+      for (const vinculo of vinculosFornecedorAtivos) {
+        await sincronizarUsuarioBidFreteFornecedor({
+          id_organizacao_cliente: vinculo.id_organizacao,
+          id_fornecedor: vinculo.id_fornecedor,
+          id_usuario,
+          id_clerk_usuario: usuarioClerk?.id_clerk_usuario ?? null,
+          correlation_id,
+          obrigatorio: true,
+        })
+      }
+    }
 
     securityAudit.permissionChanged(alvo.id_organizacao, req.auth.id_usuario, {
       id_usuario_alvo: id_usuario,

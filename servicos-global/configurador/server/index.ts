@@ -302,12 +302,8 @@ app.use('/api/v1/bid-frete-internacional', (req, res) => {
   headers['x-chave-interna-servico'] = chaveInterna
   headers['x-internal-key'] = chaveInterna
 
-  if (!headers['x-id-organizacao'] || headers['x-id-organizacao'] === '') {
-    headers['x-id-organizacao'] = 'org_dev_default'
-  }
-  if (!headers['x-id-usuario'] || headers['x-id-usuario'] === '') {
-    headers['x-id-usuario'] = 'user_dev_default'
-  }
+  // Não mascarar identidade ausente com org_dev_default (404 fornecedor silencioso).
+  // Browser autenticado deve enviar x-id-organizacao/x-id-usuario via shell (/me).
 
   let bodyBuf: Buffer | undefined
   if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {

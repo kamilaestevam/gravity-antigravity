@@ -467,6 +467,18 @@ export function Usuarios() {
     })
   }
 
+  function limparFormularioConvite() {
+    setFNome('')
+    setFEmail('')
+    setFTipo('Standard')
+    setFTodosWorkspaces(true)
+    setFWorkspacesSelecionados([])
+    setFTipoFornecedorOrganizacao('AGENTE_CARGA')
+    setFIdFornecedor('')
+    setModalCadastroFornecedorConvite(false)
+    setShowForm(false)
+  }
+
   async function handleInvite() {
     if (!fNome.trim() || !fEmail.trim()) return
     const tipoBackend = nivelToRole(fTipo)
@@ -531,6 +543,10 @@ export function Usuarios() {
         message: `Usuário "${fNome.trim()}" convidado com sucesso!`,
       })
 
+      // Fecha o modal de convite antes do recarregar — evita toast de sucesso com
+      // "Salvando..." e "Alterações pendentes" enquanto a lista sincroniza.
+      limparFormularioConvite()
+
       // Fase 03 — Standard/Fornecedor sempre nasce sem permissão granular
       // (least privilege, Mand. 08). Abre o modal de edição na aba Permissões
       // para o admin configurar agora; se ele cancelar, fica sem acesso a
@@ -579,7 +595,6 @@ export function Usuarios() {
     } finally {
       setConvidando(false)
     }
-    setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]); setFTipoFornecedorOrganizacao('AGENTE_CARGA'); setFIdFornecedor(''); setShowForm(false)
   }
 
   async function handleAlternarStatusUsuario(u: UsuarioOrg) {

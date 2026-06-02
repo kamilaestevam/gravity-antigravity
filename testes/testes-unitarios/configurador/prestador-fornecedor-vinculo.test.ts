@@ -23,12 +23,16 @@ vi.mock('../../../servicos-global/configurador/server/lib/prisma.js', () => ({
 vi.mock('../../../servicos-global/configurador/server/services/cadastros-client.js', () => ({
   obterFornecedorPorIdNaOrganizacao: mockObterFornecedorPorIdNaOrganizacao,
   listarVinculosFornecedorPorUsuario: mockListarVinculosFornecedorPorUsuario,
+  listarVinculosFornecedorOrganizacaoPorOrganizacao: vi.fn().mockResolvedValue([]),
   criarVinculoFornecedorOrganizacao: mockCriarVinculoFornecedorOrganizacao,
   buscarFornecedorPorEmailNaOrganizacao: vi.fn(),
   criarFornecedor: vi.fn(),
 }))
 
-import { provisionarPrestadorFornecedor } from '../../../servicos-global/configurador/server/services/prestador-fornecedor-vinculo-service.js'
+import {
+  exigirVinculosCadastrosFornecedorAtivos,
+  provisionarPrestadorFornecedor,
+} from '../../../servicos-global/configurador/server/services/prestador-fornecedor-vinculo-service.js'
 
 const ORG_CLIENTE = 'org_cliente_01'
 const ORG_GRAVITY = 'org_gravity_01'
@@ -142,5 +146,63 @@ describe('provisionarPrestadorFornecedor — convite com id_fornecedor', () => {
         id_fornecedor: ID_FORNECEDOR,
       }),
     ).rejects.toMatchObject({ statusCode: 400, code: 'ORG_CLIENTE_AUSENTE' })
+  })
+})
+
+describe('exigirVinculosCadastrosFornecedorAtivos', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('422 FORNECEDOR_NAO_PROVISIONADO quando não há vínculo ATIVO na org', async () => {
+    mockListarVinculosFornecedorPorUsuario.mockResolvedValue([])
+
+    await expect(
+      exigirVinculosCadastrosFornecedorAtivos({
+        id_usuario: ID_USUARIO,
+        id_organizacao: ORG_CLIENTE,
+      }),
+    ).rejects.toMatchObject({ statusCode: 422, code: 'FORNECEDOR_NAO_PROVISIONADO' })
+  })
+
+  it('422 quando vínculo existe mas status não é ATIVO', async () => {
+    mockListarVinculosFornecedorPorUsuario.mockResolvedValue([
+      {
+        id_fornecedor: ID_FORNECEDOR,
+        id_organizacao: ORG_CLIENTE,
+        status_fornecedor_organizacao: 'INATIVO',
+      },
+    ])
+
+    await expect(
+      exigirVinculosCadastrosFornecedorAtivos({
+        id_usuario: ID_USUARIO,
+        id_organizacao: ORG_CLIENTE,
+      }),
+    ).rejects.toMatchObject({ statusCode: 422, code: 'FORNECEDOR_NAO_PROVISIONADO' })
+  })
+
+  it('retorna vínculos ATIVO da org alvo', async () => {
+    mockListarVinculosFornecedorPorUsuario.mockResolvedValue([
+      {
+        id_fornecedor: ID_FORNECEDOR,
+        id_organizacao: ORG_CLIENTE,
+        status_fornecedor_organizacao: 'ATIVO',
+      },
+      {
+        id_fornecedor: 'BR-OUTRO-001',
+        id_organizacao: ORG_GRAVITY,
+        status_fornecedor_organizacao: 'ATIVO',
+      },
+    ])
+
+    const vinculos = await exigirVinculosCadastrosFornecedorAtivos({
+      id_usuario: ID_USUARIO,
+      id_organizacao: ORG_CLIENTE,
+    })
+
+    expect(vinculos).toEqual([
+      { id_fornecedor: ID_FORNECEDOR, id_organizacao: ORG_CLIENTE },
+    ])
   })
 })

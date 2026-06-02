@@ -25,6 +25,7 @@ import {
   criarTituloCarregandoTopo,
   ConteudoCarregandoBidFreteInternacional,
 } from '../../shared/pagina-carregando-bid-frete-internacional'
+import { useShellStore } from '@gravity/shell'
 import { getVisaoFornecedorBidFreteInternacionalCotacoesPendentes } from '../../shared/api'
 import type { Cotacao, DisparoCotacaoBidFreteInternacional } from '../../shared/types'
 import {
@@ -104,6 +105,9 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
+  const meStatus = useShellStore(s => s.meStatus)
+  const idUsuario = useShellStore(s => s.currentUser.id)
+  const idOrganizacao = useShellStore(s => s.currentUser.idOrganizacao)
   const visao: 'lista' | 'kanban' = location.pathname.includes('/kanban') ? 'kanban' : 'lista'
 
   const [disparos, setDisparos] = useState<DisparoCotacaoBidFreteInternacional[]>([])
@@ -175,8 +179,9 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
   }, [])
 
   useEffect(() => {
+    if (meStatus !== 'success' || !idUsuario || !idOrganizacao) return
     void carregar()
-  }, [carregar])
+  }, [carregar, meStatus, idUsuario, idOrganizacao])
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)

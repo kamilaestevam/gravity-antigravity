@@ -62,11 +62,39 @@ import type {
 const API_BASE = '/api/v1'
 const LS_ORG_KEY = 'gravity:idOrganizacao'
 
-/** Organização efetiva — shell (/me) > cache local > fallback dev (espelha Pedido). */
+function clerkSessaoAtiva(): boolean {
+  try {
+    return !!(window as unknown as { Clerk?: { user?: unknown } }).Clerk?.user
+  } catch {
+    return false
+  }
+}
+
+let getDynamicTenantId: () => string | undefined = () => undefined
+let getDynamicUserId: () => string | undefined = () => undefined
+
+/** Lê Zustand no momento exato do request — evita race com useMeSync (padrão Pedido). */
+export function injectTenantGetter(fn: () => string | undefined): void {
+  getDynamicTenantId = () => {
+    const live = fn()
+    if (live) {
+      try { localStorage.setItem(LS_ORG_KEY, live) } catch { /* ignore */ }
+    }
+    return live
+  }
+}
+
+export function injectUserGetter(fn: () => string | undefined): void {
+  getDynamicUserId = fn
+}
+
+/** Organização efetiva — shell (/me) > sessionStorage > cache local > fallback dev. */
 function resolverIdOrganizacao(): string {
   const state = useShellStore.getState()
+  const fromGetter = getDynamicTenantId()
   const live =
     state.organizacaoOverride?.idOrganizacao ??
+    fromGetter ??
     state.currentUser.idOrganizacao
 
   if (live) {
@@ -75,16 +103,50 @@ function resolverIdOrganizacao(): string {
   }
 
   try {
-    const cached = localStorage.getItem(LS_ORG_KEY)
-    if (cached) return cached
+    const fromSession = sessionStorage.getItem('gravity_id_organizacao')
+    if (fromSession) return fromSession
   } catch { /* ignore */ }
 
+  try {
+    const cached = localStorage.getItem(LS_ORG_KEY)
+    if (cached && cached !== 'org_dev_default') return cached
+  } catch { /* ignore */ }
+
+  if (state.meStatus === 'loading' || state.meStatus === 'idle') {
+    return clerkSessaoAtiva() ? '' : (import.meta.env.VITE_DEV_TENANT_ID ?? 'org_dev_default')
+  }
+
+  if (clerkSessaoAtiva()) return ''
+
   return (
-    sessionStorage.getItem('gravity_id_organizacao') ||
     import.meta.env.VITE_ID_ORGANIZACAO ||
     import.meta.env.VITE_DEV_TENANT_ID ||
     'org_dev_default'
   )
+}
+
+function resolverIdUsuario(): string {
+  const shellState = useShellStore.getState()
+  const live = getDynamicUserId() ?? shellState.currentUser.id
+  if (live) return live
+
+  try {
+    const fromSession = sessionStorage.getItem('gravity_id_usuario')
+    if (fromSession) return fromSession
+  } catch { /* ignore */ }
+
+  if (shellState.meStatus === 'loading' || shellState.meStatus === 'idle') {
+    return clerkSessaoAtiva() ? '' : (import.meta.env.VITE_USER_ID ?? 'user_dev_default')
+  }
+
+  if (clerkSessaoAtiva()) return ''
+
+  return import.meta.env.VITE_USER_ID ?? 'user_dev_default'
+}
+
+/** True quando org + usuário estão disponíveis para headers de tenant. */
+export function identidadeTenantApiPronta(): boolean {
+  return Boolean(resolverIdOrganizacao() && resolverIdUsuario())
 }
 
 const headers = () => {
@@ -101,13 +163,7 @@ const headers = () => {
     sessionStorage.getItem('gravity_company_id') ||
     ''
 
-  const shellUserId = useShellStore.getState().currentUser.id
-
-  const userId =
-    shellUserId ||
-    sessionStorage.getItem('gravity_id_usuario') ||
-    import.meta.env.VITE_USER_ID ||
-    'user_dev_default'
+  const userId = resolverIdUsuario()
 
   customHeaders['x-id-organizacao'] = orgId
   customHeaders['x-id-usuario'] = userId

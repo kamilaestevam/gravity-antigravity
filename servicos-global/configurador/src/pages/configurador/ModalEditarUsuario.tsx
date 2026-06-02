@@ -99,36 +99,6 @@ const ACOES_PRODUTO_RENDER: Array<{ id: typeof ACOES_PRODUTO[number]; rotulo: st
   { id: 'editar', rotulo: 'Editar' },
 ]
 
-function PermissaoCheckbox({ label, selecionado, onChange, desabilitado }: { label: string, selecionado: boolean, onChange: (v: boolean) => void, desabilitado?: boolean }) {
-  return (
-    <label
-      style={{
-        display: 'flex', alignItems: 'center', gap: '0.625rem',
-        padding: '0.45rem 0.75rem', borderRadius: '6px',
-        background: 'rgba(255,255,255,0.02)',
-        border: '1px solid rgba(255,255,255,0.06)',
-        cursor: desabilitado ? 'not-allowed' : 'pointer',
-        transition: 'all 0.15s',
-        opacity: desabilitado ? 0.6 : 1
-      }}
-      onMouseEnter={e => { if(!desabilitado) (e.currentTarget.style.background = 'rgba(255,255,255,0.06)') }}
-      onMouseLeave={e => { if(!desabilitado) (e.currentTarget.style.background = 'rgba(255,255,255,0.02)') }}
-    >
-      <div style={{ color: selecionado ? '#818cf8' : '#64748b', display: 'flex', alignItems: 'center' }}>
-        {selecionado ? <CheckSquare size={18} weight="fill" /> : <Square size={18} weight="regular" />}
-      </div>
-      <input
-        type="checkbox"
-        checked={selecionado}
-        disabled={desabilitado}
-        onChange={e => onChange(e.target.checked)}
-        style={{ display: 'none' }}
-      />
-      <span style={{ fontSize: '0.8125rem', color: '#e2e8f0', fontWeight: 500 }}>{label}</span>
-    </label>
-  )
-}
-
 interface AbaDadosProps {
   nome: string
   email: string
@@ -624,114 +594,6 @@ const CardProdutoAtivo = React.memo(function CardProdutoAtivo({ produto, permiss
   )
 })
 
-// ─── Aba Produtos (Portão 3) ────────────────────────────────────────────────
-//
-// Mostra, para o workspace selecionado, todos os produtos habilitados nele.
-// Cada produto tem um checkbox que mapeia para a chave canônica
-// `<slug>:acesso_usuario_produtos_gravity:permitido` em UsuarioPermissao.
-// Default α (decisão dono 2026-05-12): novos usuários começam com todos
-// marcados. Master/SAdmin/Admin: bypass total — aba não aplica.
-
-interface AbaProdutosAcessoProps {
-  master: boolean
-  tipo: NivelAcesso
-  workspaceSelecionado: string | null
-  workspacesVinculados: WorkspaceItem[]
-  produtos: ProdutoWorkspaceItem[]
-  permissoesDoWorkspace: Set<string>
-  carregandoProdutos: boolean
-  erroCargaPermissoes: string | null
-  erroCargaProdutos: string | null
-  onSelecionarWorkspace: (id: string) => void
-  onToggleAcessoProduto: (slug: string, marcado: boolean) => void
-}
-
-function AbaProdutosAcesso({
-  master, tipo, workspaceSelecionado, workspacesVinculados, produtos, permissoesDoWorkspace,
-  carregandoProdutos, erroCargaPermissoes, erroCargaProdutos,
-  onSelecionarWorkspace, onToggleAcessoProduto,
-}: AbaProdutosAcessoProps) {
-  // master = bypass total (Mand. 04). Banner em cima + visualizacao read-only abaixo.
-  // Implementacao: prossegue com o render normal mas com checkboxes disabled.
-  // Decisao dono 2026-05-13.
-
-  if (!master && workspacesVinculados.length === 0) {
-    return (
-      <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
-        Vincule este usuário a pelo menos um workspace na aba &quot;Workspaces Vinculados&quot;
-        antes de configurar acessos a produtos.
-      </div>
-    )
-  }
-
-  const produtosAtivos = produtos.filter(p => p.is_active)
-
-  return (
-    <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {/* Master/SAdmin/Admin (Mand. 04) — banner no topo + visualizacao read-only abaixo */}
-      {master && <BannerBypassMasterAdmin tipo={tipo} />}
-
-      {!master && erroCargaPermissoes && (
-        <AvisoErroCarga mensagem={erroCargaPermissoes} contexto="permissões existentes" />
-      )}
-      {!master && erroCargaProdutos && (
-        <AvisoErroCarga mensagem={erroCargaProdutos} contexto="produtos contratados" />
-      )}
-
-      {/* Seletor de workspace — SelectGlobal (padrão do sistema) */}
-      {workspacesVinculados.length > 1 && (
-        <CampoGeralGlobal label="Workspace">
-          <SelectGlobal
-            opcoes={workspacesVinculados.map(w => ({ valor: w.id_workspace, rotulo: w.nome_workspace }))}
-            valor={workspaceSelecionado ?? ''}
-            aoMudarValor={(v) => { if (v) onSelecionarWorkspace(String(v)) }}
-            iconeEsquerda={<Buildings size={18} weight="duotone" />}
-            buscavel
-            placeholder="Selecione um workspace"
-          />
-        </CampoGeralGlobal>
-      )}
-
-      <div>
-        <p style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em',
-                    color: '#818cf8', marginBottom: '0.5rem' }}>
-          Produtos acessíveis neste workspace
-        </p>
-        <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.875rem' }}>
-          Marque os produtos que este usuário pode abrir. Permissões granulares dentro de cada
-          produto ficam na aba &quot;Permissões&quot;.
-        </p>
-
-        {carregandoProdutos ? (
-          <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>Carregando produtos…</div>
-        ) : produtosAtivos.length === 0 ? (
-          <div style={{ padding: '1.5rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.8125rem' }}>
-            Nenhum produto habilitado neste workspace. Habilite produtos na aba &quot;Assinaturas&quot; primeiro.
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {produtosAtivos.map((p) => {
-              const slug = p.product_key
-              const chavePortao3 = buildAcessoUsuarioProdutosGravityString(slug)
-              const marcado = permissoesDoWorkspace.has(chavePortao3)
-              const nome = p.catalog?.name ?? slug
-              return (
-                <PermissaoCheckbox
-                  key={slug}
-                  label={nome}
-                  selecionado={marcado}
-                  onChange={(v) => onToggleAcessoProduto(slug, v)}
-                  desabilitado={master}
-                />
-              )
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 function AbaPermissoes({
   master, tipo, workspaceSelecionado, workspacesVinculados, produtos, permissoesDoWorkspace,
   carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar,
@@ -1175,25 +1037,6 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     })
   }, [])
 
-  const handleToggleAcessoProduto = useCallback((slug: string, marcado: boolean) => {
-    if (!workspaceSelecionadoRef.current) return
-    const chave = buildAcessoUsuarioProdutosGravityString(slug)
-    setPermissoesPorWorkspace(prev => {
-      const novo = { ...prev }
-      const alvos = aplicarTodosRef.current
-        ? workspacesAtivosRef.current
-        : [workspaceSelecionadoRef.current!]
-      for (const wsId of alvos) {
-        const atuais = novo[wsId] ?? []
-        novo[wsId] = marcado
-          ? Array.from(new Set([...atuais, chave]))
-          : atuais.filter((p) => p !== chave)
-      }
-      return novo
-    })
-  }, [])
-
-
   const handleToggleWorkspace = (id_workspace: string, checked: boolean) => {
     setWorkspacesAtivos((prev) => checked ? [...prev, id_workspace] : prev.filter((id) => id !== id_workspace))
   }
@@ -1226,9 +1069,9 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [master, workspacesAtivos.length])
 
-  // Default α — pré-popula Portão 3 quando workspace carrega produtos
-  // pela primeira vez E o usuário não tem nenhuma chave Portão 3 nele.
-  // Dirty fica true (estado atual ≠ originais), Master decide se salva.
+  // Default α — pré-popula Portão 3 (`acesso_usuario_produtos_gravity:permitido`) no
+  // estado do modal quando o ws carrega produtos e o usuário ainda não tem Portão 3.
+  // UI dedicada removida (2026-06-01); auto-sync no vínculo de workspace + save na aba Permissões.
   // Para Master/SAdmin/Admin não aplica (bypass — sem linhas no banco).
   useEffect(() => {
     if (master) return
@@ -1308,13 +1151,6 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   }, [master, permissoesAtivasDoWs, produtosDoWsSelecionado])
   // Count para a aba "Permissões" — só toggles granulares (exclui chaves de Portão 3)
   const countPermissoes = master ? '✶' : permissoesAtivasDoWs.filter(p => !ehPermissaoAcessoUsuarioProdutoGravity(p)).length
-
-  // Aba "Produtos" (Portão 3) — count = produtos ativos no ws com chave acesso marcada
-  const produtosAtivosNoWsTodos = produtosDoWsSelecionado.filter(p => p.is_active)
-  const totalProdutosAcessiveis = master ? 0 : produtosAtivosNoWsTodos.length
-  const countProdutosAcesso = master ? '✶' : produtosAtivosNoWsTodos.filter(p =>
-    permissoesDoWorkspaceSet.has(buildAcessoUsuarioProdutosGravityString(p.product_key)),
-  ).length
 
   const requisitos = useMemo<RequisitoSalvar[]>(() => [
     { chave: 'nome',  ok: !!nome.trim(),  mensagem: 'Nome do usuário' },
@@ -1413,37 +1249,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         </BannerRequisitosContexto>
       ),
     },
-    // Portão 3 — Acesso ao produto inteiro (chave sentinela)
-    // Decisão dono 2026-05-12: aba "Produtos" ao lado de "Workspaces Vinculados".
-    {
-      id: 'produtos',
-      rotulo: master
-        ? `${t('workspace.users.aba_produtos', 'Produtos')} (✶)`
-        : `${t('workspace.users.aba_produtos', 'Produtos')} (${countProdutosAcesso}/${totalProdutosAcessiveis})`,
-      icone: 'cube',
-      ocultarBotoesSalvar: somenteLeitura,
-      conteudo: (
-        <BannerRequisitosContexto requisitos={requisitos}>
-          <AbaProdutosAcesso
-            master={master}
-            tipo={tipo}
-            workspaceSelecionado={workspaceSelecionado}
-            workspacesVinculados={workspacesVinculados}
-            produtos={produtosDoWsSelecionado}
-            permissoesDoWorkspace={permissoesDoWorkspaceSet}
-            carregandoProdutos={carregandoProdutos}
-            erroCargaPermissoes={erroCargaPermissoes}
-            erroCargaProdutos={erroCargaProdutos}
-            onSelecionarWorkspace={setWorkspaceSelecionado}
-            onToggleAcessoProduto={handleToggleAcessoProduto}
-          />
-          <div style={{ padding: '0 1.5rem 1rem' }}>
-            <BannerRequisitosGlobal />
-          </div>
-        </BannerRequisitosContexto>
-      ),
-    },
-  ], [nome, email, tipo, tiposPermitidos, master, aplicarTodosInicial, countPermissoes, totalToggles, countProdutosAcesso, totalProdutosAcessiveis, workspaceSelecionado, workspacesVinculados, produtosDoWsSelecionado, permissoesDoWorkspaceSet, carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos, somenteLeitura])
+  ], [nome, email, tipo, tiposPermitidos, master, aplicarTodosInicial, countPermissoes, totalToggles, workspaceSelecionado, workspacesVinculados, produtosDoWsSelecionado, permissoesDoWorkspaceSet, carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos, somenteLeitura])
 
   // Dirty: comparar mapa atual de permissões com mapa carregado do backend
   // (set-based diff, ignora ordem). Para Master/SAdmin/Admin, ignora permissões

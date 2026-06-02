@@ -480,19 +480,22 @@ export default function Cotacoes() {
     setBusca,
     setFiltrosAtivos: () => {},
     onConfigAplicada: (_aba: string) => { /* filtro client-side */ },
+    onPainelHidratado: (id: string) => {
+      painelListaAplicadoRef.current = id
+    },
   }), [])
 
   useEffect(() => {
     if (!painelListaAtual || carregandoPaineisLista) return
     if (painelListaAplicadoRef.current === painelListaAtual.id) return
     aplicarConfigDoPainel(painelListaAtual, listaPainelCallbacks)
-    painelListaAplicadoRef.current = painelListaAtual.id
 
     if (!migrouLocalStoragePainelRef.current) {
       const prefsLocal = lerPreferenciasTabela()
       const configAtual = parsearConfigListaPainelSeguro(
         painelListaAtual.config_json,
         configListaPainelPadraoV1(),
+        { id_painel: painelListaAtual.id, origem: 'lista-bid-frete.migracaoLocalStorage' },
       )
       if (prefsLocal?.colunas_visiveis?.length && configAtual.colunas_visiveis.length === 0) {
         const merged = configListaPainelPadraoV1({
@@ -510,6 +513,7 @@ export default function Cotacoes() {
   }, [painelListaAtual, carregandoPaineisLista, aplicarConfigDoPainel, listaPainelCallbacks])
 
   const handleTrocarPainelLista = useCallback((id: string) => {
+    painelListaAplicadoRef.current = null
     void trocarPainelLista(
       id,
       {
@@ -523,7 +527,7 @@ export default function Cotacoes() {
         periodoCards,
       },
       listaPainelCallbacks,
-    ).then(() => { painelListaAplicadoRef.current = id })
+    )
   }, [
     trocarPainelLista, preferencias, filtroTab, busca, filtrosAtivosLista,
     cardsVisiveis, periodoCards, listaPainelCallbacks,
@@ -531,6 +535,7 @@ export default function Cotacoes() {
 
   useEffect(() => {
     if (!painelListaAtualId || carregandoPaineisLista) return
+    if (painelListaAplicadoRef.current !== painelListaAtualId) return
     persistirPainelAtual({
       preferencias,
       abaAtiva: filtroTab,

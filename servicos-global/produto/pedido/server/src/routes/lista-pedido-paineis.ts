@@ -20,7 +20,6 @@ import {
   configListaPainelPadraoV1,
   ID_PRODUTO_GRAVITY_PEDIDO,
   listaPainelConfigV1Schema,
-  parsearConfigListaPainelSeguro,
   serializarConfigListaPainel,
   type ListaPainelConfigV1,
 } from '../../../shared/listaPainelConfigSchema.js'
@@ -124,6 +123,25 @@ function whereUsuarioProduto(idOrganizacao: string, idUsuario: string) {
   }
 }
 
+function validarPermutacaoReordenacao(idsRecebidos: string[], idsExistentes: string[]): void {
+  if (idsRecebidos.length !== idsExistentes.length) {
+    throw new AppError(
+      'A lista de ids deve conter exatamente todos os painéis do usuário',
+      400,
+      'VALIDATION_ERROR',
+    )
+  }
+  if (new Set(idsRecebidos).size !== idsRecebidos.length) {
+    throw new AppError('Ids duplicados na reordenação', 400, 'VALIDATION_ERROR')
+  }
+  const existentes = new Set(idsExistentes)
+  for (const id of idsRecebidos) {
+    if (!existentes.has(id)) {
+      throw new AppError('Painel não encontrado na reordenação', 404, 'NOT_FOUND')
+    }
+  }
+}
+
 // ── GET /paineis ──────────────────────────────────────────────────────────────
 
 listaPaineisRouter.get('/paineis', async (req: Request, res: Response, next: NextFunction) => {
@@ -212,6 +230,16 @@ listaPaineisRouter.put('/paineis/reordenar', async (req: Request, res: Response,
       const db = rawDb as any
       const ctx = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const { idOrganizacao, idUsuario } = ctx
+
+      const existentes = await db.listaPainelUsuarioGlobal.findMany({
+        where:   whereUsuarioProduto(idOrganizacao, idUsuario),
+        select:  { id_lista_painel_usuario_global: true },
+        orderBy: { ordem_lista_painel_usuario_global: 'asc' },
+      })
+      const idsExistentes = (existentes as { id_lista_painel_usuario_global: string }[]).map(
+        p => p.id_lista_painel_usuario_global,
+      )
+      validarPermutacaoReordenacao(parsed.data.ids, idsExistentes)
 
       await Promise.all(
         parsed.data.ids.map((id, index) =>

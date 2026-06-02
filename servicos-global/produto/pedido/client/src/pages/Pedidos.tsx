@@ -4786,16 +4786,19 @@ export default function Pedidos() {
     onConfigAplicada: (aba: string, campo: string, dir: 'asc' | 'desc', buscaTermo: string) => {
       void carregarInicial(aba, campo, dir, buscaTermo, 1, true)
     },
+    onPainelHidratado: (id: string) => {
+      painelListaAplicadoRef.current = id
+    },
   }), [carregarInicial])
 
   useEffect(() => {
     if (!painelListaAtual || carregandoPaineisLista) return
     if (painelListaAplicadoRef.current === painelListaAtual.id) return
     aplicarConfigDoPainel(painelListaAtual, listaPainelCallbacks)
-    painelListaAplicadoRef.current = painelListaAtual.id
   }, [painelListaAtual, carregandoPaineisLista, aplicarConfigDoPainel, listaPainelCallbacks])
 
   const handleTrocarPainelLista = useCallback((id: string) => {
+    painelListaAplicadoRef.current = null
     void trocarPainelLista(
       id,
       {
@@ -4809,9 +4812,7 @@ export default function Pedidos() {
         periodoCards,
       },
       listaPainelCallbacks,
-    ).then(() => {
-      painelListaAplicadoRef.current = id
-    })
+    )
   }, [
     trocarPainelLista,
     preferencias,
@@ -4827,6 +4828,7 @@ export default function Pedidos() {
 
   useEffect(() => {
     if (!painelListaAtualId || carregandoPaineisLista) return
+    if (painelListaAplicadoRef.current !== painelListaAtualId) return
     persistirPainelAtual({
       preferencias,
       abaAtiva,

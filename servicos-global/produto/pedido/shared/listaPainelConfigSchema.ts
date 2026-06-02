@@ -74,10 +74,17 @@ export function parsearConfigListaPainel(raw: string): ListaPainelConfigV1 {
 export function parsearConfigListaPainelSeguro(
   raw: string,
   fallback: ListaPainelConfigV1,
+  contexto?: { id_painel?: string; origem?: string },
 ): ListaPainelConfigV1 {
   try {
     return parsearConfigListaPainel(raw)
-  } catch {
+  } catch (err) {
+    console.warn(
+      '[listaPainel] config_json inválido — usando fallback',
+      contexto?.origem ?? 'desconhecido',
+      contexto?.id_painel ?? '',
+      err,
+    )
     return fallback
   }
 }

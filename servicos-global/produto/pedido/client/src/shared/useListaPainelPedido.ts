@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { GTPreferencias } from '@nucleo/tabela-virtual-global'
 import {
   configListaPainelPadraoV1,
+  parsearConfigListaPainel,
   parsearConfigListaPainelSeguro,
   type ListaPainelConfigV1,
 } from '../../../shared/listaPainelConfigSchema'
@@ -36,6 +37,7 @@ export interface AplicarConfigListaPainelCallbacks {
     dir: 'asc' | 'desc',
     busca: string,
   ) => void
+  onPainelHidratado?: (idPainel: string) => void
 }
 
 function estadoParaConfig(estado: EstadoListaParaPainel): ListaPainelConfigV1 {
@@ -68,6 +70,7 @@ export function useListaPainelPedido() {
   const painelAtualIdRef = useRef<string | null>(null)
   const estadoRef = useRef<EstadoListaParaPainel | null>(null)
   const aplicandoConfigRef = useRef(false)
+  const painelHidratadoIdRef = useRef<string | null>(null)
 
   useEffect(() => {
     painelAtualIdRef.current = painelAtualId
@@ -75,12 +78,14 @@ export function useListaPainelPedido() {
 
   const carregarPaineis = useCallback(async () => {
     setCarregando(true)
+    painelHidratadoIdRef.current = null
     try {
       const { data } = await paineisListaApi.listar()
       setPaineis(data)
       const visivel = data.find(p => p.is_visivel) ?? data[0]
       if (visivel) setPainelAtualId(visivel.id)
-    } catch {
+    } catch (err) {
+      console.warn('[useListaPainelPedido] falha ao carregar painéis', err)
       setPaineis([])
       setPainelAtualId(null)
     } finally {
@@ -97,8 +102,17 @@ export function useListaPainelPedido() {
     callbacks: AplicarConfigListaPainelCallbacks,
   ) => {
     aplicandoConfigRef.current = true
+    painelHidratadoIdRef.current = null
     const fallback = configListaPainelPadraoV1()
-    const config = parsearConfigListaPainelSeguro(painel.config_json, fallback)
+    let config: ListaPainelConfigV1
+    try {
+      config = parsearConfigListaPainel(painel.config_json)
+    } catch {
+      config = parsearConfigListaPainelSeguro(painel.config_json, fallback, {
+        id_painel: painel.id,
+        origem: 'useListaPainelPedido.aplicarConfigDoPainel',
+      })
+    }
 
     const prefs: GTPreferencias = {
       colunas_visiveis: config.colunas_visiveis,
@@ -118,19 +132,24 @@ export function useListaPainelPedido() {
       config.busca ?? '',
     )
 
-    queueMicrotask(() => { aplicandoConfigRef.current = false })
+    queueMicrotask(() => {
+      aplicandoConfigRef.current = false
+      painelHidratadoIdRef.current = painel.id
+      callbacks.onPainelHidratado?.(painel.id)
+    })
   }, [])
 
   const persistirPainelAtual = useCallback((estado: EstadoListaParaPainel) => {
     estadoRef.current = estado
     const id = painelAtualIdRef.current
     if (!id || aplicandoConfigRef.current) return
+    if (painelHidratadoIdRef.current !== id) return
 
     if (persistTimerRef.current) clearTimeout(persistTimerRef.current)
     persistTimerRef.current = setTimeout(() => {
       const configJson = JSON.stringify(estadoParaConfig(estado))
       paineisListaApi.atualizar(id, { config_json: configJson }).catch(err => {
-        console.warn('[useListaPainelPedido] falha ao persistir painel', err)
+        console.warn('[useListaPainelPedido] falha ao persistir painel', id, err)
       })
     }, 400)
   }, [])
@@ -141,13 +160,19 @@ export function useListaPainelPedido() {
     callbacks: AplicarConfigListaPainelCallbacks,
   ) => {
     const idAnterior = painelAtualIdRef.current
+    painelHidratadoIdRef.current = null
     if (idAnterior && idAnterior !== id) {
       const configJson = JSON.stringify(estadoParaConfig(estadoAtual))
-      await paineisListaApi.atualizar(idAnterior, { config_json: configJson }).catch(() => {})
+      await paineisListaApi.atualizar(idAnterior, { config_json: configJson }).catch(err => {
+        console.warn('[useListaPainelPedido] falha ao salvar painel anterior', idAnterior, err)
+      })
     }
 
     const proximo = paineis.find(p => p.id === id)
-    if (!proximo) return
+    if (!proximo) {
+      console.warn('[useListaPainelPedido] painel não encontrado para troca', id)
+      return
+    }
 
     setPainelAtualId(id)
     aplicarConfigDoPainel(proximo, callbacks)
@@ -167,5 +192,6 @@ export function useListaPainelPedido() {
     persistirPainelAtual,
     trocarPainel,
     aplicandoConfigRef,
+    painelHidratadoIdRef,
   }
 }

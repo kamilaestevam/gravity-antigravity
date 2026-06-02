@@ -58,6 +58,13 @@ import type {
 } from './types'
 import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 import { smartImportPreviewSchema } from '../../../shared/smart-import-schemas.js'
+import {
+  listaPainelDeletarResponseSchema,
+  listaPainelItemResponseSchema,
+  listaPainelListResponseSchema,
+  listaPainelReordenarResponseSchema,
+  type ListaPainel,
+} from '../../../shared/listaPainelApiSchema.js'
 
 let context = { idOrganizacao: '', userId: '', userName: '', idWorkspace: '' }
 
@@ -2176,45 +2183,35 @@ export interface DashboardPainel {
 
 // ── Lista Painéis ─────────────────────────────────────────────────────────────
 
-export interface ListaPainel {
-  id:           string
-  tenant_id:    string
-  user_id:      string
-  id_produto_gravity: string
-  nome:         string
-  ordem:        number
-  is_visivel:   boolean
-  config_json:  string
-  created_at:   string
-  updated_at:   string
-}
+export type { ListaPainel }
 
 export const paineisListaApi = {
   listar: (): Promise<{ data: ListaPainel[] }> =>
-    request<{ data: ListaPainel[] }>('/api/v1/pedidos/lista/paineis'),
+    request<unknown>('/api/v1/pedidos/lista/paineis').then(raw =>
+      listaPainelListResponseSchema.parse(raw)),
 
   criar: (nome: string): Promise<{ data: ListaPainel }> =>
-    request<{ data: ListaPainel }>('/api/v1/pedidos/lista/paineis', {
+    request<unknown>('/api/v1/pedidos/lista/paineis', {
       method: 'POST',
       body: JSON.stringify({ nome }),
-    }),
+    }).then(raw => listaPainelItemResponseSchema.parse(raw)),
 
   atualizar: (id: string, patch: Partial<Pick<ListaPainel, 'nome' | 'is_visivel' | 'config_json'>>): Promise<{ data: ListaPainel }> =>
-    request<{ data: ListaPainel }>(`/api/v1/pedidos/lista/paineis/${id}`, {
+    request<unknown>(`/api/v1/pedidos/lista/paineis/${id}`, {
       method: 'PUT',
       body: JSON.stringify(patch),
-    }),
+    }).then(raw => listaPainelItemResponseSchema.parse(raw)),
 
-  reordenar: (ids: string[]): Promise<{ data: { reordenado: boolean } }> =>
-    request<{ data: { reordenado: boolean } }>('/api/v1/pedidos/lista/paineis/reordenar', {
+  reordenar: (ids: string[]): Promise<{ data: { reordenado: true } }> =>
+    request<unknown>('/api/v1/pedidos/lista/paineis/reordenar', {
       method: 'PUT',
       body: JSON.stringify({ ids }),
-    }),
+    }).then(raw => listaPainelReordenarResponseSchema.parse(raw)),
 
-  deletar: (id: string): Promise<{ data: { deletado: boolean } }> =>
-    request<{ data: { deletado: boolean } }>(`/api/v1/pedidos/lista/paineis/${id}`, {
+  deletar: (id: string): Promise<{ data: { deletado: true } }> =>
+    request<unknown>(`/api/v1/pedidos/lista/paineis/${id}`, {
       method: 'DELETE',
-    }),
+    }).then(raw => listaPainelDeletarResponseSchema.parse(raw)),
 }
 
 export const paineisDashboardApi = {

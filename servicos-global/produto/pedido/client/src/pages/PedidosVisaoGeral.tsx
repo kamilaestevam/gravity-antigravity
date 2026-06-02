@@ -14,8 +14,8 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   MagnifyingGlass,
-  Export,
   DownloadSimple,
+  UploadSimple,
   CurrencyCircleDollar,
   TrendUp,
   TrendDown,
@@ -444,7 +444,44 @@ function PainelVencimentosExpandido({
 
 const TIPO_OPERACAO_ICONS: Record<string, React.ReactNode> = {
   importacao: <DownloadSimple weight="duotone" size={16} />,
-  exportacao: <Export weight="duotone" size={16} />,
+  exportacao: <UploadSimple weight="duotone" size={16} />,
+}
+
+function iconeTipoOperacaoMapa(
+  tipo: string,
+  size: number,
+  weight: 'duotone' | 'bold' = 'duotone',
+) {
+  if (tipo === 'exportacao') return <UploadSimple weight={weight} size={size} />
+  return <DownloadSimple weight={weight} size={size} />
+}
+
+/** Seta animada percorrendo a rota no sentido origem → destino. */
+function desenharSetaDirecionalRota(
+  ctx: CanvasRenderingContext2D,
+  operacao: 'importacao' | 'exportacao',
+  destaque: boolean,
+) {
+  const cor = operacao === 'importacao' ? '#f59e0b' : '#c084fc'
+  const glow = operacao === 'importacao' ? '#f59e0b' : '#a78bfa'
+  const largura = destaque ? 6.5 : 5
+
+  ctx.shadowBlur = destaque ? 16 : 11
+  ctx.shadowColor = glow
+  ctx.fillStyle = '#ffffff'
+  ctx.strokeStyle = cor
+  ctx.lineWidth = destaque ? 1.6 : 1.2
+  ctx.lineJoin = 'round'
+
+  ctx.beginPath()
+  ctx.moveTo(largura + 1, 0)
+  ctx.lineTo(-largura, -largura * 0.85)
+  ctx.lineTo(-largura * 0.35, 0)
+  ctx.lineTo(-largura, largura * 0.85)
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+  ctx.shadowBlur = 0
 }
 
 // ─── Gráfico de Barras Mensal (SVG) ─────────────────────────────────────────
@@ -1171,6 +1208,28 @@ const getCartesian = (lat: number, lng: number) => {
   }
 }
 
+/** Projeção 3D compartilhada entre arcos e pinos HTML (mesma rotação). */
+function projectGlobePoint(
+  lat: number,
+  lng: number,
+  cosY: number,
+  sinY: number,
+  cosX: number,
+  sinX: number,
+  cx: number,
+  cy: number,
+  R: number,
+) {
+  const p = getCartesian(lat, lng)
+  const rx1 = p.x * cosY - p.z * sinY
+  const rz1 = p.x * sinY + p.z * cosY
+  const ry2 = p.y * cosX + rz1 * sinX
+  const rz2 = -p.y * sinX + rz1 * cosX
+  return { sx: cx + rx1 * R, sy: cy - ry2 * R, rz2 }
+}
+
+const GLOBE_PIN_VISIVEL_MIN_RZ = -0.12
+
 // ─── Visão Geral Global (Globo 3D Interativo Premium) ───────────────────────────
 
 function VisaoGeralMapa() {
@@ -1393,6 +1452,10 @@ function VisaoGeralMapa() {
         const a = project(fromPin.geoLat, fromPin.geoLng)
         const b = project(toPin.geoLat, toPin.geoLng)
 
+        const pinVisivelNoCanvas = (sx: number, sy: number) =>
+          sx >= -24 && sx <= w + 24 && sy >= -24 && sy <= h + 24
+        if (!pinVisivelNoCanvas(a.sx, a.sy) || !pinVisivelNoCanvas(b.sx, b.sy)) return
+
         const mx = (a.sx + b.sx) / 2
         const my = (a.sy + b.sy) / 2
         const dist = Math.hypot(b.sx - a.sx, b.sy - a.sy)
@@ -1410,6 +1473,8 @@ function VisaoGeralMapa() {
             sy: it * it * a.sy + 2 * it * t * ctrlY + t * t * b.sy,
           })
         }
+        pathPoints[0] = { sx: a.sx, sy: a.sy }
+        pathPoints[segmentsCount] = { sx: b.sx, sy: b.sy }
 
         const isImportacao = route.mode === 'importacao'
         const isRouteDirectSource = currentHovered !== null && (route.fromId === currentHovered || route.toId === currentHovered)
@@ -1437,7 +1502,7 @@ function VisaoGeralMapa() {
         ctx.stroke()
         ctx.setLineDash([])
 
-        // Pulsos de carga (seta entrada/saída) percorrendo a rota
+        // Setas animadas percorrendo a rota (origem → destino)
         const speed = isImportacao ? 24000 : 2400
         ;[0.0, 0.5].forEach(offset => {
           const tPulse = (now / speed + routeIdx * 0.22 + offset) % 1.0
@@ -1455,23 +1520,7 @@ function VisaoGeralMapa() {
           ctx.translate(px, py)
           ctx.rotate(angle)
           if (isRouteDirectSource) ctx.scale(1.35, 1.35)
-          ctx.beginPath()
-          if (isImportacao) {
-            ctx.moveTo(6, -5); ctx.lineTo(-2, 3); ctx.lineTo(1, 3); ctx.lineTo(1, 6)
-            ctx.lineTo(-5, 6); ctx.lineTo(-5, 3); ctx.lineTo(-2, 3)
-          } else {
-            ctx.moveTo(-6, 5); ctx.lineTo(2, -3); ctx.lineTo(-1, -3); ctx.lineTo(-1, -6)
-            ctx.lineTo(5, -6); ctx.lineTo(5, -3); ctx.lineTo(2, -3)
-          }
-          ctx.fillStyle = '#ffffff'
-          ctx.shadowBlur = isRouteDirectSource ? 16 : 12
-          ctx.shadowColor = isImportacao ? '#f59e0b' : '#c084fc'
-          ctx.fill()
-          ctx.beginPath()
-          ctx.arc(0, 0, 2.2, 0, Math.PI * 2)
-          ctx.fillStyle = isImportacao ? '#f59e0b' : '#a78bfa'
-          ctx.shadowBlur = 0
-          ctx.fill()
+          desenharSetaDirecionalRota(ctx, route.mode, isRouteDirectSource)
           ctx.restore()
         })
       })
@@ -1674,7 +1723,11 @@ function VisaoGeralMapa() {
         const fromPin = pinsRef.current.find(p => p.id === route.fromId)
         const toPin = pinsRef.current.find(p => p.id === route.toId)
         if (!fromPin || !toPin) return
-        
+
+        const fromProj = projectGlobePoint(fromPin.geoLat, fromPin.geoLng, cosY, sinY, cosX, sinX, cx, cy, R)
+        const toProj = projectGlobePoint(toPin.geoLat, toPin.geoLng, cosY, sinY, cosX, sinX, cx, cy, R)
+        if (fromProj.rz2 < GLOBE_PIN_VISIVEL_MIN_RZ || toProj.rz2 < GLOBE_PIN_VISIVEL_MIN_RZ) return
+
         const p1 = getCartesian(fromPin.geoLat, fromPin.geoLng)
         const p2 = getCartesian(toPin.geoLat, toPin.geoLng)
         
@@ -1716,6 +1769,9 @@ function VisaoGeralMapa() {
           pathPoints.push({ sx, sy, rz2 })
           avgDepth += rz2
         }
+
+        pathPoints[0] = { sx: fromProj.sx, sy: fromProj.sy, rz2: fromProj.rz2 }
+        pathPoints[segmentsCount] = { sx: toProj.sx, sy: toProj.sy, rz2: toProj.rz2 }
         
         avgDepth /= segmentsCount
         
@@ -1764,35 +1820,8 @@ function VisaoGeralMapa() {
           ctx.stroke()
           ctx.setLineDash([]) // Reset
         }
-
-        // Draw elegant glowing directional chevrons directly along the curve
-        if (!isBack && (currentHovered === null || isRouteDirectSource)) {
-          const chevronIndices = [Math.floor(segmentsCount * 0.3), Math.floor(segmentsCount * 0.7)]
-          chevronIndices.forEach(idx => {
-            const p1 = pathPoints[idx]
-            const p2 = pathPoints[idx + 1]
-            if (p1 && p2 && p1.rz2 >= -0.15) {
-              const angle = Math.atan2(p2.sy - p1.sy, p2.sx - p1.sx)
-              ctx.save()
-              ctx.translate(p1.sx, p1.sy)
-              ctx.rotate(angle)
-              ctx.strokeStyle = route.mode === 'exportacao' ? '#c084fc' : '#f59e0b'
-              ctx.lineWidth = isRouteDirectSource ? 3.0 : 2.0
-              ctx.lineCap = 'round'
-              ctx.lineJoin = 'round'
-              ctx.shadowBlur = isRouteDirectSource ? 14 : 8
-              ctx.shadowColor = ctx.strokeStyle
-              ctx.beginPath()
-              ctx.moveTo(-5, -4)
-              ctx.lineTo(1, 0)
-              ctx.lineTo(-5, 4)
-              ctx.stroke()
-              ctx.restore()
-            }
-          })
-        }
         
-        // Draw cargo moving pulses with beautiful fading neon trails (comet effect)
+        // Setas animadas percorrendo a rota (origem → destino)
         if (!isBack && (currentHovered === null || isRouteDirectSource)) {
           // Draw 2 staggered pulses per route so direction is immediately obvious
           [0.0, 0.5].forEach((offset) => {
@@ -1835,39 +1864,9 @@ function VisaoGeralMapa() {
                     if (isRouteDirectSource) {
                       ctx.scale(1.35, 1.35)
                     }
-                    
-                    ctx.beginPath()
-                    if (isImportacao) {
-                      // Entrada (importação) — seta para dentro
-                      ctx.moveTo(6, -5)
-                      ctx.lineTo(-2, 3)
-                      ctx.lineTo(1, 3)
-                      ctx.lineTo(1, 6)
-                      ctx.lineTo(-5, 6)
-                      ctx.lineTo(-5, 3)
-                      ctx.lineTo(-2, 3)
-                    } else {
-                      // Saída (exportação) — seta para fora
-                      ctx.moveTo(-6, 5)
-                      ctx.lineTo(2, -3)
-                      ctx.lineTo(-1, -3)
-                      ctx.lineTo(-1, -6)
-                      ctx.lineTo(5, -6)
-                      ctx.lineTo(5, -3)
-                      ctx.lineTo(2, -3)
-                    }
-                    
-                    ctx.fillStyle = '#ffffff'
-                    ctx.shadowBlur = isRouteDirectSource ? 16 : 12
-                    ctx.shadowColor = isImportacao ? '#f59e0b' : '#c084fc'
-                    ctx.fill()
-                    
-                    ctx.beginPath()
-                    ctx.arc(0, 0, 2.2, 0, Math.PI * 2)
-                    ctx.fillStyle = isImportacao ? '#f59e0b' : '#a78bfa'
-                    ctx.shadowBlur = 0
-                    ctx.fill()
-                    
+
+                    desenharSetaDirecionalRota(ctx, route.mode, isRouteDirectSource)
+
                     ctx.restore()
                   } else {
                     ctx.beginPath()
@@ -1891,26 +1890,16 @@ function VisaoGeralMapa() {
       const offsetY = canvas.offsetTop || 0
 
       const tempPins = pinsRef.current.map(pin => {
-        const p = getCartesian(pin.geoLat, pin.geoLng)
-        
-        // Rotate Y
-        let rx1 = p.x * cosY - p.z * sinY
-        let rz1 = p.x * sinY + p.z * cosY
-        
-        // Rotate X
-        let ry2 = p.y * cosX + rz1 * sinX
-        let rz2 = -p.y * sinX + rz1 * cosX
-        
-        const sx = cx + rx1 * R
-        const sy = cy - ry2 * R
-        
-        const opacity = rz2 < -0.15 ? 0 : Math.max(0, Math.min(1, (rz2 + 0.15) / 0.3))
+        const projected = projectGlobePoint(pin.geoLat, pin.geoLng, cosY, sinY, cosX, sinX, cx, cy, R)
+        const opacity = projected.rz2 < GLOBE_PIN_VISIVEL_MIN_RZ
+          ? 0
+          : Math.max(0, Math.min(1, (projected.rz2 + 0.15) / 0.3))
         
         return {
           ...pin,
-          px: sx + offsetX,
-          py: sy + offsetY,
-          opacity: opacity,
+          px: projected.sx + offsetX,
+          py: projected.sy + offsetY,
+          opacity,
         }
       })
       
@@ -2052,7 +2041,7 @@ function VisaoGeralMapa() {
               <DownloadSimple size={15} weight="bold" style={{ color: '#f59e0b' }} /> {t('pedido.visao_geral.mapa.legenda_importacao')}
             </span>
             <span className="bfd-map-legend__item">
-              <Export size={15} weight="bold" style={{ color: '#a78bfa' }} /> {t('pedido.visao_geral.mapa.legenda_exportacao')}
+              <UploadSimple size={15} weight="bold" style={{ color: '#a78bfa' }} /> {t('pedido.visao_geral.mapa.legenda_exportacao')}
             </span>
           </div>
           
@@ -2107,7 +2096,7 @@ function VisaoGeralMapa() {
             
             const isHovered = hoveredPin === pin.id
             const isExportacao = pin.tipoOperacao === 'exportacao'
-            const Icon = TIPO_OPERACAO_ICONS[pin.tipoOperacao] || <DownloadSimple size={12} />
+            const Icon = TIPO_OPERACAO_ICONS[pin.tipoOperacao] ?? iconeTipoOperacaoMapa(pin.tipoOperacao, 12, 'bold')
             
             return (
               <div
@@ -2270,9 +2259,7 @@ function VisaoGeralMapa() {
                     connections.map((route, idx) => {
                       const isExportacao = route.tipoOperacao === 'exportacao'
                       const tipoColor = isExportacao ? '#a78bfa' : '#f59e0b'
-                      const tipoIcon = isExportacao
-                        ? <Export size={14} weight="bold" />
-                        : <DownloadSimple size={14} weight="bold" />
+                      const tipoIcon = iconeTipoOperacaoMapa(route.tipoOperacao, 14, 'bold')
                       const badgeClass = isExportacao ? 'bfd-route-badge bfd-route-badge--exportacao' : 'bfd-route-badge bfd-route-badge--importacao'
                       const cardClass = isExportacao ? 'bfd-route-card bfd-route-card--exportacao' : 'bfd-route-card bfd-route-card--importacao'
                       const totalVencimentos =
@@ -2501,7 +2488,7 @@ function VisaoGeralMapa() {
                 >
                   <span className="bfd-map-panel__row-rank">{idx + 1}</span>
                   <span className="bfd-map-panel__modal-icon-wrap" style={{ color: isExportacao ? '#a78bfa' : '#f59e0b' }}>
-                    {TIPO_OPERACAO_ICONS[item.key] || <DownloadSimple size={14} />}
+                    {TIPO_OPERACAO_ICONS[item.key] ?? iconeTipoOperacaoMapa(item.key, 14, 'duotone')}
                   </span>
                   <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
                     <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>

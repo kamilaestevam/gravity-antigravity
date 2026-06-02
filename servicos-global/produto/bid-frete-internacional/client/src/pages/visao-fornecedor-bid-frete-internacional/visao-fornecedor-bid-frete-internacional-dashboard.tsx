@@ -6,7 +6,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   ChartPieSlice,
@@ -161,11 +160,11 @@ export default function VisaoFornecedorBidFreteInternacionalDashboard() {
   )
 
   return (
-    <PaginaGlobal className="bid-frete-page-shell">
+    <div className="bfd-dashboard bfd-dashboard--fornecedor">
       {carregando ? (
         <ConteudoCarregandoBidFreteInternacional />
       ) : (
-        <div className="bfd-dashboard bfd-dashboard--fornecedor">
+        <>
           <div className="bfd-kpi-grid">
             <CardBasicoGlobal
               titulo={t(`${ns}.dashboard.pendentes`)}
@@ -326,8 +325,8 @@ export default function VisaoFornecedorBidFreteInternacionalDashboard() {
               onClick={() => navigate(ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.desempenho)}
             />
           </div>
-        </div>
+        </>
       )}
-    </PaginaGlobal>
+    </div>
   )
 }

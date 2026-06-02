@@ -110,37 +110,36 @@ export function BloqueioPermissaoOpaco({
     )
   }
 
-  // 'opaco-item' (default)
+  // 'opaco-item' (default) — inline (pills, chips); sem width:100% para não quebrar flex row
   return (
     <span
       role="note"
       aria-disabled="true"
       title={motivo}
+      className="bloqueio-opaco-item"
       style={{
         opacity: 0.45,
         pointerEvents: 'none',
         cursor: 'not-allowed',
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '0.5rem',
-        position: 'relative',
-        width: '100%',
+        gap: '0.375rem',
+        flexShrink: 0,
       }}
     >
       {children}
       <span
+        className="bloqueio-opaco-item__tag"
+        aria-hidden
         style={{
           fontSize: '0.6rem',
           fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '0.04em',
-          padding: '0.08rem 0.32rem',
+          padding: '0.08rem 0.28rem',
           borderRadius: '4px',
           background: 'rgba(248,113,113,0.12)',
           color: '#fca5a5',
           border: '1px solid rgba(248,113,113,0.25)',
-          whiteSpace: 'nowrap',
-          marginLeft: 'auto',
+          lineHeight: 1,
         }}
       >
         🔒

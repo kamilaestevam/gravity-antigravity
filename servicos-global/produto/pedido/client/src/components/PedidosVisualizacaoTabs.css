@@ -2,7 +2,8 @@
 
 .pvt-tabs {
   display: inline-flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: 0.125rem;
   padding: 0.125rem;
   margin-top: 0;
@@ -40,6 +41,12 @@
 .pvt-tab--active {
   background: rgba(167, 139, 250, 0.15);
   color: #a78bfa;
+}
+
+/* Abas bloqueadas (BloqueioPermissaoOpaco) permanecem na mesma linha das pills */
+.pvt-tabs .bloqueio-opaco-item {
+  flex: 0 0 auto;
+  width: auto;
 }
 
 .pedido-visualizacao-layout {

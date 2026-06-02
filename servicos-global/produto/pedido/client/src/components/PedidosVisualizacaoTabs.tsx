@@ -1,6 +1,6 @@
 /**
  * PedidosVisualizacaoTabs — pills no topo das telas de visualização do Pedido
- * (Lista | Kanban | Visão Geral | Dashboard). Mesmo padrão de TodosProcessosTabs.
+ * (Insights | Lista | Dashboard | Kanban). Mesmo padrão de TodosProcessosTabs.
  */
 
 import React from 'react'
@@ -45,28 +45,28 @@ export function PedidosVisualizacaoTabs() {
 
   const tabs: TabDef[] = [
     {
+      to: '/pedido/pedidos/visao-geral',
+      labelKey: 'pedido.nav.insights',
+      icone: <ChartPieSlice weight="duotone" size={16} />,
+      pode: permissoesCarregando || podeVer('dashboard'),
+    },
+    {
       to: '/pedido/pedidos/lista',
       labelKey: 'pedido.nav.lista',
       icone: <ListBullets weight="duotone" size={16} />,
       pode: permissoesCarregando || podeVer('lista'),
     },
     {
-      to: '/pedido/pedidos/kanban',
-      labelKey: 'pedido.nav.kanban',
-      icone: <Kanban weight="duotone" size={16} />,
-      pode: permissoesCarregando || podeVer('kanban'),
-    },
-    {
-      to: '/pedido/pedidos/visao-geral',
-      labelKey: 'pedido.nav.visao_geral',
-      icone: <ChartPieSlice weight="duotone" size={16} />,
-      pode: permissoesCarregando || podeVer('dashboard'),
-    },
-    {
       to: '/pedido/pedidos/dashboard',
       labelKey: 'pedido.nav.dashboard',
       icone: <ChartBar weight="duotone" size={16} />,
       pode: permissoesCarregando || podeVer('dashboard'),
+    },
+    {
+      to: '/pedido/pedidos/kanban',
+      labelKey: 'pedido.nav.kanban',
+      icone: <Kanban weight="duotone" size={16} />,
+      pode: permissoesCarregando || podeVer('kanban'),
     },
   ]
 

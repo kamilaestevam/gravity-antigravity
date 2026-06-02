@@ -1,6 +1,6 @@
 # Sistema de Testes — Arquitetura Técnica
 
-> Documentação completa do **sistema de testes automatizado do Gravity**. Cobre os 6 tipos de teste, os 16 escopos, os 3 ambientes, o cron diário, a integração Gemini, a UI Admin/Testes, e os endpoints de backend. **Esta é a fonte de verdade técnica.** Para regras e convenções, ver `documentos-tecnicos/testes/regras/`.
+> Documentação completa do **sistema de testes automatizado do Gravity**. Cobre os 6 tipos de teste, os **17 escopos**, os 3 ambientes, o cron diário, a integração Gemini, a UI Admin/Testes, e os endpoints de backend. **Esta é a fonte de verdade técnica.** Para regras e convenções, ver `documentos-tecnicos/testes/regras/`.
 
 ---
 
@@ -64,7 +64,7 @@
 
 ---
 
-## Os 16 Escopos
+## Os 17 Escopos
 
 | Sigla | Escopo | Onde mora no código |
 |---|---|---|
@@ -84,6 +84,7 @@
 | `SIMCUS` | Produto SimulaCusto | `produto/simula-custo/` |
 | `FINCOM` | Produto Financeiro Comex | `produto/financeiro-comex/` |
 | `PROCSO` | Produto Processo | `produto/processo/` |
+| `MBOTO` | Transversal — seletor universal de visualizações | `testes/*/menu-botoes/seletor-universal-visoes/` (ver [seletor universal](../../arquitetura/seletor-universal-visualizacoes.md)) |
 
 ---
 
@@ -105,6 +106,7 @@ ESCOPO → SUBLOCAL → TELA → PLANO DE TESTE
 | HUB | Acessar Workspace, Dashboard Hub |
 | CORE | Botões, Campos, Modais, Tabelas, Layout, Mensageria, Tooltip |
 | PEDIDO | Dashboard, Lista, Configurador, Importação, Edição em Massa |
+| MBOTO | `menu-botoes/seletor-universal-visoes` — SLA 1s troca de aba (Pedido, BID, Processo) |
 | (cada produto) | Dashboard, Lista, Configurador, ... |
 
 ---

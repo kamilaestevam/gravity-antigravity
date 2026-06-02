@@ -43,6 +43,7 @@ documentos-tecnicos/testes/
 | Ver o exemplo do plano da Organização | `testes/_planos/configurador/organizacao.json` + [skills/testes/agente-plano-teste/exemplo-organizacao.md](../../skills/testes/agente-plano-teste/exemplo-organizacao.md) |
 | Mexer no analisador Gemini | [skills/testes/analista-erros-testes-gemini/SKILL.md](../../skills/testes/analista-erros-testes-gemini/SKILL.md) |
 | Criar/expandir um plano de teste | [skills/testes/agente-plano-teste/SKILL.md](../../skills/testes/agente-plano-teste/SKILL.md) |
+| Seletor universal (pills / SLA 1s) | [arquitetura/seletor-universal-visualizacoes.md](../arquitetura/seletor-universal-visualizacoes.md) + `TST-*-MBOTO-*` |
 
 ---
 
@@ -61,7 +62,7 @@ documentos-tecnicos/testes/
 ## Resumo executivo do sistema
 
 - **6 tipos de teste** (UNI, CON, FUN, CRO, E2E, PEN)
-- **16 escopos** (LOGIN, CONFIG, ADMIN, HUB, CORE, MARKET, TENANT, DBASE + 8 produtos)
+- **17 escopos** (LOGIN, CONFIG, ADMIN, HUB, CORE, MARKET, TENANT, DBASE + 8 produtos + **MBOTO** seletor universal)
 - **20 categorias obrigatórias** por plano de teste
 - **3 ambientes** (Local, Staging, Produção)
 - **1 cron externo** (Opção C — Railway/GitHub Actions, 1x/dia)

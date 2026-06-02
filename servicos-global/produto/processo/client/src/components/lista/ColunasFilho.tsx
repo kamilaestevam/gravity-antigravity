@@ -15,6 +15,7 @@ import type { Pedido, PedidoItem, ColunaUsuario } from '../../shared/lista/pedid
 import { fmtQuantidade, fmtData, classeMoedaBadge } from '../../shared/lista/pedidoTypes'
 import { parsearFormula, avaliarFormula } from '../../shared/lista/formulaEngine'
 import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel, type OpcoesUnidadesColunas } from './ColunasPai'
+import { renderRotuloCadastro } from '../../shared/lista/useLogisticaCadastrosPedido'
 
 // Re-export _regrasAlertasRef so that ListaPedidos can still write to it via this module
 export { _regrasAlertasRef }
@@ -1589,8 +1590,12 @@ type PedidoItemEnriquecido = PedidoItem & {
 // Fator de conversão reversa: KG armazenado → unidade de exibição
 const KG_PARA_UNIDADE: Record<string, number> = { KG: 1, G: 1000, TON: 0.001, KGBR: 1 }
 
-export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
-  const { unidadesPeso, unidadesCubagem } = opcoes
+export function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
+  const { unidadesPeso, unidadesCubagem, workspacesMap, paisesOpcoes = [], portosOpcoes = [], aeroportosOpcoes = [] } = opcoes
+  const tooltipLogisticaEditaPedido = t(
+    'pedido.coluna_filho.mapa_logistica.tooltip_edita_pedido',
+    'Valor do pedido — a alteração aqui atualiza o pedido inteiro (não grava no item).',
+  )
   return {
   // ── Número do pedido → Part Number do item ────────────────────────────────
   numero_pedido: {
@@ -1963,6 +1968,88 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
         </span>
       )
     },
+  },
+  descricao_item: {
+    editavel: true,
+    campo: 'descricao_item',
+    render: (row: PedidoItem) => renderDescricaoTruncada(row.descricao_item, t('pedido.item.descricao_item')),
+  },
+  id_workspace: {
+    editavel: false,
+    tooltipBloqueado: t('pedido.coluna_filho.mapa_id_workspace.tooltip_bloqueado', 'Workspace é do pedido — altere na linha do pedido'),
+    render: (row: PedidoItem) => {
+      const enr = row as PedidoItemEnriquecido
+      const id = enr._p?.id_workspace ?? row.company_id ?? ''
+      if (!id) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      const nome = workspacesMap?.get(id)?.nome ?? id
+      return nome.length <= 50 ? <span>{nome}</span> : (
+        <TooltipGlobal titulo={t('pedido.coluna_pai.workspace_label')} descricao={nome}>
+          <span>{nome.slice(0, 50) + '…'}</span>
+        </TooltipGlobal>
+      )
+    },
+  },
+  quantidade_cancelada_total_pedido: {
+    editavel: false,
+    tooltipBloqueado: t('pedido.coluna_filho.mapa_quantidade_cancelada_total_pedido.tooltip_bloqueado'),
+    render: (row: PedidoItem) => {
+      const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
+      const qtd = row.quantidade_cancelada_pedido ?? 0
+      return (
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? 'var(--color-error, #ef4444)' : undefined }}>
+          {fmtQuantidade(qtd, getCasas('quantidade_cancelada_total_pedido', 0))}
+          <span className="gtv-celula-unidade-badge">{unidade}</span>
+        </span>
+      )
+    },
+  },
+  porto_origem: {
+    editavel: true,
+    campo: 'porto_origem',
+    opcoes: portosOpcoes,
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.porto_origem ?? null,
+    tooltipBloqueado: tooltipLogisticaEditaPedido,
+    render: (row: PedidoItem) => renderRotuloCadastro((row as PedidoItemEnriquecido)._p?.porto_origem ?? null, portosOpcoes, t('pedido.coluna_pai.porto_origem')),
+  },
+  porto_destino: {
+    editavel: true,
+    campo: 'porto_destino',
+    opcoes: portosOpcoes,
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.porto_destino ?? null,
+    tooltipBloqueado: tooltipLogisticaEditaPedido,
+    render: (row: PedidoItem) => renderRotuloCadastro((row as PedidoItemEnriquecido)._p?.porto_destino ?? null, portosOpcoes, t('pedido.coluna_pai.porto_destino')),
+  },
+  local_de_origem: {
+    editavel: true,
+    campo: 'local_de_origem',
+    opcoes: paisesOpcoes,
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.local_de_origem ?? null,
+    tooltipBloqueado: tooltipLogisticaEditaPedido,
+    render: (row: PedidoItem) => renderRotuloCadastro((row as PedidoItemEnriquecido)._p?.local_de_origem ?? null, paisesOpcoes, t('pedido.coluna_pai.local_de_origem')),
+  },
+  local_de_destino: {
+    editavel: true,
+    campo: 'local_de_destino',
+    opcoes: paisesOpcoes,
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.local_de_destino ?? null,
+    tooltipBloqueado: tooltipLogisticaEditaPedido,
+    render: (row: PedidoItem) => renderRotuloCadastro((row as PedidoItemEnriquecido)._p?.local_de_destino ?? null, paisesOpcoes, t('pedido.coluna_pai.local_de_destino')),
+  },
+  aeroporto_origem: {
+    editavel: true,
+    campo: 'aeroporto_origem',
+    opcoes: aeroportosOpcoes,
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.aeroporto_origem ?? null,
+    tooltipBloqueado: tooltipLogisticaEditaPedido,
+    render: (row: PedidoItem) => renderRotuloCadastro((row as PedidoItemEnriquecido)._p?.aeroporto_origem ?? null, aeroportosOpcoes, t('pedido.coluna_pai.aeroporto_origem')),
+  },
+  aeroporto_destino: {
+    editavel: true,
+    campo: 'aeroporto_destino',
+    opcoes: aeroportosOpcoes,
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.aeroporto_destino ?? null,
+    tooltipBloqueado: tooltipLogisticaEditaPedido,
+    render: (row: PedidoItem) => renderRotuloCadastro((row as PedidoItemEnriquecido)._p?.aeroporto_destino ?? null, aeroportosOpcoes, t('pedido.coluna_pai.aeroporto_destino')),
   },
   }
 }

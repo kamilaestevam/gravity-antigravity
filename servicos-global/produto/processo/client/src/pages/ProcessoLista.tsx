@@ -2,22 +2,29 @@
  * ProcessoLista.tsx — Tabela 01: Processo → Pedido → Item (3 camadas).
  * Onda 2 — colunas Processo (avô) + paridade Pedido (pai/item).
  */
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Briefcase, DownloadSimple, Eye, FilePdf, Plus } from '@phosphor-icons/react'
+import { Briefcase, DownloadSimple, Eye, FilePdf } from '@phosphor-icons/react'
+import { useShellStore } from '@gravity/shell'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { BotaoGlobal } from '@nucleo/botao-global'
 import {
   TabelaVirtualGlobal,
   type GTAcao,
   type GTAcaoExport,
   type GTPreferencias,
+  type GTAbaTipo,
 } from '@nucleo/tabela-virtual-global'
 import { buildColunasListaProcesso, chavesColunasAvo } from '../components/lista/buildColunasListaProcesso'
 import { buildColunasPai, type OpcoesUnidadesColunas } from '../components/lista/ColunasPai'
 import { buildMapaColunasFilhoLista } from '../components/lista/mapaColunasFilhoLista'
+import { BarraAcoesProcesso } from '../components/lista/BarraAcoesProcesso'
+import { ModalNovoProcessoManual } from '../components/lista/ModalNovoProcessoManual'
+import { ModalProcessoPlaceholder } from '../components/lista/ModalProcessoPlaceholder'
+import { ModalEdicaoMassaProcesso } from '../components/lista/ModalEdicaoMassaProcesso'
+import { ModalDuplicarProcesso } from '../components/lista/ModalDuplicarProcesso'
+import { ModalExcluirProcesso } from '../components/lista/ModalExcluirProcesso'
 import {
   MOCK_PROCESSOS_AVO,
   PEDIDOS_MOCK_INICIAL,
@@ -32,7 +39,6 @@ import { useUnidadesPedido } from '../shared/lista/useUnidadesPedido'
 import { useLogisticaCadastrosPedido } from '../shared/lista/useLogisticaCadastrosPedido'
 import { ConectorFilhoLista } from '../components/lista/ConectorFilhoLista'
 import {
-  CAMPOS_EDITAVEIS_PEDIDO,
   CAMPOS_EDITAVEIS_PROCESSO,
   COLUNAS_EXPORT_PROCESSO,
   COLUNAS_PADRAO_VISIVEIS,
@@ -52,30 +58,26 @@ import {
   exportarTXT,
   exportarXML,
 } from '../shared/lista/exportUtils'
+import { useEdicaoListaProcesso } from '../shared/lista/useEdicaoListaProcesso'
+import {
+  lerAbasStatusProcesso,
+  resolverRotuloStatusProcesso,
+} from '../shared/lista/processoStatusConfig'
+import { useSelecaoStore, useProcessosSelecionados } from '../shared/state/selecaoStore'
 import type { Pedido, PedidoItem } from '../shared/lista/pedidoTypes'
-import { isCampoLogisticaPedido, normalizarCodigoLogisticaPedido } from '../shared/lista/camposLogisticaPedido'
 import { TodosProcessosTabs } from './todos/TodosProcessosTabs'
 import './todos/TodosProcessos.css'
 import './ProcessoLista.css'
 
-function normalizarValorEdicao(valor: unknown): unknown {
-  if (valor != null && typeof valor === 'object') {
-    if ('amount' in (valor as object)) return (valor as { amount: unknown }).amount
-    if ('valor' in (valor as object)) return (valor as { valor: unknown }).valor
-  }
-  return valor
-}
-
-function parseIdFilhoLinha(idLinha: string): { camada: 'pedido' | 'item'; id: string } | null {
-  if (idLinha.startsWith('ped-')) return { camada: 'pedido', id: idLinha.slice(4) }
-  if (idLinha.startsWith('item-')) return { camada: 'item', id: idLinha.slice(5) }
-  return null
-}
-
 export default function ProcessoLista() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
+  const { addNotification } = useShellStore()
+  const novoDropdownRef = useRef<HTMLDivElement>(null)
+
   const [busca, setBusca] = useState('')
+  const [abaAtiva, setAbaAtiva] = useState('todos')
+  const [abas, setAbas] = useState<GTAbaTipo[]>(() => lerAbasStatusProcesso(t))
   const [processos, setProcessos] = useState<ProcessoAvoLinha[]>(() => [...MOCK_PROCESSOS_AVO])
   const [pedidos, setPedidos] = useState<Array<Pedido & { id_processo: string }>>(
     () => PEDIDOS_MOCK_INICIAL.map(p => ({ ...p })),
@@ -88,6 +90,57 @@ export default function ProcessoLista() {
     () => new Set(todosIdsPedidoMock(pedidos)),
   )
   const [resetCacheFilhos, setResetCacheFilhos] = useState(0)
+
+  const processosSelecionados = useProcessosSelecionados()
+  const { setProcessosSelecionados, limparSelecao } = useSelecaoStore()
+
+  const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
+  const [modalNovoAberto, setModalNovoAberto] = useState(false)
+  const [modalImportAberto, setModalImportAberto] = useState(false)
+  const [modalCockpitAberto, setModalCockpitAberto] = useState(false)
+  const [modalEdicaoMassaAberto, setModalEdicaoMassaAberto] = useState(false)
+  const [modalDuplicarAberto, setModalDuplicarAberto] = useState(false)
+  const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
+  const [excluindoLote, setExcluindoLote] = useState(false)
+
+  const recarregarAbas = useCallback(() => {
+    setAbas(lerAbasStatusProcesso(t))
+  }, [t])
+
+  useEffect(() => {
+    recarregarAbas()
+  }, [recarregarAbas, i18n.language])
+
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'processo:status_config') recarregarAbas()
+    }
+    window.addEventListener('storage', onStorage)
+    window.addEventListener('focus', recarregarAbas)
+    return () => {
+      window.removeEventListener('storage', onStorage)
+      window.removeEventListener('focus', recarregarAbas)
+    }
+  }, [recarregarAbas])
+
+  useEffect(() => {
+    if (!novoDropdownAberto) return
+    const handleClick = (e: MouseEvent) => {
+      if (novoDropdownRef.current && !novoDropdownRef.current.contains(e.target as Node)) {
+        setNovoDropdownAberto(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [novoDropdownAberto])
+
+  const { handleEditarFilho, pedidosExibicao } = useEdicaoListaProcesso(
+    pedidos,
+    setPedidos,
+    itens,
+    setItens,
+    setResetCacheFilhos,
+  )
 
   const { unidadesPeso, unidadesCubagem } = useUnidadesPedido()
   const {
@@ -107,11 +160,6 @@ export default function ProcessoLista() {
     aeroportosOpcoes,
   }), [unidadesPeso, unidadesCubagem, paisesOpcoes, portosOpcoes, aeroportosOpcoes])
 
-  const resolverPedido = useCallback(
-    (id_pedido: string) => pedidos.find(p => p.id === id_pedido),
-    [pedidos],
-  )
-
   const colunasPedido = useMemo(
     () => buildColunasPai(t, opcoesColunas),
     [t, i18n.language, opcoesColunas],
@@ -124,21 +172,37 @@ export default function ProcessoLista() {
 
   const chavesAvo = useMemo(() => chavesColunasAvo(t), [t, i18n.language])
 
+  const resolverPedido = useCallback(
+    (id_pedido: string) => pedidosExibicao.find(p => p.id === id_pedido),
+    [pedidosExibicao],
+  )
+
   const mapaColunasFilho = useMemo(
-    () => buildMapaColunasFilhoLista(chavesAvo, colunasPedido, opcoesColunas, resolverPedido),
-    [chavesAvo, colunasPedido, opcoesColunas, resolverPedido],
+    () => buildMapaColunasFilhoLista(t, chavesAvo, colunasPedido, opcoesColunas, resolverPedido),
+    [t, i18n.language, chavesAvo, colunasPedido, opcoesColunas, resolverPedido],
   )
 
   const buscaNorm = busca.trim().toLowerCase()
   const processosFiltrados = useMemo(() => {
-    if (!buscaNorm) return processos
-    return processos.filter(p =>
+    let resultado = processos
+    if (abaAtiva !== 'todos') {
+      resultado = resultado.filter(p => p.codigo_status_processo === abaAtiva)
+    }
+    if (!buscaNorm) return resultado
+    return resultado.filter(p =>
       p.numero_processo.toLowerCase().includes(buscaNorm)
       || (p.referencia_interna_processo?.toLowerCase().includes(buscaNorm) ?? false)
       || p.nome_importador.toLowerCase().includes(buscaNorm)
       || p.nome_exportador.toLowerCase().includes(buscaNorm),
     )
-  }, [buscaNorm, processos])
+  }, [buscaNorm, processos, abaAtiva])
+
+  const handleMudarAba = useCallback((novaAba: string) => {
+    setAbaAtiva(novaAba)
+    limparSelecao()
+  }, [limparSelecao])
+
+  const processoItemId = useCallback((p: ProcessoAvoLinha) => p.id_processo, [])
 
   const togglePedidoItens = useCallback((id_pedido: string) => {
     setPedidosExpandidos(prev => {
@@ -151,8 +215,8 @@ export default function ProcessoLista() {
   }, [])
 
   const handleCarregarFilhos = useCallback(async (processo: ProcessoAvoLinha) => {
-    return filhosVisiveisDoProcesso(processo.id_processo, pedidosExpandidos, pedidos, itens)
-  }, [pedidosExpandidos, pedidos, itens])
+    return filhosVisiveisDoProcesso(processo.id_processo, pedidosExpandidos, pedidosExibicao, itens)
+  }, [pedidosExpandidos, pedidosExibicao, itens])
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
@@ -164,87 +228,108 @@ export default function ProcessoLista() {
     campo: string,
     valor: unknown,
   ): Promise<ProcessoAvoLinha> => {
-    const v = normalizarValorEdicao(valor)
+    let v: unknown = valor
+    if (valor != null && typeof valor === 'object') {
+      if ('amount' in (valor as object)) v = (valor as { amount: unknown }).amount
+      else if ('valor' in (valor as object)) v = (valor as { valor: unknown }).valor
+    }
     let atualizado: ProcessoAvoLinha | undefined
     setProcessos(prev => prev.map(p => {
       if (p.id_processo !== id_processo) return p
-      atualizado = { ...p, [campo]: v }
+      const patch: Partial<ProcessoAvoLinha> = { [campo]: v } as Partial<ProcessoAvoLinha>
+      if (campo === 'codigo_status_processo' && typeof v === 'string') {
+        const { label, cor } = resolverRotuloStatusProcesso(v)
+        patch.rotulo_status_processo = label
+        patch.cor_status_processo = cor
+      }
+      atualizado = { ...p, ...patch }
       return atualizado
     }))
     if (!atualizado) throw new Error('Processo não encontrado')
     return atualizado
   }, [])
 
-  const handleEditarFilho = useCallback(async (
-    idLinha: string,
-    campo: string,
-    valor: unknown,
-  ): Promise<FilhoLinhaLista> => {
-    const parsed = parseIdFilhoLinha(idLinha)
-    if (!parsed) throw new Error('Linha filha não reconhecida')
+  const handleCriarProcesso = useCallback((novo: ProcessoAvoLinha) => {
+    setProcessos(prev => [novo, ...prev])
+    addNotification({ type: 'success', message: `Processo ${novo.numero_processo} criado` })
+  }, [addNotification])
 
-    const v = isCampoLogisticaPedido(campo)
-      ? normalizarCodigoLogisticaPedido(valor)
-      : normalizarValorEdicao(valor)
-
-    if (parsed.camada === 'pedido') {
-      let pedidoAtualizado: (Pedido & { id_processo: string }) | undefined
-      setPedidos(prev => prev.map(p => {
-        if (p.id !== parsed.id) return p
-        pedidoAtualizado = { ...p, [campo]: v }
-        return pedidoAtualizado
-      }))
-      if (!pedidoAtualizado) throw new Error('Pedido não encontrado')
-      setResetCacheFilhos(n => n + 1)
-      return { camada: 'pedido', pedido: pedidoAtualizado }
-    }
-
-    const pedidoPai = pedidos.find(p => p.id === itens.find(i => i.id === parsed.id)?.pedido_id)
-
-    if (isCampoLogisticaPedido(campo) && pedidoPai) {
-      let pedidoAtualizado: (Pedido & { id_processo: string }) | undefined
-      setPedidos(prev => prev.map(p => {
-        if (p.id !== pedidoPai.id) return p
-        pedidoAtualizado = { ...p, [campo]: v }
-        return pedidoAtualizado
-      }))
-      if (!pedidoAtualizado) throw new Error('Pedido não encontrado')
-      setResetCacheFilhos(n => n + 1)
-      const itemAtual = itens.find(i => i.id === parsed.id)
-      if (!itemAtual) throw new Error('Item não encontrado')
-      return { camada: 'item', item: itemAtual }
-    }
-
-    if (CAMPOS_EDITAVEIS_PEDIDO.includes(campo) && pedidoPai) {
-      let pedidoAtualizado: (Pedido & { id_processo: string }) | undefined
-      setPedidos(prev => prev.map(p => {
-        if (p.id !== pedidoPai.id) return p
-        pedidoAtualizado = { ...p, [campo]: v }
-        return pedidoAtualizado
-      }))
-      if (!pedidoAtualizado) throw new Error('Pedido não encontrado')
-      setResetCacheFilhos(n => n + 1)
-      const itemAtual = itens.find(i => i.id === parsed.id)
-      if (!itemAtual) throw new Error('Item não encontrado')
-      return { camada: 'item', item: itemAtual }
-    }
-
-    let itemAtualizado: PedidoItem | undefined
-    setItens(prev => prev.map(i => {
-      if (i.id !== parsed.id) return i
-      if (campo === 'valor_total_item' && v != null && typeof v === 'object' && 'currency' in (v as object)) {
-        const moeda = (v as { currency: string }).currency
-        const amount = (v as { amount: unknown }).amount
-        itemAtualizado = { ...i, valor_total_item: Number(amount), moeda_item: moeda }
-        return itemAtualizado
+  const handleEdicaoMassa = useCallback((ids: string[], campo: string, valor: unknown) => {
+    setProcessos(prev => prev.map(p => {
+      if (!ids.includes(p.id_processo)) return p
+      const patch: Partial<ProcessoAvoLinha> = { [campo]: valor } as Partial<ProcessoAvoLinha>
+      if (campo === 'codigo_status_processo' && typeof valor === 'string') {
+        const { label, cor } = resolverRotuloStatusProcesso(valor)
+        patch.rotulo_status_processo = label
+        patch.cor_status_processo = cor
       }
-      itemAtualizado = { ...i, [campo]: v }
-      return itemAtualizado
+      return { ...p, ...patch }
     }))
-    if (!itemAtualizado) throw new Error('Item não encontrado')
-    setResetCacheFilhos(n => n + 1)
-    return { camada: 'item', item: itemAtualizado }
-  }, [itens, pedidos])
+    addNotification({ type: 'success', message: `${ids.length} processo(s) atualizado(s)` })
+  }, [addNotification])
+
+  const handleDuplicar = useCallback((pares: Array<{ origemId: string; copia: ProcessoAvoLinha }>) => {
+    const copias = pares.map(p => p.copia)
+    setProcessos(prev => [...copias, ...prev])
+
+    const novosPedidos: Array<Pedido & { id_processo: string }> = []
+    const novosItens: PedidoItem[] = []
+
+    for (const { origemId, copia } of pares) {
+      const pedidosOrigem = pedidos.filter(p => p.id_processo === origemId)
+      for (const ped of pedidosOrigem) {
+        const novoPedidoId = `${ped.id}-dup-${copia.id_processo}`
+        novosPedidos.push({
+          ...ped,
+          id: novoPedidoId,
+          id_processo: copia.id_processo,
+          numero_pedido: `${ped.numero_pedido}-CÓPIA`,
+        })
+        const itensPed = itens.filter(i => i.pedido_id === ped.id)
+        for (const item of itensPed) {
+          novosItens.push({
+            ...item,
+            id: `${item.id}-dup-${copia.id_processo}`,
+            pedido_id: novoPedidoId,
+          })
+        }
+      }
+    }
+
+    if (novosPedidos.length > 0) {
+      setPedidos(prev => [...novosPedidos, ...prev])
+      setItens(prev => [...novosItens, ...prev])
+      setPedidosExpandidos(prev => {
+        const next = new Set(prev)
+        novosPedidos.forEach(p => next.add(p.id))
+        return next
+      })
+      setResetCacheFilhos(n => n + 1)
+    }
+
+    setProcessosSelecionados([])
+    addNotification({ type: 'success', message: `${copias.length} processo(s) duplicado(s)` })
+  }, [pedidos, itens, addNotification, setProcessosSelecionados])
+
+  const handleExcluirConfirmado = useCallback(async (ids: string[]) => {
+    setExcluindoLote(true)
+    try {
+      const idsPedidos = pedidos.filter(p => ids.includes(p.id_processo)).map(p => p.id)
+      setProcessos(prev => prev.filter(p => !ids.includes(p.id_processo)))
+      setPedidos(prev => prev.filter(p => !ids.includes(p.id_processo)))
+      setItens(prev => prev.filter(i => !idsPedidos.includes(i.pedido_id)))
+      setProcessosSelecionados([])
+      setResetCacheFilhos(n => n + 1)
+      addNotification({ type: 'success', message: `${ids.length} processo(s) excluído(s)` })
+    } finally {
+      setExcluindoLote(false)
+    }
+  }, [pedidos, addNotification, setProcessosSelecionados])
+
+  const handleExcluirLote = useCallback(() => {
+    if (processosSelecionados.length === 0) return
+    setModalExcluirAberto(true)
+  }, [processosSelecionados.length])
 
   const buildDadosExport = useCallback(() => {
     const sepMap = { virgula: ',', 'ponto-virgula': ';', tab: '\t' } as const
@@ -328,6 +413,25 @@ export default function ProcessoLista() {
     },
   ], [navigate])
 
+  const acoesBarra = useMemo(() => (
+    <BarraAcoesProcesso
+      novoDropdownRef={novoDropdownRef}
+      novoDropdownAberto={novoDropdownAberto}
+      excluindoLote={excluindoLote}
+      setNovoDropdownAberto={setNovoDropdownAberto}
+      setSmartImportAberto={setModalImportAberto}
+      setModalCockpitAberto={setModalCockpitAberto}
+      setModalNovoProcessoAberto={setModalNovoAberto}
+      setModalEdicaoMassaAberto={setModalEdicaoMassaAberto}
+      setModalDuplicarAberto={setModalDuplicarAberto}
+      onExcluirLote={handleExcluirLote}
+    />
+  ), [
+    novoDropdownAberto,
+    excluindoLote,
+    handleExcluirLote,
+  ])
+
   const renderConectorFilho = useCallback((filho: FilhoLinhaLista) => (
     <ConectorFilhoLista
       filho={filho}
@@ -353,11 +457,6 @@ export default function ProcessoLista() {
           icone={<Briefcase weight="duotone" size={22} />}
           titulo="Processos"
           subtitulo="Lista hierárquica — Processo, Pedido e Item"
-          acoes={
-            <BotaoGlobal variante="primario" icone={<Plus weight="bold" />} onClick={() => { /* Onda 3 */ }}>
-              Novo processo
-            </BotaoGlobal>
-          }
         />
       }
       toolbar={<TodosProcessosTabs />}
@@ -372,7 +471,7 @@ export default function ProcessoLista() {
             dados={processosFiltrados}
             colunas={colunas}
             mapaColunasFilho={mapaColunasFilho}
-            itemId={(p) => p.id_processo}
+            itemId={processoItemId}
             filhoId={idFilhoLinha}
             onCarregarFilhos={handleCarregarFilhos}
             resetCacheFilhos={resetCacheFilhos}
@@ -380,11 +479,16 @@ export default function ProcessoLista() {
             classNameLinhaFilho={classNameLinhaFilho}
             acoes={acoesProcesso}
             acoesExportacao={acoesExportacao}
+            acoesBarra={acoesBarra}
+            abas={abas}
+            abaAtiva={abaAtiva}
+            onMudarAba={handleMudarAba}
+            onSelecaoMudar={setProcessosSelecionados}
             onBuscar={setBusca}
             placeholderBusca="Buscar processo, referência ou parte..."
             emptyIcon={<Briefcase weight="duotone" size={48} />}
             emptyTitle="Nenhum processo encontrado"
-            emptyDescription="Ajuste a busca ou crie um novo processo"
+            emptyDescription="Ajuste a busca, filtro de status ou crie um novo processo"
             ariaLabel="Lista hierárquica de processos, pedidos e itens"
             itensPorPagina={25}
             camposEditaveis={CAMPOS_EDITAVEIS_PROCESSO}
@@ -392,12 +496,59 @@ export default function ProcessoLista() {
             onEditar={handleEditar}
             onEditarFilho={handleEditarFilho}
             permiteReplicacaoPaiEmItens={(campo) => !COLUNAS_SEM_REPLICACAO_PEDIDO_ITEM.has(campo)}
+            permiteReplicacaoFilhoEmSubfilhos={(filho, campo) =>
+              filho.camada === 'pedido' && !COLUNAS_SEM_REPLICACAO_PEDIDO_ITEM.has(campo)
+            }
             preferencias={preferencias}
             onSalvarPreferencias={handleSalvarPreferencias}
             colunasPadrao={COLUNAS_PADRAO_VISIVEIS}
           />
         </div>
       </div>
+
+      <ModalNovoProcessoManual
+        aberto={modalNovoAberto}
+        onFechar={() => setModalNovoAberto(false)}
+        onCriar={handleCriarProcesso}
+      />
+      <ModalProcessoPlaceholder
+        aberto={modalImportAberto}
+        titulo="Importação via planilha"
+        subtitulo="Excel, CSV ou XML"
+        tipo="import"
+        onFechar={() => setModalImportAberto(false)}
+      />
+      <ModalProcessoPlaceholder
+        aberto={modalCockpitAberto}
+        titulo="Integração via API"
+        subtitulo="Cockpit ou ERP"
+        tipo="api"
+        onFechar={() => setModalCockpitAberto(false)}
+      />
+      {modalEdicaoMassaAberto && (
+        <ModalEdicaoMassaProcesso
+          aberto={modalEdicaoMassaAberto}
+          processos={processosSelecionados}
+          onFechar={() => setModalEdicaoMassaAberto(false)}
+          onAplicar={handleEdicaoMassa}
+        />
+      )}
+      {modalDuplicarAberto && (
+        <ModalDuplicarProcesso
+          aberto={modalDuplicarAberto}
+          processos={processosSelecionados}
+          onFechar={() => setModalDuplicarAberto(false)}
+          onDuplicar={handleDuplicar}
+        />
+      )}
+      {modalExcluirAberto && (
+        <ModalExcluirProcesso
+          aberto={modalExcluirAberto}
+          processos={processosSelecionados}
+          onFechar={() => setModalExcluirAberto(false)}
+          onConfirmar={handleExcluirConfirmado}
+        />
+      )}
     </PaginaGlobal>
   )
 }

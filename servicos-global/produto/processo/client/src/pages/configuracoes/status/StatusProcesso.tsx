@@ -23,6 +23,11 @@ import {
   type FieldSource, type CondicaoTipo, type CampoOpcao,
   type Regra, type StatusConfig,
 } from './validacao'
+import {
+  STATUS_INICIAIS_PROCESSO,
+  carregarStatusProcessoCompleto,
+  persistirStatusProcesso,
+} from '../../../shared/lista/processoStatusConfig'
 import './StatusProcesso.css'
 
 // ── Cores predefinidas ────────────────────────────────────────────────────
@@ -32,51 +37,15 @@ const CORES = [
   '#a78bfa', '#f472b6', '#fb923c', '#f87171',
 ]
 
-// ── Mock inicial: status padrao do processo ───────────────────────────────
+// ── Mock inicial: status padrão do processo ───────────────────────────────
 
 let _seq = 0
 const novoId = () => `r${Date.now()}-${++_seq}`
 
-const STATUS_INICIAIS: StatusConfig[] = [
-  {
-    id: 's1', nome: 'Rascunho', cor: '#94a3b8', ordem: 1, operador: 'AND',
-    regras: [
-      { id: novoId(), origem: 'dados_processo', campo: 'numero_processo', condicao: 'vazio' },
-    ],
-  },
-  {
-    id: 's2', nome: 'Aberto', cor: '#60a5fa', ordem: 2, operador: 'AND',
-    regras: [
-      { id: novoId(), origem: 'dados_processo', campo: 'numero_processo', condicao: 'preenchido' },
-      { id: novoId(), origem: 'dados_processo', campo: 'data_embarque',   condicao: 'vazio' },
-    ],
-  },
-  {
-    id: 's3', nome: 'Em Embarque', cor: '#a78bfa', ordem: 3, operador: 'AND',
-    regras: [
-      { id: novoId(), origem: 'dados_processo', campo: 'data_embarque', condicao: 'preenchido' },
-      { id: novoId(), origem: 'dados_processo', campo: 'data_chegada',  condicao: 'vazio' },
-    ],
-  },
-  {
-    id: 's4', nome: 'Em Desembaraço', cor: '#fbbf24', ordem: 4, operador: 'AND',
-    regras: [
-      { id: novoId(), origem: 'dados_processo', campo: 'data_chegada', condicao: 'preenchido' },
-      { id: novoId(), origem: 'dados_processo', campo: 'di_numero',    condicao: 'vazio' },
-    ],
-  },
-  {
-    id: 's5', nome: 'Concluído', cor: '#34d399', ordem: 5, operador: 'AND',
-    regras: [
-      { id: novoId(), origem: 'dados_processo', campo: 'di_numero', condicao: 'preenchido' },
-    ],
-  },
-]
-
 // ── Componente principal ───────────────────────────────────────────────────
 
 export default function StatusProcesso() {
-  const [statuses, setStatuses] = useState<StatusConfig[]>(STATUS_INICIAIS)
+  const [statuses, setStatuses] = useState<StatusConfig[]>(() => carregarStatusProcessoCompleto())
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
   const [dirty, setDirty] = useState(false)
 
@@ -135,14 +104,16 @@ export default function StatusProcesso() {
   }
 
   function salvar() {
-    // TODO: chamar API quando back estiver pronto
-    console.log('Salvar:', statuses)
+    persistirStatusProcesso(statuses)
     setDirty(false)
   }
 
   function restaurarPadrao() {
-    setStatuses(STATUS_INICIAIS)
-    setDirty(false)
+    setStatuses(STATUS_INICIAIS_PROCESSO.map(s => ({
+      ...s,
+      regras: s.regras.map(r => ({ ...r, id: novoId() })),
+    })))
+    setDirty(true)
   }
 
   return (

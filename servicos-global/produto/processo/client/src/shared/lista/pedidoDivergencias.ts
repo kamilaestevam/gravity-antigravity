@@ -6,6 +6,7 @@
  */
 
 import { getAlertavelKeys } from './columnAlertConfig.js'
+import { marcarPartNumbersDuplicados, pedidoTemPartNumberDuplicado } from './partNumberDuplicado'
 
 const CAMPOS_GHOST = new Set(['ncm', 'cobertura_cambial', 'data_emissao_pedido'])
 
@@ -128,6 +129,22 @@ export function calcularDivergenciasPedido(
   result['_colunas_usuario_divergentes'] = divergenciasCustom
 
   return result
+}
+
+/** Marca PN duplicado + recalcula flags de divergência pai/filho. */
+export function sincronizarItensPedido<T extends Record<string, unknown>>(
+  itens: T[],
+  pedidoPai?: Record<string, unknown>,
+): { itens: T[]; divergencias: DivergenciasPedido } {
+  const itensMarcados = marcarPartNumbersDuplicados(itens)
+  const divergencias = {
+    ...calcularDivergenciasPedido(itensMarcados, pedidoPai),
+    part_number_duplicado_no_pedido: pedidoTemPartNumberDuplicado(itensMarcados),
+  }
+  return {
+    itens: itensMarcados,
+    divergencias: mesclarDivergenciasPreservandoDescricaoPedido(pedidoPai, divergencias),
+  }
 }
 
 /** Valor exibido na linha pai — canônico do pedido tem prioridade sobre agregado dos itens. */

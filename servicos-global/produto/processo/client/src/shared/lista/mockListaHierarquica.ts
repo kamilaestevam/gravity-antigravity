@@ -8,6 +8,8 @@ export interface ProcessoAvoLinha {
   id_processo: string
   numero_processo: string
   tipo_operacao_processo: 'importacao' | 'exportacao'
+  /** ID do status em Configurações (processo:status_config) */
+  codigo_status_processo: string
   rotulo_status_processo: string
   cor_status_processo: string
   referencia_interna_processo: string | null
@@ -82,10 +84,10 @@ function criarItemMock(
 }
 
 export const PEDIDOS_MOCK_INICIAL: Array<Pedido & { id_processo: string }> = [
-  criarPedidoMock({ id: 'ped-1', id_processo: 'proc-1', numero_pedido: 'PO-2026/001', valor_total_pedido: 45_000, nome_exportador: 'Shanghai Electronics Co.' }),
-  criarPedidoMock({ id: 'ped-2', id_processo: 'proc-1', numero_pedido: 'PO-2026/002', valor_total_pedido: 63_050, status: 'em_andamento', nome_exportador: 'Shenzhen Parts Ltd.' }),
-  criarPedidoMock({ id: 'ped-3', id_processo: 'proc-2', numero_pedido: 'PO-2026/003', valor_total_pedido: 54_200, nome_exportador: 'Korea Tech Ltd.' }),
-  criarPedidoMock({ id: 'ped-4', id_processo: 'proc-3', numero_pedido: 'PO-2026/004', valor_total_pedido: 32_900, status: 'consolidado', nome_exportador: 'Vietnam Goods SA' }),
+  criarPedidoMock({ id: 'ped-1', id_processo: 'proc-1', numero_pedido: 'PO-2026/001', valor_total_pedido: 45_000, nome_exportador: 'Shanghai Electronics Co.', referencia_importador: 'REF-IMP-001' }),
+  criarPedidoMock({ id: 'ped-2', id_processo: 'proc-1', numero_pedido: 'PO-2026/002', valor_total_pedido: 63_050, status: 'em_andamento', nome_exportador: 'Shenzhen Parts Ltd.', referencia_importador: 'REF-IMP-002' }),
+  criarPedidoMock({ id: 'ped-3', id_processo: 'proc-2', numero_pedido: 'PO-2026/003', valor_total_pedido: 54_200, nome_exportador: 'Korea Tech Ltd.', referencia_importador: 'REF-IMP-003' }),
+  criarPedidoMock({ id: 'ped-4', id_processo: 'proc-3', numero_pedido: 'PO-2026/004', valor_total_pedido: 32_900, status: 'consolidado', nome_exportador: 'Vietnam Goods SA', referencia_importador: 'REF-IMP-004' }),
 ]
 
 export const ITENS_MOCK_INICIAL: PedidoItem[] = [
@@ -102,7 +104,8 @@ export const MOCK_PROCESSOS_AVO: ProcessoAvoLinha[] = [
     id_processo: 'proc-1',
     numero_processo: 'Gravity-00001/26',
     tipo_operacao_processo: 'importacao',
-    rotulo_status_processo: 'Embarque',
+    codigo_status_processo: 's3',
+    rotulo_status_processo: 'Em Embarque',
     cor_status_processo: '#a78bfa',
     referencia_interna_processo: 'REF-ACME-0150',
     nome_importador: 'Acme Importações Ltda.',
@@ -117,7 +120,8 @@ export const MOCK_PROCESSOS_AVO: ProcessoAvoLinha[] = [
     id_processo: 'proc-2',
     numero_processo: 'Gravity-00002/26',
     tipo_operacao_processo: 'importacao',
-    rotulo_status_processo: 'Desembaraço',
+    codigo_status_processo: 's4',
+    rotulo_status_processo: 'Em Desembaraço',
     cor_status_processo: '#fbbf24',
     referencia_interna_processo: 'REF-ACME-0149',
     nome_importador: 'Acme Importações Ltda.',
@@ -132,8 +136,9 @@ export const MOCK_PROCESSOS_AVO: ProcessoAvoLinha[] = [
     id_processo: 'proc-3',
     numero_processo: 'Gravity-00003/26',
     tipo_operacao_processo: 'importacao',
+    codigo_status_processo: 's5',
     rotulo_status_processo: 'Concluído',
-    cor_status_processo: '#10b981',
+    cor_status_processo: '#34d399',
     referencia_interna_processo: 'REF-ACME-0148',
     nome_importador: 'Acme Importações Ltda.',
     nome_exportador: 'Vietnam Goods SA',

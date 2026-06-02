@@ -1,47 +1,20 @@
 /**
- * selecaoStore.ts — Estado de seleção do produto Pedido
- *
- * Centraliza pedidosSelecionados e itensSelecionados para que qualquer
- * componente possa consumir sem prop drilling, e expõe hasMixedTipos como
- * estado derivado (computed) sem recálculo disperso.
- *
- * Padrão: estado de UI do produto vive em produto/shared/state (ver state-management skill).
- * Esta store NÃO persiste — seleção é efêmera e deve resetar ao navegar.
+ * selecaoStore.ts — Estado de seleção do produto Processo (lista hierárquica).
  */
-
 import { create } from 'zustand'
 import type { Pedido, PedidoItem } from '../lista/pedidoTypes'
-
-// ── Tipos ─────────────────────────────────────────────────────────────────────
+import type { ProcessoAvoLinha } from '../lista/mockListaHierarquica'
 
 interface SelecaoState {
-  /** Pedidos pai selecionados via checkbox da tabela */
+  processosSelecionados: ProcessoAvoLinha[]
   pedidosSelecionados: Pedido[]
-
-  /** Itens filho selecionados via checkbox da tabela */
   itensSelecionados: PedidoItem[]
-
-  /**
-   * true quando a seleção contém pedidos de tipos diferentes
-   * (importacao e exportacao ao mesmo tempo).
-   *
-   * false quando:
-   * - seleção vazia
-   * - todos os pedidos são do mesmo tipo
-   */
   hasMixedTipos: boolean
-
-  /** Substitui toda a lista de pedidos selecionados e recalcula hasMixedTipos */
+  setProcessosSelecionados: (processos: ProcessoAvoLinha[]) => void
   setPedidosSelecionados: (pedidos: Pedido[]) => void
-
-  /** Substitui toda a lista de itens selecionados */
   setItensSelecionados: (itens: PedidoItem[]) => void
-
-  /** Limpa pedidos e itens selecionados */
   limparSelecao: () => void
 }
-
-// ── Derivado ──────────────────────────────────────────────────────────────────
 
 function calcularHasMixedTipos(pedidos: Pedido[]): boolean {
   if (pedidos.length === 0) return false
@@ -49,12 +22,14 @@ function calcularHasMixedTipos(pedidos: Pedido[]): boolean {
   return tipos.size > 1
 }
 
-// ── Store ─────────────────────────────────────────────────────────────────────
-
 export const useSelecaoStore = create<SelecaoState>((set) => ({
+  processosSelecionados: [],
   pedidosSelecionados: [],
   itensSelecionados: [],
   hasMixedTipos: false,
+
+  setProcessosSelecionados: (processos) =>
+    set({ processosSelecionados: processos }),
 
   setPedidosSelecionados: (pedidos) =>
     set({
@@ -67,22 +42,21 @@ export const useSelecaoStore = create<SelecaoState>((set) => ({
 
   limparSelecao: () =>
     set({
+      processosSelecionados: [],
       pedidosSelecionados: [],
       itensSelecionados: [],
       hasMixedTipos: false,
     }),
 }))
 
-// ── Selectors convenientes (evitam re-render se só um campo muda) ─────────────
-
-/** Hook para consumir apenas hasMixedTipos — não re-renderiza por mudança de lista */
 export const useHasMixedTipos = (): boolean =>
   useSelecaoStore(s => s.hasMixedTipos)
 
-/** Hook para consumir apenas pedidosSelecionados */
 export const usePedidosSelecionados = (): Pedido[] =>
   useSelecaoStore(s => s.pedidosSelecionados)
 
-/** Hook para consumir apenas itensSelecionados */
 export const useItensSelecionados = (): PedidoItem[] =>
   useSelecaoStore(s => s.itensSelecionados)
+
+export const useProcessosSelecionados = (): ProcessoAvoLinha[] =>
+  useSelecaoStore(s => s.processosSelecionados)

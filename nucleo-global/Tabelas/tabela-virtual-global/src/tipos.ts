@@ -409,9 +409,10 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   /**
    * Chamado ao confirmar edição de linha filha. Deve retornar o filho atualizado.
    *
-   * Linhas filho não recebem `opts` — só o pai tem opção de replicar.
+   * Linhas filho intermediárias (ex: pedido na lista 3 camadas) podem receber
+   * `opts.replicar_em_itens` quando o checkbox de replicação estiver visível.
    */
-  onEditarFilho?: (id: string, campo: string, valor: unknown) => Promise<C>
+  onEditarFilho?: (id: string, campo: string, valor: unknown, opts?: { replicar_em_itens?: boolean }) => Promise<C>
 
   // ── Callbacks de feedback (pai + filho) ────────────────────────────────────
   /** Chamado após qualquer edição inline salva com sucesso */
@@ -469,7 +470,12 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   permiteReplicacaoPaiEmItens?: (campo: string) => boolean
 
   /**
-   * Tooltip exibido ao passar o mouse em células que SERIAM editáveis mas
+   * Lista 3 camadas: quando retorna true, linha filho intermediária (ex: pedido)
+   * exibe checkbox "Aplicar a todos os itens" no popover de edição.
+   */
+  permiteReplicacaoFilhoEmSubfilhos?: (filho: C, campo: string) => boolean
+
+  /**
    * o usuário não tem permissão (onEditar/onEditarFilho ausente).
    * Ex: 'Sem permissão para editar'
    */

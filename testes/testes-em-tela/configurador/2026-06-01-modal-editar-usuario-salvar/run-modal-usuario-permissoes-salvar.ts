@@ -202,8 +202,9 @@ async function main() {
       { timeout: 90000 },
     ).catch(() => null)
 
+    const esperaSalvando = aguardarSalvando(editar)
     await btnSalvar.click({ timeout: 10000 })
-    const viuSalvando = await aguardarSalvando(editar)
+    const viuSalvando = await esperaSalvando
     log(viuSalvando ? '✓ Botão entrou em estado Salvando…' : '⚠ Spinner "Salvando" não detectado (footer pode estar desatualizado no bundle)')
 
     await Promise.race([putPermissoes, syncOuPut, page.waitForTimeout(5000)])

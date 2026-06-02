@@ -3,16 +3,21 @@
  * Colunas avô vazias; colunas pedido preenchidas na linha PEDIDO; item via mapa do Pedido.
  */
 import React from 'react'
+import type { TFunction } from 'i18next'
 import type { GTColuna, GTMapaColunasFilho } from '@nucleo/tabela-virtual-global'
 import type { Pedido, PedidoItem } from '../../shared/lista/pedidoTypes'
 import type { FilhoLinhaLista } from '../../shared/lista/mockListaHierarquica'
 import { buildMapaColunasFilho } from './ColunasFilho'
 import type { OpcoesUnidadesColunas } from './ColunasPai'
 import { CAMPOS_DERIVADOS_PAI } from '../../shared/lista/processoListaColunasConfig'
-
-type ItemEnriquecido = PedidoItem & {
-  _p?: Partial<Pedido> & { tipo_operacao?: string; nome_exportador?: string; nome_importador?: string; moeda_pedido?: string; status?: string }
-}
+import { getEditavel } from '../../shared/lista/columnBehaviorConfig'
+import { enriquecerMapaColunasFilhoComRegraTooltip } from '../../shared/lista/buildTooltipRegraLista'
+import { enriquecerItemComPai } from '../../shared/lista/useEdicaoListaProcesso'
+import {
+  COLUNA_AVO_PARA_CAMPO_ITEM,
+  COLUNA_AVO_PARA_CAMPO_PEDIDO,
+  COLUNAS_AVO_VAZIAS_EM_FILHO,
+} from '../../shared/lista/processoColunaAvoFilhoMap'
 
 function celulaVaziaFilho() {
   return <span className="pl-celula-vazia">—</span>
@@ -35,9 +40,12 @@ function renderCelulaPedido(col: GTColuna<Pedido>, pedido: Pedido): React.ReactN
   return String(val)
 }
 
-function pedidoEditavel(colPedido: GTColuna<Pedido> | undefined, key: string): boolean {
+function pedidoEditavel(colPedido: GTColuna<Pedido> | undefined, key: string, pedido: Pedido): boolean {
   if (!colPedido) return false
   if (CAMPOS_DERIVADOS_PAI.has(key)) return false
+  const editavelCfg = getEditavel(key)
+  if (typeof editavelCfg === 'function') return editavelCfg(pedido)
+  if (editavelCfg === false) return false
   return colPedido.editavel !== false
 }
 
@@ -50,11 +58,6 @@ function wrapEntradaMapa(
   const colPedido = colunasPedidoPorChave.get(key)
   const campoPedido = colPedido ? campoColunaPedido(colPedido) : key
 
-  function enriquecerItem(item: PedidoItem): ItemEnriquecido {
-    const pai = resolverPedido(item.pedido_id)
-    return { ...item, _p: pai }
-  }
-
   return {
     ...entrada,
     campo: entrada?.campo ?? campoPedido,
@@ -62,15 +65,17 @@ function wrapEntradaMapa(
     unidades: entrada?.unidades ?? (colPedido as GTColuna<Pedido> & { unidades?: GTMapaColunasFilho<PedidoItem>['unidades'] })?.unidades,
     casasDecimais: entrada?.casasDecimais ?? (colPedido as GTColuna<Pedido> & { casasDecimais?: number })?.casasDecimais,
     editavel: (filho) => {
-      if (filho.camada === 'pedido') return pedidoEditavel(colPedido, key)
+      if (filho.camada === 'pedido') return pedidoEditavel(colPedido, key, filho.pedido)
       if (!entrada?.editavel) return false
-      const item = enriquecerItem(filho.item)
+      const item = enriquecerItemComPai(filho.item, resolverPedido(filho.item.pedido_id) ?? filho.item as unknown as Pedido)
       return typeof entrada.editavel === 'function' ? entrada.editavel(item) : !!entrada.editavel
     },
     tooltipBloqueado: entrada?.tooltipBloqueado
       ? (filho) => {
           if (filho.camada === 'pedido') return undefined
-          const item = enriquecerItem(filho.item)
+          const pedido = resolverPedido(filho.item.pedido_id)
+          if (!pedido) return undefined
+          const item = enriquecerItemComPai(filho.item, pedido)
           return typeof entrada.tooltipBloqueado === 'function'
             ? entrada.tooltipBloqueado(item)
             : entrada.tooltipBloqueado
@@ -82,7 +87,9 @@ function wrapEntradaMapa(
         return (filho.pedido as Record<string, unknown>)[campoPedido]
       }
       if (!entrada?.getValorEditar) return undefined
-      return entrada.getValorEditar(enriquecerItem(filho.item))
+      const pedido = resolverPedido(filho.item.pedido_id)
+      if (!pedido) return undefined
+      return entrada.getValorEditar(enriquecerItemComPai(filho.item, pedido))
     },
     render: (filho) => {
       if (filho.camada === 'pedido') {
@@ -91,8 +98,9 @@ function wrapEntradaMapa(
         if (val == null || val === '') return celulaVaziaFilho()
         return String(val)
       }
-      if (entrada?.render) {
-        return entrada.render(enriquecerItem(filho.item))
+      const pedido = resolverPedido(filho.item.pedido_id)
+      if (entrada?.render && pedido) {
+        return entrada.render(enriquecerItemComPai(filho.item, pedido))
       }
       const campo = entrada?.campo ?? key
       const val = (filho.item as Record<string, unknown>)[campo]
@@ -103,18 +111,104 @@ function wrapEntradaMapa(
   }
 }
 
+function wrapEntradaMapaColunaAvo(
+  chaveAvo: string,
+  chavePedido: string,
+  chaveItem: string | undefined,
+  entrada: GTMapaColunasFilho<PedidoItem> | undefined,
+  colunasPedidoPorChave: Map<string, GTColuna<Pedido>>,
+  resolverPedido: (id_pedido: string) => Pedido | undefined,
+): GTMapaColunasFilho<FilhoLinhaLista> {
+  const base = wrapEntradaMapa(chavePedido, entrada, colunasPedidoPorChave, resolverPedido)
+  return {
+    ...base,
+    /** TVG usa col.key (avô) na edição; handleEditarFilho resolve o alias */
+    campo: chaveAvo,
+    render: (filho) => {
+      if (filho.camada === 'pedido') {
+        const colPedido = colunasPedidoPorChave.get(chavePedido)
+        if (colPedido) return renderCelulaPedido(colPedido, filho.pedido)
+        const val = (filho.pedido as Record<string, unknown>)[chavePedido]
+        if (val == null || val === '') return celulaVaziaFilho()
+        return String(val)
+      }
+      if (!chaveItem) return celulaVaziaFilho()
+      const pedido = resolverPedido(filho.item.pedido_id)
+      if (entrada?.render && pedido) {
+        return entrada.render(enriquecerItemComPai(filho.item, pedido))
+      }
+      const val = (filho.item as Record<string, unknown>)[chaveItem]
+      if (val == null || val === '') return celulaVaziaFilho()
+      if (typeof val === 'object') return '—'
+      return String(val)
+    },
+    getValorEditar: (filho) => {
+      if (filho.camada === 'pedido') {
+        const colPedido = colunasPedidoPorChave.get(chavePedido)
+        if (colPedido?.getValorEditar) return colPedido.getValorEditar(filho.pedido)
+        return (filho.pedido as Record<string, unknown>)[chavePedido]
+      }
+      if (!chaveItem) return undefined
+      const pedido = resolverPedido(filho.item.pedido_id)
+      if (entrada?.getValorEditar && pedido) {
+        return entrada.getValorEditar(enriquecerItemComPai(filho.item, pedido))
+      }
+      return (filho.item as Record<string, unknown>)[chaveItem]
+    },
+    editavel: (filho) => {
+      if (filho.camada === 'pedido') {
+        const colPedido = colunasPedidoPorChave.get(chavePedido)
+        return pedidoEditavel(colPedido, chavePedido, filho.pedido)
+      }
+      if (!chaveItem) return false
+      if (entrada?.editavel) {
+        const pedido = resolverPedido(filho.item.pedido_id)
+        if (!pedido) return false
+        const item = enriquecerItemComPai(filho.item, pedido)
+        return typeof entrada.editavel === 'function' ? entrada.editavel(item) : !!entrada.editavel
+      }
+      return false
+    },
+  }
+}
+
 export function buildMapaColunasFilhoLista(
+  t: TFunction,
   chavesAvo: ReadonlySet<string>,
   colunasPedido: GTColuna<Pedido>[],
   opcoes: OpcoesUnidadesColunas,
   resolverPedido: (id_pedido: string) => Pedido | undefined,
 ): Record<string, GTMapaColunasFilho<FilhoLinhaLista>> {
-  const mapaItem = buildMapaColunasFilho(opcoes)
+  const mapaItem = enriquecerMapaColunasFilhoComRegraTooltip(
+    buildMapaColunasFilho(t, opcoes),
+    t,
+  )
   const colunasPedidoPorChave = new Map(colunasPedido.map(c => [c.key as string, c]))
   const resultado: Record<string, GTMapaColunasFilho<FilhoLinhaLista>> = {}
 
   for (const chave of chavesAvo) {
-    resultado[chave] = { render: () => celulaVaziaFilho() }
+    if (COLUNAS_AVO_VAZIAS_EM_FILHO.has(chave)) {
+      resultado[chave] = { render: () => celulaVaziaFilho() }
+      continue
+    }
+    const chavePedido = COLUNA_AVO_PARA_CAMPO_PEDIDO[chave]
+    if (chavePedido) {
+      const chaveItem = COLUNA_AVO_PARA_CAMPO_ITEM[chave]
+      resultado[chave] = wrapEntradaMapaColunaAvo(
+        chave,
+        chavePedido,
+        chaveItem,
+        mapaItem[chavePedido] ?? mapaItem[chaveItem ?? ''],
+        colunasPedidoPorChave,
+        resolverPedido,
+      )
+      continue
+    }
+    if (colunasPedidoPorChave.has(chave) || mapaItem[chave]) {
+      resultado[chave] = wrapEntradaMapa(chave, mapaItem[chave], colunasPedidoPorChave, resolverPedido)
+    } else {
+      resultado[chave] = { render: () => celulaVaziaFilho() }
+    }
   }
 
   const chavesPedido = new Set<string>([

@@ -571,7 +571,7 @@ export function SparkAreaMini({
   )
 }
 
-const TERMOMETRO_VIEW = { w: 400, h: 200 }
+const TERMOMETRO_VIEW = { W: 400, H: 200 }
 const TERMOMETRO_PAD = { top: 14, right: 20, bottom: 24, left: 20 }
 
 /** Altura fixa do termômetro — aplicada via style inline no SVG (imune ao flex do cockpit). */

@@ -2563,8 +2563,7 @@ export default function VisaoGeral() {
   return (
     <div className="pedido-visao-geral bfd-dashboard">
       <style>{`
-        .pedido-visao-geral.bfd-dashboard {
-          padding: var(--pedido-page-pt) var(--pedido-page-px) var(--pedido-page-pb);
+        .bfd-dashboard {
           display: flex;
           flex-direction: column;
           gap: 1.5rem;
@@ -2578,29 +2577,29 @@ export default function VisaoGeral() {
         }
 
         /* ── KPI Grid ────────────────────────────────────────────── */
-        .pedido-visao-geral .bfd-kpi-grid {
-        .pedido-visao-geral .bfd-kpi {
+        .bfd-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+        .bfd-kpi {
           background: rgba(255,255,255,0.04); border-radius: 14px; padding: 1.5rem 1.75rem;
           border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 0.65rem;
           transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .pedido-visao-geral .bfd-kpi:hover {
+        .bfd-kpi:hover {
           transform: translateY(-3px);
           background: rgba(255,255,255,0.07);
           border-color: rgba(255,255,255,0.12);
         }
         
-        .pedido-visao-geral .bfd-kpi--destacado {
+        .bfd-kpi--destacado {
           border: 1px solid #f59e0b !important;
           background: rgba(245, 158, 11, 0.08) !important;
           box-shadow: 0 0 18px rgba(245, 158, 11, 0.15);
         }
-        .pedido-visao-geral .bfd-kpi--destacado:hover {
+        .bfd-kpi--destacado:hover {
           background: rgba(245, 158, 11, 0.12) !important;
           box-shadow: 0 0 24px rgba(245, 158, 11, 0.25);
         }
 
-        .pedido-visao-geral .bfd-kpi--action {
+        .bfd-kpi--action {
           cursor: pointer;
           display: flex;
           flex-direction: column;
@@ -2609,31 +2608,31 @@ export default function VisaoGeral() {
           gap: 0.85rem;
           text-align: center;
         }
-        .pedido-visao-geral .bfd-kpi--action:hover {
+        .bfd-kpi--action:hover {
           transform: translateY(-5px) !important;
           filter: brightness(1.1);
           box-shadow: 0 10px 22px rgba(59, 130, 246, 0.25);
         }
 
-        .pedido-visao-geral .bfd-kpi__header {
-        .pedido-visao-geral .bfd-kpi__icon {
-        .pedido-visao-geral .bfd-kpi__label {
-        .pedido-visao-geral .bfd-kpi__row {
-        .pedido-visao-geral .bfd-kpi__value {
-        .pedido-visao-geral .bfd-kpi__badge {
+        .bfd-kpi__header { display: flex; align-items: center; gap: 0.6rem; }
+        .bfd-kpi__icon { color: #cbd5e1; display: flex; }
+        .bfd-kpi__label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: #cbd5e1; }
+        .bfd-kpi__row { display: flex; align-items: baseline; gap: 0.65rem; }
+        .bfd-kpi__value { font-size: 2.2rem; font-weight: 700; color: #ffffff; line-height: 1.1; letter-spacing: -0.01em; }
+        .bfd-kpi__badge {
           font-size: 0.78rem; font-weight: 700; padding: 0.2rem 0.6rem;
           border-radius: 6px; letter-spacing: 0.02em;
         }
-        .pedido-visao-geral .bfd-kpi__sub {
-        .pedido-visao-geral .bfd-kpi__spark {
-        .pedido-visao-geral .bfd-kpi__spark-bar {
-        .pedido-visao-geral .bfd-kpi__spark-line {
-        .pedido-visao-geral .bfd-kpi__progress-wrap {
-        .pedido-visao-geral .bfd-kpi__progress-bg {
-        .pedido-visao-geral .bfd-kpi__progress-fill {
+        .bfd-kpi__sub { font-size: 0.85rem; color: #e2e8f0; font-weight: 500; letter-spacing: 0.02em; line-height: 1.5; }
+        .bfd-kpi__spark { display: flex; align-items: flex-end; gap: 4px; height: 32px; margin: 0.35rem 0; }
+        .bfd-kpi__spark-bar { flex: 1; border-radius: 2px; min-width: 8px; transition: height 0.3s; }
+        .bfd-kpi__spark-line { display: flex; align-items: center; height: 32px; margin: 0.35rem 0; width: 100%; }
+        .bfd-kpi__progress-wrap { display: flex; align-items: center; height: 32px; margin: 0.35rem 0; width: 100%; }
+        .bfd-kpi__progress-bg { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; width: 100%; }
+        .bfd-kpi__progress-fill { height: 100%; background: #f59e0b; border-radius: 3px; }
 
         /* ── Base Cards and Containers ───────────────────────────── */
-        .pedido-visao-geral .bfd-card {
+        .bfd-card {
           background: rgba(255, 255, 255, 0.04);
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
@@ -2645,38 +2644,38 @@ export default function VisaoGeral() {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
           transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .pedido-visao-geral .bfd-card:hover {
+        .bfd-card:hover {
           transform: translateY(-2px);
           background: rgba(255, 255, 255, 0.06);
           border-color: rgba(255, 255, 255, 0.12);
         }
 
         /* Modificadores premium com efeito glow no hover (sem borda acentuada) */
-        .pedido-visao-geral .bfd-card--accent-blue:hover {
+        .bfd-card--accent-blue:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
         }
 
-        .pedido-visao-geral .bfd-card--accent-indigo:hover {
+        .bfd-card--accent-indigo:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(129, 140, 248, 0.18) !important;
         }
 
-        .pedido-visao-geral .bfd-card--accent-purple:hover {
+        .bfd-card--accent-purple:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(167, 139, 250, 0.18) !important;
         }
 
-        .pedido-visao-geral .bfd-card--accent-emerald:hover {
+        .bfd-card--accent-emerald:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(52, 211, 153, 0.18) !important;
         }
 
-        .pedido-visao-geral .bfd-card--accent-amber:hover {
+        .bfd-card--accent-amber:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(251, 191, 36, 0.18) !important;
         }
 
-        .pedido-visao-geral .bfd-card--accent-rose:hover {
+        .bfd-card--accent-rose:hover {
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(248, 113, 113, 0.18) !important;
         }
 
-        .pedido-visao-geral .bfd-card__title {
+        .bfd-card__title {
           font-size: 1.1rem;
           font-weight: 700;
           color: #ffffff;
@@ -2684,25 +2683,23 @@ export default function VisaoGeral() {
           margin-bottom: 1.25rem;
           line-height: 1.4;
         }
-        .pedido-visao-geral .bfd-map-card {
-          padding: 1.15rem 1.5rem 3.5rem 1.5rem;
+        .bfd-map-card {
+          padding: 1.5rem 1.75rem 3.5rem 1.75rem;
           display: flex;
           flex-direction: column;
-          gap: 0.85rem;
+          gap: 1.25rem;
           position: relative;
-          min-height: 0;
-          overflow: visible;
         }
-        .pedido-visao-geral .bfd-map-card__header {
+        .bfd-map-card__header {
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
-        .pedido-visao-geral .bfd-map-legend {
+        .bfd-map-legend {
           display: flex;
           gap: 1.25rem;
         }
-        .pedido-visao-geral .bfd-map-legend__item {
+        .bfd-map-legend__item {
           display: flex;
           align-items: center;
           gap: 0.5rem;
@@ -2711,7 +2708,7 @@ export default function VisaoGeral() {
           letter-spacing: 0.02em;
           font-weight: 600;
         }
-        .pedido-visao-geral .bfd-map-legend-floating {
+        .bfd-map-legend-floating {
           position: absolute;
           left: 1.25rem;
           top: 2rem;
@@ -2728,47 +2725,21 @@ export default function VisaoGeral() {
           padding: 0.85rem 1rem;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        .pedido-visao-geral .bfd-map-container {
+        .bfd-map-container {
           position: relative;
-          flex: 1;
-          min-height: 0;
+          height: 440px;
           border-radius: 12px;
           overflow: visible;
           background: transparent;
           display: flex;
           gap: 1.5rem;
         }
-        .pedido-visao-geral .bfd-map-container--sem-painel-lateral {
-          gap: 0;
-        }
-        .pedido-visao-geral .bfd-map-container--sem-painel-lateral .bfd-map-canvas-wrapper {
-          flex: 1;
-          width: 100%;
-        }
-        .pedido-visao-geral .bfd-map-rankings-row {
-          display: contents;
-        }
-        .pedido-visao-geral .bfd-rankings-card {
-          padding: 0;
-          min-height: 0;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-        }
-        .pedido-visao-geral .bfd-rankings-card .bfd-map-right-panel {
-          flex: 1;
-          min-height: 0;
-          height: 100%;
-          border: none;
-          border-radius: 14px;
-          box-shadow: none;
-        }
-        .pedido-visao-geral .bfd-map-canvas-wrapper {
+        .bfd-map-canvas-wrapper {
           flex: 1;
           position: relative;
           height: 100%;
         }
-        .pedido-visao-geral .bfd-hud-container {
+        .bfd-hud-container {
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
@@ -2776,13 +2747,13 @@ export default function VisaoGeral() {
           height: 100%;
           min-width: 320px;
         }
-        .pedido-visao-geral .bfd-hud-container .bfd-map-legend {
+        .bfd-hud-container .bfd-map-legend {
           justify-content: flex-end;
           padding-right: 0.25rem;
         }
 
         /* ── HUD Right Panel ─────────────────────────────────────── */
-        .pedido-visao-geral .bfd-map-right-panel {
+        .bfd-map-right-panel {
           position: relative;
           width: 100%;
           flex: 1;
@@ -2800,19 +2771,19 @@ export default function VisaoGeral() {
           box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
           transition: border-color 0.4s ease, box-shadow 0.4s ease;
         }
-        .pedido-visao-geral .bfd-map-right-panel--origens {
+        .bfd-map-right-panel--origens {
           border-color: rgba(245, 158, 11, 0.25);
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(245, 158, 11, 0.1);
         }
-        .pedido-visao-geral .bfd-map-right-panel--destinos {
+        .bfd-map-right-panel--destinos {
           border-color: rgba(167, 139, 250, 0.25);
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(167, 139, 250, 0.1);
         }
-        .pedido-visao-geral .bfd-map-right-panel--modais {
+        .bfd-map-right-panel--modais {
           border-color: rgba(251, 191, 36, 0.25);
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 15px rgba(251, 191, 36, 0.1);
         }
-        .pedido-visao-geral .bfd-map-panel__live-dot {
+        .bfd-map-panel__live-dot {
           width: 6px;
           height: 6px;
           border-radius: 50%;
@@ -2832,13 +2803,13 @@ export default function VisaoGeral() {
             box-shadow: 0 0 10px #f59e0b, 0 0 16px #f59e0b;
           }
         }
-        .pedido-visao-geral .bfd-map-panel__modal-stats-grid {
+        .bfd-map-panel__modal-stats-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 0.5rem;
           margin-top: 0.5rem;
         }
-        .pedido-visao-geral .bfd-map-panel__modal-stat-box {
+        .bfd-map-panel__modal-stat-box {
           background: rgba(255, 255, 255, 0.03);
           border: 1px solid rgba(255, 255, 255, 0.05);
           border-radius: 6px;
@@ -2847,35 +2818,35 @@ export default function VisaoGeral() {
           flex-direction: column;
           gap: 2px;
         }
-        .pedido-visao-geral .bfd-map-panel__modal-stat-lbl {
+        .bfd-map-panel__modal-stat-lbl {
           font-size: 0.62rem;
           text-transform: uppercase;
           color: #94a3b8;
           font-weight: 700;
           letter-spacing: 0.05em;
         }
-        .pedido-visao-geral .bfd-map-panel__modal-stat-num {
+        .bfd-map-panel__modal-stat-num {
           font-size: 0.8rem;
           font-weight: 800;
           letter-spacing: 0.01em;
         }
-        .pedido-visao-geral .bfd-map-panel__header {
+        .bfd-map-panel__header {
           display: flex;
           flex-direction: column;
           gap: 0.2rem;
         }
-        .pedido-visao-geral .bfd-map-panel__title {
+        .bfd-map-panel__title {
           font-size: 0.98rem;
           font-weight: 700;
           color: #ffffff;
           letter-spacing: 0.02em;
         }
-        .pedido-visao-geral .bfd-map-panel__subtitle {
+        .bfd-map-panel__subtitle {
           font-size: 0.75rem;
           color: #cbd5e1;
           letter-spacing: 0.015em;
         }
-        .pedido-visao-geral .bfd-map-panel__tabs {
+        .bfd-map-panel__tabs {
           display: flex;
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid rgba(255, 255, 255, 0.06);
@@ -2883,7 +2854,7 @@ export default function VisaoGeral() {
           padding: 2px;
           gap: 2px;
         }
-        .pedido-visao-geral .bfd-map-panel__tab {
+        .bfd-map-panel__tab {
           flex: 1;
           display: flex;
           align-items: center;
@@ -2899,33 +2870,33 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .pedido-visao-geral .bfd-map-panel__tab:hover {
+        .bfd-map-panel__tab:hover {
           color: #ffffff;
           background: rgba(255, 255, 255, 0.03);
         }
-        .pedido-visao-geral .bfd-map-panel__tab.is-active {
+        .bfd-map-panel__tab.is-active {
           color: #ffffff;
           background: rgba(255, 255, 255, 0.08);
           border: 1px solid rgba(255, 255, 255, 0.1);
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         }
-        .pedido-visao-geral .bfd-map-panel__tab.is-active.tab-origens {
+        .bfd-map-panel__tab.is-active.tab-origens {
           color: #f59e0b;
           border-color: rgba(245, 158, 11, 0.2);
           background: rgba(245, 158, 11, 0.08);
         }
-        .pedido-visao-geral .bfd-map-panel__tab.is-active.tab-destinos {
+        .bfd-map-panel__tab.is-active.tab-destinos {
           color: #a78bfa;
           border-color: rgba(167, 139, 250, 0.2);
           background: rgba(167, 139, 250, 0.08);
         }
-        .pedido-visao-geral .bfd-map-panel__tab.is-active.tab-modais {
+        .bfd-map-panel__tab.is-active.tab-modais {
           color: #fbbf24;
           border-color: rgba(251, 191, 36, 0.2);
           background: rgba(251, 191, 36, 0.08);
         }
         
-        .pedido-visao-geral .bfd-map-panel__list {
+        .bfd-map-panel__list {
           overflow-y: auto;
           flex: 1;
           display: flex;
@@ -2934,22 +2905,22 @@ export default function VisaoGeral() {
           padding-right: 0.25rem;
         }
         /* Custom scrollbar */
-        .pedido-visao-geral .bfd-map-panel__list::-webkit-scrollbar {
+        .bfd-map-panel__list::-webkit-scrollbar {
           width: 4px;
         }
-        .pedido-visao-geral .bfd-map-panel__list::-webkit-scrollbar-track {
+        .bfd-map-panel__list::-webkit-scrollbar-track {
           background: rgba(255, 255, 255, 0.02);
           border-radius: 4px;
         }
-        .pedido-visao-geral .bfd-map-panel__list::-webkit-scrollbar-thumb {
+        .bfd-map-panel__list::-webkit-scrollbar-thumb {
           background: rgba(255, 255, 255, 0.15);
           border-radius: 4px;
         }
-        .pedido-visao-geral .bfd-map-panel__list::-webkit-scrollbar-thumb:hover {
+        .bfd-map-panel__list::-webkit-scrollbar-thumb:hover {
           background: rgba(255, 255, 255, 0.3);
         }
 
-        .pedido-visao-geral .bfd-map-panel__row {
+        .bfd-map-panel__row {
           display: flex;
           align-items: center;
           gap: 0.6rem;
@@ -2960,25 +2931,25 @@ export default function VisaoGeral() {
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
           cursor: default;
         }
-        .pedido-visao-geral .bfd-map-panel__row.has-link {
+        .bfd-map-panel__row.has-link {
           cursor: pointer;
         }
-        .pedido-visao-geral .bfd-map-panel__row:hover {
+        .bfd-map-panel__row:hover {
           background: rgba(255, 255, 255, 0.05);
           border-color: rgba(255, 255, 255, 0.08);
         }
-        .pedido-visao-geral .bfd-map-panel__row.is-highlighted {
+        .bfd-map-panel__row.is-highlighted {
           background: rgba(245, 158, 11, 0.08);
           border-color: rgba(245, 158, 11, 0.25);
           box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);
         }
-        .pedido-visao-geral .bfd-map-panel__row.is-highlighted-dest {
+        .bfd-map-panel__row.is-highlighted-dest {
           background: rgba(167, 139, 250, 0.08);
           border-color: rgba(167, 139, 250, 0.25);
           box-shadow: 0 0 10px rgba(167, 139, 250, 0.15);
         }
         
-        .pedido-visao-geral .bfd-map-panel__rank {
+        .bfd-map-panel__rank {
           width: 18px;
           height: 18px;
           border-radius: 50%;
@@ -2990,74 +2961,74 @@ export default function VisaoGeral() {
           color: #cbd5e1;
           border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .pedido-visao-geral .bfd-map-panel__rank--1 {
+        .bfd-map-panel__rank--1 {
           background: linear-gradient(135deg, #f59e0b, #d97706);
           color: #ffffff;
           border: none;
           box-shadow: 0 0 8px rgba(245, 158, 11, 0.35);
         }
-        .pedido-visao-geral .bfd-map-panel__rank--2 {
+        .bfd-map-panel__rank--2 {
           background: linear-gradient(135deg, #94a3b8, #64748b);
           color: #ffffff;
           border: none;
           box-shadow: 0 0 8px rgba(148, 163, 184, 0.3);
         }
-        .pedido-visao-geral .bfd-map-panel__rank--3 {
+        .bfd-map-panel__rank--3 {
           background: linear-gradient(135deg, #b45309, #78350f);
           color: #ffffff;
           border: none;
           box-shadow: 0 0 8px rgba(180, 83, 9, 0.3);
         }
         
-        .pedido-visao-geral .bfd-map-panel__row-flag {
+        .bfd-map-panel__row-flag {
           font-size: 1rem;
           line-height: 1;
         }
         
-        .pedido-visao-geral .bfd-map-panel__info-wrap {
+        .bfd-map-panel__info-wrap {
           flex: 1;
           display: flex;
           flex-direction: column;
           gap: 2px;
         }
         
-        .pedido-visao-geral .bfd-map-panel__row-header {
+        .bfd-map-panel__row-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
         
-        .pedido-visao-geral .bfd-map-panel__row-name {
+        .bfd-map-panel__row-name {
           font-size: 0.8rem;
           font-weight: 700;
           color: #ffffff;
         }
         
-        .pedido-visao-geral .bfd-map-panel__row-stats {
+        .bfd-map-panel__row-stats {
           font-size: 0.72rem;
           font-weight: 600;
         }
         
-        .pedido-visao-geral .bfd-map-panel__row-bar-wrap {
+        .bfd-map-panel__row-bar-wrap {
           height: 3px;
           background: rgba(255, 255, 255, 0.05);
           border-radius: 1.5px;
           overflow: hidden;
           width: 100%;
         }
-        .pedido-visao-geral .bfd-map-panel__row-bar-fill {
+        .bfd-map-panel__row-bar-fill {
           height: 100%;
           border-radius: 1.5px;
           transition: width 0.5s ease-out;
         }
 
-        .pedido-visao-geral .bfd-map-panel__modal-wrap {
+        .bfd-map-panel__modal-wrap {
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
           padding: 0.2rem 0;
         }
-        .pedido-visao-geral .bfd-map-panel__modal-item {
+        .bfd-map-panel__modal-item {
           background: rgba(255, 255, 255, 0.02);
           border: 1px solid rgba(255, 255, 255, 0.04);
           border-radius: 10px;
@@ -3067,16 +3038,16 @@ export default function VisaoGeral() {
           gap: 0.5rem;
           transition: all 0.2s ease;
         }
-        .pedido-visao-geral .bfd-map-panel__modal-item:hover {
+        .bfd-map-panel__modal-item:hover {
           background: rgba(255, 255, 255, 0.04);
           border-color: rgba(255, 255, 255, 0.08);
         }
-        .pedido-visao-geral .bfd-map-panel__modal-header {
+        .bfd-map-panel__modal-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-        .pedido-visao-geral .bfd-map-panel__modal-title {
+        .bfd-map-panel__modal-title {
           font-size: 0.8rem;
           font-weight: 700;
           color: #ffffff;
@@ -3084,34 +3055,34 @@ export default function VisaoGeral() {
           align-items: center;
           gap: 0.35rem;
         }
-        .pedido-visao-geral .bfd-map-panel__modal-count {
+        .bfd-map-panel__modal-count {
           font-size: 0.8rem;
           font-weight: 700;
         }
-        .pedido-visao-geral .bfd-map-panel__modal-bar-wrap {
+        .bfd-map-panel__modal-bar-wrap {
           height: 6px;
           background: rgba(255, 255, 255, 0.05);
           border-radius: 3px;
           overflow: hidden;
           width: 100%;
         }
-        .pedido-visao-geral .bfd-map-panel__modal-bar-fill {
+        .bfd-map-panel__modal-bar-fill {
           height: 100%;
           border-radius: 3px;
           transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .pedido-visao-geral .bfd-map-panel__modal-stats {
+        .bfd-map-panel__modal-stats {
           display: flex;
           justify-content: space-between;
           font-size: 0.72rem;
           color: #cbd5e1;
           font-weight: 500;
         }
-        .pedido-visao-geral .bfd-map-panel__terminal-list {
+        .bfd-map-panel__terminal-list {
           overflow-y: auto;
           flex: 1;
         }
-        .pedido-visao-geral .bfd-map-panel__terminal-item {
+        .bfd-map-panel__terminal-item {
           background: rgba(255, 255, 255, 0.02);
           border: 1px solid rgba(255, 255, 255, 0.04);
           border-radius: 8px;
@@ -3122,43 +3093,43 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .pedido-visao-geral .bfd-map-panel__terminal-item:hover, .bfd-map-panel__terminal-item.is-hovered {
+        .bfd-map-panel__terminal-item:hover, .bfd-map-panel__terminal-item.is-hovered {
           background: rgba(255, 255, 255, 0.06);
           border-color: rgba(255, 255, 255, 0.15);
           transform: translateX(4px);
         }
-        .pedido-visao-geral .bfd-map-panel__terminal-header {
+        .bfd-map-panel__terminal-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
-        .pedido-visao-geral .bfd-map-panel__terminal-name {
+        .bfd-map-panel__terminal-name {
           font-size: 0.8rem;
           color: #ffffff;
           display: flex;
           align-items: center;
           gap: 0.3rem;
         }
-        .pedido-visao-geral .bfd-map-panel__terminal-flag {
+        .bfd-map-panel__terminal-flag {
           font-size: 0.95rem;
         }
-        .pedido-visao-geral .bfd-map-panel__terminal-saving {
+        .bfd-map-panel__terminal-saving {
           font-size: 0.8rem;
           font-weight: 700;
           color: #f59e0b;
         }
-        .pedido-visao-geral .bfd-map-panel__progress-bar {
+        .bfd-map-panel__progress-bar {
           height: 4px;
           background: rgba(255, 255, 255, 0.06);
           border-radius: 2px;
           overflow: hidden;
         }
-        .pedido-visao-geral .bfd-map-panel__progress-fill {
+        .bfd-map-panel__progress-fill {
           height: 100%;
           border-radius: 2px;
           transition: width 0.4s ease;
         }
-        .pedido-visao-geral .bfd-map-panel__terminal-meta {
+        .bfd-map-panel__terminal-meta {
           display: flex;
           justify-content: space-between;
           font-size: 0.7rem;
@@ -3166,11 +3137,14 @@ export default function VisaoGeral() {
           font-weight: 500;
         }
         @media (max-width: 1023px) {
-          .pedido-visao-geral .bfd-map-rankings-row {
-            grid-template-columns: 1fr;
+          .bfd-hud-container {
+            display: none !important;
+          }
+          .bfd-map-right-panel {
+            display: none !important;
           }
         }
-        .pedido-visao-geral .bfd-map-controls {
+        .bfd-map-controls {
           position: absolute;
           bottom: -2.5rem;
           left: 50%;
@@ -3180,7 +3154,7 @@ export default function VisaoGeral() {
           z-index: 30;
           transition: left 0.3s ease, transform 0.3s ease;
         }
-        .pedido-visao-geral .bfd-map-control-btn {
+        .bfd-map-control-btn {
           width: 32px;
           height: 32px;
           border-radius: 8px;
@@ -3196,44 +3170,44 @@ export default function VisaoGeral() {
           transition: all 0.2s ease;
           outline: none;
         }
-        .pedido-visao-geral .bfd-map-control-btn:hover {
+        .bfd-map-control-btn:hover {
           background: rgba(255, 255, 255, 0.1);
           border-color: rgba(255, 255, 255, 0.2);
         }
         @media (max-width: 1023px) {
-          .pedido-visao-geral .bfd-map-controls {
+          .bfd-map-controls {
             left: 50%;
           }
         }
-        .pedido-visao-geral .bfd-map-bg {
+        .bfd-map-bg {
           position: absolute; inset: 0;
           background-position: center; background-repeat: no-repeat;
           background-size: cover; opacity: 0.55; border-radius: 12px; pointer-events: none;
         }
 
-        .pedido-visao-geral .bfd-map-pin-wrapper {
+        .bfd-map-pin-wrapper {
           position: absolute; transform: translate3d(-50%, -50%, 0); cursor: pointer; z-index: 10;
           will-change: transform;
         }
-        .pedido-visao-geral .bfd-map-pin-wrapper.is-active {
+        .bfd-map-pin-wrapper.is-active { z-index: 100; }
 
-        .pedido-visao-geral .bfd-map-pin__glow {
+        .bfd-map-pin__glow {
           position: absolute; inset: -8px; border-radius: 50%; border: 1.5px solid #f59e0b;
           opacity: 0; animation: pinPulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite; pointer-events: none;
         }
-        .pedido-visao-geral .bfd-map-pin__dot {
+        .bfd-map-pin__dot {
           width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center;
           justify-content: center; color: #000000; box-shadow: 0 0 10px rgba(245,158,11,0.4);
           transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
         }
-        .pedido-visao-geral .bfd-map-pin-wrapper:hover .bfd-map-pin__dot {
+        .bfd-map-pin-wrapper:hover .bfd-map-pin__dot {
           transform: scale(1.2); box-shadow: 0 0 15px rgba(255,255,255,0.7);
         }
-        .pedido-visao-geral .bfd-map-pin__icon-inner {
-        .pedido-visao-geral .bfd-map-pin__icon-inner svg {
+        .bfd-map-pin__icon-inner { display: flex; }
+        .bfd-map-pin__icon-inner svg { width: 13px; height: 13px; }
 
         /* ── World Map Tooltip ───────────────────────────────────── */
-        .pedido-visao-geral .bfd-map-tooltip {
+        .bfd-map-tooltip {
           position: absolute; bottom: 36px; left: 50%; transform: translate3d(-50%, 0, 0);
           width: 290px; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
@@ -3243,36 +3217,36 @@ export default function VisaoGeral() {
           animation: tooltipFadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           will-change: transform, opacity;
         }
-        .pedido-visao-geral .bfd-map-tooltip__after {
+        .bfd-map-tooltip__after {
           content: ''; position: absolute; bottom: -6px; left: 50%; transform: translate3d(-50%, 0, 0) rotate(45deg);
           width: 10px; height: 10px; background: rgba(15, 23, 42, 0.94);
           border-right: 1px solid rgba(255, 255, 255, 0.12); border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
 
-        .pedido-visao-geral .bfd-map-tooltip__header {
-        .pedido-visao-geral .bfd-map-tooltip__flag {
-        .pedido-visao-geral .bfd-map-tooltip__title-wrap {
-        .pedido-visao-geral .bfd-map-tooltip__title {
-        .pedido-visao-geral .bfd-map-tooltip__subtitle {
-        .pedido-visao-geral .bfd-map-tooltip__mode-icon {
+        .bfd-map-tooltip__header { display: flex; align-items: center; gap: 0.6rem; }
+        .bfd-map-tooltip__flag { font-size: 1.25rem; }
+        .bfd-map-tooltip__title-wrap { flex: 1; display: flex; flex-direction: column; }
+        .bfd-map-tooltip__title { font-size: 0.95rem; font-weight: 700; color: #ffffff; line-height: 1.3; letter-spacing: 0.02em; }
+        .bfd-map-tooltip__subtitle { font-size: 0.8rem; color: #cbd5e1; font-weight: 500; letter-spacing: 0.02em; }
+        .bfd-map-tooltip__mode-icon { display: flex; align-items: center; }
 
-        .pedido-visao-geral .bfd-map-tooltip__body {
+        .bfd-map-tooltip__body {
           display: flex; flex-direction: column; gap: 0.5rem; padding: 0.6rem 0;
           border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08);
         }
-        .pedido-visao-geral .bfd-map-tooltip__stat {
-        .pedido-visao-geral .bfd-map-tooltip__stat-label {
-        .pedido-visao-geral .bfd-map-tooltip__stat-val {
+        .bfd-map-tooltip__stat { display: flex; justify-content: space-between; align-items: center; }
+        .bfd-map-tooltip__stat-label { font-size: 0.8rem; color: #cbd5e1; font-weight: 500; letter-spacing: 0.02em; }
+        .bfd-map-tooltip__stat-val { font-size: 0.82rem; font-weight: 700; color: #ffffff; letter-spacing: 0.025em; }
 
-        .pedido-visao-geral .bfd-map-tooltip__footer {
-        .pedido-visao-geral .bfd-map-tooltip__supplier {
-        .pedido-visao-geral .bfd-map-tooltip__supplier strong {
+        .bfd-map-tooltip__footer { display: flex; justify-content: space-between; align-items: center; }
+        .bfd-map-tooltip__supplier { font-size: 0.8rem; color: #cbd5e1; letter-spacing: 0.02em; }
+        .bfd-map-tooltip__supplier strong { color: #ffffff; font-weight: 600; }
         
         @keyframes bfdBlink {
           0%, 100% { opacity: 0.5; }
           50% { opacity: 1; }
         }
-        .pedido-visao-geral .bfd-map-tooltip__hint {
+        .bfd-map-tooltip__hint {
           font-size: 0.72rem;
           color: #fbbf24;
           font-weight: 700;
@@ -3283,7 +3257,7 @@ export default function VisaoGeral() {
         }
 
         /* ── Premium Modal overlay ───────────────────────────────── */
-        .pedido-visao-geral .bfd-modal-mapa-overlay {
+        .bfd-modal-mapa-overlay {
           position: fixed;
           inset: 0;
           background: rgba(8, 10, 18, 0.75);
@@ -3301,7 +3275,7 @@ export default function VisaoGeral() {
           to { opacity: 1; }
         }
         
-        .pedido-visao-geral .bfd-modal-mapa-card {
+        .bfd-modal-mapa-card {
           width: 100%;
           max-width: 620px;
           max-height: 90vh;
@@ -3321,37 +3295,37 @@ export default function VisaoGeral() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        .pedido-visao-geral .bfd-modal-mapa-header {
+        .bfd-modal-mapa-header {
           padding: 1.25rem 1.5rem;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-        .pedido-visao-geral .bfd-modal-mapa-title-group {
+        .bfd-modal-mapa-title-group {
           display: flex;
           align-items: center;
           gap: 0.75rem;
         }
-        .pedido-visao-geral .bfd-modal-mapa-flag-large {
+        .bfd-modal-mapa-flag-large {
           font-size: 2.2rem;
           line-height: 1;
         }
-        .pedido-visao-geral .bfd-modal-mapa-title {
+        .bfd-modal-mapa-title {
           font-size: 1.25rem;
           font-weight: 800;
           color: #ffffff;
           letter-spacing: -0.01em;
           margin: 0;
         }
-        .pedido-visao-geral .bfd-modal-mapa-subtitle {
+        .bfd-modal-mapa-subtitle {
           font-size: 0.82rem;
           color: #cbd5e1;
           margin-top: 0.15rem;
           display: block;
           font-weight: 500;
         }
-        .pedido-visao-geral .bfd-modal-mapa-close-btn {
+        .bfd-modal-mapa-close-btn {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.08);
           color: #94a3b8;
@@ -3364,14 +3338,14 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .pedido-visao-geral .bfd-modal-mapa-close-btn:hover {
+        .bfd-modal-mapa-close-btn:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
           color: #ffffff;
           transform: rotate(90deg);
         }
 
-        .pedido-visao-geral .bfd-modal-mapa-body {
+        .bfd-modal-mapa-body {
           flex: 1;
           min-height: 0;
           padding: 1.5rem;
@@ -3381,7 +3355,7 @@ export default function VisaoGeral() {
           gap: 1.25rem;
         }
         
-        .pedido-visao-geral .bfd-route-card {
+        .bfd-route-card {
           background: rgba(255, 255, 255, 0.03);
           border: 1px solid rgba(255, 255, 255, 0.06);
           border-radius: 12px;
@@ -3395,27 +3369,27 @@ export default function VisaoGeral() {
           flex-shrink: 0;
           transition: all 0.3s ease;
         }
-        .pedido-visao-geral .bfd-route-card:hover {
+        .bfd-route-card:hover {
           background: rgba(255, 255, 255, 0.05);
           border-color: rgba(255, 255, 255, 0.15);
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
           transform: translateY(-2px);
         }
 
-        .pedido-visao-geral .bfd-route-card--importacao {
+        .bfd-route-card--importacao {
           border-left: 3px solid #f59e0b;
         }
-        .pedido-visao-geral .bfd-route-card--exportacao {
+        .bfd-route-card--exportacao {
           border-left: 3px solid #a78bfa;
         }
 
-        .pedido-visao-geral .bfd-route-header {
+        .bfd-route-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
         
-        .pedido-visao-geral .bfd-route-ports {
+        .bfd-route-ports {
           display: flex;
           align-items: center;
           gap: 0.45rem;
@@ -3424,10 +3398,10 @@ export default function VisaoGeral() {
           flex-wrap: nowrap;
         }
 
-        .pedido-visao-geral .bfd-route-port-flag {
+        .bfd-route-port-flag {
           font-size: 1.15rem;
         }
-        .pedido-visao-geral .bfd-route-port-name {
+        .bfd-route-port-name {
           font-size: 0.9rem;
           font-weight: 700;
           color: #ffffff;
@@ -3437,13 +3411,13 @@ export default function VisaoGeral() {
           max-width: 42%;
         }
         
-        .pedido-visao-geral .bfd-route-arrow-icon {
+        .bfd-route-arrow-icon {
           color: rgba(255, 255, 255, 0.4);
           font-weight: 700;
           font-size: 0.85rem;
         }
         
-        .pedido-visao-geral .bfd-route-badge {
+        .bfd-route-badge {
           font-size: 0.72rem;
           font-weight: 800;
           padding: 0.25rem 0.6rem;
@@ -3451,25 +3425,25 @@ export default function VisaoGeral() {
           letter-spacing: 0.05em;
           text-transform: uppercase;
         }
-        .pedido-visao-geral .bfd-route-badge--importacao {
+        .bfd-route-badge--importacao {
           background: rgba(245, 158, 11, 0.12);
           color: #f59e0b;
           border: 1px solid rgba(245, 158, 11, 0.2);
         }
-        .pedido-visao-geral .bfd-route-badge--exportacao {
+        .bfd-route-badge--exportacao {
           background: rgba(167, 139, 250, 0.12);
           color: #a78bfa;
           border: 1px solid rgba(167, 139, 250, 0.2);
         }
 
-        .pedido-visao-geral .bfd-route-svg-container {
+        .bfd-route-svg-container {
           position: relative;
           margin: 0.25rem 0;
           width: 100%;
           height: 30px;
         }
 
-        .pedido-visao-geral .bfd-route-mini-arco {
+        .bfd-route-mini-arco {
           position: absolute;
           top: 0.55rem;
           right: 0.65rem;
@@ -3478,7 +3452,7 @@ export default function VisaoGeral() {
           z-index: 2;
         }
 
-        .pedido-visao-geral .bfd-route-mini-arco__icon {
+        .bfd-route-mini-arco__icon {
           position: absolute;
           left: 50%;
           top: 55%;
@@ -3493,7 +3467,7 @@ export default function VisaoGeral() {
           border: 1px solid rgba(251, 191, 36, 0.35);
         }
 
-        .pedido-visao-geral .bfd-route-vencimentos {
+        .bfd-route-vencimentos {
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
@@ -3506,18 +3480,18 @@ export default function VisaoGeral() {
           position: relative;
         }
 
-        .pedido-visao-geral .bfd-route-vencimentos:has(.bfd-route-mini-timeline) {
+        .bfd-route-vencimentos:has(.bfd-route-mini-timeline) {
           padding-top: 3.1rem;
         }
 
-        .pedido-visao-geral .bfd-route-vencimentos__cols {
+        .bfd-route-vencimentos__cols {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 0.75rem;
           align-items: start;
         }
 
-        .pedido-visao-geral .bfd-route-vencimentos__col {
+        .bfd-route-vencimentos__col {
           display: flex;
           flex-direction: column;
           gap: 0.28rem;
@@ -3525,7 +3499,7 @@ export default function VisaoGeral() {
           overflow: visible;
         }
 
-        .pedido-visao-geral .bfd-route-vencimentos__titulo {
+        .bfd-route-vencimentos__titulo {
           font-size: 0.68rem;
           font-weight: 800;
           letter-spacing: 0.05em;
@@ -3534,7 +3508,7 @@ export default function VisaoGeral() {
           margin-bottom: 0.15rem;
         }
 
-        .pedido-visao-geral .bfd-route-vencimentos__linha {
+        .bfd-route-vencimentos__linha {
           display: flex;
           justify-content: space-between;
           gap: 0.5rem;
@@ -3542,19 +3516,19 @@ export default function VisaoGeral() {
           color: #cbd5e1;
         }
 
-        .pedido-visao-geral .bfd-route-vencimentos__linha strong {
+        .bfd-route-vencimentos__linha strong {
           color: #ffffff;
           font-weight: 700;
           white-space: nowrap;
         }
 
-        .pedido-visao-geral .bfd-route-vencimentos__vazio {
+        .bfd-route-vencimentos__vazio {
           font-size: 0.72rem;
           color: #64748b;
           font-style: italic;
         }
 
-        .pedido-visao-geral .bfd-route-vencimentos__resumo {
+        .bfd-route-vencimentos__resumo {
           display: flex;
           flex-direction: column;
           gap: 0.1rem;
@@ -3562,22 +3536,22 @@ export default function VisaoGeral() {
           color: #94a3b8;
         }
 
-        .pedido-visao-geral .bfd-route-vencimentos__resumo strong {
+        .bfd-route-vencimentos__resumo strong {
           font-size: 0.82rem;
         }
 
-        .pedido-visao-geral .bfd-route-vencimentos__proximo {
+        .bfd-route-vencimentos__proximo {
           font-size: 0.68rem;
           color: #94a3b8;
         }
 
-        .pedido-visao-geral .bfd-route-vencimentos__alertas {
+        .bfd-route-vencimentos__alertas {
           display: flex;
           flex-wrap: wrap;
           gap: 0.35rem;
         }
 
-        .pedido-visao-geral .bfd-route-venc-alert {
+        .bfd-route-venc-alert {
           font-size: 0.62rem;
           font-weight: 700;
           padding: 0.12rem 0.4rem;
@@ -3585,25 +3559,25 @@ export default function VisaoGeral() {
           letter-spacing: 0.02em;
         }
 
-        .pedido-visao-geral .bfd-route-venc-alert--red {
+        .bfd-route-venc-alert--red {
           background: rgba(239, 68, 68, 0.15);
           color: #fca5a5;
           border: 1px solid rgba(239, 68, 68, 0.35);
         }
 
-        .pedido-visao-geral .bfd-route-venc-alert--orange {
+        .bfd-route-venc-alert--orange {
           background: rgba(245, 158, 11, 0.15);
           color: #fcd34d;
           border: 1px solid rgba(245, 158, 11, 0.35);
         }
 
-        .pedido-visao-geral .bfd-route-vencimentos__mais {
+        .bfd-route-vencimentos__mais {
           font-size: 0.68rem;
           color: #64748b;
           font-style: italic;
         }
 
-        .pedido-visao-geral .bfd-route-ver-todos-btn {
+        .bfd-route-ver-todos-btn {
           width: 100%;
           margin-top: 0.35rem;
           padding: 0.45rem 0.75rem;
@@ -3617,26 +3591,26 @@ export default function VisaoGeral() {
           transition: background 0.15s ease, border-color 0.15s ease;
         }
 
-        .pedido-visao-geral .bfd-route-ver-todos-btn:hover {
+        .bfd-route-ver-todos-btn:hover {
           background: rgba(56, 189, 248, 0.16);
           border-color: rgba(56, 189, 248, 0.55);
         }
 
-        .pedido-visao-geral .bfd-venc-expandido {
+        .bfd-venc-expandido {
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
           min-height: 320px;
         }
 
-        .pedido-visao-geral .bfd-venc-expandido__header {
+        .bfd-venc-expandido__header {
           display: flex;
           align-items: center;
           gap: 0.75rem;
           flex-wrap: wrap;
         }
 
-        .pedido-visao-geral .bfd-venc-expandido__voltar {
+        .bfd-venc-expandido__voltar {
           background: none;
           border: none;
           color: #7dd3fc;
@@ -3646,18 +3620,18 @@ export default function VisaoGeral() {
           padding: 0;
         }
 
-        .pedido-visao-geral .bfd-venc-expandido__rota {
+        .bfd-venc-expandido__rota {
           font-size: 0.82rem;
           color: #e2e8f0;
           font-weight: 600;
         }
 
-        .pedido-visao-geral .bfd-venc-expandido__tabs {
+        .bfd-venc-expandido__tabs {
           display: flex;
           gap: 0.5rem;
         }
 
-        .pedido-visao-geral .bfd-venc-expandido__tab {
+        .bfd-venc-expandido__tab {
           flex: 1;
           display: flex;
           align-items: center;
@@ -3673,20 +3647,20 @@ export default function VisaoGeral() {
           cursor: pointer;
         }
 
-        .pedido-visao-geral .bfd-venc-expandido__tab.is-active {
+        .bfd-venc-expandido__tab.is-active {
           border-color: rgba(56, 189, 248, 0.45);
           background: rgba(56, 189, 248, 0.1);
           color: #e2e8f0;
         }
 
-        .pedido-visao-geral .bfd-venc-expandido__tab-count {
+        .bfd-venc-expandido__tab-count {
           font-size: 0.65rem;
           padding: 0.1rem 0.35rem;
           border-radius: 999px;
           background: rgba(255, 255, 255, 0.08);
         }
 
-        .pedido-visao-geral .bfd-venc-expandido__resumo-bar {
+        .bfd-venc-expandido__resumo-bar {
           display: flex;
           flex-wrap: wrap;
           gap: 0.75rem;
@@ -3698,7 +3672,7 @@ export default function VisaoGeral() {
           border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .pedido-visao-geral .bfd-venc-expandido__lista {
+        .bfd-venc-expandido__lista {
           flex: 1;
           max-height: 360px;
           overflow-y: auto;
@@ -3708,7 +3682,7 @@ export default function VisaoGeral() {
           padding: 0.35rem 0.5rem;
         }
 
-        .pedido-visao-geral .bfd-venc-expandido__linha {
+        .bfd-venc-expandido__linha {
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -3719,7 +3693,7 @@ export default function VisaoGeral() {
           border-bottom: 1px solid rgba(255, 255, 255, 0.04);
         }
 
-        .pedido-visao-geral .bfd-venc-expandido__vazio {
+        .bfd-venc-expandido__vazio {
           font-size: 0.78rem;
           color: #64748b;
           font-style: italic;
@@ -3727,7 +3701,7 @@ export default function VisaoGeral() {
           text-align: center;
         }
 
-        .pedido-visao-geral .bfd-route-mini-timeline {
+        .bfd-route-mini-timeline {
           position: absolute;
           top: 0.55rem;
           right: 0.65rem;
@@ -3743,19 +3717,19 @@ export default function VisaoGeral() {
           transition: border-color 0.15s ease, background 0.15s ease;
         }
 
-        .pedido-visao-geral .bfd-route-mini-timeline--clickable:hover {
+        .bfd-route-mini-timeline--clickable:hover {
           border-color: rgba(56, 189, 248, 0.45);
           background: rgba(56, 189, 248, 0.08);
         }
 
-        .pedido-visao-geral .bfd-timeline-expandido {
+        .bfd-timeline-expandido {
           display: flex;
           flex-direction: column;
           gap: 1rem;
           min-height: 320px;
         }
 
-        .pedido-visao-geral .bfd-timeline-expandido__legenda {
+        .bfd-timeline-expandido__legenda {
           display: flex;
           flex-wrap: wrap;
           gap: 1rem;
@@ -3763,23 +3737,23 @@ export default function VisaoGeral() {
           color: #cbd5e1;
         }
 
-        .pedido-visao-geral .bfd-timeline-expandido__legenda-item {
+        .bfd-timeline-expandido__legenda-item {
           display: inline-flex;
           align-items: center;
           gap: 0.4rem;
         }
 
-        .pedido-visao-geral .bfd-timeline-expandido__swatch {
+        .bfd-timeline-expandido__swatch {
           width: 10px;
           height: 10px;
           border-radius: 2px;
           display: inline-block;
         }
 
-        .pedido-visao-geral .bfd-timeline-expandido__swatch--pagar {
-        .pedido-visao-geral .bfd-timeline-expandido__swatch--receber {
+        .bfd-timeline-expandido__swatch--pagar { background: #f59e0b; }
+        .bfd-timeline-expandido__swatch--receber { background: #34d399; }
 
-        .pedido-visao-geral .bfd-timeline-expandido__chart-wrap {
+        .bfd-timeline-expandido__chart-wrap {
           flex: 1;
           overflow-x: auto;
           padding: 0.5rem;
@@ -3788,14 +3762,14 @@ export default function VisaoGeral() {
           background: rgba(0, 0, 0, 0.18);
         }
 
-        .pedido-visao-geral .bfd-timeline-expandido__chart {
+        .bfd-timeline-expandido__chart {
           width: 100%;
           min-width: 320px;
           height: auto;
           display: block;
         }
 
-        .pedido-visao-geral .bfd-route-cambio-icon {
+        .bfd-route-cambio-icon {
           position: absolute;
           left: 50%;
           top: 50%;
@@ -3812,7 +3786,7 @@ export default function VisaoGeral() {
           pointer-events: none;
         }
 
-        .pedido-visao-geral .bfd-route-stats {
+        .bfd-route-stats {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 0.75rem;
@@ -3820,32 +3794,32 @@ export default function VisaoGeral() {
           padding-top: 0.75rem;
           margin-top: 0.25rem;
         }
-        .pedido-visao-geral .bfd-route-stat-item {
+        .bfd-route-stat-item {
           display: flex;
           flex-direction: column;
           gap: 0.15rem;
         }
-        .pedido-visao-geral .bfd-route-stat-label {
+        .bfd-route-stat-label {
           font-size: 0.68rem;
           color: #94a3b8;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.03em;
         }
-        .pedido-visao-geral .bfd-route-stat-value {
+        .bfd-route-stat-value {
           font-size: 0.8rem;
           font-weight: 700;
           color: #ffffff;
         }
 
-        .pedido-visao-geral .bfd-modal-mapa-footer {
+        .bfd-modal-mapa-footer {
           padding: 1rem 1.5rem;
           border-top: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           justify-content: flex-end;
           background: rgba(11, 15, 28, 0.5);
         }
-        .pedido-visao-geral .bfd-modal-mapa-close-action {
+        .bfd-modal-mapa-close-action {
           padding: 0.5rem 1.25rem;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.1);
@@ -3856,12 +3830,199 @@ export default function VisaoGeral() {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .pedido-visao-geral .bfd-modal-mapa-close-action:hover {
+        .bfd-modal-mapa-close-action:hover {
           background: rgba(255, 255, 255, 0.12);
           border-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* ── Globe Map + Câmbio Row ───────────────────────────────── */
+        /* ── Charts Grid ─────────────────────────────────────────── */
+        .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1.25rem; }
+        .bfd-charts-grid .bfd-card { height: 380px; }
+        .bfd-chart-svg { width: 100%; max-height: 230px; height: auto; display: block; margin: auto 0; }
+        .bfd-chart__legend { display: flex; gap: 1.25rem; margin-top: auto; padding-top: 0.75rem; justify-content: center; }
+        .bfd-chart__legend span { font-size: 0.85rem; color: #cbd5e1; letter-spacing: 0.02em; display: flex; align-items: center; gap: 8px; font-weight: 500; }
+        .bfd-chart__legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .bfd-chart__subtitle { font-size: 0.82rem; color: #cbd5e1; letter-spacing: 0.02em; text-align: right; margin-bottom: 0.5rem; font-weight: 500; }
+
+        /* ── Column Chart Hovers ─────────────────────────────────── */
+        .bfd-chart-bar-group {
+          cursor: pointer;
+          transform-origin: bottom;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bfd-chart-bar-group:hover {
+          transform: translateY(-4px);
+        }
+        .bfd-chart-bar-group text {
+          transition: fill 0.2s ease, font-size 0.2s ease;
+        }
+        .bfd-chart-bar-group:hover .bfd-chart-total-text {
+          fill: #ffffff;
+          font-weight: 800;
+        }
+        .bfd-chart-svg:has(.bfd-chart-bar-group:hover) .bfd-chart-bar-group:not(:hover) {
+          opacity: 0.35;
+        }
+
+        /* ── Câmbio ──────────────────────────────────────────────── */
+        .bfd-cambio { display: flex; flex-direction: column; gap: 0; margin: auto 0; }
+        .bfd-cambio__row {
+          display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 0;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .bfd-cambio__row:last-child { border-bottom: none; }
+        .bfd-cambio__code { font-size: 0.85rem; font-weight: 700; color: #ffffff; min-width: 44px; letter-spacing: 0.02em; }
+        .bfd-cambio__val { font-size: 0.85rem; color: #cbd5e1; flex: 1; letter-spacing: 0.02em; font-weight: 600; }
+        .bfd-cambio__var {
+          font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; letter-spacing: 0.01em;
+        }
+
+        /* ── Insights Grid ───────────────────────────────────────── */
+        .bfd-insights-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem; }
+
+        /* ── Melhor cotação ──────────────────────────────────────── */
+        .bfd-best { display: flex; flex-direction: column; gap: 0.85rem; }
+        .bfd-best__route { display: flex; align-items: center; justify-content: space-between; }
+        .bfd-best__port { text-align: center; }
+        .bfd-best__port-flag { font-size: 1.1rem; font-weight: 700; color: #ffffff; letter-spacing: 0.02em; }
+        .bfd-best__port-code { font-size: 0.82rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 600; }
+        .bfd-best__arrow { display: flex; align-items: center; gap: 0.25rem; color: #cbd5e1; flex: 1; justify-content: center; }
+        .bfd-best__arrow-line { height: 1px; flex: 1; background: rgba(255,255,255,0.15); max-width: 120px; }
+        .bfd-best__arrow-tt { font-size: 0.78rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 600; }
+        .bfd-best__saving {
+          display: flex; align-items: center; gap: 0.75rem;
+        }
+        .bfd-best__saving-badge {
+          font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 6px;
+          background: rgba(245, 158, 11, 0.12); color: #f59e0b; display: flex; align-items: center; gap: 4px;
+          letter-spacing: 0.01em;
+        }
+        .bfd-best__saving-val { font-size: 1.45rem; font-weight: 800; color: #f59e0b; letter-spacing: 0.02em; }
+        .bfd-best__meta { font-size: 0.82rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 500; line-height: 1.5; }
+
+        /* ── Donut ───────────────────────────────────────────────── */
+        .bfd-donut { display: flex; align-items: center; gap: 1.75rem; margin: auto 0; }
+        .bfd-donut__legend { display: flex; flex-direction: column; gap: 0.75rem; flex: 1; }
+        .bfd-donut__legend-row { display: flex; align-items: center; gap: 0.6rem; }
+        .bfd-donut__legend-icon { color: #cbd5e1; display: flex; }
+        .bfd-donut__legend-label { font-size: 0.85rem; color: #cbd5e1; min-width: 80px; letter-spacing: 0.02em; font-weight: 600; }
+        .bfd-donut__legend-bar { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+        .bfd-donut__legend-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+        .bfd-donut__legend-count { font-size: 0.88rem; font-weight: 700; min-width: 28px; text-align: right; color: #ffffff; }
+        .bfd-donut__legend-pct { font-size: 0.82rem; color: #cbd5e1; min-width: 32px; text-align: right; letter-spacing: 0.02em; font-weight: 500; }
+
+        /* ── Funil ───────────────────────────────────────────────── */
+        .bfd-funil { display: flex; flex-direction: column; gap: 0.55rem; }
+        .bfd-funil__row { display: flex; align-items: center; gap: 0.6rem; }
+        .bfd-funil__label { font-size: 0.85rem; color: #cbd5e1; min-width: 155px; white-space: nowrap; letter-spacing: 0.02em; font-weight: 600; }
+        .bfd-funil__bar-wrap { flex: 1; height: 14px; background: rgba(255,255,255,0.04); border-radius: 4px; overflow: hidden; }
+        .bfd-funil__bar { height: 100%; border-radius: 4px; transition: width 0.4s; }
+        .bfd-funil__count { font-size: 0.88rem; font-weight: 700; color: #ffffff; min-width: 24px; text-align: right; }
+        .bfd-funil__pct { font-size: 0.82rem; color: #cbd5e1; min-width: 32px; text-align: right; letter-spacing: 0.02em; font-weight: 500; }
+
+        /* ── Top Incoterms ───────────────────────────────────────── */
+        .bfd-incoterms { display: flex; flex-direction: column; gap: 0.45rem; }
+        .bfd-incoterms__row { display: flex; align-items: center; justify-content: space-between; padding: 0.45rem 0; }
+        .bfd-incoterms__code { font-size: 0.88rem; font-weight: 700; color: #ffffff; letter-spacing: 0.03em; }
+        .bfd-incoterms__count { font-size: 0.85rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 600; }
+
+        /* ── Bottom Grid ─────────────────────────────────────────── */
+        .bfd-bottom-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+
+        /* ── Taxa ────────────────────────────────────────────────── */
+        .bfd-taxa { display: flex; align-items: center; gap: 1.25rem; }
+        .bfd-taxa__legend { display: flex; flex-direction: column; gap: 0.5rem; }
+        .bfd-taxa__legend-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; color: #cbd5e1; font-weight: 600; letter-spacing: 0.02em; line-height: 1.5; }
+        .bfd-taxa__dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        /* ── Alertas ─────────────────────────────────────────────── */
+        .bfd-alertas { display: flex; flex-direction: column; gap: 0.85rem; }
+        .bfd-alertas__nav { display: flex; align-items: center; gap: 0.6rem; justify-content: flex-end; margin-bottom: 0.5rem; }
+        .bfd-alertas__nav button {
+          background: none; border: none; cursor: pointer; color: #94a3b8; display: flex; align-items: center; transition: color 0.15s;
+        }
+        .bfd-alertas__nav button:hover { color: #ffffff; }
+        .bfd-alertas__nav span { font-size: 0.82rem; color: #cbd5e1; font-weight: 600; letter-spacing: 0.02em; }
+        .bfd-alertas__pills { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .bfd-alertas__pill {
+          display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 1rem;
+          border-radius: 8px; font-size: 0.85rem; color: #cbd5e1; font-weight: 600; letter-spacing: 0.02em;
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+        }
+        .bfd-alertas__pill-count { font-weight: 800; font-size: 0.9rem; }
+
+        /* ── Footer ──────────────────────────────────────────────── */
+        .bfd-footer { text-align: center; font-size: 0.8rem; color: #cbd5e1; padding: 0.75rem 0; opacity: 0.8; letter-spacing: 0.02em; font-weight: 500; }
+
+        /* ── Animations ──────────────────────────────────────────── */
+        @keyframes pinPulse {
+          0% { transform: scale(0.8); opacity: 0.8; }
+          100% { transform: scale(2.4); opacity: 0; }
+        }
+        @keyframes tooltipFadeUp {
+          from { opacity: 0; transform: translate3d(-50%, 8px, 0); }
+          to { opacity: 1; transform: translate3d(-50%, 0, 0); }
+        }
+
+        /* ── Responsive ──────────────────────────────────────────── */
+        @media (max-width: 1200px) {
+          .bfd-kpi-grid { grid-template-columns: repeat(3, 1fr); }
+          .bfd-charts-grid { grid-template-columns: 1fr; }
+          .bfd-insights-grid { grid-template-columns: 1fr; }
+          .bfd-bottom-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+          .bfd-kpi-grid { grid-template-columns: repeat(1, 1fr); }
+        }
+      
+        /* ── Escopo Pedido (evita vazamento para Bid Frete Internacional) ── */
+        .pedido-visao-geral.bfd-dashboard {
+          padding: var(--pedido-page-pt) var(--pedido-page-px) var(--pedido-page-pb);
+        }
+        .pedido-visao-geral .bfd-map-rankings-row {
+          display: contents;
+        }
+        .pedido-visao-geral .bfd-map-card {
+          padding: 1.15rem 1.5rem 3.5rem 1.5rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.85rem;
+          position: relative;
+          min-height: 0;
+          overflow: visible;
+        }
+        .pedido-visao-geral .bfd-map-container {
+          position: relative;
+          flex: 1;
+          min-height: 0;
+          border-radius: 12px;
+          overflow: visible;
+          background: transparent;
+          display: flex;
+          gap: 1.5rem;
+        }
+        .pedido-visao-geral .bfd-map-container--sem-painel-lateral {
+          gap: 0;
+        }
+        .pedido-visao-geral .bfd-map-container--sem-painel-lateral .bfd-map-canvas-wrapper {
+          flex: 1;
+          width: 100%;
+        }
+        .pedido-visao-geral .bfd-rankings-card {
+          padding: 0;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .pedido-visao-geral .bfd-rankings-card .bfd-map-right-panel {
+          flex: 1;
+          min-height: 0;
+          height: 100%;
+          border: none;
+          border-radius: 14px;
+          box-shadow: none;
+        }
         .pedido-visao-geral .bfd-globe-row {
           display: grid;
           grid-template-columns: minmax(0, 1fr) 320px minmax(280px, 0.72fr);
@@ -3877,8 +4038,8 @@ export default function VisaoGeral() {
           min-height: 0;
           overflow: hidden;
         }
-        .bfd-globe-row .bfd-map-card,
-        .bfd-globe-row .bfd-rankings-card,
+        .pedido-visao-geral .bfd-globe-row .bfd-map-card,
+        .pedido-visao-geral .bfd-globe-row .bfd-rankings-card,
         .pedido-visao-geral .bfd-globe-row .bfd-globe-row__coluna-direita {
           min-height: var(--bfd-visao-geral-linha-altura);
           max-height: var(--bfd-visao-geral-linha-altura);
@@ -3930,8 +4091,8 @@ export default function VisaoGeral() {
             grid-template-columns: 1fr;
             gap: 1.25rem;
           }
-          .bfd-globe-row .bfd-map-card,
-          .bfd-globe-row .bfd-rankings-card,
+          .pedido-visao-geral .bfd-globe-row .bfd-map-card,
+          .pedido-visao-geral .bfd-globe-row .bfd-rankings-card,
           .pedido-visao-geral .bfd-globe-row .bfd-globe-row__coluna-direita {
             min-height: 0;
             max-height: none;
@@ -3940,147 +4101,12 @@ export default function VisaoGeral() {
             min-height: 280px;
           }
         }
-
-        /* ── Charts Grid ─────────────────────────────────────────── */
-        .pedido-visao-geral .bfd-charts-grid {
-        .pedido-visao-geral .bfd-charts-grid .bfd-card {
-        .pedido-visao-geral .bfd-chart-svg {
-        .pedido-visao-geral .bfd-chart__legend {
-        .pedido-visao-geral .bfd-chart__legend span {
-        .pedido-visao-geral .bfd-chart__legend-dot {
-        .pedido-visao-geral .bfd-chart__subtitle {
-
-        /* ── Column Chart Hovers ─────────────────────────────────── */
-        .pedido-visao-geral .bfd-chart-bar-group {
-          cursor: pointer;
-          transform-origin: bottom;
-          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        @media (max-width: 1023px) {
+          .pedido-visao-geral .bfd-map-rankings-row {
+            grid-template-columns: 1fr;
+          }
         }
-        .pedido-visao-geral .bfd-chart-bar-group:hover {
-          transform: translateY(-4px);
-        }
-        .pedido-visao-geral .bfd-chart-bar-group text {
-          transition: fill 0.2s ease, font-size 0.2s ease;
-        }
-        .pedido-visao-geral .bfd-chart-bar-group:hover .bfd-chart-total-text {
-          fill: #ffffff;
-          font-weight: 800;
-        }
-        .pedido-visao-geral .bfd-chart-svg:has(.bfd-chart-bar-group:hover) .bfd-chart-bar-group:not(:hover) {
-          opacity: 0.35;
-        }
-
-        /* ── Câmbio ──────────────────────────────────────────────── */
-        .pedido-visao-geral .bfd-cambio {
-        .pedido-visao-geral .bfd-cambio__row {
-          display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 0;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .pedido-visao-geral .bfd-cambio__row:last-child {
-        .pedido-visao-geral .bfd-cambio__code {
-        .pedido-visao-geral .bfd-cambio__val {
-        .pedido-visao-geral .bfd-cambio__var {
-          font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; letter-spacing: 0.01em;
-        }
-
-        /* ── Insights Grid ───────────────────────────────────────── */
-        .pedido-visao-geral .bfd-insights-grid {
-
-        /* ── Melhor cotação ──────────────────────────────────────── */
-        .pedido-visao-geral .bfd-best {
-        .pedido-visao-geral .bfd-best__route {
-        .pedido-visao-geral .bfd-best__port {
-        .pedido-visao-geral .bfd-best__port-flag {
-        .pedido-visao-geral .bfd-best__port-code {
-        .pedido-visao-geral .bfd-best__arrow {
-        .pedido-visao-geral .bfd-best__arrow-line {
-        .pedido-visao-geral .bfd-best__arrow-tt {
-        .pedido-visao-geral .bfd-best__saving {
-          display: flex; align-items: center; gap: 0.75rem;
-        }
-        .pedido-visao-geral .bfd-best__saving-badge {
-          font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 6px;
-          background: rgba(245, 158, 11, 0.12); color: #f59e0b; display: flex; align-items: center; gap: 4px;
-          letter-spacing: 0.01em;
-        }
-        .pedido-visao-geral .bfd-best__saving-val {
-        .pedido-visao-geral .bfd-best__meta {
-
-        /* ── Donut ───────────────────────────────────────────────── */
-        .pedido-visao-geral .bfd-donut {
-        .pedido-visao-geral .bfd-donut__legend {
-        .pedido-visao-geral .bfd-donut__legend-row {
-        .pedido-visao-geral .bfd-donut__legend-icon {
-        .pedido-visao-geral .bfd-donut__legend-label {
-        .pedido-visao-geral .bfd-donut__legend-bar {
-        .pedido-visao-geral .bfd-donut__legend-bar-fill {
-        .pedido-visao-geral .bfd-donut__legend-count {
-        .pedido-visao-geral .bfd-donut__legend-pct {
-
-        /* ── Funil ───────────────────────────────────────────────── */
-        .pedido-visao-geral .bfd-funil {
-        .pedido-visao-geral .bfd-funil__row {
-        .pedido-visao-geral .bfd-funil__label {
-        .pedido-visao-geral .bfd-funil__bar-wrap {
-        .pedido-visao-geral .bfd-funil__bar {
-        .pedido-visao-geral .bfd-funil__count {
-        .pedido-visao-geral .bfd-funil__pct {
-
-        /* ── Top Incoterms ───────────────────────────────────────── */
-        .pedido-visao-geral .bfd-incoterms {
-        .pedido-visao-geral .bfd-incoterms__row {
-        .pedido-visao-geral .bfd-incoterms__code {
-        .pedido-visao-geral .bfd-incoterms__count {
-
-        /* ── Bottom Grid ─────────────────────────────────────────── */
-        .pedido-visao-geral .bfd-bottom-grid {
-
-        /* ── Taxa ────────────────────────────────────────────────── */
-        .pedido-visao-geral .bfd-taxa {
-        .pedido-visao-geral .bfd-taxa__legend {
-        .pedido-visao-geral .bfd-taxa__legend-row {
-        .pedido-visao-geral .bfd-taxa__dot {
-
-        /* ── Alertas ─────────────────────────────────────────────── */
-        .pedido-visao-geral .bfd-alertas {
-        .pedido-visao-geral .bfd-alertas__nav {
-        .pedido-visao-geral .bfd-alertas__nav button {
-          background: none; border: none; cursor: pointer; color: #94a3b8; display: flex; align-items: center; transition: color 0.15s;
-        }
-        .pedido-visao-geral .bfd-alertas__nav button:hover {
-        .pedido-visao-geral .bfd-alertas__nav span {
-        .pedido-visao-geral .bfd-alertas__pills {
-        .pedido-visao-geral .bfd-alertas__pill {
-          display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 1rem;
-          border-radius: 8px; font-size: 0.85rem; color: #cbd5e1; font-weight: 600; letter-spacing: 0.02em;
-          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
-        }
-        .pedido-visao-geral .bfd-alertas__pill-count {
-
-        /* ── Footer ──────────────────────────────────────────────── */
-        .pedido-visao-geral .bfd-footer {
-
-        /* ── Animations ──────────────────────────────────────────── */
-        @keyframes pinPulse {
-          0% { transform: scale(0.8); opacity: 0.8; }
-          100% { transform: scale(2.4); opacity: 0; }
-        }
-        @keyframes tooltipFadeUp {
-          from { opacity: 0; transform: translate3d(-50%, 8px, 0); }
-          to { opacity: 1; transform: translate3d(-50%, 0, 0); }
-        }
-
-        /* ── Responsive ──────────────────────────────────────────── */
-        @media (max-width: 1200px) {
-          .pedido-visao-geral .bfd-kpi-grid {
-          .pedido-visao-geral .bfd-charts-grid {
-          .pedido-visao-geral .bfd-insights-grid {
-          .pedido-visao-geral .bfd-bottom-grid {
-        }
-        @media (max-width: 768px) {
-          .pedido-visao-geral .bfd-kpi-grid {
-        }
-      `}</style>
+`}</style>
 
       {/* KPIs Grid — status configuráveis em Configurações → Visão Geral */}
       <div className="bfd-kpi-grid">

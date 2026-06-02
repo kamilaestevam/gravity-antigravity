@@ -678,7 +678,7 @@ export function VisaoGeralMapaBidFrete({
   descricaoTransit,
   painelRankingsSubtitulo = 'Rankings em tempo real • 200 bids',
   exibirPainelLateralMapa = true,
-  vistaInicialMapa = 'globo',
+  vistaInicialMapa = 'mapa',
 }: VisaoGeralMapaBidFreteProps) {
   const descricaoMapaTransit =
     descricaoTransit ?? 'Benchmarking de Transit Time global (Sua Empresa vs. Média de Mercado)'

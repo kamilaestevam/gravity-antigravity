@@ -826,7 +826,8 @@ export default function VisaoGeral() {
       {/* Row 2: Globe Map + Right Column (Alertas on top, Funil de Cotações on bottom) */}
       <div className="bfd-globe-row">
         {/* Global World Map Overview Section */}
-        <VisaoGeralMapa 
+        <VisaoGeralMapa
+          vistaInicialMapa="mapa"
           onOpenCompleto={(route) => {
             setSelectedAlertContextCompleto({
               tipo: 'route',

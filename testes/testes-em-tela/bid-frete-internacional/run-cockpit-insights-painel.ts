@@ -61,32 +61,81 @@ async function autenticarClerk(page: Page): Promise<boolean> {
   return true
 }
 
+async function buscarIdCotacaoPorCodigo(page: Page, codigo: string): Promise<string | null> {
+  const token = await page.evaluate(async () => {
+    const clerkGlobal = (window as unknown as { Clerk?: { session?: { getToken: () => Promise<string | null> } } }).Clerk
+    return clerkGlobal?.session?.getToken() ?? null
+  })
+  if (!token) return null
+
+  const authHeaders = { Authorization: `Bearer ${token}` }
+  const codigoLower = codigo.toLowerCase()
+
+  type CotacaoApi = {
+    id_cotacao_bid_frete_internacional?: string
+    numero_bid_bid_frete_internacional?: string
+    numero_cotacao_bid_frete_internacional?: string
+  }
+
+  const numeroCotacao = (c: CotacaoApi) =>
+    (c.numero_bid_bid_frete_internacional ?? c.numero_cotacao_bid_frete_internacional ?? '').toLowerCase()
+
+  const achar = (lista: CotacaoApi[]) =>
+    lista.find((c) => {
+      const n = numeroCotacao(c)
+      return n.includes(codigoLower) || codigoLower.includes(n)
+    })?.id_cotacao_bid_frete_internacional ?? null
+
+  const resCotacoes = await fetch(
+    `${BASE_UI}/api/v1/bid-frete-internacional/cotacoes?limit=100&busca=${encodeURIComponent(codigo)}`,
+    { headers: authHeaders },
+  )
+  if (resCotacoes.ok) {
+    const data = await resCotacoes.json() as { cotacoes?: CotacaoApi[] }
+    const id = achar(data.cotacoes ?? [])
+    if (id) return id
+  }
+
+  const resBids = await fetch(`${BASE_UI}/api/v1/bid-frete-internacional/bids-frete-internacional`, { headers: authHeaders })
+  if (resBids.ok) {
+    const data = await resBids.json() as {
+      bids_frete_internacional?: Array<{ cotacoes?: CotacaoApi[] }>
+      bids?: Array<{ cotacoes?: CotacaoApi[] }>
+    }
+    const bids = data.bids_frete_internacional ?? data.bids ?? []
+    for (const bid of bids) {
+      const id = achar(bid.cotacoes ?? [])
+      if (id) return id
+    }
+  }
+
+  return null
+}
+
 async function resolverUrlDetalheCotacao(page: Page): Promise<string> {
   if (ID_COTACAO) {
     return `${BASE_UI}/bid-frete/cotacoes/${ID_COTACAO}`
   }
 
+  const idViaApi = await buscarIdCotacaoPorCodigo(page, CODIGO_COTACAO)
+  if (idViaApi) {
+    log(`✓ Cotação resolvida via API: ${CODIGO_COTACAO} → ${idViaApi}`)
+    return `${BASE_UI}/bid-frete/cotacoes/${idViaApi}`
+  }
+
   await page.goto(`${BASE_UI}/bid-frete/lista`, { waitUntil: 'domcontentloaded', timeout: 45000 })
-  await page.waitForSelector('.dc-cockpit-insights-row, .bid-frete-lista, [data-testid="lista-bid-frete"]', { timeout: 30000 }).catch(() => {})
 
-  const linkPorCodigo = page.getByRole('link', { name: new RegExp(CODIGO_COTACAO.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) })
-  if (await linkPorCodigo.count()) {
-    const href = await linkPorCodigo.first().getAttribute('href')
-    if (href) {
-      log(`✓ Cotação encontrada na lista: ${CODIGO_COTACAO}`)
-      return href.startsWith('http') ? href : `${BASE_UI}${href}`
-    }
-  }
+  const busca = page.getByPlaceholder(/Buscar por processo/i)
+  await busca.waitFor({ state: 'visible', timeout: 30000 })
+  await busca.fill(CODIGO_COTACAO)
+  await page.waitForTimeout(1200)
 
-  const linha = page.locator('tr, [role="row"], .lista-linha').filter({ hasText: CODIGO_COTACAO }).first()
-  if (await linha.count()) {
-    await linha.click()
-    await page.waitForURL(/\/bid-frete\/cotacoes\//, { timeout: 20000 })
-    log(`✓ Abriu detalhe via clique na linha: ${CODIGO_COTACAO}`)
-    return page.url()
-  }
-
-  throw new Error(`Cotação ${CODIGO_COTACAO} não encontrada — defina E2E_COTACAO_ID`)
+  const celula = page.getByText(CODIGO_COTACAO, { exact: false }).first()
+  await celula.waitFor({ state: 'visible', timeout: 30000 })
+  await celula.click()
+  await page.waitForURL(/\/bid-frete\/cotacoes\/[^/]+/, { timeout: 20000 })
+  log(`✓ Abriu detalhe via lista: ${CODIGO_COTACAO}`)
+  return page.url()
 }
 
 async function main() {

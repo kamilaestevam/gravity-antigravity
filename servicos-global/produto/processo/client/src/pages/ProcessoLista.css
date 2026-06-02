@@ -235,6 +235,19 @@
  * @nucleo/tabela-virtual-global/FiltrosColuna.css (refactor D9 — 2026-05-13).
  * Importado pelo Pedidos.tsx no topo. */
 
+/* ── Hierarquia 3 camadas — tokens (PADRAO-UX Processo + badges PEDIDO/ITEM) ─ */
+.pl-page {
+  --pl-linha-processo: #a78bfa;
+  --pl-linha-pedido: #60a5fa;
+  --pl-linha-pedido-suave: #93c5fd;
+  --pl-linha-pedido-borda: rgba(96, 165, 250, 0.38);
+  --pl-linha-pedido-conector: rgba(96, 165, 250, 0.62);
+  --pl-linha-item: #34d399;
+  --pl-linha-item-suave: #6ee7b7;
+  --pl-linha-item-borda: rgba(52, 211, 153, 0.32);
+  --pl-linha-item-conector: rgba(52, 211, 153, 0.58);
+}
+
 /* ── Badges camada 2/3 (ProcessoLista) ───────────────────────────────────── */
 .pl-page .pl-camada {
   display: inline-block;
@@ -247,10 +260,63 @@
 }
 .pl-page .pl-camada--pedido {
   background: rgba(96, 165, 250, 0.15);
-  color: #93c5fd;
+  color: var(--pl-linha-pedido-suave);
+  border: 1px solid rgba(96, 165, 250, 0.22);
 }
 .pl-page .pl-camada--item {
   background: rgba(52, 211, 153, 0.12);
-  color: #6ee7b7;
+  color: var(--pl-linha-item-suave);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+/* ── Bordas laterais das linhas filhas (L2 azul · L3 verde) ──────────────── */
+.pl-page .pl-linha--pedido.gtv-linha--filho {
+  border-left: 2px solid var(--pl-linha-pedido-borda);
+  border-right: none;
+}
+
+.pl-page .pl-linha--item.gtv-linha--filho {
+  border-left: 2px solid var(--pl-linha-item-borda);
+  border-right: none;
+  background: rgba(8, 16, 32, 0.42);
+}
+
+.pl-page .pl-linha--item.gtv-linha--filho .gtv-celula {
+  color: #cbd5e1;
+  font-weight: 400;
+}
+
+.pl-page .pl-linha--pedido.gtv-linha--filho-ultimo:not(.pl-linha--item) {
+  border-bottom: 1px solid var(--pl-linha-pedido-borda);
+}
+
+.pl-page .pl-linha--item.gtv-linha--filho-ultimo {
+  border-bottom: 1px solid var(--pl-linha-item-borda);
+}
+
+/* ── Conectores └ e chevron pedido→item ──────────────────────────────────── */
+.pl-page .pl-conector-pedido {
+  color: var(--pl-linha-pedido-conector);
+}
+
+.pl-page .pl-pedido-chevron:hover {
+  background: rgba(96, 165, 250, 0.12);
+  border-color: rgba(96, 165, 250, 0.28);
+  color: var(--pl-linha-pedido-suave);
+}
+
+.pl-page .pl-conector-item {
+  margin-left: 6px;
+  color: var(--pl-linha-item-conector);
+  opacity: 1;
+}
+
+.pl-page .pl-conector-vazio {
+  color: rgba(148, 163, 184, 0.35);
+  opacity: 1;
+}
+
+.pl-page .pl-pedido-chevron {
+  margin-left: 2px;
 }
 

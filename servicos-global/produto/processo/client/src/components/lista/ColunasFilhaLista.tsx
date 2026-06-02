@@ -38,10 +38,15 @@ export function buildColunasFilhaLista(t: TFunction): GTColuna<FilhoLinhaLista>[
       align: 'center',
       render: (_v, l) => {
         if (l.camada === 'pedido') {
+          const cor = getStatusCor(l.pedido.status)
           return (
             <StatusBadgeGlobal
-              label={getStatusLabel(l.pedido.status, t)}
-              cor={getStatusCor(l.pedido.status)}
+              valor={getStatusLabel(l.pedido.status, t)}
+              style={{
+                color: cor,
+                background: `${cor}20`,
+                border: `1px solid ${cor}33`,
+              }}
             />
           )
         }

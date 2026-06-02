@@ -18,19 +18,25 @@ import { buildColunasAvo } from '../components/lista/ColunasAvo'
 import { buildColunasFilhaLista } from '../components/lista/ColunasFilhaLista'
 import {
   MOCK_PROCESSOS_AVO,
-  filhosDoProcesso,
+  filhosVisiveisDoProcesso,
   idFilhoLinha,
+  todosIdsPedidoMock,
   type FilhoLinhaLista,
   type ProcessoAvoLinha,
 } from '../shared/lista/mockListaHierarquica'
-import { TodosProcessosTabs } from '../todos/TodosProcessosTabs'
-import '../todos/TodosProcessos.css'
+import { ConectorFilhoLista } from '../components/lista/ConectorFilhoLista'
+import { TodosProcessosTabs } from './todos/TodosProcessosTabs'
+import './todos/TodosProcessos.css'
 import './ProcessoLista.css'
 
 export default function ProcessoLista() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [busca, setBusca] = useState('')
+  const [pedidosExpandidos, setPedidosExpandidos] = useState<Set<string>>(
+    () => new Set(todosIdsPedidoMock()),
+  )
+  const [resetCacheFilhos, setResetCacheFilhos] = useState(0)
 
   const colunasAvo = useMemo(() => buildColunasAvo(t), [t])
   const colunasFilhas = useMemo(() => buildColunasFilhaLista(t), [t])
@@ -46,9 +52,19 @@ export default function ProcessoLista() {
     )
   }, [buscaNorm])
 
-  const handleCarregarFilhos = useCallback(async (processo: ProcessoAvoLinha) => {
-    return filhosDoProcesso(processo.id_processo)
+  const togglePedidoItens = useCallback((id_pedido: string) => {
+    setPedidosExpandidos(prev => {
+      const next = new Set(prev)
+      if (next.has(id_pedido)) next.delete(id_pedido)
+      else next.add(id_pedido)
+      return next
+    })
+    setResetCacheFilhos(n => n + 1)
   }, [])
+
+  const handleCarregarFilhos = useCallback(async (processo: ProcessoAvoLinha) => {
+    return filhosVisiveisDoProcesso(processo.id_processo, pedidosExpandidos)
+  }, [pedidosExpandidos])
 
   const acoesProcesso: GTAcao<ProcessoAvoLinha>[] = useMemo(() => [
     {
@@ -69,10 +85,19 @@ export default function ProcessoLista() {
     },
   ], [])
 
-  const renderConectorFilho = useCallback((filho: FilhoLinhaLista) => {
-    if (filho.camada === 'pedido') return '├─'
-    return '│  └─'
-  }, [])
+  const renderConectorFilho = useCallback((filho: FilhoLinhaLista) => (
+    <ConectorFilhoLista
+      filho={filho}
+      pedidosExpandidos={pedidosExpandidos}
+      onTogglePedido={togglePedidoItens}
+    />
+  ), [pedidosExpandidos, togglePedidoItens])
+
+  const classNameLinhaFilho = useCallback(
+    (filho: FilhoLinhaLista) =>
+      filho.camada === 'pedido' ? 'pl-linha--pedido' : 'pl-linha--item',
+    [],
+  )
 
   return (
     <PaginaGlobal
@@ -90,25 +115,32 @@ export default function ProcessoLista() {
           }
         />
       }
+      toolbar={<TodosProcessosTabs />}
     >
-      <TodosProcessosTabs />
-
-      <div className="ws-fade-up ws-fade-up-d1 lp-page pl-page">
+      <div
+        className="lp-page pl-page"
+        style={{ minHeight: 'calc(100vh - 320px)', display: 'flex', flexDirection: 'column' }}
+      >
         <div className="lp-tabela-wrapper">
           <TabelaVirtualGlobal<ProcessoAvoLinha, FilhoLinhaLista>
-            id="processo-lista-3-camadas"
+            exibirCabecalhoQuandoVazio
             dados={processos}
             colunas={colunasAvo}
             colunasFilhas={colunasFilhas}
             itemId={(p) => p.id_processo}
             filhoId={idFilhoLinha}
             onCarregarFilhos={handleCarregarFilhos}
+            resetCacheFilhos={resetCacheFilhos}
             renderConectorFilho={renderConectorFilho}
+            classNameLinhaFilho={classNameLinhaFilho}
             acoes={acoesProcesso}
             acoesLote={acoesLote}
             onBuscar={setBusca}
             placeholderBusca="Buscar processo, referência ou parte..."
-            mensagemVazio="Nenhum processo encontrado"
+            emptyIcon={<Briefcase weight="duotone" size={48} />}
+            emptyTitle="Nenhum processo encontrado"
+            emptyDescription="Ajuste a busca ou crie um novo processo"
+            ariaLabel="Lista hierárquica de processos, pedidos e itens"
             itensPorPagina={25}
           />
         </div>

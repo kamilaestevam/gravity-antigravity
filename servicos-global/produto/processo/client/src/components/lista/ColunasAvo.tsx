@@ -34,7 +34,14 @@ export function buildColunasAvo(_t: TFunction): GTColuna<ProcessoAvoLinha>[] {
       sortavel: true,
       filtravel: true,
       render: (_v, p) => (
-        <StatusBadgeGlobal label={p.rotulo_status_processo} cor={p.cor_status_processo} />
+        <StatusBadgeGlobal
+          valor={p.rotulo_status_processo}
+          style={{
+            color: p.cor_status_processo,
+            background: `${p.cor_status_processo}20`,
+            border: `1px solid ${p.cor_status_processo}33`,
+          }}
+        />
       ),
     },
     {

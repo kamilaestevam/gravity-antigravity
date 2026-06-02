@@ -3161,9 +3161,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             <div
               className="gtv-celula gtv-celula--expand gtv-col-fixa"
             >
-              <span className="gtv-conector" aria-hidden="true">
-                {renderConectorFilho ? renderConectorFilho(item) : '└'}
-              </span>
+              {renderConectorFilho ? (
+                renderConectorFilho(item)
+              ) : (
+                <span className="gtv-conector" aria-hidden="true">└</span>
+              )}
             </div>
           )}
 
@@ -3359,12 +3361,16 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           </div>
         )}
 
-        {/* Conector hierárquico */}
+        {/* Conector hierárquico / expand pedido→item */}
         {onCarregarFilhos && (
           <div
             className="gtv-celula gtv-celula--expand gtv-col-fixa"
           >
-            <span className="gtv-conector" aria-hidden="true">└</span>
+            {renderConectorFilho ? (
+              renderConectorFilho(item)
+            ) : (
+              <span className="gtv-conector" aria-hidden="true">└</span>
+            )}
           </div>
         )}
 

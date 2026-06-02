@@ -36,42 +36,40 @@ export const fmtDataLista = (iso?: string) =>
 const ORG = 'org_mock'
 const WS = 'ws_mock'
 
-function criarPedidoMock(p: Partial<Pedido> & Pick<Pedido, 'id' | 'numero_pedido'> & { id_processo: string }): Pedido {
+function criarPedidoMock(
+  p: Partial<Pedido> & Pick<Pedido, 'id' | 'numero_pedido'> & { id_processo: string },
+): Pedido & { id_processo: string } {
   return {
-    id: p.id,
     tenant_id: ORG,
     company_id: WS,
-    tipo_operacao: p.tipo_operacao ?? 'importacao',
-    numero_pedido: p.numero_pedido,
-    status: p.status ?? 'aberto',
+    tipo_operacao: 'importacao',
+    status: 'aberto',
     importacao_exportador_id: 'exp-1',
     exportacao_importador_id: 'imp-1',
-    nome_exportador: p.nome_exportador ?? 'Exportador Mock',
-    nome_importador: p.nome_importador ?? 'Acme Importações Ltda.',
+    nome_exportador: 'Exportador Mock',
+    nome_importador: 'Acme Importações Ltda.',
     incoterm: 'CIF',
-    moeda_pedido: p.moeda_pedido ?? 'USD',
-    valor_total_pedido: p.valor_total_pedido ?? 10_000,
+    moeda_pedido: 'USD',
+    valor_total_pedido: 10_000,
     casas_decimais_valor_pedido: 2,
     quantidade_total_pedido: 100,
     casas_decimais_quantidade_pedido: 2,
     condicao_pagamento: '30/60/90',
-    data_emissao_pedido: p.data_emissao_pedido ?? '2026-01-15',
-    id_processo: p.id_processo,
+    data_emissao_pedido: '2026-01-15',
     ...p,
-  } as Pedido
+  } as Pedido & { id_processo: string }
 }
 
-function criarItemMock(p: Partial<PedidoItem> & Pick<PedidoItem, 'id' | 'pedido_id' | 'part_number'>): PedidoItem {
+function criarItemMock(
+  p: Partial<PedidoItem> & Pick<PedidoItem, 'id' | 'pedido_id' | 'part_number'>,
+): PedidoItem {
   return {
-    id: p.id,
     tenant_id: ORG,
     company_id: WS,
-    pedido_id: p.pedido_id,
-    part_number: p.part_number,
-    ncm: p.ncm ?? '8471.30.12',
-    descricao_item: p.descricao_item ?? 'Componente eletrônico',
+    ncm: '8471.30.12',
+    descricao_item: 'Componente eletrônico',
     quantidade_inicial_pedido: 50,
-    quantidade_atual_pedido: p.quantidade_atual_pedido ?? 50,
+    quantidade_atual_pedido: 50,
     quantidade_pronta_total_item_pedido: 0,
     quantidade_transferida_pedido: 0,
     quantidade_cancelada_pedido: 0,
@@ -155,15 +153,30 @@ export function itensDoPedido(id_pedido: string): PedidoItem[] {
   return ITENS.filter(i => i.pedido_id === id_pedido)
 }
 
-export function filhosDoProcesso(id_processo: string): FilhoLinhaLista[] {
+export function todosIdsPedidoMock(): string[] {
+  return PEDIDOS.map(p => p.id)
+}
+
+/** Filhos visíveis sob o processo — itens só quando o pedido está expandido. */
+export function filhosVisiveisDoProcesso(
+  id_processo: string,
+  pedidosExpandidos: ReadonlySet<string>,
+): FilhoLinhaLista[] {
   const linhas: FilhoLinhaLista[] = []
   for (const pedido of pedidosDoProcesso(id_processo)) {
     linhas.push({ camada: 'pedido', pedido })
-    for (const item of itensDoPedido(pedido.id)) {
-      linhas.push({ camada: 'item', item })
+    if (pedidosExpandidos.has(pedido.id)) {
+      for (const item of itensDoPedido(pedido.id)) {
+        linhas.push({ camada: 'item', item })
+      }
     }
   }
   return linhas
+}
+
+/** @deprecated Preferir filhosVisiveisDoProcesso com controle de expand pedido */
+export function filhosDoProcesso(id_processo: string): FilhoLinhaLista[] {
+  return filhosVisiveisDoProcesso(id_processo, new Set(todosIdsPedidoMock()))
 }
 
 export function idFilhoLinha(l: FilhoLinhaLista): string {

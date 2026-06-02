@@ -577,27 +577,37 @@ function StatusSortavel({
 
         <span className="cfg-status-label">{status.rotulo}</span>
 
+        {status.is_sistema && (
+          <TooltipGlobal descricao={t('bidfrete.configuracoes.tooltip_status_sistema')}>
+            <span className="cfg-badge-sistema">{t('bidfrete.configuracoes.badge_sistema')}</span>
+          </TooltipGlobal>
+        )}
+
         <div className="cfg-status-acoes">
-          <TooltipGlobal descricao={t('comum.editar')}>
-            <button
-              type="button"
-              className="cfg-eye-btn"
-              onClick={() => onIniciarEdicao(status)}
-              aria-label={t('comum.editar')}
-            >
-              <PencilSimple size={14} weight="bold" />
-            </button>
-          </TooltipGlobal>
-          <TooltipGlobal descricao={t('comum.excluir')}>
-            <button
-              type="button"
-              className="cfg-remove-btn"
-              onClick={() => onExcluir(status.id)}
-              aria-label={t('comum.excluir')}
-            >
-              <Trash size={14} weight="bold" />
-            </button>
-          </TooltipGlobal>
+          {!status.is_sistema && (
+            <TooltipGlobal descricao={t('comum.editar')}>
+              <button
+                type="button"
+                className="cfg-eye-btn"
+                onClick={() => onIniciarEdicao(status)}
+                aria-label={t('comum.editar')}
+              >
+                <PencilSimple size={14} weight="bold" />
+              </button>
+            </TooltipGlobal>
+          )}
+          {!status.is_sistema && (
+            <TooltipGlobal descricao={t('comum.excluir')}>
+              <button
+                type="button"
+                className="cfg-remove-btn"
+                onClick={() => onExcluir(status.id)}
+                aria-label={t('comum.excluir')}
+              >
+                <Trash size={14} weight="bold" />
+              </button>
+            </TooltipGlobal>
+          )}
         </div>
       </div>
 
@@ -870,15 +880,15 @@ export default function Configuracoes() {
   ])
 
   const [statusList, setStatusList, , saveStatus, resetStatus, statusDirty, syncStatusBoth] = useConfigState<PedidoStatusConfig[]>('status', [
-    { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: false },
-    { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: false },
-    { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: false },
-    { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: false },
-    { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: false },
-    { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: false },
-    { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: false },
-    { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, is_sistema: false },
-    { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, is_sistema: false }
+    { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
+    { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
+    { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
+    { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
+    { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: true },
+    { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: true },
+    { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: true },
+    { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, is_sistema: true },
+    { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, is_sistema: true }
   ])
 
   // Estado da API de status (fonte primária)
@@ -897,7 +907,7 @@ export default function Configuracoes() {
           rotulo: s.rotulo_status_cotacao_bid_frete,
           cor: s.cor_status_cotacao_bid_frete,
           ordem: s.ordem_status_cotacao_bid_frete,
-          is_sistema: false, // Todos editáveis/deletáveis pelo usuário
+          is_sistema: s.gerenciado_sistema_status_cotacao_bid_frete,
         }))
         // syncBoth atualiza current + saved + localStorage sem marcar dirty
         syncStatusBoth(convertidos)
@@ -965,6 +975,15 @@ export default function Configuracoes() {
     exibirArmador: false,
     exibirDatas: true,
   })
+
+  useEffect(() => {
+    const idsSistema = new Set(statusList.filter(s => s.is_sistema).map(s => s.id))
+    if (idsSistema.size === 0) return
+    setKanbanColunasOcultas(prev => {
+      const filtrado = prev.filter(id => !idsSistema.has(id))
+      return filtrado.length === prev.length ? prev : filtrado
+    })
+  }, [statusList, setKanbanColunasOcultas])
 
   // ─── Active Sub-Tab/Group Controls ────────────────────────────────────────────
 
@@ -1473,11 +1492,15 @@ export default function Configuracoes() {
                     <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: s.cor }} />
                     <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{s.rotulo}</span>
                   </div>
-                  <TooltipGlobal descricao={kanbanColunasOcultas.includes(s.id) ? t('bidfrete.configuracoes.exibir_kanban') : t('bidfrete.configuracoes.ocultar_kanban')}>
+                  <TooltipGlobal descricao={s.is_sistema ? t('bidfrete.configuracoes.tooltip_status_sistema') : kanbanColunasOcultas.includes(s.id) ? t('bidfrete.configuracoes.exibir_kanban') : t('bidfrete.configuracoes.ocultar_kanban')}>
                     <button
                       type="button"
                       className={`cfg-eye-btn ${!kanbanColunasOcultas.includes(s.id) ? 'cfg-eye-btn--on' : ''}`}
-                      onClick={() => setKanbanColunasOcultas(prev => prev.includes(s.id) ? prev.filter(x => x !== s.id) : [...prev, s.id])}
+                      disabled={s.is_sistema}
+                      onClick={() => {
+                        if (s.is_sistema) return
+                        setKanbanColunasOcultas(prev => prev.includes(s.id) ? prev.filter(x => x !== s.id) : [...prev, s.id])
+                      }}
                     >
                       {kanbanColunasOcultas.includes(s.id) ? <EyeSlash size={14} /> : <Eye size={14} />}
                     </button>
@@ -1586,8 +1609,9 @@ export default function Configuracoes() {
                       onChangeLabel={setEditStatusLabel}
                       onChangeCor={setEditStatusCor}
                       onExcluir={id => {
+                        const alvo = statusList.find(s => s.id === id)
+                        if (alvo?.is_sistema) return
                         setStatusList(prev => prev.filter(x => x.id !== id))
-                        // Excluir via API
                         excluirStatusConfig(id).catch(err =>
                           console.warn('[Configuracoes] Erro ao excluir status via API', err)
                         )

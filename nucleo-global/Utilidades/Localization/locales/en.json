@@ -421,7 +421,7 @@
       "status_titulo": "Manage Status",
       "status_desc": "Configure available statuses for quotes",
       "badge_sistema": "system",
-      "tooltip_status_sistema": "Default system status — cannot be deleted or hidden",
+      "tooltip_status_sistema": "Default system status — cannot be edited, deleted or hidden",
       "placeholder_nome_status": "Status name",
       "numeracao_titulo": "Numbering Mask & Sequence",
       "numeracao_desc": "Configure quote numbering format",

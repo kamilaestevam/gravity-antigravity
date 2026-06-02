@@ -623,22 +623,24 @@ function StatusSortavel({
         <span className="cfg-status-label">{status.rotulo}</span>
 
         {ehStatusCotacaoSistema(status) && (
-          <TooltipGlobal descricao={t('bidfrete.config.status.tooltip_sistema', 'Status padrão do sistema — não pode ser excluído ou ocultado')}>
+          <TooltipGlobal descricao={t('bidfrete.config.status.tooltip_sistema', 'Status padrão do sistema — não pode ser editado, excluído ou ocultado')}>
             <span className="cfg-badge-sistema">{t('bidfrete.config.status.badge_sistema', 'sistema')}</span>
           </TooltipGlobal>
         )}
 
         <div className="cfg-status-acoes">
-          <TooltipGlobal descricao={t('bidfrete.config.status.editar_tooltip', 'Editar')}>
-            <button
-              type="button"
-              className="cfg-eye-btn"
-              onClick={() => onIniciarEdicao(status)}
-              aria-label={t('bidfrete.config.status.aria_editar', 'Editar')}
-            >
-              <PencilSimple size={14} weight="bold" />
-            </button>
-          </TooltipGlobal>
+          {!ehStatusCotacaoSistema(status) && (
+            <TooltipGlobal descricao={t('bidfrete.config.status.editar_tooltip', 'Editar')}>
+              <button
+                type="button"
+                className="cfg-eye-btn"
+                onClick={() => onIniciarEdicao(status)}
+                aria-label={t('bidfrete.config.status.aria_editar', 'Editar')}
+              >
+                <PencilSimple size={14} weight="bold" />
+              </button>
+            </TooltipGlobal>
+          )}
           {!ehStatusCotacaoSistema(status) && (
             <TooltipGlobal descricao={t('bidfrete.config.status.excluir_tooltip', 'Excluir')}>
               <button
@@ -1933,7 +1935,7 @@ export default function Configuracoes() {
                     <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: s.cor }} />
                     <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{s.rotulo}</span>
                   </div>
-                  <TooltipGlobal descricao={ehStatusCotacaoSistema(s) ? t('bidfrete.config.status.tooltip_sistema', 'Status padrão do sistema — não pode ser excluído ou ocultado') : kanbanColunasOcultas.includes(s.id) ? 'Exibir no Kanban' : 'Ocultar do Kanban'}>
+                  <TooltipGlobal descricao={ehStatusCotacaoSistema(s) ? t('bidfrete.config.status.tooltip_sistema', 'Status padrão do sistema — não pode ser editado, excluído ou ocultado') : kanbanColunasOcultas.includes(s.id) ? 'Exibir no Kanban' : 'Ocultar do Kanban'}>
                     <button
                       type="button"
                       className={`cfg-eye-btn ${!kanbanColunasOcultas.includes(s.id) ? 'cfg-eye-btn--on' : ''}`}
@@ -2255,7 +2257,7 @@ export default function Configuracoes() {
                     {t('bidfrete.config.status.titulo', 'Status de Cotação')}
                   </h2>
                   <p className="cfg-secao__desc">
-                    {t('bidfrete.config.status.descricao', 'Arraste para reordenar · edite o nome e a cor')}
+                    {t('bidfrete.config.status.descricao', 'Arraste para reordenar · status de sistema são fixos (sem editar ou excluir)')}
                   </p>
                 </div>
                 {!statusCriando && (

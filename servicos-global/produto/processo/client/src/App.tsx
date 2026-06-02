@@ -26,7 +26,7 @@ const FinanceiroNumerario = lazy(() => import('./pages/financeiro/FinanceiroNume
 const FinanceiroRateio = lazy(() => import('./pages/financeiro/FinanceiroRateio'))
 const ConfiguracoesLayout = lazy(() => import('./pages/configuracoes/ConfiguracoesLayout'))
 const StatusProcesso = lazy(() => import('./pages/configuracoes/status/StatusProcesso'))
-const TodosProcessosLista = lazy(() => import('./pages/todos/TodosProcessosLista'))
+const LazyProcessoLista = lazy(() => import('./pages/ProcessoLista'))
 const TodosProcessosKanban = lazy(() => import('./pages/todos/TodosProcessosKanban'))
 const Email = lazy(() => import('./pages/email/Email'))
 
@@ -128,7 +128,7 @@ export function App() {
               ProcessoLayout (que e sidebar de detalhe de um processo
               especifico). O <Layout> do @shell ja cuida do posicionamento. */}
           <Route path="/"      element={<Navigate to="lista" replace />} />
-          <Route path="lista"  element={<TodosProcessosLista />} />
+          <Route path="lista"  element={<LazyProcessoLista />} />
           <Route path="kanban" element={<TodosProcessosKanban />} />
           {/* Alias /todos/* durante migracao */}
           <Route path="todos">

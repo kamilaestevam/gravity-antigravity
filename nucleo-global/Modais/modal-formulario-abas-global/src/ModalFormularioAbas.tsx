@@ -50,9 +50,9 @@ interface FooterFormularioAbasProps {
   abaAtivaId?: string
   abas: AbaFormulario[]
   semAbas: boolean
+  aberto: boolean
   carregandoExterno: boolean
   dirty: boolean
-  podesSalvar: boolean
   textoSalvar: string
   textoCancelar: string
   footerExtraEsquerda?: React.ReactNode
@@ -64,9 +64,9 @@ function FooterFormularioAbas({
   abaAtivaId,
   abas,
   semAbas,
+  aberto,
   carregandoExterno,
   dirty,
-  podesSalvar,
   textoSalvar,
   textoCancelar,
   footerExtraEsquerda,
@@ -75,9 +75,12 @@ function FooterFormularioAbas({
 }: FooterFormularioAbasProps) {
   const { t } = useTranslation()
   const [salvandoUi, setSalvandoUi] = useState(false)
-  const emSalvamentoRef = useRef(false)
   const aoSalvarRef = useRef(aoSalvar)
   aoSalvarRef.current = aoSalvar
+
+  useEffect(() => {
+    if (aberto) setSalvandoUi(false)
+  }, [aberto])
 
   const carregando = carregandoExterno || salvandoUi
   const abaAtual = semAbas ? abas[0] : abas.find((a) => a.id === abaAtivaId)
@@ -86,13 +89,12 @@ function FooterFormularioAbas({
     return <div className="mg-footer-personalizado" />
   }
 
-  const botaoHabilitado =
-    carregando
-    || (dirty && (podesSalvar || abaAtual?.salvarSempreAtivo === true))
+  // Habilita com dirty OU durante save — podesSalvar só valida no handler (toast se falhar).
+  // Antes: dirty + !podesSalvar deixava o botão disabled mas "Alterações pendentes" visível.
+  const botaoHabilitado = carregando || dirty
 
   const handleSalvarClick = () => {
-    if (emSalvamentoRef.current) return
-    emSalvamentoRef.current = true
+    if (carregando || !dirty) return
     const inicio = Date.now()
     flushSync(() => setSalvandoUi(true))
     void (async () => {
@@ -103,7 +105,6 @@ function FooterFormularioAbas({
         if (restante > 0) {
           await new Promise<void>((resolve) => { setTimeout(resolve, restante) })
         }
-        emSalvamentoRef.current = false
         flushSync(() => setSalvandoUi(false))
       }
     })()
@@ -198,9 +199,9 @@ export function ModalFormularioAbas({
       abaAtivaId={semAbas ? abas[0]?.id : abaRodape}
       abas={abas}
       semAbas={semAbas}
+      aberto={aberto}
       carregandoExterno={carregando}
       dirty={dirty}
-      podesSalvar={podesSalvar}
       textoSalvar={resolvedTextoSalvar}
       textoCancelar={resolvedTextoCancelar}
       footerExtraEsquerda={footerExtraEsquerda}

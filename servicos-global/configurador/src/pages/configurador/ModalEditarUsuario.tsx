@@ -1508,7 +1508,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       abaAtivaInicial={abaInicial}
       abas={abas}
       dirty={dirty}
-      podesSalvar={requisitos.every((r) => r.ok)}
+      podesSalvar={requisitos.filter((r) => r.chave !== 'carga_produtos').every((r) => r.ok)}
       carregando={salvando}
     />
   )

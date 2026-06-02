@@ -40,7 +40,7 @@ export const BotaoSalvar = React.forwardRef<HTMLButtonElement, BotaoSalvarProps>
             ref={ref}
             variante="primario"
             type={type}
-            disabled={!dirty || carregando}
+            disabled={!dirty && !carregando}
             onClick={onClick}
             icone={<FloppyDisk size={14} weight="bold" />}
             carregando={carregando}

@@ -3,7 +3,7 @@
 // Serviço compartilhado para CONVITE DE USUÁRIO.
 //
 // Consumido por:
-//   • POST /api/v1/usuarios/convidar            (rota regular Master/Admin/SAdmin
+//   • POST /api/v1/usuarios/convidar            (rota regular Master/SAdmin intra-org
 //                                                 — alvo = própria organização do ator)
 //   • POST /api/v1/admin/usuarios/convidar      (rota admin cross-org — apenas SUPER_ADMIN,
 //                                                 alvo = id_organizacao_alvo do body)

@@ -149,6 +149,7 @@ export function ModalOverlay({
   children,
   botoes,
   renderizarFooter,
+  footerEpoch,
   tamanho = 'md',
   altura,
   fecharAoClicarOverlay = true,
@@ -291,7 +292,7 @@ export function ModalOverlay({
 
         {/* Footer */}
         {(botoes || renderizarFooter) && (
-          <div className="mg-footer modal-footer">
+          <div key={footerEpoch ?? 'footer'} className="mg-footer modal-footer">
             {renderizarFooter ? (
               renderizarFooter(abaAtiva)
             ) : (

@@ -4,7 +4,7 @@
 // schemas Zod (Mand. 09) para validação bilateral no frontend.
 //
 // GET   /api/v1/usuarios                              → listar usuários da organização
-// POST  /api/v1/usuarios/convidar                     → convidar usuário (Master)
+// POST  /api/v1/usuarios/convidar                     → convidar usuário (Master/SAdmin intra-org)
 // POST  /api/v1/usuarios/:id_usuario/reenviar-convite → reenviar convite pendente (Master/SAdmin)
 // DELETE /api/v1/usuarios/:id_usuario/convite          → cancelar convite pendente (Master/SAdmin)
 // POST  /api/v1/usuarios/:id_usuario/vinculos         → habilitar em workspace (Master)
@@ -424,7 +424,7 @@ usersRouter.post('/:id_usuario/reenviar-convite', requireUserManagementRole, asy
  * POST /api/v1/usuarios/convidar
  * Convida um usuário para a organização — dispara e-mail via Clerk
  */
-usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
+usersRouter.post('/convidar', requireUserManagementRole, async (req, res, next) => {
   try {
     const parsed = ConvidarUsuarioSchema.safeParse(req.body)
     if (!parsed.success) {

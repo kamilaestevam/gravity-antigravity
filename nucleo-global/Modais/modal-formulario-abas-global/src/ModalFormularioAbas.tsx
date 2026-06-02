@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -22,7 +22,7 @@ export interface AbaFormulario {
 export interface ModalFormularioAbasProps {
   aberto: boolean
   aoFechar: () => void
-  aoSalvar: () => void
+  aoSalvar: () => void | Promise<void>
   icone: React.ReactNode
   titulo: string
   subtitulo?: string
@@ -41,6 +41,8 @@ export interface ModalFormularioAbasProps {
   paddingSuperiorAbas?: string
   textoSalvar?: string
   textoCancelar?: string
+  /** Spinner padrão no botão Salvar enquanto a persistência roda (ex.: aoSalvar assíncrono). */
+  carregando?: boolean
   /** Quando true, usa a primeira aba como conteúdo direto sem renderizar a navegação de abas */
   semAbas?: boolean
   /** Conteúdo extra renderizado à esquerda do footer (antes dos botões Cancelar/Salvar).
@@ -67,12 +69,20 @@ export function ModalFormularioAbas({
   paddingSuperiorAbas,
   textoSalvar,
   textoCancelar,
+  carregando = false,
   semAbas = false,
   footerExtraEsquerda,
 }: ModalFormularioAbasProps) {
   const { t } = useTranslation()
   const resolvedTextoSalvar = textoSalvar ?? t('modal.salvar_alteracoes')
   const resolvedTextoCancelar = textoCancelar ?? t('modal.cancelar')
+
+  const aoSalvarRef = useRef(aoSalvar)
+  aoSalvarRef.current = aoSalvar
+
+  const aoClicarSalvar = useCallback(async () => {
+    await aoSalvarRef.current()
+  }, [])
 
   const cabecalho = (
     <div className="ws-modal-cabecalho" style={{ borderBottom: '1px solid var(--ws-accent-border)', marginBottom: '0.4rem', paddingBottom: '0.1rem', paddingTop: '8px' }}>
@@ -105,9 +115,14 @@ export function ModalFormularioAbas({
             onClick={aoFechar}
           />
           <BotaoSalvar
-            dirty={abaAtual?.salvarSempreAtivo ? podesSalvar : (podesSalvar && dirty)}
+            dirty={
+              carregando
+              || dirty
+              || (abaAtual?.salvarSempreAtivo === true && podesSalvar)
+            }
+            carregando={carregando}
             rotulo={resolvedTextoSalvar}
-            onClick={aoSalvar}
+            onClick={() => { void aoClicarSalvar() }}
           />
         </div>
       </div>
@@ -129,6 +144,7 @@ export function ModalFormularioAbas({
       centralizarAbas={centralizarAbas}
       paddingSuperiorAbas={paddingSuperiorAbas}
       renderizarFooter={renderFooter}
+      footerEpoch={carregando ? 'salvando' : 'idle'}
     >
       {semAbas ? abas[0]?.conteudo : undefined}
     </ModalOverlay>

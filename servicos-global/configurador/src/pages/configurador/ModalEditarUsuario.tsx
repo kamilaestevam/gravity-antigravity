@@ -12,6 +12,7 @@ import {
 import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck, Crown, Lightning, Hourglass, Cube, House, Compass } from '@phosphor-icons/react'
 import type { Icon as PhosphorIcon } from '@phosphor-icons/react'
 import type { UsuarioOrg } from './Usuarios'
+import { useShellStore } from '@gravity/shell'
 import {
   produtosWorkspaceApi,
   usuariosApi,
@@ -80,7 +81,7 @@ interface ModalEditarUsuarioProps {
     dados: UsuarioOrg,
     permissoesParaPersistir: PermissaoSalvar[],
     workspaceIds: string[],
-  ) => void
+  ) => void | Promise<void>
 }
 
 /** Mapa rótulo→id para render — derivado de SECOES_PRODUTO (shared). */
@@ -400,9 +401,11 @@ interface AbaPermissoesProps {
   onTogglePermissao: (chave: string, marcada: boolean) => void
   onSelecionarTudoProduto: (slug: string, marcadas: boolean) => void
   aplicarTodosRef: React.MutableRefObject<boolean>
+  /** Standard/Fornecedor: checkbox "Aplicar a todos os workspaces" marcado ao abrir. */
+  aplicarTodosInicial: boolean
 }
 
-function AvisoErroCarga({ mensagem, contexto }: { mensagem: string; contexto: string }) {
+function AvisoErroCarga({ mensagem, contexto, titulo }: { mensagem: string; contexto: string; titulo?: string }) {
   return (
     <div style={{
       padding: '0.75rem 1rem', borderRadius: 8,
@@ -412,7 +415,7 @@ function AvisoErroCarga({ mensagem, contexto }: { mensagem: string; contexto: st
       <span style={{ color: '#ef4444', fontSize: '1rem', lineHeight: 1, marginTop: 1 }}>⚠</span>
       <div>
         <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fca5a5', margin: 0 }}>
-          Falha ao carregar {contexto}
+          {titulo ?? `Falha ao carregar ${contexto}`}
         </p>
         <p style={{ fontSize: '0.6875rem', color: '#fda4af', margin: '0.125rem 0 0' }}>
           {mensagem}. Feche e reabra o modal — não salve enquanto o aviso permanecer (risco de sobrescrita).
@@ -732,9 +735,13 @@ function AbaProdutosAcesso({
 function AbaPermissoes({
   master, tipo, workspaceSelecionado, workspacesVinculados, produtos, permissoesDoWorkspace,
   carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar,
-  onSelecionarWorkspace, onTogglePermissao, onSelecionarTudoProduto, aplicarTodosRef,
+  onSelecionarWorkspace, onTogglePermissao, onSelecionarTudoProduto, aplicarTodosRef, aplicarTodosInicial,
 }: AbaPermissoesProps & { tipo: NivelAcesso }) {
-  const [aplicarTodos, setAplicarTodos] = useState(false)
+  const [aplicarTodos, setAplicarTodos] = useState(aplicarTodosInicial)
+  useEffect(() => {
+    setAplicarTodos(aplicarTodosInicial)
+    aplicarTodosRef.current = aplicarTodosInicial
+  }, [aplicarTodosInicial, aplicarTodosRef])
   const handleToggleAplicarTodos = useCallback(() => {
     setAplicarTodos(prev => {
       const next = !prev
@@ -774,7 +781,11 @@ function AbaPermissoes({
         <AvisoErroCarga mensagem={erroCargaProdutos} contexto="produtos contratados" />
       )}
       {!master && erroSalvar && (
-        <AvisoErroCarga mensagem={erroSalvar} contexto="salvar permissões" />
+        <AvisoErroCarga
+          mensagem={erroSalvar}
+          contexto="salvar permissões"
+          titulo="Não foi possível salvar as permissões"
+        />
       )}
 
       {/* Seletor de workspace (só aparece se houver mais de 1 vinculado) — SelectGlobal */}
@@ -899,7 +910,111 @@ function aplicarPermissaoNoWs(atuais: string[], chave: string, marcada: boolean)
   return novas
 }
 
+/** Garante catálogo de produtos por workspace antes do diff de permissões (evita abort silencioso). */
+async function carregarProdutosPorWorkspaces(
+  ids: string[],
+  cache: Record<string, ProdutoWorkspaceItem[]>,
+): Promise<Record<string, ProdutoWorkspaceItem[]>> {
+  const merged = { ...cache }
+  const faltando = ids.filter((id) => !merged[id]?.length)
+  if (faltando.length === 0) return merged
+  const resultados = await Promise.all(
+    faltando.map((id) =>
+      produtosWorkspaceApi
+        .listar(id)
+        .then((resp) => ({ id, products: resp.products }))
+        .catch(() => ({ id, products: [] as ProdutoWorkspaceItem[] })),
+    ),
+  )
+  for (const r of resultados) merged[r.id] = r.products
+  return merged
+}
+
+function mapaPermissoesFromApi(
+  permissoes: Array<{ id_workspace: string; permissao_usuario: string }>,
+): Record<string, string[]> {
+  const map: Record<string, string[]> = {}
+  for (const p of permissoes) {
+    if (!map[p.id_workspace]) map[p.id_workspace] = []
+    map[p.id_workspace].push(p.permissao_usuario)
+  }
+  return map
+}
+
+/** Com "Aplicar a todos", replica só chaves cujo slug existe no catálogo daquele workspace. */
+function replicarPermissoesAplicarTodos(
+  mapa: Record<string, string[]>,
+  wsTemplate: string,
+  alvos: string[],
+  catalogoPorWs: Record<string, ProdutoWorkspaceItem[]>,
+): Record<string, string[]> {
+  const template = mapa[wsTemplate] ?? []
+  if (template.length === 0) return mapa
+  const next = { ...mapa }
+  for (const wsId of alvos) {
+    if (wsId === wsTemplate) continue
+    const slugsNoWs = new Set((catalogoPorWs[wsId] ?? []).map((p) => p.product_key))
+    const conjunto = new Set(next[wsId] ?? [])
+    for (const chave of template) {
+      const slug = chave.split(':')[0]
+      if (slug && slugsNoWs.has(slug)) conjunto.add(chave)
+    }
+    next[wsId] = [...conjunto]
+  }
+  return next
+}
+
+function mapasPermissoesIguais(
+  a: Record<string, string[]>,
+  b: Record<string, string[]>,
+): boolean {
+  const ids = new Set([...Object.keys(a), ...Object.keys(b)])
+  for (const wsId of ids) {
+    const setA = new Set(a[wsId] ?? [])
+    const setB = new Set(b[wsId] ?? [])
+    if (setA.size !== setB.size) return false
+    for (const k of setA) if (!setB.has(k)) return false
+  }
+  return true
+}
+
+/** id_produto_gravity é global — resolve slug a partir de qualquer workspace já carregado. */
+function buildSlugParaIdGlobal(
+  catalogoPorWs: Record<string, ProdutoWorkspaceItem[]>,
+): Map<string, string> {
+  const map = new Map<string, string>()
+  for (const produtos of Object.values(catalogoPorWs)) {
+    for (const p of produtos) {
+      if (!p.catalog?.id) continue
+      map.set(p.product_key, p.catalog.id)
+      if (p.catalog.slug) map.set(p.catalog.slug, p.catalog.id)
+    }
+  }
+  return map
+}
+
+function limitarMapaPermissoesAosWorkspaces(
+  mapa: Record<string, string[]>,
+  idsPermitidos: string[],
+): Record<string, string[]> {
+  const permitidos = new Set(idsPermitidos)
+  const out: Record<string, string[]> = {}
+  for (const [wsId, chaves] of Object.entries(mapa)) {
+    if (permitidos.has(wsId)) out[wsId] = chaves
+  }
+  return out
+}
+
+function formatarSlugsSemIdResumo(itens: Array<{ id_workspace: string; slug: string }>): string {
+  if (itens.length === 0) return ''
+  const amostra = itens.slice(0, 3).map((s) => s.slug).join(', ')
+  const resto = itens.length > 3 ? ` e mais ${itens.length - 3}` : ''
+  return `${amostra}${resto}`
+}
+
 export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, workspacesSalvos, carregandoWorkspaces = false, idWorkspaceAtivo, tiposPermitidos = [], somenteLeitura = false, aoFechar, aoSalvar }: ModalEditarUsuarioProps) {
+  const [salvando, setSalvando] = useState(false)
+  const addNotification = useShellStore((s) => s.addNotification)
   const { t } = useTranslation()
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
@@ -920,6 +1035,8 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   const [erroCargaProdutos, setErroCargaProdutos] = useState<string | null>(null)
   /** Mensagem de erro do save (slug sem id_produto_gravity, etc.). Mand. 08. */
   const [erroSalvar, setErroSalvar] = useState<string | null>(null)
+  // aplicarTodosRef: estado visual na aba Permissões; handlers leem via ref.
+  const aplicarTodosRef = useRef(false)
 
   // Carga inicial: dados do usuário + permissões existentes (Mand. 09 — Zod no client).
   useEffect(() => {
@@ -928,7 +1045,17 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     setEmail(usuario.email_usuario)
     const nivel = mapRole(usuario.tipo_usuario)
     setTipo(nivel)
-    setWorkspacesAtivos(workspacesSalvos)
+    const ehPatenteLimbo = nivel === 'Master' || nivel === 'Super Admin' || nivel === 'Admin'
+    const salvosEfetivos =
+      workspacesSalvos.length > 0
+        ? workspacesSalvos
+        : !ehPatenteLimbo && usuario.status_usuario === 'CONVIDADO'
+          ? workspaces.map((w) => w.id_workspace)
+          : []
+    setWorkspacesAtivos(salvosEfetivos)
+    const padraoAplicarTodos =
+      nivel !== 'Master' && nivel !== 'Super Admin' && nivel !== 'Admin'
+    aplicarTodosRef.current = padraoAplicarTodos
 
     // Default workspace selecionado: workspace ativo do Shell (se o alvo está
     // vinculado a ele), senão primeiro vinculado. Garante que o Master edite
@@ -937,12 +1064,11 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     // Master/SAdmin/Admin não têm linhas em UsuarioWorkspace (bypass Mand. 04),
     // mas o modal-leitura precisa de um ws selecionado pra carregar o catálogo
     // de produtos/permissões. Fallback: primeiro workspace da org.
-    const ehMasterLimbo = nivel === 'Master' || nivel === 'Super Admin' || nivel === 'Admin'
-    const wsAtivoValido = idWorkspaceAtivo && workspacesSalvos.includes(idWorkspaceAtivo)
+    const wsAtivoValido = idWorkspaceAtivo && salvosEfetivos.includes(idWorkspaceAtivo)
       ? idWorkspaceAtivo
       : null
     setWorkspaceSelecionado(
-      wsAtivoValido ?? workspacesSalvos[0] ?? (ehMasterLimbo ? workspaces[0]?.id_workspace ?? null : null),
+      wsAtivoValido ?? salvosEfetivos[0] ?? (ehPatenteLimbo ? workspaces[0]?.id_workspace ?? null : null),
     )
 
     // Busca permissões reais do banco. Master/SAdmin/Admin têm bypass — não há
@@ -989,7 +1115,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       setPermissoesOriginaisPorWorkspace({})
       setErroCargaPermissoes(null)
     }
-  }, [usuario?.id_usuario, usuario?.tipo_usuario, usuario?.nome_usuario, usuario?.email_usuario, workspacesSalvos])
+  }, [usuario?.id_usuario, usuario?.tipo_usuario, usuario?.nome_usuario, usuario?.email_usuario, usuario?.status_usuario, workspacesSalvos, workspaces])
 
   // Carga lazy: produtos do workspace atualmente selecionado (cacheado por id_workspace).
   useEffect(() => {
@@ -1017,9 +1143,6 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   }
 
   // Refs para evitar recriar handlers a cada render (performance).
-  // Os handlers usam refs em vez de state direto → referência estável via useCallback([]).
-  // aplicarTodosRef: estado visual vive em AbaPermissoes (local state); parent só lê via ref.
-  const aplicarTodosRef = useRef(false)
   const workspaceSelecionadoRef = useRef(workspaceSelecionado)
   workspaceSelecionadoRef.current = workspaceSelecionado
   const workspacesAtivosRef = useRef(workspacesAtivos)
@@ -1056,11 +1179,17 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     if (!workspaceSelecionadoRef.current) return
     const chave = buildAcessoUsuarioProdutosGravityString(slug)
     setPermissoesPorWorkspace(prev => {
-      const atuais = prev[workspaceSelecionadoRef.current!] ?? []
-      const novas = marcado
-        ? Array.from(new Set([...atuais, chave]))
-        : atuais.filter(p => p !== chave)
-      return { ...prev, [workspaceSelecionadoRef.current!]: novas }
+      const novo = { ...prev }
+      const alvos = aplicarTodosRef.current
+        ? workspacesAtivosRef.current
+        : [workspaceSelecionadoRef.current!]
+      for (const wsId of alvos) {
+        const atuais = novo[wsId] ?? []
+        novo[wsId] = marcado
+          ? Array.from(new Set([...atuais, chave]))
+          : atuais.filter((p) => p !== chave)
+      }
+      return novo
     })
   }, [])
 
@@ -1072,6 +1201,8 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   // Mandamento 04 (LIMBO): Master, Super Admin e Admin têm acesso total implícito
   // a todos os workspaces; checklist de vínculos e permissões granulares não se aplicam.
   const master = tipo === 'Master' || tipo === 'Super Admin' || tipo === 'Admin'
+  /** Standard/Fornecedor: permissões granulares propagam para todos os workspaces por padrão. */
+  const aplicarTodosInicial = !master && (tipo === 'Standard' || tipo === 'Fornecedor')
 
   // Pre-load catalogs for all workspaces in background.
   // Makes "Todos os workspaces" near-instant (no lazy fetch on click).
@@ -1109,24 +1240,22 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     const temAlgumaChavePortao3 = atuais.some(ehPermissaoAcessoUsuarioProdutoGravity)
     if (temAlgumaChavePortao3) return // usuário já tem configuração — respeitar
 
-    // Não tem nenhuma chave Portão 3 neste workspace → default α: tudo marcado
-    const chavesParaAdicionar = produtosDoWs
-      .filter(p => p.is_active)
-      .map(p => buildAcessoUsuarioProdutosGravityString(p.product_key))
-
-    if (chavesParaAdicionar.length === 0) return
-
+    // Default α só no workspace selecionado — evita dirty em 16 WS antes do catálogo carregar.
+    // "Aplicar a todos" propaga apenas toggles manuais e o diff no save.
     setPermissoesPorWorkspace(prev => {
       const existentes = prev[workspaceSelecionado] ?? []
-      // Mais uma checagem: outro effect pode ter chegado primeiro
       if (existentes.some(ehPermissaoAcessoUsuarioProdutoGravity)) return prev
+      const chaves = produtosDoWs
+        .filter((p) => p.is_active)
+        .map((p) => buildAcessoUsuarioProdutosGravityString(p.product_key))
+      if (chaves.length === 0) return prev
       return {
         ...prev,
-        [workspaceSelecionado]: [...existentes, ...chavesParaAdicionar],
+        [workspaceSelecionado]: [...existentes, ...chaves],
       }
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [master, workspaceSelecionado, produtosPorWorkspace])
+  }, [master, workspaceSelecionado, produtosPorWorkspace, workspacesAtivos.length])
 
   // Workspaces vinculados (apenas linhas em UsuarioWorkspace) — para o seletor
   // da aba Permissões. Master/Admin/SAdmin não têm linhas em UsuarioWorkspace
@@ -1198,15 +1327,21 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     // Mandamento 08 — bloqueia save se a carga inicial falhou (evita save fantasma).
     {
       chave: 'carga_permissoes',
+      // Convite recente: originais vazios até o GET retornar — não bloquear save com dirty.
       ok: !erroCargaPermissoes,
       mensagem: 'Permissões existentes carregadas com sucesso',
     },
     {
       chave: 'carga_produtos',
-      ok: !erroCargaProdutos,
+      ok:
+        !erroCargaProdutos
+        && (
+          !workspaceSelecionado
+          || (!carregandoProdutos && produtosPorWorkspace[workspaceSelecionado] !== undefined)
+        ),
       mensagem: 'Produtos do workspace carregados com sucesso',
     },
-  ], [nome, email, master, workspacesAtivos, erroCargaPermissoes, erroCargaProdutos])
+  ], [nome, email, master, workspacesAtivos, workspaceSelecionado, produtosPorWorkspace, carregandoProdutos, erroCargaPermissoes, erroCargaProdutos])
 
   const abas = useMemo(() => [
     {
@@ -1250,6 +1385,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
             onTogglePermissao={handleTogglePermissao}
             onSelecionarTudoProduto={handleSelecionarTudoProduto}
             aplicarTodosRef={aplicarTodosRef}
+            aplicarTodosInicial={aplicarTodosInicial}
           />
           <div style={{ padding: '0 1.5rem 1rem' }}>
             <BannerRequisitosGlobal />
@@ -1307,7 +1443,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         </BannerRequisitosContexto>
       ),
     },
-  ], [nome, email, tipo, tiposPermitidos, master, countPermissoes, totalToggles, countProdutosAcesso, totalProdutosAcessiveis, workspaceSelecionado, workspacesVinculados, produtosDoWsSelecionado, permissoesDoWorkspaceSet, carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos, somenteLeitura])
+  ], [nome, email, tipo, tiposPermitidos, master, aplicarTodosInicial, countPermissoes, totalToggles, countProdutosAcesso, totalProdutosAcessiveis, workspaceSelecionado, workspacesVinculados, produtosDoWsSelecionado, permissoesDoWorkspaceSet, carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos, somenteLeitura])
 
   // Dirty: comparar mapa atual de permissões com mapa carregado do backend
   // (set-based diff, ignora ordem). Para Master/SAdmin/Admin, ignora permissões
@@ -1336,27 +1472,61 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     ))
   ))
 
-  const handleSalvar = () => {
-    if (!usuario) return
-    const tipoBackend: BackendUserRole = nivelToRole(tipo)
+  const executarSalvar = async () => {
+    setErroSalvar(null)
+    try {
+      const tipoBackend: BackendUserRole = nivelToRole(tipo)
 
-    // ─── Diff de permissões: produz a lista mínima de PUTs ──────────────────
-    // Para cada (workspace, slug_produto) que tenha conjunto diferente entre
-    // originais e atuais, gera uma chamada. Substituição atômica (Fase 02).
-    // Master/SAdmin/Admin: sem permissões granulares (Mand. 04).
-    const slugsSemId: Array<{ id_workspace: string; slug: string }> = []
-    const permissoesParaPersistir: PermissaoSalvar[] = master ? [] : (() => {
-      const calls: PermissaoSalvar[] = []
-      const wsIds = new Set([
-        ...Object.keys(permissoesOriginaisPorWorkspace),
-        ...Object.keys(permissoesPorWorkspace),
-      ])
+      const temMudancaDados =
+        nome !== usuario.nome_usuario ||
+        email !== usuario.email_usuario ||
+        tipo !== mapRole(usuario.tipo_usuario) ||
+        (!master && (
+          workspacesAtivos.length !== workspacesSalvos.length ||
+          workspacesAtivos.some((id) => !workspacesSalvos.includes(id))
+        ))
 
-      for (const id_workspace of wsIds) {
-        const origens = permissoesOriginaisPorWorkspace[id_workspace] ?? []
-        const atuais = permissoesPorWorkspace[id_workspace] ?? []
+      // ─── Diff de permissões: produz a lista mínima de PUTs ──────────────────
+      const slugsSemId: Array<{ id_workspace: string; slug: string }> = []
+      let permissoesParaPersistir: PermissaoSalvar[] = []
 
-        // Agrupa por slug (primeiro segmento da string canônica)
+      if (!master) {
+        let originaisParaDiff = permissoesOriginaisPorWorkspace
+        let atuaisParaDiff = permissoesPorWorkspace
+
+        try {
+          const resp = await usuariosApi.listarPermissoes(usuario.id_usuario)
+          originaisParaDiff = mapaPermissoesFromApi(resp.permissoes)
+          setPermissoesOriginaisPorWorkspace(originaisParaDiff)
+          setErroCargaPermissoes(null)
+        } catch (err) {
+          if (erroCargaPermissoes) {
+            addNotification({
+              type: 'error',
+              message: 'Não é possível salvar: permissões existentes não foram carregadas.',
+            })
+            return
+          }
+          // eslint-disable-next-line no-console
+          console.warn('[ModalEditarUsuario] Releitura de permissões antes do save falhou', err)
+        }
+
+        const wsIds = [
+          ...new Set([
+            ...workspacesAtivos,
+            ...Object.keys(originaisParaDiff),
+            ...Object.keys(atuaisParaDiff),
+          ]),
+        ]
+
+        const catalogoPorWs = await carregarProdutosPorWorkspaces(wsIds, produtosPorWorkspace)
+        setProdutosPorWorkspace((prev) => ({ ...prev, ...catalogoPorWs }))
+        const slugParaIdGlobal = buildSlugParaIdGlobal(catalogoPorWs)
+
+        // Propagação multi-WS só via toggles (handleToggle* + aplicarTodosRef), não no save.
+        atuaisParaDiff = limitarMapaPermissoesAosWorkspaces(atuaisParaDiff, workspacesAtivos)
+        originaisParaDiff = limitarMapaPermissoesAosWorkspaces(originaisParaDiff, workspacesAtivos)
+
         const agrupar = (lista: string[]): Map<string, Set<string>> => {
           const out = new Map<string, Set<string>>()
           for (const p of lista) {
@@ -1368,92 +1538,147 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
           return out
         }
 
-        const origPorSlug = agrupar(origens)
-        const atuaisPorSlug = agrupar(atuais)
-        const slugsAfetados = new Set([...origPorSlug.keys(), ...atuaisPorSlug.keys()])
+        const calls: PermissaoSalvar[] = []
+        for (const id_workspace of wsIds) {
+          const origens = originaisParaDiff[id_workspace] ?? []
+          const atuais = atuaisParaDiff[id_workspace] ?? []
+          const origPorSlug = agrupar(origens)
+          const atuaisPorSlug = agrupar(atuais)
+          const slugsAfetados = new Set([...origPorSlug.keys(), ...atuaisPorSlug.keys()])
+          const produtosDoWs = catalogoPorWs[id_workspace] ?? []
+          const slugsNoWs = new Set(produtosDoWs.map((p) => p.product_key))
 
-        // Cache de produtos do workspace (já populado pelo useEffect lazy).
-        // `product_key` é a chave canônica de slug em ProdutoGravityWorkspace
-        // e bate com `catalog.slug` quando o catálogo está presente. Usar
-        // product_key como fonte primária para tolerar `catalog === null`
-        // (produto soft-deletado mas vínculo ainda ativo).
-        const produtosDoWs = produtosPorWorkspace[id_workspace] ?? []
-        const slugParaId = new Map<string, string>()
-        for (const p of produtosDoWs) {
-          // catalog.id é o id_produto_gravity necessário para o PUT.
-          // Se catalog===null, não há como fazer o PUT — slug fica fora do map
-          // e cai no erro abaixo (Mand. 08).
-          if (p.catalog?.id) {
-            slugParaId.set(p.product_key, p.catalog.id)
-          }
-        }
+          for (const slug of slugsAfetados) {
+            const setOrig = origPorSlug.get(slug) ?? new Set<string>()
+            const setNovo = new Set(atuaisPorSlug.get(slug) ?? [])
+            const chavePortao3 = buildAcessoUsuarioProdutosGravityString(slug)
+            const temGranular = [...setNovo].some((p) => p !== chavePortao3)
+            if (temGranular && !setNovo.has(chavePortao3)) setNovo.add(chavePortao3)
 
-        for (const slug of slugsAfetados) {
-          const setOrig = origPorSlug.get(slug) ?? new Set<string>()
-          const setNovo = atuaisPorSlug.get(slug) ?? new Set<string>()
+            const igual = setOrig.size === setNovo.size && [...setOrig].every((p) => setNovo.has(p))
+            if (igual) continue
 
-          // Portão 3 implícito: se há qualquer permissão granular, garantir
-          // que a chave de acesso ao produto esteja presente. Previne race
-          // condition entre Default α e listarPermissoes (overwrite) que pode
-          // perder a chave sentinela — sem ela o backend rejeita com 403.
-          const chavePortao3 = buildAcessoUsuarioProdutosGravityString(slug)
-          const temGranular = [...setNovo].some(p => p !== chavePortao3)
-          if (temGranular && !setNovo.has(chavePortao3)) {
-            setNovo.add(chavePortao3)
-          }
+            if (setNovo.size > 0 && !slugsNoWs.has(slug)) continue
 
-          // Sem mudança? pula (não gera PUT inútil)
-          const igual = setOrig.size === setNovo.size && [...setOrig].every(p => setNovo.has(p))
-          if (igual) continue
-
-          const id_produto_gravity = slugParaId.get(slug)
-          if (!id_produto_gravity) {
-            if (setNovo.size === 0) {
-              // Produto não está mais no catálogo do workspace E estamos removendo
-              // todas as permissões — seguro pular (permissões órfãs serão ignoradas).
+            const id_produto_gravity = slugParaIdGlobal.get(slug)
+            if (!id_produto_gravity) {
+              if (setNovo.size === 0) continue
+              slugsSemId.push({ id_workspace, slug })
               continue
             }
-            // Mandamento 08 — falha alto. Tentando ADICIONAR permissões a produto
-            // sem id_produto_gravity. Aborta para não salvar parcialmente.
-            slugsSemId.push({ id_workspace, slug })
-            continue
+            calls.push({
+              id_workspace,
+              id_produto_gravity,
+              permissoes: [...setNovo],
+            })
           }
+        }
+        permissoesParaPersistir = calls
 
-          calls.push({
-            id_workspace,
-            id_produto_gravity,
-            permissoes: [...setNovo],
-          })
+        if (
+          permissoesParaPersistir.length === 0
+          && !temMudancaDados
+          && mapasPermissoesIguais(atuaisParaDiff, originaisParaDiff)
+        ) {
+          // Permissões já persistidas (ex.: Portão 3 pelo backend no convite).
+          // Toast de sucesso vem do Usuarios.tsx após fechar o modal.
+          await Promise.resolve(
+            aoSalvar(
+              {
+                ...usuario,
+                nome_usuario: nome,
+                email_usuario: email,
+                tipo_usuario: tipoBackend,
+              },
+              [],
+              workspacesAtivos,
+            ),
+          )
+          setPermissoesPorWorkspace(originaisParaDiff)
+          aoFechar()
+          return
+        }
+
+        if (
+          permissoesParaPersistir.length === 0
+          && !temMudancaDados
+          && !mapasPermissoesIguais(atuaisParaDiff, originaisParaDiff)
+        ) {
+          const msg =
+            'As permissões exibidas não puderam ser gravadas. Aguarde o catálogo de produtos ' +
+            'ou altere uma permissão e tente novamente.'
+          setErroSalvar(msg)
+          addNotification({ type: 'error', message: msg })
+          return
         }
       }
-      return calls
-    })()
 
-    // Mandamento 08 — aborta o save inteiro se houver slug sem id_produto_gravity.
-    // Cenário: produto descontratado entre o open do modal e o save, ou cache stale.
-    // Salvar parcialmente seria pior — o usuário acha que limpou e ficou ativo no banco.
-    if (slugsSemId.length > 0) {
-      const detalhes = slugsSemId.map(s => `${s.slug}@${s.id_workspace}`).join(', ')
-      // eslint-disable-next-line no-console
-      console.warn('[ModalEditarUsuario] Save abortado — produtos sem id_produto_gravity no cache:', detalhes)
-      setErroSalvar(
-        `Não foi possível resolver ${slugsSemId.length} produto(s): ${detalhes}. ` +
-        `Feche e reabra o modal para recarregar o catálogo antes de salvar.`,
+      if (slugsSemId.length > 0) {
+        const resumo = formatarSlugsSemIdResumo(slugsSemId)
+        const msg =
+          `Não foi possível resolver ${slugsSemId.length} produto(s) no catálogo Gravity` +
+          (resumo ? ` (${resumo})` : '') +
+          '. Aguarde o carregamento dos produtos do workspace ou feche e reabra o modal.'
+        setErroSalvar(msg)
+        addNotification({ type: 'error', message: msg })
+        return
+      }
+      setErroSalvar(null)
+
+      if (
+        !master
+        && permissoesParaPersistir.length === 0
+        && !temMudancaDados
+        && !permissoesDirty
+      ) {
+        addNotification({ type: 'info', message: 'Nenhuma alteração para salvar.' })
+        return
+      }
+
+      await Promise.resolve(
+        aoSalvar(
+          {
+            ...usuario,
+            nome_usuario: nome,
+            email_usuario: email,
+            tipo_usuario: tipoBackend,
+          },
+          permissoesParaPersistir,
+          workspacesAtivos,
+        ),
       )
-      return
+      setPermissoesOriginaisPorWorkspace(permissoesPorWorkspace)
+      aoFechar()
+    } catch (err) {
+      addNotification({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Falha ao salvar alterações do usuário.',
+      })
+      throw err
     }
-    setErroSalvar(null)
+  }
 
-    aoSalvar(
-      {
-        ...usuario,
-        nome_usuario: nome,
-        email_usuario: email,
-        tipo_usuario: tipoBackend,
-      },
-      permissoesParaPersistir,
-      workspacesAtivos,
-    )
+  const handleSalvar = async () => {
+    if (!usuario || salvando) return
+    setSalvando(true)
+    try {
+      // O save pré-carrega catálogo — não bloquear clique só por lazy-load do banner.
+      const requisitosPendentes = requisitos.filter(
+        (r) => r.chave !== 'carga_produtos' && !r.ok,
+      )
+      if (requisitosPendentes.length > 0) {
+        addNotification({
+          type: 'error',
+          message: `Não é possível salvar: ${requisitosPendentes.map((r) => r.mensagem).join('; ')}.`,
+        })
+        return
+      }
+      await executarSalvar()
+    } catch {
+      // executarSalvar / aoSalvar já notificam; evita unhandled rejection.
+    } finally {
+      setSalvando(false)
+    }
   }
 
   return (
@@ -1470,7 +1695,8 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       abaAtivaInicial={abaInicial}
       abas={abas}
       dirty={dirty}
-      podesSalvar={requisitos.every(r => r.ok) && !erroCargaPermissoes && !erroCargaProdutos}
+      podesSalvar={requisitos.every((r) => r.ok)}
+      carregando={salvando}
     />
   )
 }

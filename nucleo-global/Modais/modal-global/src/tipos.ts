@@ -93,6 +93,8 @@ export interface ModalProps {
   botoes?: BotaoModal[]
   /** Renderizador customizado de footer. Recebe o id da aba ativa para permitir footers contextuais. */
   renderizarFooter?: (abaAtivaId?: string) => ReactNode
+  /** Força re-render do footer quando muda (ex.: carregando do botão Salvar). */
+  footerEpoch?: number | string
 
   // Tamanho
   /** Tamanho do modal. Padrão: 'md' */

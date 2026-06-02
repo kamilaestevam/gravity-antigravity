@@ -67,6 +67,7 @@ const FMT_REGIAO_KEYS: Record<string, string> = {
 }
 import { SecaoKanbanColunas } from './SecaoKanbanColunas'
 import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel, KanbanCardConfig, KanbanAbaConfig, PedidoStatusConfig } from '../shared/types'
+import { statusEhSistemaPedido, normalizarListaStatus } from '../shared/statusPedidoSistema'
 import { KANBAN_LIMITES, KANBAN_PADRAO, KANBAN_CAMPOS_DISPONIVEIS, KANBAN_CARD_CAMPOS_DISPONIVEIS, KANBAN_CARD_GRUPOS } from '../shared/types'
 import { ModalNovaColunaUsuario } from '../components/ConfiguracaoColunas/ModalNovaColunaUsuario'
 import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
@@ -471,27 +472,37 @@ function StatusSortavel({
 
         <span className="cfg-status-label">{status.rotulo}</span>
 
+        {statusEhSistemaPedido(status) && (
+          <TooltipGlobal descricao={t('pedido.config.status.tooltip_sistema')}>
+            <span className="cfg-badge-sistema">{t('pedido.config.status.badge_sistema')}</span>
+          </TooltipGlobal>
+        )}
+
         <div className="cfg-status-acoes">
-          <TooltipGlobal descricao={t('pedido.config.status.editar_tooltip')}>
-            <button
-              type="button"
-              className="cfg-eye-btn"
-              onClick={() => onIniciarEdicao(status)}
-              aria-label={t('pedido.config.status.aria_editar')}
-            >
-              <PencilSimple size={14} weight="bold" />
-            </button>
-          </TooltipGlobal>
-          <TooltipGlobal descricao={t('pedido.config.status.excluir_tooltip')}>
-            <button
-              type="button"
-              className="cfg-remove-btn"
-              onClick={() => onExcluir(status.id)}
-              aria-label={t('pedido.config.status.aria_excluir')}
-            >
-              <Trash size={14} weight="bold" />
-            </button>
-          </TooltipGlobal>
+          {!statusEhSistemaPedido(status) && (
+            <TooltipGlobal descricao={t('pedido.config.status.editar_tooltip')}>
+              <button
+                type="button"
+                className="cfg-eye-btn"
+                onClick={() => onIniciarEdicao(status)}
+                aria-label={t('pedido.config.status.aria_editar')}
+              >
+                <PencilSimple size={14} weight="bold" />
+              </button>
+            </TooltipGlobal>
+          )}
+          {!statusEhSistemaPedido(status) && (
+            <TooltipGlobal descricao={t('pedido.config.status.excluir_tooltip')}>
+              <button
+                type="button"
+                className="cfg-remove-btn"
+                onClick={() => onExcluir(status.id)}
+                aria-label={t('pedido.config.status.aria_excluir')}
+              >
+                <Trash size={14} weight="bold" />
+              </button>
+            </TooltipGlobal>
+          )}
         </div>
       </div>
 
@@ -2108,7 +2119,7 @@ export default function Configuracoes() {
     Promise.all([loadPrefs, pedidoConfigApi.listarStatus()])
       .then(([prefsRes, statusRes]) => {
         if (prefsRes !== null) setKanbanPrefs(prefsRes.data)
-        setKanbanApiStatus(statusRes.data ?? [])
+        setKanbanApiStatus(normalizarListaStatus(statusRes.data ?? []))
       })
       .catch(() => { if (kanbanPrefs === null) setKanbanPrefs(null) })
       .finally(() => setKanbanLoading(false))
@@ -2151,8 +2162,8 @@ export default function Configuracoes() {
   const kanbanColunasDirty = JSON.stringify(pendingColunasOcultas) !== JSON.stringify(kanbanPrefs?.colunas_ocultas ?? [])
 
   function kanbanColunaToggle(nome: string) {
-    const isSistema = kanbanApiStatus.find(s => s.nome === nome)?.is_sistema ?? false
-    if (isSistema) return  // colunas de sistema são obrigatórias e não podem ser ocultadas
+    const alvo = kanbanApiStatus.find(s => s.nome === nome)
+    if (alvo && statusEhSistemaPedido(alvo)) return  // colunas de sistema são obrigatórias e não podem ser ocultadas
     setPendingColunasOcultas(prev =>
       prev.includes(nome) ? prev.filter(n => n !== nome) : [...prev, nome],
     )
@@ -2275,7 +2286,7 @@ export default function Configuracoes() {
     setStatusErro(null)
     pedidoConfigApi.listarStatus()
       .then(res => {
-        const lista = res.data ?? []
+        const lista = normalizarListaStatus(res.data ?? [])
         setStatusList(lista)
         setPendingStatusList(lista)
         sincronizarStatusLocal(lista)
@@ -2396,6 +2407,7 @@ export default function Configuracoes() {
   }
 
   function iniciarEdicaoStatus(s: PedidoStatusConfig) {
+    if (statusEhSistemaPedido(s)) return
     setStatusEditandoId(s.id)
     setStatusEditLabel(s.rotulo)
     setStatusEditCor(s.cor)
@@ -2420,6 +2432,8 @@ export default function Configuracoes() {
   }
 
   function excluirStatus(id: string) {
+    const alvo = pendingStatusList.find(s => s.id === id)
+    if (alvo && statusEhSistemaPedido(alvo)) return
     setPendingStatusList(prev => prev.filter(s => s.id !== id))
   }
 
@@ -2457,7 +2471,7 @@ export default function Configuracoes() {
       let working = [...pendingStatusList]
       const idMap = new Map<string, string>()
 
-      const deleted = baseline.filter(b => !working.some(w => w.id === b.id))
+      const deleted = baseline.filter(b => !working.some(w => w.id === b.id) && !statusEhSistemaPedido(b))
       for (const item of deleted) {
         await pedidoConfigApi.deletarStatus(item.id)
       }
@@ -2478,7 +2492,7 @@ export default function Configuracoes() {
 
       for (const item of working) {
         const orig = baseline.find(b => b.id === item.id)
-        if (!orig) continue
+        if (!orig || statusEhSistemaPedido(orig)) continue
         if (orig.rotulo !== item.rotulo || orig.cor !== item.cor) {
           await pedidoConfigApi.atualizarStatus(item.id, {
             rotulo: item.rotulo,
@@ -2493,7 +2507,7 @@ export default function Configuracoes() {
       }
 
       const res = await pedidoConfigApi.listarStatus()
-      const lista = res.data ?? []
+      const lista = normalizarListaStatus(res.data ?? [])
       setStatusList(lista)
       setPendingStatusList(lista)
       sincronizarStatusLocal(lista)
@@ -3323,7 +3337,7 @@ export default function Configuracoes() {
                       setStatusErro(null)
                       pedidoConfigApi.listarStatus()
                         .then(res => {
-                          const lista = res.data ?? []
+                          const lista = normalizarListaStatus(res.data ?? [])
                           setStatusList(lista)
                           setPendingStatusList(lista)
                           sincronizarStatusLocal(lista)

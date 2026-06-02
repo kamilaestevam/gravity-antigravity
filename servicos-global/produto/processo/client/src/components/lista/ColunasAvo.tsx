@@ -49,6 +49,7 @@ export function buildColunasAvo(_t: TFunction): GTColuna<ProcessoAvoLinha>[] {
       label: 'Ref. interna',
       sortavel: true,
       filtravel: true,
+      editavel: true,
       render: (_v, p) => p.referencia_interna_processo ?? '—',
     },
     {
@@ -91,6 +92,7 @@ export function buildColunasAvo(_t: TFunction): GTColuna<ProcessoAvoLinha>[] {
       label: 'Responsável',
       sortavel: true,
       filtravel: true,
+      editavel: true,
     },
   ]
 }

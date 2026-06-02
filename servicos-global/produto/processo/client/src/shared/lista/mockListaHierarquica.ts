@@ -81,14 +81,14 @@ function criarItemMock(
   } as PedidoItem
 }
 
-const PEDIDOS: Array<Pedido & { id_processo: string }> = [
+export const PEDIDOS_MOCK_INICIAL: Array<Pedido & { id_processo: string }> = [
   criarPedidoMock({ id: 'ped-1', id_processo: 'proc-1', numero_pedido: 'PO-2026/001', valor_total_pedido: 45_000, nome_exportador: 'Shanghai Electronics Co.' }),
   criarPedidoMock({ id: 'ped-2', id_processo: 'proc-1', numero_pedido: 'PO-2026/002', valor_total_pedido: 63_050, status: 'em_andamento', nome_exportador: 'Shenzhen Parts Ltd.' }),
   criarPedidoMock({ id: 'ped-3', id_processo: 'proc-2', numero_pedido: 'PO-2026/003', valor_total_pedido: 54_200, nome_exportador: 'Korea Tech Ltd.' }),
   criarPedidoMock({ id: 'ped-4', id_processo: 'proc-3', numero_pedido: 'PO-2026/004', valor_total_pedido: 32_900, status: 'consolidado', nome_exportador: 'Vietnam Goods SA' }),
 ]
 
-const ITENS: PedidoItem[] = [
+export const ITENS_MOCK_INICIAL: PedidoItem[] = [
   criarItemMock({ id: 'item-1', pedido_id: 'ped-1', part_number: 'PCB-4401', descricao_item: 'Placa mãe industrial' }),
   criarItemMock({ id: 'item-2', pedido_id: 'ped-1', part_number: 'CAP-2200', descricao_item: 'Capacitor SMD' }),
   criarItemMock({ id: 'item-3', pedido_id: 'ped-2', part_number: 'LCD-9910', descricao_item: 'Display TFT 10"' }),
@@ -145,28 +145,45 @@ export const MOCK_PROCESSOS_AVO: ProcessoAvoLinha[] = [
   },
 ]
 
-export function pedidosDoProcesso(id_processo: string): Pedido[] {
-  return PEDIDOS.filter(p => p.id_processo === id_processo)
+export function pedidosDoProcesso(
+  id_processo: string,
+  pedidos: ReadonlyArray<Pedido & { id_processo: string }> = PEDIDOS_MOCK_INICIAL,
+): Pedido[] {
+  return pedidos.filter(p => p.id_processo === id_processo)
 }
 
-export function itensDoPedido(id_pedido: string): PedidoItem[] {
-  return ITENS.filter(i => i.pedido_id === id_pedido)
+export function pedidoPorId(
+  id_pedido: string,
+  pedidos: ReadonlyArray<Pedido & { id_processo: string }> = PEDIDOS_MOCK_INICIAL,
+): (Pedido & { id_processo: string }) | undefined {
+  return pedidos.find(p => p.id === id_pedido)
 }
 
-export function todosIdsPedidoMock(): string[] {
-  return PEDIDOS.map(p => p.id)
+export function itensDoPedido(
+  id_pedido: string,
+  itens: ReadonlyArray<PedidoItem> = ITENS_MOCK_INICIAL,
+): PedidoItem[] {
+  return itens.filter(i => i.pedido_id === id_pedido)
+}
+
+export function todosIdsPedidoMock(
+  pedidos: ReadonlyArray<Pedido & { id_processo: string }> = PEDIDOS_MOCK_INICIAL,
+): string[] {
+  return pedidos.map(p => p.id)
 }
 
 /** Filhos visíveis sob o processo — itens só quando o pedido está expandido. */
 export function filhosVisiveisDoProcesso(
   id_processo: string,
   pedidosExpandidos: ReadonlySet<string>,
+  pedidos: ReadonlyArray<Pedido & { id_processo: string }> = PEDIDOS_MOCK_INICIAL,
+  itens: ReadonlyArray<PedidoItem> = ITENS_MOCK_INICIAL,
 ): FilhoLinhaLista[] {
   const linhas: FilhoLinhaLista[] = []
-  for (const pedido of pedidosDoProcesso(id_processo)) {
+  for (const pedido of pedidosDoProcesso(id_processo, pedidos)) {
     linhas.push({ camada: 'pedido', pedido })
     if (pedidosExpandidos.has(pedido.id)) {
-      for (const item of itensDoPedido(pedido.id)) {
+      for (const item of itensDoPedido(pedido.id, itens)) {
         linhas.push({ camada: 'item', item })
       }
     }

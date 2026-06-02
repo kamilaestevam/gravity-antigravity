@@ -320,3 +320,9 @@
   margin-left: 2px;
 }
 
+.pl-page .pl-celula-vazia {
+  color: var(--text-muted, #64748b);
+  opacity: 0.45;
+  user-select: none;
+}
+

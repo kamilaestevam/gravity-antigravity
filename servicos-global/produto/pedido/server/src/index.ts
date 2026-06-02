@@ -62,6 +62,7 @@ import { saldoFormulaRouter } from './routes/saldo-formula-pedido.js'
 import { initRouter } from './routes/inicializacao-pedido.js'
 import { internalCadastrosChangedRouter } from './routes/internal-cadastros-changed.js'
 import { listaPedidoKpisRouter } from './routes/lista-pedido-kpis.js'
+import { visaoGeralAgregadoRouter } from './routes/visao-geral-agregado.js'
 import { invalidarCacheDashboardAoMutarPedido } from './middleware/invalidar-cache-dashboard-pedido.js'
 import { pedidosRouter } from '../../../processos-core/src/routes/pedidos.js'
 import { pedidosConfigRouter } from '../../../processos-core/src/routes/pedidos-config.js'
@@ -281,6 +282,7 @@ app.post('/api/v1/pedidos/exportar',                   exigirPermissao('lista', 
 app.use('/api/v1/pedidos',                             importacaoRouter)
 // CRUD principal — deve vir após os routers de sub-rotas estáticas
 app.use('/api/v1/pedidos/lista',                       exigirPermissao('lista', 'ver'), listaPedidoKpisRouter)
+app.use('/api/v1/pedidos/visao-geral',               exigirPermissao('dashboard', 'ver'), visaoGeralAgregadoRouter)
 app.use('/api/v1/pedidos',                             exigirPorMetodo('lista'), pedidosRouter)
 // Parâmetros dinâmicos após todos os estáticos
 app.use('/api/v1/pedidos/:id_pedido/transferencias',   exigirPermissao('lista', 'editar'), transferirRouter)

@@ -34,13 +34,13 @@ import { resolverPageMetaTopo } from './shared/page-meta-topo'
 import { PaginaCarregandoBidFreteInternacional } from './shared/pagina-carregando-bid-frete-internacional'
 import './shared/bid-frete-page-shell.css'
 import { BidFreteVisualizacaoLayout } from './components/BidFreteVisualizacaoLayout'
+import { BidFreteMultiView } from './components/BidFreteMultiView'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 
-const VisaoGeral = lazy(() => import('./pages/visao-geral'))
-const Dashboard = lazy(() => import('./pages/dashboard'))
-const Cotacoes = lazy(() => import('./pages/lista-bid-frete-internacional'))
+const bidFreteVisualizacoesClienteElement = <BidFreteMultiView modo="cliente" />
+const bidFreteVisualizacoesFornecedorElement = <BidFreteMultiView modo="fornecedor" />
 const ModalNovaCotacaoBidFreteInternacional = lazy(
   () => import('./pages/modal-nova-cotacao-bid-frete-internacional'),
 )
@@ -51,10 +51,6 @@ const Fornecedores = lazy(() => import('./pages/fornecedores-lista'))
 const DetalheFornecedor = lazy(() => import('./pages/fornecedor-detalhe'))
 const Configuracoes = lazy(() => import('./pages/configuracoes'))
 
-const VisaoFornecedorDashboard = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-dashboard'))
-const VisaoFornecedorPaineisDashboard = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-paineis-dashboard'))
-const VisaoFornecedorLista = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/lista-visao-fornecedor-bid-frete-internacional'))
-const VisaoFornecedorKanban = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/kanban-visao-fornecedor-bid-frete-internacional'))
 const VisaoFornecedorCotacoesPendentes = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-cotacoes-pendentes'))
 const VisaoFornecedorPropostas = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-propostas'))
 const VisaoFornecedorTabelasValor = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-tabelas-valor'))
@@ -288,10 +284,12 @@ export default function App() {
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/"              element={<Navigate to="visao-geral" replace />} />
-          <Route path="visao-geral"    element={<BidFreteVisualizacaoLayout modo="cliente"><VisaoGeral /></BidFreteVisualizacaoLayout>} />
-          <Route path="dashboard"      element={<BidFreteVisualizacaoLayout modo="cliente"><Dashboard /></BidFreteVisualizacaoLayout>} />
-          <Route path="lista"          element={<BidFreteVisualizacaoLayout modo="cliente"><Cotacoes /></BidFreteVisualizacaoLayout>} />
-          <Route path="kanban"         element={<BidFreteVisualizacaoLayout modo="cliente"><Cotacoes /></BidFreteVisualizacaoLayout>} />
+          <Route element={<BidFreteVisualizacaoLayout modo="cliente" />}>
+            <Route path="visao-geral" element={bidFreteVisualizacoesClienteElement} />
+            <Route path="dashboard"   element={bidFreteVisualizacoesClienteElement} />
+            <Route path="lista"       element={bidFreteVisualizacoesClienteElement} />
+            <Route path="kanban"      element={bidFreteVisualizacoesClienteElement} />
+          </Route>
           <Route path="cotacoes"       element={<RedirectCotacoesVisaoLegado />} />
           <Route path="cotacoes/nova" element={<ModalNovaCotacaoBidFreteInternacional />} />
           <Route path="cotacoes/importar" element={<CotacoesImportar />} />
@@ -299,18 +297,20 @@ export default function App() {
           <Route path="cotacoes/:id_cotacao/comparativo" element={<Comparativo />} />
           <Route path="fornecedores"   element={<Fornecedores />} />
           <Route path="fornecedores/:id_fornecedor" element={<DetalheFornecedor />} />
-          <Route path="configuracoes"  element={<BidFreteVisualizacaoLayout modo="cliente"><Configuracoes /></BidFreteVisualizacaoLayout>} />
+          <Route path="configuracoes" element={<Configuracoes />} />
 
           <Route path="visao-fornecedor-bid-frete-internacional" element={<Navigate to="visao-fornecedor-bid-frete-internacional/dashboard" replace />} />
-          <Route path="visao-fornecedor-bid-frete-internacional/dashboard" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorDashboard /></BidFreteVisualizacaoLayout>} />
-          <Route path="visao-fornecedor-bid-frete-internacional/paineis-dashboard" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorPaineisDashboard /></BidFreteVisualizacaoLayout>} />
-          <Route path="visao-fornecedor-bid-frete-internacional/lista" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorLista /></BidFreteVisualizacaoLayout>} />
-          <Route path="visao-fornecedor-bid-frete-internacional/kanban" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorKanban /></BidFreteVisualizacaoLayout>} />
+          <Route element={<BidFreteVisualizacaoLayout modo="fornecedor" />}>
+            <Route path="visao-fornecedor-bid-frete-internacional/dashboard" element={bidFreteVisualizacoesFornecedorElement} />
+            <Route path="visao-fornecedor-bid-frete-internacional/paineis-dashboard" element={bidFreteVisualizacoesFornecedorElement} />
+            <Route path="visao-fornecedor-bid-frete-internacional/lista" element={bidFreteVisualizacoesFornecedorElement} />
+            <Route path="visao-fornecedor-bid-frete-internacional/kanban" element={bidFreteVisualizacoesFornecedorElement} />
+          </Route>
           <Route path="visao-fornecedor-bid-frete-internacional/cotacoes-pendentes" element={<VisaoFornecedorCotacoesPendentes />} />
           <Route path="visao-fornecedor-bid-frete-internacional/propostas" element={<VisaoFornecedorPropostas />} />
           <Route path="visao-fornecedor-bid-frete-internacional/tabelas-valor" element={<VisaoFornecedorTabelasValor />} />
           <Route path="visao-fornecedor-bid-frete-internacional/desempenho" element={<VisaoFornecedorDesempenho />} />
-          <Route path="visao-fornecedor-bid-frete-internacional/configuracoes" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorConfiguracoes /></BidFreteVisualizacaoLayout>} />
+          <Route path="visao-fornecedor-bid-frete-internacional/configuracoes" element={<VisaoFornecedorConfiguracoes />} />
           <Route path="visao-fornecedor-bid-frete-internacional/responder/:id_disparo_cotacao_bid_frete_internacional" element={<VisaoFornecedorResponderCotacao />} />
 
           {/* Redirects legado portal → visão fornecedor */}

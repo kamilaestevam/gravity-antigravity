@@ -58,6 +58,7 @@ import type {
 } from './types'
 import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 import { smartImportPreviewSchema } from '../../../shared/smart-import-schemas.js'
+import { visaoGeralAgregadoResponseSchema } from './visao-geral-schemas.js'
 
 let context = { idOrganizacao: '', userId: '', userName: '', idWorkspace: '' }
 
@@ -340,6 +341,22 @@ export const pedidoItemApi = {
       method: 'PATCH',
       body: JSON.stringify({ ids }),
     }),
+}
+
+// ── Visão Geral (agregado server-side) ────────────────────────────────────────
+
+export const pedidoVisaoGeralApi = {
+  agregado: (idsWorkspacesFiltro?: string[]) => {
+    const qs = new URLSearchParams()
+    if (idsWorkspacesFiltro?.length) {
+      qs.set('ids_workspaces', idsWorkspacesFiltro.join(','))
+    }
+    const suffix = qs.toString() ? `?${qs.toString()}` : ''
+    return request<unknown>(`/api/v1/pedidos/visao-geral/agregado${suffix}`).then(raw => {
+      const parsed = visaoGeralAgregadoResponseSchema.parse(raw)
+      return parsed.data
+    })
+  },
 }
 
 // ── Cursor pagination + inline edit ───────────────────────────────────────────

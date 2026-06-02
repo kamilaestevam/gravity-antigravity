@@ -961,7 +961,7 @@ export default function PedidosDashboard() {
     { value: 'custom',        label: t('nucleo.dashboard.periodo.personalizado') },
   ], [t])
 
-  const { data: statusApiRes } = usePedidoStatus({ staleTime: 0, refetchOnMount: 'always' })
+  const { data: statusApiRes } = usePedidoStatus()
 
   const statusConfig = useMemo(
     (): Record<string, { label: string; cor: string }> => mapaRotulosStatusConfig(statusApiRes?.data),

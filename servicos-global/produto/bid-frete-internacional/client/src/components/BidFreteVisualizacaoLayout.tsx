@@ -1,25 +1,28 @@
 /**
- * BidFreteVisualizacaoLayout — envolve Insights, Lista, Dashboard e Kanban
- * com o seletor fixo no topo (cliente ou visão fornecedor).
+ * BidFreteVisualizacaoLayout — seletor fixo + Outlet (layout route).
  */
 
 import React from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 import { BidFreteVisualizacaoTabs, type ModoVisualizacaoBidFrete } from './BidFreteVisualizacaoTabs'
+import {
+  BidFreteVisualizacaoProvider,
+  resolverBidFreteVisualizacaoPorPathname,
+} from './bid-frete-visualizacao-context'
 import './BidFreteVisualizacaoTabs.css'
 
-export function BidFreteVisualizacaoLayout({
-  modo,
-  children,
-}: {
-  modo: ModoVisualizacaoBidFrete
-  children: React.ReactNode
-}) {
+export function BidFreteVisualizacaoLayout({ modo }: { modo: ModoVisualizacaoBidFrete }) {
+  const location = useLocation()
+  const visualizacaoAtiva = resolverBidFreteVisualizacaoPorPathname(location.pathname, modo)
+
   return (
-    <div className="bid-frete-visualizacao-layout">
-      <div className="bid-frete-visualizacao-layout__tabs">
-        <BidFreteVisualizacaoTabs modo={modo} />
+    <BidFreteVisualizacaoProvider modo={modo} visualizacaoAtiva={visualizacaoAtiva}>
+      <div className="bid-frete-visualizacao-layout">
+        <div className="bid-frete-visualizacao-layout__tabs">
+          <BidFreteVisualizacaoTabs modo={modo} />
+        </div>
+        <Outlet />
       </div>
-      {children}
-    </div>
+    </BidFreteVisualizacaoProvider>
   )
 }

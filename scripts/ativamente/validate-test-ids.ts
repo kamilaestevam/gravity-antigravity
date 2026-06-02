@@ -30,7 +30,7 @@ const REGISTRY  = join(TESTES, 'test-plans-registry.json')
 const TIPOS_VALIDOS    = ['UNI', 'CON', 'FUN', 'CRO', 'E2E', 'PEN'] as const
 const ESCOPOS_VALIDOS  = [
   'LOGIN', 'CONFIG', 'ADMIN', 'HUB', 'CORE', 'MARKET', 'TENANT', 'DBASE',
-  'PEDIDO', 'NFIMP', 'LPCO', 'BIDFRT', 'BIDCAM', 'SIMCUS', 'FINCOM', 'PROCSO',
+  'PEDIDO', 'NFIMP', 'LPCO', 'BIDFRT', 'BIDCAM', 'SIMCUS', 'FINCOM', 'PROCSO', 'MBOTO',
 ] as const
 
 const ID_REGEX = new RegExp(

@@ -8,6 +8,7 @@
  */
 
 import { useState, useEffect, useRef, useMemo } from 'react'
+import { usePainelInsightsAtivo } from '../components/pedidos-visualizacao-context'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useVirtualizer } from '@tanstack/react-virtual'
@@ -1234,6 +1235,12 @@ const GLOBE_PIN_VISIVEL_MIN_RZ = -0.12
 
 function VisaoGeralMapa() {
   const { t } = useTranslation()
+  const painelInsightsAtivo = usePainelInsightsAtivo()
+  const painelInsightsAtivoRef = useRef(painelInsightsAtivo)
+  useEffect(() => {
+    painelInsightsAtivoRef.current = painelInsightsAtivo
+  }, [painelInsightsAtivo])
+
   const { mapa, total } = useVisaoGeralPedido()
   const { pins, globeRoutes, detalhesPorLocKey, topOrigens, topDestinos, modaisGlobo } = mapa
 
@@ -1537,6 +1544,11 @@ function VisaoGeralMapa() {
     }
 
     const renderFrame = () => {
+      if (!painelInsightsAtivoRef.current) {
+        animId = requestAnimationFrame(renderFrame)
+        return
+      }
+
       const canvas = canvasRef.current
       if (!canvas) {
         animId = requestAnimationFrame(renderFrame)
@@ -1921,7 +1933,7 @@ function VisaoGeralMapa() {
     
     animId = requestAnimationFrame(renderFrame)
     return () => cancelAnimationFrame(animId)
-  }, [activePoints])
+  }, [activePoints, painelInsightsAtivo])
   
   // Drag physics mouse handlers
   const handleMouseDown = (e: React.MouseEvent) => {

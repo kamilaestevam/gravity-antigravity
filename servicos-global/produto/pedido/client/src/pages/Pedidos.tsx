@@ -17,6 +17,8 @@ import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
 import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
+import { useListaPainelPedido } from '../shared/useListaPainelPedido'
+import { PedidosListaPainelBar } from '../components/PedidosListaPainelBar'
 import { useSelecaoStore, usePedidosSelecionados, useItensSelecionados, useHasMixedTipos } from '../shared/state/selecaoStore'
 import { useLinkContextualSync } from '../shared/state/useLinkContextualSync'
 import {
@@ -4082,6 +4084,19 @@ export default function Pedidos() {
   const pedirAbrirMenuWorkspaces = useEscopoWorkspacesPedido(s => s.pedirAbrirMenuWorkspaces)
   const workspacesSelecionados = idsWorkspacesEscopo
 
+  const {
+    paineis: paineisLista,
+    setPaineis: setPaineisLista,
+    painelAtualId: painelListaAtualId,
+    setPainelAtualId: setPainelListaAtualId,
+    painelAtual: painelListaAtual,
+    carregando: carregandoPaineisLista,
+    aplicarConfigDoPainel,
+    persistirPainelAtual,
+    trocarPainel: trocarPainelLista,
+  } = useListaPainelPedido()
+  const painelListaAplicadoRef = useRef<string | null>(null)
+
   // ── GABI quota badge ────────────────────────────────────────────────────────
   // useGabiQuota faz fetch direto sem passar pelo request() do api.ts —
   // precisamos injetar Authorization: Bearer aqui (mesmo padrao da Pedido SDK
@@ -4761,6 +4776,81 @@ export default function Pedidos() {
     }
   }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo, t])
 
+  const listaPainelCallbacks = useMemo(() => ({
+    setPreferencias,
+    setAbaAtiva,
+    setSortCampo,
+    setSortDir,
+    setBusca,
+    setFiltrosAtivos,
+    onConfigAplicada: (aba: string, campo: string, dir: 'asc' | 'desc', buscaTermo: string) => {
+      void carregarInicial(aba, campo, dir, buscaTermo, 1, true)
+    },
+  }), [carregarInicial])
+
+  useEffect(() => {
+    if (!painelListaAtual || carregandoPaineisLista) return
+    if (painelListaAplicadoRef.current === painelListaAtual.id) return
+    aplicarConfigDoPainel(painelListaAtual, listaPainelCallbacks)
+    painelListaAplicadoRef.current = painelListaAtual.id
+  }, [painelListaAtual, carregandoPaineisLista, aplicarConfigDoPainel, listaPainelCallbacks])
+
+  const handleTrocarPainelLista = useCallback((id: string) => {
+    void trocarPainelLista(
+      id,
+      {
+        preferencias,
+        abaAtiva,
+        sortCampo,
+        sortDir,
+        busca,
+        filtrosAtivos,
+        cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+        periodoCards,
+      },
+      listaPainelCallbacks,
+    ).then(() => {
+      painelListaAplicadoRef.current = id
+    })
+  }, [
+    trocarPainelLista,
+    preferencias,
+    abaAtiva,
+    sortCampo,
+    sortDir,
+    busca,
+    filtrosAtivos,
+    cardsVisiveis,
+    periodoCards,
+    listaPainelCallbacks,
+  ])
+
+  useEffect(() => {
+    if (!painelListaAtualId || carregandoPaineisLista) return
+    persistirPainelAtual({
+      preferencias,
+      abaAtiva,
+      sortCampo,
+      sortDir,
+      busca,
+      filtrosAtivos,
+      cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+      periodoCards,
+    })
+  }, [
+    preferencias,
+    abaAtiva,
+    sortCampo,
+    sortDir,
+    busca,
+    filtrosAtivos,
+    cardsVisiveis,
+    periodoCards,
+    painelListaAtualId,
+    carregandoPaineisLista,
+    persistirPainelAtual,
+  ])
+
   /** Mesmo padrão de Edição em Massa / Consolidar — limpa cache de filhos antes de listar. */
   const recarregarListaPosImportacao = useCallback(async () => {
     itensCarregadosRef.current.clear()
@@ -5197,16 +5287,12 @@ export default function Pedidos() {
         setAbas(abasLocal)
       })
 
-    // Carregar preferências e colunas customizadas em paralelo para mesclar corretamente
-    Promise.all([
-      pedidoConfigApi.obterPreferenciaUsuarioColunaPedido().catch(() => ({ data: null })),
-      colunasUsuarioApi.listar().catch(() => [] as ColunaUsuario[]),
-    ]).then(([prefsResp, lista]) => {
+    // Colunas customizadas — preferências de colunas vêm do painel ativo (API lista/paineis).
+    colunasUsuarioApi.listar().catch(() => [] as ColunaUsuario[]).then((lista) => {
       setColunasUsuario(lista)
 
-      const prefs = prefsResp?.data ?? null
-      const savedVisible: string[] = prefs?.colunas_visiveis && prefs.colunas_visiveis.length > 0
-        ? prefs.colunas_visiveis
+      const savedVisible: string[] = preferencias?.colunas_visiveis && preferencias.colunas_visiveis.length > 0
+        ? preferencias.colunas_visiveis
         : COLUNAS_PADRAO_VISIVEIS
 
       // Colunas customizadas ativas que ainda não estão nas preferências salvas
@@ -5279,15 +5365,12 @@ export default function Pedidos() {
         ? [...visivelComMigracao, ...novas]
         : savedVisible
 
-      if (novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao) {
-        // Persistir preferências com as novas colunas (ou reposicionamento) para
-        // que hide/show e a ordem funcionem corretamente em todos os dispositivos.
-        pedidoConfigApi.salvarPreferenciaUsuarioColunaPedido({ colunas_visiveis: finalVisible }).catch(() => {})
-      }
-
-      setPreferencias({ colunas_visiveis: finalVisible })
+      setPreferencias(prev => ({
+        colunas_visiveis: finalVisible,
+        ...(prev?.colunas_largura ? { colunas_largura: prev.colunas_largura } : {}),
+      }))
     })
-  }, [idOrganizacao]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [idOrganizacao, preferencias?.colunas_visiveis]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Fechar dropdown ao clicar fora ──────────────────────────────────────────
   useEffect(() => {
@@ -6347,10 +6430,29 @@ export default function Pedidos() {
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
-    pedidoConfigApi.salvarPreferenciaUsuarioColunaPedido({
-      colunas_visiveis: prefs.colunas_visiveis,
-    }).catch(() => { /* silent — preferências ficam localmente */ })
-  }, [])
+    if (painelListaAtualId) {
+      persistirPainelAtual({
+        preferencias: prefs,
+        abaAtiva,
+        sortCampo,
+        sortDir,
+        busca,
+        filtrosAtivos,
+        cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+        periodoCards,
+      })
+    }
+  }, [
+    painelListaAtualId,
+    persistirPainelAtual,
+    abaAtiva,
+    sortCampo,
+    sortDir,
+    busca,
+    filtrosAtivos,
+    cardsVisiveis,
+    periodoCards,
+  ])
 
   // ── Ações em lote ─────────────────────────────────────────────────────────────
 
@@ -6494,6 +6596,15 @@ export default function Pedidos() {
           <GabiTokenBadge tokensUsados={gabiQuota.tokens_usados} quotaMensal={gabiQuota.quota_mensal} />
         </div>
       )}
+
+      <PedidosListaPainelBar
+        paineis={paineisLista}
+        painelAtualId={painelListaAtualId}
+        setPaineis={setPaineisLista}
+        setPainelAtualId={setPainelListaAtualId}
+        onTrocarPainel={handleTrocarPainelLista}
+        carregando={carregandoPaineisLista}
+      />
 
       {/* ── KPI cards ── */}
       <ListaPedidoCards

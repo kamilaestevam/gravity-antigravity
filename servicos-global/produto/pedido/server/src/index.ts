@@ -62,6 +62,7 @@ import { saldoFormulaRouter } from './routes/saldo-formula-pedido.js'
 import { initRouter } from './routes/inicializacao-pedido.js'
 import { internalCadastrosChangedRouter } from './routes/internal-cadastros-changed.js'
 import { listaPedidoKpisRouter } from './routes/lista-pedido-kpis.js'
+import { listaPaineisRouter } from './routes/lista-pedido-paineis.js'
 import { invalidarCacheDashboardAoMutarPedido } from './middleware/invalidar-cache-dashboard-pedido.js'
 import { pedidosRouter } from '../../../processos-core/src/routes/pedidos.js'
 import { pedidosConfigRouter } from '../../../processos-core/src/routes/pedidos-config.js'
@@ -280,6 +281,7 @@ app.post('/api/v1/pedidos/importar/confirmar',         exigirPermissao('lista', 
 app.post('/api/v1/pedidos/exportar',                   exigirPermissao('lista', 'editar'))
 app.use('/api/v1/pedidos',                             importacaoRouter)
 // CRUD principal — deve vir após os routers de sub-rotas estáticas
+app.use('/api/v1/pedidos/lista',                       exigirPermissao('lista', 'ver'), listaPaineisRouter)
 app.use('/api/v1/pedidos/lista',                       exigirPermissao('lista', 'ver'), listaPedidoKpisRouter)
 app.use('/api/v1/pedidos',                             exigirPorMetodo('lista'), pedidosRouter)
 // Parâmetros dinâmicos após todos os estáticos
@@ -316,7 +318,7 @@ app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res
   // Garante message mesmo se err não for instância de Error
   const message = err.message || (err as unknown as { toString(): string }).toString?.() || 'Erro interno'
   if (status >= 500) console.error('[Pedido/Server]', message, err.stack)
-  res.status(status).json({ error: { message, code } })
+  if (!res.headersSent) res.status(status).json({ error: { message, code } })
 })
 
 // ── Start ─────────────────────────────────────────────────────────────────────

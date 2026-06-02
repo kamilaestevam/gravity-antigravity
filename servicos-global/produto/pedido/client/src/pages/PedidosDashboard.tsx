@@ -28,7 +28,6 @@ import {
   DashboardWidgetLinha,
   DashboardWidgetBarras,
   DashboardWidgetDistribuicao,
-  DashboardBarraFerramentas,
   DashboardPainelEditarModal,
   DashboardPainelSugestoes,
   DashboardValorKPI,
@@ -84,6 +83,7 @@ import { contagemPorStatusSlug, mapaRotulosStatusConfig, rotuloStatusSlug } from
 import { usePedidoStatus } from '../shared/queries'
 import { periodoEhPadrao, rotuloPeriodoDashboard, widgetUsaPeriodoProprio } from '../shared/dashboardPeriodoUtil'
 import '../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
+import { BarraFerramentasDashboardPedido } from '../components/dashboard/BarraFerramentasDashboardPedido'
 
 // ── Dados reais — converte resposta da API em WidgetResult ────────────────────
 
@@ -728,8 +728,8 @@ const gabiEmptyStyles = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.25rem',
-    margin: '0.75rem 0 0.5rem',
-    padding: '0 0.25rem',
+    margin: 0,
+    padding: 0,
     flexWrap: 'wrap' as const,
   },
   painelTab: {
@@ -1684,39 +1684,211 @@ export default function PedidosDashboard() {
     })
   )
 
+  const temWidgets = activeWidgets.length > 0
+
+  const chipsPeriodoRodape = filtrosPeriodoAtivos.length > 0 ? (
+    <div className="fc-chips-container" role="status" aria-label={t('pedido.dashboard.filtros_periodo_aria', { defaultValue: 'Filtros de período ativos' })}>
+      {filtrosPeriodoAtivos.map(f => (
+        <span key={f.id} className="fc-chip">
+          <span className="fc-chip-body">
+            <span className="fc-chip-valor">{f.label}</span>
+          </span>
+          <button type="button" className="fc-chip-remove" onClick={f.onClear} aria-label={t('pedido.dashboard.remover_filtro_periodo', { defaultValue: 'Remover filtro de período' })}>
+            ×
+          </button>
+        </span>
+      ))}
+    </div>
+  ) : null
+
+  const bannerOnboarding = !temWidgets ? (
+    <div style={onboardingBannerContent}>
+      <span style={onboardingBannerTitle}>{t('pedido.dashboard.onboarding_titulo')}</span>
+      <span style={onboardingBannerText}>{t('pedido.dashboard.onboarding_texto')}</span>
+      <div style={onboardingBannerActions}>
+        <button type="button" style={onboardingBtnAccent} onClick={() => setSuggestionsOpen(true)}>
+          <RocketLaunch size={13} weight="fill" />
+          {t('pedido.dashboard.onboarding_explorar_sugestoes')}
+        </button>
+        <button type="button" style={onboardingBtnGhost} onClick={() => { setEditMode(true); setQueryBuilderOpen(true) }}>
+          {t('pedido.dashboard.onboarding_criar_dashboard')}
+        </button>
+      </div>
+    </div>
+  ) : undefined
+
+  const seletorPaineis = paineis.length > 0 ? (
+    <div style={sty.painelBar} className="pedido-dashboard-painel-bar">
+      <DndContext sensors={painelSensors} collisionDetection={closestCenter} onDragEnd={handlePainelDragEnd}>
+        <SortableContext
+          items={paineis.filter(p => p.is_visivel).map(p => p.id)}
+          strategy={horizontalListSortingStrategy}
+        >
+          {paineis.filter(p => p.is_visivel).map(p => (
+            <SortableTabWrapper key={p.id} id={p.id}>
+              {renamingId === p.id ? (
+                <form
+                  style={sty.painelNovoForm}
+                  onSubmit={(e) => { e.preventDefault(); handleRenomearPainel(p.id, renameValue) }}
+                  onPointerDown={e => e.stopPropagation()}
+                >
+                  <input
+                    autoFocus
+                    type="text"
+                    value={renameValue}
+                    onChange={e => setRenameValue(e.target.value)}
+                    onBlur={() => handleRenomearPainel(p.id, renameValue)}
+                    onKeyDown={e => { if (e.key === 'Escape') { setRenamingId(null); renameInFlightRef.current = null } }}
+                    style={sty.painelRenameInput}
+                    maxLength={60}
+                  />
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  style={p.id === painelAtualId ? sty.painelTabAtivo : sty.painelTab}
+                  onClick={() => handleTrocarPainel(p.id)}
+                  onDoubleClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome) }}
+                  onPointerDown={e => e.stopPropagation()}
+                >
+                  <span style={sty.painelTabInner}>
+                    {p.nome}
+                    <span
+                      role="button"
+                      aria-label={t('pedido.dashboard.painel_opcoes')}
+                      style={sty.painelMenuBtn}
+                      onPointerDown={e => e.stopPropagation()}
+                      onClick={(e) => { e.stopPropagation(); setMenuPainelId(prev => prev === p.id ? null : p.id); setDeletingId(null) }}
+                    >
+                      <DotsThree size={14} weight="bold" />
+                    </span>
+                  </span>
+                </button>
+              )}
+
+              {menuPainelId === p.id && (
+                <div style={sty.painelMenuDropdown} onClick={e => e.stopPropagation()} onPointerDown={e => e.stopPropagation()}>
+                  {deletingId === p.id ? (
+                    <div style={{ padding: '0.5rem 0.75rem' }}>
+                      <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 0.5rem' }}>
+                        {t('pedido.dashboard.painel_excluir_prefixo')}{' '}
+                        <strong style={{ color: '#fff' }}>{p.nome}</strong>
+                        {t('pedido.dashboard.painel_excluir_sufixo')}
+                      </p>
+                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                        <button type="button" style={sty.painelNovoBtnOk} onClick={() => handleDeletarPainel(p.id)}>
+                          {t('comum.confirmar')}
+                        </button>
+                        <button type="button" style={sty.painelNovoBtnCancel} onClick={() => setDeletingId(null)}>
+                          {t('comum.cancelar')}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        style={sty.painelMenuItem}
+                        onClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome); setMenuPainelId(null) }}
+                      >
+                        <PencilSimple size={13} />
+                        {t('pedido.dashboard.painel_renomear')}
+                      </button>
+                      <button
+                        type="button"
+                        style={paineis.length <= 1 ? { ...sty.painelMenuItemDanger, opacity: 0.35, cursor: 'default' } : sty.painelMenuItemDanger}
+                        onClick={() => paineis.length > 1 && setDeletingId(p.id)}
+                        disabled={paineis.length <= 1}
+                        title={paineis.length <= 1 ? t('pedido.dashboard.painel_excluir_unico_bloqueado') : ''}
+                      >
+                        <Trash size={13} />
+                        {t('pedido.dashboard.painel_excluir')}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </SortableTabWrapper>
+          ))}
+        </SortableContext>
+      </DndContext>
+
+      {criandoPainel ? (
+        <form
+          style={sty.painelNovoForm}
+          onSubmit={(e) => {
+            e.preventDefault()
+            const nome = novoNomePainel.trim()
+            if (!nome) return
+            if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
+            paineisDashboardApi.criar(nome).then(({ data }) => {
+              salvarWidgetsPainelAtual(data.id, [])
+              setPaineis([...paineis, data])
+              setPainelAtual(data.id)
+              setNovoNomePainel('')
+              setCriandoPainel(false)
+            }).catch(() => {})
+          }}
+        >
+          <input
+            autoFocus
+            type="text"
+            placeholder={t('pedido.dashboard.painel_novo_placeholder')}
+            value={novoNomePainel}
+            onChange={(e) => setNovoNomePainel(e.target.value)}
+            style={sty.painelNovoInput}
+            maxLength={60}
+          />
+          <button type="submit" style={sty.painelNovoBtnOk}>{t('pedido.dashboard.painel_criar')}</button>
+          <button type="button" style={sty.painelNovoBtnCancel} onClick={() => { setCriandoPainel(false); setNovoNomePainel('') }}>
+            <X size={11} />
+          </button>
+        </form>
+      ) : (
+        <button type="button" style={sty.painelAddBtn} onClick={() => setCriandoPainel(true)} title={t('pedido.dashboard.painel_novo')}>
+          +
+        </button>
+      )}
+
+      {ncmStatus && (ncmStatus.itens_invalidos > 0 || ncmStatus.sem_sync) && (
+        <span
+          title={ncmStatus.sem_sync
+            ? t('pedido.dashboard.ncm_nao_sincronizada')
+            : t('pedido.dashboard.ncm_itens_invalidos_tooltip', { count: ncmStatus.itens_invalidos })
+          }
+          style={{
+            marginLeft: 'auto',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.3rem',
+            background: 'rgba(251,191,36,0.1)',
+            border: '1px solid rgba(251,191,36,0.3)',
+            borderRadius: '999px',
+            padding: '0.2rem 0.6rem',
+            fontSize: '0.7rem',
+            fontWeight: 600,
+            color: '#fbbf24',
+            cursor: 'default',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <Warning size={11} weight="fill" />
+          {ncmStatus.sem_sync
+            ? t('pedido.dashboard.ncm_desatualizada')
+            : t('pedido.dashboard.ncm_invalido_chip', { count: ncmStatus.itens_invalidos })}
+        </span>
+      )}
+    </div>
+  ) : null
+
   return (
     <div className="pedido-page-shell" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, gap: '1rem' }}>
 
-      {/* ── Onboarding banner — fixo, nunca some ───────────────────────── */}
-      <div style={onboardingBannerStyle}>
-        <div style={onboardingBannerContent}>
-          <span style={onboardingBannerTitle}>{t('pedido.dashboard.onboarding_titulo')}</span>
-          <span style={onboardingBannerText}>
-            {t('pedido.dashboard.onboarding_texto')}
-          </span>
-          <div style={onboardingBannerActions}>
-            <button
-              type="button"
-              style={onboardingBtnAccent}
-              onClick={() => setSuggestionsOpen(true)}
-            >
-              <RocketLaunch size={13} weight="fill" />
-              {t('pedido.dashboard.onboarding_explorar_sugestoes')}
-            </button>
-            <button
-              type="button"
-              style={onboardingBtnGhost}
-              onClick={() => { setEditMode(true); setQueryBuilderOpen(true) }}
-            >
-              {t('pedido.dashboard.onboarding_criar_dashboard')}
-            </button>
-          </div>
-        </div>
-      </div>
-
-
-      {/* T-07/08: statusCounts do kpisData em memória | T-10: compactStatus responsivo */}
-      <DashboardBarraFerramentas
+      <BarraFerramentasDashboardPedido
+        seletorPaineis={seletorPaineis}
+        temWidgets={temWidgets}
+        bannerOnboarding={bannerOnboarding}
+        chipsPeriodo={chipsPeriodoRodape}
         slicers={slicers}
         onPeriodChange={handlePeriodChange}
         periodOptions={periodOptions}
@@ -1736,197 +1908,12 @@ export default function PedidosDashboard() {
           concluidos:   kpisData.pedidos_consolidados,
         } : undefined}
         compactStatus={compactStatus}
-        onAddWidget={undefined}
-        onSuggestionsOpen={() => setSuggestionsOpen(true)}
+        onAddWidget={
+          editMode && podeEditarDashboard
+            ? () => setSuggestionsOpen(true)
+            : undefined
+        }
       />
-
-      {filtrosPeriodoAtivos.length > 0 && (
-        <div className="fc-chips-container" role="status" aria-label={t('pedido.dashboard.filtros_periodo_aria', { defaultValue: 'Filtros de período ativos' })}>
-          {filtrosPeriodoAtivos.map(f => (
-            <span key={f.id} className="fc-chip">
-              <span className="fc-chip-body">
-                <span className="fc-chip-valor">{f.label}</span>
-              </span>
-              <button type="button" className="fc-chip-remove" onClick={f.onClear} aria-label={t('pedido.dashboard.remover_filtro_periodo', { defaultValue: 'Remover filtro de período' })}>
-                ×
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* Seletor de Painéis */}
-      {paineis.length > 0 && (
-        <div style={sty.painelBar}>
-          <DndContext sensors={painelSensors} collisionDetection={closestCenter} onDragEnd={handlePainelDragEnd}>
-            <SortableContext
-              items={paineis.filter(p => p.is_visivel).map(p => p.id)}
-              strategy={horizontalListSortingStrategy}
-            >
-              {paineis.filter(p => p.is_visivel).map(p => (
-                <SortableTabWrapper key={p.id} id={p.id}>
-                  {/* Rename inline */}
-                  {renamingId === p.id ? (
-                    <form
-                      style={sty.painelNovoForm}
-                      onSubmit={(e) => { e.preventDefault(); handleRenomearPainel(p.id, renameValue) }}
-                      // Impede que o dnd-kind capture eventos no input
-                      onPointerDown={e => e.stopPropagation()}
-                    >
-                      <input
-                        autoFocus
-                        type="text"
-                        value={renameValue}
-                        onChange={e => setRenameValue(e.target.value)}
-                        onBlur={() => handleRenomearPainel(p.id, renameValue)}
-                        onKeyDown={e => { if (e.key === 'Escape') { setRenamingId(null); renameInFlightRef.current = null } }}
-                        style={sty.painelRenameInput}
-                        maxLength={60}
-                      />
-                    </form>
-                  ) : (
-                    <button
-                      type="button"
-                      style={p.id === painelAtualId ? sty.painelTabAtivo : sty.painelTab}
-                      onClick={() => handleTrocarPainel(p.id)}
-                      onDoubleClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome) }}
-                      onPointerDown={e => e.stopPropagation()}  // clique não inicia drag
-                    >
-                      <span style={sty.painelTabInner}>
-                        {p.nome}
-                        <span
-                          role="button"
-                          aria-label={t('pedido.dashboard.painel_opcoes')}
-                          style={sty.painelMenuBtn}
-                          onPointerDown={e => e.stopPropagation()}
-                          onClick={(e) => { e.stopPropagation(); setMenuPainelId(prev => prev === p.id ? null : p.id); setDeletingId(null) }}
-                        >
-                          <DotsThree size={14} weight="bold" />
-                        </span>
-                      </span>
-                    </button>
-                  )}
-
-                  {/* Dropdown menu */}
-                  {menuPainelId === p.id && (
-                    <div style={sty.painelMenuDropdown} onClick={e => e.stopPropagation()} onPointerDown={e => e.stopPropagation()}>
-                      {deletingId === p.id ? (
-                        /* Confirmação inline */
-                        <div style={{ padding: '0.5rem 0.75rem' }}>
-                          <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 0.5rem' }}>
-                            {t('pedido.dashboard.painel_excluir_prefixo')}{' '}
-                            <strong style={{ color: '#fff' }}>{p.nome}</strong>
-                            {t('pedido.dashboard.painel_excluir_sufixo')}
-                          </p>
-                          <div style={{ display: 'flex', gap: '0.4rem' }}>
-                            <button type="button" style={sty.painelNovoBtnOk} onClick={() => handleDeletarPainel(p.id)}>
-                              {t('comum.confirmar')}
-                            </button>
-                            <button type="button" style={sty.painelNovoBtnCancel} onClick={() => setDeletingId(null)}>
-                              {t('comum.cancelar')}
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            style={sty.painelMenuItem}
-                            onClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome); setMenuPainelId(null) }}
-                          >
-                            <PencilSimple size={13} />
-                            {t('pedido.dashboard.painel_renomear')}
-                          </button>
-                          <button
-                            type="button"
-                            style={paineis.length <= 1 ? { ...sty.painelMenuItemDanger, opacity: 0.35, cursor: 'default' } : sty.painelMenuItemDanger}
-                            onClick={() => paineis.length > 1 && setDeletingId(p.id)}
-                            disabled={paineis.length <= 1}
-                            title={paineis.length <= 1 ? t('pedido.dashboard.painel_excluir_unico_bloqueado') : ''}
-                          >
-                            <Trash size={13} />
-                            {t('pedido.dashboard.painel_excluir')}
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </SortableTabWrapper>
-              ))}
-            </SortableContext>
-          </DndContext>
-
-          {/* Criar novo painel */}
-          {criandoPainel ? (
-            <form
-              style={sty.painelNovoForm}
-              onSubmit={(e) => {
-                e.preventDefault()
-                const nome = novoNomePainel.trim()
-                if (!nome) return
-                // Salva widgets do painel atual antes de trocar
-                if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
-                paineisDashboardApi.criar(nome).then(({ data }) => {
-                  // Inicializa explicitamente o novo painel como [] (distingue de "nunca salvo")
-                  salvarWidgetsPainelAtual(data.id, [])
-                  setPaineis([...paineis, data])
-                  setPainelAtual(data.id)
-                  setNovoNomePainel('')
-                  setCriandoPainel(false)
-                }).catch(() => {})
-              }}
-            >
-              <input
-                autoFocus
-                type="text"
-                placeholder={t('pedido.dashboard.painel_novo_placeholder')}
-                value={novoNomePainel}
-                onChange={(e) => setNovoNomePainel(e.target.value)}
-                style={sty.painelNovoInput}
-                maxLength={60}
-              />
-              <button type="submit" style={sty.painelNovoBtnOk}>{t('pedido.dashboard.painel_criar')}</button>
-              <button type="button" style={sty.painelNovoBtnCancel} onClick={() => { setCriandoPainel(false); setNovoNomePainel('') }}>
-                <X size={11} />
-              </button>
-            </form>
-          ) : (
-            <button type="button" style={sty.painelAddBtn} onClick={() => setCriandoPainel(true)} title={t('pedido.dashboard.painel_novo')}>
-              +
-            </button>
-          )}
-
-          {/* Chip NCM inline */}
-          {ncmStatus && (ncmStatus.itens_invalidos > 0 || ncmStatus.sem_sync) && (
-            <span
-              title={ncmStatus.sem_sync
-                ? t('pedido.dashboard.ncm_nao_sincronizada')
-                : t('pedido.dashboard.ncm_itens_invalidos_tooltip', { count: ncmStatus.itens_invalidos })
-              }
-              style={{
-                marginLeft: 'auto',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                background: 'rgba(251,191,36,0.1)',
-                border: '1px solid rgba(251,191,36,0.3)',
-                borderRadius: '999px',
-                padding: '0.2rem 0.6rem',
-                fontSize: '0.7rem',
-                fontWeight: 600,
-                color: '#fbbf24',
-                cursor: 'default',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <Warning size={11} weight="fill" />
-              {ncmStatus.sem_sync
-                ? t('pedido.dashboard.ncm_desatualizada')
-                : t('pedido.dashboard.ncm_invalido_chip', { count: ncmStatus.itens_invalidos })}
-            </span>
-          )}
-        </div>
-      )}
 
       <DashboardGrid
         widgets={activeWidgets}
@@ -1970,19 +1957,7 @@ export default function PedidosDashboard() {
   )
 }
 
-// ── Estilos onboarding banner ─────────────────────────────────────────────────
-
-const onboardingBannerStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'flex-start',
-  justifyContent: 'space-between',
-  gap: '1rem',
-  padding: '14px 20px',
-  marginBottom: '1rem',
-  background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%)',
-  border: '1px solid rgba(99,102,241,0.25)',
-  borderRadius: 'var(--radius-lg)',
-}
+// ── Estilos onboarding (dentro da barra integrada) ───────────────────────────
 
 const onboardingBannerContent: React.CSSProperties = {
   display: 'flex',

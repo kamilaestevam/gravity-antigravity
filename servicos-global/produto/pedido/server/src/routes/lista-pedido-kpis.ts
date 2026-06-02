@@ -218,6 +218,6 @@ listaPedidoKpisRouter.get('/kpis', async (req: Request, res: Response) => {
     })
   } catch (err) {
     console.error('[ListaKpis]', err)
-    res.status(500).json({ error: 'Erro ao agregar KPIs da lista' })
+    if (!res.headersSent) res.status(500).json({ error: 'Erro ao agregar KPIs da lista' })
   }
 })

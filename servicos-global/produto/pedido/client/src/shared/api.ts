@@ -2174,6 +2174,49 @@ export interface DashboardPainel {
   updated_at:   string
 }
 
+// ── Lista Painéis ─────────────────────────────────────────────────────────────
+
+export interface ListaPainel {
+  id:           string
+  tenant_id:    string
+  user_id:      string
+  id_produto_gravity: string
+  nome:         string
+  ordem:        number
+  is_visivel:   boolean
+  config_json:  string
+  created_at:   string
+  updated_at:   string
+}
+
+export const paineisListaApi = {
+  listar: (): Promise<{ data: ListaPainel[] }> =>
+    request<{ data: ListaPainel[] }>('/api/v1/pedidos/lista/paineis'),
+
+  criar: (nome: string): Promise<{ data: ListaPainel }> =>
+    request<{ data: ListaPainel }>('/api/v1/pedidos/lista/paineis', {
+      method: 'POST',
+      body: JSON.stringify({ nome }),
+    }),
+
+  atualizar: (id: string, patch: Partial<Pick<ListaPainel, 'nome' | 'is_visivel' | 'config_json'>>): Promise<{ data: ListaPainel }> =>
+    request<{ data: ListaPainel }>(`/api/v1/pedidos/lista/paineis/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(patch),
+    }),
+
+  reordenar: (ids: string[]): Promise<{ data: { reordenado: boolean } }> =>
+    request<{ data: { reordenado: boolean } }>('/api/v1/pedidos/lista/paineis/reordenar', {
+      method: 'PUT',
+      body: JSON.stringify({ ids }),
+    }),
+
+  deletar: (id: string): Promise<{ data: { deletado: boolean } }> =>
+    request<{ data: { deletado: boolean } }>(`/api/v1/pedidos/lista/paineis/${id}`, {
+      method: 'DELETE',
+    }),
+}
+
 export const paineisDashboardApi = {
   listar: (): Promise<{ data: DashboardPainel[] }> =>
     request<{ data: DashboardPainel[] }>('/api/v1/pedidos/dashboard/paineis')

@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { Check, Plus, X, DotsSixVertical, CaretDown, CaretUp, CalendarBlank } from '@phosphor-icons/react'
 import { CalendarioPainelGlobal } from '@nucleo/campo-calendario-global'
 import type { ActiveFilter, GlobalSlicers } from '../tipos.js'
+import './dashboard-barra-integrado.css'
 
 // ── Helpers de período customizado ────────────────────────────────────────────
 
@@ -257,6 +258,21 @@ export interface DashboardToolbarProps {
   periodOptions?: PeriodOption[]
   /** Mostra botão "Adicionar widget" no modo edição. */
   onAddWidget?: () => void
+  /** Linha superior: abas de painel, breadcrumbs, etc. Ações ficam à direita. */
+  headerRow?: React.ReactNode
+  /** Oculta período e status — útil em empty state com editMode ativo. */
+  hideFilters?: boolean
+  /** Banner "Arraste os widgets…" abaixo da barra. Padrão: false. */
+  showEditHint?: boolean
+  /**
+   * `integrado` — barra única estilo Lista (gtv-toolbar): painéis, filtros, ações e chips
+   * no mesmo container. `default` — layout legado em linhas separadas.
+   */
+  variant?: 'default' | 'integrado'
+  /** Faixa superior dentro da barra integrada (ex: onboarding vazio). */
+  bannerContent?: React.ReactNode
+  /** Rodapé dentro da barra integrada (ex: chips de período por widget). */
+  footerContent?: React.ReactNode
   className?: string
 }
 
@@ -275,6 +291,12 @@ export function DashboardBarraFerramentas({
   compactStatus = false,
   periodOptions: periodOptionsProp,
   onAddWidget,
+  headerRow,
+  hideFilters = false,
+  showEditHint = false,
+  variant = 'default',
+  bannerContent,
+  footerContent,
   className,
 }: DashboardToolbarProps) {
   const { t } = useTranslation()
@@ -287,154 +309,220 @@ export function DashboardBarraFerramentas({
   // "Todos" está ativo quando nenhum status específico está selecionado
   const isTodosActive = slicers.status.length === 0
 
-  return (
-    <div style={s.wrapper}>
+  const actionButtons = (
+    <>
+      {onAddWidget && (
+        <button
+          type="button"
+          style={s.btnSecondary}
+          onClick={onAddWidget}
+          data-testid="btn-adicionar-dashboard"
+        >
+          <Plus size={14} weight="bold" /> {t('nucleo.dashboard.barra.adicionar_dashboard')}
+        </button>
+      )}
+      <button
+        type="button"
+        style={editMode ? s.btnPrimaryStrong : s.btnSecondary}
+        onClick={() => onEditModeChange(!editMode)}
+        data-testid="btn-reorganizar"
+        title={editMode ? undefined : t('nucleo.dashboard.barra.arraste_widgets_tooltip')}
+      >
+        {editMode
+          ? <><Check size={14} weight="bold" /> {t('nucleo.dashboard.barra.concluir')}</>
+          : <><DotsSixVertical size={14} weight="bold" /> {t('nucleo.dashboard.barra.reorganizar')}</>
+        }
+      </button>
+    </>
+  )
 
-      {/* ── Toolbar principal ────────────────────────────────────────────── */}
-      <div style={s.toolbar} className={className}>
+  const filtrosConteudo = !hideFilters ? (
+    <>
+      <div style={s.slicerGroup}>
+        <span style={s.slicerLabel}>{t('nucleo.dashboard.barra.periodo')}</span>
+        <PeriodDropdown
+          value={slicers.period}
+          options={periodOptions}
+          onChange={onPeriodChange}
+        />
+      </div>
 
-        {/* ── Período ─────────────────────────────────────────────────────── */}
-        <div style={s.slicerGroup}>
-          <span style={s.slicerLabel}>{t('nucleo.dashboard.barra.periodo')}</span>
-          <PeriodDropdown
-            value={slicers.period}
-            options={periodOptions}
-            onChange={onPeriodChange}
-          />
+      {statusOptions.length > 0 && (
+        <>
+          <div style={variant === 'integrado' ? undefined : s.divider} className={variant === 'integrado' ? 'dashboard-barra-integrado__divisor' : undefined} aria-hidden="true" />
+
+          {compactStatus
+            ? (
+              <div style={{ position: 'relative' }} data-testid="status-compact-dropdown">
+                <PeriodDropdown
+                  value={slicers.status[0] ?? '__todos__'}
+                  options={[
+                    { value: '__todos__', label: t('nucleo.dashboard.barra.todos_status') },
+                    ...statusOptions.map(opt => ({
+                      value: opt,
+                      label: `${statusLabels[opt] ?? opt.replace(/_/g, ' ')}${statusCounts?.[opt] !== undefined ? ` (${statusCounts[opt]})` : ''}`,
+                    })),
+                  ]}
+                  onChange={(val) => onStatusChange(val === '__todos__' ? [] : [val])}
+                />
+              </div>
+            )
+            : (
+              <div style={s.statusChips} data-testid="status-chips-container">
+                <button
+                  type="button"
+                  style={{ ...s.chip, ...(isTodosActive ? s.chipActive : {}) }}
+                  onClick={() => onStatusChange([])}
+                  data-testid="status-chip-todos"
+                >
+                  {t('nucleo.dashboard.barra.todos')}
+                  {statusCounts !== undefined && (
+                    <span style={s.chipCount}>
+                      ({statusCounts['todos'] ?? Object.values(statusCounts).reduce((a, b) => a + b, 0)})
+                    </span>
+                  )}
+                </button>
+
+                {statusOptions.map(opt => {
+                  const active = slicers.status.includes(opt)
+                  const customColors = active ? statusActiveColors[opt] : undefined
+                  const count = statusCounts?.[opt]
+                  const isDisabled = statusCounts !== undefined && count === 0
+
+                  const chipStyle: React.CSSProperties = {
+                    ...s.chip,
+                    ...(active
+                      ? customColors
+                        ? { background: 'var(--bg-base)', color: customColors.text, boxShadow: 'var(--shadow-sm)' }
+                        : s.chipActive
+                      : {}),
+                    ...(isDisabled ? s.chipDisabled : {}),
+                  }
+
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      style={chipStyle}
+                      aria-disabled={isDisabled}
+                      data-testid={`status-chip-${opt}`}
+                      onClick={() => {
+                        if (isDisabled) return
+                        onStatusChange(
+                          active
+                            ? slicers.status.filter(x => x !== opt)
+                            : [...slicers.status, opt],
+                        )
+                      }}
+                    >
+                      {statusLabels[opt] ?? opt.replace(/_/g, ' ')}
+                      {statusCounts !== undefined && count !== undefined && (
+                        <span style={s.chipCount}>({count})</span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+        </>
+      )}
+
+      {variant === 'default' && activeFilters.length > 0 && (
+        <div style={s.activeFilters}>
+          <span style={s.slicerLabel}>{t('nucleo.dashboard.barra.filtros_ativos')}</span>
+          {activeFilters.map(f => (
+            <span key={`${f.field}-${f.sourceWidgetId}`} style={s.filterTag}>
+              {f.label}
+            </span>
+          ))}
+          <button type="button" style={s.clearBtn} onClick={onClearFilters}>
+            <X size={12} /> {t('nucleo.dashboard.barra.limpar')}
+          </button>
         </div>
+      )}
+    </>
+  ) : null
 
-        {/* ── Status chips ou dropdown compacto (T-09) ───────────────── */}
-        {statusOptions.length > 0 && (
-          <>
-            {/* Divisor vertical entre Período e Status (T-01) */}
-            <div style={s.divider} aria-hidden="true" />
+  const filtrosAtivosRodape = variant === 'integrado' && activeFilters.length > 0 ? (
+    <>
+      <span style={s.slicerLabel}>{t('nucleo.dashboard.barra.filtros_ativos')}</span>
+      {activeFilters.map(f => (
+        <span key={`${f.field}-${f.sourceWidgetId}`} style={s.filterTag}>
+          {f.label}
+        </span>
+      ))}
+      <button type="button" style={s.clearBtn} onClick={onClearFilters}>
+        <X size={12} /> {t('nucleo.dashboard.barra.limpar')}
+      </button>
+    </>
+  ) : null
 
-            {compactStatus
-              ? /* ── Modo compacto: dropdown customizado (viewports estreitos) ── */
-                <div style={{ position: 'relative' }} data-testid="status-compact-dropdown">
-                  <PeriodDropdown
-                    value={slicers.status[0] ?? '__todos__'}
-                    options={[
-                      { value: '__todos__', label: t('nucleo.dashboard.barra.todos_status') },
-                      ...statusOptions.map(opt => ({
-                        value: opt,
-                        label: `${statusLabels[opt] ?? opt.replace(/_/g, ' ')}${statusCounts?.[opt] !== undefined ? ` (${statusCounts[opt]})` : ''}`,
-                      })),
-                    ]}
-                    onChange={(val) => onStatusChange(val === '__todos__' ? [] : [val])}
-                  />
-                </div>
-              : /* ── Modo padrão: chips pill ───────────────────────────────────── */
-                <div style={s.statusChips} data-testid="status-chips-container">
-                  {/* Chip "Todos" — ativo quando nenhum filtro de status selecionado (T-03) */}
-                  <button
-                    type="button"
-                    style={{
-                      ...s.chip,
-                      ...(isTodosActive ? s.chipActive : {}),
-                    }}
-                    onClick={() => onStatusChange([])}
-                    data-testid="status-chip-todos"
-                  >
-                    {t('nucleo.dashboard.barra.todos')}
-                    {statusCounts !== undefined && (
-                      <span style={s.chipCount}>
-                        ({statusCounts['todos'] ?? Object.values(statusCounts).reduce((a, b) => a + b, 0)})
-                      </span>
-                    )}
-                  </button>
+  const temRodapeIntegrado = variant === 'integrado' && (footerContent != null || filtrosAtivosRodape != null)
 
-                  {statusOptions.map(opt => {
-                    const active = slicers.status.includes(opt)
-                    const customColors = active ? statusActiveColors[opt] : undefined
-                    const count = statusCounts?.[opt]
-                    const isDisabled = statusCounts !== undefined && count === 0
-
-                    const chipStyle: React.CSSProperties = {
-                      ...s.chip,
-                      ...(active
-                        ? customColors
-                          ? { background: 'var(--bg-base)', color: customColors.text, boxShadow: 'var(--shadow-sm)' }
-                          : s.chipActive
-                        : {}),
-                      ...(isDisabled ? s.chipDisabled : {}),
-                    }
-
-                    return (
-                      <button
-                        key={opt}
-                        type="button"
-                        style={chipStyle}
-                        aria-disabled={isDisabled}
-                        data-testid={`status-chip-${opt}`}
-                        onClick={() => {
-                          if (isDisabled) return
-                          onStatusChange(
-                            active
-                              ? slicers.status.filter(x => x !== opt)
-                              : [...slicers.status, opt],
-                          )
-                        }}
-                      >
-                        {statusLabels[opt] ?? opt.replace(/_/g, ' ')}
-                        {statusCounts !== undefined && count !== undefined && (
-                          <span style={s.chipCount}>({count})</span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-            }
-          </>
+  if (variant === 'integrado') {
+    return (
+      <div className={`dashboard-barra-integrado ${className ?? ''}`.trim()} data-testid="dashboard-barra-integrado">
+        {bannerContent != null && (
+          <div className="dashboard-barra-integrado__banner">{bannerContent}</div>
         )}
 
-        {/* ── Filtros ativos ───────────────────────────────────────────────── */}
-        {activeFilters.length > 0 && (
-          <div style={s.activeFilters}>
-            <span style={s.slicerLabel}>{t('nucleo.dashboard.barra.filtros_ativos')}</span>
-            {activeFilters.map(f => (
-              <span key={`${f.field}-${f.sourceWidgetId}`} style={s.filterTag}>
-                {f.label}
-              </span>
-            ))}
-            <button type="button" style={s.clearBtn} onClick={onClearFilters}>
-              <X size={12} /> {t('nucleo.dashboard.barra.limpar')}
-            </button>
+        <div className="dashboard-barra-integrado__corpo">
+          <div className="dashboard-barra-integrado__esquerda">
+            {headerRow != null && (
+              <>
+                {headerRow}
+                {filtrosConteudo != null && (
+                  <div className="dashboard-barra-integrado__divisor" aria-hidden="true" />
+                )}
+              </>
+            )}
+            {filtrosConteudo}
+          </div>
+          <div className="dashboard-barra-integrado__direita">{actionButtons}</div>
+        </div>
+
+        {temRodapeIntegrado && (
+          <div className="dashboard-barra-integrado__rodape">
+            {footerContent}
+            {filtrosAtivosRodape}
           </div>
         )}
 
-        <div style={{ flex: 1 }} />
-
-        {/* ── Cluster de ações — sempre visíveis ──────────────────────────── */}
-        {onAddWidget && (
-          <button
-            type="button"
-            style={s.btnSecondary}
-            onClick={onAddWidget}
-            data-testid="btn-adicionar-dashboard"
-          >
-            <Plus size={14} weight="bold" /> {t('nucleo.dashboard.barra.adicionar_dashboard')}
-          </button>
+        {showEditHint && editMode && (
+          <div style={{ ...s.editHint, margin: '0 1.25rem 0.75rem' }}>
+            <DotsSixVertical size={13} weight="bold" />
+            {t('nucleo.dashboard.barra.hint_reorganizar_pre')} <strong>{t('nucleo.dashboard.barra.concluir')}</strong> {t('nucleo.dashboard.barra.hint_reorganizar_pos')}
+          </div>
         )}
-
-        {/* ── Toggle reorganizar: secondary → accent quando ativo ──────────── */}
-        <button
-          type="button"
-          style={editMode ? s.btnPrimaryStrong : s.btnSecondary}
-          onClick={() => onEditModeChange(!editMode)}
-          data-testid="btn-reorganizar"
-          title={editMode ? undefined : t('nucleo.dashboard.barra.arraste_widgets_tooltip')}
-        >
-          {editMode
-            ? <><Check size={14} weight="bold" /> {t('nucleo.dashboard.barra.concluir')}</>
-            : <><DotsSixVertical size={14} weight="bold" /> {t('nucleo.dashboard.barra.reorganizar')}</>
-          }
-        </button>
-
       </div>
+    )
+  }
 
-      {/* ── Hint de modo reorganização ─────────────────────────────────── */}
-      {editMode && (
+  const actionsInHeader = headerRow != null || hideFilters
+
+  return (
+    <div style={s.wrapper}>
+
+      {/* ── Linha superior: painéis + ações ──────────────────────────────── */}
+      {actionsInHeader && (
+        <div style={s.headerRow} className="dashboard-barra-header-row">
+          {headerRow != null && <div style={s.headerRowStart}>{headerRow}</div>}
+          <div style={{ flex: 1, minWidth: '0.5rem' }} />
+          <div style={s.headerRowActions}>{actionButtons}</div>
+        </div>
+      )}
+
+      {/* ── Toolbar principal (filtros) ──────────────────────────────────── */}
+      {!hideFilters && (
+      <div style={s.toolbar} className={className}>
+        {filtrosConteudo}
+        {!actionsInHeader && <div style={{ flex: 1 }} />}
+        {!actionsInHeader && actionButtons}
+      </div>
+      )}
+
+      {/* ── Hint de modo reorganização (opt-in) ─────────────────────────── */}
+      {showEditHint && editMode && (
         <div style={s.editHint}>
           <DotsSixVertical size={13} weight="bold" />
           {t('nucleo.dashboard.barra.hint_reorganizar_pre')} <strong>{t('nucleo.dashboard.barra.concluir')}</strong> {t('nucleo.dashboard.barra.hint_reorganizar_pos')}
@@ -448,8 +536,28 @@ const styles = {
   wrapper: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: 0,
-    marginBottom: '1.25rem',
+    gap: '0.5rem',
+    marginBottom: '1rem',
+  },
+  headerRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    flexWrap: 'wrap' as const,
+    minHeight: '2rem',
+  },
+  headerRowStart: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+    flexWrap: 'wrap' as const,
+    minWidth: 0,
+  },
+  headerRowActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    flexShrink: 0,
   },
   toolbar: {
     display: 'flex', alignItems: 'center', gap: '0.75rem',

@@ -70,6 +70,14 @@ import {
 import { SYNC_EVENT_CASAS_BID_FRETE } from '../shared/casas-config-bid-frete'
 import { SYNC_EVENT_FORMATO_DATA_BID_FRETE } from '../shared/formato-data-bid-frete'
 import { listarCardsCatalogo, useCardPreferencesBidFrete } from '../shared/use-card-preferences'
+import { BidFreteListaPainelBar } from '../components/BidFreteListaPainelBar'
+import { useListaPainelBidFrete } from '../shared/useListaPainelBidFrete'
+import {
+  configListaPainelPadraoV1,
+  parsearConfigListaPainelSeguro,
+  serializarConfigListaPainel,
+} from '../../../shared/listaPainelConfigSchema'
+import { paineisListaBidFreteApi } from '../shared/api'
 import { useCadastrosListaBidFrete } from '../shared/useCadastrosListaBidFrete'
 import {
   buildColunasPaiLista,
@@ -446,24 +454,116 @@ export default function Cotacoes() {
   // ─── Tabela Virtual: Preferências, Colunas e Edição ───
 
   const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(() => lerPreferenciasTabela())
+  const sortCampoLista = 'numero_cotacao_bid_frete_internacional'
+  const sortDirLista = 'desc' as const
+  const filtrosAtivosLista = useMemo(() => ({}), [])
+
+  const {
+    paineis: paineisLista,
+    setPaineis: setPaineisLista,
+    painelAtualId: painelListaAtualId,
+    setPainelAtualId: setPainelListaAtualId,
+    painelAtual: painelListaAtual,
+    carregando: carregandoPaineisLista,
+    aplicarConfigDoPainel,
+    persistirPainelAtual,
+    trocarPainel: trocarPainelLista,
+  } = useListaPainelBidFrete()
+  const painelListaAplicadoRef = useRef<string | null>(null)
+  const migrouLocalStoragePainelRef = useRef(false)
+
+  const listaPainelCallbacks = useMemo(() => ({
+    setPreferencias,
+    setAbaAtiva: setFiltroTab,
+    setSortCampo: () => {},
+    setSortDir: () => {},
+    setBusca,
+    setFiltrosAtivos: () => {},
+    onConfigAplicada: (_aba: string) => { /* filtro client-side */ },
+  }), [])
 
   useEffect(() => {
-    const prefs = lerPreferenciasTabela()
-    if (prefs) {
-      setPreferencias(prefs)
-      try {
-        localStorage.setItem(STORAGE_PREFS_INTL, JSON.stringify(prefs))
-      } catch { /* ignore */ }
+    if (!painelListaAtual || carregandoPaineisLista) return
+    if (painelListaAplicadoRef.current === painelListaAtual.id) return
+    aplicarConfigDoPainel(painelListaAtual, listaPainelCallbacks)
+    painelListaAplicadoRef.current = painelListaAtual.id
+
+    if (!migrouLocalStoragePainelRef.current) {
+      const prefsLocal = lerPreferenciasTabela()
+      const configAtual = parsearConfigListaPainelSeguro(
+        painelListaAtual.config_json,
+        configListaPainelPadraoV1(),
+      )
+      if (prefsLocal?.colunas_visiveis?.length && configAtual.colunas_visiveis.length === 0) {
+        const merged = configListaPainelPadraoV1({
+          ...configAtual,
+          colunas_visiveis: prefsLocal.colunas_visiveis,
+          colunas_largura: prefsLocal.colunas_largura as Record<string, number> | undefined,
+        })
+        void paineisListaBidFreteApi.atualizar(painelListaAtual.id, {
+          config_json: serializarConfigListaPainel(merged),
+        })
+        setPreferencias({ colunas_visiveis: merged.colunas_visiveis, colunas_largura: merged.colunas_largura })
+      }
+      migrouLocalStoragePainelRef.current = true
     }
-  }, [])
+  }, [painelListaAtual, carregandoPaineisLista, aplicarConfigDoPainel, listaPainelCallbacks])
+
+  const handleTrocarPainelLista = useCallback((id: string) => {
+    void trocarPainelLista(
+      id,
+      {
+        preferencias,
+        abaAtiva: filtroTab,
+        sortCampo: sortCampoLista,
+        sortDir: sortDirLista,
+        busca,
+        filtrosAtivos: filtrosAtivosLista,
+        cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+        periodoCards,
+      },
+      listaPainelCallbacks,
+    ).then(() => { painelListaAplicadoRef.current = id })
+  }, [
+    trocarPainelLista, preferencias, filtroTab, busca, filtrosAtivosLista,
+    cardsVisiveis, periodoCards, listaPainelCallbacks,
+  ])
+
+  useEffect(() => {
+    if (!painelListaAtualId || carregandoPaineisLista) return
+    persistirPainelAtual({
+      preferencias,
+      abaAtiva: filtroTab,
+      sortCampo: sortCampoLista,
+      sortDir: sortDirLista,
+      busca,
+      filtrosAtivos: filtrosAtivosLista,
+      cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+      periodoCards,
+    })
+  }, [
+    preferencias, filtroTab, busca, painelListaAtualId, carregandoPaineisLista,
+    persistirPainelAtual, cardsVisiveis, periodoCards, filtrosAtivosLista,
+  ])
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
-    try {
-      localStorage.setItem(STORAGE_COLUNAS_VERSAO, String(VERSAO_COLUNAS_LISTA))
-      localStorage.setItem(STORAGE_PREFS_INTL, JSON.stringify(prefs))
-    } catch { /* ignore */ }
-  }, [])
+    if (painelListaAtualId) {
+      persistirPainelAtual({
+        preferencias: prefs,
+        abaAtiva: filtroTab,
+        sortCampo: sortCampoLista,
+        sortDir: sortDirLista,
+        busca,
+        filtrosAtivos: filtrosAtivosLista,
+        cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+        periodoCards,
+      })
+    }
+  }, [
+    painelListaAtualId, persistirPainelAtual, filtroTab, busca,
+    cardsVisiveis, periodoCards, filtrosAtivosLista,
+  ])
 
   const abrirDetalheCotacao = useCallback((item: Cotacao) => {
     navigate(`/bid-frete/cotacoes/${item.id_cotacao_bid_frete_internacional}`)
@@ -1193,6 +1293,17 @@ export default function Cotacoes() {
       ) : (
         <>
       {/* ── KPI cards (Configuração dinâmica com sincronização do local storage) ── */}
+      {visao === 'lista' && (
+        <BidFreteListaPainelBar
+          paineis={paineisLista}
+          painelAtualId={painelListaAtualId}
+          setPaineis={setPaineisLista}
+          setPainelAtualId={setPainelListaAtualId}
+          onTrocarPainel={handleTrocarPainelLista}
+          carregando={carregandoPaineisLista}
+        />
+      )}
+
       {visao === 'lista' && (
         <div className="lp-stats-row">
           <div className="lp-cards">

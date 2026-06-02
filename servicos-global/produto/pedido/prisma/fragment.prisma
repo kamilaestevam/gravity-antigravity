@@ -549,6 +549,26 @@ model DashboardPainelUsuarioGlobal {
   @@map("dashboard_painel_usuario_global")
 }
 
+/// Painéis da lista pessoais por usuário (colunas, filtros, aba, ordenação).
+/// "Global" no nome: product-agnostic; provisório no banco do produto.
+model ListaPainelUsuarioGlobal {
+  id_lista_painel_usuario_global               String   @id @default(cuid())
+  id_organizacao                                String
+  id_usuario                                    String
+  id_produto_gravity                            String
+  nome_lista_painel_usuario_global              String
+  ordem_lista_painel_usuario_global             Int      @default(0)
+  visivel_lista_painel_usuario_global           Boolean  @default(true)
+  config_json_lista_painel_usuario_global       String   @default("{}") @db.Text
+  data_criacao_lista_painel_usuario_global      DateTime @default(now())
+  data_atualizacao_lista_painel_usuario_global  DateTime @updatedAt
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_usuario, id_produto_gravity])
+  @@map("lista_painel_usuario_global")
+}
+
 // ============================================================================
 // FASE 06B — Modelos novos (snapshot Cadastros + config de atualização)
 // Nomenclatura DDD aplicada: id_organizacao / id_workspace.

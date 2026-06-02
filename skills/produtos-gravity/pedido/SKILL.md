@@ -438,7 +438,8 @@ Hardcoded strings que ficaram fora do escopo i18n porque a função/módulo onde
 | Parte | Status |
 |-------|--------|
 | 1 — Edição em Massa | ✅ Consolidada |
-| 2 — Lista de Pedidos | 🟡 Placeholder — a desenvolver |
+| 2 — Lista de Pedidos | 🟡 Em evolução |
+| 2.2 — Painéis da Lista | ✅ `ListaPainelUsuarioGlobal`, `/lista/paineis`, `PedidosListaPainelBar` — ver `documentos-tecnicos/produtos-gravity/pedido/PAINEL-LISTA-GLOSSARIO.md` |
 | 2.1 — Filtro Multi-Workspace | ✅ Consolidada (2026-05-13) |
 | 3 — Consolidar / Transferir | 🟡 Placeholder — regras de negócio em docs; transferir implementado |
 | 4 — Duplicar | ✅ Consolidada |

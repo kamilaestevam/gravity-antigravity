@@ -1,0 +1,62 @@
+/**
+ * dashboard-barra-integrado — barra única do Dashboard (paridade gtv-toolbar da Lista)
+ */
+
+.dashboard-barra-integrado {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface, var(--gtv-bg, #0f172a));
+  border: 1px solid var(--border-subtle, var(--gtv-border, rgba(148, 163, 184, 0.15)));
+  border-radius: var(--radius-lg, 0.75rem);
+  flex-shrink: 0;
+  margin-bottom: 0;
+  overflow: visible;
+}
+
+.dashboard-barra-integrado__banner {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.12));
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.05) 100%);
+}
+
+.dashboard-barra-integrado__corpo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  flex-wrap: wrap;
+}
+
+.dashboard-barra-integrado__esquerda {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.dashboard-barra-integrado__direita {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.dashboard-barra-integrado__rodape {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1.25rem 0.875rem;
+  border-top: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.12));
+}
+
+.dashboard-barra-integrado__divisor {
+  width: 1px;
+  height: 20px;
+  background: var(--border-subtle, rgba(148, 163, 184, 0.2));
+  flex-shrink: 0;
+}

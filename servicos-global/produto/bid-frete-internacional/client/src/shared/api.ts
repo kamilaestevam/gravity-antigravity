@@ -999,6 +999,52 @@ export interface DashboardPainel {
   updated_at:   string
 }
 
+export interface ListaPainel {
+  id:           string
+  tenant_id:    string
+  user_id:      string
+  id_produto_gravity: string
+  nome:         string
+  ordem:        number
+  is_visivel:   boolean
+  config_json:  string
+  created_at:   string
+  updated_at:   string
+}
+
+export const paineisListaBidFreteApi = {
+  listar: (): Promise<{ data: ListaPainel[] }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis`, { headers: headers() })
+      .then(res => handleResponse<{ data: ListaPainel[] }>(res)),
+
+  criar: (nome: string): Promise<{ data: ListaPainel }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ nome }),
+    }).then(res => handleResponse<{ data: ListaPainel }>(res)),
+
+  atualizar: (id: string, patch: Partial<Pick<ListaPainel, 'nome' | 'is_visivel' | 'config_json'>>): Promise<{ data: ListaPainel }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis/${id}`, {
+      method: 'PUT',
+      headers: headers(),
+      body: JSON.stringify(patch),
+    }).then(res => handleResponse<{ data: ListaPainel }>(res)),
+
+  reordenar: (ids: string[]): Promise<{ data: { reordenado: boolean } }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis/reordenar`, {
+      method: 'PUT',
+      headers: headers(),
+      body: JSON.stringify({ ids }),
+    }).then(res => handleResponse<{ data: { reordenado: boolean } }>(res)),
+
+  deletar: (id: string): Promise<{ data: { deletado: boolean } }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis/${id}`, {
+      method: 'DELETE',
+      headers: headers(),
+    }).then(res => handleResponse<{ data: { deletado: boolean } }>(res)),
+}
+
 export const paineisDashboardApi = {
   listar: (): Promise<{ data: DashboardPainel[] }> =>
     fetch(`${API_BASE}/bid-frete-internacional/dashboard/paineis`, { headers: headers() })

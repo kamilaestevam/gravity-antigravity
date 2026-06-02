@@ -4769,13 +4769,13 @@ export default function Pedidos() {
     await carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
   }, [carregarInicial, abaAtiva, sortCampo, sortDir, busca])
 
-  // Recarrega lista quando mudou escopo de workspaces (menu lateral).
-  // forcar=true evita que um fetch in-flight (escopo antigo) bloqueie o reload.
+  // Recarrega lista quando mudou escopo de workspaces (menu lateral) ou quando
+  // idOrganizacao hidrata do /me (antes do escopo o efeito saía sem disparar de novo).
   useEffect(() => {
     if (!idOrganizacao || !escopoHidratado) return
     carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workspacesSelecionados, escopoHidratado])
+  }, [workspacesSelecionados, escopoHidratado, idOrganizacao])
 
   // Sincroniza com mudanças feitas em outras views (Kanban, Dashboard)
   useEffect(() => {

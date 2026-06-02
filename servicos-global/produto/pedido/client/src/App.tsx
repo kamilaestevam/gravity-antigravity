@@ -17,6 +17,7 @@ import { usePermissoesPedido, type SecaoPedido } from './shared/permissoes/usePe
 import { BloqueioPermissaoOpaco } from './shared/permissoes/BloqueioPermissaoOpaco'
 import { useEscopoWorkspacesPedido } from './shared/useEscopoWorkspacesPedido'
 import { urlCriarWorkspace, urlGerenciarWorkspaces } from './components/lista/urlsDeepLinkConfigurador'
+import { PedidosVisualizacaoLayout } from './components/PedidosVisualizacaoLayout'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 /**
@@ -362,24 +363,32 @@ function AppInner() {
               quando há negação definitiva. Evita flash de "Sem permissão" em
               usuário legítimo enquanto /me + query carregam. */}
           <Route path="pedidos/lista"            element={
-            <BloqueioPermissaoOpaco pode={estadoPermissao('lista', 'ver') !== 'negado'} motivo="Sem permissão para ver a Lista de Pedidos" modo="bloqueio-tela">
-              <Pedidos />
-            </BloqueioPermissaoOpaco>
+            <PedidosVisualizacaoLayout>
+              <BloqueioPermissaoOpaco pode={estadoPermissao('lista', 'ver') !== 'negado'} motivo="Sem permissão para ver a Lista de Pedidos" modo="bloqueio-tela">
+                <Pedidos />
+              </BloqueioPermissaoOpaco>
+            </PedidosVisualizacaoLayout>
           } />
           <Route path="pedidos/visao-geral"        element={
-            <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver a Visão Geral" modo="bloqueio-tela">
-              <PedidosVisaoGeral />
-            </BloqueioPermissaoOpaco>
+            <PedidosVisualizacaoLayout>
+              <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver a Visão Geral" modo="bloqueio-tela">
+                <PedidosVisaoGeral />
+              </BloqueioPermissaoOpaco>
+            </PedidosVisualizacaoLayout>
           } />
           <Route path="pedidos/dashboard"        element={
-            <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver o Dashboard" modo="bloqueio-tela">
-              <PedidosDashboard />
-            </BloqueioPermissaoOpaco>
+            <PedidosVisualizacaoLayout>
+              <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver o Dashboard" modo="bloqueio-tela">
+                <PedidosDashboard />
+              </BloqueioPermissaoOpaco>
+            </PedidosVisualizacaoLayout>
           } />
           <Route path="pedidos/kanban"           element={
-            <BloqueioPermissaoOpaco pode={estadoPermissao('kanban', 'ver') !== 'negado'} motivo="Sem permissão para ver o Kanban" modo="bloqueio-tela">
-              <PedidosKanban />
-            </BloqueioPermissaoOpaco>
+            <PedidosVisualizacaoLayout>
+              <BloqueioPermissaoOpaco pode={estadoPermissao('kanban', 'ver') !== 'negado'} motivo="Sem permissão para ver o Kanban" modo="bloqueio-tela">
+                <PedidosKanban />
+              </BloqueioPermissaoOpaco>
+            </PedidosVisualizacaoLayout>
           } />
           {/* Novo/Editar Pedido — entra com lista:ver (modo leitura quando faltar
               lista:editar; botões Salvar ficam opacos via gating local nas páginas). */}
@@ -394,9 +403,11 @@ function AppInner() {
             </BloqueioPermissaoOpaco>
           } />
           <Route path="configuracoes"        element={
-            <BloqueioPermissaoOpaco pode={estadoPermissao('configuracao', 'ver') !== 'negado'} motivo="Sem permissão para ver Configurações" modo="bloqueio-tela">
-              <Configuracoes />
-            </BloqueioPermissaoOpaco>
+            <PedidosVisualizacaoLayout>
+              <BloqueioPermissaoOpaco pode={estadoPermissao('configuracao', 'ver') !== 'negado'} motivo="Sem permissão para ver Configurações" modo="bloqueio-tela">
+                <Configuracoes />
+              </BloqueioPermissaoOpaco>
+            </PedidosVisualizacaoLayout>
           } />
           <Route path="*"                    element={<Navigate to="/pedido/pedidos/visao-geral" replace />} />
         </Routes>

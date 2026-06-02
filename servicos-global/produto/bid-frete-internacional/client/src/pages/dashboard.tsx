@@ -49,11 +49,9 @@ import {
 import './dashboard.css'
 import { DashboardConstrutorConsulta } from '@nucleo/query-builder-global'
 
-import { useDashboardStore } from '../stores/dashboardStore'
-import { DASHBOARD_CATALOG, CATALOG_BY_KEY } from '../shared/dashboardCatalog'
-import { generateSuggestions } from '../shared/dashboardSuggestions'
 import { BUILT_IN_DERIVED, computeDerived } from '../shared/derivedMetrics'
-import { dashboardApi, paineisDashboardApi } from '../shared/api'
+import type { EnrichedCatalogField } from '@nucleo/dashboard'
+import { useBidFreteDashboardVisao } from '../shared/bid-frete-dashboard-visao-context'
 import type { DashboardKpis, DashboardTrendBucket, GabiInsightItem, DashboardPainel } from '../shared/api'
 import type { StatusCotacao } from '../shared/types'
 
@@ -65,17 +63,9 @@ const useTrackBehavior = () => {
   }
 }
 
-// ── Mapeamento de status para exibir labels e cores amigáveis ────────────────
-const STATUS_LABELS: Record<string, string> = {
-  RASCUNHO: 'Rascunho',
-  ENVIADA_FORNECEDORES: 'Enviada ao fornecedor',
-  EM_COTACAO: 'Em cotação',
-  AGUARDANDO_APROVACAO: 'Aprovação pendente',
-  APROVADA: 'Aprovada',
-  REPROVADA: 'Reprovada',
-  CANCELADA: 'Cancelada',
-  FALTA_INFORMACAO: 'Falta de informação',
-  EXPIRADA: 'Expirada',
+interface WidgetBuildDeps {
+  statusLabels: Record<string, string>
+  catalogByKey: Record<string, EnrichedCatalogField>
 }
 
 // ── Converte resposta da API em WidgetResult ──────────────────────────────────
@@ -84,7 +74,9 @@ function buildWidgetResult(
   kpis: DashboardKpis,
   trend: DashboardTrendBucket[],
   allDerived: DerivedMetric[],
+  deps: WidgetBuildDeps,
 ): WidgetResult {
+  const { statusLabels, catalogByKey } = deps
   const now = new Date().toISOString()
   const fields = widget.query_spec.fields
   const chartType = widget.chart_type
@@ -98,7 +90,7 @@ function buildWidgetResult(
         .map(([statusKey, val]) => {
           return {
             key: statusKey,
-            label: STATUS_LABELS[statusKey] ?? statusKey,
+            label: statusLabels[statusKey] ?? statusKey,
             value: Number(val),
             unit: 'number' as FieldUnitType,
           }
@@ -108,7 +100,7 @@ function buildWidgetResult(
     }
 
     const slices: WidgetDistributionSlice[] = fields.map(f => {
-      const catalog = CATALOG_BY_KEY[f.key]
+      const catalog = catalogByKey[f.key]
       const unit: FieldUnitType = catalog?.type === 'currency' ? 'currency'
         : catalog?.type === 'percentage' ? 'percentage' : 'number'
       return {
@@ -134,7 +126,7 @@ function buildWidgetResult(
 
     const unitTypes = [...new Set(
       fields.map(f => {
-        const cat = CATALOG_BY_KEY[f.key]
+        const cat = catalogByKey[f.key]
         return (cat?.type === 'currency' ? 'currency' : 'number') as FieldUnitType
       }),
     )]
@@ -209,105 +201,6 @@ function computeDelta(current: number, prev: number): {
   return { delta, percent, direction }
 }
 
-// ── Gerador de insights client-side com dados reais do BID Frete Internacional ──
-const fmtNum = (n: number) => new Intl.NumberFormat('pt-BR').format(Math.round(n))
-const fmtUSD = (n: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
-const fmtPct = (n: number) => `${n.toFixed(1)}%`
-
-function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): GabiInsightItem[] {
-  const items: GabiInsightItem[] = []
-
-  // 1. Alerta de rascunhos ativos
-  const rascunhosCount = Number(kpis.cotacoes_status?.['RASCUNHO'] ?? 0)
-  if (rascunhosCount > 0) {
-    items.push({
-      id: 'rascunhos_ativos',
-      variante: 'warn',
-      tag: 'Atenção · Rascunhos Pendentes',
-      texto: `${rascunhosCount} cotação${rascunhosCount > 1 ? 's' : ''} em rascunho. Finalize e envie para negociação de frete.`,
-      stat: { label: 'Em rascunho', valor: fmtNum(rascunhosCount) },
-      textoLink: 'Ver cotações',
-      rota: '/bid-frete/lista',
-    })
-  }
-
-  // 2. Operacional em cotação
-  if (kpis.cotacoes_andamento > 0) {
-    items.push({
-      id: 'cotacoes_andamento',
-      variante: 'default',
-      tag: 'Operacional · Em Cotação',
-      texto: `${kpis.cotacoes_andamento} rodada${kpis.cotacoes_andamento > 1 ? 's' : ''} de cotação de frete ativa${kpis.cotacoes_andamento > 1 ? 's' : ''} no mercado.`,
-      stat: kpis.valor_andamento_usd > 0
-        ? { label: 'Valor em cotação', valor: fmtUSD(kpis.valor_andamento_usd) }
-        : { label: 'Cotações ativas', valor: fmtNum(kpis.cotacoes_andamento) },
-      textoLink: 'Acompanhar BIDs',
-      rota: '/bid-frete/lista',
-    })
-  }
-
-  // 3. Economia de frete
-  if (kpis.saving_total > 0) {
-    items.push({
-      id: 'saving_total',
-      variante: 'default',
-      tag: 'Financeiro · Saving Acumulado',
-      texto: `Economia gerada (saving) nas negociações de frete acumulada em ${fmtUSD(kpis.saving_total)}.`,
-      stat: kpis.ganho_percentual_ganho_bid_frete_internacional > 0
-        ? { label: 'Redução média', valor: fmtPct(kpis.ganho_percentual_ganho_bid_frete_internacional) }
-        : { label: 'Total economizado', valor: fmtUSD(kpis.saving_total) },
-      textoLink: 'Ver comparativos',
-    })
-  }
-
-  // 4. Valor total aprovado
-  if (kpis.valor_aprovado_usd > 0) {
-    items.push({
-      id: 'valor_aprovado',
-      variante: 'default',
-      tag: 'Financeiro · Adjudicado',
-      texto: `Adjudicação de frete internacional totaliza ${fmtUSD(kpis.valor_aprovado_usd)} em propostas aprovadas.`,
-      stat: kpis.valor_medio_ganho_bid_frete_internacional > 0
-        ? { label: 'Ticket médio ganho', valor: fmtUSD(kpis.valor_medio_ganho_bid_frete_internacional) }
-        : undefined,
-      textoLink: 'Ver adjudicadas',
-    })
-  }
-
-  // 5. Comparativos
-  if (prev && prev.cotacoes_passadas > 0 && kpis.cotacoes_passadas > 0) {
-    const delta = kpis.cotacoes_passadas - prev.cotacoes_passadas
-    const pct = Math.abs((delta / prev.cotacoes_passadas) * 100)
-    if (Math.abs(delta) > 0) {
-      const crescendo = delta > 0
-      items.push({
-        id: 'tendencia_volume',
-        variante: 'default',
-        tag: `Tendência · BIDs Fechados`,
-        texto: `Volume de cotações adjudicadas ${crescendo ? 'cresceu' : 'caiu'} ${fmtPct(pct)} em relação ao período anterior.`,
-        stat: { label: 'Período anterior', valor: fmtNum(prev.cotacoes_passadas) },
-        textoLink: 'Explorar dados',
-      })
-    }
-  }
-
-  // Fallback
-  if (items.length === 0) {
-    items.push({
-      id: 'status_ok',
-      variante: 'default',
-      tag: 'Gabi AI · Tudo em dia',
-      texto: 'Nenhuma pendência crítica ou anomalia operacional identificada no período selecionado.',
-      stat: { label: 'Período', valor: kpis.period ?? '30d' },
-      textoLink: 'Ver cotações',
-      rota: '/bid-frete/lista',
-    })
-  }
-
-  return items
-}
-
 // ── Configuração visual por widget no BID Frete Internacional ────────────────
 const AMBER  = '#f59e0b'
 const DANGER = '#ef4444'
@@ -323,11 +216,6 @@ const WIDGET_VISUAL: Record<string, { accentColor?: string; icone?: ReactNode }>
   kpi_cotacoes_andamento:  { accentColor: BLUE,   icone: <ClipboardText  size={15} weight="duotone" /> },
   kpi_cotacoes_passadas:   { accentColor: GREEN,  icone: <CheckCircle    size={15} weight="duotone" /> },
   kpi_valor_aprovado:      { accentColor: VIOLET, icone: <Scales         size={15} weight="duotone" /> },
-}
-
-const WIDGET_NAV_ROUTE: Record<string, string> = {
-  kpi_cotacoes_andamento:  '/bid-frete/lista',
-  kpi_cotacoes_passadas:   '/bid-frete/lista',
 }
 
 const PERIOD_SEQUENCE = ['7d', '30d', '90d', '12m', 'current_year'] as const
@@ -748,6 +636,23 @@ function SortableTabWrapper({ id, children }: { id: string; children: ReactNode 
 
 // ── Componente Principal ──────────────────────────────────────────────────────
 export default function Dashboard() {
+  const visao = useBidFreteDashboardVisao()
+  const {
+    catalog,
+    catalogByKey,
+    dashboardApi,
+    paineisDashboardApi,
+    generateSuggestions,
+    buildClientInsights,
+    widgetNavRoute,
+    listaRoute,
+  } = visao
+  const useDashboardStoreHook = visao.useDashboardStore
+  const widgetBuildDeps = useMemo(
+    () => ({ statusLabels: visao.statusLabels, catalogByKey }),
+    [visao.statusLabels, catalogByKey],
+  )
+
   const {
     widgets, addWidget, removeWidget, updateWidget, updateLayout,
     slicers, setPeriod, setStatusFilter,
@@ -756,7 +661,7 @@ export default function Dashboard() {
     queryBuilderOpen, setQueryBuilderOpen,
     userDerivedMetrics,
     paineis, painelAtualId, setPaineis, setPainelAtual, salvarWidgetsPainelAtual,
-  } = useDashboardStore()
+  } = useDashboardStoreHook()
 
   const podeEditarDashboard = true // Hardcoded como true para o BID Frete Internacional
 
@@ -816,7 +721,7 @@ export default function Dashboard() {
     if (!trimmed) { renameInFlightRef.current = null; return }
     paineisDashboardApi.atualizar(id, { nome: trimmed })
       .then(() => {
-        const fresh = useDashboardStore.getState().paineis
+        const fresh = useDashboardStoreHook.getState().paineis
         setPaineis(fresh.map(p => p.id === id ? { ...p, nome: trimmed } : p))
       })
       .catch(() => {})
@@ -828,7 +733,7 @@ export default function Dashboard() {
     if (paineis.length <= 1) return
     paineisDashboardApi.deletar(id)
       .then(() => {
-        const fresh = useDashboardStore.getState().paineis
+        const fresh = useDashboardStoreHook.getState().paineis
         const atualizados = fresh.filter(p => p.id !== id)
         setPaineis(atualizados)
         if (painelAtualId === id) {
@@ -882,8 +787,8 @@ export default function Dashboard() {
   )
 
   const fieldLabels = useMemo(
-    () => Object.fromEntries(DASHBOARD_CATALOG.map(f => [f.key, f.label])),
-    [],
+    () => Object.fromEntries(catalog.map(f => [f.key, f.label])),
+    [catalog],
   )
 
   const gridBottom = useMemo(
@@ -898,7 +803,7 @@ export default function Dashboard() {
       gridBottom,
       widgets.flatMap(w => w.query_spec.fields.map((f: { key: string }) => f.key)),
     ),
-    [widgets, allDerived, gridBottom],
+    [widgets, allDerived, gridBottom, generateSuggestions],
   )
 
   const triggerWidgetAddedFX = useCallback((widgetId: string, title: string) => {
@@ -1080,7 +985,7 @@ export default function Dashboard() {
     }
 
     const result = kpisData
-      ? buildWidgetResult(widget, kpisData, trendData, allDerived)
+      ? buildWidgetResult(widget, kpisData, trendData, allDerived, widgetBuildDeps)
       : { data: {}, chartType: widget.chart_type, partial: true, cached: false, computed_at: new Date().toISOString() }
     const fields = widget.query_spec.fields
     const isDerived = !!widget.config?.derivedMetricId
@@ -1125,11 +1030,11 @@ export default function Dashboard() {
 
     // ── LINE / AREA ──────────────────────────────────────────────────────────
     if (chartType === 'LINE' || chartType === 'AREA') {
-      const catalogFields = fields.map(f => CATALOG_BY_KEY[f.key]).filter(Boolean)
+      const catalogFields = fields.map(f => catalogByKey[f.key]).filter(Boolean)
       const { assignments, dualAxis, leftUnit, rightUnit } = resolveAxisAssignment(catalogFields)
 
       const series: LineSeriesConfig[] = fields.map((f, i) => {
-        const cat = CATALOG_BY_KEY[f.key]
+        const cat = catalogByKey[f.key]
         const unit: FieldUnitType = cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number'
         const seriesPoints = result.series ?? []
         return {
@@ -1161,11 +1066,11 @@ export default function Dashboard() {
 
     // ── BAR / BAR_HORIZONTAL ─────────────────────────────────────────────────
     if (chartType === 'BAR' || chartType === 'BAR_HORIZONTAL') {
-      const catalogFields = fields.map(f => CATALOG_BY_KEY[f.key]).filter(Boolean)
+      const catalogFields = fields.map(f => catalogByKey[f.key]).filter(Boolean)
       const { assignments, dualAxis, leftUnit, rightUnit } = resolveAxisAssignment(catalogFields)
 
       const series: BarSeriesConfig[] = fields.map((f, i) => {
-        const cat = CATALOG_BY_KEY[f.key]
+        const cat = catalogByKey[f.key]
         const unit: FieldUnitType = cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number'
         const seriesPoints = result.series ?? []
         return {
@@ -1198,13 +1103,13 @@ export default function Dashboard() {
     // ── KPI_CARD ─────────────────────────────────────────────────────────────
     if (chartType === 'KPI_CARD') {
       const fieldKey = fields[0]?.key ?? 'value'
-      const cat = CATALOG_BY_KEY[fieldKey]
+      const cat = catalogByKey[fieldKey]
       const dm = widget.config?.derivedMetricId
         ? allDerived.find(m => m.id === widget.config!.derivedMetricId)
         : undefined
       const fieldType: FieldUnitType = dm?.fieldType ?? (cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number')
       const visual   = WIDGET_VISUAL[widget.id] ?? {}
-      const navRoute = WIDGET_NAV_ROUTE[widget.id]
+      const navRoute = widgetNavRoute[widget.id]
       const currentVal = Number(kpisData?.[fieldKey] ?? 0)
       const prevVal    = Number(prevKpisData?.[fieldKey] ?? 0)
       const deltaInfo  = computeDelta(currentVal, prevVal)
@@ -1501,7 +1406,7 @@ export default function Dashboard() {
 
       <DashboardConstrutorConsulta
         aberto={queryBuilderOpen}
-        availableFields={DASHBOARD_CATALOG}
+        availableFields={catalog}
         onSave={handleQueryBuilderSave}
         onCancel={() => setQueryBuilderOpen(false)}
       />

@@ -1,12 +1,9 @@
 /**
  * tenantIsolation.ts — Middleware de Isolamento de Organizacao
- * Injeta id_organizacao em todas as queries via Prisma Extension.
  * Skill: antigravity-tenant-isolation
- *
- * REGRA ABSOLUTA: id_organizacao NUNCA vem do payload — sempre do JWT/header propagado pelo Gateway.
  */
 import { Request, Response, NextFunction } from 'express'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '../../../generated/index.js'
 
 const basePrisma = new PrismaClient()
 
@@ -15,16 +12,32 @@ type PrismaQueryHookArgs = {
   query: (args: unknown) => Promise<unknown>
 }
 
+function injectOrganizacaoWhere(args: { where?: Record<string, unknown> }, idOrganizacao: string) {
+  args.where = { ...args.where, id_organizacao: idOrganizacao }
+}
+
 export function withTenantIsolation(prisma: PrismaClient, idOrganizacao: string) {
   return prisma.$extends({
     query: {
       $allModels: {
         async findMany({ args, query }: PrismaQueryHookArgs) {
-          args.where = { ...args.where, id_organizacao: idOrganizacao }
+          injectOrganizacaoWhere(args, idOrganizacao)
           return query(args)
         },
         async findFirst({ args, query }: PrismaQueryHookArgs) {
-          args.where = { ...args.where, id_organizacao: idOrganizacao }
+          injectOrganizacaoWhere(args, idOrganizacao)
+          return query(args)
+        },
+        async count({ args, query }: PrismaQueryHookArgs) {
+          injectOrganizacaoWhere(args, idOrganizacao)
+          return query(args)
+        },
+        async aggregate({ args, query }: PrismaQueryHookArgs) {
+          injectOrganizacaoWhere(args, idOrganizacao)
+          return query(args)
+        },
+        async groupBy({ args, query }: PrismaQueryHookArgs) {
+          injectOrganizacaoWhere(args, idOrganizacao)
           return query(args)
         },
         async create({ args, query }: PrismaQueryHookArgs) {
@@ -32,34 +45,29 @@ export function withTenantIsolation(prisma: PrismaClient, idOrganizacao: string)
           return query(args)
         },
         async update({ args, query }: PrismaQueryHookArgs) {
-          args.where = { ...args.where, id_organizacao: idOrganizacao }
+          injectOrganizacaoWhere(args, idOrganizacao)
           return query(args)
         },
         async delete({ args, query }: PrismaQueryHookArgs) {
-          args.where = { ...args.where, id_organizacao: idOrganizacao }
+          injectOrganizacaoWhere(args, idOrganizacao)
           return query(args)
-        }
-      }
-    }
+        },
+      },
+    },
   }) as unknown as PrismaClient
 }
 
-/**
- * Middleware Express: extrai id_organizacao do header x-id-organizacao propagado pelo Gateway (JWT).
- * Nunca aceita id_organizacao do body.
- */
 export function tenantIsolationMiddleware(
   req: Request & { prisma?: PrismaClient; tenantId?: string },
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const idOrganizacao = req.headers['x-id-organizacao'] as string | undefined
 
   if (idOrganizacao) {
     req.tenantId = idOrganizacao
-    req.prisma = withTenantIsolation(basePrisma, idOrganizacao) as PrismaClient
+    req.prisma = withTenantIsolation(basePrisma, idOrganizacao)
   } else {
-    // Sem id_organizacao: cliente raw para endpoints publicos (/health)
     req.prisma = basePrisma
   }
 

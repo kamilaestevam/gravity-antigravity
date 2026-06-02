@@ -290,14 +290,14 @@ const ESTILO_METRICAS_ROW_MELHOR: CSSProperties = {
   flexDirection: 'row',
   alignItems: 'stretch',
   gap: '0.5rem',
-  flex: '1 1 auto',
+  flex: '0 0 auto',
   width: '100%',
   minHeight: 0,
 }
 
 const ESTILO_BODY_MELHOR_PROPOSTA: CSSProperties = {
-  flex: '1 1 auto',
-  flexGrow: 1,
+  flex: '0 0 auto',
+  flexGrow: 0,
   minHeight: 0,
 }
 

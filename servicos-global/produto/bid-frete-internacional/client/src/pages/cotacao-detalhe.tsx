@@ -286,18 +286,31 @@ export default function DetalheCotacao() {
       setPropostasRanking([])
       return
     }
+
+    const rankingLocal = anexarMocksRespostasTemporarias(
+      propostas.length > 0 ? ranquearPropostasLocal(propostas) : [],
+      cot,
+    )
+    if (rankingLocal.length > 0) {
+      setPropostasRanking(rankingLocal)
+    }
+
     setCarregandoRanking(true)
     try {
-      let mescladas: PropostaRankingBidFreteInternacional[] = []
+      let mescladas: PropostaRankingBidFreteInternacional[] = rankingLocal
       if (propostas.length > 0) {
         const ranking = await rankingCotacoesBidFreteInternacional(cot.id_cotacao_bid_frete_internacional)
-        mescladas = mesclarPropostasComRanking(propostas, ranking)
-        if (mescladas.length === 0) mescladas = ranquearPropostasLocal(propostas)
+        const mescladasApi = mesclarPropostasComRanking(propostas, ranking)
+        if (mescladasApi.length > 0) {
+          mescladas = anexarMocksRespostasTemporarias(mescladasApi, cot)
+        }
       }
-      setPropostasRanking(anexarMocksRespostasTemporarias(mescladas, cot))
+      setPropostasRanking(mescladas)
     } catch {
-      const fallback = propostas.length > 0 ? ranquearPropostasLocal(propostas) : []
-      setPropostasRanking(anexarMocksRespostasTemporarias(fallback, cot))
+      if (rankingLocal.length === 0) {
+        const fallback = propostas.length > 0 ? ranquearPropostasLocal(propostas) : []
+        setPropostasRanking(anexarMocksRespostasTemporarias(fallback, cot))
+      }
     } finally {
       setCarregandoRanking(false)
     }

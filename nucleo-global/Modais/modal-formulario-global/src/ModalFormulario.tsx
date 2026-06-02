@@ -113,7 +113,7 @@ export function ModalFormulario({
               onClick={aoFechar}
             />
             <BotaoSalvar
-              dirty={podesSalvar && dirty}
+              dirty={(podesSalvar && dirty) || carregando}
               carregando={carregando}
               rotulo={resolvedTextoSalvar}
               onClick={aoSalvar}

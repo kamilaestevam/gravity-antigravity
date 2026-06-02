@@ -31,6 +31,8 @@ npx tsx scripts/ativamente/compose-pedido-schema.ts
 npx prisma generate --schema=servicos-global/produto/pedido/prisma/schema.prisma
 node servicos-global/produto/bid-frete-internacional/prisma/compose-schema.js
 npx prisma generate --schema=servicos-global/produto/bid-frete-internacional/prisma/schema.prisma
+node servicos-global/produto/processo/server/scripts/compose-schema.js
+npx prisma generate --schema=servicos-global/produto/processo/prisma/schema.prisma
 
 # 2a. BID Frete Internacional — migrations (bid_* → cotacao_bid_frete_internacional SSOT)
 if [ -n "$BID_FRETE_INTERNATIONAL_DATABASE_URL" ]; then
@@ -56,6 +58,15 @@ if [ -n "$PEDIDO_DATABASE_URL" ]; then
     npx tsx scripts/ativamente/aplicar-migrations-pedido.ts
 else
   echo "[build-site] PEDIDO_DATABASE_URL ausente — skip Pedido migrations (roda no startup do servidor)"
+fi
+
+# 2d. Processo — migrations (schema public, isolamento por id_organizacao)
+if [ -n "$PROCESSO_DATABASE_URL" ]; then
+  echo "[build-site] Applying Processo migrations..."
+  DATABASE_URL="$PROCESSO_DATABASE_URL" \
+    npx prisma migrate deploy --schema=servicos-global/produto/processo/prisma/schema.prisma
+else
+  echo "[build-site] PROCESSO_DATABASE_URL ausente — skip Processo migrations"
 fi
 
 # 2c. Pedido's schema outputs to pedido/node_modules/.prisma/client/ but

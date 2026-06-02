@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-25T21:57:07.496Z
+// Gerado em: 2026-06-02T01:09:04.016Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/produto/pedido
 // ============================================================================
@@ -45,6 +45,7 @@ model Pedido {
   id_pedido                                                   String                      @id
   id_organizacao                                              String
   id_workspace                                                String
+  id_processo                                                 String?
   tipo_operacao_pedido                                        String
   numero_pedido                                               String
   status_pedido                                               String                      @default("rascunho")
@@ -187,6 +188,7 @@ model Pedido {
   @@index([id_organizacao, data_emissao_pedido])
   @@index([id_organizacao, data_exclusao_pedido])
   @@index([id_organizacao, id_workspace, data_emissao_pedido])
+  @@index([id_organizacao, id_processo])
   @@map("pedido")
 }
 

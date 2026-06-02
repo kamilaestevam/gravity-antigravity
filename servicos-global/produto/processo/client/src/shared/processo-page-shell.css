@@ -1,0 +1,54 @@
+/**
+ * Distância canônica e fill de altura — paridade com Pedido (pedido-page-shell.css).
+ * Usado em /acesso-processos/lista e /kanban (shell Layout + PaginaGlobal + TVG).
+ */
+:root {
+  --pedido-page-pt: 1.5rem;
+  --pedido-page-px: 2rem;
+  --pedido-page-pb: 2rem;
+}
+
+/* shell-main já tem padding 24px 2rem — repassamos flex para a TVG preencher a viewport */
+.layout--oculta-marca-header .shell-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.layout--oculta-marca-header .shell-main > * {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* PaginaGlobal — lista hierárquica preenche altura restante (sem scroll duplo) */
+.processo-lista-page.pg-container {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.processo-lista-page .pg-conteudo-area.pg-layout-lista {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Cabecalho + toolbar já definem espaçamento; lp-page só ancora a tabela */
+.processo-lista-page .lp-page {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  padding: 0;
+  gap: 0;
+}
+
+.processo-lista-page .pg-toolbar-wrapper .tpt-tabs {
+  margin-top: 0;
+}

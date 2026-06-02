@@ -4,7 +4,23 @@
 import express, { Request, Response, NextFunction } from 'express'
 import request from 'supertest'
 
+const mockFornecedorBid = {
+  id_fornecedor_bid_frete_internacional: 'forn_cadastros_1',
+  id_organizacao: 'org_1',
+  nome_fornecedor_bid_frete_internacional: 'Fornecedor Test',
+  email_fornecedor_bid_frete_internacional: 'dmmltda+testefornecedor07@gmail.com',
+  id_usuario: null,
+  id_clerk_usuario: null,
+}
+
 const mockPrisma = {
+  fornecedorBidFreteInternacional: {
+    findFirst: vi.fn(async () => mockFornecedorBid),
+    update: vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({
+      ...mockFornecedorBid,
+      ...data,
+    })),
+  },
   tabelaBidFreteInternacional: {
     create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({
       id_tabela_bid_frete_internacional: 'tab_admin_1',
@@ -36,7 +52,9 @@ function criarApp() {
   const app = express()
   app.use(express.json())
   app.use((req: Request, _res: Response, next: NextFunction) => {
-    ;(req as Request & { prisma: typeof mockPrisma }).prisma = mockPrisma
+    const r = req as Request & { prisma: typeof mockPrisma; tenantId?: string }
+    r.prisma = mockPrisma
+    r.tenantId = (req.headers['x-id-organizacao'] as string) ?? 'org_1'
     next()
   })
   app.use('/api/v1/bid-frete-internacional/fornecedores', fornecedoresRouter)
@@ -59,6 +77,21 @@ const payloadTabela = {
   validade_inicio_tabela_bid_frete_internacional: '2026-01-01T00:00:00.000Z',
   validade_fim_tabela_bid_frete_internacional: '2026-12-31T23:59:59.999Z',
 }
+
+describe('fornecedores — vincular-usuario (S2S Configurador)', () => {
+  it('PUT /:id_fornecedor/vincular-usuario grava id_usuario no espelho BID', async () => {
+    const app = criarApp()
+    const res = await request(app)
+      .put('/api/v1/bid-frete-internacional/fornecedores/forn_cadastros_1/vincular-usuario')
+      .set('x-id-organizacao', 'org_1')
+      .send({ id_usuario: 'user_fornecedor_07', id_clerk_usuario: 'clerk_07' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.fornecedor.id_usuario).toBe('user_fornecedor_07')
+    expect(res.body.fornecedor.id_clerk_usuario).toBe('clerk_07')
+    expect(mockPrisma.fornecedorBidFreteInternacional.update).toHaveBeenCalled()
+  })
+})
 
 describe('fornecedores — tabelas-valor (campos tabela_bid_frete_internacional_*)', () => {
   it('POST /:id_fornecedor/tabelas-valor aceita schema DDD', async () => {

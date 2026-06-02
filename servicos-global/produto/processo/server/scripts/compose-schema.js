@@ -14,7 +14,7 @@ import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname  = dirname(__filename)
-const prismaDir  = join(__dirname, '..', 'prisma')
+const prismaDir  = join(__dirname, '..', '..', 'prisma')
 
 const base     = readFileSync(join(prismaDir, 'schema.base.prisma'),  'utf8')
 const fragment = readFileSync(join(prismaDir, 'fragment.prisma'),     'utf8')

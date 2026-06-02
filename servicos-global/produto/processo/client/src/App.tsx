@@ -13,6 +13,7 @@ import { PRODUCT_CONFIG } from './shared/config'
 import { CurrencyDollar, Briefcase, Folders } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import './shared/processo-page-shell.css'
 
 // ─── Lazy loading das telas do produto ─────────────────────────────────────
 
@@ -26,6 +27,8 @@ const FinanceiroNumerario = lazy(() => import('./pages/financeiro/FinanceiroNume
 const FinanceiroRateio = lazy(() => import('./pages/financeiro/FinanceiroRateio'))
 const ConfiguracoesLayout = lazy(() => import('./pages/configuracoes/ConfiguracoesLayout'))
 const StatusProcesso = lazy(() => import('./pages/configuracoes/status/StatusProcesso'))
+const LazyProcessoLista = lazy(() => import('./pages/ProcessoLista'))
+const TodosProcessosKanban = lazy(() => import('./pages/todos/TodosProcessosKanban'))
 const Email = lazy(() => import('./pages/email/Email'))
 
 // ─── Loading Fallback ──────────────────────────────────────────────────────
@@ -122,7 +125,21 @@ export function App() {
     <Layout>
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<Navigate to="workflow" replace />} />
+          {/* Lista geral dos processos do workspace — workspace-level, SEM
+              ProcessoLayout (que e sidebar de detalhe de um processo
+              especifico). O <Layout> do @shell ja cuida do posicionamento. */}
+          <Route path="/"      element={<Navigate to="lista" replace />} />
+          <Route path="lista"  element={<LazyProcessoLista />} />
+          <Route path="kanban" element={<TodosProcessosKanban />} />
+          {/* Alias /todos/* durante migracao */}
+          <Route path="todos">
+            <Route index element={<Navigate to="../lista" replace />} />
+            <Route path="lista"  element={<Navigate to="../../lista" replace />} />
+            <Route path="kanban" element={<Navigate to="../../kanban" replace />} />
+          </Route>
+
+          {/* Detalhe de um processo especifico — usa ProcessoLayout
+              (sidebar contextual com Visao Geral, Pedidos, DUIMP, etc.) */}
           <Route element={<ProcessoLayout />}>
             <Route path="workflow" element={<Workflow />} />
             <Route path="documentos" element={<DocumentosPlaceholder />} />

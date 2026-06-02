@@ -1621,6 +1621,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   placeholderData = 'DD/MM/AAAA',
   onExpandidosMudar,
   permiteReplicacaoPaiEmItens,
+  permiteReplicacaoFilhoEmSubfilhos,
   mensagemSemPermissaoEditar,
   arrastavelPai,
   onReordenarPai,
@@ -3161,9 +3162,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             <div
               className="gtv-celula gtv-celula--expand gtv-col-fixa"
             >
-              <span className="gtv-conector" aria-hidden="true">
-                {renderConectorFilho ? renderConectorFilho(item) : '└'}
-              </span>
+              {renderConectorFilho ? (
+                renderConectorFilho(item)
+              ) : (
+                <span className="gtv-conector" aria-hidden="true">└</span>
+              )}
             </div>
           )}
 
@@ -3359,12 +3362,16 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           </div>
         )}
 
-        {/* Conector hierárquico */}
+        {/* Conector hierárquico / expand pedido→item */}
         {onCarregarFilhos && (
           <div
             className="gtv-celula gtv-celula--expand gtv-col-fixa"
           >
-            <span className="gtv-conector" aria-hidden="true">└</span>
+            {renderConectorFilho ? (
+              renderConectorFilho(item)
+            ) : (
+              <span className="gtv-conector" aria-hidden="true">└</span>
+            )}
           </div>
         )}
 
@@ -3794,11 +3801,16 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           onCancelar={overlayInfo.isFilho ? cancelarEdicaoFilho : cancelarEdicaoPai}
           onSmartPaste={handleSmartPaste}
           placeholderData={placeholderData}
-          // Checkbox "Aplicar a todos os itens" — só na linha PAI E quando o
-          // campo está na whitelist (decisão UX 2026-05-13).
+          // Checkbox "Aplicar a todos os itens" — linha pai OU filho intermediário (lista 3 camadas).
           mostrarCheckboxReplicar={
-            !overlayInfo.isFilho &&
-            !!permiteReplicacaoPaiEmItens?.(overlayInfo.campo)
+            (!overlayInfo.isFilho && !!permiteReplicacaoPaiEmItens?.(overlayInfo.campo))
+            || (overlayInfo.isFilho && (() => {
+              const filhoAtual = linhasPagina.find(
+                (l): l is GTLinhaVirtual<T, C> & { tipo: 'filho' } =>
+                  l.tipo === 'filho' && l.id === overlayInfo.id,
+              )?.item
+              return !!filhoAtual && !!permiteReplicacaoFilhoEmSubfilhos?.(filhoAtual, overlayInfo.campo)
+            })())
           }
         />,
         document.body

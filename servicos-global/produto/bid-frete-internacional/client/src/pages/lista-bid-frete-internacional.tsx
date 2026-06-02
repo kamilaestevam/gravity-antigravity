@@ -191,7 +191,6 @@ function lerPreferenciasTabela(): GTPreferencias | undefined {
       return undefined
     }
 
-    // Novas colunas entram na ordem do schema (bloco origem → destino), não no fim da tabela
     const visiveisSet = new Set([...colunasValidas, ...faltantes])
     const colunasVisiveis = CHAVES_COLUNAS_PADRAO_VISIVEIS.filter(k => visiveisSet.has(k))
 
@@ -210,6 +209,7 @@ export default function Cotacoes() {
   const location = useLocation()
   const addNotification = useShellStore(s => s.addNotification)
   const { getToken } = useAuth()
+  const meStatus = useShellStore(s => s.meStatus)
   const currentUser = useShellStore(s => s.currentUser)
   const workspacesStore = useShellStore(s => s.workspaces)
   const organizacoesStore = useShellStore(s => s.organizacoes)
@@ -219,7 +219,10 @@ export default function Cotacoes() {
     if (currentUser.id) {
       sessionStorage.setItem('gravity_id_usuario', currentUser.id)
     }
-  }, [currentUser.id])
+    if (currentUser.idOrganizacao) {
+      sessionStorage.setItem('gravity_id_organizacao', currentUser.idOrganizacao)
+    }
+  }, [currentUser.id, currentUser.idOrganizacao])
 
   const [usuariosOrganizacao, setUsuariosOrganizacao] = useState<Array<{ id_usuario: string; nome_usuario: string }>>([])
 
@@ -391,7 +394,6 @@ export default function Cotacoes() {
       : undefined
   }, [tabelaConfig.destacarAtrasados])
 
-  // Carregar dados de cotações
   const carregar = useCallback(async () => {
     setCarregando(true)
     setErroCarregar(null)
@@ -425,7 +427,7 @@ export default function Cotacoes() {
         erros.push(resBids.reason instanceof Error ? resBids.reason.message : 'Falha ao carregar BIDs (camada 2)')
       }
 
-      setErroCarregar(erros.length > 0 ? erros.join(' · ') : null)
+      setErroCarregar(erros.length > 0 ? [...new Set(erros)].join(' · ') : null)
     } catch (e: unknown) {
       setCotacoes([])
       setCotacoesAvulsas([])
@@ -436,7 +438,10 @@ export default function Cotacoes() {
     }
   }, [])
 
-  useEffect(() => { carregar() }, [carregar])
+  useEffect(() => {
+    if (meStatus !== 'success' || !currentUser.id || !currentUser.idOrganizacao) return
+    void carregar()
+  }, [carregar, meStatus, currentUser.id, currentUser.idOrganizacao])
 
   // ─── Tabela Virtual: Preferências, Colunas e Edição ───
 

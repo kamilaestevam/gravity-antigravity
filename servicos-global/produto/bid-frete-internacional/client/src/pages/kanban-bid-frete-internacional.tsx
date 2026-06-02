@@ -149,7 +149,7 @@ const STATUS_ICONS: Partial<Record<StatusCotacao, React.ReactElement>> = {
 }
 
 /** Card Kanban — mesma estrutura e classes do Pedido (`CardPedido` / `kbp-card`). */
-function CardCotacao({ cotacao, cardConfig }: { cotacao: Cotacao; cardConfig: KanbanCardConfigBidFrete }) {
+export function CardCotacaoKanbanBidFrete({ cotacao, cardConfig }: { cotacao: Cotacao; cardConfig: KanbanCardConfigBidFrete }) {
   const { t } = useTranslation()
   const campos = cardConfig.campos
   const isVisivel = (campo: string) => campos.find(c => c.campo === campo)?.visivel ?? false
@@ -351,7 +351,7 @@ export default function CotacoesKanban({ cotacoes, onRefresh }: CotacoesKanbanPr
       <KanbanGlobal<CotacaoKanbanItem>
         colunas={kanbanCols}
         itens={itensFiltrados}
-        renderCard={(item) => <CardCotacao cotacao={item.cotacao} cardConfig={cardConfig} />}
+        renderCard={(item) => <CardCotacaoKanbanBidFrete cotacao={item.cotacao} cardConfig={cardConfig} />}
         onMoverItem={handleMoverCotacao}
         onCardClick={(item) => navigate(`/bid-frete/cotacoes/${item.cotacao.id_cotacao_bid_frete_internacional}`)}
         skeletonCount={4}

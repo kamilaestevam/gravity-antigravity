@@ -3,7 +3,7 @@
 // Serviço compartilhado para CONVITE DE USUÁRIO.
 //
 // Consumido por:
-//   • POST /api/v1/usuarios/convidar            (rota regular Master/Admin/SAdmin
+//   • POST /api/v1/usuarios/convidar            (rota regular Master/SAdmin intra-org
 //                                                 — alvo = própria organização do ator)
 //   • POST /api/v1/admin/usuarios/convidar      (rota admin cross-org — apenas SUPER_ADMIN,
 //                                                 alvo = id_organizacao_alvo do body)
@@ -37,6 +37,7 @@ import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { aoVincularUsuarioAoWorkspace } from './sincronizar-acesso-usuario-produtos-service.js'
 import { provisionarPrestadorFornecedor } from './prestador-fornecedor-vinculo-service.js'
+import { obterFornecedorPorIdNaOrganizacao } from './cadastros-client.js'
 import { type TipoFornecedorOrganizacao } from '../../shared/tipo-fornecedor-organizacao.js'
 import { AuditService } from '../../../servicos-plataforma/historico-global/server/services/audit.service.js'
 import { AcaoExecutadaPor } from '../../../servicos-plataforma/generated/index.js'
@@ -97,6 +98,8 @@ export interface ConvidarUsuarioResult {
   tipo_usuario: TipoUsuarioConvidado
   acesso_workspaces_futuros: boolean
   workspaces_vinculados: number
+  /** Empresa fornecedora (Cadastros) — preenchido quando tipo FORNECEDOR. */
+  nome_fornecedor: string | null
 }
 
 export async function convidarUsuarioService(
@@ -310,6 +313,8 @@ export async function convidarUsuarioService(
 
   // ─── Pós-transação (best-effort, fora do try/catch) ─────────────────────
 
+  let nomeFornecedor: string | null = null
+
   // Passo 04 — cartório Cadastros + vínculo fornecedor_organizacao (obrigatório para FORNECEDOR).
   if (tipo_usuario === 'FORNECEDOR' && tipo_fornecedor_organizacao) {
     try {
@@ -322,6 +327,13 @@ export async function convidarUsuarioService(
         id_fornecedor: id_fornecedor?.trim(),
         correlation_id: crypto.randomUUID(),
       })
+      if (id_fornecedor?.trim()) {
+        const fornecedor = await obterFornecedorPorIdNaOrganizacao(id_fornecedor.trim(), {
+          id_organizacao: id_organizacao_alvo,
+          correlation_id: crypto.randomUUID(),
+        })
+        nomeFornecedor = fornecedor?.nome_fornecedor ?? null
+      }
     } catch (err) {
       log.error('prestador.provisionar_falhou_pos_convite', {
         id_usuario: usuarioCriado.id_usuario,
@@ -391,5 +403,6 @@ export async function convidarUsuarioService(
     tipo_usuario: usuarioCriado.tipo_usuario as TipoUsuarioConvidado,
     acesso_workspaces_futuros: usuarioCriado.acesso_workspaces_futuros,
     workspaces_vinculados: workspacesParaVincular.length,
+    nome_fornecedor: nomeFornecedor,
   }
 }

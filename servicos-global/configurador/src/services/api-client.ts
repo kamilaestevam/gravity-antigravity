@@ -376,6 +376,8 @@ export const convidarUsuarioResponseSchema = z.object({
     email_usuario: z.string().email(),
     tipo_usuario: tipoUsuarioEnum,
     acesso_workspaces_futuros: z.boolean(),
+    /** Empresa fornecedora (Cadastros) — preenchido quando tipo FORNECEDOR. */
+    nome_fornecedor: z.string().nullable().optional(),
     /** Sempre 'CONVIDADO' no momento do convite — transição para 'ATIVO'
      *  ocorre no primeiro login (via fallback requireAuth.ts). */
     status_usuario: z.enum(['ATIVO', 'CONVIDADO']).optional().default('CONVIDADO'),

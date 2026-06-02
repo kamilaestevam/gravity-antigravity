@@ -131,15 +131,11 @@ export default defineConfig(({ command }) => {
         target: 'http://localhost:8023',
         changeOrigin: true,
         configure(proxy) {
-          proxy.on('proxyReq', (proxyReq, req) => {
+          proxy.on('proxyReq', (proxyReq) => {
             proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
             proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
-            if (!req.headers['x-id-organizacao'] || req.headers['x-id-organizacao'] === '') {
-              proxyReq.setHeader('x-id-organizacao', 'org_dev_default')
-            }
-            if (!req.headers['x-id-usuario'] || req.headers['x-id-usuario'] === '') {
-              proxyReq.setHeader('x-id-usuario', 'user_dev_default')
-            }
+            // Não injetar org_dev_default — quebra visão fornecedor (404 silencioso).
+            // Headers vêm do shell (/me) via api.ts; ausentes → backend retorna 401/404 explícito.
           })
         },
         onError(err, _req, res) {

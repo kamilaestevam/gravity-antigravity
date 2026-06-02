@@ -38,6 +38,7 @@ import {
   type CardProdutoCoreExibicao,
 } from '../shared/entrada-produtos-core'
 import { GradeProdutosCore } from '../components/grade-produtos-core'
+import { ListaProcessosCore, type ProcessoCoreResumo } from '../components/lista-processos-core'
 import { LogoGlobal } from '@nucleo/logo-global'
 import {
   LocalizadorGlobal,
@@ -99,10 +100,52 @@ const getMockActivity = (t: (key: string, fallback?: string) => string) => [
   { id: 'a6', color: '#34d399', text: <><strong>IMP-2026/0148</strong> {t('hub.mock_concluido_entrega', 'concluído — Entrega realizada')}</>,  time: t('hub.mock_ontem_1410', 'ontem, 14:10') },
 ]
 
-const getMockProcesses = (t: (key: string, fallback?: string) => string) => [
-  { id: 'p1', num: 'IMP-2026/0150', name: 'Acme Importações · Shanghai Electronics', sub: 'US$ 108.050 · 18.771 kg · CIF · Marítima', badge: t('hub.mock_badge_embarque', 'Embarque'),       badgeCls: 'hb-proc-badge--em-andamento', etapas: [1,1,1,2,0,0] },
-  { id: 'p2', num: 'IMP-2026/0149', name: 'Acme Importações · Korea Tech Ltd.',       sub: 'US$ 54.200 · 8.400 kg · FOB · Aérea',     badge: t('hub.mock_badge_desembaraco', 'Desembaraço'), badgeCls: 'hb-proc-badge--desembaraco',  etapas: [1,1,1,1,2,0] },
-  { id: 'p3', num: 'IMP-2026/0148', name: 'Acme Importações · Vietnam Goods SA',      sub: 'US$ 32.900 · 5.100 kg · EXW · Marítima',  badge: t('hub.mock_badge_entregue', 'Entregue ✓'),    badgeCls: 'hb-proc-badge--concluido',   etapas: [1,1,1,1,1,1] },
+const getMockProcesses = (t: (key: string, fallback?: string) => string): ProcessoCoreResumo[] => [
+  {
+    id: 'core_id_000001',
+    num: 'IMP-2026/0150',
+    name: 'Acme Importações · Shanghai Electronics',
+    sub: 'US$ 108.050 · 18.771 kg · CIF · Marítima',
+    badge: t('hub.mock_badge_embarque', 'Embarque'),
+    badgeCls: 'hb-proc-badge--em-andamento',
+    etapas: [1, 1, 1, 2, 0, 0],
+    plugins: [
+      { key: 'pedido', label: '3 PO', status: 'ok' },
+      { key: 'bid', label: '1 BID', status: 'ok' },
+      { key: 'nf', label: 'NF ⚠', status: 'warn' },
+      { key: 'fin', label: 'Fin ✓', status: 'ok' },
+    ],
+  },
+  {
+    id: 'core_id_000002',
+    num: 'IMP-2026/0149',
+    name: 'Acme Importações · Korea Tech Ltd.',
+    sub: 'US$ 54.200 · 8.400 kg · FOB · Aérea',
+    badge: t('hub.mock_badge_desembaraco', 'Desembaraço'),
+    badgeCls: 'hb-proc-badge--desembaraco',
+    etapas: [1, 1, 1, 1, 2, 0],
+    plugins: [
+      { key: 'pedido', label: '2 PO', status: 'ok' },
+      { key: 'bid', label: '1 BID', status: 'ok' },
+      { key: 'nf', label: 'NF ✓', status: 'ok' },
+      { key: 'fin', label: 'Fin ⚠', status: 'warn' },
+    ],
+  },
+  {
+    id: 'core_id_000003',
+    num: 'IMP-2026/0148',
+    name: 'Acme Importações · Vietnam Goods SA',
+    sub: 'US$ 32.900 · 5.100 kg · EXW · Marítima',
+    badge: t('hub.mock_badge_entregue', 'Entregue ✓'),
+    badgeCls: 'hb-proc-badge--concluido',
+    etapas: [1, 1, 1, 1, 1, 1],
+    plugins: [
+      { key: 'pedido', label: '1 PO', status: 'ok' },
+      { key: 'bid', label: '1 BID', status: 'ok' },
+      { key: 'nf', label: 'NF ✓', status: 'ok' },
+      { key: 'fin', label: 'Fin ✓', status: 'ok' },
+    ],
+  },
 ]
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -206,18 +249,18 @@ export function Hub() {
   const activeCount = cardsCore.length
   const grupoCards = useMemo(() => agruparCardsProdutosCore(cardsCore), [cardsCore])
   const duasZonasProdutos = temDuasZonasProdutosCore(grupoCards)
+  const mockProcessos = useMemo(() => getMockProcesses(t), [t])
 
-  const textoModulosHero = duasZonasProdutos
-    ? t(
-        'hub.modulos_hero_duas_zonas',
-        '{{total}} módulos ativos · {{meus}} operacionais · {{forn}} como fornecedor',
-        {
-          total: activeCount,
-          meus: grupoCards.meusProdutos.length,
-          forn: grupoCards.comoFornecedor.length,
-        },
-      )
-    : `${activeCount} ${t('hub.modulos_ativos')}`
+  const textoHeroProcessos = t(
+    'hub.hero_processos',
+    '{{ativos}} processos em andamento · {{pendentes}} aguardando ação · {{plugins}} produtos no workspace',
+    { ativos: 7, pendentes: 3, plugins: activeCount },
+  )
+
+  const abrirProcesso = (id: string) => {
+    const orgId = sessionStorage.getItem('gravity_tenant_id') ?? 'tenant-demo'
+    navigate(`/processo?id=${encodeURIComponent(id)}&idOrganizacao=${encodeURIComponent(orgId)}`)
+  }
 
   // ── Localizador — nós do ecossistema ──────────────────────────────────────
   const { history, addEntry } = useLocalizadorHistory('hub')
@@ -357,7 +400,7 @@ export function Hub() {
           <div>
             <h1>{getGreeting(userName, t).split(',')[0]}, <span>{userName}</span> 👋</h1>
             <p className="hb-hero-sub">
-              {companyName}&nbsp;·&nbsp;{t('hub.workspace_principal')}&nbsp;·&nbsp;{textoModulosHero}
+              {companyName}&nbsp;·&nbsp;{textoHeroProcessos}
             </p>
           </div>
           <div className="hb-hero-meta">
@@ -384,12 +427,12 @@ export function Hub() {
 
           <div className="hb-kpi" style={{ '--hb-kpi-color': '#14b8a6', '--hb-kpi-dim': 'rgba(20,184,166,0.12)' } as React.CSSProperties}>
             <div className="hb-kpi-top">
-              <div className="hb-kpi-icon"><Calculator weight="duotone" size={18} /></div>
-              <span className="hb-kpi-delta hb-kpi-delta--up">▲ {t('hub.kpi_delta_12_mes', '12 este mês')}</span>
+              <div className="hb-kpi-icon"><WarningCircle weight="duotone" size={18} /></div>
+              <span className="hb-kpi-delta hb-kpi-delta--warn">⚠ {t('hub.kpi_delta_3_pendentes', '3 pendentes')}</span>
             </div>
             <div>
-              <div className="hb-kpi-value">34</div>
-              <div className="hb-kpi-label">{t('hub.kpi_estimativas', 'Estimativas geradas')}</div>
+              <div className="hb-kpi-value">3</div>
+              <div className="hb-kpi-label">{t('hub.kpi_aguardando_acao', 'Aguardando ação')}</div>
             </div>
           </div>
 
@@ -416,16 +459,26 @@ export function Hub() {
           </div>
         </div>
 
-        {/* Produtos + Atividade */}
-        <div className="hb-two-col hb-d3">
+        {/* Dossiês — protagonista do Core (infra, não produto) */}
+        <div className="hb-d3">
+          <ListaProcessosCore
+            processos={mockProcessos}
+            onAbrirProcesso={abrirProcesso}
+            onNovoProcesso={() => abrirProcesso('core_id_000001')}
+            t={t}
+          />
+        </div>
 
-          {/* Produtos */}
-          <div>
+        {/* Produtos (plugins) + Atividade */}
+        <div className="hb-two-col hb-two-col--secundaria hb-d4">
+
+          {/* Produtos — plugins contratados, sem Processo */}
+          <div className="hb-produtos-secundarios">
             <div className="hb-section-actions">
-              <span className="hb-section-heading">
+              <span className="hb-section-heading hb-section-heading--muted">
                 {duasZonasProdutos
-                  ? t('hub.modulos_workspace', 'Módulos do workspace')
-                  : t('hub.seus_produtos', 'Seus produtos')}
+                  ? t('hub.produtos_workspace', 'Produtos do workspace')
+                  : t('hub.produtos_workspace', 'Produtos do workspace')}
               </span>
               <button className="hb-section-link hb-section-link--store" type="button" onClick={() => navigate('/store')}>
                 {t('hub.ir_para_store')} →
@@ -451,6 +504,7 @@ export function Hub() {
                 defaultVisual={defaultVisual}
                 onAbrirProduto={handleOpenProduct}
                 t={t}
+                compact
               />
             )}
           </div>
@@ -473,35 +527,6 @@ export function Hub() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-
-        {/* Processos recentes */}
-        <div className="hb-d4">
-          <div className="hb-section-actions">
-            <span className="hb-section-title" style={{ marginBottom: 0 }}>
-              {t('hub.processos_recentes', 'Processos recentes')}
-            </span>
-            <button className="hb-section-link" type="button" onClick={() => navigate('/processo')}>
-              {t('hub.ver_todos', 'ver todos')} →
-            </button>
-          </div>
-          <div className="hb-proc-list">
-            {getMockProcesses(t).map(p => (
-              <div key={p.id} className="hb-proc-item" onClick={() => navigate('/processo')}>
-                <div className="hb-proc-num">{p.num}</div>
-                <div className="hb-proc-info">
-                  <div className="hb-proc-name">{p.name}</div>
-                  <div className="hb-proc-sub">{p.sub}</div>
-                </div>
-                <span className={`hb-proc-badge ${p.badgeCls}`}>{p.badge}</span>
-                <div className="hb-etapas">
-                  {p.etapas.map((e, i) => (
-                    <div key={i} className={`hb-etapa ${e === 1 ? 'hb-etapa--done' : e === 2 ? 'hb-etapa--cur' : 'hb-etapa--pend'}`} />
-                  ))}
-                </div>
-              </div>
-            ))}
           </div>
         </div>
 

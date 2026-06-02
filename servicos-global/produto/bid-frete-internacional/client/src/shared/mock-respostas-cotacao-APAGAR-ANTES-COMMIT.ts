@@ -9,7 +9,7 @@ import type { Cotacao, Fornecedor, PropostaBidFreteInternacional } from './types
 import { ranquearPropostasLocal } from './metricas-proposta-cotacao-bid-frete-internacional'
 
 /** Flag única — desligar ou apagar arquivo antes do commit. */
-export const MOCAR_RESPOSTAS_COTACAO_TEMP = true
+export const MOCAR_RESPOSTAS_COTACAO_TEMP = false
 
 interface MockFornecedorResposta {
   id: string

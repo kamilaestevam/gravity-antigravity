@@ -22,6 +22,8 @@ export interface GradeProdutosCoreProps {
   defaultVisual: ProdVisualHub
   onAbrirProduto: (rota: string) => void
   t: (key: string, defaultValue?: string) => string
+  /** Grade compacta na faixa secundária do /core (plugins, não infra). */
+  compact?: boolean
 }
 
 function CardProdutoHub({
@@ -29,6 +31,7 @@ function CardProdutoHub({
   prodVisual,
   defaultVisual,
   modoFornecedor,
+  compact,
   onAbrir,
   t,
 }: {
@@ -36,6 +39,7 @@ function CardProdutoHub({
   prodVisual: Record<string, ProdVisualHub>
   defaultVisual: ProdVisualHub
   modoFornecedor: boolean
+  compact?: boolean
   onAbrir: (rota: string) => void
   t: GradeProdutosCoreProps['t']
 }) {
@@ -48,10 +52,15 @@ function CardProdutoHub({
       )
     : (p.catalog?.description ?? v.description)
 
+  const cardClass = [
+    modoFornecedor ? 'hb-prod-card hb-prod-card--fornecedor' : 'hb-prod-card',
+    compact ? 'hb-prod-card--compact' : '',
+  ].filter(Boolean).join(' ')
+
   return (
     <div
       key={card.key}
-      className={modoFornecedor ? 'hb-prod-card hb-prod-card--fornecedor' : 'hb-prod-card'}
+      className={cardClass}
       style={{ '--hb-prod-color': v.color, '--hb-prod-dim': v.dim } as React.CSSProperties}
       onClick={() => onAbrir(card.rota)}
       role="button"
@@ -100,6 +109,7 @@ function GradeCards({
   prodVisual,
   defaultVisual,
   modoFornecedor,
+  compact,
   onAbrir,
   t,
 }: {
@@ -107,11 +117,13 @@ function GradeCards({
   prodVisual: Record<string, ProdVisualHub>
   defaultVisual: ProdVisualHub
   modoFornecedor: boolean
+  compact?: boolean
   onAbrir: (rota: string) => void
   t: GradeProdutosCoreProps['t']
 }) {
+  const gridClass = compact ? 'hb-products-grid hb-products-grid--compact' : 'hb-products-grid'
   return (
-    <div className="hb-products-grid">
+    <div className={gridClass}>
       {cards.map(card => (
         <CardProdutoHub
           key={card.key}
@@ -119,6 +131,7 @@ function GradeCards({
           prodVisual={prodVisual}
           defaultVisual={defaultVisual}
           modoFornecedor={modoFornecedor}
+          compact={compact}
           onAbrir={onAbrir}
           t={t}
         />
@@ -133,6 +146,7 @@ export function GradeProdutosCore({
   defaultVisual,
   onAbrirProduto,
   t,
+  compact = false,
 }: GradeProdutosCoreProps) {
   const grupo = agruparCardsProdutosCore(cards)
   const duasZonas = temDuasZonasProdutosCore(grupo)
@@ -142,7 +156,7 @@ export function GradeProdutosCore({
     const soFornecedor = grupo.comoFornecedor.length > 0 && grupo.meusProdutos.length === 0
     return (
       <div className={soFornecedor ? 'hb-prod-zone hb-prod-zone--fornecedor hb-prod-zone--unica' : undefined}>
-        {soFornecedor && (
+        {soFornecedor && !compact && (
           <div className="hb-prod-zone-head">
             <div className="hb-prod-zone-icon">
               <Handshake weight="duotone" size={22} />
@@ -165,6 +179,7 @@ export function GradeProdutosCore({
           prodVisual={prodVisual}
           defaultVisual={defaultVisual}
           modoFornecedor={soFornecedor}
+          compact={compact}
           onAbrir={onAbrirProduto}
           t={t}
         />
@@ -173,8 +188,9 @@ export function GradeProdutosCore({
   }
 
   return (
-    <div className="hb-prod-zonas">
+    <div className={compact ? 'hb-prod-zonas hb-prod-zonas--compact' : 'hb-prod-zonas'}>
       <section className="hb-prod-zone hb-prod-zone--workspace" aria-labelledby="hb-zona-meus-produtos">
+        {!compact && (
         <div className="hb-prod-zone-head hb-prod-zone-head--compact">
           <div className="hb-prod-zone-icon hb-prod-zone-icon--workspace">
             <ShoppingBagOpen weight="duotone" size={20} />
@@ -186,16 +202,18 @@ export function GradeProdutosCore({
             <p className="hb-prod-zone-sub">
               {t(
                 'hub.zona_meus_produtos_sub',
-                'Módulos operacionais do workspace — gestão, listas e relatórios.',
+                'Plugins contratados — vinculam-se aos dossiês ou funcionam standalone.',
               )}
             </p>
           </div>
         </div>
+        )}
         <GradeCards
           cards={grupo.meusProdutos}
           prodVisual={prodVisual}
           defaultVisual={defaultVisual}
           modoFornecedor={false}
+          compact={compact}
           onAbrir={onAbrirProduto}
           t={t}
         />
@@ -205,6 +223,7 @@ export function GradeProdutosCore({
         className="hb-prod-zone hb-prod-zone--fornecedor"
         aria-labelledby="hb-zona-fornecedor"
       >
+        {!compact && (
         <div className="hb-prod-zone-head">
           <div className="hb-prod-zone-icon">
             <Handshake weight="duotone" size={22} />
@@ -221,11 +240,13 @@ export function GradeProdutosCore({
             </p>
           </div>
         </div>
+        )}
         <GradeCards
           cards={grupo.comoFornecedor}
           prodVisual={prodVisual}
           defaultVisual={defaultVisual}
           modoFornecedor
+          compact={compact}
           onAbrir={onAbrirProduto}
           t={t}
         />

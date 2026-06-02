@@ -89,6 +89,14 @@ export function useMeSync() {
         tipoUsuario: usuario.tipo_usuario ?? undefined,
       })
 
+      if (usuario.id_usuario) {
+        sessionStorage.setItem('gravity_id_usuario', usuario.id_usuario)
+      }
+      if (usuario.id_organizacao) {
+        sessionStorage.setItem('gravity_id_organizacao', usuario.id_organizacao)
+        try { localStorage.setItem('gravity:idOrganizacao', usuario.id_organizacao) } catch { /* ignore */ }
+      }
+
       if (Array.isArray(workspaces)) {
         setWorkspaces(workspaces)
         if (wsAtivo?.id) setWorkspaceAtivo(wsAtivo.id)

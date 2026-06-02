@@ -1,31 +1,24 @@
 /**
  * index.ts — Processo Express Server
  * Localizacao canonica: servicos-global/produto/processo/server/
- * Porta: 8025
+ * Porta: 8026
  * Skill: antigravity-criar-produto (Passo 7 — 11 middlewares na ordem correta)
  */
 
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'node:url'
-import { dirname, resolve } from 'node:path'
+import { dirname, resolve, join } from 'node:path'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
-// Chaves globais (GEMINI_API_KEY, CHAVE_INTERNA_SERVICO) vêm do .env.local da raiz
 dotenv.config({ path: resolve(__dir, '../../../../../.env.local') })
-// Chaves específicas do serviço vêm do .env local
 dotenv.config({ path: resolve(__dir, '../../.env') })
 
 import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
 import { processosRouter } from './routes/processos.js'
+import { processoStatusRouter } from './routes/processo-status.js'
 import { followUpRouter } from './routes/follow-ups-processo.js'
 import { documentosRouter } from './routes/documentos-processo.js'
-import { pedidosRouter } from '../../../processos-core/src/routes/pedidos.js'
-import { importacaoRouter } from '../../../processos-core/src/routes/importacao.js'
-import { pedidosConfigRouter } from '../../../processos-core/src/routes/pedidos-config.js'
-import { pedidosLoteRouter } from '../../../processos-core/src/routes/pedidos-lote.js'
 import { dashboardWidgetsRouter } from './routes/widgets-dashboard-processo.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
@@ -118,14 +111,9 @@ app.use(createProductAuditPlugin({
 
 // --- 8. Rotas do Produto ------------------------------------------------------
 app.use('/api/v1/processos', processosRouter)
-// followup e documentos: rotas com paths absolutos internos (mistura de prefixos
-// /follow-ups-processo, /documentos-processo e /processos/:id_processo/...)
+app.use('/api/v1/processo-status', processoStatusRouter)
 app.use('/api/v1', followUpRouter)
 app.use('/api/v1', documentosRouter)
-app.use('/api/v1/pedidos', pedidosRouter)
-app.use('/api/v1/pedidos', importacaoRouter)
-app.use('/api/v1/pedidos/config', pedidosConfigRouter)
-app.use('/api/v1/pedidos/lote', pedidosLoteRouter)
 app.use('/api/v1/processos/dashboard', dashboardWidgetsRouter)
 
 // --- 9. SPA Fallback (serve o client React para qualquer rota nao-API) --------
@@ -150,7 +138,10 @@ if (process.env.NODE_ENV !== 'test') {
   server.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
       console.error(`[Processo] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
-      process.exit(1)
+      if (process.env.PROCESSO_SIDECAR !== '1') {
+        process.exit(1)
+      }
+      return
     }
     throw err
   })

@@ -6,6 +6,7 @@
  */
 
 import React, { lazy, Suspense, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
 import { useAuth, useClerk } from '@clerk/clerk-react'
@@ -27,9 +28,12 @@ import {
   Kanban,
 } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
+import { injectTenantGetter, injectUserGetter } from './shared/api'
+import { ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL } from './shared/rotas-bid-frete-internacional'
 import { resolverPageMetaTopo } from './shared/page-meta-topo'
 import { PaginaCarregandoBidFreteInternacional } from './shared/pagina-carregando-bid-frete-internacional'
 import './shared/bid-frete-page-shell.css'
+import { BidFreteVisualizacaoLayout } from './components/BidFreteVisualizacaoLayout'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
@@ -48,16 +52,23 @@ const DetalheFornecedor = lazy(() => import('./pages/fornecedor-detalhe'))
 const Configuracoes = lazy(() => import('./pages/configuracoes'))
 
 const VisaoFornecedorDashboard = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-dashboard'))
+const VisaoFornecedorPaineisDashboard = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-paineis-dashboard'))
+const VisaoFornecedorLista = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/lista-visao-fornecedor-bid-frete-internacional'))
+const VisaoFornecedorKanban = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/kanban-visao-fornecedor-bid-frete-internacional'))
 const VisaoFornecedorCotacoesPendentes = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-cotacoes-pendentes'))
 const VisaoFornecedorPropostas = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-propostas'))
 const VisaoFornecedorTabelasValor = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-tabelas-valor'))
 const VisaoFornecedorDesempenho = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-desempenho'))
+const VisaoFornecedorConfiguracoes = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-configuracoes'))
 const VisaoFornecedorResponderCotacao = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-responder-cotacao'))
 const VisaoFornecedorResponderPublico = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-responder-publico'))
 
+injectTenantGetter(() => useShellStore.getState().currentUser?.idOrganizacao)
+injectUserGetter(() => useShellStore.getState().currentUser?.id)
+
 const PRODUTO       = getProdutoMeta('bid-frete-internacional')
 const PRODUCT_ID    = 'bid-frete-internacional'
-const PRODUCT_NAME  = 'BID Frete Internacional'
+const PRODUCT_NAME  = 'Bid Frete Internacional'
 const PRODUCT_COLOR = PRODUTO.color
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -75,20 +86,21 @@ const iconMap: Record<string, React.ReactNode> = {
   'kanban':                  <Kanban                weight="duotone" size={20} />,
 }
 
-function mapNavItem(item: NavigationItem): NavItem {
+function mapNavItem(item: NavigationItem, t: (key: string) => string): NavItem {
+  const label = item.labelKey ? t(item.labelKey) : item.label
   if (item.sectionDivider) {
-    return { label: item.label, sectionDivider: true as const, icon: null as any }
+    return { label, sectionDivider: true as const, icon: null as any }
   }
   return {
     id:           item.id,
     to:           item.id,
-    label:        item.label,
+    label,
     icon:         iconMap[item.icon ?? ''] ?? <ListBullets weight="duotone" size={20} />,
     disabled:     item.disabled,
     badge:        item.badge,
     badgeVariant: item.badgeVariant as 'accent' | 'muted' | undefined,
     external:     item.external,
-    children:     item.children?.map(child => mapNavItem(child)),
+    children:     item.children?.map(child => mapNavItem(child, t)),
   }
 }
 
@@ -118,6 +130,7 @@ function RedirectCotacoesVisaoLegado() {
 
 export default function App() {
   useMeSync()
+  const { t } = useTranslation()
   const { getToken } = useAuth()
   const { signOut } = useClerk()
   const location = useLocation()
@@ -134,7 +147,7 @@ export default function App() {
   const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
   useEffect(() => {
-    const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'BID Frete Internacional'
+    const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'Bid Frete Internacional'
     addEntry({
       productId:    PRODUCT_ID,
       productLabel: PRODUCT_NAME,
@@ -169,15 +182,32 @@ export default function App() {
     '/visao-fornecedor-bid-frete-internacional/publico/',
   )
 
+  const isVisaoFornecedor =
+    location.pathname.includes('visao-fornecedor-bid-frete-internacional')
+    && !isRespostaPublica
+
+  const productModoBadgeLabel = isVisaoFornecedor
+    ? t('bidfrete.visao_fornecedor_bid_frete_internacional.identidade.badge_fornecedor', 'Visão Fornecedor')
+    : undefined
+  const productModoAriaLabel = isVisaoFornecedor
+    ? t('bidfrete.visao_fornecedor_bid_frete_internacional.identidade.modo', 'Visão fornecedor')
+    : undefined
+  const productModoTooltipTitulo = isVisaoFornecedor
+    ? t('bidfrete.visao_fornecedor_bid_frete_internacional.identidade.tooltip_titulo', 'Visão fornecedor')
+    : undefined
+  const productModoTooltipDescricao = isVisaoFornecedor
+    ? t(
+        'bidfrete.visao_fornecedor_bid_frete_internacional.identidade.tooltip_descricao',
+        'Área para responder cotações, enviar propostas e acompanhar seu desempenho',
+      )
+    : undefined
+
   const navItems = useMemo(() => {
-    const isVisaoFornecedor =
-      location.pathname.includes('visao-fornecedor-bid-frete-internacional')
-      && !isRespostaPublica
     const nav = isVisaoFornecedor
       ? PRODUCT_CONFIG.navigation_visao_fornecedor_bid_frete_internacional
       : PRODUCT_CONFIG.navigation
-    return nav.map(item => mapNavItem(item))
-  }, [location.pathname, isRespostaPublica])
+    return nav.map(item => mapNavItem(item, t))
+  }, [isVisaoFornecedor, t])
 
   if (isRespostaPublica) {
     return (
@@ -199,6 +229,11 @@ export default function App() {
     <TelaProdutoComOrganizacaoOverride
       productId={PRODUCT_ID}
       productName={PRODUCT_NAME}
+      productModoVariant={isVisaoFornecedor ? 'visao_fornecedor' : undefined}
+      productModoBadgeLabel={productModoBadgeLabel}
+      productModoAriaLabel={productModoAriaLabel}
+      productModoTooltipTitulo={productModoTooltipTitulo}
+      productModoTooltipDescricao={productModoTooltipDescricao}
       tenantName={nomeWorkspaceAtivo}
       tenantPlan={currentUser.nomeOrganizacao ?? ''}
       navItems={navItems}
@@ -215,7 +250,13 @@ export default function App() {
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
       onNavigateCore={() => { window.location.href = '/core' }}
-      onNavigateSettings={() => { navigate('/bid-frete/configuracoes') }}
+      onNavigateSettings={() => {
+        navigate(
+          isVisaoFornecedor
+            ? ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.configuracoes
+            : '/bid-frete/configuracoes',
+        )
+      }}
       localizador={{
         workspaceName:       nomeWorkspaceAtivo,
         currentPageLabel:    pageMeta.label,
@@ -247,10 +288,10 @@ export default function App() {
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/"              element={<Navigate to="visao-geral" replace />} />
-          <Route path="visao-geral"    element={<VisaoGeral />} />
-          <Route path="dashboard"      element={<Dashboard />} />
-          <Route path="lista"          element={<Cotacoes />} />
-          <Route path="kanban"         element={<Cotacoes />} />
+          <Route path="visao-geral"    element={<BidFreteVisualizacaoLayout modo="cliente"><VisaoGeral /></BidFreteVisualizacaoLayout>} />
+          <Route path="dashboard"      element={<BidFreteVisualizacaoLayout modo="cliente"><Dashboard /></BidFreteVisualizacaoLayout>} />
+          <Route path="lista"          element={<BidFreteVisualizacaoLayout modo="cliente"><Cotacoes /></BidFreteVisualizacaoLayout>} />
+          <Route path="kanban"         element={<BidFreteVisualizacaoLayout modo="cliente"><Cotacoes /></BidFreteVisualizacaoLayout>} />
           <Route path="cotacoes"       element={<RedirectCotacoesVisaoLegado />} />
           <Route path="cotacoes/nova" element={<ModalNovaCotacaoBidFreteInternacional />} />
           <Route path="cotacoes/importar" element={<CotacoesImportar />} />
@@ -258,18 +299,22 @@ export default function App() {
           <Route path="cotacoes/:id_cotacao/comparativo" element={<Comparativo />} />
           <Route path="fornecedores"   element={<Fornecedores />} />
           <Route path="fornecedores/:id_fornecedor" element={<DetalheFornecedor />} />
-          <Route path="configuracoes"  element={<Configuracoes />} />
+          <Route path="configuracoes"  element={<BidFreteVisualizacaoLayout modo="cliente"><Configuracoes /></BidFreteVisualizacaoLayout>} />
 
           <Route path="visao-fornecedor-bid-frete-internacional" element={<Navigate to="visao-fornecedor-bid-frete-internacional/dashboard" replace />} />
-          <Route path="visao-fornecedor-bid-frete-internacional/dashboard" element={<VisaoFornecedorDashboard />} />
+          <Route path="visao-fornecedor-bid-frete-internacional/dashboard" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorDashboard /></BidFreteVisualizacaoLayout>} />
+          <Route path="visao-fornecedor-bid-frete-internacional/paineis-dashboard" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorPaineisDashboard /></BidFreteVisualizacaoLayout>} />
+          <Route path="visao-fornecedor-bid-frete-internacional/lista" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorLista /></BidFreteVisualizacaoLayout>} />
+          <Route path="visao-fornecedor-bid-frete-internacional/kanban" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorKanban /></BidFreteVisualizacaoLayout>} />
           <Route path="visao-fornecedor-bid-frete-internacional/cotacoes-pendentes" element={<VisaoFornecedorCotacoesPendentes />} />
           <Route path="visao-fornecedor-bid-frete-internacional/propostas" element={<VisaoFornecedorPropostas />} />
           <Route path="visao-fornecedor-bid-frete-internacional/tabelas-valor" element={<VisaoFornecedorTabelasValor />} />
           <Route path="visao-fornecedor-bid-frete-internacional/desempenho" element={<VisaoFornecedorDesempenho />} />
+          <Route path="visao-fornecedor-bid-frete-internacional/configuracoes" element={<BidFreteVisualizacaoLayout modo="fornecedor"><VisaoFornecedorConfiguracoes /></BidFreteVisualizacaoLayout>} />
           <Route path="visao-fornecedor-bid-frete-internacional/responder/:id_disparo_cotacao_bid_frete_internacional" element={<VisaoFornecedorResponderCotacao />} />
 
           {/* Redirects legado portal → visão fornecedor */}
-          <Route path="portal/*" element={<Navigate to="/visao-fornecedor-bid-frete-internacional/dashboard" replace />} />
+          <Route path="portal/*" element={<Navigate to={ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.dashboard} replace />} />
 
           <Route path="*" element={<Navigate to="visao-geral" replace />} />
         </Routes>

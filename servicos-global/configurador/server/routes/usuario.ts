@@ -4,7 +4,7 @@
 // schemas Zod (Mand. 09) para validação bilateral no frontend.
 //
 // GET   /api/v1/usuarios                              → listar usuários da organização
-// POST  /api/v1/usuarios/convidar                     → convidar usuário (Master)
+// POST  /api/v1/usuarios/convidar                     → convidar usuário (Master/SAdmin intra-org)
 // POST  /api/v1/usuarios/:id_usuario/reenviar-convite → reenviar convite pendente (Master/SAdmin)
 // DELETE /api/v1/usuarios/:id_usuario/convite          → cancelar convite pendente (Master/SAdmin)
 // POST  /api/v1/usuarios/:id_usuario/vinculos         → habilitar em workspace (Master)
@@ -33,7 +33,15 @@ import {
   aoDesvincularUsuarioDoWorkspace,
 } from '../services/sincronizar-acesso-usuario-produtos-service.js'
 import { convidarUsuarioService } from '../services/convidar-usuario-service.js'
-import { listarVinculosFornecedorOrganizacaoPorOrganizacao } from '../services/cadastros-client.js'
+import {
+  exigirVinculosCadastrosFornecedorAtivos,
+  sincronizarUsuarioBidFreteFornecedor,
+} from '../services/prestador-fornecedor-vinculo-service.js'
+import {
+  listarVinculosFornecedorOrganizacaoPorOrganizacao,
+  listarVinculosFornecedorPorUsuario,
+} from '../services/cadastros-client.js'
+import { ehPermissaoCotarFrete } from '../../shared/permissoes-canonicas.js'
 import { logger } from '../lib/logger.js'
 import { tipoFornecedorOrganizacaoEnum } from '../../shared/tipo-fornecedor-organizacao.js'
 
@@ -151,6 +159,7 @@ export const convidarUsuarioResponseSchema = z.object({
     email_usuario: z.string().email(),
     tipo_usuario: TipoUsuarioEnum,
     acesso_workspaces_futuros: z.boolean(),
+    nome_fornecedor: z.string().nullable().optional(),
   }),
 })
 
@@ -240,11 +249,12 @@ usersRouter.get('/', async (req, res, next) => {
     if (temFornecedor) {
       const correlationId =
         typeof req.headers['x-correlation-id'] === 'string' ? req.headers['x-correlation-id'] : ''
+      const ctxCadastros = {
+        id_organizacao: req.auth.id_organizacao,
+        correlation_id: correlationId || crypto.randomUUID(),
+      }
       try {
-        const vinculos = await listarVinculosFornecedorOrganizacaoPorOrganizacao({
-          id_organizacao: req.auth.id_organizacao,
-          correlation_id: correlationId,
-        })
+        const vinculos = await listarVinculosFornecedorOrganizacaoPorOrganizacao(ctxCadastros)
         for (const v of vinculos) {
           if (!v.id_usuario) continue
           const nome = v.fornecedor?.nome_fornecedor
@@ -257,6 +267,34 @@ usersRouter.get('/', async (req, res, next) => {
           id_organizacao: req.auth.id_organizacao,
           error: err instanceof Error ? err.message : String(err),
         })
+      }
+
+      // Fallback: usuários FORNECEDOR sem nome após listagem org-wide (ex.: paginação
+      // parcial ou vínculo recém-associado).
+      const idsSemNome = dtoBase
+        .filter((u) => u.tipo_usuario === 'FORNECEDOR' && !mapaNomeFornecedor.has(u.id_usuario))
+        .map((u) => u.id_usuario)
+
+      if (idsSemNome.length > 0) {
+        await Promise.all(
+          idsSemNome.map(async (idUsuario) => {
+            try {
+              const vinculosUsuario = await listarVinculosFornecedorPorUsuario(idUsuario, ctxCadastros)
+              const nomes = vinculosUsuario
+                .filter((v) => v.id_organizacao === req.auth.id_organizacao)
+                .map((v) => v.fornecedor?.nome_fornecedor)
+                .filter((nome): nome is string => !!nome)
+              if (nomes.length === 0) return
+              mapaNomeFornecedor.set(idUsuario, [...new Set(nomes)].join(', '))
+            } catch (err) {
+              log.warn('usuarios.listar.nome_fornecedor_usuario_falhou', {
+                id_organizacao: req.auth.id_organizacao,
+                id_usuario: idUsuario,
+                error: err instanceof Error ? err.message : String(err),
+              })
+            }
+          }),
+        )
       }
     }
 
@@ -424,7 +462,7 @@ usersRouter.post('/:id_usuario/reenviar-convite', requireUserManagementRole, asy
  * POST /api/v1/usuarios/convidar
  * Convida um usuário para a organização — dispara e-mail via Clerk
  */
-usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
+usersRouter.post('/convidar', requireUserManagementRole, async (req, res, next) => {
   try {
     const parsed = ConvidarUsuarioSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -463,6 +501,7 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
         email_usuario: resultado.email_usuario,
         tipo_usuario: resultado.tipo_usuario,
         acesso_workspaces_futuros: resultado.acesso_workspaces_futuros,
+        nome_fornecedor: resultado.nome_fornecedor,
       },
     })
   } catch (err) {
@@ -1235,6 +1274,23 @@ usersRouter.put('/:id_usuario/permissoes', requireUserManagementRole, async (req
       )
     }
 
+    const concedendoCotarFrete =
+      alvo.tipo_usuario === 'FORNECEDOR'
+      && parsed.data.permissoes.some(ehPermissaoCotarFrete)
+
+    const correlation_id = crypto.randomUUID()
+    let vinculosFornecedorAtivos: Awaited<
+      ReturnType<typeof exigirVinculosCadastrosFornecedorAtivos>
+    > = []
+
+    if (concedendoCotarFrete) {
+      vinculosFornecedorAtivos = await exigirVinculosCadastrosFornecedorAtivos({
+        id_usuario,
+        id_organizacao: alvo.id_organizacao,
+        correlation_id,
+      })
+    }
+
     const result = await servicoPermissaoUsuario.configurarPermissoes({
       id_organizacao: alvo.id_organizacao,
       id_workspace: parsed.data.id_workspace,
@@ -1243,6 +1299,23 @@ usersRouter.put('/:id_usuario/permissoes', requireUserManagementRole, async (req
       permissoes: parsed.data.permissoes,
       concedido_por_clerk_id: req.auth.clerkUserId,
     })
+
+    if (concedendoCotarFrete && vinculosFornecedorAtivos.length > 0) {
+      const usuarioClerk = await prisma.usuario.findUnique({
+        where: { id_usuario },
+        select: { id_clerk_usuario: true },
+      })
+      for (const vinculo of vinculosFornecedorAtivos) {
+        await sincronizarUsuarioBidFreteFornecedor({
+          id_organizacao_cliente: vinculo.id_organizacao,
+          id_fornecedor: vinculo.id_fornecedor,
+          id_usuario,
+          id_clerk_usuario: usuarioClerk?.id_clerk_usuario ?? null,
+          correlation_id,
+          obrigatorio: true,
+        })
+      }
+    }
 
     securityAudit.permissionChanged(alvo.id_organizacao, req.auth.id_usuario, {
       id_usuario_alvo: id_usuario,

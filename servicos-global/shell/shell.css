@@ -506,11 +506,13 @@ body,
    Sem o __left ocupando espaco no flex (justify-content: space-between),
    o __right cai para o inicio. margin-left: auto empurra de volta pra
    direita do container. */
-.layout--processo .shell-header__left {
+.layout--processo .shell-header__left,
+.layout--oculta-marca-header .shell-header__left {
   display: none !important;
 }
 
-.layout--processo .shell-header__right {
+.layout--processo .shell-header__right,
+.layout--oculta-marca-header .shell-header__right {
   margin-left: auto;
 }
 

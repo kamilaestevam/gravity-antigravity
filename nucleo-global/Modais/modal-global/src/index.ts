@@ -20,6 +20,7 @@ export type {
   BotaoModal,
   BotaoModalVariante,
   TamanhoModal,
+  FooterRenderContext,
   ItemModalStack,
   ModalManagerState,
 } from './tipos.js'

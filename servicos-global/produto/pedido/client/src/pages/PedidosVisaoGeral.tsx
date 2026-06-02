@@ -1213,7 +1213,7 @@ function VisaoGeralMapa() {
   const [projectedPins, setProjectedPins] = useState<(VisaoGeralMapPin & { px: number; py: number; opacity: number })[]>([])
 
   // Alternância Globo 3D ↔ Mapa plano 2D
-  const [vista, setVista] = useState<'globo' | 'mapa'>('globo')
+  const [vista, setVista] = useState<'globo' | 'mapa'>('mapa')
   const vistaRef = useRef<'globo' | 'mapa'>(vista)
   useEffect(() => {
     vistaRef.current = vista
@@ -2017,8 +2017,9 @@ function VisaoGeralMapa() {
   }
   
   return (
-    <div className="bfd-card bfd-map-card bfd-card--accent-amber">
-      <div className="bfd-map-card__header" style={{ marginBottom: '1.25rem' }}>
+    <div className="bfd-map-rankings-row">
+      <div className="bfd-card bfd-map-card bfd-card--accent-amber">
+      <div className="bfd-map-card__header" style={{ marginBottom: '0.65rem' }}>
         <div>
           <div className="cg-card__header" style={{ marginBottom: '0.4rem' }}>
             <div className="cg-card__icon-wrap">
@@ -2030,8 +2031,7 @@ function VisaoGeralMapa() {
         </div>
       </div>
       
-      <div className="bfd-map-container">
-        {/* Left Side: Canvas and Zoom Controls */}
+      <div className="bfd-map-container bfd-map-container--sem-painel-lateral">
         <div 
           className="bfd-map-canvas-wrapper"
           onMouseDown={handleMouseDown}
@@ -2195,156 +2195,6 @@ function VisaoGeralMapa() {
               </div>
             )
           })}
-        </div>
-
-        {/* Right Side: HUD de Cotações Globais */}
-        <div className="bfd-hud-container">
-          {/* HUD de Cotações Globais */}
-          <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
-            <div className="bfd-map-panel__header">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="bfd-map-panel__title">{t('pedido.visao_geral.hud.titulo')}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <span className="bfd-map-panel__live-dot" />
-                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('pedido.visao_geral.hud.live_feed')}</span>
-                </div>
-              </div>
-              <span className="bfd-map-panel__subtitle">{t('pedido.visao_geral.hud.subtitulo_pedidos', { total })}</span>
-            </div>
-            
-            {/* Tabs */}
-            <div className="bfd-map-panel__tabs">
-              <button 
-                className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
-                onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
-              >
-                <Globe size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_origens')}
-              </button>
-              <button 
-                className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
-                onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
-              >
-                <MapPin size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_destinos')}
-              </button>
-              <button 
-                className={`bfd-map-panel__tab tab-modais ${activeTab === 'modais' ? 'is-active' : ''}`}
-                onClick={(e) => { e.stopPropagation(); setActiveTab('modais'); }}
-              >
-                <List size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_modais')}
-              </button>
-            </div>
-            
-            {/* List Content */}
-            <div className="bfd-map-panel__list">
-              {activeTab === 'origens' && (topOrigens.length === 0 ? (
-                <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
-              ) : topOrigens.map(item => {
-                const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
-                
-                return (
-                  <div 
-                    key={item.rank}
-                    className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted' : ''}`}
-                    onMouseEnter={() => {
-                      if (item.pinId) {
-                        setHoveredPin(item.pinId)
-                        isRotationPausedRef.current = true
-                      }
-                    }}
-                    onMouseLeave={() => {
-                      if (item.pinId) {
-                        setHoveredPin(null)
-                        isRotationPausedRef.current = false
-                      }
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      isRotationPausedRef.current = true
-                      setSelectedLocKey(item.locKey)
-                    }}
-                  >
-                    <span className="bfd-map-panel__row-rank">{item.rank}</span>
-                    <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                    <div className="bfd-map-panel__row-info">
-                      <span className="bfd-map-panel__row-city">{item.name}</span>
-                      <span className="bfd-map-panel__row-code">{item.code}</span>
-                    </div>
-                    <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
-                  </div>
-                )
-              }))}
-              
-              {activeTab === 'destinos' && (topDestinos.length === 0 ? (
-                <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
-              ) : topDestinos.map(item => {
-                const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
-                
-                return (
-                  <div 
-                    key={item.rank}
-                    className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted-dest' : ''}`}
-                    onMouseEnter={() => {
-                      if (item.pinId) {
-                        setHoveredPin(item.pinId)
-                        isRotationPausedRef.current = true
-                      }
-                    }}
-                    onMouseLeave={() => {
-                      if (item.pinId) {
-                        setHoveredPin(null)
-                        isRotationPausedRef.current = false
-                      }
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      isRotationPausedRef.current = true
-                      setSelectedLocKey(item.locKey)
-                    }}
-                  >
-                    <span className="bfd-map-panel__row-rank">{item.rank}</span>
-                    <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                    <div className="bfd-map-panel__row-info">
-                      <span className="bfd-map-panel__row-city">{item.name}</span>
-                      <span className="bfd-map-panel__row-code">{item.code}</span>
-                    </div>
-                    <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
-                  </div>
-                )
-              }))}
-              
-              {activeTab === 'modais' && modaisGlobo.map((item, idx) => {
-                const isExportacao = item.key === 'exportacao'
-                return (
-                  <div
-                    key={item.key}
-                    className="bfd-map-panel__row has-link"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelectedLocKey(`modal|${item.key}`)
-                    }}
-                  >
-                    <span className="bfd-map-panel__row-rank">{idx + 1}</span>
-                    <span className="bfd-map-panel__modal-icon-wrap" style={{ color: isExportacao ? '#a78bfa' : '#f59e0b' }}>
-                      {TIPO_OPERACAO_ICONS[item.key] || <DownloadSimple size={14} />}
-                    </span>
-                    <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
-                      <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
-                        {t(`pedido.visao_geral.modal.${item.key}`, { defaultValue: item.label })}
-                      </span>
-                      <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
-                        {t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-                      <span className="bfd-map-panel__row-bids" style={{ fontWeight: 800, color: '#ffffff' }}>
-                        {item.pct}%
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
         </div>
 
         {/* Premium Detail Modal Overlay */}
@@ -2525,6 +2375,153 @@ function VisaoGeralMapa() {
           )
         })()}
       </div>
+      </div>
+
+      <div className="bfd-card bfd-rankings-card bfd-card--accent-amber">
+        <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
+          <div className="bfd-map-panel__header">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span className="bfd-map-panel__title">{t('pedido.visao_geral.hud.titulo')}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <span className="bfd-map-panel__live-dot" />
+                <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('pedido.visao_geral.hud.live_feed')}</span>
+              </div>
+            </div>
+            <span className="bfd-map-panel__subtitle">{t('pedido.visao_geral.hud.subtitulo_pedidos', { total })}</span>
+          </div>
+
+          <div className="bfd-map-panel__tabs">
+            <button
+              className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
+            >
+              <Globe size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_origens')}
+            </button>
+            <button
+              className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
+            >
+              <MapPin size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_destinos')}
+            </button>
+            <button
+              className={`bfd-map-panel__tab tab-modais ${activeTab === 'modais' ? 'is-active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); setActiveTab('modais'); }}
+            >
+              <List size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_modais')}
+            </button>
+          </div>
+
+          <div className="bfd-map-panel__list">
+            {activeTab === 'origens' && (topOrigens.length === 0 ? (
+              <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
+            ) : topOrigens.map(item => {
+              const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
+
+              return (
+                <div
+                  key={item.rank}
+                  className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted' : ''}`}
+                  onMouseEnter={() => {
+                    if (item.pinId) {
+                      setHoveredPin(item.pinId)
+                      isRotationPausedRef.current = true
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (item.pinId) {
+                      setHoveredPin(null)
+                      isRotationPausedRef.current = false
+                    }
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    isRotationPausedRef.current = true
+                    setSelectedLocKey(item.locKey)
+                  }}
+                >
+                  <span className="bfd-map-panel__row-rank">{item.rank}</span>
+                  <span className="bfd-map-panel__row-flag">{item.flag}</span>
+                  <div className="bfd-map-panel__row-info">
+                    <span className="bfd-map-panel__row-city">{item.name}</span>
+                    <span className="bfd-map-panel__row-code">{item.code}</span>
+                  </div>
+                  <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
+                </div>
+              )
+            }))}
+
+            {activeTab === 'destinos' && (topDestinos.length === 0 ? (
+              <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
+            ) : topDestinos.map(item => {
+              const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
+
+              return (
+                <div
+                  key={item.rank}
+                  className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted-dest' : ''}`}
+                  onMouseEnter={() => {
+                    if (item.pinId) {
+                      setHoveredPin(item.pinId)
+                      isRotationPausedRef.current = true
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (item.pinId) {
+                      setHoveredPin(null)
+                      isRotationPausedRef.current = false
+                    }
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    isRotationPausedRef.current = true
+                    setSelectedLocKey(item.locKey)
+                  }}
+                >
+                  <span className="bfd-map-panel__row-rank">{item.rank}</span>
+                  <span className="bfd-map-panel__row-flag">{item.flag}</span>
+                  <div className="bfd-map-panel__row-info">
+                    <span className="bfd-map-panel__row-city">{item.name}</span>
+                    <span className="bfd-map-panel__row-code">{item.code}</span>
+                  </div>
+                  <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
+                </div>
+              )
+            }))}
+
+            {activeTab === 'modais' && modaisGlobo.map((item, idx) => {
+              const isExportacao = item.key === 'exportacao'
+              return (
+                <div
+                  key={item.key}
+                  className="bfd-map-panel__row has-link"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedLocKey(`modal|${item.key}`)
+                  }}
+                >
+                  <span className="bfd-map-panel__row-rank">{idx + 1}</span>
+                  <span className="bfd-map-panel__modal-icon-wrap" style={{ color: isExportacao ? '#a78bfa' : '#f59e0b' }}>
+                    {TIPO_OPERACAO_ICONS[item.key] || <DownloadSimple size={14} />}
+                  </span>
+                  <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
+                    <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
+                      {t(`pedido.visao_geral.modal.${item.key}`, { defaultValue: item.label })}
+                    </span>
+                    <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
+                      {t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                    <span className="bfd-map-panel__row-bids" style={{ fontWeight: 800, color: '#ffffff' }}>
+                      {item.pct}%
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -2564,10 +2561,9 @@ export default function VisaoGeral() {
 
 
   return (
-    <div className="bfd-dashboard">
+    <div className="pedido-visao-geral bfd-dashboard">
       <style>{`
         .bfd-dashboard {
-          padding: var(--pedido-page-pt) var(--pedido-page-px) var(--pedido-page-pb);
           display: flex;
           flex-direction: column;
           gap: 1.5rem;
@@ -3839,19 +3835,6 @@ export default function VisaoGeral() {
           border-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* ── Globe Map + Câmbio Row ───────────────────────────────── */
-        .bfd-globe-row {
-          display: grid;
-          grid-template-columns: 2.15fr 1fr;
-          gap: 1.25rem;
-          margin-bottom: 1.25rem;
-        }
-        @media (max-width: 1200px) {
-          .bfd-globe-row {
-            grid-template-columns: 1fr;
-          }
-        }
-
         /* ── Charts Grid ─────────────────────────────────────────── */
         .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1.25rem; }
         .bfd-charts-grid .bfd-card { height: 380px; }
@@ -3991,7 +3974,139 @@ export default function VisaoGeral() {
         @media (max-width: 768px) {
           .bfd-kpi-grid { grid-template-columns: repeat(1, 1fr); }
         }
-      `}</style>
+      
+        /* ── Escopo Pedido (evita vazamento para Bid Frete Internacional) ── */
+        .pedido-visao-geral.bfd-dashboard {
+          padding: var(--pedido-page-pt) var(--pedido-page-px) var(--pedido-page-pb);
+        }
+        .pedido-visao-geral .bfd-map-rankings-row {
+          display: contents;
+        }
+        .pedido-visao-geral .bfd-map-card {
+          padding: 1.15rem 1.5rem 3.5rem 1.5rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.85rem;
+          position: relative;
+          min-height: 0;
+          overflow: visible;
+        }
+        .pedido-visao-geral .bfd-map-container {
+          position: relative;
+          flex: 1;
+          min-height: 0;
+          border-radius: 12px;
+          overflow: visible;
+          background: transparent;
+          display: flex;
+          gap: 1.5rem;
+        }
+        .pedido-visao-geral .bfd-map-container--sem-painel-lateral {
+          gap: 0;
+        }
+        .pedido-visao-geral .bfd-map-container--sem-painel-lateral .bfd-map-canvas-wrapper {
+          flex: 1;
+          width: 100%;
+        }
+        .pedido-visao-geral .bfd-rankings-card {
+          padding: 0;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .pedido-visao-geral .bfd-rankings-card .bfd-map-right-panel {
+          flex: 1;
+          min-height: 0;
+          height: 100%;
+          border: none;
+          border-radius: 14px;
+          box-shadow: none;
+        }
+        .pedido-visao-geral .bfd-globe-row {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 320px minmax(280px, 0.72fr);
+          gap: 1.25rem;
+          margin-bottom: 1.25rem;
+          align-items: stretch;
+          --bfd-visao-geral-linha-altura: 400px;
+        }
+        .pedido-visao-geral .bfd-globe-row__coluna-direita {
+          display: flex;
+          flex-direction: column;
+          gap: 0.85rem;
+          min-height: 0;
+          overflow: hidden;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-map-card,
+        .pedido-visao-geral .bfd-globe-row .bfd-rankings-card,
+        .pedido-visao-geral .bfd-globe-row .bfd-globe-row__coluna-direita {
+          min-height: var(--bfd-visao-geral-linha-altura);
+          max-height: var(--bfd-visao-geral-linha-altura);
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-alertas {
+          flex: 0 0 auto;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-card--accent-indigo {
+          flex: 1;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-funil {
+          flex: 1;
+          min-height: 0;
+          overflow-y: auto;
+          justify-content: center;
+          gap: 0.45rem;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-funil__row {
+          gap: 0.5rem;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-funil__label {
+          font-size: 0.78rem;
+          min-width: 120px;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-funil__bar-wrap {
+          height: 12px;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-rankings-card .bfd-map-right-panel {
+          padding: 1rem;
+          gap: 0.65rem;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-map-panel__header {
+          gap: 0.15rem;
+        }
+        .pedido-visao-geral .bfd-globe-row .bfd-map-panel__row {
+          padding: 0.35rem 0.5rem;
+        }
+        @media (max-width: 1200px) {
+          .pedido-visao-geral .bfd-globe-row {
+            grid-template-columns: 1fr;
+            --bfd-visao-geral-linha-altura: auto;
+          }
+          .pedido-visao-geral .bfd-map-rankings-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+          }
+          .pedido-visao-geral .bfd-globe-row .bfd-map-card,
+          .pedido-visao-geral .bfd-globe-row .bfd-rankings-card,
+          .pedido-visao-geral .bfd-globe-row .bfd-globe-row__coluna-direita {
+            min-height: 0;
+            max-height: none;
+          }
+          .pedido-visao-geral .bfd-map-container {
+            min-height: 280px;
+          }
+        }
+        @media (max-width: 1023px) {
+          .pedido-visao-geral .bfd-map-rankings-row {
+            grid-template-columns: 1fr;
+          }
+        }
+`}</style>
 
       {/* KPIs Grid — status configuráveis em Configurações → Visão Geral */}
       <div className="bfd-kpi-grid">
@@ -4032,10 +4147,10 @@ export default function VisaoGeral() {
         <VisaoGeralMapa />
 
         {/* Right Column Stacking Alertas + Funil */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', minHeight: 0 }}>
+        <div className="bfd-globe-row__coluna-direita">
           {/* Alertas */}
-          <div className="bfd-card bfd-alertas bfd-card--accent-rose" style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <div className="bfd-card bfd-alertas bfd-card--accent-rose" style={{ flex: '0 0 auto', padding: '1rem 1.25rem', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
               <div className="cg-card__header">
                 <div className="cg-card__icon-wrap">
                   <Bell weight="duotone" size={16} style={{ color: '#f87171' }} />
@@ -4048,28 +4163,28 @@ export default function VisaoGeral() {
                 <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}><CaretRight size={12} /></button>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.65rem', flex: 1 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
               {alertas.map((a, i) => {
-                let icon = <Clock size={16} weight="duotone" />
+                let icon = <Clock size={14} weight="duotone" />
                 let glowColor = 'rgba(248, 113, 113, 0.15)'
                 let textColor = '#f87171'
                 let borderLeftColor = '#f87171'
                 let itemBg = 'rgba(248, 113, 113, 0.04)'
 
                 if (a.cor === 'orange' || a.cor === 'yellow') {
-                  icon = <ChatText size={16} weight="duotone" />
+                  icon = <ChatText size={14} weight="duotone" />
                   glowColor = 'rgba(251, 191, 36, 0.15)'
                   textColor = '#fbbf24'
                   borderLeftColor = '#fbbf24'
                   itemBg = 'rgba(251, 191, 36, 0.04)'
                 } else if (a.cor === 'green') {
-                  icon = <Bell size={16} weight="duotone" />
+                  icon = <Bell size={14} weight="duotone" />
                   glowColor = 'rgba(52, 211, 153, 0.15)'
                   textColor = '#34d399'
                   borderLeftColor = '#34d399'
                   itemBg = 'rgba(52, 211, 153, 0.04)'
                 } else {
-                  icon = <CheckCircle size={16} weight="duotone" />
+                  icon = <CheckCircle size={14} weight="duotone" />
                   glowColor = 'rgba(245, 158, 11, 0.15)'
                   textColor = '#f59e0b'
                   borderLeftColor = '#f59e0b'
@@ -4088,10 +4203,10 @@ export default function VisaoGeral() {
                       border: '1px solid rgba(255, 255, 255, 0.03)',
                       borderLeft: `3px solid ${borderLeftColor}`,
                       borderRadius: '6px',
-                      padding: '0.65rem 0.8rem',
+                      padding: '0.35rem 0.65rem',
                       transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                       cursor: 'pointer',
-                      minHeight: '75px',
+                      minHeight: '38px',
                     }}
                     onClick={() => {
                       setAlertModalTipo(a.tipo)
@@ -4115,11 +4230,11 @@ export default function VisaoGeral() {
                       <span style={{ color: borderLeftColor, display: 'flex', alignItems: 'center' }}>
                         {icon}
                       </span>
-                      <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                      <span style={{ fontSize: '1rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1 }}>
                         {a.count}
                       </span>
                     </div>
-                    <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1', lineHeight: '1.2', marginTop: '0.35rem', letterSpacing: '0.01em' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#cbd5e1', lineHeight: '1.15', marginTop: '0.15rem', letterSpacing: '0.01em' }}>
                       {t(`pedido.visao_geral.alertas.${a.tipo}`)}
                     </span>
                   </div>
@@ -4129,8 +4244,8 @@ export default function VisaoGeral() {
           </div>
 
           {/* Funil */}
-          <div className="bfd-card bfd-card--accent-indigo" style={{ flex: 1, padding: '1.25rem 1.5rem' }}>
-            <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
+          <div className="bfd-card bfd-card--accent-indigo" style={{ flex: 1, minHeight: 0, padding: '1rem 1.25rem' }}>
+            <div className="cg-card__header" style={{ marginBottom: '0.75rem' }}>
               <div className="cg-card__icon-wrap">
                 <Funnel weight="duotone" size={16} style={{ color: '#818cf8' }} />
               </div>

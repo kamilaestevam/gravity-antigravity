@@ -1,14 +1,5 @@
 /**
  * StatusProcesso — Configuracao dos status do processo + rule builder.
- *
- * Cada status tem:
- * - nome, cor, ordem (definem a linha do tempo)
- * - regras automaticas: condicoes em cima de campos (Dados do Processo
- *   ou Pedido) que determinam quando esse status se aplica
- * - operador: AND (todas as regras) ou OR (qualquer uma)
- *
- * O sistema avalia as regras e atribui automaticamente o status ao
- * processo. A ordem define a sequencia da timeline na Visao Geral.
  */
 
 import React, { useState } from 'react'
@@ -20,63 +11,26 @@ import {
 import {
   validarStatus, camposPara, precisaValor,
   ROTULO_CONDICAO,
-  type FieldSource, type CondicaoTipo, type CampoOpcao,
+  type FieldSource, type CondicaoTipo,
   type Regra, type StatusConfig,
 } from './validacao'
+import {
+  STATUS_INICIAIS_PROCESSO,
+  carregarStatusProcessoCompleto,
+  persistirStatusProcesso,
+} from '../../../shared/lista/processoStatusConfig'
 import './StatusProcesso.css'
-
-// ── Cores predefinidas ────────────────────────────────────────────────────
 
 const CORES = [
   '#94a3b8', '#60a5fa', '#34d399', '#fbbf24',
   '#a78bfa', '#f472b6', '#fb923c', '#f87171',
 ]
 
-// ── Mock inicial: status padrao do processo ───────────────────────────────
-
 let _seq = 0
 const novoId = () => `r${Date.now()}-${++_seq}`
 
-const STATUS_INICIAIS: StatusConfig[] = [
-  {
-    id: 's1', nome: 'Rascunho', cor: '#94a3b8', ordem: 1, operador: 'AND',
-    regras: [
-      { id: novoId(), origem: 'dados_processo', campo: 'numero_processo', condicao: 'vazio' },
-    ],
-  },
-  {
-    id: 's2', nome: 'Aberto', cor: '#60a5fa', ordem: 2, operador: 'AND',
-    regras: [
-      { id: novoId(), origem: 'dados_processo', campo: 'numero_processo', condicao: 'preenchido' },
-      { id: novoId(), origem: 'dados_processo', campo: 'data_embarque',   condicao: 'vazio' },
-    ],
-  },
-  {
-    id: 's3', nome: 'Em Embarque', cor: '#a78bfa', ordem: 3, operador: 'AND',
-    regras: [
-      { id: novoId(), origem: 'dados_processo', campo: 'data_embarque', condicao: 'preenchido' },
-      { id: novoId(), origem: 'dados_processo', campo: 'data_chegada',  condicao: 'vazio' },
-    ],
-  },
-  {
-    id: 's4', nome: 'Em Desembaraço', cor: '#fbbf24', ordem: 4, operador: 'AND',
-    regras: [
-      { id: novoId(), origem: 'dados_processo', campo: 'data_chegada', condicao: 'preenchido' },
-      { id: novoId(), origem: 'dados_processo', campo: 'di_numero',    condicao: 'vazio' },
-    ],
-  },
-  {
-    id: 's5', nome: 'Concluído', cor: '#34d399', ordem: 5, operador: 'AND',
-    regras: [
-      { id: novoId(), origem: 'dados_processo', campo: 'di_numero', condicao: 'preenchido' },
-    ],
-  },
-]
-
-// ── Componente principal ───────────────────────────────────────────────────
-
 export default function StatusProcesso() {
-  const [statuses, setStatuses] = useState<StatusConfig[]>(STATUS_INICIAIS)
+  const [statuses, setStatuses] = useState<StatusConfig[]>(() => carregarStatusProcessoCompleto())
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
   const [dirty, setDirty] = useState(false)
 
@@ -135,19 +89,20 @@ export default function StatusProcesso() {
   }
 
   function salvar() {
-    // TODO: chamar API quando back estiver pronto
-    console.log('Salvar:', statuses)
+    persistirStatusProcesso(statuses)
     setDirty(false)
   }
 
   function restaurarPadrao() {
-    setStatuses(STATUS_INICIAIS)
-    setDirty(false)
+    setStatuses(STATUS_INICIAIS_PROCESSO.map(s => ({
+      ...s,
+      regras: s.regras.map(r => ({ ...r, id: novoId() })),
+    })))
+    setDirty(true)
   }
 
   return (
     <div className="sp-pagina" data-testid="status-pagina">
-      {/* Header */}
       <div className="sp-header">
         <div>
           <h2>Status do Processo</h2>
@@ -161,7 +116,6 @@ export default function StatusProcesso() {
         </button>
       </div>
 
-      {/* Lista de status */}
       <div className="sp-lista">
         {statuses.map((status, idx) => {
           const expandido = expandidos.has(status.id)
@@ -177,7 +131,6 @@ export default function StatusProcesso() {
                   style={{ background: status.cor }}
                   title="Mudar cor"
                   onClick={() => {
-                    // Cicla pra proxima cor da paleta
                     const i = CORES.indexOf(status.cor)
                     updateStatus(status.id, { cor: CORES[(i + 1) % CORES.length] })
                   }}
@@ -197,7 +150,6 @@ export default function StatusProcesso() {
                   )}
                 </span>
 
-                {/* Acoes inline: edit (lapis) + delete (lixo), padrao Pedido */}
                 <div className="sp-status-acoes">
                   <button
                     type="button"
@@ -225,9 +177,7 @@ export default function StatusProcesso() {
               {expandido && (
                 <div className="sp-regras">
                   <div className="sp-regras-cabecalho">
-                    <span className="sp-regras-titulo">
-                      Combinar regras com:
-                    </span>
+                    <span className="sp-regras-titulo">Combinar regras com:</span>
                     <div className="sp-toggle-operador">
                       {(['AND', 'OR'] as const).map(op => (
                         <button
@@ -315,8 +265,6 @@ export default function StatusProcesso() {
                     <Plus size={12} weight="bold" /> Adicionar regra
                   </button>
 
-                  {/* Painel GABI — validacao semantica das regras
-                      (espelha o validador de Campos Calculados do Pedido). */}
                   {(() => {
                     const v = validarStatus(status)
                     const valido = v.valida && v.problemas.length === 0
@@ -359,7 +307,6 @@ export default function StatusProcesso() {
         })}
       </div>
 
-      {/* Barra de salvar */}
       {dirty && (
         <div className="sp-barra-salvar">
           <span><CheckCircle size={14} weight="duotone" /> Alterações não salvas</span>

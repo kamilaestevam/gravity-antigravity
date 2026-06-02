@@ -1,9 +1,15 @@
-import React from 'react'
+import React, { useRef, useState, useEffect } from 'react'
+import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
+import { FloppyDisk } from '@phosphor-icons/react'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
+import { BotaoGlobal } from '@nucleo/botao-global'
+import { BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { StatusSalvarGlobal } from '@nucleo/status-salvar-global'
+
+/** Garante feedback visual mínimo do spinner (save rápido some em 1 frame sem isso). */
+const LOADING_MINIMO_MS = 450
 
 export interface AbaFormulario {
   id: string
@@ -12,40 +18,132 @@ export interface AbaFormulario {
   desabilitada?: boolean
   tooltipTitulo?: string
   tooltipDescricao?: string
-  /** Quando true, oculta os botões Salvar/Cancelar do footer enquanto esta aba estiver ativa.
-   *  Útil para abas que executam ações próprias (ex.: "Executar Manual") e não têm alterações a persistir. */
   ocultarBotoesSalvar?: boolean
-  /** Quando true, o botão Salvar fica ativo mesmo sem dirty (ex.: aba Permissões de Standard). */
   salvarSempreAtivo?: boolean
 }
 
 export interface ModalFormularioAbasProps {
   aberto: boolean
   aoFechar: () => void
-  aoSalvar: () => void
+  aoSalvar: () => void | Promise<void>
   icone: React.ReactNode
   titulo: string
   subtitulo?: string
   dirty?: boolean
   podesSalvar?: boolean
-  tamanho?: "sm" | "md" | "lg" | "xl" | "full"
-  /** Sobrescreve a largura do `tamanho` enum (ex: '820px'). Ver ModalProps. */
+  tamanho?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
   larguraMaxima?: string
   altura?: string
   abas: AbaFormulario[]
   abaAtivaInicial?: string
   tipoAbas?: 'underline' | 'pill'
-  /** Centraliza horizontalmente a pill de abas. Default false. Ver ModalProps. */
   centralizarAbas?: boolean
-  /** Padding-top no nav das abas (ex: '7px'). Default vazio. Ver ModalProps. */
   paddingSuperiorAbas?: string
   textoSalvar?: string
   textoCancelar?: string
-  /** Quando true, usa a primeira aba como conteúdo direto sem renderizar a navegação de abas */
+  carregando?: boolean
   semAbas?: boolean
-  /** Conteúdo extra renderizado à esquerda do footer (antes dos botões Cancelar/Salvar).
-   *  Útil para botões de navegação contextuais (ex: deep-link "Voltar para Pedidos"). */
   footerExtraEsquerda?: React.ReactNode
+}
+
+interface FooterFormularioAbasProps {
+  abaAtivaId?: string
+  abas: AbaFormulario[]
+  semAbas: boolean
+  aberto: boolean
+  carregandoExterno: boolean
+  dirty: boolean
+  textoSalvar: string
+  textoCancelar: string
+  footerExtraEsquerda?: React.ReactNode
+  aoFechar: () => void
+  aoSalvar: () => void | Promise<void>
+}
+
+function FooterFormularioAbas({
+  abaAtivaId,
+  abas,
+  semAbas,
+  aberto,
+  carregandoExterno,
+  dirty,
+  textoSalvar,
+  textoCancelar,
+  footerExtraEsquerda,
+  aoFechar,
+  aoSalvar,
+}: FooterFormularioAbasProps) {
+  const { t } = useTranslation()
+  const [salvandoUi, setSalvandoUi] = useState(false)
+  const aoSalvarRef = useRef(aoSalvar)
+  aoSalvarRef.current = aoSalvar
+
+  useEffect(() => {
+    if (aberto) setSalvandoUi(false)
+  }, [aberto])
+
+  const carregando = carregandoExterno || salvandoUi
+  const abaAtual = semAbas ? abas[0] : abas.find((a) => a.id === abaAtivaId)
+
+  if (abaAtual?.ocultarBotoesSalvar) {
+    return <div className="mg-footer-personalizado" />
+  }
+
+  // Habilita com dirty OU durante save — podesSalvar só valida no handler (toast se falhar).
+  // Antes: dirty + !podesSalvar deixava o botão disabled mas "Alterações pendentes" visível.
+  const botaoHabilitado = carregando || dirty
+
+  const handleSalvarClick = () => {
+    if (carregando || !dirty) return
+    const inicio = Date.now()
+    flushSync(() => setSalvandoUi(true))
+    void (async () => {
+      try {
+        await aoSalvarRef.current()
+      } finally {
+        const restante = LOADING_MINIMO_MS - (Date.now() - inicio)
+        if (restante > 0) {
+          await new Promise<void>((resolve) => { setTimeout(resolve, restante) })
+        }
+        flushSync(() => setSalvandoUi(false))
+      }
+    })()
+  }
+
+  return (
+    <div className="mg-footer-personalizado">
+      <StatusSalvarGlobal
+        status={carregando ? 'saving' : dirty ? 'dirty' : 'idle'}
+        hideOnIdle={!carregando}
+      />
+      {footerExtraEsquerda}
+      <div className="botoes-footer-padrao">
+        <BotaoCancelar
+          dirty={dirty}
+          rotulo={textoCancelar}
+          onClick={aoFechar}
+        />
+        <div
+          className={botaoHabilitado && !carregando ? 'bs-btn-pulse' : ''}
+          style={{ display: 'inline-flex' }}
+        >
+          <BotaoGlobal
+            variante="primario"
+            type="button"
+            disabled={!botaoHabilitado}
+            data-testid="modal-abas-btn-salvar"
+            data-carregando={carregando ? 'true' : 'false'}
+            onClick={handleSalvarClick}
+            icone={<FloppyDisk size={14} weight="bold" />}
+            carregando={carregando}
+            textoCarregando={t('botoes.salvando')}
+          >
+            {textoSalvar}
+          </BotaoGlobal>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export function ModalFormularioAbas({
@@ -57,9 +155,9 @@ export function ModalFormularioAbas({
   subtitulo,
   dirty = false,
   podesSalvar = false,
-  tamanho = "lg",
+  tamanho = 'lg',
   larguraMaxima,
-  altura = "680px",
+  altura = '680px',
   abas,
   abaAtivaInicial,
   tipoAbas = 'pill',
@@ -67,6 +165,7 @@ export function ModalFormularioAbas({
   paddingSuperiorAbas,
   textoSalvar,
   textoCancelar,
+  carregando = false,
   semAbas = false,
   footerExtraEsquerda,
 }: ModalFormularioAbasProps) {
@@ -74,45 +173,42 @@ export function ModalFormularioAbas({
   const resolvedTextoSalvar = textoSalvar ?? t('modal.salvar_alteracoes')
   const resolvedTextoCancelar = textoCancelar ?? t('modal.cancelar')
 
+  const [abaRodape, setAbaRodape] = useState(abaAtivaInicial ?? abas[0]?.id ?? '')
+  useEffect(() => {
+    if (aberto && abaAtivaInicial) setAbaRodape(abaAtivaInicial)
+  }, [aberto, abaAtivaInicial])
+
   const cabecalho = (
-    <div className="ws-modal-cabecalho" style={{ borderBottom: '1px solid var(--ws-accent-border)', marginBottom: '0.4rem', paddingBottom: '0.1rem', paddingTop: '8px' }}>
+    <div
+      className="ws-modal-cabecalho"
+      style={{
+        borderBottom: '1px solid var(--ws-accent-border)',
+        marginBottom: '0.4rem',
+        paddingBottom: '0.1rem',
+        paddingTop: '8px',
+      }}
+    >
       <div style={{ position: 'relative', top: '1px' }}>
-        <CabecalhoGlobal
-          icone={icone}
-          titulo={titulo}
-          subtitulo={subtitulo || ''}
-        />
+        <CabecalhoGlobal icone={icone} titulo={titulo} subtitulo={subtitulo || ''} />
       </div>
     </div>
   )
 
-  const renderFooter = (abaAtivaId?: string) => {
-    // Em modo semAbas o ModalOverlay não propaga aba ativa — o conteúdo vem da primeira (e única) aba.
-    const abaAtual = semAbas ? abas[0] : abas.find(a => a.id === abaAtivaId)
-    // Abas de ação (ex.: "Executar Manual") não têm alterações a persistir — o conteúdo da
-    // aba tem seu próprio botão de ação e o footer genérico Salvar/Cancelar polui a UX.
-    if (abaAtual?.ocultarBotoesSalvar) {
-      return <div className="mg-footer-personalizado" />
-    }
-    return (
-      <div className="mg-footer-personalizado">
-        <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
-        {footerExtraEsquerda}
-        <div className="botoes-footer-padrao">
-          <BotaoCancelar
-            dirty={dirty}
-            rotulo={resolvedTextoCancelar}
-            onClick={aoFechar}
-          />
-          <BotaoSalvar
-            dirty={abaAtual?.salvarSempreAtivo ? podesSalvar : (podesSalvar && dirty)}
-            rotulo={resolvedTextoSalvar}
-            onClick={aoSalvar}
-          />
-        </div>
-      </div>
-    )
-  }
+  const rodape = (
+    <FooterFormularioAbas
+      abaAtivaId={semAbas ? abas[0]?.id : abaRodape}
+      abas={abas}
+      semAbas={semAbas}
+      aberto={aberto}
+      carregandoExterno={carregando}
+      dirty={dirty}
+      textoSalvar={resolvedTextoSalvar}
+      textoCancelar={resolvedTextoCancelar}
+      footerExtraEsquerda={footerExtraEsquerda}
+      aoFechar={aoFechar}
+      aoSalvar={aoSalvar}
+    />
+  )
 
   return (
     <ModalOverlay
@@ -128,7 +224,8 @@ export function ModalFormularioAbas({
       tipoAbas={tipoAbas}
       centralizarAbas={centralizarAbas}
       paddingSuperiorAbas={paddingSuperiorAbas}
-      renderizarFooter={renderFooter}
+      rodape={rodape}
+      onAbaAtivaChange={semAbas ? undefined : setAbaRodape}
     >
       {semAbas ? abas[0]?.conteudo : undefined}
     </ModalOverlay>

@@ -315,7 +315,10 @@ export function Usuarios() {
   const idUsuarioAtor =
     usuarios.find((u) => clerkUser?.primaryEmailAddress?.emailAddress === u.email_usuario)?.id_usuario ?? null
 
-  async function recarregarUsuarios(): Promise<void> {
+  async function recarregarUsuarios(): Promise<{
+    usuarios: UsuarioOrg[]
+    vinculosMap: Record<string, string[]>
+  }> {
     const [usuariosResp, workspacesResp] = await Promise.all([
       usuariosApi.listar(),
       workspaceApi.getWorkspaces(),
@@ -341,6 +344,7 @@ export function Usuarios() {
           a.nome_workspace.localeCompare(b.nome_workspace, 'pt-BR', { sensitivity: 'base' }),
         ),
     )
+    return { usuarios: usuariosUI, vinculosMap: mapa }
   }
 
   // Carregar usuários e workspaces da API real
@@ -385,7 +389,9 @@ export function Usuarios() {
   // Hook chamado incondicionalmente; quando usuarioEditando=null, retorna lista
   // vazia. Convertemos enum (BackendUserRole) → label UI (NivelAcesso) para o modal.
   // Flag da org vem do /me — todos os usuários listados são da mesma org do ator.
-  const { hospedaColaboradoresGravity } = useCarregarTipoUsuario()
+  const { hospedaColaboradoresGravity, tipoUsuario: tipoUsuarioAtor } = useCarregarTipoUsuario()
+  const podeConvidarUsuario =
+    tipoUsuarioAtor === 'MASTER' || tipoUsuarioAtor === 'SUPER_ADMIN'
   const gatingEdicao = usePodeEditarUsuario(
     usuarioEditando
       ? {
@@ -461,6 +467,18 @@ export function Usuarios() {
     })
   }
 
+  function limparFormularioConvite() {
+    setFNome('')
+    setFEmail('')
+    setFTipo('Standard')
+    setFTodosWorkspaces(true)
+    setFWorkspacesSelecionados([])
+    setFTipoFornecedorOrganizacao('AGENTE_CARGA')
+    setFIdFornecedor('')
+    setModalCadastroFornecedorConvite(false)
+    setShowForm(false)
+  }
+
   async function handleInvite() {
     if (!fNome.trim() || !fEmail.trim()) return
     const tipoBackend = nivelToRole(fTipo)
@@ -497,6 +515,15 @@ export function Usuarios() {
           : {}),
       })
 
+      const nomeFornecedorConvite =
+        tipoConvite === 'FORNECEDOR'
+          ? (
+            criado.nome_fornecedor
+            ?? fornecedoresConvite.find((f) => f.id_fornecedor === fIdFornecedor)?.nome_fornecedor
+            ?? null
+          )
+          : null
+
       const novoUsuario: UsuarioOrg = {
         id_usuario: criado.id_usuario,
         nome_usuario: fNome.trim(),
@@ -505,27 +532,20 @@ export function Usuarios() {
         acesso_workspaces_futuros: criado.acesso_workspaces_futuros,
         data_criacao_usuario: new Date().toISOString(),
         usuario_workspaces: [],
-        nome_fornecedor:
-          tipoConvite === 'FORNECEDOR'
-            ? (fornecedoresConvite.find((f) => f.id_fornecedor === fIdFornecedor)?.nome_fornecedor ?? null)
-            : null,
+        nome_fornecedor: nomeFornecedorConvite,
         // Recém-convidado — sempre CONVIDADO até webhook/login fazer transição
         // para ATIVO via requireAuth.ts fallback (Clerk getUser por email).
         status_usuario: 'CONVIDADO',
       }
 
-      if (tipoConvite === 'PADRAO' || tipoConvite === 'FORNECEDOR') {
-        const ids = fTodosWorkspaces
-          ? workspaces.map((w) => w.id_workspace)
-          : fWorkspacesSelecionados
-        setVinculosMap((prev) => ({ ...prev, [criado.id_usuario]: ids }))
-      }
-
-      setUsuarios((prev) => [...prev, novoUsuario])
       addNotification({
         type: 'success',
         message: `Usuário "${fNome.trim()}" convidado com sucesso!`,
       })
+
+      // Fecha o modal de convite antes do recarregar — evita toast de sucesso com
+      // "Salvando..." e "Alterações pendentes" enquanto a lista sincroniza.
+      limparFormularioConvite()
 
       // Fase 03 — Standard/Fornecedor sempre nasce sem permissão granular
       // (least privilege, Mand. 08). Abre o modal de edição na aba Permissões
@@ -533,8 +553,39 @@ export function Usuarios() {
       // produtos até alguém abrir o modal manualmente.
       // Master tem bypass por Mand. 04 — não há toggles para configurar.
       if (tipoConvite === 'PADRAO' || tipoConvite === 'FORNECEDOR') {
-        setUsuarioEditando(novoUsuario)
+        // Recarrega vínculos reais do banco antes de abrir Permissões — evita
+        // workspacesSalvos vazio quando o convite usa "todos" mas a lista local
+        // ainda não refletiu usuario_workspaces.
+        try {
+          const { usuarios: lista } = await recarregarUsuarios()
+          const daApi = lista.find((u) => u.id_usuario === criado.id_usuario)
+          const usuarioModal = daApi
+            ? {
+              ...daApi,
+              nome_fornecedor: daApi.nome_fornecedor ?? novoUsuario.nome_fornecedor,
+            }
+            : novoUsuario
+          if (daApi && !daApi.nome_fornecedor && novoUsuario.nome_fornecedor) {
+            setUsuarios((prev) =>
+              prev.map((u) => (u.id_usuario === criado.id_usuario ? usuarioModal : u)),
+            )
+          }
+          setUsuarioEditando(usuarioModal)
+        } catch (recarregarErr) {
+          // eslint-disable-next-line no-console
+          console.warn('[Usuarios] recarregar após convite falhou; abrindo modal com estado local', recarregarErr)
+          const ids = fTodosWorkspaces
+            ? workspaces.map((w) => w.id_workspace)
+            : fWorkspacesSelecionados
+          if (ids.length > 0) {
+            setVinculosMap((prev) => ({ ...prev, [criado.id_usuario]: ids }))
+          }
+          setUsuarios((prev) => [...prev, novoUsuario])
+          setUsuarioEditando(novoUsuario)
+        }
         setAbaEditando('permissoes')
+      } else {
+        setUsuarios((prev) => [...prev, novoUsuario])
       }
     } catch (err) {
       addNotification({
@@ -544,7 +595,6 @@ export function Usuarios() {
     } finally {
       setConvidando(false)
     }
-    setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]); setFTipoFornecedorOrganizacao('AGENTE_CARGA'); setFIdFornecedor(''); setShowForm(false)
   }
 
   async function handleAlternarStatusUsuario(u: UsuarioOrg) {
@@ -1062,15 +1112,29 @@ export function Usuarios() {
       }
       toolbar={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-          <TooltipGlobal descricao="Enviar convite para um novo colaborador acessar a plataforma">
-            <BotaoGlobal
-              variante="primario"
-              onClick={() => setShowForm(true)}
-              icone={<User size={18} />}
-            >
-              {t('workspace.users.botao_convidar')}
-            </BotaoGlobal>
-          </TooltipGlobal>
+          {podeConvidarUsuario ? (
+            <TooltipGlobal descricao="Enviar convite para um novo colaborador acessar a plataforma">
+              <BotaoGlobal
+                variante="primario"
+                onClick={() => setShowForm(true)}
+                icone={<User size={18} />}
+              >
+                {t('workspace.users.botao_convidar')}
+              </BotaoGlobal>
+            </TooltipGlobal>
+          ) : (
+            <TooltipGlobal descricao="Apenas usuários Master ou Super Admin podem convidar colaboradores">
+              <span>
+                <BotaoGlobal
+                  variante="primario"
+                  disabled
+                  icone={<User size={18} />}
+                >
+                  {t('workspace.users.botao_convidar')}
+                </BotaoGlobal>
+              </span>
+            </TooltipGlobal>
+          )}
         </div>
       }
     >
@@ -1437,9 +1501,18 @@ export function Usuarios() {
               await usuariosApi.alterarTipoUsuario(uEditado.id_usuario, novoTipoBackend)
             }
 
-            // 2. Persiste vínculos de workspace — só faz sentido para PADRAO/FORNECEDOR
-            //    e quando há pelo menos um workspace selecionado (Zod min(1) no backend).
-            if (ehVinculavel && workspaceIds.length > 0) {
+            // 2. Persiste vínculos de workspace — só quando a lista mudou (evita PUT
+            //    desnecessário em todo "Salvar" da aba Permissões, que quebrava o fechamento).
+            const vinculosAnteriores = vinculosMap[uEditado.id_usuario] ?? []
+            const workspacesMudaram =
+              ehVinculavel
+              && workspaceIds.length > 0
+              && (
+                workspaceIds.length !== vinculosAnteriores.length
+                || workspaceIds.some((id) => !vinculosAnteriores.includes(id))
+                || vinculosAnteriores.some((id) => !workspaceIds.includes(id))
+              )
+            if (workspacesMudaram) {
               await usuariosApi.substituirWorkspaces(uEditado.id_usuario, workspaceIds)
             }
 

@@ -4,7 +4,8 @@
 // Ao adicionar uma rota nova:
 //   1. Acrescente o sufixo aqui (em estaticas ou dinamicas).
 //   2. Mapeie o componente correspondente no MAPA_ROTAS_COMPONENTES (App.tsx).
-//   3. Se a rota aparecer no menu lateral, atualize PRODUCT_CONFIG.navigation (config.ts).
+//   3. Visualizações (Lista, Kanban, Visão Geral, Dashboard) ficam no seletor
+//      fixo no topo (PedidosVisualizacaoTabs) — não no menu lateral.
 
 export const ROTAS_PEDIDO = {
   estaticas: [

@@ -33,5 +33,22 @@ else
   fi
 fi
 
+if [ -z "${PROCESSO_DATABASE_URL:-}" ]; then
+  echo "[start-site] AVISO: PROCESSO_DATABASE_URL ausente — migrations Processo ignoradas."
+  echo "[start-site] Sidecar Processo ficará desativado até configurar a variável em Railway."
+  echo "[start-site] Railway → site-usegravity → Variables → PROCESSO_DATABASE_URL"
+  echo "[start-site] Valor: Reference → DATABASE_URL do PostgreSQL gravity-processo-producao."
+else
+  echo "[start-site] Aplicando migrations do Processo..."
+  node servicos-global/produto/processo/server/scripts/compose-schema.js
+  if DATABASE_URL="$PROCESSO_DATABASE_URL" \
+    npx prisma migrate deploy --schema=servicos-global/produto/processo/prisma/schema.prisma; then
+    echo "[start-site] Migrations Processo concluídas."
+  else
+    echo "[start-site] ERRO: migrations Processo falharam — servidor sobe mesmo assim (ver logs acima)."
+    echo "[start-site] Sidecar Processo pode falhar até corrigir migrations ou variáveis."
+  fi
+fi
+
 echo "[start-site] Subindo Configurador + sidecars..."
 exec node servicos-global/configurador/dist/server.mjs

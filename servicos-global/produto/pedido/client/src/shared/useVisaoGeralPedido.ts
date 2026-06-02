@@ -11,8 +11,9 @@ import { useQuery } from '@tanstack/react-query'
 import { useShellStore } from '@gravity/shell'
 import { usePedidos } from './queries'
 import { workspacesDisponiveisApi } from './api'
+import { cadastrosApi } from './cadastrosApi'
 import type { Pedido } from './types'
-import { buildVisaoGeralMapa, type VisaoGeralMapaData } from './visaoGeralMapaPedido'
+import { buildVisaoGeralMapa, type VisaoGeralMapaData, type FornecedorMapaGeo } from './visaoGeralMapaPedido'
 import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from './useEscopoWorkspacesPedido'
 
 const BUCKET_CONCLUIDO = new Set(['aprovado', 'transferencia', 'consolidado'])
@@ -109,7 +110,7 @@ export function filtrarPedidosAlertaVisaoGeral(
   }
 }
 
-export type { VisaoGeralMapaData, VisaoGeralMapPin, VisaoGeralRotaDetalhe } from './visaoGeralMapaPedido'
+export type { VisaoGeralMapaData, VisaoGeralMapPin, VisaoGeralRotaDetalhe, FornecedorMapaGeo } from './visaoGeralMapaPedido'
 
 function diasEntre(data: string | null | undefined, base: Date): number | null {
   if (!data) return null
@@ -148,6 +149,11 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
     queryFn: () => workspacesDisponiveisApi.listar(),
     staleTime: 5 * 60_000,
   })
+  const { data: fornecedoresData } = useQuery({
+    queryKey: ['cadastros-fornecedores-visao-geral'],
+    queryFn: () => cadastrosApi.listarFornecedores(undefined, 500),
+    staleTime: 5 * 60_000,
+  })
   const pedidos = data?.data ?? []
   const total = data?.total ?? pedidos.length
 
@@ -158,6 +164,17 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
     }
     return map
   }, [workspaces])
+
+  const fornecedoresPorId = useMemo(() => {
+    const map = new Map<string, FornecedorMapaGeo>()
+    for (const f of fornecedoresData?.itens ?? []) {
+      map.set(f.id_fornecedor, {
+        paisIso: f.pais_fornecedor,
+        nome: f.nome_fornecedor,
+      })
+    }
+    return map
+  }, [fornecedoresData])
 
   return useMemo<VisaoGeralPedido>(() => {
     const hoje = new Date()
@@ -276,7 +293,7 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
       }
     }
 
-    const mapa = buildVisaoGeralMapa(pedidos, nomesWorkspacePorId)
+    const mapa = buildVisaoGeralMapa(pedidos, nomesWorkspacePorId, fornecedoresPorId)
 
     return {
       loading: isLoading,
@@ -295,5 +312,5 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
       mapa,
       pedidos,
     }
-  }, [pedidos, total, isLoading, nomesWorkspacePorId])
+  }, [pedidos, total, isLoading, nomesWorkspacePorId, fornecedoresPorId])
 }

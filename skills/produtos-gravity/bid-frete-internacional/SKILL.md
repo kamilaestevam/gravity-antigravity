@@ -145,11 +145,25 @@ Bancos Railway: `gravity-bid-frete-internacional-producao`, `gravity-bid-frete-i
 
 ---
 
+## Seletor universal (4 visualizações)
+
+Paridade com Pedido — layout route + keep-alive:
+
+- `BidFreteVisualizacaoLayout` + `BidFreteVisualizacaoTabs`
+- `BidFreteMultiView` (cliente e fornecedor — `modo` prop)
+- `bid-frete-prefetch.ts` (prefetch de chunk no hover)
+- `data-testid`: `seletor-visao-tab-*`, `seletor-visao-painel-*`
+
+Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md) · E2E: `TST-E2E-MBOTO-000003` (cliente), `000004` (fornecedor).
+
+---
+
 ## Testes
 
 - Unitários: `testes/testes-unitarios/bid-frete-internacional/` (60+ specs)
 - Funcionais: `testes/testes-funcionais/bid-frete-internacional/`
 - Hierarquia lista: `lista/lista-hierarquia-bid.test.ts`
+- Seletor SLA 1s: `testes/testes-e2e/menu-botoes/seletor-universal-visoes/` (`MBOTO`)
 
 ---
 

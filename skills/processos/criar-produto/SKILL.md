@@ -619,6 +619,12 @@ testes/
 
 **Cobertura mínima:** 70% unitário + 100% rotas críticas funcional.
 
+**Se o produto adotar o seletor universal de visualizações** (pills Insights/Lista/Dashboard/Kanban):
+
+1. Implementar `*VisualizacaoLayout` + `*MultiView` + `data-testid` conforme [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md).
+2. Registrar planos em `test-plans-registry.json` (escopo `MBOTO`, `produto_slug` no plano).
+3. Incluir specs em `testes/testes-e2e/menu-botoes/seletor-universal-visoes/` (ciclo cold, assert ≤ 1000 ms por troca de aba).
+
 ---
 
 ## Passo 19 — Seed de Dados Demo

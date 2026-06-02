@@ -351,10 +351,25 @@ Antes de abrir PR, confirmar:
 
 ---
 
+## 12. Seletor workspace (Lista | Kanban)
+
+Fora do padrão TOC/cards — aplica-se à **listagem de processos do workspace** (`/acesso-processos/lista` e `/kanban`):
+
+| Item | Padrão |
+|------|--------|
+| Pills | `TodosProcessosTabs` — classes `.tpt-tab` |
+| Layout | `ProcessoVisualizacaoLayout` (tabs fixas + `Outlet`) |
+| Conteúdo | `ProcessoMultiView` — keep-alive; `embedTabs={false}` nas páginas |
+| testids | `seletor-visao-tab-lista`, `seletor-visao-tab-kanban`, `seletor-visao-painel-*` |
+| SSOT cross-produto | [seletor-universal-visualizacoes.md](../../arquitetura/seletor-universal-visualizacoes.md) |
+
+---
+
 ## Histórico
 
 | Data | Marco |
 |------|-------|
+| 2026-06-02 | Seletor workspace Lista \| Kanban documentado (paridade MBOTO / keep-alive) |
 | 2026-05-30 | Redesign inicial DadosTecnicos (TOC + edit-in-place + cards) |
 | 2026-05-31 | SelectGlobal substitui `<select>` nativo + borda indigo unificada com modal Convidar Usuário → **padrão consolidado** |
 | 2026-05-31 | Padrão de campos read-only (`calculado` / `bloqueado` / `sistema`) com ícone + tooltip + visual dessaturado |

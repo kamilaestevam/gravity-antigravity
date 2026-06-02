@@ -1,14 +1,5 @@
 /**
  * StatusProcesso — Configuracao dos status do processo + rule builder.
- *
- * Cada status tem:
- * - nome, cor, ordem (definem a linha do tempo)
- * - regras automaticas: condicoes em cima de campos (Dados do Processo
- *   ou Pedido) que determinam quando esse status se aplica
- * - operador: AND (todas as regras) ou OR (qualquer uma)
- *
- * O sistema avalia as regras e atribui automaticamente o status ao
- * processo. A ordem define a sequencia da timeline na Visao Geral.
  */
 
 import React, { useState } from 'react'
@@ -20,7 +11,7 @@ import {
 import {
   validarStatus, camposPara, precisaValor,
   ROTULO_CONDICAO,
-  type FieldSource, type CondicaoTipo, type CampoOpcao,
+  type FieldSource, type CondicaoTipo,
   type Regra, type StatusConfig,
 } from './validacao'
 import {
@@ -30,19 +21,13 @@ import {
 } from '../../../shared/lista/processoStatusConfig'
 import './StatusProcesso.css'
 
-// ── Cores predefinidas ────────────────────────────────────────────────────
-
 const CORES = [
   '#94a3b8', '#60a5fa', '#34d399', '#fbbf24',
   '#a78bfa', '#f472b6', '#fb923c', '#f87171',
 ]
 
-// ── Mock inicial: status padrão do processo ───────────────────────────────
-
 let _seq = 0
 const novoId = () => `r${Date.now()}-${++_seq}`
-
-// ── Componente principal ───────────────────────────────────────────────────
 
 export default function StatusProcesso() {
   const [statuses, setStatuses] = useState<StatusConfig[]>(() => carregarStatusProcessoCompleto())
@@ -118,7 +103,6 @@ export default function StatusProcesso() {
 
   return (
     <div className="sp-pagina" data-testid="status-pagina">
-      {/* Header */}
       <div className="sp-header">
         <div>
           <h2>Status do Processo</h2>
@@ -132,7 +116,6 @@ export default function StatusProcesso() {
         </button>
       </div>
 
-      {/* Lista de status */}
       <div className="sp-lista">
         {statuses.map((status, idx) => {
           const expandido = expandidos.has(status.id)
@@ -148,7 +131,6 @@ export default function StatusProcesso() {
                   style={{ background: status.cor }}
                   title="Mudar cor"
                   onClick={() => {
-                    // Cicla pra proxima cor da paleta
                     const i = CORES.indexOf(status.cor)
                     updateStatus(status.id, { cor: CORES[(i + 1) % CORES.length] })
                   }}
@@ -168,7 +150,6 @@ export default function StatusProcesso() {
                   )}
                 </span>
 
-                {/* Acoes inline: edit (lapis) + delete (lixo), padrao Pedido */}
                 <div className="sp-status-acoes">
                   <button
                     type="button"
@@ -196,9 +177,7 @@ export default function StatusProcesso() {
               {expandido && (
                 <div className="sp-regras">
                   <div className="sp-regras-cabecalho">
-                    <span className="sp-regras-titulo">
-                      Combinar regras com:
-                    </span>
+                    <span className="sp-regras-titulo">Combinar regras com:</span>
                     <div className="sp-toggle-operador">
                       {(['AND', 'OR'] as const).map(op => (
                         <button
@@ -286,8 +265,6 @@ export default function StatusProcesso() {
                     <Plus size={12} weight="bold" /> Adicionar regra
                   </button>
 
-                  {/* Painel GABI — validacao semantica das regras
-                      (espelha o validador de Campos Calculados do Pedido). */}
                   {(() => {
                     const v = validarStatus(status)
                     const valido = v.valida && v.problemas.length === 0
@@ -330,7 +307,6 @@ export default function StatusProcesso() {
         })}
       </div>
 
-      {/* Barra de salvar */}
       {dirty && (
         <div className="sp-barra-salvar">
           <span><CheckCircle size={14} weight="duotone" /> Alterações não salvas</span>

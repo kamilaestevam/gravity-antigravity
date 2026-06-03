@@ -356,16 +356,14 @@ export const pedidoItemApi = {
 // ── Visão Geral (agregado server-side) ────────────────────────────────────────
 
 export const pedidoVisaoGeralApi = {
-  agregado: (idsWorkspacesFiltro?: string[]) => {
-    const qs = new URLSearchParams()
-    if (idsWorkspacesFiltro?.length) {
-      qs.set('ids_workspaces', idsWorkspacesFiltro.join(','))
+  agregado: async (idsWorkspacesFiltro: string[]): Promise<VisaoGeralAgregadoPayload> => {
+    const params = new URLSearchParams()
+    if (idsWorkspacesFiltro.length) {
+      params.set('ids_workspaces', idsWorkspacesFiltro.join(','))
     }
-    const suffix = qs.toString() ? `?${qs.toString()}` : ''
-    return request<unknown>(`/api/v1/pedidos/visao-geral/agregado${suffix}`).then(raw => {
-      const parsed = visaoGeralAgregadoResponseSchema.parse(raw)
-      return parsed.data
-    })
+    const qs = params.toString()
+    const raw = await request<unknown>(`/api/v1/pedidos/visao-geral/agregado${qs ? `?${qs}` : ''}`)
+    return visaoGeralAgregadoResponseSchema.parse(raw).data
   },
 }
 
@@ -2184,18 +2182,6 @@ export const dashboardApi = {
       sem_sync:          boolean
       ultima_sync:       string | null
     }>(`/api/v1/pedidos/dashboard/status-ncm${qs ? `?${qs}` : ''}`)
-  },
-}
-
-// ── Visão Geral (agregado servidor) ───────────────────────────────────────────
-
-export const pedidoVisaoGeralApi = {
-  agregado: async (idsWorkspacesFiltro: string[]): Promise<VisaoGeralAgregadoPayload> => {
-    const params = new URLSearchParams()
-    appendIdsWorkspacesParam(params, idsWorkspacesFiltro)
-    const qs = params.toString()
-    const raw = await request<unknown>(`/api/v1/pedidos/visao-geral/agregado${qs ? `?${qs}` : ''}`)
-    return visaoGeralAgregadoResponseSchema.parse(raw).data
   },
 }
 

@@ -1,5 +1,5 @@
 /**
- * Aplica um migration.sql do Pedido em cada schema tenant_*/organizacao_* que tem tabela pedido.
+ * Aplica um migration.sql do Pedido em cada schema tenant_* ou organizacao_* com tabela pedido.
  * Usado no boot quando prisma migrate deploy falha (P3009) ou migrate-all-tenants não rodou.
  */
 import { createHash, randomUUID } from 'node:crypto'

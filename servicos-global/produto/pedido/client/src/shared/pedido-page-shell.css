@@ -6,8 +6,8 @@
   --pedido-page-pt: 1.5rem;
   --pedido-page-px: 2rem;
   --pedido-page-pb: 2rem;
-  /** Distância abaixo do seletor Lista|Kanban|… — override fino em PedidosVisualizacaoTabs.css */
-  --pedido-visualizacao-tabs-mb: 0.5rem;
+  /** Distância abaixo do seletor Lista|Kanban|… — paridade pg-toolbar / Bid Frete */
+  --pedido-visualizacao-tabs-mb: 1rem;
 }
 
 .pedido-page-shell {

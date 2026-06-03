@@ -2,6 +2,7 @@
  * visao-fornecedor-bid-frete-internacional.ts — Visão do fornecedor (autenticado)
  *
  * GET  /dashboard
+ * GET  /mapa-cotacoes
  * GET  /cotacoes-pendentes
  * GET  /propostas
  * POST /responder/:id_disparo_cotacao_bid_frete_internacional
@@ -28,6 +29,7 @@ import {
   enriquecerDisparosRespostaFornecedor,
 } from '../lib/enriquecer-disparo-resposta-fornecedor-bid-frete-internacional.js'
 import { resolverFornecedorLogado } from '../lib/resolver-fornecedor-logado-bid-frete-internacional.js'
+import { montarMapaCotacoesVisaoFornecedorBidFreteInternacional } from '../lib/mapa-cotacoes-visao-fornecedor-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -192,6 +194,49 @@ router.get('/dashboard', async (req: Request, res: Response, next: NextFunction)
         funil_visao_fornecedor_bid_frete_internacional,
         alertas_visao_fornecedor_bid_frete_internacional,
         classificacao_bid_frete_internacional,
+      },
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.get('/mapa-cotacoes', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const fornecedor = await resolverFornecedorLogado(req)
+    const idOrganizacao =
+      typeof req.headers['x-id-organizacao'] === 'string' ? req.headers['x-id-organizacao'] : undefined
+
+    const disparos = await (req.prisma as any).disparoCotacaoBidFreteInternacional.findMany({
+      where: { id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional },
+      select: {
+        cotacao: {
+          select: {
+            origem_codigo_cotacao_bid_frete_internacional: true,
+            origem_nome_cotacao_bid_frete_internacional: true,
+            origem_pais_cotacao_bid_frete_internacional: true,
+            destino_codigo_cotacao_bid_frete_internacional: true,
+            destino_nome_cotacao_bid_frete_internacional: true,
+            destino_pais_cotacao_bid_frete_internacional: true,
+            modal_cotacao_bid_frete_internacional: true,
+          },
+        },
+        proposta: {
+          select: {
+            valor_total_proposta_bid_frete_internacional: true,
+            dias_transito_proposta_bid_frete_internacional: true,
+          },
+        },
+      },
+    })
+
+    const mapa = await montarMapaCotacoesVisaoFornecedorBidFreteInternacional(disparos, {
+      id_organizacao: idOrganizacao,
+    })
+
+    res.json({
+      visao_fornecedor_bid_frete_internacional: {
+        mapa_cotacoes_visao_fornecedor_bid_frete_internacional: mapa,
       },
     })
   } catch (err) {

@@ -5,6 +5,13 @@
  */
 
 import { z } from 'zod'
+import {
+  listaPainelDeletarResponseSchema,
+  listaPainelItemResponseSchema,
+  listaPainelListResponseSchema,
+  listaPainelReordenarResponseSchema,
+  type ListaPainel,
+} from '../../../shared/listaPainelApiSchema.js'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   visaoFornecedorBidFreteInternacionalCotacoesPendentesResponseSchema,
@@ -20,6 +27,11 @@ import {
   mapDashboardMetricasFromServer,
   mapDashboardVisaoFornecedorFromServer,
 } from './visao-fornecedor-bid-frete-internacional-schemas'
+import {
+  mapMapaCotacoesVisaoFornecedorFromServer,
+  visaoFornecedorBidFreteInternacionalMapaCotacoesResponseSchema,
+} from './mapa-visao-fornecedor-bid-frete-internacional'
+import type { DadosMapaBidFrete } from './componentes/visao-geral-mapa-bid-frete'
 import type {
   AlertaVisaoFornecedorBidFreteInternacional,
   EtapaFunilVisaoFornecedorBidFreteInternacional,
@@ -780,6 +792,15 @@ export async function getVisaoFornecedorBidFreteInternacionalDashboard(): Promis
   }
 }
 
+export async function getVisaoFornecedorBidFreteInternacionalMapaCotacoes(
+  nomeFornecedor: string,
+): Promise<DadosMapaBidFrete> {
+  const res = await fetch(`${VISAO_FORNECEDOR_BASE}/mapa-cotacoes`, { headers: headers() })
+  const raw = await handleResponse<unknown>(res)
+  const parsed = visaoFornecedorBidFreteInternacionalMapaCotacoesResponseSchema.parse(raw)
+  return mapMapaCotacoesVisaoFornecedorFromServer(parsed, nomeFornecedor)
+}
+
 export async function getVisaoFornecedorBidFreteInternacionalCotacoesPendentes(): Promise<DisparoCotacaoBidFreteInternacional[]> {
   const res = await fetch(`${VISAO_FORNECEDOR_BASE}/cotacoes-pendentes`, { headers: headers() })
   const raw = await handleResponse<unknown>(res)
@@ -997,6 +1018,50 @@ export interface DashboardPainel {
   widgets_json: string
   created_at:   string
   updated_at:   string
+}
+
+export type { ListaPainel }
+
+export const paineisListaBidFreteApi = {
+  listar: (): Promise<{ data: ListaPainel[] }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis`, { headers: headers() })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => listaPainelListResponseSchema.parse(raw)),
+
+  criar: (nome: string): Promise<{ data: ListaPainel }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ nome }),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => listaPainelItemResponseSchema.parse(raw)),
+
+  atualizar: (id: string, patch: Partial<Pick<ListaPainel, 'nome' | 'is_visivel' | 'config_json'>>): Promise<{ data: ListaPainel }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis/${id}`, {
+      method: 'PUT',
+      headers: headers(),
+      body: JSON.stringify(patch),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => listaPainelItemResponseSchema.parse(raw)),
+
+  reordenar: (ids: string[]): Promise<{ data: { reordenado: true } }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis/reordenar`, {
+      method: 'PUT',
+      headers: headers(),
+      body: JSON.stringify({ ids }),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => listaPainelReordenarResponseSchema.parse(raw)),
+
+  deletar: (id: string): Promise<{ data: { deletado: true } }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis/${id}`, {
+      method: 'DELETE',
+      headers: headers(),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => listaPainelDeletarResponseSchema.parse(raw)),
 }
 
 export const paineisDashboardApi = {

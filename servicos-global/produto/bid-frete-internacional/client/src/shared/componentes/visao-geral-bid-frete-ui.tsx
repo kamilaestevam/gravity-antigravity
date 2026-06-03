@@ -146,34 +146,34 @@ export function BidFreteTaxaAnel({
 
   return (
     <div className="bfd-taxa">
-      <svg viewBox="0 0 110 110" width="105" height="105" aria-hidden>
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
-        {segmentos.map((s, i) => {
-          const dashLen = (s.pct / 100) * circ
-          const arc = (
-            <circle
-              key={i}
-              cx={cx}
-              cy={cy}
-              r={r}
-              fill="none"
-              stroke={s.cor}
-              strokeWidth={stroke}
-              strokeDasharray={`${dashLen} ${circ - dashLen}`}
-              strokeDashoffset={-off}
-              style={{ transform: 'rotate(-90deg)', transformOrigin: `${cx}px ${cy}px` }}
-            />
-          )
-          off += dashLen
-          return arc
-        })}
-        <text x={cx} y={cy + 2} textAnchor="middle" fill="#ffffff" fontSize="20" fontWeight="800">
-          {percentualCentro.toFixed(1)}%
-        </text>
-        <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="9" fontWeight="600">
-          {rotuloCentro}
-        </text>
-      </svg>
+      <div className="bfd-taxa__chart">
+        <svg viewBox="0 0 110 110" className="bfd-taxa__chart-svg" aria-hidden>
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
+          {segmentos.map((s, i) => {
+            const dashLen = (s.pct / 100) * circ
+            const arc = (
+              <circle
+                key={i}
+                cx={cx}
+                cy={cy}
+                r={r}
+                fill="none"
+                stroke={s.cor}
+                strokeWidth={stroke}
+                strokeDasharray={`${dashLen} ${circ - dashLen}`}
+                strokeDashoffset={-off}
+                style={{ transform: 'rotate(-90deg)', transformOrigin: `${cx}px ${cy}px` }}
+              />
+            )
+            off += dashLen
+            return arc
+          })}
+        </svg>
+        <div className="bfd-taxa__chart-centro">
+          <span className="bfd-taxa__chart-pct">{percentualCentro.toFixed(1)}%</span>
+          <span className="bfd-taxa__chart-rotulo">{rotuloCentro}</span>
+        </div>
+      </div>
       <div className="bfd-taxa__legend">
         {segmentos.map((s, i) => (
           <div key={i} className="bfd-taxa__legend-row">

@@ -21,7 +21,7 @@ import {
 } from '@phosphor-icons/react'
 // ─── Map Pin Data ──────────────────────────────────────────────────────────
 
-interface MapPin {
+export interface MapPinBidFrete {
   id: number
   label: string
   portCode: string
@@ -38,7 +38,7 @@ interface MapPin {
   flag: string
 }
 
-const MAP_PINS: MapPin[] = [
+const MAP_PINS: MapPinBidFrete[] = [
   {
     id: 1,
     label: 'Shanghai',
@@ -714,7 +714,7 @@ function resampleGeoPath(points: GeoPoint[], targetCount: number): GeoPoint[] {
 }
 
 // Arc Routes definition
-interface ArcRoute {
+export interface ArcRouteBidFrete {
   fromId: number
   toId: number
   color: string
@@ -722,9 +722,11 @@ interface ArcRoute {
   mode: 'MARITIMO' | 'AEREO'
   transitTime?: number
   marketTransitTime?: number
+  quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional?: number
+  melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional?: number | null
 }
 
-const GLOBE_ROUTES: ArcRoute[] = [
+const GLOBE_ROUTES: ArcRouteBidFrete[] = [
   // 70% China (Shanghai) -> Guarulhos (São Paulo)
   { fromId: 1, toId: 2, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.14, mode: 'MARITIMO', transitTime: 28, marketTransitTime: 31 }, // Maritime route (emerald green, slow)
   { fromId: 1, toId: 2, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.22, mode: 'AEREO', transitTime: 3, marketTransitTime: 5 }, // Air route (purple, fast)
@@ -815,6 +817,11 @@ const MODAIS_INFO = [
 
 // ─── Visão Geral Global (Globo 3D Interativo Premium) ───────────────────────────
 
+export type DadosMapaBidFrete = {
+  pins: MapPinBidFrete[]
+  routes: ArcRouteBidFrete[]
+}
+
 export interface VisaoGeralMapaBidFreteProps {
   onOpenCompleto?: (route: RouteDetailBidFrete) => void
   titulo?: string
@@ -825,6 +832,9 @@ export interface VisaoGeralMapaBidFreteProps {
   exibirPainelLateralMapa?: boolean
   /** Vista inicial do canvas: globo 3D (padrão operacional) ou mapa plano. */
   vistaInicialMapa?: 'globo' | 'mapa'
+  /** `demonstracao` = dados fixos de preview; `api` = pinos/rotas vindos do backend. */
+  fonteDados?: 'demonstracao' | 'api'
+  dadosMapa?: DadosMapaBidFrete
 }
 
 export function VisaoGeralMapaBidFrete({
@@ -835,7 +845,47 @@ export function VisaoGeralMapaBidFrete({
   painelRankingsSubtitulo = 'Rankings em tempo real • 200 bids',
   exibirPainelLateralMapa = true,
   vistaInicialMapa = 'mapa',
+  fonteDados = 'demonstracao',
+  dadosMapa,
 }: VisaoGeralMapaBidFreteProps) {
+  const pinsAtivos = fonteDados === 'api' ? (dadosMapa?.pins ?? []) : MAP_PINS
+  const rotasAtivas = fonteDados === 'api' ? (dadosMapa?.routes ?? []) : GLOBE_ROUTES
+  const mapaVazioApi = fonteDados === 'api' && pinsAtivos.length === 0
+
+  const rotasDetalhePorPino = useMemo(() => {
+    if (fonteDados !== 'api') return PORT_CONNECTIONS
+    const mapa: Record<number, RouteDetailBidFrete[]> = {}
+    for (const rota of rotasAtivas) {
+      const fromPin = pinsAtivos.find((p) => p.id === rota.fromId)
+      const toPin = pinsAtivos.find((p) => p.id === rota.toId)
+      if (!fromPin || !toPin) continue
+
+      const detalhe: RouteDetailBidFrete = {
+        fromPort: `${fromPin.label} (${fromPin.portCode})`,
+        fromFlag: fromPin.flag,
+        toPort: `${toPin.label} (${toPin.portCode})`,
+        toFlag: toPin.flag,
+        mode: rota.mode,
+        bids: rota.quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional ?? 0,
+        bestPrice: rota.melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? 0,
+        saving: 0,
+        transitTime: rota.transitTime ?? 0,
+        supplier: fromPin.supplier,
+      }
+
+      if (!mapa[rota.fromId]) mapa[rota.fromId] = []
+      mapa[rota.fromId].push(detalhe)
+      if (!mapa[rota.toId]) mapa[rota.toId] = []
+      mapa[rota.toId].push({
+        ...detalhe,
+        fromPort: detalhe.toPort,
+        fromFlag: detalhe.toFlag,
+        toPort: detalhe.fromPort,
+        toFlag: detalhe.fromFlag,
+      })
+    }
+    return mapa
+  }, [fonteDados, rotasAtivas, pinsAtivos])
   const descricaoMapaTransit =
     descricaoTransit ?? 'Benchmarking de Transit Time global (Sua Empresa vs. Média de Mercado)'
   const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modal_cotacao_bid_frete_internacional'>('origens')
@@ -1024,9 +1074,9 @@ export function VisaoGeralMapaBidFrete({
 
       // Rotas (arco abaulado entre origem e destino)
       const currentHovered = hoveredPinRef.current
-      GLOBE_ROUTES.forEach((route, routeIdx) => {
-        const fromPin = MAP_PINS.find(p => p.id === route.fromId)
-        const toPin = MAP_PINS.find(p => p.id === route.toId)
+      rotasAtivas.forEach((route, routeIdx) => {
+        const fromPin = pinsAtivos.find(p => p.id === route.fromId)
+        const toPin = pinsAtivos.find(p => p.id === route.toId)
         if (!fromPin || !toPin) return
 
         const a = project(fromPin.geoLat, fromPin.geoLng)
@@ -1155,7 +1205,7 @@ export function VisaoGeralMapaBidFrete({
       // Pinos (overlay HTML) — projeta e publica
       const offsetX = canvas.offsetLeft || 0
       const offsetY = canvas.offsetTop || 0
-      const tempPins = MAP_PINS.map(pin => {
+      const tempPins = pinsAtivos.map(pin => {
         const { sx, sy } = project(pin.geoLat, pin.geoLng)
         const visible = sx >= -10 && sx <= w + 10 && sy >= -10 && sy <= h + 10
         return { ...pin, px: sx + offsetX, py: sy + offsetY, opacity: visible ? 1 : 0 }
@@ -1346,9 +1396,9 @@ export function VisaoGeralMapaBidFrete({
       
       // 5. Draw 3D curved Logistics Arc Routes & cargo pulses
       
-      GLOBE_ROUTES.forEach((route, routeIdx) => {
-        const fromPin = MAP_PINS.find(p => p.id === route.fromId)
-        const toPin = MAP_PINS.find(p => p.id === route.toId)
+      rotasAtivas.forEach((route, routeIdx) => {
+        const fromPin = pinsAtivos.find(p => p.id === route.fromId)
+        const toPin = pinsAtivos.find(p => p.id === route.toId)
         if (!fromPin || !toPin) return
         
         const p1 = getCartesian(fromPin.geoLat, fromPin.geoLng)
@@ -1647,7 +1697,7 @@ export function VisaoGeralMapaBidFrete({
       const offsetX = canvas.offsetLeft || 0
       const offsetY = canvas.offsetTop || 0
 
-      const tempPins = MAP_PINS.map(pin => {
+      const tempPins = pinsAtivos.map(pin => {
         const p = getCartesian(pin.geoLat, pin.geoLng)
         
         // Rotate Y
@@ -1689,7 +1739,7 @@ export function VisaoGeralMapaBidFrete({
     
     animId = requestAnimationFrame(renderFrame)
     return () => cancelAnimationFrame(animId)
-  }, [activePoints, mapaModo])
+  }, [activePoints, mapaModo, pinsAtivos, rotasAtivas])
   
   // Drag physics mouse handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -1784,10 +1834,12 @@ export function VisaoGeralMapaBidFrete({
             <p className="cg-card__label" style={{ margin: 0 }}>{titulo}</p>
           </div>
           <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }}>
-            {mapaModo === 'transit'
-              ? descricaoMapaTransit
-              : (descricaoBids ??
-                `Localizações estratégicas, bids ativos e saving acumulado por terminal (${vista === 'mapa' ? 'Arrastar para Mover' : 'Arrastar para Girar'})`)}
+            {mapaVazioApi
+              ? 'Nenhuma cotação com coordenadas no mapa ainda. Os disparos aparecem aqui quando origem e destino têm localização no Cadastros.'
+              : mapaModo === 'transit'
+                ? descricaoMapaTransit
+                : (descricaoBids ??
+                  `Localizações estratégicas, bids ativos e saving acumulado por terminal (${vista === 'mapa' ? 'Arrastar para Mover' : 'Arrastar para Girar'})`)}
           </span>
         </div>
 
@@ -2074,9 +2126,17 @@ export function VisaoGeralMapaBidFrete({
               </div>
 
               <div className="bfd-map-panel__list" style={{ padding: '0 0.75rem 0.75rem', height: 'calc(100% - 100px)', overflowY: 'auto' }}>
-                {GLOBE_ROUTES.map((route, idx) => {
-                  const fromPin = MAP_PINS.find(p => p.id === route.fromId) || { label: 'Shanghai', flag: '🇨🇳', portCode: 'CNSHA' }
-                  const toPin = MAP_PINS.find(p => p.id === route.toId) || { label: 'Santos', flag: '🇧🇷', portCode: 'BRSSZ' }
+                {rotasAtivas.map((route, idx) => {
+                  const fromPin = pinsAtivos.find(p => p.id === route.fromId) ?? {
+                    label: '—',
+                    flag: '',
+                    portCode: '',
+                  }
+                  const toPin = pinsAtivos.find(p => p.id === route.toId) ?? {
+                    label: '—',
+                    flag: '',
+                    portCode: '',
+                  }
                   
                   const isAir = route.mode === 'AEREO'
                   const tClient = route.transitTime || 20
@@ -2341,9 +2401,9 @@ export function VisaoGeralMapaBidFrete({
 
         {/* Premium Detail Modal Overlay */}
         {selectedPinForDialogoResumido !== null && (() => {
-          const pin = MAP_PINS.find(p => p.id === selectedPinForDialogoResumido)
+          const pin = pinsAtivos.find(p => p.id === selectedPinForDialogoResumido)
           if (!pin) return null
-          const connections = PORT_CONNECTIONS[selectedPinForDialogoResumido] || []
+          const connections = rotasDetalhePorPino[selectedPinForDialogoResumido] || []
           
           return (
             <div className="dialogo-cotacao-resumida-bid-frete-internacional-overlay" onClick={() => setSelectedPinForDialogoResumido(null)}>

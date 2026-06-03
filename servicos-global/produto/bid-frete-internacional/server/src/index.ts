@@ -175,8 +175,10 @@ app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res
 // --- 12. Inicializacao ---
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
-    console.log(`[BidFrete] Servidor rodando na porta ${PORT} (local)`)
-    startCronJobs()
+    console.log(`[BidFrete] Servidor rodando na porta ${PORT}${process.env.BID_FRETE_SIDECAR === '1' ? ' (sidecar)' : ''}`)
+    if (process.env.BID_FRETE_SIDECAR !== '1') {
+      startCronJobs()
+    }
   })
 }
 

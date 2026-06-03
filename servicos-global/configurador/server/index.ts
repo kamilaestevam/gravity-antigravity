@@ -293,6 +293,9 @@ app.get('/api/v1/internal/sidecar-status', requireAuth, requireGravityAdmin, (_r
   res.json(_sidecarStatus)
 })
 
+// ─── Proxy reverso: BID Frete Internacional sidecar (porta 8023) ─────────────
+// Em produção o BID roda como sidecar no mesmo processo (porta 8023).
+// O frontend chama `/api/v1/bid-frete-internacional/*` — proxy encaminha via localhost.
 app.use('/api/v1/bid-frete-internacional', (req, res) => {
   const serviceUrl = process.env.BID_FRETE_SERVICE_URL || 'http://127.0.0.1:8023'
   const targetUrl = `${serviceUrl}${req.originalUrl}`
@@ -322,7 +325,12 @@ app.use('/api/v1/bid-frete-internacional', (req, res) => {
       method: req.method,
       url: req.originalUrl,
     })
-    if (!res.headersSent) res.status(502).json({ error: 'BID Frete Internacional service unavailable' })
+    if (!res.headersSent) {
+      res.status(502).json({
+        error: 'BID Frete Internacional service unavailable',
+        sidecar: _sidecarStatus['bid-frete'],
+      })
+    }
   })
   if (bodyBuf) {
     proxyReq.end(bodyBuf)
@@ -544,7 +552,32 @@ if (process.env.NODE_ENV !== 'test') {
     console.error('[configurador] Falha ao iniciar sidecar Cadastros:', err)
   }
 
-  // Sidecar 2: Pedido (porta 8030)
+  // Sidecar 2: BID Frete Internacional (porta 8023)
+  // Migrations rodam em scripts/start-site.sh quando BID_FRETE_INTERNATIONAL_DATABASE_URL está definida.
+  if (process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL) {
+    process.env.PORT = '8023'
+    process.env.DATABASE_URL = process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL
+    process.env.CONFIGURATOR_URL = `http://127.0.0.1:${portaOriginal ?? '8080'}`
+    process.env.CADASTROS_SERVICE_URL = 'http://127.0.0.1:8031'
+    process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
+      ? `https://${process.env.CANONICAL_DOMAIN}`
+      : 'https://usegravity.com.br'
+    process.env.BID_FRETE_SIDECAR = '1'
+    try {
+      await import('../../produto/bid-frete-internacional/server/src/index.js')
+      _sidecarStatus['bid-frete'] = { ok: true }
+      console.log('[configurador] Sidecar BID Frete Internacional iniciado na porta 8023')
+    } catch (err) {
+      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+      _sidecarStatus['bid-frete'] = { ok: false, error: msg }
+      console.error('[configurador] Falha ao iniciar sidecar BID Frete Internacional:', msg)
+    }
+  } else {
+    _sidecarStatus['bid-frete'] = { ok: false, error: 'BID_FRETE_INTERNATIONAL_DATABASE_URL ausente' }
+    console.warn('[configurador] BID_FRETE_INTERNATIONAL_DATABASE_URL ausente — sidecar BID Frete Internacional desativado')
+  }
+
+  // Sidecar 3: Pedido (porta 8030)
   // Migrations rodam em scripts/start-site.sh ANTES deste processo (Railway startCommand).
   // Protege contra process.exit() que o Pedido chama em validações de env —
   // em modo sidecar, exit() mataria o processo inteiro (Configurador incluso).
@@ -577,7 +610,7 @@ if (process.env.NODE_ENV !== 'test') {
     console.warn('[configurador] PEDIDO_DATABASE_URL ausente — sidecar Pedido desativado')
   }
 
-  // Sidecar 3: Processo (porta 8026)
+  // Sidecar 4: Processo (porta 8026)
   // Migrations rodam em build-site.sh / start-site.sh quando PROCESSO_DATABASE_URL está definida.
   if (process.env.PROCESSO_DATABASE_URL) {
     process.env.PORT = '8026'
@@ -607,7 +640,7 @@ if (process.env.NODE_ENV !== 'test') {
     console.warn('[configurador] PROCESSO_DATABASE_URL ausente — sidecar Processo desativado')
   }
 
-  // Sidecar 4: API Cockpit (porta 8016)
+  // Sidecar 5: API Cockpit (porta 8016)
   // Health checks, tokens, webhooks, logs de requisição, monitoramento.
   // Usa CONFIGURADOR_DATABASE_URL (mesmas tabelas — fragment composto).
   process.env.PORT = '8016'

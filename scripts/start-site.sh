@@ -14,6 +14,9 @@ if [ -n "${BID_FRETE_INTERNATIONAL_DATABASE_URL:-}" ]; then
   fi
 else
   echo "[start-site] AVISO: BID_FRETE_INTERNATIONAL_DATABASE_URL ausente — migrations BID ignoradas."
+  echo "[start-site] Sidecar BID Frete Internacional (8023) ficará desativado até configurar a variável."
+  echo "[start-site] Railway → site-usegravity → Variables → BID_FRETE_INTERNATIONAL_DATABASE_URL"
+  echo "[start-site] Valor: DATABASE_URL do PostgreSQL gravity-bid-frete-internacional-producao."
 fi
 
 if [ -z "${PEDIDO_DATABASE_URL:-}" ]; then

@@ -1,0 +1,30 @@
+TESTE EM TELA — status-reflexo-completo
+Data: 2026-06-02
+Base: http://localhost:8000
+Pasta: C:\Users\danie\gravity-antigravity\testes\testes-em-tela\pedido\configuracoes\status\2026-06-02-status-reflexo-completo
+
+TESTE EM TELA — status-reflexo-completo
+Data: 2026-06-02 | Base: http://localhost:8000
+Pasta: C:\Users\danie\gravity-antigravity\testes\testes-em-tela\pedido\configuracoes\status\2026-06-02-status-reflexo-completo
+✓ Clerk sign-in (dmmltda@gmail.com)
+📸 01-pos-login.png
+Hub detectado — entrando no workspace
+📸 02-config-status-sem-linhas.png
+✗ Config Status: nenhuma .cfg-status-row visível após load
+📸 09-lista-abas-status.png
+✗ Lista: pedido:status_config com 0 entradas (esperado ≥5)
+⚠ Kanban: seletor genérico — 0 headers visíveis
+📸 11-kanban-colunas.png
+📸 13-insights-kpi-topo.png
+⚠ Insights: funil vazio (sem pedidos no escopo?)
+📸 14-insights-funil-status.png
+📸 15-dashboard-filtros-status.png
+✓ Dashboard carregado
+
+Resultado: FALHOU
+Falhas:
+  - Config Status: nenhuma .cfg-status-row visível após load
+  - Lista: pedido:status_config com 0 entradas (esperado ≥5)
+
+Resultado final: FALHOU
+Falhas: 2

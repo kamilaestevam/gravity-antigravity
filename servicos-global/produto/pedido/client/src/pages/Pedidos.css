@@ -55,6 +55,35 @@
   flex: 1;
 }
 
+/* Faixa de painéis salvos — acima dos KPIs (não confundir com abas de status) */
+.lp-paineis-lista {
+  flex-shrink: 0;
+}
+
+.lp-paineis-lista-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  border-radius: 0.5rem;
+}
+
+.lp-paineis-lista-strip__label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #a78bfa;
+}
+
+.lp-paineis-lista-strip__vazio {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
 
 .lp-stats-row {
   display: flex;

@@ -28,7 +28,7 @@ function diasDesde(iso: string): number {
   return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)))
 }
 
-export default function TodosProcessosKanban() {
+export default function TodosProcessosKanban({ embedTabs = true }: { embedTabs?: boolean }) {
   const [busca, setBusca] = useState('')
 
   const buscaNorm = busca.trim().toLowerCase()
@@ -70,7 +70,7 @@ export default function TodosProcessosKanban() {
         />
       }
     >
-      <TodosProcessosTabs />
+      {embedTabs && <TodosProcessosTabs />}
 
       {/* Toolbar */}
       <div className="tp-kb-toolbar">

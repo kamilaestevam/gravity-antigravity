@@ -1709,7 +1709,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const colunasBtnRef = useRef<HTMLButtonElement>(null)
 
   const colunasVisiveis = useMemo<string[]>(() => {
-    if (preferencias?.colunas_visiveis) return preferencias.colunas_visiveis
+    if (preferencias?.colunas_visiveis && preferencias.colunas_visiveis.length > 0) {
+      return preferencias.colunas_visiveis
+    }
     if (colunasPadrao && colunasPadrao.length > 0) return colunasPadrao
     return colunas.filter(c => !c.oculta).map(c => c.key)
   }, [preferencias, colunas, colunasPadrao])

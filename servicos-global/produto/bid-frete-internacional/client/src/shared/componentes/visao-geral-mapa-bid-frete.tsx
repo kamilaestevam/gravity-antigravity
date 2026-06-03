@@ -3,6 +3,7 @@
  */
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'
+import { calcularRankingsMapaBidFreteInternacional } from '../calcular-rankings-mapa-bid-frete-internacional'
 import {
   Anchor,
   AirplaneTilt,
@@ -21,7 +22,7 @@ import {
 } from '@phosphor-icons/react'
 // ─── Map Pin Data ──────────────────────────────────────────────────────────
 
-interface MapPin {
+export interface MapPinBidFrete {
   id: number
   label: string
   portCode: string
@@ -38,7 +39,7 @@ interface MapPin {
   flag: string
 }
 
-const MAP_PINS: MapPin[] = [
+const MAP_PINS: MapPinBidFrete[] = [
   {
     id: 1,
     label: 'Shanghai',
@@ -557,8 +558,164 @@ const getCartesian = (lat: number, lng: number) => {
   }
 }
 
+/** Maior divisor = animação mais lenta. Aéreo = ritmo “marítimo” anterior; marítimo = 20% da velocidade do aéreo. */
+const ANIM_FRAME_DIV_AEREO = 24000
+const ANIM_FRAME_DIV_MARITIMO = ANIM_FRAME_DIV_AEREO / 0.2
+const MARCHING_ANTS_DIV_AEREO = 320
+const MARCHING_ANTS_DIV_MARITIMO = MARCHING_ANTS_DIV_AEREO / 0.2
+const TRANSIT_ANIM_MULT_AEREO = 900
+const TRANSIT_ANIM_MULT_MARITIMO = TRANSIT_ANIM_MULT_AEREO / 0.2
+const TRANSIT_MARCH_MULT_AEREO = 12
+const TRANSIT_MARCH_MULT_MARITIMO = TRANSIT_MARCH_MULT_AEREO / 0.2
+const DURACAO_ANIM_SVG_AEREO_S = '6.5s'
+const DURACAO_ANIM_SVG_MARITIMO_S = `${(6.5 / 0.2).toFixed(1)}s`
+
+type GeoPoint = { lat: number; lng: number }
+
+function slerpGeo(lat1: number, lng1: number, lat2: number, lng2: number, t: number): GeoPoint {
+  const p1 = getCartesian(lat1, lng1)
+  const p2 = getCartesian(lat2, lng2)
+  let dot = p1.x * p2.x + p1.y * p2.y + p1.z * p2.z
+  dot = Math.max(-1, Math.min(1, dot))
+  const omega = Math.acos(dot)
+  if (omega < 1e-6) {
+    return { lat: lat1 + (lat2 - lat1) * t, lng: lng1 + (lng2 - lng1) * t }
+  }
+  const sinOmega = Math.sin(omega)
+  const a = Math.sin((1 - t) * omega) / sinOmega
+  const b = Math.sin(t * omega) / sinOmega
+  const x = a * p1.x + b * p2.x
+  const y = a * p1.y + b * p2.y
+  const z = a * p1.z + b * p2.z
+  return {
+    lat: (Math.asin(y) * 180) / Math.PI,
+    lng: (Math.atan2(x, z) * 180) / Math.PI,
+  }
+}
+
+function sampleGreatCircleGeo(lat1: number, lng1: number, lat2: number, lng2: number, segments: number): GeoPoint[] {
+  const pts: GeoPoint[] = []
+  for (let i = 0; i <= segments; i++) {
+    pts.push(slerpGeo(lat1, lng1, lat2, lng2, i / segments))
+  }
+  return pts
+}
+
+/** Ignora extremos (portos na costa); navio não pode atravessar continente no meio da rota. */
+function countLandOnPathInterior(pts: GeoPoint[]): number {
+  let count = 0
+  const last = pts.length - 1
+  for (let i = 0; i <= last; i++) {
+    const t = last === 0 ? 0 : i / last
+    if (t <= 0.05 || t >= 0.95) continue
+    const p = pts[i]
+    if (isLand(p.lat, p.lng)) count++
+  }
+  return count
+}
+
+function concatGeoPaths(...segments: GeoPoint[][]): GeoPoint[] {
+  const out: GeoPoint[] = []
+  for (const seg of segments) {
+    if (out.length === 0) out.push(...seg)
+    else out.push(...seg.slice(1))
+  }
+  return out
+}
+
+/** Hubs oceânicos para desviar rotas marítimas que cruzariam continente. */
+const OCEAN_WAYPOINTS: GeoPoint[] = [
+  { lat: 28, lng: -42 },
+  { lat: -18, lng: -38 },
+  { lat: 8, lng: -78 },
+  { lat: -8, lng: -48 },
+  { lat: 12, lng: -105 },
+  { lat: 18, lng: 128 },
+  { lat: -2, lng: 108 },
+  { lat: -34, lng: 18 },
+  { lat: -20, lng: 62 },
+  { lat: 0, lng: -155 },
+  { lat: -45, lng: -60 },
+  { lat: 30, lng: 32 },
+  { lat: -30, lng: -10 },
+]
+
+function buildMaritimeGeoPath(lat1: number, lng1: number, lat2: number, lng2: number): GeoPoint[] {
+  const direct = sampleGreatCircleGeo(lat1, lng1, lat2, lng2, 48)
+  if (countLandOnPathInterior(direct) === 0) return direct
+
+  let best: GeoPoint[] = direct
+  let bestLand = countLandOnPathInterior(direct)
+  const start: GeoPoint = { lat: lat1, lng: lng1 }
+  const end: GeoPoint = { lat: lat2, lng: lng2 }
+
+  const tryPath = (waypoints: GeoPoint[]): boolean => {
+    const parts: GeoPoint[][] = []
+    for (let i = 0; i < waypoints.length - 1; i++) {
+      parts.push(
+        sampleGreatCircleGeo(
+          waypoints[i].lat,
+          waypoints[i].lng,
+          waypoints[i + 1].lat,
+          waypoints[i + 1].lng,
+          24,
+        ),
+      )
+    }
+    const merged = concatGeoPaths(...parts)
+    const land = countLandOnPathInterior(merged)
+    if (land < bestLand) {
+      bestLand = land
+      best = merged
+    }
+    return land === 0
+  }
+
+  for (const hub of OCEAN_WAYPOINTS) {
+    if (tryPath([start, hub, end])) return best
+  }
+  for (let i = 0; i < OCEAN_WAYPOINTS.length; i++) {
+    for (let j = i + 1; j < OCEAN_WAYPOINTS.length; j++) {
+      if (tryPath([start, OCEAN_WAYPOINTS[i], OCEAN_WAYPOINTS[j], end])) return best
+    }
+  }
+  return best
+}
+
+function unwrapGeoPathForEquirectangular(points: GeoPoint[], anchorLng: number): GeoPoint[] {
+  if (points.length === 0) return points
+  const out: GeoPoint[] = [{ lat: points[0].lat, lng: points[0].lng }]
+  let prevLng = anchorLng
+  for (let i = 1; i < points.length; i++) {
+    let lng = points[i].lng
+    while (lng - prevLng > 180) lng -= 360
+    while (lng - prevLng < -180) lng += 360
+    prevLng = lng
+    out.push({ lat: points[i].lat, lng })
+  }
+  return out
+}
+
+function sampleGeoPathPoint(points: GeoPoint[], t: number): GeoPoint {
+  const fIdx = t * (points.length - 1)
+  const idx = Math.floor(fIdx)
+  const next = Math.min(points.length - 1, idx + 1)
+  const interp = fIdx - idx
+  const a = points[idx]
+  const b = points[next]
+  return slerpGeo(a.lat, a.lng, b.lat, b.lng, interp)
+}
+
+function resampleGeoPath(points: GeoPoint[], targetCount: number): GeoPoint[] {
+  const out: GeoPoint[] = []
+  for (let i = 0; i <= targetCount; i++) {
+    out.push(sampleGeoPathPoint(points, i / targetCount))
+  }
+  return out
+}
+
 // Arc Routes definition
-interface ArcRoute {
+export interface ArcRouteBidFrete {
   fromId: number
   toId: number
   color: string
@@ -566,9 +723,11 @@ interface ArcRoute {
   mode: 'MARITIMO' | 'AEREO'
   transitTime?: number
   marketTransitTime?: number
+  quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional?: number
+  melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional?: number | null
 }
 
-const GLOBE_ROUTES: ArcRoute[] = [
+const GLOBE_ROUTES: ArcRouteBidFrete[] = [
   // 70% China (Shanghai) -> Guarulhos (São Paulo)
   { fromId: 1, toId: 2, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.14, mode: 'MARITIMO', transitTime: 28, marketTransitTime: 31 }, // Maritime route (emerald green, slow)
   { fromId: 1, toId: 2, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.22, mode: 'AEREO', transitTime: 3, marketTransitTime: 5 }, // Air route (purple, fast)
@@ -659,6 +818,11 @@ const MODAIS_INFO = [
 
 // ─── Visão Geral Global (Globo 3D Interativo Premium) ───────────────────────────
 
+export type DadosMapaBidFrete = {
+  pins: MapPinBidFrete[]
+  routes: ArcRouteBidFrete[]
+}
+
 export interface VisaoGeralMapaBidFreteProps {
   onOpenCompleto?: (route: RouteDetailBidFrete) => void
   titulo?: string
@@ -669,6 +833,11 @@ export interface VisaoGeralMapaBidFreteProps {
   exibirPainelLateralMapa?: boolean
   /** Vista inicial do canvas: globo 3D (padrão operacional) ou mapa plano. */
   vistaInicialMapa?: 'globo' | 'mapa'
+  /** `demonstracao` = dados fixos de preview; `api` = pinos/rotas vindos do backend. */
+  fonteDados?: 'demonstracao' | 'api'
+  dadosMapa?: DadosMapaBidFrete
+  /** Insights cliente: mapa e Rankings Globais em dois cards lado a lado. */
+  painelRankingsSeparado?: boolean
 }
 
 export function VisaoGeralMapaBidFrete({
@@ -679,7 +848,64 @@ export function VisaoGeralMapaBidFrete({
   painelRankingsSubtitulo = 'Rankings em tempo real • 200 bids',
   exibirPainelLateralMapa = true,
   vistaInicialMapa = 'mapa',
+  fonteDados = 'demonstracao',
+  dadosMapa,
+  painelRankingsSeparado = false,
 }: VisaoGeralMapaBidFreteProps) {
+  const pinsAtivos = fonteDados === 'api' ? (dadosMapa?.pins ?? []) : MAP_PINS
+  const rotasAtivas = fonteDados === 'api' ? (dadosMapa?.routes ?? []) : GLOBE_ROUTES
+  const mapaVazioApi = fonteDados === 'api' && pinsAtivos.length === 0
+
+  const rankingsCalculados = useMemo(() => {
+    if (fonteDados !== 'api') return null
+    return calcularRankingsMapaBidFreteInternacional(pinsAtivos, rotasAtivas)
+  }, [fonteDados, pinsAtivos, rotasAtivas])
+
+  const listaOrigens = rankingsCalculados?.origens ?? TOP_ORIGENS
+  const listaDestinos = rankingsCalculados?.destinos ?? TOP_DESTINOS
+  const listaModais = rankingsCalculados?.modais ?? MODAIS_INFO
+  const subtituloRankings =
+    fonteDados === 'api' && rankingsCalculados
+      ? `Rankings em tempo real • ${rankingsCalculados.totalBids} bids`
+      : painelRankingsSubtitulo
+
+  const rankingsEmGridSeparado = exibirPainelLateralMapa && painelRankingsSeparado
+  const rankingsInlineFlex = exibirPainelLateralMapa && !painelRankingsSeparado
+
+  const rotasDetalhePorPino = useMemo(() => {
+    if (fonteDados !== 'api') return PORT_CONNECTIONS
+    const mapa: Record<number, RouteDetailBidFrete[]> = {}
+    for (const rota of rotasAtivas) {
+      const fromPin = pinsAtivos.find((p) => p.id === rota.fromId)
+      const toPin = pinsAtivos.find((p) => p.id === rota.toId)
+      if (!fromPin || !toPin) continue
+
+      const detalhe: RouteDetailBidFrete = {
+        fromPort: `${fromPin.label} (${fromPin.portCode})`,
+        fromFlag: fromPin.flag,
+        toPort: `${toPin.label} (${toPin.portCode})`,
+        toFlag: toPin.flag,
+        mode: rota.mode,
+        bids: rota.quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional ?? 0,
+        bestPrice: rota.melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? 0,
+        saving: 0,
+        transitTime: rota.transitTime ?? 0,
+        supplier: fromPin.supplier,
+      }
+
+      if (!mapa[rota.fromId]) mapa[rota.fromId] = []
+      mapa[rota.fromId].push(detalhe)
+      if (!mapa[rota.toId]) mapa[rota.toId] = []
+      mapa[rota.toId].push({
+        ...detalhe,
+        fromPort: detalhe.toPort,
+        fromFlag: detalhe.toFlag,
+        toPort: detalhe.fromPort,
+        toFlag: detalhe.fromFlag,
+      })
+    }
+    return mapa
+  }, [fonteDados, rotasAtivas, pinsAtivos])
   const descricaoMapaTransit =
     descricaoTransit ?? 'Benchmarking de Transit Time global (Sua Empresa vs. Média de Mercado)'
   const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modal_cotacao_bid_frete_internacional'>('origens')
@@ -868,31 +1094,46 @@ export function VisaoGeralMapaBidFrete({
 
       // Rotas (arco abaulado entre origem e destino)
       const currentHovered = hoveredPinRef.current
-      GLOBE_ROUTES.forEach((route, routeIdx) => {
-        const fromPin = MAP_PINS.find(p => p.id === route.fromId)
-        const toPin = MAP_PINS.find(p => p.id === route.toId)
+      rotasAtivas.forEach((route, routeIdx) => {
+        const fromPin = pinsAtivos.find(p => p.id === route.fromId)
+        const toPin = pinsAtivos.find(p => p.id === route.toId)
         if (!fromPin || !toPin) return
 
         const a = project(fromPin.geoLat, fromPin.geoLng)
         const b = project(toPin.geoLat, toPin.geoLng)
 
-        const mx = (a.sx + b.sx) / 2
-        const my = (a.sy + b.sy) / 2
-        const dist = Math.hypot(b.sx - a.sx, b.sy - a.sy)
-        const bow = Math.min(dist * 0.22, worldH * 0.35)
-        const ctrlX = mx
-        const ctrlY = my - bow
-
         const segmentsCount = 36
         const pathPoints: { sx: number; sy: number }[] = []
-        for (let j = 0; j <= segmentsCount; j++) {
-          const t = j / segmentsCount
-          const it = 1 - t
-          pathPoints.push({
-            sx: it * it * a.sx + 2 * it * t * ctrlX + t * t * b.sx,
-            sy: it * it * a.sy + 2 * it * t * ctrlY + t * t * b.sy,
-          })
+        const isMaritimeRoute = route.mode === 'MARITIMO'
+
+        if (isMaritimeRoute) {
+          const geoPath = unwrapGeoPathForEquirectangular(
+            buildMaritimeGeoPath(fromPin.geoLat, fromPin.geoLng, toPin.geoLat, toPin.geoLng),
+            fromPin.geoLng,
+          )
+          const sampled = resampleGeoPath(geoPath, segmentsCount)
+          for (const p of sampled) {
+            const { sx, sy } = project(p.lat, p.lng)
+            pathPoints.push({ sx, sy })
+          }
+        } else {
+          const mx = (a.sx + b.sx) / 2
+          const my = (a.sy + b.sy) / 2
+          const dist = Math.hypot(b.sx - a.sx, b.sy - a.sy)
+          const bow = Math.min(dist * 0.22, worldH * 0.35)
+          const ctrlX = mx
+          const ctrlY = my - bow
+          for (let j = 0; j <= segmentsCount; j++) {
+            const t = j / segmentsCount
+            const it = 1 - t
+            pathPoints.push({
+              sx: it * it * a.sx + 2 * it * t * ctrlX + t * t * b.sx,
+              sy: it * it * a.sy + 2 * it * t * ctrlY + t * t * b.sy,
+            })
+          }
         }
+        pathPoints[0] = { sx: a.sx, sy: a.sy }
+        pathPoints[segmentsCount] = { sx: b.sx, sy: b.sy }
 
         let routeStrokeColor = route.color
         if (mapaModo === 'transit') {
@@ -924,10 +1165,10 @@ export function VisaoGeralMapaBidFrete({
         ctx.strokeStyle = routeStrokeColor
         ctx.lineWidth = isRouteDirectSource ? 3.5 : 2.0
         ctx.setLineDash([5, 8])
-        let divider = isMaritime ? 320 : 32
+        let divider = isMaritime ? MARCHING_ANTS_DIV_MARITIMO : MARCHING_ANTS_DIV_AEREO
         if (mapaModo === 'transit') {
           const tClient = route.transitTime || 20
-          divider = isMaritime ? tClient * 12 : tClient * 10
+          divider = isMaritime ? tClient * TRANSIT_MARCH_MULT_MARITIMO : tClient * TRANSIT_MARCH_MULT_AEREO
         }
         ctx.lineDashOffset = -(now / divider) % 100
         ctx.beginPath()
@@ -937,10 +1178,10 @@ export function VisaoGeralMapaBidFrete({
         ctx.setLineDash([])
 
         // Pulsos de carga (navio/avião) percorrendo a rota
-        let speed = isMaritime ? 24000 : 2400
+        let speed = isMaritime ? ANIM_FRAME_DIV_MARITIMO : ANIM_FRAME_DIV_AEREO
         if (mapaModo === 'transit') {
           const tClient = route.transitTime || 20
-          speed = isMaritime ? tClient * 900 : tClient * 800
+          speed = isMaritime ? tClient * TRANSIT_ANIM_MULT_MARITIMO : tClient * TRANSIT_ANIM_MULT_AEREO
         }
         ;[0.0, 0.5].forEach(offset => {
           const tPulse = (now / speed + routeIdx * 0.22 + offset) % 1.0
@@ -984,7 +1225,7 @@ export function VisaoGeralMapaBidFrete({
       // Pinos (overlay HTML) — projeta e publica
       const offsetX = canvas.offsetLeft || 0
       const offsetY = canvas.offsetTop || 0
-      const tempPins = MAP_PINS.map(pin => {
+      const tempPins = pinsAtivos.map(pin => {
         const { sx, sy } = project(pin.geoLat, pin.geoLng)
         const visible = sx >= -10 && sx <= w + 10 && sy >= -10 && sy <= h + 10
         return { ...pin, px: sx + offsetX, py: sy + offsetY, opacity: visible ? 1 : 0 }
@@ -1175,15 +1416,19 @@ export function VisaoGeralMapaBidFrete({
       
       // 5. Draw 3D curved Logistics Arc Routes & cargo pulses
       
-      GLOBE_ROUTES.forEach((route, routeIdx) => {
-        const fromPin = MAP_PINS.find(p => p.id === route.fromId)
-        const toPin = MAP_PINS.find(p => p.id === route.toId)
+      rotasAtivas.forEach((route, routeIdx) => {
+        const fromPin = pinsAtivos.find(p => p.id === route.fromId)
+        const toPin = pinsAtivos.find(p => p.id === route.toId)
         if (!fromPin || !toPin) return
         
         const p1 = getCartesian(fromPin.geoLat, fromPin.geoLng)
         const p2 = getCartesian(toPin.geoLat, toPin.geoLng)
+        const maritimeGeoPath =
+          route.mode === 'MARITIMO'
+            ? buildMaritimeGeoPath(fromPin.geoLat, fromPin.geoLng, toPin.geoLat, toPin.geoLng)
+            : null
         
-        // Trace curved arc
+        // Trace curved arc (marítimo só pelo mar; aéreo arco esférico direto)
         const segmentsCount = 36
         const pathPoints: { sx: number; sy: number; rz2: number }[] = []
         let avgDepth = 0
@@ -1191,14 +1436,24 @@ export function VisaoGeralMapaBidFrete({
         for (let j = 0; j <= segmentsCount; j++) {
           const t = j / segmentsCount
           
-          // LERP + Normalize (Spherical arch approximation)
-          let px = p1.x * (1 - t) + p2.x * t
-          let py = p1.y * (1 - t) + p2.y * t
-          let pz = p1.z * (1 - t) + p2.z * t
-          const len = Math.sqrt(px * px + py * py + pz * pz)
-          px /= len
-          py /= len
-          pz /= len
+          let px: number
+          let py: number
+          let pz: number
+          if (maritimeGeoPath) {
+            const { lat, lng } = sampleGeoPathPoint(maritimeGeoPath, t)
+            const c = getCartesian(lat, lng)
+            px = c.x
+            py = c.y
+            pz = c.z
+          } else {
+            px = p1.x * (1 - t) + p2.x * t
+            py = p1.y * (1 - t) + p2.y * t
+            pz = p1.z * (1 - t) + p2.z * t
+            const len = Math.sqrt(px * px + py * py + pz * pz)
+            px /= len
+            py /= len
+            pz /= len
+          }
           
           // Dome height factor
           const hFactor = route.heightFactor || 0.16
@@ -1272,10 +1527,12 @@ export function VisaoGeralMapaBidFrete({
           ctx.setLineDash([5, 8])
           // Negative offset moves the dash pattern from start to end (fromId -> toId)
           const isMaritime = route.mode === 'MARITIMO'
-          let pulseSpeedDivider = isMaritime ? 320 : 32
+          let pulseSpeedDivider = isMaritime ? MARCHING_ANTS_DIV_MARITIMO : MARCHING_ANTS_DIV_AEREO
           if (mapaModo === 'transit') {
             const tClient = route.transitTime || 20
-            pulseSpeedDivider = isMaritime ? (tClient * 12) : (tClient * 10)
+            pulseSpeedDivider = isMaritime
+              ? tClient * TRANSIT_MARCH_MULT_MARITIMO
+              : tClient * TRANSIT_MARCH_MULT_AEREO
           }
           ctx.lineDashOffset = -(Date.now() / pulseSpeedDivider) % 100
           
@@ -1334,10 +1591,12 @@ export function VisaoGeralMapaBidFrete({
           // Draw 2 staggered pulses per route so direction is immediately obvious
           [0.0, 0.5].forEach((offset) => {
             const isMaritime = route.mode === 'MARITIMO'
-            let pulseSpeedDivider = isMaritime ? 24000 : 2400
+            let pulseSpeedDivider = isMaritime ? ANIM_FRAME_DIV_MARITIMO : ANIM_FRAME_DIV_AEREO
             if (mapaModo === 'transit') {
               const tClient = route.transitTime || 20
-              pulseSpeedDivider = isMaritime ? (tClient * 900) : (tClient * 800)
+              pulseSpeedDivider = isMaritime
+                ? tClient * TRANSIT_ANIM_MULT_MARITIMO
+                : tClient * TRANSIT_ANIM_MULT_AEREO
             }
             const routePulseTime = Date.now() / pulseSpeedDivider
             const tPulse = (routePulseTime + routeIdx * 0.22 + offset) % 1.0
@@ -1458,7 +1717,7 @@ export function VisaoGeralMapaBidFrete({
       const offsetX = canvas.offsetLeft || 0
       const offsetY = canvas.offsetTop || 0
 
-      const tempPins = MAP_PINS.map(pin => {
+      const tempPins = pinsAtivos.map(pin => {
         const p = getCartesian(pin.geoLat, pin.geoLng)
         
         // Rotate Y
@@ -1500,7 +1759,7 @@ export function VisaoGeralMapaBidFrete({
     
     animId = requestAnimationFrame(renderFrame)
     return () => cancelAnimationFrame(animId)
-  }, [activePoints, mapaModo])
+  }, [activePoints, mapaModo, pinsAtivos, rotasAtivas])
   
   // Drag physics mouse handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -1584,8 +1843,12 @@ export function VisaoGeralMapaBidFrete({
     dragStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }
   
-  return (
-    <div className="bfd-card bfd-map-card bfd-card--accent-amber">
+  const cardMapa = (
+    <div
+      className={`bfd-card bfd-map-card bfd-card--accent-amber${
+        painelRankingsSeparado ? ' bfd-map-card--rankings-separado' : ''
+      }`}
+    >
       <div className="bfd-map-card__header" style={{ marginBottom: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <div className="cg-card__header" style={{ marginBottom: '0.4rem' }}>
@@ -1595,10 +1858,12 @@ export function VisaoGeralMapaBidFrete({
             <p className="cg-card__label" style={{ margin: 0 }}>{titulo}</p>
           </div>
           <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }}>
-            {mapaModo === 'transit'
-              ? descricaoMapaTransit
-              : (descricaoBids ??
-                `Localizações estratégicas, bids ativos e saving acumulado por terminal (${vista === 'mapa' ? 'Arrastar para Mover' : 'Arrastar para Girar'})`)}
+            {mapaVazioApi
+              ? 'Nenhuma cotação com coordenadas no mapa ainda. Os disparos aparecem aqui quando origem e destino têm localização no Cadastros.'
+              : mapaModo === 'transit'
+                ? descricaoMapaTransit
+                : (descricaoBids ??
+                  `Localizações estratégicas, bids ativos e saving acumulado por terminal (${vista === 'mapa' ? 'Arrastar para Mover' : 'Arrastar para Girar'})`)}
           </span>
         </div>
 
@@ -1659,9 +1924,11 @@ export function VisaoGeralMapaBidFrete({
 
       <div
         className={
-          exibirPainelLateralMapa
-            ? 'bfd-map-container'
-            : 'bfd-map-container bfd-map-container--sem-painel-lateral'
+          rankingsEmGridSeparado
+            ? 'bfd-map-container bfd-map-container--rankings-split'
+            : rankingsInlineFlex
+              ? 'bfd-map-container'
+              : 'bfd-map-container bfd-map-container--sem-painel-lateral'
         }
       >
         {/* Left Side: Canvas and Zoom Controls */}
@@ -1851,7 +2118,7 @@ export function VisaoGeralMapaBidFrete({
         </div>
 
         {exibirPainelLateralMapa ? (
-        <div className="bfd-hud-container">
+        <div className={`bfd-hud-container${rankingsEmGridSeparado ? ' bfd-hud-container--card-separado' : ''}`}>
           {mapaModo === 'transit' ? (
             <div className="bfd-map-right-panel bfd-map-right-panel--transit" style={{ background: 'rgba(11, 14, 20, 0.45)', border: '1px solid rgba(52, 211, 153, 0.15)', boxShadow: '0 8px 32px 0 rgba(0,0,0,0.5), 0 0 16px rgba(52, 211, 153, 0.08)' }}>
               <div className="bfd-map-panel__header">
@@ -1885,9 +2152,17 @@ export function VisaoGeralMapaBidFrete({
               </div>
 
               <div className="bfd-map-panel__list" style={{ padding: '0 0.75rem 0.75rem', height: 'calc(100% - 100px)', overflowY: 'auto' }}>
-                {GLOBE_ROUTES.map((route, idx) => {
-                  const fromPin = MAP_PINS.find(p => p.id === route.fromId) || { label: 'Shanghai', flag: '🇨🇳', portCode: 'CNSHA' }
-                  const toPin = MAP_PINS.find(p => p.id === route.toId) || { label: 'Santos', flag: '🇧🇷', portCode: 'BRSSZ' }
+                {rotasAtivas.map((route, idx) => {
+                  const fromPin = pinsAtivos.find(p => p.id === route.fromId) ?? {
+                    label: '—',
+                    flag: '',
+                    portCode: '',
+                  }
+                  const toPin = pinsAtivos.find(p => p.id === route.toId) ?? {
+                    label: '—',
+                    flag: '',
+                    portCode: '',
+                  }
                   
                   const isAir = route.mode === 'AEREO'
                   const tClient = route.transitTime || 20
@@ -2015,7 +2290,7 @@ export function VisaoGeralMapaBidFrete({
                     <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
                   </div>
                 </div>
-                <span className="bfd-map-panel__subtitle">{painelRankingsSubtitulo}</span>
+                <span className="bfd-map-panel__subtitle">{subtituloRankings}</span>
               </div>
               
               {/* Tabs */}
@@ -2042,7 +2317,7 @@ export function VisaoGeralMapaBidFrete({
               
               {/* List Content */}
               <div className="bfd-map-panel__list">
-                {activeTab === 'origens' && TOP_ORIGENS.map(item => {
+                {activeTab === 'origens' && listaOrigens.map(item => {
                   const hasLink = item.pinId !== null
                   const isHighlighted = hoveredPin === item.pinId && hasLink
                   
@@ -2080,7 +2355,7 @@ export function VisaoGeralMapaBidFrete({
                   )
                 })}
                 
-                {activeTab === 'destinos' && TOP_DESTINOS.map(item => {
+                {activeTab === 'destinos' && listaDestinos.map(item => {
                   const hasLink = item.pinId !== null
                   const isHighlighted = hoveredPin === item.pinId && hasLink
                   
@@ -2118,7 +2393,7 @@ export function VisaoGeralMapaBidFrete({
                   )
                 })}
                 
-                {activeTab === 'modal_cotacao_bid_frete_internacional' && MODAIS_INFO.map((item, idx) => {
+                {activeTab === 'modal_cotacao_bid_frete_internacional' && listaModais.map((item, idx) => {
                   return (
                     <div key={idx} className="bfd-map-panel__row">
                       <span className="bfd-map-panel__row-rank">{idx + 1}</span>
@@ -2152,9 +2427,9 @@ export function VisaoGeralMapaBidFrete({
 
         {/* Premium Detail Modal Overlay */}
         {selectedPinForDialogoResumido !== null && (() => {
-          const pin = MAP_PINS.find(p => p.id === selectedPinForDialogoResumido)
+          const pin = pinsAtivos.find(p => p.id === selectedPinForDialogoResumido)
           if (!pin) return null
-          const connections = PORT_CONNECTIONS[selectedPinForDialogoResumido] || []
+          const connections = rotasDetalhePorPino[selectedPinForDialogoResumido] || []
           
           return (
             <div className="dialogo-cotacao-resumida-bid-frete-internacional-overlay" onClick={() => setSelectedPinForDialogoResumido(null)}>
@@ -2185,7 +2460,7 @@ export function VisaoGeralMapaBidFrete({
                       
                       // High-quality loop motion path details
                       const pathD = "M 10,15 Q 120,-5 230,15"
-                      const speed = isAir ? "3.2s" : "6.5s"
+                      const speed = isAir ? DURACAO_ANIM_SVG_AEREO_S : DURACAO_ANIM_SVG_MARITIMO_S
                       
                       return (
                         <div key={idx} className={cardClass}>
@@ -2361,4 +2636,10 @@ export function VisaoGeralMapaBidFrete({
       </div>
     </div>
   )
+
+  if (painelRankingsSeparado) {
+    return <div className="bfd-mapa-rankings-row">{cardMapa}</div>
+  }
+
+  return cardMapa
 }

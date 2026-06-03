@@ -27,17 +27,22 @@ servicos-global/produto/processo/
 │   ├── fragment.prisma
 │   └── schema.prisma          ← gerado por compose-processo-schema.ts
 ├── client/src/
+│   ├── components/
+│   │   ├── ProcessoVisualizacaoLayout.tsx  ← pills Lista | Kanban (workspace)
+│   │   ├── ProcessoMultiView.tsx           ← keep-alive
+│   │   └── processo-visualizacao-context.tsx
 │   ├── pages/
-│   │   ├── ProcessoLayout.tsx ← layout pai (sidebar + outlet)
-│   │   ├── workflow/Workflow.tsx
+│   │   ├── ProcessoLayout.tsx            ← detalhe de um processo (sidebar)
+│   │   ├── ProcessoLista.tsx, todos/TodosProcessosKanban.tsx
 │   │   ├── dados-tecnicos/DadosTecnicos.tsx   ⭐ REFERÊNCIA DO PADRÃO UX
-│   │   ├── pedidos/{PedidosResumo,PedidosLista,PedidosTabs}.tsx
-│   │   ├── dados-tecnicos/DadosTecnicos.css   ⭐ REFERÊNCIA DO CSS
-│   │   ├── email/, financeiro/, ...
+│   │   └── workflow/, email/, financeiro/, …
 │   └── shared/
-│       ├── api.ts, types.ts, config.ts (PRODUCT_CONFIG)
+│       ├── processo-prefetch.ts
+│       └── api.ts, types.ts, config.ts
 └── server/src/...
 ```
+
+**Seletor workspace (2 abas):** [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md) · `TST-E2E-MBOTO-000005`.
 
 ---
 

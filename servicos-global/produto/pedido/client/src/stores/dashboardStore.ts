@@ -398,7 +398,7 @@ export const useDashboardStore = create<DashboardState>()(
         userDerivedMetrics: s.userDerivedMetrics.filter(m => m.id !== id),
       })),
 
-      editMode: true,
+      editMode: false,
       setEditMode: (editMode) => set({ editMode }),
       queryBuilderOpen: false,
       setQueryBuilderOpen: (queryBuilderOpen) => set({ queryBuilderOpen }),

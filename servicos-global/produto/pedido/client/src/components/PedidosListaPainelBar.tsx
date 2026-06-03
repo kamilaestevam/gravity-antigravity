@@ -163,6 +163,8 @@ export interface PedidosListaPainelBarProps {
   setPaineis: (paineis: ListaPainel[]) => void
   setPainelAtualId: (id: string) => void
   onTrocarPainel: (id: string) => void
+  /** Cria painel (API + estado); retorna false se falhar — exibe notificação no pai */
+  onCriarPainel: (nome: string) => Promise<boolean>
   carregando?: boolean
 }
 
@@ -172,10 +174,12 @@ export function PedidosListaPainelBar({
   setPaineis,
   setPainelAtualId,
   onTrocarPainel,
+  onCriarPainel,
   carregando,
 }: PedidosListaPainelBarProps) {
   const { t } = useTranslation()
   const [criandoPainel, setCriandoPainel] = useState(false)
+  const [salvandoPainel, setSalvandoPainel] = useState(false)
   const [novoNomePainel, setNovoNomePainel] = useState('')
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
@@ -184,6 +188,21 @@ export function PedidosListaPainelBar({
   const renameInFlightRef = useRef<string | null>(null)
 
   const painelSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+
+  const submitNovoPainel = useCallback(async () => {
+    const nome = novoNomePainel.trim()
+    if (!nome || salvandoPainel) return
+    setSalvandoPainel(true)
+    try {
+      const ok = await onCriarPainel(nome)
+      if (ok) {
+        setNovoNomePainel('')
+        setCriandoPainel(false)
+      }
+    } finally {
+      setSalvandoPainel(false)
+    }
+  }, [novoNomePainel, salvandoPainel, onCriarPainel])
 
   const handleRenomearPainel = useCallback((id: string, nome: string) => {
     if (renameInFlightRef.current === id) return
@@ -230,10 +249,29 @@ export function PedidosListaPainelBar({
     paineisListaApi.reordenar(reordered.map(p => p.id)).catch(() => {})
   }, [paineis, setPaineis])
 
-  if (carregando || paineis.length === 0) return null
+  const paineisVisiveis = paineis.filter(p => p.is_visivel)
 
   return (
-    <div style={sty.painelBar} className="pedido-dashboard-painel-bar" data-testid="lista-painel-bar">
+    <div className="lp-paineis-lista-strip" data-testid="lista-painel-bar">
+      <span className="lp-paineis-lista-strip__label">
+        {t('pedido.lista.paineis_secao', { defaultValue: 'Painéis da lista' })}
+      </span>
+      <div style={sty.painelBar} className="pedido-dashboard-painel-bar">
+      {carregando ? (
+        <span className="lp-paineis-lista-strip__vazio" role="status">
+          {t('pedido.lista.paineis_carregando', { defaultValue: 'Carregando painéis…' })}
+        </span>
+      ) : paineisVisiveis.length === 0 ? (
+        <span className="lp-paineis-lista-strip__vazio">
+          {paineis.length === 0
+            ? t('pedido.lista.paineis_vazio', {
+                defaultValue: 'Nenhum painel ainda. Crie em + Novo → Novo painel ou no botão + ao lado.',
+              })
+            : t('pedido.lista.paineis_todos_ocultos', {
+                defaultValue: 'Todos os painéis estão ocultos. Reative em opções do painel.',
+              })}
+        </span>
+      ) : (
       <DndContext sensors={painelSensors} collisionDetection={closestCenter} onDragEnd={handlePainelDragEnd}>
         <SortableContext
           items={paineis.filter(p => p.is_visivel).map(p => p.id)}
@@ -338,21 +376,14 @@ export function PedidosListaPainelBar({
           ))}
         </SortableContext>
       </DndContext>
+      )}
 
-      {criandoPainel ? (
+      {!carregando && (criandoPainel ? (
         <form
           style={sty.painelNovoForm}
           onSubmit={e => {
             e.preventDefault()
-            const nome = novoNomePainel.trim()
-            if (!nome) return
-            paineisListaApi.criar(nome).then(({ data }) => {
-              setPaineis([...paineis, data])
-              setPainelAtualId(data.id)
-              onTrocarPainel(data.id)
-              setNovoNomePainel('')
-              setCriandoPainel(false)
-            }).catch(() => {})
+            void submitNovoPainel()
           }}
         >
           <input
@@ -361,11 +392,34 @@ export function PedidosListaPainelBar({
             placeholder={t('pedido.lista.painel_novo_placeholder', { defaultValue: 'Nome do painel' })}
             value={novoNomePainel}
             onChange={e => setNovoNomePainel(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                void submitNovoPainel()
+              }
+            }}
+            disabled={salvandoPainel}
             style={sty.painelNovoInput}
             maxLength={60}
           />
-          <button type="submit" style={sty.painelNovoBtnOk}>✓</button>
-          <button type="button" style={sty.painelNovoBtnCancel} onClick={() => { setCriandoPainel(false); setNovoNomePainel('') }}>
+          <button
+            type="submit"
+            style={{
+              ...sty.painelNovoBtnOk,
+              opacity: salvandoPainel ? 0.6 : 1,
+              cursor: salvandoPainel ? 'wait' : 'pointer',
+            }}
+            disabled={salvandoPainel || !novoNomePainel.trim()}
+            aria-label={t('pedido.dashboard.painel_criar', { defaultValue: 'Criar' })}
+          >
+            {salvandoPainel ? '…' : '✓'}
+          </button>
+          <button
+            type="button"
+            style={sty.painelNovoBtnCancel}
+            disabled={salvandoPainel}
+            onClick={() => { setCriandoPainel(false); setNovoNomePainel('') }}
+          >
             <X size={12} />
           </button>
         </form>
@@ -379,7 +433,8 @@ export function PedidosListaPainelBar({
         >
           +
         </button>
-      )}
+      ))}
+      </div>
     </div>
   )
 }

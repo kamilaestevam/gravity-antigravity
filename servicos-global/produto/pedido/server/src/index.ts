@@ -63,6 +63,7 @@ import { initRouter } from './routes/inicializacao-pedido.js'
 import { internalCadastrosChangedRouter } from './routes/internal-cadastros-changed.js'
 import { listaPedidoKpisRouter } from './routes/lista-pedido-kpis.js'
 import { listaPaineisRouter } from './routes/lista-pedido-paineis.js'
+import { visaoGeralAgregadoRouter } from './routes/visao-geral-agregado.js'
 import { invalidarCacheDashboardAoMutarPedido } from './middleware/invalidar-cache-dashboard-pedido.js'
 import { pedidosRouter } from '../../../processos-core/src/routes/pedidos.js'
 import { pedidosConfigRouter } from '../../../processos-core/src/routes/pedidos-config.js'
@@ -244,6 +245,7 @@ app.use('/api/v1/pedidos/inicializacao',               exigirPermissao('lista', 
 app.use('/api/v1/pedidos/dashboard/widgets',           exigirPorMetodo('dashboard'), dashboardWidgetsRouter)
 app.use('/api/v1/pedidos/dashboard',                   exigirPermissao('dashboard', 'ver'), dashboardPaineisRouter)
 app.use('/api/v1/pedidos/dashboard',                   exigirPermissao('dashboard', 'ver'), dashboardDataRouter)
+app.use('/api/v1/pedidos/visao-geral',                 exigirPermissao('dashboard', 'ver'), visaoGeralAgregadoRouter)
 app.use('/api/v1/pedidos/consolidacoes',               exigirPermissao('lista', 'editar'), consolidarRouter)
 app.use('/api/v1/pedidos/edicoes-em-massa',            exigirPermissao('lista', 'editar'), edicaoEmMassaRouter)
 // smartImportRouter aplica `exigirPermissao('lista','editar')` internamente.

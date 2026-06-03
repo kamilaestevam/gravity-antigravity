@@ -50,6 +50,7 @@ import {
   PlusCircle,
   Tag,
   Columns,
+  SquaresFour,
   PlugsConnected,
   PencilSimpleLine,
 } from '@phosphor-icons/react'
@@ -319,9 +320,10 @@ function lerAbasDoLocalStorage(t: TFunction = i18next.t.bind(i18next) as unknown
       { valor: 'todos', label: t('pedido.status.todos') },
       ...entries.map(([id, cfg]) => ({
         valor: id,
-        // Para IDs de sistema (rascunho/aberto/etc) traduz via i18n; para IDs
-        // customizados pelo usuario, mantem o label salvo no localStorage.
-        label: t(`pedido.status.${id}`, { defaultValue: cfg.label }),
+        // SSOT: rótulo salvo em Configurações (rotulo do banco). i18n só se faltar label.
+        label: cfg.label?.trim()
+          ? cfg.label
+          : t(`pedido.status.${id}`, { defaultValue: id }),
         cor: cfg.cor,
       })),
     ]
@@ -3535,13 +3537,14 @@ function mensagemErro(err: unknown, t: (key: string) => string = i18next.t.bind(
 interface BarraAcoesPedidoProps {
   novoDropdownRef: React.RefObject<HTMLDivElement>
   novoDropdownAberto: boolean
-  novoSubmenu: 'pedido' | 'item' | null
+  novoSubmenu: 'pedido' | 'item' | 'painel' | null
+  onCriarPainelLista: (nome: string) => Promise<boolean>
   pedidosSelecionados: Pedido[]
   itensSelecionados: PedidoItem[]
   excluindoLote: boolean
   filtrosAtivos: FiltrosAtivosMap
   setNovoDropdownAberto: React.Dispatch<React.SetStateAction<boolean>>
-  setNovoSubmenu: React.Dispatch<React.SetStateAction<'pedido' | 'item' | null>>
+  setNovoSubmenu: React.Dispatch<React.SetStateAction<'pedido' | 'item' | 'painel' | null>>
   setSmartImportAberto: React.Dispatch<React.SetStateAction<boolean>>
   setModalCockpitAberto: React.Dispatch<React.SetStateAction<boolean>>
   setModalNovoPedidoAberto: React.Dispatch<React.SetStateAction<boolean>>
@@ -3589,6 +3592,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   novoDropdownRef,
   novoDropdownAberto,
   novoSubmenu,
+  onCriarPainelLista,
   pedidosSelecionados,
   itensSelecionados,
   excluindoLote,
@@ -3617,9 +3621,10 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   podeEditarLista,
 }: BarraAcoesPedidoProps) {
   const { t } = useTranslation()
+  const [novoNomePainelLista, setNovoNomePainelLista] = useState('')
   return (
     <>
-      {/* ── Dropdown "Novo" — Pedido · Item · Coluna ── */}
+      {/* ── Dropdown "Novo" — Pedido · Item · Coluna · Painel ── */}
       <div ref={novoDropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
         <BotaoGlobal
           variante="primario"
@@ -3768,6 +3773,91 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
               </span>
               <ArrowRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
             </button>
+
+            <div style={{ height: 1, margin: '0.25rem 0.375rem', background: 'var(--border-subtle)' }} />
+
+            {/* ── Novo Painel (lista) ── */}
+            <div
+              style={{ position: 'relative' }}
+              onMouseEnter={() => setNovoSubmenu('painel')}
+              onMouseLeave={() => setNovoSubmenu(null)}
+            >
+              <button type="button" style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
+                background: novoSubmenu === 'painel' ? 'var(--bg-hover)' : 'transparent',
+                color: 'var(--text-primary)', fontSize: '0.8125rem', fontWeight: 600,
+                cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+              }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(139,92,246,0.12)', flexShrink: 0 }}>
+                    <SquaresFour size={13} weight="duotone" style={{ color: '#a78bfa' }} />
+                  </span>
+                  {t('pedido.lista.painel_novo', { defaultValue: 'Novo painel' })}
+                </span>
+                <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+              </button>
+
+              {novoSubmenu === 'painel' && (
+                <form
+                  style={{
+                    position: 'absolute', left: '100%', top: 0, marginLeft: '4px', zIndex: 301,
+                    background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                    borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+                    minWidth: '220px', padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.375rem',
+                  }}
+                  onSubmit={e => {
+                    e.preventDefault()
+                    const nome = novoNomePainelLista.trim()
+                    if (!nome) return
+                    void (async () => {
+                      const ok = await onCriarPainelLista(nome)
+                      if (!ok) return
+                      setNovoNomePainelLista('')
+                      setNovoDropdownAberto(false)
+                      setNovoSubmenu(null)
+                    })()
+                  }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <input
+                    autoFocus
+                    type="text"
+                    placeholder={t('pedido.lista.painel_novo_placeholder', { defaultValue: 'Nome do painel' })}
+                    value={novoNomePainelLista}
+                    onChange={e => setNovoNomePainelLista(e.target.value)}
+                    maxLength={60}
+                    style={{
+                      background: 'var(--bg-hover)',
+                      border: '1px solid var(--border-subtle)',
+                      borderRadius: '0.375rem',
+                      padding: '0.375rem 0.5rem',
+                      fontSize: '0.8125rem',
+                      color: 'var(--text-primary)',
+                      outline: 'none',
+                      width: '100%',
+                      fontFamily: 'inherit',
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      padding: '0.375rem 0.625rem',
+                      borderRadius: '0.375rem',
+                      border: 'none',
+                      background: 'rgba(139,92,246,0.25)',
+                      color: '#c4b5fd',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    {t('pedido.dashboard.painel_criar', { defaultValue: 'Criar' })}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -4072,6 +4162,10 @@ export default function Pedidos() {
     return enriquecerMapaColunasFilhoComRegraTooltip({ ...base, ...custom }, t)
   }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario])
   const { visiveis: cardsVisiveis, periodo: periodoCards } = useCardPreferences()
+  const cardsVisiveisIdsKey = useMemo(
+    () => cardsVisiveis.map(c => c.id).join('\0'),
+    [cardsVisiveis],
+  )
   const navigate = useNavigate()
   const location = useLocation()
   const addNotification = useShellStore(s => s.addNotification)
@@ -4094,6 +4188,7 @@ export default function Pedidos() {
     aplicarConfigDoPainel,
     persistirPainelAtual,
     trocarPainel: trocarPainelLista,
+    criarPainel: criarPainelLista,
   } = useListaPainelPedido()
   const painelListaAplicadoRef = useRef<string | null>(null)
 
@@ -4683,7 +4778,7 @@ export default function Pedidos() {
   const [modalNovoItemAberto, setModalNovoItemAberto]     = useState(false)
   const [smartImportAberto, setSmartImportAberto] = useState(false)
   const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
-  const [novoSubmenu, setNovoSubmenu]             = useState<'pedido' | 'item' | null>(null)
+  const [novoSubmenu, setNovoSubmenu]             = useState<'pedido' | 'item' | 'painel' | null>(null)
   const [modalCockpitAberto, setModalCockpitAberto] = useState(false)
   const novoDropdownRef = useRef<HTMLDivElement>(null)
 
@@ -4795,7 +4890,42 @@ export default function Pedidos() {
     if (!painelListaAtual || carregandoPaineisLista) return
     if (painelListaAplicadoRef.current === painelListaAtual.id) return
     aplicarConfigDoPainel(painelListaAtual, listaPainelCallbacks)
-  }, [painelListaAtual, carregandoPaineisLista, aplicarConfigDoPainel, listaPainelCallbacks])
+  }, [painelListaAtual?.id, painelListaAtual?.config_json, carregandoPaineisLista, aplicarConfigDoPainel, listaPainelCallbacks])
+
+  const handleCriarPainelLista = useCallback(async (nome: string): Promise<boolean> => {
+    painelListaAplicadoRef.current = null
+    try {
+      const criado = await criarPainelLista(nome, listaPainelCallbacks)
+      if (!criado) {
+        addNotification({
+          type: 'error',
+          message: t('pedido.lista.painel_criado_erro', {
+            defaultValue: 'Não foi possível salvar o painel. Verifique a API /lista/paineis e a migration no banco.',
+          }),
+        })
+        return false
+      }
+      addNotification({
+        type: 'success',
+        message: t('pedido.lista.painel_criado_sucesso', {
+          defaultValue: 'Painel "{{nome}}" criado — use as abas roxas acima dos cards de totais.',
+          nome: criado.nome,
+        }),
+      })
+      return true
+    } catch (err) {
+      const detalhe = err instanceof Error ? err.message : ''
+      addNotification({
+        type: 'error',
+        message: detalhe
+          ? `${t('pedido.lista.painel_criado_erro', { defaultValue: 'Não foi possível salvar o painel.' })} ${detalhe}`
+          : t('pedido.lista.painel_criado_erro', {
+              defaultValue: 'Não foi possível salvar o painel. Verifique a API /lista/paineis e a migration no banco.',
+            }),
+      })
+      return false
+    }
+  }, [criarPainelLista, listaPainelCallbacks, addNotification, t])
 
   const handleTrocarPainelLista = useCallback((id: string) => {
     painelListaAplicadoRef.current = null
@@ -4836,7 +4966,7 @@ export default function Pedidos() {
       sortDir,
       busca,
       filtrosAtivos,
-      cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+      cardsVisiveisIds: cardsVisiveisIdsKey ? cardsVisiveisIdsKey.split('\0') : [],
       periodoCards,
     })
   }, [
@@ -4846,7 +4976,7 @@ export default function Pedidos() {
     sortDir,
     busca,
     filtrosAtivos,
-    cardsVisiveis,
+    cardsVisiveisIdsKey,
     periodoCards,
     painelListaAtualId,
     carregandoPaineisLista,
@@ -5186,6 +5316,7 @@ export default function Pedidos() {
         novoDropdownRef={novoDropdownRef}
         novoDropdownAberto={novoDropdownAberto}
         novoSubmenu={novoSubmenu}
+        onCriarPainelLista={handleCriarPainelLista}
         pedidosSelecionados={pedidosSelecionados}
         itensSelecionados={itensSelecionados}
         excluindoLote={excluindoLote}
@@ -5215,7 +5346,7 @@ export default function Pedidos() {
       />
     </div>
   ), [
-    novoDropdownAberto, novoSubmenu, pedidosSelecionados, itensSelecionados, excluindoLote, filtrosAtivos, busca, rotuloEscopoWorkspaces, tooltipEscopoWorkspaces, pedirAbrirMenuWorkspaces,
+    novoDropdownAberto, novoSubmenu, handleCriarPainelLista, pedidosSelecionados, itensSelecionados, excluindoLote, filtrosAtivos, busca, rotuloEscopoWorkspaces, tooltipEscopoWorkspaces, pedirAbrirMenuWorkspaces,
     novoDropdownRef, setNovoDropdownAberto, setNovoSubmenu, setSmartImportAberto,
     setModalCockpitAberto, setModalNovoPedidoAberto, setModalNovoItemAberto,
     setModalTransferirAberto, setModalConsolidarAberto, setModalEdicaoMassaAberto,
@@ -5254,42 +5385,40 @@ export default function Pedidos() {
     return result
   }, [pedidos, colunasPai, workspacesDisponiveis, t])
 
-  // ── Carregar status e preferências ──────────────────────────────────────────
+  // ── Abas de status (rótulo único: rotulo do banco / localStorage) ───────────
   useEffect(() => {
-    // Inicializar abas do localStorage imediatamente (enquanto API carrega)
     const abasLocal = lerAbasDoLocalStorage(t)
     if (abasLocal && abasLocal.length > 1) setAbas(abasLocal)
 
-    // Conditional fetching: aguarda idOrganizacao hidratar antes de chamar as APIs,
-    // caso contrário /config/preferencias/usuario e afins retornam 400.
     if (!idOrganizacao) return
 
     pedidoConfigApi.listarStatus()
       .then(res => {
-        if (res.data.length > 0) {
-          const sorted = res.data.sort((a, b) => a.ordem - b.ordem)
-          const abasApi: GTAbaTipo[] = [
-            { valor: 'todos', label: t('pedido.status.todos') },
-            ...sorted.map((s: PedidoStatusConfig) => ({
-              valor: s.nome,
-              label: s.rotulo,
-              cor: s.cor,
-            })),
-          ]
-          setAbas(abasApi)
-          // Sincronizar localStorage para focus handler e outros consumers
-          const map: Record<string, { label: string; cor: string }> = {}
-          for (const s of sorted) map[s.nome] = { label: s.rotulo, cor: s.cor }
-          try { localStorage.setItem(PEDIDO_STATUS_STORAGE_KEY, JSON.stringify(map)) } catch { /* quota */ }
-        }
+        if (res.data.length === 0) return
+        const sorted = res.data.sort((a, b) => a.ordem - b.ordem)
+        const abasApi: GTAbaTipo[] = [
+          { valor: 'todos', label: t('pedido.status.todos') },
+          ...sorted.map((s: PedidoStatusConfig) => ({
+            valor: s.nome,
+            label: s.rotulo,
+            cor: s.cor,
+          })),
+        ]
+        setAbas(abasApi)
+        setStatusOpts(abasApi.filter(a => a.valor !== 'todos').map(a => ({ valor: a.valor, label: a.label })))
+        const map: Record<string, { label: string; cor: string }> = {}
+        for (const s of sorted) map[s.nome] = { label: s.rotulo, cor: s.cor }
+        try { localStorage.setItem(PEDIDO_STATUS_STORAGE_KEY, JSON.stringify(map)) } catch { /* quota */ }
       })
       .catch(() => {
-        // Fallback: usar dados do localStorage ou ABAS_PADRAO
-        if (!abasLocal || abasLocal.length <= 1) return
-        setAbas(abasLocal)
+        if (abasLocal && abasLocal.length > 1) setAbas(abasLocal)
       })
+  }, [idOrganizacao, t])
 
-    // Colunas customizadas — preferências de colunas vêm do painel ativo (API lista/paineis).
+  // ── Colunas customizadas do usuário (sem recarregar abas de status) ─────────
+  useEffect(() => {
+    if (!idOrganizacao) return
+
     colunasUsuarioApi.listar().catch(() => [] as ColunaUsuario[]).then((lista) => {
       setColunasUsuario(lista)
 
@@ -5372,7 +5501,7 @@ export default function Pedidos() {
         ...(prev?.colunas_largura ? { colunas_largura: prev.colunas_largura } : {}),
       }))
     })
-  }, [idOrganizacao, preferencias?.colunas_visiveis]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [idOrganizacao, preferencias?.colunas_visiveis, t]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Fechar dropdown ao clicar fora ──────────────────────────────────────────
   useEffect(() => {
@@ -6599,14 +6728,17 @@ export default function Pedidos() {
         </div>
       )}
 
-      <PedidosListaPainelBar
-        paineis={paineisLista}
-        painelAtualId={painelListaAtualId}
-        setPaineis={setPaineisLista}
-        setPainelAtualId={setPainelListaAtualId}
-        onTrocarPainel={handleTrocarPainelLista}
-        carregando={carregandoPaineisLista}
-      />
+      <div className="lp-paineis-lista">
+        <PedidosListaPainelBar
+          paineis={paineisLista}
+          painelAtualId={painelListaAtualId}
+          setPaineis={setPaineisLista}
+          setPainelAtualId={setPainelListaAtualId}
+          onTrocarPainel={handleTrocarPainelLista}
+          onCriarPainel={handleCriarPainelLista}
+          carregando={carregandoPaineisLista}
+        />
+      </div>
 
       {/* ── KPI cards ── */}
       <ListaPedidoCards

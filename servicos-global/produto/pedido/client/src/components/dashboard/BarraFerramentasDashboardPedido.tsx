@@ -1,20 +1,30 @@
 /**
- * BarraFerramentasDashboardPedido — menu único do Dashboard (só esta faixa muda).
+ * BarraFerramentasDashboardPedido — faixa de controles do Dashboard.
+ * Cores via gtv-container / gtv-toolbar (paridade Lista).
  */
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Check, Plus, DotsSixVertical, X } from '@phosphor-icons/react'
+import { Check, Plus, PencilSimple, X, RocketLaunch, CalendarBlank } from '@phosphor-icons/react'
 import { PeriodDropdown } from '@nucleo/dashboard'
 import type { PeriodOption } from '@nucleo/dashboard'
 import type { ActiveFilter, GlobalSlicers } from '@nucleo/dashboard'
+import '@nucleo/tabela-virtual-global/tabela-virtual.css'
+import '../PedidosVisualizacaoTabs.css'
 import './BarraFerramentasDashboardPedido.css'
+import { DashboardStatusSeletorBotao } from './DashboardStatusSeletorBotao'
+import { DashboardToolbarBotaoIcon } from './DashboardToolbarBotaoIcon'
+import { DASHBOARD_TOOLBAR_ICONE } from './dashboard-toolbar-icones'
+
+export interface OnboardingDashboardBarra {
+  onExplorarSugestoes: () => void
+  onCriarDoZero: () => void
+}
 
 export interface BarraFerramentasDashboardPedidoProps {
   seletorPaineis: React.ReactNode
   temWidgets: boolean
-  bannerOnboarding?: React.ReactNode
-  chipsPeriodo?: React.ReactNode
+  onboarding?: OnboardingDashboardBarra
   slicers: GlobalSlicers
   onPeriodChange: (period: string) => void
   periodOptions: PeriodOption[]
@@ -23,7 +33,6 @@ export interface BarraFerramentasDashboardPedidoProps {
   statusLabels: Record<string, string>
   statusActiveColors: Record<string, { bg: string; border: string; text: string }>
   statusCounts?: Record<string, number>
-  compactStatus?: boolean
   activeFilters: ActiveFilter[]
   onClearFilters: () => void
   editMode: boolean
@@ -34,8 +43,7 @@ export interface BarraFerramentasDashboardPedidoProps {
 export function BarraFerramentasDashboardPedido({
   seletorPaineis,
   temWidgets,
-  bannerOnboarding,
-  chipsPeriodo,
+  onboarding,
   slicers,
   onPeriodChange,
   periodOptions,
@@ -44,7 +52,6 @@ export function BarraFerramentasDashboardPedido({
   statusLabels,
   statusActiveColors,
   statusCounts,
-  compactStatus = false,
   activeFilters,
   onClearFilters,
   editMode,
@@ -52,146 +59,156 @@ export function BarraFerramentasDashboardPedido({
   onAddWidget,
 }: BarraFerramentasDashboardPedidoProps) {
   const { t } = useTranslation()
-  const isTodosActive = slicers.status.length === 0
-  const temRodape = chipsPeriodo != null || activeFilters.length > 0
+  const temRodape = activeFilters.length > 0
+  const mostrarOnboarding = !temWidgets && onboarding != null
+  const ic = DASHBOARD_TOOLBAR_ICONE
+
+  const botaoAdicionar = onAddWidget != null ? (
+    <DashboardToolbarBotaoIcon
+      titulo={t('nucleo.dashboard.barra.adicionar_dashboard')}
+      descricao={t('nucleo.dashboard.barra.adicionar_dashboard')}
+      icone={<Plus {...ic} weight="bold" />}
+      ariaLabel={t('nucleo.dashboard.barra.adicionar_dashboard')}
+      data-testid="btn-adicionar-dashboard"
+      onClick={onAddWidget}
+    />
+  ) : null
+
+  const botaoReorganizar = (
+    <DashboardToolbarBotaoIcon
+      titulo={editMode
+        ? t('nucleo.dashboard.barra.concluir')
+        : t('nucleo.dashboard.barra.reorganizar')}
+      descricao={editMode
+        ? `${t('nucleo.dashboard.barra.hint_reorganizar_pre')} ${t('nucleo.dashboard.barra.concluir')} ${t('nucleo.dashboard.barra.hint_reorganizar_pos')}`
+        : t('nucleo.dashboard.barra.arraste_widgets_tooltip')}
+      icone={editMode
+        ? <Check {...ic} weight="bold" />
+        : <PencilSimple {...ic} />}
+      ariaLabel={editMode
+        ? t('nucleo.dashboard.barra.concluir')
+        : t('nucleo.dashboard.barra.reorganizar')}
+      data-testid="btn-reorganizar"
+      destacado={editMode}
+      onClick={() => onEditModeChange(!editMode)}
+    />
+  )
+
+  const mostrarIconesToolbar = true
 
   return (
-    <div className="pedido-dashboard-menu" data-testid="dashboard-barra-menu">
-      {bannerOnboarding != null && (
-        <div className="pedido-dashboard-menu__onboarding">{bannerOnboarding}</div>
-      )}
+    <div
+      className="pedido-dashboard-menu"
+      data-testid="dashboard-barra-menu"
+      data-pedido-toolbar-version="gtv-v9"
+    >
+      <div className="gtv-container pedido-dashboard-toolbar-card">
+        <div className="gtv-toolbar pedido-dashboard-toolbar">
+          <div className="gtv-toolbar-esquerda pedido-dashboard-toolbar__esquerda">
+            <div className="pedido-dashboard-paineis-toolbar-slot">
+              {seletorPaineis}
+            </div>
 
-      <div className="pedido-dashboard-menu__toolbar">
-        <div className="pedido-dashboard-menu__toolbar-esquerda">
-          {seletorPaineis}
+            {mostrarOnboarding && (
+              <>
+                <span className="pedido-dashboard-menu__divisor" aria-hidden="true" />
+                <div className="pedido-dashboard-menu__onboarding-hint">
+                  <span className="pedido-dashboard-menu__onboarding-titulo">
+                    {t('pedido.dashboard.onboarding_titulo')}
+                  </span>
+                  <span className="pedido-dashboard-menu__onboarding-texto">
+                    {t('pedido.dashboard.onboarding_texto')}
+                  </span>
+                </div>
+              </>
+            )}
 
-          {temWidgets && (
-            <>
-              {seletorPaineis != null && <span className="pedido-dashboard-menu__divisor" aria-hidden="true" />}
+            {mostrarIconesToolbar && (
+              <>
+                <span className="pedido-dashboard-menu__divisor" aria-hidden="true" />
 
-              <div className="pedido-dashboard-menu__slicer">
-                <span className="pedido-dashboard-menu__label">{t('nucleo.dashboard.barra.periodo')}</span>
-                <PeriodDropdown
-                  value={slicers.period}
-                  options={periodOptions}
-                  onChange={onPeriodChange}
-                />
-              </div>
-
-              {statusOptions.length > 0 && (
-                <>
-                  <span className="pedido-dashboard-menu__divisor" aria-hidden="true" />
-
-                  {compactStatus ? (
-                    <div data-testid="status-compact-dropdown">
+                <div className="pedido-dashboard-toolbar__icones" data-testid="dashboard-toolbar-icones">
+                  {temWidgets && (
+                    <>
                       <PeriodDropdown
-                        value={slicers.status[0] ?? '__todos__'}
-                        options={[
-                          { value: '__todos__', label: t('nucleo.dashboard.barra.todos_status') },
-                          ...statusOptions.map(opt => ({
-                            value: opt,
-                            label: `${statusLabels[opt] ?? opt.replace(/_/g, ' ')}${statusCounts?.[opt] !== undefined ? ` (${statusCounts[opt]})` : ''}`,
-                          })),
-                        ]}
-                        onChange={(val) => onStatusChange(val === '__todos__' ? [] : [val])}
-                      />
-                    </div>
-                  ) : (
-                    <div className="pedido-dashboard-menu__status-chips" data-testid="status-chips-container">
-                      <button
-                        type="button"
-                        className={`pedido-dashboard-menu__chip${isTodosActive ? ' pedido-dashboard-menu__chip--ativo' : ''}`}
-                        onClick={() => onStatusChange([])}
-                        data-testid="status-chip-todos"
-                      >
-                        {t('nucleo.dashboard.barra.todos')}
-                        {statusCounts !== undefined && (
-                          <span className="pedido-dashboard-menu__chip-count">
-                            ({statusCounts['todos'] ?? Object.values(statusCounts).reduce((a, b) => a + b, 0)})
-                          </span>
+                        value={slicers.period}
+                        options={periodOptions}
+                        onChange={onPeriodChange}
+                        modoPainel="dropdown"
+                        alinharPainel="esquerda"
+                        renderGatilho={({ open, selectedLabel, onToggle }) => (
+                          <DashboardToolbarBotaoIcon
+                            titulo={t('nucleo.dashboard.barra.periodo')}
+                            descricao={selectedLabel}
+                            icone={<CalendarBlank {...ic} />}
+                            ariaLabel={t('nucleo.dashboard.barra.periodo')}
+                            ariaHaspopup="listbox"
+                            ariaExpanded={open}
+                            data-testid="btn-periodo-dashboard"
+                            onClick={onToggle}
+                          />
                         )}
-                      </button>
+                      />
 
-                      {statusOptions.map(opt => {
-                        const active = slicers.status.includes(opt)
-                        const customColors = active ? statusActiveColors[opt] : undefined
-                        const count = statusCounts?.[opt]
-                        const isDisabled = statusCounts !== undefined && count === 0
-
-                        return (
-                          <button
-                            key={opt}
-                            type="button"
-                            className={`pedido-dashboard-menu__chip${active ? ' pedido-dashboard-menu__chip--ativo' : ''}${isDisabled ? ' pedido-dashboard-menu__chip--disabled' : ''}`}
-                            style={active && customColors ? { color: customColors.text } : undefined}
-                            aria-disabled={isDisabled}
-                            data-testid={`status-chip-${opt}`}
-                            onClick={() => {
-                              if (isDisabled) return
-                              onStatusChange(
-                                active
-                                  ? slicers.status.filter(x => x !== opt)
-                                  : [...slicers.status, opt],
-                              )
-                            }}
-                          >
-                            {statusLabels[opt] ?? opt.replace(/_/g, ' ')}
-                            {statusCounts !== undefined && count !== undefined && (
-                              <span className="pedido-dashboard-menu__chip-count">({count})</span>
-                            )}
-                          </button>
-                        )
-                      })}
-                    </div>
+                      {statusOptions.length > 0 && (
+                        <DashboardStatusSeletorBotao
+                          statusOptions={statusOptions}
+                          statusLabels={statusLabels}
+                          statusActiveColors={statusActiveColors}
+                          selectedStatus={slicers.status}
+                          onStatusChange={onStatusChange}
+                          statusCounts={statusCounts}
+                        />
+                      )}
+                    </>
                   )}
-                </>
-              )}
-            </>
-          )}
-        </div>
 
-        <div className="pedido-dashboard-menu__toolbar-direita">
-          {onAddWidget && (
-            <button
-              type="button"
-              className="pedido-dashboard-menu__btn"
-              onClick={onAddWidget}
-              data-testid="btn-adicionar-dashboard"
-            >
-              <Plus size={14} weight="bold" /> {t('nucleo.dashboard.barra.adicionar_dashboard')}
-            </button>
-          )}
-          <button
-            type="button"
-            className={`pedido-dashboard-menu__btn${editMode ? ' pedido-dashboard-menu__btn--ativo' : ''}`}
-            onClick={() => onEditModeChange(!editMode)}
-            data-testid="btn-reorganizar"
-            title={editMode ? undefined : t('nucleo.dashboard.barra.arraste_widgets_tooltip')}
-          >
-            {editMode
-              ? <><Check size={14} weight="bold" /> {t('nucleo.dashboard.barra.concluir')}</>
-              : <><DotsSixVertical size={14} weight="bold" /> {t('nucleo.dashboard.barra.reorganizar')}</>
-            }
-          </button>
+                  {botaoAdicionar}
+                  {botaoReorganizar}
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="gtv-toolbar-direita pedido-dashboard-toolbar__direita">
+            {mostrarOnboarding && (
+              <div className="pedido-dashboard-menu__acoes-onboarding">
+                <button
+                  type="button"
+                  className="gtv-btn pedido-dashboard-menu__btn pedido-dashboard-menu__btn--primario"
+                  onClick={onboarding.onExplorarSugestoes}
+                  data-testid="btn-explorar-sugestoes"
+                >
+                  <RocketLaunch size={14} weight="fill" />
+                  {t('pedido.dashboard.onboarding_explorar_sugestoes')}
+                </button>
+                <button
+                  type="button"
+                  className="gtv-btn pedido-dashboard-menu__btn"
+                  onClick={onboarding.onCriarDoZero}
+                  data-testid="btn-criar-dashboard-zero"
+                >
+                  {t('pedido.dashboard.onboarding_criar_dashboard')}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {temRodape && (
         <div className="pedido-dashboard-menu__rodape">
-          {chipsPeriodo}
-          {activeFilters.length > 0 && (
-            <div className="pedido-dashboard-menu__filtros-ativos">
-              <span className="pedido-dashboard-menu__label">{t('nucleo.dashboard.barra.filtros_ativos')}</span>
-              {activeFilters.map(f => (
-                <span key={`${f.field}-${f.sourceWidgetId}`} className="pedido-dashboard-menu__filtro-tag">
-                  {f.label}
-                </span>
-              ))}
-              <button type="button" className="pedido-dashboard-menu__limpar-btn" onClick={onClearFilters}>
-                <X size={12} /> {t('nucleo.dashboard.barra.limpar')}
-              </button>
-            </div>
-          )}
+          <div className="pedido-dashboard-menu__filtros-ativos">
+            <span className="pedido-dashboard-menu__label">{t('nucleo.dashboard.barra.filtros_ativos')}</span>
+            {activeFilters.map(f => (
+              <span key={`${f.field}-${f.sourceWidgetId}`} className="pedido-dashboard-menu__filtro-tag">
+                {f.label}
+              </span>
+            ))}
+            <button type="button" className="pedido-dashboard-menu__limpar-btn" onClick={onClearFilters}>
+              <X size={12} /> {t('nucleo.dashboard.barra.limpar')}
+            </button>
+          </div>
         </div>
       )}
     </div>

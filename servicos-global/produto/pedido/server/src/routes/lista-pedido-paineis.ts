@@ -123,6 +123,42 @@ function whereUsuarioProduto(idOrganizacao: string, idUsuario: string) {
   }
 }
 
+/** Prisma Client desatualizado não expõe listaPainelUsuarioGlobal — erro claro em vez de findFirst em undefined */
+function dbListaPainel(rawDb: unknown): {
+  listaPainelUsuarioGlobal: {
+    findMany: (args: unknown) => Promise<unknown>
+    findFirst: (args: unknown) => Promise<unknown>
+    create: (args: unknown) => Promise<unknown>
+    update: (args: unknown) => Promise<unknown>
+    updateMany: (args: unknown) => Promise<unknown>
+    delete: (args: unknown) => Promise<unknown>
+    count: (args: unknown) => Promise<number>
+  }
+  preferenciaUsuarioColunaPedido: {
+    findUnique: (args: unknown) => Promise<{
+      colunas_visiveis_preferencia_usuario_coluna_pedido: string[]
+      colunas_largura_preferencia_usuario_coluna_pedido: ColunasLarguraGravacao | null
+    } | null>
+  }
+} {
+  const db = rawDb as {
+    listaPainelUsuarioGlobal?: unknown
+    preferenciaUsuarioColunaPedido?: unknown
+  }
+  if (
+    !db.listaPainelUsuarioGlobal
+    || typeof db.listaPainelUsuarioGlobal !== 'object'
+    || !('findFirst' in (db.listaPainelUsuarioGlobal as object))
+  ) {
+    throw new AppError(
+      'Painéis da lista indisponíveis no servidor. Execute npm run prisma:generate no produto Pedido e aplique a migration create_lista_painel_usuario_global.',
+      503,
+      'SCHEMA_DRIFT',
+    )
+  }
+  return db as ReturnType<typeof dbListaPainel>
+}
+
 function validarPermutacaoReordenacao(idsRecebidos: string[], idsExistentes: string[]): void {
   if (idsRecebidos.length !== idsExistentes.length) {
     throw new AppError(
@@ -147,8 +183,7 @@ function validarPermutacaoReordenacao(idsRecebidos: string[], idsExistentes: str
 listaPaineisRouter.get('/paineis', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await withOrganizacao(req, async (rawDb) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db = rawDb as any
+      const db = dbListaPainel(rawDb)
       const ctx = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const { idOrganizacao, idUsuario } = ctx
 
@@ -188,7 +223,7 @@ listaPaineisRouter.post('/paineis', async (req: Request, res: Response, next: Ne
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db = rawDb as any
+      const db = dbListaPainel(rawDb)
       const ctx = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const { idOrganizacao, idUsuario } = ctx
 
@@ -227,7 +262,7 @@ listaPaineisRouter.put('/paineis/reordenar', async (req: Request, res: Response,
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db = rawDb as any
+      const db = dbListaPainel(rawDb)
       const ctx = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const { idOrganizacao, idUsuario } = ctx
 
@@ -279,7 +314,7 @@ listaPaineisRouter.put('/paineis/:id_lista_painel_usuario_global', async (req: R
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db = rawDb as any
+      const db = dbListaPainel(rawDb)
       const ctx = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const { idOrganizacao, idUsuario } = ctx
       const { id_lista_painel_usuario_global: id } = req.params
@@ -310,7 +345,7 @@ listaPaineisRouter.delete('/paineis/:id_lista_painel_usuario_global', async (req
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db = rawDb as any
+      const db = dbListaPainel(rawDb)
       const ctx = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const { idOrganizacao, idUsuario } = ctx
       const { id_lista_painel_usuario_global: id } = req.params

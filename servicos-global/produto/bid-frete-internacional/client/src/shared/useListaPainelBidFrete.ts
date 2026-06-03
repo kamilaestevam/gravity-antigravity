@@ -115,10 +115,12 @@ export function useListaPainelBidFrete() {
     }
 
     const prefs: GTPreferencias = {
-      colunas_visiveis: config.colunas_visiveis,
+      ...(config.colunas_visiveis.length > 0
+        ? { colunas_visiveis: config.colunas_visiveis }
+        : {}),
       ...(config.colunas_largura ? { colunas_largura: config.colunas_largura } : {}),
     }
-    callbacks.setPreferencias(prefs)
+    callbacks.setPreferencias(Object.keys(prefs).length > 0 ? prefs : undefined)
     callbacks.setAbaAtiva(config.aba_status_ativa)
     callbacks.setSortCampo(config.ordenacao.campo)
     callbacks.setSortDir(config.ordenacao.direcao)

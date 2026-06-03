@@ -27,8 +27,10 @@ const FinanceiroNumerario = lazy(() => import('./pages/financeiro/FinanceiroNume
 const FinanceiroRateio = lazy(() => import('./pages/financeiro/FinanceiroRateio'))
 const ConfiguracoesLayout = lazy(() => import('./pages/configuracoes/ConfiguracoesLayout'))
 const StatusProcesso = lazy(() => import('./pages/configuracoes/status/StatusProcesso'))
-const LazyProcessoLista = lazy(() => import('./pages/ProcessoLista'))
-const TodosProcessosKanban = lazy(() => import('./pages/todos/TodosProcessosKanban'))
+import { ProcessoVisualizacaoLayout } from './components/ProcessoVisualizacaoLayout'
+import { ProcessoMultiView } from './components/ProcessoMultiView'
+
+const processoVisualizacoesElement = <ProcessoMultiView />
 const Email = lazy(() => import('./pages/email/Email'))
 
 // ─── Loading Fallback ──────────────────────────────────────────────────────
@@ -128,9 +130,11 @@ export function App() {
           {/* Lista geral dos processos do workspace — workspace-level, SEM
               ProcessoLayout (que e sidebar de detalhe de um processo
               especifico). O <Layout> do @shell ja cuida do posicionamento. */}
-          <Route path="/"      element={<Navigate to="lista" replace />} />
-          <Route path="lista"  element={<LazyProcessoLista />} />
-          <Route path="kanban" element={<TodosProcessosKanban />} />
+          <Route path="/" element={<Navigate to="lista" replace />} />
+          <Route element={<ProcessoVisualizacaoLayout />}>
+            <Route path="lista" element={processoVisualizacoesElement} />
+            <Route path="kanban" element={processoVisualizacoesElement} />
+          </Route>
           {/* Alias /todos/* durante migracao */}
           <Route path="todos">
             <Route index element={<Navigate to="../lista" replace />} />

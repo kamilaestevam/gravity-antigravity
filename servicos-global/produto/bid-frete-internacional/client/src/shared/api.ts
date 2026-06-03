@@ -27,6 +27,21 @@ import {
   mapDashboardMetricasFromServer,
   mapDashboardVisaoFornecedorFromServer,
 } from './visao-fornecedor-bid-frete-internacional-schemas'
+import {
+  mapMapaCotacoesVisaoFornecedorFromServer,
+  visaoFornecedorBidFreteInternacionalMapaCotacoesResponseSchema,
+} from './mapa-visao-fornecedor-bid-frete-internacional'
+import {
+  mapMapaCotacoesVisaoGeralFromServer,
+  visaoGeralBidFreteInternacionalMapaCotacoesResponseSchema,
+} from './mapa-visao-geral-bid-frete-internacional'
+import {
+  dashboardKpisResponseSchema,
+  insightsAlertasResponseSchema,
+  mapDashboardKpisFromServer,
+  mapInsightsAlertasFromServer,
+} from './insights-visao-geral-bid-frete-internacional'
+import type { DadosMapaBidFrete } from './componentes/visao-geral-mapa-bid-frete'
 import type {
   AlertaVisaoFornecedorBidFreteInternacional,
   EtapaFunilVisaoFornecedorBidFreteInternacional,
@@ -505,14 +520,39 @@ export function mapCotacaoToServer(input: Partial<Cotacao>): Record<string, unkn
 
 // ─── Dashboard ──────────────────────────────────────────────────────────────
 
-export async function getDashboardKpis(): Promise<DashboardKPIs> {
+export async function getDashboardKpis(): Promise<
+  DashboardKPIs & { tempo_medio_resposta_dias: number | null; cotacoes_aprovadas: number }
+> {
   const res = await fetch(`${API_BASE}/bid-frete-internacional/dashboard/kpis`, { headers: headers() })
-  return handleResponse(res)
+  const raw = await handleResponse<unknown>(res)
+  return mapDashboardKpisFromServer(dashboardKpisResponseSchema.parse(raw))
+}
+
+export async function getDashboardInsightsAlertas(): Promise<CalendarioAlerta[]> {
+  const res = await fetch(`${API_BASE}/bid-frete-internacional/dashboard/insights-alertas`, {
+    headers: headers(),
+  })
+  const raw = await handleResponse<unknown>(res)
+  return mapInsightsAlertasFromServer(insightsAlertasResponseSchema.parse(raw))
+}
+
+export async function getDashboardMapaCotacoesVisaoGeral(): Promise<DadosMapaBidFrete> {
+  const res = await fetch(`${API_BASE}/bid-frete-internacional/dashboard/mapa-cotacoes`, {
+    headers: headers(),
+  })
+  const raw = await handleResponse<unknown>(res)
+  return mapMapaCotacoesVisaoGeralFromServer(
+    visaoGeralBidFreteInternacionalMapaCotacoesResponseSchema.parse(raw),
+  )
 }
 
 export async function getDashboardCalendario(): Promise<CalendarioAlerta[]> {
   const res = await fetch(`${API_BASE}/bid-frete-internacional/dashboard/calendario`, { headers: headers() })
-  return handleResponse(res)
+  const raw = await handleResponse<unknown>(res)
+  const parsed = raw as { alertas?: CalendarioAlerta[] }
+  if (Array.isArray(parsed?.alertas)) return parsed.alertas
+  if (Array.isArray(raw)) return raw as CalendarioAlerta[]
+  return []
 }
 
 // ─── Cotações CRUD ──────────────────────────────────────────────────────────
@@ -785,6 +825,15 @@ export async function getVisaoFornecedorBidFreteInternacionalDashboard(): Promis
     alertas: mapped.alertas,
     fornecedor: mapFornecedorFromServer(visao.fornecedor_bid_frete_internacional),
   }
+}
+
+export async function getVisaoFornecedorBidFreteInternacionalMapaCotacoes(
+  nomeFornecedor: string,
+): Promise<DadosMapaBidFrete> {
+  const res = await fetch(`${VISAO_FORNECEDOR_BASE}/mapa-cotacoes`, { headers: headers() })
+  const raw = await handleResponse<unknown>(res)
+  const parsed = visaoFornecedorBidFreteInternacionalMapaCotacoesResponseSchema.parse(raw)
+  return mapMapaCotacoesVisaoFornecedorFromServer(parsed, nomeFornecedor)
 }
 
 export async function getVisaoFornecedorBidFreteInternacionalCotacoesPendentes(): Promise<DisparoCotacaoBidFreteInternacional[]> {

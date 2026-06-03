@@ -55,14 +55,19 @@ function WidgetSkeleton() {
 // ─── Menu de opções ────────────────────────────────────────────────────────────
 
 interface OptionsMenuProps {
+  editMode: boolean
   onEdit?: () => void
   onRemove?: () => void
 }
 
-function OptionsMenu({ onEdit, onRemove }: OptionsMenuProps) {
+function OptionsMenu({ editMode, onEdit, onRemove }: OptionsMenuProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!editMode) setOpen(false)
+  }, [editMode])
 
   useEffect(() => {
     if (!open) return
@@ -75,30 +80,40 @@ function OptionsMenu({ onEdit, onRemove }: OptionsMenuProps) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
 
+  if (!editMode) return null
+
   return (
     <div ref={menuRef} style={{ position: 'relative' }}>
       <button
+        type="button"
         style={styles.menuBtn}
-        onClick={() => setOpen(v => !v)}
+        onClick={(e) => { e.stopPropagation(); setOpen(v => !v) }}
         aria-label={t('nucleo.dashboard.painel.opcoes_widget_aria')}
         title={t('nucleo.dashboard.painel.opcoes')}
+        data-testid="dashboard-widget-menu-btn"
+        aria-haspopup="menu"
+        aria-expanded={open}
       >
         <DotsThreeVertical size={18} weight="bold" />
       </button>
 
       {open && (
         <div style={styles.menuDropdown} role="menu">
-          {onEdit && (
-            <button
-              style={styles.menuItem}
-              onClick={() => { onEdit(); setOpen(false) }}
-              role="menuitem"
-            >
-              <PencilSimple size={14} />
-              {t('nucleo.dashboard.painel.editar')}
-            </button>
-          )}
           <button
+            type="button"
+            style={{
+              ...styles.menuItem,
+              ...(onEdit ? {} : { opacity: 0.45, cursor: 'not-allowed' }),
+            }}
+            disabled={!onEdit}
+            onClick={() => { if (onEdit) { onEdit(); setOpen(false) } }}
+            role="menuitem"
+          >
+            <PencilSimple size={14} />
+            {t('nucleo.dashboard.painel.editar')}
+          </button>
+          <button
+            type="button"
             style={styles.menuItem}
             onClick={() => setOpen(false)}
             role="menuitem"
@@ -106,16 +121,20 @@ function OptionsMenu({ onEdit, onRemove }: OptionsMenuProps) {
             <DownloadSimple size={14} />
             {t('nucleo.dashboard.painel.exportar_dados')}
           </button>
-          {onRemove && (
-            <button
-              style={{ ...styles.menuItem, color: 'var(--danger)' }}
-              onClick={() => { onRemove(); setOpen(false) }}
-              role="menuitem"
-            >
-              <Trash size={14} />
-              {t('nucleo.dashboard.painel.remover')}
-            </button>
-          )}
+          <button
+            type="button"
+            style={{
+              ...styles.menuItem,
+              color: 'var(--danger)',
+              ...(onRemove ? {} : { opacity: 0.45, cursor: 'not-allowed' }),
+            }}
+            disabled={!onRemove}
+            onClick={() => { if (onRemove) { onRemove(); setOpen(false) } }}
+            role="menuitem"
+          >
+            <Trash size={14} />
+            {t('nucleo.dashboard.painel.remover')}
+          </button>
         </div>
       )}
     </div>
@@ -197,7 +216,7 @@ export function DashboardPainelContainer({
           {periodoFiltroRotulo && (
             <span style={styles.badgePeriodo} title={t('nucleo.dashboard.painel.periodo_widget_tooltip')}>
               {periodoFiltroRotulo}
-              {onLimparPeriodoWidget && (
+              {editMode && onLimparPeriodoWidget && (
                 <button
                   type="button"
                   style={styles.badgePeriodoClear}
@@ -211,13 +230,20 @@ export function DashboardPainelContainer({
           )}
         </div>
 
-        <div style={styles.headerActions}>
-          {periodoControle}
-          <OptionsMenu
-          onEdit={onEdit ? () => onEdit(widget) : undefined}
-          onRemove={onRemove ? () => onRemove(widget.id) : undefined}
-        />
-        </div>
+        {editMode && (
+          <div
+            style={styles.headerActions}
+            data-testid="dashboard-widget-header-acoes"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {periodoControle}
+            <OptionsMenu
+              editMode={editMode}
+              onEdit={onEdit ? () => onEdit(widget) : undefined}
+              onRemove={onRemove ? () => onRemove(widget.id) : undefined}
+            />
+          </div>
+        )}
       </div>
 
       {/* Corpo */}

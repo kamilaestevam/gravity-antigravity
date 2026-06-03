@@ -18,6 +18,7 @@ import { BloqueioPermissaoOpaco } from './shared/permissoes/BloqueioPermissaoOpa
 import { useEscopoWorkspacesPedido } from './shared/useEscopoWorkspacesPedido'
 import { urlCriarWorkspace, urlGerenciarWorkspaces } from './components/lista/urlsDeepLinkConfigurador'
 import { PedidosVisualizacaoLayout } from './components/PedidosVisualizacaoLayout'
+import { PedidosMultiView } from './components/PedidosMultiView'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 /**
@@ -52,13 +53,12 @@ injectWorkspaceGetter(() => {
   catch { return undefined }
 })
 
-// ── Lazy loading das telas ────────────────────────────────────────────────────
-const Pedidos          = lazy(() => import('./pages/Pedidos'))
-const PedidosKanban    = lazy(() => import('./pages/PedidosKanban'))
+// ── Lazy loading das telas (visualizações lazy em PedidosMultiView) ───────────
 const Configuracoes    = lazy(() => import('./pages/Configuracoes'))
 const PedidoFormulario = lazy(() => import('./pages/PedidoFormulario'))
-const PedidosDashboard   = lazy(() => import('./pages/PedidosDashboard'))
-const PedidosVisaoGeral  = lazy(() => import('./pages/PedidosVisaoGeral'))
+
+/** Mesma referência de elemento → React preserva PedidosMultiView entre rotas. */
+const pedidosVisualizacoesElement = <PedidosMultiView />
 
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('pedido')
@@ -117,11 +117,13 @@ function LoadingFallback() {
 // QueryClient único do produto Pedido — instanciado fora do componente
 // para sobreviver a re-renders. Stale 60s espelha a config recomendada
 // no comentário de usePermissoesPedido.ts.
-const queryClient = new QueryClient({
+export const pedidoQueryClient = new QueryClient({
   defaultOptions: {
     queries: { staleTime: 60_000, refetchOnWindowFocus: true },
   },
 })
+
+const queryClient = pedidoQueryClient
 
 function AppInner() {
   useMeSync()
@@ -362,34 +364,17 @@ function AppInner() {
               ('indeterminado') a rota renderiza children (otimista), e só bloqueia
               quando há negação definitiva. Evita flash de "Sem permissão" em
               usuário legítimo enquanto /me + query carregam. */}
-          <Route path="pedidos/lista"            element={
-            <PedidosVisualizacaoLayout>
-              <BloqueioPermissaoOpaco pode={estadoPermissao('lista', 'ver') !== 'negado'} motivo="Sem permissão para ver a Lista de Pedidos" modo="bloqueio-tela">
-                <Pedidos />
+          <Route element={<PedidosVisualizacaoLayout />}>
+            <Route path="pedidos/lista"       element={pedidosVisualizacoesElement} />
+            <Route path="pedidos/visao-geral" element={pedidosVisualizacoesElement} />
+            <Route path="pedidos/dashboard"   element={pedidosVisualizacoesElement} />
+            <Route path="pedidos/kanban"      element={pedidosVisualizacoesElement} />
+            <Route path="configuracoes"       element={
+              <BloqueioPermissaoOpaco pode={estadoPermissao('configuracao', 'ver') !== 'negado'} motivo="Sem permissão para ver Configurações" modo="bloqueio-tela">
+                <Configuracoes />
               </BloqueioPermissaoOpaco>
-            </PedidosVisualizacaoLayout>
-          } />
-          <Route path="pedidos/visao-geral"        element={
-            <PedidosVisualizacaoLayout>
-              <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver a Visão Geral" modo="bloqueio-tela">
-                <PedidosVisaoGeral />
-              </BloqueioPermissaoOpaco>
-            </PedidosVisualizacaoLayout>
-          } />
-          <Route path="pedidos/dashboard"        element={
-            <PedidosVisualizacaoLayout>
-              <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver o Dashboard" modo="bloqueio-tela">
-                <PedidosDashboard />
-              </BloqueioPermissaoOpaco>
-            </PedidosVisualizacaoLayout>
-          } />
-          <Route path="pedidos/kanban"           element={
-            <PedidosVisualizacaoLayout>
-              <BloqueioPermissaoOpaco pode={estadoPermissao('kanban', 'ver') !== 'negado'} motivo="Sem permissão para ver o Kanban" modo="bloqueio-tela">
-                <PedidosKanban />
-              </BloqueioPermissaoOpaco>
-            </PedidosVisualizacaoLayout>
-          } />
+            } />
+          </Route>
           {/* Novo/Editar Pedido — entra com lista:ver (modo leitura quando faltar
               lista:editar; botões Salvar ficam opacos via gating local nas páginas). */}
           <Route path="pedidos/novo"             element={
@@ -401,13 +386,6 @@ function AppInner() {
             <BloqueioPermissaoOpaco pode={estadoPermissao('lista', 'ver') !== 'negado'} motivo="Sem permissão para abrir formulário de Pedido" modo="bloqueio-tela">
               <PedidoFormulario />
             </BloqueioPermissaoOpaco>
-          } />
-          <Route path="configuracoes"        element={
-            <PedidosVisualizacaoLayout>
-              <BloqueioPermissaoOpaco pode={estadoPermissao('configuracao', 'ver') !== 'negado'} motivo="Sem permissão para ver Configurações" modo="bloqueio-tela">
-                <Configuracoes />
-              </BloqueioPermissaoOpaco>
-            </PedidosVisualizacaoLayout>
           } />
           <Route path="*"                    element={<Navigate to="/pedido/pedidos/visao-geral" replace />} />
         </Routes>

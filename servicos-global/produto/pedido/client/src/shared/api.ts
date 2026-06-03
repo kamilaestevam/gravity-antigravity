@@ -11,6 +11,10 @@ import {
   dashboardDistributionResponseSchema,
   dashboardInsightsResponseSchema,
 } from './dashboard-schemas.js'
+import {
+  visaoGeralAgregadoResponseSchema,
+  type VisaoGeralAgregadoPayload,
+} from './visao-geral-schemas.js'
 import type {
   Pedido,
   PedidoItem,
@@ -2167,6 +2171,18 @@ export const dashboardApi = {
   },
 }
 
+// ── Visão Geral (agregado servidor) ───────────────────────────────────────────
+
+export const pedidoVisaoGeralApi = {
+  agregado: async (idsWorkspacesFiltro: string[]): Promise<VisaoGeralAgregadoPayload> => {
+    const params = new URLSearchParams()
+    appendIdsWorkspacesParam(params, idsWorkspacesFiltro)
+    const qs = params.toString()
+    const raw = await request<unknown>(`/api/v1/pedidos/visao-geral/agregado${qs ? `?${qs}` : ''}`)
+    return visaoGeralAgregadoResponseSchema.parse(raw).data
+  },
+}
+
 // ── Dashboard Painéis ─────────────────────────────────────────────────────────
 
 export interface DashboardPainel {
@@ -2194,7 +2210,14 @@ export const paineisListaApi = {
     request<unknown>('/api/v1/pedidos/lista/paineis', {
       method: 'POST',
       body: JSON.stringify({ nome }),
-    }).then(raw => listaPainelItemResponseSchema.parse(raw)),
+    }).then(raw => {
+      const parsed = listaPainelItemResponseSchema.safeParse(raw)
+      if (!parsed.success) {
+        console.warn('[paineisListaApi.criar] resposta fora do contrato Zod', parsed.error.flatten(), raw)
+        throw new Error('Resposta inválida ao criar painel da lista')
+      }
+      return parsed.data
+    }),
 
   atualizar: (id: string, patch: Partial<Pick<ListaPainel, 'nome' | 'is_visivel' | 'config_json'>>): Promise<{ data: ListaPainel }> =>
     request<unknown>(`/api/v1/pedidos/lista/paineis/${id}`, {

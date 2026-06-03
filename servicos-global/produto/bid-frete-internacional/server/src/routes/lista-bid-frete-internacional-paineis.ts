@@ -4,7 +4,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
-import { AppError } from '../errors/AppError.js'
+import { AppError } from '../lib/erros.js'
 import {
   configListaPainelPadraoV1,
   ID_PRODUTO_GRAVITY_BID_FRETE_INTERNACIONAL,

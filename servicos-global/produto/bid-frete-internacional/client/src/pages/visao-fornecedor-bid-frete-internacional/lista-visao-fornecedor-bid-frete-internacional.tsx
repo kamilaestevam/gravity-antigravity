@@ -5,7 +5,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
 import type { GTPreferencias } from '@nucleo/tabela-virtual-global'
@@ -371,7 +370,7 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
   useSincronizarTituloPaginaTopo(tituloTopo)
 
   return (
-    <PaginaGlobal className="bf-cotacoes bid-frete-page-shell">
+    <div className="bf-lista-page bf-cotacoes bid-frete-page-shell">
       {carregando ? (
         <ConteudoCarregandoBidFreteInternacional />
       ) : (
@@ -451,40 +450,6 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
       )}
 
       <style>{`
-        .bf-cotacoes {
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-          min-height: 0;
-          height: 100%;
-        }
-        .bf-cotacoes .pg-conteudo-area {
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-          min-height: 0;
-          overflow: hidden;
-          gap: 1rem;
-        }
-        .bf-cotacoes .gtv-linha--expira-prestes {
-          box-shadow: inset 3px 0 0 rgba(248, 113, 113, 0.9);
-        }
-        .bf-cotacoes .gtv-linha--expira-prestes:hover {
-          box-shadow: inset 3px 0 0 rgba(248, 113, 113, 1);
-        }
-        .lp-stats-row {
-          display: flex;
-          align-items: flex-end;
-          gap: 1rem;
-          padding: 0.5rem 0 1.5rem;
-        }
-        .lp-cards {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-          gap: 1rem;
-          flex: 1;
-          min-width: 0;
-        }
         .bf-toggle-group {
           display: inline-flex;
           gap: 0.25rem;
@@ -511,17 +476,7 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
         .bf-toggle-btn--ativo:hover {
           color: #fff;
         }
-        .bf-table-section {
-          background: var(--bg-surface, #334155);
-          border-radius: var(--radius-lg, 12px);
-          overflow: hidden;
-          flex: 1;
-          min-height: 0;
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-        }
       `}</style>
-    </PaginaGlobal>
+    </div>
   )
 }

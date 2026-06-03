@@ -178,6 +178,26 @@ export function useListaPainelPedido() {
     aplicarConfigDoPainel(proximo, callbacks)
   }, [paineis, aplicarConfigDoPainel])
 
+  const criarPainel = useCallback(async (
+    nome: string,
+    callbacks: AplicarConfigListaPainelCallbacks,
+  ) => {
+    const trimmed = nome.trim()
+    if (!trimmed) return null
+    try {
+      const { data } = await paineisListaApi.criar(trimmed)
+      setPaineis(prev => [...prev, data])
+      painelHidratadoIdRef.current = null
+      setPainelAtualId(data.id)
+      aplicarConfigDoPainel(data, callbacks)
+      return data
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.warn('[useListaPainelPedido] falha ao criar painel', msg, err)
+      throw err instanceof Error ? err : new Error(msg)
+    }
+  }, [aplicarConfigDoPainel])
+
   const painelAtual = paineis.find(p => p.id === painelAtualId) ?? null
 
   return {
@@ -191,6 +211,7 @@ export function useListaPainelPedido() {
     aplicarConfigDoPainel,
     persistirPainelAtual,
     trocarPainel,
+    criarPainel,
     aplicandoConfigRef,
     painelHidratadoIdRef,
   }

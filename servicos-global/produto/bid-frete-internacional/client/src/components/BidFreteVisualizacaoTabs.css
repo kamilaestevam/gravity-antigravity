@@ -55,8 +55,11 @@
   flex-shrink: 0;
 }
 
+.bid-frete-visualizacao-layout .bid-frete-multi-view,
 .bid-frete-visualizacao-layout .bid-frete-page-shell,
 .bid-frete-visualizacao-layout .pg-container.bid-frete-page-shell,
+.bid-frete-visualizacao-layout .bf-lista-page,
+.bid-frete-visualizacao-layout .bf-cotacoes,
 .bid-frete-visualizacao-layout .bfd-dashboard,
 .bid-frete-visualizacao-layout .cfg-page {
   padding-top: 0;

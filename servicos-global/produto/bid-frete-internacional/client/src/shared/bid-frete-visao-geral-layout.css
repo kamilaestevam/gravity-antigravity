@@ -33,6 +33,11 @@
   margin-bottom: 0;
 }
 
+.bfd-globe-row .bfd-mapa-rankings-row {
+  grid-column: 1;
+  min-width: 0;
+}
+
 .bfd-globe-row__coluna-direita {
   display: flex;
   flex-direction: column;
@@ -55,6 +60,12 @@
 
 .bfd-charts-grid--fornecedor .bfd-card {
   min-height: 280px;
+}
+
+.bfd-charts-grid--fornecedor .bfd-card > .bfd-taxa {
+  flex: 1;
+  width: 100%;
+  min-height: 11rem;
 }
 
 .bfd-acoes-grid {
@@ -214,30 +225,83 @@
 .bfd-taxa {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  justify-content: center;
+  gap: clamp(0.75rem, 2.5vw, 1.75rem);
   margin: auto 0;
+  width: 100%;
+}
+
+.bfd-taxa__chart {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(7.75rem, 30%, 10.5rem);
+  max-width: min(10.5rem, 38vw);
+  aspect-ratio: 1;
+}
+
+.bfd-taxa__chart-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.bfd-taxa__chart-centro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0 14%;
+  text-align: center;
+  pointer-events: none;
+}
+
+.bfd-taxa__chart-pct {
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.bfd-taxa__chart-rotulo {
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
 }
 
 .bfd-taxa__legend {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: clamp(0.35rem, 1.2vh, 0.65rem);
+  flex: 1 1 auto;
+  min-width: 9rem;
 }
 
 .bfd-taxa__legend-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.6rem;
-  font-size: 0.85rem;
+  font-size: clamp(0.78rem, 0.7vw + 0.68rem, 0.875rem);
   color: #cbd5e1;
   font-weight: 600;
   letter-spacing: 0.02em;
-  line-height: 1.5;
+  line-height: 1.4;
+}
+
+.bfd-taxa__legend-row > span:last-child {
+  flex: 1;
+  min-width: 0;
 }
 
 .bfd-taxa__dot {
-  width: 8px;
-  height: 8px;
+  width: clamp(7px, 0.55rem, 9px);
+  height: clamp(7px, 0.55rem, 9px);
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -339,5 +403,14 @@
 @media (max-width: 768px) {
   .bfd-kpi-grid {
     grid-template-columns: 1fr;
+  }
+
+  .bfd-charts-grid--fornecedor .bfd-taxa__chart {
+    width: clamp(8rem, 38vw, 10.5rem);
+    max-width: 10.5rem;
+  }
+
+  .bfd-taxa__legend {
+    min-width: 0;
   }
 }

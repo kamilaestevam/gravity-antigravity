@@ -13,7 +13,6 @@ import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 
 import CotacoesKanban from './kanban-bid-frete-internacional'
-import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import {
   criarTituloCarregandoTopo,
@@ -507,6 +506,15 @@ export default function Cotacoes() {
           config_json: serializarConfigListaPainel(merged),
         })
         setPreferencias({ colunas_visiveis: merged.colunas_visiveis, colunas_largura: merged.colunas_largura })
+      } else if (configAtual.colunas_visiveis.length === 0) {
+        const merged = configListaPainelPadraoV1({
+          ...configAtual,
+          colunas_visiveis: COLUNAS_PADRAO_VISIVEIS,
+        })
+        void paineisListaBidFreteApi.atualizar(painelListaAtual.id, {
+          config_json: serializarConfigListaPainel(merged),
+        })
+        setPreferencias({ colunas_visiveis: merged.colunas_visiveis })
       }
       migrouLocalStoragePainelRef.current = true
     }
@@ -1290,23 +1298,23 @@ export default function Cotacoes() {
   // ─── Render ───
 
   return (
-    <PaginaGlobal
-      className="bf-cotacoes bid-frete-page-shell"
-    >
+    <div className="bf-lista-page bf-cotacoes bid-frete-page-shell">
       {carregando ? (
         <ConteudoCarregandoBidFreteInternacional />
       ) : (
         <>
       {/* ── KPI cards (Configuração dinâmica com sincronização do local storage) ── */}
       {visao === 'lista' && (
-        <BidFreteListaPainelBar
-          paineis={paineisLista}
-          painelAtualId={painelListaAtualId}
-          setPaineis={setPaineisLista}
-          setPainelAtualId={setPainelListaAtualId}
-          onTrocarPainel={handleTrocarPainelLista}
-          carregando={carregandoPaineisLista}
-        />
+        <div className="bf-paineis-lista">
+          <BidFreteListaPainelBar
+            paineis={paineisLista}
+            painelAtualId={painelListaAtualId}
+            setPaineis={setPaineisLista}
+            setPainelAtualId={setPainelListaAtualId}
+            onTrocarPainel={handleTrocarPainelLista}
+            carregando={carregandoPaineisLista}
+          />
+        </div>
       )}
 
       {visao === 'lista' && (
@@ -1405,46 +1413,7 @@ export default function Cotacoes() {
       )}
 
       <style>{`
-        .bf-cotacoes {
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-          min-height: 0;
-          height: 100%;
-        }
-
-        .bf-cotacoes .pg-conteudo-area {
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-          min-height: 0;
-          overflow: hidden;
-          gap: 1rem;
-        }
-
-        /* Destaque: cotação com menos de 2h para expirar (config Tabela) */
-        .bf-cotacoes .gtv-linha--expira-prestes {
-          box-shadow: inset 3px 0 0 rgba(248, 113, 113, 0.9);
-        }
-        .bf-cotacoes .gtv-linha--expira-prestes:hover {
-          box-shadow: inset 3px 0 0 rgba(248, 113, 113, 1);
-        }
-
-        /* ── KPI Cards / Row ── */
-        .lp-stats-row {
-          display: flex;
-          align-items: flex-end;
-          gap: 1rem;
-          padding: 0.5rem 0 1.5rem;
-        }
-
-        .lp-cards {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-          gap: 1rem;
-          flex: 1;
-          min-width: 0;
-        }
+        /* Destaque: cotação com menos de 2h para expirar (config Tabela) — layout em bid-frete-page-shell.css */
 
         /* ── Dropdown "Novo" ── */
         .lp-dropdown-menu {
@@ -1498,18 +1467,6 @@ export default function Cotacoes() {
         }
         .bf-toggle-btn--ativo:hover {
           color: #fff;
-        }
-
-        /* ── Table section ── */
-        .bf-table-section {
-          background: var(--bg-surface, #334155);
-          border-radius: var(--radius-lg, 12px);
-          overflow: hidden;
-          flex: 1;
-          min-height: 0;
-          display: flex;
-          flex-direction: column;
-          height: 100%;
         }
 
         /* ── Kanban Board ── */
@@ -1702,6 +1659,6 @@ export default function Cotacoes() {
           color: var(--text-primary, #f1f5f9);
         }
       `}</style>
-    </PaginaGlobal>
+    </div>
   )
 }

@@ -12,9 +12,10 @@
  * - Banner de modo edição ativo com orientação ao usuário
  */
 
-import React, { useState, useRef, useEffect, useMemo } from 'react'
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { Check, Plus, X, DotsSixVertical, CaretDown, CaretUp, CalendarBlank } from '@phosphor-icons/react'
+import { Check, Plus, X, DotsSixVertical, CaretDown, CaretUp, CalendarBlank, PencilSimple } from '@phosphor-icons/react'
 import { CalendarioPainelGlobal } from '@nucleo/campo-calendario-global'
 import type { ActiveFilter, GlobalSlicers } from '../tipos.js'
 import './dashboard-barra-integrado.css'
@@ -42,17 +43,37 @@ function parseCustomPeriod(period: string): { start: string; end: string } | und
 
 // ── PeriodDropdown — substitui <select> nativo (Design System: nunca select nativo) ──
 
+export interface PeriodDropdownGatilhoProps {
+  open: boolean
+  selectedLabel: string
+  isCustom: boolean
+  onToggle: () => void
+}
+
 interface PeriodDropdownProps {
   value: string
   options: PeriodOption[]
   onChange: (value: string) => void
+  renderGatilho?: (props: PeriodDropdownGatilhoProps) => React.ReactNode
+  alinharPainel?: 'esquerda' | 'direita'
+  /** dropdown = popover ancorado; modal = overlay centralizado (atalhos + intervalo) */
+  modoPainel?: 'dropdown' | 'modal'
 }
 
-export function PeriodDropdown({ value, options, onChange }: PeriodDropdownProps) {
+export function PeriodDropdown({
+  value,
+  options,
+  onChange,
+  renderGatilho,
+  alinharPainel = 'esquerda',
+  modoPainel = 'dropdown',
+}: PeriodDropdownProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [showCal, setShowCal] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const painelRef = useRef<HTMLDivElement>(null)
+  const [coordsDropdown, setCoordsDropdown] = useState({ top: 0, left: 0, right: 0 })
 
   // Suporte a período customizado: custom:YYYY-MM-DD:YYYY-MM-DD
   const isCustom = value.startsWith('custom:')
@@ -60,94 +81,222 @@ export function PeriodDropdown({ value, options, onChange }: PeriodDropdownProps
     ? formatCustomLabel(value, t('nucleo.dashboard.periodo.personalizado'))
     : (options.find(o => o.value === value) ?? options[0])?.label
 
+  const fecharPainel = useCallback(() => {
+    setOpen(false)
+    setShowCal(false)
+  }, [])
+
+  const atualizarCoordsDropdown = useCallback(() => {
+    if (!ref.current) return
+    const r = ref.current.getBoundingClientRect()
+    setCoordsDropdown({
+      top: r.bottom + 6,
+      left: r.left,
+      right: window.innerWidth - r.right,
+    })
+  }, [])
+
   useEffect(() => {
-    if (!open) return
+    if (!open || modoPainel !== 'dropdown') return
+    atualizarCoordsDropdown()
+    window.addEventListener('resize', atualizarCoordsDropdown)
+    window.addEventListener('scroll', atualizarCoordsDropdown, true)
+    return () => {
+      window.removeEventListener('resize', atualizarCoordsDropdown)
+      window.removeEventListener('scroll', atualizarCoordsDropdown, true)
+    }
+  }, [open, modoPainel, atualizarCoordsDropdown])
+
+  useEffect(() => {
+    if (!open || modoPainel !== 'dropdown') return
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false); setShowCal(false)
-      }
+      const target = e.target as Node
+      if (ref.current?.contains(target)) return
+      if (painelRef.current?.contains(target)) return
+      fecharPainel()
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
-  }, [open])
+  }, [open, modoPainel, fecharPainel])
+
+  useEffect(() => {
+    if (!open || modoPainel !== 'modal') return
+    function handleEsc(e: KeyboardEvent) {
+      if (e.key === 'Escape') fecharPainel()
+    }
+    document.addEventListener('keydown', handleEsc)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', handleEsc)
+      document.body.style.overflow = ''
+    }
+  }, [open, modoPainel, fecharPainel])
 
   function handleOptionClick(optValue: string) {
     if (optValue === 'custom') {
-      setShowCal(true)   // abre o calendário sem fechar o dropdown
+      setShowCal(true)
     } else {
       onChange(optValue)
-      setOpen(false)
+      fecharPainel()
     }
   }
 
-  return (
-    <div ref={ref} style={{ position: 'relative' }}>
-      <button
-        type="button"
-        style={dropdownStyles.trigger}
-        onClick={() => { setOpen(v => !v); setShowCal(false) }}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-      >
-        {isCustom && <CalendarBlank size={12} weight="bold" />}
-        {selectedLabel}
-        {open
-          ? <CaretUp size={12} weight="bold" />
-          : <CaretDown size={12} weight="bold" />}
-      </button>
+  const toggleOpen = () => {
+    setOpen(v => {
+      if (v) setShowCal(false)
+      return !v
+    })
+  }
 
-      {/* Lista de opções */}
-      {open && !showCal && (
-        <div style={dropdownStyles.list} role="listbox">
-          {options.map((opt, idx) => (
-            <React.Fragment key={opt.value}>
-              {/* Separador visual antes de "Período personalizado" */}
-              {opt.value === 'custom' && (
-                <div style={dropdownStyles.separator} role="separator" />
-              )}
+  const calendarioValor = useMemo(() => {
+    const parsed = parseCustomPeriod(value)
+    return parsed
+      ? { inicio: new Date(parsed.start), fim: new Date(parsed.end) }
+      : { inicio: null, fim: null }
+  }, [value])
+
+  const handleCalendarioMudar = useCallback((val: { inicio: Date | null; fim: Date | null }) => {
+    if (val.inicio && val.fim) {
+      const s = val.inicio.toISOString().slice(0, 10)
+      const e = val.fim.toISOString().slice(0, 10)
+      onChange(`custom:${s}:${e}`)
+      fecharPainel()
+    }
+  }, [onChange, fecharPainel])
+
+  const listaOpcoes = (
+    <div
+      className={modoPainel === 'modal' ? 'dashboard-periodo-modal__opcoes' : undefined}
+      style={modoPainel === 'dropdown' ? dropdownStyles.listPortaled : undefined}
+      role="listbox"
+    >
+      {options.map((opt) => (
+        <React.Fragment key={opt.value}>
+          {opt.value === 'custom' && (
+            <div
+              style={modoPainel === 'dropdown' ? dropdownStyles.separator : undefined}
+              className={modoPainel === 'modal' ? 'dashboard-periodo-modal__separador' : undefined}
+              role="separator"
+            />
+          )}
+          <button
+            type="button"
+            role="option"
+            aria-selected={opt.value === value || (isCustom && opt.value === 'custom')}
+            className={modoPainel === 'modal' ? 'dashboard-periodo-modal__opcao' : undefined}
+            style={{
+              ...(modoPainel === 'dropdown' ? dropdownStyles.option : {}),
+              ...((opt.value === value || (isCustom && opt.value === 'custom'))
+                ? (modoPainel === 'dropdown' ? dropdownStyles.optionActive : {})
+                : {}),
+              ...(modoPainel === 'modal' && (opt.value === value || (isCustom && opt.value === 'custom'))
+                ? { fontWeight: 600 }
+                : {}),
+            }}
+            onClick={() => handleOptionClick(opt.value)}
+          >
+            {opt.value === 'custom' && <CalendarBlank size={12} />}
+            {opt.label}
+          </button>
+        </React.Fragment>
+      ))}
+    </div>
+  )
+
+  const painelCalendario = (
+    <CalendarioPainelGlobal
+      valor={calendarioValor}
+      aoMudarValor={handleCalendarioMudar}
+      onFechar={fecharPainel}
+    />
+  )
+
+  const modalPeriodo = open && modoPainel === 'modal' && typeof document !== 'undefined'
+    ? createPortal(
+        <>
+          <div
+            className="dashboard-periodo-modal-backdrop"
+            onMouseDown={fecharPainel}
+            aria-hidden="true"
+          />
+          <div
+            className="dashboard-periodo-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('nucleo.dashboard.barra.periodo')}
+          >
+            <div className="dashboard-periodo-modal__header">
+              <span className="dashboard-periodo-modal__label">
+                <PencilSimple size={11} weight="fill" aria-hidden="true" />
+                {t('nucleo.dashboard.barra.periodo')}
+              </span>
               <button
                 type="button"
-                role="option"
-                aria-selected={opt.value === value || (isCustom && opt.value === 'custom')}
-                style={{
-                  ...dropdownStyles.option,
-                  ...((opt.value === value || (isCustom && opt.value === 'custom'))
-                    ? dropdownStyles.optionActive
-                    : {}),
-                }}
-                onClick={() => handleOptionClick(opt.value)}
+                className="dashboard-periodo-modal__fechar"
+                onClick={fecharPainel}
+                aria-label={t('nucleo.dashboard.modal_editar.fechar')}
               >
-                {opt.value === 'custom' && <CalendarBlank size={12} />}
-                {opt.label}
+                <X size={12} weight="bold" />
               </button>
-            </React.Fragment>
-          ))}
-        </div>
+            </div>
+            <div className="dashboard-periodo-modal__body">
+              {!showCal ? listaOpcoes : (
+                <div className="dashboard-periodo-modal__calendario">
+                  {painelCalendario}
+                </div>
+              )}
+            </div>
+          </div>
+        </>,
+        document.body,
+      )
+    : null
+
+  const dropdownPortaled = open && modoPainel === 'dropdown' && typeof document !== 'undefined'
+    ? createPortal(
+        <div
+          ref={painelRef}
+          style={{
+            position: 'fixed',
+            top: coordsDropdown.top,
+            left: alinharPainel === 'direita' ? 'auto' : coordsDropdown.left,
+            right: alinharPainel === 'direita' ? coordsDropdown.right : 'auto',
+            zIndex: 100050,
+          }}
+        >
+          {!showCal ? listaOpcoes : (
+            <div style={dropdownStyles.listPortaled}>
+              {painelCalendario}
+            </div>
+          )}
+        </div>,
+        document.body,
+      )
+    : null
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      {renderGatilho ? (
+        renderGatilho({ open, selectedLabel, isCustom, onToggle: toggleOpen })
+      ) : (
+        <button
+          type="button"
+          style={dropdownStyles.trigger}
+          onClick={toggleOpen}
+          aria-haspopup={modoPainel === 'modal' ? 'dialog' : 'listbox'}
+          aria-expanded={open}
+        >
+          {isCustom && <CalendarBlank size={12} weight="bold" />}
+          {selectedLabel}
+          {open
+            ? <CaretUp size={12} weight="bold" />
+            : <CaretDown size={12} weight="bold" />}
+        </button>
       )}
 
-      {/* Calendário de período personalizado — painel inline sem trigger */}
-      {open && showCal && (
-        <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 300 }}>
-          <CalendarioPainelGlobal
-            valor={(() => {
-              const parsed = parseCustomPeriod(value)
-              return parsed
-                ? { inicio: new Date(parsed.start), fim: new Date(parsed.end) }
-                : { inicio: null, fim: null }
-            })()}
-            aoMudarValor={(val: { inicio: Date | null; fim: Date | null }) => {
-              if (val.inicio && val.fim) {
-                const s = val.inicio.toISOString().slice(0, 10)
-                const e = val.fim.toISOString().slice(0, 10)
-                onChange(`custom:${s}:${e}`)
-                setOpen(false)
-                setShowCal(false)
-              }
-            }}
-            onFechar={() => { setShowCal(false); setOpen(false) }}
-          />
-        </div>
-      )}
+      {dropdownPortaled}
+
+      {modalPeriodo}
     </div>
   )
 }
@@ -177,6 +326,17 @@ const dropdownStyles = {
     background: 'var(--bg-surface)',
     border: '1px solid var(--bg-elevated)',
     borderRadius: 'var(--radius-lg)',     // lista usa radius-lg, não pill
+    boxShadow: 'var(--shadow-md)',
+    minWidth: '168px',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column' as const,
+  },
+  listPortaled: {
+    position: 'relative' as const,
+    background: 'var(--bg-surface)',
+    border: '1px solid var(--bg-elevated)',
+    borderRadius: 'var(--radius-lg)',
     boxShadow: 'var(--shadow-md)',
     minWidth: '168px',
     overflow: 'hidden',

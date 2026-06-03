@@ -32,7 +32,7 @@ description: "Use sempre que precisar criar ou expandir um plano de teste para u
 
 | Campo | Tipo | Por quê |
 |---|---|---|
-| `escopo` | enum | LOGIN, CONFIG, ADMIN, HUB, CORE, MARKET, TENANT, DBASE, PEDIDO, NFIMP, LPCO, BIDFRT, BIDCAM, SIMCUS, FINCOM, PROCSO |
+| `escopo` | enum | LOGIN, CONFIG, ADMIN, HUB, CORE, MARKET, TENANT, DBASE, PEDIDO, NFIMP, LPCO, BIDFRT, BIDCAM, SIMCUS, FINCOM, PROCSO, **MBOTO** (transversal — [seletor universal](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md)) |
 | `sublocal` | string | Ex: "Organização", "Acessar Workspace", "Visão Geral" |
 | `tela` | string | Geralmente igual ao sublocal, mas pode haver mais granularidade |
 | `rota` | string | Ex: `/configurador/organizacao` |

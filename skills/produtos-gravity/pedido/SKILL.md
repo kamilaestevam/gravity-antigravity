@@ -23,39 +23,30 @@ rascunho → aberto → consolidado/transferido → cancelado.
 ## Localização na Arquitetura
 
 ```text
-servicos-global/pedido/
-├── prisma/
-│   ├── fragment.prisma           ← fonte da verdade (Mand. 02)
-│   └── schema.prisma             ← gerado por compose-pedido-schema.ts
+servicos-global/produto/pedido/
+├── shared/
+│   └── visaoGeralResumoAggregate.ts   ← agregação Insights (server + unit)
 ├── client/src/
-│   ├── pages/
-│   │   ├── Pedidos.tsx           ← lista hierárquica (TabelaVirtualGlobal)
-│   │   ├── PedidosKanban.tsx
-│   │   ├── PedidoFormulario.tsx
-│   │   └── Configuracoes.tsx
+│   ├── App.tsx                        ← rotas irmãs → <PedidosMultiView />
 │   ├── components/
-│   │   ├── ModalPedidoNovo.tsx
-│   │   ├── ModalPedidosEdicaoMassa.tsx     ← edição em massa
-│   │   ├── ModalPedidosConsolidar.tsx
-│   │   ├── ModalPedidoTransferir.tsx
-│   │   └── lista/                          ← ColunasPai, ColunasFilho
+│   │   ├── PedidosVisualizacaoLayout.tsx
+│   │   ├── PedidosVisualizacaoTabs.tsx
+│   │   ├── PedidosMultiView.tsx       ← keep-alive 4 visualizações
+│   │   ├── pedidos-visualizacao-context.tsx
+│   │   └── lista/ … modais …
+│   ├── pages/
+│   │   ├── PedidosVisaoGeral.tsx      ← Insights (lazy no MultiView)
+│   │   ├── Pedidos.tsx, PedidosDashboard.tsx, PedidosKanban.tsx
+│   │   └── Configuracoes.tsx
 │   └── shared/
-│       ├── types.ts              ← Pedido, PedidoItem, EdicaoMassa*
-│       └── api.ts                ← clients HTTP
-└── server/src/
-    ├── routes/
-    │   ├── edicoes-em-massa-pedido.ts
-    │   ├── consolidacoes-pedido.ts
-    │   ├── transferencias-pedido.ts
-    │   └── ...
-    ├── services/
-    │   ├── edicaoEmMassaService.ts
-    │   └── ...
-    └── shared/
-        └── bulkSchemas.ts        ← assertTiposHomogeneos, detectarTiposMistos
-
-scripts/ativamente/compose-pedido-schema.ts   ← compõe schema.prisma do fragment
+│       ├── pedidos-prefetch.ts
+│       ├── visao-geral-schemas.ts
+│       └── api.ts                     ← pedidoVisaoGeralApi.agregado
+└── server/src/routes/
+    └── visao-geral-agregado.ts        ← GET …/visao-geral/agregado
 ```
+
+**Seletor universal (pills):** [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md) · API agregada: [VISAO-GERAL-AGREGADO.md](../../../documentos-tecnicos/produtos-gravity/pedido/VISAO-GERAL-AGREGADO.md) · Testes: `TST-*-MBOTO-*`
 
 ---
 

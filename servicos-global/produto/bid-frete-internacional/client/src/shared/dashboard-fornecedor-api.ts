@@ -5,10 +5,6 @@
 import type { DashboardKpis, DashboardTrendBucket, GabiInsightItem } from './api'
 import { getVisaoFornecedorBidFreteInternacionalDashboard } from './api'
 import type { DashboardVisaoFornecedorBidFreteInternacional } from './api'
-import {
-  MOCK_DASHBOARD_VISAO_FORNECEDOR_TEMP,
-  USAR_MOCK_DASHBOARD_VISAO_FORNECEDOR_TEMP,
-} from './mock-dashboard-visao-fornecedor-APAGAR-ANTES-COMMIT'
 import { buildClientInsightsFornecedor } from './dashboard-fornecedor-insights'
 
 function rotuloFunilParaStatus(rotulo: string): string {
@@ -90,9 +86,6 @@ function buildTrendBucketsFornecedor(dash: DashboardVisaoFornecedorBidFreteInter
 }
 
 async function carregarDashboardFornecedor(): Promise<DashboardVisaoFornecedorBidFreteInternacional> {
-  if (USAR_MOCK_DASHBOARD_VISAO_FORNECEDOR_TEMP) {
-    return MOCK_DASHBOARD_VISAO_FORNECEDOR_TEMP
-  }
   return getVisaoFornecedorBidFreteInternacionalDashboard()
 }
 

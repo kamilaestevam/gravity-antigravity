@@ -1,6 +1,6 @@
 /**
  * Visão geral do fornecedor — mesmo shell bfd-dashboard da visão operacional,
- * com KPIs, alertas, funil e taxas (API; mock temporário via flag).
+ * com KPIs, alertas, funil, taxas e mapa (dados reais via API).
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
@@ -25,12 +25,10 @@ import {
 } from '../../shared/pagina-carregando-bid-frete-internacional'
 import {
   getVisaoFornecedorBidFreteInternacionalDashboard,
+  getVisaoFornecedorBidFreteInternacionalMapaCotacoes,
   type DashboardVisaoFornecedorBidFreteInternacional,
 } from '../../shared/api'
-import {
-  MOCK_DASHBOARD_VISAO_FORNECEDOR_TEMP,
-  USAR_MOCK_DASHBOARD_VISAO_FORNECEDOR_TEMP,
-} from '../../shared/mock-dashboard-visao-fornecedor-APAGAR-ANTES-COMMIT'
+import type { DadosMapaBidFrete } from '../../shared/componentes/visao-geral-mapa-bid-frete'
 import { ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../shared/rotas-bid-frete-internacional'
 import '../../shared/bid-frete-visao-geral-layout.css'
 import '../../shared/bid-frete-visao-geral-mapa.css'
@@ -64,21 +62,22 @@ export default function VisaoFornecedorBidFreteInternacionalDashboard() {
   const { t } = useTranslation()
   const ns = 'bidfrete.visao_fornecedor_bid_frete_internacional'
   const [dashboard, setDashboard] = useState<DashboardVisaoFornecedorBidFreteInternacional | null>(null)
+  const [dadosMapa, setDadosMapa] = useState<DadosMapaBidFrete>({ pins: [], routes: [] })
   const [carregando, setCarregando] = useState(true)
   const iconesSecao = BidFreteIconesSecao()
 
   const carregar = useCallback(async () => {
     setCarregando(true)
     try {
-      if (USAR_MOCK_DASHBOARD_VISAO_FORNECEDOR_TEMP) {
-        await new Promise((resolve) => setTimeout(resolve, 350))
-        setDashboard(MOCK_DASHBOARD_VISAO_FORNECEDOR_TEMP)
-        return
-      }
       const data = await getVisaoFornecedorBidFreteInternacionalDashboard()
       setDashboard(data)
+      const mapa = await getVisaoFornecedorBidFreteInternacionalMapaCotacoes(
+        data.fornecedor.nome_fornecedor_bid_frete_internacional ?? '',
+      )
+      setDadosMapa(mapa)
     } catch {
       setDashboard(null)
+      setDadosMapa({ pins: [], routes: [] })
     } finally {
       setCarregando(false)
     }
@@ -221,6 +220,8 @@ export default function VisaoFornecedorBidFreteInternacionalDashboard() {
               })}
               exibirPainelLateralMapa={false}
               vistaInicialMapa="mapa"
+              fonteDados="api"
+              dadosMapa={dadosMapa}
               onOpenCompleto={() =>
                 navigate(ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.cotacoesPendentes)
               }

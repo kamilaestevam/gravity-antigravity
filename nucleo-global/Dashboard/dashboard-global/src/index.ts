@@ -5,7 +5,7 @@ export { DashboardPainelContainer } from './DashboardPainelContainer/index.js'
 export type { WidgetContainerProps } from './DashboardPainelContainer/index.js'
 
 export { DashboardGrid } from './DashboardGrid/index.js'
-export type { DashboardGridProps } from './DashboardGrid/index.js'
+export type { DashboardGridProps, WidgetLayoutInteracao, WidgetLayoutModo } from './DashboardGrid/index.js'
 
 export { DashboardWidgetKPI } from './widgets/DashboardWidgetKPI/index.js'
 export type { KpiWidgetProps } from './widgets/DashboardWidgetKPI/index.js'

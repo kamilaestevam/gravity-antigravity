@@ -47,10 +47,22 @@ export const WIDGET_TITLE_KEYS: Record<string, string> = {
 }
 
 /**
+ * Título editado pelo usuário no modal (diferente do default do painel Principal).
+ * KPIs do topo e widgets padrão usam i18n/status só enquanto o título não foi customizado.
+ */
+export function widgetTituloFoiCustomizado(widget: DashboardWidgetConfig): boolean {
+  const padrao = DEFAULT_WIDGETS.find(w => w.id === widget.id)
+  if (!padrao) return true
+  return widget.title.trim() !== padrao.title.trim()
+}
+
+/**
  * Resolve o título do widget para o idioma corrente. Para widgets criados pelo
  * usuário (sem entrada em WIDGET_TITLE_KEYS) mantém o título salvo no painel.
+ * Título customizado no modal sempre prevalece sobre i18n e rótulo de status.
  */
 export function translateWidgetTitle(widget: DashboardWidgetConfig, t: TFunction): string {
+  if (widgetTituloFoiCustomizado(widget)) return widget.title
   const key = WIDGET_TITLE_KEYS[widget.id]
   return key ? t(key) : widget.title
 }
@@ -167,6 +179,10 @@ interface DashboardState {
   userDerivedMetrics: DerivedMetric[]
   addDerivedMetric: (metric: DerivedMetric) => void
   removeDerivedMetric: (metricId: string) => void
+
+  widgetLayoutInteracao: { widgetId: string; modo: 'moving' | 'resizing' } | null
+  setWidgetLayoutInteracao: (interacao: { widgetId: string; modo: 'moving' | 'resizing' } | null) => void
+  clearWidgetLayoutInteracao: () => void
 
   editMode: boolean
   setEditMode: (v: boolean) => void
@@ -443,6 +459,10 @@ export const useDashboardStore = create<DashboardState>()(
       removeDerivedMetric: (id) => set(s => ({
         userDerivedMetrics: s.userDerivedMetrics.filter(m => m.id !== id),
       })),
+
+      widgetLayoutInteracao: null,
+      setWidgetLayoutInteracao: (widgetLayoutInteracao) => set({ widgetLayoutInteracao }),
+      clearWidgetLayoutInteracao: () => set({ widgetLayoutInteracao: null }),
 
       editMode: false,
       setEditMode: (editMode) => set({ editMode }),

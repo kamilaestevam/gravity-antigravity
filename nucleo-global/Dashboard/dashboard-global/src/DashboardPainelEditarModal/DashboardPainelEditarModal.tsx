@@ -12,6 +12,9 @@ import {
   ChartLine, ChartBar, ChartBarHorizontal, ChartDonut,
   NumberSquareOne, Funnel, ChartPieSlice,
 } from '@phosphor-icons/react'
+import { buildDefaultPeriodOptions } from '../DashboardBarraFerramentas/DashboardBarraFerramentas.js'
+import { PeriodoCampoFormulario } from '../periodoCampoFormulario.js'
+import '../DashboardConstrutorConsulta/dashboard-construtor-consulta.css'
 import type { DashboardWidgetConfig, ChartType } from '../tipos.js'
 
 export interface ChartOptionMeta {
@@ -39,17 +42,6 @@ export interface PeriodOptionEdit {
   label: string
 }
 
-function buildDefaultPeriodOpts(t: (k: string) => string): PeriodOptionEdit[] {
-  return [
-    { value: '7d',            label: t('nucleo.dashboard.periodo.7_dias')    },
-    { value: '30d',           label: t('nucleo.dashboard.periodo.30_dias')   },
-    { value: '90d',           label: t('nucleo.dashboard.periodo.90_dias')   },
-    { value: '12m',           label: t('nucleo.dashboard.periodo.12_meses')  },
-    { value: 'current_month', label: t('nucleo.dashboard.periodo.mes_atual') },
-    { value: 'current_year',  label: t('nucleo.dashboard.periodo.ano_atual') },
-  ]
-}
-
 export interface ModalEditarWidgetProps {
   widget: DashboardWidgetConfig | null
   aberto: boolean
@@ -74,7 +66,10 @@ export function DashboardPainelEditarModal({
 }: ModalEditarWidgetProps) {
   const { t } = useTranslation()
   const chartOptions = useMemo(() => chartOptionsProp ?? buildDefaultChartOptions(t), [chartOptionsProp, t])
-  const periodOptions = useMemo(() => periodOptionsProp ?? buildDefaultPeriodOpts(t), [periodOptionsProp, t])
+  const periodOptions = useMemo(
+    () => periodOptionsProp ?? buildDefaultPeriodOptions(t),
+    [periodOptionsProp, t],
+  )
   const [title,     setTitle]     = useState('')
   const [chartType, setChartType] = useState<ChartType>('LINE')
   const [period,    setPeriod]    = useState('30d')
@@ -130,10 +125,11 @@ export function DashboardPainelEditarModal({
         <div style={s.body}>
 
           {/* Título */}
-          <div style={s.field}>
-            <label style={s.label}>{t('nucleo.dashboard.modal_editar.label_titulo')}</label>
+          <div className="dq-form__grupo">
+            <label className="dq-form__label" htmlFor="widget-edit-title">{t('nucleo.dashboard.modal_editar.label_titulo')}</label>
             <input
-              style={s.input}
+              id="widget-edit-title"
+              className="dq-form__input"
               value={title}
               onChange={e => setTitle(e.target.value)}
               maxLength={80}
@@ -160,14 +156,14 @@ export function DashboardPainelEditarModal({
             </div>
           </div>
 
-          {/* Período */}
-          <div style={s.field}>
-            <label style={s.label}>{t('nucleo.dashboard.modal_editar.periodo')}</label>
-            <select style={s.select} value={period} onChange={e => setPeriod(e.target.value)}>
-              {periodOptions.map(p => (
-                <option key={p.value} value={p.value}>{p.label}</option>
-              ))}
-            </select>
+          {/* Período — mesmo PeriodDropdown da barra do dashboard */}
+          <div className="dq-form__grupo">
+            <span className="dq-form__label">{t('nucleo.dashboard.modal_editar.periodo')}</span>
+            <PeriodoCampoFormulario
+              value={period}
+              options={periodOptions}
+              onChange={setPeriod}
+            />
           </div>
 
           {/* Info read-only: tipo atual + campos */}

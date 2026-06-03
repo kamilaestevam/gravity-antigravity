@@ -1,6 +1,8 @@
 /**
- * Aplica migration id_processo em todos os schemas organizacao_* do banco Pedido.
- * Usado quando migrate-all-tenants falha por timeout/conexão.
+ * Aplica migration id_processo (coluna TEXT nullable, sem backfill) em todo schema
+ * que já tem tabela `pedido` — tenant_*, organizacao_* legado, etc.
+ *
+ * Complementa migrate-all-tenants quando a migration não chegou em algum schema.
  */
 import { createHash, randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
@@ -9,7 +11,7 @@ import { fileURLToPath } from 'node:url'
 import { Client } from 'pg'
 
 const REPO_ROOT = resolve(import.meta.dirname, '../..')
-const MIGRATION_NAME = '20260601130000_pedido_id_processo_vinculo'
+export const MIGRATION_ID_PROCESSO_PEDIDO = '20260601130000_pedido_id_processo_vinculo'
 
 const CREATE_MIGRATIONS_TABLE = `
 CREATE TABLE IF NOT EXISTS "_prisma_migrations" (
@@ -29,17 +31,12 @@ function mascararUrl(url: string): string {
   return host ? `***@${host}` : '(invalida)'
 }
 
-async function main(): Promise<void> {
-  const pedidoUrl = process.env.PEDIDO_DATABASE_URL ?? process.env.DATABASE_URL
-  if (!pedidoUrl) {
-    console.error('[id_processo-tenants] PEDIDO_DATABASE_URL ausente')
-    process.exit(1)
-  }
-
+/** Garante coluna opcional id_processo em cada schema com tabela pedido. */
+export async function aplicarIdProcessoEmSchemasComPedido(pedidoUrl: string): Promise<void> {
   const sqlPath = join(
     REPO_ROOT,
     'servicos-global/produto/pedido/prisma/migrations',
-    MIGRATION_NAME,
+    MIGRATION_ID_PROCESSO_PEDIDO,
     'migration.sql',
   )
   const sql = readFileSync(sqlPath, 'utf-8')
@@ -56,11 +53,12 @@ async function main(): Promise<void> {
       FROM information_schema.tables
       WHERE table_name = 'pedido'
         AND table_type = 'BASE TABLE'
-        AND table_schema LIKE 'organizacao_%'
+        AND table_schema NOT IN ('public', 'information_schema')
+        AND table_schema NOT LIKE 'pg_%'
       ORDER BY table_schema
     `)
 
-    console.log(`[id_processo-tenants] Schemas: ${rows.length}`)
+    console.log(`[id_processo-tenants] Schemas com pedido: ${rows.length}`)
 
     for (const { table_schema: schemaName } of rows) {
       await client.query('BEGIN')
@@ -70,7 +68,7 @@ async function main(): Promise<void> {
 
         const { rows: applied } = await client.query<{ migration_name: string }>(
           `SELECT migration_name FROM "_prisma_migrations" WHERE migration_name = $1 AND finished_at IS NOT NULL`,
-          [MIGRATION_NAME],
+          [MIGRATION_ID_PROCESSO_PEDIDO],
         )
         if (applied.length > 0) {
           console.log(`[id_processo-tenants] ${schemaName} — ja aplicada`)
@@ -82,13 +80,14 @@ async function main(): Promise<void> {
         await client.query(
           `INSERT INTO "_prisma_migrations" (id, checksum, finished_at, migration_name, applied_steps_count)
            VALUES ($1, $2, NOW(), $3, 1)`,
-          [randomUUID(), checksum, MIGRATION_NAME],
+          [randomUUID(), checksum, MIGRATION_ID_PROCESSO_PEDIDO],
         )
         await client.query('COMMIT')
-        console.log(`[id_processo-tenants] ${schemaName} — OK`)
+        console.log(`[id_processo-tenants] ${schemaName} — OK (id_processo TEXT nullable)`)
       } catch (err) {
         await client.query('ROLLBACK')
-        throw err
+        const msg = err instanceof Error ? err.message : String(err)
+        throw new Error(`[id_processo-tenants] Falha em schema "${schemaName}": ${msg}`)
       }
     }
 
@@ -98,7 +97,18 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch(err => {
-  console.error('[id_processo-tenants] ERRO:', err instanceof Error ? err.message : err)
-  process.exit(1)
-})
+const isMain =
+  process.argv[1] !== undefined &&
+  resolve(fileURLToPath(import.meta.url)) === resolve(process.argv[1])
+
+if (isMain) {
+  const pedidoUrl = process.env.PEDIDO_DATABASE_URL ?? process.env.DATABASE_URL
+  if (!pedidoUrl) {
+    console.error('[id_processo-tenants] PEDIDO_DATABASE_URL ausente')
+    process.exit(1)
+  }
+  aplicarIdProcessoEmSchemasComPedido(pedidoUrl).catch(err => {
+    console.error('[id_processo-tenants] ERRO:', err instanceof Error ? err.message : err)
+    process.exit(1)
+  })
+}

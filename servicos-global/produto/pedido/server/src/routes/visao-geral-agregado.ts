@@ -97,7 +97,7 @@ visaoGeralAgregadoRouter.get('/agregado', async (req: Request, res: Response) =>
           data_emissao_pedido: true,
           data_prevista_pedido_pronto: true,
           data_meta_pedido_pronto: true,
-          created_at: true,
+          data_criacao_pedido: true,
           numero_pedido: true,
         },
       })
@@ -112,7 +112,7 @@ visaoGeralAgregadoRouter.get('/agregado', async (req: Request, res: Response) =>
           data_emissao_pedido: String(row.data_emissao_pedido ?? ''),
           data_prevista_pedido_pronto: row.data_prevista_pedido_pronto as string | null,
           data_meta_pedido_pronto: row.data_meta_pedido_pronto as string | null,
-          created_at: row.created_at as string | null,
+          created_at: row.data_criacao_pedido as string | null,
           numero_pedido: row.numero_pedido as string | null,
         }),
       )

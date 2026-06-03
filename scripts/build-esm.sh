@@ -19,7 +19,7 @@ shift 2
 # ─── Detect if service needs tsx loader (can't be bundled) ───────────────────
 USE_TSX=false
 case "$ENTRY" in
-  *configurador*|*servicos-plataforma*|*cadastros*|*processo*)
+  *configurador*|*servicos-plataforma*|*cadastros*|*processo*|*bid-frete-internacional*)
     USE_TSX=true
     ;;
 esac

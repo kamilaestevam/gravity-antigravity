@@ -353,6 +353,22 @@ export const pedidoItemApi = {
     }),
 }
 
+// ── Visão Geral (agregado server-side) ────────────────────────────────────────
+
+export const pedidoVisaoGeralApi = {
+  agregado: (idsWorkspacesFiltro?: string[]) => {
+    const qs = new URLSearchParams()
+    if (idsWorkspacesFiltro?.length) {
+      qs.set('ids_workspaces', idsWorkspacesFiltro.join(','))
+    }
+    const suffix = qs.toString() ? `?${qs.toString()}` : ''
+    return request<unknown>(`/api/v1/pedidos/visao-geral/agregado${suffix}`).then(raw => {
+      const parsed = visaoGeralAgregadoResponseSchema.parse(raw)
+      return parsed.data
+    })
+  },
+}
+
 // ── Cursor pagination + inline edit ───────────────────────────────────────────
 
 export const pedidoVirtualApi = {

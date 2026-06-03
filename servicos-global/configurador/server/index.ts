@@ -666,7 +666,8 @@ if (process.env.NODE_ENV !== 'test') {
     } finally {
       process.exit = _origExitBid
       if (portaOriginal !== undefined) process.env.PORT = portaOriginal
-      if (dbOriginal !== undefined) process.env.DATABASE_URL = dbOriginal
+      process.env.DATABASE_URL =
+        process.env.CONFIGURADOR_DATABASE_URL ?? dbOriginal ?? process.env.DATABASE_URL
     }
   }
 

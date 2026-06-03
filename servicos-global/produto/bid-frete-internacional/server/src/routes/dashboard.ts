@@ -14,6 +14,12 @@ import {
 
 const router = Router()
 
+function extrairCountGroupBy(row: { _count: number | { _all?: number } }): number {
+  const count = row._count
+  if (typeof count === 'number') return count
+  return count._all ?? 0
+}
+
 const STATUS_ANDAMENTO = [
   'ENVIADA_FORNECEDORES',
   'EM_COTACAO',
@@ -96,9 +102,12 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
       _count: true,
     })
 
-    const funilMapped = (funil as Array<{ status_cotacao_bid_frete_internacional: string; _count: number }>).map(
-      (f) => ({ status: f.status_cotacao_bid_frete_internacional, count: f._count }),
-    )
+    const funilMapped = (
+      funil as Array<{ status_cotacao_bid_frete_internacional: string; _count: number | { _all?: number } }>
+    ).map((f) => ({
+      status: f.status_cotacao_bid_frete_internacional,
+      count: extrairCountGroupBy(f),
+    }))
     const cotacoesAprovadasCount =
       funilMapped.find((f) => f.status === 'APROVADA')?.count ?? cotacoesAprovadas.length
 

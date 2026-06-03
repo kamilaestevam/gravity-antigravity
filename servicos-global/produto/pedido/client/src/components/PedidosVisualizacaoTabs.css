@@ -126,8 +126,12 @@ button.pvt-tab {
 }
 
 .pedido-visualizacao-layout__tabs {
-  padding: var(--pedido-page-pt) var(--pedido-page-px) 0;
+  padding: 0.75rem var(--pedido-page-px) 0;
   flex-shrink: 0;
+}
+
+.pedido-visualizacao-layout__tabs .pvt-tabs {
+  margin-bottom: 0.375rem;
 }
 
 .pedido-visualizacao-layout .lp-page,
@@ -139,4 +143,18 @@ button.pvt-tab {
   flex: 1;
   min-height: 0;
   min-width: 0;
+}
+
+/* Lista — menos vão entre painéis salvos, KPIs e abas de status */
+.pedido-visualizacao-layout .lp-page {
+  gap: 0.375rem;
+}
+
+.pedido-visualizacao-layout .lp-tabela-wrapper .gtv-tabs {
+  padding-top: 0.375rem;
+}
+
+.pedido-visualizacao-layout .lp-tabela-wrapper .gtv-toolbar {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }

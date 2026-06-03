@@ -5,7 +5,7 @@
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Check, Plus, PencilSimple, X, RocketLaunch, CalendarBlank } from '@phosphor-icons/react'
+import { Check, PencilSimple, X, RocketLaunch, CalendarBlank } from '@phosphor-icons/react'
 import { PeriodDropdown } from '@nucleo/dashboard'
 import type { PeriodOption } from '@nucleo/dashboard'
 import type { ActiveFilter, GlobalSlicers } from '@nucleo/dashboard'
@@ -13,6 +13,7 @@ import '@nucleo/tabela-virtual-global/tabela-virtual.css'
 import '../PedidosVisualizacaoTabs.css'
 import './BarraFerramentasDashboardPedido.css'
 import { DashboardStatusSeletorBotao } from './DashboardStatusSeletorBotao'
+import { DashboardAdicionarWidgetBotao } from './DashboardAdicionarWidgetBotao'
 import { DashboardToolbarBotaoIcon } from './DashboardToolbarBotaoIcon'
 import { DASHBOARD_TOOLBAR_ICONE } from './dashboard-toolbar-icones'
 
@@ -37,7 +38,8 @@ export interface BarraFerramentasDashboardPedidoProps {
   onClearFilters: () => void
   editMode: boolean
   onEditModeChange: (v: boolean) => void
-  onAddWidget?: () => void
+  onAbrirSugestoes?: () => void
+  onCriarWidgetZero?: () => void
 }
 
 export function BarraFerramentasDashboardPedido({
@@ -56,21 +58,18 @@ export function BarraFerramentasDashboardPedido({
   onClearFilters,
   editMode,
   onEditModeChange,
-  onAddWidget,
+  onAbrirSugestoes,
+  onCriarWidgetZero,
 }: BarraFerramentasDashboardPedidoProps) {
   const { t } = useTranslation()
   const temRodape = activeFilters.length > 0
   const mostrarOnboarding = !temWidgets && onboarding != null
   const ic = DASHBOARD_TOOLBAR_ICONE
 
-  const botaoAdicionar = onAddWidget != null ? (
-    <DashboardToolbarBotaoIcon
-      titulo={t('nucleo.dashboard.barra.adicionar_dashboard')}
-      descricao={t('nucleo.dashboard.barra.adicionar_dashboard')}
-      icone={<Plus {...ic} weight="bold" />}
-      ariaLabel={t('nucleo.dashboard.barra.adicionar_dashboard')}
-      data-testid="btn-adicionar-dashboard"
-      onClick={onAddWidget}
+  const botaoAdicionar = onAbrirSugestoes != null && onCriarWidgetZero != null ? (
+    <DashboardAdicionarWidgetBotao
+      onAbrirSugestoes={onAbrirSugestoes}
+      onCriarWidgetZero={onCriarWidgetZero}
     />
   ) : null
 

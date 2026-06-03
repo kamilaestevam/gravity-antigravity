@@ -608,6 +608,37 @@
   flex-shrink: 0;
 }
 
+.pedido-dashboard-adicionar-widget__painel {
+  min-width: 240px;
+}
+
+.pedido-dashboard-adicionar-widget__opcao {
+  align-items: flex-start;
+  padding: 0.625rem 0.875rem;
+  gap: 0.625rem;
+}
+
+.pedido-dashboard-adicionar-widget__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+  text-align: left;
+}
+
+.pedido-dashboard-adicionar-widget__titulo {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--gtv-text, #f1f5f9);
+  line-height: 1.3;
+}
+
+.pedido-dashboard-adicionar-widget__descricao {
+  font-size: 0.6875rem;
+  color: var(--gtv-muted, #94a3b8);
+  line-height: 1.35;
+}
+
 .pedido-dashboard-toolbar__icones .pedido-dashboard-toolbar-botao-icone .gb-btn__icon-only svg path {
   vector-effect: non-scaling-stroke;
 }

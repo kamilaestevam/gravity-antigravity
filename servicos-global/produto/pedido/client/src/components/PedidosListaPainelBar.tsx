@@ -12,81 +12,11 @@ import { CSS } from '@dnd-kit/utilities'
 import { useTranslation } from 'react-i18next'
 import { DotsThree, PencilSimple, Trash, X } from '@phosphor-icons/react'
 import { paineisListaApi, type ListaPainel } from '../shared/api'
+import '../pages/Pedidos.css'
 import '../pages/PedidosDashboard.css'
 
 const sty = {
-  painelBar: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.25rem',
-    margin: '0 0 0.75rem',
-    padding: 0,
-    flexWrap: 'wrap' as const,
-  },
-  painelTab: {
-    background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.12)',
-    borderRadius: '6px',
-    padding: '0.3rem 0.75rem',
-    fontSize: '0.75rem',
-    fontWeight: 500,
-    color: 'rgba(255,255,255,0.6)',
-    cursor: 'pointer',
-    fontFamily: 'var(--font, inherit)',
-  },
-  painelTabAtivo: {
-    background: 'rgba(139,92,246,0.18)',
-    border: '1px solid rgba(139,92,246,0.5)',
-    borderRadius: '6px',
-    padding: '0.3rem 0.75rem',
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    color: '#c4b5fd',
-    cursor: 'pointer',
-    fontFamily: 'var(--font, inherit)',
-  },
-  painelAddBtn: {
-    background: 'none',
-    border: '1px dashed rgba(255,255,255,0.2)',
-    borderRadius: '6px',
-    padding: '0.3rem 0.6rem',
-    fontSize: '0.9rem',
-    color: 'rgba(255,255,255,0.35)',
-    cursor: 'pointer',
-    lineHeight: 1,
-  },
-  painelNovoForm: { display: 'flex', alignItems: 'center', gap: '0.25rem' },
-  painelNovoInput: {
-    background: 'rgba(255,255,255,0.07)',
-    border: '1px solid rgba(139,92,246,0.5)',
-    borderRadius: '6px',
-    padding: '0.28rem 0.5rem',
-    fontSize: '0.75rem',
-    color: '#fff',
-    outline: 'none',
-    width: '140px',
-  },
-  painelNovoBtnOk: {
-    background: 'rgba(139,92,246,0.7)',
-    border: 'none',
-    borderRadius: '6px',
-    padding: '0.28rem 0.6rem',
-    fontSize: '0.72rem',
-    fontWeight: 600,
-    color: '#fff',
-    cursor: 'pointer',
-  },
-  painelNovoBtnCancel: {
-    background: 'none',
-    border: 'none',
-    padding: '0.28rem 0.4rem',
-    fontSize: '0.75rem',
-    color: 'rgba(255,255,255,0.4)',
-    cursor: 'pointer',
-  },
   painelTabWrap: { position: 'relative' as const, display: 'inline-flex' },
-  painelTabInner: { display: 'inline-flex', alignItems: 'center', gap: '0.2rem' },
-  painelMenuBtn: { display: 'inline-flex', opacity: 0.6, cursor: 'pointer' },
   painelMenuDropdown: {
     position: 'absolute' as const,
     top: '100%',
@@ -125,16 +55,6 @@ const sty = {
     color: '#f87171',
     cursor: 'pointer',
     textAlign: 'left' as const,
-  },
-  painelRenameInput: {
-    background: 'rgba(255,255,255,0.07)',
-    border: '1px solid rgba(139,92,246,0.5)',
-    borderRadius: '6px',
-    padding: '0.28rem 0.5rem',
-    fontSize: '0.75rem',
-    color: '#fff',
-    outline: 'none',
-    width: '120px',
   },
 }
 
@@ -253,23 +173,25 @@ export function PedidosListaPainelBar({
 
   return (
     <div className="lp-paineis-lista-strip" data-testid="lista-painel-bar">
-      <span className="lp-paineis-lista-strip__label">
-        {t('pedido.lista.paineis_secao', { defaultValue: 'Painéis da lista' })}
+      <span
+        className="lp-paineis-lista-strip__label"
+        title={t('pedido.lista.paineis_secao', { defaultValue: 'Painéis da lista' })}
+      >
+        {t('pedido.lista.paineis_secao_curto', { defaultValue: 'Painéis' })}
       </span>
-      <div style={sty.painelBar} className="pedido-dashboard-painel-bar">
+      <div className="lp-paineis-lista-strip__tabs pedido-dashboard-painel-bar">
       {carregando ? (
         <span className="lp-paineis-lista-strip__vazio" role="status">
-          {t('pedido.lista.paineis_carregando', { defaultValue: 'Carregando painéis…' })}
+          {t('pedido.lista.paineis_carregando', { defaultValue: 'Carregando…' })}
         </span>
       ) : paineisVisiveis.length === 0 ? (
-        <span className="lp-paineis-lista-strip__vazio">
-          {paineis.length === 0
-            ? t('pedido.lista.paineis_vazio', {
-                defaultValue: 'Nenhum painel ainda. Crie em + Novo → Novo painel ou no botão + ao lado.',
-              })
-            : t('pedido.lista.paineis_todos_ocultos', {
-                defaultValue: 'Todos os painéis estão ocultos. Reative em opções do painel.',
-              })}
+        <span
+          className="lp-paineis-lista-strip__vazio"
+          title={t('pedido.lista.paineis_vazio', {
+            defaultValue: 'Crie em + Novo → Novo painel ou no + ao lado.',
+          })}
+        >
+          {t('pedido.lista.paineis_vazio_curto', { defaultValue: '+ Novo painel ou botão +' })}
         </span>
       ) : (
       <DndContext sensors={painelSensors} collisionDetection={closestCenter} onDragEnd={handlePainelDragEnd}>
@@ -281,7 +203,7 @@ export function PedidosListaPainelBar({
             <SortableTabWrapper key={p.id} id={p.id}>
               {renamingId === p.id ? (
                 <form
-                  style={sty.painelNovoForm}
+                  className="lp-painel-tab-form"
                   onSubmit={e => { e.preventDefault(); handleRenomearPainel(p.id, renameValue) }}
                   onPointerDown={e => e.stopPropagation()}
                 >
@@ -291,7 +213,6 @@ export function PedidosListaPainelBar({
                     value={renameValue}
                     onChange={e => setRenameValue(e.target.value)}
                     onBlur={() => handleRenomearPainel(p.id, renameValue)}
-                    style={sty.painelRenameInput}
                     maxLength={60}
                   />
                 </form>
@@ -299,26 +220,25 @@ export function PedidosListaPainelBar({
                 <button
                   type="button"
                   data-testid={`lista-painel-tab-${p.id}`}
-                  style={p.id === painelAtualId ? sty.painelTabAtivo : sty.painelTab}
+                  className={p.id === painelAtualId ? 'lp-painel-tab lp-painel-tab--ativo' : 'lp-painel-tab'}
                   onClick={() => onTrocarPainel(p.id)}
                   onDoubleClick={() => { setRenamingId(p.id); setRenameValue(p.nome) }}
                   onPointerDown={e => e.stopPropagation()}
+                  title={p.nome}
                 >
-                  <span style={sty.painelTabInner}>
-                    {p.nome}
-                    <span
-                      role="button"
-                      aria-label={t('pedido.lista.painel_opcoes', { defaultValue: 'Opções do painel' })}
-                      style={sty.painelMenuBtn}
-                      onPointerDown={e => e.stopPropagation()}
-                      onClick={e => {
-                        e.stopPropagation()
-                        setMenuPainelId(prev => prev === p.id ? null : p.id)
-                        setDeletingId(null)
-                      }}
-                    >
-                      <DotsThree size={14} weight="bold" />
-                    </span>
+                  <span className="lp-painel-tab__nome">{p.nome}</span>
+                  <span
+                    role="button"
+                    aria-label={t('pedido.lista.painel_opcoes', { defaultValue: 'Opções do painel' })}
+                    className="lp-painel-tab__menu"
+                    onPointerDown={e => e.stopPropagation()}
+                    onClick={e => {
+                      e.stopPropagation()
+                      setMenuPainelId(prev => prev === p.id ? null : p.id)
+                      setDeletingId(null)
+                    }}
+                  >
+                    <DotsThree size={12} weight="bold" />
                   </span>
                 </button>
               )}
@@ -334,11 +254,11 @@ export function PedidosListaPainelBar({
                         {t('pedido.lista.painel_excluir_confirmar', { defaultValue: 'Excluir painel?' })}
                         {' '}<strong style={{ color: '#fff' }}>{p.nome}</strong>
                       </p>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
-                        <button type="button" style={sty.painelNovoBtnOk} onClick={() => handleDeletarPainel(p.id)}>
+                      <div style={{ display: 'flex', gap: '0.35rem' }}>
+                        <button type="button" className="lp-painel-tab-form__ok" onClick={() => handleDeletarPainel(p.id)}>
                           {t('comum.confirmar', { defaultValue: 'Confirmar' })}
                         </button>
-                        <button type="button" style={sty.painelNovoBtnCancel} onClick={() => setDeletingId(null)}>
+                        <button type="button" className="lp-painel-tab-form__cancel" onClick={() => setDeletingId(null)}>
                           {t('comum.cancelar', { defaultValue: 'Cancelar' })}
                         </button>
                       </div>
@@ -380,7 +300,7 @@ export function PedidosListaPainelBar({
 
       {!carregando && (criandoPainel ? (
         <form
-          style={sty.painelNovoForm}
+          className="lp-painel-tab-form"
           onSubmit={e => {
             e.preventDefault()
             void submitNovoPainel()
@@ -389,7 +309,7 @@ export function PedidosListaPainelBar({
           <input
             autoFocus
             type="text"
-            placeholder={t('pedido.lista.painel_novo_placeholder', { defaultValue: 'Nome do painel' })}
+            placeholder={t('pedido.lista.painel_novo_placeholder', { defaultValue: 'Nome' })}
             value={novoNomePainel}
             onChange={e => setNovoNomePainel(e.target.value)}
             onKeyDown={e => {
@@ -399,16 +319,12 @@ export function PedidosListaPainelBar({
               }
             }}
             disabled={salvandoPainel}
-            style={sty.painelNovoInput}
             maxLength={60}
           />
           <button
             type="submit"
-            style={{
-              ...sty.painelNovoBtnOk,
-              opacity: salvandoPainel ? 0.6 : 1,
-              cursor: salvandoPainel ? 'wait' : 'pointer',
-            }}
+            className="lp-painel-tab-form__ok"
+            style={{ opacity: salvandoPainel ? 0.6 : 1, cursor: salvandoPainel ? 'wait' : 'pointer' }}
             disabled={salvandoPainel || !novoNomePainel.trim()}
             aria-label={t('pedido.dashboard.painel_criar', { defaultValue: 'Criar' })}
           >
@@ -416,20 +332,21 @@ export function PedidosListaPainelBar({
           </button>
           <button
             type="button"
-            style={sty.painelNovoBtnCancel}
+            className="lp-painel-tab-form__cancel"
             disabled={salvandoPainel}
             onClick={() => { setCriandoPainel(false); setNovoNomePainel('') }}
           >
-            <X size={12} />
+            <X size={11} />
           </button>
         </form>
       ) : (
         <button
           type="button"
-          style={sty.painelAddBtn}
+          className="lp-painel-tab-add"
           data-testid="lista-painel-criar"
           onClick={() => setCriandoPainel(true)}
           title={t('pedido.lista.painel_novo', { defaultValue: 'Novo painel' })}
+          aria-label={t('pedido.lista.painel_novo', { defaultValue: 'Novo painel' })}
         >
           +
         </button>

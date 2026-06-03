@@ -1915,9 +1915,14 @@ export default function PedidosDashboard() {
           atrasados:    kpisData.pedidos_atrasados,
           concluidos:   kpisData.pedidos_consolidados,
         } : undefined}
-        onAddWidget={
+        onAbrirSugestoes={
           editMode && podeEditarDashboard
             ? () => setSuggestionsOpen(true)
+            : undefined
+        }
+        onCriarWidgetZero={
+          editMode && podeEditarDashboard
+            ? () => { setEditMode(true); setQueryBuilderOpen(true) }
             : undefined
         }
       />

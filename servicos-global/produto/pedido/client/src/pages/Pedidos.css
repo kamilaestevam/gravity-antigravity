@@ -49,39 +49,156 @@
 .lp-page {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.625rem;
   padding: var(--pedido-page-pt) var(--pedido-page-px) var(--pedido-page-pb);
   min-height: 0;
   flex: 1;
 }
 
-/* Faixa de painéis salvos — acima dos KPIs (não confundir com abas de status) */
+/* Faixa de painéis salvos — uma linha compacta acima dos KPIs */
 .lp-paineis-lista {
   flex-shrink: 0;
+  margin: 0;
 }
 
 .lp-paineis-lista-strip {
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.5rem 0.75rem;
-  background: rgba(139, 92, 246, 0.1);
-  border: 1px solid rgba(139, 92, 246, 0.35);
-  border-radius: 0.5rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 1.5rem;
+  padding: 0.1rem 0.35rem;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  border-radius: 0.375rem;
 }
 
 .lp-paineis-lista-strip__label {
-  font-size: 0.6875rem;
+  flex-shrink: 0;
+  font-size: 0.625rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: #a78bfa;
+  line-height: 1;
+  padding-right: 0.125rem;
+  border-right: 1px solid rgba(139, 92, 246, 0.25);
+  margin-right: 0.125rem;
+}
+
+.lp-paineis-lista-strip__tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .lp-paineis-lista-strip__vazio {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   color: var(--text-secondary);
-  line-height: 1.35;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lp-painel-tab {
+  display: inline-flex;
+  align-items: center;
+  max-width: 7.5rem;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+}
+
+.lp-painel-tab--ativo {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.45);
+  color: #c4b5fd;
+  font-weight: 600;
+}
+
+.lp-painel-tab__nome {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lp-painel-tab__menu {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-left: 0.15rem;
+  opacity: 0.55;
+  cursor: pointer;
+}
+
+.lp-painel-tab__menu:hover {
+  opacity: 1;
+}
+
+.lp-painel-tab-add {
+  flex-shrink: 0;
+  padding: 0.1rem 0.4rem;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  background: none;
+  font-size: 0.8125rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+}
+
+.lp-painel-tab-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.lp-painel-tab-form input {
+  width: 6.5rem;
+  padding: 0.12rem 0.35rem;
+  border: 1px solid rgba(139, 92, 246, 0.45);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.lp-painel-tab-form__ok,
+.lp-painel-tab-form__cancel {
+  border: none;
+  border-radius: 4px;
+  padding: 0.12rem 0.35rem;
+  font-family: inherit;
+  font-size: 0.625rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lp-painel-tab-form__ok {
+  background: rgba(139, 92, 246, 0.65);
+  color: #fff;
+}
+
+.lp-painel-tab-form__cancel {
+  background: none;
+  color: rgba(255, 255, 255, 0.45);
+  padding: 0.12rem 0.2rem;
+}
+
+.lp-paineis-lista + .lp-stats-row {
+  margin-top: 0;
 }
 
 

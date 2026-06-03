@@ -71,6 +71,10 @@ export function withTenantIsolation(prisma: PrismaClient, tenantId: string) {
           args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
+        async groupBy({ args, query }: QueryCtx) {
+          args.where = { ...args.where, id_organizacao: tenantId }
+          return query(args)
+        },
       }
     }
   }) as unknown as PrismaClient

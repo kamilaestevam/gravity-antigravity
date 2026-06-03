@@ -161,8 +161,11 @@ app.get('*', (_req: Request, res: Response) => {
 })
 
 // --- 11. Error Handler Global ---
-app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res: Response, _next: NextFunction) => {
-  console.error('[BidFrete] Erro:', err.message)
+app.use((err: Error & { statusCode?: number; code?: string; meta?: unknown }, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('[BidFrete] Erro:', err.message, err.code ?? '', err.meta ?? '')
+  if (err.stack && process.env.NODE_ENV !== 'test') {
+    console.error('[BidFrete] Stack:', err.stack.split('\n').slice(0, 6).join('\n'))
+  }
   const status = err.statusCode ?? 500
   res.status(status).json({
     error: {

@@ -32,6 +32,32 @@
   margin-bottom: 8px;
 }
 
+.dq-construtor--editar .dq-construtor__corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dq-editar-widget__footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.dq-secao--indicador {
+  gap: 8px;
+}
+
+.dq-op__linha--somente-leitura {
+  cursor: default;
+}
+
+.dq-chart__grid--editar {
+  margin-top: 0;
+}
+
 .dq-construtor__alert {
   display: flex;
   align-items: flex-start;

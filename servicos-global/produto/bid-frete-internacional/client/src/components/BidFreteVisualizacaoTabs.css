@@ -55,7 +55,14 @@
   flex-shrink: 0;
 }
 
-.bid-frete-visualizacao-layout .bid-frete-multi-view,
+/* Paridade Pedido: padding só no conteúdo da aba, não no wrapper multi-view (evita 4rem lateral). */
+.bid-frete-visualizacao-layout .bid-frete-multi-view {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+}
+
 .bid-frete-visualizacao-layout .bid-frete-page-shell,
 .bid-frete-visualizacao-layout .pg-container.bid-frete-page-shell,
 .bid-frete-visualizacao-layout .bf-lista-page,
@@ -69,6 +76,7 @@
   flex: 1;
   min-height: 0;
   min-width: 0;
+  box-sizing: border-box;
 }
 
 .bid-frete-visualizacao-layout .pg-container.bid-frete-page-shell .pg-contexto-row.pg-no-header {

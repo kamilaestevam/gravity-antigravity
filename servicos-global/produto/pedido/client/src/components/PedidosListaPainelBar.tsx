@@ -188,7 +188,7 @@ export function PedidosListaPainelBar({
         {t('pedido.lista.paineis_secao_curto', { defaultValue: 'Painéis' })}
       </span>
       <div className="lp-paineis-lista-strip__tabs pedido-dashboard-painel-bar">
-      {carregando ? (
+      {carregando && paineisVisiveis.length === 0 ? (
         <span className="lp-paineis-lista-strip__vazio" role="status">
           {t('pedido.lista.paineis_carregando', { defaultValue: 'Carregando…' })}
         </span>

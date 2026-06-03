@@ -17,7 +17,11 @@ import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
 import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
-import { useListaPainelPedido, type EstadoListaParaPainel } from '../shared/useListaPainelPedido'
+import {
+  useListaPainelPedido,
+  type EstadoListaParaPainel,
+  type SnapshotAplicarListaPainel,
+} from '../shared/useListaPainelPedido'
 import { PedidosListaFaixaNavegacao } from '../components/PedidosListaFaixaNavegacao'
 import { useSelecaoStore, usePedidosSelecionados, useItensSelecionados, useHasMixedTipos } from '../shared/state/selecaoStore'
 import { useLinkContextualSync } from '../shared/state/useLinkContextualSync'
@@ -4197,6 +4201,16 @@ export default function Pedidos() {
     criarPainel: criarPainelLista,
   } = useListaPainelPedido()
   const painelListaAplicadoRef = useRef<string | null>(null)
+  /** Evita 2º carregarInicial do efeito de escopo antes do painel hidratar (causava flash → zero). */
+  const escopoListaInicialDisparadoRef = useRef(false)
+  /** Carga do painel adiada até escopo de workspaces ter ao menos uma filial. */
+  const painelSnapshotPendenteRef = useRef<SnapshotAplicarListaPainel | null>(null)
+
+  useEffect(() => {
+    painelListaAplicadoRef.current = null
+    escopoListaInicialDisparadoRef.current = false
+    painelSnapshotPendenteRef.current = null
+  }, [idOrganizacao])
 
   // ── GABI quota badge ────────────────────────────────────────────────────────
   // useGabiQuota faz fetch direto sem passar pelo request() do api.ts —
@@ -4887,9 +4901,46 @@ export default function Pedidos() {
     }
     if (cardsTopo.ids_visiveis.length > 0) {
       const visiveisSet = new Set(cardsTopo.ids_visiveis)
-      persistirCardPrefs(cardPrefs.map(p => ({ ...p, visible: visiveisSet.has(p.id) })))
+      const algumIdValido = cardPrefs.some(p => visiveisSet.has(p.id))
+      if (algumIdValido) {
+        persistirCardPrefs(cardPrefs.map(p => ({ ...p, visible: visiveisSet.has(p.id) })))
+      } else {
+        console.warn(
+          '[Pedidos] cards_topo.ids_visiveis do painel não batem com nenhum card local — mantendo visibilidade atual',
+          cardsTopo.ids_visiveis,
+        )
+      }
     }
   }, [cardPrefs, persistirCardPrefs, setPeriodoCards])
+
+  const aplicarSnapshotPainelNaUi = useCallback((snapshot: SnapshotAplicarListaPainel) => {
+    setAbaAtiva(snapshot.aba)
+    setSortCampo(snapshot.sortCampo)
+    setSortDir(snapshot.sortDir)
+    setBusca(snapshot.busca)
+    aplicarCardsTopoDoPainel(snapshot.cardsTopo)
+    setFiltrosAtivos(snapshot.filtrosColuna)
+  }, [aplicarCardsTopoDoPainel])
+
+  const executarCargaComSnapshotPainel = useCallback((snapshot: SnapshotAplicarListaPainel) => {
+    if (workspacesSelecionados.length === 0) {
+      painelSnapshotPendenteRef.current = snapshot
+      return
+    }
+    painelSnapshotPendenteRef.current = null
+    setPedidoFocoId(null)
+    void carregarInicial(
+      snapshot.aba,
+      snapshot.sortCampo,
+      snapshot.sortDir,
+      snapshot.busca,
+      1,
+      true,
+    ).finally(() => {
+      aplicarSnapshotPainelNaUi(snapshot)
+      escopoListaInicialDisparadoRef.current = true
+    })
+  }, [workspacesSelecionados, carregarInicial, aplicarSnapshotPainelNaUi])
 
   const listaPainelCallbacks = useMemo(() => ({
     setPreferencias,
@@ -4899,20 +4950,37 @@ export default function Pedidos() {
     setBusca,
     setFiltrosAtivos,
     setCardsTopoDoPainel: aplicarCardsTopoDoPainel,
-    onConfigAplicada: (aba: string, campo: string, dir: 'asc' | 'desc', buscaTermo: string) => {
-      setPedidoFocoId(null)
-      void carregarInicial(aba, campo, dir, buscaTermo, 1, true)
+    onConfigAplicada: (snapshot: SnapshotAplicarListaPainel) => {
+      executarCargaComSnapshotPainel(snapshot)
     },
     onPainelHidratado: (id: string) => {
       painelListaAplicadoRef.current = id
     },
-  }), [carregarInicial, aplicarCardsTopoDoPainel])
+  }), [executarCargaComSnapshotPainel, aplicarCardsTopoDoPainel])
 
   useEffect(() => {
+    if (!escopoHidratado || !idOrganizacao) return
+    if (workspacesSelecionados.length === 0) return
+    if (!painelSnapshotPendenteRef.current) return
+    executarCargaComSnapshotPainel(painelSnapshotPendenteRef.current)
+  }, [escopoHidratado, idOrganizacao, workspacesSelecionados, executarCargaComSnapshotPainel])
+
+  useEffect(() => {
+    if (!escopoHidratado || !idOrganizacao) return
+    if (workspacesSelecionados.length === 0) return
     if (!painelListaAtual || carregandoPaineisLista) return
     if (painelListaAplicadoRef.current === painelListaAtual.id) return
     aplicarConfigDoPainel(painelListaAtual, listaPainelCallbacks)
-  }, [painelListaAtual?.id, painelListaAtual?.config_json, carregandoPaineisLista, aplicarConfigDoPainel, listaPainelCallbacks])
+  }, [
+    escopoHidratado,
+    idOrganizacao,
+    workspacesSelecionados.length,
+    painelListaAtual?.id,
+    painelListaAtual?.config_json,
+    carregandoPaineisLista,
+    aplicarConfigDoPainel,
+    listaPainelCallbacks,
+  ])
 
   const estadoListaParaPainel = useCallback((): EstadoListaParaPainel => ({
     preferencias,
@@ -5025,12 +5093,20 @@ export default function Pedidos() {
   }, [carregarInicial, abaAtiva, sortCampo, sortDir, busca])
 
   // Recarrega lista quando mudou escopo de workspaces (menu lateral) ou quando
-  // idOrganizacao hidrata do /me (antes do escopo o efeito saía sem disparar de novo).
+  // idOrganizacao hidrata do /me. A primeira carga com painel salvo fica só no onConfigAplicada.
   useEffect(() => {
     if (!idOrganizacao || !escopoHidratado) return
-    carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
+    if (carregandoPaineisLista) return
+
+    if (!escopoListaInicialDisparadoRef.current) {
+      if (painelListaAtualId && painelListaAplicadoRef.current !== painelListaAtualId) return
+      if (painelListaAtualId) return
+      escopoListaInicialDisparadoRef.current = true
+    }
+
+    void carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workspacesSelecionados, escopoHidratado, idOrganizacao])
+  }, [workspacesSelecionados, escopoHidratado, idOrganizacao, carregandoPaineisLista])
 
   // Sincroniza com mudanças feitas em outras views (Kanban, Dashboard)
   useEffect(() => {

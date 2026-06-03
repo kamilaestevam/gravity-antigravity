@@ -9,7 +9,7 @@ export const listaPainelSchema = z.object({
   user_id:            z.string(),
   id_produto_gravity: z.string(),
   nome:               z.string(),
-  ordem:              z.number(),
+  ordem:              z.coerce.number(),
   is_visivel:         z.boolean(),
   config_json:        z.string(),
   created_at:         z.union([z.string(), z.coerce.string()]),

@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next'
 import { DotsThreeVertical, PencilSimple, Trash, DownloadSimple, Warning, ArrowClockwise, DotsSixVertical } from '@phosphor-icons/react'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import type { DashboardWidgetConfig, WidgetResult } from '../tipos.js'
+import { WidgetHeaderAcoesPortal } from './WidgetHeaderAcoesPortal.js'
 
 export interface WidgetContainerProps {
   widget: DashboardWidgetConfig
@@ -83,10 +84,11 @@ function OptionsMenu({ editMode, onEdit, onRemove }: OptionsMenuProps) {
   if (!editMode) return null
 
   return (
-    <div ref={menuRef} style={{ position: 'relative' }}>
+    <div ref={menuRef} className="db-no-drag" style={{ position: 'relative' }}>
       <button
         type="button"
         style={styles.menuBtn}
+        onMouseDown={(e) => e.stopPropagation()}
         onClick={(e) => { e.stopPropagation(); setOpen(v => !v) }}
         aria-label={t('nucleo.dashboard.painel.opcoes_widget_aria')}
         title={t('nucleo.dashboard.painel.opcoes')}
@@ -165,6 +167,7 @@ export function DashboardPainelContainer({
   const isPartial = result?.partial === true
   const isCached = result?.cached === true
   const [hovered, setHovered] = useState(false)
+  const acoesAnchorRef = useRef<HTMLDivElement>(null)
 
   const handleMouseEnter = useCallback(() => setHovered(true), [])
   const handleMouseLeave = useCallback(() => setHovered(false), [])
@@ -173,7 +176,20 @@ export function DashboardPainelContainer({
 
   const headerStyle: React.CSSProperties = {
     ...styles.header,
-    cursor: editMode ? 'grab' : 'default',
+    cursor: 'default',
+  }
+
+  const titleAreaStyle: React.CSSProperties = {
+    ...styles.titleArea,
+    minWidth: 0,
+    ...(editMode ? { cursor: 'grab' } : {}),
+  }
+
+  const headerGridStyle: React.CSSProperties = {
+    ...headerStyle,
+    display: 'grid',
+    gridTemplateColumns: 'minmax(0, 1fr) auto',
+    alignItems: 'center',
   }
 
   const containerStyle: React.CSSProperties = {
@@ -189,10 +205,12 @@ export function DashboardPainelContainer({
 
   return (
     <div style={containerStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={onClick}>
-      {/* Cabeçalho com drag handle */}
-      <div className={editMode ? 'db-drag-handle' : undefined} style={headerStyle}>
-        <div style={styles.titleArea}>
-          {/* Ícone de arraste visível no modo edição */}
+      {/* Cabeçalho — arraste só na coluna do título; controles via portal (fora do grid) */}
+      <div style={headerGridStyle}>
+        <div
+          className={editMode ? 'db-drag-handle' : undefined}
+          style={titleAreaStyle}
+        >
           {editMode && (
             <span style={styles.dragHandleIcon} title={t('nucleo.dashboard.painel.arraste_reorganizar')}>
               <DotsSixVertical size={16} weight="bold" />
@@ -219,7 +237,9 @@ export function DashboardPainelContainer({
               {editMode && onLimparPeriodoWidget && (
                 <button
                   type="button"
+                  className="db-no-drag"
                   style={styles.badgePeriodoClear}
+                  onMouseDown={(e) => e.stopPropagation()}
                   onClick={(e) => { e.stopPropagation(); onLimparPeriodoWidget() }}
                   aria-label={t('nucleo.dashboard.painel.limpar_periodo_widget')}
                 >
@@ -232,19 +252,24 @@ export function DashboardPainelContainer({
 
         {editMode && (
           <div
-            style={styles.headerActions}
-            data-testid="dashboard-widget-header-acoes"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {periodoControle}
-            <OptionsMenu
-              editMode={editMode}
-              onEdit={onEdit ? () => onEdit(widget) : undefined}
-              onRemove={onRemove ? () => onRemove(widget.id) : undefined}
-            />
-          </div>
+            ref={acoesAnchorRef}
+            className="dashboard-widget-header-acoes-anchor"
+            style={styles.headerAcoesAnchor}
+            aria-hidden="true"
+          />
         )}
       </div>
+
+      {editMode && (
+        <WidgetHeaderAcoesPortal anchorRef={acoesAnchorRef} ativo={editMode}>
+          {periodoControle}
+          <OptionsMenu
+            editMode={editMode}
+            onEdit={onEdit ? () => onEdit(widget) : undefined}
+            onRemove={onRemove ? () => onRemove(widget.id) : undefined}
+          />
+        </WidgetHeaderAcoesPortal>
+      )}
 
       {/* Corpo */}
       <div style={styles.body}>
@@ -405,6 +430,16 @@ const styles = {
     alignItems: 'center',
     gap: '6px',
     flexShrink: 0,
+    position: 'relative' as const,
+    zIndex: 20,
+    cursor: 'default',
+  },
+  headerAcoesAnchor: {
+    width: 120,
+    minWidth: 120,
+    height: 28,
+    flexShrink: 0,
+    pointerEvents: 'none' as const,
   },
   menuBtn: {
     background: 'none',

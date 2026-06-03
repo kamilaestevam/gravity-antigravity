@@ -275,13 +275,16 @@ export function PeriodDropdown({
     : null
 
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
+    <div ref={ref} className="db-no-drag" style={{ position: 'relative' }}>
       {renderGatilho ? (
         renderGatilho({ open, selectedLabel, isCustom, onToggle: toggleOpen })
       ) : (
         <button
           type="button"
+          className="db-no-drag"
           style={dropdownStyles.trigger}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={toggleOpen}
           aria-haspopup={modoPainel === 'modal' ? 'dialog' : 'listbox'}
           aria-expanded={open}

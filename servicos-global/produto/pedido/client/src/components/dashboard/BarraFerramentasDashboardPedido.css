@@ -51,7 +51,7 @@
 
 .pedido-dashboard-toolbar__esquerda {
 
-  flex: 1 1 auto;
+  flex: 1 1 0;
 
   min-width: 0;
 
@@ -78,6 +78,44 @@
   justify-content: flex-end;
 
   gap: 0.5rem;
+
+  position: relative;
+
+  overflow: visible;
+
+}
+
+
+
+.pedido-dashboard-widgets-seletor {
+
+  position: relative;
+
+  flex-shrink: 0;
+
+  margin-left: auto;
+
+}
+
+
+
+.pedido-dashboard-widgets-seletor__btn {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 0.375rem;
+
+}
+
+
+
+.pedido-dashboard-widgets-seletor__btn--destaque {
+
+  color: var(--gtv-accent, #818cf8);
+
+  border-color: rgba(129, 140, 248, 0.45);
 
 }
 

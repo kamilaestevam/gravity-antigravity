@@ -28,6 +28,8 @@ export const listaPaineisRouter = Router()
 
 const CriarPainelSchema = z.object({
   nome: z.string().min(1, 'Nome obrigatório').max(60, 'Máximo 60 caracteres'),
+  /** Snapshot da vista atual (opcional); senão usa padrão v1 */
+  config_json: z.string().optional(),
 })
 
 const AtualizarPainelSchema = z.object({
@@ -233,14 +235,17 @@ listaPaineisRouter.post('/paineis', async (req: Request, res: Response, next: Ne
         select:  { ordem_lista_painel_usuario_global: true },
       })
 
+      let configInicial = configListaPainelPadraoV1()
+      if (parsed.data.config_json) {
+        configInicial = listaPainelConfigV1Schema.parse(JSON.parse(parsed.data.config_json))
+      }
+
       const painel = await db.listaPainelUsuarioGlobal.create({
         data: {
           ...whereUsuarioProduto(idOrganizacao, idUsuario),
           nome_lista_painel_usuario_global:  parsed.data.nome,
           ordem_lista_painel_usuario_global: (ultimo?.ordem_lista_painel_usuario_global ?? -1) + 1,
-          config_json_lista_painel_usuario_global: serializarConfigListaPainel(
-            configListaPainelPadraoV1(),
-          ),
+          config_json_lista_painel_usuario_global: serializarConfigListaPainel(configInicial),
         },
       })
 

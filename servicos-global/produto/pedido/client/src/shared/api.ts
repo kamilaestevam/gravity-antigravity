@@ -2206,10 +2206,13 @@ export const paineisListaApi = {
     request<unknown>('/api/v1/pedidos/lista/paineis').then(raw =>
       listaPainelListResponseSchema.parse(raw)),
 
-  criar: (nome: string): Promise<{ data: ListaPainel }> =>
+  criar: (nome: string, configJson?: string): Promise<{ data: ListaPainel }> =>
     request<unknown>('/api/v1/pedidos/lista/paineis', {
       method: 'POST',
-      body: JSON.stringify({ nome }),
+      body: JSON.stringify({
+        nome,
+        ...(configJson ? { config_json: configJson } : {}),
+      }),
     }).then(raw => {
       const parsed = listaPainelItemResponseSchema.safeParse(raw)
       if (!parsed.success) {

@@ -17,8 +17,8 @@ import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
 import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
-import { useListaPainelPedido } from '../shared/useListaPainelPedido'
-import { PedidosListaPainelBar } from '../components/PedidosListaPainelBar'
+import { useListaPainelPedido, type EstadoListaParaPainel } from '../shared/useListaPainelPedido'
+import { PedidosListaFaixaNavegacao } from '../components/PedidosListaFaixaNavegacao'
 import { useSelecaoStore, usePedidosSelecionados, useItensSelecionados, useHasMixedTipos } from '../shared/state/selecaoStore'
 import { useLinkContextualSync } from '../shared/state/useLinkContextualSync'
 import {
@@ -4161,7 +4161,13 @@ export default function Pedidos() {
     }
     return enriquecerMapaColunasFilhoComRegraTooltip({ ...base, ...custom }, t)
   }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario])
-  const { visiveis: cardsVisiveis, periodo: periodoCards } = useCardPreferences()
+  const {
+    prefs: cardPrefs,
+    visiveis: cardsVisiveis,
+    periodo: periodoCards,
+    persistir: persistirCardPrefs,
+    setPeriodo: setPeriodoCards,
+  } = useCardPreferences()
   const cardsVisiveisIdsKey = useMemo(
     () => cardsVisiveis.map(c => c.id).join('\0'),
     [cardsVisiveis],
@@ -4871,6 +4877,20 @@ export default function Pedidos() {
     }
   }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo, t])
 
+  const aplicarCardsTopoDoPainel = useCallback((
+    cardsTopo: { ids_visiveis: string[]; periodo?: string } | undefined,
+  ) => {
+    if (!cardsTopo) return
+    const periodosValidos = ['7d', '30d', '6m', '1a', 'tudo'] as const
+    if (cardsTopo.periodo && periodosValidos.includes(cardsTopo.periodo as typeof periodosValidos[number])) {
+      setPeriodoCards(cardsTopo.periodo as typeof periodosValidos[number])
+    }
+    if (cardsTopo.ids_visiveis.length > 0) {
+      const visiveisSet = new Set(cardsTopo.ids_visiveis)
+      persistirCardPrefs(cardPrefs.map(p => ({ ...p, visible: visiveisSet.has(p.id) })))
+    }
+  }, [cardPrefs, persistirCardPrefs, setPeriodoCards])
+
   const listaPainelCallbacks = useMemo(() => ({
     setPreferencias,
     setAbaAtiva,
@@ -4878,13 +4898,15 @@ export default function Pedidos() {
     setSortDir,
     setBusca,
     setFiltrosAtivos,
+    setCardsTopoDoPainel: aplicarCardsTopoDoPainel,
     onConfigAplicada: (aba: string, campo: string, dir: 'asc' | 'desc', buscaTermo: string) => {
+      setPedidoFocoId(null)
       void carregarInicial(aba, campo, dir, buscaTermo, 1, true)
     },
     onPainelHidratado: (id: string) => {
       painelListaAplicadoRef.current = id
     },
-  }), [carregarInicial])
+  }), [carregarInicial, aplicarCardsTopoDoPainel])
 
   useEffect(() => {
     if (!painelListaAtual || carregandoPaineisLista) return
@@ -4892,10 +4914,21 @@ export default function Pedidos() {
     aplicarConfigDoPainel(painelListaAtual, listaPainelCallbacks)
   }, [painelListaAtual?.id, painelListaAtual?.config_json, carregandoPaineisLista, aplicarConfigDoPainel, listaPainelCallbacks])
 
+  const estadoListaParaPainel = useCallback((): EstadoListaParaPainel => ({
+    preferencias,
+    abaAtiva,
+    sortCampo,
+    sortDir,
+    busca,
+    filtrosAtivos,
+    cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+    periodoCards,
+  }), [preferencias, abaAtiva, sortCampo, sortDir, busca, filtrosAtivos, cardsVisiveis, periodoCards])
+
   const handleCriarPainelLista = useCallback(async (nome: string): Promise<boolean> => {
     painelListaAplicadoRef.current = null
     try {
-      const criado = await criarPainelLista(nome, listaPainelCallbacks)
+      const criado = await criarPainelLista(nome, estadoListaParaPainel(), listaPainelCallbacks)
       if (!criado) {
         addNotification({
           type: 'error',
@@ -4925,7 +4958,7 @@ export default function Pedidos() {
       })
       return false
     }
-  }, [criarPainelLista, listaPainelCallbacks, addNotification, t])
+  }, [criarPainelLista, estadoListaParaPainel, listaPainelCallbacks, addNotification, t])
 
   const handleTrocarPainelLista = useCallback((id: string) => {
     painelListaAplicadoRef.current = null
@@ -6728,18 +6761,6 @@ export default function Pedidos() {
         </div>
       )}
 
-      <div className="lp-paineis-lista">
-        <PedidosListaPainelBar
-          paineis={paineisLista}
-          painelAtualId={painelListaAtualId}
-          setPaineis={setPaineisLista}
-          setPainelAtualId={setPainelListaAtualId}
-          onTrocarPainel={handleTrocarPainelLista}
-          onCriarPainel={handleCriarPainelLista}
-          carregando={carregandoPaineisLista}
-        />
-      </div>
-
       {/* ── KPI cards ── */}
       <ListaPedidoCards
         cardsVisiveis={cardsVisiveis}
@@ -6786,8 +6807,21 @@ export default function Pedidos() {
         )
       })()}
 
-      {/* ── Tabela virtual ── */}
-      <div className="lp-tabela-wrapper">
+      {/* ── Tabela virtual (painéis + status na mesma faixa do chrome) ── */}
+      <div className="lp-tabela-wrapper lp-tabela-wrapper--faixa-unificada">
+        <div className="lp-tabela-chrome">
+          <PedidosListaFaixaNavegacao
+            paineis={paineisLista}
+            painelAtualId={painelListaAtualId}
+            setPaineis={setPaineisLista}
+            setPainelAtualId={setPainelListaAtualId}
+            onTrocarPainel={handleTrocarPainelLista}
+            onCriarPainel={handleCriarPainelLista}
+            carregando={carregandoPaineisLista}
+            abas={abas}
+            abaAtiva={abaAtiva}
+            onMudarAba={handleMudarAba}
+          />
         <TabelaVirtualGlobal<Pedido, PedidoItem>
           imperativeRef={tabelaRef}
           dados={pedidosFiltrados}
@@ -6807,10 +6841,6 @@ export default function Pedidos() {
           onMudarPagina={handleMudarPagina}
           labelPai={[t('pedido.barra.label_pedido_one'), t('pedido.barra.label_pedido_other')]}
           totalFilhos={totalItensBanco}
-
-          abas={abas}
-          abaAtiva={abaAtiva}
-          onMudarAba={handleMudarAba}
 
           acoes={acoesPai}
           acoesExportacao={acoesExportacao}
@@ -6962,6 +6992,7 @@ export default function Pedidos() {
 
           ariaLabel={t('pedido.lista.aria_lista_pedidos')}
         />
+        </div>
       </div>
 
       {/* ── Modal Criar Novo Pedido (wizard 2 passos) ── */}

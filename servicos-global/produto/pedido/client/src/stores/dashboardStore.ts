@@ -13,6 +13,13 @@ import { persist } from 'zustand/middleware'
 import type { TFunction } from 'i18next'
 import type { DashboardWidgetConfig, WidgetQuerySpec, FieldQuerySpec, DerivedMetric, ActiveFilter, GlobalSlicers } from '@nucleo/dashboard'
 import type { DashboardPainel } from '../shared/api'
+import {
+  WIDGET_CONFIG_IS_VISIVEL,
+  WIDGET_CONFIG_ORDEM_PAINEL,
+  ordenarWidgetsPorPadrao,
+  reordenarWidgetsLista,
+  reflowPosicoesWidgets,
+} from '../shared/dashboardWidgetVisibilidade'
 
 // ── i18n — chaves de tradução dos títulos dos widgets padrão ─────────────────
 //
@@ -142,6 +149,10 @@ interface DashboardState {
   removeWidget: (widgetId: string) => void
   updateWidget: (widgetId: string, patch: Partial<DashboardWidgetConfig>) => void
   updateLayout: (updates: Array<{ id: string; position: DashboardWidgetConfig['position'] }>) => void
+  toggleWidgetVisibilidade: (widgetId: string) => void
+  reordenarWidgets: (fromId: string, toId: string) => void
+  selecionarTodosWidgetsVisiveis: () => void
+  restaurarVisibilidadePadraoWidgets: () => void
 
   activeFilters: ActiveFilter[]
   addFilter: (filter: ActiveFilter) => void
@@ -367,9 +378,44 @@ export const useDashboardStore = create<DashboardState>()(
       updateLayout: (updates) => set(s => ({
         widgets: s.widgets.map(w => {
           const upd = updates.find(u => u.id === w.id)
-          return upd ? { ...w, position: upd.position } : w
+          const next = upd ? { ...w, position: upd.position } : w
+          if (!upd) return next
+          const ordem = s.widgets.findIndex(x => x.id === w.id)
+          return {
+            ...next,
+            config: { ...next.config, [WIDGET_CONFIG_ORDEM_PAINEL]: ordem },
+          }
         }),
       })),
+
+      toggleWidgetVisibilidade: (widgetId) => set(s => ({
+        widgets: s.widgets.map(w => {
+          if (w.id !== widgetId) return w
+          const visivel = w.config?.[WIDGET_CONFIG_IS_VISIVEL] !== false
+          return { ...w, config: { ...w.config, [WIDGET_CONFIG_IS_VISIVEL]: !visivel } }
+        }),
+      })),
+
+      reordenarWidgets: (fromId, toId) => set(s => ({
+        widgets: reordenarWidgetsLista(s.widgets, fromId, toId),
+      })),
+
+      selecionarTodosWidgetsVisiveis: () => set(s => ({
+        widgets: s.widgets.map(w => ({
+          ...w,
+          config: { ...w.config, [WIDGET_CONFIG_IS_VISIVEL]: true },
+        })),
+      })),
+
+      restaurarVisibilidadePadraoWidgets: () => set(s => {
+        const idsPadrao = DEFAULT_WIDGETS.map(w => w.id)
+        const sorted = ordenarWidgetsPorPadrao(s.widgets, idsPadrao)
+        const comVisibilidade = sorted.map((w, i) => ({
+          ...w,
+          config: { ...w.config, [WIDGET_CONFIG_IS_VISIVEL]: true, [WIDGET_CONFIG_ORDEM_PAINEL]: i },
+        }))
+        return { widgets: reflowPosicoesWidgets(comVisibilidade) }
+      }),
 
       activeFilters: [],
       addFilter: (filter) => set(s => ({

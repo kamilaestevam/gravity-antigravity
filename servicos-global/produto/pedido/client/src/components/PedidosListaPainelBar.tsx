@@ -86,6 +86,8 @@ export interface PedidosListaPainelBarProps {
   /** Cria painel (API + estado); retorna false se falhar — exibe notificação no pai */
   onCriarPainel: (nome: string) => Promise<boolean>
   carregando?: boolean
+  /** standalone = faixa isolada; unificado = embutido na faixa painéis+status */
+  variant?: 'standalone' | 'unificado'
 }
 
 export function PedidosListaPainelBar({
@@ -96,6 +98,7 @@ export function PedidosListaPainelBar({
   onTrocarPainel,
   onCriarPainel,
   carregando,
+  variant = 'standalone',
 }: PedidosListaPainelBarProps) {
   const { t } = useTranslation()
   const [criandoPainel, setCriandoPainel] = useState(false)
@@ -171,8 +174,13 @@ export function PedidosListaPainelBar({
 
   const paineisVisiveis = paineis.filter(p => p.is_visivel)
 
+  const stripClass =
+    variant === 'unificado'
+      ? 'lp-paineis-lista-strip lp-paineis-lista-strip--unificado'
+      : 'lp-paineis-lista-strip'
+
   return (
-    <div className="lp-paineis-lista-strip" data-testid="lista-painel-bar">
+    <div className={stripClass} data-testid="lista-painel-bar">
       <span
         className="lp-paineis-lista-strip__label"
         title={t('pedido.lista.paineis_secao', { defaultValue: 'Painéis da lista' })}

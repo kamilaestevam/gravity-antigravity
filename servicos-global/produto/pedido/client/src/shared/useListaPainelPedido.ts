@@ -31,6 +31,8 @@ export interface AplicarConfigListaPainelCallbacks {
   setSortDir: (d: 'asc' | 'desc') => void
   setBusca: (b: string) => void
   setFiltrosAtivos: (f: FiltrosAtivosMap) => void
+  /** KPIs do topo: período + quais cards ficam visíveis (por painel) */
+  setCardsTopoDoPainel?: (cardsTopo: ListaPainelConfigV1['cards_topo']) => void
   onConfigAplicada?: (
     aba: string,
     campo: string,
@@ -114,16 +116,21 @@ export function useListaPainelPedido() {
       })
     }
 
-    const prefs: GTPreferencias = {
-      colunas_visiveis: config.colunas_visiveis,
-      ...(config.colunas_largura ? { colunas_largura: config.colunas_largura } : {}),
+    if (config.colunas_visiveis.length > 0) {
+      const prefs: GTPreferencias = {
+        colunas_visiveis: config.colunas_visiveis,
+        ...(config.colunas_largura ? { colunas_largura: config.colunas_largura } : {}),
+      }
+      callbacks.setPreferencias(prefs)
     }
-    callbacks.setPreferencias(prefs)
     callbacks.setAbaAtiva(config.aba_status_ativa)
     callbacks.setSortCampo(config.ordenacao.campo)
     callbacks.setSortDir(config.ordenacao.direcao)
     callbacks.setBusca(config.busca ?? '')
     callbacks.setFiltrosAtivos(deserializarFiltrosLista(config.filtros_coluna))
+    if (config.cards_topo) {
+      callbacks.setCardsTopoDoPainel?.(config.cards_topo)
+    }
 
     callbacks.onConfigAplicada?.(
       config.aba_status_ativa,
@@ -180,12 +187,14 @@ export function useListaPainelPedido() {
 
   const criarPainel = useCallback(async (
     nome: string,
+    estadoAtual: EstadoListaParaPainel,
     callbacks: AplicarConfigListaPainelCallbacks,
   ) => {
     const trimmed = nome.trim()
     if (!trimmed) return null
     try {
-      const { data } = await paineisListaApi.criar(trimmed)
+      const configJson = JSON.stringify(estadoParaConfig(estadoAtual))
+      const { data } = await paineisListaApi.criar(trimmed, configJson)
       setPaineis(prev => [...prev, data])
       painelHidratadoIdRef.current = null
       setPainelAtualId(data.id)

@@ -8,12 +8,13 @@ import { useTranslation } from 'react-i18next'
 import { Check, PencilSimple, X, RocketLaunch, CalendarBlank } from '@phosphor-icons/react'
 import { PeriodDropdown } from '@nucleo/dashboard'
 import type { PeriodOption } from '@nucleo/dashboard'
-import type { ActiveFilter, GlobalSlicers } from '@nucleo/dashboard'
+import type { ActiveFilter, GlobalSlicers, DashboardWidgetConfig } from '@nucleo/dashboard'
 import '@nucleo/tabela-virtual-global/tabela-virtual.css'
 import '../PedidosVisualizacaoTabs.css'
 import './BarraFerramentasDashboardPedido.css'
 import { DashboardStatusSeletorBotao } from './DashboardStatusSeletorBotao'
 import { DashboardAdicionarWidgetBotao } from './DashboardAdicionarWidgetBotao'
+import { DashboardSeletorWidgetsBotao } from './DashboardSeletorWidgetsBotao'
 import { DashboardToolbarBotaoIcon } from './DashboardToolbarBotaoIcon'
 import { DASHBOARD_TOOLBAR_ICONE } from './dashboard-toolbar-icones'
 
@@ -40,6 +41,14 @@ export interface BarraFerramentasDashboardPedidoProps {
   onEditModeChange: (v: boolean) => void
   onAbrirSugestoes?: () => void
   onCriarWidgetZero?: () => void
+  widgetsSeletor?: {
+    widgets: DashboardWidgetConfig[]
+    getWidgetLabel: (widget: DashboardWidgetConfig) => string
+    onToggleVisibilidade: (widgetId: string) => void
+    onReordenar: (fromId: string, toId: string) => void
+    onSelecionarTodos: () => void
+    onRestaurarPadrao: () => void
+  }
 }
 
 export function BarraFerramentasDashboardPedido({
@@ -60,6 +69,7 @@ export function BarraFerramentasDashboardPedido({
   onEditModeChange,
   onAbrirSugestoes,
   onCriarWidgetZero,
+  widgetsSeletor,
 }: BarraFerramentasDashboardPedidoProps) {
   const { t } = useTranslation()
   const temRodape = activeFilters.length > 0
@@ -99,7 +109,7 @@ export function BarraFerramentasDashboardPedido({
     <div
       className="pedido-dashboard-menu"
       data-testid="dashboard-barra-menu"
-      data-pedido-toolbar-version="gtv-v9"
+      data-pedido-toolbar-version="gtv-v10"
     >
       <div className="gtv-container pedido-dashboard-toolbar-card">
         <div className="gtv-toolbar pedido-dashboard-toolbar">
@@ -165,6 +175,17 @@ export function BarraFerramentasDashboardPedido({
                   {botaoAdicionar}
                   {botaoReorganizar}
                 </div>
+
+                {temWidgets && widgetsSeletor != null && (
+                  <DashboardSeletorWidgetsBotao
+                    widgets={widgetsSeletor.widgets}
+                    getWidgetLabel={widgetsSeletor.getWidgetLabel}
+                    onToggleVisibilidade={widgetsSeletor.onToggleVisibilidade}
+                    onReordenar={widgetsSeletor.onReordenar}
+                    onSelecionarTodos={widgetsSeletor.onSelecionarTodos}
+                    onRestaurarPadrao={widgetsSeletor.onRestaurarPadrao}
+                  />
+                )}
               </>
             )}
           </div>

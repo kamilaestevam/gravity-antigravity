@@ -61,6 +61,7 @@ import './PedidosDashboard.css'
 import '../components/PedidosVisualizacaoTabs.css'
 
 import { useDashboardStore, translateWidgetTitle } from '../stores/dashboardStore'
+import { widgetEstaVisivel, ordenarWidgetsLista } from '../shared/dashboardWidgetVisibilidade'
 import { useTrackBehavior } from '../hooks/useTrackBehavior'
 import { buildDashboardCatalog, buildCatalogByKey } from '../shared/dashboardCatalog'
 import { generateSuggestions } from '../shared/dashboardSuggestions'
@@ -918,6 +919,8 @@ export default function PedidosDashboard() {
   const { t } = useTranslation()
   const {
     widgets, addWidget, removeWidget, updateWidget, updateLayout,
+    toggleWidgetVisibilidade, reordenarWidgets,
+    selecionarTodosWidgetsVisiveis, restaurarVisibilidadePadraoWidgets,
     slicers, setPeriod, setStatusFilter,
     activeFilters, clearFilters,
     editMode, setEditMode: _setEditModeRaw,
@@ -1084,6 +1087,10 @@ export default function PedidosDashboard() {
     if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
     setPainelAtual(novoId)
   }
+
+  useEffect(() => {
+    if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
+  }, [widgets, painelAtualId, salvarWidgetsPainelAtual])
 
   // Renomeia painel — guarda contra double-call (onBlur + onSubmit)
   const handleRenomearPainel = (id: string, nome: string) => {
@@ -1274,7 +1281,9 @@ export default function PedidosDashboard() {
   }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, resolverCustomRange])
 
   const activeWidgets = useMemo(() =>
-    widgets.map(w => {
+    ordenarWidgetsLista(widgets)
+      .filter(widgetEstaVisivel)
+      .map(w => {
       const locked = w.config?.periodLocked === true
       const filters = locked
         ? w.query_spec.filters
@@ -1693,7 +1702,12 @@ export default function PedidosDashboard() {
     })
   )
 
-  const temWidgets = activeWidgets.length > 0
+  const temWidgets = widgets.length > 0
+
+  const getWidgetLabel = useCallback(
+    (widget: DashboardWidgetConfig) => translateWidgetTitle(widget, t),
+    [t],
+  )
 
   const filtrosStatusAtivos = useMemo(() => {
     if (slicers.status.length === 0) return []
@@ -1916,15 +1930,23 @@ export default function PedidosDashboard() {
           concluidos:   kpisData.pedidos_consolidados,
         } : undefined}
         onAbrirSugestoes={
-          editMode && podeEditarDashboard
-            ? () => setSuggestionsOpen(true)
+          podeEditarDashboard
+            ? () => { setEditMode(true); setSuggestionsOpen(true) }
             : undefined
         }
         onCriarWidgetZero={
-          editMode && podeEditarDashboard
+          podeEditarDashboard
             ? () => { setEditMode(true); setQueryBuilderOpen(true) }
             : undefined
         }
+        widgetsSeletor={temWidgets ? {
+          widgets,
+          getWidgetLabel,
+          onToggleVisibilidade: toggleWidgetVisibilidade,
+          onReordenar: reordenarWidgets,
+          onSelecionarTodos: selecionarTodosWidgetsVisiveis,
+          onRestaurarPadrao: restaurarVisibilidadePadraoWidgets,
+        } : undefined}
       />
 
       {chipsFiltrosAtivos}

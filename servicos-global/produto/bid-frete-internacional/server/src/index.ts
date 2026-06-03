@@ -174,11 +174,18 @@ app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res
 
 // --- 12. Inicializacao ---
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  const bidServer = app.listen(PORT, () => {
     console.log(`[BidFrete] Servidor rodando na porta ${PORT}${process.env.BID_FRETE_SIDECAR === '1' ? ' (sidecar)' : ''}`)
     if (process.env.BID_FRETE_SIDECAR !== '1') {
       startCronJobs()
     }
+  })
+  bidServer.on('error', (err: NodeJS.ErrnoException) => {
+    if (process.env.BID_FRETE_SIDECAR === '1') {
+      console.error('[BidFrete] Falha ao escutar porta em modo sidecar (não derruba Configurador):', err.message)
+      return
+    }
+    throw err
   })
 }
 

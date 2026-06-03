@@ -533,15 +533,13 @@ if (process.env.NODE_ENV !== 'test') {
   // Sequenciados para evitar race condition em process.env.PORT.
   const portaOriginal = process.env.PORT
   const dbOriginal = process.env.DATABASE_URL
+  const listenPort = Number(portaOriginal ?? process.env.PORT ?? 8005)
+  const configuradorLoopbackUrl = `http://127.0.0.1:${listenPort}`
 
   // Sidecar 1: Cadastros (porta 8031)
   process.env.PORT = '8031'
   process.env.CADASTROS_SIDECAR = '1'
-  // O Cadastros faz chamadas S2S ao Configurador (ex: GET /da-organizacao).
-  // Sem CONFIGURADOR_BASE_URL ele cai no default localhost:8005 e o fetch
-  // falha em produção (Configurador roda na PORT real). Aponta para o
-  // próprio processo via loopback.
-  process.env.CONFIGURADOR_BASE_URL = `http://127.0.0.1:${portaOriginal ?? '8080'}`
+  // CONFIGURADOR_BASE_URL é definido após app.listen (Cadastros chama o Configurador em runtime).
   try {
     await import('../../cadastros/server/src/index.js')
     _sidecarStatus['cadastros'] = { ok: true }
@@ -559,7 +557,7 @@ if (process.env.NODE_ENV !== 'test') {
   if (process.env.PEDIDO_DATABASE_URL) {
     process.env.PORT = '8030'
     process.env.DATABASE_URL = process.env.PEDIDO_DATABASE_URL
-    process.env.CONFIGURATOR_URL = `http://127.0.0.1:${portaOriginal ?? '8080'}`
+    process.env.CONFIGURATOR_URL = configuradorLoopbackUrl
     if (!process.env.ALLOWED_ORIGINS) {
       process.env.ALLOWED_ORIGINS = process.env.CANONICAL_DOMAIN
         ? `https://${process.env.CANONICAL_DOMAIN}`
@@ -590,7 +588,7 @@ if (process.env.NODE_ENV !== 'test') {
   if (process.env.PROCESSO_DATABASE_URL) {
     process.env.PORT = '8026'
     process.env.DATABASE_URL = process.env.PROCESSO_DATABASE_URL
-    process.env.CONFIGURATOR_URL = `http://127.0.0.1:${portaOriginal ?? '8080'}`
+    process.env.CONFIGURATOR_URL = configuradorLoopbackUrl
     process.env.PROCESSO_SIDECAR = '1'
     process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
       ? `https://${process.env.CANONICAL_DOMAIN}`
@@ -642,7 +640,7 @@ if (process.env.NODE_ENV !== 'test') {
     const plataformaBase = process.env.SERVIDOR_PLATAFORMA_URL ?? 'http://127.0.0.1:3001'
     process.env.PORT = '8023'
     process.env.DATABASE_URL = process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL
-    process.env.CONFIGURATOR_URL = `http://127.0.0.1:${portaOriginal ?? '8080'}`
+    process.env.CONFIGURATOR_URL = configuradorLoopbackUrl
     process.env.CADASTROS_SERVICE_URL = 'http://127.0.0.1:8031'
     process.env.ATIVIDADES_SERVICE_URL = process.env.ATIVIDADES_SERVICE_URL ?? plataformaBase
     process.env.NOTIFICACOES_SERVICE_URL = process.env.NOTIFICACOES_SERVICE_URL ?? plataformaBase
@@ -667,15 +665,20 @@ if (process.env.NODE_ENV !== 'test') {
       console.error('[configurador] Falha ao iniciar sidecar BID Frete Internacional:', msg)
     } finally {
       process.exit = _origExitBid
-      process.env.PORT = portaOriginal
-      process.env.DATABASE_URL = dbOriginal
+      if (portaOriginal !== undefined) process.env.PORT = portaOriginal
+      if (dbOriginal !== undefined) process.env.DATABASE_URL = dbOriginal
     }
   }
 
-  const server = app.listen(PORT, async () => {
-    console.log(`[configurador] Servidor rodando na porta ${PORT}`)
+  const server = app.listen(listenPort, async () => {
+    console.log(`[configurador] Servidor rodando na porta ${listenPort}`)
+    process.env.CONFIGURADOR_BASE_URL = configuradorLoopbackUrl
 
-    void iniciarSidecarBidFreteInternacional()
+    void iniciarSidecarBidFreteInternacional().catch((err: unknown) => {
+      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+      _sidecarStatus['bid-frete'] = { ok: false, error: msg }
+      console.error('[configurador] Sidecar BID (background) erro não tratado:', msg)
+    })
 
     // Sincronizar catálogo de produtos com a lista canônica a cada startup
     try {
@@ -722,7 +725,7 @@ if (process.env.NODE_ENV !== 'test') {
   })
   server.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
-      console.error(`[configurador] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
+      console.error(`[configurador] Porta ${listenPort} já em uso. Execute: npm run dev:reset`)
       process.exit(1)
     }
     throw err

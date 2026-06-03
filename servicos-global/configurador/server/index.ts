@@ -541,7 +541,7 @@ if (process.env.NODE_ENV !== 'test') {
   // Sem CONFIGURADOR_BASE_URL ele cai no default localhost:8005 e o fetch
   // falha em produção (Configurador roda na PORT real). Aponta para o
   // próprio processo via loopback.
-  process.env.CONFIGURADOR_BASE_URL = `http://127.0.0.1:${PORT}`
+  process.env.CONFIGURADOR_BASE_URL = `http://127.0.0.1:${portaOriginal ?? '8080'}`
   try {
     await import('../../cadastros/server/src/index.js')
     _sidecarStatus['cadastros'] = { ok: true }
@@ -552,39 +552,14 @@ if (process.env.NODE_ENV !== 'test') {
     console.error('[configurador] Falha ao iniciar sidecar Cadastros:', err)
   }
 
-  // Sidecar 2: BID Frete Internacional (porta 8023)
-  // Migrations rodam em scripts/start-site.sh quando BID_FRETE_INTERNATIONAL_DATABASE_URL está definida.
-  if (process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL) {
-    process.env.PORT = '8023'
-    process.env.DATABASE_URL = process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL
-    process.env.CONFIGURATOR_URL = `http://127.0.0.1:${portaOriginal ?? '8080'}`
-    process.env.CADASTROS_SERVICE_URL = 'http://127.0.0.1:8031'
-    process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
-      ? `https://${process.env.CANONICAL_DOMAIN}`
-      : 'https://usegravity.com.br'
-    process.env.BID_FRETE_SIDECAR = '1'
-    try {
-      await import('../../produto/bid-frete-internacional/server/src/index.js')
-      _sidecarStatus['bid-frete'] = { ok: true }
-      console.log('[configurador] Sidecar BID Frete Internacional iniciado na porta 8023')
-    } catch (err) {
-      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
-      _sidecarStatus['bid-frete'] = { ok: false, error: msg }
-      console.error('[configurador] Falha ao iniciar sidecar BID Frete Internacional:', msg)
-    }
-  } else {
-    _sidecarStatus['bid-frete'] = { ok: false, error: 'BID_FRETE_INTERNATIONAL_DATABASE_URL ausente' }
-    console.warn('[configurador] BID_FRETE_INTERNATIONAL_DATABASE_URL ausente — sidecar BID Frete Internacional desativado')
-  }
-
-  // Sidecar 3: Pedido (porta 8030)
+  // Sidecar 2: Pedido (porta 8030)
   // Migrations rodam em scripts/start-site.sh ANTES deste processo (Railway startCommand).
   // Protege contra process.exit() que o Pedido chama em validações de env —
   // em modo sidecar, exit() mataria o processo inteiro (Configurador incluso).
   if (process.env.PEDIDO_DATABASE_URL) {
     process.env.PORT = '8030'
     process.env.DATABASE_URL = process.env.PEDIDO_DATABASE_URL
-    process.env.CONFIGURATOR_URL = `http://127.0.0.1:${PORT}`
+    process.env.CONFIGURATOR_URL = `http://127.0.0.1:${portaOriginal ?? '8080'}`
     if (!process.env.ALLOWED_ORIGINS) {
       process.env.ALLOWED_ORIGINS = process.env.CANONICAL_DOMAIN
         ? `https://${process.env.CANONICAL_DOMAIN}`
@@ -610,7 +585,7 @@ if (process.env.NODE_ENV !== 'test') {
     console.warn('[configurador] PEDIDO_DATABASE_URL ausente — sidecar Pedido desativado')
   }
 
-  // Sidecar 4: Processo (porta 8026)
+  // Sidecar 3: Processo (porta 8026)
   // Migrations rodam em build-site.sh / start-site.sh quando PROCESSO_DATABASE_URL está definida.
   if (process.env.PROCESSO_DATABASE_URL) {
     process.env.PORT = '8026'
@@ -640,7 +615,7 @@ if (process.env.NODE_ENV !== 'test') {
     console.warn('[configurador] PROCESSO_DATABASE_URL ausente — sidecar Processo desativado')
   }
 
-  // Sidecar 5: API Cockpit (porta 8016)
+  // Sidecar 4: API Cockpit (porta 8016)
   // Health checks, tokens, webhooks, logs de requisição, monitoramento.
   // Usa CONFIGURADOR_DATABASE_URL (mesmas tabelas — fragment composto).
   process.env.PORT = '8016'
@@ -657,8 +632,50 @@ if (process.env.NODE_ENV !== 'test') {
   process.env.PORT = portaOriginal
   process.env.DATABASE_URL = dbOriginal
 
+  async function iniciarSidecarBidFreteInternacional() {
+    if (!process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL) {
+      _sidecarStatus['bid-frete'] = { ok: false, error: 'BID_FRETE_INTERNATIONAL_DATABASE_URL ausente' }
+      console.warn('[configurador] BID_FRETE_INTERNATIONAL_DATABASE_URL ausente — sidecar BID Frete Internacional desativado')
+      return
+    }
+
+    const plataformaBase = process.env.SERVIDOR_PLATAFORMA_URL ?? 'http://127.0.0.1:3001'
+    process.env.PORT = '8023'
+    process.env.DATABASE_URL = process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL
+    process.env.CONFIGURATOR_URL = `http://127.0.0.1:${portaOriginal ?? '8080'}`
+    process.env.CADASTROS_SERVICE_URL = 'http://127.0.0.1:8031'
+    process.env.ATIVIDADES_SERVICE_URL = process.env.ATIVIDADES_SERVICE_URL ?? plataformaBase
+    process.env.NOTIFICACOES_SERVICE_URL = process.env.NOTIFICACOES_SERVICE_URL ?? plataformaBase
+    process.env.HISTORICO_SERVICE_URL = process.env.HISTORICO_SERVICE_URL ?? plataformaBase
+    process.env.GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009'
+    process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
+      ? `https://${process.env.CANONICAL_DOMAIN}`
+      : 'https://usegravity.com.br'
+    process.env.BID_FRETE_SIDECAR = '1'
+
+    const _origExitBid = process.exit
+    process.exit = ((code?: number) => {
+      throw new Error(`[sidecar-guard] process.exit(${code}) bloqueado em modo sidecar BID Frete`)
+    }) as typeof process.exit
+    try {
+      await import('../../produto/bid-frete-internacional/server/src/index.js')
+      _sidecarStatus['bid-frete'] = { ok: true }
+      console.log('[configurador] Sidecar BID Frete Internacional iniciado na porta 8023')
+    } catch (err) {
+      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+      _sidecarStatus['bid-frete'] = { ok: false, error: msg }
+      console.error('[configurador] Falha ao iniciar sidecar BID Frete Internacional:', msg)
+    } finally {
+      process.exit = _origExitBid
+      process.env.PORT = portaOriginal
+      process.env.DATABASE_URL = dbOriginal
+    }
+  }
+
   const server = app.listen(PORT, async () => {
     console.log(`[configurador] Servidor rodando na porta ${PORT}`)
+
+    void iniciarSidecarBidFreteInternacional()
 
     // Sincronizar catálogo de produtos com a lista canônica a cada startup
     try {

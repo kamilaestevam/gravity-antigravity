@@ -11,6 +11,7 @@ import { readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Client } from 'pg'
+import { aplicarIdProcessoEmSchemasComPedido } from './aplicar-id-processo-tenants-pedido.js'
 
 const REPO_ROOT = resolve(import.meta.dirname, '../..')
 const PEDIDO_SCHEMA = 'servicos-global/produto/pedido/prisma/schema.prisma'
@@ -134,10 +135,10 @@ export async function aplicarMigrationsPedido(): Promise<void> {
     `[migrations-pedido] Configurador: ${configuradorUrl ? mascararUrl(configuradorUrl) : 'AUSENTE'}`,
   )
 
-  console.log('[migrations-pedido] Passo 1/3 — logística em todos os schemas com pedido...')
+  console.log('[migrations-pedido] Passo 1/4 — logística em todos os schemas com pedido...')
   await aplicarLogisticaEmTodosSchemas(pedidoUrl)
 
-  console.log('[migrations-pedido] Passo 2/3 — compose + prisma migrate deploy (public)...')
+  console.log('[migrations-pedido] Passo 2/4 — compose + prisma migrate deploy (public)...')
   execSync('npx tsx scripts/ativamente/compose-pedido-schema.ts', {
     cwd: REPO_ROOT,
     stdio: 'inherit',
@@ -148,13 +149,16 @@ export async function aplicarMigrationsPedido(): Promise<void> {
     env: { ...process.env, DATABASE_URL: pedidoUrl },
   })
 
+  console.log('[migrations-pedido] Passo 2b/4 — id_processo (nullable) em schemas com pedido...')
+  await aplicarIdProcessoEmSchemasComPedido(pedidoUrl)
+
   if (!configuradorUrl) {
-    console.warn('[migrations-pedido] Passo 3/3 skip — sem URL do Configurador para migrate-all-tenants.')
-    console.log('[migrations-pedido] Concluido (logística + public).')
+    console.warn('[migrations-pedido] Passo 3/4 skip — sem URL do Configurador para migrate-all-tenants.')
+    console.log('[migrations-pedido] Concluido (logística + public + id_processo).')
     return
   }
 
-  console.log('[migrations-pedido] Passo 3/3 — migrate-all-tenants...')
+  console.log('[migrations-pedido] Passo 3/4 — migrate-all-tenants...')
   execSync('npx tsx scripts/ativamente/migrate-all-tenants.ts --product=pedido', {
     cwd: REPO_ROOT,
     stdio: 'inherit',

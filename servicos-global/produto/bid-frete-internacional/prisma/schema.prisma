@@ -700,3 +700,21 @@ model DashboardPainelUsuarioGlobal {
   @@map("dashboard_painel_usuario_global")
 }
 
+model ListaPainelUsuarioGlobal {
+  id_lista_painel_usuario_global               String   @id @default(cuid())
+  id_organizacao                                String
+  id_usuario                                    String
+  id_produto_gravity                            String
+  nome_lista_painel_usuario_global              String
+  ordem_lista_painel_usuario_global             Int      @default(0)
+  visivel_lista_painel_usuario_global           Boolean  @default(true)
+  config_json_lista_painel_usuario_global       String   @default("{}") @db.Text
+  data_criacao_lista_painel_usuario_global      DateTime @default(now())
+  data_atualizacao_lista_painel_usuario_global  DateTime @updatedAt
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_usuario, id_produto_gravity])
+  @@map("lista_painel_usuario_global")
+}
+

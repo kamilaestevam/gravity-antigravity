@@ -12,11 +12,13 @@
  * - Banner de modo edição ativo com orientação ao usuário
  */
 
-import React, { useState, useRef, useEffect, useMemo } from 'react'
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { Check, Plus, X, DotsSixVertical, CaretDown, CaretUp, CalendarBlank } from '@phosphor-icons/react'
+import { Check, Plus, X, DotsSixVertical, CaretDown, CaretUp, CalendarBlank, PencilSimple } from '@phosphor-icons/react'
 import { CalendarioPainelGlobal } from '@nucleo/campo-calendario-global'
 import type { ActiveFilter, GlobalSlicers } from '../tipos.js'
+import './dashboard-barra-integrado.css'
 
 // ── Helpers de período customizado ────────────────────────────────────────────
 
@@ -41,17 +43,37 @@ function parseCustomPeriod(period: string): { start: string; end: string } | und
 
 // ── PeriodDropdown — substitui <select> nativo (Design System: nunca select nativo) ──
 
+export interface PeriodDropdownGatilhoProps {
+  open: boolean
+  selectedLabel: string
+  isCustom: boolean
+  onToggle: () => void
+}
+
 interface PeriodDropdownProps {
   value: string
   options: PeriodOption[]
   onChange: (value: string) => void
+  renderGatilho?: (props: PeriodDropdownGatilhoProps) => React.ReactNode
+  alinharPainel?: 'esquerda' | 'direita'
+  /** dropdown = popover ancorado; modal = overlay centralizado (atalhos + intervalo) */
+  modoPainel?: 'dropdown' | 'modal'
 }
 
-export function PeriodDropdown({ value, options, onChange }: PeriodDropdownProps) {
+export function PeriodDropdown({
+  value,
+  options,
+  onChange,
+  renderGatilho,
+  alinharPainel = 'esquerda',
+  modoPainel = 'dropdown',
+}: PeriodDropdownProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [showCal, setShowCal] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const painelRef = useRef<HTMLDivElement>(null)
+  const [coordsDropdown, setCoordsDropdown] = useState({ top: 0, left: 0, right: 0 })
 
   // Suporte a período customizado: custom:YYYY-MM-DD:YYYY-MM-DD
   const isCustom = value.startsWith('custom:')
@@ -59,94 +81,225 @@ export function PeriodDropdown({ value, options, onChange }: PeriodDropdownProps
     ? formatCustomLabel(value, t('nucleo.dashboard.periodo.personalizado'))
     : (options.find(o => o.value === value) ?? options[0])?.label
 
+  const fecharPainel = useCallback(() => {
+    setOpen(false)
+    setShowCal(false)
+  }, [])
+
+  const atualizarCoordsDropdown = useCallback(() => {
+    if (!ref.current) return
+    const r = ref.current.getBoundingClientRect()
+    setCoordsDropdown({
+      top: r.bottom + 6,
+      left: r.left,
+      right: window.innerWidth - r.right,
+    })
+  }, [])
+
   useEffect(() => {
-    if (!open) return
+    if (!open || modoPainel !== 'dropdown') return
+    atualizarCoordsDropdown()
+    window.addEventListener('resize', atualizarCoordsDropdown)
+    window.addEventListener('scroll', atualizarCoordsDropdown, true)
+    return () => {
+      window.removeEventListener('resize', atualizarCoordsDropdown)
+      window.removeEventListener('scroll', atualizarCoordsDropdown, true)
+    }
+  }, [open, modoPainel, atualizarCoordsDropdown])
+
+  useEffect(() => {
+    if (!open || modoPainel !== 'dropdown') return
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false); setShowCal(false)
-      }
+      const target = e.target as Node
+      if (ref.current?.contains(target)) return
+      if (painelRef.current?.contains(target)) return
+      fecharPainel()
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
-  }, [open])
+  }, [open, modoPainel, fecharPainel])
+
+  useEffect(() => {
+    if (!open || modoPainel !== 'modal') return
+    function handleEsc(e: KeyboardEvent) {
+      if (e.key === 'Escape') fecharPainel()
+    }
+    document.addEventListener('keydown', handleEsc)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', handleEsc)
+      document.body.style.overflow = ''
+    }
+  }, [open, modoPainel, fecharPainel])
 
   function handleOptionClick(optValue: string) {
     if (optValue === 'custom') {
-      setShowCal(true)   // abre o calendário sem fechar o dropdown
+      setShowCal(true)
     } else {
       onChange(optValue)
-      setOpen(false)
+      fecharPainel()
     }
   }
 
-  return (
-    <div ref={ref} style={{ position: 'relative' }}>
-      <button
-        type="button"
-        style={dropdownStyles.trigger}
-        onClick={() => { setOpen(v => !v); setShowCal(false) }}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-      >
-        {isCustom && <CalendarBlank size={12} weight="bold" />}
-        {selectedLabel}
-        {open
-          ? <CaretUp size={12} weight="bold" />
-          : <CaretDown size={12} weight="bold" />}
-      </button>
+  const toggleOpen = () => {
+    setOpen(v => {
+      if (v) setShowCal(false)
+      return !v
+    })
+  }
 
-      {/* Lista de opções */}
-      {open && !showCal && (
-        <div style={dropdownStyles.list} role="listbox">
-          {options.map((opt, idx) => (
-            <React.Fragment key={opt.value}>
-              {/* Separador visual antes de "Período personalizado" */}
-              {opt.value === 'custom' && (
-                <div style={dropdownStyles.separator} role="separator" />
-              )}
+  const calendarioValor = useMemo(() => {
+    const parsed = parseCustomPeriod(value)
+    return parsed
+      ? { inicio: new Date(parsed.start), fim: new Date(parsed.end) }
+      : { inicio: null, fim: null }
+  }, [value])
+
+  const handleCalendarioMudar = useCallback((val: { inicio: Date | null; fim: Date | null }) => {
+    if (val.inicio && val.fim) {
+      const s = val.inicio.toISOString().slice(0, 10)
+      const e = val.fim.toISOString().slice(0, 10)
+      onChange(`custom:${s}:${e}`)
+      fecharPainel()
+    }
+  }, [onChange, fecharPainel])
+
+  const listaOpcoes = (
+    <div
+      className={modoPainel === 'modal' ? 'dashboard-periodo-modal__opcoes' : undefined}
+      style={modoPainel === 'dropdown' ? dropdownStyles.listPortaled : undefined}
+      role="listbox"
+    >
+      {options.map((opt) => (
+        <React.Fragment key={opt.value}>
+          {opt.value === 'custom' && (
+            <div
+              style={modoPainel === 'dropdown' ? dropdownStyles.separator : undefined}
+              className={modoPainel === 'modal' ? 'dashboard-periodo-modal__separador' : undefined}
+              role="separator"
+            />
+          )}
+          <button
+            type="button"
+            role="option"
+            aria-selected={opt.value === value || (isCustom && opt.value === 'custom')}
+            className={modoPainel === 'modal' ? 'dashboard-periodo-modal__opcao' : undefined}
+            style={{
+              ...(modoPainel === 'dropdown' ? dropdownStyles.option : {}),
+              ...((opt.value === value || (isCustom && opt.value === 'custom'))
+                ? (modoPainel === 'dropdown' ? dropdownStyles.optionActive : {})
+                : {}),
+              ...(modoPainel === 'modal' && (opt.value === value || (isCustom && opt.value === 'custom'))
+                ? { fontWeight: 600 }
+                : {}),
+            }}
+            onClick={() => handleOptionClick(opt.value)}
+          >
+            {opt.value === 'custom' && <CalendarBlank size={12} />}
+            {opt.label}
+          </button>
+        </React.Fragment>
+      ))}
+    </div>
+  )
+
+  const painelCalendario = (
+    <CalendarioPainelGlobal
+      valor={calendarioValor}
+      aoMudarValor={handleCalendarioMudar}
+      onFechar={fecharPainel}
+    />
+  )
+
+  const modalPeriodo = open && modoPainel === 'modal' && typeof document !== 'undefined'
+    ? createPortal(
+        <>
+          <div
+            className="dashboard-periodo-modal-backdrop"
+            onMouseDown={fecharPainel}
+            aria-hidden="true"
+          />
+          <div
+            className="dashboard-periodo-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('nucleo.dashboard.barra.periodo')}
+          >
+            <div className="dashboard-periodo-modal__header">
+              <span className="dashboard-periodo-modal__label">
+                <PencilSimple size={11} weight="fill" aria-hidden="true" />
+                {t('nucleo.dashboard.barra.periodo')}
+              </span>
               <button
                 type="button"
-                role="option"
-                aria-selected={opt.value === value || (isCustom && opt.value === 'custom')}
-                style={{
-                  ...dropdownStyles.option,
-                  ...((opt.value === value || (isCustom && opt.value === 'custom'))
-                    ? dropdownStyles.optionActive
-                    : {}),
-                }}
-                onClick={() => handleOptionClick(opt.value)}
+                className="dashboard-periodo-modal__fechar"
+                onClick={fecharPainel}
+                aria-label={t('nucleo.dashboard.modal_editar.fechar')}
               >
-                {opt.value === 'custom' && <CalendarBlank size={12} />}
-                {opt.label}
+                <X size={12} weight="bold" />
               </button>
-            </React.Fragment>
-          ))}
-        </div>
+            </div>
+            <div className="dashboard-periodo-modal__body">
+              {!showCal ? listaOpcoes : (
+                <div className="dashboard-periodo-modal__calendario">
+                  {painelCalendario}
+                </div>
+              )}
+            </div>
+          </div>
+        </>,
+        document.body,
+      )
+    : null
+
+  const dropdownPortaled = open && modoPainel === 'dropdown' && typeof document !== 'undefined'
+    ? createPortal(
+        <div
+          ref={painelRef}
+          style={{
+            position: 'fixed',
+            top: coordsDropdown.top,
+            left: alinharPainel === 'direita' ? 'auto' : coordsDropdown.left,
+            right: alinharPainel === 'direita' ? coordsDropdown.right : 'auto',
+            zIndex: 100050,
+          }}
+        >
+          {!showCal ? listaOpcoes : (
+            <div style={dropdownStyles.listPortaled}>
+              {painelCalendario}
+            </div>
+          )}
+        </div>,
+        document.body,
+      )
+    : null
+
+  return (
+    <div ref={ref} className="db-no-drag" style={{ position: 'relative' }}>
+      {renderGatilho ? (
+        renderGatilho({ open, selectedLabel, isCustom, onToggle: toggleOpen })
+      ) : (
+        <button
+          type="button"
+          className="db-no-drag"
+          style={dropdownStyles.trigger}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={toggleOpen}
+          aria-haspopup={modoPainel === 'modal' ? 'dialog' : 'listbox'}
+          aria-expanded={open}
+        >
+          {isCustom && <CalendarBlank size={12} weight="bold" />}
+          {selectedLabel}
+          {open
+            ? <CaretUp size={12} weight="bold" />
+            : <CaretDown size={12} weight="bold" />}
+        </button>
       )}
 
-      {/* Calendário de período personalizado — painel inline sem trigger */}
-      {open && showCal && (
-        <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 300 }}>
-          <CalendarioPainelGlobal
-            valor={(() => {
-              const parsed = parseCustomPeriod(value)
-              return parsed
-                ? { inicio: new Date(parsed.start), fim: new Date(parsed.end) }
-                : { inicio: null, fim: null }
-            })()}
-            aoMudarValor={(val: { inicio: Date | null; fim: Date | null }) => {
-              if (val.inicio && val.fim) {
-                const s = val.inicio.toISOString().slice(0, 10)
-                const e = val.fim.toISOString().slice(0, 10)
-                onChange(`custom:${s}:${e}`)
-                setOpen(false)
-                setShowCal(false)
-              }
-            }}
-            onFechar={() => { setShowCal(false); setOpen(false) }}
-          />
-        </div>
-      )}
+      {dropdownPortaled}
+
+      {modalPeriodo}
     </div>
   )
 }
@@ -176,6 +329,17 @@ const dropdownStyles = {
     background: 'var(--bg-surface)',
     border: '1px solid var(--bg-elevated)',
     borderRadius: 'var(--radius-lg)',     // lista usa radius-lg, não pill
+    boxShadow: 'var(--shadow-md)',
+    minWidth: '168px',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column' as const,
+  },
+  listPortaled: {
+    position: 'relative' as const,
+    background: 'var(--bg-surface)',
+    border: '1px solid var(--bg-elevated)',
+    borderRadius: 'var(--radius-lg)',
     boxShadow: 'var(--shadow-md)',
     minWidth: '168px',
     overflow: 'hidden',
@@ -257,6 +421,21 @@ export interface DashboardToolbarProps {
   periodOptions?: PeriodOption[]
   /** Mostra botão "Adicionar widget" no modo edição. */
   onAddWidget?: () => void
+  /** Linha superior: abas de painel, breadcrumbs, etc. Ações ficam à direita. */
+  headerRow?: React.ReactNode
+  /** Oculta período e status — útil em empty state com editMode ativo. */
+  hideFilters?: boolean
+  /** Banner "Arraste os widgets…" abaixo da barra. Padrão: false. */
+  showEditHint?: boolean
+  /**
+   * `integrado` — barra única estilo Lista (gtv-toolbar): painéis, filtros, ações e chips
+   * no mesmo container. `default` — layout legado em linhas separadas.
+   */
+  variant?: 'default' | 'integrado'
+  /** Faixa superior dentro da barra integrada (ex: onboarding vazio). */
+  bannerContent?: React.ReactNode
+  /** Rodapé dentro da barra integrada (ex: chips de período por widget). */
+  footerContent?: React.ReactNode
   className?: string
 }
 
@@ -275,6 +454,12 @@ export function DashboardBarraFerramentas({
   compactStatus = false,
   periodOptions: periodOptionsProp,
   onAddWidget,
+  headerRow,
+  hideFilters = false,
+  showEditHint = false,
+  variant = 'default',
+  bannerContent,
+  footerContent,
   className,
 }: DashboardToolbarProps) {
   const { t } = useTranslation()
@@ -287,154 +472,220 @@ export function DashboardBarraFerramentas({
   // "Todos" está ativo quando nenhum status específico está selecionado
   const isTodosActive = slicers.status.length === 0
 
-  return (
-    <div style={s.wrapper}>
+  const actionButtons = (
+    <>
+      {onAddWidget && (
+        <button
+          type="button"
+          style={s.btnSecondary}
+          onClick={onAddWidget}
+          data-testid="btn-adicionar-dashboard"
+        >
+          <Plus size={14} weight="bold" /> {t('nucleo.dashboard.barra.adicionar_dashboard')}
+        </button>
+      )}
+      <button
+        type="button"
+        style={editMode ? s.btnPrimaryStrong : s.btnSecondary}
+        onClick={() => onEditModeChange(!editMode)}
+        data-testid="btn-reorganizar"
+        title={editMode ? undefined : t('nucleo.dashboard.barra.arraste_widgets_tooltip')}
+      >
+        {editMode
+          ? <><Check size={14} weight="bold" /> {t('nucleo.dashboard.barra.concluir')}</>
+          : <><DotsSixVertical size={14} weight="bold" /> {t('nucleo.dashboard.barra.reorganizar')}</>
+        }
+      </button>
+    </>
+  )
 
-      {/* ── Toolbar principal ────────────────────────────────────────────── */}
-      <div style={s.toolbar} className={className}>
+  const filtrosConteudo = !hideFilters ? (
+    <>
+      <div style={s.slicerGroup}>
+        <span style={s.slicerLabel}>{t('nucleo.dashboard.barra.periodo')}</span>
+        <PeriodDropdown
+          value={slicers.period}
+          options={periodOptions}
+          onChange={onPeriodChange}
+        />
+      </div>
 
-        {/* ── Período ─────────────────────────────────────────────────────── */}
-        <div style={s.slicerGroup}>
-          <span style={s.slicerLabel}>{t('nucleo.dashboard.barra.periodo')}</span>
-          <PeriodDropdown
-            value={slicers.period}
-            options={periodOptions}
-            onChange={onPeriodChange}
-          />
+      {statusOptions.length > 0 && (
+        <>
+          <div style={variant === 'integrado' ? undefined : s.divider} className={variant === 'integrado' ? 'dashboard-barra-integrado__divisor' : undefined} aria-hidden="true" />
+
+          {compactStatus
+            ? (
+              <div style={{ position: 'relative' }} data-testid="status-compact-dropdown">
+                <PeriodDropdown
+                  value={slicers.status[0] ?? '__todos__'}
+                  options={[
+                    { value: '__todos__', label: t('nucleo.dashboard.barra.todos_status') },
+                    ...statusOptions.map(opt => ({
+                      value: opt,
+                      label: `${statusLabels[opt] ?? opt.replace(/_/g, ' ')}${statusCounts?.[opt] !== undefined ? ` (${statusCounts[opt]})` : ''}`,
+                    })),
+                  ]}
+                  onChange={(val) => onStatusChange(val === '__todos__' ? [] : [val])}
+                />
+              </div>
+            )
+            : (
+              <div style={s.statusChips} data-testid="status-chips-container">
+                <button
+                  type="button"
+                  style={{ ...s.chip, ...(isTodosActive ? s.chipActive : {}) }}
+                  onClick={() => onStatusChange([])}
+                  data-testid="status-chip-todos"
+                >
+                  {t('nucleo.dashboard.barra.todos')}
+                  {statusCounts !== undefined && (
+                    <span style={s.chipCount}>
+                      ({statusCounts['todos'] ?? Object.values(statusCounts).reduce((a, b) => a + b, 0)})
+                    </span>
+                  )}
+                </button>
+
+                {statusOptions.map(opt => {
+                  const active = slicers.status.includes(opt)
+                  const customColors = active ? statusActiveColors[opt] : undefined
+                  const count = statusCounts?.[opt]
+                  const isDisabled = statusCounts !== undefined && count === 0
+
+                  const chipStyle: React.CSSProperties = {
+                    ...s.chip,
+                    ...(active
+                      ? customColors
+                        ? { background: 'var(--bg-base)', color: customColors.text, boxShadow: 'var(--shadow-sm)' }
+                        : s.chipActive
+                      : {}),
+                    ...(isDisabled ? s.chipDisabled : {}),
+                  }
+
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      style={chipStyle}
+                      aria-disabled={isDisabled}
+                      data-testid={`status-chip-${opt}`}
+                      onClick={() => {
+                        if (isDisabled) return
+                        onStatusChange(
+                          active
+                            ? slicers.status.filter(x => x !== opt)
+                            : [...slicers.status, opt],
+                        )
+                      }}
+                    >
+                      {statusLabels[opt] ?? opt.replace(/_/g, ' ')}
+                      {statusCounts !== undefined && count !== undefined && (
+                        <span style={s.chipCount}>({count})</span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+        </>
+      )}
+
+      {variant === 'default' && activeFilters.length > 0 && (
+        <div style={s.activeFilters}>
+          <span style={s.slicerLabel}>{t('nucleo.dashboard.barra.filtros_ativos')}</span>
+          {activeFilters.map(f => (
+            <span key={`${f.field}-${f.sourceWidgetId}`} style={s.filterTag}>
+              {f.label}
+            </span>
+          ))}
+          <button type="button" style={s.clearBtn} onClick={onClearFilters}>
+            <X size={12} /> {t('nucleo.dashboard.barra.limpar')}
+          </button>
         </div>
+      )}
+    </>
+  ) : null
 
-        {/* ── Status chips ou dropdown compacto (T-09) ───────────────── */}
-        {statusOptions.length > 0 && (
-          <>
-            {/* Divisor vertical entre Período e Status (T-01) */}
-            <div style={s.divider} aria-hidden="true" />
+  const filtrosAtivosRodape = variant === 'integrado' && activeFilters.length > 0 ? (
+    <>
+      <span style={s.slicerLabel}>{t('nucleo.dashboard.barra.filtros_ativos')}</span>
+      {activeFilters.map(f => (
+        <span key={`${f.field}-${f.sourceWidgetId}`} style={s.filterTag}>
+          {f.label}
+        </span>
+      ))}
+      <button type="button" style={s.clearBtn} onClick={onClearFilters}>
+        <X size={12} /> {t('nucleo.dashboard.barra.limpar')}
+      </button>
+    </>
+  ) : null
 
-            {compactStatus
-              ? /* ── Modo compacto: dropdown customizado (viewports estreitos) ── */
-                <div style={{ position: 'relative' }} data-testid="status-compact-dropdown">
-                  <PeriodDropdown
-                    value={slicers.status[0] ?? '__todos__'}
-                    options={[
-                      { value: '__todos__', label: t('nucleo.dashboard.barra.todos_status') },
-                      ...statusOptions.map(opt => ({
-                        value: opt,
-                        label: `${statusLabels[opt] ?? opt.replace(/_/g, ' ')}${statusCounts?.[opt] !== undefined ? ` (${statusCounts[opt]})` : ''}`,
-                      })),
-                    ]}
-                    onChange={(val) => onStatusChange(val === '__todos__' ? [] : [val])}
-                  />
-                </div>
-              : /* ── Modo padrão: chips pill ───────────────────────────────────── */
-                <div style={s.statusChips} data-testid="status-chips-container">
-                  {/* Chip "Todos" — ativo quando nenhum filtro de status selecionado (T-03) */}
-                  <button
-                    type="button"
-                    style={{
-                      ...s.chip,
-                      ...(isTodosActive ? s.chipActive : {}),
-                    }}
-                    onClick={() => onStatusChange([])}
-                    data-testid="status-chip-todos"
-                  >
-                    {t('nucleo.dashboard.barra.todos')}
-                    {statusCounts !== undefined && (
-                      <span style={s.chipCount}>
-                        ({statusCounts['todos'] ?? Object.values(statusCounts).reduce((a, b) => a + b, 0)})
-                      </span>
-                    )}
-                  </button>
+  const temRodapeIntegrado = variant === 'integrado' && (footerContent != null || filtrosAtivosRodape != null)
 
-                  {statusOptions.map(opt => {
-                    const active = slicers.status.includes(opt)
-                    const customColors = active ? statusActiveColors[opt] : undefined
-                    const count = statusCounts?.[opt]
-                    const isDisabled = statusCounts !== undefined && count === 0
-
-                    const chipStyle: React.CSSProperties = {
-                      ...s.chip,
-                      ...(active
-                        ? customColors
-                          ? { background: 'var(--bg-base)', color: customColors.text, boxShadow: 'var(--shadow-sm)' }
-                          : s.chipActive
-                        : {}),
-                      ...(isDisabled ? s.chipDisabled : {}),
-                    }
-
-                    return (
-                      <button
-                        key={opt}
-                        type="button"
-                        style={chipStyle}
-                        aria-disabled={isDisabled}
-                        data-testid={`status-chip-${opt}`}
-                        onClick={() => {
-                          if (isDisabled) return
-                          onStatusChange(
-                            active
-                              ? slicers.status.filter(x => x !== opt)
-                              : [...slicers.status, opt],
-                          )
-                        }}
-                      >
-                        {statusLabels[opt] ?? opt.replace(/_/g, ' ')}
-                        {statusCounts !== undefined && count !== undefined && (
-                          <span style={s.chipCount}>({count})</span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-            }
-          </>
+  if (variant === 'integrado') {
+    return (
+      <div className={`dashboard-barra-integrado ${className ?? ''}`.trim()} data-testid="dashboard-barra-integrado">
+        {bannerContent != null && (
+          <div className="dashboard-barra-integrado__banner">{bannerContent}</div>
         )}
 
-        {/* ── Filtros ativos ───────────────────────────────────────────────── */}
-        {activeFilters.length > 0 && (
-          <div style={s.activeFilters}>
-            <span style={s.slicerLabel}>{t('nucleo.dashboard.barra.filtros_ativos')}</span>
-            {activeFilters.map(f => (
-              <span key={`${f.field}-${f.sourceWidgetId}`} style={s.filterTag}>
-                {f.label}
-              </span>
-            ))}
-            <button type="button" style={s.clearBtn} onClick={onClearFilters}>
-              <X size={12} /> {t('nucleo.dashboard.barra.limpar')}
-            </button>
+        <div className="dashboard-barra-integrado__corpo">
+          <div className="dashboard-barra-integrado__esquerda">
+            {headerRow != null && (
+              <>
+                {headerRow}
+                {filtrosConteudo != null && (
+                  <div className="dashboard-barra-integrado__divisor" aria-hidden="true" />
+                )}
+              </>
+            )}
+            {filtrosConteudo}
+          </div>
+          <div className="dashboard-barra-integrado__direita">{actionButtons}</div>
+        </div>
+
+        {temRodapeIntegrado && (
+          <div className="dashboard-barra-integrado__rodape">
+            {footerContent}
+            {filtrosAtivosRodape}
           </div>
         )}
 
-        <div style={{ flex: 1 }} />
-
-        {/* ── Cluster de ações — sempre visíveis ──────────────────────────── */}
-        {onAddWidget && (
-          <button
-            type="button"
-            style={s.btnSecondary}
-            onClick={onAddWidget}
-            data-testid="btn-adicionar-dashboard"
-          >
-            <Plus size={14} weight="bold" /> {t('nucleo.dashboard.barra.adicionar_dashboard')}
-          </button>
+        {showEditHint && editMode && (
+          <div style={{ ...s.editHint, margin: '0 1.25rem 0.75rem' }}>
+            <DotsSixVertical size={13} weight="bold" />
+            {t('nucleo.dashboard.barra.hint_reorganizar_pre')} <strong>{t('nucleo.dashboard.barra.concluir')}</strong> {t('nucleo.dashboard.barra.hint_reorganizar_pos')}
+          </div>
         )}
-
-        {/* ── Toggle reorganizar: secondary → accent quando ativo ──────────── */}
-        <button
-          type="button"
-          style={editMode ? s.btnPrimaryStrong : s.btnSecondary}
-          onClick={() => onEditModeChange(!editMode)}
-          data-testid="btn-reorganizar"
-          title={editMode ? undefined : t('nucleo.dashboard.barra.arraste_widgets_tooltip')}
-        >
-          {editMode
-            ? <><Check size={14} weight="bold" /> {t('nucleo.dashboard.barra.concluir')}</>
-            : <><DotsSixVertical size={14} weight="bold" /> {t('nucleo.dashboard.barra.reorganizar')}</>
-          }
-        </button>
-
       </div>
+    )
+  }
 
-      {/* ── Hint de modo reorganização ─────────────────────────────────── */}
-      {editMode && (
+  const actionsInHeader = headerRow != null || hideFilters
+
+  return (
+    <div style={s.wrapper}>
+
+      {/* ── Linha superior: painéis + ações ──────────────────────────────── */}
+      {actionsInHeader && (
+        <div style={s.headerRow} className="dashboard-barra-header-row">
+          {headerRow != null && <div style={s.headerRowStart}>{headerRow}</div>}
+          <div style={{ flex: 1, minWidth: '0.5rem' }} />
+          <div style={s.headerRowActions}>{actionButtons}</div>
+        </div>
+      )}
+
+      {/* ── Toolbar principal (filtros) ──────────────────────────────────── */}
+      {!hideFilters && (
+      <div style={s.toolbar} className={className}>
+        {filtrosConteudo}
+        {!actionsInHeader && <div style={{ flex: 1 }} />}
+        {!actionsInHeader && actionButtons}
+      </div>
+      )}
+
+      {/* ── Hint de modo reorganização (opt-in) ─────────────────────────── */}
+      {showEditHint && editMode && (
         <div style={s.editHint}>
           <DotsSixVertical size={13} weight="bold" />
           {t('nucleo.dashboard.barra.hint_reorganizar_pre')} <strong>{t('nucleo.dashboard.barra.concluir')}</strong> {t('nucleo.dashboard.barra.hint_reorganizar_pos')}
@@ -448,8 +699,28 @@ const styles = {
   wrapper: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: 0,
-    marginBottom: '1.25rem',
+    gap: '0.5rem',
+    marginBottom: '1rem',
+  },
+  headerRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    flexWrap: 'wrap' as const,
+    minHeight: '2rem',
+  },
+  headerRowStart: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+    flexWrap: 'wrap' as const,
+    minWidth: 0,
+  },
+  headerRowActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    flexShrink: 0,
   },
   toolbar: {
     display: 'flex', alignItems: 'center', gap: '0.75rem',

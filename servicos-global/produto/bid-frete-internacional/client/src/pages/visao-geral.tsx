@@ -5,7 +5,7 @@
  * funil com percentuais, donut com progress bars, câmbio do dia.
  */
 
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   MagnifyingGlass,
@@ -46,11 +46,22 @@ import {
   CalendarBlank,
 } from '@phosphor-icons/react'
 
-import { DEMO_KPIS, DEMO_CALENDARIO, DEMO_MENSAL, DEMO_MODAL, DEMO_MELHOR_COTACAO, DEMO_INCOTERMS } from '../shared/demo-data'
+import { DEMO_MENSAL, DEMO_MODAL, DEMO_MELHOR_COTACAO, DEMO_INCOTERMS } from '../shared/demo-data'
+import {
+  getDashboardInsightsAlertas,
+  getDashboardKpis,
+  getDashboardMapaCotacoesVisaoGeral,
+} from '../shared/api'
 import { STATUS_LABELS, MODAL_LABELS, CalendarioAlerta } from '../shared/types'
-import type { StatusCotacao } from '../shared/types'
-import { VisaoGeralMapaBidFrete as VisaoGeralMapa, type RouteDetailBidFrete as RouteDetail } from '../shared/componentes/visao-geral-mapa-bid-frete'
+import type { DashboardKPIs, StatusCotacao } from '../shared/types'
+import {
+  VisaoGeralMapaBidFrete as VisaoGeralMapa,
+  type DadosMapaBidFrete,
+  type RouteDetailBidFrete as RouteDetail,
+} from '../shared/componentes/visao-geral-mapa-bid-frete'
 import { BidFreteFunilBarras } from '../shared/componentes/visao-geral-bid-frete-ui'
+import { ConteudoCarregandoBidFreteInternacional } from '../shared/pagina-carregando-bid-frete-internacional'
+import '../shared/bid-frete-visao-geral-layout.css'
 import '../shared/bid-frete-visao-geral-mapa.css'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -290,8 +301,12 @@ function GraficoDonutModal() {
 
 // ─── Taxa Aprovação (donut) ──────────────────────────────────────────────────
 
-function TaxaAprovacao() {
-  const { percentual_em_tempo, percentual_atraso, nao_respondidas } = DEMO_KPIS.aprovacao
+function TaxaAprovacao({
+  aprovacao,
+}: {
+  aprovacao: DashboardKPIs['aprovacao']
+}) {
+  const { percentual_em_tempo, percentual_atraso, nao_respondidas } = aprovacao
   const cx = 55
   const cy = 55
   const r = 42
@@ -341,26 +356,57 @@ function TaxaAprovacao() {
   )
 }
 
+type KpisInsightsVisaoGeral = DashboardKPIs & {
+  tempo_medio_resposta_dias: number | null
+  cotacoes_aprovadas: number
+}
+
 export default function VisaoGeral() {
   const [isDialogoCompletoOpen, setIsDialogoCompletoOpen] = useState(false)
   const [alertModalTab, setAlertModalTab] = useState<'geral' | 'itens' | 'propostas' | 'historico'>('geral')
   const [selectedAlertContextCompleto, setSelectedAlertContextCompleto] = useState<CalendarioAlerta | (RouteDetail & { tipo: 'route' }) | null>(null)
+  const [kpis, setKpis] = useState<KpisInsightsVisaoGeral | null>(null)
+  const [alertas, setAlertas] = useState<CalendarioAlerta[]>([])
+  const [dadosMapa, setDadosMapa] = useState<DadosMapaBidFrete>({ pins: [], routes: [] })
+  const [carregando, setCarregando] = useState(true)
+
+  const carregarInsights = useCallback(async () => {
+    setCarregando(true)
+    try {
+      const [kpisData, alertasData, mapaData] = await Promise.all([
+        getDashboardKpis(),
+        getDashboardInsightsAlertas(),
+        getDashboardMapaCotacoesVisaoGeral(),
+      ])
+      setKpis(kpisData)
+      setAlertas(alertasData)
+      setDadosMapa(mapaData)
+    } catch {
+      setKpis(null)
+      setAlertas([])
+      setDadosMapa({ pins: [], routes: [] })
+    } finally {
+      setCarregando(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void carregarInsights()
+  }, [carregarInsights])
 
   // Interactive exchange rate & spread states (DDD nomenclature, PT-BR without accents)
   const [cambioModo, setCambioModo] = useState<'hoje' | 'historico' | 'futuro'>('hoje')
   const [dataSelecionada, setDataSelecionada] = useState<string>('2026-05-22')
   const [futuroDias, setFuturoDias] = useState<number>(30)
 
-  const kpis = DEMO_KPIS
-
   const etapasFunil = useMemo(
     () =>
-      kpis.funil.map((item) => ({
+      (kpis?.funil ?? []).map((item) => ({
         rotulo: STATUS_LABELS[item.status],
         quantidade: item.count,
         cor: FUNIL_CORES[item.status] ?? '#94a3b8',
       })),
-    [kpis.funil],
+    [kpis?.funil],
   )
 
   // PTAX currency simulation
@@ -401,9 +447,15 @@ export default function VisaoGeral() {
 
     return moedasBase
   }, [cambioModo, dataSelecionada, futuroDias])
-  const alertas = DEMO_CALENDARIO
   const andamentoSpark = [12, 14, 18, 15, 20, 22, 25]
   const savingSpark = [15, 18, 16, 21, 19, 23, 24]
+
+  if (carregando || !kpis) {
+    return <ConteudoCarregandoBidFreteInternacional />
+  }
+
+  const tempoRespostaLabel =
+    kpis.tempo_medio_resposta_dias != null ? `${kpis.tempo_medio_resposta_dias} d` : '—'
 
   return (
     <div className="bfd-dashboard">
@@ -740,8 +792,8 @@ export default function VisaoGeral() {
         <CardBasicoGlobal
           titulo="Aprovadas"
           icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
-          valor={String(kpis.cotacoes_passadas)}
-          tendencia={{ valor: '+12%', direcao: 'up' }}
+          valor={String(kpis.cotacoes_aprovadas)}
+          tendencia={{ valor: '', direcao: 'up' }}
           subtexto={`USD ${fmtMoeda(kpis.valor_aprovado_usd)} total`}
           variante="padrao"
           tooltip={
@@ -752,7 +804,7 @@ export default function VisaoGeral() {
               </div>
               <div className="cg-tooltip__row">
                 <span>Total aprovado</span>
-                <strong>{kpis.cotacoes_passadas}</strong>
+                <strong>{kpis.cotacoes_aprovadas}</strong>
               </div>
               <div className="cg-tooltip__row">
                 <span>Taxa de conversão</span>
@@ -796,27 +848,27 @@ export default function VisaoGeral() {
         <CardBasicoGlobal
           titulo="Tempo Médio de Resposta"
           icone={<Timer weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
-          valor="2.4 d"
-          tendencia={{ valor: '-0.8d', direcao: 'down' }}
+          valor={tempoRespostaLabel}
+          tendencia={{ valor: '', direcao: 'down' }}
           subtexto="Meta: 3 dias"
           variante="padrao"
           tooltip={
             <>
               <div className="cg-tooltip__row">
                 <span>Média de resposta</span>
-                <strong>2.4 dias</strong>
+                <strong>
+                  {kpis.tempo_medio_resposta_dias != null
+                    ? `${kpis.tempo_medio_resposta_dias} dias`
+                    : 'Sem dados'}
+                </strong>
               </div>
               <div className="cg-tooltip__row">
                 <span>Meta SLA</span>
                 <strong>3.0 dias</strong>
               </div>
               <div className="cg-tooltip__row">
-                <span>Dentro do SLA</span>
-                <strong style={{ color: '#34d399' }}>92.5%</strong>
-              </div>
-              <div className="cg-tooltip__row">
-                <span>Principal gargalo</span>
-                <strong style={{ color: '#fb923c' }}>Santos (SLA 3.8d)</strong>
+                <span>Aprovações no prazo</span>
+                <strong style={{ color: '#34d399' }}>{kpis.aprovacao.percentual_em_tempo}%</strong>
               </div>
             </>
           }
@@ -828,6 +880,10 @@ export default function VisaoGeral() {
         {/* Global World Map Overview Section */}
         <VisaoGeralMapa
           vistaInicialMapa="mapa"
+          fonteDados="api"
+          dadosMapa={dadosMapa}
+          painelRankingsSeparado
+          exibirPainelLateralMapa
           onOpenCompleto={(route) => {
             setSelectedAlertContextCompleto({
               tipo: 'route',
@@ -1233,7 +1289,7 @@ export default function VisaoGeral() {
             </div>
             <p className="cg-card__label" style={{ margin: 0 }}>Taxa de Aprovação</p>
           </div>
-          <TaxaAprovacao />
+          <TaxaAprovacao aprovacao={kpis.aprovacao} />
         </div>
       </div>
 

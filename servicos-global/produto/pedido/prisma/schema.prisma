@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-06-02T01:09:04.016Z
+// Gerado em: 2026-06-02T22:56:15.653Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/produto/pedido
 // ============================================================================
@@ -576,6 +576,26 @@ model DashboardPainelUsuarioGlobal {
   @@index([id_organizacao])
   @@index([id_organizacao, id_usuario])
   @@map("dashboard_painel_usuario_global")
+}
+
+/// Painéis da lista pessoais por usuário (colunas, filtros, aba, ordenação).
+/// "Global" no nome: product-agnostic; provisório no banco do produto.
+model ListaPainelUsuarioGlobal {
+  id_lista_painel_usuario_global               String   @id @default(cuid())
+  id_organizacao                                String
+  id_usuario                                    String
+  id_produto_gravity                            String
+  nome_lista_painel_usuario_global              String
+  ordem_lista_painel_usuario_global             Int      @default(0)
+  visivel_lista_painel_usuario_global           Boolean  @default(true)
+  config_json_lista_painel_usuario_global       String   @default("{}") @db.Text
+  data_criacao_lista_painel_usuario_global      DateTime @default(now())
+  data_atualizacao_lista_painel_usuario_global  DateTime @updatedAt
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_usuario, id_produto_gravity])
+  @@map("lista_painel_usuario_global")
 }
 
 // ============================================================================

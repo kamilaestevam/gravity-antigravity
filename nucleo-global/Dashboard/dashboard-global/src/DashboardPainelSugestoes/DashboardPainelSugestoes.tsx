@@ -53,6 +53,23 @@ export function DashboardPainelSugestoes({
 
         {/* ── Body (scrollável) ────────────────────────────────────────────── */}
         <div style={s.body}>
+          {onCreateCustom && (
+            <button
+              type="button"
+              style={s.createCustomBanner}
+              data-testid="btn-criar-widget-zero-modal"
+              onClick={() => { onCreateCustom(); onClose() }}
+            >
+              <span style={s.createCustomIcon} aria-hidden="true">
+                <PencilSimple size={18} weight="duotone" />
+              </span>
+              <span style={s.createCustomText}>
+                <strong style={s.createCustomTitle}>{t('nucleo.dashboard.sugestoes.criar_widget_zero')}</strong>
+                <span style={s.createCustomDesc}>{t('nucleo.dashboard.sugestoes.criar_widget_zero_hint', { defaultValue: 'Nome, campos, operação e tipo de gráfico' })}</span>
+              </span>
+            </button>
+          )}
+
           <p style={s.hint}>{t('nucleo.dashboard.sugestoes.hint')}</p>
 
           {/* ── Sugestões automáticas ──────────────────────────────────────── */}
@@ -176,8 +193,46 @@ const panelStyles = {
   },
   // Modal body — bg-base (Design System § 14)
   body: {
-    flex: 1, overflowY: 'auto' as const,
+    flex: 1,
+    minHeight: 0,
+    overflowY: 'auto' as const,
     padding: '1.25rem 1.5rem',
+  },
+  createCustomBanner: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.875rem',
+    width: '100%',
+    marginBottom: '1rem',
+    padding: '0.875rem 1rem',
+    background: 'var(--accent-dim)',
+    border: '1px solid var(--border-accent)',
+    borderRadius: 'var(--radius-md)',
+    cursor: 'pointer',
+    textAlign: 'left' as const,
+  },
+  createCustomIcon: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    color: 'var(--accent)',
+  },
+  createCustomText: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.125rem',
+    minWidth: 0,
+  },
+  createCustomTitle: {
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    color: 'var(--text-primary)',
+  },
+  createCustomDesc: {
+    fontSize: '0.8125rem',
+    color: 'var(--text-secondary)',
+    lineHeight: 1.4,
   },
   hint: {
     fontSize: '0.8125rem', color: 'var(--text-secondary)',  /* #94a3b8 */

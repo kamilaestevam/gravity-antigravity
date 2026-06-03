@@ -13,7 +13,6 @@ import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 
 import CotacoesKanban from './kanban-bid-frete-internacional'
-import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import {
   criarTituloCarregandoTopo,
@@ -70,6 +69,14 @@ import {
 import { SYNC_EVENT_CASAS_BID_FRETE } from '../shared/casas-config-bid-frete'
 import { SYNC_EVENT_FORMATO_DATA_BID_FRETE } from '../shared/formato-data-bid-frete'
 import { listarCardsCatalogo, useCardPreferencesBidFrete } from '../shared/use-card-preferences'
+import { BidFreteListaPainelBar } from '../components/BidFreteListaPainelBar'
+import { useListaPainelBidFrete } from '../shared/useListaPainelBidFrete'
+import {
+  configListaPainelPadraoV1,
+  parsearConfigListaPainelSeguro,
+  serializarConfigListaPainel,
+} from '../../../shared/listaPainelConfigSchema'
+import { paineisListaBidFreteApi } from '../shared/api'
 import { useCadastrosListaBidFrete } from '../shared/useCadastrosListaBidFrete'
 import {
   buildColunasPaiLista,
@@ -446,24 +453,130 @@ export default function Cotacoes() {
   // ─── Tabela Virtual: Preferências, Colunas e Edição ───
 
   const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(() => lerPreferenciasTabela())
+  const sortCampoLista = 'numero_cotacao_bid_frete_internacional'
+  const sortDirLista = 'desc' as const
+  const filtrosAtivosLista = useMemo(() => ({}), [])
+
+  const {
+    paineis: paineisLista,
+    setPaineis: setPaineisLista,
+    painelAtualId: painelListaAtualId,
+    setPainelAtualId: setPainelListaAtualId,
+    painelAtual: painelListaAtual,
+    carregando: carregandoPaineisLista,
+    aplicarConfigDoPainel,
+    persistirPainelAtual,
+    trocarPainel: trocarPainelLista,
+  } = useListaPainelBidFrete()
+  const painelListaAplicadoRef = useRef<string | null>(null)
+  const migrouLocalStoragePainelRef = useRef(false)
+
+  const listaPainelCallbacks = useMemo(() => ({
+    setPreferencias,
+    setAbaAtiva: setFiltroTab,
+    setSortCampo: () => {},
+    setSortDir: () => {},
+    setBusca,
+    setFiltrosAtivos: () => {},
+    onConfigAplicada: (_aba: string) => { /* filtro client-side */ },
+    onPainelHidratado: (id: string) => {
+      painelListaAplicadoRef.current = id
+    },
+  }), [])
 
   useEffect(() => {
-    const prefs = lerPreferenciasTabela()
-    if (prefs) {
-      setPreferencias(prefs)
-      try {
-        localStorage.setItem(STORAGE_PREFS_INTL, JSON.stringify(prefs))
-      } catch { /* ignore */ }
+    if (!painelListaAtual || carregandoPaineisLista) return
+    if (painelListaAplicadoRef.current === painelListaAtual.id) return
+    aplicarConfigDoPainel(painelListaAtual, listaPainelCallbacks)
+
+    if (!migrouLocalStoragePainelRef.current) {
+      const prefsLocal = lerPreferenciasTabela()
+      const configAtual = parsearConfigListaPainelSeguro(
+        painelListaAtual.config_json,
+        configListaPainelPadraoV1(),
+        { id_painel: painelListaAtual.id, origem: 'lista-bid-frete.migracaoLocalStorage' },
+      )
+      if (prefsLocal?.colunas_visiveis?.length && configAtual.colunas_visiveis.length === 0) {
+        const merged = configListaPainelPadraoV1({
+          ...configAtual,
+          colunas_visiveis: prefsLocal.colunas_visiveis,
+          colunas_largura: prefsLocal.colunas_largura as Record<string, number> | undefined,
+        })
+        void paineisListaBidFreteApi.atualizar(painelListaAtual.id, {
+          config_json: serializarConfigListaPainel(merged),
+        })
+        setPreferencias({ colunas_visiveis: merged.colunas_visiveis, colunas_largura: merged.colunas_largura })
+      } else if (configAtual.colunas_visiveis.length === 0) {
+        const merged = configListaPainelPadraoV1({
+          ...configAtual,
+          colunas_visiveis: COLUNAS_PADRAO_VISIVEIS,
+        })
+        void paineisListaBidFreteApi.atualizar(painelListaAtual.id, {
+          config_json: serializarConfigListaPainel(merged),
+        })
+        setPreferencias({ colunas_visiveis: merged.colunas_visiveis })
+      }
+      migrouLocalStoragePainelRef.current = true
     }
-  }, [])
+  }, [painelListaAtual, carregandoPaineisLista, aplicarConfigDoPainel, listaPainelCallbacks])
+
+  const handleTrocarPainelLista = useCallback((id: string) => {
+    painelListaAplicadoRef.current = null
+    void trocarPainelLista(
+      id,
+      {
+        preferencias,
+        abaAtiva: filtroTab,
+        sortCampo: sortCampoLista,
+        sortDir: sortDirLista,
+        busca,
+        filtrosAtivos: filtrosAtivosLista,
+        cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+        periodoCards,
+      },
+      listaPainelCallbacks,
+    )
+  }, [
+    trocarPainelLista, preferencias, filtroTab, busca, filtrosAtivosLista,
+    cardsVisiveis, periodoCards, listaPainelCallbacks,
+  ])
+
+  useEffect(() => {
+    if (!painelListaAtualId || carregandoPaineisLista) return
+    if (painelListaAplicadoRef.current !== painelListaAtualId) return
+    persistirPainelAtual({
+      preferencias,
+      abaAtiva: filtroTab,
+      sortCampo: sortCampoLista,
+      sortDir: sortDirLista,
+      busca,
+      filtrosAtivos: filtrosAtivosLista,
+      cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+      periodoCards,
+    })
+  }, [
+    preferencias, filtroTab, busca, painelListaAtualId, carregandoPaineisLista,
+    persistirPainelAtual, cardsVisiveis, periodoCards, filtrosAtivosLista,
+  ])
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
-    try {
-      localStorage.setItem(STORAGE_COLUNAS_VERSAO, String(VERSAO_COLUNAS_LISTA))
-      localStorage.setItem(STORAGE_PREFS_INTL, JSON.stringify(prefs))
-    } catch { /* ignore */ }
-  }, [])
+    if (painelListaAtualId) {
+      persistirPainelAtual({
+        preferencias: prefs,
+        abaAtiva: filtroTab,
+        sortCampo: sortCampoLista,
+        sortDir: sortDirLista,
+        busca,
+        filtrosAtivos: filtrosAtivosLista,
+        cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+        periodoCards,
+      })
+    }
+  }, [
+    painelListaAtualId, persistirPainelAtual, filtroTab, busca,
+    cardsVisiveis, periodoCards, filtrosAtivosLista,
+  ])
 
   const abrirDetalheCotacao = useCallback((item: Cotacao) => {
     navigate(`/bid-frete/cotacoes/${item.id_cotacao_bid_frete_internacional}`)
@@ -1185,14 +1298,25 @@ export default function Cotacoes() {
   // ─── Render ───
 
   return (
-    <PaginaGlobal
-      className="bf-cotacoes bid-frete-page-shell"
-    >
+    <div className="bf-lista-page bf-cotacoes bid-frete-page-shell">
       {carregando ? (
         <ConteudoCarregandoBidFreteInternacional />
       ) : (
         <>
       {/* ── KPI cards (Configuração dinâmica com sincronização do local storage) ── */}
+      {visao === 'lista' && (
+        <div className="bf-paineis-lista">
+          <BidFreteListaPainelBar
+            paineis={paineisLista}
+            painelAtualId={painelListaAtualId}
+            setPaineis={setPaineisLista}
+            setPainelAtualId={setPainelListaAtualId}
+            onTrocarPainel={handleTrocarPainelLista}
+            carregando={carregandoPaineisLista}
+          />
+        </div>
+      )}
+
       {visao === 'lista' && (
         <div className="lp-stats-row">
           <div className="lp-cards">
@@ -1289,46 +1413,7 @@ export default function Cotacoes() {
       )}
 
       <style>{`
-        .bf-cotacoes {
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-          min-height: 0;
-          height: 100%;
-        }
-
-        .bf-cotacoes .pg-conteudo-area {
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-          min-height: 0;
-          overflow: hidden;
-          gap: 1rem;
-        }
-
-        /* Destaque: cotação com menos de 2h para expirar (config Tabela) */
-        .bf-cotacoes .gtv-linha--expira-prestes {
-          box-shadow: inset 3px 0 0 rgba(248, 113, 113, 0.9);
-        }
-        .bf-cotacoes .gtv-linha--expira-prestes:hover {
-          box-shadow: inset 3px 0 0 rgba(248, 113, 113, 1);
-        }
-
-        /* ── KPI Cards / Row ── */
-        .lp-stats-row {
-          display: flex;
-          align-items: flex-end;
-          gap: 1rem;
-          padding: 0.5rem 0 1.5rem;
-        }
-
-        .lp-cards {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-          gap: 1rem;
-          flex: 1;
-          min-width: 0;
-        }
+        /* Destaque: cotação com menos de 2h para expirar (config Tabela) — layout em bid-frete-page-shell.css */
 
         /* ── Dropdown "Novo" ── */
         .lp-dropdown-menu {
@@ -1382,18 +1467,6 @@ export default function Cotacoes() {
         }
         .bf-toggle-btn--ativo:hover {
           color: #fff;
-        }
-
-        /* ── Table section ── */
-        .bf-table-section {
-          background: var(--bg-surface, #334155);
-          border-radius: var(--radius-lg, 12px);
-          overflow: hidden;
-          flex: 1;
-          min-height: 0;
-          display: flex;
-          flex-direction: column;
-          height: 100%;
         }
 
         /* ── Kanban Board ── */
@@ -1586,6 +1659,6 @@ export default function Cotacoes() {
           color: var(--text-primary, #f1f5f9);
         }
       `}</style>
-    </PaginaGlobal>
+    </div>
   )
 }

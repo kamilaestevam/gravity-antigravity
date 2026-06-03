@@ -31,6 +31,7 @@ import { avaliacoesRouter } from './routes/avaliacoes.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { dashboardPaineisRouter } from './routes/dashboard-paineis.js'
+import { listaPaineisBidFreteRouter } from './routes/lista-bid-frete-internacional-paineis.js'
 import { startCronJobs } from './services/tarefas-agendadas.js'
 import { rateLimitPresets } from '../../../../servicos-plataforma/middleware/rateLimiter.js'
 import { apiObservability } from '../../../../servicos-plataforma/middleware/apiObservability.js'
@@ -149,6 +150,7 @@ app.use('/api/v1/bid-frete-internacional/avaliacoes', avaliacoesRouter)
 app.use('/api/v1/bid-frete-internacional/dashboard', dashboardRouter)
 app.use('/api/v1/bid-frete-internacional/dashboard', dashboardWidgetsRouter)
 app.use('/api/v1/bid-frete-internacional/dashboard', dashboardPaineisRouter)
+app.use('/api/v1/bid-frete-internacional/lista', listaPaineisBidFreteRouter)
 
 // --- 10. SPA Fallback ---
 app.get('*', (_req: Request, res: Response) => {

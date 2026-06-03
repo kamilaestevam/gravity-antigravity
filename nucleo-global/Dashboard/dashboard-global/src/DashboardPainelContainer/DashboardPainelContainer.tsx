@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next'
 import { DotsThreeVertical, PencilSimple, Trash, DownloadSimple, Warning, ArrowClockwise, DotsSixVertical } from '@phosphor-icons/react'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import type { DashboardWidgetConfig, WidgetResult } from '../tipos.js'
+import { WidgetHeaderAcoesPortal } from './WidgetHeaderAcoesPortal.js'
 
 export interface WidgetContainerProps {
   widget: DashboardWidgetConfig
@@ -55,14 +56,19 @@ function WidgetSkeleton() {
 // ─── Menu de opções ────────────────────────────────────────────────────────────
 
 interface OptionsMenuProps {
+  editMode: boolean
   onEdit?: () => void
   onRemove?: () => void
 }
 
-function OptionsMenu({ onEdit, onRemove }: OptionsMenuProps) {
+function OptionsMenu({ editMode, onEdit, onRemove }: OptionsMenuProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!editMode) setOpen(false)
+  }, [editMode])
 
   useEffect(() => {
     if (!open) return
@@ -75,30 +81,41 @@ function OptionsMenu({ onEdit, onRemove }: OptionsMenuProps) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
 
+  if (!editMode) return null
+
   return (
-    <div ref={menuRef} style={{ position: 'relative' }}>
+    <div ref={menuRef} className="db-no-drag" style={{ position: 'relative' }}>
       <button
+        type="button"
         style={styles.menuBtn}
-        onClick={() => setOpen(v => !v)}
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); setOpen(v => !v) }}
         aria-label={t('nucleo.dashboard.painel.opcoes_widget_aria')}
         title={t('nucleo.dashboard.painel.opcoes')}
+        data-testid="dashboard-widget-menu-btn"
+        aria-haspopup="menu"
+        aria-expanded={open}
       >
         <DotsThreeVertical size={18} weight="bold" />
       </button>
 
       {open && (
         <div style={styles.menuDropdown} role="menu">
-          {onEdit && (
-            <button
-              style={styles.menuItem}
-              onClick={() => { onEdit(); setOpen(false) }}
-              role="menuitem"
-            >
-              <PencilSimple size={14} />
-              {t('nucleo.dashboard.painel.editar')}
-            </button>
-          )}
           <button
+            type="button"
+            style={{
+              ...styles.menuItem,
+              ...(onEdit ? {} : { opacity: 0.45, cursor: 'not-allowed' }),
+            }}
+            disabled={!onEdit}
+            onClick={() => { if (onEdit) { onEdit(); setOpen(false) } }}
+            role="menuitem"
+          >
+            <PencilSimple size={14} />
+            {t('nucleo.dashboard.painel.editar')}
+          </button>
+          <button
+            type="button"
             style={styles.menuItem}
             onClick={() => setOpen(false)}
             role="menuitem"
@@ -106,16 +123,20 @@ function OptionsMenu({ onEdit, onRemove }: OptionsMenuProps) {
             <DownloadSimple size={14} />
             {t('nucleo.dashboard.painel.exportar_dados')}
           </button>
-          {onRemove && (
-            <button
-              style={{ ...styles.menuItem, color: 'var(--danger)' }}
-              onClick={() => { onRemove(); setOpen(false) }}
-              role="menuitem"
-            >
-              <Trash size={14} />
-              {t('nucleo.dashboard.painel.remover')}
-            </button>
-          )}
+          <button
+            type="button"
+            style={{
+              ...styles.menuItem,
+              color: 'var(--danger)',
+              ...(onRemove ? {} : { opacity: 0.45, cursor: 'not-allowed' }),
+            }}
+            disabled={!onRemove}
+            onClick={() => { if (onRemove) { onRemove(); setOpen(false) } }}
+            role="menuitem"
+          >
+            <Trash size={14} />
+            {t('nucleo.dashboard.painel.remover')}
+          </button>
         </div>
       )}
     </div>
@@ -146,6 +167,7 @@ export function DashboardPainelContainer({
   const isPartial = result?.partial === true
   const isCached = result?.cached === true
   const [hovered, setHovered] = useState(false)
+  const acoesAnchorRef = useRef<HTMLDivElement>(null)
 
   const handleMouseEnter = useCallback(() => setHovered(true), [])
   const handleMouseLeave = useCallback(() => setHovered(false), [])
@@ -154,7 +176,20 @@ export function DashboardPainelContainer({
 
   const headerStyle: React.CSSProperties = {
     ...styles.header,
-    cursor: editMode ? 'grab' : 'default',
+    cursor: 'default',
+  }
+
+  const titleAreaStyle: React.CSSProperties = {
+    ...styles.titleArea,
+    minWidth: 0,
+    ...(editMode ? { cursor: 'grab' } : {}),
+  }
+
+  const headerGridStyle: React.CSSProperties = {
+    ...headerStyle,
+    display: 'grid',
+    gridTemplateColumns: 'minmax(0, 1fr) auto',
+    alignItems: 'center',
   }
 
   const containerStyle: React.CSSProperties = {
@@ -170,10 +205,12 @@ export function DashboardPainelContainer({
 
   return (
     <div style={containerStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={onClick}>
-      {/* Cabeçalho com drag handle */}
-      <div className={editMode ? 'db-drag-handle' : undefined} style={headerStyle}>
-        <div style={styles.titleArea}>
-          {/* Ícone de arraste visível no modo edição */}
+      {/* Cabeçalho — arraste só na coluna do título; controles via portal (fora do grid) */}
+      <div style={headerGridStyle}>
+        <div
+          className={editMode ? 'db-drag-handle' : undefined}
+          style={titleAreaStyle}
+        >
           {editMode && (
             <span style={styles.dragHandleIcon} title={t('nucleo.dashboard.painel.arraste_reorganizar')}>
               <DotsSixVertical size={16} weight="bold" />
@@ -197,10 +234,12 @@ export function DashboardPainelContainer({
           {periodoFiltroRotulo && (
             <span style={styles.badgePeriodo} title={t('nucleo.dashboard.painel.periodo_widget_tooltip')}>
               {periodoFiltroRotulo}
-              {onLimparPeriodoWidget && (
+              {editMode && onLimparPeriodoWidget && (
                 <button
                   type="button"
+                  className="db-no-drag"
                   style={styles.badgePeriodoClear}
+                  onMouseDown={(e) => e.stopPropagation()}
                   onClick={(e) => { e.stopPropagation(); onLimparPeriodoWidget() }}
                   aria-label={t('nucleo.dashboard.painel.limpar_periodo_widget')}
                 >
@@ -211,14 +250,26 @@ export function DashboardPainelContainer({
           )}
         </div>
 
-        <div style={styles.headerActions}>
+        {editMode && (
+          <div
+            ref={acoesAnchorRef}
+            className="dashboard-widget-header-acoes-anchor"
+            style={styles.headerAcoesAnchor}
+            aria-hidden="true"
+          />
+        )}
+      </div>
+
+      {editMode && (
+        <WidgetHeaderAcoesPortal anchorRef={acoesAnchorRef} ativo={editMode}>
           {periodoControle}
           <OptionsMenu
-          onEdit={onEdit ? () => onEdit(widget) : undefined}
-          onRemove={onRemove ? () => onRemove(widget.id) : undefined}
-        />
-        </div>
-      </div>
+            editMode={editMode}
+            onEdit={onEdit ? () => onEdit(widget) : undefined}
+            onRemove={onRemove ? () => onRemove(widget.id) : undefined}
+          />
+        </WidgetHeaderAcoesPortal>
+      )}
 
       {/* Corpo */}
       <div style={styles.body}>
@@ -379,6 +430,16 @@ const styles = {
     alignItems: 'center',
     gap: '6px',
     flexShrink: 0,
+    position: 'relative' as const,
+    zIndex: 20,
+    cursor: 'default',
+  },
+  headerAcoesAnchor: {
+    width: 120,
+    minWidth: 120,
+    height: 28,
+    flexShrink: 0,
+    pointerEvents: 'none' as const,
   },
   menuBtn: {
     background: 'none',

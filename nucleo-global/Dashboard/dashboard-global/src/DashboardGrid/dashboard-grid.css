@@ -1,0 +1,25 @@
+/**
+ * DashboardGrid — ajustes de interação em modo edição.
+ * Alças laterais/superiores conflitam com período e menu ⋮ no cabeçalho do card.
+ */
+
+.db-grid .react-grid-item .db-no-drag,
+.db-grid .react-grid-item .db-no-drag button {
+  cursor: pointer !important;
+  pointer-events: auto;
+}
+
+.db-grid .react-grid-item .db-drag-handle {
+  cursor: grab !important;
+}
+
+.db-grid .react-grid-item .db-drag-handle:active {
+  cursor: grabbing !important;
+}
+
+/* Cabeçalho do widget acima das alças de resize laterais */
+.db-grid .dashboard-widget-header-acoes {
+  position: relative;
+  z-index: 20;
+  isolation: isolate;
+}

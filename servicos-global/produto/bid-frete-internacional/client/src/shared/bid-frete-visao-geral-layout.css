@@ -33,6 +33,11 @@
   margin-bottom: 0;
 }
 
+.bfd-globe-row .bfd-mapa-rankings-row {
+  grid-column: 1;
+  min-width: 0;
+}
+
 .bfd-globe-row__coluna-direita {
   display: flex;
   flex-direction: column;

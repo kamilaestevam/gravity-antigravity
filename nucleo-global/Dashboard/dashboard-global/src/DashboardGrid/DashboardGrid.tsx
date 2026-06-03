@@ -12,6 +12,7 @@ import type { DashboardWidgetConfig } from '../tipos.js'
 
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
+import './dashboard-grid.css'
 
 export interface DashboardGridProps {
   widgets: DashboardWidgetConfig[]
@@ -81,15 +82,16 @@ export function DashboardGrid({
     <div ref={wrapperRef} style={{ width: '100%' }}>
       <Responsive
         width={gridWidth}
-        className={`db-grid${className ? ` ${className}` : ''}`}
+        className={`db-grid${editMode ? ' db-grid--edit-mode' : ''}${className ? ` ${className}` : ''}`}
         layouts={layouts}
         breakpoints={BREAKPOINTS}
         cols={COLS}
         rowHeight={ROW_HEIGHT}
         draggableHandle=".db-drag-handle"
+        draggableCancel=".db-no-drag, .db-no-drag *, button, a, input, textarea, select"
         isDraggable={editMode}
         isResizable={editMode}
-        resizeHandles={['s', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne']}
+        resizeHandles={['se', 's']}
         onLayoutChange={handleLayoutChange}
         margin={[12, 12]}
         containerPadding={[0, 0]}

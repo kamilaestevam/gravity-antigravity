@@ -133,8 +133,7 @@ listaPedidoKpisRouter.get('/kpis', async (req: Request, res: Response) => {
         valor_total_pedido: true,
         quantidade_total_pedido: true,
         moeda_pedido: true,
-        quantidade_pronta_itens_pedido_total: true,
-        quantidade_cancelada_total_pedido: true,
+        // Virtuais (mapPedido): somatório nos itens — não existem no model Pedido
         unidade_comercializada_pedido: true,
         data_emissao_pedido: true,
         peso_liquido_total_pedido: true,
@@ -218,6 +217,6 @@ listaPedidoKpisRouter.get('/kpis', async (req: Request, res: Response) => {
     })
   } catch (err) {
     console.error('[ListaKpis]', err)
-    res.status(500).json({ error: 'Erro ao agregar KPIs da lista' })
+    if (!res.headersSent) res.status(500).json({ error: 'Erro ao agregar KPIs da lista' })
   }
 })

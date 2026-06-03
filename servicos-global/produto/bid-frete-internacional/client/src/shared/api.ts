@@ -5,6 +5,13 @@
  */
 
 import { z } from 'zod'
+import {
+  listaPainelDeletarResponseSchema,
+  listaPainelItemResponseSchema,
+  listaPainelListResponseSchema,
+  listaPainelReordenarResponseSchema,
+  type ListaPainel,
+} from '../../../shared/listaPainelApiSchema.js'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   visaoFornecedorBidFreteInternacionalCotacoesPendentesResponseSchema,
@@ -24,6 +31,16 @@ import {
   mapMapaCotacoesVisaoFornecedorFromServer,
   visaoFornecedorBidFreteInternacionalMapaCotacoesResponseSchema,
 } from './mapa-visao-fornecedor-bid-frete-internacional'
+import {
+  mapMapaCotacoesVisaoGeralFromServer,
+  visaoGeralBidFreteInternacionalMapaCotacoesResponseSchema,
+} from './mapa-visao-geral-bid-frete-internacional'
+import {
+  dashboardKpisResponseSchema,
+  insightsAlertasResponseSchema,
+  mapDashboardKpisFromServer,
+  mapInsightsAlertasFromServer,
+} from './insights-visao-geral-bid-frete-internacional'
 import type { DadosMapaBidFrete } from './componentes/visao-geral-mapa-bid-frete'
 import type {
   AlertaVisaoFornecedorBidFreteInternacional,
@@ -503,14 +520,39 @@ export function mapCotacaoToServer(input: Partial<Cotacao>): Record<string, unkn
 
 // ─── Dashboard ──────────────────────────────────────────────────────────────
 
-export async function getDashboardKpis(): Promise<DashboardKPIs> {
+export async function getDashboardKpis(): Promise<
+  DashboardKPIs & { tempo_medio_resposta_dias: number | null; cotacoes_aprovadas: number }
+> {
   const res = await fetch(`${API_BASE}/bid-frete-internacional/dashboard/kpis`, { headers: headers() })
-  return handleResponse(res)
+  const raw = await handleResponse<unknown>(res)
+  return mapDashboardKpisFromServer(dashboardKpisResponseSchema.parse(raw))
+}
+
+export async function getDashboardInsightsAlertas(): Promise<CalendarioAlerta[]> {
+  const res = await fetch(`${API_BASE}/bid-frete-internacional/dashboard/insights-alertas`, {
+    headers: headers(),
+  })
+  const raw = await handleResponse<unknown>(res)
+  return mapInsightsAlertasFromServer(insightsAlertasResponseSchema.parse(raw))
+}
+
+export async function getDashboardMapaCotacoesVisaoGeral(): Promise<DadosMapaBidFrete> {
+  const res = await fetch(`${API_BASE}/bid-frete-internacional/dashboard/mapa-cotacoes`, {
+    headers: headers(),
+  })
+  const raw = await handleResponse<unknown>(res)
+  return mapMapaCotacoesVisaoGeralFromServer(
+    visaoGeralBidFreteInternacionalMapaCotacoesResponseSchema.parse(raw),
+  )
 }
 
 export async function getDashboardCalendario(): Promise<CalendarioAlerta[]> {
   const res = await fetch(`${API_BASE}/bid-frete-internacional/dashboard/calendario`, { headers: headers() })
-  return handleResponse(res)
+  const raw = await handleResponse<unknown>(res)
+  const parsed = raw as { alertas?: CalendarioAlerta[] }
+  if (Array.isArray(parsed?.alertas)) return parsed.alertas
+  if (Array.isArray(raw)) return raw as CalendarioAlerta[]
+  return []
 }
 
 // ─── Cotações CRUD ──────────────────────────────────────────────────────────
@@ -1011,6 +1053,50 @@ export interface DashboardPainel {
   widgets_json: string
   created_at:   string
   updated_at:   string
+}
+
+export type { ListaPainel }
+
+export const paineisListaBidFreteApi = {
+  listar: (): Promise<{ data: ListaPainel[] }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis`, { headers: headers() })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => listaPainelListResponseSchema.parse(raw)),
+
+  criar: (nome: string): Promise<{ data: ListaPainel }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ nome }),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => listaPainelItemResponseSchema.parse(raw)),
+
+  atualizar: (id: string, patch: Partial<Pick<ListaPainel, 'nome' | 'is_visivel' | 'config_json'>>): Promise<{ data: ListaPainel }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis/${id}`, {
+      method: 'PUT',
+      headers: headers(),
+      body: JSON.stringify(patch),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => listaPainelItemResponseSchema.parse(raw)),
+
+  reordenar: (ids: string[]): Promise<{ data: { reordenado: true } }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis/reordenar`, {
+      method: 'PUT',
+      headers: headers(),
+      body: JSON.stringify({ ids }),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => listaPainelReordenarResponseSchema.parse(raw)),
+
+  deletar: (id: string): Promise<{ data: { deletado: true } }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/lista/paineis/${id}`, {
+      method: 'DELETE',
+      headers: headers(),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => listaPainelDeletarResponseSchema.parse(raw)),
 }
 
 export const paineisDashboardApi = {

@@ -28,7 +28,6 @@ import {
   DashboardWidgetLinha,
   DashboardWidgetBarras,
   DashboardWidgetDistribuicao,
-  DashboardBarraFerramentas,
   DashboardPainelEditarModal,
   DashboardPainelSugestoes,
   DashboardValorKPI,
@@ -56,10 +55,13 @@ import {
   ListNumbers, ArrowsLeftRight, Tag,
   CaretLeft, CaretRight, RocketLaunch,
   DotsThree, PencilSimple, Trash, X,
+  SquaresFour, Plus,
 } from '@phosphor-icons/react'
 import './PedidosDashboard.css'
+import '../components/PedidosVisualizacaoTabs.css'
 
 import { useDashboardStore, translateWidgetTitle } from '../stores/dashboardStore'
+import { widgetEstaVisivel, ordenarWidgetsLista } from '../shared/dashboardWidgetVisibilidade'
 import { useTrackBehavior } from '../hooks/useTrackBehavior'
 import { buildDashboardCatalog, buildCatalogByKey } from '../shared/dashboardCatalog'
 import { generateSuggestions } from '../shared/dashboardSuggestions'
@@ -84,6 +86,7 @@ import { contagemPorStatusSlug, mapaRotulosStatusConfig, rotuloStatusSlug } from
 import { usePedidoStatus } from '../shared/queries'
 import { periodoEhPadrao, rotuloPeriodoDashboard, widgetUsaPeriodoProprio } from '../shared/dashboardPeriodoUtil'
 import '../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
+import { BarraFerramentasDashboardPedido } from '../components/dashboard/BarraFerramentasDashboardPedido'
 
 // ── Dados reais — converte resposta da API em WidgetResult ────────────────────
 
@@ -551,9 +554,10 @@ interface WidgetEmptyGabiProps {
   onExpandPeriod: (p: string) => void
   onEdit: () => void
   onRemove: () => void
+  editMode?: boolean
 }
 
-function WidgetEmptyGabi({ widget, fieldNames, currentPeriod, onExpandPeriod, onEdit, onRemove }: WidgetEmptyGabiProps) {
+function WidgetEmptyGabi({ widget, fieldNames, currentPeriod, onExpandPeriod, onEdit, onRemove, editMode = false }: WidgetEmptyGabiProps) {
   const { t } = useTranslation()
   const nextPeriods = getNextPeriods(currentPeriod)
   const emptyText   = buildEmptyText(widget.chart_type, fieldNames, t)
@@ -575,37 +579,39 @@ function WidgetEmptyGabi({ widget, fieldNames, currentPeriod, onExpandPeriod, on
 
         <p style={gabiEmptyStyles.text}>{emptyText}</p>
 
-        <div style={gabiEmptyStyles.actions}>
-          {nextPeriods.length > 0 ? (
-            <div style={gabiEmptyStyles.periodGroup}>
-              <span style={gabiEmptyStyles.actionLabel}>{t('pedido.dashboard.empty_ampliar_para')}</span>
-              {nextPeriods.map(p => (
-                <button key={p} type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod(p)}>
-                  {getPeriodLabel(t, p)}
+        {editMode && (
+          <div style={gabiEmptyStyles.actions}>
+            {nextPeriods.length > 0 ? (
+              <div style={gabiEmptyStyles.periodGroup}>
+                <span style={gabiEmptyStyles.actionLabel}>{t('pedido.dashboard.empty_ampliar_para')}</span>
+                {nextPeriods.map(p => (
+                  <button key={p} type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod(p)}>
+                    {getPeriodLabel(t, p)}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div style={gabiEmptyStyles.periodGroup}>
+                <span style={gabiEmptyStyles.actionLabel}>{t('pedido.dashboard.empty_periodo_maximo')}</span>
+                <button type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod('30d')}>
+                  {t('pedido.dashboard.periodo_30d')}
                 </button>
-              ))}
-            </div>
-          ) : (
-            <div style={gabiEmptyStyles.periodGroup}>
-              <span style={gabiEmptyStyles.actionLabel}>{t('pedido.dashboard.empty_periodo_maximo')}</span>
-              <button type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod('30d')}>
-                {t('pedido.dashboard.periodo_30d')}
-              </button>
-              <button type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod('12m')}>
-                {t('pedido.dashboard.periodo_12m')}
-              </button>
-            </div>
-          )}
+                <button type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod('12m')}>
+                  {t('pedido.dashboard.periodo_12m')}
+                </button>
+              </div>
+            )}
 
-          <div style={gabiEmptyStyles.rowActions}>
-            <button type="button" style={gabiEmptyStyles.editBtn} onClick={onEdit}>
-              {t('pedido.dashboard.empty_editar_campos')}
-            </button>
-            <button type="button" style={gabiEmptyStyles.removeBtn} onClick={onRemove}>
-              {t('pedido.dashboard.empty_remover_widget')}
-            </button>
+            <div style={gabiEmptyStyles.rowActions}>
+              <button type="button" style={gabiEmptyStyles.editBtn} onClick={onEdit}>
+                {t('pedido.dashboard.empty_editar_campos')}
+              </button>
+              <button type="button" style={gabiEmptyStyles.removeBtn} onClick={onRemove}>
+                {t('pedido.dashboard.empty_remover_widget')}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
@@ -728,8 +734,8 @@ const gabiEmptyStyles = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.25rem',
-    margin: '0.75rem 0 0.5rem',
-    padding: '0 0.25rem',
+    margin: 0,
+    padding: 0,
     flexWrap: 'wrap' as const,
   },
   painelTab: {
@@ -892,8 +898,8 @@ function SortableTabWrapper({ id, children }: { id: string; children: ReactNode 
   return (
     <div
       ref={setNodeRef}
+      className="pvt-tab-wrap"
       style={{
-        ...sty.painelTabWrap,
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
@@ -913,6 +919,8 @@ export default function PedidosDashboard() {
   const { t } = useTranslation()
   const {
     widgets, addWidget, removeWidget, updateWidget, updateLayout,
+    toggleWidgetVisibilidade, reordenarWidgets,
+    selecionarTodosWidgetsVisiveis, restaurarVisibilidadePadraoWidgets,
     slicers, setPeriod, setStatusFilter,
     activeFilters, clearFilters,
     editMode, setEditMode: _setEditModeRaw,
@@ -1021,10 +1029,11 @@ export default function PedidosDashboard() {
   const handleClearFiltersComPeriodo = useCallback(() => {
     clearFilters()
     handlePeriodChange('30d')
+    setStatusFilter([])
     for (const w of widgets) {
       if (w.config?.periodLocked) handleClearWidgetPeriod(w.id)
     }
-  }, [clearFilters, handlePeriodChange, widgets, handleClearWidgetPeriod])
+  }, [clearFilters, handlePeriodChange, setStatusFilter, widgets, handleClearWidgetPeriod])
 
   useEffect(() => {
     const syncPeriodoComLista = () => {
@@ -1050,31 +1059,10 @@ export default function PedidosDashboard() {
   const [kpisData,     setKpisData]     = useState<DashboardKpis | null>(null)
   const [prevKpisData, setPrevKpisData] = useState<DashboardKpis | null>(null)
 
-  // T-10: compactStatus ativo em viewports < 1200px (Design System responsivo)
-  const [compactStatus, setCompactStatus] = useState(() => window.innerWidth < 1200)
-  useEffect(() => {
-    function handleResize() { setCompactStatus(window.innerWidth < 1200) }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
   const [trendData,    setTrendData]    = useState<DashboardTrendBucket[]>([])
   const [insightsData, setInsightsData] = useState<GabiInsightItem[]>([])
   const [loadingData,  setLoadingData]  = useState(true)
 
-  // NCM status — alerta de itens com NCM inválido (não bloqueante)
-  const [ncmStatus, setNcmStatus] = useState<{
-    total_invalidos: number
-    itens_invalidos: number
-    sem_sync: boolean
-    ultima_sync: string | null
-  } | null>(null)
-
-  useEffect(() => {
-    if (!escopoHidratado) return
-    dashboardApi.ncmStatus(idsWorkspacesFiltro)
-      .then(r => setNcmStatus(r))
-      .catch(() => { /* silencioso — NCM offline não afeta o dashboard */ })
-  }, [escopoHidratado, idsWorkspacesFiltro])
   const [novoNomePainel, setNovoNomePainel] = useState('')
   const [criandoPainel,  setCriandoPainel]  = useState(false)
   const [renamingId,     setRenamingId]     = useState<string | null>(null)
@@ -1099,6 +1087,10 @@ export default function PedidosDashboard() {
     if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
     setPainelAtual(novoId)
   }
+
+  useEffect(() => {
+    if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
+  }, [widgets, painelAtualId, salvarWidgetsPainelAtual])
 
   // Renomeia painel — guarda contra double-call (onBlur + onSubmit)
   const handleRenomearPainel = (id: string, nome: string) => {
@@ -1147,10 +1139,30 @@ export default function PedidosDashboard() {
     paineisDashboardApi.reordenar(reordered.map(p => p.id)).catch(() => {})
   }
 
-  // Carrega painéis do usuário ao montar
+  // Carrega painéis do usuário ao montar (bootstrap "Principal" se vazio)
   useEffect(() => {
-    paineisDashboardApi.listar().then(({ data }) => setPaineis(data)).catch(() => {})
-  }, [setPaineis])
+    let cancelado = false
+    const carregarPaineis = async () => {
+      try {
+        let { data } = await paineisDashboardApi.listar()
+        if (cancelado) return
+        if (data.length === 0) {
+          const criado = await paineisDashboardApi.criar('Principal')
+          data = [criado.data]
+        }
+        setPaineis(data)
+        const painelAtualValido = painelAtualId != null && data.some(p => p.id === painelAtualId)
+        if (!painelAtualValido) {
+          const primeiro = data.find(p => p.is_visivel !== false) ?? data[0]
+          if (primeiro) setPainelAtual(primeiro.id)
+        }
+      } catch {
+        /* UI mantém slot de painéis com botão + */
+      }
+    }
+    void carregarPaineis()
+    return () => { cancelado = true }
+  }, [setPaineis, setPainelAtual, painelAtualId])
 
   // Carrossel GABI — idêntico ao Hub
   const gabiCarouselRef = useRef<HTMLDivElement>(null)
@@ -1269,7 +1281,9 @@ export default function PedidosDashboard() {
   }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, resolverCustomRange])
 
   const activeWidgets = useMemo(() =>
-    widgets.map(w => {
+    ordenarWidgetsLista(widgets)
+      .filter(widgetEstaVisivel)
+      .map(w => {
       const locked = w.config?.periodLocked === true
       const filters = locked
         ? w.query_spec.filters
@@ -1326,11 +1340,20 @@ export default function PedidosDashboard() {
       : undefined
     const painelPeriodoProps = chartType === 'SECTION_LABEL' || chartType === 'GABI_INSIGHTS'
       ? {}
-      : {
-          periodoFiltroRotulo: periodoRotuloWidget,
-          periodoControle: renderPeriodoControleWidget(widget),
-          onLimparPeriodoWidget: periodoProprio ? () => handleClearWidgetPeriod(widget.id) : undefined,
+      : editMode
+        ? {
+            periodoFiltroRotulo: periodoRotuloWidget,
+            periodoControle: renderPeriodoControleWidget(widget),
+            onLimparPeriodoWidget: periodoProprio ? () => handleClearWidgetPeriod(widget.id) : undefined,
+          }
+        : {}
+
+    const painelEditProps = editMode && podeEditarDashboard
+      ? {
+          onEdit: (w: DashboardWidgetConfig) => { setEditingWidget(w); setEditModalOpen(true) },
+          onRemove: removeWidget,
         }
+      : {}
 
     // ── GABI_INSIGHTS — grid responsivo de insights da Gabi AI ─────────────
     if (chartType === 'GABI_INSIGHTS') {
@@ -1460,8 +1483,7 @@ export default function PedidosDashboard() {
           loading={false}
           error={null}
           editMode={editMode}
-          onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
-          onRemove={removeWidget}
+          {...painelEditProps}
           {...painelPeriodoProps}
         >
           <WidgetEmptyGabi
@@ -1471,6 +1493,7 @@ export default function PedidosDashboard() {
             onExpandPeriod={handlePeriodChange}
             onEdit={() => { setEditingWidget(widget); setEditModalOpen(true) }}
             onRemove={() => removeWidget(widget.id)}
+            editMode={editMode}
           />
         </DashboardPainelContainer>
       )
@@ -1481,8 +1504,7 @@ export default function PedidosDashboard() {
       return (
         <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
           editMode={editMode}
-          onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
-          onRemove={removeWidget}
+          {...painelEditProps}
           {...painelPeriodoProps}
         >
           <DashboardWidgetDistribuicao slices={result.slices ?? []} />
@@ -1512,8 +1534,7 @@ export default function PedidosDashboard() {
       return (
         <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
           editMode={editMode}
-          onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
-          onRemove={removeWidget}
+          {...painelEditProps}
           {...painelPeriodoProps}
         >
           <DashboardWidgetLinha
@@ -1549,8 +1570,7 @@ export default function PedidosDashboard() {
       return (
         <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
           editMode={editMode}
-          onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
-          onRemove={removeWidget}
+          {...painelEditProps}
           {...painelPeriodoProps}
         >
           <DashboardWidgetBarras
@@ -1599,8 +1619,7 @@ export default function PedidosDashboard() {
       return (
         <DashboardPainelContainer key={widget.id} widget={widgetRender} result={result} loading={loadingData} error={null}
           editMode={editMode}
-          onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
-          onRemove={removeWidget}
+          {...painelEditProps}
           accentColor={visual.accentColor}
           icone={visual.icone}
           clickable={!!navRoute}
@@ -1627,14 +1646,13 @@ export default function PedidosDashboard() {
     return (
       <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
         editMode={editMode}
-        onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
-        onRemove={removeWidget}
+        {...painelEditProps}
         {...painelPeriodoProps}
       >
         <DashboardValorKPI data={result.data} fieldKey={fieldKey} fieldType="number" />
       </DashboardPainelContainer>
     )
-  }, [editMode, removeWidget, allDerived, kpisData, kpisPorPeriodo, prevKpisData, trendData, loadingData, slicers, setPeriod, fieldLabels, catalogByKey, t, topKpiStatusMapa, statusConfig, distribuicaoGlobal, periodOptions, handleClearWidgetPeriod, renderPeriodoControleWidget, navigate, trackWidget, handlePeriodChange, insightsData])
+  }, [editMode, podeEditarDashboard, removeWidget, allDerived, kpisData, kpisPorPeriodo, prevKpisData, trendData, loadingData, slicers, setPeriod, fieldLabels, catalogByKey, t, topKpiStatusMapa, statusConfig, distribuicaoGlobal, periodOptions, handleClearWidgetPeriod, renderPeriodoControleWidget, navigate, trackWidget, handlePeriodChange, insightsData])
 
   function handleQueryBuilderSave(spec: WidgetQuerySpec, title: string, chartType: ChartType) {
     const id = `custom_${Date.now()}`
@@ -1684,39 +1702,215 @@ export default function PedidosDashboard() {
     })
   )
 
+  const temWidgets = widgets.length > 0
+
+  const getWidgetLabel = useCallback(
+    (widget: DashboardWidgetConfig) => translateWidgetTitle(widget, t),
+    [t],
+  )
+
+  const filtrosStatusAtivos = useMemo(() => {
+    if (slicers.status.length === 0) return []
+    return slicers.status.map(opt => ({
+      id: `status-${opt}`,
+      label: `${t('nucleo.dashboard.barra.todos_status', { defaultValue: 'Status' })}: ${STATUS_LABELS[opt] ?? opt.replace(/_/g, ' ')}`,
+      onClear: () => setStatusFilter(slicers.status.filter(s => s !== opt)),
+    }))
+  }, [slicers.status, STATUS_LABELS, t, setStatusFilter])
+
+  const filtrosAtivosChips = useMemo(
+    () => [...filtrosPeriodoAtivos, ...filtrosStatusAtivos],
+    [filtrosPeriodoAtivos, filtrosStatusAtivos],
+  )
+
+  const chipsFiltrosAtivos = filtrosAtivosChips.length > 0 ? (
+    <div className="fc-chips-container" role="status" aria-label={t('pedido.dashboard.filtros_ativos_aria', { defaultValue: 'Filtros ativos' })}>
+      {filtrosAtivosChips.map(f => {
+        const podeRemover = f.id.startsWith('status-') || f.id === 'periodo-global' || editMode
+        return (
+        <span key={f.id} className="fc-chip">
+          <span className="fc-chip-body">
+            <span className="fc-chip-valor">{f.label}</span>
+          </span>
+          {podeRemover && (
+            <button type="button" className="fc-chip-remove" onClick={f.onClear} aria-label={t('pedido.dashboard.remover_filtro', { defaultValue: 'Remover filtro' })}>
+              ×
+            </button>
+          )}
+        </span>
+        )
+      })}
+    </div>
+  ) : null
+
+  const onboardingBarra = !temWidgets ? {
+    onExplorarSugestoes: () => setSuggestionsOpen(true),
+    onCriarDoZero: () => { setEditMode(true); setQueryBuilderOpen(true) },
+  } : undefined
+
+  const paineisVisiveis = useMemo(
+    () => paineis.filter(p => p.is_visivel !== false),
+    [paineis],
+  )
+
+  const seletorPaineis = (
+    <nav
+      className="pvt-tabs pedido-dashboard-paineis-tabs"
+      aria-label={t('pedido.dashboard.paineis_aria', { defaultValue: 'Painéis do dashboard' })}
+      data-testid="dashboard-painel-bar"
+    >
+      <DndContext sensors={painelSensors} collisionDetection={closestCenter} onDragEnd={handlePainelDragEnd}>
+        <SortableContext
+          items={paineisVisiveis.map(p => p.id)}
+          strategy={horizontalListSortingStrategy}
+        >
+          {paineisVisiveis.length === 0 && (
+            <span className="pvt-tab pvt-tab--loading" aria-busy="true">
+              {t('pedido.dashboard.paineis_carregando', { defaultValue: 'Carregando…' })}
+            </span>
+          )}
+          {paineisVisiveis.map(p => (
+            <SortableTabWrapper key={p.id} id={p.id}>
+              {renamingId === p.id ? (
+                <form
+                  style={sty.painelNovoForm}
+                  onSubmit={(e) => { e.preventDefault(); handleRenomearPainel(p.id, renameValue) }}
+                  onPointerDown={e => e.stopPropagation()}
+                >
+                  <input
+                    autoFocus
+                    type="text"
+                    value={renameValue}
+                    onChange={e => setRenameValue(e.target.value)}
+                    onBlur={() => handleRenomearPainel(p.id, renameValue)}
+                    onKeyDown={e => { if (e.key === 'Escape') { setRenamingId(null); renameInFlightRef.current = null } }}
+                    style={sty.painelRenameInput}
+                    maxLength={60}
+                  />
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  data-testid={`dashboard-painel-tab-${p.id}`}
+                  className={`pvt-tab${p.id === painelAtualId ? ' pvt-tab--active' : ''}`}
+                  onClick={() => handleTrocarPainel(p.id)}
+                  onDoubleClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome) }}
+                  onPointerDown={e => e.stopPropagation()}
+                >
+                  <SquaresFour weight="duotone" size={16} />
+                  <span>{p.nome}</span>
+                  <span
+                    role="button"
+                    aria-label={t('pedido.dashboard.painel_opcoes')}
+                    className="pvt-tab__menu-btn"
+                    onPointerDown={e => e.stopPropagation()}
+                    onClick={(e) => { e.stopPropagation(); setMenuPainelId(prev => prev === p.id ? null : p.id); setDeletingId(null) }}
+                  >
+                    <DotsThree size={14} weight="bold" />
+                  </span>
+                </button>
+              )}
+
+              {menuPainelId === p.id && (
+                <div style={sty.painelMenuDropdown} onClick={e => e.stopPropagation()} onPointerDown={e => e.stopPropagation()}>
+                  {deletingId === p.id ? (
+                    <div style={{ padding: '0.5rem 0.75rem' }}>
+                      <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 0.5rem' }}>
+                        {t('pedido.dashboard.painel_excluir_prefixo')}{' '}
+                        <strong style={{ color: '#fff' }}>{p.nome}</strong>
+                        {t('pedido.dashboard.painel_excluir_sufixo')}
+                      </p>
+                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                        <button type="button" style={sty.painelNovoBtnOk} onClick={() => handleDeletarPainel(p.id)}>
+                          {t('comum.confirmar')}
+                        </button>
+                        <button type="button" style={sty.painelNovoBtnCancel} onClick={() => setDeletingId(null)}>
+                          {t('comum.cancelar')}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        style={sty.painelMenuItem}
+                        onClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome); setMenuPainelId(null) }}
+                      >
+                        <PencilSimple size={13} />
+                        {t('pedido.dashboard.painel_renomear')}
+                      </button>
+                      <button
+                        type="button"
+                        style={paineis.length <= 1 ? { ...sty.painelMenuItemDanger, opacity: 0.35, cursor: 'default' } : sty.painelMenuItemDanger}
+                        onClick={() => paineis.length > 1 && setDeletingId(p.id)}
+                        disabled={paineis.length <= 1}
+                        title={paineis.length <= 1 ? t('pedido.dashboard.painel_excluir_unico_bloqueado') : ''}
+                      >
+                        <Trash size={13} />
+                        {t('pedido.dashboard.painel_excluir')}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </SortableTabWrapper>
+          ))}
+        </SortableContext>
+      </DndContext>
+
+      {criandoPainel ? (
+        <form
+          style={sty.painelNovoForm}
+          onSubmit={(e) => {
+            e.preventDefault()
+            const nome = novoNomePainel.trim()
+            if (!nome) return
+            if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
+            paineisDashboardApi.criar(nome).then(({ data }) => {
+              salvarWidgetsPainelAtual(data.id, [])
+              setPaineis([...paineis, data])
+              setPainelAtual(data.id)
+              setNovoNomePainel('')
+              setCriandoPainel(false)
+            }).catch(() => {})
+          }}
+        >
+          <input
+            autoFocus
+            type="text"
+            placeholder={t('pedido.dashboard.painel_novo_placeholder')}
+            value={novoNomePainel}
+            onChange={(e) => setNovoNomePainel(e.target.value)}
+            style={sty.painelNovoInput}
+            maxLength={60}
+          />
+          <button type="submit" style={sty.painelNovoBtnOk}>{t('pedido.dashboard.painel_criar')}</button>
+          <button type="button" style={sty.painelNovoBtnCancel} onClick={() => { setCriandoPainel(false); setNovoNomePainel('') }}>
+            <X size={11} />
+          </button>
+        </form>
+      ) : (
+        <button
+          type="button"
+          className="pvt-tab pvt-tab--add"
+          data-testid="dashboard-painel-criar"
+          onClick={() => setCriandoPainel(true)}
+          title={t('pedido.dashboard.painel_novo')}
+          aria-label={t('pedido.dashboard.painel_novo')}
+        >
+          <Plus weight="duotone" size={16} />
+        </button>
+      )}
+    </nav>
+  )
+
   return (
     <div className="pedido-page-shell" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, gap: '1rem' }}>
 
-      {/* ── Onboarding banner — fixo, nunca some ───────────────────────── */}
-      <div style={onboardingBannerStyle}>
-        <div style={onboardingBannerContent}>
-          <span style={onboardingBannerTitle}>{t('pedido.dashboard.onboarding_titulo')}</span>
-          <span style={onboardingBannerText}>
-            {t('pedido.dashboard.onboarding_texto')}
-          </span>
-          <div style={onboardingBannerActions}>
-            <button
-              type="button"
-              style={onboardingBtnAccent}
-              onClick={() => setSuggestionsOpen(true)}
-            >
-              <RocketLaunch size={13} weight="fill" />
-              {t('pedido.dashboard.onboarding_explorar_sugestoes')}
-            </button>
-            <button
-              type="button"
-              style={onboardingBtnGhost}
-              onClick={() => { setEditMode(true); setQueryBuilderOpen(true) }}
-            >
-              {t('pedido.dashboard.onboarding_criar_dashboard')}
-            </button>
-          </div>
-        </div>
-      </div>
-
-
-      {/* T-07/08: statusCounts do kpisData em memória | T-10: compactStatus responsivo */}
-      <DashboardBarraFerramentas
+      <BarraFerramentasDashboardPedido
+        seletorPaineis={seletorPaineis}
+        onboarding={onboardingBarra}
+        temWidgets={temWidgets}
         slicers={slicers}
         onPeriodChange={handlePeriodChange}
         periodOptions={periodOptions}
@@ -1735,198 +1929,27 @@ export default function PedidosDashboard() {
           atrasados:    kpisData.pedidos_atrasados,
           concluidos:   kpisData.pedidos_consolidados,
         } : undefined}
-        compactStatus={compactStatus}
-        onAddWidget={undefined}
-        onSuggestionsOpen={() => setSuggestionsOpen(true)}
+        onAbrirSugestoes={
+          podeEditarDashboard
+            ? () => { setEditMode(true); setSuggestionsOpen(true) }
+            : undefined
+        }
+        onCriarWidgetZero={
+          podeEditarDashboard
+            ? () => { setEditMode(true); setQueryBuilderOpen(true) }
+            : undefined
+        }
+        widgetsSeletor={temWidgets ? {
+          widgets,
+          getWidgetLabel,
+          onToggleVisibilidade: toggleWidgetVisibilidade,
+          onReordenar: reordenarWidgets,
+          onSelecionarTodos: selecionarTodosWidgetsVisiveis,
+          onRestaurarPadrao: restaurarVisibilidadePadraoWidgets,
+        } : undefined}
       />
 
-      {filtrosPeriodoAtivos.length > 0 && (
-        <div className="fc-chips-container" role="status" aria-label={t('pedido.dashboard.filtros_periodo_aria', { defaultValue: 'Filtros de período ativos' })}>
-          {filtrosPeriodoAtivos.map(f => (
-            <span key={f.id} className="fc-chip">
-              <span className="fc-chip-body">
-                <span className="fc-chip-valor">{f.label}</span>
-              </span>
-              <button type="button" className="fc-chip-remove" onClick={f.onClear} aria-label={t('pedido.dashboard.remover_filtro_periodo', { defaultValue: 'Remover filtro de período' })}>
-                ×
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* Seletor de Painéis */}
-      {paineis.length > 0 && (
-        <div style={sty.painelBar}>
-          <DndContext sensors={painelSensors} collisionDetection={closestCenter} onDragEnd={handlePainelDragEnd}>
-            <SortableContext
-              items={paineis.filter(p => p.is_visivel).map(p => p.id)}
-              strategy={horizontalListSortingStrategy}
-            >
-              {paineis.filter(p => p.is_visivel).map(p => (
-                <SortableTabWrapper key={p.id} id={p.id}>
-                  {/* Rename inline */}
-                  {renamingId === p.id ? (
-                    <form
-                      style={sty.painelNovoForm}
-                      onSubmit={(e) => { e.preventDefault(); handleRenomearPainel(p.id, renameValue) }}
-                      // Impede que o dnd-kind capture eventos no input
-                      onPointerDown={e => e.stopPropagation()}
-                    >
-                      <input
-                        autoFocus
-                        type="text"
-                        value={renameValue}
-                        onChange={e => setRenameValue(e.target.value)}
-                        onBlur={() => handleRenomearPainel(p.id, renameValue)}
-                        onKeyDown={e => { if (e.key === 'Escape') { setRenamingId(null); renameInFlightRef.current = null } }}
-                        style={sty.painelRenameInput}
-                        maxLength={60}
-                      />
-                    </form>
-                  ) : (
-                    <button
-                      type="button"
-                      style={p.id === painelAtualId ? sty.painelTabAtivo : sty.painelTab}
-                      onClick={() => handleTrocarPainel(p.id)}
-                      onDoubleClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome) }}
-                      onPointerDown={e => e.stopPropagation()}  // clique não inicia drag
-                    >
-                      <span style={sty.painelTabInner}>
-                        {p.nome}
-                        <span
-                          role="button"
-                          aria-label={t('pedido.dashboard.painel_opcoes')}
-                          style={sty.painelMenuBtn}
-                          onPointerDown={e => e.stopPropagation()}
-                          onClick={(e) => { e.stopPropagation(); setMenuPainelId(prev => prev === p.id ? null : p.id); setDeletingId(null) }}
-                        >
-                          <DotsThree size={14} weight="bold" />
-                        </span>
-                      </span>
-                    </button>
-                  )}
-
-                  {/* Dropdown menu */}
-                  {menuPainelId === p.id && (
-                    <div style={sty.painelMenuDropdown} onClick={e => e.stopPropagation()} onPointerDown={e => e.stopPropagation()}>
-                      {deletingId === p.id ? (
-                        /* Confirmação inline */
-                        <div style={{ padding: '0.5rem 0.75rem' }}>
-                          <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 0.5rem' }}>
-                            {t('pedido.dashboard.painel_excluir_prefixo')}{' '}
-                            <strong style={{ color: '#fff' }}>{p.nome}</strong>
-                            {t('pedido.dashboard.painel_excluir_sufixo')}
-                          </p>
-                          <div style={{ display: 'flex', gap: '0.4rem' }}>
-                            <button type="button" style={sty.painelNovoBtnOk} onClick={() => handleDeletarPainel(p.id)}>
-                              {t('comum.confirmar')}
-                            </button>
-                            <button type="button" style={sty.painelNovoBtnCancel} onClick={() => setDeletingId(null)}>
-                              {t('comum.cancelar')}
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            style={sty.painelMenuItem}
-                            onClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome); setMenuPainelId(null) }}
-                          >
-                            <PencilSimple size={13} />
-                            {t('pedido.dashboard.painel_renomear')}
-                          </button>
-                          <button
-                            type="button"
-                            style={paineis.length <= 1 ? { ...sty.painelMenuItemDanger, opacity: 0.35, cursor: 'default' } : sty.painelMenuItemDanger}
-                            onClick={() => paineis.length > 1 && setDeletingId(p.id)}
-                            disabled={paineis.length <= 1}
-                            title={paineis.length <= 1 ? t('pedido.dashboard.painel_excluir_unico_bloqueado') : ''}
-                          >
-                            <Trash size={13} />
-                            {t('pedido.dashboard.painel_excluir')}
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </SortableTabWrapper>
-              ))}
-            </SortableContext>
-          </DndContext>
-
-          {/* Criar novo painel */}
-          {criandoPainel ? (
-            <form
-              style={sty.painelNovoForm}
-              onSubmit={(e) => {
-                e.preventDefault()
-                const nome = novoNomePainel.trim()
-                if (!nome) return
-                // Salva widgets do painel atual antes de trocar
-                if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
-                paineisDashboardApi.criar(nome).then(({ data }) => {
-                  // Inicializa explicitamente o novo painel como [] (distingue de "nunca salvo")
-                  salvarWidgetsPainelAtual(data.id, [])
-                  setPaineis([...paineis, data])
-                  setPainelAtual(data.id)
-                  setNovoNomePainel('')
-                  setCriandoPainel(false)
-                }).catch(() => {})
-              }}
-            >
-              <input
-                autoFocus
-                type="text"
-                placeholder={t('pedido.dashboard.painel_novo_placeholder')}
-                value={novoNomePainel}
-                onChange={(e) => setNovoNomePainel(e.target.value)}
-                style={sty.painelNovoInput}
-                maxLength={60}
-              />
-              <button type="submit" style={sty.painelNovoBtnOk}>{t('pedido.dashboard.painel_criar')}</button>
-              <button type="button" style={sty.painelNovoBtnCancel} onClick={() => { setCriandoPainel(false); setNovoNomePainel('') }}>
-                <X size={11} />
-              </button>
-            </form>
-          ) : (
-            <button type="button" style={sty.painelAddBtn} onClick={() => setCriandoPainel(true)} title={t('pedido.dashboard.painel_novo')}>
-              +
-            </button>
-          )}
-
-          {/* Chip NCM inline */}
-          {ncmStatus && (ncmStatus.itens_invalidos > 0 || ncmStatus.sem_sync) && (
-            <span
-              title={ncmStatus.sem_sync
-                ? t('pedido.dashboard.ncm_nao_sincronizada')
-                : t('pedido.dashboard.ncm_itens_invalidos_tooltip', { count: ncmStatus.itens_invalidos })
-              }
-              style={{
-                marginLeft: 'auto',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                background: 'rgba(251,191,36,0.1)',
-                border: '1px solid rgba(251,191,36,0.3)',
-                borderRadius: '999px',
-                padding: '0.2rem 0.6rem',
-                fontSize: '0.7rem',
-                fontWeight: 600,
-                color: '#fbbf24',
-                cursor: 'default',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <Warning size={11} weight="fill" />
-              {ncmStatus.sem_sync
-                ? t('pedido.dashboard.ncm_desatualizada')
-                : t('pedido.dashboard.ncm_invalido_chip', { count: ncmStatus.itens_invalidos })}
-            </span>
-          )}
-        </div>
-      )}
+      {chipsFiltrosAtivos}
 
       <DashboardGrid
         widgets={activeWidgets}
@@ -1968,72 +1991,6 @@ export default function PedidosDashboard() {
       )}
     </div>
   )
-}
-
-// ── Estilos onboarding banner ─────────────────────────────────────────────────
-
-const onboardingBannerStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'flex-start',
-  justifyContent: 'space-between',
-  gap: '1rem',
-  padding: '14px 20px',
-  marginBottom: '1rem',
-  background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%)',
-  border: '1px solid rgba(99,102,241,0.25)',
-  borderRadius: 'var(--radius-lg)',
-}
-
-const onboardingBannerContent: React.CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  alignItems: 'center',
-  gap: '0.5rem 1rem',
-}
-
-const onboardingBannerTitle: React.CSSProperties = {
-  fontSize: '13px',
-  fontWeight: 700,
-  color: 'var(--text-primary)',
-}
-
-const onboardingBannerText: React.CSSProperties = {
-  fontSize: '13px',
-  color: 'var(--text-secondary)',
-}
-
-const onboardingBannerActions: React.CSSProperties = {
-  display: 'flex',
-  gap: '0.5rem',
-}
-
-const onboardingBtnAccent: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: '6px',
-  fontSize: '0.875rem',
-  fontWeight: 600,
-  padding: '6px 14px',
-  borderRadius: '9999px',
-  background: 'var(--accent)',
-  border: '1px solid var(--accent)',
-  color: '#fff',
-  cursor: 'pointer',
-  boxShadow: '0 0 14px rgba(99,102,241,0.45)',
-}
-
-const onboardingBtnGhost: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: '6px',
-  fontSize: '0.875rem',
-  fontWeight: 600,
-  padding: '6px 14px',
-  borderRadius: '9999px',
-  background: 'transparent',
-  border: '1px solid rgba(99,102,241,0.4)',
-  color: 'var(--accent)',
-  cursor: 'pointer',
 }
 
 // ── Estilos section label ─────────────────────────────────────────────────────

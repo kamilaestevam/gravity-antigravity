@@ -3,6 +3,7 @@
  */
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'
+import { calcularRankingsMapaBidFreteInternacional } from '../calcular-rankings-mapa-bid-frete-internacional'
 import {
   Anchor,
   AirplaneTilt,
@@ -835,6 +836,8 @@ export interface VisaoGeralMapaBidFreteProps {
   /** `demonstracao` = dados fixos de preview; `api` = pinos/rotas vindos do backend. */
   fonteDados?: 'demonstracao' | 'api'
   dadosMapa?: DadosMapaBidFrete
+  /** Insights cliente: mapa e Rankings Globais em dois cards lado a lado. */
+  painelRankingsSeparado?: boolean
 }
 
 export function VisaoGeralMapaBidFrete({
@@ -847,10 +850,27 @@ export function VisaoGeralMapaBidFrete({
   vistaInicialMapa = 'mapa',
   fonteDados = 'demonstracao',
   dadosMapa,
+  painelRankingsSeparado = false,
 }: VisaoGeralMapaBidFreteProps) {
   const pinsAtivos = fonteDados === 'api' ? (dadosMapa?.pins ?? []) : MAP_PINS
   const rotasAtivas = fonteDados === 'api' ? (dadosMapa?.routes ?? []) : GLOBE_ROUTES
   const mapaVazioApi = fonteDados === 'api' && pinsAtivos.length === 0
+
+  const rankingsCalculados = useMemo(() => {
+    if (fonteDados !== 'api') return null
+    return calcularRankingsMapaBidFreteInternacional(pinsAtivos, rotasAtivas)
+  }, [fonteDados, pinsAtivos, rotasAtivas])
+
+  const listaOrigens = rankingsCalculados?.origens ?? TOP_ORIGENS
+  const listaDestinos = rankingsCalculados?.destinos ?? TOP_DESTINOS
+  const listaModais = rankingsCalculados?.modais ?? MODAIS_INFO
+  const subtituloRankings =
+    fonteDados === 'api' && rankingsCalculados
+      ? `Rankings em tempo real • ${rankingsCalculados.totalBids} bids`
+      : painelRankingsSubtitulo
+
+  const rankingsEmGridSeparado = exibirPainelLateralMapa && painelRankingsSeparado
+  const rankingsInlineFlex = exibirPainelLateralMapa && !painelRankingsSeparado
 
   const rotasDetalhePorPino = useMemo(() => {
     if (fonteDados !== 'api') return PORT_CONNECTIONS
@@ -1823,8 +1843,12 @@ export function VisaoGeralMapaBidFrete({
     dragStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }
   
-  return (
-    <div className="bfd-card bfd-map-card bfd-card--accent-amber">
+  const cardMapa = (
+    <div
+      className={`bfd-card bfd-map-card bfd-card--accent-amber${
+        painelRankingsSeparado ? ' bfd-map-card--rankings-separado' : ''
+      }`}
+    >
       <div className="bfd-map-card__header" style={{ marginBottom: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <div className="cg-card__header" style={{ marginBottom: '0.4rem' }}>
@@ -1900,9 +1924,11 @@ export function VisaoGeralMapaBidFrete({
 
       <div
         className={
-          exibirPainelLateralMapa
-            ? 'bfd-map-container'
-            : 'bfd-map-container bfd-map-container--sem-painel-lateral'
+          rankingsEmGridSeparado
+            ? 'bfd-map-container bfd-map-container--rankings-split'
+            : rankingsInlineFlex
+              ? 'bfd-map-container'
+              : 'bfd-map-container bfd-map-container--sem-painel-lateral'
         }
       >
         {/* Left Side: Canvas and Zoom Controls */}
@@ -2092,7 +2118,7 @@ export function VisaoGeralMapaBidFrete({
         </div>
 
         {exibirPainelLateralMapa ? (
-        <div className="bfd-hud-container">
+        <div className={`bfd-hud-container${rankingsEmGridSeparado ? ' bfd-hud-container--card-separado' : ''}`}>
           {mapaModo === 'transit' ? (
             <div className="bfd-map-right-panel bfd-map-right-panel--transit" style={{ background: 'rgba(11, 14, 20, 0.45)', border: '1px solid rgba(52, 211, 153, 0.15)', boxShadow: '0 8px 32px 0 rgba(0,0,0,0.5), 0 0 16px rgba(52, 211, 153, 0.08)' }}>
               <div className="bfd-map-panel__header">
@@ -2264,7 +2290,7 @@ export function VisaoGeralMapaBidFrete({
                     <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
                   </div>
                 </div>
-                <span className="bfd-map-panel__subtitle">{painelRankingsSubtitulo}</span>
+                <span className="bfd-map-panel__subtitle">{subtituloRankings}</span>
               </div>
               
               {/* Tabs */}
@@ -2291,7 +2317,7 @@ export function VisaoGeralMapaBidFrete({
               
               {/* List Content */}
               <div className="bfd-map-panel__list">
-                {activeTab === 'origens' && TOP_ORIGENS.map(item => {
+                {activeTab === 'origens' && listaOrigens.map(item => {
                   const hasLink = item.pinId !== null
                   const isHighlighted = hoveredPin === item.pinId && hasLink
                   
@@ -2329,7 +2355,7 @@ export function VisaoGeralMapaBidFrete({
                   )
                 })}
                 
-                {activeTab === 'destinos' && TOP_DESTINOS.map(item => {
+                {activeTab === 'destinos' && listaDestinos.map(item => {
                   const hasLink = item.pinId !== null
                   const isHighlighted = hoveredPin === item.pinId && hasLink
                   
@@ -2367,7 +2393,7 @@ export function VisaoGeralMapaBidFrete({
                   )
                 })}
                 
-                {activeTab === 'modal_cotacao_bid_frete_internacional' && MODAIS_INFO.map((item, idx) => {
+                {activeTab === 'modal_cotacao_bid_frete_internacional' && listaModais.map((item, idx) => {
                   return (
                     <div key={idx} className="bfd-map-panel__row">
                       <span className="bfd-map-panel__row-rank">{idx + 1}</span>
@@ -2610,4 +2636,10 @@ export function VisaoGeralMapaBidFrete({
       </div>
     </div>
   )
+
+  if (painelRankingsSeparado) {
+    return <div className="bfd-mapa-rankings-row">{cardMapa}</div>
+  }
+
+  return cardMapa
 }

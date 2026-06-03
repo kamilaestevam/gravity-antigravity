@@ -3,10 +3,30 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  min-width: 0;
+}
+
+.bid-frete-view-panel {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.bid-frete-view-panel--ativo {
+  display: flex;
 }
 
 .bid-frete-view-panel[hidden] {
   display: none !important;
+}
+
+.bid-frete-view-panel--ativo > .bf-lista-page,
+.bid-frete-view-panel--ativo > .pg-container.bf-cotacoes {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
 }
 
 .bid-frete-view-fallback__bar {

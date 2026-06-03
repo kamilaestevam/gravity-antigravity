@@ -1,0 +1,172 @@
+/**
+ * dashboard-barra-integrado — barra única do Dashboard (paridade gtv-toolbar da Lista)
+ */
+
+.dashboard-barra-integrado {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface, var(--gtv-bg, #0f172a));
+  border: 1px solid var(--border-subtle, var(--gtv-border, rgba(148, 163, 184, 0.15)));
+  border-radius: var(--radius-lg, 0.75rem);
+  flex-shrink: 0;
+  margin-bottom: 0;
+  overflow: visible;
+}
+
+.dashboard-barra-integrado__banner {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.12));
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.05) 100%);
+}
+
+.dashboard-barra-integrado__corpo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  flex-wrap: wrap;
+}
+
+.dashboard-barra-integrado__esquerda {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.dashboard-barra-integrado__direita {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.dashboard-barra-integrado__rodape {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1.25rem 0.875rem;
+  border-top: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.12));
+}
+
+.dashboard-barra-integrado__divisor {
+  width: 1px;
+  height: 20px;
+  background: var(--border-subtle, rgba(148, 163, 184, 0.2));
+  flex-shrink: 0;
+}
+
+/* Modal de período — paridade gtv-edit-popover / CampoCalendarioGlobal */
+.dashboard-periodo-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100050;
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(2px);
+}
+
+.dashboard-periodo-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100051;
+  width: min(420px, calc(100vw - 2rem));
+  max-height: min(90vh, 640px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface, #1e293b);
+  border: 1px solid var(--bg-elevated, rgba(148, 163, 184, 0.25));
+  border-radius: var(--radius-lg, 0.75rem);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+}
+
+.dashboard-periodo-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--bg-elevated, rgba(148, 163, 184, 0.2));
+}
+
+.dashboard-periodo-modal__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.dashboard-periodo-modal__fechar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+}
+
+.dashboard-periodo-modal__fechar:hover {
+  color: var(--text-primary, #f1f5f9);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.dashboard-periodo-modal__body {
+  overflow: auto;
+  padding: 0.375rem 0;
+}
+
+.dashboard-periodo-modal__opcoes {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-periodo-modal__opcao {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: 100%;
+  padding: 0.625rem 1rem;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+}
+
+.dashboard-periodo-modal__opcao:hover,
+.dashboard-periodo-modal__opcao[aria-selected="true"] {
+  background: var(--bg-elevated, rgba(255, 255, 255, 0.06));
+  color: var(--text-primary, #f1f5f9);
+}
+
+.dashboard-periodo-modal__separador {
+  height: 1px;
+  margin: 0.25rem 0;
+  background: var(--bg-elevated, rgba(148, 163, 184, 0.2));
+}
+
+.dashboard-periodo-modal__calendario {
+  padding: 0.5rem;
+}
+
+.dashboard-periodo-modal__calendario .ws-calendario-panel {
+  width: 100%;
+  max-width: 100%;
+}

@@ -49,7 +49,7 @@
 .lp-page {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  gap: 1rem;
   padding: var(--pedido-page-pt) var(--pedido-page-px) var(--pedido-page-pb);
   min-height: 0;
   flex: 1;

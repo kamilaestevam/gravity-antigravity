@@ -1,17 +1,25 @@
 /**
- * WidgetEditModal — Modal de edição de widget
+ * DashboardPainelEditarModal — Edição rápida de widget (título, gráfico, período)
  *
- * Componente puro: edita título, tipo de gráfico e período de um widget.
- * Recebe fieldLabels para exibir nomes legíveis dos campos (sem depender do catálogo do produto).
- * Usa ModalFormularioAbasGlobal do nucleo para consistência visual.
+ * Layout alinhado ao wizard Novo Widget (ModalPassoPassoGlobal + .dq-secao + CampoGeralGlobal).
  */
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  ChartLine, ChartBar, ChartBarHorizontal, ChartDonut,
-  NumberSquareOne, Funnel, ChartPieSlice,
+  ChartLine,
+  ChartBar,
+  ChartBarHorizontal,
+  ChartDonut,
+  NumberSquareOne,
+  Funnel,
+  ChartPieSlice,
+  Gauge,
+  Table,
 } from '@phosphor-icons/react'
+import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
+import { BotaoGlobal } from '@nucleo/botao-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { buildDefaultPeriodOptions } from '../DashboardBarraFerramentas/DashboardBarraFerramentas.js'
 import { PeriodoCampoFormulario } from '../periodoCampoFormulario.js'
 import '../DashboardConstrutorConsulta/dashboard-construtor-consulta.css'
@@ -20,20 +28,21 @@ import type { DashboardWidgetConfig, ChartType } from '../tipos.js'
 export interface ChartOptionMeta {
   type: ChartType
   label: string
-  cor: string
   icone: React.ReactNode
 }
 
 function buildDefaultChartOptions(t: (k: string) => string): ChartOptionMeta[] {
   return [
-    { type: 'LINE',           label: t('nucleo.dashboard.chart.linha'),        cor: '#818cf8', icone: <ChartLine          size={18} weight="duotone" /> },
-    { type: 'AREA',           label: t('nucleo.dashboard.chart.area'),         cor: '#6366f1', icone: <ChartLine          size={18} weight="fill"    /> },
-    { type: 'BAR',            label: t('nucleo.dashboard.chart.barras'),       cor: '#34d399', icone: <ChartBar           size={18} weight="duotone" /> },
-    { type: 'BAR_HORIZONTAL', label: t('nucleo.dashboard.chart.barras_h'),     cor: '#34d399', icone: <ChartBarHorizontal size={18} weight="duotone" /> },
-    { type: 'DISTRIBUTION',   label: t('nucleo.dashboard.chart.distribuicao'), cor: '#f59e0b', icone: <ChartPieSlice      size={18} weight="duotone" /> },
-    { type: 'DONUT',          label: t('nucleo.dashboard.chart.donut'),        cor: '#f59e0b', icone: <ChartDonut         size={18} weight="duotone" /> },
-    { type: 'KPI_CARD',       label: t('nucleo.dashboard.chart.kpi'),          cor: '#60a5fa', icone: <NumberSquareOne    size={18} weight="duotone" /> },
-    { type: 'FUNNEL',         label: t('nucleo.dashboard.chart.funil'),        cor: '#fb923c', icone: <Funnel             size={18} weight="duotone" /> },
+    { type: 'KPI_CARD',       label: t('nucleo.dashboard.chart.kpi'),          icone: <NumberSquareOne size={22} /> },
+    { type: 'LINE',           label: t('nucleo.dashboard.chart.linha'),        icone: <ChartLine size={22} /> },
+    { type: 'AREA',           label: t('nucleo.dashboard.chart.area'),         icone: <ChartLine size={22} weight="fill" /> },
+    { type: 'BAR',            label: t('nucleo.dashboard.chart.barras'),       icone: <ChartBar size={22} /> },
+    { type: 'BAR_HORIZONTAL', label: t('nucleo.dashboard.chart.barras_h'),     icone: <ChartBarHorizontal size={22} /> },
+    { type: 'DISTRIBUTION',   label: t('nucleo.dashboard.chart.distribuicao'), icone: <ChartPieSlice size={22} /> },
+    { type: 'DONUT',          label: t('nucleo.dashboard.chart.donut'),        icone: <ChartDonut size={22} /> },
+    { type: 'TABLE',          label: t('nucleo.dashboard.chart.tabela'),       icone: <Table size={22} /> },
+    { type: 'FUNNEL',         label: t('nucleo.dashboard.chart.funil'),        icone: <Funnel size={22} /> },
+    { type: 'GAUGE',          label: t('nucleo.dashboard.chart.gauge'),        icone: <Gauge size={22} /> },
   ]
 }
 
@@ -49,11 +58,13 @@ export interface ModalEditarWidgetProps {
   onSalvar: (patch: Partial<DashboardWidgetConfig>) => void
   /** Labels legíveis por chave de campo. Ex: { total_pedidos: 'Total de Pedidos' } */
   fieldLabels?: Record<string, string>
-  /** Tipos de gráfico disponíveis para seleção. Padrão: todos os 8 tipos. */
+  /** Tipos de gráfico disponíveis para seleção. Padrão: catálogo completo do núcleo. */
   chartOptions?: ChartOptionMeta[]
   /** Opções de período disponíveis. */
   periodOptions?: PeriodOptionEdit[]
 }
+
+const PASSO_UNICO = [{ id: 1, label: '' }]
 
 export function DashboardPainelEditarModal({
   widget,
@@ -70,17 +81,17 @@ export function DashboardPainelEditarModal({
     () => periodOptionsProp ?? buildDefaultPeriodOptions(t),
     [periodOptionsProp, t],
   )
-  const [title,     setTitle]     = useState('')
+  const [title, setTitle] = useState('')
   const [chartType, setChartType] = useState<ChartType>('LINE')
-  const [period,    setPeriod]    = useState('30d')
-  const [initial,   setInitial]   = useState({ title: '', chartType: 'LINE' as ChartType, period: '30d' })
+  const [period, setPeriod] = useState('30d')
+  const [initial, setInitial] = useState({ title: '', chartType: 'LINE' as ChartType, period: '30d' })
 
   useEffect(() => {
     if (aberto && widget) {
       const init = {
-        title:     widget.title,
+        title: widget.title,
         chartType: widget.chart_type,
-        period:    widget.query_spec.filters.period ?? '30d',
+        period: widget.query_spec.filters.period ?? '30d',
       }
       setInitial(init)
       setTitle(init.title)
@@ -89,210 +100,141 @@ export function DashboardPainelEditarModal({
     }
   }, [aberto, widget])
 
-  if (!aberto || !widget) return null
+  if (!widget) return null
 
-  const dirty = title !== initial.title || chartType !== initial.chartType || period !== initial.period
-  const currentChartMeta = chartOptions.find(o => o.type === chartType)
+  const dirty =
+    title !== initial.title ||
+    chartType !== initial.chartType ||
+    period !== initial.period
+  const podeSalvar = dirty && title.trim().length > 0
 
   function handleSalvar() {
+    if (!podeSalvar) return
     onSalvar({
-      title,
+      title: title.trim(),
       chart_type: chartType,
-      query_spec: { ...widget!.query_spec, filters: { period } },
+      query_spec: { ...widget.query_spec, filters: { period } },
     })
     onFechar()
   }
 
-  const s = modalStyles
-
   return (
-    <div style={s.overlay} onClick={e => { if (e.target === e.currentTarget) onFechar() }}>
-      <div style={s.card} role="dialog" aria-modal="true" aria-label={t('nucleo.dashboard.modal_editar.titulo')}>
-
-        {/* ── Header ──────────────────────────────────────────────────────── */}
-        <div style={s.header}>
-          <div style={s.headerInfo}>
-            <ChartLine size={18} weight="duotone" style={{ color: 'var(--accent)', flexShrink: 0 }} />
-            <div>
-              <div style={s.headerTitle}>{t('nucleo.dashboard.modal_editar.titulo')}</div>
-              <div style={s.headerSub}>{widget.title}</div>
-            </div>
-          </div>
-          <button type="button" style={s.closeBtn} onClick={onFechar} aria-label={t('nucleo.dashboard.modal_editar.fechar')}>✕</button>
-        </div>
-
-        {/* ── Body ────────────────────────────────────────────────────────── */}
-        <div style={s.body}>
-
-          {/* Título */}
-          <div className="dq-form__grupo">
-            <label className="dq-form__label" htmlFor="widget-edit-title">{t('nucleo.dashboard.modal_editar.label_titulo')}</label>
-            <input
-              id="widget-edit-title"
-              className="dq-form__input"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              maxLength={80}
-              autoFocus
-            />
-          </div>
-
-          {/* Tipo de gráfico */}
-          <div style={s.field}>
-            <label style={s.label}>{t('nucleo.dashboard.modal_editar.tipo_grafico')}</label>
-            <div style={s.chartGrid}>
-              {chartOptions.map(o => (
-                <button
-                  key={o.type}
-                  type="button"
-                  style={{ ...s.chartBtn, ...(chartType === o.type ? s.chartBtnAtivo : {}) }}
-                  onClick={() => setChartType(o.type)}
-                  title={o.label}
-                >
-                  <span style={{ color: chartType === o.type ? o.cor : 'var(--text-muted)' }}>{o.icone}</span>
-                  <span>{o.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Período — mesmo PeriodDropdown da barra do dashboard */}
-          <div className="dq-form__grupo">
-            <span className="dq-form__label">{t('nucleo.dashboard.modal_editar.periodo')}</span>
-            <PeriodoCampoFormulario
-              value={period}
-              options={periodOptions}
-              onChange={setPeriod}
-            />
-          </div>
-
-          {/* Info read-only: tipo atual + campos */}
-          <div style={s.infoBox}>
-            <span style={s.infoKey}>{t('nucleo.dashboard.modal_editar.info_tipo')}</span>
-            <span style={{ ...s.infoVal, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-              <span style={{ color: currentChartMeta?.cor }}>{currentChartMeta?.icone}</span>
-              {currentChartMeta?.label}
-            </span>
-            <span style={s.infoKey}>{t('nucleo.dashboard.modal_editar.info_campos')}</span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              {widget.query_spec.fields.map(fqs => (
-                <span key={fqs.key} style={s.infoVal}>
-                  {fieldLabels[fqs.key] ?? fqs.key}
-                  <span style={s.opBadge}>{fqs.operation}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Footer ──────────────────────────────────────────────────────── */}
-        <div style={s.footer}>
-          <button type="button" style={s.btnCancel} onClick={onFechar}>{t('nucleo.dashboard.modal_editar.cancelar')}</button>
-          <button
-            type="button"
-            style={{ ...s.btnSave, ...(dirty ? {} : s.btnSaveDisabled) }}
+    <ModalPassoPassoGlobal
+      titulo={t('nucleo.dashboard.modal_editar.titulo')}
+      icone={<Gauge size={20} weight="duotone" />}
+      subtitulo={widget.title}
+      aberto={aberto}
+      passos={PASSO_UNICO}
+      passoAtual={1}
+      ocultarStepper
+      ocultarFooter
+      onProximo={handleSalvar}
+      onVoltar={onFechar}
+      onFechar={onFechar}
+      tamanho="md"
+      altura="auto"
+      footerCustom={
+        <div className="dq-editar-widget__footer">
+          <BotaoGlobal variante="fantasma" tamanho="padrao" onClick={onFechar}>
+            {t('nucleo.dashboard.modal_editar.cancelar')}
+          </BotaoGlobal>
+          <BotaoGlobal
+            variante="primario"
+            tamanho="padrao"
             onClick={handleSalvar}
-            disabled={!dirty}
+            disabled={!podeSalvar}
           >
             {t('nucleo.dashboard.modal_editar.salvar')}
-          </button>
+          </BotaoGlobal>
         </div>
+      }
+    >
+      <div className="dq-construtor dq-construtor--editar">
+        <div className="dq-construtor__corpo">
+          <div className="dq-secao">
+            <span className="dq-secao-titulo">
+              {t('nucleo.dashboard.construtor.secao_configuracao', { defaultValue: 'Configuração' })}
+            </span>
+            <div className="dq-form__stack">
+              <CampoGeralGlobal
+                label={t('nucleo.dashboard.modal_editar.label_titulo')}
+                htmlFor="widget-edit-title"
+                obrigatorio
+                vazio={!title.trim()}
+              >
+                <input
+                  id="widget-edit-title"
+                  type="text"
+                  placeholder={t('nucleo.dashboard.construtor.titulo_widget_placeholder')}
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  maxLength={80}
+                  autoComplete="off"
+                  autoFocus
+                />
+              </CampoGeralGlobal>
 
+              <CampoGeralGlobal label={t('nucleo.dashboard.modal_editar.tipo_grafico')}>
+                <div className="dq-chart__grid dq-chart__grid--editar">
+                  {chartOptions.map(opt => {
+                    const isSelected = chartType === opt.type
+                    const cardClass = [
+                      'dq-chart__card',
+                      isSelected ? 'dq-chart__card--selecionado' : '',
+                    ].filter(Boolean).join(' ')
+                    return (
+                      <button
+                        key={opt.type}
+                        type="button"
+                        className={cardClass}
+                        onClick={() => setChartType(opt.type)}
+                        aria-pressed={isSelected}
+                        title={opt.label}
+                      >
+                        <span className="dq-chart__card-inner">
+                          <span
+                            className="dq-chart__icone"
+                            style={{
+                              color: isSelected ? 'var(--accent)' : 'var(--text-secondary)',
+                            }}
+                          >
+                            {opt.icone}
+                          </span>
+                          <span className="dq-chart__rotulo">{opt.label}</span>
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </CampoGeralGlobal>
+
+              <CampoGeralGlobal label={t('nucleo.dashboard.modal_editar.periodo')}>
+                <PeriodoCampoFormulario
+                  value={period}
+                  options={periodOptions}
+                  onChange={setPeriod}
+                />
+              </CampoGeralGlobal>
+            </div>
+          </div>
+
+          <div className="dq-secao dq-secao--indicador">
+            <span className="dq-secao-titulo">
+              {t('nucleo.dashboard.modal_editar.secao_indicador', { defaultValue: 'Indicador' })}
+            </span>
+            <div className="dq-op__lista">
+              {widget.query_spec.fields.map(fqs => (
+                <div key={fqs.key} className="dq-op__linha dq-op__linha--somente-leitura">
+                  <span className="dq-op__campo">
+                    <span>{fieldLabels[fqs.key] ?? fqs.key}</span>
+                  </span>
+                  <span className="dq-op__fixa">{fqs.operation}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </ModalPassoPassoGlobal>
   )
 }
-
-const modalStyles = {
-  overlay: {
-    position: 'fixed' as const, inset: 0,
-    background: 'rgba(0,0,0,0.6)', zIndex: 1000,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-  },
-  card: {
-    background: 'var(--bg-elevated)', border: '1px solid var(--border-default)',
-    borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '480px',
-    boxShadow: 'var(--shadow-lg)', display: 'flex', flexDirection: 'column' as const,
-  },
-  header: {
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '1rem 1.25rem', borderBottom: '1px solid var(--border-default)',
-  },
-  headerInfo: { display: 'flex', alignItems: 'center', gap: '0.75rem' },
-  headerTitle: { fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' },
-  headerSub: { fontSize: '12px', color: 'var(--text-muted)', marginTop: '1px' },
-  closeBtn: {
-    background: 'none', border: 'none', cursor: 'pointer',
-    color: 'var(--text-muted)', fontSize: '16px', lineHeight: 1,
-    padding: '4px', borderRadius: '4px',
-  },
-  body: {
-    padding: '1.25rem', display: 'flex',
-    flexDirection: 'column' as const, gap: '1rem',
-  },
-  field: { display: 'flex', flexDirection: 'column' as const, gap: '0.375rem' },
-  label: {
-    fontSize: '0.6875rem', fontWeight: 700, color: 'var(--text-muted)',
-    textTransform: 'uppercase' as const, letterSpacing: '0.05em',
-  },
-  input: {
-    background: 'var(--bg-elevated)', border: '1px solid var(--border-default)',
-    borderRadius: '8px', color: 'var(--text-primary)', fontSize: '0.875rem',
-    padding: '0.5rem 0.75rem', outline: 'none', width: '100%',
-    boxSizing: 'border-box' as const,
-  },
-  select: {
-    background: 'var(--bg-elevated)', border: '1px solid var(--border-default)',
-    borderRadius: '8px', color: 'var(--text-primary)', fontSize: '0.875rem',
-    padding: '0.5rem 0.75rem', outline: 'none', width: '100%', cursor: 'pointer',
-  },
-  chartGrid: { display: 'flex', flexWrap: 'wrap' as const, gap: '0.375rem' },
-  chartBtn: {
-    display: 'flex', flexDirection: 'column' as const, alignItems: 'center',
-    gap: '0.2rem', padding: '0.4rem 0.6rem', minWidth: '56px',
-    borderRadius: '8px', border: '1px solid var(--border-default)',
-    background: 'var(--bg-elevated)', color: 'var(--text-muted)',
-    fontSize: '0.625rem', fontWeight: 600, cursor: 'pointer',
-  },
-  chartBtnAtivo: {
-    background: 'rgba(99,102,241,0.1)', borderColor: 'rgba(99,102,241,0.45)',
-    color: 'var(--accent)',
-  },
-  infoBox: {
-    display: 'grid', gridTemplateColumns: 'auto 1fr',
-    gap: '0.375rem 0.875rem', alignItems: 'start',
-    background: 'rgba(255,255,255,0.02)', borderRadius: '8px',
-    border: '1px solid var(--border-default)', padding: '0.75rem 1rem',
-  },
-  infoKey: {
-    fontSize: '0.6875rem', fontWeight: 700, color: 'var(--text-muted)',
-    textTransform: 'uppercase' as const, letterSpacing: '0.05em',
-    whiteSpace: 'nowrap' as const, paddingTop: '2px',
-  },
-  infoVal: {
-    fontSize: '0.8125rem', color: 'var(--text-secondary)',
-    fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: '6px',
-  },
-  opBadge: {
-    fontSize: '10px', fontWeight: 600, color: 'var(--accent)',
-    background: 'var(--accent-dim)', border: '1px solid var(--border-accent)',
-    borderRadius: '4px', padding: '1px 5px',
-  },
-  footer: {
-    display: 'flex', justifyContent: 'flex-end', gap: '0.5rem',
-    padding: '0.875rem 1.25rem', borderTop: '1px solid var(--border-default)',
-  },
-  btnCancel: {
-    fontSize: '13px', padding: '6px 16px', borderRadius: 'var(--radius-md)',
-    background: 'transparent', border: '1px solid var(--border-default)',
-    color: 'var(--text-secondary)', cursor: 'pointer',
-  },
-  btnSave: {
-    fontSize: '13px', padding: '6px 16px', borderRadius: 'var(--radius-md)',
-    background: 'var(--accent-dim)', border: '1px solid var(--border-accent)',
-    color: 'var(--accent)', cursor: 'pointer', fontWeight: 600,
-  },
-  btnSaveDisabled: {
-    opacity: 0.4, cursor: 'not-allowed',
-  },
-} as const

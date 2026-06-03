@@ -58,7 +58,12 @@ async function aplicarLogisticaEmTodosSchemas(pedidoUrl: string): Promise<void> 
   await client.connect()
 
   try {
-    const schemaNames = await listarSchemasComTabelaPedido(client)
+    const configuradorUrl =
+      process.env.CONFIGURADOR_DATABASE_URL ?? process.env.DATABASE_URL
+    const schemaNames = await listarSchemasComTabelaPedido(
+      client,
+      configuradorUrl ?? undefined,
+    )
     const rows = schemaNames.map(table_schema => ({ table_schema }))
 
     if (rows.length === 0) {
@@ -138,10 +143,10 @@ export async function aplicarMigrationsPedido(): Promise<void> {
   await aplicarLogisticaEmTodosSchemas(pedidoUrl)
 
   console.log('[migrations-pedido] Passo 2/5 — id_processo (nullable, sem backfill)...')
-  await aplicarIdProcessoEmSchemasComPedido(pedidoUrl)
+  await aplicarIdProcessoEmSchemasComPedido(pedidoUrl, configuradorUrl ?? undefined)
 
   console.log('[migrations-pedido] Passo 3/5 — lista_painel_usuario_global...')
-  await aplicarListaPainelEmSchemasComPedido(pedidoUrl)
+  await aplicarListaPainelEmSchemasComPedido(pedidoUrl, configuradorUrl ?? undefined)
 
   execSync('npx tsx scripts/ativamente/compose-pedido-schema.ts', {
     cwd: REPO_ROOT,

@@ -30,31 +30,97 @@ function mascararUrl(url: string): string {
   return host ? `***@${host}` : '(invalida)'
 }
 
-/** Schemas de organização com tabela pedido (tenant_* canônico + organizacao_* legado). */
-export async function listarSchemasComTabelaPedido(client: Client): Promise<string[]> {
+const CUID_ORG_REGEX = /^[a-z][a-z0-9]{22,24}$/
+const UUID_ORG_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+
+function nomeSchemaOrganizacao(idOrganizacao: string): string | null {
+  if (!CUID_ORG_REGEX.test(idOrganizacao) && !UUID_ORG_REGEX.test(idOrganizacao)) {
+    return null
+  }
+  return `tenant_${idOrganizacao}`
+}
+
+/** pg_class: acha tabela pedido mesmo quando information_schema não lista (legado / particionado). */
+async function listarSchemasComPedidoPgClass(client: Client): Promise<string[]> {
   const { rows } = await client.query<{ schema_name: string }>(`
     SELECT DISTINCT n.nspname AS schema_name
     FROM pg_namespace n
-    WHERE (
-      n.nspname LIKE 'tenant_%'
-      OR n.nspname LIKE 'organizacao_%'
-    )
-    AND EXISTS (
-      SELECT 1
-      FROM information_schema.tables t
-      WHERE t.table_schema = n.nspname
-        AND t.table_name = 'pedido'
-        AND t.table_type = 'BASE TABLE'
-    )
+    INNER JOIN pg_class c ON c.relnamespace = n.oid
+    WHERE c.relname = 'pedido'
+      AND c.relkind IN ('r', 'p')
+      AND (
+        n.nspname LIKE 'tenant_%'
+        OR n.nspname LIKE 'organizacao_%'
+        OR n.nspname = 'public'
+      )
     ORDER BY n.nspname
   `)
   return rows.map(r => r.schema_name)
+}
+
+/** Orgs ATIVO no Configurador cujo schema físico já tem tabela pedido. */
+async function listarSchemasConfiguradorComPedido(
+  pedidoClient: Client,
+  configuradorUrl: string,
+): Promise<string[]> {
+  const cfg = new Client({ connectionString: configuradorUrl })
+  await cfg.connect()
+  const found: string[] = []
+  try {
+    const { rows } = await cfg.query<{ id: string }>(
+      `SELECT id_organizacao AS id
+       FROM organizacao
+       WHERE status_organizacao = 'ATIVO'`,
+    )
+    for (const { id } of rows) {
+      const schemaName = nomeSchemaOrganizacao(id)
+      if (!schemaName) continue
+      const { rows: ex } = await pedidoClient.query<{ ok: boolean }>(
+        `SELECT EXISTS (
+          SELECT 1
+          FROM pg_namespace n
+          INNER JOIN pg_class c ON c.relnamespace = n.oid
+          WHERE n.nspname = $1
+            AND c.relname = 'pedido'
+            AND c.relkind IN ('r', 'p')
+        ) AS ok`,
+        [schemaName],
+      )
+      if (ex[0]?.ok) found.push(schemaName)
+    }
+  } finally {
+    await cfg.end()
+  }
+  return found
+}
+
+/**
+ * Schemas onde aplicar DDL do Pedido:
+ * tenant_* / organizacao_* / public (legado) com tabela pedido + orgs ATIVO no Configurador.
+ */
+export async function listarSchemasComTabelaPedido(
+  client: Client,
+  configuradorUrl?: string,
+): Promise<string[]> {
+  const fromPg = await listarSchemasComPedidoPgClass(client)
+  const fromCfg =
+    configuradorUrl !== undefined && configuradorUrl.length > 0
+      ? await listarSchemasConfiguradorComPedido(client, configuradorUrl)
+      : []
+
+  const merged = [...new Set([...fromPg, ...fromCfg])].sort()
+  if (merged.length > 0) {
+    console.log(`[ddl-pedido-schemas] ${merged.join(', ')}`)
+  }
+  return merged
 }
 
 export async function aplicarMigrationEmSchemasComPedido(
   pedidoUrl: string,
   migrationName: string,
   logPrefix: string,
+  configuradorUrl?: string,
 ): Promise<void> {
   const sqlPath = join(
     REPO_ROOT,
@@ -71,7 +137,7 @@ export async function aplicarMigrationEmSchemasComPedido(
   await client.connect()
 
   try {
-    const schemas = await listarSchemasComTabelaPedido(client)
+    const schemas = await listarSchemasComTabelaPedido(client, configuradorUrl)
     console.log(`[${logPrefix}] Schemas com pedido (${migrationName}): ${schemas.length}`)
     if (schemas.length === 0) {
       console.warn(`[${logPrefix}] Nenhum schema tenant/organizacao com tabela pedido.`)
@@ -116,18 +182,26 @@ export async function aplicarMigrationEmSchemasComPedido(
   }
 }
 
-export async function aplicarIdProcessoEmSchemasComPedido(pedidoUrl: string): Promise<void> {
+export async function aplicarIdProcessoEmSchemasComPedido(
+  pedidoUrl: string,
+  configuradorUrl?: string,
+): Promise<void> {
   await aplicarMigrationEmSchemasComPedido(
     pedidoUrl,
     MIGRATION_ID_PROCESSO_PEDIDO,
     'ddl-pedido-id_processo',
+    configuradorUrl,
   )
 }
 
-export async function aplicarListaPainelEmSchemasComPedido(pedidoUrl: string): Promise<void> {
+export async function aplicarListaPainelEmSchemasComPedido(
+  pedidoUrl: string,
+  configuradorUrl?: string,
+): Promise<void> {
   await aplicarMigrationEmSchemasComPedido(
     pedidoUrl,
     MIGRATION_LISTA_PAINEL_PEDIDO,
     'ddl-pedido-lista_painel',
+    configuradorUrl,
   )
 }

@@ -21,7 +21,9 @@ if (isMain) {
     console.error('[id_processo-tenants] PEDIDO_DATABASE_URL ausente')
     process.exit(1)
   }
-  aplicarIdProcessoEmSchemasComPedido(pedidoUrl).catch(err => {
+  const configuradorUrl =
+    process.env.CONFIGURADOR_DATABASE_URL ?? process.env.DATABASE_URL
+  aplicarIdProcessoEmSchemasComPedido(pedidoUrl, configuradorUrl ?? undefined).catch(err => {
     console.error('[id_processo-tenants] ERRO:', err instanceof Error ? err.message : err)
     process.exit(1)
   })

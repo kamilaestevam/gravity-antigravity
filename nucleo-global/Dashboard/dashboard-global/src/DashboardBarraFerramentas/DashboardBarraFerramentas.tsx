@@ -58,6 +58,8 @@ interface PeriodDropdownProps {
   alinharPainel?: 'esquerda' | 'direita'
   /** dropdown = popover ancorado; modal = overlay centralizado (atalhos + intervalo) */
   modoPainel?: 'dropdown' | 'modal'
+  /** Classe extra no painel portaled (ex.: tema do construtor de widget) */
+  painelClassName?: string
 }
 
 export function PeriodDropdown({
@@ -67,6 +69,7 @@ export function PeriodDropdown({
   renderGatilho,
   alinharPainel = 'esquerda',
   modoPainel = 'dropdown',
+  painelClassName,
 }: PeriodDropdownProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -256,6 +259,7 @@ export function PeriodDropdown({
     ? createPortal(
         <div
           ref={painelRef}
+          className={painelClassName}
           style={{
             position: 'fixed',
             top: coordsDropdown.top,
@@ -376,7 +380,7 @@ export interface PeriodOption {
   label: string
 }
 
-function buildDefaultPeriodOptions(t: (k: string) => string): PeriodOption[] {
+export function buildDefaultPeriodOptions(t: (k: string) => string): PeriodOption[] {
   return [
     { value: '7d',            label: t('nucleo.dashboard.periodo.ultimos_7_dias')   },
     { value: '30d',           label: t('nucleo.dashboard.periodo.ultimos_30_dias')  },

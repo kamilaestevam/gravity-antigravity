@@ -19,6 +19,7 @@ import {
   PRODUCT_META,
   RELACAO_ENTRE_PRODUTOS_GRAVITY,
   STACK_ORDER,
+  STACK_PUZZLE_ATIVOS,
   nomeExibicaoProdutoGravity,
 } from '../data/product-meta'
 import './hub-store.css'
@@ -450,8 +451,7 @@ export function Store() {
               </div>
 
               {/* ── MONTE O SEU GRAVITY — Puzzle Stack ───────────────────── */}
-              {catalog.length > 0 && (
-                <div className="gs-stack">
+              <div className="gs-stack">
                   <div className="gs-stack__head">
                     <div>
                       <h2 className="gs-stack__title">{t('store.stack_titulo')}</h2>
@@ -459,16 +459,19 @@ export function Store() {
                     </div>
                     <div className="gs-stack__meter">
                       <div className="gs-stack__meter-bar">
-                        {Array.from({ length: catalog.length }).map((_, i) => (
-                          <div key={i} className={`gs-stack__seg${i < ownedCount ? ' gs-stack__seg--on' : ''}`} />
+                        {STACK_ORDER.map((slug) => (
+                          <div
+                            key={slug}
+                            className={`gs-stack__seg${STACK_PUZZLE_ATIVOS.has(slug) ? ' gs-stack__seg--on' : ''}`}
+                          />
                         ))}
                       </div>
                       <span className="gs-stack__meter-label">
-                        {ownedCount === 0
+                        {STACK_PUZZLE_ATIVOS.size === 0
                           ? t('store.stack_nenhum')
-                          : ownedCount === catalog.length
+                          : STACK_PUZZLE_ATIVOS.size === STACK_ORDER.length
                             ? t('store.stack_completo')
-                            : t('store.stack_parcial', { n: ownedCount, total: catalog.length })}
+                            : t('store.stack_parcial', { n: STACK_PUZZLE_ATIVOS.size, total: STACK_ORDER.length })}
                       </span>
                     </div>
                   </div>
@@ -476,16 +479,14 @@ export function Store() {
                   {/* Peças de quebra-cabeça com SVG real */}
                   <div className="gs-stack__pieces-scroll">
                   <div className="gs-stack__pieces">
-                    {(() => {
-                      const validSlugs = STACK_ORDER.filter(s => catalog.find(p => p.slug === s))
-                      return validSlugs.map((slug, pieceIdx) => {
-                        const cp = catalog.find(p => p.slug === slug)!
+                    {STACK_ORDER.map((slug, pieceIdx) => {
+                        const cp = catalog.find(p => p.slug === slug)
                         const meta = PRODUCT_META[slug]
-                        const isOwned = getStatus(slug) === 'owned'
+                        const isPecaAtiva = STACK_PUZZLE_ATIVOS.has(slug)
                         const isFirst = pieceIdx === 0
-                        const isLast = pieceIdx === validSlugs.length - 1
+                        const isLast = pieceIdx === STACK_ORDER.length - 1
                         // Primeira peça fica na frente para a aba cobrir a cavidade da próxima
-                        const zIdx = validSlugs.length - pieceIdx + 1
+                        const zIdx = STACK_ORDER.length - pieceIdx + 1
 
                         // Dimensões: corpo W=120 H=90, aba estende 18px direita, cavidade indenta 18px esquerda
                         // Mesma geometria garante que aba e cavidade tracem o MESMO arco — strokes coincidem em uma linha só
@@ -497,19 +498,22 @@ export function Store() {
                           ? 'M 0,0 L 120,0 L 120,90 L 0,90 L 0,58 C 18,58 18,32 0,32 Z'
                           : 'M 0,0 L 120,0 L 120,32 C 138,32 138,58 120,58 L 120,90 L 0,90 L 0,58 C 18,58 18,32 0,32 Z'
 
-                        const fill = isOwned ? (meta?.iconBg ?? 'rgba(99,102,241,0.18)') : 'rgba(255,255,255,0.025)'
-                        const stroke = isOwned ? (meta?.iconColor ?? '#818cf8') : 'rgba(255,255,255,0.09)'
+                        const fill = isPecaAtiva ? (meta?.iconBg ?? 'rgba(99,102,241,0.18)') : 'rgba(255,255,255,0.025)'
+                        const stroke = isPecaAtiva ? (meta?.iconColor ?? '#818cf8') : 'rgba(255,255,255,0.09)'
 
                         return (
                           <div
                             key={slug}
-                            className={`gs-piece${isOwned ? ' gs-piece--on' : ''}${isFirst ? '' : ' gs-piece--has-blank'}`}
+                            className={`gs-piece${isPecaAtiva ? ' gs-piece--on' : ''}${isFirst ? '' : ' gs-piece--has-blank'}`}
                             style={{ zIndex: zIdx, '--piece-color': meta?.iconColor ?? '#818cf8' } as React.CSSProperties}
-                            onClick={() => isOwned
-                              ? navigate(`/produto/${slug}`)
-                              : document.getElementById(`produto-${slug}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                            }
-                            title={nomeExibicaoProdutoGravity(slug, cp.name, t)}
+                            onClick={() => {
+                              if (isPecaAtiva) {
+                                navigate(`/produto/${slug}`)
+                                return
+                              }
+                              document.getElementById(`produto-${slug}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                            }}
+                            title={nomeExibicaoProdutoGravity(slug, cp?.name ?? '', t)}
                           >
                             {/* Shape SVG da peça */}
                             <svg width="138" height="90" viewBox="0 0 138 90" className="gs-piece__svg">
@@ -521,9 +525,9 @@ export function Store() {
                                 {meta?.icon ?? <Package weight="duotone" size={20} color="#818cf8" />}
                               </div>
                               <span className="gs-piece__name">
-                                {nomeExibicaoProdutoGravity(slug, cp.name, t)}
+                                {nomeExibicaoProdutoGravity(slug, cp?.name ?? '', t)}
                               </span>
-                              {isOwned && (
+                              {isPecaAtiva && (
                                 <span className="gs-piece__check">
                                   <CheckCircle weight="fill" size={11} color="#10b981" />
                                 </span>
@@ -531,16 +535,14 @@ export function Store() {
                             </div>
                           </div>
                         )
-                      })
-                    })()}
+                      })}
                   </div>
                   </div>
 
-                  {ownedCount === 0 && (
+                  {STACK_PUZZLE_ATIVOS.size === 0 && (
                     <p className="gs-stack__hint">{t('store.stack_hint')}</p>
                   )}
                 </div>
-              )}
 
               {/* Toolbar */}
               <div className="gs-toolbar">

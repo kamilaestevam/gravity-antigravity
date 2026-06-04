@@ -1431,6 +1431,8 @@
     "produto_visual_processo": "Consolidated view of all ongoing import processes.",
     "produto_visual_bid_frete": "Competitive international freight quote with multiple carriers.",
     "produto_visual_bid_cambio": "Real-time exchange rate comparison between brokers.",
+    "produto_visual_pedido": "Import and export order management with balance and stage control.",
+    "produto_visual_smart_read": "Smart reading of COMEX documents and images with AI.",
     "produto_visual_lpco": "Management of licenses, permits, certificates, and LPCO documents.",
     "produto_visual_default": "Gravity Module.",
     "titulo_selecionar_workspace": "Hub — Select Workspace",
@@ -8781,12 +8783,22 @@
     "prod_pedido_desc": "Complete purchase order management with approval workflow, tracking and ERP system integration.",
     "prod_simula_custo_desc": "Detailed import cost simulation with automatic tax calculation by NCM code and scenario comparison.",
     "prod_smart_read_desc": "Intelligent data extraction from documents and images using AI. Automatically processes invoices and customs documents.",
-    "prod_bid_frete_nome": "Bid International Freight",
+    "prod_bid_frete_nome": "Bid Freight Int",
     "prod_bid_cambio_nome": "Bid Exchange",
     "prod_nf_importacao_nome": "Import Invoice",
     "prod_lpco_nome": "LPCO",
     "prod_pedido_nome": "Order",
-    "prod_simula_custo_nome": "Cost Simulation"
+    "prod_simula_custo_nome": "Cost Simulation",
+    "prod_smart_data_nome": "Smart Data",
+    "prod_smart_data_desc": "Data intelligence for foreign trade operations with real-time indicators and dashboards.",
+    "prod_smart_transito_nome": "Smart Transit",
+    "prod_smart_transito_desc": "Real-time customs and logistics transit tracking and visibility.",
+    "prod_duimp_nome": "DUIMP",
+    "prod_duimp_desc": "Single Import Declaration integrated with the Single Window portal and tax validation.",
+    "prod_financeiro_comex_nome": "COMEX Finance",
+    "prod_financeiro_comex_desc": "Financial management for foreign trade operations, allocation and reconciliation.",
+    "prod_catalogo_produto_nome": "Product Catalog",
+    "prod_catalogo_produto_desc": "Registration and maintenance of the product catalog on the Siscomex Single Window."
   },
   "enum": {
     "tipo_cobranca_produto_gravity": {

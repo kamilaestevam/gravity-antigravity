@@ -6,13 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Gear,
   Sparkle,
-  Calculator,
-  FileText,
-  ArrowsClockwise,
-  CurrencyDollar,
-  Package,
   Bell,
-  MagnifyingGlass,
   ChartBar,
   Rocket,
   CheckCircle,
@@ -26,8 +20,11 @@ import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { produtosWorkspaceApi, type ProdutoWorkspaceItem } from '../services/api-client'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
-import { LogoHub, corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
-import { iconeOficialBidFreteInternacional } from '../data/product-meta'
+import {
+  LogoHub,
+  visualProdutoGravityHub,
+  visualProdutoGravityFallback,
+} from '@nucleo/logo-produtos'
 import { resolverProdVisualHub } from '../utils/resolver-prod-visual-hub'
 import { temBypassPermissao } from '../../shared/index.js'
 import {
@@ -58,35 +55,27 @@ interface ProdVisual {
   description: string
 }
 
-function prodVisualEntry(
-  slug: string,
-  icon: React.ReactNode,
-  description: string,
-): ProdVisual {
+function prodVisualEntry(slug: string, description: string): ProdVisual {
   return {
-    color: corOficialProdutoGravity(slug),
-    dim: corOficialProdutoDim(slug, 0.28),
-    icon,
+    ...visualProdutoGravityHub(slug),
     description,
   }
 }
 
 const getProdVisual = (t: (key: string) => string): Record<string, ProdVisual> => ({
-  'simula-custo': prodVisualEntry('simula-custo', <Calculator weight="duotone" size={24} />, t('hub.produto_visual_simula_custo')),
-  'nf-importacao': prodVisualEntry('nf-importacao', <FileText weight="duotone" size={24} />, t('hub.produto_visual_nf_importacao')),
-  'nf-import': prodVisualEntry('nf-importacao', <FileText weight="duotone" size={24} />, t('hub.produto_visual_nf_importacao')),
-  'processo': prodVisualEntry('processo', <ArrowsClockwise weight="duotone" size={24} />, t('hub.produto_visual_processo')),
-  'bid-frete': prodVisualEntry('bid-frete', iconeOficialBidFreteInternacional(26, 'card'), t('hub.produto_visual_bid_frete')),
-  'bid-frete-internacional': prodVisualEntry('bid-frete-internacional', iconeOficialBidFreteInternacional(26, 'card'), t('hub.produto_visual_bid_frete')),
-  'bid-cambio': prodVisualEntry('bid-cambio', <CurrencyDollar weight="duotone" size={24} />, t('hub.produto_visual_bid_cambio')),
-  'pedido': prodVisualEntry('pedido', <Package weight="duotone" size={24} />, t('hub.produto_visual_pedido', 'Gestão de pedidos de compra e importação')),
-  'smart-read': prodVisualEntry('smart-read', <MagnifyingGlass weight="duotone" size={24} />, t('hub.produto_visual_smart_read', 'Leitura inteligente de documentos COMEX')),
+  'simula-custo': prodVisualEntry('simula-custo', t('hub.produto_visual_simula_custo')),
+  'nf-importacao': prodVisualEntry('nf-importacao', t('hub.produto_visual_nf_importacao')),
+  'nf-import': prodVisualEntry('nf-importacao', t('hub.produto_visual_nf_importacao')),
+  'processo': prodVisualEntry('processo', t('hub.produto_visual_processo')),
+  'bid-frete': prodVisualEntry('bid-frete', t('hub.produto_visual_bid_frete')),
+  'bid-frete-internacional': prodVisualEntry('bid-frete-internacional', t('hub.produto_visual_bid_frete')),
+  'bid-cambio': prodVisualEntry('bid-cambio', t('hub.produto_visual_bid_cambio')),
+  'pedido': prodVisualEntry('pedido', t('hub.produto_visual_pedido')),
+  'smart-read': prodVisualEntry('smart-read', t('hub.produto_visual_smart_read')),
 })
 
 const getDefaultVisual = (t: (key: string) => string): ProdVisual => ({
-  color: '#6366f1',
-  dim: 'rgba(99,102,241,0.12)',
-  icon: <Package weight="duotone" size={24} />,
+  ...visualProdutoGravityFallback(24),
   description: t('hub.produto_visual_default'),
 })
 

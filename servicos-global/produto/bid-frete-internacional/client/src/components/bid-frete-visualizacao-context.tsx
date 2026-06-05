@@ -42,6 +42,13 @@ export function resolverBidFreteVisualizacaoPorPathname(
   return null
 }
 
+/** Rotas que exibem o seletor Insights|Lista|… sem aba ativa (ex.: Configurações). */
+export function ehRotaComSeletorVisualizacaoBidFrete(pathname: string, modo: ModoVisualizacaoBidFrete): boolean {
+  if (resolverBidFreteVisualizacaoPorPathname(pathname, modo) !== null) return true
+  if (modo === 'cliente') return pathname.includes('/bid-frete/configuracoes')
+  return pathname.includes('/visao-fornecedor-bid-frete-internacional/configuracoes')
+}
+
 interface BidFreteVisualizacaoContextValue {
   modo: ModoVisualizacaoBidFrete
   visualizacaoAtiva: BidFreteVisualizacaoId | null

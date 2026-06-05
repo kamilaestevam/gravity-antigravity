@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { z } from 'zod'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useTranslation } from 'react-i18next'
 import { useClerk, useUser, useAuth } from '@clerk/clerk-react'
@@ -135,6 +136,31 @@ interface GabiInsight {
   rota?: string
   score?: number
   produto?: string
+}
+
+const gabiInsightItemSchema = z.object({
+  id: z.string(),
+  variante: z.enum(['default', 'warn']).optional(),
+  tag: z.string(),
+  texto: z.string(),
+  stat: z.object({ label: z.string(), valor: z.string() }).optional(),
+  textoLink: z.string().optional(),
+  rota: z.string().optional(),
+  score: z.number().optional(),
+  produto: z.string().optional(),
+})
+
+const gabiInsightsResponseSchema = z.object({
+  insights: z.array(gabiInsightItemSchema),
+})
+
+const GABI_INSIGHT_FALLBACK: GabiInsight = {
+  id: 'fallback',
+  variante: 'default',
+  tag: 'GABI AI · Pronta',
+  texto: 'Sua assistente está pronta. Ative produtos para receber insights em tempo real das suas operações COMEX.',
+  textoLink: 'Explorar produtos',
+  rota: '/store',
 }
 
 interface WorkspaceFromHub {
@@ -336,6 +362,8 @@ export function SelecionarWorkspace() {
   /* ── GABI insights ── */
   const [gabiInsights, setGabiInsights] = useState<GabiInsight[]>([])
   const [gabiLoading, setGabiLoading] = useState(true)
+  const gabiFetchSeq = useRef(0)
+  const gabiCarregouAlgumaVez = useRef(false)
 
   const [gabiPaused, setGabiPaused] = useState(false)
   const [gabiIndice, setGabiIndice] = useState(0)
@@ -877,59 +905,80 @@ export function SelecionarWorkspace() {
 
   /* ── GABI: busca insights cross-produto do backend (hub/insights) ── */
   React.useEffect(() => {
-    let cancelled = false
+    if (!roleReady || !idOrganizacao) return
 
-    async function fetchGabiInsights() {
+    const seq = ++gabiFetchSeq.current
+    let retryTimer: ReturnType<typeof setTimeout> | undefined
+
+    async function carregarInsightsGabi(tentativa = 0) {
+      if (gabiFetchSeq.current !== seq) return
+
       try {
         const token = await getToken()
-        if (!token) return
+        if (!token) {
+          if (tentativa < 24) {
+            retryTimer = setTimeout(() => carregarInsightsGabi(tentativa + 1), 500)
+          } else if (gabiFetchSeq.current === seq) {
+            setGabiInsights([GABI_INSIGHT_FALLBACK])
+            setGabiLoading(false)
+          }
+          return
+        }
+
+        if (!gabiCarregouAlgumaVez.current) {
+          setGabiLoading(true)
+        }
+
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 15_000)
 
         const res = await fetch('/api/v1/hub/insights', {
           headers: { Authorization: `Bearer ${token}` },
-          signal: AbortSignal.timeout(8_000),
+          signal: controller.signal,
         })
+        clearTimeout(timeoutId)
 
+        if (gabiFetchSeq.current !== seq) return
         if (!res.ok) throw new Error(`status_${res.status}`)
 
-        const data = await res.json()
-        const insights: GabiInsight[] = (data.insights ?? []).map(
-          (ins: GabiInsight) => ({
-            id: ins.id,
-            variante: ins.variante ?? 'default',
-            tag: ins.tag,
-            texto: ins.texto,
-            stat: ins.stat,
-            textoLink: ins.textoLink,
-            rota: ins.rota,
-            score: ins.score ?? 0,
-            produto: ins.produto,
-          }),
-        )
+        const raw: unknown = await res.json()
+        const parsed = gabiInsightsResponseSchema.safeParse(raw)
+        if (!parsed.success) throw new Error('contrato_insights_invalido')
 
-        if (!cancelled) { setGabiInsights(insights); setGabiLoading(false) }
-      } catch (err) {
-        // Fallback resiliente — mostra card estático se backend falhar
-        if (err instanceof DOMException && err.name === 'AbortError') {
-          if (!cancelled) setGabiLoading(false)
-          return
-        }
-        if (!cancelled) {
-          setGabiInsights([{
-            id: 'fallback',
-            variante: 'default',
-            tag: 'GABI AI · Pronta',
-            texto: 'Sua assistente está pronta. Ative produtos para receber insights em tempo real das suas operações COMEX.',
-            textoLink: 'Explorar produtos',
-            rota: '/store',
-          }])
+        const insights: GabiInsight[] = parsed.data.insights.map(ins => ({
+          id: ins.id,
+          variante: ins.variante ?? 'default',
+          tag: ins.tag,
+          texto: ins.texto,
+          stat: ins.stat,
+          textoLink: ins.textoLink,
+          rota: ins.rota,
+          score: ins.score ?? 0,
+          produto: ins.produto,
+        }))
+
+        setGabiInsights(insights.length > 0 ? insights : [GABI_INSIGHT_FALLBACK])
+        gabiCarregouAlgumaVez.current = true
+      } catch {
+        if (gabiFetchSeq.current !== seq) return
+        setGabiInsights([GABI_INSIGHT_FALLBACK])
+        gabiCarregouAlgumaVez.current = true
+      } finally {
+        if (gabiFetchSeq.current === seq) {
           setGabiLoading(false)
         }
       }
     }
 
-    if (!carregando) fetchGabiInsights()
-    return () => { cancelled = true }
-  }, [carregando, getToken])
+    carregarInsightsGabi()
+
+    return () => {
+      gabiFetchSeq.current += 1
+      if (retryTimer) clearTimeout(retryTimer)
+    }
+    // getToken via closure Clerk — não colocar nas deps (reexecução cancelava o fetch)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roleReady, idOrganizacao, chavesProdutosContratados])
 
   /* ══════════════════════════════════
      RENDER

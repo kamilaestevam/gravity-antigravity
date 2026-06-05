@@ -190,12 +190,13 @@ hubRouter.get('/insights', requireAuth, async (req, res) => {
       ),
     )
 
-    const insights = await generateHubInsights(
-      id_organizacao,
-      id_usuario,
-      role,
-      activeProductKeys,
-    )
+    const INSIGHTS_ROUTE_TIMEOUT_MS = 12_000
+    const insights = await Promise.race([
+      generateHubInsights(id_organizacao, id_usuario, role, activeProductKeys),
+      new Promise<Awaited<ReturnType<typeof generateHubInsights>>>((_, reject) => {
+        setTimeout(() => reject(new Error('hub_insights_timeout')), INSIGHTS_ROUTE_TIMEOUT_MS)
+      }),
+    ])
 
     res.json({ insights, count: insights.length, cached: false })
   } catch {

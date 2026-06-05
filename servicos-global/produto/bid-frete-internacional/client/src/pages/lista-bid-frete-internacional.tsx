@@ -93,7 +93,7 @@ import {
   RenderModalIcon,
 } from './colunas-lista-bid-frete-internacional'
 import {
-  montarLinhasPaiLista,
+  montarLinhasPaiListaComFallback,
   idLinhaPaiLista,
   idLinhaFilhaLista,
   isLinhaBidGrupo,
@@ -105,47 +105,16 @@ import {
   type LinhaPaiLista,
   type LinhaFilhaLista,
 } from './lista-bid-frete-internacional-utils'
-
-// ─── Status Config (localStorage) ───
-
-interface StatusConfig {
-  id: string
-  nome: string
-  rotulo: string
-  cor: string
-  ordem: number
-  is_sistema: boolean
-}
-
-const STATUS_CONFIG_KEY = 'bid-frete:config:status'
-
-/** 9 status canônicos como fallback quando localStorage está vazio */
-const STATUS_CANONICOS: StatusConfig[] = [
-  { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
-  { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
-  { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
-  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
-  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: false },
-  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: false },
-  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: false },
-  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, is_sistema: false },
-  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, is_sistema: false },
-]
-
-/** Lê status do localStorage (sincronizado pelo Configurações) */
-function lerStatusConfig(): StatusConfig[] {
-  try {
-    const raw = localStorage.getItem(STATUS_CONFIG_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
-    }
-  } catch { /* storage indisponível */ }
-  return STATUS_CANONICOS
-}
+import {
+  EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL,
+  lerStatusCotacaoConfigBidFreteInternacional,
+  type StatusCotacaoConfigBidFreteInternacional,
+} from '../shared/status-config-bid-frete-internacional'
 
 /** Gera abas dinâmicas a partir da lista de status config */
-function gerarAbasDinamicas(statusList: StatusConfig[]): Array<{ valor: string; label: string }> {
+function gerarAbasDinamicas(
+  statusList: StatusCotacaoConfigBidFreteInternacional[],
+): Array<{ valor: string; label: string }> {
   const abas: Array<{ valor: string; label: string }> = [
     { valor: 'TODAS', label: 'Todas as cotações' },
   ]
@@ -276,15 +245,17 @@ export default function Cotacoes() {
     return workspacesMap.get(idWorkspaceAtivo)?.nome
   }, [idWorkspaceAtivo, workspacesMap])
 
-  const [statusConfig, setStatusConfig] = useState<StatusConfig[]>(lerStatusConfig)
+  const [statusConfig, setStatusConfig] = useState(lerStatusCotacaoConfigBidFreteInternacional)
 
   useEffect(() => {
-    const handleStorage = () => setStatusConfig(lerStatusConfig())
-    window.addEventListener('storage', handleStorage)
-    window.addEventListener('focus', handleStorage)
+    const atualizar = () => setStatusConfig(lerStatusCotacaoConfigBidFreteInternacional())
+    window.addEventListener('storage', atualizar)
+    window.addEventListener('focus', atualizar)
+    window.addEventListener(EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL, atualizar)
     return () => {
-      window.removeEventListener('storage', handleStorage)
-      window.removeEventListener('focus', handleStorage)
+      window.removeEventListener('storage', atualizar)
+      window.removeEventListener('focus', atualizar)
+      window.removeEventListener(EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL, atualizar)
     }
   }, [])
 
@@ -712,8 +683,12 @@ export default function Cotacoes() {
   }, [bidsFreteInternacional, filtrarCotacaoItem, busca])
 
   const linhasPaiFiltradas = useMemo(
-    () => montarLinhasPaiLista(bidsFiltrados, cotacoesAvulsasFiltradas),
-    [bidsFiltrados, cotacoesAvulsasFiltradas],
+    () => montarLinhasPaiListaComFallback(
+      bidsFiltrados,
+      cotacoesAvulsasFiltradas,
+      cotacoesFiltradas,
+    ),
+    [bidsFiltrados, cotacoesAvulsasFiltradas, cotacoesFiltradas],
   )
 
   const totalCotacoesFiltradas = cotacoesFiltradas.length
@@ -1327,6 +1302,7 @@ export default function Cotacoes() {
 
       {/* Conteúdo da Visão */}
       {visao === 'lista' ? (
+        <div className="bf-tabela-wrapper">
         <div className="bf-table-section">
           {erroCarregar && (
             <div
@@ -1401,6 +1377,7 @@ export default function Cotacoes() {
             
             ariaLabel="Lista de Cotações"
           />
+        </div>
         </div>
       ) : (
         <CotacoesKanban

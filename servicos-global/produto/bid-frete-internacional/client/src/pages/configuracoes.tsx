@@ -90,6 +90,10 @@ import {
   type KanbanModalConfigBidFrete,
 } from '../shared/kanban-bid-frete-modal'
 import { notificarKanbanConfigBidFreteAtualizado } from '../shared/use-kanban-preferences-bid-frete'
+import {
+  CHAVE_LOCAL_STORAGE_STATUS_COTACAO_BID_FRETE_INTERNACIONAL,
+  EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL,
+} from '../shared/status-config-bid-frete-internacional'
 import './configuracoes.css'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
@@ -796,6 +800,11 @@ export default function Configuracoes() {
     const save = () => {
       localStorage.setItem(storageKey, JSON.stringify(currentState))
       setSavedState(currentState)
+      if (storageKey === CHAVE_LOCAL_STORAGE_STATUS_COTACAO_BID_FRETE_INTERNACIONAL) {
+        window.dispatchEvent(
+          new CustomEvent(EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL),
+        )
+      }
       addNotification({ type: 'success', message: 'Configurações salvas com sucesso!' })
     }
 

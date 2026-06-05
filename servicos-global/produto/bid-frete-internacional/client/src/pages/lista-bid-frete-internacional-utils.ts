@@ -133,19 +133,53 @@ function buildLinhaBidGrupo(bid: BidFreteInternacional): LinhaBidGrupoPai {
   }
 }
 
+function ordenarLinhasPaiPorDataCriacao(linhas: LinhaPaiLista[]): LinhaPaiLista[] {
+  return [...linhas].sort((a, b) => {
+    const da = new Date(a.data_criacao_cotacao_bid_frete_internacional).getTime()
+    const db = new Date(b.data_criacao_cotacao_bid_frete_internacional).getTime()
+    return db - da
+  })
+}
+
+function idsCotacaoNasLinhasPai(linhas: LinhaPaiLista[]): Set<string> {
+  const ids = new Set<string>()
+  for (const linha of linhas) {
+    if (isLinhaBidGrupo(linha)) {
+      for (const c of linha.cotacoes) {
+        ids.add(c.id_cotacao_bid_frete_internacional)
+      }
+    } else {
+      ids.add(linha.id_cotacao_bid_frete_internacional)
+    }
+  }
+  return ids
+}
+
 /** Monta linhas pai: BIDs da entidade + cotações avulsas (sem id_bid). */
 export function montarLinhasPaiLista(
   bids: BidFreteInternacional[],
   cotacoesAvulsas: Cotacao[],
 ): LinhaPaiLista[] {
   const linhasBids = bids.map(buildLinhaBidGrupo)
-  const linhas = [...cotacoesAvulsas, ...linhasBids]
+  return ordenarLinhasPaiPorDataCriacao([...cotacoesAvulsas, ...linhasBids])
+}
 
-  return linhas.sort((a, b) => {
-    const da = new Date(a.data_criacao_cotacao_bid_frete_internacional).getTime()
-    const db = new Date(b.data_criacao_cotacao_bid_frete_internacional).getTime()
-    return db - da
-  })
+/**
+ * Hierarquia BID + avulsas; se cotações do fetch plano não aparecerem (ex.: API de BIDs falhou),
+ * inclui as faltantes como linhas planas para não deixar a tabela vazia com KPI preenchido.
+ */
+export function montarLinhasPaiListaComFallback(
+  bids: BidFreteInternacional[],
+  cotacoesAvulsas: Cotacao[],
+  cotacoesPlanoFallback: Cotacao[],
+): LinhaPaiLista[] {
+  const hierarquia = montarLinhasPaiLista(bids, cotacoesAvulsas)
+  const idsPresentes = idsCotacaoNasLinhasPai(hierarquia)
+  const faltantes = cotacoesPlanoFallback.filter(
+    c => !idsPresentes.has(c.id_cotacao_bid_frete_internacional),
+  )
+  if (faltantes.length === 0) return hierarquia
+  return ordenarLinhasPaiPorDataCriacao([...hierarquia, ...faltantes])
 }
 
 export function idLinhaPaiLista(linha: LinhaPaiLista): string {

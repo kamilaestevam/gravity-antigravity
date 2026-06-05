@@ -384,6 +384,7 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
           )}
 
           {visao === 'lista' ? (
+            <div className="bf-tabela-wrapper">
             <div className="bf-table-section">
               {erroCarregar && (
                 <div
@@ -442,6 +443,7 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
                 )}
                 ariaLabel={t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.aria', 'Lista de oportunidades')}
               />
+            </div>
             </div>
           ) : (
             <KanbanFornecedorConteudo disparos={disparos} toolbarInicio={toggleVisao} />

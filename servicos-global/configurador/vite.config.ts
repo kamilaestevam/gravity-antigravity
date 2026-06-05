@@ -138,7 +138,13 @@ export default defineConfig(({ command }) => {
       // a versão pré-bundled (.vite/deps/) E a aliasada (raw source) → DndContext e
       // useSortable ficam em instâncias separadas → drag-and-drop quebra.
     ],
-    exclude: ['@nucleo/localizador-global'],
+    exclude: [
+      '@nucleo/localizador-global',
+      // Só via resolve.alias — pré-bundle em .vite/deps gera 504 e quebra lazy-load da lista.
+      '@dnd-kit/core',
+      '@dnd-kit/sortable',
+      '@dnd-kit/utilities',
+    ],
   },
   build: {
     outDir: path.resolve(__dirname, 'dist'),
@@ -167,6 +173,14 @@ export default defineConfig(({ command }) => {
         path.resolve(monorepoRoot, 'servicos-global/produto/pedido/client/src/App.tsx'),
         path.resolve(monorepoRoot, 'servicos-global/produto/pedido/client/src/pages/PedidosVisaoGeral.tsx'),
         path.resolve(monorepoRoot, 'servicos-global/produto/pedido/client/src/pages/Pedidos.tsx'),
+        path.resolve(
+          monorepoRoot,
+          'servicos-global/produto/bid-frete-internacional/client/src/pages/lista-bid-frete-internacional.tsx',
+        ),
+        path.resolve(
+          monorepoRoot,
+          'servicos-global/produto/bid-frete-internacional/client/src/components/BidFreteListaPainelBar.tsx',
+        ),
       ],
     },
     fs: {

@@ -30,8 +30,16 @@ import { tipoFornecedorOrganizacaoEnum } from '../../shared/tipo-fornecedor-orga
 
 const log = logger.child({ module: 'admin-routes' })
 import { spawn } from 'child_process'
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, renameSync, createWriteStream } from 'fs'
-import { join, resolve } from 'path'
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, renameSync, createWriteStream, statSync, createReadStream } from 'fs'
+import {
+  coletarArtefatosEmt,
+  enrichirLogEmt,
+  specFileDoRegistry,
+  resolverCaminhoPrintSeguro,
+  buscarLogTestePorId,
+} from '../lib/emt-artifacts.js'
+import { join, resolve, dirname } from 'path'
+import { GRAVITY_PROD_UI_URL_PADRAO } from '../lib/ambiente-teste-execucao.js'
 import { walkSuite, type TestLogEntry } from '../utils/playwright-parser.js'
 import { analyzeTestFailure, getMetrics as getGeminiMetrics } from '../lib/gemini-test-analyzer.js'
 import { generateTestPlan, expandTestPlan } from '../lib/agente-plano-teste.js'
@@ -1089,7 +1097,12 @@ adminRouter.get('/testes', async (_req, res, next) => {
     //    do mesmo created_at coloca o último teste do batch no topo.
     //    Sem tiebreaker, todas as 300+ entradas de um run em lote ficavam na
     //    ordem alfabética do nome do teste (ordem de execução do Playwright).
-    const logs = Array.from(byId.values()).sort((a, b) => {
+    const logs = Array.from(byId.values())
+      .map(entry => enrichirLogEmt(
+        entry,
+        specFileDoRegistry(String(entry.module ?? '')),
+      ))
+      .sort((a, b) => {
       const ta = String(a.created_at ?? '')
       const tb = String(b.created_at ?? '')
       const cmp = tb.localeCompare(ta)
@@ -1212,26 +1225,182 @@ function processOrphanedRun(): void {
  * nos ambientes de teste locais/CI. Em dev, o test runner usa o .env.test
  * separado do monorepo, que tem chaves dummy (ex: sk_test_dummy_vitest).
  */
-function buildSafeTestEnv(): Record<string, string> {
+const AMBIENTE_TESTE_PARA_ENV: Record<'Local' | 'Staging' | 'Producao', string> = {
+  Local:    'local',
+  Staging:  'staging',
+  Producao: 'producao',
+}
+
+function buildSafeTestEnv(ambienteUi?: 'Local' | 'Staging' | 'Producao'): Record<string, string> {
   const safeKeys = [
-    // Runtime
     'PATH', 'HOME', 'USER', 'USERNAME', 'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'SYSTEMROOT',
     'NODE_ENV', 'TEMP', 'TMP', 'TZ', 'LANG', 'LC_ALL',
-    // Windows-specific (sem isso o cmd.exe não resolve npx.cmd e o spawn trava
-    // até timeout sem produzir stdout/stderr — bug observado em 03/05/2026):
     'PATHEXT', 'COMSPEC', 'WINDIR', 'ProgramFiles', 'ProgramFiles(x86)', 'ProgramData',
-    // Playwright-specific
     'PLAYWRIGHT_BROWSERS_PATH', 'PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD', 'DEBUG',
-    // Portas dos serviços em dev (sem credentials)
     'PORT', 'VITE_PORT',
+  ]
+  const e2eKeys = [
+    'PLAYWRIGHT_BASE_URL', 'BASE_URL',
+    'GRAVITY_PROD_UI_URL', 'GRAVITY_STAGING_UI_URL', 'GRAVITY_TEST_AMBIENTE',
+    'E2E_CLERK_USER_EMAIL', 'E2E_EMAIL', 'E2E_CLERK_USER_PASSWORD', 'E2E_PASSWORD',
+    'CLERK_SECRET_KEY', 'CLERK_PROD_SECRET_KEY',
+    'CLERK_PUBLISHABLE_KEY', 'CLERK_PROD_PUBLISHABLE_KEY',
+    'VITE_CLERK_PUBLISHABLE_KEY', 'VITE_CLERK_PROD_PUBLISHABLE_KEY',
+    'ID_WORKSPACE_TESTE',
   ]
   const env: Record<string, string> = {}
   for (const key of safeKeys) {
     const value = process.env[key]
     if (value !== undefined) env[key] = value
   }
+  for (const key of e2eKeys) {
+    const value = process.env[key]
+    if (value !== undefined) env[key] = value
+  }
   env.CI = '1'
+
+  if (ambienteUi) {
+    env.GRAVITY_TEST_AMBIENTE = AMBIENTE_TESTE_PARA_ENV[ambienteUi]
+    if (!env.PLAYWRIGHT_BASE_URL) {
+      if (ambienteUi === 'Producao') {
+        env.PLAYWRIGHT_BASE_URL = process.env.GRAVITY_PROD_UI_URL ?? GRAVITY_PROD_UI_URL_PADRAO
+      } else if (ambienteUi === 'Staging') {
+        env.PLAYWRIGHT_BASE_URL = process.env.GRAVITY_STAGING_UI_URL ?? 'https://staging.gravity.com.br'
+      } else {
+        env.PLAYWRIGHT_BASE_URL = 'http://localhost:8000'
+      }
+    }
+
+    // Produção: @clerk/testing precisa das chaves live — senão busca o e-mail no Clerk dev.
+    if (ambienteUi === 'Producao') {
+      const prodSecret = process.env.CLERK_PROD_SECRET_KEY?.trim()
+      const prodPk =
+        process.env.CLERK_PROD_PUBLISHABLE_KEY?.trim()
+        ?? process.env.VITE_CLERK_PROD_PUBLISHABLE_KEY?.trim()
+      if (prodSecret) env.CLERK_SECRET_KEY = prodSecret
+      if (prodPk) {
+        env.CLERK_PUBLISHABLE_KEY = prodPk
+        env.VITE_CLERK_PUBLISHABLE_KEY = prodPk
+      }
+    }
+  }
+
   return env
+}
+
+type RegistryPlanoRun = { id: string; specFile?: string; tipo?: string }
+
+function appendTestLogEntries(entries: TestLogEntry[], debugLog: (msg: string) => void): void {
+  const created_at = new Date().toISOString()
+  const filePath = join(testLogsDir, `${created_at.slice(0, 10)}.json`)
+  let existing: unknown[] = []
+  try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
+  const novosLogs = entries.map((e, i) => ({
+    id: `${Date.now()}-${i}`,
+    created_at,
+    ...e,
+  }))
+  try {
+    writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
+    debugLog(`WROTE ${novosLogs.length} entries to ${filePath}`)
+  } catch (writeErr) {
+    debugLog(`WRITE FAILED: ${writeErr instanceof Error ? writeErr.message : String(writeErr)}`)
+  }
+}
+
+function lerResultadoTxtEmtRecente(scriptRel: string, startedAtMs: number): string | null {
+  try {
+    const scriptDir = dirname(resolve(monorepoRoot, scriptRel))
+    const subpastas = readdirSync(scriptDir, { withFileTypes: true }).filter(d => d.isDirectory())
+    let melhor: { path: string; mtime: number } | null = null
+    for (const sub of subpastas) {
+      const resultPath = join(scriptDir, sub.name, 'RESULTADO.txt')
+      if (!existsSync(resultPath)) continue
+      const mtime = statSync(resultPath).mtimeMs
+      if (mtime < startedAtMs - 5000) continue
+      if (!melhor || mtime > melhor.mtime) melhor = { path: resultPath, mtime }
+    }
+    if (melhor) return readFileSync(melhor.path, 'utf-8')
+  } catch { /* pasta indisponível */ }
+  return null
+}
+
+function montarErrorLogEmt(
+  code: number,
+  stdout: string,
+  stderr: string,
+  scriptRel: string,
+  startedAtMs: number,
+): string | null {
+  if (code === 0) return null
+  const terminal = [stderr, stdout].map(s => s.trim()).filter(Boolean).join('\n').trim()
+  if (terminal) return terminal.slice(0, 4000)
+  const resultadoTxt = lerResultadoTxtEmtRecente(scriptRel, startedAtMs)
+  if (resultadoTxt) return resultadoTxt.slice(0, 4000)
+  return 'Script EMT encerrou com erro (exit ≠ 0) sem saída no terminal. Verifique RESULTADO.txt na pasta do script.'
+}
+
+function runTsxScript(
+  scriptRel: string,
+  env: Record<string, string>,
+): Promise<{ code: number; stdout: string; stderr: string; durationMs: number; startedAtMs: number }> {
+  const startedAtMs = Date.now()
+  return new Promise(resolve => {
+    let stderr = ''
+    let stdout = ''
+    const proc = spawn('npx', ['tsx', scriptRel], {
+      cwd: monorepoRoot,
+      env,
+      shell: true,
+      windowsHide: true,
+      timeout: RUN_TESTS_TIMEOUT_MS,
+    })
+    proc.stdout?.on('data', (chunk: Buffer) => { stdout += chunk.toString() })
+    proc.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString() })
+    proc.on('close', code => {
+      resolve({
+        code: code ?? 1,
+        stdout,
+        stderr,
+        durationMs: Date.now() - startedAtMs,
+        startedAtMs,
+      })
+    })
+  })
+}
+
+async function runEmtPlansInBackground(
+  planosEmt: RegistryPlanoRun[],
+  env: Record<string, string>,
+  runId: string,
+  debugLog: (msg: string) => void,
+): Promise<void> {
+  const entries: TestLogEntry[] = []
+  try {
+    for (const plano of planosEmt) {
+      if (!plano.specFile) continue
+      debugLog(`EMT ${plano.id} → npx tsx ${plano.specFile}`)
+      const { code, stdout, stderr, durationMs, startedAtMs } = await runTsxScript(plano.specFile, env)
+      const artefatos = coletarArtefatosEmt(plano.specFile, startedAtMs, code, stdout)
+      entries.push({
+        type: 'EMT',
+        module: plano.id,
+        test_name: plano.id,
+        result: code === 0 ? 'APROVADO' : 'REPROVADO',
+        duration: `${durationMs}ms`,
+        error_log: montarErrorLogEmt(code, stdout, stderr, plano.specFile, startedAtMs),
+        success_log: code === 0 ? artefatos.success_log : null,
+        emt_pasta: artefatos.emt_pasta,
+        emt_prints: artefatos.emt_prints,
+        ai_analysis: null,
+      } as TestLogEntry)
+    }
+    appendTestLogEntries(entries, debugLog)
+    const reprovados = entries.filter(e => e.result === 'REPROVADO').length
+    console.log(`[admin/testes/disparar] EMT run ${runId} — ${entries.length} plano(s), ${reprovados} reprovado(s)`)
+  } finally {
+    clearRunMarker()
+  }
 }
 
 /**
@@ -1243,6 +1412,7 @@ function buildSafeTestEnv(): Record<string, string> {
 const RunTestsSchema = z.object({
   modulos: z.array(z.string().max(100)).optional(),
   planos:  z.array(z.string().max(100)).optional(),
+  ambiente: z.enum(['Local', 'Staging', 'Producao']).optional(),
 })
 
 adminRouter.post('/testes/disparar', async (req, res, next) => {
@@ -1265,21 +1435,19 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    const { modulos, planos } = parsed.data
+    const { modulos, planos, ambiente } = parsed.data
+    const testEnv = buildSafeTestEnv(ambiente)
     let specArgs: string[] = []
     let projectArgs: string[] = []
     const planosSemSpec: string[] = []
-    /** Projects do Playwright derivados do path dos specs selecionados. */
+    const planosEmtResolvidos: RegistryPlanoRun[] = []
     const projectsDerivados = new Set<string>()
 
     if (Array.isArray(planos) && planos.length > 0) {
-      // Modo por plano: resolve spec files do registry.
-      // Path correto: testes/test-plans-registry.json (NÃO testes/testes-e2e/...).
-      // Formato: { planos: [{ id, specFile, ... }] } — não array direto.
       const registryPath2 = resolve(monorepoRoot, 'testes', 'test-plans-registry.json')
-      let registryPlanos: Array<{ id: string; specFile?: string }> = []
+      let registryPlanos: RegistryPlanoRun[] = []
       try {
-        const raw = JSON.parse(readFileSync(registryPath2, 'utf-8')) as { planos?: typeof registryPlanos }
+        const raw = JSON.parse(readFileSync(registryPath2, 'utf-8')) as { planos?: RegistryPlanoRun[] }
         registryPlanos = Array.isArray(raw.planos) ? raw.planos : []
       } catch (err) {
         throw new AppError(
@@ -1289,8 +1457,6 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
         )
       }
 
-      // Para cada plano selecionado, resolve o specFile e verifica que o arquivo existe.
-      // Mandamento 08: erro alto, sem fallback silencioso.
       for (const planId of planos) {
         const entry = registryPlanos.find(p => p.id === planId)
         if (!entry) {
@@ -1303,30 +1469,36 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
         }
         const specPath = resolve(monorepoRoot, entry.specFile)
         if (!existsSync(specPath)) {
-          planosSemSpec.push(`${planId} (specFile ${entry.specFile} não existe — gerar via POST /admin/planos-teste/${planId}/gerar-spec)`)
+          planosSemSpec.push(`${planId} (specFile ${entry.specFile} não existe)`)
           continue
         }
-        specArgs.push(entry.specFile)
 
-        // Deriva o --project do Playwright a partir do path:
-        //   testes/testes-e2e/{projeto}/...  ->  --project={projeto}
-        // Sem --project, Playwright tenta rodar o spec contra TODOS os 16
-        // projects da config, marca todos como `skipped` silenciosamente, e a
-        // tabela de Histórico não recebe entradas. Causa raiz do bug 03/05/2026.
+        const isEmt = entry.tipo === 'EMT' || entry.specFile.includes('testes-em-tela/')
+        if (isEmt) {
+          planosEmtResolvidos.push(entry)
+          continue
+        }
+
+        specArgs.push(entry.specFile)
         const matchProjeto = entry.specFile.match(/^testes\/testes-e2e\/([^/]+)\//)
         if (matchProjeto) {
           projectsDerivados.add(matchProjeto[1])
         }
       }
 
-      // Adiciona --project para cada projeto distinto detectado nos specs.
       if (projectsDerivados.size > 0) {
         projectArgs = Array.from(projectsDerivados).flatMap(p => ['--project', p])
       }
 
-      if (planosSemSpec.length > 0 && specArgs.length === 0) {
-        // Nenhum plano selecionado tem spec executável. Bloqueia o run com erro
-        // explícito — antes engolíamos o erro e Playwright rodava todos os specs.
+      if (planosEmtResolvidos.length > 0 && specArgs.length > 0) {
+        throw new AppError(
+          'Selecione apenas planos E2E ou apenas EMT (em tela) por execução — runners diferentes.',
+          400,
+          'MIXED_RUNNER_TYPES',
+        )
+      }
+
+      if (planosSemSpec.length > 0 && specArgs.length === 0 && planosEmtResolvidos.length === 0) {
         throw new AppError(
           `Nenhum plano selecionado tem spec executável:\n  • ${planosSemSpec.join('\n  • ')}`,
           400,
@@ -1335,9 +1507,14 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       }
     } else if (Array.isArray(modulos) && modulos.length > 0) {
       projectArgs = modulos.flatMap((m: string) => ['--project', m])
+    } else {
+      throw new AppError(
+        'Selecione ao menos um plano ou módulo para executar.',
+        400,
+        'EMPTY_RUN',
+      )
     }
 
-    // Audit trail: início do run — quem disparou, com quais planos/módulos
     AuditService.log({
       id_organizacao: req.auth.id_organizacao,
       tipo_ator_historico_log: 'USUARIO',
@@ -1347,16 +1524,13 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       modulo_historico_log: 'admin',
       tipo_recurso_historico_log: 'TestRun',
       acao_historico_log: 'INICIAR_EXECUCAO_TESTES',
-      detalhe_acao_historico_log: `Run iniciado — ${planos?.length ?? 0} plano(s), ${modulos?.length ?? 0} módulo(s)`,
-      estado_posterior_historico_log: { planos: planos ?? [], modulos: modulos ?? [], specArgs, projectArgs },
+      detalhe_acao_historico_log: `Run iniciado — ${planos?.length ?? 0} plano(s), ambiente=${ambiente ?? 'Local'}, EMT=${planosEmtResolvidos.length}, E2E=${specArgs.length}`,
+      estado_posterior_historico_log: { planos: planos ?? [], modulos: modulos ?? [], ambiente: ambiente ?? 'Local', specArgs, projectArgs, emt: planosEmtResolvidos.map(p => p.id) },
       status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     const runId = String(Date.now())
     mkdirSync(testLogsDir, { recursive: true })
-
-    const stdoutPath = join(testLogsDir, `playwright-run-${runId}.json`)
-    const stderrPath = join(testLogsDir, `playwright-run-${runId}.stderr.log`)
     const debugPath = join(testLogsDir, '_debug-spawn.log')
     const debugLog = (msg: string) => {
       try {
@@ -1365,7 +1539,18 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     }
 
     debugLog('=== NEW RUN ===')
-    debugLog(`runId=${runId}`)
+    debugLog(`runId=${runId} ambiente=${ambiente ?? 'Local'}`)
+
+    if (planosEmtResolvidos.length > 0) {
+      debugLog(`cmd=EMT npx tsx (${planosEmtResolvidos.length} scripts)`)
+      writeRunMarker({ status: 'running', pid: process.pid, started_at: new Date().toISOString(), runId })
+      res.json({ started: true })
+      void runEmtPlansInBackground(planosEmtResolvidos, testEnv, runId, debugLog)
+      return
+    }
+
+    const stdoutPath = join(testLogsDir, `playwright-run-${runId}.json`)
+    const stderrPath = join(testLogsDir, `playwright-run-${runId}.stderr.log`)
     debugLog(`cwd=${monorepoRoot}`)
     debugLog(`cmd=npx playwright test ${specArgs.join(' ')} ${projectArgs.join(' ')} --reporter=json`)
     debugLog(`specArgs=${JSON.stringify(specArgs)}`)
@@ -1380,7 +1565,7 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       ['playwright', 'test', ...specArgs, ...projectArgs, '--reporter=json'],
       {
         cwd:        monorepoRoot,
-        env:        buildSafeTestEnv(),
+        env:        testEnv,
         shell:      true,
         windowsHide: true,
         timeout:    RUN_TESTS_TIMEOUT_MS,
@@ -1537,6 +1722,46 @@ adminRouter.get('/testes/status', (_req, res) => {
     return res.json({ running: false })
   }
   res.json({ running: true })
+})
+
+/**
+ * GET /api/v1/admin/testes/emt-print/:id_log/:nome_arquivo
+ * Serve screenshot PNG de um run EMT (requer SUPER_ADMIN + log válido).
+ */
+adminRouter.get('/testes/emt-print/:id_log/:nome_arquivo', async (req, res, next) => {
+  try {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
+      throw new AppError('Somente Super Admin pode ver prints EMT', 403, 'FORBIDDEN')
+    }
+    const idLog = req.params.id_log
+    const nomeArquivo = decodeURIComponent(req.params.nome_arquivo)
+    const logEntry = buscarLogTestePorId(idLog, testLogsDir)
+    if (!logEntry || logEntry.type !== 'EMT') {
+      throw new AppError('Log EMT não encontrado', 404, 'NOT_FOUND')
+    }
+    const emtPasta = String(logEntry.emt_pasta ?? '')
+    if (!emtPasta) {
+      const spec = specFileDoRegistry(String(logEntry.module ?? ''))
+      const createdMs = new Date(String(logEntry.created_at ?? Date.now())).getTime()
+      const artefatos = spec ? coletarArtefatosEmt(spec, createdMs, 0, '') : null
+      if (!artefatos?.emt_pasta) {
+        throw new AppError('Pasta de artefatos EMT não encontrada', 404, 'NOT_FOUND')
+      }
+      const abs = resolverCaminhoPrintSeguro(artefatos.emt_pasta, nomeArquivo)
+      if (!abs) throw new AppError('Print não encontrado', 404, 'NOT_FOUND')
+      res.setHeader('Content-Type', 'image/png')
+      res.setHeader('Cache-Control', 'private, max-age=3600')
+      createReadStream(abs).pipe(res)
+      return
+    }
+    const abs = resolverCaminhoPrintSeguro(emtPasta, nomeArquivo)
+    if (!abs) throw new AppError('Print não encontrado', 404, 'NOT_FOUND')
+    res.setHeader('Content-Type', 'image/png')
+    res.setHeader('Cache-Control', 'private, max-age=3600')
+    createReadStream(abs).pipe(res)
+  } catch (err) {
+    next(err)
+  }
 })
 
 /**

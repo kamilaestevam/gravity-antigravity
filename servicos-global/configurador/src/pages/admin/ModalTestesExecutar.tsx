@@ -17,7 +17,7 @@
  *   nf-importacao   → NFIMP
  *   simula-custo    → SIMCUS
  */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
@@ -63,12 +63,13 @@ const opcoesAmbiente = [
   { valor: 'Producao', rotulo: 'Produção' },
 ]
 
-/** Tipos de teste (TestePlano.tipo_plano_teste). CRO = cross-organização. */
-type TipoTeste = 'UNI' | 'FUN' | 'E2E' | 'CRO'
+/** Tipos de teste (TestePlano.tipo_plano_teste). CRO = cross-organização. EMT = em tela. */
+type TipoTeste = 'UNI' | 'FUN' | 'E2E' | 'EMT' | 'CRO'
 const TIPOS_TESTE: Array<{ valor: TipoTeste; rotulo: string; descricao: string }> = [
   { valor: 'UNI', rotulo: 'Unitário',     descricao: 'Vitest — função/hook isolado' },
   { valor: 'FUN', rotulo: 'Funcional',    descricao: 'Vitest+Supertest — rota/fluxo HTTP' },
   { valor: 'E2E', rotulo: 'End-to-End',   descricao: 'Playwright — fluxo no navegador' },
+  { valor: 'EMT', rotulo: 'Em tela',      descricao: 'Playwright visual — script tsx dedicado' },
   { valor: 'CRO', rotulo: 'Cross-Org',    descricao: 'Isolamento entre organizações' },
 ]
 
@@ -81,7 +82,7 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
 
   /** Tipos de teste selecionados (filtro). Default: todos os 4 ativos. */
   const [tiposAtivos, setTiposAtivos] = useState<Set<TipoTeste>>(
-    new Set<TipoTeste>(['UNI', 'FUN', 'E2E', 'CRO'])
+    new Set<TipoTeste>(['UNI', 'FUN', 'E2E', 'EMT', 'CRO'])
   )
 
   const [planosDisponiveis, setPlanosDisponiveis] = useState<PlanoTesteApi[]>([])
@@ -106,6 +107,12 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
   /** Filtra os planos pelos tipos ativos no momento. */
   const planosFiltrados = planosDisponiveis.filter(p => tiposAtivos.has(p.tipo as TipoTeste))
 
+  /** Planos que serão de fato disparados (selecionados ∩ filtro de tipo). */
+  const idsElegiveis = useMemo(
+    () => Array.from(planosSelecionados).filter(id => planosFiltrados.some(p => p.id === id)),
+    [planosSelecionados, planosFiltrados],
+  )
+
   function togglePlano(id: string) {
     setPlanosSelecionados(prev => {
       const next = new Set(prev)
@@ -128,15 +135,17 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
   const [erroExecucao, setErroExecucao] = useState<string | null>(null)
 
   async function handleExecutar() {
-    if (planosSelecionados.size === 0) return
+    if (idsElegiveis.length === 0) return
     setErroExecucao(null)
     setRodando(true)
     try {
-      // Só dispara os planos que estão selecionados E que passam no filtro de tipo
-      const idsAExecutar = Array.from(planosSelecionados).filter(id =>
-        planosFiltrados.some(p => p.id === id)
-      )
-      await adminTestesApi.disparar({ planos: idsAExecutar })
+      const idsAExecutar = idsElegiveis
+      if (idsAExecutar.length === 0) {
+        setErroExecucao('Nenhum plano elegível para executar. Ative o tipo EMT (ou outro) no filtro e selecione ao menos um plano.')
+        return
+      }
+      const ambiente = dadosManual.ambiente as 'Local' | 'Staging' | 'Producao'
+      await adminTestesApi.disparar({ planos: idsAExecutar, ambiente })
       addNotification({ type: 'success', message: `Execução iniciada — ${idsAExecutar.length} plano(s) disparados` })
       if (aoIniciarRun) aoIniciarRun(idsAExecutar)
       aoFechar()
@@ -342,27 +351,27 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
           <div style={{ marginTop: erroExecucao ? '0' : 'auto', paddingTop: '0.5rem', flexShrink: 0 }}>
             <button
               type="button"
-              disabled={planosSelecionados.size === 0 || rodando}
+              disabled={idsElegiveis.length === 0 || rodando}
               onClick={handleExecutar}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
                 padding: '0.875rem 2rem', borderRadius: '12px',
-                background: planosSelecionados.size === 0 || rodando
+                background: idsElegiveis.length === 0 || rodando
                   ? 'rgba(16,185,129,0.3)'
                   : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 color: '#fff', fontSize: '0.95rem', fontWeight: 700, border: 'none',
-                cursor: planosSelecionados.size === 0 || rodando ? 'not-allowed' : 'pointer',
+                cursor: idsElegiveis.length === 0 || rodando ? 'not-allowed' : 'pointer',
                 boxShadow: '0 8px 16px rgba(16, 185, 129, 0.2)',
                 width: 'max-content', transition: 'transform 0.2s',
-                opacity: planosSelecionados.size === 0 ? 0.5 : 1,
+                opacity: idsElegiveis.length === 0 ? 0.5 : 1,
               }}
-              onMouseEnter={(e) => { if (!rodando && planosSelecionados.size > 0) e.currentTarget.style.transform = 'translateY(-2px)' }}
+              onMouseEnter={(e) => { if (!rodando && idsElegiveis.length > 0) e.currentTarget.style.transform = 'translateY(-2px)' }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)' }}
             >
               <Play size={20} weight="fill" />
               {rodando
                 ? 'Iniciando...'
-                : `Executar ${planosSelecionados.size} plano${planosSelecionados.size !== 1 ? 's' : ''}`
+                : `Executar ${idsElegiveis.length} plano${idsElegiveis.length !== 1 ? 's' : ''}`
               }
             </button>
           </div>

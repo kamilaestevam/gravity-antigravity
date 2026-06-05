@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Bug, Sparkle, XCircle, CheckCircle, Warning, PlayCircle, CalendarBlank, Clock, SpinnerGap } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -9,11 +9,11 @@ import { ModalAgendamentoTestes } from './ModalTestesAgendamento'
 import { ModalExecutarTestes } from './ModalTestesExecutar'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { adminTestesApi, adminAgendamentosTesteApi, type TesteApi } from '../../services/api-client'
+import { adminTestesApi, adminAgendamentosTesteApi, apiFetch, type TesteApi } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
 
 
-type TipoTeste = 'E2E' | 'FUNCIONAL' | 'UNITARIO'
+type TipoTeste = 'E2E' | 'EMT' | 'FUNCIONAL' | 'UNITARIO'
 type Resultado = 'APROVADO' | 'REPROVADO' | 'ERRO_CATASTROFICO'
 
 interface LogTeste {
@@ -39,6 +39,143 @@ interface LogTeste {
     modeloUsado?: string
   }
   aiRejected?: boolean
+  successLog?: string
+  emtPrints?: string[]
+}
+
+function EmtPrintImagem({ logId, arquivo }: { logId: string; arquivo: string }) {
+  const [src, setSrc] = useState<string | null>(null)
+  const [erro, setErro] = useState(false)
+
+  useEffect(() => {
+    let cancelado = false
+    let objectUrl: string | null = null
+    setErro(false)
+    setSrc(null)
+
+    apiFetch(`/api/v1/admin/testes/emt-print/${encodeURIComponent(logId)}/${encodeURIComponent(arquivo)}`)
+      .then(res => {
+        if (!res.ok) throw new Error(String(res.status))
+        return res.blob()
+      })
+      .then(blob => {
+        if (cancelado) return
+        objectUrl = URL.createObjectURL(blob)
+        setSrc(objectUrl)
+      })
+      .catch(() => { if (!cancelado) setErro(true) })
+
+    return () => {
+      cancelado = true
+      if (objectUrl) URL.revokeObjectURL(objectUrl)
+    }
+  }, [logId, arquivo])
+
+  if (erro) {
+    return (
+      <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.75rem', textAlign: 'center' }}>
+        Print indisponível
+      </div>
+    )
+  }
+  if (!src) {
+    return (
+      <div style={{ padding: '2rem', display: 'flex', justifyContent: 'center' }}>
+        <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Carregando print…</span>
+      </div>
+    )
+  }
+  return (
+    <img
+      src={src}
+      alt={arquivo}
+      style={{ width: '100%', display: 'block', borderRadius: '6px' }}
+    />
+  )
+}
+
+function PainelEmtExpandido({ item }: { item: LogTeste }) {
+  const linhas = (item.successLog ?? item.erroLog ?? '')
+    .split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length > 0 && !l.startsWith('◇') && !l.startsWith('[dotenv'))
+
+  const aprovadas = linhas.filter(l => l.startsWith('✓') || l.includes('Resultado: PASSOU'))
+  const printsLog = linhas.filter(l => l.startsWith('📸')).map(l => l.replace('📸', '').trim())
+  const arquivosPrint = item.emtPrints?.length
+    ? item.emtPrints
+    : printsLog
+
+  const aprovado = item.resultado === 'APROVADO'
+
+  return (
+    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '0.5rem',
+        padding: '0.75rem 1rem', borderRadius: '8px',
+        background: aprovado ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.06)',
+        border: `1px solid ${aprovado ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.2)'}`,
+        color: aprovado ? '#10b981' : '#f87171',
+      }}>
+        {aprovado ? <CheckCircle size={20} weight="fill" /> : <Warning size={20} weight="bold" />}
+        <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>
+          {aprovado ? 'EMT aprovado — checklist e evidências abaixo' : 'EMT reprovado — log e prints'}
+        </span>
+      </div>
+
+      {aprovadas.length > 0 && (
+        <div style={{ background: 'var(--ws-bg-body, #0f172a)', borderRadius: '8px', border: '1px solid rgba(16,185,129,0.2)', overflow: 'hidden' }}>
+          <div style={{ padding: '0.6rem 1rem', borderBottom: '1px solid rgba(16,185,129,0.15)', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.06em', color: '#34d399', textTransform: 'uppercase' }}>
+            O que foi aprovado
+          </div>
+          <ul style={{ margin: 0, padding: '0.75rem 1rem 0.75rem 1.5rem', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+            {aprovadas.map((linha, i) => (
+              <li key={i} style={{ fontSize: '0.82rem', color: '#d1fae5', fontFamily: 'var(--font-mono, monospace)' }}>
+                {linha}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {!aprovado && item.erroLog && (
+        <div style={{ background: 'var(--ws-bg-body, #0f172a)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)', overflow: 'hidden' }}>
+          <div style={{ padding: '0.6rem 1rem', borderBottom: '1px solid rgba(239,68,68,0.15)', fontSize: '0.7rem', fontWeight: 800, color: '#f87171', textTransform: 'uppercase' }}>
+            Log de execução
+          </div>
+          <code style={{ display: 'block', padding: '1rem', color: '#fca5a5', fontSize: '0.8rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+            {item.erroLog}
+          </code>
+        </div>
+      )}
+
+      {arquivosPrint.length > 0 && (
+        <div>
+          <div style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.06em', color: '#fbbf24', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
+            Prints ({arquivosPrint.length})
+          </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+            gap: '1rem',
+          }}>
+            {arquivosPrint.map(arquivo => (
+              <div key={arquivo} style={{
+                borderRadius: '10px', overflow: 'hidden',
+                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(15,23,42,0.6)',
+              }}>
+                <div style={{ padding: '0.4rem 0.65rem', fontSize: '0.68rem', fontWeight: 700, color: '#94a3b8', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  {arquivo}
+                </div>
+                <EmtPrintImagem logId={item.id} arquivo={arquivo} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 // Helper: mapeia dados do backend para o formato do frontend
@@ -55,6 +192,8 @@ function mapTestesToLocal(log: TesteApi): LogTeste {
     resultado: (log.result as Resultado) || 'APROVADO',
     duracao: log.duration || 'N/A',
     erroLog: log.error_log ?? undefined,
+    successLog: log.success_log ?? undefined,
+    emtPrints: Array.isArray(log.emt_prints) ? log.emt_prints : undefined,
     aiAnalise: log.ai_analysis ? {
       erroResumo: (log.ai_analysis as Record<string, string>).erroResumo ?? '',
       motivo: (log.ai_analysis as Record<string, string>).motivo ?? '',
@@ -80,6 +219,8 @@ export function LogTestes() {
   const [modalAgendamentoAberto, setModalAgendamentoAberto] = useState(false)
   const [modalExecutarAberto, setModalExecutarAberto] = useState(false)
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false)
+  /** IDs já presentes no histórico antes do run — toast conta só entradas novas. */
+  const baselineIdsRef = useRef<Set<string>>(new Set())
 
   async function loadLogs(): Promise<LogTeste[]> {
     try {
@@ -130,17 +271,30 @@ export function LogTestes() {
 
     async function handleCompletion() {
       const novosLogs = await loadLogs()
+      const destaRun = novosLogs.filter(d => !baselineIdsRef.current.has(d.id))
 
-      // Contagem apenas dos resultados gerados nesta rodada (snapshot mais recente)
-      const totalRun   = novosLogs.length
-      const aprovRun   = novosLogs.filter(d => d.resultado === 'APROVADO').length
-      const reprovRun  = novosLogs.filter(d => d.resultado === 'REPROVADO').length
+      if (destaRun.length === 0) {
+        addNotification({
+          type: 'warning',
+          message: 'Execução encerrou sem gravar linhas novas no histórico. Confira o filtro de tipos (EMT) e os planos selecionados.',
+        })
+        addAviso({
+          conteudo: 'Execução de testes encerrou sem novas entradas no histórico. Clique para revisar a tela.',
+          autor: { nome: 'Motor de Testes' },
+          tipo: 'aviso',
+          href: '/admin/testes-gerais',
+        })
+        return
+      }
+
+      const totalRun   = destaRun.length
+      const aprovRun   = destaRun.filter(d => d.resultado === 'APROVADO').length
+      const reprovRun  = destaRun.filter(d => d.resultado === 'REPROVADO').length
       const tudoVerde  = reprovRun === 0 && totalRun > 0
       const resultado  = tudoVerde
         ? `${aprovRun}/${totalRun} aprovados`
         : `${aprovRun} aprovados · ${reprovRun} reprovados`
 
-      // Toast efêmero (feedback imediato caso o usuário esteja na tela)
       addNotification({
         type: tudoVerde ? 'success' : 'error',
         message: tudoVerde
@@ -148,7 +302,6 @@ export function LogTestes() {
           : `Execução concluída com falhas: ${resultado}`,
       })
 
-      // Aviso persistente no sininho (com link direto para a tela)
       addAviso({
         conteudo: tudoVerde
           ? `Execução de testes concluída — ${resultado}. Clique para abrir a tela.`
@@ -235,9 +388,9 @@ export function LogTestes() {
       render: (v: TipoTeste) => (
         <span style={{
           display: 'inline-flex', padding: '0.15rem 0.6rem', borderRadius: '4px',
-          background: v === 'E2E' ? 'rgba(234, 179, 8, 0.15)' : v === 'UNITARIO' ? 'rgba(56, 189, 248, 0.15)' : 'rgba(167, 139, 250, 0.15)',
-          color: v === 'E2E' ? '#eab308' : v === 'UNITARIO' ? '#38bdf8' : '#a78bfa',
-          border: `1px solid ${v === 'E2E' ? 'rgba(234, 179, 8, 0.4)' : v === 'UNITARIO' ? 'rgba(56, 189, 248, 0.4)' : 'rgba(167, 139, 250, 0.4)'}`,
+          background: v === 'E2E' ? 'rgba(234, 179, 8, 0.15)' : v === 'EMT' ? 'rgba(251, 191, 36, 0.15)' : v === 'UNITARIO' ? 'rgba(56, 189, 248, 0.15)' : 'rgba(167, 139, 250, 0.15)',
+          color: v === 'E2E' ? '#eab308' : v === 'EMT' ? '#fbbf24' : v === 'UNITARIO' ? '#38bdf8' : '#a78bfa',
+          border: `1px solid ${v === 'E2E' ? 'rgba(234, 179, 8, 0.4)' : v === 'EMT' ? 'rgba(251, 191, 36, 0.4)' : v === 'UNITARIO' ? 'rgba(56, 189, 248, 0.4)' : 'rgba(167, 139, 250, 0.4)'}`,
           fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.04em'
         }}>
           {v}
@@ -286,6 +439,10 @@ export function LogTestes() {
   ]
 
   const renderExpandido = (item: LogTeste) => {
+    if (item.tipo === 'EMT' && (item.successLog || item.emtPrints?.length || item.erroLog)) {
+      return <PainelEmtExpandido item={item} />
+    }
+
     if (item.resultado === 'APROVADO') return (
        <div style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '8px', margin: '0.5rem 1rem' }}>
           <CheckCircle size={20} weight="fill" /> 
@@ -696,7 +853,11 @@ export function LogTestes() {
         <ModalExecutarTestes
           aberto={modalExecutarAberto}
           aoFechar={() => setModalExecutarAberto(false)}
-          aoIniciarRun={(_planos) => { setRodandoTestes(true); setModalExecutarAberto(false) }}
+          aoIniciarRun={() => {
+            baselineIdsRef.current = new Set(dados.map(d => d.id))
+            setRodandoTestes(true)
+            setModalExecutarAberto(false)
+          }}
         />
       </div>
     </PaginaGlobal>

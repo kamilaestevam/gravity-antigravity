@@ -1,0 +1,90 @@
+/**
+ * Topbar de página do Configurador (HUB, Store, etc.)
+ * SSOT: esquerda = Gravity + tela; direita = ações na mesma ordem e posição.
+ */
+
+.gravity-topbar-pagina {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hb-border, rgba(255, 255, 255, 0.08));
+  box-sizing: border-box;
+}
+
+body.light-theme .gravity-topbar-pagina {
+  background: rgba(241, 245, 249, 0.9);
+}
+
+.gravity-topbar-pagina__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  max-width: var(--gravity-shell-layout-max, 100%);
+  height: 56px;
+  margin-inline: auto;
+  padding-inline: var(--gravity-shell-pad-inline, 1.5rem);
+  box-sizing: border-box;
+}
+
+.gravity-topbar-pagina__esq {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.gravity-topbar-pagina__marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.gravity-topbar-pagina__marca-nome {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--hb-text, #f1f5f9);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+body.light-theme .gravity-topbar-pagina__marca-nome {
+  color: #1e293b;
+}
+
+.gravity-topbar-pagina__div {
+  width: 1px;
+  height: 18px;
+  background: var(--hb-border, rgba(255, 255, 255, 0.08));
+  flex-shrink: 0;
+}
+
+.gravity-topbar-pagina__rotulo {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(148, 163, 184, 0.85);
+  flex-shrink: 0;
+}
+
+.gravity-topbar-pagina__dir {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Reutiliza estilos de botões da hb-topbar (hub.css) */
+.gravity-topbar-pagina .hb-topbar-navlink,
+.gravity-topbar-pagina .hb-topbar-btn,
+.gravity-topbar-pagina .hb-topbar-sep {
+  flex-shrink: 0;
+}

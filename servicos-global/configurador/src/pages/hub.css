@@ -119,6 +119,33 @@ body.light-theme .hb-topbar {
   color: rgba(129, 140, 248, 0.65);
 }
 
+/* Marca esquerda — paridade Store (hexágono + Gravity + módulo, sem badge) */
+.hb-topbar-marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.hb-topbar-marca__nome {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--hb-text, #f1f5f9);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+body.light-theme .hb-topbar-marca__nome {
+  color: #1e293b;
+}
+
+.hb-topbar--hub .hb-topbar-label {
+  background: none;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  color: rgba(148, 163, 184, 0.85);
+}
+
 .hb-topbar-right {
   display: flex;
   align-items: center;

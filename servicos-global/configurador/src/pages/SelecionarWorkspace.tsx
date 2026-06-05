@@ -35,20 +35,25 @@ import {
   ClipboardText,
   Fire,
   Info,
+  ShoppingBagOpen,
 } from '@phosphor-icons/react'
-import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { type NavItem } from '@nucleo/menu-lateral-global'
-import { UsuarioGlobal } from '@nucleo/usuario-global'
-import { LogoGlobal } from '@nucleo/logo-global'
 import { corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
 import { iconeOficialBidFreteInternacional } from '../data/product-meta'
-import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
-import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
+import { useLocalizadorHistory, buildEcosystemNodes } from '@nucleo/localizador-global'
+import { TopbarPaginaGravity } from '../components/topbar-pagina-gravity'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
+import { mapRole } from '../types/niveis-acesso'
 import { podeMutarConfigurador } from '../routing/route-policy'
-import { ToastContainer, useShellStore, useOrganizacaoOverride, useMeSync, useShellBodyClasses } from '@gravity/shell'
+import {
+  ToastContainer,
+  useShellStore,
+  useOrganizacaoOverride,
+  useMeSync,
+  useShellBodyClasses,
+  useLoadAllowedProducts,
+} from '@gravity/shell'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
-import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { GradeProdutosContratadosHub } from '../components/grade-produtos-contratados-hub'
@@ -70,6 +75,7 @@ import {
 import './selecionar-workspace.css'
 import './hub-unificado.css'
 import './hub-store.css'
+import './hub.css'
 
 /* ── Tipos ── */
 interface Workspace {
@@ -303,10 +309,8 @@ export function SelecionarWorkspace() {
   const { user } = useUser()
   const { getToken } = useAuth()
   const navigate = useNavigate()
-  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification, currentUser } = useShellStore()
+  const { addNotification, currentUser } = useShellStore()
   const [searchParams] = useSearchParams()
-  const isLight = currentTheme === 'light'
-
   useShellBodyClasses()
   const [modalSemProdutos, setModalSemProdutos] = useState(false)
   const [modalEscopoPedidoAberto, setModalEscopoPedidoAberto] = useState(false)
@@ -333,29 +337,22 @@ export function SelecionarWorkspace() {
   const [gabiInsights, setGabiInsights] = useState<GabiInsight[]>([])
   const [gabiLoading, setGabiLoading] = useState(true)
 
-  /* ── Mensageria (sino) ── */
-  const [avisos, setAvisos] = useState<AvisoInterno[]>([])
-  const handleMarcarLido = (id: string) => setAvisos(prev => prev.map(a => a.id === id ? { ...a, lido: true } : a))
-  const handleMarcarTodosLidos = () => setAvisos(prev => prev.map(a => ({ ...a, lido: true })))
-  const handleCriarAviso = (texto: string) => {
-    const novo: AvisoInterno = {
-      id: `aviso-${Date.now()}`,
-      conteudo: texto,
-      autor: { nome: userName },
-      dataHora: new Date().toLocaleString(i18n.language),
-      lido: false,
-      tipo: 'aviso',
-    }
-    setAvisos(prev => [novo, ...prev])
-  }
   const [gabiPaused, setGabiPaused] = useState(false)
   const [gabiIndice, setGabiIndice] = useState(0)
 
-  const userName = user?.fullName ?? user?.firstName ?? 'Admin'
-  const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-  const userEmail = user?.primaryEmailAddress?.emailAddress ?? ''
-
   const selectedWs = workspaces.find(w => w.id === selectedId)
+
+  // Role canônico vem do banco (via /api/v1/me) — Mandamento 01: Clerk só autentica.
+  const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole, pronto: roleReady, idOrganizacao, idUsuarioPrisma } = useCarregarTipoUsuario()
+  useMeSync()
+  useLoadAllowedProducts()
+  const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
+  const companyName = sessionStorage.getItem('gravity_company_name') || selectedWs?.nome || 'Workspace'
+
+  const userName = currentUser.name || user?.fullName || user?.firstName || t('shell.usuario_padrao')
+  const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+  const userEmail = currentUser.email || user?.primaryEmailAddress?.emailAddress || t('shell.email_padrao')
+  const userRoleLabel = mapRole(dbRole)
 
   // ── Localizador ──────────────────────────────────────────────────────────
   const { history: locHistory, addEntry: locAddEntry } = useLocalizadorHistory('hub')
@@ -363,27 +360,11 @@ export function SelecionarWorkspace() {
     locAddEntry({ productId: 'hub', productLabel: 'Hub', productColor: '#818cf8', pageLabel: 'Hub', pagePath: '/hub' })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  // Role canônico vem do banco (via /api/v1/me) — Mandamento 01: Clerk só autentica.
-  const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole, pronto: roleReady, idOrganizacao, idUsuarioPrisma } = useCarregarTipoUsuario()
-  // Popula currentUser.tipoUsuario no ShellStore (Pendência #4 — sem
-  // isso o item "Trocar Organização" não aparece nesta tela).
-  useMeSync()
-  const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
   const [modalTrocarOrgAberto, setModalTrocarOrgAberto] = useState(false)
-  const ROLE_LABELS: Record<string, string> = {
-    SUPER_ADMIN: 'Super Admin',
-    ADMIN:       'Admin',
-    MASTER:      'Master',
-    PADRAO:      'Standard',
-    FORNECEDOR:  'Fornecedor',
-  }
-  const userRole = dbRole
-    ? (ROLE_LABELS[dbRole] ?? dbRole)
-    : '…'
   const hubEcosystemNodes = buildEcosystemNodes({
     currentProductId: 'hub',
     includeAdmin: isGravityAdmin,
+    includeStore: true,
   })
 
   // Workspaces filtrados por busca e ordenados: preferido primeiro
@@ -927,117 +908,63 @@ export function SelecionarWorkspace() {
      RENDER
   ══════════════════════════════════ */
   return (
-    <div className="sw-shell sw-shell--no-sidebar">
-      {/* ── PAGE (Hub sem menu lateral) ── */}
-      <div className="sw-page sw-page--full">
-        {/* TOPBAR */}
-        <header className="sw-topbar">
-          <div className="sw-t-brand">
-            <LogoGlobal iconSize={22} iconColor="#818cf8" />
-            <div className="sw-t-div" />
-            <span className="sw-t-module-label">HUB</span>
-          </div>
-          <div className="sw-t-right">
-            <CampoLocalizarExpandidoGlobal
-              onBuscarNavigate={(term) => {
-                const termLower = term.toLowerCase()
-                // Buscar em workspaces
-                const ws = workspaces.find(w => w.nome.toLowerCase().includes(termLower))
-                if (ws) { setSelectedId(ws.id); return }
-                // Buscar em produtos contratados
-                const prod = produtosContratados.find(p => p.nome.toLowerCase().includes(termLower) || p.product_key.toLowerCase().includes(termLower))
-                if (prod) { navigate(`/produto/${prod.product_key}`); return }
-                // Buscar em catálogo
-                const cat = catalogoProdutos.find(p => p.name.toLowerCase().includes(termLower))
-                if (cat) { navigate('/configurador/assinaturas'); return }
-                // Buscar em navItems
-                const flat = navItems.flatMap(i => i.children ? i.children : [i])
-                const target = flat.find(item => item.label?.toLowerCase().includes(termLower))
-                if (target?.to) navigate(target.to)
-              }}
-            />
+    <div className="sw-hub-root">
+      <TopbarPaginaGravity
+        rotuloTela="Hub"
+        atalho={{
+          label: 'Store',
+          title: t('store.titulo', 'Gravity Store'),
+          icon: <ShoppingBagOpen size={13} weight="bold" color="#818cf8" />,
+          onClick: () => navigate('/store'),
+        }}
+        onBuscar={() => {
+          const el = document.querySelector<HTMLInputElement>('.sw-ws-search')
+          if (el) {
+            el.focus()
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+        }}
+        workspaceName={companyName}
+        localizador={{
+          currentProductId: 'hub',
+          currentProductLabel: 'Hub',
+          currentProductColor: '#818cf8',
+          currentPageLabel: 'Hub',
+          history: locHistory,
+          nodes: hubEcosystemNodes,
+          onNavigate: (node) => {
+            if (node.type === 'hub')               navigate('/hub?select=1')
+            else if (node.type === 'core')         navigate('/hub?select=1')
+            else if (node.type === 'hub-store')    navigate('/store')
+            else if (node.type === 'configurador') navigate('/configurador')
+            else if (node.type === 'admin')        navigate('/admin/visao-geral')
+            else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
+          },
+        }}
+        onAbrirConfigurador={() => navigate('/configurador')}
+        usuario={{
+          userName,
+          userEmail,
+          userInitials,
+          userRole: userRoleLabel,
+          onNavigateWorkspace: () => navigate('/configurador/organizacao'),
+          onNavigateMarketPlace: () => navigate('/store'),
+          onSignOut: () => signOut(),
+          isAdmin: isGravityAdmin,
+          onNavigateAdmin: () => navigate('/admin/visao-geral'),
+          temAcessoTrocarOrganizacao: podeAtivarOverride,
+          organizacaoOverrideAtiva: overrideAtivo,
+          aoTrocarOrganizacao: () => setModalTrocarOrgAberto(true),
+          aoVoltarParaGravity: () => { limparOverride(); navigate('/hub') },
+        }}
+      />
 
-            <div className="sw-notif-wrap">
-              <AvisoInternoGlobal
-                avisos={avisos}
-                onMarcarLido={handleMarcarLido}
-                onMarcarTodosLidos={handleMarcarTodosLidos}
-                onCriarAviso={handleCriarAviso}
-              />
-            </div>
+      <ModalTrocarOrganizacao
+        aberto={modalTrocarOrgAberto}
+        aoFechar={() => setModalTrocarOrgAberto(false)}
+      />
 
-            {/* Toggle de tooltips */}
-            <button
-              className="sw-t-icon"
-              type="button"
-              aria-label={tooltipsDisabled ? t('shell.habilitar_dicas') : t('shell.desabilitar_dicas')}
-              title={tooltipsDisabled ? t('shell.label_habilitar_dicas') : t('shell.label_desabilitar_dicas')}
-              onClick={toggleTooltips}
-              style={{ color: tooltipsDisabled ? 'var(--sw-muted, #64748b)' : 'var(--sw-accent-2, #818cf8)' }}
-            >
-              <Info size={16} weight={tooltipsDisabled ? 'regular' : 'fill'} />
-            </button>
-
-            {/* Localizador — Onde estou */}
-            <LocalizadorGlobal
-              workspaceName={selectedWs?.nome ?? 'Gravity'}
-              iconOnly
-              currentProductId="hub"
-              currentProductLabel="Hub"
-              currentProductColor="#818cf8"
-              currentPageLabel="Hub"
-              history={locHistory}
-              nodes={hubEcosystemNodes}
-              onNavigate={(node) => {
-                if (node.type === 'hub')               navigate('/hub?select=1')
-                else if (node.type === 'core')         navigate('/hub?select=1')
-                else if (node.type === 'configurador') navigate('/configurador')
-                else if (node.type === 'admin')        navigate('/admin/visao-geral')
-              }}
-            />
-
-            {/* Seletor de idioma */}
-            <SeletorIdiomaGlobal iconOnly />
-
-            <div className="sw-t-sep" />
-
-            {/* Configurações do workspace */}
-            <button
-              className="sw-t-icon"
-              type="button"
-              title={t('workspace.layout.modulo_nome')}
-              onClick={() => navigate('/configurador/organizacao')}
-            >
-              <GearSix size={16} weight="duotone" />
-            </button>
-
-            <UsuarioGlobal
-              userName={userName}
-              userEmail={userEmail}
-              userInitials={userInitials}
-              userRole={userRole}
-              isLight={isLight}
-              onToggleTheme={toggleTheme}
-              onNavigateWorkspace={() => navigate('/configurador/organizacao')}
-              onNavigateMarketPlace={() => navigate('/store')}
-              onSignOut={handleSair}
-              isAdmin={isGravityAdmin}
-              onNavigateAdmin={() => navigate('/admin/visao-geral')}
-              temAcessoTrocarOrganizacao={podeAtivarOverride}
-              organizacaoOverrideAtiva={overrideAtivo}
-              aoTrocarOrganizacao={() => setModalTrocarOrgAberto(true)}
-              aoVoltarParaGravity={() => { limparOverride(); navigate('/hub') }}
-              compact
-            />
-          </div>
-        </header>
-        <ModalTrocarOrganizacao
-          aberto={modalTrocarOrgAberto}
-          aoFechar={() => setModalTrocarOrgAberto(false)}
-        />
-
-        {/* CONTENT */}
-        <div className="sw-content sw-content--hub-unificado">
+      <div className="sw-content sw-content--hub-unificado">
           {carregando ? (
             <div className="sw-loading">
               <GravityLoader texto="Carregando" tamanho="lg" />
@@ -1438,7 +1365,7 @@ export function SelecionarWorkspace() {
             </div>
           )}
         </div>
-      </div>
+
       <ModalOverlay
         aberto={modalEscopoPedidoAberto}
         aoFechar={fecharModalEscopoPedido}

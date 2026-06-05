@@ -103,6 +103,11 @@ export interface SelectProps {
   renderizarOpcao?: (opcao: SelectOpcao) => ReactNode
   /** Renderizador customizado do valor selecionado */
   renderizarValorSelecionado?: (opcao: SelectOpcao | SelectOpcao[]) => ReactNode
+  /**
+   * Conteúdo entre a busca e a lista no dropdown (ex.: "Selecionar tudo").
+   * Só aparece com o painel aberto.
+   */
+  conteudoToolbarDropdown?: ReactNode
 
   // Identificadores e acessibilidade
   id?: string

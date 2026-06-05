@@ -108,9 +108,13 @@
   margin-bottom: 0.75rem;
 }
 
-/* Faixa principal: Produtos | Workspaces (Store ficou na faixa Gabi) */
+/*
+ * SSOT — paridade de altura faixa superior HUB (Líder/Coordenador, 2026-06)
+ * Produtos contratados | Workspaces: mesma altura fixa (--sw-hub-faixa-paridade-h).
+ * Gravity Store permanece na faixa inferior (sw-hub-row-gabi).
+ */
 .sw-hub-row-top {
-  --sw-hub-top-row-min-h: 292px;
+  --sw-hub-faixa-paridade-h: 300px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1rem;
@@ -118,12 +122,23 @@
   align-items: stretch;
 }
 
-.sw-hub-row-top > .sw-hub-panel {
+.sw-hub-row-top > .sw-hub-panel--produtos,
+.sw-hub-row-top > .sw-hub-panel--ws {
   display: flex;
   flex-direction: column;
-  min-height: var(--sw-hub-top-row-min-h);
-  height: 100%;
   box-sizing: border-box;
+  min-height: var(--sw-hub-faixa-paridade-h);
+  height: var(--sw-hub-faixa-paridade-h);
+  max-height: var(--sw-hub-faixa-paridade-h);
+  overflow: hidden;
+}
+
+.sw-hub-row-top > .sw-hub-panel--produtos {
+  min-width: 0;
+}
+
+.sw-hub-row-top > .sw-hub-panel--ws {
+  min-width: 0;
 }
 
 @media (max-width: 1200px) {
@@ -131,22 +146,22 @@
     grid-template-columns: 1fr;
   }
 
-  .sw-hub-row-top > .sw-hub-panel {
-    min-height: 0;
+  .sw-hub-row-top > .sw-hub-panel--produtos,
+  .sw-hub-row-top > .sw-hub-panel--ws {
     height: auto;
+    max-height: none;
+    min-height: var(--sw-hub-faixa-paridade-h);
+    overflow: visible;
   }
-}
-
-.sw-hub-panel--produtos {
-  min-width: 0;
 }
 
 .sw-hub-panel--produtos > :last-child {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: stretch;
+  justify-content: flex-start;
   min-height: 0;
+  overflow: hidden;
 }
 
 .sw-hub-panel--produtos .sw-hub-prod-vazio {
@@ -161,19 +176,35 @@
   border-color: var(--hub-proto-border);
 }
 
+.sw-hub-panel--ws .sw-ws-por-produto-intro {
+  flex-shrink: 0;
+  margin: 0 0 calc(0.5rem + 4px);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--hub-proto-muted);
+}
+
+.sw-hub-panel--ws .sw-ws-por-produto {
+  flex: 1;
+  min-height: 0;
+  justify-content: flex-start;
+}
+
 .sw-hub-panel--ws .sw-ws-search-wrap {
   flex-shrink: 0;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   max-width: none;
 }
 
 .sw-hub-panel--ws .sw-ws-search {
-  height: auto;
-  padding: 0.5rem 0.75rem 0.5rem 2.25rem;
-  border-radius: 10px;
+  height: 28px;
+  padding: 0 0.65rem 0 2rem;
+  border-radius: 8px;
   border: 1px solid var(--hub-proto-border);
   background: var(--hub-proto-surface-2);
   color: var(--hub-proto-text);
+  font-size: 0.7rem;
+  line-height: 1;
 }
 
 .sw-hub-panel--ws .sw-ws-search::placeholder {
@@ -186,8 +217,10 @@
 }
 
 .sw-hub-panel--ws .sw-ws-search-icon {
-  left: 0.75rem;
+  left: 0.6rem;
   color: var(--hub-proto-muted);
+  width: 14px;
+  height: 14px;
 }
 
 .sw-hub-panel--ws .sw-ws-carousel-wrap {
@@ -360,7 +393,7 @@ body.light-theme .sw-hub-panel--ws .sw-ws-search {
   color: var(--hub-proto-muted);
 }
 
-/* Store (esquerda) + Gabi Insights (direita) */
+/* Gabi Insights — faixa inferior (Store subiu para coluna esquerda do HUB) */
 .sw-hub-row-gabi {
   display: grid;
   grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);

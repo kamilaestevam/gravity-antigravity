@@ -83,7 +83,7 @@ export function useListaPainelBidFrete() {
     try {
       const { data } = await paineisListaBidFreteApi.listar()
       setPaineis(data)
-      const visivel = data.find(p => p.is_visivel) ?? data[0]
+      const visivel = data.find(p => p.is_visivel !== false) ?? data[0]
       if (visivel) setPainelAtualId(visivel.id)
     } catch (err) {
       console.warn('[useListaPainelBidFrete] falha ao carregar painéis', err)

@@ -95,7 +95,6 @@ export function PedidosListaFaixaNavegacao({
   ...painelProps
 }: PedidosListaFaixaNavegacaoProps) {
   const { t } = useTranslation()
-  const paineisVisiveis = paineis.filter(p => p.is_visivel)
   // Faixa de painéis sempre visível na lista (evita sumir após falha/API lenta).
   const exibirLinhaPaineis = true
 

@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync, useShellBodyClasses } from '@gravity/shell'
 import { useAuth, useClerk } from '@clerk/clerk-react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { pedidoQueryClient } from './shared/pedido-query-client'
 import { TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
@@ -114,16 +115,9 @@ function LoadingFallback() {
   )
 }
 
-// QueryClient único do produto Pedido — instanciado fora do componente
-// para sobreviver a re-renders. Stale 60s espelha a config recomendada
-// no comentário de usePermissoesPedido.ts.
-export const pedidoQueryClient = new QueryClient({
-  defaultOptions: {
-    queries: { staleTime: 60_000, refetchOnWindowFocus: true },
-  },
-})
-
 const queryClient = pedidoQueryClient
+
+export { pedidoQueryClient } from './shared/pedido-query-client'
 
 function AppInner() {
   useMeSync()
@@ -322,7 +316,7 @@ function AppInner() {
       tooltipsDisabled={tooltipsDisabled}
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
-      onNavigateCore={() => { window.location.href = '/core' }}
+      onNavigateCore={() => { window.location.href = '/hub' }}
       onNavigateSettings={() => { navigate('/pedido/configuracoes') }}
       headerActions={<Notificacoes />}
       localizador={{
@@ -394,6 +388,7 @@ function AppInner() {
   )
 }
 
+/** Shell do Configurador envolve com QueryClientProvider; standalone usa App. */
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -402,5 +397,5 @@ export function App() {
   )
 }
 
-export { PRODUCT_CONFIG }
+export { AppInner, PRODUCT_CONFIG }
 export default App

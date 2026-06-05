@@ -41,6 +41,8 @@ export type PreferenciaPedidoEscopo = z.infer<typeof preferenciaPedidoDataSchema
 export interface ContextoPedidoHub {
   idOrganizacao: string
   idUsuario: string
+  /** Workspace da sessão no Hub — exigido pelo Portão 3 do backend Pedido. */
+  idWorkspace?: string | null
 }
 
 export interface PreferenciaEscopoHubPedido {
@@ -50,17 +52,45 @@ export interface PreferenciaEscopoHubPedido {
 
 const PREFERENCIA_PEDIDO_URL = '/api/v1/pedidos/config/preferencia-usuario-coluna-pedido'
 
+export function resolverIdWorkspaceHeaderPedidoHub(
+  ctx: ContextoPedidoHub,
+  idsEscopoFallback?: readonly string[],
+): string | undefined {
+  const explicito = ctx.idWorkspace?.trim()
+  if (explicito) return explicito
+
+  try {
+    const sessao = sessionStorage.getItem('gravity_company_id')?.trim()
+    if (sessao) return sessao
+  } catch {
+    /* quota / private mode */
+  }
+
+  const fallback = idsEscopoFallback?.find(id => typeof id === 'string' && id.length > 0)
+  return fallback
+}
+
 function montarHeadersPedidoHub(
   token: string,
   ctx: ContextoPedidoHub,
-  comJson = false,
+  opts?: { comJson?: boolean; idsEscopoFallback?: readonly string[] },
 ): Record<string, string> {
-  return {
-    ...(comJson ? { 'Content-Type': 'application/json' } : {}),
+  const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
     'x-id-organizacao': ctx.idOrganizacao,
     'x-id-usuario': ctx.idUsuario,
   }
+
+  const idWorkspace = resolverIdWorkspaceHeaderPedidoHub(ctx, opts?.idsEscopoFallback)
+  if (idWorkspace) {
+    headers['x-id-workspace'] = idWorkspace
+  }
+
+  if (opts?.comJson) {
+    headers['Content-Type'] = 'application/json'
+  }
+
+  return headers
 }
 
 function chaveSuprimirAvisoLocal(ctx: ContextoPedidoHub): string {
@@ -83,6 +113,16 @@ function gravarSuprimirAvisoEscopoHubLocal(ctx: ContextoPedidoHub, suprimir: boo
   } catch {
     /* quota / private mode */
   }
+}
+
+/** Escopo cobre todos os workspaces da org (paridade chip "✶ Todos os workspaces" em Usuarios.tsx). */
+export function escopoContemTodosWorkspaces(
+  idsEscopo: readonly string[],
+  idsDisponiveis: readonly string[],
+): boolean {
+  if (idsDisponiveis.length === 0 || idsEscopo.length < idsDisponiveis.length) return false
+  const idsSet = new Set(idsEscopo)
+  return idsDisponiveis.every(id => idsSet.has(id))
 }
 
 /** Escopo salvo difere de "apenas este workspace". */
@@ -168,7 +208,9 @@ async function buscarPreferenciaPedidoHub(
   ctx: ContextoPedidoHub,
 ): Promise<PreferenciaPedidoEscopo> {
   const res = await fetch(PREFERENCIA_PEDIDO_URL, {
-    headers: montarHeadersPedidoHub(token, ctx),
+    headers: montarHeadersPedidoHub(token, ctx, {
+      idsEscopoFallback: lerEscopoPedidoSessionStorage(ctx) ?? undefined,
+    }),
     signal: AbortSignal.timeout(8_000),
   })
 
@@ -202,6 +244,23 @@ export async function obterPreferenciaEscopoHubPedido(
   }
 }
 
+export async function salvarEscopoWorkspacesHubPedido(
+  token: string,
+  ctx: ContextoPedidoHub,
+  ids_workspaces_escopo: string[],
+): Promise<boolean> {
+  const res = await fetch(PREFERENCIA_PEDIDO_URL, {
+    method: 'PUT',
+    headers: montarHeadersPedidoHub(token, ctx, {
+      comJson: true,
+      idsEscopoFallback: ids_workspaces_escopo,
+    }),
+    body: JSON.stringify({ ids_workspaces_escopo }),
+    signal: AbortSignal.timeout(8_000),
+  })
+  return res.ok
+}
+
 export async function salvarSuprimirAvisoEscopoHubPedido(
   token: string,
   ctx: ContextoPedidoHub,
@@ -210,7 +269,10 @@ export async function salvarSuprimirAvisoEscopoHubPedido(
 
   const res = await fetch(PREFERENCIA_PEDIDO_URL, {
     method: 'PUT',
-    headers: montarHeadersPedidoHub(token, ctx, true),
+    headers: montarHeadersPedidoHub(token, ctx, {
+      comJson: true,
+      idsEscopoFallback: lerEscopoPedidoSessionStorage(ctx) ?? undefined,
+    }),
     body: JSON.stringify({ suprimir_aviso_escopo_hub_pedido: true }),
     signal: AbortSignal.timeout(8_000),
   })

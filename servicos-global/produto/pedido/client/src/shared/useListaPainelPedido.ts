@@ -100,7 +100,7 @@ export function useListaPainelPedido() {
       const { data } = await paineisListaApi.listar()
       if (seq !== cargaPaineisSeqRef.current) return
       setPaineis(data)
-      const visivel = data.find(p => p.is_visivel) ?? data[0]
+      const visivel = data.find(p => p.is_visivel !== false) ?? data[0]
       if (visivel) setPainelAtualId(visivel.id)
     } catch (err) {
       if (seq !== cargaPaineisSeqRef.current) return

@@ -166,7 +166,7 @@ export default function App() {
       tooltipsDisabled={tooltipsDisabled}
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
-      onNavigateCore={() => { window.location.href = '/core' }}
+      onNavigateCore={() => { window.location.href = '/hub' }}
       localizador={{
         workspaceName:    currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa',
         currentPageLabel: pageLabel,

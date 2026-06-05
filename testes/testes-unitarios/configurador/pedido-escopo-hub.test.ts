@@ -1,10 +1,12 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   chaveEscopoPedidoSessionStorage,
   escopoPedidoDivergeDoWorkspace,
   filtrarIdsEscopoWorkspacesValidos,
   formatarResumoWorkspacesEscopo,
   resolverNomesWorkspacesEscopo,
+  resolverIdWorkspaceHeaderPedidoHub,
+  type ContextoPedidoHub,
 } from '../../../servicos-global/configurador/src/utils/pedido-escopo-hub'
 
 describe('escopoPedidoDivergeDoWorkspace', () => {
@@ -46,6 +48,34 @@ describe('formatarResumoWorkspacesEscopo', () => {
 describe('chaveEscopoPedidoSessionStorage', () => {
   it('inclui id_organizacao na chave', () => {
     expect(chaveEscopoPedidoSessionStorage('org-123')).toBe('pedido:workspaces_escopo:org-123')
+  })
+})
+
+describe('resolverIdWorkspaceHeaderPedidoHub', () => {
+  const ctxBase: ContextoPedidoHub = {
+    idOrganizacao: 'org-1',
+    idUsuario: 'user-1',
+  }
+
+  it('prioriza idWorkspace explícito no contexto', () => {
+    expect(resolverIdWorkspaceHeaderPedidoHub({ ...ctxBase, idWorkspace: 'ws-explicito' }, ['ws-fb']))
+      .toBe('ws-explicito')
+  })
+
+  it('usa gravity_company_id da sessão quando idWorkspace ausente', () => {
+    const store = new Map<string, string>()
+    vi.stubGlobal('sessionStorage', {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => { store.set(k, v) },
+      removeItem: (k: string) => { store.delete(k) },
+    })
+    store.set('gravity_company_id', 'ws-sessao')
+    expect(resolverIdWorkspaceHeaderPedidoHub(ctxBase, ['ws-fb'])).toBe('ws-sessao')
+    vi.unstubAllGlobals()
+  })
+
+  it('cai no primeiro id do escopo como fallback', () => {
+    expect(resolverIdWorkspaceHeaderPedidoHub(ctxBase, ['ws-a', 'ws-b'])).toBe('ws-a')
   })
 })
 

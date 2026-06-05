@@ -35,7 +35,6 @@ import {
   ClipboardText,
   Fire,
   Info,
-  ShoppingBagOpen,
 } from '@phosphor-icons/react'
 import { type NavItem } from '@nucleo/menu-lateral-global'
 import { corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
@@ -57,6 +56,7 @@ import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { GradeProdutosContratadosHub } from '../components/grade-produtos-contratados-hub'
+import { PreferenciasWorkspacesPorProdutoHub } from '../components/preferencias-workspaces-por-produto-hub'
 import {
   contarOwnedNoStack,
   filtrarCatalogoProdutosGravityStore,
@@ -64,6 +64,11 @@ import {
   slugsPuzzleStackProdutosGravity,
 } from '../lib/produtos-gravity-store-status'
 import '../../../../nucleo-global/Campos/campo-geral-global/src/campo-geral.css'
+import {
+  escopoPadraoTodosWorkspaces,
+  filtrarIdsEscopoHubValidos,
+  lerEscopoHubProdutoLocal,
+} from '../utils/escopo-workspaces-produto-hub'
 import {
   buscarMapaNomesWorkspacesOrg,
   escopoPedidoDivergeDoWorkspace,
@@ -330,8 +335,7 @@ export function SelecionarWorkspace() {
   // Dispara skip pós-login (redireciona direto para /core no próximo acesso).
   // Fornecedor (SUPPLIER) nunca recebe valor aqui — backend força null.
   const [preferredId, setPreferredId] = useState<string | null>(null)
-  const [preferredSaving, setPreferredSaving] = useState(false)
-  const wsCarouselRef = useRef<HTMLDivElement>(null)
+  const [escoposPorProduto, setEscoposPorProduto] = useState<Record<string, string[]>>({})
 
   /* ── GABI insights ── */
   const [gabiInsights, setGabiInsights] = useState<GabiInsight[]>([])
@@ -367,63 +371,22 @@ export function SelecionarWorkspace() {
     includeStore: true,
   })
 
-  // Workspaces filtrados por busca e ordenados: preferido primeiro
-  const wsFiltrados = useMemo(() => {
-    const term = wsSearch.trim().toLowerCase()
-    const filtered = term
-      ? workspaces.filter(ws => ws.nome.toLowerCase().includes(term))
-      : workspaces
-    return [...filtered].sort((a, b) => {
-      const aPref = a.id === preferredId ? 0 : 1
-      const bPref = b.id === preferredId ? 0 : 1
-      return aPref - bPref
-    })
-  }, [workspaces, wsSearch, preferredId])
-
-  /**
-   * Toggle do workspace preferido (substitui favoritos múltiplos).
-   * Único por usuário — marcar B quando A era preferido desmarca A automaticamente.
-   * Clicar no preferido atual desmarca (volta para null).
-   * Persiste no backend via PUT /api/v1/me/preferencias.
-   */
-  const togglePreferred = useCallback(async (e: React.MouseEvent, wsId: string) => {
-    e.stopPropagation()
-    if (preferredSaving) return
-    const next = preferredId === wsId ? null : wsId
-    const prev = preferredId
-    // Otimista: atualiza UI imediatamente
-    setPreferredId(next)
-    setPreferredSaving(true)
-    try {
-      const token = await getToken()
-      if (!token) throw new Error('no_token')
-      const res = await fetch('/api/v1/me/preferencias', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ preferredCompanyId: next }),
-      })
-      if (!res.ok) throw new Error(`status_${res.status}`)
-      addNotification({
-        type: 'success',
-        message: next ? 'Workspace principal definido' : 'Workspace principal removido',
-      })
-    } catch {
-      // Rollback em falha
-      setPreferredId(prev)
-      addNotification({
-        type: 'error',
-        message: 'Não foi possível salvar o workspace principal',
-      })
-    } finally {
-      setPreferredSaving(false)
-    }
-  }, [preferredId, preferredSaving, getToken])
-
   // Produtos contratados ativos
-  const contratadosAtivos = produtosContratados.filter(p => p.is_active)
+  const contratadosAtivos = useMemo(
+    () => produtosContratados.filter(p => p.is_active),
+    [produtosContratados],
+  )
+
+  const produtosContratadosHubLinha = useMemo(
+    () =>
+      contratadosAtivos.map((p) => ({
+        product_key: p.product_key,
+        nome: PRODUCT_NAME_KEYS[p.product_key]
+          ? t(PRODUCT_NAME_KEYS[p.product_key])
+          : p.nome,
+      })),
+    [contratadosAtivos, t],
+  )
 
   // Produtos sugeridos = catálogo que o tenant ainda não contratou (inclui Em Breve)
   const slugsContratados = new Set(produtosContratados.map(p => p.product_key))
@@ -488,7 +451,13 @@ export function SelecionarWorkspace() {
   }, [idOrganizacao, navigate])
 
   const abrirProdutoContratadoHub = useCallback((slug: string, rota?: string) => {
-    const wsId = preferredId ?? selectedId ?? workspaces[0]?.id
+    const escopoProduto = escoposPorProduto[slug]
+    const wsId =
+      escopoProduto?.[0]
+      ?? sessionStorage.getItem('gravity_company_id')
+      ?? selectedId
+      ?? workspaces[0]?.id
+      ?? undefined
     const ws = wsId ? workspaces.find(w => w.id === wsId) : undefined
     if (ws) {
       sessionStorage.setItem('gravity_company_id', ws.id)
@@ -496,7 +465,7 @@ export function SelecionarWorkspace() {
       setSelectedId(ws.id)
     }
     navigate(rota ?? PRODUCT_ROUTE_MAP[slug]?.rota ?? `/produto/${slug}`)
-  }, [preferredId, selectedId, workspaces, navigate])
+  }, [escoposPorProduto, selectedId, workspaces, navigate])
 
   /* ── Carrega TUDO via endpoint agregado (1 chamada = 1 requireAuth) ── */
   useEffect(() => {
@@ -681,6 +650,97 @@ export function SelecionarWorkspace() {
     return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getToken])
+
+  /* ── Escopo por produto contratado (default: todos os workspaces) ── */
+  const chavesProdutosContratados = useMemo(
+    () => contratadosAtivos.map(p => p.product_key).join('|'),
+    [contratadosAtivos],
+  )
+
+  const idsWorkspacesDisponiveisKey = useMemo(
+    () => workspaces.map(w => w.id).join('|'),
+    [workspaces],
+  )
+
+  const escopoCarregamentoRef = useRef(0)
+
+  useEffect(() => {
+    const idsDisponiveis = workspaces.map(w => w.id)
+    const padraoInicial = escopoPadraoTodosWorkspaces(idsDisponiveis)
+
+    if (!idOrganizacao || !idUsuarioPrisma || idsDisponiveis.length === 0 || contratadosAtivos.length === 0) {
+      setEscoposPorProduto({})
+      return
+    }
+
+    const escopoDefault: Record<string, string[]> = {}
+    for (const prod of contratadosAtivos) {
+      escopoDefault[prod.product_key] = padraoInicial
+    }
+    setEscoposPorProduto(prev => (Object.keys(prev).length > 0 ? prev : escopoDefault))
+
+    const requestId = ++escopoCarregamentoRef.current
+
+    async function carregarEscoposProdutos() {
+      try {
+        const token = await getToken()
+        if (!token || requestId !== escopoCarregamentoRef.current) return
+
+        const mapa = await buscarMapaNomesWorkspacesOrg(token)
+        if (requestId !== escopoCarregamentoRef.current) return
+
+        const ctx = {
+          idOrganizacao,
+          idUsuario: idUsuarioPrisma,
+          idWorkspace:
+            sessionStorage.getItem('gravity_company_id')
+            ?? workspaces[0]?.id
+            ?? null,
+        }
+
+        const next: Record<string, string[]> = {}
+
+        for (const prod of contratadosAtivos) {
+          const productKey = prod.product_key
+          let idsBackend: string[] = []
+
+          if (productKey === 'pedido') {
+            const preferencia = await obterPreferenciaEscopoHubPedido(token, ctx)
+            if (preferencia.idsEscopo) {
+              idsBackend = filtrarIdsEscopoWorkspacesValidos(preferencia.idsEscopo, mapa)
+            }
+          }
+
+          const idsLocal = lerEscopoHubProdutoLocal(idOrganizacao, productKey)
+          const idsLocalValidos = idsLocal
+            ? filtrarIdsEscopoHubValidos(idsLocal, idsDisponiveis)
+            : []
+
+          next[productKey] = idsBackend.length > 0
+            ? idsBackend
+            : idsLocalValidos.length > 0
+              ? idsLocalValidos
+              : padraoInicial
+        }
+
+        if (requestId === escopoCarregamentoRef.current) {
+          setEscoposPorProduto(next)
+        }
+      } catch {
+        /* mantém escopo default já exibido — edição não bloqueia */
+      }
+    }
+
+    void carregarEscoposProdutos()
+  }, [
+    getToken,
+    idOrganizacao,
+    idUsuarioPrisma,
+    idsWorkspacesDisponiveisKey,
+    chavesProdutosContratados,
+    contratadosAtivos,
+    workspaces,
+  ])
 
   /* ── Menu lateral: navItems ── */
   const navItems: NavItem[] = useMemo(() => {
@@ -1032,113 +1092,42 @@ export function SelecionarWorkspace() {
 
                 <section className="sw-hub-panel sw-hub-panel--ws" aria-label={t('sw.secao_workspaces', 'Workspaces')}>
                   <div className="sw-hub-panel-label">{t('sw.secao_workspaces', 'Workspaces')}</div>
+                  <p className="sw-ws-por-produto-intro">
+                    {t(
+                      'sw.ws_pref_intro',
+                      'Preferência de filiais por produto — o que você define aqui é o que cada módulo usa ao abrir.',
+                    )}
+                  </p>
 
                   <div className="sw-ws-search-wrap">
-                    <MagnifyingGlass size={16} weight="bold" className="sw-ws-search-icon" aria-hidden="true" />
+                    <MagnifyingGlass size={14} weight="bold" className="sw-ws-search-icon" aria-hidden="true" />
                     <input
                       type="search"
                       className="sw-ws-search"
                       value={wsSearch}
                       onChange={e => setWsSearch(e.target.value)}
-                      placeholder={t('sw.buscar_workspace', 'Buscar workspace…')}
-                      aria-label={t('sw.buscar_workspace', 'Buscar workspace')}
+                      placeholder={t('sw.buscar_workspace_produto', 'Buscar produto ou workspace…')}
+                      aria-label={t('sw.buscar_workspace_produto', 'Buscar produto ou workspace')}
                     />
                   </div>
 
-                  <div className="sw-ws-carousel-wrap">
-                    <button
-                      className="sw-carousel-btn sw-carousel-btn--left"
-                      type="button"
-                      onClick={() => scrollCarousel(wsCarouselRef, 'left')}
-                      aria-label="Anterior"
-                    >
-                      <CaretLeft size={16} weight="bold" />
-                    </button>
-                    <div className="sw-ws-grid" ref={wsCarouselRef}>
-                      {wsFiltrados.map((ws) => {
-                        const isPreferred = ws.id === preferredId
-                        return (
-                          <div
-                            key={ws.id}
-                            className={`sw-ws-card sw-ws-card--hub${ws.id === selectedId ? ' selected' : ''}${isPreferred ? ' favorited' : ''}`}
-                            onClick={() => handleSelectWs(ws.id)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault()
-                                handleSelectWs(ws.id)
-                              }
-                            }}
-                            role="button"
-                            tabIndex={0}
-                          >
-                            <div className="sw-ws-card-actions">
-                              <TooltipGlobal
-                                titulo={isPreferred ? t('sw.fav_remover_titulo') : t('sw.fav_adicionar_titulo')}
-                                descricao={isPreferred ? t('sw.fav_remover_desc') : t('sw.fav_adicionar_desc')}
-                              >
-                                <button
-                                  className={`sw-ws-fav-btn${isPreferred ? ' active' : ''}`}
-                                  type="button"
-                                  onClick={(e) => togglePreferred(e, ws.id)}
-                                  disabled={preferredSaving}
-                                  aria-label={isPreferred ? t('sw.fav_remover_aria') : t('sw.fav_adicionar_aria')}
-                                >
-                                  <Star size={14} weight={isPreferred ? 'fill' : 'regular'} />
-                                </button>
-                              </TooltipGlobal>
-                              <div className="sw-ws-check" aria-hidden={ws.id !== selectedId}>
-                                <Check size={12} weight="bold" color="#fff" />
-                              </div>
-                            </div>
-                            <div className="sw-ws-card-head">
-                              <div
-                                className="sw-ws-logo"
-                                style={{
-                                  background: `linear-gradient(135deg, ${ws.gradientFrom} 0%, ${ws.gradientTo} 100%)`,
-                                }}
-                              >
-                                {ws.iniciais}
-                              </div>
-                              <div className="sw-ws-card-info">
-                                <div className="sw-ws-name">{ws.nome}</div>
-                                {ws.role ? <div className="sw-ws-role">{ws.role}</div> : null}
-                              </div>
-                            </div>
-                            <p className="sw-ws-stats-line">
-                              {ws.modulos} {t('sw.stat_produtos').toLowerCase()} · {ws.membros}{' '}
-                              {t('sw.stat_usuarios').toLowerCase()}
-                            </p>
-                            <button
-                              className="sw-ws-enter-btn"
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                void tentarEntrarNoWorkspace(ws)
-                              }}
-                              disabled={entrando}
-                            >
-                              {entrando ? t('sw.entrando') : t('sw.entrar_btn')}
-                              <ArrowRight size={14} />
-                            </button>
-                          </div>
-                        )
-                      })}
-                      {podeMutarConfigurador(dbRole) && (
-                        <button className="sw-ws-add-card" type="button" onClick={handleCriarWorkspace}>
-                          <Plus size={18} />
-                          <span className="sw-ws-add-label">{t('sw.criar_workspace')}</span>
-                        </button>
-                      )}
-                    </div>
-                    <button
-                      className="sw-carousel-btn sw-carousel-btn--right"
-                      type="button"
-                      onClick={() => scrollCarousel(wsCarouselRef, 'right')}
-                      aria-label="Próximo"
-                    >
-                      <CaretRight size={16} weight="bold" />
-                    </button>
-                  </div>
+                  <PreferenciasWorkspacesPorProdutoHub
+                    produtos={produtosContratadosHubLinha}
+                    workspaces={workspaces}
+                    busca={wsSearch}
+                    escoposPorProduto={escoposPorProduto}
+                    idOrganizacao={idOrganizacao}
+                    idUsuario={idUsuarioPrisma}
+                    getToken={getToken}
+                    onEscopoProdutoChange={(productKey, ids) => {
+                      setEscoposPorProduto(prev => ({ ...prev, [productKey]: ids }))
+                    }}
+                    onNotificacao={addNotification}
+                    getIconeProduto={getProdutoIcon}
+                    podeCriarWorkspace={podeMutarConfigurador(dbRole)}
+                    onCriarWorkspace={handleCriarWorkspace}
+                    t={(key, fallback) => t(key, fallback ?? key)}
+                  />
                 </section>
               </div>
 
@@ -1147,7 +1136,10 @@ export function SelecionarWorkspace() {
                 onMouseEnter={() => setGabiPaused(true)}
                 onMouseLeave={() => setGabiPaused(false)}
               >
-                <section className="sw-hub-panel sw-hub-panel--store" aria-label={t('sw.gravity_store', 'Gravity Store')}>
+                <section
+                  className="sw-hub-panel sw-hub-panel--store"
+                  aria-label={t('sw.gravity_store', 'Gravity Store')}
+                >
                   <div className="sw-hub-panel-label">{t('sw.gravity_store', 'Gravity Store')}</div>
                   <p className="sw-hub-store-desc">
                     {t('sw.store_desc', 'Descubra novas ferramentas e ative produtos no workspace.')}

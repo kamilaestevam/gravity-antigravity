@@ -12,6 +12,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useTranslation } from 'react-i18next'
 import { DotsThree, PencilSimple, Trash, X } from '@phosphor-icons/react'
 import { paineisListaApi, type ListaPainel } from '../shared/api'
+import { rotuloExibicaoPainelLista } from '../shared/rotuloPainelLista'
 import '../pages/Pedidos.css'
 import '../pages/PedidosDashboard.css'
 
@@ -149,7 +150,7 @@ export function PedidosListaPainelBar({
         const atualizados = paineis.filter(p => p.id !== id)
         setPaineis(atualizados)
         if (painelAtualId === id) {
-          const proximo = atualizados.find(p => p.is_visivel) ?? atualizados[0]
+          const proximo = atualizados.find(p => p.is_visivel !== false) ?? atualizados[0]
           if (proximo) {
             setPainelAtualId(proximo.id)
             onTrocarPainel(proximo.id)
@@ -172,7 +173,31 @@ export function PedidosListaPainelBar({
     paineisListaApi.reordenar(reordered.map(p => p.id)).catch(() => {})
   }, [paineis, setPaineis])
 
-  const paineisVisiveis = paineis.filter(p => p.is_visivel)
+  const painelAtual = paineis.find(p => p.id === painelAtualId) ?? null
+  const paineisVisiveis = paineis.filter(p => p.is_visivel !== false)
+
+  const rotulosPainel = useCallback(
+    (p: ListaPainel) =>
+      rotuloExibicaoPainelLista(p, paineis, {
+        padrao: t('pedido.lista.painel_nome_padrao', { defaultValue: 'Padrão' }),
+        numerado: n =>
+          t('pedido.lista.painel_nome_numerado', {
+            defaultValue: 'Painel {{n}}',
+            n,
+          }),
+      }),
+    [paineis, t],
+  )
+
+  /** Garante que o painel em uso aparece na barra mesmo se is_visivel estiver false no banco. */
+  let paineisNaBarra = paineisVisiveis
+  if (
+    painelAtualId &&
+    painelAtual &&
+    !paineisVisiveis.some(p => p.id === painelAtualId)
+  ) {
+    paineisNaBarra = [painelAtual, ...paineisVisiveis]
+  }
 
   const stripClass =
     variant === 'unificado'
@@ -188,11 +213,11 @@ export function PedidosListaPainelBar({
         {t('pedido.lista.paineis_secao_curto', { defaultValue: 'Painéis' })}
       </span>
       <div className="lp-paineis-lista-strip__tabs pedido-dashboard-painel-bar">
-      {carregando && paineisVisiveis.length === 0 ? (
+      {carregando && paineisNaBarra.length === 0 ? (
         <span className="lp-paineis-lista-strip__vazio" role="status">
           {t('pedido.lista.paineis_carregando', { defaultValue: 'Carregando…' })}
         </span>
-      ) : paineisVisiveis.length === 0 ? (
+      ) : paineisNaBarra.length === 0 ? (
         <span
           className="lp-paineis-lista-strip__vazio"
           title={t('pedido.lista.paineis_vazio', {
@@ -204,10 +229,13 @@ export function PedidosListaPainelBar({
       ) : (
       <DndContext sensors={painelSensors} collisionDetection={closestCenter} onDragEnd={handlePainelDragEnd}>
         <SortableContext
-          items={paineis.filter(p => p.is_visivel).map(p => p.id)}
+          items={paineisNaBarra.map(p => p.id)}
           strategy={horizontalListSortingStrategy}
         >
-          {paineis.filter(p => p.is_visivel).map(p => (
+          {paineisNaBarra.map(p => {
+            const { exibicao, ehGenerico, nomeSalvo } = rotulosPainel(p)
+            const ativo = p.id === painelAtualId
+            return (
             <SortableTabWrapper key={p.id} id={p.id}>
               {renamingId === p.id ? (
                 <form
@@ -225,30 +253,60 @@ export function PedidosListaPainelBar({
                   />
                 </form>
               ) : (
-                <button
-                  type="button"
-                  data-testid={`lista-painel-tab-${p.id}`}
-                  className={p.id === painelAtualId ? 'lp-painel-tab lp-painel-tab--ativo' : 'lp-painel-tab'}
-                  onClick={() => onTrocarPainel(p.id)}
-                  onDoubleClick={() => { setRenamingId(p.id); setRenameValue(p.nome) }}
+                <div
+                  className={[
+                    'lp-painel-tab-cluster',
+                    ativo ? 'lp-painel-tab-cluster--ativo' : '',
+                    ehGenerico ? 'lp-painel-tab-cluster--nome-generico' : '',
+                  ].filter(Boolean).join(' ')}
                   onPointerDown={e => e.stopPropagation()}
-                  title={p.nome}
                 >
-                  <span className="lp-painel-tab__nome">{p.nome}</span>
-                  <span
-                    role="button"
-                    aria-label={t('pedido.lista.painel_opcoes', { defaultValue: 'Opções do painel' })}
+                  <button
+                    type="button"
+                    data-testid={ativo ? 'lista-painel-atual' : `lista-painel-tab-${p.id}`}
+                    className="lp-painel-tab lp-painel-tab--rotulo"
+                    onClick={() => onTrocarPainel(p.id)}
+                    onDoubleClick={() => { setRenamingId(p.id); setRenameValue(p.nome) }}
+                    title={
+                      ehGenerico
+                        ? t('pedido.lista.painel_nome_generico_dica', {
+                            defaultValue:
+                              '{{exibicao}} (nome padrão — ⋮ para renomear)',
+                            exibicao,
+                          })
+                        : exibicao
+                    }
+                    aria-current={ativo ? 'true' : undefined}
+                    aria-label={exibicao}
+                  >
+                    <span className="lp-painel-tab__nome">{exibicao}</span>
+                  </button>
+                  <button
+                    type="button"
+                    data-testid={`lista-painel-menu-${p.id}`}
                     className="lp-painel-tab__menu"
+                    aria-label={t('pedido.lista.painel_renomear', { defaultValue: 'Renomear' })}
+                    title={t('pedido.lista.painel_renomear_um_clique', {
+                      defaultValue: 'Renomear painel',
+                    })}
                     onPointerDown={e => e.stopPropagation()}
                     onClick={e => {
+                      e.stopPropagation()
+                      setMenuPainelId(null)
+                      setDeletingId(null)
+                      setRenamingId(p.id)
+                      setRenameValue(p.nome)
+                    }}
+                    onContextMenu={e => {
+                      e.preventDefault()
                       e.stopPropagation()
                       setMenuPainelId(prev => prev === p.id ? null : p.id)
                       setDeletingId(null)
                     }}
                   >
                     <DotsThree size={12} weight="bold" />
-                  </span>
-                </button>
+                  </button>
+                </div>
               )}
               {menuPainelId === p.id && (
                 <div
@@ -260,7 +318,12 @@ export function PedidosListaPainelBar({
                     <div style={{ padding: '0.5rem 0.75rem' }}>
                       <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 0.5rem' }}>
                         {t('pedido.lista.painel_excluir_confirmar', { defaultValue: 'Excluir painel?' })}
-                        {' '}<strong style={{ color: '#fff' }}>{p.nome}</strong>
+                        {' '}<strong style={{ color: '#fff' }}>{exibicao}</strong>
+                        {ehGenerico && nomeSalvo !== exibicao ? (
+                          <span style={{ display: 'block', fontSize: '0.65rem', opacity: 0.65, marginTop: '0.2rem' }}>
+                            {nomeSalvo}
+                          </span>
+                        ) : null}
                       </p>
                       <div style={{ display: 'flex', gap: '0.35rem' }}>
                         <button type="button" className="lp-painel-tab-form__ok" onClick={() => handleDeletarPainel(p.id)}>
@@ -301,7 +364,8 @@ export function PedidosListaPainelBar({
                 </div>
               )}
             </SortableTabWrapper>
-          ))}
+            )
+          })}
         </SortableContext>
       </DndContext>
       )}
@@ -317,7 +381,9 @@ export function PedidosListaPainelBar({
           <input
             autoFocus
             type="text"
-            placeholder={t('pedido.lista.painel_novo_placeholder', { defaultValue: 'Nome' })}
+            placeholder={t('pedido.lista.painel_novo_placeholder', {
+              defaultValue: 'Ex.: Exportação Q2',
+            })}
             value={novoNomePainel}
             onChange={e => setNovoNomePainel(e.target.value)}
             onKeyDown={e => {

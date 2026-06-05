@@ -170,6 +170,17 @@ const GABI_INSIGHT_FALLBACK: GabiInsight = {
 
 const GABI_INSIGHTS_POR_PAGINA = 3
 
+/** Sempre 3 slots — última página preenche com wrap (evita 1 card + 2 colunas vazias). */
+function montarJanelaInsightsGabi(insights: GabiInsight[], indicePagina: number): GabiInsight[] {
+  const total = insights.length
+  if (total === 0) return []
+
+  const inicio = indicePagina * GABI_INSIGHTS_POR_PAGINA
+  return Array.from({ length: GABI_INSIGHTS_POR_PAGINA }, (_, slot) => {
+    return insights[(inicio + slot) % total]
+  })
+}
+
 interface WorkspaceFromHub {
   id_workspace: string
   nome_workspace: string
@@ -454,10 +465,10 @@ export function SelecionarWorkspace() {
 
   const gabiTotalPaginas = Math.max(1, Math.ceil(gabiInsights.length / GABI_INSIGHTS_POR_PAGINA))
 
-  const insightsGabiVisiveis = useMemo(() => {
-    const inicio = gabiIndice * GABI_INSIGHTS_POR_PAGINA
-    return gabiInsights.slice(inicio, inicio + GABI_INSIGHTS_POR_PAGINA)
-  }, [gabiIndice, gabiInsights])
+  const insightsGabiVisiveis = useMemo(
+    () => montarJanelaInsightsGabi(gabiInsights, gabiIndice),
+    [gabiIndice, gabiInsights],
+  )
 
   const processosOperacaoHub = useMemo(
     () =>
@@ -1170,12 +1181,12 @@ export function SelecionarWorkspace() {
               <div id="hub-secao-produtos" className="sw-hub-row-top sw-a0">
                 <section
                   className="sw-hub-panel sw-hub-panel--produtos"
-                  aria-label={t('sw.produtos_contratados', 'Produtos contratados')}
+                  aria-label={t('sw.produtos_contratados', 'Seus Produtos Gravity')}
                 >
                   <div className="sw-hub-prod-head">
                     <div className="sw-hub-prod-head-left">
                       <div className="sw-hub-panel-label">
-                        {t('sw.produtos_contratados', 'Produtos contratados')}
+                        {t('sw.produtos_contratados', 'Seus Produtos Gravity')}
                       </div>
                       <p className="sw-hub-store-desc">
                         {t('sw.produtos_contratados_desc')}
@@ -1184,13 +1195,14 @@ export function SelecionarWorkspace() {
                     <div className="sw-hub-prod-head-right">
                       <button
                         type="button"
-                        className="sw-hub-prod-head-link"
+                        className="sw-hub-link-pill"
                         onClick={() => navigate('/store')}
                       >
-                        {t('sw.ver_catalogo', 'Gravity Store')} →
+                        <ShoppingBagOpen size={13} weight="duotone" aria-hidden />
+                        {t('sw.ver_catalogo', 'Gravity Store')}
+                        <ArrowRight size={12} weight="bold" className="sw-hub-link-pill__arrow" aria-hidden />
                       </button>
                       <BarrasMeterProdutosContratadosHub
-                        t={t}
                         catalogo={catalogoProdutos}
                         produtosContratados={produtosContratados.map(p => ({
                           product_key: p.product_key,
@@ -1223,7 +1235,7 @@ export function SelecionarWorkspace() {
                   <p className="sw-ws-por-produto-intro">
                     {t(
                       'sw.ws_pref_intro',
-                      'Preferência de filiais por produto — o que você define aqui é o que cada módulo usa ao abrir.',
+                      'Preferência de filiais por produto — o que você define aqui é o que cada módulo usa ao abrir',
                     )}
                   </p>
 
@@ -1253,7 +1265,7 @@ export function SelecionarWorkspace() {
                   </div>
                   <button
                     type="button"
-                    className="sw-hub-ops-link"
+                    className="sw-hub-link-pill"
                     onClick={() => {
                       const orgId = idOrganizacao ?? sessionStorage.getItem('gravity_tenant_id')
                       if (orgId) {
@@ -1263,7 +1275,9 @@ export function SelecionarWorkspace() {
                       }
                     }}
                   >
-                    {t('hub.ver_todos_processos', 'Ver todos os processos')} →
+                    <Folders size={13} weight="duotone" aria-hidden />
+                    {t('hub.ver_todos_processos', 'Ver todos os processos')}
+                    <ArrowRight size={12} weight="bold" className="sw-hub-link-pill__arrow" aria-hidden />
                   </button>
                 </div>
                 <div className="sw-hub-kpi-row">
@@ -1382,7 +1396,7 @@ export function SelecionarWorkspace() {
                             {Array.from({ length: GABI_INSIGHTS_POR_PAGINA }, (_, idx) => (
                               <div
                                 key={`gabi-skeleton-${idx}`}
-                                className="sw-gabi-insight-card sw-gabi-insight-card--skeleton"
+                                className="sw-hub-gabi-insight-card sw-gabi-insight-card--skeleton"
                               >
                                 <div className="sw-gabi-skeleton-line sw-gabi-skeleton-line--short" />
                                 <div className="sw-gabi-skeleton-line" />
@@ -1392,37 +1406,39 @@ export function SelecionarWorkspace() {
                           </div>
                         ) : insightsGabiVisiveis.length > 0 ? (
                           <div className="sw-hub-gabi-grid">
-                            {insightsGabiVisiveis.map(insight => (
+                            {insightsGabiVisiveis.map((insight, slot) => (
                               <div
-                                key={insight.id}
-                                className={`sw-gabi-insight-card${insight.variante === 'warn' ? ' sw-gabi-insight-card--warn' : ''}`}
+                                key={`${insight.id}-${gabiIndice}-${slot}`}
+                                className={`sw-hub-gabi-insight-card${insight.variante === 'warn' ? ' sw-hub-gabi-insight-card--warn' : ''}`}
                               >
                                 <div
-                                  className={`sw-gabi-insight-tag${insight.variante === 'warn' ? ' sw-gabi-insight-tag--warn' : ''}`}
+                                  className={`sw-hub-gabi-insight-tag${insight.variante === 'warn' ? ' sw-hub-gabi-insight-tag--warn' : ''}`}
                                 >
                                   {insight.variante === 'warn'
                                     ? <Warning size={11} weight="fill" />
                                     : <RocketLaunch size={11} weight="fill" />}
                                   {insight.tag}
                                 </div>
-                                <p className="sw-gabi-insight-text">{insight.texto}</p>
-                                <div className="sw-gabi-insight-bottom">
-                                  {insight.stat && (
-                                    <div className="sw-gabi-insight-stat">
-                                      <span className="sw-gabi-insight-stat-label">{insight.stat.label}</span>
-                                      <span className="sw-gabi-insight-stat-value">{insight.stat.valor}</span>
-                                    </div>
-                                  )}
-                                  {insight.textoLink && insight.rota && (
-                                    <button
-                                      className="sw-gabi-insight-link"
-                                      type="button"
-                                      onClick={() => navigate(insight.rota!)}
-                                    >
-                                      {insight.textoLink} <CaretRight size={11} />
-                                    </button>
-                                  )}
-                                </div>
+                                <p className="sw-hub-gabi-insight-text">{insight.texto}</p>
+                                {(insight.stat || (insight.textoLink && insight.rota)) && (
+                                  <div className="sw-hub-gabi-insight-foot">
+                                    {insight.stat && (
+                                      <div className="sw-hub-gabi-insight-stat">
+                                        <span className="sw-hub-gabi-insight-stat-label">{insight.stat.label}</span>
+                                        <span className="sw-hub-gabi-insight-stat-value">{insight.stat.valor}</span>
+                                      </div>
+                                    )}
+                                    {insight.textoLink && insight.rota && (
+                                      <button
+                                        className="sw-hub-gabi-insight-link"
+                                        type="button"
+                                        onClick={() => navigate(insight.rota!)}
+                                      >
+                                        {insight.textoLink} <CaretRight size={11} />
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>

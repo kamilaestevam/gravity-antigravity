@@ -12,7 +12,6 @@ import {
 } from './puzzle-stack-produtos-gravity'
 import {
   filtrarCatalogoProdutosGravityStore,
-  rotuloMeterStackProdutos,
   slugsPuzzleStackProdutosGravity,
   type CatalogoProdutoGravityMin,
   type AssinaturaProdutoGravityMin,
@@ -103,14 +102,12 @@ export function GradeProdutosContratadosHub({
 export interface BarrasMeterProdutosContratadosHubProps {
   catalogo: ProdutoCatalogoHubItem[]
   produtosContratados: ProdutoContratadoHubItem[]
-  t: TFunction
 }
 
-/** Barrinhas + contador do puzzle no cabeçalho (paridade Store: meter + "N DE M"). */
+/** Barrinhas de progresso do puzzle no cabeçalho do painel. */
 export function BarrasMeterProdutosContratadosHub({
   catalogo,
   produtosContratados,
-  t,
 }: BarrasMeterProdutosContratadosHubProps) {
   const catalogoStore = useMemo(
     () => filtrarCatalogoProdutosGravityStore(catalogo),
@@ -136,13 +133,7 @@ export function BarrasMeterProdutosContratadosHub({
     [catalogoMin, assinaturas],
   )
 
-  const ownedNoStack = pecas.filter(p => p.status === 'owned').length
-
   return (
-    <BarrasMeterPuzzleStackProdutos pecas={pecas} className="sw-hub-prod-head-meter">
-      <span className="gs-stack__meter-label sw-hub-prod-stack-label">
-        {rotuloMeterStackProdutos(ownedNoStack, pecas.length, t)}
-      </span>
-    </BarrasMeterPuzzleStackProdutos>
+    <BarrasMeterPuzzleStackProdutos pecas={pecas} className="sw-hub-prod-head-meter" />
   )
 }

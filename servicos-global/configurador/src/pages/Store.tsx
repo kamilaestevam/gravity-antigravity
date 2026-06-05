@@ -6,8 +6,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Package,
   CheckCircle,
-  SpinnerGap,
-  ArrowRight,
   Info,
   MagnifyingGlass,
   Lightning,
@@ -15,12 +13,7 @@ import {
   Bell,
   Gear,
 } from '@phosphor-icons/react'
-import {
-  PRODUCT_META,
-  RELACAO_ENTRE_PRODUTOS_GRAVITY,
-  nomeExibicaoProdutoGravity,
-  metaProdutoStore,
-} from '../data/product-meta'
+import { PRODUCT_META, metaProdutoStore } from '../data/product-meta'
 import {
   filtrarProdutosPublicadosStore,
   storeAssinaturasRespostaSchema,
@@ -29,18 +22,21 @@ import {
 import {
   classeSegmentoPuzzleStore,
   contarStatusCatalogoStore,
-  encontrarProdutoNoCatalogoStore,
   resolverStatusProdutoStore,
-  statusExibicaoParaLegado,
   type StatusExibicaoProdutoStore,
 } from '../data/status-produto-store'
 import { ordenarSlugsPuzzleStore } from '../data/store-puzzle-order'
 import { StorePuzzleRow } from '../components/store-puzzle-row'
+import { StorePuzzleCarousel } from '../components/store-puzzle-carousel'
+import {
+  StoreCardsRows,
+  filtrarCatalogoStoreBusca,
+  type StoreLinhaKey,
+} from '../components/store-cards-rows'
 import './hub-store.css'
 import './hub.css'
 import '../pages/configurador/workspace.css'
 import './selecionar-workspace.css'
-import { BotaoGlobal } from '@nucleo/botao-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { LogoHub } from '@nucleo/logo-produtos'
@@ -116,9 +112,8 @@ export function Store() {
   const [loading, setLoading] = useState(true)
   const [subscribing, setSubscribing] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [viewMode, setViewMode] = useState<'todos' | 'catalogo' | 'meus'>('todos')
-  const [emBreveOnly, setEmBreveOnly] = useState(false)
   const [category, setCategory] = useState<string>('todas')
+  const [viewMode, setViewMode] = useState<StoreLinhaKey>('assinar')
 
   const carregarCatalogo = React.useCallback(async () => {
     try {
@@ -232,11 +227,6 @@ export function Store() {
   const statusProduto = (slug: string): StatusExibicaoProdutoStore =>
     resolverStatusProdutoStore(slug, catalog, subscribed)
 
-  const getStatus = (slug: string): 'owned' | 'available' | 'soon' => {
-    const legado = statusExibicaoParaLegado(statusProduto(slug))
-    return legado ?? 'available'
-  }
-
   const puzzleSlugsOrdenados = useMemo(
     () => ordenarSlugsPuzzleStore(catalog),
     [catalog],
@@ -251,14 +241,6 @@ export function Store() {
     [puzzleSlugsOrdenados, catalog, subscribed],
   )
 
-  const puzzleLinhaEmBreve = useMemo(
-    () =>
-      puzzleSlugsOrdenados.filter(
-        (slug) => resolverStatusProdutoStore(slug, catalog, subscribed) === 'em_breve',
-      ),
-    [puzzleSlugsOrdenados, catalog, subscribed],
-  )
-
   const contratadosNoPuzzle = useMemo(
     () =>
       puzzleLinhaAtivos.filter(
@@ -269,11 +251,6 @@ export function Store() {
 
   const contagemStore = useMemo(
     () => contarStatusCatalogoStore(catalog, subscribed),
-    [catalog, subscribed],
-  )
-
-  const catalogoCount = useMemo(
-    () => catalog.filter((p) => getStatus(p.slug) !== 'owned').length,
     [catalog, subscribed],
   )
 
@@ -301,27 +278,56 @@ export function Store() {
     return map[key] ?? key
   }
 
-  // "Em Breve" só faz sentido em Catálogo — força reset ao trocar para Meus produtos
-  useEffect(() => {
-    if (viewMode === 'meus' && emBreveOnly) setEmBreveOnly(false)
-  }, [viewMode, emBreveOnly])
+  const catalogoFiltrado = useMemo(
+    () => filtrarCatalogoStoreBusca(catalog, search, category),
+    [catalog, search, category],
+  )
 
-  const filteredCatalog = useMemo(() => {
-    return catalog.filter(p => {
-      const meta = metaProdutoStore(p.slug)
-      const status = getStatus(p.slug)
-      const matchesSearch = !search ||
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        (p.description ?? '').toLowerCase().includes(search.toLowerCase())
-      const matchesView =
-        viewMode === 'todos' ? true :
-        viewMode === 'meus' ? status === 'owned' :
-        status !== 'owned'
-      const matchesEmBreve = !emBreveOnly || status === 'soon'
-      const matchesCategory = category === 'todas' || meta?.categoryFilter === category
-      return matchesSearch && matchesView && matchesEmBreve && matchesCategory
-    })
-  }, [catalog, subscribed, search, viewMode, emBreveOnly, category])
+  const contagemLinhas = useMemo(() => {
+    let ativo = 0
+    let assinar = 0
+    let em_breve = 0
+    for (const p of catalogoFiltrado) {
+      const s = statusProduto(p.slug)
+      if (s === 'contratado') ativo++
+      else if (s === 'disponivel') assinar++
+      else if (s === 'em_breve') em_breve++
+    }
+    return {
+      todos: catalogoFiltrado.length,
+      ativo,
+      assinar,
+      em_breve,
+    }
+  }, [catalogoFiltrado, catalog, subscribed])
+
+  const irParaLinha = (linha: StoreLinhaKey) => {
+    setViewMode(linha)
+    document.getElementById(`store-linha-${linha}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  useEffect(() => {
+    const secoes: StoreLinhaKey[] = ['assinar', 'ativo', 'em_breve', 'todos']
+    const elementos = secoes
+      .map((k) => document.getElementById(`store-linha-${k}`))
+      .filter((el): el is HTMLElement => el != null)
+    if (elementos.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visivel = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        if (visivel?.target.id) {
+          const key = visivel.target.id.replace('store-linha-', '') as StoreLinhaKey
+          setViewMode(key)
+        }
+      },
+      { root: null, rootMargin: '-12% 0px -55% 0px', threshold: [0.08, 0.2, 0.4] },
+    )
+    for (const el of elementos) observer.observe(el)
+    return () => observer.disconnect()
+  }, [catalogoFiltrado.length, loading])
 
   // ── Localizador — nós do ecossistema ──────────────────────────────────────
   const { history } = useLocalizadorHistory('store')
@@ -541,31 +547,17 @@ export function Store() {
                     </div>
                   </div>
 
-                  <div className="gs-stack__pieces-scroll">
+                  <div className="gs-stack__lanes">
                     {puzzleLinhaAtivos.length > 0 && (
-                      <StorePuzzleRow
-                        embutido
-                        slugs={puzzleLinhaAtivos}
-                        catalog={catalog}
-                        statusDe={statusProduto}
-                        variante="ativos"
-                      />
-                    )}
-
-                    {puzzleLinhaEmBreve.length > 0 && (
-                      <div className="gs-stack__lane-soon">
-                        <p className="gs-stack__row-label">
-                          <Lightning weight="fill" size={12} color="#f59e0b" />
-                          {t('store.stack_linha_em_breve')}
-                        </p>
+                      <StorePuzzleCarousel className="gs-puzzle-carousel--ativos">
                         <StorePuzzleRow
                           embutido
-                          slugs={puzzleLinhaEmBreve}
+                          slugs={puzzleLinhaAtivos}
                           catalog={catalog}
                           statusDe={statusProduto}
-                          variante="em_breve"
+                          variante="ativos"
                         />
-                      </div>
+                      </StorePuzzleCarousel>
                     )}
                   </div>
 
@@ -587,53 +579,49 @@ export function Store() {
                   />
                 </div>
 
-                {/* Segmented: Todos | Catálogo | Meus produtos */}
-                <div className="gs-segmented" role="tablist" aria-label={t('store.view_aria')}>
+                <div className="gs-segmented gs-segmented--4" role="tablist" aria-label={t('store.view_aria')}>
                   <button
                     type="button"
                     role="tab"
                     aria-selected={viewMode === 'todos'}
                     className={`gs-segmented__btn${viewMode === 'todos' ? ' gs-segmented__btn--active' : ''}`}
-                    onClick={() => setViewMode('todos')}
+                    onClick={() => irParaLinha('todos')}
                   >
                     {t('store.filtro_todos')}
-                    <span className="gs-segmented__count">{contagemStore.publicados}</span>
+                    <span className="gs-segmented__count">{contagemLinhas.todos}</span>
                   </button>
                   <button
                     type="button"
                     role="tab"
-                    aria-selected={viewMode === 'catalogo'}
-                    className={`gs-segmented__btn${viewMode === 'catalogo' ? ' gs-segmented__btn--active' : ''}`}
-                    onClick={() => setViewMode('catalogo')}
+                    aria-selected={viewMode === 'ativo'}
+                    className={`gs-segmented__btn${viewMode === 'ativo' ? ' gs-segmented__btn--active' : ''}`}
+                    onClick={() => irParaLinha('ativo')}
                   >
-                    {t('store.view_catalogo')}
-                    <span className="gs-segmented__count">{catalogoCount}</span>
+                    {t('store.filtro_ativo')}
+                    <span className="gs-segmented__count">{contagemLinhas.ativo}</span>
                   </button>
                   <button
                     type="button"
                     role="tab"
-                    aria-selected={viewMode === 'meus'}
-                    className={`gs-segmented__btn${viewMode === 'meus' ? ' gs-segmented__btn--active' : ''}`}
-                    onClick={() => setViewMode('meus')}
+                    aria-selected={viewMode === 'assinar'}
+                    className={`gs-segmented__btn gs-segmented__btn--assinar${viewMode === 'assinar' ? ' gs-segmented__btn--active' : ''}`}
+                    onClick={() => irParaLinha('assinar')}
                   >
-                    {t('store.view_meus')}
-                    <span className="gs-segmented__count">{contagemStore.contratados}</span>
+                    {t('store.filtro_assinar')}
+                    <span className="gs-segmented__count">{contagemLinhas.assinar}</span>
                   </button>
-                </div>
-
-                {/* Chip "Em Breve" — ativo em Todos e Catálogo (quando há itens) */}
-                {viewMode !== 'meus' && contagemStore.em_breve > 0 && (
                   <button
                     type="button"
-                    className={`gs-chip-soon${emBreveOnly ? ' gs-chip-soon--active' : ''}`}
-                    onClick={() => setEmBreveOnly(v => !v)}
-                    aria-pressed={emBreveOnly}
+                    role="tab"
+                    aria-selected={viewMode === 'em_breve'}
+                    className={`gs-segmented__btn gs-segmented__btn--soon${viewMode === 'em_breve' ? ' gs-segmented__btn--active' : ''}`}
+                    onClick={() => irParaLinha('em_breve')}
                   >
                     <Lightning weight="fill" size={12} />
                     {t('store.filtro_em_breve')}
-                    <span className="gs-chip-soon__count">{contagemStore.em_breve}</span>
+                    <span className="gs-segmented__count">{contagemLinhas.em_breve}</span>
                   </button>
-                )}
+                </div>
 
                 <div className="gs-toolbar__divider" aria-hidden="true" />
 
@@ -651,149 +639,19 @@ export function Store() {
                 </div>
 
                 <div className="gs-toolbar__count">
-                  {t('store.contagem_produtos', { count: filteredCatalog.length })}
+                  {t('store.contagem_produtos', { count: catalogoFiltrado.length })}
                 </div>
               </div>
 
-              {/* Label seção — dinâmico conforme view */}
-              {filteredCatalog.length > 0 && (
-                <div className="gs-section-label">
-                  <span>
-                    {viewMode === 'meus'
-                      ? t('store.secao_meus', { count: filteredCatalog.length })
-                      : emBreveOnly
-                        ? t('store.secao_em_breve', { count: filteredCatalog.length })
-                        : t('store.secao_disponiveis', { count: filteredCatalog.length })}
-                  </span>
-                </div>
-              )}
-
-              {/* Grid — módulos disponíveis */}
-              {filteredCatalog.length > 0 && (
-              <div className="gs-grid">
-
-                {filteredCatalog.map((p, idx) => {
-                  const meta = metaProdutoStore(p.slug)
-                  const status = getStatus(p.slug)
-                  const isOwned = status === 'owned'
-                  const isSoon = status === 'soon'
-                  const isSubscribing = subscribing === p.slug
-                  const delayClass = idx < 6 ? `hs-fade-up-d${Math.min(idx + 1, 4)}` : ''
-                  return (
-                    <div
-                      key={p.id}
-                      id={`produto-${p.slug}`}
-                      className={`gs-card hs-fade-up ${delayClass}${isOwned ? ' gs-card--contratado gs-card--owned' : ''}${isSoon ? ' gs-card--soon' : ''}${!isOwned && !isSoon ? ' gs-card--disponivel gs-card--available' : ''}`}
-                      onClick={isOwned ? () => navigate(`/produto/${p.slug}`) : undefined}
-                      style={isOwned
-                        ? { cursor: 'pointer', ['--pulse-delay' as string]: pulseDelayFor(p.slug) } as React.CSSProperties
-                        : undefined}
-                    >
-                      <div className="gs-card__top">
-                        <div className="gs-card__icon" style={{ background: meta?.iconBg ?? 'rgba(99,102,241,0.12)' }}>
-                          {meta?.icon ?? <Package weight="duotone" size={28} color="#818cf8" />}
-                        </div>
-                        <div className="gs-card__badges">
-                          {isOwned ? (
-                            <span className="gs-badge gs-badge--contratado gs-badge--owned">
-                              <CheckCircle weight="fill" size={11} /> {t('store.badge_contratado')}
-                            </span>
-                          ) : isSoon ? (
-                            <span className="gs-badge gs-badge--soon">
-                              <Lightning weight="fill" size={11} /> {t('store.badge_em_breve')}
-                            </span>
-                          ) : (
-                            <span className="gs-badge gs-badge--available">
-                              <span className="gs-badge__dot" /> {t('store.badge_disponivel')}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="gs-card__body">
-                        <h3 className="gs-card__name">
-                          {nomeExibicaoProdutoGravity(p.slug, p.name, t)}
-                        </h3>
-                        {meta?.categoryKey && (
-                          <span className="gs-card__category" style={{ color: meta.iconColor }}>
-                            {t(meta.categoryKey)}
-                          </span>
-                        )}
-                        <p className="gs-card__desc">
-                          {meta?.descKey ? t(meta.descKey) : (p.description ?? t('store.produto_desc_fallback'))}
-                        </p>
-                        {meta?.tagKeys && (
-                          <div className="gs-card__tags">
-                            {meta.tagKeys.map(tk => (
-                              <span key={tk} className={`gs-tag${isSoon ? ' gs-tag--muted' : ''}`}>{t(tk)}</span>
-                            ))}
-                          </div>
-                        )}
-                        {/* Combina com */}
-                        {(RELACAO_ENTRE_PRODUTOS_GRAVITY[p.slug]?.length ?? 0) > 0 && (
-                          <div className="gs-card__combina">
-                            <span className="gs-card__combina-label">{t('store.combina_com')}</span>
-                            <div className="gs-card__combina-chips">
-                              {RELACAO_ENTRE_PRODUTOS_GRAVITY[p.slug].map(relSlug => {
-                                const relMeta = metaProdutoStore(relSlug)
-                                const relOwned = getStatus(relSlug) === 'owned'
-                                const relProduct = encontrarProdutoNoCatalogoStore(relSlug, catalog)
-                                if (!relMeta || !relProduct) return null
-                                return (
-                                  <span
-                                    key={relSlug}
-                                    className={`gs-combina-chip${relOwned ? ' gs-combina-chip--owned' : ''}`}
-                                    style={{ color: relMeta.iconColor }}
-                                  >
-                                    {nomeExibicaoProdutoGravity(relSlug, relProduct.name, t)}
-                                  </span>
-                                )
-                              })}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      <div className="gs-card__footer">
-                        <span />
-                        {isOwned ? (
-                          <BotaoGlobal
-                            variante="secundario"
-                            tamanho="pequeno"
-                            onClick={(e) => { e.stopPropagation(); navigate(`/produto/${p.slug}`) }}
-                          >
-                            {t('store.btn_acessar')}
-                          </BotaoGlobal>
-                        ) : isSoon ? (
-                          <BotaoGlobal variante="fantasma" tamanho="pequeno" disabled onClick={() => {}}>
-                            {t('store.btn_em_breve')}
-                          </BotaoGlobal>
-                        ) : podeContratar ? (
-                          <BotaoGlobal
-                            variante="primario"
-                            tamanho="pequeno"
-                            disabled={isSubscribing}
-                            onClick={(e) => { e.stopPropagation(); handleSubscribe(p.slug) }}
-                          >
-                            {isSubscribing
-                              ? <><SpinnerGap size={14} className="hs-spin" /> {t('store.btn_contratando')}</>
-                              : <>{t('store.btn_ativar')} <ArrowRight weight="bold" size={13} /></>
-                            }
-                          </BotaoGlobal>
-                        ) : (
-                          // Matriz Cadeia 1: PADRAO/FORNECEDOR vê o catálogo mas
-                          // jamais contrata. Fornecedor é potencial cliente —
-                          // mostra valor sem habilitar compra. Master/SAdmin/Admin
-                          // são os únicos que adquirem produtos para a org.
-                          <BotaoGlobal variante="fantasma" tamanho="pequeno" disabled onClick={() => {}}>
-                            {t('store.btn_ativar')}
-                          </BotaoGlobal>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
-
-              </div>
-              )}
+              <StoreCardsRows
+                catalog={catalog}
+                catalogoFiltrado={catalogoFiltrado}
+                assinaturas={subscribed}
+                podeContratar={podeContratar}
+                subscribing={subscribing}
+                onSubscribe={handleSubscribe}
+                pulseDelayFor={pulseDelayFor}
+              />
 
               {/* Footer */}
               <div className="gs-footer">

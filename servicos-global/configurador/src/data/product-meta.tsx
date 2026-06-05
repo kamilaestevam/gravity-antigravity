@@ -347,24 +347,39 @@ export function metaProdutoStore(slugCatalogo: string): ProductMeta | undefined 
   return PRODUCT_META[puzzle] ?? PRODUCT_META[slugCatalogo] ?? PRODUCT_META[resolverSlugProdutoGravity(slugCatalogo)]
 }
 
+/**
+ * Nome exibido — SSOT é o Admin (ProdutoGravity.nome_produto_gravity via API).
+ * i18n (nameKey) só quando o catálogo não trouxer nome.
+ */
 export function nomeExibicaoProdutoGravity(
-
   slug: string,
-
-  fallback: string,
-
+  nomeCatalogo: string,
   t: (key: string, defaultValue?: string) => string,
-
 ): string {
+  const doAdmin = nomeCatalogo?.trim()
+  if (doAdmin) return doAdmin
 
   const chave = slugCatalogoParaPuzzle(slug === 'bid-frete-internacional' ? 'bid-frete' : slug)
-
   const meta = metaProdutoStore(chave) ?? metaProdutoStore(slug)
-
   if (meta?.nameKey) return t(meta.nameKey)
+  return nomeCatalogo
+}
 
-  return fallback
+/**
+ * Descrição exibida — SSOT é descricao_produto_gravity do Admin; descKey só como fallback.
+ */
+export function descricaoExibicaoProdutoGravity(
+  slug: string,
+  descricaoCatalogo: string | null | undefined,
+  t: (key: string, defaultValue?: string) => string,
+  fallbackKey = 'store.produto_desc_fallback',
+): string {
+  const doAdmin = descricaoCatalogo?.trim()
+  if (doAdmin) return doAdmin
 
+  const meta = metaProdutoStore(slug)
+  if (meta?.descKey) return t(meta.descKey)
+  return t(fallbackKey)
 }
 
 

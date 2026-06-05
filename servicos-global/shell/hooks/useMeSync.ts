@@ -8,6 +8,7 @@
 import { useEffect, useRef } from 'react'
 import { useAuth, useUser } from '@clerk/clerk-react'
 import { useShellStore } from '../store'
+import { resolverNomeExibicaoUsuario } from '../utils/resolver-nome-exibicao-usuario'
 
 const CONFIGURADOR_URL = import.meta.env.VITE_CONFIGURADOR_URL ?? ''
 
@@ -72,10 +73,11 @@ export function useMeSync() {
           ?? workspaces[0]
         : undefined
 
+      const emailUsuario = usuario.email_usuario ?? ''
       setCurrentUser({
         id:         usuario.id_usuario,
-        name:       usuario.nome_usuario ?? '',
-        email:      usuario.email_usuario ?? '',
+        name:       resolverNomeExibicaoUsuario(usuario.nome_usuario ?? '', emailUsuario),
+        email:      emailUsuario,
         avatarUrl:  userImageRef.current ?? undefined,
         idOrganizacao:   usuario.id_organizacao ?? undefined,
         nomeOrganizacao: organizacao?.nome_organizacao ?? undefined,

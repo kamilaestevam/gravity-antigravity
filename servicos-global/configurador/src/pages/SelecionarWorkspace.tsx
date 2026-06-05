@@ -54,6 +54,7 @@ import {
   useMeSync,
   useShellBodyClasses,
   useLoadAllowedProducts,
+  resolverNomeExibicaoUsuario,
 } from '@gravity/shell'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { ModalOverlay } from '@nucleo/modal-global'
@@ -442,9 +443,13 @@ export function SelecionarWorkspace() {
   const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
   const companyName = sessionStorage.getItem('gravity_company_name') || selectedWs?.nome || 'Workspace'
 
-  const userName = currentUser.name || user?.fullName || user?.firstName || t('shell.usuario_padrao')
-  const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const userEmail = currentUser.email || user?.primaryEmailAddress?.emailAddress || t('shell.email_padrao')
+  const userName =
+    resolverNomeExibicaoUsuario(
+      currentUser.name || user?.fullName || user?.firstName || '',
+      typeof userEmail === 'string' ? userEmail : '',
+    ) || t('shell.usuario_padrao')
+  const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const userRoleLabel = mapRole(dbRole)
 
   // ── Localizador ──────────────────────────────────────────────────────────

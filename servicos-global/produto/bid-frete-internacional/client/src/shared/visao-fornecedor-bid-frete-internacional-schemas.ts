@@ -188,6 +188,8 @@ export function mapDesempenhoVisaoFornecedorFromServer(
 }
 
 export type EtapaFunilVisaoFornecedorBidFreteInternacional = {
+  /** Código do status (enum) — chave estável para React; opcional em respostas legadas */
+  codigo_status?: string
   rotulo: string
   quantidade: number
   cor: string

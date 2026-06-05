@@ -90,3 +90,8 @@
   margin-top: 0;
   padding-top: 0;
 }
+
+.bid-frete-visualizacao-layout .lp-tabela-wrapper .gtv-toolbar {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}

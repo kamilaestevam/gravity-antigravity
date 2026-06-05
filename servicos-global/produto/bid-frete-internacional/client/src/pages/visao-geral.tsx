@@ -52,8 +52,12 @@ import {
   getDashboardKpis,
   getDashboardMapaCotacoesVisaoGeral,
 } from '../shared/api'
-import { STATUS_LABELS, MODAL_LABELS, CalendarioAlerta } from '../shared/types'
-import type { DashboardKPIs, StatusCotacao } from '../shared/types'
+import { MODAL_LABELS, CalendarioAlerta } from '../shared/types'
+import type { DashboardKPIs } from '../shared/types'
+import {
+  montarEtapasFunilInsightsBidFreteInternacional,
+  useStatusCotacaoConfigBidFreteInternacional,
+} from '../shared/status-config-bid-frete-internacional'
 import {
   VisaoGeralMapaBidFrete as VisaoGeralMapa,
   type DadosMapaBidFrete,
@@ -74,17 +78,6 @@ const MODAL_ICONS: Record<string, React.ReactNode> = {
   AEREO: <AirplaneTilt weight="duotone" size={16} />,
   RODOVIARIO: <Truck weight="duotone" size={16} />,
 }
-
-const FUNIL_CORES: Partial<Record<StatusCotacao, string>> = {
-  RASCUNHO: '#94a3b8',
-  ENVIADA_FORNECEDORES: '#8b5cf6',
-  EM_COTACAO: '#818cf8',
-  AGUARDANDO_APROVACAO: '#fbbf24',
-  REPROVADA: '#f87171',
-  APROVADA: '#34d399',
-  EXPIRADA: '#64748b',
-}
-
 
 function GraficoBarrasMensal() {
   const W = 520
@@ -370,6 +363,7 @@ export default function VisaoGeral() {
   const [dadosMapa, setDadosMapa] = useState<DadosMapaBidFrete>({ pins: [], routes: [] })
   const [carregando, setCarregando] = useState(true)
   const [erroCarregamento, setErroCarregamento] = useState<string | null>(null)
+  const statusCotacaoConfig = useStatusCotacaoConfigBidFreteInternacional()
 
   const carregarInsights = useCallback(async () => {
     setCarregando(true)
@@ -407,12 +401,11 @@ export default function VisaoGeral() {
 
   const etapasFunil = useMemo(
     () =>
-      (kpis?.funil ?? []).map((item) => ({
-        rotulo: STATUS_LABELS[item.status],
-        quantidade: item.count,
-        cor: FUNIL_CORES[item.status] ?? '#94a3b8',
-      })),
-    [kpis?.funil],
+      montarEtapasFunilInsightsBidFreteInternacional(
+        statusCotacaoConfig,
+        kpis?.funil ?? [],
+      ),
+    [statusCotacaoConfig, kpis?.funil],
   )
 
   // PTAX currency simulation

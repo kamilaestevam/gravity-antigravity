@@ -21,7 +21,7 @@ import {
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
-import type { GTPreferencias, GTColuna } from '@nucleo/tabela-virtual-global'
+import type { GTPreferencias, GTColuna, GTAbaTipo } from '@nucleo/tabela-virtual-global'
 import {
   FileText,
   Truck,
@@ -43,7 +43,7 @@ import {
   Target,
 } from '@phosphor-icons/react'
 
-import { getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao } from '../shared/api'
+import { getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao, paineisListaBidFreteApi } from '../shared/api'
 import {
   publicarCotacaoAtualizadaBidFrete,
   inscreverCotacaoAtualizadaBidFrete,
@@ -69,14 +69,14 @@ import {
 import { SYNC_EVENT_CASAS_BID_FRETE } from '../shared/casas-config-bid-frete'
 import { SYNC_EVENT_FORMATO_DATA_BID_FRETE } from '../shared/formato-data-bid-frete'
 import { listarCardsCatalogo, useCardPreferencesBidFrete } from '../shared/use-card-preferences'
-import { BidFreteListaPainelBar } from '../components/BidFreteListaPainelBar'
+import { BidFreteListaFaixaNavegacao } from '../components/BidFreteListaFaixaNavegacao'
+import '../shared/lista-bid-frete-internacional-layout.css'
 import { useListaPainelBidFrete } from '../shared/useListaPainelBidFrete'
 import {
   configListaPainelPadraoV1,
   parsearConfigListaPainelSeguro,
   serializarConfigListaPainel,
 } from '../../../shared/listaPainelConfigSchema'
-import { paineisListaBidFreteApi } from '../shared/api'
 import { useCadastrosListaBidFrete } from '../shared/useCadastrosListaBidFrete'
 import {
   buildColunasPaiLista,
@@ -114,14 +114,12 @@ import {
 /** Gera abas dinâmicas a partir da lista de status config */
 function gerarAbasDinamicas(
   statusList: StatusCotacaoConfigBidFreteInternacional[],
-): Array<{ valor: string; label: string }> {
-  const abas: Array<{ valor: string; label: string }> = [
+): GTAbaTipo[] {
+  const ordenados = [...statusList].sort((a, b) => a.ordem - b.ordem)
+  return [
     { valor: 'TODAS', label: 'Todas as cotações' },
+    ...ordenados.map(s => ({ valor: s.nome, label: s.rotulo, cor: s.cor })),
   ]
-  for (const s of statusList) {
-    abas.push({ valor: s.nome, label: s.rotulo })
-  }
-  return abas
 }
 
 // ─── Colunas padrão = todas as colunas escalares do banco ───
@@ -509,8 +507,37 @@ export default function Cotacoes() {
     )
   }, [
     trocarPainelLista, preferencias, filtroTab, busca, filtrosAtivosLista,
-    cardsVisiveis, periodoCards, listaPainelCallbacks,
+    cardsVisiveis, periodoCards, listaPainelCallbacks, sortCampoLista, sortDirLista,
   ])
+
+  const handleCriarPainelLista = useCallback(async (nome: string): Promise<boolean> => {
+    painelListaAplicadoRef.current = null
+    try {
+      const { data: criado } = await paineisListaBidFreteApi.criar(nome)
+      setPaineisLista(prev => [...prev, criado])
+      setPainelListaAtualId(criado.id)
+      void handleTrocarPainelLista(criado.id)
+      addNotification({
+        type: 'success',
+        message: t('bid_frete_internacional.lista.painel_criado_sucesso', {
+          defaultValue: 'Painel "{{nome}}" criado.',
+          nome: criado.nome,
+        }),
+      })
+      return true
+    } catch (err) {
+      const detalhe = err instanceof Error ? err.message : ''
+      addNotification({
+        type: 'error',
+        message: detalhe
+          ? `${t('bid_frete_internacional.lista.painel_criado_erro', { defaultValue: 'Não foi possível salvar o painel.' })} ${detalhe}`
+          : t('bid_frete_internacional.lista.painel_criado_erro', {
+              defaultValue: 'Não foi possível salvar o painel.',
+            }),
+      })
+      return false
+    }
+  }, [handleTrocarPainelLista, setPaineisLista, setPainelListaAtualId, addNotification, t])
 
   useEffect(() => {
     if (!painelListaAtualId || carregandoPaineisLista) return
@@ -1280,19 +1307,6 @@ export default function Cotacoes() {
         <>
       {/* ── KPI cards (Configuração dinâmica com sincronização do local storage) ── */}
       {visao === 'lista' && (
-        <div className="bf-paineis-lista">
-          <BidFreteListaPainelBar
-            paineis={paineisLista}
-            painelAtualId={painelListaAtualId}
-            setPaineis={setPaineisLista}
-            setPainelAtualId={setPainelListaAtualId}
-            onTrocarPainel={handleTrocarPainelLista}
-            carregando={carregandoPaineisLista}
-          />
-        </div>
-      )}
-
-      {visao === 'lista' && (
         <div className="lp-stats-row">
           <div className="lp-cards">
             {cardsVisiveis.map(pref => renderCard(pref.id))}
@@ -1302,8 +1316,20 @@ export default function Cotacoes() {
 
       {/* Conteúdo da Visão */}
       {visao === 'lista' ? (
-        <div className="bf-tabela-wrapper">
-        <div className="bf-table-section">
+        <div className="lp-tabela-wrapper lp-tabela-wrapper--faixa-unificada">
+        <div className="lp-tabela-chrome">
+          <BidFreteListaFaixaNavegacao
+            paineis={paineisLista}
+            painelAtualId={painelListaAtualId}
+            setPaineis={setPaineisLista}
+            setPainelAtualId={setPainelListaAtualId}
+            onTrocarPainel={handleTrocarPainelLista}
+            onCriarPainel={handleCriarPainelLista}
+            carregando={carregandoPaineisLista}
+            abas={abas}
+            abaAtiva={filtroTab}
+            onMudarAba={setFiltroTab}
+          />
           {erroCarregar && (
             <div
               role="alert"
@@ -1343,10 +1369,6 @@ export default function Cotacoes() {
             classNameLinhaPai={classNameLinhaPai}
             classNameLinhaFilho={classNameLinhaFilho}
             labelPai={['registro', 'registros']}
-            
-            abas={abas}
-            abaAtiva={filtroTab}
-            onMudarAba={setFiltroTab}
             
             acoes={acoes}
             acoesFilho={acoesFilho}

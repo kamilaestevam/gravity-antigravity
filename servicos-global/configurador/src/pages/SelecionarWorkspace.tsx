@@ -9,7 +9,6 @@ import {
   ChartLine,
   UsersThree,
   GearSix,
-  MagnifyingGlass,
   Plus,
   Check,
   ArrowRight,
@@ -55,14 +54,12 @@ import {
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { GradeProdutosContratadosHub } from '../components/grade-produtos-contratados-hub'
-import { PreferenciasWorkspacesPorProdutoHub } from '../components/preferencias-workspaces-por-produto-hub'
 import {
-  contarOwnedNoStack,
-  filtrarCatalogoProdutosGravityStore,
-  rotuloMeterStackProdutos,
-  slugsPuzzleStackProdutosGravity,
-} from '../lib/produtos-gravity-store-status'
+  BarrasMeterProdutosContratadosHub,
+  GradeProdutosContratadosHub,
+} from '../components/grade-produtos-contratados-hub'
+import { PreferenciasWorkspacesPorProdutoHub } from '../components/preferencias-workspaces-por-produto-hub'
+import { CardVitrineStoreHub } from '../components/card-vitrine-store-hub'
 import '../../../../nucleo-global/Campos/campo-geral-global/src/campo-geral.css'
 import {
   escopoPadraoTodosWorkspaces,
@@ -330,7 +327,6 @@ export function SelecionarWorkspace() {
   const [produtosAtivos, setProdutosAtivos] = useState<ProdutoAtivo[]>([])
   const [produtosContratados, setProdutosContratados] = useState<ProdutoContratado[]>([])
   const [catalogoProdutos, setCatalogoProdutos] = useState<ProdutoCatalogo[]>([])
-  const [wsSearch, setWsSearch] = useState('')
   // Workspace preferido unificado: 1 único workspace por usuário, persistido no backend.
   // Dispara skip pós-login (redireciona direto para /core no próximo acesso).
   // Fornecedor (SUPPLIER) nunca recebe valor aqui — backend força null.
@@ -388,17 +384,6 @@ export function SelecionarWorkspace() {
     [contratadosAtivos, t],
   )
 
-  // Produtos sugeridos = catálogo que o tenant ainda não contratou (inclui Em Breve)
-  const slugsContratados = new Set(produtosContratados.map(p => p.product_key))
-  const HIDDEN_STATUSES = new Set(['INATIVO', 'LEGADO', 'SUSPENSO', 'Inativo', 'Legado', 'Suspenso'])
-  const produtosSugeridos = catalogoProdutos.filter(
-    p => !HIDDEN_STATUSES.has(p.status) && !slugsContratados.has(p.slug)
-  )
-  const catalogoStore = useMemo(
-    () => filtrarCatalogoProdutosGravityStore(catalogoProdutos),
-    [catalogoProdutos],
-  )
-
   const saudacaoHub = getHubGreeting(
     (key, fallback) =>
       typeof fallback === 'string' ? t(key, fallback) : t(key, fallback as Record<string, unknown>),
@@ -412,24 +397,6 @@ export function SelecionarWorkspace() {
     )
     return `${nomeWs} · ${detalhe}`
   }, [selectedWs, contratadosAtivos.length, t])
-
-  const rotuloStackHub = useMemo(() => {
-    const catalogoMin = catalogoStore.map(p => ({
-      slug: p.slug,
-      name: p.name,
-      status: p.status,
-    }))
-    const assinaturas = produtosContratados.map(p => ({
-      product_key: p.product_key,
-      is_active: p.is_active,
-    }))
-    const totalStack = slugsPuzzleStackProdutosGravity(catalogoMin).length
-    const ownedNoStack = contarOwnedNoStack(catalogoMin, assinaturas)
-    return rotuloMeterStackProdutos(ownedNoStack, totalStack, t)
-  }, [catalogoStore, produtosContratados, t])
-
-  const puzzlePreenchido = contratadosAtivos.slice(0, 4)
-  const puzzleVazios = Math.max(0, 6 - puzzlePreenchido.length)
 
   const insightGabiAtual = gabiInsights[gabiIndice] ?? gabiInsights[0] ?? null
 
@@ -977,13 +944,6 @@ export function SelecionarWorkspace() {
           icon: <ShoppingBagOpen size={13} weight="bold" color="#818cf8" />,
           onClick: () => navigate('/store'),
         }}
-        onBuscar={() => {
-          const el = document.querySelector<HTMLInputElement>('.sw-ws-search')
-          if (el) {
-            el.focus()
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          }
-        }}
         workspaceName={companyName}
         localizador={{
           currentProductId: 'hub',
@@ -1054,17 +1014,14 @@ export function SelecionarWorkspace() {
                 >
                   <div className="sw-hub-prod-head">
                     <div className="sw-hub-prod-head-left">
-                      <div className="sw-hub-panel-label" style={{ margin: 0 }}>
+                      <div className="sw-hub-panel-label">
                         {t('sw.produtos_contratados', 'Produtos contratados')}
                       </div>
-                      <p className="sw-hub-store-desc" style={{ marginBottom: 0 }}>
+                      <p className="sw-hub-store-desc">
                         {t('sw.produtos_contratados_desc')}
                       </p>
                     </div>
                     <div className="sw-hub-prod-head-right">
-                      {rotuloStackHub ? (
-                        <span className="sw-hub-prod-stack-label">{rotuloStackHub}</span>
-                      ) : null}
                       <button
                         type="button"
                         className="sw-hub-prod-head-link"
@@ -1072,6 +1029,16 @@ export function SelecionarWorkspace() {
                       >
                         {t('sw.ver_catalogo', 'Gravity Store')} →
                       </button>
+                      <BarrasMeterProdutosContratadosHub
+                        catalogo={catalogoProdutos}
+                        produtosContratados={produtosContratados.map(p => ({
+                          product_key: p.product_key,
+                          is_active: p.is_active,
+                          nome: PRODUCT_NAME_KEYS[p.product_key]
+                            ? t(PRODUCT_NAME_KEYS[p.product_key])
+                            : p.nome,
+                        }))}
+                      />
                     </div>
                   </div>
                   <GradeProdutosContratadosHub
@@ -1099,22 +1066,9 @@ export function SelecionarWorkspace() {
                     )}
                   </p>
 
-                  <div className="sw-ws-search-wrap">
-                    <MagnifyingGlass size={14} weight="bold" className="sw-ws-search-icon" aria-hidden="true" />
-                    <input
-                      type="search"
-                      className="sw-ws-search"
-                      value={wsSearch}
-                      onChange={e => setWsSearch(e.target.value)}
-                      placeholder={t('sw.buscar_workspace_produto', 'Buscar produto ou workspace…')}
-                      aria-label={t('sw.buscar_workspace_produto', 'Buscar produto ou workspace')}
-                    />
-                  </div>
-
                   <PreferenciasWorkspacesPorProdutoHub
                     produtos={produtosContratadosHubLinha}
                     workspaces={workspaces}
-                    busca={wsSearch}
                     escoposPorProduto={escoposPorProduto}
                     idOrganizacao={idOrganizacao}
                     idUsuario={idUsuarioPrisma}
@@ -1131,6 +1085,68 @@ export function SelecionarWorkspace() {
                 </section>
               </div>
 
+              <section className="sw-hub-row-ops sw-a1" aria-label={t('hub.operacoes_andamento', 'Operações em andamento')}>
+                <div className="sw-hub-ops-head">
+                  <div className="sw-hub-panel-label">
+                    {t('hub.operacoes_andamento', 'Operações em andamento')}
+                  </div>
+                  <button
+                    type="button"
+                    className="sw-hub-ops-link"
+                    onClick={() => {
+                      const orgId = idOrganizacao ?? sessionStorage.getItem('gravity_tenant_id')
+                      if (orgId) {
+                        navigate(`/processo?idOrganizacao=${encodeURIComponent(orgId)}`)
+                      } else {
+                        navigate('/processo')
+                      }
+                    }}
+                  >
+                    {t('hub.ver_todos_processos', 'Ver todos os processos')} →
+                  </button>
+                </div>
+                <div className="sw-hub-kpi-row">
+                  <div className="sw-hub-kpi">
+                    <div className="sw-hub-kpi-val">7</div>
+                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_processos', 'Processos em andamento')}</div>
+                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">▲ {t('hub.kpi_delta_1_hoje', '1 hoje')}</span>
+                  </div>
+                  <div className="sw-hub-kpi">
+                    <div className="sw-hub-kpi-val">3</div>
+                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_aguardando_acao', 'Aguardando ação')}</div>
+                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">⚠ {t('hub.kpi_delta_3_pendentes', '3 pendentes')}</span>
+                  </div>
+                  <div className="sw-hub-kpi">
+                    <div className="sw-hub-kpi-val">12</div>
+                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_notas', 'NFs de importação')}</div>
+                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">⚠ {t('hub.kpi_delta_7_pendentes', '7 pendentes')}</span>
+                  </div>
+                  <div className="sw-hub-kpi">
+                    <div className="sw-hub-kpi-val">91%</div>
+                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_gabi_curto', 'Assertividade Gabi IA')}</div>
+                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">{t('hub.kpi_delta_ativo', 'ativo')}</span>
+                  </div>
+                </div>
+                <div className="sw-hub-proc-list">
+                  {processosOperacaoHub.map((proc) => (
+                    <button
+                      key={proc.id}
+                      type="button"
+                      className="sw-hub-proc"
+                      onClick={abrirProcessoHub}
+                    >
+                      <div>
+                        <div className="sw-hub-proc-name">{proc.nome}</div>
+                        <div className="sw-hub-proc-sub">{proc.detalhe}</div>
+                      </div>
+                      <span className={`sw-hub-proc-badge sw-hub-proc-badge--${proc.badgeVariant}`}>
+                        {proc.badge}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+
               <div
                 className="sw-hub-row-gabi sw-a1"
                 onMouseEnter={() => setGabiPaused(true)}
@@ -1144,23 +1160,14 @@ export function SelecionarWorkspace() {
                   <p className="sw-hub-store-desc">
                     {t('sw.store_desc', 'Descubra novas ferramentas e ative produtos no workspace.')}
                   </p>
-                  <div className="sw-hub-store-puzzle" aria-hidden="true">
-                    {puzzlePreenchido.map(prod => {
-                      const iconData = getProdutoIcon(prod.product_key)
-                      return (
-                        <div
-                          key={prod.product_key}
-                          className="sw-hub-puzzle sw-hub-puzzle--filled"
-                          style={{ color: iconData.color }}
-                        >
-                          {iconData.icon}
-                        </div>
-                      )
-                    })}
-                    {Array.from({ length: puzzleVazios }).map((_, i) => (
-                      <div key={`empty-${i}`} className="sw-hub-puzzle" />
-                    ))}
-                  </div>
+                  <CardVitrineStoreHub
+                    catalogo={catalogoProdutos}
+                    produtosContratados={produtosContratados.map(p => ({
+                      product_key: p.product_key,
+                      is_active: p.is_active,
+                    }))}
+                    onAbrirStore={() => navigate('/store')}
+                  />
                   <button
                     type="button"
                     className="sw-hub-store-btn"
@@ -1169,27 +1176,6 @@ export function SelecionarWorkspace() {
                     {t('sw.visitar_store', 'Visitar Gravity Store')}
                     <ArrowRight size={12} weight="bold" />
                   </button>
-                  {produtosSugeridos.length > 0 && (
-                    <>
-                      <div className="sw-hub-store-list-title">
-                        {t('sw.disponivel_store', 'Disponível na store')}
-                      </div>
-                      {produtosSugeridos.slice(0, 3).map(prod => {
-                        const iconData = getProdutoIcon(prod.slug)
-                        return (
-                          <div key={prod.id} className="sw-hub-store-item">
-                            <span
-                              className="sw-hub-store-item-icon"
-                              style={{ background: iconData.bg, color: iconData.color }}
-                            >
-                              {iconData.icon}
-                            </span>
-                            {PRODUCT_NAME_KEYS[prod.slug] ? t(PRODUCT_NAME_KEYS[prod.slug]) : prod.name}
-                          </div>
-                        )
-                      })}
-                    </>
-                  )}
                 </section>
 
                 <section className="sw-hub-panel sw-hub-panel--gabi" aria-label={t('sw.gabi_label')}>
@@ -1292,68 +1278,6 @@ export function SelecionarWorkspace() {
                   </div>
                 </section>
               </div>
-
-              <section className="sw-hub-row-ops sw-a1" aria-label={t('hub.operacoes_andamento', 'Operações em andamento')}>
-                <div className="sw-hub-ops-head">
-                  <div className="sw-hub-panel-label" style={{ margin: 0 }}>
-                    {t('hub.operacoes_andamento', 'Operações em andamento')}
-                  </div>
-                  <button
-                    type="button"
-                    className="sw-hub-ops-link"
-                    onClick={() => {
-                      const orgId = idOrganizacao ?? sessionStorage.getItem('gravity_tenant_id')
-                      if (orgId) {
-                        navigate(`/processo?idOrganizacao=${encodeURIComponent(orgId)}`)
-                      } else {
-                        navigate('/processo')
-                      }
-                    }}
-                  >
-                    {t('hub.ver_todos_processos', 'Ver todos os processos')} →
-                  </button>
-                </div>
-                <div className="sw-hub-kpi-row">
-                  <div className="sw-hub-kpi">
-                    <div className="sw-hub-kpi-val">7</div>
-                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_processos', 'Processos em andamento')}</div>
-                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">▲ {t('hub.kpi_delta_1_hoje', '1 hoje')}</span>
-                  </div>
-                  <div className="sw-hub-kpi">
-                    <div className="sw-hub-kpi-val">3</div>
-                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_aguardando_acao', 'Aguardando ação')}</div>
-                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">⚠ {t('hub.kpi_delta_3_pendentes', '3 pendentes')}</span>
-                  </div>
-                  <div className="sw-hub-kpi">
-                    <div className="sw-hub-kpi-val">12</div>
-                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_notas', 'NFs de importação')}</div>
-                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">⚠ {t('hub.kpi_delta_7_pendentes', '7 pendentes')}</span>
-                  </div>
-                  <div className="sw-hub-kpi">
-                    <div className="sw-hub-kpi-val">91%</div>
-                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_gabi_curto', 'Assertividade Gabi IA')}</div>
-                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">{t('hub.kpi_delta_ativo', 'ativo')}</span>
-                  </div>
-                </div>
-                <div className="sw-hub-proc-list">
-                  {processosOperacaoHub.map((proc) => (
-                    <button
-                      key={proc.id}
-                      type="button"
-                      className="sw-hub-proc"
-                      onClick={abrirProcessoHub}
-                    >
-                      <div>
-                        <div className="sw-hub-proc-name">{proc.nome}</div>
-                        <div className="sw-hub-proc-sub">{proc.detalhe}</div>
-                      </div>
-                      <span className={`sw-hub-proc-badge sw-hub-proc-badge--${proc.badgeVariant}`}>
-                        {proc.badge}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </section>
             </div>
           )}
         </div>

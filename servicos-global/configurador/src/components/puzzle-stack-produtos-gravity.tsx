@@ -4,7 +4,7 @@
  */
 
 import type { TFunction } from 'i18next'
-import React, { useCallback, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, CaretLeft, CaretRight, CheckCircle, Package } from '@phosphor-icons/react'
 import { PRODUCT_META, nomeExibicaoProdutoGravity } from '../data/product-meta'
@@ -42,6 +42,63 @@ function pathPecaPuzzle(isFirst: boolean, isLast: boolean): string {
   return 'M 0,0 L 120,0 L 120,32 C 138,32 138,58 120,58 L 120,90 L 0,90 L 0,58 C 18,58 18,32 0,32 Z'
 }
 
+export type PecaPuzzleStackProduto = {
+  slug: string
+  nome: string
+  status: ReturnType<typeof statusProdutoGravityStore>
+}
+
+export function pecasPuzzleStackProdutosGravity(
+  catalogo: CatalogoProdutoGravityMin[],
+  assinaturas: AssinaturaProdutoGravityMin[],
+): PecaPuzzleStackProduto[] {
+  const catalogoPorSlug = mapaCatalogoPorSlugCanonico(catalogo)
+  const assinaturaAtiva = mapaAssinaturaAtivaPorSlug(assinaturas)
+  const slugsStack = slugsPuzzleStackProdutosGravity(catalogo)
+  return slugsStack.map(slug => {
+    const cat = catalogo.find(p => slugCanonicoProdutoGravity(p.slug) === slug)
+    return {
+      slug,
+      nome: cat?.name ?? slug,
+      status: statusProdutoGravityStore(slug, catalogoPorSlug, assinaturaAtiva),
+    }
+  })
+}
+
+export interface BarrasMeterPuzzleStackProdutosProps {
+  pecas: PecaPuzzleStackProduto[]
+  className?: string
+  children?: React.ReactNode
+}
+
+/** Barrinhas de progresso do puzzle (módulos ativos no stack). */
+export function BarrasMeterPuzzleStackProdutos({
+  pecas,
+  className = '',
+  children,
+}: BarrasMeterPuzzleStackProdutosProps) {
+  if (pecas.length === 0) return null
+
+  return (
+    <div className={`gs-stack__meter${className ? ` ${className}` : ''}`}>
+      <div className="gs-stack__meter-bar">
+        {pecas.map(p => (
+          <div
+            key={p.slug}
+            className={`gs-stack__seg${p.status === 'owned' ? ' gs-stack__seg--on' : ''}`}
+            style={
+              p.status === 'owned'
+                ? ({ ['--seg-color' as string]: PRODUCT_META[p.slug]?.iconColor ?? '#818cf8' } as React.CSSProperties)
+                : undefined
+            }
+          />
+        ))}
+      </div>
+      {children}
+    </div>
+  )
+}
+
 export interface PuzzleStackProdutosGravityProps {
   /** Catálogo Admin (ATIVO + EM_BREVE) — mesmo filtro da Store. */
   catalogo: CatalogoProdutoGravityMin[]
@@ -52,6 +109,8 @@ export interface PuzzleStackProdutosGravityProps {
   escala?: 'hub' | 'full'
   /** HUB: contador abaixo do título do painel (só barras ficam no stack). */
   rotuloAbaixoTitulo?: boolean
+  /** HUB: barras renderizadas fora do stack (ex.: ao lado do link Gravity Store). */
+  ocultarMeterNoStack?: boolean
   /** HUB: hidrata sessão do workspace e abre o produto (atalho direto). */
   onAbrirProdutoContratado?: (slug: string, rota: string) => void
   className?: string
@@ -63,12 +122,41 @@ export function PuzzleStackProdutosGravity({
   t,
   escala = 'full',
   rotuloAbaixoTitulo = false,
+  ocultarMeterNoStack = false,
   onAbrirProdutoContratado,
   className = '',
 }: PuzzleStackProdutosGravityProps) {
   const navigate = useNavigate()
   const pecasCarouselRef = useRef<HTMLDivElement>(null)
   const comCarrosselHub = escala === 'hub'
+  const [navCarrosselHub, setNavCarrosselHub] = useState({ esquerda: false, direita: false })
+
+  const atualizarNavCarrosselHub = useCallback(() => {
+    const el = pecasCarouselRef.current
+    if (!el) return
+    const limiar = 6
+    const { scrollLeft, scrollWidth, clientWidth } = el
+    setNavCarrosselHub({
+      esquerda: scrollLeft > limiar,
+      direita: scrollLeft + clientWidth < scrollWidth - limiar,
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!comCarrosselHub) return
+    const el = pecasCarouselRef.current
+    if (!el) return
+
+    atualizarNavCarrosselHub()
+    el.addEventListener('scroll', atualizarNavCarrosselHub, { passive: true })
+    const observador = new ResizeObserver(atualizarNavCarrosselHub)
+    observador.observe(el)
+
+    return () => {
+      el.removeEventListener('scroll', atualizarNavCarrosselHub)
+      observador.disconnect()
+    }
+  }, [comCarrosselHub, atualizarNavCarrosselHub, catalogo, assinaturas])
 
   const scrollCarrosselPecas = useCallback((dir: 'left' | 'right') => {
     const el = pecasCarouselRef.current
@@ -91,22 +179,9 @@ export function PuzzleStackProdutosGravity({
     navigate(`/store?produto=${slug}`)
   }
 
-  const catalogoPorSlug = useMemo(() => mapaCatalogoPorSlugCanonico(catalogo), [catalogo])
-  const assinaturaAtiva = useMemo(() => mapaAssinaturaAtivaPorSlug(assinaturas), [assinaturas])
-
-  const slugsStack = useMemo(() => slugsPuzzleStackProdutosGravity(catalogo), [catalogo])
-
   const pecas = useMemo(
-    () =>
-      slugsStack.map(slug => {
-        const cat = catalogo.find(p => slugCanonicoProdutoGravity(p.slug) === slug)
-        return {
-          slug,
-          nome: cat?.name ?? slug,
-          status: statusProdutoGravityStore(slug, catalogoPorSlug, assinaturaAtiva),
-        }
-      }),
-    [slugsStack, catalogo, catalogoPorSlug, assinaturaAtiva],
+    () => pecasPuzzleStackProdutosGravity(catalogo, assinaturas),
+    [catalogo, assinaturas],
   )
 
   const ownedNoStack = pecas.filter(p => p.status === 'owned').length
@@ -191,38 +266,30 @@ export function PuzzleStackProdutosGravity({
 
   return (
     <div className={`gs-stack gs-stack--puzzle${escalaClass} ${className}`.trim()}>
-      <div className="gs-stack__head gs-stack__head--compact">
-        <div className="gs-stack__meter">
-          <div className="gs-stack__meter-bar">
-            {pecas.map(p => (
-              <div
-                key={p.slug}
-                className={`gs-stack__seg${p.status === 'owned' ? ' gs-stack__seg--on' : ''}`}
-                style={
-                  p.status === 'owned'
-                    ? ({ ['--seg-color' as string]: PRODUCT_META[p.slug]?.iconColor ?? '#818cf8' } as React.CSSProperties)
-                    : undefined
-                }
-              />
-            ))}
-          </div>
-          {!rotuloAbaixoTitulo && (
-            <span className="gs-stack__meter-label">
-              {rotuloMeterStackProdutos(ownedNoStack, totalStack, t)}
-            </span>
-          )}
+      {!ocultarMeterNoStack && (
+        <div className="gs-stack__head gs-stack__head--compact">
+          <BarrasMeterPuzzleStackProdutos pecas={pecas}>
+            {!rotuloAbaixoTitulo && (
+              <span className="gs-stack__meter-label">
+                {rotuloMeterStackProdutos(ownedNoStack, totalStack, t)}
+              </span>
+            )}
+          </BarrasMeterPuzzleStackProdutos>
         </div>
-      </div>
+      )}
 
       {comCarrosselHub ? (
         <div className="sw-ws-carousel-wrap sw-hub-prod-puzzle-carousel">
           <button
             className="sw-carousel-btn sw-carousel-btn--left"
             type="button"
+            disabled={!navCarrosselHub.esquerda}
             onClick={() => scrollCarrosselPecas('left')}
             aria-label={t('sw.carrossel_anterior', 'Anterior')}
+            aria-hidden={!navCarrosselHub.esquerda}
+            tabIndex={navCarrosselHub.esquerda ? 0 : -1}
           >
-            <CaretLeft size={16} weight="bold" />
+            <CaretLeft size={14} weight="bold" />
           </button>
           <div className="gs-stack__pieces-scroll" ref={pecasCarouselRef}>
             {conteudoPecas}
@@ -230,10 +297,13 @@ export function PuzzleStackProdutosGravity({
           <button
             className="sw-carousel-btn sw-carousel-btn--right"
             type="button"
+            disabled={!navCarrosselHub.direita}
             onClick={() => scrollCarrosselPecas('right')}
             aria-label={t('sw.carrossel_proximo', 'Próximo')}
+            aria-hidden={!navCarrosselHub.direita}
+            tabIndex={navCarrosselHub.direita ? 0 : -1}
           >
-            <CaretRight size={16} weight="bold" />
+            <CaretRight size={14} weight="bold" />
           </button>
         </div>
       ) : (

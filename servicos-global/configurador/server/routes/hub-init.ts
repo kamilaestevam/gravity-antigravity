@@ -8,7 +8,11 @@ import { Router } from 'express'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { organizacaoService } from '../services/organizacao-service.js'
 import { prisma } from '../lib/prisma.js'
-import { generateHubInsights, normalizeHubRole } from '../services/hub-insights-service.js'
+import {
+  generateHubInsights,
+  normalizarChavesProdutosAtivosHub,
+  normalizeHubRole,
+} from '../services/hub-insights-service.js'
 import { listarSlugsProdutosAcessiveis } from '../services/produtos-acessiveis-service.js'
 import { listarCatalogoVitrineProdutoGravity } from '../services/catalogo-vitrine-produto-gravity.js'
 
@@ -162,16 +166,29 @@ hubRouter.get('/insights', requireAuth, async (req, res) => {
     const id_usuario = req.auth.id_usuario
     const role = normalizeHubRole(req.auth.tipo_usuario)
 
-    // Busca produtos ativos do tenant (leve — Prisma com select mínimo)
-    const configs = await prisma.produtoGravityConfiguracao.findMany({
-      where: {
-        id_organizacao_configuracao_produto_gravity: id_organizacao,
-        ativo_configuracao_produto_gravity: true,
-      },
-      select: { chave_produto_configuracao_produto_gravity: true },
-    })
+    // Paridade com /hub/init: produtos contratados + ativos + Portão 3 (acesso do usuário)
+    const [configs, slugsAcessiveis] = await Promise.all([
+      prisma.produtoGravityConfiguracao.findMany({
+        where: { id_organizacao_configuracao_produto_gravity: id_organizacao },
+        select: {
+          chave_produto_configuracao_produto_gravity: true,
+          ativo_configuracao_produto_gravity: true,
+        },
+      }),
+      listarSlugsProdutosAcessiveis(id_organizacao, id_usuario).catch(() => new Set<string>()),
+    ])
 
-    const activeProductKeys = new Set(configs.map(c => c.chave_produto_configuracao_produto_gravity))
+    const activeProductKeys = normalizarChavesProdutosAtivosHub(
+      new Set(
+        configs
+          .filter(
+            c =>
+              c.ativo_configuracao_produto_gravity &&
+              slugsAcessiveis.has(c.chave_produto_configuracao_produto_gravity),
+          )
+          .map(c => c.chave_produto_configuracao_produto_gravity),
+      ),
+    )
 
     const insights = await generateHubInsights(
       id_organizacao,

@@ -31,7 +31,7 @@ export interface AtalhoTopbarPaginaGravity {
 export interface TopbarPaginaGravityProps {
   rotuloTela: string
   atalho?: AtalhoTopbarPaginaGravity
-  onBuscar: () => void
+  onBuscar?: () => void
   workspaceName: string
   localizador: {
     currentProductId: string
@@ -102,15 +102,17 @@ export function TopbarPaginaGravity({
             </>
           ) : null}
 
-          <button
-            className="hb-topbar-btn"
-            type="button"
-            title={t('comum.buscar')}
-            aria-label={t('comum.buscar')}
-            onClick={onBuscar}
-          >
-            <MagnifyingGlass weight="bold" size={16} />
-          </button>
+          {onBuscar ? (
+            <button
+              className="hb-topbar-btn"
+              type="button"
+              title={t('comum.buscar')}
+              aria-label={t('comum.buscar')}
+              onClick={onBuscar}
+            >
+              <MagnifyingGlass weight="bold" size={16} />
+            </button>
+          ) : null}
 
           <Notificacoes />
 

@@ -1,7 +1,7 @@
 /* Preferências workspace × produto no painel HUB */
 
 .sw-ws-por-produto-intro {
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 12px;
   line-height: 1.45;
   color: var(--sw-text-3, rgba(255, 255, 255, 0.5));
@@ -45,7 +45,7 @@ body.light-theme .sw-ws-por-produto-linha {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 
 .sw-ws-por-produto-icone {
@@ -241,9 +241,5 @@ body.light-theme .sw-ws-por-produto-chip--todos {
 .sw-ws-por-produto-criar:hover {
   border-color: rgba(129, 140, 248, 0.45);
   color: #c7d2fe;
-}
-
-.sw-hub-panel--ws .sw-ws-search-wrap {
-  margin-bottom: 8px;
 }
 

@@ -56,8 +56,6 @@ export interface PreferenciasWorkspacesPorProdutoHubProps {
 
   workspaces: WorkspaceResumoHub[]
 
-  busca: string
-
   escoposPorProduto: Record<string, string[]>
 
   idOrganizacao: string | null
@@ -87,8 +85,6 @@ export function PreferenciasWorkspacesPorProdutoHub({
   produtos,
 
   workspaces,
-
-  busca,
 
   escoposPorProduto,
 
@@ -147,34 +143,6 @@ export function PreferenciasWorkspacesPorProdutoHub({
     [workspaces],
 
   )
-
-
-
-  const termoBusca = busca.trim().toLowerCase()
-
-
-
-  const produtosFiltrados = useMemo(() => {
-
-    if (!termoBusca) return produtos
-
-    return produtos.filter((prod) => {
-
-      if (prod.nome.toLowerCase().includes(termoBusca)) return true
-
-      const ids = escoposPorProduto[prod.product_key] ?? []
-
-      return ids.some((id) => {
-
-        const nome = mapaWorkspaces.get(id)?.nome ?? ''
-
-        return nome.toLowerCase().includes(termoBusca)
-
-      })
-
-    })
-
-  }, [produtos, termoBusca, escoposPorProduto, mapaWorkspaces])
 
 
 
@@ -364,19 +332,7 @@ export function PreferenciasWorkspacesPorProdutoHub({
 
     <div className="sw-ws-por-produto">
 
-      {produtosFiltrados.length === 0 ? (
-
-        <p className="sw-ws-por-produto-vazio">
-
-          {t('sw.ws_pref_nenhum_resultado', 'Nenhum produto ou workspace corresponde à busca.')}
-
-        </p>
-
-      ) : null}
-
-
-
-      {produtosFiltrados.map((prod) => {
+      {produtos.map((prod) => {
 
         const iconData = getIconeProduto(prod.product_key)
 

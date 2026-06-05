@@ -5,7 +5,11 @@
 import type { TFunction } from 'i18next'
 import React, { useMemo } from 'react'
 import { Package } from '@phosphor-icons/react'
-import { PuzzleStackProdutosGravity } from './puzzle-stack-produtos-gravity'
+import {
+  BarrasMeterPuzzleStackProdutos,
+  pecasPuzzleStackProdutosGravity,
+  PuzzleStackProdutosGravity,
+} from './puzzle-stack-produtos-gravity'
 import {
   filtrarCatalogoProdutosGravityStore,
   slugsPuzzleStackProdutosGravity,
@@ -88,8 +92,46 @@ export function GradeProdutosContratadosHub({
       t={t}
       escala="hub"
       rotuloAbaixoTitulo={rotuloNoCabecalho}
+      ocultarMeterNoStack={rotuloNoCabecalho}
       onAbrirProdutoContratado={onAbrirProdutoContratado}
       className="gs-stack--hub-contratados"
     />
   )
+}
+
+export interface BarrasMeterProdutosContratadosHubProps {
+  catalogo: ProdutoCatalogoHubItem[]
+  produtosContratados: ProdutoContratadoHubItem[]
+}
+
+/** Barrinhas do puzzle no cabeçalho do painel (abaixo do link Gravity Store). */
+export function BarrasMeterProdutosContratadosHub({
+  catalogo,
+  produtosContratados,
+}: BarrasMeterProdutosContratadosHubProps) {
+  const catalogoStore = useMemo(
+    () => filtrarCatalogoProdutosGravityStore(catalogo),
+    [catalogo],
+  )
+
+  const catalogoMin: CatalogoProdutoGravityMin[] = useMemo(
+    () => catalogoStore.map(p => ({ slug: p.slug, name: p.name, status: p.status })),
+    [catalogoStore],
+  )
+
+  const assinaturas: AssinaturaProdutoGravityMin[] = useMemo(
+    () =>
+      produtosContratados.map(p => ({
+        product_key: p.product_key,
+        is_active: p.is_active,
+      })),
+    [produtosContratados],
+  )
+
+  const pecas = useMemo(
+    () => pecasPuzzleStackProdutosGravity(catalogoMin, assinaturas),
+    [catalogoMin, assinaturas],
+  )
+
+  return <BarrasMeterPuzzleStackProdutos pecas={pecas} className="sw-hub-prod-head-meter" />
 }

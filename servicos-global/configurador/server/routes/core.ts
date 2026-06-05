@@ -46,8 +46,10 @@ async function fetchProdutoInterno(
   url: string,
   ctx: { id_organizacao: string; id_workspace?: string | null },
 ): Promise<unknown> {
+  const chave = getChaveInterna()
   const headers: Record<string, string> = {
-    'x-internal-key': getChaveInterna(),
+    'x-chave-interna-servico': chave,
+    'x-internal-key': chave,
     'x-id-organizacao': ctx.id_organizacao,
     'Content-Type': 'application/json',
   }

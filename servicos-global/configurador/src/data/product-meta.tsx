@@ -407,7 +407,3 @@ export const STACK_ORDER = [
 ] as const
 
 
-
-export const STACK_PUZZLE_ATIVOS = new Set<string>(['pedido', 'bid-frete'])
-
-

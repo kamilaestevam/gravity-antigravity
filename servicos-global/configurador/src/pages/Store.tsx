@@ -19,9 +19,16 @@ import {
   PRODUCT_META,
   RELACAO_ENTRE_PRODUTOS_GRAVITY,
   STACK_ORDER,
-  STACK_PUZZLE_ATIVOS,
   nomeExibicaoProdutoGravity,
 } from '../data/product-meta'
+import {
+  classeSegmentoPuzzleStore,
+  contarStatusCatalogoStore,
+  resolverStatusProdutoStore,
+  statusExibicaoParaLegado,
+  type StatusExibicaoProdutoStore,
+} from '../data/status-produto-store'
+import { StorePuzzleRow } from '../components/store-puzzle-row'
 import './hub-store.css'
 import './hub.css'
 import '../pages/configurador/workspace.css'
@@ -200,20 +207,48 @@ export function Store() {
     }
   }
 
+  const statusProduto = (slug: string): StatusExibicaoProdutoStore =>
+    resolverStatusProdutoStore(slug, catalog, subscribed)
+
   const getStatus = (slug: string): 'owned' | 'available' | 'soon' => {
-    // Status do catálogo (admin) é fonte da verdade. EM_BREVE prevalece sobre
-    // qualquer assinatura legada/interna — produto não-lançado nunca aparece
-    // como "ativo" na Store, mesmo que a org tenha uma linha em ProdutoGravityAssinatura.
-    const produto = catalog.find(p => p.slug === slug)
-    if (produto?.status === 'EM_BREVE') return 'soon'
-    if (subscribed.get(slug)?.is_active) return 'owned'
-    return 'available'
+    const legado = statusExibicaoParaLegado(statusProduto(slug))
+    return legado ?? 'available'
   }
 
-  const ownedCount = useMemo(() => catalog.filter(p => getStatus(p.slug) === 'owned').length, [catalog, subscribed])
-  const totalCount = catalog.length
-  const emBreveCount = useMemo(() => catalog.filter(p => p.status === 'EM_BREVE').length, [catalog])
-  const catalogoCount = useMemo(() => catalog.filter(p => getStatus(p.slug) !== 'owned').length, [catalog, subscribed])
+  const puzzleLinhaAtivos = useMemo(
+    () =>
+      STACK_ORDER.filter((slug) => {
+        const s = resolverStatusProdutoStore(slug, catalog, subscribed)
+        return s === 'contratado' || s === 'disponivel' || s === 'fora_catalogo'
+      }),
+    [catalog, subscribed],
+  )
+
+  const puzzleLinhaEmBreve = useMemo(
+    () =>
+      STACK_ORDER.filter(
+        (slug) => resolverStatusProdutoStore(slug, catalog, subscribed) === 'em_breve',
+      ),
+    [catalog, subscribed],
+  )
+
+  const contratadosNoPuzzle = useMemo(
+    () =>
+      puzzleLinhaAtivos.filter(
+        (slug) => resolverStatusProdutoStore(slug, catalog, subscribed) === 'contratado',
+      ).length,
+    [puzzleLinhaAtivos, catalog, subscribed],
+  )
+
+  const contagemStore = useMemo(
+    () => contarStatusCatalogoStore(catalog, subscribed),
+    [catalog, subscribed],
+  )
+
+  const catalogoCount = useMemo(
+    () => catalog.filter((p) => getStatus(p.slug) !== 'owned').length,
+    [catalog, subscribed],
+  )
 
   // Delay determinístico por slug — cada card "owned" pulsa fora de sync (efeito aleatório estável)
   const pulseDelayFor = (slug: string): string => {
@@ -426,8 +461,8 @@ export function Store() {
                     <Package weight="duotone" size={20} />
                   </div>
                   <div>
-                    <div className="gs-stat__n">{totalCount}</div>
-                    <div className="gs-stat__l">{t('store.stat_modulos')}</div>
+                    <div className="gs-stat__n">{contagemStore.disponiveis}</div>
+                    <div className="gs-stat__l">{t('store.stat_disponiveis')}</div>
                   </div>
                 </div>
                 <div className="gs-stat">
@@ -435,8 +470,8 @@ export function Store() {
                     <CheckCircle weight="duotone" size={20} />
                   </div>
                   <div>
-                    <div className="gs-stat__n">{ownedCount}</div>
-                    <div className="gs-stat__l">{t('store.stat_ativos')}</div>
+                    <div className="gs-stat__n">{contagemStore.contratados}</div>
+                    <div className="gs-stat__l">{t('store.stat_contratados')}</div>
                   </div>
                 </div>
                 <div className="gs-stat">
@@ -444,7 +479,7 @@ export function Store() {
                     <Lightning weight="duotone" size={20} />
                   </div>
                   <div>
-                    <div className="gs-stat__n">{emBreveCount}</div>
+                    <div className="gs-stat__n">{contagemStore.em_breve}</div>
                     <div className="gs-stat__l">{t('store.stat_em_breve')}</div>
                   </div>
                 </div>
@@ -459,87 +494,55 @@ export function Store() {
                     </div>
                     <div className="gs-stack__meter">
                       <div className="gs-stack__meter-bar">
-                        {STACK_ORDER.map((slug) => (
+                        {puzzleLinhaAtivos.map((slug) => (
                           <div
                             key={slug}
-                            className={`gs-stack__seg${STACK_PUZZLE_ATIVOS.has(slug) ? ' gs-stack__seg--on' : ''}`}
+                            className={`gs-stack__seg${classeSegmentoPuzzleStore(statusProduto(slug))}`}
                           />
                         ))}
                       </div>
                       <span className="gs-stack__meter-label">
-                        {STACK_PUZZLE_ATIVOS.size === 0
+                        {contratadosNoPuzzle === 0
                           ? t('store.stack_nenhum')
-                          : STACK_PUZZLE_ATIVOS.size === STACK_ORDER.length
+                          : contratadosNoPuzzle === puzzleLinhaAtivos.length
                             ? t('store.stack_completo')
-                            : t('store.stack_parcial', { n: STACK_PUZZLE_ATIVOS.size, total: STACK_ORDER.length })}
+                            : t('store.stack_parcial', {
+                                n: contratadosNoPuzzle,
+                                total: puzzleLinhaAtivos.length,
+                              })}
                       </span>
                     </div>
                   </div>
 
-                  {/* Peças de quebra-cabeça com SVG real */}
                   <div className="gs-stack__pieces-scroll">
-                  <div className="gs-stack__pieces">
-                    {STACK_ORDER.map((slug, pieceIdx) => {
-                        const cp = catalog.find(p => p.slug === slug)
-                        const meta = PRODUCT_META[slug]
-                        const isPecaAtiva = STACK_PUZZLE_ATIVOS.has(slug)
-                        const isFirst = pieceIdx === 0
-                        const isLast = pieceIdx === STACK_ORDER.length - 1
-                        // Primeira peça fica na frente para a aba cobrir a cavidade da próxima
-                        const zIdx = STACK_ORDER.length - pieceIdx + 1
+                    {puzzleLinhaAtivos.length > 0 && (
+                      <StorePuzzleRow
+                        embutido
+                        slugs={puzzleLinhaAtivos}
+                        catalog={catalog}
+                        statusDe={statusProduto}
+                        variante="ativos"
+                      />
+                    )}
 
-                        // Dimensões: corpo W=120 H=90, aba estende 18px direita, cavidade indenta 18px esquerda
-                        // Mesma geometria garante que aba e cavidade tracem o MESMO arco — strokes coincidem em uma linha só
-                        const path = isFirst && isLast
-                          ? 'M 0,0 L 120,0 L 120,90 L 0,90 Z'
-                          : isFirst
-                          ? 'M 0,0 L 120,0 L 120,32 C 138,32 138,58 120,58 L 120,90 L 0,90 Z'
-                          : isLast
-                          ? 'M 0,0 L 120,0 L 120,90 L 0,90 L 0,58 C 18,58 18,32 0,32 Z'
-                          : 'M 0,0 L 120,0 L 120,32 C 138,32 138,58 120,58 L 120,90 L 0,90 L 0,58 C 18,58 18,32 0,32 Z'
-
-                        const fill = isPecaAtiva ? (meta?.iconBg ?? 'rgba(99,102,241,0.18)') : 'rgba(255,255,255,0.025)'
-                        const stroke = isPecaAtiva ? (meta?.iconColor ?? '#818cf8') : 'rgba(255,255,255,0.09)'
-
-                        return (
-                          <div
-                            key={slug}
-                            className={`gs-piece${isPecaAtiva ? ' gs-piece--on' : ''}${isFirst ? '' : ' gs-piece--has-blank'}`}
-                            style={{ zIndex: zIdx, '--piece-color': meta?.iconColor ?? '#818cf8' } as React.CSSProperties}
-                            onClick={() => {
-                              if (isPecaAtiva) {
-                                navigate(`/produto/${slug}`)
-                                return
-                              }
-                              document.getElementById(`produto-${slug}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                            }}
-                            title={nomeExibicaoProdutoGravity(slug, cp?.name ?? '', t)}
-                          >
-                            {/* Shape SVG da peça */}
-                            <svg width="138" height="90" viewBox="0 0 138 90" className="gs-piece__svg">
-                              <path d={path} fill={fill} stroke={stroke} strokeWidth="1.5" strokeLinejoin="round" />
-                            </svg>
-                            {/* Conteúdo */}
-                            <div className={`gs-piece__body${isFirst ? '' : ' gs-piece__body--indent'}`}>
-                              <div className="gs-piece__icon">
-                                {meta?.icon ?? <Package weight="duotone" size={20} color="#818cf8" />}
-                              </div>
-                              <span className="gs-piece__name">
-                                {nomeExibicaoProdutoGravity(slug, cp?.name ?? '', t)}
-                              </span>
-                              {isPecaAtiva && (
-                                <span className="gs-piece__check">
-                                  <CheckCircle weight="fill" size={11} color="#10b981" />
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })}
-                  </div>
+                    {puzzleLinhaEmBreve.length > 0 && (
+                      <div className="gs-stack__lane-soon">
+                        <p className="gs-stack__row-label">
+                          <Lightning weight="fill" size={12} color="#f59e0b" />
+                          {t('store.stack_linha_em_breve')}
+                        </p>
+                        <StorePuzzleRow
+                          embutido
+                          slugs={puzzleLinhaEmBreve}
+                          catalog={catalog}
+                          statusDe={statusProduto}
+                          variante="em_breve"
+                        />
+                      </div>
+                    )}
                   </div>
 
-                  {STACK_PUZZLE_ATIVOS.size === 0 && (
+                  {contratadosNoPuzzle === 0 && (
                     <p className="gs-stack__hint">{t('store.stack_hint')}</p>
                   )}
                 </div>
@@ -567,7 +570,7 @@ export function Store() {
                     onClick={() => setViewMode('todos')}
                   >
                     {t('store.filtro_todos')}
-                    <span className="gs-segmented__count">{totalCount}</span>
+                    <span className="gs-segmented__count">{contagemStore.publicados}</span>
                   </button>
                   <button
                     type="button"
@@ -587,12 +590,12 @@ export function Store() {
                     onClick={() => setViewMode('meus')}
                   >
                     {t('store.view_meus')}
-                    <span className="gs-segmented__count">{ownedCount}</span>
+                    <span className="gs-segmented__count">{contagemStore.contratados}</span>
                   </button>
                 </div>
 
                 {/* Chip "Em Breve" — ativo em Todos e Catálogo (quando há itens) */}
-                {viewMode !== 'meus' && emBreveCount > 0 && (
+                {viewMode !== 'meus' && contagemStore.em_breve > 0 && (
                   <button
                     type="button"
                     className={`gs-chip-soon${emBreveOnly ? ' gs-chip-soon--active' : ''}`}
@@ -601,7 +604,7 @@ export function Store() {
                   >
                     <Lightning weight="fill" size={12} />
                     {t('store.filtro_em_breve')}
-                    <span className="gs-chip-soon__count">{emBreveCount}</span>
+                    <span className="gs-chip-soon__count">{contagemStore.em_breve}</span>
                   </button>
                 )}
 
@@ -621,7 +624,7 @@ export function Store() {
                 </div>
 
                 <div className="gs-toolbar__count">
-                  {t('store.contagem_modulos', { count: filteredCatalog.length })}
+                  {t('store.contagem_produtos', { count: filteredCatalog.length })}
                 </div>
               </div>
 
@@ -653,7 +656,7 @@ export function Store() {
                     <div
                       key={p.id}
                       id={`produto-${p.slug}`}
-                      className={`gs-card hs-fade-up ${delayClass}${isOwned ? ' gs-card--owned' : ''}${isSoon ? ' gs-card--soon' : ''}${!isOwned && !isSoon ? ' gs-card--available' : ''}`}
+                      className={`gs-card hs-fade-up ${delayClass}${isOwned ? ' gs-card--contratado gs-card--owned' : ''}${isSoon ? ' gs-card--soon' : ''}${!isOwned && !isSoon ? ' gs-card--disponivel gs-card--available' : ''}`}
                       onClick={isOwned ? () => navigate(`/produto/${p.slug}`) : undefined}
                       style={isOwned
                         ? { cursor: 'pointer', ['--pulse-delay' as string]: pulseDelayFor(p.slug) } as React.CSSProperties
@@ -665,8 +668,8 @@ export function Store() {
                         </div>
                         <div className="gs-card__badges">
                           {isOwned ? (
-                            <span className="gs-badge gs-badge--owned">
-                              <CheckCircle weight="fill" size={11} /> {t('store.badge_ativo')}
+                            <span className="gs-badge gs-badge--contratado gs-badge--owned">
+                              <CheckCircle weight="fill" size={11} /> {t('store.badge_contratado')}
                             </span>
                           ) : isSoon ? (
                             <span className="gs-badge gs-badge--soon">
@@ -689,7 +692,7 @@ export function Store() {
                           </span>
                         )}
                         <p className="gs-card__desc">
-                          {meta?.descKey ? t(meta.descKey) : (p.description ?? t('store.modulo_desc_fallback'))}
+                          {meta?.descKey ? t(meta.descKey) : (p.description ?? t('store.produto_desc_fallback'))}
                         </p>
                         {meta?.tagKeys && (
                           <div className="gs-card__tags">
